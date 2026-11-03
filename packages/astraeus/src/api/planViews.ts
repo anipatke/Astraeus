@@ -2,6 +2,7 @@ import type { DisplaySwitchSettings } from "../app/displaySwitches";
 import type { ViewSettings } from "../app/views";
 import type { StoryPanelSet } from "../core/storyPanels";
 import { switchesOf, type SwitchesInput } from "./switches";
+import type { SceneViewsRead } from "./sceneReads";
 import { resolveViews, viewsOf, type ViewInput, type ViewsOptions, type ViewsPlan } from "./views";
 
 /** What a `Scene` has planned for its presentation: the display switches and the named views. */
@@ -15,6 +16,12 @@ export class ViewPlan {
 
   setViews(views: readonly ViewInput[], options: ViewsOptions): void {
     this.#views = viewsOf(views, options);
+  }
+
+  /** The views as the public read states them; absent when none were named. */
+  read(): SceneViewsRead | undefined {
+    const plan = this.#views;
+    return plan === undefined ? undefined : Object.freeze({ startId: plan.start, place: plan.place, items: Object.freeze(plan.views.map(({ id, label }) => Object.freeze({ id, label }))) });
   }
 
   /** The `displaySwitches` entry of the definition (absent when none were placed). */

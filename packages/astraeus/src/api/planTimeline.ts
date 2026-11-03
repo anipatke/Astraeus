@@ -3,6 +3,7 @@ import type { TimeBounds } from "../core/trajectory";
 import type { ExperienceDefinition } from "../app/experienceDefinition";
 import { SceneError } from "./errors";
 import { toUtcMs, type TimeInput } from "./time";
+import type { SceneTimelineRead } from "./sceneReads";
 import { pacingFor, timelineOf, type TimelineInput, type TimelineSetting } from "./story";
 
 const DAY_MS = 86_400_000;
@@ -37,6 +38,19 @@ export class TimelinePlan {
       throw new SceneError("bad-timeline", `setTime ${new Date(setTime).toISOString()} is outside the timeline (${new Date(window.startUtcMs).toISOString()} to ${new Date(window.endUtcMs).toISOString()})`);
     }
     return { window, startUtcMs: setTime ?? now ?? window.startUtcMs };
+  }
+
+  /** The timeline as the public read states it, over the spans of the paths and activities. */
+  read(spans: readonly TimeBounds[]): SceneTimelineRead {
+    const { window, startUtcMs } = this.span(spans);
+    return Object.freeze({
+      windowStartUtcMs: window.startUtcMs,
+      windowEndUtcMs: window.endUtcMs,
+      openUtcMs: startUtcMs,
+      rates: Object.freeze([...this.rates()]),
+      rate: this.clock(startUtcMs).rate,
+      loop: this.setting?.none !== true && this.setting?.loop === true,
+    });
   }
 
   /** The clock's opening: 60 times real time unless set; with no timeline and no rate, frozen. */

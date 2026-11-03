@@ -5,7 +5,8 @@ import type { ExperienceDefinition, GroupLayer } from "../app/experienceDefiniti
 import type { Metric } from "../shell/metrics";
 import { planActivity, rateMetricOf, type ActivityInput, type PlannedActivity } from "./activity";
 import { SceneError } from "./errors";
-import { buildGroupLayer, planGroup, type GroupInput, type PlannedGroup } from "./group";
+import { frozenList, type SceneGroupRead } from "./sceneReads";
+import { buildGroupLayer, groupCardProvenance, groupDescription, groupLimitations, planGroup, type GroupInput, type PlannedGroup } from "./group";
 
 /** Whether a group is built late, in `prepare`: a clump near a body reads its position, so needs the planet series, which are not in yet. */
 export function lateGroups(seriesIn: boolean): (plan: PlannedGroup) => boolean {
@@ -57,6 +58,20 @@ export class GroupPlan {
   /** The draw layers of the groups chosen by `which` (a clump near a planet reads its position, so needs the planet series). */
   layers(ids: readonly BodyId[], window: TimeBounds, openUtcMs: number, which: (plan: PlannedGroup) => boolean): readonly GroupLayer[] {
     return [...this.groups.values()].filter(which).map((plan) => buildGroupLayer(plan, this.#catalogue(), plan.input.center ?? ids[0]!, openUtcMs, window));
+  }
+
+  /** The groups in the order added, as the public list states them; `first` is the scene's first body (the centre of a group that names none). */
+  reads(first: BodyId): readonly SceneGroupRead[] {
+    return frozenList([...this.groups.values()].map(({ id, label, input }): SceneGroupRead => ({
+      id,
+      label,
+      count: input.orbits.length,
+      center: input.center ?? first,
+      plane: input.plane ?? "ecliptic-j2000",
+      provenance: groupCardProvenance(input),
+      description: groupDescription(input, input.orbits.length),
+      knownLimitations: Object.freeze(groupLimitations(input, this.#catalogue())),
+    })));
   }
 
   /** The activity windows, when any were added. */

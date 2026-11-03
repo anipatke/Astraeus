@@ -13,6 +13,46 @@
           "signature": "SceneCamera"
         },
         {
+          "name": "bodies",
+          "optional": false,
+          "signature": "readonly SceneBodyRead[]"
+        },
+        {
+          "name": "paths",
+          "optional": false,
+          "signature": "readonly ScenePathRead[]"
+        },
+        {
+          "name": "groups",
+          "optional": false,
+          "signature": "readonly SceneGroupRead[]"
+        },
+        {
+          "name": "events",
+          "optional": false,
+          "signature": "readonly SceneEventRead[]"
+        },
+        {
+          "name": "panels",
+          "optional": false,
+          "signature": "readonly ScenePanelRead[]"
+        },
+        {
+          "name": "views",
+          "optional": false,
+          "signature": "SceneViewsRead | undefined"
+        },
+        {
+          "name": "scales",
+          "optional": false,
+          "signature": "readonly string[]"
+        },
+        {
+          "name": "timeline",
+          "optional": false,
+          "signature": "SceneTimelineRead"
+        },
+        {
           "name": "addBody",
           "optional": false,
           "signature": "(body: BodyRef | BodyId, options?: AddBodyOptions): Scene"
@@ -264,6 +304,292 @@
           "name": "data",
           "optional": true,
           "signature": "readonly DataSource[] | undefined"
+        }
+      ]
+    },
+    "SceneBodyRead": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "id",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "label",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "parent",
+          "optional": true,
+          "signature": "string | undefined"
+        },
+        {
+          "name": "orbit",
+          "optional": false,
+          "signature": "boolean"
+        },
+        {
+          "name": "enlarge",
+          "optional": false,
+          "signature": "number"
+        },
+        {
+          "name": "description",
+          "optional": true,
+          "signature": "string | undefined"
+        },
+        {
+          "name": "knownLimitations",
+          "optional": false,
+          "signature": "readonly string[]"
+        }
+      ]
+    },
+    "ScenePathRead": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "id",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "label",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "center",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "provenance",
+          "optional": false,
+          "signature": "Provenance"
+        },
+        {
+          "name": "description",
+          "optional": true,
+          "signature": "string | undefined"
+        },
+        {
+          "name": "knownLimitations",
+          "optional": false,
+          "signature": "readonly string[]"
+        }
+      ]
+    },
+    "SceneGroupRead": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "id",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "label",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "count",
+          "optional": false,
+          "signature": "number"
+        },
+        {
+          "name": "center",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "plane",
+          "optional": false,
+          "signature": "\"ecliptic-j2000\" | \"EQJ\""
+        },
+        {
+          "name": "provenance",
+          "optional": false,
+          "signature": "Provenance"
+        },
+        {
+          "name": "description",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "knownLimitations",
+          "optional": false,
+          "signature": "readonly string[]"
+        }
+      ]
+    },
+    "SceneEventRead": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "id",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "label",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "timeUtcMs",
+          "optional": false,
+          "signature": "number"
+        },
+        {
+          "name": "type",
+          "optional": true,
+          "signature": "string | undefined"
+        },
+        {
+          "name": "object",
+          "optional": true,
+          "signature": "string | undefined"
+        },
+        {
+          "name": "provenance",
+          "optional": true,
+          "signature": "Provenance | undefined"
+        }
+      ]
+    },
+    "ScenePanelRead": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "id",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "timeUtcMs",
+          "optional": false,
+          "signature": "number"
+        },
+        {
+          "name": "title",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "body",
+          "optional": false,
+          "signature": "readonly string[]"
+        },
+        {
+          "name": "badge",
+          "optional": false,
+          "signature": "\"observed\" | \"modelled\" | \"illustrative\""
+        },
+        {
+          "name": "details",
+          "optional": false,
+          "signature": "readonly string[]"
+        },
+        {
+          "name": "sources",
+          "optional": false,
+          "signature": "readonly string[]"
+        },
+        {
+          "name": "object",
+          "optional": true,
+          "signature": "string | undefined"
+        }
+      ]
+    },
+    "SceneViewRead": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "id",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "label",
+          "optional": false,
+          "signature": "string"
+        }
+      ]
+    },
+    "SceneViewsRead": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "startId",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "place",
+          "optional": false,
+          "signature": "\"top-bar\" | \"panel\""
+        },
+        {
+          "name": "items",
+          "optional": false,
+          "signature": "readonly SceneViewRead[]"
+        }
+      ]
+    },
+    "SceneTimelineRead": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "windowStartUtcMs",
+          "optional": false,
+          "signature": "number"
+        },
+        {
+          "name": "windowEndUtcMs",
+          "optional": false,
+          "signature": "number"
+        },
+        {
+          "name": "openUtcMs",
+          "optional": false,
+          "signature": "number"
+        },
+        {
+          "name": "rates",
+          "optional": false,
+          "signature": "readonly number[]"
+        },
+        {
+          "name": "rate",
+          "optional": false,
+          "signature": "number"
+        },
+        {
+          "name": "loop",
+          "optional": false,
+          "signature": "boolean"
         }
       ]
     },

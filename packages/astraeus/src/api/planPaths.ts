@@ -15,6 +15,7 @@ import { influenceStretches, sphereOfInfluenceKm, type InfluenceCandidate } from
 import { SceneError } from "./errors";
 import { toUtcMs } from "./time";
 import type { AnchorInput, ReadoutInput, TrajectoryInput } from "./scene";
+import { frozenList, type ScenePathRead } from "./sceneReads";
 
 const DEFAULT_COLOR = "#ffd27a";
 const PROVIDER_PATH_SAMPLES = 128;
@@ -31,6 +32,11 @@ export interface Tracked {
   readonly knownLimitations?: readonly string[];
   readonly provenanceSpans?: readonly WindowProvenanceSpan[];
   readonly readouts: readonly ReadoutInput[];
+}
+
+/** The paths in the order added, as the public list states them. */
+export function pathReads(tracked: Iterable<Tracked>): readonly ScenePathRead[] {
+  return frozenList([...tracked].map(({ body, center, description, knownLimitations }): ScenePathRead => ({ id: body.id, label: body.label, center, provenance: body.provenance!, ...(description === undefined ? {} : { description }), knownLimitations: Object.freeze([...(knownLimitations ?? [])]) }))); // addTrajectory always sets a provenance
 }
 
 /** Validates and stores one path about `center`. */

@@ -6,7 +6,7 @@ import { readableScale, solarSystemScale, trueScale, type ScalePolicy } from "..
 import type { State } from "../core/state";
 import { createStateResolver } from "../core/stateResolver";
 import { createOrbAstronomyAdapter } from "../core/astronomyAdapter";
-import type { Trajectory } from "../core/trajectory";
+import type { TimeBounds, Trajectory } from "../core/trajectory";
 import { catalogue as builtInCatalogue } from "../assets/catalogue";
 import type { ElementsBodyRecord } from "../core/elementsBody";
 import type { ExperienceDefinition } from "../app/experienceDefinition";
@@ -25,9 +25,11 @@ import { GroupPlan } from "./planGroups";
 import { assembleScene } from "./assembleScene";
 import { SceneCamera } from "./planCamera";
 import { isMounted } from "./sceneFreeze";
+import type { SceneBodyRead, SceneEventRead, SceneGroupRead, ScenePanelRead, ScenePathRead, SceneTimelineRead, SceneViewsRead } from "./sceneReads";
+export type { SceneBodyRead, SceneEventRead, SceneGroupRead, ScenePanelRead, ScenePathRead, SceneTimelineRead, SceneViewRead, SceneViewsRead } from "./sceneReads";
 export { SceneCamera } from "./planCamera";
 import { StoryPlan } from "./planStory";
-import { buildTracked, type Tracked } from "./planPaths";
+import { buildTracked, pathReads, type Tracked } from "./planPaths";
 import { toUtcMs, type TimeInput } from "./time";
 import { TimelinePlan } from "./planTimeline";
 import { ViewPlan } from "./planViews";
@@ -175,6 +177,43 @@ export class Scene {
   #editable(): void {
     if (isMounted(this)) throw new SceneError("scene-mounted", "this scene was edited after a viewer took it; build a new scene instead");
   }
+
+  /** The bodies the scene holds, in the order added (the first is the scene's centre): id, label, the body it circles, whether its orbit line is on, and how much it is enlarged. A fresh frozen list on every read; it answers on a scene a viewer has taken. */
+  get bodies(): readonly SceneBodyRead[] { return this.#plan.reads(); }
+
+  /** The paths the scene holds (`addTrajectory`), in the order added: id, label, centre body and provenance. A fresh frozen list on every read. */
+  get paths(): readonly ScenePathRead[] { return pathReads(this.#tracked.values()); }
+
+  /** The groups the scene holds (`addGroup`), in the order added: id, label, orbit count, centre body, plane and the provenance the group's card shows. A fresh frozen list on every read. */
+  get groups(): readonly SceneGroupRead[] { return this.#groupPlan.reads(this.#sceneFirst()); }
+
+  /** The events the scene holds (`addEvents`), sorted by time: id, label, `timeUtcMs`, type, object and provenance (the event's own, else the batch's). A fresh frozen list on every read. */
+  get events(): readonly SceneEventRead[] { return this.#story.eventReads(); }
+
+  /** The story panels (`addStoryPanels`), sorted by time with their times resolved against the events, path anchors and timeline as `mount` resolves them; empty when none were added. A bad panel throws `bad-panels`, as `mount` would. A fresh frozen list on every read. */
+  get panels(): readonly ScenePanelRead[] {
+    const { window } = this.#timelineSpan();
+    return this.#story.panelReads(window, this.#tracked.values(), [...this.#plan.bodies.keys(), ...this.#tracked.keys(), ...this.#groupPlan.groups.keys()]);
+  }
+
+  /** The views the scene names (`setViews`): the id of the opening view (`startId`), where the choice shows and each view's id and label; undefined when none were named. */
+  get views(): SceneViewsRead | undefined { return this.#viewPlan.read(); }
+
+  /** The scale choices the viewer will offer, in order, as ids ("true-scale", "readable-scale", "solar-system"); the first is the opening scale and `setScale(.., { only: true })` leaves just that one. */
+  get scales(): readonly string[] { return Object.freeze(this.#plan.scaleChoices(this.#scale, this.#scaleOnly)); }
+
+  /** The timeline the scene opens with: its span and opening moment in UTC milliseconds (`windowStartUtcMs`, `windowEndUtcMs`, `openUtcMs`), the speeds offered (`rates`), the opening `rate` and whether playback wraps (`loop`). With no span or moment set and no path or activity, the span is a month about the moment of the read. A moment outside a span set with `setTimeline` throws `bad-timeline`, as `mount` would. */
+  get timeline(): SceneTimelineRead { return this.#timeline.read(this.#spans()); }
+
+  /** The spans of the paths and activities, which the timeline follows when nothing sets it. */
+  #spans(): readonly TimeBounds[] {
+    return [...[...this.#tracked.values()].map(({ body }) => body.trajectory.bounds), ...[...this.#groupPlan.activities.values()].map((activity) => activity.window)];
+  }
+
+  #timelineSpan(): { readonly window: TimeBounds; readonly startUtcMs: number } { return this.#timeline.span(this.#spans()); }
+
+  /** The scene's first body, the centre of a group that names none. */
+  #sceneFirst(): BodyId { return this.#plan.bodies.keys().next().value ?? FALLBACK_SCENE_CENTRE; }
 
   /** Adds a catalogued body: a ready-made one (`earth`, `moon`, ...) or its id. The first body added is the scene's centre. `{ orbit: true }` also draws its orbit line. */
   addBody(body: BodyRef | BodyId, options: AddBodyOptions = {}): this {

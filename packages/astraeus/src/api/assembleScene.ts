@@ -1,5 +1,5 @@
 import type { BodyId } from "../core/body";
-import { readableScale, solarSystemScale, trueScale, type ScalePolicy } from "../core/scalePolicy";
+import type { ScalePolicy } from "../core/scalePolicy";
 import type { TimeBounds } from "../core/trajectory";
 import { isPlanetId, loadPlanetSeries, planetSeriesLoaded, planetSeriesSpan } from "../core/planetSeries";
 import { TimeScaleOutOfRangeError } from "../core/timeScale";
@@ -139,7 +139,7 @@ export function assembleScene(parts: ScenePlanners, data: readonly DataSource[])
     // The viewer draws only the pictures of the packages passed to it (T-252); nothing is shared between viewers.
     ...picturesEntry(data),
     composition: createComposition(plan.catalogue, { id: "scene", bodies: ids, defaultCenter: ids[0]!, ...(paths.length === 0 ? {} : { paths }) }),
-    scaleChoices: scaleChoicesOf(parts.scale, parts.scaleOnly, plan.enlargedInSun(sunCentred)),
+    scaleChoices: plan.scaleChoices(parts.scale, parts.scaleOnly),
     ...viewPlan.switchesEntry(),
     ...viewPlan.viewsEntry({ paths: [...trackedMap.keys()], bodies: [...ids, ...groupPlan.groups.keys()], events: story.events.map(({ id }) => id) }, storyPanels),
     ...viewEntries(timeline, camera, fit?.read, pathCover(trackedMap.values(), sunCentred, ids[0]!)),
@@ -168,14 +168,4 @@ export function assembleScene(parts: ScenePlanners, data: readonly DataSource[])
 function picturesEntry(data: readonly DataSource[]): Pick<ExperienceDefinition, "pictures"> {
   const pictures = mergePictures(data.map((source) => source.pictures));
   return Object.keys(pictures).length === 0 ? {} : { pictures };
-}
-
-/**
- * The scale choices offered: the opening one first, then the other unless the caller offered one alone. A Sun-centred scene with an enlarged body (`addBody(x, { enlarge })`)
- * offers `solarSystemScale` (true distances, the named bodies enlarged) in place of the readable scale it would offer second, since the readable scale does not enlarge.
- */
-function scaleChoicesOf(scale: ScalePolicy, only: boolean, enlarged: boolean): readonly string[] {
-  const offered = [trueScale, enlarged ? solarSystemScale : readableScale];
-  const second = scale.id === readableScale.id ? [trueScale] : offered.filter((other) => other.id !== scale.id);
-  return only ? [scale.id] : [scale.id, ...second.map((other) => other.id)];
 }

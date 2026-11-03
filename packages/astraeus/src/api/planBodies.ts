@@ -1,5 +1,5 @@
 import type { BodyId } from "../core/body";
-import { solarSystemScale, type ScalePolicy } from "../core/scalePolicy";
+import { readableScale, solarSystemScale, trueScale, type ScalePolicy } from "../core/scalePolicy";
 import { catalogue as builtInCatalogue, extendCatalogue, extendCatalogueWithMoons, rootBodyId, type BodyCatalogue } from "../assets/catalogue";
 import { buildElementsBody, ElementsBodyError, parseElementsBodyRecord, type ElementsBodyRecord } from "../core/elementsBody";
 import type { CompositionPath } from "../assets/compositions";
@@ -14,6 +14,7 @@ import type { DataSource } from "./data";
 import { SceneError } from "./errors";
 import { checkLabelReach } from "./planPaths";
 import type { AddBodyOptions } from "./scene";
+import { frozenList, type SceneBodyRead } from "./sceneReads";
 
 
 type Shape = Pick<AddBodyOptions, "enlarge" | "showLabel">;
@@ -188,6 +189,26 @@ export class BodyPlan {
   /** Whether a Sun-centred scene enlarges a body, which the viewer's solar-system scale draws. */
   enlargedInSun(sunCentred: boolean): boolean {
     return sunCentred && [...this.shape.values()].some((shape) => shape.enlarge !== undefined);
+  }
+
+  /** The bodies in the order added, as the public list states them. */
+  reads(): readonly SceneBodyRead[] {
+    return frozenList([...this.bodies.values()].map(({ id, label }): SceneBodyRead => {
+      const parent = this.catalogue.has(id) ? this.catalogue.get(id).definition.parentId : undefined;
+      const card = this.catalogue.has(id) ? catalogueItem(id, { ...this.looks.get(id) }, this.catalogue).knownLimitations : undefined;
+      const description = this.notes.get(id);
+      return { id, label, ...(parent === undefined ? {} : { parent }), orbit: this.orbits.has(id), enlarge: this.shape.get(id)?.enlarge ?? 1, ...(description === undefined ? {} : { description }), knownLimitations: Object.freeze([...(card ?? [])]) };
+    }));
+  }
+
+  /**
+   * The scale choices offered: the opening one first, then the other unless the caller offered one alone. A Sun-centred scene with an enlarged body (`addBody(x, { enlarge })`)
+   * offers `solarSystemScale` (true distances, the named bodies enlarged) in place of the readable scale it would offer second, since the readable scale does not enlarge.
+   */
+  scaleChoices(scale: ScalePolicy, only: boolean): readonly string[] {
+    const offered = [trueScale, this.enlargedInSun(this.checkSunCentred([...this.bodies.keys()])) ? solarSystemScale : readableScale];
+    const second = scale.id === readableScale.id ? [trueScale] : offered.filter((other) => other.id !== scale.id);
+    return only ? [scale.id] : [scale.id, ...second.map((other) => other.id)];
   }
 
   visualOverrides(): Pick<ExperienceDefinition, "visualOverrides"> {

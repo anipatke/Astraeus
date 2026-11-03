@@ -4,6 +4,28 @@ Versions follow [semantic versioning](https://semver.org). While the version sta
 
 ## Unreleased
 
+Added (O-056 T-260, G-016): a scene says what it holds in plain read-only properties, so tests need not call `toDefinition` (removed in 0.8.0, O-057). `scene.bodies` (`id`, `label`, `parent?`, `orbit`, `enlarge`, `description?`, `knownLimitations`), `scene.paths` (`id`, `label`, `center`, `provenance`, `description?`, `knownLimitations`), `scene.groups` (`id`, `label`, `count`, `center`, `plane`, `provenance`, `description`, `knownLimitations`), `scene.events` (`id`, `label`, `timeUtcMs`, `type?`, `object?`, `provenance?`), `scene.panels` (`id`, `timeUtcMs`, `title`, `body`, `badge`, `details`, `sources`, `object?`), `scene.views` (`startId`, `place`, `items`; undefined when none), `scene.scales` (ids, opening scale first) and `scene.timeline` (`windowStartUtcMs`, `windowEndUtcMs`, `openUtcMs`, `rates`, `rate`, `loop`). Each is a frozen list or object built from the scene's own plans, fresh on every read, and answers on a scene a viewer has taken. New public types: `SceneBodyRead`, `ScenePathRead`, `SceneGroupRead`, `SceneEventRead`, `ScenePanelRead`, `SceneViewRead`, `SceneViewsRead`, `SceneTimelineRead`. `scene.panels` and `scene.timeline` throw `bad-panels` and `bad-timeline` for the faults `mount` would throw for. Migration, from `toDefinition` to public reads (every read the Voyagers and showers tests make today):
+
+| `toDefinition(data)` read | Public read |
+|---|---|
+| `composition.bodies` (all, or `[0]` for the centre) | `scene.bodies.map((b) => b.id)` (`scene.bodies[0].id`) |
+| `scaleChoices` | `scene.scales` |
+| `trackedBodies.map((t) => t.id)` | `scene.paths.map((p) => p.id)` |
+| `views.views` (id, label), `views.start` | `scene.views.items`, `scene.views.startId` |
+| `paths` entries whose id ends `-orbit` (planet orbit lines) | `scene.bodies.filter((b) => b.orbit)` |
+| `experience.objects.find(id)` label, description, known limits | `scene.bodies`, `scene.paths` entries: `label`, `description`, `knownLimitations` |
+| `experience.objects.find(id).provenance` | `scene.provenanceOf(id)` (unchanged) |
+| `groups[i].object` (id, description, known limits) | `scene.groups[i]`: `id`, `description`, `knownLimitations` |
+| `groups[i].group.count`, `groups[i].group.provenance` | `scene.groups[i].count`, `.provenance` |
+| `experience.events` (ids, times) | `scene.events` (`id`, `timeUtcMs`) |
+| `experience.eventProvenance`, `eventProvenanceById` | `scene.events[i].provenance` |
+| `experience.storyPanels.panels` | `scene.panels` (`object` for `objectId`) |
+| `clock.startUtcMs` | `scene.timeline.openUtcMs` |
+| `camera.far` | `scene.camera.reach` (the far plane is 2.5 times it) |
+| `camera.fitOrbit` and `camera.maxFocusDistance` | `scene.camera.fitted`, `scene.camera.reach` (unchanged) |
+| `toDefinition(data).prepare()` (loading) | `await scene.load({ data })` (T-259) |
+| `toDefinition(data)` as a build check | `scene.check({ data })` (T-259) |
+
 Added (O-056 T-259, G-016): numbers without a viewer. `scene.load({ data })` loads the planet series and, for each moon the scene holds, the chunks its data package provides for the scene's window, so a Node or server app can `await scene.load({ data })` and then call `stateOf` and `provenanceOf` for any body, moons included (it rejects with `missing-data` or `out-of-span` as `mount`'s `ready` does; harmless twice; allowed on a mounted scene; a later `mount` re-uses what it loaded). `scene.check({ data })` runs the checks `mount` runs before it draws and throws the same `SceneError`, loading and freezing nothing. `stateOf` on a planet or fitted moon before its data is loaded still throws `missing-data`, and the message now names `scene.load` instead of an internal function. New type `SceneLoadOptions`. Moon chunks given as `file:` addresses (a data package's `dataSource` in plain Node) are now read from disk, as Node's `fetch` cannot. Migration: none; nothing existing changes.
 
 Upgrading from 0.7.0, O-055 (G-016) makes the viewer a good guest on any page, and several can share one. Migration for app makers, beside O-054's below: (1) the viewer no longer styles `html`, `body` or `#app`; size the element you mount into yourself (a full-page viewer needs `html, body, #app { height: 100%; margin: 0 }` and your own background). (2) The Developer drawer is hidden unless you pass `developerTools: true` (`mount`) or `developerTools` (React), and the "Copy view link" button lives in it. (3) Element ids are generated per viewer; do not select viewer parts by id. (4) A viewer draws pictures only from the data packages passed to it. (5) Moon data now loads for every scene of a planet on the page. The per-step lines stay below.
