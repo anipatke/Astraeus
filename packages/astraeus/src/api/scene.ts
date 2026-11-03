@@ -19,6 +19,7 @@ export type { GroupInput, GroupOrbitInput, GroupClumpInput, GroupReadoutInput } 
 export type { ActivityInput, ActivitySampleInput, ActivitySourceInput } from "./activity";
 export type { DataSource, MoonPositions } from "./data";
 import { SceneError } from "./errors";
+import { NotLoadedError } from "../core/planetSeries";
 import { BodyPlan } from "./planBodies";
 import { GroupPlan } from "./planGroups";
 import { assembleScene } from "./assembleScene";
@@ -132,6 +133,12 @@ export interface FollowView {
   readonly distance?: number;
   /** Which direction is up as the viewer orbits: "equatorial" (celestial north, the default) or "ecliptic" (the ecliptic's north pole, so the planets' plane reads flat). Any other value throws `bad-camera`. */
   readonly up?: "equatorial" | "ecliptic";
+}
+
+/** Options of `Scene.load` and `Scene.check`: the data packages `mount` would be given. */
+export interface SceneLoadOptions {
+  /** Data packages the scene's bodies need, such as moon positions; nothing is looked up behind the caller's back. */
+  readonly data?: readonly DataSource[];
 }
 
 const SCALES: readonly ScalePolicy[] = [trueScale, readableScale, solarSystemScale];
@@ -314,7 +321,7 @@ export class Scene {
    * The state of a body in the scene at a moment (position in km always; velocity in km/s only where the body's source provides it), the same State the viewer draws: for a path added with `addTrajectory`, about its centre body;
    * for a ready-made body or one from `addBodyFromElements`, about its parent (a planet about the Sun, a moon about its planet). Figures a story quotes, such as a distance from the Sun, come from here. `velocityKmS` is set only for a path whose
    * samples or provider carry velocities and for a moon from fitted data (Io); planets, Earth, the Sun, the built-in comet and elements bodies give position only, so check it before use. An id the scene does not hold throws `unknown-body`. Ready-made and elements bodies answer at any date (they have no data cut-off); only a moment outside an
-   * `addTrajectory` path throws `bad-time`. A planet before the planet series have loaded (they load at mount) throws `missing-data`.
+   * `addTrajectory` path throws `bad-time`. A planet or fitted moon before its data has loaded (`await scene.load({ data })`, or mount the scene and await `ready`) throws `missing-data`.
    * @example
    * const sunDistanceKm = Math.hypot(...scene.stateOf("earth", "2026-08-12T00:00:00Z").positionKm);
    */
@@ -329,7 +336,7 @@ export class Scene {
     try {
       return trajectory.stateAt(timeUtcMs, entry?.center ?? this.#plan.catalogue.get(id).definition.parentId);
     } catch (error) {
-      if (entry === undefined && error instanceof Error && error.message.startsWith("the planet series are not loaded")) throw new SceneError("missing-data", `stateOf("${id}"): ${error.message}`);
+      if (error instanceof NotLoadedError) throw new SceneError("missing-data", `stateOf("${id}"): its data is not loaded yet; await scene.load({ data }) first (or mount the scene and await ready)`);
       throw error;
     }
   }
@@ -354,6 +361,28 @@ export class Scene {
   /** The root body is at the origin of itself and at rest. */
   #sunState(id: BodyId, timeUtcMs: number): State {
     return createStateResolver(this.#plan.catalogue.definitions(), this.#plan.catalogue.sources(), createOrbAstronomyAdapter()).stateOf(id, timeUtcMs, id);
+  }
+
+  /**
+   * Loads what `stateOf` and `provenanceOf` need without a viewer: the planet series and, for each moon the scene holds, the chunks its data package provides for the scene's window.
+   * Pass the same `data` as `mount`. Rejects with `missing-data` when a body needs a package not passed, with `out-of-span` when the window reaches outside the years covered, and with
+   * the scene's own build error as `check` does. Harmless to call twice; allowed on a scene a viewer has taken; a later `mount` re-uses what it loaded. Works in plain Node.
+   * @example
+   * await scene.load({ data: [jupiterData] });
+   * const io = scene.stateOf("io", "2016-03-01T00:00:00Z");
+   */
+  async load(options: SceneLoadOptions = {}): Promise<void> {
+    await this.toDefinition(options.data).prepare?.();
+  }
+
+  /**
+   * Runs the checks `mount` runs before it draws and throws the same `SceneError` for a build fault (an empty scene, a body whose data package is not in `data`, a bad view or panel, ...).
+   * Nothing is loaded and the scene is not frozen. Faults that need the planet or moon data (`out-of-span`) arrive from `load`, as they arrive from `mount`'s `ready`.
+   * @example
+   * scene.check({ data: [jupiterData] }); // throws what mount(element, scene, { data }) would throw
+   */
+  check(options: SceneLoadOptions = {}): void {
+    this.toDefinition(options.data);
   }
 
   /** The data packages the added bodies need that `data` does not provide. */

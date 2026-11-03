@@ -1,5 +1,13 @@
 import type { TimeBounds } from "./trajectory";
 
+/** Data the engine needs was asked for before it was loaded (the planet series, a moon system's fits). The public API turns it into a `missing-data` `SceneError` that names `scene.load`. */
+export class NotLoadedError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "NotLoadedError";
+  }
+}
+
 /** A planet curve fit was asked for a moment its stored years do not cover; a `RangeError` so existing range handlers still see it. */
 export class PlanetFitsUncoveredError extends RangeError {
   constructor(date: Date) {
@@ -52,12 +60,12 @@ export function planetSeriesLoaded(): boolean {
 
 /** The years the loaded planet series cover (UTC); throws before `loadPlanetSeries()` resolved. A date outside it throws rather than extrapolate. */
 export function planetSeriesSpan(): TimeBounds {
-  if (span === undefined) throw new Error("the planet series are not loaded: await loadPlanetSeries() before asking their span");
+  if (span === undefined) throw new NotLoadedError("the planet series are not loaded: await loadPlanetSeries() before asking their span");
   return span;
 }
 
 /** The loaded planet models; throws before `loadPlanetSeries()` resolved rather than falling back to the compact tables. */
 export function planetModels(): PlanetModels {
-  if (models === undefined) throw new Error("the planet series are not loaded: await loadPlanetSeries() before mounting a composition with a planet");
+  if (models === undefined) throw new NotLoadedError("the planet series are not loaded: await loadPlanetSeries() before mounting a composition with a planet");
   return models;
 }

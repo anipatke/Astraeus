@@ -18,12 +18,17 @@ function run(command, args, cwd, quiet = false) {
 
 let failed = false;
 try {
-  run(process.execPath, [join(root, "tools", "build-packages.mjs"), "astraeus"], root);
-  run("npm", ["pack", join(root, "packages", "astraeus", "dist"), "--pack-destination", scratch, "--silent"], root, true);
-  const tarball = readdirSync(scratch).find((file) => file.endsWith(".tgz"));
+  // The engine and one data package (Jupiter's moons), both packed and unpacked as a customer installs them (the cold-start case below uses the package's own `dataSource`).
+  const packed = ["astraeus", "astraeus-data-jupiter"];
+  run(process.execPath, [join(root, "tools", "build-packages.mjs"), ...packed], root);
   const modules = join(scratch, "node_modules");
-  mkdirSync(join(modules, "astraeus"), { recursive: true });
-  run("tar", ["-xzf", join(scratch, tarball), "-C", join(modules, "astraeus"), "--strip-components=1"], scratch, true);
+  for (const name of packed) {
+    const into = join(scratch, name);
+    mkdirSync(into);
+    run("npm", ["pack", join(root, "packages", name, "dist"), "--pack-destination", into, "--silent"], root, true);
+    mkdirSync(join(modules, name), { recursive: true });
+    run("tar", ["-xzf", join(into, readdirSync(into).find((file) => file.endsWith(".tgz"))), "-C", join(modules, name), "--strip-components=1"], scratch, true);
+  }
   // The consumer's own installs (peers, the engine's dependency and Vitest) are the checkout's, linked one by one; the engine itself is the unpacked tarball.
   for (const name of readdirSync(join(root, "node_modules"))) {
     if (name === "astraeus" || name.startsWith("astraeus-")) continue;
@@ -33,7 +38,7 @@ try {
   writeFileSync(join(scratch, "vitest.config.mjs"), 'export default { test: { environment: "node", include: ["consumer.test.mjs"] } };\n');
   writeFileSync(join(scratch, "consumer.test.mjs"), [
     'import { expect, test } from "vitest";',
-    'import { Scene, classifyPositionError, earth, listedMoons, moon, saturn, titan, sun, solarSystemScale } from "astraeus";',
+    'import { Scene, classifyPositionError, earth, io, jupiter, listedMoons, moon, saturn, titan, sun, solarSystemScale } from "astraeus";',
     'test("the packed package builds a scene in plain Node", () => {',
     "  const definition = new Scene().addBody(sun).addBody(earth).toDefinition();",
     "  expect(definition.composition).toBeDefined();",
@@ -76,6 +81,18 @@ try {
     "  expect(definition.experience.objects.find((object) => object.id === 'traveller').provenanceSpans).toHaveLength(2);",
     "  const early = new Scene().addBody(sun).addBody(saturn).setTimeline({ start: '1945-01-01T00:00:00Z', end: '1946-01-01T00:00:00Z' });",
     "  await expect(early.toDefinition().prepare()).rejects.toMatchObject({ code: 'out-of-span' }); // before the planet series begin (1950)",
+    "});",
+    'test("a cold start in plain Node: await scene.load({ data }) then stateOf and provenanceOf for a planet and a moon (O-056)", async () => {',
+    "  const { dataSource } = await import('astraeus-data-jupiter');",
+    "  const scene = new Scene().addBody(sun).addBody(jupiter).addBody(io).setTime('2026-03-01T00:00:00Z');",
+    "  expect(() => scene.stateOf('io', '2026-03-01T00:00:00Z')).toThrow(/scene\\.load/); // Jupiter's moon fits are not loaded in this process yet",
+    "  expect(() => scene.check({ data: [dataSource] })).not.toThrow();",
+    "  await scene.load({ data: [dataSource] });",
+    "  expect(Math.hypot(...scene.stateOf('jupiter', '2026-03-01T00:00:00Z').positionKm)).toBeGreaterThan(7e8);",
+    "  const ioKm = Math.hypot(...scene.stateOf('io', '2026-03-01T00:00:00Z').positionKm);",
+    "  expect(ioKm).toBeGreaterThan(4e5);",
+    "  expect(ioKm).toBeLessThan(4.5e5);",
+    "  expect(scene.provenanceOf('io').sources.length).toBeGreaterThan(0);",
     "});",
     'test("a two-probe scene with views and view-aware pacing builds on the packed package (O-052)", () => {',
     "  const t0 = Date.parse('2026-01-01T00:00:00Z');",

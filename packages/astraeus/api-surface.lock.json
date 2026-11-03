@@ -83,6 +83,16 @@
           "signature": "(id: string): Provenance"
         },
         {
+          "name": "load",
+          "optional": false,
+          "signature": "(options?: SceneLoadOptions): Promise<void>"
+        },
+        {
+          "name": "check",
+          "optional": false,
+          "signature": "(options?: SceneLoadOptions): void"
+        },
+        {
           "name": "missingData",
           "optional": false,
           "signature": "(data?: readonly DataSource[]): readonly string[]"
@@ -242,6 +252,18 @@
           "name": "prepare",
           "optional": true,
           "signature": "(() => Promise<void>) | undefined"
+        }
+      ]
+    },
+    "SceneLoadOptions": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "data",
+          "optional": true,
+          "signature": "readonly DataSource[] | undefined"
         }
       ]
     },

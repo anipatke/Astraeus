@@ -1,12 +1,4 @@
 {
   "_about": "API-05 error scans (tools/api-rules.mjs errorBreaks) over packages/astraeus/src/api/. `throw`: a throw that is not a SceneError (a rethrow of what was caught is not judged). `message`: an error recognised by its message text. One entry per break: reason, review finding (docs/architecture/api-review-2026-11-01.md), Objective expected to remove it. An entry that no longer matches a break fails the test; entries may only be removed.",
-  "breaks": [
-    {
-      "rule": "message",
-      "site": "scene.ts: error.message.startsWith(\"the planet series are not loaded\")",
-      "reason": "Recognises an internal error by its message text (and names the non-public loadPlanetSeries())",
-      "finding": "F6",
-      "removedBy": "O-056"
-    }
-  ]
+  "breaks": []
 }
