@@ -1,7 +1,7 @@
 ---
 id: O-055
 title: Make the viewer a good guest on any page
-status: planned
+status: done
 depends_on: [O-054]
 release: G-016
 priority: high

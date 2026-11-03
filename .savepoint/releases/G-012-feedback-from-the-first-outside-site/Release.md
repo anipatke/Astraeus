@@ -1,7 +1,7 @@
 ---
 id: G-012
 title: Feedback from the first outside site
-status: planned
+status: done
 ---
 
 ## Outcome
