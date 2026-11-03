@@ -42,9 +42,9 @@ export class StoryPlan {
 
   /** The events sorted by time, each with its own provenance, else the batch's. */
   eventReads(): readonly SceneEventRead[] {
-    return frozenList(this.events.map(({ id, label, timeUtcMs, type, object }): SceneEventRead => {
+    return frozenList(this.events.map(({ id, label, timeUtcMs, type, object, withinMs }): SceneEventRead => {
       const provenance = this.#eventOwnProvenance.get(id) ?? this.#eventProvenance;
-      return { id, label, timeUtcMs, ...(type === undefined ? {} : { type }), ...(object === undefined ? {} : { object }), ...(provenance === undefined ? {} : { provenance }) };
+      return { id, label, timeUtcMs, ...(type === undefined ? {} : { type }), ...(object === undefined ? {} : { object }), ...(withinMs === undefined ? {} : { withinSeconds: withinMs / 1000 }), ...(provenance === undefined ? {} : { provenance }) };
     }));
   }
 

@@ -141,6 +141,50 @@
      ]
     },
     "createMetrics": "[function]",
+    "eventZones": [
+     {
+      "eventId": "traveller-io",
+      "fromUtcMs": 286837200000,
+      "rampMs": 2592000000,
+      "rate": 86400,
+      "toUtcMs": 292021200000
+     },
+     {
+      "eventId": "traveller-jupiter",
+      "fromUtcMs": 286848000000,
+      "rampMs": 2592000000,
+      "rate": 86400,
+      "toUtcMs": 292032000000
+     },
+     {
+      "eventId": "traveller-europa",
+      "fromUtcMs": 286855200000,
+      "rampMs": 2592000000,
+      "rate": 86400,
+      "toUtcMs": 292039200000
+     },
+     {
+      "eventId": "traveller-ganymede",
+      "fromUtcMs": 286869600000,
+      "rampMs": 2592000000,
+      "rate": 86400,
+      "toUtcMs": 292053600000
+     },
+     {
+      "eventId": "traveller-saturn",
+      "fromUtcMs": 340243200000,
+      "rampMs": 2592000000,
+      "rate": 86400,
+      "toUtcMs": 345427200000
+     },
+     {
+      "eventId": "traveller-uranus",
+      "fromUtcMs": 504316800000,
+      "rampMs": 2592000000,
+      "rate": 86400,
+      "toUtcMs": 509500800000
+     }
+    ],
     "experience": {
      "cameraPresets": [
       {
@@ -10048,6 +10092,36 @@
      "id": "scene"
     },
     "createMetrics": "[function]",
+    "eventZones": [
+     {
+      "eventId": "e1",
+      "fromUtcMs": 1767481200000,
+      "rampMs": 3600000,
+      "rate": 2,
+      "toUtcMs": 1767488400000
+     },
+     {
+      "eventId": "e2",
+      "fromUtcMs": 1767826800000,
+      "rampMs": 3600000,
+      "rate": 2,
+      "toUtcMs": 1767834000000
+     },
+     {
+      "eventId": "e1",
+      "fromUtcMs": 1767484200000,
+      "rampMs": 60000,
+      "rate": 1,
+      "toUtcMs": 1767485400000
+     },
+     {
+      "eventId": "e2",
+      "fromUtcMs": 1767829800000,
+      "rampMs": 60000,
+      "rate": 1,
+      "toUtcMs": 1767831000000
+     }
+    ],
     "experience": {
      "cameraPresets": [
       {
@@ -13589,6 +13663,22 @@
      "id": "scene"
     },
     "createMetrics": "[function]",
+    "eventZones": [
+     {
+      "eventId": "event-a",
+      "fromUtcMs": 1767234600000,
+      "rampMs": 1800000,
+      "rate": 60,
+      "toUtcMs": 1767238200000
+     },
+     {
+      "eventId": "event-b",
+      "fromUtcMs": 1767256200000,
+      "rampMs": 1800000,
+      "rate": 60,
+      "toUtcMs": 1767259800000
+     }
+    ],
     "experience": {
      "cameraPresets": [
       {
@@ -25034,6 +25124,36 @@
      "id": "scene"
     },
     "createMetrics": "[function]",
+    "eventZones": [
+     {
+      "eventId": "e1",
+      "fromUtcMs": 1767481200000,
+      "rampMs": 3600000,
+      "rate": 2,
+      "toUtcMs": 1767488400000
+     },
+     {
+      "eventId": "e2",
+      "fromUtcMs": 1767826800000,
+      "rampMs": 3600000,
+      "rate": 2,
+      "toUtcMs": 1767834000000
+     },
+     {
+      "eventId": "e1",
+      "fromUtcMs": 1767484200000,
+      "rampMs": 60000,
+      "rate": 1,
+      "toUtcMs": 1767485400000
+     },
+     {
+      "eventId": "e2",
+      "fromUtcMs": 1767829800000,
+      "rampMs": 60000,
+      "rate": 1,
+      "toUtcMs": 1767831000000
+     }
+    ],
     "experience": {
      "cameraPresets": [
       {
@@ -29092,6 +29212,22 @@
      "id": "scene"
     },
     "createMetrics": "[function]",
+    "eventZones": [
+     {
+      "eventId": "event-a",
+      "fromUtcMs": 1767234600000,
+      "rampMs": 1800000,
+      "rate": 60,
+      "toUtcMs": 1767238200000
+     },
+     {
+      "eventId": "event-b",
+      "fromUtcMs": 1767256200000,
+      "rampMs": 1800000,
+      "rate": 60,
+      "toUtcMs": 1767259800000
+     }
+    ],
     "experience": {
      "cameraPresets": [
       {

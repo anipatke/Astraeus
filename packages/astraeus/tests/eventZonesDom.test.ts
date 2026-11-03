@@ -238,3 +238,85 @@ describe("the README composition: the camera to the encounter and back", () => {
     handle.unmount();
   });
 });
+
+// O-056 T-263 (G-016, owner D4): an event carries its own zone, with or without pacing.
+const ZONES_DAY_20 = 86_400; // one day either side
+const zoned = (events: readonly { id: string; day: number; within?: number; type?: string }[], opts: { views?: boolean; pacing?: readonly object[] } = {}) => {
+  let scene = new Scene().addBody(earth)
+    .addTrajectory({ id: "pa", label: "Probe A", center: "earth", samples: samples(10_000) })
+    .addTrajectory({ id: "pb", label: "Probe B", center: "earth", samples: samples(20_000) })
+    .addEvents(events.map((e) => ({ id: e.id, label: e.id, time: at(e.day), ...(e.type === undefined ? {} : { type: e.type }), ...(e.within === undefined ? {} : { withinSeconds: e.within }) })));
+  if (opts.views) scene = scene.setViews([{ id: "a", label: "A", paths: ["pa"], events: ["za"] }, { id: "b", label: "B", paths: ["pb"], events: ["zb"] }], { place: "top-bar" });
+  return scene.setTimeline({ start: at(0), end: at(100), rate: 86_400, rates: [60, 86_400], ...(opts.pacing === undefined ? {} : { pacing: opts.pacing as never }) });
+};
+
+describe("event zones from withinSeconds", () => {
+  it.each([
+    ["without pacing", undefined],
+    ["alongside a pacing rule for another type", [{ near: { type: "other", within: 60 }, rate: 60 }]],
+  ] as const)("reports enter and leave with via time, %s", async (_name, pacing) => {
+    const events = [{ id: "za", day: 20, within: ZONES_DAY_20 }, { id: "oth", day: 80, type: "other" }];
+    const handle = mount(host, zoned(events, { ...(pacing === undefined ? {} : { pacing }) }));
+    await drawn(handle);
+    const seen = listen(handle);
+    act(() => handle.setTime(T0 + 19.5 * DAY)); 
+    act(() => handle.setTime(T0 + 30 * DAY));
+    expect(handle.eventZones).toEqual([]);
+    expect(seen.map(short)).toEqual(["enter za host", "leave za host"]);
+    expect(vias(seen)).toEqual(["time", "time"]);
+    handle.unmount();
+  });
+
+  it("an event without withinSeconds and no rule has no zone", async () => {
+    const handle = mount(host, zoned([{ id: "za", day: 20 }]));
+    await drawn(handle);
+    const seen = listen(handle);
+    act(() => handle.setTime(T0 + 20 * DAY));
+    expect([handle.eventZones, seen]).toEqual([[], []]);
+    handle.unmount();
+  });
+
+  it("zones from both sources report together: an own zone and a rule zone", async () => {
+    const events = [{ id: "za", day: 20, within: ZONES_DAY_20 }, { id: "zb", day: 20.5, type: "flyby" }];
+    const handle = mount(host, zoned(events, { pacing: [{ near: { type: "flyby", within: 3_600 }, rate: 3_600 }] }));
+    await drawn(handle);
+    act(() => handle.setTime(T0 + 20.5 * DAY));
+    expect([...handle.eventZones!].sort()).toEqual(["za", "zb"]); // zone order is not part of the contract
+    act(() => handle.setTime(T0 + 20.3 * DAY)); // inside za's day, outside zb's hour
+    expect(handle.eventZones).toEqual(["za"]);
+    handle.unmount();
+  });
+
+  it("a pacing rule uses the event's own withinSeconds, its own within otherwise", async () => {
+    const events = [{ id: "za", day: 20, within: ZONES_DAY_20, type: "flyby" }, { id: "zb", day: 50, type: "flyby" }];
+    const handle = mount(host, zoned(events, { pacing: [{ near: { type: "flyby", within: 3_600 }, rate: 3_600 }] }));
+    await drawn(handle);
+    act(() => handle.setTime(T0 + 20.5 * DAY)); // 12 h from za: its own day, not the rule's hour
+    expect(handle.eventZones).toEqual(["za"]);
+    act(() => handle.setTime(T0 + 50.5 * DAY)); // 12 h from zb: the rule's hour does not reach
+    expect(handle.eventZones).toEqual([]);
+    handle.unmount();
+  });
+
+  it("a view that hides the event hides its zone", async () => {
+    const handle = mount(host, zoned([{ id: "za", day: 20, within: ZONES_DAY_20 }, { id: "zb", day: 50, within: ZONES_DAY_20 }], { views: true }));
+    await drawn(handle);
+    act(() => handle.setTime(T0 + 50 * DAY)); // zb's zone, view a showing
+    expect(handle.eventZones).toEqual([]);
+    act(() => handle.setView("b"));
+    expect(handle.eventZones).toEqual(["zb"]);
+    handle.unmount();
+  });
+
+  it.each([[0], [-5], [Number.NaN], [Number.POSITIVE_INFINITY], ["60"]])("withinSeconds %s throws bad-event naming the event", (value) => {
+    let error: unknown;
+    try { new Scene().addEvents([{ id: "ev", label: "E", time: at(1), withinSeconds: value as never }]); } catch (caught) { error = caught; }
+    expect(error).toMatchObject({ code: "bad-event" });
+    expect((error as Error).message).toContain('"ev"');
+  });
+
+  it("scene.events reads withinSeconds back", () => {
+    const scene = zoned([{ id: "za", day: 20, within: 90 }, { id: "zb", day: 21 }]);
+    expect(scene.events.map((e) => e.withinSeconds)).toEqual([90, undefined]);
+  });
+});

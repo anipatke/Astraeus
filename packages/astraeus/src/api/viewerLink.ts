@@ -29,7 +29,7 @@ export interface ViewerChange {
   readonly cause: ViewerChangeCause;
 }
 
-/** What a host is told when playback enters or leaves the pacing zone of an event the showing view has. */
+/** What a host is told when playback enters or leaves the zone of an event the showing view has. */
 export interface EventZoneChange {
   /** The id of the event whose zone it is. */
   readonly event: string;

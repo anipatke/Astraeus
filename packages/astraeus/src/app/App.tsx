@@ -147,6 +147,7 @@ function buildRuntime(definition: ExperienceDefinition, search: string) {
       loopWindow: definition.experience.window,
       ...(definition.experience.hideTimeline === true ? {} : { stopAtWindow: true }),
       ...(definition.pacing === undefined ? {} : { pacing: definition.pacing }),
+      ...(definition.eventZones === undefined ? {} : { eventZones: definition.eventZones }),
       up: viewUpVector(startViewUp(definition, search)),
     };
 }
@@ -368,7 +369,8 @@ export function App({ definition, onOpenAddress, writeTitle = true, address, dev
       scale: controls.current.policy.id,
       look: lookReadOf(controls.current),
       switches: live.current?.switches() ?? {},
-      ...(runtime.pacing === undefined ? {} : { auto: controls.current.paceAuto === true, zones: activeEventZones(runtime.pacing.zones, controls.current.pace?.shown, snapshot.timeUtcMs) }),
+      ...(runtime.pacing === undefined ? {} : { auto: controls.current.paceAuto === true }),
+      ...(runtime.eventZones === undefined ? {} : { zones: activeEventZones(runtime.eventZones, shownEventsOf(definition, viewRef.current), snapshot.timeUtcMs) }),
       ...(definition.views === undefined ? {} : { view: viewRef.current }),
       ...(controls.current.selectedObjectId === "" ? {} : { selected: controls.current.selectedObjectId }),
     };

@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import type { SimulationClock } from "../core/clock";
-import type { Pacing } from "../core/pacing";
+import type { EventZone, Pacing } from "../core/pacing";
 import type { StateResolver } from "../core/stateResolver";
 import type { PointGroup } from "../core/pointGroup";
 import type { TimeBounds, Trajectory } from "../core/trajectory";
@@ -167,6 +167,8 @@ export interface ExperienceDefinition {
   readonly clock: { readonly startUtcMs: number; readonly rate: number; /** False leaves the clock paused at `startUtcMs` when the scene opens (default true: it plays). */ readonly playing?: boolean };
   /** Playback that slows for encounters and speeds up for cruise (see `pacedRate`). Absent: the clock runs at the rate it opens with or the visitor picks. */
   readonly pacing?: Pacing;
+  /** Every event zone a host hears (an event's own `withinSeconds`, or a pacing rule's zone): present when any exists, with or without `pacing`. */
+  readonly eventZones?: readonly EventZone[];
   /** Layers the scene mounts, e.g. the tracked-body list. */
   readonly sceneLayers: readonly SceneLayerId[];
   /** The catalogued bodies the scene draws, one view each. Absent: none, as in the bodiless fixture. */

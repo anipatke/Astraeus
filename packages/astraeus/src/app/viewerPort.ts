@@ -14,7 +14,7 @@ export interface ViewerState {
   readonly auto?: boolean;
   /** Only in a scene with views: the id of the view showing. */
   readonly view?: string;
-  /** Only in a scene with pacing: the ids of the events whose pacing zone holds the time, among the zones the showing view has. */
+  /** Only in a scene with event zones: the ids of the events whose zone holds the time, among the zones the showing view has. */
   readonly zones?: readonly string[];
   /** The id of the object whose information the viewer has selected; absent when nothing is selected. */
   readonly selected?: string;

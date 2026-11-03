@@ -1,5 +1,5 @@
 import { createEvents, type TimelineEvent } from "../core/events";
-import type { PaceZone, Pacing } from "../core/pacing";
+import { zoneAround, type PaceZone, type Pacing } from "../core/pacing";
 import { createProvenance, type Provenance } from "../core/provenance";
 import type { TimeBounds } from "../core/trajectory";
 import { parseStoryPanels, StoryPanelError, type PanelLookup, type StoryPanelSet } from "../core/storyPanels";
@@ -17,6 +17,11 @@ export interface EventInput {
   readonly provenance?: Provenance;
   /** The body or trajectory (its id) this event is about. Go to this event seeks to its time and frames the object as `camera.lookAt` does. Not in the scene when the scene is built (`mount`): "bad-event" naming the event and the id. Without one, Go to only seeks. */
   readonly object?: string;
+  /**
+   * Gives the event a zone of its own: from `withinSeconds` before its time to `withinSeconds` after it (simulated seconds, positive and finite). A host hears entering and leaving it
+   * (`onEventZone`, `eventZones`), with or without pacing; a pacing rule for the event's type uses this width instead of its own `within`. Not positive and finite: `addEvents` throws "bad-event" naming the event.
+   */
+  readonly withinSeconds?: number;
 }
 
 /** Options of `addEvents`. */
@@ -105,7 +110,8 @@ export function eventsOf(inputs: readonly EventInput[], known: readonly Timeline
     ids.add(input.id);
     const timeUtcMs = toUtcMs(input.time, `addEvents: event "${input.id}" time`);
     if (input.object !== undefined && (typeof input.object !== "string" || input.object === "")) throw new SceneError("bad-event", `addEvents: event "${input.id}" object must be a non-empty id`);
-    return { id: input.id, label: input.label, timeUtcMs, ...(input.type === undefined ? {} : { type: input.type }), ...(input.object === undefined ? {} : { object: input.object }) };
+    if (input.withinSeconds !== undefined && !(typeof input.withinSeconds === "number" && Number.isFinite(input.withinSeconds) && input.withinSeconds > 0)) throw new SceneError("bad-event", `addEvents: event "${input.id}" withinSeconds must be a positive, finite number of seconds, got ${String(input.withinSeconds)}`);
+    return { id: input.id, label: input.label, timeUtcMs, ...(input.withinSeconds === undefined ? {} : { withinMs: input.withinSeconds * 1000 }), ...(input.type === undefined ? {} : { type: input.type }), ...(input.object === undefined ? {} : { object: input.object }) };
   });
   return createEvents([...known, ...added].sort((a, b) => a.timeUtcMs - b.timeUtcMs));
 }
@@ -177,7 +183,7 @@ export function pacingFor(setting: TimelineSetting, events: readonly TimelineEve
     if ("fromUtcMs" in piece) { spans.push({ fromUtcMs: piece.fromUtcMs, toUtcMs: piece.toUtcMs, rate: piece.rate, rampMs: piece.rampMs }); return; }
     const matching = events.filter((event) => event.type === piece.type);
     if (matching.length === 0) throw new SceneError("bad-timeline", `setTimeline: pacing[${index}].near.type "${piece.type}" matches no event; give the events that type with addEvents`);
-    for (const event of matching) near.push({ fromUtcMs: event.timeUtcMs - piece.withinMs, toUtcMs: event.timeUtcMs + piece.withinMs, rate: piece.rate, rampMs: piece.rampMs, eventId: event.id });
+    for (const event of matching) near.push({ ...zoneAround(event, piece.withinMs), rate: piece.rate, rampMs: piece.rampMs });
   });
   return { baseRate, zones: [...spans, ...near] };
 }

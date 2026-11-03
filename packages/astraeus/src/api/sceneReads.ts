@@ -56,6 +56,8 @@ export interface SceneEventRead {
   readonly type?: string;
   /** The id of the body or path the event is about. */
   readonly object?: string;
+  /** The half-width of the event's own zone in simulated seconds (`withinSeconds` of `addEvents`); absent when it has none. */
+  readonly withinSeconds?: number;
   /** Where the event's time comes from: its own, else the batch's; absent when neither was given. */
   readonly provenance?: Provenance;
 }

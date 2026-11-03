@@ -474,6 +474,11 @@
           "signature": "string | undefined"
         },
         {
+          "name": "withinSeconds",
+          "optional": true,
+          "signature": "number | undefined"
+        },
+        {
           "name": "provenance",
           "optional": true,
           "signature": "Provenance | undefined"
@@ -1036,6 +1041,11 @@
           "name": "object",
           "optional": true,
           "signature": "string | undefined"
+        },
+        {
+          "name": "withinSeconds",
+          "optional": true,
+          "signature": "number | undefined"
         }
       ]
     },

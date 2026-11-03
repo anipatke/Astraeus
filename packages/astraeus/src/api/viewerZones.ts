@@ -19,14 +19,14 @@ export class ViewerZones {
 
   clearListeners(): void { this.#listeners.clear(); }
 
-  /** The ids of the events whose pacing zone holds the time now (empty without pacing event rules); undefined before the viewer is drawn and after it is gone. */
+  /** The ids of the events whose zone holds the time now (empty without event zones); undefined before the viewer is drawn and after it is gone. */
   get eventZones(): readonly string[] | undefined {
     const control = this.access.control();
     return control === undefined ? undefined : control.read().zones ?? [];
   }
 
   /**
-   * Calls `listener` when playback enters or leaves the pacing zone of an event the showing view has (a `near` rule of `setTimeline({ pacing })`); returns the function that stops it.
+   * Calls `listener` when playback enters or leaves the zone of an event the showing view has (`withinSeconds` of the event, or a `near` rule of `setTimeline({ pacing })`); returns the function that stops it.
    * A zone the time is already inside when the viewer opens is reported as entered once, with the first report after `ready` (within a tenth of a second), so a listener added right after `await ready` hears it.
    * A viewer rebuild (`AstraeusScene` given a new scene) starts over the same way.
    */

@@ -1,4 +1,5 @@
 import type { SimulationClock } from "./clock";
+import type { TimelineEvent } from "./events";
 
 /**
  * One stretch of the timeline with its own playback rate: full `rate` from `fromUtcMs` to `toUtcMs`, easing back to the surrounding rate over
@@ -13,24 +14,44 @@ export interface PaceZone {
   readonly eventId?: string;
 }
 
+/** Where an event zone lies: the part of a zone the host report and the view filter read. A `PaceZone` is one with a rate. */
+export type EventZone = Pick<PaceZone, "fromUtcMs" | "toUtcMs" | "eventId">;
+
+/** The zone of `event`: its own `withinMs` where it has one, else `defaultWithinMs`, either side of its time. The one place an event zone is cut. */
+export function zoneAround(event: TimelineEvent, defaultWithinMs: number): EventZone {
+  const within = event.withinMs ?? defaultWithinMs;
+  return { fromUtcMs: event.timeUtcMs - within, toUtcMs: event.timeUtcMs + within, eventId: event.id };
+}
+
+/**
+ * Every event zone of a scene: those of the pacing rules (`paceZones`, which already read each event's own `withinMs`) and the own zone of each event that has a `withinMs`
+ * and no rule zone. A scene without pacing still has the second kind.
+ */
+export function eventZonesOf(events: readonly TimelineEvent[], paceZones: readonly PaceZone[]): readonly EventZone[] {
+  const ruled = paceZones.filter((zone) => zone.eventId !== undefined);
+  const covered = new Set(ruled.map((zone) => zone.eventId));
+  const own = events.filter((event) => event.withinMs !== undefined && !covered.has(event.id)).map((event) => zoneAround(event, 0));
+  return [...ruled, ...own];
+}
+
 /** The ids of the events a view shows; absent means every zone applies (a scene without views). */
 export type ShownEvents = ReadonlySet<string> | undefined;
 
 /** Whether a zone applies when only `shown` events are in play: spans always do, an event zone only when its event is shown. */
-export function zoneInView(zone: PaceZone, shown: ShownEvents): boolean {
+export function zoneInView<Z extends EventZone>(zone: Z, shown: ShownEvents): boolean {
   return shown === undefined || zone.eventId === undefined || shown.has(zone.eventId);
 }
 
 /** The zones that apply when only `shown` events are in play (the same filter `pacedRate` reads; a host reads it to tell where playback is slowed for the view). */
-export function zonesInView(zones: readonly PaceZone[], shown: ShownEvents): readonly PaceZone[] {
+export function zonesInView<Z extends EventZone>(zones: readonly Z[], shown: ShownEvents): readonly Z[] {
   return shown === undefined ? zones : zones.filter((zone) => zoneInView(zone, shown));
 }
 
 /**
- * The ids of the events whose zone holds `timeUtcMs` (edges included, as `pacedRate` reads them), among the zones the showing view has; each id once, in zone order.
+ * The ids of the events whose zone (from `withinSeconds` or a pacing rule) holds `timeUtcMs` (edges included, as `pacedRate` reads them), among the zones the showing view has; each id once, in zone order.
  * Span zones carry no event and never count. A pure function of its arguments.
  */
-export function activeEventZones(zones: readonly PaceZone[], shown: ShownEvents, timeUtcMs: number): readonly string[] {
+export function activeEventZones(zones: readonly EventZone[], shown: ShownEvents, timeUtcMs: number): readonly string[] {
   const ids: string[] = [];
   for (const zone of zonesInView(zones, shown)) {
     if (zone.eventId !== undefined && timeUtcMs >= zone.fromUtcMs && timeUtcMs <= zone.toUtcMs && !ids.includes(zone.eventId)) ids.push(zone.eventId);

@@ -31,7 +31,7 @@ export interface AstraeusSceneProps {
   readonly camera?: CameraTarget;
   /** Called whenever the viewer's time, speed, playing state or view changes: playback running, a visitor using the timeline or the view choice, or the `time` / `rate` / `view` props. About ten times a second while playing. */
   readonly onChange?: (change: ViewerChange) => void;
-  /** Called when playback enters or leaves the pacing zone of an event the showing view has: `{ event, type?, object?, entered, time, cause }` (see `MountedScene.onEventZone`). A zone already active when the viewer opens reports `entered` once, just after `onReady`. */
+  /** Called when playback enters or leaves the zone of an event the showing view has (its `withinSeconds`, or a pacing rule): `{ event, type?, object?, entered, time, cause }` (see `MountedScene.onEventZone`). A zone already active when the viewer opens reports `entered` once, just after `onReady`. */
   readonly onEventZone?: (change: EventZoneChange) => void;
   /** Whether the viewer reads the page address and offers a copy-link button that writes it (default false: the address stays the host page's own). Read when the viewer is built. See the README's "Page address" section. */
   readonly address?: boolean;

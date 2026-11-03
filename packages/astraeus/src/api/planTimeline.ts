@@ -4,6 +4,7 @@ import type { ExperienceDefinition } from "../app/experienceDefinition";
 import { SceneError } from "./errors";
 import { toUtcMs, type TimeInput } from "./time";
 import type { SceneTimelineRead } from "./sceneReads";
+import { eventZonesOf } from "../core/pacing";
 import { pacingFor, timelineOf, type TimelineInput, type TimelineSetting } from "./story";
 
 const DAY_MS = 86_400_000;
@@ -60,10 +61,11 @@ export class TimelinePlan {
   }
 
   /** The pacing the timeline asked for, laid over the scene's events; a rule naming an event type with no events throws `bad-timeline`. */
-  pacing(events: readonly TimelineEvent[]): Pick<ExperienceDefinition, "pacing"> {
+  pacing(events: readonly TimelineEvent[]): Pick<ExperienceDefinition, "pacing" | "eventZones"> {
     const timeline = this.setting;
     const pacing = timeline === undefined ? undefined : pacingFor(timeline, events, timeline.rate ?? 60);
-    return pacing === undefined ? {} : { pacing };
+    const eventZones = eventZonesOf(events, pacing?.zones ?? []);
+    return { ...(pacing === undefined ? {} : { pacing }), ...(eventZones.length === 0 ? {} : { eventZones }) };
   }
 }
 
