@@ -2,16 +2,22 @@
 id: I-142
 title: The API reference page is over its load budget after O-056's doc comments
 type: defect
-status: open
+status: resolved
 source:
   kind: check
   check: C-146
   actor: {role: checker, session: o056-check-20261103}
   at: '2026-11-03T11:04:00Z'
 tasks: [T-259, T-260, T-261, T-262, T-263, T-264]
-checks: [C-146]
+checks: [C-146, C-147]
 guardrail_ids: [TEST-01]
 severity: medium
+resolution:
+  disposition: verified
+  check: C-147
+  actor: {role: checker, session: o056-recheck-20261103}
+  at: '2026-11-03T11:26:00Z'
+  reason: 'C-147 CLEAR: check:browser public-build-assets passes (api/index.html 118,927 raw / 150,000, 26,965 gzip / 30,000, owner limit 2026-11-03), and the fast test in apiReference.test.ts fails when the page exceeds either limit.'
 history:
   - at: '2026-11-03T11:04:00Z'
     actor: {role: checker, session: o056-check-20261103}
@@ -22,6 +28,11 @@ history:
     actor: {role: executor, session: o056-i142-repair}
     kind: repair_attempted
     note: 'Owner decision 2026-11-03 (asked by the coordinator): "Raise the plain limit (Recommended)". Changed: api/index.html rawLimit 100_000 to 150_000 in packages/astraeus-site/tools/validate/load-budget.mjs (gzipLimit 30_000 unchanged; measured 118,927 raw, 26,894 gzip), with a comment giving the decision, date and reason. Added the fast test "keeps the generated page within the api/index.html raw and gzip limits of load-budget.mjs (I-142)" in packages/astraeus-site/tests/apiReference.test.ts: it renders the page from the already-collected exports with renderApiPage (the same function buildApiPage calls) and asserts raw and gzip bytes against the PAGES entry read from load-budget.mjs (one source, no copied numbers). Also fixed C-146 slips: Design.md test list (sunLook.test.ts and eventZonesDom.test.ts were extended, not added; camera.reach and camera.fitted are existing members) and the trailing space at eventZonesDom.test.ts:262. Gates on the working tree: npm run lint, typecheck, build, test all exit 0 (test: 207 files, 2606 passed, 2 skipped). Not run: npm run check:browser (public-build-assets) and a demonstration that the new test fails under a lowered limit; both unverified. The Issue stays open for a Check.'
+  - at: '2026-11-03T11:26:00Z'
+    actor: {role: checker, session: o056-recheck-20261103}
+    kind: rechecked
+    check: C-147
+    note: 'Verified by C-147 CLEAR (Full Objective re-check of O-056 at 99d9608b). One npm run check:browser 11:17:39-11:23:48Z: 10/10 steps exit 0; public-build-assets api/index.html raw 118927 (limit 150000), gzip 26965 (limit 30000). Mutations of load-budget.mjs, each restored: raw limit 118926 fails the new test (expected 118927 <= 118926); gzip limit 20000 fails (expected 26965 <= 20000); exact limits 118927/26965 pass. Evidence docs/evidence/check-o056-recheck-20261103/. Note: the repair note and load-budget comment say 26,894 gzip; measured 26,965 (observation only).'
 ---
 
 # I-142: The API reference page is over its load budget after O-056's doc comments
