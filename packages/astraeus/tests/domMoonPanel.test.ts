@@ -1,19 +1,20 @@
 // @vitest-environment happy-dom
-// The moon panel on the pretend page (O-038 T-146): the screen-level part of browser-moon-panel.mjs, on Jupiter's real moon list. The panel's model (counts, named first,
-// search, facts) is in tests/moonFamilyPanel.test.ts; the focus flight, the lit dots in the scene and the overlap rules are the smoke check and the owner's look.
+// The moon panel on the pretend page (O-038 T-146): the screen-level part of browser-moon-panel.mjs, on Jupiter's real moon list (astraeus-data-jupiter). The panel's model (counts, named first,
+// search) is in tests/moonPanelModel.test.ts; moved to the engine's tests from the planets demo (O-059 T-270), which reads the panel through Scene.moonPanel; the focus flight, the lit dots in the scene and the overlap rules are the smoke check and the owner's look.
 import { createElement, useState } from "react";
 import { act } from "react";
 import { createRoot } from "react-dom/client";
 import { afterEach, describe, expect, it } from "vitest";
-import { JUPITER_MOON_CATALOGUE } from "astraeus/assets/bodies/jupiterMoonCatalogue";
-import { jupiterIoExplorer } from "../src/experiences/jupiter-io/jupiterIo";
-import { MoonFamilyPanel } from "astraeus/shell/MoonFamilyPanel";
-import { moonFamilyListSummary, moonListDateText, splitNamed } from "astraeus/shell/moonFamilies";
-import { $, change, mountShell, press, selectObject, type Mounted } from "astraeus/tests/domSetup";
+import { syntheticDefinition } from "../src/synthetic/syntheticDefinition";
+import { jupiterMoonPanel, jupiterRawList } from "./helpers/jupiterMoonPanel";
+import { MoonFamilyPanel } from "../src/shell/MoonFamilyPanel";
+import { moonFamilyListSummary, moonListDateText, splitNamed } from "../src/shell/moonFamilies";
+import { $, change, mountShell, press, selectObject, type Mounted } from "./domSetup";
 
 (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
-const list = jupiterIoExplorer.experience.moonFamilies!;
-const data = JUPITER_MOON_CATALOGUE;
+const list = jupiterMoonPanel();
+const data = { ...jupiterRawList(), moons: jupiterRawList().moons.map((moon) => ({ ...moon, family: moon.family })) };
+const experienceWithMoons = { ...syntheticDefinition.experience, moonFamilies: list };
 const container = document.createElement("div");
 const picked: string[] = [];
 const lights: (string | null)[] = [];
@@ -114,23 +115,23 @@ describe("the moons sheet and the information panel (browser-moon-panel M7)", ()
   const sheetOpen = (m: Mounted) => $(m.container, ".moons-sheet").getAttribute("data-open");
 
   it("draws the moon list after its on-demand load when the experience has moon families, and not otherwise (I-089)", async () => {
-    shell = mountShell({ experience: jupiterIoExplorer.experience });
+    shell = mountShell({ experience: experienceWithMoons });
     await act(async () => { await new Promise((resolve) => setTimeout(resolve, 20)); });
     expect(shell.container.querySelector("[data-moon-summary]")).not.toBeNull();
     expect(shell.container.querySelector('[data-moon-family="galilean"]')).not.toBeNull();
     shell.unmount();
-    shell = mountShell({ experience: { ...jupiterIoExplorer.experience, moonFamilies: undefined } });
+    shell = mountShell({ experience: { ...experienceWithMoons, moonFamilies: undefined } });
     await act(async () => { await new Promise((resolve) => setTimeout(resolve, 20)); });
     expect(shell.container.querySelector("[data-moon-summary]")).toBeNull();
   });
 
   it("never show together on a wide screen: opening one closes the other", () => {
-    shell = mountShell({ experience: jupiterIoExplorer.experience });
+    shell = mountShell({ experience: experienceWithMoons });
     const toggle = $(shell.container, ".moons-toggle");
     press(toggle);
     expect(sheetOpen(shell)).toBe("true");
     expect(shell.container.querySelector(".info-panel")).toBeNull();
-    selectObject(shell.container, "io");
+    selectObject(shell.container, "survey-marker");
     expect(shell.container.querySelector(".info-panel")).not.toBeNull();
     expect(sheetOpen(shell)).toBe("false");
     press(toggle);

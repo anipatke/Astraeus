@@ -1,5 +1,6 @@
 /**
- * A planet's moon list (`data/moons/<planet>.json`, format `astraeus.moon-catalogue/1`): every moon's name, family and mean radius, and
+ * Lifted as it was from the engine (O-059 T-270): the list moved to the planets' data packages, so its reader is the demo's.
+ * A planet's moon list (`astraeus-data-<planet>/moon-list.json`, format `astraeus.moon-catalogue/1`): every moon's name, family and mean radius, and
  * the families with a plain description. Facts only, checked here once (STYLE-06); positions come from the moon's ephemeris set.
  */
 export const MOON_CATALOGUE_FORMAT = "astraeus.moon-catalogue/1";

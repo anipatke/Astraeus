@@ -15,7 +15,7 @@ import { describe, expect, it } from "vitest";
 const ENGINE = "astraeus";
 const SITE = "astraeus-site";
 /** Demos that are stories on the public API: their `src/` imports `astraeus` and nothing else outside the package. */
-const PUBLIC_API_DEMOS: ReadonlySet<string> = new Set(["astraeus-demo-apollo11", "astraeus-demo-showers"]);
+const PUBLIC_API_DEMOS: ReadonlySet<string> = new Set(["astraeus-demo-apollo11", "astraeus-demo-planets", "astraeus-demo-showers"]);
 const isDemo = (name: string) => name.startsWith("astraeus-demo-");
 const isData = (name: string) => name === "astraeus-data" || name.startsWith("astraeus-data-");
 /** Engine files that are not shipped code: its tests and the test setup. */
@@ -266,9 +266,9 @@ function deepImportCounts(packagesDir: string): Record<string, number> {
  */
 const DEEP_IMPORT_COUNTS: Record<string, number> = {
   "astraeus-demo-apollo11": 129, // src is on the front door (PUBLIC_API_DEMOS); the rest is tests and tools
-  "astraeus-demo-planets": 98, // F13, O-059
+  "astraeus-demo-planets": 0, // on the front door (PUBLIC_API_DEMOS), tests included (O-059 T-270)
   "astraeus-demo-showers": 68, // src is on the front door; the rest is tests and tools
-  "astraeus-site": 92, // F13, O-059
+  "astraeus-site": 91, // F13, O-059
 };
 
 /** Offences of measured counts against the recorded ones. */

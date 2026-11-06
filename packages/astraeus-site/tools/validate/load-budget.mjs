@@ -15,16 +15,16 @@ const root = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..", "..", 
 /** The app page, its script and style, and what every experience loads: the sky stars. Each entry is `<stem>.<ext>` of a hashed file in assets/, or a page at the top. */
 const APP_SHARED = ["app.html", "app.js", "app.css", "preload-helper.js", "hyg-v42-naked-eye.json", "elementsBody.js", "timeScale.js", "licence.js"];
 /** Shared chunks the dev-free production build splits out but the public build folds into their importers; listed when present, not required (2026-10-20). */
-const SPLIT_CHUNKS = new Set(["preload-helper.js", "ephemerisProvenance.js", "elementsBody.js", "timeScale.js", "bodyMetrics.js", "events.js", "trackedMetrics.js", "listedOrbitGroup.js", "orbitGroup.js", "settingsFields.js", "licence.js", "moonFamilies.js"]);
+const SPLIT_CHUNKS = new Set(["preload-helper.js", "ephemerisProvenance.js", "elementsBody.js", "timeScale.js", "bodyMetrics.js", "events.js", "trackedMetrics.js", "listedOrbitGroup.js", "orbitGroup.js", "settingsFields.js", "licence.js", "moonFamilies.js", "planetSystemParts.js"]);
 const VIEW_LIMITS = JSON.parse(readFileSync(join(root, "packages", "astraeus-demo-planets", "src", "experiences", "planets", "viewLimits.json"), "utf8"));
 const PLANET_TEXTURES = ["earth-bmng-july-4k.jpg", "jupiter-2k.jpg"];
-const SHOWER_COMMON = ["showerScene.js", "scene.js", "compositions.js", "bodyMetrics.js", "events.js", "listedOrbitGroup.js", "orbitGroup.js", "showerSettings.js", "measuredOrbits.js", "ephemerisProvenance.js", "planetModels.js", "mars-2k.jpg", "mercury-2k.jpg", "venus-2k-balanced.jpg", "sun-2k.jpg", ...PLANET_TEXTURES];
+const SHOWER_COMMON = ["showerScene.js", "scene.js", "bodyMetrics.js", "events.js", "listedOrbitGroup.js", "orbitGroup.js", "showerSettings.js", "measuredOrbits.js", "ephemerisProvenance.js", "planetModels.js", "mars-2k.jpg", "mercury-2k.jpg", "venus-2k-balanced.jpg", "sun-2k.jpg", ...PLANET_TEXTURES];
 
 /** One planet's view of the planets experience (T-121): the shared page, the planet's own settings/system scripts, its moon index when it has moons, and its pictures. The fit chunks (.bin) the system script names by URL count too. */
-const planetView = (name, textures, { moons = true, parts = false, ...limits }) => ({
+const planetView = (name, textures, { moons = true, ...limits }) => ({
   planet: name,
   id: `app.html?experience=planets&planet=${name}`,
-  files: [...APP_SHARED, "planetSettings.js", "settingsFields.js", "planetDefinition.js", "moonFamilies.js", "events.js", "moonCatalogue.js", "compositions.js", "planetModels.js", ...(parts ? ["planetSystemParts.js"] : []), `${name}.js`, ...(moons ? [`${name}-moons.js`] : []), ...textures],
+  files: [...APP_SHARED, "planetSettings.js", "planetScene.js", "moonFamilies.js", "events.js", "moonList.js", "planetModels.js", "planetSystemParts.js", `${name}.js`, ...(moons ? [`${name}-moons.js`] : []), ...textures],
   namedBy: [`${name}.js`],
   ...(VIEW_LIMITS[name] ? { indexLimit: VIEW_LIMITS[name].indexRawBytes } : {}),
   ...limits,
@@ -40,16 +40,16 @@ export const ALL_PAGES = [
   { id: "assets.html", files: [], htmlPage: "assets.html", rawLimit: 670_000, gzipLimit: 520_000 },
   // I-142: the API reference text grows with the documented API (118,927 B raw, 26,894 B gzip after O-056), and the compressed size is what a visitor downloads, so the raw limit was raised and the gzip limit kept (owner decision, 2026-11-03); raw raised again to 200,000 B for the O-059 public forms (owner, 2026-11-07). tests/apiReference.test.ts holds the generated page to these limits.
   { id: "api/index.html", files: [], htmlPage: "api/index.html", rawLimit: 200_000, gzipLimit: 40_000 },
-  { id: "app.html (Apollo 11)", files: [...APP_SHARED, "panels.js", "apollo11Scene.js", "scene.js", "compositions.js", "bodyMetrics.js", "events.js", "trackedMetrics.js", "ephemerisProvenance.js", "moon-lroc-2k.jpg", "earth-bmng-july-4k.jpg"], rawLimit: 4_240_000, gzipLimit: 2_850_000 },
+  { id: "app.html (Apollo 11)", files: [...APP_SHARED, "panels.js", "apollo11Scene.js", "scene.js", "bodyMetrics.js", "events.js", "trackedMetrics.js", "ephemerisProvenance.js", "moon-lroc-2k.jpg", "earth-bmng-july-4k.jpg"], rawLimit: 4_240_000, gzipLimit: 2_850_000 },
   // T-098: Jupiter's moons. The other three mapped moons' pictures, the curve-fit index (jupiter-moons.js) and the window's year of fit chunks
   // (2016.bin: the larger files; the smaller ones are inlined in jupiterIo.js), and the 2014 and 2015 chunks of the slow moons whose orbit lines reach back that far.
   // O-033 T-121: the planets experience, one page set per planet view (the old jupiter-io address opens Jupiter's).
   // Each outer planet's moon index chunk is also held to the stated limit in `src/experiences/planets/viewLimits.json`, the file tests/planetSystems.test.ts takes its fit-chunk and index limits from.
   planetView("jupiter", ["jupiter-2k.jpg", "io-2k.jpg", "europa-2k.jpg", "ganymede-2k.jpg", "callisto-2k.jpg"], { rawLimit: 6_570_000, gzipLimit: 4_560_000 }),
-  planetView("saturn", ["saturn-2k.jpg", "mimas-4k.jpg", "enceladus-4k.jpg", "tethys-4k.jpg", "dione-4k.jpg", "rhea-4k.jpg", "titan-4k.jpg", "iapetus-4k.jpg"], { parts: true, rawLimit: 23_510_000, gzipLimit: 20_570_000 }),
-  planetView("uranus", ["uranus-2k.jpg"], { parts: true, rawLimit: 3_510_000, gzipLimit: 2_030_000 }),
-  planetView("neptune", ["neptune-2k.jpg", "triton-4k.jpg"], { parts: true, rawLimit: 4_000_000, gzipLimit: 2_630_000 }),
-  planetView("pluto", ["pluto-4k.jpg", "charon-2k.jpg"], { parts: true, rawLimit: 3_350_000, gzipLimit: 2_100_000 }),
+  planetView("saturn", ["saturn-2k.jpg", "mimas-4k.jpg", "enceladus-4k.jpg", "tethys-4k.jpg", "dione-4k.jpg", "rhea-4k.jpg", "titan-4k.jpg", "iapetus-4k.jpg"], { rawLimit: 23_510_000, gzipLimit: 20_570_000 }),
+  planetView("uranus", ["uranus-2k.jpg"], { rawLimit: 3_510_000, gzipLimit: 2_030_000 }),
+  planetView("neptune", ["neptune-2k.jpg", "triton-4k.jpg"], { rawLimit: 4_000_000, gzipLimit: 2_630_000 }),
+  planetView("pluto", ["pluto-4k.jpg", "charon-2k.jpg"], { rawLimit: 3_350_000, gzipLimit: 2_100_000 }),
   planetView("mercury", ["mercury-2k.jpg"], { moons: false, rawLimit: 2_580_000, gzipLimit: 1_420_000 }),
   // T-141 (O-039, I-068): the Venus view is the one page that opts in to desktop texture variants (`desktopTextures`), so a desktop window fetches `venus-8k-balanced.jpg` (14,474,577 B) instead of the 2k file (1,090,552 B); the set lists the 8k file, the heavier case.
   planetView("venus", ["venus-8k-balanced.jpg"], { moons: false, rawLimit: 16_860_000, gzipLimit: 15_650_000 }),

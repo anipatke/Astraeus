@@ -1,4 +1,4 @@
-import type { PlanetSystem } from "./planetDefinition";
+import type { PlanetSystem } from "./planetScene";
 
 // The planets' system modules, loaded lazily: a planet's system (moon list, positions, pictures) is fetched only for the chosen one.
 // The public build offers Jupiter alone (owner, 2026-10-22): its glob names only Jupiter's file, so Vite leaves the other eight planets' systems out of the bundle.

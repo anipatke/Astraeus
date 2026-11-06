@@ -1,4 +1,4 @@
-// Builds data/moons/jupiter.json (core data, O-025 T-097) and the moon-family section of assets.html from the T-096 curve-fit index.
+// Builds astraeus-data-jupiter/data/jupiter-moons/list.json (core data, O-025 T-097) and the moon-family section of assets.html from the T-096 curve-fit index.
 //   node tools/import/jupiter-moon-catalogue.mjs
 // Facts below were read on 2026-10-18 from the sources named in `sources` in the output; nothing is invented. The Jupiter moon list itself is
 // the T-096 index (JPL Horizons); this script adds family, size and discovery year. Anything not in a published family is a loner.
@@ -123,7 +123,7 @@ const out = {
   families: FAMILIES,
   moons: entries,
 };
-writeFileSync(new URL("data/moons/jupiter.json", root), JSON.stringify(out, null, 1) + "\n");
+writeFileSync(new URL("../astraeus-data-jupiter/data/jupiter-moons/list.json", root), JSON.stringify(out, null, 1) + "\n");
 
 // ---- assets.html section ----
 // I-075: Jupiter's part of the "Moons" section (opened by the moons-overview block of tools/site/assets-sections.mjs): one closed block, families inside, no per-row picture text.
@@ -136,7 +136,7 @@ for (const family of FAMILIES) {
   html += `        <details class="moon-family" data-moon-family="${family.id}" data-count="${members.length}"><summary><h3>${esc(family.label)} <span class="sub">${members.length}</span></h3></summary><p class="fam-note">${esc(family.description)} Source: ${esc(src)}.</p><ul class="moon-list">\n`;
   html += "            " + members.map((m) => `<li data-moon="${m.id}"><b>${esc(m.name)}</b> <span>${m.meanRadiusKm} km${m.radiusBasis === "estimate" ? " (est.)" : ""} · ${m.discoveryYear}</span></li>`).join("") + "</ul></details>\n";
 }
-html += `        <p class="fam-note">Sources: ${Object.values(sources).map((s) => `<a href="${s.url}">${esc(s.title.split(/[,(]| \(/)[0])}</a>`).join("; ")}. Group membership as tabulated in the Wikipedia moon table, which cites Sheppard; each moon's own source ids are in <code>data/moons/jupiter.json</code>.</p>\n      </details>\n  <!-- jupiter-moons:end -->\n`;
+html += `        <p class="fam-note">Sources: ${Object.values(sources).map((s) => `<a href="${s.url}">${esc(s.title.split(/[,(]| \(/)[0])}</a>`).join("; ")}. Group membership as tabulated in the Wikipedia moon table, which cites Sheppard; each moon's own source ids are in <code>astraeus-data-jupiter/data/jupiter-moons/list.json</code>.</p>\n      </details>\n  <!-- jupiter-moons:end -->\n`;
 const path = new URL("../astraeus-site/assets.html", root);
 const page = readFileSync(path, "utf8");
 const marked = /  <!-- jupiter-moons:start[\s\S]*?<!-- jupiter-moons:end -->\n/;

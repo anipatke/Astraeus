@@ -1,4 +1,4 @@
-// Builds data/moons/<planet>.json (core data, O-033 T-115) for Mars, Saturn, Uranus, Neptune and Pluto, in the format
+// Builds astraeus-data-<planet>/data/<planet>-moons/list.json (core data, O-033 T-115) for Mars, Saturn, Uranus, Neptune and Pluto, in the format
 // `astraeus.moon-catalogue/1` that Jupiter's list (tools/import/jupiter-moon-catalogue.mjs) already uses and src/assets/moonCatalogue.ts parses.
 //   node tools/import/planet-moon-catalogues.mjs
 // The moon list is each planet's T-114 curve-fit index (JPL Horizons); this script adds families, sources and the notes. Each moon's family,
@@ -150,7 +150,7 @@ for (const [planet, plan] of Object.entries(PLANETS)) {
     families: plan.families,
     moons: entries,
   };
-  writeFileSync(new URL(`data/moons/${planet}.json`, root), JSON.stringify(out, null, 1) + "\n");
+  writeFileSync(new URL(`../astraeus-data-${planet}/data/${planet}-moons/list.json`, root), JSON.stringify(out, null, 1) + "\n");
   summary[planet] = Object.fromEntries(plan.families.map((family) => [family.id, entries.filter((entry) => entry.family === family.id).length]));
 }
 console.log(JSON.stringify(summary));

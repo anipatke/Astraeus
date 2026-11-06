@@ -1,12 +1,12 @@
 // Venus's system for the planets experience: Venus alone (no moon), with its tagged places. The words and numbers are data/planets/venus.json.
-import { catalogue } from "astraeus/assets/catalogue";
-import { createComposition } from "astraeus/assets/compositions";
-import type { PlanetSystem } from "../planetDefinition";
-import venusFeatures from "astraeus-data/bodies/venus/features.json";
-import venusCategories from "astraeus-data/bodies/venus/categories.json";
+import type { PlanetSystem } from "../planetScene";
+import { packagesOf } from "../planetSystemParts";
+
+/** The tagged places of Venus: its body package's features and categories, read as they are stored. */
+const PACKAGES = import.meta.glob("../../../../../astraeus-data/data/bodies/venus/{features,categories}.json", { eager: true, import: "default" }) as Record<string, unknown>;
 
 export const venusSystem: PlanetSystem = {
-  composition: createComposition(catalogue, { id: "venus", bodies: ["venus"], defaultCenter: "venus" }),
-  packages: { venus: { features: venusFeatures, categories: venusCategories } },
-  load: async () => undefined,
+  bodies: [{ id: "venus" }],
+  packages: packagesOf(PACKAGES, ["venus"]),
+  data: [],
 };

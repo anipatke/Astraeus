@@ -1,31 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { chooseSwitch } from "../src/app/listSwitch";
+import { pickerSwitch } from "../src/app/listSwitch";
 import { switchAddress } from "../src/shell/SwitchControl";
 
-const SWITCH = { label: "Kind", param: "kind" };
-const entries = [
-  { name: "second", label: "Second", order: 2 },
-  { name: "first", label: "First", order: 1 },
-];
-
 describe("list switch (T-171)", () => {
-  it("opens the lowest order by default and lists every entry in order", () => {
-    const choice = chooseSwitch(entries, null, SWITCH)!;
-    expect(choice.name).toBe("first");
-    expect(choice.switcher.param).toBe("kind");
-    expect(choice.switcher.options).toEqual([
-      { label: "First", value: "first", active: true },
-      { label: "Second", value: "second", active: false },
-    ]);
-  });
-
-  it("opens the requested entry, and the default for an unknown one", () => {
-    expect(chooseSwitch(entries, "second", SWITCH)!.switcher.options.map((option) => option.active)).toEqual([false, true]);
-    expect(chooseSwitch(entries, "nope", SWITCH)!.name).toBe("first");
-  });
-
-  it("has no choice without entries", () => {
-    expect(chooseSwitch([], "first", SWITCH)).toBeUndefined();
+  it("makes the control of a host picker, with the pressed option active and no address work", () => {
+    const choose = () => undefined;
+    const control = pickerSwitch({ id: "kind", label: "Kind", options: [{ value: "a", label: "A" }, { value: "b", label: "B" }] }, "b", choose);
+    expect(control).toEqual({ label: "Kind", param: "kind", choose, options: [{ label: "A", value: "a", active: false }, { label: "B", value: "b", active: true }] });
   });
 
   it("builds the switch address keeping other settings but dropping the old view and time", () => {
@@ -35,5 +16,23 @@ describe("list switch (T-171)", () => {
     expect(new URL(next).searchParams.get("scale")).toBe("true-scale");
     expect(new URL(next).searchParams.has("view")).toBe(false);
     expect(new URL(next).searchParams.has("t")).toBe(false);
+  });
+
+  // Moved from the planets demo (O-059 T-270): a switch that shares one timeline keeps the clock time (`t`) and drops the camera view.
+  it("keeps the clock time for a switch that names it, and the camera view is the new version's own", () => {
+    const from = "http://x/app.html?experience=planets&planet=jupiter&view=jupiter,1,2,3&t=2016-11-10T12:00:00Z";
+    const next = new URL(switchAddress(from, "planet", "saturn", ["t"]));
+    expect(next.searchParams.get("planet")).toBe("saturn");
+    expect(next.searchParams.get("t")).toBe("2016-11-10T12:00:00Z");
+    expect(next.searchParams.has("view")).toBe(false);
+  });
+
+  it("carries the clock's time now, not the time the address was opened with (I-051)", () => {
+    const opened = "http://x/app.html?experience=planets&planet=jupiter&t=2016-11-10T12:00:00Z";
+    const later = Date.UTC(2016, 10, 12, 3, 4, 5, 600);
+    expect(new URL(switchAddress(opened, "planet", "saturn", ["t"], later)).searchParams.get("t")).toBe("2016-11-12T03:04:06.000Z");
+    expect(new URL(switchAddress("http://x/app.html?experience=planets&planet=jupiter", "planet", "saturn", ["t"], later)).searchParams.get("t")).toBe("2016-11-12T03:04:06.000Z");
+    // A switch that does not keep the time (the showers') drops it whatever the clock says.
+    expect(new URL(switchAddress(opened, "shower", "b", [], later)).searchParams.has("t")).toBe(false);
   });
 });

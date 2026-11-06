@@ -2977,6 +2977,7 @@
         "import": "./src/index.js"
       },
       "./index.json": "./data/jupiter-moons/index.json",
+      "./moon-list.json": "./data/jupiter-moons/list.json",
       "./package.json": "./package.json"
     },
     "astraeus-data-mars": {
@@ -2985,6 +2986,8 @@
         "import": "./src/index.js"
       },
       "./index.json": "./data/mars-moons/index.json",
+      "./moon-list.json": "./data/mars-moons/list.json",
+      "./moon-fit-errors.json": "./data/mars-moons/fit-errors.json",
       "./package.json": "./package.json"
     },
     "astraeus-data-neptune": {
@@ -2993,6 +2996,8 @@
         "import": "./src/index.js"
       },
       "./index.json": "./data/neptune-moons/index.json",
+      "./moon-list.json": "./data/neptune-moons/list.json",
+      "./moon-fit-errors.json": "./data/neptune-moons/fit-errors.json",
       "./package.json": "./package.json"
     },
     "astraeus-data-pluto": {
@@ -3001,6 +3006,8 @@
         "import": "./src/index.js"
       },
       "./index.json": "./data/pluto-moons/index.json",
+      "./moon-list.json": "./data/pluto-moons/list.json",
+      "./moon-fit-errors.json": "./data/pluto-moons/fit-errors.json",
       "./package.json": "./package.json"
     },
     "astraeus-data-saturn": {
@@ -3009,6 +3016,8 @@
         "import": "./src/index.js"
       },
       "./index.json": "./data/saturn-moons/index.json",
+      "./moon-list.json": "./data/saturn-moons/list.json",
+      "./moon-fit-errors.json": "./data/saturn-moons/fit-errors.json",
       "./package.json": "./package.json"
     },
     "astraeus-data-uranus": {
@@ -3017,6 +3026,8 @@
         "import": "./src/index.js"
       },
       "./index.json": "./data/uranus-moons/index.json",
+      "./moon-list.json": "./data/uranus-moons/list.json",
+      "./moon-fit-errors.json": "./data/uranus-moons/fit-errors.json",
       "./package.json": "./package.json"
     }
   },
@@ -3054,36 +3065,47 @@
     "astraeus-data-jupiter": {
       ".": "./src/index.ts",
       "./index.json": "./data/jupiter-moons/index.json",
+      "./moon-list.json": "./data/jupiter-moons/list.json",
       "./data/*": "./data/*",
       "./package.json": "./package.json"
     },
     "astraeus-data-mars": {
       ".": "./src/index.ts",
       "./index.json": "./data/mars-moons/index.json",
+      "./moon-list.json": "./data/mars-moons/list.json",
+      "./moon-fit-errors.json": "./data/mars-moons/fit-errors.json",
       "./data/*": "./data/*",
       "./package.json": "./package.json"
     },
     "astraeus-data-neptune": {
       ".": "./src/index.ts",
       "./index.json": "./data/neptune-moons/index.json",
+      "./moon-list.json": "./data/neptune-moons/list.json",
+      "./moon-fit-errors.json": "./data/neptune-moons/fit-errors.json",
       "./data/*": "./data/*",
       "./package.json": "./package.json"
     },
     "astraeus-data-pluto": {
       ".": "./src/index.ts",
       "./index.json": "./data/pluto-moons/index.json",
+      "./moon-list.json": "./data/pluto-moons/list.json",
+      "./moon-fit-errors.json": "./data/pluto-moons/fit-errors.json",
       "./data/*": "./data/*",
       "./package.json": "./package.json"
     },
     "astraeus-data-saturn": {
       ".": "./src/index.ts",
       "./index.json": "./data/saturn-moons/index.json",
+      "./moon-list.json": "./data/saturn-moons/list.json",
+      "./moon-fit-errors.json": "./data/saturn-moons/fit-errors.json",
       "./data/*": "./data/*",
       "./package.json": "./package.json"
     },
     "astraeus-data-uranus": {
       ".": "./src/index.ts",
       "./index.json": "./data/uranus-moons/index.json",
+      "./moon-list.json": "./data/uranus-moons/list.json",
+      "./moon-fit-errors.json": "./data/uranus-moons/fit-errors.json",
       "./data/*": "./data/*",
       "./package.json": "./package.json"
     }

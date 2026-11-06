@@ -22,6 +22,8 @@
   "exports": {
     ".": "./src/index.ts",
     "./index.json": "./data/saturn-moons/index.json",
+    "./moon-list.json": "./data/saturn-moons/list.json",
+    "./moon-fit-errors.json": "./data/saturn-moons/fit-errors.json",
     "./data/*": "./data/*",
     "./package.json": "./package.json"
   },
@@ -32,6 +34,8 @@
         "import": "./src/index.js"
       },
       "./index.json": "./data/saturn-moons/index.json",
+      "./moon-list.json": "./data/saturn-moons/list.json",
+      "./moon-fit-errors.json": "./data/saturn-moons/fit-errors.json",
       "./package.json": "./package.json"
     },
     "files": [

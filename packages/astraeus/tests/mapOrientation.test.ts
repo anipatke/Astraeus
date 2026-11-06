@@ -1,24 +1,23 @@
 import { describe, expect, it } from "vitest";
 import { PICTURES } from "astraeus-data";
 import { Object3D, Vector3 } from "three";
-import { applyOrientation } from "astraeus/app/sceneLayout";
-import { latLonToXYZ } from "astraeus/app/FeatureMarkers";
-import { eqjToRenderVector } from "astraeus/app/renderCoordinates";
-import { catalogue } from "astraeus/assets/catalogue";
-import { DIONE_VISUAL, IAPETUS_VISUAL, PLUTO_VISUAL, RHEA_VISUAL, TETHYS_VISUAL, TITAN_VISUAL } from "astraeus/assets/bodies/planetSystemMaps";
-import { CALLISTO_VISUAL, EUROPA_VISUAL, GANYMEDE_VISUAL } from "astraeus/assets/bodies/galileanMoons";
-import { shownLongitude } from "../src/experiences/planets/surfacePlace.mjs";
-import type { BodyVisual } from "astraeus/assets/visual";
+import { applyOrientation } from "../src/app/sceneLayout";
+import { latLonToXYZ } from "../src/app/FeatureMarkers";
+import { eqjToRenderVector } from "../src/app/renderCoordinates";
+import { catalogue } from "../src/assets/catalogue";
+import { DIONE_VISUAL, IAPETUS_VISUAL, PLUTO_VISUAL, RHEA_VISUAL, TETHYS_VISUAL, TITAN_VISUAL } from "../src/assets/bodies/planetSystemMaps";
+import { CALLISTO_VISUAL, EUROPA_VISUAL, GANYMEDE_VISUAL } from "../src/assets/bodies/galileanMoons";
+import type { BodyVisual } from "../src/assets/visual";
 import europaMap from "astraeus-data/bodies/europa/map.json";
 import titanMap from "astraeus-data/bodies/titan/map.json";
 import europaFeatures from "astraeus-data/bodies/europa/features.json";
 import titanFeatures from "astraeus-data/bodies/titan/features.json";
-import tritonMap from "astraeus-data/bodies/triton/map.json";
-import { createOrbAstronomyAdapter } from "astraeus/core/astronomyAdapter";
-import { createStateResolver } from "astraeus/core/stateResolver";
+import { createOrbAstronomyAdapter } from "../src/core/astronomyAdapter";
+import { createStateResolver } from "../src/core/stateResolver";
 import features from "astraeus-data/bodies/iapetus/features.json";
-import { readJson } from "astraeus/tools/import/test-io.mjs";
+import { readJson } from "../tools/import/test-io.mjs";
 
+// O-059 T-270: moved from the planets demo (it reads the engine's internals); the demo keeps the conversion cases (tests/surfacePlace.test.ts there).
 // O-039 T-130 (time inside the fit window the test setup loads, 2016-02-10 to 2016-12-30): Iapetus is tidally locked, so its dark Cassini Regio hemisphere leads in its orbit about Saturn. The drawn map's dark
 // centre (marker frame, longitude about +87 east) must therefore point along Iapetus's velocity once the body's rotation and the
 // visual's yaw are applied the way the scene applies them (applyOrientation). Mesh +X is map longitude 0 (DONOR_PROVENANCE.md).
@@ -140,7 +139,8 @@ describe("T-131: moon maps centred on 180 E turn half a revolution", () => {
 });
 
 describe("T-131: Titan's places are converted from west longitudes as they load", () => {
-  const shown = (_name: string, stored: number): number => shownLongitude(stored, titanMap.coordinates);
+  // The marker longitude a west-longitude record gives: 180 - west (the planets demo's `shownLongitude` for this map record; its own tests, tests/surfacePlace.test.ts there, prove it).
+  const shown = (_name: string, stored: number): number => 180 - stored;
 
   it("Xanadu [6958] 100.0 W, Ontario Lacus [7003] 183.0 W and the Huygens landing site 192.335 W land on their terrain", () => {
     // Xanadu and Ontario Lacus: USGS Gazetteer, Titan, planetographic +West. The Huygens landing site is no IAU-named feature (not in the gazetteer);
@@ -150,11 +150,11 @@ describe("T-131: Titan's places are converted from west longitudes as they load"
     ], 3);
   });
 
-  it("converts 180 - west for Titan and leaves records that do not say so as stored", () => {
+  it("states Titan's and Europa's records as west longitudes, so the places are shown at 180 - west", () => {
+    expect(titanMap.coordinates.sourceLongitude).toMatch(/west/i);
+    expect(europaMap.coordinates.sourceLongitude).toMatch(/west/i);
     expect(shown("Xanadu", 100)).toBe(80);
     expect(shown("Sinlap", 16)).toBe(164);
-    expect(shownLongitude(25, tritonMap.coordinates)).toBe(25);
-    expect(shownLongitude(25, undefined)).toBe(25);
   });
 
   it("without the conversion Xanadu is 20 degrees off its terrain (the audit's finding) and the data file is untouched", () => {
@@ -165,7 +165,7 @@ describe("T-131: Titan's places are converted from west longitudes as they load"
 });
 
 describe("T-139: Europa's places are converted from west longitudes as they load (I-067)", () => {
-  const shown = (_name: string, stored: number): number => shownLongitude(stored, europaMap.coordinates);
+  const shown = (_name: string, stored: number): number => 180 - stored;
 
   it("Tyre [6170] 146.6 W, Pwyll [4878] 271.4 W, Conamara Chaos [1282] 272.7 W and Thera Macula [5967] 181.2 W land on their terrain", () => {
     // USGS Gazetteer of Planetary Nomenclature (planetarynames.wr.usgs.gov, target Europa, planetographic +West, looked up 2026-10-22).

@@ -13,8 +13,7 @@ const MB = 1_000_000;
 
 /** Limits in bytes (packed, unpacked) and file counts. `astraeus` has no file count: `strayFiles` names a packed file that is not a real source module (O-051 T-218, owner choice). The planet packages were raised in O-047 T-200. */
 export const LIMITS = {
-  // Raised from 9.5 MB for O-059 T-267 (owner, 2026-11-06); returns to 9.5 MB at T-270 when the moon lists leave.
-  astraeus: { packed: 8 * MB, unpacked: 9.8 * MB },
+  astraeus: { packed: 8 * MB, unpacked: 9.5 * MB },
   // Files raised from 40 to 130 for the place lists (owner, 2026-11-06, O-059 T-268); sizes unchanged.
   "astraeus-data": { packed: 39 * MB, unpacked: 39 * MB, files: 130 },
   "astraeus-data-jupiter": { packed: 34 * MB, unpacked: 37 * MB, files: 2_900 },
@@ -31,7 +30,7 @@ const CODE = "src/.+\\.(?:js|d\\.ts)";
 const ALLOWED = {
   astraeus: [...COMMON, CODE, "src/.+\\.(?:css|jpg|png|json)", "data/.+\\.json"],
   "astraeus-data": [...COMMON, CODE, "src/textures/[^/]+\\.jpg", "data/bodies/[^/]+\\.(?:json|md)", "data/bodies/[a-z]+/[a-z]+\\.json"],
-  position: [...COMMON, CODE, "data/[a-z]+-moons/index\\.json", "data/[a-z]+-moons/[^/]+/\\d{4}\\.bin"],
+  position: [...COMMON, CODE, "data/[a-z]+-moons/index\\.json", "data/[a-z]+-moons/(?:list|fit-errors)\\.json", "data/[a-z]+-moons/[^/]+/\\d{4}\\.bin"],
 };
 /** Never packed, whatever else matches. */
 const FORBIDDEN = /(?:\.test\.|\.spec\.|(?:^|\/)tests?\/|(?:^|\/)tools\/|horizons-cache|\.map$|\.env|\.tsbuildinfo|tsconfig|(?<!\.d)\.tsx?$|vitest|\/local\/)/;

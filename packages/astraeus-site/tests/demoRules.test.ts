@@ -6,8 +6,8 @@ import { mountedBodiesOf, type ExperienceDefinition } from "astraeus/app/experie
 import { catalogue } from "astraeus/assets/catalogue";
 import { trueScale } from "astraeus/core/scalePolicy";
 import { apollo11Definition } from "astraeus-demo-apollo11/experiences/apollo11/apollo11Definition";
-import { jupiterIoExplorer } from "astraeus-demo-planets/experiences/jupiter-io/jupiterIo";
-import { buildPlanetDefinition, type PlanetSystem } from "astraeus-demo-planets/experiences/planets/planetDefinition";
+import { JUPITER_LABEL, jupiterIoData, jupiterIoScene } from "astraeus-demo-planets/experiences/jupiter-io/jupiterIo";
+import { buildPlanetScene, type PlanetSystem } from "astraeus-demo-planets/experiences/planets/planetScene";
 import { parsePlanetSettings } from "astraeus-demo-planets/experiences/planets/planetSettings";
 import { earthSystem } from "astraeus-demo-planets/experiences/planets/systems/earth";
 import { marsSystem } from "astraeus-demo-planets/experiences/planets/systems/mars";
@@ -24,7 +24,9 @@ import venusFile from "astraeus-demo-planets/data/planets/venus.json";
 import noPanels from "astraeus-demo-planets/data/stories/no-panels/panels.json";
 import { madeUpOrbits } from "astraeus-demo-showers/tests/helpers/measuredOrbits";
 
-const planet = (file: unknown, system: unknown) => buildPlanetDefinition(parsePlanetSettings(file), system as PlanetSystem, noPanels);
+const planet = (file: unknown, system: unknown) => buildPlanetScene(parsePlanetSettings(file), system as PlanetSystem, noPanels).toDefinition((system as PlanetSystem).data);
+/** Jupiter's view as the app is given it until the site mounts it (T-272): the scene's definition with its data and the page heading. */
+const jupiterIoExplorer = { ...jupiterIoScene.toDefinition(jupiterIoData), label: JUPITER_LABEL };
 const shower = (file: unknown) => { const settings = parseShowerSettings(file); const definition = buildShowerDefinition(settings, { kind: "loaded", orbits: madeUpOrbits(7, 20) }); return [definition, definition.catalogue ?? catalogue] as const; };
 const [perseids, perseidsCatalogue] = shower(perseidsFile);
 const [geminids, geminidsCatalogue] = shower(geminidsFile);

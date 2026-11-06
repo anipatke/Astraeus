@@ -1,14 +1,13 @@
 // Saturn's system for the planets experience: its moon list, fitted positions, mapped pictures and tagged places. The words and numbers
 // of the view are data/planets/saturn.json; this file only names where Saturn's data is.
-import { SATURN_MOON_CATALOGUE } from "astraeus/assets/bodies/outerPlanetCatalogues";
-import { saturnMoonsSystem } from "astraeus/assets/compositions";
-import { SATURN_MOON_SYSTEM } from "astraeus/core/bodies/planetMoons";
-import type { PlanetSystem } from "../planetDefinition";
-import { chunkUrlsOf, ORBIT_HISTORY_MS, packagesOf } from "../planetSystemParts";
-import saturnFitErrors from "astraeus/data/moons/fit-errors/saturn.json";
+import type { PlanetSystem } from "../planetScene";
+import { chunkUrlsOf, moonListOf, moonPositionsOf, ORBIT_HISTORY_MS, packagesOf } from "../planetSystemParts";
 
-// The index ships in astraeus-data-saturn; a dynamic import keeps it its own chunk (it is read only when the system loads).
-SATURN_MOON_SYSTEM.provideIndex(async () => (await import("astraeus-data-saturn/index.json")).default as unknown);
+/** Saturn's moon list and the measured error of each fit (both ship in astraeus-data-saturn). */
+const LISTS = import.meta.glob("../../../../../astraeus-data-saturn/data/saturn-moons/list.json", { eager: true, import: "default" }) as Record<string, unknown>;
+const FIT_ERRORS = import.meta.glob("../../../../../astraeus-data-saturn/data/saturn-moons/fit-errors.json", { eager: true, import: "default" }) as Record<string, Record<string, number>>;
+/** The index ships in astraeus-data-saturn; a lazy glob keeps it its own chunk (it is read only when the system loads). */
+const INDEX = import.meta.glob("../../../../../astraeus-data-saturn/data/saturn-moons/index.json", { import: "default" }) as Record<string, () => Promise<unknown>>;
 
 /** The tagged places of the mapped moons: each body package's features and categories, read as they are stored. */
 const PACKAGES = import.meta.glob("../../../../../astraeus-data/data/bodies/{saturn,mimas,enceladus,tethys,dione,rhea,titan,iapetus}/{features,categories,map}.json", { eager: true, import: "default" }) as Record<string, unknown>;
@@ -22,16 +21,14 @@ const SHIPPED = {
   ...import.meta.glob(["../../../../../astraeus-data-saturn/data/saturn-moons/*/2015.bin", "!../../../../../astraeus-data-saturn/data/saturn-moons/{aegaeon,anthe,atlas,calypso,daphnis,dione,enceladus,epimetheus,helene,hyperion,iapetus,janus,methone,mimas,pallene,pan,pandora,polydeuces,prometheus,rhea,s2009-s2,telesto,tethys,titan}/*"], { query: "?url", import: "default", eager: true }),
 } as Record<string, string>;
 export const SATURN_CHUNK_URLS = chunkUrlsOf(SHIPPED, "saturn-moons");
-export const SATURN_MOON_IDS = SATURN_MOON_CATALOGUE.moons.map((moon) => moon.id);
+const MOON_LIST = moonListOf(LISTS);
+export const SATURN_MOON_IDS = MOON_LIST.moons.map((moon) => moon.id);
 
 export const saturnSystem: PlanetSystem = {
-  catalogue: SATURN_MOON_CATALOGUE,
-  composition: saturnMoonsSystem,
-  ephemeris: SATURN_MOON_SYSTEM.ephemeris,
-  fitSource: SATURN_MOON_SYSTEM.config.fitSource,
-  tidalLockNote: SATURN_MOON_SYSTEM.tidalLockNote,
-  centreGmKm3S2: SATURN_MOON_SYSTEM.config.centreGmKm3S2,
-  fitErrorsM: saturnFitErrors,
+  bodies: [{ id: "saturn" }, { id: "mimas" }, { id: "enceladus" }, { id: "tethys" }, { id: "dione" }, { id: "rhea" }, { id: "titan" }, { id: "iapetus" }],
+  moonList: MOON_LIST,
+  fitErrorsM: Object.values(FIT_ERRORS)[0],
+  orbitHistoryMs: ORBIT_HISTORY_MS,
   packages: packagesOf(PACKAGES, ["saturn", "mimas", "enceladus", "tethys", "dione", "rhea", "titan", "iapetus"]),
-  load: async (window) => { await SATURN_MOON_SYSTEM.load({ window, bodies: SATURN_MOON_IDS, chunkUrls: SATURN_CHUNK_URLS, history: { bodies: SATURN_MOON_IDS, maxMs: ORBIT_HISTORY_MS } }); },
+  data: [moonPositionsOf({ name: "astraeus-data-saturn", centre: "saturn", provides: ["mimas", "enceladus", "tethys", "dione", "rhea", "titan", "iapetus"], loadIndex: Object.values(INDEX)[0]!, chunkUrls: SATURN_CHUNK_URLS })],
 };

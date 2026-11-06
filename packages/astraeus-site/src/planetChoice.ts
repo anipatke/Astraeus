@@ -1,5 +1,5 @@
 // Planet choice: which planet the planets experience opens, and the switch that offers the others. Pure; the names come from the settings files.
-import { chooseSwitch, type SwitchEntry } from "astraeus/app/listSwitch";
+import { chooseSwitch, type SwitchEntry } from "./listChoice";
 
 /** The address parameter that names the planet (`?experience=planets&planet=<id>`). */
 export const PLANET_PARAM = "planet";

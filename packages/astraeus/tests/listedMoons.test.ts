@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest";
 import { listedMoon, listedMoons } from "../src/core/bodies/listedMoons";
 import { recordPeriodDays, type PeriodRecord } from "../src/core/siderealPeriod";
-import { parseMoonCatalogue } from "../src/assets/moonCatalogue";
 import { PLANETS, renderListedMoons } from "../tools/import/moon-lookup.mjs";
 import { readJson, readText } from "../tools/import/test-io.mjs";
+import { moonDataFolder } from "./moonData";
 
 // O-049 T-210: every listed moon has an orbit period from JPL SSD mean elements, and the slim lookup (src/core/bodies/listedMoons.ts, generated) agrees with the lists.
 const ROOT = new URL("../", import.meta.url).pathname;
@@ -11,7 +11,7 @@ interface RawMoon { id: string; name: string; naifId: number; meanRadiusKm: numb
 interface RawList { parent: string; sources: Record<string, { title: string; url: string }>; periods: { source: string; fetched: string; missing: string[] }; moons: RawMoon[] }
 interface PeriodsFile { fetched: string; periods: Record<string, { id: string; naifId: number; jplName: string; periodDays: number }[]> }
 
-const lists = PLANETS.map((planet) => ({ planet, raw: readJson(`${ROOT}data/moons/${planet}.json`) as RawList }));
+const lists = PLANETS.map((planet) => ({ planet, raw: readJson(`${moonDataFolder(planet)}list.json`) as RawList }));
 const periods = readJson(`${ROOT}tools/import/planet-moon-periods.json`) as PeriodsFile;
 
 describe("orbit periods in the moon lists", () => {
@@ -28,7 +28,7 @@ describe("orbit periods in the moon lists", () => {
     }
     const fromTable = new Map(periods.periods[planet]!.map((row) => [row.naifId, row.periodDays]));
     for (const moon of raw.moons) expect(moon.orbitPeriodDays, moon.id).toBe(fromTable.get(moon.naifId) ?? null);
-    expect(parseMoonCatalogue(raw).moons.filter((moon) => moon.orbitPeriodDays !== undefined)).toHaveLength(raw.moons.length - missing.length);
+    expect(raw.moons.filter((moon) => typeof moon.orbitPeriodDays === "number" && moon.orbitPeriodDays > 0)).toHaveLength(raw.moons.length - missing.length);
   });
 
   it("agrees with the period in each moon record of data/orbits within 0.5 percent, and with its rotation-rate period within 1 percent", () => {

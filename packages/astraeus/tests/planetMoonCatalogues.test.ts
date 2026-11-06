@@ -1,10 +1,9 @@
 import { moonDataFolder } from "./moonData";
 import { describe, expect, it } from "vitest";
-import { parseMoonCatalogue } from "../src/assets/moonCatalogue";
 import { exists, readJson } from "../tools/import/test-io.mjs";
 
-// The core moon lists for Mars, Saturn, Uranus, Neptune and Pluto (data/moons/<planet>.json, O-033 T-115), parsed by the same
-// parser as Jupiter's, against each planet's T-114 curve-fit index.
+// The core moon lists for Mars, Saturn, Uranus, Neptune and Pluto (astraeus-data-<planet>/data/<planet>-moons/list.json, O-033 T-115),
+// against each planet's T-114 curve-fit index. The parser that reads them is the planets demo's (tests/moonList.test.ts there).
 const ROOT = new URL("../", import.meta.url).pathname;
 interface RawMoon { id: string; naifId: number; family: string; radiusBasis: string; discoveryYear: number; ephemeris: { set: string; body: string }; bodyPackage: string | null; sources: { list: string; family: string; familyBasis: string[]; radius: string; discovery: string } }
 interface Raw { parent: string; ephemeris: { path: string; moonCount: number }; sources: Record<string, { title: string; url: string }>; families: { id: string; sources: string[] }[]; moons: RawMoon[] }
@@ -19,13 +18,12 @@ const EXPECTED: Record<string, Record<string, number>> = {
 const MAPPED: Record<string, string[]> = { mars: [], saturn: ["mimas", "enceladus", "tethys", "dione", "rhea", "titan", "iapetus"], uranus: [], neptune: ["triton"], pluto: ["charon"] };
 
 describe.each(Object.keys(EXPECTED))("%s moon list (core data)", (planet) => {
-  const raw = readJson(`${ROOT}data/moons/${planet}.json`) as Raw;
+  const raw = readJson(`${moonDataFolder(planet)}list.json`) as Raw;
   const fits = readJson(`${moonDataFolder(planet)}index.json`) as { bodies: { id: string; role: string; naifId: number }[] };
   const fitMoons = fits.bodies.filter((body) => body.role === "moon");
-  const catalogue = parseMoonCatalogue(raw);
 
-  it("parses with the shared parser and names its planet", () => {
-    expect(catalogue.parent).toBe(planet);
+  it("names its planet", () => {
+    expect(raw.parent).toBe(planet);
     expect(raw.ephemeris).toEqual({ path: `data/ephemerides/${planet}-moons/index.json`, moonCount: fitMoons.length });
   });
 
@@ -38,7 +36,7 @@ describe.each(Object.keys(EXPECTED))("%s moon list (core data)", (planet) => {
   });
 
   it("puts every moon in one declared family with the expected counts, and every family has moons", () => {
-    const counts = Object.fromEntries(catalogue.families.map((family) => [family.id, catalogue.moons.filter((moon) => moon.family === family.id).length]));
+    const counts = Object.fromEntries(raw.families.map((family) => [family.id, raw.moons.filter((moon) => moon.family === family.id).length]));
     expect(counts).toEqual(EXPECTED[planet]);
   });
 
@@ -67,7 +65,7 @@ describe.each(Object.keys(EXPECTED))("%s moon list (core data)", (planet) => {
 });
 
 describe("brightness-based sizes are marked", () => {
-  const saturn = readJson(`${ROOT}data/moons/saturn.json`) as Raw & { moons: (RawMoon & { meanRadiusKm: number })[] };
+  const saturn = readJson(`${moonDataFolder("saturn")}list.json`) as Raw & { moons: (RawMoon & { meanRadiusKm: number })[] };
   const byId = (id: string) => saturn.moons.find((moon) => moon.id === id);
   it("marks the irregular moons estimates and the big moons measured", () => {
     expect(byId("titan")?.radiusBasis).toBe("measured");

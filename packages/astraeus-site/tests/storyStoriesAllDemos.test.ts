@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { jupiterIoExplorer } from "astraeus-demo-planets/experiences/jupiter-io/jupiterIo";
+import { JUPITER_LABEL, jupiterIoData, jupiterIoScene } from "astraeus-demo-planets/experiences/jupiter-io/jupiterIo";
 import { buildShowerDefinition } from "astraeus-demo-showers/tests/helpers/showerDefinition";
 import { parseShowerSettings } from "astraeus-demo-showers/experiences/showers/showerSettings";
 import type { ExperienceConfig } from "astraeus/shell/experience";
@@ -7,6 +7,8 @@ import type { StoryPanel } from "astraeus/shell/storyPanels";
 import { shippedPanelsOf } from "astraeus-demo-showers/tests/helpers/shippedPanels";
 import { madeUpOrbits } from "astraeus-demo-showers/tests/helpers/measuredOrbits";
 import geminidsFile from "astraeus-demo-showers/data/showers/geminids.json";
+/** Jupiter's view as the app is given it until the site mounts it (T-272): the scene's definition with its data and the page heading. */
+const jupiterIoExplorer = { ...jupiterIoScene.toDefinition(jupiterIoData), label: JUPITER_LABEL };
 
 /** O-015 / T-089: stories on every demo. Each demo's panels are story data, read through the same generic panel path. */
 const geminids = () => {

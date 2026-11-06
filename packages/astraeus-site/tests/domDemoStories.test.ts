@@ -4,7 +4,7 @@
 // of each demo's panels are data (tests/storyStoriesAllDemos.test.ts, tests/storyPanels.test.ts); the scene markers' drawing is the smoke check.
 import { afterEach, describe, expect, it } from "vitest";
 import { apollo11Definition } from "astraeus-demo-apollo11/experiences/apollo11/apollo11Definition";
-import { jupiterIoExplorer } from "astraeus-demo-planets/experiences/jupiter-io/jupiterIo";
+import { JUPITER_LABEL, jupiterIoData, jupiterIoScene } from "astraeus-demo-planets/experiences/jupiter-io/jupiterIo";
 import { buildShowerDefinition } from "astraeus-demo-showers/tests/helpers/showerDefinition";
 import { parseShowerSettings } from "astraeus-demo-showers/experiences/showers/showerSettings";
 import type { ExperienceConfig } from "astraeus/shell/experience";
@@ -12,6 +12,8 @@ import geminidsFile from "astraeus-demo-showers/data/showers/geminids.json";
 import perseidsFile from "astraeus-demo-showers/data/showers/perseids.json";
 import { shippedPanelsOf } from "astraeus-demo-showers/tests/helpers/shippedPanels";
 import { $, mountShell, press, type Mounted } from "astraeus/tests/domSetup";
+/** Jupiter's view as the app is given it until the site mounts it (T-272): the scene's definition with its data and the page heading. */
+const jupiterIoExplorer = { ...jupiterIoScene.toDefinition(jupiterIoData), label: JUPITER_LABEL };
 
 const shower = (file: unknown): ExperienceConfig => { const settings = parseShowerSettings(file); return buildShowerDefinition(settings, { kind: "absent" }, shippedPanelsOf(settings)).experience; };
 const DEMOS: [string, ExperienceConfig][] = [["Apollo 11", apollo11Definition.experience], ["Perseids", shower(perseidsFile)], ["Geminids", shower(geminidsFile)], ["Jupiter", jupiterIoExplorer.experience]];

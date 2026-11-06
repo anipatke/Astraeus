@@ -1,14 +1,13 @@
 // Uranus's system for the planets experience: its moon list, fitted positions, mapped pictures and tagged places. The words and numbers
 // of the view are data/planets/uranus.json; this file only names where Uranus's data is.
-import { URANUS_MOON_CATALOGUE } from "astraeus/assets/bodies/outerPlanetCatalogues";
-import { uranusMoonsSystem } from "astraeus/assets/compositions";
-import { URANUS_MOON_SYSTEM } from "astraeus/core/bodies/planetMoons";
-import type { PlanetSystem } from "../planetDefinition";
-import { chunkUrlsOf, ORBIT_HISTORY_MS, packagesOf } from "../planetSystemParts";
-import uranusFitErrors from "astraeus/data/moons/fit-errors/uranus.json";
+import type { PlanetSystem } from "../planetScene";
+import { chunkUrlsOf, moonListOf, moonPositionsOf, ORBIT_HISTORY_MS, packagesOf } from "../planetSystemParts";
 
-// The index ships in astraeus-data-uranus; a dynamic import keeps it its own chunk (it is read only when the system loads).
-URANUS_MOON_SYSTEM.provideIndex(async () => (await import("astraeus-data-uranus/index.json")).default as unknown);
+/** Uranus's moon list and the measured error of each fit (both ship in astraeus-data-uranus). */
+const LISTS = import.meta.glob("../../../../../astraeus-data-uranus/data/uranus-moons/list.json", { eager: true, import: "default" }) as Record<string, unknown>;
+const FIT_ERRORS = import.meta.glob("../../../../../astraeus-data-uranus/data/uranus-moons/fit-errors.json", { eager: true, import: "default" }) as Record<string, Record<string, number>>;
+/** The index ships in astraeus-data-uranus; a lazy glob keeps it its own chunk (it is read only when the system loads). */
+const INDEX = import.meta.glob("../../../../../astraeus-data-uranus/data/uranus-moons/index.json", { import: "default" }) as Record<string, () => Promise<unknown>>;
 
 /** The tagged places of Uranus itself (it has no mapped moon): its body package's features and categories, read as they are stored. */
 const PACKAGES = import.meta.glob("../../../../../astraeus-data/data/bodies/uranus/{features,categories}.json", { eager: true, import: "default" }) as Record<string, unknown>;
@@ -22,16 +21,14 @@ const SHIPPED = {
   ...import.meta.glob(["../../../../../astraeus-data-uranus/data/uranus-moons/*/2015.bin", "!../../../../../astraeus-data-uranus/data/uranus-moons/{ariel,belinda,bianca,cordelia,cressida,cupid,desdemona,francisco,juliet,mab,miranda,oberon,ophelia,perdita,portia,puck,rosalind,titania,umbriel}/*"], { query: "?url", import: "default", eager: true }),
 } as Record<string, string>;
 export const URANUS_CHUNK_URLS = chunkUrlsOf(SHIPPED, "uranus-moons");
-export const URANUS_MOON_IDS = URANUS_MOON_CATALOGUE.moons.map((moon) => moon.id);
+const MOON_LIST = moonListOf(LISTS);
+export const URANUS_MOON_IDS = MOON_LIST.moons.map((moon) => moon.id);
 
 export const uranusSystem: PlanetSystem = {
-  catalogue: URANUS_MOON_CATALOGUE,
-  composition: uranusMoonsSystem,
-  ephemeris: URANUS_MOON_SYSTEM.ephemeris,
-  fitSource: URANUS_MOON_SYSTEM.config.fitSource,
-  tidalLockNote: URANUS_MOON_SYSTEM.tidalLockNote,
-  centreGmKm3S2: URANUS_MOON_SYSTEM.config.centreGmKm3S2,
-  fitErrorsM: uranusFitErrors,
+  bodies: [{ id: "uranus" }],
+  moonList: MOON_LIST,
+  fitErrorsM: Object.values(FIT_ERRORS)[0],
+  orbitHistoryMs: ORBIT_HISTORY_MS,
   packages: packagesOf(PACKAGES, ["uranus"]),
-  load: async (window) => { await URANUS_MOON_SYSTEM.load({ window, bodies: URANUS_MOON_IDS, chunkUrls: URANUS_CHUNK_URLS, history: { bodies: URANUS_MOON_IDS, maxMs: ORBIT_HISTORY_MS } }); },
+  data: [moonPositionsOf({ name: "astraeus-data-uranus", centre: "uranus", provides: [], loadIndex: Object.values(INDEX)[0]!, chunkUrls: URANUS_CHUNK_URLS })],
 };

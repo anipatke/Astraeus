@@ -6,11 +6,13 @@ import { readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { isSurfacePlace } from "astraeus-demo-planets/experiences/planets/surfacePlace.mjs";
 
 const root = new URL("../../", import.meta.url);
-// Body and moon data are the engine's; the planet settings are the Planets demo's.
+// Body data is the data package's, the moon lists are each planet's data package's (O-059 T-270); the planet settings are the Planets demo's.
 const engine = new URL("../../../astraeus/", import.meta.url);
 const dataPackage = new URL("../../../astraeus-data/", import.meta.url);
 const planets = new URL("../../../astraeus-demo-planets/", import.meta.url);
 const readJson = (path, base = engine) => JSON.parse(readFileSync(new URL(path, base), "utf8"));
+/** A planet's moon list, from its data package. */
+const moonListOf = (planet) => readJson(`data/${planet}-moons/list.json`, new URL(`../../../astraeus-data-${planet}/`, import.meta.url));
 const esc = (text) => String(text).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/"/g, "&quot;");
 
 /** The planets whose moons get a catalogue section here (Jupiter's is generated elsewhere). */
@@ -27,7 +29,7 @@ function moonsOverview() {
   const rows = [];
   const pictured = [];
   for (const planet of OVERVIEW_ORDER) {
-    const moons = readJson(`data/moons/${planet}.json`).moons;
+    const moons = moonListOf(planet).moons;
     const mapped = moons.filter((moon) => moon.bodyPackage !== null);
     rows.push(`          <tr><th scope="row"><a href="#moons-${planet}">${titleCase(planet)}</a></th><td>${moons.length}</td><td>${mapped.length}</td></tr>\n`);
     if (mapped.length > 0) pictured.push(`${joinNames(mapped.map((moon) => esc(moon.name)))} (${titleCase(planet)})`);
@@ -36,7 +38,7 @@ function moonsOverview() {
 }
 
 function moonSection(planet) {
-  const data = readJson(`data/moons/${planet}.json`);
+  const data = moonListOf(planet);
   const name = titleCase(planet);
   let html = `      <details class="moon-all" data-planet-moons="${planet}" id="moons-${planet}">\n        <summary><h3>${name}'s moons <span class="sub">${data.moons.length}</span></h3><span class="more">Show all ${data.moons.length} moons</span></summary>\n        <p class="fam-note">All ${data.moons.length} moons JPL Horizons lists for ${name}, by family, as of ${data.asOf}. The family, size and discovery year of each moon are below.</p>\n`;
   for (const family of data.families) {
@@ -46,7 +48,7 @@ function moonSection(planet) {
     html += "            " + members.map((moon) => `<li data-planet-moon="${planet}/${moon.id}"><b>${esc(moon.name)}</b> <span>${moon.meanRadiusKm} km${moon.radiusBasis === "estimate" ? " (est.)" : ""} · ${moon.discoveryYear}</span></li>`).join("") + "</ul></details>\n";
   }
   const links = Object.values(data.sources).map((source) => `<a href="${esc(source.url)}">${esc(sourceName(source))}</a>`).join("; ");
-  html += `        <p class="fam-note">Sources: ${links}. Each moon's own source ids are in <code>data/moons/${planet}.json</code>.</p>\n      </details>\n`;
+  html += `        <p class="fam-note">Sources: ${links}. Each moon's own source ids are in <code>astraeus-data-${planet}/data/${planet}-moons/list.json</code>.</p>\n      </details>\n`;
   return html;
 }
 

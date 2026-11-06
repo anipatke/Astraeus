@@ -1,14 +1,12 @@
 // Jupiter's system for the planets experience: its moon list, fitted positions, mapped pictures and tagged places. The words and numbers
 // of the view are data/planets/jupiter.json; this file only names where Jupiter's data is.
-import { JUPITER_MOON_CATALOGUE } from "astraeus/assets/bodies/jupiterMoonCatalogue";
-import { jupiterMoonsSystem } from "astraeus/assets/compositions";
-import { JUPITER } from "astraeus/core/bodies/jupiter";
-import { FITTED_MOON_TIDAL_LOCK, JUPITER_MOON_FIT_SOURCE, JUPITER_MOON_SYSTEM, jupiterMoonEphemeris, loadJupiterMoons } from "astraeus/core/bodies/jupiterMoons";
-import type { PlanetSystem } from "../planetDefinition";
-import { packagesOf } from "../planetSystemParts";
+import type { PlanetSystem } from "../planetScene";
+import { chunkUrlsOf, moonListOf, moonPositionsOf, ORBIT_HISTORY_MS, packagesOf } from "../planetSystemParts";
 
-// The index ships in astraeus-data-jupiter; a dynamic import keeps it its own chunk (it is read only when the system loads).
-JUPITER_MOON_SYSTEM.provideIndex(async () => (await import("astraeus-data-jupiter/index.json")).default as unknown);
+/** Jupiter's moon list (it ships in astraeus-data-jupiter). */
+const LISTS = import.meta.glob("../../../../../astraeus-data-jupiter/data/jupiter-moons/list.json", { eager: true, import: "default" }) as Record<string, unknown>;
+/** The index ships in astraeus-data-jupiter; a lazy glob keeps it its own chunk (it is read only when the system loads). */
+const INDEX = import.meta.glob("../../../../../astraeus-data-jupiter/data/jupiter-moons/index.json", { import: "default" }) as Record<string, () => Promise<unknown>>;
 
 /** The tagged places of the four big moons: each body package's features, categories and map record (whose coordinates convert west longitudes, T-140), read as they are stored. */
 const PACKAGES = import.meta.glob("../../../../../astraeus-data/data/bodies/{io,europa,ganymede,callisto}/{features,categories,map}.json", { eager: true, import: "default" }) as Record<string, unknown>;
@@ -23,18 +21,15 @@ const SHIPPED_CHUNKS = {
   // path over one period ending now): every moon but the inner and big four, whose periods are days, and Jupiter's own series (the centre).
   ...import.meta.glob(["../../../../../astraeus-data-jupiter/data/jupiter-moons/*/{2014,2015}.bin", "!../../../../../astraeus-data-jupiter/data/jupiter-moons/{metis,adrastea,amalthea,thebe,io,europa,ganymede,callisto}/*"], { query: "?url", import: "default", eager: true }),
 } as Record<string, string>;
-/** How far back an orbit line may reach: the slowest moons take under three years. */
-const ORBIT_HISTORY_MS = 3 * 365.25 * 86_400_000;
-export const JUPITER_CHUNK_URLS: Readonly<Record<string, string>> = Object.fromEntries(Object.entries(SHIPPED_CHUNKS).map(([path, url]) => [path.replace(/^.*jupiter-moons\//, ""), url]));
-export const JUPITER_MOON_IDS = JUPITER_MOON_CATALOGUE.moons.map((moon) => moon.id);
+export const JUPITER_CHUNK_URLS: Readonly<Record<string, string>> = chunkUrlsOf(SHIPPED_CHUNKS, "jupiter-moons");
+const MOON_LIST = moonListOf(LISTS);
+export const JUPITER_MOON_IDS = MOON_LIST.moons.map((moon) => moon.id);
 
 export const jupiterSystem: PlanetSystem = {
-  catalogue: JUPITER_MOON_CATALOGUE,
-  composition: jupiterMoonsSystem,
-  ephemeris: jupiterMoonEphemeris,
-  fitSource: JUPITER_MOON_FIT_SOURCE,
-  tidalLockNote: FITTED_MOON_TIDAL_LOCK,
-  centreGmKm3S2: JUPITER.gmKm3S2!,
+  // Io keeps its loop; the other three moons' orbit lines are drawn with the small moons' batch.
+  bodies: [{ id: "jupiter" }, { id: "io", orbit: true }, { id: "europa" }, { id: "ganymede" }, { id: "callisto" }],
+  moonList: MOON_LIST,
+  orbitHistoryMs: ORBIT_HISTORY_MS,
   packages: packagesOf(PACKAGES, ["io", "europa", "ganymede", "callisto"]),
-  load: async (window) => { await loadJupiterMoons({ window, bodies: JUPITER_MOON_IDS, chunkUrls: JUPITER_CHUNK_URLS, history: { bodies: JUPITER_MOON_IDS, maxMs: ORBIT_HISTORY_MS } }); },
+  data: [moonPositionsOf({ name: "astraeus-data-jupiter", centre: "jupiter", provides: ["io", "europa", "ganymede", "callisto"], loadIndex: Object.values(INDEX)[0]!, chunkUrls: JUPITER_CHUNK_URLS })],
 };

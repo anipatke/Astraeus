@@ -2,7 +2,7 @@ import { hasEarthMoon } from "astraeus/tests/scenePlacement";
 import appHtml from "../app.html?raw";
 import { describe, expect, it } from "vitest";
 import perseidsFile from "astraeus-demo-showers/data/showers/perseids.json";
-import { jupiterIoExplorer } from "astraeus-demo-planets/experiences/jupiter-io/jupiterIo";
+import { JUPITER_LABEL, jupiterIoData, jupiterIoScene } from "astraeus-demo-planets/experiences/jupiter-io/jupiterIo";
 import { buildShowerDefinition } from "astraeus-demo-showers/tests/helpers/showerDefinition";
 import { parseShowerSettings } from "astraeus-demo-showers/experiences/showers/showerSettings";
 import { focusLimits } from "astraeus/app/sceneFraming";
@@ -21,6 +21,8 @@ import {
 import { syntheticBeltDefinition } from "astraeus/synthetic/syntheticRingDefinition";
 import { syntheticBareDefinition, syntheticDefinition } from "astraeus/synthetic/syntheticDefinition";
 import { apollo11Definition } from "astraeus-demo-apollo11/experiences/apollo11/apollo11Definition";
+/** Jupiter's view as the app is given it until the site mounts it (T-272): the scene's definition with its data and the page heading. */
+const jupiterIoExplorer = { ...jupiterIoScene.toDefinition(jupiterIoData), label: JUPITER_LABEL };
 
 const appSources = import.meta.glob<string>("../../astraeus/src/app/*.{ts,tsx}", { query: "?raw", import: "default", eager: true });
 

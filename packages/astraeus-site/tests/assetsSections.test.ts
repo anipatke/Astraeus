@@ -17,12 +17,11 @@ const licenceOf = (id: string): string | undefined => {
  * (run `node tools/site/assets-sections.mjs` after a data change); the home shelf and the demo card are hand-written and checked here against the same data and records.
  */
 const ROOT = new URL("../", import.meta.url).pathname;
-// Body and moon data are the engine's; the planet settings are the Planets demo's.
-const ENGINE = new URL("../../astraeus/", import.meta.url).pathname;
 const DATA_PKG = new URL("../../astraeus-data/", import.meta.url).pathname;
+const DATA = new URL("../../", import.meta.url).pathname; // the packages folder: each planet's moon list is in astraeus-data-<planet>
 const PLANETS = new URL("../../astraeus-demo-planets/", import.meta.url).pathname;
 interface Moon { id: string; name: string; bodyPackage: string | null }
-const moonList = (planet: string): readonly Moon[] => (readJson(`${ENGINE}data/moons/${planet}.json`) as { moons: Moon[] }).moons;
+const moonList = (planet: string): readonly Moon[] => (readJson(`${DATA}astraeus-data-${planet}/data/${planet}-moons/list.json`) as { moons: Moon[] }).moons;
 const bodies = (readJson(`${DATA_PKG}data/bodies/catalogue.json`) as { bodies: { body: string; parent: string | null; featureCount: number }[] }).bodies;
 
 describe("assets page sections follow the data (T-120)", () => {

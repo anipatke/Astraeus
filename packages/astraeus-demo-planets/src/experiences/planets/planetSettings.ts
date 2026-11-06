@@ -1,7 +1,8 @@
 // Planet settings: the settings types and their strict validation from a planet file (data/planets/<planet>.json), the Showers pattern.
-import { validateStartView, type StartView } from "astraeus/app/viewLink";
-import type { Raw } from "astraeus/core/fieldReaders";
-import { settingsFields } from "astraeus/experiences/settingsFields";
+import type { CameraPose } from "astraeus";
+
+/** A plain object read from JSON-like data. */
+type Raw = Readonly<Record<string, unknown>>;
 
 /** A moon drawn as a full body: its words and when its label shows. The moon's facts come from the moon list. */
 export interface PlanetMappedMoon {
@@ -9,6 +10,8 @@ export interface PlanetMappedMoon {
   readonly labelPriority: number;
   readonly labelMaxDistance: number;
   readonly description: string;
+  /** Said of the moon in place of the catalogue's own known limits; absent: the catalogue's. A listed moon's face held towards its planet is the usual one. */
+  readonly knownLimitations?: readonly string[];
 }
 
 /** Everything a planet's view needs as plain data; the positions, moon list, pictures come from the planet's system (see `PlanetSystem`). */
@@ -38,6 +41,8 @@ export interface PlanetSettings {
     /** The moon list's source and the family the moon panel opens on; both present exactly when the planet's system has a moon list. */
     readonly listSource?: string;
     readonly featuredFamilyId?: string;
+    /** Where the fitted positions come from, cited in every dot moon's position record; present exactly when the planet has a moon list. */
+    readonly fitSource?: string;
     /** The mapped moon the camera presets focus and follow. Absent for a planet with no mapped moon (Uranus). */
     readonly follow?: string;
     readonly mapped: readonly PlanetMappedMoon[];
@@ -47,7 +52,7 @@ export interface PlanetSettings {
   /** Repo-relative path of the story's panels file (`data/stories/<story>/panels.json`). */
   readonly story: { readonly panels: string };
   readonly camera: { readonly maxFocusDistance: number; readonly far: number };
-  readonly startView: StartView;
+  readonly startView: CameraPose;
 }
 
 export class PlanetSettingsError extends TypeError {
@@ -58,7 +63,51 @@ function fail(path: string, problem: string): never {
   throw new PlanetSettingsError(`planet settings ${path} ${problem}`);
 }
 
-const { record, text, finite, instant, positive } = settingsFields(fail);
+const ISO_UTC_INSTANT = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/;
+
+function record(value: unknown, path: string): Raw {
+  if (typeof value !== "object" || value === null || Array.isArray(value)) fail(path, "is required and must be an object");
+  return value as Raw;
+}
+
+function text(parent: Raw, key: string, path: string): string {
+  const value = parent[key];
+  if (typeof value !== "string" || value.trim().length === 0) fail(`${path}.${key}`, "is required and must be non-empty text");
+  return value;
+}
+
+function finite(parent: Raw, key: string, path: string): number {
+  const value = parent[key];
+  if (typeof value !== "number" || !Number.isFinite(value)) fail(`${path}.${key}`, "is required and must be a finite number");
+  return value;
+}
+
+function instant(parent: Raw, key: string, path: string): string {
+  const value = text(parent, key, path);
+  if (!ISO_UTC_INSTANT.test(value) || !Number.isFinite(Date.parse(value))) fail(`${path}.${key}`, `must be an ISO-8601 UTC time like 2030-01-01T00:00:00Z, got "${value}"`);
+  return value;
+}
+
+function positive(parent: Raw, key: string, path: string): number {
+  const value = finite(parent, key, path);
+  if (!(value > 0)) fail(`${path}.${key}`, `must be above zero, got ${value}`);
+  return value;
+}
+
+const MAX_ELEVATION_DEG = 89;
+
+/** Checks the opening camera view's fields, naming the offending one; returns the view with the azimuth wrapped to 0 up to 360. */
+function startViewOf(raw: unknown, where: string): CameraPose {
+  const view = record(raw, where);
+  for (const key of Object.keys(view)) if (!["focus", "azimuthDeg", "elevationDeg", "distance"].includes(key)) fail(`${where}.${key}`, "is not a view field");
+  const focus = text(view, "focus", where);
+  const azimuthDeg = finite(view, "azimuthDeg", where);
+  const elevationDeg = finite(view, "elevationDeg", where);
+  const distance = finite(view, "distance", where);
+  if (Math.abs(elevationDeg) > MAX_ELEVATION_DEG) fail(`${where}.elevationDeg`, `must be within ±${MAX_ELEVATION_DEG}, got ${elevationDeg}`);
+  if (!(distance > 0)) fail(`${where}.distance`, `must be positive, got ${distance}`);
+  return { focus, azimuthDeg: ((azimuthDeg % 360) + 360) % 360, elevationDeg, distance };
+}
 
 const WORDS = /^[a-z0-9]+(-[a-z0-9]+)*$/;
 export const PLANET_PANELS_PATH = /^data\/stories\/[a-z0-9]+(-[a-z0-9]+)*\/panels\.json$/;
@@ -89,8 +138,8 @@ function textList(parent: Raw, key: string, path: string, minimum: number): read
 
 function mappedMoon(input: unknown, path: string): PlanetMappedMoon {
   const raw = record(input, path);
-  only(raw, ["id", "labelPriority", "labelMaxDistance", "description"], path);
-  return { id: words(raw, "id", path), labelPriority: finite(raw, "labelPriority", path), labelMaxDistance: positive(raw, "labelMaxDistance", path), description: text(raw, "description", path) };
+  only(raw, ["id", "labelPriority", "labelMaxDistance", "description", "knownLimitations"], path);
+  return { id: words(raw, "id", path), labelPriority: finite(raw, "labelPriority", path), labelMaxDistance: positive(raw, "labelMaxDistance", path), description: text(raw, "description", path), ...(raw.knownLimitations === undefined ? {} : { knownLimitations: textList(raw, "knownLimitations", path, 1) }) };
 }
 
 /** The optional `moons` block: its settings and the ids of the mapped moons (empty when the block is absent). */
@@ -99,15 +148,15 @@ function parseMoons(root: Raw): { readonly moons: PlanetSettings["moons"]; reado
   const mappedIds: string[] = [];
   if (root.moons !== undefined) {
     const raw = record(root.moons, "moons");
-    only(raw, ["listSource", "featuredFamilyId", "follow", "mapped"], "moons");
+    only(raw, ["listSource", "featuredFamilyId", "fitSource", "follow", "mapped"], "moons");
     const mapped = list(raw, "mapped", "moons").map((moon, index) => mappedMoon(moon, `moons.mapped[${index}]`));
     mappedIds.push(...mapped.map((moon) => moon.id));
     if (new Set(mappedIds).size !== mappedIds.length) fail("moons.mapped", "lists a moon twice");
     // A planet may have no mapped moon (every moon a dot); then there is nothing to follow.
     const follow = mapped.length === 0 && raw.follow === undefined ? undefined : words(raw, "follow", "moons");
     if (follow !== undefined && !mappedIds.includes(follow)) fail("moons.follow", mapped.length === 0 ? "needs a mapped moon to follow" : `must be one of the mapped moons (${mappedIds.join(", ")}), got "${follow}"`);
-    if ((raw.listSource === undefined) !== (raw.featuredFamilyId === undefined)) fail("moons.listSource", "and moons.featuredFamilyId go together: give both or neither");
-    moons = { ...(raw.listSource === undefined ? {} : { listSource: text(raw, "listSource", "moons"), featuredFamilyId: words(raw, "featuredFamilyId", "moons") }), ...(follow === undefined ? {} : { follow }), mapped };
+    if ((raw.listSource === undefined) !== (raw.featuredFamilyId === undefined) || (raw.listSource === undefined) !== (raw.fitSource === undefined)) fail("moons.listSource", "and moons.featuredFamilyId and moons.fitSource go together: give all three or none");
+    moons = { ...(raw.listSource === undefined ? {} : { listSource: text(raw, "listSource", "moons"), featuredFamilyId: words(raw, "featuredFamilyId", "moons"), fitSource: text(raw, "fitSource", "moons") }), ...(follow === undefined ? {} : { follow }), mapped };
   }
   return { moons, mappedIds };
 }
@@ -142,8 +191,7 @@ export function parsePlanetSettings(input: unknown): PlanetSettings {
   only(camera, ["maxFocusDistance", "far"], "camera");
   if (typeof root.default !== "boolean") fail("settings.default", "is required and must be true or false");
 
-  let startView: StartView;
-  try { startView = validateStartView(root.startView, "startView"); } catch (error) { return fail("startView", (error as Error).message); }
+  const startView = startViewOf(root.startView, "startView");
 
   return {
     id: words(root, "id", "settings"),

@@ -1,10 +1,10 @@
 import { StrictMode, type ComponentProps } from "react";
 import { createRoot } from "react-dom/client";
-import { PICTURES } from "astraeus-data";
+import { PICTURES, dataSource as pictureData } from "astraeus-data";
 import { App } from "astraeus/app/App";
 import { needsPlanetSeries } from "astraeus/app/planetNeeds";
 import { loadPlanetSeries } from "astraeus/core/planetSeries";
-import { choosePlanet, type PlanetEntry } from "astraeus-demo-planets/experiences/planets/planetChoice";
+import { choosePlanet, type PlanetEntry } from "./planetChoice";
 import { chooseShower, showerEntryName, type ShowerEntry } from "./showerSwitch";
 import type { ExperienceDefinition } from "astraeus/app/experienceDefinition";
 import { PLANET_SYSTEMS } from "astraeus-demo-planets/experiences/planets/planetSystems";
@@ -77,10 +77,12 @@ function currentChoices(search: string) {
 async function chooseDefinition(): Promise<ExperienceDefinition> {
   const { requested, planetChoice, showerChoice } = currentChoices(window.location.search);
   if (planetChoice !== undefined) {
-    const [{ parsePlanetSettings }, { buildPlanetDefinition }] = await Promise.all([import("astraeus-demo-planets/experiences/planets/planetSettings"), import("astraeus-demo-planets/experiences/planets/planetDefinition")]);
+    const [{ parsePlanetSettings }, { buildPlanetScene }] = await Promise.all([import("astraeus-demo-planets/experiences/planets/planetSettings"), import("astraeus-demo-planets/experiences/planets/planetScene")]);
     const settings = parsePlanetSettings(PLANET_FILES[`../../astraeus-demo-planets/data/planets/${planetChoice.name}.json`]);
     const [systemModule, panels] = await Promise.all([PLANET_SYSTEMS[settings.system]!(), STORY_PANELS[`../${settings.story.panels}`]!()]);
-    return { ...buildPlanetDefinition(settings, systemModule[`${settings.system}System`]!, panels), switcher: planetChoice.switcher };
+    const system = systemModule[`${settings.system}System`]!;
+    // A planet is a scene on the public API (`astraeus`): `toDefinition(data)` is what the app is given until the site mounts it (T-272), with the page heading and the planet switch the site adds; the moon maps come with `astraeus-data`, the moon positions with the planet's own system.
+    return { ...buildPlanetScene(settings, system, panels).toDefinition([pictureData, ...system.data]), label: settings.experienceLabel, switcher: planetChoice.switcher };
   }
   if (showerChoice !== undefined) {
     const [{ parseShowerSettings }, { buildShowerScene, loadShowerPanelsFile }, { loadMeasuredOrbits }] = await Promise.all([

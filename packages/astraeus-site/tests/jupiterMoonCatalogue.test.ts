@@ -2,14 +2,14 @@ import { describe, expect, it } from "vitest";
 import html from "../assets.html?raw";
 import { exists, readJson } from "astraeus/tools/import/test-io.mjs";
 
-// The core Jupiter moon catalogue (data/moons/jupiter.json, O-025 T-097) against the T-096 curve fits, the O-018 body packages and the catalogue page.
+// The core Jupiter moon catalogue (astraeus-data-jupiter/data/jupiter-moons/list.json, O-025 T-097) against the T-096 curve fits, the O-018 body packages and the catalogue page.
 const ROOT = new URL("../../astraeus/", import.meta.url).pathname; // engine data read by file path (moved from the engine tests: it also reads the site page)
 interface Moon {
   id: string; name: string; naifId: number; family: string; meanRadiusKm: number; radiusBasis: string; discoveryYear: number;
   ephemeris: { set: string; body: string }; bodyPackage: string | null;
   sources: { list: string; family: string; familyBasis: string[]; radius: string; discovery: string };
 }
-const catalogue = readJson(`${ROOT}data/moons/jupiter.json`) as { sources: Record<string, { title: string; url: string }>; families: { id: string; sources: string[] }[]; moons: Moon[] };
+const catalogue = readJson(`${ROOT}../astraeus-data-jupiter/data/jupiter-moons/list.json`) as { sources: Record<string, { title: string; url: string }>; families: { id: string; sources: string[] }[]; moons: Moon[] };
 const fits = readJson(`${ROOT}../astraeus-data-jupiter/data/jupiter-moons/index.json`) as { bodies: { id: string; role: string; naifId: number }[] };
 const fitMoons = fits.bodies.filter((body) => body.role === "moon");
 
