@@ -19,6 +19,7 @@ import { cameraPresetsOf, fitFarthestKm, startPresetEntry, startViewEntry, viewE
 import type { BodyPlan } from "./planBodies";
 import type { BodySetPlan } from "./planBodySets";
 import type { MoonPanelPlan } from "./planMoonPanel";
+import type { PickerPlan } from "./planPicker";
 import type { PlacesPlan } from "./planPlaces";
 import { groupLayersEntry, lateGroups, type GroupPlan } from "./planGroups";
 import { autoPaths, checkNamedReadouts, checkReadouts, pathCover, type Tracked } from "./planPaths";
@@ -33,6 +34,7 @@ export interface ScenePlanners {
   readonly groupPlan: GroupPlan;
   readonly bodySets: BodySetPlan;
   readonly moonPanel: MoonPanelPlan;
+  readonly picker: PickerPlan;
   readonly places: PlacesPlan;
   readonly story: StoryPlan;
   readonly timeline: TimelinePlan;
@@ -164,6 +166,7 @@ export function assembleScene(parts: ScenePlanners, data: readonly DataSource[])
     composition: createComposition(plan.catalogue, { id: "scene", bodies: ids, defaultCenter: ids[0]!, ...(paths.length === 0 ? {} : { paths }) }),
     scaleChoices: plan.scaleChoices(parts.scale, parts.scaleOnly),
     ...viewPlan.switchesEntry(),
+    ...parts.picker.entry(),
     ...(parts.look === undefined ? {} : { look: parts.look }),
     ...viewPlan.viewsEntry({ paths: [...trackedMap.keys()], bodies: [...ids, ...groupPlan.groups.keys()], events: story.events.map(({ id }) => id) }, storyPanels),
     ...viewEntries(timeline, camera, fit?.read, pathCover(trackedMap.values(), sunCentred, ids[0]!)),

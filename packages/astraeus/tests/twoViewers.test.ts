@@ -46,6 +46,7 @@ const makeScene = () => new Scene().addBody(earth).addBody(moon)
   .addTrajectory({ id: "pb", label: "Probe B", center: "earth", samples: path(20_000) })
   .setViews([{ id: "a", label: "View A", paths: ["pa"] }, { id: "b", label: "View B", paths: ["pb"] }], { place: "top-bar" })
   .setSwitches({ labels: { place: "top-bar" } })
+  .setPicker({ id: "world", label: "World", options: [{ value: "one", label: "One" }, { value: "two", label: "Two" }], value: "one" })
   .setTimeline({ start: T0, end: T0 + 100 * DAY, rate: 60, rates: [60, 3600] });
 
 /** One opened viewer, the same shape through either path. */
@@ -123,7 +124,7 @@ const total = (heard: Heard): number => heard.changes.length + heard.selects.len
 
 /** Every read of the handle at one moment, as a plain value. */
 const snapshot = (handle: ViewerHandle) => ({
-  time: handle.time, rate: handle.rate, playing: handle.playing, view: handle.view, camera: handle.camera, eventZones: handle.eventZones, selected: handle.selected, look: handle.look, scale: handle.scale, switches: handle.switches,
+  time: handle.time, rate: handle.rate, playing: handle.playing, view: handle.view, camera: handle.camera, eventZones: handle.eventZones, selected: handle.selected, look: handle.look, scale: handle.scale, switches: handle.switches, pick: handle.pick,
 });
 
 /** The scene's stand-in for a camera standing here (the real scene writes it every frame). */
@@ -141,7 +142,7 @@ interface Row {
   /** What that viewer's handle then reads. */
   readonly reads: (handle: ViewerHandle) => void;
   /** Which of that viewer's own listeners must have heard it. */
-  readonly hears: "changes" | "cameras";
+  readonly hears?: "changes" | "cameras";
   /** What the scene would do after the call, when the stand-in has to do it. */
   readonly settle?: (viewer: Viewer) => void;
 }
@@ -155,6 +156,7 @@ const SETTERS: Record<keyof Setter, Row> = {
   setLook: { call: (v) => v.handle.setLook({ starBrightness: 1.5 }), reads: (hd) => expect(hd.look?.starBrightness).toBe(1.5), hears: "changes" },
   setScale: { call: (v) => v.handle.setScale("readable-scale"), reads: (hd) => expect(hd.scale).toBe("readable-scale"), hears: "changes" },
   setSwitch: { call: (v) => v.handle.setSwitch("labels", false), reads: (hd) => expect(hd.switches).toEqual({ labels: false }), hears: "changes" },
+  setPick: { call: (v) => v.handle.setPick("two"), reads: (hd) => expect(hd.pick).toBe("two") }, // moves the pressed option and tells no listener
   setCamera: {
     call: (v) => v.handle.setCamera({ focus: "moon" }),
     settle: (v) => { expect(cameraRequest(v)).toEqual({ kind: "focus", target: "moon" }); standAt(v, CAMERA_POSE); vi.advanceTimersByTime(300); },
@@ -241,7 +243,8 @@ describe.each(PAIRINGS)("two viewers on one page: $name", (pairing) => {
       row.call(a);
       row.settle?.(a);
       row.reads(a.handle);
-      expect(heardA[row.hears].length).toBeGreaterThan(0);
+      if (row.hears !== undefined) expect(heardA[row.hears].length).toBeGreaterThan(0);
+      else expect(total(heardA)).toBe(0);
       expect(snapshot(b.handle)).toEqual(before);
       expect(total(heardB)).toBe(0);
       expect(cameraRequest(b)).toBeNull();
@@ -266,6 +269,22 @@ describe.each(PAIRINGS)("two viewers on one page: $name", (pairing) => {
     expect(a.handle.selected).toBe(choice);
     expect(heardB.selects).toEqual([]);
     expect(total(heardB)).toBe(0);
+  });
+
+  it("API-03: A's visitor pressing a picker option is heard by A's onPick only, and moves no pressed option until A's host calls setPick", async () => {
+    const [a, b] = await openPair(pairing);
+    const heardA: unknown[] = [];
+    const heardB: unknown[] = [];
+    a.handle.onPick((c) => heardA.push(c));
+    b.handle.onPick((c) => heardB.push(c));
+    a.element.querySelector<HTMLButtonElement>('[data-switch-value="two"]')!.click();
+    expect(heardA).toEqual([{ picker: "world", value: "two" }]);
+    expect(heardB).toEqual([]);
+    expect(a.handle.pick).toBe("one");
+    a.handle.setPick("two");
+    await vi.waitFor(() => expect(a.element.querySelector('[data-switch-value="two"]')!.getAttribute("aria-pressed")).toBe("true"));
+    expect(b.element.querySelector('[data-switch-value="one"]')!.getAttribute("aria-pressed")).toBe("true");
+    expect(b.handle.pick).toBe("one");
   });
 
   it("unmounting A leaves B's handle working and B's page in place", async () => {

@@ -46,6 +46,8 @@ export type SceneErrorCode =
   | "bad-body-set"
   /** The moon panel (`setMoonPanel`) is malformed, or names a moon the scene does not hold. */
   | "bad-moon-panel"
+  /** The picker (`setPicker`, `setPick`) is malformed, or a pick names an option it does not have. */
+  | "bad-picker"
   /** A body's places (`addPlaces`) are malformed, or name a body the scene does not hold. */
   | "bad-places"
   /** An activity curve is malformed. */

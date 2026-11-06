@@ -24,6 +24,8 @@ import { BodyPlan } from "./planBodies";
 import { GroupPlan } from "./planGroups";
 import { BodySetPlan, type BodySetContext } from "./planBodySets";
 import { MoonPanelPlan } from "./planMoonPanel";
+import { PickerPlan } from "./planPicker";
+import type { PickerInput } from "./pickerInput";
 import { PlacesPlan } from "./planPlaces";
 import type { MoonPanelInput, PlacesInput } from "./moonPanelInput";
 import type { BodySetInput } from "./bodySetInput";
@@ -204,6 +206,7 @@ export class Scene {
   readonly #bodySets = new BodySetPlan(() => this.#plan.catalogue, (id) => this.#taken(id));
   readonly #moonPanel = new MoonPanelPlan();
   readonly #places = new PlacesPlan();
+  readonly #picker = new PickerPlan();
   readonly #story = new StoryPlan();
   readonly #timeline = new TimelinePlan();
   readonly #viewPlan = new ViewPlan();
@@ -233,6 +236,9 @@ export class Scene {
 
   /** The body sets the scene holds (`addBodySet`), in the order added: id, centre body, member count and family ids. A fresh frozen list on every read. */
   get bodySets(): readonly SceneBodySetRead[] { return this.#bodySets.reads(this.#sceneFirst()); }
+
+  /** The picker (`setPicker`), as set; undefined when none was set. */
+  get picker(): PickerInput | undefined { return this.#picker.input; }
 
   /** The moon panel (`setMoonPanel`): how many moons it lists and the line that states them with their source and date; undefined when none was set. */
   get moonPanel(): SceneMoonPanelRead | undefined { return this.#moonPanel.read(); }
@@ -352,6 +358,19 @@ export class Scene {
   setMoonPanel(input: MoonPanelInput): this {
     this.#editable();
     this.#moonPanel.set(input);
+    return this;
+  }
+
+  /**
+   * Offers a choice in the viewer's top bar and phone drawer: one button per option, the one with `value` pressed when the viewer opens. Fewer than two options draw nothing. Replaces any earlier picker.
+   * A press only tells the host (`onPick` on the handle, or the prop of `AstraeusScene`): the viewer never navigates, reads or writes the page address, or keeps a time, and the pressed button does not move
+   * until the host calls `setPick` or mounts a new scene. A malformed picker, or a `value` that is not one of the options, throws `bad-picker`. Read it back from `scene.picker`.
+   * @example
+   * scene.setPicker({ id: "world", label: "World", options: [{ value: "tarn", label: "Tarn" }, { value: "mere", label: "Mere" }], value: "tarn" });
+   */
+  setPicker(input: PickerInput): this {
+    this.#editable();
+    this.#picker.set(input);
     return this;
   }
 
@@ -560,6 +579,6 @@ export class Scene {
 
   /** The app's plug-in contract for this scene (`assembleScene.ts`). Throws if the scene is empty or a body needs a data package not passed in `data`. */
   toDefinition(data: readonly DataSource[] = []): ExperienceDefinition {
-    return assembleScene({ plan: this.#plan, tracked: this.#tracked, groupPlan: this.#groupPlan, bodySets: this.#bodySets, moonPanel: this.#moonPanel, places: this.#places, story: this.#story, timeline: this.#timeline, viewPlan: this.#viewPlan, camera: this.camera, scale: this.#scale, scaleOnly: this.#scaleOnly, look: this.#look, bodyReadouts: this.#bodyReadouts }, data);
+    return assembleScene({ plan: this.#plan, tracked: this.#tracked, groupPlan: this.#groupPlan, bodySets: this.#bodySets, moonPanel: this.#moonPanel, picker: this.#picker, places: this.#places, story: this.#story, timeline: this.#timeline, viewPlan: this.#viewPlan, camera: this.camera, scale: this.#scale, scaleOnly: this.#scaleOnly, look: this.#look, bodyReadouts: this.#bodyReadouts }, data);
   }
 }

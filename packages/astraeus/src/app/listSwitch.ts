@@ -18,3 +18,8 @@ export function chooseSwitch<T extends SwitchEntry>(entries: readonly T[], reque
     switcher: { label: switchOf.label, param: switchOf.param, ...(switchOf.keep === undefined ? {} : { keep: switchOf.keep }), options: sorted.map((entry) => ({ label: entry.label, value: entry.name, active: entry === chosen })) },
   };
 }
+
+/** The control for a host's picker (`Scene.setPicker`) with `pressed` as the pressed option: a press calls `choose(value)` and does nothing else (no address, no navigation). */
+export function pickerSwitch(picker: { readonly id: string; readonly label: string; readonly options: readonly { readonly value: string; readonly label: string }[] }, pressed: string, choose: (value: string) => void): ExperienceSwitch {
+  return { label: picker.label, param: picker.id, choose, options: picker.options.map((option) => ({ label: option.label, value: option.value, active: option.value === pressed })) };
+}

@@ -1,10 +1,11 @@
-import { Suspense, useCallback, useEffect, useMemo, useRef, useState, type ComponentProps, type ReactNode } from "react";
+import { Suspense, useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore, type ComponentProps, type ReactNode } from "react";
 import { createOrbAstronomyAdapter } from "../core/astronomyAdapter";
 import type { GlowLook } from "./bodyDraw";
 import { viewUpFromSearch, viewUpVector, type ViewUp } from "./viewUp";
 import { activeEventZones, applyPacing, startPaceEase, type PaceView } from "../core/pacing";
 import { openClock } from "./openClock";
 import type { ViewerPort, ViewerState } from "./viewerPort";
+import { pickerSwitch } from "./listSwitch";
 import { createSolarSystemScale, type ScalePolicy } from "../core/scalePolicy";
 import type { CameraRequest } from "./CameraController";
 import type { DebugReadout } from "./debugReadout";
@@ -236,6 +237,10 @@ export function App({ definition, onOpenAddress, writeTitle = true, address, dev
   const runtime = useMemo(() => buildRuntime(definition, search), [definition, search]);
   // The host link hears the scene's first drawn frame (`onFirstDraw`).
   const told = useCallback(() => host?.firstDraw(), [host]);
+  // The host's picker: the pressed option is the host's to move (`setPick`), and a press is only reported (`onPick`).
+  const watchPick = useCallback((watcher: () => void) => host?.watchPick(watcher) ?? (() => undefined), [host]);
+  const hostPick = useSyncExternalStore(watchPick, () => host?.pickNow());
+  const choosePick = useCallback((value: string) => host?.picked(value), [host]);
   const experienceRuntime = useMemo(
     () => ({ clock: runtime.clock, resolver: runtime.resolver, catalogue: runtime.catalogue }),
     [runtime],
@@ -440,7 +445,7 @@ export function App({ definition, onOpenAddress, writeTitle = true, address, dev
     if (host === undefined) return undefined;
     hostAttached.current = true;
     shownKey.current = null; // the presentation is read afresh after each attach
-    host.attach({ window: runtime.loopWindow, events: experience.events, rates: definition.experience.rates, paced: runtime.pacing !== undefined, read: stateNow, seek: seekTo, setRate: changeRate, playable: definition.experience.hideTimeline !== true, setPlaying: hostSetPlaying, views: viewIds, setView: chooseView, cameraTargets, readCamera, setCamera, scales: hostScales, setScale: hostSetScale, setLook: hostSetLook, setSwitch: hostSetSwitch });
+    host.attach({ ...(definition.picker === undefined ? {} : { picker: { id: definition.picker.id, values: definition.picker.options.map((option) => option.value), start: definition.picker.value } }), window: runtime.loopWindow, events: experience.events, rates: definition.experience.rates, paced: runtime.pacing !== undefined, read: stateNow, seek: seekTo, setRate: changeRate, playable: definition.experience.hideTimeline !== true, setPlaying: hostSetPlaying, views: viewIds, setView: chooseView, cameraTargets, readCamera, setCamera, scales: hostScales, setScale: hostSetScale, setLook: hostSetLook, setSwitch: hostSetSwitch });
     return () => { hostAttached.current = false; host.detach(); };
   }, [host, runtime, definition, seekTo, changeRate, viewIds, chooseView, cameraTargets, readCamera, setCamera, experience, hostSetPlaying, hostScales, hostSetScale, hostSetLook, hostSetSwitch]);
 
@@ -693,7 +698,7 @@ export function App({ definition, onOpenAddress, writeTitle = true, address, dev
       scaleId={scale}
       onScaleChange={updateScale}
       scaleChoices={scaleChoices}
-      switcher={switcherOf(definition, runtime, onOpenAddress)}
+      switcher={definition.picker === undefined ? switcherOf(definition, runtime, onOpenAddress) : pickerSwitch(definition.picker, hostPick ?? definition.picker.value, choosePick)}
       displaySwitches={displaySwitches}
       viewChoice={viewChoice}
       viewCamera={currentView === undefined ? undefined : { id: currentView.id, rule: currentView.camera }}

@@ -10,6 +10,8 @@ export interface ExperienceSwitch {
   readonly currentTimeUtcMs?: () => number;
   /** Opens the address a choice leads to inside the running page (the entry pushes it into history and rebuilds); absent: the page navigates to it. Given by the entry through the app. */
   readonly open?: (address: string) => void;
+  /** A host's picker (`Scene.setPicker`): a press calls this with the option's value and does nothing else, so `keep`, `currentTimeUtcMs` and `open` are not used. */
+  readonly choose?: (value: string) => void;
   readonly options: readonly { readonly label: string; readonly value: string; readonly active: boolean }[];
 }
 
@@ -40,7 +42,7 @@ export function SwitchControl({ choice }: { readonly choice: ExperienceSwitch })
           className={`switch-option top-bar-button ${option.active ? "ui-accent" : ""}`}
           aria-pressed={option.active}
           data-switch-value={option.value}
-          onClick={() => { if (!option.active) openAddress(choice, switchAddress(window.location.href, choice.param, option.value, choice.keep, choice.currentTimeUtcMs?.())); }}
+          onClick={() => { if (option.active) return; if (choice.choose !== undefined) choice.choose(option.value); else openAddress(choice, switchAddress(window.location.href, choice.param, option.value, choice.keep, choice.currentTimeUtcMs?.())); }}
         >
           <span>{option.label}</span>
         </button>

@@ -1,6 +1,7 @@
 // The engine's public API: everything not exported here is internal.
 export { Scene, SceneCamera, type AddBodyOptions, type CardFactInput, type OrbitLapInput, type BodyReadoutKind, type AnchorInput, type ReadoutInput, type DataSource, type SceneLoadOptions, type SceneBodyRead, type ScenePathRead, type SceneGroupRead, type SceneBodySetRead, type SceneMoonPanelRead, type ScenePlacesRead, type SceneEventRead, type ScenePanelRead, type SceneViewRead, type SceneViewsRead, type SceneTimelineRead, type MoonPositions, type FollowView, type GroupInput, type GroupOrbitInput, type GroupClumpInput, type GroupReadoutInput, type ActivityInput, type ActivitySampleInput, type ActivitySourceInput, type ElementsBodyRecord, type TimeInput, type TrajectoryInput, type TrajectorySampleInput } from "./scene";
 export type { MoonPanelInput, MoonPanelFamilyInput, MoonPanelMoonInput, PlacesInput, PlaceInput, PlaceCategoryInput } from "./moonPanelInput";
+export type { PickerInput, PickerOptionInput, PickChange } from "./pickerInput";
 export type { BodySetInput, BodySetFamilyInput, BodySetMemberInput, BodySetElementsInput, BodySetBodyInput, BodySetBalanceInput } from "./bodySetInput";
 export { type EventInput, type AddEventsOptions, type TimelineInput, type PacingInput, type StoryPanelsInput } from "./story";
 export { type SwitchesInput } from "./switches";

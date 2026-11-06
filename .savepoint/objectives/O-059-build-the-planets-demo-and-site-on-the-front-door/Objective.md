@@ -37,6 +37,7 @@ Owner, 2026-11-01: "Yes, in 0.8.0" and "lets do this right, no hurry on the app"
 - Surface place lists publish in `astraeus-data`, about 840 KB, with a NOTICE line (O1, owner "Publish in astraeus-data").
 - Engine unpacked limit rises to 9.8 MB from T-267 and returns to 9.5 MB at T-270 (owner "Raise briefly, restore at step 6").
 - API reference page gzip limit rises from 30,000 to 40,000 B (owner "Raise to 40 KB").
+- API reference page raw limit rises from 150,000 to 200,000 B (owner "Raise to 200 KB", 2026-11-07).
 - `astraeus-data` file-count limit rises from 40 to 130 for the place lists (owner "Raise the limit to 130").
 
 ## Architectural Considerations
