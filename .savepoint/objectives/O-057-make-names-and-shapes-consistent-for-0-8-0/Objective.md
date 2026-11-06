@@ -1,7 +1,7 @@
 ---
 id: O-057
 title: Make names and shapes consistent for 0.8.0
-status: planned
+status: in_progress
 depends_on: [O-059]
 release: G-016
 priority: high
@@ -35,6 +35,7 @@ G-016's breaking chunk, last so every replacement exists first (after O-059 so t
 - The reported time becomes `timeUtcMs` (owner "Rename to timeUtcMs").
 - A panel's `provenance` fully replaces `badge` and `sources`; every panel gains accuracy and notes, and the badge may also read Ephemeris or Reconstructed (owner "Replace badge and sources").
 - The two panel settings move to their own `setStoryPanelPlayback` call (owner "Separate set call").
+- The planets demo's whole-definition compare against `fixtures/planet-views-before.json` is retired, because it needs internals and its job of proving the O-059 rebuild is done; a smaller test keeps what public reads can see, and info card rows, camera presets and label ranking lose nine-planet test cover (owner "Retire it, keep public parts", 2026-11-07, during T-274).
 - Design confirmed by the owner, 2026-11-07, session o057-planning-20261107.
 
 ## Architectural Considerations

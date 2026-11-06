@@ -1,3 +1,4 @@
+import { definitionOf } from "./definitionOf";
 import { markMounted } from "./sceneFreeze";
 import type { DataSource, Scene } from "./scene";
 import type { ExperienceDefinition } from "../app/experienceDefinition";
@@ -11,7 +12,7 @@ export interface PreparedScene {
 
 /** Builds the definition (throws a `SceneError` for a missing data package or an empty scene) and starts loading its data. */
 export function prepareScene(scene: Scene, data: readonly DataSource[] = []): PreparedScene {
-  const definition = scene.toDefinition(data);
+  const definition = definitionOf(scene, data);
   markMounted(scene);
   return { definition, ready: definition.prepare?.() ?? Promise.resolve() };
 }

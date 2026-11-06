@@ -6,6 +6,7 @@ import { mountedBodiesOf } from "../src/app/experienceDefinition";
 import { drawnRadii, drawsAsMarker, projectedRadiusPx } from "../src/app/bodyDraw";
 import { catalogue } from "../src/assets/catalogue";
 import { trueScale } from "../src/core/scalePolicy";
+import { definitionOf } from "../src/api/definitionOf";
 
 const FOV = 45;
 const HEIGHT = 800;
@@ -33,7 +34,7 @@ const madeUp = (id: string, radiusKm?: number): ElementsBodyRecord => ({
 });
 
 describe("the marker rule on bodies a scene defines for itself (True scale)", () => {
-  const definition = new Scene().addBody(sun).addBodyFromElements(madeUp("rock-sized", 3)).addBodyFromElements(madeUp("rock-bare")).toDefinition();
+  const definition = definitionOf(new Scene().addBody(sun).addBodyFromElements(madeUp("rock-sized", 3)).addBodyFromElements(madeUp("rock-bare")));
   const own = mountedBodiesOf(definition).filter((id) => id.startsWith("rock-"));
 
   it("finds the scene's own bodies in its catalogue", () => {

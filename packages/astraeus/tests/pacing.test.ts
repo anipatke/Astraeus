@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import { Scene, SceneError, earth } from "astraeus";
 import { SimulationClock } from "../src/core/clock";
 import { activeEventZones, applyPacing, pacedRate } from "../src/core/pacing";
+import { definitionOf } from "../src/api/definitionOf";
 
 const DAY = 86_400_000;
 const T0 = Date.UTC(2030, 0, 1);
@@ -13,7 +14,7 @@ const codeOf = (run: () => unknown): string | undefined => { try { run(); } catc
 const journey = () => new Scene().addBody(earth)
   .addEvents([{ id: "a", label: "First flyby", time: at(40), type: "flyby" }, { id: "b", label: "Second flyby", time: at(80), type: "flyby" }])
   .setTimeline({ start: at(0), end: at(100), rate: 86_400, rates: [60, 3_600, 86_400], pacing: [{ near: { type: "flyby", within: 2 * 86_400 }, rate: 60 }] });
-const pacingOf = () => journey().toDefinition().pacing!;
+const pacingOf = () => definitionOf(journey()).pacing!;
 
 describe("the paced rate", () => {
   it("cruises between encounters, holds the encounter rate near an event, and eases in the ramp", () => {
@@ -46,8 +47,8 @@ describe("the paced rate", () => {
   });
 
   it("lays spans over the base speed, the slower speed winning where an event rule meets a span", () => {
-    const definition = new Scene().addBody(earth).addEvents([{ id: "a", label: "Flyby", time: at(10), type: "flyby" }])
-      .setTimeline({ start: at(0), end: at(100), rate: 1_000, pacing: [{ from: at(50), to: at(70), rate: 10_000, ramp: 0 }, { near: { type: "flyby", within: 86.4 }, rate: 5 }, { from: at(9), to: at(11), rate: 200_000 }] }).toDefinition();
+    const definition = definitionOf(new Scene().addBody(earth).addEvents([{ id: "a", label: "Flyby", time: at(10), type: "flyby" }])
+      .setTimeline({ start: at(0), end: at(100), rate: 1_000, pacing: [{ from: at(50), to: at(70), rate: 10_000, ramp: 0 }, { near: { type: "flyby", within: 86.4 }, rate: 5 }, { from: at(9), to: at(11), rate: 200_000 }] }));
     const pacing = definition.pacing!;
     expect(pacedRate(pacing, T0 + 5 * DAY)).toBeCloseTo(1_000, 6);
     expect(pacedRate(pacing, T0 + 60 * DAY)).toBeCloseTo(10_000, 6);
@@ -57,8 +58,8 @@ describe("the paced rate", () => {
   });
 
   const slowestWins = (pacing: object[], eventDay: number) => {
-    const definition = new Scene().addBody(earth).addEvents([{ id: "a", label: "Flyby", time: at(eventDay), type: "flyby" }])
-      .setTimeline({ start: at(0), end: at(100), rate: 86_400, pacing: pacing as never }).toDefinition();
+    const definition = definitionOf(new Scene().addBody(earth).addEvents([{ id: "a", label: "Flyby", time: at(eventDay), type: "flyby" }])
+      .setTimeline({ start: at(0), end: at(100), rate: 86_400, pacing: pacing as never }));
     return definition.pacing!;
   };
 
@@ -89,7 +90,7 @@ describe("the paced rate", () => {
 });
 
 describe("pacing checks (bad-timeline names the field)", () => {
-  const timeline = (pacing: unknown) => () => new Scene().addBody(earth).addEvents([{ id: "a", label: "A", time: at(1), type: "flyby" }]).setTimeline({ start: at(0), end: at(10), pacing } as never).toDefinition();
+  const timeline = (pacing: unknown) => () => definitionOf(new Scene().addBody(earth).addEvents([{ id: "a", label: "A", time: at(1), type: "flyby" }]).setTimeline({ start: at(0), end: at(10), pacing } as never));
   it("refuses a bad rate, ramp, within, span or shape", () => {
     expect(codeOf(timeline([{ from: at(1), to: at(2), rate: 0 }]))).toMatch(/^bad-timeline: .*pacing\[0\]\.rate/);
     expect(codeOf(timeline([{ from: at(1), to: at(2), rate: 5, ramp: -1 }]))).toMatch(/^bad-timeline: .*pacing\[0\]\.ramp/);

@@ -18,7 +18,7 @@ import { earthStateAt, sunPositionFromEarthAt } from "astraeus/core/referenceCen
 import { readableScale, trueScale } from "astraeus/core/scalePolicy";
 import { createEarthSunTrajectory, createTwoBodyTrajectory, samplePathKm } from "astraeus/core/sunCentredSources";
 import { createOrbTwoBodyAdapter } from "astraeus/core/twoBodyAdapter";
-import { apollo11Definition } from "../src/experiences/apollo11/apollo11Definition";
+import { apollo11Definition } from "./apollo11Definition";
 import { syntheticDefinition } from "astraeus/synthetic/syntheticDefinition";
 import {
   syntheticBeltDefinition,

@@ -1,10 +1,12 @@
 // O-059 repair of I-143 (API-04): every `Scene` call that takes an object keeps its own copy of it. One row per call, each input alone, on made-up data (ARCH-03):
 // editing the caller's object after the call changes nothing the scene reads, checks or builds, and one object given to two scenes keeps them apart.
 import { describe, expect, it } from "vitest";
-import { Scene, SceneCamera, earth, moon, solarSystemScale, sun } from "astraeus";
+import { Scene, earth, moon, solarSystemScale, sun } from "astraeus";
 import { catalogue } from "../src/assets/catalogue";
 import { createOrbAstronomyAdapter } from "../src/core/astronomyAdapter";
 import { createStateResolver } from "../src/core/stateResolver";
+import { SceneCamera } from "../src/api/planCamera";
+import { definitionOf, missingDataOf } from "../src/api/definitionOf";
 
 const T0 = Date.parse("2026-03-01T00:00:00Z");
 const MIN = 60_000;
@@ -141,10 +143,10 @@ function observe(scene: Scene): Record<string, string> {
   });
   const reads = { bodies: scene.bodies, paths: scene.paths, groups: scene.groups, bodySets: scene.bodySets, moonPanel: scene.moonPanel, places: scene.places, events: scene.events, panels: scene.panels, views: scene.views, scales: scene.scales, timeline: scene.timeline, picker: scene.picker, camera: { target: scene.camera.target, following: scene.camera.following, view: scene.camera.view, pose: scene.camera.pose, followChoices: scene.camera.followChoices, reach: scene.camera.reach, far: scene.camera.farEarthRadii, fitted: scene.camera.fitted } };
   const attempt = (build: () => unknown): string => { try { return text(build()); } catch (error) { return `error ${(error as { code?: string }).code ?? String(error)}`; } };
-  const definitionOf = (): unknown => { const { catalogue: _catalogue, ...rest } = scene.toDefinition() as unknown as Record<string, unknown>; return rest; };
+  const definitionRest = (): unknown => { const { catalogue: _catalogue, ...rest } = definitionOf(scene) as unknown as Record<string, unknown>; return rest; };
   const resolver = createStateResolver(catalogue.definitions(), catalogue.sources(), createOrbAstronomyAdapter());
-  const rows = (): unknown => { const metrics = (scene.toDefinition() as unknown as { createMetrics: (r: unknown) => (id: string, t: number) => unknown }).createMetrics({ resolver, catalogue, clock: undefined as never }); return ["sun", "earth", "moon", "rock", "probe", "bit-0", "ring", "swarm"].map((id) => { try { return [id, metrics(id, T0 + 5 * MIN)]; } catch (error) { return [id, `error ${(error as { code?: string }).code ?? String(error)}`]; } }); };
-  return { metrics: attempt(rows), reads: attempt(() => reads), check: attempt(() => scene.check()), definition: attempt(definitionOf), probeState: attempt(() => scene.stateOf("probe", T0 + 5 * MIN)), rockState: attempt(() => scene.stateOf("rock", T0)) };
+  const rows = (): unknown => { const metrics = (definitionOf(scene) as unknown as { createMetrics: (r: unknown) => (id: string, t: number) => unknown }).createMetrics({ resolver, catalogue, clock: undefined as never }); return ["sun", "earth", "moon", "rock", "probe", "bit-0", "ring", "swarm"].map((id) => { try { return [id, metrics(id, T0 + 5 * MIN)]; } catch (error) { return [id, `error ${(error as { code?: string }).code ?? String(error)}`]; } }); };
+  return { metrics: attempt(rows), reads: attempt(() => reads), check: attempt(() => scene.check()), definition: attempt(definitionRest), probeState: attempt(() => scene.stateOf("probe", T0 + 5 * MIN)), rockState: attempt(() => scene.stateOf("rock", T0)) };
 }
 
 /** The names of the parts of two observations that differ; empty when the scene is unchanged. */
@@ -161,8 +163,6 @@ const KEEPS_NOTHING: Readonly<Record<"scene" | "camera", Readonly<Record<string,
     provenanceOf: "a read: takes an id text",
     load: "builds the definition for this call from the data sources it is given and keeps none of them",
     check: "builds the definition for this call from the data sources it is given and keeps none of them",
-    missingData: "a read: compares the data sources it is given with the names the scene needs and returns new texts",
-    toDefinition: "builds a fresh definition per call from the data sources it is given; the scene stores none of them",
   },
   camera: {},
 };
@@ -187,11 +187,14 @@ describe("every object-taking call is covered by the walk (API-04)", () => {
 });
 
 describe("the calls named as keeping nothing really keep nothing", () => {
-  it.each(["load", "check", "missingData", "toDefinition"] as const)("%s: editing the data sources afterwards changes nothing the scene reads or builds", async (call) => {
+  // `missingData` and `toDefinition` are no longer on the scene; the engine's own routes to the same work (definitionOf, missingDataOf) keep the same promise.
+  it.each(["load", "check", "missingDataOf", "definitionOf"] as const)("%s: editing the data sources afterwards changes nothing the scene reads or builds", async (call) => {
     const scene = base();
     const data = [{ name: "made-up", provides: ["earth"] }];
-    const argument = call === "load" || call === "check" ? { data } : data;
-    await (scene[call] as (a: unknown) => unknown)(argument);
+    if (call === "load") await scene.load({ data });
+    else if (call === "check") scene.check({ data });
+    else if (call === "missingDataOf") missingDataOf(scene, data);
+    else definitionOf(scene, data);
     const before = observe(scene);
     scribble(data);
     expect(changed(before, observe(scene))).toEqual([]);

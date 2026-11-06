@@ -3,7 +3,7 @@
 import { describe, expect, it } from "vitest";
 import { createSceneResolver } from "astraeus/app/sceneLayout";
 import { createOrbAstronomyAdapter } from "astraeus/core/astronomyAdapter";
-import { apollo11Definition as after } from "../src/experiences/apollo11/apollo11Definition";
+import { apollo11Definition as after } from "./apollo11Definition";
 import before from "./fixtures/apollo11-before-rebuild.json";
 
 const plain = <T>(value: T): T => JSON.parse(JSON.stringify(value)) as T;

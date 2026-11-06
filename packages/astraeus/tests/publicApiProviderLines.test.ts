@@ -8,6 +8,7 @@ import { FloatingOrigin } from "../src/app/floatingOrigin";
 import { TrackedBodyView } from "../src/app/TrackedBodyView";
 import { trackedBodiesOf } from "../src/app/experienceDefinition";
 import { placementAbout } from "./scenePlacement";
+import { definitionOf } from "../src/api/definitionOf";
 
 const T0 = Date.parse("2026-01-01T00:00:00Z");
 const DAY = 86_400_000;
@@ -18,7 +19,7 @@ const provider = { stateAt: (t: number) => createState({ body: "probe", center: 
 const solar = (lineFixedTo: unknown, days = 2) => new Scene().addBody(sun).addBody(earth, { enlarge: 50 }).addBody(mars, { enlarge: 50 }).setTime(T0)
   .addTrajectory({ id: "probe", center: "sun", provider, bounds: { start: T0, end: T0 + days * DAY }, lineFixedTo: lineFixedTo as never });
 const draw = (scene: Scene) => {
-  const body = trackedBodiesOf(scene.toDefinition())[0]!;
+  const body = trackedBodiesOf(definitionOf(scene))[0]!;
   new TrackedBodyView(body).update(T0 + DAY, trueScale, new FloatingOrigin(), new PerspectiveCamera(), placementAbout("sun"));
   return body;
 };

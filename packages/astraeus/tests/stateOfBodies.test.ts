@@ -2,6 +2,7 @@
 import { describe, expect, it } from "vitest";
 import { APPROXIMATE_LIMIT_FRACTION, INDICATIVE_LIMIT_FRACTION, Scene, SceneError, classifyPositionError, earth, moon, parseElementsBodyRecord, sun, type ElementsBodyRecord } from "astraeus";
 import { createOrbAstronomyAdapter } from "../src/core/astronomyAdapter";
+import { definitionOf } from "../src/api/definitionOf";
 
 const T = Date.UTC(2026, 7, 12);
 const record: ElementsBodyRecord = {
@@ -14,8 +15,8 @@ const record: ElementsBodyRecord = {
   marker: { color: "#aabbcc", sizePx: 6 },
 };
 const code = (fn: () => unknown) => { try { fn(); } catch (error) { return error instanceof SceneError ? error.code : String(error); } return "none"; };
-const viewerState = (scene: Scene, id: string, t: number) => scene.toDefinition().catalogue
-  ? scene.toDefinition().catalogue!.get(id).source!.create(createOrbAstronomyAdapter()).stateAt(t)
+const viewerState = (scene: Scene, id: string, t: number) => definitionOf(scene).catalogue
+  ? definitionOf(scene).catalogue!.get(id).source!.create(createOrbAstronomyAdapter()).stateAt(t)
   : undefined;
 
 describe("stateOf for any body", () => {

@@ -15,6 +15,7 @@ import { createOrbitCameraState, poseCamera, resolveCamera } from "../src/app/Ca
 import { stepCameraTarget } from "../src/app/sceneCamera";
 import { canFocus, focusAbsoluteOf, labelPositionOf, type SceneTargets } from "../src/app/sceneTargets";
 import { EQUATORIAL_UP } from "../src/app/viewUp";
+import { definitionOf } from "../src/api/definitionOf";
 
 const T0 = Date.parse("2026-01-01T00:00:00Z");
 const DAY = 86_400_000;
@@ -37,7 +38,7 @@ const near = (a: readonly number[], b: readonly number[]) => Math.hypot(a[0]! - 
 
 describe("lineFixedTo as a list of stretches", () => {
   it("builds one path, one menu entry that is available across the whole span", () => {
-    const definition = solar(flyby).toDefinition();
+    const definition = definitionOf(solar(flyby));
     const entries = definition.experience.objects.filter((o) => o.id === "probe");
     expect(entries).toHaveLength(1);
     expect(entries[0]!.availability).toEqual({ startUtcMs: T0, endUtcMs: T0 + 200 * DAY });
@@ -45,7 +46,7 @@ describe("lineFixedTo as a list of stretches", () => {
   });
 
   it("names the index of each fault", () => {
-    const code = (list: unknown) => codeOf(() => solar(list).toDefinition());
+    const code = (list: unknown) => codeOf(() => definitionOf(solar(list)));
     expect(code([{ start: at(0), end: at(60), body: "jupiter" }])).toMatch(/^bad-trajectory: addTrajectory\("probe"\): lineFixedTo\[0\] names "jupiter"/);
     expect(code([flyby[0], { start: at(50), end: at(100), body: "mars" }])).toMatch(/lineFixedTo\[1\] overlaps or is out of order/);
     expect(code([{ start: at(0), end: at(300), body: "sun" }])).toMatch(/lineFixedTo\[0\] lies outside the path/);
@@ -56,7 +57,7 @@ describe("lineFixedTo as a list of stretches", () => {
   });
 
   it("draws each stretch against its own body: the boundary vertex is placed from Mars at its own time, carried to Mars at the clock time", () => {
-    const view = new TrackedBodyView(trackedBodiesOf(solar(flyby).toDefinition())[0]!);
+    const view = new TrackedBodyView(trackedBodiesOf(definitionOf(solar(flyby)))[0]!);
     const clock = T0 + 200 * DAY;
     const drawn = vertices(view, "sun", clock);
     const r = resolver();
@@ -79,15 +80,15 @@ describe("lineFixedTo as a list of stretches", () => {
   });
 
   it("a plain body id is the one-stretch case", () => {
-    const whole = vertices(new TrackedBodyView(trackedBodiesOf(solar("sun").toDefinition())[0]!), "sun", T0 + 200 * DAY);
-    const list = vertices(new TrackedBodyView(trackedBodiesOf(solar([{ start: at(0), end: at(200), body: "sun" }]).toDefinition())[0]!), "sun", T0 + 200 * DAY);
+    const whole = vertices(new TrackedBodyView(trackedBodiesOf(definitionOf(solar("sun")))[0]!), "sun", T0 + 200 * DAY);
+    const list = vertices(new TrackedBodyView(trackedBodiesOf(definitionOf(solar([{ start: at(0), end: at(200), body: "sun" }])))[0]!), "sun", T0 + 200 * DAY);
     expect(list).toEqual(whole);
   });
 
   it("draws a Moon-orbit stretch against the Moon in an Earth-centred scene", () => {
     const samples = Array.from({ length: 5 }, (_, i) => ({ time: T0 + i * DAY, positionKm: [30_000 + i * 2_000, 10_000, 0] }));
     const scene = new Scene().addBody(earth).addBody(moon).setTime(T0).addTrajectory({ id: "probe", center: "earth", samples, lineFixedTo: [{ start: at(1), end: at(3), body: "moon" }] });
-    const view = new TrackedBodyView(trackedBodiesOf(scene.toDefinition())[0]!);
+    const view = new TrackedBodyView(trackedBodiesOf(definitionOf(scene))[0]!);
     const clock = T0 + 4 * DAY;
     const drawn = vertices(view, "earth", clock);
     const r = resolver();
@@ -98,7 +99,7 @@ describe("lineFixedTo as a list of stretches", () => {
   });
 
   it("keeps the marker where the state puts it across both boundaries", () => {
-    const view = new TrackedBodyView(trackedBodiesOf(solar(flyby).toDefinition())[0]!);
+    const view = new TrackedBodyView(trackedBodiesOf(definitionOf(solar(flyby)))[0]!);
     const marker = (t: number) => { view.update(t, trueScale, new FloatingOrigin(), new PerspectiveCamera(), placementAbout("sun")); return (view.group.children[3] as any).position.clone(); };
     for (const day of [60, 140]) {
       const [before, after] = [marker(T0 + day * DAY - 1000), marker(T0 + day * DAY + 1000)];
@@ -108,7 +109,7 @@ describe("lineFixedTo as a list of stretches", () => {
   });
 
   it("camera follow keeps the followed target at the marker, in view and available at, just before and just after each boundary", () => {
-    const definition = solar(flyby).toDefinition();
+    const definition = definitionOf(solar(flyby));
     const view = new TrackedBodyView(trackedBodiesOf(definition)[0]!);
     const placement = placementAbout("sun");
     const policy = trueScale;

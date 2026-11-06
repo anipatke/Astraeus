@@ -3,13 +3,15 @@
 import { describe, expect, it } from "vitest";
 import { Scene, SceneError, earth, moon, type GroupInput } from "astraeus";
 import { experienceWithGroups, groupsOf } from "../src/app/experienceDefinition";
+import type { ExperienceDefinition } from "../src/app/experienceDefinition";
+import { definitionOf } from "../src/api/definitionOf";
 
 const T0 = Date.parse("2026-01-01T00:00:00Z");
 const orbit = (k: number) => ({ id: `rock-${k}`, semiMajorAxisKm: 80_000 + 5_000 * k, eccentricity: 0.1 + 0.02 * k, inclinationDeg: 5 + k, raanDeg: 40 + 3 * k, argumentOfPeriapsisDeg: 70 + k });
 const ring = (extra: Partial<GroupInput> = {}): GroupInput => ({ id: "ring", orbits: [0, 1, 2, 3, 4, 5].map(orbit), ...extra });
 const base = () => new Scene().addBody(earth).addBody(moon).setTime(T0);
 const codeOf = (fn: () => unknown) => { try { fn(); } catch (error) { return error instanceof SceneError ? error.code : String(error); } return "no error"; };
-const positions = (definition: ReturnType<Scene["toDefinition"]>, time = T0 + 3_600_000) => {
+const positions = (definition: ExperienceDefinition, time = T0 + 3_600_000) => {
   const out = new Float64Array(18);
   groupsOf(definition)[0]!.group.fillPositionsKm(time, out);
   return Array.from(out);
@@ -17,7 +19,7 @@ const positions = (definition: ReturnType<Scene["toDefinition"]>, time = T0 + 3_
 
 describe("addGroup", () => {
   it("draws the orbits as one group on the points layer, with one menu item, colour, dot size and provenance", () => {
-    const definition = base().addGroup(ring({ label: "Ring", color: "#ff8800", dotSizePx: 4, refillAfterMs: 600_000, description: "Six made-up rocks." })).toDefinition();
+    const definition = definitionOf(base().addGroup(ring({ label: "Ring", color: "#ff8800", dotSizePx: 4, refillAfterMs: 600_000, description: "Six made-up rocks." })));
     expect(definition.sceneLayers).toEqual(["tracked-bodies", "points"]);
     const [layer] = groupsOf(definition);
     expect(layer).toMatchObject({ color: "#ff8800", pointSizePx: 4, refillAfterMs: 600_000 });
@@ -31,31 +33,31 @@ describe("addGroup", () => {
   });
 
   it("states its known limits: the caller's first, then the placement and motion limits, and the clump when drawn", () => {
-    const plain = groupsOf(base().addGroup(ring({ knownLimitations: ["Invented rocks."] })).toDefinition())[0]!.object.knownLimitations!;
+    const plain = groupsOf(definitionOf(base().addGroup(ring({ knownLimitations: ["Invented rocks."] }))))[0]!.object.knownLimitations!;
     expect(plain[0]).toBe("Invented rocks.");
     expect(plain.some((line) => /illustrative/.test(line))).toBe(true);
     expect(plain.some((line) => /two-body/.test(line))).toBe(true);
     expect(plain.some((line) => /clump/.test(line))).toBe(false);
-    const clumped = groupsOf(base().addGroup(ring({ clump: { near: "moon", fraction: 0.5, widthDeg: 20 } })).toDefinition())[0]!.object.knownLimitations!;
+    const clumped = groupsOf(definitionOf(base().addGroup(ring({ clump: { near: "moon", fraction: 0.5, widthDeg: 20 } }))))[0]!.object.knownLimitations!;
     expect(clumped.some((line) => /50% of the dots are drawn near Moon/.test(line))).toBe(true);
   });
 
   it("joins the automatic camera menu and can be named by a story panel", () => {
     const scene = base().addGroup(ring({ label: "Ring" })).addStoryPanels({ panels: [{ id: "p", at: { utc: "2026-01-01T00:01:00Z" }, title: "The ring", body: ["Made up."], badge: "illustrative", sources: ["Invented"], object: "ring" }] });
     scene.camera.follow("ring");
-    const definition = scene.toDefinition();
+    const definition = definitionOf(scene);
     const presets = definition.experience.cameraPresets.map((preset) => preset.id);
     expect(presets).toContain("focus-ring");
     expect(presets).toContain("follow-ring");
     expect(definition.experience.startCameraPresetId).toBe("follow-ring");
     expect(definition.experience.storyPanels?.panels.map((panel) => panel.objectId)).toEqual(["ring"]);
-    expect(() => new Scene().addBody(earth).addStoryPanels({ panels: [{ id: "p", at: { utc: "2026-01-01T00:00:00Z" }, title: "x", body: ["y"], badge: "illustrative", sources: ["z"], object: "ring" }] }).toDefinition()).toThrow();
+    expect(() => definitionOf(new Scene().addBody(earth).addStoryPanels({ panels: [{ id: "p", at: { utc: "2026-01-01T00:00:00Z" }, title: "x", body: ["y"], badge: "illustrative", sources: ["z"], object: "ring" }] }))).toThrow();
   });
 
   it("places the dots the same way for the same seed and differently for another, along the listed orbits", () => {
-    const a = positions(base().addGroup(ring({ seed: 3 })).toDefinition());
-    const b = positions(base().addGroup(ring({ seed: 3 })).toDefinition());
-    const c = positions(base().addGroup(ring({ seed: 4 })).toDefinition());
+    const a = positions(definitionOf(base().addGroup(ring({ seed: 3 }))));
+    const b = positions(definitionOf(base().addGroup(ring({ seed: 3 }))));
+    const c = positions(definitionOf(base().addGroup(ring({ seed: 4 }))));
     expect(a).toEqual(b);
     expect(a).not.toEqual(c);
     // Each dot stays within its own orbit's reach: between periapsis and apsis about Earth.
@@ -68,13 +70,13 @@ describe("addGroup", () => {
   });
 
   it("clumps a stated share near a body's place along its orbit", () => {
-    const spread = positions(base().addGroup(ring({ seed: 1 })).toDefinition());
-    const clumped = positions(base().addGroup(ring({ seed: 1, clump: { near: "moon", fraction: 1, widthDeg: 10 } })).toDefinition());
+    const spread = positions(definitionOf(base().addGroup(ring({ seed: 1 }))));
+    const clumped = positions(definitionOf(base().addGroup(ring({ seed: 1, clump: { near: "moon", fraction: 1, widthDeg: 10 } }))));
     expect(clumped).not.toEqual(spread);
   });
 
   it("circles another body in the scene when asked, and keeps ids in one namespace", () => {
-    const definition = base().addGroup(ring({ center: "moon", plane: "EQJ" })).toDefinition();
+    const definition = definitionOf(base().addGroup(ring({ center: "moon", plane: "EQJ" })));
     expect(groupsOf(definition)[0]!.group.center).toBe("moon");
     expect(codeOf(() => base().addGroup(ring()).addBody("mars").addGroup(ring({ id: "mars" })))).toBe("duplicate-id");
     expect(codeOf(() => base().addGroup(ring()).addGroup(ring()))).toBe("duplicate-id");
@@ -83,7 +85,7 @@ describe("addGroup", () => {
 
   it("names the code by what is wrong with the centre: unknown-body when it is not a catalogued body, bad-group when it is catalogued but not in the scene (I-084)", () => {
     expect(codeOf(() => base().addGroup(ring({ center: "made-up-centre" })))).toBe("unknown-body");
-    expect(codeOf(() => new Scene().addBody(earth).addGroup(ring({ center: "moon" })).toDefinition())).toBe("bad-group");
+    expect(codeOf(() => definitionOf(new Scene().addBody(earth).addGroup(ring({ center: "moon" }))))).toBe("bad-group");
   });
   it("refuses bad input with bad-group, naming the group", () => {
     const orbits = ring().orbits;
@@ -105,20 +107,20 @@ describe("addGroup", () => {
     // An unbound orbit (eccentricity 1 or more) and a bad shape are refused when the scene is built.
     for (const worse of [{ eccentricity: 1.2 }, { semiMajorAxisKm: -5 }, { inclinationDeg: 200 }]) {
       const scene = base().addGroup(ring({ orbits: [{ ...orbit(0), ...worse }] }));
-      expect(codeOf(() => scene.toDefinition()), JSON.stringify(worse)).toBe("bad-group");
+      expect(codeOf(() => definitionOf(scene)), JSON.stringify(worse)).toBe("bad-group");
     }
     expect(() => base().addGroup({ ...ring(), id: "x", orbits: [{ ...orbit(0), id: "" }] })).toThrowError(/addGroup/);
   });
 
   it("refuses a centre or clump body the scene does not hold, and a clump on the centre itself", () => {
-    expect(codeOf(() => new Scene().addBody(earth).addGroup(ring({ center: "moon" })).toDefinition())).toBe("bad-group");
-    expect(codeOf(() => new Scene().addBody(earth).addGroup(ring({ clump: { near: "moon", fraction: 0.5, widthDeg: 10 } })).toDefinition())).toBe("bad-group");
-    expect(codeOf(() => base().addGroup(ring({ clump: { near: "earth", fraction: 0.5, widthDeg: 10 } })).toDefinition())).toBe("bad-group");
+    expect(codeOf(() => definitionOf(new Scene().addBody(earth).addGroup(ring({ center: "moon" }))))).toBe("bad-group");
+    expect(codeOf(() => definitionOf(new Scene().addBody(earth).addGroup(ring({ clump: { near: "moon", fraction: 0.5, widthDeg: 10 } }))))).toBe("bad-group");
+    expect(codeOf(() => definitionOf(base().addGroup(ring({ clump: { near: "earth", fraction: 0.5, widthDeg: 10 } }))))).toBe("bad-group");
     expect(codeOf(() => base().addGroup(ring({ center: "nowhere" })))).toBe("unknown-body");
   });
 
   it("gives a group no info-card bars", () => {
-    const definition = base().addGroup(ring()).toDefinition();
+    const definition = definitionOf(base().addGroup(ring()));
     const metrics = definition.createMetrics({ resolver: undefined as never } as never);
     expect(metrics("ring", T0)).toEqual([]);
   });
@@ -135,7 +137,7 @@ describe("clump near an elements body and refillSliceMs (O-042 T-177)", () => {
       accuracy: { classification: "indicative", statement: "Made up.", validFromUtc: "2025-01-01T00:00:00Z", validToUtc: "2027-01-01T00:00:00Z", limitations: ["Invented for a test."] },
       marker: { color: "#ff9966", sizePx: 8 },
     }).addGroup(ring({ center: "sun", clump: { near: "made-up-rock", fraction: 0.5, widthDeg: 20 }, refillSliceMs: 0 })).setTime(T0);
-    const layer = scene.toDefinition().groups![0]!;
+    const layer = definitionOf(scene).groups![0]!;
     expect(layer.refillSliceMs).toBe(0);
     expect(layer.object.knownLimitations!.join(" ")).toContain("Made-up rock");
   });

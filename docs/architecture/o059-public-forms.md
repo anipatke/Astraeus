@@ -458,6 +458,8 @@ None of these blocks T-266. They are consequences of settled choices, listed so 
 - **T-271** moves the scene builders to the site the same way: `DEFINITIONS` calls `.toDefinition()` until T-272. The site's count falls here.
 - **T-272** moves `main.tsx` onto `mount`, then removes `switchAddress`, `openAddress`, `claimCover` and the site's last `toDefinition`.
 
+*(Update, O-057 T-274: the stop-gaps above ended in T-272, and `Scene.toDefinition` itself is now removed. The planets' nine-planet compare against `planet-views-before.json` was retired by owner decision and replaced by public-read assertions.)*
+
 ## Appendix A: every deep import and its row
 
 Generated from a fresh listing; `npm test`'s `DEEP_IMPORT_COUNTS` total is the check.

@@ -14,6 +14,8 @@ import { pacedRate } from "../src/core/pacing";
 import { infoView } from "../src/shell/infoModel";
 import { buildSyntheticJourneyScene, JOURNEY_END_AU, JOURNEY_END_UTC_MS, JOURNEY_JUPITER_UTC_MS, JOURNEY_LAUNCH_UTC_MS, JOURNEY_SATURN_UTC_MS, JOURNEY_URANUS_UTC_MS } from "../src/synthetic/syntheticJourneyScene";
 import { solarSystemPolicyForTest } from "./scalePolicies";
+import type { ExperienceDefinition } from "../src/app/experienceDefinition";
+import { definitionOf } from "../src/api/definitionOf";
 
 const AU_KM = 149_597_870.7;
 const stub = (name: string, provides: string[]): DataSource => ({ name, provides });
@@ -21,7 +23,7 @@ const DATA = [stub("astraeus-data-jupiter", ["io", "europa", "ganymede", "callis
 const policy = solarSystemPolicyForTest({ earth: 60 });
 
 /** The camera's farthest zoom-out the viewer allows, clamping a huge request, in scaled units. */
-function farthestZoom(definition: ReturnType<Scene["toDefinition"]>, aspect: number, span: number): number {
+function farthestZoom(definition: ExperienceDefinition, aspect: number, span: number): number {
   const positions = new Map<string, RenderVector>([["sun", [0, 0, 0]]]);
   const targets: SceneTargets = { bodyIdFor: (id) => id, placed: positions as SceneTargets["placed"], absoluteOf: () => [0, 0, 0], groupViews: [], sunCentredViews: [], trackedViews: [], bodySetViews: [], timeUtcMs: 0, policy, placement: {} as SceneTargets["placement"] };
   const input: CameraStepInput = { camState: createOrbitCameraState(1e12, "sun"), controls: { cameraRequest: null }, targets, frame: { centre: "sun", span }, catalogue: definition.catalogue!, reach: liveReach(cameraReachOf(definition), policy, aspect), fovDeg: 45, viewUp: EQUATORIAL_UP, firstFrame: false, previousUp: null };
@@ -34,7 +36,7 @@ describe("a Sun-centred scene with a path reaching 170 AU (I-114)", () => {
   const scene = () => new Scene().addBody(sun).addBody(earth, { enlarge: 60 }).setTime(far[0]!.time).addTrajectory({ id: "far", center: "sun", samples: far, lineFixedTo: "sun" }).setScale(solarSystemScale);
 
   it("widens the default zoom-out and far plane so the whole path fits from any point on it, at a desktop and a phone shape", () => {
-    const definition = scene().toDefinition();
+    const definition = definitionOf(scene());
     expect(cameraReachOf(definition).cover).toBeDefined();
     for (const aspect of [1.6, 390 / 844]) {
       const reach = liveReach(cameraReachOf(definition), policy, aspect);
@@ -49,17 +51,17 @@ describe("a Sun-centred scene with a path reaching 170 AU (I-114)", () => {
 
   it("never narrows the default: a short path leaves the reach to the scene's own span, and a declared reach wins", () => {
     const short = new Scene().addBody(sun).addBody(earth, { enlarge: 60 }).setTime(far[0]!.time).addTrajectory({ id: "near", center: "sun", samples: far.map((s, i) => ({ time: s.time, positionKm: [AU_KM * 0.5 * i, 0, 0] })), lineFixedTo: "sun" }).setScale(solarSystemScale);
-    const huge = farthestZoom(short.toDefinition(), 1.6, 2000);
+    const huge = farthestZoom(definitionOf(short), 1.6, 2000);
     expect(huge).toBeGreaterThanOrEqual(2000 * 3.5);
     const declared = scene();
     declared.camera.setReach(9_999);
-    expect(cameraReachOf(declared.toDefinition())).toEqual({ maxFocusDistance: 9_999, far: 24_997.5 });
+    expect(cameraReachOf(definitionOf(declared))).toEqual({ maxFocusDistance: 9_999, far: 24_997.5 });
   });
 });
 
 describe("the made-up journey", () => {
   beforeAll(async () => { await loadPlanetSeries(); });
-  const definition = () => buildSyntheticJourneyScene().toDefinition(DATA);
+  const definition = () => definitionOf(buildSyntheticJourneyScene(), DATA);
 
   it("builds inside every body's years and frames the 170 AU end of the path", () => {
     const built = definition();

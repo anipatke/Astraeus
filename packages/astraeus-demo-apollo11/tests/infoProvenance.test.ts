@@ -175,7 +175,7 @@ describe("Apollo known limitations come from the generated reconstruction data",
       landingSiteOffset: validation.landingSiteOffset.map((o) => ({ ...o, offsetKm: o.offsetKm + 1000 })),
       segments: validation.segments.map((s) => (s.cutoffPositionResidualKm === undefined ? s : { ...s, cutoffPositionResidualKm: s.cutoffPositionResidualKm + 1000 })),
     };
-    const limits = (data: typeof APOLLO11_DATA) => Object.fromEntries(buildApollo11Scene(data).toDefinition().experience.objects.map((object) => [object.id, object.knownLimitations ?? []]));
+    const limits = (data: typeof APOLLO11_DATA) => { const scene = buildApollo11Scene(data); return Object.fromEntries([...scene.bodies, ...scene.paths].map((read) => [read.id, read.knownLimitations])); };
     const before = limits(APOLLO11_DATA);
     const after = limits({ ...APOLLO11_DATA, validation: altered });
     expect(after.eagle.join()).not.toBe(before.eagle.join());

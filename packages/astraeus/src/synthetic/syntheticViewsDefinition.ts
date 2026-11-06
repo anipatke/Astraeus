@@ -7,6 +7,7 @@
 // no other check depends on (the journey's checks and its Object list stay exactly as they were).
 import type { ExperienceDefinition } from "../app/experienceDefinition";
 import { Scene } from "../api/scene";
+import { definitionOf } from "../api/definitionOf";
 import { earth } from "../api/bodies";
 import { trueScale } from "../core/scalePolicy";
 
@@ -47,4 +48,4 @@ const scene = new Scene()
   .setTime(VIEWS_START_UTC_MS);
 scene.camera.follow("probe-a", { distance: 14 });
 
-export const syntheticViewsDefinition: ExperienceDefinition = scene.toDefinition();
+export const syntheticViewsDefinition: ExperienceDefinition = definitionOf(scene);

@@ -32,10 +32,11 @@ import type { MoonPanelInput, PlacesInput } from "./moonPanelInput";
 import type { BodySetInput } from "./bodySetInput";
 import { assembleScene } from "./assembleScene";
 import { SceneCamera } from "./planCamera";
+import { definitionOf, registerDefinition, registerMissingData } from "./definitionOf";
 import { isMounted } from "./sceneFreeze";
-import type { SceneBodyRead, SceneBodySetRead, SceneEventRead, SceneGroupRead, SceneMoonPanelRead, ScenePanelRead, ScenePlacesRead, ScenePathRead, SceneTimelineRead, SceneViewsRead } from "./sceneReads";
-export type { SceneBodyRead, SceneBodySetRead, SceneEventRead, SceneGroupRead, SceneMoonPanelRead, ScenePanelRead, ScenePlacesRead, ScenePathRead, SceneTimelineRead, SceneViewRead, SceneViewsRead } from "./sceneReads";
-export { SceneCamera } from "./planCamera";
+import type { SceneActivityRead, SceneBodyRead, SceneBodySetRead, SceneEventRead, SceneGroupRead, SceneMoonPanelRead, ScenePanelRead, ScenePlacesRead, ScenePathRead, SceneTimelineRead, SceneViewsRead } from "./sceneReads";
+export type { SceneActivityRead, SceneBodyRead, SceneBodySetRead, SceneEventRead, SceneGroupRead, SceneMoonPanelRead, ScenePanelRead, ScenePlacesRead, ScenePathRead, SceneTimelineRead, SceneViewRead, SceneViewsRead } from "./sceneReads";
+export type { SceneCamera } from "./planCamera";
 import { StoryPlan } from "./planStory";
 import { buildTracked, pathReads, type Tracked } from "./planPaths";
 import { toUtcMs, type TimeInput } from "./time";
@@ -188,7 +189,7 @@ const BODY_READOUT_KINDS: readonly BodyReadoutKind[] = ["distance", "phase", "co
 const SCALES: readonly ScalePolicy[] = [trueScale, readableScale, solarSystemScale];
 
 /**
- * A scene built with imperative calls. `mount(element, scene)` draws it; `toDefinition()` is what the app is given. Every method returns the scene, so calls chain.
+ * A scene built with imperative calls. `mount(element, scene)` draws it. Every method returns the scene, so calls chain.
  * @example
  * const scene = new Scene()
  *   .addBody(earth)
@@ -219,6 +220,8 @@ export class Scene {
 
   constructor() {
     this.camera = new SceneCamera((id) => this.#taken(id), (id) => this.#plan.bodies.has(id) && circlesTheSun(this.#plan.catalogue, id), () => this.#editable());
+    registerDefinition(this, (data) => this.#definition(data));
+    registerMissingData(this, (data) => [...new Set([...this.#plan.missingData(data), ...this.#bodySets.missingData(data)])]);
   }
 
   /** Refuses an edit once a viewer has taken the scene. */
@@ -261,6 +264,9 @@ export class Scene {
 
   /** The scale choices the viewer will offer, in order, as ids ("true-scale", "readable-scale", "solar-system"); the first is the opening scale and `setScale(.., { only: true })` leaves just that one. */
   get scales(): readonly string[] { return Object.freeze(this.#plan.scaleChoices(this.#scale, this.#scaleOnly)); }
+
+  /** The activities added with `addActivity`, in the order added: each one's `id`, `label`, `unit`, span, peak and curve in UTC milliseconds, and where its stretches come from. Fresh, frozen and a copy of what was given, so editing the list or the input afterwards changes nothing. */
+  get activities(): readonly SceneActivityRead[] { return this.#groupPlan.activityReads(); }
 
   /** The timeline the scene opens with: its span and opening moment in UTC milliseconds (`windowStartUtcMs`, `windowEndUtcMs`, `openUtcMs`), the speeds offered (`rates`), the opening `rate` and whether playback wraps (`loop`). With no span or moment set and no path or activity, the span is a month about the moment of the read. A moment outside a span set with `setTimeline` throws `bad-timeline`, as `mount` would. */
   get timeline(): SceneTimelineRead { return this.#timeline.read(this.#spans()); }
@@ -326,7 +332,7 @@ export class Scene {
 
   /**
    * Adds a group of listed orbits drawn as one set of dots (one colour and dot size, one menu item and info card), with an optional clump near a body.
-   * The orbits circle the scene's centre unless `center` names another body. A repeated id throws `duplicate-id`; an empty list, a bad orbit, colour or clump throws `bad-group`. A `center` that is not a catalogued body throws `unknown-body`; a catalogued one the finished scene does not hold throws `bad-group` from `toDefinition`.
+   * The orbits circle the scene's centre unless `center` names another body. A repeated id throws `duplicate-id`; an empty list, a bad orbit, colour or clump throws `bad-group`. A `center` that is not a catalogued body throws `unknown-body`; a catalogued one the finished scene does not hold throws `bad-group` from `check`, `load` or `mount`.
    * @example
    * scene.addGroup({ id: "ring", orbits: [{ id: "a", semiMajorAxisKm: 90_000, eccentricity: 0.1, inclinationDeg: 5, raanDeg: 40, argumentOfPeriapsisDeg: 70 }], color: "#9de3a8" });
    */
@@ -562,7 +568,7 @@ export class Scene {
    * const io = scene.stateOf("io", "2016-03-01T00:00:00Z");
    */
   async load(options: SceneLoadOptions = {}): Promise<void> {
-    await this.toDefinition(options.data).prepare?.();
+    await definitionOf(this, options.data).prepare?.();
   }
 
   /**
@@ -572,16 +578,11 @@ export class Scene {
    * scene.check({ data: [jupiterData] }); // throws what mount(element, scene, { data }) would throw
    */
   check(options: SceneLoadOptions = {}): void {
-    this.toDefinition(options.data);
+    definitionOf(this, options.data);
   }
 
-  /** The data packages the added bodies need that `data` does not provide. */
-  missingData(data: readonly DataSource[] = []): readonly string[] {
-    return [...new Set([...this.#plan.missingData(data), ...this.#bodySets.missingData(data)])];
-  }
-
-  /** The app's plug-in contract for this scene (`assembleScene.ts`). Throws if the scene is empty or a body needs a data package not passed in `data`. */
-  toDefinition(data: readonly DataSource[] = []): ExperienceDefinition {
+  /** The app's plug-in contract for this scene (`assembleScene.ts`), reached through `definitionOf`. Throws if the scene is empty or a body needs a data package not passed in `data`. */
+  #definition(data: readonly DataSource[]): ExperienceDefinition {
     return assembleScene({ plan: this.#plan, tracked: this.#tracked, groupPlan: this.#groupPlan, bodySets: this.#bodySets, moonPanel: this.#moonPanel, picker: this.#picker, places: this.#places, story: this.#story, timeline: this.#timeline, viewPlan: this.#viewPlan, camera: this.camera, scale: this.#scale, scaleOnly: this.#scaleOnly, look: this.#look, bodyReadouts: this.#bodyReadouts }, data);
   }
 }

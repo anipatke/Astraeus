@@ -68,6 +68,11 @@
           "signature": "readonly string[]"
         },
         {
+          "name": "activities",
+          "optional": false,
+          "signature": "readonly SceneActivityRead[]"
+        },
+        {
           "name": "timeline",
           "optional": false,
           "signature": "SceneTimelineRead"
@@ -181,16 +186,6 @@
           "name": "check",
           "optional": false,
           "signature": "(options?: SceneLoadOptions): void"
-        },
-        {
-          "name": "missingData",
-          "optional": false,
-          "signature": "(data?: readonly DataSource[]): readonly string[]"
-        },
-        {
-          "name": "toDefinition",
-          "optional": false,
-          "signature": "(data?: readonly DataSource[]): ExperienceDefinition"
         }
       ]
     },
@@ -501,6 +496,58 @@
           "name": "texture",
           "optional": true,
           "signature": "TextureRef | undefined"
+        }
+      ]
+    },
+    "SceneActivityRead": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "id",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "label",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "unit",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "windowStartUtcMs",
+          "optional": false,
+          "signature": "number"
+        },
+        {
+          "name": "windowEndUtcMs",
+          "optional": false,
+          "signature": "number"
+        },
+        {
+          "name": "peak",
+          "optional": false,
+          "signature": "{ readonly label: string; readonly value: number; readonly timeUtcMs?: number; }"
+        },
+        {
+          "name": "samples",
+          "optional": false,
+          "signature": "readonly { readonly timeUtcMs: number; readonly value: number; }[]"
+        },
+        {
+          "name": "provenance",
+          "optional": true,
+          "signature": "readonly { readonly stretchStartUtcMs: number; readonly stretchEndUtcMs: number; readonly provenance: Provenance; }[] | undefined"
+        },
+        {
+          "name": "type",
+          "optional": true,
+          "signature": "string | undefined"
         }
       ]
     },
@@ -2473,12 +2520,6 @@
           "signature": "\"time\" | \"view\""
         }
       ]
-    },
-    "RateSource": {
-      "kind": "type",
-      "signature": "\"scene\" | \"chosen\"",
-      "constructors": [],
-      "members": []
     },
     "CameraPose": {
       "kind": "interface",

@@ -1,5 +1,5 @@
 // The engine's public API: everything not exported here is internal.
-export { Scene, SceneCamera, type AddBodyOptions, type CardFactInput, type OrbitLapInput, type BodyReadoutKind, type AnchorInput, type ReadoutInput, type DataSource, type SceneLoadOptions, type SceneBodyRead, type ScenePathRead, type SceneGroupRead, type SceneBodySetRead, type SceneMoonPanelRead, type ScenePlacesRead, type SceneEventRead, type ScenePanelRead, type SceneViewRead, type SceneViewsRead, type SceneTimelineRead, type MoonPositions, type FollowView, type GroupInput, type GroupOrbitInput, type GroupClumpInput, type GroupReadoutInput, type ActivityInput, type ActivitySampleInput, type ActivitySourceInput, type ElementsBodyRecord, type TimeInput, type TrajectoryInput, type TrajectorySampleInput } from "./scene";
+export { Scene, type SceneCamera, type AddBodyOptions, type CardFactInput, type OrbitLapInput, type BodyReadoutKind, type AnchorInput, type ReadoutInput, type DataSource, type SceneLoadOptions, type SceneBodyRead, type SceneActivityRead, type ScenePathRead, type SceneGroupRead, type SceneBodySetRead, type SceneMoonPanelRead, type ScenePlacesRead, type SceneEventRead, type ScenePanelRead, type SceneViewRead, type SceneViewsRead, type SceneTimelineRead, type MoonPositions, type FollowView, type GroupInput, type GroupOrbitInput, type GroupClumpInput, type GroupReadoutInput, type ActivityInput, type ActivitySampleInput, type ActivitySourceInput, type ElementsBodyRecord, type TimeInput, type TrajectoryInput, type TrajectorySampleInput } from "./scene";
 export type { MoonPanelInput, MoonPanelFamilyInput, MoonPanelMoonInput, PlacesInput, PlaceInput, PlaceCategoryInput } from "./moonPanelInput";
 export type { PickerInput, PickerOptionInput, PickChange } from "./pickerInput";
 export type { BodySetInput, BodySetFamilyInput, BodySetMemberInput, BodySetElementsInput, BodySetBodyInput, BodySetBalanceInput } from "./bodySetInput";
@@ -11,7 +11,7 @@ export { mount, type MountOptions, type MountedScene } from "./mount";
 export { type ViewerHandle } from "./viewerHandle";
 export { AstraeusScene, type AstraeusSceneProps } from "./AstraeusScene";
 export { type SelectionChange } from "./viewerSelection";
-export { type ViewerChange, type EventZoneChange, type RateSource, type CameraPose, type CameraTarget } from "./viewerLink";
+export { type ViewerChange, type EventZoneChange, type CameraPose, type CameraTarget } from "./viewerLink";
 export { SceneError, type SceneErrorCode } from "./errors";
 export { sun, mercury, venus, earth, moon, mars, jupiter, saturn, uranus, neptune, pluto, io, europa, ganymede, callisto, mimas, enceladus, tethys, dione, rhea, titan, iapetus, triton, charon, phobos, deimos, listedMoons, type BodyRef } from "./bodies";
 export { trueScale, readableScale, solarSystemScale, type ScalePolicy } from "../core/scalePolicy";

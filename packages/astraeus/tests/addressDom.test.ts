@@ -18,6 +18,7 @@ import { App } from "../src/app/App";
 import { AstraeusScene as HostScene } from "../src/api/AstraeusScene";
 import { mount } from "../src/api/mount";
 import { press, pretendScreen, drawn, byLabel } from "./domSetup";
+import { definitionOf } from "../src/api/definitionOf";
 
 (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
 
@@ -29,7 +30,7 @@ const sceneWithViews = () => new Scene().addBody(earth).addBody(moon)
   .addTrajectory({ id: "pa", label: "Probe A", center: "earth", samples: samples(10_000) })
   .addTrajectory({ id: "pb", label: "Probe B", center: "earth", samples: samples(20_000) })
   .setViews([{ id: "a", label: "View A", paths: ["pa"] }, { id: "b", label: "View B", paths: ["pb"] }], { place: "top-bar" });
-const definition = sceneWithViews().toDefinition();
+const definition = definitionOf(sceneWithViews());
 
 let container: HTMLElement;
 let root: Root;

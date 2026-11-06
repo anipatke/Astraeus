@@ -44,12 +44,6 @@
       "removedBy": "O-057"
     },
     {
-      "type": "ExperienceDefinition (packages/astraeus/src/app/experienceDefinition.ts)",
-      "reason": "Returned by Scene.toDefinition, so the internal plug-in contract is part of the public type",
-      "finding": "F7",
-      "removedBy": "O-057"
-    },
-    {
       "type": "INDICATIVE_LIMIT_FRACTION (packages/astraeus/src/core/elementsBody.ts)",
       "reason": "Named root export re-exported from packages/astraeus/src/core/elementsBody.ts; its declaration is outside src/api/",
       "finding": "F7",

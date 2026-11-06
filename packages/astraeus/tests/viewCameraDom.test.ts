@@ -16,6 +16,7 @@ import type { ViewCameraInput } from "../src/api/views";
 import { App } from "../src/app/App";
 import { presetForViewRule } from "../src/shell/viewCamera";
 import { press, pretendScreen } from "./domSetup";
+import { definitionOf } from "../src/api/definitionOf";
 
 (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
 
@@ -23,14 +24,13 @@ const T0 = Date.parse("2026-03-01T00:00:00Z");
 const MIN = 60_000;
 const samples = (x: number) => [0, 1, 2, 3].map((i) => ({ time: T0 + i * 10 * MIN, positionKm: [x + i * 1_000, 0, 0], velocityKmS: [1, 0, 0] }));
 /** Views a (probe A) and b (probe B, with the camera rule under test); the Moon and Earth are in every view. */
-const definitionWith = (camera: ViewCameraInput | undefined) => new Scene().addBody(earth).addBody(moon)
+const definitionWith = (camera: ViewCameraInput | undefined) => definitionOf(new Scene().addBody(earth).addBody(moon)
   .addTrajectory({ id: "pa", label: "Probe A", center: "earth", samples: samples(10_000) })
   .addTrajectory({ id: "pb", label: "Probe B", center: "earth", samples: samples(20_000) })
   .setViews([
     { id: "a", label: "View A", paths: ["pa"] },
     { id: "b", label: "View B", paths: ["pb"], ...(camera === undefined ? {} : { camera }) },
-  ], { place: "top-bar" })
-  .toDefinition();
+  ], { place: "top-bar" }));
 
 let container: HTMLElement;
 let root: Root;

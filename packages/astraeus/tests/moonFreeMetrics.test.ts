@@ -5,6 +5,7 @@ import { catalogue } from "../src/assets/catalogue";
 import { createSceneResolver } from "../src/app/sceneLayout";
 import { createOrbAstronomyAdapter } from "../src/core/astronomyAdapter";
 import type { StateResolver } from "../src/core/stateResolver";
+import { definitionOf } from "../src/api/definitionOf";
 
 const T = Date.UTC(2026, 7, 12);
 const rock: ElementsBodyRecord = {
@@ -19,7 +20,7 @@ const rock: ElementsBodyRecord = {
 
 describe("a Moon-free scene never reads the Moon", () => {
   it("answers every metric without asking the resolver about the Moon", () => {
-    const definition = new Scene().addBody(sun).addBody(earth, { orbit: true }).addBodyFromElements(rock).setTime(T).toDefinition();
+    const definition = definitionOf(new Scene().addBody(sun).addBody(earth, { orbit: true }).addBodyFromElements(rock).setTime(T));
     const resolver = createSceneResolver(createOrbAstronomyAdapter(), definition.catalogue);
     const asked: string[] = [];
     const spy: StateResolver = {

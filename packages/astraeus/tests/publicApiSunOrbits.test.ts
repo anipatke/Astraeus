@@ -7,6 +7,7 @@ import { createOrbAstronomyAdapter } from "../src/core/astronomyAdapter";
 import { createStateResolver } from "../src/core/stateResolver";
 import { bodyMetrics } from "../src/app/bodyMetrics";
 import { sunCentredOf, visualOverridesOf } from "../src/app/experienceDefinition";
+import { definitionOf } from "../src/api/definitionOf";
 
 const T0 = Date.parse("2026-01-01T00:00:00Z");
 const DAY = 86_400_000;
@@ -27,7 +28,7 @@ const solar = () => new Scene().addBody(sun).setTime(T0);
 
 describe("orbit lines round the Sun", () => {
   it("draws Earth's year and a planet's turn from the bodies' own position sources", () => {
-    const definition = solar().addBody(earth, { orbit: true }).addBody(mars, { orbit: true }).addBody(mercury).toDefinition();
+    const definition = definitionOf(solar().addBody(earth, { orbit: true }).addBody(mars, { orbit: true }).addBody(mercury));
     expect(definition.sceneLayers).toContain("sun-centred");
     const { paths } = sunCentredOf(definition);
     expect(paths.map((path) => path.object.id)).toEqual(["earth-orbit", "mars-orbit"]);
@@ -42,7 +43,7 @@ describe("orbit lines round the Sun", () => {
   });
 
   it("closes the turn: the line ends where it began, about the Sun", () => {
-    const [path] = sunCentredOf(solar().addBody(earth, { orbit: true }).toDefinition()).paths;
+    const [path] = sunCentredOf(definitionOf(solar().addBody(earth, { orbit: true }))).paths;
     const span = path!.span as { startUtcMs: number; endUtcMs: number };
     const a = path!.source.stateAt(span.startUtcMs, "sun").positionKm;
     const b = path!.source.stateAt(span.endUtcMs, "sun").positionKm;
@@ -50,15 +51,15 @@ describe("orbit lines round the Sun", () => {
   });
 
   it("adds no sun-centred layer when no body asks for one, and names the missing Sun when it is absent", () => {
-    expect(solar().addBody(earth).toDefinition().sceneLayers).not.toContain("sun-centred");
-    expect(codeOf(() => new Scene().addBody(earth).addBody(mars, { orbit: true }).toDefinition())).toMatch(/^no-orbit: .*about the Sun, which has not been added/);
+    expect(definitionOf(solar().addBody(earth)).sceneLayers).not.toContain("sun-centred");
+    expect(codeOf(() => definitionOf(new Scene().addBody(earth).addBody(mars, { orbit: true })))).toMatch(/^no-orbit: .*about the Sun, which has not been added/);
     expect(codeOf(() => solar().addBody("sun" as never, { orbit: true }))).toMatch(/^no-orbit: .*any body that circles the Sun/);
   });
 });
 
 describe("a built-in comet", () => {
   it("draws its whole orbit from periapsis, and the line closes", () => {
-    const [path] = sunCentredOf(solar().addBody("swift-tuttle", { orbit: true }).toDefinition()).paths;
+    const [path] = sunCentredOf(definitionOf(solar().addBody("swift-tuttle", { orbit: true }))).paths;
     expect(path!.object.id).toBe("swift-tuttle-orbit");
     const span = path!.span as { startUtcMs: number; endUtcMs: number };
     const years = (span.endUtcMs - span.startUtcMs) / (365.25 * DAY);
@@ -72,7 +73,7 @@ describe("a built-in comet", () => {
 
 describe("addBodyFromElements", () => {
   it("adds a made-up comet with its provenance, in the catalogue the definition carries", () => {
-    const definition = solar().addBody(earth).addBodyFromElements(comet(), { description: "A comet that is not real." }).toDefinition();
+    const definition = definitionOf(solar().addBody(earth).addBodyFromElements(comet(), { description: "A comet that is not real." }));
     expect(definition.catalogue?.has("made-up-comet")).toBe(true);
     const object = definition.experience.objects.find((item) => item.id === "made-up-comet")!;
     expect(object).toMatchObject({ label: "Made-up comet", color: "#ff9966", description: "A comet that is not real." });
@@ -83,7 +84,7 @@ describe("addBodyFromElements", () => {
   });
 
   it("draws its whole orbit smoothly: one period from periapsis, passing through the source", () => {
-    const definition = solar().addBodyFromElements(comet(), { orbit: true }).toDefinition();
+    const definition = definitionOf(solar().addBodyFromElements(comet(), { orbit: true }));
     const [path] = sunCentredOf(definition).paths;
     expect(path!.object.id).toBe("made-up-comet-orbit");
     expect(path!.sampling?.eccentricity).toBeCloseTo(0.9, 10);
@@ -112,14 +113,14 @@ describe("addBodyFromElements", () => {
 
 describe("enlarge, label off and label reach", () => {
   it("enlarges a planet in the readable scale and refuses a smaller-than-life value", () => {
-    const definition = solar().addBody(earth, { enlarge: 20 }).toDefinition();
+    const definition = definitionOf(solar().addBody(earth, { enlarge: 20 }));
     expect(visualOverridesOf(definition).get("earth")).toEqual({ exaggeration: 20 });
     expect(codeOf(() => solar().addBody(earth, { enlarge: 0.5 }))).toMatch(/^bad-body: .*enlarge 0.5 must be a number of at least 1/);
     expect(codeOf(() => solar().addBody(earth, { enlarge: Number.NaN }))).toMatch(/^bad-body/);
   });
 
   it("starts a label off on request and keeps the body in the menu", () => {
-    const definition = solar().addBody(earth, { showLabel: false }).addBody(mars).toDefinition();
+    const definition = definitionOf(solar().addBody(earth, { showLabel: false }).addBody(mars));
     const objects = definition.experience.objects;
     expect(objects.find((item) => item.id === "earth")!.showLabel).toBe(false);
     expect(objects.find((item) => item.id === "mars")!.showLabel).toBeUndefined();
@@ -128,8 +129,8 @@ describe("enlarge, label off and label reach", () => {
   });
 
   it("sets no label reach in a Sun-centred scene, so labels do not fade when zoomed out; an Earth-centred scene keeps its own", () => {
-    for (const object of solar().addBody(earth).addBody(mars).toDefinition().experience.objects) expect(object.labelMaxDistance).toBeUndefined();
-    expect(new Scene().addBody(earth).toDefinition().experience.objects[0]!.labelMaxDistance).toBe(500);
+    for (const object of definitionOf(solar().addBody(earth).addBody(mars)).experience.objects) expect(object.labelMaxDistance).toBeUndefined();
+    expect(definitionOf(new Scene().addBody(earth)).experience.objects[0]!.labelMaxDistance).toBe(500);
   });
 });
 
@@ -141,13 +142,14 @@ describe("the public path without the planet series preloaded (O-042 T-177)", ()
     const api = await import("astraeus");
     const series = await import("../src/core/planetSeries");
     const definitionModule = await import("../src/app/experienceDefinition");
+    const internal = await import("../src/api/definitionOf");
     expect(series.planetSeriesLoaded()).toBe(false);
-    return { ...api, series, sunCentredOf: definitionModule.sunCentredOf };
+    return { ...api, series, definitionOf: internal.definitionOf, sunCentredOf: definitionModule.sunCentredOf };
   };
 
   it("builds a Sun-centred scene with planet orbit lines, then draws the lines once prepare has loaded the series", async () => {
     const api = await fresh();
-    const definition = new api.Scene().addBody(api.sun).addBody(api.mars, { orbit: true }).addBody(api.earth, { orbit: true }).setTime(T0).toDefinition();
+    const definition = api.definitionOf(new api.Scene().addBody(api.sun).addBody(api.mars, { orbit: true }).addBody(api.earth, { orbit: true }).setTime(T0));
     expect(definition.sceneLayers).toContain("sun-centred");
     await definition.prepare!();
     expect(api.series.planetSeriesLoaded()).toBe(true);
@@ -158,7 +160,7 @@ describe("the public path without the planet series preloaded (O-042 T-177)", ()
   it("builds a group clumped near a planet the same way", async () => {
     const api = await fresh();
     const orbits = [0, 1, 2].map((k) => ({ id: `r${k}`, semiMajorAxisKm: 2e8 + 1e7 * k, eccentricity: 0.2, inclinationDeg: 5, raanDeg: 40 + k, argumentOfPeriapsisDeg: 70 }));
-    const definition = new api.Scene().addBody(api.sun).addBody(api.mars).addGroup({ id: "swarm", orbits, center: "sun", clump: { near: "mars", fraction: 0.5, widthDeg: 20 } }).setTime(T0).toDefinition();
+    const definition = api.definitionOf(new api.Scene().addBody(api.sun).addBody(api.mars).addGroup({ id: "swarm", orbits, center: "sun", clump: { near: "mars", fraction: 0.5, widthDeg: 20 } }).setTime(T0));
     expect(definition.groups).toHaveLength(0);
     await definition.prepare!();
     expect(definition.groups!.map((layer) => layer.object.id)).toEqual(["swarm"]);
@@ -166,12 +168,12 @@ describe("the public path without the planet series preloaded (O-042 T-177)", ()
 });
 
 describe("the solar-system scale for an enlarged body", () => {
-  const choices = (scene: Scene) => scene.toDefinition().scaleChoices;
+  const choices = (scene: Scene) => definitionOf(scene).scaleChoices;
   it("is offered second in place of the readable scale when a Sun-centred scene enlarges a body", () => {
     expect(choices(solar().addBody(earth, { enlarge: 20 }))).toEqual(["true-scale", "solar-system"]);
   });
   it("gives the card the same live Distance from Sun readout as a built-in comet (O-045 T-187)", () => {
-    const definition = solar().addBody(earth).addBodyFromElements(comet()).toDefinition();
+    const definition = definitionOf(solar().addBody(earth).addBodyFromElements(comet()));
     const own = definition.catalogue!;
     const resolver = createStateResolver(own.definitions(), own.sources(), createOrbAstronomyAdapter());
     const metrics = definition.createMetrics({ resolver, catalogue: own, clock: undefined as never });
@@ -195,15 +197,15 @@ describe("the solar-system scale for an enlarged body", () => {
 });
 
 describe("setScale(solarSystemScale)", () => {
-  const choices = (scene: Scene) => scene.toDefinition().scaleChoices;
+  const choices = (scene: Scene) => definitionOf(scene).scaleChoices;
   it("opens a Sun-centred scene with an enlarged body on the Solar system scale, true scale second unless only", () => {
     expect(choices(solar().addBody(earth, { enlarge: 20 }).setScale(solarSystemScale))).toEqual(["solar-system", "true-scale"]);
     expect(choices(solar().addBody(earth, { enlarge: 20 }).setScale(solarSystemScale, { only: true }))).toEqual(["solar-system"]);
     expect(choices(solar().addBody(earth, { enlarge: 20 }).setScale(trueScale))).toEqual(["true-scale", "solar-system"]);
   });
   it("refuses it elsewhere with a bad-scale error, and names all three scales for a made-up one", () => {
-    expect(codeOf(() => solar().addBody(earth).setScale(solarSystemScale).toDefinition())).toMatch(/^bad-scale: .*Solar system scale needs a Sun-centred scene with an enlarged body/);
-    expect(codeOf(() => new Scene().addBody(earth, { enlarge: 20 }).addBody(mars).setTime(T0).setScale(solarSystemScale).toDefinition())).toMatch(/^bad-scale/);
+    expect(codeOf(() => definitionOf(solar().addBody(earth).setScale(solarSystemScale)))).toMatch(/^bad-scale: .*Solar system scale needs a Sun-centred scene with an enlarged body/);
+    expect(codeOf(() => definitionOf(new Scene().addBody(earth, { enlarge: 20 }).addBody(mars).setTime(T0).setScale(solarSystemScale)))).toMatch(/^bad-scale/);
     expect(codeOf(() => solar().setScale({ ...readableScale, id: "made-up" }))).toMatch(/trueScale, readableScale or solarSystemScale/);
   });
 });

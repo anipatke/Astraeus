@@ -122,6 +122,8 @@ interface Graph {
   readonly api: Api;
   readonly resolverFor: (definition: ExperienceDefinition) => Parameters<ExperienceDefinition["createMetrics"]>[0];
   readonly planetSeriesLoaded: () => boolean;
+  /** The engine-only routes of the same module graph as `api` (the root does not export them). */
+  readonly internals: { readonly definitionOf: (scene: Scene, data?: DataSource[]) => ExperienceDefinition; readonly missingDataOf: (scene: Scene, data?: DataSource[]) => readonly string[] };
   readonly synthetic: { probe: () => Promise<ExperienceDefinition>; views: () => Promise<ExperienceDefinition>; journey: () => Promise<Scene> };
 }
 async function loadGraph(): Promise<Graph> {
@@ -130,9 +132,11 @@ async function loadGraph(): Promise<Graph> {
   const { createOrbAstronomyAdapter } = await import("../src/core/astronomyAdapter");
   const { catalogue } = await import("../src/assets/catalogue");
   const { planetSeriesLoaded } = await import("../src/core/planetSeries");
+  const { definitionOf, missingDataOf } = await import("../src/api/definitionOf");
   return {
     api,
     planetSeriesLoaded,
+    internals: { definitionOf, missingDataOf },
     resolverFor: (definition) => {
       const own = definition.catalogue ?? catalogue;
       return { resolver: createStateResolver(own.definitions(), own.sources(), createOrbAstronomyAdapter()), catalogue: own, clock: undefined as never };
@@ -153,7 +157,7 @@ async function observe(graph: Graph, built: Built): Promise<Json> {
   const data = built.data ?? [];
   let definition: ExperienceDefinition;
   try {
-    definition = built.definition ?? built.scene!.toDefinition(data);
+    definition = built.definition ?? graph.internals.definitionOf(built.scene!, data);
   } catch (error) {
     return { toDefinition: errorOf(error) };
   }
@@ -173,18 +177,18 @@ async function observe(graph: Graph, built: Built): Promise<Json> {
     const scene = built.scene;
     out.stateOf = Object.fromEntries(ids.map((id) => [id, times.map((time) => safe(() => plain(scene.stateOf(id, time), ctx)) as Json)]));
     out.provenanceOf = Object.fromEntries(ids.map((id) => [id, safe(() => plain(scene.provenanceOf(id), ctx)) as Json]));
-    out.missingData = [...scene.missingData([]), "|", ...scene.missingData(data)];
+    out.missingData = [...graph.internals.missingDataOf(scene, []), "|", ...graph.internals.missingDataOf(scene, data)];
   }
   return out;
 }
 
 /** What a build does: the stage that threw (the call, `toDefinition` or `prepare`) and the error's code and message, or that nothing threw. */
-async function outcome(build: () => Scene, data: DataSource[] = []): Promise<Json> {
+async function outcome(graph: Graph, build: () => Scene, data: DataSource[] = []): Promise<Json> {
   let stage = "call";
   try {
     const scene = build();
     stage = "toDefinition";
-    const definition = scene.toDefinition(data);
+    const definition = graph.internals.definitionOf(scene, data);
     stage = "prepare";
     await definition.prepare?.();
     return { stage: "none" };
@@ -543,7 +547,7 @@ describe("what the scene builder produces today (O-058 T-231)", () => {
     const cases = sceneCases(loaded, true);
     for (const [name, make] of Object.entries(cases)) seriesLoaded[name] = await observe(loaded, await make(loaded.api));
     const bad = badBuilds();
-    for (const [name, one] of Object.entries(bad)) errorsSeriesLoaded[name] = await outcome(() => one.build(loaded.api), one.data);
+    for (const [name, one] of Object.entries(bad)) errorsSeriesLoaded[name] = await outcome(loaded, () => one.build(loaded.api), one.data);
 
     // Order two: a fresh module graph for each build, so the planet series are not loaded when the definition is built.
     for (const name of Object.keys(sceneCases(loaded, false))) {
@@ -553,7 +557,7 @@ describe("what the scene builder produces today (O-058 T-231)", () => {
     for (const [name, one] of Object.entries(bad)) {
       if (!DEFERRED.test(name)) continue;
       const graph = await freshGraph();
-      errorsSeriesNotLoaded[name] = await outcome(() => one.build(graph.api), one.data);
+      errorsSeriesNotLoaded[name] = await outcome(graph, () => one.build(graph.api), one.data);
     }
 
     const pin = { seriesLoaded, errorsSeriesLoaded, seriesNotLoaded, errorsSeriesNotLoaded };

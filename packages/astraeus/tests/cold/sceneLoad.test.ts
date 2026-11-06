@@ -66,7 +66,7 @@ describe("Scene.load", () => {
     const scene = jupiterScene(api);
     await scene.load({ data: [data.dataSource] });
     await expect(scene.load({ data: [data.dataSource] })).resolves.toBeUndefined();
-    scene.toDefinition([data.dataSource]);
+    expect(() => scene.check({ data: [data.dataSource] })).not.toThrow(); // building after load still works
     expect(() => scene.setTime(WHEN)).not.toThrow(); // load never froze it
   });
 

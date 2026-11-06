@@ -10,6 +10,7 @@ import { trueScale } from "../src/core/scalePolicy";
 import { Scene } from "../src/api/scene";
 import { saturn, titan } from "../src/api/bodies";
 import type { DataSource } from "../src/api/data";
+import { definitionOf } from "../src/api/definitionOf";
 
 const drawnUrl = (id: string, pictures: typeof PICTURES, desktop = false): string | undefined => describeBody(catalogue.get(id), trueScale, desktop, pictures).textureUrl;
 
@@ -48,7 +49,7 @@ describe("a viewer draws only the pictures it was given", () => {
   it("carries a package's pictures on the definition the Scene builds, and none when no package brings any", () => {
     const scene = new Scene().addBody(saturn).addBody(titan);
     const positions: DataSource = { name: "astraeus-data-saturn", provides: ["titan"], moonPositions: { centre: "saturn", loadIndex: async () => ({}), chunkUrls: {} } };
-    expect(scene.toDefinition([positions, { name: "astraeus-data", provides: [], pictures: PICTURES }]).pictures).toEqual(PICTURES);
-    expect(scene.toDefinition([positions]).pictures).toBeUndefined();
+    expect(definitionOf(scene, [positions, { name: "astraeus-data", provides: [], pictures: PICTURES }]).pictures).toEqual(PICTURES);
+    expect(definitionOf(scene, [positions]).pictures).toBeUndefined();
   });
 });

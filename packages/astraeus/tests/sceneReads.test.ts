@@ -122,3 +122,63 @@ describe("what a scene holds", () => {
     expect(timeline).toMatchObject({ rates: [60, 3_600, 86_400], rate: 60, loop: false });
   });
 });
+
+// O-057 T-274: `scene.activities`, the public read that replaced reading an activity off the definition. Made-up data; each input is changed alone and only its own part of the read moves.
+describe("scene.activities", () => {
+  const stretch: Provenance = { sourceType: "modelled", sources: ["A made-up curve"], accuracy: "Rough.", notes: "Invented." };
+  const input = () => ({
+    id: "burst", label: "Burst", unit: "per hour", start: T0, end: T0 + 40 * MIN, peak: T0 + 20 * MIN, peakLabel: "Top", type: "made-up",
+    samples: [{ time: T0, value: 2 }, { time: T0 + 20 * MIN, value: 100 }, { time: T0 + 40 * MIN, value: 4 }],
+    provenance: [{ start: T0, end: T0 + 40 * MIN, provenance: { ...stretch, sources: [...stretch.sources] } }],
+  });
+  const readOf = (change: Record<string, unknown> = {}) => new Scene().addBody(earth).addActivity({ ...input(), ...change } as ReturnType<typeof input>).activities;
+
+  it("states what was added, in the order added, with the times in UTC milliseconds", () => {
+    const scene = new Scene().addBody(earth).addActivity(input()).addActivity({ ...input(), id: "second", label: "Second", peak: undefined, peakLabel: undefined, type: undefined, provenance: undefined });
+    expect(scene.activities.map((activity) => activity.id)).toEqual(["burst", "second"]);
+    const [burst, second] = scene.activities;
+    expect(burst).toEqual({
+      id: "burst", label: "Burst", unit: "per hour", windowStartUtcMs: T0, windowEndUtcMs: T0 + 40 * MIN, type: "made-up",
+      peak: { label: "Top", value: 100, timeUtcMs: T0 + 20 * MIN },
+      samples: [{ timeUtcMs: T0, value: 2 }, { timeUtcMs: T0 + 20 * MIN, value: 100 }, { timeUtcMs: T0 + 40 * MIN, value: 4 }],
+      provenance: [{ stretchStartUtcMs: T0, stretchEndUtcMs: T0 + 40 * MIN, provenance: stretch }],
+    });
+    expect(second!.peak).toEqual({ label: "Peak", value: 100 }); // no moment given: the highest sample, the default name, no moment
+    expect(second).not.toHaveProperty("provenance");
+    expect(second).not.toHaveProperty("type");
+    expect(new Scene().addBody(earth).activities).toEqual([]);
+  });
+
+  it.each([
+    ["id", { id: "other" }, { id: "other" }],
+    ["label", { label: "Other" }, { label: "Other" }],
+    ["unit", { unit: "per day" }, { unit: "per day" }],
+    ["start", { start: T0 - MIN, samples: input().samples }, { windowStartUtcMs: T0 - MIN }],
+    ["end", { end: T0 + 50 * MIN }, { windowEndUtcMs: T0 + 50 * MIN }],
+    ["peak", { peak: T0 + 40 * MIN }, { peak: { label: "Top", value: 4, timeUtcMs: T0 + 40 * MIN } }],
+    ["peakLabel", { peakLabel: "Crest" }, { peak: { label: "Crest", value: 100, timeUtcMs: T0 + 20 * MIN } }],
+    ["type", { type: "other" }, { type: "other" }],
+    ["samples", { samples: [{ time: T0, value: 1 }, { time: T0 + 40 * MIN, value: 3 }], peak: undefined }, { samples: [{ timeUtcMs: T0, value: 1 }, { timeUtcMs: T0 + 40 * MIN, value: 3 }], peak: { label: "Top", value: 3 } }],
+    ["provenance", { provenance: undefined }, { provenance: undefined }],
+  ])("%s changed alone moves only its own part of the read", (_name, change, moved) => {
+    const base = readOf()[0]!;
+    const changed = readOf(change)[0]!;
+    const expected: Record<string, unknown> = { ...base, ...moved };
+    for (const key of Object.keys(expected)) if (expected[key] === undefined) delete expected[key];
+    expect(changed).toEqual(expected);
+  });
+
+  it("is a fresh frozen list of frozen items, a copy: editing the input afterwards changes nothing, and it answers on a scene a viewer has taken", () => {
+    const given = input();
+    const scene = new Scene().addBody(earth).addActivity(given);
+    const list = scene.activities;
+    expect(Object.isFrozen(list)).toBe(true);
+    const [item] = list;
+    for (const part of [item, item!.peak, item!.samples, item!.samples[0], item!.provenance, item!.provenance![0], item!.provenance![0]!.provenance]) expect(Object.isFrozen(part)).toBe(true);
+    expect(scene.activities).not.toBe(list);
+    given.samples[0]!.value = 999; given.label = "Edited"; given.provenance[0]!.provenance.sources.push("late");
+    expect(scene.activities).toEqual(list);
+    markMounted(scene);
+    expect(scene.activities).toEqual(list);
+  });
+});

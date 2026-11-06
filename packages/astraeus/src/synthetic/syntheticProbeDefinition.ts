@@ -4,6 +4,7 @@
 import type { ExperienceDefinition } from "../app/experienceDefinition";
 import { earth, mars, sun, venus } from "../api/bodies";
 import { Scene } from "../api/scene";
+import { definitionOf } from "../api/definitionOf";
 import { solarSystemScale } from "../core/scalePolicy";
 import { createOrbTwoBodyAdapter } from "../core/twoBodyAdapter";
 
@@ -45,4 +46,4 @@ scene.setScale(solarSystemScale);
 scene.camera.follow("probe", { distance: 70_000 });
 scene.camera.fitOrbit(mars);
 
-export const syntheticProbeDefinition: ExperienceDefinition = scene.toDefinition();
+export const syntheticProbeDefinition: ExperienceDefinition = definitionOf(scene);

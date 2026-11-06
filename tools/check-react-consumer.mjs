@@ -54,7 +54,7 @@ const consumerScript = [
   'import { AstraeusScene, Scene, earth, sun } from "astraeus";',
   "const require = createRequire(import.meta.url);",
   'const scene = new Scene().addBody(sun).addBody(earth);',
-  'if (scene.toDefinition().composition === undefined) throw new Error("the scene did not build");',
+  'scene.check(); // throws a SceneError when the scene does not build',
   'const html = renderToString(createElement(AstraeusScene, { scene, data: [] }));',
   'if (typeof html !== "string" || html.length === 0) throw new Error("AstraeusScene rendered nothing");',
   'console.log(JSON.stringify({ react: require("react/package.json").version, reactDom: require("react-dom/package.json").version, rendered: html.length }));',

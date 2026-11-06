@@ -5,6 +5,7 @@ import { PerspectiveCamera } from "three";
 import { Scene, SceneError, earth, moon, sun } from "astraeus";
 import { FloatingOrigin } from "../src/app/floatingOrigin";
 import { SceneLabelLayer } from "../src/app/SceneLabels";
+import { definitionOf } from "../src/api/definitionOf";
 
 const T0 = Date.UTC(2026, 3, 1);
 const MIN = 60_000;
@@ -17,7 +18,7 @@ afterEach(() => { host.remove(); vi.restoreAllMocks(); });
 
 /** Which of the scene's own labels show with the camera `distance` render units from the object (both at the same place), and `hidden` ids switched off. */
 function shownAt(scene: Scene, distance: number, hidden: ReadonlySet<string> = new Set()): string[] {
-  const objects = scene.toDefinition().experience.objects;
+  const objects = definitionOf(scene).experience.objects;
   const layer = new SceneLabelLayer(host, objects);
   const camera = new PerspectiveCamera(60, 1, 0.1, 1e9);
   camera.position.set(0, 0, distance);

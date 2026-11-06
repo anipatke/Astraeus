@@ -15,6 +15,7 @@ import { Scene, earth, moon } from "astraeus";
 import { App } from "../src/app/App";
 import { ViewerLink } from "../src/api/viewerLink";
 import { pretendScreen } from "./domSetup";
+import { definitionOf } from "../src/api/definitionOf";
 
 (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
 
@@ -24,7 +25,7 @@ const visit = (search: string) => window.history.replaceState(null, "", `/page.h
 const scene = () => new Scene().addBody(earth).addBody(moon);
 const open = async (built: Scene, address = false) => {
   const link = new ViewerLink();
-  await act(async () => { root.render(createElement(App, { definition: built.toDefinition(), address, host: link })); });
+  await act(async () => { root.render(createElement(App, { definition: definitionOf(built), address, host: link })); });
   return link;
 };
 

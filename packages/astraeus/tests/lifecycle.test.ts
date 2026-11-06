@@ -26,11 +26,13 @@ import { createRoot } from "react-dom/client";
 import { AstraeusScene } from "../src/api/AstraeusScene";
 import { SceneError } from "../src/api/errors";
 import { mount } from "../src/api/mount";
-import { Scene, SceneCamera } from "../src/api/scene";
+import { Scene } from "../src/api/scene";
+import { SceneCamera } from "../src/api/planCamera";
 import { earth } from "../src/api/bodies";
 import { viewerHandleOf, type ViewerHandle } from "../src/api/viewerHandle";
 import { ViewerLink, type CameraPose, type ViewerChange } from "../src/api/viewerLink";
 import { syntheticDefinition } from "../src/synthetic/syntheticDefinition";
+import { definitionOf, missingDataOf } from "../src/api/definitionOf";
 
 (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = false;
 
@@ -289,7 +291,7 @@ describe.each([mountDriver, reactDriver(false)])("lifecycle: $name", (driver) =>
     await opened.ready();
     expect(codeOf(() => scene.addBody("moon"))).toBe("scene-mounted");
     expect(codeOf(() => scene.camera.setReach(10))).toBe("scene-mounted");
-    expect(scene.missingData()).toEqual(expect.any(Array));
+    expect(missingDataOf(scene)).toEqual(expect.any(Array));
     opened.unmount();
     expect(codeOf(() => scene.setTime("2026-01-01T00:00:00Z"))).toBe("scene-mounted");
   });
@@ -515,7 +517,7 @@ describe("a mounted scene is frozen", () => {
     for (const name of cameraMethods) expect(codeOf(() => (scene.camera as unknown as Record<string, (...a: unknown[]) => unknown>)[name]("earth")), `camera.${name}`).toBe("scene-mounted");
     expect(scene.stateOf("earth", MID_2026).positionKm).toHaveLength(3);
     expect(scene.provenanceOf("earth")).toBeDefined();
-    expect(scene.missingData()).toEqual(expect.any(Array));
+    expect(missingDataOf(scene)).toEqual(expect.any(Array));
     expect(scene.camera.target).toBeUndefined();
     expect(scene.camera.following).toBe(false);
     expect(scene.camera.reach).toBeUndefined();
@@ -526,7 +528,7 @@ describe("a mounted scene is frozen", () => {
 
   it("toDefinition on its own does not freeze", () => {
     const scene = new Scene().addBody("earth");
-    scene.toDefinition();
+    definitionOf(scene);
     expect(() => scene.addBody("moon")).not.toThrow();
   });
 

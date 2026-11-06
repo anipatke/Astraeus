@@ -9,6 +9,7 @@ import { cameraReachOf } from "../src/app/experienceDefinition";
 import { EQUATORIAL_UP } from "../src/app/viewUp";
 import type { SceneTargets } from "../src/app/sceneTargets";
 import type { RenderVector } from "../src/app/renderCoordinates";
+import { definitionOf } from "../src/api/definitionOf";
 
 const AU_KM = 149_597_870.7;
 const record: ElementsBodyRecord = {
@@ -23,7 +24,7 @@ const record: ElementsBodyRecord = {
 const aphelionUnits = (2.5 * 1.3 * AU_KM) / 6371.0084;
 const code = (fn: () => unknown) => { try { fn(); } catch (error) { return error instanceof SceneError ? error.code : String(error); } return "none"; };
 const make = () => new Scene().addBody(sun).addBodyFromElements(record, { orbit: true });
-const reachAt = (scene: Scene, width: number, height: number) => liveReach(cameraReachOf(scene.toDefinition()), trueScale, width / height);
+const reachAt = (scene: Scene, width: number, height: number) => liveReach(cameraReachOf(definitionOf(scene)), trueScale, width / height);
 
 describe("camera.fitOrbit", () => {
   it("fits a made-up orbit to the canvas: 1.1 x farthest Sun distance over the sine of the narrower half field of view", () => {
@@ -56,12 +57,12 @@ describe("camera.fitOrbit", () => {
   it("runs for a planet: Mars from the loaded planet series, within 1% of a(1+e)", () => {
     const mars = new Scene().addBody(sun).addBody("mars");
     mars.camera.fitOrbit("mars");
-    const farthestKm = cameraReachOf(mars.toDefinition()).fitOrbit!.farthestKm();
+    const farthestKm = cameraReachOf(definitionOf(mars)).fitOrbit!.farthestKm();
     expect(Math.abs(farthestKm / (1.523679 * (1 + 0.0934) * AU_KM) - 1)).toBeLessThan(0.01);
   });
 
   it("keeps labels shown at any distance the fitted camera can take, also when the scene is not Sun-centred", () => {
-    const labelLimit = (scene: Scene) => scene.toDefinition().experience.objects.find((object) => object.id === "earth")!.labelMaxDistance;
+    const labelLimit = (scene: Scene) => definitionOf(scene).experience.objects.find((object) => object.id === "earth")!.labelMaxDistance;
     const plain = new Scene().addBody(earth).addBody(moon);
     expect(labelLimit(plain)).toBe(500);
     const fitted = new Scene().addBody(earth).addBody(moon);
@@ -72,11 +73,11 @@ describe("camera.fitOrbit", () => {
   it("lets the later of setReach and fitOrbit win", () => {
     const fitLast = make();
     fitLast.camera.setReach(500).fitOrbit("rock");
-    expect(cameraReachOf(fitLast.toDefinition()).fitOrbit).toBeDefined();
-    expect(cameraReachOf(fitLast.toDefinition()).maxFocusDistance).toBeUndefined();
+    expect(cameraReachOf(definitionOf(fitLast)).fitOrbit).toBeDefined();
+    expect(cameraReachOf(definitionOf(fitLast)).maxFocusDistance).toBeUndefined();
     const reachLast = make();
     reachLast.camera.fitOrbit("rock").setReach(500);
-    expect(cameraReachOf(reachLast.toDefinition())).toEqual({ maxFocusDistance: 500, far: 1250 });
+    expect(cameraReachOf(definitionOf(reachLast))).toEqual({ maxFocusDistance: 500, far: 1250 });
   });
 });
 
@@ -90,7 +91,7 @@ describe("the viewer re-fits when the canvas changes shape", () => {
     timeUtcMs: 0, policy: trueScale, placement: {} as SceneTargets["placement"],
   };
   const stepAt = (scene: Scene, aspect: number, distance: number) => {
-    const input: CameraStepInput = { camState: createOrbitCameraState(distance, "sun"), controls: { cameraRequest: null }, targets, frame: { centre: "sun", span: aphelionUnits }, catalogue: scene.toDefinition().catalogue!, reach: liveReach(cameraReachOf(scene.toDefinition()), trueScale, aspect), fovDeg: 45, viewUp: EQUATORIAL_UP, firstFrame: false, previousUp: null };
+    const input: CameraStepInput = { camState: createOrbitCameraState(distance, "sun"), controls: { cameraRequest: null }, targets, frame: { centre: "sun", span: aphelionUnits }, catalogue: definitionOf(scene).catalogue!, reach: liveReach(cameraReachOf(definitionOf(scene)), trueScale, aspect), fovDeg: 45, viewUp: EQUATORIAL_UP, firstFrame: false, previousUp: null };
     stepCameraTarget(input);
     return input.camState.distance;
   };

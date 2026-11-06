@@ -5,7 +5,8 @@ import type { ExperienceDefinition, GroupLayer } from "../app/experienceDefiniti
 import type { Metric } from "../shell/metrics";
 import { planActivity, rateMetricOf, type ActivityInput, type PlannedActivity } from "./activity";
 import { SceneError } from "./errors";
-import { frozenList, type SceneGroupRead } from "./sceneReads";
+import { frozenCopy } from "./frozenCopy";
+import { frozenList, type SceneActivityRead, type SceneGroupRead } from "./sceneReads";
 import { buildGroupLayer, groupCardProvenance, groupDescription, groupLimitations, planGroup, type GroupInput, type PlannedGroup } from "./group";
 
 /** Whether a group is built late, in `prepare`: a clump near a body reads its position, so needs the planet series, which are not in yet. */
@@ -58,6 +59,21 @@ export class GroupPlan {
   /** The draw layers of the groups chosen by `which` (a clump near a planet reads its position, so needs the planet series). */
   layers(ids: readonly BodyId[], window: TimeBounds, openUtcMs: number, which: (plan: PlannedGroup) => boolean): readonly GroupLayer[] {
     return [...this.groups.values()].filter(which).map((plan) => buildGroupLayer(plan, this.#catalogue(), plan.input.center ?? ids[0]!, openUtcMs, window));
+  }
+
+  /** The activities in the order added, as the public list states them: fresh, frozen, nothing shared with the plan. */
+  activityReads(): readonly SceneActivityRead[] {
+    return frozenList([...this.activities.values()].map(({ window, peakValue, peakLabel }): SceneActivityRead => ({
+      id: window.id,
+      label: window.label,
+      unit: window.rate?.unit ?? "",
+      windowStartUtcMs: window.startUtcMs,
+      windowEndUtcMs: window.endUtcMs,
+      peak: Object.freeze({ label: peakLabel, value: peakValue, ...(window.peakUtcMs === undefined ? {} : { timeUtcMs: window.peakUtcMs }) }),
+      samples: frozenCopy((window.rate?.samples ?? []).map(({ timeUtcMs, value }) => ({ timeUtcMs, value }))),
+      ...(window.provenance === undefined ? {} : { provenance: frozenCopy(window.provenance.map(({ startUtcMs, endUtcMs, provenance }) => ({ stretchStartUtcMs: startUtcMs, stretchEndUtcMs: endUtcMs, provenance }))) }),
+      ...(window.type === undefined ? {} : { type: window.type }),
+    })));
   }
 
   /** The groups in the order added, as the public list states them; `first` is the scene's first body (the centre of a group that names none). */

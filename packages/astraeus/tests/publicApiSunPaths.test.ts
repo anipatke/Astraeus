@@ -15,6 +15,7 @@ import { initialObjectIdOf, trackedBodiesOf } from "../src/app/experienceDefinit
 import { bodyAbsolute } from "../src/app/sceneLayout";
 import { placementAbout } from "./scenePlacement";
 import { solarSystemPolicyForTest } from "./scalePolicies";
+import { definitionOf } from "../src/api/definitionOf";
 
 const T0 = Date.parse("2026-01-01T00:00:00Z");
 const DAY = 86_400_000;
@@ -40,14 +41,14 @@ function firstVertex(view: TrackedBodyView, centre: "sun" | "earth", timeUtcMs: 
 
 describe("a path in a Sun-centred scene", () => {
   it("builds, lists the path and offers the enlarged solar-system scale", () => {
-    const definition = solar().toDefinition();
+    const definition = definitionOf(solar());
     expect(trackedBodiesOf(definition).map((body) => body.id)).toEqual(["probe"]);
     expect(definition.experience.objects.map((o) => o.id)).toContain("probe");
     expect(definition.scaleChoices).toContain("solar-system");
   });
 
   it("draws a line fixed to the Sun at the same points at two display times", () => {
-    const body = trackedBodiesOf(solar({ lineFixedTo: "sun" }).toDefinition())[0]!;
+    const body = trackedBodiesOf(definitionOf(solar({ lineFixedTo: "sun" })))[0]!;
     const view = new TrackedBodyView(body);
     const a = firstVertex(view, "sun", T0 + 60 * DAY);
     const b = firstVertex(view, "sun", T0 + 120 * DAY);
@@ -56,7 +57,7 @@ describe("a path in a Sun-centred scene", () => {
   });
 
   it("meets the target planet at the flyby time, within the sampling error", () => {
-    const body = trackedBodiesOf(solar({ lineFixedTo: "sun" }).toDefinition())[0]!;
+    const body = trackedBodiesOf(definitionOf(solar({ lineFixedTo: "sun" })))[0]!;
     const view = new TrackedBodyView(body);
     view.update(FLYBY, trueScale, new FloatingOrigin(), new PerspectiveCamera(), placementAbout("sun"));
     const marker = (view.group.children[3] as any).position;
@@ -68,8 +69,8 @@ describe("a path in a Sun-centred scene", () => {
 
   it("with the default line in an Earth-centred scene matches the plain relative trail, and fixed to Earth is the same line", () => {
     const earthScene = (extra: object = {}) => new Scene().addBody(earth).addBody(moon).addTrajectory({ id: "probe", samples: [{ time: T0, positionKm: [8000, 0, 0] }, { time: T0 + DAY, positionKm: [0, 9000, 0] }], ...extra });
-    const plain = new TrackedBodyView(trackedBodiesOf(earthScene().toDefinition())[0]!);
-    const fixed = new TrackedBodyView(trackedBodiesOf(earthScene({ lineFixedTo: "earth" }).toDefinition())[0]!);
+    const plain = new TrackedBodyView(trackedBodiesOf(definitionOf(earthScene()))[0]!);
+    const fixed = new TrackedBodyView(trackedBodiesOf(definitionOf(earthScene({ lineFixedTo: "earth" })))[0]!);
     expect(firstVertex(plain, "earth", T0)).toEqual(firstVertex(fixed, "earth", T0));
     const placement = placementAbout("earth");
     const samples = { timesUtcMs: [T0], positionsKm: Float64Array.of(8000, 0, 0) };
@@ -78,20 +79,20 @@ describe("a path in a Sun-centred scene", () => {
 
   it("keeps the readouts about the path's centre", () => {
     const scene = solar({ lineFixedTo: "sun", readouts: [{ kind: "range" }, { kind: "speed" }] });
-    const rows = scene.toDefinition().createMetrics({ resolver: resolver(), catalogue, clock: undefined as never })("probe", T0 + 60 * DAY) as any[];
+    const rows = definitionOf(scene).createMetrics({ resolver: resolver(), catalogue, clock: undefined as never })("probe", T0 + 60 * DAY) as any[];
     expect(rows.map((row) => row.id)).toEqual(["probe-range", "probe-speed"]);
     const start = transfer()[3]!.positionKm;
     expect(rows[0].value).toBeGreaterThan(0.5 * Math.hypot(...start));
   });
 
   it("works with the enlarged solar-system scale policy", () => {
-    const view = new TrackedBodyView(trackedBodiesOf(solar({ lineFixedTo: "sun" }).toDefinition())[0]!);
+    const view = new TrackedBodyView(trackedBodiesOf(definitionOf(solar({ lineFixedTo: "sun" })))[0]!);
     view.update(T0 + 60 * DAY, solarSystemPolicyForTest({ earth: 50, mars: 50 }), new FloatingOrigin(), new PerspectiveCamera(), placementAbout("sun"));
     expect(Number.isFinite((view.group.children[3] as any).position.x)).toBe(true);
   });
 
   it("refuses a lineFixedTo body the scene does not hold, naming the field and the body", () => {
-    expect(codeOf(() => solar({ lineFixedTo: "jupiter" }).toDefinition())).toMatch(/^bad-trajectory: addTrajectory\("probe"\): lineFixedTo names "jupiter"/);
+    expect(codeOf(() => definitionOf(solar({ lineFixedTo: "jupiter" })))).toMatch(/^bad-trajectory: addTrajectory\("probe"\): lineFixedTo names "jupiter"/);
   });
 });
 
@@ -176,7 +177,7 @@ describe("the made-up probe experience (O-046 T-193)", () => {
     const scene = new Scene().addBody(sun).addBody(earth, { enlarge: 60 }).addBody(mars, { enlarge: 60 })
       .addTrajectory({ id: "probe", label: "Made-up probe", samples, plane: "ecliptic-j2000", lineFixedTo: "sun" }).setTime(T0).setScale(solarSystemScale);
     scene.camera.fitOrbit(mars);
-    expect(scene.toDefinition().scaleChoices![0]).toBe("solar-system");
+    expect(definitionOf(scene).scaleChoices![0]).toBe("solar-system");
     // The README says the line starts 0.6 AU from the Sun and ends about 1.49 AU out (x 1.1 AU, y 1.0 AU), measured from the Sun; the rotation keeps distances.
     const fromSun = (day: number) => scene.stateOf("probe", T0 + day * DAY);
     const au = (v: readonly number[]) => Math.hypot(...v) / AU;
@@ -190,7 +191,7 @@ describe("the made-up probe experience (O-046 T-193)", () => {
 describe("addTrajectory's centre defaults to the scene's centre (O-046, owner decision 2026-10-30)", () => {
   const withoutCentre = () => ({ id: "probe", samples: transfer(), lineFixedTo: "sun" as const });
   const meetsMars = (scene: Scene): number => {
-    const view = new TrackedBodyView(trackedBodiesOf(scene.toDefinition())[0]!);
+    const view = new TrackedBodyView(trackedBodiesOf(definitionOf(scene))[0]!);
     view.update(FLYBY, trueScale, new FloatingOrigin(), new PerspectiveCamera(), placementAbout("sun"));
     const marker = (view.group.children[3] as any).position;
     const planet = bodyAbsolute(resolver().stateOf("mars", FLYBY, "sun").positionKm, trueScale);

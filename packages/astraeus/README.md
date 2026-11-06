@@ -113,6 +113,7 @@ The full reference, generated from the types and doc comments, is at <https://as
 | `scene.picker` | The picker as set (`{ id, label, options, value }`, frozen), or `undefined` before `setPicker`. |
 | `scene.places` | `{ body, count }` per `addPlaces`, in the order added; a fresh frozen list on every read. |
 | `scene.groups` | `{ id, label, count, center, plane, provenance, description, knownLimitations }` per `addGroup`: `provenance`, `description` and `knownLimitations` are what the group's card shows (always illustrative, with the engine's placement and motion limits). |
+| `scene.activities` | `{ id, label, unit, windowStartUtcMs, windowEndUtcMs, peak: { label, value, timeUtcMs? }, samples: [{ timeUtcMs, value }], provenance?: [{ stretchStartUtcMs, stretchEndUtcMs, provenance }], type? }` per `addActivity`, in the order added; a fresh frozen copy. `peak.value` is the highest sample when no peak moment was given. |
 | `scene.events` | `{ id, label, timeUtcMs, type?, object?, withinSeconds?, provenance? }` per `addEvents`, sorted by time; `provenance` is the event's own, else the batch's. |
 | `scene.panels` | `{ id, timeUtcMs, title, body, badge, details, sources, object? }` per `addStoryPanels`, sorted by time, the times resolved as `mount` resolves them (a bad panel throws `bad-panels`). |
 | `scene.views` | `{ startId, place, items: [{ id, label }] }` as named with `setViews`; undefined when none were named. |
@@ -361,7 +362,7 @@ window.addEventListener("vite:preloadError", () => window.location.reload());
 
 (The Developer drawer also says when its file cannot be fetched and asks for a reload.)
 
-For tests, the package has a `node` export condition: Node and Vitest's Node environment import a copy of the package without the stylesheet import, so `new Scene()...toDefinition()` works with no `test.server.deps.inline` setting. The jsdom and happy-dom Vitest environments also take the `node` condition, so the viewer's CSS is not loaded there; this does not matter for tests that check scene definitions or behaviour. Bundlers do not use the `node` condition and load the normal build.
+For tests, the package has a `node` export condition: Node and Vitest's Node environment import a copy of the package without the stylesheet import, so `new Scene()...check()` and the `scene.bodies`-style reads work with no `test.server.deps.inline` setting. The jsdom and happy-dom Vitest environments also take the `node` condition, so the viewer's CSS is not loaded there; this does not matter for tests that check what a scene holds or how it behaves. Bundlers do not use the `node` condition and load the normal build.
 
 First download: the packed `examples/hello-scene` loads 1,652,632 bytes (472,929 gzip) of code and styles, measured at this commit on first open (`npm run measure:example`; pictures and data files are not counted).
 
