@@ -1,7 +1,7 @@
 ---
 id: O-059
 title: Build the planets demo and site on the front door
-status: planned
+status: in_progress
 depends_on: [O-056]
 release: G-016
 priority: high
