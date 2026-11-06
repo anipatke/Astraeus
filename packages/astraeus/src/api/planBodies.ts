@@ -15,6 +15,7 @@ import { SceneError } from "./errors";
 import { checkLabelReach } from "./planPaths";
 import type { AddBodyOptions, CardFactInput, OrbitLapInput, ReadoutInput } from "./scene";
 import { createProvenance, type Provenance } from "../core/provenance";
+import { frozenCopy } from "./frozenCopy";
 import { readoutsOf } from "./planPaths";
 import { frozenList, type SceneBodyRead } from "./sceneReads";
 
@@ -114,7 +115,8 @@ export class BodyPlan {
     this.#firstBody = firstBody;
   }
 
-  addBody(body: BodyRef | BodyId, options: AddBodyOptions): void {
+  addBody(body: BodyRef | BodyId, input: AddBodyOptions): void {
+    const options = frozenCopy(input);
     const id = typeof body === "string" ? body : body.id;
     const before = this.catalogue;
     this.#addListedMoon(id);
@@ -126,7 +128,9 @@ export class BodyPlan {
     }
   }
 
-  addFromElements(record: ElementsBodyRecord, options: AddBodyOptions): void {
+  addFromElements(input: ElementsBodyRecord, inputOptions: AddBodyOptions): void {
+    const record = frozenCopy(input);
+    const options = frozenCopy(inputOptions);
     if (record?.id === "auto") throw new SceneError("bad-element", `addBodyFromElements("auto"): "auto" is reserved (it is lineFixedTo's automatic choice) and cannot be a body id`);
     const parsed = parseRecord(record);
     if (this.#taken(parsed.id) || this.catalogue.has(parsed.id)) throw new SceneError("duplicate-id", `addBodyFromElements("${parsed.id}"): that id is already in the scene or the catalogue`);
@@ -169,7 +173,7 @@ export class BodyPlan {
   /** Keeps the card, look, shape and words of one body. */
   #rememberCard(id: BodyId, options: AddBodyOptions): void {
     if (options.listed !== undefined || options.facts !== undefined || options.sources !== undefined || options.labelPriority !== undefined) this.cards.set(id, { ...(options.listed === undefined ? {} : { listed: options.listed }), ...(options.facts === undefined ? {} : { facts: options.facts.map(({ label, value }) => Object.freeze({ label, value })) }), ...(options.sources === undefined ? {} : { sources: [...options.sources] }), ...(options.labelPriority === undefined ? {} : { labelPriority: options.labelPriority }) });
-    if (options.color !== undefined || options.knownLimitations !== undefined) this.looks.set(id, { ...(options.color === undefined ? {} : { color: options.color }), ...(options.knownLimitations === undefined ? {} : { knownLimitations: Object.freeze([...options.knownLimitations]) }) });
+    if (options.color !== undefined || options.knownLimitations !== undefined) this.looks.set(id, { ...(options.color === undefined ? {} : { color: options.color }), ...(options.knownLimitations === undefined ? {} : { knownLimitations: options.knownLimitations }) });
     if (options.enlarge !== undefined || options.showLabel !== undefined) this.shape.set(id, { ...(options.enlarge === undefined ? {} : { enlarge: options.enlarge }), ...(options.showLabel === undefined ? {} : { showLabel: options.showLabel }) });
     if (options.description !== undefined) this.notes.set(id, options.description);
   }

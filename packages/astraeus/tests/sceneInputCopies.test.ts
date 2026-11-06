@@ -2,14 +2,17 @@
 // editing the caller's object after the call changes nothing the scene reads, checks or builds, and one object given to two scenes keeps them apart.
 import { describe, expect, it } from "vitest";
 import { Scene, SceneCamera, earth, moon, solarSystemScale, sun } from "astraeus";
+import { catalogue } from "../src/assets/catalogue";
+import { createOrbAstronomyAdapter } from "../src/core/astronomyAdapter";
+import { createStateResolver } from "../src/core/stateResolver";
 
 const T0 = Date.parse("2026-03-01T00:00:00Z");
 const MIN = 60_000;
-const PROVENANCE = { sourceType: "illustrative", sources: ["Made up for a test"], accuracy: "Not real.", notes: "Invented." } as const;
+const prov = () => ({ sourceType: "illustrative" as const, sources: ["Made up for a test"], accuracy: "Not real.", notes: "Invented." });
 const orbit = (k: number) => ({ id: `rock-${k}`, semiMajorAxisKm: 80_000_000 + 5_000_000 * k, eccentricity: 0.1, inclinationDeg: 5, raanDeg: 40, argumentOfPeriapsisDeg: 70 });
 const samples = () => [0, 1, 2, 3].map((i) => ({ time: T0 + i * 10 * MIN, positionKm: [10_000 + i * 1_000, 0, 0] }));
 const swarm = () => ({
-  id: "swarm", families: [{ id: "inner", label: "Inner swarm" }], provenance: { ...PROVENANCE },
+  id: "swarm", families: [{ id: "inner", label: "Inner swarm" }], provenance: prov(),
   members: [0, 1, 2].map((k) => ({ id: `bit-${k}`, label: `Bit ${k}`, radiusKm: 4, family: "inner", elements: { semiMajorAxisKm: 30_000 + 4_000 * k, eccentricity: 0.05, inclinationDeg: 3, raanDeg: 20, argumentOfPeriapsisDeg: 40, trueAnomalyDeg: 10 + 30 * k } })),
   centerGmKm3S2: 4.0e5,
 });
@@ -39,18 +42,18 @@ const ROWS: readonly Row[] = [
   { name: "addBody (options)", scene: () => new Scene().setTime(T0).addBody(sun), input: allBodyOptions, apply: (s, o) => s.addBody(earth, o) },
   { name: "addBody (lap orbit option)", scene: () => new Scene().setTime(T0).addBody(sun).addBody(earth), input: () => ({ orbit: { lapDays: 27, fades: true } }), apply: (s, o) => s.addBody(moon, o) },
   { name: "addBodyFromElements (record, options)", scene: () => new Scene().setTime(T0).addBody(sun), input: () => ({ record: record(), options: allBodyOptions() }), apply: (s, i: { record: never; options: never }) => s.addBodyFromElements(i.record, i.options) },
-  { name: "addTrajectory", scene: () => new Scene().setTime(T0).addBody(earth), input: () => ({ id: "track", label: "Track", center: "earth", samples: samples(), provenance: { ...PROVENANCE }, anchors: [{ id: "a1", time: T0 + 10 * MIN }] }), apply: (s, i) => s.addTrajectory(i) },
-  { name: "addGroup", scene: () => base(), input: () => ({ id: "ring", label: "Ring", orbits: [0, 1, 2].map(orbit), provenance: { ...PROVENANCE }, clump: { near: "earth", fraction: 0.5, widthDeg: 20 } }), apply: (s, i) => s.addGroup(i) },
+  { name: "addTrajectory", scene: () => new Scene().setTime(T0).addBody(earth), input: () => ({ id: "track", label: "Track", center: "earth", samples: samples(), provenance: prov(), anchors: [{ id: "a1", time: T0 + 10 * MIN }] }), apply: (s, i) => s.addTrajectory(i) },
+  { name: "addGroup", scene: () => base(), input: () => ({ id: "ring", label: "Ring", orbits: [0, 1, 2].map(orbit), provenance: prov(), clump: { near: "earth", fraction: 0.5, widthDeg: 20 } }), apply: (s, i) => s.addGroup(i) },
   { name: "addBodySet", scene: () => base(), input: swarm, apply: (s, i) => s.addBodySet(i) },
   { name: "setMoonPanel", scene: withSwarm, input: () => ({ label: "Tarn", families: [{ id: "big", label: "Big", description: "One.", moons: [{ id: "moon" }] }, { id: "small", label: "Small", description: "Three.", moons: [{ id: "bit-0" }, { id: "bit-1" }] }], featuredFamily: "big", listSource: "A made-up list", listDate: "2026-10-18" }), apply: (s, i) => s.setMoonPanel(i) },
   { name: "setPicker", scene: () => base(), input: () => ({ id: "world", label: "World", options: [{ value: "a", label: "A" }, { value: "b", label: "B" }], value: "a" }), apply: (s, i) => s.setPicker(i) },
-  { name: "addPlaces", scene: () => base(), input: () => ({ categories: [{ key: "pit", label: "Pits", color: "#9de3a8" }], places: [{ id: "deep", name: "Deep Pit", kind: "Pit", category: "pit", latitudeDeg: 12, longitudeDeg: -40, description: "A made-up pit.", details: [{ label: "Depth", value: "3 km" }] }], provenance: { ...PROVENANCE }, knownLimitations: ["Made up."] }), apply: (s, i) => s.addPlaces("moon", i) },
-  { name: "addActivity", scene: () => base(), input: () => ({ id: "burst", label: "Burst", unit: "per hour", start: T0, end: T0 + 40 * MIN, peak: T0 + 20 * MIN, samples: [{ time: T0, value: 2 }, { time: T0 + 20 * MIN, value: 100 }, { time: T0 + 40 * MIN, value: 4 }], provenance: [{ start: T0, end: T0 + 40 * MIN, provenance: { ...PROVENANCE } }] }), apply: (s, i) => s.addActivity(i) },
+  { name: "addPlaces", scene: () => base(), input: () => ({ categories: [{ key: "pit", label: "Pits", color: "#9de3a8" }], places: [{ id: "deep", name: "Deep Pit", kind: "Pit", category: "pit", latitudeDeg: 12, longitudeDeg: -40, description: "A made-up pit.", details: [{ label: "Depth", value: "3 km" }] }], provenance: prov(), knownLimitations: ["Made up."] }), apply: (s, i) => s.addPlaces("moon", i) },
+  { name: "addActivity", scene: () => base(), input: () => ({ id: "burst", label: "Burst", unit: "per hour", start: T0, end: T0 + 40 * MIN, peak: T0 + 20 * MIN, samples: [{ time: T0, value: 2 }, { time: T0 + 20 * MIN, value: 100 }, { time: T0 + 40 * MIN, value: 4 }], provenance: [{ start: T0, end: T0 + 40 * MIN, provenance: prov() }] }), apply: (s, i) => s.addActivity(i) },
   { name: "setTime", scene: () => base(), input: () => new Date(T0 + 5 * MIN), apply: (s, i) => s.setTime(i) },
   { name: "setScale (scale, options)", scene: () => new Scene().setTime(T0).addBody(sun).addBody(earth, { enlarge: 3 }), input: () => ({ scale: { ...solarSystemScale }, options: { only: true } }), apply: (s, i: { scale: never; options: never }) => s.setScale(i.scale, i.options) },
   { name: "setLook", scene: () => base(), input: () => ({ starBrightness: 1.4, markerSwapRadiusPx: 5, loadFadeSeconds: 1 }), apply: (s, i) => s.setLook(i) },
   { name: "setBodyReadouts", scene: () => base(), input: () => ["distance", "phase"], apply: (s, i) => s.setBodyReadouts(i) },
-  { name: "addEvents (events, options)", scene: () => base(), input: () => ({ events: [{ id: "e1", label: "E1", time: T0 + 5 * MIN, type: "burn", object: "probe" }], options: { provenance: { ...PROVENANCE } } }), apply: (s, i: { events: never; options: never }) => s.addEvents(i.events, i.options) },
+  { name: "addEvents (events, options)", scene: () => base(), input: () => ({ events: [{ id: "e1", label: "E1", time: T0 + 5 * MIN, type: "burn", object: "probe" }], options: { provenance: prov() } }), apply: (s, i: { events: never; options: never }) => s.addEvents(i.events, i.options) },
   { name: "addStoryPanels", scene: () => base(), input: () => ({ pauseSeconds: 3, panels: [panel("by-event", { event: "ev" }), panel("by-anchor", { anchor: "fix-a" })] }), apply: (s, i) => s.addStoryPanels(i) },
   { name: "setTimeline", scene: () => base(), input: () => ({ start: T0, end: T0 + 60 * MIN, rates: [10, 100], rate: 100, loop: true }), apply: (s, i) => s.setTimeline(i) },
   { name: "setSwitches", scene: () => base(), input: () => ({ orbitLines: { place: "top-bar" }, labels: { place: "panel", on: false } }), apply: (s, i) => s.setSwitches(i) },
@@ -83,6 +86,46 @@ function scribble(value: unknown): void {
   }
 }
 
+type Path = readonly (string | number)[];
+const EDITS = { count: 0, rows: new Set<string>() };
+const plain = (value: object): boolean => { const proto = Object.getPrototypeOf(value) as unknown; return proto === Object.prototype || proto === null; };
+/** Every leaf of a plain input: a number, text, flag or date, and each list (edited as a whole). Functions and built-in bodies are not walked. */
+function leavesOf(value: unknown, path: Path = []): Path[] {
+  if (value instanceof Date) return [path];
+  if (typeof value !== "object" || value === null) return typeof value === "function" ? [] : [path];
+  if (ArrayBuffer.isView(value) || !(Array.isArray(value) || plain(value))) return [];
+  const own = Array.isArray(value) ? [...path.length === 0 ? [] : [path]] : [];
+  return [...own, ...Object.entries(value).flatMap(([key, item]) => leavesOf(item, [...path, Array.isArray(value) ? Number(key) : key]))];
+}
+/** A valid value for a leaf on its own, by the leaf's name (a kind that exists, a body that exists), beside the generic ones. */
+const VALID_ALTS: Readonly<Record<string, readonly unknown[]>> = { kind: ["speed", "range"], to: ["moon", "earth"], color: ["#000000"], above: ["moon"], value: ["b"], place: ["panel", "top-bar"], up: ["ecliptic"], 0: ["range", "phase"], 1: ["speed"] };
+/** The one-leaf edits of a leaf: each edit changes only that leaf (in place) and says whether it changed anything. Valid-on-its-own values come first, then bad ones. */
+function editsOf(sample: unknown, path: Path): ((root: unknown) => boolean)[] {
+  const read = (root: unknown): { parent: Record<string | number, unknown>; key: string | number; value: unknown } | undefined => {
+    let at = root as Record<string | number, unknown>;
+    for (const step of path.slice(0, -1)) at = at[step] as Record<string | number, unknown>;
+    const key = path[path.length - 1];
+    return key === undefined ? undefined : { parent: at, key, value: at[key] };
+  };
+  const target = read(sample);
+  if (target === undefined) return [];
+  const { value, key } = target;
+  const replacements: unknown[] = [];
+  if (Array.isArray(value)) {
+    return [(root) => { const t = read(root)!; const list = t.parent[t.key] as unknown[]; list.push(typeof list[0] === "object" && list[0] !== null ? structuredClone(list[0]) : "extra"); return true; },
+      (root) => { const t = read(root)!; (t.parent[t.key] as unknown[]).push(null); return true; },
+      (root) => { const t = read(root)!; const list = t.parent[t.key] as unknown[]; if (list.length === 0) return false; list.pop(); return true; },
+      (root) => { const t = read(root)!; const list = t.parent[t.key] as unknown[]; if (list.length < 2) return false; list.reverse(); return JSON.stringify(list) !== JSON.stringify([...list].reverse()); }];
+  }
+  if (value instanceof Date) replacements.push(new Date(value.getTime() + 1_000_000), new Date(Number.NaN));
+  else if (typeof value === "number") replacements.push(value * 3 + 1, value + 1, -1, 0, "bad");
+  else if (typeof value === "string") replacements.push(...(VALID_ALTS[String(key)] ?? []), `${value}!`, "", 7);
+  else if (typeof value === "boolean") replacements.push(!value, "yes");
+  const edits = replacements.map((next) => (root: unknown): boolean => { const t = read(root)!; if (Object.is(t.parent[t.key], next)) return false; t.parent[t.key] = next; return true; });
+  if (!Array.isArray(target.parent) && typeof key === "string") edits.push((root) => { const t = read(root)!; return delete t.parent[t.key]; });
+  return edits;
+}
+
 /** Everything a scene reads, checks and builds, as text that changes when any of it does (functions and caches by name only). */
 function observe(scene: Scene): Record<string, string> {
   const seen = new WeakSet<object>();
@@ -98,8 +141,10 @@ function observe(scene: Scene): Record<string, string> {
   });
   const reads = { bodies: scene.bodies, paths: scene.paths, groups: scene.groups, bodySets: scene.bodySets, moonPanel: scene.moonPanel, places: scene.places, events: scene.events, panels: scene.panels, views: scene.views, scales: scene.scales, timeline: scene.timeline, picker: scene.picker, camera: { target: scene.camera.target, following: scene.camera.following, view: scene.camera.view, pose: scene.camera.pose, followChoices: scene.camera.followChoices, reach: scene.camera.reach, far: scene.camera.farEarthRadii, fitted: scene.camera.fitted } };
   const attempt = (build: () => unknown): string => { try { return text(build()); } catch (error) { return `error ${(error as { code?: string }).code ?? String(error)}`; } };
-  const { catalogue: _catalogue, ...definition } = scene.toDefinition() as unknown as Record<string, unknown>;
-  return { reads: attempt(() => reads), check: attempt(() => scene.check()), definition: attempt(() => definition), probeState: attempt(() => scene.stateOf("probe", T0 + 5 * MIN)), rockState: attempt(() => scene.stateOf("rock", T0)) };
+  const definitionOf = (): unknown => { const { catalogue: _catalogue, ...rest } = scene.toDefinition() as unknown as Record<string, unknown>; return rest; };
+  const resolver = createStateResolver(catalogue.definitions(), catalogue.sources(), createOrbAstronomyAdapter());
+  const rows = (): unknown => { const metrics = (scene.toDefinition() as unknown as { createMetrics: (r: unknown) => (id: string, t: number) => unknown }).createMetrics({ resolver, catalogue, clock: undefined as never }); return ["sun", "earth", "moon", "rock", "probe", "bit-0", "ring", "swarm"].map((id) => { try { return [id, metrics(id, T0 + 5 * MIN)]; } catch (error) { return [id, `error ${(error as { code?: string }).code ?? String(error)}`]; } }); };
+  return { metrics: attempt(rows), reads: attempt(() => reads), check: attempt(() => scene.check()), definition: attempt(definitionOf), probeState: attempt(() => scene.stateOf("probe", T0 + 5 * MIN)), rockState: attempt(() => scene.stateOf("rock", T0)) };
 }
 
 /** The names of the parts of two observations that differ; empty when the scene is unchanged. */
@@ -162,6 +207,27 @@ describe("every Scene call that takes an object keeps its own copy (API-04)", ()
     expect(changed(before, observe(scene))).toEqual([]);
   });
 
+  it.each(ROWS)("$name: each leaf edited alone, one at a time, changes nothing", (row) => {
+    const leaks: string[] = [];
+    const paths = leavesOf(row.input());
+    expect(paths.length, "the row has leaves to edit").toBeGreaterThan(0);
+    for (const path of paths) {
+      for (const edit of editsOf(row.input(), path)) {
+        // a fresh scene per edit: the call is made with the input, then the one leaf is edited, then the scene is compared with itself
+        const fresh = row.input();
+        const scene = row.apply(row.scene(), fresh as never);
+        const before = observe(scene);
+        const applied = edit(fresh);
+        if (!applied) continue;
+        EDITS.count += 1;
+        const moved = changed(before, observe(scene));
+        if (moved.length > 0) leaks.push(`${path.join(".")} -> ${moved.join("+")}`);
+      }
+    }
+    expect(leaks, `${row.name}: single-leaf edits after the call that changed the scene`).toEqual([]);
+    EDITS.rows.add(row.name);
+  }, 60_000);
+
   it.each(ROWS)("$name: one object given to two scenes keeps them apart", ({ scene: make, input: makeInput, apply }) => {
     const input = makeInput();
     const first = apply(make(), input as never);
@@ -184,5 +250,13 @@ describe("every Scene call that takes an object keeps its own copy (API-04)", ()
     const before = scene.stateOf("typed", T0).positionKm[0];
     positionKm[0] = 99_999;
     expect(scene.stateOf("typed", T0).positionKm[0]).toBe(before);
+  });
+});
+
+describe("the one-leaf walk ran over every row", () => {
+  it("edited a leaf at a time across all rows (count printed)", () => {
+    // runs after the per-row tests of this file in order; the totals are the proof, not a guard against a number
+    expect(EDITS.rows.size).toBe(ROWS.length);
+    console.log(`single-leaf edits: ${EDITS.count} over ${EDITS.rows.size} rows`);
   });
 });

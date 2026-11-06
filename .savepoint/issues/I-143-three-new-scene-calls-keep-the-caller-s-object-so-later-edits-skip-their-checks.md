@@ -38,6 +38,11 @@ history:
     kind: rechecked
     note: 'C-150 NEEDS WORK; stays open. Proven: a Scene or SceneCamera call with no row fails the walk, under an add/set name or not; a mutator on the keeps-nothing list fails; removing the knownLimitations or camera copy fails 4 rows each. Not proven: the addBody row. addBody and addBodyFromElements still keep options.readouts (readoutsOf returns its input, planPaths.ts:128, stored at planBodies.ts:161): kind edited to an unknown value or a pushed item skips the call check, a pushed distance row reaches createMetrics, and one object for two scenes makes the first throw bad-readout. The table misses it because scribble edits kind and to together, so the build check skips the entry, and observe prints createMetrics as fn. Every other field of 42 rows holds under 934 single-leaf edits. In scratch one copy in readoutsOf clears all of it. Convergence limit reached: owner chooses fix now, follow-up work or acceptance.'
     check: C-150
+  - at: '2026-11-06T21:52:33Z'
+    actor: {role: executor, session: o059-repair3-20261107}
+    kind: repair_attempted
+    check: C-150
+    note: 'addBody and addBodyFromElements take one frozenCopy of the whole input at the entry, the same as the other calls; sceneInputCopies edits each leaf alone (1436 edits, 25 rows) and observe calls createMetrics. Owner asked to avoid browser tests this round.'
 ---
 
 # I-143: Three new scene calls keep the caller's object, so later edits skip their checks
