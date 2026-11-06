@@ -9,7 +9,7 @@ source:
   actor: {role: checker, session: o059-check-20261107}
   at: '2026-11-06T19:51:42Z'
 tasks: [T-272]
-checks: [C-148, C-149]
+checks: [C-148, C-149, C-150]
 guardrail_ids: [TEST-01, TEST-03]
 severity: low
 history:
@@ -28,6 +28,11 @@ history:
     kind: rechecked
     note: 'Proof holds under C-149: moonFreeMetrics fails with a Moon read through a variable at createMetrics and at each metric read; markerRuleEveryBody fails both rows with radius 0 from addBodyFromElements; deep-import counts unchanged; Design line corrected. Not closed: a verified resolution needs a CLEAR Check, and C-149 is NEEDS WORK for I-143 only. Close as verified on the next CLEAR.'
     check: C-149
+  - at: '2026-11-06T21:43:18Z'
+    actor: {role: checker, session: o059-recheck2-20261106}
+    kind: rechecked
+    note: 'Proof still holds under C-150: nothing it rests on changed since 39d33686 and the fresh suite passes. Not closed: C-150 is NEEDS WORK for I-143, and a verified resolution needs a CLEAR Check.'
+    check: C-150
 ---
 
 # I-144: Two demo rules lost their tests when the site tests moved
