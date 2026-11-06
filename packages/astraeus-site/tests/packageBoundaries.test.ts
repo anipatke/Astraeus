@@ -268,7 +268,7 @@ const DEEP_IMPORT_COUNTS: Record<string, number> = {
   "astraeus-demo-apollo11": 129, // src is on the front door (PUBLIC_API_DEMOS); the rest is tests and tools
   "astraeus-demo-planets": 0, // on the front door (PUBLIC_API_DEMOS), tests included (O-059 T-270)
   "astraeus-demo-showers": 68, // src is on the front door; the rest is tests and tools
-  "astraeus-site": 91, // F13, O-059
+  "astraeus-site": 83, // F13, O-059 (T-271 moved the made-up scene builders onto the public API)
 };
 
 /** Offences of measured counts against the recorded ones. */

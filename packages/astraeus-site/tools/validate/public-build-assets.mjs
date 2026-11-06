@@ -15,7 +15,7 @@ import { checkEngineBudget, proveEngineDemoSplit } from "./engine-budget.mjs";
 
 /** The site pages a public build must contain: the pitch page, its assets sub-page and the app. */
 export const REQUIRED_PAGES = ["index.html", "assets.html", "app.html", "api/index.html"];
-// The repository root (this file is packages/astraeus-site/tools/validate/). Sources sit in their packages: the engine's textures, stars and synthetic scenes, the Showers demo's data/local, the Planets demo's settings.
+// The repository root (this file is packages/astraeus-site/tools/validate/). Sources sit in their packages: the engine's textures and stars, the site's synthetic scenes (src/synthetic), the Showers demo's data/local, the Planets demo's settings.
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..", "..", "..");
 /** The folder of package `name` under `rootDir`, or `rootDir` itself when it has no packages folder (the made-up roots the self-checks build). */
 const packageDir = (rootDir, name) => (existsSync(join(rootDir, "packages", name)) ? join(rootDir, "packages", name) : rootDir);
@@ -160,14 +160,15 @@ export function proveStarAssetHandling() {
 }
 
 /** The entry keys of the made-up (synthetic) experiences; a public build must not mount them (T-068). */
-export const SYNTHETIC_KEYS = ["synthetic", "synthetic-bare", "synthetic-ring", "synthetic-belt", "synthetic-listed", "synthetic-eccentric", "synthetic-probe", "synthetic-journey", "synthetic-views"];
+export const SYNTHETIC_KEYS = ["synthetic", "synthetic-ring", "synthetic-belt", "synthetic-listed", "synthetic-eccentric", "synthetic-probe", "synthetic-journey", "synthetic-views"];
 
 /**
  * The made-up experiences are test fixtures: a public build must contain none of them. Fails on a file whose name carries a synthetic module
  * (each is its own chunk) and on a text asset that still holds an entry key or a synthetic source module's name. Returns { ok, matches }.
  */
 export function checkNoSyntheticExperiences({ distDir, rootDir = root }) {
-  const modules = existsSync(join(packageDir(rootDir, "astraeus"), "src", "synthetic")) ? readdirSync(join(packageDir(rootDir, "astraeus"), "src", "synthetic")).map((name) => name.replace(/\.[^.]+$/, "")) : [];
+  const folder = join(packageDir(rootDir, "astraeus-site"), "src", "synthetic");
+  const modules = existsSync(folder) ? readdirSync(folder).map((name) => name.replace(/\.[^.]+$/, "")) : [];
   const matches = [];
   for (const path of walk(distDir)) {
     const name = path.slice(distDir.length + 1);

@@ -14,28 +14,29 @@ import "astraeus/app/style.css";
 
 const app = document.querySelector<HTMLElement>("#app");
 if (!app) throw new Error("Astraeus entry element #app is missing");
-// The entry chooses the experience: Apollo by default, the planets with ?experience=planets (&planet=<name> picks one; ?experience=jupiter-io still opens Jupiter), the meteor showers with ?experience=showers (&shower=<name> picks one), a made-up one with ?experience=synthetic (synthetic-bare, without Earth and Moon; synthetic-ring, a made-up debris ring; synthetic-belt, a made-up Sun-centred belt with a declared camera reach; synthetic-listed, made-up orbits listed one by one; synthetic-eccentric, the belt with a made-up 51 AU orbit; synthetic-probe, a made-up probe path fixed to the Sun beside enlarged planets, O-046; synthetic-journey, a made-up 1977-to-170-AU probe journey past Jupiter and Saturn with their moons at their dates, O-047; synthetic-views, two made-up probes with three views, O-051).
+// The entry chooses the experience: Apollo by default, the planets with ?experience=planets (&planet=<name> picks one; ?experience=jupiter-io still opens Jupiter), the meteor showers with ?experience=showers (&shower=<name> picks one), a made-up one with ?experience=synthetic (synthetic-ring, a made-up debris ring; synthetic-belt, a made-up Sun-centred belt with a declared camera reach; synthetic-listed, made-up orbits listed one by one; synthetic-eccentric, the belt with a made-up 51 AU orbit; synthetic-probe, a made-up probe path fixed to the Sun beside enlarged planets, O-046; synthetic-journey, a made-up 1977-to-170-AU probe journey past Jupiter and Saturn with their moons at their dates, O-047; synthetic-views, two made-up probes with three views, O-051).
 // Each is its own chunk, fetched only for the experience asked for (I-022), so the others' code and data never download.
 // The made-up (synthetic) ones are test experiences: the dev server mounts them, a public build (ASTRAEUS_PUBLIC_BUILD=1) leaves them out of the bundle, so they fall back to the default experience (T-068).
 // The host link of the made-up views scene, as `mount` gives one to a host page; no other experience has one (O-051 T-221).
 let hostLink: ComponentProps<typeof App>["host"];
+// Each is a `Scene` built on the public API; `toDefinition()` is what the app is given until the site mounts it (T-272).
 const SYNTHETIC: Readonly<Record<string, () => Promise<ExperienceDefinition>>> = __PUBLIC_BUILD__ ? {} : {
-  synthetic: async () => (await import("astraeus/synthetic/syntheticDefinition")).syntheticDefinition,
-  "synthetic-bare": async () => (await import("astraeus/synthetic/syntheticDefinition")).syntheticBareDefinition,
-  "synthetic-ring": async () => (await import("astraeus/synthetic/syntheticRingDefinition")).syntheticRingDefinition,
-  "synthetic-belt": async () => (await import("astraeus/synthetic/syntheticRingDefinition")).syntheticBeltDefinition,
-  "synthetic-listed": async () => (await import("astraeus/synthetic/syntheticListedDefinition")).syntheticListedDefinition,
-  "synthetic-eccentric": async () => (await import("astraeus/synthetic/syntheticEccentricDefinition")).syntheticEccentricDefinition,
+  synthetic: async () => (await import("./synthetic/syntheticScene")).buildSyntheticScene().toDefinition(),
+  "synthetic-ring": async () => (await import("./synthetic/syntheticRingScene")).buildSyntheticRingScene().toDefinition(),
+  "synthetic-belt": async () => (await import("./synthetic/syntheticBeltScene")).buildSyntheticBeltScene().toDefinition(),
+  "synthetic-listed": async () => (await import("./synthetic/syntheticListedScene")).buildSyntheticListedScene().toDefinition(),
+  "synthetic-eccentric": async () => (await import("./synthetic/syntheticEccentricScene")).buildSyntheticEccentricScene().toDefinition(),
   // O-051 T-221: two made-up probes with three views; the dev page hands its host link to the browser check as `window.astraeusHost` (see `createViewsHost`).
   "synthetic-views": async () => {
-    const views = await import("astraeus/synthetic/syntheticViewsDefinition");
-    hostLink = views.createViewsHost();
-    return views.syntheticViewsDefinition;
+    // The host link is made by the engine fixture's helper until the site mounts through `mount` and is given its host there (T-272).
+    const [{ buildSyntheticViewsScene }, { createViewsHost }] = await Promise.all([import("./synthetic/syntheticViewsScene"), import("astraeus/synthetic/syntheticViewsDefinition")]);
+    hostLink = createViewsHost();
+    return buildSyntheticViewsScene().toDefinition();
   },
-  "synthetic-probe": async () => (await import("astraeus/synthetic/syntheticProbeDefinition")).syntheticProbeDefinition,
+  "synthetic-probe": async () => (await import("./synthetic/syntheticProbeScene")).buildSyntheticProbeScene().toDefinition(),
   // The journey reads Earth, Jupiter and Saturn from the planet series; its moons come from data sources like the Jupiter and Saturn packages', handed to `toDefinition` as a host hands them to `mount`.
   "synthetic-journey": async () => {
-    const [{ buildSyntheticJourneyScene }, { loadPlanetSeries }, { journeyData }] = await Promise.all([import("astraeus/synthetic/syntheticJourneyScene"), import("astraeus/core/planetSeries"), import("./journeyData")]);
+    const [{ buildSyntheticJourneyScene }, { journeyData }] = await Promise.all([import("./synthetic/syntheticJourneyScene"), import("./journeyData")]);
     await loadPlanetSeries();
     return buildSyntheticJourneyScene().toDefinition(journeyData);
   },
