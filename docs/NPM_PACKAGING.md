@@ -18,7 +18,7 @@ Decision note for the owner. Plain words first, technical appendix last. Measure
 | 2 | Pictures and JSON | Pictures stay separate files (no inlining). JSON is imported as JSON; the customer's bundler handles it. Moon position chunks (`.bin`) are listed one by one in a generated file per planet system, so a customer's build copies only the systems they import. Each URL ends `?no-inline` because Vite otherwise pastes every chunk under 4 kB into the entry script as a `data:` URL (Saturn: a 14.97 MB entry, 5,321 inlined chunks; with the query: 1.87 MB and 5,849 separate files; I-078). Spike: importing Mars alone put 61 chunk files plus Earth into the build (7.5 MB), nothing else. |
 | 3 | Finding `astraeus-data` | Explicit: `import { chunkUrls, loadIndex } from "astraeus-data/saturn"` and pass it to `mount(..., { data })`. A hidden "look for the package" lookup was rejected: bundlers either fail on a missing optional package or ship all of it. Without data the catalogue does not list those bodies and `addBody("titan")` throws a message naming the package to install. The engine already takes chunk URLs from the caller, so this matches today's design. |
 | 4 | Dependencies | `react`, `react-dom`, `@react-three/fiber`, `three`, `@lizard-isana/orb` are ordinary dependencies of `astraeus`, so `npm install astraeus` just works for someone who knows no React. `mount` makes its own React root, so a second React copy is harmless. Revisit `three` as a peer dependency if users report duplicate-three warnings. |
-| 5 | What `astraeus` holds | Code; `data/bodies`, `moons`, `orbits`, `rings`, `ephemerides/planets` (positions of the planets, 0.33 MB); pictures of Earth, Moon, Sun, Mercury, Venus (2k), Mars, Jupiter, Saturn, Uranus, Neptune (about 5.9 MB) plus the Milky Way pair (3.7 MB) and the star list (0.28 MB). |
+| 5 | What `astraeus` holds | Code; `moons`, `orbits`, `rings`, `ephemerides/planets` (positions of the planets, 0.33 MB); pictures of Earth, Moon, Sun, Mercury, Venus (2k), Mars, Jupiter, Saturn, Uranus, Neptune (about 5.9 MB) plus the Milky Way pair (3.7 MB) and the star list (0.28 MB). |
 | 6 | What the data holds | Pictures: Venus 8k, the Saturn moons (4k), Triton, Pluto, Charon, Io, Europa, Ganymede, Callisto (35.1 MB). Moon positions for Jupiter, Mars, Saturn, Uranus, Neptune, Pluto (119.6 MB). |
 | 7 | Licences | Each package ships a `licenses/` folder and `NOTICE` for what it contains (PROV-01, PROV-02). Pictures keep their per-picture credit records in the code that references them: the records for the moved pictures must move to `astraeus-data` with them. The engine's `ERFA`, orb.js and sgp4 notices stay with the engine. Data package adds the Horizons credit from `data/ephemerides/README.md`. |
 | 8 | The code move this implies | Today the engine's catalogue imports the moon pictures directly (for example `planetSystemMaps.ts`). A compiled engine without those files would fail to build for customers. The moon visual records (and moon definitions) must move into `astraeus-data` and register themselves into the engine's catalogue. This is the main work of step 3, and the demos must keep working unchanged. |
@@ -42,7 +42,7 @@ Measured with `npm pack` of the spike; limits are about 10% above measured. The 
 | Package | Measured packed / unpacked / files | Limit packed / unpacked / files |
 |---|---|---|
 | `astraeus` | 10.5 MB / 12.0 MB / 387 | 12 MB / 14 MB / 450 |
-| `astraeus-data` (pictures only, option A) | about 35 MB / 35.1 MB / about 20 | 39 MB / 39 MB / 40 |
+| `astraeus-data` (pictures, plus the place lists of 24 bodies since O-059 T-268) | about 35 MB / 35.1 MB / 123 | 39 MB / 39 MB / 130 |
 | `astraeus-data-jupiter` | about 22.9 MB (30.9 MB with the Galilean moons back to 1950, O-047 T-200) | 34 MB, 2,900 files |
 | `astraeus-data-saturn` | about 40.0 MB (53.5 MB with nine moons and Saturn back to 1950, O-047 T-200) | 59 MB, 7,000 files |
 | `astraeus-data-uranus` | about 32.6 MB (40.6 MB with five moons and Uranus back to 1950, O-047 T-200) | 45 MB, 1,050 files |
@@ -89,7 +89,7 @@ Scratch folder: `/tmp/claude-1000/-home-user-code-Astraeus/00a3b7e2-dcc4-432a-a7
 # sizes: tracked files only (git ls-files), packages/astraeus
 src/assets/textures 45.14 MB (28 files)   data/ephemerides 119.95 MB (9,277 files)
   jupiter 22.67, saturn 39.44, uranus 32.51, neptune 17.73, mars 5.49, pluto 1.77, planets 0.33
-src/core 0.24, src/app 0.45, src/shell 0.21; data/bodies 0.51, moons 0.29, orbits 0.08, rings 0.01
+src/core 0.24, src/app 0.45, src/shell 0.21; moons 0.29, orbits 0.08, rings 0.01
 
 # rejected: Vite 8.3.5 library mode (assetsInlineLimit 0 and () => false both ignored)
 vite build  -> dist/index.js 61,179 kB (45 MB gzip), pictures base64 inside

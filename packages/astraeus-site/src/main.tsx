@@ -37,7 +37,8 @@ const SYNTHETIC: Readonly<Record<string, () => Promise<Built>>> = __PUBLIC_BUILD
   "synthetic-probe": async () => own((await import("./synthetic/syntheticProbeScene")).buildSyntheticProbeScene()),
   // The journey reads Earth, Jupiter and Saturn from the planet series (`mount` loads it); its moons come from data sources like the Jupiter and Saturn packages', handed to `mount` as a host hands them.
   "synthetic-journey": async () => {
-    const [{ buildSyntheticJourneyScene }, { journeyData }] = await Promise.all([import("./synthetic/syntheticJourneyScene"), import("./journeyData")]);
+    const [{ buildSyntheticJourneyScene, loadJourneyPlanets }, { journeyData }] = await Promise.all([import("./synthetic/syntheticJourneyScene"), import("./journeyData")]);
+    await loadJourneyPlanets();
     return own(buildSyntheticJourneyScene(), journeyData);
   },
 };

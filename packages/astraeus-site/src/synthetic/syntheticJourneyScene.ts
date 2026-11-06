@@ -2,7 +2,7 @@
 // It leaves Earth's place on 5 September 1977, passes Jupiter on 5 March 1979, Saturn on 12 November 1980 and Uranus on 24 January 1986, then flies straight out to 170 AU by 1 January 2026.
 // Uranus adds its five main moons (listed moons, one rule, orbit lines on; T-212). The giant planets draw their rings by default (catalogue data, O-048 T-205), Europa, Ganymede and Titan draw their orbit lines (T-206) and each pass names its planet as the event's object (T-207).
 // In one scene it proves: moons at historical dates (the data packages are handed to `toDefinition`), Saturn's orbit line, paced playback, provenance that changes along the path,
-// the opening selection and a camera that zooms out to the whole path (I-114). The planets' places come from the planet series, so the series must be loaded before this builds (the site does).
+// the opening selection and a camera that zooms out to the whole path (I-114). The planets' places come from the planet series, so `loadJourneyPlanets` must have resolved before this builds (the site does).
 import { callisto, dione, earth, enceladus, europa, ganymede, iapetus, io, jupiter, mimas, rhea, saturn, Scene, solarSystemScale, sun, tethys, titan, uranus, type Provenance } from "astraeus";
 
 const HOUR_MS = 3_600_000;
@@ -25,6 +25,11 @@ const mix = (a: Vec, b: Vec, f: number): Vec => [a[0] + (b[0] - a[0]) * f, a[1] 
 const scaled = (a: readonly number[], k: number): Vec => [a[0]! * k, a[1]! * k, a[2]! * k];
 
 const made = (stretch: string, accuracy: string, sourceType: Provenance["sourceType"]): Provenance => ({ sourceType, sources: [`Made up for the journey test (${stretch}); not a real spacecraft`], accuracy, notes: "Exists to prove a long recorded path, moons at their dates and paced playback." });
+
+/** Loads the planet series the builder below reads (a scene holding the planets, then `load`, as any host does; O-059 T-273). */
+export async function loadJourneyPlanets(): Promise<void> {
+  await new Scene().addBody(sun).addBody(earth).addBody(jupiter).addBody(saturn).addBody(uranus).load();
+}
 
 /** The made-up journey as a Scene. Needs the planet series loaded (it reads Earth, Jupiter, Saturn and Uranus from the Sun). */
 export function buildSyntheticJourneyScene(): Scene {
