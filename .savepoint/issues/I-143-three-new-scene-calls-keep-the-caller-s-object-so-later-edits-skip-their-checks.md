@@ -28,6 +28,11 @@ history:
     kind: rechecked
     note: 'C-149 NEEDS WORK; stays open. Proven: the five scenarios, every leaf of addBodySet, setMoonPanel and addPlaces edited alone, one object for two scenes, and removing each copy fails its rows. Not proven: the general test. It is a hand-written list, so a scratch setZed that keeps its input passes sceneInputCopies and lifecycle (100 of 100); and addBody and addBodyFromElements keep options.knownLimitations (planBodies.ts:172), a field the row leaves out. Still needed: the table walks Scene.prototype so a call with no row fails, and the addBody row carries knownLimitations with a copy at the call.'
     check: C-149
+  - at: '2026-11-06T21:28:36Z'
+    actor: {role: executor, session: o059-repair2-20261107}
+    kind: repair_attempted
+    note: 'Second repair for C-149 (stays open for the recheck). sceneInputCopies.test.ts now walks Scene.prototype and SceneCamera.prototype: a public call with no row fails unless it is on a short named list of calls that keep nothing, each with a reason (stateOf, provenanceOf, load, check, missingData, toDefinition); the list must not hold a mutator-named call, a call that also has a row, or a name that is not a call; the four data-taking listed calls are also tested to keep nothing. Camera rows added for follow, lookAt, setStartView, setFollowChoices, setReach and fitOrbit; the walk caught camera.follow and camera.lookAt keeping the caller''s view object (planCamera.ts), now frozenCopy. addBody and addBodyFromElements rows now set every option (plus a lap-orbit row); options.knownLimitations was kept as given (planBodies.ts), now a frozen copy at the call; no other option leaked. Mutations: scratch Scene.setZed that keeps its input fails the has-a-row test; the same on SceneCamera fails; setZed or addPlaces wrongly added to the keeps-nothing list fails the list test; removing the knownLimitations copy fails 4 rows; removing the camera copy fails 4 rows. Residual: a call wrongly listed under a non-mutator name (a scratch keepZed) is not caught by the walk; only the visible reason guards it. Gates: lint, typecheck, build, npm test (227 files, 3028 passed), check:engine-alone, check:pack pass. check:browser not run.'
+    check: C-149
 ---
 
 # I-143: Three new scene calls keep the caller's object, so later edits skip their checks

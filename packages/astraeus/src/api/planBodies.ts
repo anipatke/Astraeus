@@ -169,7 +169,7 @@ export class BodyPlan {
   /** Keeps the card, look, shape and words of one body. */
   #rememberCard(id: BodyId, options: AddBodyOptions): void {
     if (options.listed !== undefined || options.facts !== undefined || options.sources !== undefined || options.labelPriority !== undefined) this.cards.set(id, { ...(options.listed === undefined ? {} : { listed: options.listed }), ...(options.facts === undefined ? {} : { facts: options.facts.map(({ label, value }) => Object.freeze({ label, value })) }), ...(options.sources === undefined ? {} : { sources: [...options.sources] }), ...(options.labelPriority === undefined ? {} : { labelPriority: options.labelPriority }) });
-    if (options.color !== undefined || options.knownLimitations !== undefined) this.looks.set(id, { ...(options.color === undefined ? {} : { color: options.color }), ...(options.knownLimitations === undefined ? {} : { knownLimitations: options.knownLimitations }) });
+    if (options.color !== undefined || options.knownLimitations !== undefined) this.looks.set(id, { ...(options.color === undefined ? {} : { color: options.color }), ...(options.knownLimitations === undefined ? {} : { knownLimitations: Object.freeze([...options.knownLimitations]) }) });
     if (options.enlarge !== undefined || options.showLabel !== undefined) this.shape.set(id, { ...(options.enlarge === undefined ? {} : { enlarge: options.enlarge }), ...(options.showLabel === undefined ? {} : { showLabel: options.showLabel }) });
     if (options.description !== undefined) this.notes.set(id, options.description);
   }

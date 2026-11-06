@@ -4,6 +4,7 @@ import type { EccentricSampling } from "../core/sunCentredSources";
 import type { ExperienceDefinition } from "../app/experienceDefinition";
 import type { BodyRef } from "./bodies";
 import { SceneError } from "./errors";
+import { frozenCopy } from "./frozenCopy";
 import type { FollowView } from "./scene";
 import type { CameraPose } from "./viewerLink";
 import { validateStartView } from "../core/startView";
@@ -44,7 +45,7 @@ export class SceneCamera {
     this.#target = id;
     this.#pose = undefined;
     this.#following = following;
-    this.#view = view;
+    this.#view = frozenCopy(view);
     return this;
   }
   /**
