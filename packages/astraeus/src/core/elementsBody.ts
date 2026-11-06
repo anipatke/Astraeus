@@ -30,6 +30,7 @@ export function classifyPositionError(maxFraction: number): AccuracyClassificati
   return null;
 }
 
+/** The time scale an elements solution is expressed in: "TDB", "TT" or "UTC". */
 export type ElementsTimeScale = "TDB" | "TT" | "UTC";
 /** The class a position comparison earns: `"approximate"` or `"indicative"` (see `classifyPositionError`). */
 export type AccuracyClassification = "approximate" | "indicative";

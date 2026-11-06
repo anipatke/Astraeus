@@ -4,9 +4,12 @@ import { MOON } from "./bodies/moon";
 import { SUN } from "./bodies/sun";
 
 export const EQJ = "EQJ" as const;
+/** The reference frame of a state: `"EQJ"`, equatorial J2000. */
 export type FrameId = typeof EQJ;
+/** A rotation as a unit quaternion `[x, y, z, w]`. */
 export type Quaternion = readonly [x: number, y: number, z: number, w: number];
 
+/** Where a body is, in km relative to a centre, with the velocity when known (a `State` without its orientation). */
 export interface CenteredPosition {
   readonly body: BodyId;
   readonly center: CenterId;

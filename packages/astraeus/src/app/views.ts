@@ -1,5 +1,6 @@
 /** Where the view choice shows: a button group in the top bar, or a row in the one switch panel opened from the bar (as for the display switches). */
 export const VIEW_PLACES = ["top-bar", "panel"] as const;
+/** Where the view choice shows: "top-bar" or "panel". */
 export type ViewPlace = (typeof VIEW_PLACES)[number];
 
 /** What the camera does when it switches to a view whose members no longer include what it follows or focuses on. `stay`: keep the pose and stop following. `start`: take the view's own framing, else the scene's start. */

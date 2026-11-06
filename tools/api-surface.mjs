@@ -68,7 +68,7 @@ export const privateName = (name) => name.startsWith("#") || name.startsWith("__
 /**
  * Types reachable from the root export that are declared in a repository file outside the entry's folder (`src/api/`), as `Name (path/relative/to/repo)`, and
  * types declared inside it but not exported from the root, as `Name (path) unexported`.
- * The walk follows exports, members, signatures, type arguments, unions and base types; it records a type declared outside the folder and does not walk into it,
+ * The walk follows exports, members, signatures, type arguments, unions and base types; it records a type declared outside the folder that the root does not name (a named one is public, and the walk descends into it, so an unnamed type behind it is found; a method or function type is a signature, not a type),
  * so the list names where the public surface meets the internals, not everything behind them. Types from `node_modules` and the TypeScript lib are ignored.
  */
 export function outsideApiTypes(entry = PUBLIC_ENTRY, apiDir = dirname(entry), repoRoot = REPO_ROOT) {
@@ -79,6 +79,9 @@ export function outsideApiTypes(entry = PUBLIC_ENTRY, apiDir = dirname(entry), r
   const apiTypes = new Set();
   const seen = new Set();
   const inApi = (file) => resolve(file).startsWith(apiDir + "/") || resolve(file).startsWith(apiDir + "\\");
+  const resolved = (exported) => (exported.flags & ts.SymbolFlags.Alias ? checker.getAliasedSymbol(exported) : exported);
+  // A type the root names is public wherever it is declared (ARCH-04 keeps core/ and assets/ declarations where they are); only a reachable type the root does not name is a finding.
+  const rootNames = new Set(checker.getExportsOfModule(checker.getSymbolAtLocation(source)).map(resolved));
   const note = (symbol) => {
     const declaration = symbol.declarations?.[0];
     if (declaration === undefined) return true;
@@ -89,6 +92,7 @@ export function outsideApiTypes(entry = PUBLIC_ENTRY, apiDir = dirname(entry), r
       scanSymbol(symbol);
       return true;
     }
+    if (rootNames.has(symbol)) { scanSymbol(symbol); return true; }
     found.add(`${symbol.name} (${relative(repoRoot, file).split("\\").join("/")})`);
     return false;
   };
@@ -119,7 +123,7 @@ export function outsideApiTypes(entry = PUBLIC_ENTRY, apiDir = dirname(entry), r
       else if (ts.isVariableDeclaration(node)) scanType(node.type);
     }
   }
-  const isAnonymous = (symbol) => symbol === undefined || symbol.name === "__type" || symbol.name === "__object" || (symbol.flags & ts.SymbolFlags.TypeLiteral) !== 0;
+  const isAnonymous = (symbol) => symbol === undefined || symbol.name === "__type" || symbol.name === "__object" || (symbol.flags & (ts.SymbolFlags.TypeLiteral | ts.SymbolFlags.Method | ts.SymbolFlags.Function)) !== 0;
   const visitArguments = (type) => { if (type.objectFlags & ts.ObjectFlags.Reference) checker.getTypeArguments(type).forEach(visit); };
   const visitProperty = (property) => {
     const declaration = property.declarations?.[0];
@@ -156,8 +160,6 @@ export function outsideApiTypes(entry = PUBLIC_ENTRY, apiDir = dirname(entry), r
       if (declaration !== undefined && inApi(declaration.getSourceFile().fileName)) visit(checker.getTypeOfSymbolAtLocation(target, declaration));
     }
   }
-  const module2 = checker.getSymbolAtLocation(source);
-  const rootNames = new Set(checker.getExportsOfModule(module2).map((exported) => (exported.flags & ts.SymbolFlags.Alias ? checker.getAliasedSymbol(exported) : exported)));
   for (const symbol of apiTypes) if (!rootNames.has(symbol)) found.add(`${symbol.name} (${relative(repoRoot, symbol.declarations[0].getSourceFile().fileName).split("\\").join("/")}) unexported`);
   return [...found].sort();
 }

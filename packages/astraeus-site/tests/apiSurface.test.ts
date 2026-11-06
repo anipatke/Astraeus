@@ -68,6 +68,32 @@ describe("public surface lock (API-01)", () => {
     expect(typeOffences(outsideApiTypes(), allowlist.entries)).toEqual([]);
   }, 60_000);
 
+  it("lists no allowlist entries now that every reachable type is named at the root (T-275)", () => {
+    expect(allowlist.entries).toEqual([]);
+  });
+
+  it("treats a type the root names as public wherever it is declared, and still fails on a reachable type the root does not name (T-275)", () => {
+    const dir = mkdtempSync(join(tmpdir(), "astraeus-api-named-"));
+    try {
+      mkdirSync(join(dir, "api"));
+      writeFileSync(join(dir, "internal.ts"), "export type Named = string;\nexport interface Unnamed { readonly a: number }\n");
+      writeFileSync(join(dir, "api", "index.ts"), 'import type { Named, Unnamed } from "../internal";\nexport type { Named } from "../internal";\nexport function f(n: Named): Unnamed { return { a: n.length }; }\n');
+      // Planted: `Unnamed` is reachable through f's return type but not exported; `Named` is declared outside api/ and exported at the root.
+      expect(outsideApiTypes(join(dir, "api", "index.ts"), join(dir, "api"), dir)).toEqual(["Unnamed (internal.ts)"]);
+    } finally { rmSync(dir, { recursive: true, force: true }); }
+  }, 60_000);
+
+  it("descends into a type the root names, so an unnamed type behind it fails (T-275)", () => {
+    const dir = mkdtempSync(join(tmpdir(), "astraeus-api-behind-"));
+    try {
+      mkdirSync(join(dir, "api"));
+      writeFileSync(join(dir, "internal.ts"), "export interface Behind { readonly a: number }\nexport interface NamedOutside { readonly b: Behind; sum(x: number): number }\n");
+      writeFileSync(join(dir, "api", "index.ts"), 'export type { NamedOutside } from "../internal";\n');
+      // Planted: `Behind` is a field type of the root-named `NamedOutside` (declared outside api/) and is not named; the method `sum` is a signature, not a type.
+      expect(outsideApiTypes(join(dir, "api", "index.ts"), join(dir, "api"), dir)).toEqual(["Behind (internal.ts)"]);
+    } finally { rmSync(dir, { recursive: true, force: true }); }
+  }, 60_000);
+
   it("fails on a type made reachable from a made-up entry, and on a stale entry", () => {
     const dir = mkdtempSync(join(tmpdir(), "astraeus-api-types-"));
     try {

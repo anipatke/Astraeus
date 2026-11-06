@@ -4,10 +4,12 @@ import type { BodySetLook } from "./bodySet";
 
 /** The display switches a story can place. Each one drives the same state as its Developer-drawer buttons, so the two never disagree. */
 export const DISPLAY_SWITCH_IDS = ["orbitLines", "labels", "milkyWay"] as const;
+/** The name of one display switch: "orbitLines", "labels" or "milkyWay" (a key of `SwitchesInput`). */
 export type DisplaySwitchId = (typeof DISPLAY_SWITCH_IDS)[number];
 
 /** Where a switch shows: a button in the top bar, a row in the story switch panel opened from the bar, or only in the Developer drawer (where every switch stays). */
 export const DISPLAY_SWITCH_PLACES = ["top-bar", "panel", "developer"] as const;
+/** Where a switch shows: "top-bar", "panel" or "developer". */
 export type DisplaySwitchPlace = (typeof DISPLAY_SWITCH_PLACES)[number];
 
 /** One switch's placement, and whether it starts on (absent: the scene's own start, which is on). */

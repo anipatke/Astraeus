@@ -65,6 +65,7 @@ export interface SolarSystemScaleOptions {
   readonly defaultExaggeration: number;
 }
 
+/** The scale policy `solarSystemScale` is: a `ScalePolicy` with a per-body radius exaggeration. */
 export interface SolarSystemScalePolicy extends ScalePolicy {
   readonly id: "solar-system";
   /** The enlargement applied to a body (the default when it has no declared factor). */

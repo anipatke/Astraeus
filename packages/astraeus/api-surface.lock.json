@@ -1260,6 +1260,78 @@
         }
       ]
     },
+    "TrajectoryBase": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "id",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "label",
+          "optional": true,
+          "signature": "string | undefined"
+        },
+        {
+          "name": "color",
+          "optional": true,
+          "signature": "string | undefined"
+        },
+        {
+          "name": "center",
+          "optional": true,
+          "signature": "string | undefined"
+        },
+        {
+          "name": "lineFixedTo",
+          "optional": true,
+          "signature": "string | readonly LineStretchInput[] | undefined"
+        },
+        {
+          "name": "plane",
+          "optional": true,
+          "signature": "\"ecliptic-j2000\" | \"EQJ\" | undefined"
+        },
+        {
+          "name": "labelReach",
+          "optional": true,
+          "signature": "number | undefined"
+        },
+        {
+          "name": "provenance",
+          "optional": true,
+          "signature": "Provenance | undefined"
+        },
+        {
+          "name": "provenanceSpans",
+          "optional": true,
+          "signature": "readonly ActivitySourceInput[] | undefined"
+        },
+        {
+          "name": "description",
+          "optional": true,
+          "signature": "string | undefined"
+        },
+        {
+          "name": "knownLimitations",
+          "optional": true,
+          "signature": "readonly string[] | undefined"
+        },
+        {
+          "name": "anchors",
+          "optional": true,
+          "signature": "readonly AnchorInput[] | undefined"
+        },
+        {
+          "name": "readouts",
+          "optional": true,
+          "signature": "readonly ReadoutInput[] | undefined"
+        }
+      ]
+    },
     "MoonPanelInput": {
       "kind": "interface",
       "signature": "",
@@ -2803,6 +2875,43 @@
         }
       ]
     },
+    "SolarSystemScalePolicy": {
+      "kind": "interface",
+      "signature": "ScalePolicy",
+      "constructors": [],
+      "members": [
+        {
+          "name": "id",
+          "optional": false,
+          "signature": "\"solar-system\""
+        },
+        {
+          "name": "factorFor",
+          "optional": false,
+          "signature": "(bodyId?: BodyId): number"
+        },
+        {
+          "name": "explanation",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "mapPosition",
+          "optional": false,
+          "signature": "(positionKm: ArrayLike<number>): Float64Array"
+        },
+        {
+          "name": "linearUnitsPerKm",
+          "optional": true,
+          "signature": "number | undefined"
+        },
+        {
+          "name": "mapRadius",
+          "optional": false,
+          "signature": "(radiusKm: number, bodyId?: BodyId): number"
+        }
+      ]
+    },
     "State": {
       "kind": "interface",
       "signature": "CenteredPosition",
@@ -2844,6 +2953,55 @@
           "signature": "Float64Array<ArrayBufferLike> | undefined"
         }
       ]
+    },
+    "CenteredPosition": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "body",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "center",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "timeUtcMs",
+          "optional": false,
+          "signature": "number"
+        },
+        {
+          "name": "frame",
+          "optional": false,
+          "signature": "\"EQJ\""
+        },
+        {
+          "name": "positionKm",
+          "optional": false,
+          "signature": "Float64Array<ArrayBufferLike>"
+        },
+        {
+          "name": "velocityKmS",
+          "optional": true,
+          "signature": "Float64Array<ArrayBufferLike> | undefined"
+        }
+      ]
+    },
+    "FrameId": {
+      "kind": "type",
+      "signature": "typeof EQJ",
+      "constructors": [],
+      "members": []
+    },
+    "Quaternion": {
+      "kind": "type",
+      "signature": "readonly [x: number, y: number, z: number, w: number]",
+      "constructors": [],
+      "members": []
     },
     "Provenance": {
       "kind": "interface",
@@ -2963,6 +3121,29 @@
         }
       ]
     },
+    "LocalOnlyDeclaration": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "reason",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "publicReplacement",
+          "optional": false,
+          "signature": "PublicReplacement"
+        }
+      ]
+    },
+    "PublicReplacement": {
+      "kind": "type",
+      "signature": "\"material-colour\" | { readonly url: string; readonly licence: AssetLicence }",
+      "constructors": [],
+      "members": []
+    },
     "APPROXIMATE_LIMIT_FRACTION": {
       "kind": "const",
       "signature": "0.01",
@@ -2992,6 +3173,97 @@
       "signature": "\"approximate\" | \"indicative\"",
       "constructors": [],
       "members": []
+    },
+    "ElementsSource": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "name",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "url",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "solution",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "accessed",
+          "optional": false,
+          "signature": "string"
+        }
+      ]
+    },
+    "ElementsTimeScale": {
+      "kind": "type",
+      "signature": "\"TDB\" | \"TT\" | \"UTC\"",
+      "constructors": [],
+      "members": []
+    },
+    "BodyId": {
+      "kind": "type",
+      "signature": "string",
+      "constructors": [],
+      "members": []
+    },
+    "CenterId": {
+      "kind": "type",
+      "signature": "BodyId",
+      "constructors": [],
+      "members": []
+    },
+    "DisplaySwitchId": {
+      "kind": "type",
+      "signature": "(typeof DISPLAY_SWITCH_IDS)[number]",
+      "constructors": [],
+      "members": []
+    },
+    "DisplaySwitchPlace": {
+      "kind": "type",
+      "signature": "(typeof DISPLAY_SWITCH_PLACES)[number]",
+      "constructors": [],
+      "members": []
+    },
+    "ViewPlace": {
+      "kind": "type",
+      "signature": "(typeof VIEW_PLACES)[number]",
+      "constructors": [],
+      "members": []
+    },
+    "ViewerChangeCause": {
+      "kind": "type",
+      "signature": "\"playback\" | \"visitor\" | \"host\"",
+      "constructors": [],
+      "members": []
+    },
+    "LineStretchInput": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "start",
+          "optional": false,
+          "signature": "TimeInput"
+        },
+        {
+          "name": "end",
+          "optional": false,
+          "signature": "TimeInput"
+        },
+        {
+          "name": "body",
+          "optional": false,
+          "signature": "string"
+        }
+      ]
     }
   },
   "packageExports": {

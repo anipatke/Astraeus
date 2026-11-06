@@ -124,7 +124,8 @@ export interface TrajectorySampleInput {
   readonly velocityKmS?: ArrayLike<number>;
 }
 
-interface TrajectoryBase {
+/** The fields every trajectory shares, whether it is recorded samples or a provider. */
+export interface TrajectoryBase {
   readonly id: string;
   readonly label?: string;
   readonly color?: string;
