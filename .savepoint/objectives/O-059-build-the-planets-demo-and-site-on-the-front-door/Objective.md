@@ -33,6 +33,8 @@ Owner, 2026-11-01: "Yes, in 0.8.0" and "lets do this right, no hurry on the app"
 - Picker: a public setting in the viewer's top bar and phone drawer, not a control the site draws outside the viewer. The site's look stays.
 - Moon dots, the moon family panel and tagged surface places all become public.
 - The nine made-up test scenes are rebuilt on the public way.
+- Follow keeps today's look: `camera.setFollowChoices` stays (O3, owner "Keep today's look").
+- Surface place lists publish in `astraeus-data`, about 840 KB, with a NOTICE line (O1, owner "Publish in astraeus-data").
 
 ## Architectural Considerations
 

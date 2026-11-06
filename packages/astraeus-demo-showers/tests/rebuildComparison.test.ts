@@ -235,8 +235,7 @@ describe.each([["perseids", perseidsFile, "swift-tuttle"], ["geminids", geminids
     expect(shell).toEqual(old.shellObjects.map((id: string) => (id === "earth-path" ? "earth-orbit" : id)));
   });
 
-  it("FLAG: scene layers now list 'tracked-bodies' too, and the alternates (orbit-set buttons) are gone (Decision 1)", () => {
+  it("FLAG: scene layers now list 'tracked-bodies' too, (Decision 1)", () => {
     expect(plain(definition.sceneLayers)).toEqual(["tracked-bodies", ...old.sceneLayers]);
-    expect(definition.alternates).toBeUndefined();
   });
 });

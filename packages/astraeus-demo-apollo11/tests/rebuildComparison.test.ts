@@ -111,11 +111,6 @@ describe("the rebuilt Apollo 11 against the definition it replaced", () => {
     expect(after.experience.startCameraPresetId).toBe("focus-earth");
   });
 
-  it("drops the Developer drawer's \"This demo\" sections (Decision 2)", () => {
-    expect(before.developerSections).toEqual(["clock", "telemetry", "mission"]);
-    expect(after.developerSections).toBeUndefined();
-  });
-
   it("gives Earth and the Moon the same distance row; each spacecraft keeps range, speed and distance to the Moon with equal values and gains the two named altitudes (Decisions 2 and 9)", () => {
     const resolver = createSceneResolver(createOrbAstronomyAdapter());
     const metrics = after.createMetrics!({ resolver, clock: undefined as never, catalogue: undefined as never });

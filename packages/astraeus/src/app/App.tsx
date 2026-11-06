@@ -8,7 +8,7 @@ import type { ViewerPort, ViewerState } from "./viewerPort";
 import { createSolarSystemScale, type ScalePolicy } from "../core/scalePolicy";
 import type { CameraRequest } from "./CameraController";
 import type { DebugReadout } from "./debugReadout";
-import { bodySetsOf, cameraReachOf, catalogueOf, compositionOf, experienceWithGroups, groupsOf, initialObjectIdOf, mountedBodiesOf, pageTitleOf, scaleChoiceIdsOf, sceneCenterOf, sunCentredOf, trackedBodiesOf, visualOverridesOf, type DeveloperSection, type ExperienceDefinition } from "./experienceDefinition";
+import { bodySetsOf, cameraReachOf, catalogueOf, compositionOf, experienceWithGroups, groupsOf, initialObjectIdOf, mountedBodiesOf, pageTitleOf, scaleChoiceIdsOf, sceneCenterOf, sunCentredOf, trackedBodiesOf, visualOverridesOf, type ExperienceDefinition } from "./experienceDefinition";
 import { AstraeusShell, type SelectionOrigin } from "../shell/AstraeusShell";
 import type { ViewChoice } from "../shell/DisplaySwitches";
 import type { ExperienceCameraRequest } from "../shell/experience";
@@ -22,7 +22,7 @@ import { PanelLoadBoundary } from "./PanelLoadBoundary";
 import { BOOT_FADE_LIMITS, bootFadeSeconds, saveBootFadeSeconds, type CoverClaim } from "../shell/bootLoader";
 import { LabelSettings, UnderTheHoodSettings, ViewLinkReadout, MoonsAndRingsSettings, SkyAndSunSettings, StoryPanelSettings } from "./developerPanels";
 import { DEFAULT_ILLUMINATE_ALL } from "./lighting";
-import { HudSection, SettingButtons, SettingColor, SettingGroup, SettingSlider } from "./SettingControls";
+import { SettingButtons, SettingColor, SettingGroup, SettingSlider } from "./SettingControls";
 import { DEFAULT_TIMELINE_GLOW, type TimelineGlowLook } from "../shell/timelineGlow";
 import { DEFAULT_PHONE_LAYOUT, PHONE_LAYOUT_LIMITS, type PhoneLayoutSettings } from "../shell/phoneLayout";
 import type { StoryMarkerSpec } from "./StoryMarkers";
@@ -41,7 +41,7 @@ import { experienceInView, hiddenByView, viewById } from "./viewHiding";
 import type { RingLook } from "../assets/rings";
 import { baseGlowOf, glowLookOf, markerSettingsOf } from "./bodyDraw";
 import { resolveLook } from "./look";
-import { applyLook, lookReadOf, presentationOf, skySettingsOf, type LivePresentation } from "./liveLook";
+import { applyLook, desktopPicturesOf, lookReadOf, presentationOf, skySettingsOf, type LivePresentation } from "./liveLook";
 import type { LookInput } from "../api/look";
 
 /** Frames-per-second readings kept for the graph: one per 250 ms poll, so about 15 seconds. */
@@ -134,7 +134,7 @@ function buildRuntime(definition: ExperienceDefinition, search: string) {
       bodies: mountedBodiesOf(definition),
       composition: compositionOf(definition),
       overrides: visualOverridesOf(definition),
-      desktopTextures: definition.desktopTextures === true,
+      desktopTextures: desktopPicturesOf(definition, look),
       ...(definition.pictures === undefined ? {} : { pictures: definition.pictures }),
       sceneCenter: sceneCenterOf(definition),
       trackedBodies: trackedBodiesOf(definition),
@@ -204,6 +204,7 @@ function initialSceneControls(
     labelObjects: experience.objects,
     viewHidden: hiddenByView(definition.views, viewById(definition.views, startViewId(definition, search)), experience),
     loadFadeSeconds: bootFadeSeconds(runtime.look),
+    desktopPictures: runtime.desktopTextures,
     storyMarkers,
     featureMarkers: featureMarkerSpecs(definition.experience.bodyFeatures),
     featureMinBodyPx: featureMinBodyPxOf(runtime.look),
@@ -233,6 +234,8 @@ export function App({ definition, onOpenAddress, writeTitle = true, address, dev
   // The address text every reader below uses: the page's when the host turned the option on, else empty. Read once per scene, as before.
   const search = useMemo(() => addressSearch(address), [definition, address]); // eslint-disable-line react-hooks/exhaustive-deps
   const runtime = useMemo(() => buildRuntime(definition, search), [definition, search]);
+  // The host link hears the scene's first drawn frame (`onFirstDraw`).
+  const told = useCallback(() => host?.firstDraw(), [host]);
   const experienceRuntime = useMemo(
     () => ({ clock: runtime.clock, resolver: runtime.resolver, catalogue: runtime.catalogue }),
     [runtime],
@@ -506,12 +509,6 @@ export function App({ definition, onOpenAddress, writeTitle = true, address, dev
     shownKey.current = key;
     if (changed) host?.publish(state, "visitor");
   }, [host, stateNow, scale, skyVisible, starBrightness, milkyWayBrightness, milkyWayOn, glowShown, markerPx, loadFade, orbitShown, setLook, hiddenLabels, anchorLabels]);
-  const sections = definition.developerSections ?? [];
-  const renderSection = (section: DeveloperSection) => (
-    <HudSection key={section.id} className={section.id === "clock" ? "hud-section hud-section-clock" : "hud-section"} level={3} heading={section.heading}>
-      {section.render(experienceRuntime)}
-    </HudSection>
-  );
   const hasStoryPanels = (storySet?.panels.length ?? 0) > 0;
   const showDisplay = showsDisplayControls(definition, runtime, skyVisible, orbitPaths.length, storyMarkerSpecs.length);
   // Orbit-line sliders: the first four stay in view, the rest sit in a nested "Fine-tune" fold (T-090).
@@ -537,15 +534,6 @@ export function App({ definition, onOpenAddress, writeTitle = true, address, dev
   );
   // The panel's folds, in order; the first one present opens by default and the rest start closed (T-090).
   const groups: ReadonlyArray<{ readonly id: string; readonly title: string; readonly className?: string; readonly body: ReactNode } | null> = [
-    sections.length === 0 ? null : {
-      id: "demo", title: "This demo", className: "dev-group-cards",
-      body: (
-        <>
-          {sections.filter((section) => section.placement === "before-scene").map(renderSection)}
-          {sections.filter((section) => section.placement === "after-scene").map(renderSection)}
-        </>
-      ),
-    },
     !showDisplay ? null : {
       id: "camera", title: "Camera and view",
       body: (
@@ -655,7 +643,7 @@ export function App({ definition, onOpenAddress, writeTitle = true, address, dev
     {
       id: "under-the-hood", title: "Under the hood",
       body: (
-        <UnderTheHoodSettings hud={hud} frames={frames} fills={fills} fpsHistory={fpsHistory} alternates={showDisplay ? definition.alternates : undefined} />
+        <UnderTheHoodSettings hud={hud} frames={frames} fills={fills} fpsHistory={fpsHistory} />
       ),
     },
   ];
@@ -724,7 +712,7 @@ export function App({ definition, onOpenAddress, writeTitle = true, address, dev
       onOpenFeatureChange={markOpenFeature}
     >
       <div className="canvas-host">
-        <AstraeusScene runtime={runtime} controls={controls.current} readout={readout} scaleId={scale} claimCover={claimCover} />
+        <AstraeusScene runtime={runtime} controls={controls.current} readout={readout} scaleId={scale} claimCover={claimCover} onFirstDraw={host === undefined ? undefined : told} />
       </div>
     </AstraeusShell>
   );

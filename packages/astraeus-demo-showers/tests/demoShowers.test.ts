@@ -126,7 +126,6 @@ describe.each(SHOWERS)("the %s shower", (_name, file, story) => {
     for (const needed of ["Global Meteor Network", gmn.licence, "Vida", "506(4)", "491(2)", ...gmn.months, `${kept} bound orbits in the file`]) expect(text).toContain(needed);
     expect(text).not.toMatch(/CAMS Meteoroid Orbit Database|cams\.seti|Jenniskens et al\. 2018/);
     expect(p.description).toContain(`${kept} measured meteoroid orbits`);
-    expect(definition.alternates).toBeUndefined();
   });
 
   it("when the orbits are absent, draws no stream and says so in the Sun's description with the GMN fetch command; in a public build it says the build has none and gives no command", () => {

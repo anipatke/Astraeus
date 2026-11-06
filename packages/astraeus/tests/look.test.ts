@@ -5,6 +5,7 @@ import { earth } from "../src/api/bodies";
 import { glowLookOf, markerSettingsOf, DEFAULT_BODY_MARKER } from "../src/app/bodyDraw";
 import { featureMinBodyPxOf, DEFAULT_FEATURE_MIN_BODY_PX } from "../src/app/FeatureMarkers";
 import { LOOK_FIELDS, lookName, lookWith, resolveLook, type LookInput } from "../src/app/look";
+import { desktopPicturesOf } from "../src/app/liveLook";
 import { BOOT_FADE_DEFAULT_SECONDS, bootFadeSeconds } from "../src/shell/bootLoader";
 
 const base = { sizePx: 72, brightness: 1, scale: 2.5 };
@@ -21,6 +22,7 @@ const CASES: readonly { readonly key: string; readonly set: number | boolean; re
   { key: "markerSwapRadiusPx", set: 5, param: "markerpx", asked: "9", askedValue: 9, read: (l) => markerSettingsOf(l).minSpherePx, defaultRead: DEFAULT_BODY_MARKER.minSpherePx },
   { key: "featureMinBodyPx", set: 80, param: "featurepx", asked: "120", askedValue: 120, read: featureMinBodyPxOf, defaultRead: DEFAULT_FEATURE_MIN_BODY_PX },
   { key: "loadFadeSeconds", set: 1, param: "loadfade", asked: "2", askedValue: 2, read: bootFadeSeconds, defaultRead: BOOT_FADE_DEFAULT_SECONDS },
+  { key: "desktopPictures", set: true, param: "desktop", asked: "off", askedValue: false, read: (l) => desktopPicturesOf({}, l), defaultRead: false },
 ];
 
 describe("looks are public settings", () => {

@@ -6,7 +6,7 @@ import { TimeScaleOutOfRangeError } from "../core/timeScale";
 import { catalogue as builtInCatalogue } from "../assets/catalogue";
 import { createComposition } from "../assets/compositions";
 import { mergePictures } from "../assets/pictures";
-import { bodyMetrics } from "../app/bodyMetrics";
+import { bodyMetrics, type BodyMetricKind } from "../app/bodyMetrics";
 import type { ExperienceDefinition, GroupLayer, PathLayer } from "../app/experienceDefinition";
 import type { LookInput } from "./look";
 import { needsPlanetSeries } from "../app/planetNeeds";
@@ -35,6 +35,7 @@ export interface ScenePlanners {
   readonly scale: ScalePolicy;
   readonly scaleOnly: boolean;
   readonly look: LookInput | undefined;
+  readonly bodyReadouts: readonly BodyMetricKind[];
 }
 
 /** The `out-of-span` error naming the planets when the scene's window reaches outside the years the planet series cover (the series are loaded); undefined otherwise. */
@@ -116,6 +117,7 @@ export function assembleScene(parts: ScenePlanners, data: readonly DataSource[])
   const layers: GroupLayer[] = deferredRead<GroupLayer[]>(ids, window, fault, [], () => [...groupPlan.layers(ids, window, startUtcMs, (plan) => !late(plan))]);
   const labelled = [...plan.bodies.values(), ...tracked, ...[...groupPlan.groups.values()]].map(({ id, label }) => ({ id, label }));
   const catalogue = plan.catalogue;
+  if (camera.following && camera.target !== undefined && camera.followChoices !== undefined && !camera.followChoices.includes(camera.target)) throw new SceneError("bad-camera", `camera.follow("${camera.target}"): the opening view follows "${camera.target}", which camera.setFollowChoices does not list`);
   story.checkObjects(new Set(labelled.map(({ id }) => id)));
   const definition: ExperienceDefinition = {
     experience: {
@@ -123,7 +125,7 @@ export function assembleScene(parts: ScenePlanners, data: readonly DataSource[])
         ...[...plan.bodies.values()].map((body) => plan.bodyObject(body, ids, sunCentred, camera)),
         ...[...trackedMap.values()].map(({ body, description, knownLimitations, provenanceSpans }): ExperienceObject => ({ id: body.id, label: body.label, color: body.color, availability: body.trajectory.bounds, labelPriority: 80, ...plan.labelReach(body.id, sunCentred, camera), provenance: body.provenance, ...(provenanceSpans === undefined ? {} : { provenanceSpans }), ...(description === undefined ? {} : { description }), ...(knownLimitations === undefined ? {} : { knownLimitations }) })),
       ],
-      cameraPresets: cameraPresetsOf(labelled),
+      cameraPresets: cameraPresetsOf(labelled, camera.followChoices),
       ...startPresetEntry(camera),
       events: story.events,
       ...story.provenanceEntries(),
@@ -150,7 +152,7 @@ export function assembleScene(parts: ScenePlanners, data: readonly DataSource[])
     ...startViewEntry(camera),
     trackedBodies: tracked,
     createMetrics: ({ resolver }) => {
-      const catalogued = bodyMetrics(resolver, ids, ["distance"], catalogue);
+      const catalogued = bodyMetrics(resolver, ids, parts.bodyReadouts, catalogue);
       const bodyReadouts = [...plan.readouts].map(([id, specs]) => ({ id, label: plan.bodies.get(id)!.label, center: ids[0]!, readouts: specs }));
       const readouts = createReadoutMetrics([...trackedMap.values()].map(({ body, readouts: specs }) => ({ body, readouts: specs })), resolver, undefined, bodyReadouts);
       return (objectId: string, timeUtcMs: number): readonly Metric[] => (groupPlan.groups.has(objectId) ? groupPlan.metrics(objectId, timeUtcMs) : trackedMap.has(objectId) || plan.readouts.has(objectId) ? readouts(objectId, timeUtcMs) : catalogued(objectId, timeUtcMs));

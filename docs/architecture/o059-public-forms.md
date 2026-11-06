@@ -234,7 +234,7 @@ readonly onPick?: (change: PickChange) => void;
 | `bodySet?: BodySetLookInput` | `LookInput`, `LookRead` | `DEFAULT_BODY_SET_LOOK` | T-267. API-06: the dot looks are Developer-drawer-only today. Live through `handle.setLook` |
 | `texture?: TextureRef` | `SceneBodyRead` | absent | A body's own picture and licence, for credits; replaces the site tests' `catalogue` reads |
 | `facts`, `listed` | `SceneBodyRead` | | So tests read what `addBody` set, not `toDefinition` |
-| `onFirstFrame(listener): () => void` | `ViewerHandle` | | Built here, used by T-272 for the cover. Calls once when a scene's first frame is drawn. `ready` is not this: it resolves when the clock attaches. React: `onFirstFrame` prop, called again after a rebuild |
+| `onFirstDraw(listener): () => void` | `ViewerHandle` | | Built here, used by T-272 for the cover. Calls once when a scene's first frame is drawn. `ready` is not this: it resolves when the clock attaches. React: `onFirstDraw` prop, called again after a rebuild |
 
 ```ts
 interface BodySetLookInput {
@@ -341,7 +341,7 @@ Rows are referred to from Appendix A.
 | S24 | `astraeus/app/style.css` | **Public, already**: `astraeus/style.css` |
 | S25 | The nine made-up scenes | Section 6 |
 | S26 | Page heading (`label`, `pageTitleOf`) | **Moved**: `document.title` in the site; each `*_LABEL` already sits with its demo |
-| S27 | Loading cover (`claimCover`) | **Public, new**: `onFirstFrame`, with the site fading its own cover by `handle.look.loadFadeSeconds`. `hideBootLoader` moves into `bootCover.ts`; the engine keeps only the saved fade value. `App` loses `claimCover`. Keep I-074: a superseded mount must not hide a newer cover, which `claim()` already gives |
+| S27 | Loading cover (`claimCover`) | **Public, new**: `onFirstDraw`, with the site fading its own cover by `handle.look.loadFadeSeconds`. `hideBootLoader` moves into `bootCover.ts`; the engine keeps only the saved fade value. `App` loses `claimCover`. Keep I-074: a superseded mount must not hide a newer cover, which `claim()` already gives |
 | S28 | In-page address changes (`onOpenAddress`, `switcher`) | **Public, new**: `setPicker`, `onPick`; **Moved**: `switchAddress` into the site |
 | S29 | `window.astraeusHost` for the views check (`createViewsHost`, `ViewerLink`) | **Public, already**: the site assigns the mount handle |
 
@@ -430,7 +430,7 @@ Each of these would have been a visible change if T-270 used today's public defa
 ## 9. Reading the rules
 
 - **API-01.** All types in sections 2 and 3 are in `src/api/`. Reused public types: `BodyRef`, `BodyId`, `TimeInput`, `Provenance`, `CameraPose`, `TextureRef`. `BodyId` is a plain alias of `string`, used the same way by `ReadoutInput` today, so it exposes nothing.
-- **API-02.** All viewer reads and calls go through `viewerHandleOf`, and the two new signals are props on `AstraeusScene`. `Scene` methods apply to both paths by construction. The shared lifecycle suite covers `onPick`, `onFirstFrame`, `pick` and `setPick`.
+- **API-02.** All viewer reads and calls go through `viewerHandleOf`, and the two new signals are props on `AstraeusScene`. `Scene` methods apply to both paths by construction. The shared lifecycle suite covers `onPick`, `onFirstDraw`, `pick` and `setPick`.
 - **API-03.** The picker and first-frame signal are per `ViewerLink`. `SwitchControl` keeps no module state.
 - **API-04.** Numbers carry units (`radiusKm`, `latitudeDeg`, `longitudeDeg`, `semiMajorAxisKm`, `lapDays`, `orbitHistoryMs`, `farEarthRadii`, `dotSizePx`, `nearPx`) or are on the `unitless` list (`eccentricity`, `labelPriority`, `distance`, `brightness`, `opacity`, `scale`, `count`). Only `center` is used; `moonPositions.centre` is existing and is O-057's. `listDate` and `time` are `TimeInput`. No `start`/`end` pair. No input typed `unknown`; `addStoryPanels` already takes the file.
 - **API-05.** New throws are `SceneError`. `MoonPanelInput.listDate` goes through `toUtcMs`.

@@ -6,6 +6,7 @@ import { ViewerLooks } from "./viewerLooks";
 import { ViewerCamera } from "./viewerCamera";
 import { ViewerClock } from "./viewerClock";
 import { ViewerSelection, type SelectionChange } from "./viewerSelection";
+import { ViewerFirstDraw } from "./viewerFirstDraw";
 import { ViewerViews } from "./viewerViews";
 import { ViewerZones } from "./viewerZones";
 import type { TimeInput } from "./time";
@@ -101,6 +102,7 @@ export class ViewerLink implements ViewerPort {
   readonly #zones = new ViewerZones(this.#access);
   readonly #selection = new ViewerSelection(this.#access);
   readonly #looks = new ViewerLooks(this.#access);
+  readonly #frame = new ViewerFirstDraw();
   #wait = newWait();
   /** What last moved the clock or the view, as published; a selection dropped by time or the view names it. */
   #mover: ViewerChangeCause = "playback";
@@ -123,6 +125,7 @@ export class ViewerLink implements ViewerPort {
     this.#selection.reset(undefined);
     this.#mover = "playback";
     this.#camera.reset();
+    this.#frame.reset();
     if (this.#wait.done && !this.#closed) this.#wait = newWait();
   }
 
@@ -142,6 +145,7 @@ export class ViewerLink implements ViewerPort {
     this.#zones.clearListeners();
     this.#selection.clearListeners();
     this.#camera.clearListeners();
+    this.#frame.clearListeners();
   }
 
   /**
@@ -175,6 +179,8 @@ export class ViewerLink implements ViewerPort {
   onChange(listener: (change: ViewerChange) => void): () => void { return this.#clock.onChange(listener); }
   onEventZone(listener: (change: EventZoneChange) => void): () => void { return this.#zones.onEventZone(listener); }
 
+  onFirstDraw(listener: () => void): () => void { return this.#frame.onFirstDraw(listener); }
+  firstDraw(): void { this.#frame.publish(); }
   onSelect(listener: (change: SelectionChange) => void): () => void { return this.#selection.onSelect(listener); }
   onCameraChange(listener: (camera: CameraPose) => void): () => void { return this.#camera.onCameraChange(listener); }
 

@@ -26,6 +26,8 @@ export interface LookInput {
   readonly featureMinBodyPx?: number;
   /** How long the host's loading cover fades out at the first drawn frame, in seconds, 0 to 3. Default 0.6 (a value saved from the Developer drawer stands in its place). */
   readonly loadFadeSeconds?: number;
+  /** Whether bodies with a larger desktop picture use it on a wide screen (default false: the phone-sized picture everywhere). Read when the viewer is built: a later `setLook` neither swaps pictures nor changes what `look` reads. */
+  readonly desktopPictures?: boolean;
 }
 
 /** The looks a running viewer shows, every one filled in (`ViewerHandle.look`): the scene's `setLook`, the page address and the Developer drawer laid over the defaults. `sunGlow` is absent in a scene without the Sun. */
@@ -38,4 +40,6 @@ export interface LookRead {
   readonly markerSwapRadiusPx: number;
   readonly featureMinBodyPx: number;
   readonly loadFadeSeconds: number;
+  /** Whether wide screens use the larger desktop pictures: the value the viewer was built with (the scene's look, or the page address); `setLook` does not change it. */
+  readonly desktopPictures: boolean;
 }

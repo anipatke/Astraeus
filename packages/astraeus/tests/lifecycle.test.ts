@@ -137,7 +137,7 @@ const CALLS: Record<string, (handle: ViewerHandle) => void> = {
   setSwitch: (handle) => handle.setSwitch("labels", false),
 };
 /** Listener registration is allowed at any time (the scene's own `onChange` is registered before `ready`); what is promised is that nothing is called after unmount. */
-const LISTENERS = ["onChange", "onEventZone", "onSelect", "onCameraChange"] as const;
+const LISTENERS = ["onChange", "onEventZone", "onSelect", "onCameraChange", "onFirstDraw"] as const;
 const codeOf = (run: () => void): string | undefined => { try { run(); } catch (error) { return errorCode(error); } return undefined; };
 const expectUnusable = (handle: ViewerHandle): void => {
   for (const read of READS) expect(handle[read], read).toBeUndefined();
@@ -417,7 +417,7 @@ describe("a mounted scene is frozen", () => {
     const sceneMethods = mutators(Scene.prototype);
     const cameraMethods = mutators(SceneCamera.prototype);
     expect(sceneMethods.length).toBeGreaterThanOrEqual(12);
-    expect(cameraMethods.sort()).toEqual(["fitOrbit", "follow", "lookAt", "setReach"]);
+    expect(cameraMethods.sort()).toEqual(["fitOrbit", "follow", "lookAt", "setFollowChoices", "setReach", "setStartView"]);
     const element = document.createElement("div");
     document.body.append(element);
     const viewer = mount(element, scene);

@@ -33,6 +33,8 @@ export interface AstraeusSceneProps {
   readonly onChange?: (change: ViewerChange) => void;
   /** Called when playback enters or leaves the zone of an event the showing view has (its `withinSeconds`, or a pacing rule): `{ event, type?, object?, entered, time, cause }` (see `MountedScene.onEventZone`). A zone already active when the viewer opens reports `entered` once, just after `onReady`. */
   readonly onEventZone?: (change: EventZoneChange) => void;
+  /** Called once when the scene's first frame has been drawn (`MountedScene.onFirstDraw`), and again after each rebuild with a new `scene`. */
+  readonly onFirstDraw?: () => void;
   /** Whether the viewer reads the page address and offers a copy-link button that writes it (default false: the address stays the host page's own). Read when the viewer is built. See the README's "Page address" section. */
   readonly address?: boolean;
   /** Whether the viewer shows the Developer toggle and drawer (default false: no cog, and the drawer's code is never fetched). Read when the viewer is built. "Copy view link" lives in the drawer, so `address` without this has no copy button; a switch placed `"developer"` shows only when this is on. */
@@ -57,11 +59,11 @@ const cameraValueKey = (camera: CameraTarget): string => JSON.stringify(Object.e
  *   return <div style={{ height: "100vh" }}><AstraeusScene scene={scene} onError={console.error} /></div>;
  * }
  */
-export function AstraeusScene({ ref, scene, data, onReady, onError, time, rate, view, camera, onChange, onEventZone, address, developerTools, className, style }: AstraeusSceneProps): ReactElement {
+export function AstraeusScene({ ref, scene, data, onReady, onError, time, rate, view, camera, onChange, onEventZone, onFirstDraw, address, developerTools, className, style }: AstraeusSceneProps): ReactElement {
   const [definition, setDefinition] = useState<ExperienceDefinition | undefined>();
   // The latest data and callbacks, read when the scene is built, so a new array or arrow function each render does not rebuild it.
-  const latest = useRef({ data, onReady, onError, onChange, onEventZone });
-  latest.current = { data, onReady, onError, onChange, onEventZone };
+  const latest = useRef({ data, onReady, onError, onChange, onEventZone, onFirstDraw });
+  latest.current = { data, onReady, onError, onChange, onEventZone, onFirstDraw };
   const [link] = useState(() => new ViewerLink());
   const [handle] = useState(() => viewerHandleOf(link));
   useImperativeHandle(ref, () => handle, [handle]);
@@ -69,7 +71,8 @@ export function AstraeusScene({ ref, scene, data, onReady, onError, time, rate, 
     link.reopen(); // StrictMode replays this effect after its cleanup closed the link: only a real unmount leaves it closed
     const stop = link.onChange((change) => latest.current.onChange?.(change));
     const stopZones = link.onEventZone((change) => latest.current.onEventZone?.(change));
-    return () => { stop(); stopZones(); link.close(); };
+    const stopFrame = link.onFirstDraw(() => latest.current.onFirstDraw?.());
+    return () => { stop(); stopZones(); stopFrame(); link.close(); };
   }, [link]);
   // A Date made fresh each render must not seek again, so the moment is compared by value.
   const timeKey = time instanceof Date ? time.getTime() : time;

@@ -41,6 +41,8 @@ export interface FrameState {
   started: boolean;
   /** The host's loading cover as this scene claimed it when it mounted (absent: the host has none); its first frame hides only that one (I-074). */
   readonly cover: (() => HTMLElement | null) | null;
+  /** Told once, after the scene's first frame is drawn (the host link's `onFirstDraw`); absent when nobody listens. */
+  readonly onFirstDraw: (() => void) | undefined;
   /** The composition's span of the previous frame, in scaled units. */
   spanScaled: number;
   lastPolicyId: ScalePolicy["id"];
@@ -72,9 +74,9 @@ export interface DrawnMemo {
   quietFrames: number;
 }
 
-export function createFrameState(policyId: ScalePolicy["id"], claimCover?: CoverClaim): FrameState {
+export function createFrameState(policyId: ScalePolicy["id"], claimCover?: CoverClaim, onFirstDraw?: () => void): FrameState {
   return {
-    started: false, cover: claimCover?.() ?? null, spanScaled: 6, lastPolicyId: policyId, lastUp: null, pickables: [], hoverPoint: null,
+    started: false, cover: claimCover?.() ?? null, onFirstDraw, spanScaled: 6, lastPolicyId: policyId, lastUp: null, pickables: [], hoverPoint: null,
     drawThisFrame: true, framesDrawn: 0, wakes: 0,
     drawn: { timeUtcMs: Number.NaN, pose: [], size: "", controls: new Map(), wakes: 0, mounted: -1, quietFrames: 0 },
   };
@@ -199,6 +201,7 @@ export function stepAndPoseCamera(ctx: FrameContext, t: number, placed: PlacedSc
   placeBodies(ctx.assets, placed.composed.states, ctx.bodyRefs, policy, ctx.origin);
   poseCamera(camera, orbit, focusRadius(focusBody, policy, catalogue), ctx.origin, reach.far ?? DEFAULT_CAMERA_FAR, viewUp);
   if (firstFrame && state.cover !== null) { const cover = state.cover; requestAnimationFrame(() => hideBootLoader(cover, controls.loadFadeSeconds)); }
+  if (firstFrame && state.onFirstDraw !== undefined) { const told = state.onFirstDraw; requestAnimationFrame(told); }
   controls.viewReadout = viewFromAngles(orbit.focus, orbit.azimuth, orbit.elevation, orbit.distance);
   return { targets };
 }

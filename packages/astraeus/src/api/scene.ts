@@ -46,8 +46,9 @@ export interface AddBodyOptions {
   /**
    * Draws the body's orbit as a line: the Moon's about Earth and Io's about Jupiter, or, in a scene that holds the Sun, one full turn round the Sun of any body that
    * circles it (the planets, Earth's year, a body added with `addBodyFromElements`), from the scene's opening time (an own body from its periapsis). Others throw `no-orbit`.
+   * An object `{ lapDays, fades? }` draws any moon's line from a lap time you state (`OrbitLapInput`), whether or not its record has a period. Default: no line.
    */
-  readonly orbit?: boolean;
+  readonly orbit?: boolean | OrbitLapInput;
   /** Draws the body this many times larger than life so a planet can be seen; a number of at least 1 (distances stay true). In a scene centred on the Sun the viewer offers its \"solar-system\" scale (true distances, the named bodies enlarged) as the second scale choice in place of the readable scale. A bad value throws `bad-body`. */
   readonly enlarge?: number;
   /** False starts the body's label off (the body stays in the menu and selectable; the viewer's labels switch can turn it on). Default true. */
@@ -62,7 +63,33 @@ export interface AddBodyOptions {
   readonly knownLimitations?: readonly string[];
   /** Bars for the body's info card, in order: the same list a path takes (`addTrajectory`'s `readouts`), measured from the scene's centre body. They replace the catalogue's own distance rows. A bad readout throws `bad-readout`; a named body must be in the scene. */
   readonly readouts?: readonly ReadoutInput[];
+  /** False leaves the body out of the viewer's object menu (default true). It stays drawn and selectable, and the menu shows it while it is the selected one. A non-boolean throws `bad-body`. */
+  readonly listed?: boolean;
+  /** Labelled facts for the body's info card, in order, such as `{ label: "Discovered", value: "1610" }`; both texts non-empty, else `bad-body`. None by default. */
+  readonly facts?: readonly CardFactInput[];
+  /** Sources added to the card's provenance after the body's own (the catalogue's), each a non-empty text, else `bad-body`. Also read by `Scene.provenanceOf`. None by default. */
+  readonly sources?: readonly string[];
+  /** Which label wins when labels overlap: the higher number shows. A finite number, else `bad-body`. Default `100 - index`, so bodies added earlier win. */
+  readonly labelPriority?: number;
 }
+
+/** One labelled fact on a body's info card (`AddBodyOptions.facts`). */
+export interface CardFactInput {
+  readonly label: string;
+  readonly value: string;
+}
+
+/**
+ * The orbit line of a moon from a lap time you give, for a moon whose catalogue record has no period (or to override it): one lap of `lapDays` days about its parent, which must be in the scene.
+ * `fades` true fades the line's far end; false closes the loop; absent follows the moon's own rule (the Moon's line fades, others close). A bad lap or a body that circles the Sun throws `bad-body`.
+ */
+export interface OrbitLapInput {
+  readonly lapDays: number;
+  readonly fades?: boolean;
+}
+
+/** The rows a body's info card can show, in the order given to `Scene.setBodyReadouts`. */
+export type BodyReadoutKind = "distance" | "phase" | "coordinates";
 
 /** A source anchor on a path: a point the data was published at, drawn as a dot and labelled with its id. Its time must fall within the path. */
 export interface AnchorInput {
@@ -147,6 +174,9 @@ export interface SceneLoadOptions {
   readonly data?: readonly DataSource[];
 }
 
+const DEFAULT_BODY_READOUTS: readonly BodyReadoutKind[] = Object.freeze(["distance"]);
+const BODY_READOUT_KINDS: readonly BodyReadoutKind[] = ["distance", "phase", "coordinates"];
+
 const SCALES: readonly ScalePolicy[] = [trueScale, readableScale, solarSystemScale];
 
 /**
@@ -173,6 +203,7 @@ export class Scene {
   #scale: ScalePolicy = trueScale;
   #scaleOnly = false;
   #look: LookInput | undefined;
+  #bodyReadouts: readonly BodyReadoutKind[] = DEFAULT_BODY_READOUTS;
 
   constructor() {
     this.camera = new SceneCamera((id) => this.#taken(id), (id) => this.#plan.bodies.has(id) && circlesTheSun(this.#plan.catalogue, id), () => this.#editable());
@@ -321,6 +352,19 @@ export class Scene {
     return this;
   }
 
+  /**
+   * Chooses the rows a body's info card shows (a body whose `addBody` gave its own `readouts` keeps those): `"distance"` (to the parent and the Sun), `"phase"` (the lit share of its disc, for a body with a parent)
+   * and `"coordinates"`, in the order given. Replaces the earlier choice. Default `["distance"]`. An unknown kind, or a list that is not an array, throws `bad-readout`.
+   * @example
+   * scene.setBodyReadouts(["distance", "phase", "coordinates"]);
+   */
+  setBodyReadouts(kinds: readonly BodyReadoutKind[]): this {
+    this.#editable();
+    if (!Array.isArray(kinds) || kinds.some((kind) => !BODY_READOUT_KINDS.includes(kind))) throw new SceneError("bad-readout", `setBodyReadouts: give a list of ${BODY_READOUT_KINDS.map((kind) => `"${kind}"`).join(", ")}, got ${JSON.stringify(kinds)}`);
+    this.#bodyReadouts = Object.freeze([...kinds]);
+    return this;
+  }
+
   /** Adds timed events to the timeline, each with an id, a label and a moment; `provenance` says where the times come from and is shown with every event that has none of its own (`EventInput.provenance`). May be called more than once. Malformed provenance throws "bad-event". */
   addEvents(events: readonly EventInput[], options: AddEventsOptions = {}): this {
     this.#editable();
@@ -403,7 +447,7 @@ export class Scene {
     const entry = this.#tracked.get(id);
     if (entry !== undefined) return entry.body.provenance!; // addTrajectory always sets one
     if (!this.#plan.bodies.has(id)) throw new SceneError("unknown-body", `provenanceOf("${id}"): no body or trajectory with that id has been added to the scene`);
-    return this.#plan.catalogue.get(id).definition.accuracy.position;
+    return this.#plan.provenanceOf(id);
   }
 
   /** A catalogued body's state source, the one the viewer draws from, made once per scene; none for the root (the Sun). */
@@ -449,6 +493,6 @@ export class Scene {
 
   /** The app's plug-in contract for this scene (`assembleScene.ts`). Throws if the scene is empty or a body needs a data package not passed in `data`. */
   toDefinition(data: readonly DataSource[] = []): ExperienceDefinition {
-    return assembleScene({ plan: this.#plan, tracked: this.#tracked, groupPlan: this.#groupPlan, story: this.#story, timeline: this.#timeline, viewPlan: this.#viewPlan, camera: this.camera, scale: this.#scale, scaleOnly: this.#scaleOnly, look: this.#look }, data);
+    return assembleScene({ plan: this.#plan, tracked: this.#tracked, groupPlan: this.#groupPlan, story: this.#story, timeline: this.#timeline, viewPlan: this.#viewPlan, camera: this.camera, scale: this.#scale, scaleOnly: this.#scaleOnly, look: this.#look, bodyReadouts: this.#bodyReadouts }, data);
   }
 }

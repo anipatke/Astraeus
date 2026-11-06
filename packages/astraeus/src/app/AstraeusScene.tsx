@@ -150,6 +150,8 @@ export interface SceneControls {
   viewReadout?: StartView;
   /** How long the loading cover fades when the first frame is drawn (the address's `loadfade` when the address is on, else the saved setting). */
   loadFadeSeconds?: number;
+  /** Whether wide screens draw the larger desktop pictures: set when the viewer is built, read back by `look`. */
+  desktopPictures: boolean;
 }
 
 export type SceneReadout = DebugReadout;
@@ -162,6 +164,8 @@ interface Props {
   readonly scaleId: ScalePolicy["id"];
   /** The host's loading cover, claimed once when the scene mounts; absent when the host has none (the engine never looks one up on the page). */
   readonly claimCover?: CoverClaim;
+  /** Told once when the scene's first frame has been drawn (the host's `onFirstDraw`). */
+  readonly onFirstDraw?: () => void;
 }
 
 export function AstraeusScene(props: Props) {
@@ -170,7 +174,7 @@ export function AstraeusScene(props: Props) {
   const layers = useMemo(() => assignBodyLayers(runtime.bodies, TRACK_LAYER, catalogue), [runtime.bodies, catalogue]);
   const lightLayers = useMemo(() => runtime.bodies.filter((id) => catalogue.get(id).visual.light !== undefined).map((id) => layers.get(id)!), [runtime.bodies, layers, catalogue]);
   // One frame state for the whole canvas: the scene contents decide whether a frame is drawn and the layered render obeys.
-  const frameState = useRef<FrameState>(createFrameState(props.controls.policy.id, props.claimCover));
+  const frameState = useRef<FrameState>(createFrameState(props.controls.policy.id, props.claimCover, props.onFirstDraw));
   return (
     <Canvas
       camera={{ fov: 45, near: 0.05, far: runtime.cameraReach.far ?? DEFAULT_CAMERA_FAR }}

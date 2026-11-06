@@ -13,7 +13,8 @@ import { readyMade, type BodyRef } from "./bodies";
 import type { DataSource } from "./data";
 import { SceneError } from "./errors";
 import { checkLabelReach } from "./planPaths";
-import type { AddBodyOptions, ReadoutInput } from "./scene";
+import type { AddBodyOptions, CardFactInput, OrbitLapInput, ReadoutInput } from "./scene";
+import { createProvenance, type Provenance } from "../core/provenance";
 import { readoutsOf } from "./planPaths";
 import { frozenList, type SceneBodyRead } from "./sceneReads";
 
@@ -24,11 +25,35 @@ type Shape = Pick<AddBodyOptions, "enlarge" | "showLabel">;
  * The orbit line of a catalogued moon, by one rule: one lap of the period its catalogue definition carries (`orbitPeriodDays`, read once from the record or mean
  * elements), drawn about its parent. Undefined where the definition gives no period. A moon closes its loop (Io's look) unless its definition says its line fades (the Moon's, as before).
  */
-function moonOrbitPath(catalogue: BodyCatalogue, id: BodyId): Omit<CompositionPath, "body"> | undefined {
+function moonOrbitPath(catalogue: BodyCatalogue, id: BodyId, lap?: OrbitLapInput): Omit<CompositionPath, "body"> | undefined {
   if (!catalogue.has(id)) return undefined;
   const { orbitPeriodDays, orbitLineFades, parentId } = catalogue.get(id).definition;
-  if (orbitPeriodDays === undefined || parentId === undefined) return undefined;
-  return { spanMs: orbitPeriodDays * 86_400_000, ...(orbitLineFades === true ? {} : { look: { endFadeOn: false } }) };
+  const days = lap?.lapDays ?? orbitPeriodDays;
+  if (days === undefined || parentId === undefined) return undefined;
+  return { spanMs: days * 86_400_000, ...((lap?.fades ?? orbitLineFades) === true ? {} : { look: { endFadeOn: false } }) };
+}
+
+/** Whether `orbit` is the lap form `{ lapDays, fades? }`. */
+const isLap = (orbit: AddBodyOptions["orbit"]): orbit is OrbitLapInput => typeof orbit === "object" && orbit !== null;
+
+/** Checks the card facts, extra sources, label priority, menu flag and lap form given to `addBody`. */
+function checkBodyCard(id: string, options: AddBodyOptions): void {
+  const bad = (message: string) => new SceneError("bad-body", `addBody("${id}"): ${message}`);
+  if (options.listed !== undefined && typeof options.listed !== "boolean") throw bad("listed must be true or false");
+  const { facts, sources, labelPriority, orbit } = options;
+  if (facts !== undefined && !(Array.isArray(facts) && facts.every((fact: CardFactInput) => typeof fact?.label === "string" && fact.label !== "" && typeof fact.value === "string" && fact.value !== ""))) throw bad("facts must be a list of { label, value } with both texts non-empty");
+  if (sources !== undefined && !(Array.isArray(sources) && sources.every((source) => typeof source === "string" && source !== ""))) throw bad("sources must be a list of non-empty texts");
+  if (labelPriority !== undefined && !(typeof labelPriority === "number" && Number.isFinite(labelPriority))) throw bad(`labelPriority ${String(labelPriority)} must be a finite number`);
+  checkOrbitOption(bad, orbit);
+}
+
+/** Checks the `orbit` option: true, false or the lap form. */
+function checkOrbitOption(bad: (message: string) => SceneError, orbit: AddBodyOptions["orbit"]): void {
+  if (orbit !== undefined && typeof orbit !== "boolean" && !isLap(orbit)) throw bad("orbit must be true, false or { lapDays, fades? }");
+  if (isLap(orbit)) {
+    if (!(typeof orbit.lapDays === "number" && Number.isFinite(orbit.lapDays) && orbit.lapDays > 0)) throw bad(`orbit.lapDays ${String(orbit.lapDays)} must be a positive finite number of days`);
+    if (orbit.fades !== undefined && typeof orbit.fades !== "boolean") throw bad("orbit.fades must be true or false");
+  }
 }
 
 /** The enlargements the scene asked for, as the engine's per-body overrides. */
@@ -58,6 +83,9 @@ function checkBodyLook(id: string, options: AddBodyOptions): void {
   if (limits !== undefined && !(Array.isArray(limits) && limits.every((line) => typeof line === "string" && line !== ""))) throw new SceneError("bad-body", `addBody("${id}"): knownLimitations must be a list of non-empty texts`);
 }
 
+/** A provenance with more sources after its own. */
+const withSources = (provenance: Provenance, sources: readonly string[]): Provenance => createProvenance({ ...provenance, sources: [...provenance.sources, ...sources] });
+
 /** The camera facts the label rule reads. */
 export interface LabelCamera {
   readonly fitted: string | undefined;
@@ -73,6 +101,8 @@ export class BodyPlan {
   readonly shape = new Map<BodyId, Shape>();
   readonly notes = new Map<BodyId, string>();
   readonly readouts = new Map<BodyId, readonly ReadoutInput[]>();
+  readonly laps = new Map<BodyId, OrbitLapInput>();
+  readonly cards = new Map<BodyId, Pick<AddBodyOptions, "listed" | "facts" | "sources" | "labelPriority">>();
   readonly looks = new Map<BodyId, Pick<AddBodyOptions, "color" | "knownLimitations">>();
   catalogue: BodyCatalogue = builtInCatalogue;
   readonly #taken: (id: string) => boolean;
@@ -119,19 +149,47 @@ export class BodyPlan {
     if (moon !== undefined && this.catalogue.has(moon.definition.parentId!)) this.catalogue = extendCatalogueWithMoons(this.catalogue, [moon]);
   }
 
-  #register(call: string, id: BodyId, ref: BodyRef, options: AddBodyOptions): void {
+  /** Refuses an `orbit` the engine cannot draw: `true` needs a period about a parent or a Sun orbit; the lap form needs a parent that is not the Sun. */
+  #checkOrbit(call: string, id: BodyId, options: AddBodyOptions): void {
     if (options.orbit === true && moonOrbitPath(this.catalogue, id) === undefined && !(circlesTheSun(this.catalogue, id))) throw new SceneError("no-orbit", `${call}("${id}", { orbit: true }): the engine draws the orbit line of any catalogued moon whose data give a period about its planet and of any body that circles the Sun (every planet: its own source over a full turn where the source covers one, else the two-body ellipse osculating at the opening time)`);
-    if (!this.catalogue.has(id)) throw new SceneError("unknown-body", `${call}("${id}"): not a catalogued body (known: ${builtInCatalogue.ids().join(", ")}; any moon in the moon lists is added by its id, and \`listedMoons(planet)\` names them with the data package each needs)`);
-    if (this.#taken(id)) throw new SceneError("duplicate-id", `${call}("${id}"): already in the scene`);
-    checkBodyLook(id, options);
+    const lap = isLap(options.orbit) ? options.orbit : undefined;
+    if (lap !== undefined && this.catalogue.has(id) && (this.catalogue.get(id).definition.parentId === undefined || circlesTheSun(this.catalogue, id))) throw new SceneError("no-orbit", `${call}("${id}", { orbit: { lapDays } }): the lap form draws a moon's line about its parent; "${id}" has no parent in the catalogue or circles the Sun (use orbit: true)`);
+  }
+
+  /** Keeps what `addBody` asked for, option by option. */
+  #remember(call: string, id: BodyId, options: AddBodyOptions): void {
     if (options.readouts !== undefined) this.readouts.set(id, readoutsOf(id, options.readouts, call));
     if (options.labelReach !== undefined) this.labelReaches.set(id, options.labelReach);
-    if (options.orbit === true) this.orbits.add(id);
+    const lap = isLap(options.orbit) ? options.orbit : undefined;
+    if (options.orbit === true || lap !== undefined) this.orbits.add(id);
+    if (lap !== undefined) this.laps.set(id, { lapDays: lap.lapDays, ...(lap.fades === undefined ? {} : { fades: lap.fades }) });
+    this.#rememberCard(id, options);
+  }
+
+  /** Keeps the card, look, shape and words of one body. */
+  #rememberCard(id: BodyId, options: AddBodyOptions): void {
+    if (options.listed !== undefined || options.facts !== undefined || options.sources !== undefined || options.labelPriority !== undefined) this.cards.set(id, { ...(options.listed === undefined ? {} : { listed: options.listed }), ...(options.facts === undefined ? {} : { facts: options.facts.map(({ label, value }) => Object.freeze({ label, value })) }), ...(options.sources === undefined ? {} : { sources: [...options.sources] }), ...(options.labelPriority === undefined ? {} : { labelPriority: options.labelPriority }) });
     if (options.color !== undefined || options.knownLimitations !== undefined) this.looks.set(id, { ...(options.color === undefined ? {} : { color: options.color }), ...(options.knownLimitations === undefined ? {} : { knownLimitations: options.knownLimitations }) });
     if (options.enlarge !== undefined || options.showLabel !== undefined) this.shape.set(id, { ...(options.enlarge === undefined ? {} : { enlarge: options.enlarge }), ...(options.showLabel === undefined ? {} : { showLabel: options.showLabel }) });
     if (options.description !== undefined) this.notes.set(id, options.description);
+  }
+
+  #register(call: string, id: BodyId, ref: BodyRef, options: AddBodyOptions): void {
+    checkBodyCard(id, options);
+    this.#checkOrbit(call, id, options);
+    if (!this.catalogue.has(id)) throw new SceneError("unknown-body", `${call}("${id}"): not a catalogued body (known: ${builtInCatalogue.ids().join(", ")}; any moon in the moon lists is added by its id, and \`listedMoons(planet)\` names them with the data package each needs)`);
+    if (this.#taken(id)) throw new SceneError("duplicate-id", `${call}("${id}"): already in the scene`);
+    checkBodyLook(id, options);
+    this.#remember(call, id, options);
     this.bodies.set(id, ref);
     if (this.bodies.size === 1 && builtInCatalogue.has(id)) this.#firstBody(id);
+  }
+
+  /** A body's position provenance as its card shows it: the catalogue's, with the sources `addBody` added after its own. */
+  provenanceOf(id: BodyId): Provenance {
+    const base = this.catalogue.get(id).definition.accuracy.position;
+    const sources = this.cards.get(id)?.sources;
+    return sources === undefined ? base : withSources(base, sources);
   }
 
   /** The data packages the added bodies need that `data` does not provide. */
@@ -151,8 +209,8 @@ export class BodyPlan {
 
   /** The engine's own orbit loops (the Moon's and Io's) the scene asked for. */
   moonPaths(): readonly CompositionPath[] {
-    return [...this.orbits].filter((id) => moonOrbitPath(this.catalogue, id) !== undefined).map((id): CompositionPath => {
-      const orbit = moonOrbitPath(this.catalogue, id)!;
+    return [...this.orbits].filter((id) => moonOrbitPath(this.catalogue, id, this.laps.get(id)) !== undefined).map((id): CompositionPath => {
+      const orbit = moonOrbitPath(this.catalogue, id, this.laps.get(id))!;
       const parent = this.catalogue.get(id).definition.parentId;
       if (parent === undefined || !this.bodies.has(parent)) throw new SceneError("no-orbit", `addBody("${id}", { orbit: true }): the orbit is drawn about ${parent}, which has not been added to the scene`);
       return { body: id, ...orbit };
@@ -161,7 +219,7 @@ export class BodyPlan {
 
   /** The bodies that asked for a Sun-orbit line, checked: the Sun must be in the scene and the line's id free. */
   sunOrbitIds(ids: readonly BodyId[]): readonly BodyId[] {
-    return [...this.orbits].filter((id) => moonOrbitPath(this.catalogue, id) === undefined).map((id) => {
+    return [...this.orbits].filter((id) => moonOrbitPath(this.catalogue, id, this.laps.get(id)) === undefined).map((id) => {
       if (!ids.includes(rootBodyId(this.catalogue))) throw new SceneError("no-orbit", `addBody("${id}", { orbit: true }): the orbit is drawn about the Sun, which has not been added to the scene`);
       if (this.#taken(sunOrbitIdOf(id))) throw new SceneError("duplicate-id", `addBody("${id}", { orbit: true }): the orbit line's id "${sunOrbitIdOf(id)}" is already in the scene`);
       return id;
@@ -198,9 +256,11 @@ export class BodyPlan {
   reads(): readonly SceneBodyRead[] {
     return frozenList([...this.bodies.values()].map(({ id, label }): SceneBodyRead => {
       const parent = this.catalogue.has(id) ? this.catalogue.get(id).definition.parentId : undefined;
-      const card = this.catalogue.has(id) ? catalogueItem(id, { ...this.looks.get(id) }, this.catalogue).knownLimitations : undefined;
+      const limits = this.catalogue.has(id) ? catalogueItem(id, { ...this.looks.get(id) }, this.catalogue).knownLimitations : undefined;
       const description = this.notes.get(id);
-      return { id, label, ...(parent === undefined ? {} : { parent }), orbit: this.orbits.has(id), enlarge: this.shape.get(id)?.enlarge ?? 1, ...(description === undefined ? {} : { description }), knownLimitations: Object.freeze([...(card ?? [])]) };
+      const card = this.cards.get(id);
+      const texture = this.catalogue.has(id) ? this.catalogue.get(id).visual.texture : undefined;
+      return { id, label, listed: card?.listed ?? true, ...(card?.facts === undefined ? {} : { facts: card.facts }), ...(texture === undefined ? {} : { texture }), ...(parent === undefined ? {} : { parent }), orbit: this.orbits.has(id), enlarge: this.shape.get(id)?.enlarge ?? 1, ...(description === undefined ? {} : { description }), knownLimitations: Object.freeze([...(limits ?? [])]) };
     }));
   }
 
@@ -227,7 +287,10 @@ export class BodyPlan {
 
   /** The shell item of a body: from the catalogue, with the scene's own words, look and label setting. Label reach is `labelReach`. */
   bodyObject(body: BodyRef, ids: readonly BodyId[], sunCentred: boolean, camera: LabelCamera): ExperienceObject {
-    const own = { labelPriority: 100 - ids.indexOf(body.id), ...this.labelReach(body.id, sunCentred, camera), ...(this.shape.get(body.id)?.showLabel === undefined ? {} : { showLabel: this.shape.get(body.id)!.showLabel }), ...(this.notes.has(body.id) ? { description: this.notes.get(body.id) } : {}), ...this.looks.get(body.id) };
+    const card = this.cards.get(body.id);
+    const sources = card?.sources;
+    const base = this.catalogue.get(body.id).definition.accuracy.position;
+    const own = { labelPriority: card?.labelPriority ?? 100 - ids.indexOf(body.id), ...(card?.listed === undefined ? {} : { listed: card.listed }), ...(card?.facts === undefined ? {} : { facts: card.facts }), ...(sources === undefined ? {} : { provenance: withSources(base, sources) }), ...this.labelReach(body.id, sunCentred, camera), ...(this.shape.get(body.id)?.showLabel === undefined ? {} : { showLabel: this.shape.get(body.id)!.showLabel }), ...(this.notes.has(body.id) ? { description: this.notes.get(body.id) } : {}), ...this.looks.get(body.id) };
     return { ...catalogueItem(body.id, own, this.catalogue), label: body.label };
   }
 }

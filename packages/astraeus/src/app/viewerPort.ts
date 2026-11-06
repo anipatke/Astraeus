@@ -76,4 +76,6 @@ export interface ViewerPort {
   publish(state: ViewerState, cause: ViewerChangeCause): void;
   /** The viewer's selected object changed. `byMove`: the selection followed a move of the clock or the view (a drop, or a view rule's framing target; the cause is whatever last moved them); otherwise the visitor chose it. */
   publishSelection(state: ViewerState, byMove: boolean): void;
+  /** The scene has drawn its first frame; the link tells the host's `onFirstDraw` listeners. */
+  firstDraw(): void;
 }

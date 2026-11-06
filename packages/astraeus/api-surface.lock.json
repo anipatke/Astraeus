@@ -93,6 +93,11 @@
           "signature": "(look: LookInput): Scene"
         },
         {
+          "name": "setBodyReadouts",
+          "optional": false,
+          "signature": "(kinds: readonly BodyReadoutKind[]): Scene"
+        },
+        {
           "name": "addEvents",
           "optional": false,
           "signature": "(events: readonly EventInput[], options?: AddEventsOptions): Scene"
@@ -167,9 +172,19 @@
           "signature": "(id: string, view?: FollowView): SceneCamera"
         },
         {
+          "name": "setStartView",
+          "optional": false,
+          "signature": "(pose: CameraPose): SceneCamera"
+        },
+        {
+          "name": "setFollowChoices",
+          "optional": false,
+          "signature": "(ids: readonly (BodyRef | BodyId)[]): SceneCamera"
+        },
+        {
           "name": "setReach",
           "optional": false,
-          "signature": "(distance: number): SceneCamera"
+          "signature": "(distance: number, options?: { readonly farEarthRadii?: number; }): SceneCamera"
         },
         {
           "name": "fitOrbit",
@@ -185,6 +200,21 @@
           "name": "reach",
           "optional": false,
           "signature": "number | undefined"
+        },
+        {
+          "name": "farEarthRadii",
+          "optional": false,
+          "signature": "number | undefined"
+        },
+        {
+          "name": "pose",
+          "optional": false,
+          "signature": "CameraPose | undefined"
+        },
+        {
+          "name": "followChoices",
+          "optional": false,
+          "signature": "readonly string[] | undefined"
         },
         {
           "name": "target",
@@ -211,7 +241,7 @@
         {
           "name": "orbit",
           "optional": true,
-          "signature": "boolean | undefined"
+          "signature": "boolean | OrbitLapInput | undefined"
         },
         {
           "name": "enlarge",
@@ -247,8 +277,68 @@
           "name": "readouts",
           "optional": true,
           "signature": "readonly ReadoutInput[] | undefined"
+        },
+        {
+          "name": "listed",
+          "optional": true,
+          "signature": "boolean | undefined"
+        },
+        {
+          "name": "facts",
+          "optional": true,
+          "signature": "readonly CardFactInput[] | undefined"
+        },
+        {
+          "name": "sources",
+          "optional": true,
+          "signature": "readonly string[] | undefined"
+        },
+        {
+          "name": "labelPriority",
+          "optional": true,
+          "signature": "number | undefined"
         }
       ]
+    },
+    "CardFactInput": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "label",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "value",
+          "optional": false,
+          "signature": "string"
+        }
+      ]
+    },
+    "OrbitLapInput": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "lapDays",
+          "optional": false,
+          "signature": "number"
+        },
+        {
+          "name": "fades",
+          "optional": true,
+          "signature": "boolean | undefined"
+        }
+      ]
+    },
+    "BodyReadoutKind": {
+      "kind": "type",
+      "signature": "\"distance\" | \"phase\" | \"coordinates\"",
+      "constructors": [],
+      "members": []
     },
     "AnchorInput": {
       "kind": "interface",
@@ -356,6 +446,21 @@
           "name": "knownLimitations",
           "optional": false,
           "signature": "readonly string[]"
+        },
+        {
+          "name": "listed",
+          "optional": false,
+          "signature": "boolean"
+        },
+        {
+          "name": "facts",
+          "optional": true,
+          "signature": "readonly { readonly label: string; readonly value: string; }[] | undefined"
+        },
+        {
+          "name": "texture",
+          "optional": true,
+          "signature": "TextureRef | undefined"
         }
       ]
     },
@@ -1145,6 +1250,11 @@
           "name": "loadFadeSeconds",
           "optional": true,
           "signature": "number | undefined"
+        },
+        {
+          "name": "desktopPictures",
+          "optional": true,
+          "signature": "boolean | undefined"
         }
       ]
     },
@@ -1192,6 +1302,11 @@
           "name": "loadFadeSeconds",
           "optional": false,
           "signature": "number"
+        },
+        {
+          "name": "desktopPictures",
+          "optional": false,
+          "signature": "boolean"
         }
       ]
     },
@@ -1436,6 +1551,11 @@
           "signature": "(id: string, on: boolean): void"
         },
         {
+          "name": "onFirstDraw",
+          "optional": false,
+          "signature": "(listener: () => void): () => void"
+        },
+        {
           "name": "onChange",
           "optional": false,
           "signature": "(listener: (change: ViewerChange) => void): () => void"
@@ -1553,6 +1673,11 @@
           "signature": "(id: string, on: boolean): void"
         },
         {
+          "name": "onFirstDraw",
+          "optional": false,
+          "signature": "(listener: () => void): () => void"
+        },
+        {
           "name": "onChange",
           "optional": false,
           "signature": "(listener: (change: ViewerChange) => void): () => void"
@@ -1561,7 +1686,7 @@
     },
     "AstraeusScene": {
       "kind": "function",
-      "signature": "AstraeusScene({ ref, scene, data, onReady, onError, time, rate, view, camera, onChange, onEventZone, address, developerTools, className, style }: AstraeusSceneProps): ReactElement",
+      "signature": "AstraeusScene({ ref, scene, data, onReady, onError, time, rate, view, camera, onChange, onEventZone, onFirstDraw, address, developerTools, className, style }: AstraeusSceneProps): ReactElement",
       "constructors": [],
       "members": []
     },
@@ -1624,6 +1749,11 @@
           "name": "onEventZone",
           "optional": true,
           "signature": "((change: EventZoneChange) => void) | undefined"
+        },
+        {
+          "name": "onFirstDraw",
+          "optional": true,
+          "signature": "(() => void) | undefined"
         },
         {
           "name": "address",
