@@ -19,11 +19,27 @@ G-016's breaking chunk, last so every replacement exists first (after O-059 so t
 
 ## Success Conditions
 
-Detailed when this Objective is planned. Named outcomes: the renames as a clean break (no aliases); typed story panels; `toDefinition` gone with the O-056 replacements documented; Swift-Tuttle added by the showers demo through `addBodyFromElements`; required group `plane`; the O-053 type-lint and front-door allowlists emptied for these entries; migration table; README and API reference regenerated.
+- **Clean-break renames.** `MoonPositions.center`; pacing spans `{ start, end, rate }` with `rampSeconds` and `near.withinSeconds`; `camera.focus` replaces `camera.lookAt`; a view lists one `objects` list instead of `paths` and `bodies`; `labelReachEarthRadii` and `camera.reachEarthRadii`; `handle.timeUtcMs`, `ViewerChange.timeUtcMs` and `EventZoneChange.timeUtcMs`; `ElementsBodyRecord.plane`. No alias code exists for any of them.
+- **Story panels.** Typed `StoryPanelInput`, no `unknown`; shape errors throw at `addStoryPanels`, while links to events, anchors and objects are checked at `check` and `mount`, as event objects are; `at.time` takes `TimeInput`; each panel takes `provenance` in place of `badge` and `sources`; `addStoryPanels(list)` appends and a repeated id throws `duplicate-id`; `setStoryPanelPlayback({ pauseSeconds, autoOpen })` replaces that setting. Every Apollo and showers panel carries an honest accuracy and notes.
+- **Internals stop leaking.** `toDefinition` and `missingData` are gone from `Scene`; `SceneCamera` is a type-only export; `RateSource` is dropped from the root (nothing public returns it). The node and React consumer checks use only public calls.
+- **Swift-Tuttle.** The engine catalogue holds the Sun, planets, dwarf planets and moons only, a test says so, and the showers demo adds the comet through `addBodyFromElements` with positions proved against the old built-in ones.
+- **Groups state their `plane`.** A group without one throws `bad-group`.
+- **Old names fail clearly.** A plain JavaScript caller who passes an old input name gets a `SceneError` naming its replacement, from one table.
+- **Checks.** Every `removedBy: O-057` entry is gone from the `apiTypeLint` and `apiOutsideTypes` allowlists; the planets demo and site stay at 0 deep imports, and no deep-import count rises.
+- **Docs.** One CHANGELOG migration table covers every change in 0.8.0, with notes for the Voyagers and showers apps; the README and API reference are regenerated.
+- **Same look.** One fresh `npm run check:browser` passes, and the owner approves the demos and site on `localhost:5490`, panel badges included.
+
+## Owner Decisions (2026-11-07)
+
+- API-04 spans bind inputs only: what a caller gives is `{ start, end }`, and what the engine reports stays flat unit-named numbers such as `windowStartUtcMs` (owner "Rule covers inputs only"; settles the tension noted at T-260).
+- The reported time becomes `timeUtcMs` (owner "Rename to timeUtcMs").
+- A panel's `provenance` fully replaces `badge` and `sources`; every panel gains accuracy and notes, and the badge may also read Ephemeris or Reconstructed (owner "Replace badge and sources").
+- The two panel settings move to their own `setStoryPanelPlayback` call (owner "Separate set call").
+- Design confirmed by the owner, 2026-11-07, session o057-planning-20261107.
 
 ## Architectural Considerations
 
-ARCH-01 catalogue rule (Sun, planets, dwarf planets, moons only); no alias code: an old name fails with a `SceneError` naming its replacement only where the type system cannot catch it (plain JavaScript callers).
+ARCH-01 catalogue rule (Sun, planets, dwarf planets, moons only); no alias code: an old name fails with a `SceneError` naming its replacement only where the type system cannot catch it (plain JavaScript callers). That covers input fields, which would otherwise be ignored silently; a removed method already fails loudly, and a renamed read is covered by the migration table. `Scene` keeps its assembly internal through a helper that is not exported from the root, so engine tests keep their reach without a public method. A type declared in `core/` and named at the root is public, not a leak (ARCH-04 keeps it in `core/`), so `apiOutsideTypes` narrows to types the root reaches but does not name.
 
 ## Boundaries
 
