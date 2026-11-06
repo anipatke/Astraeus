@@ -1,45 +1,39 @@
-import { hasEarthMoon } from "astraeus/tests/scenePlacement";
-import appHtml from "../app.html?raw";
 import { describe, expect, it } from "vitest";
-import perseidsFile from "astraeus-demo-showers/data/showers/perseids.json";
-import { JUPITER_LABEL, jupiterIoData, jupiterIoScene } from "astraeus-demo-planets/experiences/jupiter-io/jupiterIo";
-import { buildShowerDefinition } from "astraeus-demo-showers/tests/helpers/showerDefinition";
-import { parseShowerSettings } from "astraeus-demo-showers/experiences/showers/showerSettings";
-import { focusLimits } from "astraeus/app/sceneFraming";
-import { MOON } from "astraeus/core/body";
-import { readableScale, trueScale } from "astraeus/core/scalePolicy";
+import { hasEarthMoon } from "./scenePlacement";
+import { focusLimits } from "../src/app/sceneFraming";
+import { MOON } from "../src/core/body";
+import { readableScale, trueScale } from "../src/core/scalePolicy";
 import {
   DEFAULT_CAMERA_FAR,
   cameraReachOf,
-  pageTitleOf,
   experienceWithGroups,
   groupsOf,
   trackedBodiesOf,
   validateCameraReach,
   type ExperienceDefinition,
-} from "astraeus/app/experienceDefinition";
-import { syntheticBeltDefinition } from "astraeus/synthetic/syntheticRingDefinition";
-import { syntheticBareDefinition, syntheticDefinition } from "astraeus/synthetic/syntheticDefinition";
-import { apollo11Definition } from "astraeus-demo-apollo11/experiences/apollo11/apollo11Definition";
-/** Jupiter's view as the app is given it until the site mounts it (T-272): the scene's definition with its data and the page heading. */
-const jupiterIoExplorer = { ...jupiterIoScene.toDefinition(jupiterIoData), label: JUPITER_LABEL };
+} from "../src/app/experienceDefinition";
+import { syntheticBeltDefinition } from "../src/synthetic/syntheticRingDefinition";
+import { syntheticBareDefinition, syntheticDefinition } from "../src/synthetic/syntheticDefinition";
 
-const appSources = import.meta.glob<string>("../../astraeus/src/app/*.{ts,tsx}", { query: "?raw", import: "default", eager: true });
+// Moved from the site's tests (O-059 T-272): the experience contract is the engine's, held on made-up definitions. The page heading and app.html stay with the site (tests/pageTitle.test.ts).
+// The rows that used Apollo 11's definition are held on the made-up one.
+
+const appSources = import.meta.glob<string>("../src/app/*.{ts,tsx}", { query: "?raw", import: "default", eager: true });
 
 const genericWindowFiles = [
-  "../../astraeus/src/core/timeWindow.ts",
-  "../../astraeus/src/shell/timelineModel.ts",
-  "../../astraeus/src/shell/TimelineBar.tsx",
-  "../../astraeus/src/shell/infoModel.ts",
-  "../../astraeus/src/shell/InfoPanel.tsx",
-  "../../astraeus/src/shell/MetricVisual.tsx",
-  "../../astraeus/src/shell/metrics.ts",
-  "../../astraeus/src/shell/experience.ts",
-  "../../astraeus/src/shell/AstraeusShell.tsx",
-  "../../astraeus/src/shell/style.css",
+  "../src/core/timeWindow.ts",
+  "../src/shell/timelineModel.ts",
+  "../src/shell/TimelineBar.tsx",
+  "../src/shell/infoModel.ts",
+  "../src/shell/InfoPanel.tsx",
+  "../src/shell/MetricVisual.tsx",
+  "../src/shell/metrics.ts",
+  "../src/shell/experience.ts",
+  "../src/shell/AstraeusShell.tsx",
+  "../src/shell/style.css",
 ];
 const windowSources = import.meta.glob<string>(
-  ["../../astraeus/src/core/timeWindow.ts", "../../astraeus/src/shell/*.{ts,tsx,css}"],
+  ["../src/core/timeWindow.ts", "../src/shell/*.{ts,tsx,css}"],
   { query: "?raw", import: "default", eager: true },
 );
 
@@ -58,14 +52,14 @@ describe("experience plug-in contract", () => {
     expect(offenders).toEqual([]);
   });
 
-  it("supplies Apollo's tracked bodies only through the tracked-bodies layer", () => {
-    expect(trackedBodiesOf(apollo11Definition).length).toBeGreaterThan(0);
-    const withoutLayer: ExperienceDefinition = { ...apollo11Definition, sceneLayers: [] };
+  it("supplies the tracked bodies only through the tracked-bodies layer", () => {
+    expect(trackedBodiesOf(syntheticBareDefinition).length).toBeGreaterThan(0);
+    const withoutLayer: ExperienceDefinition = { ...syntheticBareDefinition, sceneLayers: [] };
     expect(trackedBodiesOf(withoutLayer)).toEqual([]);
   });
 
-  it("starts Apollo's clock at its window start", () => {
-    expect(apollo11Definition.clock.startUtcMs).toBe(apollo11Definition.experience.window.startUtcMs);
+  it("starts the clock at the window start", () => {
+    expect(syntheticDefinition.clock.startUtcMs).toBe(syntheticDefinition.experience.window.startUtcMs);
   });
 
   it.each([
@@ -85,7 +79,7 @@ describe("experience plug-in contract", () => {
   });
 });
 
-const camera = ["experienceDefinition.ts", "AstraeusScene.tsx", "CameraController.tsx", "App.tsx"].map((file) => `../../astraeus/src/app/${file}`);
+const camera = ["experienceDefinition.ts", "AstraeusScene.tsx", "CameraController.tsx", "App.tsx"].map((file) => `../src/app/${file}`);
 
 describe("camera reach files stay generic", () => {
   it.each(camera)("%s is covered and has no meteor, shower or Perseids naming", (path) => {
@@ -109,7 +103,6 @@ describe("optional camera reach", () => {
 
   it("keeps the 5000 far plane and no reach for definitions that declare none", () => {
     expect(DEFAULT_CAMERA_FAR).toBe(5_000);
-    expect(cameraReachOf(apollo11Definition)).toEqual({});
     expect(cameraReachOf(syntheticDefinition)).toEqual({});
   });
 
@@ -155,21 +148,5 @@ describe("optional camera reach", () => {
     plain.group.fillPositionsKm(t, b);
     expect(a).toEqual(b);
     expect(experienceWithGroups(syntheticBeltDefinition)).toEqual(experienceWithGroups(without));
-  });
-});
-
-describe("the page heading", () => {
-  it("is Astraeus until an experience opens, then the experience's own label before it", () => {
-    expect(appHtml).toMatch(/<title>Astraeus<\/title>/);
-    expect(appHtml).not.toMatch(/spike/i);
-    expect(pageTitleOf({})).toBe("Astraeus");
-    expect(pageTitleOf({ label: "  " })).toBe("Astraeus");
-    expect(pageTitleOf({ label: "Perseids" })).toBe("Perseids \u00b7 Astraeus");
-  });
-
-  it("is taken from each real experience's definition, so the shell names none", () => {
-    const perseids = buildShowerDefinition(parseShowerSettings(perseidsFile), { kind: "absent" });
-    const titles = [apollo11Definition, jupiterIoExplorer, perseids].map(pageTitleOf);
-    expect(titles).toEqual(["Apollo 11 \u00b7 Astraeus", "Jupiter and Io \u00b7 Astraeus", "Perseids \u00b7 Astraeus"]);
   });
 });

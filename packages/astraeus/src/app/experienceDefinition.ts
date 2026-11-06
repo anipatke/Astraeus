@@ -194,9 +194,7 @@ export interface ExperienceDefinition {
    * bounded by the window is never left past its end. Presentation of time only; the user can still seek, pause and switch it off.
    */
   readonly loop?: boolean;
-  /** A choice between versions of this experience, shown in the top bar and the phone drawer: choosing one opens it again with `?param=value` (the camera view and time of the old address are dropped). Absent: none. */
-  readonly switcher?: import("../shell/SwitchControl").ExperienceSwitch;
-  /** A host's picker (`Scene.setPicker`), drawn through the same control as `switcher`; a press is reported to the host link and nothing else happens. Wins over `switcher`. Absent: none. */
+  /** A host's picker (`Scene.setPicker`), a press is reported to the host link and nothing else happens. Absent: none. */
   readonly picker?: import("../api/pickerInput").PickerInput;
   /** Where the orbit-lines, labels and Milky Way switches show (top bar, switch panel or the Developer drawer only) and whether each starts on. Absent: all in the Developer drawer, the scene's own start. The address (`?labels=`, `?sky=`) still overrides the start. */
   readonly displaySwitches?: DisplaySwitchSettings;

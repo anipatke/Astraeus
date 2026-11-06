@@ -32,3 +32,13 @@ export function createAddressNavigation(parts: NavigationParts): AddressNavigati
     popped: run,
   };
 }
+
+/** The address a choice leads to: the current one with the parameter set, and the camera view and time dropped (each version opens on its own) unless `keep` names the time; a kept time is `timeUtcMs` (the clock now) when given. Lifted as it was from the engine's `SwitchControl` (O-059 T-272). */
+export function switchAddress(href: string, param: string, value: string, keep: readonly string[] = [], timeUtcMs?: number): string {
+  const url = new URL(href);
+  url.searchParams.set(param, value);
+  // The clock's time at the press (whole seconds, as the view link writes it) replaces whatever `t` the address was opened with.
+  if (keep.includes("t") && timeUtcMs !== undefined) url.searchParams.set("t", new Date(Math.round(timeUtcMs / 1000) * 1000).toISOString());
+  for (const own of ["view", "t"]) if (!keep.includes(own)) url.searchParams.delete(own);
+  return url.toString();
+}

@@ -1,10 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { catalogue } from "astraeus/assets/catalogue";
-import type { AssetLicence } from "astraeus/assets/licence";
+import { readFileSync } from "node:fs";
+import type { TextureRef } from "astraeus";
 import { PICTURES } from "astraeus-data";
-import { HYG_STAR_LICENCE } from "astraeus/assets/sky";
 import html from "../assets.html?raw";
-import starFileText from "astraeus/assets/stars/hyg-v42-naked-eye.json?raw";
+import { textureOf } from "./helpers/builtInBodies";
 import apolloPanels from "astraeus-demo-apollo11/data/stories/apollo11/panels.json";
 import geminidsPanels from "astraeus-demo-showers/data/stories/geminids/panels.json";
 import jupiterIoPanels from "astraeus-demo-planets/data/stories/jupiter-io/panels.json";
@@ -12,8 +11,14 @@ import perseidsPanels from "astraeus-demo-showers/data/stories/perseids/panels.j
 
 /**
  * T-064: every credit on the assets page is checked against the AssetLicence record it describes (PROV-02), so a record
- * and the page cannot drift apart unnoticed. The page is plain HTML, read here as text.
+ * and the page cannot drift apart unnoticed. The page is plain HTML, read here as text. The records are read the way a host reads them (a body's texture from `Scene.bodies`, the pictures from `astraeus-data`),
+ * and the star file's by path (O-059 T-272).
  */
+type AssetLicence = NonNullable<TextureRef["licence"]>;
+/** The star file the engine ships, read by path: its header is the star catalogue's licence record. */
+const STAR_FILE = new URL("../../astraeus/src/assets/stars/hyg-v42-naked-eye.json", import.meta.url).pathname;
+const starHeader = (JSON.parse(readFileSync(STAR_FILE, "utf8")) as { provenance: { catalogue: string; page: string; licence: string; licenceScope: string; attribution: string; accessed: string } }).provenance;
+const HYG_STAR_LICENCE: AssetLicence = { source: starHeader.catalogue, url: starHeader.page, licence: starHeader.licence, attribution: starHeader.attribution, accessed: starHeader.accessed };
 const decode = (text: string): string => text.replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&nbsp;/g, " ");
 
 interface CreditRow { readonly title: string; readonly licence: string; readonly text: string; readonly status: string }
@@ -25,7 +30,7 @@ for (const m of creditsHtml.matchAll(/<div class="row"><div><h3>(.*?)<\/h3><span
 }
 
 const bodyRecord = (id: string): AssetLicence => {
-  const licence = (catalogue.get(id).visual.texture ?? PICTURES[catalogue.get(id).visual.picture ?? id])?.licence;
+  const licence = textureOf(id)?.licence;
   if (licence === undefined) throw new Error(`${id} has no texture licence`);
   return licence;
 };
@@ -104,8 +109,8 @@ describe("assets page credits match the AssetLicence records (T-064)", () => {
     expect(stars?.licence).toBe("CC BY-SA 4.0");
     expect(stars?.text).toContain("covers this star file only");
     expect(stars?.text).toContain("the code stays MIT");
-    const header = JSON.parse(starFileText) as { provenance: { licence: string } };
-    expect(header.provenance.licence).toBe(HYG_STAR_LICENCE.licence);
+    expect(starHeader.licence).toBe("CC BY-SA 4.0");
+    expect(starHeader.licenceScope).toContain("This file only");
   });
 
   it("each surface-picture card names the licence its record gives", () => {

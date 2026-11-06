@@ -1,6 +1,6 @@
 import vercelText from "../../../vercel.json?raw";
 import { describe, expect, it } from "vitest";
-import { catalogue } from "astraeus/assets/catalogue";
+import { builtInReads } from "./helpers/builtInBodies";
 import { LOCAL_ONLY_TEXTURES, PLANETS_DEMO_ONLY_TEXTURES, publicBuildAliases } from "../vite.config";
 import { proveOnlyPublicPlanets, proveSyntheticCheck, SYNTHETIC_KEYS, proveStarAssetHandling, STAR_ASSET, findLocalOnlySources, proveItFails, proveLicenceHandling, SHIPPABLE_LICENCES as VALIDATOR_LICENCES } from "../tools/validate/public-build-assets.mjs";
 import { BUILD_LIMIT, NON_PUBLIC_PLANET_FILES, PAGES, PUBLIC_PLANETS, proveLoadBudgetFails, proveSameStemChunks, staticImportsOf } from "../tools/validate/load-budget.mjs";
@@ -11,10 +11,8 @@ import { SHIPPABLE_LICENCES } from "astraeus-demo-showers/experiences/showers/me
 const basename = (url: string) => url.slice(url.lastIndexOf("/") + 1).split("?")[0];
 
 describe("public build texture exclusion (design C.3)", () => {
-  const localOnly = catalogue.ids().flatMap((id) => {
-    const texture = catalogue.get(id).visual.texture;
-    return texture?.localOnly === undefined ? [] : [basename(texture.url)];
-  });
+  // The textures the engine ships for the bodies it provides, read as a host reads them (`Scene.bodies`).
+  const localOnly = builtInReads.flatMap(({ texture }) => (texture?.localOnly === undefined ? [] : [basename(texture.url)]));
 
   it("aliases exactly the textures the records declare local-only", () => {
     expect([...LOCAL_ONLY_TEXTURES].sort()).toEqual([...localOnly].sort());

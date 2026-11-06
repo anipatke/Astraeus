@@ -1,43 +1,43 @@
 import { describe, expect, it } from "vitest";
-import { JUPITER_LABEL, jupiterIoData, jupiterIoScene } from "astraeus-demo-planets/experiences/jupiter-io/jupiterIo";
-import { buildShowerDefinition } from "astraeus-demo-showers/tests/helpers/showerDefinition";
+import type { ScenePanelRead, Scene } from "astraeus";
+import { jupiterIoScene } from "astraeus-demo-planets/experiences/jupiter-io/jupiterIo";
+import { buildShowerScene } from "astraeus-demo-showers/experiences/showers/showerScene";
 import { parseShowerSettings } from "astraeus-demo-showers/experiences/showers/showerSettings";
-import type { ExperienceConfig } from "astraeus/shell/experience";
-import type { StoryPanel } from "astraeus/shell/storyPanels";
 import { shippedPanelsOf } from "astraeus-demo-showers/tests/helpers/shippedPanels";
 import { madeUpOrbits } from "astraeus-demo-showers/tests/helpers/measuredOrbits";
 import geminidsFile from "astraeus-demo-showers/data/showers/geminids.json";
-/** Jupiter's view as the app is given it until the site mounts it (T-272): the scene's definition with its data and the page heading. */
-const jupiterIoExplorer = { ...jupiterIoScene.toDefinition(jupiterIoData), label: JUPITER_LABEL };
 
-/** O-015 / T-089: stories on every demo. Each demo's panels are story data, read through the same generic panel path. */
-const geminids = () => {
+/** O-015 / T-089: stories on every demo. Each demo's panels are story data, read from its scene the way a host reads them (`Scene.panels`, `Scene.timeline`; O-059 T-272). */
+const geminids = (): Scene => {
   const settings = parseShowerSettings(geminidsFile);
-  return buildShowerDefinition(settings, { kind: "loaded", orbits: madeUpOrbits(4, 20) }, shippedPanelsOf(settings)).experience;
+  return buildShowerScene(settings, { kind: "loaded", orbits: madeUpOrbits(4, 20) }, shippedPanelsOf(settings));
 };
+/** Every object a panel may mark: the scene's bodies, paths and groups, and the shower's stream. */
+const objectIdsOf = (scene: Scene): readonly string[] => [...scene.bodies.map(({ id }) => id), ...scene.paths.map(({ id }) => id), ...scene.groups.map(({ id }) => id), "geminids-stream"];
 
-const stories: readonly [string, ExperienceConfig, readonly (readonly [string, string, string | undefined])[]][] = [
+const stories: readonly [string, Scene, readonly (readonly [string, string, string | undefined])[]][] = [
   ["Geminids", geminids(), [["phaethon", "modelled", "phaethon"], ["best-shower", "observed", "geminids-stream"], ["earth-crossing", "observed", "earth"]]],
-  ["Jupiter–Io", jupiterIoExplorer.experience, [["volcanoes", "observed", "io"], ["squeezed", "modelled", "jupiter"], ["rhythm", "observed", undefined]]],
+  ["Jupiter–Io", jupiterIoScene, [["volcanoes", "observed", "io"], ["squeezed", "modelled", "jupiter"], ["rhythm", "observed", undefined]]],
 ];
 
-const sentences = (panel: StoryPanel): number => panel.body.join(" ").split(/(?<=[.!?])\s+/).filter((part) => part.trim() !== "").length;
+const sentences = (panel: ScenePanelRead): number => panel.body.join(" ").split(/(?<=[.!?])\s+/).filter((part) => part.trim() !== "").length;
 
 describe("short stories for the three demos without one (T-089)", () => {
-  it.each(stories)("%s carries three sourced panels, in time order, on its own objects and inside its own timeline", (_name, experience, expected) => {
-    const panels = experience.storyPanels?.panels ?? [];
-    expect(panels.map((panel) => [panel.id, panel.badge, panel.objectId])).toEqual(expected);
+  it.each(stories)("%s carries three sourced panels, in time order, on its own objects and inside its own timeline", (_name, scene, expected) => {
+    const panels = scene.panels;
+    expect(panels.map((panel) => [panel.id, panel.badge, panel.object])).toEqual(expected);
+    const { windowStartUtcMs, windowEndUtcMs } = scene.timeline;
     for (const panel of panels) {
-      expect(panel.timeUtcMs).toBeGreaterThan(experience.window.startUtcMs);
-      expect(panel.timeUtcMs).toBeLessThan(experience.window.endUtcMs);
-      if (panel.objectId !== undefined) expect(experience.objects.map((object) => object.id).concat("geminids-stream")).toContain(panel.objectId);
+      expect(panel.timeUtcMs).toBeGreaterThan(windowStartUtcMs);
+      expect(panel.timeUtcMs).toBeLessThan(windowEndUtcMs);
+      if (panel.object !== undefined) expect(objectIdsOf(scene)).toContain(panel.object);
       expect(panel.sources.length).toBeGreaterThan(0);
       expect(panel.details.length).toBeGreaterThan(0);
     }
   });
 
-  it.each(stories)("%s reads in the plain voice: two to four sentences, no acronyms, decimals, times or coordinates in the body", (_name, experience) => {
-    for (const panel of experience.storyPanels?.panels ?? []) {
+  it.each(stories)("%s reads in the plain voice: two to four sentences, no acronyms, decimals, times or coordinates in the body", (_name, scene) => {
+    for (const panel of scene.panels) {
       const body = panel.body.join(" ");
       expect(sentences(panel), panel.id).toBeGreaterThanOrEqual(2);
       expect(sentences(panel), panel.id).toBeLessThanOrEqual(4);
@@ -50,7 +50,6 @@ describe("short stories for the three demos without one (T-089)", () => {
 
   it("opens the Geminids Earth panel at the shower's peak", () => {
     // The narrowed (activity) span, which dropped the panels outside it, went with the ?span= option (O-042 Decision 1).
-    const year = geminids().storyPanels!;
-    expect(year.panels.find((panel) => panel.id === "earth-crossing")!.timeUtcMs).toBe(Date.parse(geminidsFile.activity.peakUtc));
+    expect(geminids().panels.find((panel) => panel.id === "earth-crossing")!.timeUtcMs).toBe(Date.parse(geminidsFile.activity.peakUtc));
   });
 });

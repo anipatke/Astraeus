@@ -7,9 +7,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const controlsOf = vi.hoisted(() => new WeakMap<Element, import("../src/app/AstraeusScene").SceneControls>());
 const runtimeOf = vi.hoisted(() => new WeakMap<Element, import("../src/app/AstraeusScene").SceneRuntime>());
-const coverClaimOf = vi.hoisted(() => new WeakMap<Element, unknown>());
 vi.mock("../src/app/AstraeusScene", () => ({
-  AstraeusScene: (props: { controls: import("../src/app/AstraeusScene").SceneControls; runtime: import("../src/app/AstraeusScene").SceneRuntime; claimCover?: unknown }) => createElement("div", { "data-testid": "scene", ref: (el: HTMLDivElement | null) => { if (el) { controlsOf.set(el, props.controls); runtimeOf.set(el, props.runtime); coverClaimOf.set(el, props.claimCover); } } }),
+  AstraeusScene: (props: { controls: import("../src/app/AstraeusScene").SceneControls; runtime: import("../src/app/AstraeusScene").SceneRuntime}) => createElement("div", { "data-testid": "scene", ref: (el: HTMLDivElement | null) => { if (el) { controlsOf.set(el, props.controls); runtimeOf.set(el, props.runtime); } } }),
 }));
 vi.mock("../src/assets/sky", async (importOriginal) => ({ ...(await importOriginal<typeof import("../src/assets/sky")>()), loadStarCatalogue: vi.fn().mockResolvedValue(null) }));
 
@@ -441,13 +440,13 @@ describe.each(PAIRINGS)("two viewers on one page: $name", (pairing) => {
     escape(document.body);
     expect([drawerOpen(a), drawerOpen(b)]).toEqual([false, false]);
   });
-  it("T-255: a page's own #boot is never touched, and neither viewer is handed a loading cover", async () => {
+  it("T-255: a page's own #boot is never touched, and the engine has no loading cover to hand a viewer", async () => {
     const boot = document.createElement("div");
     boot.id = "boot";
     boot.dataset.state = "loading";
     document.body.append(boot);
     const [a, b] = await openPair(pairing);
-    for (const v of [a, b]) expect(coverClaimOf.get(v.element.querySelector("[data-testid=scene]")!)).toBeUndefined();
+    expect([a, b]).toHaveLength(2);
     vi.advanceTimersByTime(5000);
     expect(document.getElementById("boot")).toBe(boot);
     expect(boot.dataset.state).toBe("loading");

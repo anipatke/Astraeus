@@ -1,6 +1,5 @@
 import type { ViewHidden } from "./viewHiding";
 import { createFrameState, type FrameState } from "./sceneFrame";
-import type { CoverClaim } from "../shell/bootLoader";
 import { useBodyRefs, useDrawWakes, useOverlayLayers, useReleaseSharedTextures, useSceneDerived, useScenePointer, useSceneFrame, refFor } from "./sceneContentsHooks";
 import { useMemo, useRef } from "react";
 import { Canvas, useThree } from "@react-three/fiber";
@@ -162,8 +161,6 @@ interface Props {
   readonly readout: { current: SceneReadout | null };
   /** Changes when the scale policy changes so mesh radii re-render. */
   readonly scaleId: ScalePolicy["id"];
-  /** The host's loading cover, claimed once when the scene mounts; absent when the host has none (the engine never looks one up on the page). */
-  readonly claimCover?: CoverClaim;
   /** Told once when the scene's first frame has been drawn (the host's `onFirstDraw`). */
   readonly onFirstDraw?: () => void;
 }
@@ -174,7 +171,7 @@ export function AstraeusScene(props: Props) {
   const layers = useMemo(() => assignBodyLayers(runtime.bodies, TRACK_LAYER, catalogue), [runtime.bodies, catalogue]);
   const lightLayers = useMemo(() => runtime.bodies.filter((id) => catalogue.get(id).visual.light !== undefined).map((id) => layers.get(id)!), [runtime.bodies, layers, catalogue]);
   // One frame state for the whole canvas: the scene contents decide whether a frame is drawn and the layered render obeys.
-  const frameState = useRef<FrameState>(createFrameState(props.controls.policy.id, props.claimCover, props.onFirstDraw));
+  const frameState = useRef<FrameState>(createFrameState(props.controls.policy.id, props.onFirstDraw));
   return (
     <Canvas
       camera={{ fov: 45, near: 0.05, far: runtime.cameraReach.far ?? DEFAULT_CAMERA_FAR }}

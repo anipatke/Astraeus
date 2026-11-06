@@ -1,3 +1,4 @@
+import type { PickerInput } from "astraeus";
 // List choice: which entry of a list the page opens (a shower, a planet), and the switch that offers the others. Pure; the names come from the settings files.
 // Lifted as it was from the engine's `app/listSwitch` (O-059 T-270): only the site has these lists.
 
@@ -25,4 +26,9 @@ export function chooseSwitch<T extends SwitchEntry>(entries: readonly T[], reque
     name: chosen.name,
     switcher: { label: switchOf.label, param: switchOf.param, ...(switchOf.keep === undefined ? {} : { keep: switchOf.keep }), options: sorted.map((entry) => ({ label: entry.label, value: entry.name, active: entry === chosen })) },
   };
+}
+
+/** The picker a scene offers, from the switch the entry chose: the options are the entries, the pressed one is the entry opened. */
+export function pickerOf(switcher: ListSwitch): PickerInput {
+  return { id: switcher.param, label: switcher.label, options: switcher.options.map(({ value, label }) => ({ value, label })), value: switcher.options.find((option) => option.active)?.value ?? "" };
 }

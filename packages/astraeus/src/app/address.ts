@@ -1,7 +1,7 @@
 /**
  * The one place the viewer touches the page address (O-052 T-223). It reads or writes the address only when the host turned `address` on;
  * every parameter reader takes the search text this gives, so a new parameter cannot bypass the switch (`tests/addressRule.test.ts`).
- * The demo switcher and the developer data switch navigate the page itself and are the only other readers, listed in that test.
+ * The developer data switch navigates the page itself and is the only other reader, listed in that test.
  */
 import { viewLinkSearch, type ViewLinkState } from "./viewLink";
 

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { chooseSwitch } from "../src/listChoice";
+import { chooseSwitch, pickerOf } from "../src/listChoice";
 
 // Lifted from the engine's list switch tests (O-059 T-270): the choice of an entry of a list is the site's.
 const SWITCH = { label: "Kind", param: "kind" };
@@ -26,5 +26,12 @@ describe("list choice (T-171)", () => {
 
   it("has no choice without entries", () => {
     expect(chooseSwitch([], "first", SWITCH)).toBeUndefined();
+  });
+});
+
+describe("the picker a scene offers (O-059 T-272)", () => {
+  it("lists the entries as options, presses the one opened, and names the choice by its address parameter", () => {
+    const choice = chooseSwitch(entries, "second", SWITCH)!;
+    expect(pickerOf(choice.switcher)).toEqual({ id: "kind", label: "Kind", options: [{ value: "first", label: "First" }, { value: "second", label: "Second" }], value: "second" });
   });
 });

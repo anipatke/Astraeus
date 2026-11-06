@@ -1,7 +1,6 @@
-// The entry's in-page switch: a switch pushes its address then rebuilds under the cover; back and forward rebuild without pushing; an overtaken rebuild mounts nothing (O-030 T-153).
+// The entry's in-page switch: a switch pushes its address then rebuilds under the cover; back and forward rebuild without pushing; an overtaken rebuild mounts nothing (O-030 T-153). Moved from the engine with `switchAddress` (O-059 T-272).
 import { describe, expect, it } from "vitest";
-import { createAddressNavigation } from "../src/app/addressNavigation";
-import { switchAddress } from "../src/shell/SwitchControl";
+import { createAddressNavigation, switchAddress } from "../src/addressNavigation";
 
 function harness() {
   const log: string[] = [];
@@ -69,5 +68,31 @@ describe("address navigation", () => {
     failing.popped();
     await flush();
     expect(h.failures).toHaveLength(1);
+  });
+
+  it("builds the switch address keeping other settings but dropping the old view and time", () => {
+    const next = switchAddress("http://x/app.html?experience=x&kind=a&view=sun,1,2,3&t=2027-01-01T00:00:00Z&scale=true-scale", "kind", "b");
+    expect(new URL(next).searchParams.get("kind")).toBe("b");
+    expect(new URL(next).searchParams.get("experience")).toBe("x");
+    expect(new URL(next).searchParams.get("scale")).toBe("true-scale");
+    expect(new URL(next).searchParams.has("view")).toBe(false);
+    expect(new URL(next).searchParams.has("t")).toBe(false);
+  });
+
+  it("keeps the clock time for a switch that names it, and the camera view is the new version's own", () => {
+    const from = "http://x/app.html?experience=planets&planet=jupiter&view=jupiter,1,2,3&t=2016-11-10T12:00:00Z";
+    const next = new URL(switchAddress(from, "planet", "saturn", ["t"]));
+    expect(next.searchParams.get("planet")).toBe("saturn");
+    expect(next.searchParams.get("t")).toBe("2016-11-10T12:00:00Z");
+    expect(next.searchParams.has("view")).toBe(false);
+  });
+
+  it("carries the clock's time now, not the time the address was opened with (I-051)", () => {
+    const opened = "http://x/app.html?experience=planets&planet=jupiter&t=2016-11-10T12:00:00Z";
+    const later = Date.UTC(2016, 10, 12, 3, 4, 5, 600);
+    expect(new URL(switchAddress(opened, "planet", "saturn", ["t"], later)).searchParams.get("t")).toBe("2016-11-12T03:04:06.000Z");
+    expect(new URL(switchAddress("http://x/app.html?experience=planets&planet=jupiter", "planet", "saturn", ["t"], later)).searchParams.get("t")).toBe("2016-11-12T03:04:06.000Z");
+    // A switch that does not keep the time (the showers') drops it whatever the clock says.
+    expect(new URL(switchAddress(opened, "shower", "b", [], later)).searchParams.has("t")).toBe(false);
   });
 });

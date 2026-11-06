@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import html from "../assets.html?raw";
-import { exists, readJson } from "astraeus/tools/import/test-io.mjs";
+import { exists, readJson } from "./helpers/testIo.mjs";
 
 // The core Jupiter moon catalogue (astraeus-data-jupiter/data/jupiter-moons/list.json, O-025 T-097) against the T-096 curve fits, the O-018 body packages and the catalogue page.
 const ROOT = new URL("../../astraeus/", import.meta.url).pathname; // engine data read by file path (moved from the engine tests: it also reads the site page)

@@ -1,52 +1,30 @@
-// @vitest-environment happy-dom
-// Each demo's own story panels on the pretend page (O-038 T-146): the demo parts of browser-story-panels.mjs. A timeline marker per panel, and every panel, asked for by its scene marker, shows its
-// title, its badge, its body and its source lines, with its details in the one folded section. How panels open and hold on playback is generic (tests/domStory.test.ts); the wording and order
-// of each demo's panels are data (tests/storyStoriesAllDemos.test.ts, tests/storyPanels.test.ts); the scene markers' drawing is the smoke check.
-import { afterEach, describe, expect, it } from "vitest";
-import { apollo11Definition } from "astraeus-demo-apollo11/experiences/apollo11/apollo11Definition";
-import { JUPITER_LABEL, jupiterIoData, jupiterIoScene } from "astraeus-demo-planets/experiences/jupiter-io/jupiterIo";
-import { buildShowerDefinition } from "astraeus-demo-showers/tests/helpers/showerDefinition";
+// Each demo's own story panels (O-038 T-146; O-059 T-272): the demo parts of browser-story-panels.mjs, read from each demo's scene the way a host reads them (`Scene.panels`), not drawn on a pretend page.
+// How the shell draws a panel, its badge, its source lines and its one folded section for the details, and how a scene marker opens it, are generic and held for any made-up story in the engine (packages/astraeus/tests/domStory.test.ts).
+// What belongs to a demo is that its panels exist, one marker per panel, each with the words the shell needs (title, badge, body, sources); the wording and order are data (storyStoriesAllDemos.test.ts, storyPanels.test.ts).
+import { describe, expect, it } from "vitest";
+import type { Scene } from "astraeus";
+import { buildApollo11Scene } from "astraeus-demo-apollo11/experiences/apollo11/apollo11Scene";
+import { jupiterIoScene } from "astraeus-demo-planets/experiences/jupiter-io/jupiterIo";
+import { buildShowerScene } from "astraeus-demo-showers/experiences/showers/showerScene";
 import { parseShowerSettings } from "astraeus-demo-showers/experiences/showers/showerSettings";
-import type { ExperienceConfig } from "astraeus/shell/experience";
+import { shippedPanelsOf } from "astraeus-demo-showers/tests/helpers/shippedPanels";
 import geminidsFile from "astraeus-demo-showers/data/showers/geminids.json";
 import perseidsFile from "astraeus-demo-showers/data/showers/perseids.json";
-import { shippedPanelsOf } from "astraeus-demo-showers/tests/helpers/shippedPanels";
-import { $, mountShell, press, type Mounted } from "astraeus/tests/domSetup";
-/** Jupiter's view as the app is given it until the site mounts it (T-272): the scene's definition with its data and the page heading. */
-const jupiterIoExplorer = { ...jupiterIoScene.toDefinition(jupiterIoData), label: JUPITER_LABEL };
 
-const shower = (file: unknown): ExperienceConfig => { const settings = parseShowerSettings(file); return buildShowerDefinition(settings, { kind: "absent" }, shippedPanelsOf(settings)).experience; };
-const DEMOS: [string, ExperienceConfig][] = [["Apollo 11", apollo11Definition.experience], ["Perseids", shower(perseidsFile)], ["Geminids", shower(geminidsFile)], ["Jupiter", jupiterIoExplorer.experience]];
+const shower = (file: unknown): Scene => { const settings = parseShowerSettings(file); return buildShowerScene(settings, { kind: "absent" }, shippedPanelsOf(settings)); };
+const DEMOS: [string, Scene][] = [["Apollo 11", buildApollo11Scene()], ["Perseids", shower(perseidsFile)], ["Geminids", shower(geminidsFile)], ["Jupiter", jupiterIoScene]];
 
-let m: Mounted | undefined;
-afterEach(() => { m?.unmount(); m = undefined; });
-
-describe.each(DEMOS)("%s story panels", (_name, experience) => {
-  const panels = experience.storyPanels!.panels;
-
-  it("has a timeline marker per panel", () => {
-    m = mountShell({ experience });
-    expect(m.container.querySelectorAll(".timeline-panel-marker")).toHaveLength(panels.length);
-  });
-
-  it("shows each panel by its scene marker's request, with its badge, body, source lines and one folded section for the details", () => {
-    m = mountShell({ experience });
+describe.each(DEMOS)("%s story panels", (_name, scene) => {
+  it("has panels, each with a title, a badge, a body, source lines, and a moment of its own in time order", () => {
+    const panels = scene.panels;
+    expect(panels.length).toBeGreaterThan(0);
+    expect(new Set(panels.map((panel) => panel.id)).size).toBe(panels.length);
     for (const panel of panels) {
-      m.requestPanel(panel.id);
-      const shown = $(m.container, ".story-panel");
-      expect(shown.getAttribute("data-panel-id")).toBe(panel.id);
-      expect($(shown, ".story-badge").getAttribute("data-badge")).toBe(panel.badge);
-      for (const paragraph of panel.body) expect(shown.textContent).toContain(paragraph);
-      expect(panel.sources.length).toBeGreaterThan(0);
-      const section = $(shown, ".sources-section") as HTMLDetailsElement;
-      expect(shown.querySelectorAll(".sources-section")).toHaveLength(1);
-      expect(section.open).toBe(false);
-      press($(section, "summary"));
-      expect(section.open).toBe(true);
-      for (const source of panel.sources) expect(shown.textContent).toContain(source);
-      for (const detail of panel.details ?? []) expect(shown.textContent).toContain(detail);
-      press($(shown, ".story-panel-close"));
-      expect(m.container.querySelector(".story-panel")).toBeNull();
+      expect(panel.title, panel.id).not.toBe("");
+      expect(["observed", "modelled", "illustrative"], panel.id).toContain(panel.badge);
+      expect(panel.body.length, panel.id).toBeGreaterThan(0);
+      expect(panel.sources.length, panel.id).toBeGreaterThan(0);
     }
+    expect(panels.map((panel) => panel.timeUtcMs)).toEqual([...panels.map((panel) => panel.timeUtcMs)].sort((a, b) => a - b));
   });
 });

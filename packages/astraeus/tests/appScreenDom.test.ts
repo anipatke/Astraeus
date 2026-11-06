@@ -26,8 +26,8 @@ let root: Root;
 const controls = () => sceneProps.latest!.controls;
 /** Opens the page at an address, as a visitor or a copied link does. */
 const visit = (search: string) => window.history.replaceState(null, "", `/app.html${search}`);
-async function open(definition: ExperienceDefinition = syntheticDefinition, onOpenAddress?: (address: string) => void): Promise<void> {
-  await act(async () => { root.render(createElement(App, { definition, address: true, developerTools: true, ...(onOpenAddress === undefined ? {} : { onOpenAddress }) })); });
+async function open(definition: ExperienceDefinition = syntheticDefinition): Promise<void> {
+  await act(async () => { root.render(createElement(App, { definition, address: true, developerTools: true })); });
 }
 const button = (name: string | RegExp) => [...container.querySelectorAll("button")].find((b) => (typeof name === "string" ? b.textContent === name : name.test(b.textContent ?? "")))!;
 /** Lets the on-demand panels a press just asked for arrive. */
@@ -134,14 +134,6 @@ describe("what the shell's controls do to the scene and the clock", () => {
     expect(($(container, "select.object-picker") as HTMLSelectElement).value).toBe("moon");
     expect(controls().selectedObjectId).toBe("moon");
     expect(() => controls().onFeatureMarker!("moon:none")).not.toThrow();
-  });
-
-  it("opens another experience in place when the entry gave a way to, and calls the switch with the address", async () => {
-    const open_ = vi.fn();
-    await open({ ...syntheticDefinition, switcher: { label: "Version", param: "v", options: [{ label: "Alpha", value: "a", active: true }, { label: "Beta", value: "b", active: false }] } }, open_);
-    press(button("Beta"));
-    expect(open_).toHaveBeenCalledTimes(1);
-    expect(new URL(open_.mock.calls[0]![0] as string, "http://localhost/").searchParams.get("v")).toBe("b");
   });
 });
 

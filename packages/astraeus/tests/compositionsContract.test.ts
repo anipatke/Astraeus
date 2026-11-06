@@ -1,43 +1,39 @@
+// Moved from the site's tests (O-059 T-272): the composition, placement and State rules are the engine's, held on the made-up definitions. The rows that used Apollo 11's and the Perseids' definitions use the made-up marker.
 import { describe, expect, it } from "vitest";
 import { Object3D } from "three";
-import { catalogue, createCatalogue, rootBodyId, type VisualEntry } from "astraeus/assets/catalogue";
-import { CompositionError, createComposition, earthMoonSystem, SIDEREAL_MONTH_MS, sunEarthSystem } from "astraeus/assets/compositions";
-import { createOrbAstronomyAdapter } from "astraeus/core/astronomyAdapter";
-import type { CelestialBodyDefinition, StateSourceBinding } from "astraeus/core/body";
-import { directionFromCenterToSun, directionToSun } from "astraeus/core/illumination";
-import { createProvenance } from "astraeus/core/provenance";
-import { earthStateAt, sunPositionFromEarthAt } from "astraeus/core/referenceCenters";
-import { readableScale, trueScale, type ScalePolicy } from "astraeus/core/scalePolicy";
-import { createStateResolver } from "astraeus/core/stateResolver";
-import { createState, type Quaternion, type State } from "astraeus/core/state";
-import type { Trajectory } from "astraeus/core/trajectory";
+import { catalogue, createCatalogue, rootBodyId, type VisualEntry } from "../src/assets/catalogue";
+import { CompositionError, createComposition, earthMoonSystem, SIDEREAL_MONTH_MS, sunEarthSystem } from "../src/assets/compositions";
+import { createOrbAstronomyAdapter } from "../src/core/astronomyAdapter";
+import type { CelestialBodyDefinition, StateSourceBinding } from "../src/core/body";
+import { directionFromCenterToSun, directionToSun } from "../src/core/illumination";
+import { createProvenance } from "../src/core/provenance";
+import { earthStateAt, sunPositionFromEarthAt } from "../src/core/referenceCenters";
+import { readableScale, trueScale, type ScalePolicy } from "../src/core/scalePolicy";
+import { createStateResolver } from "../src/core/stateResolver";
+import { createState, type Quaternion, type State } from "../src/core/state";
+import type { Trajectory } from "../src/core/trajectory";
 import {
   compositionOf,
   mountedBodiesOf,
   sceneCenterOf,
   type ExperienceDefinition,
-} from "astraeus/app/experienceDefinition";
-import { FloatingOrigin } from "astraeus/app/floatingOrigin";
-import { PointsView } from "astraeus/app/PointsView";
-import { eqjToRenderVector } from "astraeus/app/renderCoordinates";
+} from "../src/app/experienceDefinition";
+import { FloatingOrigin } from "../src/app/floatingOrigin";
+import { PointsView } from "../src/app/PointsView";
+import { eqjToRenderVector } from "../src/app/renderCoordinates";
 import {
   createSceneResolver,
   readoutPairOf,
   placeBody,
   placeComposition,
   trackedAbsolute,
-} from "astraeus/app/sceneLayout";
-import { assignBodyLayers, BARE_SCENE_SPAN, defaultDistance, focusLimits, focusRadius } from "astraeus/app/sceneFraming";
-import { TRACK_LAYER, TrackedBodyView } from "astraeus/app/TrackedBodyView";
-import { apollo11Definition } from "astraeus-demo-apollo11/experiences/apollo11/apollo11Definition";
-import { buildShowerDefinition } from "astraeus-demo-showers/tests/helpers/showerDefinition";
-import { madeUpOrbits } from "astraeus-demo-showers/tests/helpers/measuredOrbits";
-import { parseShowerSettings } from "astraeus-demo-showers/experiences/showers/showerSettings";
-import perseidsFile from "astraeus-demo-showers/data/showers/perseids.json";
-import { syntheticBareDefinition, syntheticDefinition } from "astraeus/synthetic/syntheticDefinition";
-import { syntheticBeltDefinition, syntheticRingDefinition, syntheticRingLayer } from "astraeus/synthetic/syntheticRingDefinition";
+} from "../src/app/sceneLayout";
+import { assignBodyLayers, BARE_SCENE_SPAN, defaultDistance, focusLimits, focusRadius } from "../src/app/sceneFraming";
+import { TRACK_LAYER, TrackedBodyView } from "../src/app/TrackedBodyView";
+import { syntheticBareDefinition, syntheticDefinition } from "../src/synthetic/syntheticDefinition";
+import { syntheticBeltDefinition, syntheticRingDefinition, syntheticRingLayer } from "../src/synthetic/syntheticRingDefinition";
 import { PerspectiveCamera } from "three";
-import { createSceneHierarchy, hasEarthMoon, placeBodies, placementAbout } from "astraeus/tests/scenePlacement";
+import { createSceneHierarchy, hasEarthMoon, placeBodies, placementAbout } from "./scenePlacement";
 
 const adapter = createOrbAstronomyAdapter();
 const DATES = [Date.UTC(2023, 0, 15, 3), Date.UTC(2024, 6, 1, 12), Date.UTC(2025, 2, 20, 9, 30)];
@@ -66,19 +62,15 @@ describe("compositions", () => {
 
 describe("experience definitions name their compositions", () => {
   const withAlias: readonly (readonly [string, ExperienceDefinition, boolean])[] = [
-    ["Apollo", apollo11Definition, true],
     ["synthetic", syntheticDefinition, true],
     ["the ring", syntheticRingDefinition, true],
-    ["a shower", buildShowerDefinition(parseShowerSettings(perseidsFile), { kind: "loaded", orbits: madeUpOrbits(7, 50) }), false],
     ["bare", syntheticBareDefinition, false],
     ["the belt", syntheticBeltDefinition, false],
   ];
   it.each(withAlias)("%s: usesEarthMoon is %s-consistent and the centre is as before", (_name, definition, earthMoon) => {
     expect(hasEarthMoon(definition)).toBe(earthMoon);
     if (earthMoon) {
-      // A scene built on the public API names its composition "scene"; it is the Earth–Moon system otherwise (O-041).
-      if (definition === apollo11Definition) expect({ ...compositionOf(definition), id: earthMoonSystem.id }).toEqual(earthMoonSystem);
-      else expect(compositionOf(definition)).toBe(earthMoonSystem);
+      expect(compositionOf(definition)).toBe(earthMoonSystem);
       expect(mountedBodiesOf(definition)).toEqual(["earth", "moon"]);
       expect(sceneCenterOf(definition)).toBe("earth");
     }
@@ -104,7 +96,7 @@ describe("experience definitions name their compositions", () => {
   });
 });
 
-describe("Apollo's framing numbers come out of the body definitions exactly", () => {
+describe("the framing numbers come out of the body definitions exactly", () => {
   const moonRadius = 1737.4 / 6371;
   it.each([[trueScale], [readableScale]] as const)("limits, default distances and radii under %o", (policy: ScalePolicy) => {
     for (const span of [6, 60.3, 600]) {
@@ -180,7 +172,7 @@ describe("the scene places Earth and the Moon exactly as before", () => {
   });
 
   it("an Earth-centred scene adds nothing to Earth-centred data: tracked positions are the samples", () => {
-    const columbia = apollo11Definition.trackedBodies![0];
+    const columbia = syntheticDefinition.trackedBodies![0];
     const t = (columbia.trajectory.bounds.startUtcMs + columbia.trajectory.bounds.endUtcMs) / 2;
     const state = columbia.trajectory.stateAt(t);
     expect(trackedAbsolute(state, trueScale, placement)).toEqual(eqjToRenderVector(trueScale.mapPosition(state.positionKm)));
@@ -195,7 +187,7 @@ describe("the scene places Earth and the Moon exactly as before", () => {
 });
 
 describe("tracked data and groups follow the scene centre", () => {
-  const columbia = apollo11Definition.trackedBodies![0];
+  const columbia = syntheticDefinition.trackedBodies![0];
   const mid = (columbia.trajectory.bounds.startUtcMs + columbia.trajectory.bounds.endUtcMs) / 2;
 
   it("a Moon-centred scene shifts Earth-measured data by the Earth's offset from the Moon", () => {
@@ -331,7 +323,7 @@ describe("State is untouched by how a scene presents it (design E step 3)", () =
     const resolver = createSceneResolver(adapter);
     const camera = new PerspectiveCamera();
     // Built once: sampling the Apollo trajectory in the constructor costs about 75 ms, which times 18 passes made this case the suite's slowest under coverage (I-060).
-    const tracked = new TrackedBodyView(apollo11Definition.trackedBodies![0]);
+    const tracked = new TrackedBodyView(syntheticDefinition.trackedBodies![0]);
     for (const centre of BODIES) {
       for (const policy of [trueScale, readableScale]) {
         for (const t of DATES) {
@@ -363,7 +355,7 @@ describe("State is untouched by how a scene presents it (design E step 3)", () =
     const first = createSceneResolver(createOrbAstronomyAdapter());
     const second = createSceneResolver(createOrbAstronomyAdapter());
     // Mount the Apollo scene on one and the belt on the other, in different orders, before comparing.
-    placeComposition(mountedBodiesOf(apollo11Definition), { resolver: first, center: sceneCenterOf(apollo11Definition) }, trueScale, DATES[0]);
+    placeComposition(mountedBodiesOf(syntheticDefinition), { resolver: first, center: sceneCenterOf(syntheticDefinition) }, trueScale, DATES[0]);
     placeComposition(mountedBodiesOf(syntheticBeltDefinition), { resolver: second, center: sceneCenterOf(syntheticBeltDefinition) }, readableScale, DATES[2]);
     expect(allStates(first)).toEqual(allStates(second));
   });

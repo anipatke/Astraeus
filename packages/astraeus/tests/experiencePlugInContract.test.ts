@@ -1,24 +1,21 @@
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
-import { createOrbAstronomyAdapter } from "astraeus/core/astronomyAdapter";
-import { SimulationClock } from "astraeus/core/clock";
-import { catalogue } from "astraeus/assets/catalogue";
-import { createSceneResolver } from "astraeus/app/sceneLayout";
-import { experienceWithGroups, trackedBodiesOf, type ExperienceDefinition } from "astraeus/app/experienceDefinition";
-import { AstraeusShell } from "astraeus/shell/AstraeusShell";
-import { apollo11Definition } from "astraeus-demo-apollo11/experiences/apollo11/apollo11Definition";
-import { syntheticDefinition } from "astraeus/synthetic/syntheticDefinition";
-import { provenanceAt, rateAt } from "astraeus/core/timeWindow";
-import { infoView } from "astraeus/shell/infoModel";
-import perseidsFile from "astraeus-demo-showers/data/showers/perseids.json";
-import { buildShowerDefinition } from "astraeus-demo-showers/tests/helpers/showerDefinition";
-import { madeUpOrbits } from "astraeus-demo-showers/tests/helpers/measuredOrbits";
-import { parseShowerSettings } from "astraeus-demo-showers/experiences/showers/showerSettings";
-import type { RateMetric } from "astraeus/shell/metrics";
+import { createOrbAstronomyAdapter } from "../src/core/astronomyAdapter";
+import { SimulationClock } from "../src/core/clock";
+import { catalogue } from "../src/assets/catalogue";
+import { createSceneResolver } from "../src/app/sceneLayout";
+import { trackedBodiesOf, type ExperienceDefinition } from "../src/app/experienceDefinition";
+import { AstraeusShell } from "../src/shell/AstraeusShell";
+import { syntheticDefinition } from "../src/synthetic/syntheticDefinition";
+import { provenanceAt, rateAt } from "../src/core/timeWindow";
+import { infoView } from "../src/shell/infoModel";
+import type { RateMetric } from "../src/shell/metrics";
+
+// Moved from the site's tests (O-059 T-272): the experience plug-in contract is the engine's, held on the made-up definition. The Apollo and Perseids rows are held on those demos' scenes in the site (tests/demoScenes.test.ts).
 
 const sources = import.meta.glob<string>(
-  ["../../astraeus/src/core/**/*.{ts,tsx}", "../../astraeus/src/assets/**/*.{ts,tsx}", "../../astraeus/src/shell/**/*.{ts,tsx,css}", "../../astraeus/src/app/*.{ts,tsx,css}"],
+  ["../src/core/**/*.{ts,tsx}", "../src/assets/**/*.{ts,tsx}", "../src/shell/**/*.{ts,tsx,css}", "../src/app/*.{ts,tsx,css}"],
   { query: "?raw", import: "default", eager: true },
 );
 
@@ -43,7 +40,6 @@ function shellMarkup(definition: ExperienceDefinition): string {
 }
 
 describe.each([
-  ["Apollo", apollo11Definition, "Columbia"],
   ["the synthetic experience", syntheticDefinition, "Survey marker"],
 ] as const)("%s through the plug-in contract", (_name, definition, ownLabel) => {
   it("hands the shell its own objects", () => {
@@ -131,20 +127,9 @@ describe("the synthetic window", () => {
     expect(first?.provenance?.status).not.toMatch(/measured/i);
   });
 
-  it("leaves Apollo without windows and with its events unchanged", () => {
-    expect(apollo11Definition.experience.windows).toBeUndefined();
-    expect(apollo11Definition.experience.events.length).toBeGreaterThan(0);
+  it("keeps its events as made", () => {
+    expect(syntheticDefinition.experience.events.length).toBeGreaterThan(0);
     expect(syntheticDefinition.experience.events.map((event) => event.id)).toEqual(["marker-start", "marker-quarter"]);
-  });
-});
-
-describe("a shower built from a settings file", () => {
-  const shower = buildShowerDefinition(parseShowerSettings(perseidsFile), { kind: "loaded", orbits: madeUpOrbits(7, 50) });
-
-  it("mounts through the shell with its own stream and none of Apollo's objects", () => {
-    const markup = shellMarkup({ ...shower, experience: experienceWithGroups(shower) });
-    expect(markup).toContain("Perseids stream");
-    expect(markup).not.toMatch(/columbia|eagle|apollo/i);
   });
 });
 

@@ -20,7 +20,7 @@ import { START_CAMERA_DISTANCE } from "./sceneFraming";
 import { addressSearch, shareViewLink } from "./address";
 import { Collapsible } from "../shell/Collapsible";
 import { PanelLoadBoundary } from "./PanelLoadBoundary";
-import { BOOT_FADE_LIMITS, bootFadeSeconds, saveBootFadeSeconds, type CoverClaim } from "../shell/bootLoader";
+import { BOOT_FADE_LIMITS, bootFadeSeconds, saveBootFadeSeconds } from "../shell/bootLoader";
 import { LabelSettings, UnderTheHoodSettings, ViewLinkReadout, MoonsAndRingsSettings, SkyAndSunSettings, StoryPanelSettings } from "./developerPanels";
 import { DEFAULT_ILLUMINATE_ALL } from "./lighting";
 import { SettingButtons, SettingColor, SettingGroup, SettingSlider } from "./SettingControls";
@@ -112,10 +112,6 @@ function startViewUp(definition: ExperienceDefinition, search: string): ViewUp {
 
 function storyStartOf(storySet: ExperienceDefinition["experience"]["storyPanels"]) {
   return { autoOpen: storySet?.autoOpen ?? false, pauseSeconds: storySet?.pauseSeconds ?? 0 };
-}
-
-function switcherOf(definition: ExperienceDefinition, runtime: Runtime, open?: (address: string) => void) {
-  return definition.switcher === undefined ? undefined : { ...definition.switcher, currentTimeUtcMs: () => runtime.clock.snapshot().timeUtcMs, open };
 }
 
 /** Everything one mounted experience shares: clock, resolver, catalogue and the settings read from its definition and the address. */
@@ -220,14 +216,12 @@ function initialSceneControls(
 const drawerWhen = (asked: boolean | undefined, drawer: ReactNode): ReactNode => (asked === true ? drawer : undefined);
 
 /**
- * `onOpenAddress`: the entry's way to open a switch's address in place; without it a switch navigates the page.
  * `writeTitle`: whether the page heading is set to the experience's name (default true); `mount` and `AstraeusScene` pass false so a host page keeps its own title.
  * `developerTools`: whether the viewer shows the Developer toggle and drawer (default false; the drawer's code is fetched only when a visitor opens it, so off never fetches it; the demo site passes true).
  * `address`: whether the viewer reads the page address (`view`, `t`, `scale`, `up`, `show`, `stars`, `milkyway`, `labels` and the other parameters in the README) and offers a copy-link button that writes it (default false: a host page's address is its own; the demo site passes true).
- * `claimCover`: the demo site's loading cover; the first frame fades the element it returns. Internal: `mount` and `AstraeusScene` pass none, so a host page's own `#boot` is never touched.
  * `host`: the link a host page reads and sets the one clock through (time, speed) and hears its changes from; every change goes through the same handlers as the timeline's own controls.
  */
-export function App({ definition, onOpenAddress, writeTitle = true, address, developerTools, host, claimCover }: { readonly definition: ExperienceDefinition; readonly onOpenAddress?: (address: string) => void; readonly writeTitle?: boolean; readonly address?: boolean; readonly developerTools?: boolean; readonly host?: ViewerPort; readonly claimCover?: CoverClaim }) {
+export function App({ definition, writeTitle = true, address, developerTools, host }: { readonly definition: ExperienceDefinition; readonly writeTitle?: boolean; readonly address?: boolean; readonly developerTools?: boolean; readonly host?: ViewerPort }) {
   // The page heading names the experience once it is open; app.html says only "Astraeus" until then.
   useEffect(() => {
     if (writeTitle) document.title = pageTitleOf(definition);
@@ -698,7 +692,7 @@ export function App({ definition, onOpenAddress, writeTitle = true, address, dev
       scaleId={scale}
       onScaleChange={updateScale}
       scaleChoices={scaleChoices}
-      switcher={definition.picker === undefined ? switcherOf(definition, runtime, onOpenAddress) : pickerSwitch(definition.picker, hostPick ?? definition.picker.value, choosePick)}
+      switcher={definition.picker === undefined ? undefined : pickerSwitch(definition.picker, hostPick ?? definition.picker.value, choosePick)}
       displaySwitches={displaySwitches}
       viewChoice={viewChoice}
       viewCamera={currentView === undefined ? undefined : { id: currentView.id, rule: currentView.camera }}
@@ -717,7 +711,7 @@ export function App({ definition, onOpenAddress, writeTitle = true, address, dev
       onOpenFeatureChange={markOpenFeature}
     >
       <div className="canvas-host">
-        <AstraeusScene runtime={runtime} controls={controls.current} readout={readout} scaleId={scale} claimCover={claimCover} onFirstDraw={host === undefined ? undefined : told} />
+        <AstraeusScene runtime={runtime} controls={controls.current} readout={readout} scaleId={scale} onFirstDraw={host === undefined ? undefined : told} />
       </div>
     </AstraeusShell>
   );
