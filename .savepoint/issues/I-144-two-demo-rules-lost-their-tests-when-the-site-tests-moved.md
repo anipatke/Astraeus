@@ -9,7 +9,7 @@ source:
   actor: {role: checker, session: o059-check-20261107}
   at: '2026-11-06T19:51:42Z'
 tasks: [T-272]
-checks: [C-148]
+checks: [C-148, C-149]
 guardrail_ids: [TEST-01, TEST-03]
 severity: low
 history:
@@ -23,6 +23,11 @@ history:
     kind: repair_attempted
     note: 'Repair: tests/moonFreeMetrics.test.ts (a made-up Moon-free scene; a spying resolver is never asked for the Moon) and a new block in tests/markerRuleEveryBody.test.ts (bodies a scene defines for itself with addBodyFromElements, with and without a radius: drawn size, marker far off, sphere close up). Deep-import counts unchanged (engine tests, no site import). Mutations: a Moon read through a variable in assembleScene createMetrics fails moonFreeMetrics; forcing radiusKm 0 in core/elementsBody.ts fails both marker rows; both undone. Design drift line for T-272 corrected. Gates as I-143. Unverified: the real shower scenes (swift-tuttle, phaethon) are not walked; the made-up body takes the same code path (addBodyFromElements).'
     check: C-148
+  - at: '2026-11-06T20:15:58Z'
+    actor: {role: checker, session: o059-recheck-20261106}
+    kind: rechecked
+    note: 'Proof holds under C-149: moonFreeMetrics fails with a Moon read through a variable at createMetrics and at each metric read; markerRuleEveryBody fails both rows with radius 0 from addBodyFromElements; deep-import counts unchanged; Design line corrected. Not closed: a verified resolution needs a CLEAR Check, and C-149 is NEEDS WORK for I-143 only. Close as verified on the next CLEAR.'
+    check: C-149
 ---
 
 # I-144: Two demo rules lost their tests when the site tests moved

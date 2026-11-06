@@ -9,7 +9,7 @@ source:
   actor: {role: checker, session: o059-check-20261107}
   at: '2026-11-06T19:51:42Z'
 tasks: [T-267, T-268]
-checks: [C-148]
+checks: [C-148, C-149]
 guardrail_ids: [API-04]
 severity: low
 history:
@@ -23,6 +23,11 @@ history:
     kind: repair_attempted
     note: 'Repair: new api/frozenCopy.ts (deep frozen copy of plain data, lists, dates and typed arrays; providers and class instances kept). addPlaces, setMoonPanel and addBodySet now keep a frozen copy at the call, as setPicker does. The general test tests/sceneInputCopies.test.ts (55 cases: 18 object-taking Scene calls, each input alone, edit-after-call and one object for two scenes) also caught addTrajectory (provenance, anchors, samples), addGroup, addStoryPanels, setTimeline and setScale (kept the caller''s object); all fixed the same way (setScale keeps the library scale). Four existing tests that asserted provenance identity (toBe) now compare by value. Mutations: removing each of the three copies fails its two rows; making frozenCopy the identity fails 14 rows (7 calls x 2). Gates: lint, typecheck, build, npm test (227 files, 2999 passed), check:engine-alone, check:pack pass. Unverified: check:browser not run; the recheck runs it.'
     check: C-148
+  - at: '2026-11-06T20:15:58Z'
+    actor: {role: checker, session: o059-recheck-20261106}
+    kind: rechecked
+    note: 'C-149 NEEDS WORK; stays open. Proven: the five scenarios, every leaf of addBodySet, setMoonPanel and addPlaces edited alone, one object for two scenes, and removing each copy fails its rows. Not proven: the general test. It is a hand-written list, so a scratch setZed that keeps its input passes sceneInputCopies and lifecycle (100 of 100); and addBody and addBodyFromElements keep options.knownLimitations (planBodies.ts:172), a field the row leaves out. Still needed: the table walks Scene.prototype so a call with no row fails, and the addBody row carries knownLimitations with a copy at the call.'
+    check: C-149
 ---
 
 # I-143: Three new scene calls keep the caller's object, so later edits skip their checks
