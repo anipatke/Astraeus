@@ -72,7 +72,7 @@ describe("what a scene holds", () => {
 
   it("carries provenance: a path's own, an event's own else the batch's, and the group card's illustrative statement over the source", () => {
     const scene = build();
-    expect(scene.paths[0]!.provenance).toBe(pathProvenance);
+    expect(scene.paths[0]!.provenance).toEqual(pathProvenance);
     expect(scene.events.map((event) => [event.id, event.provenance])).toEqual([["early", batch], ["late", own]]);
     const [ring, swarm] = scene.groups;
     expect(ring!.provenance).toMatchObject({ sourceType: "illustrative", sources: ["A made-up catalogue"] });

@@ -19,6 +19,7 @@ export type { GroupInput, GroupOrbitInput, GroupClumpInput, GroupReadoutInput } 
 export type { ActivityInput, ActivitySampleInput, ActivitySourceInput } from "./activity";
 export type { DataSource, MoonPositions } from "./data";
 import { SceneError } from "./errors";
+import { frozenCopy } from "./frozenCopy";
 import { NotLoadedError } from "../core/planetSeries";
 import { BodyPlan } from "./planBodies";
 import { GroupPlan } from "./planGroups";
@@ -298,11 +299,12 @@ export class Scene {
   /** Adds a path to follow and draw, from sampled states or a provider with `stateAt(time)`. */
   addTrajectory(input: TrajectoryInput): this {
     this.#editable();
-    const id = input.id;
+    const own = frozenCopy(input);
+    const id = own.id;
     if (typeof id !== "string" || id === "") throw new SceneError("bad-trajectory", "addTrajectory: the trajectory needs a non-empty id");
     if (this.#taken(id)) throw new SceneError("duplicate-id", `addTrajectory("${id}"): that id is already in the scene`);
-    this.#track(input, input.center ?? this.#sceneCentre());
-    if (input.center === undefined) this.#defaulted.set(id, input);
+    this.#track(own, own.center ?? this.#sceneCentre());
+    if (own.center === undefined) this.#defaulted.set(id, own);
     return this;
   }
 
@@ -330,7 +332,7 @@ export class Scene {
    */
   addGroup(input: GroupInput): this {
     this.#editable();
-    this.#groupPlan.addGroup(input);
+    this.#groupPlan.addGroup(frozenCopy(input));
     return this;
   }
 
@@ -409,8 +411,9 @@ export class Scene {
   /** Chooses the opening scale: `trueScale`, `readableScale` or `solarSystemScale` (true distances, the enlarged bodies drawn larger; it needs a Sun-centred scene with an enlarged body, else the scene throws `bad-scale`); the viewer can switch to the other (in a Sun-centred scene with an enlarged body, the second choice is the Solar system scale instead of the readable one), unless `{ only: true }` offers this scale alone. */
   setScale(scale: ScalePolicy, options: { readonly only?: boolean } = {}): this {
     this.#editable();
-    if (!SCALES.some((known) => known.id === scale?.id)) throw new SceneError("bad-scale", `setScale: "${String(scale?.id)}" is not a scale; use trueScale, readableScale or solarSystemScale`);
-    this.#scale = scale;
+    const known = SCALES.find((candidate) => candidate.id === scale?.id);
+    if (known === undefined) throw new SceneError("bad-scale", `setScale: "${String(scale?.id)}" is not a scale; use trueScale, readableScale or solarSystemScale`);
+    this.#scale = known;
     this.#scaleOnly = options.only === true;
     return this;
   }
@@ -454,14 +457,14 @@ export class Scene {
    */
   addStoryPanels(panels: StoryPanelsInput): this {
     this.#editable();
-    this.#story.addPanels(panels);
+    this.#story.addPanels(frozenCopy(panels));
     return this;
   }
 
   /** Sets the timeline: its span (`start`, `end`), the speeds offered (`rates`), the speed it opens at (`rate`), `pacing` (playback that slows for encounters and speeds up for cruise: spans `{ from, to, rate }` and event rules `{ near: { type, within }, rate }`, easing between speeds; a speed the visitor or host picks wins until `setRate("auto")`; see `PacingInput`) and whether playback wraps from the end to the start (`loop`; ignored with `{ none: true }`, which has no span to wrap, and when `setTimeline` is not called), or `{ none: true }` for no timeline bar, with time frozen at `at` or running at `rate`. Without this call the span follows the paths and the speeds are 1 minute, 1 hour and 1 day per second. */
   setTimeline(timeline: TimelineInput): this {
     this.#editable();
-    this.#timeline.setTimeline(timeline);
+    this.#timeline.setTimeline(frozenCopy(timeline));
     return this;
   }
 

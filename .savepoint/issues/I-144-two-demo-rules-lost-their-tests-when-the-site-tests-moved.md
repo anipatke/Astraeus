@@ -18,6 +18,11 @@ history:
     kind: observed
     note: 'Named by T-272 and Design as a coverage gap left for the Full Objective Check; judged case by case in C-148.'
     check: C-148
+  - at: '2026-11-07T07:05:00Z'
+    actor: {role: executor, session: o059-repair-20261107}
+    kind: repair_attempted
+    note: 'Repair: tests/moonFreeMetrics.test.ts (a made-up Moon-free scene; a spying resolver is never asked for the Moon) and a new block in tests/markerRuleEveryBody.test.ts (bodies a scene defines for itself with addBodyFromElements, with and without a radius: drawn size, marker far off, sphere close up). Deep-import counts unchanged (engine tests, no site import). Mutations: a Moon read through a variable in assembleScene createMetrics fails moonFreeMetrics; forcing radiusKm 0 in core/elementsBody.ts fails both marker rows; both undone. Design drift line for T-272 corrected. Gates as I-143. Unverified: the real shower scenes (swift-tuttle, phaethon) are not walked; the made-up body takes the same code path (addBodyFromElements).'
+    check: C-148
 ---
 
 # I-144: Two demo rules lost their tests when the site tests moved

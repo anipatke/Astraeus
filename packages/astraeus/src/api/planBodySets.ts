@@ -20,6 +20,7 @@ import type { BodySetInput, BodySetMemberInput } from "./bodySetInput";
 import { bad, checkInput, idOf } from "./bodySetChecks";
 import type { DataSource } from "./data";
 import { SceneError } from "./errors";
+import { frozenCopy } from "./frozenCopy";
 import { frozenList, type SceneBodySetRead } from "./sceneReads";
 import { toUtcMs } from "./time";
 
@@ -78,7 +79,7 @@ export class BodySetPlan {
       if (this.#taken(id) || this.#catalogue().has(id) && kind === "elements") throw new SceneError("duplicate-id", `addBodySet("${input.id}"): "${id}" is already in the scene${this.#catalogue().has(id) ? " or the catalogue" : ""}`);
     }
     if (input.center !== undefined && !this.#catalogue().has(idOf(input.center))) throw new SceneError("unknown-body", `addBodySet("${input.id}"): centre "${String(idOf(input.center))}" is not a catalogued body`);
-    this.sets.set(input.id, { input, kind });
+    this.sets.set(input.id, { input: frozenCopy(input), kind });
   }
 
   centerOf(set: PlannedBodySet, first: BodyId): BodyId {

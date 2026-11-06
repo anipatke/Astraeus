@@ -2,6 +2,7 @@ import type { BodyId } from "../core/body";
 import { createProvenance } from "../core/provenance";
 import type { ExperienceDefinition } from "../app/experienceDefinition";
 import { SceneError } from "./errors";
+import { frozenCopy } from "./frozenCopy";
 import { idOf } from "./bodySetChecks";
 import type { BodyRef } from "./bodies";
 import type { PlaceInput, PlacesInput } from "./moonPanelInput";
@@ -65,7 +66,7 @@ export class PlacesPlan {
     if (!isText(id)) throw bad(id, "name the body: a body or its id");
     if (this.sets.has(id)) throw new SceneError("duplicate-id", `addPlaces("${id}"): that body already has places; give them all in one call`);
     checkInput(id, input);
-    this.sets.set(id, input);
+    this.sets.set(id, frozenCopy(input));
   }
 
   /** The places in the order added. */

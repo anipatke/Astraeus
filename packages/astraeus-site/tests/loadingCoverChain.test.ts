@@ -13,10 +13,20 @@ vi.mock("@react-three/fiber", async (orig) => ({
 }));
 
 // The public `mount`, recorded: what the site gave it, and every viewer it drew so each test can take its viewers down again.
-const mounts = vi.hoisted(() => ({ calls: [] as { options: { address?: boolean; developerTools?: boolean } | undefined; handle: { unmount(): void } }[] }));
+const mounts = vi.hoisted(() => ({ calls: [] as { options: { address?: boolean; developerTools?: boolean } | undefined; handle: { unmount(): void }; picker: { id: string } | undefined; onPick: number }[] }));
 vi.mock("astraeus", async (orig) => {
   const real = await orig<typeof import("astraeus")>();
-  return { ...real, mount: (...args: Parameters<typeof real.mount>) => { const handle = real.mount(...args); mounts.calls.push({ options: args[2], handle }); return handle; } };
+  return {
+    ...real,
+    mount: (...args: Parameters<typeof real.mount>) => {
+      const handle = real.mount(...args);
+      const call = { options: args[2], handle, picker: args[1].picker, onPick: 0 };
+      const onPick = handle.onPick.bind(handle);
+      handle.onPick = (listener) => { call.onPick += 1; return onPick(listener); };
+      mounts.calls.push(call);
+      return handle;
+    },
+  };
 });
 
 const COVER = '<div id="boot" role="status" data-state="loading"><span class="loading">Loading</span><span class="failed">Failed</span></div><div id="app"></div>';
@@ -81,6 +91,26 @@ describe("the site's loading cover reaches the scene", () => {
     expect(boot()?.dataset.state, "the older scene hid the newer cover").toBe("loading");
     firstFrame();
     expect(boot()!.dataset.state).toBe("done");
+  });
+});
+
+describe("the site's picker wiring", () => {
+  // The planet scene is built from files in the repository (no fetch), so its entry mounts here; the shower entry fetches its orbit file and is held by the browser steps.
+  it("a planet scene gets its switch as a picker, and the site listens for the press", async () => {
+    vi.stubGlobal("fetch", () => new Promise<never>(() => undefined));
+    window.history.replaceState(null, "", "/?experience=planets&planet=mercury");
+    await import("../src/main");
+    await drawnScenes(1);
+    expect(mounts.calls[0]!.picker, "main.tsx did not call setPicker on the planet scene").toBeDefined();
+    expect(mounts.calls[0]!.onPick, "main.tsx did not listen with onPick").toBe(1);
+  });
+
+  it("a scene with no picker is not listened to", async () => {
+    window.history.replaceState(null, "", "/?experience=synthetic");
+    await import("../src/main");
+    await drawnScenes(1);
+    expect(mounts.calls[0]!.picker).toBeUndefined();
+    expect(mounts.calls[0]!.onPick).toBe(0);
   });
 });
 

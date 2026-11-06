@@ -18,6 +18,11 @@ history:
     kind: observed
     note: 'Full Objective Check matrix, input axis "mutation after validation".'
     check: C-148
+  - at: '2026-11-07T07:05:00Z'
+    actor: {role: executor, session: o059-repair-20261107}
+    kind: repair_attempted
+    note: 'Repair: new api/frozenCopy.ts (deep frozen copy of plain data, lists, dates and typed arrays; providers and class instances kept). addPlaces, setMoonPanel and addBodySet now keep a frozen copy at the call, as setPicker does. The general test tests/sceneInputCopies.test.ts (55 cases: 18 object-taking Scene calls, each input alone, edit-after-call and one object for two scenes) also caught addTrajectory (provenance, anchors, samples), addGroup, addStoryPanels, setTimeline and setScale (kept the caller''s object); all fixed the same way (setScale keeps the library scale). Four existing tests that asserted provenance identity (toBe) now compare by value. Mutations: removing each of the three copies fails its two rows; making frozenCopy the identity fails 14 rows (7 calls x 2). Gates: lint, typecheck, build, npm test (227 files, 2999 passed), check:engine-alone, check:pack pass. Unverified: check:browser not run; the recheck runs it.'
+    check: C-148
 ---
 
 # I-143: Three new scene calls keep the caller's object, so later edits skip their checks

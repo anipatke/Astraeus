@@ -45,7 +45,7 @@ describe("addBodySet with made-up members (elements)", () => {
     expect(layer.bodyFamilies).toEqual({});
     expect(layer.extraOrbits).toBeUndefined();
     expect(layer.balancePoint).toBeUndefined();
-    expect(layer.group.provenance).toBe(PROVENANCE);
+    expect(layer.group.provenance).toEqual(PROVENANCE);
   });
 
   it("each member's elements are honoured: the centre-relative radius stays between periapsis and apoapsis and returns after one period", () => {
@@ -126,8 +126,8 @@ describe("addBodySet with made-up members (elements)", () => {
   it("stateOf and provenanceOf accept member ids, and story panels may name them", () => {
     const own = { ...PROVENANCE, accuracy: "Own." };
     const scene = base().addBodySet(set({ members: [member(0, "inner", { provenance: own }), member(1)] })).addStoryPanels({ panels: [{ id: "p", at: { utc: "2026-01-01T00:01:00Z" }, title: "A bit", body: ["Made up."], badge: "illustrative", sources: ["Invented"], object: "bit-1" }] });
-    expect(scene.provenanceOf("bit-0")).toBe(own);
-    expect(scene.provenanceOf("bit-1")).toBe(PROVENANCE);
+    expect(scene.provenanceOf("bit-0")).toEqual(own);
+    expect(scene.provenanceOf("bit-1")).toEqual(PROVENANCE);
     expect(scene.panels.map((panel) => panel.object)).toEqual(["bit-1"]);
     expect(scene.toDefinition().experience.storyPanels?.panels.map((panel) => panel.objectId)).toEqual(["bit-1"]);
     expect(codeOf(() => scene.stateOf("ghost", T0))).toBe("unknown-body");
@@ -317,7 +317,7 @@ describe("addBodySet with listed moons (positions through data)", () => {
     for (const id of ["amalthea", "himalia"]) {
       expect(Array.from(scene.stateOf(id, T1).positionKm)).toEqual(Array.from(JUPITER_MOON_SYSTEM.ephemeris().stateOf(id, T1).positionKm));
     }
-    expect(scene.provenanceOf("thebe")).toBe(PROVENANCE);
+    expect(scene.provenanceOf("thebe")).toEqual(PROVENANCE);
   });
 
   it("orbitHistoryMs asks for the chunks before the window; without it none is loaded", async () => {

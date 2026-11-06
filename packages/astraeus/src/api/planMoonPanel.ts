@@ -2,6 +2,7 @@ import type { BodyCatalogue } from "../assets/catalogue";
 import { moonListSummary } from "../core/moonListText";
 import type { ExperienceDefinition } from "../app/experienceDefinition";
 import { SceneError } from "./errors";
+import { frozenCopy } from "./frozenCopy";
 import type { MoonPanelFamilyInput, MoonPanelInput } from "./moonPanelInput";
 import { frozenList, type SceneMoonPanelRead } from "./sceneReads";
 import { toUtcMs } from "./time";
@@ -57,7 +58,7 @@ export class MoonPanelPlan {
 
   set(input: MoonPanelInput): void {
     this.#day = checkInput(input);
-    this.#input = input;
+    this.#input = frozenCopy(input);
   }
 
   get input(): MoonPanelInput | undefined { return this.#input; }
