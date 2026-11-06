@@ -1,0 +1,175 @@
+{
+ "synthetic": {
+  "events": [
+   [
+    "marker-start",
+    1893456000000
+   ],
+   [
+    "marker-quarter",
+    1893463200000
+   ]
+  ],
+  "window": {
+   "startUtcMs": 1893456000000,
+   "endUtcMs": 1893484800000
+  },
+  "rates": [
+   60,
+   600,
+   3600
+  ],
+  "clockRate": 600,
+  "panels": [
+   "marker-loop",
+   "marker-late"
+  ],
+  "groups": [],
+  "windows": [
+   [
+    "contact-window",
+    1893457800000,
+    1893468600000,
+    1893464100000,
+    "passes per hour",
+    7,
+    2
+   ]
+  ],
+  "camera": null
+ },
+ "ring": {
+  "events": [
+   [
+    "ring-start",
+    1893456000000
+   ],
+   [
+    "ring-half",
+    1893499200000
+   ]
+  ],
+  "window": {
+   "startUtcMs": 1893456000000,
+   "endUtcMs": 1893542400000
+  },
+  "rates": [
+   60,
+   600,
+   3600
+  ],
+  "clockRate": 600,
+  "panels": [],
+  "groups": [
+   {
+    "id": "debris-ring",
+    "count": 10000
+   }
+  ],
+  "windows": [],
+  "camera": null
+ },
+ "belt": {
+  "events": [
+   [
+    "belt-start",
+    1893456000000
+   ],
+   [
+    "belt-half",
+    1893499200000
+   ]
+  ],
+  "window": {
+   "startUtcMs": 1893456000000,
+   "endUtcMs": 1893542400000
+  },
+  "rates": [
+   60,
+   600,
+   3600
+  ],
+  "clockRate": 600,
+  "panels": [],
+  "groups": [
+   {
+    "id": "dust-belt",
+    "count": 10000
+   }
+  ],
+  "windows": [],
+  "camera": {
+   "maxFocusDistance": 400000,
+   "far": 1000000
+  }
+ },
+ "listed": {
+  "events": [
+   [
+    "listed-start",
+    1893456000000
+   ],
+   [
+    "listed-half",
+    1909180800000
+   ]
+  ],
+  "window": {
+   "startUtcMs": 1893456000000,
+   "endUtcMs": 1928016000000
+  },
+  "rates": [
+   3600,
+   86400,
+   604800
+  ],
+  "clockRate": 86400,
+  "panels": [],
+  "groups": [
+   {
+    "id": "listed-orbits",
+    "count": 3000
+   }
+  ],
+  "windows": [],
+  "camera": {
+   "maxFocusDistance": 400000,
+   "far": 1000000
+  }
+ },
+ "eccentric": {
+  "events": [
+   [
+    "belt-start",
+    1893456000000
+   ],
+   [
+    "belt-half",
+    1893499200000
+   ]
+  ],
+  "window": {
+   "startUtcMs": 1893456000000,
+   "endUtcMs": 1893542400000
+  },
+  "rates": [
+   60,
+   600,
+   3600
+  ],
+  "clockRate": 600,
+  "panels": [],
+  "groups": [
+   {
+    "id": "dust-belt",
+    "count": 10000
+   }
+  ],
+  "windows": [],
+  "camera": {
+   "maxFocusDistance": 4000000,
+   "far": 12000000
+  }
+ },
+ "_about": "Facts of the five rebuilt made-up scenes as their engine fixtures (packages/astraeus/src/synthetic/*Definition.ts) stated them before O-059 T-271; captured once from those definitions. syntheticScenes.test.ts holds the public-API rebuilds to them. Every difference the rebuild accepts is listed in that test."
+}

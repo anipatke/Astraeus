@@ -84,29 +84,29 @@ describe("placeScene", () => {
 });
 
 describe("stepAndPoseCamera", () => {
-  it("hides the handed loading cover and uses the start view on the first frame only", () => {
+  it("tells the host on the first frame only, in an animation frame, and uses the start view then", () => {
     const raf = vi.fn((fn: FrameRequestCallback) => { fn(0); return 1; });
     vi.stubGlobal("requestAnimationFrame", raf);
     const startView = { focus: "moon", azimuthDeg: 30, elevationDeg: 10, distance: 5 };
     const made = makeContext({ controls: { startView } });
-    const cover = { dataset: { state: "loading" }, style: { setProperty: () => undefined }, remove: () => undefined } as unknown as HTMLElement;
-    vi.stubGlobal("window", { setTimeout: () => 1, clearTimeout: () => undefined, localStorage: { getItem: () => null } });
-    const ctx = { ...made.ctx, state: createFrameState(made.ctx.controls.policy.id, () => () => cover) };
+    const told = vi.fn();
+    const ctx = { ...made.ctx, state: createFrameState(made.ctx.controls.policy.id, told) };
     const placed = placeScene(ctx, T0);
     stepAndPoseCamera(ctx, T0, placed);
     expect(raf).toHaveBeenCalledTimes(1);
-    expect(cover.dataset.state).toBe("done");
+    expect(told).toHaveBeenCalledTimes(1);
     expect(ctx.orbit.focus).toBe("moon");
     expect(ctx.state.started).toBe(true);
     expect(ctx.controls.viewReadout?.focus).toBe("moon");
     ctx.orbit.focus = "earth";
     stepAndPoseCamera(ctx, T0, placed);
     expect(raf).toHaveBeenCalledTimes(1);
+    expect(told).toHaveBeenCalledTimes(1);
     expect(ctx.orbit.focus).toBe("earth");
     expect(ctx.state.lastUp).toBe(EQUATORIAL_UP);
   });
 
-  it("asks for no animation frame on the first frame when the host handed no cover (mount and AstraeusScene)", () => {
+  it("asks for no animation frame on the first frame when nobody listens (a viewer with no host link)", () => {
     const raf = vi.fn();
     vi.stubGlobal("requestAnimationFrame", raf);
     const { ctx } = makeContext();

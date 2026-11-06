@@ -19,14 +19,22 @@ export type { GroupInput, GroupOrbitInput, GroupClumpInput, GroupReadoutInput } 
 export type { ActivityInput, ActivitySampleInput, ActivitySourceInput } from "./activity";
 export type { DataSource, MoonPositions } from "./data";
 import { SceneError } from "./errors";
+import { frozenCopy } from "./frozenCopy";
 import { NotLoadedError } from "../core/planetSeries";
 import { BodyPlan } from "./planBodies";
 import { GroupPlan } from "./planGroups";
+import { BodySetPlan, type BodySetContext } from "./planBodySets";
+import { MoonPanelPlan } from "./planMoonPanel";
+import { PickerPlan } from "./planPicker";
+import type { PickerInput } from "./pickerInput";
+import { PlacesPlan } from "./planPlaces";
+import type { MoonPanelInput, PlacesInput } from "./moonPanelInput";
+import type { BodySetInput } from "./bodySetInput";
 import { assembleScene } from "./assembleScene";
 import { SceneCamera } from "./planCamera";
 import { isMounted } from "./sceneFreeze";
-import type { SceneBodyRead, SceneEventRead, SceneGroupRead, ScenePanelRead, ScenePathRead, SceneTimelineRead, SceneViewsRead } from "./sceneReads";
-export type { SceneBodyRead, SceneEventRead, SceneGroupRead, ScenePanelRead, ScenePathRead, SceneTimelineRead, SceneViewRead, SceneViewsRead } from "./sceneReads";
+import type { SceneBodyRead, SceneBodySetRead, SceneEventRead, SceneGroupRead, SceneMoonPanelRead, ScenePanelRead, ScenePlacesRead, ScenePathRead, SceneTimelineRead, SceneViewsRead } from "./sceneReads";
+export type { SceneBodyRead, SceneBodySetRead, SceneEventRead, SceneGroupRead, SceneMoonPanelRead, ScenePanelRead, ScenePlacesRead, ScenePathRead, SceneTimelineRead, SceneViewRead, SceneViewsRead } from "./sceneReads";
 export { SceneCamera } from "./planCamera";
 import { StoryPlan } from "./planStory";
 import { buildTracked, pathReads, type Tracked } from "./planPaths";
@@ -46,8 +54,9 @@ export interface AddBodyOptions {
   /**
    * Draws the body's orbit as a line: the Moon's about Earth and Io's about Jupiter, or, in a scene that holds the Sun, one full turn round the Sun of any body that
    * circles it (the planets, Earth's year, a body added with `addBodyFromElements`), from the scene's opening time (an own body from its periapsis). Others throw `no-orbit`.
+   * An object `{ lapDays, fades? }` draws any moon's line from a lap time you state (`OrbitLapInput`), whether or not its record has a period. Default: no line.
    */
-  readonly orbit?: boolean;
+  readonly orbit?: boolean | OrbitLapInput;
   /** Draws the body this many times larger than life so a planet can be seen; a number of at least 1 (distances stay true). In a scene centred on the Sun the viewer offers its \"solar-system\" scale (true distances, the named bodies enlarged) as the second scale choice in place of the readable scale. A bad value throws `bad-body`. */
   readonly enlarge?: number;
   /** False starts the body's label off (the body stays in the menu and selectable; the viewer's labels switch can turn it on). Default true. */
@@ -62,7 +71,33 @@ export interface AddBodyOptions {
   readonly knownLimitations?: readonly string[];
   /** Bars for the body's info card, in order: the same list a path takes (`addTrajectory`'s `readouts`), measured from the scene's centre body. They replace the catalogue's own distance rows. A bad readout throws `bad-readout`; a named body must be in the scene. */
   readonly readouts?: readonly ReadoutInput[];
+  /** False leaves the body out of the viewer's object menu (default true). It stays drawn and selectable, and the menu shows it while it is the selected one. A non-boolean throws `bad-body`. */
+  readonly listed?: boolean;
+  /** Labelled facts for the body's info card, in order, such as `{ label: "Discovered", value: "1610" }`; both texts non-empty, else `bad-body`. None by default. */
+  readonly facts?: readonly CardFactInput[];
+  /** Sources added to the card's provenance after the body's own (the catalogue's), each a non-empty text, else `bad-body`. Also read by `Scene.provenanceOf`. None by default. */
+  readonly sources?: readonly string[];
+  /** Which label wins when labels overlap: the higher number shows. A finite number, else `bad-body`. Default `100 - index`, so bodies added earlier win. */
+  readonly labelPriority?: number;
 }
+
+/** One labelled fact on a body's info card (`AddBodyOptions.facts`). */
+export interface CardFactInput {
+  readonly label: string;
+  readonly value: string;
+}
+
+/**
+ * The orbit line of a moon from a lap time you give, for a moon whose catalogue record has no period (or to override it): one lap of `lapDays` days about its parent, which must be in the scene.
+ * `fades` true fades the line's far end; false closes the loop; absent follows the moon's own rule (the Moon's line fades, others close). A bad lap or a body that circles the Sun throws `bad-body`.
+ */
+export interface OrbitLapInput {
+  readonly lapDays: number;
+  readonly fades?: boolean;
+}
+
+/** The rows a body's info card can show, in the order given to `Scene.setBodyReadouts`. */
+export type BodyReadoutKind = "distance" | "phase" | "coordinates";
 
 /** A source anchor on a path: a point the data was published at, drawn as a dot and labelled with its id. Its time must fall within the path. */
 export interface AnchorInput {
@@ -147,6 +182,9 @@ export interface SceneLoadOptions {
   readonly data?: readonly DataSource[];
 }
 
+const DEFAULT_BODY_READOUTS: readonly BodyReadoutKind[] = Object.freeze(["distance"]);
+const BODY_READOUT_KINDS: readonly BodyReadoutKind[] = ["distance", "phase", "coordinates"];
+
 const SCALES: readonly ScalePolicy[] = [trueScale, readableScale, solarSystemScale];
 
 /**
@@ -166,6 +204,10 @@ export class Scene {
   /** Paths added without a `center`: they follow the scene's first body, so one added before any body is rebuilt when the first body arrives. */
   readonly #defaulted = new Map<string, TrajectoryInput>();
   readonly #groupPlan = new GroupPlan(() => this.#plan.catalogue, (id) => this.#taken(id));
+  readonly #bodySets = new BodySetPlan(() => this.#plan.catalogue, (id) => this.#taken(id));
+  readonly #moonPanel = new MoonPanelPlan();
+  readonly #places = new PlacesPlan();
+  readonly #picker = new PickerPlan();
   readonly #story = new StoryPlan();
   readonly #timeline = new TimelinePlan();
   readonly #viewPlan = new ViewPlan();
@@ -173,6 +215,7 @@ export class Scene {
   #scale: ScalePolicy = trueScale;
   #scaleOnly = false;
   #look: LookInput | undefined;
+  #bodyReadouts: readonly BodyReadoutKind[] = DEFAULT_BODY_READOUTS;
 
   constructor() {
     this.camera = new SceneCamera((id) => this.#taken(id), (id) => this.#plan.bodies.has(id) && circlesTheSun(this.#plan.catalogue, id), () => this.#editable());
@@ -192,13 +235,25 @@ export class Scene {
   /** The groups the scene holds (`addGroup`), in the order added: id, label, orbit count, centre body, plane and the provenance the group's card shows. A fresh frozen list on every read. */
   get groups(): readonly SceneGroupRead[] { return this.#groupPlan.reads(this.#sceneFirst()); }
 
+  /** The body sets the scene holds (`addBodySet`), in the order added: id, centre body, member count and family ids. A fresh frozen list on every read. */
+  get bodySets(): readonly SceneBodySetRead[] { return this.#bodySets.reads(this.#sceneFirst()); }
+
+  /** The picker (`setPicker`), as set; undefined when none was set. */
+  get picker(): PickerInput | undefined { return this.#picker.input; }
+
+  /** The moon panel (`setMoonPanel`): how many moons it lists and the line that states them with their source and date; undefined when none was set. */
+  get moonPanel(): SceneMoonPanelRead | undefined { return this.#moonPanel.read(); }
+
+  /** The bodies that hold tagged places (`addPlaces`), in the order added, with how many each holds. A fresh frozen list on every read. */
+  get places(): readonly ScenePlacesRead[] { return this.#places.reads(); }
+
   /** The events the scene holds (`addEvents`), sorted by time: id, label, `timeUtcMs`, type, object and provenance (the event's own, else the batch's). A fresh frozen list on every read. */
   get events(): readonly SceneEventRead[] { return this.#story.eventReads(); }
 
   /** The story panels (`addStoryPanels`), sorted by time with their times resolved against the events, path anchors and timeline as `mount` resolves them; empty when none were added. A bad panel throws `bad-panels`, as `mount` would. A fresh frozen list on every read. */
   get panels(): readonly ScenePanelRead[] {
     const { window } = this.#timelineSpan();
-    return this.#story.panelReads(window, this.#tracked.values(), [...this.#plan.bodies.keys(), ...this.#tracked.keys(), ...this.#groupPlan.groups.keys()]);
+    return this.#story.panelReads(window, this.#tracked.values(), [...this.#plan.bodies.keys(), ...this.#tracked.keys(), ...this.#groupPlan.groups.keys(), ...this.#bodySets.memberIds()]);
   }
 
   /** The views the scene names (`setViews`): the id of the opening view (`startId`), where the choice shows and each view's id and label; undefined when none were named. */
@@ -244,11 +299,12 @@ export class Scene {
   /** Adds a path to follow and draw, from sampled states or a provider with `stateAt(time)`. */
   addTrajectory(input: TrajectoryInput): this {
     this.#editable();
-    const id = input.id;
+    const own = frozenCopy(input);
+    const id = own.id;
     if (typeof id !== "string" || id === "") throw new SceneError("bad-trajectory", "addTrajectory: the trajectory needs a non-empty id");
     if (this.#taken(id)) throw new SceneError("duplicate-id", `addTrajectory("${id}"): that id is already in the scene`);
-    this.#track(input, input.center ?? this.#sceneCentre());
-    if (input.center === undefined) this.#defaulted.set(id, input);
+    this.#track(own, own.center ?? this.#sceneCentre());
+    if (own.center === undefined) this.#defaulted.set(id, own);
     return this;
   }
 
@@ -265,7 +321,7 @@ export class Scene {
 
   /** Whether a body, path or group already has this id. */
   #taken(id: string): boolean {
-    return this.#plan.bodies.has(id) || this.#tracked.has(id) || this.#groupPlan.groups.has(id);
+    return this.#plan.bodies.has(id) || this.#tracked.has(id) || this.#groupPlan.groups.has(id) || this.#bodySets.has(id);
   }
 
   /**
@@ -276,7 +332,60 @@ export class Scene {
    */
   addGroup(input: GroupInput): this {
     this.#editable();
-    this.#groupPlan.addGroup(input);
+    this.#groupPlan.addGroup(frozenCopy(input));
+    return this;
+  }
+
+  /**
+   * Adds many small bodies about one centre as one batch: each member is a selectable dot (a ball at true size close up, its name on hover, tap or near zoom), with orbit lines coloured by its family.
+   * The members circle the scene's centre unless `center` names another body in the scene. They are all listed moons of the centre (positions come through `data`, as for `addBody`) or all made-up
+   * ones with `elements` on two-body motion. `bodies` names bodies added with `addBody` that belong to a family. A repeated id throws `duplicate-id`; a malformed set, an unlisted moon, a centre
+   * without gravity or a balance point outside the set throws `bad-body-set`. Read the result from `scene.bodySets`.
+   * @example
+   * scene.addBodySet({ id: "swarm", families: [{ id: "inner", label: "Inner swarm" }], provenance: { sourceType: "illustrative", sources: ["Made up"], accuracy: "Not real.", notes: "" }, members: [{ id: "bit-a", label: "Bit A", radiusKm: 5, family: "inner", elements: { semiMajorAxisKm: 30_000, eccentricity: 0.1, inclinationDeg: 5, raanDeg: 10, argumentOfPeriapsisDeg: 20, trueAnomalyDeg: 30 } }] });
+   */
+  addBodySet(input: BodySetInput): this {
+    this.#editable();
+    this.#bodySets.add(input);
+    return this;
+  }
+
+  /**
+   * Shows the sliding panel of a planet's moons by family: its heading label, the families (each a one-line description and its moons, named or provisional), the family listed first with pictures
+   * (`featuredFamily`) and where and when the list was taken (`listSource`, `listDate`). Each moon is a body (`addBody`) or a body-set member (`addBodySet`) of the scene, checked when the scene is built;
+   * its label comes from there, and a body gets the picture the viewer's `data` brings for it. Replaces any earlier panel. A malformed panel, or a moon the scene does not hold, throws `bad-moon-panel`. Read the count and summary from `scene.moonPanel`.
+   * @example
+   * scene.setMoonPanel({ label: "Tarn", families: [{ id: "inner", label: "Inner moons", description: "Close and quick.", moons: [{ id: "bit-a" }] }], listSource: "A made-up list", listDate: "2026-10-18" });
+   */
+  setMoonPanel(input: MoonPanelInput): this {
+    this.#editable();
+    this.#moonPanel.set(input);
+    return this;
+  }
+
+  /**
+   * Offers a choice in the viewer's top bar and phone drawer: one button per option, the one with `value` pressed when the viewer opens. Fewer than two options draw nothing. Replaces any earlier picker.
+   * A press only tells the host (`onPick` on the handle, or the prop of `AstraeusScene`): the viewer never navigates, reads or writes the page address, or keeps a time, and the pressed button does not move
+   * until the host calls `setPick` or mounts a new scene. A malformed picker, or a `value` that is not one of the options, throws `bad-picker`. Read it back from `scene.picker`.
+   * @example
+   * scene.setPicker({ id: "world", label: "World", options: [{ value: "tarn", label: "Tarn" }, { value: "mere", label: "Mere" }], value: "tarn" });
+   */
+  setPicker(input: PickerInput): this {
+    this.#editable();
+    this.#picker.set(input);
+    return this;
+  }
+
+  /**
+   * Adds the tagged places of one body, drawn as markers on it and opened in the information panel: categories (key, label, colour), places (id, name, kind, category, latitude and longitude in degrees as given,
+   * description and optional details) and the provenance shown with each. The body must be in the scene when it is built. A second call for one body throws `duplicate-id`; a malformed list throws `bad-places`.
+   * Read the result from `scene.places`.
+   * @example
+   * scene.addPlaces("tarn", { categories: [{ key: "pit", label: "Pits", color: "#9de3a8" }], places: [{ id: "deep", name: "Deep Pit", kind: "Pit", category: "pit", latitudeDeg: 12, longitudeDeg: -40, description: "A made-up pit." }], provenance: { sourceType: "illustrative", sources: ["Made up"], accuracy: "Not real.", notes: "" } });
+   */
+  addPlaces(body: BodyRef | BodyId, input: PlacesInput): this {
+    this.#editable();
+    this.#places.add(body, input);
     return this;
   }
 
@@ -302,8 +411,9 @@ export class Scene {
   /** Chooses the opening scale: `trueScale`, `readableScale` or `solarSystemScale` (true distances, the enlarged bodies drawn larger; it needs a Sun-centred scene with an enlarged body, else the scene throws `bad-scale`); the viewer can switch to the other (in a Sun-centred scene with an enlarged body, the second choice is the Solar system scale instead of the readable one), unless `{ only: true }` offers this scale alone. */
   setScale(scale: ScalePolicy, options: { readonly only?: boolean } = {}): this {
     this.#editable();
-    if (!SCALES.some((known) => known.id === scale?.id)) throw new SceneError("bad-scale", `setScale: "${String(scale?.id)}" is not a scale; use trueScale, readableScale or solarSystemScale`);
-    this.#scale = scale;
+    const known = SCALES.find((candidate) => candidate.id === scale?.id);
+    if (known === undefined) throw new SceneError("bad-scale", `setScale: "${String(scale?.id)}" is not a scale; use trueScale, readableScale or solarSystemScale`);
+    this.#scale = known;
     this.#scaleOnly = options.only === true;
     return this;
   }
@@ -321,6 +431,19 @@ export class Scene {
     return this;
   }
 
+  /**
+   * Chooses the rows a body's info card shows (a body whose `addBody` gave its own `readouts` keeps those): `"distance"` (to the parent and the Sun), `"phase"` (the lit share of its disc, for a body with a parent)
+   * and `"coordinates"`, in the order given. Replaces the earlier choice. Default `["distance"]`. An unknown kind, or a list that is not an array, throws `bad-readout`.
+   * @example
+   * scene.setBodyReadouts(["distance", "phase", "coordinates"]);
+   */
+  setBodyReadouts(kinds: readonly BodyReadoutKind[]): this {
+    this.#editable();
+    if (!Array.isArray(kinds) || kinds.some((kind) => !BODY_READOUT_KINDS.includes(kind))) throw new SceneError("bad-readout", `setBodyReadouts: give a list of ${BODY_READOUT_KINDS.map((kind) => `"${kind}"`).join(", ")}, got ${JSON.stringify(kinds)}`);
+    this.#bodyReadouts = Object.freeze([...kinds]);
+    return this;
+  }
+
   /** Adds timed events to the timeline, each with an id, a label and a moment; `provenance` says where the times come from and is shown with every event that has none of its own (`EventInput.provenance`). May be called more than once. Malformed provenance throws "bad-event". */
   addEvents(events: readonly EventInput[], options: AddEventsOptions = {}): this {
     this.#editable();
@@ -334,14 +457,14 @@ export class Scene {
    */
   addStoryPanels(panels: StoryPanelsInput): this {
     this.#editable();
-    this.#story.addPanels(panels);
+    this.#story.addPanels(frozenCopy(panels));
     return this;
   }
 
   /** Sets the timeline: its span (`start`, `end`), the speeds offered (`rates`), the speed it opens at (`rate`), `pacing` (playback that slows for encounters and speeds up for cruise: spans `{ from, to, rate }` and event rules `{ near: { type, within }, rate }`, easing between speeds; a speed the visitor or host picks wins until `setRate("auto")`; see `PacingInput`) and whether playback wraps from the end to the start (`loop`; ignored with `{ none: true }`, which has no span to wrap, and when `setTimeline` is not called), or `{ none: true }` for no timeline bar, with time frozen at `at` or running at `rate`. Without this call the span follows the paths and the speeds are 1 minute, 1 hour and 1 day per second. */
   setTimeline(timeline: TimelineInput): this {
     this.#editable();
-    this.#timeline.setTimeline(timeline);
+    this.#timeline.setTimeline(frozenCopy(timeline));
     return this;
   }
 
@@ -384,6 +507,7 @@ export class Scene {
    */
   stateOf(id: string, time: TimeInput): State {
     const entry = this.#tracked.get(id);
+    if (entry === undefined && !this.#plan.bodies.has(id) && this.#bodySets.setOf(id) !== undefined) return this.#bodySets.stateOf(id, toUtcMs(time, `stateOf("${id}") time`), this.#bodySetContext());
     if (entry === undefined && !this.#plan.bodies.has(id)) throw new SceneError("unknown-body", `stateOf("${id}"): no body or trajectory with that id has been added to the scene`);
     const timeUtcMs = toUtcMs(time, `stateOf("${id}") time`);
     const trajectory = entry?.body.trajectory ?? this.#catalogueSource(id);
@@ -402,8 +526,17 @@ export class Scene {
   provenanceOf(id: string): Provenance {
     const entry = this.#tracked.get(id);
     if (entry !== undefined) return entry.body.provenance!; // addTrajectory always sets one
+    if (!this.#plan.bodies.has(id) && this.#bodySets.setOf(id) !== undefined) return this.#bodySets.provenanceOf(id);
     if (!this.#plan.bodies.has(id)) throw new SceneError("unknown-body", `provenanceOf("${id}"): no body or trajectory with that id has been added to the scene`);
-    return this.#plan.catalogue.get(id).definition.accuracy.position;
+    return this.#plan.provenanceOf(id);
+  }
+
+  /** What a body set needs of the finished scene, checked: its bodies, window and opening time. */
+  #bodySetContext(): BodySetContext {
+    if (this.#plan.bodies.size === 0) throw new SceneError("empty-scene", "the scene has no bodies; call addBody before reading a body set's members");
+    const context: BodySetContext = { ids: [...this.#plan.bodies.keys()], catalogue: this.#plan.catalogue, orbits: this.#plan.orbits, ...this.#timelineSpan() };
+    this.#bodySets.check(context);
+    return context;
   }
 
   /** A catalogued body's state source, the one the viewer draws from, made once per scene; none for the root (the Sun). */
@@ -444,11 +577,11 @@ export class Scene {
 
   /** The data packages the added bodies need that `data` does not provide. */
   missingData(data: readonly DataSource[] = []): readonly string[] {
-    return this.#plan.missingData(data);
+    return [...new Set([...this.#plan.missingData(data), ...this.#bodySets.missingData(data)])];
   }
 
   /** The app's plug-in contract for this scene (`assembleScene.ts`). Throws if the scene is empty or a body needs a data package not passed in `data`. */
   toDefinition(data: readonly DataSource[] = []): ExperienceDefinition {
-    return assembleScene({ plan: this.#plan, tracked: this.#tracked, groupPlan: this.#groupPlan, story: this.#story, timeline: this.#timeline, viewPlan: this.#viewPlan, camera: this.camera, scale: this.#scale, scaleOnly: this.#scaleOnly, look: this.#look }, data);
+    return assembleScene({ plan: this.#plan, tracked: this.#tracked, groupPlan: this.#groupPlan, bodySets: this.#bodySets, moonPanel: this.#moonPanel, picker: this.#picker, places: this.#places, story: this.#story, timeline: this.#timeline, viewPlan: this.#viewPlan, camera: this.camera, scale: this.#scale, scaleOnly: this.#scaleOnly, look: this.#look, bodyReadouts: this.#bodyReadouts }, data);
   }
 }

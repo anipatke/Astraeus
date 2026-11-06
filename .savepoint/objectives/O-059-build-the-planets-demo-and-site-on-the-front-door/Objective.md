@@ -1,7 +1,7 @@
 ---
 id: O-059
 title: Build the planets demo and site on the front door
-status: planned
+status: in_progress
 depends_on: [O-056]
 release: G-016
 priority: high
@@ -33,6 +33,12 @@ Owner, 2026-11-01: "Yes, in 0.8.0" and "lets do this right, no hurry on the app"
 - Picker: a public setting in the viewer's top bar and phone drawer, not a control the site draws outside the viewer. The site's look stays.
 - Moon dots, the moon family panel and tagged surface places all become public.
 - The nine made-up test scenes are rebuilt on the public way.
+- Follow keeps today's look: `camera.setFollowChoices` stays (O3, owner "Keep today's look").
+- Surface place lists publish in `astraeus-data`, about 840 KB, with a NOTICE line (O1, owner "Publish in astraeus-data").
+- Engine unpacked limit rises to 9.8 MB from T-267 and returns to 9.5 MB at T-270 (owner "Raise briefly, restore at step 6").
+- API reference page gzip limit rises from 30,000 to 40,000 B (owner "Raise to 40 KB").
+- API reference page raw limit rises from 150,000 to 200,000 B (owner "Raise to 200 KB", 2026-11-07).
+- `astraeus-data` file-count limit rises from 40 to 130 for the place lists (owner "Raise the limit to 130").
 
 ## Architectural Considerations
 

@@ -7,7 +7,6 @@
 // no other check depends on (the journey's checks and its Object list stay exactly as they were).
 import type { ExperienceDefinition } from "../app/experienceDefinition";
 import { Scene } from "../api/scene";
-import { ViewerLink } from "../api/viewerLink";
 import { earth } from "../api/bodies";
 import { trueScale } from "../core/scalePolicy";
 
@@ -49,10 +48,3 @@ const scene = new Scene()
 scene.camera.follow("probe-a", { distance: 14 });
 
 export const syntheticViewsDefinition: ExperienceDefinition = scene.toDefinition();
-
-/** The host link a host page gets from `mount`, for the dev page: kept on `window.astraeusHost` so a browser check can call `setView` and read what the viewer tells a host. */
-export function createViewsHost(): ViewerLink {
-  const link = new ViewerLink();
-  (window as unknown as { astraeusHost?: ViewerLink }).astraeusHost = link;
-  return link;
-}

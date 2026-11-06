@@ -1,4 +1,5 @@
 import type { LookInput, LookRead } from "./look";
+import type { PickChange } from "./pickerInput";
 import type { TimeInput } from "./time";
 import type { SelectionChange } from "./viewerSelection";
 import type { CameraPose, CameraTarget, EventZoneChange, ViewerChange, ViewerLink } from "./viewerLink";
@@ -58,6 +59,20 @@ export interface ViewerHandle {
   readonly switches: Readonly<Record<string, boolean>> | undefined;
   /** Turns a display switch the scene placed on or off, as the visitor's switch does; an id it did not place, or a non-boolean, throws `bad-switch`; before `ready` or after `unmount`, `not-mounted`. `onChange` hears it with `cause: "host"`. */
   setSwitch(id: string, on: boolean): void;
+  /**
+   * Calls `listener()` once when the scene's first frame has been drawn (not `ready`, which resolves when the clock attaches, a moment before); returns the function that stops it. A listener added after that frame is called at once.
+   * A viewer rebuild (`AstraeusScene` given a new scene) draws a new first frame and calls the listeners still added again. A listener that throws is reported to the page (`reportError`) and does not stop the listeners after it. No callbacks arrive after `unmount`.
+   */
+  onFirstDraw(listener: () => void): () => void;
+  /** The value of the option the picker shows pressed (`Scene.setPicker`); undefined until `ready` has resolved, after `unmount`, and in a scene without a picker. */
+  readonly pick: string | undefined;
+  /** Moves the pressed option to the option with this value, and does nothing else: no signal, no other change. A scene without a picker, or a value that is not one of its options, throws `bad-picker`; before `ready` or after `unmount`, `not-mounted`. */
+  setPick(value: string): void;
+  /**
+   * Calls `listener({ picker, value })` when a visitor presses an option other than the pressed one; returns the function that stops it. The viewer only reports the press: the pressed option stays where it was until the host calls `setPick` (or mounts a new scene),
+   * and the viewer never navigates or touches the page address. To keep the clock across a choice, read `time` inside the listener and set it on the next scene (`setTime`). No callbacks arrive after `unmount`. A listener that throws is reported to the page (`reportError`) and does not stop the listeners after it.
+   */
+  onPick(listener: (change: PickChange) => void): () => void;
   /** Calls `listener` on every change (see `MountOptions.onChange`); returns the function that stops it. No callbacks arrive after `unmount`. A listener that throws is reported to the page (`reportError`) and does not stop the listeners after it. */
   onChange(listener: (change: ViewerChange) => void): () => void;
 }
@@ -76,6 +91,9 @@ export function viewerHandleOf(link: ViewerLink): ViewerHandle {
     get look() { return link.look; },
     get scale() { return link.scale; },
     get switches() { return link.switches; },
+    get pick() { return link.pick; },
+    setPick: (value) => link.setPick(value),
+    onPick: (listener) => link.onPick(listener),
     setLook: (look) => link.setLook(look),
     setScale: (id) => link.setScale(id),
     setSwitch: (id, on) => link.setSwitch(id, on),
@@ -85,6 +103,7 @@ export function viewerHandleOf(link: ViewerLink): ViewerHandle {
     setRate: (rate) => link.setRate(rate),
     setPlaying: (playing) => link.setPlaying(playing),
     onChange: (listener) => link.onChange(listener),
+    onFirstDraw: (listener) => link.onFirstDraw(listener),
     onEventZone: (listener) => link.onEventZone(listener),
     onSelect: (listener) => link.onSelect(listener),
     onCameraChange: (listener) => link.onCameraChange(listener),

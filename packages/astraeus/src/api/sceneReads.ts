@@ -1,5 +1,6 @@
 import type { BodyId } from "../core/body";
 import type { Provenance } from "../core/provenance";
+import type { TextureRef } from "../assets/licence";
 
 /** A body the scene holds, as `Scene.bodies` lists it (in the order they were added; the first is the scene's centre). */
 export interface SceneBodyRead {
@@ -15,6 +16,12 @@ export interface SceneBodyRead {
   readonly description?: string;
   /** The known limits on its info card: those given to `addBody`, else the catalogue's own. */
   readonly knownLimitations: readonly string[];
+  /** Whether the object menu offers it (`listed`); true unless `addBody` said false. */
+  readonly listed: boolean;
+  /** The facts on its info card, as `addBody` gave them (`facts`); absent when none were given. */
+  readonly facts?: readonly { readonly label: string; readonly value: string }[];
+  /** The picture and licence the engine ships for the body (what a credits page lists); absent for a body drawn from a picture a data package brings, or from a flat colour. */
+  readonly texture?: TextureRef;
 }
 
 /** A path the scene holds (`addTrajectory`), as `Scene.paths` lists it. */
@@ -46,6 +53,18 @@ export interface SceneGroupRead {
   readonly description: string;
   /** The known limits on its info card: those given, then the engine's own about the dots' placement and motion (and the clump, when set). */
   readonly knownLimitations: readonly string[];
+}
+
+/** A body set the scene holds (`addBodySet`), as `Scene.bodySets` lists it. */
+export interface SceneBodySetRead {
+  readonly id: string;
+  /** The body the members circle. */
+  readonly center: BodyId;
+  /** How many members (dots) it draws. */
+  /** How many members (dots) it draws. */
+  readonly count: number;
+  /** The ids of its families, in order. */
+  readonly families: readonly string[];
 }
 
 /** A timeline event the scene holds (`addEvents`), as `Scene.events` lists it (sorted by time). */
@@ -91,6 +110,20 @@ export interface SceneViewsRead {
   /** Where the view choice shows: "top-bar" or "panel". */
   readonly place: "top-bar" | "panel";
   readonly items: readonly SceneViewRead[];
+}
+
+/** The moon panel the scene holds (`setMoonPanel`), as `Scene.moonPanel` states it. */
+export interface SceneMoonPanelRead {
+  /** How many moons the panel lists, in every family. */
+  readonly count: number;
+  /** The count with its source and date, such as "115 moons in the JPL Horizons list of 18 October 2026". */
+  readonly summary: string;
+}
+
+/** The tagged places a body holds (`addPlaces`), as `Scene.places` lists them. */
+export interface ScenePlacesRead {
+  readonly body: BodyId;
+  readonly count: number;
 }
 
 /** The timeline the scene opens with, as `Scene.timeline` states it. */

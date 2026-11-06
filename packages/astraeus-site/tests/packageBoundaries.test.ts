@@ -15,7 +15,7 @@ import { describe, expect, it } from "vitest";
 const ENGINE = "astraeus";
 const SITE = "astraeus-site";
 /** Demos that are stories on the public API: their `src/` imports `astraeus` and nothing else outside the package. */
-const PUBLIC_API_DEMOS: ReadonlySet<string> = new Set(["astraeus-demo-apollo11", "astraeus-demo-showers"]);
+const PUBLIC_API_DEMOS: ReadonlySet<string> = new Set(["astraeus-demo-apollo11", "astraeus-demo-planets", "astraeus-demo-showers"]);
 const isDemo = (name: string) => name.startsWith("astraeus-demo-");
 const isData = (name: string) => name === "astraeus-data" || name.startsWith("astraeus-data-");
 /** Engine files that are not shipped code: its tests and the test setup. */
@@ -266,9 +266,9 @@ function deepImportCounts(packagesDir: string): Record<string, number> {
  */
 const DEEP_IMPORT_COUNTS: Record<string, number> = {
   "astraeus-demo-apollo11": 129, // src is on the front door (PUBLIC_API_DEMOS); the rest is tests and tools
-  "astraeus-demo-planets": 123, // F13, O-059
+  "astraeus-demo-planets": 0, // on the front door (PUBLIC_API_DEMOS), tests included (O-059 T-270)
   "astraeus-demo-showers": 68, // src is on the front door; the rest is tests and tools
-  "astraeus-site": 92, // F13, O-059
+  "astraeus-site": 0, // on the front door, src, tests and tools (O-059 T-272)
 };
 
 /** Offences of measured counts against the recorded ones. */
@@ -421,7 +421,7 @@ describe("package boundaries (ARCH-03)", () => {
 
   it("reads import.meta.glob patterns, string and array forms, and allows only the named data rules", () => {
     const dir = scratchPackages({
-      "astraeus-demo-a/src/things/okData.ts": `const a = ${GLOB}<unknown>("../../../astraeus/data/bodies/{io,europa}/*.json", { eager: true });\n`,
+      "astraeus-demo-a/src/things/okData.ts": `const a = ${GLOB}<unknown>("../../../astraeus-data/data/bodies/{io,europa}/*.json", { eager: true });\n`,
       [`${SITE}/src/okData.ts`]: `const a = ${GLOB}(["../../astraeus-demo-a/data/*.json", "!../../astraeus-demo-a/data/x/*"], { eager: true });\nconst b = ${GLOB}("../../astraeus/data/**/*.bin");\n`,
       "astraeus-demo-a/src/things/codeGlob.ts": `const a = ${GLOB}("../../../astraeus/src/core/*.ts");\n`,
       "astraeus-demo-a/src/things/arrayGlob.ts": `const a = ${GLOB}<Record<string, unknown>>(["../../../astraeus/data/*.json", "../../../astraeus/tools/**/*.mjs"]);\n`,

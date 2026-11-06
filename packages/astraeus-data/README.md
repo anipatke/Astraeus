@@ -5,6 +5,7 @@ Pictures for the [Astraeus](https://github.com/anipatke/Astraeus) engine, kept a
 - maps of Io, Europa, Ganymede, Callisto, Mimas, Enceladus, Tethys, Dione, Rhea, Titan, Iapetus, Triton, Pluto and Charon;
 - the 8k Venus map (used on wide screens);
 - the Milky Way picture (Kevinmloch, from Gaia EDR3, CC BY-SA 4.0), one 3840x1920 image.
+- the tagged surface places of 24 bodies (`astraeus-data/bodies/<body>/features.json`, `categories.json`, `overview.json`, `map.json`, and `bodies/catalogue.json`), the owner's own Planetary Explorer lists, as data for `scene.addPlaces`. They are never loaded unless an app imports them.
 
 Moons with pictures: Io, Europa, Ganymede, Callisto, Mimas, Enceladus, Tethys, Dione, Rhea, Titan, Iapetus, Triton and Charon. Every other listed moon, among them Uranus's Miranda, Ariel, Umbriel, Titania and Oberon, draws flat-coloured with this package loaded. Pluto also has a map.
 

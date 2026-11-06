@@ -1,11 +1,11 @@
 // The page address has one door (O-052 T-223, strategic fix): only `src/app/address.ts` reads or writes it for the viewer, so a new parameter cannot bypass the host's `address` option.
-// The two files below navigate the page itself (a demo switch, a developer data switch), which the demo site keeps; they are not parameter readers.
+// The developer data switch navigates the page itself; it is not a parameter reader. The demo site's picker (in-page address changes) is the site's, not the engine's (O-059 T-272).
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import { join, relative } from "node:path";
 import { describe, expect, it } from "vitest";
 
 const SRC = join(__dirname, "..", "src");
-const ALLOWED = new Set(["app/address.ts", "shell/SwitchControl.tsx", "app/DeveloperSettings.tsx"]);
+const ALLOWED = new Set(["app/address.ts", "app/DeveloperSettings.tsx"]);
 const ADDRESS_USE = /\b(window|document|globalThis|self)\.location\b|(?<![\w.])location\.(search|href|hash|pathname|assign|replace|origin)\b|\bhistory\.(replaceState|pushState|back|forward|go)\b/;
 
 function sources(dir: string): string[] {

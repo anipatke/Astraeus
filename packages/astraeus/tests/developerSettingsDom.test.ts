@@ -6,7 +6,7 @@ import { createRoot, type Root } from "react-dom/client";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { SceneControls } from "../src/app/AstraeusScene";
 import { DEFAULT_BODY_SET_LOOK, type BodySetLayer, type BodySetLook } from "../src/app/bodySet";
-import { LabelSettings, MoonsAndRingsSettings, SkyAndSunSettings, StoryPanelSettings, UnderTheHoodSettings, ViewLinkReadout } from "../src/app/DeveloperSettings";
+import { LabelSettings, MoonsAndRingsSettings, SkyAndSunSettings, StoryPanelSettings, ViewLinkReadout } from "../src/app/DeveloperSettings";
 import type { GlowLook } from "../src/app/bodyDraw";
 import type { RingLook, RingSystem } from "../src/assets/rings";
 
@@ -196,22 +196,5 @@ describe("ViewLinkReadout", () => {
     const select = vi.spyOn(field, "select");
     act(() => { field.dispatchEvent(new FocusEvent("focusin", { bubbles: true })); });
     expect(select).toHaveBeenCalled();
-  });
-});
-
-describe("UnderTheHoodSettings", () => {
-  it("offers each alternate data set as a button, marks the active one, and reloads the page with its address parameter", () => {
-    const assign = vi.fn();
-    vi.stubGlobal("location", { href: "http://localhost/app.html?x=1", assign, search: "?x=1" });
-    show(createElement(UnderTheHoodSettings, { hud: null, frames: null, fills: [], fpsHistory: [], alternates: [{ param: "data", value: "a", label: "Set A", active: true }, { param: "data", value: "b", label: "Set B", active: false }] }));
-    expect(button("Set A").getAttribute("aria-pressed")).toBe("true");
-    expect(button("Set B").getAttribute("aria-pressed")).toBe("false");
-    press(button("Set B"));
-    expect(assign).toHaveBeenCalledExactlyOnceWith("http://localhost/app.html?x=1&data=b");
-    vi.unstubAllGlobals();
-  });
-  it("leaves out the Data group when there are no alternates", () => {
-    show(createElement(UnderTheHoodSettings, { hud: null, frames: null, fills: [], fpsHistory: [], alternates: undefined }));
-    expect(container.querySelector('[data-setting-group="data"]')).toBeNull();
   });
 });

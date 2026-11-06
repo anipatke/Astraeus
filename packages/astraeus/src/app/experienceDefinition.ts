@@ -1,4 +1,3 @@
-import type { ReactNode } from "react";
 import type { SimulationClock } from "../core/clock";
 import type { EventZone, Pacing } from "../core/pacing";
 import type { StateResolver } from "../core/stateResolver";
@@ -29,15 +28,6 @@ export interface ExperienceRuntime {
   /** The one resolver every position in the mount comes from; a metric reads a body's state through it. */
   readonly resolver: StateResolver;
   readonly catalogue: BodyCatalogue;
-}
-
-/** One developer-tools section; the app draws the heading and the experience supplies the body. */
-export interface DeveloperSection {
-  readonly id: string;
-  readonly heading: string;
-  /** Sections sit around the generic scene instrumentation and display settings. */
-  readonly placement: "before-scene" | "after-scene";
-  readonly render: (runtime: ExperienceRuntime) => ReactNode;
 }
 
 /**
@@ -197,7 +187,6 @@ export interface ExperienceDefinition {
   /** Paths of Sun-centred objects; drawn only when the `sun-centred` layer is listed. */
   readonly paths?: readonly PathLayer[];
   readonly createMetrics: (runtime: ExperienceRuntime) => (objectId: string, timeUtcMs: number) => readonly Metric[];
-  readonly developerSections?: readonly DeveloperSection[];
   /** Optional camera reach; omitted, the scene keeps its built-in limits. */
   readonly camera?: CameraReach;
   /**
@@ -205,13 +194,8 @@ export interface ExperienceDefinition {
    * bounded by the window is never left past its end. Presentation of time only; the user can still seek, pause and switch it off.
    */
   readonly loop?: boolean;
-  /**
-   * Alternative versions of the same experience for comparison, shown as buttons in Developer > Display settings: choosing one reloads the page with
-   * `?param=value` (the experience is built again from the address). Absent: none.
-   */
-  readonly alternates?: readonly { readonly label: string; readonly param: string; readonly value: string; readonly active: boolean }[];
-  /** A choice between versions of this experience, shown in the top bar and the phone drawer: choosing one opens it again with `?param=value` (the camera view and time of the old address are dropped). Absent: none. */
-  readonly switcher?: import("../shell/SwitchControl").ExperienceSwitch;
+  /** A host's picker (`Scene.setPicker`), a press is reported to the host link and nothing else happens. Absent: none. */
+  readonly picker?: import("../api/pickerInput").PickerInput;
   /** Where the orbit-lines, labels and Milky Way switches show (top bar, switch panel or the Developer drawer only) and whether each starts on. Absent: all in the Developer drawer, the scene's own start. The address (`?labels=`, `?sky=`) still overrides the start. */
   readonly displaySwitches?: DisplaySwitchSettings;
   /** Named views of this one scene (presentation only), resolved once: per view, the object, event and story-panel ids it shows. Anything no view names is in every view. Absent: no views, everything shows. */

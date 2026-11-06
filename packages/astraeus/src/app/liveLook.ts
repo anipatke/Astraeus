@@ -25,6 +25,11 @@ export function skySettingsOf(definition: ExperienceDefinition, look: LookInput)
   };
 }
 
+/** Whether wide screens draw the larger desktop pictures: the look's `desktopPictures` (the scene's, with the address over it), else the definition's own opt-in (default off). Read once when the viewer is built. */
+export function desktopPicturesOf(definition: Pick<ExperienceDefinition, "desktopTextures">, look: LookInput): boolean {
+  return look.desktopPictures ?? definition.desktopTextures === true;
+}
+
 /** The looks the scene's live controls hold now, every one filled in. */
 export function lookReadOf(controls: SceneControls): LookRead {
   return {
@@ -36,6 +41,7 @@ export function lookReadOf(controls: SceneControls): LookRead {
     markerSwapRadiusPx: controls.bodyMarker.minSpherePx,
     featureMinBodyPx: featureMinBodyPxOf({ featureMinBodyPx: controls.featureMinBodyPx }),
     loadFadeSeconds: controls.loadFadeSeconds ?? bootFadeSeconds(),
+    desktopPictures: controls.desktopPictures,
   };
 }
 

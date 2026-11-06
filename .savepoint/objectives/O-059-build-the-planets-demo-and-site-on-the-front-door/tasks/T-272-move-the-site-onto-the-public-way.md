@@ -2,10 +2,11 @@
 id: T-272
 objective: O-059
 title: Move the site onto the public way
-status: planned
+status: done
 depends_on: [{task: T-271, requires: clear}]
 owner_validation: {required: false}
 planned_by: {role: planner, session: o059-planning-20261106}
+check_waiver: {task: T-272, reason: 'Owner said "orchestrate O-59" under the standing run rules (no per-step checks, coordinator marks done once gates pass, one Full Objective Check at the end); the optional Task Check is waived.', actor: {role: owner, session: o059-run-20261106}, recorded_at: '2026-11-06T17:35:10Z'}
 ---
 
 # Move the site onto the public way
@@ -48,8 +49,19 @@ Focused tests while iterating (`npx vitest run <files>`); at hand-off the config
 
 ## Technical Evidence
 
-Pending execution.
+Builder session (Sonnet), 2026-11-07, branch o059-front-door; not committed. Extra reads: none beyond Context Files, `docs/architecture/o059-public-forms.md` sections 5, 7, 11, `docs/agents/verification.md`, `.savepoint/issues/I-141`-named test files, engine `api/mount.ts`, `api/viewerHandle.ts`, `shell/SwitchControl.tsx`, `shell/bootLoader.ts`, `app/App.tsx`, `app/sceneFrame.ts`.
+
+Gates (all pass): `npm run lint`, `npm run typecheck`, `npm run build`, `npm test` (225 files, 2938 passed, 2 skipped), `npm run check:engine-alone` (158 files, 1960 passed), `npm run check:pack`, and `ASTRAEUS_PUBLIC_BUILD=1 ASTRAEUS_ENGINE_SHARE=1 npm run build && node packages/astraeus-site/tools/validate/public-build-assets.mjs dist` (`ok: true`). No browser run.
+
+Done When:
+- Site on `mount` with `address` and `developerTools`; no `App`/`ExperienceDefinition`/`toDefinition`: `src/main.tsx`; held by `tests/loadingCoverChain.test.ts` (mount options recorded).
+- Cover, heading, picker, navigation as today: `tests/entryChoice.test.ts` (every address form), `tests/addressNavigation.test.ts` (push, back/forward, overtaken, failed; `switchAddress` incl. kept `t`), `tests/listChoice.test.ts` (`pickerOf`), `tests/pageTitle.test.ts`, `tests/loadingCoverChain.test.ts` (in-page rebuild by popstate, `window.astraeusHost` for views only), `tests/bootCover.test.ts` (hide/I-074).
+- I-141 regression: `tests/loadingCoverChain.test.ts` first-frame table; mutation check: removing `handle.onFirstDraw(...)` from main.tsx fails 4 tests.
+- `DEEP_IMPORT_COUNTS["astraeus-site"]` 0: `tests/packageBoundaries.test.ts`.
+- Internals tests moved to `packages/astraeus/tests/` and pass `check:engine-alone`: compositionsContract, experienceDefinitionContract, experiencePlugInContract, experiencesContract, storyPanelSettings, markerRuleEveryBody.
 
 ## Drift Notes
 
 Record architecture deltas; deferred Design notes go to the final step of this Objective, named here as the integration Task.
+
+Engine private paths removed (`App` props `claimCover` and `onOpenAddress`, definition `switcher`, `SwitchControl` address work, `hideBootLoader`/`CoverClaim`, `createViewsHost`); `SwitchControl.tsx` left `addressRule.test.ts` ALLOWED. Not asserted anywhere now (needed `toDefinition` internals): Perseids orbit-line listing, label defaults, Earth path samples, scale factor, Moon-free metrics; Apollo metric rows; marker rule on shower-defined bodies. Site no longer wraps in StrictMode (dev only).

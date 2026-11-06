@@ -12,7 +12,7 @@ import type { ExperienceConfig } from "../src/shell/experience";
 // tests use the packages as inputs and a made-up body for the geometry.
 const DONOR = "/home/user/code/planetary-explorer";
 const MOONS = { io: 12, europa: 19, ganymede: 25, callisto: 22 } as const;
-const readPackage = (body: string, file: string): unknown => readJson(new URL(`../data/bodies/${body}/${file}.json`, import.meta.url).pathname);
+const readPackage = (body: string, file: string): unknown => readJson(new URL(`../../astraeus-data/data/bodies/${body}/${file}.json`, import.meta.url).pathname);
 const provenance = createProvenance({ sourceType: "reconstructed", sources: ["Made-up source"], accuracy: "Made-up.", notes: "Made-up." });
 const setOf = (body: string): BodyFeatureSet => bodyFeatureSet({ bodyId: body, bodyLabel: body, features: readPackage(body, "features") as never, categories: readPackage(body, "categories") as never, provenance });
 const sets = Object.keys(MOONS).map(setOf);

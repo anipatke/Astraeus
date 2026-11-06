@@ -27,6 +27,7 @@ import { AstraeusScene } from "../src/api/AstraeusScene";
 import { SceneError } from "../src/api/errors";
 import { mount } from "../src/api/mount";
 import { Scene, SceneCamera } from "../src/api/scene";
+import { earth } from "../src/api/bodies";
 import { viewerHandleOf, type ViewerHandle } from "../src/api/viewerHandle";
 import { ViewerLink, type CameraPose, type ViewerChange } from "../src/api/viewerLink";
 import { syntheticDefinition } from "../src/synthetic/syntheticDefinition";
@@ -54,7 +55,7 @@ interface Opened {
   /** Unmounts the scene. */
   unmount(): void;
   /** Builds the scene again (mount: unmount and mount; React: a new `scene` prop) and resolves when it is usable again. */
-  rebuild(): Promise<void>;
+  rebuild(next?: Scene): Promise<void>;
   /** Waits for the host to hear nothing (`"silent"`) or reports the error code / "ready" it hears. */
   outcome(): Promise<string>;
 }
@@ -72,8 +73,8 @@ const mountDriver: Driver = {
     const changes: ViewerChange[] = [];
     let ready = 0;
     let current: ReturnType<typeof mount> | undefined;
-    const build = (): Promise<void> => {
-      try { current = mount(element, scene, { onChange: (c) => changes.push(c) }); } catch (error) { errors.push(error as Error); current = undefined; return Promise.reject(error); }
+    const build = (shown: Scene = scene): Promise<void> => {
+      try { current = mount(element, shown, { onChange: (c) => changes.push(c) }); } catch (error) { errors.push(error as Error); current = undefined; return Promise.reject(error); }
       opened.handle = current;
       return current.ready.then(() => { ready += 1; }, (error: Error) => { errors.push(error); throw error; });
     };
@@ -81,7 +82,7 @@ const mountDriver: Driver = {
       handle: undefined, errors, changes, readyCount: () => ready,
       ready: () => settledReady,
       unmount: () => current?.unmount(),
-      rebuild: () => { current?.unmount(); settledReady = build(); return settledReady; },
+      rebuild: (next) => { current?.unmount(); settledReady = build(next); return settledReady; },
       outcome: () => settledReady.then(() => "ready", (error: unknown) => errorCode(error)),
     };
     let settledReady = build();
@@ -115,7 +116,7 @@ const reactDriver = (strict: boolean): Driver => ({
       handle: undefined, errors, changes, readyCount: () => ready,
       ready: () => (ready > 0 && errors.length === 0 ? Promise.resolve() : wait()),
       unmount: () => root.unmount(),
-      rebuild: () => { const next = wait(); render(new Scene()); return next; },
+      rebuild: (next) => { const heard = wait(); render(next ?? new Scene()); return heard; },
       outcome: () => Promise.race([wait().then(() => "ready", (error: unknown) => errorCode(error)), tick(60).then(() => "silent")]),
     };
     render(scene); // flushSync: the commit has happened, so the ref is set
@@ -125,7 +126,7 @@ const reactDriver = (strict: boolean): Driver => ({
 });
 
 /** The handle's members, read from one table: a new member of `ViewerHandle` must join it (the last test fails otherwise). */
-const READS = ["time", "rate", "playing", "view", "camera", "eventZones", "selected", "look", "scale", "switches"] as const;
+const READS = ["time", "rate", "playing", "view", "camera", "eventZones", "selected", "look", "scale", "switches", "pick"] as const;
 const CALLS: Record<string, (handle: ViewerHandle) => void> = {
   setTime: (handle) => handle.setTime(MID),
   setRate: (handle) => handle.setRate(RATE),
@@ -135,9 +136,10 @@ const CALLS: Record<string, (handle: ViewerHandle) => void> = {
   setLook: (handle) => handle.setLook({ starBrightness: 1.2 }),
   setScale: (handle) => handle.setScale("readable-scale"),
   setSwitch: (handle) => handle.setSwitch("labels", false),
+  setPick: (handle) => handle.setPick("b"),
 };
 /** Listener registration is allowed at any time (the scene's own `onChange` is registered before `ready`); what is promised is that nothing is called after unmount. */
-const LISTENERS = ["onChange", "onEventZone", "onSelect", "onCameraChange"] as const;
+const LISTENERS = ["onChange", "onEventZone", "onSelect", "onCameraChange", "onFirstDraw", "onPick"] as const;
 const codeOf = (run: () => void): string | undefined => { try { run(); } catch (error) { return errorCode(error); } return undefined; };
 const expectUnusable = (handle: ViewerHandle): void => {
   for (const read of READS) expect(handle[read], read).toBeUndefined();
@@ -356,6 +358,72 @@ describe.each([mountDriver, reactDriver(false)])("lifecycle: $name", (driver) =>
     expect(handle.selected).toBeUndefined();
     expect(heard.length).toBe(1);
   });
+  it("onPick and setPick (O-059 T-269): the picker opens on its value, a visitor's press is heard once and moves nothing, setPick moves the pressed option alone, a throwing listener spares the next, and nothing is heard after unmount", async () => {
+    prepared.real = true; openNow();
+    const scene = new Scene().addBody(earth).setPicker({ id: "world", label: "World", options: [{ value: "a", label: "A" }, { value: "b", label: "B" }], value: "a" });
+    const opened = await driver.open(scene);
+    await opened.ready();
+    const handle = opened.handle!;
+    const reported: unknown[] = [];
+    vi.stubGlobal("reportError", (error: unknown) => reported.push(error));
+    const pressed = (value: string): string | null => document.querySelector(`[data-switch-value='${value}']`)!.getAttribute("aria-pressed");
+    expect(handle.pick).toBe("a");
+    expect(pressed("a")).toBe("true");
+    const heard: unknown[] = [];
+    const changes: unknown[] = [];
+    handle.onPick(() => { throw new Error("host bug"); });
+    handle.onPick((c) => heard.push(c));
+    handle.onChange((c) => changes.push(c));
+    flushSync(() => document.querySelector<HTMLButtonElement>("[data-switch-value='a']")!.click()); // the pressed one: nothing
+    expect(heard).toEqual([]);
+    flushSync(() => document.querySelector<HTMLButtonElement>("[data-switch-value='b']")!.click());
+    expect(heard).toEqual([{ picker: "world", value: "b" }]);
+    expect(reported).toHaveLength(1);
+    expect(handle.pick, "the host decides: a press moves nothing").toBe("a");
+    expect(pressed("b")).toBe("false");
+    flushSync(() => handle.setPick("b"));
+    expect(handle.pick).toBe("b");
+    expect(pressed("b")).toBe("true");
+    expect(pressed("a")).toBe("false");
+    expect(heard, "setPick tells no one").toHaveLength(1);
+    expect(changes, "the clock is untouched").toEqual([]);
+    expect(codeOf(() => handle.setPick("nope"))).toBe("bad-picker");
+    expect(handle.pick).toBe("b");
+    opened.unmount();
+    expect(handle.pick).toBeUndefined();
+    expect(codeOf(() => handle.setPick("a"))).toBe("not-mounted");
+    expect(heard).toHaveLength(1);
+  });
+
+  it("setPick on a scene without a picker throws bad-picker, and pick reads undefined", async () => {
+    openNow();
+    const opened = await driver.open(new Scene());
+    await opened.ready();
+    expect(opened.handle!.pick).toBeUndefined();
+    expect(codeOf(() => opened.handle!.setPick("a"))).toBe("bad-picker");
+    opened.unmount();
+  });
+
+  it("a host keeps the clock across a choice with public calls: it reads time in onPick and sets it on the next scene, whichever path opened it", async () => {
+    prepared.real = true; openNow();
+    const picker = { id: "world", label: "World", options: [{ value: "a", label: "A" }, { value: "b", label: "B" }], value: "a" } as const;
+    const start = Date.UTC(2026, 5, 1);
+    const sceneFor = (value: "a" | "b"): Scene => new Scene().addBody(earth).setTimeline({ start, end: start + 10 * 86_400_000 }).setPicker({ ...picker, value });
+    const opened = await driver.open(sceneFor("a"));
+    await opened.ready();
+    opened.handle!.setTime(start + 3 * 86_400_000);
+    let kept: number | undefined;
+    opened.handle!.onPick(() => { kept = opened.handle!.time; });
+    flushSync(() => document.querySelector<HTMLButtonElement>("[data-switch-value='b']")!.click());
+    expect(kept).toBe(start + 3 * 86_400_000);
+    // The host builds the next scene however its path does (mount: a new mount; React: a new scene prop) and puts the time back.
+    await opened.rebuild(sceneFor("b"));
+    expect(opened.handle!.pick).toBe("b");
+    opened.handle!.setTime(kept!);
+    expect(opened.handle!.time).toBe(start + 3 * 86_400_000);
+    opened.unmount();
+  });
+
   it("onCameraChange: reads the opening pose without reporting it, reports each change once (at most every 100 ms), nothing when unchanged or after unmount, and a throwing listener spares the others", async () => {
     openNow();
     const opened = await driver.open(new Scene());
@@ -392,6 +460,28 @@ describe.each([mountDriver, reactDriver(false)])("lifecycle: $name", (driver) =>
   });
 });
 
+describe("AstraeusScene's onPick prop (O-059 T-269, API-02)", () => {
+  it("is called with the picker id and value for a visitor's press, not for the pressed option, moves nothing, and a new scene's value is pressed after a rebuild", async () => {
+    prepared.real = true; openNow();
+    const heard: unknown[] = [];
+    const ref: { current: ViewerHandle | null } = { current: null };
+    const sceneFor = (value: string): Scene => new Scene().addBody(earth).setPicker({ id: "world", label: "World", options: [{ value: "a", label: "A" }, { value: "b", label: "B" }], value });
+    const root = createRoot(document.body.appendChild(document.createElement("div")));
+    const ready = (scene: Scene): Promise<void> => new Promise<void>((ok, fail) => {
+      flushSync(() => root.render(h(AstraeusScene, { scene, ref, onPick: (change) => heard.push(change), onReady: () => ok(), onError: fail })));
+    });
+    await ready(sceneFor("a"));
+    flushSync(() => document.querySelector<HTMLButtonElement>("[data-switch-value='a']")!.click());
+    expect(heard).toEqual([]);
+    flushSync(() => document.querySelector<HTMLButtonElement>("[data-switch-value='b']")!.click());
+    expect(heard).toEqual([{ picker: "world", value: "b" }]);
+    expect(ref.current!.pick).toBe("a");
+    await ready(sceneFor("b"));
+    expect(ref.current!.pick).toBe("b");
+    root.unmount();
+  });
+});
+
 describe("lifecycle: AstraeusScene under StrictMode", () => {
   it("onReady fires once, the handle works after the replayed effects, and unmount makes it unusable", async () => {
     openNow();
@@ -417,7 +507,7 @@ describe("a mounted scene is frozen", () => {
     const sceneMethods = mutators(Scene.prototype);
     const cameraMethods = mutators(SceneCamera.prototype);
     expect(sceneMethods.length).toBeGreaterThanOrEqual(12);
-    expect(cameraMethods.sort()).toEqual(["fitOrbit", "follow", "lookAt", "setReach"]);
+    expect(cameraMethods.sort()).toEqual(["fitOrbit", "follow", "lookAt", "setFollowChoices", "setReach", "setStartView"]);
     const element = document.createElement("div");
     document.body.append(element);
     const viewer = mount(element, scene);

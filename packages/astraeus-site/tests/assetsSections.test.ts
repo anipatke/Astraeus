@@ -1,28 +1,24 @@
 import { describe, expect, it } from "vitest";
-import { PICTURES } from "astraeus-data";
-import { catalogue } from "astraeus/assets/catalogue";
+import { textureOf } from "./helpers/builtInBodies";
 import assets from "../assets.html?raw";
 import index from "../index.html?raw";
 import { MOON_PLANETS, generatedBlocks, markers } from "../tools/site/assets-sections.mjs";
-import { exists, readJson } from "astraeus/tools/import/test-io.mjs";
+import { exists, readJson } from "./helpers/testIo.mjs";
 
 /** The licence record of a body's map: the engine's own texture, else the picture its look names in astraeus-data. */
-const licenceOf = (id: string): string | undefined => {
-  const visual = catalogue.get(id).visual;
-  return (visual.texture ?? PICTURES[visual.picture ?? id])?.licence?.licence;
-};
+const licenceOf = (id: string): string | undefined => textureOf(id)?.licence?.licence;
 
 /**
  * T-120: the planet moon sections and the tagged-places section of assets.html are generated from the data by tools/site/assets-sections.mjs
  * (run `node tools/site/assets-sections.mjs` after a data change); the home shelf and the demo card are hand-written and checked here against the same data and records.
  */
 const ROOT = new URL("../", import.meta.url).pathname;
-// Body and moon data are the engine's; the planet settings are the Planets demo's.
-const ENGINE = new URL("../../astraeus/", import.meta.url).pathname;
+const DATA_PKG = new URL("../../astraeus-data/", import.meta.url).pathname;
+const DATA = new URL("../../", import.meta.url).pathname; // the packages folder: each planet's moon list is in astraeus-data-<planet>
 const PLANETS = new URL("../../astraeus-demo-planets/", import.meta.url).pathname;
 interface Moon { id: string; name: string; bodyPackage: string | null }
-const moonList = (planet: string): readonly Moon[] => (readJson(`${ENGINE}data/moons/${planet}.json`) as { moons: Moon[] }).moons;
-const bodies = (readJson(`${ENGINE}data/bodies/catalogue.json`) as { bodies: { body: string; parent: string | null; featureCount: number }[] }).bodies;
+const moonList = (planet: string): readonly Moon[] => (readJson(`${DATA}astraeus-data-${planet}/data/${planet}-moons/list.json`) as { moons: Moon[] }).moons;
+const bodies = (readJson(`${DATA_PKG}data/bodies/catalogue.json`) as { bodies: { body: string; parent: string | null; featureCount: number }[] }).bodies;
 
 describe("assets page sections follow the data (T-120)", () => {
   for (const [name, block] of Object.entries(generatedBlocks() as Record<string, string>)) {
@@ -40,7 +36,7 @@ describe("assets page sections follow the data (T-120)", () => {
       expect(listed.sort(), planet).toEqual(moonList(planet).map((moon) => moon.id).sort());
     }
     for (const entry of bodies) {
-      const features = (readJson(`${ENGINE}data/bodies/${entry.body}/features.json`) as { features: { id: string }[] }).features;
+      const features = (readJson(`${DATA_PKG}data/bodies/${entry.body}/features.json`) as { features: { id: string }[] }).features;
       expect(features.length, entry.body).toBe(entry.featureCount);
       const listed = [...assets.matchAll(new RegExp(`data-place="${entry.body}/([^"]+)"`, "g"))].map((m) => m[1]);
       expect(listed, entry.body).toEqual(features.map((feature) => feature.id));
@@ -52,7 +48,7 @@ describe("assets page sections follow the data (T-120)", () => {
     const listed = new Map<string, number>();
     for (const file of ["mercury", "venus", "earth", "mars", "jupiter", "saturn", "uranus", "neptune", "pluto"]) {
       for (const body of (readJson(`${PLANETS}data/planets/${file}.json`) as { bodyFeatures: string[] }).bodyFeatures) {
-        const list = (readJson(`${ENGINE}data/bodies/${body}/features.json`) as { features: { latitude?: number; ringRadius?: number; moonRadius?: number }[] }).features;
+        const list = (readJson(`${DATA_PKG}data/bodies/${body}/features.json`) as { features: { latitude?: number; ringRadius?: number; moonRadius?: number }[] }).features;
         listed.set(body, list.filter((f) => f.latitude !== undefined && f.ringRadius === undefined && f.moonRadius === undefined).length);
       }
     }

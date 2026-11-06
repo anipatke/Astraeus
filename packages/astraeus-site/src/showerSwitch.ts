@@ -1,4 +1,4 @@
-import { chooseSwitch, type SwitchEntry } from "astraeus/app/listSwitch";
+import { chooseSwitch, type SwitchEntry } from "./listChoice";
 
 /** The address parameter that names the shower (`?experience=showers&shower=<name>`). */
 export const SHOWER_PARAM = "shower";

@@ -27,13 +27,13 @@ const build = () => new Scene()
   .setScale(solarSystemScale)
   .setTimeline({ start: "2026-03-01T00:00:00Z", end: "2026-03-01T01:00:00Z", rates: [10, 100], rate: 100, loop: true });
 
-const plain = (list: readonly object[]) => list.map(({ provenance: _p, description: _d, knownLimitations: _k, ...rest }: { provenance?: unknown; description?: unknown; knownLimitations?: unknown }) => rest);
+const plain = (list: readonly object[]) => list.map(({ provenance: _p, description: _d, knownLimitations: _k, texture: _t, ...rest }: { provenance?: unknown; description?: unknown; knownLimitations?: unknown; texture?: unknown }) => rest);
 
 const READS: readonly (readonly [string, (scene: Scene) => unknown, unknown])[] = [
   ["bodies", (scene) => plain(scene.bodies), [
-    { id: "sun", label: "Sun", orbit: false, enlarge: 1 },
-    { id: "earth", label: "Earth", parent: "sun", orbit: true, enlarge: 3 },
-    { id: "moon", label: "Moon", parent: "earth", orbit: true, enlarge: 1 },
+    { id: "sun", label: "Sun", orbit: false, enlarge: 1, listed: true },
+    { id: "earth", label: "Earth", parent: "sun", orbit: true, enlarge: 3, listed: true },
+    { id: "moon", label: "Moon", parent: "earth", orbit: true, enlarge: 1, listed: true },
   ]],
   ["paths", (scene) => plain(scene.paths), [{ id: "probe", label: "Probe", center: "earth" }]],
   ["groups", (scene) => plain(scene.groups), [
@@ -72,7 +72,7 @@ describe("what a scene holds", () => {
 
   it("carries provenance: a path's own, an event's own else the batch's, and the group card's illustrative statement over the source", () => {
     const scene = build();
-    expect(scene.paths[0]!.provenance).toBe(pathProvenance);
+    expect(scene.paths[0]!.provenance).toEqual(pathProvenance);
     expect(scene.events.map((event) => [event.id, event.provenance])).toEqual([["early", batch], ["late", own]]);
     const [ring, swarm] = scene.groups;
     expect(ring!.provenance).toMatchObject({ sourceType: "illustrative", sources: ["A made-up catalogue"] });

@@ -232,12 +232,10 @@ describe("the orbit source", () => {
   const perseids = parseShowerSettings(perseidsFile);
   const geminids = parseShowerSettings(geminidsFile);
 
-  it("is the GMN for both showers, named with its months and licence in the settings, and offers no source or orbit-set switch", () => {
+  it("is the GMN for both showers, named with its months and licence in the settings", () => {
     expect(geminids.stream.sources.gmn).toMatchObject({ months: ["202412", "202512"], licence: "CC BY 4.0" });
     expect(perseids.stream.sources.gmn).toMatchObject({ months: ["202507", "202508"], licence: "CC BY 4.0" });
     expect(citedSourceOf(perseids).name).toContain("Global Meteor Network");
-    expect(buildShowerDefinition(perseids, { kind: "absent" }).alternates).toBeUndefined();
-    expect(buildShowerDefinition(parseShowerSettings(madeUp), { kind: "absent" }).alternates).toBeUndefined();
   });
 
   it("refuses a settings file that still names CAMS, with a named error", () => {

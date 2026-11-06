@@ -28,6 +28,26 @@
           "signature": "readonly SceneGroupRead[]"
         },
         {
+          "name": "bodySets",
+          "optional": false,
+          "signature": "readonly SceneBodySetRead[]"
+        },
+        {
+          "name": "picker",
+          "optional": false,
+          "signature": "PickerInput | undefined"
+        },
+        {
+          "name": "moonPanel",
+          "optional": false,
+          "signature": "SceneMoonPanelRead | undefined"
+        },
+        {
+          "name": "places",
+          "optional": false,
+          "signature": "readonly ScenePlacesRead[]"
+        },
+        {
           "name": "events",
           "optional": false,
           "signature": "readonly SceneEventRead[]"
@@ -73,6 +93,26 @@
           "signature": "(input: GroupInput): Scene"
         },
         {
+          "name": "addBodySet",
+          "optional": false,
+          "signature": "(input: BodySetInput): Scene"
+        },
+        {
+          "name": "setMoonPanel",
+          "optional": false,
+          "signature": "(input: MoonPanelInput): Scene"
+        },
+        {
+          "name": "setPicker",
+          "optional": false,
+          "signature": "(input: PickerInput): Scene"
+        },
+        {
+          "name": "addPlaces",
+          "optional": false,
+          "signature": "(body: BodyRef | BodyId, input: PlacesInput): Scene"
+        },
+        {
           "name": "addActivity",
           "optional": false,
           "signature": "(input: ActivityInput): Scene"
@@ -91,6 +131,11 @@
           "name": "setLook",
           "optional": false,
           "signature": "(look: LookInput): Scene"
+        },
+        {
+          "name": "setBodyReadouts",
+          "optional": false,
+          "signature": "(kinds: readonly BodyReadoutKind[]): Scene"
         },
         {
           "name": "addEvents",
@@ -167,9 +212,19 @@
           "signature": "(id: string, view?: FollowView): SceneCamera"
         },
         {
+          "name": "setStartView",
+          "optional": false,
+          "signature": "(pose: CameraPose): SceneCamera"
+        },
+        {
+          "name": "setFollowChoices",
+          "optional": false,
+          "signature": "(ids: readonly (BodyRef | BodyId)[]): SceneCamera"
+        },
+        {
           "name": "setReach",
           "optional": false,
-          "signature": "(distance: number): SceneCamera"
+          "signature": "(distance: number, options?: { readonly farEarthRadii?: number; }): SceneCamera"
         },
         {
           "name": "fitOrbit",
@@ -185,6 +240,21 @@
           "name": "reach",
           "optional": false,
           "signature": "number | undefined"
+        },
+        {
+          "name": "farEarthRadii",
+          "optional": false,
+          "signature": "number | undefined"
+        },
+        {
+          "name": "pose",
+          "optional": false,
+          "signature": "CameraPose | undefined"
+        },
+        {
+          "name": "followChoices",
+          "optional": false,
+          "signature": "readonly string[] | undefined"
         },
         {
           "name": "target",
@@ -211,7 +281,7 @@
         {
           "name": "orbit",
           "optional": true,
-          "signature": "boolean | undefined"
+          "signature": "boolean | OrbitLapInput | undefined"
         },
         {
           "name": "enlarge",
@@ -247,8 +317,68 @@
           "name": "readouts",
           "optional": true,
           "signature": "readonly ReadoutInput[] | undefined"
+        },
+        {
+          "name": "listed",
+          "optional": true,
+          "signature": "boolean | undefined"
+        },
+        {
+          "name": "facts",
+          "optional": true,
+          "signature": "readonly CardFactInput[] | undefined"
+        },
+        {
+          "name": "sources",
+          "optional": true,
+          "signature": "readonly string[] | undefined"
+        },
+        {
+          "name": "labelPriority",
+          "optional": true,
+          "signature": "number | undefined"
         }
       ]
+    },
+    "CardFactInput": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "label",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "value",
+          "optional": false,
+          "signature": "string"
+        }
+      ]
+    },
+    "OrbitLapInput": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "lapDays",
+          "optional": false,
+          "signature": "number"
+        },
+        {
+          "name": "fades",
+          "optional": true,
+          "signature": "boolean | undefined"
+        }
+      ]
+    },
+    "BodyReadoutKind": {
+      "kind": "type",
+      "signature": "\"distance\" | \"phase\" | \"coordinates\"",
+      "constructors": [],
+      "members": []
     },
     "AnchorInput": {
       "kind": "interface",
@@ -356,6 +486,21 @@
           "name": "knownLimitations",
           "optional": false,
           "signature": "readonly string[]"
+        },
+        {
+          "name": "listed",
+          "optional": false,
+          "signature": "boolean"
+        },
+        {
+          "name": "facts",
+          "optional": true,
+          "signature": "readonly { readonly label: string; readonly value: string; }[] | undefined"
+        },
+        {
+          "name": "texture",
+          "optional": true,
+          "signature": "TextureRef | undefined"
         }
       ]
     },
@@ -440,6 +585,67 @@
           "name": "knownLimitations",
           "optional": false,
           "signature": "readonly string[]"
+        }
+      ]
+    },
+    "SceneBodySetRead": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "id",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "center",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "count",
+          "optional": false,
+          "signature": "number"
+        },
+        {
+          "name": "families",
+          "optional": false,
+          "signature": "readonly string[]"
+        }
+      ]
+    },
+    "SceneMoonPanelRead": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "count",
+          "optional": false,
+          "signature": "number"
+        },
+        {
+          "name": "summary",
+          "optional": false,
+          "signature": "string"
+        }
+      ]
+    },
+    "ScenePlacesRead": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "body",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "count",
+          "optional": false,
+          "signature": "number"
         }
       ]
     },
@@ -1007,6 +1213,456 @@
         }
       ]
     },
+    "MoonPanelInput": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "label",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "families",
+          "optional": false,
+          "signature": "readonly MoonPanelFamilyInput[]"
+        },
+        {
+          "name": "featuredFamily",
+          "optional": true,
+          "signature": "string | undefined"
+        },
+        {
+          "name": "listSource",
+          "optional": true,
+          "signature": "string | undefined"
+        },
+        {
+          "name": "listDate",
+          "optional": true,
+          "signature": "TimeInput | undefined"
+        }
+      ]
+    },
+    "MoonPanelFamilyInput": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "id",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "label",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "description",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "moons",
+          "optional": false,
+          "signature": "readonly MoonPanelMoonInput[]"
+        }
+      ]
+    },
+    "MoonPanelMoonInput": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "id",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "named",
+          "optional": true,
+          "signature": "boolean | undefined"
+        }
+      ]
+    },
+    "PlacesInput": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "categories",
+          "optional": false,
+          "signature": "readonly PlaceCategoryInput[]"
+        },
+        {
+          "name": "places",
+          "optional": false,
+          "signature": "readonly PlaceInput[]"
+        },
+        {
+          "name": "provenance",
+          "optional": false,
+          "signature": "Provenance"
+        },
+        {
+          "name": "knownLimitations",
+          "optional": true,
+          "signature": "readonly string[] | undefined"
+        }
+      ]
+    },
+    "PlaceInput": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "id",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "name",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "kind",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "category",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "latitudeDeg",
+          "optional": false,
+          "signature": "number"
+        },
+        {
+          "name": "longitudeDeg",
+          "optional": false,
+          "signature": "number"
+        },
+        {
+          "name": "description",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "details",
+          "optional": true,
+          "signature": "readonly CardFactInput[] | undefined"
+        }
+      ]
+    },
+    "PlaceCategoryInput": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "key",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "label",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "color",
+          "optional": false,
+          "signature": "string"
+        }
+      ]
+    },
+    "PickerInput": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "id",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "label",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "options",
+          "optional": false,
+          "signature": "readonly PickerOptionInput[]"
+        },
+        {
+          "name": "value",
+          "optional": false,
+          "signature": "string"
+        }
+      ]
+    },
+    "PickerOptionInput": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "value",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "label",
+          "optional": false,
+          "signature": "string"
+        }
+      ]
+    },
+    "PickChange": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "picker",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "value",
+          "optional": false,
+          "signature": "string"
+        }
+      ]
+    },
+    "BodySetInput": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "id",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "center",
+          "optional": true,
+          "signature": "string | BodyRef | undefined"
+        },
+        {
+          "name": "families",
+          "optional": false,
+          "signature": "readonly BodySetFamilyInput[]"
+        },
+        {
+          "name": "members",
+          "optional": false,
+          "signature": "readonly BodySetMemberInput[]"
+        },
+        {
+          "name": "bodies",
+          "optional": true,
+          "signature": "readonly BodySetBodyInput[] | undefined"
+        },
+        {
+          "name": "provenance",
+          "optional": false,
+          "signature": "Provenance"
+        },
+        {
+          "name": "centerGmKm3S2",
+          "optional": true,
+          "signature": "number | undefined"
+        },
+        {
+          "name": "balancePoint",
+          "optional": true,
+          "signature": "BodySetBalanceInput | undefined"
+        },
+        {
+          "name": "orbitHistoryMs",
+          "optional": true,
+          "signature": "number | undefined"
+        }
+      ]
+    },
+    "BodySetFamilyInput": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "id",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "label",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "color",
+          "optional": true,
+          "signature": "string | undefined"
+        },
+        {
+          "name": "brightness",
+          "optional": true,
+          "signature": "number | undefined"
+        }
+      ]
+    },
+    "BodySetMemberInput": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "id",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "family",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "label",
+          "optional": true,
+          "signature": "string | undefined"
+        },
+        {
+          "name": "radiusKm",
+          "optional": true,
+          "signature": "number | undefined"
+        },
+        {
+          "name": "elements",
+          "optional": true,
+          "signature": "BodySetElementsInput | undefined"
+        },
+        {
+          "name": "description",
+          "optional": true,
+          "signature": "string | undefined"
+        },
+        {
+          "name": "facts",
+          "optional": true,
+          "signature": "readonly CardFactInput[] | undefined"
+        },
+        {
+          "name": "provenance",
+          "optional": true,
+          "signature": "Provenance | undefined"
+        },
+        {
+          "name": "knownLimitations",
+          "optional": true,
+          "signature": "readonly string[] | undefined"
+        },
+        {
+          "name": "listed",
+          "optional": true,
+          "signature": "boolean | undefined"
+        }
+      ]
+    },
+    "BodySetElementsInput": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "semiMajorAxisKm",
+          "optional": false,
+          "signature": "number"
+        },
+        {
+          "name": "eccentricity",
+          "optional": false,
+          "signature": "number"
+        },
+        {
+          "name": "inclinationDeg",
+          "optional": false,
+          "signature": "number"
+        },
+        {
+          "name": "raanDeg",
+          "optional": false,
+          "signature": "number"
+        },
+        {
+          "name": "argumentOfPeriapsisDeg",
+          "optional": false,
+          "signature": "number"
+        },
+        {
+          "name": "trueAnomalyDeg",
+          "optional": false,
+          "signature": "number"
+        },
+        {
+          "name": "time",
+          "optional": true,
+          "signature": "TimeInput | undefined"
+        },
+        {
+          "name": "plane",
+          "optional": true,
+          "signature": "\"ecliptic-j2000\" | \"EQJ\" | undefined"
+        }
+      ]
+    },
+    "BodySetBodyInput": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "id",
+          "optional": false,
+          "signature": "string | BodyRef"
+        },
+        {
+          "name": "family",
+          "optional": false,
+          "signature": "string"
+        }
+      ]
+    },
+    "BodySetBalanceInput": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "body",
+          "optional": false,
+          "signature": "string | BodyRef"
+        },
+        {
+          "name": "gmKm3S2",
+          "optional": false,
+          "signature": "number"
+        }
+      ]
+    },
     "EventInput": {
       "kind": "interface",
       "signature": "",
@@ -1145,6 +1801,11 @@
           "name": "loadFadeSeconds",
           "optional": true,
           "signature": "number | undefined"
+        },
+        {
+          "name": "desktopPictures",
+          "optional": true,
+          "signature": "boolean | undefined"
         }
       ]
     },
@@ -1192,6 +1853,11 @@
           "name": "loadFadeSeconds",
           "optional": false,
           "signature": "number"
+        },
+        {
+          "name": "desktopPictures",
+          "optional": false,
+          "signature": "boolean"
         }
       ]
     },
@@ -1436,6 +2102,26 @@
           "signature": "(id: string, on: boolean): void"
         },
         {
+          "name": "onFirstDraw",
+          "optional": false,
+          "signature": "(listener: () => void): () => void"
+        },
+        {
+          "name": "pick",
+          "optional": false,
+          "signature": "string | undefined"
+        },
+        {
+          "name": "setPick",
+          "optional": false,
+          "signature": "(value: string): void"
+        },
+        {
+          "name": "onPick",
+          "optional": false,
+          "signature": "(listener: (change: PickChange) => void): () => void"
+        },
+        {
           "name": "onChange",
           "optional": false,
           "signature": "(listener: (change: ViewerChange) => void): () => void"
@@ -1553,6 +2239,26 @@
           "signature": "(id: string, on: boolean): void"
         },
         {
+          "name": "onFirstDraw",
+          "optional": false,
+          "signature": "(listener: () => void): () => void"
+        },
+        {
+          "name": "pick",
+          "optional": false,
+          "signature": "string | undefined"
+        },
+        {
+          "name": "setPick",
+          "optional": false,
+          "signature": "(value: string): void"
+        },
+        {
+          "name": "onPick",
+          "optional": false,
+          "signature": "(listener: (change: PickChange) => void): () => void"
+        },
+        {
           "name": "onChange",
           "optional": false,
           "signature": "(listener: (change: ViewerChange) => void): () => void"
@@ -1561,7 +2267,7 @@
     },
     "AstraeusScene": {
       "kind": "function",
-      "signature": "AstraeusScene({ ref, scene, data, onReady, onError, time, rate, view, camera, onChange, onEventZone, address, developerTools, className, style }: AstraeusSceneProps): ReactElement",
+      "signature": "AstraeusScene({ ref, scene, data, onReady, onError, time, rate, view, camera, onChange, onEventZone, onPick, onFirstDraw, address, developerTools, className, style }: AstraeusSceneProps): ReactElement",
       "constructors": [],
       "members": []
     },
@@ -1624,6 +2330,16 @@
           "name": "onEventZone",
           "optional": true,
           "signature": "((change: EventZoneChange) => void) | undefined"
+        },
+        {
+          "name": "onPick",
+          "optional": true,
+          "signature": "((change: PickChange) => void) | undefined"
+        },
+        {
+          "name": "onFirstDraw",
+          "optional": true,
+          "signature": "(() => void) | undefined"
         },
         {
           "name": "address",
@@ -1813,7 +2529,7 @@
     },
     "SceneErrorCode": {
       "kind": "type",
-      "signature": "| \"unknown-body\" /** An id is already used in the scene, so the new body, path, group, orbit line or activity cannot take it. */ | \"duplicate-id\" /** A moment is not a valid time, or lies outside the span it must fall in. */ | \"bad-time\" /** A path (`addTrajectory`) is malformed: its id, provider, bounds, plane, spans or line stretches. */ | \"bad-trajectory\" /** A data package passed to the viewer is malformed, for example moon positions that name a planet without a moon system. */ | \"bad-data\" /** The scale is not one of the engine's scales, or does not suit this scene. */ | \"bad-scale\" /** Position data a body needs was not given to the viewer: pass its data package. */ | \"missing-data\" /** The viewer is not drawn yet, or has been unmounted: a handle call before `ready` or after `unmount`. */ | \"not-mounted\" /** The timeline reaches outside the years a body's data package covers. */ | \"out-of-span\" /** The scene was edited after a viewer took it; build a new scene instead. */ | \"scene-mounted\" /** The scene has no bodies to show. */ | \"empty-scene\" /** An orbital-elements record, or the element to mount into, is malformed. */ | \"bad-element\" /** An orbit line was asked for a body whose data give no closed orbit, or about a body not in the scene. */ | \"no-orbit\" /** A path anchor is malformed, repeated or outside the path. */ | \"bad-anchor\" /** A readout is of an unknown kind, or lacks or misnames the body or activity it measures. */ | \"bad-readout\" /** An event is malformed, repeated or names an object that is not in the scene. */ | \"bad-event\" /** The story panels are malformed. */ | \"bad-panels\" /** The timeline, its pacing or its speeds are malformed, or a call needs pacing the scene lacks. */ | \"bad-timeline\" /** A display switch is unknown or malformed. */ | \"bad-switch\" /** An option of `addBody` is malformed. */ | \"bad-body\" /** A point group is malformed or refers to a body that is not in the scene. */ | \"bad-group\" /** An activity curve is malformed. */ | \"bad-activity\" /** A camera call or pose is malformed, or names an object the view cannot show. */ | \"bad-camera\" /** A scene view is malformed, repeated, or not one of the scene's views. */ | \"bad-view\" /** A look (`setLook`) is unknown or out of its range. */ | \"bad-look\"",
+      "signature": "| \"unknown-body\" /** An id is already used in the scene, so the new body, path, group, orbit line or activity cannot take it. */ | \"duplicate-id\" /** A moment is not a valid time, or lies outside the span it must fall in. */ | \"bad-time\" /** A path (`addTrajectory`) is malformed: its id, provider, bounds, plane, spans or line stretches. */ | \"bad-trajectory\" /** A data package passed to the viewer is malformed, for example moon positions that name a planet without a moon system. */ | \"bad-data\" /** The scale is not one of the engine's scales, or does not suit this scene. */ | \"bad-scale\" /** Position data a body needs was not given to the viewer: pass its data package. */ | \"missing-data\" /** The viewer is not drawn yet, or has been unmounted: a handle call before `ready` or after `unmount`. */ | \"not-mounted\" /** The timeline reaches outside the years a body's data package covers. */ | \"out-of-span\" /** The scene was edited after a viewer took it; build a new scene instead. */ | \"scene-mounted\" /** The scene has no bodies to show. */ | \"empty-scene\" /** An orbital-elements record, or the element to mount into, is malformed. */ | \"bad-element\" /** An orbit line was asked for a body whose data give no closed orbit, or about a body not in the scene. */ | \"no-orbit\" /** A path anchor is malformed, repeated or outside the path. */ | \"bad-anchor\" /** A readout is of an unknown kind, or lacks or misnames the body or activity it measures. */ | \"bad-readout\" /** An event is malformed, repeated or names an object that is not in the scene. */ | \"bad-event\" /** The story panels are malformed. */ | \"bad-panels\" /** The timeline, its pacing or its speeds are malformed, or a call needs pacing the scene lacks. */ | \"bad-timeline\" /** A display switch is unknown or malformed. */ | \"bad-switch\" /** An option of `addBody` is malformed. */ | \"bad-body\" /** A point group is malformed or refers to a body that is not in the scene. */ | \"bad-group\" /** A body set (`addBodySet`) is malformed, or names a centre, moon, body or balance point the scene cannot draw it with. */ | \"bad-body-set\" /** The moon panel (`setMoonPanel`) is malformed, or names a moon the scene does not hold. */ | \"bad-moon-panel\" /** The picker (`setPicker`, `setPick`) is malformed, or a pick names an option it does not have. */ | \"bad-picker\" /** A body's places (`addPlaces`) are malformed, or name a body the scene does not hold. */ | \"bad-places\" /** An activity curve is malformed. */ | \"bad-activity\" /** A camera call or pose is malformed, or names an object the view cannot show. */ | \"bad-camera\" /** A scene view is malformed, repeated, or not one of the scene's views. */ | \"bad-view\" /** A look (`setLook`) is unknown or out of its range. */ | \"bad-look\"",
       "constructors": [],
       "members": []
     },
@@ -2252,6 +2968,7 @@
         "types": "./src/index.d.ts",
         "import": "./src/index.js"
       },
+      "./bodies/*": "./data/bodies/*",
       "./package.json": "./package.json"
     },
     "astraeus-data-jupiter": {
@@ -2260,6 +2977,7 @@
         "import": "./src/index.js"
       },
       "./index.json": "./data/jupiter-moons/index.json",
+      "./moon-list.json": "./data/jupiter-moons/list.json",
       "./package.json": "./package.json"
     },
     "astraeus-data-mars": {
@@ -2268,6 +2986,8 @@
         "import": "./src/index.js"
       },
       "./index.json": "./data/mars-moons/index.json",
+      "./moon-list.json": "./data/mars-moons/list.json",
+      "./moon-fit-errors.json": "./data/mars-moons/fit-errors.json",
       "./package.json": "./package.json"
     },
     "astraeus-data-neptune": {
@@ -2276,6 +2996,8 @@
         "import": "./src/index.js"
       },
       "./index.json": "./data/neptune-moons/index.json",
+      "./moon-list.json": "./data/neptune-moons/list.json",
+      "./moon-fit-errors.json": "./data/neptune-moons/fit-errors.json",
       "./package.json": "./package.json"
     },
     "astraeus-data-pluto": {
@@ -2284,6 +3006,8 @@
         "import": "./src/index.js"
       },
       "./index.json": "./data/pluto-moons/index.json",
+      "./moon-list.json": "./data/pluto-moons/list.json",
+      "./moon-fit-errors.json": "./data/pluto-moons/fit-errors.json",
       "./package.json": "./package.json"
     },
     "astraeus-data-saturn": {
@@ -2292,6 +3016,8 @@
         "import": "./src/index.js"
       },
       "./index.json": "./data/saturn-moons/index.json",
+      "./moon-list.json": "./data/saturn-moons/list.json",
+      "./moon-fit-errors.json": "./data/saturn-moons/fit-errors.json",
       "./package.json": "./package.json"
     },
     "astraeus-data-uranus": {
@@ -2300,6 +3026,8 @@
         "import": "./src/index.js"
       },
       "./index.json": "./data/uranus-moons/index.json",
+      "./moon-list.json": "./data/uranus-moons/list.json",
+      "./moon-fit-errors.json": "./data/uranus-moons/fit-errors.json",
       "./package.json": "./package.json"
     }
   },
@@ -2330,41 +3058,54 @@
     },
     "astraeus-data": {
       ".": "./src/index.ts",
+      "./bodies/*": "./data/bodies/*",
+      "./data/*": "./data/*",
       "./package.json": "./package.json"
     },
     "astraeus-data-jupiter": {
       ".": "./src/index.ts",
       "./index.json": "./data/jupiter-moons/index.json",
+      "./moon-list.json": "./data/jupiter-moons/list.json",
       "./data/*": "./data/*",
       "./package.json": "./package.json"
     },
     "astraeus-data-mars": {
       ".": "./src/index.ts",
       "./index.json": "./data/mars-moons/index.json",
+      "./moon-list.json": "./data/mars-moons/list.json",
+      "./moon-fit-errors.json": "./data/mars-moons/fit-errors.json",
       "./data/*": "./data/*",
       "./package.json": "./package.json"
     },
     "astraeus-data-neptune": {
       ".": "./src/index.ts",
       "./index.json": "./data/neptune-moons/index.json",
+      "./moon-list.json": "./data/neptune-moons/list.json",
+      "./moon-fit-errors.json": "./data/neptune-moons/fit-errors.json",
       "./data/*": "./data/*",
       "./package.json": "./package.json"
     },
     "astraeus-data-pluto": {
       ".": "./src/index.ts",
       "./index.json": "./data/pluto-moons/index.json",
+      "./moon-list.json": "./data/pluto-moons/list.json",
+      "./moon-fit-errors.json": "./data/pluto-moons/fit-errors.json",
       "./data/*": "./data/*",
       "./package.json": "./package.json"
     },
     "astraeus-data-saturn": {
       ".": "./src/index.ts",
       "./index.json": "./data/saturn-moons/index.json",
+      "./moon-list.json": "./data/saturn-moons/list.json",
+      "./moon-fit-errors.json": "./data/saturn-moons/fit-errors.json",
       "./data/*": "./data/*",
       "./package.json": "./package.json"
     },
     "astraeus-data-uranus": {
       ".": "./src/index.ts",
       "./index.json": "./data/uranus-moons/index.json",
+      "./moon-list.json": "./data/uranus-moons/list.json",
+      "./moon-fit-errors.json": "./data/uranus-moons/fit-errors.json",
       "./data/*": "./data/*",
       "./package.json": "./package.json"
     }

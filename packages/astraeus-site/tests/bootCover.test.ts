@@ -1,13 +1,13 @@
 // @vitest-environment happy-dom
-// The demo site's loading cover (O-055 T-255): the parts that left the engine. The page's own `#boot` is brought back for a switch, set to its failure message, and claimed by
-// each scene as it mounts so a scene mounted before the latest showing cannot hide it (I-074). Hiding it is the engine's (packages/astraeus/tests/bootLoader.test.ts).
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { createBootCover } from "../src/bootCover";
+// The demo site's loading cover (O-055 T-255, O-059 T-272). The page's own `#boot` is brought back for a switch, set to its failure message, claimed by each scene as it mounts so a scene
+// mounted before the latest showing cannot hide it (I-074), and faded out and removed when a scene's first frame is drawn (moved here from the engine's bootLoader test).
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { createBootCover, hideBootLoader } from "../src/bootCover";
 
 const MARKUP = '<div id="boot" role="status" data-state="loading"><span class="loading">Loading</span><span class="failed">Failed</span></div>';
 const boot = (): HTMLElement | null => document.getElementById("boot");
 beforeEach(() => { document.body.innerHTML = MARKUP; });
-afterEach(() => { document.body.innerHTML = ""; });
+afterEach(() => { vi.useRealTimers(); document.body.innerHTML = ""; });
 
 describe("the site's cover", () => {
   it("show again on a switch: an existing cover returns to loading with its fade cleared", () => {
@@ -50,5 +50,59 @@ describe("the site's cover", () => {
     expect(() => { cover.show(); cover.fail(); }).not.toThrow();
     expect(cover.claim()()).toBeNull();
     expect(boot()).toBeNull();
+  });
+});
+
+describe("hiding the cover at a scene's first frame", () => {
+  const coverOf = (): HTMLElement | null => boot();
+  beforeEach(() => { vi.useFakeTimers(); });
+  it("hides once, sets the fade, then removes the cover after the fade", () => {
+    const cover = boot()!;
+    hideBootLoader(coverOf, 0.5);
+    expect(cover.dataset.state).toBe("done");
+    expect(cover.style.getPropertyValue("--boot-fade")).toBe("0.5s");
+    hideBootLoader(coverOf, 0.5);
+    expect(cover.isConnected).toBe(true);
+    vi.advanceTimersByTime(599);
+    expect(cover.isConnected).toBe(true);
+    vi.advanceTimersByTime(2);
+    expect(cover.isConnected).toBe(false);
+  });
+  it("leaves a failed cover showing its message", () => {
+    const cover = boot()!;
+    cover.dataset.state = "failed";
+    hideBootLoader(coverOf, 0.6);
+    vi.advanceTimersByTime(5000);
+    expect(cover.dataset.state).toBe("failed");
+    expect(cover.isConnected).toBe(true);
+  });
+  it("does nothing when no cover is reachable (a later showing took it away, or the page has none)", () => {
+    expect(() => hideBootLoader(() => null, 0.6)).not.toThrow();
+    expect(boot()!.dataset.state).toBe("loading");
+  });
+  it("stays when the page brings it back during the fade, and a later hide still fades and removes it (I-074)", () => {
+    const cover = boot()!;
+    hideBootLoader(coverOf, 0.6);
+    vi.advanceTimersByTime(300);
+    cover.dataset.state = "loading";
+    vi.advanceTimersByTime(5000);
+    expect(cover.isConnected).toBe(true);
+    expect(cover.dataset.state).toBe("loading");
+    hideBootLoader(coverOf, 0.6);
+    expect(cover.dataset.state).toBe("done");
+    vi.advanceTimersByTime(1000);
+    expect(cover.isConnected).toBe(false);
+  });
+  it("a hide after a show-again is not cut short by the earlier hide's removal timer", () => {
+    const cover = boot()!;
+    hideBootLoader(coverOf, 1);
+    vi.advanceTimersByTime(300);
+    cover.dataset.state = "loading";
+    vi.advanceTimersByTime(100);
+    hideBootLoader(coverOf, 1); // would fade until 1400 ms; the first timer (1100 ms) must not remove it early
+    vi.advanceTimersByTime(750);
+    expect(cover.isConnected).toBe(true);
+    vi.advanceTimersByTime(400);
+    expect(cover.isConnected).toBe(false);
   });
 });

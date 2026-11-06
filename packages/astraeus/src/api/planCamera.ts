@@ -4,7 +4,10 @@ import type { EccentricSampling } from "../core/sunCentredSources";
 import type { ExperienceDefinition } from "../app/experienceDefinition";
 import type { BodyRef } from "./bodies";
 import { SceneError } from "./errors";
+import { frozenCopy } from "./frozenCopy";
 import type { FollowView } from "./scene";
+import type { CameraPose } from "./viewerLink";
+import { validateStartView } from "../core/startView";
 import { farthestSunDistanceKm } from "./sunOrbit";
 import { planetSeriesLoaded } from "../core/planetSeries";
 import type { TimelineSetting } from "./story";
@@ -15,6 +18,9 @@ export class SceneCamera {
   #following = false;
   #view: FollowView = {};
   #reach: number | undefined;
+  #far: number | undefined;
+  #pose: CameraPose | undefined;
+  #followIds: readonly string[] | undefined;
   #fit: string | undefined;
   readonly #has: (id: string) => boolean;
   readonly #circlesSun: (id: string) => boolean;
@@ -37,20 +43,60 @@ export class SceneCamera {
     if (!this.#has(id)) throw new SceneError("unknown-body", `camera.${call}("${id}"): no body or trajectory with that id has been added to the scene`);
     if (view.up !== undefined && view.up !== "equatorial" && view.up !== "ecliptic") throw new SceneError("bad-camera", `camera.${call}("${id}"): up "${String(view.up)}" must be "equatorial" or "ecliptic"`);
     this.#target = id;
+    this.#pose = undefined;
     this.#following = following;
-    this.#view = view;
+    this.#view = frozenCopy(view);
+    return this;
+  }
+  /**
+   * Opens at a pose with no camera button pressed (neither Focus nor Follow shows as pressed, and choosing another body moves the camera as it does without a start). The pose is what `ViewerHandle.camera` reads:
+   * `{ focus, azimuthDeg, elevationDeg, distance }`, distance in Earth radii. `focus` must be a body or trajectory already added (else `unknown-body`); a bad angle or distance throws `bad-camera`.
+   * The last of `follow`, `lookAt` and `setStartView` wins. Default: none.
+   * @example
+   * scene.camera.setStartView({ focus: "earth", azimuthDeg: 20, elevationDeg: 30, distance: 40 });
+   */
+  setStartView(pose: CameraPose): this {
+    this.#editable();
+    const focus = (pose as { focus?: unknown } | null)?.focus;
+    if (typeof focus === "string" && !this.#has(focus)) throw new SceneError("unknown-body", `camera.setStartView: "${focus}" has not been added to the scene`);
+    try {
+      this.#pose = validateStartView(pose, "camera.setStartView pose");
+    } catch (error) {
+      if (error instanceof RangeError) throw new SceneError("bad-camera", error.message);
+      throw error;
+    }
+    this.#target = undefined;
+    this.#following = false;
+    this.#view = {};
+    return this;
+  }
+  /**
+   * Chooses the objects whose Follow button the camera menu offers, by body, id, path or group already added to the scene (else `unknown-body`); the others offer Focus only. An empty list offers Follow on none.
+   * Default: every body, path and group. A scene whose opening view follows an object (`follow`) must list it, else the scene throws `bad-camera` when it is built.
+   * @example
+   * scene.camera.setFollowChoices(["moon"]);
+   */
+  setFollowChoices(ids: readonly (BodyRef | BodyId)[]): this {
+    this.#editable();
+    if (!Array.isArray(ids)) throw new SceneError("bad-camera", "camera.setFollowChoices: give a list of bodies or ids");
+    const named = ids.map((item) => (typeof item === "string" ? item : item?.id));
+    for (const id of named) if (typeof id !== "string" || !this.#has(id)) throw new SceneError("unknown-body", `camera.setFollowChoices("${String(id)}"): no body or trajectory with that id has been added to the scene`);
+    this.#followIds = Object.freeze([...new Set(named)]);
     return this;
   }
   /**
    * Sets how far the viewer can zoom out from what they look at, in Earth radii (the scene's scaled unit); a finite number above 0, else `bad-camera`.
-   * Also sets the camera's far plane (where drawing stops) to 2.5 times `distance`, so what lies out to the reach is still drawn.
+   * Also sets the camera's far plane (where drawing stops) to 2.5 times `distance`, so what lies out to the reach is still drawn; `farEarthRadii` (a finite number at least `distance`, in Earth radii) sets the far plane itself instead.
    * Labels reach as far: a body's label stays shown at any distance the camera can take. Without this call the camera frames the scene as before.
    * `setReach` and `fitOrbit` set the same limit, so the later call wins and replaces the earlier one.
    */
-  setReach(distance: number): this {
+  setReach(distance: number, options: { readonly farEarthRadii?: number } = {}): this {
     this.#editable();
     if (!(typeof distance === "number" && Number.isFinite(distance) && distance > 0)) throw new SceneError("bad-camera", `camera.setReach: distance must be a finite number above 0, got ${String(distance)}`);
+    const far = options.farEarthRadii;
+    if (far !== undefined && !(typeof far === "number" && Number.isFinite(far) && far >= distance)) throw new SceneError("bad-camera", `camera.setReach: farEarthRadii must be a finite number of at least the distance (${distance}), got ${String(far)}`);
     this.#reach = distance;
+    this.#far = far;
     this.#fit = undefined;
     return this;
   }
@@ -70,12 +116,19 @@ export class SceneCamera {
     if (!this.#circlesSun(id)) throw new SceneError("bad-camera", `camera.fitOrbit("${id}"): "${id}" is not a body that circles the Sun (a planet, a comet or one added with addBodyFromElements)`);
     this.#fit = id;
     this.#reach = undefined;
+    this.#far = undefined;
     return this;
   }
   /** The body `fitOrbit` fits the zoom-out to, if any. */
   get fitted(): string | undefined { return this.#fit; }
   /** The farthest zoom-out set with `setReach`, if any. */
   get reach(): number | undefined { return this.#reach; }
+  /** The far plane set with `setReach`'s `farEarthRadii`, if any. */
+  get farEarthRadii(): number | undefined { return this.#far; }
+  /** The pose `setStartView` set, if it is the last opening call. */
+  get pose(): CameraPose | undefined { return this.#pose; }
+  /** The objects offering Follow (`setFollowChoices`); undefined: every one. */
+  get followChoices(): readonly string[] | undefined { return this.#followIds; }
   get target(): string | undefined { return this.#target; }
   /** Whether the opening view follows its target (`follow`) rather than only looking at it (`lookAt`). */
   get following(): boolean { return this.#following; }
@@ -100,6 +153,7 @@ export function startPresetEntry(camera: SceneCamera): { startCameraPresetId?: s
 
 /** The `startView` entry of the definition: the opening framing of the camera's target (absent when none was asked for). */
 export function startViewEntry(camera: SceneCamera): Pick<ExperienceDefinition, "startView"> {
+  if (camera.pose !== undefined) return { startView: { ...camera.pose } };
   const target = camera.target;
   const view = camera.view;
   return target === undefined ? {} : { startView: { focus: target, azimuthDeg: view.azimuthDeg ?? 0, elevationDeg: view.elevationDeg ?? 30, distance: view.distance ?? 40 } };
@@ -110,20 +164,20 @@ export function viewEntries(timeline: TimelineSetting | undefined, camera: Scene
   const { reach, view, target } = camera;
   return {
     ...(timeline?.loop === true ? { loop: true } : {}),
-    ...(reach === undefined ? {} : { camera: { maxFocusDistance: reach, far: reach * 2.5 } }),
+    ...(reach === undefined ? {} : { camera: { maxFocusDistance: reach, far: camera.farEarthRadii ?? reach * 2.5 } }),
     ...(farthestKm === undefined ? {} : { camera: { fitOrbit: { farthestKm } } }),
     ...(reach !== undefined || farthestKm !== undefined || cover === undefined ? {} : { camera: { cover: { farthestKm: cover } } }),
     ...(view.up === undefined || target === undefined ? {} : { viewUp: view.up }),
   };
 }
 
-/** The camera menu is automatic: Overview, and Focus and Follow for every body and path. */
-export function cameraPresetsOf(objects: readonly { readonly id: string; readonly label: string }[]): ExperienceDefinition["experience"]["cameraPresets"] {
+/** The camera menu: Overview, Focus for every body and path, and Follow for every one unless `setFollowChoices` named fewer. */
+export function cameraPresetsOf(objects: readonly { readonly id: string; readonly label: string }[], followChoices?: readonly string[]): ExperienceDefinition["experience"]["cameraPresets"] {
   return [
     { id: "overview", label: "Overview", request: { kind: "overview" } },
     ...objects.flatMap(({ id, label }) => [
       { id: `focus-${id}`, label: `Focus ${label}`, request: { kind: "focus" as const, target: id } },
-      { id: `follow-${id}`, label: `Follow ${label}`, request: { kind: "follow" as const, target: id } },
+      ...(followChoices === undefined || followChoices.includes(id) ? [{ id: `follow-${id}`, label: `Follow ${label}`, request: { kind: "follow" as const, target: id } }] : []),
     ]),
   ];
 }

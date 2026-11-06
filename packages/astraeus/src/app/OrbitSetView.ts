@@ -476,7 +476,7 @@ export class OrbitSetView {
     uniforms.uFar.value = look.orbitZoomFarRatio;
     this.layer.families.forEach((family, index) => {
       (uniforms.uColors.value as Color[])[index].set(look.highlightFamily === family.id ? look.highlightColor : familyColorOf(this.layer, look, family.id));
-      (uniforms.uGains.value as number[])[index] = familyGainOf(look, family.id);
+      (uniforms.uGains.value as number[])[index] = familyGainOf(look, family.id, family.brightness);
     });
     this.#material.depthTest = trueScale;
   }

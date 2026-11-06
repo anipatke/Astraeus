@@ -6,6 +6,9 @@ import { ViewerLooks } from "./viewerLooks";
 import { ViewerCamera } from "./viewerCamera";
 import { ViewerClock } from "./viewerClock";
 import { ViewerSelection, type SelectionChange } from "./viewerSelection";
+import { ViewerFirstDraw } from "./viewerFirstDraw";
+import { ViewerPicker } from "./viewerPicker";
+import type { PickChange } from "./pickerInput";
 import { ViewerViews } from "./viewerViews";
 import { ViewerZones } from "./viewerZones";
 import type { TimeInput } from "./time";
@@ -101,6 +104,8 @@ export class ViewerLink implements ViewerPort {
   readonly #zones = new ViewerZones(this.#access);
   readonly #selection = new ViewerSelection(this.#access);
   readonly #looks = new ViewerLooks(this.#access);
+  readonly #frame = new ViewerFirstDraw();
+  readonly #picker = new ViewerPicker(this.#access);
   #wait = newWait();
   /** What last moved the clock or the view, as published; a selection dropped by time or the view names it. */
   #mover: ViewerChangeCause = "playback";
@@ -112,6 +117,7 @@ export class ViewerLink implements ViewerPort {
     this.#selection.reset(control.read());
     this.#mover = "playback";
     this.#camera.reset();
+    this.#picker.reset(control);
     this.#zones.reset(); // nothing is known to be active yet: the first publish reports every zone the time is already inside
     this.#wait.done = true;
     this.#wait.resolve();
@@ -123,6 +129,8 @@ export class ViewerLink implements ViewerPort {
     this.#selection.reset(undefined);
     this.#mover = "playback";
     this.#camera.reset();
+    this.#picker.reset(undefined);
+    this.#frame.reset();
     if (this.#wait.done && !this.#closed) this.#wait = newWait();
   }
 
@@ -142,6 +150,8 @@ export class ViewerLink implements ViewerPort {
     this.#zones.clearListeners();
     this.#selection.clearListeners();
     this.#camera.clearListeners();
+    this.#frame.clearListeners();
+    this.#picker.clearListeners();
   }
 
   /**
@@ -158,6 +168,7 @@ export class ViewerLink implements ViewerPort {
   get view(): string | undefined { return this.#views.view; }
   get selected(): string | undefined { return this.#selection.selected; }
   get camera(): CameraPose | undefined { return this.#camera.camera; }
+  get pick(): string | undefined { return this.#picker.pick; }
 
   get look(): LookRead | undefined { return this.#looks.look; }
   get scale(): string | undefined { return this.#looks.scale; }
@@ -175,6 +186,14 @@ export class ViewerLink implements ViewerPort {
   onChange(listener: (change: ViewerChange) => void): () => void { return this.#clock.onChange(listener); }
   onEventZone(listener: (change: EventZoneChange) => void): () => void { return this.#zones.onEventZone(listener); }
 
+  setPick(value: string): void { this.#picker.setPick(value); }
+  onPick(listener: (change: PickChange) => void): () => void { return this.#picker.onPick(listener); }
+  pickNow(): string | undefined { return this.#picker.pick; }
+  watchPick(watcher: () => void): () => void { return this.#picker.watch(watcher); }
+  picked(value: string): void { this.#picker.press(value); }
+
+  onFirstDraw(listener: () => void): () => void { return this.#frame.onFirstDraw(listener); }
+  firstDraw(): void { this.#frame.publish(); }
   onSelect(listener: (change: SelectionChange) => void): () => void { return this.#selection.onSelect(listener); }
   onCameraChange(listener: (camera: CameraPose) => void): () => void { return this.#camera.onCameraChange(listener); }
 

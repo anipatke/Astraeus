@@ -7,7 +7,7 @@ import type { LookInput } from "../api/look";
 export type { LookInput } from "../api/look";
 
 /** The address parameters that set a look. */
-export type LookParam = "stars" | "milkyway" | "milkywaybrightness" | "sky" | "sunglow" | "sunbrightness" | "sunglowscale" | "markerpx" | "featurepx" | "loadfade";
+export type LookParam = "stars" | "milkyway" | "milkywaybrightness" | "sky" | "sunglow" | "sunbrightness" | "sunglowscale" | "markerpx" | "featurepx" | "loadfade" | "desktop";
 
 /** How a look is written: a number in a range, an `on`/`off` switch, or a switch the address can only turn off. */
 export type LookKind =
@@ -32,6 +32,7 @@ export const LOOK_FIELDS: readonly LookField[] = [
   range(["markerSwapRadiusPx"], "markerpx", 0, 100),
   range(["featureMinBodyPx"], "featurepx", 0, 2000),
   range(["loadFadeSeconds"], "loadfade", 0, 3),
+  { path: ["desktopPictures"], param: "desktop", spec: { kind: "onoff" } },
 ];
 
 /** The name a look is called in a message: `sunGlow.sizePx`. */

@@ -10,6 +10,7 @@
     "labels": "AddBodyOptions.showLabel",
     "featurepx": "LookInput.featureMinBodyPx",
     "loadfade": "LookInput.loadFadeSeconds",
+    "desktop": "LookInput.desktopPictures",
     "markerpx": "LookInput.markerSwapRadiusPx",
     "milkyway": "LookInput.milkyWay",
     "milkywaybrightness": "LookInput.milkyWayBrightness",

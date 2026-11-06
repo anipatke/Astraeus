@@ -58,6 +58,8 @@ export interface ViewerControl {
   setLook(look: LookInput): void;
   /** Turns the display switch `id` (one of the keys of `read().switches`) on or off, as a visitor's switch does. */
   setSwitch(id: string, on: boolean): void;
+  /** The host's picker (`Scene.setPicker`): its id, the option values and the one pressed at the start; absent without a picker. */
+  readonly picker?: { readonly id: string; readonly values: readonly string[]; readonly start: string };
   /** The ids of the objects the showing view shows, which a host may point the camera at. */
   cameraTargets(): readonly string[];
   /** The camera as the viewer's view link writes it; undefined until the scene has drawn its first frame. */
@@ -76,4 +78,12 @@ export interface ViewerPort {
   publish(state: ViewerState, cause: ViewerChangeCause): void;
   /** The viewer's selected object changed. `byMove`: the selection followed a move of the clock or the view (a drop, or a view rule's framing target; the cause is whatever last moved them); otherwise the visitor chose it. */
   publishSelection(state: ViewerState, byMove: boolean): void;
+  /** The pressed option of the host's picker now (undefined until attached and without a picker). */
+  pickNow(): string | undefined;
+  /** Calls `watcher` when the pressed option moves (the host's `setPick`, or an attach or detach); returns the function that stops it. */
+  watchPick(watcher: () => void): () => void;
+  /** A visitor pressed an option of the picker other than the pressed one; the link tells the host's `onPick` listeners. */
+  picked(value: string): void;
+  /** The scene has drawn its first frame; the link tells the host's `onFirstDraw` listeners. */
+  firstDraw(): void;
 }

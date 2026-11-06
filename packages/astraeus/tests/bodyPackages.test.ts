@@ -5,7 +5,7 @@ import { exists, readJson, readText, runImporter, scratchDir } from "../tools/im
 // The donor checks run when the owner's checkout is present and are skipped otherwise.
 const DONOR = "/home/user/code/planetary-explorer";
 const HAS_DONOR = exists(`${DONOR}/data/body-overviews.json`);
-const PACKAGES = new URL("../data/bodies/", import.meta.url).pathname;
+const PACKAGES = new URL("../../astraeus-data/data/bodies/", import.meta.url).pathname;
 const IMPORTER = new URL("../tools/import/planetary-explorer.mjs", import.meta.url).pathname;
 
 interface Feature { readonly id: string; readonly latitude?: number; readonly longitude?: number; readonly [key: string]: unknown }

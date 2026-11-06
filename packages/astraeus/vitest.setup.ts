@@ -24,7 +24,7 @@ for (const [system, planet] of [[JUPITER_MOON_SYSTEM, "jupiter"], [MARS_MOON_SYS
 const FITS = dataFolder("jupiter");
 await loadJupiterMoons({
   window: { startUtcMs: Date.UTC(2016, 1, 10), endUtcMs: Date.UTC(2016, 11, 30) },
-  bodies: ["io", "europa", "ganymede", "callisto", ...(await import("./data/moons/jupiter.json")).default.moons.map((moon: { id: string }) => moon.id)].filter((id, index, all) => all.indexOf(id) === index),
+  bodies: ["io", "europa", "ganymede", "callisto", ...(JSON.parse(await readFile(`${FITS}list.json`, "utf8")) as { moons: { id: string }[] }).moons.map((moon) => moon.id)].filter((id, index, all) => all.indexOf(id) === index),
   chunkUrls: new Proxy({}, { get: (_target, path: string) => (path.endsWith("/2016.bin") ? `${FITS}${path}` : undefined) }) as Record<string, string>,
   fetchBytes: async (path) => readBytes(path),
 });

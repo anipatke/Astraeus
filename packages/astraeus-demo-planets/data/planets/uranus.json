@@ -31,6 +31,7 @@
   "moons": {
     "listSource": "JPL Horizons",
     "featuredFamilyId": "major",
+    "fitSource": "JPL Horizons API 1.2 (https://ssd.jpl.nasa.gov/api/horizons.api) state vectors about the Uranus system barycentre, ICRF, TDB, fitted as piecewise Chebyshev series; US Government work, credit NASA/JPL-Caltech Solar System Dynamics",
     "mapped": []
   },
   "bodyFeatures": [

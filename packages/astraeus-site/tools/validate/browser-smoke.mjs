@@ -1,12 +1,12 @@
 // The smoke step of `npm run check:browser` (O-038 T-145), grown out of browser-lite.mjs: open every public page and every demo view once at desktop and phone size.
 // Each load fails on any page or console error, a missing shell, or a scene with no body, orbit path or dot in view (the scene's own readouts; stars alone do not count; no picture). Nothing else is asserted.
-// Views are discovered as browser-lite does: Apollo (no query), the keys of DEFINITIONS in src/main.tsx, the planets and showers experiences, and every data/showers/<name>.json.
+// Views are discovered as browser-lite does: Apollo (no query), the planets and showers experiences (src/main.tsx no longer holds a table of definitions since O-059 T-272; the made-up scenes are listed below), and every data/showers/<name>.json.
 // The made-up (synthetic) scenes are not public pages and are left to the DOM tests, except the Sun-centred probe path (O-046 T-193). Pages: index.html and assets.html beside app.html.
 // Apollo 11 must also stop drawing once paused and untouched (the frames-drawn readout stops counting, O-031 T-149).
 // Shower views (id starting "showers") must also draw the meteor stream: dots in view, not just any body (I-071). ASTRAEUS_VIEWS=showers limits the run to those views
 // (the step against the scratch public build uses it, so the shipped stream copy is what loads).
 // Run alone: ASTRAEUS_URL=<app.html url> ASTRAEUS_EVIDENCE_DIR=<new dir> node tools/validate/browser-smoke.mjs
-import { mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
+import { mkdirSync, readdirSync, writeFileSync } from "node:fs";
 import * as ui from "./driver.mjs";
 import { assertStreamDrawn } from "./stream-check.mjs";
 import { launchBrowser, openContext, pageIn, watchErrors } from "./harness.mjs";
@@ -24,13 +24,9 @@ const VIEWPORTS = [
 ];
 
 function discoverViews() {
-  const source = readFileSync(new URL("src/main.tsx", root), "utf8");
-  const block = /const DEFINITIONS[^\n]*>\s*=[^{\n]*\{([\s\S]*?)\n\};/.exec(source);
-  if (block === null) throw new Error("could not find DEFINITIONS in src/main.tsx");
-  const named = [...block[1].matchAll(/^\s*"?([A-Za-z0-9-]+)"?\s*:/gm)].map((match) => match[1]);
   const showers = readdirSync(new URL("../astraeus-demo-showers/data/showers/", root)).filter((file) => file.endsWith(".json")).map((file) => file.replace(/\.json$/, "")).sort();
   const views = [{ id: "apollo11", url: appUrl, scene: true }];
-  for (const name of new Set([...named, "planets", "showers"])) views.push({ id: name, url: `${appUrl}?experience=${name}`, scene: true });
+  for (const name of ["planets", "showers"]) views.push({ id: name, url: `${appUrl}?experience=${name}`, scene: true });
   for (const name of showers) views.push({ id: `showers-${name}`, url: `${appUrl}?experience=showers&shower=${name}`, scene: true });
   // O-046 T-193: the made-up Sun-centred probe path (dev server only; the public build leaves it out) gets the extra checks in `sunPathChecks`.
   views.push({ id: "synthetic-probe", url: `${appUrl}?experience=synthetic-probe`, scene: true, sunPath: true });

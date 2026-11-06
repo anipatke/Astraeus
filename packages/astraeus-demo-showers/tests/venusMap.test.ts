@@ -14,7 +14,7 @@ import geminidsFile from "../data/showers/geminids.json";
 const node = async (name: string): Promise<any> => import(/* @vite-ignore */ `node:${name}`);
 const shippedPackage = async () => {
   const { readFileSync } = await node("fs");
-  return JSON.parse(readFileSync("packages/astraeus/data/bodies/venus/map.json", "utf8") as string) as { textures: { src: string; sha256: string; minViewportWidth?: number }[] };
+  return JSON.parse(readFileSync("packages/astraeus-data/data/bodies/venus/map.json", "utf8") as string) as { textures: { src: string; sha256: string; minViewportWidth?: number }[] };
 };
 const sha = async (file: string): Promise<string> => {
   const [{ readFileSync }, { createHash }] = [await node("fs"), await node("crypto")];

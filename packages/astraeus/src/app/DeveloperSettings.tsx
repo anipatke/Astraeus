@@ -9,7 +9,6 @@ import type { SceneControls } from "./AstraeusScene";
 import { DebugOverlay, type DebugReadout } from "./DebugOverlay";
 import { FrameRateSection, type GroupFill } from "./FrameRateSection";
 import type { FrameSnapshot } from "./frameStats";
-import type { ExperienceDefinition } from "./experienceDefinition";
 import { formatView, type StartView } from "./viewLink";
 import type { ViewUp } from "./viewUp";
 import { HudSection, SettingButtons, SettingColor, SettingGroup, SettingSlider } from "./SettingControls";
@@ -186,13 +185,11 @@ export function ViewLinkReadout({ viewNow, viewLink, scale, upChoice }: {
   );
 }
 
-export function UnderTheHoodSettings({ hud, frames, fills, fpsHistory, alternates }: {
+export function UnderTheHoodSettings({ hud, frames, fills, fpsHistory }: {
   readonly hud: DebugReadout | null;
   readonly frames: FrameSnapshot | null;
   readonly fills: readonly GroupFill[];
   readonly fpsHistory: readonly number[];
-  /** The experience's alternate data sets; absent or empty: no Data group. */
-  readonly alternates: ExperienceDefinition["alternates"];
 }) {
   return (
         <>
@@ -202,19 +199,6 @@ export function UnderTheHoodSettings({ hud, frames, fills, fpsHistory, alternate
             </HudSection>
           )}
           <FrameRateSection frames={frames} fills={fills} fpsHistory={fpsHistory} />
-          {alternates !== undefined && alternates.length > 0 && (
-            <SettingGroup name="data" title="Data">
-              <SettingButtons>
-                {alternates?.map((alternate) => (
-                  <button key={`${alternate.param}=${alternate.value}`} aria-pressed={alternate.active} onClick={() => {
-                    const url = new URL(window.location.href);
-                    url.searchParams.set(alternate.param, alternate.value);
-                    window.location.assign(url.toString());
-                  }}>{alternate.label}</button>
-                ))}
-              </SettingButtons>
-            </SettingGroup>
-          )}
         </>
   );
 }

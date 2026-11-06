@@ -7,9 +7,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const controlsOf = vi.hoisted(() => new WeakMap<Element, import("../src/app/AstraeusScene").SceneControls>());
 const runtimeOf = vi.hoisted(() => new WeakMap<Element, import("../src/app/AstraeusScene").SceneRuntime>());
-const coverClaimOf = vi.hoisted(() => new WeakMap<Element, unknown>());
 vi.mock("../src/app/AstraeusScene", () => ({
-  AstraeusScene: (props: { controls: import("../src/app/AstraeusScene").SceneControls; runtime: import("../src/app/AstraeusScene").SceneRuntime; claimCover?: unknown }) => createElement("div", { "data-testid": "scene", ref: (el: HTMLDivElement | null) => { if (el) { controlsOf.set(el, props.controls); runtimeOf.set(el, props.runtime); coverClaimOf.set(el, props.claimCover); } } }),
+  AstraeusScene: (props: { controls: import("../src/app/AstraeusScene").SceneControls; runtime: import("../src/app/AstraeusScene").SceneRuntime}) => createElement("div", { "data-testid": "scene", ref: (el: HTMLDivElement | null) => { if (el) { controlsOf.set(el, props.controls); runtimeOf.set(el, props.runtime); } } }),
 }));
 vi.mock("../src/assets/sky", async (importOriginal) => ({ ...(await importOriginal<typeof import("../src/assets/sky")>()), loadStarCatalogue: vi.fn().mockResolvedValue(null) }));
 
@@ -46,6 +45,7 @@ const makeScene = () => new Scene().addBody(earth).addBody(moon)
   .addTrajectory({ id: "pb", label: "Probe B", center: "earth", samples: path(20_000) })
   .setViews([{ id: "a", label: "View A", paths: ["pa"] }, { id: "b", label: "View B", paths: ["pb"] }], { place: "top-bar" })
   .setSwitches({ labels: { place: "top-bar" } })
+  .setPicker({ id: "world", label: "World", options: [{ value: "one", label: "One" }, { value: "two", label: "Two" }], value: "one" })
   .setTimeline({ start: T0, end: T0 + 100 * DAY, rate: 60, rates: [60, 3600] });
 
 /** One opened viewer, the same shape through either path. */
@@ -123,7 +123,7 @@ const total = (heard: Heard): number => heard.changes.length + heard.selects.len
 
 /** Every read of the handle at one moment, as a plain value. */
 const snapshot = (handle: ViewerHandle) => ({
-  time: handle.time, rate: handle.rate, playing: handle.playing, view: handle.view, camera: handle.camera, eventZones: handle.eventZones, selected: handle.selected, look: handle.look, scale: handle.scale, switches: handle.switches,
+  time: handle.time, rate: handle.rate, playing: handle.playing, view: handle.view, camera: handle.camera, eventZones: handle.eventZones, selected: handle.selected, look: handle.look, scale: handle.scale, switches: handle.switches, pick: handle.pick,
 });
 
 /** The scene's stand-in for a camera standing here (the real scene writes it every frame). */
@@ -141,7 +141,7 @@ interface Row {
   /** What that viewer's handle then reads. */
   readonly reads: (handle: ViewerHandle) => void;
   /** Which of that viewer's own listeners must have heard it. */
-  readonly hears: "changes" | "cameras";
+  readonly hears?: "changes" | "cameras";
   /** What the scene would do after the call, when the stand-in has to do it. */
   readonly settle?: (viewer: Viewer) => void;
 }
@@ -155,6 +155,7 @@ const SETTERS: Record<keyof Setter, Row> = {
   setLook: { call: (v) => v.handle.setLook({ starBrightness: 1.5 }), reads: (hd) => expect(hd.look?.starBrightness).toBe(1.5), hears: "changes" },
   setScale: { call: (v) => v.handle.setScale("readable-scale"), reads: (hd) => expect(hd.scale).toBe("readable-scale"), hears: "changes" },
   setSwitch: { call: (v) => v.handle.setSwitch("labels", false), reads: (hd) => expect(hd.switches).toEqual({ labels: false }), hears: "changes" },
+  setPick: { call: (v) => v.handle.setPick("two"), reads: (hd) => expect(hd.pick).toBe("two") }, // moves the pressed option and tells no listener
   setCamera: {
     call: (v) => v.handle.setCamera({ focus: "moon" }),
     settle: (v) => { expect(cameraRequest(v)).toEqual({ kind: "focus", target: "moon" }); standAt(v, CAMERA_POSE); vi.advanceTimersByTime(300); },
@@ -241,7 +242,8 @@ describe.each(PAIRINGS)("two viewers on one page: $name", (pairing) => {
       row.call(a);
       row.settle?.(a);
       row.reads(a.handle);
-      expect(heardA[row.hears].length).toBeGreaterThan(0);
+      if (row.hears !== undefined) expect(heardA[row.hears].length).toBeGreaterThan(0);
+      else expect(total(heardA)).toBe(0);
       expect(snapshot(b.handle)).toEqual(before);
       expect(total(heardB)).toBe(0);
       expect(cameraRequest(b)).toBeNull();
@@ -266,6 +268,22 @@ describe.each(PAIRINGS)("two viewers on one page: $name", (pairing) => {
     expect(a.handle.selected).toBe(choice);
     expect(heardB.selects).toEqual([]);
     expect(total(heardB)).toBe(0);
+  });
+
+  it("API-03: A's visitor pressing a picker option is heard by A's onPick only, and moves no pressed option until A's host calls setPick", async () => {
+    const [a, b] = await openPair(pairing);
+    const heardA: unknown[] = [];
+    const heardB: unknown[] = [];
+    a.handle.onPick((c) => heardA.push(c));
+    b.handle.onPick((c) => heardB.push(c));
+    a.element.querySelector<HTMLButtonElement>('[data-switch-value="two"]')!.click();
+    expect(heardA).toEqual([{ picker: "world", value: "two" }]);
+    expect(heardB).toEqual([]);
+    expect(a.handle.pick).toBe("one");
+    a.handle.setPick("two");
+    await vi.waitFor(() => expect(a.element.querySelector('[data-switch-value="two"]')!.getAttribute("aria-pressed")).toBe("true"));
+    expect(b.element.querySelector('[data-switch-value="one"]')!.getAttribute("aria-pressed")).toBe("true");
+    expect(b.handle.pick).toBe("one");
   });
 
   it("unmounting A leaves B's handle working and B's page in place", async () => {
@@ -349,6 +367,38 @@ describe.each(PAIRINGS)("two viewers on one page: $name", (pairing) => {
     expect(drawn(b)).toEqual({ titan: undefined, venus: catalogue.get("venus").visual.texture!.url, tiles: 0 });
   });
 
+  // O-059 T-267: a body set belongs to the viewer whose scene added it, through either path; the members load through `data` for the viewer that names them.
+  it("T-267: each viewer draws its own body set, and a set of listed moons loads its members' chunks", async () => {
+    const fits = stubMoonData();
+    const member = (id: string, k: number) => ({ id, label: id, radiusKm: 5, family: "f", elements: { semiMajorAxisKm: 30_000 + 1_000 * k, eccentricity: 0.1, inclinationDeg: 4, raanDeg: 10, argumentOfPeriapsisDeg: 20, trueAnomalyDeg: 30 * k } });
+    const provenance = { sourceType: "illustrative", sources: ["Made up"], accuracy: "Not real.", notes: "" } as const;
+    const madeUp = (setId: string, ids: string[]) => makeScene().addBodySet({ id: setId, families: [{ id: "f", label: "F" }], members: ids.map((id, k) => member(id, k)), provenance, centerGmKm3S2: 4e5 });
+    const listed = new Scene().addBody(jupiter).addBody(io).addBodySet({ id: "small", families: [{ id: "f", label: "F" }], members: [{ id: "amalthea", family: "f" }], provenance })
+      .setTimeline({ start: Date.UTC(2020, 2, 1), end: Date.UTC(2020, 2, 20), rate: 60, rates: [60, 3600] });
+    const a = await pairing.first.open({ scene: madeUp("set-a", ["a-1", "a-2"]) });
+    open.push(a);
+    const b = await pairing.second.open({ scene: listed, data: fits.data });
+    open.push(b);
+    const runtime = (viewer: Viewer) => runtimeOf.get(viewer.element.querySelector("[data-testid=scene]")!)!;
+    expect(runtime(a).bodySets!.map((layer) => [layer.id, layer.group.members])).toEqual([["set-a", ["a-1", "a-2"]]]);
+    expect(runtime(b).bodySets!.map((layer) => [layer.id, layer.group.members])).toEqual([["small", ["amalthea"]]]);
+    expect(fits.fetched.some((url) => url.endsWith("amalthea/2020.bin"))).toBe(true);
+    expect(() => JUPITER_MOON_SYSTEM.ephemeris().stateOf("amalthea", Date.parse("2020-03-05T00:00:00Z"))).not.toThrow();
+  });
+
+  // O-059 T-268: the moon panel and the places belong to the scene that set them, through either path; a bad one arrives as the same typed error.
+  it("T-268: a scene with a moon panel and places opens on both paths, and a bad panel or places is refused with its code", async () => {
+    const provenance = { sourceType: "illustrative", sources: ["Made up"], accuracy: "Not real.", notes: "" } as const;
+    const place = { id: "p", name: "P", kind: "Pit", category: "c", latitudeDeg: 1, longitudeDeg: 2, description: "D" };
+    const good = () => makeScene().setMoonPanel({ label: "Tarn", families: [{ id: "f", label: "F", description: "F.", moons: [{ id: "moon" }] }] }).addPlaces("moon", { categories: [{ key: "c", label: "C", color: "#ffffff" }], places: [place], provenance });
+    const a = await pairing.first.open({ scene: good() });
+    open.push(a);
+    const b = await pairing.second.open({ scene: good() });
+    open.push(b);
+    await expect(pairing.first.open({ scene: makeScene().setMoonPanel({ label: "Tarn", families: [{ id: "f", label: "F", description: "F.", moons: [{ id: "ghost" }] }] }) })).rejects.toMatchObject({ code: "bad-moon-panel" });
+    await expect(pairing.second.open({ scene: makeScene().addPlaces("ghost", { categories: [], places: [place], provenance }) })).rejects.toMatchObject({ code: "bad-places" });
+  });
+
   // T-253: one viewer with the Developer tools on and one off; only the first has the cog and the drawer, and opening it opens nothing in the other.
   it("T-253: developerTools on one viewer and off on the other", async () => {
     const withTools = await pairing.first.open({ developerTools: true });
@@ -390,13 +440,13 @@ describe.each(PAIRINGS)("two viewers on one page: $name", (pairing) => {
     escape(document.body);
     expect([drawerOpen(a), drawerOpen(b)]).toEqual([false, false]);
   });
-  it("T-255: a page's own #boot is never touched, and neither viewer is handed a loading cover", async () => {
+  it("T-255: a page's own #boot is never touched, and the engine has no loading cover to hand a viewer", async () => {
     const boot = document.createElement("div");
     boot.id = "boot";
     boot.dataset.state = "loading";
     document.body.append(boot);
     const [a, b] = await openPair(pairing);
-    for (const v of [a, b]) expect(coverClaimOf.get(v.element.querySelector("[data-testid=scene]")!)).toBeUndefined();
+    expect([a, b]).toHaveLength(2);
     vi.advanceTimersByTime(5000);
     expect(document.getElementById("boot")).toBe(boot);
     expect(boot.dataset.state).toBe("loading");

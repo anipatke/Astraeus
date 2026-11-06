@@ -42,6 +42,14 @@ export type SceneErrorCode =
   | "bad-body"
   /** A point group is malformed or refers to a body that is not in the scene. */
   | "bad-group"
+  /** A body set (`addBodySet`) is malformed, or names a centre, moon, body or balance point the scene cannot draw it with. */
+  | "bad-body-set"
+  /** The moon panel (`setMoonPanel`) is malformed, or names a moon the scene does not hold. */
+  | "bad-moon-panel"
+  /** The picker (`setPicker`, `setPick`) is malformed, or a pick names an option it does not have. */
+  | "bad-picker"
+  /** A body's places (`addPlaces`) are malformed, or name a body the scene does not hold. */
+  | "bad-places"
   /** An activity curve is malformed. */
   | "bad-activity"
   /** A camera call or pose is malformed, or names an object the view cannot show. */

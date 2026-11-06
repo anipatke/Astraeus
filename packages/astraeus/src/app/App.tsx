@@ -1,14 +1,15 @@
-import { Suspense, useCallback, useEffect, useMemo, useRef, useState, type ComponentProps, type ReactNode } from "react";
+import { Suspense, useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore, type ComponentProps, type ReactNode } from "react";
 import { createOrbAstronomyAdapter } from "../core/astronomyAdapter";
 import type { GlowLook } from "./bodyDraw";
 import { viewUpFromSearch, viewUpVector, type ViewUp } from "./viewUp";
 import { activeEventZones, applyPacing, startPaceEase, type PaceView } from "../core/pacing";
 import { openClock } from "./openClock";
 import type { ViewerPort, ViewerState } from "./viewerPort";
+import { pickerSwitch } from "./listSwitch";
 import { createSolarSystemScale, type ScalePolicy } from "../core/scalePolicy";
 import type { CameraRequest } from "./CameraController";
 import type { DebugReadout } from "./debugReadout";
-import { bodySetsOf, cameraReachOf, catalogueOf, compositionOf, experienceWithGroups, groupsOf, initialObjectIdOf, mountedBodiesOf, pageTitleOf, scaleChoiceIdsOf, sceneCenterOf, sunCentredOf, trackedBodiesOf, visualOverridesOf, type DeveloperSection, type ExperienceDefinition } from "./experienceDefinition";
+import { bodySetsOf, cameraReachOf, catalogueOf, compositionOf, experienceWithGroups, groupsOf, initialObjectIdOf, mountedBodiesOf, pageTitleOf, scaleChoiceIdsOf, sceneCenterOf, sunCentredOf, trackedBodiesOf, visualOverridesOf, type ExperienceDefinition } from "./experienceDefinition";
 import { AstraeusShell, type SelectionOrigin } from "../shell/AstraeusShell";
 import type { ViewChoice } from "../shell/DisplaySwitches";
 import type { ExperienceCameraRequest } from "../shell/experience";
@@ -19,10 +20,10 @@ import { START_CAMERA_DISTANCE } from "./sceneFraming";
 import { addressSearch, shareViewLink } from "./address";
 import { Collapsible } from "../shell/Collapsible";
 import { PanelLoadBoundary } from "./PanelLoadBoundary";
-import { BOOT_FADE_LIMITS, bootFadeSeconds, saveBootFadeSeconds, type CoverClaim } from "../shell/bootLoader";
+import { BOOT_FADE_LIMITS, bootFadeSeconds, saveBootFadeSeconds } from "../shell/bootLoader";
 import { LabelSettings, UnderTheHoodSettings, ViewLinkReadout, MoonsAndRingsSettings, SkyAndSunSettings, StoryPanelSettings } from "./developerPanels";
 import { DEFAULT_ILLUMINATE_ALL } from "./lighting";
-import { HudSection, SettingButtons, SettingColor, SettingGroup, SettingSlider } from "./SettingControls";
+import { SettingButtons, SettingColor, SettingGroup, SettingSlider } from "./SettingControls";
 import { DEFAULT_TIMELINE_GLOW, type TimelineGlowLook } from "../shell/timelineGlow";
 import { DEFAULT_PHONE_LAYOUT, PHONE_LAYOUT_LIMITS, type PhoneLayoutSettings } from "../shell/phoneLayout";
 import type { StoryMarkerSpec } from "./StoryMarkers";
@@ -41,7 +42,7 @@ import { experienceInView, hiddenByView, viewById } from "./viewHiding";
 import type { RingLook } from "../assets/rings";
 import { baseGlowOf, glowLookOf, markerSettingsOf } from "./bodyDraw";
 import { resolveLook } from "./look";
-import { applyLook, lookReadOf, presentationOf, skySettingsOf, type LivePresentation } from "./liveLook";
+import { applyLook, desktopPicturesOf, lookReadOf, presentationOf, skySettingsOf, type LivePresentation } from "./liveLook";
 import type { LookInput } from "../api/look";
 
 /** Frames-per-second readings kept for the graph: one per 250 ms poll, so about 15 seconds. */
@@ -113,10 +114,6 @@ function storyStartOf(storySet: ExperienceDefinition["experience"]["storyPanels"
   return { autoOpen: storySet?.autoOpen ?? false, pauseSeconds: storySet?.pauseSeconds ?? 0 };
 }
 
-function switcherOf(definition: ExperienceDefinition, runtime: Runtime, open?: (address: string) => void) {
-  return definition.switcher === undefined ? undefined : { ...definition.switcher, currentTimeUtcMs: () => runtime.clock.snapshot().timeUtcMs, open };
-}
-
 /** Everything one mounted experience shares: clock, resolver, catalogue and the settings read from its definition and the address. */
 function buildRuntime(definition: ExperienceDefinition, search: string) {
     const adapter = createOrbAstronomyAdapter();
@@ -134,7 +131,7 @@ function buildRuntime(definition: ExperienceDefinition, search: string) {
       bodies: mountedBodiesOf(definition),
       composition: compositionOf(definition),
       overrides: visualOverridesOf(definition),
-      desktopTextures: definition.desktopTextures === true,
+      desktopTextures: desktopPicturesOf(definition, look),
       ...(definition.pictures === undefined ? {} : { pictures: definition.pictures }),
       sceneCenter: sceneCenterOf(definition),
       trackedBodies: trackedBodiesOf(definition),
@@ -204,6 +201,7 @@ function initialSceneControls(
     labelObjects: experience.objects,
     viewHidden: hiddenByView(definition.views, viewById(definition.views, startViewId(definition, search)), experience),
     loadFadeSeconds: bootFadeSeconds(runtime.look),
+    desktopPictures: runtime.desktopTextures,
     storyMarkers,
     featureMarkers: featureMarkerSpecs(definition.experience.bodyFeatures),
     featureMinBodyPx: featureMinBodyPxOf(runtime.look),
@@ -218,14 +216,12 @@ function initialSceneControls(
 const drawerWhen = (asked: boolean | undefined, drawer: ReactNode): ReactNode => (asked === true ? drawer : undefined);
 
 /**
- * `onOpenAddress`: the entry's way to open a switch's address in place; without it a switch navigates the page.
  * `writeTitle`: whether the page heading is set to the experience's name (default true); `mount` and `AstraeusScene` pass false so a host page keeps its own title.
  * `developerTools`: whether the viewer shows the Developer toggle and drawer (default false; the drawer's code is fetched only when a visitor opens it, so off never fetches it; the demo site passes true).
  * `address`: whether the viewer reads the page address (`view`, `t`, `scale`, `up`, `show`, `stars`, `milkyway`, `labels` and the other parameters in the README) and offers a copy-link button that writes it (default false: a host page's address is its own; the demo site passes true).
- * `claimCover`: the demo site's loading cover; the first frame fades the element it returns. Internal: `mount` and `AstraeusScene` pass none, so a host page's own `#boot` is never touched.
  * `host`: the link a host page reads and sets the one clock through (time, speed) and hears its changes from; every change goes through the same handlers as the timeline's own controls.
  */
-export function App({ definition, onOpenAddress, writeTitle = true, address, developerTools, host, claimCover }: { readonly definition: ExperienceDefinition; readonly onOpenAddress?: (address: string) => void; readonly writeTitle?: boolean; readonly address?: boolean; readonly developerTools?: boolean; readonly host?: ViewerPort; readonly claimCover?: CoverClaim }) {
+export function App({ definition, writeTitle = true, address, developerTools, host }: { readonly definition: ExperienceDefinition; readonly writeTitle?: boolean; readonly address?: boolean; readonly developerTools?: boolean; readonly host?: ViewerPort }) {
   // The page heading names the experience once it is open; app.html says only "Astraeus" until then.
   useEffect(() => {
     if (writeTitle) document.title = pageTitleOf(definition);
@@ -233,6 +229,12 @@ export function App({ definition, onOpenAddress, writeTitle = true, address, dev
   // The address text every reader below uses: the page's when the host turned the option on, else empty. Read once per scene, as before.
   const search = useMemo(() => addressSearch(address), [definition, address]); // eslint-disable-line react-hooks/exhaustive-deps
   const runtime = useMemo(() => buildRuntime(definition, search), [definition, search]);
+  // The host link hears the scene's first drawn frame (`onFirstDraw`).
+  const told = useCallback(() => host?.firstDraw(), [host]);
+  // The host's picker: the pressed option is the host's to move (`setPick`), and a press is only reported (`onPick`).
+  const watchPick = useCallback((watcher: () => void) => host?.watchPick(watcher) ?? (() => undefined), [host]);
+  const hostPick = useSyncExternalStore(watchPick, () => host?.pickNow());
+  const choosePick = useCallback((value: string) => host?.picked(value), [host]);
   const experienceRuntime = useMemo(
     () => ({ clock: runtime.clock, resolver: runtime.resolver, catalogue: runtime.catalogue }),
     [runtime],
@@ -437,7 +439,7 @@ export function App({ definition, onOpenAddress, writeTitle = true, address, dev
     if (host === undefined) return undefined;
     hostAttached.current = true;
     shownKey.current = null; // the presentation is read afresh after each attach
-    host.attach({ window: runtime.loopWindow, events: experience.events, rates: definition.experience.rates, paced: runtime.pacing !== undefined, read: stateNow, seek: seekTo, setRate: changeRate, playable: definition.experience.hideTimeline !== true, setPlaying: hostSetPlaying, views: viewIds, setView: chooseView, cameraTargets, readCamera, setCamera, scales: hostScales, setScale: hostSetScale, setLook: hostSetLook, setSwitch: hostSetSwitch });
+    host.attach({ ...(definition.picker === undefined ? {} : { picker: { id: definition.picker.id, values: definition.picker.options.map((option) => option.value), start: definition.picker.value } }), window: runtime.loopWindow, events: experience.events, rates: definition.experience.rates, paced: runtime.pacing !== undefined, read: stateNow, seek: seekTo, setRate: changeRate, playable: definition.experience.hideTimeline !== true, setPlaying: hostSetPlaying, views: viewIds, setView: chooseView, cameraTargets, readCamera, setCamera, scales: hostScales, setScale: hostSetScale, setLook: hostSetLook, setSwitch: hostSetSwitch });
     return () => { hostAttached.current = false; host.detach(); };
   }, [host, runtime, definition, seekTo, changeRate, viewIds, chooseView, cameraTargets, readCamera, setCamera, experience, hostSetPlaying, hostScales, hostSetScale, hostSetLook, hostSetSwitch]);
 
@@ -506,12 +508,6 @@ export function App({ definition, onOpenAddress, writeTitle = true, address, dev
     shownKey.current = key;
     if (changed) host?.publish(state, "visitor");
   }, [host, stateNow, scale, skyVisible, starBrightness, milkyWayBrightness, milkyWayOn, glowShown, markerPx, loadFade, orbitShown, setLook, hiddenLabels, anchorLabels]);
-  const sections = definition.developerSections ?? [];
-  const renderSection = (section: DeveloperSection) => (
-    <HudSection key={section.id} className={section.id === "clock" ? "hud-section hud-section-clock" : "hud-section"} level={3} heading={section.heading}>
-      {section.render(experienceRuntime)}
-    </HudSection>
-  );
   const hasStoryPanels = (storySet?.panels.length ?? 0) > 0;
   const showDisplay = showsDisplayControls(definition, runtime, skyVisible, orbitPaths.length, storyMarkerSpecs.length);
   // Orbit-line sliders: the first four stay in view, the rest sit in a nested "Fine-tune" fold (T-090).
@@ -537,15 +533,6 @@ export function App({ definition, onOpenAddress, writeTitle = true, address, dev
   );
   // The panel's folds, in order; the first one present opens by default and the rest start closed (T-090).
   const groups: ReadonlyArray<{ readonly id: string; readonly title: string; readonly className?: string; readonly body: ReactNode } | null> = [
-    sections.length === 0 ? null : {
-      id: "demo", title: "This demo", className: "dev-group-cards",
-      body: (
-        <>
-          {sections.filter((section) => section.placement === "before-scene").map(renderSection)}
-          {sections.filter((section) => section.placement === "after-scene").map(renderSection)}
-        </>
-      ),
-    },
     !showDisplay ? null : {
       id: "camera", title: "Camera and view",
       body: (
@@ -655,7 +642,7 @@ export function App({ definition, onOpenAddress, writeTitle = true, address, dev
     {
       id: "under-the-hood", title: "Under the hood",
       body: (
-        <UnderTheHoodSettings hud={hud} frames={frames} fills={fills} fpsHistory={fpsHistory} alternates={showDisplay ? definition.alternates : undefined} />
+        <UnderTheHoodSettings hud={hud} frames={frames} fills={fills} fpsHistory={fpsHistory} />
       ),
     },
   ];
@@ -705,7 +692,7 @@ export function App({ definition, onOpenAddress, writeTitle = true, address, dev
       scaleId={scale}
       onScaleChange={updateScale}
       scaleChoices={scaleChoices}
-      switcher={switcherOf(definition, runtime, onOpenAddress)}
+      switcher={definition.picker === undefined ? undefined : pickerSwitch(definition.picker, hostPick ?? definition.picker.value, choosePick)}
       displaySwitches={displaySwitches}
       viewChoice={viewChoice}
       viewCamera={currentView === undefined ? undefined : { id: currentView.id, rule: currentView.camera }}
@@ -724,7 +711,7 @@ export function App({ definition, onOpenAddress, writeTitle = true, address, dev
       onOpenFeatureChange={markOpenFeature}
     >
       <div className="canvas-host">
-        <AstraeusScene runtime={runtime} controls={controls.current} readout={readout} scaleId={scale} claimCover={claimCover} />
+        <AstraeusScene runtime={runtime} controls={controls.current} readout={readout} scaleId={scale} onFirstDraw={host === undefined ? undefined : told} />
       </div>
     </AstraeusShell>
   );

@@ -2,10 +2,11 @@
 id: T-273
 objective: O-059
 title: Check everything together and show the owner
-status: planned
+status: done
 depends_on: [{task: T-272, requires: clear}]
 owner_validation: {required: true}
 planned_by: {role: planner, session: o059-planning-20261106}
+check_waiver: {task: T-273, reason: 'Owner said "orchestrate O-59" under the standing run rules (no per-step checks, coordinator marks done once gates pass, one Full Objective Check at the end); the optional Task Check is waived.', actor: {role: owner, session: o059-run-20261106}, recorded_at: '2026-11-06T19:25:25Z'}
 ---
 
 # Check everything together and show the owner
@@ -48,7 +49,16 @@ Focused tests while iterating (`npx vitest run <files>`); at hand-off the config
 
 ## Technical Evidence
 
-Pending execution.
+Builder session (Sonnet), 2026-11-06, against HEAD 323505a9 plus the uncommitted working tree below.
+
+- Reconciled: `.savepoint/Design.md` (codebase map rows, boundary sentence, new O-059 paragraph, front-door bullet, Drift accounting for T-265 to T-272, Current Technical State), `docs/architecture/state-and-assets.md` (plug-in boundary), `docs/architecture/codebase-details.md`, `docs/DONOR_PROVENANCE.md`, `docs/NPM_PACKAGING.md` (stale `data/bodies` paths; `astraeus-data` 123 files of 130). `docs/architecture/o059-public-forms.md` unchanged (dated note). Extra read: `.savepoint/Design.md` Drift sections and T-265..T-272 Drift Notes, to account for them.
+- CHANGELOG: one O-059 intro, entries T-269, T-268 (moved up from below the O-052 list), T-267, T-266; no duplicates; the `toDefinition` stop-gap in `planetViews.test.ts` is named.
+- Browser: `npm run check:browser`, the one O-059 run, against 323505a9 + working tree, started 17:48Z 2026-11-06, all 10 steps exit 0, evidence `docs/evidence/browser-20261106T174821Z`. Two code faults found and fixed first (earlier failing runs removed, uncited): (1) `browser-smoke.mjs` parsed a `DEFINITIONS` table that T-272 removed from `main.tsx` (now lists planets, showers and the named synthetic views); (2) the site's `synthetic-journey` loader built the scene before the planet series were loaded (`loadJourneyPlanets` added in `syntheticJourneyScene.ts`, called from `main.tsx`). Code changed after the first lint/typecheck/test/pack runs: lint, typecheck, `npm test` (225 files, 2938 passed, 2 skipped) and build rerun after; pack and engine-alone ran before and are unaffected (no engine source changed).
+- Gates: lint, typecheck, build, `npm test`, `check:engine-alone`, `check:pack` (astraeus 9.12 of 9.5 MB unpacked, astraeus-data 123 of 130 files) pass; `ASTRAEUS_PUBLIC_BUILD=1 ASTRAEUS_ENGINE_SHARE=1 npm run build` plus `public-build-assets.mjs dist` ok (96 checked); `load-budget.mjs` all rows ok, API page 151,008 B raw (limit 200,000), 33,365 B gzip (limit 40,000). Local build restored to normal.
+- Owner look on `localhost:5490` (User Check): done; the owner's words ("looks right", 2026-11-06T19:25:25Z) are recorded below the evidence.
+
+
+**Owner look (2026-11-06T19:25:25Z):** owner reviewed the demos and site on localhost:5490 (375x667, 1280x720) and said "looks right". Recorded after the integration evidence.
 
 ## Drift Notes
 
