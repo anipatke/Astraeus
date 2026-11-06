@@ -349,6 +349,25 @@ describe.each(PAIRINGS)("two viewers on one page: $name", (pairing) => {
     expect(drawn(b)).toEqual({ titan: undefined, venus: catalogue.get("venus").visual.texture!.url, tiles: 0 });
   });
 
+  // O-059 T-267: a body set belongs to the viewer whose scene added it, through either path; the members load through `data` for the viewer that names them.
+  it("T-267: each viewer draws its own body set, and a set of listed moons loads its members' chunks", async () => {
+    const fits = stubMoonData();
+    const member = (id: string, k: number) => ({ id, label: id, radiusKm: 5, family: "f", elements: { semiMajorAxisKm: 30_000 + 1_000 * k, eccentricity: 0.1, inclinationDeg: 4, raanDeg: 10, argumentOfPeriapsisDeg: 20, trueAnomalyDeg: 30 * k } });
+    const provenance = { sourceType: "illustrative", sources: ["Made up"], accuracy: "Not real.", notes: "" } as const;
+    const madeUp = (setId: string, ids: string[]) => makeScene().addBodySet({ id: setId, families: [{ id: "f", label: "F" }], members: ids.map((id, k) => member(id, k)), provenance, centerGmKm3S2: 4e5 });
+    const listed = new Scene().addBody(jupiter).addBody(io).addBodySet({ id: "small", families: [{ id: "f", label: "F" }], members: [{ id: "amalthea", family: "f" }], provenance })
+      .setTimeline({ start: Date.UTC(2020, 2, 1), end: Date.UTC(2020, 2, 20), rate: 60, rates: [60, 3600] });
+    const a = await pairing.first.open({ scene: madeUp("set-a", ["a-1", "a-2"]) });
+    open.push(a);
+    const b = await pairing.second.open({ scene: listed, data: fits.data });
+    open.push(b);
+    const runtime = (viewer: Viewer) => runtimeOf.get(viewer.element.querySelector("[data-testid=scene]")!)!;
+    expect(runtime(a).bodySets!.map((layer) => [layer.id, layer.group.members])).toEqual([["set-a", ["a-1", "a-2"]]]);
+    expect(runtime(b).bodySets!.map((layer) => [layer.id, layer.group.members])).toEqual([["small", ["amalthea"]]]);
+    expect(fits.fetched.some((url) => url.endsWith("amalthea/2020.bin"))).toBe(true);
+    expect(() => JUPITER_MOON_SYSTEM.ephemeris().stateOf("amalthea", Date.parse("2020-03-05T00:00:00Z"))).not.toThrow();
+  });
+
   // T-253: one viewer with the Developer tools on and one off; only the first has the cog and the drawer, and opening it opens nothing in the other.
   it("T-253: developerTools on one viewer and off on the other", async () => {
     const withTools = await pairing.first.open({ developerTools: true });

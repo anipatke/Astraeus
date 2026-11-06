@@ -4,6 +4,7 @@ import { MOON_SYSTEMS } from "../core/bodies/listedMoonBodies";
 import { MoonOutOfSpanError } from "../core/bodies/moonSystem";
 import { catalogue as builtInCatalogue, type BodyCatalogue } from "../assets/catalogue";
 import { SceneError } from "./errors";
+import type { BodySetLoad } from "./planBodySets";
 import { picturesProblem, type Pictures } from "../assets/pictures";
 
 /** Moon positions a data package (`astraeus-data-<planet>`) hands to the engine: where its index is read from and the URL of every chunk file it ships. */
@@ -28,7 +29,7 @@ export interface DataSource {
  * Checks the rights of the packages' pictures (the viewer draws them from its definition, `assembleScene` carries them there), hands the moon positions to the engine and loads the chunks the scene's window needs for the moons it holds.
  * Nothing is looked up behind the caller's back: a package that was not passed in contributes nothing.
  */
-export async function installData(data: readonly DataSource[], sceneBodies: readonly BodyId[], window: TimeBounds, catalogue: BodyCatalogue = builtInCatalogue): Promise<void> {
+export async function installData(data: readonly DataSource[], sceneBodies: readonly BodyId[], window: TimeBounds, catalogue: BodyCatalogue = builtInCatalogue, sets?: BodySetLoad): Promise<void> {
   for (const source of data) {
     const problem = source.pictures === undefined ? null : picturesProblem(source.pictures);
     if (problem !== null) throw new SceneError("bad-data", `${source.name}: ${problem}`);
@@ -37,8 +38,9 @@ export async function installData(data: readonly DataSource[], sceneBodies: read
     const system = MOON_SYSTEMS[positions.centre];
     if (system === undefined) throw new SceneError("bad-data", `${source.name}: no moon system for "${positions.centre}"`);
     system.provideIndex(positions.loadIndex);
-    const moons = sceneBodies.filter((id) => catalogue.has(id) && catalogue.get(id).definition.parentId === positions.centre);
-    if (moons.length > 0) await system.load({ window, bodies: moons, chunkUrls: positions.chunkUrls }).catch(outOfSpan(source.name));
+    const moons = [...sceneBodies.filter((id) => catalogue.has(id) && catalogue.get(id).definition.parentId === positions.centre), ...(sets?.moons ?? []).filter((moon) => moon.parent === positions.centre).map(({ id }) => id)];
+    const maxMs = sets?.historyMs.get(positions.centre) ?? 0;
+    if (moons.length > 0) await system.load({ window, bodies: moons, chunkUrls: positions.chunkUrls, ...(maxMs > 0 ? { history: { bodies: moons, maxMs } } : {}) }).catch(outOfSpan(source.name));
   }
   for (const source of data) await source.prepare?.();
 }

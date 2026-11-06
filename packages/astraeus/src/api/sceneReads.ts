@@ -55,6 +55,18 @@ export interface SceneGroupRead {
   readonly knownLimitations: readonly string[];
 }
 
+/** A body set the scene holds (`addBodySet`), as `Scene.bodySets` lists it. */
+export interface SceneBodySetRead {
+  readonly id: string;
+  /** The body the members circle. */
+  readonly center: BodyId;
+  /** How many members (dots) it draws. */
+  /** How many members (dots) it draws. */
+  readonly count: number;
+  /** The ids of its families, in order. */
+  readonly families: readonly string[];
+}
+
 /** A timeline event the scene holds (`addEvents`), as `Scene.events` lists it (sorted by time). */
 export interface SceneEventRead {
   readonly id: string;

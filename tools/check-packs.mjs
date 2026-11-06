@@ -13,7 +13,8 @@ const MB = 1_000_000;
 
 /** Limits in bytes (packed, unpacked) and file counts. `astraeus` has no file count: `strayFiles` names a packed file that is not a real source module (O-051 T-218, owner choice). The planet packages were raised in O-047 T-200. */
 export const LIMITS = {
-  astraeus: { packed: 8 * MB, unpacked: 9.5 * MB },
+  // Raised from 9.5 MB for O-059 T-267 (owner, 2026-11-06); returns to 9.5 MB at T-270 when the moon lists leave.
+  astraeus: { packed: 8 * MB, unpacked: 9.8 * MB },
   "astraeus-data": { packed: 39 * MB, unpacked: 39 * MB, files: 40 },
   "astraeus-data-jupiter": { packed: 34 * MB, unpacked: 37 * MB, files: 2_900 },
   "astraeus-data-saturn": { packed: 59 * MB, unpacked: 64 * MB, files: 7_000 },

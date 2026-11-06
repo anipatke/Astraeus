@@ -17,6 +17,7 @@ import { installData, type DataSource } from "./data";
 import { SceneError } from "./errors";
 import { cameraPresetsOf, fitFarthestKm, startPresetEntry, startViewEntry, viewEntries, type SceneCamera } from "./planCamera";
 import type { BodyPlan } from "./planBodies";
+import type { BodySetPlan } from "./planBodySets";
 import { groupLayersEntry, lateGroups, type GroupPlan } from "./planGroups";
 import { autoPaths, checkNamedReadouts, checkReadouts, pathCover, type Tracked } from "./planPaths";
 import type { StoryPlan } from "./planStory";
@@ -28,6 +29,7 @@ export interface ScenePlanners {
   readonly plan: BodyPlan;
   readonly tracked: ReadonlyMap<string, Tracked>;
   readonly groupPlan: GroupPlan;
+  readonly bodySets: BodySetPlan;
   readonly story: StoryPlan;
   readonly timeline: TimelinePlan;
   readonly viewPlan: ViewPlan;
@@ -86,9 +88,10 @@ function deferredRead<T>(ids: readonly BodyId[], window: TimeBounds, fault: { er
 
 /** The app's plug-in contract for a scene's planners. Throws if the scene is empty or a body needs a data package not passed in `data`. */
 export function assembleScene(parts: ScenePlanners, data: readonly DataSource[]): ExperienceDefinition {
-  const { plan, groupPlan, story, timeline: timelinePlan, viewPlan, camera, tracked: trackedMap } = parts;
+  const { plan, groupPlan, bodySets, story, timeline: timelinePlan, viewPlan, camera, tracked: trackedMap } = parts;
   if (plan.bodies.size === 0) throw new SceneError("empty-scene", "the scene has no bodies; call addBody before mount");
   plan.checkData(data);
+  bodySets.checkData(data);
   groupPlan.checkReadouts();
   const ids = [...plan.bodies.keys()];
   const paths = plan.moonPaths();
@@ -109,12 +112,14 @@ export function assembleScene(parts: ScenePlanners, data: readonly DataSource[])
   const fit = deferredRead(ids, window, fault, undefined, () => fitFarthestKm(camera, plan.catalogue, plan.own, startUtcMs));
   // The lines read planet positions; when the planet series are not loaded yet (a consumer's mount), they are drawn in `prepare`, once the series are in. The viewer draws only after `prepare` resolves.
   const sunPaths: PathLayer[] = deferredRead<PathLayer[]>(ids, window, fault, [], () => plan.earlySunPaths(sunOrbitIds, startUtcMs, planetSeriesLoaded()));
-  const storyPanels = story.panels(window, trackedMap.values(), [...plan.bodies.keys(), ...trackedMap.keys(), ...groupPlan.groups.keys()]);
+  const storyPanels = story.panels(window, trackedMap.values(), [...plan.bodies.keys(), ...trackedMap.keys(), ...groupPlan.groups.keys(), ...bodySets.memberIds()]);
   groupPlan.check(ids);
+  bodySets.check({ ids, catalogue: plan.catalogue, orbits: plan.orbits });
   // A clump near a body reads its position; with the planet series not loaded yet, those groups are built in `prepare` (the viewer draws only after it resolves).
   const seriesIn = planetSeriesLoaded();
   const late = lateGroups(seriesIn);
   const layers: GroupLayer[] = deferredRead<GroupLayer[]>(ids, window, fault, [], () => [...groupPlan.layers(ids, window, startUtcMs, (plan) => !late(plan))]);
+  const setLayers = bodySets.layers({ ids, catalogue: plan.catalogue, orbits: plan.orbits, window, startUtcMs });
   const labelled = [...plan.bodies.values(), ...tracked, ...[...groupPlan.groups.values()]].map(({ id, label }) => ({ id, label }));
   const catalogue = plan.catalogue;
   if (camera.following && camera.target !== undefined && camera.followChoices !== undefined && !camera.followChoices.includes(camera.target)) throw new SceneError("bad-camera", `camera.follow("${camera.target}"): the opening view follows "${camera.target}", which camera.setFollowChoices does not list`);
@@ -124,6 +129,7 @@ export function assembleScene(parts: ScenePlanners, data: readonly DataSource[])
       objects: [
         ...[...plan.bodies.values()].map((body) => plan.bodyObject(body, ids, sunCentred, camera)),
         ...[...trackedMap.values()].map(({ body, description, knownLimitations, provenanceSpans }): ExperienceObject => ({ id: body.id, label: body.label, color: body.color, availability: body.trajectory.bounds, labelPriority: 80, ...plan.labelReach(body.id, sunCentred, camera), provenance: body.provenance, ...(provenanceSpans === undefined ? {} : { provenanceSpans }), ...(description === undefined ? {} : { description }), ...(knownLimitations === undefined ? {} : { knownLimitations }) })),
+        ...bodySets.objects({ ids, catalogue: plan.catalogue }),
       ],
       cameraPresets: cameraPresetsOf(labelled, camera.followChoices),
       ...startPresetEntry(camera),
@@ -139,6 +145,7 @@ export function assembleScene(parts: ScenePlanners, data: readonly DataSource[])
     ...timelinePlan.pacing(story.events),
     ...groupLayersEntry(layers, groupPlan.groups.size > 0, sunOrbitIds.length > 0),
     ...(sunOrbitIds.length === 0 ? {} : { paths: sunPaths }),
+    ...(setLayers.length === 0 ? {} : { bodySets: setLayers }),
     ...(plan.catalogue === builtInCatalogue ? {} : { catalogue: plan.catalogue }),
     ...plan.visualOverrides(),
     // The viewer draws only the pictures of the packages passed to it (T-252); nothing is shared between viewers.
@@ -165,7 +172,7 @@ export function assembleScene(parts: ScenePlanners, data: readonly DataSource[])
       if (groupPlan.groups.size > layers.length) layers.push(...planetRead(ids, window, () => groupPlan.layers(ids, window, startUtcMs, late)));
       if (sunPaths.length < sunOrbitIds.length) sunPaths.push(...planetRead(ids, window, () => sunOrbitIds.map((id) => plan.sunPath(id, startUtcMs))));
       if (fit !== undefined) planetRead(ids, window, () => fit.settle());
-      await installData(data, ids, window, catalogue);
+      await installData(data, ids, window, catalogue, bodySets.load());
     },
   };
   return definition;

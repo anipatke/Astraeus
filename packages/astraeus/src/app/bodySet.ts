@@ -3,6 +3,8 @@
 import type { BodyId } from "../core/body";
 import type { EphemerisGroup } from "../core/ephemerisGroup";
 import type { BalancePoint } from "../core/orbitPeriod";
+import { DEFAULT_FAMILY_PALETTE, MAX_BODY_SET_FAMILIES, familiesWithPalette, type BodySetFamily } from "../core/bodySetFamilies";
+export { DEFAULT_FAMILY_PALETTE, MAX_BODY_SET_FAMILIES, familiesWithPalette, type BodySetFamily };
 
 export interface BodySetMember {
   readonly id: BodyId;
@@ -11,16 +13,6 @@ export interface BodySetMember {
   /** One of the layer's family ids. */
   readonly family: string;
 }
-
-export interface BodySetFamily {
-  readonly id: string;
-  readonly label: string;
-  /** Default orbit colour, #rrggbb; the live settings may change it. */
-  readonly color: string;
-}
-
-/** Shader uniform arrays hold at most this many families. */
-export const MAX_BODY_SET_FAMILIES = 16;
 
 export interface BodySetLayer {
   readonly id: string;
@@ -73,12 +65,6 @@ export interface BodySetLook {
   readonly highlightOrbitGain: number;
 }
 
-/**
- * Default orbit colours, in family order: the Okabe and Ito colour-blind-safe set (Okabe and Ito 2008, "Color Universal Design"), without
- * its black and its dark blue (both vanish on the night sky), preceded by the cream of the existing orbit lines and followed by a neutral grey.
- */
-export const DEFAULT_FAMILY_PALETTE: readonly string[] = Object.freeze(["#f0e6da", "#f0e442", "#e69f00", "#56b4e9", "#cc79a7", "#009e73", "#d55e00", "#bbbbbb"]);
-
 export const DEFAULT_BODY_SET_LOOK: BodySetLook = Object.freeze({
   dotColor: "#9a9a9a",
   dotPx: 3,
@@ -104,15 +90,9 @@ export const BODY_SET_LOOK_LIMITS = Object.freeze({
   highlightOrbitGain: { min: 1, max: 12 },
 });
 
-/** The orbit brightness multiplier of a family now: its own gain, else the highlight's when it is the lit one. */
-export function familyGainOf(look: BodySetLook, family: string): number {
-  return look.familyGains[family] ?? (look.highlightFamily === family ? look.highlightOrbitGain : 1);
-}
-
-/** Families in data order with the default palette's colours, cycling past its end. */
-export function familiesWithPalette(families: readonly { readonly id: string; readonly label: string }[], palette: readonly string[] = DEFAULT_FAMILY_PALETTE): readonly BodySetFamily[] {
-  if (families.length > MAX_BODY_SET_FAMILIES) throw new RangeError(`a body set holds at most ${MAX_BODY_SET_FAMILIES} families, got ${families.length}`);
-  return Object.freeze(families.map((family, index) => Object.freeze({ id: family.id, label: family.label, color: palette[index % palette.length] })));
+/** The orbit brightness multiplier of a family now: its own gain, else the highlight's when it is the lit one, else `base` (the family's own brightness, default 1). */
+export function familyGainOf(look: BodySetLook, family: string, base = 1): number {
+  return look.familyGains[family] ?? (look.highlightFamily === family ? look.highlightOrbitGain : base);
 }
 
 /** Checks a layer: members and families unique, every member in a family, a positive centre GM, members as the group's. */

@@ -42,6 +42,8 @@ export type SceneErrorCode =
   | "bad-body"
   /** A point group is malformed or refers to a body that is not in the scene. */
   | "bad-group"
+  /** A body set (`addBodySet`) is malformed, or names a centre, moon, body or balance point the scene cannot draw it with. */
+  | "bad-body-set"
   /** An activity curve is malformed. */
   | "bad-activity"
   /** A camera call or pose is malformed, or names an object the view cannot show. */

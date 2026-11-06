@@ -20,7 +20,7 @@ The planets demo builds a `Scene` with public calls only, in source and tests, a
 
 ## Done When
 
-`buildPlanetDefinition` is replaced by a scene builder; all nine planets build; provenance and accuracy words are unchanged; Jupiter-only public globs still work; `DEEP_IMPORT_COUNTS` for `astraeus-demo-planets` is 0; tests of engine internals moved to `packages/astraeus/tests/` and pass `check:engine-alone`. Apply `docs/agents/verification.md` for evidence.
+`buildPlanetDefinition` is replaced by a scene builder; all nine planets build; provenance and accuracy words are unchanged; Jupiter-only public globs still work; `DEEP_IMPORT_COUNTS` for `astraeus-demo-planets` is 0; tests of engine internals moved to `packages/astraeus/tests/` and pass `check:engine-alone`. The engine's unpacked limit in `tools/check-packs.mjs` is back at 9.5 MB and `check:pack` passes (owner, 2026-11-06: raised briefly at T-267, restored here once the moon lists leave). Apply `docs/agents/verification.md` for evidence.
 
 ## Context Files
 

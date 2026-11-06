@@ -22,11 +22,13 @@ import { SceneError } from "./errors";
 import { NotLoadedError } from "../core/planetSeries";
 import { BodyPlan } from "./planBodies";
 import { GroupPlan } from "./planGroups";
+import { BodySetPlan, type BodySetContext } from "./planBodySets";
+import type { BodySetInput } from "./bodySetInput";
 import { assembleScene } from "./assembleScene";
 import { SceneCamera } from "./planCamera";
 import { isMounted } from "./sceneFreeze";
-import type { SceneBodyRead, SceneEventRead, SceneGroupRead, ScenePanelRead, ScenePathRead, SceneTimelineRead, SceneViewsRead } from "./sceneReads";
-export type { SceneBodyRead, SceneEventRead, SceneGroupRead, ScenePanelRead, ScenePathRead, SceneTimelineRead, SceneViewRead, SceneViewsRead } from "./sceneReads";
+import type { SceneBodyRead, SceneBodySetRead, SceneEventRead, SceneGroupRead, ScenePanelRead, ScenePathRead, SceneTimelineRead, SceneViewsRead } from "./sceneReads";
+export type { SceneBodyRead, SceneBodySetRead, SceneEventRead, SceneGroupRead, ScenePanelRead, ScenePathRead, SceneTimelineRead, SceneViewRead, SceneViewsRead } from "./sceneReads";
 export { SceneCamera } from "./planCamera";
 import { StoryPlan } from "./planStory";
 import { buildTracked, pathReads, type Tracked } from "./planPaths";
@@ -196,6 +198,7 @@ export class Scene {
   /** Paths added without a `center`: they follow the scene's first body, so one added before any body is rebuilt when the first body arrives. */
   readonly #defaulted = new Map<string, TrajectoryInput>();
   readonly #groupPlan = new GroupPlan(() => this.#plan.catalogue, (id) => this.#taken(id));
+  readonly #bodySets = new BodySetPlan(() => this.#plan.catalogue, (id) => this.#taken(id));
   readonly #story = new StoryPlan();
   readonly #timeline = new TimelinePlan();
   readonly #viewPlan = new ViewPlan();
@@ -223,13 +226,16 @@ export class Scene {
   /** The groups the scene holds (`addGroup`), in the order added: id, label, orbit count, centre body, plane and the provenance the group's card shows. A fresh frozen list on every read. */
   get groups(): readonly SceneGroupRead[] { return this.#groupPlan.reads(this.#sceneFirst()); }
 
+  /** The body sets the scene holds (`addBodySet`), in the order added: id, centre body, member count and family ids. A fresh frozen list on every read. */
+  get bodySets(): readonly SceneBodySetRead[] { return this.#bodySets.reads(this.#sceneFirst()); }
+
   /** The events the scene holds (`addEvents`), sorted by time: id, label, `timeUtcMs`, type, object and provenance (the event's own, else the batch's). A fresh frozen list on every read. */
   get events(): readonly SceneEventRead[] { return this.#story.eventReads(); }
 
   /** The story panels (`addStoryPanels`), sorted by time with their times resolved against the events, path anchors and timeline as `mount` resolves them; empty when none were added. A bad panel throws `bad-panels`, as `mount` would. A fresh frozen list on every read. */
   get panels(): readonly ScenePanelRead[] {
     const { window } = this.#timelineSpan();
-    return this.#story.panelReads(window, this.#tracked.values(), [...this.#plan.bodies.keys(), ...this.#tracked.keys(), ...this.#groupPlan.groups.keys()]);
+    return this.#story.panelReads(window, this.#tracked.values(), [...this.#plan.bodies.keys(), ...this.#tracked.keys(), ...this.#groupPlan.groups.keys(), ...this.#bodySets.memberIds()]);
   }
 
   /** The views the scene names (`setViews`): the id of the opening view (`startId`), where the choice shows and each view's id and label; undefined when none were named. */
@@ -296,7 +302,7 @@ export class Scene {
 
   /** Whether a body, path or group already has this id. */
   #taken(id: string): boolean {
-    return this.#plan.bodies.has(id) || this.#tracked.has(id) || this.#groupPlan.groups.has(id);
+    return this.#plan.bodies.has(id) || this.#tracked.has(id) || this.#groupPlan.groups.has(id) || this.#bodySets.has(id);
   }
 
   /**
@@ -308,6 +314,20 @@ export class Scene {
   addGroup(input: GroupInput): this {
     this.#editable();
     this.#groupPlan.addGroup(input);
+    return this;
+  }
+
+  /**
+   * Adds many small bodies about one centre as one batch: each member is a selectable dot (a ball at true size close up, its name on hover, tap or near zoom), with orbit lines coloured by its family.
+   * The members circle the scene's centre unless `center` names another body in the scene. They are all listed moons of the centre (positions come through `data`, as for `addBody`) or all made-up
+   * ones with `elements` on two-body motion. `bodies` names bodies added with `addBody` that belong to a family. A repeated id throws `duplicate-id`; a malformed set, an unlisted moon, a centre
+   * without gravity or a balance point outside the set throws `bad-body-set`. Read the result from `scene.bodySets`.
+   * @example
+   * scene.addBodySet({ id: "swarm", families: [{ id: "inner", label: "Inner swarm" }], provenance: { sourceType: "illustrative", sources: ["Made up"], accuracy: "Not real.", notes: "" }, members: [{ id: "bit-a", label: "Bit A", radiusKm: 5, family: "inner", elements: { semiMajorAxisKm: 30_000, eccentricity: 0.1, inclinationDeg: 5, raanDeg: 10, argumentOfPeriapsisDeg: 20, trueAnomalyDeg: 30 } }] });
+   */
+  addBodySet(input: BodySetInput): this {
+    this.#editable();
+    this.#bodySets.add(input);
     return this;
   }
 
@@ -428,6 +448,7 @@ export class Scene {
    */
   stateOf(id: string, time: TimeInput): State {
     const entry = this.#tracked.get(id);
+    if (entry === undefined && !this.#plan.bodies.has(id) && this.#bodySets.setOf(id) !== undefined) return this.#bodySets.stateOf(id, toUtcMs(time, `stateOf("${id}") time`), this.#bodySetContext());
     if (entry === undefined && !this.#plan.bodies.has(id)) throw new SceneError("unknown-body", `stateOf("${id}"): no body or trajectory with that id has been added to the scene`);
     const timeUtcMs = toUtcMs(time, `stateOf("${id}") time`);
     const trajectory = entry?.body.trajectory ?? this.#catalogueSource(id);
@@ -446,8 +467,17 @@ export class Scene {
   provenanceOf(id: string): Provenance {
     const entry = this.#tracked.get(id);
     if (entry !== undefined) return entry.body.provenance!; // addTrajectory always sets one
+    if (!this.#plan.bodies.has(id) && this.#bodySets.setOf(id) !== undefined) return this.#bodySets.provenanceOf(id);
     if (!this.#plan.bodies.has(id)) throw new SceneError("unknown-body", `provenanceOf("${id}"): no body or trajectory with that id has been added to the scene`);
     return this.#plan.provenanceOf(id);
+  }
+
+  /** What a body set needs of the finished scene, checked: its bodies, window and opening time. */
+  #bodySetContext(): BodySetContext {
+    if (this.#plan.bodies.size === 0) throw new SceneError("empty-scene", "the scene has no bodies; call addBody before reading a body set's members");
+    const context: BodySetContext = { ids: [...this.#plan.bodies.keys()], catalogue: this.#plan.catalogue, orbits: this.#plan.orbits, ...this.#timelineSpan() };
+    this.#bodySets.check(context);
+    return context;
   }
 
   /** A catalogued body's state source, the one the viewer draws from, made once per scene; none for the root (the Sun). */
@@ -488,11 +518,11 @@ export class Scene {
 
   /** The data packages the added bodies need that `data` does not provide. */
   missingData(data: readonly DataSource[] = []): readonly string[] {
-    return this.#plan.missingData(data);
+    return [...new Set([...this.#plan.missingData(data), ...this.#bodySets.missingData(data)])];
   }
 
   /** The app's plug-in contract for this scene (`assembleScene.ts`). Throws if the scene is empty or a body needs a data package not passed in `data`. */
   toDefinition(data: readonly DataSource[] = []): ExperienceDefinition {
-    return assembleScene({ plan: this.#plan, tracked: this.#tracked, groupPlan: this.#groupPlan, story: this.#story, timeline: this.#timeline, viewPlan: this.#viewPlan, camera: this.camera, scale: this.#scale, scaleOnly: this.#scaleOnly, look: this.#look, bodyReadouts: this.#bodyReadouts }, data);
+    return assembleScene({ plan: this.#plan, tracked: this.#tracked, groupPlan: this.#groupPlan, bodySets: this.#bodySets, story: this.#story, timeline: this.#timeline, viewPlan: this.#viewPlan, camera: this.camera, scale: this.#scale, scaleOnly: this.#scaleOnly, look: this.#look, bodyReadouts: this.#bodyReadouts }, data);
   }
 }
