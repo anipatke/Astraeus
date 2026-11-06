@@ -32,7 +32,7 @@ function circling(native: CenterId): Trajectory {
     stateAt(timeUtcMs, center = native) {
       if (center !== native) throw new RangeError(`made-up source is measured from ${native}`);
       const angle = ((timeUtcMs - T0) / (10 * DAY)) * 2 * Math.PI;
-      return createState({ body: "made-up", center: native, timeUtcMs, frame: EQJ, positionKm: [5e5 * Math.cos(angle), 5e5 * Math.sin(angle), 1e5], orientation: null });
+      return createState({ body: "made-up", center: native, timeUtcMs, plane: EQJ, positionKm: [5e5 * Math.cos(angle), 5e5 * Math.sin(angle), 1e5], orientation: null });
     },
   };
 }
@@ -41,7 +41,7 @@ function circling(native: CenterId): Trajectory {
 const STILL_KM = [3e8, -1e8, 2e7];
 const stationary: Trajectory = {
   body: "still",
-  stateAt: (timeUtcMs) => createState({ body: "still", center: "sun", timeUtcMs, frame: EQJ, positionKm: STILL_KM, orientation: null }),
+  stateAt: (timeUtcMs) => createState({ body: "still", center: "sun", timeUtcMs, plane: EQJ, positionKm: STILL_KM, orientation: null }),
 };
 
 const layer = (rule: Partial<PathLayer>, source: Trajectory, samples = 21): PathLayer => ({

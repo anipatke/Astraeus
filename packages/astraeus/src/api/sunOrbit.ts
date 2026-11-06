@@ -80,7 +80,7 @@ function ellipseSource(id: BodyId, elements: KeplerElements): Trajectory {
     stateAt(timeUtcMs: number) {
       const out = new Float64Array(3);
       fillKeplerRangeKm(elements, timeUtcMs, out, 0, 1);
-      return createState({ body: id, center: "sun", timeUtcMs, frame: EQJ, positionKm: out, orientation: null }, () => false);
+      return createState({ body: id, center: "sun", timeUtcMs, plane: EQJ, positionKm: out, orientation: null }, () => false);
     },
   });
 }

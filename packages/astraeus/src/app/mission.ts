@@ -144,7 +144,7 @@ export interface TrackedReadout {
   readonly rangeFromEarthKm: number;
   readonly speedKmS: number | null;
   /** Frame and centre the range and speed are measured in. */
-  readonly frame: State["frame"];
+  readonly frame: State["plane"];
   readonly center: State["center"];
 }
 
@@ -160,7 +160,7 @@ export function trackedReadouts(bodies: readonly TrackedBody[], timeUtcMs: numbe
       positionKm: [state.positionKm[0], state.positionKm[1], state.positionKm[2]],
       rangeFromEarthKm: Math.hypot(...state.positionKm),
       speedKmS: state.velocityKmS === undefined ? null : Math.hypot(...state.velocityKmS),
-      frame: state.frame,
+      frame: state.plane,
       center: state.center,
     });
   }

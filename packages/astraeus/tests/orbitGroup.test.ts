@@ -66,7 +66,7 @@ describe("point group contract", () => {
 
     const t = EPOCH + 3 * HOUR;
     const state = group.stateAt(17, t);
-    expect(state).toMatchObject({ body: "test-ring:17", center: "earth", frame: "EQJ", timeUtcMs: t, orientation: null });
+    expect(state).toMatchObject({ body: "test-ring:17", center: "earth", plane: "EQJ", timeUtcMs: t, orientation: null });
     expect(Object.isFrozen(state)).toBe(true);
   });
 

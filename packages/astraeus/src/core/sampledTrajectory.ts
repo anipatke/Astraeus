@@ -87,7 +87,7 @@ export class SampledTrajectory implements Trajectory {
       body: this.body,
       center: this.#center,
       timeUtcMs,
-      frame: EQJ,
+      plane: EQJ,
       positionKm: position,
       ...(velocity === undefined ? {} : { velocityKmS: velocity }),
       orientation: null,

@@ -65,7 +65,7 @@ describe("the Showers year against JPL Horizons (O-024 T-092)", () => {
     expect(classifyPositionError(Math.max(...phaethonRows.map((r) => r.fraction)))).toBe("approximate");
     expect(record.accuracy.classification).toBe("indicative");
     expect(record.accuracy.statement).toContain("365,665 km");
-    expect(record.accuracy.validFromUtc).toBe("2019-09-21T00:00:00Z");
+    expect(record.accuracy.valid.start).toBe("2019-09-21T00:00:00Z");
   });
 
   it("Swift-Tuttle: largest difference 7,644,938 km (0.13%) at 2019-09-21, within the recorded maximum, so its 1990-2030 validity covers the year", () => {

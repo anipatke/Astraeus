@@ -82,7 +82,7 @@ describe("presentation through the host (O-056 T-262)", () => {
 describe("the mount handle", () => {
   it("reads nothing and refuses to set before the viewer is drawn", () => {
     const handle = mount(host, new Scene());
-    expect(handle.time).toBeUndefined();
+    expect(handle.timeUtcMs).toBeUndefined();
     expect(handle.rate).toBeUndefined();
     expect(codeOf(() => handle.setTime(MID))).toBe("not-mounted");
     handle.unmount();
@@ -93,23 +93,23 @@ describe("the mount handle", () => {
     await drawn(handle);
     expect(handle.rate).toBe(syntheticDefinition.clock.rate);
     act(() => handle.setTime(new Date(MID)));
-    expect(handle.time).toBe(MID);
+    expect(handle.timeUtcMs).toBe(MID);
     act(() => handle.setRate(RATES[0]));
     expect(handle.rate).toBe(RATES[0]);
     handle.unmount();
-    expect(handle.time).toBeUndefined();
+    expect(handle.timeUtcMs).toBeUndefined();
   });
 
   it("refuses a time outside the timeline (bad-time) and a speed it does not offer (bad-timeline)", async () => {
     const handle = mount(host, new Scene());
     await drawn(handle);
-    const before = handle.time;
+    const before = handle.timeUtcMs;
     expect(codeOf(() => handle.setTime(endUtcMs + 1))).toBe("bad-time");
     expect(codeOf(() => handle.setTime(startUtcMs - 1))).toBe("bad-time");
     expect(codeOf(() => handle.setTime("not a date"))).toBe("bad-time");
     expect(codeOf(() => handle.setRate(7))).toBe("bad-timeline");
     expect(codeOf(() => handle.setRate("auto"))).toBe("bad-timeline"); // this scene has no pacing
-    expect(handle.time).toBe(before);
+    expect(handle.timeUtcMs).toBe(before);
     handle.unmount();
   });
 
@@ -121,7 +121,7 @@ describe("the mount handle", () => {
     await drawn(handle);
 
     act(() => handle.setTime(MID));
-    expect(seen.at(-1)).toMatchObject({ time: MID, cause: "host" });
+    expect(seen.at(-1)).toMatchObject({ timeUtcMs: MID, cause: "host" });
 
     const speed = byLabel(host, "Playback speed") as HTMLSelectElement;
     act(() => change(speed, String(RATES[2])));
@@ -133,13 +133,13 @@ describe("the mount handle", () => {
     expect(seen.at(-1)).toMatchObject({ playing: true, cause: "visitor" });
     act(() => { vi.advanceTimersByTime(500); });
     expect(seen.at(-1)).toMatchObject({ cause: "playback" });
-    expect(seen.at(-1)!.time).toBeGreaterThan(MID);
+    expect(seen.at(-1)!.timeUtcMs).toBeGreaterThan(MID);
 
     const scrub = byLabel(host, "Seek timeline") as HTMLInputElement;
     act(() => change(scrub, scrub.max));
     expect(seen.at(-1)).toMatchObject({ cause: "visitor" });
-    expect(seen.at(-1)!.time).toBeGreaterThan(MID);
-    expect(handle.time).toBe(seen.at(-1)!.time);
+    expect(seen.at(-1)!.timeUtcMs).toBeGreaterThan(MID);
+    expect(handle.timeUtcMs).toBe(seen.at(-1)!.timeUtcMs);
 
     handle.unmount();
     const count = seen.length;
@@ -159,7 +159,7 @@ describe("AstraeusScene", () => {
     const draw = (time: Date | number) => act(async () => { root!.render(createElement(AstraeusScene, { scene, time, rate: RATES[1], onChange: (c) => seen.push(c), onError: (e) => errors.push(e) })); });
     await draw(new Date(MID));
     await act(async () => { await Promise.resolve(); });
-    expect(seen.some((c) => c.time === MID && c.rate === RATES[1])).toBe(true);
+    expect(seen.some((c) => c.timeUtcMs === MID && c.rate === RATES[1])).toBe(true);
     const count = seen.length;
     await draw(new Date(MID)); // a fresh Date for the same moment does not seek again
     expect(seen.length).toBe(count);
@@ -180,12 +180,12 @@ describe("AstraeusScene hands React apps the handle (O-054 T-242)", () => {
     expect(ready).toHaveLength(1);
     expect(ready[0]).toBe(ref.current);
     const handle = ref.current!;
-    expect(handle.time).toBeDefined();
+    expect(handle.timeUtcMs).toBeDefined();
     const seen: ViewerChange[] = [];
     const stop = handle.onChange((c) => seen.push(c));
     act(() => handle.setTime(MID));
-    expect(handle.time).toBe(MID);
-    expect(seen.at(-1)).toMatchObject({ time: MID, cause: "host" });
+    expect(handle.timeUtcMs).toBe(MID);
+    expect(seen.at(-1)).toMatchObject({ timeUtcMs: MID, cause: "host" });
     expect(codeOf(() => handle.setCamera({ focus: "no-such-object" }))).toBe("bad-camera");
     expect(handle.camera === undefined || typeof handle.camera === "object").toBe(true);
     stop();
@@ -201,17 +201,17 @@ describe("AstraeusScene hands React apps the handle (O-054 T-242)", () => {
     expect(handle).not.toBeNull();
     await act(async () => { await Promise.resolve(); });
     expect(ready).toEqual([handle]);
-    expect(handle.time).toBeDefined();
+    expect(handle.timeUtcMs).toBeDefined();
     await render({ scene: new Scene(), ref, onReady }); // a rebuild
     await act(async () => { await Promise.resolve(); });
     expect(ready).toHaveLength(2);
     expect(ready[1]).toBe(handle);
     expect(ref.current).toBe(handle);
     act(() => handle.setTime(MID));
-    expect(handle.time).toBe(MID);
+    expect(handle.timeUtcMs).toBe(MID);
     act(() => root!.unmount());
     root = undefined;
-    expect(handle.time).toBeUndefined();
+    expect(handle.timeUtcMs).toBeUndefined();
     expect(codeOf(() => handle.setTime(MID))).toBe("not-mounted");
   });
 
@@ -219,7 +219,7 @@ describe("AstraeusScene hands React apps the handle (O-054 T-242)", () => {
     const ref: { current: ViewerHandle | null } = { current: null };
     root = createRoot(host);
     act(() => { root!.render(createElement(AstraeusScene, { scene: new Scene(), ref })); });
-    expect(ref.current!.time).toBeUndefined();
+    expect(ref.current!.timeUtcMs).toBeUndefined();
     expect(codeOf(() => ref.current!.setTime(MID))).toBe("not-mounted");
   });
 
@@ -279,10 +279,10 @@ describe("playing through the host (O-054 T-246)", () => {
     expect(handle.playing).toBeUndefined();
     expect(codeOf(() => handle.setPlaying(true))).toBe("not-mounted");
     await drawn(handle);
-    const { time, rate } = handle;
+    const { timeUtcMs, rate } = handle;
     expect(codeOf(() => handle.setPlaying(1 as unknown as boolean))).toBe("bad-timeline");
     act(() => handle.setPlaying(false));
-    expect([handle.time, handle.rate]).toEqual([time, rate]);
+    expect([handle.timeUtcMs, handle.rate]).toEqual([timeUtcMs, rate]);
     handle.unmount();
     expect(handle.playing).toBeUndefined();
     expect(codeOf(() => handle.setPlaying(false))).toBe("not-mounted");
@@ -360,12 +360,12 @@ describe("views through the host (O-051 T-220)", () => {
     const seen: ViewerChange[] = [];
     const handle = mount(host, new Scene(), { onChange: (c) => seen.push(c) });
     await drawn(handle);
-    const before = { time: handle.time, rate: handle.rate };
+    const before = { time: handle.timeUtcMs, rate: handle.rate };
     act(() => handle.setView("b"));
     expect(seen.at(-1)).toMatchObject({ view: "b", cause: "host" });
     act(() => press(viewButton("a")));
     expect(seen.at(-1)).toMatchObject({ view: "a", cause: "visitor" });
-    expect({ time: handle.time, rate: handle.rate }).toEqual(before);
+    expect({ time: handle.timeUtcMs, rate: handle.rate }).toEqual(before);
     const count = seen.length;
     act(() => handle.setView("a")); // already showing: nothing to tell
     expect(seen.length).toBe(count);
@@ -407,7 +407,7 @@ describe("views through the host (O-051 T-220)", () => {
       const before = seen.at(-1)!;
       expect(before).toMatchObject({ rate: RATES[2], cause: "visitor" });
       await draw({ view: "b" });
-      expect(seen.at(-1)).toMatchObject({ view: "b", cause: "host", rate: RATES[2], time: before.time });
+      expect(seen.at(-1)).toMatchObject({ view: "b", cause: "host", rate: RATES[2], timeUtcMs: before.timeUtcMs });
     });
 
     it("time only: a visitor's view is kept", async () => {
@@ -415,7 +415,7 @@ describe("views through the host (O-051 T-220)", () => {
       act(() => press(viewButton("b")));
       expect(seen.at(-1)).toMatchObject({ view: "b", cause: "visitor" });
       await draw({ time: MID + 1000 });
-      expect(seen.at(-1)!.time).toBe(MID + 1000);
+      expect(seen.at(-1)!.timeUtcMs).toBe(MID + 1000);
       expect(seen.at(-1)!.view).toBe("b");
       expect(viewButton("b").getAttribute("aria-pressed")).toBe("true");
     });
@@ -425,7 +425,7 @@ describe("views through the host (O-051 T-220)", () => {
       act(() => press(viewButton("b")));
       const before = seen.at(-1)!;
       await draw({ rate: RATES[1] });
-      expect(seen.at(-1)).toMatchObject({ rate: RATES[1], view: "b", time: before.time });
+      expect(seen.at(-1)).toMatchObject({ rate: RATES[1], view: "b", timeUtcMs: before.timeUtcMs });
       expect(viewButton("b").getAttribute("aria-pressed")).toBe("true");
     });
   });
@@ -457,7 +457,7 @@ describe("the selected object through the host (O-054 T-247)", () => {
     await drawn(handle);
     pick("moon");
     expect(handle.selected).toBe("moon");
-    expect(heard).toEqual([{ object: "moon", timeUtcMs: handle.time, cause: "visitor" }]);
+    expect(heard).toEqual([{ object: "moon", timeUtcMs: handle.timeUtcMs, cause: "visitor" }]);
     act(() => { vi.advanceTimersByTime(500); }); // the tick finds nothing new
     expect(heard.length).toBe(1);
     handle.unmount();

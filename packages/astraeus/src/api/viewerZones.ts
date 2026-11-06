@@ -45,7 +45,7 @@ export class ViewerZones {
     const reports: [string, boolean][] = [...before.filter((id) => !now.includes(id)).map((id): [string, boolean] => [id, false]), ...now.filter((id) => !before.includes(id)).map((id): [string, boolean] => [id, true])];
     for (const [id, entered] of reports) {
       const event = this.access.control()?.events.find((candidate) => candidate.id === id);
-      const change: EventZoneChange = { event: id, ...(event?.type === undefined ? {} : { type: event.type }), ...(event?.object === undefined ? {} : { object: event.object }), entered, time: state.timeUtcMs, cause, via };
+      const change: EventZoneChange = { event: id, ...(event?.type === undefined ? {} : { type: event.type }), ...(event?.object === undefined ? {} : { object: event.object }), entered, timeUtcMs: state.timeUtcMs, cause, via };
       callListeners(this.#listeners, change);
     }
   }

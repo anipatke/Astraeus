@@ -28,7 +28,7 @@ function distanceMetric(resolver: StateResolver, id: string, label: string, body
     value: Math.hypot(...state.positionKm),
     unit: "km",
     digits: 0,
-    context: `centre to centre · ${state.frame}`,
+    context: `centre to centre · ${state.plane}`,
   };
 }
 
@@ -56,7 +56,7 @@ function coordinatesMetric(resolver: StateResolver, body: BodyId, parent: BodyId
     label,
     system: "xyz",
     components: (["x", "y", "z"] as const).map((component, index) => ({ label: component, value: state.positionKm[index], unit: "km", digits: 0 })),
-    frame: state.frame,
+    frame: state.plane,
     origin: centreName(parent),
     planViews: { references: [] },
   };

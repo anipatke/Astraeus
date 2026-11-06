@@ -36,7 +36,7 @@ export function referenceInSameFrame(
   row: Pick<TrackedReadout, "frame" | "center">,
   reference: CenteredPosition | null,
 ): MetricReference | null {
-  if (reference === null || reference.center !== row.center || reference.frame !== row.frame) return null;
+  if (reference === null || reference.center !== row.center || reference.plane !== row.frame) return null;
   return { label, value: Math.hypot(...reference.positionKm) };
 }
 
@@ -76,7 +76,7 @@ export interface ReadoutTarget {
 
 /** The target's state when it shares the path's centre and frame, otherwise null. */
 export function inSameFrame(row: Pick<TrackedReadout, "frame" | "center">, state: CenteredPosition | null): CenteredPosition | null {
-  return state !== null && state.center === row.center && state.frame === row.frame ? state : null;
+  return state !== null && state.center === row.center && state.plane === row.frame ? state : null;
 }
 
 export const separationKm = (a: readonly number[], b: ArrayLike<number>) => Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]);
@@ -158,9 +158,9 @@ const targetOf = (id: BodyId, source: BodyCatalogue): ReadoutTarget => ({ id, la
 
 /** The current-position row of a catalogued body about its centre, the shape a path's row has (speed unknown without a velocity). */
 function bodyRow(resolver: StateResolver, { id, label, center }: BodyReadouts, timeUtcMs: number): TrackedReadout {
-  const state = id === center ? { frame: EQJ, center, positionKm: new Float64Array(3), velocityKmS: undefined } : resolver.stateOf(id, timeUtcMs, center);
+  const state = id === center ? { plane: EQJ, center, positionKm: new Float64Array(3), velocityKmS: undefined } : resolver.stateOf(id, timeUtcMs, center);
   const [x, y, z] = state.positionKm;
-  return { id, label, positionKm: [x!, y!, z!], rangeFromEarthKm: Math.hypot(x!, y!, z!), speedKmS: state.velocityKmS === undefined ? null : Math.hypot(...state.velocityKmS), frame: state.frame, center: state.center };
+  return { id, label, positionKm: [x!, y!, z!], rangeFromEarthKm: Math.hypot(x!, y!, z!), speedKmS: state.velocityKmS === undefined ? null : Math.hypot(...state.velocityKmS), frame: state.plane, center: state.center };
 }
 
 /**
@@ -170,7 +170,7 @@ function bodyRow(resolver: StateResolver, { id, label, center }: BodyReadouts, t
 export function createReadoutMetrics(paths: readonly PathReadouts[], resolver: StateResolver, source: BodyCatalogue = builtInCatalogue, bodies: readonly BodyReadouts[] = []) {
   const peaks = new Map(paths.map(({ body }) => [body.id, peakAnchorSpeedKmS(body)]));
   const barsOf = (row: TrackedReadout, specs: readonly ReadoutSpec[], timeUtcMs: number): readonly Metric[] => {
-    const stateOf = (id: BodyId): CenteredPosition => (id === row.center ? { body: id, center: row.center, timeUtcMs, frame: row.frame, positionKm: new Float64Array(3) } : resolver.stateOf(id, timeUtcMs, row.center));
+    const stateOf = (id: BodyId): CenteredPosition => (id === row.center ? { body: id, center: row.center, timeUtcMs, plane: row.frame, positionKm: new Float64Array(3) } : resolver.stateOf(id, timeUtcMs, row.center));
     return specs.map((spec): Metric => {
       switch (spec.kind) {
         case "range": return spacecraftRangeMetric(row, spec.marker === undefined ? null : referenceInSameFrame(`${targetOf(spec.marker, source).label} now`, row, stateOf(spec.marker)));

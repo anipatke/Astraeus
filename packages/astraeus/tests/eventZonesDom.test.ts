@@ -61,9 +61,9 @@ describe("event zones from playback", () => {
     expect(seen.map(short)).toEqual(["enter ea playback", "leave ea playback"]);
     expect(vias(seen)).toEqual(["time", "time"]);
     expect(seen[0]).toMatchObject({ type: "flyby", object: "pa", entered: true });
-    expect(seen[0]!.time).toBeGreaterThanOrEqual(T0 + 20 * DAY - 3_600_000);
-    expect(seen[0]!.time).toBeLessThanOrEqual(T0 + 20 * DAY + 3_600_000); // inside the zone
-    expect(seen[1]!.time).toBeGreaterThan(T0 + 20 * DAY + 3_600_000);
+    expect(seen[0]!.timeUtcMs).toBeGreaterThanOrEqual(T0 + 20 * DAY - 3_600_000);
+    expect(seen[0]!.timeUtcMs).toBeLessThanOrEqual(T0 + 20 * DAY + 3_600_000); // inside the zone
+    expect(seen[1]!.timeUtcMs).toBeGreaterThan(T0 + 20 * DAY + 3_600_000);
     handle.unmount();
   });
 
@@ -196,7 +196,7 @@ describe("the React prop", () => {
     await act(async () => { await Promise.resolve(); });
     await draw(at(30));
     expect(seen.map(short)).toEqual(["enter ea host", "leave ea host"]);
-    expect(seen[0]).toMatchObject({ type: "flyby", object: "pa", time: T0 + 20 * DAY, via: "time" });
+    expect(seen[0]).toMatchObject({ type: "flyby", object: "pa", timeUtcMs: T0 + 20 * DAY, via: "time" });
   });
 });
 

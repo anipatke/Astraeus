@@ -17,9 +17,9 @@ const comet = (extra: Partial<ElementsBodyRecord> = {}): ElementsBodyRecord => (
   label: "Made-up comet",
   elements: { semiMajorAxisAu: 6, eccentricity: 0.9, inclinationDeg: 40, ascendingNodeDeg: 100, argumentOfPerihelionDeg: 60, meanAnomalyDeg: 200 },
   epoch: { jd: 2_461_000.5, timeScale: "TDB", ttMinusUtcSeconds: 69.184 },
-  frame: "ecliptic-j2000",
+  plane: "ecliptic-j2000",
   source: { name: "Invented Survey", url: "https://example.invalid/comet", solution: "Solution A", accessed: "2026-10-24" },
-  accuracy: { classification: "indicative", statement: "Made up; no comparison was made.", validFromUtc: "2025-01-01T00:00:00Z", validToUtc: "2027-01-01T00:00:00Z", limitations: ["Invented for a test."] },
+  accuracy: { classification: "indicative", statement: "Made up; no comparison was made.", valid: { start: "2025-01-01T00:00:00Z", end: "2027-01-01T00:00:00Z" }, limitations: ["Invented for a test."] },
   marker: { color: "#ff9966", sizePx: 8 },
   ...extra,
 });

@@ -19,7 +19,7 @@
       "timeScale": "TDB",
       "ttMinusUtcSeconds": 69.184
     },
-    "frame": "ecliptic-j2000",
+    "plane": "ecliptic-j2000",
     "source": {
       "name": "NASA/JPL Small-Body Database, 3200 Phaethon (1983 TB); osculating elements, equinox J2000, ecliptic plane",
       "url": "https://ssd-api.jpl.nasa.gov/sbdb.api?sstr=3200&full-prec=1&phys-par=1",
@@ -33,8 +33,7 @@
     "accuracy": {
       "classification": "indicative",
       "statement": "Position was compared with JPL Horizons at eight dates from 2020-12-14 to 2032-12-14: the largest Sun-centred difference is about 935,344 km (2.18% of its distance from the Sun at that date, 0.29 AU, 2020-12-14, close to perihelion), so this is an indicative position, good enough to show where the body is on its orbit at overview scale, not an ephemeris and not good enough for a close approach. The small perihelion distance (q about 0.14 AU) is the weak point: the body moves fastest there, so a small error in timing becomes a large error in position. Sample maximum, not a bound for every date. It was also compared at six dates across the Showers demo's year, 21 September 2019 to 20 September 2020 (Horizons solution JPL#1019, fetched 2026-10-18): the largest difference there is 365,665 km (0.16% of its distance from the Sun, 2020-09-20), within the figure above.",
-      "validFromUtc": "2019-09-21T00:00:00Z",
-      "validToUtc": "2032-12-14T00:00:00Z",
+      "valid": { "start": "2019-09-21T00:00:00Z", "end": "2032-12-14T00:00:00Z" },
       "limitations": [
         "Horizons integrates the same orbit fit with the planets' pull and a small transverse non-gravitational term that this model leaves out, so the two drift apart.",
         "Positions before 2019-09-21 or after 2032-12-14 were not compared with Horizons, nor any date between 2020-09-20 and 2020-12-14.",

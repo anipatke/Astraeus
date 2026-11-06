@@ -123,7 +123,7 @@ function show(built: Built): void {
   // A press on the picker only reports; the site opens the address, keeping the clock's time where the picker says so.
   if (built.keep !== undefined) {
     const keep = built.keep;
-    handle.onPick(({ picker, value }) => navigation.open(switchAddress(window.location.href, picker, value, keep, handle.time)));
+    handle.onPick(({ picker, value }) => navigation.open(switchAddress(window.location.href, picker, value, keep, handle.timeUtcMs)));
   }
   // A failed load shows the failure cover and is reported; a viewer taken down early (a newer scene, `not-mounted`) is no failure.
   handle.ready.catch((error: unknown) => { if (current === handle && !(error instanceof SceneError && error.code === "not-mounted")) { cover.fail(); throw error; } });

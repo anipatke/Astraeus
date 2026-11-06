@@ -22,9 +22,9 @@ const record = () => ({
   id: "rock", label: "Rock",
   elements: { semiMajorAxisAu: 2.5, eccentricity: 0.3, inclinationDeg: 10, ascendingNodeDeg: 40, argumentOfPerihelionDeg: 70, meanAnomalyDeg: 20 },
   epoch: { jd: 2461000.5, timeScale: "TDB" as const, ttMinusUtcSeconds: 69.184 },
-  frame: "ecliptic-j2000" as const,
+  plane: "ecliptic-j2000" as const,
   source: { name: "Made up", url: "https://example.org/rock", solution: "S1", accessed: "2026-10-28" },
-  accuracy: { classification: "indicative" as const, statement: "Made up.", validFromUtc: "2020-01-01T00:00:00Z", validToUtc: "2030-01-01T00:00:00Z", limitations: [] },
+  accuracy: { classification: "indicative" as const, statement: "Made up.", valid: { start: "2020-01-01T00:00:00Z", end: "2030-01-01T00:00:00Z" }, limitations: [] },
   marker: { color: "#aabbcc", sizePx: 6 },
 });
 const panel = (id: string, at: object) => ({ id, at, title: `Panel ${id}`, body: ["A line."], details: ["A figure."], badge: "modelled" as const, sources: ["Source"] });

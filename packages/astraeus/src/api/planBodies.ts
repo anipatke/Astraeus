@@ -133,6 +133,8 @@ export class BodyPlan {
     const record = frozenCopy(input);
     const options = frozenCopy(inputOptions);
     if (record?.id === "auto") throw new SceneError("bad-element", `addBodyFromElements("auto"): "auto" is reserved (it is lineFixedTo's automatic choice) and cannot be a body id`);
+    rejectRenamed("ElementsBodyRecord", record, "addBodyFromElements");
+    rejectRenamed("ElementsAccuracy", record?.accuracy, "addBodyFromElements: accuracy");
     const parsed = parseRecord(record);
     if (this.#taken(parsed.id) || this.catalogue.has(parsed.id)) throw new SceneError("duplicate-id", `addBodyFromElements("${parsed.id}"): that id is already in the scene or the catalogue`);
     const root = builtInCatalogue.get(rootBodyId()).definition;

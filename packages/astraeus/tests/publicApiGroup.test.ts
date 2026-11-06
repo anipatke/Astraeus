@@ -135,9 +135,9 @@ describe("clump near an elements body and refillSliceMs (O-042 T-177)", () => {
     const scene = new S().addBody(sun).addBodyFromElements({
       id: "made-up-rock", label: "Made-up rock",
       elements: { semiMajorAxisAu: 2, eccentricity: 0.3, inclinationDeg: 10, ascendingNodeDeg: 80, argumentOfPerihelionDeg: 50, meanAnomalyDeg: 20 },
-      epoch: { jd: 2_461_000.5, timeScale: "TDB", ttMinusUtcSeconds: 69.184 }, frame: "ecliptic-j2000",
+      epoch: { jd: 2_461_000.5, timeScale: "TDB", ttMinusUtcSeconds: 69.184 }, plane: "ecliptic-j2000",
       source: { name: "Invented Survey", url: "https://example.invalid/rock", solution: "A", accessed: "2026-10-24" },
-      accuracy: { classification: "indicative", statement: "Made up.", validFromUtc: "2025-01-01T00:00:00Z", validToUtc: "2027-01-01T00:00:00Z", limitations: ["Invented for a test."] },
+      accuracy: { classification: "indicative", statement: "Made up.", valid: { start: "2025-01-01T00:00:00Z", end: "2027-01-01T00:00:00Z" }, limitations: ["Invented for a test."] },
       marker: { color: "#ff9966", sizePx: 8 },
     }).addGroup(ring({ center: "sun", clump: { near: "made-up-rock", fraction: 0.5, widthDeg: 20 }, refillSliceMs: 0 })).setTime(T0);
     const layer = definitionOf(scene).groups![0]!;

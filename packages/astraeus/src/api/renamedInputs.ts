@@ -24,6 +24,9 @@ export const RENAMED_INPUTS: readonly RenamedInput[] = Object.freeze([
   { scope: "ViewInput", call: "setViews", old: "bodies", use: "objects" },
   { scope: "AddBodyOptions", call: "addBody", old: "labelReach", use: "labelReachEarthRadii" },
   { scope: "TrajectoryInput", call: "addTrajectory", old: "labelReach", use: "labelReachEarthRadii" },
+  { scope: "ElementsBodyRecord", call: "addBodyFromElements", old: "frame", use: "plane" },
+  { scope: "ElementsAccuracy", call: "addBodyFromElements", old: "validFromUtc", use: "valid.start" },
+  { scope: "ElementsAccuracy", call: "addBodyFromElements", old: "validToUtc", use: "valid.end" },
 ].map((row) => Object.freeze(row)));
 
 /** Throws `renamed` when `value` carries an old name of the `scope`, naming its replacement; a value that is not an object is left to the caller's own checks. `where` leads the message, such as `setTimeline: pacing[1]`. */

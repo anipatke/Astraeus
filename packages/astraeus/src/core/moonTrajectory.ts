@@ -20,7 +20,7 @@ export class MoonTrajectory implements Trajectory {
       body: "moon",
       center: "earth",
       timeUtcMs,
-      frame: EQJ,
+      plane: EQJ,
       positionKm: moonFromEarthKm,
       orientation,
     });

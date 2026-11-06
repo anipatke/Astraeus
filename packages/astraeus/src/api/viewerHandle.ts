@@ -7,8 +7,8 @@ import type { CameraPose, CameraTarget, EventZoneChange, ViewerChange, ViewerLin
 /** Everything a host reads, sets and listens to on a drawn viewer: the handle `mount` returns (as `MountedScene`). Every call before the viewer is drawn or after it is gone throws `not-mounted`; reads are then undefined. */
 export interface ViewerHandle {
   /** The viewer's time in Unix milliseconds UTC; undefined until `ready` has resolved and after `unmount`. */
-  readonly time: number | undefined;
-  /** The playback speed (simulated seconds per real second); undefined like `time`. */
+  readonly timeUtcMs: number | undefined;
+  /** The playback speed (simulated seconds per real second); undefined like `timeUtcMs`. */
   readonly rate: number | undefined;
   /** Whether the viewer is playing; undefined until `ready` has resolved and after `unmount`. */
   readonly playing: boolean | undefined;
@@ -29,7 +29,7 @@ export interface ViewerHandle {
   /** The ids of the events whose zone (`withinSeconds` of an event, or a pacing rule) holds the viewer's time now, among the zones the showing view has (an empty list in a scene without event zones); undefined until `ready` and after `unmount`. */
   readonly eventZones: readonly string[] | undefined;
   /**
-   * Calls `listener({ event, type?, object?, entered, time, cause })` when playback enters or leaves the zone of an event the showing view has (its `withinSeconds`, or a pacing event rule `setTimeline({ pacing: [{ near }] })`); returns the function that stops it.
+   * Calls `listener({ event, type?, object?, entered, timeUtcMs, cause })` when playback enters or leaves the zone of an event the showing view has (its `withinSeconds`, or a pacing event rule `setTimeline({ pacing: [{ near }] })`); returns the function that stops it.
    * `cause` is `playback` (the clock ran), `visitor` (timeline or view choice) or `host` (`setTime`, `setView`); overlapping zones report separately. A zone already active when the viewer opens reports `entered` once, with the first report after `ready` (within a tenth of a second), so a listener added right after `await ready` hears it. The engine moves nothing in response: a host composes its own behaviour, for example `setCamera`. No callbacks arrive after `unmount`. A listener that throws is reported to the page (`reportError`) and does not stop the listeners after it.
    */
   onEventZone(listener: (change: EventZoneChange) => void): () => void;
@@ -70,7 +70,7 @@ export interface ViewerHandle {
   setPick(value: string): void;
   /**
    * Calls `listener({ picker, value })` when a visitor presses an option other than the pressed one; returns the function that stops it. The viewer only reports the press: the pressed option stays where it was until the host calls `setPick` (or mounts a new scene),
-   * and the viewer never navigates or touches the page address. To keep the clock across a choice, read `time` inside the listener and set it on the next scene (`setTime`). No callbacks arrive after `unmount`. A listener that throws is reported to the page (`reportError`) and does not stop the listeners after it.
+   * and the viewer never navigates or touches the page address. To keep the clock across a choice, read `timeUtcMs` inside the listener and set it on the next scene (`setTime`). No callbacks arrive after `unmount`. A listener that throws is reported to the page (`reportError`) and does not stop the listeners after it.
    */
   onPick(listener: (change: PickChange) => void): () => void;
   /** Calls `listener` on every change (see `MountOptions.onChange`); returns the function that stops it. No callbacks arrive after `unmount`. A listener that throws is reported to the page (`reportError`) and does not stop the listeners after it. */
@@ -81,7 +81,7 @@ export interface ViewerHandle {
 /** The handle a host holds for `link`: one object whose reads and calls go straight to the link, so `mount` and `AstraeusScene` hand out the same thing and cannot drift apart. */
 export function viewerHandleOf(link: ViewerLink): ViewerHandle {
   return {
-    get time() { return link.time; },
+    get timeUtcMs() { return link.timeUtcMs; },
     get rate() { return link.rate; },
     get playing() { return link.playing; },
     get view() { return link.view; },

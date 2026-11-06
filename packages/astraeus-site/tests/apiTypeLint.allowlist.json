@@ -81,20 +81,6 @@
   ],
   "breaks": [
     {
-      "rule": "frame",
-      "site": "CenteredPosition.frame",
-      "reason": "a frame field not named `plane`; reachable only through an internal type that leaks from the root",
-      "finding": "F7",
-      "removedBy": "O-057"
-    },
-    {
-      "rule": "frame",
-      "site": "ElementsBodyRecord.frame",
-      "reason": "a frame field not named `plane`; reachable only through an internal type that leaks from the root",
-      "finding": "F7",
-      "removedBy": "O-057"
-    },
-    {
       "rule": "loose",
       "site": "StoryPanelsInput.panels",
       "reason": "`unknown` in a public type",
@@ -103,71 +89,8 @@
     },
     {
       "rule": "time",
-      "site": "ElementsBodyRecord.accuracy.validFromUtc: string",
-      "reason": "a moment not typed TimeInput; reachable only through an internal type that leaks from the root",
-      "finding": "F7",
-      "removedBy": "O-057"
-    },
-    {
-      "rule": "time",
-      "site": "ElementsBodyRecord.accuracy.validToUtc: string",
-      "reason": "a moment not typed TimeInput; reachable only through an internal type that leaks from the root",
-      "finding": "F7",
-      "removedBy": "O-057"
-    },
-    {
-      "rule": "time",
-      "site": "EventZoneChange.time: number",
-      "reason": "a moment not typed TimeInput",
-      "finding": "F4",
-      "removedBy": "O-057"
-    },
-    {
-      "rule": "time",
-      "site": "ViewerHandle.time: number | undefined",
-      "reason": "a moment not typed TimeInput",
-      "finding": "F4",
-      "removedBy": "O-057"
-    },
-    {
-      "rule": "time",
       "site": "StoryPanelsInput.panels: at.utc (ISO text ending in Z only)",
       "reason": "a moment not typed TimeInput",
-      "finding": "F4",
-      "removedBy": "O-057"
-    },
-    {
-      "rule": "time",
-      "site": "ViewerChange.time: number",
-      "reason": "a moment not typed TimeInput",
-      "finding": "F4",
-      "removedBy": "O-057"
-    },
-    {
-      "rule": "unit",
-      "site": "EventZoneChange.time: time",
-      "reason": "a number without its unit in its name",
-      "finding": "F4",
-      "removedBy": "O-057"
-    },
-    {
-      "rule": "unit",
-      "site": "ViewerHandle.time: time",
-      "reason": "a number without its unit in its name",
-      "finding": "F4",
-      "removedBy": "O-057"
-    },
-    {
-      "rule": "unit",
-      "site": "TextureRef.desktop.minViewportWidth: minViewportWidth",
-      "reason": "a number without its unit in its name; reachable only through an internal type that leaks from the root",
-      "finding": "F7",
-      "removedBy": "O-057"
-    },
-    {
-      "rule": "unit",
-      "site": "ViewerChange.time: time",
-      "reason": "a number without its unit in its name",
       "finding": "F4",
       "removedBy": "O-057"
     }

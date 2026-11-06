@@ -123,7 +123,7 @@ const total = (heard: Heard): number => heard.changes.length + heard.selects.len
 
 /** Every read of the handle at one moment, as a plain value. */
 const snapshot = (handle: ViewerHandle) => ({
-  time: handle.time, rate: handle.rate, playing: handle.playing, view: handle.view, camera: handle.camera, eventZones: handle.eventZones, selected: handle.selected, look: handle.look, scale: handle.scale, switches: handle.switches, pick: handle.pick,
+  time: handle.timeUtcMs, rate: handle.rate, playing: handle.playing, view: handle.view, camera: handle.camera, eventZones: handle.eventZones, selected: handle.selected, look: handle.look, scale: handle.scale, switches: handle.switches, pick: handle.pick,
 });
 
 /** The scene's stand-in for a camera standing here (the real scene writes it every frame). */
@@ -148,7 +148,7 @@ interface Row {
 const CAMERA_POSE: CameraPose = { focus: "moon", azimuthDeg: 10, elevationDeg: 20, distance: 30 };
 /** One row per setter on the handle: a new setter must join this table (the type fails otherwise). */
 const SETTERS: Record<keyof Setter, Row> = {
-  setTime: { call: (v) => v.handle.setTime(T0 + DAY), reads: (hd) => expect(hd.time).toBe(T0 + DAY), hears: "changes" },
+  setTime: { call: (v) => v.handle.setTime(T0 + DAY), reads: (hd) => expect(hd.timeUtcMs).toBe(T0 + DAY), hears: "changes" },
   setRate: { call: (v) => v.handle.setRate(3600), reads: (hd) => expect(hd.rate).toBe(3600), hears: "changes" },
   setPlaying: { call: (v) => v.handle.setPlaying(true), reads: (hd) => expect(hd.playing).toBe(true), hears: "changes" },
   setView: { call: (v) => v.handle.setView("b"), reads: (hd) => expect(hd.view).toBe("b"), hears: "changes" },
@@ -290,11 +290,11 @@ describe.each(PAIRINGS)("two viewers on one page: $name", (pairing) => {
     const [a, b] = await openPair(pairing);
     const heardB = listen(b.handle);
     a.unmount();
-    expect(a.handle.time).toBeUndefined();
+    expect(a.handle.timeUtcMs).toBeUndefined();
     expect(b.element.querySelector("[data-testid=scene]")).not.toBeNull();
-    expect(b.handle.time).toBeDefined();
+    expect(b.handle.timeUtcMs).toBeDefined();
     b.handle.setTime(T0 + 2 * DAY);
-    expect(b.handle.time).toBe(T0 + 2 * DAY);
+    expect(b.handle.timeUtcMs).toBe(T0 + 2 * DAY);
     expect(heardB.changes.length).toBeGreaterThan(0);
   });
 
@@ -304,9 +304,9 @@ describe.each(PAIRINGS)("two viewers on one page: $name", (pairing) => {
     const before = snapshot(b.handle);
     const again = await pairing.first.open();
     open.push(again);
-    expect(again.handle.time).toBeDefined();
+    expect(again.handle.timeUtcMs).toBeDefined();
     again.handle.setTime(T0 + 3 * DAY);
-    expect(again.handle.time).toBe(T0 + 3 * DAY);
+    expect(again.handle.timeUtcMs).toBe(T0 + 3 * DAY);
     expect(snapshot(b.handle)).toEqual(before);
   });
 

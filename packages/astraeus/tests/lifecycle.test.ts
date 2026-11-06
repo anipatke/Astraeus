@@ -128,7 +128,7 @@ const reactDriver = (strict: boolean): Driver => ({
 });
 
 /** The handle's members, read from one table: a new member of `ViewerHandle` must join it (the last test fails otherwise). */
-const READS = ["time", "rate", "playing", "view", "camera", "eventZones", "selected", "look", "scale", "switches", "pick"] as const;
+const READS = ["timeUtcMs", "rate", "playing", "view", "camera", "eventZones", "selected", "look", "scale", "switches", "pick"] as const;
 const CALLS: Record<string, (handle: ViewerHandle) => void> = {
   setTime: (handle) => handle.setTime(MID),
   setRate: (handle) => handle.setRate(RATE),
@@ -206,9 +206,9 @@ describe.each([mountDriver, reactDriver(false)])("lifecycle: $name", (driver) =>
     expectUnusable(opened.handle!);
     release!();
     await opened.ready();
-    expect(opened.handle!.time).toBeDefined();
+    expect(opened.handle!.timeUtcMs).toBeDefined();
     opened.handle!.setTime(MID);
-    expect(opened.handle!.time).toBe(MID);
+    expect(opened.handle!.timeUtcMs).toBe(MID);
     opened.unmount();
   });
 
@@ -242,7 +242,7 @@ describe.each([mountDriver, reactDriver(false)])("lifecycle: $name", (driver) =>
     await opened.rebuild();
     expect(opened.readyCount()).toBe(2);
     opened.handle!.setTime(MID);
-    expect(opened.handle!.time).toBe(MID);
+    expect(opened.handle!.timeUtcMs).toBe(MID);
     opened.unmount();
     expectUnusable(opened.handle!);
   });
@@ -271,7 +271,7 @@ describe.each([mountDriver, reactDriver(false)])("lifecycle: $name", (driver) =>
     await opened.ready();
     const stop = opened.handle!.onChange(() => { throw new Error("again"); });
     const heard: number[] = [];
-    opened.handle!.onChange((c) => heard.push(c.time));
+    opened.handle!.onChange((c) => heard.push(c.timeUtcMs));
     opened.handle!.setTime(MID);
     stop();
     const reports = report.mock.calls.length;
@@ -415,14 +415,14 @@ describe.each([mountDriver, reactDriver(false)])("lifecycle: $name", (driver) =>
     await opened.ready();
     opened.handle!.setTime(start + 3 * 86_400_000);
     let kept: number | undefined;
-    opened.handle!.onPick(() => { kept = opened.handle!.time; });
+    opened.handle!.onPick(() => { kept = opened.handle!.timeUtcMs; });
     flushSync(() => document.querySelector<HTMLButtonElement>("[data-switch-value='b']")!.click());
     expect(kept).toBe(start + 3 * 86_400_000);
     // The host builds the next scene however its path does (mount: a new mount; React: a new scene prop) and puts the time back.
     await opened.rebuild(sceneFor("b"));
     expect(opened.handle!.pick).toBe("b");
     opened.handle!.setTime(kept!);
-    expect(opened.handle!.time).toBe(start + 3 * 86_400_000);
+    expect(opened.handle!.timeUtcMs).toBe(start + 3 * 86_400_000);
     opened.unmount();
   });
 
@@ -493,7 +493,7 @@ describe("lifecycle: AstraeusScene under StrictMode", () => {
     expect(opened.readyCount()).toBe(1);
     expect(opened.errors).toEqual([]);
     opened.handle!.setTime(MID);
-    expect(opened.handle!.time).toBe(MID);
+    expect(opened.handle!.timeUtcMs).toBe(MID);
     opened.unmount();
     expectUnusable(opened.handle!);
   });

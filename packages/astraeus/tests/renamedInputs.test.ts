@@ -4,7 +4,7 @@ import { readdirSync, readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
-import { Scene, SceneError, earth, jupiter, moon } from "astraeus";
+import { Scene, SceneError, earth, jupiter, moon, sun } from "astraeus";
 import { RENAMED_INPUTS, rejectRenamed } from "../src/api/renamedInputs";
 
 const DAY = 86_400_000;
@@ -14,6 +14,19 @@ const samples = [0, 1, 2].map((i) => ({ time: T0 + i * DAY, positionKm: [1e5 + i
 const base = () => new Scene().addBody(earth).addBody(moon);
 const settle = async (run: () => unknown): Promise<SceneError | undefined> => { try { await run(); } catch (error) { if (error instanceof SceneError) return error; throw error; } return undefined; };
 const timeline = (pacing: unknown[]) => () => base().addEvents([{ id: "e", label: "E", time: at(5), type: "flyby" }]).setTimeline({ start: at(0), end: at(10), pacing: pacing as never });
+// A made-up elements record, valid under its new names (ARCH-03); a driver below swaps one new name for the old one.
+const record = (change: (copy: Record<string, any>) => void = () => {}) => {
+  const copy: Record<string, any> = {
+    id: "rock", label: "Rock",
+    elements: { semiMajorAxisAu: 2.5, eccentricity: 0.3, inclinationDeg: 10, ascendingNodeDeg: 40, argumentOfPerihelionDeg: 70, meanAnomalyDeg: 20 },
+    epoch: { jd: 2461000.5, timeScale: "TDB", ttMinusUtcSeconds: 69.184 },
+    plane: "ecliptic-j2000",
+    source: { name: "Made up", url: "https://example.org/rock", solution: "S1", accessed: "2026-10-28" },
+    accuracy: { classification: "indicative", statement: "Made up.", valid: { start: "2020-01-01T00:00:00Z", end: "2030-01-01T00:00:00Z" }, limitations: [] },
+  };
+  change(copy);
+  return copy as never;
+};
 const moonData = (extra: object) => ({ name: "astraeus-data-made-up", provides: [], moonPositions: { center: "jupiter", loadIndex: async () => ({}), chunkUrls: {}, ...extra } });
 
 // For each row, a call that gives the old name alone: every other field is valid under its new name.
@@ -27,6 +40,9 @@ const DRIVERS: Record<string, (old: string) => () => unknown> = {
   "ViewInput.paths": (old) => () => base().addTrajectory({ id: "p", samples }).setViews([{ id: "a", label: "A", [old]: ["p"] } as never], { place: "panel" }),
   "ViewInput.bodies": (old) => () => base().setViews([{ id: "a", label: "A", [old]: ["moon"] } as never], { place: "panel" }),
   "AddBodyOptions.labelReach": (old) => () => new Scene().addBody(earth, { [old]: 100 } as never),
+  "ElementsBodyRecord.frame": (old) => () => new Scene().addBody(sun).addBodyFromElements(record((c) => { c[old] = c.plane; delete c.plane; })),
+  "ElementsAccuracy.validFromUtc": (old) => () => new Scene().addBody(sun).addBodyFromElements(record((c) => { c.accuracy[old] = c.accuracy.valid.start; delete c.accuracy.valid.start; })),
+  "ElementsAccuracy.validToUtc": (old) => () => new Scene().addBody(sun).addBodyFromElements(record((c) => { c.accuracy[old] = c.accuracy.valid.end; delete c.accuracy.valid.end; })),
   "TrajectoryInput.labelReach": (old) => () => base().addTrajectory({ id: "p", samples, [old]: 100 } as never),
 };
 
@@ -52,6 +68,11 @@ describe("renamed inputs", () => {
     expect(await settle(timeline([{ start: at(1), end: at(2), rate: 5, rampSeconds: 60 }, { near: { type: "flyby", withinSeconds: 60 }, rate: 5, rampSeconds: 30 }]))).toBeUndefined();
     expect(await settle(() => base().addTrajectory({ id: "p", samples, labelReachEarthRadii: 100 }).addBody(jupiter, { labelReachEarthRadii: 9 }).setViews([{ id: "a", label: "A", objects: ["p", "moon"] }], { place: "panel" }).check())).toBeUndefined();
     expect(await settle(() => new Scene().addBody(jupiter).load({ data: [moonData({}) as never] }))).toBeUndefined();
+  });
+
+  it("accepts a record under its new names, with the span as ISO text, a Date or milliseconds", async () => {
+    expect(await settle(() => new Scene().addBody(sun).addBodyFromElements(record()))).toBeUndefined();
+    expect(await settle(() => new Scene().addBody(sun).addBodyFromElements(record((c) => { c.accuracy.valid = { start: new Date(Date.UTC(2020, 0, 1)), end: Date.UTC(2030, 0, 1) }; })))).toBeUndefined();
   });
 
   it("leaves a value that is not an object to the call's own check", () => {

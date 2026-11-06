@@ -34,5 +34,5 @@ export function textureOf(visual: BodyVisual, pictures: Pictures): TextureRef | 
   const base = visual.texture ?? (visual.picture === undefined ? undefined : pictures[visual.picture]);
   if (base === undefined || visual.desktopPicture === undefined) return base;
   const large = pictures[visual.desktopPicture];
-  return large === undefined ? base : { ...base, desktop: { url: large.url, widthPx: large.widthPx, heightPx: large.heightPx, minViewportWidth: 768 } };
+  return large === undefined ? base : { ...base, desktop: { url: large.url, widthPx: large.widthPx, heightPx: large.heightPx, minViewportWidthPx: 768 } };
 }

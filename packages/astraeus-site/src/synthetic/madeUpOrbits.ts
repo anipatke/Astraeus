@@ -58,9 +58,9 @@ export function madeUpOrbitRecord(input: { readonly id: string; readonly label: 
     label: input.label,
     elements: input.elements,
     epoch: { jd, timeScale: "UTC" },
-    frame: "ecliptic-j2000",
+    plane: "ecliptic-j2000",
     source: { name: `Made up for the ${input.what} test`, url: "https://example.org/made-up", solution: "None; invented elements", accessed: "2026-11-07" },
-    accuracy: { classification: "indicative", statement: "None claimed. A two-body orbit with elements chosen for this fixture; not a real object.", validFromUtc: iso(input.epochUtcMs), validToUtc: iso(input.epochUtcMs + 365 * DAY_MS), limitations: ["Made up; not a real object."] },
+    accuracy: { classification: "indicative", statement: "None claimed. A two-body orbit with elements chosen for this fixture; not a real object.", valid: { start: iso(input.epochUtcMs), end: iso(input.epochUtcMs + 365 * DAY_MS) }, limitations: ["Made up; not a real object."] },
     marker: { color: input.color, sizePx: input.sizePx },
   };
 }

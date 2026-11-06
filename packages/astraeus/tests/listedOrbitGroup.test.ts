@@ -95,7 +95,7 @@ describe("listed orbit group (T-052 Done When 1)", () => {
     const state = group.stateAt(7, REFERENCE + DAY);
     expect(state.body).toBe("listed-test:rec-7");
     expect(group.recordIdAt(7)).toBe("rec-7");
-    expect(state).toMatchObject({ center: "sun", frame: "EQJ", orientation: null });
+    expect(state).toMatchObject({ center: "sun", plane: "EQJ", orientation: null });
     expect(Object.isFrozen(state)).toBe(true);
   });
 

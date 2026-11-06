@@ -25,7 +25,7 @@ function camera(): PerspectiveCamera {
   cam.updateMatrixWorld();
   return cam;
 }
-const state = (x: number): State => ({ positionKm: [x, 0, 0], velocityKmS: [0, 0, 0], timeUtcMs: 0, frame: "EQJ", center: "earth", orientation: [0, 0, 0, 1] } as unknown as State);
+const state = (x: number): State => ({ positionKm: [x, 0, 0], velocityKmS: [0, 0, 0], timeUtcMs: 0, plane: "EQJ", center: "earth", orientation: [0, 0, 0, 1] } as unknown as State);
 
 describe("placeBodies", () => {
   it("puts each body at its state minus the floating origin", () => {

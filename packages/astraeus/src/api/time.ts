@@ -1,7 +1,8 @@
 import { SceneError } from "./errors";
+import type { TimeInput } from "../core/timeInput";
 
 /** A moment: ISO text, a Date, or Unix milliseconds. */
-export type TimeInput = string | number | Date;
+export type { TimeInput };
 
 /** Converts a moment to Unix milliseconds, or throws a `bad-time` SceneError naming it. */
 export function toUtcMs(time: TimeInput, what = "time"): number {

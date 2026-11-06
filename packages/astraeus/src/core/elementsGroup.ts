@@ -101,7 +101,7 @@ export function createElementsGroup(input: ElementsGroupInput, adapter: TwoBodyA
       at(index, timeUtcMs - VELOCITY_HALF_STEP_MS, before, 0);
       at(index, timeUtcMs + VELOCITY_HALF_STEP_MS, after, 0);
       const velocityKmS = Float64Array.from([0, 1, 2].map((k) => (after[k] - before[k]) / (2 * VELOCITY_HALF_STEP_MS / 1000)));
-      return createState({ body: members[index], center, timeUtcMs, frame: EQJ, positionKm: here, velocityKmS, orientation: null });
+      return createState({ body: members[index], center, timeUtcMs, plane: EQJ, positionKm: here, velocityKmS, orientation: null });
     },
   };
   return Object.freeze(group);

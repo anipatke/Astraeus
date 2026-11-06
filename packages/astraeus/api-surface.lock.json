@@ -1222,7 +1222,7 @@
           "signature": "{ readonly jd: number; readonly timeScale: ElementsTimeScale; readonly ttMinusUtcSeconds?: number; }"
         },
         {
-          "name": "frame",
+          "name": "plane",
           "optional": false,
           "signature": "\"ecliptic-j2000\""
         },
@@ -1239,7 +1239,7 @@
         {
           "name": "accuracy",
           "optional": false,
-          "signature": "{ readonly classification: AccuracyClassification; readonly statement: string; readonly validFromUtc: string; readonly validToUtc: string; readonly limitations: readonly string[]; }"
+          "signature": "{ readonly classification: AccuracyClassification; readonly statement: string; readonly valid: { readonly start: TimeInput; readonly end: TimeInput; }; readonly limitations: readonly string[]; }"
         },
         {
           "name": "marker",
@@ -2133,7 +2133,7 @@
           "signature": "(): void"
         },
         {
-          "name": "time",
+          "name": "timeUtcMs",
           "optional": false,
           "signature": "number | undefined"
         },
@@ -2270,7 +2270,7 @@
       "constructors": [],
       "members": [
         {
-          "name": "time",
+          "name": "timeUtcMs",
           "optional": false,
           "signature": "number | undefined"
         },
@@ -2527,7 +2527,7 @@
       "constructors": [],
       "members": [
         {
-          "name": "time",
+          "name": "timeUtcMs",
           "optional": false,
           "signature": "number"
         },
@@ -2594,7 +2594,7 @@
           "signature": "boolean"
         },
         {
-          "name": "time",
+          "name": "timeUtcMs",
           "optional": false,
           "signature": "number"
         },
@@ -2955,7 +2955,7 @@
           "signature": "number"
         },
         {
-          "name": "frame",
+          "name": "plane",
           "optional": false,
           "signature": "\"EQJ\""
         },
@@ -2992,7 +2992,7 @@
           "signature": "number"
         },
         {
-          "name": "frame",
+          "name": "plane",
           "optional": false,
           "signature": "\"EQJ\""
         },
@@ -3124,7 +3124,7 @@
         {
           "name": "desktop",
           "optional": true,
-          "signature": "{ readonly url: string; readonly widthPx: number; readonly heightPx: number; readonly minViewportWidth: number; } | undefined"
+          "signature": "{ readonly url: string; readonly widthPx: number; readonly heightPx: number; readonly minViewportWidthPx: number; } | undefined"
         },
         {
           "name": "licence",

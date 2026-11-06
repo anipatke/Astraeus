@@ -11,7 +11,7 @@ function unit(vector: ArrayLike<number>, label: string): Float64Array {
 
 function validateSameCenter(a: CenteredPosition, b: CenteredPosition): void {
   if (a.timeUtcMs !== b.timeUtcMs) throw new RangeError("illumination geometry requires identical timestamps");
-  if (a.frame !== b.frame) throw new RangeError("illumination geometry requires identical frames");
+  if (a.plane !== b.plane) throw new RangeError("illumination geometry requires identical frames");
   if (a.center !== b.center) throw new RangeError("illumination geometry requires positions with the same center");
 }
 

@@ -86,7 +86,7 @@ export function memberState(
     body: `${group.id}:${index}`,
     center: group.center,
     timeUtcMs,
-    frame: EQJ,
+    plane: EQJ,
     positionKm,
     orientation: null,
   });

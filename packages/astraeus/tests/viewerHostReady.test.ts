@@ -49,10 +49,10 @@ describe("mount: ready means usable", () => {
   it("README time/rate example: after a bare `await ready`, time and rate are defined and setTime / setRate work", async () => {
     const handle = mount(host, new Scene());
     await handle.ready;
-    expect(handle.time).toBeDefined();
+    expect(handle.timeUtcMs).toBeDefined();
     expect(handle.rate).toBeDefined();
     handle.setTime(new Date(MID));
-    expect(handle.time).toBe(MID);
+    expect(handle.timeUtcMs).toBe(MID);
     handle.setRate(RATES[0]);
     expect(handle.rate).toBe(RATES[0]);
     handle.unmount();
@@ -80,7 +80,7 @@ describe("mount: ready means usable", () => {
     const handle = mount(host, new Scene());
     handle.unmount();
     await expect(handle.ready).rejects.toMatchObject({ code: "not-mounted" });
-    expect(handle.time).toBeUndefined();
+    expect(handle.timeUtcMs).toBeUndefined();
     expect(codeOf(() => handle.setTime(MID))).toBe("not-mounted");
     expect(codeOf(() => handle.setView("a"))).toBe("not-mounted");
   });
@@ -141,7 +141,7 @@ describe("AstraeusScene: onReady fires after the link attaches", () => {
     const done = new Promise<void>((resolve) => {
       root.render(h(StrictMode, null, h(AstraeusScene, {
         scene: new Scene(), ref,
-        onReady: (handle: ViewerHandle) => { calls.push({ handle, time: handle.time }); resolve(); },
+        onReady: (handle: ViewerHandle) => { calls.push({ handle, time: handle.timeUtcMs }); resolve(); },
       })));
     });
     await done;
@@ -152,8 +152,8 @@ describe("AstraeusScene: onReady fires after the link attaches", () => {
     const seen: ViewerChange[] = [];
     calls[0].handle.onChange((c) => seen.push(c));
     calls[0].handle.setTime(MID);
-    expect(seen.at(-1)).toMatchObject({ time: MID, cause: "host" });
+    expect(seen.at(-1)).toMatchObject({ timeUtcMs: MID, cause: "host" });
     root.unmount();
-    expect(calls[0].handle.time).toBeUndefined();
+    expect(calls[0].handle.timeUtcMs).toBeUndefined();
   });
 });

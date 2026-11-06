@@ -26,9 +26,9 @@ const madeUp = (id: string, radiusKm?: number): ElementsBodyRecord => ({
   id, label: id,
   elements: { semiMajorAxisAu: 2.5, eccentricity: 0.3, inclinationDeg: 10, ascendingNodeDeg: 40, argumentOfPerihelionDeg: 70, meanAnomalyDeg: 20 },
   epoch: { jd: 2461000.5, timeScale: "TDB", ttMinusUtcSeconds: 69.184 },
-  frame: "ecliptic-j2000",
+  plane: "ecliptic-j2000",
   source: { name: "Made up", url: "https://example.org/rock", solution: "S1", accessed: "2026-10-28" },
-  accuracy: { classification: "indicative", statement: "Made up.", validFromUtc: "2020-01-01T00:00:00Z", validToUtc: "2030-01-01T00:00:00Z", limitations: [] },
+  accuracy: { classification: "indicative", statement: "Made up.", valid: { start: "2020-01-01T00:00:00Z", end: "2030-01-01T00:00:00Z" }, limitations: [] },
   marker: { color: "#aabbcc", sizePx: 6 },
   ...(radiusKm === undefined ? {} : { radius: { km: radiusKm, source: "Made up" } }),
 });
