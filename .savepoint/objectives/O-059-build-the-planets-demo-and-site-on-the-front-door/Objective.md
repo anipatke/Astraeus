@@ -19,14 +19,27 @@ Owner, 2026-11-01: "Yes, in 0.8.0" and "lets do this right, no hurry on the app"
 
 ## Success Conditions
 
-Detailed when this Objective is planned (likely a research step first to list each internal capability the demo and site use and its public form). Named outcomes: each capability public and general (no planet, mission or demo names in engine rules, ARCH-01, ARCH-06) or moved into the site; the demo switcher and alternates live in the site, not the engine's `App`; deep-import counts zero; the site's public build and every demo look the same, shown by one browser check and an owner look on localhost:5490.
+- **Front door, source and tests.** `DEEP_IMPORT_COUNTS` in `packageBoundaries.test.ts` is 0 for `astraeus-demo-planets` and `astraeus-site`, counting `src`, `tests` and `tools`. A test that checks engine internals on purpose moves into `packages/astraeus/tests/` and passes `check:engine-alone`. Apollo and Showers keep their zero source count; their test counts may only fall.
+- **Moons are public.** Any app can draw many small moons as dots, show a moon family panel and show tagged surface places through public, general features, proven on a made-up system as well as on the demo (ARCH-03).
+- **The picker is public.** Any app can offer its own choice in the top bar and phone drawer; the viewer reports the choice and the host decides what happens. The site's planet and shower pickers use it.
+- **Every other private ability has a home.** Each internal ability the demo and site use (scene centre, desktop pictures, info card facts, items left out of the menu, page heading, loading cover, in-page address changes) is public and general or moved into the site, as recorded in the public forms note. `alternates` and `developerSections`, which nothing sets, are deleted.
+- **Test scenes are public.** The nine made-up scenes on the local preview are built with `Scene`; one that only exercises internals is dropped or moved to an engine test, and its browser checks still prove the engine is not tied to our demos.
+- **The site mounts like any host.** The site no longer draws `App` or builds an `ExperienceDefinition`; `App` stays internal.
+- **Same look.** One `npm run check:browser` passes, and the owner approves the demos and site on `localhost:5490` at 375x667 and 1280x720.
+
+## Owner Decisions (2026-11-06)
+
+- Zero covers the planets demo and site in source and tests; Apollo and Showers tests are not included (owner chose "Shipped code and tests, planets and site").
+- Picker: a public setting in the viewer's top bar and phone drawer, not a control the site draws outside the viewer. The site's look stays.
+- Moon dots, the moon family panel and tagged surface places all become public.
+- The nine made-up test scenes are rebuilt on the public way.
 
 ## Architectural Considerations
 
-New public features follow the Guardrails Public API rules from the start (one word one unit, settings with defaults, signals not behaviour). Story and demo data stay in the demo packages (ARCH-01; owner's "story data, not engine"). `App` stays internal; the site mounts like any host.
+New public features follow the Guardrails Public API rules from the start (one word one unit, settings with defaults, signals not behaviour). Story and demo data stay in the demo packages (ARCH-01; owner's "story data, not engine"). `App` stays internal; the site mounts like any host. `ExperienceDefinition` stays as the private seam between `Scene` and `App`; it stops being something a demo or site can hand in. The planets demo keeps Jupiter-only public builds (Vite globs, O-039) and its per-planet chunk loading. New public text adds to the API reference page, which has a 150,000 B raw limit (I-142); the final step measures it.
 
 ## Boundaries
 
 **In scope:** `packages/astraeus-demo-planets/`, `packages/astraeus-site/`, the public features they need, the deep-import allowlists.
 
-**Out of scope:** renames of existing names (O-057); new demos; the Apollo and showers demos beyond keeping their zero count.
+**Out of scope:** renames of existing names (O-057); removing `toDefinition` (O-057), though the site stops using it here; new demos; deep imports in Apollo and Showers tests and tools; visible changes to any demo.
