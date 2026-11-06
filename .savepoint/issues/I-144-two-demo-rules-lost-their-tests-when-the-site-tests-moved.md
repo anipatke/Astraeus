@@ -2,16 +2,22 @@
 id: I-144
 title: Two demo rules lost their tests when the site tests moved
 type: verification
-status: open
+status: resolved
 source:
   kind: check
   check: C-148
   actor: {role: checker, session: o059-check-20261107}
   at: '2026-11-06T19:51:42Z'
 tasks: [T-272]
-checks: [C-148, C-149, C-150]
+checks: [C-148, C-149, C-150, C-151]
 guardrail_ids: [TEST-01, TEST-03]
 severity: low
+resolution:
+  disposition: verified
+  check: C-151
+  actor: {role: checker, session: o059-recheck3-20261106}
+  at: '2026-11-06T22:01:22Z'
+  reason: 'C-151 CLEAR: forcing radius 0 in core/elementsBody.ts fails both marker rows on HEAD; the Moon-read proof of C-149 stands by diff; the fresh suite passes. Browser not re-run (owner decision).'
 history:
   - at: '2026-11-06T19:51:42Z'
     actor: {role: checker, session: o059-check-20261107}
@@ -33,6 +39,11 @@ history:
     kind: rechecked
     note: 'Proof still holds under C-150: nothing it rests on changed since 39d33686 and the fresh suite passes. Not closed: C-150 is NEEDS WORK for I-143, and a verified resolution needs a CLEAR Check.'
     check: C-150
+  - at: '2026-11-06T22:01:22Z'
+    actor: {role: checker, session: o059-recheck3-20261106}
+    kind: rechecked
+    note: 'C-151 CLEAR; closed verified. The radius mutation re-run on HEAD fails both marker rows; nothing the Moon-read proof rests on changed.'
+    check: C-151
 ---
 
 # I-144: Two demo rules lost their tests when the site tests moved

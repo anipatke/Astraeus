@@ -2,16 +2,22 @@
 id: I-143
 title: Three new scene calls keep the caller's object, so later edits skip their checks
 type: defect
-status: open
+status: resolved
 source:
   kind: check
   check: C-148
   actor: {role: checker, session: o059-check-20261107}
   at: '2026-11-06T19:51:42Z'
 tasks: [T-267, T-268]
-checks: [C-148, C-149, C-150]
+checks: [C-148, C-149, C-150, C-151]
 guardrail_ids: [API-04]
 severity: low
+resolution:
+  disposition: verified
+  check: C-151
+  actor: {role: checker, session: o059-recheck3-20261106}
+  at: '2026-11-06T22:01:22Z'
+  reason: 'C-151 CLEAR: the five C-150 scenarios hold on addBody and addBodyFromElements through public calls; 1436 one-leaf edits over 25 rows run; removing either options copy fails its rows, and leaving only readouts uncopied fails the one-leaf row. Browser not re-run (owner decision).'
 history:
   - at: '2026-11-06T19:51:42Z'
     actor: {role: checker, session: o059-check-20261107}
@@ -43,6 +49,11 @@ history:
     kind: repair_attempted
     check: C-150
     note: 'addBody and addBodyFromElements take one frozenCopy of the whole input at the entry, the same as the other calls; sceneInputCopies edits each leaf alone (1436 edits, 25 rows) and observe calls createMetrics. Owner asked to avoid browser tests this round.'
+  - at: '2026-11-06T22:01:22Z'
+    actor: {role: checker, session: o059-recheck3-20261106}
+    kind: rechecked
+    note: 'C-151 CLEAR; closed verified. Proven on plain input, the supported form. Observation, not an Issue: options built as a class or holding a function keep readouts and, since 664da238, knownLimitations as given; no caller or doc builds them so. Browser evidence is from 0925202e.'
+    check: C-151
 ---
 
 # I-143: Three new scene calls keep the caller's object, so later edits skip their checks
