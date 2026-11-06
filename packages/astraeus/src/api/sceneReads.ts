@@ -112,6 +112,20 @@ export interface SceneViewsRead {
   readonly items: readonly SceneViewRead[];
 }
 
+/** The moon panel the scene holds (`setMoonPanel`), as `Scene.moonPanel` states it. */
+export interface SceneMoonPanelRead {
+  /** How many moons the panel lists, in every family. */
+  readonly count: number;
+  /** The count with its source and date, such as "115 moons in the JPL Horizons list of 18 October 2026". */
+  readonly summary: string;
+}
+
+/** The tagged places a body holds (`addPlaces`), as `Scene.places` lists them. */
+export interface ScenePlacesRead {
+  readonly body: BodyId;
+  readonly count: number;
+}
+
 /** The timeline the scene opens with, as `Scene.timeline` states it. */
 export interface SceneTimelineRead {
   /** Where the span the timeline covers begins, in UTC milliseconds. With nothing setting a span or a moment, a month about the moment of the read. */

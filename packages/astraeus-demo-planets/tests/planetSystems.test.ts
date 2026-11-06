@@ -20,6 +20,7 @@ import noPanels from "../data/stories/no-panels/panels.json";
 
 // Engine data (bodies, moons, rings, fits) lives in the astraeus package; REPO is the repository root, where a build-time asset address (/packages/...) is rooted.
 const ENGINE = new URL("../../astraeus/", import.meta.url).pathname;
+const DATA_PKG = new URL("../../astraeus-data/", import.meta.url).pathname;
 const DATA = new URL("../../", import.meta.url).pathname; // the packages folder: each planet's moon positions are in astraeus-data-<planet>
 const REPO = new URL("../../../", import.meta.url).pathname;
 
@@ -54,7 +55,7 @@ describe("the outer planets in the planet switch (T-118)", () => {
         const sets = buildPlanetDefinition(settings, view.system as PlanetSystem, noPanels).experience.bodyFeatures!;
         expect(settings.bodyFeatures).toContain(settings.centre.id);
         const own = sets.find((set) => set.bodyId === settings.centre.id)!;
-        const source = (readJson(`${ENGINE}data/bodies/${settings.centre.id}/features.json`) as { features: { id: string; ringRadius?: number; moonRadius?: number; latitude?: number }[] }).features;
+        const source = (readJson(`${DATA_PKG}data/bodies/${settings.centre.id}/features.json`) as { features: { id: string; ringRadius?: number; moonRadius?: number; latitude?: number }[] }).features;
         expect(own.features.map((feature) => feature.id)).toEqual(source.filter((f) => f.latitude !== undefined && f.ringRadius === undefined && f.moonRadius === undefined).map((f) => f.id));
         expect(own.features).toHaveLength(OWN_PLACES[view.name]!);
       });

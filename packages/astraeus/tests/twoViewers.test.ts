@@ -368,6 +368,19 @@ describe.each(PAIRINGS)("two viewers on one page: $name", (pairing) => {
     expect(() => JUPITER_MOON_SYSTEM.ephemeris().stateOf("amalthea", Date.parse("2020-03-05T00:00:00Z"))).not.toThrow();
   });
 
+  // O-059 T-268: the moon panel and the places belong to the scene that set them, through either path; a bad one arrives as the same typed error.
+  it("T-268: a scene with a moon panel and places opens on both paths, and a bad panel or places is refused with its code", async () => {
+    const provenance = { sourceType: "illustrative", sources: ["Made up"], accuracy: "Not real.", notes: "" } as const;
+    const place = { id: "p", name: "P", kind: "Pit", category: "c", latitudeDeg: 1, longitudeDeg: 2, description: "D" };
+    const good = () => makeScene().setMoonPanel({ label: "Tarn", families: [{ id: "f", label: "F", description: "F.", moons: [{ id: "moon" }] }] }).addPlaces("moon", { categories: [{ key: "c", label: "C", color: "#ffffff" }], places: [place], provenance });
+    const a = await pairing.first.open({ scene: good() });
+    open.push(a);
+    const b = await pairing.second.open({ scene: good() });
+    open.push(b);
+    await expect(pairing.first.open({ scene: makeScene().setMoonPanel({ label: "Tarn", families: [{ id: "f", label: "F", description: "F.", moons: [{ id: "ghost" }] }] }) })).rejects.toMatchObject({ code: "bad-moon-panel" });
+    await expect(pairing.second.open({ scene: makeScene().addPlaces("ghost", { categories: [], places: [place], provenance }) })).rejects.toMatchObject({ code: "bad-places" });
+  });
+
   // T-253: one viewer with the Developer tools on and one off; only the first has the cog and the drawer, and opening it opens nothing in the other.
   it("T-253: developerTools on one viewer and off on the other", async () => {
     const withTools = await pairing.first.open({ developerTools: true });

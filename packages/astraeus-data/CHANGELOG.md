@@ -2,6 +2,10 @@
 
 Versions follow [semantic versioning](https://semver.org). It is released together with `astraeus`, with the same version number.
 
+## Unreleased
+
+Added (O-059 T-268): the tagged surface places of 24 bodies, moved from the engine's `data/bodies/` and published for the first time as `astraeus-data/bodies/<body>/{features,categories,overview,map}.json` plus `catalogue.json` (about 840 KB, 98 files), for `scene.addPlaces`. NOTICE credits the lists to Planetary Explorer (the owner's own work) and keeps the overview sources' own credits.
+
 ## 0.7.0 (2026-11-01)
 
 No changes to the pictures, data or this package's code. The README now lists the moons the picture pack has pictures for (Io, Europa, Ganymede, Callisto, Mimas, Enceladus, Tethys, Dione, Rhea, Titan, Iapetus, Triton and Charon) and says every other listed moon draws flat-coloured (O-050 T-215, I-127). Released with `astraeus` 0.7.0 to keep the version numbers together.

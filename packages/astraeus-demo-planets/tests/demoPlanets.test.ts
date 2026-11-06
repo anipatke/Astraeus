@@ -22,6 +22,7 @@ import noPanels from "../data/stories/no-panels/panels.json";
 
 // Engine data (bodies, moons, rings, fits) lives in the astraeus package.
 const ENGINE = new URL("../../astraeus/", import.meta.url).pathname;
+const DATA_PKG = new URL("../../astraeus-data/", import.meta.url).pathname;
 const build = (file: unknown, system: unknown) => buildPlanetDefinition(parsePlanetSettings(file), system as PlanetSystem, noPanels);
 const featuresOf = (definition: ReturnType<typeof build>, body: string) => definition.experience.bodyFeatures!.find((set) => set.bodyId === body)?.features ?? [];
 const d = jupiterIoExplorer;
@@ -82,7 +83,7 @@ describe("the planet views (browser-outer-planets, browser-planet-switch)", () =
   it("puts a tagged place on Titan and on Charon, with the name and description the information shows", () => {
     const places = [[build(saturnFile, saturnSystem), "titan", "kraken-mare"], [build(plutoFile, plutoSystem), "charon", "mordor-macula"], [build(plutoFile, plutoSystem), "pluto", "sputnik-planitia"]] as const;
     for (const [definition, body, id] of places) {
-      const stored = (readJson(`${ENGINE}data/bodies/${body}/features.json`) as { features: { id: string; name: string; description: string }[] }).features.find((feature) => feature.id === id)!;
+      const stored = (readJson(`${DATA_PKG}data/bodies/${body}/features.json`) as { features: { id: string; name: string; description: string }[] }).features.find((feature) => feature.id === id)!;
       const shown = featuresOf(definition, body).find((feature) => feature.id === id)!;
       expect(shown.name).toBe(stored.name);
       expect(shown.description).toBe(stored.description);

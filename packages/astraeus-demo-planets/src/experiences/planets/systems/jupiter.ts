@@ -11,7 +11,7 @@ import { packagesOf } from "../planetSystemParts";
 JUPITER_MOON_SYSTEM.provideIndex(async () => (await import("astraeus-data-jupiter/index.json")).default as unknown);
 
 /** The tagged places of the four big moons: each body package's features, categories and map record (whose coordinates convert west longitudes, T-140), read as they are stored. */
-const PACKAGES = import.meta.glob("../../../../../astraeus/data/bodies/{io,europa,ganymede,callisto}/{features,categories,map}.json", { eager: true, import: "default" }) as Record<string, unknown>;
+const PACKAGES = import.meta.glob("../../../../../astraeus-data/data/bodies/{io,europa,ganymede,callisto}/{features,categories,map}.json", { eager: true, import: "default" }) as Record<string, unknown>;
 
 /**
  * The fit chunks this build ships: the window's year (one file per moon per year), served as files and fetched only for this

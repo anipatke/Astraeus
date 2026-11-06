@@ -2,8 +2,8 @@
 import { catalogue } from "astraeus/assets/catalogue";
 import { createComposition } from "astraeus/assets/compositions";
 import type { PlanetSystem } from "../planetDefinition";
-import mercuryFeatures from "astraeus/data/bodies/mercury/features.json";
-import mercuryCategories from "astraeus/data/bodies/mercury/categories.json";
+import mercuryFeatures from "astraeus-data/bodies/mercury/features.json";
+import mercuryCategories from "astraeus-data/bodies/mercury/categories.json";
 
 export const mercurySystem: PlanetSystem = {
   composition: createComposition(catalogue, { id: "mercury", bodies: ["mercury"], defaultCenter: "mercury" }),

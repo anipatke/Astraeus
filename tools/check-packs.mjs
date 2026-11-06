@@ -15,7 +15,8 @@ const MB = 1_000_000;
 export const LIMITS = {
   // Raised from 9.5 MB for O-059 T-267 (owner, 2026-11-06); returns to 9.5 MB at T-270 when the moon lists leave.
   astraeus: { packed: 8 * MB, unpacked: 9.8 * MB },
-  "astraeus-data": { packed: 39 * MB, unpacked: 39 * MB, files: 40 },
+  // Files raised from 40 to 130 for the place lists (owner, 2026-11-06, O-059 T-268); sizes unchanged.
+  "astraeus-data": { packed: 39 * MB, unpacked: 39 * MB, files: 130 },
   "astraeus-data-jupiter": { packed: 34 * MB, unpacked: 37 * MB, files: 2_900 },
   "astraeus-data-saturn": { packed: 59 * MB, unpacked: 64 * MB, files: 7_000 },
   "astraeus-data-uranus": { packed: 45 * MB, unpacked: 47 * MB, files: 1_050 },
@@ -29,7 +30,7 @@ const CODE = "src/.+\\.(?:js|d\\.ts)";
 /** Files each package may contain (anything else fails). */
 const ALLOWED = {
   astraeus: [...COMMON, CODE, "src/.+\\.(?:css|jpg|png|json)", "data/.+\\.json"],
-  "astraeus-data": [...COMMON, CODE, "src/textures/[^/]+\\.jpg"],
+  "astraeus-data": [...COMMON, CODE, "src/textures/[^/]+\\.jpg", "data/bodies/[^/]+\\.(?:json|md)", "data/bodies/[a-z]+/[a-z]+\\.json"],
   position: [...COMMON, CODE, "data/[a-z]+-moons/index\\.json", "data/[a-z]+-moons/[^/]+/\\d{4}\\.bin"],
 };
 /** Never packed, whatever else matches. */
@@ -43,6 +44,14 @@ function targetsOf(value) {
   if (typeof value === "string") return [value];
   if (value !== null && typeof value === "object") return Object.values(value).flatMap(targetsOf);
   return [];
+}
+
+/** Whether an `exports` target is packed: a file by its path, a `*` pattern (O-059 T-268, `./bodies/*`) by at least one packed file under it. */
+export function exportTargetPacked(target, paths) {
+  const wanted = target.replace(/^\.\//, "");
+  if (!wanted.includes("*")) return paths.includes(wanted);
+  const pattern = new RegExp(`^${wanted.split("*").map((part) => part.replace(/[.+?^${}()|[\]\\]/g, "\\$&")).join(".+")}$`);
+  return paths.some((path) => pattern.test(path));
 }
 
 function packOf(name) {
@@ -169,7 +178,7 @@ function problemsOf(name, dir, pack) {
   for (const field of REQUIRED_FIELDS) if (manifest[field] === undefined) problems.push(`${name}: package.json has no ${field}`);
   if (manifest.private === true) problems.push(`${name}: package.json is private`);
   if (Object.keys(manifest).some((key) => key.startsWith("x-"))) problems.push(`${name}: package.json still has an x- build block`);
-  for (const target of targetsOf(manifest.exports)) if (!paths.includes(target.replace(/^\.\//, ""))) problems.push(`${name}: exports names ${target}, which is not packed`);
+  for (const target of targetsOf(manifest.exports)) if (!exportTargetPacked(target, paths)) problems.push(`${name}: exports names ${target}, which is not packed`);
   problems.push(...peerProblems(name, manifest));
   for (const required of ["README.md", "LICENSE"]) if (!paths.includes(required)) problems.push(`${name}: ${required} is not packed`);
   if (!paths.includes("NOTICE") && !paths.some((path) => path.startsWith("licenses/"))) problems.push(`${name}: no NOTICE or licenses/ (PROV-01, PROV-02)`);

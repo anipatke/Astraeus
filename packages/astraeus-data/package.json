@@ -1,7 +1,7 @@
 {
   "name": "astraeus-data",
   "version": "0.7.0",
-  "description": "Pictures for the Astraeus engine: maps of the moons, the 8k Venus map and the Milky Way. Optional; the engine draws without them.",
+  "description": "Pictures and place lists for the Astraeus engine: maps of the moons, the 8k Venus map, the Milky Way and the tagged surface places of 24 bodies. Optional; the engine draws without them.",
   "license": "MIT",
   "type": "module",
   "sideEffects": false,
@@ -21,6 +21,8 @@
   },
   "exports": {
     ".": "./src/index.ts",
+    "./bodies/*": "./data/bodies/*",
+    "./data/*": "./data/*",
     "./package.json": "./package.json"
   },
   "x-publish": {
@@ -29,15 +31,18 @@
         "types": "./src/index.d.ts",
         "import": "./src/index.js"
       },
+      "./bodies/*": "./data/bodies/*",
       "./package.json": "./package.json"
     },
     "files": [
       "src",
+      "data",
       "README.md",
       "CHANGELOG.md",
       "NOTICE",
       "LICENSE",
       "licenses"
-    ]
+    ],
+    "linkData": true
   }
 }

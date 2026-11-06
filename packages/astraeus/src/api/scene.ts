@@ -23,12 +23,15 @@ import { NotLoadedError } from "../core/planetSeries";
 import { BodyPlan } from "./planBodies";
 import { GroupPlan } from "./planGroups";
 import { BodySetPlan, type BodySetContext } from "./planBodySets";
+import { MoonPanelPlan } from "./planMoonPanel";
+import { PlacesPlan } from "./planPlaces";
+import type { MoonPanelInput, PlacesInput } from "./moonPanelInput";
 import type { BodySetInput } from "./bodySetInput";
 import { assembleScene } from "./assembleScene";
 import { SceneCamera } from "./planCamera";
 import { isMounted } from "./sceneFreeze";
-import type { SceneBodyRead, SceneBodySetRead, SceneEventRead, SceneGroupRead, ScenePanelRead, ScenePathRead, SceneTimelineRead, SceneViewsRead } from "./sceneReads";
-export type { SceneBodyRead, SceneBodySetRead, SceneEventRead, SceneGroupRead, ScenePanelRead, ScenePathRead, SceneTimelineRead, SceneViewRead, SceneViewsRead } from "./sceneReads";
+import type { SceneBodyRead, SceneBodySetRead, SceneEventRead, SceneGroupRead, SceneMoonPanelRead, ScenePanelRead, ScenePlacesRead, ScenePathRead, SceneTimelineRead, SceneViewsRead } from "./sceneReads";
+export type { SceneBodyRead, SceneBodySetRead, SceneEventRead, SceneGroupRead, SceneMoonPanelRead, ScenePanelRead, ScenePlacesRead, ScenePathRead, SceneTimelineRead, SceneViewRead, SceneViewsRead } from "./sceneReads";
 export { SceneCamera } from "./planCamera";
 import { StoryPlan } from "./planStory";
 import { buildTracked, pathReads, type Tracked } from "./planPaths";
@@ -199,6 +202,8 @@ export class Scene {
   readonly #defaulted = new Map<string, TrajectoryInput>();
   readonly #groupPlan = new GroupPlan(() => this.#plan.catalogue, (id) => this.#taken(id));
   readonly #bodySets = new BodySetPlan(() => this.#plan.catalogue, (id) => this.#taken(id));
+  readonly #moonPanel = new MoonPanelPlan();
+  readonly #places = new PlacesPlan();
   readonly #story = new StoryPlan();
   readonly #timeline = new TimelinePlan();
   readonly #viewPlan = new ViewPlan();
@@ -228,6 +233,12 @@ export class Scene {
 
   /** The body sets the scene holds (`addBodySet`), in the order added: id, centre body, member count and family ids. A fresh frozen list on every read. */
   get bodySets(): readonly SceneBodySetRead[] { return this.#bodySets.reads(this.#sceneFirst()); }
+
+  /** The moon panel (`setMoonPanel`): how many moons it lists and the line that states them with their source and date; undefined when none was set. */
+  get moonPanel(): SceneMoonPanelRead | undefined { return this.#moonPanel.read(); }
+
+  /** The bodies that hold tagged places (`addPlaces`), in the order added, with how many each holds. A fresh frozen list on every read. */
+  get places(): readonly ScenePlacesRead[] { return this.#places.reads(); }
 
   /** The events the scene holds (`addEvents`), sorted by time: id, label, `timeUtcMs`, type, object and provenance (the event's own, else the batch's). A fresh frozen list on every read. */
   get events(): readonly SceneEventRead[] { return this.#story.eventReads(); }
@@ -328,6 +339,32 @@ export class Scene {
   addBodySet(input: BodySetInput): this {
     this.#editable();
     this.#bodySets.add(input);
+    return this;
+  }
+
+  /**
+   * Shows the sliding panel of a planet's moons by family: its heading label, the families (each a one-line description and its moons, named or provisional), the family listed first with pictures
+   * (`featuredFamily`) and where and when the list was taken (`listSource`, `listDate`). Each moon is a body (`addBody`) or a body-set member (`addBodySet`) of the scene, checked when the scene is built;
+   * its label comes from there, and a body gets the picture the viewer's `data` brings for it. Replaces any earlier panel. A malformed panel, or a moon the scene does not hold, throws `bad-moon-panel`. Read the count and summary from `scene.moonPanel`.
+   * @example
+   * scene.setMoonPanel({ label: "Tarn", families: [{ id: "inner", label: "Inner moons", description: "Close and quick.", moons: [{ id: "bit-a" }] }], listSource: "A made-up list", listDate: "2026-10-18" });
+   */
+  setMoonPanel(input: MoonPanelInput): this {
+    this.#editable();
+    this.#moonPanel.set(input);
+    return this;
+  }
+
+  /**
+   * Adds the tagged places of one body, drawn as markers on it and opened in the information panel: categories (key, label, colour), places (id, name, kind, category, latitude and longitude in degrees as given,
+   * description and optional details) and the provenance shown with each. The body must be in the scene when it is built. A second call for one body throws `duplicate-id`; a malformed list throws `bad-places`.
+   * Read the result from `scene.places`.
+   * @example
+   * scene.addPlaces("tarn", { categories: [{ key: "pit", label: "Pits", color: "#9de3a8" }], places: [{ id: "deep", name: "Deep Pit", kind: "Pit", category: "pit", latitudeDeg: 12, longitudeDeg: -40, description: "A made-up pit." }], provenance: { sourceType: "illustrative", sources: ["Made up"], accuracy: "Not real.", notes: "" } });
+   */
+  addPlaces(body: BodyRef | BodyId, input: PlacesInput): this {
+    this.#editable();
+    this.#places.add(body, input);
     return this;
   }
 
@@ -523,6 +560,6 @@ export class Scene {
 
   /** The app's plug-in contract for this scene (`assembleScene.ts`). Throws if the scene is empty or a body needs a data package not passed in `data`. */
   toDefinition(data: readonly DataSource[] = []): ExperienceDefinition {
-    return assembleScene({ plan: this.#plan, tracked: this.#tracked, groupPlan: this.#groupPlan, bodySets: this.#bodySets, story: this.#story, timeline: this.#timeline, viewPlan: this.#viewPlan, camera: this.camera, scale: this.#scale, scaleOnly: this.#scaleOnly, look: this.#look, bodyReadouts: this.#bodyReadouts }, data);
+    return assembleScene({ plan: this.#plan, tracked: this.#tracked, groupPlan: this.#groupPlan, bodySets: this.#bodySets, moonPanel: this.#moonPanel, places: this.#places, story: this.#story, timeline: this.#timeline, viewPlan: this.#viewPlan, camera: this.camera, scale: this.#scale, scaleOnly: this.#scaleOnly, look: this.#look, bodyReadouts: this.#bodyReadouts }, data);
   }
 }

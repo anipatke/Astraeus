@@ -8,6 +8,7 @@ import { isSurfacePlace } from "astraeus-demo-planets/experiences/planets/surfac
 const root = new URL("../../", import.meta.url);
 // Body and moon data are the engine's; the planet settings are the Planets demo's.
 const engine = new URL("../../../astraeus/", import.meta.url);
+const dataPackage = new URL("../../../astraeus-data/", import.meta.url);
 const planets = new URL("../../../astraeus-demo-planets/", import.meta.url);
 const readJson = (path, base = engine) => JSON.parse(readFileSync(new URL(path, base), "utf8"));
 const esc = (text) => String(text).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/"/g, "&quot;");
@@ -54,7 +55,7 @@ function shownPlaces() {
   const shown = new Map();
   for (const file of readdirSync(new URL("data/planets/", planets))) {
     for (const body of readJson(`data/planets/${file}`, planets).bodyFeatures ?? []) {
-      const list = readJson(`data/bodies/${body}/features.json`).features;
+      const list = readJson(`data/bodies/${body}/features.json`, dataPackage).features;
       shown.set(body, list.filter(isSurfacePlace).length);
     }
   }
@@ -62,15 +63,15 @@ function shownPlaces() {
 }
 
 function placesSection() {
-  const index = readJson("data/bodies/catalogue.json");
+  const index = readJson("data/bodies/catalogue.json", dataPackage);
   const shown = shownPlaces();
   let total = 0;
   let table = "";
   let body = "";
   for (const entry of index.bodies) {
-    const features = readJson(`data/bodies/${entry.body}/features.json`);
-    const categories = readJson(`data/bodies/${entry.body}/categories.json`).categories;
-    const overview = readJson(`data/bodies/${entry.body}/overview.json`).overview;
+    const features = readJson(`data/bodies/${entry.body}/features.json`, dataPackage);
+    const categories = readJson(`data/bodies/${entry.body}/categories.json`, dataPackage).categories;
+    const overview = readJson(`data/bodies/${entry.body}/overview.json`, dataPackage).overview;
     const list = features.features;
     total += list.length;
     const used = categories.map((category) => ({ category, n: list.filter((f) => f.category === category.key).length })).filter((c) => c.n > 0);

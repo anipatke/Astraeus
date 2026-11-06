@@ -9,14 +9,14 @@ import { DIONE_VISUAL, IAPETUS_VISUAL, PLUTO_VISUAL, RHEA_VISUAL, TETHYS_VISUAL,
 import { CALLISTO_VISUAL, EUROPA_VISUAL, GANYMEDE_VISUAL } from "astraeus/assets/bodies/galileanMoons";
 import { shownLongitude } from "../src/experiences/planets/surfacePlace.mjs";
 import type { BodyVisual } from "astraeus/assets/visual";
-import europaMap from "astraeus/data/bodies/europa/map.json";
-import titanMap from "astraeus/data/bodies/titan/map.json";
-import europaFeatures from "astraeus/data/bodies/europa/features.json";
-import titanFeatures from "astraeus/data/bodies/titan/features.json";
-import tritonMap from "astraeus/data/bodies/triton/map.json";
+import europaMap from "astraeus-data/bodies/europa/map.json";
+import titanMap from "astraeus-data/bodies/titan/map.json";
+import europaFeatures from "astraeus-data/bodies/europa/features.json";
+import titanFeatures from "astraeus-data/bodies/titan/features.json";
+import tritonMap from "astraeus-data/bodies/triton/map.json";
 import { createOrbAstronomyAdapter } from "astraeus/core/astronomyAdapter";
 import { createStateResolver } from "astraeus/core/stateResolver";
-import features from "astraeus/data/bodies/iapetus/features.json";
+import features from "astraeus-data/bodies/iapetus/features.json";
 import { readJson } from "astraeus/tools/import/test-io.mjs";
 
 // O-039 T-130 (time inside the fit window the test setup loads, 2016-02-10 to 2016-12-30): Iapetus is tidally locked, so its dark Cassini Regio hemisphere leads in its orbit about Saturn. The drawn map's dark
@@ -80,7 +80,7 @@ describe("Iapetus map orientation", () => {
 // true east longitude E sits at marker longitude E - yaw; the stored marker longitude must name that same column.
 interface Place { readonly name: string; readonly west: number; readonly id: string }
 const STORED_FEATURES = (body: string): Map<string, number> => new Map(
-  (readJson(new URL(`../../astraeus/data/bodies/${body}/features.json`, import.meta.url).pathname) as { features: { name: string; longitude?: number }[] }).features.filter((f) => f.longitude !== undefined).map((f) => [f.name, f.longitude!]),
+  (readJson(new URL(`../../astraeus-data/data/bodies/${body}/features.json`, import.meta.url).pathname) as { features: { name: string; longitude?: number }[] }).features.filter((f) => f.longitude !== undefined).map((f) => [f.name, f.longitude!]),
 );
 
 function columnOf(markerLonDeg: number, width: number): number {

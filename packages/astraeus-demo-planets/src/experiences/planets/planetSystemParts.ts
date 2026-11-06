@@ -10,7 +10,7 @@ export function chunkUrlsOf(shipped: Readonly<Record<string, string>>, folder: s
 /** A glob of `data/bodies/<moon>/{features,categories,map}.json` imports as the packages the builder takes, by moon. */
 export function packagesOf(files: Readonly<Record<string, unknown>>, moons: readonly string[]): PlanetSystem["packages"] {
   return Object.fromEntries(moons.map((moon) => {
-    const at = (name: string) => files[`../../../../../astraeus/data/bodies/${moon}/${name}.json`] as never;
+    const at = (name: string) => files[`../../../../../astraeus-data/data/bodies/${moon}/${name}.json`] as never;
     const map = at("map") as { coordinates: never } | undefined;
     return [moon, { features: at("features"), categories: at("categories"), ...(map === undefined ? {} : { map }) }];
   }));

@@ -18,6 +18,8 @@ import { SceneError } from "./errors";
 import { cameraPresetsOf, fitFarthestKm, startPresetEntry, startViewEntry, viewEntries, type SceneCamera } from "./planCamera";
 import type { BodyPlan } from "./planBodies";
 import type { BodySetPlan } from "./planBodySets";
+import type { MoonPanelPlan } from "./planMoonPanel";
+import type { PlacesPlan } from "./planPlaces";
 import { groupLayersEntry, lateGroups, type GroupPlan } from "./planGroups";
 import { autoPaths, checkNamedReadouts, checkReadouts, pathCover, type Tracked } from "./planPaths";
 import type { StoryPlan } from "./planStory";
@@ -30,6 +32,8 @@ export interface ScenePlanners {
   readonly tracked: ReadonlyMap<string, Tracked>;
   readonly groupPlan: GroupPlan;
   readonly bodySets: BodySetPlan;
+  readonly moonPanel: MoonPanelPlan;
+  readonly places: PlacesPlan;
   readonly story: StoryPlan;
   readonly timeline: TimelinePlan;
   readonly viewPlan: ViewPlan;
@@ -88,7 +92,7 @@ function deferredRead<T>(ids: readonly BodyId[], window: TimeBounds, fault: { er
 
 /** The app's plug-in contract for a scene's planners. Throws if the scene is empty or a body needs a data package not passed in `data`. */
 export function assembleScene(parts: ScenePlanners, data: readonly DataSource[]): ExperienceDefinition {
-  const { plan, groupPlan, bodySets, story, timeline: timelinePlan, viewPlan, camera, tracked: trackedMap } = parts;
+  const { plan, groupPlan, bodySets, moonPanel, places, story, timeline: timelinePlan, viewPlan, camera, tracked: trackedMap } = parts;
   if (plan.bodies.size === 0) throw new SceneError("empty-scene", "the scene has no bodies; call addBody before mount");
   plan.checkData(data);
   bodySets.checkData(data);
@@ -124,15 +128,22 @@ export function assembleScene(parts: ScenePlanners, data: readonly DataSource[])
   const catalogue = plan.catalogue;
   if (camera.following && camera.target !== undefined && camera.followChoices !== undefined && !camera.followChoices.includes(camera.target)) throw new SceneError("bad-camera", `camera.follow("${camera.target}"): the opening view follows "${camera.target}", which camera.setFollowChoices does not list`);
   story.checkObjects(new Set(labelled.map(({ id }) => id)));
+  const objects: ExperienceObject[] = [
+    ...[...plan.bodies.values()].map((body) => plan.bodyObject(body, ids, sunCentred, camera)),
+    ...[...trackedMap.values()].map(({ body, description, knownLimitations, provenanceSpans }): ExperienceObject => ({ id: body.id, label: body.label, color: body.color, availability: body.trajectory.bounds, labelPriority: 80, ...plan.labelReach(body.id, sunCentred, camera), provenance: body.provenance, ...(provenanceSpans === undefined ? {} : { provenanceSpans }), ...(description === undefined ? {} : { description }), ...(knownLimitations === undefined ? {} : { knownLimitations }) })),
+    ...bodySets.objects({ ids, catalogue: plan.catalogue }),
+  ];
+  const pictures = mergePictures(data.map((source) => source.pictures));
+  const members = new Set(bodySets.memberIds());
+  const moonFamilies = moonPanel.list(new Map(objects.filter(({ id }) => plan.bodies.has(id) || members.has(id)).map(({ id, label }) => [id, label])), new Set(ids), plan.catalogue, (picture) => pictures[picture]?.url);
+  const bodyFeatures = places.featureSets(new Map(objects.map(({ id, label }) => [id, label])));
   const definition: ExperienceDefinition = {
     experience: {
-      objects: [
-        ...[...plan.bodies.values()].map((body) => plan.bodyObject(body, ids, sunCentred, camera)),
-        ...[...trackedMap.values()].map(({ body, description, knownLimitations, provenanceSpans }): ExperienceObject => ({ id: body.id, label: body.label, color: body.color, availability: body.trajectory.bounds, labelPriority: 80, ...plan.labelReach(body.id, sunCentred, camera), provenance: body.provenance, ...(provenanceSpans === undefined ? {} : { provenanceSpans }), ...(description === undefined ? {} : { description }), ...(knownLimitations === undefined ? {} : { knownLimitations }) })),
-        ...bodySets.objects({ ids, catalogue: plan.catalogue }),
-      ],
+      objects,
       cameraPresets: cameraPresetsOf(labelled, camera.followChoices),
       ...startPresetEntry(camera),
+      ...(moonFamilies === undefined ? {} : { moonFamilies }),
+      ...(bodyFeatures.length === 0 ? {} : { bodyFeatures }),
       events: story.events,
       ...story.provenanceEntries(),
       ...(storyPanels === undefined ? {} : { storyPanels }),

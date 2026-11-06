@@ -12,11 +12,11 @@ import earthFile from "../data/planets/earth.json";
 import marsFile from "../data/planets/mars.json";
 import mercuryFile from "../data/planets/mercury.json";
 import venusFile from "../data/planets/venus.json";
-import earthFeatures from "astraeus/data/bodies/earth/features.json";
-import moonFeatures from "astraeus/data/bodies/moon/features.json";
-import marsFeatures from "astraeus/data/bodies/mars/features.json";
-import mercuryFeatures from "astraeus/data/bodies/mercury/features.json";
-import venusFeatures from "astraeus/data/bodies/venus/features.json";
+import earthFeatures from "astraeus-data/bodies/earth/features.json";
+import moonFeatures from "astraeus-data/bodies/moon/features.json";
+import marsFeatures from "astraeus-data/bodies/mars/features.json";
+import mercuryFeatures from "astraeus-data/bodies/mercury/features.json";
+import venusFeatures from "astraeus-data/bodies/venus/features.json";
 
 // Mercury, Venus, Earth and Mars in the planet switch (O-033 T-119): one settings file and one small system each, built by the one planet builder.
 const panels = { pauseSeconds: 6, autoOpen: false, panels: [] };

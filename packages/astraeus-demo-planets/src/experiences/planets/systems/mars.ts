@@ -8,8 +8,8 @@ import { moonFitSource } from "astraeus/core/bodies/moonSystem";
 import { parseMoonCatalogue } from "astraeus/assets/moonCatalogue";
 import type { PlanetSystem } from "../planetDefinition";
 import marsMoons from "astraeus/data/moons/mars.json";
-import marsFeatures from "astraeus/data/bodies/mars/features.json";
-import marsCategories from "astraeus/data/bodies/mars/categories.json";
+import marsFeatures from "astraeus-data/bodies/mars/features.json";
+import marsCategories from "astraeus-data/bodies/mars/categories.json";
 import marsFitErrors from "astraeus/data/moons/fit-errors/mars.json";
 
 // The index ships in astraeus-data-mars; a dynamic import keeps it its own chunk (it is read only when the system loads).

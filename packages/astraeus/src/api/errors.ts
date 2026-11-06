@@ -44,6 +44,10 @@ export type SceneErrorCode =
   | "bad-group"
   /** A body set (`addBodySet`) is malformed, or names a centre, moon, body or balance point the scene cannot draw it with. */
   | "bad-body-set"
+  /** The moon panel (`setMoonPanel`) is malformed, or names a moon the scene does not hold. */
+  | "bad-moon-panel"
+  /** A body's places (`addPlaces`) are malformed, or name a body the scene does not hold. */
+  | "bad-places"
   /** An activity curve is malformed. */
   | "bad-activity"
   /** A camera call or pose is malformed, or names an object the view cannot show. */

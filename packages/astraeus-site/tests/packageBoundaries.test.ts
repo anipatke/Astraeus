@@ -266,7 +266,7 @@ function deepImportCounts(packagesDir: string): Record<string, number> {
  */
 const DEEP_IMPORT_COUNTS: Record<string, number> = {
   "astraeus-demo-apollo11": 129, // src is on the front door (PUBLIC_API_DEMOS); the rest is tests and tools
-  "astraeus-demo-planets": 123, // F13, O-059
+  "astraeus-demo-planets": 98, // F13, O-059
   "astraeus-demo-showers": 68, // src is on the front door; the rest is tests and tools
   "astraeus-site": 92, // F13, O-059
 };
@@ -421,7 +421,7 @@ describe("package boundaries (ARCH-03)", () => {
 
   it("reads import.meta.glob patterns, string and array forms, and allows only the named data rules", () => {
     const dir = scratchPackages({
-      "astraeus-demo-a/src/things/okData.ts": `const a = ${GLOB}<unknown>("../../../astraeus/data/bodies/{io,europa}/*.json", { eager: true });\n`,
+      "astraeus-demo-a/src/things/okData.ts": `const a = ${GLOB}<unknown>("../../../astraeus-data/data/bodies/{io,europa}/*.json", { eager: true });\n`,
       [`${SITE}/src/okData.ts`]: `const a = ${GLOB}(["../../astraeus-demo-a/data/*.json", "!../../astraeus-demo-a/data/x/*"], { eager: true });\nconst b = ${GLOB}("../../astraeus/data/**/*.bin");\n`,
       "astraeus-demo-a/src/things/codeGlob.ts": `const a = ${GLOB}("../../../astraeus/src/core/*.ts");\n`,
       "astraeus-demo-a/src/things/arrayGlob.ts": `const a = ${GLOB}<Record<string, unknown>>(["../../../astraeus/data/*.json", "../../../astraeus/tools/**/*.mjs"]);\n`,

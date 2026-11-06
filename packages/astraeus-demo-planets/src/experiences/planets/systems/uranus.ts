@@ -11,7 +11,7 @@ import uranusFitErrors from "astraeus/data/moons/fit-errors/uranus.json";
 URANUS_MOON_SYSTEM.provideIndex(async () => (await import("astraeus-data-uranus/index.json")).default as unknown);
 
 /** The tagged places of Uranus itself (it has no mapped moon): its body package's features and categories, read as they are stored. */
-const PACKAGES = import.meta.glob("../../../../../astraeus/data/bodies/uranus/{features,categories}.json", { eager: true, import: "default" }) as Record<string, unknown>;
+const PACKAGES = import.meta.glob("../../../../../astraeus-data/data/bodies/uranus/{features,categories}.json", { eager: true, import: "default" }) as Record<string, unknown>;
 
 /** The fit chunks this build ships for Uranus: the window's year for every body, and the years before it only for the moons whose orbit line reaches back into them (`tests/planetSystems.test.ts` proves the set equals what the window loads). */
 const SHIPPED = {

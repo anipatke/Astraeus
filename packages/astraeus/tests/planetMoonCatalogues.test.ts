@@ -56,7 +56,7 @@ describe.each(Object.keys(EXPECTED))("%s moon list (core data)", (planet) => {
     const linked = raw.moons.filter((moon) => moon.bodyPackage !== null).map((moon) => moon.id);
     expect(linked.sort()).toEqual([...MAPPED[planet]].sort());
     for (const moon of raw.moons.filter((m) => m.bodyPackage !== null)) {
-      expect(exists(`${ROOT}${moon.bodyPackage}/features.json`), moon.id).toBe(true);
+      expect(exists(`${ROOT}../astraeus-data/${moon.bodyPackage}/features.json`), moon.id).toBe(true);
       expect(moon.bodyPackage).toBe(`data/bodies/${moon.id}`);
     }
   });

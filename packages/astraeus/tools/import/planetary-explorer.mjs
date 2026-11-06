@@ -4,7 +4,7 @@
 // Reads the owner's Planetary Explorer checkout (read only) and writes one
 // data package per body under data/bodies/<body>/. Feature coordinates are
 // carried over exactly as the donor holds them: nothing is rounded,
-// re-derived, converted or corrected here. Package format: data/bodies/README.md.
+// re-derived, converted or corrected here. Package format: packages/astraeus-data/data/bodies/README.md.
 //
 // Usage: node tools/import/planetary-explorer.mjs [--dry-run] [--donor <dir>] [--out <dir>]
 // Needs Node with built-in TypeScript type stripping (22.18+ or 24) to read the
@@ -23,7 +23,7 @@ const FORMAT = 'astraeus.body-package/1'
 const DEFAULT_DONOR = '/home/user/code/planetary-explorer'
 
 function parseArgs(argv) {
-  const opts = { dryRun: false, donor: DEFAULT_DONOR, out: join(REPO, 'data', 'bodies') }
+  const opts = { dryRun: false, donor: DEFAULT_DONOR, out: join(REPO, '..', 'astraeus-data', 'data', 'bodies') }
   for (let i = 0; i < argv.length; i += 1) {
     if (argv[i] === '--dry-run') opts.dryRun = true
     else if (argv[i] === '--donor') opts.donor = resolve(argv[++i])

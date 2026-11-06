@@ -11,7 +11,7 @@ import plutoFitErrors from "astraeus/data/moons/fit-errors/pluto.json";
 PLUTO_MOON_SYSTEM.provideIndex(async () => (await import("astraeus-data-pluto/index.json")).default as unknown);
 
 /** The tagged places of the mapped moons: each body package's features and categories, read as they are stored. */
-const PACKAGES = import.meta.glob("../../../../../astraeus/data/bodies/{pluto,charon}/{features,categories}.json", { eager: true, import: "default" }) as Record<string, unknown>;
+const PACKAGES = import.meta.glob("../../../../../astraeus-data/data/bodies/{pluto,charon}/{features,categories}.json", { eager: true, import: "default" }) as Record<string, unknown>;
 
 /** The fit chunks this build ships for Pluto: the window's year for every body (all of Pluto's moons orbit in under 40 days, so no earlier year is needed) (`tests/planetSystems.test.ts` proves the set equals what the window loads). */
 const SHIPPED = {

@@ -45,7 +45,7 @@ describe("Jupiter moon catalogue (core data)", () => {
     const linked = catalogue.moons.filter((moon) => moon.bodyPackage !== null).map((moon) => moon.id);
     expect(linked).toEqual(["io", "europa", "ganymede", "callisto"]);
     for (const moon of catalogue.moons.filter((m) => m.bodyPackage !== null)) {
-      expect(exists(`${ROOT}${moon.bodyPackage}/features.json`), moon.id).toBe(true);
+      expect(exists(`${ROOT}../astraeus-data/${moon.bodyPackage}/features.json`), moon.id).toBe(true);
       expect(moon.bodyPackage).toBe(`data/bodies/${moon.id}`);
     }
   });
