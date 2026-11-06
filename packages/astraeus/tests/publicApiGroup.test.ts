@@ -43,7 +43,7 @@ describe("addGroup", () => {
   });
 
   it("joins the automatic camera menu and can be named by a story panel", () => {
-    const scene = base().addGroup(ring({ label: "Ring" })).addStoryPanels({ panels: [{ id: "p", at: { utc: "2026-01-01T00:01:00Z" }, title: "The ring", body: ["Made up."], badge: "illustrative", sources: ["Invented"], object: "ring" }] });
+    const scene = base().addGroup(ring({ label: "Ring" })).addStoryPanels([{ id: "p", at: { time: "2026-01-01T00:01:00Z" }, title: "The ring", body: ["Made up."], provenance: { sourceType: "illustrative" as const, sources: ["Invented"], accuracy: "None claimed.", notes: "Made up." }, object: "ring" }]);
     scene.camera.follow("ring");
     const definition = definitionOf(scene);
     const presets = definition.experience.cameraPresets.map((preset) => preset.id);
@@ -51,7 +51,7 @@ describe("addGroup", () => {
     expect(presets).toContain("follow-ring");
     expect(definition.experience.startCameraPresetId).toBe("follow-ring");
     expect(definition.experience.storyPanels?.panels.map((panel) => panel.objectId)).toEqual(["ring"]);
-    expect(() => definitionOf(new Scene().addBody(earth).addStoryPanels({ panels: [{ id: "p", at: { utc: "2026-01-01T00:00:00Z" }, title: "x", body: ["y"], badge: "illustrative", sources: ["z"], object: "ring" }] }))).toThrow();
+    expect(() => definitionOf(new Scene().addBody(earth).addStoryPanels([{ id: "p", at: { time: "2026-01-01T00:00:00Z" }, title: "x", body: ["y"], provenance: { sourceType: "illustrative" as const, sources: ["z"], accuracy: "None claimed.", notes: "Made up." }, object: "ring" }]))).toThrow();
   });
 
   it("places the dots the same way for the same seed and differently for another, along the listed orbits", () => {

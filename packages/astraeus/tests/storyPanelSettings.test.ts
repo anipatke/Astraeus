@@ -2,7 +2,7 @@ import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 import { StoryPanelView } from "../src/shell/StoryPanelView";
-import { CrossingTracker, panelsCrossed, parseStoryPanels, StoryPanelError, type PanelLookup, type StoryPanel } from "../src/shell/storyPanels";
+import { checkPanelPlayback, checkStoryPanel, CrossingTracker, panelsCrossed, resolveStoryPanels, StoryPanelError, type PanelLookup, type StoryPanel } from "../src/shell/storyPanels";
 
 // Moved from the site's tests (O-059 T-272): the story panel parser, the opening rule and the view are the engine's, held on a made-up story.
 /**
@@ -21,52 +21,53 @@ const settingsFile = {
   pauseSeconds: 4,
   autoOpen: true,
   panels: [
-    { id: "late", at: { anchor: "K-1" }, object: "station", title: "Third", body: ["C."], badge: "illustrative", sources: ["Made-up source C"] },
-    { id: "first", at: { event: "ev-burn" }, title: "First", body: "A.", badge: "observed", sources: ["Made-up source A"] },
-    { id: "second", at: { utc: "2100-01-01T00:45:00Z" }, object: "probe", title: "Second", body: ["B1.", "B2."], badge: "modelled", sources: ["Made-up source B", "Made-up source B2"] },
+    { id: "late", at: { anchor: "K-1" }, object: "station", title: "Third", body: ["C."], provenance: { sourceType: "illustrative" as const, sources: ["Made-up source C"], accuracy: "None claimed.", notes: "Made up." } },
+    { id: "first", at: { event: "ev-burn" }, title: "First", body: "A.", provenance: { sourceType: "observed" as const, sources: ["Made-up source A"], accuracy: "None claimed.", notes: "Made up." } },
+    { id: "second", at: { time: "2100-01-01T00:45:00Z" }, object: "probe", title: "Second", body: ["B1.", "B2."], provenance: { sourceType: "modelled" as const, sources: ["Made-up source B", "Made-up source B2"], accuracy: "None claimed.", notes: "Made up." } },
   ],
 };
-const set = parseStoryPanels(settingsFile, lookup);
+/** A panels file through both halves of the check, shape then links, as `addStoryPanels`, `setStoryPanelPlayback` and the build run them. */
+const parse = ({ panels, ...playback }: { readonly panels: readonly unknown[] }, against: PanelLookup) => resolveStoryPanels(panels.map(checkStoryPanel), checkPanelPlayback(playback), against);
+const set = parse(settingsFile, lookup);
 
 describe("story panel settings (T-059 Done When 1)", () => {
   it("resolves event, anchor and UTC times, sorts by time and carries the two settings", () => {
     expect(set.panels.map((panel) => [panel.id, panel.timeUtcMs - START])).toEqual([["first", 30 * MIN], ["second", 45 * MIN], ["late", 60 * MIN]]);
     expect(set.pauseSeconds).toBe(4);
     expect(set.autoOpen).toBe(true);
-    expect(set.panels[1]).toMatchObject({ body: ["B1.", "B2."], badge: "modelled", objectId: "probe" });
+    expect(set.panels[1]).toMatchObject({ body: ["B1.", "B2."], provenance: { sourceType: "modelled", sources: ["Made-up source B", "Made-up source B2"] }, objectId: "probe" });
     expect(set.panels[0]!.body).toEqual(["A."]);
   });
 
   it("defaults the settings when the file omits them", () => {
-    const bare = parseStoryPanels({ panels: [] }, lookup);
+    const bare = parse({ panels: [] }, lookup);
     expect(bare).toEqual({ panels: [], pauseSeconds: 6, autoOpen: true });
   });
 
   const entry = settingsFile.panels[2]!;
-  const bad = (change: object, settings: object = {}) => () => parseStoryPanels({ ...settings, panels: [{ ...entry, ...change }] }, lookup);
+  const bad = (change: object, settings: object = {}) => () => parse({ ...settings, panels: [{ ...entry, ...change }] }, lookup);
 
   it.each([
     ["a missing title", { title: "" }, /second: title must be non-empty text/],
-    ["an unknown badge", { badge: "measured" }, /second: badge must be one of observed, modelled, illustrative/],
-    ["no sources", { sources: [] }, /second: sources must be one or more non-empty lines/],
-    ["an empty source line", { sources: [" "] }, /second: sources\[0\] must be non-empty text/],
+    ["an unknown source type", { provenance: { ...entry.provenance, sourceType: "measured" } }, /second: provenance\.sourceType must be one of ephemeris, observed, reconstructed, modelled, illustrative/],
+    ["no sources", { provenance: { ...entry.provenance, sources: [] } }, /second: provenance\.sources must be one or more non-empty lines/],
+    ["an empty source line", { provenance: { ...entry.provenance, sources: [" "] } }, /second: provenance\.sources\[0\] must be non-empty text/],
     ["an empty body", { body: [] }, /second: body must be one or more/],
-    ["a time with no zone", { at: { utc: "2100-01-01T00:45:00" } }, /second: at\.utc must be an ISO-8601 UTC time ending in Z/],
-    ["two times at once", { at: { utc: "2100-01-01T00:45:00Z", event: "ev-burn" } }, /second: at must give exactly one of utc, event or anchor/],
+    ["a time that is not one", { at: { time: "not a time" } }, /second: at\.time must be a valid moment/],
+    ["two times at once", { at: { time: "2100-01-01T00:45:00Z", event: "ev-burn" } }, /second: at must give exactly one of time, event or anchor/],
     ["an unknown event", { at: { event: "nope" } }, /second: at\.event names "nope"/],
     ["an unknown anchor", { at: { anchor: "nope" } }, /second: at\.anchor names "nope"/],
     ["an unknown object", { object: "ghost" }, /second: object names "ghost"/],
-    ["a time outside the window", { at: { utc: "2101-01-01T00:00:00Z" } }, /second: at falls outside the timeline window/],
+    ["a time outside the window", { at: { time: "2101-01-01T00:00:00Z" } }, /second: at falls outside the timeline window/],
   ])("names the panel and field for %s", (_what, change, message) => {
     expect(bad(change)).toThrow(StoryPanelError);
     expect(bad(change)).toThrow(message);
   });
 
-  it("rejects a repeated id and out-of-range settings", () => {
-    expect(() => parseStoryPanels({ panels: [entry, entry] }, lookup)).toThrow(/second: id is used twice/);
+  it("rejects out-of-range settings (a repeated id is `addStoryPanels`' duplicate-id, in publicApiStory.test.ts)", () => {
     expect(bad({}, { pauseSeconds: -1 })).toThrow(/settings: pauseSeconds must be between 0 and 20/);
     expect(bad({}, { autoOpen: "yes" })).toThrow(/settings: autoOpen must be true or false/);
-    expect(() => parseStoryPanels(null, lookup)).toThrow(/settings: panels must be an object/);
+    expect(() => checkPanelPlayback(null)).toThrow(/settings: playback must be an object/);
   });
 });
 
@@ -144,13 +145,13 @@ describe("panel view (T-059 Done When 4)", () => {
 });
 
 describe("details in the folded section (T-087 Done When 1-3)", () => {
-  const withDetails = parseStoryPanels({ panels: [{ ...settingsFile.panels[2]!, details: ["Exact figure one.", "Reconstructed note two."] }] }, lookup).panels[0]!;
+  const withDetails = parse({ panels: [{ ...settingsFile.panels[2]!, details: ["Exact figure one.", "Reconstructed note two."] }] }, lookup).panels[0]!;
   const view = (panel: StoryPanel) => renderToStaticMarkup(createElement(StoryPanelView, { panel, holding: false, onClose: () => undefined, onContinue: () => undefined }));
 
   it("parses an optional details list, a single line or several, and defaults to none", () => {
     expect(withDetails.details).toEqual(["Exact figure one.", "Reconstructed note two."]);
     expect(set.panels[1]!.details).toEqual([]);
-    const single = parseStoryPanels({ panels: [{ ...settingsFile.panels[2]!, details: "Only one." }] }, lookup).panels[0]!;
+    const single = parse({ panels: [{ ...settingsFile.panels[2]!, details: "Only one." }] }, lookup).panels[0]!;
     expect(single.details).toEqual(["Only one."]);
   });
 
@@ -159,7 +160,18 @@ describe("details in the folded section (T-087 Done When 1-3)", () => {
     ["an empty line", { details: ["ok", " "] }, /second: details\[1\] must be non-empty text/],
     ["a non-text line", { details: [3] }, /second: details\[0\] must be non-empty text/],
   ])("names the panel and field for %s", (_what, change, message) => {
-    expect(() => parseStoryPanels({ panels: [{ ...settingsFile.panels[2]!, ...change }] }, lookup)).toThrow(message);
+    expect(() => parse({ panels: [{ ...settingsFile.panels[2]!, ...change }] }, lookup)).toThrow(message);
+  });
+
+  it.each([["ephemeris", "Ephemeris"], ["observed", "Observed"], ["reconstructed", "Reconstructed"], ["modelled", "Modelled"], ["illustrative", "Illustrative"]])("the badge shows the word for %s (O-057 T-278)", (sourceType, word) => {
+    const panel = parse({ panels: [{ ...settingsFile.panels[2]!, provenance: { ...settingsFile.panels[2]!.provenance, sourceType } }] }, lookup).panels[0]!;
+    expect(view(panel)).toContain(`<span class="story-badge" data-badge="${sourceType}">${word}</span>`);
+  });
+
+  it("states the accuracy always and leaves out a Notes heading when the notes are empty (O-057 T-278)", () => {
+    const panel = parse({ panels: [{ ...settingsFile.panels[2]!, provenance: { ...settingsFile.panels[2]!.provenance, accuracy: "Not stated by the source.", notes: "" } }] }, lookup).panels[0]!;
+    expect(view(panel)).toContain("<dt>Accuracy</dt><dd>Not stated by the source.</dd>");
+    expect(view(panel)).not.toContain("<dt>Notes</dt>");
   });
 
   it("shows one closed section, details above sources, labelled by whether details exist", () => {

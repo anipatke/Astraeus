@@ -79,20 +79,5 @@
       "reason": "`start` is the id of the view to show first, not a moment"
     }
   ],
-  "breaks": [
-    {
-      "rule": "loose",
-      "site": "StoryPanelsInput.panels",
-      "reason": "`unknown` in a public type",
-      "finding": "F5",
-      "removedBy": "O-057"
-    },
-    {
-      "rule": "time",
-      "site": "StoryPanelsInput.panels: at.utc (ISO text ending in Z only)",
-      "reason": "a moment not typed TimeInput",
-      "finding": "F4",
-      "removedBy": "O-057"
-    }
-  ]
+  "breaks": []
 }

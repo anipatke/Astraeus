@@ -3,7 +3,7 @@ import eagleFile from "../../../data/apollo11/generated/eagle.json";
 import eventsFile from "../../../data/apollo11/generated/events.json";
 import panelsFile from "../../../data/stories/apollo11/panels.json";
 import validationFile from "../../../data/apollo11/generated/validation.json";
-import { Scene, earth, moon, trueScale, type EventInput, type Provenance, type StoryPanelsInput, type TrajectoryInput } from "astraeus";
+import { Scene, earth, moon, trueScale, type EventInput, type Provenance, type StoryPanelInput, type StoryPanelPlaybackInput, type TrajectoryInput } from "astraeus";
 
 /** The wording the brief requires; never describe the path as exact. */
 export const APOLLO11_STATEMENT =
@@ -61,7 +61,8 @@ export interface Apollo11Data {
   readonly eagle: GeneratedFile;
   readonly events: GeneratedEvents;
   readonly validation: GeneratedValidation;
-  readonly panels: StoryPanelsInput;
+  /** The story's panels file: its panels, beside the two playback settings. */
+  readonly panels: StoryPanelPlaybackInput & { readonly panels: readonly StoryPanelInput[] };
 }
 
 /** The data the site ships. */
@@ -70,7 +71,7 @@ export const APOLLO11_DATA: Apollo11Data = {
   eagle: eagleFile as unknown as GeneratedFile,
   events: eventsFile as unknown as GeneratedEvents,
   validation: validationFile as unknown as GeneratedValidation,
-  panels: panelsFile as unknown as StoryPanelsInput,
+  panels: panelsFile as unknown as Apollo11Data["panels"],
 };
 
 /** The coast just after translunar injection, which absorbs the burn's cutoff miss (an accepted limitation). */
@@ -203,7 +204,7 @@ const present = (items: readonly (string | null)[]) => items.filter((item): item
 
 /** Apollo 11 as a story on the public API: Earth and the Moon, the two vehicles' reconstructed paths, the mission's events and story panels. `mount` it, or hand `toDefinition()` to the site. */
 export function buildApollo11Scene(data: Apollo11Data = APOLLO11_DATA): Scene {
-  const { columbia, eagle, events, validation, panels } = data;
+  const { columbia, eagle, events, validation, panels: { panels, ...playback } } = data;
   // Peak speeds quoted in a known limit are read through the scene's own path, so a probe scene holds the two paths first.
   const probe = new Scene().addBody(earth).addBody(moon).addTrajectory(path("columbia", "Columbia (CSM)", "#7fd4ff", columbia, [])).addTrajectory(path("eagle", "Eagle (LM)", "#ffb347", eagle, []));
   const eventInputs: EventInput[] = events.events.map((event) => ({
@@ -229,6 +230,7 @@ export function buildApollo11Scene(data: Apollo11Data = APOLLO11_DATA): Scene {
     ])))
     .addEvents(eventInputs, { provenance: eventProvenance(events) })
     .addStoryPanels(panels)
+    .setStoryPanelPlayback(playback)
     .setTimeline({ start: events.events[0]!.timeUtcMs, end: events.events[events.events.length - 1]!.timeUtcMs, rates: RATES, rate: OPENING_RATE })
     // True scale only: this story is about scale, so no Readable view that changes the planets' size (owner, 2026-10-17, O-020 Decision 10).
     .setScale(trueScale, { only: true });

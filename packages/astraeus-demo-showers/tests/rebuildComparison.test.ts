@@ -16,6 +16,11 @@ import { shippedPanelsOf } from "./helpers/shippedPanels";
 import { buildShowerDefinition } from "./helpers/showerDefinition";
 
 const plain = <T>(value: T): T => JSON.parse(JSON.stringify(value)) as T;
+/** The story panels in the words the fixture was recorded in: `provenance` gave them `badge` and `sources`, so comparing those words proves the move changed neither (O-057 T-278). */
+const oldPanelWords = <T>(set: T): unknown => {
+  const { panels, ...rest } = set as { panels: { provenance: { sourceType: string; sources: string[] } }[] };
+  return { ...rest, panels: panels.map(({ provenance, ...panel }) => ({ ...panel, badge: provenance.sourceType, sources: provenance.sources })) };
+};
 const resolver = createSceneResolver(createOrbAstronomyAdapter());
 type Rec = Record<string, any>;
 /** The provenance as the replaced definition had it: without the class and fraction O-045 T-185 added. */
@@ -133,7 +138,7 @@ describe.each([["perseids", perseidsFile, "swift-tuttle"], ["geminids", geminids
   });
 
   it("has the same story panels (times, objects, text, badges, sources)", () => {
-    expect(plain(definition.experience.storyPanels)).toEqual(old.storyPanels);
+    expect(oldPanelWords(plain(definition.experience.storyPanels))).toEqual(old.storyPanels);
   });
 
   it("keeps the camera's reach; FLAG: the far plane is 2.5 times the reach (was 3 times), and the shower opens on Focus Sun pressed (before no menu item named)", () => {

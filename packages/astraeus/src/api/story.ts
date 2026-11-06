@@ -2,7 +2,7 @@ import { createEvents, type TimelineEvent } from "../core/events";
 import { zoneAround, type PaceZone, type Pacing } from "../core/pacing";
 import { createProvenance, type Provenance } from "../core/provenance";
 import type { TimeBounds } from "../core/trajectory";
-import { parseStoryPanels, StoryPanelError, type PanelLookup, type StoryPanelSet } from "../core/storyPanels";
+import { checkPanelPlayback, checkStoryPanel, resolveStoryPanels, StoryPanelError, type CheckedPanel, type PanelLookup, type PanelPlayback, type StoryPanelSet } from "../core/storyPanels";
 import { SceneError } from "./errors";
 import { rejectRenamed } from "./renamedInputs";
 import { toUtcMs, type TimeInput } from "./time";
@@ -70,17 +70,34 @@ export interface TimelineSetting {
   readonly atUtcMs?: number;
 }
 
+/** When a story panel opens: a moment, an event of `addEvents` by id, or an anchor of a path by id. Exactly one. */
+export type StoryPanelAt = { readonly time: TimeInput } | { readonly event: string } | { readonly anchor: string };
+
 /**
- * The raw settings of a scene's story panels: `{ pauseSeconds?, autoOpen?, panels: [{ id, at: { utc } | { event } | { anchor }, title, body, details?, badge, sources, object? }] }`.
- * `badge` is "observed", "modelled" or "illustrative"; `sources` is never empty. A panel's time may name an event of `addEvents` or an anchor of a path, and `object` a
- * body or path of the scene; these are checked when the scene is turned into a definition (mount), and a mistake throws `bad-panels` naming the panel and field.
+ * One story panel. Its shape is checked at `addStoryPanels`, which throws `bad-panels` naming the panel and field. What it names is checked when the scene is built (`check`, `mount`),
+ * because the event, anchor or object may be added later: a mistake there, or a moment outside the timeline, throws `bad-panels` too.
  */
-export interface StoryPanelsInput {
+export interface StoryPanelInput {
+  /** Unique among the scene's panels: a repeat throws `duplicate-id`. */
+  readonly id: string;
+  readonly at: StoryPanelAt;
+  readonly title: string;
+  /** Paragraphs, in order; one text is one paragraph. */
+  readonly body: string | readonly string[];
+  /** Paragraphs of exact figures, shown folded above the sources. */
+  readonly details?: string | readonly string[];
+  /** Where the panel's facts come from. The badge shows the word for `sourceType`; `sources`, `accuracy` and `notes` show in the panel's folded section. `sources` is never empty and `accuracy` is never blank: where a source states none, say so. */
+  readonly provenance: Provenance;
+  /** The id of a body or path the panel is about; it gets a marker that reopens the panel. */
+  readonly object?: string;
+}
+
+/** The playback settings of a scene's story panels. */
+export interface StoryPanelPlaybackInput {
   /** Seconds playback holds when a panel opens by itself (0 to 20, default 6; 0 never pauses). Playback then restarts, unless the visitor pressed Play during the hold, which ends it at once. */
   readonly pauseSeconds?: number;
   /** Whether panels open by themselves as forward playback crosses them (default true). */
   readonly autoOpen?: boolean;
-  readonly panels: readonly unknown[];
 }
 
 /** Throws "bad-event" naming the first event whose `object` is not among the scene's `objectIds`. */
@@ -132,14 +149,41 @@ export function timelineOf(input: TimelineInput): TimelineSetting {
   return { none: false, window, ...(rates === undefined ? {} : { rates }), ...(pacing === undefined ? {} : { pacing }), ...(input.rate === undefined ? {} : { rate: input.rate }), ...(input.loop === true ? { loop: true } : {}) };
 }
 
-/** The story panels resolved against the scene's events, anchors, objects and window; a mistake becomes a `bad-panels` SceneError. */
-export function panelsOf(raw: StoryPanelsInput, lookup: PanelLookup): StoryPanelSet {
+/** Runs a core panel check, turning a `StoryPanelError` into a `bad-panels` SceneError that leads with `call`. */
+function panelCheck<T>(call: string, check: () => T): T {
   try {
-    return parseStoryPanels(raw, lookup);
+    return check();
   } catch (error) {
-    if (error instanceof StoryPanelError) throw new SceneError("bad-panels", `addStoryPanels: ${error.message}`);
+    if (error instanceof StoryPanelError) throw new SceneError("bad-panels", `${call}: ${error.message}`);
     throw error;
   }
+}
+
+/** Checks the shape of a batch for `addStoryPanels`: old forms throw `renamed`, a bad shape `bad-panels`, and an id already in `known` or repeated in the batch `duplicate-id`. */
+export function panelBatchOf(inputs: readonly StoryPanelInput[], known: readonly CheckedPanel[]): readonly CheckedPanel[] {
+  rejectRenamed("AddStoryPanelsCall", inputs, "addStoryPanels");
+  if (!Array.isArray(inputs)) throw new SceneError("bad-panels", "addStoryPanels: give a list of panels");
+  const ids = new Set(known.map(({ id }) => id));
+  return inputs.map((input: unknown, index): CheckedPanel => {
+    const named = (input as { id?: unknown } | null | undefined)?.id;
+    const where = `addStoryPanels: story panel ${typeof named === "string" ? named : `#${index + 1}`}`;
+    rejectRenamed("StoryPanelInput", input, where);
+    rejectRenamed("StoryPanelAt", (input as { at?: unknown } | null | undefined)?.at, `${where} at`);
+    const panel = panelCheck("addStoryPanels", () => checkStoryPanel(input, index));
+    if (ids.has(panel.id)) throw new SceneError("duplicate-id", `${where}: that id is already in the scene's panels`);
+    ids.add(panel.id);
+    return panel;
+  });
+}
+
+/** Checks a `setStoryPanelPlayback` argument; a mistake throws `bad-panels`. */
+export function panelPlaybackOf(input: StoryPanelPlaybackInput): PanelPlayback {
+  return panelCheck("setStoryPanelPlayback", () => checkPanelPlayback(input));
+}
+
+/** The story panels resolved against the scene's events, anchors, objects and window; a mistake becomes a `bad-panels` SceneError. */
+export function panelsOf(panels: readonly CheckedPanel[], playback: PanelPlayback, lookup: PanelLookup): StoryPanelSet {
+  return panelCheck("addStoryPanels", () => resolveStoryPanels(panels, playback, lookup));
 }
 
 /** Checks `pacing`: each piece names the field that is wrong (`pacing[2].rate`); spans must not overlap. */

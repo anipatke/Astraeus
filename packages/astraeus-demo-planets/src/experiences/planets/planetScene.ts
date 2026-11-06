@@ -1,6 +1,6 @@
 // The planets scene builder: one planet's settings (data/planets/<planet>.json) and its system become a Scene, on the public API alone.
 // Generic (ARCH-01): no planet, moon or story is named here; the names are in the settings file and the system.
-import { Scene, trueScale, type AddBodyOptions, type DataSource, type PlaceInput, type Provenance, type StoryPanelsInput } from "astraeus";
+import { Scene, trueScale, type AddBodyOptions, type DataSource, type PlaceInput, type Provenance, type StoryPanelInput, type StoryPanelPlaybackInput } from "astraeus";
 import { moonFacts, moonSourceTitles, type MoonCatalogue, type MoonRecord } from "./moonList";
 import type { PlanetSettings } from "./planetSettings";
 import { isSurfacePlace, shownLongitude } from "./surfacePlace.mjs";
@@ -210,6 +210,7 @@ export function buildPlanetScene(settings: PlanetSettings, system: PlanetSystem,
   scene.camera.setStartView(settings.startView);
   scene.camera.setReach(settings.camera.maxFocusDistance, { farEarthRadii: settings.camera.far });
   // The story's panels are story data (data/stories/<story>/panels.json), checked against this scene's objects and window.
-  scene.addStoryPanels(panelsFile as StoryPanelsInput);
+  const { panels, ...playback } = panelsFile as StoryPanelPlaybackInput & { readonly panels: readonly StoryPanelInput[] };
+  scene.addStoryPanels(panels).setStoryPanelPlayback(playback);
   return scene;
 }

@@ -107,11 +107,10 @@ export interface ScenePanelRead {
   readonly title: string;
   /** Paragraphs, in order. */
   readonly body: readonly string[];
-  readonly badge: "observed" | "modelled" | "illustrative";
   /** Paragraphs of exact figures and measured-versus-reconstructed notes; empty when none. */
   readonly details: readonly string[];
-  /** One line per cited source. */
-  readonly sources: readonly string[];
+  /** Where the panel's facts come from and how far to trust them, as given to `addStoryPanels`. */
+  readonly provenance: Provenance;
   /** The id of the object the panel marks. */
   readonly object?: string;
 }

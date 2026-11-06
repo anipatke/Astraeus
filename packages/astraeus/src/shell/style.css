@@ -246,6 +246,7 @@
 .astraeus-shell .sources-section ul { margin: 0 0 8px; padding-left: 18px; color: var(--ui-muted, #c7bdb3); font-size: 13px; line-height: 1.5; overflow-wrap: anywhere; }
 .astraeus-shell .sources-details { margin: 0 0 8px; color: var(--ui-muted, #c7bdb3); font-size: 13px; line-height: 1.5; }
 .astraeus-shell .sources-details p { margin: 6px 0; }
+.astraeus-shell .sources-trust { margin-bottom: 8px; }
 .astraeus-shell .sources-section li + li { margin-top: 3px; }
 .astraeus-shell :where(.story-panel-close) { font-size: 20px; line-height: 1; }
 .astraeus-shell :where(.story-panel-continue) { align-self: flex-start; }
@@ -262,8 +263,8 @@
   letter-spacing: .08em;
   text-transform: uppercase;
 }
-.astraeus-shell .story-badge[data-badge="observed"] { border-color: color-mix(in srgb, #a4c639 55%, transparent); color: #a4c639; }
-.astraeus-shell .story-badge[data-badge="modelled"] { border-color: color-mix(in srgb, var(--ui-data, #b1a1df) 60%, transparent); color: var(--ui-data, #b1a1df); }
+.astraeus-shell .story-badge[data-badge="observed"], .astraeus-shell .story-badge[data-badge="ephemeris"] { border-color: color-mix(in srgb, #a4c639 55%, transparent); color: #a4c639; }
+.astraeus-shell .story-badge[data-badge="modelled"], .astraeus-shell .story-badge[data-badge="reconstructed"] { border-color: color-mix(in srgb, var(--ui-data, #b1a1df) 60%, transparent); color: var(--ui-data, #b1a1df); }
 .astraeus-shell .story-badge[data-badge="illustrative"] { border-color: color-mix(in srgb, var(--ui-accent, #fc6323) 55%, transparent); color: var(--ui-accent, #fc6323); }
 
 /* Scene markers and the timeline marker for a panel: after Planetary Explorer's HotspotMarker (a ringed dot that fills when open). */

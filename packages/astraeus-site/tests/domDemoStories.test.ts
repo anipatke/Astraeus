@@ -21,9 +21,12 @@ describe.each(DEMOS)("%s story panels", (_name, scene) => {
     expect(new Set(panels.map((panel) => panel.id)).size).toBe(panels.length);
     for (const panel of panels) {
       expect(panel.title, panel.id).not.toBe("");
-      expect(["observed", "modelled", "illustrative"], panel.id).toContain(panel.badge);
+      expect(["observed", "modelled", "illustrative"], panel.id).toContain(panel.provenance.sourceType);
       expect(panel.body.length, panel.id).toBeGreaterThan(0);
-      expect(panel.sources.length, panel.id).toBeGreaterThan(0);
+      expect(panel.provenance.sources.length, panel.id).toBeGreaterThan(0);
+      expect(panel.provenance.accuracy.trim(), `${panel.id} states its accuracy, or says the source does not`).not.toBe("");
+      expect(panel.provenance.notes.trim(), `${panel.id} has notes`).not.toBe("");
+      expect(`${panel.provenance.accuracy} ${panel.provenance.notes}`, `${panel.id} uses no dash as punctuation`).not.toMatch(/ - | – | — |—/);
     }
     expect(panels.map((panel) => panel.timeUtcMs)).toEqual([...panels.map((panel) => panel.timeUtcMs)].sort((a, b) => a - b));
   });

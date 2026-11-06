@@ -84,12 +84,12 @@ describe("the Showers year against JPL Horizons (O-024 T-092)", () => {
     expect(before).toBeLessThan(YEAR_START);
     expect(after).toBeGreaterThan(YEAR_END);
     const panel = geminidsPanels.panels.find((p) => p.id === "phaethon")!;
-    expect(panel.at).toEqual({ utc: "2019-11-01T00:00:00Z" });
+    expect(panel.at).toEqual({ time: "2019-11-01T00:00:00Z" });
     expect(panel.body.join(" ")).toMatch(/early July 2019/);
     expect(panel.details.join(" ")).toMatch(/2 July 2019 at about 23:51 UTC/);
     expect(panel.details.join(" ")).toMatch(/7 December 2020 at about 14:26 UTC/);
     // On its way out, about 1.9 AU from the Sun, as the details say.
-    const r = Math.hypot(...phaethon.stateAt(Date.parse(panel.at.utc!), "sun").positionKm) / AU_KM;
+    const r = Math.hypot(...phaethon.stateAt(Date.parse(panel.at.time!), "sun").positionKm) / AU_KM;
     expect(r).toBeGreaterThan(1.85);
     expect(r).toBeLessThan(1.95);
   });
@@ -97,10 +97,10 @@ describe("the Showers year against JPL Horizons (O-024 T-092)", () => {
   it("every Showers story moment lies inside the year, and the details name the 2019-2020 values and the measured-orbit years", () => {
     for (const panels of [perseidsPanels, geminidsPanels]) {
       for (const panel of panels.panels) {
-        const at = panel.at as { utc?: string; event?: string };
-        if (at.utc !== undefined) {
-          expect(Date.parse(at.utc)).toBeGreaterThan(YEAR_START);
-          expect(Date.parse(at.utc)).toBeLessThan(YEAR_END);
+        const at = panel.at as { time?: string; event?: string };
+        if (at.time !== undefined) {
+          expect(Date.parse(at.time)).toBeGreaterThan(YEAR_START);
+          expect(Date.parse(at.time)).toBeLessThan(YEAR_END);
         }
       }
     }

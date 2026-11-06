@@ -19,10 +19,11 @@ const build = () => new Scene()
   .addGroup({ id: "ring", label: "Ring", orbits: [0, 1, 2].map(orbit), plane: "EQJ", provenance: groupSource })
   .addGroup({ plane: "ecliptic-j2000", id: "swarm", orbits: [0, 1].map(orbit), clump: { near: "earth", fraction: 0.5, widthDeg: 20 } })
   .addEvents([{ id: "late", label: "Late", time: T0 + 20 * MIN, type: "burn", object: "probe", provenance: own }, { id: "early", label: "Early", time: "2026-03-01T00:05:00Z" }], { provenance: batch })
-  .addStoryPanels({ pauseSeconds: 3, panels: [
-    { id: "by-event", at: { event: "late" }, title: "Late one", body: ["A line."], details: ["A figure."], badge: "modelled", sources: ["Source B"], object: "probe" },
-    { id: "by-anchor", at: { anchor: "fix-a" }, title: "First fix", body: ["One.", "Two."], badge: "observed", sources: ["Source A"] },
-  ] })
+  .addStoryPanels([
+    { id: "by-event", at: { event: "late" }, title: "Late one", body: ["A line."], details: ["A figure."], provenance: { sourceType: "modelled" as const, sources: ["Source B"], accuracy: "None claimed.", notes: "Made up." }, object: "probe" },
+    { id: "by-anchor", at: { anchor: "fix-a" }, title: "First fix", body: ["One.", "Two."], provenance: { sourceType: "observed" as const, sources: ["Source A"], accuracy: "None claimed.", notes: "Made up." } },
+  ])
+  .setStoryPanelPlayback({ pauseSeconds: 3 })
   .setViews([{ id: "a", label: "A", objects: ["probe"] }, { id: "all", label: "All" }], { place: "panel", start: "all" })
   .setScale(solarSystemScale)
   .setTimeline({ start: "2026-03-01T00:00:00Z", end: "2026-03-01T01:00:00Z", rates: [10, 100], rate: 100, loop: true });
@@ -45,8 +46,8 @@ const READS: readonly (readonly [string, (scene: Scene) => unknown, unknown])[] 
     { id: "late", label: "Late", timeUtcMs: T0 + 20 * MIN, type: "burn", object: "probe" },
   ]],
   ["panels", (scene) => scene.panels, [
-    { id: "by-anchor", timeUtcMs: T0 + 10 * MIN, title: "First fix", body: ["One.", "Two."], badge: "observed", details: [], sources: ["Source A"] },
-    { id: "by-event", timeUtcMs: T0 + 20 * MIN, title: "Late one", body: ["A line."], badge: "modelled", details: ["A figure."], sources: ["Source B"], object: "probe" },
+    { id: "by-anchor", timeUtcMs: T0 + 10 * MIN, title: "First fix", body: ["One.", "Two."], details: [], provenance: { sourceType: "observed", sources: ["Source A"], accuracy: "None claimed.", notes: "Made up." } },
+    { id: "by-event", timeUtcMs: T0 + 20 * MIN, title: "Late one", body: ["A line."], details: ["A figure."], provenance: { sourceType: "modelled", sources: ["Source B"], accuracy: "None claimed.", notes: "Made up." }, object: "probe" },
   ]],
   ["views", (scene) => scene.views, { startId: "all", place: "panel", items: [{ id: "a", label: "A" }, { id: "all", label: "All" }] }],
   ["scales", (scene) => scene.scales, ["solar-system", "true-scale"]],

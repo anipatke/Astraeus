@@ -58,11 +58,9 @@ describe("public-type lint (API-04)", () => {
     metadata(typeLint.breaks, "type lint");
   });
 
-  it("names today's breaks from the API review", () => {
-    const keys = new Set(found.map((hit) => `${hit.rule} ${hit.site}`));
-    for (const key of [
-      "time StoryPanelsInput.panels: at.utc (ISO text ending in Z only)", "loose StoryPanelsInput.panels",
-    ]) expect(keys.has(key), key).toBe(true);
+  it("has no breaks left from the API review (O-057 T-278)", () => {
+    expect(typeLint.breaks).toEqual([]);
+    expect(found.filter((hit) => /StoryPanel/.test(hit.site))).toEqual([]);
   });
 
   it("fails on a made-up public type with every kind of break", () => {

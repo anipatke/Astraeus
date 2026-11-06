@@ -46,7 +46,7 @@ import type { SwitchesInput } from "./switches";
 import type { LookInput } from "./look";
 import { checkedLook } from "./lookInput";
 import type { ViewInput, ViewsOptions } from "./views";
-import { type AddEventsOptions, type EventInput, type StoryPanelsInput, type TimelineInput } from "./story";
+import { type AddEventsOptions, type EventInput, type StoryPanelInput, type StoryPanelPlaybackInput, type TimelineInput } from "./story";
 export { toUtcMs, type TimeInput } from "./time";
 export type { ElementsBodyRecord } from "../core/elementsBody";
 
@@ -459,12 +459,20 @@ export class Scene {
   }
 
   /**
-   * Adds story panels that open as playback reaches them. A panel opens only when forward playback crosses its time, so one at the opening instant never opens by itself
-   * (a panel with an `object` still has its marker on that object). `at.utc` may be any instant inside the timeline, in any year. Their times may name events (`addEvents`) and path anchors, and `object` a body or path; these are checked when the scene is built (`mount`), and a mistake throws `bad-panels` naming the panel and field.
+   * Appends story panels that open as playback reaches them. A panel opens only when forward playback crosses its time, so one at the opening instant never opens by itself
+   * (a panel with an `object` still has its marker on that object). `at.time` is any moment inside the timeline, in any year. A bad shape throws `bad-panels` here, naming the panel and field, and a repeated id `duplicate-id`.
+   * Panel times may name events (`addEvents`) and path anchors, and `object` a body or path; these may be added later, so they are checked when the scene is built (`check`, `mount`), and a mistake throws `bad-panels` naming the panel and field.
    */
-  addStoryPanels(panels: StoryPanelsInput): this {
+  addStoryPanels(panels: readonly StoryPanelInput[]): this {
     this.#editable();
     this.#story.addPanels(frozenCopy(panels));
+    return this;
+  }
+
+  /** Sets how story panels play: `pauseSeconds` and `autoOpen` (see `StoryPanelPlaybackInput`). Replaces the whole setting, so a field left out returns to its default. A bad value throws `bad-panels`. */
+  setStoryPanelPlayback(playback: StoryPanelPlaybackInput): this {
+    this.#editable();
+    this.#story.setPanelPlayback(frozenCopy(playback));
     return this;
   }
 

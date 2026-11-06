@@ -29,6 +29,8 @@ const record = (change: (copy: Record<string, any>) => void = () => {}) => {
 };
 const moonData = (extra: object) => ({ name: "astraeus-data-made-up", provides: [], moonPositions: { center: "jupiter", loadIndex: async () => ({}), chunkUrls: {}, ...extra } });
 
+const storyPanel = (extra: object = {}) => ({ id: "p", at: { time: at(1) }, title: "P", body: ["A made-up line."], provenance: { sourceType: "illustrative", sources: ["Made up"], accuracy: "None claimed.", notes: "Made up." }, ...extra }) as never;
+
 // For each row, a call that gives the old name alone: every other field is valid under its new name.
 const DRIVERS: Record<string, (old: string) => () => unknown> = {
   "MoonPositions.centre": (old) => () => new Scene().addBody(jupiter).load({ data: [{ ...moonData({}), moonPositions: { [old]: "jupiter", loadIndex: async () => ({}), chunkUrls: {} } } as never] }),
@@ -44,6 +46,12 @@ const DRIVERS: Record<string, (old: string) => () => unknown> = {
   "ElementsAccuracy.validFromUtc": (old) => () => new Scene().addBody(sun).addBodyFromElements(record((c) => { c.accuracy[old] = c.accuracy.valid.start; delete c.accuracy.valid.start; })),
   "ElementsAccuracy.validToUtc": (old) => () => new Scene().addBody(sun).addBodyFromElements(record((c) => { c.accuracy[old] = c.accuracy.valid.end; delete c.accuracy.valid.end; })),
   "TrajectoryInput.labelReach": (old) => () => base().addTrajectory({ id: "p", samples, [old]: 100 } as never),
+  "StoryPanelInput.badge": (old) => () => base().addStoryPanels([storyPanel({ [old]: "observed" })]),
+  "StoryPanelInput.sources": (old) => () => base().addStoryPanels([storyPanel({ [old]: ["Made up"] })]),
+  "StoryPanelAt.utc": (old) => () => base().addStoryPanels([storyPanel({ at: { [old]: at(1) } })]),
+  "AddStoryPanelsCall.panels": (old) => () => base().addStoryPanels({ [old]: [storyPanel()] } as never),
+  "AddStoryPanelsCall.pauseSeconds": (old) => () => base().addStoryPanels({ [old]: 3 } as never),
+  "AddStoryPanelsCall.autoOpen": (old) => () => base().addStoryPanels({ [old]: false } as never),
 };
 
 describe("renamed inputs", () => {
@@ -62,6 +70,19 @@ describe("renamed inputs", () => {
   it.each(RENAMED_INPUTS.map((row) => [`${row.scope}.${row.old}`, row] as const))("%s: the new name beside the old one is still refused (the old name never works)", async (key, row) => {
     const error = await settle(() => rejectRenamed(row.scope, { [row.old]: 1, [row.use]: 1 }, "test"));
     expect(error?.code, key).toBe("renamed");
+  });
+
+  it("the old addStoryPanels object form names the list form and setStoryPanelPlayback, whatever it carried", async () => {
+    for (const old of [{ panels: [] }, { pauseSeconds: 3, panels: [] }, { autoOpen: false, panels: [] }]) {
+      const error = await settle(() => base().addStoryPanels(old as never));
+      expect(error?.code).toBe("renamed");
+      expect(error!.message).toContain("addStoryPanels(list)");
+      expect(error!.message).toContain("setStoryPanelPlayback");
+    }
+  });
+
+  it("a panel carrying an old form beside its provenance is refused, so no path accepts both", async () => {
+    for (const old of [{ badge: "observed" }, { sources: ["Made up"] }, { at: { time: at(1), utc: at(1) } }]) expect((await settle(() => base().addStoryPanels([storyPanel(old)])))?.code).toBe("renamed");
   });
 
   it("accepts the new names: pacing, a view's objects, a body's reach and moon positions' center", async () => {

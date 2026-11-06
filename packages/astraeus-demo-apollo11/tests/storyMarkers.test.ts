@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { groupStoryMarkers, panelForMarkerPress, type StoryMarkerSpec } from "astraeus/app/StoryMarkers";
-import { parseStoryPanels } from "astraeus/shell/storyPanels";
+import { checkPanelPlayback, checkStoryPanel, resolveStoryPanels } from "astraeus/shell/storyPanels";
 
 /**
  * I-031: a synthetic story (no mission, no real dataset) with three panels on one made-up object and one on another.
@@ -8,15 +8,13 @@ import { parseStoryPanels } from "astraeus/shell/storyPanels";
  */
 const START = Date.UTC(2100, 0, 1);
 const MIN = 60_000;
-const story = parseStoryPanels({
-  panels: [
-    { id: "dock", at: { utc: "2100-01-01T01:30:00Z" }, object: "lander", title: "Docking", body: "D.", badge: "observed", sources: ["Made-up source D"] },
-    { id: "descend", at: { utc: "2100-01-01T00:10:00Z" }, object: "lander", title: "Descent", body: "A.", badge: "observed", sources: ["Made-up source A"] },
-    { id: "orbit", at: { utc: "2100-01-01T00:20:00Z" }, object: "mothership", title: "Orbit", body: "O.", badge: "modelled", sources: ["Made-up source O"] },
-    { id: "land", at: { utc: "2100-01-01T00:25:00Z" }, object: "lander", title: "Landing", body: "B.", badge: "observed", sources: ["Made-up source B"] },
-    { id: "loose", at: { utc: "2100-01-01T00:40:00Z" }, title: "No object", body: "N.", badge: "illustrative", sources: ["Made-up source N"] },
-  ],
-}, { events: [] });
+const story = resolveStoryPanels([
+    { id: "dock", at: { time: "2100-01-01T01:30:00Z" }, object: "lander", title: "Docking", body: "D.", provenance: { sourceType: "observed" as const, sources: ["Made-up source D"], accuracy: "None claimed.", notes: "Made up." } },
+    { id: "descend", at: { time: "2100-01-01T00:10:00Z" }, object: "lander", title: "Descent", body: "A.", provenance: { sourceType: "observed" as const, sources: ["Made-up source A"], accuracy: "None claimed.", notes: "Made up." } },
+    { id: "orbit", at: { time: "2100-01-01T00:20:00Z" }, object: "mothership", title: "Orbit", body: "O.", provenance: { sourceType: "modelled" as const, sources: ["Made-up source O"], accuracy: "None claimed.", notes: "Made up." } },
+    { id: "land", at: { time: "2100-01-01T00:25:00Z" }, object: "lander", title: "Landing", body: "B.", provenance: { sourceType: "observed" as const, sources: ["Made-up source B"], accuracy: "None claimed.", notes: "Made up." } },
+    { id: "loose", at: { time: "2100-01-01T00:40:00Z" }, title: "No object", body: "N.", provenance: { sourceType: "illustrative" as const, sources: ["Made-up source N"], accuracy: "None claimed.", notes: "Made up." } },
+].map(checkStoryPanel), checkPanelPlayback({}), { events: [] });
 const specs: StoryMarkerSpec[] = story.panels.flatMap((panel) => (panel.objectId === undefined ? [] : [{ panelId: panel.id, objectId: panel.objectId, title: panel.title, timeUtcMs: panel.timeUtcMs }]));
 
 describe("stacked story markers on one object (I-031)", () => {

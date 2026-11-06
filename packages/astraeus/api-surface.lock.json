@@ -150,7 +150,12 @@
         {
           "name": "addStoryPanels",
           "optional": false,
-          "signature": "(panels: StoryPanelsInput): Scene"
+          "signature": "(panels: readonly StoryPanelInput[]): Scene"
+        },
+        {
+          "name": "setStoryPanelPlayback",
+          "optional": false,
+          "signature": "(playback: StoryPanelPlaybackInput): Scene"
         },
         {
           "name": "setTimeline",
@@ -764,19 +769,14 @@
           "signature": "readonly string[]"
         },
         {
-          "name": "badge",
-          "optional": false,
-          "signature": "\"observed\" | \"modelled\" | \"illustrative\""
-        },
-        {
           "name": "details",
           "optional": false,
           "signature": "readonly string[]"
         },
         {
-          "name": "sources",
+          "name": "provenance",
           "optional": false,
-          "signature": "readonly string[]"
+          "signature": "Provenance"
         },
         {
           "name": "object",
@@ -1870,7 +1870,55 @@
       "constructors": [],
       "members": []
     },
-    "StoryPanelsInput": {
+    "StoryPanelAt": {
+      "kind": "type",
+      "signature": "{ readonly time: TimeInput } | { readonly event: string } | { readonly anchor: string }",
+      "constructors": [],
+      "members": []
+    },
+    "StoryPanelInput": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "id",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "at",
+          "optional": false,
+          "signature": "StoryPanelAt"
+        },
+        {
+          "name": "title",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "body",
+          "optional": false,
+          "signature": "string | readonly string[]"
+        },
+        {
+          "name": "details",
+          "optional": true,
+          "signature": "string | readonly string[] | undefined"
+        },
+        {
+          "name": "provenance",
+          "optional": false,
+          "signature": "Provenance"
+        },
+        {
+          "name": "object",
+          "optional": true,
+          "signature": "string | undefined"
+        }
+      ]
+    },
+    "StoryPanelPlaybackInput": {
       "kind": "interface",
       "signature": "",
       "constructors": [],
@@ -1884,11 +1932,6 @@
           "name": "autoOpen",
           "optional": true,
           "signature": "boolean | undefined"
-        },
-        {
-          "name": "panels",
-          "optional": false,
-          "signature": "readonly unknown[]"
         }
       ]
     },

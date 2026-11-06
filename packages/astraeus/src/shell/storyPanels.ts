@@ -1,12 +1,12 @@
-import type { PanelBadge, StoryPanel } from "../core/storyPanels";
+import type { StoryPanel } from "../core/storyPanels";
 
 export {
+  checkPanelPlayback,
+  checkStoryPanel,
   DEFAULT_PANEL_PAUSE_SECONDS,
   MAX_PANEL_PAUSE_SECONDS,
-  PANEL_BADGES,
-  parseStoryPanels,
+  resolveStoryPanels,
   StoryPanelError,
-  type PanelBadge,
   type PanelLookup,
   type StoryPanel,
   type StoryPanelSet,
@@ -20,12 +20,6 @@ export function panelsCrossed(panels: readonly StoryPanel[], previousMs: number,
   if (!(currentMs > previousMs)) return [];
   return panels.filter((panel) => panel.timeUtcMs > previousMs && panel.timeUtcMs <= currentMs);
 }
-
-export const BADGE_LABELS: Readonly<Record<PanelBadge, string>> = {
-  observed: "Observed",
-  modelled: "Modelled",
-  illustrative: "Illustrative",
-};
 
 /**
  * Decides, tick by tick, whether playback has just carried the clock across a panel. It remembers the last time it saw;

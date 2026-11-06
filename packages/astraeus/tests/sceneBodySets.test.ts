@@ -126,7 +126,7 @@ describe("addBodySet with made-up members (elements)", () => {
 
   it("stateOf and provenanceOf accept member ids, and story panels may name them", () => {
     const own = { ...PROVENANCE, accuracy: "Own." };
-    const scene = base().addBodySet(set({ members: [member(0, "inner", { provenance: own }), member(1)] })).addStoryPanels({ panels: [{ id: "p", at: { utc: "2026-01-01T00:01:00Z" }, title: "A bit", body: ["Made up."], badge: "illustrative", sources: ["Invented"], object: "bit-1" }] });
+    const scene = base().addBodySet(set({ members: [member(0, "inner", { provenance: own }), member(1)] })).addStoryPanels([{ id: "p", at: { time: "2026-01-01T00:01:00Z" }, title: "A bit", body: ["Made up."], provenance: { sourceType: "illustrative" as const, sources: ["Invented"], accuracy: "None claimed.", notes: "Made up." }, object: "bit-1" }]);
     expect(scene.provenanceOf("bit-0")).toEqual(own);
     expect(scene.provenanceOf("bit-1")).toEqual(PROVENANCE);
     expect(scene.panels.map((panel) => panel.object)).toEqual(["bit-1"]);

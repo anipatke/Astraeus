@@ -14,9 +14,9 @@ describe("the demo wiring (T-059 Done When 5)", () => {
     const { windowStartUtcMs, windowEndUtcMs } = scene.timeline;
     expect(panels.map((panel) => panel.id)).toEqual(["tli-cutoff", "loi", "powered-descent", "touchdown", "ascent-docking", "tei", "splashdown"]);
     for (const panel of panels) {
-      expect(panel.sources.length).toBeGreaterThan(0);
-      expect(panel.sources.some((line) => /Mission Report \(MSC-00171\), Table \d-[IVX]+, p\. \d-\d+/.test(line))).toBe(true);
-      expect(panel.badge).toBe("observed");
+      expect(panel.provenance.sources.length).toBeGreaterThan(0);
+      expect(panel.provenance.sources.some((line) => /Mission Report \(MSC-00171\), Table \d-[IVX]+, p\. \d-\d+/.test(line))).toBe(true);
+      expect(panel.provenance.sourceType).toBe("observed");
       expect(panel.body.length).toBeGreaterThanOrEqual(1);
       if (panel.object !== undefined) expect(objects).toContain(panel.object);
       expect(panel.timeUtcMs).toBeGreaterThanOrEqual(windowStartUtcMs);
@@ -29,10 +29,10 @@ describe("the demo wiring (T-059 Done When 5)", () => {
 });
 
 describe("warm, plain words with every figure kept in details (T-088 Done When 2-4)", () => {
-  type RawPanel = { readonly id: string; readonly title: string; readonly body: readonly string[]; readonly details?: readonly string[]; readonly badge: string; readonly sources: readonly string[] };
+  type RawPanel = { readonly id: string; readonly title: string; readonly body: readonly string[]; readonly details?: readonly string[]; readonly provenance: { readonly sourceType: string; readonly sources: readonly string[] } };
   const stories: Readonly<Record<string, readonly RawPanel[]>> = {
-    apollo11: (apolloPanelsFile as { panels: RawPanel[] }).panels,
-    perseids: (perseidsPanelsFile as { panels: RawPanel[] }).panels,
+    apollo11: (apolloPanelsFile as unknown as { panels: RawPanel[] }).panels,
+    perseids: (perseidsPanelsFile as unknown as { panels: RawPanel[] }).panels,
   };
   /** The bodies before T-088, frozen, so the test can prove nothing they said was lost. */
   const before = bodiesBeforeT088 as unknown as Readonly<Record<string, Readonly<Record<string, readonly string[]>>>>;
@@ -75,11 +75,11 @@ describe("warm, plain words with every figure kept in details (T-088 Done When 2
   });
 
   it("keeps every panel's badge, with at least one source line", () => {
-    const badges = Object.fromEntries(panels.map(({ panel }) => [panel.id, panel.badge]));
+    const badges = Object.fromEntries(panels.map(({ panel }) => [panel.id, panel.provenance.sourceType]));
     expect(badges).toEqual({
       "tli-cutoff": "observed", loi: "observed", "powered-descent": "observed", touchdown: "observed", "ascent-docking": "observed", tei: "observed", splashdown: "observed",
       "stream-shape": "illustrative", "earth-crossing": "observed", "swift-tuttle": "modelled",
     });
-    for (const { panel } of panels) expect(panel.sources.length).toBeGreaterThanOrEqual(1);
+    for (const { panel } of panels) expect(panel.provenance.sources.length).toBeGreaterThanOrEqual(1);
   });
 });

@@ -6,13 +6,13 @@ import { definitionOf } from "../src/api/definitionOf";
 const T0 = Date.parse("2026-03-01T00:00:00Z");
 const MIN = 60_000;
 const samples = (x: number) => [0, 1, 2, 3].map((i) => ({ time: T0 + i * 10 * MIN, positionKm: [x + i * 1_000, 0, 0], velocityKmS: [1, 0, 0] }));
-const panel = (id: string) => ({ id, at: { utc: "2026-03-01T00:05:00Z" }, title: `Title ${id}`, body: ["A line."], badge: "observed", sources: ["A made-up source"] });
+const panel = (id: string) => ({ id, at: { time: "2026-03-01T00:05:00Z" }, title: `Title ${id}`, body: ["A line."], provenance: { sourceType: "observed" as const, sources: ["A made-up source"], accuracy: "None claimed.", notes: "Made up." } });
 const ring = { id: "ring", plane: "ecliptic-j2000" as const, orbits: [{ id: "a", semiMajorAxisKm: 90_000, eccentricity: 0.1, inclinationDeg: 5, raanDeg: 40, argumentOfPeriapsisDeg: 70 }] };
 const scene = () => new Scene().addBody(earth).addBody(moon).addGroup(ring)
   .addTrajectory({ id: "pa", label: "Probe A", center: "earth", samples: samples(10_000) })
   .addTrajectory({ id: "pb", label: "Probe B", center: "earth", samples: samples(20_000) })
   .addEvents([{ id: "ea", label: "A event", time: T0 + 5 * MIN }, { id: "eb", label: "B event", time: T0 + 6 * MIN }, { id: "es", label: "Shared event", time: T0 + 7 * MIN }])
-  .addStoryPanels({ panels: [panel("qa"), panel("qb"), panel("qs")] });
+  .addStoryPanels([panel("qa"), panel("qb"), panel("qs")]);
 const A: ViewInput = { id: "a", label: "A", objects: ["pa"], events: ["ea"], panels: ["qa"] };
 const B: ViewInput = { id: "b", label: "B", objects: ["pb"], events: ["eb"], panels: ["qb"] };
 const BOTH: ViewInput = { id: "both", label: "Both", objects: ["pa", "pb"], events: ["ea", "eb"], panels: ["qa", "qb"] };
@@ -66,7 +66,7 @@ describe("Scene.setViews", () => {
 
   it("may be called before or after the objects it names", () => {
     const before = new Scene().setViews([A, B], bar).addBody(earth).addTrajectory({ id: "pa", center: "earth", samples: samples(10_000) }).addTrajectory({ id: "pb", center: "earth", samples: samples(20_000) })
-      .addEvents([{ id: "ea", label: "A", time: T0 + MIN }, { id: "eb", label: "B", time: T0 + 2 * MIN }]).addStoryPanels({ panels: [panel("qa"), panel("qb")] });
+      .addEvents([{ id: "ea", label: "A", time: T0 + MIN }, { id: "eb", label: "B", time: T0 + 2 * MIN }]).addStoryPanels([panel("qa"), panel("qb")]);
     expect(definitionOf(before).views!.views[0]!.panels).toEqual(new Set(["qa"]));
   });
 

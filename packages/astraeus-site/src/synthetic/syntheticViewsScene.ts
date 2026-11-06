@@ -22,7 +22,7 @@ function circle(radiusKm: number, lapH: number, tiltDeg: number) {
   });
 }
 
-const panel = (id: string, title: string, hour: number) => ({ id, at: { utc: new Date(VIEWS_START_UTC_MS + hour * HOUR_MS).toISOString() }, title, body: ["A made-up line."], badge: "illustrative" as const, sources: ["Made up for the views test"] });
+const panel = (id: string, title: string, hour: number) => ({ id, at: { time: VIEWS_START_UTC_MS + hour * HOUR_MS }, title, body: ["A made-up line."], provenance: madeUp });
 
 /** The made-up views scene. */
 export function buildSyntheticViewsScene(): Scene {
@@ -35,7 +35,7 @@ export function buildSyntheticViewsScene(): Scene {
       { id: "event-b", label: "Probe B event", time: VIEWS_START_UTC_MS + 9 * HOUR_MS, type: "flyby", object: "probe-b" },
       { id: "event-shared", label: "Shared event", time: VIEWS_START_UTC_MS + 21 * HOUR_MS },
     ], { provenance: madeUp })
-    .addStoryPanels({ panels: [panel("panel-a", "About probe A", 10), panel("panel-b", "About probe B", 15), panel("panel-shared", "About both", 20)] })
+    .addStoryPanels([panel("panel-a", "About probe A", 10), panel("panel-b", "About probe B", 15), panel("panel-shared", "About both", 20)])
     .setViews([
       { id: "a", label: "Probe A", objects: ["probe-a"], events: ["event-a"], panels: ["panel-a"], camera: "stay" },
       { id: "b", label: "Probe B", objects: ["probe-b"], events: ["event-b"], panels: ["panel-b"], camera: { follow: "probe-b" } },

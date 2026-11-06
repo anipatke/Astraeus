@@ -22,12 +22,12 @@ import { definitionOf } from "../src/api/definitionOf";
 const T0 = Date.parse("2026-03-01T00:00:00Z");
 const MIN = 60_000;
 const samples = (x: number) => [0, 1, 2, 3].map((i) => ({ time: T0 + i * 10 * MIN, positionKm: [x + i * 1_000, 0, 0], velocityKmS: [1, 0, 0] }));
-const panel = (id: string, object: string) => ({ id, at: { utc: "2026-03-01T00:05:00Z" }, object, title: `Title ${id}`, body: ["A line."], badge: "observed", sources: ["A made-up source"] });
+const panel = (id: string, object: string) => ({ id, at: { time: "2026-03-01T00:05:00Z" }, object, title: `Title ${id}`, body: ["A line."], provenance: { sourceType: "observed" as const, sources: ["A made-up source"], accuracy: "None claimed.", notes: "Made up." } });
 const definitionAt = (place: "top-bar" | "panel") => definitionOf(new Scene().addBody(earth).addBody(moon)
   .addTrajectory({ id: "pa", label: "Probe A", center: "earth", samples: samples(10_000) })
   .addTrajectory({ id: "pb", label: "Probe B", center: "earth", samples: samples(20_000) })
   .addEvents([{ id: "ea", label: "A event", time: T0 + 5 * MIN }, { id: "eb", label: "B event", time: T0 + 6 * MIN }, { id: "es", label: "Shared event", time: T0 + 7 * MIN }])
-  .addStoryPanels({ panels: [panel("qa", "pa"), panel("qb", "pb"), panel("qs", "earth")] })
+  .addStoryPanels([panel("qa", "pa"), panel("qb", "pb"), panel("qs", "earth")])
   .setViews([
     { id: "a", label: "View A", objects: ["pa"], events: ["ea"], panels: ["qa"] },
     { id: "b", label: "View B", objects: ["pb"], events: ["eb"], panels: ["qb"] },

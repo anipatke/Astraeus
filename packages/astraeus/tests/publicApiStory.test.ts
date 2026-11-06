@@ -2,7 +2,7 @@
 // The story calls of the public API (O-041 T-167), proved on a made-up probe (ARCH-03): events with provenance, story panels, the timeline's span and speeds or no timeline,
 // a true-scale-only choice, an opening view that does not follow, a camera menu per body and path, and the state a story quotes.
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { Scene, SceneError, earth, moon, readableScale, trueScale, type StoryPanelsInput } from "astraeus";
+import { Scene, SceneError, earth, moon, readableScale, trueScale, type StoryPanelInput } from "astraeus";
 import { infoView } from "../src/shell/infoModel";
 import { openClock } from "../src/app/openClock";
 import { scaleChoiceIdsOf } from "../src/app/experienceDefinition";
@@ -16,8 +16,9 @@ const probe = { id: "probe", label: "Probe", samples, anchors: [{ id: "fix-a", t
 const base = () => new Scene().addBody(earth).addBody(moon).addTrajectory(probe);
 const codeOf = (fn: () => unknown) => { try { fn(); } catch (error) { return error instanceof SceneError ? error.code : String(error); } return "no error"; };
 const messageOf = (fn: () => unknown) => { try { fn(); } catch (error) { return (error as Error).message; } return ""; };
-const panel = (id: string, at: Record<string, string>, extra: Record<string, unknown> = {}) => ({ id, at, title: `Title ${id}`, body: ["A line."], badge: "observed", sources: ["A made-up source"], ...extra });
-const panels = (...list: unknown[]): StoryPanelsInput => ({ panels: list });
+const made = { sourceType: "observed", sources: ["A made-up source"], accuracy: "None claimed.", notes: "Made up." } as const;
+const panel = (id: string, at: Record<string, string | number | Date>, extra: Record<string, unknown> = {}) => ({ id, at, title: `Title ${id}`, body: ["A line."], provenance: made, ...extra }) as never;
+const panels = (...list: unknown[]) => list as readonly StoryPanelInput[];
 
 describe("addEvents", () => {
   it("keeps events sorted across calls and carries their provenance", () => {
@@ -74,27 +75,117 @@ describe("addEvents", () => {
 });
 
 describe("addStoryPanels", () => {
-  it("resolves a panel by utc, by event and by anchor, sorted by time", () => {
+  const moment = { time: "2026-03-01T00:02:00Z" };
+  it("resolves a panel by time, by event and by anchor, sorted by time", () => {
     const definition = definitionOf(base().addEvents([{ id: "burn", label: "Burn", time: T0 + 25 * MIN }])
-      .addStoryPanels({ pauseSeconds: 3, panels: [panel("by-event", { event: "burn" }, { object: "probe" }), panel("by-utc", { utc: "2026-03-01T00:02:00Z" }), panel("by-anchor", { anchor: "fix-a" })] }));
+      .addStoryPanels([panel("by-event", { event: "burn" }, { object: "probe" }), panel("by-time", moment), panel("by-anchor", { anchor: "fix-a" })]).setStoryPanelPlayback({ pauseSeconds: 3 }));
     const set = definition.experience.storyPanels!;
-    expect(set.panels.map((p) => [p.id, p.timeUtcMs])).toEqual([["by-utc", T0 + 2 * MIN], ["by-anchor", T0 + 10 * MIN], ["by-event", T0 + 25 * MIN]]);
+    expect(set.panels.map((p) => [p.id, p.timeUtcMs])).toEqual([["by-time", T0 + 2 * MIN], ["by-anchor", T0 + 10 * MIN], ["by-event", T0 + 25 * MIN]]);
     expect(set.panels[2]!.objectId).toBe("probe");
     expect(set.pauseSeconds).toBe(3);
   });
   it("has no panels unless added", () => { expect(definitionOf(base()).experience.storyPanels).toBeUndefined(); });
+
+  it("takes at.time as any TimeInput through the normal converter: text with no Z, a Date, or milliseconds (O-057 T-278)", () => {
+    const expected = Date.parse("2026-03-01T00:02:00+00:00");
+    const scene = base().addStoryPanels([panel("offset", { time: "2026-03-01T01:02:00+01:00" }), panel("date", { time: new Date(expected + MIN) }), panel("ms", { time: expected + 2 * MIN })]);
+    expect(scene.panels.map((p) => [p.id, p.timeUtcMs])).toEqual([["offset", expected], ["date", expected + MIN], ["ms", expected + 2 * MIN]]);
+  });
+
+  it("appends: a second call keeps the first batch (O-057 T-278)", () => {
+    const scene = base().addStoryPanels([panel("one", moment)]).addStoryPanels([panel("two", { anchor: "fix-a" })]);
+    expect(scene.panels.map((p) => p.id)).toEqual(["one", "two"]);
+  });
+
+  it("a repeated id throws duplicate-id at the call, inside one batch and across calls, and a failed batch adds nothing (O-057 T-278)", () => {
+    expect(codeOf(() => base().addStoryPanels([panel("p7", moment), panel("p7", moment)]))).toBe("duplicate-id");
+    expect(messageOf(() => base().addStoryPanels([panel("p7", moment), panel("p7", moment)]))).toContain("p7");
+    const scene = base().addStoryPanels([panel("p7", moment)]);
+    expect(codeOf(() => scene.addStoryPanels([panel("new", moment), panel("p7", moment)]))).toBe("duplicate-id");
+    expect(scene.panels.map((p) => p.id)).toEqual(["p7"]);
+  });
+
+  // Links may be added later, so these fail when the scene is built, not at the call.
   it.each([
     ["an event that is not there", panels(panel("p1", { event: "ghost" })), "p1", "at.event"],
     ["an anchor that is not there", panels(panel("p2", { anchor: "ghost" })), "p2", "at.anchor"],
-    ["an object that is not in the scene", panels(panel("p3", { utc: "2026-03-01T00:02:00Z" }, { object: "ghost" })), "p3", "object"],
-    ["a time outside the timeline", panels(panel("p4", { utc: "2030-01-01T00:00:00Z" })), "p4", "at"],
-    ["a badge that is not one", panels(panel("p5", { utc: "2026-03-01T00:02:00Z" }, { badge: "guess" })), "p5", "badge"],
-    ["no sources", panels(panel("p6", { utc: "2026-03-01T00:02:00Z" }, { sources: [] })), "p6", "sources"],
-    ["a repeated panel id", panels(panel("p7", { utc: "2026-03-01T00:02:00Z" }), panel("p7", { utc: "2026-03-01T00:03:00Z" })), "p7", "id"],
-  ])("throws bad-panels for %s, naming the panel and field", (_name, input, id, field) => {
-    const call = () => definitionOf(base().addStoryPanels(input));
+    ["an object that is not in the scene", panels(panel("p3", moment, { object: "ghost" })), "p3", "object"],
+    ["a time outside the timeline", panels(panel("p4", { time: "2030-01-01T00:00:00Z" })), "p4", "at"],
+  ])("throws bad-panels for %s at check and mount, not at the call, naming the panel and field", (_name, input, id, field) => {
+    const scene = base().addStoryPanels(input);
+    const call = () => definitionOf(scene);
     expect(codeOf(call)).toBe("bad-panels");
     expect(messageOf(call)).toContain(id);
+    expect(messageOf(call)).toContain(field);
+    expect(codeOf(() => scene.check())).toBe("bad-panels");
+  });
+
+  it("links are read when the scene is built, so an event, anchor or object added after the panel is found (O-057 T-278)", () => {
+    const scene = new Scene().addBody(earth).addStoryPanels([panel("late-links", { event: "later" }, { object: "probe" }), panel("by-fix", { anchor: "fix-a" })])
+      .addTrajectory(probe).addEvents([{ id: "later", label: "Later", time: T0 + 5 * MIN }]);
+    expect(scene.panels.map((p) => p.id)).toEqual(["late-links", "by-fix"]);
+  });
+
+  // Each field wrong alone, on an otherwise good panel: the call itself throws.
+  it.each([
+    ["no id", { id: "" }, "#1", "id"],
+    ["no title", { title: "" }, "bad", "title"],
+    ["an empty body", { body: [] }, "bad", "body"],
+    ["details that are not text", { details: [5] }, "bad", "details[0]"],
+    ["an object that is not text", { object: 5 }, "bad", "object"],
+    ["no at", { at: undefined }, "bad", "at"],
+    ["two moments at once", { at: { time: T0, event: "burn" } }, "bad", "at"],
+    ["a moment that is not one", { at: { time: "soon" } }, "bad", "at.time"],
+    ["an empty event name", { at: { event: "" } }, "bad", "at.event"],
+    ["an empty anchor name", { at: { anchor: "" } }, "bad", "at.anchor"],
+    ["no provenance", { provenance: undefined }, "bad", "provenance"],
+    ["a source type that is not one", { provenance: { ...made, sourceType: "guess" } }, "bad", "provenance.sourceType"],
+    ["no sources", { provenance: { ...made, sources: [] } }, "bad", "provenance.sources"],
+    ["sources that are not a list", { provenance: { ...made, sources: "One" } }, "bad", "provenance.sources"],
+    ["a blank source", { provenance: { ...made, sources: [" "] } }, "bad", "provenance.sources[0]"],
+    ["a blank accuracy", { provenance: { ...made, accuracy: " " } }, "bad", "provenance.accuracy"],
+    ["no notes", { provenance: { ...made, notes: undefined } }, "bad", "provenance.notes"],
+  ])("throws bad-panels at the call for %s, naming the panel and field (O-057 T-278)", (_name, change, id, field) => {
+    const call = () => base().addStoryPanels(panels(panel("bad", moment, change)));
+    expect(codeOf(call)).toBe("bad-panels");
+    expect(messageOf(call)).toContain(`story panel ${id}: ${field} `);
+  });
+
+  it("refuses what is not a list, and an entry that is not an object, at the call", () => {
+    expect(codeOf(() => base().addStoryPanels(5 as never))).toBe("bad-panels");
+    expect(codeOf(() => base().addStoryPanels(undefined as never))).toBe("bad-panels");
+    expect(messageOf(() => base().addStoryPanels([null] as never))).toContain("story panel #1");
+  });
+
+  it("keeps an accuracy class and error fraction a panel's provenance states", () => {
+    const provenance = { ...made, accuracyClass: "indicative", maxErrorFraction: 0.02 };
+    expect(base().addStoryPanels(panels(panel("p", moment, { provenance }))).panels[0]!.provenance).toEqual(provenance);
+  });
+});
+
+describe("setStoryPanelPlayback", () => {
+  const settings = (scene: Scene) => { const { pauseSeconds, autoOpen } = definitionOf(scene).experience.storyPanels!; return { pauseSeconds, autoOpen }; };
+  const withPanel = () => base().addStoryPanels([panel("p", { anchor: "fix-a" })]);
+
+  it("defaults to a 6 second pause and opening by itself", () => { expect(settings(withPanel())).toEqual({ pauseSeconds: 6, autoOpen: true }); });
+  it("sets each setting alone", () => {
+    expect(settings(withPanel().setStoryPanelPlayback({ pauseSeconds: 2 }))).toEqual({ pauseSeconds: 2, autoOpen: true });
+    expect(settings(withPanel().setStoryPanelPlayback({ autoOpen: false }))).toEqual({ pauseSeconds: 6, autoOpen: false });
+  });
+  it("replaces the whole setting: a field left out of the second call returns to its default", () => {
+    expect(settings(withPanel().setStoryPanelPlayback({ pauseSeconds: 2, autoOpen: false }).setStoryPanelPlayback({ pauseSeconds: 9 }))).toEqual({ pauseSeconds: 9, autoOpen: true });
+  });
+  it("applies whichever order it is called in with addStoryPanels", () => {
+    expect(settings(base().setStoryPanelPlayback({ pauseSeconds: 0 }).addStoryPanels([panel("p", { anchor: "fix-a" })]))).toEqual({ pauseSeconds: 0, autoOpen: true });
+  });
+  it.each([
+    ["a pause below zero", { pauseSeconds: -1 }, "pauseSeconds"],
+    ["a pause over the limit", { pauseSeconds: 21 }, "pauseSeconds"],
+    ["an autoOpen that is not true or false", { autoOpen: "yes" }, "autoOpen"],
+    ["no object", undefined, "playback"],
+  ])("throws bad-panels at the call for %s", (_name, input, field) => {
+    const call = () => base().setStoryPanelPlayback(input as never);
+    expect(codeOf(call)).toBe("bad-panels");
     expect(messageOf(call)).toContain(field);
   });
 });

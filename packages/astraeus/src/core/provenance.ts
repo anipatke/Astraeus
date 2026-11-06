@@ -1,7 +1,7 @@
-/** What kind of source a path or body position comes from. `"modelled"` is a computed result of a stated model (shown as "Modelled", the same word as the story-panel badge). */
+/** What kind of source a path or body position comes from. `"modelled"` is a computed result of a stated model (shown as "Modelled"). */
 export type ProvenanceSourceType = "ephemeris" | "observed" | "reconstructed" | "modelled" | "illustrative";
 
-const SOURCE_TYPES: readonly ProvenanceSourceType[] = ["ephemeris", "observed", "reconstructed", "modelled", "illustrative"];
+export const PROVENANCE_SOURCE_TYPES: readonly ProvenanceSourceType[] = ["ephemeris", "observed", "reconstructed", "modelled", "illustrative"];
 
 /** Where a path or body position came from and how far to trust it: `sourceType`, the `sources`, the `accuracy` and `notes`. Pass one as `addTrajectory({ provenance })`. Never affects State. */
 export interface Provenance {
@@ -16,7 +16,7 @@ export interface Provenance {
 }
 
 export function createProvenance(input: Provenance): Provenance {
-  if (!SOURCE_TYPES.includes(input.sourceType)) throw new RangeError("provenance sourceType is not recognised");
+  if (!PROVENANCE_SOURCE_TYPES.includes(input.sourceType)) throw new RangeError("provenance sourceType is not recognised");
   if (input.sources.some((source) => typeof source !== "string" || source.length === 0)) {
     throw new TypeError("provenance sources must be non-empty strings");
   }

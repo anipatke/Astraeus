@@ -25,7 +25,7 @@ const ROWS: readonly Row[] = [
   ["bad-scale", () => base().setScale({ id: "solar-system" } as never), []],
   ["bad-readout", () => base().addTrajectory({ ...path("p"), readouts: [{ kind: "distance", to: "ghost" }] }), []],
   ["bad-timeline", () => base().addTrajectory(path("p")).addEvents([{ id: "e", label: "E", time: T0 }]).setTimeline({ start: T0, end: T0 + DAY, pacing: [{ near: { type: "ghost", withinSeconds: 5 }, rate: 1 }] }), []],
-  ["bad-panels", () => base().addTrajectory(path("p")).addStoryPanels({ panels: [{ id: "q", at: { event: "ghost" }, title: "Q", body: ["Made up."], badge: "illustrative", sources: ["Invented"] }] }), []],
+  ["bad-panels", () => base().addTrajectory(path("p")).addStoryPanels([{ id: "q", at: { event: "ghost" }, title: "Q", body: ["Made up."], provenance: { sourceType: "illustrative" as const, sources: ["Invented"], accuracy: "None claimed.", notes: "Made up." } }]), []],
 ];
 
 /** What a call throws, as its constructor, code and message; "no error" if it returns. */

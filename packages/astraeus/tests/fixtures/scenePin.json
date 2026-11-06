@@ -8381,29 +8381,37 @@
       "autoOpen": true,
       "panels": [
        {
-        "badge": "illustrative",
         "body": [
          "Made up."
         ],
         "details": [],
         "id": "p1",
         "objectId": "ring",
-        "sources": [
-         "Invented"
-        ],
+        "provenance": {
+         "accuracy": "None claimed.",
+         "notes": "Made up.",
+         "sourceType": "illustrative",
+         "sources": [
+          "Invented"
+         ]
+        },
         "timeUtcMs": 1767484800000,
         "title": "Panel p1"
        },
        {
-        "badge": "illustrative",
         "body": [
          "Made up."
         ],
         "details": [],
         "id": "p2",
-        "sources": [
-         "Invented"
-        ],
+        "provenance": {
+         "accuracy": "None claimed.",
+         "notes": "Made up.",
+         "sourceType": "illustrative",
+         "sources": [
+          "Invented"
+         ]
+        },
         "timeUtcMs": 1768089600000,
         "title": "Panel p2"
        }
@@ -9727,7 +9735,6 @@
       "autoOpen": false,
       "panels": [
        {
-        "badge": "illustrative",
         "body": [
          "Made up."
         ],
@@ -9735,36 +9742,49 @@
          "More."
         ],
         "id": "by-utc",
-        "sources": [
-         "Invented"
-        ],
+        "provenance": {
+         "accuracy": "None claimed.",
+         "notes": "Made up.",
+         "sourceType": "illustrative",
+         "sources": [
+          "Invented"
+         ]
+        },
         "timeUtcMs": 1767312000000,
         "title": "Panel by-utc"
        },
        {
-        "badge": "illustrative",
         "body": [
          "Made up."
         ],
         "details": [],
         "id": "by-event",
         "objectId": "probe",
-        "sources": [
-         "Invented"
-        ],
+        "provenance": {
+         "accuracy": "None claimed.",
+         "notes": "Made up.",
+         "sourceType": "illustrative",
+         "sources": [
+          "Invented"
+         ]
+        },
         "timeUtcMs": 1767398400000,
         "title": "Panel by-event"
        },
        {
-        "badge": "illustrative",
         "body": [
          "Made up."
         ],
         "details": [],
         "id": "by-anchor",
-        "sources": [
-         "Invented"
-        ],
+        "provenance": {
+         "accuracy": "None claimed.",
+         "notes": "Made up.",
+         "sourceType": "illustrative",
+         "sources": [
+          "Invented"
+         ]
+        },
         "timeUtcMs": 1767398400000,
         "title": "Panel by-anchor"
        }
@@ -11801,28 +11821,36 @@
       "autoOpen": true,
       "panels": [
        {
-        "badge": "illustrative",
         "body": [
          "Made up."
         ],
         "details": [],
         "id": "pa",
-        "sources": [
-         "Invented"
-        ],
+        "provenance": {
+         "accuracy": "None claimed.",
+         "notes": "Made up.",
+         "sourceType": "illustrative",
+         "sources": [
+          "Invented"
+         ]
+        },
         "timeUtcMs": 1767312000000,
         "title": "Panel pa"
        },
        {
-        "badge": "illustrative",
         "body": [
          "Made up."
         ],
         "details": [],
         "id": "pb",
-        "sources": [
-         "Invented"
-        ],
+        "provenance": {
+         "accuracy": "None claimed.",
+         "notes": "Made up.",
+         "sourceType": "illustrative",
+         "sources": [
+          "Invented"
+         ]
+        },
         "timeUtcMs": 1767398400000,
         "title": "Panel pb"
        }
@@ -13844,41 +13872,53 @@
       "autoOpen": true,
       "panels": [
        {
-        "badge": "illustrative",
         "body": [
          "A made-up line."
         ],
         "details": [],
         "id": "panel-a",
-        "sources": [
-         "Made up for the views test"
-        ],
+        "provenance": {
+         "accuracy": "None claimed.",
+         "notes": "A circle about Earth, not a real flight.",
+         "sourceType": "illustrative",
+         "sources": [
+          "Made up for the views test; not a real spacecraft"
+         ]
+        },
         "timeUtcMs": 1767261600000,
         "title": "About probe A"
        },
        {
-        "badge": "illustrative",
         "body": [
          "A made-up line."
         ],
         "details": [],
         "id": "panel-b",
-        "sources": [
-         "Made up for the views test"
-        ],
+        "provenance": {
+         "accuracy": "None claimed.",
+         "notes": "A circle about Earth, not a real flight.",
+         "sourceType": "illustrative",
+         "sources": [
+          "Made up for the views test; not a real spacecraft"
+         ]
+        },
         "timeUtcMs": 1767279600000,
         "title": "About probe B"
        },
        {
-        "badge": "illustrative",
         "body": [
          "A made-up line."
         ],
         "details": [],
         "id": "panel-shared",
-        "sources": [
-         "Made up for the views test"
-        ],
+        "provenance": {
+         "accuracy": "None claimed.",
+         "notes": "A circle about Earth, not a real flight.",
+         "sourceType": "illustrative",
+         "sources": [
+          "Made up for the views test; not a real spacecraft"
+         ]
+        },
         "timeUtcMs": 1767297600000,
         "title": "About both"
        }
@@ -15843,48 +15883,48 @@
     "message": "addStoryPanels: story panel p4: at falls outside the timeline window"
    }
   },
-  "addStoryPanels: badge not one": {
-   "stage": "toDefinition",
+  "addStoryPanels: source type not one": {
+   "stage": "call",
    "error": {
     "name": "SceneError",
     "code": "bad-panels",
-    "message": "addStoryPanels: story panel p5: badge must be one of observed, modelled, illustrative, got \"guess\""
+    "message": "addStoryPanels: story panel p5: provenance.sourceType must be one of ephemeris, observed, reconstructed, modelled, illustrative, got \"guess\""
    }
   },
   "addStoryPanels: no sources": {
-   "stage": "toDefinition",
+   "stage": "call",
    "error": {
     "name": "SceneError",
     "code": "bad-panels",
-    "message": "addStoryPanels: story panel p6: sources must be one or more non-empty lines"
+    "message": "addStoryPanels: story panel p6: provenance.sources must be one or more non-empty lines"
    }
   },
   "addStoryPanels: repeated id": {
-   "stage": "toDefinition",
+   "stage": "call",
    "error": {
     "name": "SceneError",
-    "code": "bad-panels",
-    "message": "addStoryPanels: story panel p7: id is used twice"
+    "code": "duplicate-id",
+    "message": "addStoryPanels: story panel p7: that id is already in the scene's panels"
    }
   },
   "addStoryPanels: panels not a list": {
-   "stage": "toDefinition",
+   "stage": "call",
    "error": {
     "name": "SceneError",
     "code": "bad-panels",
-    "message": "addStoryPanels: story panel settings: panels must be a list"
+    "message": "addStoryPanels: give a list of panels"
    }
   },
-  "addStoryPanels: pauseSeconds out of range": {
-   "stage": "toDefinition",
+  "setStoryPanelPlayback: pauseSeconds out of range": {
+   "stage": "call",
    "error": {
     "name": "SceneError",
     "code": "bad-panels",
-    "message": "addStoryPanels: story panel settings: pauseSeconds must be between 0 and 20, got 99"
+    "message": "setStoryPanelPlayback: story panel settings: pauseSeconds must be between 0 and 20, got 99"
    }
   },
   "addStoryPanels: no body": {
-   "stage": "toDefinition",
+   "stage": "call",
    "error": {
     "name": "SceneError",
     "code": "bad-panels",
@@ -15892,7 +15932,12 @@
    }
   },
   "addStoryPanels: undefined": {
-   "stage": "none"
+   "stage": "call",
+   "error": {
+    "name": "SceneError",
+    "code": "bad-panels",
+    "message": "addStoryPanels: give a list of panels"
+   }
   },
   "setTimeline: not an object": {
    "stage": "call",
@@ -23093,29 +23138,37 @@
       "autoOpen": true,
       "panels": [
        {
-        "badge": "illustrative",
         "body": [
          "Made up."
         ],
         "details": [],
         "id": "p1",
         "objectId": "ring",
-        "sources": [
-         "Invented"
-        ],
+        "provenance": {
+         "accuracy": "None claimed.",
+         "notes": "Made up.",
+         "sourceType": "illustrative",
+         "sources": [
+          "Invented"
+         ]
+        },
         "timeUtcMs": 1767484800000,
         "title": "Panel p1"
        },
        {
-        "badge": "illustrative",
         "body": [
          "Made up."
         ],
         "details": [],
         "id": "p2",
-        "sources": [
-         "Invented"
-        ],
+        "provenance": {
+         "accuracy": "None claimed.",
+         "notes": "Made up.",
+         "sourceType": "illustrative",
+         "sources": [
+          "Invented"
+         ]
+        },
         "timeUtcMs": 1768089600000,
         "title": "Panel p2"
        }
@@ -23415,29 +23468,37 @@
       "autoOpen": true,
       "panels": [
        {
-        "badge": "illustrative",
         "body": [
          "Made up."
         ],
         "details": [],
         "id": "p1",
         "objectId": "ring",
-        "sources": [
-         "Invented"
-        ],
+        "provenance": {
+         "accuracy": "None claimed.",
+         "notes": "Made up.",
+         "sourceType": "illustrative",
+         "sources": [
+          "Invented"
+         ]
+        },
         "timeUtcMs": 1767484800000,
         "title": "Panel p1"
        },
        {
-        "badge": "illustrative",
         "body": [
          "Made up."
         ],
         "details": [],
         "id": "p2",
-        "sources": [
-         "Invented"
-        ],
+        "provenance": {
+         "accuracy": "None claimed.",
+         "notes": "Made up.",
+         "sourceType": "illustrative",
+         "sources": [
+          "Invented"
+         ]
+        },
         "timeUtcMs": 1768089600000,
         "title": "Panel p2"
        }
@@ -24759,7 +24820,6 @@
       "autoOpen": false,
       "panels": [
        {
-        "badge": "illustrative",
         "body": [
          "Made up."
         ],
@@ -24767,36 +24827,49 @@
          "More."
         ],
         "id": "by-utc",
-        "sources": [
-         "Invented"
-        ],
+        "provenance": {
+         "accuracy": "None claimed.",
+         "notes": "Made up.",
+         "sourceType": "illustrative",
+         "sources": [
+          "Invented"
+         ]
+        },
         "timeUtcMs": 1767312000000,
         "title": "Panel by-utc"
        },
        {
-        "badge": "illustrative",
         "body": [
          "Made up."
         ],
         "details": [],
         "id": "by-event",
         "objectId": "probe",
-        "sources": [
-         "Invented"
-        ],
+        "provenance": {
+         "accuracy": "None claimed.",
+         "notes": "Made up.",
+         "sourceType": "illustrative",
+         "sources": [
+          "Invented"
+         ]
+        },
         "timeUtcMs": 1767398400000,
         "title": "Panel by-event"
        },
        {
-        "badge": "illustrative",
         "body": [
          "Made up."
         ],
         "details": [],
         "id": "by-anchor",
-        "sources": [
-         "Invented"
-        ],
+        "provenance": {
+         "accuracy": "None claimed.",
+         "notes": "Made up.",
+         "sourceType": "illustrative",
+         "sources": [
+          "Invented"
+         ]
+        },
         "timeUtcMs": 1767398400000,
         "title": "Panel by-anchor"
        }
@@ -26833,28 +26906,36 @@
       "autoOpen": true,
       "panels": [
        {
-        "badge": "illustrative",
         "body": [
          "Made up."
         ],
         "details": [],
         "id": "pa",
-        "sources": [
-         "Invented"
-        ],
+        "provenance": {
+         "accuracy": "None claimed.",
+         "notes": "Made up.",
+         "sourceType": "illustrative",
+         "sources": [
+          "Invented"
+         ]
+        },
         "timeUtcMs": 1767312000000,
         "title": "Panel pa"
        },
        {
-        "badge": "illustrative",
         "body": [
          "Made up."
         ],
         "details": [],
         "id": "pb",
-        "sources": [
-         "Invented"
-        ],
+        "provenance": {
+         "accuracy": "None claimed.",
+         "notes": "Made up.",
+         "sourceType": "illustrative",
+         "sources": [
+          "Invented"
+         ]
+        },
         "timeUtcMs": 1767398400000,
         "title": "Panel pb"
        }
@@ -29393,41 +29474,53 @@
       "autoOpen": true,
       "panels": [
        {
-        "badge": "illustrative",
         "body": [
          "A made-up line."
         ],
         "details": [],
         "id": "panel-a",
-        "sources": [
-         "Made up for the views test"
-        ],
+        "provenance": {
+         "accuracy": "None claimed.",
+         "notes": "A circle about Earth, not a real flight.",
+         "sourceType": "illustrative",
+         "sources": [
+          "Made up for the views test; not a real spacecraft"
+         ]
+        },
         "timeUtcMs": 1767261600000,
         "title": "About probe A"
        },
        {
-        "badge": "illustrative",
         "body": [
          "A made-up line."
         ],
         "details": [],
         "id": "panel-b",
-        "sources": [
-         "Made up for the views test"
-        ],
+        "provenance": {
+         "accuracy": "None claimed.",
+         "notes": "A circle about Earth, not a real flight.",
+         "sourceType": "illustrative",
+         "sources": [
+          "Made up for the views test; not a real spacecraft"
+         ]
+        },
         "timeUtcMs": 1767279600000,
         "title": "About probe B"
        },
        {
-        "badge": "illustrative",
         "body": [
          "A made-up line."
         ],
         "details": [],
         "id": "panel-shared",
-        "sources": [
-         "Made up for the views test"
-        ],
+        "provenance": {
+         "accuracy": "None claimed.",
+         "notes": "A circle about Earth, not a real flight.",
+         "sourceType": "illustrative",
+         "sources": [
+          "Made up for the views test; not a real spacecraft"
+         ]
+        },
         "timeUtcMs": 1767297600000,
         "title": "About both"
        }

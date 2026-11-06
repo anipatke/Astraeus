@@ -27,7 +27,7 @@ const record = () => ({
   accuracy: { classification: "indicative" as const, statement: "Made up.", valid: { start: "2020-01-01T00:00:00Z", end: "2030-01-01T00:00:00Z" }, limitations: [] },
   marker: { color: "#aabbcc", sizePx: 6 },
 });
-const panel = (id: string, at: object) => ({ id, at, title: `Panel ${id}`, body: ["A line."], details: ["A figure."], badge: "modelled" as const, sources: ["Source"] });
+const panel = (id: string, at: object) => ({ id, at, title: `Panel ${id}`, body: ["A line."], details: ["A figure."], provenance: { sourceType: "modelled" as const, sources: ["Source"], accuracy: "None claimed.", notes: "Made up." } });
 
 /** The scene every row starts from; `center` bodies and a path so the inputs below have something to name. */
 const base = () => new Scene().setTime(T0).addBody(sun).addBody(earth).addBody(moon).addTrajectory({ id: "probe", center: "earth", samples: samples(), anchors: [{ id: "fix-a", time: T0 + 10 * MIN }] }).addEvents([{ id: "ev", label: "Event", time: T0 + 20 * MIN }]);
@@ -56,7 +56,8 @@ const ROWS: readonly Row[] = [
   { name: "setLook", scene: () => base(), input: () => ({ starBrightness: 1.4, markerSwapRadiusPx: 5, loadFadeSeconds: 1 }), apply: (s, i) => s.setLook(i) },
   { name: "setBodyReadouts", scene: () => base(), input: () => ["distance", "phase"], apply: (s, i) => s.setBodyReadouts(i) },
   { name: "addEvents (events, options)", scene: () => base(), input: () => ({ events: [{ id: "e1", label: "E1", time: T0 + 5 * MIN, type: "burn", object: "probe" }], options: { provenance: prov() } }), apply: (s, i: { events: never; options: never }) => s.addEvents(i.events, i.options) },
-  { name: "addStoryPanels", scene: () => base(), input: () => ({ pauseSeconds: 3, panels: [panel("by-event", { event: "ev" }), panel("by-anchor", { anchor: "fix-a" })] }), apply: (s, i) => s.addStoryPanels(i) },
+  { name: "addStoryPanels", scene: () => base(), input: () => [panel("by-event", { event: "ev" }), panel("by-anchor", { anchor: "fix-a" }), panel("by-time", { time: new Date(T0 + 5 * MIN) })], apply: (s, i) => s.addStoryPanels(i) },
+  { name: "setStoryPanelPlayback", scene: () => base().addStoryPanels([panel("by-event", { event: "ev" }) as never]), input: () => ({ pauseSeconds: 3, autoOpen: false }), apply: (s, i) => s.setStoryPanelPlayback(i) },
   { name: "setTimeline", scene: () => base(), input: () => ({ start: T0, end: T0 + 60 * MIN, rates: [10, 100], rate: 100, loop: true }), apply: (s, i) => s.setTimeline(i) },
   { name: "setSwitches", scene: () => base(), input: () => ({ orbitLines: { place: "top-bar" }, labels: { place: "panel", on: false } }), apply: (s, i) => s.setSwitches(i) },
   { name: "setViews (views, options)", scene: () => base(), input: () => ({ views: [{ id: "a", label: "A", objects: ["probe"] }, { id: "all", label: "All" }], options: { place: "panel", start: "all" } }), apply: (s, i: { views: never; options: never }) => s.setViews(i.views, i.options) },

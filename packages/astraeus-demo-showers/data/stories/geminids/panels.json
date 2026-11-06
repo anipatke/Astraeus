@@ -5,11 +5,10 @@
     {
       "id": "phaethon",
       "at": {
-        "utc": "2019-11-01T00:00:00Z"
+        "time": "2019-11-01T00:00:00Z"
       },
       "object": "phaethon",
       "title": "A rock that behaves like a comet",
-      "badge": "modelled",
       "body": [
         "Most meteor showers are dust shed by comets, icy balls that crumble as they pass the Sun. The Geminids come from Phaethon instead, a lump of rock only a few kilometres wide.",
         "Every 17 months it swings closer to the Sun than Mercury ever gets; its last close pass was in early July 2019. The heat may crack its surface and shed grit, but exactly how it made so much dust is still a puzzle."
@@ -21,24 +20,28 @@
         "Size: JPL gives an effective diameter of 6.25 km (Taylor et al. 2019, from radar); NASA's Geminids page gives 5.1 km. Phaethon was discovered on 11 October 1983 by the Infrared Astronomical Satellite.",
         "How Phaethon makes dust is unsettled. NASA's STEREO spacecraft saw it brighten near the Sun in 2009, and Jewitt and Li (2010) proposed that the heat cracks and breaks down its rock. Zhang et al. (2023) found that the brightenings seen near perihelion since 1997 are glowing sodium, not dust, so how the dust of the Geminid stream was shed remains an open question."
       ],
-      "sources": [
-        "JPL Horizons, 3200 Phaethon (solution JPL#1019): osculating elements at 2019-07-02 and 2020-12-14 TDB, Tp = JD 2458667.494747 and 2459191.102110 TDB; Sun-centred positions at six dates from 21 September 2019 to 20 September 2020; fetched 2026-10-18 (tests/fixtures/showers-year-horizons-source.txt)",
-        "NASA/JPL Small-Body Database, 3200 Phaethon (1983 TB): perihelion distance q = 0.140278 au, effective diameter 6.25 km (Taylor et al. 2019, Planetary and Space Science, doi 10.1016/j.pss.2019.01.009); https://ssd-api.jpl.nasa.gov/sbdb.api?sstr=3200&full-prec=1&phys-par=1 (accessed 2026-10-18)",
-        "NASA Science, Geminids: parent is asteroid 3200 Phaethon, possibly a \"dead comet\" or \"rock comet\"; diameter 5.10 km; discovered 11 Oct 1983 by the Infrared Astronomical Satellite; https://science.nasa.gov/solar-system/meteors-meteorites/geminids/ (accessed 2026-10-18)",
-        "NASA Space Science Data Coordinated Archive, Mercury Fact Sheet: perihelion 46.000 million km; https://nssdc.gsfc.nasa.gov/planetary/factsheet/mercuryfact.html (accessed 2026-10-18)",
-        "Jewitt, D. and Li, J. 2010, Activity in Geminid parent (3200) Phaethon, The Astronomical Journal 140, 1519",
-        "Zhang, Q. et al. 2023, Sodium Brightening of (3200) Phaethon near Perihelion, The Planetary Science Journal 4, 70, doi 10.3847/PSJ/acc866",
-        "Astraeus data/showers/geminids.json, parentElements.accuracy: largest Sun-centred difference from JPL Horizons about 935,344 km over 2020 to 2032, and 365,665 km across 21 September 2019 to 20 September 2020"
-      ]
+      "provenance": {
+        "sourceType": "modelled",
+        "sources": [
+          "JPL Horizons, 3200 Phaethon (solution JPL#1019): osculating elements at 2019-07-02 and 2020-12-14 TDB, Tp = JD 2458667.494747 and 2459191.102110 TDB; Sun-centred positions at six dates from 21 September 2019 to 20 September 2020; fetched 2026-10-18 (tests/fixtures/showers-year-horizons-source.txt)",
+          "NASA/JPL Small-Body Database, 3200 Phaethon (1983 TB): perihelion distance q = 0.140278 au, effective diameter 6.25 km (Taylor et al. 2019, Planetary and Space Science, doi 10.1016/j.pss.2019.01.009); https://ssd-api.jpl.nasa.gov/sbdb.api?sstr=3200&full-prec=1&phys-par=1 (accessed 2026-10-18)",
+          "NASA Science, Geminids: parent is asteroid 3200 Phaethon, possibly a \"dead comet\" or \"rock comet\"; diameter 5.10 km; discovered 11 Oct 1983 by the Infrared Astronomical Satellite; https://science.nasa.gov/solar-system/meteors-meteorites/geminids/ (accessed 2026-10-18)",
+          "NASA Space Science Data Coordinated Archive, Mercury Fact Sheet: perihelion 46.000 million km; https://nssdc.gsfc.nasa.gov/planetary/factsheet/mercuryfact.html (accessed 2026-10-18)",
+          "Jewitt, D. and Li, J. 2010, Activity in Geminid parent (3200) Phaethon, The Astronomical Journal 140, 1519",
+          "Zhang, Q. et al. 2023, Sodium Brightening of (3200) Phaethon near Perihelion, The Planetary Science Journal 4, 70, doi 10.3847/PSJ/acc866",
+          "Astraeus data/showers/geminids.json, parentElements.accuracy: largest Sun-centred difference from JPL Horizons about 935,344 km over 2020 to 2032, and 365,665 km across 21 September 2019 to 20 September 2020"
+        ],
+        "accuracy": "Across this year its drawn place is within about 366,000 km of JPL Horizons, compared at six dates. Near the Sun it can be off by up to about 935,000 km.",
+        "notes": "The scene moves Phaethon by unperturbed two-body motion from published elements. How Phaethon makes dust is unsettled. Its size is 6.25 km by JPL's figure and 5.1 km by NASA's."
+      }
     },
     {
       "id": "best-shower",
       "at": {
-        "utc": "2019-12-06T00:00:00Z"
+        "time": "2019-12-06T00:00:00Z"
       },
       "object": "geminids-stream",
       "title": "The best shower of the year",
-      "badge": "observed",
       "body": [
         "In early December, Earth starts running into Phaethon's dust. The Geminids are one of the richest and most reliable meteor showers of the year.",
         "On a clear, dark night at their best you might see about two meteors a minute. They get going in mid-evening, too, so you don't have to stay up until dawn."
@@ -49,12 +52,17 @@
         "This moment, 6 December 2019 at 00:00 UTC, is two days into the activity, chosen so that the panel opens once the shower has begun, also in the shower-only (activity) view. The rate drawn in the scene is modelled from the published peak rate.",
         "The dots are Geminid orbits measured by the Global Meteor Network's cameras in December 2024 and December 2025. They are drawn as they are in this earlier year, 2019 to 2020: the orbits are measured, but where each dot sits along its orbit is illustrative."
       ],
-      "sources": [
-        "International Meteor Organization, 2019 Meteor Shower Calendar (IMO_INFO(2-18), ed. J. Rendtel): Geminids active December 4-17, maximum December 14, peak period 2019 December 14 between 02h and 23h UT, ZHR 140; archived copy https://web.archive.org/web/20191228130925/https://www.imo.net/files/meteor-shower/cal2019.pdf (accessed 2026-10-18)",
-        "American Meteor Society, Meteor Shower Calendar: Geminids ZHR 150; https://www.amsmeteors.org/calendar/ (accessed 2026-10-16)",
-        "Global Meteor Network, monthly trajectory summaries, Dec 2024 and Dec 2025, IAU shower 4 (GEM); Vida et al. 2021, MNRAS 506(4); Vida et al. 2020, MNRAS 491(2); CC BY 4.0; globalmeteornetwork.org/data (accessed 2026-10-16)",
-        "NASA Science, Geminids: \"one of the best and most reliable annual meteor showers\"; 120 per hour under perfect conditions, 40 to 50 per hour typical; starts around 9 or 10 p.m.; https://science.nasa.gov/solar-system/meteors-meteorites/geminids/ (accessed 2026-10-18)"
-      ]
+      "provenance": {
+        "sourceType": "observed",
+        "sources": [
+          "International Meteor Organization, 2019 Meteor Shower Calendar (IMO_INFO(2-18), ed. J. Rendtel): Geminids active December 4-17, maximum December 14, peak period 2019 December 14 between 02h and 23h UT, ZHR 140; archived copy https://web.archive.org/web/20191228130925/https://www.imo.net/files/meteor-shower/cal2019.pdf (accessed 2026-10-18)",
+          "American Meteor Society, Meteor Shower Calendar: Geminids ZHR 150; https://www.amsmeteors.org/calendar/ (accessed 2026-10-16)",
+          "Global Meteor Network, monthly trajectory summaries, Dec 2024 and Dec 2025, IAU shower 4 (GEM); Vida et al. 2021, MNRAS 506(4); Vida et al. 2020, MNRAS 491(2); CC BY 4.0; globalmeteornetwork.org/data (accessed 2026-10-16)",
+          "NASA Science, Geminids: \"one of the best and most reliable annual meteor showers\"; 120 per hour under perfect conditions, 40 to 50 per hour typical; starts around 9 or 10 p.m.; https://science.nasa.gov/solar-system/meteors-meteorites/geminids/ (accessed 2026-10-18)"
+        ],
+        "accuracy": "Not stated by the source. The published rates differ: a zenithal hourly rate of 150 (American Meteor Society) or 140 (International Meteor Organization), and up to 120 an hour (NASA).",
+        "notes": "The rate drawn in the scene is modelled from the published peak rate. The orbits are measured, but where each dot sits along its orbit is illustrative. This moment is chosen so that the panel opens once the shower has begun."
+      }
     },
     {
       "id": "earth-crossing",
@@ -63,7 +71,6 @@
       },
       "object": "earth",
       "title": "Earth reaches the thickest dust",
-      "badge": "observed",
       "body": [
         "Tonight Earth passes through the busiest part of the stream. Tiny specks of rock hit our air at about 35 km a second and burn up as bright streaks.",
         "They all seem to fly out of Gemini, the Twins, which gives the shower its name."
@@ -73,11 +80,16 @@
         "Radiant: right ascension 113.0°, declination +32.4° (J2000), in Gemini (IAU Meteor Data Center).",
         "Speed: 35 km a second (22 miles a second), and the meteors tend to look yellow (NASA)."
       ],
-      "sources": [
-        "IAU Meteor Data Center, established meteor showers, Geminids (GEM, 4), parameter set AdNo 8 (Jenniskens 2023): peak solar longitude 261.6°, radiant RA 113.0°, Dec +32.4°, J2000; https://www.ta3.sk/IAUC22DB/MDC2022/Etc/streamestablisheddata2026.txt (accessed 2026-10-16)",
-        "International Meteor Organization, 2019 Meteor Shower Calendar (IMO_INFO(2-18)): Geminids maximum December 14 (solar longitude 262.2), peak period solar longitude 261.5 to 262.4, 2019 December 14 between 02h and 23h UT; archived copy https://web.archive.org/web/20191228130925/https://www.imo.net/files/meteor-shower/cal2019.pdf (accessed 2026-10-18)",
-        "NASA Science, Geminids: speed 22 miles (35 km) per second; meteors tend to be yellow; radiant in Gemini, the Twins; https://science.nasa.gov/solar-system/meteors-meteorites/geminids/ (accessed 2026-10-18)"
-      ]
+      "provenance": {
+        "sourceType": "observed",
+        "sources": [
+          "IAU Meteor Data Center, established meteor showers, Geminids (GEM, 4), parameter set AdNo 8 (Jenniskens 2023): peak solar longitude 261.6°, radiant RA 113.0°, Dec +32.4°, J2000; https://www.ta3.sk/IAUC22DB/MDC2022/Etc/streamestablisheddata2026.txt (accessed 2026-10-16)",
+          "International Meteor Organization, 2019 Meteor Shower Calendar (IMO_INFO(2-18)): Geminids maximum December 14 (solar longitude 262.2), peak period solar longitude 261.5 to 262.4, 2019 December 14 between 02h and 23h UT; archived copy https://web.archive.org/web/20191228130925/https://www.imo.net/files/meteor-shower/cal2019.pdf (accessed 2026-10-18)",
+          "NASA Science, Geminids: speed 22 miles (35 km) per second; meteors tend to be yellow; radiant in Gemini, the Twins; https://science.nasa.gov/solar-system/meteors-meteorites/geminids/ (accessed 2026-10-18)"
+        ],
+        "accuracy": "The peak in this scene falls inside the International Meteor Organization's 2019 peak period, 02:00 to 23:00 UT; its single best estimate is later that day. For the other figures: not stated by the source.",
+        "notes": "The peak moment is found on the engine's ephemeris from the IAU Meteor Data Center's solar longitude."
+      }
     }
   ]
 }

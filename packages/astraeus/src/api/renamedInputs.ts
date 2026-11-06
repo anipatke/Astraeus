@@ -8,6 +8,9 @@ export interface RenamedInput {
   readonly use: string;
 }
 
+/** The replacement of the old `addStoryPanels({ panels, pauseSeconds, autoOpen })` object: a list, and a call of its own for the two settings. */
+const PANELS_CALLS = "addStoryPanels(list) with setStoryPanelPlayback({ pauseSeconds, autoOpen })";
+
 /**
  * Every input field renamed in 0.8.0, old to new, in one place (O-057 T-276). A plain JavaScript caller who passes an old name would otherwise see it ignored without a word,
  * so each receiving call hands the object it was given to `rejectRenamed` with its `scope`; the old name is refused, never accepted. Inputs only: a removed method fails by itself
@@ -27,6 +30,12 @@ export const RENAMED_INPUTS: readonly RenamedInput[] = Object.freeze([
   { scope: "ElementsBodyRecord", call: "addBodyFromElements", old: "frame", use: "plane" },
   { scope: "ElementsAccuracy", call: "addBodyFromElements", old: "validFromUtc", use: "valid.start" },
   { scope: "ElementsAccuracy", call: "addBodyFromElements", old: "validToUtc", use: "valid.end" },
+  { scope: "StoryPanelInput", call: "addStoryPanels", old: "badge", use: "provenance.sourceType" },
+  { scope: "StoryPanelInput", call: "addStoryPanels", old: "sources", use: "provenance.sources" },
+  { scope: "StoryPanelAt", call: "addStoryPanels", old: "utc", use: "time" },
+  { scope: "AddStoryPanelsCall", call: "addStoryPanels", old: "panels", use: PANELS_CALLS },
+  { scope: "AddStoryPanelsCall", call: "addStoryPanels", old: "pauseSeconds", use: PANELS_CALLS },
+  { scope: "AddStoryPanelsCall", call: "addStoryPanels", old: "autoOpen", use: PANELS_CALLS },
 ].map((row) => Object.freeze(row)));
 
 /** Throws `renamed` when `value` carries an old name of the `scope`, naming its replacement; a value that is not an object is left to the caller's own checks. `where` leads the message, such as `setTimeline: pacing[1]`. */

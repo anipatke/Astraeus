@@ -3,7 +3,7 @@ export { Scene, type SceneCamera, type AddBodyOptions, type CardFactInput, type 
 export type { MoonPanelInput, MoonPanelFamilyInput, MoonPanelMoonInput, PlacesInput, PlaceInput, PlaceCategoryInput } from "./moonPanelInput";
 export type { PickerInput, PickerOptionInput, PickChange } from "./pickerInput";
 export type { BodySetInput, BodySetFamilyInput, BodySetMemberInput, BodySetElementsInput, BodySetBodyInput, BodySetBalanceInput } from "./bodySetInput";
-export { type EventInput, type AddEventsOptions, type TimelineInput, type PacingInput, type StoryPanelsInput } from "./story";
+export { type EventInput, type AddEventsOptions, type TimelineInput, type PacingInput, type StoryPanelAt, type StoryPanelInput, type StoryPanelPlaybackInput } from "./story";
 export { type SwitchesInput } from "./switches";
 export { type LookInput, type LookRead, type SunGlowLook } from "./look";
 export { type ViewsOptions, type ViewInput, type ViewCameraInput } from "./views";

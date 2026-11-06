@@ -46,19 +46,16 @@ const scene = new Scene()
     ],
     { provenance: madeUp },
   )
-  .addStoryPanels({
-    panels: [
-      {
-        id: "half-lap",
-        at: { event: "halfway" },
-        title: "Half a lap",
-        body: ["The probe is on the far side of Earth from where it began.", "Nothing here is real: the path is a circle."],
-        badge: "illustrative",
-        sources: ["Invented for this example"],
-        object: "probe",
-      },
-    ],
-  })
+  .addStoryPanels([
+    {
+      id: "half-lap",
+      at: { event: "halfway" },
+      title: "Half a lap",
+      body: ["The probe is on the far side of Earth from where it began.", "Nothing here is real: the path is a circle."],
+      provenance: madeUp,
+      object: "probe",
+    },
+  ])
   // Two views of one scene: Probe A shows its own events, Probe B its own, Both shows every path and event. Earth, the Moon and the ring stay in every view.
   .setViews([
     { id: "a", label: "Probe A", objects: ["probe"], events: ["burn", "halfway"], camera: { focus: "probe" } },

@@ -12,7 +12,7 @@ describe("the made-up scene's story panels", () => {
     for (const panel of set?.panels ?? []) {
       expect(panel.timeUtcMs).toBeGreaterThan(startUtcMs);
       expect(panel.timeUtcMs).toBeLessThan(endUtcMs);
-      expect(panel.sources.length).toBeGreaterThan(0);
+      expect(panel.provenance.sources.length).toBeGreaterThan(0);
     }
   });
 
