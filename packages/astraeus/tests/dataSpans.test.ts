@@ -42,7 +42,7 @@ describe("a window outside a body's span", () => {
 
   it("reaches the public API as SceneError out-of-span naming the package", async () => {
     JUPITER_MOON_SYSTEM.install(null);
-    const source = { name: "astraeus-data-made-up", provides: ["io"], moonPositions: { centre: "jupiter", loadIndex: async () => index, chunkUrls: {} } };
+    const source = { name: "astraeus-data-made-up", provides: ["io"], moonPositions: { center: "jupiter", loadIndex: async () => index, chunkUrls: {} } };
     const window = { startUtcMs: Date.UTC(1951, 0, 1), endUtcMs: Date.UTC(1955, 0, 1) };
     const error = await installData([source], ["jupiter", "io"], window).catch((caught: unknown) => caught);
     expect(error).toBeInstanceOf(SceneError);

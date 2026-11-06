@@ -17,7 +17,7 @@ import type { ActivityInput } from "./activity";
 import type { GroupInput } from "./group";
 export type { GroupInput, GroupOrbitInput, GroupClumpInput, GroupReadoutInput } from "./group";
 export type { ActivityInput, ActivitySampleInput, ActivitySourceInput } from "./activity";
-export type { DataSource, MoonPositions } from "./data";
+export type { DataSource, MoonPositions, MoonIndex } from "./data";
 import { SceneError } from "./errors";
 import { frozenCopy } from "./frozenCopy";
 import { NotLoadedError } from "../core/planetSeries";
@@ -62,8 +62,8 @@ export interface AddBodyOptions {
   readonly enlarge?: number;
   /** False starts the body's label off (the body stays in the menu and selectable; the viewer's labels switch can turn it on). Default true. */
   readonly showLabel?: boolean;
-  /** How far from the camera the body's label shows, in the camera's `distance` units (as `camera.setReach`); a positive finite number. When absent the scene's shared rule applies: no limit in a Sun-centred or fitted scene, else the camera reach (at least 500). */
-  readonly labelReach?: number;
+  /** How far from the camera the body's label shows, in the camera's `distance` units (Earth radii, as `camera.setReach`); a positive finite number. When absent the scene's shared rule applies: no limit in a Sun-centred or fitted scene, else the camera reach (at least 500). */
+  readonly labelReachEarthRadii?: number;
   /** One or two plain sentences for the body's info card. */
   readonly description?: string;
   /** The body's colour on its info card and label, as a CSS hex colour such as "#9fd8ff"; the catalogue's own when absent. A bad value throws `bad-body`. */
@@ -147,8 +147,8 @@ export interface TrajectoryBase {
    * publishes by default). Ecliptic input is rotated to EQJ once, as it is read, so drawing, `stateOf` and readouts all see EQJ. Any other value throws `bad-trajectory`.
    */
   readonly plane?: "EQJ" | "ecliptic-j2000";
-  /** How far from the camera the path's label shows, in the camera's `distance` units (as `camera.setReach`); a positive finite number. When absent the scene's shared rule applies: no limit in a Sun-centred or fitted scene, else the camera reach (at least 500). */
-  readonly labelReach?: number;
+  /** How far from the camera the path's label shows, in the camera's `distance` units (Earth radii, as `camera.setReach`); a positive finite number. When absent the scene's shared rule applies: no limit in a Sun-centred or fitted scene, else the camera reach (at least 500). */
+  readonly labelReachEarthRadii?: number;
   readonly provenance?: Provenance;
   /**
    * Where each stretch of the path comes from, shown with the path as time moves (the same `{ start, end, provenance }` list as an activity's `provenance`).
@@ -333,9 +333,9 @@ export class Scene {
 
   /**
    * Adds a group of listed orbits drawn as one set of dots (one colour and dot size, one menu item and info card), with an optional clump near a body.
-   * The orbits circle the scene's centre unless `center` names another body. A repeated id throws `duplicate-id`; an empty list, a bad orbit, colour or clump throws `bad-group`. A `center` that is not a catalogued body throws `unknown-body`; a catalogued one the finished scene does not hold throws `bad-group` from `check`, `load` or `mount`.
+   * The orbits are given in `plane` ("ecliptic-j2000" or "EQJ"), which is required: a group without one throws `bad-group`. They circle the scene's centre unless `center` names another body. A repeated id throws `duplicate-id`; an empty list, a bad orbit, colour or clump throws `bad-group`. A `center` that is not a catalogued body throws `unknown-body`; a catalogued one the finished scene does not hold throws `bad-group` from `check`, `load` or `mount`.
    * @example
-   * scene.addGroup({ id: "ring", orbits: [{ id: "a", semiMajorAxisKm: 90_000, eccentricity: 0.1, inclinationDeg: 5, raanDeg: 40, argumentOfPeriapsisDeg: 70 }], color: "#9de3a8" });
+   * scene.addGroup({ id: "ring", orbits: [{ id: "a", semiMajorAxisKm: 90_000, eccentricity: 0.1, inclinationDeg: 5, raanDeg: 40, argumentOfPeriapsisDeg: 70 }], plane: "ecliptic-j2000", color: "#9de3a8" });
    */
   addGroup(input: GroupInput): this {
     this.#editable();
@@ -490,13 +490,13 @@ export class Scene {
   }
 
   /**
-   * Names views of this one scene, each listing what it shows: `paths` (ids of `addTrajectory`), `bodies` (ids of `addBody` or `addGroup`), `events` (ids of `addEvents`) and `panels` (ids of `addStoryPanels`).
+   * Names views of this one scene, each listing what it shows: `objects` (ids of `addBody`, `addGroup` or `addTrajectory`), `events` (ids of `addEvents`) and `panels` (ids of `addStoryPanels`).
    * Anything no view names shows in every view (shared bodies such as the planets); anything a view names shows only in the views that name it. `place` is `"top-bar"` or `"panel"` (as for `setSwitches`);
    * `start` is the opening view (default the first). `camera` says what happens when the followed or focused object is not in the view switched to: `"stay"` (default), `"start"` (the scene's start) or
    * `{ follow: id }` / `{ focus: id }` (that framing; the object must be in the view). Presentation only: State is unchanged and a hidden object keeps its state. May be called again; the later call replaces the views.
    * An empty list, a repeated view id, a bad place or camera, or a `start` that is not a view throws `bad-view` here; an id the scene does not hold, or a camera target the view does not show, throws `bad-view` when the scene is built (`mount`), so the call may come before or after the objects.
    * @example
-   * scene.setViews([{ id: "a", label: "Probe A", paths: ["probe-a"] }, { id: "b", label: "Probe B", paths: ["probe-b"] }, { id: "both", label: "Both" }], { place: "top-bar" });
+   * scene.setViews([{ id: "a", label: "Probe A", objects: ["probe-a"] }, { id: "b", label: "Probe B", objects: ["probe-b"] }, { id: "both", label: "Both" }], { place: "top-bar" });
    */
   setViews(views: readonly ViewInput[], options: ViewsOptions): this {
     this.#editable();

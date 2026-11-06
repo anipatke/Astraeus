@@ -102,7 +102,7 @@ describe("Scene", () => {
 });
 
 describe("moons and the data packages (O-036 T-161)", () => {
-  const positions = (): DataSource => ({ name: "astraeus-data-saturn", provides: ["titan"], moonPositions: { centre: "saturn", loadIndex: async () => ({}), chunkUrls: {} } });
+  const positions = (): DataSource => ({ name: "astraeus-data-saturn", provides: ["titan"], moonPositions: { center: "saturn", loadIndex: async () => ({}), chunkUrls: {} } });
 
   it("does not offer a moon without its planet's positions package, by reference or by id", () => {
     expect(codeOf(() => definitionOf(new Scene().addBody(saturn).addBody(titan)))).toMatch(/^missing-data: .*titan.*astraeus-data-saturn/);

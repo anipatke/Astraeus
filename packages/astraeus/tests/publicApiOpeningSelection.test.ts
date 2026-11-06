@@ -13,9 +13,9 @@ const base = () => new Scene().addBody(sun).addBody(earth).addBody(mars).addTraj
 
 describe("the object a scene opens selected", () => {
   it.each([
-    ["lookAt on a path", (s: Scene) => s.camera.lookAt("probe"), "probe"],
+    ["focus on a path", (s: Scene) => s.camera.focus("probe"), "probe"],
     ["follow on a path", (s: Scene) => s.camera.follow("probe"), "probe"],
-    ["lookAt on a body", (s: Scene) => s.camera.lookAt("mars"), "mars"],
+    ["focus on a body", (s: Scene) => s.camera.focus("mars"), "mars"],
     ["follow on a body", (s: Scene) => s.camera.follow("earth"), "earth"],
     ["no target (the scene's centre, as before)", (_s: Scene) => undefined, "sun"],
   ])("%s selects %s", (_name, open, expected) => {
@@ -31,7 +31,7 @@ describe("the object a scene opens selected", () => {
 describe("a path that is not yet available at the opening moment", () => {
   it("is still the opening target by the derivation; the shell's availability fallback is the documented behaviour for an unavailable object", () => {
     const scene = base().setTimeline({ start: T0 - 60 * MIN, end: T0 + 10 * MIN }).setTime(T0 - 30 * MIN);
-    scene.camera.lookAt("probe");
+    scene.camera.focus("probe");
     const definition = definitionOf(scene);
     expect(initialObjectIdOf(definition)).toBe("probe");
     const probe = definition.experience.objects.find((o) => o.id === "probe")!;

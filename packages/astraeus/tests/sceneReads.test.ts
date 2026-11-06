@@ -17,13 +17,13 @@ const build = () => new Scene()
   .addBody(sun).addBody(earth, { orbit: true, enlarge: 3 }).addBody(moon, { orbit: true })
   .addTrajectory({ id: "probe", label: "Probe", center: "earth", samples, provenance: pathProvenance, anchors: [{ id: "fix-a", time: T0 + 10 * MIN }] })
   .addGroup({ id: "ring", label: "Ring", orbits: [0, 1, 2].map(orbit), plane: "EQJ", provenance: groupSource })
-  .addGroup({ id: "swarm", orbits: [0, 1].map(orbit), clump: { near: "earth", fraction: 0.5, widthDeg: 20 } })
+  .addGroup({ plane: "ecliptic-j2000", id: "swarm", orbits: [0, 1].map(orbit), clump: { near: "earth", fraction: 0.5, widthDeg: 20 } })
   .addEvents([{ id: "late", label: "Late", time: T0 + 20 * MIN, type: "burn", object: "probe", provenance: own }, { id: "early", label: "Early", time: "2026-03-01T00:05:00Z" }], { provenance: batch })
   .addStoryPanels({ pauseSeconds: 3, panels: [
     { id: "by-event", at: { event: "late" }, title: "Late one", body: ["A line."], details: ["A figure."], badge: "modelled", sources: ["Source B"], object: "probe" },
     { id: "by-anchor", at: { anchor: "fix-a" }, title: "First fix", body: ["One.", "Two."], badge: "observed", sources: ["Source A"] },
   ] })
-  .setViews([{ id: "a", label: "A", paths: ["probe"] }, { id: "all", label: "All" }], { place: "panel", start: "all" })
+  .setViews([{ id: "a", label: "A", objects: ["probe"] }, { id: "all", label: "All" }], { place: "panel", start: "all" })
   .setScale(solarSystemScale)
   .setTimeline({ start: "2026-03-01T00:00:00Z", end: "2026-03-01T01:00:00Z", rates: [10, 100], rate: 100, loop: true });
 
@@ -84,7 +84,7 @@ describe("what a scene holds", () => {
   it("carries the words and known limits of each info card: given, else the catalogue's or the engine's", () => {
     const scene = new Scene().addBody(sun, { description: "The star.", knownLimitations: ["A made-up limit."] }).addBody(earth)
       .addTrajectory({ id: "probe", samples, description: "A probe.", knownLimitations: ["Rough."] }).addTrajectory({ id: "plain", samples })
-      .addGroup({ id: "ring", orbits: [orbit(0), orbit(1)], knownLimitations: ["Short list."] }).addGroup({ id: "one", orbits: [orbit(0)], description: "Mine.", clump: { near: "earth", fraction: 0.5, widthDeg: 20 } });
+      .addGroup({ plane: "ecliptic-j2000", id: "ring", orbits: [orbit(0), orbit(1)], knownLimitations: ["Short list."] }).addGroup({ plane: "ecliptic-j2000", id: "one", orbits: [orbit(0)], description: "Mine.", clump: { near: "earth", fraction: 0.5, widthDeg: 20 } });
     const [star, planet] = scene.bodies;
     expect([star!.description, star!.knownLimitations]).toEqual(["The star.", ["A made-up limit."]]);
     expect(planet!.description).toBeUndefined();

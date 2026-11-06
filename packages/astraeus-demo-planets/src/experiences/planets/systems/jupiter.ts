@@ -1,12 +1,13 @@
 // Jupiter's system for the planets experience: its moon list, fitted positions, mapped pictures and tagged places. The words and numbers
 // of the view are data/planets/jupiter.json; this file only names where Jupiter's data is.
+import type { MoonIndex } from "astraeus";
 import type { PlanetSystem } from "../planetScene";
 import { chunkUrlsOf, moonListOf, moonPositionsOf, ORBIT_HISTORY_MS, packagesOf } from "../planetSystemParts";
 
 /** Jupiter's moon list (it ships in astraeus-data-jupiter). */
 const LISTS = import.meta.glob("../../../../../astraeus-data-jupiter/data/jupiter-moons/list.json", { eager: true, import: "default" }) as Record<string, unknown>;
 /** The index ships in astraeus-data-jupiter; a lazy glob keeps it its own chunk (it is read only when the system loads). */
-const INDEX = import.meta.glob("../../../../../astraeus-data-jupiter/data/jupiter-moons/index.json", { import: "default" }) as Record<string, () => Promise<unknown>>;
+const INDEX = import.meta.glob("../../../../../astraeus-data-jupiter/data/jupiter-moons/index.json", { import: "default" }) as Record<string, () => Promise<MoonIndex>>;
 
 /** The tagged places of the four big moons: each body package's features, categories and map record (whose coordinates convert west longitudes, T-140), read as they are stored. */
 const PACKAGES = import.meta.glob("../../../../../astraeus-data/data/bodies/{io,europa,ganymede,callisto}/{features,categories,map}.json", { eager: true, import: "default" }) as Record<string, unknown>;
@@ -31,5 +32,5 @@ export const jupiterSystem: PlanetSystem = {
   moonList: MOON_LIST,
   orbitHistoryMs: ORBIT_HISTORY_MS,
   packages: packagesOf(PACKAGES, ["io", "europa", "ganymede", "callisto"]),
-  data: [moonPositionsOf({ name: "astraeus-data-jupiter", centre: "jupiter", provides: ["io", "europa", "ganymede", "callisto"], loadIndex: Object.values(INDEX)[0]!, chunkUrls: JUPITER_CHUNK_URLS })],
+  data: [moonPositionsOf({ name: "astraeus-data-jupiter", center: "jupiter", provides: ["io", "europa", "ganymede", "callisto"], loadIndex: Object.values(INDEX)[0]!, chunkUrls: JUPITER_CHUNK_URLS })],
 };

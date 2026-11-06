@@ -1,15 +1,15 @@
 import { VIEW_PLACES, type ResolvedView, type ViewCameraRule, type ViewPlace, type ViewSettings } from "../app/views";
 import { SceneError } from "./errors";
+import { rejectRenamed } from "./renamedInputs";
 
 /** What a view's camera does when what it follows or focuses on is not in the view: `"stay"` (default) keeps the pose and stops following, `"start"` takes the scene's start, `{ follow: id }` / `{ focus: id }` takes that framing (the object must be in the view). */
 export type ViewCameraInput = "stay" | "start" | { readonly follow: string } | { readonly focus: string };
 
-/** One named view. `paths` are `addTrajectory` ids, `bodies` are `addBody` or `addGroup` ids, `events` are `addEvents` ids and `panels` are `addStoryPanels` ids. */
+/** One named view. `objects` are `addBody`, `addGroup` or `addTrajectory` ids, `events` are `addEvents` ids and `panels` are `addStoryPanels` ids. */
 export interface ViewInput {
   readonly id: string;
   readonly label: string;
-  readonly paths?: readonly string[];
-  readonly bodies?: readonly string[];
+  readonly objects?: readonly string[];
   readonly events?: readonly string[];
   readonly panels?: readonly string[];
   readonly camera?: ViewCameraInput;
@@ -28,12 +28,12 @@ export interface ViewsPlan {
   readonly views: readonly ViewInput[];
 }
 
-const KINDS = ["paths", "bodies", "events", "panels"] as const;
+const KINDS = ["objects", "events", "panels"] as const;
 
 /** What the finished scene holds, for `resolveViews`. */
 export interface ViewScope {
-  readonly paths: readonly string[];
-  readonly bodies: readonly string[];
+  /** Every body, group and path id of the scene. */
+  readonly objects: readonly string[];
   readonly events: readonly string[];
   readonly panels: readonly string[];
 }
@@ -54,6 +54,7 @@ export function viewsOf(input: readonly ViewInput[], options: ViewsOptions): Vie
     if (typeof view.label !== "string" || view.label === "") throw bad(`view "${view.id}" needs a non-empty label`);
     if (seen.has(view.id)) throw bad(`view "${view.id}" appears twice`);
     seen.add(view.id);
+    rejectRenamed("ViewInput", view, `setViews: view "${view.id}"`);
     for (const kind of KINDS) {
       const ids = view[kind];
       if (ids !== undefined && (!Array.isArray(ids) || !ids.every((id) => typeof id === "string" && id !== ""))) throw bad(`view "${view.id}" ${kind} must be a list of non-empty ids`);
@@ -82,9 +83,9 @@ function cameraOf(view: ViewInput): ViewCameraRule {
  * and for a camera target the view does not show.
  */
 export function resolveViews(plan: ViewsPlan, scope: ViewScope): ViewSettings {
-  const known = { paths: new Set(scope.paths), bodies: new Set(scope.bodies), events: new Set(scope.events), panels: new Set(scope.panels) };
-  const what = { paths: "a path (addTrajectory)", bodies: "a body or group", events: "an event (addEvents)", panels: "a story panel (addStoryPanels)" };
-  const named = { paths: new Set<string>(), bodies: new Set<string>(), events: new Set<string>(), panels: new Set<string>() };
+  const known = { objects: new Set(scope.objects), events: new Set(scope.events), panels: new Set(scope.panels) };
+  const what = { objects: "a body, group or path (addBody, addGroup, addTrajectory)", events: "an event (addEvents)", panels: "a story panel (addStoryPanels)" };
+  const named = { objects: new Set<string>(), events: new Set<string>(), panels: new Set<string>() };
   for (const view of plan.views) {
     for (const kind of KINDS) {
       for (const id of view[kind] ?? []) {
@@ -95,7 +96,7 @@ export function resolveViews(plan: ViewsPlan, scope: ViewScope): ViewSettings {
   }
   const shows = (view: ViewInput, kind: (typeof KINDS)[number], id: string): boolean => !named[kind].has(id) || (view[kind] ?? []).includes(id);
   const views = plan.views.map((view): ResolvedView => {
-    const objects = new Set([...scope.paths.filter((id) => shows(view, "paths", id)), ...scope.bodies.filter((id) => shows(view, "bodies", id))]);
+    const objects = new Set(scope.objects.filter((id) => shows(view, "objects", id)));
     const camera = cameraOf(view);
     if (camera.rule === "start" && camera.framing !== undefined) {
       const target = "follow" in camera.framing ? camera.framing.follow : camera.framing.focus;

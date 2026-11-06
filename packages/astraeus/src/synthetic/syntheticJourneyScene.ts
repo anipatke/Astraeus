@@ -87,8 +87,8 @@ export function buildSyntheticJourneyScene(): Scene {
     rates: [DAY_MS / 1000, 30 * DAY_MS / 1000, YEAR_S],
     rate: 30 * DAY_MS / 1000,
     pacing: [
-      { near: { type: "encounter", within: 30 * DAY_MS / 1000 }, rate: DAY_MS / 1000 },
-      { from: JOURNEY_URANUS_UTC_MS + 120 * DAY_MS, to: JOURNEY_END_UTC_MS, rate: YEAR_S },
+      { near: { type: "encounter", withinSeconds: 30 * DAY_MS / 1000 }, rate: DAY_MS / 1000 },
+      { start: JOURNEY_URANUS_UTC_MS + 120 * DAY_MS, end: JOURNEY_END_UTC_MS, rate: YEAR_S },
     ],
   });
   scene.setScale(solarSystemScale);

@@ -12,6 +12,7 @@ import { listedMoonBodyOf } from "../core/bodies/listedMoonBodies";
 import { readyMade, type BodyRef } from "./bodies";
 import type { DataSource } from "./data";
 import { SceneError } from "./errors";
+import { rejectRenamed } from "./renamedInputs";
 import { checkLabelReach } from "./planPaths";
 import type { AddBodyOptions, CardFactInput, OrbitLapInput, ReadoutInput } from "./scene";
 import { createProvenance, type Provenance } from "../core/provenance";
@@ -76,7 +77,7 @@ function parseRecord(record: ElementsBodyRecord): ElementsBodyRecord {
 
 /** Checks the colour, known limits and label reach given to `addBody`. */
 function checkBodyLook(id: string, options: AddBodyOptions): void {
-  if (options.labelReach !== undefined) checkLabelReach(options.labelReach, new SceneError("bad-body", `addBody("${id}"): labelReach ${String(options.labelReach)} must be a positive finite number`));
+  if (options.labelReachEarthRadii !== undefined) checkLabelReach(options.labelReachEarthRadii, new SceneError("bad-body", `addBody("${id}"): labelReachEarthRadii ${String(options.labelReachEarthRadii)} must be a positive finite number`));
   if (options.enlarge !== undefined && !(typeof options.enlarge === "number" && Number.isFinite(options.enlarge) && options.enlarge >= 1)) throw new SceneError("bad-body", `addBody("${id}"): enlarge ${String(options.enlarge)} must be a number of at least 1`);
   if (options.showLabel !== undefined && typeof options.showLabel !== "boolean") throw new SceneError("bad-body", `addBody("${id}"): showLabel must be true or false`);
   if (options.color !== undefined && !(typeof options.color === "string" && /^#[0-9a-fA-F]{3}([0-9a-fA-F]{3})?$/.test(options.color))) throw new SceneError("bad-body", `addBody("${id}"): color "${String(options.color)}" is not a hex colour such as "#9fd8ff"`);
@@ -90,7 +91,7 @@ const withSources = (provenance: Provenance, sources: readonly string[]): Proven
 /** The camera facts the label rule reads. */
 export interface LabelCamera {
   readonly fitted: string | undefined;
-  readonly reach: number | undefined;
+  readonly reachEarthRadii: number | undefined;
 }
 
 /** What a `Scene` has planned for its bodies: the bodies, their options and the scene's catalogue. */
@@ -163,7 +164,7 @@ export class BodyPlan {
   /** Keeps what `addBody` asked for, option by option. */
   #remember(call: string, id: BodyId, options: AddBodyOptions): void {
     if (options.readouts !== undefined) this.readouts.set(id, readoutsOf(id, options.readouts, call));
-    if (options.labelReach !== undefined) this.labelReaches.set(id, options.labelReach);
+    if (options.labelReachEarthRadii !== undefined) this.labelReaches.set(id, options.labelReachEarthRadii);
     const lap = isLap(options.orbit) ? options.orbit : undefined;
     if (options.orbit === true || lap !== undefined) this.orbits.add(id);
     if (lap !== undefined) this.laps.set(id, { lapDays: lap.lapDays, ...(lap.fades === undefined ? {} : { fades: lap.fades }) });
@@ -179,6 +180,7 @@ export class BodyPlan {
   }
 
   #register(call: string, id: BodyId, ref: BodyRef, options: AddBodyOptions): void {
+    rejectRenamed("AddBodyOptions", options, `${call}("${id}")`);
     checkBodyCard(id, options);
     this.#checkOrbit(call, id, options);
     if (!this.catalogue.has(id)) throw new SceneError("unknown-body", `${call}("${id}"): not a catalogued body (known: ${builtInCatalogue.ids().join(", ")}; any moon in the moon lists is added by its id, and \`listedMoons(planet)\` names them with the data package each needs)`);
@@ -286,7 +288,7 @@ export class BodyPlan {
   labelReach(id: string, sunCentred: boolean, camera: LabelCamera): { readonly labelMaxDistance?: number } {
     const own = this.labelReaches.get(id);
     if (own !== undefined) return { labelMaxDistance: own };
-    return sunCentred || camera.fitted !== undefined ? {} : { labelMaxDistance: Math.max(500, camera.reach ?? 0) };
+    return sunCentred || camera.fitted !== undefined ? {} : { labelMaxDistance: Math.max(500, camera.reachEarthRadii ?? 0) };
   }
 
   /** The shell item of a body: from the catalogue, with the scene's own words, look and label setting. Label reach is `labelReach`. */

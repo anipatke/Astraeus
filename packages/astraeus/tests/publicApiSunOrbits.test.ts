@@ -160,7 +160,7 @@ describe("the public path without the planet series preloaded (O-042 T-177)", ()
   it("builds a group clumped near a planet the same way", async () => {
     const api = await fresh();
     const orbits = [0, 1, 2].map((k) => ({ id: `r${k}`, semiMajorAxisKm: 2e8 + 1e7 * k, eccentricity: 0.2, inclinationDeg: 5, raanDeg: 40 + k, argumentOfPeriapsisDeg: 70 }));
-    const definition = api.definitionOf(new api.Scene().addBody(api.sun).addBody(api.mars).addGroup({ id: "swarm", orbits, center: "sun", clump: { near: "mars", fraction: 0.5, widthDeg: 20 } }).setTime(T0));
+    const definition = api.definitionOf(new api.Scene().addBody(api.sun).addBody(api.mars).addGroup({ plane: "ecliptic-j2000", id: "swarm", orbits, center: "sun", clump: { near: "mars", fraction: 0.5, widthDeg: 20 } }).setTime(T0));
     expect(definition.groups).toHaveLength(0);
     await definition.prepare!();
     expect(definition.groups!.map((layer) => layer.object.id)).toEqual(["swarm"]);

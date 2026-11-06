@@ -371,7 +371,7 @@ export function AstraeusShell({
 
   const seekToEvent = (event: TimelineEvent) => {
     seek(event.timeUtcMs);
-    // The event's own object, framed as the picker's Focus does (and `camera.lookAt` opens): the event, never a default body, names it.
+    // The event's own object, framed as the picker's Focus does (and `camera.focus` opens): the event, never a default body, names it.
     const object = event.object === undefined ? undefined : availableObjectById(experience, event.object, event.timeUtcMs);
     if (object !== undefined) activatePreset(focusPresetFor(experience, object), event.timeUtcMs);
     if (info?.kind === "event") setInfo({ kind: "event", id: event.id });

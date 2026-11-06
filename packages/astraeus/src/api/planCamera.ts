@@ -34,9 +34,9 @@ export class SceneCamera {
   follow(id: string, view: FollowView = {}): this {
     return this.#open("follow", id, view, true);
   }
-  /** Opens framed on a body or trajectory already added to the scene, looking at it but not following it (the viewer's Focus button shows as pressed). The last of `follow` and `lookAt` wins. */
-  lookAt(id: string, view: FollowView = {}): this {
-    return this.#open("lookAt", id, view, false);
+  /** Opens framed on a body or trajectory already added to the scene, looking at it but not following it (the viewer's Focus button shows as pressed). The last of `follow` and `focus` wins. */
+  focus(id: string, view: FollowView = {}): this {
+    return this.#open("focus", id, view, false);
   }
   #open(call: string, id: string, view: FollowView, following: boolean): this {
     this.#editable();
@@ -51,7 +51,7 @@ export class SceneCamera {
   /**
    * Opens at a pose with no camera button pressed (neither Focus nor Follow shows as pressed, and choosing another body moves the camera as it does without a start). The pose is what `ViewerHandle.camera` reads:
    * `{ focus, azimuthDeg, elevationDeg, distance }`, distance in Earth radii. `focus` must be a body or trajectory already added (else `unknown-body`); a bad angle or distance throws `bad-camera`.
-   * The last of `follow`, `lookAt` and `setStartView` wins. Default: none.
+   * The last of `follow`, `focus` and `setStartView` wins. Default: none.
    * @example
    * scene.camera.setStartView({ focus: "earth", azimuthDeg: 20, elevationDeg: 30, distance: 40 });
    */
@@ -122,7 +122,7 @@ export class SceneCamera {
   /** The body `fitOrbit` fits the zoom-out to, if any. */
   get fitted(): string | undefined { return this.#fit; }
   /** The farthest zoom-out set with `setReach`, if any. */
-  get reach(): number | undefined { return this.#reach; }
+  get reachEarthRadii(): number | undefined { return this.#reach; }
   /** The far plane set with `setReach`'s `farEarthRadii`, if any. */
   get farEarthRadii(): number | undefined { return this.#far; }
   /** The pose `setStartView` set, if it is the last opening call. */
@@ -130,7 +130,7 @@ export class SceneCamera {
   /** The objects offering Follow (`setFollowChoices`); undefined: every one. */
   get followChoices(): readonly string[] | undefined { return this.#followIds; }
   get target(): string | undefined { return this.#target; }
-  /** Whether the opening view follows its target (`follow`) rather than only looking at it (`lookAt`). */
+  /** Whether the opening view follows its target (`follow`) rather than only looking at it (`focus`). */
   get following(): boolean { return this.#following; }
   get view(): FollowView { return this.#view; }
 }
@@ -161,7 +161,7 @@ export function startViewEntry(camera: SceneCamera): Pick<ExperienceDefinition, 
 
 /** The playback and camera settings the scene asked for: looping, the farthest zoom-out and the ecliptic up. */
 export function viewEntries(timeline: TimelineSetting | undefined, camera: SceneCamera, farthestKm: (() => number) | undefined, cover: (() => number) | undefined): Pick<ExperienceDefinition, "loop" | "camera" | "viewUp"> {
-  const { reach, view, target } = camera;
+  const { reachEarthRadii: reach, view, target } = camera;
   return {
     ...(timeline?.loop === true ? { loop: true } : {}),
     ...(reach === undefined ? {} : { camera: { maxFocusDistance: reach, far: camera.farEarthRadii ?? reach * 2.5 } }),

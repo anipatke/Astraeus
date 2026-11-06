@@ -189,7 +189,7 @@ function path(id: string, label: string, color: string, file: GeneratedFile, kno
     label,
     color,
     center: "earth",
-    labelReach: 4, // the path names show only close in, as they always have (I-100 gave other scenes the shared reach)
+    labelReachEarthRadii: 4, // the path names show only close in, as they always have (I-100 gave other scenes the shared reach)
     samples: file.samples.map((sample) => ({ time: sample.timeUtcMs, positionKm: sample.positionKm, ...(sample.velocityKmS === undefined ? {} : { velocityKmS: sample.velocityKmS }) })),
     provenance: file.provenance,
     description: DESCRIPTIONS[id],
@@ -233,6 +233,6 @@ export function buildApollo11Scene(data: Apollo11Data = APOLLO11_DATA): Scene {
     // True scale only: this story is about scale, so no Readable view that changes the planets' size (owner, 2026-10-17, O-020 Decision 10).
     .setScale(trueScale, { only: true });
   // Seen from above: Earth, the Moon and the whole outbound and return path in frame (owner-chosen angle, T-063); it looks at Earth without following it.
-  scene.camera.lookAt("earth", { azimuthDeg: 0, elevationDeg: 70, distance: 130 });
+  scene.camera.focus("earth", { azimuthDeg: 0, elevationDeg: 70, distance: 130 });
   return scene;
 }

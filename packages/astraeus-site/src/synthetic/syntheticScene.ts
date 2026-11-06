@@ -32,15 +32,15 @@ export function buildSyntheticScene(): Scene {
     };
   });
   const scene = new Scene()
-    .addBody(earth, { color: "#9fd8ff", labelPriority: 100, labelReach: 500, description: "The planet the marker circles." })
-    .addBody(moon, { color: "#ded7cc", labelPriority: 90, labelReach: 500, description: "Shown for scale only." })
+    .addBody(earth, { color: "#9fd8ff", labelPriority: 100, labelReachEarthRadii: 500, description: "The planet the marker circles." })
+    .addBody(moon, { color: "#ded7cc", labelPriority: 90, labelReachEarthRadii: 500, description: "Shown for scale only." })
     .addTrajectory({
       id: "survey-marker",
       label: "Survey marker",
       color: "#ffb347",
       center: "earth",
       samples,
-      labelReach: 4,
+      labelReachEarthRadii: 4,
       provenance: markerProvenance,
       description: "An invented object on a simple loop around Earth.",
       knownLimitations: ["Not a real object; the loop is a plain circle chosen for testing."],

@@ -29,9 +29,9 @@ const definitionAt = (place: "top-bar" | "panel") => definitionOf(new Scene().ad
   .addEvents([{ id: "ea", label: "A event", time: T0 + 5 * MIN }, { id: "eb", label: "B event", time: T0 + 6 * MIN }, { id: "es", label: "Shared event", time: T0 + 7 * MIN }])
   .addStoryPanels({ panels: [panel("qa", "pa"), panel("qb", "pb"), panel("qs", "earth")] })
   .setViews([
-    { id: "a", label: "View A", paths: ["pa"], events: ["ea"], panels: ["qa"] },
-    { id: "b", label: "View B", paths: ["pb"], events: ["eb"], panels: ["qb"] },
-    { id: "both", label: "Both", paths: ["pa", "pb"], events: ["ea", "eb"], panels: ["qa", "qb"] },
+    { id: "a", label: "View A", objects: ["pa"], events: ["ea"], panels: ["qa"] },
+    { id: "b", label: "View B", objects: ["pb"], events: ["eb"], panels: ["qb"] },
+    { id: "both", label: "Both", objects: ["pa", "pb"], events: ["ea", "eb"], panels: ["qa", "qb"] },
   ], { place }));
 
 let container: HTMLElement;
@@ -125,7 +125,7 @@ describe("the view choice", () => {
 
 describe("a moon and its orbit line", () => {
   const moonScene = () => definitionOf(new Scene().addBody(earth).addBody(moon, { orbit: true })
-    .setViews([{ id: "near", label: "Near", bodies: ["moon"] }, { id: "far", label: "Far", bodies: ["earth"] }, { id: "all", label: "All", bodies: ["moon", "earth"] }], { place: "top-bar" }));
+    .setViews([{ id: "near", label: "Near", objects: ["moon"] }, { id: "far", label: "Far", objects: ["earth"] }, { id: "all", label: "All", objects: ["moon", "earth"] }], { place: "top-bar" }));
   const openMoon = async () => { await act(async () => { root.render(createElement(App, { definition: moonScene() })); }); };
   it("hides the moon (so its label and pick target) only in the view without it, and shows it where it is shared", async () => {
     await openMoon();

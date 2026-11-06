@@ -8,7 +8,7 @@ import { definitionOf } from "../src/api/definitionOf";
 
 const T0 = Date.parse("2026-01-01T00:00:00Z");
 const orbit = (k: number) => ({ id: `rock-${k}`, semiMajorAxisKm: 80_000 + 5_000 * k, eccentricity: 0.1 + 0.02 * k, inclinationDeg: 5 + k, raanDeg: 40 + 3 * k, argumentOfPeriapsisDeg: 70 + k });
-const ring = (extra: Partial<GroupInput> = {}): GroupInput => ({ id: "ring", orbits: [0, 1, 2, 3, 4, 5].map(orbit), ...extra });
+const ring = (extra: Partial<GroupInput> = {}): GroupInput => ({ id: "ring", plane: "ecliptic-j2000", orbits: [0, 1, 2, 3, 4, 5].map(orbit), ...extra });
 const base = () => new Scene().addBody(earth).addBody(moon).setTime(T0);
 const codeOf = (fn: () => unknown) => { try { fn(); } catch (error) { return error instanceof SceneError ? error.code : String(error); } return "no error"; };
 const positions = (definition: ExperienceDefinition, time = T0 + 3_600_000) => {
@@ -104,6 +104,9 @@ describe("addGroup", () => {
     ];
     for (const bad of cases) expect(codeOf(() => base().addGroup({ ...ring(), ...bad })), JSON.stringify(bad)).toBe("bad-group");
     expect(orbits).toHaveLength(6);
+    // The plane is required (O-057 T-276): a plain JavaScript caller who leaves it out, or names another, is refused with bad-group and no default is applied.
+    for (const plane of [undefined, "ecliptic", 5]) expect(codeOf(() => base().addGroup({ ...ring(), plane } as never)), String(plane)).toBe("bad-group");
+    for (const plane of ["ecliptic-j2000", "EQJ"] as const) expect(codeOf(() => base().addGroup(ring({ plane })))).toBe("no error");
     // An unbound orbit (eccentricity 1 or more) and a bad shape are refused when the scene is built.
     for (const worse of [{ eccentricity: 1.2 }, { semiMajorAxisKm: -5 }, { inclinationDeg: 200 }]) {
       const scene = base().addGroup(ring({ orbits: [{ ...orbit(0), ...worse }] }));

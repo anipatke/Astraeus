@@ -146,13 +146,13 @@ describe("SceneCamera.setStartView", () => {
     expect(definition.startView).toEqual(pose);
     expect(definition.experience.startCameraPresetId).toBeUndefined();
   });
-  it("is last-wins with follow and lookAt", () => {
+  it("is last-wins with follow and focus", () => {
     const built = scene();
     built.camera.setStartView(pose).follow("earth");
     expect(definitionOf(built, [everything]).experience.startCameraPresetId).toBe("follow-earth");
     expect(definitionOf(built, [everything]).startView?.focus).toBe("earth");
     const back = scene();
-    back.camera.lookAt("earth").setStartView(pose);
+    back.camera.focus("earth").setStartView(pose);
     const definition = definitionOf(back, [everything]);
     expect(definition.experience.startCameraPresetId).toBeUndefined();
     expect(definition.startView).toEqual(pose);

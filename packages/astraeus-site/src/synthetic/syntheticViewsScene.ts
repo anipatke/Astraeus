@@ -37,11 +37,11 @@ export function buildSyntheticViewsScene(): Scene {
     ], { provenance: madeUp })
     .addStoryPanels({ panels: [panel("panel-a", "About probe A", 10), panel("panel-b", "About probe B", 15), panel("panel-shared", "About both", 20)] })
     .setViews([
-      { id: "a", label: "Probe A", paths: ["probe-a"], events: ["event-a"], panels: ["panel-a"], camera: "stay" },
-      { id: "b", label: "Probe B", paths: ["probe-b"], events: ["event-b"], panels: ["panel-b"], camera: { follow: "probe-b" } },
-      { id: "both", label: "Both", paths: ["probe-a", "probe-b"], events: ["event-a", "event-b"], panels: ["panel-a", "panel-b"], camera: { focus: "probe-a" } },
+      { id: "a", label: "Probe A", objects: ["probe-a"], events: ["event-a"], panels: ["panel-a"], camera: "stay" },
+      { id: "b", label: "Probe B", objects: ["probe-b"], events: ["event-b"], panels: ["panel-b"], camera: { follow: "probe-b" } },
+      { id: "both", label: "Both", objects: ["probe-a", "probe-b"], events: ["event-a", "event-b"], panels: ["panel-a", "panel-b"], camera: { focus: "probe-a" } },
     ], { place: "top-bar" })
-    .setTimeline({ start: VIEWS_START_UTC_MS, end: VIEWS_START_UTC_MS + SPAN_H * HOUR_MS, rates: [60, 600, 3600], rate: 600, pacing: [{ near: { type: "flyby", within: 1800 }, rate: 60 }] })
+    .setTimeline({ start: VIEWS_START_UTC_MS, end: VIEWS_START_UTC_MS + SPAN_H * HOUR_MS, rates: [60, 600, 3600], rate: 600, pacing: [{ near: { type: "flyby", withinSeconds: 1800 }, rate: 60 }] })
     .setScale(trueScale, { only: true })
     .setTime(VIEWS_START_UTC_MS);
   scene.camera.follow("probe-a", { distance: 14 });

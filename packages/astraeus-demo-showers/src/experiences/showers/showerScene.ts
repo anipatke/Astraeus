@@ -95,6 +95,7 @@ function streamOf(settings: ShowerSettings, orbits: MeasuredOrbits): GroupInput 
   return {
     id: streamIdOf(settings),
     label: `${settings.label} stream`,
+    plane: "ecliptic-j2000",
     orbits: orbits.members.map(({ recordId, epochUtcMs, elements }) => ({ id: recordId, time: epochUtcMs, ...elements })),
     color: look.streamColor,
     dotSizePx: look.pointSizePx,
@@ -160,6 +161,6 @@ export function buildShowerScene(settings: ShowerSettings, load: MeasuredLoad, p
   scene.setScale(trueScale);
   scene.camera.setReach(look.cameraMaxFocusDistance);
   const view = openingViewOf(settings);
-  scene.camera.lookAt(view.focus, { azimuthDeg: view.azimuthDeg, elevationDeg: view.elevationDeg, distance: view.distance, up: look.viewUp });
+  scene.camera.focus(view.focus, { azimuthDeg: view.azimuthDeg, elevationDeg: view.elevationDeg, distance: view.distance, up: look.viewUp });
   return scene;
 }

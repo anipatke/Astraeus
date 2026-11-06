@@ -168,7 +168,7 @@ export function assembleScene(parts: ScenePlanners, data: readonly DataSource[])
     ...viewPlan.switchesEntry(),
     ...parts.picker.entry(),
     ...(parts.look === undefined ? {} : { look: parts.look }),
-    ...viewPlan.viewsEntry({ paths: [...trackedMap.keys()], bodies: [...ids, ...groupPlan.groups.keys()], events: story.events.map(({ id }) => id) }, storyPanels),
+    ...viewPlan.viewsEntry({ objects: [...trackedMap.keys(), ...ids, ...groupPlan.groups.keys()], events: story.events.map(({ id }) => id) }, storyPanels),
     ...viewEntries(timeline, camera, fit?.read, pathCover(trackedMap.values(), sunCentred, ids[0]!)),
     ...startViewEntry(camera),
     trackedBodies: tracked,

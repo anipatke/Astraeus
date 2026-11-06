@@ -182,21 +182,21 @@ describe("setScale with only", () => {
   it("still refuses a scale that is not one", () => { expect(codeOf(() => base().setScale({ id: "x" } as never, { only: true }))).toBe("bad-scale"); });
 });
 
-describe("camera.lookAt and the automatic camera menu", () => {
+describe("camera.focus and the automatic camera menu", () => {
   it("opens looking at an object without following it", () => {
-    const definition = (() => { const scene = base(); scene.camera.lookAt("probe", { distance: 12, azimuthDeg: 10 }); return definitionOf(scene); })();
+    const definition = (() => { const scene = base(); scene.camera.focus("probe", { distance: 12, azimuthDeg: 10 }); return definitionOf(scene); })();
     expect(definition.startView).toEqual({ focus: "probe", azimuthDeg: 10, elevationDeg: 30, distance: 12 });
     expect(definition.experience.startCameraPresetId).toBe("focus-probe");
   });
-  it("lets the last of follow and lookAt win", () => {
+  it("lets the last of follow and focus win", () => {
     const scene = base();
-    scene.camera.follow("probe").lookAt("moon");
+    scene.camera.follow("probe").focus("moon");
     expect(scene.camera.following).toBe(false);
     expect(scene.camera.target).toBe("moon");
     scene.camera.follow("moon");
     expect(scene.camera.following).toBe(true);
   });
-  it("refuses an object not in the scene", () => { expect(codeOf(() => base().camera.lookAt("ghost"))).toBe("unknown-body"); });
+  it("refuses an object not in the scene", () => { expect(codeOf(() => base().camera.focus("ghost"))).toBe("unknown-body"); });
   it("lists Overview plus Focus and Follow for every body and path, with the opening one in force", () => {
     const scene = base();
     scene.camera.follow("moon");

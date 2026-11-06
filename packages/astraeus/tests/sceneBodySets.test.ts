@@ -135,8 +135,8 @@ describe("addBodySet with made-up members (elements)", () => {
   });
 
   it("a view cannot name a set or a member: it is in every view", () => {
-    expect(codeOf(() => base().addBodySet(set()).setViews([{ id: "a", label: "A", bodies: ["bit-0"] }, { id: "b", label: "B", bodies: ["earth"] }], { place: "panel" }).check())).toBe("bad-view");
-    expect(codeOf(() => base().addBodySet(set()).setViews([{ id: "a", label: "A", bodies: ["swarm"] }, { id: "b", label: "B", bodies: ["earth"] }], { place: "panel" }).check())).toBe("bad-view");
+    expect(codeOf(() => base().addBodySet(set()).setViews([{ id: "a", label: "A", objects: ["bit-0"] }, { id: "b", label: "B", objects: ["earth"] }], { place: "panel" }).check())).toBe("bad-view");
+    expect(codeOf(() => base().addBodySet(set()).setViews([{ id: "a", label: "A", objects: ["swarm"] }, { id: "b", label: "B", objects: ["earth"] }], { place: "panel" }).check())).toBe("bad-view");
   });
 
   it("reads: a fresh frozen list that answers before and after a build, and in order added", () => {
@@ -219,7 +219,7 @@ describe("addBodySet refuses bad input with bad-body-set", () => {
     expect(codeOf(() => base().addBodySet(set()).addBodySet(set()))).toBe("duplicate-id");
     expect(codeOf(() => base().addBodySet(set()).addBodySet(set({ id: "other" })))).toBe("duplicate-id"); // same member ids
     expect(codeOf(() => base().addBodySet(set({ members: [member(0, "inner", { id: "moon" })] })))).toBe("duplicate-id");
-    expect(codeOf(() => base().addBodySet(set()).addGroup({ id: "bit-0", orbits: [{ id: "a", semiMajorAxisKm: 9e4, eccentricity: 0.1, inclinationDeg: 5, raanDeg: 40, argumentOfPeriapsisDeg: 70 }] }))).toBe("duplicate-id");
+    expect(codeOf(() => base().addBodySet(set()).addGroup({ plane: "ecliptic-j2000", id: "bit-0", orbits: [{ id: "a", semiMajorAxisKm: 9e4, eccentricity: 0.1, inclinationDeg: 5, raanDeg: 40, argumentOfPeriapsisDeg: 70 }] }))).toBe("duplicate-id");
     expect(codeOf(() => base().addBodySet(set()).addTrajectory({ id: "swarm", center: "earth", samples: [0, 1].map((i) => ({ time: T0 + i * DAY, positionKm: [1e5 + i, 0, 0] })) }))).toBe("duplicate-id");
   });
 
@@ -236,7 +236,7 @@ describe("addBodySet with listed moons (positions through data)", () => {
   const folder = moonDataFolder("jupiter");
   const index = readJson(`${folder}index.json`) as { bodies: { chunks: { path: string }[] }[] };
   const chunkUrls: Record<string, string> = Object.fromEntries(index.bodies.flatMap((body) => body.chunks.map(({ path }) => [path, `${folder}${path}`])));
-  const data: DataSource[] = [{ name: "astraeus-data-jupiter", provides: [], moonPositions: { centre: "jupiter", loadIndex: async () => index, chunkUrls } }];
+  const data: DataSource[] = [{ name: "astraeus-data-jupiter", provides: [], moonPositions: { center: "jupiter", loadIndex: async () => index, chunkUrls } }];
   const T1 = Date.parse("2020-03-05T00:00:00Z");
   const listed = (extra: Partial<BodySetInput> = {}): BodySetInput => ({
     id: "small",

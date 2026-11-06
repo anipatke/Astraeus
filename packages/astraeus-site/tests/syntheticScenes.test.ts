@@ -51,7 +51,7 @@ describe.each(REBUILT)("the %s scene keeps what its fixture showed", (name, buil
 });
 
 /** The camera's reach and far plane as the scene states them: the far plane defaults to 2.5 times the reach when `setReach` gives none (its doc comment). */
-const reachOf = (scene: Scene) => ({ maxFocusDistance: scene.camera.reach, far: scene.camera.farEarthRadii ?? scene.camera.reach! * 2.5 });
+const reachOf = (scene: Scene) => ({ maxFocusDistance: scene.camera.reachEarthRadii, far: scene.camera.farEarthRadii ?? scene.camera.reachEarthRadii! * 2.5 });
 
 describe("the rebuilt scenes' own features", () => {
   it("synthetic: one marker path and the contact window with both provenance spans (read through scene.activities)", () => {

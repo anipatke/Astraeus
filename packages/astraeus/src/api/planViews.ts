@@ -30,8 +30,8 @@ export class ViewPlan {
   }
 
   /** The `views` entry of the definition: the views resolved against the finished scene once (absent when none was named). */
-  viewsEntry(scene: { readonly paths: readonly string[]; readonly bodies: readonly string[]; readonly events: readonly string[] }, storyPanels: StoryPanelSet | undefined): { views?: ViewSettings } {
+  viewsEntry(scene: { readonly objects: readonly string[]; readonly events: readonly string[] }, storyPanels: StoryPanelSet | undefined): { views?: ViewSettings } {
     if (this.#views === undefined) return {};
-    return { views: resolveViews(this.#views, { paths: scene.paths, bodies: scene.bodies, events: scene.events, panels: storyPanels?.panels.map(({ id }) => id) ?? [] }) };
+    return { views: resolveViews(this.#views, { objects: scene.objects, events: scene.events, panels: storyPanels?.panels.map(({ id }) => id) ?? [] }) };
   }
 }

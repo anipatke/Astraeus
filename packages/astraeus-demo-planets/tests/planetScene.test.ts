@@ -87,7 +87,7 @@ describe("planet scene builder (T-117, T-270)", () => {
     expect(scene.timeline).toMatchObject({ windowStartUtcMs: Date.UTC(2030, 0, 1), windowEndUtcMs: Date.UTC(2030, 0, 15), openUtcMs: Date.UTC(2030, 0, 1), rates: [60, 600], rate: 600 });
     expect(scene.scales).toEqual(["true-scale"]);
     expect(scene.camera.followChoices).toEqual(["moon"]);
-    expect(scene.camera.reach).toBe(500);
+    expect(scene.camera.reachEarthRadii).toBe(500);
     expect(scene.camera.farEarthRadii).toBe(5000);
     expect(scene.camera.pose).toEqual({ focus: "mars", azimuthDeg: 10, elevationDeg: 20, distance: 50 });
     expect(JSON.stringify(scene.bodies)).not.toMatch(/jupiter/i);

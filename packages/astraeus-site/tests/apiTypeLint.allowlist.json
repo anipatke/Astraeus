@@ -81,13 +81,6 @@
   ],
   "breaks": [
     {
-      "rule": "centre",
-      "site": "MoonPositions.centre",
-      "reason": "spelt `centre`; the one spelling is `center`",
-      "finding": "F4",
-      "removedBy": "O-057"
-    },
-    {
       "rule": "frame",
       "site": "CenteredPosition.frame",
       "reason": "a frame field not named `plane`; reachable only through an internal type that leaks from the root",
@@ -103,23 +96,9 @@
     },
     {
       "rule": "loose",
-      "site": "MoonPositions.loadIndex",
-      "reason": "`unknown` in a public type",
-      "finding": "F5",
-      "removedBy": "O-057"
-    },
-    {
-      "rule": "loose",
       "site": "StoryPanelsInput.panels",
       "reason": "`unknown` in a public type",
       "finding": "F5",
-      "removedBy": "O-057"
-    },
-    {
-      "rule": "span",
-      "site": "PacingInput: from/to",
-      "reason": "a span not written { start, end }",
-      "finding": "F4",
       "removedBy": "O-057"
     },
     {
@@ -166,13 +145,6 @@
     },
     {
       "rule": "unit",
-      "site": "AddBodyOptions.labelReach: labelReach",
-      "reason": "a number without its unit in its name",
-      "finding": "F4",
-      "removedBy": "O-057"
-    },
-    {
-      "rule": "unit",
       "site": "EventZoneChange.time: time",
       "reason": "a number without its unit in its name",
       "finding": "F4",
@@ -187,37 +159,9 @@
     },
     {
       "rule": "unit",
-      "site": "PacingInput.near.within: within",
-      "reason": "a number without its unit in its name",
-      "finding": "F4",
-      "removedBy": "O-057"
-    },
-    {
-      "rule": "unit",
-      "site": "PacingInput.ramp: ramp",
-      "reason": "a number without its unit in its name",
-      "finding": "F4",
-      "removedBy": "O-057"
-    },
-    {
-      "rule": "unit",
-      "site": "SceneCamera.reach: reach",
-      "reason": "a number without its unit in its name",
-      "finding": "F4",
-      "removedBy": "O-057"
-    },
-    {
-      "rule": "unit",
       "site": "TextureRef.desktop.minViewportWidth: minViewportWidth",
       "reason": "a number without its unit in its name; reachable only through an internal type that leaks from the root",
       "finding": "F7",
-      "removedBy": "O-057"
-    },
-    {
-      "rule": "unit",
-      "site": "TrajectoryBase.labelReach: labelReach",
-      "reason": "a number without its unit in its name",
-      "finding": "F4",
       "removedBy": "O-057"
     },
     {

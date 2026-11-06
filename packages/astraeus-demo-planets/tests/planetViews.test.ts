@@ -105,7 +105,7 @@ describe("the nine planets are built as their settings say (public reads only)",
       expect(scene.camera.pose).toEqual(settings.startView);
       expect(scene.camera.target).toBeUndefined();
       expect(scene.camera.followChoices).toEqual(settings.moons?.follow === undefined ? [] : [settings.moons.follow]);
-      expect(scene.camera.reach).toBe(settings.camera.maxFocusDistance);
+      expect(scene.camera.reachEarthRadii).toBe(settings.camera.maxFocusDistance);
       expect(scene.camera.farEarthRadii).toBe(settings.camera.far);
     });
 

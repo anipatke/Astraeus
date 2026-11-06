@@ -134,7 +134,7 @@ describe("through the public path (installData)", () => {
 
   it("two scenes of one planet at different years, each prepared in turn and then together, both get their moons", async () => {
     vi.stubGlobal("fetch", async (url: string) => { fetched.push(url.slice(folder.length)); const bytes = readBytes(url); return { ok: true, status: 200, arrayBuffer: async () => bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength) }; });
-    const source = { name: "astraeus-data-jupiter", provides: ["io"], moonPositions: { centre: "jupiter", loadIndex: async () => index, chunkUrls } };
+    const source = { name: "astraeus-data-jupiter", provides: ["io"], moonPositions: { center: "jupiter", loadIndex: async () => index, chunkUrls } };
     const window2020 = { startUtcMs: at("2020-03-01T00:00:00Z"), endUtcMs: at("2020-04-01T00:00:00Z") };
     const window2023 = { startUtcMs: at("2023-03-01T00:00:00Z"), endUtcMs: at("2023-04-01T00:00:00Z") };
     await installData([source], ["jupiter", "io"], window2020);

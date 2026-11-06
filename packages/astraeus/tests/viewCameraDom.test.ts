@@ -28,8 +28,8 @@ const definitionWith = (camera: ViewCameraInput | undefined) => definitionOf(new
   .addTrajectory({ id: "pa", label: "Probe A", center: "earth", samples: samples(10_000) })
   .addTrajectory({ id: "pb", label: "Probe B", center: "earth", samples: samples(20_000) })
   .setViews([
-    { id: "a", label: "View A", paths: ["pa"] },
-    { id: "b", label: "View B", paths: ["pb"], ...(camera === undefined ? {} : { camera }) },
+    { id: "a", label: "View A", objects: ["pa"] },
+    { id: "b", label: "View B", objects: ["pb"], ...(camera === undefined ? {} : { camera }) },
   ], { place: "top-bar" }));
 
 let container: HTMLElement;

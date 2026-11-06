@@ -179,7 +179,7 @@ export function buildPlanetScene(settings: PlanetSettings, system: PlanetSystem,
 
   scene.addBody(settings.centre.id, {
     labelPriority: settings.centre.labelPriority,
-    labelReach: settings.centre.labelMaxDistance,
+    labelReachEarthRadii: settings.centre.labelMaxDistance,
     ...(scene.moonPanel === undefined ? {} : { facts: [{ label: "Known moons", value: scene.moonPanel.summary }] }),
     description: settings.centre.description,
     knownLimitations: settings.centre.knownLimitations,
@@ -189,7 +189,7 @@ export function buildPlanetScene(settings: PlanetSettings, system: PlanetSystem,
     // A listed moon takes its facts and the sources of its family, size and discovery from the list; Earth's Moon, with no list, keeps what the catalogue says of it.
     scene.addBody(moon.id, {
       labelPriority: moon.labelPriority,
-      labelReach: moon.labelMaxDistance,
+      labelReachEarthRadii: moon.labelMaxDistance,
       description: moon.description,
       ...(moon.knownLimitations === undefined ? {} : { knownLimitations: moon.knownLimitations }),
       ...(orbit === undefined ? {} : { orbit }),

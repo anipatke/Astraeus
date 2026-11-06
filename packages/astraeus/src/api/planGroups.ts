@@ -83,7 +83,7 @@ export class GroupPlan {
       label,
       count: input.orbits.length,
       center: input.center ?? first,
-      plane: input.plane ?? "ecliptic-j2000",
+      plane: input.plane,
       provenance: groupCardProvenance(input),
       description: groupDescription(input, input.orbits.length),
       knownLimitations: Object.freeze(groupLimitations(input, this.#catalogue())),

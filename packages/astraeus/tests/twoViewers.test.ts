@@ -43,7 +43,7 @@ const path = (x: number) => [0, 1, 2, 3].map((i) => ({ time: T0 + i * 10 * MIN, 
 const makeScene = () => new Scene().addBody(earth).addBody(moon)
   .addTrajectory({ id: "pa", label: "Probe A", center: "earth", samples: path(10_000) })
   .addTrajectory({ id: "pb", label: "Probe B", center: "earth", samples: path(20_000) })
-  .setViews([{ id: "a", label: "View A", paths: ["pa"] }, { id: "b", label: "View B", paths: ["pb"] }], { place: "top-bar" })
+  .setViews([{ id: "a", label: "View A", objects: ["pa"] }, { id: "b", label: "View B", objects: ["pb"] }], { place: "top-bar" })
   .setSwitches({ labels: { place: "top-bar" } })
   .setPicker({ id: "world", label: "World", options: [{ value: "one", label: "One" }, { value: "two", label: "Two" }], value: "one" })
   .setTimeline({ start: T0, end: T0 + 100 * DAY, rate: 60, rates: [60, 3600] });
@@ -204,7 +204,7 @@ function stubMoonData() {
     const bytes = readBytes(url) as Uint8Array;
     return { ok: true, status: 200, arrayBuffer: async () => bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength) };
   });
-  const data: DataSource[] = [{ name: "astraeus-data-jupiter", provides: ["io"], moonPositions: { centre: "jupiter", loadIndex: async () => index, chunkUrls } }];
+  const data: DataSource[] = [{ name: "astraeus-data-jupiter", provides: ["io"], moonPositions: { center: "jupiter", loadIndex: async () => index, chunkUrls } }];
   return {
     data,
     fetched,

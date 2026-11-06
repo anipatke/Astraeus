@@ -18,7 +18,7 @@ const burst = (extra: Partial<ActivityInput> = {}): ActivityInput => ({
   provenance: [{ start: day(0), end: day(8), provenance: source }, { start: day(12), end: day(20), provenance: { ...source, sources: ["Another made-up curve"] } }],
   ...extra,
 });
-const group = (extra: Partial<GroupInput> = {}): GroupInput => ({ id: "ring", orbits: [orbit(0), orbit(1)], readouts: [{ kind: "rate" }], ...extra });
+const group = (extra: Partial<GroupInput> = {}): GroupInput => ({ id: "ring", plane: "ecliptic-j2000", orbits: [orbit(0), orbit(1)], readouts: [{ kind: "rate" }], ...extra });
 const base = () => new Scene().addBody(earth).addBody(moon).setTime(day(5));
 const codeOf = (fn: () => unknown) => { try { fn(); } catch (error) { return error instanceof SceneError ? error.code : String(error); } return "no error"; };
 const rateAtTime = (scene: Scene, time: number): RateMetric => {
@@ -101,20 +101,20 @@ describe("setTimeline loop", () => {
 });
 
 describe("camera up and reach", () => {
-  it("opens about the ecliptic pole when asked, on lookAt and follow, and keeps the equatorial up otherwise", () => {
-    expect(base().setTime(day(0)).camera.lookAt("moon", { up: "ecliptic" })).toBeDefined();
+  it("opens about the ecliptic pole when asked, on focus and follow, and keeps the equatorial up otherwise", () => {
+    expect(base().setTime(day(0)).camera.focus("moon", { up: "ecliptic" })).toBeDefined();
     const looking = base();
-    looking.camera.lookAt("moon", { up: "ecliptic" });
+    looking.camera.focus("moon", { up: "ecliptic" });
     expect(definitionOf(looking).viewUp).toBe("ecliptic");
     expect(viewUpVector("ecliptic")).not.toEqual(viewUpVector(definitionOf(looking).viewUp === "ecliptic" ? "equatorial" : "ecliptic"));
     const following = base();
     following.camera.follow("moon", { up: "equatorial" });
     expect(definitionOf(following).viewUp).toBe("equatorial");
     const plain = base();
-    plain.camera.lookAt("moon");
+    plain.camera.focus("moon");
     expect(definitionOf(plain).viewUp).toBeUndefined();
   });
-  it("refuses an up that is not one", () => { expect(codeOf(() => base().camera.lookAt("moon", { up: "north" as never }))).toBe("bad-camera"); });
+  it("refuses an up that is not one", () => { expect(codeOf(() => base().camera.focus("moon", { up: "north" as never }))).toBe("bad-camera"); });
   it("sets how far the viewer can zoom out, with the far plane beyond it, and nothing otherwise", () => {
     const scene = base();
     scene.camera.setReach(50_000);

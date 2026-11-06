@@ -500,16 +500,16 @@ describe("lifecycle: AstraeusScene under StrictMode", () => {
 });
 
 /** Every method that edits a scene or its camera, found by name so a future mutator cannot escape the freeze. */
-const mutators = (proto: object): string[] => Object.getOwnPropertyNames(proto).filter((name) => /^(add|set|follow|lookAt|fitOrbit)/.test(name) && typeof Object.getOwnPropertyDescriptor(proto, name)?.value === "function");
+const mutators = (proto: object): string[] => Object.getOwnPropertyNames(proto).filter((name) => /^(add|set|follow|focus|fitOrbit)/.test(name) && typeof Object.getOwnPropertyDescriptor(proto, name)?.value === "function");
 
 describe("a mounted scene is frozen", () => {
-  it("every add, set, follow, lookAt and fitOrbit method of Scene and SceneCamera throws scene-mounted after mount; reads still answer", () => {
+  it("every add, set, follow, focus and fitOrbit method of Scene and SceneCamera throws scene-mounted after mount; reads still answer", () => {
     prepared.real = true; openNow();
     const scene = new Scene().addBody("earth").addBody("moon");
     const sceneMethods = mutators(Scene.prototype);
     const cameraMethods = mutators(SceneCamera.prototype);
     expect(sceneMethods.length).toBeGreaterThanOrEqual(12);
-    expect(cameraMethods.sort()).toEqual(["fitOrbit", "follow", "lookAt", "setFollowChoices", "setReach", "setStartView"]);
+    expect(cameraMethods.sort()).toEqual(["fitOrbit", "focus", "follow", "setFollowChoices", "setReach", "setStartView"]);
     const element = document.createElement("div");
     document.body.append(element);
     const viewer = mount(element, scene);
@@ -520,7 +520,7 @@ describe("a mounted scene is frozen", () => {
     expect(missingDataOf(scene)).toEqual(expect.any(Array));
     expect(scene.camera.target).toBeUndefined();
     expect(scene.camera.following).toBe(false);
-    expect(scene.camera.reach).toBeUndefined();
+    expect(scene.camera.reachEarthRadii).toBeUndefined();
     expect(scene.camera.fitted).toBeUndefined();
     expect(scene.camera.view).toEqual({});
     viewer.unmount();

@@ -48,7 +48,7 @@ describe("a viewer draws only the pictures it was given", () => {
 
   it("carries a package's pictures on the definition the Scene builds, and none when no package brings any", () => {
     const scene = new Scene().addBody(saturn).addBody(titan);
-    const positions: DataSource = { name: "astraeus-data-saturn", provides: ["titan"], moonPositions: { centre: "saturn", loadIndex: async () => ({}), chunkUrls: {} } };
+    const positions: DataSource = { name: "astraeus-data-saturn", provides: ["titan"], moonPositions: { center: "saturn", loadIndex: async () => ({}), chunkUrls: {} } };
     expect(definitionOf(scene, [positions, { name: "astraeus-data", provides: [], pictures: PICTURES }]).pictures).toEqual(PICTURES);
     expect(definitionOf(scene, [positions]).pictures).toBeUndefined();
   });

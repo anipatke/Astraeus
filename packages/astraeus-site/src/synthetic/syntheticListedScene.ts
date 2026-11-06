@@ -34,7 +34,7 @@ export function listedOrbits() {
 export function buildSyntheticListedScene(): Scene {
   const scene = new Scene()
     .addBody(sun, { labelPriority: 95, description: "The Sun, the centre the listed orbits circle. The marker's size is a drawing choice, not the Sun's real size." })
-    .addBody(earth, { color: "#9fd8ff", orbit: true, labelPriority: 100, labelReach: 500, description: "Earth, on its path round the Sun; the listed orbits circle the Sun." })
+    .addBody(earth, { color: "#9fd8ff", orbit: true, labelPriority: 100, labelReachEarthRadii: 500, description: "Earth, on its path round the Sun; the listed orbits circle the Sun." })
     .addBodyFromElements(madeUpOrbitRecord({
       id: "listed-parent",
       label: "Made-up parent",

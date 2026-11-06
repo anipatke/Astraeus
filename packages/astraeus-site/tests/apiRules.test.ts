@@ -61,7 +61,6 @@ describe("public-type lint (API-04)", () => {
   it("names today's breaks from the API review", () => {
     const keys = new Set(found.map((hit) => `${hit.rule} ${hit.site}`));
     for (const key of [
-      "centre MoonPositions.centre", "span PacingInput: from/to", "unit PacingInput.near.within: within", "unit PacingInput.ramp: ramp", "unit AddBodyOptions.labelReach: labelReach", "unit TrajectoryBase.labelReach: labelReach",
       "time StoryPanelsInput.panels: at.utc (ISO text ending in Z only)", "frame ElementsBodyRecord.frame", "loose StoryPanelsInput.panels",
     ]) expect(keys.has(key), key).toBe(true);
   });

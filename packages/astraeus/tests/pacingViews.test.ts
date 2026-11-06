@@ -14,16 +14,16 @@ const scene = (pacing: PacingInput[]) => new Scene().addBody(earth)
   .addTrajectory({ id: "pa", label: "Probe A", center: "earth", samples: samples(10_000) })
   .addTrajectory({ id: "pb", label: "Probe B", center: "earth", samples: samples(20_000) })
   .addEvents([{ id: "ea", label: "A flyby", time: at(20), type: "flyby" }, { id: "eb", label: "B flyby", time: at(50), type: "flyby" }, { id: "es", label: "Shared", time: at(80), type: "flyby" }])
-  .setViews([{ id: "a", label: "A", paths: ["pa"], events: ["ea"] }, { id: "b", label: "B", paths: ["pb"], events: ["eb"] }, { id: "both", label: "Both", paths: ["pa", "pb"], events: ["ea", "eb"] }], { place: "top-bar" })
+  .setViews([{ id: "a", label: "A", objects: ["pa"], events: ["ea"] }, { id: "b", label: "B", objects: ["pb"], events: ["eb"] }, { id: "both", label: "Both", objects: ["pa", "pb"], events: ["ea", "eb"] }], { place: "top-bar" })
   .setTimeline({ start: at(0), end: at(100), rate: 86_400, rates: [60, 86_400], pacing });
-const FLYBY = [{ near: { type: "flyby", within: 86_400 }, rate: 60 }];
+const FLYBY = [{ near: { type: "flyby", withinSeconds: 86_400 }, rate: 60 }];
 const definition = () => definitionOf(scene(FLYBY));
 const eventsOf = (id: string) => definition().views!.views.find((view) => view.id === id)!.events;
 const rate = (view: string, day: number) => pacedRate(definition().pacing!, T0 + day * DAY, eventsOf(view));
 
 describe("pacing zones carry their event", () => {
   it("tags each event rule's zone with the event it came from and leaves spans untagged", () => {
-    const zones = definitionOf(scene([...FLYBY, { from: at(60), to: at(70), rate: 1_000 }])).pacing!.zones;
+    const zones = definitionOf(scene([...FLYBY, { start: at(60), end: at(70), rate: 1_000 }])).pacing!.zones;
     expect(zones.filter((zone) => zone.eventId !== undefined).map((zone) => zone.eventId).sort()).toEqual(["ea", "eb", "es"]);
     expect(zones.filter((zone) => zone.eventId === undefined)).toHaveLength(1);
   });
@@ -51,7 +51,7 @@ describe("a two-probe scene paces by the showing view", () => {
     for (const day of [20, 50, 80]) expect(rate("both", day)).toBeCloseTo(60, 6);
   });
   it("a span applies in every view", () => {
-    const pacing = definitionOf(scene([...FLYBY, { from: at(30), to: at(40), rate: 1_000, ramp: 0 }])).pacing!;
+    const pacing = definitionOf(scene([...FLYBY, { start: at(30), end: at(40), rate: 1_000, rampSeconds: 0 }])).pacing!;
     for (const view of ["a", "b", "both"]) expect(pacedRate(pacing, T0 + 35 * DAY, eventsOf(view))).toBeCloseTo(1_000, 6);
   });
   it("a scene without views (no event set) gives the 0.7.0 rates: every zone applies", () => {
@@ -85,9 +85,9 @@ describe("the switch ease", () => {
 
 describe("loading", () => {
   it("a near rule whose events belong to different views still loads", () => {
-    expect(() => definitionOf(scene([{ near: { type: "flyby", within: 86_400 }, rate: 60 }]))).not.toThrow();
+    expect(() => definitionOf(scene([{ near: { type: "flyby", withinSeconds: 86_400 }, rate: 60 }]))).not.toThrow();
   });
   it("a near rule whose type matches no event still throws bad-timeline", () => {
-    try { definitionOf(scene([{ near: { type: "nothing", within: 86_400 }, rate: 60 }])); expect.unreachable(); } catch (error) { expect((error as SceneError).code).toBe("bad-timeline"); }
+    try { definitionOf(scene([{ near: { type: "nothing", withinSeconds: 86_400 }, rate: 60 }])); expect.unreachable(); } catch (error) { expect((error as SceneError).code).toBe("bad-timeline"); }
   });
 });

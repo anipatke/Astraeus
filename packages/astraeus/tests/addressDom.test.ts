@@ -29,7 +29,7 @@ const samples = (x: number) => [0, 1, 2, 3].map((i) => ({ time: T0 + i * 10 * MI
 const sceneWithViews = () => new Scene().addBody(earth).addBody(moon)
   .addTrajectory({ id: "pa", label: "Probe A", center: "earth", samples: samples(10_000) })
   .addTrajectory({ id: "pb", label: "Probe B", center: "earth", samples: samples(20_000) })
-  .setViews([{ id: "a", label: "View A", paths: ["pa"] }, { id: "b", label: "View B", paths: ["pb"] }], { place: "top-bar" });
+  .setViews([{ id: "a", label: "View A", objects: ["pa"] }, { id: "b", label: "View B", objects: ["pb"] }], { place: "top-bar" });
 const definition = definitionOf(sceneWithViews());
 
 let container: HTMLElement;

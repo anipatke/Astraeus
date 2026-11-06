@@ -4450,7 +4450,7 @@
     "|"
    ]
   },
-  "own body from elements, fitOrbit and an ecliptic lookAt": {
+  "own body from elements, fitOrbit and an ecliptic focus": {
    "seriesLoadedAtBuild": true,
    "definitionBeforePrepare": {
     "camera": {
@@ -12377,7 +12377,7 @@
     "|"
    ]
   },
-  "camera: follow then lookAt, setReach then fitOrbit, ecliptic up": {
+  "camera: follow then focus, setReach then fitOrbit, ecliptic up": {
    "seriesLoadedAtBuild": true,
    "definitionBeforePrepare": {
     "camera": {
@@ -14934,7 +14934,7 @@
    "error": {
     "name": "SceneError",
     "code": "bad-body",
-    "message": "addBody(\"earth\"): labelReach 0 must be a positive finite number"
+    "message": "addBody(\"earth\"): labelReachEarthRadii 0 must be a positive finite number"
    }
   },
   "addBody: enlarge below 1": {
@@ -15105,7 +15105,7 @@
    "error": {
     "name": "SceneError",
     "code": "bad-trajectory",
-    "message": "addTrajectory(\"p\"): labelReach -1 must be a positive finite number"
+    "message": "addTrajectory(\"p\"): labelReachEarthRadii -1 must be a positive finite number"
    }
   },
   "addTrajectory: plane not known": {
@@ -15963,7 +15963,7 @@
    "error": {
     "name": "SceneError",
     "code": "bad-timeline",
-    "message": "setTimeline: pacing must be a list of { from, to, rate } and { near: { type, within }, rate }"
+    "message": "setTimeline: pacing must be a list of { start, end, rate } and { near: { type, withinSeconds }, rate }"
    }
   },
   "setTimeline: pacing piece not an object": {
@@ -15987,7 +15987,7 @@
    "error": {
     "name": "SceneError",
     "code": "bad-timeline",
-    "message": "setTimeline: pacing[0].ramp must be zero or more seconds, got -1"
+    "message": "setTimeline: pacing[0].rampSeconds must be zero or more seconds, got -1"
    }
   },
   "setTimeline: pacing near without a type": {
@@ -16003,7 +16003,7 @@
    "error": {
     "name": "SceneError",
     "code": "bad-timeline",
-    "message": "setTimeline: pacing[0].near.within must be a positive number of seconds, got 0"
+    "message": "setTimeline: pacing[0].near.withinSeconds must be a positive number of seconds, got 0"
    }
   },
   "setTimeline: pacing piece without from and to": {
@@ -16011,7 +16011,7 @@
    "error": {
     "name": "SceneError",
     "code": "bad-timeline",
-    "message": "setTimeline: pacing[0] needs { from, to, rate } or { near: { type, within }, rate }"
+    "message": "setTimeline: pacing[0] needs { start, end, rate } or { near: { type, withinSeconds }, rate }"
    }
   },
   "setTimeline: pacing to before from": {
@@ -16019,7 +16019,7 @@
    "error": {
     "name": "SceneError",
     "code": "bad-timeline",
-    "message": "setTimeline: pacing[0].to must be after pacing[0].from"
+    "message": "setTimeline: pacing[0].end must be after pacing[0].start"
    }
   },
   "setTimeline: pacing spans overlapping": {
@@ -16150,7 +16150,7 @@
    "error": {
     "name": "SceneError",
     "code": "bad-view",
-    "message": "setViews: view \"a\" paths must be a list of non-empty ids"
+    "message": "setViews: view \"a\" objects must be a list of non-empty ids"
    }
   },
   "setViews: camera malformed": {
@@ -16182,7 +16182,7 @@
    "error": {
     "name": "SceneError",
     "code": "bad-view",
-    "message": "setViews: view \"a\" paths: \"ghost\" is not a path (addTrajectory) in the scene"
+    "message": "setViews: view \"a\" objects: \"ghost\" is not a body, group or path (addBody, addGroup, addTrajectory) in the scene"
    }
   },
   "setViews: body the scene lacks": {
@@ -16190,7 +16190,7 @@
    "error": {
     "name": "SceneError",
     "code": "bad-view",
-    "message": "setViews: view \"a\" bodies: \"ghost\" is not a body or group in the scene"
+    "message": "setViews: view \"a\" objects: \"ghost\" is not a body, group or path (addBody, addGroup, addTrajectory) in the scene"
    }
   },
   "setViews: event the scene lacks": {
@@ -16225,12 +16225,12 @@
     "message": "camera.follow(\"ghost\"): no body or trajectory with that id has been added to the scene"
    }
   },
-  "camera.lookAt: unknown id": {
+  "camera.focus: unknown id": {
    "stage": "call",
    "error": {
     "name": "SceneError",
     "code": "unknown-body",
-    "message": "camera.lookAt(\"ghost\"): no body or trajectory with that id has been added to the scene"
+    "message": "camera.focus(\"ghost\"): no body or trajectory with that id has been added to the scene"
    }
   },
   "camera.follow: up not known": {
@@ -18680,7 +18680,7 @@
     "|"
    ]
   },
-  "own body from elements, fitOrbit and an ecliptic lookAt": {
+  "own body from elements, fitOrbit and an ecliptic focus": {
    "seriesLoadedAtBuild": false,
    "definitionBeforePrepare": {
     "camera": {
@@ -27409,7 +27409,7 @@
     "|"
    ]
   },
-  "camera: follow then lookAt, setReach then fitOrbit, ecliptic up": {
+  "camera: follow then focus, setReach then fitOrbit, ecliptic up": {
    "seriesLoadedAtBuild": false,
    "definitionBeforePrepare": {
     "camera": {

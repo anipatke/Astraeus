@@ -36,7 +36,7 @@ describe("addBody takes any listed moon", () => {
   });
 
   it("refuses a window outside the years the package covers, as out-of-span", async () => {
-    const source = { name: "astraeus-data-uranus", provides: [], moonPositions: { centre: "uranus", loadIndex: async () => uranusIndex, chunkUrls: {} } };
+    const source = { name: "astraeus-data-uranus", provides: [], moonPositions: { center: "uranus", loadIndex: async () => uranusIndex, chunkUrls: {} } };
     MOON_SYSTEMS.uranus!.install(null);
     const window = { startUtcMs: Date.UTC(2040, 0, 1), endUtcMs: Date.UTC(2041, 0, 1) };
     const built = new Scene().addBody("sun").addBody("uranus").addBody("miranda");

@@ -57,7 +57,9 @@ export type SceneErrorCode =
   /** A scene view is malformed, repeated, or not one of the scene's views. */
   | "bad-view"
   /** A look (`setLook`) is unknown or out of its range. */
-  | "bad-look";
+  | "bad-look"
+  /** An input field was given under a name it no longer has; the message names the old field and its replacement. */
+  | "renamed";
 
 /** The one error the public API throws for bad input; the message names the offending value. */
 export class SceneError extends RangeError {
