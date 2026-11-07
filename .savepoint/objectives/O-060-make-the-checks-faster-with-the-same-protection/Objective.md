@@ -20,7 +20,7 @@ Owner, 2026-11-07: "before we close off 0.8.0, can we optimise the tests?", then
 ## Success Conditions
 
 - **Browser check.** `npm run check:browser` runs in about 230 s on an idle machine (baseline 353 s), every step passing. The first target of 180 s was changed by the owner; see Owner Decisions.
-- **Same protection.** Every browser assertion at the baseline commit still exists, proved by a test against a committed list, and `npm test` runs at least as many tests as the baseline (3,282 passed, 2 skipped). No test, assertion or tolerance is removed or loosened; coverage is not lower.
+- **Same protection.** Every browser assertion at the baseline commit still exists, shown by the Full Objective Check's independent rebuild from git. A test holds the listed raise forms (each with its guards) against a committed list and says what it cannot see; a direct test proves a failing browser step fails the run. (Narrowed by the owner after C-155; see Owner Decisions.) Also, `npm test` runs at least as many tests as the baseline (3,282 passed, 2 skipped). No test, assertion or tolerance is removed or loosened; coverage is not lower.
 - **Fast tests.** Setup repeated across test files is shared, with `npm test` aiming for about 30 s (baseline 42 s). The aim is not a pass mark: the measured result is reported either way.
 - **Time limits.** Every gate has a stated limit in one place. A run over its limit shows a warning in its summary and never fails on time alone. A test proves the warning appears.
 - **Proof.** Before and after timings for every gate, taken on an idle machine, are recorded, and the docs state the new times.
@@ -33,6 +33,7 @@ Owner, 2026-11-07: "before we close off 0.8.0, can we optimise the tests?", then
 - Design confirmed by the owner, 2026-11-07, session o060-planning-20261107.
 - Browser target moved from 180 s to about 230 s (owner, 2026-11-07, during T-281, told 231 s was measured and the last 51 s is page loading): no further side-by-side running, because "side by side is machine depedent and i sometimes work on mutiple things at once. I will Accept".
 - The two `synthetic-journey` sizes stay side by side (owner, 2026-11-07, "Keep the pair, about 231s", told in-turn running is about 285 s), still subject to T-281's three passing runs.
+- The assertion-list claim is narrowed (owner, 2026-11-07, after C-155 found no loss but 12 failure routes no text scan can list, choosing "Narrow the claim (Recommended)" over accepting as is or fixing all 12): the list proves its listed forms only and says so; two direct tests close the real risks (a failing step must fail the run; the journey loads stay in).
 
 ## Architectural Considerations
 

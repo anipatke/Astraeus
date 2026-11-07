@@ -28,6 +28,11 @@ history:
     kind: rechecked
     note: 'Not closed: C-155 is NEEDS WORK. Proven: all five named mutations fail the real test, each alone, with controls passing; baseline rebuild matches; an independent acorn rebuild finds only the two reviewed changes; protection intact at HEAD. Not proven: 12 failure routes are off the list (process.exitCode at harness.mjs:58 and run-browser.mjs:19; eight matches.push in public-build-assets.mjs; found.push at public-addresses.mjs:15; the ok false literal at engine-budget.mjs:22), and the load exception passes when browser-smoke.mjs:293 stops calling load. Remainder added under Proof Needed.'
     check: C-155
+  - at: '2026-11-07T08:59:31Z'
+    actor: {role: owner, session: o060-run-20261107}
+    kind: owner_decision
+    note: 'After C-155 (no assertion lost; 12 failure routes outside the list), the owner chose "Narrow the claim (Recommended)" over "Accept it as it is" and "Fix all 12 gaps". Proof Needed is narrowed as in the section Owner Decision After C-155; the 12 routes are listed in docs as not seen by the list, not added to it.'
+    check: C-155
 ---
 
 # I-149: The browser assertion list misses three checks and every guard condition
@@ -75,3 +80,12 @@ Lines 2, 3 and 5 above are proven. Line 1 and part of line 4 are not. Each case 
 - `browser-smoke.mjs:293` changed to `if (view.journey) results.push();` fails the test. A reviewed exception that splits one baseline site into two holds both.
 - `assertion-list.mjs` line 1, the test comment and the `load` exception's reason say only what the test proves, naming any form it still does not see.
 - The baseline is rebuilt by the same code, and the five mutations and controls above still behave as C-155 recorded.
+
+## Owner Decision After C-155
+
+Proof Needed from here on, replacing line 1 and the C-155 "Still needed" list:
+- The list's header, the test title and comments, the `load` exception's reason and `docs/BROWSER_CHECKS.md` say only what the test proves: the listed raise forms, each with its guards. The docs name the failure routes it does not see, including the 12 C-155 found (exit codes set by assignment, `matches.push` and `found.push` failure lists, the `ok: false` literal in `engine-budget.mjs`), and say the Full Objective Check's independent rebuild is what shows nothing was lost.
+- A direct test proves a failing browser step fails the run: a script that throws through the real `harness.mjs` exits non-zero, and the runner reports a non-zero step as failed and sets a non-zero exit. Planted: deleting `harness.mjs`'s `process.exitCode = 1` line, or the runner's exit code setting, fails it.
+- The `load` reviewed exception holds both halves of the split site: planted `if (view.journey) results.push();` fails the test.
+- Earlier mutations and controls still behave; the baseline is rebuilt by the same code.
+
