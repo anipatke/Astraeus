@@ -1,72 +1,95 @@
-// The list of every assertion the browser check can raise (O-060 T-281): for each script in tools/validate, the text of each call that can fail the run
-// (`assert.*(...)`, `new Error(...)`, `assertStreamDrawn(...)`, `assertScaleInUse(...)`, `problems.push(...)`, `failures.push(...)`, `errors.push(...)`, `process.exit(...)`).
-// `tests/browserAssertions.test.ts` holds the current scripts to the list built from baseline commit 6aad8e6a (`tests/fixtures/browserAssertionsBaseline.json`), so removing or
-// loosening one fails a test. Rebuild the baseline list (reads the commit with git, never the working tree):
+// The list of every way the browser check can fail a script (O-060 T-281, I-149): for each script in tools/validate, every raise site, written with the guard that decides it
+// as `if (guard) => site`, or the bare site when nothing guards it. The scripts are parsed (TypeScript 6 syntax tree), not scanned, so the rule is by shape and not by name:
+//   - a `throw` statement, or `new XError(...)` outside one;
+//   - `assert(...)`, `assert.x(...)`, any call to a function named `assert...`, and `process.exit(...)`;
+//   - `.push(...)` on a failure list: a name containing problem, failure, error, fail or violation, or any array a script hands on as such a property (`problems: list`);
+//   - a call to a function declared in the same script that itself holds a raise site (found by repeating until no new one appears).
+// The guard is every enclosing `if`/`else`, `?:`, `&&`, `||` and `??` test, so loosening a tolerance or disabling a guard changes the entry. Text is printed from the tree: spacing and comments do not matter.
+// `tests/browserAssertions.test.ts` holds the current scripts to the list built from baseline commit 6aad8e6a (`tests/fixtures/browserAssertionsBaseline.json`).
+// It proves each baseline raise site and its guard text still appear in the scripts (with the reviewed exceptions named in the test). It does not prove a guard's meaning is unchanged
+// outside that text (an edit to a helper a guard calls, a changed value it reads, or an early `return` before it). Rebuild the baseline list (reads the commit with git, never the working tree):
 //   node packages/astraeus-site/tools/validate/assertion-list.mjs 6aad8e6a > packages/astraeus-site/tests/fixtures/browserAssertionsBaseline.json
 import { execFileSync } from "node:child_process";
 import { readdirSync, readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import ts from "typescript6";
 
 const here = dirname(fileURLToPath(import.meta.url));
-const CALLS = /(?:\bassert\.[A-Za-z]+|\bassert|\bnew Error|\bassertStreamDrawn|\bassertScaleInUse|\b(?:problems|failures|errors)\.push|\bprocess\.exit)\s*\(/y;
+const FAILURE_LIST = /problem|failure|error|fail|violation/i;
+const printer = ts.createPrinter({ removeComments: true });
 
-/** Index just past the string or template literal starting at `i` (a template's `${...}` parts are skipped whole). */
-function skipQuoted(text, i) {
-  const quote = text[i];
-  let k = i + 1;
-  while (k < text.length && text[k] !== quote) {
-    if (text[k] === "\\") k += 1;
-    else if (quote === "`" && text[k] === "$" && text[k + 1] === "{") k = skipBraces(text, k + 1);
-    k += 1;
-  }
-  return k + 1;
+const nameOf = (node) => (ts.isIdentifier(node) ? node.text : ts.isPropertyAccessExpression(node) ? node.name.text : undefined);
+const squash = (text) => text.replace(/\s+/g, " ").trim();
+
+/** The arrays a script hands on as failures: `problems: list`, `{ problems }`. */
+function handedOnLists(root) {
+  const names = new Set();
+  const visit = (node) => {
+    if (ts.isPropertyAssignment(node) && FAILURE_LIST.test(node.name.getText()) && ts.isIdentifier(node.initializer)) names.add(node.initializer.text);
+    ts.forEachChild(node, visit);
+  };
+  visit(root);
+  return names;
 }
 
-/** Index of the `}` closing the `{` at `i`. */
-function skipBraces(text, i) {
-  let depth = 0;
-  for (let k = i; k < text.length; k += 1) {
-    const c = text[k];
-    if (c === '"' || c === "'" || c === "`") k = skipQuoted(text, k) - 1;
-    else if (c === "{") depth += 1;
-    else if (c === "}" && (depth -= 1) === 0) return k;
-  }
-  return text.length;
+/** Whether `node` is itself a raise site, given the failure-list names and the local raising functions. */
+function isRaise(node, lists, raisers) {
+  if (ts.isThrowStatement(node)) return true;
+  if (ts.isNewExpression(node)) return /Error$/.test(node.expression.getText()) && !ts.isThrowStatement(node.parent);
+  if (!ts.isCallExpression(node)) return false;
+  const callee = node.expression;
+  const name = nameOf(callee);
+  if (ts.isIdentifier(callee)) return /^assert/.test(callee.text) || raisers.has(callee.text);
+  if (!ts.isPropertyAccessExpression(callee)) return false;
+  const receiver = nameOf(callee.expression);
+  if (receiver === "assert" || (receiver === "process" && name === "exit")) return true;
+  return name === "push" && receiver !== undefined && (FAILURE_LIST.test(receiver) || lists.has(receiver));
 }
 
-/** Index just past the `)` closing the `(` at `i`. */
-function skipParens(text, i) {
-  let depth = 0;
-  for (let k = i; k < text.length; k += 1) {
-    const c = text[k];
-    if (c === '"' || c === "'" || c === "`") k = skipQuoted(text, k) - 1;
-    else if (c === "/" && text[k + 1] === "/") k = text.indexOf("\n", k) - 1 < k ? text.length : text.indexOf("\n", k) - 1;
-    else if (c === "/" && text[k + 1] === "*") k = text.indexOf("*/", k) + 1;
-    else if (c === "(") depth += 1;
-    else if (c === ")" && (depth -= 1) === 0) return k + 1;
+/** The tests that decide whether `node` runs, outermost first. */
+function guardsOf(node) {
+  const guards = [];
+  for (let child = node, parent = child.parent; parent; child = parent, parent = parent.parent) {
+    if (ts.isIfStatement(parent) && child !== parent.expression) {
+      const test = squash(printer.printNode(ts.EmitHint.Expression, parent.expression, parent.getSourceFile()));
+      guards.unshift(child === parent.thenStatement ? `(${test})` : `!(${test})`);
+    } else if (ts.isConditionalExpression(parent) && child !== parent.condition) {
+      const test = squash(printer.printNode(ts.EmitHint.Expression, parent.condition, parent.getSourceFile()));
+      guards.unshift(child === parent.whenTrue ? `(${test})` : `!(${test})`);
+    } else if (ts.isBinaryExpression(parent) && child === parent.right && [ts.SyntaxKind.AmpersandAmpersandToken, ts.SyntaxKind.BarBarToken, ts.SyntaxKind.QuestionQuestionToken].includes(parent.operatorToken.kind)) {
+      const test = squash(printer.printNode(ts.EmitHint.Expression, parent.left, parent.getSourceFile()));
+      guards.unshift(parent.operatorToken.kind === ts.SyntaxKind.AmpersandAmpersandToken ? `(${test})` : `${parent.operatorToken.kind === ts.SyntaxKind.BarBarToken ? "!" : "nullish "}(${test})`);
+    }
   }
-  return text.length;
+  return guards;
 }
 
-/** The assertion calls in one source text, each as its whitespace-normalised text, in source order (comments and string contents are not searched). */
+/** The raise sites in one source text, each as `if (guard) && ... => site` or the bare site, in source order. */
 export function extractAssertions(source) {
+  const file = ts.createSourceFile("script.mjs", source, ts.ScriptTarget.Latest, true, ts.ScriptKind.JS);
+  const lists = handedOnLists(file);
+  const raisers = new Set();
   const found = [];
-  let i = 0;
-  while (i < source.length) {
-    const c = source[i];
-    if (c === '"' || c === "'" || c === "`") { i = skipQuoted(source, i); continue; }
-    if (c === "/" && source[i + 1] === "/") { const end = source.indexOf("\n", i); i = end < 0 ? source.length : end; continue; }
-    if (c === "/" && source[i + 1] === "*") { const end = source.indexOf("*/", i); i = end < 0 ? source.length : end + 2; continue; }
-    CALLS.lastIndex = i;
-    const match = /[A-Za-z_$.]/.test(source[i - 1] ?? " ") ? null : CALLS.exec(source);
-    if (match !== null && !/\bfunction\s+$/.test(source.slice(Math.max(0, i - 12), i))) {
-      const end = skipParens(source, i + match[0].length - 1);
-      found.push(source.slice(i, end).replace(/\s+/g, " "));
-      i = end;
-    } else i += 1;
+  for (let again = true; again; ) {
+    again = false;
+    found.length = 0;
+    const visit = (node, owner) => {
+      const declared = ts.isFunctionDeclaration(node) ? node.name?.text : ts.isVariableDeclaration(node) && node.initializer !== undefined && (ts.isArrowFunction(node.initializer) || ts.isFunctionExpression(node.initializer)) ? nameOf(node.name) : undefined;
+      const here = declared ?? owner;
+      if (isRaise(node, lists, raisers)) {
+        found.push(node);
+        if (here !== undefined && !raisers.has(here)) { raisers.add(here); again = true; }
+      }
+      ts.forEachChild(node, (child) => visit(child, here));
+    };
+    visit(file, undefined);
   }
-  return found;
+  return found.map((node) => {
+    const site = squash(printer.printNode(ts.EmitHint.Unspecified, node, file));
+    const guards = guardsOf(node);
+    return guards.length === 0 ? site : `if ${guards.join(" && ")} => ${site}`;
+  });
 }
 
 /** { script: [assertion, ...] } for every .mjs script in tools/validate, read from `read(name)`. */

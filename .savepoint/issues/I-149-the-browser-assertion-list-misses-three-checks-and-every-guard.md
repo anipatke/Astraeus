@@ -18,6 +18,11 @@ history:
     kind: observed
     note: Found by the O-060 Full Objective Check, which rebuilt the list from git with a syntax-tree parser instead of the committed scanner.
     check: C-154
+  - at: '2026-11-07T08:42:44Z'
+    actor: {role: executor, session: o060-repair-20261107}
+    kind: repair_attempted
+    note: 'assertion-list.mjs rewritten as a syntax-tree parser recording each raise site with its guards; baseline rebuilt from 6aad8e6a (227 sites, 90 guarded, 3 wholeProblems). Two reviewed exceptions named in the test (zoomOutFully argument; load call under the side-by-side branch). Scratch mutations through the real test: control 5 of 5 pass; radiusPx > 20 to > 2 fails; false && guard fails; load-budget lines 295 and 296 deleted together fails. Unverified: each budget line deleted alone; the third wholeProblems.push deleted. test:full 3300 passed, 2 skipped; lint, typecheck, build pass. No browser script changed.'
+    check: C-154
 ---
 
 # I-149: The browser assertion list misses three checks and every guard condition
