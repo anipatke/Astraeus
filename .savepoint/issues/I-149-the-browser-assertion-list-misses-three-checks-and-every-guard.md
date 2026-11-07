@@ -9,7 +9,7 @@ source:
   actor: {role: checker, session: o060-check-20261107}
   at: '2026-11-07T08:30:00Z'
 tasks: [T-281]
-checks: [C-154]
+checks: [C-154, C-155]
 guardrail_ids: [TEST-01]
 severity: medium
 history:
@@ -23,6 +23,11 @@ history:
     kind: repair_attempted
     note: 'assertion-list.mjs rewritten as a syntax-tree parser recording each raise site with its guards; baseline rebuilt from 6aad8e6a (227 sites, 90 guarded, 3 wholeProblems). Two reviewed exceptions named in the test (zoomOutFully argument; load call under the side-by-side branch). Scratch mutations through the real test: control 5 of 5 pass; radiusPx > 20 to > 2 fails; false && guard fails; load-budget lines 295 and 296 deleted together fails. Unverified: each budget line deleted alone; the third wholeProblems.push deleted. test:full 3300 passed, 2 skipped; lint, typecheck, build pass. No browser script changed.'
     check: C-154
+  - at: '2026-11-07T08:58:00Z'
+    actor: {role: checker, session: o060-recheck-20261107}
+    kind: rechecked
+    note: 'Not closed: C-155 is NEEDS WORK. Proven: all five named mutations fail the real test, each alone, with controls passing; baseline rebuild matches; an independent acorn rebuild finds only the two reviewed changes; protection intact at HEAD. Not proven: 12 failure routes are off the list (process.exitCode at harness.mjs:58 and run-browser.mjs:19; eight matches.push in public-build-assets.mjs; found.push at public-addresses.mjs:15; the ok false literal at engine-budget.mjs:22), and the load exception passes when browser-smoke.mjs:293 stops calling load. Remainder added under Proof Needed.'
+    check: C-155
 ---
 
 # I-149: The browser assertion list misses three checks and every guard condition
@@ -59,3 +64,14 @@ Missing test evidence: no planted case for a guard condition or for a differentl
 - `browserAssertionsBaseline.json` is rebuilt from `git show 6aad8e6a:` by the same code and the test that rebuilds it still passes. Every 6aad8e6a site still present at HEAD is held, with no assertion dropped from the list.
 - The header, test title and `docs/BROWSER_CHECKS.md` say only what the test proves.
 - The re-check repeats the four mutations above and each one fails the test.
+
+### Still needed after C-155
+
+Lines 2, 3 and 5 above are proven. Line 1 and part of line 4 are not. Each case below is one line changed in a real script, run through the real test.
+
+- `harness.mjs:58` deleted fails the test, and so does `run-browser.mjs:19` losing its `process.exitCode =`. Exit codes set by assignment are raise sites.
+- A failure list is found by what the script does with it, not by its name: `public-build-assets.mjs` line 86 deleted, line 89 guard disabled, and `public-addresses.mjs:15` deleted each fail the test.
+- `engine-budget.mjs:22` changed to `ok: true` fails the test. A failure returned as a literal is held.
+- `browser-smoke.mjs:293` changed to `if (view.journey) results.push();` fails the test. A reviewed exception that splits one baseline site into two holds both.
+- `assertion-list.mjs` line 1, the test comment and the `load` exception's reason say only what the test proves, naming any form it still does not see.
+- The baseline is rebuilt by the same code, and the five mutations and controls above still behave as C-155 recorded.
