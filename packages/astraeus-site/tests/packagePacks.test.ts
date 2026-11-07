@@ -2,7 +2,7 @@ import { mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { PICTURES } from "astraeus-data";
-import { checkPacks, enginePeerRange, extensionlessImports, LIMITS, strayFiles } from "../../../tools/check-packs.mjs";
+import { checkPacks, enginePeerRange, extensionlessImports, LIMITS, pastTheEntry, ringFactProblems, strayFiles } from "../../../tools/check-packs.mjs";
 import { PACKAGES } from "../../../tools/build-packages.mjs";
 
 // O-036 T-161: the publishable packages build and pack within the decided contents and sizes (the same check as `npm run check:pack`).
@@ -129,5 +129,45 @@ describe("astraeus-data credits (PROV-02)", () => {
       expect(texture.licence!.attribution, name).toBeTruthy();
       expect(texture.licence!.url, name).toMatch(/^https:\/\//);
     }
+  });
+
+  // O-057 I-147: the consumer checks use only the package's public entry, and the ring facts live in check:pack.
+  describe("consumer checks stay on the public entry (API-01)", () => {
+    const tools = join(__dirname, "..", "..", "..", "tools");
+    // The planted lines are built from parts so the boundary test (which scans this file for imports) does not read them as imports.
+    const IMPORT = ["imp", "ort"].join("");
+    const FROM = ["fr", "om"].join("");
+    it.each(["check-node-consumer.mjs", "check-react-consumer.mjs"])("%s imports nothing past the public entry", (file) => {
+      expect(pastTheEntry(readFileSync(join(tools, file), "utf8"))).toEqual([]);
+    });
+
+    it.each([
+      ["a packed subpath", `${IMPORT} { catalogue } ${FROM} 'astraeus${"/assets"}/catalogue.js';`],
+      ["a URL built from the resolved entry", `const { catalogue } = await ${IMPORT}(new URL('../assets/catalogue.js', import.meta.resolve('astraeus')).href);`],
+      ["a relative import into the unpacked package", `await ${IMPORT}('./src/assets/catalogue.js');`],
+      ["a path into the unpacked package", "const file = join(dir, 'node_modules/astraeus/src/assets/catalogue.js');"],
+    ])("planted: %s is named", (_name, line) => {
+      expect(pastTheEntry(`import { Scene } from "astraeus";\n${line}\n`).length).toBeGreaterThan(0);
+    });
+
+    it("allows the public entry, its style sheet and its manifest", () => {
+      expect(pastTheEntry([`${IMPORT} { Scene } ${FROM} "astraeus";`, `${IMPORT} "astraeus${"/style"}.css";`, `${IMPORT} pkg ${FROM} "astraeus${"/package"}.json";`].join("\n"))).toEqual([]);
+    });
+
+    it("the packed engine holds the ring facts: Saturn has bands, Mars none (named case, on the packed build)", () => {
+      expect(ringFactProblems(join(__dirname, "..", "..", "astraeus", "dist"))).toEqual([]);
+    });
+
+    it("planted: a catalogue with no Saturn bands, and one with Mars rings, are named", () => {
+      const dir = join(__dirname, "..", "..", "astraeus-data-pluto", "dist");
+      const file = join(dir, "src", "assets", "catalogue.js");
+      mkdirSync(join(dir, "src", "assets"), { recursive: true });
+      try {
+        writeFileSync(file, "export const catalogue = { get: (id) => ({ visual: { rings: id === 'mars' ? { bands: [1] } : undefined } }) };");
+        expect(ringFactProblems(dir)).toEqual(["astraeus: the packed catalogue gives Saturn no ring bands", "astraeus: the packed catalogue gives Mars rings"]);
+      } finally {
+        rmSync(file, { force: true });
+      }
+    });
   });
 });

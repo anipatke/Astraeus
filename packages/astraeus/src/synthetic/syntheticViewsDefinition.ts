@@ -7,6 +7,7 @@
 // no other check depends on (the journey's checks and its Object list stay exactly as they were).
 import type { ExperienceDefinition } from "../app/experienceDefinition";
 import { Scene } from "../api/scene";
+import { definitionOf } from "../api/definitionOf";
 import { earth } from "../api/bodies";
 import { trueScale } from "../core/scalePolicy";
 
@@ -25,7 +26,7 @@ function circle(radiusKm: number, lapH: number, tiltDeg: number) {
   });
 }
 
-const panel = (id: string, title: string, hour: number) => ({ id, at: { utc: new Date(VIEWS_START_UTC_MS + hour * HOUR_MS).toISOString() }, title, body: ["A made-up line."], badge: "illustrative" as const, sources: ["Made up for the views test"] });
+const panel = (id: string, title: string, hour: number) => ({ id, at: { time: VIEWS_START_UTC_MS + hour * HOUR_MS }, title, body: ["A made-up line."], provenance: madeUp });
 
 const scene = new Scene()
   .addBody(earth, { description: "The planet both made-up probes circle; shown in every view." })
@@ -36,15 +37,15 @@ const scene = new Scene()
     { id: "event-b", label: "Probe B event", time: VIEWS_START_UTC_MS + 9 * HOUR_MS, type: "flyby", object: "probe-b" },
     { id: "event-shared", label: "Shared event", time: VIEWS_START_UTC_MS + 21 * HOUR_MS },
   ], { provenance: madeUp })
-  .addStoryPanels({ panels: [panel("panel-a", "About probe A", 10), panel("panel-b", "About probe B", 15), panel("panel-shared", "About both", 20)] })
+  .addStoryPanels([panel("panel-a", "About probe A", 10), panel("panel-b", "About probe B", 15), panel("panel-shared", "About both", 20)])
   .setViews([
-    { id: "a", label: "Probe A", paths: ["probe-a"], events: ["event-a"], panels: ["panel-a"], camera: "stay" },
-    { id: "b", label: "Probe B", paths: ["probe-b"], events: ["event-b"], panels: ["panel-b"], camera: { follow: "probe-b" } },
-    { id: "both", label: "Both", paths: ["probe-a", "probe-b"], events: ["event-a", "event-b"], panels: ["panel-a", "panel-b"], camera: { focus: "probe-a" } },
+    { id: "a", label: "Probe A", objects: ["probe-a"], events: ["event-a"], panels: ["panel-a"], camera: "stay" },
+    { id: "b", label: "Probe B", objects: ["probe-b"], events: ["event-b"], panels: ["panel-b"], camera: { follow: "probe-b" } },
+    { id: "both", label: "Both", objects: ["probe-a", "probe-b"], events: ["event-a", "event-b"], panels: ["panel-a", "panel-b"], camera: { focus: "probe-a" } },
   ], { place: "top-bar" })
-  .setTimeline({ start: VIEWS_START_UTC_MS, end: VIEWS_START_UTC_MS + SPAN_H * HOUR_MS, rates: [60, 600, 3600], rate: 600, pacing: [{ near: { type: "flyby", within: 1800 }, rate: 60 }] })
+  .setTimeline({ start: VIEWS_START_UTC_MS, end: VIEWS_START_UTC_MS + SPAN_H * HOUR_MS, rates: [60, 600, 3600], rate: 600, pacing: [{ near: { type: "flyby", withinSeconds: 1800 }, rate: 60 }] })
   .setScale(trueScale, { only: true })
   .setTime(VIEWS_START_UTC_MS);
 scene.camera.follow("probe-a", { distance: 14 });
 
-export const syntheticViewsDefinition: ExperienceDefinition = scene.toDefinition();
+export const syntheticViewsDefinition: ExperienceDefinition = definitionOf(scene);

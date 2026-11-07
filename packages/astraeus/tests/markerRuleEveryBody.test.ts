@@ -6,6 +6,7 @@ import { mountedBodiesOf } from "../src/app/experienceDefinition";
 import { drawnRadii, drawsAsMarker, projectedRadiusPx } from "../src/app/bodyDraw";
 import { catalogue } from "../src/assets/catalogue";
 import { trueScale } from "../src/core/scalePolicy";
+import { definitionOf } from "../src/api/definitionOf";
 
 const FOV = 45;
 const HEIGHT = 800;
@@ -25,15 +26,15 @@ const madeUp = (id: string, radiusKm?: number): ElementsBodyRecord => ({
   id, label: id,
   elements: { semiMajorAxisAu: 2.5, eccentricity: 0.3, inclinationDeg: 10, ascendingNodeDeg: 40, argumentOfPerihelionDeg: 70, meanAnomalyDeg: 20 },
   epoch: { jd: 2461000.5, timeScale: "TDB", ttMinusUtcSeconds: 69.184 },
-  frame: "ecliptic-j2000",
+  plane: "ecliptic-j2000",
   source: { name: "Made up", url: "https://example.org/rock", solution: "S1", accessed: "2026-10-28" },
-  accuracy: { classification: "indicative", statement: "Made up.", validFromUtc: "2020-01-01T00:00:00Z", validToUtc: "2030-01-01T00:00:00Z", limitations: [] },
+  accuracy: { classification: "indicative", statement: "Made up.", valid: { start: "2020-01-01T00:00:00Z", end: "2030-01-01T00:00:00Z" }, limitations: [] },
   marker: { color: "#aabbcc", sizePx: 6 },
   ...(radiusKm === undefined ? {} : { radius: { km: radiusKm, source: "Made up" } }),
 });
 
 describe("the marker rule on bodies a scene defines for itself (True scale)", () => {
-  const definition = new Scene().addBody(sun).addBodyFromElements(madeUp("rock-sized", 3)).addBodyFromElements(madeUp("rock-bare")).toDefinition();
+  const definition = definitionOf(new Scene().addBody(sun).addBodyFromElements(madeUp("rock-sized", 3)).addBodyFromElements(madeUp("rock-bare")));
   const own = mountedBodiesOf(definition).filter((id) => id.startsWith("rock-"));
 
   it("finds the scene's own bodies in its catalogue", () => {

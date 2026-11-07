@@ -16,7 +16,7 @@ import type { TimeInput } from "./time";
 /** What a host is told when the viewer's time, speed or playing state changes. */
 export interface ViewerChange {
   /** The viewer's time, Unix milliseconds UTC. */
-  readonly time: number;
+  readonly timeUtcMs: number;
   /** Simulated seconds per real second. */
   readonly rate: number;
   readonly playing: boolean;
@@ -42,7 +42,7 @@ export interface EventZoneChange {
   /** True on entering the zone, false on leaving it. */
   readonly entered: boolean;
   /** The viewer's time at the report, Unix milliseconds UTC. */
-  readonly time: number;
+  readonly timeUtcMs: number;
   /** What moved it across: `playback` (the clock ran, or the zone was already active when the viewer opened), `visitor` (the timeline or the view choice), `host` (`setTime` or `setView`). */
   readonly cause: ViewerChangeCause;
   /** What the report is about: `time` (playback crossed the zone, or a seek moved the clock across it) or `view` (a view switch showed or hid the zone). After a `view` leave the view's own camera rule owns the camera, so a host that restores a camera should do it only for `time`. */
@@ -161,7 +161,7 @@ export class ViewerLink implements ViewerPort {
   whenAttached(): Promise<void> { return this.#wait.promise; }
 
   get rateSource(): RateSource { return this.#clock.rateSource; }
-  get time(): number | undefined { return this.#clock.time; }
+  get timeUtcMs(): number | undefined { return this.#clock.timeUtcMs; }
   get rate(): number | undefined { return this.#clock.rate; }
   get playing(): boolean | undefined { return this.#clock.playing; }
   get eventZones(): readonly string[] | undefined { return this.#zones.eventZones; }

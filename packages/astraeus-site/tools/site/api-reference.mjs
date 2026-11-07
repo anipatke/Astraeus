@@ -105,7 +105,7 @@ function renderItem(item) {
 const SECTIONS = [
   ["Scene", "Build a scene", (item) => ["Scene", "SceneCamera", "AddBodyOptions", "ElementsBodyRecord", "SwitchesInput", "ViewsOptions", "ViewInput", "ViewCameraInput", "AnchorInput", "ReadoutInput", "TimeInput", "TrajectoryInput", "TrajectorySampleInput", "FollowView"].includes(item.name)],
   ["Groups", "Groups of dots and activity", (item) => ["GroupInput", "GroupOrbitInput", "GroupClumpInput", "GroupReadoutInput", "ActivityInput", "ActivitySampleInput", "ActivitySourceInput"].includes(item.name)],
-  ["Story", "Story: events, panels and the timeline", (item) => ["EventInput", "AddEventsOptions", "StoryPanelsInput", "TimelineInput"].includes(item.name)],
+  ["Story", "Story: events, panels and the timeline", (item) => ["EventInput", "AddEventsOptions", "StoryPanelInput", "StoryPanelAt", "StoryPanelPlaybackInput", "TimelineInput"].includes(item.name)],
   ["Draw it", "Draw it", (item) => ["mount", "MountOptions", "MountedScene", "AstraeusScene", "AstraeusSceneProps"].includes(item.name)],
   ["Data packages", "Data packages", (item) => ["DataSource", "MoonPositions", "Pictures", "TextureRef", "AssetLicence"].includes(item.name)],
   ["Scale and state", "Scale and state", (item) => ["trueScale", "readableScale", "solarSystemScale", "ScalePolicy", "State"].includes(item.name)],

@@ -17,11 +17,11 @@ const scene = new Scene()
   .addEvents([{ id: "pass", label: "Probe pass", time: start + 3_600_000, type: "flyby", object: "probe" }])
   .addEvents([{ id: "pass-b", label: "Probe B pass", time: start + 4 * 3_600_000, type: "flyby", object: "probe-b" }])
   .setViews([
-    { id: "a", label: "Probe A", paths: ["probe"], events: ["pass"] },
-    { id: "b", label: "Probe B", paths: ["probe-b"], events: ["pass-b"], camera: { follow: "probe-b" } },
+    { id: "a", label: "Probe A", objects: ["probe"], events: ["pass"] },
+    { id: "b", label: "Probe B", objects: ["probe-b"], events: ["pass-b"], camera: { follow: "probe-b" } },
     { id: "both", label: "Both" },
   ], { place: "top-bar" })
-  .setTimeline({ start, end: start + 6 * 3_600_000, rates: [60, 600, 3600], rate: 600, pacing: [{ near: { type: "flyby", within: 1200 }, rate: 60 }] })
+  .setTimeline({ start, end: start + 6 * 3_600_000, rates: [60, 600, 3600], rate: 600, pacing: [{ near: { type: "flyby", withinSeconds: 1200 }, rate: 60 }] })
   .setTime("2026-01-01T00:00:00Z");
 scene.camera.follow("probe", { distance: 110 });
 

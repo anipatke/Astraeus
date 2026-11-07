@@ -5,7 +5,7 @@ import { createCenteredPosition, createState, EQJ, type CenteredPosition, type S
 
 function sameEpochAndFrame(a: CenteredPosition, b: CenteredPosition): void {
   if (a.timeUtcMs !== b.timeUtcMs) throw new RangeError("center composition requires identical timestamps");
-  if (a.frame !== b.frame) throw new RangeError("center composition requires identical frames");
+  if (a.plane !== b.plane) throw new RangeError("center composition requires identical frames");
 }
 
 export function composeCenteredPositions(
@@ -20,7 +20,7 @@ export function composeCenteredPositions(
     body: bodyFromOrigin.body,
     center: originFromCenter.center,
     timeUtcMs: bodyFromOrigin.timeUtcMs,
-    frame: bodyFromOrigin.frame,
+    plane: bodyFromOrigin.plane,
     positionKm: [
       bodyFromOrigin.positionKm[0] + originFromCenter.positionKm[0],
       bodyFromOrigin.positionKm[1] + originFromCenter.positionKm[1],
@@ -35,7 +35,7 @@ export function inverseCenteredPosition(position: CenteredPosition): CenteredPos
     body: position.center,
     center: position.body,
     timeUtcMs: position.timeUtcMs,
-    frame: position.frame,
+    plane: position.plane,
     positionKm: [-position.positionKm[0], -position.positionKm[1], -position.positionKm[2]],
   });
 }
@@ -45,7 +45,7 @@ export function earthStateAt(adapter: AstronomyAdapter, timeUtcMs: number): Stat
     body: "earth",
     center: "sun",
     timeUtcMs,
-    frame: EQJ,
+    plane: EQJ,
     positionKm: adapter.earthPositionFromSunKm(timeUtcMs),
     orientation: earthOrientationFromEcefToEqj(adapter.earthFixedToEqjMatrix(timeUtcMs)),
   });
@@ -56,7 +56,7 @@ export function sunPositionFromEarthAt(adapter: AstronomyAdapter, timeUtcMs: num
     body: "sun",
     center: "earth",
     timeUtcMs,
-    frame: EQJ,
+    plane: EQJ,
     positionKm: adapter.sunPositionFromEarthKm(timeUtcMs),
   });
 }

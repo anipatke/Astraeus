@@ -18,6 +18,7 @@ const markerProvenance = {
   accuracy: "None claimed. A circular, tilted, Earth-centred path invented for this fixture.",
   notes: "Exists to prove a second experience mounts through the same contract as the first.",
 } as const;
+const madeUpPanel = (sourceType: "illustrative" | "modelled") => ({ sourceType, sources: ["Made up for the story-panel test; not a real source"], accuracy: "None claimed.", notes: "Made up for this fixture." });
 const windowProvenance = (accuracy: string, notes: string) => ({ sourceType: "illustrative", sources: ["Made up for the window contract test; not real observations"], accuracy, notes }) as const;
 
 /** The made-up scene. The contact window's own card shows its rate; the marker's card has no rate row, because a rate readout belongs to a group (O-059 T-271). */
@@ -32,15 +33,15 @@ export function buildSyntheticScene(): Scene {
     };
   });
   const scene = new Scene()
-    .addBody(earth, { color: "#9fd8ff", labelPriority: 100, labelReach: 500, description: "The planet the marker circles." })
-    .addBody(moon, { color: "#ded7cc", labelPriority: 90, labelReach: 500, description: "Shown for scale only." })
+    .addBody(earth, { color: "#9fd8ff", labelPriority: 100, labelReachEarthRadii: 500, description: "The planet the marker circles." })
+    .addBody(moon, { color: "#ded7cc", labelPriority: 90, labelReachEarthRadii: 500, description: "Shown for scale only." })
     .addTrajectory({
       id: "survey-marker",
       label: "Survey marker",
       color: "#ffb347",
       center: "earth",
       samples,
-      labelReach: 4,
+      labelReachEarthRadii: 4,
       provenance: markerProvenance,
       description: "An invented object on a simple loop around Earth.",
       knownLimitations: ["Not a real object; the loop is a plain circle chosen for testing."],
@@ -53,13 +54,11 @@ export function buildSyntheticScene(): Scene {
       { id: "marker-quarter", label: "Marker passes a quarter turn", time: at(120) },
     ])
     // Two made-up story panels (one about the marker, one about nothing in particular) so the story-panel checks run without a real story.
-    .addStoryPanels({
-      pauseSeconds: 2,
-      panels: [
-        { id: "marker-loop", at: { utc: new Date(at(60)).toISOString() }, title: "The marker's loop", body: ["The survey marker goes round a made-up circle.", "Nothing here is a real object."], details: ["The loop radius and speed were chosen for this fixture."], badge: "illustrative", sources: ["Made up for the story-panel test; not a real source"], object: "survey-marker" },
-        { id: "marker-late", at: { utc: new Date(at(300)).toISOString() }, title: "A later note", body: ["A second made-up panel, further along the timeline."], badge: "modelled", sources: ["Made up for the story-panel test; not a real source"] },
-      ],
-    })
+    .addStoryPanels([
+      { id: "marker-loop", at: { time: at(60) }, title: "The marker's loop", body: ["The survey marker goes round a made-up circle.", "Nothing here is a real object."], details: ["The loop radius and speed were chosen for this fixture."], provenance: madeUpPanel("illustrative"), object: "survey-marker" },
+      { id: "marker-late", at: { time: at(300) }, title: "A later note", body: ["A second made-up panel, further along the timeline."], provenance: madeUpPanel("modelled") },
+    ])
+    .setStoryPanelPlayback({ pauseSeconds: 2 })
     .addActivity({
       id: "contact-window",
       label: "Contact window",

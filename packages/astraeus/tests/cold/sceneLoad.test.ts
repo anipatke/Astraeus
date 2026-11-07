@@ -18,7 +18,7 @@ const folder = `${dirname(createRequire(import.meta.url).resolve("astraeus-data-
 const dataSource: DataSource = {
   name: "astraeus-data-jupiter",
   provides: ["io", "europa", "ganymede", "callisto"],
-  moonPositions: { centre: "jupiter", loadIndex: async () => jupiterIndex, chunkUrls: new Proxy({}, { get: (_target, path: string) => pathToFileURL(`${folder}${path}`).href }) as Record<string, string> },
+  moonPositions: { center: "jupiter", loadIndex: async () => jupiterIndex, chunkUrls: new Proxy({}, { get: (_target, path: string) => pathToFileURL(`${folder}${path}`).href }) as Record<string, string> },
 };
 
 async function fresh(): Promise<{ api: Api; data: Data }> {
@@ -66,7 +66,7 @@ describe("Scene.load", () => {
     const scene = jupiterScene(api);
     await scene.load({ data: [data.dataSource] });
     await expect(scene.load({ data: [data.dataSource] })).resolves.toBeUndefined();
-    scene.toDefinition([data.dataSource]);
+    expect(() => scene.check({ data: [data.dataSource] })).not.toThrow(); // building after load still works
     expect(() => scene.setTime(WHEN)).not.toThrow(); // load never froze it
   });
 

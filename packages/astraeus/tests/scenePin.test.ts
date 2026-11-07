@@ -21,9 +21,9 @@ const COMET = {
   label: "Made-up comet",
   elements: { semiMajorAxisAu: 6, eccentricity: 0.9, inclinationDeg: 40, ascendingNodeDeg: 100, argumentOfPerihelionDeg: 60, meanAnomalyDeg: 200 },
   epoch: { jd: 2_461_000.5, timeScale: "TDB" as const, ttMinusUtcSeconds: 69.184 },
-  frame: "ecliptic-j2000" as const,
+  plane: "ecliptic-j2000" as const,
   source: { name: "Invented Survey", url: "https://example.invalid/comet", solution: "Solution A", accessed: "2026-10-24" },
-  accuracy: { classification: "indicative" as const, statement: "Made up; no comparison was made.", validFromUtc: "2025-01-01T00:00:00Z", validToUtc: "2027-01-01T00:00:00Z", limitations: ["Invented for a test."] },
+  accuracy: { classification: "indicative" as const, statement: "Made up; no comparison was made.", valid: { start: "2025-01-01T00:00:00Z", end: "2027-01-01T00:00:00Z" }, limitations: ["Invented for a test."] },
   marker: { color: "#ff9966", sizePx: 8 },
 };
 const orbit = (k: number) => ({ id: `rock-${k}`, semiMajorAxisKm: 80_000 + 5_000 * k, eccentricity: 0.1 + 0.02 * k, inclinationDeg: 5 + k, raanDeg: 40 + 3 * k, argumentOfPeriapsisDeg: 70 + k });
@@ -31,7 +31,7 @@ const rocks = (n = 4) => Array.from({ length: n }, (_, k) => orbit(k));
 const burst = (extra: object = {}) => ({ id: "burst", label: "Burst", unit: "per hour", start: T0, end: T0 + 20 * DAY, peak: T0 + 10 * DAY, samples: [{ time: T0, value: 2 }, { time: T0 + 10 * DAY, value: 100 }, { time: T0 + 20 * DAY, value: 4 }], provenance: [{ start: T0, end: T0 + 8 * DAY, provenance: prov }, { start: T0 + 12 * DAY, end: T0 + 20 * DAY, provenance: { ...prov, sources: ["Another"] } }], ...extra });
 const line = (n: number, scale = 1) => Array.from({ length: n }, (_, i) => ({ time: T0 + i * DAY, positionKm: [scale * (1e5 + i * 3e4), scale * i * 1e4, scale * 5e3 * i], velocityKmS: [1 + i / 10, 0.5, 0.1] }));
 const iso = (ms: number): string => new Date(ms).toISOString();
-const panel = (id: string, at: { utc?: number; event?: string; anchor?: string }, extra: object = {}) => ({ id, at: at.utc === undefined ? at : { utc: iso(at.utc) }, title: `Panel ${id}`, body: ["Made up."], badge: "illustrative", sources: ["Invented"], ...extra });
+const panel = (id: string, at: { time?: number; event?: string; anchor?: string }, extra: object = {}) => ({ id, at: at.time === undefined ? at : { time: iso(at.time) }, title: `Panel ${id}`, body: ["Made up."], provenance: { sourceType: "illustrative" as const, sources: ["Invented"], accuracy: "None claimed.", notes: "Made up." }, ...extra }) as never;
 const provider = (id: string, center: string) => ({ stateAt: (t: number) => createState({ body: id, center, timeUtcMs: t, positionKm: [1.2e8 + (t - T0) * 0.1, 2e7, 5e6], velocityKmS: [1, 2, 3], orientation: null }) });
 
 // ---------- turning a definition into stable plain data ----------
@@ -122,6 +122,8 @@ interface Graph {
   readonly api: Api;
   readonly resolverFor: (definition: ExperienceDefinition) => Parameters<ExperienceDefinition["createMetrics"]>[0];
   readonly planetSeriesLoaded: () => boolean;
+  /** The engine-only routes of the same module graph as `api` (the root does not export them). */
+  readonly internals: { readonly definitionOf: (scene: Scene, data?: DataSource[]) => ExperienceDefinition; readonly missingDataOf: (scene: Scene, data?: DataSource[]) => readonly string[] };
   readonly synthetic: { probe: () => Promise<ExperienceDefinition>; views: () => Promise<ExperienceDefinition>; journey: () => Promise<Scene> };
 }
 async function loadGraph(): Promise<Graph> {
@@ -130,9 +132,11 @@ async function loadGraph(): Promise<Graph> {
   const { createOrbAstronomyAdapter } = await import("../src/core/astronomyAdapter");
   const { catalogue } = await import("../src/assets/catalogue");
   const { planetSeriesLoaded } = await import("../src/core/planetSeries");
+  const { definitionOf, missingDataOf } = await import("../src/api/definitionOf");
   return {
     api,
     planetSeriesLoaded,
+    internals: { definitionOf, missingDataOf },
     resolverFor: (definition) => {
       const own = definition.catalogue ?? catalogue;
       return { resolver: createStateResolver(own.definitions(), own.sources(), createOrbAstronomyAdapter()), catalogue: own, clock: undefined as never };
@@ -153,7 +157,7 @@ async function observe(graph: Graph, built: Built): Promise<Json> {
   const data = built.data ?? [];
   let definition: ExperienceDefinition;
   try {
-    definition = built.definition ?? built.scene!.toDefinition(data);
+    definition = built.definition ?? graph.internals.definitionOf(built.scene!, data);
   } catch (error) {
     return { toDefinition: errorOf(error) };
   }
@@ -173,18 +177,18 @@ async function observe(graph: Graph, built: Built): Promise<Json> {
     const scene = built.scene;
     out.stateOf = Object.fromEntries(ids.map((id) => [id, times.map((time) => safe(() => plain(scene.stateOf(id, time), ctx)) as Json)]));
     out.provenanceOf = Object.fromEntries(ids.map((id) => [id, safe(() => plain(scene.provenanceOf(id), ctx)) as Json]));
-    out.missingData = [...scene.missingData([]), "|", ...scene.missingData(data)];
+    out.missingData = [...graph.internals.missingDataOf(scene, []), "|", ...graph.internals.missingDataOf(scene, data)];
   }
   return out;
 }
 
 /** What a build does: the stage that threw (the call, `toDefinition` or `prepare`) and the error's code and message, or that nothing threw. */
-async function outcome(build: () => Scene, data: DataSource[] = []): Promise<Json> {
+async function outcome(graph: Graph, build: () => Scene, data: DataSource[] = []): Promise<Json> {
   let stage = "call";
   try {
     const scene = build();
     stage = "toDefinition";
-    const definition = scene.toDefinition(data);
+    const definition = graph.internals.definitionOf(scene, data);
     stage = "prepare";
     await definition.prepare?.();
     return { stage: "none" };
@@ -199,14 +203,14 @@ type Case = (a: Api) => Built | Promise<Built>;
 function sceneCases(g: Graph, withJourney: boolean): Record<string, Case> {
   return {
     ...(withJourney ? { "the made-up journey (synthetic)": async (): Promise<Built> => ({ scene: await g.synthetic.journey(), data: DATA }) } : {}),
-    "sun scene: planets with each addBody option, orbit lines and the solar-system scale": (a) => ({ scene: new a.Scene().addBody(a.sun).addBody(a.venus, { enlarge: 30, orbit: true, labelReach: 5_000 }).addBody(a.earth, { enlarge: 60, orbit: true, showLabel: false, description: "Our planet.", color: "#9fd8ff", knownLimitations: ["Pinned."] }).addBody(a.mars, { orbit: true }).addBody("jupiter").setTime(T0).setScale(a.solarSystemScale) }),
+    "sun scene: planets with each addBody option, orbit lines and the solar-system scale": (a) => ({ scene: new a.Scene().addBody(a.sun).addBody(a.venus, { enlarge: 30, orbit: true, labelReachEarthRadii: 5_000 }).addBody(a.earth, { enlarge: 60, orbit: true, showLabel: false, description: "Our planet.", color: "#9fd8ff", knownLimitations: ["Pinned."] }).addBody(a.mars, { orbit: true }).addBody("jupiter").setTime(T0).setScale(a.solarSystemScale) }),
     "earth and moon, readable scale offered alone, moon orbit line": (a) => ({ scene: new a.Scene().addBody(a.earth).addBody(a.moon, { orbit: true }).setTime(T0).setScale(a.readableScale, { only: true }) }),
     "true scale, then switched": (a) => ({ scene: new a.Scene().addBody(a.earth).addBody(a.moon).setScale(a.readableScale).setScale(a.trueScale).setTime(T0) }),
     "jupiter moons with their data package": (a) => ({ scene: new a.Scene().addBody(a.jupiter).addBody(a.io, { orbit: true }).addBody(a.europa).addBody("callisto").setTime(Date.UTC(2016, 5, 1)), data: DATA }),
     "a listed moon added by its id": (a) => ({ scene: new a.Scene().addBody(a.uranus).addBody("miranda", { orbit: true }).setTime(Date.UTC(2016, 5, 1)), data: DATA }),
-    "own body from elements, fitOrbit and an ecliptic lookAt": (a) => {
-      const scene = new a.Scene().addBody(a.sun).addBody(a.earth).addBodyFromElements(COMET, { orbit: true, showLabel: false, labelReach: 700, color: "#ff9966" }).setTime(T0);
-      scene.camera.lookAt("made-up-comet", { up: "ecliptic", azimuthDeg: 20, elevationDeg: 10, distance: 80 }).fitOrbit("made-up-comet");
+    "own body from elements, fitOrbit and an ecliptic focus": (a) => {
+      const scene = new a.Scene().addBody(a.sun).addBody(a.earth).addBodyFromElements(COMET, { orbit: true, showLabel: false, labelReachEarthRadii: 700, color: "#ff9966" }).setTime(T0);
+      scene.camera.focus("made-up-comet", { up: "ecliptic", azimuthDeg: 20, elevationDeg: 10, distance: 80 }).fitOrbit("made-up-comet");
       return { scene };
     },
     "a failed add leaves the scene as it was": (a) => {
@@ -217,7 +221,7 @@ function sceneCases(g: Graph, withJourney: boolean): Record<string, Case> {
     },
     "paths about the Earth: samples, provider, plane, anchors, readouts, stretches, spans": (a) => ({
       scene: new a.Scene().addBody(a.earth).addBody(a.moon).setTime(T0 + DAY)
-        .addTrajectory({ id: "probe", label: "Probe", color: "#ff00aa", samples: line(6), plane: "ecliptic-j2000", provenance: prov, provenanceSpans: [{ start: T0, end: T0 + 2 * DAY, provenance: prov }, { start: T0 + 3 * DAY, end: T0 + 5 * DAY, provenance: { ...prov, sources: ["Later"] } }], description: "A probe.", knownLimitations: ["Made up."], anchors: [{ id: "a2", time: T0 + 3 * DAY }, { id: "a1", time: T0 + DAY }], readouts: [{ kind: "range", marker: "moon" }, { kind: "speed" }, { kind: "distance", to: "moon" }, { kind: "altitude", above: "earth" }], labelReach: 800, lineFixedTo: "moon" })
+        .addTrajectory({ id: "probe", label: "Probe", color: "#ff00aa", samples: line(6), plane: "ecliptic-j2000", provenance: prov, provenanceSpans: [{ start: T0, end: T0 + 2 * DAY, provenance: prov }, { start: T0 + 3 * DAY, end: T0 + 5 * DAY, provenance: { ...prov, sources: ["Later"] } }], description: "A probe.", knownLimitations: ["Made up."], anchors: [{ id: "a2", time: T0 + 3 * DAY }, { id: "a1", time: T0 + DAY }], readouts: [{ kind: "range", marker: "moon" }, { kind: "speed" }, { kind: "distance", to: "moon" }, { kind: "altitude", above: "earth" }], labelReachEarthRadii: 800, lineFixedTo: "moon" })
         .addTrajectory({ id: "flyer", provider: provider("flyer", "earth"), bounds: { start: T0, end: T0 + 10 * DAY }, lineFixedTo: [{ start: T0, end: T0 + 5 * DAY, body: "moon" }], plane: "ecliptic-j2000", readouts: [{ kind: "range" }] })
         .addTrajectory({ id: "plain-eqj", samples: line(4, 2), plane: "EQJ", center: "moon" }),
     }),
@@ -233,22 +237,22 @@ function sceneCases(g: Graph, withJourney: boolean): Record<string, Case> {
       scene: new a.Scene().addBody(a.sun).addBody(a.earth).addBody(a.jupiter).setTime(T0 + 5 * DAY)
         .addActivity(burst())
         .addGroup({ id: "ring", label: "Ring", orbits: rocks(), color: "#ff8800", dotSizePx: 4, seed: 7, clump: { near: "jupiter", fraction: 0.5, widthDeg: 20 }, refillAfterMs: 600_000, refillSliceMs: 4, referenceTime: T0, description: "Four rocks.", knownLimitations: ["Invented."], provenance: prov, readouts: [{ kind: "rate" }], plane: "EQJ" })
-        .addGroup({ id: "belt", orbits: rocks(2).map((o) => ({ ...o, time: T0 + DAY })), center: "earth" })
+        .addGroup({ plane: "ecliptic-j2000", id: "belt", orbits: rocks(2).map((o) => ({ ...o, time: T0 + DAY })), center: "earth" })
         .addEvents([{ id: "peak", label: "Peak", time: T0 + 10 * DAY, type: "peak", object: "ring" }])
-        .addStoryPanels({ pauseSeconds: 2, panels: [panel("p1", { utc: T0 + 3 * DAY }, { object: "ring" }), panel("p2", { event: "peak" })] }),
+        .addStoryPanels([panel("p1", { time: T0 + 3 * DAY }, { object: "ring" }), panel("p2", { event: "peak" })]).setStoryPanelPlayback({ pauseSeconds: 2 }),
     }),
-    "groups added before the planet series are needed (no clump)": (a) => ({ scene: new a.Scene().addBody(a.earth).addBody(a.moon).setTime(T0).addGroup({ id: "ring", orbits: rocks(3), readouts: [{ kind: "rate", activity: "burst" }] }).addActivity(burst()) }),
+    "groups added before the planet series are needed (no clump)": (a) => ({ scene: new a.Scene().addBody(a.earth).addBody(a.moon).setTime(T0).addGroup({ plane: "ecliptic-j2000", id: "ring", orbits: rocks(3), readouts: [{ kind: "rate", activity: "burst" }] }).addActivity(burst()) }),
     "activities set the window, and a timeline span overrides it": (a) => ({ scene: new a.Scene().addBody(a.earth).addActivity(burst()).addActivity(burst({ id: "second", label: "Second", start: T0 + 30 * DAY, end: T0 + 40 * DAY, peak: undefined, provenance: undefined, type: "meteor-shower", peakLabel: "Top", samples: [{ time: T0 + 30 * DAY, value: 1 }, { time: T0 + 40 * DAY, value: 3 }] })).setTimeline({ start: T0 - 5 * DAY, end: T0 + 50 * DAY }).setTime(T0 + 6 * DAY) }),
     "events with batch and own provenance, panels by utc, event and anchor": (a) => ({
       scene: new a.Scene().addBody(a.earth).addBody(a.moon).setTime(T0)
         .addTrajectory({ id: "probe", samples: line(6), anchors: [{ id: "fix-a", time: T0 + 2 * DAY }] })
         .addEvents([{ id: "burn", label: "Burn", time: T0 + 2 * DAY, type: "burn", object: "probe", provenance: prov }, { id: "late", label: "Late", time: T0 + 4 * DAY }], { provenance: { ...prov, sources: ["Batch"] } })
         .addEvents([{ id: "early", label: "Early", time: T0 + DAY, type: "burn", object: "moon" }])
-        .addStoryPanels({ pauseSeconds: 0, autoOpen: false, panels: [panel("by-event", { event: "burn" }, { object: "probe" }), panel("by-utc", { utc: T0 + DAY }, { details: ["More."] }), panel("by-anchor", { anchor: "fix-a" })] }),
+        .addStoryPanels([panel("by-event", { event: "burn" }, { object: "probe" }), panel("by-utc", { time: T0 + DAY }, { details: ["More."] }), panel("by-anchor", { anchor: "fix-a" })]).setStoryPanelPlayback({ pauseSeconds: 0, autoOpen: false }),
     }),
     "timeline: span, rates, opening rate, pacing spans and event rules, loop": (a) => ({
       scene: new a.Scene().addBody(a.earth).addBody(a.moon).setTime(T0 + DAY).addEvents([{ id: "e1", label: "E1", time: T0 + 3 * DAY, type: "encounter" }, { id: "e2", label: "E2", time: T0 + 7 * DAY, type: "encounter" }])
-        .setTimeline({ start: T0, end: T0 + 10 * DAY, rates: [10, 100, 1000], rate: 100, loop: true, pacing: [{ from: T0, to: T0 + DAY, rate: 5000 }, { from: T0 + 8 * DAY, to: T0 + 9 * DAY, rate: 7, ramp: 600 }, { near: { type: "encounter", within: 3600 }, rate: 2 }, { near: { type: "encounter", within: 600 }, rate: 1, ramp: 60 }] }),
+        .setTimeline({ start: T0, end: T0 + 10 * DAY, rates: [10, 100, 1000], rate: 100, loop: true, pacing: [{ start: T0, end: T0 + DAY, rate: 5000 }, { start: T0 + 8 * DAY, end: T0 + 9 * DAY, rate: 7, rampSeconds: 600 }, { near: { type: "encounter", withinSeconds: 3600 }, rate: 2 }, { near: { type: "encounter", withinSeconds: 600 }, rate: 1, rampSeconds: 60 }] }),
     }),
     "timeline: none, frozen at a moment": (a) => ({ scene: new a.Scene().addBody(a.earth).setTimeline({ none: true, at: T0 + 3 * DAY }) }),
     "timeline: none, running at a rate": (a) => ({ scene: new a.Scene().addBody(a.earth).setTime(T0).setTimeline({ none: true, rate: 3_600 }) }),
@@ -257,14 +261,14 @@ function sceneCases(g: Graph, withJourney: boolean): Record<string, Case> {
     "display switches, called twice": (a) => ({ scene: new a.Scene().addBody(a.earth).addBody(a.moon, { orbit: true }).setTime(T0).setSwitches({ orbitLines: { place: "top-bar" }, labels: { place: "panel", on: false } }).setSwitches({ milkyWay: { place: "developer", on: false }, labels: { place: "top-bar" } }) }),
     "views with each camera rule": (a) => {
       const scene = new a.Scene().addBody(a.earth).addBody(a.moon).setTime(T0).addTrajectory({ id: "a", samples: line(5) }).addTrajectory({ id: "b", samples: line(5, 2) }).addEvents([{ id: "ea", label: "EA", time: T0 + DAY }, { id: "eb", label: "EB", time: T0 + 2 * DAY }])
-        .addStoryPanels({ panels: [panel("pa", { utc: T0 + DAY }), panel("pb", { utc: T0 + 2 * DAY })] })
-        .setViews([{ id: "va", label: "A", paths: ["a"], events: ["ea"], panels: ["pa"], camera: { follow: "a" } }, { id: "vb", label: "B", paths: ["b"], bodies: ["moon"], events: ["eb"], panels: ["pb"], camera: { focus: "b" } }, { id: "vs", label: "Start", camera: "start" }, { id: "vt", label: "Stay", camera: "stay" }, { id: "vn", label: "Default" }], { place: "panel", start: "vb" });
+        .addStoryPanels([panel("pa", { time: T0 + DAY }), panel("pb", { time: T0 + 2 * DAY })])
+        .setViews([{ id: "va", label: "A", objects: ["a"], events: ["ea"], panels: ["pa"], camera: { follow: "a" } }, { id: "vb", label: "B", objects: ["b", "moon"], events: ["eb"], panels: ["pb"], camera: { focus: "b" } }, { id: "vs", label: "Start", camera: "start" }, { id: "vt", label: "Stay", camera: "stay" }, { id: "vn", label: "Default" }], { place: "panel", start: "vb" });
       scene.camera.follow("a", { azimuthDeg: 10 });
       return { scene };
     },
-    "camera: follow then lookAt, setReach then fitOrbit, ecliptic up": (a) => {
+    "camera: follow then focus, setReach then fitOrbit, ecliptic up": (a) => {
       const scene = new a.Scene().addBody(a.sun).addBody(a.earth).addBody(a.mars).setTime(T0);
-      scene.camera.follow("earth", { distance: 12 }).lookAt("mars", { up: "ecliptic", elevationDeg: 5 }).setReach(900).fitOrbit(a.mars);
+      scene.camera.follow("earth", { distance: 12 }).focus("mars", { up: "ecliptic", elevationDeg: 5 }).setReach(900).fitOrbit(a.mars);
       return { scene };
     },
     "camera: setReach alone, follow with a view": (a) => {
@@ -275,7 +279,7 @@ function sceneCases(g: Graph, withJourney: boolean): Record<string, Case> {
     "the made-up probe definition (synthetic)": async () => ({ definition: await g.synthetic.probe() }),
     "the made-up views definition (synthetic)": async () => ({ definition: await g.synthetic.views() }),
     // C-139 O3 pin gaps: the pacing base rate when `rate` is unset, and the path-cover sample count on a path whose farthest point is between its end samples.
-    "timeline: pacing with no rate set (the base rate default)": (a) => ({ scene: new a.Scene().addBody(a.earth).addBody(a.moon).setTime(T0 + DAY).setTimeline({ start: T0, end: T0 + 10 * DAY, pacing: [{ from: T0 + 2 * DAY, to: T0 + 3 * DAY, rate: 5000 }] }) }),
+    "timeline: pacing with no rate set (the base rate default)": (a) => ({ scene: new a.Scene().addBody(a.earth).addBody(a.moon).setTime(T0 + DAY).setTimeline({ start: T0, end: T0 + 10 * DAY, pacing: [{ start: T0 + 2 * DAY, end: T0 + 3 * DAY, rate: 5000 }] }) }),
     "sun scene with a path that peaks between its end samples (cover sample count)": (a) => ({
       scene: new a.Scene().addBody(a.sun).addBody(a.earth).setTime(T0 + 5 * DAY).addTrajectory({
         id: "bump", center: "sun", bounds: { start: T0, end: T0 + 10 * DAY },
@@ -297,16 +301,16 @@ function badBuilds(): Record<string, Bad> {
   const tl = (a: Api, timeline: unknown) => earthMoon(a).setTimeline(timeline as never);
   const view = (a: Api, views: unknown, options: unknown = { place: "panel" }) => earthMoon(a).setViews(views as never, options as never);
   const bodyOpt = (a: Api, options: object) => new a.Scene().addBody(a.earth, options as never);
-  const grp = (a: Api, extra: object) => earthMoon(a).addGroup({ id: "g", orbits: rocks(2), ...extra } as never);
+  const grp = (a: Api, extra: object) => earthMoon(a).addGroup({ plane: "ecliptic-j2000", id: "g", orbits: rocks(2), ...extra } as never);
   const act = (a: Api, extra: object) => earthMoon(a).addActivity(burst(extra) as never);
   const ev = (a: Api, events: unknown, options?: unknown) => earthMoon(a).addEvents(events as never, options as never);
-  const panels = (a: Api, ...list: object[]) => earthMoon(a).addStoryPanels({ panels: list });
+  const panels = (a: Api, ...list: object[]) => earthMoon(a).addStoryPanels(list as never);
   return {
     // addBody and addBodyFromElements
     "addBody: orbit on a body with no orbit": b((a) => new a.Scene().addBody(a.sun, { orbit: true })),
     "addBody: unknown id": b((a) => new a.Scene().addBody("nope")),
     "addBody: repeated id": b((a) => new a.Scene().addBody(a.earth).addBody(a.earth)),
-    "addBody: labelReach not positive": b((a) => bodyOpt(a, { labelReach: 0 })),
+    "addBody: labelReach not positive": b((a) => bodyOpt(a, { labelReachEarthRadii: 0 })),
     "addBody: enlarge below 1": b((a) => bodyOpt(a, { enlarge: 0.5 })),
     "addBody: showLabel not a boolean": b((a) => bodyOpt(a, { showLabel: "yes" })),
     "addBody: colour not hex": b((a) => bodyOpt(a, { color: "red" })),
@@ -325,11 +329,11 @@ function badBuilds(): Record<string, Bad> {
     // addTrajectory
     "addTrajectory: empty id": b((a) => earthMoon(a).addTrajectory({ id: "", samples: line(3) })),
     "addTrajectory: id of a body": b((a) => earthMoon(a).addTrajectory({ id: "moon", samples: line(3) })),
-    "addTrajectory: id of a group": b((a) => earthMoon(a).addGroup({ id: "g", orbits: rocks(1) }).addTrajectory({ id: "g", samples: line(3) })),
+    "addTrajectory: id of a group": b((a) => earthMoon(a).addGroup({ plane: "ecliptic-j2000", id: "g", orbits: rocks(1) }).addTrajectory({ id: "g", samples: line(3) })),
     "addTrajectory: repeated id": b((a) => withPath(a, {}).addTrajectory({ id: "p", samples: line(3) })),
     "addTrajectory: centre not catalogued": b((a) => withPath(a, { center: "nowhere" })),
     "addTrajectory: first body not built-in (centre falls back to earth)": b((a) => new a.Scene().addBodyFromElements(COMET).addTrajectory({ id: "p", samples: line(3), readouts: [{ kind: "range", marker: "earth" }] }).addBody(a.earth)),
-    "addTrajectory: labelReach not positive": b((a) => withPath(a, { labelReach: -1 })),
+    "addTrajectory: labelReach not positive": b((a) => withPath(a, { labelReachEarthRadii: -1 })),
     "addTrajectory: plane not known": b((a) => withPath(a, { plane: "galactic" })),
     "addTrajectory: sample time not a moment": b((a) => withPath(a, { samples: [{ time: "soon", positionKm: [1, 2, 3] }, { time: T0, positionKm: [1, 2, 3] }] })),
     "addTrajectory: samples too few": b((a) => withPath(a, { samples: line(1) })),
@@ -380,7 +384,7 @@ function badBuilds(): Record<string, Bad> {
     "addGroup: readout activity not a text": b((a) => grp(a, { readouts: [{ kind: "rate", activity: 5 }] })),
     "addGroup: centre not catalogued": b((a) => grp(a, { center: "nowhere" })),
     "addGroup: id of a body": b((a) => grp(a, { id: "moon" })),
-    "addGroup: id of a path": b((a) => withPath(a, {}).addGroup({ id: "p", orbits: rocks(1) })),
+    "addGroup: id of a path": b((a) => withPath(a, {}).addGroup({ plane: "ecliptic-j2000", id: "p", orbits: rocks(1) })),
     "addGroup: centre the scene lacks (at toDefinition)": b((a) => grp(a, { center: "mars" })),
     "addGroup: clump body the scene lacks": b((a) => grp(a, { clump: { near: "mars", fraction: 0.5, widthDeg: 10 } })),
     "addGroup: clump near its own centre": b((a) => grp(a, { clump: { near: "earth", fraction: 0.5, widthDeg: 10 } })),
@@ -389,7 +393,7 @@ function badBuilds(): Record<string, Bad> {
     "addGroup: an orbit the engine refuses": b((a) => grp(a, { orbits: [{ ...orbit(0), eccentricity: 1.5 }] })),
     "addGroup: reference time not a moment": b((a) => grp(a, { referenceTime: "x" })),
     "addGroup: an orbit time not a moment": b((a) => grp(a, { orbits: [{ ...orbit(0), time: "x" }] })),
-    "addGroup: reads the planet series but the window is outside them": b((a) => new a.Scene().addBody(a.earth).addBody(a.mars).setTimeline({ start: "1500-01-01", end: "1500-02-01" }).addGroup({ id: "g", orbits: rocks(2), clump: { near: "mars", fraction: 0.5, widthDeg: 10 }, center: "earth" })),
+    "addGroup: reads the planet series but the window is outside them": b((a) => new a.Scene().addBody(a.earth).addBody(a.mars).setTimeline({ start: "1500-01-01", end: "1500-02-01" }).addGroup({ plane: "ecliptic-j2000", id: "g", orbits: rocks(2), clump: { near: "mars", fraction: 0.5, widthDeg: 10 }, center: "earth" })),
     "addActivity: no id": b((a) => act(a, { id: "" })),
     "addActivity: no label": b((a) => act(a, { label: "" })),
     "addActivity: no unit": b((a) => act(a, { unit: "" })),
@@ -422,14 +426,14 @@ function badBuilds(): Record<string, Bad> {
     "addEvents: object not in the scene (at toDefinition)": b((a) => ev(a, [{ id: "a", label: "A", time: T0, object: "ghost" }])),
     "addStoryPanels: event not there": b((a) => panels(a, panel("p1", { event: "ghost" }))),
     "addStoryPanels: anchor not there": b((a) => panels(a, panel("p2", { anchor: "ghost" }))),
-    "addStoryPanels: object not in the scene": b((a) => panels(a, panel("p3", { utc: T0 + 3_600_000 }, { object: "ghost" }))),
-    "addStoryPanels: time outside the timeline": b((a) => panels(a, panel("p4", { utc: T0 + 400 * DAY }))),
-    "addStoryPanels: badge not one": b((a) => panels(a, panel("p5", { utc: T0 + 3_600_000 }, { badge: "guess" }))),
-    "addStoryPanels: no sources": b((a) => panels(a, panel("p6", { utc: T0 + 3_600_000 }, { sources: [] }))),
-    "addStoryPanels: repeated id": b((a) => panels(a, panel("p7", { utc: T0 + 3_600_000 }), panel("p7", { utc: T0 + 7_200_000 }))),
-    "addStoryPanels: panels not a list": b((a) => earthMoon(a).addStoryPanels({ panels: 5 as never })),
-    "addStoryPanels: pauseSeconds out of range": b((a) => earthMoon(a).addStoryPanels({ pauseSeconds: 99, panels: [panel("p", { utc: T0 })] })),
-    "addStoryPanels: no body": b((a) => earthMoon(a).addStoryPanels({ panels: [panel("p", { utc: T0 }, { body: [] })] })),
+    "addStoryPanels: object not in the scene": b((a) => panels(a, panel("p3", { time: T0 + 3_600_000 }, { object: "ghost" }))),
+    "addStoryPanels: time outside the timeline": b((a) => panels(a, panel("p4", { time: T0 + 400 * DAY }))),
+    "addStoryPanels: source type not one": b((a) => panels(a, panel("p5", { time: T0 + 3_600_000 }, { provenance: { ...prov, sourceType: "guess" } }))),
+    "addStoryPanels: no sources": b((a) => panels(a, panel("p6", { time: T0 + 3_600_000 }, { provenance: { ...prov, sources: [] } }))),
+    "addStoryPanels: repeated id": b((a) => panels(a, panel("p7", { time: T0 + 3_600_000 }), panel("p7", { time: T0 + 7_200_000 }))),
+    "addStoryPanels: panels not a list": b((a) => earthMoon(a).addStoryPanels(5 as never)),
+    "setStoryPanelPlayback: pauseSeconds out of range": b((a) => earthMoon(a).setStoryPanelPlayback({ pauseSeconds: 99 })),
+    "addStoryPanels: no body": b((a) => earthMoon(a).addStoryPanels([panel("p", { time: T0 }, { body: [] })])),
     "addStoryPanels: undefined": b((a) => earthMoon(a).addStoryPanels(undefined as never)),
     // timeline
     "setTimeline: not an object": b((a) => tl(a, 5)),
@@ -442,14 +446,14 @@ function badBuilds(): Record<string, Bad> {
     "setTimeline: a rate not positive": b((a) => tl(a, { start: T0, end: T0 + DAY, rates: [1, -2] })),
     "setTimeline: pacing not a list": b((a) => tl(a, { start: T0, end: T0 + DAY, pacing: 5 })),
     "setTimeline: pacing piece not an object": b((a) => tl(a, { start: T0, end: T0 + DAY, pacing: [5] })),
-    "setTimeline: pacing rate not positive": b((a) => tl(a, { start: T0, end: T0 + DAY, pacing: [{ from: T0, to: T0 + 100, rate: 0 }] })),
-    "setTimeline: pacing ramp negative": b((a) => tl(a, { start: T0, end: T0 + DAY, pacing: [{ from: T0, to: T0 + 100, rate: 1, ramp: -1 }] })),
-    "setTimeline: pacing near without a type": b((a) => tl(a, { start: T0, end: T0 + DAY, pacing: [{ near: { within: 5 }, rate: 1 }] })),
-    "setTimeline: pacing near within not positive": b((a) => tl(a, { start: T0, end: T0 + DAY, pacing: [{ near: { type: "x", within: 0 }, rate: 1 }] })),
+    "setTimeline: pacing rate not positive": b((a) => tl(a, { start: T0, end: T0 + DAY, pacing: [{ start: T0, end: T0 + 100, rate: 0 }] })),
+    "setTimeline: pacing ramp negative": b((a) => tl(a, { start: T0, end: T0 + DAY, pacing: [{ start: T0, end: T0 + 100, rate: 1, rampSeconds: -1 }] })),
+    "setTimeline: pacing near without a type": b((a) => tl(a, { start: T0, end: T0 + DAY, pacing: [{ near: { withinSeconds: 5 }, rate: 1 }] })),
+    "setTimeline: pacing near within not positive": b((a) => tl(a, { start: T0, end: T0 + DAY, pacing: [{ near: { type: "x", withinSeconds: 0 }, rate: 1 }] })),
     "setTimeline: pacing piece without from and to": b((a) => tl(a, { start: T0, end: T0 + DAY, pacing: [{ rate: 1 }] })),
-    "setTimeline: pacing to before from": b((a) => tl(a, { start: T0, end: T0 + DAY, pacing: [{ from: T0 + 100, to: T0, rate: 1 }] })),
-    "setTimeline: pacing spans overlapping": b((a) => tl(a, { start: T0, end: T0 + DAY, pacing: [{ from: T0, to: T0 + 100, rate: 1 }, { from: T0 + 50, to: T0 + 200, rate: 1 }] })),
-    "setTimeline: pacing rule matching no event (at toDefinition)": b((a) => tl(a, { start: T0, end: T0 + DAY, pacing: [{ near: { type: "ghost", within: 5 }, rate: 1 }] })),
+    "setTimeline: pacing to before from": b((a) => tl(a, { start: T0, end: T0 + DAY, pacing: [{ start: T0 + 100, end: T0, rate: 1 }] })),
+    "setTimeline: pacing spans overlapping": b((a) => tl(a, { start: T0, end: T0 + DAY, pacing: [{ start: T0, end: T0 + 100, rate: 1 }, { start: T0 + 50, end: T0 + 200, rate: 1 }] })),
+    "setTimeline: pacing rule matching no event (at toDefinition)": b((a) => tl(a, { start: T0, end: T0 + DAY, pacing: [{ near: { type: "ghost", withinSeconds: 5 }, rate: 1 }] })),
     "setTime outside the timeline (at toDefinition)": b((a) => tl(a, { start: T0 + DAY, end: T0 + 2 * DAY })),
     "setTime outside a frozen-at timeline": b((a) => earthMoon(a).setTimeline({ none: true, at: T0 })),
     // switches and views
@@ -465,18 +469,18 @@ function badBuilds(): Record<string, Bad> {
     "setViews: no id": b((a) => view(a, [{ id: "", label: "A" }])),
     "setViews: no label": b((a) => view(a, [{ id: "a", label: "" }])),
     "setViews: repeated id": b((a) => view(a, [{ id: "a", label: "A" }, { id: "a", label: "B" }])),
-    "setViews: ids not a list": b((a) => view(a, [{ id: "a", label: "A", paths: "x" }])),
+    "setViews: ids not a list": b((a) => view(a, [{ id: "a", label: "A", objects: "x" }])),
     "setViews: camera malformed": b((a) => view(a, [{ id: "a", label: "A", camera: { follow: "x", focus: "y" } }])),
     "setViews: camera a string that is not a rule": b((a) => view(a, [{ id: "a", label: "A", camera: "orbit" }])),
     "setViews: start not a view": b((a) => view(a, [{ id: "a", label: "A" }], { place: "panel", start: "z" })),
-    "setViews: id the scene lacks (at toDefinition)": b((a) => view(a, [{ id: "a", label: "A", paths: ["ghost"] }])),
-    "setViews: body the scene lacks": b((a) => view(a, [{ id: "a", label: "A", bodies: ["ghost"] }])),
+    "setViews: id the scene lacks (at toDefinition)": b((a) => view(a, [{ id: "a", label: "A", objects: ["ghost"] }])),
+    "setViews: body the scene lacks": b((a) => view(a, [{ id: "a", label: "A", objects: ["ghost"] }])),
     "setViews: event the scene lacks": b((a) => view(a, [{ id: "a", label: "A", events: ["ghost"] }])),
     "setViews: panel the scene lacks": b((a) => view(a, [{ id: "a", label: "A", panels: ["ghost"] }])),
-    "setViews: camera target the view does not show": b((a) => earthMoon(a).addTrajectory({ id: "x", samples: line(3) }).setViews([{ id: "a", label: "A", paths: ["x"] }, { id: "b", label: "B", bodies: ["moon"], camera: { follow: "x" } }], { place: "panel" })),
+    "setViews: camera target the view does not show": b((a) => earthMoon(a).addTrajectory({ id: "x", samples: line(3) }).setViews([{ id: "a", label: "A", objects: ["x"] }, { id: "b", label: "B", objects: ["moon"], camera: { follow: "x" } }], { place: "panel" })),
     // camera
     "camera.follow: unknown id": b((a) => { const s = earthMoon(a); s.camera.follow("ghost"); return s; }),
-    "camera.lookAt: unknown id": b((a) => { const s = earthMoon(a); s.camera.lookAt("ghost"); return s; }),
+    "camera.focus: unknown id": b((a) => { const s = earthMoon(a); s.camera.focus("ghost"); return s; }),
     "camera.follow: up not known": b((a) => { const s = earthMoon(a); s.camera.follow("moon", { up: "north" as never }); return s; }),
     "camera.setReach: zero": b((a) => { const s = earthMoon(a); s.camera.setReach(0); return s; }),
     "camera.setReach: not a number": b((a) => { const s = earthMoon(a); s.camera.setReach("far" as never); return s; }),
@@ -498,19 +502,19 @@ function badBuilds(): Record<string, Bad> {
     "out-of-span: a fit and a window outside the series": b((a) => { const s = new a.Scene().addBody(a.sun).addBody(a.mars).setTimeline({ start: "1500-01-01", end: "1500-02-01" }); s.camera.fitOrbit("mars"); return s; }),
     // which error wins when a scene has two faults, in the order toDefinition checks
     "two faults: empty scene and a bad group readout": b((a) => new a.Scene().addActivity(burst())),
-    "two faults: missing data package and a bad group readout": b((a) => new a.Scene().addBody(a.jupiter).addBody(a.io).setTime(T0).addGroup({ id: "g", orbits: rocks(1), readouts: [{ kind: "rate" }] }), DATA.slice(1)),
-    "two faults: bad group readout and a moon orbit with no planet": b((a) => new a.Scene().addBody(a.moon, { orbit: true }).setTime(T0).addGroup({ id: "g", orbits: rocks(1), readouts: [{ kind: "rate" }] })),
+    "two faults: missing data package and a bad group readout": b((a) => new a.Scene().addBody(a.jupiter).addBody(a.io).setTime(T0).addGroup({ plane: "ecliptic-j2000", id: "g", orbits: rocks(1), readouts: [{ kind: "rate" }] }), DATA.slice(1)),
+    "two faults: bad group readout and a moon orbit with no planet": b((a) => new a.Scene().addBody(a.moon, { orbit: true }).setTime(T0).addGroup({ plane: "ecliptic-j2000", id: "g", orbits: rocks(1), readouts: [{ kind: "rate" }] })),
     "two faults: moon orbit with no planet and a bad scale": b((a) => new a.Scene().addBody(a.moon, { orbit: true }).setTime(T0).setScale(a.solarSystemScale)),
     "two faults: bad scale and a path line fixed to a missing body": b((a) => withPath(a, { lineFixedTo: "mars" }).setScale(a.solarSystemScale)),
     "two faults: path line fixed to a missing body and a readout naming a missing body": b((a) => withPath(a, { lineFixedTo: "mars", readouts: [{ kind: "distance", to: "venus" }] })),
     "two faults: readout naming a missing body and setTime outside the timeline": b((a) => withPath(a, { readouts: [{ kind: "distance", to: "venus" }] }).setTimeline({ start: T0 + 100 * DAY, end: T0 + 200 * DAY }).setTime(T0)),
     "two faults: setTime outside the timeline and a Sun orbit with no Sun": b((a) => new a.Scene().addBody(a.earth, { orbit: true }).setTimeline({ start: T0 + DAY, end: T0 + 2 * DAY }).setTime(T0)),
-    "two faults: Sun orbit with no Sun and a bad story panel": b((a) => new a.Scene().addBody(a.earth, { orbit: true }).setTime(T0).addStoryPanels({ panels: [panel("p", { event: "ghost" })] })),
-    "two faults: bad story panel and a group centre the scene lacks": b((a) => earthMoon(a).addStoryPanels({ panels: [panel("p", { event: "ghost" })] }).addGroup({ id: "g", orbits: rocks(1), center: "mars" })),
-    "two faults: group centre the scene lacks and an event object the scene lacks": b((a) => earthMoon(a).addGroup({ id: "g", orbits: rocks(1), center: "mars" }).addEvents([{ id: "e", label: "E", time: T0, object: "ghost" }])),
-    "two faults: event object the scene lacks and a view id the scene lacks": b((a) => earthMoon(a).addEvents([{ id: "e", label: "E", time: T0, object: "ghost" }]).setViews([{ id: "a", label: "A", paths: ["ghost"] }], { place: "panel" })),
-    "two faults: view id the scene lacks and a pacing rule matching no event": b((a) => earthMoon(a).setViews([{ id: "a", label: "A", paths: ["ghost"] }], { place: "panel" }).setTimeline({ start: T0, end: T0 + DAY, pacing: [{ near: { type: "ghost", within: 5 }, rate: 1 }] })),
-    "two faults: out-of-span and a group centre the scene lacks": b((a) => new a.Scene().addBody(a.sun).addBody(a.mars).setTimeline({ start: "1500-01-01", end: "1500-02-01" }).addGroup({ id: "g", orbits: rocks(1), center: "venus" })),
+    "two faults: Sun orbit with no Sun and a bad story panel": b((a) => new a.Scene().addBody(a.earth, { orbit: true }).setTime(T0).addStoryPanels([panel("p", { event: "ghost" })])),
+    "two faults: bad story panel and a group centre the scene lacks": b((a) => earthMoon(a).addStoryPanels([panel("p", { event: "ghost" })]).addGroup({ plane: "ecliptic-j2000", id: "g", orbits: rocks(1), center: "mars" })),
+    "two faults: group centre the scene lacks and an event object the scene lacks": b((a) => earthMoon(a).addGroup({ plane: "ecliptic-j2000", id: "g", orbits: rocks(1), center: "mars" }).addEvents([{ id: "e", label: "E", time: T0, object: "ghost" }])),
+    "two faults: event object the scene lacks and a view id the scene lacks": b((a) => earthMoon(a).addEvents([{ id: "e", label: "E", time: T0, object: "ghost" }]).setViews([{ id: "a", label: "A", objects: ["ghost"] }], { place: "panel" })),
+    "two faults: view id the scene lacks and a pacing rule matching no event": b((a) => earthMoon(a).setViews([{ id: "a", label: "A", objects: ["ghost"] }], { place: "panel" }).setTimeline({ start: T0, end: T0 + DAY, pacing: [{ near: { type: "ghost", withinSeconds: 5 }, rate: 1 }] })),
+    "two faults: out-of-span and a group centre the scene lacks": b((a) => new a.Scene().addBody(a.sun).addBody(a.mars).setTimeline({ start: "1500-01-01", end: "1500-02-01" }).addGroup({ plane: "ecliptic-j2000", id: "g", orbits: rocks(1), center: "venus" })),
     "two faults: out-of-span and an event object the scene lacks": b((a) => new a.Scene().addBody(a.sun).addBody(a.mars).setTimeline({ start: "1500-01-01", end: "1500-02-01" }).addEvents([{ id: "e", label: "E", time: "1500-01-15", object: "ghost" }])),
     "two faults at the call: the first throws": b((a) => new a.Scene().addBody("nope").addBody("nada")),
   };
@@ -543,7 +547,7 @@ describe("what the scene builder produces today (O-058 T-231)", () => {
     const cases = sceneCases(loaded, true);
     for (const [name, make] of Object.entries(cases)) seriesLoaded[name] = await observe(loaded, await make(loaded.api));
     const bad = badBuilds();
-    for (const [name, one] of Object.entries(bad)) errorsSeriesLoaded[name] = await outcome(() => one.build(loaded.api), one.data);
+    for (const [name, one] of Object.entries(bad)) errorsSeriesLoaded[name] = await outcome(loaded, () => one.build(loaded.api), one.data);
 
     // Order two: a fresh module graph for each build, so the planet series are not loaded when the definition is built.
     for (const name of Object.keys(sceneCases(loaded, false))) {
@@ -553,7 +557,7 @@ describe("what the scene builder produces today (O-058 T-231)", () => {
     for (const [name, one] of Object.entries(bad)) {
       if (!DEFERRED.test(name)) continue;
       const graph = await freshGraph();
-      errorsSeriesNotLoaded[name] = await outcome(() => one.build(graph.api), one.data);
+      errorsSeriesNotLoaded[name] = await outcome(graph, () => one.build(graph.api), one.data);
     }
 
     const pin = { seriesLoaded, errorsSeriesLoaded, seriesNotLoaded, errorsSeriesNotLoaded };

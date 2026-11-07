@@ -58,7 +58,7 @@ describe("SampledTrajectory sampling and bounds", () => {
     const b = linear.stateAt(T0 + 1500);
     expect(Array.from(a.positionKm)).toEqual(Array.from(b.positionKm));
     expect(linear.bounds).toEqual({ startUtcMs: T0, endUtcMs: T0 + 3000 });
-    expect(a).toMatchObject({ body: "craft-a", center: "earth", frame: "EQJ", orientation: null });
+    expect(a).toMatchObject({ body: "craft-a", center: "earth", plane: "EQJ", orientation: null });
     expect(a.velocityKmS).toBeUndefined();
   });
 

@@ -29,7 +29,7 @@ const samples = (x: number) => [0, 1, 2, 3].map((i) => ({ time: T0 + i * 10 * MI
 const makeScene = () => new Scene().addBody(earth).addBody(moon)
   .addTrajectory({ id: "pa", label: "Probe A", center: "earth", samples: samples(10_000) })
   .addTrajectory({ id: "pb", label: "Probe B", center: "earth", samples: samples(20_000) })
-  .setViews([{ id: "a", label: "View A", paths: ["pa"] }, { id: "b", label: "View B", paths: ["pb"] }], { place: "top-bar" });
+  .setViews([{ id: "a", label: "View A", objects: ["pa"] }, { id: "b", label: "View B", objects: ["pb"] }], { place: "top-bar" });
 
 let host: HTMLElement;
 let root: Root | undefined;
@@ -196,7 +196,7 @@ describe("the camera at ready (as T-222: ready means usable)", () => {
 
   it("is the scene's start view when it has one", async () => {
     const scene = makeScene();
-    scene.camera.lookAt("moon", { azimuthDeg: 30, elevationDeg: 10, distance: 25 });
+    scene.camera.focus("moon", { azimuthDeg: 30, elevationDeg: 10, distance: 25 });
     const handle = mount(host, scene);
     await drawn(handle);
     expect(handle.camera).toEqual({ focus: "moon", azimuthDeg: 30, elevationDeg: 10, distance: 25 });
@@ -265,7 +265,7 @@ describe("camera to the encounter and back through AstraeusScene and its handle 
   const withZone = () => new Scene().addBody(earth)
     .addTrajectory({ id: "pa", label: "Probe A", center: "earth", samples: samples(10_000) })
     .addEvents([{ id: "ea", label: "A flyby", time: new Date(T0 + 20 * DAY).toISOString(), type: "flyby", object: "pa" }])
-    .setTimeline({ start: new Date(T0).toISOString(), end: new Date(T0 + 100 * DAY).toISOString(), rate: 86_400, rates: [60, 86_400], pacing: [{ near: { type: "flyby", within: 86_400 }, rate: 60 }] });
+    .setTimeline({ start: new Date(T0).toISOString(), end: new Date(T0 + 100 * DAY).toISOString(), rate: 86_400, rates: [60, 86_400], pacing: [{ near: { type: "flyby", withinSeconds: 86_400 }, rate: 60 }] });
 
   it("follows the probe on enter and puts the saved pose back on leave via time, the handle coming from ref", async () => {
     const scene = withZone();

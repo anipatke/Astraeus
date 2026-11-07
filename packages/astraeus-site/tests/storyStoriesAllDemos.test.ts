@@ -25,13 +25,13 @@ const sentences = (panel: ScenePanelRead): number => panel.body.join(" ").split(
 describe("short stories for the three demos without one (T-089)", () => {
   it.each(stories)("%s carries three sourced panels, in time order, on its own objects and inside its own timeline", (_name, scene, expected) => {
     const panels = scene.panels;
-    expect(panels.map((panel) => [panel.id, panel.badge, panel.object])).toEqual(expected);
+    expect(panels.map((panel) => [panel.id, panel.provenance.sourceType, panel.object])).toEqual(expected);
     const { windowStartUtcMs, windowEndUtcMs } = scene.timeline;
     for (const panel of panels) {
       expect(panel.timeUtcMs).toBeGreaterThan(windowStartUtcMs);
       expect(panel.timeUtcMs).toBeLessThan(windowEndUtcMs);
       if (panel.object !== undefined) expect(objectIdsOf(scene)).toContain(panel.object);
-      expect(panel.sources.length).toBeGreaterThan(0);
+      expect(panel.provenance.sources.length).toBeGreaterThan(0);
       expect(panel.details.length).toBeGreaterThan(0);
     }
   });

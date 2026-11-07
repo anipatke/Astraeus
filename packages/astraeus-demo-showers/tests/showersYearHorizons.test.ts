@@ -4,7 +4,7 @@ import source from "./fixtures/showers-year-horizons-source.txt?raw";
 import geminids from "../data/showers/geminids.json";
 import geminidsPanels from "../data/stories/geminids/panels.json";
 import perseidsPanels from "../data/stories/perseids/panels.json";
-import { createSwiftTuttleTrajectory, SWIFT_TUTTLE_MAX_ERROR_KM } from "astraeus/core/bodies/swiftTuttle";
+import { createSwiftTuttleTrajectory, SWIFT_TUTTLE_MAX_ERROR_KM } from "./helpers/swiftTuttle";
 import { buildElementsBody, classifyPositionError, parseElementsBodyRecord } from "astraeus/core/elementsBody";
 import { catalogue } from "astraeus/assets/catalogue";
 import { buildShowerDefinition } from "./helpers/showerDefinition";
@@ -12,7 +12,7 @@ import { shippedPanelsOf } from "./helpers/shippedPanels";
 import { parseShowerSettings } from "../src/experiences/showers/showerSettings";
 
 // O-024 T-092: the Showers demo's year (21 September 2019 to 20 September 2020) checked against JPL Horizons, as C-030/C-032 did for the
-// earlier dates: 3200 Phaethon (the settings-file body) and 109P/Swift-Tuttle (the built-in comet) at six dates across the year, and
+// earlier dates: 3200 Phaethon (the settings-file body) and 109P/Swift-Tuttle (the Perseids file's parent) at six dates across the year, and
 // Phaethon's perihelion times either side of it, which place the Geminid Phaethon panel. Raw responses: showers-year-horizons-source.txt.
 const AU_KM = 149_597_870.7;
 const CENTRE = { id: "sun", gmKm3S2: catalogue.get("sun").definition.gmKm3S2! };
@@ -65,7 +65,7 @@ describe("the Showers year against JPL Horizons (O-024 T-092)", () => {
     expect(classifyPositionError(Math.max(...phaethonRows.map((r) => r.fraction)))).toBe("approximate");
     expect(record.accuracy.classification).toBe("indicative");
     expect(record.accuracy.statement).toContain("365,665 km");
-    expect(record.accuracy.validFromUtc).toBe("2019-09-21T00:00:00Z");
+    expect(record.accuracy.valid.start).toBe("2019-09-21T00:00:00Z");
   });
 
   it("Swift-Tuttle: largest difference 7,644,938 km (0.13%) at 2019-09-21, within the recorded maximum, so its 1990-2030 validity covers the year", () => {
@@ -84,12 +84,12 @@ describe("the Showers year against JPL Horizons (O-024 T-092)", () => {
     expect(before).toBeLessThan(YEAR_START);
     expect(after).toBeGreaterThan(YEAR_END);
     const panel = geminidsPanels.panels.find((p) => p.id === "phaethon")!;
-    expect(panel.at).toEqual({ utc: "2019-11-01T00:00:00Z" });
+    expect(panel.at).toEqual({ time: "2019-11-01T00:00:00Z" });
     expect(panel.body.join(" ")).toMatch(/early July 2019/);
     expect(panel.details.join(" ")).toMatch(/2 July 2019 at about 23:51 UTC/);
     expect(panel.details.join(" ")).toMatch(/7 December 2020 at about 14:26 UTC/);
     // On its way out, about 1.9 AU from the Sun, as the details say.
-    const r = Math.hypot(...phaethon.stateAt(Date.parse(panel.at.utc!), "sun").positionKm) / AU_KM;
+    const r = Math.hypot(...phaethon.stateAt(Date.parse(panel.at.time!), "sun").positionKm) / AU_KM;
     expect(r).toBeGreaterThan(1.85);
     expect(r).toBeLessThan(1.95);
   });
@@ -97,10 +97,10 @@ describe("the Showers year against JPL Horizons (O-024 T-092)", () => {
   it("every Showers story moment lies inside the year, and the details name the 2019-2020 values and the measured-orbit years", () => {
     for (const panels of [perseidsPanels, geminidsPanels]) {
       for (const panel of panels.panels) {
-        const at = panel.at as { utc?: string; event?: string };
-        if (at.utc !== undefined) {
-          expect(Date.parse(at.utc)).toBeGreaterThan(YEAR_START);
-          expect(Date.parse(at.utc)).toBeLessThan(YEAR_END);
+        const at = panel.at as { time?: string; event?: string };
+        if (at.time !== undefined) {
+          expect(Date.parse(at.time)).toBeGreaterThan(YEAR_START);
+          expect(Date.parse(at.time)).toBeLessThan(YEAR_END);
         }
       }
     }

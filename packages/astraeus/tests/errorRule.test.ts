@@ -12,7 +12,7 @@ const caught = (fn: () => unknown): unknown => { try { fn(); } catch (error) { r
 
 describe("error rule", () => {
   it("moon positions naming a planet without a moon system throw bad-data naming the package and the planet", async () => {
-    const source = { name: "astraeus-data-made-up", provides: [], moonPositions: { centre: "mercury", loadIndex: async () => ({}), chunkUrls: {} } };
+    const source = { name: "astraeus-data-made-up", provides: [], moonPositions: { center: "mercury", loadIndex: async () => ({}), chunkUrls: {} } };
     const error = await installData([source as never], [], { startUtcMs: 0, endUtcMs: 1 }).catch((e: unknown) => e);
     expect(error).toBeInstanceOf(SceneError);
     expect((error as SceneError).code).toBe("bad-data");

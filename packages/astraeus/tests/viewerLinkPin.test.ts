@@ -36,7 +36,7 @@ const code = (run: () => void): string | undefined => { try { run(); } catch (er
 describe("ViewerLink before attach and after detach", () => {
   it("reads undefined and refuses every setter with not-mounted and the NOT_OPEN message", () => {
     const link = new ViewerLink();
-    const reads = [link.time, link.rate, link.playing, link.eventZones, link.view, link.camera];
+    const reads = [link.timeUtcMs, link.rate, link.playing, link.eventZones, link.view, link.camera];
     expect(reads).toEqual([undefined, undefined, undefined, undefined, undefined, undefined]);
     expect(link.rateSource).toBe("scene");
     expect(code(() => link.setTime(START))).toBe(`not-mounted: setTime: ${NOT_OPEN}`);
@@ -70,11 +70,11 @@ describe("ViewerLink before attach and after detach", () => {
     const link = new ViewerLink();
     const { control } = fake({ paced: true, views: ["a", "b"] });
     link.attach(control);
-    expect([link.time, link.rate, link.playing, link.view]).toEqual([START + 10, 1, false, "a"]);
+    expect([link.timeUtcMs, link.rate, link.playing, link.view]).toEqual([START + 10, 1, false, "a"]);
     expect(link.eventZones).toEqual([]);
     expect(link.camera).toEqual({ focus: "earth", azimuthDeg: 1, elevationDeg: 2, distance: 3 });
     link.detach();
-    expect([link.time, link.rate, link.playing, link.view, link.eventZones, link.camera]).toEqual([undefined, undefined, undefined, undefined, undefined, undefined]);
+    expect([link.timeUtcMs, link.rate, link.playing, link.view, link.eventZones, link.camera]).toEqual([undefined, undefined, undefined, undefined, undefined, undefined]);
     expect(code(() => link.setTime(START))).toBe(`not-mounted: setTime: ${NOT_OPEN}`);
   });
 
@@ -127,7 +127,7 @@ describe("ViewerLink whenAttached, detach and close", () => {
     const link = new ViewerLink();
     link.attach(fake().control);
     link.close();
-    expect(link.time).toBeUndefined();
+    expect(link.timeUtcMs).toBeUndefined();
     await link.whenAttached(); // still the resolved wait: close never arms a new one
   });
 });
@@ -161,7 +161,7 @@ describe("ViewerLink setters", () => {
     expect(f.calls).toEqual([]);
     link.setTime(new Date(START + 500));
     expect(f.calls).toEqual([`seek ${START + 500}`]);
-    expect(seen).toMatchObject([{ time: START + 500, rate: 1, playing: false, cause: "host" }]);
+    expect(seen).toMatchObject([{ timeUtcMs: START + 500, rate: 1, playing: false, cause: "host" }]);
     link.setTime(START + 500); // same reading: no second report
     expect(seen.length).toBe(1);
   });
@@ -177,7 +177,7 @@ describe("ViewerLink setters", () => {
     plain.onChange((c) => seen.push(c));
     plain.setRate(60);
     expect(plain.rateSource).toBe("chosen");
-    expect(seen).toMatchObject([{ time: START + 10, rate: 60, playing: false, cause: "host" }]);
+    expect(seen).toMatchObject([{ timeUtcMs: START + 10, rate: 60, playing: false, cause: "host" }]);
 
     const paced = new ViewerLink();
     const p = fake({ paced: true });
@@ -201,7 +201,7 @@ describe("ViewerLink setters", () => {
     link.onChange((c) => seen.push(c));
     link.setView("b");
     expect(f.calls).toEqual(["view b"]);
-    expect(seen).toMatchObject([{ time: START + 10, rate: 1, playing: false, view: "b", cause: "host" }]);
+    expect(seen).toMatchObject([{ timeUtcMs: START + 10, rate: 1, playing: false, view: "b", cause: "host" }]);
     expect(link.view).toBe("b");
   });
 
@@ -241,8 +241,8 @@ describe("ViewerLink publishing", () => {
     link.publish(f.set({ timeUtcMs: START + 30, zones: ["e2"] }), "visitor");
     link.publish(f.set({ view: "b", zones: [] }), "visitor");
     expect(order).toEqual(["change playback", "zone e1 true", "change visitor", "zone e1 false", "zone e2 true", "change visitor", "zone e2 false"]);
-    expect(zones[0]).toEqual({ event: "e1", type: "flyby", object: "moon", entered: true, time: START + 20, cause: "playback", via: "time" });
-    expect(zones[2]).toEqual({ event: "e2", entered: true, time: START + 30, cause: "visitor", via: "time" });
+    expect(zones[0]).toEqual({ event: "e1", type: "flyby", object: "moon", entered: true, timeUtcMs: START + 20, cause: "playback", via: "time" });
+    expect(zones[2]).toEqual({ event: "e2", entered: true, timeUtcMs: START + 30, cause: "visitor", via: "time" });
     expect(zones[3]).toMatchObject({ event: "e2", entered: false, via: "view", cause: "visitor" });
   });
 

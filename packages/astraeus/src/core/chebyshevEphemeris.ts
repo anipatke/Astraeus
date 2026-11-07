@@ -369,7 +369,7 @@ export class ChebyshevEphemeris {
         velocity[axis] -= centreVelocity[axis];
       }
     }
-    return createState({ body: bodyId, center: this.index.centre, timeUtcMs, frame: EQJ, positionKm: position, velocityKmS: velocity, orientation: null });
+    return createState({ body: bodyId, center: this.index.centre, timeUtcMs, plane: EQJ, positionKm: position, velocityKmS: velocity, orientation: null });
   }
 
   /** The ordinary Trajectory for one body, valid inside `boundsOf(body)`, in the set's one centre. */

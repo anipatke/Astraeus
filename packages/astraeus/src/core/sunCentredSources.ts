@@ -67,7 +67,7 @@ export function createTwoBodyTrajectory(input: TwoBodyTrajectoryInput, adapter: 
       assertWithinBounds(bounds, timeUtcMs);
       const position = new Float64Array(3);
       adapter.propagateMemberInto(states, 0, (timeUtcMs - epochUtcMs) / 1000, native, position);
-      return createState({ body, center: native, timeUtcMs, frame: EQJ, positionKm: position, orientation: null });
+      return createState({ body, center: native, timeUtcMs, plane: EQJ, positionKm: position, orientation: null });
     },
   });
 }

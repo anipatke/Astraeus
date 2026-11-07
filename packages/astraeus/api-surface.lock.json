@@ -68,6 +68,11 @@
           "signature": "readonly string[]"
         },
         {
+          "name": "activities",
+          "optional": false,
+          "signature": "readonly SceneActivityRead[]"
+        },
+        {
           "name": "timeline",
           "optional": false,
           "signature": "SceneTimelineRead"
@@ -145,7 +150,12 @@
         {
           "name": "addStoryPanels",
           "optional": false,
-          "signature": "(panels: StoryPanelsInput): Scene"
+          "signature": "(panels: readonly StoryPanelInput[]): Scene"
+        },
+        {
+          "name": "setStoryPanelPlayback",
+          "optional": false,
+          "signature": "(playback: StoryPanelPlaybackInput): Scene"
         },
         {
           "name": "setTimeline",
@@ -181,16 +191,6 @@
           "name": "check",
           "optional": false,
           "signature": "(options?: SceneLoadOptions): void"
-        },
-        {
-          "name": "missingData",
-          "optional": false,
-          "signature": "(data?: readonly DataSource[]): readonly string[]"
-        },
-        {
-          "name": "toDefinition",
-          "optional": false,
-          "signature": "(data?: readonly DataSource[]): ExperienceDefinition"
         }
       ]
     },
@@ -207,7 +207,7 @@
           "signature": "(id: string, view?: FollowView): SceneCamera"
         },
         {
-          "name": "lookAt",
+          "name": "focus",
           "optional": false,
           "signature": "(id: string, view?: FollowView): SceneCamera"
         },
@@ -237,7 +237,7 @@
           "signature": "string | undefined"
         },
         {
-          "name": "reach",
+          "name": "reachEarthRadii",
           "optional": false,
           "signature": "number | undefined"
         },
@@ -294,7 +294,7 @@
           "signature": "boolean | undefined"
         },
         {
-          "name": "labelReach",
+          "name": "labelReachEarthRadii",
           "optional": true,
           "signature": "number | undefined"
         },
@@ -501,6 +501,58 @@
           "name": "texture",
           "optional": true,
           "signature": "TextureRef | undefined"
+        }
+      ]
+    },
+    "SceneActivityRead": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "id",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "label",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "unit",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "windowStartUtcMs",
+          "optional": false,
+          "signature": "number"
+        },
+        {
+          "name": "windowEndUtcMs",
+          "optional": false,
+          "signature": "number"
+        },
+        {
+          "name": "peak",
+          "optional": false,
+          "signature": "{ readonly label: string; readonly value: number; readonly timeUtcMs?: number; }"
+        },
+        {
+          "name": "samples",
+          "optional": false,
+          "signature": "readonly { readonly timeUtcMs: number; readonly value: number; }[]"
+        },
+        {
+          "name": "provenance",
+          "optional": true,
+          "signature": "readonly { readonly stretchStartUtcMs: number; readonly stretchEndUtcMs: number; readonly provenance: Provenance; }[] | undefined"
+        },
+        {
+          "name": "type",
+          "optional": true,
+          "signature": "string | undefined"
         }
       ]
     },
@@ -717,19 +769,14 @@
           "signature": "readonly string[]"
         },
         {
-          "name": "badge",
-          "optional": false,
-          "signature": "\"observed\" | \"modelled\" | \"illustrative\""
-        },
-        {
           "name": "details",
           "optional": false,
           "signature": "readonly string[]"
         },
         {
-          "name": "sources",
+          "name": "provenance",
           "optional": false,
-          "signature": "readonly string[]"
+          "signature": "Provenance"
         },
         {
           "name": "object",
@@ -752,6 +799,21 @@
           "name": "label",
           "optional": false,
           "signature": "string"
+        },
+        {
+          "name": "objects",
+          "optional": false,
+          "signature": "readonly string[]"
+        },
+        {
+          "name": "events",
+          "optional": false,
+          "signature": "readonly string[]"
+        },
+        {
+          "name": "panels",
+          "optional": false,
+          "signature": "readonly string[]"
         }
       ]
     },
@@ -820,19 +882,41 @@
       "constructors": [],
       "members": [
         {
-          "name": "centre",
+          "name": "center",
           "optional": false,
           "signature": "string"
         },
         {
           "name": "loadIndex",
           "optional": false,
-          "signature": "() => Promise<unknown>"
+          "signature": "() => Promise<MoonIndex>"
         },
         {
           "name": "chunkUrls",
           "optional": false,
           "signature": "Readonly<Record<string, string>>"
+        }
+      ]
+    },
+    "MoonIndex": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "format",
+          "optional": true,
+          "signature": "string | undefined"
+        },
+        {
+          "name": "id",
+          "optional": true,
+          "signature": "string | undefined"
+        },
+        {
+          "name": "bodies",
+          "optional": true,
+          "signature": "readonly object[] | undefined"
         }
       ]
     },
@@ -890,8 +974,8 @@
         },
         {
           "name": "plane",
-          "optional": true,
-          "signature": "\"ecliptic-j2000\" | \"EQJ\" | undefined"
+          "optional": false,
+          "signature": "\"ecliptic-j2000\" | \"EQJ\""
         },
         {
           "name": "color",
@@ -1153,7 +1237,7 @@
           "signature": "{ readonly jd: number; readonly timeScale: ElementsTimeScale; readonly ttMinusUtcSeconds?: number; }"
         },
         {
-          "name": "frame",
+          "name": "plane",
           "optional": false,
           "signature": "\"ecliptic-j2000\""
         },
@@ -1170,7 +1254,7 @@
         {
           "name": "accuracy",
           "optional": false,
-          "signature": "{ readonly classification: AccuracyClassification; readonly statement: string; readonly validFromUtc: string; readonly validToUtc: string; readonly limitations: readonly string[]; }"
+          "signature": "{ readonly classification: AccuracyClassification; readonly statement: string; readonly valid: { readonly start: TimeInput; readonly end: TimeInput; }; readonly limitations: readonly string[]; }"
         },
         {
           "name": "marker",
@@ -1210,6 +1294,78 @@
           "name": "velocityKmS",
           "optional": true,
           "signature": "ArrayLike<number> | undefined"
+        }
+      ]
+    },
+    "TrajectoryBase": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "id",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "label",
+          "optional": true,
+          "signature": "string | undefined"
+        },
+        {
+          "name": "color",
+          "optional": true,
+          "signature": "string | undefined"
+        },
+        {
+          "name": "center",
+          "optional": true,
+          "signature": "string | undefined"
+        },
+        {
+          "name": "lineFixedTo",
+          "optional": true,
+          "signature": "string | readonly LineStretchInput[] | undefined"
+        },
+        {
+          "name": "plane",
+          "optional": true,
+          "signature": "\"ecliptic-j2000\" | \"EQJ\" | undefined"
+        },
+        {
+          "name": "labelReachEarthRadii",
+          "optional": true,
+          "signature": "number | undefined"
+        },
+        {
+          "name": "provenance",
+          "optional": true,
+          "signature": "Provenance | undefined"
+        },
+        {
+          "name": "provenanceSpans",
+          "optional": true,
+          "signature": "readonly ActivitySourceInput[] | undefined"
+        },
+        {
+          "name": "description",
+          "optional": true,
+          "signature": "string | undefined"
+        },
+        {
+          "name": "knownLimitations",
+          "optional": true,
+          "signature": "readonly string[] | undefined"
+        },
+        {
+          "name": "anchors",
+          "optional": true,
+          "signature": "readonly AnchorInput[] | undefined"
+        },
+        {
+          "name": "readouts",
+          "optional": true,
+          "signature": "readonly ReadoutInput[] | undefined"
         }
       ]
     },
@@ -1725,11 +1881,59 @@
     },
     "PacingInput": {
       "kind": "type",
-      "signature": "| { readonly from: TimeInput; readonly to: TimeInput; readonly rate: number; readonly ramp?: number } | { readonly near: { readonly type: string; readonly within: number }; readonly rate: number; readonly ramp?: number }",
+      "signature": "| { readonly start: TimeInput; readonly end: TimeInput; readonly rate: number; readonly rampSeconds?: number } | { readonly near: { readonly type: string; readonly withinSeconds: number }; readonly rate: number; readonly rampSeconds?: number }",
       "constructors": [],
       "members": []
     },
-    "StoryPanelsInput": {
+    "StoryPanelAt": {
+      "kind": "type",
+      "signature": "{ readonly time: TimeInput } | { readonly event: string } | { readonly anchor: string }",
+      "constructors": [],
+      "members": []
+    },
+    "StoryPanelInput": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "id",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "at",
+          "optional": false,
+          "signature": "StoryPanelAt"
+        },
+        {
+          "name": "title",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "body",
+          "optional": false,
+          "signature": "string | readonly string[]"
+        },
+        {
+          "name": "details",
+          "optional": true,
+          "signature": "string | readonly string[] | undefined"
+        },
+        {
+          "name": "provenance",
+          "optional": false,
+          "signature": "Provenance"
+        },
+        {
+          "name": "object",
+          "optional": true,
+          "signature": "string | undefined"
+        }
+      ]
+    },
+    "StoryPanelPlaybackInput": {
       "kind": "interface",
       "signature": "",
       "constructors": [],
@@ -1743,11 +1947,6 @@
           "name": "autoOpen",
           "optional": true,
           "signature": "boolean | undefined"
-        },
-        {
-          "name": "panels",
-          "optional": false,
-          "signature": "readonly unknown[]"
         }
       ]
     },
@@ -1916,12 +2115,7 @@
           "signature": "string"
         },
         {
-          "name": "paths",
-          "optional": true,
-          "signature": "readonly string[] | undefined"
-        },
-        {
-          "name": "bodies",
+          "name": "objects",
           "optional": true,
           "signature": "readonly string[] | undefined"
         },
@@ -1997,7 +2191,7 @@
           "signature": "(): void"
         },
         {
-          "name": "time",
+          "name": "timeUtcMs",
           "optional": false,
           "signature": "number | undefined"
         },
@@ -2134,7 +2328,7 @@
       "constructors": [],
       "members": [
         {
-          "name": "time",
+          "name": "timeUtcMs",
           "optional": false,
           "signature": "number | undefined"
         },
@@ -2391,7 +2585,7 @@
       "constructors": [],
       "members": [
         {
-          "name": "time",
+          "name": "timeUtcMs",
           "optional": false,
           "signature": "number"
         },
@@ -2458,7 +2652,7 @@
           "signature": "boolean"
         },
         {
-          "name": "time",
+          "name": "timeUtcMs",
           "optional": false,
           "signature": "number"
         },
@@ -2473,12 +2667,6 @@
           "signature": "\"time\" | \"view\""
         }
       ]
-    },
-    "RateSource": {
-      "kind": "type",
-      "signature": "\"scene\" | \"chosen\"",
-      "constructors": [],
-      "members": []
     },
     "CameraPose": {
       "kind": "interface",
@@ -2529,7 +2717,7 @@
     },
     "SceneErrorCode": {
       "kind": "type",
-      "signature": "| \"unknown-body\" /** An id is already used in the scene, so the new body, path, group, orbit line or activity cannot take it. */ | \"duplicate-id\" /** A moment is not a valid time, or lies outside the span it must fall in. */ | \"bad-time\" /** A path (`addTrajectory`) is malformed: its id, provider, bounds, plane, spans or line stretches. */ | \"bad-trajectory\" /** A data package passed to the viewer is malformed, for example moon positions that name a planet without a moon system. */ | \"bad-data\" /** The scale is not one of the engine's scales, or does not suit this scene. */ | \"bad-scale\" /** Position data a body needs was not given to the viewer: pass its data package. */ | \"missing-data\" /** The viewer is not drawn yet, or has been unmounted: a handle call before `ready` or after `unmount`. */ | \"not-mounted\" /** The timeline reaches outside the years a body's data package covers. */ | \"out-of-span\" /** The scene was edited after a viewer took it; build a new scene instead. */ | \"scene-mounted\" /** The scene has no bodies to show. */ | \"empty-scene\" /** An orbital-elements record, or the element to mount into, is malformed. */ | \"bad-element\" /** An orbit line was asked for a body whose data give no closed orbit, or about a body not in the scene. */ | \"no-orbit\" /** A path anchor is malformed, repeated or outside the path. */ | \"bad-anchor\" /** A readout is of an unknown kind, or lacks or misnames the body or activity it measures. */ | \"bad-readout\" /** An event is malformed, repeated or names an object that is not in the scene. */ | \"bad-event\" /** The story panels are malformed. */ | \"bad-panels\" /** The timeline, its pacing or its speeds are malformed, or a call needs pacing the scene lacks. */ | \"bad-timeline\" /** A display switch is unknown or malformed. */ | \"bad-switch\" /** An option of `addBody` is malformed. */ | \"bad-body\" /** A point group is malformed or refers to a body that is not in the scene. */ | \"bad-group\" /** A body set (`addBodySet`) is malformed, or names a centre, moon, body or balance point the scene cannot draw it with. */ | \"bad-body-set\" /** The moon panel (`setMoonPanel`) is malformed, or names a moon the scene does not hold. */ | \"bad-moon-panel\" /** The picker (`setPicker`, `setPick`) is malformed, or a pick names an option it does not have. */ | \"bad-picker\" /** A body's places (`addPlaces`) are malformed, or name a body the scene does not hold. */ | \"bad-places\" /** An activity curve is malformed. */ | \"bad-activity\" /** A camera call or pose is malformed, or names an object the view cannot show. */ | \"bad-camera\" /** A scene view is malformed, repeated, or not one of the scene's views. */ | \"bad-view\" /** A look (`setLook`) is unknown or out of its range. */ | \"bad-look\"",
+      "signature": "| \"unknown-body\" /** An id is already used in the scene, so the new body, path, group, orbit line, activity, event or story panel cannot take it. */ | \"duplicate-id\" /** A moment is not a valid time, or lies outside the span it must fall in. */ | \"bad-time\" /** A path (`addTrajectory`) is malformed: its id, provider, bounds, plane, spans or line stretches. */ | \"bad-trajectory\" /** A data package passed to the viewer is malformed, for example moon positions that name a planet without a moon system. */ | \"bad-data\" /** The scale is not one of the engine's scales, or does not suit this scene. */ | \"bad-scale\" /** Position data a body needs was not given to the viewer: pass its data package. */ | \"missing-data\" /** The viewer is not drawn yet, or has been unmounted: a handle call before `ready` or after `unmount`. */ | \"not-mounted\" /** The timeline reaches outside the years a body's data package covers. */ | \"out-of-span\" /** The scene was edited after a viewer took it; build a new scene instead. */ | \"scene-mounted\" /** The scene has no bodies to show. */ | \"empty-scene\" /** An orbital-elements record, or the element to mount into, is malformed. */ | \"bad-element\" /** An orbit line was asked for a body whose data give no closed orbit, or about a body not in the scene. */ | \"no-orbit\" /** A path anchor is malformed, repeated or outside the path. */ | \"bad-anchor\" /** A readout is of an unknown kind, or lacks or misnames the body or activity it measures. */ | \"bad-readout\" /** An event is malformed or names an object that is not in the scene. */ | \"bad-event\" /** The story panels are malformed. */ | \"bad-panels\" /** The timeline, its pacing or its speeds are malformed, or a call needs pacing the scene lacks. */ | \"bad-timeline\" /** A display switch is unknown or malformed. */ | \"bad-switch\" /** An option of `addBody` is malformed. */ | \"bad-body\" /** A point group is malformed or refers to a body that is not in the scene. */ | \"bad-group\" /** A body set (`addBodySet`) is malformed, or names a centre, moon, body or balance point the scene cannot draw it with. */ | \"bad-body-set\" /** The moon panel (`setMoonPanel`) is malformed, or names a moon the scene does not hold. */ | \"bad-moon-panel\" /** The picker (`setPicker`, `setPick`) is malformed, or a pick names an option it does not have. */ | \"bad-picker\" /** A body's places (`addPlaces`) are malformed, or name a body the scene does not hold. */ | \"bad-places\" /** An activity curve is malformed. */ | \"bad-activity\" /** A camera call or pose is malformed, or names an object the view cannot show. */ | \"bad-camera\" /** A scene view is malformed, repeated, or not one of the scene's views. */ | \"bad-view\" /** A look (`setLook`) is unknown or out of its range. */ | \"bad-look\" /** An input field was given under a name it no longer has; the message names the old field and its replacement. */ | \"renamed\"",
       "constructors": [],
       "members": []
     },
@@ -2762,6 +2950,43 @@
         }
       ]
     },
+    "SolarSystemScalePolicy": {
+      "kind": "interface",
+      "signature": "ScalePolicy",
+      "constructors": [],
+      "members": [
+        {
+          "name": "id",
+          "optional": false,
+          "signature": "\"solar-system\""
+        },
+        {
+          "name": "factorFor",
+          "optional": false,
+          "signature": "(bodyId?: BodyId): number"
+        },
+        {
+          "name": "explanation",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "mapPosition",
+          "optional": false,
+          "signature": "(positionKm: ArrayLike<number>): Float64Array"
+        },
+        {
+          "name": "linearUnitsPerKm",
+          "optional": true,
+          "signature": "number | undefined"
+        },
+        {
+          "name": "mapRadius",
+          "optional": false,
+          "signature": "(radiusKm: number, bodyId?: BodyId): number"
+        }
+      ]
+    },
     "State": {
       "kind": "interface",
       "signature": "CenteredPosition",
@@ -2788,7 +3013,7 @@
           "signature": "number"
         },
         {
-          "name": "frame",
+          "name": "plane",
           "optional": false,
           "signature": "\"EQJ\""
         },
@@ -2803,6 +3028,55 @@
           "signature": "Float64Array<ArrayBufferLike> | undefined"
         }
       ]
+    },
+    "CenteredPosition": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "body",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "center",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "timeUtcMs",
+          "optional": false,
+          "signature": "number"
+        },
+        {
+          "name": "plane",
+          "optional": false,
+          "signature": "\"EQJ\""
+        },
+        {
+          "name": "positionKm",
+          "optional": false,
+          "signature": "Float64Array<ArrayBufferLike>"
+        },
+        {
+          "name": "velocityKmS",
+          "optional": true,
+          "signature": "Float64Array<ArrayBufferLike> | undefined"
+        }
+      ]
+    },
+    "FrameId": {
+      "kind": "type",
+      "signature": "typeof EQJ",
+      "constructors": [],
+      "members": []
+    },
+    "Quaternion": {
+      "kind": "type",
+      "signature": "readonly [x: number, y: number, z: number, w: number]",
+      "constructors": [],
+      "members": []
     },
     "Provenance": {
       "kind": "interface",
@@ -2908,7 +3182,7 @@
         {
           "name": "desktop",
           "optional": true,
-          "signature": "{ readonly url: string; readonly widthPx: number; readonly heightPx: number; readonly minViewportWidth: number; } | undefined"
+          "signature": "{ readonly url: string; readonly widthPx: number; readonly heightPx: number; readonly minViewportWidthPx: number; } | undefined"
         },
         {
           "name": "licence",
@@ -2921,6 +3195,29 @@
           "signature": "LocalOnlyDeclaration | undefined"
         }
       ]
+    },
+    "LocalOnlyDeclaration": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "reason",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "publicReplacement",
+          "optional": false,
+          "signature": "PublicReplacement"
+        }
+      ]
+    },
+    "PublicReplacement": {
+      "kind": "type",
+      "signature": "\"material-colour\" | { readonly url: string; readonly licence: AssetLicence }",
+      "constructors": [],
+      "members": []
     },
     "APPROXIMATE_LIMIT_FRACTION": {
       "kind": "const",
@@ -2951,6 +3248,97 @@
       "signature": "\"approximate\" | \"indicative\"",
       "constructors": [],
       "members": []
+    },
+    "ElementsSource": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "name",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "url",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "solution",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "accessed",
+          "optional": false,
+          "signature": "string"
+        }
+      ]
+    },
+    "ElementsTimeScale": {
+      "kind": "type",
+      "signature": "\"TDB\" | \"TT\" | \"UTC\"",
+      "constructors": [],
+      "members": []
+    },
+    "BodyId": {
+      "kind": "type",
+      "signature": "string",
+      "constructors": [],
+      "members": []
+    },
+    "CenterId": {
+      "kind": "type",
+      "signature": "BodyId",
+      "constructors": [],
+      "members": []
+    },
+    "DisplaySwitchId": {
+      "kind": "type",
+      "signature": "(typeof DISPLAY_SWITCH_IDS)[number]",
+      "constructors": [],
+      "members": []
+    },
+    "DisplaySwitchPlace": {
+      "kind": "type",
+      "signature": "(typeof DISPLAY_SWITCH_PLACES)[number]",
+      "constructors": [],
+      "members": []
+    },
+    "ViewPlace": {
+      "kind": "type",
+      "signature": "(typeof VIEW_PLACES)[number]",
+      "constructors": [],
+      "members": []
+    },
+    "ViewerChangeCause": {
+      "kind": "type",
+      "signature": "\"playback\" | \"visitor\" | \"host\"",
+      "constructors": [],
+      "members": []
+    },
+    "LineStretchInput": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "start",
+          "optional": false,
+          "signature": "TimeInput"
+        },
+        {
+          "name": "end",
+          "optional": false,
+          "signature": "TimeInput"
+        },
+        {
+          "name": "body",
+          "optional": false,
+          "signature": "string"
+        }
+      ]
     }
   },
   "packageExports": {

@@ -16,11 +16,29 @@ import { shippedPanelsOf } from "./helpers/shippedPanels";
 import { buildShowerDefinition } from "./helpers/showerDefinition";
 
 const plain = <T>(value: T): T => JSON.parse(JSON.stringify(value)) as T;
+/** The story panels in the words the fixture was recorded in: `provenance` gave them `badge` and `sources`, so comparing those words proves the move changed neither (O-057 T-278). */
+const oldPanelWords = <T>(set: T): unknown => {
+  const { panels, ...rest } = set as { panels: { provenance: { sourceType: string; sources: string[] } }[] };
+  return { ...rest, panels: panels.map(({ provenance, ...panel }) => ({ ...panel, badge: provenance.sourceType, sources: provenance.sources })) };
+};
 const resolver = createSceneResolver(createOrbAstronomyAdapter());
 type Rec = Record<string, any>;
 /** The provenance as the replaced definition had it: without the class and fraction O-045 T-185 added. */
 const unclassed = (value: any) => (value && typeof value === "object" && "accuracyClass" in value ? Object.fromEntries(Object.entries(value).filter(([key]) => key !== "accuracyClass" && key !== "maxErrorFraction")) : value);
 const byId = (list: readonly Rec[], id: string) => list.find((item) => item.id === id)!;
+/**
+ * The Perseids' comet left the engine catalogue for the demo's data (O-057 T-279), so its provenance is now what the generic elements path writes from the file's record:
+ * the position accuracy reads "approximate: <the old statement>" and the sources are the record's citation and the centre's gravity; sourceType and notes are unchanged.
+ */
+function sameProvenance(now: Rec, was: Rec, movedComet: boolean, where: string): void {
+  if (!movedComet || was.accuracyClass !== undefined || !String(was.sources?.[0]).includes("109P/Swift-Tuttle")) { expect(unclassed(now), where).toEqual(was); return; }
+  expect(now.sourceType, where).toBe(was.sourceType);
+  expect(now.notes, where).toBe(was.notes);
+  expect(now.accuracy, where).toBe(`approximate: ${was.accuracy} Compared with JPL Horizons, target DES=109P;CAP (solution JPL#32), centre 500@10, ICRF.`);
+  expect(now.sources[0], where).toContain("109P/Swift-Tuttle");
+  expect(now.sources[0], where).toContain("SB405-CPV-2");
+  expect(now.sources[1], where).toBe(`Two-body motion about the gravitational parameter of "sun" (catalogue)`);
+}
 
 describe.each([["perseids", perseidsFile, "swift-tuttle"], ["geminids", geminidsFile, "phaethon"]] as const)("the rebuilt %s against the definition it replaced", (name, file, parent) => {
   const old = before[name] as Rec;
@@ -33,7 +51,11 @@ describe.each([["perseids", perseidsFile, "swift-tuttle"], ["geminids", geminids
 
   it("has the same bodies in the same order with the same ids, labels, colours and provenance", () => {
     expect(objects.map((o) => o.id)).toEqual(old.objects.map((o: Rec) => o.id));
-    for (const was of old.objects) for (const field of ["label", "color", "provenance"]) expect(unclassed(byId(objects, was.id)[field]), `${was.id}.${field}`).toEqual(was[field]);
+    for (const was of old.objects) {
+      for (const field of ["label", "color"]) expect(byId(objects, was.id)[field], `${was.id}.${field}`).toEqual(was[field]);
+      if (was.id === parent && name === "perseids") sameProvenance(byId(objects, was.id).provenance, was.provenance.position ?? was.provenance, true, `${was.id}.provenance`);
+      else expect(unclassed(byId(objects, was.id).provenance), `${was.id}.provenance`).toEqual(was.provenance);
+    }
   });
 
   it("keeps the catalogue's own known limits; the 'N times larger than life' sentence moved from the planets' known limits into their descriptions (FLAG: owner to judge the wording)", () => {
@@ -58,7 +80,14 @@ describe.each([["perseids", perseidsFile, "swift-tuttle"], ["geminids", geminids
 
   it("describes the parent as before and gives it the record's own provenance", () => {
     expect(byId(objects, parent).description).toBe(byId(old.objects, parent).description);
-    expect(byId(objects, parent).knownLimitations).toEqual(byId(old.objects, parent).knownLimitations);
+    const limits = byId(objects, parent).knownLimitations as string[];
+    const was = byId(old.objects, parent).knownLimitations as string[];
+    if (name === "perseids") {
+      // The generic path writes the first limit from the record's epoch (JD, time scale) and then the record's own; the old hand-written first limit is split across two.
+      expect(limits[0]).toBe("Unperturbed two-body motion about the Sun from osculating elements at JD 2450000.5 TDB: no planetary perturbations and no non-gravitational forces.");
+      expect(was[0]).toBe("Unperturbed two-body motion about the Sun from osculating elements at 1995-10-10: no planetary perturbations and no non-gravitational forces (comet outgassing). The elements are a fit to the 1737-1995 observations.");
+      expect(limits.slice(1)).toEqual(["The elements are a fit to the 1737-1995 observations.", ...was.slice(1)]);
+    } else expect(limits).toEqual(was);
   });
 
   it("FLAG label priorities: the bodies are ranked by the order added (100 down to 94, Sun first) where the demo ranked Earth 100, Sun 95, parent 90, planets 80; the stream is 80 (was 70); labels no longer have a reach (unlimited in a Sun-centred scene)", () => {
@@ -133,7 +162,7 @@ describe.each([["perseids", perseidsFile, "swift-tuttle"], ["geminids", geminids
   });
 
   it("has the same story panels (times, objects, text, badges, sources)", () => {
-    expect(plain(definition.experience.storyPanels)).toEqual(old.storyPanels);
+    expect(oldPanelWords(plain(definition.experience.storyPanels))).toEqual(old.storyPanels);
   });
 
   it("keeps the camera's reach; FLAG: the far plane is 2.5 times the reach (was 3 times), and the shower opens on Focus Sun pressed (before no menu item named)", () => {
@@ -169,7 +198,7 @@ describe.each([["perseids", perseidsFile, "swift-tuttle"], ["geminids", geminids
       const now = byId(paths.map((p) => ({ ...p, id: p.object.id })), id);
       expect(now.object.partOf).toBe(was.object.partOf);
       expect(now.object.showLabel).toBe(false);
-      expect(unclassed(now.object.provenance), id).toEqual(was.object.provenance);
+      sameProvenance(now.object.provenance, was.object.provenance, name === "perseids", id);
       if (was.sampling === undefined) expect(now.samples).toBe(was.samples);
       else {
         expect(now.sampling.eccentricity).toBeCloseTo(was.sampling.eccentricity, 12);
@@ -213,7 +242,9 @@ describe.each([["perseids", perseidsFile, "swift-tuttle"], ["geminids", geminids
     // The viewer builds its resolver from the definition's own catalogue (App.tsx), which holds an elements body.
     const own = definition.catalogue ?? catalogue;
     const metrics = definition.createMetrics({ clock: new SimulationClock(peak), resolver: createSceneResolver(createOrbAstronomyAdapter(), own), catalogue: own });
-    const gained = !catalogue.has(parent);
+    // The old Perseids comet was catalogued and already showed "Distance from Sun", so moving it into the demo changes no row.
+    const hadDistance = (old.metricRows[parent][0] as Rec[]).some((row) => row.label === "Distance from Sun");
+    const gained = !catalogue.has(parent) && !hadDistance;
     old.times.forEach((t: number, k: number) => {
       for (const id of ["earth", "sun", "mars", parent]) {
         const rows = plain(metrics(id, t)) as unknown as Rec[];

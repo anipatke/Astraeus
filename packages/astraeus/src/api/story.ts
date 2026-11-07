@@ -2,11 +2,12 @@ import { createEvents, type TimelineEvent } from "../core/events";
 import { zoneAround, type PaceZone, type Pacing } from "../core/pacing";
 import { createProvenance, type Provenance } from "../core/provenance";
 import type { TimeBounds } from "../core/trajectory";
-import { parseStoryPanels, StoryPanelError, type PanelLookup, type StoryPanelSet } from "../core/storyPanels";
+import { checkPanelPlayback, checkStoryPanel, resolveStoryPanels, StoryPanelError, type CheckedPanel, type PanelLookup, type PanelPlayback, type StoryPanelSet } from "../core/storyPanels";
 import { SceneError } from "./errors";
+import { rejectRenamed } from "./renamedInputs";
 import { toUtcMs, type TimeInput } from "./time";
 
-/** A timed event: a labelled moment on the timeline. The id is unique among the scene's events. */
+/** A timed event: a labelled moment on the timeline. The id is unique among the scene's events: a repeat throws `duplicate-id`. */
 export interface EventInput {
   readonly id: string;
   readonly label: string;
@@ -15,11 +16,11 @@ export interface EventInput {
   readonly type?: string;
   /** Where this event's time comes from. Shown with the event; an event without one shows the `provenance` of `addEvents`. Malformed: `addEvents` throws "bad-event" naming the event. */
   readonly provenance?: Provenance;
-  /** The body or trajectory (its id) this event is about. Go to this event seeks to its time and frames the object as `camera.lookAt` does. Not in the scene when the scene is built (`mount`): "bad-event" naming the event and the id. Without one, Go to only seeks. */
+  /** The body or trajectory (its id) this event is about. Go to this event seeks to its time and frames the object as `camera.focus` does. Not in the scene when the scene is built (`mount`): "bad-event" naming the event and the id. Without one, Go to only seeks. */
   readonly object?: string;
   /**
    * Gives the event a zone of its own: from `withinSeconds` before its time to `withinSeconds` after it (simulated seconds, positive and finite). A host hears entering and leaving it
-   * (`onEventZone`, `eventZones`), with or without pacing; a pacing rule for the event's type uses this width instead of its own `within`. Not positive and finite: `addEvents` throws "bad-event" naming the event.
+   * (`onEventZone`, `eventZones`), with or without pacing; a pacing rule for the event's type uses this width instead of its own `withinSeconds`. Not positive and finite: `addEvents` throws "bad-event" naming the event.
    */
   readonly withinSeconds?: number;
 }
@@ -40,14 +41,14 @@ export type TimelineInput =
   | { readonly none: true; readonly at?: TimeInput; readonly rate?: number };
 
 /**
- * One piece of a timeline's pacing. A span `{ from, to, rate }` plays at `rate` between two moments; an event rule `{ near: { type, within }, rate }` plays at `rate`
- * within `within` seconds (simulated) of every event of that `type` (see `addEvents`). Outside every piece playback runs at the timeline's `rate`. Between a piece and
- * what surrounds it the speed eases over `ramp` simulated seconds (default: `within` for an event rule, a tenth of the span for a span). `rate` here is any positive number;
+ * One piece of a timeline's pacing. A span `{ start, end, rate }` plays at `rate` between two moments; an event rule `{ near: { type, withinSeconds }, rate }` plays at `rate`
+ * within `withinSeconds` (simulated) of every event of that `type` (see `addEvents`). Outside every piece playback runs at the timeline's `rate`. Between a piece and
+ * what surrounds it the speed eases over `rampSeconds` simulated seconds (default: `withinSeconds` for an event rule, a tenth of the span for a span). `rate` here is any positive number;
  * it need not be one of the offered `rates`. Spans may not overlap (touching is fine); where an event rule meets a span or another rule, the slowest speed wins, whichever contains the other and in whatever order they are listed.
  */
 export type PacingInput =
-  | { readonly from: TimeInput; readonly to: TimeInput; readonly rate: number; readonly ramp?: number }
-  | { readonly near: { readonly type: string; readonly within: number }; readonly rate: number; readonly ramp?: number };
+  | { readonly start: TimeInput; readonly end: TimeInput; readonly rate: number; readonly rampSeconds?: number }
+  | { readonly near: { readonly type: string; readonly withinSeconds: number }; readonly rate: number; readonly rampSeconds?: number };
 
 /** A checked pacing piece: moments as Unix milliseconds, seconds as milliseconds. */
 export type PacingPiece =
@@ -69,17 +70,34 @@ export interface TimelineSetting {
   readonly atUtcMs?: number;
 }
 
+/** When a story panel opens: a moment, an event of `addEvents` by id, or an anchor of a path by id. Exactly one. */
+export type StoryPanelAt = { readonly time: TimeInput } | { readonly event: string } | { readonly anchor: string };
+
 /**
- * The raw settings of a scene's story panels: `{ pauseSeconds?, autoOpen?, panels: [{ id, at: { utc } | { event } | { anchor }, title, body, details?, badge, sources, object? }] }`.
- * `badge` is "observed", "modelled" or "illustrative"; `sources` is never empty. A panel's time may name an event of `addEvents` or an anchor of a path, and `object` a
- * body or path of the scene; these are checked when the scene is turned into a definition (mount), and a mistake throws `bad-panels` naming the panel and field.
+ * One story panel. Its shape is checked at `addStoryPanels`, which throws `bad-panels` naming the panel and field. What it names is checked when the scene is built (`check`, `mount`),
+ * because the event, anchor or object may be added later: a mistake there, or a moment outside the timeline, throws `bad-panels` too.
  */
-export interface StoryPanelsInput {
+export interface StoryPanelInput {
+  /** Unique among the scene's panels: a repeat throws `duplicate-id`. */
+  readonly id: string;
+  readonly at: StoryPanelAt;
+  readonly title: string;
+  /** Paragraphs, in order; one text is one paragraph. */
+  readonly body: string | readonly string[];
+  /** Paragraphs of exact figures, shown folded above the sources. */
+  readonly details?: string | readonly string[];
+  /** Where the panel's facts come from. The badge shows the word for `sourceType`; `sources`, `accuracy` and `notes` show in the panel's folded section. `sources` is never empty and `accuracy` is never blank: where a source states none, say so. */
+  readonly provenance: Provenance;
+  /** The id of a body or path the panel is about; it gets a marker that reopens the panel. */
+  readonly object?: string;
+}
+
+/** The playback settings of a scene's story panels. */
+export interface StoryPanelPlaybackInput {
   /** Seconds playback holds when a panel opens by itself (0 to 20, default 6; 0 never pauses). Playback then restarts, unless the visitor pressed Play during the hold, which ends it at once. */
   readonly pauseSeconds?: number;
   /** Whether panels open by themselves as forward playback crosses them (default true). */
   readonly autoOpen?: boolean;
-  readonly panels: readonly unknown[];
 }
 
 /** Throws "bad-event" naming the first event whose `object` is not among the scene's `objectIds`. */
@@ -99,14 +117,14 @@ export function eventProvenanceOf(value: unknown, eventId?: string): Provenance 
   }
 }
 
-/** The events merged with `inputs`, sorted by time; each needs a distinct non-empty id and label and a valid moment. */
+/** The events merged with `inputs`, sorted by time; each needs a non-empty id and label and a valid moment, and an id already in `known` or repeated in the batch throws `duplicate-id`. */
 export function eventsOf(inputs: readonly EventInput[], known: readonly TimelineEvent[]): readonly TimelineEvent[] {
   if (!Array.isArray(inputs)) throw new SceneError("bad-event", "addEvents: events must be a list");
   const ids = new Set(known.map((event) => event.id));
   const added = inputs.map((input): TimelineEvent => {
     if (typeof input?.id !== "string" || input.id === "") throw new SceneError("bad-event", "addEvents: every event needs a non-empty id");
     if (typeof input.label !== "string" || input.label === "") throw new SceneError("bad-event", `addEvents: event "${input.id}" needs a non-empty label`);
-    if (ids.has(input.id)) throw new SceneError("bad-event", `addEvents: event "${input.id}" appears twice`);
+    if (ids.has(input.id)) throw new SceneError("duplicate-id", `addEvents: event "${input.id}" is already in the scene's events`);
     ids.add(input.id);
     const timeUtcMs = toUtcMs(input.time, `addEvents: event "${input.id}" time`);
     if (input.object !== undefined && (typeof input.object !== "string" || input.object === "")) throw new SceneError("bad-event", `addEvents: event "${input.id}" object must be a non-empty id`);
@@ -131,38 +149,67 @@ export function timelineOf(input: TimelineInput): TimelineSetting {
   return { none: false, window, ...(rates === undefined ? {} : { rates }), ...(pacing === undefined ? {} : { pacing }), ...(input.rate === undefined ? {} : { rate: input.rate }), ...(input.loop === true ? { loop: true } : {}) };
 }
 
-/** The story panels resolved against the scene's events, anchors, objects and window; a mistake becomes a `bad-panels` SceneError. */
-export function panelsOf(raw: StoryPanelsInput, lookup: PanelLookup): StoryPanelSet {
+/** Runs a core panel check, turning a `StoryPanelError` into a `bad-panels` SceneError that leads with `call`. */
+function panelCheck<T>(call: string, check: () => T): T {
   try {
-    return parseStoryPanels(raw, lookup);
+    return check();
   } catch (error) {
-    if (error instanceof StoryPanelError) throw new SceneError("bad-panels", `addStoryPanels: ${error.message}`);
+    if (error instanceof StoryPanelError) throw new SceneError("bad-panels", `${call}: ${error.message}`);
     throw error;
   }
+}
+
+/** Checks the shape of a batch for `addStoryPanels`: old forms throw `renamed`, a bad shape `bad-panels`, and an id already in `known` or repeated in the batch `duplicate-id`. */
+export function panelBatchOf(inputs: readonly StoryPanelInput[], known: readonly CheckedPanel[]): readonly CheckedPanel[] {
+  rejectRenamed("AddStoryPanelsCall", inputs, "addStoryPanels");
+  if (!Array.isArray(inputs)) throw new SceneError("bad-panels", "addStoryPanels: give a list of panels");
+  const ids = new Set(known.map(({ id }) => id));
+  return inputs.map((input: unknown, index): CheckedPanel => {
+    const named = (input as { id?: unknown } | null | undefined)?.id;
+    const where = `addStoryPanels: story panel ${typeof named === "string" ? named : `#${index + 1}`}`;
+    rejectRenamed("StoryPanelInput", input, where);
+    rejectRenamed("StoryPanelAt", (input as { at?: unknown } | null | undefined)?.at, `${where} at`);
+    const panel = panelCheck("addStoryPanels", () => checkStoryPanel(input, index));
+    if (ids.has(panel.id)) throw new SceneError("duplicate-id", `${where}: that id is already in the scene's panels`);
+    ids.add(panel.id);
+    return panel;
+  });
+}
+
+/** Checks a `setStoryPanelPlayback` argument; a mistake throws `bad-panels`. */
+export function panelPlaybackOf(input: StoryPanelPlaybackInput): PanelPlayback {
+  return panelCheck("setStoryPanelPlayback", () => checkPanelPlayback(input));
+}
+
+/** The story panels resolved against the scene's events, anchors, objects and window; a mistake becomes a `bad-panels` SceneError. */
+export function panelsOf(panels: readonly CheckedPanel[], playback: PanelPlayback, lookup: PanelLookup): StoryPanelSet {
+  return panelCheck("addStoryPanels", () => resolveStoryPanels(panels, playback, lookup));
 }
 
 /** Checks `pacing`: each piece names the field that is wrong (`pacing[2].rate`); spans must not overlap. */
 function pacingOf(input: unknown, bad: (message: string) => SceneError): readonly PacingPiece[] | undefined {
   if (input === undefined) return undefined;
-  if (!Array.isArray(input)) throw bad("pacing must be a list of { from, to, rate } and { near: { type, within }, rate }");
+  if (!Array.isArray(input)) throw bad("pacing must be a list of { start, end, rate } and { near: { type, withinSeconds }, rate }");
   const positive = (value: unknown): value is number => typeof value === "number" && Number.isFinite(value) && value > 0;
   const pieces = input.map((raw: unknown, index): PacingPiece => {
     const at = `pacing[${index}]`;
     if (typeof raw !== "object" || raw === null) throw bad(`${at} must be an object`);
-    const piece = raw as { from?: TimeInput; to?: TimeInput; near?: { type?: unknown; within?: unknown }; rate?: unknown; ramp?: unknown };
+    const piece = raw as { start?: TimeInput; end?: TimeInput; near?: { type?: unknown; withinSeconds?: unknown }; rate?: unknown; rampSeconds?: unknown };
+    rejectRenamed(piece.near === undefined ? "PacingSpan" : "PacingRule", piece, `setTimeline: ${at}`);
     if (!positive(piece.rate)) throw bad(`${at}.rate must be a positive number, got ${String(piece.rate)}`);
-    if (piece.ramp !== undefined && !(typeof piece.ramp === "number" && Number.isFinite(piece.ramp) && piece.ramp >= 0)) throw bad(`${at}.ramp must be zero or more seconds, got ${String(piece.ramp)}`);
+    if (piece.rampSeconds !== undefined && !(typeof piece.rampSeconds === "number" && Number.isFinite(piece.rampSeconds) && piece.rampSeconds >= 0)) throw bad(`${at}.rampSeconds must be zero or more seconds, got ${String(piece.rampSeconds)}`);
     if (piece.near !== undefined) {
-      const { type, within } = piece.near;
+      rejectRenamed("PacingNear", piece.near, `setTimeline: ${at}.near`);
+      const { type, withinSeconds } = piece.near;
       if (typeof type !== "string" || type === "") throw bad(`${at}.near.type must be a non-empty event type`);
-      if (!positive(within)) throw bad(`${at}.near.within must be a positive number of seconds, got ${String(within)}`);
-      return { type, withinMs: within * 1000, rate: piece.rate, rampMs: (piece.ramp ?? within) * 1000 };
+      if (!positive(withinSeconds)) throw bad(`${at}.near.withinSeconds must be a positive number of seconds, got ${String(withinSeconds)}`);
+      return { type, withinMs: withinSeconds * 1000, rate: piece.rate, rampMs: (piece.rampSeconds ?? withinSeconds) * 1000 };
     }
-    if (piece.from === undefined || piece.to === undefined) throw bad(`${at} needs { from, to, rate } or { near: { type, within }, rate }`);
-    const fromUtcMs = toUtcMs(piece.from, `setTimeline ${at}.from`);
-    const toUtcMsValue = toUtcMs(piece.to, `setTimeline ${at}.to`);
-    if (toUtcMsValue <= fromUtcMs) throw bad(`${at}.to must be after ${at}.from`);
-    return { fromUtcMs, toUtcMs: toUtcMsValue, rate: piece.rate, rampMs: piece.ramp === undefined ? (toUtcMsValue - fromUtcMs) / 10 : piece.ramp * 1000 };
+    if (piece.start === undefined || piece.end === undefined) throw bad(`${at} needs { start, end, rate } or { near: { type, withinSeconds }, rate }`);
+    const fromUtcMs = toUtcMs(piece.start, `setTimeline ${at}.start`);
+    const toUtcMsValue = toUtcMs(piece.end, `setTimeline ${at}.end`);
+    if (toUtcMsValue <= fromUtcMs) throw bad(`${at}.end must be after ${at}.start`);
+    return { fromUtcMs, toUtcMs: toUtcMsValue, rate: piece.rate, rampMs: piece.rampSeconds === undefined ? (toUtcMsValue - fromUtcMs) / 10 : piece.rampSeconds * 1000 };
   });
   const spans = pieces.flatMap((piece, index) => ("fromUtcMs" in piece ? [{ piece, index }] : [])).sort((a, b) => a.piece.fromUtcMs - b.piece.fromUtcMs);
   for (let i = 1; i < spans.length; i += 1) {

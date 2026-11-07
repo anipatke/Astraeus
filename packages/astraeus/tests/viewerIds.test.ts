@@ -83,7 +83,7 @@ const madeUp = { sourceType: "illustrative", sources: ["Made up for the test"], 
 const makeScene = () => new Scene().addBody(earth).addBody(moon)
   .addEvents([{ id: "event-a", label: "Made-up event", time: Date.parse("2026-03-01T00:00:00Z") }], { provenance: madeUp })
   .setTimeline({ start: Date.parse("2026-03-01T00:00:00Z"), end: Date.parse("2026-04-01T00:00:00Z"), rate: 60, rates: [60, 3600] })
-  .addStoryPanels({ panels: [{ id: "panel-a", at: { utc: "2026-03-01T01:00:00Z" }, title: "About it", body: ["A made-up line."], badge: "illustrative" as const, sources: ["Made up for the test"] }] });
+  .addStoryPanels([{ id: "panel-a", at: { time: "2026-03-01T01:00:00Z" }, title: "About it", body: ["A made-up line."], provenance: { sourceType: "illustrative" as const, sources: ["Made up for the test"], accuracy: "None claimed.", notes: "Made up." } }]);
 const PATHS: readonly { readonly name: string; open(host: HTMLElement): { readonly ready: Promise<void>; stop(): void } }[] = [
   {
     name: "mount",

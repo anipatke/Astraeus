@@ -4,14 +4,18 @@ import { MOON } from "./bodies/moon";
 import { SUN } from "./bodies/sun";
 
 export const EQJ = "EQJ" as const;
+/** The reference frame of a state: `"EQJ"`, equatorial J2000. */
 export type FrameId = typeof EQJ;
+/** A rotation as a unit quaternion `[x, y, z, w]`. */
 export type Quaternion = readonly [x: number, y: number, z: number, w: number];
 
+/** Where a body is, in km relative to a centre, with the velocity when known (a `State` without its orientation). */
 export interface CenteredPosition {
   readonly body: BodyId;
   readonly center: CenterId;
   readonly timeUtcMs: number;
-  readonly frame: FrameId;
+  /** The plane the position is measured in: `"EQJ"`, equatorial J2000. */
+  readonly plane: FrameId;
   readonly positionKm: Float64Array;
   readonly velocityKmS?: Float64Array;
 }
@@ -26,7 +30,7 @@ export interface StateInput {
   readonly body: BodyId;
   readonly center: CenterId;
   readonly timeUtcMs: number;
-  readonly frame?: FrameId;
+  readonly plane?: FrameId;
   readonly positionKm: ArrayLike<number>;
   readonly velocityKmS?: ArrayLike<number>;
   readonly orientation: Quaternion | null;
@@ -71,13 +75,13 @@ export function createCenteredPosition(input: Omit<StateInput, "orientation">): 
     && (positionKm.some((component) => component !== 0) || velocityKmS?.some((component) => component !== 0))) {
     throw new RangeError("a body can be positioned relative to itself only at exactly zero");
   }
-  const frame = input.frame ?? EQJ;
-  if (frame !== EQJ) throw new RangeError("this spike's scientific states use the EQJ frame only");
+  const plane = input.plane ?? EQJ;
+  if (plane !== EQJ) throw new RangeError("this spike's scientific states use the EQJ frame only");
   return Object.freeze({
     body: input.body,
     center: input.center,
     timeUtcMs: input.timeUtcMs,
-    frame,
+    plane,
     positionKm,
     ...(velocityKmS === undefined ? {} : { velocityKmS }),
   });

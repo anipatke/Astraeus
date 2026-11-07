@@ -5,6 +5,7 @@ import { PerspectiveCamera } from "three";
 import { Scene, SceneError, earth, moon, sun } from "astraeus";
 import { FloatingOrigin } from "../src/app/floatingOrigin";
 import { SceneLabelLayer } from "../src/app/SceneLabels";
+import { definitionOf } from "../src/api/definitionOf";
 
 const T0 = Date.UTC(2026, 3, 1);
 const MIN = 60_000;
@@ -17,7 +18,7 @@ afterEach(() => { host.remove(); vi.restoreAllMocks(); });
 
 /** Which of the scene's own labels show with the camera `distance` render units from the object (both at the same place), and `hidden` ids switched off. */
 function shownAt(scene: Scene, distance: number, hidden: ReadonlySet<string> = new Set()): string[] {
-  const objects = scene.toDefinition().experience.objects;
+  const objects = definitionOf(scene).experience.objects;
   const layer = new SceneLabelLayer(host, objects);
   const camera = new PerspectiveCamera(60, 1, 0.1, 1e9);
   camera.position.set(0, 0, distance);
@@ -60,20 +61,20 @@ describe("a path's label", () => {
   });
 
   it("takes its own labelReach in place of the shared rule", () => {
-    const scene = (reach: number) => new Scene().addBody(earth).addBody(moon, { labelReach: 10 }).addTrajectory({ ...probe, labelReach: reach });
+    const scene = (reach: number) => new Scene().addBody(earth).addBody(moon, { labelReachEarthRadii: 10 }).addTrajectory({ ...probe, labelReachEarthRadii: reach });
     expect(shownAt(scene(4), 3)).toContain("probe");
     expect(shownAt(scene(4), 50)).not.toContain("probe");
     expect(shownAt(scene(4), 50)).toContain("earth");
     expect(shownAt(scene(4), 50)).not.toContain("moon");
     expect(shownAt(scene(4), 8)).toContain("moon");
-    expect(shownAt(new Scene().addBody(sun).addBody(earth, { enlarge: 50 }).addTrajectory({ ...probe, center: "sun", labelReach: 4 }), 1e6)).not.toContain("probe");
+    expect(shownAt(new Scene().addBody(sun).addBody(earth, { enlarge: 50 }).addTrajectory({ ...probe, center: "sun", labelReachEarthRadii: 4 }), 1e6)).not.toContain("probe");
   });
 
   it("refuses a bad labelReach naming the field", () => {
     const code = (fn: () => unknown) => { try { fn(); } catch (error) { return error instanceof SceneError ? `${error.code}: ${error.message}` : String(error); } return "no error"; };
     for (const bad of [0, -1, Number.NaN, Infinity, "4" as unknown as number]) {
-      expect(code(() => new Scene().addBody(earth).addTrajectory({ ...probe, labelReach: bad }))).toMatch(/^bad-trajectory: .*labelReach/);
-      expect(code(() => new Scene().addBody(earth, { labelReach: bad }))).toMatch(/^bad-body: .*labelReach/);
+      expect(code(() => new Scene().addBody(earth).addTrajectory({ ...probe, labelReachEarthRadii: bad }))).toMatch(/^bad-trajectory: .*labelReach/);
+      expect(code(() => new Scene().addBody(earth, { labelReachEarthRadii: bad }))).toMatch(/^bad-body: .*labelReach/);
     }
   });
 });

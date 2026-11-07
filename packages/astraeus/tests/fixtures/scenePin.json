@@ -36,7 +36,6 @@
       "iapetus",
       "triton",
       "charon",
-      "swift-tuttle",
       "miranda",
       "ariel",
       "umbriel",
@@ -1296,8 +1295,8 @@
          {
           "body": "traveller",
           "center": "sun",
-          "frame": "EQJ",
           "orientation": null,
+          "plane": "EQJ",
           "positionKm": [
            143950340.522,
            -41294509.2121,
@@ -1308,8 +1307,8 @@
          {
           "body": "traveller",
           "center": "sun",
-          "frame": "EQJ",
           "orientation": null,
+          "plane": "EQJ",
           "positionKm": [
            -2260885951.25,
            -10599106062.1,
@@ -1320,8 +1319,8 @@
          {
           "body": "traveller",
           "center": "sun",
-          "frame": "EQJ",
           "orientation": null,
+          "plane": "EQJ",
           "positionKm": [
            -4882103118.59,
            -22887456455.4,
@@ -1725,8 +1724,8 @@
      {
       "body": "sun",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": null,
+      "plane": "EQJ",
       "positionKm": [
        0,
        0,
@@ -1737,8 +1736,8 @@
      {
       "body": "sun",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": null,
+      "plane": "EQJ",
       "positionKm": [
        0,
        0,
@@ -1751,13 +1750,13 @@
      {
       "body": "earth",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": [
        0.000170657858918,
        -0.00106579038757,
        -0.136832377471,
        0.990593627802
       ],
+      "plane": "EQJ",
       "positionKm": [
        143950340.522,
        -41294509.2121,
@@ -1768,13 +1767,13 @@
      {
       "body": "earth",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": [
        -0.000544559538371,
        0.000415940177382,
        -0.812523614423,
        0.582927874144
       ],
+      "plane": "EQJ",
       "positionKm": [
        49772598.5769,
        127381936.59,
@@ -1787,13 +1786,13 @@
      {
       "body": "jupiter",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": [
        0.0896053115903,
        -0.201737249344,
        0.877432865374,
        0.425892635676
       ],
+      "plane": "EQJ",
       "positionKm": [
        105839804.492,
        695018010.62,
@@ -1804,13 +1803,13 @@
      {
       "body": "jupiter",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": [
        0.130670363058,
        0.177901657537,
        -0.80520998315,
        0.550375453213
       ],
+      "plane": "EQJ",
       "positionKm": [
        -166290862.776,
        694359935.735,
@@ -1879,13 +1878,13 @@
      {
       "body": "saturn",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": [
        -0.0189662736628,
        0.0530756765922,
        0.35670794737,
        0.932514178606
       ],
+      "plane": "EQJ",
       "positionKm": [
        -1075593638.58,
        772908903.89,
@@ -1896,13 +1895,13 @@
      {
       "body": "saturn",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": [
        -0.0559023185286,
        -0.00728709402598,
        -0.835842388506,
        0.546067148453
       ],
+      "plane": "EQJ",
       "positionKm": [
        -1046150077.67,
        -978957208.423,
@@ -2013,13 +2012,13 @@
      {
       "body": "uranus",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": [
        0.669756038167,
        -0.426978796016,
        0.206090008502,
        0.571526784576
       ],
+      "plane": "EQJ",
       "positionKm": [
        -2077232459.57,
        -1704389071.41,
@@ -2030,13 +2029,13 @@
      {
       "body": "uranus",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": [
        0.75056165498,
        -0.259886985019,
        0.0678256288088,
        0.603751307384
       ],
+      "plane": "EQJ",
       "positionKm": [
        2942362546.93,
        537828234.671,
@@ -2129,8 +2128,8 @@
      {
       "body": "traveller",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": null,
+      "plane": "EQJ",
       "positionKm": [
        143950340.522,
        -41294509.2121,
@@ -2141,8 +2140,8 @@
      {
       "body": "traveller",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": null,
+      "plane": "EQJ",
       "positionKm": [
        -3571494534.92,
        -16743281258.7,
@@ -2861,8 +2860,8 @@
      {
       "body": "sun",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": null,
+      "plane": "EQJ",
       "positionKm": [
        0,
        0,
@@ -2873,8 +2872,8 @@
      {
       "body": "sun",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": null,
+      "plane": "EQJ",
       "positionKm": [
        0,
        0,
@@ -2887,13 +2886,13 @@
      {
       "body": "venus",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": [
        0.0842728130541,
        -0.17917002528,
        0.906046294768,
        0.374000410104
       ],
+      "plane": "EQJ",
       "positionKm": [
        13298276.4981,
        -98168773.0103,
@@ -2904,13 +2903,13 @@
      {
       "body": "venus",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": [
        0.10122131759,
        -0.170170649185,
        0.865586497121,
        0.459952400823
       ],
+      "plane": "EQJ",
       "positionKm": [
        35221865.8882,
        -93106119.6721,
@@ -2923,13 +2922,13 @@
      {
       "body": "earth",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": [
        0.000963831925779,
        0.0008246614272,
        0.767879054914,
        0.640593590342
       ],
+      "plane": "EQJ",
       "positionKm": [
        -26074202.3504,
        132831361.249,
@@ -2940,13 +2939,13 @@
      {
       "body": "earth",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": [
        -0.000762363631048,
        0.00101605402938,
        -0.589761070181,
        0.807576786773
       ],
+      "plane": "EQJ",
       "positionKm": [
        -45094691.2914,
        128477152.32,
@@ -2959,13 +2958,13 @@
      {
       "body": "mars",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": [
        0.0913755728633,
        0.291568047443,
        -0.407799255612,
        0.860429163567
       ],
+      "plane": "EQJ",
       "positionKm": [
        50951753.8129,
        -188143590.173,
@@ -2976,13 +2975,13 @@
      {
       "body": "mars",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": [
        0.292580238757,
        0.0880811344869,
        0.483070540806,
        0.820537244884
       ],
+      "plane": "EQJ",
       "positionKm": [
        66632169.4864,
        -182822746.24,
@@ -2995,13 +2994,13 @@
      {
       "body": "jupiter",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": [
        0.183763021121,
        0.122285732041,
        -0.567584800743,
        0.793173906387
       ],
+      "plane": "EQJ",
       "positionKm": [
        -253420962.468,
        675468129.997,
@@ -3012,13 +3011,13 @@
      {
       "body": "jupiter",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": [
        0.217934412784,
        0.0350319576249,
        -0.187389284969,
        0.957163836315
       ],
+      "plane": "EQJ",
       "positionKm": [
        -261518528.813,
        673189014.248,
@@ -3260,13 +3259,13 @@
      {
       "body": "earth",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": [
        0.000963831925779,
        0.0008246614272,
        0.767879054914,
        0.640593590342
       ],
+      "plane": "EQJ",
       "positionKm": [
        -26074202.3504,
        132831361.249,
@@ -3277,13 +3276,13 @@
      {
       "body": "earth",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": [
        -0.000762363631048,
        0.00101605402938,
        -0.589761070181,
        0.807576786773
       ],
+      "plane": "EQJ",
       "positionKm": [
        -45094691.2914,
        128477152.32,
@@ -3296,13 +3295,13 @@
      {
       "body": "moon",
       "center": "earth",
-      "frame": "EQJ",
       "orientation": [
        0.102803910816,
        0.160778297425,
        -0.815182500134,
        0.546863041788
       ],
+      "plane": "EQJ",
       "positionKm": [
        144247.936302,
        289615.567533,
@@ -3313,13 +3312,13 @@
      {
       "body": "moon",
       "center": "earth",
-      "frame": "EQJ",
       "orientation": [
        0.188761902622,
        0.0269521078916,
        -0.115006949603,
        0.974892778485
       ],
+      "plane": "EQJ",
       "positionKm": [
        -385793.188889,
        45135.9620567,
@@ -3532,13 +3531,13 @@
      {
       "body": "earth",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": [
        0.000963831925779,
        0.0008246614272,
        0.767879054914,
        0.640593590342
       ],
+      "plane": "EQJ",
       "positionKm": [
        -26074202.3504,
        132831361.249,
@@ -3549,13 +3548,13 @@
      {
       "body": "earth",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": [
        -0.000762363631048,
        0.00101605402938,
        -0.589761070181,
        0.807576786773
       ],
+      "plane": "EQJ",
       "positionKm": [
        -45094691.2914,
        128477152.32,
@@ -3568,13 +3567,13 @@
      {
       "body": "moon",
       "center": "earth",
-      "frame": "EQJ",
       "orientation": [
        0.102803910816,
        0.160778297425,
        -0.815182500134,
        0.546863041788
       ],
+      "plane": "EQJ",
       "positionKm": [
        144247.936302,
        289615.567533,
@@ -3585,13 +3584,13 @@
      {
       "body": "moon",
       "center": "earth",
-      "frame": "EQJ",
       "orientation": [
        0.188761902622,
        0.0269521078916,
        -0.115006949603,
        0.974892778485
       ],
+      "plane": "EQJ",
       "positionKm": [
        -385793.188889,
        45135.9620567,
@@ -3967,13 +3966,13 @@
      {
       "body": "jupiter",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": [
        0.19682345891,
        0.0999201845977,
        -0.470761606423,
        0.854201377106
       ],
+      "plane": "EQJ",
       "positionKm": [
        -809894096.249,
        64337876.2624,
@@ -3984,13 +3983,13 @@
      {
       "body": "jupiter",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": [
        0.220539566231,
        0.00926364573525,
        -0.0739735656395,
        0.972524753505
       ],
+      "plane": "EQJ",
       "positionKm": [
        -810764172.022,
        56940774.2644,
@@ -4003,13 +4002,13 @@
      {
       "body": "io",
       "center": "jupiter",
-      "frame": "EQJ",
       "orientation": [
        -0.00102575805149,
        -0.220442187221,
        0.97497553835,
        0.028755686953
       ],
+      "plane": "EQJ",
       "positionKm": [
        420267.669349,
        -23804.0533468,
@@ -4025,13 +4024,13 @@
      {
       "body": "io",
       "center": "jupiter",
-      "frame": "EQJ",
       "orientation": [
        0.151321298119,
        0.160304916187,
        -0.731722449649,
        0.644970119666
       ],
+      "plane": "EQJ",
       "positionKm": [
        53381.603622,
        378834.407358,
@@ -4049,13 +4048,13 @@
      {
       "body": "europa",
       "center": "jupiter",
-      "frame": "EQJ",
       "orientation": [
        0.0570861397617,
        -0.217365883958,
        0.932623281998,
        0.282324386148
       ],
+      "plane": "EQJ",
       "positionKm": [
        549933.917642,
        -357490.787772,
@@ -4071,13 +4070,13 @@
      {
       "body": "europa",
       "center": "jupiter",
-      "frame": "EQJ",
       "orientation": [
        -0.0213227463419,
        -0.223719964025,
        0.97279183347,
        -0.0563095633043
       ],
+      "plane": "EQJ",
       "positionKm": [
        670201.060389,
        40602.0720357,
@@ -4095,13 +4094,13 @@
      {
       "body": "callisto",
       "center": "jupiter",
-      "frame": "EQJ",
       "orientation": [
        0.218098191697,
        0.0168350764174,
        -0.105776360542,
        0.970031504917
       ],
+      "plane": "EQJ",
       "positionKm": [
        -1859829.86812,
        343713.36805,
@@ -4117,13 +4116,13 @@
      {
       "body": "callisto",
       "center": "jupiter",
-      "frame": "EQJ",
       "orientation": [
        0.0511490908707,
        -0.212681983612,
        0.941055160729,
        0.258002575209
       ],
+      "plane": "EQJ",
       "positionKm": [
        1618777.34442,
        -857847.094914,
@@ -4208,7 +4207,6 @@
       "iapetus",
       "triton",
       "charon",
-      "swift-tuttle",
       "miranda"
      ]
     },
@@ -4378,13 +4376,13 @@
      {
       "body": "uranus",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": [
        0.6475734109,
        -0.459926864191,
        0.234403660911,
        0.560509483277
       ],
+      "plane": "EQJ",
       "positionKm": [
        2791463315.07,
        985432652.275,
@@ -4395,13 +4393,13 @@
      {
       "body": "uranus",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": [
        0.571678449502,
        0.551423424678,
        -0.507536507157,
        0.333950072607
       ],
+      "plane": "EQJ",
       "positionKm": [
        2789862030.2,
        989006567.294,
@@ -4450,7 +4448,7 @@
     "|"
    ]
   },
-  "own body from elements, fitOrbit and an ecliptic lookAt": {
+  "own body from elements, fitOrbit and an ecliptic focus": {
    "seriesLoadedAtBuild": true,
    "definitionBeforePrepare": {
     "camera": {
@@ -4486,7 +4484,6 @@
       "iapetus",
       "triton",
       "charon",
-      "swift-tuttle",
       "made-up-comet"
      ]
     },
@@ -4797,8 +4794,8 @@
      {
       "body": "sun",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": null,
+      "plane": "EQJ",
       "positionKm": [
        0,
        0,
@@ -4809,8 +4806,8 @@
      {
       "body": "sun",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": null,
+      "plane": "EQJ",
       "positionKm": [
        0,
        0,
@@ -4823,13 +4820,13 @@
      {
       "body": "earth",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": [
        0.000963831925779,
        0.0008246614272,
        0.767879054914,
        0.640593590342
       ],
+      "plane": "EQJ",
       "positionKm": [
        -26074202.3504,
        132831361.249,
@@ -4840,13 +4837,13 @@
      {
       "body": "earth",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": [
        -0.000762363631048,
        0.00101605402938,
        -0.589761070181,
        0.807576786773
       ],
+      "plane": "EQJ",
       "positionKm": [
        -45094691.2914,
        128477152.32,
@@ -4859,8 +4856,8 @@
      {
       "body": "made-up-comet",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": null,
+      "plane": "EQJ",
       "positionKm": [
        1266198637.23,
        -131009957.805,
@@ -4871,8 +4868,8 @@
      {
       "body": "made-up-comet",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": null,
+      "plane": "EQJ",
       "positionKm": [
        1265950858.94,
        -129165045.444,
@@ -4947,7 +4944,6 @@
       "iapetus",
       "triton",
       "charon",
-      "swift-tuttle",
       "made-up-comet"
      ]
     },
@@ -5205,8 +5201,8 @@
      {
       "body": "sun",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": null,
+      "plane": "EQJ",
       "positionKm": [
        0,
        0,
@@ -5217,8 +5213,8 @@
      {
       "body": "sun",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": null,
+      "plane": "EQJ",
       "positionKm": [
        0,
        0,
@@ -5231,13 +5227,13 @@
      {
       "body": "earth",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": [
        0.000963831925779,
        0.0008246614272,
        0.767879054914,
        0.640593590342
       ],
+      "plane": "EQJ",
       "positionKm": [
        -26074202.3504,
        132831361.249,
@@ -5248,13 +5244,13 @@
      {
       "body": "earth",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": [
        -0.000762363631048,
        0.00101605402938,
        -0.589761070181,
        0.807576786773
       ],
+      "plane": "EQJ",
       "positionKm": [
        -45094691.2914,
        128477152.32,
@@ -5267,8 +5263,8 @@
      {
       "body": "made-up-comet",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": null,
+      "plane": "EQJ",
       "positionKm": [
        1266198637.23,
        -131009957.805,
@@ -5279,8 +5275,8 @@
      {
       "body": "made-up-comet",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": null,
+      "plane": "EQJ",
       "positionKm": [
        1265950858.94,
        -129165045.444,
@@ -5616,8 +5612,8 @@
          {
           "body": "probe",
           "center": "earth",
-          "frame": "EQJ",
           "orientation": null,
+          "plane": "EQJ",
           "positionKm": [
            100000,
            0,
@@ -5633,8 +5629,8 @@
          {
           "body": "probe",
           "center": "earth",
-          "frame": "EQJ",
           "orientation": null,
+          "plane": "EQJ",
           "positionKm": [
            173920,
            17964.8414627,
@@ -5650,8 +5646,8 @@
          {
           "body": "probe",
           "center": "earth",
-          "frame": "EQJ",
           "orientation": null,
+          "plane": "EQJ",
           "positionKm": [
            250000,
            35929.6829254,
@@ -5712,8 +5708,8 @@
          {
           "body": "flyer",
           "center": "earth",
-          "frame": "EQJ",
           "orientation": null,
+          "plane": "EQJ",
           "positionKm": [
            120000000,
            16360758.0157,
@@ -5729,8 +5725,8 @@
          {
           "body": "flyer",
           "center": "earth",
-          "frame": "EQJ",
           "orientation": null,
+          "plane": "EQJ",
           "positionKm": [
            163200000,
            16360758.0157,
@@ -5746,8 +5742,8 @@
          {
           "body": "flyer",
           "center": "earth",
-          "frame": "EQJ",
           "orientation": null,
+          "plane": "EQJ",
           "positionKm": [
            206400000,
            16360758.0157,
@@ -5793,8 +5789,8 @@
          {
           "body": "plain-eqj",
           "center": "moon",
-          "frame": "EQJ",
           "orientation": null,
+          "plane": "EQJ",
           "positionKm": [
            200000,
            0,
@@ -5810,8 +5806,8 @@
          {
           "body": "plain-eqj",
           "center": "moon",
-          "frame": "EQJ",
           "orientation": null,
+          "plane": "EQJ",
           "positionKm": [
            288920,
            30000,
@@ -5827,8 +5823,8 @@
          {
           "body": "plain-eqj",
           "center": "moon",
-          "frame": "EQJ",
           "orientation": null,
+          "plane": "EQJ",
           "positionKm": [
            380000,
            60000,
@@ -5996,13 +5992,13 @@
      {
       "body": "earth",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": [
        0.000971192460881,
        0.000816504135896,
        0.773360386414,
        0.633965379837
       ],
+      "plane": "EQJ",
       "positionKm": [
        -28643723.9439,
        132383018.859,
@@ -6013,13 +6009,13 @@
      {
       "body": "earth",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": [
        -0.000762363631048,
        0.00101605402938,
        -0.589761070181,
        0.807576786773
       ],
+      "plane": "EQJ",
       "positionKm": [
        -45094691.2914,
        128477152.32,
@@ -6032,13 +6028,13 @@
      {
       "body": "moon",
       "center": "earth",
-      "frame": "EQJ",
       "orientation": [
        0.120527855611,
        0.147974365729,
        -0.747048925274,
        0.636784521134
       ],
+      "plane": "EQJ",
       "positionKm": [
        53747.3602446,
        313252.18002,
@@ -6049,13 +6045,13 @@
      {
       "body": "moon",
       "center": "earth",
-      "frame": "EQJ",
       "orientation": [
        0.188761902622,
        0.0269521078916,
        -0.115006949603,
        0.974892778485
       ],
+      "plane": "EQJ",
       "positionKm": [
        -385793.188889,
        45135.9620567,
@@ -6068,8 +6064,8 @@
      {
       "body": "probe",
       "center": "earth",
-      "frame": "EQJ",
       "orientation": null,
+      "plane": "EQJ",
       "positionKm": [
        130000,
        7185.93658509,
@@ -6094,8 +6090,8 @@
      {
       "body": "flyer",
       "center": "earth",
-      "frame": "EQJ",
       "orientation": null,
+      "plane": "EQJ",
       "positionKm": [
        128640000,
        16360758.0157,
@@ -6111,8 +6107,8 @@
      {
       "body": "flyer",
       "center": "earth",
-      "frame": "EQJ",
       "orientation": null,
+      "plane": "EQJ",
       "positionKm": [
        184800000,
        16360758.0157,
@@ -6130,8 +6126,8 @@
      {
       "body": "plain-eqj",
       "center": "moon",
-      "frame": "EQJ",
       "orientation": null,
+      "plane": "EQJ",
       "positionKm": [
        260000,
        20000,
@@ -6384,8 +6380,8 @@
          {
           "body": "early",
           "center": "sun",
-          "frame": "EQJ",
           "orientation": null,
+          "plane": "EQJ",
           "positionKm": [
            100000,
            0,
@@ -6401,8 +6397,8 @@
          {
           "body": "early",
           "center": "sun",
-          "frame": "EQJ",
           "orientation": null,
+          "plane": "EQJ",
           "positionKm": [
            160000,
            20000,
@@ -6418,8 +6414,8 @@
          {
           "body": "early",
           "center": "sun",
-          "frame": "EQJ",
           "orientation": null,
+          "plane": "EQJ",
           "positionKm": [
            220000,
            40000,
@@ -6503,8 +6499,8 @@
      {
       "body": "sun",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": null,
+      "plane": "EQJ",
       "positionKm": [
        0,
        0,
@@ -6515,8 +6511,8 @@
      {
       "body": "sun",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": null,
+      "plane": "EQJ",
       "positionKm": [
        0,
        0,
@@ -6529,13 +6525,13 @@
      {
       "body": "earth",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": [
        0.000963831925779,
        0.0008246614272,
        0.767879054914,
        0.640593590342
       ],
+      "plane": "EQJ",
       "positionKm": [
        -26074202.3504,
        132831361.249,
@@ -6546,13 +6542,13 @@
      {
       "body": "earth",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": [
        0.000985564376068,
        0.000800189159091,
        0.784151012666,
        0.620568753399
       ],
+      "plane": "EQJ",
       "positionKm": [
        -33755174.1641,
        131363615.156,
@@ -6565,8 +6561,8 @@
      {
       "body": "early",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": null,
+      "plane": "EQJ",
       "positionKm": [
        100000,
        0,
@@ -6582,8 +6578,8 @@
      {
       "body": "early",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": null,
+      "plane": "EQJ",
       "positionKm": [
        190000,
        30000,
@@ -6843,8 +6839,8 @@
          {
           "body": "early",
           "center": "moon",
-          "frame": "EQJ",
           "orientation": null,
+          "plane": "EQJ",
           "positionKm": [
            100000,
            0,
@@ -6860,8 +6856,8 @@
          {
           "body": "early",
           "center": "moon",
-          "frame": "EQJ",
           "orientation": null,
+          "plane": "EQJ",
           "positionKm": [
            160000,
            20000,
@@ -6877,8 +6873,8 @@
          {
           "body": "early",
           "center": "moon",
-          "frame": "EQJ",
           "orientation": null,
+          "plane": "EQJ",
           "positionKm": [
            220000,
            40000,
@@ -7004,8 +7000,8 @@
      {
       "body": "sun",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": null,
+      "plane": "EQJ",
       "positionKm": [
        0,
        0,
@@ -7016,8 +7012,8 @@
      {
       "body": "sun",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": null,
+      "plane": "EQJ",
       "positionKm": [
        0,
        0,
@@ -7030,13 +7026,13 @@
      {
       "body": "earth",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": [
        0.000963831925779,
        0.0008246614272,
        0.767879054914,
        0.640593590342
       ],
+      "plane": "EQJ",
       "positionKm": [
        -26074202.3504,
        132831361.249,
@@ -7047,13 +7043,13 @@
      {
       "body": "earth",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": [
        0.000985564376068,
        0.000800189159091,
        0.784151012666,
        0.620568753399
       ],
+      "plane": "EQJ",
       "positionKm": [
        -33755174.1641,
        131363615.156,
@@ -7066,13 +7062,13 @@
      {
       "body": "moon",
       "center": "earth",
-      "frame": "EQJ",
       "orientation": [
        0.102803910816,
        0.160778297425,
        -0.815182500134,
        0.546863041788
       ],
+      "plane": "EQJ",
       "positionKm": [
        144247.936302,
        289615.567533,
@@ -7083,13 +7079,13 @@
      {
       "body": "moon",
       "center": "earth",
-      "frame": "EQJ",
       "orientation": [
        0.150999749041,
        0.116709124009,
        -0.582211031829,
        0.790321688036
       ],
+      "plane": "EQJ",
       "positionKm": [
        -131803.421306,
        300923.240586,
@@ -7102,8 +7098,8 @@
      {
       "body": "early",
       "center": "moon",
-      "frame": "EQJ",
       "orientation": null,
+      "plane": "EQJ",
       "positionKm": [
        100000,
        0,
@@ -7119,8 +7115,8 @@
      {
       "body": "early",
       "center": "moon",
-      "frame": "EQJ",
       "orientation": null,
+      "plane": "EQJ",
       "positionKm": [
        190000,
        30000,
@@ -7422,8 +7418,8 @@
          {
           "body": "traveller",
           "center": "sun",
-          "frame": "EQJ",
           "orientation": null,
+          "plane": "EQJ",
           "positionKm": [
            149000000,
            0,
@@ -7434,8 +7430,8 @@
          {
           "body": "traveller",
           "center": "sun",
-          "frame": "EQJ",
           "orientation": null,
+          "plane": "EQJ",
           "positionKm": [
            369000000,
            129506820.305,
@@ -7446,8 +7442,8 @@
          {
           "body": "traveller",
           "center": "sun",
-          "frame": "EQJ",
           "orientation": null,
+          "plane": "EQJ",
           "positionKm": [
            589000000,
            259013640.609,
@@ -7631,8 +7627,8 @@
      {
       "body": "sun",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": null,
+      "plane": "EQJ",
       "positionKm": [
        0,
        0,
@@ -7643,8 +7639,8 @@
      {
       "body": "sun",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": null,
+      "plane": "EQJ",
       "positionKm": [
        0,
        0,
@@ -7657,13 +7653,13 @@
      {
       "body": "earth",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": [
        0.000978446384355,
        0.000808355388338,
        0.778784506075,
        0.627290269574
       ],
+      "plane": "EQJ",
       "positionKm": [
        -31204289.4054,
        131893719.445,
@@ -7674,13 +7670,13 @@
      {
       "body": "earth",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": [
        5.28059768235e-7,
        0.00128028557239,
        0.0143176983043,
        0.999896676854
       ],
+      "plane": "EQJ",
       "positionKm": [
        -148870296.367,
        -8341270.15219,
@@ -7693,13 +7689,13 @@
      {
       "body": "jupiter",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": [
        -0.0998465263406,
        -0.196858626617,
        0.884319864454,
        -0.411407012138
       ],
+      "plane": "EQJ",
       "positionKm": [
        -255583266.424,
        674868122.019,
@@ -7710,13 +7706,13 @@
      {
       "body": "jupiter",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": [
        0.123533675314,
        -0.182926375289,
        0.789292069413,
        0.572970681143
       ],
+      "plane": "EQJ",
       "positionKm": [
        -340658577.296,
        646115981.637,
@@ -7729,8 +7725,8 @@
      {
       "body": "traveller",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": null,
+      "plane": "EQJ",
       "positionKm": [
        157000000,
        4709338.92017,
@@ -7741,8 +7737,8 @@
      {
       "body": "traveller",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": null,
+      "plane": "EQJ",
       "positionKm": [
        479000000,
        194260230.457,
@@ -7980,8 +7976,8 @@
          {
           "body": "far",
           "center": "sun",
-          "frame": "EQJ",
           "orientation": null,
+          "plane": "EQJ",
           "positionKm": [
            0,
            0,
@@ -7992,8 +7988,8 @@
          {
           "body": "far",
           "center": "sun",
-          "frame": "EQJ",
           "orientation": null,
+          "plane": "EQJ",
           "positionKm": [
            500000000000,
            0,
@@ -8004,8 +8000,8 @@
          {
           "body": "far",
           "center": "sun",
-          "frame": "EQJ",
           "orientation": null,
+          "plane": "EQJ",
           "positionKm": [
            1000000000000,
            0,
@@ -8084,8 +8080,8 @@
      {
       "body": "sun",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": null,
+      "plane": "EQJ",
       "positionKm": [
        0,
        0,
@@ -8096,8 +8092,8 @@
      {
       "body": "sun",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": null,
+      "plane": "EQJ",
       "positionKm": [
        0,
        0,
@@ -8110,13 +8106,13 @@
      {
       "body": "earth",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": [
        0.000963831925779,
        0.0008246614272,
        0.767879054914,
        0.640593590342
       ],
+      "plane": "EQJ",
       "positionKm": [
        -26074202.3504,
        132831361.249,
@@ -8127,13 +8123,13 @@
      {
       "body": "earth",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": [
        -0.00107613087835,
        0.000710192838482,
        -0.828208476352,
        0.560418644647
       ],
+      "plane": "EQJ",
       "positionKm": [
        -53815995.8084,
        -130085559.791,
@@ -8146,8 +8142,8 @@
      {
       "body": "far",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": null,
+      "plane": "EQJ",
       "positionKm": [
        0,
        0,
@@ -8158,8 +8154,8 @@
      {
       "body": "far",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": null,
+      "plane": "EQJ",
       "positionKm": [
        750000000000,
        0,
@@ -8381,29 +8377,37 @@
       "autoOpen": true,
       "panels": [
        {
-        "badge": "illustrative",
         "body": [
          "Made up."
         ],
         "details": [],
         "id": "p1",
         "objectId": "ring",
-        "sources": [
-         "Invented"
-        ],
+        "provenance": {
+         "accuracy": "None claimed.",
+         "notes": "Made up.",
+         "sourceType": "illustrative",
+         "sources": [
+          "Invented"
+         ]
+        },
         "timeUtcMs": 1767484800000,
         "title": "Panel p1"
        },
        {
-        "badge": "illustrative",
         "body": [
          "Made up."
         ],
         "details": [],
         "id": "p2",
-        "sources": [
-         "Invented"
-        ],
+        "provenance": {
+         "accuracy": "None claimed.",
+         "notes": "Made up.",
+         "sourceType": "illustrative",
+         "sources": [
+          "Invented"
+         ]
+        },
         "timeUtcMs": 1768089600000,
         "title": "Panel p2"
        }
@@ -8711,8 +8715,8 @@
      {
       "body": "sun",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": null,
+      "plane": "EQJ",
       "positionKm": [
        0,
        0,
@@ -8723,8 +8727,8 @@
      {
       "body": "sun",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": null,
+      "plane": "EQJ",
       "positionKm": [
        0,
        0,
@@ -8737,13 +8741,13 @@
      {
       "body": "earth",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": [
        0.000999375812739,
        0.00078365526405,
        0.794709602948,
        0.606988495866
       ],
+      "plane": "EQJ",
       "positionKm": [
        -38824991.0883,
        130181579.885,
@@ -8754,13 +8758,13 @@
      {
       "body": "earth",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": [
        0.00106425237784,
        0.000695632737852,
        0.843915110697,
        0.5364752272
       ],
+      "plane": "EQJ",
       "positionKm": [
        -63337658.489,
        121879544.474,
@@ -8773,13 +8777,13 @@
      {
       "body": "jupiter",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": [
        0.210744133684,
        0.0656472167612,
        -0.321510618069,
        0.9208193501
       ],
+      "plane": "EQJ",
       "positionKm": [
        -258822708.917,
        673957527.561,
@@ -8790,13 +8794,13 @@
      {
       "body": "jupiter",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": [
        0.212829173476,
        -0.0585353515917,
        0.226577946688,
        0.948651563856
       ],
+      "plane": "EQJ",
       "positionKm": [
        -269585375.745,
        670830802.517,
@@ -9211,13 +9215,13 @@
      {
       "body": "earth",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": [
        0.000963831925779,
        0.0008246614272,
        0.767879054914,
        0.640593590342
       ],
+      "plane": "EQJ",
       "positionKm": [
        -26074202.3504,
        132831361.249,
@@ -9228,13 +9232,13 @@
      {
       "body": "earth",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": [
        0.00106425237784,
        0.000695632737852,
        0.843915110697,
        0.5364752272
       ],
+      "plane": "EQJ",
       "positionKm": [
        -63337658.489,
        121879544.474,
@@ -9247,13 +9251,13 @@
      {
       "body": "moon",
       "center": "earth",
-      "frame": "EQJ",
       "orientation": [
        0.102803910816,
        0.160778297425,
        -0.815182500134,
        0.546863041788
       ],
+      "plane": "EQJ",
       "positionKm": [
        144247.936302,
        289615.567533,
@@ -9264,13 +9268,13 @@
      {
       "body": "moon",
       "center": "earth",
-      "frame": "EQJ",
       "orientation": [
        0.142870651802,
        -0.125736162225,
        0.665584061335,
        0.721648288059
       ],
+      "plane": "EQJ",
       "positionKm": [
        -44018.5455035,
        -352392.606315,
@@ -9498,13 +9502,13 @@
      {
       "body": "earth",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": [
        0.00100610515524,
        0.000775228551736,
        0.79990090548,
        0.60013075924
       ],
+      "plane": "EQJ",
       "positionKm": [
        -41342446.2503,
        129529943.13,
@@ -9515,13 +9519,13 @@
      {
       "body": "earth",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": [
        0.00118004471602,
        -0.000482627364585,
        0.920312446543,
        -0.391182023237
       ],
+      "plane": "EQJ",
       "positionKm": [
        -108039819.493,
        92156059.4721,
@@ -9727,7 +9731,6 @@
       "autoOpen": false,
       "panels": [
        {
-        "badge": "illustrative",
         "body": [
          "Made up."
         ],
@@ -9735,36 +9738,49 @@
          "More."
         ],
         "id": "by-utc",
-        "sources": [
-         "Invented"
-        ],
+        "provenance": {
+         "accuracy": "None claimed.",
+         "notes": "Made up.",
+         "sourceType": "illustrative",
+         "sources": [
+          "Invented"
+         ]
+        },
         "timeUtcMs": 1767312000000,
         "title": "Panel by-utc"
        },
        {
-        "badge": "illustrative",
         "body": [
          "Made up."
         ],
         "details": [],
         "id": "by-event",
         "objectId": "probe",
-        "sources": [
-         "Invented"
-        ],
+        "provenance": {
+         "accuracy": "None claimed.",
+         "notes": "Made up.",
+         "sourceType": "illustrative",
+         "sources": [
+          "Invented"
+         ]
+        },
         "timeUtcMs": 1767398400000,
         "title": "Panel by-event"
        },
        {
-        "badge": "illustrative",
         "body": [
          "Made up."
         ],
         "details": [],
         "id": "by-anchor",
-        "sources": [
-         "Invented"
-        ],
+        "provenance": {
+         "accuracy": "None claimed.",
+         "notes": "Made up.",
+         "sourceType": "illustrative",
+         "sources": [
+          "Invented"
+         ]
+        },
         "timeUtcMs": 1767398400000,
         "title": "Panel by-anchor"
        }
@@ -9821,8 +9837,8 @@
          {
           "body": "probe",
           "center": "earth",
-          "frame": "EQJ",
           "orientation": null,
+          "plane": "EQJ",
           "positionKm": [
            100000,
            0,
@@ -9838,8 +9854,8 @@
          {
           "body": "probe",
           "center": "earth",
-          "frame": "EQJ",
           "orientation": null,
+          "plane": "EQJ",
           "positionKm": [
            173920,
            25000,
@@ -9855,8 +9871,8 @@
          {
           "body": "probe",
           "center": "earth",
-          "frame": "EQJ",
           "orientation": null,
+          "plane": "EQJ",
           "positionKm": [
            250000,
            50000,
@@ -9940,13 +9956,13 @@
      {
       "body": "earth",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": [
        0.000963831925779,
        0.0008246614272,
        0.767879054914,
        0.640593590342
       ],
+      "plane": "EQJ",
       "positionKm": [
        -26074202.3504,
        132831361.249,
@@ -9957,13 +9973,13 @@
      {
       "body": "earth",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": [
        0.000139142245146,
        0.00126207077679,
        0.122075185987,
        0.992520043517
       ],
+      "plane": "EQJ",
       "positionKm": [
        -35661548.3826,
        130939347.53,
@@ -9976,13 +9992,13 @@
      {
       "body": "moon",
       "center": "earth",
-      "frame": "EQJ",
       "orientation": [
        0.102803910816,
        0.160778297425,
        -0.815182500134,
        0.546863041788
       ],
+      "plane": "EQJ",
       "positionKm": [
        144247.936302,
        289615.567533,
@@ -9993,13 +10009,13 @@
      {
       "body": "moon",
       "center": "earth",
-      "frame": "EQJ",
       "orientation": [
        0.160453979918,
        0.103304021741,
        -0.511969060287,
        0.837538345827
       ],
+      "plane": "EQJ",
       "positionKm": [
        -195411.471361,
        276585.218172,
@@ -10012,8 +10028,8 @@
      {
       "body": "probe",
       "center": "earth",
-      "frame": "EQJ",
       "orientation": null,
+      "plane": "EQJ",
       "positionKm": [
        100000,
        0,
@@ -10029,8 +10045,8 @@
      {
       "body": "probe",
       "center": "earth",
-      "frame": "EQJ",
       "orientation": null,
+      "plane": "EQJ",
       "positionKm": [
        203567.5,
        34387.5,
@@ -10345,13 +10361,13 @@
      {
       "body": "earth",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": [
        0.000971192460881,
        0.000816504135896,
        0.773360386414,
        0.633965379837
       ],
+      "plane": "EQJ",
       "positionKm": [
        -28643723.9439,
        132383018.859,
@@ -10362,13 +10378,13 @@
      {
       "body": "earth",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": [
        -0.000762363631048,
        0.00101605402938,
        -0.589761070181,
        0.807576786773
       ],
+      "plane": "EQJ",
       "positionKm": [
        -45094691.2914,
        128477152.32,
@@ -10381,13 +10397,13 @@
      {
       "body": "moon",
       "center": "earth",
-      "frame": "EQJ",
       "orientation": [
        0.120527855611,
        0.147974365729,
        -0.747048925274,
        0.636784521134
       ],
+      "plane": "EQJ",
       "positionKm": [
        53747.3602446,
        313252.18002,
@@ -10398,13 +10414,13 @@
      {
       "body": "moon",
       "center": "earth",
-      "frame": "EQJ",
       "orientation": [
        0.188761902622,
        0.0269521078916,
        -0.115006949603,
        0.974892778485
       ],
+      "plane": "EQJ",
       "positionKm": [
        -385793.188889,
        45135.9620567,
@@ -10539,13 +10555,13 @@
      {
       "body": "earth",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": [
        0.000985564376068,
        0.000800189159091,
        0.784151012666,
        0.620568753399
       ],
+      "plane": "EQJ",
       "positionKm": [
        -33755174.1641,
        131363615.156,
@@ -10556,13 +10572,13 @@
      {
       "body": "earth",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": [
        -0.000735978483234,
        0.00103564160069,
        -0.568728937819,
        0.822524030694
       ],
+      "plane": "EQJ",
       "positionKm": [
        -52503452.5312,
        126102589.742,
@@ -10688,13 +10704,13 @@
      {
       "body": "earth",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": [
        0.000963831925779,
        0.0008246614272,
        0.767879054914,
        0.640593590342
       ],
+      "plane": "EQJ",
       "positionKm": [
        -26074202.3504,
        132831361.249,
@@ -10705,13 +10721,13 @@
      {
       "body": "earth",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": [
        -0.000762363631048,
        0.00101605402938,
        -0.589761070181,
        0.807576786773
       ],
+      "plane": "EQJ",
       "positionKm": [
        -45094691.2914,
        128477152.32,
@@ -10916,13 +10932,13 @@
      {
       "body": "earth",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": [
        0.000849365687053,
        0.000974013021862,
        0.665533141025,
        0.746367180464
       ],
+      "plane": "EQJ",
       "positionKm": [
        -15760866.5198,
        -138667103.809,
@@ -10933,13 +10949,13 @@
      {
       "body": "earth",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": [
        -0.000918484088085,
        0.000911026224807,
        -0.701912228924,
        0.712262275644
       ],
+      "plane": "EQJ",
       "positionKm": [
        3204692.42055,
        -139461415.377,
@@ -10952,13 +10968,13 @@
      {
       "body": "moon",
       "center": "earth",
-      "frame": "EQJ",
       "orientation": [
        0.129219841746,
        0.141543671541,
        -0.703289936538,
        0.684580810942
       ],
+      "plane": "EQJ",
       "positionKm": [
        3250.74220505,
        315896.763669,
@@ -10969,13 +10985,13 @@
      {
       "body": "moon",
       "center": "earth",
-      "frame": "EQJ",
       "orientation": [
        0.191406665405,
        -0.00557013467057,
        0.0623365667057,
        0.979513458044
       ],
+      "plane": "EQJ",
       "positionKm": [
        -381863.105627,
        -77176.2280244,
@@ -11154,8 +11170,8 @@
          {
           "body": "probe",
           "center": "earth",
-          "frame": "EQJ",
           "orientation": null,
+          "plane": "EQJ",
           "positionKm": [
            100000,
            0,
@@ -11171,8 +11187,8 @@
          {
           "body": "probe",
           "center": "earth",
-          "frame": "EQJ",
           "orientation": null,
+          "plane": "EQJ",
           "positionKm": [
            143920,
            15000,
@@ -11188,8 +11204,8 @@
          {
           "body": "probe",
           "center": "earth",
-          "frame": "EQJ",
           "orientation": null,
+          "plane": "EQJ",
           "positionKm": [
            190000,
            30000,
@@ -11229,13 +11245,13 @@
      {
       "body": "earth",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": [
        0.000963831925779,
        0.0008246614272,
        0.767879054914,
        0.640593590342
       ],
+      "plane": "EQJ",
       "positionKm": [
        -26074202.3504,
        132831361.249,
@@ -11246,13 +11262,13 @@
      {
       "body": "earth",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": [
        0.00126328601439,
        -0.000122981796459,
        0.994012367472,
        -0.109260250302
       ],
+      "plane": "EQJ",
       "positionKm": [
        -31842946.4387,
        131765013.004,
@@ -11265,8 +11281,8 @@
      {
       "body": "probe",
       "center": "earth",
-      "frame": "EQJ",
       "orientation": null,
+      "plane": "EQJ",
       "positionKm": [
        100000,
        0,
@@ -11282,8 +11298,8 @@
      {
       "body": "probe",
       "center": "earth",
-      "frame": "EQJ",
       "orientation": null,
+      "plane": "EQJ",
       "positionKm": [
        174002.5,
        25612.5,
@@ -11519,13 +11535,13 @@
      {
       "body": "earth",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": [
        0.000963831925779,
        0.0008246614272,
        0.767879054914,
        0.640593590342
       ],
+      "plane": "EQJ",
       "positionKm": [
        -26074202.3504,
        132831361.249,
@@ -11536,13 +11552,13 @@
      {
       "body": "earth",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": [
        -0.000762363631048,
        0.00101605402938,
        -0.589761070181,
        0.807576786773
       ],
+      "plane": "EQJ",
       "positionKm": [
        -45094691.2914,
        128477152.32,
@@ -11555,13 +11571,13 @@
      {
       "body": "moon",
       "center": "earth",
-      "frame": "EQJ",
       "orientation": [
        0.102803910816,
        0.160778297425,
        -0.815182500134,
        0.546863041788
       ],
+      "plane": "EQJ",
       "positionKm": [
        144247.936302,
        289615.567533,
@@ -11572,13 +11588,13 @@
      {
       "body": "moon",
       "center": "earth",
-      "frame": "EQJ",
       "orientation": [
        0.188761902622,
        0.0269521078916,
        -0.115006949603,
        0.974892778485
       ],
+      "plane": "EQJ",
       "positionKm": [
        -385793.188889,
        45135.9620567,
@@ -11801,28 +11817,36 @@
       "autoOpen": true,
       "panels": [
        {
-        "badge": "illustrative",
         "body": [
          "Made up."
         ],
         "details": [],
         "id": "pa",
-        "sources": [
-         "Invented"
-        ],
+        "provenance": {
+         "accuracy": "None claimed.",
+         "notes": "Made up.",
+         "sourceType": "illustrative",
+         "sources": [
+          "Invented"
+         ]
+        },
         "timeUtcMs": 1767312000000,
         "title": "Panel pa"
        },
        {
-        "badge": "illustrative",
         "body": [
          "Made up."
         ],
         "details": [],
         "id": "pb",
-        "sources": [
-         "Invented"
-        ],
+        "provenance": {
+         "accuracy": "None claimed.",
+         "notes": "Made up.",
+         "sourceType": "illustrative",
+         "sources": [
+          "Invented"
+         ]
+        },
         "timeUtcMs": 1767398400000,
         "title": "Panel pb"
        }
@@ -11879,8 +11903,8 @@
          {
           "body": "a",
           "center": "earth",
-          "frame": "EQJ",
           "orientation": null,
+          "plane": "EQJ",
           "positionKm": [
            100000,
            0,
@@ -11896,8 +11920,8 @@
          {
           "body": "a",
           "center": "earth",
-          "frame": "EQJ",
           "orientation": null,
+          "plane": "EQJ",
           "positionKm": [
            160000,
            20000,
@@ -11913,8 +11937,8 @@
          {
           "body": "a",
           "center": "earth",
-          "frame": "EQJ",
           "orientation": null,
+          "plane": "EQJ",
           "positionKm": [
            220000,
            40000,
@@ -11961,8 +11985,8 @@
          {
           "body": "b",
           "center": "earth",
-          "frame": "EQJ",
           "orientation": null,
+          "plane": "EQJ",
           "positionKm": [
            200000,
            0,
@@ -11978,8 +12002,8 @@
          {
           "body": "b",
           "center": "earth",
-          "frame": "EQJ",
           "orientation": null,
+          "plane": "EQJ",
           "positionKm": [
            320000,
            40000,
@@ -11995,8 +12019,8 @@
          {
           "body": "b",
           "center": "earth",
-          "frame": "EQJ",
           "orientation": null,
+          "plane": "EQJ",
           "positionKm": [
            440000,
            80000,
@@ -12197,13 +12221,13 @@
      {
       "body": "earth",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": [
        0.000963831925779,
        0.0008246614272,
        0.767879054914,
        0.640593590342
       ],
+      "plane": "EQJ",
       "positionKm": [
        -26074202.3504,
        132831361.249,
@@ -12214,13 +12238,13 @@
      {
       "body": "earth",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": [
        0.000985564376068,
        0.000800189159091,
        0.784151012666,
        0.620568753399
       ],
+      "plane": "EQJ",
       "positionKm": [
        -33755174.1641,
        131363615.156,
@@ -12233,13 +12257,13 @@
      {
       "body": "moon",
       "center": "earth",
-      "frame": "EQJ",
       "orientation": [
        0.102803910816,
        0.160778297425,
        -0.815182500134,
        0.546863041788
       ],
+      "plane": "EQJ",
       "positionKm": [
        144247.936302,
        289615.567533,
@@ -12250,13 +12274,13 @@
      {
       "body": "moon",
       "center": "earth",
-      "frame": "EQJ",
       "orientation": [
        0.150999749041,
        0.116709124009,
        -0.582211031829,
        0.790321688036
       ],
+      "plane": "EQJ",
       "positionKm": [
        -131803.421306,
        300923.240586,
@@ -12269,8 +12293,8 @@
      {
       "body": "a",
       "center": "earth",
-      "frame": "EQJ",
       "orientation": null,
+      "plane": "EQJ",
       "positionKm": [
        100000,
        0,
@@ -12286,8 +12310,8 @@
      {
       "body": "a",
       "center": "earth",
-      "frame": "EQJ",
       "orientation": null,
+      "plane": "EQJ",
       "positionKm": [
        190000,
        30000,
@@ -12305,8 +12329,8 @@
      {
       "body": "b",
       "center": "earth",
-      "frame": "EQJ",
       "orientation": null,
+      "plane": "EQJ",
       "positionKm": [
        200000,
        0,
@@ -12322,8 +12346,8 @@
      {
       "body": "b",
       "center": "earth",
-      "frame": "EQJ",
       "orientation": null,
+      "plane": "EQJ",
       "positionKm": [
        380000,
        60000,
@@ -12377,7 +12401,7 @@
     "|"
    ]
   },
-  "camera: follow then lookAt, setReach then fitOrbit, ecliptic up": {
+  "camera: follow then focus, setReach then fitOrbit, ecliptic up": {
    "seriesLoadedAtBuild": true,
    "definitionBeforePrepare": {
     "camera": {
@@ -12644,8 +12668,8 @@
      {
       "body": "sun",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": null,
+      "plane": "EQJ",
       "positionKm": [
        0,
        0,
@@ -12656,8 +12680,8 @@
      {
       "body": "sun",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": null,
+      "plane": "EQJ",
       "positionKm": [
        0,
        0,
@@ -12670,13 +12694,13 @@
      {
       "body": "earth",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": [
        0.000963831925779,
        0.0008246614272,
        0.767879054914,
        0.640593590342
       ],
+      "plane": "EQJ",
       "positionKm": [
        -26074202.3504,
        132831361.249,
@@ -12687,13 +12711,13 @@
      {
       "body": "earth",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": [
        -0.000762363631048,
        0.00101605402938,
        -0.589761070181,
        0.807576786773
       ],
+      "plane": "EQJ",
       "positionKm": [
        -45094691.2914,
        128477152.32,
@@ -12706,13 +12730,13 @@
      {
       "body": "mars",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": [
        0.0913755728633,
        0.291568047443,
        -0.407799255612,
        0.860429163567
       ],
+      "plane": "EQJ",
       "positionKm": [
        50951753.8129,
        -188143590.173,
@@ -12723,13 +12747,13 @@
      {
       "body": "mars",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": [
        0.292580238757,
        0.0880811344869,
        0.483070540806,
        0.820537244884
       ],
+      "plane": "EQJ",
       "positionKm": [
        66632169.4864,
        -182822746.24,
@@ -12961,13 +12985,13 @@
      {
       "body": "earth",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": [
        0.000963831925779,
        0.0008246614272,
        0.767879054914,
        0.640593590342
       ],
+      "plane": "EQJ",
       "positionKm": [
        -26074202.3504,
        132831361.249,
@@ -12978,13 +13002,13 @@
      {
       "body": "earth",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": [
        -0.000762363631048,
        0.00101605402938,
        -0.589761070181,
        0.807576786773
       ],
+      "plane": "EQJ",
       "positionKm": [
        -45094691.2914,
        128477152.32,
@@ -12997,13 +13021,13 @@
      {
       "body": "moon",
       "center": "earth",
-      "frame": "EQJ",
       "orientation": [
        0.102803910816,
        0.160778297425,
        -0.815182500134,
        0.546863041788
       ],
+      "plane": "EQJ",
       "positionKm": [
        144247.936302,
        289615.567533,
@@ -13014,13 +13038,13 @@
      {
       "body": "moon",
       "center": "earth",
-      "frame": "EQJ",
       "orientation": [
        0.188761902622,
        0.0269521078916,
        -0.115006949603,
        0.974892778485
       ],
+      "plane": "EQJ",
       "positionKm": [
        -385793.188889,
        45135.9620567,
@@ -13453,8 +13477,8 @@
          {
           "body": "probe",
           "center": "sun",
-          "frame": "EQJ",
           "orientation": null,
+          "plane": "EQJ",
           "positionKm": [
            -15644521.4102,
            79698816.7496,
@@ -13465,8 +13489,8 @@
          {
           "body": "probe",
           "center": "sun",
-          "frame": "EQJ",
           "orientation": null,
+          "plane": "EQJ",
           "positionKm": [
            47775215.2352,
            -73314212.5263,
@@ -13477,8 +13501,8 @@
          {
           "body": "probe",
           "center": "sun",
-          "frame": "EQJ",
           "orientation": null,
+          "plane": "EQJ",
           "positionKm": [
            111194951.881,
            -226327241.802,
@@ -13844,41 +13868,53 @@
       "autoOpen": true,
       "panels": [
        {
-        "badge": "illustrative",
         "body": [
          "A made-up line."
         ],
         "details": [],
         "id": "panel-a",
-        "sources": [
-         "Made up for the views test"
-        ],
+        "provenance": {
+         "accuracy": "None claimed.",
+         "notes": "A circle about Earth, not a real flight.",
+         "sourceType": "illustrative",
+         "sources": [
+          "Made up for the views test; not a real spacecraft"
+         ]
+        },
         "timeUtcMs": 1767261600000,
         "title": "About probe A"
        },
        {
-        "badge": "illustrative",
         "body": [
          "A made-up line."
         ],
         "details": [],
         "id": "panel-b",
-        "sources": [
-         "Made up for the views test"
-        ],
+        "provenance": {
+         "accuracy": "None claimed.",
+         "notes": "A circle about Earth, not a real flight.",
+         "sourceType": "illustrative",
+         "sources": [
+          "Made up for the views test; not a real spacecraft"
+         ]
+        },
         "timeUtcMs": 1767279600000,
         "title": "About probe B"
        },
        {
-        "badge": "illustrative",
         "body": [
          "A made-up line."
         ],
         "details": [],
         "id": "panel-shared",
-        "sources": [
-         "Made up for the views test"
-        ],
+        "provenance": {
+         "accuracy": "None claimed.",
+         "notes": "A circle about Earth, not a real flight.",
+         "sourceType": "illustrative",
+         "sources": [
+          "Made up for the views test; not a real spacecraft"
+         ]
+        },
         "timeUtcMs": 1767297600000,
         "title": "About both"
        }
@@ -13960,8 +13996,8 @@
          {
           "body": "probe-a",
           "center": "earth",
-          "frame": "EQJ",
           "orientation": null,
+          "plane": "EQJ",
           "positionKm": [
            40000,
            0,
@@ -13972,8 +14008,8 @@
          {
           "body": "probe-a",
           "center": "earth",
-          "frame": "EQJ",
           "orientation": null,
+          "plane": "EQJ",
           "positionKm": [
            40000,
            -1.95943487864e-11,
@@ -13984,8 +14020,8 @@
          {
           "body": "probe-a",
           "center": "earth",
-          "frame": "EQJ",
           "orientation": null,
+          "plane": "EQJ",
           "positionKm": [
            40000,
            -3.91886975727e-11,
@@ -14034,8 +14070,8 @@
          {
           "body": "probe-b",
           "center": "earth",
-          "frame": "EQJ",
           "orientation": null,
+          "plane": "EQJ",
           "positionKm": [
            70000,
            0,
@@ -14046,8 +14082,8 @@
          {
           "body": "probe-b",
           "center": "earth",
-          "frame": "EQJ",
           "orientation": null,
+          "plane": "EQJ",
           "positionKm": [
            -35000,
            49658.4535941,
@@ -14058,8 +14094,8 @@
          {
           "body": "probe-b",
           "center": "earth",
-          "frame": "EQJ",
           "orientation": null,
+          "plane": "EQJ",
           "positionKm": [
            -35000,
            -49658.4535941,
@@ -14375,13 +14411,13 @@
      {
       "body": "earth",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": [
        0.000971192460881,
        0.000816504135896,
        0.773360386414,
        0.633965379837
       ],
+      "plane": "EQJ",
       "positionKm": [
        -28643723.9439,
        132383018.859,
@@ -14392,13 +14428,13 @@
      {
       "body": "earth",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": [
        -0.000762363631048,
        0.00101605402938,
        -0.589761070181,
        0.807576786773
       ],
+      "plane": "EQJ",
       "positionKm": [
        -45094691.2914,
        128477152.32,
@@ -14411,13 +14447,13 @@
      {
       "body": "moon",
       "center": "earth",
-      "frame": "EQJ",
       "orientation": [
        0.120527855611,
        0.147974365729,
        -0.747048925274,
        0.636784521134
       ],
+      "plane": "EQJ",
       "positionKm": [
        53747.3602446,
        313252.18002,
@@ -14428,13 +14464,13 @@
      {
       "body": "moon",
       "center": "earth",
-      "frame": "EQJ",
       "orientation": [
        0.188761902622,
        0.0269521078916,
        -0.115006949603,
        0.974892778485
       ],
+      "plane": "EQJ",
       "positionKm": [
        -385793.188889,
        45135.9620567,
@@ -14658,8 +14694,8 @@
          {
           "body": "bump",
           "center": "sun",
-          "frame": "EQJ",
           "orientation": null,
+          "plane": "EQJ",
           "positionKm": [
            150000000,
            0,
@@ -14675,8 +14711,8 @@
          {
           "body": "bump",
           "center": "sun",
-          "frame": "EQJ",
           "orientation": null,
+          "plane": "EQJ",
           "positionKm": [
            150000000,
            0,
@@ -14692,8 +14728,8 @@
          {
           "body": "bump",
           "center": "sun",
-          "frame": "EQJ",
           "orientation": null,
+          "plane": "EQJ",
           "positionKm": [
            150000000,
            0,
@@ -14777,8 +14813,8 @@
      {
       "body": "sun",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": null,
+      "plane": "EQJ",
       "positionKm": [
        0,
        0,
@@ -14789,8 +14825,8 @@
      {
       "body": "sun",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": null,
+      "plane": "EQJ",
       "positionKm": [
        0,
        0,
@@ -14803,13 +14839,13 @@
      {
       "body": "earth",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": [
        0.000999375812739,
        0.00078365526405,
        0.794709602948,
        0.606988495866
       ],
+      "plane": "EQJ",
       "positionKm": [
        -38824991.0883,
        130181579.885,
@@ -14820,13 +14856,13 @@
      {
       "body": "earth",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": [
        -0.000762363631048,
        0.00101605402938,
        -0.589761070181,
        0.807576786773
       ],
+      "plane": "EQJ",
       "positionKm": [
        -45094691.2914,
        128477152.32,
@@ -14839,8 +14875,8 @@
      {
       "body": "bump",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": null,
+      "plane": "EQJ",
       "positionKm": [
        150000000,
        0,
@@ -14856,8 +14892,8 @@
      {
       "body": "bump",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": null,
+      "plane": "EQJ",
       "positionKm": [
        150000000,
        0,
@@ -14918,7 +14954,7 @@
    "error": {
     "name": "SceneError",
     "code": "unknown-body",
-    "message": "addBody(\"nope\"): not a catalogued body (known: sun, earth, moon, mercury, venus, mars, jupiter, io, europa, ganymede, callisto, saturn, uranus, neptune, pluto, phobos, deimos, mimas, enceladus, tethys, dione, rhea, titan, iapetus, triton, charon, swift-tuttle; any moon in the moon lists is added by its id, and `listedMoons(planet)` names them with the data package each needs)"
+    "message": "addBody(\"nope\"): not a catalogued body (known: sun, earth, moon, mercury, venus, mars, jupiter, io, europa, ganymede, callisto, saturn, uranus, neptune, pluto, phobos, deimos, mimas, enceladus, tethys, dione, rhea, titan, iapetus, triton, charon; any moon in the moon lists is added by its id, and `listedMoons(planet)` names them with the data package each needs)"
    }
   },
   "addBody: repeated id": {
@@ -14934,7 +14970,7 @@
    "error": {
     "name": "SceneError",
     "code": "bad-body",
-    "message": "addBody(\"earth\"): labelReach 0 must be a positive finite number"
+    "message": "addBody(\"earth\"): labelReachEarthRadii 0 must be a positive finite number"
    }
   },
   "addBody: enlarge below 1": {
@@ -15105,7 +15141,7 @@
    "error": {
     "name": "SceneError",
     "code": "bad-trajectory",
-    "message": "addTrajectory(\"p\"): labelReach -1 must be a positive finite number"
+    "message": "addTrajectory(\"p\"): labelReachEarthRadii -1 must be a positive finite number"
    }
   },
   "addTrajectory: plane not known": {
@@ -15759,16 +15795,16 @@
    "stage": "call",
    "error": {
     "name": "SceneError",
-    "code": "bad-event",
-    "message": "addEvents: event \"a\" appears twice"
+    "code": "duplicate-id",
+    "message": "addEvents: event \"a\" is already in the scene's events"
    }
   },
   "addEvents: repeated across calls": {
    "stage": "call",
    "error": {
     "name": "SceneError",
-    "code": "bad-event",
-    "message": "addEvents: event \"a\" appears twice"
+    "code": "duplicate-id",
+    "message": "addEvents: event \"a\" is already in the scene's events"
    }
   },
   "addEvents: time not a moment": {
@@ -15843,48 +15879,48 @@
     "message": "addStoryPanels: story panel p4: at falls outside the timeline window"
    }
   },
-  "addStoryPanels: badge not one": {
-   "stage": "toDefinition",
+  "addStoryPanels: source type not one": {
+   "stage": "call",
    "error": {
     "name": "SceneError",
     "code": "bad-panels",
-    "message": "addStoryPanels: story panel p5: badge must be one of observed, modelled, illustrative, got \"guess\""
+    "message": "addStoryPanels: story panel p5: provenance.sourceType must be one of ephemeris, observed, reconstructed, modelled, illustrative, got \"guess\""
    }
   },
   "addStoryPanels: no sources": {
-   "stage": "toDefinition",
+   "stage": "call",
    "error": {
     "name": "SceneError",
     "code": "bad-panels",
-    "message": "addStoryPanels: story panel p6: sources must be one or more non-empty lines"
+    "message": "addStoryPanels: story panel p6: provenance.sources must be one or more non-empty lines"
    }
   },
   "addStoryPanels: repeated id": {
-   "stage": "toDefinition",
+   "stage": "call",
    "error": {
     "name": "SceneError",
-    "code": "bad-panels",
-    "message": "addStoryPanels: story panel p7: id is used twice"
+    "code": "duplicate-id",
+    "message": "addStoryPanels: story panel p7: that id is already in the scene's panels"
    }
   },
   "addStoryPanels: panels not a list": {
-   "stage": "toDefinition",
+   "stage": "call",
    "error": {
     "name": "SceneError",
     "code": "bad-panels",
-    "message": "addStoryPanels: story panel settings: panels must be a list"
+    "message": "addStoryPanels: give a list of panels"
    }
   },
-  "addStoryPanels: pauseSeconds out of range": {
-   "stage": "toDefinition",
+  "setStoryPanelPlayback: pauseSeconds out of range": {
+   "stage": "call",
    "error": {
     "name": "SceneError",
     "code": "bad-panels",
-    "message": "addStoryPanels: story panel settings: pauseSeconds must be between 0 and 20, got 99"
+    "message": "setStoryPanelPlayback: story panel settings: pauseSeconds must be between 0 and 20, got 99"
    }
   },
   "addStoryPanels: no body": {
-   "stage": "toDefinition",
+   "stage": "call",
    "error": {
     "name": "SceneError",
     "code": "bad-panels",
@@ -15892,7 +15928,12 @@
    }
   },
   "addStoryPanels: undefined": {
-   "stage": "none"
+   "stage": "call",
+   "error": {
+    "name": "SceneError",
+    "code": "bad-panels",
+    "message": "addStoryPanels: give a list of panels"
+   }
   },
   "setTimeline: not an object": {
    "stage": "call",
@@ -15963,7 +16004,7 @@
    "error": {
     "name": "SceneError",
     "code": "bad-timeline",
-    "message": "setTimeline: pacing must be a list of { from, to, rate } and { near: { type, within }, rate }"
+    "message": "setTimeline: pacing must be a list of { start, end, rate } and { near: { type, withinSeconds }, rate }"
    }
   },
   "setTimeline: pacing piece not an object": {
@@ -15987,7 +16028,7 @@
    "error": {
     "name": "SceneError",
     "code": "bad-timeline",
-    "message": "setTimeline: pacing[0].ramp must be zero or more seconds, got -1"
+    "message": "setTimeline: pacing[0].rampSeconds must be zero or more seconds, got -1"
    }
   },
   "setTimeline: pacing near without a type": {
@@ -16003,7 +16044,7 @@
    "error": {
     "name": "SceneError",
     "code": "bad-timeline",
-    "message": "setTimeline: pacing[0].near.within must be a positive number of seconds, got 0"
+    "message": "setTimeline: pacing[0].near.withinSeconds must be a positive number of seconds, got 0"
    }
   },
   "setTimeline: pacing piece without from and to": {
@@ -16011,7 +16052,7 @@
    "error": {
     "name": "SceneError",
     "code": "bad-timeline",
-    "message": "setTimeline: pacing[0] needs { from, to, rate } or { near: { type, within }, rate }"
+    "message": "setTimeline: pacing[0] needs { start, end, rate } or { near: { type, withinSeconds }, rate }"
    }
   },
   "setTimeline: pacing to before from": {
@@ -16019,7 +16060,7 @@
    "error": {
     "name": "SceneError",
     "code": "bad-timeline",
-    "message": "setTimeline: pacing[0].to must be after pacing[0].from"
+    "message": "setTimeline: pacing[0].end must be after pacing[0].start"
    }
   },
   "setTimeline: pacing spans overlapping": {
@@ -16150,7 +16191,7 @@
    "error": {
     "name": "SceneError",
     "code": "bad-view",
-    "message": "setViews: view \"a\" paths must be a list of non-empty ids"
+    "message": "setViews: view \"a\" objects must be a list of non-empty ids"
    }
   },
   "setViews: camera malformed": {
@@ -16182,7 +16223,7 @@
    "error": {
     "name": "SceneError",
     "code": "bad-view",
-    "message": "setViews: view \"a\" paths: \"ghost\" is not a path (addTrajectory) in the scene"
+    "message": "setViews: view \"a\" objects: \"ghost\" is not a body, group or path (addBody, addGroup, addTrajectory) in the scene"
    }
   },
   "setViews: body the scene lacks": {
@@ -16190,7 +16231,7 @@
    "error": {
     "name": "SceneError",
     "code": "bad-view",
-    "message": "setViews: view \"a\" bodies: \"ghost\" is not a body or group in the scene"
+    "message": "setViews: view \"a\" objects: \"ghost\" is not a body, group or path (addBody, addGroup, addTrajectory) in the scene"
    }
   },
   "setViews: event the scene lacks": {
@@ -16225,12 +16266,12 @@
     "message": "camera.follow(\"ghost\"): no body or trajectory with that id has been added to the scene"
    }
   },
-  "camera.lookAt: unknown id": {
+  "camera.focus: unknown id": {
    "stage": "call",
    "error": {
     "name": "SceneError",
     "code": "unknown-body",
-    "message": "camera.lookAt(\"ghost\"): no body or trajectory with that id has been added to the scene"
+    "message": "camera.focus(\"ghost\"): no body or trajectory with that id has been added to the scene"
    }
   },
   "camera.follow: up not known": {
@@ -16497,7 +16538,7 @@
    "error": {
     "name": "SceneError",
     "code": "unknown-body",
-    "message": "addBody(\"nope\"): not a catalogued body (known: sun, earth, moon, mercury, venus, mars, jupiter, io, europa, ganymede, callisto, saturn, uranus, neptune, pluto, phobos, deimos, mimas, enceladus, tethys, dione, rhea, titan, iapetus, triton, charon, swift-tuttle; any moon in the moon lists is added by its id, and `listedMoons(planet)` names them with the data package each needs)"
+    "message": "addBody(\"nope\"): not a catalogued body (known: sun, earth, moon, mercury, venus, mars, jupiter, io, europa, ganymede, callisto, saturn, uranus, neptune, pluto, phobos, deimos, mimas, enceladus, tethys, dione, rhea, titan, iapetus, triton, charon; any moon in the moon lists is added by its id, and `listedMoons(planet)` names them with the data package each needs)"
    }
   }
  },
@@ -17257,8 +17298,8 @@
      {
       "body": "sun",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": null,
+      "plane": "EQJ",
       "positionKm": [
        0,
        0,
@@ -17269,8 +17310,8 @@
      {
       "body": "sun",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": null,
+      "plane": "EQJ",
       "positionKm": [
        0,
        0,
@@ -17283,13 +17324,13 @@
      {
       "body": "venus",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": [
        0.0842728130541,
        -0.17917002528,
        0.906046294768,
        0.374000410104
       ],
+      "plane": "EQJ",
       "positionKm": [
        13298276.4981,
        -98168773.0103,
@@ -17300,13 +17341,13 @@
      {
       "body": "venus",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": [
        0.10122131759,
        -0.170170649185,
        0.865586497121,
        0.459952400823
       ],
+      "plane": "EQJ",
       "positionKm": [
        35221865.8882,
        -93106119.6721,
@@ -17319,13 +17360,13 @@
      {
       "body": "earth",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": [
        0.000963831925779,
        0.0008246614272,
        0.767879054914,
        0.640593590342
       ],
+      "plane": "EQJ",
       "positionKm": [
        -26074202.3504,
        132831361.249,
@@ -17336,13 +17377,13 @@
      {
       "body": "earth",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": [
        -0.000762363631048,
        0.00101605402938,
        -0.589761070181,
        0.807576786773
       ],
+      "plane": "EQJ",
       "positionKm": [
        -45094691.2914,
        128477152.32,
@@ -17355,13 +17396,13 @@
      {
       "body": "mars",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": [
        0.0913755728633,
        0.291568047443,
        -0.407799255612,
        0.860429163567
       ],
+      "plane": "EQJ",
       "positionKm": [
        50951753.8129,
        -188143590.173,
@@ -17372,13 +17413,13 @@
      {
       "body": "mars",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": [
        0.292580238757,
        0.0880811344869,
        0.483070540806,
        0.820537244884
       ],
+      "plane": "EQJ",
       "positionKm": [
        66632169.4864,
        -182822746.24,
@@ -17391,13 +17432,13 @@
      {
       "body": "jupiter",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": [
        0.183763021121,
        0.122285732041,
        -0.567584800743,
        0.793173906387
       ],
+      "plane": "EQJ",
       "positionKm": [
        -253420962.468,
        675468129.997,
@@ -17408,13 +17449,13 @@
      {
       "body": "jupiter",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": [
        0.217934412784,
        0.0350319576249,
        -0.187389284969,
        0.957163836315
       ],
+      "plane": "EQJ",
       "positionKm": [
        -261518528.813,
        673189014.248,
@@ -17656,13 +17697,13 @@
      {
       "body": "earth",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": [
        0.000963831925779,
        0.0008246614272,
        0.767879054914,
        0.640593590342
       ],
+      "plane": "EQJ",
       "positionKm": [
        -26074202.3504,
        132831361.249,
@@ -17673,13 +17714,13 @@
      {
       "body": "earth",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": [
        -0.000762363631048,
        0.00101605402938,
        -0.589761070181,
        0.807576786773
       ],
+      "plane": "EQJ",
       "positionKm": [
        -45094691.2914,
        128477152.32,
@@ -17692,13 +17733,13 @@
      {
       "body": "moon",
       "center": "earth",
-      "frame": "EQJ",
       "orientation": [
        0.102803910816,
        0.160778297425,
        -0.815182500134,
        0.546863041788
       ],
+      "plane": "EQJ",
       "positionKm": [
        144247.936302,
        289615.567533,
@@ -17709,13 +17750,13 @@
      {
       "body": "moon",
       "center": "earth",
-      "frame": "EQJ",
       "orientation": [
        0.188761902622,
        0.0269521078916,
        -0.115006949603,
        0.974892778485
       ],
+      "plane": "EQJ",
       "positionKm": [
        -385793.188889,
        45135.9620567,
@@ -17928,13 +17969,13 @@
      {
       "body": "earth",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": [
        0.000963831925779,
        0.0008246614272,
        0.767879054914,
        0.640593590342
       ],
+      "plane": "EQJ",
       "positionKm": [
        -26074202.3504,
        132831361.249,
@@ -17945,13 +17986,13 @@
      {
       "body": "earth",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": [
        -0.000762363631048,
        0.00101605402938,
        -0.589761070181,
        0.807576786773
       ],
+      "plane": "EQJ",
       "positionKm": [
        -45094691.2914,
        128477152.32,
@@ -17964,13 +18005,13 @@
      {
       "body": "moon",
       "center": "earth",
-      "frame": "EQJ",
       "orientation": [
        0.102803910816,
        0.160778297425,
        -0.815182500134,
        0.546863041788
       ],
+      "plane": "EQJ",
       "positionKm": [
        144247.936302,
        289615.567533,
@@ -17981,13 +18022,13 @@
      {
       "body": "moon",
       "center": "earth",
-      "frame": "EQJ",
       "orientation": [
        0.188761902622,
        0.0269521078916,
        -0.115006949603,
        0.974892778485
       ],
+      "plane": "EQJ",
       "positionKm": [
        -385793.188889,
        45135.9620567,
@@ -18287,13 +18328,13 @@
      {
       "body": "jupiter",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": [
        0.19682345891,
        0.0999201845977,
        -0.470761606423,
        0.854201377106
       ],
+      "plane": "EQJ",
       "positionKm": [
        -809894096.249,
        64337876.2624,
@@ -18304,13 +18345,13 @@
      {
       "body": "jupiter",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": [
        0.220539566231,
        0.00926364573525,
        -0.0739735656395,
        0.972524753505
       ],
+      "plane": "EQJ",
       "positionKm": [
        -810764172.022,
        56940774.2644,
@@ -18438,7 +18479,6 @@
       "iapetus",
       "triton",
       "charon",
-      "swift-tuttle",
       "miranda"
      ]
     },
@@ -18608,13 +18648,13 @@
      {
       "body": "uranus",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": [
        0.6475734109,
        -0.459926864191,
        0.234403660911,
        0.560509483277
       ],
+      "plane": "EQJ",
       "positionKm": [
        2791463315.07,
        985432652.275,
@@ -18625,13 +18665,13 @@
      {
       "body": "uranus",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": [
        0.571678449502,
        0.551423424678,
        -0.507536507157,
        0.333950072607
       ],
+      "plane": "EQJ",
       "positionKm": [
        2789862030.2,
        989006567.294,
@@ -18680,7 +18720,7 @@
     "|"
    ]
   },
-  "own body from elements, fitOrbit and an ecliptic lookAt": {
+  "own body from elements, fitOrbit and an ecliptic focus": {
    "seriesLoadedAtBuild": false,
    "definitionBeforePrepare": {
     "camera": {
@@ -18716,7 +18756,6 @@
       "iapetus",
       "triton",
       "charon",
-      "swift-tuttle",
       "made-up-comet"
      ]
     },
@@ -18918,7 +18957,6 @@
       "iapetus",
       "triton",
       "charon",
-      "swift-tuttle",
       "made-up-comet"
      ]
     },
@@ -19227,8 +19265,8 @@
      {
       "body": "sun",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": null,
+      "plane": "EQJ",
       "positionKm": [
        0,
        0,
@@ -19239,8 +19277,8 @@
      {
       "body": "sun",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": null,
+      "plane": "EQJ",
       "positionKm": [
        0,
        0,
@@ -19253,13 +19291,13 @@
      {
       "body": "earth",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": [
        0.000963831925779,
        0.0008246614272,
        0.767879054914,
        0.640593590342
       ],
+      "plane": "EQJ",
       "positionKm": [
        -26074202.3504,
        132831361.249,
@@ -19270,13 +19308,13 @@
      {
       "body": "earth",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": [
        -0.000762363631048,
        0.00101605402938,
        -0.589761070181,
        0.807576786773
       ],
+      "plane": "EQJ",
       "positionKm": [
        -45094691.2914,
        128477152.32,
@@ -19289,8 +19327,8 @@
      {
       "body": "made-up-comet",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": null,
+      "plane": "EQJ",
       "positionKm": [
        1266198637.23,
        -131009957.805,
@@ -19301,8 +19339,8 @@
      {
       "body": "made-up-comet",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": null,
+      "plane": "EQJ",
       "positionKm": [
        1265950858.94,
        -129165045.444,
@@ -19377,7 +19415,6 @@
       "iapetus",
       "triton",
       "charon",
-      "swift-tuttle",
       "made-up-comet"
      ]
     },
@@ -19635,8 +19672,8 @@
      {
       "body": "sun",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": null,
+      "plane": "EQJ",
       "positionKm": [
        0,
        0,
@@ -19647,8 +19684,8 @@
      {
       "body": "sun",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": null,
+      "plane": "EQJ",
       "positionKm": [
        0,
        0,
@@ -19661,13 +19698,13 @@
      {
       "body": "earth",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": [
        0.000963831925779,
        0.0008246614272,
        0.767879054914,
        0.640593590342
       ],
+      "plane": "EQJ",
       "positionKm": [
        -26074202.3504,
        132831361.249,
@@ -19678,13 +19715,13 @@
      {
       "body": "earth",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": [
        -0.000762363631048,
        0.00101605402938,
        -0.589761070181,
        0.807576786773
       ],
+      "plane": "EQJ",
       "positionKm": [
        -45094691.2914,
        128477152.32,
@@ -19697,8 +19734,8 @@
      {
       "body": "made-up-comet",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": null,
+      "plane": "EQJ",
       "positionKm": [
        1266198637.23,
        -131009957.805,
@@ -19709,8 +19746,8 @@
      {
       "body": "made-up-comet",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": null,
+      "plane": "EQJ",
       "positionKm": [
        1265950858.94,
        -129165045.444,
@@ -20046,8 +20083,8 @@
          {
           "body": "probe",
           "center": "earth",
-          "frame": "EQJ",
           "orientation": null,
+          "plane": "EQJ",
           "positionKm": [
            100000,
            0,
@@ -20063,8 +20100,8 @@
          {
           "body": "probe",
           "center": "earth",
-          "frame": "EQJ",
           "orientation": null,
+          "plane": "EQJ",
           "positionKm": [
            173920,
            17964.8414627,
@@ -20080,8 +20117,8 @@
          {
           "body": "probe",
           "center": "earth",
-          "frame": "EQJ",
           "orientation": null,
+          "plane": "EQJ",
           "positionKm": [
            250000,
            35929.6829254,
@@ -20142,8 +20179,8 @@
          {
           "body": "flyer",
           "center": "earth",
-          "frame": "EQJ",
           "orientation": null,
+          "plane": "EQJ",
           "positionKm": [
            120000000,
            16360758.0157,
@@ -20159,8 +20196,8 @@
          {
           "body": "flyer",
           "center": "earth",
-          "frame": "EQJ",
           "orientation": null,
+          "plane": "EQJ",
           "positionKm": [
            163200000,
            16360758.0157,
@@ -20176,8 +20213,8 @@
          {
           "body": "flyer",
           "center": "earth",
-          "frame": "EQJ",
           "orientation": null,
+          "plane": "EQJ",
           "positionKm": [
            206400000,
            16360758.0157,
@@ -20223,8 +20260,8 @@
          {
           "body": "plain-eqj",
           "center": "moon",
-          "frame": "EQJ",
           "orientation": null,
+          "plane": "EQJ",
           "positionKm": [
            200000,
            0,
@@ -20240,8 +20277,8 @@
          {
           "body": "plain-eqj",
           "center": "moon",
-          "frame": "EQJ",
           "orientation": null,
+          "plane": "EQJ",
           "positionKm": [
            288920,
            30000,
@@ -20257,8 +20294,8 @@
          {
           "body": "plain-eqj",
           "center": "moon",
-          "frame": "EQJ",
           "orientation": null,
+          "plane": "EQJ",
           "positionKm": [
            380000,
            60000,
@@ -20426,13 +20463,13 @@
      {
       "body": "earth",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": [
        0.000971192460881,
        0.000816504135896,
        0.773360386414,
        0.633965379837
       ],
+      "plane": "EQJ",
       "positionKm": [
        -28643723.9439,
        132383018.859,
@@ -20443,13 +20480,13 @@
      {
       "body": "earth",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": [
        -0.000762363631048,
        0.00101605402938,
        -0.589761070181,
        0.807576786773
       ],
+      "plane": "EQJ",
       "positionKm": [
        -45094691.2914,
        128477152.32,
@@ -20462,13 +20499,13 @@
      {
       "body": "moon",
       "center": "earth",
-      "frame": "EQJ",
       "orientation": [
        0.120527855611,
        0.147974365729,
        -0.747048925274,
        0.636784521134
       ],
+      "plane": "EQJ",
       "positionKm": [
        53747.3602446,
        313252.18002,
@@ -20479,13 +20516,13 @@
      {
       "body": "moon",
       "center": "earth",
-      "frame": "EQJ",
       "orientation": [
        0.188761902622,
        0.0269521078916,
        -0.115006949603,
        0.974892778485
       ],
+      "plane": "EQJ",
       "positionKm": [
        -385793.188889,
        45135.9620567,
@@ -20498,8 +20535,8 @@
      {
       "body": "probe",
       "center": "earth",
-      "frame": "EQJ",
       "orientation": null,
+      "plane": "EQJ",
       "positionKm": [
        130000,
        7185.93658509,
@@ -20524,8 +20561,8 @@
      {
       "body": "flyer",
       "center": "earth",
-      "frame": "EQJ",
       "orientation": null,
+      "plane": "EQJ",
       "positionKm": [
        128640000,
        16360758.0157,
@@ -20541,8 +20578,8 @@
      {
       "body": "flyer",
       "center": "earth",
-      "frame": "EQJ",
       "orientation": null,
+      "plane": "EQJ",
       "positionKm": [
        184800000,
        16360758.0157,
@@ -20560,8 +20597,8 @@
      {
       "body": "plain-eqj",
       "center": "moon",
-      "frame": "EQJ",
       "orientation": null,
+      "plane": "EQJ",
       "positionKm": [
        260000,
        20000,
@@ -20814,8 +20851,8 @@
          {
           "body": "early",
           "center": "sun",
-          "frame": "EQJ",
           "orientation": null,
+          "plane": "EQJ",
           "positionKm": [
            100000,
            0,
@@ -20831,8 +20868,8 @@
          {
           "body": "early",
           "center": "sun",
-          "frame": "EQJ",
           "orientation": null,
+          "plane": "EQJ",
           "positionKm": [
            160000,
            20000,
@@ -20848,8 +20885,8 @@
          {
           "body": "early",
           "center": "sun",
-          "frame": "EQJ",
           "orientation": null,
+          "plane": "EQJ",
           "positionKm": [
            220000,
            40000,
@@ -20933,8 +20970,8 @@
      {
       "body": "sun",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": null,
+      "plane": "EQJ",
       "positionKm": [
        0,
        0,
@@ -20945,8 +20982,8 @@
      {
       "body": "sun",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": null,
+      "plane": "EQJ",
       "positionKm": [
        0,
        0,
@@ -20959,13 +20996,13 @@
      {
       "body": "earth",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": [
        0.000963831925779,
        0.0008246614272,
        0.767879054914,
        0.640593590342
       ],
+      "plane": "EQJ",
       "positionKm": [
        -26074202.3504,
        132831361.249,
@@ -20976,13 +21013,13 @@
      {
       "body": "earth",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": [
        0.000985564376068,
        0.000800189159091,
        0.784151012666,
        0.620568753399
       ],
+      "plane": "EQJ",
       "positionKm": [
        -33755174.1641,
        131363615.156,
@@ -20995,8 +21032,8 @@
      {
       "body": "early",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": null,
+      "plane": "EQJ",
       "positionKm": [
        100000,
        0,
@@ -21012,8 +21049,8 @@
      {
       "body": "early",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": null,
+      "plane": "EQJ",
       "positionKm": [
        190000,
        30000,
@@ -21273,8 +21310,8 @@
          {
           "body": "early",
           "center": "moon",
-          "frame": "EQJ",
           "orientation": null,
+          "plane": "EQJ",
           "positionKm": [
            100000,
            0,
@@ -21290,8 +21327,8 @@
          {
           "body": "early",
           "center": "moon",
-          "frame": "EQJ",
           "orientation": null,
+          "plane": "EQJ",
           "positionKm": [
            160000,
            20000,
@@ -21307,8 +21344,8 @@
          {
           "body": "early",
           "center": "moon",
-          "frame": "EQJ",
           "orientation": null,
+          "plane": "EQJ",
           "positionKm": [
            220000,
            40000,
@@ -21434,8 +21471,8 @@
      {
       "body": "sun",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": null,
+      "plane": "EQJ",
       "positionKm": [
        0,
        0,
@@ -21446,8 +21483,8 @@
      {
       "body": "sun",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": null,
+      "plane": "EQJ",
       "positionKm": [
        0,
        0,
@@ -21460,13 +21497,13 @@
      {
       "body": "earth",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": [
        0.000963831925779,
        0.0008246614272,
        0.767879054914,
        0.640593590342
       ],
+      "plane": "EQJ",
       "positionKm": [
        -26074202.3504,
        132831361.249,
@@ -21477,13 +21514,13 @@
      {
       "body": "earth",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": [
        0.000985564376068,
        0.000800189159091,
        0.784151012666,
        0.620568753399
       ],
+      "plane": "EQJ",
       "positionKm": [
        -33755174.1641,
        131363615.156,
@@ -21496,13 +21533,13 @@
      {
       "body": "moon",
       "center": "earth",
-      "frame": "EQJ",
       "orientation": [
        0.102803910816,
        0.160778297425,
        -0.815182500134,
        0.546863041788
       ],
+      "plane": "EQJ",
       "positionKm": [
        144247.936302,
        289615.567533,
@@ -21513,13 +21550,13 @@
      {
       "body": "moon",
       "center": "earth",
-      "frame": "EQJ",
       "orientation": [
        0.150999749041,
        0.116709124009,
        -0.582211031829,
        0.790321688036
       ],
+      "plane": "EQJ",
       "positionKm": [
        -131803.421306,
        300923.240586,
@@ -21532,8 +21569,8 @@
      {
       "body": "early",
       "center": "moon",
-      "frame": "EQJ",
       "orientation": null,
+      "plane": "EQJ",
       "positionKm": [
        100000,
        0,
@@ -21549,8 +21586,8 @@
      {
       "body": "early",
       "center": "moon",
-      "frame": "EQJ",
       "orientation": null,
+      "plane": "EQJ",
       "positionKm": [
        190000,
        30000,
@@ -21845,8 +21882,8 @@
          {
           "body": "traveller",
           "center": "sun",
-          "frame": "EQJ",
           "orientation": null,
+          "plane": "EQJ",
           "positionKm": [
            149000000,
            0,
@@ -21857,8 +21894,8 @@
          {
           "body": "traveller",
           "center": "sun",
-          "frame": "EQJ",
           "orientation": null,
+          "plane": "EQJ",
           "positionKm": [
            369000000,
            129506820.305,
@@ -21869,8 +21906,8 @@
          {
           "body": "traveller",
           "center": "sun",
-          "frame": "EQJ",
           "orientation": null,
+          "plane": "EQJ",
           "positionKm": [
            589000000,
            259013640.609,
@@ -22136,8 +22173,8 @@
          {
           "body": "traveller",
           "center": "sun",
-          "frame": "EQJ",
           "orientation": null,
+          "plane": "EQJ",
           "positionKm": [
            149000000,
            0,
@@ -22148,8 +22185,8 @@
          {
           "body": "traveller",
           "center": "sun",
-          "frame": "EQJ",
           "orientation": null,
+          "plane": "EQJ",
           "positionKm": [
            369000000,
            129506820.305,
@@ -22160,8 +22197,8 @@
          {
           "body": "traveller",
           "center": "sun",
-          "frame": "EQJ",
           "orientation": null,
+          "plane": "EQJ",
           "positionKm": [
            589000000,
            259013640.609,
@@ -22343,8 +22380,8 @@
      {
       "body": "sun",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": null,
+      "plane": "EQJ",
       "positionKm": [
        0,
        0,
@@ -22355,8 +22392,8 @@
      {
       "body": "sun",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": null,
+      "plane": "EQJ",
       "positionKm": [
        0,
        0,
@@ -22369,13 +22406,13 @@
      {
       "body": "earth",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": [
        0.000978446384355,
        0.000808355388338,
        0.778784506075,
        0.627290269574
       ],
+      "plane": "EQJ",
       "positionKm": [
        -31204289.4054,
        131893719.445,
@@ -22386,13 +22423,13 @@
      {
       "body": "earth",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": [
        5.28059768235e-7,
        0.00128028557239,
        0.0143176983043,
        0.999896676854
       ],
+      "plane": "EQJ",
       "positionKm": [
        -148870296.367,
        -8341270.15219,
@@ -22405,13 +22442,13 @@
      {
       "body": "jupiter",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": [
        -0.0998465263406,
        -0.196858626617,
        0.884319864454,
        -0.411407012138
       ],
+      "plane": "EQJ",
       "positionKm": [
        -255583266.424,
        674868122.019,
@@ -22422,13 +22459,13 @@
      {
       "body": "jupiter",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": [
        0.123533675314,
        -0.182926375289,
        0.789292069413,
        0.572970681143
       ],
+      "plane": "EQJ",
       "positionKm": [
        -340658577.296,
        646115981.637,
@@ -22441,8 +22478,8 @@
      {
       "body": "traveller",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": null,
+      "plane": "EQJ",
       "positionKm": [
        157000000,
        4709338.92017,
@@ -22453,8 +22490,8 @@
      {
       "body": "traveller",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": null,
+      "plane": "EQJ",
       "positionKm": [
        479000000,
        194260230.457,
@@ -22692,8 +22729,8 @@
          {
           "body": "far",
           "center": "sun",
-          "frame": "EQJ",
           "orientation": null,
+          "plane": "EQJ",
           "positionKm": [
            0,
            0,
@@ -22704,8 +22741,8 @@
          {
           "body": "far",
           "center": "sun",
-          "frame": "EQJ",
           "orientation": null,
+          "plane": "EQJ",
           "positionKm": [
            500000000000,
            0,
@@ -22716,8 +22753,8 @@
          {
           "body": "far",
           "center": "sun",
-          "frame": "EQJ",
           "orientation": null,
+          "plane": "EQJ",
           "positionKm": [
            1000000000000,
            0,
@@ -22796,8 +22833,8 @@
      {
       "body": "sun",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": null,
+      "plane": "EQJ",
       "positionKm": [
        0,
        0,
@@ -22808,8 +22845,8 @@
      {
       "body": "sun",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": null,
+      "plane": "EQJ",
       "positionKm": [
        0,
        0,
@@ -22822,13 +22859,13 @@
      {
       "body": "earth",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": [
        0.000963831925779,
        0.0008246614272,
        0.767879054914,
        0.640593590342
       ],
+      "plane": "EQJ",
       "positionKm": [
        -26074202.3504,
        132831361.249,
@@ -22839,13 +22876,13 @@
      {
       "body": "earth",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": [
        -0.00107613087835,
        0.000710192838482,
        -0.828208476352,
        0.560418644647
       ],
+      "plane": "EQJ",
       "positionKm": [
        -53815995.8084,
        -130085559.791,
@@ -22858,8 +22895,8 @@
      {
       "body": "far",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": null,
+      "plane": "EQJ",
       "positionKm": [
        0,
        0,
@@ -22870,8 +22907,8 @@
      {
       "body": "far",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": null,
+      "plane": "EQJ",
       "positionKm": [
        750000000000,
        0,
@@ -23093,29 +23130,37 @@
       "autoOpen": true,
       "panels": [
        {
-        "badge": "illustrative",
         "body": [
          "Made up."
         ],
         "details": [],
         "id": "p1",
         "objectId": "ring",
-        "sources": [
-         "Invented"
-        ],
+        "provenance": {
+         "accuracy": "None claimed.",
+         "notes": "Made up.",
+         "sourceType": "illustrative",
+         "sources": [
+          "Invented"
+         ]
+        },
         "timeUtcMs": 1767484800000,
         "title": "Panel p1"
        },
        {
-        "badge": "illustrative",
         "body": [
          "Made up."
         ],
         "details": [],
         "id": "p2",
-        "sources": [
-         "Invented"
-        ],
+        "provenance": {
+         "accuracy": "None claimed.",
+         "notes": "Made up.",
+         "sourceType": "illustrative",
+         "sources": [
+          "Invented"
+         ]
+        },
         "timeUtcMs": 1768089600000,
         "title": "Panel p2"
        }
@@ -23415,29 +23460,37 @@
       "autoOpen": true,
       "panels": [
        {
-        "badge": "illustrative",
         "body": [
          "Made up."
         ],
         "details": [],
         "id": "p1",
         "objectId": "ring",
-        "sources": [
-         "Invented"
-        ],
+        "provenance": {
+         "accuracy": "None claimed.",
+         "notes": "Made up.",
+         "sourceType": "illustrative",
+         "sources": [
+          "Invented"
+         ]
+        },
         "timeUtcMs": 1767484800000,
         "title": "Panel p1"
        },
        {
-        "badge": "illustrative",
         "body": [
          "Made up."
         ],
         "details": [],
         "id": "p2",
-        "sources": [
-         "Invented"
-        ],
+        "provenance": {
+         "accuracy": "None claimed.",
+         "notes": "Made up.",
+         "sourceType": "illustrative",
+         "sources": [
+          "Invented"
+         ]
+        },
         "timeUtcMs": 1768089600000,
         "title": "Panel p2"
        }
@@ -23743,8 +23796,8 @@
      {
       "body": "sun",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": null,
+      "plane": "EQJ",
       "positionKm": [
        0,
        0,
@@ -23755,8 +23808,8 @@
      {
       "body": "sun",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": null,
+      "plane": "EQJ",
       "positionKm": [
        0,
        0,
@@ -23769,13 +23822,13 @@
      {
       "body": "earth",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": [
        0.000999375812739,
        0.00078365526405,
        0.794709602948,
        0.606988495866
       ],
+      "plane": "EQJ",
       "positionKm": [
        -38824991.0883,
        130181579.885,
@@ -23786,13 +23839,13 @@
      {
       "body": "earth",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": [
        0.00106425237784,
        0.000695632737852,
        0.843915110697,
        0.5364752272
       ],
+      "plane": "EQJ",
       "positionKm": [
        -63337658.489,
        121879544.474,
@@ -23805,13 +23858,13 @@
      {
       "body": "jupiter",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": [
        0.210744133684,
        0.0656472167612,
        -0.321510618069,
        0.9208193501
       ],
+      "plane": "EQJ",
       "positionKm": [
        -258822708.917,
        673957527.561,
@@ -23822,13 +23875,13 @@
      {
       "body": "jupiter",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": [
        0.212829173476,
        -0.0585353515917,
        0.226577946688,
        0.948651563856
       ],
+      "plane": "EQJ",
       "positionKm": [
        -269585375.745,
        670830802.517,
@@ -24243,13 +24296,13 @@
      {
       "body": "earth",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": [
        0.000963831925779,
        0.0008246614272,
        0.767879054914,
        0.640593590342
       ],
+      "plane": "EQJ",
       "positionKm": [
        -26074202.3504,
        132831361.249,
@@ -24260,13 +24313,13 @@
      {
       "body": "earth",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": [
        0.00106425237784,
        0.000695632737852,
        0.843915110697,
        0.5364752272
       ],
+      "plane": "EQJ",
       "positionKm": [
        -63337658.489,
        121879544.474,
@@ -24279,13 +24332,13 @@
      {
       "body": "moon",
       "center": "earth",
-      "frame": "EQJ",
       "orientation": [
        0.102803910816,
        0.160778297425,
        -0.815182500134,
        0.546863041788
       ],
+      "plane": "EQJ",
       "positionKm": [
        144247.936302,
        289615.567533,
@@ -24296,13 +24349,13 @@
      {
       "body": "moon",
       "center": "earth",
-      "frame": "EQJ",
       "orientation": [
        0.142870651802,
        -0.125736162225,
        0.665584061335,
        0.721648288059
       ],
+      "plane": "EQJ",
       "positionKm": [
        -44018.5455035,
        -352392.606315,
@@ -24530,13 +24583,13 @@
      {
       "body": "earth",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": [
        0.00100610515524,
        0.000775228551736,
        0.79990090548,
        0.60013075924
       ],
+      "plane": "EQJ",
       "positionKm": [
        -41342446.2503,
        129529943.13,
@@ -24547,13 +24600,13 @@
      {
       "body": "earth",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": [
        0.00118004471602,
        -0.000482627364585,
        0.920312446543,
        -0.391182023237
       ],
+      "plane": "EQJ",
       "positionKm": [
        -108039819.493,
        92156059.4721,
@@ -24759,7 +24812,6 @@
       "autoOpen": false,
       "panels": [
        {
-        "badge": "illustrative",
         "body": [
          "Made up."
         ],
@@ -24767,36 +24819,49 @@
          "More."
         ],
         "id": "by-utc",
-        "sources": [
-         "Invented"
-        ],
+        "provenance": {
+         "accuracy": "None claimed.",
+         "notes": "Made up.",
+         "sourceType": "illustrative",
+         "sources": [
+          "Invented"
+         ]
+        },
         "timeUtcMs": 1767312000000,
         "title": "Panel by-utc"
        },
        {
-        "badge": "illustrative",
         "body": [
          "Made up."
         ],
         "details": [],
         "id": "by-event",
         "objectId": "probe",
-        "sources": [
-         "Invented"
-        ],
+        "provenance": {
+         "accuracy": "None claimed.",
+         "notes": "Made up.",
+         "sourceType": "illustrative",
+         "sources": [
+          "Invented"
+         ]
+        },
         "timeUtcMs": 1767398400000,
         "title": "Panel by-event"
        },
        {
-        "badge": "illustrative",
         "body": [
          "Made up."
         ],
         "details": [],
         "id": "by-anchor",
-        "sources": [
-         "Invented"
-        ],
+        "provenance": {
+         "accuracy": "None claimed.",
+         "notes": "Made up.",
+         "sourceType": "illustrative",
+         "sources": [
+          "Invented"
+         ]
+        },
         "timeUtcMs": 1767398400000,
         "title": "Panel by-anchor"
        }
@@ -24853,8 +24918,8 @@
          {
           "body": "probe",
           "center": "earth",
-          "frame": "EQJ",
           "orientation": null,
+          "plane": "EQJ",
           "positionKm": [
            100000,
            0,
@@ -24870,8 +24935,8 @@
          {
           "body": "probe",
           "center": "earth",
-          "frame": "EQJ",
           "orientation": null,
+          "plane": "EQJ",
           "positionKm": [
            173920,
            25000,
@@ -24887,8 +24952,8 @@
          {
           "body": "probe",
           "center": "earth",
-          "frame": "EQJ",
           "orientation": null,
+          "plane": "EQJ",
           "positionKm": [
            250000,
            50000,
@@ -24972,13 +25037,13 @@
      {
       "body": "earth",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": [
        0.000963831925779,
        0.0008246614272,
        0.767879054914,
        0.640593590342
       ],
+      "plane": "EQJ",
       "positionKm": [
        -26074202.3504,
        132831361.249,
@@ -24989,13 +25054,13 @@
      {
       "body": "earth",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": [
        0.000139142245146,
        0.00126207077679,
        0.122075185987,
        0.992520043517
       ],
+      "plane": "EQJ",
       "positionKm": [
        -35661548.3826,
        130939347.53,
@@ -25008,13 +25073,13 @@
      {
       "body": "moon",
       "center": "earth",
-      "frame": "EQJ",
       "orientation": [
        0.102803910816,
        0.160778297425,
        -0.815182500134,
        0.546863041788
       ],
+      "plane": "EQJ",
       "positionKm": [
        144247.936302,
        289615.567533,
@@ -25025,13 +25090,13 @@
      {
       "body": "moon",
       "center": "earth",
-      "frame": "EQJ",
       "orientation": [
        0.160453979918,
        0.103304021741,
        -0.511969060287,
        0.837538345827
       ],
+      "plane": "EQJ",
       "positionKm": [
        -195411.471361,
        276585.218172,
@@ -25044,8 +25109,8 @@
      {
       "body": "probe",
       "center": "earth",
-      "frame": "EQJ",
       "orientation": null,
+      "plane": "EQJ",
       "positionKm": [
        100000,
        0,
@@ -25061,8 +25126,8 @@
      {
       "body": "probe",
       "center": "earth",
-      "frame": "EQJ",
       "orientation": null,
+      "plane": "EQJ",
       "positionKm": [
        203567.5,
        34387.5,
@@ -25377,13 +25442,13 @@
      {
       "body": "earth",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": [
        0.000971192460881,
        0.000816504135896,
        0.773360386414,
        0.633965379837
       ],
+      "plane": "EQJ",
       "positionKm": [
        -28643723.9439,
        132383018.859,
@@ -25394,13 +25459,13 @@
      {
       "body": "earth",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": [
        -0.000762363631048,
        0.00101605402938,
        -0.589761070181,
        0.807576786773
       ],
+      "plane": "EQJ",
       "positionKm": [
        -45094691.2914,
        128477152.32,
@@ -25413,13 +25478,13 @@
      {
       "body": "moon",
       "center": "earth",
-      "frame": "EQJ",
       "orientation": [
        0.120527855611,
        0.147974365729,
        -0.747048925274,
        0.636784521134
       ],
+      "plane": "EQJ",
       "positionKm": [
        53747.3602446,
        313252.18002,
@@ -25430,13 +25495,13 @@
      {
       "body": "moon",
       "center": "earth",
-      "frame": "EQJ",
       "orientation": [
        0.188761902622,
        0.0269521078916,
        -0.115006949603,
        0.974892778485
       ],
+      "plane": "EQJ",
       "positionKm": [
        -385793.188889,
        45135.9620567,
@@ -25571,13 +25636,13 @@
      {
       "body": "earth",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": [
        0.000985564376068,
        0.000800189159091,
        0.784151012666,
        0.620568753399
       ],
+      "plane": "EQJ",
       "positionKm": [
        -33755174.1641,
        131363615.156,
@@ -25588,13 +25653,13 @@
      {
       "body": "earth",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": [
        -0.000735978483234,
        0.00103564160069,
        -0.568728937819,
        0.822524030694
       ],
+      "plane": "EQJ",
       "positionKm": [
        -52503452.5312,
        126102589.742,
@@ -25720,13 +25785,13 @@
      {
       "body": "earth",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": [
        0.000963831925779,
        0.0008246614272,
        0.767879054914,
        0.640593590342
       ],
+      "plane": "EQJ",
       "positionKm": [
        -26074202.3504,
        132831361.249,
@@ -25737,13 +25802,13 @@
      {
       "body": "earth",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": [
        -0.000762363631048,
        0.00101605402938,
        -0.589761070181,
        0.807576786773
       ],
+      "plane": "EQJ",
       "positionKm": [
        -45094691.2914,
        128477152.32,
@@ -25948,13 +26013,13 @@
      {
       "body": "earth",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": [
        0.000849365687053,
        0.000974013021862,
        0.665533141025,
        0.746367180464
       ],
+      "plane": "EQJ",
       "positionKm": [
        -15760866.5198,
        -138667103.809,
@@ -25965,13 +26030,13 @@
      {
       "body": "earth",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": [
        -0.000918484088085,
        0.000911026224807,
        -0.701912228924,
        0.712262275644
       ],
+      "plane": "EQJ",
       "positionKm": [
        3204692.42055,
        -139461415.377,
@@ -25984,13 +26049,13 @@
      {
       "body": "moon",
       "center": "earth",
-      "frame": "EQJ",
       "orientation": [
        0.129219841746,
        0.141543671541,
        -0.703289936538,
        0.684580810942
       ],
+      "plane": "EQJ",
       "positionKm": [
        3250.74220505,
        315896.763669,
@@ -26001,13 +26066,13 @@
      {
       "body": "moon",
       "center": "earth",
-      "frame": "EQJ",
       "orientation": [
        0.191406665405,
        -0.00557013467057,
        0.0623365667057,
        0.979513458044
       ],
+      "plane": "EQJ",
       "positionKm": [
        -381863.105627,
        -77176.2280244,
@@ -26186,8 +26251,8 @@
          {
           "body": "probe",
           "center": "earth",
-          "frame": "EQJ",
           "orientation": null,
+          "plane": "EQJ",
           "positionKm": [
            100000,
            0,
@@ -26203,8 +26268,8 @@
          {
           "body": "probe",
           "center": "earth",
-          "frame": "EQJ",
           "orientation": null,
+          "plane": "EQJ",
           "positionKm": [
            143920,
            15000,
@@ -26220,8 +26285,8 @@
          {
           "body": "probe",
           "center": "earth",
-          "frame": "EQJ",
           "orientation": null,
+          "plane": "EQJ",
           "positionKm": [
            190000,
            30000,
@@ -26261,13 +26326,13 @@
      {
       "body": "earth",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": [
        0.000963831925779,
        0.0008246614272,
        0.767879054914,
        0.640593590342
       ],
+      "plane": "EQJ",
       "positionKm": [
        -26074202.3504,
        132831361.249,
@@ -26278,13 +26343,13 @@
      {
       "body": "earth",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": [
        0.00126328601439,
        -0.000122981796459,
        0.994012367472,
        -0.109260250302
       ],
+      "plane": "EQJ",
       "positionKm": [
        -31842946.4387,
        131765013.004,
@@ -26297,8 +26362,8 @@
      {
       "body": "probe",
       "center": "earth",
-      "frame": "EQJ",
       "orientation": null,
+      "plane": "EQJ",
       "positionKm": [
        100000,
        0,
@@ -26314,8 +26379,8 @@
      {
       "body": "probe",
       "center": "earth",
-      "frame": "EQJ",
       "orientation": null,
+      "plane": "EQJ",
       "positionKm": [
        174002.5,
        25612.5,
@@ -26551,13 +26616,13 @@
      {
       "body": "earth",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": [
        0.000963831925779,
        0.0008246614272,
        0.767879054914,
        0.640593590342
       ],
+      "plane": "EQJ",
       "positionKm": [
        -26074202.3504,
        132831361.249,
@@ -26568,13 +26633,13 @@
      {
       "body": "earth",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": [
        -0.000762363631048,
        0.00101605402938,
        -0.589761070181,
        0.807576786773
       ],
+      "plane": "EQJ",
       "positionKm": [
        -45094691.2914,
        128477152.32,
@@ -26587,13 +26652,13 @@
      {
       "body": "moon",
       "center": "earth",
-      "frame": "EQJ",
       "orientation": [
        0.102803910816,
        0.160778297425,
        -0.815182500134,
        0.546863041788
       ],
+      "plane": "EQJ",
       "positionKm": [
        144247.936302,
        289615.567533,
@@ -26604,13 +26669,13 @@
      {
       "body": "moon",
       "center": "earth",
-      "frame": "EQJ",
       "orientation": [
        0.188761902622,
        0.0269521078916,
        -0.115006949603,
        0.974892778485
       ],
+      "plane": "EQJ",
       "positionKm": [
        -385793.188889,
        45135.9620567,
@@ -26833,28 +26898,36 @@
       "autoOpen": true,
       "panels": [
        {
-        "badge": "illustrative",
         "body": [
          "Made up."
         ],
         "details": [],
         "id": "pa",
-        "sources": [
-         "Invented"
-        ],
+        "provenance": {
+         "accuracy": "None claimed.",
+         "notes": "Made up.",
+         "sourceType": "illustrative",
+         "sources": [
+          "Invented"
+         ]
+        },
         "timeUtcMs": 1767312000000,
         "title": "Panel pa"
        },
        {
-        "badge": "illustrative",
         "body": [
          "Made up."
         ],
         "details": [],
         "id": "pb",
-        "sources": [
-         "Invented"
-        ],
+        "provenance": {
+         "accuracy": "None claimed.",
+         "notes": "Made up.",
+         "sourceType": "illustrative",
+         "sources": [
+          "Invented"
+         ]
+        },
         "timeUtcMs": 1767398400000,
         "title": "Panel pb"
        }
@@ -26911,8 +26984,8 @@
          {
           "body": "a",
           "center": "earth",
-          "frame": "EQJ",
           "orientation": null,
+          "plane": "EQJ",
           "positionKm": [
            100000,
            0,
@@ -26928,8 +27001,8 @@
          {
           "body": "a",
           "center": "earth",
-          "frame": "EQJ",
           "orientation": null,
+          "plane": "EQJ",
           "positionKm": [
            160000,
            20000,
@@ -26945,8 +27018,8 @@
          {
           "body": "a",
           "center": "earth",
-          "frame": "EQJ",
           "orientation": null,
+          "plane": "EQJ",
           "positionKm": [
            220000,
            40000,
@@ -26993,8 +27066,8 @@
          {
           "body": "b",
           "center": "earth",
-          "frame": "EQJ",
           "orientation": null,
+          "plane": "EQJ",
           "positionKm": [
            200000,
            0,
@@ -27010,8 +27083,8 @@
          {
           "body": "b",
           "center": "earth",
-          "frame": "EQJ",
           "orientation": null,
+          "plane": "EQJ",
           "positionKm": [
            320000,
            40000,
@@ -27027,8 +27100,8 @@
          {
           "body": "b",
           "center": "earth",
-          "frame": "EQJ",
           "orientation": null,
+          "plane": "EQJ",
           "positionKm": [
            440000,
            80000,
@@ -27229,13 +27302,13 @@
      {
       "body": "earth",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": [
        0.000963831925779,
        0.0008246614272,
        0.767879054914,
        0.640593590342
       ],
+      "plane": "EQJ",
       "positionKm": [
        -26074202.3504,
        132831361.249,
@@ -27246,13 +27319,13 @@
      {
       "body": "earth",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": [
        0.000985564376068,
        0.000800189159091,
        0.784151012666,
        0.620568753399
       ],
+      "plane": "EQJ",
       "positionKm": [
        -33755174.1641,
        131363615.156,
@@ -27265,13 +27338,13 @@
      {
       "body": "moon",
       "center": "earth",
-      "frame": "EQJ",
       "orientation": [
        0.102803910816,
        0.160778297425,
        -0.815182500134,
        0.546863041788
       ],
+      "plane": "EQJ",
       "positionKm": [
        144247.936302,
        289615.567533,
@@ -27282,13 +27355,13 @@
      {
       "body": "moon",
       "center": "earth",
-      "frame": "EQJ",
       "orientation": [
        0.150999749041,
        0.116709124009,
        -0.582211031829,
        0.790321688036
       ],
+      "plane": "EQJ",
       "positionKm": [
        -131803.421306,
        300923.240586,
@@ -27301,8 +27374,8 @@
      {
       "body": "a",
       "center": "earth",
-      "frame": "EQJ",
       "orientation": null,
+      "plane": "EQJ",
       "positionKm": [
        100000,
        0,
@@ -27318,8 +27391,8 @@
      {
       "body": "a",
       "center": "earth",
-      "frame": "EQJ",
       "orientation": null,
+      "plane": "EQJ",
       "positionKm": [
        190000,
        30000,
@@ -27337,8 +27410,8 @@
      {
       "body": "b",
       "center": "earth",
-      "frame": "EQJ",
       "orientation": null,
+      "plane": "EQJ",
       "positionKm": [
        200000,
        0,
@@ -27354,8 +27427,8 @@
      {
       "body": "b",
       "center": "earth",
-      "frame": "EQJ",
       "orientation": null,
+      "plane": "EQJ",
       "positionKm": [
        380000,
        60000,
@@ -27409,7 +27482,7 @@
     "|"
    ]
   },
-  "camera: follow then lookAt, setReach then fitOrbit, ecliptic up": {
+  "camera: follow then focus, setReach then fitOrbit, ecliptic up": {
    "seriesLoadedAtBuild": false,
    "definitionBeforePrepare": {
     "camera": {
@@ -27842,8 +27915,8 @@
      {
       "body": "sun",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": null,
+      "plane": "EQJ",
       "positionKm": [
        0,
        0,
@@ -27854,8 +27927,8 @@
      {
       "body": "sun",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": null,
+      "plane": "EQJ",
       "positionKm": [
        0,
        0,
@@ -27868,13 +27941,13 @@
      {
       "body": "earth",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": [
        0.000963831925779,
        0.0008246614272,
        0.767879054914,
        0.640593590342
       ],
+      "plane": "EQJ",
       "positionKm": [
        -26074202.3504,
        132831361.249,
@@ -27885,13 +27958,13 @@
      {
       "body": "earth",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": [
        -0.000762363631048,
        0.00101605402938,
        -0.589761070181,
        0.807576786773
       ],
+      "plane": "EQJ",
       "positionKm": [
        -45094691.2914,
        128477152.32,
@@ -27904,13 +27977,13 @@
      {
       "body": "mars",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": [
        0.0913755728633,
        0.291568047443,
        -0.407799255612,
        0.860429163567
       ],
+      "plane": "EQJ",
       "positionKm": [
        50951753.8129,
        -188143590.173,
@@ -27921,13 +27994,13 @@
      {
       "body": "mars",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": [
        0.292580238757,
        0.0880811344869,
        0.483070540806,
        0.820537244884
       ],
+      "plane": "EQJ",
       "positionKm": [
        66632169.4864,
        -182822746.24,
@@ -28159,13 +28232,13 @@
      {
       "body": "earth",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": [
        0.000963831925779,
        0.0008246614272,
        0.767879054914,
        0.640593590342
       ],
+      "plane": "EQJ",
       "positionKm": [
        -26074202.3504,
        132831361.249,
@@ -28176,13 +28249,13 @@
      {
       "body": "earth",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": [
        -0.000762363631048,
        0.00101605402938,
        -0.589761070181,
        0.807576786773
       ],
+      "plane": "EQJ",
       "positionKm": [
        -45094691.2914,
        128477152.32,
@@ -28195,13 +28268,13 @@
      {
       "body": "moon",
       "center": "earth",
-      "frame": "EQJ",
       "orientation": [
        0.102803910816,
        0.160778297425,
        -0.815182500134,
        0.546863041788
       ],
+      "plane": "EQJ",
       "positionKm": [
        144247.936302,
        289615.567533,
@@ -28212,13 +28285,13 @@
      {
       "body": "moon",
       "center": "earth",
-      "frame": "EQJ",
       "orientation": [
        0.188761902622,
        0.0269521078916,
        -0.115006949603,
        0.974892778485
       ],
+      "plane": "EQJ",
       "positionKm": [
        -385793.188889,
        45135.9620567,
@@ -28555,8 +28628,8 @@
          {
           "body": "probe",
           "center": "sun",
-          "frame": "EQJ",
           "orientation": null,
+          "plane": "EQJ",
           "positionKm": [
            -15644521.4102,
            79698816.7496,
@@ -28567,8 +28640,8 @@
          {
           "body": "probe",
           "center": "sun",
-          "frame": "EQJ",
           "orientation": null,
+          "plane": "EQJ",
           "positionKm": [
            47775215.2352,
            -73314212.5263,
@@ -28579,8 +28652,8 @@
          {
           "body": "probe",
           "center": "sun",
-          "frame": "EQJ",
           "orientation": null,
+          "plane": "EQJ",
           "positionKm": [
            111194951.881,
            -226327241.802,
@@ -29004,8 +29077,8 @@
          {
           "body": "probe",
           "center": "sun",
-          "frame": "EQJ",
           "orientation": null,
+          "plane": "EQJ",
           "positionKm": [
            -15644521.4102,
            79698816.7496,
@@ -29016,8 +29089,8 @@
          {
           "body": "probe",
           "center": "sun",
-          "frame": "EQJ",
           "orientation": null,
+          "plane": "EQJ",
           "positionKm": [
            47775215.2352,
            -73314212.5263,
@@ -29028,8 +29101,8 @@
          {
           "body": "probe",
           "center": "sun",
-          "frame": "EQJ",
           "orientation": null,
+          "plane": "EQJ",
           "positionKm": [
            111194951.881,
            -226327241.802,
@@ -29393,41 +29466,53 @@
       "autoOpen": true,
       "panels": [
        {
-        "badge": "illustrative",
         "body": [
          "A made-up line."
         ],
         "details": [],
         "id": "panel-a",
-        "sources": [
-         "Made up for the views test"
-        ],
+        "provenance": {
+         "accuracy": "None claimed.",
+         "notes": "A circle about Earth, not a real flight.",
+         "sourceType": "illustrative",
+         "sources": [
+          "Made up for the views test; not a real spacecraft"
+         ]
+        },
         "timeUtcMs": 1767261600000,
         "title": "About probe A"
        },
        {
-        "badge": "illustrative",
         "body": [
          "A made-up line."
         ],
         "details": [],
         "id": "panel-b",
-        "sources": [
-         "Made up for the views test"
-        ],
+        "provenance": {
+         "accuracy": "None claimed.",
+         "notes": "A circle about Earth, not a real flight.",
+         "sourceType": "illustrative",
+         "sources": [
+          "Made up for the views test; not a real spacecraft"
+         ]
+        },
         "timeUtcMs": 1767279600000,
         "title": "About probe B"
        },
        {
-        "badge": "illustrative",
         "body": [
          "A made-up line."
         ],
         "details": [],
         "id": "panel-shared",
-        "sources": [
-         "Made up for the views test"
-        ],
+        "provenance": {
+         "accuracy": "None claimed.",
+         "notes": "A circle about Earth, not a real flight.",
+         "sourceType": "illustrative",
+         "sources": [
+          "Made up for the views test; not a real spacecraft"
+         ]
+        },
         "timeUtcMs": 1767297600000,
         "title": "About both"
        }
@@ -29509,8 +29594,8 @@
          {
           "body": "probe-a",
           "center": "earth",
-          "frame": "EQJ",
           "orientation": null,
+          "plane": "EQJ",
           "positionKm": [
            40000,
            0,
@@ -29521,8 +29606,8 @@
          {
           "body": "probe-a",
           "center": "earth",
-          "frame": "EQJ",
           "orientation": null,
+          "plane": "EQJ",
           "positionKm": [
            40000,
            -1.95943487864e-11,
@@ -29533,8 +29618,8 @@
          {
           "body": "probe-a",
           "center": "earth",
-          "frame": "EQJ",
           "orientation": null,
+          "plane": "EQJ",
           "positionKm": [
            40000,
            -3.91886975727e-11,
@@ -29583,8 +29668,8 @@
          {
           "body": "probe-b",
           "center": "earth",
-          "frame": "EQJ",
           "orientation": null,
+          "plane": "EQJ",
           "positionKm": [
            70000,
            0,
@@ -29595,8 +29680,8 @@
          {
           "body": "probe-b",
           "center": "earth",
-          "frame": "EQJ",
           "orientation": null,
+          "plane": "EQJ",
           "positionKm": [
            -35000,
            49658.4535941,
@@ -29607,8 +29692,8 @@
          {
           "body": "probe-b",
           "center": "earth",
-          "frame": "EQJ",
           "orientation": null,
+          "plane": "EQJ",
           "positionKm": [
            -35000,
            -49658.4535941,
@@ -29924,13 +30009,13 @@
      {
       "body": "earth",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": [
        0.000971192460881,
        0.000816504135896,
        0.773360386414,
        0.633965379837
       ],
+      "plane": "EQJ",
       "positionKm": [
        -28643723.9439,
        132383018.859,
@@ -29941,13 +30026,13 @@
      {
       "body": "earth",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": [
        -0.000762363631048,
        0.00101605402938,
        -0.589761070181,
        0.807576786773
       ],
+      "plane": "EQJ",
       "positionKm": [
        -45094691.2914,
        128477152.32,
@@ -29960,13 +30045,13 @@
      {
       "body": "moon",
       "center": "earth",
-      "frame": "EQJ",
       "orientation": [
        0.120527855611,
        0.147974365729,
        -0.747048925274,
        0.636784521134
       ],
+      "plane": "EQJ",
       "positionKm": [
        53747.3602446,
        313252.18002,
@@ -29977,13 +30062,13 @@
      {
       "body": "moon",
       "center": "earth",
-      "frame": "EQJ",
       "orientation": [
        0.188761902622,
        0.0269521078916,
        -0.115006949603,
        0.974892778485
       ],
+      "plane": "EQJ",
       "positionKm": [
        -385793.188889,
        45135.9620567,
@@ -30207,8 +30292,8 @@
          {
           "body": "bump",
           "center": "sun",
-          "frame": "EQJ",
           "orientation": null,
+          "plane": "EQJ",
           "positionKm": [
            150000000,
            0,
@@ -30224,8 +30309,8 @@
          {
           "body": "bump",
           "center": "sun",
-          "frame": "EQJ",
           "orientation": null,
+          "plane": "EQJ",
           "positionKm": [
            150000000,
            0,
@@ -30241,8 +30326,8 @@
          {
           "body": "bump",
           "center": "sun",
-          "frame": "EQJ",
           "orientation": null,
+          "plane": "EQJ",
           "positionKm": [
            150000000,
            0,
@@ -30326,8 +30411,8 @@
      {
       "body": "sun",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": null,
+      "plane": "EQJ",
       "positionKm": [
        0,
        0,
@@ -30338,8 +30423,8 @@
      {
       "body": "sun",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": null,
+      "plane": "EQJ",
       "positionKm": [
        0,
        0,
@@ -30352,13 +30437,13 @@
      {
       "body": "earth",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": [
        0.000999375812739,
        0.00078365526405,
        0.794709602948,
        0.606988495866
       ],
+      "plane": "EQJ",
       "positionKm": [
        -38824991.0883,
        130181579.885,
@@ -30369,13 +30454,13 @@
      {
       "body": "earth",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": [
        -0.000762363631048,
        0.00101605402938,
        -0.589761070181,
        0.807576786773
       ],
+      "plane": "EQJ",
       "positionKm": [
        -45094691.2914,
        128477152.32,
@@ -30388,8 +30473,8 @@
      {
       "body": "bump",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": null,
+      "plane": "EQJ",
       "positionKm": [
        150000000,
        0,
@@ -30405,8 +30490,8 @@
      {
       "body": "bump",
       "center": "sun",
-      "frame": "EQJ",
       "orientation": null,
+      "plane": "EQJ",
       "positionKm": [
        150000000,
        0,

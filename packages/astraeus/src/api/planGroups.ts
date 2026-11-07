@@ -5,7 +5,8 @@ import type { ExperienceDefinition, GroupLayer } from "../app/experienceDefiniti
 import type { Metric } from "../shell/metrics";
 import { planActivity, rateMetricOf, type ActivityInput, type PlannedActivity } from "./activity";
 import { SceneError } from "./errors";
-import { frozenList, type SceneGroupRead } from "./sceneReads";
+import { frozenCopy } from "./frozenCopy";
+import { frozenList, type SceneActivityRead, type SceneGroupRead } from "./sceneReads";
 import { buildGroupLayer, groupCardProvenance, groupDescription, groupLimitations, planGroup, type GroupInput, type PlannedGroup } from "./group";
 
 /** Whether a group is built late, in `prepare`: a clump near a body reads its position, so needs the planet series, which are not in yet. */
@@ -60,6 +61,21 @@ export class GroupPlan {
     return [...this.groups.values()].filter(which).map((plan) => buildGroupLayer(plan, this.#catalogue(), plan.input.center ?? ids[0]!, openUtcMs, window));
   }
 
+  /** The activities in the order added, as the public list states them: fresh, frozen, nothing shared with the plan. */
+  activityReads(): readonly SceneActivityRead[] {
+    return frozenList([...this.activities.values()].map(({ window, peakValue, peakLabel }): SceneActivityRead => ({
+      id: window.id,
+      label: window.label,
+      unit: window.rate?.unit ?? "",
+      windowStartUtcMs: window.startUtcMs,
+      windowEndUtcMs: window.endUtcMs,
+      peak: Object.freeze({ label: peakLabel, value: peakValue, ...(window.peakUtcMs === undefined ? {} : { timeUtcMs: window.peakUtcMs }) }),
+      samples: frozenCopy((window.rate?.samples ?? []).map(({ timeUtcMs, value }) => ({ timeUtcMs, value }))),
+      ...(window.provenance === undefined ? {} : { provenance: frozenCopy(window.provenance.map(({ startUtcMs, endUtcMs, provenance }) => ({ stretchStartUtcMs: startUtcMs, stretchEndUtcMs: endUtcMs, provenance }))) }),
+      ...(window.type === undefined ? {} : { type: window.type }),
+    })));
+  }
+
   /** The groups in the order added, as the public list states them; `first` is the scene's first body (the centre of a group that names none). */
   reads(first: BodyId): readonly SceneGroupRead[] {
     return frozenList([...this.groups.values()].map(({ id, label, input }): SceneGroupRead => ({
@@ -67,7 +83,7 @@ export class GroupPlan {
       label,
       count: input.orbits.length,
       center: input.center ?? first,
-      plane: input.plane ?? "ecliptic-j2000",
+      plane: input.plane,
       provenance: groupCardProvenance(input),
       description: groupDescription(input, input.orbits.length),
       knownLimitations: Object.freeze(groupLimitations(input, this.#catalogue())),

@@ -21,7 +21,7 @@ const sha = async (file: string): Promise<string> => {
   return createHash("sha256").update(readFileSync(`packages/${file.includes("8k") ? "astraeus-data/src" : "astraeus/src/assets"}/textures/${file}`)).digest("hex") as string;
 };
 // The 8k file ships in astraeus-data and reaches a viewer through its pictures (T-252); the look names it.
-const desktop = { ...PICTURES["venus-8k"]!, minViewportWidth: 768 };
+const desktop = { ...PICTURES["venus-8k"]!, minViewportWidthPx: 768 };
 const WITH_8K = { ...VENUS_TEXTURE, desktop };
 
 afterEach(() => vi.unstubAllGlobals());
@@ -31,7 +31,7 @@ describe("Venus Magellan map (I-054)", () => {
     for (const width of [320, 375, 414, 600, 767]) expect(textureUrlFor(WITH_8K, width)).toBe(VENUS_TEXTURE.url);
     for (const width of [768, 1024, 1920]) expect(textureUrlFor(WITH_8K, width)).toBe(desktop.url);
     expect(VENUS_TEXTURE.url).not.toBe(desktop.url);
-    expect(desktop.minViewportWidth).toBe(768);
+    expect(desktop.minViewportWidthPx).toBe(768);
     expect((await shippedPackage()).textures.find((t) => t.src.includes("8k"))?.minViewportWidth).toBe(768);
   });
 

@@ -5,6 +5,7 @@ import { catalogue } from "../src/assets/catalogue";
 import { createOrbAstronomyAdapter } from "../src/core/astronomyAdapter";
 import { sunCentredOf, cameraReachOf } from "../src/app/experienceDefinition";
 import { sunOrbitLayer } from "../src/api/sunOrbit";
+import { definitionOf } from "../src/api/definitionOf";
 
 const AU_KM = 149_597_870.7;
 const YEAR_MS = 365.25 * 86_400_000;
@@ -21,7 +22,7 @@ describe("orbit line and fitOrbit for the outer planets", () => {
     for (const iso of ["1980-01-01T00:00:00Z", "2030-01-01T00:00:00Z"]) {
       it(`${id} opened ${iso.slice(0, 4)}: draws one turn and fits the view to about a(1+e)`, () => {
         const scene = sceneAt(id, iso);
-        const definition = scene.toDefinition();
+        const definition = definitionOf(scene);
         const [path] = sunCentredOf(definition).paths;
         expect(path!.object.id).toBe(`${id}-orbit`);
         const span = path!.span as { startUtcMs: number; endUtcMs: number };
@@ -50,7 +51,7 @@ describe("orbit line and fitOrbit for the outer planets", () => {
 
   it("the farthest distance is worked out once in setup, so a bad framing never repeats per frame", () => {
     const scene = sceneAt("neptune", "2030-01-01T00:00:00Z");
-    const read = cameraReachOf(scene.toDefinition()).fitOrbit!.farthestKm;
+    const read = cameraReachOf(definitionOf(scene)).fitOrbit!.farthestKm;
     expect(read()).toBe(read());
   });
 });

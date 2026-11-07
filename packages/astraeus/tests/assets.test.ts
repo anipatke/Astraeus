@@ -22,7 +22,7 @@ const binding = (body: string): StateSourceBinding => ({ body, create: () => { t
 
 describe("body catalogue", () => {
   it("builds from the built-in records and hands the resolver exactly its inputs", () => {
-    expect(catalogue.ids()).toEqual(["sun", "earth", "moon", "mercury", "venus", "mars", "jupiter", "io", "europa", "ganymede", "callisto", "saturn", "uranus", "neptune", "pluto", "phobos", "deimos", "mimas", "enceladus", "tethys", "dione", "rhea", "titan", "iapetus", "triton", "charon", "swift-tuttle"]);
+    expect(catalogue.ids()).toEqual(["sun", "earth", "moon", "mercury", "venus", "mars", "jupiter", "io", "europa", "ganymede", "callisto", "saturn", "uranus", "neptune", "pluto", "phobos", "deimos", "mimas", "enceladus", "tethys", "dione", "rhea", "titan", "iapetus", "triton", "charon"]);
     expect(catalogue.definitions()).toEqual(BUILT_IN_BODIES);
     expect(catalogue.sources()).toEqual(BUILT_IN_BINDINGS);
     expect(catalogue.get("sun").source).toBeUndefined();
@@ -112,5 +112,40 @@ describe("BodyView plan", () => {
 
   it("keeps the core definitions free of appearance", () => {
     for (const definition of [SUN, EARTH, MOON]) expect(Object.keys(definition)).not.toContain("visual");
+  });
+});
+
+describe("the catalogue holds only the Sun, planets, dwarf planets and moons (O-057 T-279)", () => {
+  const PLANETS_AND_DWARFS = ["earth", "mercury", "venus", "mars", "jupiter", "saturn", "uranus", "neptune", "pluto"];
+  type Kind = "sun" | "planet" | "dwarf-planet" | "moon";
+  /** The kind of a catalogue body, or null when it is not one the catalogue may hold: a comet, a probe or a story body is added to a scene, never built in. */
+  function kindOf(definition: CelestialBodyDefinition): Kind | null {
+    const hasGravity = (definition.gmKm3S2 ?? 0) > 0;
+    if (definition.parentId === undefined) return definition.id === "sun" && hasGravity ? "sun" : null;
+    if (!hasGravity) return null;
+    if (definition.parentId === "sun") {
+      if (!PLANETS_AND_DWARFS.includes(definition.id)) return null;
+      return definition.id === "pluto" ? "dwarf-planet" : "planet";
+    }
+    return PLANETS_AND_DWARFS.includes(definition.parentId) && definition.orientation !== "none" ? "moon" : null;
+  }
+  const intruders = (definitions: readonly CelestialBodyDefinition[]) => definitions.filter((definition) => kindOf(definition) === null).map((definition) => definition.id);
+
+  it("has no body that is not the Sun, a planet, a dwarf planet or a moon", () => {
+    expect(intruders(catalogue.definitions())).toEqual([]);
+    expect(new Set(catalogue.definitions().map(kindOf))).toEqual(new Set(["sun", "planet", "dwarf-planet", "moon"]));
+  });
+
+  it("fails on a planted comet, probe or story body (planted-case proof)", () => {
+    const planted = [
+      fake("a-comet", { parentId: "sun", orientation: "none" }),
+      fake("a-comet-with-gm", { parentId: "sun", orientation: "none", gmKm3S2: 1 }),
+      fake("an-asteroid", { parentId: "sun", orientation: "iau-rotation", gmKm3S2: 1 }),
+      fake("a-probe", { parentId: "earth", orientation: "none" }),
+      fake("a-probe-with-gm", { parentId: "earth", orientation: "none", gmKm3S2: 1 }),
+      fake("a-story-body", { parentId: "a-comet", orientation: "iau-rotation", gmKm3S2: 1 }),
+      fake("sun-twin", { orientation: "none", gmKm3S2: 1 }),
+    ];
+    expect(intruders([...catalogue.definitions(), ...planted])).toEqual(planted.map((definition) => definition.id));
   });
 });

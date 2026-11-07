@@ -1,10 +1,12 @@
 // O-059 repair of I-143 (API-04): every `Scene` call that takes an object keeps its own copy of it. One row per call, each input alone, on made-up data (ARCH-03):
 // editing the caller's object after the call changes nothing the scene reads, checks or builds, and one object given to two scenes keeps them apart.
 import { describe, expect, it } from "vitest";
-import { Scene, SceneCamera, earth, moon, solarSystemScale, sun } from "astraeus";
+import { Scene, earth, moon, solarSystemScale, sun } from "astraeus";
 import { catalogue } from "../src/assets/catalogue";
 import { createOrbAstronomyAdapter } from "../src/core/astronomyAdapter";
 import { createStateResolver } from "../src/core/stateResolver";
+import { SceneCamera } from "../src/api/planCamera";
+import { definitionOf, missingDataOf } from "../src/api/definitionOf";
 
 const T0 = Date.parse("2026-03-01T00:00:00Z");
 const MIN = 60_000;
@@ -20,18 +22,18 @@ const record = () => ({
   id: "rock", label: "Rock",
   elements: { semiMajorAxisAu: 2.5, eccentricity: 0.3, inclinationDeg: 10, ascendingNodeDeg: 40, argumentOfPerihelionDeg: 70, meanAnomalyDeg: 20 },
   epoch: { jd: 2461000.5, timeScale: "TDB" as const, ttMinusUtcSeconds: 69.184 },
-  frame: "ecliptic-j2000" as const,
+  plane: "ecliptic-j2000" as const,
   source: { name: "Made up", url: "https://example.org/rock", solution: "S1", accessed: "2026-10-28" },
-  accuracy: { classification: "indicative" as const, statement: "Made up.", validFromUtc: "2020-01-01T00:00:00Z", validToUtc: "2030-01-01T00:00:00Z", limitations: [] },
+  accuracy: { classification: "indicative" as const, statement: "Made up.", valid: { start: "2020-01-01T00:00:00Z", end: "2030-01-01T00:00:00Z" }, limitations: [] },
   marker: { color: "#aabbcc", sizePx: 6 },
 });
-const panel = (id: string, at: object) => ({ id, at, title: `Panel ${id}`, body: ["A line."], details: ["A figure."], badge: "modelled" as const, sources: ["Source"] });
+const panel = (id: string, at: object) => ({ id, at, title: `Panel ${id}`, body: ["A line."], details: ["A figure."], provenance: { sourceType: "modelled" as const, sources: ["Source"], accuracy: "None claimed.", notes: "Made up." } });
 
 /** The scene every row starts from; `center` bodies and a path so the inputs below have something to name. */
 const base = () => new Scene().setTime(T0).addBody(sun).addBody(earth).addBody(moon).addTrajectory({ id: "probe", center: "earth", samples: samples(), anchors: [{ id: "fix-a", time: T0 + 10 * MIN }] }).addEvents([{ id: "ev", label: "Event", time: T0 + 20 * MIN }]);
 /** Every option `addBody` and `addBodyFromElements` take, each with a value, so the walk edits all of them (the lap form of `orbit` has its own row). */
 const allBodyOptions = () => ({
-  orbit: true, enlarge: 2, showLabel: false, labelReach: 900, description: "A line.", color: "#9fd8ff", knownLimitations: ["A made-up limit."], listed: true, labelPriority: 40,
+  orbit: true, enlarge: 2, showLabel: false, labelReachEarthRadii: 900, description: "A line.", color: "#9fd8ff", knownLimitations: ["A made-up limit."], listed: true, labelPriority: 40,
   readouts: [{ kind: "range" }, { kind: "distance", to: "sun" }], facts: [{ label: "Found", value: "1610" }], sources: ["A made-up source"],
 });
 const cameraView = () => ({ azimuthDeg: 10, elevationDeg: 20, distance: 30, up: "ecliptic" as const });
@@ -43,7 +45,7 @@ const ROWS: readonly Row[] = [
   { name: "addBody (lap orbit option)", scene: () => new Scene().setTime(T0).addBody(sun).addBody(earth), input: () => ({ orbit: { lapDays: 27, fades: true } }), apply: (s, o) => s.addBody(moon, o) },
   { name: "addBodyFromElements (record, options)", scene: () => new Scene().setTime(T0).addBody(sun), input: () => ({ record: record(), options: allBodyOptions() }), apply: (s, i: { record: never; options: never }) => s.addBodyFromElements(i.record, i.options) },
   { name: "addTrajectory", scene: () => new Scene().setTime(T0).addBody(earth), input: () => ({ id: "track", label: "Track", center: "earth", samples: samples(), provenance: prov(), anchors: [{ id: "a1", time: T0 + 10 * MIN }] }), apply: (s, i) => s.addTrajectory(i) },
-  { name: "addGroup", scene: () => base(), input: () => ({ id: "ring", label: "Ring", orbits: [0, 1, 2].map(orbit), provenance: prov(), clump: { near: "earth", fraction: 0.5, widthDeg: 20 } }), apply: (s, i) => s.addGroup(i) },
+  { name: "addGroup", scene: () => base(), input: () => ({ id: "ring", label: "Ring", plane: "ecliptic-j2000" as const, orbits: [0, 1, 2].map(orbit), provenance: prov(), clump: { near: "earth", fraction: 0.5, widthDeg: 20 } }), apply: (s, i) => s.addGroup(i) },
   { name: "addBodySet", scene: () => base(), input: swarm, apply: (s, i) => s.addBodySet(i) },
   { name: "setMoonPanel", scene: withSwarm, input: () => ({ label: "Tarn", families: [{ id: "big", label: "Big", description: "One.", moons: [{ id: "moon" }] }, { id: "small", label: "Small", description: "Three.", moons: [{ id: "bit-0" }, { id: "bit-1" }] }], featuredFamily: "big", listSource: "A made-up list", listDate: "2026-10-18" }), apply: (s, i) => s.setMoonPanel(i) },
   { name: "setPicker", scene: () => base(), input: () => ({ id: "world", label: "World", options: [{ value: "a", label: "A" }, { value: "b", label: "B" }], value: "a" }), apply: (s, i) => s.setPicker(i) },
@@ -54,12 +56,13 @@ const ROWS: readonly Row[] = [
   { name: "setLook", scene: () => base(), input: () => ({ starBrightness: 1.4, markerSwapRadiusPx: 5, loadFadeSeconds: 1 }), apply: (s, i) => s.setLook(i) },
   { name: "setBodyReadouts", scene: () => base(), input: () => ["distance", "phase"], apply: (s, i) => s.setBodyReadouts(i) },
   { name: "addEvents (events, options)", scene: () => base(), input: () => ({ events: [{ id: "e1", label: "E1", time: T0 + 5 * MIN, type: "burn", object: "probe" }], options: { provenance: prov() } }), apply: (s, i: { events: never; options: never }) => s.addEvents(i.events, i.options) },
-  { name: "addStoryPanels", scene: () => base(), input: () => ({ pauseSeconds: 3, panels: [panel("by-event", { event: "ev" }), panel("by-anchor", { anchor: "fix-a" })] }), apply: (s, i) => s.addStoryPanels(i) },
+  { name: "addStoryPanels", scene: () => base(), input: () => [panel("by-event", { event: "ev" }), panel("by-anchor", { anchor: "fix-a" }), panel("by-time", { time: new Date(T0 + 5 * MIN) })], apply: (s, i) => s.addStoryPanels(i) },
+  { name: "setStoryPanelPlayback", scene: () => base().addStoryPanels([panel("by-event", { event: "ev" }) as never]), input: () => ({ pauseSeconds: 3, autoOpen: false }), apply: (s, i) => s.setStoryPanelPlayback(i) },
   { name: "setTimeline", scene: () => base(), input: () => ({ start: T0, end: T0 + 60 * MIN, rates: [10, 100], rate: 100, loop: true }), apply: (s, i) => s.setTimeline(i) },
   { name: "setSwitches", scene: () => base(), input: () => ({ orbitLines: { place: "top-bar" }, labels: { place: "panel", on: false } }), apply: (s, i) => s.setSwitches(i) },
-  { name: "setViews (views, options)", scene: () => base(), input: () => ({ views: [{ id: "a", label: "A", paths: ["probe"] }, { id: "all", label: "All" }], options: { place: "panel", start: "all" } }), apply: (s, i: { views: never; options: never }) => s.setViews(i.views, i.options) },
+  { name: "setViews (views, options)", scene: () => base(), input: () => ({ views: [{ id: "a", label: "A", objects: ["probe"] }, { id: "all", label: "All" }], options: { place: "panel", start: "all" } }), apply: (s, i: { views: never; options: never }) => s.setViews(i.views, i.options) },
   { name: "camera.follow", scene: () => base(), input: cameraView, apply: (s, i) => { s.camera.follow("earth", i); return s; } },
-  { name: "camera.lookAt", scene: () => base(), input: cameraView, apply: (s, i) => { s.camera.lookAt("earth", i); return s; } },
+  { name: "camera.focus", scene: () => base(), input: cameraView, apply: (s, i) => { s.camera.focus("earth", i); return s; } },
   { name: "camera.setStartView", scene: () => base(), input: () => ({ focus: "earth", azimuthDeg: 20, elevationDeg: 30, distance: 40 }), apply: (s, i) => { s.camera.setStartView(i); return s; } },
   { name: "camera.setFollowChoices", scene: () => base(), input: () => ["earth", { id: "moon" }], apply: (s, i) => { s.camera.setFollowChoices(i); return s; } },
   { name: "camera.setReach (distance, options)", scene: () => base(), input: () => ({ distance: 800, options: { farEarthRadii: 2000 } }), apply: (s, i: { distance: number; options: never }) => { s.camera.setReach(i.distance, i.options); return s; } },
@@ -139,12 +142,12 @@ function observe(scene: Scene): Record<string, string> {
     }
     return item;
   });
-  const reads = { bodies: scene.bodies, paths: scene.paths, groups: scene.groups, bodySets: scene.bodySets, moonPanel: scene.moonPanel, places: scene.places, events: scene.events, panels: scene.panels, views: scene.views, scales: scene.scales, timeline: scene.timeline, picker: scene.picker, camera: { target: scene.camera.target, following: scene.camera.following, view: scene.camera.view, pose: scene.camera.pose, followChoices: scene.camera.followChoices, reach: scene.camera.reach, far: scene.camera.farEarthRadii, fitted: scene.camera.fitted } };
+  const reads = { bodies: scene.bodies, paths: scene.paths, groups: scene.groups, bodySets: scene.bodySets, moonPanel: scene.moonPanel, places: scene.places, events: scene.events, panels: scene.panels, views: scene.views, scales: scene.scales, timeline: scene.timeline, picker: scene.picker, camera: { target: scene.camera.target, following: scene.camera.following, view: scene.camera.view, pose: scene.camera.pose, followChoices: scene.camera.followChoices, reach: scene.camera.reachEarthRadii, far: scene.camera.farEarthRadii, fitted: scene.camera.fitted } };
   const attempt = (build: () => unknown): string => { try { return text(build()); } catch (error) { return `error ${(error as { code?: string }).code ?? String(error)}`; } };
-  const definitionOf = (): unknown => { const { catalogue: _catalogue, ...rest } = scene.toDefinition() as unknown as Record<string, unknown>; return rest; };
+  const definitionRest = (): unknown => { const { catalogue: _catalogue, ...rest } = definitionOf(scene) as unknown as Record<string, unknown>; return rest; };
   const resolver = createStateResolver(catalogue.definitions(), catalogue.sources(), createOrbAstronomyAdapter());
-  const rows = (): unknown => { const metrics = (scene.toDefinition() as unknown as { createMetrics: (r: unknown) => (id: string, t: number) => unknown }).createMetrics({ resolver, catalogue, clock: undefined as never }); return ["sun", "earth", "moon", "rock", "probe", "bit-0", "ring", "swarm"].map((id) => { try { return [id, metrics(id, T0 + 5 * MIN)]; } catch (error) { return [id, `error ${(error as { code?: string }).code ?? String(error)}`]; } }); };
-  return { metrics: attempt(rows), reads: attempt(() => reads), check: attempt(() => scene.check()), definition: attempt(definitionOf), probeState: attempt(() => scene.stateOf("probe", T0 + 5 * MIN)), rockState: attempt(() => scene.stateOf("rock", T0)) };
+  const rows = (): unknown => { const metrics = (definitionOf(scene) as unknown as { createMetrics: (r: unknown) => (id: string, t: number) => unknown }).createMetrics({ resolver, catalogue, clock: undefined as never }); return ["sun", "earth", "moon", "rock", "probe", "bit-0", "ring", "swarm"].map((id) => { try { return [id, metrics(id, T0 + 5 * MIN)]; } catch (error) { return [id, `error ${(error as { code?: string }).code ?? String(error)}`]; } }); };
+  return { metrics: attempt(rows), reads: attempt(() => reads), check: attempt(() => scene.check()), definition: attempt(definitionRest), probeState: attempt(() => scene.stateOf("probe", T0 + 5 * MIN)), rockState: attempt(() => scene.stateOf("rock", T0)) };
 }
 
 /** The names of the parts of two observations that differ; empty when the scene is unchanged. */
@@ -161,12 +164,10 @@ const KEEPS_NOTHING: Readonly<Record<"scene" | "camera", Readonly<Record<string,
     provenanceOf: "a read: takes an id text",
     load: "builds the definition for this call from the data sources it is given and keeps none of them",
     check: "builds the definition for this call from the data sources it is given and keeps none of them",
-    missingData: "a read: compares the data sources it is given with the names the scene needs and returns new texts",
-    toDefinition: "builds a fresh definition per call from the data sources it is given; the scene stores none of them",
   },
   camera: {},
 };
-const MUTATOR = /^(add|set|follow|lookAt|fitOrbit)/;
+const MUTATOR = /^(add|set|follow|focus|fitOrbit)/;
 
 describe("every object-taking call is covered by the walk (API-04)", () => {
   it.each([["scene", Scene.prototype], ["camera", SceneCamera.prototype]] as const)("every public %s call has a row or is named as keeping nothing", (owner, proto) => {
@@ -187,11 +188,14 @@ describe("every object-taking call is covered by the walk (API-04)", () => {
 });
 
 describe("the calls named as keeping nothing really keep nothing", () => {
-  it.each(["load", "check", "missingData", "toDefinition"] as const)("%s: editing the data sources afterwards changes nothing the scene reads or builds", async (call) => {
+  // `missingData` and `toDefinition` are no longer on the scene; the engine's own routes to the same work (definitionOf, missingDataOf) keep the same promise.
+  it.each(["load", "check", "missingDataOf", "definitionOf"] as const)("%s: editing the data sources afterwards changes nothing the scene reads or builds", async (call) => {
     const scene = base();
     const data = [{ name: "made-up", provides: ["earth"] }];
-    const argument = call === "load" || call === "check" ? { data } : data;
-    await (scene[call] as (a: unknown) => unknown)(argument);
+    if (call === "load") await scene.load({ data });
+    else if (call === "check") scene.check({ data });
+    else if (call === "missingDataOf") missingDataOf(scene, data);
+    else definitionOf(scene, data);
     const before = observe(scene);
     scribble(data);
     expect(changed(before, observe(scene))).toEqual([]);

@@ -1,5 +1,6 @@
 // Saturn's system for the planets experience: its moon list, fitted positions, mapped pictures and tagged places. The words and numbers
 // of the view are data/planets/saturn.json; this file only names where Saturn's data is.
+import type { MoonIndex } from "astraeus";
 import type { PlanetSystem } from "../planetScene";
 import { chunkUrlsOf, moonListOf, moonPositionsOf, ORBIT_HISTORY_MS, packagesOf } from "../planetSystemParts";
 
@@ -7,7 +8,7 @@ import { chunkUrlsOf, moonListOf, moonPositionsOf, ORBIT_HISTORY_MS, packagesOf 
 const LISTS = import.meta.glob("../../../../../astraeus-data-saturn/data/saturn-moons/list.json", { eager: true, import: "default" }) as Record<string, unknown>;
 const FIT_ERRORS = import.meta.glob("../../../../../astraeus-data-saturn/data/saturn-moons/fit-errors.json", { eager: true, import: "default" }) as Record<string, Record<string, number>>;
 /** The index ships in astraeus-data-saturn; a lazy glob keeps it its own chunk (it is read only when the system loads). */
-const INDEX = import.meta.glob("../../../../../astraeus-data-saturn/data/saturn-moons/index.json", { import: "default" }) as Record<string, () => Promise<unknown>>;
+const INDEX = import.meta.glob("../../../../../astraeus-data-saturn/data/saturn-moons/index.json", { import: "default" }) as Record<string, () => Promise<MoonIndex>>;
 
 /** The tagged places of the mapped moons: each body package's features and categories, read as they are stored. */
 const PACKAGES = import.meta.glob("../../../../../astraeus-data/data/bodies/{saturn,mimas,enceladus,tethys,dione,rhea,titan,iapetus}/{features,categories,map}.json", { eager: true, import: "default" }) as Record<string, unknown>;
@@ -30,5 +31,5 @@ export const saturnSystem: PlanetSystem = {
   fitErrorsM: Object.values(FIT_ERRORS)[0],
   orbitHistoryMs: ORBIT_HISTORY_MS,
   packages: packagesOf(PACKAGES, ["saturn", "mimas", "enceladus", "tethys", "dione", "rhea", "titan", "iapetus"]),
-  data: [moonPositionsOf({ name: "astraeus-data-saturn", centre: "saturn", provides: ["mimas", "enceladus", "tethys", "dione", "rhea", "titan", "iapetus"], loadIndex: Object.values(INDEX)[0]!, chunkUrls: SATURN_CHUNK_URLS })],
+  data: [moonPositionsOf({ name: "astraeus-data-saturn", center: "saturn", provides: ["mimas", "enceladus", "tethys", "dione", "rhea", "titan", "iapetus"], loadIndex: Object.values(INDEX)[0]!, chunkUrls: SATURN_CHUNK_URLS })],
 };

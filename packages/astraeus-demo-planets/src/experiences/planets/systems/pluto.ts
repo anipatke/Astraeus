@@ -1,5 +1,6 @@
 // Pluto's system for the planets experience: its moon list, fitted positions, mapped pictures and tagged places. The words and numbers
 // of the view are data/planets/pluto.json; this file only names where Pluto's data is.
+import type { MoonIndex } from "astraeus";
 import type { PlanetSystem } from "../planetScene";
 import { chunkUrlsOf, moonListOf, moonPositionsOf, packagesOf } from "../planetSystemParts";
 
@@ -7,7 +8,7 @@ import { chunkUrlsOf, moonListOf, moonPositionsOf, packagesOf } from "../planetS
 const LISTS = import.meta.glob("../../../../../astraeus-data-pluto/data/pluto-moons/list.json", { eager: true, import: "default" }) as Record<string, unknown>;
 const FIT_ERRORS = import.meta.glob("../../../../../astraeus-data-pluto/data/pluto-moons/fit-errors.json", { eager: true, import: "default" }) as Record<string, Record<string, number>>;
 /** The index ships in astraeus-data-pluto; a lazy glob keeps it its own chunk (it is read only when the system loads). */
-const INDEX = import.meta.glob("../../../../../astraeus-data-pluto/data/pluto-moons/index.json", { import: "default" }) as Record<string, () => Promise<unknown>>;
+const INDEX = import.meta.glob("../../../../../astraeus-data-pluto/data/pluto-moons/index.json", { import: "default" }) as Record<string, () => Promise<MoonIndex>>;
 
 /** The tagged places of the mapped moons: each body package's features and categories, read as they are stored. */
 const PACKAGES = import.meta.glob("../../../../../astraeus-data/data/bodies/{pluto,charon}/{features,categories}.json", { eager: true, import: "default" }) as Record<string, unknown>;
@@ -25,5 +26,5 @@ export const plutoSystem: PlanetSystem = {
   moonList: MOON_LIST,
   fitErrorsM: Object.values(FIT_ERRORS)[0],
   packages: packagesOf(PACKAGES, ["pluto", "charon"]),
-  data: [moonPositionsOf({ name: "astraeus-data-pluto", centre: "pluto", provides: ["charon"], loadIndex: Object.values(INDEX)[0]!, chunkUrls: PLUTO_CHUNK_URLS })],
+  data: [moonPositionsOf({ name: "astraeus-data-pluto", center: "pluto", provides: ["charon"], loadIndex: Object.values(INDEX)[0]!, chunkUrls: PLUTO_CHUNK_URLS })],
 };

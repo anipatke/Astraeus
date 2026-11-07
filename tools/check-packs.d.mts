@@ -5,3 +5,5 @@ export function extensionlessImports(dir: string): string[];
 export function strayFiles(paths: readonly string[], sourceDir: string, publishFiles: readonly string[]): string[];
 export function enginePeerRange(version: string): string;
 export const REACT_PEER_RANGE: string;
+export function ringFactProblems(dir: string): string[];
+export function pastTheEntry(source: string): string[];

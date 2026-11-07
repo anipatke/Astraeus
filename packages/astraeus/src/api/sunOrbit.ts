@@ -1,6 +1,6 @@
 import type { BodyId } from "../core/body";
 import { createOrbAstronomyAdapter } from "../core/astronomyAdapter";
-import { BUILT_IN_SAMPLING, EARTH_EPHEMERIS } from "../core/bodies";
+import { EARTH_EPHEMERIS } from "../core/bodies";
 import { fillKeplerRangeKm, keplerElementsFromStates, type KeplerElements } from "../core/keplerElements";
 import { createState, EQJ } from "../core/state";
 import { TimeScaleOutOfRangeError } from "../core/timeScale";
@@ -80,23 +80,20 @@ function ellipseSource(id: BodyId, elements: KeplerElements): Trajectory {
     stateAt(timeUtcMs: number) {
       const out = new Float64Array(3);
       fillKeplerRangeKm(elements, timeUtcMs, out, 0, 1);
-      return createState({ body: id, center: "sun", timeUtcMs, frame: EQJ, positionKm: out, orientation: null }, () => false);
+      return createState({ body: id, center: "sun", timeUtcMs, plane: EQJ, positionKm: out, orientation: null }, () => false);
     },
   });
 }
 
 /**
- * How a body that circles the Sun is drawn, one rule for every body and never by name: with published elements (`given`, or the catalogue's comet
- * sampling) from periapsis for one period; else one full turn of its own source when the source covers a whole turn from `startUtcMs`; else (a source
- * that ends first, such as the planet series for Uranus and Neptune) the two-body ellipse osculating at `startUtcMs`. Undefined when none can be drawn.
+ * How a body that circles the Sun is drawn, one rule for every body and never by name: with published elements (`given`) from periapsis for one period; else one full turn of its own source when the source covers a whole turn from `startUtcMs`; else (a source that ends first, such as the planet series for Uranus and Neptune) the two-body ellipse osculating at `startUtcMs`. Undefined when none can be drawn.
  */
 function drawnOrbit(catalogue: BodyCatalogue, id: BodyId, startUtcMs: number, given?: EccentricSampling): DrawnOrbit | undefined {
   const source = trajectoryOf(catalogue, id);
-  const sampling = given ?? BUILT_IN_SAMPLING[id];
-  if (sampling !== undefined) {
+  if (given !== undefined) {
     const gm = catalogue.get(rootBodyId(catalogue)).definition.gmKm3S2!;
-    const semiMajorKm = Math.cbrt(gm * (sampling.periodMs / 1000 / (2 * Math.PI)) ** 2);
-    return { source, span: { startUtcMs: sampling.periapsisUtcMs, endUtcMs: sampling.periapsisUtcMs + Math.round(sampling.periodMs) }, sampling, osculating: false, farthestKm: semiMajorKm * (1 + sampling.eccentricity) };
+    const semiMajorKm = Math.cbrt(gm * (given.periodMs / 1000 / (2 * Math.PI)) ** 2);
+    return { source, span: { startUtcMs: given.periapsisUtcMs, endUtcMs: given.periapsisUtcMs + Math.round(given.periodMs) }, sampling: given, osculating: false, farthestKm: semiMajorKm * (1 + given.eccentricity) };
   }
   const span = turnSpan(source, startUtcMs);
   if (span !== undefined) return { source, span, sampling: undefined, osculating: false, farthestKm: undefined };

@@ -1,0 +1,1417 @@
+{
+ "root": {
+  "Scene": {
+   "kind": "class",
+   "signature": "",
+   "constructors": [
+    "()"
+   ],
+   "members": [
+    {
+     "name": "camera",
+     "optional": false,
+     "signature": "SceneCamera"
+    },
+    {
+     "name": "addBody",
+     "optional": false,
+     "signature": "(body: BodyRef | BodyId, options?: AddBodyOptions): Scene"
+    },
+    {
+     "name": "addBodyFromElements",
+     "optional": false,
+     "signature": "(record: ElementsBodyRecord, options?: AddBodyOptions): Scene"
+    },
+    {
+     "name": "addTrajectory",
+     "optional": false,
+     "signature": "(input: TrajectoryInput): Scene"
+    },
+    {
+     "name": "addGroup",
+     "optional": false,
+     "signature": "(input: GroupInput): Scene"
+    },
+    {
+     "name": "addActivity",
+     "optional": false,
+     "signature": "(input: ActivityInput): Scene"
+    },
+    {
+     "name": "setTime",
+     "optional": false,
+     "signature": "(time: TimeInput): Scene"
+    },
+    {
+     "name": "setScale",
+     "optional": false,
+     "signature": "(scale: ScalePolicy, options?: { readonly only?: boolean; }): Scene"
+    },
+    {
+     "name": "addEvents",
+     "optional": false,
+     "signature": "(events: readonly EventInput[], options?: AddEventsOptions): Scene"
+    },
+    {
+     "name": "addStoryPanels",
+     "optional": false,
+     "signature": "(panels: StoryPanelsInput): Scene"
+    },
+    {
+     "name": "setTimeline",
+     "optional": false,
+     "signature": "(timeline: TimelineInput): Scene"
+    },
+    {
+     "name": "setSwitches",
+     "optional": false,
+     "signature": "(switches: SwitchesInput): Scene"
+    },
+    {
+     "name": "setViews",
+     "optional": false,
+     "signature": "(views: readonly ViewInput[], options: ViewsOptions): Scene"
+    },
+    {
+     "name": "stateOf",
+     "optional": false,
+     "signature": "(id: string, time: TimeInput): State"
+    },
+    {
+     "name": "provenanceOf",
+     "optional": false,
+     "signature": "(id: string): Provenance"
+    },
+    {
+     "name": "missingData",
+     "optional": false,
+     "signature": "(data?: readonly DataSource[]): readonly string[]"
+    },
+    {
+     "name": "toDefinition",
+     "optional": false,
+     "signature": "(data?: readonly DataSource[]): ExperienceDefinition"
+    }
+   ]
+  },
+  "SceneCamera": {
+   "kind": "class",
+   "signature": "",
+   "constructors": [
+    "(has: (id: string) => boolean, circlesSun: (id: string) => boolean)"
+   ],
+   "members": [
+    {
+     "name": "follow",
+     "optional": false,
+     "signature": "(id: string, view?: FollowView): SceneCamera"
+    },
+    {
+     "name": "lookAt",
+     "optional": false,
+     "signature": "(id: string, view?: FollowView): SceneCamera"
+    },
+    {
+     "name": "setReach",
+     "optional": false,
+     "signature": "(distance: number): SceneCamera"
+    },
+    {
+     "name": "fitOrbit",
+     "optional": false,
+     "signature": "(body: BodyRef | BodyId): SceneCamera"
+    },
+    {
+     "name": "fitted",
+     "optional": false,
+     "signature": "string | undefined"
+    },
+    {
+     "name": "reach",
+     "optional": false,
+     "signature": "number | undefined"
+    },
+    {
+     "name": "target",
+     "optional": false,
+     "signature": "string | undefined"
+    },
+    {
+     "name": "following",
+     "optional": false,
+     "signature": "boolean"
+    },
+    {
+     "name": "view",
+     "optional": false,
+     "signature": "FollowView"
+    }
+   ]
+  },
+  "AddBodyOptions": {
+   "kind": "interface",
+   "signature": "",
+   "constructors": [],
+   "members": [
+    {
+     "name": "orbit",
+     "optional": true,
+     "signature": "boolean | undefined"
+    },
+    {
+     "name": "enlarge",
+     "optional": true,
+     "signature": "number | undefined"
+    },
+    {
+     "name": "showLabel",
+     "optional": true,
+     "signature": "boolean | undefined"
+    },
+    {
+     "name": "labelReach",
+     "optional": true,
+     "signature": "number | undefined"
+    },
+    {
+     "name": "description",
+     "optional": true,
+     "signature": "string | undefined"
+    },
+    {
+     "name": "color",
+     "optional": true,
+     "signature": "string | undefined"
+    },
+    {
+     "name": "knownLimitations",
+     "optional": true,
+     "signature": "readonly string[] | undefined"
+    }
+   ]
+  },
+  "AnchorInput": {
+   "kind": "interface",
+   "signature": "",
+   "constructors": [],
+   "members": [
+    {
+     "name": "id",
+     "optional": false,
+     "signature": "string"
+    },
+    {
+     "name": "time",
+     "optional": false,
+     "signature": "TimeInput"
+    }
+   ]
+  },
+  "ReadoutInput": {
+   "kind": "type",
+   "signature": "| { readonly kind: \"range\"; readonly marker?: BodyId } | { readonly kind: \"speed\" } | { readonly kind: \"distance\"; readonly to: BodyId } | { readonly kind: \"altitude\"; readonly above: BodyId }",
+   "constructors": [],
+   "members": []
+  },
+  "DataSource": {
+   "kind": "interface",
+   "signature": "",
+   "constructors": [],
+   "members": [
+    {
+     "name": "name",
+     "optional": false,
+     "signature": "string"
+    },
+    {
+     "name": "provides",
+     "optional": false,
+     "signature": "readonly string[]"
+    },
+    {
+     "name": "pictures",
+     "optional": true,
+     "signature": "Readonly<Record<string, TextureRef>> | undefined"
+    },
+    {
+     "name": "moonPositions",
+     "optional": true,
+     "signature": "MoonPositions | undefined"
+    },
+    {
+     "name": "prepare",
+     "optional": true,
+     "signature": "(() => Promise<void>) | undefined"
+    }
+   ]
+  },
+  "MoonPositions": {
+   "kind": "interface",
+   "signature": "",
+   "constructors": [],
+   "members": [
+    {
+     "name": "centre",
+     "optional": false,
+     "signature": "string"
+    },
+    {
+     "name": "loadIndex",
+     "optional": false,
+     "signature": "() => Promise<unknown>"
+    },
+    {
+     "name": "chunkUrls",
+     "optional": false,
+     "signature": "Readonly<Record<string, string>>"
+    }
+   ]
+  },
+  "FollowView": {
+   "kind": "interface",
+   "signature": "",
+   "constructors": [],
+   "members": [
+    {
+     "name": "azimuthDeg",
+     "optional": true,
+     "signature": "number | undefined"
+    },
+    {
+     "name": "elevationDeg",
+     "optional": true,
+     "signature": "number | undefined"
+    },
+    {
+     "name": "distance",
+     "optional": true,
+     "signature": "number | undefined"
+    },
+    {
+     "name": "up",
+     "optional": true,
+     "signature": "\"equatorial\" | \"ecliptic\" | undefined"
+    }
+   ]
+  },
+  "GroupInput": {
+   "kind": "interface",
+   "signature": "",
+   "constructors": [],
+   "members": [
+    {
+     "name": "id",
+     "optional": false,
+     "signature": "string"
+    },
+    {
+     "name": "orbits",
+     "optional": false,
+     "signature": "readonly GroupOrbitInput[]"
+    },
+    {
+     "name": "label",
+     "optional": true,
+     "signature": "string | undefined"
+    },
+    {
+     "name": "center",
+     "optional": true,
+     "signature": "string | undefined"
+    },
+    {
+     "name": "plane",
+     "optional": true,
+     "signature": "\"ecliptic-j2000\" | \"EQJ\" | undefined"
+    },
+    {
+     "name": "color",
+     "optional": true,
+     "signature": "string | undefined"
+    },
+    {
+     "name": "dotSizePx",
+     "optional": true,
+     "signature": "number | undefined"
+    },
+    {
+     "name": "referenceTime",
+     "optional": true,
+     "signature": "TimeInput | undefined"
+    },
+    {
+     "name": "seed",
+     "optional": true,
+     "signature": "number | undefined"
+    },
+    {
+     "name": "clump",
+     "optional": true,
+     "signature": "GroupClumpInput | undefined"
+    },
+    {
+     "name": "refillAfterMs",
+     "optional": true,
+     "signature": "number | undefined"
+    },
+    {
+     "name": "refillSliceMs",
+     "optional": true,
+     "signature": "number | undefined"
+    },
+    {
+     "name": "provenance",
+     "optional": true,
+     "signature": "Provenance | undefined"
+    },
+    {
+     "name": "description",
+     "optional": true,
+     "signature": "string | undefined"
+    },
+    {
+     "name": "knownLimitations",
+     "optional": true,
+     "signature": "readonly string[] | undefined"
+    },
+    {
+     "name": "readouts",
+     "optional": true,
+     "signature": "readonly GroupReadoutInput[] | undefined"
+    }
+   ]
+  },
+  "GroupOrbitInput": {
+   "kind": "interface",
+   "signature": "",
+   "constructors": [],
+   "members": [
+    {
+     "name": "id",
+     "optional": false,
+     "signature": "string"
+    },
+    {
+     "name": "semiMajorAxisKm",
+     "optional": false,
+     "signature": "number"
+    },
+    {
+     "name": "eccentricity",
+     "optional": false,
+     "signature": "number"
+    },
+    {
+     "name": "inclinationDeg",
+     "optional": false,
+     "signature": "number"
+    },
+    {
+     "name": "raanDeg",
+     "optional": false,
+     "signature": "number"
+    },
+    {
+     "name": "argumentOfPeriapsisDeg",
+     "optional": false,
+     "signature": "number"
+    },
+    {
+     "name": "time",
+     "optional": true,
+     "signature": "TimeInput | undefined"
+    }
+   ]
+  },
+  "GroupClumpInput": {
+   "kind": "interface",
+   "signature": "",
+   "constructors": [],
+   "members": [
+    {
+     "name": "near",
+     "optional": false,
+     "signature": "string"
+    },
+    {
+     "name": "fraction",
+     "optional": false,
+     "signature": "number"
+    },
+    {
+     "name": "widthDeg",
+     "optional": false,
+     "signature": "number"
+    }
+   ]
+  },
+  "GroupReadoutInput": {
+   "kind": "interface",
+   "signature": "",
+   "constructors": [],
+   "members": [
+    {
+     "name": "kind",
+     "optional": false,
+     "signature": "\"rate\""
+    },
+    {
+     "name": "activity",
+     "optional": true,
+     "signature": "string | undefined"
+    }
+   ]
+  },
+  "ActivityInput": {
+   "kind": "interface",
+   "signature": "",
+   "constructors": [],
+   "members": [
+    {
+     "name": "id",
+     "optional": false,
+     "signature": "string"
+    },
+    {
+     "name": "label",
+     "optional": false,
+     "signature": "string"
+    },
+    {
+     "name": "unit",
+     "optional": false,
+     "signature": "string"
+    },
+    {
+     "name": "start",
+     "optional": false,
+     "signature": "TimeInput"
+    },
+    {
+     "name": "end",
+     "optional": false,
+     "signature": "TimeInput"
+    },
+    {
+     "name": "peak",
+     "optional": true,
+     "signature": "TimeInput | undefined"
+    },
+    {
+     "name": "samples",
+     "optional": false,
+     "signature": "readonly ActivitySampleInput[]"
+    },
+    {
+     "name": "provenance",
+     "optional": true,
+     "signature": "readonly ActivitySourceInput[] | undefined"
+    },
+    {
+     "name": "type",
+     "optional": true,
+     "signature": "string | undefined"
+    },
+    {
+     "name": "peakLabel",
+     "optional": true,
+     "signature": "string | undefined"
+    }
+   ]
+  },
+  "ActivitySampleInput": {
+   "kind": "interface",
+   "signature": "",
+   "constructors": [],
+   "members": [
+    {
+     "name": "time",
+     "optional": false,
+     "signature": "TimeInput"
+    },
+    {
+     "name": "value",
+     "optional": false,
+     "signature": "number"
+    }
+   ]
+  },
+  "ActivitySourceInput": {
+   "kind": "interface",
+   "signature": "",
+   "constructors": [],
+   "members": [
+    {
+     "name": "start",
+     "optional": false,
+     "signature": "TimeInput"
+    },
+    {
+     "name": "end",
+     "optional": false,
+     "signature": "TimeInput"
+    },
+    {
+     "name": "provenance",
+     "optional": false,
+     "signature": "Provenance"
+    }
+   ]
+  },
+  "ElementsBodyRecord": {
+   "kind": "interface",
+   "signature": "",
+   "constructors": [],
+   "members": [
+    {
+     "name": "id",
+     "optional": false,
+     "signature": "string"
+    },
+    {
+     "name": "label",
+     "optional": false,
+     "signature": "string"
+    },
+    {
+     "name": "elements",
+     "optional": false,
+     "signature": "{ readonly semiMajorAxisAu: number; readonly eccentricity: number; readonly inclinationDeg: number; readonly ascendingNodeDeg: number; readonly argumentOfPerihelionDeg: number; readonly meanAnomalyDeg?: number; readonly perihelionJdTdb?: number; }"
+    },
+    {
+     "name": "epoch",
+     "optional": false,
+     "signature": "{ readonly jd: number; readonly timeScale: ElementsTimeScale; readonly ttMinusUtcSeconds?: number; }"
+    },
+    {
+     "name": "frame",
+     "optional": false,
+     "signature": "\"ecliptic-j2000\""
+    },
+    {
+     "name": "source",
+     "optional": false,
+     "signature": "ElementsSource"
+    },
+    {
+     "name": "radius",
+     "optional": true,
+     "signature": "{ readonly km: number; readonly source: string; } | undefined"
+    },
+    {
+     "name": "accuracy",
+     "optional": false,
+     "signature": "{ readonly classification: AccuracyClassification; readonly statement: string; readonly validFromUtc: string; readonly validToUtc: string; readonly limitations: readonly string[]; }"
+    },
+    {
+     "name": "marker",
+     "optional": false,
+     "signature": "{ readonly color: string; readonly sizePx: number; }"
+    }
+   ]
+  },
+  "TimeInput": {
+   "kind": "type",
+   "signature": "string | number | Date",
+   "constructors": [],
+   "members": []
+  },
+  "TrajectoryInput": {
+   "kind": "type",
+   "signature": "| (TrajectoryBase & { readonly samples: readonly TrajectorySampleInput[] }) | (TrajectoryBase & { readonly provider: { stateAt(timeUtcMs: number, center?: BodyId): State }; readonly bounds: { readonly start: TimeInput; readonly end: TimeInput } })",
+   "constructors": [],
+   "members": []
+  },
+  "TrajectorySampleInput": {
+   "kind": "interface",
+   "signature": "",
+   "constructors": [],
+   "members": [
+    {
+     "name": "time",
+     "optional": false,
+     "signature": "TimeInput"
+    },
+    {
+     "name": "positionKm",
+     "optional": false,
+     "signature": "ArrayLike<number>"
+    },
+    {
+     "name": "velocityKmS",
+     "optional": true,
+     "signature": "ArrayLike<number> | undefined"
+    }
+   ]
+  },
+  "EventInput": {
+   "kind": "interface",
+   "signature": "",
+   "constructors": [],
+   "members": [
+    {
+     "name": "id",
+     "optional": false,
+     "signature": "string"
+    },
+    {
+     "name": "label",
+     "optional": false,
+     "signature": "string"
+    },
+    {
+     "name": "time",
+     "optional": false,
+     "signature": "TimeInput"
+    },
+    {
+     "name": "type",
+     "optional": true,
+     "signature": "string | undefined"
+    },
+    {
+     "name": "provenance",
+     "optional": true,
+     "signature": "Provenance | undefined"
+    },
+    {
+     "name": "object",
+     "optional": true,
+     "signature": "string | undefined"
+    }
+   ]
+  },
+  "AddEventsOptions": {
+   "kind": "interface",
+   "signature": "",
+   "constructors": [],
+   "members": [
+    {
+     "name": "provenance",
+     "optional": true,
+     "signature": "Provenance | undefined"
+    }
+   ]
+  },
+  "TimelineInput": {
+   "kind": "type",
+   "signature": "| { readonly start: TimeInput; readonly end: TimeInput; readonly rates?: readonly number[]; readonly rate?: number; /** Playback that slows for encounters and speeds up for cruise: see `PacingInput`. */ readonly pacing?: readonly PacingInput[]; /** True: while playing, reaching the end wraps to the start and plays on. The viewer can still seek and pause. Default false. Not available with `none: true`, where it is ignored. */ readonly loop?: boolean; readonly none?: undefined } | { readonly none: true; readonly at?: TimeInput; readonly rate?: number }",
+   "constructors": [],
+   "members": []
+  },
+  "PacingInput": {
+   "kind": "type",
+   "signature": "| { readonly from: TimeInput; readonly to: TimeInput; readonly rate: number; readonly ramp?: number } | { readonly near: { readonly type: string; readonly within: number }; readonly rate: number; readonly ramp?: number }",
+   "constructors": [],
+   "members": []
+  },
+  "StoryPanelsInput": {
+   "kind": "interface",
+   "signature": "",
+   "constructors": [],
+   "members": [
+    {
+     "name": "pauseSeconds",
+     "optional": true,
+     "signature": "number | undefined"
+    },
+    {
+     "name": "autoOpen",
+     "optional": true,
+     "signature": "boolean | undefined"
+    },
+    {
+     "name": "panels",
+     "optional": false,
+     "signature": "readonly unknown[]"
+    }
+   ]
+  },
+  "SwitchesInput": {
+   "kind": "type",
+   "signature": "{ readonly [id in DisplaySwitchId]?: { readonly place: DisplaySwitchPlace; readonly on?: boolean } }",
+   "constructors": [],
+   "members": []
+  },
+  "ViewsOptions": {
+   "kind": "interface",
+   "signature": "",
+   "constructors": [],
+   "members": [
+    {
+     "name": "place",
+     "optional": false,
+     "signature": "\"top-bar\" | \"panel\""
+    },
+    {
+     "name": "start",
+     "optional": true,
+     "signature": "string | undefined"
+    }
+   ]
+  },
+  "ViewInput": {
+   "kind": "interface",
+   "signature": "",
+   "constructors": [],
+   "members": [
+    {
+     "name": "id",
+     "optional": false,
+     "signature": "string"
+    },
+    {
+     "name": "label",
+     "optional": false,
+     "signature": "string"
+    },
+    {
+     "name": "paths",
+     "optional": true,
+     "signature": "readonly string[] | undefined"
+    },
+    {
+     "name": "bodies",
+     "optional": true,
+     "signature": "readonly string[] | undefined"
+    },
+    {
+     "name": "events",
+     "optional": true,
+     "signature": "readonly string[] | undefined"
+    },
+    {
+     "name": "panels",
+     "optional": true,
+     "signature": "readonly string[] | undefined"
+    },
+    {
+     "name": "camera",
+     "optional": true,
+     "signature": "ViewCameraInput | undefined"
+    }
+   ]
+  },
+  "ViewCameraInput": {
+   "kind": "type",
+   "signature": "\"stay\" | \"start\" | { readonly follow: string } | { readonly focus: string }",
+   "constructors": [],
+   "members": []
+  },
+  "mount": {
+   "kind": "function",
+   "signature": "mount(element: HTMLElement, scene: Scene, options?: MountOptions): MountedScene",
+   "constructors": [],
+   "members": []
+  },
+  "MountOptions": {
+   "kind": "interface",
+   "signature": "",
+   "constructors": [],
+   "members": [
+    {
+     "name": "data",
+     "optional": true,
+     "signature": "readonly DataSource[] | undefined"
+    },
+    {
+     "name": "onChange",
+     "optional": true,
+     "signature": "((change: ViewerChange) => void) | undefined"
+    }
+   ]
+  },
+  "MountedScene": {
+   "kind": "interface",
+   "signature": "",
+   "constructors": [],
+   "members": [
+    {
+     "name": "ready",
+     "optional": false,
+     "signature": "Promise<void>"
+    },
+    {
+     "name": "unmount",
+     "optional": false,
+     "signature": "(): void"
+    },
+    {
+     "name": "time",
+     "optional": false,
+     "signature": "number | undefined"
+    },
+    {
+     "name": "rate",
+     "optional": false,
+     "signature": "number | undefined"
+    },
+    {
+     "name": "view",
+     "optional": false,
+     "signature": "string | undefined"
+    },
+    {
+     "name": "setTime",
+     "optional": false,
+     "signature": "(time: TimeInput): void"
+    },
+    {
+     "name": "setRate",
+     "optional": false,
+     "signature": "(rate: number | \"auto\"): void"
+    },
+    {
+     "name": "setView",
+     "optional": false,
+     "signature": "(id: string): void"
+    },
+    {
+     "name": "onChange",
+     "optional": false,
+     "signature": "(listener: (change: ViewerChange) => void): () => void"
+    }
+   ]
+  },
+  "AstraeusScene": {
+   "kind": "function",
+   "signature": "AstraeusScene({ scene, data, onReady, onError, time, rate, view, onChange, className, style }: AstraeusSceneProps): ReactElement",
+   "constructors": [],
+   "members": []
+  },
+  "AstraeusSceneProps": {
+   "kind": "interface",
+   "signature": "",
+   "constructors": [],
+   "members": [
+    {
+     "name": "scene",
+     "optional": false,
+     "signature": "Scene"
+    },
+    {
+     "name": "data",
+     "optional": true,
+     "signature": "readonly DataSource[] | undefined"
+    },
+    {
+     "name": "onReady",
+     "optional": true,
+     "signature": "(() => void) | undefined"
+    },
+    {
+     "name": "onError",
+     "optional": true,
+     "signature": "((error: Error) => void) | undefined"
+    },
+    {
+     "name": "time",
+     "optional": true,
+     "signature": "TimeInput | undefined"
+    },
+    {
+     "name": "rate",
+     "optional": true,
+     "signature": "number | \"auto\" | undefined"
+    },
+    {
+     "name": "view",
+     "optional": true,
+     "signature": "string | undefined"
+    },
+    {
+     "name": "onChange",
+     "optional": true,
+     "signature": "((change: ViewerChange) => void) | undefined"
+    },
+    {
+     "name": "className",
+     "optional": true,
+     "signature": "string | undefined"
+    },
+    {
+     "name": "style",
+     "optional": true,
+     "signature": "CSSProperties | undefined"
+    }
+   ]
+  },
+  "ViewerChange": {
+   "kind": "interface",
+   "signature": "",
+   "constructors": [],
+   "members": [
+    {
+     "name": "time",
+     "optional": false,
+     "signature": "number"
+    },
+    {
+     "name": "rate",
+     "optional": false,
+     "signature": "number"
+    },
+    {
+     "name": "playing",
+     "optional": false,
+     "signature": "boolean"
+    },
+    {
+     "name": "view",
+     "optional": true,
+     "signature": "string | undefined"
+    },
+    {
+     "name": "cause",
+     "optional": false,
+     "signature": "ViewerChangeCause"
+    }
+   ]
+  },
+  "RateSource": {
+   "kind": "type",
+   "signature": "\"scene\" | \"chosen\"",
+   "constructors": [],
+   "members": []
+  },
+  "SceneError": {
+   "kind": "class",
+   "signature": "",
+   "constructors": [
+    "(code: SceneErrorCode, message: string)"
+   ],
+   "members": [
+    {
+     "name": "code",
+     "optional": false,
+     "signature": "SceneErrorCode"
+    }
+   ]
+  },
+  "SceneErrorCode": {
+   "kind": "type",
+   "signature": "\"unknown-body\" | \"duplicate-id\" | \"bad-time\" | \"bad-trajectory\" | \"bad-scale\" | \"missing-data\" | \"out-of-span\" | \"empty-scene\" | \"bad-element\" | \"no-orbit\" | \"bad-anchor\" | \"bad-readout\" | \"bad-event\" | \"bad-panels\" | \"bad-timeline\" | \"bad-switch\" | \"bad-body\" | \"bad-group\" | \"bad-activity\" | \"bad-camera\" | \"bad-view\"",
+   "constructors": [],
+   "members": []
+  },
+  "sun": {
+   "kind": "const",
+   "signature": "BodyRef",
+   "constructors": [],
+   "members": []
+  },
+  "mercury": {
+   "kind": "const",
+   "signature": "BodyRef",
+   "constructors": [],
+   "members": []
+  },
+  "venus": {
+   "kind": "const",
+   "signature": "BodyRef",
+   "constructors": [],
+   "members": []
+  },
+  "earth": {
+   "kind": "const",
+   "signature": "BodyRef",
+   "constructors": [],
+   "members": []
+  },
+  "moon": {
+   "kind": "const",
+   "signature": "BodyRef",
+   "constructors": [],
+   "members": []
+  },
+  "mars": {
+   "kind": "const",
+   "signature": "BodyRef",
+   "constructors": [],
+   "members": []
+  },
+  "jupiter": {
+   "kind": "const",
+   "signature": "BodyRef",
+   "constructors": [],
+   "members": []
+  },
+  "saturn": {
+   "kind": "const",
+   "signature": "BodyRef",
+   "constructors": [],
+   "members": []
+  },
+  "uranus": {
+   "kind": "const",
+   "signature": "BodyRef",
+   "constructors": [],
+   "members": []
+  },
+  "neptune": {
+   "kind": "const",
+   "signature": "BodyRef",
+   "constructors": [],
+   "members": []
+  },
+  "pluto": {
+   "kind": "const",
+   "signature": "BodyRef",
+   "constructors": [],
+   "members": []
+  },
+  "io": {
+   "kind": "const",
+   "signature": "BodyRef",
+   "constructors": [],
+   "members": []
+  },
+  "europa": {
+   "kind": "const",
+   "signature": "BodyRef",
+   "constructors": [],
+   "members": []
+  },
+  "ganymede": {
+   "kind": "const",
+   "signature": "BodyRef",
+   "constructors": [],
+   "members": []
+  },
+  "callisto": {
+   "kind": "const",
+   "signature": "BodyRef",
+   "constructors": [],
+   "members": []
+  },
+  "mimas": {
+   "kind": "const",
+   "signature": "BodyRef",
+   "constructors": [],
+   "members": []
+  },
+  "enceladus": {
+   "kind": "const",
+   "signature": "BodyRef",
+   "constructors": [],
+   "members": []
+  },
+  "tethys": {
+   "kind": "const",
+   "signature": "BodyRef",
+   "constructors": [],
+   "members": []
+  },
+  "dione": {
+   "kind": "const",
+   "signature": "BodyRef",
+   "constructors": [],
+   "members": []
+  },
+  "rhea": {
+   "kind": "const",
+   "signature": "BodyRef",
+   "constructors": [],
+   "members": []
+  },
+  "titan": {
+   "kind": "const",
+   "signature": "BodyRef",
+   "constructors": [],
+   "members": []
+  },
+  "iapetus": {
+   "kind": "const",
+   "signature": "BodyRef",
+   "constructors": [],
+   "members": []
+  },
+  "triton": {
+   "kind": "const",
+   "signature": "BodyRef",
+   "constructors": [],
+   "members": []
+  },
+  "charon": {
+   "kind": "const",
+   "signature": "BodyRef",
+   "constructors": [],
+   "members": []
+  },
+  "phobos": {
+   "kind": "const",
+   "signature": "BodyRef",
+   "constructors": [],
+   "members": []
+  },
+  "deimos": {
+   "kind": "const",
+   "signature": "BodyRef",
+   "constructors": [],
+   "members": []
+  },
+  "listedMoons": {
+   "kind": "function",
+   "signature": "listedMoons(planet?: BodyId): readonly BodyRef[]",
+   "constructors": [],
+   "members": []
+  },
+  "BodyRef": {
+   "kind": "interface",
+   "signature": "",
+   "constructors": [],
+   "members": [
+    {
+     "name": "id",
+     "optional": false,
+     "signature": "string"
+    },
+    {
+     "name": "label",
+     "optional": false,
+     "signature": "string"
+    },
+    {
+     "name": "requires",
+     "optional": true,
+     "signature": "string | undefined"
+    }
+   ]
+  },
+  "trueScale": {
+   "kind": "const",
+   "signature": "ScalePolicy",
+   "constructors": [],
+   "members": []
+  },
+  "readableScale": {
+   "kind": "const",
+   "signature": "ScalePolicy",
+   "constructors": [],
+   "members": []
+  },
+  "solarSystemScale": {
+   "kind": "const",
+   "signature": "SolarSystemScalePolicy",
+   "constructors": [],
+   "members": []
+  },
+  "ScalePolicy": {
+   "kind": "interface",
+   "signature": "",
+   "constructors": [],
+   "members": [
+    {
+     "name": "id",
+     "optional": false,
+     "signature": "string"
+    },
+    {
+     "name": "mapPosition",
+     "optional": false,
+     "signature": "(positionKm: ArrayLike<number>): Float64Array"
+    },
+    {
+     "name": "linearUnitsPerKm",
+     "optional": true,
+     "signature": "number | undefined"
+    },
+    {
+     "name": "mapRadius",
+     "optional": false,
+     "signature": "(radiusKm: number, bodyId?: BodyId): number"
+    }
+   ]
+  },
+  "State": {
+   "kind": "interface",
+   "signature": "CenteredPosition",
+   "constructors": [],
+   "members": [
+    {
+     "name": "orientation",
+     "optional": false,
+     "signature": "Quaternion | null"
+    },
+    {
+     "name": "body",
+     "optional": false,
+     "signature": "string"
+    },
+    {
+     "name": "center",
+     "optional": false,
+     "signature": "string"
+    },
+    {
+     "name": "timeUtcMs",
+     "optional": false,
+     "signature": "number"
+    },
+    {
+     "name": "frame",
+     "optional": false,
+     "signature": "\"EQJ\""
+    },
+    {
+     "name": "positionKm",
+     "optional": false,
+     "signature": "Float64Array<ArrayBufferLike>"
+    },
+    {
+     "name": "velocityKmS",
+     "optional": true,
+     "signature": "Float64Array<ArrayBufferLike> | undefined"
+    }
+   ]
+  },
+  "Provenance": {
+   "kind": "interface",
+   "signature": "",
+   "constructors": [],
+   "members": [
+    {
+     "name": "sourceType",
+     "optional": false,
+     "signature": "ProvenanceSourceType"
+    },
+    {
+     "name": "sources",
+     "optional": false,
+     "signature": "readonly string[]"
+    },
+    {
+     "name": "accuracy",
+     "optional": false,
+     "signature": "string"
+    },
+    {
+     "name": "notes",
+     "optional": false,
+     "signature": "string"
+    },
+    {
+     "name": "accuracyClass",
+     "optional": true,
+     "signature": "\"approximate\" | \"indicative\" | undefined"
+    },
+    {
+     "name": "maxErrorFraction",
+     "optional": true,
+     "signature": "number | undefined"
+    }
+   ]
+  },
+  "ProvenanceSourceType": {
+   "kind": "type",
+   "signature": "\"ephemeris\" | \"observed\" | \"reconstructed\" | \"modelled\" | \"illustrative\"",
+   "constructors": [],
+   "members": []
+  },
+  "Pictures": {
+   "kind": "type",
+   "signature": "Readonly<Record<string, TextureRef>>",
+   "constructors": [],
+   "members": []
+  },
+  "AssetLicence": {
+   "kind": "interface",
+   "signature": "",
+   "constructors": [],
+   "members": [
+    {
+     "name": "source",
+     "optional": false,
+     "signature": "string"
+    },
+    {
+     "name": "url",
+     "optional": false,
+     "signature": "string"
+    },
+    {
+     "name": "licence",
+     "optional": false,
+     "signature": "string"
+    },
+    {
+     "name": "attribution",
+     "optional": true,
+     "signature": "string | undefined"
+    },
+    {
+     "name": "accessed",
+     "optional": false,
+     "signature": "string"
+    }
+   ]
+  },
+  "TextureRef": {
+   "kind": "interface",
+   "signature": "",
+   "constructors": [],
+   "members": [
+    {
+     "name": "url",
+     "optional": false,
+     "signature": "string"
+    },
+    {
+     "name": "widthPx",
+     "optional": false,
+     "signature": "number"
+    },
+    {
+     "name": "heightPx",
+     "optional": false,
+     "signature": "number"
+    },
+    {
+     "name": "desktop",
+     "optional": true,
+     "signature": "{ readonly url: string; readonly widthPx: number; readonly heightPx: number; readonly minViewportWidth: number; } | undefined"
+    },
+    {
+     "name": "licence",
+     "optional": true,
+     "signature": "AssetLicence | undefined"
+    },
+    {
+     "name": "localOnly",
+     "optional": true,
+     "signature": "LocalOnlyDeclaration | undefined"
+    }
+   ]
+  },
+  "APPROXIMATE_LIMIT_FRACTION": {
+   "kind": "const",
+   "signature": "0.01",
+   "constructors": [],
+   "members": []
+  },
+  "INDICATIVE_LIMIT_FRACTION": {
+   "kind": "const",
+   "signature": "0.05",
+   "constructors": [],
+   "members": []
+  },
+  "classifyPositionError": {
+   "kind": "function",
+   "signature": "classifyPositionError(maxFraction: number): AccuracyClassification | null",
+   "constructors": [],
+   "members": []
+  },
+  "parseElementsBodyRecord": {
+   "kind": "function",
+   "signature": "parseElementsBodyRecord(input: unknown, path?: string): ElementsBodyRecord",
+   "constructors": [],
+   "members": []
+  },
+  "AccuracyClassification": {
+   "kind": "type",
+   "signature": "\"approximate\" | \"indicative\"",
+   "constructors": [],
+   "members": []
+  }
+ }
+}

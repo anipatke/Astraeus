@@ -25,9 +25,9 @@ const makeScene = () => new Scene().addBody(earth)
   .addTrajectory({ id: "pa", label: "Probe A", center: "earth", samples: [0, 1, 2, 3].map((i) => ({ time: T0 + i * 10 * MIN, positionKm: [10_000 + i * 1_000, 0, 0], velocityKmS: [1, 0, 0] })) })
   .addTrajectory({ id: "pb", label: "Probe B", center: "earth", samples: [0, 100].map((i) => ({ time: T0 + i * DAY, positionKm: [20_000 + i * 10, 0, 0], velocityKmS: [1, 0, 0] })) })
   .setViews([
-    { id: "a", label: "View A", paths: ["pa"] },
-    { id: "b", label: "View B", paths: ["pb"], camera: { focus: "pb" } }, // hides pa; its rule frames pb
-    { id: "c", label: "View C", paths: ["pb"] }, // hides pa; the camera stays
+    { id: "a", label: "View A", objects: ["pa"] },
+    { id: "b", label: "View B", objects: ["pb"], camera: { focus: "pb" } }, // hides pa; its rule frames pb
+    { id: "c", label: "View C", objects: ["pb"] }, // hides pa; the camera stays
   ], { place: "top-bar" })
   .setTimeline({ start: T0, end: T0 + 100 * DAY, rate: 86_400, rates: [60, 86_400] });
 

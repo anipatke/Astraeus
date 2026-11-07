@@ -67,6 +67,25 @@ export interface SceneBodySetRead {
   readonly families: readonly string[];
 }
 
+/** An activity the scene holds (`addActivity`), as `Scene.activities` lists it (in the order added). */
+export interface SceneActivityRead {
+  readonly id: string;
+  readonly label: string;
+  /** What the rate counts, per unit of time, such as "events per hour". */
+  readonly unit: string;
+  /** The first and last moment of the activity, in UTC milliseconds. */
+  readonly windowStartUtcMs: number;
+  readonly windowEndUtcMs: number;
+  /** The peak mark on the rate bar: its name, the rate there (the curve's highest sample when no `peak` moment was given) and its moment in UTC milliseconds (absent when no `peak` was given). */
+  readonly peak: { readonly label: string; readonly value: number; readonly timeUtcMs?: number };
+  /** The curve's points, sorted by time. */
+  readonly samples: readonly { readonly timeUtcMs: number; readonly value: number }[];
+  /** Where each stretch of the curve comes from; absent when none was stated. */
+  readonly provenance?: readonly { readonly stretchStartUtcMs: number; readonly stretchEndUtcMs: number; readonly provenance: Provenance }[];
+  /** The free word given to `addActivity` (`type`); absent when none was given. */
+  readonly type?: string;
+}
+
 /** A timeline event the scene holds (`addEvents`), as `Scene.events` lists it (sorted by time). */
 export interface SceneEventRead {
   readonly id: string;
@@ -88,11 +107,10 @@ export interface ScenePanelRead {
   readonly title: string;
   /** Paragraphs, in order. */
   readonly body: readonly string[];
-  readonly badge: "observed" | "modelled" | "illustrative";
   /** Paragraphs of exact figures and measured-versus-reconstructed notes; empty when none. */
   readonly details: readonly string[];
-  /** One line per cited source. */
-  readonly sources: readonly string[];
+  /** Where the panel's facts come from and how far to trust them, as given to `addStoryPanels`. */
+  readonly provenance: Provenance;
   /** The id of the object the panel marks. */
   readonly object?: string;
 }
@@ -101,9 +119,15 @@ export interface ScenePanelRead {
 export interface SceneViewRead {
   readonly id: string;
   readonly label: string;
+  /** The ids of the bodies, groups and paths the view shows, as the viewer resolves them: the ones the view names plus every one no view names (those show in every view). In the order the scene holds them (paths, bodies, groups). */
+  readonly objects: readonly string[];
+  /** The ids of the events the view shows, resolved the same way (the view's own plus every event no view names), sorted by time. */
+  readonly events: readonly string[];
+  /** The ids of the story panels the view shows, resolved the same way (the view's own plus every panel no view names), sorted by time. */
+  readonly panels: readonly string[];
 }
 
-/** The views the scene names (`setViews`), as `Scene.views` states them. */
+/** The views the scene names (`setViews`), as `Scene.views` states them. Reading it checks the view ids against the finished scene, as `mount` does: an id the scene does not hold, or a camera target the view hides, throws `bad-view`; a bad panel throws `bad-panels`. */
 export interface SceneViewsRead {
   /** The id of the opening view. */
   readonly startId: string;

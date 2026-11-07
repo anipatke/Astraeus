@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { PerspectiveCamera, Vector3 } from "three";
-import { catalogue } from "../src/assets/catalogue";
+import { catalogue, extendCatalogue } from "../src/assets/catalogue";
 import { createOrbAstronomyAdapter } from "../src/core/astronomyAdapter";
 import { solarSystemPolicyForTest } from "./scalePolicies";
 import { trueScale } from "../src/core/scalePolicy";
@@ -94,6 +94,17 @@ describe("the marker never changes State or metrics", () => {
   });
 });
 
+/** A made-up long-period comet with a 7 px marker (the catalogue holds no comet since O-057 T-279). */
+const withComet = extendCatalogue(catalogue, [{
+  id: "long-comet", label: "Long comet",
+  elements: { semiMajorAxisAu: 26, eccentricity: 0.96, inclinationDeg: 113, ascendingNodeDeg: 139, argumentOfPerihelionDeg: 153, meanAnomalyDeg: 7 },
+  epoch: { jd: 2450000.5, timeScale: "TDB", ttMinusUtcSeconds: 61.184 },
+  plane: "ecliptic-j2000",
+  source: { name: "Made up", url: "https://example.invalid/long-comet", solution: "S1", accessed: "2026-11-07" },
+  accuracy: { classification: "approximate", statement: "Made up.", valid: { start: "1990-01-01T00:00:00Z", end: "2030-01-01T00:00:00Z" }, limitations: [] },
+  marker: { color: "#9fe3ff", sizePx: 7 },
+}]);
+
 describe("marker settings are settings", () => {
   it("default to a 3 px threshold and a 6 px dot, and read ?markerpx= from the address", () => {
     expect(DEFAULT_BODY_MARKER).toEqual({ minSpherePx: 3, markerPx: 6 });
@@ -116,7 +127,7 @@ describe("marker settings are settings", () => {
 
   it("size the stand-in dot from the record when it states one, else the setting", () => {
     expect(markerOf(catalogue.get("earth"), {}, DEFAULT_BODY_MARKER.markerPx).sizePx).toBe(6);
-    expect(markerOf(catalogue.get("swift-tuttle")).sizePx).toBe(7);
+    expect(markerOf(withComet.get("long-comet")).sizePx).toBe(7);
     expect(markerOf(catalogue.get("earth"), { sizePx: 12 }, 6).sizePx).toBe(12);
     const { group } = createMarker(catalogue.get("earth"), TRACK_LAYER, undefined, 6);
     expect(group.children).toHaveLength(1);
@@ -124,13 +135,13 @@ describe("marker settings are settings", () => {
   });
 });
 
-describe("the comet is always a marker; a planet is a sphere that may become one", () => {
+describe("a body added from elements is always a marker; a planet is a sphere that may become one", () => {
   it("draws the comet on the overlay layer and gives lit layers only to spheres", () => {
-    const layers = assignBodyLayers(["sun", "earth", "swift-tuttle"], TRACK_LAYER);
-    expect(layers.get("swift-tuttle")).toBe(TRACK_LAYER);
+    const layers = assignBodyLayers(["sun", "earth", "long-comet"], TRACK_LAYER, withComet);
+    expect(layers.get("long-comet")).toBe(TRACK_LAYER);
     expect(layers.get("earth")).not.toBe(TRACK_LAYER);
     expect(catalogue.get("earth").visual.kind).toBe("sphere");
-    expect(catalogue.get("swift-tuttle").visual.kind).toBe("marker");
+    expect(withComet.get("long-comet").visual.kind).toBe("marker");
   });
 });
 

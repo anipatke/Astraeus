@@ -1,7 +1,7 @@
 // Small helpers for a planet's system module: the shipped fit chunks by path, the tagged-place packages by moon, the moon list and the data source. They only
 // reshape what the module's literal `import.meta.glob` calls return (Vite needs the patterns written out per planet; a glob, not a package import, because
 // this demo is built on the public API and imports only `astraeus`).
-import type { DataSource } from "astraeus";
+import type { DataSource, MoonIndex } from "astraeus";
 import { parseMoonCatalogue, type MoonCatalogue } from "./moonList";
 import type { PlanetSystem } from "./planetScene";
 
@@ -30,8 +30,8 @@ export function onlyFile<T>(files: Readonly<Record<string, T>>, what: string): T
 export const moonListOf = (files: Readonly<Record<string, unknown>>): MoonCatalogue => parseMoonCatalogue(onlyFile(files, "moon list"));
 
 /** The data source a planet's package would hand `mount`: its moon positions (index read on demand, chunk files by path) for the moons the scene holds. */
-export function moonPositionsOf(source: { readonly name: string; readonly centre: string; readonly provides: readonly string[]; readonly loadIndex: () => Promise<unknown>; readonly chunkUrls: Readonly<Record<string, string>> }): DataSource {
-  return { name: source.name, provides: source.provides, moonPositions: { centre: source.centre, loadIndex: source.loadIndex, chunkUrls: source.chunkUrls } };
+export function moonPositionsOf(source: { readonly name: string; readonly center: string; readonly provides: readonly string[]; readonly loadIndex: () => Promise<MoonIndex>; readonly chunkUrls: Readonly<Record<string, string>> }): DataSource {
+  return { name: source.name, provides: source.provides, moonPositions: { center: source.center, loadIndex: source.loadIndex, chunkUrls: source.chunkUrls } };
 }
 
 /** How far back an orbit line may reach: the slowest moons take under three years (as Jupiter's does). */

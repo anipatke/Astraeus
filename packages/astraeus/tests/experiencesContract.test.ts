@@ -76,7 +76,7 @@ describe("the Moon about Earth", () => {
     const old = new MoonTrajectory(adapter).stateAt(t);
     const now = resolverTrajectory(resolver, "moon", "earth").stateAt(t);
     expect(Array.from(now.positionKm)).toEqual(Array.from(old.positionKm));
-    expect(now.frame).toBe(old.frame);
+    expect(now.plane).toBe(old.plane);
   });
 });
 

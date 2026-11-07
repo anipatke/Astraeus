@@ -91,7 +91,7 @@ describe("provider trajectories and scale policies", () => {
     let maximumDistanceErrorKm = 0;
     for (const sample of moonFixture.samples) {
       const state = moon.stateAt(Date.parse(sample.utc));
-      expect(state.frame).toBe("EQJ");
+      expect(state.plane).toBe("EQJ");
       expect(state.center).toBe("earth");
       expect(state.positionKm).toBeInstanceOf(Float64Array);
       maximumAngleArcminutes = Math.max(
@@ -182,13 +182,13 @@ describe("provider trajectories and scale policies", () => {
 
     const nextEpoch = createCenteredPosition({ ...earthSun, timeUtcMs: time + 1 });
     expect(() => composeCenteredPositions(moonEarth, nextEpoch)).toThrow("identical timestamps");
-    const otherFrame = { ...earthSun, frame: "ECL" as "EQJ" };
+    const otherFrame = { ...earthSun, plane: "ECL" as "EQJ" };
     expect(() => composeCenteredPositions(moonEarth, otherFrame)).toThrow("identical frames");
     const unrelatedBody = createCenteredPosition({
       body: "sun",
       center: "moon",
       timeUtcMs: time,
-      frame: "EQJ",
+      plane: "EQJ",
       positionKm: [0, 0, 0],
     });
     expect(() => composeCenteredPositions(moonEarth, unrelatedBody)).toThrow("match the first center");
@@ -232,7 +232,7 @@ describe("provider trajectories and scale policies", () => {
       body: "moon", center: "earth", timeUtcMs: 0, positionKm: [1, 2, 3], orientation: [0, 0, 0, 0],
     })).toThrow(RangeError);
     expect(() => createCenteredPosition({
-      body: "moon", center: "earth", timeUtcMs: 0, frame: "ECL" as "EQJ", positionKm: [1, 2, 3],
+      body: "moon", center: "earth", timeUtcMs: 0, plane: "ECL" as "EQJ", positionKm: [1, 2, 3],
     })).toThrow("EQJ frame only");
     expect(() => trueScale.mapPosition([0, Number.NaN, 0])).toThrow(TypeError);
     expect(() => readableScale.mapRadius(-1)).toThrow(RangeError);

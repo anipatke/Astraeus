@@ -1,10 +1,10 @@
-import type { DataSource } from "astraeus";
+import type { DataSource, MoonIndex } from "astraeus";
 import { chunkUrls } from "./chunks.js";
 
 /** Reads Jupiter's index (the moons, their fits and the measured errors). A dynamic import, so a bundler keeps it as its own file. */
-export const loadIndex = async (): Promise<unknown> => {
-  const loaded = (await import("../data/jupiter-moons/index.json", { with: { type: "json" } })) as { default?: unknown };
-  return loaded.default ?? loaded; // Parcel hands back the JSON itself, Vite and webpack a module with a default
+export const loadIndex = async (): Promise<MoonIndex> => {
+  const loaded = (await import("../data/jupiter-moons/index.json", { with: { type: "json" } })) as { default?: MoonIndex };
+  return loaded.default ?? (loaded as MoonIndex); // Parcel hands back the JSON itself, Vite and webpack a module with a default
 };
 
 export { chunkUrls };
@@ -13,5 +13,5 @@ export { chunkUrls };
 export const dataSource: DataSource = Object.freeze({
   name: "astraeus-data-jupiter",
   provides: ["io", "europa", "ganymede", "callisto"],
-  moonPositions: Object.freeze({ centre: "jupiter", loadIndex, chunkUrls }),
+  moonPositions: Object.freeze({ center: "jupiter", loadIndex, chunkUrls }),
 });

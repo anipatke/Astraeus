@@ -1,9 +1,9 @@
 import type { TimelineEvent } from "../core/events";
 import type { Provenance } from "../core/provenance";
 import type { TimeBounds } from "../core/trajectory";
-import type { StoryPanelSet } from "../core/storyPanels";
+import { DEFAULT_PANEL_PLAYBACK, type CheckedPanel, type PanelPlayback, type StoryPanelSet } from "../core/storyPanels";
 import type { ExperienceConfig } from "../shell/experience";
-import { checkEventObjects, eventProvenanceOf, eventsOf, panelsOf, type AddEventsOptions, type EventInput, type StoryPanelsInput } from "./story";
+import { checkEventObjects, eventProvenanceOf, eventsOf, panelBatchOf, panelPlaybackOf, panelsOf, type AddEventsOptions, type EventInput, type StoryPanelInput, type StoryPanelPlaybackInput } from "./story";
 import type { Tracked } from "./planPaths";
 import { frozenList, type SceneEventRead, type ScenePanelRead } from "./sceneReads";
 
@@ -12,7 +12,8 @@ export class StoryPlan {
   events: readonly TimelineEvent[] = [];
   #eventProvenance: Provenance | undefined;
   readonly #eventOwnProvenance = new Map<string, Provenance>();
-  #panels: StoryPanelsInput | undefined;
+  #panels: readonly CheckedPanel[] | undefined;
+  #playback: PanelPlayback = DEFAULT_PANEL_PLAYBACK;
 
   addEvents(events: readonly EventInput[], options: AddEventsOptions): void {
     const merged = eventsOf(events, this.events);
@@ -23,8 +24,14 @@ export class StoryPlan {
     if (batch !== undefined) this.#eventProvenance = batch;
   }
 
-  addPanels(panels: StoryPanelsInput): void {
-    this.#panels = panels;
+  /** Appends a batch; one that fails its checks adds nothing. */
+  addPanels(panels: readonly StoryPanelInput[]): void {
+    const known = this.#panels ?? [];
+    this.#panels = [...known, ...panelBatchOf(panels, known)];
+  }
+
+  setPanelPlayback(playback: StoryPanelPlaybackInput): void {
+    this.#playback = panelPlaybackOf(playback);
   }
 
   /** The events name only objects the scene holds. */
@@ -37,7 +44,7 @@ export class StoryPlan {
     if (this.#panels === undefined) return undefined;
     const anchors = new Map<string, number>();
     for (const { body } of tracked) body.anchorLabels?.forEach((label, index) => { if (!anchors.has(label)) anchors.set(label, body.anchorTimesUtcMs[index]!); });
-    return panelsOf(this.#panels, { events: this.events, anchors, objectIds, window });
+    return panelsOf(this.#panels, this.#playback, { events: this.events, anchors, objectIds, window });
   }
 
   /** The events sorted by time, each with its own provenance, else the batch's. */
@@ -51,9 +58,9 @@ export class StoryPlan {
   /** The story panels as the public list states them (resolved as `panels` resolves them); empty when none were added. */
   panelReads(window: TimeBounds, tracked: Iterable<Tracked>, objectIds: readonly string[]): readonly ScenePanelRead[] {
     const set = this.panels(window, tracked, objectIds);
-    return frozenList((set?.panels ?? []).map(({ id, timeUtcMs, title, body, badge, details, sources, objectId }): ScenePanelRead => ({
-      id, timeUtcMs, title, badge,
-      body: Object.freeze([...body]), details: Object.freeze([...details]), sources: Object.freeze([...sources]),
+    return frozenList((set?.panels ?? []).map(({ id, timeUtcMs, title, body, details, provenance, objectId }): ScenePanelRead => ({
+      id, timeUtcMs, title, provenance,
+      body: Object.freeze([...body]), details: Object.freeze([...details]),
       ...(objectId === undefined ? {} : { object: objectId }),
     })));
   }

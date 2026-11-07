@@ -278,7 +278,7 @@ export function createListedOrbitGroup(input: ListedOrbitGroupInput, adapter: Tw
       assertUtcUnixMs(timeUtcMs);
       assertWithinBounds(bounds, timeUtcMs);
       const position = propagatedPositionOf(states, index, (timeUtcMs - referenceUtcMs) / 1000, center, adapter);
-      return createState({ body: `${input.id}:${recordIds[index]}`, center, timeUtcMs, frame: EQJ, positionKm: position, orientation: null });
+      return createState({ body: `${input.id}:${recordIds[index]}`, center, timeUtcMs, plane: EQJ, positionKm: position, orientation: null });
     },
     recordIdAt(index: number): string {
       assertMemberIndex(count, index);

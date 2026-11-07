@@ -7,22 +7,23 @@ import { displaySwitchItems, labelsOn, orbitLinesOn, orbitStart, type SwitchBind
 import { hiddenLabelsFrom } from "../src/app/App";
 import type { DisplaySwitchItem } from "../src/shell/DisplaySwitches";
 import { $, byLabel, mountShell, press, pressKey, type Mounted } from "./domSetup";
+import { definitionOf } from "../src/api/definitionOf";
 
 const codeOf = (fn: () => unknown) => { try { fn(); } catch (error) { return error instanceof SceneError ? error.code : String(error); } return "no error"; };
 const base = () => new Scene().addBody(earth).addBody(moon, { orbit: true });
 
 describe("Scene.setSwitches", () => {
   it("places nothing by default, so the definition carries no switches", () => {
-    expect(base().toDefinition().displaySwitches).toBeUndefined();
+    expect(definitionOf(base()).displaySwitches).toBeUndefined();
   });
   it.each(["top-bar", "panel", "developer"] as const)("accepts the place %s", (place) => {
-    expect(base().setSwitches({ orbitLines: { place } }).toDefinition().displaySwitches).toEqual({ orbitLines: { place } });
+    expect(definitionOf(base().setSwitches({ orbitLines: { place } })).displaySwitches).toEqual({ orbitLines: { place } });
   });
   it.each([true, false])("keeps a starting state of %s", (on) => {
-    expect(base().setSwitches({ milkyWay: { place: "panel", on } }).toDefinition().displaySwitches?.milkyWay).toEqual({ place: "panel", on });
+    expect(definitionOf(base().setSwitches({ milkyWay: { place: "panel", on } })).displaySwitches?.milkyWay).toEqual({ place: "panel", on });
   });
   it("lays later calls over earlier ones, switch by switch", () => {
-    const placed = base().setSwitches({ orbitLines: { place: "top-bar" }, labels: { place: "panel" } }).setSwitches({ labels: { place: "developer", on: false } }).toDefinition().displaySwitches;
+    const placed = definitionOf(base().setSwitches({ orbitLines: { place: "top-bar" }, labels: { place: "panel" } }).setSwitches({ labels: { place: "developer", on: false } })).displaySwitches;
     expect(placed).toEqual({ orbitLines: { place: "top-bar" }, labels: { place: "developer", on: false } });
   });
   it.each([

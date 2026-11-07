@@ -2,6 +2,7 @@ import type { BodyId, CelestialBodyDefinition, StateSourceBinding } from "./body
 import { trueAnomalyFromMean } from "./keplerAnomaly";
 import { fieldReaders, type Raw } from "./fieldReaders";
 import { createProvenance } from "./provenance";
+import type { TimeInput } from "./timeInput";
 import { createTwoBodyTrajectory, type EccentricSampling } from "./sunCentredSources";
 import type { Trajectory } from "./trajectory";
 import { createOrbTwoBodyAdapter } from "./twoBodyAdapter";
@@ -30,6 +31,7 @@ export function classifyPositionError(maxFraction: number): AccuracyClassificati
   return null;
 }
 
+/** The time scale an elements solution is expressed in: "TDB", "TT" or "UTC". */
 export type ElementsTimeScale = "TDB" | "TT" | "UTC";
 /** The class a position comparison earns: `"approximate"` or `"indicative"` (see `classifyPositionError`). */
 export type AccuracyClassification = "approximate" | "indicative";
@@ -66,15 +68,14 @@ export interface ElementsBodyRecord {
     readonly ttMinusUtcSeconds?: number;
   };
   /** The plane the elements are given in. */
-  readonly frame: "ecliptic-j2000";
+  readonly plane: "ecliptic-j2000";
   readonly source: ElementsSource;
   readonly radius?: { readonly km: number; readonly source: string };
   readonly accuracy: {
     readonly classification: AccuracyClassification;
     readonly statement: string;
-    /** The dates the position was compared with an independent ephemeris: what the claim covers. */
-    readonly validFromUtc: string;
-    readonly validToUtc: string;
+    /** The dates the position was compared with an independent ephemeris: what the claim covers. A record is usually JSON, so ISO text such as `2030-01-01T00:00:00Z` is the usual form; a Date or Unix milliseconds also read. */
+    readonly valid: { readonly start: TimeInput; readonly end: TimeInput };
     /** Further limits to show beside the generic two-body ones. */
     readonly limitations: readonly string[];
   };
@@ -90,7 +91,21 @@ function fail(path: string, problem: string): never {
   throw new ElementsBodyError(`body record ${path} ${problem}`);
 }
 
-const { record, text, finite, instant } = fieldReaders(fail);
+const { record, text, finite } = fieldReaders(fail);
+
+/** A moment a record gives: ISO text (kept as written), a Date or Unix milliseconds (both returned as ISO text); anything else is refused naming the field. */
+function moment(parent: Raw, key: string, path: string): string {
+  const value = parent[key];
+  if (typeof value === "string") {
+    if (!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?Z$/.test(value) || !Number.isFinite(Date.parse(value))) {
+      fail(`${path}.${key}`, `must be an ISO-8601 UTC time like 2030-01-01T00:00:00Z, got "${value}"`);
+    }
+    return value;
+  }
+  const ms = value instanceof Date ? value.getTime() : value;
+  if (typeof ms !== "number" || !Number.isFinite(ms)) fail(`${path}.${key}`, `is required and must be an ISO-8601 UTC time like 2030-01-01T00:00:00Z, a Date or Unix milliseconds, got ${String(value)}`);
+  return new Date(ms).toISOString();
+}
 
 /** The five orbit-shape elements and the one placement along the orbit (exactly one of mean anomaly and perihelion time). */
 function parseOrbitElements(raw: Raw, here: string): ElementsBodyRecord["elements"] {
@@ -139,12 +154,16 @@ function parseRadius(raw: Raw, here: string): NonNullable<ElementsBodyRecord["ra
 function parseAccuracy(raw: Raw, here: string): ElementsBodyRecord["accuracy"] {
   const classification = raw.classification;
   if (classification !== "approximate" && classification !== "indicative") fail(`${here}.classification`, `must be "approximate" or "indicative", got ${String(classification)}`);
-  const validFromUtc = instant(raw, "validFromUtc", here);
-  const validToUtc = instant(raw, "validToUtc", here);
-  if (Date.parse(validToUtc) <= Date.parse(validFromUtc)) fail(`${here}.validToUtc`, "must be after accuracy.validFromUtc");
+  for (const [old, use] of [["validFromUtc", "valid.start"], ["validToUtc", "valid.end"]] as const) {
+    if (Object.hasOwn(raw, old)) fail(`${here}.${old}`, `is now \`${use}\` inside \`valid: { start, end }\` (the old name is not accepted)`);
+  }
+  const valid = record(raw.valid, `${here}.valid`);
+  const start = moment(valid, "start", `${here}.valid`);
+  const end = moment(valid, "end", `${here}.valid`);
+  if (Date.parse(end) <= Date.parse(start)) fail(`${here}.valid.end`, "must be after accuracy.valid.start");
   const limitations = raw.limitations ?? [];
   if (!Array.isArray(limitations) || limitations.some((item) => typeof item !== "string" || item.trim().length === 0)) fail(`${here}.limitations`, "must be a list of non-empty text");
-  return { classification, statement: text(raw, "statement", here), validFromUtc, validToUtc, limitations: [...limitations] };
+  return { classification, statement: text(raw, "statement", here), valid: { start, end }, limitations: [...limitations] };
 }
 
 function parseMarker(raw: Raw, here: string): ElementsBodyRecord["marker"] {
@@ -163,12 +182,13 @@ export function parseElementsBodyRecord(input: unknown, path = "body"): Elements
   const label = text(root, "label", path);
   const elements = parseOrbitElements(record(root.elements, `${path}.elements`), `${path}.elements`);
   const epoch = parseEpoch(record(root.epoch, `${path}.epoch`), `${path}.epoch`);
-  if (root.frame !== "ecliptic-j2000") fail(`${path}.frame`, `must be "ecliptic-j2000", got ${String(root.frame)}`);
+  if (Object.hasOwn(root, "frame")) fail(`${path}.frame`, "is now `plane` (the old name is not accepted)");
+  if (root.plane !== "ecliptic-j2000") fail(`${path}.plane`, `must be "ecliptic-j2000", got ${String(root.plane)}`);
   const source = parseSource(record(root.source, `${path}.source`), `${path}.source`);
   const radius = root.radius === undefined ? undefined : parseRadius(record(root.radius, `${path}.radius`), `${path}.radius`);
   const accuracy = parseAccuracy(record(root.accuracy, `${path}.accuracy`), `${path}.accuracy`);
   const marker = parseMarker(root.marker === undefined ? {} : record(root.marker, `${path}.marker`), `${path}.marker`);
-  return { id, label, elements, epoch, frame: "ecliptic-j2000", source, ...(radius === undefined ? {} : { radius }), accuracy, marker };
+  return { id, label, elements, epoch, plane: "ecliptic-j2000", source, ...(radius === undefined ? {} : { radius }), accuracy, marker };
 }
 
 /** The body a record's elements orbit: its id and gravitational parameter, from the catalogue's root. */
@@ -217,7 +237,7 @@ export function buildElementsBody(input: ElementsBodyRecord, centre: ElementsCen
   const create = (): Trajectory => createTwoBodyTrajectory({
     body: body.id,
     center: centre.id,
-    plane: body.frame,
+    plane: body.plane,
     epochUtcMs,
     elements: {
       semiMajorAxisKm,
@@ -253,7 +273,7 @@ export function buildElementsBody(input: ElementsBodyRecord, centre: ElementsCen
         accuracyClass: body.accuracy.classification,
         maxErrorFraction: body.accuracy.classification === "approximate" ? APPROXIMATE_LIMIT_FRACTION : INDICATIVE_LIMIT_FRACTION,
       }),
-      validUtc: Object.freeze({ startUtcMs: Date.parse(body.accuracy.validFromUtc), endUtcMs: Date.parse(body.accuracy.validToUtc) }),
+      validUtc: Object.freeze({ startUtcMs: Date.parse(body.accuracy.valid.start as string), endUtcMs: Date.parse(body.accuracy.valid.end as string) }),
       orientationLimitations: Object.freeze([
         `Unperturbed two-body motion about the Sun from osculating elements at JD ${body.epoch.jd} ${body.epoch.timeScale}: no planetary perturbations and no non-gravitational forces.`,
         ...body.accuracy.limitations,

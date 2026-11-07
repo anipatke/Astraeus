@@ -1,5 +1,6 @@
 // Mars's system for the planets experience: Mars with Phobos and Deimos on their fitted orbits, and Mars's tagged places. The words and numbers of the
 // view are data/planets/mars.json; this file only names where Mars's data is.
+import type { MoonIndex } from "astraeus";
 import type { PlanetSystem } from "../planetScene";
 import { chunkUrlsOf, moonListOf, moonPositionsOf, packagesOf } from "../planetSystemParts";
 
@@ -7,7 +8,7 @@ import { chunkUrlsOf, moonListOf, moonPositionsOf, packagesOf } from "../planetS
 const LISTS = import.meta.glob("../../../../../astraeus-data-mars/data/mars-moons/list.json", { eager: true, import: "default" }) as Record<string, unknown>;
 const FIT_ERRORS = import.meta.glob("../../../../../astraeus-data-mars/data/mars-moons/fit-errors.json", { eager: true, import: "default" }) as Record<string, Record<string, number>>;
 /** The index ships in astraeus-data-mars; a lazy glob keeps it its own chunk (it is read only when the system loads). */
-const INDEX = import.meta.glob("../../../../../astraeus-data-mars/data/mars-moons/index.json", { import: "default" }) as Record<string, () => Promise<unknown>>;
+const INDEX = import.meta.glob("../../../../../astraeus-data-mars/data/mars-moons/index.json", { import: "default" }) as Record<string, () => Promise<MoonIndex>>;
 
 /** The tagged places of Mars itself: its body package's features and categories, read as they are stored. */
 const PACKAGES = import.meta.glob("../../../../../astraeus-data/data/bodies/mars/{features,categories}.json", { eager: true, import: "default" }) as Record<string, unknown>;
@@ -23,5 +24,5 @@ export const marsSystem: PlanetSystem = {
   moonList: MOON_LIST,
   fitErrorsM: Object.values(FIT_ERRORS)[0],
   packages: packagesOf(PACKAGES, ["mars"]),
-  data: [moonPositionsOf({ name: "astraeus-data-mars", centre: "mars", provides: ["phobos", "deimos"], loadIndex: Object.values(INDEX)[0]!, chunkUrls: MARS_CHUNK_URLS })],
+  data: [moonPositionsOf({ name: "astraeus-data-mars", center: "mars", provides: ["phobos", "deimos"], loadIndex: Object.values(INDEX)[0]!, chunkUrls: MARS_CHUNK_URLS })],
 };

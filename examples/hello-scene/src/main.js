@@ -36,7 +36,7 @@ const scene = new Scene()
   })
   .addTrajectory({ id: "probe-b", label: "Probe B", samples: circle(200_000, 9, 35), provenance: madeUp, description: "A second made-up probe on a tilted circle, one lap in nine hours.", knownLimitations: ["Invented path: not a real spacecraft."] })
   // The 40 orbits as one group of dots: one colour, one menu item and info card, a quarter of the dots drawn near the Moon.
-  .addGroup({ id: "ring", label: "Made-up ring", orbits, color: "#9de3a8", seed: 7, clump: { near: "moon", fraction: 0.25, widthDeg: 20 }, provenance: madeUp, description: "Forty invented orbits about Earth, one dot each.", knownLimitations: ["Invented orbits: not a real population."] })
+  .addGroup({ id: "ring", label: "Made-up ring", plane: "ecliptic-j2000", orbits, color: "#9de3a8", seed: 7, clump: { near: "moon", fraction: 0.25, widthDeg: 20 }, provenance: madeUp, description: "Forty invented orbits about Earth, one dot each.", knownLimitations: ["Invented orbits: not a real population."] })
   // Two moments on the timeline, and one story panel that opens at the second.
   .addEvents(
     [
@@ -46,34 +46,31 @@ const scene = new Scene()
     ],
     { provenance: madeUp },
   )
-  .addStoryPanels({
-    panels: [
-      {
-        id: "half-lap",
-        at: { event: "halfway" },
-        title: "Half a lap",
-        body: ["The probe is on the far side of Earth from where it began.", "Nothing here is real: the path is a circle."],
-        badge: "illustrative",
-        sources: ["Invented for this example"],
-        object: "probe",
-      },
-    ],
-  })
+  .addStoryPanels([
+    {
+      id: "half-lap",
+      at: { event: "halfway" },
+      title: "Half a lap",
+      body: ["The probe is on the far side of Earth from where it began.", "Nothing here is real: the path is a circle."],
+      provenance: madeUp,
+      object: "probe",
+    },
+  ])
   // Two views of one scene: Probe A shows its own events, Probe B its own, Both shows every path and event. Earth, the Moon and the ring stay in every view.
   .setViews([
-    { id: "a", label: "Probe A", paths: ["probe"], events: ["burn", "halfway"], camera: { focus: "probe" } },
-    { id: "b", label: "Probe B", paths: ["probe-b"], events: ["pass-b"], camera: { focus: "probe-b" } },
-    { id: "both", label: "Both", paths: ["probe", "probe-b"], events: ["burn", "halfway", "pass-b"] },
+    { id: "a", label: "Probe A", objects: ["probe"], events: ["burn", "halfway"], camera: { focus: "probe" } },
+    { id: "b", label: "Probe B", objects: ["probe-b"], events: ["pass-b"], camera: { focus: "probe-b" } },
+    { id: "both", label: "Both", objects: ["probe", "probe-b"], events: ["burn", "halfway", "pass-b"] },
   ], { place: "top-bar" })
   // The timeline covers one lap and offers three speeds. Playback drops to 60x within 20 minutes of a "flyby" event, but only of the showing view's events.
-  .setTimeline({ start, end: start + 6 * HOUR, rates: [60, 600, 3600], rate: 600, pacing: [{ near: { type: "flyby", within: 1200 }, rate: 60 }] })
+  .setTimeline({ start, end: start + 6 * HOUR, rates: [60, 600, 3600], rate: 600, pacing: [{ near: { type: "flyby", withinSeconds: 1200 }, rate: 60 }] })
   // Orbit lines get a button in the top bar and labels a row in the switch panel; the Milky Way picture stays in the Developer drawer, off.
   .setSwitches({ orbitLines: { place: "top-bar" }, labels: { place: "panel" }, milkyWay: { place: "developer", on: false } })
   // True scale only: the viewer offers no switch to the readable scale.
   .setScale(trueScale, { only: true })
   .setTime("2026-01-01T00:00:00Z");
 // Opens framed on the probe, looking at it rather than following it.
-scene.camera.lookAt("probe", { distance: 110 });
+scene.camera.focus("probe", { distance: 110 });
 
 const viewer = mount(document.getElementById("app"), scene);
 await viewer.ready;

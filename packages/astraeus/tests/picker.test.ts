@@ -9,6 +9,7 @@ import { Scene, SceneError, earth, type PickerInput } from "astraeus";
 import { ViewerLink } from "../src/api/viewerLink";
 import { pickerSwitch } from "../src/app/listSwitch";
 import { SwitchControl } from "../src/shell/SwitchControl";
+import { definitionOf } from "../src/api/definitionOf";
 
 (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
 
@@ -19,12 +20,12 @@ const base = () => new Scene().addBody(earth);
 describe("Scene.setPicker", () => {
   it("is absent by default; set, it reads back frozen, and the definition carries it", () => {
     expect(base().picker).toBeUndefined();
-    expect(base().toDefinition([{ name: "made-up", provides: ["earth"] }]).picker).toBeUndefined();
+    expect(definitionOf(base(), [{ name: "made-up", provides: ["earth"] }]).picker).toBeUndefined();
     const scene = base().setPicker(picker);
     expect(scene.picker).toEqual(picker);
     expect(Object.isFrozen(scene.picker)).toBe(true);
     expect(Object.isFrozen(scene.picker!.options[0])).toBe(true);
-    expect(scene.toDefinition([{ name: "made-up", provides: ["earth"] }]).picker).toEqual(picker);
+    expect(definitionOf(scene, [{ name: "made-up", provides: ["earth"] }]).picker).toEqual(picker);
   });
   it("replaces the whole picker, and does not keep the caller's object", () => {
     const options = [{ value: "a", label: "A" }, { value: "b", label: "B" }];

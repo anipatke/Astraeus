@@ -10,6 +10,7 @@ import { PLUTO_MOON_SYSTEM } from "../src/core/bodies/planetMoons";
 import { prepareScene } from "../src/api/prepared";
 import { readBytes, readJson } from "../tools/import/test-io.mjs";
 import { moonDataFolder } from "./moonData";
+import { definitionOf, missingDataOf } from "../src/api/definitionOf";
 
 const T0 = Date.parse("2026-01-01T00:00:00Z");
 const DAY = 86_400_000;
@@ -27,9 +28,9 @@ const set = (extra: Partial<BodySetInput> = {}): BodySetInput => ({
 });
 /** A made-up centre: a body with its own gravity, so it can be a body set's centre. The scene's centre is Earth; the set circles it unless `center` says otherwise. */
 /** A made-up centre of a made-up system: a body on a Sun orbit with no gravity of its own on record. */
-const WANDERER = { id: "wanderer", label: "Wanderer", elements: { semiMajorAxisAu: 2, eccentricity: 0.1, inclinationDeg: 5, ascendingNodeDeg: 40, argumentOfPerihelionDeg: 70, meanAnomalyDeg: 0 }, epoch: { jd: 2461041.5, timeScale: "UTC" }, frame: "ecliptic-j2000", source: { name: "Invented", url: "https://example.invalid/", solution: "Invented", accessed: "2026-01-01" }, accuracy: { classification: "approximate", statement: "Invented.", validFromUtc: "2026-01-01T00:00:00Z", validToUtc: "2027-01-01T00:00:00Z", limitations: [] }, marker: { color: "#ffffff", sizePx: 3 } } as never;
+const WANDERER = { id: "wanderer", label: "Wanderer", elements: { semiMajorAxisAu: 2, eccentricity: 0.1, inclinationDeg: 5, ascendingNodeDeg: 40, argumentOfPerihelionDeg: 70, meanAnomalyDeg: 0 }, epoch: { jd: 2461041.5, timeScale: "UTC" }, plane: "ecliptic-j2000", source: { name: "Invented", url: "https://example.invalid/", solution: "Invented", accessed: "2026-01-01" }, accuracy: { classification: "approximate", statement: "Invented.", valid: { start: "2026-01-01T00:00:00Z", end: "2027-01-01T00:00:00Z" }, limitations: [] }, marker: { color: "#ffffff", sizePx: 3 } } as never;
 const base = () => new Scene().addBody(earth).addBody(moon).setTime(T0).setTimeline({ start: T0, end: T0 + 60 * DAY });
-const layerOf = (scene: Scene, data: readonly DataSource[] = []) => bodySetsOf(scene.toDefinition(data))[0]!;
+const layerOf = (scene: Scene, data: readonly DataSource[] = []) => bodySetsOf(definitionOf(scene, data))[0]!;
 const codeOf = (fn: () => unknown) => { try { fn(); } catch (error) { return error instanceof SceneError ? error.code : String(error); } return "no error"; };
 
 describe("addBodySet with made-up members (elements)", () => {
@@ -114,28 +115,28 @@ describe("addBodySet with made-up members (elements)", () => {
   it("each member becomes a selectable shell item after the bodies and paths: unlisted by default, with its words and its own or the set's provenance", () => {
     const own = { ...PROVENANCE, accuracy: "Own." };
     const scene = base().addTrajectory({ id: "probe", center: "earth", samples: [0, 1].map((i) => ({ time: T0 + i * DAY, positionKm: [1e5 + i, 0, 0] })) }).addBodySet(set({ members: [member(0, "inner", { description: "Words.", facts: [{ label: "Colour", value: "grey" }], listed: true, provenance: own, knownLimitations: ["Invented."] }), member(1)] }));
-    const ids = scene.toDefinition().experience.objects.map((object) => object.id);
+    const ids = definitionOf(scene).experience.objects.map((object) => object.id);
     expect(ids).toEqual(["earth", "moon", "probe", "bit-0", "bit-1"]);
-    const [first, second] = scene.toDefinition().experience.objects.slice(3);
+    const [first, second] = definitionOf(scene).experience.objects.slice(3);
     expect(first).toMatchObject({ label: "Bit 0", listed: true, description: "Words.", facts: [{ label: "Colour", value: "grey" }], provenance: own, knownLimitations: ["Invented."] });
     expect(second).toMatchObject({ label: "Bit 1", listed: false, provenance: PROVENANCE });
     expect(second!.description).toMatch(/Inner swarm/);
-    expect(scene.toDefinition().experience.cameraPresets.map((p) => p.id)).not.toContain("focus-bit-0");
+    expect(definitionOf(scene).experience.cameraPresets.map((p) => p.id)).not.toContain("focus-bit-0");
   });
 
   it("stateOf and provenanceOf accept member ids, and story panels may name them", () => {
     const own = { ...PROVENANCE, accuracy: "Own." };
-    const scene = base().addBodySet(set({ members: [member(0, "inner", { provenance: own }), member(1)] })).addStoryPanels({ panels: [{ id: "p", at: { utc: "2026-01-01T00:01:00Z" }, title: "A bit", body: ["Made up."], badge: "illustrative", sources: ["Invented"], object: "bit-1" }] });
+    const scene = base().addBodySet(set({ members: [member(0, "inner", { provenance: own }), member(1)] })).addStoryPanels([{ id: "p", at: { time: "2026-01-01T00:01:00Z" }, title: "A bit", body: ["Made up."], provenance: { sourceType: "illustrative" as const, sources: ["Invented"], accuracy: "None claimed.", notes: "Made up." }, object: "bit-1" }]);
     expect(scene.provenanceOf("bit-0")).toEqual(own);
     expect(scene.provenanceOf("bit-1")).toEqual(PROVENANCE);
     expect(scene.panels.map((panel) => panel.object)).toEqual(["bit-1"]);
-    expect(scene.toDefinition().experience.storyPanels?.panels.map((panel) => panel.objectId)).toEqual(["bit-1"]);
+    expect(definitionOf(scene).experience.storyPanels?.panels.map((panel) => panel.objectId)).toEqual(["bit-1"]);
     expect(codeOf(() => scene.stateOf("ghost", T0))).toBe("unknown-body");
   });
 
   it("a view cannot name a set or a member: it is in every view", () => {
-    expect(codeOf(() => base().addBodySet(set()).setViews([{ id: "a", label: "A", bodies: ["bit-0"] }, { id: "b", label: "B", bodies: ["earth"] }], { place: "panel" }).check())).toBe("bad-view");
-    expect(codeOf(() => base().addBodySet(set()).setViews([{ id: "a", label: "A", bodies: ["swarm"] }, { id: "b", label: "B", bodies: ["earth"] }], { place: "panel" }).check())).toBe("bad-view");
+    expect(codeOf(() => base().addBodySet(set()).setViews([{ id: "a", label: "A", objects: ["bit-0"] }, { id: "b", label: "B", objects: ["earth"] }], { place: "panel" }).check())).toBe("bad-view");
+    expect(codeOf(() => base().addBodySet(set()).setViews([{ id: "a", label: "A", objects: ["swarm"] }, { id: "b", label: "B", objects: ["earth"] }], { place: "panel" }).check())).toBe("bad-view");
   });
 
   it("reads: a fresh frozen list that answers before and after a build, and in order added", () => {
@@ -147,7 +148,7 @@ describe("addBodySet with made-up members (elements)", () => {
     expect(Object.isFrozen(reads[0]!.families)).toBe(true);
     expect(scene.bodySets).not.toBe(reads);
     expect(new Scene().bodySets).toEqual([]);
-    scene.toDefinition();
+    definitionOf(scene);
     expect(scene.bodySets).toEqual(reads);
     expect(new Scene().addBody(earth).addBodySet(set({ center: "moon" })).bodySets[0]!.center).toBe("moon");
   });
@@ -218,7 +219,7 @@ describe("addBodySet refuses bad input with bad-body-set", () => {
     expect(codeOf(() => base().addBodySet(set()).addBodySet(set()))).toBe("duplicate-id");
     expect(codeOf(() => base().addBodySet(set()).addBodySet(set({ id: "other" })))).toBe("duplicate-id"); // same member ids
     expect(codeOf(() => base().addBodySet(set({ members: [member(0, "inner", { id: "moon" })] })))).toBe("duplicate-id");
-    expect(codeOf(() => base().addBodySet(set()).addGroup({ id: "bit-0", orbits: [{ id: "a", semiMajorAxisKm: 9e4, eccentricity: 0.1, inclinationDeg: 5, raanDeg: 40, argumentOfPeriapsisDeg: 70 }] }))).toBe("duplicate-id");
+    expect(codeOf(() => base().addBodySet(set()).addGroup({ plane: "ecliptic-j2000", id: "bit-0", orbits: [{ id: "a", semiMajorAxisKm: 9e4, eccentricity: 0.1, inclinationDeg: 5, raanDeg: 40, argumentOfPeriapsisDeg: 70 }] }))).toBe("duplicate-id");
     expect(codeOf(() => base().addBodySet(set()).addTrajectory({ id: "swarm", center: "earth", samples: [0, 1].map((i) => ({ time: T0 + i * DAY, positionKm: [1e5 + i, 0, 0] })) }))).toBe("duplicate-id");
   });
 
@@ -235,7 +236,7 @@ describe("addBodySet with listed moons (positions through data)", () => {
   const folder = moonDataFolder("jupiter");
   const index = readJson(`${folder}index.json`) as { bodies: { chunks: { path: string }[] }[] };
   const chunkUrls: Record<string, string> = Object.fromEntries(index.bodies.flatMap((body) => body.chunks.map(({ path }) => [path, `${folder}${path}`])));
-  const data: DataSource[] = [{ name: "astraeus-data-jupiter", provides: [], moonPositions: { centre: "jupiter", loadIndex: async () => index, chunkUrls } }];
+  const data: DataSource[] = [{ name: "astraeus-data-jupiter", provides: [], moonPositions: { center: "jupiter", loadIndex: async () => index, chunkUrls } }];
   const T1 = Date.parse("2020-03-05T00:00:00Z");
   const listed = (extra: Partial<BodySetInput> = {}): BodySetInput => ({
     id: "small",
@@ -265,7 +266,7 @@ describe("addBodySet with listed moons (positions through data)", () => {
     expect(layer.extraOrbits!.group.provenance.accuracy).toBe("As each moon's own record.");
     expect(layer.centreGmKm3S2).toBe(JUPITER_MOON_SYSTEM.config.centreGmKm3S2);
     expect(layer.balancePoint).toBeUndefined();
-    expect(bodySetsOf(jupiterScene().toDefinition(data))).toHaveLength(1);
+    expect(bodySetsOf(definitionOf(jupiterScene(), data))).toHaveLength(1);
   });
 
   it("a body with an orbit of its own keeps it: it takes the family colour but has no line in the batch", () => {
@@ -291,8 +292,8 @@ describe("addBodySet with listed moons (positions through data)", () => {
   it("scene.check and missingData ask for the package the members need, and accept it when passed", () => {
     expect(codeOf(() => jupiterScene().check({ data: [{ name: "made-up", provides: ["io"] }] }))).toBe("missing-data");
     const onlySet = new Scene().addBody(jupiter).addBodySet({ ...listed(), bodies: undefined });
-    expect(onlySet.missingData([])).toEqual(["astraeus-data-jupiter"]);
-    expect(onlySet.missingData(data)).toEqual([]);
+    expect(missingDataOf(onlySet, [])).toEqual(["astraeus-data-jupiter"]);
+    expect(missingDataOf(onlySet, data)).toEqual([]);
     expect(() => jupiterScene().check({ data })).not.toThrow();
   });
 

@@ -3,10 +3,15 @@
 import { describe, expect, it } from "vitest";
 import { createSceneResolver } from "astraeus/app/sceneLayout";
 import { createOrbAstronomyAdapter } from "astraeus/core/astronomyAdapter";
-import { apollo11Definition as after } from "../src/experiences/apollo11/apollo11Definition";
+import { apollo11Definition as after } from "./apollo11Definition";
 import before from "./fixtures/apollo11-before-rebuild.json";
 
 const plain = <T>(value: T): T => JSON.parse(JSON.stringify(value)) as T;
+/** The story panels in the words the fixture was recorded in: `provenance` gave them `badge` and `sources`, so comparing those words proves the move changed neither (O-057 T-278). */
+const oldPanelWords = <T>(set: T): unknown => {
+  const { panels, ...rest } = set as { panels: { provenance: { sourceType: string; sources: string[] } }[] };
+  return { ...rest, panels: panels.map(({ provenance, ...panel }) => ({ ...panel, badge: provenance.sourceType, sources: provenance.sources })) };
+};
 const objectsAfter = plain(after.experience.objects) as unknown as Record<string, unknown>[];
 const byId = (list: readonly Record<string, unknown>[], id: string) => list.find((item) => item.id === id)!;
 
@@ -74,7 +79,7 @@ describe("the rebuilt Apollo 11 against the definition it replaced", () => {
     // The old definition's speeds were topped up with 1x, 1 h, 1 d and 1 week at draw time; the engine no longer adds any (I-106), so the rebuild lists the full set.
     expect(plain(after.experience.rates)).toEqual([...new Set([...before.rates, 1, 3_600, 86_400, 604_800])].sort((a: number, b: number) => a - b));
     expect(plain(after.clock)).toEqual(before.clock);
-    expect(plain(after.experience.storyPanels)).toEqual(before.storyPanels);
+    expect(oldPanelWords(plain(after.experience.storyPanels))).toEqual(before.storyPanels);
     expect(plain(after.scaleChoices)).toEqual(before.scaleChoices);
     expect(after.scaleChoices).toEqual(["true-scale"]);
     expect(plain(after.startView)).toEqual(before.startView);

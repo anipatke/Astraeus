@@ -13,6 +13,7 @@ import { lineBodies, type LineStretch, type TrackedBody } from "../app/mission";
 import { planLineStretches, planPathProvenance } from "./pathProvenance";
 import { influenceStretches, sphereOfInfluenceKm, type InfluenceCandidate } from "./sphereOfInfluence";
 import { SceneError } from "./errors";
+import { rejectRenamed } from "./renamedInputs";
 import { toUtcMs } from "./time";
 import type { AnchorInput, ReadoutInput, TrajectoryInput } from "./scene";
 import { frozenList, type ScenePathRead } from "./sceneReads";
@@ -42,13 +43,14 @@ export function pathReads(tracked: Iterable<Tracked>): readonly ScenePathRead[] 
 /** Validates and stores one path about `center`. */
 export function buildTracked(input: TrajectoryInput, center: BodyId, labelReaches: Map<string, number>): Tracked {
   const id = input.id;
+  rejectRenamed("TrajectoryInput", input, `addTrajectory("${id}")`);
   if (!builtInCatalogue.has(center)) throw new SceneError("unknown-body", `addTrajectory("${id}"): centre "${center}" is not a catalogued body`);
   const provenance = input.provenance ?? createProvenance({ sourceType: "illustrative", sources: ["Supplied by the caller"], accuracy: "As supplied; the engine makes no claim.", notes: "Positions were passed to addTrajectory." });
   const common = { id, label: input.label ?? id, color: input.color ?? DEFAULT_COLOR, anchorTimesUtcMs: [], provenance };
   const readouts = readoutsOf(id, input.readouts);
-  if (input.labelReach !== undefined) {
-    checkLabelReach(input.labelReach, new SceneError("bad-trajectory", `addTrajectory("${id}"): labelReach ${String(input.labelReach)} must be a positive finite number`));
-    labelReaches.set(id, input.labelReach);
+  if (input.labelReachEarthRadii !== undefined) {
+    checkLabelReach(input.labelReachEarthRadii, new SceneError("bad-trajectory", `addTrajectory("${id}"): labelReachEarthRadii ${String(input.labelReachEarthRadii)} must be a positive finite number`));
+    labelReaches.set(id, input.labelReachEarthRadii);
   }
   if (input.plane !== undefined && input.plane !== "EQJ" && input.plane !== "ecliptic-j2000") throw new SceneError("bad-trajectory", `addTrajectory("${id}"): plane "${String(input.plane)}" must be "EQJ" or "ecliptic-j2000"`);
   const toEqj = input.plane === "ecliptic-j2000" ? createOrbTwoBodyAdapter().eclipticJ2000ToEqjMatrix() : null;

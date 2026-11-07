@@ -5,11 +5,10 @@
     {
       "id": "volcanoes",
       "at": {
-        "utc": "2016-11-04T04:00:00Z"
+        "time": "2016-11-04T04:00:00Z"
       },
       "object": "io",
       "title": "The most volcanic world we know",
-      "badge": "observed",
       "body": [
         "Io is only a little bigger than our Moon, yet it has hundreds of volcanoes, more than anywhere else in the solar system. Some throw fountains of lava high above the ground.",
         "In late 1999 the Galileo spacecraft flew past Io and caught one of those fountains erupting."
@@ -20,21 +19,25 @@
         "Galileo, in orbit around Jupiter from 1995 to 2003, caught an eruption at Tvashtar Catena on 25 November 1999, with lava fountains up to 1.5 km above the surface (NASA Photojournal PIA02545).",
         "The scene draws Io where NASA JPL's Horizons system places it; it shows no volcanoes or eruptions. This moment is chosen near the start of the scene so the first panel opens soon after play."
       ],
-      "sources": [
-        "NASA Science, Io: \"the most volcanically active world in the solar system, with hundreds of volcanoes, some erupting lava fountains dozens of miles (or kilometers) high\"; \"only slightly larger than Earth's Moon\"; https://science.nasa.gov/jupiter/jupiter-moons/io/ (accessed 2026-10-18)",
-        "NASA Space Science Data Coordinated Archive, Jovian Satellite Fact Sheet: Io mean radius 1821.5 km; https://nssdc.gsfc.nasa.gov/planetary/factsheet/joviansatfact.html; Moon Fact Sheet: volumetric mean radius 1737.4 km; https://nssdc.gsfc.nasa.gov/planetary/factsheet/moonfact.html (accessed 2026-10-18)",
-        "NASA Photojournal PIA02545, Eruption at Tvashtar Catena, Io, in Color: Galileo caught the eruption on 25 November 1999; fountains up to 1.5 km; https://science.nasa.gov/photojournal/eruption-at-tvashtar-catena-io-in-color (accessed 2026-10-18)",
-        "NASA Science, Galileo mission: entered orbit on 7 December 1995, mission ended 21 September 2003; https://science.nasa.gov/mission/galileo/ (accessed 2026-10-18)"
-      ]
+      "provenance": {
+        "sourceType": "observed",
+        "sources": [
+          "NASA Science, Io: \"the most volcanically active world in the solar system, with hundreds of volcanoes, some erupting lava fountains dozens of miles (or kilometers) high\"; \"only slightly larger than Earth's Moon\"; https://science.nasa.gov/jupiter/jupiter-moons/io/ (accessed 2026-10-18)",
+          "NASA Space Science Data Coordinated Archive, Jovian Satellite Fact Sheet: Io mean radius 1821.5 km; https://nssdc.gsfc.nasa.gov/planetary/factsheet/joviansatfact.html; Moon Fact Sheet: volumetric mean radius 1737.4 km; https://nssdc.gsfc.nasa.gov/planetary/factsheet/moonfact.html (accessed 2026-10-18)",
+          "NASA Photojournal PIA02545, Eruption at Tvashtar Catena, Io, in Color: Galileo caught the eruption on 25 November 1999; fountains up to 1.5 km; https://science.nasa.gov/photojournal/eruption-at-tvashtar-catena-io-in-color (accessed 2026-10-18)",
+          "NASA Science, Galileo mission: entered orbit on 7 December 1995, mission ended 21 September 2003; https://science.nasa.gov/mission/galileo/ (accessed 2026-10-18)"
+        ],
+        "accuracy": "Not stated by the source.",
+        "notes": "The sizes and the eruption are published NASA values. The scene draws Io where NASA JPL's Horizons system places it and shows no volcanoes or eruptions. This moment is chosen near the start of the scene."
+      }
     },
     {
       "id": "squeezed",
       "at": {
-        "utc": "2016-11-07T00:00:00Z"
+        "time": "2016-11-07T00:00:00Z"
       },
       "object": "jupiter",
       "title": "Squeezed by a giant",
-      "badge": "modelled",
       "body": [
         "Io's path around Jupiter is not quite a circle, so the giant planet's pull on it keeps changing. Io is squeezed and relaxed again and again, like a stress ball in a restless hand, and the squeezing heats it from inside.",
         "Scientists worked this out in 1979 and predicted volcanoes, just days before the Voyager 1 spacecraft saw them erupting."
@@ -45,20 +48,24 @@
         "Tidal heating is the accepted model of what powers Io's volcanoes, hence the modelled badge. The stress-ball comparison is a picture, not a measurement.",
         "This moment is chosen for pacing; nothing special happens at this time."
       ],
-      "sources": [
-        "NASA Space Science Data Coordinated Archive, Jovian Satellite Fact Sheet: Io eccentricity 0.004, orbital period 1.769138 days; https://nssdc.gsfc.nasa.gov/planetary/factsheet/joviansatfact.html (accessed 2026-10-18)",
-        "NASA Science, Io: \"caught in a tug-of-war between Jupiter's massive gravity and the smaller but precisely timed pulls\" of Europa and Ganymede; https://science.nasa.gov/jupiter/jupiter-moons/io/ (accessed 2026-10-18)",
-        "Peale, S. J., Cassen, P. and Reynolds, R. T. 1979, Melting of Io by Tidal Dissipation, Science 203, 892-894, doi 10.1126/science.203.4383.892",
-        "Morabito, L. A. 2012, Discovery of Volcanic Activity on Io: A Historical Review, arXiv 1211.2554"
-      ]
+      "provenance": {
+        "sourceType": "modelled",
+        "sources": [
+          "NASA Space Science Data Coordinated Archive, Jovian Satellite Fact Sheet: Io eccentricity 0.004, orbital period 1.769138 days; https://nssdc.gsfc.nasa.gov/planetary/factsheet/joviansatfact.html (accessed 2026-10-18)",
+          "NASA Science, Io: \"caught in a tug-of-war between Jupiter's massive gravity and the smaller but precisely timed pulls\" of Europa and Ganymede; https://science.nasa.gov/jupiter/jupiter-moons/io/ (accessed 2026-10-18)",
+          "Peale, S. J., Cassen, P. and Reynolds, R. T. 1979, Melting of Io by Tidal Dissipation, Science 203, 892-894, doi 10.1126/science.203.4383.892",
+          "Morabito, L. A. 2012, Discovery of Volcanic Activity on Io: A Historical Review, arXiv 1211.2554"
+        ],
+        "accuracy": "Not stated by the source.",
+        "notes": "Tidal heating is the accepted model of what powers Io's volcanoes. The stress-ball comparison is a picture, not a measurement. This moment is chosen for pacing; nothing special happens at this time."
+      }
     },
     {
       "id": "rhythm",
       "at": {
-        "utc": "2016-11-11T00:00:00Z"
+        "time": "2016-11-11T00:00:00Z"
       },
       "title": "Four laps, two laps, one lap",
-      "badge": "observed",
       "body": [
         "Io has two big neighbours farther out, Europa and Ganymede. In about a week, Io circles Jupiter four times, Europa twice and Ganymede once, and then the pattern repeats.",
         "This steady beat keeps tugging Io's path out of round, so the squeezing never stops. You can watch Europa and Ganymede keep the beat in this scene."
@@ -67,11 +74,16 @@
         "Orbital periods: Io 1.769 days (about 42.5 hours), Europa 3.551 days, Ganymede 7.155 days (NASA fact sheet). Four Io orbits take 7.08 days and two Europa orbits 7.10 days.",
         "This moment is seven days after the scene starts: in that week Io has gone round Jupiter about four times. The moons' positions in this scene come from NASA JPL's Horizons system."
       ],
-      "sources": [
-        "NASA Space Science Data Coordinated Archive, Jovian Satellite Fact Sheet: orbital periods Io 1.769138 d, Europa 3.551181 d, Ganymede 7.154553 d; https://nssdc.gsfc.nasa.gov/planetary/factsheet/joviansatfact.html (accessed 2026-10-18)",
-        "NASA Science, Io: the precisely timed pulls of Europa and Ganymede; https://science.nasa.gov/jupiter/jupiter-moons/io/ (accessed 2026-10-18)",
-        "Peale, S. J., Cassen, P. and Reynolds, R. T. 1979, Melting of Io by Tidal Dissipation, Science 203, 892-894: the resonance with Europa and Ganymede keeps Io's orbit eccentric"
-      ]
+      "provenance": {
+        "sourceType": "observed",
+        "sources": [
+          "NASA Space Science Data Coordinated Archive, Jovian Satellite Fact Sheet: orbital periods Io 1.769138 d, Europa 3.551181 d, Ganymede 7.154553 d; https://nssdc.gsfc.nasa.gov/planetary/factsheet/joviansatfact.html (accessed 2026-10-18)",
+          "NASA Science, Io: the precisely timed pulls of Europa and Ganymede; https://science.nasa.gov/jupiter/jupiter-moons/io/ (accessed 2026-10-18)",
+          "Peale, S. J., Cassen, P. and Reynolds, R. T. 1979, Melting of Io by Tidal Dissipation, Science 203, 892-894: the resonance with Europa and Ganymede keeps Io's orbit eccentric"
+        ],
+        "accuracy": "Not stated by the source. The periods here are rounded to three decimal places.",
+        "notes": "The orbital periods are published NASA values. The moons' positions in this scene come from NASA JPL's Horizons system. This moment is seven days after the scene starts."
+      }
     }
   ]
 }

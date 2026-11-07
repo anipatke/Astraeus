@@ -26,11 +26,13 @@ import { createRoot } from "react-dom/client";
 import { AstraeusScene } from "../src/api/AstraeusScene";
 import { SceneError } from "../src/api/errors";
 import { mount } from "../src/api/mount";
-import { Scene, SceneCamera } from "../src/api/scene";
+import { Scene } from "../src/api/scene";
+import { SceneCamera } from "../src/api/planCamera";
 import { earth } from "../src/api/bodies";
 import { viewerHandleOf, type ViewerHandle } from "../src/api/viewerHandle";
 import { ViewerLink, type CameraPose, type ViewerChange } from "../src/api/viewerLink";
 import { syntheticDefinition } from "../src/synthetic/syntheticDefinition";
+import { definitionOf, missingDataOf } from "../src/api/definitionOf";
 
 (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = false;
 
@@ -126,7 +128,7 @@ const reactDriver = (strict: boolean): Driver => ({
 });
 
 /** The handle's members, read from one table: a new member of `ViewerHandle` must join it (the last test fails otherwise). */
-const READS = ["time", "rate", "playing", "view", "camera", "eventZones", "selected", "look", "scale", "switches", "pick"] as const;
+const READS = ["timeUtcMs", "rate", "playing", "view", "camera", "eventZones", "selected", "look", "scale", "switches", "pick"] as const;
 const CALLS: Record<string, (handle: ViewerHandle) => void> = {
   setTime: (handle) => handle.setTime(MID),
   setRate: (handle) => handle.setRate(RATE),
@@ -204,9 +206,9 @@ describe.each([mountDriver, reactDriver(false)])("lifecycle: $name", (driver) =>
     expectUnusable(opened.handle!);
     release!();
     await opened.ready();
-    expect(opened.handle!.time).toBeDefined();
+    expect(opened.handle!.timeUtcMs).toBeDefined();
     opened.handle!.setTime(MID);
-    expect(opened.handle!.time).toBe(MID);
+    expect(opened.handle!.timeUtcMs).toBe(MID);
     opened.unmount();
   });
 
@@ -240,7 +242,7 @@ describe.each([mountDriver, reactDriver(false)])("lifecycle: $name", (driver) =>
     await opened.rebuild();
     expect(opened.readyCount()).toBe(2);
     opened.handle!.setTime(MID);
-    expect(opened.handle!.time).toBe(MID);
+    expect(opened.handle!.timeUtcMs).toBe(MID);
     opened.unmount();
     expectUnusable(opened.handle!);
   });
@@ -269,7 +271,7 @@ describe.each([mountDriver, reactDriver(false)])("lifecycle: $name", (driver) =>
     await opened.ready();
     const stop = opened.handle!.onChange(() => { throw new Error("again"); });
     const heard: number[] = [];
-    opened.handle!.onChange((c) => heard.push(c.time));
+    opened.handle!.onChange((c) => heard.push(c.timeUtcMs));
     opened.handle!.setTime(MID);
     stop();
     const reports = report.mock.calls.length;
@@ -289,7 +291,7 @@ describe.each([mountDriver, reactDriver(false)])("lifecycle: $name", (driver) =>
     await opened.ready();
     expect(codeOf(() => scene.addBody("moon"))).toBe("scene-mounted");
     expect(codeOf(() => scene.camera.setReach(10))).toBe("scene-mounted");
-    expect(scene.missingData()).toEqual(expect.any(Array));
+    expect(missingDataOf(scene)).toEqual(expect.any(Array));
     opened.unmount();
     expect(codeOf(() => scene.setTime("2026-01-01T00:00:00Z"))).toBe("scene-mounted");
   });
@@ -413,14 +415,14 @@ describe.each([mountDriver, reactDriver(false)])("lifecycle: $name", (driver) =>
     await opened.ready();
     opened.handle!.setTime(start + 3 * 86_400_000);
     let kept: number | undefined;
-    opened.handle!.onPick(() => { kept = opened.handle!.time; });
+    opened.handle!.onPick(() => { kept = opened.handle!.timeUtcMs; });
     flushSync(() => document.querySelector<HTMLButtonElement>("[data-switch-value='b']")!.click());
     expect(kept).toBe(start + 3 * 86_400_000);
     // The host builds the next scene however its path does (mount: a new mount; React: a new scene prop) and puts the time back.
     await opened.rebuild(sceneFor("b"));
     expect(opened.handle!.pick).toBe("b");
     opened.handle!.setTime(kept!);
-    expect(opened.handle!.time).toBe(start + 3 * 86_400_000);
+    expect(opened.handle!.timeUtcMs).toBe(start + 3 * 86_400_000);
     opened.unmount();
   });
 
@@ -491,23 +493,23 @@ describe("lifecycle: AstraeusScene under StrictMode", () => {
     expect(opened.readyCount()).toBe(1);
     expect(opened.errors).toEqual([]);
     opened.handle!.setTime(MID);
-    expect(opened.handle!.time).toBe(MID);
+    expect(opened.handle!.timeUtcMs).toBe(MID);
     opened.unmount();
     expectUnusable(opened.handle!);
   });
 });
 
 /** Every method that edits a scene or its camera, found by name so a future mutator cannot escape the freeze. */
-const mutators = (proto: object): string[] => Object.getOwnPropertyNames(proto).filter((name) => /^(add|set|follow|lookAt|fitOrbit)/.test(name) && typeof Object.getOwnPropertyDescriptor(proto, name)?.value === "function");
+const mutators = (proto: object): string[] => Object.getOwnPropertyNames(proto).filter((name) => /^(add|set|follow|focus|fitOrbit)/.test(name) && typeof Object.getOwnPropertyDescriptor(proto, name)?.value === "function");
 
 describe("a mounted scene is frozen", () => {
-  it("every add, set, follow, lookAt and fitOrbit method of Scene and SceneCamera throws scene-mounted after mount; reads still answer", () => {
+  it("every add, set, follow, focus and fitOrbit method of Scene and SceneCamera throws scene-mounted after mount; reads still answer", () => {
     prepared.real = true; openNow();
     const scene = new Scene().addBody("earth").addBody("moon");
     const sceneMethods = mutators(Scene.prototype);
     const cameraMethods = mutators(SceneCamera.prototype);
     expect(sceneMethods.length).toBeGreaterThanOrEqual(12);
-    expect(cameraMethods.sort()).toEqual(["fitOrbit", "follow", "lookAt", "setFollowChoices", "setReach", "setStartView"]);
+    expect(cameraMethods.sort()).toEqual(["fitOrbit", "focus", "follow", "setFollowChoices", "setReach", "setStartView"]);
     const element = document.createElement("div");
     document.body.append(element);
     const viewer = mount(element, scene);
@@ -515,10 +517,10 @@ describe("a mounted scene is frozen", () => {
     for (const name of cameraMethods) expect(codeOf(() => (scene.camera as unknown as Record<string, (...a: unknown[]) => unknown>)[name]("earth")), `camera.${name}`).toBe("scene-mounted");
     expect(scene.stateOf("earth", MID_2026).positionKm).toHaveLength(3);
     expect(scene.provenanceOf("earth")).toBeDefined();
-    expect(scene.missingData()).toEqual(expect.any(Array));
+    expect(missingDataOf(scene)).toEqual(expect.any(Array));
     expect(scene.camera.target).toBeUndefined();
     expect(scene.camera.following).toBe(false);
-    expect(scene.camera.reach).toBeUndefined();
+    expect(scene.camera.reachEarthRadii).toBeUndefined();
     expect(scene.camera.fitted).toBeUndefined();
     expect(scene.camera.view).toEqual({});
     viewer.unmount();
@@ -526,7 +528,7 @@ describe("a mounted scene is frozen", () => {
 
   it("toDefinition on its own does not freeze", () => {
     const scene = new Scene().addBody("earth");
-    scene.toDefinition();
+    definitionOf(scene);
     expect(() => scene.addBody("moon")).not.toThrow();
   });
 

@@ -28,7 +28,7 @@ export class ViewerClock {
   get rateSource(): RateSource { return this.#rateSource; }
 
   /** The viewer's time (Unix milliseconds UTC), or undefined before it is drawn or after it is gone. */
-  get time(): number | undefined { return this.access.control()?.read().timeUtcMs; }
+  get timeUtcMs(): number | undefined { return this.access.control()?.read().timeUtcMs; }
   get rate(): number | undefined { return this.access.control()?.read().rate; }
   get playing(): boolean | undefined { return this.access.control()?.read().playing; }
 
@@ -81,7 +81,7 @@ export class ViewerClock {
     if (state.auto !== undefined) this.#rateSource = state.auto ? "scene" : "chosen";
     else if (cause === "visitor" && last !== undefined && last.rate !== state.rate) this.#rateSource = "chosen";
     this.#last = state;
-    const change: ViewerChange = { time: state.timeUtcMs, rate: state.rate, playing: state.playing, ...(state.view === undefined ? {} : { view: state.view }), scale: state.scale, look: state.look, ...(Object.keys(state.switches).length === 0 ? {} : { switches: state.switches }), cause };
+    const change: ViewerChange = { timeUtcMs: state.timeUtcMs, rate: state.rate, playing: state.playing, ...(state.view === undefined ? {} : { view: state.view }), scale: state.scale, look: state.look, ...(Object.keys(state.switches).length === 0 ? {} : { switches: state.switches }), cause };
     callListeners(this.#listeners, change);
     return true;
   }

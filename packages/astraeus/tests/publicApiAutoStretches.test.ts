@@ -6,12 +6,13 @@ import { createOrbAstronomyAdapter } from "../src/core/astronomyAdapter";
 import { createStateResolver } from "../src/core/stateResolver";
 import { trackedBodiesOf } from "../src/app/experienceDefinition";
 import { innermostHolding, influenceStretches, sphereOfInfluenceKm } from "../src/api/sphereOfInfluence";
+import { definitionOf } from "../src/api/definitionOf";
 
 const T0 = Date.parse("2026-01-01T00:00:00Z");
 const HOUR = 3_600_000;
 const DAY = 24 * HOUR;
 const resolver = createStateResolver(catalogue.definitions(), catalogue.sources(), createOrbAstronomyAdapter());
-const stretchesOf = (scene: Scene) => trackedBodiesOf(scene.toDefinition())[0]!.lineFixedTo as readonly { startUtcMs: number; endUtcMs: number; body: string }[];
+const stretchesOf = (scene: Scene) => trackedBodiesOf(definitionOf(scene))[0]!.lineFixedTo as readonly { startUtcMs: number; endUtcMs: number; body: string }[];
 
 describe("sphereOfInfluenceKm", () => {
   it("is a (m / M)^(2/5)", () => {
@@ -87,17 +88,17 @@ describe('lineFixedTo: "auto"', () => {
       return { time: t, positionKm: [m[0]! + 3_000, m[1]!, m[2]!] };
     });
     const build = (lineFixedTo: unknown) => new Scene().addBody(earth).addBody(moon).setTime(T0).addTrajectory({ id: "probe", samples, lineFixedTo: lineFixedTo as never });
-    const auto = trackedBodiesOf(build("auto").toDefinition())[0]!;
-    const explicit = trackedBodiesOf(build([{ start: T0, end: T0 + 5 * DAY, body: "moon" }]).toDefinition())[0]!;
+    const auto = trackedBodiesOf(definitionOf(build("auto")))[0]!;
+    const explicit = trackedBodiesOf(definitionOf(build([{ start: T0, end: T0 + 5 * DAY, body: "moon" }])))[0]!;
     expect(auto.lineFixedTo).toEqual(explicit.lineFixedTo);
-    expect(build("auto").toDefinition().experience.objects.filter((o) => o.id === "probe")).toHaveLength(1);
+    expect(definitionOf(build("auto")).experience.objects.filter((o) => o.id === "probe")).toHaveLength(1);
   });
 });
 
 describe("GM audit", () => {
   it("records which built-in bodies have no GM (they cannot hold a probe)", () => {
     const lacking = catalogue.definitions().filter((d) => !(d.gmKm3S2! > 0)).map((d) => d.id).sort();
-    expect(lacking).toEqual(["swift-tuttle"]); // a comet: no published GM; every planet, the Sun, the Moon and the built-in moons carry one
+    expect(lacking).toEqual([]); // the catalogue holds only bodies with a published GM (the Sun, the planets, Pluto and the moons); a comet is added from elements and has none
   });
 });
 
@@ -115,9 +116,10 @@ describe('lineFixedTo: "auto" when the planet series load after the scene is bui
     const series = await import("../src/core/planetSeries");
     const definitionModule = await import("../src/app/experienceDefinition");
     const prepared = await import("../src/api/prepared");
+    const internal = await import("../src/api/definitionOf");
     const view = await import("../src/app/TrackedBodyView");
     expect(series.planetSeriesLoaded()).toBe(false);
-    return { api, series, trackedBodiesOf: definitionModule.trackedBodiesOf, prepareScene: prepared.prepareScene, TrackedBodyView: view.TrackedBodyView };
+    return { api, series, definitionOf: internal.definitionOf, trackedBodiesOf: definitionModule.trackedBodiesOf, prepareScene: prepared.prepareScene, TrackedBodyView: view.TrackedBodyView };
   };
 
   it("resolves in prepare to the explicit form's list, and the object menu, trackedBodies and the view input carry it", async () => {
@@ -130,7 +132,7 @@ describe('lineFixedTo: "auto" when the planet series load after the scene is bui
     await ready;
     const resolved = f.trackedBodiesOf(definition)[0]!.lineFixedTo as readonly { body: string }[];
     expect(resolved.map((stretch) => stretch.body)).toEqual(["sun", "mars", "sun"]);
-    const explicit = build(resolved.map((s: any) => ({ start: s.startUtcMs, end: s.endUtcMs, body: s.body }))).toDefinition();
+    const explicit = f.definitionOf(build(resolved.map((s: any) => ({ start: s.startUtcMs, end: s.endUtcMs, body: s.body }))));
     expect(f.trackedBodiesOf(explicit)[0]!.lineFixedTo).toEqual(resolved);
     expect(definition.experience.objects.filter((o) => o.id === "probe")).toHaveLength(1);
     const view = new f.TrackedBodyView(f.trackedBodiesOf(definition)[0]!);
@@ -149,7 +151,7 @@ describe('lineFixedTo: "auto" when the planet series load after the scene is bui
   it("the same path with the series already loaded fails the same way", async () => {
     const samples = Array.from({ length: 4 }, (_, i) => ({ time: Date.parse("1800-01-01T00:00:00Z") + i * DAY, positionKm: [1.5e8 + i, 0, 0] }));
     const scene = new Scene().addBody(sun).addBody(mars).setTime(Date.parse("1800-01-01T00:00:00Z")).addTrajectory({ id: "probe", center: "sun", samples, lineFixedTo: "auto" });
-    const error = await scene.toDefinition().prepare!().then(() => undefined, (e: unknown) => e);
+    const error = await definitionOf(scene).prepare!().then(() => undefined, (e: unknown) => e);
     expect((error as SceneError).code).toBe("out-of-span");
   });
 });

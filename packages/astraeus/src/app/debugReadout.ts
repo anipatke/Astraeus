@@ -67,7 +67,7 @@ export function buildDebugReadout(input: DebugReadoutInput): DebugReadout {
     policyId: input.policy.id,
     ...(input.pair === undefined ? {} : { pair: input.pair }),
     moonPosition: {
-      frame: moonFromEarth.frame,
+      frame: moonFromEarth.plane,
       center: moonFromEarth.center,
       units: "km",
       positionKm: triple(moonFromEarth.positionKm),

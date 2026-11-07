@@ -5,11 +5,21 @@ const glowLookFromSearch = (search: string, base: Parameters<typeof glowLookOf>[
 import { focusLimits, focusRadius } from "../src/app/sceneFraming";
 import { createSolarSystemScale } from "../src/core/scalePolicy";
 import { textureRightsProblem } from "../src/assets/licence";
-import { catalogue } from "../src/assets/catalogue";
+import { catalogue, extendCatalogue } from "../src/assets/catalogue";
 import { SUN_VISUAL } from "../src/assets/bodies/sun";
 import { trueScale } from "../src/core/scalePolicy";
 
 const sun = catalogue.get("sun");
+/** A made-up long-period comet drawn as a marker (the catalogue holds no comet since O-057 T-279). */
+const withComet = extendCatalogue(catalogue, [{
+  id: "long-comet", label: "Long comet",
+  elements: { semiMajorAxisAu: 26, eccentricity: 0.96, inclinationDeg: 113, ascendingNodeDeg: 139, argumentOfPerihelionDeg: 153, meanAnomalyDeg: 7 },
+  epoch: { jd: 2450000.5, timeScale: "TDB", ttMinusUtcSeconds: 61.184 },
+  plane: "ecliptic-j2000",
+  source: { name: "Made up", url: "https://example.invalid/long-comet", solution: "S1", accessed: "2026-11-07" },
+  accuracy: { classification: "approximate", statement: "Made up.", valid: { start: "1990-01-01T00:00:00Z", end: "2030-01-01T00:00:00Z" }, limitations: [] },
+  marker: { color: "#9fe3ff", sizePx: 7 },
+}]);
 const EARTH_RADIUS_KM = catalogue.get("earth").definition.radiusKm;
 
 describe("the Sun's visual asset", () => {
@@ -88,8 +98,8 @@ describe("the zoom minimum of an emissive body", () => {
   it("follows the policy, and leaves a plain marker and a tracked point at the point minimum", () => {
     const solar = createSolarSystemScale({ exaggeration: {}, defaultExaggeration: 1 });
     expect(focusLimits("sun", frame, solar, {}).min).toBeGreaterThan(0.002);
-    expect(focusRadius("swift-tuttle", trueScale)).toBe(0);
-    expect(focusLimits("swift-tuttle", frame, trueScale, {}).min).toBe(0.002);
+    expect(focusRadius("long-comet", trueScale, withComet)).toBe(0);
+    expect(focusLimits("long-comet", frame, trueScale, {}).min).toBe(0.002);
     expect(focusLimits("some-tracked-body", frame, trueScale, {}).min).toBe(0.002);
   });
 });

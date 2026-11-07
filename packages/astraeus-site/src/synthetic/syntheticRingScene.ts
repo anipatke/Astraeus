@@ -16,8 +16,8 @@ export function ringOrbits(): GroupOrbitInput[] {
 /** A made-up scene whose only object besides Earth and the Moon is a group; proves the group capability is not specific to any one demo. */
 export function buildSyntheticRingScene(): Scene {
   const scene = new Scene()
-    .addBody(earth, { color: "#9fd8ff", labelPriority: 100, labelReach: 500, description: "The planet the ring circles." })
-    .addBody(moon, { color: "#ded7cc", labelPriority: 90, labelReach: 500, description: "Shown for scale only." })
+    .addBody(earth, { color: "#9fd8ff", labelPriority: 100, labelReachEarthRadii: 500, description: "The planet the ring circles." })
+    .addBody(moon, { color: "#ded7cc", labelPriority: 90, labelReachEarthRadii: 500, description: "Shown for scale only." })
     .addGroup({
       id: "debris-ring",
       label: "Debris ring",

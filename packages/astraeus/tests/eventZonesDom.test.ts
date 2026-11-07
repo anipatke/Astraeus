@@ -32,8 +32,8 @@ const makeScene = (start = 0, extra = false, within = 86_400, rate = 60) => new 
     { id: "eb", label: "B flyby", time: at(50), type: "flyby", object: "pb" },
     ...(extra ? [{ id: "ea2", label: "A second", time: at(20.5), type: "flyby", object: "pa" }] : []),
   ])
-  .setViews([{ id: "a", label: "A", paths: ["pa"], events: ["ea", "ea2"].filter((id) => extra || id !== "ea2") }, { id: "b", label: "B", paths: ["pb"], events: ["eb"] }], { place: "top-bar" })
-  .setTimeline({ start: at(start), end: at(100), rate: 86_400, rates: [60, 86_400], pacing: [{ near: { type: "flyby", within }, rate }] });
+  .setViews([{ id: "a", label: "A", objects: ["pa"], events: ["ea", "ea2"].filter((id) => extra || id !== "ea2") }, { id: "b", label: "B", objects: ["pb"], events: ["eb"] }], { place: "top-bar" })
+  .setTimeline({ start: at(start), end: at(100), rate: 86_400, rates: [60, 86_400], pacing: [{ near: { type: "flyby", withinSeconds: within }, rate }] });
 const plain = () => new Scene().addBody(earth).setTimeline({ start: at(0), end: at(100), rate: 86_400, rates: [60, 86_400] });
 
 let host: HTMLElement;
@@ -61,9 +61,9 @@ describe("event zones from playback", () => {
     expect(seen.map(short)).toEqual(["enter ea playback", "leave ea playback"]);
     expect(vias(seen)).toEqual(["time", "time"]);
     expect(seen[0]).toMatchObject({ type: "flyby", object: "pa", entered: true });
-    expect(seen[0]!.time).toBeGreaterThanOrEqual(T0 + 20 * DAY - 3_600_000);
-    expect(seen[0]!.time).toBeLessThanOrEqual(T0 + 20 * DAY + 3_600_000); // inside the zone
-    expect(seen[1]!.time).toBeGreaterThan(T0 + 20 * DAY + 3_600_000);
+    expect(seen[0]!.timeUtcMs).toBeGreaterThanOrEqual(T0 + 20 * DAY - 3_600_000);
+    expect(seen[0]!.timeUtcMs).toBeLessThanOrEqual(T0 + 20 * DAY + 3_600_000); // inside the zone
+    expect(seen[1]!.timeUtcMs).toBeGreaterThan(T0 + 20 * DAY + 3_600_000);
     handle.unmount();
   });
 
@@ -196,7 +196,7 @@ describe("the React prop", () => {
     await act(async () => { await Promise.resolve(); });
     await draw(at(30));
     expect(seen.map(short)).toEqual(["enter ea host", "leave ea host"]);
-    expect(seen[0]).toMatchObject({ type: "flyby", object: "pa", time: T0 + 20 * DAY, via: "time" });
+    expect(seen[0]).toMatchObject({ type: "flyby", object: "pa", timeUtcMs: T0 + 20 * DAY, via: "time" });
   });
 });
 
@@ -246,14 +246,14 @@ const zoned = (events: readonly { id: string; day: number; within?: number; type
     .addTrajectory({ id: "pa", label: "Probe A", center: "earth", samples: samples(10_000) })
     .addTrajectory({ id: "pb", label: "Probe B", center: "earth", samples: samples(20_000) })
     .addEvents(events.map((e) => ({ id: e.id, label: e.id, time: at(e.day), ...(e.type === undefined ? {} : { type: e.type }), ...(e.within === undefined ? {} : { withinSeconds: e.within }) })));
-  if (opts.views) scene = scene.setViews([{ id: "a", label: "A", paths: ["pa"], events: ["za"] }, { id: "b", label: "B", paths: ["pb"], events: ["zb"] }], { place: "top-bar" });
+  if (opts.views) scene = scene.setViews([{ id: "a", label: "A", objects: ["pa"], events: ["za"] }, { id: "b", label: "B", objects: ["pb"], events: ["zb"] }], { place: "top-bar" });
   return scene.setTimeline({ start: at(0), end: at(100), rate: 86_400, rates: [60, 86_400], ...(opts.pacing === undefined ? {} : { pacing: opts.pacing as never }) });
 };
 
 describe("event zones from withinSeconds", () => {
   it.each([
     ["without pacing", undefined],
-    ["alongside a pacing rule for another type", [{ near: { type: "other", within: 60 }, rate: 60 }]],
+    ["alongside a pacing rule for another type", [{ near: { type: "other", withinSeconds: 60 }, rate: 60 }]],
   ] as const)("reports enter and leave with via time, %s", async (_name, pacing) => {
     const events = [{ id: "za", day: 20, within: ZONES_DAY_20 }, { id: "oth", day: 80, type: "other" }];
     const handle = mount(host, zoned(events, { ...(pacing === undefined ? {} : { pacing }) }));
@@ -278,7 +278,7 @@ describe("event zones from withinSeconds", () => {
 
   it("zones from both sources report together: an own zone and a rule zone", async () => {
     const events = [{ id: "za", day: 20, within: ZONES_DAY_20 }, { id: "zb", day: 20.5, type: "flyby" }];
-    const handle = mount(host, zoned(events, { pacing: [{ near: { type: "flyby", within: 3_600 }, rate: 3_600 }] }));
+    const handle = mount(host, zoned(events, { pacing: [{ near: { type: "flyby", withinSeconds: 3_600 }, rate: 3_600 }] }));
     await drawn(handle);
     act(() => handle.setTime(T0 + 20.5 * DAY));
     expect([...handle.eventZones!].sort()).toEqual(["za", "zb"]); // zone order is not part of the contract
@@ -289,7 +289,7 @@ describe("event zones from withinSeconds", () => {
 
   it("a pacing rule uses the event's own withinSeconds, its own within otherwise", async () => {
     const events = [{ id: "za", day: 20, within: ZONES_DAY_20, type: "flyby" }, { id: "zb", day: 50, type: "flyby" }];
-    const handle = mount(host, zoned(events, { pacing: [{ near: { type: "flyby", within: 3_600 }, rate: 3_600 }] }));
+    const handle = mount(host, zoned(events, { pacing: [{ near: { type: "flyby", withinSeconds: 3_600 }, rate: 3_600 }] }));
     await drawn(handle);
     act(() => handle.setTime(T0 + 20.5 * DAY)); // 12 h from za: its own day, not the rule's hour
     expect(handle.eventZones).toEqual(["za"]);

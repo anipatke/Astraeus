@@ -5,7 +5,7 @@
 import { spawnSync } from "node:child_process";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import { buildPackage, PACKAGES } from "./build-packages.mjs";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
@@ -160,6 +160,40 @@ function sizeProblems(name, pack) {
   return problems;
 }
 
+/**
+ * The packed engine's ring facts (O-057 I-147; they used to be read by the node consumer check through a packed internal file, past the package's `exports`): Saturn has bands, Mars none.
+ * Read here, where reading packed files is the check's job, by a child Node process importing the packed catalogue from `dir`.
+ */
+export function ringFactProblems(dir) {
+  const script = 'const { catalogue } = await import(process.argv[1]); console.log(JSON.stringify({ saturn: catalogue.get("saturn").visual.rings?.bands?.length ?? 0, mars: catalogue.get("mars").visual.rings ?? null }));';
+  const run = spawnSync(process.execPath, ["--input-type=module", "-e", script, pathToFileURL(join(dir, "src", "assets", "catalogue.js")).href], { encoding: "utf8" });
+  if (run.status !== 0) return [`astraeus: the packed catalogue would not import (${run.stderr.trim().split("\n").at(-1)})`];
+  const facts = JSON.parse(run.stdout);
+  const problems = [];
+  if (!(facts.saturn > 0)) problems.push("astraeus: the packed catalogue gives Saturn no ring bands");
+  if (facts.mars !== null) problems.push("astraeus: the packed catalogue gives Mars rings");
+  return problems;
+}
+
+/**
+ * The lines of a consumer check's source that reach past the package's public entry (O-057 I-147, API-01): an import of a subpath other than `style.css` and `package.json`, a `new URL` built
+ * from `import.meta.resolve`, a relative `import("../...")`, or a path into the unpacked package's own folders. Each as `line N: text`.
+ */
+export function pastTheEntry(source) {
+  const found = [];
+  const patterns = [
+    /["'`]astraeus\/(?!package\.json["'`]|style\.css["'`])[^"'`]*["'`]/,
+    /new URL\([^\n]*import\.meta\.resolve|import\.meta\.resolve\([^\n]*new URL/,
+    /import\(\s*[^\n)]*["'`]\.\.?\//,
+    /["'`]\.\.?\/(?:src|assets|api|core|app)\/[^"'`]*["'`]/,
+    /node_modules\/astraeus\/(?!package\.json|style\.css)/,
+  ];
+  source.split("\n").forEach((line, index) => {
+    if (patterns.some((pattern) => pattern.test(line))) found.push(`line ${index + 1}: ${line.trim().slice(0, 120)}`);
+  });
+  return found;
+}
+
 /** The problems with one packed package: files outside the allow-list, a thin manifest, missing exports targets, notices, and sizes over the limits. */
 function problemsOf(name, dir, pack) {
   const problems = [];
@@ -182,6 +216,7 @@ function problemsOf(name, dir, pack) {
   for (const required of ["README.md", "LICENSE"]) if (!paths.includes(required)) problems.push(`${name}: ${required} is not packed`);
   if (!paths.includes("NOTICE") && !paths.some((path) => path.startsWith("licenses/"))) problems.push(`${name}: no NOTICE or licenses/ (PROV-01, PROV-02)`);
   problems.push(...codeProblems(name, dir));
+  if (name === "astraeus") problems.push(...ringFactProblems(dir));
   problems.push(...sizeProblems(name, pack));
   return problems;
 }

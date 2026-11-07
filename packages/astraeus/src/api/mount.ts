@@ -23,7 +23,7 @@ export interface MountOptions {
 
 /** What `mount` returns: the viewer handle plus `ready` and `unmount`. */
 export interface MountedScene extends ViewerHandle {
-  /** Resolves once the scene's data has loaded, it is drawn and the host link is attached, so `time`, `rate`, `view` and every set call work from then on. Rejects with its own error if loading failed, and with `SceneError` `not-mounted` if `unmount` came first; it never stays pending. */
+  /** Resolves once the scene's data has loaded, it is drawn and the host link is attached, so `timeUtcMs`, `rate`, `view` and every set call work from then on. Rejects with its own error if loading failed, and with `SceneError` `not-mounted` if `unmount` came first; it never stays pending. */
   readonly ready: Promise<void>;
   /** Removes the scene, its canvas and its listeners from the page. Safe to call twice. */
   unmount(): void;
@@ -37,7 +37,7 @@ export interface MountedScene extends ViewerHandle {
  * const mounted = mount(document.getElementById("app")!, scene);
  * await mounted.ready; // drawn
  * mounted.setTime("2026-08-12T21:00:00Z"); // the viewer moves there; outside the timeline throws bad-time
- * mounted.onChange(({ time, rate }) => console.log(new Date(time).toISOString(), rate));
+ * mounted.onChange(({ timeUtcMs, rate }) => console.log(new Date(timeUtcMs).toISOString(), rate));
  * mounted.unmount();   // removes it again
  */
 export function mount(element: HTMLElement, scene: Scene, options: MountOptions = {}): MountedScene {

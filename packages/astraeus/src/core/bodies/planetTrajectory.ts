@@ -28,7 +28,7 @@ export function createPlanetSunTrajectory(
         body: planet,
         center: "sun",
         timeUtcMs,
-        frame: EQJ,
+        plane: EQJ,
         positionKm: position,
         orientation: iauOrientation(rotation, adapter.daysSinceJ2000Tt(timeUtcMs)),
       });

@@ -13,7 +13,7 @@ import { needsPlanetSeries } from "../app/planetNeeds";
 import { createReadoutMetrics } from "../app/trackedMetrics";
 import type { Metric } from "../shell/metrics";
 import type { ExperienceObject } from "../shell/experience";
-import { installData, type DataSource } from "./data";
+import { checkDataSources, installData, type DataSource } from "./data";
 import { SceneError } from "./errors";
 import { cameraPresetsOf, fitFarthestKm, startPresetEntry, startViewEntry, viewEntries, type SceneCamera } from "./planCamera";
 import type { BodyPlan } from "./planBodies";
@@ -96,6 +96,7 @@ function deferredRead<T>(ids: readonly BodyId[], window: TimeBounds, fault: { er
 export function assembleScene(parts: ScenePlanners, data: readonly DataSource[]): ExperienceDefinition {
   const { plan, groupPlan, bodySets, moonPanel, places, story, timeline: timelinePlan, viewPlan, camera, tracked: trackedMap } = parts;
   if (plan.bodies.size === 0) throw new SceneError("empty-scene", "the scene has no bodies; call addBody before mount");
+  checkDataSources(data);
   plan.checkData(data);
   bodySets.checkData(data);
   groupPlan.checkReadouts();
@@ -168,7 +169,7 @@ export function assembleScene(parts: ScenePlanners, data: readonly DataSource[])
     ...viewPlan.switchesEntry(),
     ...parts.picker.entry(),
     ...(parts.look === undefined ? {} : { look: parts.look }),
-    ...viewPlan.viewsEntry({ paths: [...trackedMap.keys()], bodies: [...ids, ...groupPlan.groups.keys()], events: story.events.map(({ id }) => id) }, storyPanels),
+    ...viewPlan.viewsEntry({ objects: [...trackedMap.keys(), ...ids, ...groupPlan.groups.keys()], events: story.events.map(({ id }) => id) }, storyPanels),
     ...viewEntries(timeline, camera, fit?.read, pathCover(trackedMap.values(), sunCentred, ids[0]!)),
     ...startViewEntry(camera),
     trackedBodies: tracked,

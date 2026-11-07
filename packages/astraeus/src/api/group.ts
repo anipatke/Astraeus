@@ -54,8 +54,8 @@ export interface GroupInput {
   readonly label?: string;
   /** The body the orbits circle; the scene's centre (its first body) when absent. It must be in the scene. */
   readonly center?: BodyId;
-  /** The plane the elements are given in: "ecliptic-j2000" (default) or "EQJ" (the equator of J2000). */
-  readonly plane?: "ecliptic-j2000" | "EQJ";
+  /** The plane the elements are given in: "ecliptic-j2000" or "EQJ" (the equator of J2000). Required: a group that does not say throws `bad-group`. */
+  readonly plane: "ecliptic-j2000" | "EQJ";
   /** The dots' colour as a CSS hex colour such as "#9de3a8"; default "#9de3a8". */
   readonly color?: string;
   /** Dot size in screen pixels; default 2.5. */
@@ -101,6 +101,7 @@ const bad = (id: unknown, message: string): SceneError => new SceneError("bad-gr
 export function planGroup(input: GroupInput, catalogue: BodyCatalogue = builtInCatalogue): PlannedGroup {
   const id = input?.id;
   if (typeof id !== "string" || id === "") throw bad(id, "the group needs a non-empty id");
+  if (input.plane !== "ecliptic-j2000" && input.plane !== "EQJ") throw bad(id, `plane must be "ecliptic-j2000" or "EQJ", got ${input.plane === undefined ? "nothing" : JSON.stringify(input.plane)}; say which plane the elements are given in`);
   checkOrbits(id, input.orbits);
   checkLook(id, input);
   if (input.clump !== undefined) checkClump(id, input.clump, catalogue);
@@ -186,7 +187,7 @@ export function buildGroupLayer(plan: PlannedGroup, catalogue: BodyCatalogue, ce
     const group = createListedOrbitGroup({
       id,
       center,
-      plane: input.plane ?? "ecliptic-j2000",
+      plane: input.plane,
       members,
       phase: {
         referenceUtcMs,

@@ -1,5 +1,5 @@
 // The meteor showers as stories on the public API: a Scene built from a shower's settings and its measured orbits, with `astraeus` as the only import.
-import { Scene, earth, jupiter, mars, mercury, sun, trueScale, venus, type ActivityInput, type BodyRef, type EventInput, type GroupInput, type Provenance, type StoryPanelsInput } from "astraeus";
+import { Scene, earth, jupiter, mars, mercury, sun, trueScale, venus, type ActivityInput, type BodyRef, type EventInput, type GroupInput, type Provenance, type StoryPanelInput, type StoryPanelPlaybackInput } from "astraeus";
 import type { MeasuredLoad, MeasuredOrbits } from "./measuredOrbits";
 import { orbitSetCounts } from "./measuredOrbits";
 import { DAY_MS, HOUR_MS, sourceLine, streamIdOf, timelineBoundsOf, windowIdOf } from "./showerBasics";
@@ -95,6 +95,7 @@ function streamOf(settings: ShowerSettings, orbits: MeasuredOrbits): GroupInput 
   return {
     id: streamIdOf(settings),
     label: `${settings.label} stream`,
+    plane: "ecliptic-j2000",
     orbits: orbits.members.map(({ recordId, epochUtcMs, elements }) => ({ id: recordId, time: epochUtcMs, ...elements })),
     color: look.streamColor,
     dotSizePx: look.pointSizePx,
@@ -110,15 +111,18 @@ function streamOf(settings: ShowerSettings, orbits: MeasuredOrbits): GroupInput 
   };
 }
 
+/** A panels file: the story's panels, beside the two playback settings. */
+type PanelsFile = StoryPanelPlaybackInput & { readonly panels: readonly StoryPanelInput[] };
+
 /** The panels object for the scene: from the file the caller loaded or inline in the settings; a panel naming the stream is kept, but loses that name when no stream is drawn. */
-function panelsOf(settings: ShowerSettings, panelsFile: unknown, streamDrawn: boolean): StoryPanelsInput | undefined {
+function panelsOf(settings: ShowerSettings, panelsFile: unknown, streamDrawn: boolean): PanelsFile | undefined {
   if (settings.story === undefined) return undefined;
   const given = settings.story.panels;
-  const raw = (typeof given === "string" ? panelsFile : given) as StoryPanelsInput | undefined;
+  const raw = (typeof given === "string" ? panelsFile : given) as PanelsFile | undefined;
   if (raw === undefined) return undefined; // a path whose file the caller has not loaded: the entry raises the missing-file error before it gets here
   if (streamDrawn) return raw;
   const streamId = streamIdOf(settings);
-  return { ...raw, panels: raw.panels.map((panel) => ((panel as { object?: string }).object === streamId ? { ...(panel as object), object: undefined } : panel)) };
+  return { ...raw, panels: raw.panels.map((panel) => (panel.object === streamId ? { ...panel, object: undefined } : panel)) };
 }
 
 /** The opening view: the settings' own, else the Sun from above the ecliptic. Looks at its focus without following it; up is the settings' `viewUp`. */
@@ -129,7 +133,7 @@ function openingViewOf(settings: ShowerSettings): StartView {
 /**
  * A shower as a story on the public API: the Sun, Earth, the planets and the parent with their orbit lines, the stream as one group of dots, the
  * activity curve with its three events, the story panels, and the camera, scale and timeline the settings ask for. When the measured orbits are not
- * available no stream is drawn and the Sun says so; none is invented. `mount` it, or hand `toDefinition()` to the site.
+ * available no stream is drawn and the Sun says so; none is invented. `mount` it.
  */
 export function buildShowerScene(settings: ShowerSettings, load: MeasuredLoad, panelsFile?: unknown, production: boolean = import.meta.env.PROD): Scene {
   const { look, parentBodyId } = settings;
@@ -154,12 +158,15 @@ export function buildShowerScene(settings: ShowerSettings, load: MeasuredLoad, p
   if (load.kind === "loaded") scene.addGroup(streamOf(settings, load.orbits));
   scene.addEvents(eventsOf(settings), { provenance: provenanceOf("observed", [sourceLine(settings.activity.source)], "Activity dates as published; the peak instant is chosen inside the published night.", settings.activity.source.note ?? "") });
   const panels = panelsOf(settings, panelsFile, load.kind === "loaded");
-  if (panels !== undefined) scene.addStoryPanels(panels);
+  if (panels !== undefined) {
+    const { panels: list, ...playback } = panels;
+    scene.addStoryPanels(list).setStoryPanelPlayback(playback);
+  }
   const { startUtcMs, endUtcMs } = timelineBoundsOf(settings);
   scene.setTimeline({ start: startUtcMs, end: endUtcMs, rates: [...new Set([...RATES, settings.timeline.rateSecondsPerSecond])].sort((a, b) => a - b), rate: settings.timeline.rateSecondsPerSecond, loop: look.loop });
   scene.setScale(trueScale);
   scene.camera.setReach(look.cameraMaxFocusDistance);
   const view = openingViewOf(settings);
-  scene.camera.lookAt(view.focus, { azimuthDeg: view.azimuthDeg, elevationDeg: view.elevationDeg, distance: view.distance, up: look.viewUp });
+  scene.camera.focus(view.focus, { azimuthDeg: view.azimuthDeg, elevationDeg: view.elevationDeg, distance: view.distance, up: look.viewUp });
   return scene;
 }

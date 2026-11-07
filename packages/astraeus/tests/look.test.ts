@@ -7,6 +7,7 @@ import { featureMinBodyPxOf, DEFAULT_FEATURE_MIN_BODY_PX } from "../src/app/Feat
 import { LOOK_FIELDS, lookName, lookWith, resolveLook, type LookInput } from "../src/app/look";
 import { desktopPicturesOf } from "../src/app/liveLook";
 import { BOOT_FADE_DEFAULT_SECONDS, bootFadeSeconds } from "../src/shell/bootLoader";
+import { definitionOf } from "../src/api/definitionOf";
 
 const base = { sizePx: 72, brightness: 1, scale: 2.5 };
 
@@ -50,10 +51,10 @@ describe("looks are public settings", () => {
 describe("Scene.setLook", () => {
   it("reaches the definition as the scene's look and replaces the whole look", () => {
     const scene = new Scene().addBody(earth).setLook({ starBrightness: 1.4, markerSwapRadiusPx: 5 });
-    expect(scene.toDefinition().look).toEqual({ starBrightness: 1.4, markerSwapRadiusPx: 5 });
+    expect(definitionOf(scene).look).toEqual({ starBrightness: 1.4, markerSwapRadiusPx: 5 });
     scene.setLook({ loadFadeSeconds: 1 });
-    expect(scene.toDefinition().look).toEqual({ loadFadeSeconds: 1 });
-    expect(new Scene().addBody(earth).toDefinition().look).toBeUndefined();
+    expect(definitionOf(scene).look).toEqual({ loadFadeSeconds: 1 });
+    expect(definitionOf(new Scene().addBody(earth)).look).toBeUndefined();
   });
 
   it.each([

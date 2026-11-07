@@ -59,7 +59,7 @@ describe("example app", () => {
     expect(main.trim().split("\n").length).toBeLessThanOrEqual(100);
     expect(main).toMatch(/from "astraeus"/);
     expect(main).not.toMatch(/from "(\.|astraeus\/)/);
-    for (const call of ["addBody", "addTrajectory", "setTime", "camera.lookAt", "mount(", "anchors:", "readouts:", "knownLimitations:", "description:", "addEvents(", "addStoryPanels(", "addGroup(", "setTimeline(", "setViews(", "pacing:", "await viewer.ready", "onEventZone(", "viewer.camera", "setCamera(", "setScale(trueScale, { only: true })"]) expect(main).toContain(call);
+    for (const call of ["addBody", "addTrajectory", "setTime", "camera.focus", "mount(", "anchors:", "readouts:", "knownLimitations:", "description:", "addEvents(", "addStoryPanels(", "addGroup(", "setTimeline(", "setViews(", "pacing:", "await viewer.ready", "onEventZone(", "viewer.camera", "setCamera(", "setScale(trueScale, { only: true })"]) expect(main).toContain(call);
   });
 
   it("installs packed tarballs, not workspace links, and keeps its build output out of git", () => {

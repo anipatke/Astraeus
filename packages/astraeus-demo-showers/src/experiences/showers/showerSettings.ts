@@ -115,7 +115,7 @@ export interface ShowerSettings {
   readonly labels: Readonly<Record<string, boolean>>;
   readonly look: ShowerLook;
   /**
-   * Optional story panels (the shell's `parseStoryPanels` shape), as plain data. Either the repo-relative path of a panels file under
+   * Optional story panels (`addStoryPanels` panels beside the `setStoryPanelPlayback` settings), as plain data. Either the repo-relative path of a panels file under
    * `data/stories/<story>/panels.json`, read the way an experience reads its own panels file, or the panels object itself.
    * The panels are checked against the built experience's events and objects when it is built.
    */

@@ -1,13 +1,15 @@
 import { useEffect, useId, useRef } from "react";
 import { keyIsForViewer } from "./viewerKeys";
 import { Sources } from "./Sources";
-import { BADGE_LABELS, type PanelBadge, type StoryPanel } from "./storyPanels";
+import { PROVENANCE_STATUS } from "./infoModel";
+import type { ProvenanceSourceType } from "../core/provenance";
+import type { StoryPanel } from "./storyPanels";
 import { useSwipeToDismiss } from "./useSwipeToDismiss";
 import { useZoomThrough } from "./useZoomThrough";
 
 /** A small pill saying how far to trust a panel's facts, after Planetary Explorer's Badge. */
-export function StoryBadge({ badge }: { readonly badge: PanelBadge }) {
-  return <span className="story-badge" data-badge={badge}>{BADGE_LABELS[badge]}</span>;
+export function StoryBadge({ sourceType }: { readonly sourceType: ProvenanceSourceType }) {
+  return <span className="story-badge" data-badge={sourceType}>{PROVENANCE_STATUS[sourceType]}</span>;
 }
 
 interface Props {
@@ -36,12 +38,12 @@ export function StoryPanelView({ panel, holding, onClose, onContinue }: Props) {
     <aside className="story-panel" ref={sheet} role="dialog" aria-modal="false" aria-labelledby={titleId} data-panel-id={panel.id}>
       <div className="sheet-handle" aria-hidden="true" />
       <header className="story-panel-header">
-        <StoryBadge badge={panel.badge} />
+        <StoryBadge sourceType={panel.provenance.sourceType} />
         <button type="button" className="story-panel-close ui-icon" aria-label="Close story panel" onClick={onClose}>×</button>
       </header>
       <h2 id={titleId}>{panel.title}</h2>
       <div className="story-panel-body">{panel.body.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}</div>
-      <Sources sources={panel.sources} details={panel.details} />
+      <Sources sources={panel.provenance.sources} details={panel.details} accuracy={panel.provenance.accuracy} notes={panel.provenance.notes} />
       {holding && <button type="button" className="story-panel-continue ui-accent" onClick={onContinue}>Continue playback</button>}
     </aside>
   );

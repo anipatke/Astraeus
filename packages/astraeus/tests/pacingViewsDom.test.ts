@@ -21,8 +21,8 @@ const scene = () => new Scene().addBody(earth)
   .addTrajectory({ id: "pa", label: "Probe A", center: "earth", samples: samples(10_000) })
   .addTrajectory({ id: "pb", label: "Probe B", center: "earth", samples: samples(20_000) })
   .addEvents([{ id: "ea", label: "A flyby", time: at(20), type: "flyby" }, { id: "eb", label: "B flyby", time: at(50), type: "flyby" }])
-  .setViews([{ id: "a", label: "A", paths: ["pa"], events: ["ea"] }, { id: "b", label: "B", paths: ["pb"], events: ["eb"] }], { place: "top-bar" })
-  .setTimeline({ start: at(0), end: at(100), rate: 86_400, rates: [60, 86_400], pacing: [{ near: { type: "flyby", within: 86_400 }, rate: 60 }] });
+  .setViews([{ id: "a", label: "A", objects: ["pa"], events: ["ea"] }, { id: "b", label: "B", objects: ["pb"], events: ["eb"] }], { place: "top-bar" })
+  .setTimeline({ start: at(0), end: at(100), rate: 86_400, rates: [60, 86_400], pacing: [{ near: { type: "flyby", withinSeconds: 86_400 }, rate: 60 }] });
 
 let host: HTMLElement;
 beforeEach(() => {

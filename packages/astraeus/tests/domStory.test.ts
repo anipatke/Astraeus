@@ -121,6 +121,25 @@ describe("details and sources", () => {
     expect(section.open).toBe(false);
   });
 
+  it("shows the source type word, then the accuracy and notes between the details and the sources (O-057 T-278)", () => {
+    m = mountShell();
+    press(markers()[0]);
+    expect($(m.container, ".story-panel .story-badge").textContent).toBe("Illustrative");
+    const section = $(m.container, ".story-panel .sources-section");
+    expect([...section.querySelectorAll("dt")].map((term) => term.textContent)).toEqual(["Accuracy", "Notes"]);
+    expect([...section.querySelectorAll("dd")].map((entry) => entry.textContent)).toEqual([panels[0].provenance.accuracy, panels[0].provenance.notes]);
+    expect([...section.querySelectorAll("li")].map((line) => line.textContent)).toEqual(panels[0].provenance.sources);
+    const after = (first: Element, second: Element) => (first.compareDocumentPosition(second) & Node.DOCUMENT_POSITION_FOLLOWING) !== 0;
+    expect(after($(section, ".sources-details"), $(section, "dl"))).toBe(true);
+    expect(after($(section, "dl"), $(section, "ul"))).toBe(true);
+  });
+
+  it("a panel with no details still folds its accuracy and notes under Sources (O-057 T-278)", () => {
+    m = mountShell();
+    press(markers()[1]);
+    expect($(m.container, ".story-panel .sources-section dd").textContent).toBe(panels[1].provenance.accuracy);
+  });
+
   it("labels a panel with no details plainly as Sources", () => {
     m = mountShell();
     press(markers()[1]);

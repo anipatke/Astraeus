@@ -1714,7 +1714,7 @@ export async function listedStoryPanelIds(page) {
 export const hostView = (page) => page.evaluate(() => window.astraeusHost?.view);
 export const hostSetView = (page, id) => page.evaluate((view) => window.astraeusHost.setView(view), id);
 /** Starts recording what the host link hears from the viewer, as { view, cause, time } lines. */
-export const watchHostChanges = (page) => page.evaluate(() => { window.hostChanges = []; window.astraeusHost.onChange((change) => window.hostChanges.push({ view: change.view, cause: change.cause, time: change.time })); });
+export const watchHostChanges = (page) => page.evaluate(() => { window.hostChanges = []; window.astraeusHost.onChange((change) => window.hostChanges.push({ view: change.view, cause: change.cause, timeUtcMs: change.timeUtcMs })); });
 export const hostChanges = (page) => page.evaluate(() => window.hostChanges ?? []);
 
 // ---------------------------------------------------------------------------------------------------------------------------------------------

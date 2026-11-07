@@ -8,6 +8,7 @@ import { createOrbitCameraState, poseCamera } from "../src/app/CameraController"
 import { FloatingOrigin } from "../src/app/floatingOrigin";
 import { focusRadius, liveReach, scaleLength } from "../src/app/sceneFraming";
 import { solarSystemPolicyForTest } from "./scalePolicies";
+import { definitionOf } from "../src/api/definitionOf";
 
 const sources = import.meta.glob("../src/app/*.{ts,tsx}", { query: "?raw", import: "default", eager: true }) as Record<string, string>;
 const code = (source: string) => source.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/.*/g, "$1");
@@ -56,7 +57,7 @@ describe("the depth set-up of the I-117 scene (Sun-centred, 170 AU path, camera 
   it("has near 0.1 x the gap and a far plane over the whole path, drawn with the logarithmic buffer", () => {
     const policy = solarSystemPolicyForTest({ earth: 60 });
     const samples = [0, 1].map((i) => ({ time: Date.UTC(1977, 0, 1) + i * 86_400_000 * 365 * 100, positionKm: [170 * AU_KM * i, 0, 0] }));
-    const definition = new Scene().addBody(sun).addBody(earth, { enlarge: 60 }).setTime(samples[0]!.time).addTrajectory({ id: "far", center: "sun", samples, lineFixedTo: "sun" }).setScale(solarSystemScale).toDefinition();
+    const definition = definitionOf(new Scene().addBody(sun).addBody(earth, { enlarge: 60 }).setTime(samples[0]!.time).addTrajectory({ id: "far", center: "sun", samples, lineFixedTo: "sun" }).setScale(solarSystemScale));
     const reach = liveReach(cameraReachOf(definition), policy, 1.6);
     const gap = scaleLength(policy, 0.01 * AU_KM);
     const radius = focusRadius("saturn", policy);

@@ -143,7 +143,7 @@ describe("ChebyshevEphemeris provider", () => {
       const state = trajectory.stateAt(time);
       const truth = expected("fast", time);
       expect(state.center).toBe("hub");
-      expect(state.frame).toBe("EQJ");
+      expect(state.plane).toBe("EQJ");
       expect(state.orientation).toBeNull();
       expect(Math.hypot(...truth.p.map((value, i) => state.positionKm[i] - value))).toBeLessThan(1e-4);
       expect(Math.hypot(...truth.v.map((value, i) => state.velocityKmS![i] - value))).toBeLessThan(1e-7);

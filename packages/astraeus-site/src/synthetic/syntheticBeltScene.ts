@@ -22,7 +22,7 @@ export const FAR_MARKER: ElementsBodyRecord = madeUpOrbitRecord({
 export function startSunScene(earthEnlarge?: number): Scene {
   return new Scene()
     .addBody(sun, { labelPriority: 95, description: "The Sun, the centre the belt and the paths circle. The marker's size is a drawing choice, not the Sun's real size." })
-    .addBody(earth, { color: "#9fd8ff", orbit: true, ...(earthEnlarge === undefined ? {} : { enlarge: earthEnlarge }), labelPriority: 100, labelReach: 500, description: "Earth, on its path round the Sun; the belt circles the Sun." })
+    .addBody(earth, { color: "#9fd8ff", orbit: true, ...(earthEnlarge === undefined ? {} : { enlarge: earthEnlarge }), labelPriority: 100, labelReachEarthRadii: 500, description: "Earth, on its path round the Sun; the belt circles the Sun." })
     .addGroup({
       id: "dust-belt",
       label: "Dust belt",

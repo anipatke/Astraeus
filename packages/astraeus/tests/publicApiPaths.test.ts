@@ -6,6 +6,7 @@ import { createOrbAstronomyAdapter } from "../src/core/astronomyAdapter";
 import { createStateResolver } from "../src/core/stateResolver";
 import { trackedBodiesOf } from "../src/app/experienceDefinition";
 import { infoView, PROVENANCE_STATUS } from "../src/shell/infoModel";
+import { definitionOf } from "../src/api/definitionOf";
 
 const T0 = Date.UTC(2026, 3, 1);
 const MIN = 60_000;
@@ -13,7 +14,7 @@ const samples = [0, 1, 2, 3].map((minute) => ({ time: T0 + minute * MIN, positio
 const probe = { id: "probe", label: "Probe", samples };
 const codeOf = (fn: () => unknown) => { try { fn(); } catch (error) { return error instanceof SceneError ? `${error.code}: ${error.message}` : String(error); } return "no error"; };
 const resolver = () => createStateResolver(catalogue.definitions(), catalogue.sources(), createOrbAstronomyAdapter());
-const metricsOf = (scene: Scene, objectId: string, timeUtcMs: number) => scene.toDefinition().createMetrics({ resolver: resolver(), catalogue, clock: undefined as never })(objectId, timeUtcMs);
+const metricsOf = (scene: Scene, objectId: string, timeUtcMs: number) => definitionOf(scene).createMetrics({ resolver: resolver(), catalogue, clock: undefined as never })(objectId, timeUtcMs);
 
 describe("body readouts (O-056 T-262)", () => {
   const moonWith = (readouts: ReadoutInput[]) => new Scene().addBody(earth).addBody(moon, { readouts });
@@ -29,7 +30,7 @@ describe("body readouts (O-056 T-262)", () => {
   it("refuse a bad readout with bad-readout, and a named body the scene does not hold when the scene is built", () => {
     expect(codeOf(() => new Scene().addBody(earth).addBody(moon, { readouts: [{ kind: "temperature" } as never] }))).toMatch(/^bad-readout: addBody\("moon"\).*temperature/);
     expect(codeOf(() => new Scene().addBody(earth).addBody(moon, { readouts: "range" as never }))).toMatch(/^bad-readout: .*list/);
-    expect(codeOf(() => new Scene().addBody(moon, { readouts: [{ kind: "distance", to: "sun" }] }).toDefinition())).toMatch(/^bad-readout: addBody\("moon"\).*sun.*not been added/);
+    expect(codeOf(() => definitionOf(new Scene().addBody(moon, { readouts: [{ kind: "distance", to: "sun" }] })))).toMatch(/^bad-readout: addBody\("moon"\).*sun.*not been added/);
   });
 });
 
@@ -37,13 +38,20 @@ describe("anchors", () => {
   const scene = () => new Scene().addBody(earth).addBody(moon).addTrajectory({ ...probe, anchors: [{ id: "second", time: T0 + 2 * MIN }, { id: "first", time: new Date(T0 + MIN) }] });
 
   it("become labelled dots on the path, in time order", () => {
-    const body = trackedBodiesOf(scene().toDefinition())[0]!;
+    const body = trackedBodiesOf(definitionOf(scene()))[0]!;
     expect(body.anchorTimesUtcMs).toEqual([T0 + MIN, T0 + 2 * MIN]);
     expect(body.anchorLabels).toEqual(["first", "second"]);
   });
 
+  it("moved from the site's scene test (no public read of anchors): twelve anchors on a 97-sample path give twelve labels in order and 97 path times", () => {
+    const many = Array.from({ length: 97 }, (_, index) => ({ time: T0 + index * 5 * MIN, positionKm: [8_000 + index, 0, 0] }));
+    const body = trackedBodiesOf(definitionOf(new Scene().addBody(earth).addTrajectory({ id: "marker", label: "Marker", center: "earth", samples: many, anchors: Array.from({ length: 12 }, (_, index) => ({ id: `mark-${index + 1}`, time: T0 + (index + 1) * 40 * MIN })) })))[0]!;
+    expect(body.anchorLabels).toEqual(Array.from({ length: 12 }, (_, index) => `mark-${index + 1}`));
+    expect(body.pathTimesUtcMs).toHaveLength(97);
+  });
+
   it("are none when the path names none", () => {
-    expect(trackedBodiesOf(new Scene().addBody(earth).addTrajectory(probe).toDefinition())[0]!.anchorTimesUtcMs).toEqual([]);
+    expect(trackedBodiesOf(definitionOf(new Scene().addBody(earth).addTrajectory(probe)))[0]!.anchorTimesUtcMs).toEqual([]);
   });
 
   it.each([
@@ -61,12 +69,12 @@ describe("anchors", () => {
 describe("path and body notes", () => {
   it("put the description and known limits on the path's object", () => {
     const provenance: Provenance = { sourceType: "reconstructed", sources: ["Made up"], accuracy: "None", notes: "Test." };
-    const object = new Scene().addBody(earth).addTrajectory({ ...probe, provenance, description: "A made-up probe.", knownLimitations: ["Not real."] }).toDefinition().experience.objects.find((o) => o.id === "probe")!;
+    const object = definitionOf(new Scene().addBody(earth).addTrajectory({ ...probe, provenance, description: "A made-up probe.", knownLimitations: ["Not real."] })).experience.objects.find((o) => o.id === "probe")!;
     expect(object).toMatchObject({ description: "A made-up probe.", knownLimitations: ["Not real."], provenance });
   });
 
   it("give every added body its catalogue provenance and limits, and a description when asked", () => {
-    const objects = new Scene().addBody(earth, { description: "Home." }).addBody(moon).toDefinition().experience.objects;
+    const objects = definitionOf(new Scene().addBody(earth, { description: "Home." }).addBody(moon)).experience.objects;
     const [earthObject, moonObject] = [objects[0]!, objects[1]!];
     expect(earthObject).toMatchObject({ id: "earth", label: "Earth", description: "Home.", provenance: catalogue.get("earth").definition.accuracy.position, knownLimitations: catalogue.get("earth").definition.accuracy.orientationLimitations });
     expect(moonObject.provenance).toEqual(catalogue.get("moon").definition.accuracy.position);
@@ -114,7 +122,7 @@ describe("readouts", () => {
     expect(codeOf(add({ kind: "altitude" }))).toMatch(/^bad-readout: .*`above`/);
     expect(codeOf(add({ kind: "distance", to: "vulcan" }))).toMatch(/^bad-readout: .*vulcan/);
     expect(codeOf(() => new Scene().addBody(earth).addTrajectory({ ...probe, readouts: "range" as never }))).toMatch(/^bad-readout: .*list/);
-    expect(codeOf(() => add({ kind: "distance", to: "moon" })().toDefinition())).toMatch(/^bad-readout: .*moon.*not been added/);
+    expect(codeOf(() => definitionOf(add({ kind: "distance", to: "moon" })()))).toMatch(/^bad-readout: .*moon.*not been added/);
   });
 });
 
@@ -126,7 +134,7 @@ describe("provenance by time span on a path (I-113)", () => {
     { start: T0 + MIN, end: T0 + 2 * MIN, provenance: modelled },
     { start: T0 + 2 * MIN, end: T0 + 3 * MIN, provenance: observed },
   ];
-  const view = (at: number, input: object = { provenanceSpans: spans }) => infoView(new Scene().addBody(earth).addTrajectory({ ...probe, ...input }).toDefinition().experience, { kind: "object", id: "probe" }, at)!.provenance!;
+  const view = (at: number, input: object = { provenanceSpans: spans }) => infoView(definitionOf(new Scene().addBody(earth).addTrajectory({ ...probe, ...input })).experience, { kind: "object", id: "probe" }, at)!.provenance!;
 
   it("shows each stretch's own label as time moves", () => {
     expect(view(T0 + 0.5 * MIN).status).toBe(PROVENANCE_STATUS.observed);

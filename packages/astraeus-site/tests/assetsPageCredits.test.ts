@@ -128,9 +128,9 @@ describe("assets page credits match the AssetLicence records (T-064)", () => {
 
   // I-046: the Story panels row counted the badges by hand twice and drifted; it is now counted from the panel files.
   it("the Story panels row gives the panel total and badge counts the story files hold", () => {
-    const files: readonly { readonly panels: readonly { readonly badge: string }[] }[] = [apolloPanels, geminidsPanels, jupiterIoPanels, perseidsPanels];
+    const files: readonly { readonly panels: readonly { readonly provenance: { readonly sourceType: string } }[] }[] = [apolloPanels, geminidsPanels, jupiterIoPanels, perseidsPanels];
     const panels = files.flatMap((file) => file.panels);
-    const count = (badge: string): number => panels.filter((panel) => panel.badge === badge).length;
+    const count = (badge: string): number => panels.filter((panel) => panel.provenance.sourceType === badge).length;
     const words = ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen", "seventeen", "eighteen", "nineteen", "twenty"];
     const row = decode(html.slice(html.indexOf("<h3>Story panels</h3>"), html.indexOf("</div>", html.indexOf('<span class="num">', html.indexOf("<h3>Story panels</h3>")))));
     expect(row).toContain(`<span class="num">${panels.length}<small>panels</small>`);

@@ -5,6 +5,7 @@ import { describe, expect, it } from "vitest";
 import { Scene, sun, uranus } from "astraeus";
 import { compositionPathLayer } from "../src/app/PathView";
 import { StateResolver } from "../src/core/stateResolver";
+import { definitionOf } from "../src/api/definitionOf";
 
 const APP = join(__dirname, "..", "src", "app");
 /** Files that import the built-in catalogue unaliased only as the default of a `source` parameter that callers pass. */
@@ -49,7 +50,7 @@ describe("the scene's own catalogue reaches the drawing code", () => {
   });
 
   it("a composition path for a listed moon takes its parent from the scene's catalogue", () => {
-    const definition = new Scene().addBody(sun).addBody(uranus).addBody("miranda", { orbit: true }).toDefinition([{ name: "astraeus-data-uranus", provides: ["miranda"] }]);
+    const definition = definitionOf(new Scene().addBody(sun).addBody(uranus).addBody("miranda", { orbit: true }), [{ name: "astraeus-data-uranus", provides: ["miranda"] }]);
     const path = definition.composition!.paths!.find((p) => p.body === "miranda")!;
     expect(() => compositionPathLayer(path, {} as StateResolver)).toThrow(/unknown body "miranda"/); // the built-in catalogue lacks it
     expect(compositionPathLayer(path, {} as StateResolver, definition.catalogue)).toMatchObject({ center: "uranus" });

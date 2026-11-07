@@ -37,7 +37,7 @@ const fake = {
   loadedFromUtcMs: () => T0 - 5 * 86_400_000,
   stateOf(id: string, timeUtcMs: number) {
     const { p, v } = circular(id as "alpha" | "beta", timeUtcMs);
-    return createState({ body: id, center: "jupiter", timeUtcMs, frame: EQJ, positionKm: p, velocityKmS: v, orientation: null });
+    return createState({ body: id, center: "jupiter", timeUtcMs, plane: EQJ, positionKm: p, velocityKmS: v, orientation: null });
   },
 } as unknown as ChebyshevEphemeris;
 const provenance = createProvenance({ sourceType: "illustrative", sources: ["made up"], accuracy: "none", notes: "" });

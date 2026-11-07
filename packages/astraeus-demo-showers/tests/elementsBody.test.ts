@@ -2,7 +2,8 @@ import { describe, expect, it } from "vitest";
 import fixture from "./fixtures/phaethon-horizons.json";
 import source from "./fixtures/phaethon-horizons-source.txt?raw";
 import geminids from "../data/showers/geminids.json";
-import { createSwiftTuttleTrajectory, SWIFT_TUTTLE_ELEMENTS, SWIFT_TUTTLE_EPOCH_UTC_MS, SWIFT_TUTTLE_SAMPLING } from "astraeus/core/bodies/swiftTuttle";
+import { createSwiftTuttleTrajectory, SWIFT_TUTTLE_ELEMENTS } from "./helpers/swiftTuttle";
+import swiftTuttleSource from "./fixtures/swift-tuttle-horizons-source.txt?raw";
 import {
   APPROXIMATE_LIMIT_FRACTION,
   buildElementsBody,
@@ -20,18 +21,18 @@ const CENTRE = { id: "sun", gmKm3S2: catalogue.get("sun").definition.gmKm3S2! };
 const distance = (a: ArrayLike<number>, b: ArrayLike<number>) => Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]);
 
 /** The accuracy block every record needs; the values here are for the tests' own bodies only. */
-const ACCURACY = { classification: "approximate", statement: "A test body.", validFromUtc: "1990-01-01T00:00:00Z", validToUtc: "2030-01-01T00:00:00Z" } as const;
+const ACCURACY = { classification: "approximate", statement: "A test body.", valid: { start: "1990-01-01T00:00:00Z", end: "2030-01-01T00:00:00Z" } } as const;
 const SOURCE = { name: "Test source", url: "https://example.org/orbit", solution: "S1", accessed: "2026-10-16" } as const;
 
-/** The built-in comet's published elements, written as a record: the equivalence check builds this through the generic path. */
+/** The Perseids file's comet elements, written as a record under another id: the validation cases below mutate copies of it. */
 function recordFromBuiltIn(): unknown {
   const e = SWIFT_TUTTLE_ELEMENTS;
   return {
     id: "equivalent",
     label: "Equivalent",
     elements: { semiMajorAxisAu: e.semiMajorAxisAu, eccentricity: e.eccentricity, inclinationDeg: e.inclinationDeg, ascendingNodeDeg: e.ascendingNodeDeg, argumentOfPerihelionDeg: e.argumentOfPerihelionDeg, meanAnomalyDeg: e.meanAnomalyDeg },
-    epoch: { jd: e.epochJdTdb, timeScale: "TDB", ttMinusUtcSeconds: 61.184 },
-    frame: "ecliptic-j2000",
+    epoch: { jd: 2450000.5, timeScale: "TDB", ttMinusUtcSeconds: 61.184 },
+    plane: "ecliptic-j2000",
     source: SOURCE,
     accuracy: ACCURACY,
   };
@@ -51,6 +52,13 @@ describe("a body record is validated field by field", () => {
     expect(parsed.accuracy.limitations).toEqual([]);
   });
 
+  it("reads the validity span as ISO text, a Date or milliseconds, and keeps text as written", () => {
+    const text = parseElementsBodyRecord(with_((c) => { c.accuracy.valid = { start: "1990-01-01T00:00:00Z", end: "2030-01-01T00:00:00Z" }; }));
+    expect(text.accuracy.valid).toEqual({ start: "1990-01-01T00:00:00Z", end: "2030-01-01T00:00:00Z" });
+    const mixed = parseElementsBodyRecord(with_((c) => { c.accuracy.valid = { start: new Date(Date.UTC(1990, 0, 1)), end: Date.UTC(2030, 0, 1) }; }));
+    expect(mixed.accuracy.valid).toEqual({ start: "1990-01-01T00:00:00.000Z", end: "2030-01-01T00:00:00.000Z" });
+  });
+
   it.each([
     ["id", (c: any) => { c.id = "Not An Id"; }, /body\.id must be lower-case words/],
     ["label", (c: any) => { delete c.label; }, /body\.label is required/],
@@ -67,15 +75,19 @@ describe("a body record is validated field by field", () => {
     ["epoch.ttMinusUtcSeconds missing", (c: any) => { delete c.epoch.ttMinusUtcSeconds; }, /body\.epoch\.ttMinusUtcSeconds is required/],
     ["epoch.ttMinusUtcSeconds range", (c: any) => { c.epoch.ttMinusUtcSeconds = 5; }, /body\.epoch\.ttMinusUtcSeconds must be from 32 to 120/],
     ["epoch.ttMinusUtcSeconds on UTC", (c: any) => { c.epoch.timeScale = "UTC"; }, /body\.epoch\.ttMinusUtcSeconds must be absent/],
-    ["frame", (c: any) => { c.frame = "equatorial"; }, /body\.frame must be "ecliptic-j2000"/],
+    ["plane", (c: any) => { c.plane = "equatorial"; }, /body\.plane must be "ecliptic-j2000"/],
+    ["frame (old name alone)", (c: any) => { c.frame = c.plane; delete c.plane; }, /body\.frame is now `plane`/],
     ["source.url", (c: any) => { delete c.source.url; }, /body\.source\.url is required/],
     ["source.solution", (c: any) => { c.source.solution = ""; }, /body\.source\.solution is required/],
     ["radius.km", (c: any) => { c.radius = { km: 0, source: "s" }; }, /body\.radius\.km must be positive/],
     ["radius.source", (c: any) => { c.radius = { km: 1 }; }, /body\.radius\.source is required/],
     ["accuracy.classification", (c: any) => { c.accuracy.classification = "exact"; }, /body\.accuracy\.classification must be "approximate" or "indicative"/],
     ["accuracy.statement", (c: any) => { delete c.accuracy.statement; }, /body\.accuracy\.statement is required/],
-    ["accuracy.validFromUtc", (c: any) => { c.accuracy.validFromUtc = "1990"; }, /body\.accuracy\.validFromUtc must be an ISO-8601 UTC time/],
-    ["accuracy.validToUtc order", (c: any) => { c.accuracy.validToUtc = "1980-01-01T00:00:00Z"; }, /body\.accuracy\.validToUtc must be after accuracy\.validFromUtc/],
+    ["accuracy.valid.start", (c: any) => { c.accuracy.valid.start = "1990"; }, /body\.accuracy\.valid\.start must be an ISO-8601 UTC time/],
+    ["accuracy.valid.end order", (c: any) => { c.accuracy.valid.end = "1980-01-01T00:00:00Z"; }, /body\.accuracy\.valid\.end must be after accuracy\.valid\.start/],
+    ["accuracy.valid missing", (c: any) => { delete c.accuracy.valid; }, /body\.accuracy\.valid is required/],
+    ["accuracy.validFromUtc (old name alone)", (c: any) => { c.accuracy.validFromUtc = c.accuracy.valid.start; delete c.accuracy.valid.start; }, /body\.accuracy\.validFromUtc is now `valid\.start`/],
+    ["accuracy.validToUtc (old name alone)", (c: any) => { c.accuracy.validToUtc = c.accuracy.valid.end; delete c.accuracy.valid.end; }, /body\.accuracy\.validToUtc is now `valid\.end`/],
     ["accuracy.limitations", (c: any) => { c.accuracy.limitations = [1]; }, /body\.accuracy\.limitations must be a list of non-empty text/],
     ["marker.color", (c: any) => { c.marker = { color: "red" }; }, /body\.marker\.color must be a colour like #9fe3ff/],
     ["marker.sizePx", (c: any) => { c.marker = { sizePx: 0 }; }, /body\.marker\.sizePx must be above zero/],
@@ -86,31 +98,15 @@ describe("a body record is validated field by field", () => {
   });
 });
 
-describe("a record gives the same positions as the hand-written source it was copied from", () => {
-  const generic = buildElementsBody(parseElementsBodyRecord(recordFromBuiltIn()), CENTRE).create();
+describe("a record placed by perihelion time reaches the place the mean anomaly gives", () => {
   const written = createSwiftTuttleTrajectory();
-  const dates = [Date.UTC(1990, 0, 1), Date.UTC(1995, 9, 10), Date.UTC(2000, 5, 1), Date.UTC(2026, 7, 13), Date.UTC(2100, 0, 1)];
-
-  it("agrees to 1e-9 relative at five dates (it is in fact identical)", () => {
-    for (const t of dates) {
-      const a = generic.stateAt(t, "sun").positionKm;
-      const b = written.stateAt(t, "sun").positionKm;
-      expect(distance(a, b) / Math.hypot(...b)).toBeLessThan(1e-9);
-    }
-  });
-
-  it("puts the epoch and the periapsis where the hand-written source does", () => {
-    const built = buildElementsBody(parseElementsBodyRecord(recordFromBuiltIn()), CENTRE);
-    expect(built.epochUtcMs).toBe(SWIFT_TUTTLE_EPOCH_UTC_MS);
-    expect(built.sampling.periapsisUtcMs).toBe(SWIFT_TUTTLE_SAMPLING.periapsisUtcMs);
-    expect(Math.abs(built.sampling.periodMs - SWIFT_TUTTLE_SAMPLING.periodMs)).toBeLessThan(1);
-  });
+  const sbdbTp = Number(JSON.parse(swiftTuttleSource.split(/^==== QUERY .*====\n/m)[1]!).orbit.elements.find((element: { name: string }) => element.name === "tp").value);
 
   it("takes a perihelion time in place of the mean anomaly and reaches the same place", () => {
     const base = recordFromBuiltIn() as Record<string, any>;
     const alt = structuredClone(base);
     delete alt.elements.meanAnomalyDeg;
-    alt.elements.perihelionJdTdb = SWIFT_TUTTLE_ELEMENTS.perihelionJdTdb;
+    alt.elements.perihelionJdTdb = sbdbTp;
     const t = Date.UTC(2026, 7, 13);
     const a = buildElementsBody(parseElementsBodyRecord(alt), CENTRE).create().stateAt(t, "sun").positionKm;
     const b = written.stateAt(t, "sun").positionKm;
@@ -163,8 +159,8 @@ describe("the parent a settings file defines, against JPL Horizons", () => {
     expect((rows[7].utcMs - rows[0].utcMs) / 86_400_000 / periodDays).toBeGreaterThan(8);
     expect(rows.some((row) => /^2026-Dec-14/.test(row.label))).toBe(true);
     // O-024 T-092 extended the validity back to the Showers year's start, from the second comparison (tests/showersYearHorizons.test.ts).
-    expect(record.accuracy.validFromUtc).toBe("2019-09-21T00:00:00Z");
-    expect(record.accuracy.validToUtc).toBe("2032-12-14T00:00:00Z");
+    expect(record.accuracy.valid.start).toBe("2019-09-21T00:00:00Z");
+    expect(record.accuracy.valid.end).toBe("2032-12-14T00:00:00Z");
   });
 
   it("matches Horizons at its own epoch to within a few hundred km (the time-scale conversion is right)", () => {

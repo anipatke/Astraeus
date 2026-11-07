@@ -10,6 +10,8 @@ import neptuneIndex from "astraeus-data-neptune/index.json";
 import plutoIndex from "astraeus-data-pluto/index.json";
 import saturnIndex from "astraeus-data-saturn/index.json";
 import uranusIndex from "astraeus-data-uranus/index.json";
+import type { ExperienceDefinition } from "../src/app/experienceDefinition";
+import { definitionOf } from "../src/api/definitionOf";
 
 // O-047 T-195: a window outside the years a loaded body's positions cover fails once, by name, at load. Made-up two-body index, different spans.
 const TABLE = { pieces: [{ fromUtcMs: Date.UTC(1940, 0, 1), ttMinusUtcS: 64.184, driftSPerDay: 0 }], validToUtcMs: Date.UTC(2040, 0, 1) };
@@ -40,7 +42,7 @@ describe("a window outside a body's span", () => {
 
   it("reaches the public API as SceneError out-of-span naming the package", async () => {
     JUPITER_MOON_SYSTEM.install(null);
-    const source = { name: "astraeus-data-made-up", provides: ["io"], moonPositions: { centre: "jupiter", loadIndex: async () => index, chunkUrls: {} } };
+    const source = { name: "astraeus-data-made-up", provides: ["io"], moonPositions: { center: "jupiter", loadIndex: async () => index, chunkUrls: {} } };
     const window = { startUtcMs: Date.UTC(1951, 0, 1), endUtcMs: Date.UTC(1955, 0, 1) };
     const error = await installData([source], ["jupiter", "io"], window).catch((caught: unknown) => caught);
     expect(error).toBeInstanceOf(SceneError);
@@ -83,18 +85,18 @@ describe("a window outside the planet series (I-110)", () => {
         const make = () => shape(new Scene().addBody(sun)).setTimeline(timeline);
         // The error always arrives from prepare, never thrown by toDefinition (so mount never throws), with the series not loaded yet or already loaded.
         const first = make();
-        let definition: ReturnType<Scene["toDefinition"]> | undefined;
-        expect(() => { definition = first.toDefinition(); }).not.toThrow();
+        let definition: ExperienceDefinition | undefined;
+        expect(() => { definition = definitionOf(first); }).not.toThrow();
         await expect(definition!.prepare!()).rejects.toMatchObject(outOfSpan);
         // The series are loaded by now (a consumer's second mount): same surface.
         const second = make();
-        expect(() => { definition = second.toDefinition(); }).not.toThrow();
+        expect(() => { definition = definitionOf(second); }).not.toThrow();
         await expect(definition!.prepare!()).rejects.toMatchObject(outOfSpan);
         await expect(definition!.prepare!()).rejects.toMatchObject(outOfSpan);
       });
     }
   }
   it("a window inside the series still resolves", async () => {
-    await expect(new Scene().addBody(sun).addBody(saturn, { orbit: true }).setTimeline({ start: "1960-01-01T00:00:00Z", end: "1961-01-01T00:00:00Z" }).toDefinition().prepare!()).resolves.toBeUndefined();
+    await expect(definitionOf(new Scene().addBody(sun).addBody(saturn, { orbit: true }).setTimeline({ start: "1960-01-01T00:00:00Z", end: "1961-01-01T00:00:00Z" })).prepare!()).resolves.toBeUndefined();
   });
 });

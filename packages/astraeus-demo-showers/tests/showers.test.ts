@@ -458,7 +458,7 @@ describe("a parent defined in the settings file", () => {
     const neither = parent();
     delete neither.parentElements;
     expect(() => parseShowerSettings(neither)).toThrow(/parentBodyId and parentElements: exactly one must be given/);
-    expect(parseShowerSettings(perseidsFile).parentElements).toBeUndefined();
+    expect(parseShowerSettings(perseidsFile).parentElements?.id).toBe("swift-tuttle");
     expect(parsed.parentBodyId).toBe(parsed.parentElements?.id);
   });
 
@@ -535,22 +535,23 @@ describe("a parent defined in the settings file", () => {
     expect(mountedBodiesOf(perseids)).not.toContain("phaethon");
   });
 
-  it("leaves Perseids with its catalogued parent and no extension", () => {
+  it("gives Perseids its comet from the file's elements, in the scene's own catalogue, and leaves the built-in one alone", () => {
     const perseids = buildShowerDefinition(parseShowerSettings(perseidsFile), { kind: "absent" });
-    expect(perseids.catalogue).toBeUndefined();
+    expect(catalogue.has("swift-tuttle")).toBe(false);
+    expect(perseids.catalogue?.has("swift-tuttle")).toBe(true);
     expect(perseids.experience.cameraPresets.find((preset) => preset.id === "focus-swift-tuttle")?.label).toBe("Focus 109P/Swift-Tuttle");
   });
 });
 
 describe("story panels carried by shower settings (O-015 / T-062, ARCH-03)", () => {
   const panel = (change: Record<string, unknown> = {}) => ({
-    id: "crossing", at: { event: "test-drift-peak" }, object: "earth", title: "Made-up crossing", body: ["Made-up sentence."], badge: "illustrative", sources: ["Made-up source"], ...change,
+    id: "crossing", at: { event: "test-drift-peak" }, object: "earth", title: "Made-up crossing", body: ["Made-up sentence."], provenance: { sourceType: "illustrative" as const, sources: ["Made-up source"], accuracy: "None claimed.", notes: "Made up." }, ...change,
   });
   const withPanels = (panels: unknown): Record<string, any> => ({ ...clone(), story: { panels } });
   const build = (settings: Record<string, any>, load: MeasuredLoad = { kind: "absent" }) => buildShowerDefinition(parseShowerSettings(settings), load);
 
   it("lets any shower file carry inline panels with no code, resolving event times and objects", () => {
-    const set = build(withPanels({ pauseSeconds: 3, panels: [panel(), panel({ id: "start", at: { utc: "2030-03-02T00:00:00Z" }, object: "test-drift-stream" })] }), { kind: "loaded", orbits: madeUpOrbits(999, 50) }).experience.storyPanels!;
+    const set = build(withPanels({ pauseSeconds: 3, panels: [panel(), panel({ id: "start", at: { time: "2030-03-02T00:00:00Z" }, object: "test-drift-stream" })] }), { kind: "loaded", orbits: madeUpOrbits(999, 50) }).experience.storyPanels!;
     expect(set.pauseSeconds).toBe(3);
     expect(set.panels.map((p) => p.id)).toEqual(["start", "crossing"]);
     expect(set.panels[1]!.timeUtcMs).toBe(Date.parse("2030-03-11T00:00:00Z"));
@@ -567,20 +568,20 @@ describe("story panels carried by shower settings (O-015 / T-062, ARCH-03)", () 
     const settings = parseShowerSettings(perseidsFile);
     expect(settings.story?.panels).toBe("data/stories/perseids/panels.json");
     const set = buildShowerDefinition(settings, { kind: "loaded", orbits: madeUpOrbits(7, 20) }, shippedPanelsOf(settings)).experience.storyPanels!;
-    expect(set.panels.map((p) => [p.id, p.badge, p.objectId])).toEqual([
+    expect(set.panels.map((p) => [p.id, p.provenance.sourceType, p.objectId])).toEqual([
       ["stream-shape", "illustrative", "perseids-stream"],
       ["earth-crossing", "observed", "earth"],
       ["swift-tuttle", "modelled", "swift-tuttle"],
     ]);
     expect(set.panels[1]!.timeUtcMs).toBe(Date.parse(perseidsFile.activity.peakUtc));
-    for (const p of set.panels) expect(p.sources.length).toBeGreaterThan(0);
+    for (const p of set.panels) expect(p.provenance.sources.length).toBeGreaterThan(0);
   });
 
   it("keeps a panel inside the year timeline and rejects one outside it", () => {
-    const early = panel({ id: "early", at: { utc: "2030-01-01T00:00:00Z" } });
+    const early = panel({ id: "early", at: { time: "2030-01-01T00:00:00Z" } });
     const wide = { ...withPanels({ panels: [early, panel()] }), timeline: { span: "year", rateSecondsPerSecond: 604_800 } };
     expect(build(wide).experience.storyPanels!.panels.map((p) => p.id)).toEqual(["early", "crossing"]);
-    const far = { ...wide, story: { panels: { panels: [panel({ at: { utc: "2031-01-01T00:00:00Z" } })] } } };
+    const far = { ...wide, story: { panels: { panels: [panel({ at: { time: "2031-01-01T00:00:00Z" } })] } } };
     expect(() => build(far)).toThrow(/crossing: at falls outside the timeline window/);
   });
 
@@ -620,8 +621,8 @@ describe("story panels carried by shower settings (O-015 / T-062, ARCH-03)", () 
   it.each([
     ["an unknown object", panel({ object: "ghost" }), /crossing: object names "ghost"/],
     ["an unknown event", panel({ at: { event: "nope" } }), /crossing: at\.event names "nope"/],
-    ["a time outside the timeline", panel({ at: { utc: "2031-01-01T00:00:00Z" } }), /crossing: at falls outside the timeline window/],
-    ["no sources", panel({ sources: [] }), /crossing: sources must be one or more/],
+    ["a time outside the timeline", panel({ at: { time: "2031-01-01T00:00:00Z" } }), /crossing: at falls outside the timeline window/],
+    ["no sources", panel({ provenance: { sourceType: "illustrative", sources: [], accuracy: "None claimed.", notes: "Made up." } }), /crossing: provenance\.sources must be one or more/],
   ])("names the panel and field for %s", (_what, entry, message) => {
     expect(() => build(withPanels({ panels: [entry] }))).toThrow(SceneError);
     expect(() => build(withPanels({ panels: [entry] }))).toThrow(message);

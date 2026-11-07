@@ -123,7 +123,7 @@ describe("a centre that is neither Earth nor the Sun, through the same contracts
   ];
   const twoBody = createOrbTwoBodyAdapter([definitions[1]]);
   const bindings: StateSourceBinding[] = [
-    { body: "planet", create: () => ({ body: "planet", stateAt: (t, center = "origin") => ({ body: "planet", center, timeUtcMs: t, frame: "EQJ", positionKm: Float64Array.of(1e8, 0, 0), orientation: null }) as never }) },
+    { body: "planet", create: () => ({ body: "planet", stateAt: (t, center = "origin") => ({ body: "planet", center, timeUtcMs: t, plane: "EQJ", positionKm: Float64Array.of(1e8, 0, 0), orientation: null }) as never }) },
     {
       body: "satellite",
       create: () => createTwoBodyTrajectory({

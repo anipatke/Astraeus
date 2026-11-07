@@ -6,14 +6,15 @@ import { catalogue } from "../src/assets/catalogue";
 import { createOrbAstronomyAdapter } from "../src/core/astronomyAdapter";
 import { createStateResolver } from "../src/core/stateResolver";
 import { listedObjects } from "../src/shell/objectModel";
+import { definitionOf } from "../src/api/definitionOf";
 
 const DAY_MS = 86_400_000;
 const codeOf = (fn: () => unknown) => { try { fn(); } catch (error) { return error instanceof SceneError ? `${error.code}: ${error.message}` : String(error); } return "no error"; };
 const everything: DataSource = { name: "made-up", provides: catalogue.ids() };
-const objectOf = (scene: Scene, id: string) => scene.toDefinition([everything]).experience.objects.find((object) => object.id === id)!;
-const pathsOf = (scene: Scene) => scene.toDefinition([everything]).composition?.paths ?? [];
+const objectOf = (scene: Scene, id: string) => definitionOf(scene, [everything]).experience.objects.find((object) => object.id === id)!;
+const pathsOf = (scene: Scene) => definitionOf(scene, [everything]).composition?.paths ?? [];
 const resolver = () => createStateResolver(catalogue.definitions(), catalogue.sources(), createOrbAstronomyAdapter());
-const rowsOf = (scene: Scene, id: string) => scene.toDefinition([everything]).createMetrics({ resolver: resolver(), catalogue, clock: undefined as never })(id, Date.UTC(2026, 3, 1)).map((row) => row.kind);
+const rowsOf = (scene: Scene, id: string) => definitionOf(scene, [everything]).createMetrics({ resolver: resolver(), catalogue, clock: undefined as never })(id, Date.UTC(2026, 3, 1)).map((row) => row.kind);
 
 describe("AddBodyOptions.listed", () => {
   it("defaults to listed; false leaves the body out of the object menu until it is the selected one", () => {
@@ -22,7 +23,7 @@ describe("AddBodyOptions.listed", () => {
     expect(objectOf(plain, "moon").listed).toBeUndefined();
     const hidden = new Scene().addBody(earth).addBody(moon, { listed: false });
     expect(hidden.bodies.map((body) => body.listed)).toEqual([true, false]);
-    const { experience } = hidden.toDefinition([everything]);
+    const { experience } = definitionOf(hidden, [everything]);
     expect(listedObjects(experience, "earth").map((object) => object.id)).toEqual(["earth"]);
     expect(listedObjects(experience, "moon").map((object) => object.id)).toEqual(["earth", "moon"]);
   });
@@ -94,7 +95,7 @@ describe("AddBodyOptions.orbit as a lap", () => {
     expect(codeOf(() => new Scene().addBody(earth).addBody(moon, { orbit: { lapDays: 0 } }))).toMatch(/^bad-body: .*lapDays/);
     expect(codeOf(() => new Scene().addBody(earth).addBody(moon, { orbit: { lapDays: 1, fades: 1 as never } }))).toMatch(/^bad-body: .*fades/);
     expect(codeOf(() => new Scene().addBody(sun).addBody(earth, { orbit: { lapDays: 365 } }))).toMatch(/^no-orbit: .*lap form/);
-    expect(codeOf(() => new Scene().addBody(moon, { orbit: { lapDays: 10 } }).toDefinition([everything]))).toMatch(/^no-orbit: .*about earth/);
+    expect(codeOf(() => definitionOf(new Scene().addBody(moon, { orbit: { lapDays: 10 } }), [everything]))).toMatch(/^no-orbit: .*about earth/);
   });
 });
 
@@ -116,7 +117,7 @@ describe("Scene.setBodyReadouts", () => {
 });
 
 describe("SceneCamera.setReach { farEarthRadii }", () => {
-  const far = (scene: Scene) => scene.toDefinition([everything]).camera;
+  const far = (scene: Scene) => definitionOf(scene, [everything]).camera;
   it("defaults the far plane to 2.5 times the reach; farEarthRadii sets it", () => {
     expect(far(new Scene().addBody(earth).addBody(moon))).toBeUndefined();
     const scene = new Scene().addBody(earth).addBody(moon);
@@ -138,21 +139,21 @@ describe("SceneCamera.setStartView", () => {
   const pose = { focus: "moon", azimuthDeg: 20, elevationDeg: 30, distance: 12 };
   const scene = () => new Scene().addBody(earth).addBody(moon);
   it("opens at the pose with no camera button pressed; none by default", () => {
-    expect(scene().toDefinition([everything]).startView).toBeUndefined();
+    expect(definitionOf(scene(), [everything]).startView).toBeUndefined();
     const built = scene();
     built.camera.setStartView(pose);
-    const definition = built.toDefinition([everything]);
+    const definition = definitionOf(built, [everything]);
     expect(definition.startView).toEqual(pose);
     expect(definition.experience.startCameraPresetId).toBeUndefined();
   });
-  it("is last-wins with follow and lookAt", () => {
+  it("is last-wins with follow and focus", () => {
     const built = scene();
     built.camera.setStartView(pose).follow("earth");
-    expect(built.toDefinition([everything]).experience.startCameraPresetId).toBe("follow-earth");
-    expect(built.toDefinition([everything]).startView?.focus).toBe("earth");
+    expect(definitionOf(built, [everything]).experience.startCameraPresetId).toBe("follow-earth");
+    expect(definitionOf(built, [everything]).startView?.focus).toBe("earth");
     const back = scene();
-    back.camera.lookAt("earth").setStartView(pose);
-    const definition = back.toDefinition([everything]);
+    back.camera.focus("earth").setStartView(pose);
+    const definition = definitionOf(back, [everything]);
     expect(definition.experience.startCameraPresetId).toBeUndefined();
     expect(definition.startView).toEqual(pose);
   });
@@ -164,8 +165,8 @@ describe("SceneCamera.setStartView", () => {
 });
 
 describe("SceneCamera.setFollowChoices", () => {
-  const follows = (scene: Scene) => scene.toDefinition([everything]).experience.cameraPresets.filter((preset) => preset.id.startsWith("follow-")).map((preset) => preset.id);
-  const focuses = (scene: Scene) => scene.toDefinition([everything]).experience.cameraPresets.filter((preset) => preset.id.startsWith("focus-")).map((preset) => preset.id);
+  const follows = (scene: Scene) => definitionOf(scene, [everything]).experience.cameraPresets.filter((preset) => preset.id.startsWith("follow-")).map((preset) => preset.id);
+  const focuses = (scene: Scene) => definitionOf(scene, [everything]).experience.cameraPresets.filter((preset) => preset.id.startsWith("focus-")).map((preset) => preset.id);
   const scene = () => new Scene().addBody(earth).addBody(moon);
   it("offers Follow on every body by default; the list given keeps Focus on all and Follow on the listed only", () => {
     expect(follows(scene())).toEqual(["follow-earth", "follow-moon"]);
@@ -181,7 +182,7 @@ describe("SceneCamera.setFollowChoices", () => {
     expect(codeOf(() => scene().camera.setFollowChoices(["mars"]))).toMatch(/^unknown-body: camera.setFollowChoices/);
     const built = scene();
     built.camera.follow("earth").setFollowChoices(["moon"]);
-    expect(codeOf(() => built.toDefinition([everything]))).toMatch(/^bad-camera: .*follows "earth"/);
+    expect(codeOf(() => definitionOf(built, [everything]))).toMatch(/^bad-camera: .*follows "earth"/);
   });
 });
 

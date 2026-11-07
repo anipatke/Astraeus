@@ -2,20 +2,21 @@
 import { describe, expect, it } from "vitest";
 import { APPROXIMATE_LIMIT_FRACTION, INDICATIVE_LIMIT_FRACTION, Scene, SceneError, classifyPositionError, earth, moon, parseElementsBodyRecord, sun, type ElementsBodyRecord } from "astraeus";
 import { createOrbAstronomyAdapter } from "../src/core/astronomyAdapter";
+import { definitionOf } from "../src/api/definitionOf";
 
 const T = Date.UTC(2026, 7, 12);
 const record: ElementsBodyRecord = {
   id: "rock", label: "Rock",
   elements: { semiMajorAxisAu: 2.5, eccentricity: 0.3, inclinationDeg: 10, ascendingNodeDeg: 40, argumentOfPerihelionDeg: 70, meanAnomalyDeg: 20 },
   epoch: { jd: 2461000.5, timeScale: "TDB", ttMinusUtcSeconds: 69.184 },
-  frame: "ecliptic-j2000",
+  plane: "ecliptic-j2000",
   source: { name: "Made up", url: "https://example.org/rock", solution: "S1", accessed: "2026-10-28" },
-  accuracy: { classification: "indicative", statement: "Made up.", validFromUtc: "2020-01-01T00:00:00Z", validToUtc: "2030-01-01T00:00:00Z", limitations: [] },
+  accuracy: { classification: "indicative", statement: "Made up.", valid: { start: "2020-01-01T00:00:00Z", end: "2030-01-01T00:00:00Z" }, limitations: [] },
   marker: { color: "#aabbcc", sizePx: 6 },
 };
 const code = (fn: () => unknown) => { try { fn(); } catch (error) { return error instanceof SceneError ? error.code : String(error); } return "none"; };
-const viewerState = (scene: Scene, id: string, t: number) => scene.toDefinition().catalogue
-  ? scene.toDefinition().catalogue!.get(id).source!.create(createOrbAstronomyAdapter()).stateAt(t)
+const viewerState = (scene: Scene, id: string, t: number) => definitionOf(scene).catalogue
+  ? definitionOf(scene).catalogue!.get(id).source!.create(createOrbAstronomyAdapter()).stateAt(t)
   : undefined;
 
 describe("stateOf for any body", () => {
@@ -29,10 +30,10 @@ describe("stateOf for any body", () => {
     }
   });
 
-  it("answers for the Earth, and for built-in Swift-Tuttle", () => {
-    const scene = new Scene().addBody(sun).addBody(earth).addBody("swift-tuttle");
+  it("answers for the Earth, and for a long-period comet added from elements", () => {
+    const scene = new Scene().addBody(sun).addBody(earth).addBodyFromElements({ ...record, id: "long-comet", label: "Long comet", elements: { ...record.elements, semiMajorAxisAu: 26, eccentricity: 0.96 } });
     expect(Math.hypot(...scene.stateOf("earth", T).positionKm) / 149_597_870.7).toBeGreaterThan(0.98);
-    expect(Math.hypot(...scene.stateOf("swift-tuttle", T).positionKm)).toBeGreaterThan(1e9);
+    expect(Math.hypot(...scene.stateOf("long-comet", T).positionKm)).toBeGreaterThan(1e9);
   });
 
   it("refuses an id the scene lacks and a moment outside the data", () => {
@@ -47,9 +48,9 @@ describe("stateOf for any body", () => {
 });
 
 describe("provenanceOf", () => {
-  it("carries the class and fraction for Swift-Tuttle and an elements body, and leaves them out for others", () => {
-    const scene = new Scene().addBody(sun).addBody(earth).addBody("swift-tuttle").addBodyFromElements(record);
-    expect(scene.provenanceOf("swift-tuttle")).toMatchObject({ accuracyClass: "approximate", maxErrorFraction: 0.00857 });
+  it("carries the class and fraction for elements bodies, and leaves them out for others", () => {
+    const scene = new Scene().addBody(sun).addBody(earth).addBodyFromElements({ ...record, id: "sharp", label: "Sharp", accuracy: { ...record.accuracy, classification: "approximate" } }).addBodyFromElements(record);
+    expect(scene.provenanceOf("sharp")).toMatchObject({ accuracyClass: "approximate", maxErrorFraction: APPROXIMATE_LIMIT_FRACTION });
     expect(scene.provenanceOf("rock")).toMatchObject({ accuracyClass: "indicative", maxErrorFraction: INDICATIVE_LIMIT_FRACTION });
     expect(scene.provenanceOf("earth")).not.toHaveProperty("accuracyClass");
     expect(code(() => scene.provenanceOf("mars"))).toBe("unknown-body");

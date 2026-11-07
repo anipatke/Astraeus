@@ -5,6 +5,7 @@ import { Scene, SceneError, earth, moon, type BodySetInput, type DataSource, typ
 import { prepareScene } from "../src/api/prepared";
 import { featureColor, findFeature } from "../src/shell/bodyFeatures";
 import { moonListSummary } from "../src/shell/moonFamilies";
+import { definitionOf } from "../src/api/definitionOf";
 
 const T0 = Date.parse("2026-01-01T00:00:00Z");
 const DAY = 86_400_000;
@@ -102,7 +103,7 @@ describe("setMoonPanel on a made-up system", () => {
   it("check throws bad-moon-panel for a moon the scene does not hold, as the build does", () => {
     const scene = base().setMoonPanel(panel({ families: [{ id: "f", label: "F", description: "F.", moons: [{ id: "ghost" }] }], featuredFamily: undefined }));
     expect(codeOf(() => scene.check())).toBe("bad-moon-panel");
-    expect(codeOf(() => scene.toDefinition())).toBe("bad-moon-panel");
+    expect(codeOf(() => definitionOf(scene))).toBe("bad-moon-panel");
     expect(codeOf(() => base().setMoonPanel(panel()).check())).toBe("no error");
   });
 });
@@ -180,7 +181,7 @@ describe("addPlaces on a made-up system", () => {
   it("a body not in the scene is bad-places at check and build; a second call for one body is duplicate-id; a mounted scene refuses it", () => {
     const ghost = base().addPlaces("mars", places());
     expect(codeOf(() => ghost.check())).toBe("bad-places");
-    expect(codeOf(() => ghost.toDefinition())).toBe("bad-places");
+    expect(codeOf(() => definitionOf(ghost))).toBe("bad-places");
     expect(codeOf(() => base().addPlaces("moon", places()).addPlaces("moon", places()))).toBe("duplicate-id");
     const scene = base();
     prepareScene(scene);

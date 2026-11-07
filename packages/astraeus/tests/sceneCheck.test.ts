@@ -16,16 +16,20 @@ type Row = readonly [code: string, scene: () => Scene, data: readonly DataSource
 const ROWS: readonly Row[] = [
   ["empty-scene", () => new Scene(), []],
   ["missing-data", () => new Scene().addBody(sun).addBody(jupiter).addBody(io), [{ name: "made-up", provides: ["europa"] }]],
-  ["bad-view", () => base().setViews([{ id: "a", label: "A", paths: ["ghost"] }], { place: "panel" }), []],
+  ["bad-view", () => base().setViews([{ id: "a", label: "A", objects: ["ghost"] }], { place: "panel" }), []],
+  ["renamed", () => new Scene().addBody(earth), [{ name: "made-up", provides: [], pictures: { earth: { url: "a.jpg", widthPx: 10, heightPx: 5, localOnly: { reason: "Made up." }, desktop: { url: "b.jpg", widthPx: 20, heightPx: 10, minViewportWidth: 768 } } } } as never]],
+  ["renamed", () => new Scene().addBody(jupiter), [{ name: "made-up", provides: [], moonPositions: { centre: "jupiter", loadIndex: async () => ({}), chunkUrls: {} } } as never]],
+  ["bad-data", () => new Scene().addBody(earth), [{ name: "made-up", provides: [], pictures: { earth: { url: "a.jpg", widthPx: 10, heightPx: 5 } } } as never]],
+  ["bad-data", () => new Scene().addBody(jupiter), [{ name: "made-up", provides: [], moonPositions: { center: "earth", loadIndex: async () => ({}), chunkUrls: {} } } as never]],
   ["bad-event", () => base().addEvents([{ id: "e", label: "E", time: T0, object: "ghost" }]), []],
-  ["bad-group", () => base().addGroup({ id: "g", orbits: [orbit], center: "mars" }), []],
+  ["bad-group", () => base().addGroup({ plane: "ecliptic-j2000", id: "g", orbits: [orbit], center: "mars" }), []],
   ["bad-body-set", () => base().addBodySet({ id: "s", families: [{ id: "f", label: "F" }], members: [{ id: "x", family: "ghost", label: "X", radiusKm: 1 }], provenance: { sourceType: "illustrative", sources: ["Invented"], accuracy: "None.", notes: "" } }), []],
   ["bad-moon-panel", () => base().setMoonPanel({ label: "P", families: [{ id: "f", label: "F", description: "F.", moons: [{ id: "ghost" }] }] }), []],
   ["bad-places", () => base().addPlaces("ghost", { categories: [], places: [{ id: "p", name: "P", kind: "K", category: "c", latitudeDeg: 0, longitudeDeg: 0, description: "D" }], provenance: { sourceType: "illustrative", sources: ["Invented"], accuracy: "None.", notes: "" } }), []],
   ["bad-scale", () => base().setScale({ id: "solar-system" } as never), []],
   ["bad-readout", () => base().addTrajectory({ ...path("p"), readouts: [{ kind: "distance", to: "ghost" }] }), []],
-  ["bad-timeline", () => base().addTrajectory(path("p")).addEvents([{ id: "e", label: "E", time: T0 }]).setTimeline({ start: T0, end: T0 + DAY, pacing: [{ near: { type: "ghost", within: 5 }, rate: 1 }] }), []],
-  ["bad-panels", () => base().addTrajectory(path("p")).addStoryPanels({ panels: [{ id: "q", at: { event: "ghost" }, title: "Q", body: ["Made up."], badge: "illustrative", sources: ["Invented"] }] }), []],
+  ["bad-timeline", () => base().addTrajectory(path("p")).addEvents([{ id: "e", label: "E", time: T0 }]).setTimeline({ start: T0, end: T0 + DAY, pacing: [{ near: { type: "ghost", withinSeconds: 5 }, rate: 1 }] }), []],
+  ["bad-panels", () => base().addTrajectory(path("p")).addStoryPanels([{ id: "q", at: { event: "ghost" }, title: "Q", body: ["Made up."], provenance: { sourceType: "illustrative" as const, sources: ["Invented"], accuracy: "None claimed.", notes: "Made up." } }]), []],
 ];
 
 /** What a call throws, as its constructor, code and message; "no error" if it returns. */

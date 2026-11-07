@@ -1,7 +1,7 @@
 // O-047 T-203, O-049 T-212: a made-up probe journey from 1977 out to 170 AU, built only through the public Scene API (ARCH-01: no real mission, name or data).
 // It leaves Earth's place on 5 September 1977, passes Jupiter on 5 March 1979, Saturn on 12 November 1980 and Uranus on 24 January 1986, then flies straight out to 170 AU by 1 January 2026.
 // Uranus adds its five main moons (listed moons, one rule, orbit lines on; T-212). The giant planets draw their rings by default (catalogue data, O-048 T-205), Europa, Ganymede and Titan draw their orbit lines (T-206) and each pass names its planet as the event's object (T-207).
-// In one scene it proves: moons at historical dates (the data packages are handed to `toDefinition`), Saturn's orbit line, paced playback, provenance that changes along the path,
+// In one scene it proves: moons at historical dates (the data packages are handed to `mount`), Saturn's orbit line, paced playback, provenance that changes along the path,
 // the opening selection and a camera that zooms out to the whole path (I-114). The planets' places come from the planet series, so the series must be loaded before this builds (the site does).
 import { Scene } from "../api/scene";
 import { callisto, dione, earth, enceladus, europa, ganymede, iapetus, io, jupiter, mimas, rhea, saturn, sun, tethys, titan, uranus } from "../api/bodies";
@@ -87,8 +87,8 @@ export function buildSyntheticJourneyScene(): Scene {
     rates: [DAY_MS / 1000, 30 * DAY_MS / 1000, YEAR_S],
     rate: 30 * DAY_MS / 1000,
     pacing: [
-      { near: { type: "encounter", within: 30 * DAY_MS / 1000 }, rate: DAY_MS / 1000 },
-      { from: JOURNEY_URANUS_UTC_MS + 120 * DAY_MS, to: JOURNEY_END_UTC_MS, rate: YEAR_S },
+      { near: { type: "encounter", withinSeconds: 30 * DAY_MS / 1000 }, rate: DAY_MS / 1000 },
+      { start: JOURNEY_URANUS_UTC_MS + 120 * DAY_MS, end: JOURNEY_END_UTC_MS, rate: YEAR_S },
     ],
   });
   scene.setScale(solarSystemScale);

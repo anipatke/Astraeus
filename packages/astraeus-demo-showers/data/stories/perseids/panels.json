@@ -5,11 +5,10 @@
     {
       "id": "stream-shape",
       "at": {
-        "utc": "2019-11-01T00:00:00Z"
+        "time": "2019-11-01T00:00:00Z"
       },
       "object": "perseids-stream",
       "title": "A river of comet dust",
-      "badge": "illustrative",
       "body": [
         "Each dot follows the real path of a grain of comet dust. Cameras on Earth measured that path when the grain burned up as a shooting star.",
         "Together, more than 25,000 of them trace a wide ribbon along the orbit of comet Swift–Tuttle."
@@ -20,10 +19,15 @@
         "More than 25,000: 25,588 bound orbits are drawn.",
         "The demo shows the year from 21 September 2019 to 20 September 2020. The orbits were measured in 2025 and are drawn as they are, a measured shape with illustrative places along it, in that earlier year; this moment, 1 November 2019, is six weeks into it."
       ],
-      "sources": [
-        "Global Meteor Network, monthly trajectory summaries, Jul and Aug 2025, IAU shower 7 (PER); Vida et al. 2021, MNRAS 506(4); Vida et al. 2020, MNRAS 491(2); CC BY 4.0; globalmeteornetwork.org/data (accessed 2026-10-16)",
-        "Astraeus docs/ASTRONOMY_VALIDATION.md, GMN section (O-011 / T-056): 25,588 bound orbits drawn; the dots' places along their orbits are illustrative"
-      ]
+      "provenance": {
+        "sourceType": "illustrative",
+        "sources": [
+          "Global Meteor Network, monthly trajectory summaries, Jul and Aug 2025, IAU shower 7 (PER); Vida et al. 2021, MNRAS 506(4); Vida et al. 2020, MNRAS 491(2); CC BY 4.0; globalmeteornetwork.org/data (accessed 2026-10-16)",
+          "Astraeus docs/ASTRONOMY_VALIDATION.md, GMN section (O-011 / T-056): 25,588 bound orbits drawn; the dots' places along their orbits are illustrative"
+        ],
+        "accuracy": "Not stated by the source. That covers the measured orbits. Where each dot sits along its orbit is illustrative, so it has no accuracy to state.",
+        "notes": "The orbits were measured in 2025 and are drawn as they are in an earlier year. The pattern of dots along the ribbon says nothing about where the dust really is."
+      }
     },
     {
       "id": "earth-crossing",
@@ -32,7 +36,6 @@
       },
       "object": "earth",
       "title": "Earth meets the dust",
-      "badge": "observed",
       "body": [
         "Earth passes through this ribbon every year, from mid-July to late August.",
         "The dust burns up in our sky as shooting stars: up to about 100 an hour on the best night, under a perfectly dark sky.",
@@ -44,21 +47,25 @@
         "The peak in this scene is 12 August 2020 at 15:41:56 UTC: the moment the Sun reaches solar longitude 140.1° (J2000), the IAU Meteor Data Center's peak, found on the engine's ephemeris; it falls inside the International Meteor Organization's 13:00 to 16:00 UT.",
         "In the 2025 measured orbits, the stream passes closest to Earth about 2.2 hours before the official peak, and its radiant lies 0.04° from the IAU's. Those figures were measured against the August 2027 peak; against the 12 August 2020 peak this scene shows, the closest pass is about 2.3 hours before the peak (1.3 hours in the reliable set) and the radiant lies 0.06° from the IAU's."
       ],
-      "sources": [
-        "IAU Meteor Data Center, Perseids (PER, 7): peak solar longitude 140.1°, radiant RA 47.9°, Dec +57.9° (J2000); ta3.sk (accessed 2026-10-13)",
-        "International Meteor Organization, 2020 Meteor Shower Calendar (IMO_INFO(2-19), ed. J. Rendtel): Perseids active July 17 - August 24, maximum August 12, 13h to 16h UT; archived copy https://web.archive.org/web/20201216020712/https://www.imo.net/files/meteor-shower/cal2020.pdf (accessed 2026-10-18)",
-        "American Meteor Society calendar: Perseids ZHR 100 (accessed 2026-10-11)",
-        "Astraeus docs/ASTRONOMY_VALIDATION.md, GMN section: 0.09 d (2.2 h) before the 2027 peak; radiant 0.04° off; Showers year section (O-024 / T-092): 0.10 d (2.3 h) before the 2020 peak, 0.05 d in the reliable set; radiant 0.06° off"
-      ]
+      "provenance": {
+        "sourceType": "observed",
+        "sources": [
+          "IAU Meteor Data Center, Perseids (PER, 7): peak solar longitude 140.1°, radiant RA 47.9°, Dec +57.9° (J2000); ta3.sk (accessed 2026-10-13)",
+          "International Meteor Organization, 2020 Meteor Shower Calendar (IMO_INFO(2-19), ed. J. Rendtel): Perseids active July 17 - August 24, maximum August 12, 13h to 16h UT; archived copy https://web.archive.org/web/20201216020712/https://www.imo.net/files/meteor-shower/cal2020.pdf (accessed 2026-10-18)",
+          "American Meteor Society calendar: Perseids ZHR 100 (accessed 2026-10-11)",
+          "Astraeus docs/ASTRONOMY_VALIDATION.md, GMN section: 0.09 d (2.2 h) before the 2027 peak; radiant 0.04° off; Showers year section (O-024 / T-092): 0.10 d (2.3 h) before the 2020 peak, 0.05 d in the reliable set; radiant 0.06° off"
+        ],
+        "accuracy": "The peak in this scene falls inside the International Meteor Organization's 13:00 to 16:00 UT. Against it, the measured stream's closest pass is about 2.3 hours early (1.3 hours in the reliable set), and its radiant lies 0.06° from the IAU's.",
+        "notes": "The peak moment is found on the engine's ephemeris from the IAU Meteor Data Center's solar longitude. The rate of about 100 an hour is the best case: one observer under a perfectly dark sky with the radiant overhead."
+      }
     },
     {
       "id": "swift-tuttle",
       "at": {
-        "utc": "2020-09-01T00:00:00Z"
+        "time": "2020-09-01T00:00:00Z"
       },
       "object": "swift-tuttle",
       "title": "Where the dust comes from",
-      "badge": "modelled",
       "body": [
         "All this dust comes from comet Swift–Tuttle, a huge lump of ice and rock.",
         "Each time it swings close to the Sun it sheds a little more dust, then sails far out beyond Neptune.",
@@ -70,11 +77,16 @@
         "2126 is the 1992 closest pass plus one orbital period: a two-body figure, not a perturbed prediction.",
         "In this scene, in 2019 and 2020, the comet is about 39 AU from the Sun. Its drawn place was compared with JPL Horizons at six dates across the year: within about 7.6 million km, 0.13% of its distance from the Sun."
       ],
-      "sources": [
-        "NASA/JPL Small-Body Database, 109P/Swift-Tuttle, solution SB405-CPV-2: diameter 26 km (Lamy et al. 2004, Comets II); period 48,681.19 d (about 133.3 years); time of perihelion JD 2448968.4998 TDB (1992 Dec 11); aphelion 51.22 au; https://ssd-api.jpl.nasa.gov/sbdb.api?sstr=109P&full-prec=1&phys-par=1 (accessed 2026-10-15)",
-        "Next perihelion: the 1992 perihelion plus one period, JD about 2497650, early 2126 (a two-body figure, not a perturbed prediction)",
-        "JPL Horizons, 109P/Swift-Tuttle (solution JPL#32), Sun-centred positions at six dates from 21 September 2019 to 20 September 2020, fetched 2026-10-18 (tests/fixtures/showers-year-horizons-source.txt); Astraeus docs/ASTRONOMY_VALIDATION.md"
-      ]
+      "provenance": {
+        "sourceType": "modelled",
+        "sources": [
+          "NASA/JPL Small-Body Database, 109P/Swift-Tuttle, solution SB405-CPV-2: diameter 26 km (Lamy et al. 2004, Comets II); period 48,681.19 d (about 133.3 years); time of perihelion JD 2448968.4998 TDB (1992 Dec 11); aphelion 51.22 au; https://ssd-api.jpl.nasa.gov/sbdb.api?sstr=109P&full-prec=1&phys-par=1 (accessed 2026-10-15)",
+          "Next perihelion: the 1992 perihelion plus one period, JD about 2497650, early 2126 (a two-body figure, not a perturbed prediction)",
+          "JPL Horizons, 109P/Swift-Tuttle (solution JPL#32), Sun-centred positions at six dates from 21 September 2019 to 20 September 2020, fetched 2026-10-18 (tests/fixtures/showers-year-horizons-source.txt); Astraeus docs/ASTRONOMY_VALIDATION.md"
+        ],
+        "accuracy": "Its drawn place was within about 7.6 million km of JPL Horizons at six dates across the year, 0.13% of its distance from the Sun.",
+        "notes": "2126 is the 1992 closest pass plus one orbital period: a two-body figure, not a perturbed prediction."
+      }
     }
   ]
 }
