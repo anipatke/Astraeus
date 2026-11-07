@@ -7,6 +7,7 @@ stage: audit
 depends_on: [{task: T-279, requires: clear}]
 owner_validation: {required: true}
 planned_by: {role: planner, session: o057-planning-20261107}
+check_waiver: {task: T-280, reason: 'Owner said "orchestrate O-57" under the standing run rules (no per-step checks, one Full Objective Check at the end); the optional Task Check is waived.', actor: {role: owner, session: o057-run-20261107}, recorded_at: '2026-11-07T06:03:34Z'}
 ---
 
 # Check everything together and show the owner
@@ -80,6 +81,8 @@ Session t280-build-20261107 (builder). Task-check waiver: none recorded; the coo
 **Files changed.** Engine: `src/api/{errors,planBodies,scene,story}.ts`, `src/synthetic/syntheticJourneyScene.ts` (doc comment), `README.md`, `CHANGELOG.md`, `api-surface.lock.json`, `tests/{publicApiStory,renamedInputs,verbGrammar}.test.ts`, `tests/fixtures/scenePin.json`. Demos (doc comments): `apollo11Scene.ts`, `showerScene.ts`. Site: new `tests/migrationTable.test.ts`, `tests/fixtures/api-surface-0.7.0.json`. Docs: `docs/BROWSER_CHECKS.md`, `docs/ASTRONOMY_VALIDATION.md`, `docs/architecture/{codebase-details,demo-contracts,state-and-assets}.md`, new `docs/evidence/browser-20261107T010222Z/`. Records: `.savepoint/Design.md`, I-145, new I-146, this Task. `o059-public-forms.md`, the release notes, the API review and the reconciliation history keep their history unchanged; T-274 already put the dated note in `o059-public-forms.md`.
 
 **Limitations.** The migration notes were not tried against the two apps, because neither may be edited; only `scene.load()` was run. The owner's look is pending, so appearance, the overlap rule at 375x667 and 1280x720 for the longer panels, and the T-278 Apollo badge question are unjudged. New I-146: what each view shows has no public read, so the Voyagers note tells that app to test its own `VIEWS` list; this corrects the T-260 claim of a replacement for every read, and is for the owner to place. The CHANGELOG step entries keep the words of their day, and the table says it wins. The browser run took 340 s, against about 1 minute in `docs/agents/build.md`.
+
+Owner look on `localhost:5490`: "looks right, run the final check" (owner, 2026-11-07T06:03:34Z, at commit 86350829). Recorded for the record only; acceptance of this Task stays with the owner after the Full Objective Check.
 
 ## Drift Notes
 
