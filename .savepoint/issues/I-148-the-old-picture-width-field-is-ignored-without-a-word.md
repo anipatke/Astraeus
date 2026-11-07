@@ -2,16 +2,22 @@
 id: I-148
 title: The old picture width field is ignored without a word
 type: defect
-status: open
+status: resolved
 source:
   kind: check
   check: C-152
   actor: {role: checker, session: o057-check-20261107}
   at: '2026-11-07T06:15:58Z'
 tasks: [T-277, T-280]
-checks: [C-152]
+checks: [C-152, C-153]
 guardrail_ids: [API-04]
 severity: low
+resolution:
+  disposition: verified
+  check: C-153
+  actor: {role: checker, session: o057-recheck-20261107}
+  at: '2026-11-07T06:42:00Z'
+  reason: Repair proven by C-153 (CLEAR).
 history:
   - at: '2026-11-07T06:15:58Z'
     actor: {role: checker, session: o057-check-20261107}
@@ -22,6 +28,11 @@ history:
     actor: {role: executor, session: c152-repair-20261107}
     kind: repair_attempted
     note: 'Repaired under T-280: RENAMED_INPUTS has a TextureRefDesktop row; checkDataSources runs at check, load and mount (also the moonPositions and bad-data checks that need no loading); a reverse test holds every renamed input row of the CHANGELOG table against RENAMED_INPUTS, and removing the row fails it. Left open for savepoint-check.'
+  - at: '2026-11-07T06:42:00Z'
+    actor: {role: checker, session: o057-recheck-20261107}
+    kind: rechecked
+    note: 'Proof Needed met, by C-153 (CLEAR): the old width throws renamed naming minViewportWidthPx at check, load and mount, from the TextureRefDesktop row, on a made-up source; the reverse test holds the table against RENAMED_INPUTS; in a scratch copy, removing the row fails that test, and a planted CHANGELOG row fails it by name.'
+    check: C-153
 ---
 
 # I-148: The old picture width field is ignored without a word

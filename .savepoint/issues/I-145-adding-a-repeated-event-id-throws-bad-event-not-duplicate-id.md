@@ -2,15 +2,21 @@
 id: I-145
 title: Adding a repeated event id throws bad-event, not duplicate-id
 type: drift
-status: open
+status: resolved
 source:
   kind: report
   actor: {role: executor, session: t278-build-20261107}
   at: '2026-11-07T10:30:00Z'
 tasks: [T-278, T-280]
-checks: [C-152]
+checks: [C-152, C-153]
 guardrail_ids: [API-05]
 severity: low
+resolution:
+  disposition: verified
+  check: C-153
+  actor: {role: checker, session: o057-recheck-20261107}
+  at: '2026-11-07T06:42:00Z'
+  reason: Repair proven by C-153 (CLEAR).
 history:
   - at: '2026-11-07T10:30:00Z'
     actor: {role: executor, session: t278-build-20261107}
@@ -25,6 +31,11 @@ history:
     kind: rechecked
     note: 'Proof Needed met, by C-152: on the compiled engine a repeated id throws duplicate-id inside one call and across calls, a failed batch keeps what was there, bad-event still answers a malformed event; addEvents has its row in tests/verbGrammar.test.ts; the migration table has its behaviour row. Left open: issue-capture.md defines verified as proven by a CLEAR Check, and C-152 is NEEDS WORK on other Issues. Close at the CLEAR re-check.'
     check: C-152
+  - at: '2026-11-07T06:42:00Z'
+    actor: {role: checker, session: o057-recheck-20261107}
+    kind: rechecked
+    note: 'Proof Needed met, by C-153 (CLEAR): on the compiled engine a repeated id throws duplicate-id inside one call and across calls, a failed batch keeps what was there and bad-event still answers a malformed event; addEvents has its row in tests/verbGrammar.test.ts; the migration table has its behaviour row.'
+    check: C-153
 ---
 
 # I-145: Adding a repeated event id throws bad-event, not duplicate-id
