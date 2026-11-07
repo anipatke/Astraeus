@@ -6,10 +6,11 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 type State = { onFirstDraw: (() => void) | undefined };
+// One entry per scene, in the order scenes first draw: a scene that draws again (as after its star catalogue fails to load) is not taken for a newer one.
 const canvas = vi.hoisted(() => ({ states: [] as { current: State }[] }));
 vi.mock("@react-three/fiber", async (orig) => ({
   ...(await orig<typeof import("@react-three/fiber")>()),
-  Canvas: ({ children }: { children: { props?: { frameState?: (typeof canvas.states)[number] } }[] }) => { for (const child of children) if (child.props?.frameState) canvas.states.push(child.props.frameState); return null; },
+  Canvas: ({ children }: { children: { props?: { frameState?: (typeof canvas.states)[number] } }[] }) => { for (const child of children) { const state = child.props?.frameState; if (state && !canvas.states.includes(state)) canvas.states.push(state); } return null; },
 }));
 
 // The public `mount`, recorded: what the site gave it, and every viewer it drew so each test can take its viewers down again.
@@ -45,6 +46,8 @@ beforeEach(() => {
   document.body.innerHTML = COVER;
   document.title = "Astraeus";
   vi.stubGlobal("requestAnimationFrame", (fn: FrameRequestCallback) => { fn(0); return 1; });
+  // No server answers here, and how fast a fetch fails differed by machine (it hung on one, was refused at once on the release machine), so every fetch fails at once, the same everywhere.
+  vi.stubGlobal("fetch", () => Promise.reject(new TypeError("fetch failed: no server in this test")));
   delete (window as { astraeusHost?: unknown }).astraeusHost;
 });
 // Each test takes its viewers down, so a late frame of one is never taken for the next test's scene.

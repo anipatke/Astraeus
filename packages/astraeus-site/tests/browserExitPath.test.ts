@@ -24,8 +24,13 @@ function runNode(args: string[], env: Record<string, string> = {}) {
   return spawnSync(process.execPath, args, { cwd: root, encoding: "utf8", env: { ...process.env, ...env }, timeout: 120_000 });
 }
 
+// The harness case opens a real (blank) browser page. The release workflow installs no browser, because the browser checks run on the owner's machine (docs/RELEASING.md, "What is
+// checked where"), so this case is skipped only where Playwright reports its browser missing; any other launch failure still fails it.
+const browserProbe = spawnSync(process.execPath, ["--input-type=module", "-e", "const { chromium } = await import('playwright-core'); const b = await chromium.launch(); await b.close();"], { cwd: root, encoding: "utf8", timeout: 60_000 });
+const browserMissing = browserProbe.status !== 0 && /Executable doesn't exist/.test(browserProbe.stderr);
+
 describe("a failing browser step fails the run", () => {
-  it("harness: a step that throws through checkScript exits non-zero, and the same step without the throw exits 0", () => {
+  it.skipIf(browserMissing)("harness: a step that throws through checkScript exits non-zero, and the same step without the throw exits 0 (skipped where no browser is installed)", () => {
     const pass = runNode([join(fixtures, "passes-through-harness.mjs")]);
     expect(pass.stderr).toBe("");
     expect(pass.status).toBe(0);
