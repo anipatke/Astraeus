@@ -1,5 +1,5 @@
-// The list of every way the browser check can fail a script (O-060 T-281, I-149): for each script in tools/validate, every raise site, written with the guard that decides it
-// as `if (guard) => site`, or the bare site when nothing guards it. The scripts are parsed (TypeScript 6 syntax tree), not scanned, so the rule is by shape and not by name:
+// The list of the browser check's raise sites of the forms below (O-060 T-281, I-149): for each script in tools/validate, each such site, written with the guard that decides it
+// as `if (guard) => site`, or the bare site when nothing guards it. The scripts are parsed (TypeScript 6 syntax tree), not scanned; the forms are these (failure lists are found partly by name, see the last limits below):
 //   - a `throw` statement, or `new XError(...)` outside one;
 //   - `assert(...)`, `assert.x(...)`, any call to a function named `assert...`, and `process.exit(...)`;
 //   - `.push(...)` on a failure list: a name containing problem, failure, error, fail or violation, or any array a script hands on as such a property (`problems: list`);

@@ -42,6 +42,11 @@ history:
     kind: rechecked
     note: 'Not closed: C-156 is NEEDS WORK on narrowed line 1 alone. Proven: browserExitPath.test.ts fails when harness.mjs:58 is deleted, the runner returns 0, or run-browser.mjs drops its exitCode assignment; the load exception fails with either half removed; radiusPx > 2, the false && guard and each wholeProblems.push deleted alone fail; controls pass; the baseline rebuild matches; docs, test comment, title and load reason are accurate. Not met: assertion-list.mjs line 1 still says "every way the browser check can fail a script" and line 2 "by shape and not by name". Convergence limit reached; the owner decides a two-line wording fix or acceptance.'
     check: C-156
+  - at: '2026-11-07T09:30:13Z'
+    actor: {role: owner, session: o060-run-20261107}
+    kind: owner_decision
+    note: 'After C-156 (last recheck under the limit; only assertion-list.mjs header lines 1 and 2 overstated), the owner chose "Fix the wording, then merge (Recommended)": the coordinator rewrote those two comment lines to claim only the listed forms (no code change, browser run stays reusable) and merges. Not checked by a checker; the Issue stays open for the owner to resolve as accepted on the board.'
+    check: C-156
 ---
 
 # I-149: The browser assertion list misses three checks and every guard condition
