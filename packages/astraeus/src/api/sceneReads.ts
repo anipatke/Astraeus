@@ -119,9 +119,15 @@ export interface ScenePanelRead {
 export interface SceneViewRead {
   readonly id: string;
   readonly label: string;
+  /** The ids of the bodies, groups and paths the view shows, as the viewer resolves them: the ones the view names plus every one no view names (those show in every view). In the order the scene holds them (paths, bodies, groups). */
+  readonly objects: readonly string[];
+  /** The ids of the events the view shows, resolved the same way (the view's own plus every event no view names), sorted by time. */
+  readonly events: readonly string[];
+  /** The ids of the story panels the view shows, resolved the same way (the view's own plus every panel no view names), sorted by time. */
+  readonly panels: readonly string[];
 }
 
-/** The views the scene names (`setViews`), as `Scene.views` states them. */
+/** The views the scene names (`setViews`), as `Scene.views` states them. Reading it checks the view ids against the finished scene, as `mount` does: an id the scene does not hold, or a camera target the view hides, throws `bad-view`; a bad panel throws `bad-panels`. */
 export interface SceneViewsRead {
   /** The id of the opening view. */
   readonly startId: string;

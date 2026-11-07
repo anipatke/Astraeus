@@ -120,3 +120,63 @@ describe("Scene.setViews", () => {
     expect(viewed.displaySwitches).toBeUndefined();
   });
 });
+
+// I-146 (O-057 T-280): `scene.views.items[i]` reports what each view shows, the lists the viewer uses. Made-up scene (ARCH-03).
+describe("scene.views objects, events and panels", () => {
+  const itemsOf = (s: Scene) => s.views!.items;
+  const sameAsDefinition = (s: Scene) => {
+    const resolved = definitionOf(s).views!.views;
+    itemsOf(s).forEach((item, i) => {
+      expect(item.objects).toEqual([...resolved[i]!.objects]);
+      expect(item.events).toEqual([...resolved[i]!.events]);
+      expect(item.panels).toEqual([...resolved[i]!.panels]);
+    });
+  };
+
+  it("reports each view's objects, events and panels: what it names plus whatever no view names", () => {
+    const s = scene().setViews([A, B], bar);
+    const [a, b] = itemsOf(s);
+    expect(a!.objects).toEqual(["pa", "earth", "moon", "ring"]);
+    expect(b!.objects).toEqual(["pb", "earth", "moon", "ring"]);
+    expect(a!.events).toEqual(["ea", "es"]);
+    expect(b!.events).toEqual(["eb", "es"]);
+    expect(a!.panels).toEqual(["qa", "qs"]);
+    expect(b!.panels).toEqual(["qb", "qs"]);
+    sameAsDefinition(s);
+  });
+
+  it.each([
+    ["objects", { id: "a", label: "A", objects: ["pa"] }, { id: "b", label: "B", objects: ["pb"] }, { objects: ["pa", "earth", "moon", "ring"], events: ["ea", "eb", "es"], panels: ["qa", "qb", "qs"] }],
+    ["events", { id: "a", label: "A", events: ["ea"] }, { id: "b", label: "B", events: ["eb"] }, { objects: ["pa", "pb", "earth", "moon", "ring"], events: ["ea", "es"], panels: ["qa", "qb", "qs"] }],
+    ["panels", { id: "a", label: "A", panels: ["qa"] }, { id: "b", label: "B", panels: ["qb"] }, { objects: ["pa", "pb", "earth", "moon", "ring"], events: ["ea", "eb", "es"], panels: ["qa", "qs"] }],
+  ] as const)("each list changes alone: naming only %s", (_kind, a, b, expectedA) => {
+    const s = scene().setViews([a as ViewInput, b as ViewInput], bar);
+    expect({ objects: itemsOf(s)[0]!.objects, events: itemsOf(s)[0]!.events, panels: itemsOf(s)[0]!.panels }).toEqual(expectedA);
+    sameAsDefinition(s);
+  });
+
+  it("shows an item no view names in every view, and a named shared body only where named", () => {
+    const s = scene().setViews([{ id: "near", label: "Near", objects: ["moon", "ring"] }, { id: "far", label: "Far", objects: ["earth"] }, A], bar);
+    // pb, eb, es, qb and qs are named by no view in this scene's views, so every view shows them.
+    for (const item of itemsOf(s)) { expect(item.objects).toContain("pb"); expect(item.events).toContain("es"); expect(item.panels).toContain("qs"); }
+    expect(itemsOf(s).map(({ objects }) => objects)).toEqual([["pb", "moon", "ring"], ["pb", "earth"], ["pa", "pb"]]);
+    sameAsDefinition(s);
+  });
+
+  it("returns fresh frozen lists on every read", () => {
+    const s = scene().setViews([A, B], bar);
+    const first = itemsOf(s)[0]!;
+    for (const list of [first.objects, first.events, first.panels]) expect(Object.isFrozen(list)).toBe(true);
+    const again = itemsOf(s)[0]!;
+    expect(again).not.toBe(first);
+    expect(again.objects).not.toBe(first.objects);
+    expect(again.events).not.toBe(first.events);
+    expect(again.panels).not.toBe(first.panels);
+    expect(again).toEqual(first);
+  });
+
+  it("is undefined with no views, and throws bad-view for an id the scene does not hold, as mount would", () => {
+    expect(scene().views).toBeUndefined();
+    expect(messageOf(() => scene().setViews([{ id: "x", label: "X", objects: ["nope"] }], bar).views)).toContain("bad-view");
+  });
+});

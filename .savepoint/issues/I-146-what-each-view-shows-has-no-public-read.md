@@ -15,6 +15,10 @@ history:
     actor: {role: executor, session: t280-build-20261107}
     kind: observed
     note: 'Found while writing the Voyagers migration note; left unchanged because T-280 adds no public API. For the owner to place.'
+  - at: '2026-11-07T12:20:00Z'
+    actor: {role: executor, session: i146-repair-20261107}
+    kind: repair_attempted
+    note: 'Owner chose "Add the read now". SceneViewRead now has objects, events and panels (resolved, shared items included); tests in sceneViews.test.ts and sceneReads.test.ts; table row, Voyagers note, README, lock and Design updated; gates pass. Left open for the Check to verify.'
 ---
 
 # I-146: What each view shows has no public read

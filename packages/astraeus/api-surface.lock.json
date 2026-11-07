@@ -799,6 +799,21 @@
           "name": "label",
           "optional": false,
           "signature": "string"
+        },
+        {
+          "name": "objects",
+          "optional": false,
+          "signature": "readonly string[]"
+        },
+        {
+          "name": "events",
+          "optional": false,
+          "signature": "readonly string[]"
+        },
+        {
+          "name": "panels",
+          "optional": false,
+          "signature": "readonly string[]"
         }
       ]
     },

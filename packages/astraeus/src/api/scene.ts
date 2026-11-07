@@ -260,8 +260,10 @@ export class Scene {
     return this.#story.panelReads(window, this.#tracked.values(), [...this.#plan.bodies.keys(), ...this.#tracked.keys(), ...this.#groupPlan.groups.keys(), ...this.#bodySets.memberIds()]);
   }
 
-  /** The views the scene names (`setViews`): the id of the opening view (`startId`), where the choice shows and each view's id and label; undefined when none were named. */
-  get views(): SceneViewsRead | undefined { return this.#viewPlan.read(); }
+  /** The views the scene names (`setViews`): the id of the opening view (`startId`), where the choice shows and each view's id, label and the `objects`, `events` and `panels` it shows (ids, as the viewer resolves them: what the view names plus whatever no view names); undefined when none were named. Checks the ids as `mount` does, so a bad one throws `bad-view`. A fresh frozen object on every read. */
+  get views(): SceneViewsRead | undefined {
+    return this.#viewPlan.read(() => ({ objects: [...this.#tracked.keys(), ...this.#plan.bodies.keys(), ...this.#groupPlan.groups.keys()], events: this.events.map(({ id }) => id), panels: this.panels.map(({ id }) => id) }));
+  }
 
   /** The scale choices the viewer will offer, in order, as ids ("true-scale", "readable-scale", "solar-system"); the first is the opening scale and `setScale(.., { only: true })` leaves just that one. */
   get scales(): readonly string[] { return Object.freeze(this.#plan.scaleChoices(this.#scale, this.#scaleOnly)); }

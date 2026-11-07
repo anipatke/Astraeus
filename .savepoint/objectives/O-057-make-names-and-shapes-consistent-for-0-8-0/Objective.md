@@ -37,6 +37,7 @@ G-016's breaking chunk, last so every replacement exists first (after O-059 so t
 - The two panel settings move to their own `setStoryPanelPlayback` call (owner "Separate set call").
 - The planets demo's whole-definition compare against `fixtures/planet-views-before.json` is retired, because it needs internals and its job of proving the O-059 rebuild is done; a smaller test keeps what public reads can see, and info card rows, camera presets and label ranking lose nine-planet test cover (owner "Retire it, keep public parts", 2026-11-07, during T-274).
 - I-145 is repaired in T-280, so a repeated event id throws `duplicate-id` like every other add call (owner "Fix it in T-280", 2026-11-07).
+- I-146 is repaired under T-280: the view read reports each view's objects, events and panels, so every `toDefinition` read a host used has a public replacement (owner "Add the read now", 2026-11-07). The final check runs one fresh `check:browser`.
 - Design confirmed by the owner, 2026-11-07, session o057-planning-20261107.
 
 ## Architectural Considerations

@@ -17,7 +17,8 @@ This one table lists every change an app built on 0.7.0 must act on, from O-053 
 | read | `composition.bodies` | `Scene.bodies`, `SceneBodyRead.id` | `scene.bodies.map((body) => body.id)`; the centre is `scene.bodies[0].id`. |
 | read | `scaleChoices` | `Scene.scales` | Read `scene.scales`, opening scale first. |
 | read | `trackedBodies` | `Scene.paths`, `ScenePathRead.id` | `scene.paths.map((path) => path.id)`. |
-| read | `views.views` (id, label), `views.start`, `views.place` | `Scene.views`, `SceneViewsRead.items`, `SceneViewsRead.startId`, `SceneViewsRead.place` | Read `scene.views.items`, `.startId` and `.place`. What each view shows has no read: test the list you gave `setViews`. |
+| read | `views.views` (id, label), `views.start`, `views.place` | `Scene.views`, `SceneViewsRead.items`, `SceneViewsRead.startId`, `SceneViewsRead.place` | Read `scene.views.items`, `.startId` and `.place`. |
+| read | `views.views[i].objects`, `.events` and `.panels` (what a view shows) | `SceneViewRead.objects`, `SceneViewRead.events`, `SceneViewRead.panels` | Read `scene.views.items[i].objects`, `.events` and `.panels`: id lists, with what no view names included in every view. Reading checks the ids as `mount` does (`bad-view`). |
 | read | `paths` entries whose id ends `-orbit` | `Scene.bodies`, `SceneBodyRead.orbit` | `scene.bodies.filter((body) => body.orbit)`. |
 | read | `experience.objects` label, description, known limits | `SceneBodyRead.label`, `SceneBodyRead.description`, `SceneBodyRead.knownLimitations`, `ScenePathRead.label`, `ScenePathRead.description`, `ScenePathRead.knownLimitations` | Find the entry by id in `scene.bodies` or `scene.paths`. |
 | read | `experience.objects` provenance | `Scene.provenanceOf` | `scene.provenanceOf(id)`, unchanged. |
@@ -87,7 +88,7 @@ This one table lists every change an app built on 0.7.0 must act on, from O-053 
 - `src/voyagers.ts`: `view()` gives one `objects` list in place of `paths` and `bodies`.
 - `src/data/enginePlanets.ts`: `await scene.toDefinition([]).prepare?.()` becomes `await scene.load()`. Test set-ups use `await scene.load({ data: DATA })`.
 - Tests: `toDefinition(DATA)` as a check becomes `scene.check({ data: DATA })`; `composition.bodies` is `scene.bodies`; `trackedBodies` is `scene.paths`; `scaleChoices` is `scene.scales`; `views.views` and `views.start` are `scene.views.items` and `scene.views.startId`; `def.paths` ending `-orbit` is `scene.bodies.filter((body) => body.orbit)`; `scene.camera.reach` is `scene.camera.reachEarthRadii`.
-- What each view shows (`view.objects`, `view.events` in `src/voyagers.test.ts`) has no public read. Test `VIEWS` itself, the list the app gives `setViews`.
+- What each view shows (`view.objects`, `view.events` in `src/voyagers.test.ts`) is `scene.views.items[i].objects`, `.events` and `.panels` (I-146): the ids the viewer shows, so a shared body that no view names is in every list. Replace the `Set` reads with these lists (`toEqual([...])` or `.includes(id)`).
 - `src/main.ts` keeps the view in the address itself, so it needs no `address` option. `src/style.css` already sizes `html` and `body`; check `#viewer` has its own height.
 
 #### Note for the showers app (on 0.2.0)
