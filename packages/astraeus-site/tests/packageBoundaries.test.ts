@@ -267,7 +267,7 @@ function deepImportCounts(packagesDir: string): Record<string, number> {
 const DEEP_IMPORT_COUNTS: Record<string, number> = {
   "astraeus-demo-apollo11": 129, // src is on the front door (PUBLIC_API_DEMOS); the rest is tests and tools
   "astraeus-demo-planets": 0, // on the front door (PUBLIC_API_DEMOS), tests included (O-059 T-270)
-  "astraeus-demo-showers": 68, // src is on the front door; the rest is tests and tools
+  "astraeus-demo-showers": 65, // src is on the front door; the rest is tests and tools
   "astraeus-site": 0, // on the front door, src, tests and tools (O-059 T-272)
 };
 

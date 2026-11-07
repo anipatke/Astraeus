@@ -30,10 +30,10 @@ describe("stateOf for any body", () => {
     }
   });
 
-  it("answers for the Earth, and for built-in Swift-Tuttle", () => {
-    const scene = new Scene().addBody(sun).addBody(earth).addBody("swift-tuttle");
+  it("answers for the Earth, and for a long-period comet added from elements", () => {
+    const scene = new Scene().addBody(sun).addBody(earth).addBodyFromElements({ ...record, id: "long-comet", label: "Long comet", elements: { ...record.elements, semiMajorAxisAu: 26, eccentricity: 0.96 } });
     expect(Math.hypot(...scene.stateOf("earth", T).positionKm) / 149_597_870.7).toBeGreaterThan(0.98);
-    expect(Math.hypot(...scene.stateOf("swift-tuttle", T).positionKm)).toBeGreaterThan(1e9);
+    expect(Math.hypot(...scene.stateOf("long-comet", T).positionKm)).toBeGreaterThan(1e9);
   });
 
   it("refuses an id the scene lacks and a moment outside the data", () => {
@@ -48,9 +48,9 @@ describe("stateOf for any body", () => {
 });
 
 describe("provenanceOf", () => {
-  it("carries the class and fraction for Swift-Tuttle and an elements body, and leaves them out for others", () => {
-    const scene = new Scene().addBody(sun).addBody(earth).addBody("swift-tuttle").addBodyFromElements(record);
-    expect(scene.provenanceOf("swift-tuttle")).toMatchObject({ accuracyClass: "approximate", maxErrorFraction: 0.00857 });
+  it("carries the class and fraction for elements bodies, and leaves them out for others", () => {
+    const scene = new Scene().addBody(sun).addBody(earth).addBodyFromElements({ ...record, id: "sharp", label: "Sharp", accuracy: { ...record.accuracy, classification: "approximate" } }).addBodyFromElements(record);
+    expect(scene.provenanceOf("sharp")).toMatchObject({ accuracyClass: "approximate", maxErrorFraction: APPROXIMATE_LIMIT_FRACTION });
     expect(scene.provenanceOf("rock")).toMatchObject({ accuracyClass: "indicative", maxErrorFraction: INDICATIVE_LIMIT_FRACTION });
     expect(scene.provenanceOf("earth")).not.toHaveProperty("accuracyClass");
     expect(code(() => scene.provenanceOf("mars"))).toBe("unknown-body");

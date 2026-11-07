@@ -1,6 +1,5 @@
 import { beforeAll, describe, expect, it } from "vitest";
 import { groupsOf, sunCentredOf } from "astraeus/app/experienceDefinition";
-import { catalogue } from "astraeus/assets/catalogue";
 import { createOrbAstronomyAdapter } from "astraeus/core/astronomyAdapter";
 import { createOrbTwoBodyAdapter } from "astraeus/core/twoBodyAdapter";
 import { meanAnomalyFromStateRad, type ListedOrbitGroup } from "astraeus/core/listedOrbitGroup";
@@ -223,7 +222,7 @@ describe("Perseids: the member records, the clump and the drawing", () => {
   });
 
   it("puts a stated share of the dots at the parent's orbital phase and the rest evenly round their orbits", () => {
-    const comet = catalogue.get(settings.parentBodyId).source!.create(adapter);
+    const comet = definition.catalogue!.get(settings.parentBodyId).source!.create(adapter);
     const t = Date.parse(settings.activity.peakUtc);
     const now = comet.stateAt(t, "sun");
     const before = comet.stateAt(t - 1000, "sun").positionKm;
@@ -243,10 +242,10 @@ describe("Perseids: the member records, the clump and the drawing", () => {
     expect(streamLimitations(settings).join(" ")).toContain(`Basis of the clump near ${settings.parentBody}`);
   });
 
-  it("DW2(c) and (d): the comet and the planets drawn are the catalogue's own bodies", () => {
+  it("DW2(c) and (d): the comet is the scene's own body from the file's elements and the planets drawn are the catalogue's own bodies", () => {
     const layer = sunCentredOf(definition).paths.find((path) => path.object.id === `${settings.parentBodyId}-orbit`)!;
     const t = Date.parse(settings.activity.peakUtc);
-    const catalogueComet = catalogue.get(settings.parentBodyId).source!.create(adapter);
+    const catalogueComet = definition.catalogue!.get(settings.parentBodyId).source!.create(adapter);
     expect(Array.from(layer.source.stateAt(t, "sun").positionKm)).toEqual(Array.from(catalogueComet.stateAt(t, "sun").positionKm));
     expect(definition.composition!.bodies).toEqual(expect.arrayContaining(["sun", "earth", "mercury", "venus", "mars", "jupiter", settings.parentBodyId]));
   });

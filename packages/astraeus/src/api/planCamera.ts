@@ -101,7 +101,7 @@ export class SceneCamera {
     return this;
   }
   /**
-   * Sets the farthest zoom-out so the whole orbit of a body circling the Sun (a planet, a built-in comet or one from `addBodyFromElements`, already added to the scene) fits the canvas
+   * Sets the farthest zoom-out so the whole orbit of a body circling the Sun (a planet, or a comet or asteroid from `addBodyFromElements`, already added to the scene) fits the canvas
    * from any view direction: the orbit's farthest Sun distance divided by the sine of the narrower half field of view of the canvas (vertical 45 degrees, or horizontal from the
    * canvas's width over height), with 10 percent to spare. The viewer fits again whenever the canvas changes shape, such as a phone turning or a window resizing; the far plane follows
    * as for `setReach`. The opening view does not move. Any other body throws `bad-camera` naming it; an id not in the scene throws `unknown-body`. `setReach` and `fitOrbit` set the

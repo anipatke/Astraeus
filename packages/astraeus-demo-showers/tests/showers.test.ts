@@ -458,7 +458,7 @@ describe("a parent defined in the settings file", () => {
     const neither = parent();
     delete neither.parentElements;
     expect(() => parseShowerSettings(neither)).toThrow(/parentBodyId and parentElements: exactly one must be given/);
-    expect(parseShowerSettings(perseidsFile).parentElements).toBeUndefined();
+    expect(parseShowerSettings(perseidsFile).parentElements?.id).toBe("swift-tuttle");
     expect(parsed.parentBodyId).toBe(parsed.parentElements?.id);
   });
 
@@ -535,9 +535,10 @@ describe("a parent defined in the settings file", () => {
     expect(mountedBodiesOf(perseids)).not.toContain("phaethon");
   });
 
-  it("leaves Perseids with its catalogued parent and no extension", () => {
+  it("gives Perseids its comet from the file's elements, in the scene's own catalogue, and leaves the built-in one alone", () => {
     const perseids = buildShowerDefinition(parseShowerSettings(perseidsFile), { kind: "absent" });
-    expect(perseids.catalogue).toBeUndefined();
+    expect(catalogue.has("swift-tuttle")).toBe(false);
+    expect(perseids.catalogue?.has("swift-tuttle")).toBe(true);
     expect(perseids.experience.cameraPresets.find((preset) => preset.id === "focus-swift-tuttle")?.label).toBe("Focus 109P/Swift-Tuttle");
   });
 });

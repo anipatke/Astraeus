@@ -2,10 +2,8 @@
 // published elements, planet enlargement, a label that starts off, label reach at solar-system distances, and named errors.
 import { describe, expect, it, vi } from "vitest";
 import { Scene, SceneError, earth, mars, mercury, readableScale, solarSystemScale, sun, trueScale, type ElementsBodyRecord } from "astraeus";
-import { catalogue as builtIn } from "../src/assets/catalogue";
 import { createOrbAstronomyAdapter } from "../src/core/astronomyAdapter";
 import { createStateResolver } from "../src/core/stateResolver";
-import { bodyMetrics } from "../src/app/bodyMetrics";
 import { sunCentredOf, visualOverridesOf } from "../src/app/experienceDefinition";
 import { definitionOf } from "../src/api/definitionOf";
 
@@ -57,10 +55,12 @@ describe("orbit lines round the Sun", () => {
   });
 });
 
-describe("a built-in comet", () => {
+describe("a long-period comet added from elements", () => {
+  // O-057 T-279: the engine catalogue holds no comet; a century-long, sharp orbit (26 AU axis, eccentricity 0.96, made up) is drawn the same way from its record.
+  const longComet = comet({ id: "long-comet", label: "Long comet", elements: { ...comet().elements, semiMajorAxisAu: 26, eccentricity: 0.96 } });
   it("draws its whole orbit from periapsis, and the line closes", () => {
-    const [path] = sunCentredOf(definitionOf(solar().addBody("swift-tuttle", { orbit: true }))).paths;
-    expect(path!.object.id).toBe("swift-tuttle-orbit");
+    const [path] = sunCentredOf(definitionOf(solar().addBodyFromElements(longComet, { orbit: true }))).paths;
+    expect(path!.object.id).toBe("long-comet-orbit");
     const span = path!.span as { startUtcMs: number; endUtcMs: number };
     const years = (span.endUtcMs - span.startUtcMs) / (365.25 * DAY);
     expect(years).toBeGreaterThan(125);
@@ -108,6 +108,8 @@ describe("addBodyFromElements", () => {
   it("leaves the built-in catalogue untouched", () => {
     solar().addBodyFromElements(comet());
     expect(codeOf(() => new Scene().addBody("made-up-comet" as never))).toMatch(/^unknown-body/);
+    // 109P/Swift-Tuttle left the catalogue for the Showers demo (O-057 T-279): its id is now an ordinary unknown body, not a renamed one.
+    expect(codeOf(() => new Scene().addBody("swift-tuttle" as never))).toMatch(/^unknown-body/);
   });
 });
 
@@ -172,7 +174,7 @@ describe("the solar-system scale for an enlarged body", () => {
   it("is offered second in place of the readable scale when a Sun-centred scene enlarges a body", () => {
     expect(choices(solar().addBody(earth, { enlarge: 20 }))).toEqual(["true-scale", "solar-system"]);
   });
-  it("gives the card the same live Distance from Sun readout as a built-in comet (O-045 T-187)", () => {
+  it("gives the card a live Distance from Sun readout for a body added from elements (O-045 T-187)", () => {
     const definition = definitionOf(solar().addBody(earth).addBodyFromElements(comet()));
     const own = definition.catalogue!;
     const resolver = createStateResolver(own.definitions(), own.sources(), createOrbAstronomyAdapter());
@@ -184,10 +186,6 @@ describe("the solar-system scale for an enlarged body", () => {
     expect(first.value).toBeGreaterThan(0.1 * 149_597_870.7);
     expect(first.value).toBeLessThan(11.4 * 149_597_870.7);
     expect(at(T0 + 100 * DAY).value).not.toBe(first.value);
-    // Swift-Tuttle, built in, has the same shape of readout (its format is the model).
-    const builtInResolver = createStateResolver(builtIn.definitions(), builtIn.sources(), createOrbAstronomyAdapter());
-    const swift = bodyMetrics(builtInResolver, ["sun", "swift-tuttle"], ["distance"])("swift-tuttle", T0).find((metric) => metric.label === "Distance from Sun");
-    expect(swift).toMatchObject({ kind: "distance", id: "swift-tuttle-range", unit: "km", digits: 0 });
   });
 
   it("leaves scenes without an enlarged body, and scenes not centred on the Sun, unchanged", () => {

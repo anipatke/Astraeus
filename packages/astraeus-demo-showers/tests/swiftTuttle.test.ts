@@ -2,7 +2,11 @@ import { describe, expect, it } from "vitest";
 import fixture from "./fixtures/swift-tuttle-horizons.json";
 import source from "./fixtures/swift-tuttle-horizons-source.txt?raw";
 import { createOrbAstronomyAdapter } from "astraeus/core/astronomyAdapter";
-import { BUILT_IN_BINDINGS, BUILT_IN_BODIES } from "astraeus/core/bodies/index";
+import { BUILT_IN_BODIES } from "astraeus/core/bodies/index";
+import { createStateResolver } from "astraeus/core/stateResolver";
+import { eccentricPathTimesUtcMs, pathTimesUtcMs } from "astraeus/core/sunCentredSources";
+import { catalogue, extendCatalogue } from "astraeus/assets/catalogue";
+import { Scene, sun } from "astraeus";
 import {
   createSwiftTuttleTrajectory,
   SWIFT_TUTTLE,
@@ -12,13 +16,10 @@ import {
   SWIFT_TUTTLE_MAX_ERROR_FRACTION,
   SWIFT_TUTTLE_MAX_ERROR_KM,
   SWIFT_TUTTLE_PERIOD_MS,
-  SWIFT_TUTTLE_RADIUS_KM,
+  SWIFT_TUTTLE_RECORD,
   SWIFT_TUTTLE_SAMPLING,
-} from "astraeus/core/bodies/swiftTuttle";
-import { createStateResolver } from "astraeus/core/stateResolver";
-import { eccentricPathTimesUtcMs, pathTimesUtcMs } from "astraeus/core/sunCentredSources";
-import { catalogue } from "astraeus/assets/catalogue";
-import { SWIFT_TUTTLE_VISUAL } from "astraeus/assets/bodies/swiftTuttle";
+} from "./helpers/swiftTuttle";
+import builtIn from "./fixtures/swift-tuttle-builtin-positions.json";
 import { buildShowerDefinition } from "./helpers/showerDefinition";
 import { madeUpOrbits } from "./helpers/measuredOrbits";
 import { parseShowerSettings } from "../src/experiences/showers/showerSettings";
@@ -27,7 +28,8 @@ import perseids from "../data/showers/perseids.json";
 const AU_KM = 149_597_870.7;
 const DAY_MS = 86_400_000;
 const adapter = createOrbAstronomyAdapter();
-const resolver = createStateResolver(BUILT_IN_BODIES, BUILT_IN_BINDINGS, adapter);
+const withComet = extendCatalogue(catalogue, [SWIFT_TUTTLE_RECORD]);
+const resolver = createStateResolver(withComet.definitions(), withComet.sources(), adapter);
 const comet = createSwiftTuttleTrajectory();
 const distance = (a: ArrayLike<number>, b: ArrayLike<number>) => Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]);
 
@@ -46,21 +48,23 @@ describe("109P/Swift-Tuttle elements are the archived Small-Body Database respon
   });
 
   it("carries every element exactly as the archived response prints it", () => {
-    expect(Number(sbdb.orbit.epoch)).toBe(SWIFT_TUTTLE_ELEMENTS.epochJdTdb);
+    expect(Number(sbdb.orbit.epoch)).toBe(SWIFT_TUTTLE_RECORD.epoch.jd);
+    expect(SWIFT_TUTTLE_RECORD.epoch).toEqual({ jd: 2450000.5, timeScale: "TDB", ttMinusUtcSeconds: 61.184 });
     expect(element("a")).toBe(SWIFT_TUTTLE_ELEMENTS.semiMajorAxisAu);
     expect(element("e")).toBe(SWIFT_TUTTLE_ELEMENTS.eccentricity);
     expect(element("i")).toBe(SWIFT_TUTTLE_ELEMENTS.inclinationDeg);
     expect(element("om")).toBe(SWIFT_TUTTLE_ELEMENTS.ascendingNodeDeg);
     expect(element("w")).toBe(SWIFT_TUTTLE_ELEMENTS.argumentOfPerihelionDeg);
     expect(element("ma")).toBe(SWIFT_TUTTLE_ELEMENTS.meanAnomalyDeg);
-    expect(element("tp")).toBeCloseTo(SWIFT_TUTTLE_ELEMENTS.perihelionJdTdb, 9);
-    expect(element("per")).toBe(SWIFT_TUTTLE_ELEMENTS.periodDays);
-    expect(element("ad")).toBe(SWIFT_TUTTLE_ELEMENTS.aphelionAu);
+    // The record places the comet by mean anomaly; the archived perihelion time, period and aphelion are checked against the model built from it.
+    expect(element("tp")).toBeCloseTo(2448968.499784556297, 9);
+    expect(Math.abs(SWIFT_TUTTLE_PERIOD_MS / DAY_MS - element("per"))).toBeLessThan(0.01);
+    expect(Math.abs((SWIFT_TUTTLE_SAMPLING.periapsisUtcMs - SWIFT_TUTTLE_EPOCH_UTC_MS) / DAY_MS - (element("tp") - SWIFT_TUTTLE_RECORD.epoch.jd))).toBeLessThan(0.01);
   });
 
   it("takes the nucleus radius from the cited diameter, which Horizons prints as RAD = 13 km", () => {
     const diameter = sbdb.phys_par.find((entry) => entry.name === "diameter")!;
-    expect(Number(diameter.value) / 2).toBe(SWIFT_TUTTLE_RADIUS_KM);
+    expect(Number(diameter.value) / 2).toBe(SWIFT_TUTTLE_RECORD.radius!.km);
     expect(horizonsText).toMatch(/RAD= 13\./);
     expect(SWIFT_TUTTLE.accuracy.dimensions.sources.join(" ")).toMatch(/Lamy et al\. 2004/);
   });
@@ -68,8 +72,8 @@ describe("109P/Swift-Tuttle elements are the archived Small-Body Database respon
   it("puts the epoch at 1995-10-10 TDB, 61.184 s ahead of UTC, and keeps the model period within an hour of the catalogue's own", () => {
     expect(SWIFT_TUTTLE_EPOCH_UTC_MS).toBe(Date.UTC(1995, 9, 10) - 61_184);
     // JD 2450000.5 is 1995-10-10 00:00 exactly.
-    expect((SWIFT_TUTTLE_ELEMENTS.epochJdTdb - 2440587.5) * DAY_MS).toBe(Date.UTC(1995, 9, 10));
-    expect(Math.abs(SWIFT_TUTTLE_PERIOD_MS / DAY_MS - SWIFT_TUTTLE_ELEMENTS.periodDays)).toBeLessThan(0.01);
+    expect((SWIFT_TUTTLE_RECORD.epoch.jd - 2440587.5) * DAY_MS).toBe(Date.UTC(1995, 9, 10));
+    expect(Math.abs(SWIFT_TUTTLE_PERIOD_MS / DAY_MS - element("per"))).toBeLessThan(0.01);
   });
 });
 
@@ -122,15 +126,20 @@ describe("109P position against JPL Horizons", () => {
   });
 });
 
-describe("109P in the catalogue", () => {
-  it("is defined once with a Sun parent, no orientation, a binding, and a marker visual with no texture", () => {
-    expect(catalogue.get("swift-tuttle").definition).toBe(SWIFT_TUTTLE);
+describe("109P added by the Showers demo", () => {
+  it("is built from the Perseids file's record with a Sun parent, no orientation, no gravitational parameter, a source and a marker visual with no texture, and is not in the built-in catalogue", () => {
+    expect(catalogue.has("swift-tuttle")).toBe(false);
+    expect(BUILT_IN_BODIES.map((definition) => definition.id)).not.toContain("swift-tuttle");
+    expect(withComet.get("swift-tuttle").definition).toMatchObject({ id: "swift-tuttle", label: "109P/Swift-Tuttle", radiusKm: 13 });
     expect(SWIFT_TUTTLE.parentId).toBe("sun");
     expect(SWIFT_TUTTLE.orientation).toBe("none");
     expect(SWIFT_TUTTLE.gmKm3S2).toBeUndefined();
-    expect(catalogue.get("swift-tuttle").source?.body).toBe("swift-tuttle");
-    expect(SWIFT_TUTTLE_VISUAL.kind).toBe("marker");
-    expect(SWIFT_TUTTLE_VISUAL.texture).toBeUndefined();
+    expect(withComet.get("swift-tuttle").source?.body).toBe("swift-tuttle");
+    const visual = withComet.get("swift-tuttle").visual;
+    expect(visual.kind).toBe("marker");
+    expect(visual.texture).toBeUndefined();
+    expect(visual.material.color).toBe("#9fe3ff");
+    expect(visual.marker?.sizePx).toBe(7);
   });
 
   it("resolves from the Sun and from Earth through the generic resolver, to the same vector as its own source", () => {
@@ -164,11 +173,10 @@ describe("eccentric-anomaly spacing of the comet's own orbit", () => {
 describe("the name check", () => {
   const files = import.meta.glob("../../astraeus/src/**/*.{ts,tsx}", { query: "?raw", import: "default", eager: true }) as Record<string, string>;
 
-  it("finds the comet's name only in src/core/bodies/ and src/assets/bodies/ (and the two lines that join them)", () => {
+  it("finds the comet's name nowhere in the engine's source: it is the demo's data, not the catalogue's", () => {
     const named = Object.entries(files).filter(([, text]) => /swift|tuttle|109P/i.test(text)).map(([path]) => path).sort();
-    const outside = named.filter((path) => !path.startsWith("../../astraeus/src/core/bodies/") && !path.startsWith("../../astraeus/src/assets/bodies/"));
-    // The catalogue joins the asset entry by import; the shower builder and the entry point never name it.
-    expect(outside).toEqual(["../../astraeus/src/assets/catalogue.ts"]);
+    expect(Object.keys(files).length).toBeGreaterThan(50);
+    expect(named).toEqual([]);
   });
 
   it("leaves the shower builder generic: the orbit lines are Earth's and the four planets' and the comet's whole orbit is drawn on its own", () => {
@@ -181,5 +189,44 @@ describe("the name check", () => {
 describe("pathTimesUtcMs stays the even-in-time spacing", () => {
   it("is unchanged", () => {
     expect(pathTimesUtcMs({ startUtcMs: 0, endUtcMs: 100 }, 5)).toEqual([0, 25, 50, 75, 100]);
+  });
+});
+
+describe("the positions the engine gave the comet before it left the catalogue (T-279)", () => {
+  // Captured from Scene.stateOf("swift-tuttle") on the built-in body before it was removed: every 60 days 1990 to 2030 and every 2 days within 40 days of the 1992 perihelion.
+  const scene = new Scene().addBody(sun).addBodyFromElements(SWIFT_TUTTLE_RECORD);
+  const rows = builtIn.samples.map((sample) => {
+    const now = scene.stateOf("swift-tuttle", sample.utcMs).positionKm;
+    return { utcMs: sample.utcMs, diffKm: distance(now, sample.positionKm), range: Math.hypot(...sample.positionKm) };
+  });
+
+  it("covers 1990 to 2030 and the 1992 perihelion densely", () => {
+    expect(rows.length).toBe(285);
+    expect(rows[0].utcMs).toBe(Date.UTC(1990, 0, 1));
+    expect(rows.at(-1)!.utcMs).toBe(Date.UTC(2030, 0, 1));
+    expect(rows.filter((row) => Math.abs(row.utcMs - Date.UTC(1992, 11, 12)) <= 40 * DAY_MS).length).toBeGreaterThanOrEqual(41);
+  });
+
+  it("gives the old built-in positions within 1 metre at every sample, which is below the float noise of a 45 AU vector; the largest difference is reported by the assertion", () => {
+    const worst = Math.max(...rows.map((row) => row.diffKm));
+    expect(worst).toBeLessThan(1e-3);
+    const worstFraction = Math.max(...rows.map((row) => row.diffKm / row.range));
+    expect(worstFraction).toBeLessThan(1e-12);
+  });
+
+  it("keeps velocity unmodelled, the marker look, the radius, the label and the accuracy class of the old built-in", () => {
+    for (const sample of builtIn.samples) {
+      expect(sample.velocityKmS).toBeNull();
+      expect(scene.stateOf("swift-tuttle", sample.utcMs).velocityKmS).toBeUndefined();
+    }
+    const visual = withComet.get("swift-tuttle").visual;
+    expect(visual.kind).toBe(builtIn.marker.kind);
+    expect(visual.material).toEqual(builtIn.marker.material);
+    expect(visual.marker).toEqual(builtIn.marker.marker);
+    expect(SWIFT_TUTTLE).toMatchObject({ radiusKm: builtIn.definition.radiusKm, label: builtIn.definition.label, parentId: builtIn.definition.parentId });
+    expect(SWIFT_TUTTLE.accuracy.validUtc).toEqual(builtIn.definition.validUtc);
+    const provenance = scene.provenanceOf("swift-tuttle");
+    expect(provenance).toMatchObject({ sourceType: builtIn.provenance.sourceType, accuracyClass: builtIn.provenance.accuracyClass });
+    expect(builtIn.provenance.maxErrorFraction).toBe(SWIFT_TUTTLE_MAX_ERROR_FRACTION);
   });
 });

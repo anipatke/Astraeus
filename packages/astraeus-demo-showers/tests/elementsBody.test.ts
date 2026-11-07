@@ -2,7 +2,8 @@ import { describe, expect, it } from "vitest";
 import fixture from "./fixtures/phaethon-horizons.json";
 import source from "./fixtures/phaethon-horizons-source.txt?raw";
 import geminids from "../data/showers/geminids.json";
-import { createSwiftTuttleTrajectory, SWIFT_TUTTLE_ELEMENTS, SWIFT_TUTTLE_EPOCH_UTC_MS, SWIFT_TUTTLE_SAMPLING } from "astraeus/core/bodies/swiftTuttle";
+import { createSwiftTuttleTrajectory, SWIFT_TUTTLE_ELEMENTS } from "./helpers/swiftTuttle";
+import swiftTuttleSource from "./fixtures/swift-tuttle-horizons-source.txt?raw";
 import {
   APPROXIMATE_LIMIT_FRACTION,
   buildElementsBody,
@@ -23,14 +24,14 @@ const distance = (a: ArrayLike<number>, b: ArrayLike<number>) => Math.hypot(a[0]
 const ACCURACY = { classification: "approximate", statement: "A test body.", valid: { start: "1990-01-01T00:00:00Z", end: "2030-01-01T00:00:00Z" } } as const;
 const SOURCE = { name: "Test source", url: "https://example.org/orbit", solution: "S1", accessed: "2026-10-16" } as const;
 
-/** The built-in comet's published elements, written as a record: the equivalence check builds this through the generic path. */
+/** The Perseids file's comet elements, written as a record under another id: the validation cases below mutate copies of it. */
 function recordFromBuiltIn(): unknown {
   const e = SWIFT_TUTTLE_ELEMENTS;
   return {
     id: "equivalent",
     label: "Equivalent",
     elements: { semiMajorAxisAu: e.semiMajorAxisAu, eccentricity: e.eccentricity, inclinationDeg: e.inclinationDeg, ascendingNodeDeg: e.ascendingNodeDeg, argumentOfPerihelionDeg: e.argumentOfPerihelionDeg, meanAnomalyDeg: e.meanAnomalyDeg },
-    epoch: { jd: e.epochJdTdb, timeScale: "TDB", ttMinusUtcSeconds: 61.184 },
+    epoch: { jd: 2450000.5, timeScale: "TDB", ttMinusUtcSeconds: 61.184 },
     plane: "ecliptic-j2000",
     source: SOURCE,
     accuracy: ACCURACY,
@@ -97,31 +98,15 @@ describe("a body record is validated field by field", () => {
   });
 });
 
-describe("a record gives the same positions as the hand-written source it was copied from", () => {
-  const generic = buildElementsBody(parseElementsBodyRecord(recordFromBuiltIn()), CENTRE).create();
+describe("a record placed by perihelion time reaches the place the mean anomaly gives", () => {
   const written = createSwiftTuttleTrajectory();
-  const dates = [Date.UTC(1990, 0, 1), Date.UTC(1995, 9, 10), Date.UTC(2000, 5, 1), Date.UTC(2026, 7, 13), Date.UTC(2100, 0, 1)];
-
-  it("agrees to 1e-9 relative at five dates (it is in fact identical)", () => {
-    for (const t of dates) {
-      const a = generic.stateAt(t, "sun").positionKm;
-      const b = written.stateAt(t, "sun").positionKm;
-      expect(distance(a, b) / Math.hypot(...b)).toBeLessThan(1e-9);
-    }
-  });
-
-  it("puts the epoch and the periapsis where the hand-written source does", () => {
-    const built = buildElementsBody(parseElementsBodyRecord(recordFromBuiltIn()), CENTRE);
-    expect(built.epochUtcMs).toBe(SWIFT_TUTTLE_EPOCH_UTC_MS);
-    expect(built.sampling.periapsisUtcMs).toBe(SWIFT_TUTTLE_SAMPLING.periapsisUtcMs);
-    expect(Math.abs(built.sampling.periodMs - SWIFT_TUTTLE_SAMPLING.periodMs)).toBeLessThan(1);
-  });
+  const sbdbTp = Number(JSON.parse(swiftTuttleSource.split(/^==== QUERY .*====\n/m)[1]!).orbit.elements.find((element: { name: string }) => element.name === "tp").value);
 
   it("takes a perihelion time in place of the mean anomaly and reaches the same place", () => {
     const base = recordFromBuiltIn() as Record<string, any>;
     const alt = structuredClone(base);
     delete alt.elements.meanAnomalyDeg;
-    alt.elements.perihelionJdTdb = SWIFT_TUTTLE_ELEMENTS.perihelionJdTdb;
+    alt.elements.perihelionJdTdb = sbdbTp;
     const t = Date.UTC(2026, 7, 13);
     const a = buildElementsBody(parseElementsBodyRecord(alt), CENTRE).create().stateAt(t, "sun").positionKm;
     const b = written.stateAt(t, "sun").positionKm;

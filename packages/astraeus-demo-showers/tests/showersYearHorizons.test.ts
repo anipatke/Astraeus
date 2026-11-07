@@ -4,7 +4,7 @@ import source from "./fixtures/showers-year-horizons-source.txt?raw";
 import geminids from "../data/showers/geminids.json";
 import geminidsPanels from "../data/stories/geminids/panels.json";
 import perseidsPanels from "../data/stories/perseids/panels.json";
-import { createSwiftTuttleTrajectory, SWIFT_TUTTLE_MAX_ERROR_KM } from "astraeus/core/bodies/swiftTuttle";
+import { createSwiftTuttleTrajectory, SWIFT_TUTTLE_MAX_ERROR_KM } from "./helpers/swiftTuttle";
 import { buildElementsBody, classifyPositionError, parseElementsBodyRecord } from "astraeus/core/elementsBody";
 import { catalogue } from "astraeus/assets/catalogue";
 import { buildShowerDefinition } from "./helpers/showerDefinition";
@@ -12,7 +12,7 @@ import { shippedPanelsOf } from "./helpers/shippedPanels";
 import { parseShowerSettings } from "../src/experiences/showers/showerSettings";
 
 // O-024 T-092: the Showers demo's year (21 September 2019 to 20 September 2020) checked against JPL Horizons, as C-030/C-032 did for the
-// earlier dates: 3200 Phaethon (the settings-file body) and 109P/Swift-Tuttle (the built-in comet) at six dates across the year, and
+// earlier dates: 3200 Phaethon (the settings-file body) and 109P/Swift-Tuttle (the Perseids file's parent) at six dates across the year, and
 // Phaethon's perihelion times either side of it, which place the Geminid Phaethon panel. Raw responses: showers-year-horizons-source.txt.
 const AU_KM = 149_597_870.7;
 const CENTRE = { id: "sun", gmKm3S2: catalogue.get("sun").definition.gmKm3S2! };

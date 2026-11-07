@@ -12,14 +12,11 @@ import { MERCURY, MERCURY_ROTATION } from "./mercury";
 import { NEPTUNE, NEPTUNE_ROTATION, PLUTO, SATURN, SATURN_ROTATION, URANUS, URANUS_ROTATION } from "./outerPlanets";
 import { PLANET_MOON_BINDINGS, PLANET_MOON_DEFINITIONS, PLUTO_BINDING } from "./planetMoons";
 import { SUN } from "./sun";
-import { SWIFT_TUTTLE, SWIFT_TUTTLE_BINDING, SWIFT_TUTTLE_SAMPLING } from "./swiftTuttle";
-import type { EccentricSampling } from "../sunCentredSources";
 import { VENUS, VENUS_ROTATION } from "./venus";
 
 export { EARTH, EARTH_EPHEMERIS } from "./earth";
 export { MOON, MOON_EPHEMERIS } from "./moon";
 export { SUN } from "./sun";
-export { SWIFT_TUTTLE, SWIFT_TUTTLE_SAMPLING } from "./swiftTuttle";
 export { IO } from "./io";
 export { CALLISTO, EUROPA, GANYMEDE } from "./jupiterMoons";
 export { JUPITER, JUPITER_EPHEMERIS, JUPITER_ROTATION } from "./jupiter";
@@ -29,7 +26,7 @@ export { NEPTUNE, PLUTO, SATURN, URANUS } from "./outerPlanets";
 export { VENUS, VENUS_EPHEMERIS, VENUS_ROTATION } from "./venus";
 
 /** Every body the engine knows, defined once. */
-export const BUILT_IN_BODIES: readonly CelestialBodyDefinition[] = Object.freeze([SUN, EARTH, MOON, MERCURY, VENUS, MARS, JUPITER, IO, EUROPA, GANYMEDE, CALLISTO, SATURN, URANUS, NEPTUNE, PLUTO, ...PLANET_MOON_DEFINITIONS, SWIFT_TUTTLE]);
+export const BUILT_IN_BODIES: readonly CelestialBodyDefinition[] = Object.freeze([SUN, EARTH, MOON, MERCURY, VENUS, MARS, JUPITER, IO, EUROPA, GANYMEDE, CALLISTO, SATURN, URANUS, NEPTUNE, PLUTO, ...PLANET_MOON_DEFINITIONS]);
 
 /** One state source per non-root body; the Sun is the root and has none. */
 export const BUILT_IN_BINDINGS: readonly StateSourceBinding[] = Object.freeze([
@@ -46,8 +43,4 @@ export const BUILT_IN_BINDINGS: readonly StateSourceBinding[] = Object.freeze([
   IO_BINDING,
   ...MAPPED_MOON_BINDINGS,
   ...PLANET_MOON_BINDINGS,
-  SWIFT_TUTTLE_BINDING,
 ]);
-
-/** Built-in bodies whose period and periapsis the catalogue knows (a comet's century-long orbit), so their whole orbit can be drawn from periapsis. */
-export const BUILT_IN_SAMPLING: Readonly<Record<string, EccentricSampling>> = Object.freeze({ [SWIFT_TUTTLE.id]: SWIFT_TUTTLE_SAMPLING });

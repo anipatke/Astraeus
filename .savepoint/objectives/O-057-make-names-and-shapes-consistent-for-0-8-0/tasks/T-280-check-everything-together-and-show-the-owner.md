@@ -20,7 +20,7 @@ On `localhost:5490` at 375x667 and 1280x720, open the demos and site and read th
 
 ## Done When
 
-One CHANGELOG migration table covers every 0.8.0 change, with Voyagers and showers notes (`toDefinition` replacements, `swift-tuttle`, every rename), each row checked against the lock; README and API reference are regenerated and within limits; `Public API shape` is reconciled, including the T-260 span tension, and every drift note from this Objective is accounted for; `apiTypeLint` breaks and `apiOutsideTypes` entries are empty; the examples build; `npm run check:browser` passes once; the owner approves the look. Apply `docs/agents/verification.md`.
+I-145 is repaired to its Proof Needed (owner, 2026-11-07). One CHANGELOG migration table covers every 0.8.0 change, with Voyagers and showers notes (`toDefinition` replacements, `swift-tuttle`, every rename), each row checked against the lock; README and API reference are regenerated and within limits; `Public API shape` is reconciled, including the T-260 span tension, and every drift note from this Objective is accounted for; `apiTypeLint` breaks and `apiOutsideTypes` entries are empty; the examples build; `npm run check:browser` passes once; the owner approves the look. Apply `docs/agents/verification.md`.
 
 ## Context Files
 

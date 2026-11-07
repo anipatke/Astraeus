@@ -36,7 +36,6 @@
       "iapetus",
       "triton",
       "charon",
-      "swift-tuttle",
       "miranda",
       "ariel",
       "umbriel",
@@ -4208,7 +4207,6 @@
       "iapetus",
       "triton",
       "charon",
-      "swift-tuttle",
       "miranda"
      ]
     },
@@ -4486,7 +4484,6 @@
       "iapetus",
       "triton",
       "charon",
-      "swift-tuttle",
       "made-up-comet"
      ]
     },
@@ -4947,7 +4944,6 @@
       "iapetus",
       "triton",
       "charon",
-      "swift-tuttle",
       "made-up-comet"
      ]
     },
@@ -14958,7 +14954,7 @@
    "error": {
     "name": "SceneError",
     "code": "unknown-body",
-    "message": "addBody(\"nope\"): not a catalogued body (known: sun, earth, moon, mercury, venus, mars, jupiter, io, europa, ganymede, callisto, saturn, uranus, neptune, pluto, phobos, deimos, mimas, enceladus, tethys, dione, rhea, titan, iapetus, triton, charon, swift-tuttle; any moon in the moon lists is added by its id, and `listedMoons(planet)` names them with the data package each needs)"
+    "message": "addBody(\"nope\"): not a catalogued body (known: sun, earth, moon, mercury, venus, mars, jupiter, io, europa, ganymede, callisto, saturn, uranus, neptune, pluto, phobos, deimos, mimas, enceladus, tethys, dione, rhea, titan, iapetus, triton, charon; any moon in the moon lists is added by its id, and `listedMoons(planet)` names them with the data package each needs)"
    }
   },
   "addBody: repeated id": {
@@ -16542,7 +16538,7 @@
    "error": {
     "name": "SceneError",
     "code": "unknown-body",
-    "message": "addBody(\"nope\"): not a catalogued body (known: sun, earth, moon, mercury, venus, mars, jupiter, io, europa, ganymede, callisto, saturn, uranus, neptune, pluto, phobos, deimos, mimas, enceladus, tethys, dione, rhea, titan, iapetus, triton, charon, swift-tuttle; any moon in the moon lists is added by its id, and `listedMoons(planet)` names them with the data package each needs)"
+    "message": "addBody(\"nope\"): not a catalogued body (known: sun, earth, moon, mercury, venus, mars, jupiter, io, europa, ganymede, callisto, saturn, uranus, neptune, pluto, phobos, deimos, mimas, enceladus, tethys, dione, rhea, titan, iapetus, triton, charon; any moon in the moon lists is added by its id, and `listedMoons(planet)` names them with the data package each needs)"
    }
   }
  },
@@ -18483,7 +18479,6 @@
       "iapetus",
       "triton",
       "charon",
-      "swift-tuttle",
       "miranda"
      ]
     },
@@ -18761,7 +18756,6 @@
       "iapetus",
       "triton",
       "charon",
-      "swift-tuttle",
       "made-up-comet"
      ]
     },
@@ -18963,7 +18957,6 @@
       "iapetus",
       "triton",
       "charon",
-      "swift-tuttle",
       "made-up-comet"
      ]
     },
@@ -19422,7 +19415,6 @@
       "iapetus",
       "triton",
       "charon",
-      "swift-tuttle",
       "made-up-comet"
      ]
     },

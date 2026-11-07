@@ -98,7 +98,7 @@ describe('lineFixedTo: "auto"', () => {
 describe("GM audit", () => {
   it("records which built-in bodies have no GM (they cannot hold a probe)", () => {
     const lacking = catalogue.definitions().filter((d) => !(d.gmKm3S2! > 0)).map((d) => d.id).sort();
-    expect(lacking).toEqual(["swift-tuttle"]); // a comet: no published GM; every planet, the Sun, the Moon and the built-in moons carry one
+    expect(lacking).toEqual([]); // the catalogue holds only bodies with a published GM (the Sun, the planets, Pluto and the moons); a comet is added from elements and has none
   });
 });
 
