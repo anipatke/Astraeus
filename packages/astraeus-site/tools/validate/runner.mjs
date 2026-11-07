@@ -10,6 +10,7 @@ import { mkdirSync, mkdtempSync, rmSync, appendFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { loadLimits, overrun } from "../../../../tools/gate-limits.mjs";
 
 // The repository root (this file is packages/astraeus-site/tools/validate/).
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..", "..", "..");
@@ -32,6 +33,12 @@ async function waitFor(url) {
   throw new Error(`no answer from ${url}`);
 }
 
+/** Print a line to the console and the summary file. */
+function report(ctx, text) {
+  console.log(text);
+  appendFileSync(join(ctx.evidence, "summary.txt"), `${text}\n`);
+}
+
 function runStep(step, ctx) {
   const url = step.example ? ctx.exampleUrls[step.example] : step.public ? ctx.publicUrl : ctx.devUrl;
   const dir = join(ctx.evidence, step.name);
@@ -47,9 +54,11 @@ function runStep(step, ctx) {
   const errors = log.split("\n").filter((l) => ERROR_LINE.test(l) && !ZERO_ERRORS.test(l)).length;
   const seconds = Math.round((Date.now() - started) / 1000);
   const sceneText = step.scene ?? (step.noBrowser ? "none (files only)" : "?");
-  const line = [step.name, `scene=${sceneText}`, `exit=${run.status}`, `${clock(started)}-${clock(Date.now())}`, `${seconds}s`, `error-lines=${errors}`].join(" | ");
-  console.log(line);
-  appendFileSync(join(ctx.evidence, "summary.txt"), `${line}\n`);
+  const limit = ctx.limits.browser.steps[step.name];
+  const line = [step.name, `scene=${sceneText}`, `exit=${run.status}`, `${clock(started)}-${clock(Date.now())}`, `${seconds}s`, limit === undefined ? "no limit" : `limit ${limit}s`, `error-lines=${errors}`].join(" | ");
+  report(ctx, line);
+  const warning = overrun(`step ${step.name}`, seconds, limit);
+  if (warning) report(ctx, warning);
   return run.status === 0 && errors === 0;
 }
 
@@ -78,7 +87,7 @@ async function startServers(steps, ctx) {
 }
 
 /** The run's context: its fresh evidence folder, scratch folders, URLs, and `serve`/`stop` for the server processes it starts. */
-function makeContext(setName) {
+function makeContext(setName, limits) {
   const evidence = join(root, "docs", "evidence", `${setName}-${stamp()}`);
   mkdirSync(evidence, { recursive: true });
   const scratch = mkdtempSync(join(tmpdir(), "astraeus-check-"));
@@ -96,14 +105,14 @@ function makeContext(setName) {
   appendFileSync(join(evidence, "summary.txt"), `logs: ${logs}\n`);
   console.log(`logs: ${logs}`);
   return {
-    evidence, logs, publicDir: join(scratch, "public"), serve, stop, writeLog,
+    evidence, logs, limits, publicDir: join(scratch, "public"), serve, stop, writeLog,
     devUrl: `http://localhost:${DEV_PORT}/app.html`, publicUrl: `http://localhost:${PUBLIC_PORT}/app.html`, exampleUrls: Object.fromEntries(EXAMPLE_NAMES.map((name) => [name, `http://localhost:${examplePort(name)}/`])),
   };
 }
 
-/** Run `steps` (see above) as the set `setName`; resolves to the process exit code. */
-export async function runSet(setName, steps) {
-  const ctx = makeContext(setName);
+/** Run `steps` (see above) as the set `setName`; resolves to the process exit code. `limits` (default tools/gate-limits.json) only decide the warnings: a run over a limit warns and never fails for time. */
+export async function runSet(setName, steps, limits = loadLimits()) {
+  const ctx = makeContext(setName, limits);
   process.on("SIGINT", () => { ctx.stop(); process.exit(130); });
   const start = Date.now();
   let ok = true;
@@ -116,9 +125,11 @@ export async function runSet(setName, steps) {
   } finally {
     ctx.stop();
   }
-  const total = `total ${Math.round((Date.now() - start) / 1000)}s (servers and public build included)`;
-  appendFileSync(join(ctx.evidence, "summary.txt"), `${total}\n`);
-  console.log(`${total}\nevidence: ${ctx.evidence}`);
+  const seconds = Math.round((Date.now() - start) / 1000);
+  report(ctx, `total ${seconds}s (servers and public build included) | limit ${limits.browser.total}s`);
+  const warning = overrun("the browser check", seconds, limits.browser.total);
+  if (warning) report(ctx, warning);
+  console.log(`evidence: ${ctx.evidence}`);
   if (!ok) console.error("FAILED: a step exited non-zero or logged a console error (see summary above)");
   return ok ? 0 : 1;
 }
