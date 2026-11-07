@@ -1,7 +1,7 @@
 ---
 id: O-060
 title: Make the checks faster with the same protection
-status: planned
+status: in_progress
 depends_on: [O-057]
 release: G-016
 priority: high
@@ -11,7 +11,7 @@ priority: high
 
 ## Outcome
 
-A Full Objective Check takes much less time with the same protection: `npm run check:browser` runs in 180 s or less, the fast tests repeat less setup, every gate has a stated time limit that warns when it is passed, and no test or assertion is removed.
+A Full Objective Check takes much less time with the same protection: `npm run check:browser` runs in about 230 s, the fast tests repeat less setup, every gate has a stated time limit that warns when it is passed, and no test or assertion is removed.
 
 ## Why
 
@@ -19,7 +19,7 @@ Owner, 2026-11-07: "before we close off 0.8.0, can we optimise the tests?", then
 
 ## Success Conditions
 
-- **Browser check.** `npm run check:browser` runs in 180 s or less on an idle machine (baseline 353 s), every step passing.
+- **Browser check.** `npm run check:browser` runs in about 230 s on an idle machine (baseline 353 s), every step passing. The first target of 180 s was changed by the owner; see Owner Decisions.
 - **Same protection.** Every browser assertion at the baseline commit still exists, proved by a test against a committed list, and `npm test` runs at least as many tests as the baseline (3,282 passed, 2 skipped). No test, assertion or tolerance is removed or loosened; coverage is not lower.
 - **Fast tests.** Setup repeated across test files is shared, with `npm test` aiming for about 30 s (baseline 42 s). The aim is not a pass mark: the measured result is reported either way.
 - **Time limits.** Every gate has a stated limit in one place. A run over its limit shows a warning in its summary and never fails on time alone. A test proves the warning appears.
@@ -31,6 +31,8 @@ Owner, 2026-11-07: "before we close off 0.8.0, can we optimise the tests?", then
 - A check over its time limit warns in its summary and does not fail (owner "Warn in the run summary").
 - No owner look: nothing on screen changes.
 - Design confirmed by the owner, 2026-11-07, session o060-planning-20261107.
+- Browser target moved from 180 s to about 230 s (owner, 2026-11-07, during T-281, told 231 s was measured and the last 51 s is page loading): no further side-by-side running, because "side by side is machine depedent and i sometimes work on mutiple things at once. I will Accept".
+- The two `synthetic-journey` sizes stay side by side (owner, 2026-11-07, "Keep the pair, about 231s", told in-turn running is about 285 s), still subject to T-281's three passing runs.
 
 ## Architectural Considerations
 

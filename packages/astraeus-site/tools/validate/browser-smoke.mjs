@@ -72,7 +72,7 @@ async function sunPathChecks(page) {
   const labelSecond = await labelShownAt(0.8);
   if (!labelFirst || !labelSecond) throw new Error(`the probe path's label is not shown (at 0.2: ${labelFirst}, at 0.8: ${labelSecond})`);
   await ui.pickBody(page, "sun");
-  await page.waitForTimeout(2500); // the camera eases to the Sun
+  await ui.waitForBodySettled(page, "sun"); // the camera eases to the Sun
   await ui.seekToFraction(page, 0.2);
   await ui.waitForSceneReady(page);
   const first = await ui.scenePath(page, "probe");
@@ -105,9 +105,9 @@ async function journeyChecks(page) {
   if (saturnOrbit === undefined || !saturnOrbit.visible) throw new Error(`Saturn's orbit line is not drawn (${JSON.stringify((await ui.scenePaths(page)).map((p) => p.id))})`);
   await ui.seekToReady(page, JOURNEY_END_UTC_MS - 1000);
   await ui.pickBody(page, "sun");
-  await page.waitForTimeout(2500);
-  if (!(await ui.zoomOutFully(page))) throw new Error("no free point on the scene to zoom from");
-  await page.waitForTimeout(1000);
+  await ui.waitForBodySettled(page, "sun");
+  if (!(await ui.zoomOutFully(page, "traveller"))) throw new Error("no free point on the scene to zoom from");
+  await ui.waitForPathSettled(page, "traveller");
   const path = await ui.scenePath(page, "traveller");
   if (path === undefined || !path.visible || path.vertices === 0 || path.inView < path.vertices) throw new Error(`the 170 AU path is not framed whole at the farthest zoom-out (${JSON.stringify(path)})`);
   const labels = await ui.shownSceneLabelIds(page);
@@ -135,7 +135,7 @@ async function followAcrossStretchesChecks(page) {
   const seen = {};
   for (const d of days) {
     await ui.seekToReady(page, JOURNEY_JUPITER_UTC_MS + d * 86_400_000);
-    await page.waitForTimeout(1500);
+    await ui.waitForPathSettled(page, "traveller"); // the camera catches up with the probe after the jump
     const line = await ui.scenePath(page, "traveller"); // a path is not in the body readout; with the camera on the probe, its line runs through the middle of the view (the probe is where the line starts)
     const centred = line !== undefined && line.lineMinX <= 0.53 && line.lineMaxX >= 0.47 && line.lineMinY <= 0.53 && line.lineMaxY >= 0.47;
     if (line === undefined || !line.visible || line.inView === 0 || !centred) throw new Error(`the camera lost the traveller ${d} days from the Jupiter pass (${JSON.stringify(line)})`);
@@ -178,8 +178,7 @@ async function closeMarkerChecks(page) {
     const crossing = list.items.filter((other) => other !== item && overlap(other.box, item.box));
     if (crossing.length > 0) throw new Error(`the list item "${name}" overlaps ${crossing.map((c) => c.label).join(", ")}`);
     await ui.pressMarkerGroupItem(page, item.label);
-    await page.waitForTimeout(500);
-    const clock = await ui.clockMs(page);
+    const clock = await ui.waitForClockSettled(page);
     if (Math.abs(clock - item.timeUtcMs) > 30 * 60_000) throw new Error(`pressing "${name}" left the clock at ${new Date(clock).toISOString()}, not its event (${new Date(item.timeUtcMs).toISOString()})`);
     if ((await ui.markerGroupList(page)) !== null) throw new Error(`the list stayed open after pressing "${name}"`);
     await ui.closeInfoQuietly(page);
@@ -197,12 +196,11 @@ async function closeMarkerChecks(page) {
 async function nearSaturnChecks(page) {
   await ui.seekToReady(page, JOURNEY_SATURN_UTC_MS, { ids: ["saturn"] });
   await ui.pickBody(page, "saturn");
-  await page.waitForTimeout(2500);
+  await ui.waitForBodySettled(page, "saturn");
   const point = await ui.freeCanvasPoint(page);
   if (point === null) throw new Error("no free point on the scene to zoom in from");
-  await page.mouse.move(point.x, point.y);
-  for (let k = 0; k < 60; k += 1) { await page.mouse.wheel(0, -600); await page.waitForTimeout(40); }
-  await page.waitForTimeout(1000);
+  await ui.wheelUntilSettled(page, point, -600, ui.bodyZoomReadout(page, "saturn"));
+  await ui.waitForBodySettled(page, "saturn");
   const canvas = page.locator("canvas").first();
   const depthMode = await canvas.getAttribute("data-depth-mode");
   const rings = Number(await ui.sceneCanvas(page).getAttribute("data-rings")); // on the canvas wrapper, not the drawing surface
@@ -215,6 +213,7 @@ async function nearSaturnChecks(page) {
   if (missing.length > 0) throw new Error(`moon orbit lines are not in the scene: ${missing.join(", ")} (${JSON.stringify(orbits.map((p) => p.id))})`);
   const before = await ui.framesDrawn(page);
   const started = Date.now();
+  // Fixed on purpose: this is a measurement window (frames drawn per second over 3 s of nudging), so its length is the quantity, not a wait for a condition.
   while (Date.now() - started < 3000) { await page.mouse.wheel(0, 40); await page.waitForTimeout(30); await page.mouse.wheel(0, -40); await page.waitForTimeout(30); }
   const framesPerSecond = Math.round(((await ui.framesDrawn(page)) - before) / ((Date.now() - started) / 1000));
   return { depthMode, rings, saturn: { as: saturn.as, radiusPx: saturn.radiusPx }, framesPerSecond };
@@ -227,7 +226,7 @@ async function nearSaturnChecks(page) {
 async function nearUranusChecks(page) {
   await ui.seekToReady(page, JOURNEY_URANUS_UTC_MS, { ids: ["uranus"] });
   await ui.pickBody(page, "uranus");
-  await page.waitForTimeout(2500);
+  await ui.waitForBodySettled(page, "uranus");
   const bodies = await ui.sceneBodies(page);
   const missing = URANUS_MOONS.filter((id) => !bodies.some((body) => body.id === id && body.as !== "none"));
   if (missing.length > 0) throw new Error(`the Uranus moons ${missing.join(", ")} are not in the scene in 1986 (${JSON.stringify(bodies.map((b) => `${b.id}:${b.as}`))})`);
@@ -238,12 +237,11 @@ async function nearUranusChecks(page) {
   const spheres = {};
   for (const id of URANUS_MOONS) {
     await ui.pickBody(page, id);
-    await page.waitForTimeout(1500);
+    await ui.waitForBodySettled(page, id);
     const point = await ui.freeCanvasPoint(page);
     if (point === null) throw new Error(`no free point on the scene to zoom in on ${id}`);
-    await page.mouse.move(point.x, point.y);
-    for (let k = 0; k < 60; k += 1) { await page.mouse.wheel(0, -600); await page.waitForTimeout(30); }
-    await page.waitForTimeout(1000);
+    await ui.wheelUntilSettled(page, point, -600, ui.bodyZoomReadout(page, id));
+    await ui.waitForBodySettled(page, id);
     const moon = await ui.sceneBody(page, id);
     if (moon === undefined || moon.as !== "sphere" || !moon.inView || !(moon.radiusPx > 20)) throw new Error(`${id} does not draw as a large sphere when approached (${JSON.stringify(moon)})`);
     spheres[id] = Math.round(moon.radiusPx);
@@ -290,7 +288,11 @@ const browser = await launchBrowser();
 const results = [];
 try {
   console.log(`smoke: ${views.length} views (${views.map((view) => view.id).join(", ")}), ${VIEWPORTS.length} sizes`);
-  for (const view of views) for (const size of VIEWPORTS) results.push(await load(browser, view, size));
+  for (const view of views) {
+    // O-060 T-281: the made-up journey is the long load (a minute at each size), so its two sizes run side by side in two contexts of this one browser; every other load runs alone, in turn.
+    if (view.journey) results.push(...(await Promise.all(VIEWPORTS.map((size) => load(browser, view, size)))));
+    else for (const size of VIEWPORTS) results.push(await load(browser, view, size));
+  }
 } finally {
   await browser.close();
 }
