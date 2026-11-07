@@ -2,7 +2,9 @@
 
 Versions follow [semantic versioning](https://semver.org). It is released together with `astraeus`, with the same version number.
 
-## Unreleased
+## 0.8.0 (2026-11-07)
+
+Released with `astraeus` 0.8.0, with the same version number. Every `astraeus-data*` package now peers on `astraeus` `>=0.8.0 <0.9.0`.
 
 Added (O-059 T-268): the tagged surface places of 24 bodies, moved from the engine's `data/bodies/` and published for the first time as `astraeus-data/bodies/<body>/{features,categories,overview,map}.json` plus `catalogue.json` (about 840 KB, 98 files), for `scene.addPlaces`. NOTICE credits the lists to Planetary Explorer (the owner's own work) and keeps the overview sources' own credits.
 

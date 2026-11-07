@@ -2,7 +2,11 @@
 
 Versions follow [semantic versioning](https://semver.org). While the version starts with `0.`, the public API (the names exported from `astraeus`) may still change between minor versions; each change is listed here.
 
-## Unreleased
+## 0.8.0 (2026-11-07)
+
+First download of the packed example (`npm run measure:example`): 1,716,429 bytes raw, 492,249 bytes gzip (code and styles loaded on first open), against 1,652,632 raw and 472,929 gzip at 0.7.0.
+
+A modular, consumable package (G-016, O-053 to O-060): one front door, the same abilities from `mount` and React, a viewer that behaves as a good guest on any page, numbers without a viewer, looks as public settings, standalone event zones, consistent names, units and shapes, and a scene builder split by concern. This is a clean break: old names are removed, not aliased. Apps built on 0.7.0 follow the migration table below.
 
 ### Migration from 0.7.0 to 0.8.0
 

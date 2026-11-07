@@ -75,10 +75,11 @@ describe("publishable packages", () => {
     const engine = manifestOf("astraeus");
     const dataOriginal = readFileSync(data, "utf8");
     const engineOriginal = readFileSync(engine, "utf8");
+    const wanted = enginePeerRange((JSON.parse(engineOriginal) as { version: string }).version); // the engine's own minor, so a version bump needs no edit here
     try {
       for (const stale of [">=0.1.0 <1.0.0", ">=0.6.0 <0.7.0", ">=0.7.0 <1.0.0"]) {
         writeFileSync(data, dataOriginal.replace(/"astraeus": "[^"]*"/, `"astraeus": "${stale}"`));
-        expect(checkPacks({ build: false, only: ["astraeus-data-pluto"] }).problems).toContain(`astraeus-data-pluto: astraeus peer is ${stale}, the engine's current minor is >=0.7.0 <0.8.0`);
+        expect(checkPacks({ build: false, only: ["astraeus-data-pluto"] }).problems).toContain(`astraeus-data-pluto: astraeus peer is ${stale}, the engine's current minor is ${wanted}`);
       }
       writeFileSync(engine, engineOriginal.replace('"react": ">=19 <20"', '"react": ">=19 <19.4"'));
       expect(checkPacks({ build: false, only: ["astraeus"] }).problems).toContain("astraeus: react peer is >=19 <19.4, it must cover all of React 19 (>=19 <20)");
