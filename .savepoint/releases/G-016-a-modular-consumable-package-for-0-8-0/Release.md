@@ -14,7 +14,7 @@ Owner, 2026-11-01, after O-052: "we've done a lot of tinkering off the learning 
 
 ## Success Conditions
 
-Every member Objective is done, in this order: O-053, O-058, O-054, O-055, O-056, O-059, O-057.
+Every member Objective is done, in this order: O-053, O-058, O-054, O-055, O-056, O-059, O-057, O-060.
 
 ## Boundaries
 

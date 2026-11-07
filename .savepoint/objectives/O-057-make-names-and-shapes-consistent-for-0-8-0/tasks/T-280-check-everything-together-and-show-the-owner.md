@@ -2,8 +2,7 @@
 id: T-280
 objective: O-057
 title: Check everything together and show the owner
-status: in_progress
-stage: audit
+status: done
 depends_on: [{task: T-279, requires: clear}]
 owner_validation: {required: true}
 planned_by: {role: planner, session: o057-planning-20261107}

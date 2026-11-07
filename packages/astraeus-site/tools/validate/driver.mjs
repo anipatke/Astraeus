@@ -842,6 +842,42 @@ export async function waitForMoreFrames(page, before, count = 3, timeout = 5000)
   }
   throw new Error(`the scene drew fewer than ${count} frames in ${timeout} ms (frames drawn: ${await framesDrawn(page)}, was ${before})`);
 }
+/**
+ * Waits until `read()` gives the same value (compared as JSON) on `reads` polls in a row, `every` ms apart, and returns it (O-060 T-281). This stands in for a fixed sleep that waited for the scene to
+ * stop moving: a camera easing to a body, or the clock catching up after a jump. It never fails by itself: when the value is still changing at `timeout` it returns the last one, and the caller's own
+ * assertion on that value decides, exactly as it did after the fixed sleep.
+ */
+export async function waitUntilStable(page, read, { every = 100, reads = 3, timeout = 10000 } = {}) {
+  const deadline = Date.now() + timeout;
+  let value = JSON.stringify(await read());
+  let same = 1;
+  while (same < reads && Date.now() < deadline) {
+    await page.waitForTimeout(every);
+    const next = JSON.stringify(await read());
+    same = next === value ? same + 1 : 1;
+    value = next;
+  }
+  return value === undefined ? undefined : JSON.parse(value);
+}
+const round = (n, places) => (typeof n === "number" ? Math.round(n * 10 ** places) / 10 ** places : n);
+/** Waits until the picked body `id` has stopped moving or growing on screen (centre to 0.001 of the view, radius to 0.1 px): the camera has finished easing to it or zooming on it. Returns its readout. */
+export function waitForBodySettled(page, id, options = {}) {
+  return waitUntilStable(page, async () => {
+    const body = await sceneBody(page, id);
+    return body === undefined ? null : { as: body.as, x: round(body.x, 3), y: round(body.y, 3), radiusPx: round(body.radiusPx, 1), inView: body.inView };
+  }, options);
+}
+/** Waits until path `id`'s drawn line has stopped moving on screen (its box to 0.001 of the view): the camera has caught up after a jump. Returns the readout. */
+export function waitForPathSettled(page, id, options = {}) {
+  return waitUntilStable(page, async () => {
+    const path = await scenePath(page, id);
+    return path === undefined ? null : { visible: path.visible, inView: path.inView, box: [path.lineMinX, path.lineMaxX, path.lineMinY, path.lineMaxY, path.minX, path.maxX, path.minY, path.maxY].map((n) => round(n, 3)) };
+  }, options);
+}
+/** Waits until the clock has stopped moving (a seek or a press that sets it has landed); returns it as UTC milliseconds. */
+export function waitForClockSettled(page, options = {}) {
+  return waitUntilStable(page, () => clockMs(page), { reads: 2, ...options });
+}
 /** A wheel turn over the scene, where the canvas itself is on top: moves the camera, so a resting scene draws again. Returns false when no free point exists. */
 export async function nudgeCamera(page) {
   const point = await freeCanvasPoint(page);
@@ -850,16 +886,40 @@ export async function nudgeCamera(page) {
   await page.mouse.wheel(0, 120);
   return true;
 }
-/** Zooms the camera out as far as it goes: wheel turns over the scene for `turns` turns (the camera clamps at its farthest zoom-out). Returns false when no free point exists. */
-export async function zoomOutFully(page, { turns = 60 } = {}) {
+/**
+ * Wheel turns of `deltaY` at `point`, at most `turns`, stopping once the camera has stopped taking them (O-060 T-281): `read()` is the scene readout the zoom changes, and when it gives the same value
+ * on `same` turns in a row the camera has reached its zoom limit, so further turns could not change what is asserted afterwards. This replaces 60 turns each followed by a fixed 30 to 40 ms pause,
+ * most of which were turns at the limit. The caller then waits for the scene to settle (`waitForBodySettled`, `waitForPathSettled`) and asserts. Returns the turns made.
+ */
+export async function wheelUntilSettled(page, point, deltaY, read, { turns = 60, same = 3 } = {}) {
+  await page.mouse.move(point.x, point.y);
+  let last = JSON.stringify(await read());
+  let still = 0;
+  let made = 0;
+  while (made < turns && still < same) {
+    await page.mouse.wheel(0, deltaY);
+    made += 1;
+    const now = JSON.stringify(await read());
+    still = now === last ? still + 1 : 0;
+    last = now;
+  }
+  return made;
+}
+/** The readout a zoom on body `id` changes: where it is on screen and how big, to the finest figure the scene reports. */
+export const bodyZoomReadout = (page, id) => async () => {
+  const body = await sceneBody(page, id);
+  return body === undefined ? null : [body.as, body.inView, round(body.x, 6), round(body.y, 6), round(body.radiusPx, 6)];
+};
+/** The readout a zoom on path `id` changes: how many of its vertices are in view and the box they cover. */
+export const pathZoomReadout = (page, id) => async () => {
+  const path = await scenePath(page, id);
+  return path === undefined ? null : [path.visible, path.inView, round(path.spanX, 6), round(path.spanY, 6)];
+};
+/** Zooms the camera out on path `id` as far as it goes (the camera clamps at its farthest zoom-out). Returns false when no free point exists. The caller waits for the scene to settle (`waitForPathSettled`). */
+export async function zoomOutFully(page, id, { turns = 60 } = {}) {
   const point = await freeCanvasPoint(page);
   if (point === null) return false;
-  await page.mouse.move(point.x, point.y);
-  for (let k = 0; k < turns; k += 1) {
-    await page.mouse.wheel(0, 600);
-    await page.waitForTimeout(40);
-  }
-  await page.waitForTimeout(500);
+  await wheelUntilSettled(page, point, 600, pathZoomReadout(page, id), { turns });
   return true;
 }
 /** A tap (click) on the scene where the canvas itself is on top: goes through the pointer listeners, so a resting scene draws again (O-031 I-073). Returns false when no free point exists. */
@@ -1709,6 +1769,24 @@ export async function viewChoiceFit(page) {
 export async function listedStoryPanelIds(page) {
   const single = await page.locator(HOOK.storyMarker).evaluateAll((markers) => markers.map((marker) => marker.getAttribute("data-panel-id")));
   return [...single, ...(await markerGroupPanelIds(page)).map((entry) => entry.id)].sort();
+}
+/** Waits until the views scene has finished switching view (O-060 T-281): the chosen button, the host's view, the Object list and the timeline's panel markers read the same on three polls in a row. Returns that state. */
+export function waitForViewSettled(page, options = {}) {
+  return waitUntilStable(page, async () => [await shownView(page), await hostView(page), await bodyOptions(page), await listedStoryPanelIds(page)], options);
+}
+/** Waits until both views-scene probes' drawn lines read the same on three polls in a row: the path readouts have caught up with the view after its next drawn frame. Returns the visibility of each. */
+export function waitForProbePathsSettled(page, options = {}) {
+  return waitUntilStable(page, async () => [(await scenePath(page, "probe-a"))?.visible === true, (await scenePath(page, "probe-b"))?.visible === true], options);
+}
+/** Polls until body `id` is more than `minDelta` (share of the view) from where `from` had it, or `timeout` passes; returns its latest readout. The caller asserts on what comes back. */
+export async function waitForBodyMoved(page, id, from, { minDelta = 0.01, timeout = 2000 } = {}) {
+  const deadline = Date.now() + timeout;
+  let now = await sceneBody(page, id);
+  while (Date.now() < deadline && !(Math.abs(from.x - now.x) + Math.abs(from.y - now.y) > minDelta)) {
+    await page.waitForTimeout(100);
+    now = await sceneBody(page, id);
+  }
+  return now;
 }
 /** The dev page's host link for the views scene (the same one `mount` gives a host page): the view it reports, then `setView`, and the changes it has heard (`watchHostChanges` first). */
 export const hostView = (page) => page.evaluate(() => window.astraeusHost?.view);

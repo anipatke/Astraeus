@@ -1,0 +1,29 @@
+{
+  "about": "The one place that states how long each gate may take, in seconds of wall clock (O-060 T-283). A run over its limit prints a warning and never fails on time alone. Each limit is the slowest measured time plus room for ordinary variation, including the owner working on other things at the same time; docs/agents/build.md holds the same numbers in its table and a test keeps the two together.",
+  "gates": {
+    "lint": 15,
+    "typecheck": 20,
+    "build": 15,
+    "test": 65,
+    "test:full": 105,
+    "check:engine-alone": 40,
+    "check:pack": 30,
+    "check:node-consumer": 15,
+    "check:react-consumer": 25
+  },
+  "browser": {
+    "total": 320,
+    "steps": {
+      "smoke": 170,
+      "smoke-public-showers": 30,
+      "planets-phone": 25,
+      "meteor-shower": 40,
+      "views": 40,
+      "hello-scene": 25,
+      "hello-react": 12,
+      "hello-planets": 15,
+      "public-build-assets": 8,
+      "public-addresses": 5
+    }
+  }
+}

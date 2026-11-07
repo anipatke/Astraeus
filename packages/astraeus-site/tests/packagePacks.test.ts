@@ -1,4 +1,5 @@
-import { mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { PICTURES } from "astraeus-data";
@@ -146,11 +147,14 @@ describe("astraeus-data credits (PROV-02)", () => {
       ["a URL built from the resolved entry", `const { catalogue } = await ${IMPORT}(new URL('../assets/catalogue.js', import.meta.resolve('astraeus')).href);`],
       ["a relative import into the unpacked package", `await ${IMPORT}('./src/assets/catalogue.js');`],
       ["a path into the unpacked package", "const file = join(dir, 'node_modules/astraeus/src/assets/catalogue.js');"],
+      ["a path into the unpacked package given in parts", "const file = join(dir, 'node_modules', 'astraeus', 'src', 'assets', 'catalogue.js');"],
+      ["a path from the package folder given in parts", "const file = join(pkg, `astraeus`, \"src\", 'assets');"],
     ])("planted: %s is named", (_name, line) => {
       expect(pastTheEntry(`import { Scene } from "astraeus";\n${line}\n`).length).toBeGreaterThan(0);
     });
 
     it("allows the public entry, its style sheet and its manifest", () => {
+      expect(pastTheEntry(["const manifest = join(dir, 'node_modules', 'astraeus', 'package.json');"].join("\n"))).toEqual([]);
       expect(pastTheEntry([`${IMPORT} { Scene } ${FROM} "astraeus";`, `${IMPORT} "astraeus${"/style"}.css";`, `${IMPORT} pkg ${FROM} "astraeus${"/package"}.json";`].join("\n"))).toEqual([]);
     });
 
@@ -158,15 +162,15 @@ describe("astraeus-data credits (PROV-02)", () => {
       expect(ringFactProblems(join(__dirname, "..", "..", "astraeus", "dist"))).toEqual([]);
     });
 
-    it("planted: a catalogue with no Saturn bands, and one with Mars rings, are named", () => {
-      const dir = join(__dirname, "..", "..", "astraeus-data-pluto", "dist");
+    it("planted: a catalogue with no Saturn bands, and one with Mars rings, are named (in a scratch folder, not a package build)", () => {
+      const dir = mkdtempSync(join(tmpdir(), "ring-facts-"));
       const file = join(dir, "src", "assets", "catalogue.js");
       mkdirSync(join(dir, "src", "assets"), { recursive: true });
       try {
         writeFileSync(file, "export const catalogue = { get: (id) => ({ visual: { rings: id === 'mars' ? { bands: [1] } : undefined } }) };");
         expect(ringFactProblems(dir)).toEqual(["astraeus: the packed catalogue gives Saturn no ring bands", "astraeus: the packed catalogue gives Mars rings"]);
       } finally {
-        rmSync(file, { force: true });
+        rmSync(dir, { recursive: true, force: true });
       }
     });
   });

@@ -36,7 +36,7 @@ await checkScript({ name: "journey-views", viewports: SIZES }, async (page, { na
   const before = { clock: await ui.clockIso(page), speed: await ui.speed(page) };
   for (const id of ["b", "both", "a"]) {
     await ui.chooseView(page, id);
-    await page.waitForTimeout(700);
+    await ui.waitForViewSettled(page);
     assert.equal(await ui.shownView(page), id, `the ${id} button shows as chosen`);
     await expectView(page, id);
     assert.equal(await ui.clockIso(page), before.clock, `switching to ${id} leaves the clock where it was`);
@@ -49,29 +49,28 @@ await checkScript({ name: "journey-views", viewports: SIZES }, async (page, { na
   // the rule "stay" holds the camera where it was, so Earth stays put (the readout is the projected centre, valid even when off screen).
   await ui.pickBody(page, "probe-a");
   await ui.chooseCamera(page, "follow-probe-a");
-  await page.waitForTimeout(800);
+  await ui.waitForBodySettled(page, "probe-a"); // the camera flies to probe a
   await ui.setFastestSpeed(page);
   await ui.ensurePlaying(page);
   await ui.chooseView(page, "b");
-  await page.waitForTimeout(1500);
+  await ui.waitForBodySettled(page, "probe-b"); // the camera has flown to probe b and follows it (probe b holds the middle of the view while Earth moves)
   const move1 = await ui.sceneBody(page, "earth");
-  await page.waitForTimeout(2000);
-  const move2 = await ui.sceneBody(page, "earth");
+  const move2 = await ui.waitForBodyMoved(page, "earth", move1); // up to the 2 s the old fixed wait gave
   assert.ok(Math.abs(move1.x - move2.x) + Math.abs(move1.y - move2.y) > 0.01, `Earth moves on screen while the camera follows probe b (${move1.x},${move1.y} -> ${move2.x},${move2.y})`);
   await ui.chooseView(page, "a");
-  await page.waitForTimeout(1500);
+  await ui.waitForBodySettled(page, "earth"); // the camera has stopped after the switch
   const still1 = await ui.sceneBody(page, "earth");
-  await page.waitForTimeout(2000);
+  await page.waitForTimeout(2000); // fixed on purpose: Earth must hold still for these 2 s with the clock running, so the length of the window is what is asserted
   const still2 = await ui.sceneBody(page, "earth");
   assert.ok(Math.abs(still1.x - still2.x) < 0.002 && Math.abs(still1.y - still2.y) < 0.002, `Earth holds still on screen while playing in the stay view (${still1.x},${still1.y} -> ${still2.x},${still2.y})`);
   assert.ok((await ui.clockMs(page)) > Date.parse(before.clock), "the clock ran on while the views were switched");
   await ui.ensurePaused(page);
-  await page.waitForTimeout(300);
+  await ui.waitForClockSettled(page);
 
   // A host switch: the buttons follow, the host hears it as the host's, and the clock stays.
   const clock = await ui.clockIso(page);
   await ui.hostSetView(page, "b");
-  await page.waitForTimeout(700);
+  await ui.waitForViewSettled(page);
   assert.equal(await ui.hostView(page), "b");
   assert.equal(await ui.shownView(page), "b", "the buttons follow a host's setView");
   await expectView(page, "b");
@@ -93,7 +92,7 @@ async function expectView(page, id) {
   for (const event of want.events) assert.ok(rows.includes(event), `view ${id}: the timeline lists "${event}"`);
   for (const event of want.hiddenEvents) assert.ok(!rows.includes(event), `view ${id}: the timeline leaves out "${event}"`);
   assert.deepEqual(await ui.listedStoryPanelIds(page), [...want.panels].sort(), `view ${id}: the timeline carries only this view's panel markers`);
-  await page.waitForTimeout(600); // the path readouts update with the next drawn frame
+  await ui.waitForProbePathsSettled(page); // the path readouts update with the next drawn frame
   for (const probe of ["probe-a", "probe-b"]) {
     const shown = want.bodies.includes(probe);
     const path = await ui.scenePath(page, probe);

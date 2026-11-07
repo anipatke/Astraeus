@@ -6,7 +6,7 @@ Two rules shape these checks. The owner judges how things look, on the preview, 
 
 `npm install`, `npx playwright-core install chromium` once, then `npm run check:browser`. Run it once at a Full Objective Check, and not per Task. It writes `summary.txt` and each step's `results.json` to a fresh `docs/evidence/browser-<UTC time>/`; step and server logs go to a scratch folder under the OS temp directory, whose path the summary prints. A run folder no record cites may be removed at the next clean-up. Set `PLAYWRIGHT_CORE` only to use another copy of the library. The step list is at the top of `packages/astraeus-site/tools/validate/run-browser.mjs`.
 
-## What it runs (about 6 minutes: two measured runs took 340 s and 355 s, plus a few seconds for the example build)
+## What it runs (about 230 s: three runs took 231, 231 and 229 s; before O-060 it was 353 s)
 
 One browser at a time:
 
@@ -23,6 +23,23 @@ One browser at a time:
 - `public-build-assets` and `public-addresses`: no browser; run on a scratch public build (licence records, no made-up scenes, page size, no retired links).
 
 Measured (T-145): `browser-20261022T202311Z` 44 s, `browser-20261022T202358Z` 45 s, `browser-20261022T202444Z` 46 s. With the `smoke-public-showers` step added (T-148): `browser-20261022T205738Z` 58 s (recheck C-099).
+
+## Time limits (O-060 T-283)
+
+`tools/gate-limits.json` states every limit (steps and total, in seconds of wall clock); the summary prints each step and the total against its limit and adds a `WARNING:` line when one is over. A warning never changes the exit code; a failing step does. A limit is the slowest step time measured plus room (about 1.4 times for the long steps and the total, more for the small ones), so ordinary variation, including the owner working on other things, does not warn. The table states the file's numbers and a test (`tests/gateLimits.test.ts`) fails if it does not. "Before" is the baseline run at 6aad8e6a; "After" is the slowest of the three T-281 runs. The two synthetic-journey sizes run side by side inside `smoke`, by the owner's choice, so its time depends on the machine. Total: 353 s before, about 230 s after, limit 320 s.
+
+| Step | Before | After | Limit |
+|------|------|------|------|
+| `smoke` | 223 s | 123 s | 170 s |
+| `smoke-public-showers` | 17 s | 17 s | 30 s |
+| `planets-phone` | 9 s | 14 s | 25 s |
+| `meteor-shower` | 22 s | 22 s | 40 s |
+| `views` | 42 s | 25 s | 40 s |
+| `hello-scene` | 11 s | 14 s | 25 s |
+| `hello-react` | 4 s | 4 s | 12 s |
+| `hello-planets` | 10 s | 6 s | 15 s |
+| `public-build-assets` | 1 s | 2 s | 8 s |
+| `public-addresses` | 0 s | 0 s | 5 s |
 
 ## The fast tests that replaced the old sets
 
@@ -85,12 +102,19 @@ O-041 T-169 (Apollo rebuilt on the public API): Apollo's Developer "This demo" s
 | Camera | `chooseCamera(page, presetId)` (for example `"overview"`, `"focus-columbia"`, `"follow-moon"`, `"focus-swift-tuttle"`), `pickBodyWithCamera`, `cameraOffered`, `cameraActive` |
 | Drawer | `toggleDeveloper`, `openDeveloper`, `closeDeveloper`, `developerOpen`, `pressToggle(id)`, `toggleOn(id)`, `setSlider(id)`, `dragSlider(id)`, `sliderReadout(id)`, `metric`, `copyViewLink`, `frameRate` |
 | Story panels | `storyPanel`, `storyMarkers`, `openStoryPanel`, `closeStoryPanel`, `pressSceneStoryMarker`, `openStoryPanelIds` |
+| Settling (O-060 T-281) | `waitUntilStable(page, read, options)` and the waits built on it: `waitForBodySettled`, `waitForPathSettled`, `waitForClockSettled`, `waitForViewSettled`, `waitForProbePathsSettled`, `waitForBodyMoved`, `wheelUntilSettled`, `zoomOutFully` (with the readouts `bodyZoomReadout`, `pathZoomReadout`). They replace fixed waits by a wait on the readout the wait stood for. They return the last value at their timeout and never fail by themselves, so the assertion after them decides |
 | Scale | `chooseScale`, `currentScale`, `scaleOptions`, `offersScale` |
 
 
 Elements are found by accessible name or role, by a stable `data-*` attribute (`data-camera-preset`, `data-related-object`, `data-scale-current`) or `data-testid`; the few controls with none of those (the Events summary, the information panel, a few readout containers) are named once, in the `HOOK` table at the top of the driver. Camera, toggle and slider arguments are logical ids, not labels, so a renamed label changes one table.
 
 **The guard** (`packages/astraeus-site/tools/validate/driver-guard.mjs`, run in the unit tests by `packages/astraeus-site/tests/browserDriverGuard.test.ts`, and as `node packages/astraeus-site/tools/validate/driver-guard.mjs`) fails when a script outside the driver calls `getByRole`, `getByText`, `getByLabel` (or the other `getBy*` finders except `getByTestId`), calls `click`, `fill`, `selectOption`, `press`, `focus`, `check`, `hover` or `tap` on anything, uses `keyboard.`, or calls `locator`, `querySelector`, `querySelectorAll` or `waitForSelector` with any selector other than the exceptions. **Exceptions, stated in the rule:** the scene canvas (`canvas`, `getByTestId(...)`), data-attribute readouts (a selector that begins `[data-`), and `new Array(n).fill(0)`. `mouse.move/down/up/wheel` on the canvas is not flagged (scene drags and zoom). `OPT_OUT` in the guard lists scripts exempt from the rule with a reason; it is empty.
+
+**The assertion list** (O-060 T-281, I-149): `tools/validate/assertion-list.mjs` parses every browser script (TypeScript 6 syntax tree) and lists each raise site with the text of the guard that decides it: `throw` and `new Error`, `assert*` calls, `process.exit`, `.push` on a failure list (a name containing problem, failure, error, fail or violation, or any array handed on as such a property, `wholeProblems` included) and calls to a local function that holds one. `tests/browserAssertions.test.ts` holds the scripts to the list built from baseline commit 6aad8e6a (`tests/fixtures/browserAssertionsBaseline.json`): a listed site removed, or a guard whose text changed (a tolerance loosened, `false &&` added), fails the test, except the two changes named in the test as reviewed exceptions (`zoomOutFully` gaining an argument; the one `load` call split into a journey branch and an else branch, where both halves must be present). It proves the text of those listed forms only, not the meaning: an edit to a helper a guard calls, a changed value it reads, or an early `return` ahead of it is not seen.
+
+**Failure routes the list does not see** (named by the owner's decision after C-155, which found 12 of them): exit codes set by assignment (`process.exitCode = ...`, as in `harness.mjs` and `run-browser.mjs`); failure lists built by `.push` under a name that is not a failure name (`matches.push`, `found.push`, as in `public-build-assets.mjs` and `public-addresses.mjs`); and a failure returned as a literal (the `ok: false` in `engine-budget.mjs`). A removed or loosened line on one of those routes does not fail `tests/browserAssertions.test.ts`. What covers them: `tests/browserExitPath.test.ts` proves a step that throws through the real `harness.mjs` exits non-zero and that the runner reports a non-zero step as failed with a non-zero result; and the Full Objective Check's independent rebuild against 6aad8e6a is what shows nothing else was lost.
+
+The test that rebuilds the list from git does nothing in a clone without that commit; the committed list stands alone there.
 
 ## Scene readouts instead of pictures (T-102, TEST-03)
 

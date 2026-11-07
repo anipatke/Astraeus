@@ -177,7 +177,7 @@ export function ringFactProblems(dir) {
 
 /**
  * The lines of a consumer check's source that reach past the package's public entry (O-057 I-147, API-01): an import of a subpath other than `style.css` and `package.json`, a `new URL` built
- * from `import.meta.resolve`, a relative `import("../...")`, or a path into the unpacked package's own folders. Each as `line N: text`.
+ * from `import.meta.resolve`, a relative `import("../...")`, or a path into the unpacked package's own folders (written whole or in parts). Each as `line N: text`.
  */
 export function pastTheEntry(source) {
   const found = [];
@@ -187,6 +187,9 @@ export function pastTheEntry(source) {
     /import\(\s*[^\n)]*["'`]\.\.?\//,
     /["'`]\.\.?\/(?:src|assets|api|core|app)\/[^"'`]*["'`]/,
     /node_modules\/astraeus\/(?!package\.json|style\.css)/,
+    // The same path given in parts: join(dir, "node_modules", "astraeus", "src", ...) or join(dir, "astraeus", "src", ...).
+    /["'`]node_modules["'`]\s*,\s*["'`]astraeus["'`]\s*,\s*["'`](?!package\.json["'`]|style\.css["'`])/,
+    /["'`]astraeus["'`]\s*,\s*["'`](?:src|assets|api|core|app)["'`]/,
   ];
   source.split("\n").forEach((line, index) => {
     if (patterns.some((pattern) => pattern.test(line))) found.push(`line ${index + 1}: ${line.trim().slice(0, 120)}`);
