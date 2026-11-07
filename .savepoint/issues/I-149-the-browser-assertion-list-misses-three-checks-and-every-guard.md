@@ -2,7 +2,7 @@
 id: I-149
 title: The browser assertion list misses three checks and every guard condition
 type: verification
-status: open
+status: resolved
 source:
   kind: check
   check: C-154
@@ -12,6 +12,11 @@ tasks: [T-281]
 checks: [C-154, C-155, C-156]
 guardrail_ids: [TEST-01]
 severity: medium
+resolution:
+  disposition: accepted
+  actor: {role: owner, session: o060-run-20261107}
+  at: '2026-11-07T09:35:44Z'
+  reason: 'Owner, 2026-11-07, after the merge (efaaa5dd, pushed): "Accepted mark for me and continue". Context: C-156 found the narrowed proof met in code and tests; the two overstated header lines were fixed on the owner''s choice "Fix the wording, then merge (Recommended)", not checked by a checker.'
 history:
   - at: '2026-11-07T08:30:00Z'
     actor: {role: checker, session: o060-check-20261107}
@@ -46,6 +51,11 @@ history:
     actor: {role: owner, session: o060-run-20261107}
     kind: owner_decision
     note: 'After C-156 (last recheck under the limit; only assertion-list.mjs header lines 1 and 2 overstated), the owner chose "Fix the wording, then merge (Recommended)": the coordinator rewrote those two comment lines to claim only the listed forms (no code change, browser run stays reusable) and merges. Not checked by a checker; the Issue stays open for the owner to resolve as accepted on the board.'
+    check: C-156
+  - at: '2026-11-07T09:35:44Z'
+    actor: {role: owner, session: o060-run-20261107}
+    kind: owner_decision
+    note: 'Accepted: "Accepted mark for me and continue".'
     check: C-156
 ---
 

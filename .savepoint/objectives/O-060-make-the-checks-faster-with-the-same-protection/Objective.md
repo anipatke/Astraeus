@@ -1,7 +1,7 @@
 ---
 id: O-060
 title: Make the checks faster with the same protection
-status: in_progress
+status: done
 depends_on: [O-057]
 release: G-016
 priority: high
