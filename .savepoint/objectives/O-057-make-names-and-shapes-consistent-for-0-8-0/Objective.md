@@ -1,7 +1,7 @@
 ---
 id: O-057
 title: Make names and shapes consistent for 0.8.0
-status: in_progress
+status: done
 depends_on: [O-059]
 release: G-016
 priority: high
