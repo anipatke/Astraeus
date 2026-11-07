@@ -9,7 +9,7 @@ source:
   actor: {role: checker, session: o060-check-20261107}
   at: '2026-11-07T08:30:00Z'
 tasks: [T-281]
-checks: [C-154, C-155]
+checks: [C-154, C-155, C-156]
 guardrail_ids: [TEST-01]
 severity: medium
 history:
@@ -37,6 +37,11 @@ history:
     actor: {role: executor, session: o060-repair2-20261107}
     kind: repair_attempted
     note: 'Narrow repair per the owner decision after C-155. Header of assertion-list.mjs, test comment and title, and docs/BROWSER_CHECKS.md now say only what the test proves and name the routes it does not see (exit codes by assignment, matches.push and found.push lists, the ok false literal in engine-budget.mjs); docs say the Full Objective Check rebuild shows nothing was lost. New tests/browserExitPath.test.ts (fixtures in tests/fixtures/browser-exit): a step throwing through the real harness.mjs exits 1 (control exits 0); the real runSet reports exit=3 as failed with result 1 (control 0); run-browser.mjs line checked by text. The load exception now holds both halves (now is a list; planted split case in the test). Scratch-copy runs through the real tests, controls 8 of 8 pass: harness process.exitCode line deleted fails the harness case; runner return ok ? 0 : 1 changed to return 0 fails; runner ok = runStep && ok changed fails; run-browser process.exitCode assignment removed fails; browser-smoke line 293 changed to if (view.journey) results.push(); fails two tests; earlier mutations radiusPx > 2, false && depthMode, load-budget 295-296 deleted, and rings line deleted each fail. Baseline fixture unchanged and the git rebuild test passes. lint, typecheck, build, test:full (233 files, 3303 passed, 2 skipped) pass. No browser script changed, no check:browser run. Not run: each budget line deleted alone and the third wholeProblems.push alone (as in C-154); the exit-code proof for run-browser.mjs is a text match, not a run, because its step list is fixed.'
+  - at: '2026-11-07T09:28:00Z'
+    actor: {role: checker, session: o060-recheck2-20261107}
+    kind: rechecked
+    note: 'Not closed: C-156 is NEEDS WORK on narrowed line 1 alone. Proven: browserExitPath.test.ts fails when harness.mjs:58 is deleted, the runner returns 0, or run-browser.mjs drops its exitCode assignment; the load exception fails with either half removed; radiusPx > 2, the false && guard and each wholeProblems.push deleted alone fail; controls pass; the baseline rebuild matches; docs, test comment, title and load reason are accurate. Not met: assertion-list.mjs line 1 still says "every way the browser check can fail a script" and line 2 "by shape and not by name". Convergence limit reached; the owner decides a two-line wording fix or acceptance.'
+    check: C-156
 ---
 
 # I-149: The browser assertion list misses three checks and every guard condition
@@ -92,4 +97,3 @@ Proof Needed from here on, replacing line 1 and the C-155 "Still needed" list:
 - A direct test proves a failing browser step fails the run: a script that throws through the real `harness.mjs` exits non-zero, and the runner reports a non-zero step as failed and sets a non-zero exit. Planted: deleting `harness.mjs`'s `process.exitCode = 1` line, or the runner's exit code setting, fails it.
 - The `load` reviewed exception holds both halves of the split site: planted `if (view.journey) results.push();` fails the test.
 - Earlier mutations and controls still behave; the baseline is rebuilt by the same code.
-
