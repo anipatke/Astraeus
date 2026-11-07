@@ -8,6 +8,7 @@ source:
   actor: {role: executor, session: t280-build-20261107}
   at: '2026-11-07T11:58:00Z'
 tasks: [T-280]
+checks: [C-152]
 guardrail_ids: [API-01]
 severity: low
 history:
@@ -19,6 +20,11 @@ history:
     actor: {role: executor, session: i146-repair-20261107}
     kind: repair_attempted
     note: 'Owner chose "Add the read now". SceneViewRead now has objects, events and panels (resolved, shared items included); tests in sceneViews.test.ts and sceneReads.test.ts; table row, Voyagers note, README, lock and Design updated; gates pass. Left open for the Check to verify.'
+  - at: '2026-11-07T06:15:58Z'
+    actor: {role: checker, session: o057-check-20261107}
+    kind: rechecked
+    note: 'Proof Needed met, by C-152: SceneViewRead has objects, events and panels, with made-up scene tests and a read row in the migration table; on a scene with orbit lines, a path, a group and an event-linked panel the read equals what definitionOf resolves, list by list and in order. Left open: issue-capture.md defines verified as proven by a CLEAR Check, and C-152 is NEEDS WORK on other Issues. Close at the CLEAR re-check.'
+    check: C-152
 ---
 
 # I-146: What each view shows has no public read

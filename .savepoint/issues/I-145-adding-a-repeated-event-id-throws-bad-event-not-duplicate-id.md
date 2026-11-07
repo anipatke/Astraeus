@@ -8,6 +8,7 @@ source:
   actor: {role: executor, session: t278-build-20261107}
   at: '2026-11-07T10:30:00Z'
 tasks: [T-278, T-280]
+checks: [C-152]
 guardrail_ids: [API-05]
 severity: low
 history:
@@ -19,6 +20,11 @@ history:
     actor: {role: executor, session: t280-build-20261107}
     kind: repair_attempted
     note: 'Repaired in T-280: eventsOf throws duplicate-id inside one call and across calls; addEvents joins tests/verbGrammar.test.ts; the CHANGELOG migration table has its row. Left open for savepoint-check.'
+  - at: '2026-11-07T06:15:58Z'
+    actor: {role: checker, session: o057-check-20261107}
+    kind: rechecked
+    note: 'Proof Needed met, by C-152: on the compiled engine a repeated id throws duplicate-id inside one call and across calls, a failed batch keeps what was there, bad-event still answers a malformed event; addEvents has its row in tests/verbGrammar.test.ts; the migration table has its behaviour row. Left open: issue-capture.md defines verified as proven by a CLEAR Check, and C-152 is NEEDS WORK on other Issues. Close at the CLEAR re-check.'
+    check: C-152
 ---
 
 # I-145: Adding a repeated event id throws bad-event, not duplicate-id
