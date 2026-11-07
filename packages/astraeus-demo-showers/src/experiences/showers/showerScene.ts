@@ -133,7 +133,7 @@ function openingViewOf(settings: ShowerSettings): StartView {
 /**
  * A shower as a story on the public API: the Sun, Earth, the planets and the parent with their orbit lines, the stream as one group of dots, the
  * activity curve with its three events, the story panels, and the camera, scale and timeline the settings ask for. When the measured orbits are not
- * available no stream is drawn and the Sun says so; none is invented. `mount` it, or hand `toDefinition()` to the site.
+ * available no stream is drawn and the Sun says so; none is invented. `mount` it.
  */
 export function buildShowerScene(settings: ShowerSettings, load: MeasuredLoad, panelsFile?: unknown, production: boolean = import.meta.env.PROD): Scene {
   const { look, parentBodyId } = settings;

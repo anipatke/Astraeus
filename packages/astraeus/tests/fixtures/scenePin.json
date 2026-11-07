@@ -15795,16 +15795,16 @@
    "stage": "call",
    "error": {
     "name": "SceneError",
-    "code": "bad-event",
-    "message": "addEvents: event \"a\" appears twice"
+    "code": "duplicate-id",
+    "message": "addEvents: event \"a\" is already in the scene's events"
    }
   },
   "addEvents: repeated across calls": {
    "stage": "call",
    "error": {
     "name": "SceneError",
-    "code": "bad-event",
-    "message": "addEvents: event \"a\" appears twice"
+    "code": "duplicate-id",
+    "message": "addEvents: event \"a\" is already in the scene's events"
    }
   },
   "addEvents: time not a moment": {

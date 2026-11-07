@@ -16,6 +16,7 @@ const codeOf = (fn: () => unknown) => { try { fn(); } catch (error) { return err
 interface AddRow { readonly name: string; readonly add: (scene: Scene, id: string) => Scene; readonly ids: (scene: Scene) => readonly string[] }
 const ADDS: readonly AddRow[] = [
   { name: "addStoryPanels", add: (scene, id) => scene.addStoryPanels([panel(id)]), ids: (scene) => scene.panels.map((item) => item.id) },
+  { name: "addEvents", add: (scene, id) => scene.addEvents([{ id, label: id, time: T0 }]), ids: (scene) => scene.events.map((item) => item.id) },
   { name: "addTrajectory", add: (scene, id) => scene.addTrajectory({ id, samples }), ids: (scene) => scene.paths.map((item) => item.id).filter((id) => id !== "probe") },
   { name: "addActivity", add: (scene, id) => scene.addActivity(activity(id)), ids: (scene) => scene.activities.map((item) => item.id) },
 ];
@@ -28,6 +29,11 @@ describe("add* appends", () => {
     const scene = add(base(), "one");
     expect(codeOf(() => add(scene, "one"))).toBe("duplicate-id");
     expect(ids(scene)).toEqual(["one"]);
+  });
+  it("addEvents: an id repeated inside one call throws duplicate-id and adds nothing from that call", () => {
+    const scene = base().addEvents([{ id: "one", label: "One", time: T0 }]);
+    expect(codeOf(() => scene.addEvents([{ id: "two", label: "Two", time: T0 }, { id: "two", label: "Again", time: T0 }]))).toBe("duplicate-id");
+    expect(scene.events.map((item) => item.id)).toEqual(["one"]);
   });
   it("addBody: a repeated body throws duplicate-id", () => { expect(codeOf(() => new Scene().addBody(moon).addBody(moon))).toBe("duplicate-id"); });
 });

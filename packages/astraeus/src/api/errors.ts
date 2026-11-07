@@ -2,7 +2,7 @@
 export type SceneErrorCode =
   /** A body or path id is not in the catalogue or the scene. */
   | "unknown-body"
-  /** An id is already used in the scene, so the new body, path, group, orbit line or activity cannot take it. */
+  /** An id is already used in the scene, so the new body, path, group, orbit line, activity, event or story panel cannot take it. */
   | "duplicate-id"
   /** A moment is not a valid time, or lies outside the span it must fall in. */
   | "bad-time"
@@ -30,7 +30,7 @@ export type SceneErrorCode =
   | "bad-anchor"
   /** A readout is of an unknown kind, or lacks or misnames the body or activity it measures. */
   | "bad-readout"
-  /** An event is malformed, repeated or names an object that is not in the scene. */
+  /** An event is malformed or names an object that is not in the scene. */
   | "bad-event"
   /** The story panels are malformed. */
   | "bad-panels"

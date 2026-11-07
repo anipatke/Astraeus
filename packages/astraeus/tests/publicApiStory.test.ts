@@ -65,8 +65,8 @@ describe("addEvents", () => {
     expect(definition.experience.eventProvenance).toBeUndefined();
   });
   it.each([
-    ["a repeated id", () => base().addEvents([{ id: "a", label: "A", time: T0 }, { id: "a", label: "B", time: T0 }]), "bad-event"],
-    ["an id used in an earlier call", () => base().addEvents([{ id: "a", label: "A", time: T0 }]).addEvents([{ id: "a", label: "B", time: T0 }]), "bad-event"],
+    ["a repeated id", () => base().addEvents([{ id: "a", label: "A", time: T0 }, { id: "a", label: "B", time: T0 }]), "duplicate-id"],
+    ["an id used in an earlier call", () => base().addEvents([{ id: "a", label: "A", time: T0 }]).addEvents([{ id: "a", label: "B", time: T0 }]), "duplicate-id"],
     ["an empty id", () => base().addEvents([{ id: "", label: "A", time: T0 }]), "bad-event"],
     ["no label", () => base().addEvents([{ id: "a", label: "", time: T0 }]), "bad-event"],
     ["events that are not a list", () => base().addEvents(undefined as never), "bad-event"],

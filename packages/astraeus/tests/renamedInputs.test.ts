@@ -107,6 +107,15 @@ describe("renamed inputs", () => {
     for (const scope of new Set(RENAMED_INPUTS.map((row) => row.scope))) expect(readers.some((line) => line.includes(`"${scope}"`)), scope).toBe(true);
   });
 
+  it("has a row in the CHANGELOG migration table for every old name, naming its replacement", () => {
+    const changelog = readFileSync(join(dirname(fileURLToPath(import.meta.url)), "..", "CHANGELOG.md"), "utf8");
+    const table = changelog.slice(changelog.indexOf("### Migration from 0.7.0 to 0.8.0"), changelog.indexOf("#### Note for the Voyagers app"));
+    const rows = table.split("\n").filter((line) => line.startsWith("| "));
+    for (const { old, use } of RENAMED_INPUTS) {
+      const last = use.split(/[ (]/)[0].split(".").at(-1)!;
+      expect(rows.some((row) => new RegExp(`\\b${old}\\b`).test(row.split(" | ")[1] ?? "") && row.includes(last)), `${old} to ${use}`).toBe(true);
+    }
+  });
   it("has one row per old name and scope, each naming a different replacement, and no row renames to itself", () => {
     const keys = RENAMED_INPUTS.map((row) => `${row.scope}.${row.old}`);
     expect(new Set(keys).size).toBe(keys.length);

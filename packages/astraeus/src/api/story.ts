@@ -7,7 +7,7 @@ import { SceneError } from "./errors";
 import { rejectRenamed } from "./renamedInputs";
 import { toUtcMs, type TimeInput } from "./time";
 
-/** A timed event: a labelled moment on the timeline. The id is unique among the scene's events. */
+/** A timed event: a labelled moment on the timeline. The id is unique among the scene's events: a repeat throws `duplicate-id`. */
 export interface EventInput {
   readonly id: string;
   readonly label: string;
@@ -20,7 +20,7 @@ export interface EventInput {
   readonly object?: string;
   /**
    * Gives the event a zone of its own: from `withinSeconds` before its time to `withinSeconds` after it (simulated seconds, positive and finite). A host hears entering and leaving it
-   * (`onEventZone`, `eventZones`), with or without pacing; a pacing rule for the event's type uses this width instead of its own `within`. Not positive and finite: `addEvents` throws "bad-event" naming the event.
+   * (`onEventZone`, `eventZones`), with or without pacing; a pacing rule for the event's type uses this width instead of its own `withinSeconds`. Not positive and finite: `addEvents` throws "bad-event" naming the event.
    */
   readonly withinSeconds?: number;
 }
@@ -117,14 +117,14 @@ export function eventProvenanceOf(value: unknown, eventId?: string): Provenance 
   }
 }
 
-/** The events merged with `inputs`, sorted by time; each needs a distinct non-empty id and label and a valid moment. */
+/** The events merged with `inputs`, sorted by time; each needs a non-empty id and label and a valid moment, and an id already in `known` or repeated in the batch throws `duplicate-id`. */
 export function eventsOf(inputs: readonly EventInput[], known: readonly TimelineEvent[]): readonly TimelineEvent[] {
   if (!Array.isArray(inputs)) throw new SceneError("bad-event", "addEvents: events must be a list");
   const ids = new Set(known.map((event) => event.id));
   const added = inputs.map((input): TimelineEvent => {
     if (typeof input?.id !== "string" || input.id === "") throw new SceneError("bad-event", "addEvents: every event needs a non-empty id");
     if (typeof input.label !== "string" || input.label === "") throw new SceneError("bad-event", `addEvents: event "${input.id}" needs a non-empty label`);
-    if (ids.has(input.id)) throw new SceneError("bad-event", `addEvents: event "${input.id}" appears twice`);
+    if (ids.has(input.id)) throw new SceneError("duplicate-id", `addEvents: event "${input.id}" is already in the scene's events`);
     ids.add(input.id);
     const timeUtcMs = toUtcMs(input.time, `addEvents: event "${input.id}" time`);
     if (input.object !== undefined && (typeof input.object !== "string" || input.object === "")) throw new SceneError("bad-event", `addEvents: event "${input.id}" object must be a non-empty id`);

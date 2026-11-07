@@ -7,7 +7,7 @@ source:
   kind: report
   actor: {role: executor, session: t278-build-20261107}
   at: '2026-11-07T10:30:00Z'
-tasks: [T-278]
+tasks: [T-278, T-280]
 guardrail_ids: [API-05]
 severity: low
 history:
@@ -15,6 +15,10 @@ history:
     actor: {role: executor, session: t278-build-20261107}
     kind: observed
     note: 'Found while writing the call-twice grammar test for story panels; left unchanged because T-278 owns panels only.'
+  - at: '2026-11-07T11:58:00Z'
+    actor: {role: executor, session: t280-build-20261107}
+    kind: repair_attempted
+    note: 'Repaired in T-280: eventsOf throws duplicate-id inside one call and across calls; addEvents joins tests/verbGrammar.test.ts; the CHANGELOG migration table has its row. Left open for savepoint-check.'
 ---
 
 # I-145: Adding a repeated event id throws bad-event, not duplicate-id

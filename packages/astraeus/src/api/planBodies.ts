@@ -286,14 +286,14 @@ export class BodyPlan {
     return visualOverridesEntry(this.shape);
   }
 
-  /** How far a label shows, for bodies and paths alike: the item's own `labelReach` if given, else the shared rule: a Sun-centred scene, or one that fits the zoom-out to an orbit (`fitOrbit`, whose limit changes with the canvas), sets no limit; otherwise the camera reach, at least 500. */
+  /** How far a label shows, for bodies and paths alike: the item's own `labelReachEarthRadii` if given, else the shared rule: a Sun-centred scene, or one that fits the zoom-out to an orbit (`fitOrbit`, whose limit changes with the canvas), sets no limit; otherwise the camera reach, at least 500. */
   labelReach(id: string, sunCentred: boolean, camera: LabelCamera): { readonly labelMaxDistance?: number } {
     const own = this.labelReaches.get(id);
     if (own !== undefined) return { labelMaxDistance: own };
     return sunCentred || camera.fitted !== undefined ? {} : { labelMaxDistance: Math.max(500, camera.reachEarthRadii ?? 0) };
   }
 
-  /** The shell item of a body: from the catalogue, with the scene's own words, look and label setting. Label reach is `labelReach`. */
+  /** The shell item of a body: from the catalogue, with the scene's own words, look and label setting. Label reach is `labelReachEarthRadii`. */
   bodyObject(body: BodyRef, ids: readonly BodyId[], sunCentred: boolean, camera: LabelCamera): ExperienceObject {
     const card = this.cards.get(body.id);
     const sources = card?.sources;

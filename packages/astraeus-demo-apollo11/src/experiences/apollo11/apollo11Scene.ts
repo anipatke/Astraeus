@@ -202,7 +202,7 @@ function path(id: string, label: string, color: string, file: GeneratedFile, kno
 
 const present = (items: readonly (string | null)[]) => items.filter((item): item is string => item !== null);
 
-/** Apollo 11 as a story on the public API: Earth and the Moon, the two vehicles' reconstructed paths, the mission's events and story panels. `mount` it, or hand `toDefinition()` to the site. */
+/** Apollo 11 as a story on the public API: Earth and the Moon, the two vehicles' reconstructed paths, the mission's events and story panels. `mount` it. */
 export function buildApollo11Scene(data: Apollo11Data = APOLLO11_DATA): Scene {
   const { columbia, eagle, events, validation, panels: { panels, ...playback } } = data;
   // Peak speeds quoted in a known limit are read through the scene's own path, so a probe scene holds the two paths first.
