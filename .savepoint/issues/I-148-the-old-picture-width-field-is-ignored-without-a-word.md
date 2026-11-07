@@ -18,6 +18,10 @@ history:
     kind: observed
     note: 'Full Objective Check, input axis: the renamed input rows of the migration table were compared with RENAMED_INPUTS, and old names were passed through the public calls.'
     check: C-152
+  - at: '2026-11-07T07:10:00Z'
+    actor: {role: executor, session: c152-repair-20261107}
+    kind: repair_attempted
+    note: 'Repaired under T-280: RENAMED_INPUTS has a TextureRefDesktop row; checkDataSources runs at check, load and mount (also the moonPositions and bad-data checks that need no loading); a reverse test holds every renamed input row of the CHANGELOG table against RENAMED_INPUTS, and removing the row fails it. Left open for savepoint-check.'
 ---
 
 # I-148: The old picture width field is ignored without a word

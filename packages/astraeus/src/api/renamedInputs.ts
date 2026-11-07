@@ -18,6 +18,7 @@ const PANELS_CALLS = "addStoryPanels(list) with setStoryPanelPlayback({ pauseSec
  */
 export const RENAMED_INPUTS: readonly RenamedInput[] = Object.freeze([
   { scope: "MoonPositions", call: "mount", old: "centre", use: "center" },
+  { scope: "TextureRefDesktop", call: "mount", old: "minViewportWidth", use: "minViewportWidthPx" },
   { scope: "PacingSpan", call: "setTimeline", old: "from", use: "start" },
   { scope: "PacingSpan", call: "setTimeline", old: "to", use: "end" },
   { scope: "PacingSpan", call: "setTimeline", old: "ramp", use: "rampSeconds" },

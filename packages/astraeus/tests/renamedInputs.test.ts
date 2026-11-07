@@ -1,9 +1,11 @@
+// @vitest-environment happy-dom
 // O-057 T-276: an input field renamed in 0.8.0 fails with `renamed`, naming its replacement, when a plain JavaScript caller still passes the old name (API-04). One table drives the receiving calls;
 // every row is proved here on made-up scenes (ARCH-03), the old name alone, and a row nobody reads fails.
 import { readdirSync, readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
+import { mount } from "../src/api/mount";
 import { Scene, SceneError, earth, jupiter, moon, sun } from "astraeus";
 import { RENAMED_INPUTS, rejectRenamed } from "../src/api/renamedInputs";
 
@@ -27,6 +29,7 @@ const record = (change: (copy: Record<string, any>) => void = () => {}) => {
   change(copy);
   return copy as never;
 };
+const withPicture = (desktop: object) => ({ name: "astraeus-data-made-up", provides: [], pictures: { earth: { url: "a.jpg", widthPx: 10, heightPx: 5, localOnly: { reason: "Made up." }, desktop: { url: "b.jpg", widthPx: 20, heightPx: 10, ...desktop } } } }) as never;
 const moonData = (extra: object) => ({ name: "astraeus-data-made-up", provides: [], moonPositions: { center: "jupiter", loadIndex: async () => ({}), chunkUrls: {}, ...extra } });
 
 const storyPanel = (extra: object = {}) => ({ id: "p", at: { time: at(1) }, title: "P", body: ["A made-up line."], provenance: { sourceType: "illustrative", sources: ["Made up"], accuracy: "None claimed.", notes: "Made up." }, ...extra }) as never;
@@ -34,6 +37,7 @@ const storyPanel = (extra: object = {}) => ({ id: "p", at: { time: at(1) }, titl
 // For each row, a call that gives the old name alone: every other field is valid under its new name.
 const DRIVERS: Record<string, (old: string) => () => unknown> = {
   "MoonPositions.centre": (old) => () => new Scene().addBody(jupiter).load({ data: [{ ...moonData({}), moonPositions: { [old]: "jupiter", loadIndex: async () => ({}), chunkUrls: {} } } as never] }),
+  "TextureRefDesktop.minViewportWidth": (old) => () => new Scene().addBody(earth).load({ data: [withPicture({ [old]: 768 })] }),
   "PacingSpan.from": (old) => timeline([{ [old]: at(1), end: at(2), rate: 5 }]),
   "PacingSpan.to": (old) => timeline([{ start: at(1), [old]: at(2), rate: 5 }]),
   "PacingSpan.ramp": (old) => timeline([{ start: at(1), end: at(2), rate: 5, [old]: 60 }]),
@@ -70,6 +74,26 @@ describe("renamed inputs", () => {
   it.each(RENAMED_INPUTS.map((row) => [`${row.scope}.${row.old}`, row] as const))("%s: the new name beside the old one is still refused (the old name never works)", async (key, row) => {
     const error = await settle(() => rejectRenamed(row.scope, { [row.old]: 1, [row.use]: 1 }, "test"));
     expect(error?.code, key).toBe("renamed");
+  });
+
+  it("a picture's old desktop width is refused with renamed at check, load and mount, each alone, and its new name is accepted", async () => {
+    const data = [withPicture({ minViewportWidth: 768 })];
+    const scene = () => new Scene().addBody(earth);
+    for (const call of [() => scene().check({ data }), () => scene().load({ data }), () => mount(document.createElement("div"), scene(), { data })]) {
+      const error = await settle(call);
+      expect(error?.code).toBe("renamed");
+      expect(error!.message).toContain("`minViewportWidth`");
+      expect(error!.message).toContain("`minViewportWidthPx`");
+    }
+    expect(await settle(() => scene().check({ data: [withPicture({ minViewportWidthPx: 768 })] }))).toBeUndefined();
+  });
+
+  it("moon positions' old centre is refused with renamed at check, load and mount, each alone, and a scene with no data checks", async () => {
+    const data = [{ ...moonData({}), moonPositions: { centre: "jupiter", loadIndex: async () => ({}), chunkUrls: {} } } as never];
+    for (const call of [() => new Scene().addBody(jupiter).check({ data }), () => new Scene().addBody(jupiter).load({ data }), () => mount(document.createElement("div"), new Scene().addBody(jupiter), { data })]) {
+      expect((await settle(call))?.code).toBe("renamed");
+    }
+    expect(await settle(() => new Scene().addBody(jupiter).check())).toBeUndefined();
   });
 
   it("the old addStoryPanels object form names the list form and setStoryPanelPlayback, whatever it carried", async () => {
@@ -116,6 +140,22 @@ describe("renamed inputs", () => {
       expect(rows.some((row) => new RegExp(`\\b${old}\\b`).test(row.split(" | ")[1] ?? "") && row.includes(last)), `${old} to ${use}`).toBe(true);
     }
   });
+  it("has a RENAMED_INPUTS row for every renamed row of the CHANGELOG migration table that is an input (the reverse direction), or lists it by name as a read or a method", () => {
+    const changelog = readFileSync(join(dirname(fileURLToPath(import.meta.url)), "..", "CHANGELOG.md"), "utf8");
+    const table = changelog.slice(changelog.indexOf("### Migration from 0.7.0 to 0.8.0"), changelog.indexOf("#### Note for the Voyagers app"));
+    const renamed = table.split("\n").filter((line) => line.startsWith("| renamed | ")).map((line) => line.split(" | "));
+    expect(renamed.length).toBeGreaterThan(20);
+    // Names that are a read or a method, not an input a caller gives: they fail by themselves (a removed method) or are covered by the table alone.
+    const NOT_INPUTS = new Set(["SceneCamera.lookAt", "SceneCamera.reach", "MountedScene.time", "ViewerChange.time", "State.frame"]);
+    for (const cells of renamed) {
+      const old = /`([^`]+)`/.exec(cells[1]!)![1]!;
+      if (NOT_INPUTS.has(old)) continue;
+      const field = old.split(".").at(-1)!.split(" ")[0]!; // "AddBodyOptions.labelReach", "labelReach on addTrajectory", "Panel `badge`" all end in the field
+      const use = (/`([^`]+)`/.exec(cells[2]!)![1]!).split(".").at(-1)!;
+      expect(RENAMED_INPUTS.some((row) => row.old === field && (row.use.includes(use) || use === "addStoryPanels")), `${old} has no RENAMED_INPUTS row`).toBe(true);
+    }
+  });
+
   it("has one row per old name and scope, each naming a different replacement, and no row renames to itself", () => {
     const keys = RENAMED_INPUTS.map((row) => `${row.scope}.${row.old}`);
     expect(new Set(keys).size).toBe(keys.length);

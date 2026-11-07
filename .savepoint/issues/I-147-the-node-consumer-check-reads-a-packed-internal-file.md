@@ -18,6 +18,10 @@ history:
     kind: observed
     note: 'Full Objective Check, public surfaces axis: the consumer checks were read for anything past the package exports.'
     check: C-152
+  - at: '2026-11-07T07:10:00Z'
+    actor: {role: executor, session: c152-repair-20261107}
+    kind: repair_attempted
+    note: 'Repaired under T-280: the node consumer check no longer reads a packed file; the ring facts (Saturn has bands, Mars none) moved to check:pack (ringFactProblems on the packed catalogue); pastTheEntry fails either consumer check that reaches past the public entry, with planted cases in packagePacks.test.ts. Left open for savepoint-check.'
 ---
 
 # I-147: The node consumer check reads a packed internal file

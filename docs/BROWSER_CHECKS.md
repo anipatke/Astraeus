@@ -6,7 +6,7 @@ Two rules shape these checks. The owner judges how things look, on the preview, 
 
 `npm install`, `npx playwright-core install chromium` once, then `npm run check:browser`. Run it once at a Full Objective Check, and not per Task. It writes `summary.txt` and each step's `results.json` to a fresh `docs/evidence/browser-<UTC time>/`; step and server logs go to a scratch folder under the OS temp directory, whose path the summary prints. A run folder no record cites may be removed at the next clean-up. Set `PLAYWRIGHT_CORE` only to use another copy of the library. The step list is at the top of `packages/astraeus-site/tools/validate/run-browser.mjs`.
 
-## What it runs (about 1 minute, plus a few seconds for the example build)
+## What it runs (about 6 minutes: two measured runs took 340 s and 355 s, plus a few seconds for the example build)
 
 One browser at a time:
 

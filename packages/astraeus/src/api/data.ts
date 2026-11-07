@@ -34,18 +34,31 @@ export interface DataSource {
 }
 
 /**
+ * The faults of a data source that need no loading, thrown by `check`, `load` and `mount` alike (one function, so the three cannot differ): a picture that fails the rights rule or carries an old
+ * name (`bad-data`, `renamed`), moon positions carrying an old name or naming a planet with no moon system. Nothing is read or loaded here; a scene with no data passes.
+ */
+export function checkDataSources(data: readonly DataSource[]): void {
+  for (const source of data) {
+    const problem = source.pictures === undefined ? null : picturesProblem(source.pictures);
+    if (problem !== null) throw new SceneError("bad-data", `${source.name}: ${problem}`);
+    for (const [name, texture] of Object.entries(source.pictures ?? {})) rejectRenamed("TextureRefDesktop", (texture as { desktop?: unknown }).desktop, `${source.name}: pictures.${name}.desktop`);
+    const positions = source.moonPositions;
+    if (positions === undefined) continue;
+    rejectRenamed("MoonPositions", positions, `${source.name}: moonPositions`);
+    if (MOON_SYSTEMS[positions.center] === undefined) throw new SceneError("bad-data", `${source.name}: no moon system for "${positions.center}"`);
+  }
+}
+
+/**
  * Checks the rights of the packages' pictures (the viewer draws them from its definition, `assembleScene` carries them there), hands the moon positions to the engine and loads the chunks the scene's window needs for the moons it holds.
  * Nothing is looked up behind the caller's back: a package that was not passed in contributes nothing.
  */
 export async function installData(data: readonly DataSource[], sceneBodies: readonly BodyId[], window: TimeBounds, catalogue: BodyCatalogue = builtInCatalogue, sets?: BodySetLoad): Promise<void> {
+  checkDataSources(data);
   for (const source of data) {
-    const problem = source.pictures === undefined ? null : picturesProblem(source.pictures);
-    if (problem !== null) throw new SceneError("bad-data", `${source.name}: ${problem}`);
     const positions = source.moonPositions;
     if (positions === undefined) continue;
-    rejectRenamed("MoonPositions", positions, `${source.name}: moonPositions`);
-    const system = MOON_SYSTEMS[positions.center];
-    if (system === undefined) throw new SceneError("bad-data", `${source.name}: no moon system for "${positions.center}"`);
+    const system = MOON_SYSTEMS[positions.center]!;
     system.provideIndex(positions.loadIndex);
     const moons = [...sceneBodies.filter((id) => catalogue.has(id) && catalogue.get(id).definition.parentId === positions.center), ...(sets?.moons ?? []).filter((moon) => moon.parent === positions.center).map(({ id }) => id)];
     const maxMs = sets?.historyMs.get(positions.center) ?? 0;
