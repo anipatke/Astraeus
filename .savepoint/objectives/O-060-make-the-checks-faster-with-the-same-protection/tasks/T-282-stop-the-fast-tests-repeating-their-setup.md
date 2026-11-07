@@ -6,7 +6,7 @@ status: done
 depends_on: [{task: T-281, requires: clear}]
 owner_validation: {required: false}
 planned_by: {role: planner, session: o060-planning-20261107}
-check_waiver: {task: T-282, reason: 'Owner said "orchestrate o60" under the standing run rules (no per-step checks, coordinator marks done once gates pass, one Full Objective Check at the end); the optional Task Check is waived.', actor: {role: owner, session: o060-run-20261107}, recorded_at: '2026-11-07T08:50:00Z'}
+check_waiver: {task: T-282, reason: 'Owner said "orchestrate o60" under the standing run rules (no per-step checks, coordinator marks done once gates pass, one Full Objective Check at the end); the optional Task Check is waived.', actor: {role: owner, session: o060-run-20261107}, recorded_at: '2026-11-07T07:48:14Z'}
 ---
 
 # Stop the fast tests repeating their setup
