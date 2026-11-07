@@ -33,6 +33,10 @@ history:
     kind: owner_decision
     note: 'After C-155 (no assertion lost; 12 failure routes outside the list), the owner chose "Narrow the claim (Recommended)" over "Accept it as it is" and "Fix all 12 gaps". Proof Needed is narrowed as in the section Owner Decision After C-155; the 12 routes are listed in docs as not seen by the list, not added to it.'
     check: C-155
+  - at: '2026-11-07T09:25:00Z'
+    actor: {role: executor, session: o060-repair2-20261107}
+    kind: repair_attempted
+    note: 'Narrow repair per the owner decision after C-155. Header of assertion-list.mjs, test comment and title, and docs/BROWSER_CHECKS.md now say only what the test proves and name the routes it does not see (exit codes by assignment, matches.push and found.push lists, the ok false literal in engine-budget.mjs); docs say the Full Objective Check rebuild shows nothing was lost. New tests/browserExitPath.test.ts (fixtures in tests/fixtures/browser-exit): a step throwing through the real harness.mjs exits 1 (control exits 0); the real runSet reports exit=3 as failed with result 1 (control 0); run-browser.mjs line checked by text. The load exception now holds both halves (now is a list; planted split case in the test). Scratch-copy runs through the real tests, controls 8 of 8 pass: harness process.exitCode line deleted fails the harness case; runner return ok ? 0 : 1 changed to return 0 fails; runner ok = runStep && ok changed fails; run-browser process.exitCode assignment removed fails; browser-smoke line 293 changed to if (view.journey) results.push(); fails two tests; earlier mutations radiusPx > 2, false && depthMode, load-budget 295-296 deleted, and rings line deleted each fail. Baseline fixture unchanged and the git rebuild test passes. lint, typecheck, build, test:full (233 files, 3303 passed, 2 skipped) pass. No browser script changed, no check:browser run. Not run: each budget line deleted alone and the third wholeProblems.push alone (as in C-154); the exit-code proof for run-browser.mjs is a text match, not a run, because its step list is fixed.'
 ---
 
 # I-149: The browser assertion list misses three checks and every guard condition

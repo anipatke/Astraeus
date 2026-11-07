@@ -6,8 +6,11 @@
 //   - a call to a function declared in the same script that itself holds a raise site (found by repeating until no new one appears).
 // The guard is every enclosing `if`/`else`, `?:`, `&&`, `||` and `??` test, so loosening a tolerance or disabling a guard changes the entry. Text is printed from the tree: spacing and comments do not matter.
 // `tests/browserAssertions.test.ts` holds the current scripts to the list built from baseline commit 6aad8e6a (`tests/fixtures/browserAssertionsBaseline.json`).
-// It proves each baseline raise site and its guard text still appear in the scripts (with the reviewed exceptions named in the test). It does not prove a guard's meaning is unchanged
-// outside that text (an edit to a helper a guard calls, a changed value it reads, or an early `return` before it). Rebuild the baseline list (reads the commit with git, never the working tree):
+// It proves each baseline raise site of the forms above, and its guard text, still appears in the scripts (with the reviewed exceptions named in the test). It does not see a guard's meaning
+// outside that text (an edit to a helper a guard calls, a changed value it reads, or an early `return` before it), and it does not see these failure routes: an exit code set by assignment
+// (`process.exitCode = 1`), a failure list built by `.push` under a name that is not a failure name (`matches`, `found`), or a failure returned as a literal (`ok: false`, as in engine-budget.mjs).
+// `tests/browserExitPath.test.ts` proves a failing step fails the run; the Full Objective Check's independent rebuild is what shows nothing else was lost.
+// Rebuild the baseline list (reads the commit with git, never the working tree):
 //   node packages/astraeus-site/tools/validate/assertion-list.mjs 6aad8e6a > packages/astraeus-site/tests/fixtures/browserAssertionsBaseline.json
 import { execFileSync } from "node:child_process";
 import { readdirSync, readFileSync } from "node:fs";
