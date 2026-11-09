@@ -11,7 +11,7 @@ priority: high
 
 ## Outcome
 
-A host's calls on the viewer handle never vanish: every call after `ready` takes effect (or throws) in the order made, including calls made before the first frame and from inside an `onChange` view-switch report; a view's follow rule works on a planet other views also show; a host `setTime` counts as a seek for story panels exactly as a visitor's does; a host can select and clear an object; `mount` shows the same loading cover as the React viewer; and the README says an event has one zone, as wide as its widest pacing rule.
+A host's calls on the viewer handle never vanish: every call after `ready` takes effect (or throws) in the order made, including calls made before the first frame and from inside an `onChange` view-switch report; a view's follow rule works on a planet other views also show; a host `setTime` counts as a seek for story panels exactly as a visitor's does and a host can select and clear an object; and the README says an event has one zone, as wide as its widest pacing rule.
 
 ## Why
 
