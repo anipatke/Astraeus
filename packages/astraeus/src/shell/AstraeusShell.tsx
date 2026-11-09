@@ -7,7 +7,7 @@ import { useDrawers } from "./useDrawers";
 import { useStoryPanels, type StoryPanelSettings } from "./useStoryPanels";
 import { TimelineBar } from "./TimelineBar";
 import type { TimelineGlowLook } from "./timelineGlow";
-import type { ExperienceCameraPreset, ExperienceConfig } from "./experience";
+import type { ExperienceCameraPreset, ExperienceConfig, ExperienceObject } from "./experience";
 import { InfoPanel } from "./InfoPanel";
 import { infoView } from "./infoModel";
 import type { Metric } from "./metrics";
@@ -145,6 +145,9 @@ interface Props {
   /** Called with the key of the place whose information is open, or null, so the app can mark its scene marker. */
   readonly onOpenFeatureChange?: (key: string | null) => void;
   /** Asks the shell to fly to an object a tap or click picked in the scene (focus only, no information); a new `serial` asks again. */
+  /** A host `setSelected` (id "" clears the selection), applied after the shell's own view-switch choices so the host's call is the last word; `onSelectRequestApplied` tells the app it has been. */
+  readonly selectRequest?: { readonly id: string; readonly serial: number } | null;
+  readonly onSelectRequestApplied?: () => void;
   readonly pickRequest?: { readonly id: string; readonly serial: number } | null;
   readonly children: ReactNode;
 }
@@ -153,6 +156,11 @@ interface Props {
 type InfoState = { readonly kind: "object" } | { readonly kind: "event"; readonly id: string } | { readonly kind: "window"; readonly id: string } | { readonly kind: "feature"; readonly id: string } | null;
 
 /** The serial of a request that is asked again by sending a new one; absent request: undefined. */
+/** Whether the selection has been lost and a fallback must take its place: the object is gone or not available now, unless the host cleared the selection on purpose. */
+function selectionLost(selected: ExperienceObject | undefined, timeUtcMs: number, clearedByHost: boolean): boolean {
+  return !clearedByHost && (selected === undefined || !isObjectAvailable(selected, timeUtcMs));
+}
+
 function serialOf(request: { readonly serial: number } | null | undefined): number | undefined {
   return request?.serial;
 }
@@ -224,6 +232,8 @@ export function AstraeusShell({
   featureRequest,
   onOpenFeatureChange,
   pickRequest,
+  selectRequest,
+  onSelectRequestApplied,
   children,
 }: Props) {
   const infoPanelId = `${useId()}-info-panel`;
@@ -276,12 +286,15 @@ export function AstraeusShell({
     onSelectionChange(selectedObjectId, "visitor");
   }, [onSelectionChange, selectedObjectId]);
 
+  /** The host cleared the selection: the fallback that picks the first available object stays off until something is selected again. */
+  const hostCleared = useRef(false);
   // A view switch is told from other changes of the experience by the view's id changing.
   const { viewId, takeSwitchRule } = useViewSwitch(viewCamera);
   useEffect(() => {
     const switchRule = takeSwitchRule();
+    if (selectedObjectId !== "") hostCleared.current = false;
     const selected = experience.objects.find((object) => object.id === selectedObjectId);
-    if (selected === undefined || !isObjectAvailable(selected, snapshot.timeUtcMs)) {
+    if (selectionLost(selected, snapshot.timeUtcMs, hostCleared.current && selectedObjectId === "")) {
       const fallbackId = firstAvailableObject(experience, snapshot.timeUtcMs)?.id ?? "";
       setSelectedObjectId(fallbackId);
       onSelectionChange(fallbackId, "move");
@@ -307,6 +320,19 @@ export function AstraeusShell({
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activePresetId, experience, onCameraRequest, onSelectionChange, selectedObjectId, snapshot.timeUtcMs, viewId]);
+
+  // A host `setSelected`: runs after the view-switch effect above in the same commit, so it wins over that effect's fallback or view rule.
+  const requestedSelectSerial = serialOf(selectRequest);
+  useEffect(() => {
+    if (selectRequest === null || selectRequest === undefined) return;
+    hostCleared.current = selectRequest.id === "";
+    setSelectedObjectId(selectRequest.id);
+    // As a visitor's menu choice does: the object's card opens (the camera is left alone); a clear closes it.
+    setInfo((now) => (selectRequest.id === "" ? (now?.kind === "object" ? null : now) : { kind: "object" }));
+    onSelectRequestApplied?.();
+    // Only a new request applies.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [requestedSelectSerial]);
 
   /** The view's camera rule for a followed or focused object the new view does not show: `stay` keeps the pose and stops following; otherwise the rule's framing is requested. */
   const applyViewRule = (rule: ViewCameraRule) => {

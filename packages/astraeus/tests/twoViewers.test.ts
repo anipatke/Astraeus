@@ -141,7 +141,7 @@ interface Row {
   /** What that viewer's handle then reads. */
   readonly reads: (handle: ViewerHandle) => void;
   /** Which of that viewer's own listeners must have heard it. */
-  readonly hears?: "changes" | "cameras";
+  readonly hears?: "changes" | "cameras" | "selects";
   /** What the scene would do after the call, when the stand-in has to do it. */
   readonly settle?: (viewer: Viewer) => void;
 }
@@ -155,6 +155,7 @@ const SETTERS: Record<keyof Setter, Row> = {
   setLook: { call: (v) => v.handle.setLook({ starBrightness: 1.5 }), reads: (hd) => expect(hd.look?.starBrightness).toBe(1.5), hears: "changes" },
   setScale: { call: (v) => v.handle.setScale("readable-scale"), reads: (hd) => expect(hd.scale).toBe("readable-scale"), hears: "changes" },
   setSwitch: { call: (v) => v.handle.setSwitch("labels", false), reads: (hd) => expect(hd.switches).toEqual({ labels: false }), hears: "changes" },
+  setSelected: { call: (v) => v.handle.setSelected("pa"), reads: (hd) => expect(hd.selected).toBe("pa"), hears: "selects" },
   setPick: { call: (v) => v.handle.setPick("two"), reads: (hd) => expect(hd.pick).toBe("two") }, // moves the pressed option and tells no listener
   setCamera: {
     call: (v) => v.handle.setCamera({ focus: "moon" }),

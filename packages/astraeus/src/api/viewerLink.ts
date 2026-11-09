@@ -110,6 +110,8 @@ export class ViewerLink implements ViewerPort {
   /** What last moved the clock or the view, as published; a selection dropped by time or the view names it. */
   #mover: ViewerChangeCause = "playback";
   #closed = false;
+  /** How many publishes have started, so one can tell that a listener's host call published inside another. */
+  #publishes = 0;
 
   attach(control: ViewerControl): void {
     this.#control = control;
@@ -183,6 +185,7 @@ export class ViewerLink implements ViewerPort {
   setLook(look: LookInput): void { this.#looks.setLook(look); this.#afterHost(); }
   setScale(id: string): void { this.#looks.setScale(id); this.#afterHost(); }
   setSwitch(id: string, on: boolean): void { this.#looks.setSwitch(id, on); this.#afterHost(); }
+  setSelected(id: string | undefined): void { this.#selection.setSelected(id); this.#afterHost(); }
   onChange(listener: (change: ViewerChange) => void): () => void { return this.#clock.onChange(listener); }
   onEventZone(listener: (change: EventZoneChange) => void): () => void { return this.#zones.onEventZone(listener); }
 
@@ -198,9 +201,12 @@ export class ViewerLink implements ViewerPort {
   onCameraChange(listener: (camera: CameraPose) => void): () => void { return this.#camera.onCameraChange(listener); }
 
   publish(state: ViewerState, cause: ViewerChangeCause): void {
+    const serial = ++this.#publishes;
     if (this.#clock.publish(state, cause)) this.#mover = cause;
-    this.#zones.publish(state, cause);
-    this.#selection.publish(state, cause);
+    // An `onChange` listener that made a host call published inside the call above, with a newer reading: the rest of this publish goes by that reading, not the older one it was handed.
+    const now = this.#publishes === serial ? state : this.#control?.read() ?? state;
+    this.#zones.publish(now, cause);
+    this.#selection.publish(now, cause);
     this.#camera.publish();
   }
 

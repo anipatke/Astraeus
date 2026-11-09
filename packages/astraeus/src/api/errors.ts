@@ -56,6 +56,8 @@ export type SceneErrorCode =
   | "bad-camera"
   /** A scene view is malformed, repeated, or not one of the scene's views. */
   | "bad-view"
+  /** `setSelected` was given something other than an id of an object the showing view shows, or `undefined`. */
+  | "bad-selection"
   /** A look (`setLook`) is unknown or out of its range. */
   | "bad-look"
   /** An input field was given under a name it no longer has; the message names the old field and its replacement. */

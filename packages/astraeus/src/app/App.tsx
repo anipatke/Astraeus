@@ -383,7 +383,17 @@ export function App({ definition, writeTitle = true, address, developerTools, ho
   // The presentation (scale, looks, switches) last told to the host, to find what a visitor changed.
   const shownKey = useRef<string | null>(null);
   // `origin` "move": time or the view moved and the selection followed (a drop or a view rule's framing target); the link names whatever last moved them (a host call, the visitor or playback).
+  // The host's `setSelected` not yet applied by the shell (id "" clears); the shell applies it after its own view-switch choices, so the host call is the last word.
+  const hostSelect = useRef<string | null>(null);
+  const [selectRequest, setSelectRequest] = useState<{ readonly id: string; readonly serial: number } | null>(null);
+  const hostSetSelected = useCallback((id: string | undefined) => {
+    hostSelect.current = id ?? "";
+    controls.current.selectedObjectId = id ?? ""; // `read()` shows it at once
+    setSelectRequest((previous) => ({ id: id ?? "", serial: (previous?.serial ?? 0) + 1 }));
+  }, []);
+  const hostSelectApplied = useCallback(() => { hostSelect.current = null; }, []);
   const updateSelectedObject = useCallback((objectId: string, origin: SelectionOrigin) => {
+    if (hostSelect.current !== null) return; // a host `setSelected` is waiting for the shell: the shell's older choice must not undo it (the host-call order rule)
     const changed = controls.current.selectedObjectId !== objectId;
     controls.current.selectedObjectId = objectId;
     if (changed && hostAttached.current) host?.publishSelection(stateNow(), origin === "move");
@@ -448,9 +458,9 @@ export function App({ definition, writeTitle = true, address, developerTools, ho
     if (host === undefined) return undefined;
     hostAttached.current = true;
     shownKey.current = null; // the presentation is read afresh after each attach
-    host.attach({ ...(definition.picker === undefined ? {} : { picker: { id: definition.picker.id, values: definition.picker.options.map((option) => option.value), start: definition.picker.value } }), window: runtime.loopWindow, events: experience.events, rates: definition.experience.rates, paced: runtime.pacing !== undefined, read: stateNow, seek: hostSeekTo, setRate: changeRate, playable: definition.experience.hideTimeline !== true, setPlaying: hostSetPlaying, views: viewIds, setView: chooseView, cameraTargets, readCamera, setCamera, scales: hostScales, setScale: hostSetScale, setLook: hostSetLook, setSwitch: hostSetSwitch });
+    host.attach({ ...(definition.picker === undefined ? {} : { picker: { id: definition.picker.id, values: definition.picker.options.map((option) => option.value), start: definition.picker.value } }), window: runtime.loopWindow, events: experience.events, rates: definition.experience.rates, paced: runtime.pacing !== undefined, read: stateNow, seek: hostSeekTo, setRate: changeRate, playable: definition.experience.hideTimeline !== true, setPlaying: hostSetPlaying, views: viewIds, setView: chooseView, cameraTargets, readCamera, setCamera, setSelected: hostSetSelected, scales: hostScales, setScale: hostSetScale, setLook: hostSetLook, setSwitch: hostSetSwitch });
     return () => { hostAttached.current = false; host.detach(); };
-  }, [host, runtime, definition, hostSeekTo, changeRate, viewIds, chooseView, cameraTargets, readCamera, setCamera, experience, hostSetPlaying, hostScales, hostSetScale, hostSetLook, hostSetSwitch]);
+  }, [host, runtime, definition, hostSeekTo, changeRate, viewIds, chooseView, cameraTargets, readCamera, setCamera, hostSetSelected, experience, hostSetPlaying, hostScales, hostSetScale, hostSetLook, hostSetSwitch]);
 
   useEffect(() => {
     if (!developerMode) return undefined;
@@ -719,6 +729,8 @@ export function App({ definition, writeTitle = true, address, developerTools, ho
       onOpenPanelChange={markOpenPanel}
       featureRequest={featureRequest}
       pickRequest={pickRequest}
+      selectRequest={selectRequest}
+      onSelectRequestApplied={hostSelectApplied}
       onOpenFeatureChange={markOpenFeature}
     >
       <div className="canvas-host">
