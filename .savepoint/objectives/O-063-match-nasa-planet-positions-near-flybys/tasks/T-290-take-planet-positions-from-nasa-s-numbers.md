@@ -3,7 +3,7 @@ id: T-290
 title: Take planet positions from NASA's numbers
 objective: O-063
 status: planned
-depends_on: [{task: T-289, requires: accepted}]
+depends_on: []
 owner_validation: {required: false}
 planned_by: {role: planner, session: o063-run-20261110}
 check_waiver: {task: T-290, reason: 'Owner said "orchestrate O-06" (O-063) under the standing run rules; the optional Task Check is waived; one Full Objective Check at the end.', actor: {role: owner, session: o063-run-20261110}, recorded_at: '2026-11-09T23:06:28Z'}
