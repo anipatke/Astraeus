@@ -2,16 +2,22 @@
 id: I-159
 title: Design.md not reconciled for the O-061 host-call drift notes
 type: drift
-status: open
+status: resolved
 source:
   kind: check
   check: C-157
   actor: {role: checker, session: o061-check-20261110}
   at: '2026-11-09T22:39:31Z'
 tasks: [T-285, T-287, T-288]
-checks: [C-157]
+checks: [C-157, C-158]
 guardrail_ids: []
 severity: low
+resolution:
+  disposition: verified
+  check: C-158
+  actor: {role: checker, session: o061-recheck-20261110}
+  at: '2026-11-09T22:42:48Z'
+  reason: Repair proven by C-158 (CLEAR).
 history:
   - at: '2026-11-09T22:39:31Z'
     actor: {role: checker, session: o061-check-20261110}
@@ -22,6 +28,11 @@ history:
     actor: {role: planner, session: o061-run-20261110}
     kind: repair_attempted
     note: 'Design.md: new "Host calls land in order (O-061...)" paragraph after "One handle, one lifecycle" (order rule, hostCameraRequest slot, always opt-in, shared seek re-base, setSelected/bad-selection, nested-publish re-read; T-288 cover moot, T-286 test note non-architectural per I-160); "Views of one scene" rule sentence now names always: true. Also O-061 Outcome no longer names the cover; CHANGELOG heading reworded. No code change, so C-157 gate and browser runs stay reusable. Left open for the recheck.'
+  - at: '2026-11-09T22:42:48Z'
+    actor: {role: checker, session: o061-recheck-20261110}
+    kind: rechecked
+    note: 'Proof Needed met, by C-158 (CLEAR): Design.md "Host calls land in order (O-061 ...)" covers the order rule and the hostCameraRequest slot, the always opt-in, the shared seek re-base, setSelected/bad-selection and the nested-publish re-read, each matching App.tsx, sceneCamera.ts openFirstFrame, AstraeusShell.tsx applyViewRule and select effect, views.ts, viewerSelection.ts and viewerLink.ts publish at c5028ab1; "Views of one scene" names always: true; "One handle, one lifecycle" no longer contradicts the code; every T-284..T-288 drift note is reflected, non-architectural (T-286, I-160) or moot (T-288 cover). No code changed since C-157, so its gate, browser and health evidence were reused.'
+    check: C-158
 ---
 
 # I-159: Design.md not reconciled for the O-061 host-call drift notes
