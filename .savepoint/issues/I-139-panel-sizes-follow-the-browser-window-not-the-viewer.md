@@ -2,19 +2,13 @@
 id: I-139
 title: Panel sizes follow the browser window, not the viewer
 type: other
-status: resolved
+status: open
 source:
   kind: report
   actor: {role: planner, session: o055-planning-20261102}
   at: '2026-11-02T12:00:00Z'
 guardrail_ids: [API-03]
 severity: medium
-resolution:
-  disposition: escalated
-  actor: {role: planner, session: o061-run-20261110}
-  at: '2026-11-09T22:19:52Z'
-  reason: 'Owner: "add I-139 to 0.8.1". Repair promoted into O-068 (G-017).'
-escalated_to: O-068
 history:
   - at: '2026-11-02T12:00:00Z'
     actor: {role: planner, session: o055-planning-20261102}
@@ -28,6 +22,14 @@ history:
     actor: {role: planner, session: o061-run-20261110}
     kind: escalated
     note: 'Owner, on the T-288 box preview: "the controls dont fit", "full page is fine, add I-139 to 0.8.1". Promoted into O-068 under G-017, before O-062.'
+  - at: '2026-11-09T22:47:02Z'
+    actor: {role: owner, session: o061-run-20261110}
+    kind: reopened
+    note: 'Owner, asked what the use case is ("dont recall it ever being needed for anything to date"), then "yes, take it out": O-068 removed from G-017 before planning; this Issue is open again.'
+  - at: '2026-11-09T22:47:02Z'
+    actor: {role: owner, session: o061-run-20261110}
+    kind: deferred
+    note: 'Parked until a real app shows the viewer smaller than the window (no app, demo or the site does today; only the binned cover preview box showed it). Fix it then.'
 ---
 
 # I-139: Panel sizes follow the browser window, not the viewer

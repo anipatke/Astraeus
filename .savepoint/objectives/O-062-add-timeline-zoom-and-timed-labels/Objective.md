@@ -2,7 +2,7 @@
 id: O-062
 title: Add timeline zoom and timed labels
 status: planned
-depends_on: [O-068]
+depends_on: [O-061]
 release: G-017
 priority: medium
 ---

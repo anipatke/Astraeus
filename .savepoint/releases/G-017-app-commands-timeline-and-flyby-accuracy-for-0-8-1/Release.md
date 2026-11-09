@@ -6,7 +6,7 @@ status: planned
 
 ## Outcome
 
-The `astraeus` package answers the Voyagers project review of 0.3.0 to 0.8.0 with additions only, shipped as 0.8.1: every host call after `ready` takes effect in a defined order, a host can select an object, `mount` shows a loading cover, the README says an event has one zone, a visitor can zoom the timeline into a crowded stretch, a label can show during a stretch of time, and planet positions near flybys match JPL Horizons within a measured, stated tolerance.
+The `astraeus` package answers the Voyagers project review of 0.3.0 to 0.8.0, shipped as 0.8.1 with additions and host-call fixes only (no breaking change): every host call after `ready` takes effect in a defined order, a host can select an object, the README says an event has one zone, a visitor can zoom the timeline into a crowded stretch, a label can show during a stretch of time, and planet positions near flybys match JPL Horizons within a measured, stated tolerance.
 
 ## Why
 
