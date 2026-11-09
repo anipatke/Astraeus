@@ -2,18 +2,12 @@
 id: I-157
 title: 'Labels cannot be tied to a stretch of time'
 type: other
-status: resolved
+status: open
 source:
   kind: report
   actor: {role: executor, session: voyagers-review-20261110}
   at: '2026-11-10T00:00:00Z'
 severity: low
-resolution:
-  disposition: escalated
-  actor: {role: planner, session: voyagers-review-20261110}
-  at: '2026-11-10T00:30:00Z'
-  reason: 'Repair promoted into O-062 (G-017, owner "Three pieces, this order").'
-escalated_to: O-062
 history:
   - at: '2026-11-10T00:00:00Z'
     actor: {role: executor, session: voyagers-review-20261110}
@@ -23,6 +17,14 @@ history:
     actor: {role: planner, session: voyagers-review-20261110}
     kind: escalated
     note: 'Promoted into O-062 under G-017 (0.8.1).'
+  - at: '2026-11-09T22:47:53Z'
+    actor: {role: owner, session: o061-run-20261110}
+    kind: reopened
+    note: 'Owner chose "Accuracy only, park zoom and labels (Recommended)" for 0.8.1: O-062 removed from G-017 before planning; this Issue is open again.'
+  - at: '2026-11-09T22:47:53Z'
+    actor: {role: owner, session: o061-run-20261110}
+    kind: deferred
+    note: 'Parked until a real app needs it (only Voyagers asked, and Voyagers stays on 0.8.0).'
 ---
 
 # I-157: Labels cannot be tied to a stretch of time

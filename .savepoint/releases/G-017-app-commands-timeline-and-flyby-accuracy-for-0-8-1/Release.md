@@ -6,11 +6,13 @@ status: planned
 
 ## Outcome
 
-The `astraeus` package answers the Voyagers project review of 0.3.0 to 0.8.0, shipped as 0.8.1 with additions and host-call fixes only (no breaking change): every host call after `ready` takes effect in a defined order, a host can select an object, the README says an event has one zone, a visitor can zoom the timeline into a crowded stretch, a label can show during a stretch of time, and planet positions near flybys match JPL Horizons within a measured, stated tolerance.
+The `astraeus` package answers the Voyagers project review of 0.3.0 to 0.8.0, shipped as 0.8.1 with additions and host-call fixes only (no breaking change): every host call after `ready` takes effect in a defined order, a host can select an object, the README says an event has one zone, and planet positions near flybys match JPL Horizons within a measured, stated tolerance.
 
 ## Why
 
 Owner, 2026-11-10 (session voyagers-review-20261110): pasted the Voyagers review (the app moved from 0.3.0 to 0.8.0 on the public API only; about 65 findings, all 12 blockers fixed, 12 open). Its asks were recorded as I-150 to I-158 (I-153 merged into I-150 by the owner). The owner chose all eight remaining asks ("All eight") in three Objectives, and a 0.8.1 version: "Should be as 0.8.1, we wont update Voyagers". The fixes serve the next app; Voyagers stays on 0.8.0.
+
+Owner, 2026-11-10, applying "don't build what no app needs": the loading cover was built and removed, the box-size fix (I-139) and timeline zoom and timed labels (I-156, I-157) were taken out and parked ("Accuracy only, park zoom and labels").
 
 ## Success Conditions
 
