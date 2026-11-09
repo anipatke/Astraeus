@@ -6,6 +6,7 @@ status: planned
 depends_on: []
 owner_validation: {required: true}
 planned_by: {role: planner, session: o061-run-20261110}
+check_waiver: {task: T-289, reason: 'Owner said "orchestrate O-06" (O-063) under the standing run rules (no per-step checks, coordinator marks done once gates pass and the owner has read the note, one Full Objective Check at the end); the optional Task Check is waived.', actor: {role: owner, session: o063-run-20261110}, recorded_at: '2026-11-09T22:49:17Z'}
 ---
 
 # Measure how far planets drift from NASA at flybys
