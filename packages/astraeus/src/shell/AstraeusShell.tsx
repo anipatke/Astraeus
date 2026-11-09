@@ -7,7 +7,7 @@ import { useDrawers } from "./useDrawers";
 import { useStoryPanels, type StoryPanelSettings } from "./useStoryPanels";
 import { TimelineBar } from "./TimelineBar";
 import type { TimelineGlowLook } from "./timelineGlow";
-import type { ExperienceCameraPreset, ExperienceConfig } from "./experience";
+import type { ExperienceCameraPreset, ExperienceConfig, ExperienceObject } from "./experience";
 import { InfoPanel } from "./InfoPanel";
 import { infoView } from "./infoModel";
 import type { Metric } from "./metrics";
@@ -104,6 +104,10 @@ interface Props {
   readonly onCameraRequest: (request: ExperienceCameraPreset["request"]) => void;
   /** Holds the camera where it is, its target fixed in the scene (a view's `stay` rule); a later camera request replaces it. */
   readonly onCameraHold?: () => void;
+  /** True when the host has set the camera since the last view switch: that call answers the switch, so the view's own camera rule does not replace it. */
+  readonly hostCameraSet?: () => boolean;
+  /** Filled with the shell's story seek note, so a host's time jump re-bases the panel crossing check exactly as a visitor's seek does. */
+  readonly storySeekNote?: { current: ((timeUtcMs: number) => void) | null };
   /** `origin` is required so a new selection path must say who chose: "visitor" (a menu choice, pick, preset or marker) or "move" (time or the view moved and the selection followed). */
   readonly onSelectionChange: (objectId: string, origin: SelectionOrigin) => void;
   readonly scaleId: ScaleId;
@@ -141,6 +145,9 @@ interface Props {
   /** Called with the key of the place whose information is open, or null, so the app can mark its scene marker. */
   readonly onOpenFeatureChange?: (key: string | null) => void;
   /** Asks the shell to fly to an object a tap or click picked in the scene (focus only, no information); a new `serial` asks again. */
+  /** A host `setSelected` (id "" clears the selection), applied after the shell's own view-switch choices so the host's call is the last word; `onSelectRequestApplied` tells the app it has been. */
+  readonly selectRequest?: { readonly id: string; readonly serial: number } | null;
+  readonly onSelectRequestApplied?: () => void;
   readonly pickRequest?: { readonly id: string; readonly serial: number } | null;
   readonly children: ReactNode;
 }
@@ -149,6 +156,11 @@ interface Props {
 type InfoState = { readonly kind: "object" } | { readonly kind: "event"; readonly id: string } | { readonly kind: "window"; readonly id: string } | { readonly kind: "feature"; readonly id: string } | null;
 
 /** The serial of a request that is asked again by sending a new one; absent request: undefined. */
+/** Whether the selection has been lost and a fallback must take its place: the object is gone or not available now, unless the host cleared the selection on purpose. */
+function selectionLost(selected: ExperienceObject | undefined, timeUtcMs: number, clearedByHost: boolean): boolean {
+  return !clearedByHost && (selected === undefined || !isObjectAvailable(selected, timeUtcMs));
+}
+
 function serialOf(request: { readonly serial: number } | null | undefined): number | undefined {
   return request?.serial;
 }
@@ -197,6 +209,8 @@ export function AstraeusShell({
   onSeek,
   onCameraRequest,
   onCameraHold,
+  hostCameraSet,
+  storySeekNote,
   onSelectionChange,
   scaleId,
   onScaleChange,
@@ -218,6 +232,8 @@ export function AstraeusShell({
   featureRequest,
   onOpenFeatureChange,
   pickRequest,
+  selectRequest,
+  onSelectRequestApplied,
   children,
 }: Props) {
   const infoPanelId = `${useId()}-info-panel`;
@@ -238,6 +254,8 @@ export function AstraeusShell({
   const storySet = experience.storyPanels;
   const storyPanels = panelsOf(storySet);
   const story = useStoryPanels(storyPanels, storyPanelSettings ?? ownStorySettings(storySet), snapshot, onSetPlaying);
+  if (storySeekNote !== undefined) storySeekNote.current = story.noteSeek;
+  useEffect(() => () => { if (storySeekNote !== undefined) storySeekNote.current = null; }, [storySeekNote]);
   const openPanelId = story.openPanel?.id ?? null;
   useEffect(() => { onOpenPanelChange?.(openPanelId); }, [onOpenPanelChange, openPanelId]);
   const requestedSerial = serialOf(panelRequest);
@@ -268,12 +286,15 @@ export function AstraeusShell({
     onSelectionChange(selectedObjectId, "visitor");
   }, [onSelectionChange, selectedObjectId]);
 
+  /** The host cleared the selection: the fallback that picks the first available object stays off until something is selected again. */
+  const hostCleared = useRef(false);
   // A view switch is told from other changes of the experience by the view's id changing.
   const { viewId, takeSwitchRule } = useViewSwitch(viewCamera);
   useEffect(() => {
     const switchRule = takeSwitchRule();
+    if (selectedObjectId !== "") hostCleared.current = false;
     const selected = experience.objects.find((object) => object.id === selectedObjectId);
-    if (selected === undefined || !isObjectAvailable(selected, snapshot.timeUtcMs)) {
+    if (selectionLost(selected, snapshot.timeUtcMs, hostCleared.current && selectedObjectId === "")) {
       const fallbackId = firstAvailableObject(experience, snapshot.timeUtcMs)?.id ?? "";
       setSelectedObjectId(fallbackId);
       onSelectionChange(fallbackId, "move");
@@ -283,7 +304,9 @@ export function AstraeusShell({
 
     const active = experience.cameraPresets.find((preset) => preset.id === activePresetId);
     const activeRequest = active?.request;
-    if (activeRequest !== undefined && activeRequest.kind !== "overview") {
+    if (switchRule?.rule === "start" && switchRule.framing?.always === true) {
+      applyViewRule(switchRule); // opted in: the view's framing applies on every switch to it
+    } else if (activeRequest !== undefined && activeRequest.kind !== "overview") {
       const target = experience.objects.find((object) => object.id === activeRequest.target);
       if (switchRule !== undefined && target === undefined) {
         applyViewRule(switchRule);
@@ -298,6 +321,19 @@ export function AstraeusShell({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activePresetId, experience, onCameraRequest, onSelectionChange, selectedObjectId, snapshot.timeUtcMs, viewId]);
 
+  // A host `setSelected`: runs after the view-switch effect above in the same commit, so it wins over that effect's fallback or view rule.
+  const requestedSelectSerial = serialOf(selectRequest);
+  useEffect(() => {
+    if (selectRequest === null || selectRequest === undefined) return;
+    hostCleared.current = selectRequest.id === "";
+    setSelectedObjectId(selectRequest.id);
+    // As a visitor's menu choice does: the object's card opens (the camera is left alone); a clear closes it.
+    setInfo((now) => (selectRequest.id === "" ? (now?.kind === "object" ? null : now) : { kind: "object" }));
+    onSelectRequestApplied?.();
+    // Only a new request applies.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [requestedSelectSerial]);
+
   /** The view's camera rule for a followed or focused object the new view does not show: `stay` keeps the pose and stops following; otherwise the rule's framing is requested. */
   const applyViewRule = (rule: ViewCameraRule) => {
     const asked = presetForViewRule(rule, experience);
@@ -309,6 +345,7 @@ export function AstraeusShell({
       onSelectionChange(target.id, "move"); // only the move-driven effect applies a view rule
     }
     setActivePresetId(preset?.id ?? null);
+    if (hostCameraSet?.() === true) return; // a host camera call made since the switch answers it and wins over the rule
     if (preset !== undefined) onCameraRequest(preset.request);
     else onCameraHold?.();
   };

@@ -23,6 +23,10 @@ history:
     actor: {role: planner, session: voyagers-review-20261110}
     kind: escalated
     note: 'Promoted into O-061 under G-017 (0.8.1).'
+  - at: '2026-11-09T22:26:37Z'
+    actor: {role: owner, session: o061-run-20261110}
+    kind: owner_decision
+    note: 'Built in T-288, then removed by the owner: "why do we have it, i dont want to build things unecessarily" / "Take it out (Recommended)". Hosts fade their own cover on onFirstDraw.'
 ---
 
 # I-155: mount has no loading cover

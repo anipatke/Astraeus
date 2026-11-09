@@ -2,6 +2,16 @@
 
 Versions follow [semantic versioning](https://semver.org). While the version starts with `0.`, the public API (the names exported from `astraeus`) may still change between minor versions; each change is listed here.
 
+## Unreleased (0.8.1)
+
+Additions, and the host-call fixes below; no existing call shape or error code changed.
+
+- A host `setCamera` is no longer lost. One written order rule (README, "Host calls"): after `ready` every call takes effect or throws, in call order, last call wins. A call made before the first frame is applied after the opening view (it was discarded by it), and a call made inside an `onChange` report of a view switch is applied after the view's own camera rule (it was overwritten by it). No call shape or error code changed.
+- `setViews`: a view's `camera` framing `{ follow: id }` / `{ focus: id }` accepts `always: true`, which applies it on every switch to that view, also when the camera follows an object both views show (I-153). Without it a view behaves exactly as before. `ViewCameraInput` gains the optional field.
+- `setSelected(id | undefined)` on the viewer handle (`mount` and `AstraeusScene`): a host selects an object the showing view shows, or clears the selection. `onSelect` hears it with `cause: "host"`; an unknown or hidden id throws the new error code `bad-selection`. It follows the host-call order rule (it holds straight after `ready` and inside an `onChange` report of a view switch), and a listener's host call made inside an `onChange` report no longer leaves the rest of that report on the older reading. `ViewerHandle` and `MountedScene` gain one call; the `selected` read is no longer read-only.
+- A host `setTime` counts as a seek for story panels, as a visitor's slider seek does: it re-bases the panel crossing check, so a jump across a panel's time while playing no longer opens the panel (I-151).
+- README: an event has one zone, as wide as its widest pacing rule ("Event zones").
+
 ## 0.8.0 (2026-11-07)
 
 First download of the packed example (`npm run measure:example`): 1,716,429 bytes raw, 492,249 bytes gzip (code and styles loaded on first open), against 1,652,632 raw and 472,929 gzip at 0.7.0.

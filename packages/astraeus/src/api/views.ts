@@ -2,8 +2,8 @@ import { VIEW_PLACES, type ResolvedView, type ViewCameraRule, type ViewPlace, ty
 import { SceneError } from "./errors";
 import { rejectRenamed } from "./renamedInputs";
 
-/** What a view's camera does when what it follows or focuses on is not in the view: `"stay"` (default) keeps the pose and stops following, `"start"` takes the scene's start, `{ follow: id }` / `{ focus: id }` takes that framing (the object must be in the view). */
-export type ViewCameraInput = "stay" | "start" | { readonly follow: string } | { readonly focus: string };
+/** What a view's camera does when what it follows or focuses on is not in the view: `"stay"` (default) keeps the pose and stops following, `"start"` takes the scene's start, `{ follow: id }` / `{ focus: id }` takes that framing (the object must be in the view). `always: true` on a framing applies it on every switch to the view, not only when the switch takes away what the camera follows or focuses on. */
+export type ViewCameraInput = "stay" | "start" | { readonly follow: string; readonly always?: true } | { readonly focus: string; readonly always?: true };
 
 /** One named view. `objects` are `addBody`, `addGroup` or `addTrajectory` ids, `events` are `addEvents` ids and `panels` are `addStoryPanels` ids. */
 export interface ViewInput {
@@ -74,8 +74,11 @@ function cameraOf(view: ViewInput): ViewCameraRule {
   const follow = (camera as { follow?: unknown } | null)?.follow;
   const focus = (camera as { focus?: unknown } | null)?.focus;
   const target = follow ?? focus;
+  const always = (camera as { always?: unknown } | null)?.always;
+  if (always !== undefined && always !== true) throw bad(`view "${view.id}" camera always must be true when given, got ${JSON.stringify(always)}`);
   if (typeof camera !== "object" || camera === null || typeof target !== "string" || target === "" || (follow !== undefined) === (focus !== undefined)) throw bad(`view "${view.id}" camera must be "stay", "start", { follow: id } or { focus: id }, got ${JSON.stringify(camera)}`);
-  return { rule: "start", framing: follow === undefined ? { focus: target } : { follow: target } };
+  const keep = always === true ? { always: true as const } : {};
+  return { rule: "start", framing: follow === undefined ? { focus: target, ...keep } : { follow: target, ...keep } };
 }
 
 /**

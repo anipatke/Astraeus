@@ -28,6 +28,8 @@ import type { StartView } from "./viewLink";
 export interface CameraControls {
   startView?: StartView;
   cameraRequest: CameraRequest | null;
+  /** The host's last `setCamera`, kept apart from `cameraRequest` so the opening view and a view's own camera rule cannot discard it (the host-call order rule). */
+  hostCameraRequest?: CameraRequest | null;
 }
 
 export interface CameraStepInput {
@@ -76,7 +78,8 @@ function openFirstFrame(input: CameraStepInput): boolean {
   const view = controls.startView;
   if (view !== undefined && canFocus(targets, view.focus)) {
     applyStartView(camState, view);
-    controls.cameraRequest = null;
+    // The opening view replaces any request made before the first frame, except the host's: that one is applied after it.
+    controls.cameraRequest = controls.hostCameraRequest ?? null;
     return false;
   }
   if (controls.cameraRequest === null && startsInsideFocus(camState.distance, targets.bodyIdFor(camState.focus) ?? camState.focus, frame, targets.policy, reach)) {

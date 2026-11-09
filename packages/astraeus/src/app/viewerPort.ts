@@ -64,6 +64,8 @@ export interface ViewerControl {
   cameraTargets(): readonly string[];
   /** The camera as the viewer's view link writes it; undefined until the scene has drawn its first frame. */
   readCamera(): StartView | undefined;
+  /** Selects the object with this id (one of `cameraTargets()`), or clears the selection (`undefined`); `read()` shows it at once. */
+  setSelected(id: string | undefined): void;
   /** Asks the scene camera for a follow, focus or pose through its own request path (the same one a view's camera rule uses). */
   setCamera(request: CameraRequest): void;
 }

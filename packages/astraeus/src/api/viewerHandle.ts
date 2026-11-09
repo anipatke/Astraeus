@@ -33,11 +33,17 @@ export interface ViewerHandle {
    * `cause` is `playback` (the clock ran), `visitor` (timeline or view choice) or `host` (`setTime`, `setView`); overlapping zones report separately. A zone already active when the viewer opens reports `entered` once, with the first report after `ready` (within a tenth of a second), so a listener added right after `await ready` hears it. The engine moves nothing in response: a host composes its own behaviour, for example `setCamera`. No callbacks arrive after `unmount`. A listener that throws is reported to the page (`reportError`) and does not stop the listeners after it.
    */
   onEventZone(listener: (change: EventZoneChange) => void): () => void;
-  /** The id of the object whose information the viewer has open (the one the object menu, a click or a view switch chose); undefined until `ready` has resolved, after `unmount`, and when nothing is selected. Read only: the host cannot select. */
+  /** The id of the object whose information the viewer has open (the one the object menu, a click or a view switch chose); undefined until `ready` has resolved, after `unmount`, and when nothing is selected. Set it with `setSelected`. */
   readonly selected: string | undefined;
   /**
+   * Selects the object with this id, or clears the selection with `undefined`; `selected` reads it at once and `onSelect` hears it with `cause: "host"` (nothing is reported when the selection is already that).
+   * The object must be one the showing view shows: an unknown or hidden id, an empty or non-string id throws `bad-selection`; before `ready` or after `unmount`, `not-mounted`. Like the object menu it opens the object's card, but the camera stays where it is (`setCamera` points the camera); a clear closes the card.
+   * Like every host call it is the last word: made straight after `await ready`, before the first frame, or inside an `onChange` report of a view switch, it holds; a later view switch that no longer shows the object drops it as it drops a visitor's choice.
+   */
+  setSelected(id: string | undefined): void;
+  /**
    * Calls `listener({ object?, timeUtcMs, cause })` when the selected object changes: `object` is the new id, absent when the selection was dropped (a view switch that no longer shows it, with nothing to take its place).
-   * `cause` is `visitor` (the object menu, a click, or a time, speed or view the visitor chose), `host` (a drop caused by the host's own `setTime`, `setRate`, `setPlaying` or `setView`) or `playback` (a drop caused by the clock running); a drop takes the cause `onChange` reported for the move that caused it. The selection the viewer opens with is read from `selected`, not reported. The engine moves nothing in response.
+   * `cause` is `visitor` (the object menu, a click, or a time, speed or view the visitor chose), `host` (`setSelected`, or a drop caused by the host's own `setTime`, `setRate`, `setPlaying` or `setView`) or `playback` (a drop caused by the clock running); a drop takes the cause `onChange` reported for the move that caused it. The selection the viewer opens with is read from `selected`, not reported. The engine moves nothing in response.
    * No callbacks arrive after `unmount`. A listener that throws is reported to the page (`reportError`) and does not stop the listeners after it. Returns the function that stops it.
    */
   onSelect(listener: (change: SelectionChange) => void): () => void;
@@ -99,6 +105,7 @@ export function viewerHandleOf(link: ViewerLink): ViewerHandle {
     setSwitch: (id, on) => link.setSwitch(id, on),
     setView: (id) => link.setView(id),
     setCamera: (target) => link.setCamera(target),
+    setSelected: (id) => link.setSelected(id),
     setTime: (time) => link.setTime(time),
     setRate: (rate) => link.setRate(rate),
     setPlaying: (playing) => link.setPlaying(playing),

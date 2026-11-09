@@ -135,6 +135,7 @@ const CALLS: Record<string, (handle: ViewerHandle) => void> = {
   setPlaying: (handle) => handle.setPlaying(true),
   setView: (handle) => handle.setView("a"),
   setCamera: (handle) => handle.setCamera({ follow: "x" }),
+  setSelected: (handle) => handle.setSelected("x"),
   setLook: (handle) => handle.setLook({ starBrightness: 1.2 }),
   setScale: (handle) => handle.setScale("readable-scale"),
   setSwitch: (handle) => handle.setSwitch("labels", false),
