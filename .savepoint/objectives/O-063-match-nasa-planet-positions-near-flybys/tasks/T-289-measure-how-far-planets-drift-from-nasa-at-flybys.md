@@ -2,8 +2,7 @@
 id: T-289
 title: Measure how far planets drift from NASA at flybys
 objective: O-063
-status: in_progress
-stage: audit
+status: done
 depends_on: []
 owner_validation: {required: true}
 planned_by: {role: planner, session: o061-run-20261110}
@@ -72,6 +71,10 @@ Executor session o063-run-20261110 (builder), 2026-11-10. Stage build -> test ->
 **Commands (2026-11-10):** `node tools/import/planet-accuracy-fetch.mjs` (packages/astraeus) wrote the fixture; `npx vitest run packages/astraeus/tests/planetAccuracyFlybys.test.ts` 7 passed; `npm run lint` exit 0; `npm run typecheck` exit 0 (after a cast fix in the new test); `npm test` 236 files, 3368 passed, 2 skipped, exit 0. No browser check (Task says none). No build run (no source change).
 
 **Limitations:** the download size of the recommended fix is an estimate (no Horizons refit was run); the Uranus centre-minus-barycentre figure of 712 km in 2020 is larger than its moons explain and is reported as measured, not explained; the frame offset size (about 0.22 arcsec) is measured but not traced to published frame-tie constants; Voyagers' own 428.6 km Jupiter figure was not reproduced exactly (its window maximum on an interpolated path differs from this closest-approach figure); Earth (EPV00) was not measured. The current provenance maxima (six dates 1969-2030, e.g. Neptune 36,192 km) understate the 1950-2044 maxima measured here; left for the owner's choice, not repaired.
+
+## Owner Validation (2026-11-09T23:06:01Z)
+
+The owner read the summary (table, causes, the Voyagers answer, the recommended fix and its cost) and chose "Replace with NASA's numbers (Recommended)".
 
 ## Drift Notes
 
