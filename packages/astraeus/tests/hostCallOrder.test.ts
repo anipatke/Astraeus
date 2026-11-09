@@ -2,7 +2,7 @@
 // Host calls that must always land (O-061 T-284, I-150 with I-153, and I-151), written as a host page makes them on a made-up scene (ARCH-03), on both embedding paths:
 // `mount` and `AstraeusScene` (handle from `ref` / `onReady`). The 3D scene is a stand-in that exposes the controls the page hands it (as hostCameraDom.test.ts does); the one real
 // first-frame camera step (`stepCameraTarget`) is run on those controls where a call made before the first frame matters.
-// A case still lost is `it.fails`, naming its Issue (I-151, T-286); the camera cases were fixed by T-285 and are plain `it`. See the Task's Technical Evidence for each cause.
+// A case still lost would be `it.fails`, naming its Issue; the camera cases (T-285) and the story seek case (T-286) are fixed and are plain `it`. See the Task's Technical Evidence for each cause.
 import { act, createElement } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
@@ -196,7 +196,7 @@ describe.each(paths)("a host setTime against a visitor seek for story panels ($n
   });
 
   // I-151: the shell's `seek` re-bases the story crossing check (`story.noteSeek`); the host's `seek` handed to the link (App.tsx `seekTo`) does not, so playback appears to cross the panel.
-  it.fails("a host setTime across a panel while playing opens nothing, as a visitor seek does (I-151)", async () => {
+  it("a host setTime across a panel while playing opens nothing, as a visitor seek does (I-151)", async () => {
     const handle = await start(withPanel(), (h) => h.setPlaying(true));
     act(() => handle.setTime(T0 + 15 * MIN));
     expect(panelOpen()).toBe(false);

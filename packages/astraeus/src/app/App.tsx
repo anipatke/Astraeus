@@ -409,6 +409,12 @@ export function App({ definition, writeTitle = true, address, developerTools, ho
     }
     setClockSnapshot(runtime.clock.snapshot());
   }, [runtime]);
+  // A host's time jump is a seek for story panels, as a visitor's is: the shell's note re-bases the crossing check first.
+  const storySeekNote = useRef<((timeUtcMs: number) => void) | null>(null);
+  const hostSeekTo = useCallback((timeUtcMs: number) => {
+    storySeekNote.current?.(timeUtcMs);
+    seekTo(timeUtcMs);
+  }, [seekTo]);
   // A speed picked by the visitor or the host takes over from pacing; "auto" gives the rate back to it.
   const [paceAuto, setPaceAuto] = useState(controls.current.paceAuto === true);
   const changeRate = useCallback((rate: number | "auto") => {
@@ -442,9 +448,9 @@ export function App({ definition, writeTitle = true, address, developerTools, ho
     if (host === undefined) return undefined;
     hostAttached.current = true;
     shownKey.current = null; // the presentation is read afresh after each attach
-    host.attach({ ...(definition.picker === undefined ? {} : { picker: { id: definition.picker.id, values: definition.picker.options.map((option) => option.value), start: definition.picker.value } }), window: runtime.loopWindow, events: experience.events, rates: definition.experience.rates, paced: runtime.pacing !== undefined, read: stateNow, seek: seekTo, setRate: changeRate, playable: definition.experience.hideTimeline !== true, setPlaying: hostSetPlaying, views: viewIds, setView: chooseView, cameraTargets, readCamera, setCamera, scales: hostScales, setScale: hostSetScale, setLook: hostSetLook, setSwitch: hostSetSwitch });
+    host.attach({ ...(definition.picker === undefined ? {} : { picker: { id: definition.picker.id, values: definition.picker.options.map((option) => option.value), start: definition.picker.value } }), window: runtime.loopWindow, events: experience.events, rates: definition.experience.rates, paced: runtime.pacing !== undefined, read: stateNow, seek: hostSeekTo, setRate: changeRate, playable: definition.experience.hideTimeline !== true, setPlaying: hostSetPlaying, views: viewIds, setView: chooseView, cameraTargets, readCamera, setCamera, scales: hostScales, setScale: hostSetScale, setLook: hostSetLook, setSwitch: hostSetSwitch });
     return () => { hostAttached.current = false; host.detach(); };
-  }, [host, runtime, definition, seekTo, changeRate, viewIds, chooseView, cameraTargets, readCamera, setCamera, experience, hostSetPlaying, hostScales, hostSetScale, hostSetLook, hostSetSwitch]);
+  }, [host, runtime, definition, hostSeekTo, changeRate, viewIds, chooseView, cameraTargets, readCamera, setCamera, experience, hostSetPlaying, hostScales, hostSetScale, hostSetLook, hostSetSwitch]);
 
   useEffect(() => {
     if (!developerMode) return undefined;
@@ -692,6 +698,7 @@ export function App({ definition, writeTitle = true, address, developerTools, ho
       onCameraRequest={updateCameraRequest}
       onCameraHold={holdCamera}
       hostCameraSet={hostCameraSet}
+      storySeekNote={storySeekNote}
       onSelectionChange={updateSelectedObject}
       scaleId={scale}
       onScaleChange={updateScale}

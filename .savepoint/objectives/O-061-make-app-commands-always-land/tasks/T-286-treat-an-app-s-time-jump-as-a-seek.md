@@ -2,7 +2,7 @@
 id: T-286
 title: Treat an app's time jump as a seek
 objective: O-061
-status: planned
+status: done
 depends_on: [{task: T-284, requires: clear}]
 owner_validation: {required: false}
 planned_by: {role: planner, session: voyagers-review-20261110}
@@ -50,8 +50,21 @@ No change to how playback opens panels.
 
 ## Technical Evidence
 
-Pending execution.
+Fix: the shell (`packages/astraeus/src/shell/AstraeusShell.tsx`) fills a new optional prop `storySeekNote` with its `story.noteSeek` (the same function its `seek` calls for every visitor seek); `packages/astraeus/src/app/App.tsx` `hostSeekTo` calls it, then the existing `seekTo`, and is what the host link's `seek` now uses. One re-base path for visitor and host; playback and panel opening untouched.
+
+| Done When | Proof |
+|---|---|
+| Host-seek test passes on both paths, unmarked | `tests/hostCallOrder.test.ts` "a host setTime across a panel while playing opens nothing, as a visitor seek does (I-151)" is plain `it` now, passes on `mount` and `AstraeusScene` (26 passed) |
+| Equals the visitor-seek result | same describe block: the visitor slider seek baseline test and the host test both assert `panelOpen() === false` |
+| README line on `setTime` says it counts as a seek | `packages/astraeus/README.md` `handle.setTime` row |
+| CHANGELOG entry | `packages/astraeus/CHANGELOG.md` "Unreleased (0.8.1)" |
+
+Files changed: `src/app/App.tsx`, `src/shell/AstraeusShell.tsx`, `tests/hostCallOrder.test.ts` (unmark + header comment), `tests/viewerHostDom.test.ts` (one line, see drift), `README.md`, `CHANGELOG.md` (all under packages/astraeus).
+
+Commands: `npx vitest run tests/hostCallOrder.test.ts` 26 passed; `npm run check:gates` all 9 gates passed (lint, typecheck, build, test, test:full, engine-alone, pack, node-consumer, react-consumer), 179 s, 0 over limit. `check:browser` not run (Full Objective Check).
+
+Limits: the ref is filled during render and cleared on unmount; a host `setTime` before the shell mounts is not a case (host calls need `ready`). Appearance not checked.
 
 ## Drift Notes
 
-None yet.
+An existing test, `tests/viewerHostDom.test.ts` "calls back on a host set, on a visitor's seek...", relied on the bug: the synthetic scene has story panels, and its host `setTime(MID)` was read as playback crossing one, which paused the clock; the test then pressed play. With the fix the clock keeps playing, so the press paused it. One line added (`handle.setPlaying(false)` before the press) so the test starts paused; its assertions are unchanged. This breaks the plan's "no existing test changed"; flagged for the owner.

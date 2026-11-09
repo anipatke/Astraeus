@@ -127,6 +127,8 @@ describe("the mount handle", () => {
     act(() => change(speed, String(RATES[2])));
     expect(seen.at(-1)).toMatchObject({ rate: RATES[2], cause: "visitor" });
 
+    // The synthetic scene has story panels: the host's jump used to read as playback crossing one, which paused the clock; a jump is a seek now (T-286), so pause by hand before pressing play.
+    act(() => handle.setPlaying(false));
     const before = seen.length;
     act(() => press($(host, ".timeline-play")));
     expect(seen.length).toBeGreaterThan(before);

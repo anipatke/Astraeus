@@ -106,6 +106,8 @@ interface Props {
   readonly onCameraHold?: () => void;
   /** True when the host has set the camera since the last view switch: that call answers the switch, so the view's own camera rule does not replace it. */
   readonly hostCameraSet?: () => boolean;
+  /** Filled with the shell's story seek note, so a host's time jump re-bases the panel crossing check exactly as a visitor's seek does. */
+  readonly storySeekNote?: { current: ((timeUtcMs: number) => void) | null };
   /** `origin` is required so a new selection path must say who chose: "visitor" (a menu choice, pick, preset or marker) or "move" (time or the view moved and the selection followed). */
   readonly onSelectionChange: (objectId: string, origin: SelectionOrigin) => void;
   readonly scaleId: ScaleId;
@@ -200,6 +202,7 @@ export function AstraeusShell({
   onCameraRequest,
   onCameraHold,
   hostCameraSet,
+  storySeekNote,
   onSelectionChange,
   scaleId,
   onScaleChange,
@@ -241,6 +244,8 @@ export function AstraeusShell({
   const storySet = experience.storyPanels;
   const storyPanels = panelsOf(storySet);
   const story = useStoryPanels(storyPanels, storyPanelSettings ?? ownStorySettings(storySet), snapshot, onSetPlaying);
+  if (storySeekNote !== undefined) storySeekNote.current = story.noteSeek;
+  useEffect(() => () => { if (storySeekNote !== undefined) storySeekNote.current = null; }, [storySeekNote]);
   const openPanelId = story.openPanel?.id ?? null;
   useEffect(() => { onOpenPanelChange?.(openPanelId); }, [onOpenPanelChange, openPanelId]);
   const requestedSerial = serialOf(panelRequest);
