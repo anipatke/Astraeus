@@ -104,6 +104,8 @@ interface Props {
   readonly onCameraRequest: (request: ExperienceCameraPreset["request"]) => void;
   /** Holds the camera where it is, its target fixed in the scene (a view's `stay` rule); a later camera request replaces it. */
   readonly onCameraHold?: () => void;
+  /** True when the host has set the camera since the last view switch: that call answers the switch, so the view's own camera rule does not replace it. */
+  readonly hostCameraSet?: () => boolean;
   /** `origin` is required so a new selection path must say who chose: "visitor" (a menu choice, pick, preset or marker) or "move" (time or the view moved and the selection followed). */
   readonly onSelectionChange: (objectId: string, origin: SelectionOrigin) => void;
   readonly scaleId: ScaleId;
@@ -197,6 +199,7 @@ export function AstraeusShell({
   onSeek,
   onCameraRequest,
   onCameraHold,
+  hostCameraSet,
   onSelectionChange,
   scaleId,
   onScaleChange,
@@ -283,7 +286,9 @@ export function AstraeusShell({
 
     const active = experience.cameraPresets.find((preset) => preset.id === activePresetId);
     const activeRequest = active?.request;
-    if (activeRequest !== undefined && activeRequest.kind !== "overview") {
+    if (switchRule?.rule === "start" && switchRule.framing?.always === true) {
+      applyViewRule(switchRule); // opted in: the view's framing applies on every switch to it
+    } else if (activeRequest !== undefined && activeRequest.kind !== "overview") {
       const target = experience.objects.find((object) => object.id === activeRequest.target);
       if (switchRule !== undefined && target === undefined) {
         applyViewRule(switchRule);
@@ -309,6 +314,7 @@ export function AstraeusShell({
       onSelectionChange(target.id, "move"); // only the move-driven effect applies a view rule
     }
     setActivePresetId(preset?.id ?? null);
+    if (hostCameraSet?.() === true) return; // a host camera call made since the switch answers it and wins over the rule
     if (preset !== undefined) onCameraRequest(preset.request);
     else onCameraHold?.();
   };

@@ -2,6 +2,13 @@
 
 Versions follow [semantic versioning](https://semver.org). While the version starts with `0.`, the public API (the names exported from `astraeus`) may still change between minor versions; each change is listed here.
 
+## Unreleased (0.8.1)
+
+Additions only.
+
+- A host `setCamera` is no longer lost. One written order rule (README, "Host calls"): after `ready` every call takes effect or throws, in call order, last call wins. A call made before the first frame is applied after the opening view (it was discarded by it), and a call made inside an `onChange` report of a view switch is applied after the view's own camera rule (it was overwritten by it). No call shape or error code changed.
+- `setViews`: a view's `camera` framing `{ follow: id }` / `{ focus: id }` accepts `always: true`, which applies it on every switch to that view, also when the camera follows an object both views show (I-153). Without it a view behaves exactly as before. `ViewCameraInput` gains the optional field.
+
 ## 0.8.0 (2026-11-07)
 
 First download of the packed example (`npm run measure:example`): 1,716,429 bytes raw, 492,249 bytes gzip (code and styles loaded on first open), against 1,652,632 raw and 472,929 gzip at 0.7.0.

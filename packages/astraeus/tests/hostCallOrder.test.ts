@@ -2,7 +2,7 @@
 // Host calls that must always land (O-061 T-284, I-150 with I-153, and I-151), written as a host page makes them on a made-up scene (ARCH-03), on both embedding paths:
 // `mount` and `AstraeusScene` (handle from `ref` / `onReady`). The 3D scene is a stand-in that exposes the controls the page hands it (as hostCameraDom.test.ts does); the one real
 // first-frame camera step (`stepCameraTarget`) is run on those controls where a call made before the first frame matters.
-// A case that reproduces a lost call is `it.fails`, naming its Issue; it turns into a plain `it` when T-285 / T-286 fix it. See the Task's Technical Evidence for each cause.
+// A case still lost is `it.fails`, naming its Issue (I-151, T-286); the camera cases were fixed by T-285 and are plain `it`. See the Task's Technical Evidence for each cause.
 import { act, createElement } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
@@ -91,7 +91,7 @@ describe.each(paths)("host calls straight after ready, before the first frame ($
   });
 
   // I-150: the scene's first frame (sceneCamera.openFirstFrame) opens on the scene's start view and clears any pending request, so a host's follow is lost.
-  it.fails("setCamera in a scene that opens on a start view still takes effect after the first frame (I-150)", async () => {
+  it("setCamera in a scene that opens on a start view still takes effect after the first frame (I-150)", async () => {
     const scene = makeScene();
     scene.camera.follow("earth");
     await start(scene, (h) => h.setCamera({ follow: "moon" }));
@@ -120,7 +120,7 @@ describe.each(paths)("host calls from inside an onChange that reports a view swi
   };
 
   // I-150: the view's camera rule runs in the shell's effect after the render, so its request (hold, for `stay`) replaces the page's request made earlier, inside onChange.
-  it.fails("setCamera lands and is not replaced by the view's own camera rule (I-150)", async () => {
+  it("setCamera lands and is not replaced by the view's own camera rule (I-150)", async () => {
     await switchWith((h) => h.setCamera({ follow: "pb" }));
     expect(controls().cameraRequest).toEqual({ kind: "follow", target: "pb" });
   });
@@ -138,15 +138,34 @@ describe.each(paths)("host calls from inside an onChange that reports a view swi
 
 describe.each(paths)("a view's follow rule on a planet another view also shows ($name)", ({ start }) => {
   // Earth and the Moon are in both views. The camera follows Earth in view a; view b's rule says follow the Moon.
-  // I-153: the rule only runs when the followed object is not in the new view (AstraeusShell effect, `target === undefined`), so a shared planet never triggers it.
-  it.fails("switching to the view makes the camera follow what its rule names (I-150 / I-153)", async () => {
-    const scene = makeScene({ follow: "moon" });
+  // I-153 (owner: opt-in per view): `always: true` on the rule applies it on every switch to the view; without it the rule runs only when the switch takes away what the camera follows.
+  it("switching to a view whose rule is opted in with always makes the camera follow what it names (I-153)", async () => {
+    const scene = makeScene({ follow: "moon", always: true });
     scene.camera.follow("earth");
     const handle = await start(scene, () => undefined);
     controls().cameraRequest = null;
     act(() => handle.setView("b"));
     await settle();
     expect(controls().cameraRequest).toEqual({ kind: "follow", target: "moon" });
+  });
+
+  it("without always the camera stays on a planet both views show (I-153)", async () => {
+    const scene = makeScene({ follow: "moon" });
+    scene.camera.follow("earth");
+    const handle = await start(scene, () => undefined);
+    controls().cameraRequest = null;
+    act(() => handle.setView("b"));
+    await settle();
+    expect(controls().cameraRequest).toBeNull();
+  });
+
+  it("a host setCamera after the switch still wins over an opted-in rule", async () => {
+    const scene = makeScene({ follow: "moon", always: true });
+    const handle = await start(scene, () => undefined);
+    controls().cameraRequest = null;
+    act(() => { handle.setView("b"); handle.setCamera({ focus: "earth" }); });
+    await settle();
+    expect(controls().cameraRequest).toEqual({ kind: "focus", target: "earth" });
   });
 
   it("still applies when the followed object is not in the new view", async () => {

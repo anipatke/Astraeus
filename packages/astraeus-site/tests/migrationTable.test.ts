@@ -21,6 +21,7 @@ const WIDENED = new Map([
   ["SceneCamera.setReach", "gains an optional second argument"],
   ["AstraeusScene", "takes more optional props"],
   ["MountedScene", "now extends ViewerHandle, which adds reads and calls"],
+  ["ViewCameraInput", "a follow or focus framing also takes always: true (0.8.1)"],
 ]);
 
 const rowsOf = (text: string): Row[] => {

@@ -6,7 +6,7 @@ export type ViewPlace = (typeof VIEW_PLACES)[number];
 /** What the camera does when it switches to a view whose members no longer include what it follows or focuses on. `stay`: keep the pose and stop following. `start`: take the view's own framing, else the scene's start. */
 export type ViewCameraRule =
   | { readonly rule: "stay" }
-  | { readonly rule: "start"; readonly framing?: { readonly follow: string } | { readonly focus: string } };
+  | { readonly rule: "start"; readonly framing?: { readonly follow: string; readonly always?: true } | { readonly focus: string; readonly always?: true } };
 
 /** One view, resolved once when the scene is built. The sets hold every id of that kind the view shows (an id no view names is in every view's set); switching only changes which set is read. */
 export interface ResolvedView {

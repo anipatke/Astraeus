@@ -2138,7 +2138,7 @@
     },
     "ViewCameraInput": {
       "kind": "type",
-      "signature": "\"stay\" | \"start\" | { readonly follow: string } | { readonly focus: string }",
+      "signature": "\"stay\" | \"start\" | { readonly follow: string; readonly always?: true } | { readonly focus: string; readonly always?: true }",
       "constructors": [],
       "members": []
     },

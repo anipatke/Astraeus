@@ -353,6 +353,7 @@ export function App({ definition, writeTitle = true, address, developerTools, ho
   const viewRef = useRef(viewId);
   const chooseView = useCallback((id: string) => {
     viewRef.current = id;
+    controls.current.hostCameraRequest = null; // a host camera call counts from this switch on
     controls.current.viewHidden = hiddenByView(definition.views, viewById(definition.views, id), experience);
     // The showing view's events choose the pacing zones; a paced rate that changes with them eases in rather than jumping.
     if (controls.current.pace !== undefined) {
@@ -430,7 +431,9 @@ export function App({ definition, writeTitle = true, address, developerTools, ho
   const readCamera = useCallback((): StartView | undefined => {
     return { ...(controls.current.viewReadout ?? opening) };
   }, [opening]);
-  const setCamera = useCallback((request: CameraRequest) => { controls.current.cameraRequest = request; }, []);
+  // A host camera call is the last word: it is also kept in `hostCameraRequest`, so the opening view (first frame) and a view's own camera rule (shell) yield to it.
+  const setCamera = useCallback((request: CameraRequest) => { controls.current.cameraRequest = controls.current.hostCameraRequest = request; }, []);
+  const hostCameraSet = useCallback(() => controls.current.hostCameraRequest != null, []);
   const hostScales = useMemo(() => scaleChoiceIds ?? SCALE_CHOICES.map((choice) => choice.id), [scaleChoiceIds]);
   const hostSetLook = useCallback((look: LookInput) => live.current?.setLook(look), []);
   const hostSetScale = useCallback((id: string) => live.current?.setScale(id), []);
@@ -688,6 +691,7 @@ export function App({ definition, writeTitle = true, address, developerTools, ho
       }}
       onCameraRequest={updateCameraRequest}
       onCameraHold={holdCamera}
+      hostCameraSet={hostCameraSet}
       onSelectionChange={updateSelectedObject}
       scaleId={scale}
       onScaleChange={updateScale}

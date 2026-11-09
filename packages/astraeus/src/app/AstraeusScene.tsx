@@ -86,6 +86,8 @@ export interface SceneRuntime {
 export interface SceneControls {
   policy: ScalePolicy;
   cameraRequest: CameraRequest | null;
+  /** The host's last `setCamera`, kept so the opening view and a view's own camera rule cannot discard it. Absent: none. */
+  hostCameraRequest?: CameraRequest | null;
   /** Presentation only: show source-anchor ID labels beside the anchor dots. */
   showAnchorLabels: boolean;
   /** Presentation only: draw the Milky Way picture behind the stars (the stars are always drawn while the sky is). */
