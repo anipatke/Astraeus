@@ -1,7 +1,7 @@
 ---
 id: O-061
 title: Make app commands always land
-status: planned
+status: in_progress
 depends_on: []
 release: G-017
 priority: high
