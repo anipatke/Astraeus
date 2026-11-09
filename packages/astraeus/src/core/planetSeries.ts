@@ -25,7 +25,7 @@ export function isPlanetId(id: string): id is PlanetId {
   return (PLANET_IDS as readonly string[]).includes(id);
 }
 
-/** One planet's heliocentric ecliptic-J2000 model (curve fits of VSOP87A), as the astronomy adapter reads it. */
+/** One planet's heliocentric ecliptic-J2000 model (curve fits of its system barycentre from JPL Horizons), as the astronomy adapter reads it. */
 export interface PlanetModel {
   xyz(date: Date): {
     readonly x: number;
@@ -43,7 +43,7 @@ let models: PlanetModels | undefined;
 let span: TimeBounds | undefined;
 
 /**
- * Builds the planet models, once, from the stored curve fits of the full VSOP87A series (Pluto: of JPL Horizons states) (O-025 T-101, O-033 T-114; the library's compact
+ * Builds the planet models, once, from the stored curve fits of JPL Horizons states (O-025 T-101, O-033 T-114, O-063 T-290; before O-063 the full VSOP87A series; the library's compact
  * default tables are off by tens of thousands of km, docs/ASTRONOMY_VALIDATION.md, and its full series were about 0.8 MB of code).
  * The fits are a separate chunk fetched only when a mounted composition contains a planet; an experience without one never
  * downloads them (I-022).

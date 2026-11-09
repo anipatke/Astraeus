@@ -3,18 +3,20 @@ import { createOrbAstronomyAdapter } from "../src/core/astronomyAdapter";
 import { isPlanetId, PLANET_IDS } from "../src/core/planetSeries";
 import fixture from "./fixtures/outer-planets-horizons.json";
 
-// Saturn, Uranus, Neptune (VSOP87A curve fits) and Pluto (the system barycentre, a curve fit of Horizons states), O-033 T-114, against JPL Horizons heliocentric
-// ICRF vectors archived at the six dates of tests/planets.test.ts (fetched 2026-10-20, tests/fixtures/outer-planets-horizons-source.txt).
+// Saturn, Uranus, Neptune and Pluto: the planet series (each the system barycentre as JPL Horizons reports the planet, O-063 T-290; Pluto since
+// O-033 T-114) against JPL Horizons heliocentric ICRF vectors of the planet centres (699, 799, 899, 999) archived at the six dates of
+// tests/planets.test.ts (fetched 2026-10-20, tests/fixtures/outer-planets-horizons-source.txt).
 const adapter = createOrbAstronomyAdapter();
 const OUTER = ["saturn", "uranus", "neptune", "pluto"] as const;
 /**
- * Worst allowed vector distance from Horizons (km) and separation (arcsec). VSOP87A's own error against DE441 is the limit for the first three
- * (measured at fit time: Saturn 2,256 km and 0.32", Uranus 19,070 km and 1.36", Neptune 36,192 km and 1.62", all VSOP87A model error, not fit
- * error: the fits are within 1 km of VSOP87A); Pluto's planet fit is the Pluto system barycentre (Horizons body 9, within 1 km of it), so it differs from Pluto's centre by Pluto's own offset, up to about 2,130 km (0.075 arcsec); tests/planetMoonSystems.test.ts holds the placement with the offset to a kilometre.
+ * Worst allowed vector distance from Horizons (km) and separation (arcsec). The series alone is the system barycentre, so it differs from the
+ * planet centre by the planet's own wobble about it, measured at these dates (2026-11-10): Saturn 302 km (0.045"), Uranus 32 km, Neptune 74 km
+ * (both 0.004"), Pluto 2,132 km (0.099"). The moon package's offset closes the gap (tests/planetAccuracyFlybys.test.ts, within 1 km;
+ * tests/planetMoonSystems.test.ts for Pluto). Before O-063 these limits were VSOP87A's own error: 3,000, 21,000 and 40,000 km.
  */
-const targets = { saturn: [3000, 0.4], uranus: [21000, 1.5], neptune: [40000, 1.8], pluto: [2200, 0.12] } as const;
+const targets = { saturn: [310, 0.05], uranus: [40, 0.01], neptune: [80, 0.01], pluto: [2200, 0.12] } as const;
 
-describe("outer planet curve fits against JPL Horizons (six dates 1969 to 2030)", () => {
+describe("outer planet series against JPL Horizons planet centres (six dates 1969 to 2030)", () => {
   for (const planet of OUTER) {
     it(`${planet} stays within ${targets[planet][0]} km and ${targets[planet][1]} arcsec of the archived vectors`, () => {
       const samples = fixture.bodies[planet].samples;

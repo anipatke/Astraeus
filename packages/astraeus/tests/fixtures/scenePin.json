@@ -645,11 +645,11 @@
        "label": "Jupiter",
        "labelPriority": 98,
        "provenance": {
-        "accuracy": "Jupiter position was compared with JPL Horizons (DE441) at six dates from 1969 to 2030: at most 1269 km (0.33 arcsec) from Horizons. Sample maxima, not a bound for every date.",
+        "accuracy": "With the Jupiter moon package loaded (it covers 1950 to 2029), within 0.5 km of Horizons' Jupiter on 2 January of each year 1972 to 2029 and 0.22 to 0.24 km at the Voyager 1 and 2 closest approaches (O-063 T-290).",
         "notes": "Geometric position about the Sun's centre; no light-time or aberration.",
         "sourceType": "ephemeris",
         "sources": [
-         "@lizard-isana/orb 3.1.1 VSOP87A full series (Bretagnon and Francou 1988), heliocentric ecliptic J2000, converted to Earth-equatorial J2000"
+         "JPL Horizons API 1.2 (https://ssd.jpl.nasa.gov/api/horizons.api), Jupiter (599) about the Sun's centre (CENTER=500@10) and about its system barycentre, VECTORS geometric ICRF km TDB, 6-hourly 1950 to 2046, retrieved 2026-11-10: DE441 with the Jupiter satellite ephemeris jup365_merged; the system barycentre fitted as piecewise Chebyshev series within 1 km (tools/import/planet-fits.mjs). US Government work, credit NASA/JPL-Caltech Solar System Dynamics"
         ]
        }
       },
@@ -732,11 +732,11 @@
        "label": "Saturn",
        "labelPriority": 93,
        "provenance": {
-        "accuracy": "Saturn position was compared with JPL Horizons (DE441) at six dates from 1969 to 2030: at most 2,256 km (0.32 arcsec) from Horizons. Sample maxima, not a bound for every date.",
+        "accuracy": "With the Saturn moon package loaded (it covers 1950 to 2029), within 0.5 km of Horizons' Saturn on 2 January of each year 1972 to 2029 and 0.11 to 0.31 km at the Voyager 1 and 2 closest approaches (O-063 T-290).",
         "notes": "Geometric position about the Sun's centre; no light-time or aberration.",
         "sourceType": "ephemeris",
         "sources": [
-         "@lizard-isana/orb 3.1.1 VSOP87A full series (Bretagnon and Francou 1988), heliocentric ecliptic J2000, converted to Earth-equatorial J2000"
+         "JPL Horizons API 1.2 (https://ssd.jpl.nasa.gov/api/horizons.api), Saturn (699) about the Sun's centre (CENTER=500@10) and about its system barycentre, VECTORS geometric ICRF km TDB, 6-hourly 1950 to 2046, retrieved 2026-11-10: DE441 with the Saturn satellite ephemeris sat441l; the system barycentre fitted as piecewise Chebyshev series within 1 km (tools/import/planet-fits.mjs). US Government work, credit NASA/JPL-Caltech Solar System Dynamics"
         ]
        }
       },
@@ -870,11 +870,11 @@
        "label": "Uranus",
        "labelPriority": 85,
        "provenance": {
-        "accuracy": "Uranus position was compared with JPL Horizons (DE441) at six dates from 1969 to 2030: at most 19,070 km (1.36 arcsec) from Horizons. Sample maxima, not a bound for every date.",
+        "accuracy": "With the Uranus moon package loaded (it covers 1950 to 2029), within 0.6 km of Horizons' Uranus on 2 January of each year 1972 to 2029 and 0.20 km at Voyager 2's closest approach (O-063 T-290).",
         "notes": "Geometric position about the Sun's centre; no light-time or aberration.",
         "sourceType": "ephemeris",
         "sources": [
-         "@lizard-isana/orb 3.1.1 VSOP87A full series (Bretagnon and Francou 1988), heliocentric ecliptic J2000, converted to Earth-equatorial J2000"
+         "JPL Horizons API 1.2 (https://ssd.jpl.nasa.gov/api/horizons.api), Uranus (799) about the Sun's centre (CENTER=500@10) and about its system barycentre, VECTORS geometric ICRF km TDB, 6-hourly 1950 to 2046, retrieved 2026-11-10: DE441 with the Uranus satellite ephemeris ura184_merged, whose system barycentre differs from DE441's barycentre body 7 by up to about 3,400 km away from the 1986 Voyager 2 encounter; the series follows Horizons' Uranus; the system barycentre fitted as piecewise Chebyshev series within 1 km (tools/import/planet-fits.mjs). US Government work, credit NASA/JPL-Caltech Solar System Dynamics"
         ]
        }
       },
@@ -1126,11 +1126,11 @@
        "labelPriority": 50,
        "partOf": "jupiter",
        "provenance": {
-        "accuracy": "Jupiter position was compared with JPL Horizons (DE441) at six dates from 1969 to 2030: at most 1269 km (0.33 arcsec) from Horizons. Sample maxima, not a bound for every date.",
+        "accuracy": "With the Jupiter moon package loaded (it covers 1950 to 2029), within 0.5 km of Horizons' Jupiter on 2 January of each year 1972 to 2029 and 0.22 to 0.24 km at the Voyager 1 and 2 closest approaches (O-063 T-290).",
         "notes": "Geometric position about the Sun's centre; no light-time or aberration.",
         "sourceType": "ephemeris",
         "sources": [
-         "@lizard-isana/orb 3.1.1 VSOP87A full series (Bretagnon and Francou 1988), heliocentric ecliptic J2000, converted to Earth-equatorial J2000"
+         "JPL Horizons API 1.2 (https://ssd.jpl.nasa.gov/api/horizons.api), Jupiter (599) about the Sun's centre (CENTER=500@10) and about its system barycentre, VECTORS geometric ICRF km TDB, 6-hourly 1950 to 2046, retrieved 2026-11-10: DE441 with the Jupiter satellite ephemeris jup365_merged; the system barycentre fitted as piecewise Chebyshev series within 1 km (tools/import/planet-fits.mjs). US Government work, credit NASA/JPL-Caltech Solar System Dynamics"
         ]
        },
        "showLabel": false
@@ -1141,7 +1141,7 @@
        "stateAt": "[function]"
       },
       "span": {
-       "endUtcMs": 616725851676,
+       "endUtcMs": 616725876836,
        "startUtcMs": 242265600000
       }
      },
@@ -1159,11 +1159,11 @@
        "labelPriority": 50,
        "partOf": "saturn",
        "provenance": {
-        "accuracy": "Saturn position was compared with JPL Horizons (DE441) at six dates from 1969 to 2030: at most 2,256 km (0.32 arcsec) from Horizons. Sample maxima, not a bound for every date.",
+        "accuracy": "With the Saturn moon package loaded (it covers 1950 to 2029), within 0.5 km of Horizons' Saturn on 2 January of each year 1972 to 2029 and 0.11 to 0.31 km at the Voyager 1 and 2 closest approaches (O-063 T-290).",
         "notes": "Geometric position about the Sun's centre; no light-time or aberration.",
         "sourceType": "ephemeris",
         "sources": [
-         "@lizard-isana/orb 3.1.1 VSOP87A full series (Bretagnon and Francou 1988), heliocentric ecliptic J2000, converted to Earth-equatorial J2000"
+         "JPL Horizons API 1.2 (https://ssd.jpl.nasa.gov/api/horizons.api), Saturn (699) about the Sun's centre (CENTER=500@10) and about its system barycentre, VECTORS geometric ICRF km TDB, 6-hourly 1950 to 2046, retrieved 2026-11-10: DE441 with the Saturn satellite ephemeris sat441l; the system barycentre fitted as piecewise Chebyshev series within 1 km (tools/import/planet-fits.mjs). US Government work, credit NASA/JPL-Caltech Solar System Dynamics"
         ]
        },
        "showLabel": false
@@ -1174,7 +1174,7 @@
        "stateAt": "[function]"
       },
       "span": {
-       "endUtcMs": 1171122535850,
+       "endUtcMs": 1171122513720,
        "startUtcMs": 242265600000
       }
      },
@@ -1192,27 +1192,27 @@
        "labelPriority": 50,
        "partOf": "uranus",
        "provenance": {
-        "accuracy": "Uranus position was compared with JPL Horizons (DE441) at six dates from 1969 to 2030: at most 19,070 km (1.36 arcsec) from Horizons. Sample maxima, not a bound for every date.",
+        "accuracy": "With the Uranus moon package loaded (it covers 1950 to 2029), within 0.6 km of Horizons' Uranus on 2 January of each year 1972 to 2029 and 0.20 km at Voyager 2's closest approach (O-063 T-290).",
         "notes": "Geometric position about the Sun's centre; no light-time or aberration.",
         "sourceType": "ephemeris",
         "sources": [
-         "@lizard-isana/orb 3.1.1 VSOP87A full series (Bretagnon and Francou 1988), heliocentric ecliptic J2000, converted to Earth-equatorial J2000"
+         "JPL Horizons API 1.2 (https://ssd.jpl.nasa.gov/api/horizons.api), Uranus (799) about the Sun's centre (CENTER=500@10) and about its system barycentre, VECTORS geometric ICRF km TDB, 6-hourly 1950 to 2046, retrieved 2026-11-10: DE441 with the Uranus satellite ephemeris ura184_merged, whose system barycentre differs from DE441's barycentre body 7 by up to about 3,400 km away from the 1986 Voyager 2 encounter; the series follows Horizons' Uranus; the system barycentre fitted as piecewise Chebyshev series within 1 km (tools/import/planet-fits.mjs). US Government work, credit NASA/JPL-Caltech Solar System Dynamics"
         ]
        },
        "showLabel": false
       },
       "sampling": {
-       "eccentricity": 0.0472487404555,
-       "periapsisUtcMs": -117344364317,
-       "periodMs": 2646562532840
+       "eccentricity": 0.047254377178,
+       "periapsisUtcMs": -117260880848,
+       "periodMs": 2646611085340
       },
       "source": {
        "body": "uranus",
        "stateAt": "[function]"
       },
       "span": {
-       "endUtcMs": 2529218168520,
-       "startUtcMs": -117344364317
+       "endUtcMs": 2529350204490,
+       "startUtcMs": -117260880848
       }
      }
     ],
@@ -1310,9 +1310,9 @@
           "orientation": null,
           "plane": "EQJ",
           "positionKm": [
-           -2260885951.25,
-           -10599106062.1,
-           -4610025373.84
+           -2260911543.4,
+           -10599100316.3,
+           -4610026621.48
           ],
           "timeUtcMs": 1004745600000
          },
@@ -1322,9 +1322,9 @@
           "orientation": null,
           "plane": "EQJ",
           "positionKm": [
-           -4882103118.59,
-           -22887456455.4,
-           -9954778675.13
+           -4882158286.19,
+           -22887443600.5,
+           -9954781174.57
           ],
           "timeUtcMs": 1767225600000
          }
@@ -1364,7 +1364,7 @@
        "kind": "distance",
        "label": "Distance to Jupiter",
        "unit": "km",
-       "value": 762554016.308
+       "value": 762554131.76
       },
       {
        "context": "centre to centre · EQJ",
@@ -1373,7 +1373,7 @@
        "kind": "distance",
        "label": "Distance to Saturn",
        "unit": "km",
-       "value": 1373975370.04
+       "value": 1373975680.08
       },
       {
        "context": "centre to centre · EQJ",
@@ -1382,7 +1382,7 @@
        "kind": "distance",
        "label": "Distance to Uranus",
        "unit": "km",
-       "value": 2781005577.57
+       "value": 2781006698.17
       }
      ],
      [
@@ -1402,7 +1402,7 @@
        "kind": "distance",
        "label": "Distance to Jupiter",
        "unit": "km",
-       "value": 775108746.245
+       "value": 775108840.191
       },
       {
        "context": "centre to centre · EQJ",
@@ -1411,7 +1411,7 @@
        "kind": "distance",
        "label": "Distance to Saturn",
        "unit": "km",
-       "value": 1477121099.07
+       "value": 1477121328.87
       },
       {
        "context": "centre to centre · EQJ",
@@ -1420,7 +1420,7 @@
        "kind": "distance",
        "label": "Distance to Uranus",
        "unit": "km",
-       "value": 2997394380.42
+       "value": 2997387407.9
       }
      ]
     ],
@@ -1794,9 +1794,9 @@
       ],
       "plane": "EQJ",
       "positionKm": [
-       105839804.492,
-       695018010.62,
-       295358305.259
+       105840305.118,
+       695018078.612,
+       295358263.942
       ],
       "timeUtcMs": 242265600000
      },
@@ -1811,9 +1811,9 @@
       ],
       "plane": "EQJ",
       "positionKm": [
-       -166290862.776,
-       694359935.735,
-       301670676.581
+       -166290156.469,
+       694360181.14,
+       301670742.452
       ],
       "timeUtcMs": 1385985600000
      }
@@ -1886,9 +1886,9 @@
       ],
       "plane": "EQJ",
       "positionKm": [
-       -1075593638.58,
-       772908903.89,
-       365401790.375
+       -1075593026.61,
+       772910148.702,
+       365402124.498
       ],
       "timeUtcMs": 242265600000
      },
@@ -1903,9 +1903,9 @@
       ],
       "plane": "EQJ",
       "positionKm": [
-       -1046150077.67,
-       -978957208.423,
-       -359304244.866
+       -1046151912.43,
+       -978955734.31,
+       -359303863.867
       ],
       "timeUtcMs": 1385985600000
      }
@@ -2020,9 +2020,9 @@
       ],
       "plane": "EQJ",
       "positionKm": [
-       -2077232459.57,
-       -1704389071.41,
-       -717046180.295
+       -2077236594.09,
+       -1704386065.96,
+       -717045692.846
       ],
       "timeUtcMs": 242265600000
      },
@@ -2037,9 +2037,9 @@
       ],
       "plane": "EQJ",
       "positionKm": [
-       2942362546.93,
-       537828234.671,
-       193949746.623
+       2942354722.67,
+       537831484.245,
+       193951678.452
       ],
       "timeUtcMs": 1385985600000
      }
@@ -2143,9 +2143,9 @@
       "orientation": null,
       "plane": "EQJ",
       "positionKm": [
-       -3571494534.92,
-       -16743281258.7,
-       -7282402024.49
+       -3571534914.79,
+       -16743271958.4,
+       -7282403898.02
       ],
       "timeUtcMs": 1385985600000
      }
@@ -2170,11 +2170,11 @@
      ]
     },
     "jupiter": {
-     "accuracy": "Jupiter position was compared with JPL Horizons (DE441) at six dates from 1969 to 2030: at most 1269 km (0.33 arcsec) from Horizons. Sample maxima, not a bound for every date.",
+     "accuracy": "With the Jupiter moon package loaded (it covers 1950 to 2029), within 0.5 km of Horizons' Jupiter on 2 January of each year 1972 to 2029 and 0.22 to 0.24 km at the Voyager 1 and 2 closest approaches (O-063 T-290).",
      "notes": "Geometric position about the Sun's centre; no light-time or aberration.",
      "sourceType": "ephemeris",
      "sources": [
-      "@lizard-isana/orb 3.1.1 VSOP87A full series (Bretagnon and Francou 1988), heliocentric ecliptic J2000, converted to Earth-equatorial J2000"
+      "JPL Horizons API 1.2 (https://ssd.jpl.nasa.gov/api/horizons.api), Jupiter (599) about the Sun's centre (CENTER=500@10) and about its system barycentre, VECTORS geometric ICRF km TDB, 6-hourly 1950 to 2046, retrieved 2026-11-10: DE441 with the Jupiter satellite ephemeris jup365_merged; the system barycentre fitted as piecewise Chebyshev series within 1 km (tools/import/planet-fits.mjs). US Government work, credit NASA/JPL-Caltech Solar System Dynamics"
      ]
     },
     "io": {
@@ -2210,11 +2210,11 @@
      ]
     },
     "saturn": {
-     "accuracy": "Saturn position was compared with JPL Horizons (DE441) at six dates from 1969 to 2030: at most 2,256 km (0.32 arcsec) from Horizons. Sample maxima, not a bound for every date.",
+     "accuracy": "With the Saturn moon package loaded (it covers 1950 to 2029), within 0.5 km of Horizons' Saturn on 2 January of each year 1972 to 2029 and 0.11 to 0.31 km at the Voyager 1 and 2 closest approaches (O-063 T-290).",
      "notes": "Geometric position about the Sun's centre; no light-time or aberration.",
      "sourceType": "ephemeris",
      "sources": [
-      "@lizard-isana/orb 3.1.1 VSOP87A full series (Bretagnon and Francou 1988), heliocentric ecliptic J2000, converted to Earth-equatorial J2000"
+      "JPL Horizons API 1.2 (https://ssd.jpl.nasa.gov/api/horizons.api), Saturn (699) about the Sun's centre (CENTER=500@10) and about its system barycentre, VECTORS geometric ICRF km TDB, 6-hourly 1950 to 2046, retrieved 2026-11-10: DE441 with the Saturn satellite ephemeris sat441l; the system barycentre fitted as piecewise Chebyshev series within 1 km (tools/import/planet-fits.mjs). US Government work, credit NASA/JPL-Caltech Solar System Dynamics"
      ]
     },
     "mimas": {
@@ -2274,11 +2274,11 @@
      ]
     },
     "uranus": {
-     "accuracy": "Uranus position was compared with JPL Horizons (DE441) at six dates from 1969 to 2030: at most 19,070 km (1.36 arcsec) from Horizons. Sample maxima, not a bound for every date.",
+     "accuracy": "With the Uranus moon package loaded (it covers 1950 to 2029), within 0.6 km of Horizons' Uranus on 2 January of each year 1972 to 2029 and 0.20 km at Voyager 2's closest approach (O-063 T-290).",
      "notes": "Geometric position about the Sun's centre; no light-time or aberration.",
      "sourceType": "ephemeris",
      "sources": [
-      "@lizard-isana/orb 3.1.1 VSOP87A full series (Bretagnon and Francou 1988), heliocentric ecliptic J2000, converted to Earth-equatorial J2000"
+      "JPL Horizons API 1.2 (https://ssd.jpl.nasa.gov/api/horizons.api), Uranus (799) about the Sun's centre (CENTER=500@10) and about its system barycentre, VECTORS geometric ICRF km TDB, 6-hourly 1950 to 2046, retrieved 2026-11-10: DE441 with the Uranus satellite ephemeris ura184_merged, whose system barycentre differs from DE441's barycentre body 7 by up to about 3,400 km away from the 1986 Voyager 2 encounter; the series follows Horizons' Uranus; the system barycentre fitted as piecewise Chebyshev series within 1 km (tools/import/planet-fits.mjs). US Government work, credit NASA/JPL-Caltech Solar System Dynamics"
      ]
     },
     "miranda": {
@@ -2476,11 +2476,11 @@
        "labelMaxDistance": 5000,
        "labelPriority": 99,
        "provenance": {
-        "accuracy": "Venus position was compared with JPL Horizons (DE441) at six dates from 1969 to 2030: at most 50 km (0.10 arcsec) from Horizons. Sample maxima, not a bound for every date.",
+        "accuracy": "Within 0.6 km of Horizons' Venus on 2 January of each year 1972 to 2044 (O-063 T-290); the fit is within 0.75 km of Horizons at independent dates 1950 to 2045.",
         "notes": "Geometric position about the Sun's centre; no light-time or aberration.",
         "sourceType": "ephemeris",
         "sources": [
-         "@lizard-isana/orb 3.1.1 VSOP87A full series (Bretagnon and Francou 1988), heliocentric ecliptic J2000, converted to Earth-equatorial J2000"
+         "JPL Horizons API 1.2 (https://ssd.jpl.nasa.gov/api/horizons.api), Venus (299) about the Sun's centre (CENTER=500@10), VECTORS geometric ICRF km TDB, 6-hourly 1950 to 2046, retrieved 2026-11-10: DE441 (Venus has no moons: its barycentre, 2, is the planet); the system barycentre fitted as piecewise Chebyshev series within 1 km (tools/import/planet-fits.mjs). US Government work, credit NASA/JPL-Caltech Solar System Dynamics"
         ]
        }
       },
@@ -2514,11 +2514,11 @@
        "label": "Mars",
        "labelPriority": 97,
        "provenance": {
-        "accuracy": "Mars position was compared with JPL Horizons (DE441) at six dates from 1969 to 2030: at most 96 km (0.09 arcsec) from Horizons. Sample maxima, not a bound for every date.",
+        "accuracy": "Within 0.6 km of Horizons' Mars on 2 January of each year 1972 to 2044, with or without the Mars moon package (O-063 T-290).",
         "notes": "Geometric position about the Sun's centre; no light-time or aberration.",
         "sourceType": "ephemeris",
         "sources": [
-         "@lizard-isana/orb 3.1.1 VSOP87A full series (Bretagnon and Francou 1988), heliocentric ecliptic J2000, converted to Earth-equatorial J2000"
+         "JPL Horizons API 1.2 (https://ssd.jpl.nasa.gov/api/horizons.api), Mars (499) about the Sun's centre (CENTER=500@10) and about its system barycentre, VECTORS geometric ICRF km TDB, 6-hourly 1950 to 2046, retrieved 2026-11-10: DE441 with the Mars satellite ephemeris mar099; the system barycentre fitted as piecewise Chebyshev series within 1 km (tools/import/planet-fits.mjs). US Government work, credit NASA/JPL-Caltech Solar System Dynamics"
         ]
        }
       },
@@ -2533,11 +2533,11 @@
        "label": "Jupiter",
        "labelPriority": 96,
        "provenance": {
-        "accuracy": "Jupiter position was compared with JPL Horizons (DE441) at six dates from 1969 to 2030: at most 1269 km (0.33 arcsec) from Horizons. Sample maxima, not a bound for every date.",
+        "accuracy": "With the Jupiter moon package loaded (it covers 1950 to 2029), within 0.5 km of Horizons' Jupiter on 2 January of each year 1972 to 2029 and 0.22 to 0.24 km at the Voyager 1 and 2 closest approaches (O-063 T-290).",
         "notes": "Geometric position about the Sun's centre; no light-time or aberration.",
         "sourceType": "ephemeris",
         "sources": [
-         "@lizard-isana/orb 3.1.1 VSOP87A full series (Bretagnon and Francou 1988), heliocentric ecliptic J2000, converted to Earth-equatorial J2000"
+         "JPL Horizons API 1.2 (https://ssd.jpl.nasa.gov/api/horizons.api), Jupiter (599) about the Sun's centre (CENTER=500@10) and about its system barycentre, VECTORS geometric ICRF km TDB, 6-hourly 1950 to 2046, retrieved 2026-11-10: DE441 with the Jupiter satellite ephemeris jup365_merged; the system barycentre fitted as piecewise Chebyshev series within 1 km (tools/import/planet-fits.mjs). US Government work, credit NASA/JPL-Caltech Solar System Dynamics"
         ]
        }
       }
@@ -2567,11 +2567,11 @@
        "labelPriority": 50,
        "partOf": "venus",
        "provenance": {
-        "accuracy": "Venus position was compared with JPL Horizons (DE441) at six dates from 1969 to 2030: at most 50 km (0.10 arcsec) from Horizons. Sample maxima, not a bound for every date.",
+        "accuracy": "Within 0.6 km of Horizons' Venus on 2 January of each year 1972 to 2044 (O-063 T-290); the fit is within 0.75 km of Horizons at independent dates 1950 to 2045.",
         "notes": "Geometric position about the Sun's centre; no light-time or aberration.",
         "sourceType": "ephemeris",
         "sources": [
-         "@lizard-isana/orb 3.1.1 VSOP87A full series (Bretagnon and Francou 1988), heliocentric ecliptic J2000, converted to Earth-equatorial J2000"
+         "JPL Horizons API 1.2 (https://ssd.jpl.nasa.gov/api/horizons.api), Venus (299) about the Sun's centre (CENTER=500@10), VECTORS geometric ICRF km TDB, 6-hourly 1950 to 2046, retrieved 2026-11-10: DE441 (Venus has no moons: its barycentre, 2, is the planet); the system barycentre fitted as piecewise Chebyshev series within 1 km (tools/import/planet-fits.mjs). US Government work, credit NASA/JPL-Caltech Solar System Dynamics"
         ]
        },
        "showLabel": false
@@ -2582,7 +2582,7 @@
        "stateAt": "[function]"
       },
       "span": {
-       "endUtcMs": 1786639688260,
+       "endUtcMs": 1786639688220,
        "startUtcMs": 1767225600000
       }
      },
@@ -2634,11 +2634,11 @@
        "labelPriority": 50,
        "partOf": "mars",
        "provenance": {
-        "accuracy": "Mars position was compared with JPL Horizons (DE441) at six dates from 1969 to 2030: at most 96 km (0.09 arcsec) from Horizons. Sample maxima, not a bound for every date.",
+        "accuracy": "Within 0.6 km of Horizons' Mars on 2 January of each year 1972 to 2044, with or without the Mars moon package (O-063 T-290).",
         "notes": "Geometric position about the Sun's centre; no light-time or aberration.",
         "sourceType": "ephemeris",
         "sources": [
-         "@lizard-isana/orb 3.1.1 VSOP87A full series (Bretagnon and Francou 1988), heliocentric ecliptic J2000, converted to Earth-equatorial J2000"
+         "JPL Horizons API 1.2 (https://ssd.jpl.nasa.gov/api/horizons.api), Mars (499) about the Sun's centre (CENTER=500@10) and about its system barycentre, VECTORS geometric ICRF km TDB, 6-hourly 1950 to 2046, retrieved 2026-11-10: DE441 with the Mars satellite ephemeris mar099; the system barycentre fitted as piecewise Chebyshev series within 1 km (tools/import/planet-fits.mjs). US Government work, credit NASA/JPL-Caltech Solar System Dynamics"
         ]
        },
        "showLabel": false
@@ -2649,7 +2649,7 @@
        "stateAt": "[function]"
       },
       "span": {
-       "endUtcMs": 1826583742340,
+       "endUtcMs": 1826583742560,
        "startUtcMs": 1767225600000
       }
      }
@@ -2698,7 +2698,7 @@
        "kind": "distance",
        "label": "Distance to Venus",
        "unit": "km",
-       "value": 108812941.887
+       "value": 108812941.357
       },
       {
        "context": "centre to centre · EQJ",
@@ -2707,7 +2707,7 @@
        "kind": "distance",
        "label": "Distance to Mars",
        "unit": "km",
-       "value": 213729591.322
+       "value": 213729592.961
       },
       {
        "context": "centre to centre · EQJ",
@@ -2716,7 +2716,7 @@
        "kind": "distance",
        "label": "Distance to Jupiter",
        "unit": "km",
-       "value": 779688113.319
+       "value": 779688226.582
       }
      ],
      [
@@ -2736,7 +2736,7 @@
        "kind": "distance",
        "label": "Distance to Venus",
        "unit": "km",
-       "value": 108886221.086
+       "value": 108886220.471
       },
       {
        "context": "centre to centre · EQJ",
@@ -2745,7 +2745,7 @@
        "kind": "distance",
        "label": "Distance to Mars",
        "unit": "km",
-       "value": 212604202.584
+       "value": 212604203.762
       },
       {
        "context": "centre to centre · EQJ",
@@ -2754,7 +2754,7 @@
        "kind": "distance",
        "label": "Distance to Jupiter",
        "unit": "km",
-       "value": 780095519.417
+       "value": 780095632.804
       }
      ]
     ],
@@ -2767,7 +2767,7 @@
        "kind": "distance",
        "label": "Distance from Sun",
        "unit": "km",
-       "value": 108812941.887
+       "value": 108812941.357
       }
      ],
      [
@@ -2778,7 +2778,7 @@
        "kind": "distance",
        "label": "Distance from Sun",
        "unit": "km",
-       "value": 108886221.086
+       "value": 108886220.471
       }
      ]
     ],
@@ -2815,7 +2815,7 @@
        "kind": "distance",
        "label": "Distance from Sun",
        "unit": "km",
-       "value": 213729591.322
+       "value": 213729592.961
       }
      ],
      [
@@ -2826,7 +2826,7 @@
        "kind": "distance",
        "label": "Distance from Sun",
        "unit": "km",
-       "value": 212604202.584
+       "value": 212604203.762
       }
      ]
     ],
@@ -2839,7 +2839,7 @@
        "kind": "distance",
        "label": "Distance from Sun",
        "unit": "km",
-       "value": 779688113.319
+       "value": 779688226.582
       }
      ],
      [
@@ -2850,7 +2850,7 @@
        "kind": "distance",
        "label": "Distance from Sun",
        "unit": "km",
-       "value": 780095519.417
+       "value": 780095632.804
       }
      ]
     ]
@@ -2894,9 +2894,9 @@
       ],
       "plane": "EQJ",
       "positionKm": [
-       13298276.4981,
-       -98168773.0103,
-       -45014488.444
+       13298235.7711,
+       -98168776.1736,
+       -45014492.2976
       ],
       "timeUtcMs": 1767225600000
      },
@@ -2911,9 +2911,9 @@
       ],
       "plane": "EQJ",
       "positionKm": [
-       35221865.8882,
-       -93106119.6721,
-       -44123460.7139
+       35221826.7517,
+       -93106132.2188,
+       -44123463.9622
       ],
       "timeUtcMs": 1767873600000
      }
@@ -2966,9 +2966,9 @@
       ],
       "plane": "EQJ",
       "positionKm": [
-       50951753.8129,
-       -188143590.173,
-       -87671240.8182
+       50951685.8328,
+       -188143607.513,
+       -87671247.1112
       ],
       "timeUtcMs": 1767225600000
      },
@@ -2983,9 +2983,9 @@
       ],
       "plane": "EQJ",
       "positionKm": [
-       66632169.4864,
-       -182822746.24,
-       -85653630.4154
+       66632102.8363,
+       -182822768.907,
+       -85653636.8057
       ],
       "timeUtcMs": 1767873600000
      }
@@ -3002,9 +3002,9 @@
       ],
       "plane": "EQJ",
       "positionKm": [
-       -253420962.468,
-       675468129.997,
-       295692703.988
+       -253420112.27,
+       675468512.536,
+       295692857.436
       ],
       "timeUtcMs": 1767225600000
      },
@@ -3019,9 +3019,9 @@
       ],
       "plane": "EQJ",
       "positionKm": [
-       -261518528.813,
-       673189014.248,
-       294912918.669
+       -261517683.673,
+       673189404.579,
+       294913077.039
       ],
       "timeUtcMs": 1767873600000
      }
@@ -3037,11 +3037,11 @@
      ]
     },
     "venus": {
-     "accuracy": "Venus position was compared with JPL Horizons (DE441) at six dates from 1969 to 2030: at most 50 km (0.10 arcsec) from Horizons. Sample maxima, not a bound for every date.",
+     "accuracy": "Within 0.6 km of Horizons' Venus on 2 January of each year 1972 to 2044 (O-063 T-290); the fit is within 0.75 km of Horizons at independent dates 1950 to 2045.",
      "notes": "Geometric position about the Sun's centre; no light-time or aberration.",
      "sourceType": "ephemeris",
      "sources": [
-      "@lizard-isana/orb 3.1.1 VSOP87A full series (Bretagnon and Francou 1988), heliocentric ecliptic J2000, converted to Earth-equatorial J2000"
+      "JPL Horizons API 1.2 (https://ssd.jpl.nasa.gov/api/horizons.api), Venus (299) about the Sun's centre (CENTER=500@10), VECTORS geometric ICRF km TDB, 6-hourly 1950 to 2046, retrieved 2026-11-10: DE441 (Venus has no moons: its barycentre, 2, is the planet); the system barycentre fitted as piecewise Chebyshev series within 1 km (tools/import/planet-fits.mjs). US Government work, credit NASA/JPL-Caltech Solar System Dynamics"
      ]
     },
     "earth": {
@@ -3054,19 +3054,19 @@
      ]
     },
     "mars": {
-     "accuracy": "Mars position was compared with JPL Horizons (DE441) at six dates from 1969 to 2030: at most 96 km (0.09 arcsec) from Horizons. Sample maxima, not a bound for every date.",
+     "accuracy": "Within 0.6 km of Horizons' Mars on 2 January of each year 1972 to 2044, with or without the Mars moon package (O-063 T-290).",
      "notes": "Geometric position about the Sun's centre; no light-time or aberration.",
      "sourceType": "ephemeris",
      "sources": [
-      "@lizard-isana/orb 3.1.1 VSOP87A full series (Bretagnon and Francou 1988), heliocentric ecliptic J2000, converted to Earth-equatorial J2000"
+      "JPL Horizons API 1.2 (https://ssd.jpl.nasa.gov/api/horizons.api), Mars (499) about the Sun's centre (CENTER=500@10) and about its system barycentre, VECTORS geometric ICRF km TDB, 6-hourly 1950 to 2046, retrieved 2026-11-10: DE441 with the Mars satellite ephemeris mar099; the system barycentre fitted as piecewise Chebyshev series within 1 km (tools/import/planet-fits.mjs). US Government work, credit NASA/JPL-Caltech Solar System Dynamics"
      ]
     },
     "jupiter": {
-     "accuracy": "Jupiter position was compared with JPL Horizons (DE441) at six dates from 1969 to 2030: at most 1269 km (0.33 arcsec) from Horizons. Sample maxima, not a bound for every date.",
+     "accuracy": "With the Jupiter moon package loaded (it covers 1950 to 2029), within 0.5 km of Horizons' Jupiter on 2 January of each year 1972 to 2029 and 0.22 to 0.24 km at the Voyager 1 and 2 closest approaches (O-063 T-290).",
      "notes": "Geometric position about the Sun's centre; no light-time or aberration.",
      "sourceType": "ephemeris",
      "sources": [
-      "@lizard-isana/orb 3.1.1 VSOP87A full series (Bretagnon and Francou 1988), heliocentric ecliptic J2000, converted to Earth-equatorial J2000"
+      "JPL Horizons API 1.2 (https://ssd.jpl.nasa.gov/api/horizons.api), Jupiter (599) about the Sun's centre (CENTER=500@10) and about its system barycentre, VECTORS geometric ICRF km TDB, 6-hourly 1950 to 2046, retrieved 2026-11-10: DE441 with the Jupiter satellite ephemeris jup365_merged; the system barycentre fitted as piecewise Chebyshev series within 1 km (tools/import/planet-fits.mjs). US Government work, credit NASA/JPL-Caltech Solar System Dynamics"
      ]
     }
    },
@@ -3738,11 +3738,11 @@
        "labelMaxDistance": 500,
        "labelPriority": 100,
        "provenance": {
-        "accuracy": "Jupiter position was compared with JPL Horizons (DE441) at six dates from 1969 to 2030: at most 1269 km (0.33 arcsec) from Horizons. Sample maxima, not a bound for every date.",
+        "accuracy": "With the Jupiter moon package loaded (it covers 1950 to 2029), within 0.5 km of Horizons' Jupiter on 2 January of each year 1972 to 2029 and 0.22 to 0.24 km at the Voyager 1 and 2 closest approaches (O-063 T-290).",
         "notes": "Geometric position about the Sun's centre; no light-time or aberration.",
         "sourceType": "ephemeris",
         "sources": [
-         "@lizard-isana/orb 3.1.1 VSOP87A full series (Bretagnon and Francou 1988), heliocentric ecliptic J2000, converted to Earth-equatorial J2000"
+         "JPL Horizons API 1.2 (https://ssd.jpl.nasa.gov/api/horizons.api), Jupiter (599) about the Sun's centre (CENTER=500@10) and about its system barycentre, VECTORS geometric ICRF km TDB, 6-hourly 1950 to 2046, retrieved 2026-11-10: DE441 with the Jupiter satellite ephemeris jup365_merged; the system barycentre fitted as piecewise Chebyshev series within 1 km (tools/import/planet-fits.mjs). US Government work, credit NASA/JPL-Caltech Solar System Dynamics"
         ]
        }
       },
@@ -3974,9 +3974,9 @@
       ],
       "plane": "EQJ",
       "positionKm": [
-       -809894096.249,
-       64337876.2624,
-       47293683.5582
+       -809893963.85,
+       64338884.1227,
+       47294282.7235
       ],
       "timeUtcMs": 1464739200000
      },
@@ -3991,9 +3991,9 @@
       ],
       "plane": "EQJ",
       "positionKm": [
-       -810764172.022,
-       56940774.2644,
-       44144257.2873
+       -810764250.179,
+       56941839.8437,
+       44144881.5416
       ],
       "timeUtcMs": 1465387200000
      }
@@ -4139,11 +4139,11 @@
    },
    "provenanceOf": {
     "jupiter": {
-     "accuracy": "Jupiter position was compared with JPL Horizons (DE441) at six dates from 1969 to 2030: at most 1269 km (0.33 arcsec) from Horizons. Sample maxima, not a bound for every date.",
+     "accuracy": "With the Jupiter moon package loaded (it covers 1950 to 2029), within 0.5 km of Horizons' Jupiter on 2 January of each year 1972 to 2029 and 0.22 to 0.24 km at the Voyager 1 and 2 closest approaches (O-063 T-290).",
      "notes": "Geometric position about the Sun's centre; no light-time or aberration.",
      "sourceType": "ephemeris",
      "sources": [
-      "@lizard-isana/orb 3.1.1 VSOP87A full series (Bretagnon and Francou 1988), heliocentric ecliptic J2000, converted to Earth-equatorial J2000"
+      "JPL Horizons API 1.2 (https://ssd.jpl.nasa.gov/api/horizons.api), Jupiter (599) about the Sun's centre (CENTER=500@10) and about its system barycentre, VECTORS geometric ICRF km TDB, 6-hourly 1950 to 2046, retrieved 2026-11-10: DE441 with the Jupiter satellite ephemeris jup365_merged; the system barycentre fitted as piecewise Chebyshev series within 1 km (tools/import/planet-fits.mjs). US Government work, credit NASA/JPL-Caltech Solar System Dynamics"
      ]
     },
     "io": {
@@ -4288,11 +4288,11 @@
        "labelMaxDistance": 500,
        "labelPriority": 100,
        "provenance": {
-        "accuracy": "Uranus position was compared with JPL Horizons (DE441) at six dates from 1969 to 2030: at most 19,070 km (1.36 arcsec) from Horizons. Sample maxima, not a bound for every date.",
+        "accuracy": "With the Uranus moon package loaded (it covers 1950 to 2029), within 0.6 km of Horizons' Uranus on 2 January of each year 1972 to 2029 and 0.20 km at Voyager 2's closest approach (O-063 T-290).",
         "notes": "Geometric position about the Sun's centre; no light-time or aberration.",
         "sourceType": "ephemeris",
         "sources": [
-         "@lizard-isana/orb 3.1.1 VSOP87A full series (Bretagnon and Francou 1988), heliocentric ecliptic J2000, converted to Earth-equatorial J2000"
+         "JPL Horizons API 1.2 (https://ssd.jpl.nasa.gov/api/horizons.api), Uranus (799) about the Sun's centre (CENTER=500@10) and about its system barycentre, VECTORS geometric ICRF km TDB, 6-hourly 1950 to 2046, retrieved 2026-11-10: DE441 with the Uranus satellite ephemeris ura184_merged, whose system barycentre differs from DE441's barycentre body 7 by up to about 3,400 km away from the 1986 Voyager 2 encounter; the series follows Horizons' Uranus; the system barycentre fitted as piecewise Chebyshev series within 1 km (tools/import/planet-fits.mjs). US Government work, credit NASA/JPL-Caltech Solar System Dynamics"
         ]
        }
       },
@@ -4384,9 +4384,9 @@
       ],
       "plane": "EQJ",
       "positionKm": [
-       2791463315.07,
-       985432652.275,
-       392131486.602
+       2791454264.77,
+       985436739.971,
+       392133959.148
       ],
       "timeUtcMs": 1464739200000
      },
@@ -4401,9 +4401,9 @@
       ],
       "plane": "EQJ",
       "positionKm": [
-       2789862030.2,
-       989006567.294,
-       393719448.486
+       2789852971.68,
+       989010654.562,
+       393721923.471
       ],
       "timeUtcMs": 1465387200000
      }
@@ -4427,11 +4427,11 @@
    },
    "provenanceOf": {
     "uranus": {
-     "accuracy": "Uranus position was compared with JPL Horizons (DE441) at six dates from 1969 to 2030: at most 19,070 km (1.36 arcsec) from Horizons. Sample maxima, not a bound for every date.",
+     "accuracy": "With the Uranus moon package loaded (it covers 1950 to 2029), within 0.6 km of Horizons' Uranus on 2 January of each year 1972 to 2029 and 0.20 km at Voyager 2's closest approach (O-063 T-290).",
      "notes": "Geometric position about the Sun's centre; no light-time or aberration.",
      "sourceType": "ephemeris",
      "sources": [
-      "@lizard-isana/orb 3.1.1 VSOP87A full series (Bretagnon and Francou 1988), heliocentric ecliptic J2000, converted to Earth-equatorial J2000"
+      "JPL Horizons API 1.2 (https://ssd.jpl.nasa.gov/api/horizons.api), Uranus (799) about the Sun's centre (CENTER=500@10) and about its system barycentre, VECTORS geometric ICRF km TDB, 6-hourly 1950 to 2046, retrieved 2026-11-10: DE441 with the Uranus satellite ephemeris ura184_merged, whose system barycentre differs from DE441's barycentre body 7 by up to about 3,400 km away from the 1986 Voyager 2 encounter; the series follows Horizons' Uranus; the system barycentre fitted as piecewise Chebyshev series within 1 km (tools/import/planet-fits.mjs). US Government work, credit NASA/JPL-Caltech Solar System Dynamics"
      ]
     },
     "miranda": {
@@ -7314,11 +7314,11 @@
        "label": "Jupiter",
        "labelPriority": 98,
        "provenance": {
-        "accuracy": "Jupiter position was compared with JPL Horizons (DE441) at six dates from 1969 to 2030: at most 1269 km (0.33 arcsec) from Horizons. Sample maxima, not a bound for every date.",
+        "accuracy": "With the Jupiter moon package loaded (it covers 1950 to 2029), within 0.5 km of Horizons' Jupiter on 2 January of each year 1972 to 2029 and 0.22 to 0.24 km at the Voyager 1 and 2 closest approaches (O-063 T-290).",
         "notes": "Geometric position about the Sun's centre; no light-time or aberration.",
         "sourceType": "ephemeris",
         "sources": [
-         "@lizard-isana/orb 3.1.1 VSOP87A full series (Bretagnon and Francou 1988), heliocentric ecliptic J2000, converted to Earth-equatorial J2000"
+         "JPL Horizons API 1.2 (https://ssd.jpl.nasa.gov/api/horizons.api), Jupiter (599) about the Sun's centre (CENTER=500@10) and about its system barycentre, VECTORS geometric ICRF km TDB, 6-hourly 1950 to 2046, retrieved 2026-11-10: DE441 with the Jupiter satellite ephemeris jup365_merged; the system barycentre fitted as piecewise Chebyshev series within 1 km (tools/import/planet-fits.mjs). US Government work, credit NASA/JPL-Caltech Solar System Dynamics"
         ]
        }
       },
@@ -7487,7 +7487,7 @@
        "kind": "distance",
        "label": "Distance to Jupiter",
        "unit": "km",
-       "value": 779796793.709
+       "value": 779796906.952
       }
      ],
      [
@@ -7507,7 +7507,7 @@
        "kind": "distance",
        "label": "Distance to Jupiter",
        "unit": "km",
-       "value": 784138497.678
+       "value": 784138611.313
       }
      ]
     ],
@@ -7544,7 +7544,7 @@
        "kind": "distance",
        "label": "Distance from Sun",
        "unit": "km",
-       "value": 779796793.709
+       "value": 779796906.952
       }
      ],
      [
@@ -7555,7 +7555,7 @@
        "kind": "distance",
        "label": "Distance from Sun",
        "unit": "km",
-       "value": 784138497.678
+       "value": 784138611.313
       }
      ]
     ],
@@ -7587,7 +7587,7 @@
        "to": "Jupiter",
        "unavailable": "no Jupiter state in this frame",
        "unit": "km",
-       "value": 839150724.645
+       "value": 839150668.168
       }
      ],
      [
@@ -7617,7 +7617,7 @@
        "to": "Jupiter",
        "unavailable": "no Jupiter state in this frame",
        "unit": "km",
-       "value": 942526105.962
+       "value": 942525643.816
       }
      ]
     ]
@@ -7697,9 +7697,9 @@
       ],
       "plane": "EQJ",
       "positionKm": [
-       -255583266.424,
-       674868122.019,
-       295488157.606
+       -255582417.786,
+       674868506.522,
+       295488312.317
       ],
       "timeUtcMs": 1767398400000
      },
@@ -7714,9 +7714,9 @@
       ],
       "plane": "EQJ",
       "positionKm": [
-       -340658577.296,
-       646115981.637,
-       285235088.179
+       -340657753.69,
+       646116458.699,
+       285235303.568
       ],
       "timeUtcMs": 1774353600000
      }
@@ -7767,11 +7767,11 @@
      ]
     },
     "jupiter": {
-     "accuracy": "Jupiter position was compared with JPL Horizons (DE441) at six dates from 1969 to 2030: at most 1269 km (0.33 arcsec) from Horizons. Sample maxima, not a bound for every date.",
+     "accuracy": "With the Jupiter moon package loaded (it covers 1950 to 2029), within 0.5 km of Horizons' Jupiter on 2 January of each year 1972 to 2029 and 0.22 to 0.24 km at the Voyager 1 and 2 closest approaches (O-063 T-290).",
      "notes": "Geometric position about the Sun's centre; no light-time or aberration.",
      "sourceType": "ephemeris",
      "sources": [
-      "@lizard-isana/orb 3.1.1 VSOP87A full series (Bretagnon and Francou 1988), heliocentric ecliptic J2000, converted to Earth-equatorial J2000"
+      "JPL Horizons API 1.2 (https://ssd.jpl.nasa.gov/api/horizons.api), Jupiter (599) about the Sun's centre (CENTER=500@10) and about its system barycentre, VECTORS geometric ICRF km TDB, 6-hourly 1950 to 2046, retrieved 2026-11-10: DE441 with the Jupiter satellite ephemeris jup365_merged; the system barycentre fitted as piecewise Chebyshev series within 1 km (tools/import/planet-fits.mjs). US Government work, credit NASA/JPL-Caltech Solar System Dynamics"
      ]
     },
     "traveller": {
@@ -8359,11 +8359,11 @@
        "label": "Jupiter",
        "labelPriority": 98,
        "provenance": {
-        "accuracy": "Jupiter position was compared with JPL Horizons (DE441) at six dates from 1969 to 2030: at most 1269 km (0.33 arcsec) from Horizons. Sample maxima, not a bound for every date.",
+        "accuracy": "With the Jupiter moon package loaded (it covers 1950 to 2029), within 0.5 km of Horizons' Jupiter on 2 January of each year 1972 to 2029 and 0.22 to 0.24 km at the Voyager 1 and 2 closest approaches (O-063 T-290).",
         "notes": "Geometric position about the Sun's centre; no light-time or aberration.",
         "sourceType": "ephemeris",
         "sources": [
-         "@lizard-isana/orb 3.1.1 VSOP87A full series (Bretagnon and Francou 1988), heliocentric ecliptic J2000, converted to Earth-equatorial J2000"
+         "JPL Horizons API 1.2 (https://ssd.jpl.nasa.gov/api/horizons.api), Jupiter (599) about the Sun's centre (CENTER=500@10) and about its system barycentre, VECTORS geometric ICRF km TDB, 6-hourly 1950 to 2046, retrieved 2026-11-10: DE441 with the Jupiter satellite ephemeris jup365_merged; the system barycentre fitted as piecewise Chebyshev series within 1 km (tools/import/planet-fits.mjs). US Government work, credit NASA/JPL-Caltech Solar System Dynamics"
         ]
        }
       }
@@ -8599,7 +8599,7 @@
        "kind": "distance",
        "label": "Distance to Jupiter",
        "unit": "km",
-       "value": 779959762.074
+       "value": 779959875.409
       }
      ],
      [
@@ -8619,7 +8619,7 @@
        "kind": "distance",
        "label": "Distance to Jupiter",
        "unit": "km",
-       "value": 780502503.712
+       "value": 780502616.275
       }
      ]
     ],
@@ -8656,7 +8656,7 @@
        "kind": "distance",
        "label": "Distance from Sun",
        "unit": "km",
-       "value": 779959762.074
+       "value": 779959875.409
       }
      ],
      [
@@ -8667,7 +8667,7 @@
        "kind": "distance",
        "label": "Distance from Sun",
        "unit": "km",
-       "value": 780502503.712
+       "value": 780502616.275
       }
      ]
     ],
@@ -8785,9 +8785,9 @@
       ],
       "plane": "EQJ",
       "positionKm": [
-       -258822708.917,
-       673957527.561,
-       295176704.447
+       -258821862.429,
+       673957915.18,
+       295176861.126
       ],
       "timeUtcMs": 1767657600000
      },
@@ -8802,9 +8802,9 @@
       ],
       "plane": "EQJ",
       "positionKm": [
-       -269585375.745,
-       670830802.517,
-       294098483.299
+       -269584531.857,
+       670831200.949,
+       294098646.766
       ],
       "timeUtcMs": 1768521600000
      }
@@ -8861,11 +8861,11 @@
      ]
     },
     "jupiter": {
-     "accuracy": "Jupiter position was compared with JPL Horizons (DE441) at six dates from 1969 to 2030: at most 1269 km (0.33 arcsec) from Horizons. Sample maxima, not a bound for every date.",
+     "accuracy": "With the Jupiter moon package loaded (it covers 1950 to 2029), within 0.5 km of Horizons' Jupiter on 2 January of each year 1972 to 2029 and 0.22 to 0.24 km at the Voyager 1 and 2 closest approaches (O-063 T-290).",
      "notes": "Geometric position about the Sun's centre; no light-time or aberration.",
      "sourceType": "ephemeris",
      "sources": [
-      "@lizard-isana/orb 3.1.1 VSOP87A full series (Bretagnon and Francou 1988), heliocentric ecliptic J2000, converted to Earth-equatorial J2000"
+      "JPL Horizons API 1.2 (https://ssd.jpl.nasa.gov/api/horizons.api), Jupiter (599) about the Sun's centre (CENTER=500@10) and about its system barycentre, VECTORS geometric ICRF km TDB, 6-hourly 1950 to 2046, retrieved 2026-11-10: DE441 with the Jupiter satellite ephemeris jup365_merged; the system barycentre fitted as piecewise Chebyshev series within 1 km (tools/import/planet-fits.mjs). US Government work, credit NASA/JPL-Caltech Solar System Dynamics"
      ]
     },
     "ring": {
@@ -12406,7 +12406,7 @@
    "definitionBeforePrepare": {
     "camera": {
      "fitOrbit": {
-      "farthestKm": 249244978.781
+      "farthestKm": 249244978.489
      }
     },
     "clock": {
@@ -12528,11 +12528,11 @@
        "label": "Mars",
        "labelPriority": 98,
        "provenance": {
-        "accuracy": "Mars position was compared with JPL Horizons (DE441) at six dates from 1969 to 2030: at most 96 km (0.09 arcsec) from Horizons. Sample maxima, not a bound for every date.",
+        "accuracy": "Within 0.6 km of Horizons' Mars on 2 January of each year 1972 to 2044, with or without the Mars moon package (O-063 T-290).",
         "notes": "Geometric position about the Sun's centre; no light-time or aberration.",
         "sourceType": "ephemeris",
         "sources": [
-         "@lizard-isana/orb 3.1.1 VSOP87A full series (Bretagnon and Francou 1988), heliocentric ecliptic J2000, converted to Earth-equatorial J2000"
+         "JPL Horizons API 1.2 (https://ssd.jpl.nasa.gov/api/horizons.api), Mars (499) about the Sun's centre (CENTER=500@10) and about its system barycentre, VECTORS geometric ICRF km TDB, 6-hourly 1950 to 2046, retrieved 2026-11-10: DE441 with the Mars satellite ephemeris mar099; the system barycentre fitted as piecewise Chebyshev series within 1 km (tools/import/planet-fits.mjs). US Government work, credit NASA/JPL-Caltech Solar System Dynamics"
         ]
        }
       }
@@ -12590,7 +12590,7 @@
        "kind": "distance",
        "label": "Distance to Mars",
        "unit": "km",
-       "value": 213729591.322
+       "value": 213729592.961
       }
      ],
      [
@@ -12610,7 +12610,7 @@
        "kind": "distance",
        "label": "Distance to Mars",
        "unit": "km",
-       "value": 212604202.584
+       "value": 212604203.762
       }
      ]
     ],
@@ -12647,7 +12647,7 @@
        "kind": "distance",
        "label": "Distance from Sun",
        "unit": "km",
-       "value": 213729591.322
+       "value": 213729592.961
       }
      ],
      [
@@ -12658,7 +12658,7 @@
        "kind": "distance",
        "label": "Distance from Sun",
        "unit": "km",
-       "value": 212604202.584
+       "value": 212604203.762
       }
      ]
     ]
@@ -12738,9 +12738,9 @@
       ],
       "plane": "EQJ",
       "positionKm": [
-       50951753.8129,
-       -188143590.173,
-       -87671240.8182
+       50951685.8328,
+       -188143607.513,
+       -87671247.1112
       ],
       "timeUtcMs": 1767225600000
      },
@@ -12755,9 +12755,9 @@
       ],
       "plane": "EQJ",
       "positionKm": [
-       66632169.4864,
-       -182822746.24,
-       -85653630.4154
+       66632102.8363,
+       -182822768.907,
+       -85653636.8057
       ],
       "timeUtcMs": 1767873600000
      }
@@ -12782,11 +12782,11 @@
      ]
     },
     "mars": {
-     "accuracy": "Mars position was compared with JPL Horizons (DE441) at six dates from 1969 to 2030: at most 96 km (0.09 arcsec) from Horizons. Sample maxima, not a bound for every date.",
+     "accuracy": "Within 0.6 km of Horizons' Mars on 2 January of each year 1972 to 2044, with or without the Mars moon package (O-063 T-290).",
      "notes": "Geometric position about the Sun's centre; no light-time or aberration.",
      "sourceType": "ephemeris",
      "sources": [
-      "@lizard-isana/orb 3.1.1 VSOP87A full series (Bretagnon and Francou 1988), heliocentric ecliptic J2000, converted to Earth-equatorial J2000"
+      "JPL Horizons API 1.2 (https://ssd.jpl.nasa.gov/api/horizons.api), Mars (499) about the Sun's centre (CENTER=500@10) and about its system barycentre, VECTORS geometric ICRF km TDB, 6-hourly 1950 to 2046, retrieved 2026-11-10: DE441 with the Mars satellite ephemeris mar099; the system barycentre fitted as piecewise Chebyshev series within 1 km (tools/import/planet-fits.mjs). US Government work, credit NASA/JPL-Caltech Solar System Dynamics"
      ]
     }
    },
@@ -13082,7 +13082,7 @@
    "definitionBeforePrepare": {
     "camera": {
      "fitOrbit": {
-      "farthestKm": 249244978.781
+      "farthestKm": 249244978.489
      }
     },
     "clock": {
@@ -13233,11 +13233,11 @@
        "label": "Venus",
        "labelPriority": 99,
        "provenance": {
-        "accuracy": "Venus position was compared with JPL Horizons (DE441) at six dates from 1969 to 2030: at most 50 km (0.10 arcsec) from Horizons. Sample maxima, not a bound for every date.",
+        "accuracy": "Within 0.6 km of Horizons' Venus on 2 January of each year 1972 to 2044 (O-063 T-290); the fit is within 0.75 km of Horizons at independent dates 1950 to 2045.",
         "notes": "Geometric position about the Sun's centre; no light-time or aberration.",
         "sourceType": "ephemeris",
         "sources": [
-         "@lizard-isana/orb 3.1.1 VSOP87A full series (Bretagnon and Francou 1988), heliocentric ecliptic J2000, converted to Earth-equatorial J2000"
+         "JPL Horizons API 1.2 (https://ssd.jpl.nasa.gov/api/horizons.api), Venus (299) about the Sun's centre (CENTER=500@10), VECTORS geometric ICRF km TDB, 6-hourly 1950 to 2046, retrieved 2026-11-10: DE441 (Venus has no moons: its barycentre, 2, is the planet); the system barycentre fitted as piecewise Chebyshev series within 1 km (tools/import/planet-fits.mjs). US Government work, credit NASA/JPL-Caltech Solar System Dynamics"
         ]
        }
       },
@@ -13269,11 +13269,11 @@
        "label": "Mars",
        "labelPriority": 97,
        "provenance": {
-        "accuracy": "Mars position was compared with JPL Horizons (DE441) at six dates from 1969 to 2030: at most 96 km (0.09 arcsec) from Horizons. Sample maxima, not a bound for every date.",
+        "accuracy": "Within 0.6 km of Horizons' Mars on 2 January of each year 1972 to 2044, with or without the Mars moon package (O-063 T-290).",
         "notes": "Geometric position about the Sun's centre; no light-time or aberration.",
         "sourceType": "ephemeris",
         "sources": [
-         "@lizard-isana/orb 3.1.1 VSOP87A full series (Bretagnon and Francou 1988), heliocentric ecliptic J2000, converted to Earth-equatorial J2000"
+         "JPL Horizons API 1.2 (https://ssd.jpl.nasa.gov/api/horizons.api), Mars (499) about the Sun's centre (CENTER=500@10) and about its system barycentre, VECTORS geometric ICRF km TDB, 6-hourly 1950 to 2046, retrieved 2026-11-10: DE441 with the Mars satellite ephemeris mar099; the system barycentre fitted as piecewise Chebyshev series within 1 km (tools/import/planet-fits.mjs). US Government work, credit NASA/JPL-Caltech Solar System Dynamics"
         ]
        }
       },
@@ -13327,11 +13327,11 @@
        "labelPriority": 50,
        "partOf": "venus",
        "provenance": {
-        "accuracy": "Venus position was compared with JPL Horizons (DE441) at six dates from 1969 to 2030: at most 50 km (0.10 arcsec) from Horizons. Sample maxima, not a bound for every date.",
+        "accuracy": "Within 0.6 km of Horizons' Venus on 2 January of each year 1972 to 2044 (O-063 T-290); the fit is within 0.75 km of Horizons at independent dates 1950 to 2045.",
         "notes": "Geometric position about the Sun's centre; no light-time or aberration.",
         "sourceType": "ephemeris",
         "sources": [
-         "@lizard-isana/orb 3.1.1 VSOP87A full series (Bretagnon and Francou 1988), heliocentric ecliptic J2000, converted to Earth-equatorial J2000"
+         "JPL Horizons API 1.2 (https://ssd.jpl.nasa.gov/api/horizons.api), Venus (299) about the Sun's centre (CENTER=500@10), VECTORS geometric ICRF km TDB, 6-hourly 1950 to 2046, retrieved 2026-11-10: DE441 (Venus has no moons: its barycentre, 2, is the planet); the system barycentre fitted as piecewise Chebyshev series within 1 km (tools/import/planet-fits.mjs). US Government work, credit NASA/JPL-Caltech Solar System Dynamics"
         ]
        },
        "showLabel": false
@@ -13342,7 +13342,7 @@
        "stateAt": "[function]"
       },
       "span": {
-       "endUtcMs": 1786639688260,
+       "endUtcMs": 1786639688220,
        "startUtcMs": 1767225600000
       }
      },
@@ -13394,11 +13394,11 @@
        "labelPriority": 50,
        "partOf": "mars",
        "provenance": {
-        "accuracy": "Mars position was compared with JPL Horizons (DE441) at six dates from 1969 to 2030: at most 96 km (0.09 arcsec) from Horizons. Sample maxima, not a bound for every date.",
+        "accuracy": "Within 0.6 km of Horizons' Mars on 2 January of each year 1972 to 2044, with or without the Mars moon package (O-063 T-290).",
         "notes": "Geometric position about the Sun's centre; no light-time or aberration.",
         "sourceType": "ephemeris",
         "sources": [
-         "@lizard-isana/orb 3.1.1 VSOP87A full series (Bretagnon and Francou 1988), heliocentric ecliptic J2000, converted to Earth-equatorial J2000"
+         "JPL Horizons API 1.2 (https://ssd.jpl.nasa.gov/api/horizons.api), Mars (499) about the Sun's centre (CENTER=500@10) and about its system barycentre, VECTORS geometric ICRF km TDB, 6-hourly 1950 to 2046, retrieved 2026-11-10: DE441 with the Mars satellite ephemeris mar099; the system barycentre fitted as piecewise Chebyshev series within 1 km (tools/import/planet-fits.mjs). US Government work, credit NASA/JPL-Caltech Solar System Dynamics"
         ]
        },
        "showLabel": false
@@ -13409,7 +13409,7 @@
        "stateAt": "[function]"
       },
       "span": {
-       "endUtcMs": 1826583742340,
+       "endUtcMs": 1826583742560,
        "startUtcMs": 1767225600000
       }
      }
@@ -13552,7 +13552,7 @@
        "kind": "distance",
        "label": "Distance to Venus",
        "unit": "km",
-       "value": 108812941.887
+       "value": 108812941.357
       },
       {
        "context": "centre to centre · EQJ",
@@ -13561,7 +13561,7 @@
        "kind": "distance",
        "label": "Distance to Mars",
        "unit": "km",
-       "value": 213729591.322
+       "value": 213729592.961
       }
      ],
      [
@@ -13581,7 +13581,7 @@
        "kind": "distance",
        "label": "Distance to Venus",
        "unit": "km",
-       "value": 108815293.949
+       "value": 108815293.409
       },
       {
        "context": "centre to centre · EQJ",
@@ -13590,7 +13590,7 @@
        "kind": "distance",
        "label": "Distance to Mars",
        "unit": "km",
-       "value": 223865163.187
+       "value": 223865161.726
       }
      ]
     ],
@@ -13603,7 +13603,7 @@
        "kind": "distance",
        "label": "Distance from Sun",
        "unit": "km",
-       "value": 108812941.887
+       "value": 108812941.357
       }
      ],
      [
@@ -13614,7 +13614,7 @@
        "kind": "distance",
        "label": "Distance from Sun",
        "unit": "km",
-       "value": 108815293.949
+       "value": 108815293.409
       }
      ]
     ],
@@ -13651,7 +13651,7 @@
        "kind": "distance",
        "label": "Distance from Sun",
        "unit": "km",
-       "value": 213729591.322
+       "value": 213729592.961
       }
      ],
      [
@@ -13662,7 +13662,7 @@
        "kind": "distance",
        "label": "Distance from Sun",
        "unit": "km",
-       "value": 223865163.187
+       "value": 223865161.726
       }
      ]
     ],
@@ -16682,11 +16682,11 @@
        "labelMaxDistance": 5000,
        "labelPriority": 99,
        "provenance": {
-        "accuracy": "Venus position was compared with JPL Horizons (DE441) at six dates from 1969 to 2030: at most 50 km (0.10 arcsec) from Horizons. Sample maxima, not a bound for every date.",
+        "accuracy": "Within 0.6 km of Horizons' Venus on 2 January of each year 1972 to 2044 (O-063 T-290); the fit is within 0.75 km of Horizons at independent dates 1950 to 2045.",
         "notes": "Geometric position about the Sun's centre; no light-time or aberration.",
         "sourceType": "ephemeris",
         "sources": [
-         "@lizard-isana/orb 3.1.1 VSOP87A full series (Bretagnon and Francou 1988), heliocentric ecliptic J2000, converted to Earth-equatorial J2000"
+         "JPL Horizons API 1.2 (https://ssd.jpl.nasa.gov/api/horizons.api), Venus (299) about the Sun's centre (CENTER=500@10), VECTORS geometric ICRF km TDB, 6-hourly 1950 to 2046, retrieved 2026-11-10: DE441 (Venus has no moons: its barycentre, 2, is the planet); the system barycentre fitted as piecewise Chebyshev series within 1 km (tools/import/planet-fits.mjs). US Government work, credit NASA/JPL-Caltech Solar System Dynamics"
         ]
        }
       },
@@ -16720,11 +16720,11 @@
        "label": "Mars",
        "labelPriority": 97,
        "provenance": {
-        "accuracy": "Mars position was compared with JPL Horizons (DE441) at six dates from 1969 to 2030: at most 96 km (0.09 arcsec) from Horizons. Sample maxima, not a bound for every date.",
+        "accuracy": "Within 0.6 km of Horizons' Mars on 2 January of each year 1972 to 2044, with or without the Mars moon package (O-063 T-290).",
         "notes": "Geometric position about the Sun's centre; no light-time or aberration.",
         "sourceType": "ephemeris",
         "sources": [
-         "@lizard-isana/orb 3.1.1 VSOP87A full series (Bretagnon and Francou 1988), heliocentric ecliptic J2000, converted to Earth-equatorial J2000"
+         "JPL Horizons API 1.2 (https://ssd.jpl.nasa.gov/api/horizons.api), Mars (499) about the Sun's centre (CENTER=500@10) and about its system barycentre, VECTORS geometric ICRF km TDB, 6-hourly 1950 to 2046, retrieved 2026-11-10: DE441 with the Mars satellite ephemeris mar099; the system barycentre fitted as piecewise Chebyshev series within 1 km (tools/import/planet-fits.mjs). US Government work, credit NASA/JPL-Caltech Solar System Dynamics"
         ]
        }
       },
@@ -16739,11 +16739,11 @@
        "label": "Jupiter",
        "labelPriority": 96,
        "provenance": {
-        "accuracy": "Jupiter position was compared with JPL Horizons (DE441) at six dates from 1969 to 2030: at most 1269 km (0.33 arcsec) from Horizons. Sample maxima, not a bound for every date.",
+        "accuracy": "With the Jupiter moon package loaded (it covers 1950 to 2029), within 0.5 km of Horizons' Jupiter on 2 January of each year 1972 to 2029 and 0.22 to 0.24 km at the Voyager 1 and 2 closest approaches (O-063 T-290).",
         "notes": "Geometric position about the Sun's centre; no light-time or aberration.",
         "sourceType": "ephemeris",
         "sources": [
-         "@lizard-isana/orb 3.1.1 VSOP87A full series (Bretagnon and Francou 1988), heliocentric ecliptic J2000, converted to Earth-equatorial J2000"
+         "JPL Horizons API 1.2 (https://ssd.jpl.nasa.gov/api/horizons.api), Jupiter (599) about the Sun's centre (CENTER=500@10) and about its system barycentre, VECTORS geometric ICRF km TDB, 6-hourly 1950 to 2046, retrieved 2026-11-10: DE441 with the Jupiter satellite ephemeris jup365_merged; the system barycentre fitted as piecewise Chebyshev series within 1 km (tools/import/planet-fits.mjs). US Government work, credit NASA/JPL-Caltech Solar System Dynamics"
         ]
        }
       }
@@ -16916,11 +16916,11 @@
        "labelMaxDistance": 5000,
        "labelPriority": 99,
        "provenance": {
-        "accuracy": "Venus position was compared with JPL Horizons (DE441) at six dates from 1969 to 2030: at most 50 km (0.10 arcsec) from Horizons. Sample maxima, not a bound for every date.",
+        "accuracy": "Within 0.6 km of Horizons' Venus on 2 January of each year 1972 to 2044 (O-063 T-290); the fit is within 0.75 km of Horizons at independent dates 1950 to 2045.",
         "notes": "Geometric position about the Sun's centre; no light-time or aberration.",
         "sourceType": "ephemeris",
         "sources": [
-         "@lizard-isana/orb 3.1.1 VSOP87A full series (Bretagnon and Francou 1988), heliocentric ecliptic J2000, converted to Earth-equatorial J2000"
+         "JPL Horizons API 1.2 (https://ssd.jpl.nasa.gov/api/horizons.api), Venus (299) about the Sun's centre (CENTER=500@10), VECTORS geometric ICRF km TDB, 6-hourly 1950 to 2046, retrieved 2026-11-10: DE441 (Venus has no moons: its barycentre, 2, is the planet); the system barycentre fitted as piecewise Chebyshev series within 1 km (tools/import/planet-fits.mjs). US Government work, credit NASA/JPL-Caltech Solar System Dynamics"
         ]
        }
       },
@@ -16954,11 +16954,11 @@
        "label": "Mars",
        "labelPriority": 97,
        "provenance": {
-        "accuracy": "Mars position was compared with JPL Horizons (DE441) at six dates from 1969 to 2030: at most 96 km (0.09 arcsec) from Horizons. Sample maxima, not a bound for every date.",
+        "accuracy": "Within 0.6 km of Horizons' Mars on 2 January of each year 1972 to 2044, with or without the Mars moon package (O-063 T-290).",
         "notes": "Geometric position about the Sun's centre; no light-time or aberration.",
         "sourceType": "ephemeris",
         "sources": [
-         "@lizard-isana/orb 3.1.1 VSOP87A full series (Bretagnon and Francou 1988), heliocentric ecliptic J2000, converted to Earth-equatorial J2000"
+         "JPL Horizons API 1.2 (https://ssd.jpl.nasa.gov/api/horizons.api), Mars (499) about the Sun's centre (CENTER=500@10) and about its system barycentre, VECTORS geometric ICRF km TDB, 6-hourly 1950 to 2046, retrieved 2026-11-10: DE441 with the Mars satellite ephemeris mar099; the system barycentre fitted as piecewise Chebyshev series within 1 km (tools/import/planet-fits.mjs). US Government work, credit NASA/JPL-Caltech Solar System Dynamics"
         ]
        }
       },
@@ -16973,11 +16973,11 @@
        "label": "Jupiter",
        "labelPriority": 96,
        "provenance": {
-        "accuracy": "Jupiter position was compared with JPL Horizons (DE441) at six dates from 1969 to 2030: at most 1269 km (0.33 arcsec) from Horizons. Sample maxima, not a bound for every date.",
+        "accuracy": "With the Jupiter moon package loaded (it covers 1950 to 2029), within 0.5 km of Horizons' Jupiter on 2 January of each year 1972 to 2029 and 0.22 to 0.24 km at the Voyager 1 and 2 closest approaches (O-063 T-290).",
         "notes": "Geometric position about the Sun's centre; no light-time or aberration.",
         "sourceType": "ephemeris",
         "sources": [
-         "@lizard-isana/orb 3.1.1 VSOP87A full series (Bretagnon and Francou 1988), heliocentric ecliptic J2000, converted to Earth-equatorial J2000"
+         "JPL Horizons API 1.2 (https://ssd.jpl.nasa.gov/api/horizons.api), Jupiter (599) about the Sun's centre (CENTER=500@10) and about its system barycentre, VECTORS geometric ICRF km TDB, 6-hourly 1950 to 2046, retrieved 2026-11-10: DE441 with the Jupiter satellite ephemeris jup365_merged; the system barycentre fitted as piecewise Chebyshev series within 1 km (tools/import/planet-fits.mjs). US Government work, credit NASA/JPL-Caltech Solar System Dynamics"
         ]
        }
       }
@@ -17007,11 +17007,11 @@
        "labelPriority": 50,
        "partOf": "venus",
        "provenance": {
-        "accuracy": "Venus position was compared with JPL Horizons (DE441) at six dates from 1969 to 2030: at most 50 km (0.10 arcsec) from Horizons. Sample maxima, not a bound for every date.",
+        "accuracy": "Within 0.6 km of Horizons' Venus on 2 January of each year 1972 to 2044 (O-063 T-290); the fit is within 0.75 km of Horizons at independent dates 1950 to 2045.",
         "notes": "Geometric position about the Sun's centre; no light-time or aberration.",
         "sourceType": "ephemeris",
         "sources": [
-         "@lizard-isana/orb 3.1.1 VSOP87A full series (Bretagnon and Francou 1988), heliocentric ecliptic J2000, converted to Earth-equatorial J2000"
+         "JPL Horizons API 1.2 (https://ssd.jpl.nasa.gov/api/horizons.api), Venus (299) about the Sun's centre (CENTER=500@10), VECTORS geometric ICRF km TDB, 6-hourly 1950 to 2046, retrieved 2026-11-10: DE441 (Venus has no moons: its barycentre, 2, is the planet); the system barycentre fitted as piecewise Chebyshev series within 1 km (tools/import/planet-fits.mjs). US Government work, credit NASA/JPL-Caltech Solar System Dynamics"
         ]
        },
        "showLabel": false
@@ -17022,7 +17022,7 @@
        "stateAt": "[function]"
       },
       "span": {
-       "endUtcMs": 1786639688260,
+       "endUtcMs": 1786639688220,
        "startUtcMs": 1767225600000
       }
      },
@@ -17074,11 +17074,11 @@
        "labelPriority": 50,
        "partOf": "mars",
        "provenance": {
-        "accuracy": "Mars position was compared with JPL Horizons (DE441) at six dates from 1969 to 2030: at most 96 km (0.09 arcsec) from Horizons. Sample maxima, not a bound for every date.",
+        "accuracy": "Within 0.6 km of Horizons' Mars on 2 January of each year 1972 to 2044, with or without the Mars moon package (O-063 T-290).",
         "notes": "Geometric position about the Sun's centre; no light-time or aberration.",
         "sourceType": "ephemeris",
         "sources": [
-         "@lizard-isana/orb 3.1.1 VSOP87A full series (Bretagnon and Francou 1988), heliocentric ecliptic J2000, converted to Earth-equatorial J2000"
+         "JPL Horizons API 1.2 (https://ssd.jpl.nasa.gov/api/horizons.api), Mars (499) about the Sun's centre (CENTER=500@10) and about its system barycentre, VECTORS geometric ICRF km TDB, 6-hourly 1950 to 2046, retrieved 2026-11-10: DE441 with the Mars satellite ephemeris mar099; the system barycentre fitted as piecewise Chebyshev series within 1 km (tools/import/planet-fits.mjs). US Government work, credit NASA/JPL-Caltech Solar System Dynamics"
         ]
        },
        "showLabel": false
@@ -17089,7 +17089,7 @@
        "stateAt": "[function]"
       },
       "span": {
-       "endUtcMs": 1826583742340,
+       "endUtcMs": 1826583742560,
        "startUtcMs": 1767225600000
       }
      }
@@ -17136,7 +17136,7 @@
        "kind": "distance",
        "label": "Distance to Venus",
        "unit": "km",
-       "value": 108812941.887
+       "value": 108812941.357
       },
       {
        "context": "centre to centre · EQJ",
@@ -17145,7 +17145,7 @@
        "kind": "distance",
        "label": "Distance to Mars",
        "unit": "km",
-       "value": 213729591.322
+       "value": 213729592.961
       },
       {
        "context": "centre to centre · EQJ",
@@ -17154,7 +17154,7 @@
        "kind": "distance",
        "label": "Distance to Jupiter",
        "unit": "km",
-       "value": 779688113.319
+       "value": 779688226.582
       }
      ],
      [
@@ -17174,7 +17174,7 @@
        "kind": "distance",
        "label": "Distance to Venus",
        "unit": "km",
-       "value": 108886221.086
+       "value": 108886220.471
       },
       {
        "context": "centre to centre · EQJ",
@@ -17183,7 +17183,7 @@
        "kind": "distance",
        "label": "Distance to Mars",
        "unit": "km",
-       "value": 212604202.584
+       "value": 212604203.762
       },
       {
        "context": "centre to centre · EQJ",
@@ -17192,7 +17192,7 @@
        "kind": "distance",
        "label": "Distance to Jupiter",
        "unit": "km",
-       "value": 780095519.417
+       "value": 780095632.804
       }
      ]
     ],
@@ -17205,7 +17205,7 @@
        "kind": "distance",
        "label": "Distance from Sun",
        "unit": "km",
-       "value": 108812941.887
+       "value": 108812941.357
       }
      ],
      [
@@ -17216,7 +17216,7 @@
        "kind": "distance",
        "label": "Distance from Sun",
        "unit": "km",
-       "value": 108886221.086
+       "value": 108886220.471
       }
      ]
     ],
@@ -17253,7 +17253,7 @@
        "kind": "distance",
        "label": "Distance from Sun",
        "unit": "km",
-       "value": 213729591.322
+       "value": 213729592.961
       }
      ],
      [
@@ -17264,7 +17264,7 @@
        "kind": "distance",
        "label": "Distance from Sun",
        "unit": "km",
-       "value": 212604202.584
+       "value": 212604203.762
       }
      ]
     ],
@@ -17277,7 +17277,7 @@
        "kind": "distance",
        "label": "Distance from Sun",
        "unit": "km",
-       "value": 779688113.319
+       "value": 779688226.582
       }
      ],
      [
@@ -17288,7 +17288,7 @@
        "kind": "distance",
        "label": "Distance from Sun",
        "unit": "km",
-       "value": 780095519.417
+       "value": 780095632.804
       }
      ]
     ]
@@ -17332,9 +17332,9 @@
       ],
       "plane": "EQJ",
       "positionKm": [
-       13298276.4981,
-       -98168773.0103,
-       -45014488.444
+       13298235.7711,
+       -98168776.1736,
+       -45014492.2976
       ],
       "timeUtcMs": 1767225600000
      },
@@ -17349,9 +17349,9 @@
       ],
       "plane": "EQJ",
       "positionKm": [
-       35221865.8882,
-       -93106119.6721,
-       -44123460.7139
+       35221826.7517,
+       -93106132.2188,
+       -44123463.9622
       ],
       "timeUtcMs": 1767873600000
      }
@@ -17404,9 +17404,9 @@
       ],
       "plane": "EQJ",
       "positionKm": [
-       50951753.8129,
-       -188143590.173,
-       -87671240.8182
+       50951685.8328,
+       -188143607.513,
+       -87671247.1112
       ],
       "timeUtcMs": 1767225600000
      },
@@ -17421,9 +17421,9 @@
       ],
       "plane": "EQJ",
       "positionKm": [
-       66632169.4864,
-       -182822746.24,
-       -85653630.4154
+       66632102.8363,
+       -182822768.907,
+       -85653636.8057
       ],
       "timeUtcMs": 1767873600000
      }
@@ -17440,9 +17440,9 @@
       ],
       "plane": "EQJ",
       "positionKm": [
-       -253420962.468,
-       675468129.997,
-       295692703.988
+       -253420112.27,
+       675468512.536,
+       295692857.436
       ],
       "timeUtcMs": 1767225600000
      },
@@ -17457,9 +17457,9 @@
       ],
       "plane": "EQJ",
       "positionKm": [
-       -261518528.813,
-       673189014.248,
-       294912918.669
+       -261517683.673,
+       673189404.579,
+       294913077.039
       ],
       "timeUtcMs": 1767873600000
      }
@@ -17475,11 +17475,11 @@
      ]
     },
     "venus": {
-     "accuracy": "Venus position was compared with JPL Horizons (DE441) at six dates from 1969 to 2030: at most 50 km (0.10 arcsec) from Horizons. Sample maxima, not a bound for every date.",
+     "accuracy": "Within 0.6 km of Horizons' Venus on 2 January of each year 1972 to 2044 (O-063 T-290); the fit is within 0.75 km of Horizons at independent dates 1950 to 2045.",
      "notes": "Geometric position about the Sun's centre; no light-time or aberration.",
      "sourceType": "ephemeris",
      "sources": [
-      "@lizard-isana/orb 3.1.1 VSOP87A full series (Bretagnon and Francou 1988), heliocentric ecliptic J2000, converted to Earth-equatorial J2000"
+      "JPL Horizons API 1.2 (https://ssd.jpl.nasa.gov/api/horizons.api), Venus (299) about the Sun's centre (CENTER=500@10), VECTORS geometric ICRF km TDB, 6-hourly 1950 to 2046, retrieved 2026-11-10: DE441 (Venus has no moons: its barycentre, 2, is the planet); the system barycentre fitted as piecewise Chebyshev series within 1 km (tools/import/planet-fits.mjs). US Government work, credit NASA/JPL-Caltech Solar System Dynamics"
      ]
     },
     "earth": {
@@ -17492,19 +17492,19 @@
      ]
     },
     "mars": {
-     "accuracy": "Mars position was compared with JPL Horizons (DE441) at six dates from 1969 to 2030: at most 96 km (0.09 arcsec) from Horizons. Sample maxima, not a bound for every date.",
+     "accuracy": "Within 0.6 km of Horizons' Mars on 2 January of each year 1972 to 2044, with or without the Mars moon package (O-063 T-290).",
      "notes": "Geometric position about the Sun's centre; no light-time or aberration.",
      "sourceType": "ephemeris",
      "sources": [
-      "@lizard-isana/orb 3.1.1 VSOP87A full series (Bretagnon and Francou 1988), heliocentric ecliptic J2000, converted to Earth-equatorial J2000"
+      "JPL Horizons API 1.2 (https://ssd.jpl.nasa.gov/api/horizons.api), Mars (499) about the Sun's centre (CENTER=500@10) and about its system barycentre, VECTORS geometric ICRF km TDB, 6-hourly 1950 to 2046, retrieved 2026-11-10: DE441 with the Mars satellite ephemeris mar099; the system barycentre fitted as piecewise Chebyshev series within 1 km (tools/import/planet-fits.mjs). US Government work, credit NASA/JPL-Caltech Solar System Dynamics"
      ]
     },
     "jupiter": {
-     "accuracy": "Jupiter position was compared with JPL Horizons (DE441) at six dates from 1969 to 2030: at most 1269 km (0.33 arcsec) from Horizons. Sample maxima, not a bound for every date.",
+     "accuracy": "With the Jupiter moon package loaded (it covers 1950 to 2029), within 0.5 km of Horizons' Jupiter on 2 January of each year 1972 to 2029 and 0.22 to 0.24 km at the Voyager 1 and 2 closest approaches (O-063 T-290).",
      "notes": "Geometric position about the Sun's centre; no light-time or aberration.",
      "sourceType": "ephemeris",
      "sources": [
-      "@lizard-isana/orb 3.1.1 VSOP87A full series (Bretagnon and Francou 1988), heliocentric ecliptic J2000, converted to Earth-equatorial J2000"
+      "JPL Horizons API 1.2 (https://ssd.jpl.nasa.gov/api/horizons.api), Jupiter (599) about the Sun's centre (CENTER=500@10) and about its system barycentre, VECTORS geometric ICRF km TDB, 6-hourly 1950 to 2046, retrieved 2026-11-10: DE441 with the Jupiter satellite ephemeris jup365_merged; the system barycentre fitted as piecewise Chebyshev series within 1 km (tools/import/planet-fits.mjs). US Government work, credit NASA/JPL-Caltech Solar System Dynamics"
      ]
     }
    },
@@ -18176,11 +18176,11 @@
        "labelMaxDistance": 500,
        "labelPriority": 100,
        "provenance": {
-        "accuracy": "Jupiter position was compared with JPL Horizons (DE441) at six dates from 1969 to 2030: at most 1269 km (0.33 arcsec) from Horizons. Sample maxima, not a bound for every date.",
+        "accuracy": "With the Jupiter moon package loaded (it covers 1950 to 2029), within 0.5 km of Horizons' Jupiter on 2 January of each year 1972 to 2029 and 0.22 to 0.24 km at the Voyager 1 and 2 closest approaches (O-063 T-290).",
         "notes": "Geometric position about the Sun's centre; no light-time or aberration.",
         "sourceType": "ephemeris",
         "sources": [
-         "@lizard-isana/orb 3.1.1 VSOP87A full series (Bretagnon and Francou 1988), heliocentric ecliptic J2000, converted to Earth-equatorial J2000"
+         "JPL Horizons API 1.2 (https://ssd.jpl.nasa.gov/api/horizons.api), Jupiter (599) about the Sun's centre (CENTER=500@10) and about its system barycentre, VECTORS geometric ICRF km TDB, 6-hourly 1950 to 2046, retrieved 2026-11-10: DE441 with the Jupiter satellite ephemeris jup365_merged; the system barycentre fitted as piecewise Chebyshev series within 1 km (tools/import/planet-fits.mjs). US Government work, credit NASA/JPL-Caltech Solar System Dynamics"
         ]
        }
       },
@@ -18336,9 +18336,9 @@
       ],
       "plane": "EQJ",
       "positionKm": [
-       -809894096.249,
-       64337876.2624,
-       47293683.5582
+       -809894100.455,
+       64338846.3711,
+       47294262.4909
       ],
       "timeUtcMs": 1464739200000
      },
@@ -18353,9 +18353,9 @@
       ],
       "plane": "EQJ",
       "positionKm": [
-       -810764172.022,
-       56940774.2644,
-       44144257.2873
+       -810764185.197,
+       56941747.6288,
+       44144838.6958
       ],
       "timeUtcMs": 1465387200000
      }
@@ -18411,11 +18411,11 @@
    },
    "provenanceOf": {
     "jupiter": {
-     "accuracy": "Jupiter position was compared with JPL Horizons (DE441) at six dates from 1969 to 2030: at most 1269 km (0.33 arcsec) from Horizons. Sample maxima, not a bound for every date.",
+     "accuracy": "With the Jupiter moon package loaded (it covers 1950 to 2029), within 0.5 km of Horizons' Jupiter on 2 January of each year 1972 to 2029 and 0.22 to 0.24 km at the Voyager 1 and 2 closest approaches (O-063 T-290).",
      "notes": "Geometric position about the Sun's centre; no light-time or aberration.",
      "sourceType": "ephemeris",
      "sources": [
-      "@lizard-isana/orb 3.1.1 VSOP87A full series (Bretagnon and Francou 1988), heliocentric ecliptic J2000, converted to Earth-equatorial J2000"
+      "JPL Horizons API 1.2 (https://ssd.jpl.nasa.gov/api/horizons.api), Jupiter (599) about the Sun's centre (CENTER=500@10) and about its system barycentre, VECTORS geometric ICRF km TDB, 6-hourly 1950 to 2046, retrieved 2026-11-10: DE441 with the Jupiter satellite ephemeris jup365_merged; the system barycentre fitted as piecewise Chebyshev series within 1 km (tools/import/planet-fits.mjs). US Government work, credit NASA/JPL-Caltech Solar System Dynamics"
      ]
     },
     "io": {
@@ -18560,11 +18560,11 @@
        "labelMaxDistance": 500,
        "labelPriority": 100,
        "provenance": {
-        "accuracy": "Uranus position was compared with JPL Horizons (DE441) at six dates from 1969 to 2030: at most 19,070 km (1.36 arcsec) from Horizons. Sample maxima, not a bound for every date.",
+        "accuracy": "With the Uranus moon package loaded (it covers 1950 to 2029), within 0.6 km of Horizons' Uranus on 2 January of each year 1972 to 2029 and 0.20 km at Voyager 2's closest approach (O-063 T-290).",
         "notes": "Geometric position about the Sun's centre; no light-time or aberration.",
         "sourceType": "ephemeris",
         "sources": [
-         "@lizard-isana/orb 3.1.1 VSOP87A full series (Bretagnon and Francou 1988), heliocentric ecliptic J2000, converted to Earth-equatorial J2000"
+         "JPL Horizons API 1.2 (https://ssd.jpl.nasa.gov/api/horizons.api), Uranus (799) about the Sun's centre (CENTER=500@10) and about its system barycentre, VECTORS geometric ICRF km TDB, 6-hourly 1950 to 2046, retrieved 2026-11-10: DE441 with the Uranus satellite ephemeris ura184_merged, whose system barycentre differs from DE441's barycentre body 7 by up to about 3,400 km away from the 1986 Voyager 2 encounter; the series follows Horizons' Uranus; the system barycentre fitted as piecewise Chebyshev series within 1 km (tools/import/planet-fits.mjs). US Government work, credit NASA/JPL-Caltech Solar System Dynamics"
         ]
        }
       },
@@ -18656,9 +18656,9 @@
       ],
       "plane": "EQJ",
       "positionKm": [
-       2791463315.07,
-       985432652.275,
-       392131486.602
+       2791454264.77,
+       985436739.971,
+       392133959.148
       ],
       "timeUtcMs": 1464739200000
      },
@@ -18673,9 +18673,9 @@
       ],
       "plane": "EQJ",
       "positionKm": [
-       2789862030.2,
-       989006567.294,
-       393719448.486
+       2789852971.68,
+       989010654.562,
+       393721923.471
       ],
       "timeUtcMs": 1465387200000
      }
@@ -18699,11 +18699,11 @@
    },
    "provenanceOf": {
     "uranus": {
-     "accuracy": "Uranus position was compared with JPL Horizons (DE441) at six dates from 1969 to 2030: at most 19,070 km (1.36 arcsec) from Horizons. Sample maxima, not a bound for every date.",
+     "accuracy": "With the Uranus moon package loaded (it covers 1950 to 2029), within 0.6 km of Horizons' Uranus on 2 January of each year 1972 to 2029 and 0.20 km at Voyager 2's closest approach (O-063 T-290).",
      "notes": "Geometric position about the Sun's centre; no light-time or aberration.",
      "sourceType": "ephemeris",
      "sources": [
-      "@lizard-isana/orb 3.1.1 VSOP87A full series (Bretagnon and Francou 1988), heliocentric ecliptic J2000, converted to Earth-equatorial J2000"
+      "JPL Horizons API 1.2 (https://ssd.jpl.nasa.gov/api/horizons.api), Uranus (799) about the Sun's centre (CENTER=500@10) and about its system barycentre, VECTORS geometric ICRF km TDB, 6-hourly 1950 to 2046, retrieved 2026-11-10: DE441 with the Uranus satellite ephemeris ura184_merged, whose system barycentre differs from DE441's barycentre body 7 by up to about 3,400 km away from the 1986 Voyager 2 encounter; the series follows Horizons' Uranus; the system barycentre fitted as piecewise Chebyshev series within 1 km (tools/import/planet-fits.mjs). US Government work, credit NASA/JPL-Caltech Solar System Dynamics"
      ]
     },
     "miranda": {
@@ -21785,11 +21785,11 @@
        "label": "Jupiter",
        "labelPriority": 98,
        "provenance": {
-        "accuracy": "Jupiter position was compared with JPL Horizons (DE441) at six dates from 1969 to 2030: at most 1269 km (0.33 arcsec) from Horizons. Sample maxima, not a bound for every date.",
+        "accuracy": "With the Jupiter moon package loaded (it covers 1950 to 2029), within 0.5 km of Horizons' Jupiter on 2 January of each year 1972 to 2029 and 0.22 to 0.24 km at the Voyager 1 and 2 closest approaches (O-063 T-290).",
         "notes": "Geometric position about the Sun's centre; no light-time or aberration.",
         "sourceType": "ephemeris",
         "sources": [
-         "@lizard-isana/orb 3.1.1 VSOP87A full series (Bretagnon and Francou 1988), heliocentric ecliptic J2000, converted to Earth-equatorial J2000"
+         "JPL Horizons API 1.2 (https://ssd.jpl.nasa.gov/api/horizons.api), Jupiter (599) about the Sun's centre (CENTER=500@10) and about its system barycentre, VECTORS geometric ICRF km TDB, 6-hourly 1950 to 2046, retrieved 2026-11-10: DE441 with the Jupiter satellite ephemeris jup365_merged; the system barycentre fitted as piecewise Chebyshev series within 1 km (tools/import/planet-fits.mjs). US Government work, credit NASA/JPL-Caltech Solar System Dynamics"
         ]
        }
       },
@@ -22069,11 +22069,11 @@
        "label": "Jupiter",
        "labelPriority": 98,
        "provenance": {
-        "accuracy": "Jupiter position was compared with JPL Horizons (DE441) at six dates from 1969 to 2030: at most 1269 km (0.33 arcsec) from Horizons. Sample maxima, not a bound for every date.",
+        "accuracy": "With the Jupiter moon package loaded (it covers 1950 to 2029), within 0.5 km of Horizons' Jupiter on 2 January of each year 1972 to 2029 and 0.22 to 0.24 km at the Voyager 1 and 2 closest approaches (O-063 T-290).",
         "notes": "Geometric position about the Sun's centre; no light-time or aberration.",
         "sourceType": "ephemeris",
         "sources": [
-         "@lizard-isana/orb 3.1.1 VSOP87A full series (Bretagnon and Francou 1988), heliocentric ecliptic J2000, converted to Earth-equatorial J2000"
+         "JPL Horizons API 1.2 (https://ssd.jpl.nasa.gov/api/horizons.api), Jupiter (599) about the Sun's centre (CENTER=500@10) and about its system barycentre, VECTORS geometric ICRF km TDB, 6-hourly 1950 to 2046, retrieved 2026-11-10: DE441 with the Jupiter satellite ephemeris jup365_merged; the system barycentre fitted as piecewise Chebyshev series within 1 km (tools/import/planet-fits.mjs). US Government work, credit NASA/JPL-Caltech Solar System Dynamics"
         ]
        }
       },
@@ -22240,7 +22240,7 @@
        "kind": "distance",
        "label": "Distance to Jupiter",
        "unit": "km",
-       "value": 779796793.709
+       "value": 779796906.952
       }
      ],
      [
@@ -22260,7 +22260,7 @@
        "kind": "distance",
        "label": "Distance to Jupiter",
        "unit": "km",
-       "value": 784138497.678
+       "value": 784138611.313
       }
      ]
     ],
@@ -22297,7 +22297,7 @@
        "kind": "distance",
        "label": "Distance from Sun",
        "unit": "km",
-       "value": 779796793.709
+       "value": 779796906.952
       }
      ],
      [
@@ -22308,7 +22308,7 @@
        "kind": "distance",
        "label": "Distance from Sun",
        "unit": "km",
-       "value": 784138497.678
+       "value": 784138611.313
       }
      ]
     ],
@@ -22340,7 +22340,7 @@
        "to": "Jupiter",
        "unavailable": "no Jupiter state in this frame",
        "unit": "km",
-       "value": 839150724.645
+       "value": 839150668.168
       }
      ],
      [
@@ -22370,7 +22370,7 @@
        "to": "Jupiter",
        "unavailable": "no Jupiter state in this frame",
        "unit": "km",
-       "value": 942526105.962
+       "value": 942525643.816
       }
      ]
     ]
@@ -22450,9 +22450,9 @@
       ],
       "plane": "EQJ",
       "positionKm": [
-       -255583266.424,
-       674868122.019,
-       295488157.606
+       -255582417.786,
+       674868506.522,
+       295488312.317
       ],
       "timeUtcMs": 1767398400000
      },
@@ -22467,9 +22467,9 @@
       ],
       "plane": "EQJ",
       "positionKm": [
-       -340658577.296,
-       646115981.637,
-       285235088.179
+       -340657753.69,
+       646116458.699,
+       285235303.568
       ],
       "timeUtcMs": 1774353600000
      }
@@ -22520,11 +22520,11 @@
      ]
     },
     "jupiter": {
-     "accuracy": "Jupiter position was compared with JPL Horizons (DE441) at six dates from 1969 to 2030: at most 1269 km (0.33 arcsec) from Horizons. Sample maxima, not a bound for every date.",
+     "accuracy": "With the Jupiter moon package loaded (it covers 1950 to 2029), within 0.5 km of Horizons' Jupiter on 2 January of each year 1972 to 2029 and 0.22 to 0.24 km at the Voyager 1 and 2 closest approaches (O-063 T-290).",
      "notes": "Geometric position about the Sun's centre; no light-time or aberration.",
      "sourceType": "ephemeris",
      "sources": [
-      "@lizard-isana/orb 3.1.1 VSOP87A full series (Bretagnon and Francou 1988), heliocentric ecliptic J2000, converted to Earth-equatorial J2000"
+      "JPL Horizons API 1.2 (https://ssd.jpl.nasa.gov/api/horizons.api), Jupiter (599) about the Sun's centre (CENTER=500@10) and about its system barycentre, VECTORS geometric ICRF km TDB, 6-hourly 1950 to 2046, retrieved 2026-11-10: DE441 with the Jupiter satellite ephemeris jup365_merged; the system barycentre fitted as piecewise Chebyshev series within 1 km (tools/import/planet-fits.mjs). US Government work, credit NASA/JPL-Caltech Solar System Dynamics"
      ]
     },
     "traveller": {
@@ -23112,11 +23112,11 @@
        "label": "Jupiter",
        "labelPriority": 98,
        "provenance": {
-        "accuracy": "Jupiter position was compared with JPL Horizons (DE441) at six dates from 1969 to 2030: at most 1269 km (0.33 arcsec) from Horizons. Sample maxima, not a bound for every date.",
+        "accuracy": "With the Jupiter moon package loaded (it covers 1950 to 2029), within 0.5 km of Horizons' Jupiter on 2 January of each year 1972 to 2029 and 0.22 to 0.24 km at the Voyager 1 and 2 closest approaches (O-063 T-290).",
         "notes": "Geometric position about the Sun's centre; no light-time or aberration.",
         "sourceType": "ephemeris",
         "sources": [
-         "@lizard-isana/orb 3.1.1 VSOP87A full series (Bretagnon and Francou 1988), heliocentric ecliptic J2000, converted to Earth-equatorial J2000"
+         "JPL Horizons API 1.2 (https://ssd.jpl.nasa.gov/api/horizons.api), Jupiter (599) about the Sun's centre (CENTER=500@10) and about its system barycentre, VECTORS geometric ICRF km TDB, 6-hourly 1950 to 2046, retrieved 2026-11-10: DE441 with the Jupiter satellite ephemeris jup365_merged; the system barycentre fitted as piecewise Chebyshev series within 1 km (tools/import/planet-fits.mjs). US Government work, credit NASA/JPL-Caltech Solar System Dynamics"
         ]
        }
       }
@@ -23442,11 +23442,11 @@
        "label": "Jupiter",
        "labelPriority": 98,
        "provenance": {
-        "accuracy": "Jupiter position was compared with JPL Horizons (DE441) at six dates from 1969 to 2030: at most 1269 km (0.33 arcsec) from Horizons. Sample maxima, not a bound for every date.",
+        "accuracy": "With the Jupiter moon package loaded (it covers 1950 to 2029), within 0.5 km of Horizons' Jupiter on 2 January of each year 1972 to 2029 and 0.22 to 0.24 km at the Voyager 1 and 2 closest approaches (O-063 T-290).",
         "notes": "Geometric position about the Sun's centre; no light-time or aberration.",
         "sourceType": "ephemeris",
         "sources": [
-         "@lizard-isana/orb 3.1.1 VSOP87A full series (Bretagnon and Francou 1988), heliocentric ecliptic J2000, converted to Earth-equatorial J2000"
+         "JPL Horizons API 1.2 (https://ssd.jpl.nasa.gov/api/horizons.api), Jupiter (599) about the Sun's centre (CENTER=500@10) and about its system barycentre, VECTORS geometric ICRF km TDB, 6-hourly 1950 to 2046, retrieved 2026-11-10: DE441 with the Jupiter satellite ephemeris jup365_merged; the system barycentre fitted as piecewise Chebyshev series within 1 km (tools/import/planet-fits.mjs). US Government work, credit NASA/JPL-Caltech Solar System Dynamics"
         ]
        }
       }
@@ -23680,7 +23680,7 @@
        "kind": "distance",
        "label": "Distance to Jupiter",
        "unit": "km",
-       "value": 779959762.074
+       "value": 779959875.409
       }
      ],
      [
@@ -23700,7 +23700,7 @@
        "kind": "distance",
        "label": "Distance to Jupiter",
        "unit": "km",
-       "value": 780502503.712
+       "value": 780502616.275
       }
      ]
     ],
@@ -23737,7 +23737,7 @@
        "kind": "distance",
        "label": "Distance from Sun",
        "unit": "km",
-       "value": 779959762.074
+       "value": 779959875.409
       }
      ],
      [
@@ -23748,7 +23748,7 @@
        "kind": "distance",
        "label": "Distance from Sun",
        "unit": "km",
-       "value": 780502503.712
+       "value": 780502616.275
       }
      ]
     ],
@@ -23866,9 +23866,9 @@
       ],
       "plane": "EQJ",
       "positionKm": [
-       -258822708.917,
-       673957527.561,
-       295176704.447
+       -258821862.429,
+       673957915.18,
+       295176861.126
       ],
       "timeUtcMs": 1767657600000
      },
@@ -23883,9 +23883,9 @@
       ],
       "plane": "EQJ",
       "positionKm": [
-       -269585375.745,
-       670830802.517,
-       294098483.299
+       -269584531.857,
+       670831200.949,
+       294098646.766
       ],
       "timeUtcMs": 1768521600000
      }
@@ -23942,11 +23942,11 @@
      ]
     },
     "jupiter": {
-     "accuracy": "Jupiter position was compared with JPL Horizons (DE441) at six dates from 1969 to 2030: at most 1269 km (0.33 arcsec) from Horizons. Sample maxima, not a bound for every date.",
+     "accuracy": "With the Jupiter moon package loaded (it covers 1950 to 2029), within 0.5 km of Horizons' Jupiter on 2 January of each year 1972 to 2029 and 0.22 to 0.24 km at the Voyager 1 and 2 closest approaches (O-063 T-290).",
      "notes": "Geometric position about the Sun's centre; no light-time or aberration.",
      "sourceType": "ephemeris",
      "sources": [
-      "@lizard-isana/orb 3.1.1 VSOP87A full series (Bretagnon and Francou 1988), heliocentric ecliptic J2000, converted to Earth-equatorial J2000"
+      "JPL Horizons API 1.2 (https://ssd.jpl.nasa.gov/api/horizons.api), Jupiter (599) about the Sun's centre (CENTER=500@10) and about its system barycentre, VECTORS geometric ICRF km TDB, 6-hourly 1950 to 2046, retrieved 2026-11-10: DE441 with the Jupiter satellite ephemeris jup365_merged; the system barycentre fitted as piecewise Chebyshev series within 1 km (tools/import/planet-fits.mjs). US Government work, credit NASA/JPL-Caltech Solar System Dynamics"
      ]
     },
     "belt": {
@@ -27614,11 +27614,11 @@
        "label": "Mars",
        "labelPriority": 98,
        "provenance": {
-        "accuracy": "Mars position was compared with JPL Horizons (DE441) at six dates from 1969 to 2030: at most 96 km (0.09 arcsec) from Horizons. Sample maxima, not a bound for every date.",
+        "accuracy": "Within 0.6 km of Horizons' Mars on 2 January of each year 1972 to 2044, with or without the Mars moon package (O-063 T-290).",
         "notes": "Geometric position about the Sun's centre; no light-time or aberration.",
         "sourceType": "ephemeris",
         "sources": [
-         "@lizard-isana/orb 3.1.1 VSOP87A full series (Bretagnon and Francou 1988), heliocentric ecliptic J2000, converted to Earth-equatorial J2000"
+         "JPL Horizons API 1.2 (https://ssd.jpl.nasa.gov/api/horizons.api), Mars (499) about the Sun's centre (CENTER=500@10) and about its system barycentre, VECTORS geometric ICRF km TDB, 6-hourly 1950 to 2046, retrieved 2026-11-10: DE441 with the Mars satellite ephemeris mar099; the system barycentre fitted as piecewise Chebyshev series within 1 km (tools/import/planet-fits.mjs). US Government work, credit NASA/JPL-Caltech Solar System Dynamics"
         ]
        }
       }
@@ -27655,7 +27655,7 @@
    "definitionAfterPrepare": {
     "camera": {
      "fitOrbit": {
-      "farthestKm": 249244978.781
+      "farthestKm": 249244978.489
      }
     },
     "clock": {
@@ -27777,11 +27777,11 @@
        "label": "Mars",
        "labelPriority": 98,
        "provenance": {
-        "accuracy": "Mars position was compared with JPL Horizons (DE441) at six dates from 1969 to 2030: at most 96 km (0.09 arcsec) from Horizons. Sample maxima, not a bound for every date.",
+        "accuracy": "Within 0.6 km of Horizons' Mars on 2 January of each year 1972 to 2044, with or without the Mars moon package (O-063 T-290).",
         "notes": "Geometric position about the Sun's centre; no light-time or aberration.",
         "sourceType": "ephemeris",
         "sources": [
-         "@lizard-isana/orb 3.1.1 VSOP87A full series (Bretagnon and Francou 1988), heliocentric ecliptic J2000, converted to Earth-equatorial J2000"
+         "JPL Horizons API 1.2 (https://ssd.jpl.nasa.gov/api/horizons.api), Mars (499) about the Sun's centre (CENTER=500@10) and about its system barycentre, VECTORS geometric ICRF km TDB, 6-hourly 1950 to 2046, retrieved 2026-11-10: DE441 with the Mars satellite ephemeris mar099; the system barycentre fitted as piecewise Chebyshev series within 1 km (tools/import/planet-fits.mjs). US Government work, credit NASA/JPL-Caltech Solar System Dynamics"
         ]
        }
       }
@@ -27837,7 +27837,7 @@
        "kind": "distance",
        "label": "Distance to Mars",
        "unit": "km",
-       "value": 213729591.322
+       "value": 213729592.961
       }
      ],
      [
@@ -27857,7 +27857,7 @@
        "kind": "distance",
        "label": "Distance to Mars",
        "unit": "km",
-       "value": 212604202.584
+       "value": 212604203.762
       }
      ]
     ],
@@ -27894,7 +27894,7 @@
        "kind": "distance",
        "label": "Distance from Sun",
        "unit": "km",
-       "value": 213729591.322
+       "value": 213729592.961
       }
      ],
      [
@@ -27905,7 +27905,7 @@
        "kind": "distance",
        "label": "Distance from Sun",
        "unit": "km",
-       "value": 212604202.584
+       "value": 212604203.762
       }
      ]
     ]
@@ -27985,9 +27985,9 @@
       ],
       "plane": "EQJ",
       "positionKm": [
-       50951753.8129,
-       -188143590.173,
-       -87671240.8182
+       50951685.8328,
+       -188143607.513,
+       -87671247.1112
       ],
       "timeUtcMs": 1767225600000
      },
@@ -28002,9 +28002,9 @@
       ],
       "plane": "EQJ",
       "positionKm": [
-       66632169.4864,
-       -182822746.24,
-       -85653630.4154
+       66632102.8363,
+       -182822768.907,
+       -85653636.8057
       ],
       "timeUtcMs": 1767873600000
      }
@@ -28029,11 +28029,11 @@
      ]
     },
     "mars": {
-     "accuracy": "Mars position was compared with JPL Horizons (DE441) at six dates from 1969 to 2030: at most 96 km (0.09 arcsec) from Horizons. Sample maxima, not a bound for every date.",
+     "accuracy": "Within 0.6 km of Horizons' Mars on 2 January of each year 1972 to 2044, with or without the Mars moon package (O-063 T-290).",
      "notes": "Geometric position about the Sun's centre; no light-time or aberration.",
      "sourceType": "ephemeris",
      "sources": [
-      "@lizard-isana/orb 3.1.1 VSOP87A full series (Bretagnon and Francou 1988), heliocentric ecliptic J2000, converted to Earth-equatorial J2000"
+      "JPL Horizons API 1.2 (https://ssd.jpl.nasa.gov/api/horizons.api), Mars (499) about the Sun's centre (CENTER=500@10) and about its system barycentre, VECTORS geometric ICRF km TDB, 6-hourly 1950 to 2046, retrieved 2026-11-10: DE441 with the Mars satellite ephemeris mar099; the system barycentre fitted as piecewise Chebyshev series within 1 km (tools/import/planet-fits.mjs). US Government work, credit NASA/JPL-Caltech Solar System Dynamics"
      ]
     }
    },
@@ -28485,11 +28485,11 @@
        "label": "Venus",
        "labelPriority": 99,
        "provenance": {
-        "accuracy": "Venus position was compared with JPL Horizons (DE441) at six dates from 1969 to 2030: at most 50 km (0.10 arcsec) from Horizons. Sample maxima, not a bound for every date.",
+        "accuracy": "Within 0.6 km of Horizons' Venus on 2 January of each year 1972 to 2044 (O-063 T-290); the fit is within 0.75 km of Horizons at independent dates 1950 to 2045.",
         "notes": "Geometric position about the Sun's centre; no light-time or aberration.",
         "sourceType": "ephemeris",
         "sources": [
-         "@lizard-isana/orb 3.1.1 VSOP87A full series (Bretagnon and Francou 1988), heliocentric ecliptic J2000, converted to Earth-equatorial J2000"
+         "JPL Horizons API 1.2 (https://ssd.jpl.nasa.gov/api/horizons.api), Venus (299) about the Sun's centre (CENTER=500@10), VECTORS geometric ICRF km TDB, 6-hourly 1950 to 2046, retrieved 2026-11-10: DE441 (Venus has no moons: its barycentre, 2, is the planet); the system barycentre fitted as piecewise Chebyshev series within 1 km (tools/import/planet-fits.mjs). US Government work, credit NASA/JPL-Caltech Solar System Dynamics"
         ]
        }
       },
@@ -28521,11 +28521,11 @@
        "label": "Mars",
        "labelPriority": 97,
        "provenance": {
-        "accuracy": "Mars position was compared with JPL Horizons (DE441) at six dates from 1969 to 2030: at most 96 km (0.09 arcsec) from Horizons. Sample maxima, not a bound for every date.",
+        "accuracy": "Within 0.6 km of Horizons' Mars on 2 January of each year 1972 to 2044, with or without the Mars moon package (O-063 T-290).",
         "notes": "Geometric position about the Sun's centre; no light-time or aberration.",
         "sourceType": "ephemeris",
         "sources": [
-         "@lizard-isana/orb 3.1.1 VSOP87A full series (Bretagnon and Francou 1988), heliocentric ecliptic J2000, converted to Earth-equatorial J2000"
+         "JPL Horizons API 1.2 (https://ssd.jpl.nasa.gov/api/horizons.api), Mars (499) about the Sun's centre (CENTER=500@10) and about its system barycentre, VECTORS geometric ICRF km TDB, 6-hourly 1950 to 2046, retrieved 2026-11-10: DE441 with the Mars satellite ephemeris mar099; the system barycentre fitted as piecewise Chebyshev series within 1 km (tools/import/planet-fits.mjs). US Government work, credit NASA/JPL-Caltech Solar System Dynamics"
         ]
        }
       },
@@ -28682,7 +28682,7 @@
    "definitionAfterPrepare": {
     "camera": {
      "fitOrbit": {
-      "farthestKm": 249244978.781
+      "farthestKm": 249244978.489
      }
     },
     "clock": {
@@ -28833,11 +28833,11 @@
        "label": "Venus",
        "labelPriority": 99,
        "provenance": {
-        "accuracy": "Venus position was compared with JPL Horizons (DE441) at six dates from 1969 to 2030: at most 50 km (0.10 arcsec) from Horizons. Sample maxima, not a bound for every date.",
+        "accuracy": "Within 0.6 km of Horizons' Venus on 2 January of each year 1972 to 2044 (O-063 T-290); the fit is within 0.75 km of Horizons at independent dates 1950 to 2045.",
         "notes": "Geometric position about the Sun's centre; no light-time or aberration.",
         "sourceType": "ephemeris",
         "sources": [
-         "@lizard-isana/orb 3.1.1 VSOP87A full series (Bretagnon and Francou 1988), heliocentric ecliptic J2000, converted to Earth-equatorial J2000"
+         "JPL Horizons API 1.2 (https://ssd.jpl.nasa.gov/api/horizons.api), Venus (299) about the Sun's centre (CENTER=500@10), VECTORS geometric ICRF km TDB, 6-hourly 1950 to 2046, retrieved 2026-11-10: DE441 (Venus has no moons: its barycentre, 2, is the planet); the system barycentre fitted as piecewise Chebyshev series within 1 km (tools/import/planet-fits.mjs). US Government work, credit NASA/JPL-Caltech Solar System Dynamics"
         ]
        }
       },
@@ -28869,11 +28869,11 @@
        "label": "Mars",
        "labelPriority": 97,
        "provenance": {
-        "accuracy": "Mars position was compared with JPL Horizons (DE441) at six dates from 1969 to 2030: at most 96 km (0.09 arcsec) from Horizons. Sample maxima, not a bound for every date.",
+        "accuracy": "Within 0.6 km of Horizons' Mars on 2 January of each year 1972 to 2044, with or without the Mars moon package (O-063 T-290).",
         "notes": "Geometric position about the Sun's centre; no light-time or aberration.",
         "sourceType": "ephemeris",
         "sources": [
-         "@lizard-isana/orb 3.1.1 VSOP87A full series (Bretagnon and Francou 1988), heliocentric ecliptic J2000, converted to Earth-equatorial J2000"
+         "JPL Horizons API 1.2 (https://ssd.jpl.nasa.gov/api/horizons.api), Mars (499) about the Sun's centre (CENTER=500@10) and about its system barycentre, VECTORS geometric ICRF km TDB, 6-hourly 1950 to 2046, retrieved 2026-11-10: DE441 with the Mars satellite ephemeris mar099; the system barycentre fitted as piecewise Chebyshev series within 1 km (tools/import/planet-fits.mjs). US Government work, credit NASA/JPL-Caltech Solar System Dynamics"
         ]
        }
       },
@@ -28927,11 +28927,11 @@
        "labelPriority": 50,
        "partOf": "venus",
        "provenance": {
-        "accuracy": "Venus position was compared with JPL Horizons (DE441) at six dates from 1969 to 2030: at most 50 km (0.10 arcsec) from Horizons. Sample maxima, not a bound for every date.",
+        "accuracy": "Within 0.6 km of Horizons' Venus on 2 January of each year 1972 to 2044 (O-063 T-290); the fit is within 0.75 km of Horizons at independent dates 1950 to 2045.",
         "notes": "Geometric position about the Sun's centre; no light-time or aberration.",
         "sourceType": "ephemeris",
         "sources": [
-         "@lizard-isana/orb 3.1.1 VSOP87A full series (Bretagnon and Francou 1988), heliocentric ecliptic J2000, converted to Earth-equatorial J2000"
+         "JPL Horizons API 1.2 (https://ssd.jpl.nasa.gov/api/horizons.api), Venus (299) about the Sun's centre (CENTER=500@10), VECTORS geometric ICRF km TDB, 6-hourly 1950 to 2046, retrieved 2026-11-10: DE441 (Venus has no moons: its barycentre, 2, is the planet); the system barycentre fitted as piecewise Chebyshev series within 1 km (tools/import/planet-fits.mjs). US Government work, credit NASA/JPL-Caltech Solar System Dynamics"
         ]
        },
        "showLabel": false
@@ -28942,7 +28942,7 @@
        "stateAt": "[function]"
       },
       "span": {
-       "endUtcMs": 1786639688260,
+       "endUtcMs": 1786639688220,
        "startUtcMs": 1767225600000
       }
      },
@@ -28994,11 +28994,11 @@
        "labelPriority": 50,
        "partOf": "mars",
        "provenance": {
-        "accuracy": "Mars position was compared with JPL Horizons (DE441) at six dates from 1969 to 2030: at most 96 km (0.09 arcsec) from Horizons. Sample maxima, not a bound for every date.",
+        "accuracy": "Within 0.6 km of Horizons' Mars on 2 January of each year 1972 to 2044, with or without the Mars moon package (O-063 T-290).",
         "notes": "Geometric position about the Sun's centre; no light-time or aberration.",
         "sourceType": "ephemeris",
         "sources": [
-         "@lizard-isana/orb 3.1.1 VSOP87A full series (Bretagnon and Francou 1988), heliocentric ecliptic J2000, converted to Earth-equatorial J2000"
+         "JPL Horizons API 1.2 (https://ssd.jpl.nasa.gov/api/horizons.api), Mars (499) about the Sun's centre (CENTER=500@10) and about its system barycentre, VECTORS geometric ICRF km TDB, 6-hourly 1950 to 2046, retrieved 2026-11-10: DE441 with the Mars satellite ephemeris mar099; the system barycentre fitted as piecewise Chebyshev series within 1 km (tools/import/planet-fits.mjs). US Government work, credit NASA/JPL-Caltech Solar System Dynamics"
         ]
        },
        "showLabel": false
@@ -29009,7 +29009,7 @@
        "stateAt": "[function]"
       },
       "span": {
-       "endUtcMs": 1826583742340,
+       "endUtcMs": 1826583742560,
        "startUtcMs": 1767225600000
       }
      }
@@ -29150,7 +29150,7 @@
        "kind": "distance",
        "label": "Distance to Venus",
        "unit": "km",
-       "value": 108812941.887
+       "value": 108812941.357
       },
       {
        "context": "centre to centre · EQJ",
@@ -29159,7 +29159,7 @@
        "kind": "distance",
        "label": "Distance to Mars",
        "unit": "km",
-       "value": 213729591.322
+       "value": 213729592.961
       }
      ],
      [
@@ -29179,7 +29179,7 @@
        "kind": "distance",
        "label": "Distance to Venus",
        "unit": "km",
-       "value": 108815293.949
+       "value": 108815293.409
       },
       {
        "context": "centre to centre · EQJ",
@@ -29188,7 +29188,7 @@
        "kind": "distance",
        "label": "Distance to Mars",
        "unit": "km",
-       "value": 223865163.187
+       "value": 223865161.726
       }
      ]
     ],
@@ -29201,7 +29201,7 @@
        "kind": "distance",
        "label": "Distance from Sun",
        "unit": "km",
-       "value": 108812941.887
+       "value": 108812941.357
       }
      ],
      [
@@ -29212,7 +29212,7 @@
        "kind": "distance",
        "label": "Distance from Sun",
        "unit": "km",
-       "value": 108815293.949
+       "value": 108815293.409
       }
      ]
     ],
@@ -29249,7 +29249,7 @@
        "kind": "distance",
        "label": "Distance from Sun",
        "unit": "km",
-       "value": 213729591.322
+       "value": 213729592.961
       }
      ],
      [
@@ -29260,7 +29260,7 @@
        "kind": "distance",
        "label": "Distance from Sun",
        "unit": "km",
-       "value": 223865163.187
+       "value": 223865161.726
       }
      ]
     ],

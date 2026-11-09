@@ -3,7 +3,7 @@ import type { IauRotationElements } from "../iauRotation";
 import { createProvenance } from "../provenance";
 import { IAU_REPORT, PLANET_VALIDATED_UTC, planetEphemeris, ROTATION_LIMITATION } from "./planetRecords";
 
-export const JUPITER_EPHEMERIS = planetEphemeris("Jupiter", "at most 1269 km (0.33 arcsec) from Horizons", ["The largest sampled difference from the Horizons body centre is about 1.3 thousand km, larger than the inner planets because the series is fitted to the planet as a system."]);
+export const JUPITER_EPHEMERIS = planetEphemeris("Jupiter", "599", "DE441 with the Jupiter satellite ephemeris jup365_merged", "With the Jupiter moon package loaded (it covers 1950 to 2029), within 0.5 km of Horizons' Jupiter on 2 January of each year 1972 to 2029 and 0.22 to 0.24 km at the Voyager 1 and 2 closest approaches (O-063 T-290).", "Until the Jupiter moon package is loaded for the date Jupiter sits at its system barycentre, up to 216 km from its centre (measured 1972 to 2044).");
 
 /** Jupiter pole and prime meridian from the IAU 2015 report: degrees, pole per Julian century, W per day, from J2000 TDB. */
 export const JUPITER_ROTATION: IauRotationElements = Object.freeze<IauRotationElements>({

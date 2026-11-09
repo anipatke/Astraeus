@@ -383,6 +383,18 @@ The engine alone draws the Sun, Earth, Moon and the eight planets with their pic
 
 Years each package covers: the main moons and the planet reach back to 1950 in `astraeus-data-jupiter` (Io, Europa, Ganymede, Callisto), `-saturn` (Mimas, Enceladus, Tethys, Dione, Rhea, Titan, Hyperion, Iapetus, Phoebe), `-uranus` (Miranda, Ariel, Umbriel, Titania, Oberon) and `-neptune` (Triton, Nereid), 1950 to 2030; every other moon, and all of `-mars` and `-pluto`, covers 2010 to 2030. A scene whose timeline reaches outside a body's years fails once at mount with `SceneError` code `out-of-span`.
 
+Planet positions are JPL Horizons' (DE441, with each planet's satellite ephemeris), fitted within 1 km: each planet's series is its system barycentre, and a planet's moon package, when loaded for the date, adds the planet's own offset from it, so the planet sits on Horizons' planet centre. Measured against Horizons on 2 January of each year 1972 to 2044 and at the Voyager closest approaches (a probe's Horizons samples about a planet then land on the engine's planet):
+
+| Planet | With its moon package (years it covers) | Without it (the system barycentre) |
+|---|---|---|
+| Mercury, Venus | within 0.6 km (no moons) | same |
+| Mars | within 0.6 km (2010 to 2029) | under a metre further |
+| Jupiter, Saturn | within 0.5 km (1950 to 2029); 0.11 to 0.31 km at the Voyager flybys | up to 216 km (Jupiter), 304 km (Saturn) |
+| Uranus, Neptune | within 0.6 km (1950 to 2029); 0.20 and 0.27 km at the Voyager 2 flybys | up to 45 km (Uranus), 74 km (Neptune) |
+| Pluto | within 1.5 km (2010 to 2029) | up to about 2,100 km |
+
+Before 1972 a date can sit up to 0.7 s from Horizons' reading of it (Horizons uses UT1 to 1962 and UTC's rubber seconds to 1972), up to 35 km along Mercury's path. Earth stays on the EPV00 model: within 7.3 km of Horizons 1972 to 2044.
+
 ```js
 import { Scene, jupiter, io, mount } from "astraeus";
 import { dataSource as jupiterMoons } from "astraeus-data-jupiter";

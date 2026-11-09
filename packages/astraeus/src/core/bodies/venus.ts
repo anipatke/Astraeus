@@ -3,7 +3,7 @@ import type { IauRotationElements } from "../iauRotation";
 import { createProvenance } from "../provenance";
 import { IAU_REPORT, PLANET_VALIDATED_UTC, planetEphemeris, ROTATION_LIMITATION } from "./planetRecords";
 
-export const VENUS_EPHEMERIS = planetEphemeris("Venus", "at most 50 km (0.10 arcsec) from Horizons");
+export const VENUS_EPHEMERIS = planetEphemeris("Venus", "299", "DE441 (Venus has no moons: its barycentre, 2, is the planet)", "Within 0.6 km of Horizons' Venus on 2 January of each year 1972 to 2044 (O-063 T-290); the fit is within 0.75 km of Horizons at independent dates 1950 to 2045.");
 
 /** Venus pole and prime meridian from the IAU 2015 report: degrees, pole per Julian century, W per day, from J2000 TDB. */
 export const VENUS_ROTATION: IauRotationElements = Object.freeze<IauRotationElements>({

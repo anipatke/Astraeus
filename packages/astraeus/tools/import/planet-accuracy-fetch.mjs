@@ -9,7 +9,8 @@
 // 2. Each planet's body centre (599...) and system barycentre (5...) about the Sun's centre (500@10) and about the solar-system
 //    barycentre (500@0), and the Sun about the barycentre, at the closest approaches and at one made-up date per planet; geometric,
 //    ICRF, ecliptic of J2000 (and the body about the Sun once more in the ICRF equator, for the frame check); times UT, with TDB-UT.
-// 3. The planets' body centres (and the outer four's barycentres) about the Sun every 2 January 1950 to 2044 (UT), for the span-wide figure.
+// 3. The planets' body centres (and the outer four's barycentres) about the Sun every 2 January 1950 to 2044 (UT), for the span-wide figure;
+//    Earth's centre too (O-063 T-290: the EPV00 model measured the same way).
 //
 // Positions are kept to 1 m. Raw responses go to the git-ignored .horizons-cache, so a rerun asks Horizons nothing.
 import { writeFileSync } from "node:fs";
@@ -43,7 +44,7 @@ const MADE_UP = [
 ];
 const PLANETS = {
   mercury: { body: "199", bary: "1" }, venus: { body: "299", bary: "2" }, mars: { body: "499", bary: "4" },
-  jupiter: { body: "599", bary: "5" }, saturn: { body: "699", bary: "6" }, uranus: { body: "799", bary: "7" }, neptune: { body: "899", bary: "8" },
+  earth: { body: "399", bary: "3" }, jupiter: { body: "599", bary: "5" }, saturn: { body: "699", bary: "6" }, uranus: { body: "799", bary: "7" }, neptune: { body: "899", bary: "8" },
 };
 
 function params({ command, center, plane = "ECLIPTIC", list, start, stop, step, deltaT = true }) {
@@ -104,8 +105,8 @@ for (const [planet, { body, bary }] of Object.entries(PLANETS)) {
 const fixture = {
   source: "JPL Horizons API (https://ssd.jpl.nasa.gov/api/horizons.api), DE441 planets; Voyager 1 and 2 trajectories Voyager_1_ST+refit2022_m / Voyager_2_ST+refit2022_m. US Government work, credit NASA/JPL-Caltech Solar System Dynamics.",
   retrieved: new Date().toISOString().slice(0, 10),
-  tool: "packages/astraeus/tools/import/planet-accuracy-fetch.mjs (O-063 T-289)",
-  settings: "EPHEM_TYPE=VECTORS, VEC_TABLE=1 (position), VEC_CORR=NONE (geometric, no light time, no aberration), OUT_UNITS=KM-S, REF_SYSTEM=ICRF, REF_PLANE=ECLIPTIC (ecliptic of J2000, obliquity 84381.448 arcsec) unless the key says equator (REF_PLANE=FRAME, ICRF equator), TIME_TYPE=UT (UTC from 1962, UT1 before), TLIST of Julian dates, VEC_DELTA_T=YES. Keys: <planet>/<body|bary>@<sun|ssb>/<plane>[/yearly]; body = the planet's centre (599, 699, 799, 899, 199, 299, 499), bary = its system barycentre (5, 6, 7, 8); sun = 500@10, ssb = 500@0.",
+  tool: "packages/astraeus/tools/import/planet-accuracy-fetch.mjs (O-063 T-289; Earth added T-290)",
+  settings: "EPHEM_TYPE=VECTORS, VEC_TABLE=1 (position), VEC_CORR=NONE (geometric, no light time, no aberration), OUT_UNITS=KM-S, REF_SYSTEM=ICRF, REF_PLANE=ECLIPTIC (ecliptic of J2000, obliquity 84381.448 arcsec) unless the key says equator (REF_PLANE=FRAME, ICRF equator), TIME_TYPE=UT (UTC from 1962, UT1 before), TLIST of Julian dates, VEC_DELTA_T=YES. Keys: <planet>/<body|bary>@<sun|ssb>/<plane>[/yearly]; body = the planet's centre (599, 699, 799, 899, 199, 299, 399, 499), bary = its system barycentre (5, 6, 7, 8); sun = 500@10, ssb = 500@0.",
   rowFormat: "[utcMs, tdbMinusUtS, xKm, yKm, zKm]",
   flybys,
   epochs: epochs.map((e) => ({ id: e.id, planet: e.planet, utc: iso(e.utcMs) })),

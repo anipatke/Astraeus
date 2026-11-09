@@ -1,60 +1,46 @@
 import { describe, expect, it } from "vitest";
-import { Jupiter, Mars, Mercury, Neptune, Saturn, Uranus, Venus } from "@lizard-isana/orb/src/orb-planet.js";
-import { registerVSOP87A } from "@lizard-isana/orb/src/orb-vsop87a-registry.js";
-import { JUPITER_FULL_COEF } from "@lizard-isana/orb/vsop87a/jupiter";
-import { MARS_FULL_COEF } from "@lizard-isana/orb/vsop87a/mars";
-import { NEPTUNE_FULL_COEF } from "@lizard-isana/orb/vsop87a/neptune";
-import { SATURN_FULL_COEF } from "@lizard-isana/orb/vsop87a/saturn";
-import { URANUS_FULL_COEF } from "@lizard-isana/orb/vsop87a/uranus";
-import { MERCURY_FULL_COEF } from "@lizard-isana/orb/vsop87a/mercury";
-import { VENUS_FULL_COEF } from "@lizard-isana/orb/vsop87a/venus";
 import fits from "../data/ephemerides/planets/planets.json";
+import { createOrbAstronomyAdapter } from "../src/core/astronomyAdapter";
 import { createPlanetModels } from "../src/core/planetModels";
 import { PLANET_IDS } from "../src/core/planetSeries";
+import fixture from "./fixtures/planet-accuracy-o063-horizons.json";
 
-// The planet curve fits (O-025 T-101, Decision 11) against the full VSOP87A series they replace, at dates that are not fit nodes, and the
-// span they cover. The accuracy against JPL Horizons stays in tests/planets.test.ts (C-022/C-023 scope), which runs on the fits.
-registerVSOP87A("Mercury", MERCURY_FULL_COEF);
-registerVSOP87A("Venus", VENUS_FULL_COEF);
-registerVSOP87A("Mars", MARS_FULL_COEF);
-registerVSOP87A("Jupiter", JUPITER_FULL_COEF);
-registerVSOP87A("Saturn", SATURN_FULL_COEF);
-registerVSOP87A("Uranus", URANUS_FULL_COEF);
-registerVSOP87A("Neptune", NEPTUNE_FULL_COEF);
-const full = { vsop87a: "full" } as const;
-const references = {
-  mercury: new Mercury(full), venus: new Venus(full), mars: new Mars(full), jupiter: new Jupiter(full),
-  saturn: new Saturn(full), uranus: new Uranus(full), neptune: new Neptune(full),
-};
-/** Pluto has no VSOP87 series; its fit is against Horizons (tests/outerPlanetFits.test.ts). */
-const vsopIds = PLANET_IDS.filter((id): id is keyof typeof references => id in references);
-const AU_KM = 149_597_870.7;
+// The planet curve fits (O-025 T-101, Decision 11; every planet a fit of its system barycentre from JPL Horizons DE441 since O-063 T-290) against
+// Horizons itself at dates that are not fit nodes (2 January of each year, tests/fixtures/planet-accuracy-o063-horizons.json), and the span they
+// cover. Mercury's and Venus's barycentres are the planets; Mars's is within a metre of it. Compared in the ICRF equator: Horizons' ecliptic rows
+// are turned back by its obliquity (84381.448"), the engine's by the adapter (EQJ). Years from 1972: before that Horizons' UT (UT1 to 1962) and
+// the engine's smooth TT - UTC label the same instant up to 0.7 s apart (tests/planetAccuracyFlybys.test.ts measures those years).
 const models = createPlanetModels();
+const adapter = createOrbAstronomyAdapter();
+type Row = [number, number, number, number, number];
+const series = fixture.series as unknown as Record<string, Row[]>;
+const OBLIQUITY = (84_381.448 / 3600) * (Math.PI / 180);
+const icrfOf = ([, , x, y, z]: Row) => [x, y * Math.cos(OBLIQUITY) - z * Math.sin(OBLIQUITY), y * Math.sin(OBLIQUITY) + z * Math.cos(OBLIQUITY)];
+/**
+ * The Horizons rows of each planet's barycentre in the fixture (the body centre where barycentre and centre agree). Uranus and Neptune are fitted
+ * to the barycentre their satellite ephemerides imply (Horizons' 799 or 899 about the Sun minus about the barycentre, O-063 Decision 1), which is
+ * not the DE441 barycentre body 7 or 8 in this fixture; tests/planetAccuracyFlybys.test.ts holds them, with their moon packages, to Horizons'
+ * planet centre within 1 km, and the importer's own check against its Horizons input is `worstErrorKm` below.
+ */
+const truthKey = { mercury: "mercury/body", venus: "venus/body", mars: "mars/body", jupiter: "jupiter/bary", saturn: "saturn/bary" } as const;
 
 describe("planet curve fits", () => {
-  it("stay within 1 km of the full VSOP87A series from 1972 to 2045 (UTC, leap seconds included)", () => {
-    for (const id of vsopIds) {
+  it("stay within 1 km of the Horizons system barycentre (Mercury to Saturn) on 2 January of each year 1972 to 2044", () => {
+    for (const [id, key] of Object.entries(truthKey)) {
       let worst = 0;
-      for (let ms = Date.UTC(1972, 0, 1) + 7_654_321; ms < Date.UTC(2045, 0, 1); ms += 13 * 86_400_000 + 3_333_333) {
-        const a = models[id].xyz(new Date(ms));
-        const b = references[id].xyz(new Date(ms));
-        worst = Math.max(worst, Math.hypot(a.x - b.x, a.y - b.y, a.z - b.z) * AU_KM);
+      for (const row of series[`${key}@sun/ecliptic/yearly`]) {
+        if (row[0] < Date.UTC(1972, 0, 1)) continue;
+        const a = adapter.planetPositionFromSunKm(id as keyof typeof truthKey, row[0]);
+        const b = icrfOf(row);
+        worst = Math.max(worst, Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]));
       }
       expect(worst, id).toBeLessThan(1);
     }
   });
 
-  it("stay within 8 km of the series from 1969 to the end of 1971, apart from Orb's own pre-1972 step in TT - UTC", () => {
-    for (const id of vsopIds) {
-      let worst = 0;
-      for (let ms = Date.UTC(1969, 0, 1) + 7_654_321; ms < Date.UTC(1972, 0, 1); ms += 5 * 86_400_000 + 3_333_333) {
-        const a = models[id].xyz(new Date(ms));
-        const b = references[id].xyz(new Date(ms));
-        worst = Math.max(worst, Math.hypot(a.x - b.x, a.y - b.y, a.z - b.z) * AU_KM);
-      }
-      // Orb steps its pre-1972 TT - UTC once a month (about 0.1 s, up to 5 km for Mercury); the fits follow the smooth line.
-      expect(worst, id).toBeLessThan(8);
-    }
+  it("store each planet's own checked worst figure, within the importer's 1 km target, for all eight", () => {
+    expect(Object.keys(fits.planets)).toEqual([...PLANET_IDS]);
+    for (const p of Object.values(fits.planets)) expect(p.worstErrorKm).toBeLessThan(1);
   });
 
   it("returns the contract the adapter checks, and refuses dates outside the fitted span", () => {
@@ -65,8 +51,8 @@ describe("planet curve fits", () => {
     expect(() => models.mars.xyz(new Date(Date.UTC(2050, 0, 1)))).toThrow(RangeError);
   });
 
-  it("is small: all eight planets' coefficients take under 430 KB as stored (408 KB since the fits start in 1950, O-047 T-200; 329 KB from 1969; Pluto's barycentre fit is 15 KB, not the 200 KB of its centre, T-116)", () => {
+  it("is small: all eight planets' coefficients take under 330 KB as stored (325 KB as Horizons barycentres, O-063 T-290; 408 KB as VSOP87A from 1950, O-047 T-200; Pluto's barycentre fit is 19 KB, not the 200 KB of its centre, T-116)", () => {
     const stored = Object.values(fits.planets).reduce((sum, p) => sum + p.data.length, 0);
-    expect(stored).toBeLessThan(430_000);
+    expect(stored).toBeLessThan(330_000);
   });
 });

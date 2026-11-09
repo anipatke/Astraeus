@@ -1,8 +1,8 @@
 /**
  * Saturn, Uranus, Neptune and Pluto (O-033 T-116): defined once here, placed Sun-centred from the planet curve fits (`data/ephemerides/planets/`,
- * T-114: VSOP87A for the first three; Pluto's system barycentre from JPL Horizons), turned by the IAU pole and prime meridian. Their radii and
+ * each the system barycentre as JPL Horizons reports the planet, O-063 T-290), turned by the IAU pole and prime meridian. Their radii and
  * gravitational parameters are the Horizons physical-data headers saved in each system's moon index (`data/ephemerides/<planet>-moons/index.json`).
- * Pluto is placed at the system barycentre plus its own offset when its system is loaded: that binding is `PLUTO_BINDING` in `planetMoons.ts`.
+ * Each is placed at the system barycentre plus its own offset when its moon system is loaded: that binding is `planetBinding` in `planetTrajectory.ts`.
  */
 import type { CelestialBodyDefinition, EphemerisRecord } from "../body";
 import type { IauRotationElements } from "../iauRotation";
@@ -47,20 +47,10 @@ export const URANUS_ROTATION: IauRotationElements = Object.freeze<IauRotationEle
 export const NEPTUNE_ROTATION: IauRotationElements = Object.freeze<IauRotationElements>({ poleRaDeg: [299.36, 0], poleDecDeg: [43.46, 0], primeMeridianDeg: [249.978, 541.1397757], citation: IAU_REPORT });
 export const PLUTO_ROTATION: IauRotationElements = Object.freeze<IauRotationElements>({ poleRaDeg: [132.993, 0], poleDecDeg: [-6.163, 0], primeMeridianDeg: [302.695, 56.3625225], citation: IAU_REPORT });
 
-export const SATURN_EPHEMERIS = planetEphemeris("Saturn", "at most 2,256 km (0.32 arcsec) from Horizons", ["The difference from the Horizons body centre is VSOP87A's own model error, not the curve fit's (within 1 km of the series)."]);
-export const URANUS_EPHEMERIS = planetEphemeris("Uranus", "at most 19,070 km (1.36 arcsec) from Horizons", ["The difference from the Horizons body centre is VSOP87A's own model error, not the curve fit's (within 1 km of the series)."]);
-export const NEPTUNE_EPHEMERIS = planetEphemeris("Neptune", "at most 36,192 km (1.62 arcsec) from Horizons", ["The difference from the Horizons body centre is VSOP87A's own model error, not the curve fit's (within 1 km of the series)."]);
-
-/** Pluto has no VSOP87 series: its barycentre is a curve fit of Horizons states (T-114, T-116), and its own wobble about it comes from its system's fits. */
-export const PLUTO_EPHEMERIS: EphemerisRecord = {
-  provenance: createProvenance({
-    sourceType: "ephemeris",
-    sources: ["JPL Horizons API 1.2 (https://ssd.jpl.nasa.gov/api/horizons.api), COMMAND=9 (Pluto system barycentre) CENTER=500@10, VECTORS geometric ICRF km TDB, fetched 2026-10-20, fitted as piecewise Chebyshev series (tools/import/planet-fits.mjs); US Government work, credit NASA/JPL-Caltech Solar System Dynamics"],
-    accuracy: "The system barycentre reproduces Horizons within 1 km at independent dates 1950 to 2045. Pluto's centre is that point plus its own offset from the system's fits (within a metre 2010 to 2030); with the system not loaded Pluto is drawn at the barycentre, up to about 2,100 km from its centre.",
-    notes: "Geometric position about the Sun's centre; no light-time or aberration.",
-  }),
-  knownLimitations: ["No velocity is modelled for planets, so they have no speed readout.", "Until Pluto's system fits are loaded Pluto sits at the system barycentre, up to about 2,100 km from its centre."],
-};
+export const SATURN_EPHEMERIS = planetEphemeris("Saturn", "699", "DE441 with the Saturn satellite ephemeris sat441l", "With the Saturn moon package loaded (it covers 1950 to 2029), within 0.5 km of Horizons' Saturn on 2 January of each year 1972 to 2029 and 0.11 to 0.31 km at the Voyager 1 and 2 closest approaches (O-063 T-290).", "Until the Saturn moon package is loaded for the date Saturn sits at its system barycentre, up to 304 km from its centre (measured 1972 to 2044).");
+export const URANUS_EPHEMERIS = planetEphemeris("Uranus", "799", "DE441 with the Uranus satellite ephemeris ura184_merged, whose system barycentre differs from DE441's barycentre body 7 by up to about 3,400 km away from the 1986 Voyager 2 encounter; the series follows Horizons' Uranus", "With the Uranus moon package loaded (it covers 1950 to 2029), within 0.6 km of Horizons' Uranus on 2 January of each year 1972 to 2029 and 0.20 km at Voyager 2's closest approach (O-063 T-290).", "Until the Uranus moon package is loaded for the date Uranus sits at its system barycentre, up to 45 km from its centre (measured 1972 to 2044).");
+export const NEPTUNE_EPHEMERIS = planetEphemeris("Neptune", "899", "DE441 with the Neptune satellite ephemeris nep098_merged, whose system barycentre differs from DE441's barycentre body 8 by up to about 740 km away from the 1989 Voyager 2 encounter; the series follows Horizons' Neptune", "With the Neptune moon package loaded (it covers 1950 to 2029), within 0.5 km of Horizons' Neptune on 2 January of each year 1972 to 2029 and 0.27 km at Voyager 2's closest approach (O-063 T-290).", "Until the Neptune moon package is loaded for the date Neptune sits at its system barycentre, up to 74 km from its centre (measured 1972 to 2044).");
+export const PLUTO_EPHEMERIS: EphemerisRecord = planetEphemeris("Pluto", "999", "DE441 with the Pluto satellite ephemeris plu060_merged (whose barycentre agrees with DE441's body 9: the fit's bytes are the same as T-116's fit of body 9)", "With the Pluto moon package loaded (it covers 2010 to 2029), within 1.5 km of Horizons' Pluto at the archived dates 2010 to 2030 (tests/planetMoonSystems.test.ts); the barycentre fit is within 0.79 km of Horizons at independent dates 1950 to 2045.", "Until Pluto's moon package is loaded for the date Pluto sits at its system barycentre, up to about 2,100 km from its centre.");
 
 export const SATURN = giantPlanet("saturn", "Saturn", { mean: 58232, equatorial: 60268, polar: 54364 }, 37_931_206.234,
   { radius: "Equat. radius (1 bar) = 60268+-4 km, Polar radius (km) = 54364+-10, Vol. Mean Radius (km) = 58232+-6", gm: "GM (km^3/s^2) = 37931206.234" }, SATURN_EPHEMERIS, [GAS_BAND("Saturn")]);
