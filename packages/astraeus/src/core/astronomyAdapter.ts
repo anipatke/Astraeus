@@ -15,7 +15,7 @@ export interface AstronomyAdapter {
   earthPositionFromSunKm(timeUtcMs: number): Float64Array;
   sunPositionFromEarthKm(timeUtcMs: number): Float64Array;
   earthFixedToEqjMatrix(timeUtcMs: number): Float64Array;
-  /** Planet position about the Sun in EQJ km (VSOP87A); throws for a planet the adapter has no model for. */
+  /** Planet system barycentre about the Sun in EQJ km (the planet series, JPL Horizons); throws for a planet the adapter has no model for. */
   planetPositionFromSunKm(planet: PlanetId, timeUtcMs: number): Float64Array;
   /** Days of terrestrial time since J2000 (JD 2451545.0 TT), the epoch the IAU rotation models count from. */
   daysSinceJ2000Tt(timeUtcMs: number): number;

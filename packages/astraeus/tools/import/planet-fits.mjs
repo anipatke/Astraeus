@@ -1,11 +1,16 @@
 #!/usr/bin/env node
-// Refits the planet position series (Orb's full VSOP87A: Mercury, Venus, Mars, Jupiter, and from O-033 T-114 Saturn, Uranus, Neptune) as piecewise
-// Chebyshev curve fits (O-025 T-101, Decision 11), in the same chunk format as the Jupiter moons (src/core/chebyshevSeries.ts), and measures size
-// and accuracy. Pluto has no VSOP87 series: the Pluto system barycentre's heliocentric position is fitted to JPL Horizons states (body 9 about the Sun, 6-hourly, ICRF
-// turned into Orb's ecliptic J2000 by Orb's own frame transform so the adapter's inverse returns the Horizons vector; TDB read as TT, under 2 ms).
+// Fits the planet position series as piecewise Chebyshev curve fits (O-025 T-101, Decision 11), in the same chunk format as the Jupiter moons
+// (src/core/chebyshevSeries.ts), and measures size and accuracy. One rule for every planet (O-063 T-290): the series is the planet's system
+// barycentre about the Sun as JPL Horizons reports the planet, so that the planet's own offset from its barycentre, added at run time from its moon
+// package (planetTrajectory.ts), puts it on Horizons' planet centre. For a planet with a moon system that barycentre is Horizons' planet centre
+// about the Sun (499 ... 999, through the satellite ephemeris on DE441) minus the same centre about its barycentre (CENTER=500@4 ... 500@9, what the
+// moon package is fitted to), at the same instants; Mercury and Venus have no moons, so their barycentre (1, 2, DE441) is the planet. Horizons'
+// satellite ephemerides carry their own path of the barycentre, which is not DE441's barycentre 7 or 8 (up to about 3,200 km for Uranus, 660 km for
+// Neptune, T-290), so fitting DE441's 7 or 8 would miss Horizons' planet. 6-hourly states, ICRF turned into Orb's ecliptic J2000 by Orb's own frame
+// transform so the adapter's inverse returns the Horizons vector; TDB read as TT, under 2 ms.
 //
-//   node tools/import/planet-fits.mjs [--write] [--report <file>] [--from 1969-01-01] [--only <ids>]
-//   --from moves the span's start earlier (O-047 T-195: 1950-01-01 for a 1977 probe; Pluto's Horizons samples then need fetching from there).
+//   node tools/import/planet-fits.mjs [--write] [--report <file>] [--from 1950-01-01] [--only <ids>]
+//   --from sets the span's start (O-047 T-195: 1950-01-01 for a 1977 probe); Horizons samples are fetched from there.
 //
 // The fitted quantity is exactly what `PlanetModel.xyz(date)` returns: heliocentric ecliptic-J2000 x, y, z, here in kilometres, as a function of
 // TT seconds (see Time below).
@@ -20,15 +25,6 @@ import { makeState, transform } from "@lizard-isana/orb/frames";
 import { AstroInstant } from "@lizard-isana/orb/time";
 import { gridSamples, horizonsText, labelOfSeconds, MAX_ROWS, vectorParams } from "./horizons-client.mjs";
 import { Time } from "@lizard-isana/orb/src/orb-time.js";
-import { Jupiter, Mars, Mercury, Neptune, Saturn, Uranus, Venus } from "@lizard-isana/orb/src/orb-planet.js";
-import { registerVSOP87A } from "@lizard-isana/orb/src/orb-vsop87a-registry.js";
-import { JUPITER_FULL_COEF } from "@lizard-isana/orb/vsop87a/jupiter";
-import { MARS_FULL_COEF } from "@lizard-isana/orb/vsop87a/mars";
-import { NEPTUNE_FULL_COEF } from "@lizard-isana/orb/vsop87a/neptune";
-import { SATURN_FULL_COEF } from "@lizard-isana/orb/vsop87a/saturn";
-import { URANUS_FULL_COEF } from "@lizard-isana/orb/vsop87a/uranus";
-import { MERCURY_FULL_COEF } from "@lizard-isana/orb/vsop87a/mercury";
-import { VENUS_FULL_COEF } from "@lizard-isana/orb/vsop87a/venus";
 
 register("./ts-resolve-hook.mjs", import.meta.url);
 const { encodeChunk } = await import("./chebyshevFit.ts");
@@ -37,29 +33,20 @@ const { ttMinusUtcSeconds } = await import("../../src/core/timeScale.ts");
 
 const REPO = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const J2000_MS = Date.UTC(2000, 0, 1, 12, 0, 0);
-const AU_KM = 149_597_870.7;
 /** The span: the validated range of the planet definitions (1969-07-21 to 2030-06-01) with margin either side, whole years. */
-const fromArg = process.argv.includes("--from") ? process.argv[process.argv.indexOf("--from") + 1] : "1969-01-01";
+const fromArg = process.argv.includes("--from") ? process.argv[process.argv.indexOf("--from") + 1] : "1950-01-01";
 const FROM_MS = Date.parse(`${fromArg}T00:00:00Z`);
 if (!Number.isFinite(FROM_MS) || FROM_MS >= Date.UTC(1971, 0, 1)) throw new Error(`--from must be a date before 1971 (the table's drifting piece runs to the first leap second): ${fromArg}`);
 const TO_MS = Date.UTC(2045, 0, 1);
-/** Largest fit error allowed against the VSOP87A series being replaced, kilometres: under 1 km against model errors of tens to thousands of km. */
+/** Largest fit error allowed against the Horizons barycentre, kilometres, at independent dates. */
 const TARGET_KM = 1;
 const QUANTUM_KM = 0.1;
 const DAY_S = 86_400;
 
-registerVSOP87A("Mercury", MERCURY_FULL_COEF);
-registerVSOP87A("Venus", VENUS_FULL_COEF);
-registerVSOP87A("Mars", MARS_FULL_COEF);
-registerVSOP87A("Jupiter", JUPITER_FULL_COEF);
-registerVSOP87A("Saturn", SATURN_FULL_COEF);
-registerVSOP87A("Uranus", URANUS_FULL_COEF);
-registerVSOP87A("Neptune", NEPTUNE_FULL_COEF);
-const full = { vsop87a: "full" };
-const MODELS = {
-  mercury: new Mercury(full), venus: new Venus(full), mars: new Mars(full), jupiter: new Jupiter(full),
-  saturn: new Saturn(full), uranus: new Uranus(full), neptune: new Neptune(full),
-  pluto: { horizons: true },
+/** Each planet's Horizons body: the planet centre and its system barycentre (no `body` for Mercury and Venus: their barycentre is the planet). */
+const SOURCES = {
+  mercury: { system: "1" }, venus: { system: "2" }, mars: { body: "499", system: "4" }, jupiter: { body: "599", system: "5" },
+  saturn: { body: "699", system: "6" }, uranus: { body: "799", system: "7" }, neptune: { body: "899", system: "8" }, pluto: { body: "999", system: "9" },
 };
 
 // Time. Orb turns the UTC date it is given into TT by adding leap seconds (a step at each one) and, before 1972, a polynomial; a fit of that
@@ -87,17 +74,7 @@ const TIME_TABLE = {
   validToUtcMs: Date.UTC(2045, 0, 1),
 };
 const ttSecondsOf = (utcMs) => (utcMs - J2000_MS) / 1000 + ttMinusUtcSeconds(TIME_TABLE, utcMs);
-/** The UTC date Orb must be given so that its own TT equals `tt` (fixed point on Orb's TT - UTC). */
-function orbDateForTt(tt) {
-  let ms = J2000_MS + tt * 1000 - 64_000;
-  for (let i = 0; i < 4; i += 1) ms = J2000_MS + tt * 1000 - orbDelta(ms) * 1000;
-  return new Date(Math.round(ms));
-}
-function truth(model, tt) {
-  if (model.horizons) return model.at(tt);
-  const v = model.xyz(orbDateForTt(tt));
-  return [v.x * AU_KM, v.y * AU_KM, v.z * AU_KM];
-}
+const truth = (model, tt) => model.at(tt);
 
 /** Chebyshev coefficients (x then y then z blocks) of one segment, from the function at the degree + 1 Chebyshev nodes. */
 function fitSegment(model, startS, lengthS, count) {
@@ -140,29 +117,44 @@ function worstError(model, coefficients, startS, lengthS, count, dates) {
 
 const START_S = ttSecondsOf(FROM_MS);
 const SPAN_S = ttSecondsOf(TO_MS - 1) - START_S;
-// The segment grid is anchored at the original 1969-01-01 start: an earlier --from only prepends whole segments, so the coefficients for 1969 on are the same
-// bytes as before (O-047 T-200; tests and demos compare against positions at metre level) and the fit choice is made over the original span.
+// The segment grid is anchored at 1969-01-01 (O-047 T-200): an earlier --from only prepends whole segments, so moving the start never shifts the
+// grid of the years after 1969, and the fit choice is made over 1969 on.
 const ANCHOR_S = ttSecondsOf(Date.UTC(1969, 0, 1));
 const ANCHOR_SPAN_S = ttSecondsOf(TO_MS - 1) - ANCHOR_S;
 
-/**
- * The Pluto system barycentre's heliocentric ecliptic-J2000 km from Horizons (body 9 about the Sun) every 6 hours over the span plus margin, as a
- * function of TT seconds by 12-point Lagrange interpolation. The barycentre moves smoothly (Pluto's own 6.4-day wobble about it, up to about 2,100 km,
- * is left out on purpose: it is the centre series of data/ephemerides/pluto-moons, added at run time; fitting body 999 grew this file by 300 KB, T-116). The fit is therefore against Horizons itself, with the cache the moon importer uses.
- */
-async function plutoFromHorizons() {
-  const cacheDir = join(dirname(fileURLToPath(import.meta.url)), ".horizons-cache");
-  const stepS = 21_600;
-  const firstS = Math.floor((START_S - 400 * DAY_S) / stepS) * stepS - 10 * stepS;
-  // The last segment of a fit reaches past the span by up to its length (365 days at most): sample that far too, never extrapolate.
-  const count = Math.ceil((START_S + SPAN_S + 400 * DAY_S - firstS) / stepS) + 12;
+const cacheDir = join(dirname(fileURLToPath(import.meta.url)), ".horizons-cache");
+/** Horizons states of `command` about `center` on the 6-hour grid from `firstS`, `count` rows, in as many requests as the row limit needs. */
+async function horizonsGrid(command, center, firstS, stepS, count) {
   const perRequest = MAX_ROWS - 1;
   const samples = [];
   for (let i = 0; i < count; i += perRequest) {
     const rows = Math.min(perRequest, count - i);
     const start = firstS + i * stepS;
-    const text = await horizonsText(vectorParams({ command: "9", center: "500@10", start: labelOfSeconds(start), stop: labelOfSeconds(start + (rows - 1) * stepS), step: "360m" }), { cacheDir });
+    const text = await horizonsText(vectorParams({ command, center, start: labelOfSeconds(start), stop: labelOfSeconds(start + (rows - 1) * stepS), step: "360m" }), { cacheDir });
     samples.push(...gridSamples(text, start, stepS, rows));
+  }
+  return samples;
+}
+
+/**
+ * A planet's system barycentre as heliocentric ecliptic-J2000 km every 6 hours over the span plus margin, as a function of TT seconds by 12-point
+ * Lagrange interpolation: Horizons' barycentre body for Mercury and Venus, else Horizons' planet centre about the Sun minus the same centre about its
+ * barycentre at each instant (the planet's short wobble about the barycentre cancels there, so what is interpolated is smooth). The wobble itself
+ * (up to about 2,100 km for Pluto, a few hundred km for the giants) is left out on purpose: it is the centre series of the planet's moon package,
+ * added at run time (fitting the centre directly needs short segments: Pluto's body 999 grew this file by 300 KB, T-116). The fit is therefore
+ * against Horizons itself, with the cache the moon importer uses.
+ */
+async function barycentreFromHorizons({ body, system }) {
+  const stepS = 21_600;
+  const firstS = Math.floor((START_S - 400 * DAY_S) / stepS) * stepS - 10 * stepS;
+  // The last segment of a fit reaches past the span by up to its length (365 days at most): sample that far too, never extrapolate.
+  const count = Math.ceil((START_S + SPAN_S + 400 * DAY_S - firstS) / stepS) + 12;
+  let samples;
+  if (body === undefined) samples = await horizonsGrid(system, "500@10", firstS, stepS, count);
+  else {
+    const aboutSun = await horizonsGrid(body, "500@10", firstS, stepS, count);
+    const aboutBarycentre = await horizonsGrid(body, `500@${system}`, firstS, stepS, count);
+    samples = aboutSun.map((sample, i) => ({ tdbS: sample.tdbS, positionKm: sample.positionKm.map((v, axis) => v - aboutBarycentre[i].positionKm[axis]) }));
   }
   // ICRF (Horizons) -> ecliptic J2000 with Orb's own transform; the frame is fixed, so one state gives the rotation.
   const instant = AstroInstant.fromUnixMs(J2000_MS);
@@ -185,7 +177,6 @@ async function plutoFromHorizons() {
     },
   };
 }
-MODELS.pluto = await plutoFromHorizons();
 /** Independent dates: every 7.31 days plus a slightly irrational offset, never a segment node. */
 function testDates(startS, endS, step) {
   const dates = [];
@@ -232,9 +223,9 @@ const out = { format: "astraeus.planet-fits/1", frame: "ecliptic J2000, heliocen
 let totalBytes = 0;
 let totalGzip = 0;
 const onlyIds = process.argv.includes("--only") ? process.argv[process.argv.indexOf("--only") + 1].split(",") : null;
-for (const id of Object.keys(MODELS)) {
+for (const [id, source] of Object.entries(SOURCES)) {
   if (onlyIds !== null && !onlyIds.includes(id)) continue;
-  const model = MODELS[id];
+  const model = await barycentreFromHorizons(source);
   const pick = choose(model);
   let attempt = pick;
   let fit;

@@ -3,7 +3,7 @@ import type { IauRotationElements } from "../iauRotation";
 import { createProvenance } from "../provenance";
 import { IAU_REPORT, PLANET_VALIDATED_UTC, planetEphemeris, ROTATION_LIMITATION } from "./planetRecords";
 
-export const MARS_EPHEMERIS = planetEphemeris("Mars", "at most 96 km (0.09 arcsec) from Horizons");
+export const MARS_EPHEMERIS = planetEphemeris("Mars", "499", "DE441 with the Mars satellite ephemeris mar099", "Within 0.6 km of Horizons' Mars on 2 January of each year 1972 to 2044, with or without the Mars moon package (O-063 T-290).", "Until the Mars moon package is loaded (it covers 2010 to 2029) Mars sits at its system barycentre, under a metre from its centre.");
 
 /** Mars pole and prime meridian from the IAU 2015 report: degrees, pole per Julian century, W per day, from J2000 TDB. */
 export const MARS_ROTATION: IauRotationElements = Object.freeze<IauRotationElements>({

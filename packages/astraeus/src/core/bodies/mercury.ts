@@ -3,7 +3,7 @@ import type { IauRotationElements } from "../iauRotation";
 import { createProvenance } from "../provenance";
 import { IAU_REPORT, PLANET_VALIDATED_UTC, planetEphemeris, ROTATION_LIMITATION } from "./planetRecords";
 
-export const MERCURY_EPHEMERIS = planetEphemeris("Mercury", "at most 30 km (0.11 arcsec) from Horizons");
+export const MERCURY_EPHEMERIS = planetEphemeris("Mercury", "199", "DE441 (Mercury has no moons: its barycentre, 1, is the planet)", "Within 0.4 km of Horizons' Mercury on 2 January of each year 1972 to 2044 (O-063 T-290); the fit is within 0.62 km of Horizons at independent dates 1950 to 2045.");
 
 /** Mercury pole and prime meridian from the IAU 2015 report: degrees, pole per Julian century, W per day, from J2000 TDB. */
 export const MERCURY_ROTATION: IauRotationElements = Object.freeze<IauRotationElements>({

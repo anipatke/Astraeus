@@ -22,6 +22,20 @@ const oldPanelWords = <T>(set: T): unknown => {
   return { ...rest, panels: panels.map(({ provenance, ...panel }) => ({ ...panel, badge: provenance.sourceType, sources: provenance.sources })) };
 };
 const resolver = createSceneResolver(createOrbAstronomyAdapter());
+/**
+ * The planets moved after this capture (O-063 T-290: from VSOP87A to Horizons DE441, by up to about 23 km for Mercury and 82 km for Jupiter at these
+ * dates; owner-approved, DATA-01). The capture stays as recorded; a value that comes from a planet's position is compared, at the same tolerance,
+ * with the same quantity computed from the planet series the engine ships now, so this test still proves the rebuild changed nothing.
+ */
+const PLANETS = ["mercury", "venus", "mars", "jupiter", "saturn", "uranus", "neptune", "pluto"];
+const planetAboutSunKm = (planet: string, t: number) => catalogue.get(planet).source!.create(createOrbAstronomyAdapter()).stateAt(Math.round(t), "sun").positionKm;
+/** The planet a captured distance row measures from the Sun (`sun-to-<planet>` or `<planet>-range`), or null for a row that is not a planet's. */
+const planetOfRow = (rowId: string): string | null => PLANETS.find((planet) => rowId === `sun-to-${planet}` || rowId === `${planet}-range`) ?? null;
+/** A captured row set with each planet distance recomputed from today's planet series (other rows exactly as captured). */
+const withTodaysPlanets = (rows: Rec[], t: number): Rec[] => rows.map((row) => {
+  const planet = row.kind === "distance" ? planetOfRow(row.id) : null;
+  return planet === null ? row : { ...row, value: Math.hypot(...planetAboutSunKm(planet, t)) };
+});
 type Rec = Record<string, any>;
 /** The provenance as the replaced definition had it: without the class and fraction O-045 T-185 added. */
 const unclassed = (value: any) => (value && typeof value === "object" && "accuracyClass" in value ? Object.fromEntries(Object.entries(value).filter(([key]) => key !== "accuracyClass" && key !== "maxErrorFraction")) : value);
@@ -31,6 +45,15 @@ const byId = (list: readonly Rec[], id: string) => list.find((item) => item.id =
  * the position accuracy reads "approximate: <the old statement>" and the sources are the record's citation and the centre's gravity; sourceType and notes are unchanged.
  */
 function sameProvenance(now: Rec, was: Rec, movedComet: boolean, where: string): void {
+  // A planet's provenance changed with its source after this capture (O-063 T-290, see PLANETS): it is today's planet record, and the words the
+  // change did not touch (source type, notes) are still the captured ones.
+  const planet = PLANETS.find((p) => where === `${p}.provenance` || where === `${p}-orbit`);
+  if (planet !== undefined) {
+    expect(unclassed(now), where).toEqual(unclassed(plain(catalogue.get(planet).definition.accuracy.position)));
+    expect(now.sourceType, where).toBe(was.sourceType);
+    expect(now.notes, where).toBe(was.notes);
+    return;
+  }
   if (!movedComet || was.accuracyClass !== undefined || !String(was.sources?.[0]).includes("109P/Swift-Tuttle")) { expect(unclassed(now), where).toEqual(was); return; }
   expect(now.sourceType, where).toBe(was.sourceType);
   expect(now.notes, where).toBe(was.notes);
@@ -54,7 +77,7 @@ describe.each([["perseids", perseidsFile, "swift-tuttle"], ["geminids", geminids
     for (const was of old.objects) {
       for (const field of ["label", "color"]) expect(byId(objects, was.id)[field], `${was.id}.${field}`).toEqual(was[field]);
       if (was.id === parent && name === "perseids") sameProvenance(byId(objects, was.id).provenance, was.provenance.position ?? was.provenance, true, `${was.id}.provenance`);
-      else expect(unclassed(byId(objects, was.id).provenance), `${was.id}.provenance`).toEqual(was.provenance);
+      else sameProvenance(byId(objects, was.id).provenance, was.provenance, false, `${was.id}.provenance`);
     }
   });
 
@@ -207,11 +230,14 @@ describe.each([["perseids", perseidsFile, "swift-tuttle"], ["geminids", geminids
         const gap = Math.abs(((now.sampling.periapsisUtcMs - was.sampling.periapsisUtcMs) % was.sampling.periodMs));
         expect(Math.min(gap, was.sampling.periodMs - gap)).toBeLessThan(5 * 60_000);
       }
-      // The line is the same position source: where the old line stood at the old sample times, the new source is there.
+      // The line is the same position source: where the old line stood at the old sample times, the new source is there (a planet's line: where
+      // today's planet series puts that planet, see withTodaysPlanets).
       const times = [was.span.startUtcMs, (was.span.startUtcMs + was.span.endUtcMs) / 2, was.span.endUtcMs];
+      const planet = PLANETS.find((p) => id === `${p}-orbit`);
       times.forEach((t: number, k: number) => {
         const position = now.source.stateAt(Math.round(t), "sun").positionKm;
-        for (let c = 0; c < 3; c += 1) expect(position[c], `${id} ${k}`).toBeCloseTo(was.positionsAtPeak[k][c], 0);
+        const expected = planet === undefined ? was.positionsAtPeak[k] : planetAboutSunKm(planet, t);
+        for (let c = 0; c < 3; c += 1) expect(position[c], `${id} ${k}`).toBeCloseTo(expected[c], 0);
       });
     }
     expect(old.paths.map((p: Rec) => p.color)).toEqual(expect.arrayContaining(["#7ab8ff", "#c79bff"])); // earthPathColor and parentPathColor: no longer drawn, the lines take the body colours (FLAG)
@@ -248,15 +274,16 @@ describe.each([["perseids", perseidsFile, "swift-tuttle"], ["geminids", geminids
     old.times.forEach((t: number, k: number) => {
       for (const id of ["earth", "sun", "mars", parent]) {
         const rows = plain(metrics(id, t)) as unknown as Rec[];
+        const wasRows = withTodaysPlanets(old.metricRows[id][k] as Rec[], t);
         // O-045 T-187: a body added from an elements record now shows "Distance from Sun" like the built-in comet; nothing else about its row changes.
         if (gained && id === parent) {
           expect(rows.map((row) => row.label), `${id} at ${t}`).toEqual(["Distance from Sun", ...old.metricRows[id][k].map((row: Rec) => row.label)]);
-          expect(settle(rows.slice(1)), `${id} at ${t}`).toEqual(settle(old.metricRows[id][k]));
+          expect(settle(rows.slice(1)), `${id} at ${t}`).toEqual(settle(wasRows));
         } else if (gained && id === "sun") {
           // The Sun, as the comet's parent, also lists its distance to the comet, after the rows it had.
-          expect(settle(rows.slice(0, -1)), `${id} at ${t}`).toEqual(settle(old.metricRows[id][k]));
+          expect(settle(rows.slice(0, -1)), `${id} at ${t}`).toEqual(settle(wasRows));
           expect(rows.at(-1)!.id, `${id} at ${t}`).toBe(`sun-to-${parent}`);
-        } else expect(settle(rows), `${id} at ${t}`).toEqual(settle(old.metricRows[id][k]));
+        } else expect(settle(rows), `${id} at ${t}`).toEqual(settle(wasRows));
       }
     });
   });

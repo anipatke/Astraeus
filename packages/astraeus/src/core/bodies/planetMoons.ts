@@ -7,10 +7,9 @@
 import type { StateSourceBinding } from "../body";
 import { iauElementsFromRecord } from "../iauRotation";
 import { recordPeriodDays } from "../siderealPeriod";
-import { createPlanetSunTrajectory } from "./planetTrajectory";
 import { MARS } from "./mars";
 import { createMoonSystem, HISTORICAL_MOON_FIT_SPAN, moonFitSource } from "./moonSystem";
-import { NEPTUNE, PLUTO, PLUTO_ROTATION, SATURN, URANUS } from "./outerPlanets";
+import { NEPTUNE, PLUTO, SATURN, URANUS } from "./outerPlanets";
 import charonOrbit from "../../../data/orbits/charon.json" with { type: "json" };
 import dioneOrbit from "../../../data/orbits/dione.json" with { type: "json" };
 import enceladusOrbit from "../../../data/orbits/enceladus.json" with { type: "json" };
@@ -73,19 +72,3 @@ export const PLANET_MOON_BINDINGS: readonly StateSourceBinding[] = Object.freeze
   NEPTUNE_MOON_SYSTEM.binding(TRITON.id, iauElementsFromRecord(tritonOrbit.rotation)),
   PLUTO_MOON_SYSTEM.binding(CHARON.id, iauElementsFromRecord(charonOrbit.rotation)),
 ]);
-
-/**
- * Pluto's own offset from the system barycentre at `timeUtcMs`, from its system's centre series, or null while the system is not loaded or the
- * time lies outside the loaded chunks (Pluto then stays at the barycentre, which its position record says).
- */
-function plutoOffsetKm(timeUtcMs: number): ArrayLike<number> | null {
-  if (!PLUTO_MOON_SYSTEM.isLoaded()) return null;
-  try {
-    return PLUTO_MOON_SYSTEM.ephemeris().centreOffsetKm(timeUtcMs);
-  } catch {
-    return null;
-  }
-}
-
-/** Pluto: the planet fits give the system barycentre; its own offset is added once its system's fits are loaded. */
-export const PLUTO_BINDING: StateSourceBinding = Object.freeze<StateSourceBinding>({ body: PLUTO.id, create: (adapter) => createPlanetSunTrajectory("pluto", PLUTO_ROTATION, adapter, plutoOffsetKm) });
