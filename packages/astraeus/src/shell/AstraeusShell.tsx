@@ -150,6 +150,8 @@ interface Props {
   readonly onSelectRequestApplied?: () => void;
   readonly pickRequest?: { readonly id: string; readonly serial: number } | null;
   readonly children: ReactNode;
+  /** The opt-in loading cover (`loadingCover`), drawn last inside the root so it lies over the whole viewer. */
+  readonly cover?: ReactNode;
 }
 
 /** What the information panel is about: the selected object, or an event, window or place by id; null: closed. */
@@ -235,6 +237,7 @@ export function AstraeusShell({
   selectRequest,
   onSelectRequestApplied,
   children,
+  cover,
 }: Props) {
   const infoPanelId = `${useId()}-info-panel`;
   const [selectedObjectId, setSelectedObjectId] = useState(() => initialObjectId(experience, snapshot.timeUtcMs));
@@ -460,6 +463,7 @@ export function AstraeusShell({
   return (
     <main className="astraeus-shell" ref={root} data-phone={phone} data-timeline-hidden={experience.hideTimeline === true} data-embedded={embedded} style={phoneLayoutStyle(phoneLayout)}>
       <div className="shell-canvas">{children}</div>
+      {cover}
       {phone && <ControlsDrawer label={selectedLabel} open={controlsOpen} onOpenChange={openControls} swipeThresholdPx={phoneLayout.swipeThresholdPx}>{topBar}{moonPanel}</ControlsDrawer>}
       <div className="shell-top">
         {!phone && topBar}

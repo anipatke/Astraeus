@@ -251,13 +251,13 @@ describe("README API tables (API-07)", () => {
 
   it("fails on a member the README leaves out, a name it invents, and a row that names a member that does not exist", () => {
     const readme = readFileSync(README, "utf8");
-    const lacking = readme.replace("address?, developerTools? })`", "developerTools? })`").replace(" onFirstDraw? address? developerTools?", " onFirstDraw? developerTools?").replace("setCamera(target), ", "");
+    const lacking = readme.replace("address?, developerTools?, loadingCover? })`", "developerTools?, loadingCover? })`").replace(" onFirstDraw? address? developerTools?", " onFirstDraw? developerTools?").replace("setCamera(target), ", "");
     expect(readmeApiBreaks(lacking, members)).toEqual([
       "mount options (MountOptions): README does not list address",
       "mount handle (MountedScene): README does not list setCamera",
       "<AstraeusScene> props (AstraeusSceneProps): README does not list address",
     ]);
-    const invented = readme.replace("onChange?, address?, developerTools? })", "onChange?, address?, developerTools?, speed? })").replace("| `handle.ready` |", "| `handle.readyNow` |");
+    const invented = readme.replace("developerTools?, loadingCover? })", "developerTools?, loadingCover?, speed? })").replace("| `handle.ready` |", "| `handle.readyNow` |");
     expect(readmeApiBreaks(invented, members)).toEqual([
       "mount options (MountOptions): README lists speed, which is not a real member",
       "README row `handle.readyNow`: handle.readyNow is not a MountedScene member",

@@ -24,6 +24,7 @@ const ALLOWED: Readonly<Record<string, string>> = {
   "app/viewerPort": "the viewer port: the control and state a host link talks to",
   "app/CameraController": "the viewer port: the camera request a host link sends",
   "app/App": "the viewer: mount renders it",
+  "app/LoadingCover": "the viewer: the opt-in loading cover mount and AstraeusScene draw beside it (O-061 T-288)",
   "app/style.css": "the viewer: mount loads its stylesheet",
 };
 
