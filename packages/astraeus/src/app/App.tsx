@@ -221,7 +221,7 @@ const drawerWhen = (asked: boolean | undefined, drawer: ReactNode): ReactNode =>
  * `address`: whether the viewer reads the page address (`view`, `t`, `scale`, `up`, `show`, `stars`, `milkyway`, `labels` and the other parameters in the README) and offers a copy-link button that writes it (default false: a host page's address is its own; the demo site passes true).
  * `host`: the link a host page reads and sets the one clock through (time, speed) and hears its changes from; every change goes through the same handlers as the timeline's own controls.
  */
-export function App({ definition, writeTitle = true, address, developerTools, host, cover }: { readonly cover?: ReactNode; readonly definition: ExperienceDefinition; readonly writeTitle?: boolean; readonly address?: boolean; readonly developerTools?: boolean; readonly host?: ViewerPort }) {
+export function App({ definition, writeTitle = true, address, developerTools, host }: { readonly definition: ExperienceDefinition; readonly writeTitle?: boolean; readonly address?: boolean; readonly developerTools?: boolean; readonly host?: ViewerPort }) {
   // The page heading names the experience once it is open; app.html says only "Astraeus" until then.
   useEffect(() => {
     if (writeTitle) document.title = pageTitleOf(definition);
@@ -686,7 +686,6 @@ export function App({ definition, writeTitle = true, address, developerTools, ho
 
   return (
     <AstraeusShell
-      cover={cover}
       experience={shellExperience}
       snapshot={clockSnapshot}
       paceAuto={runtime.pacing === undefined ? undefined : paceAuto}

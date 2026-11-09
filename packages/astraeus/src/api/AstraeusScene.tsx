@@ -1,7 +1,6 @@
 import { useEffect, useImperativeHandle, useRef, useState, type CSSProperties, type ReactElement, type Ref } from "react";
 import "../app/style.css";
 import { App } from "../app/App";
-import { LoadingCover, LoadingShell } from "../app/LoadingCover";
 import type { ExperienceDefinition } from "../app/experienceDefinition";
 import { makeContainingBlock } from "./containingBlock";
 import { prepareScene } from "./prepared";
@@ -43,8 +42,6 @@ export interface AstraeusSceneProps {
   readonly address?: boolean;
   /** Whether the viewer shows the Developer toggle and drawer (default false: no cog, and the drawer's code is never fetched). Read when the viewer is built. "Copy view link" lives in the drawer, so `address` without this has no copy button; a switch placed `"developer"` shows only when this is on. */
   readonly developerTools?: boolean;
-  /** Whether the viewer covers its own wrapper with a plain dark loading cover from the first render until the scene's first drawn frame (`onFirstDraw`), then fades it over the `loadFadeSeconds` look (default false: no cover). Read when the viewer mounts. Under `prefers-reduced-motion` it is removed at once. Covers the first frame only; a rebuild with a new `scene` does not bring it back. */
-  readonly loadingCover?: boolean;
   /** Class for the wrapper element, which fills its parent's width and height unless `style` says otherwise. */
   readonly className?: string;
   /** Style for the wrapper element. */
@@ -65,9 +62,8 @@ const cameraValueKey = (camera: CameraTarget): string => JSON.stringify(Object.e
  *   return <div style={{ height: "100vh" }}><AstraeusScene scene={scene} onError={console.error} /></div>;
  * }
  */
-export function AstraeusScene({ ref, scene, data, onReady, onError, time, rate, view, camera, onChange, onEventZone, onPick, onFirstDraw, address, developerTools, loadingCover, className, style }: AstraeusSceneProps): ReactElement {
+export function AstraeusScene({ ref, scene, data, onReady, onError, time, rate, view, camera, onChange, onEventZone, onPick, onFirstDraw, address, developerTools, className, style }: AstraeusSceneProps): ReactElement {
   const [definition, setDefinition] = useState<ExperienceDefinition | undefined>();
-  const [failed, setFailed] = useState(false); // the scene could not be built or loaded: the loading cover must not stay over the host's error
   // The latest data and callbacks, read when the scene is built, so a new array or arrow function each render does not rebuild it.
   const latest = useRef({ data, onReady, onError, onChange, onEventZone, onPick, onFirstDraw });
   latest.current = { data, onReady, onError, onChange, onEventZone, onPick, onFirstDraw };
@@ -101,7 +97,6 @@ export function AstraeusScene({ ref, scene, data, onReady, onError, time, rate, 
   useEffect(() => {
     let open = true;
     setDefinition(undefined);
-    setFailed(false);
     link.detach(); // a rebuild: the old viewer is going, so `onReady` below waits for the new one's attach
     try {
       const prepared = prepareScene(scene, latest.current.data);
@@ -112,10 +107,9 @@ export function AstraeusScene({ ref, scene, data, onReady, onError, time, rate, 
           // The viewer attaches its clock in an effect after this render; onReady waits for it, so the handle's reads and sets work inside it.
           void link.whenAttached().then(() => { if (open) latest.current.onReady?.(handle); }, () => undefined); // a closed link (unmounted) rejects the wait: onReady does not fire
         },
-        (cause: unknown) => { if (open) { setFailed(true); latest.current.onError?.(asError(cause)); } },
+        (cause: unknown) => { if (open) latest.current.onError?.(asError(cause)); },
       );
     } catch (cause) {
-      setFailed(true);
       latest.current.onError?.(asError(cause));
     }
     return () => { open = false; };
@@ -124,5 +118,5 @@ export function AstraeusScene({ ref, scene, data, onReady, onError, time, rate, 
   // The viewer's root fills this wrapper, so it is the containing block (unless the host's own class or style positions it already).
   const wrapper = useRef<HTMLDivElement>(null);
   useEffect(() => { if (wrapper.current !== null) makeContainingBlock(wrapper.current); }, []);
-  return <div ref={wrapper} className={className} style={{ ...FILL, isolation: "isolate", ...style }}>{definition ? <App definition={definition} writeTitle={false} address={address === true} developerTools={developerTools === true} host={link} cover={loadingCover === true ? <LoadingCover link={link} /> : undefined} /> : loadingCover === true && !failed ? <LoadingShell link={link} /> : null}</div>;
+  return <div ref={wrapper} className={className} style={{ ...FILL, isolation: "isolate", ...style }}>{definition ? <App definition={definition} writeTitle={false} address={address === true} developerTools={developerTools === true} host={link} /> : null}</div>;
 }

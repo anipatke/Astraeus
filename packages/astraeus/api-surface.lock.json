@@ -2172,11 +2172,6 @@
           "name": "developerTools",
           "optional": true,
           "signature": "boolean | undefined"
-        },
-        {
-          "name": "loadingCover",
-          "optional": true,
-          "signature": "boolean | undefined"
         }
       ]
     },
@@ -2476,7 +2471,7 @@
     },
     "AstraeusScene": {
       "kind": "function",
-      "signature": "AstraeusScene({ ref, scene, data, onReady, onError, time, rate, view, camera, onChange, onEventZone, onPick, onFirstDraw, address, developerTools, loadingCover, className, style }: AstraeusSceneProps): ReactElement",
+      "signature": "AstraeusScene({ ref, scene, data, onReady, onError, time, rate, view, camera, onChange, onEventZone, onPick, onFirstDraw, address, developerTools, className, style }: AstraeusSceneProps): ReactElement",
       "constructors": [],
       "members": []
     },
@@ -2557,11 +2552,6 @@
         },
         {
           "name": "developerTools",
-          "optional": true,
-          "signature": "boolean | undefined"
-        },
-        {
-          "name": "loadingCover",
           "optional": true,
           "signature": "boolean | undefined"
         },

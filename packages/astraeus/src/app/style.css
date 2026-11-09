@@ -179,8 +179,3 @@
 .astraeus-shell .hud .view-link-values { margin: 2px 0 6px; color: var(--ui-muted); font-size: 12px; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
 .astraeus-shell .hud .view-link-field { display: flex; flex-direction: column; gap: 4px; margin: 0 0 6px; color: var(--ui-muted); font-size: 12px; }
 .astraeus-shell :where(.hud) .view-link-field input { width: 100%; min-width: 0; box-sizing: border-box; }
-
-/* The opt-in loading cover (`loadingCover: true`): a child of the viewer's root, over everything in it until the first drawn frame; the fade time is set inline from the look. */
-.astraeus-shell .astraeus-loading-cover { position: absolute; inset: 0; z-index: 10000; background: #000; opacity: 1; transition-property: opacity; transition-timing-function: ease-out; }
-.astraeus-shell .astraeus-loading-cover[data-state="fading"] { opacity: 0; pointer-events: none; }
-@media (prefers-reduced-motion: reduce) { .astraeus-shell .astraeus-loading-cover { transition: none; } }

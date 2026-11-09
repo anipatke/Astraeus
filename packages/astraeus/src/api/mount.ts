@@ -2,7 +2,6 @@ import { createElement } from "react";
 import { createRoot } from "react-dom/client";
 import "../app/style.css";
 import { App } from "../app/App";
-import { LoadingCover, LoadingShell } from "../app/LoadingCover";
 import { makeContainingBlock } from "./containingBlock";
 import { SceneError } from "./errors";
 import { prepareScene } from "./prepared";
@@ -20,8 +19,6 @@ export interface MountOptions {
   readonly address?: boolean;
   /** Whether the viewer shows the Developer toggle and drawer (default false: an outside page gets no developer cog and the drawer's code is never fetched). The "Copy view link" button lives in the drawer, so `address: true` without this has no copy button. A switch placed `"developer"` shows only when this is on. */
   readonly developerTools?: boolean;
-  /** Whether the viewer covers its own area with a plain dark loading cover from `mount` until the scene's first drawn frame (`onFirstDraw`), then fades it over the `loadFadeSeconds` look (default false: no cover, as before). Under `prefers-reduced-motion` it is removed at once. Covers the first frame only. */
-  readonly loadingCover?: boolean;
 }
 
 /** What `mount` returns: the viewer handle plus `ready` and `unmount`. */
@@ -56,15 +53,9 @@ export function mount(element: HTMLElement, scene: Scene, options: MountOptions 
   const link = new ViewerLink();
   if (options.onChange !== undefined) link.onChange(options.onChange);
   // Resolves once the viewer has attached its clock (its effect runs after the render), so every handle call works straight after `await ready`.
-  // The cover (when asked for) sits inside the viewer's root: alone in a pre-shell root until the data has loaded, then a child of the real shell. A scene that fails to load removes it.
-  const covered = options.loadingCover === true;
-  if (covered) {
-    root.render(createElement(LoadingShell, { link }));
-    loaded.catch(() => { if (open) root.render(null); });
-  }
   const attached = loaded.then(() => {
     if (!open) throw new SceneError("not-mounted", "mount: unmounted before the viewer was drawn");
-    root.render(createElement(App, { definition, writeTitle: false, address: options.address === true, developerTools: options.developerTools === true, host: link, ...(covered ? { cover: createElement(LoadingCover, { link }) } : {}) }));
+    root.render(createElement(App, { definition, writeTitle: false, address: options.address === true, developerTools: options.developerTools === true, host: link }));
     return link.whenAttached();
   });
   // Only the expected "taken down early" rejection (`not-mounted`) is marked handled, so a host that never awaits `ready` is not sent an unhandled rejection for it;

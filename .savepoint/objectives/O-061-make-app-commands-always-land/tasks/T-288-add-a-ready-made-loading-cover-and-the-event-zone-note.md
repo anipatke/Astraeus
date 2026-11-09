@@ -2,10 +2,9 @@
 id: T-288
 title: Add a ready-made loading cover and the event zone note
 objective: O-061
-status: in_progress
-stage: audit
+status: done
 depends_on: []
-owner_validation: {required: true}
+owner_validation: {required: false}
 planned_by: {role: planner, session: voyagers-review-20261110}
 check_waiver: {task: T-288, reason: 'Owner said "orchestrate O-061" under the standing run rules (no per-step checks, coordinator marks done once gates pass, one Full Objective Check at the end); the optional Task Check is waived.', actor: {role: owner, session: o061-run-20261110}, recorded_at: '2026-11-09T20:44:20Z'}
 ---
@@ -72,6 +71,10 @@ Files changed: `packages/astraeus/src/app/LoadingCover.tsx` (new), `src/app/styl
 Commands: `npx vitest run packages/astraeus/tests/loadingCover.test.ts` 9 passed; `npm run api:lock` wrote the lock; `npx vitest run packages/astraeus/tests/loadingCover.test.ts` 13 passed (repeated 4 times); API-03 scans (`apiRules`, `viewerStyles`, `viewerIds`) pass with the allowlist untouched; `npm run check:gates` all 9 gates passed (total 178 s, none over limit). Browser check not run (policy).
 
 Limits: the cover covers the first frame only (a React rebuild with a new `scene` does not bring it back); it carries no text; fade and phone/desktop no-overlap are by construction (an absolute fill of the viewer's element with no content) and judged by the owner on the preview, not by a browser run. A scene that fails to load removes the cover on both paths (tested).
+
+## Owner Decision (2026-11-09T22:26:37Z)
+
+The owner removed the loading cover after reviewing it on the preview ("why do we have it, i dont want to build things unecessarily"; chose "Take it out (Recommended)"). The coordinator restored every cover-touched file to its state before commit 7e51383f and deleted `LoadingCover.tsx`, `loadingCover.test.ts` and `cover-preview.html`; the README event-zone line and its CHANGELOG bullet stay. The cover's Done When items and User Check no longer apply; owner validation is not required for what remains. After the removal `npm run check:gates` passed all 9 gates (175 s, 0 over limit).
 
 ## Drift Notes
 
