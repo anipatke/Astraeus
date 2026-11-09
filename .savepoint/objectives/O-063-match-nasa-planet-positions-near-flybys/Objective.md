@@ -21,6 +21,11 @@ The Voyagers review (owner, 2026-11-10): the app re-places probe samples so the 
 
 To be detailed when this Objective is planned. It starts with a bounded research Task: measure today's error against Horizons at the Voyager flyby dates (and a made-up check elsewhere), name the cause, and recommend the general fix and its cost (download size, span), for the owner to choose.
 
+## Owner Decisions (2026-11-10)
+
+- Kept in 0.8.1 while timeline zoom, timed labels and the box-size fix were parked: "Accuracy only, park zoom and labels (Recommended)".
+- Plan: one research step (T-289) first; the owner reads its note and chooses the fix, or "state the measured error and stop", before any fix step is planned.
+
 ## Boundaries
 
 **In scope:** the core planet series and its provenance (ARCH-05, PROV-01).
