@@ -2,7 +2,8 @@
 id: T-289
 title: Measure how far planets drift from NASA at flybys
 objective: O-063
-status: planned
+status: in_progress
+stage: audit
 depends_on: []
 owner_validation: {required: true}
 planned_by: {role: planner, session: o061-run-20261110}
@@ -52,7 +53,25 @@ No change to the engine's positions or data in this step. No probe or mission da
 
 ## Technical Evidence
 
-Pending execution.
+Executor session o063-run-20261110 (builder), 2026-11-10. Stage build -> test -> audit. Step check waived by the owner (frontmatter `check_waiver`); evidence routes to the Full Objective Check.
+
+**Files read:** router; this Task; O-063 Objective.md; I-154; `agent-skills/savepoint-task/SKILL.md`; `docs/agents/verification.md`; Guardrails ARCH-05, PROV-01, DATA-01, TEST-01; Context Files `packages/astraeus/src/core/planetModels.ts`, `planetSeries.ts`, `astronomyAdapter.ts`, `tests/chebyshevEphemeris.test.ts` (head), `tools/import/planet-fits.mjs` (header, time and truth sections; the Task's path `tools/import/planet-fits.mjs` lives at `packages/astraeus/tools/import/`), `packages/astraeus/README.md` (planet years rows). Design.md `Interfaces and Data Flow` (journeys across years paragraph, via grep).
+
+**Extra reads (logged):** `packages/astraeus/tools/import/horizons-client.mjs` (reuse the paced, cached Horizons client); `src/core/bodies/planetMoons.ts` lines 60-95 and `outerPlanets.ts`/`jupiter.ts`/`planetRecords.ts` provenance lines (how a planet is placed and what accuracy it states today); `tests/planetFits.test.ts` head (how the full VSOP87A series is evaluated in a test); `docs/ASTRONOMY_VALIDATION.md` grep (prior fit figures); the Voyagers app read-only, `/home/user/code/voyagers/data/horizons/*` headers, `src/data/enginePlanets.ts`, `src/data/probe.ts` grep and `docs/astraeus-feedback.md` (the "Engine planets differ from Horizons" entry), to answer how Voyagers centred its samples. Nothing written outside this repository.
+
+**Files changed:** `docs/architecture/planet-accuracy-o063.md` (new note); `packages/astraeus/tests/planetAccuracyFlybys.test.ts` (new measurement test, 7 tests); `packages/astraeus/tests/fixtures/planet-accuracy-o063-horizons.json` (new fixture, 87 KB, Horizons DE441, retrieved 2026-11-10, settings inside); `packages/astraeus/tools/import/planet-accuracy-fetch.mjs` (new fetch tool, 15 Horizons requests, raw replies in the git-ignored cache); this Task and O-063 Objective.md (status). No engine source or data changed.
+
+**Per criterion:**
+- Engine heliocentric and Sun-centred-scene positions vs Horizons per planet and date, with settings, km, radii and angle from the probe: done, note summary and Method; test `measures today's error ... at each epoch` (bodyKm 629 to 13,338 km at flybys; scene figures within the 902 km Orb ecliptic-to-equator difference of them).
+- Flyby dates from a cited source: Horizons' own Voyager trajectories (closest approach to the planet centre, 1-s search over the day the Horizons header timeline names), pinned in the test; header note on the pre-1989 patched-conic trajectory recorded.
+- Cause per row shown by measurement: refit < 1 km, time scale < 5 km, barycentre offset < 800 km, Sun vs SSB > 200,000 km, frame rotation explains most of Jupiter/Saturn (rms halves) but not Uranus/Neptune: each asserted in the test.
+- Voyagers' re-placing answered: the engine (its samples were `500@10` ecliptic J2000; its metric saw only the along-range part, Neptune 120 km at closest approach against a 13,338 km miss).
+- One general fix with cost, and what provenance should say; the "state it and stop" alternative: note, Recommendation and Alternative sections.
+- Fixture with source and retrieval date (PROV-01): yes; the fixture test checks source, settings and date.
+
+**Commands (2026-11-10):** `node tools/import/planet-accuracy-fetch.mjs` (packages/astraeus) wrote the fixture; `npx vitest run packages/astraeus/tests/planetAccuracyFlybys.test.ts` 7 passed; `npm run lint` exit 0; `npm run typecheck` exit 0 (after a cast fix in the new test); `npm test` 236 files, 3368 passed, 2 skipped, exit 0. No browser check (Task says none). No build run (no source change).
+
+**Limitations:** the download size of the recommended fix is an estimate (no Horizons refit was run); the Uranus centre-minus-barycentre figure of 712 km in 2020 is larger than its moons explain and is reported as measured, not explained; the frame offset size (about 0.22 arcsec) is measured but not traced to published frame-tie constants; Voyagers' own 428.6 km Jupiter figure was not reproduced exactly (its window maximum on an interpolated path differs from this closest-approach figure); Earth (EPV00) was not measured. The current provenance maxima (six dates 1969-2030, e.g. Neptune 36,192 km) understate the 1950-2044 maxima measured here; left for the owner's choice, not repaired.
 
 ## Drift Notes
 

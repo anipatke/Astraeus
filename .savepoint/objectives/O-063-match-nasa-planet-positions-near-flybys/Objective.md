@@ -1,7 +1,7 @@
 ---
 id: O-063
 title: Match NASA planet positions near flybys
-status: planned
+status: in_progress
 depends_on: [O-061]
 release: G-017
 priority: medium
