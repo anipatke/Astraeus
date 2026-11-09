@@ -2,13 +2,19 @@
 id: I-139
 title: Panel sizes follow the browser window, not the viewer
 type: other
-status: open
+status: resolved
 source:
   kind: report
   actor: {role: planner, session: o055-planning-20261102}
   at: '2026-11-02T12:00:00Z'
 guardrail_ids: [API-03]
 severity: medium
+resolution:
+  disposition: escalated
+  actor: {role: planner, session: o061-run-20261110}
+  at: '2026-11-09T22:19:52Z'
+  reason: 'Owner: "add I-139 to 0.8.1". Repair promoted into O-068 (G-017).'
+escalated_to: O-068
 history:
   - at: '2026-11-02T12:00:00Z'
     actor: {role: planner, session: o055-planning-20261102}
@@ -18,6 +24,10 @@ history:
     actor: {role: owner, session: o055-planning-20261102}
     kind: deferred
     note: 'Owner, 2026-11-02, "All recommendations; #7 later": kept out of O-055, for a later Objective. Relayed by the coordinator.'
+  - at: '2026-11-09T22:19:52Z'
+    actor: {role: planner, session: o061-run-20261110}
+    kind: escalated
+    note: 'Owner, on the T-288 box preview: "the controls dont fit", "full page is fine, add I-139 to 0.8.1". Promoted into O-068 under G-017, before O-062.'
 ---
 
 # I-139: Panel sizes follow the browser window, not the viewer
