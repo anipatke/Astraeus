@@ -29,13 +29,15 @@ function residuals(planet: (typeof PLANETS)[number]): { arcsec: number; rangeKm:
 }
 
 describe("planet positions against JPL Horizons (DE441, six dates 1969 to 2030)", () => {
-  const targets = { mercury: 40, venus: 70, mars: 120, jupiter: 1500 } as const;
+  // Measured 2026-11-10 on the Horizons-fitted series: Mercury 1.83 km, Venus 1.12, Mars 0.80, Jupiter 171 km (the barycentre's gap from the planet
+  // centre, closed by the moon package, tests/planetAccuracyFlybys.test.ts). Before O-063 these were VSOP87A's own error: 40, 70, 120 and 1,500 km, all 0.5".
+  const targets = { mercury: [2, 0.01], venus: [1.5, 0.01], mars: [1, 0.01], jupiter: [180, 0.05] } as const;
   for (const planet of PLANETS) {
-    it(`${planet} stays within ${targets[planet]} km and 0.5 arcsec of the archived vectors`, () => {
+    it(`${planet} stays within ${targets[planet][0]} km and ${targets[planet][1]} arcsec of the archived vectors`, () => {
       const worst = residuals(planet);
       expect(positionFixture.bodies[planet].samples).toHaveLength(6);
-      expect(worst.distanceKm).toBeLessThan(targets[planet]);
-      expect(worst.arcsec).toBeLessThan(0.5);
+      expect(worst.distanceKm).toBeLessThan(targets[planet][0]);
+      expect(worst.arcsec).toBeLessThan(targets[planet][1]);
     });
   }
 

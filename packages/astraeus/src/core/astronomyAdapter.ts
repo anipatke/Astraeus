@@ -79,7 +79,7 @@ export function createOrbAstronomyAdapter(): AstronomyAdapter {
       const model = planetModels()[planet];
       const ecliptic = model.xyz(new Date(timeUtcMs));
       if (ecliptic.coordinate_keywords !== "ecliptic rectangular j2000" || ecliptic.unit_keywords !== "au") {
-        throw new TypeError("Orb VSOP87A result changed its heliocentric ecliptic-J2000 au contract");
+        throw new TypeError("the planet series result changed its heliocentric ecliptic-J2000 au contract (JPL Horizons fit)");
       }
       const state = makeState({
         t: instant,
@@ -88,8 +88,8 @@ export function createOrbAstronomyAdapter(): AstronomyAdapter {
         r: [ecliptic.x * AU_KM, ecliptic.y * AU_KM, ecliptic.z * AU_KM],
       });
       const eqj = transform(state, { frame: "equatorial-j2000" });
-      if (eqj.center !== "sun") throw new TypeError("Orb VSOP87A transform changed its center");
-      return finiteVector(eqj.r, `${planet} VSOP87A`);
+      if (eqj.center !== "sun") throw new TypeError("Orb ecliptic-to-equatorial transform of the planet series changed its center");
+      return finiteVector(eqj.r, `${planet} Horizons planet series`);
     },
 
     daysSinceJ2000Tt(timeUtcMs: number): number {

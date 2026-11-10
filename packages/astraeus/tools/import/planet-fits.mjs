@@ -5,7 +5,7 @@
 // package (planetTrajectory.ts), puts it on Horizons' planet centre. For a planet with a moon system that barycentre is Horizons' planet centre
 // about the Sun (499 ... 999, through the satellite ephemeris on DE441) minus the same centre about its barycentre (CENTER=500@4 ... 500@9, what the
 // moon package is fitted to), at the same instants; Mercury and Venus have no moons, so their barycentre (1, 2, DE441) is the planet. Horizons'
-// satellite ephemerides carry their own path of the barycentre, which is not DE441's barycentre 7 or 8 (up to about 3,200 km for Uranus, 660 km for
+// satellite ephemerides carry their own path of the barycentre, which is not DE441's barycentre 7 or 8 (up to about 3,441 km for Uranus, 742 km for
 // Neptune, T-290), so fitting DE441's 7 or 8 would miss Horizons' planet. 6-hourly states, ICRF turned into Orb's ecliptic J2000 by Orb's own frame
 // transform so the adapter's inverse returns the Horizons vector; TDB read as TT, under 2 ms.
 //

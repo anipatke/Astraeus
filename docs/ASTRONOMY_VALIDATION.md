@@ -106,7 +106,7 @@ Raw Horizons responses are archived in [`planets-horizons-source.txt`](../tests/
 | 2024-01-01 00:00 | recent |
 | 2030-06-01 00:00 | end of range |
 
-Measured maxima over the six samples (Orb 3.1.1, full VSOP87A, `tests/planets.test.ts`):
+Measured maxima over the six samples with the earlier VSOP87A series (Orb 3.1.1, full VSOP87A; history, the test targets are now much tighter, see the O-063 note above):
 
 | Planet | Max angular separation | Max range residual | Max vector distance | Test target |
 |---|---:|---:|---:|---|
