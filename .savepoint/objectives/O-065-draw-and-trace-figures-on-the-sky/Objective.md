@@ -11,7 +11,7 @@ priority: high
 
 ## Outcome
 
-The engine's star list carries catalogue ids (HIP), and a scene can add named figures drawn at infinity like the stars (segments between sky directions or star ids, a label point), trace any figure line by line on command or at a time (stay or fade afterwards, or cleared later; reduced motion draws at once), and show ready-made ecliptic and celestial-equator lines and boundary outlines; the Sun and Moon seen from a look-out view keep a glow (a look setting) that never hides a figure.
+The engine's star list carries catalogue ids (HIP), and a scene can add named figures drawn at infinity like the stars (segments between sky directions or star ids, a label point), trace any figure line by line when the app asks (stay or fade afterwards, or cleared later; reduced motion draws at once), and show ready-made ecliptic and celestial-equator lines and boundary outlines; seen from a look-out view, the Sun's glow never hides a figure (owner decisions below: tracing on request only, Sun glow only).
 
 ## Why
 
