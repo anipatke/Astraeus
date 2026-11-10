@@ -28,14 +28,16 @@ import { MoonPanelPlan } from "./planMoonPanel";
 import { PickerPlan } from "./planPicker";
 import type { PickerInput } from "./pickerInput";
 import { PlacesPlan } from "./planPlaces";
+import { SkyFigurePlan } from "./planSkyFigures";
+import type { SkyFigureInput } from "./skyFigureInput";
 import type { MoonPanelInput, PlacesInput } from "./moonPanelInput";
 import type { BodySetInput } from "./bodySetInput";
 import { assembleScene } from "./assembleScene";
 import { SceneCamera } from "./planCamera";
 import { definitionOf, registerDefinition, registerMissingData } from "./definitionOf";
 import { isMounted } from "./sceneFreeze";
-import type { SceneActivityRead, SceneBodyRead, SceneBodySetRead, SceneEventRead, SceneGroupRead, SceneMoonPanelRead, ScenePanelRead, ScenePlacesRead, ScenePathRead, SceneTimelineRead, SceneViewsRead } from "./sceneReads";
-export type { SceneActivityRead, SceneBodyRead, SceneBodySetRead, SceneEventRead, SceneGroupRead, SceneMoonPanelRead, ScenePanelRead, ScenePlacesRead, ScenePathRead, SceneTimelineRead, SceneViewRead, SceneViewsRead } from "./sceneReads";
+import type { SceneActivityRead, SceneBodyRead, SceneBodySetRead, SceneEventRead, SceneGroupRead, SceneMoonPanelRead, ScenePanelRead, ScenePlacesRead, ScenePathRead, SceneSkyFigureRead, SceneTimelineRead, SceneViewsRead } from "./sceneReads";
+export type { SceneActivityRead, SceneBodyRead, SceneBodySetRead, SceneEventRead, SceneGroupRead, SceneMoonPanelRead, ScenePanelRead, ScenePlacesRead, ScenePathRead, SceneSkyFigureRead, SceneTimelineRead, SceneViewRead, SceneViewsRead } from "./sceneReads";
 export type { SceneCamera } from "./planCamera";
 import { StoryPlan } from "./planStory";
 import { buildTracked, pathReads, type Tracked } from "./planPaths";
@@ -209,6 +211,7 @@ export class Scene {
   readonly #bodySets = new BodySetPlan(() => this.#plan.catalogue, (id) => this.#taken(id));
   readonly #moonPanel = new MoonPanelPlan();
   readonly #places = new PlacesPlan();
+  readonly #skyFigures = new SkyFigurePlan((id) => this.#taken(id));
   readonly #picker = new PickerPlan();
   readonly #story = new StoryPlan();
   readonly #timeline = new TimelinePlan();
@@ -250,6 +253,9 @@ export class Scene {
 
   /** The bodies that hold tagged places (`addPlaces`), in the order added, with how many each holds. A fresh frozen list on every read. */
   get places(): readonly ScenePlacesRead[] { return this.#places.reads(); }
+
+  /** The sky figures the scene holds (`addSkyFigures`), in the order added: id, label and kind. A fresh frozen list on every read. */
+  get skyFigures(): readonly SceneSkyFigureRead[] { return this.#skyFigures.reads(); }
 
   /** The events the scene holds (`addEvents`), sorted by time: id, label, `timeUtcMs`, type, object and provenance (the event's own, else the batch's). A fresh frozen list on every read. */
   get events(): readonly SceneEventRead[] { return this.#story.eventReads(); }
@@ -330,7 +336,7 @@ export class Scene {
 
   /** Whether a body, path or group already has this id. */
   #taken(id: string): boolean {
-    return this.#plan.bodies.has(id) || this.#tracked.has(id) || this.#groupPlan.groups.has(id) || this.#bodySets.has(id);
+    return this.#plan.bodies.has(id) || this.#tracked.has(id) || this.#groupPlan.groups.has(id) || this.#bodySets.has(id) || this.#skyFigures.has(id);
   }
 
   /**
@@ -382,6 +388,21 @@ export class Scene {
   setPicker(input: PickerInput): this {
     this.#editable();
     this.#picker.set(input);
+    return this;
+  }
+
+  /**
+   * Adds figures and outlines drawn on the sky at infinity, like the stars (J2000 equatorial frame; presentation only), each with a label. A figure (`kind: "figure"`, the default) has `segments`, pairs of ends, an end being
+   * `{ star: <Hipparcos number> }` (a star of magnitude 6.5 or brighter in the star list) or `{ raDeg, decDeg }`; a boundary (`kind: "boundary"`) has `points`, a closed loop of at least three positions. `labelAt` places the label
+   * (default: the mean direction of the ends). They draw above the Sun's glow, from the orbit camera and from a look-out view; the switches `skyFigures` (on) and `skyBoundaries` (off) show each kind (`setSwitches`).
+   * A malformed figure throws `bad-sky-figure` and adds none of the call; a repeated id (in the call, or in the scene) throws `duplicate-id`. A star number not in the star list throws `unknown-star` when the scene is built (`mount`, `prepare`),
+   * because the star list loads then; a star list that cannot be read throws `missing-data` then. Read the result from `scene.skyFigures`.
+   * @example
+   * scene.addSkyFigures([{ id: "kite", label: "The Kite", segments: [[{ raDeg: 10, decDeg: 20 }, { raDeg: 14, decDeg: 26 }], [{ raDeg: 14, decDeg: 26 }, { star: 11767 }]] }]);
+   */
+  addSkyFigures(figures: readonly SkyFigureInput[]): this {
+    this.#editable();
+    this.#skyFigures.add(figures);
     return this;
   }
 
@@ -594,6 +615,6 @@ export class Scene {
 
   /** The app's plug-in contract for this scene (`assembleScene.ts`), reached through `definitionOf`. Throws if the scene is empty or a body needs a data package not passed in `data`. */
   #definition(data: readonly DataSource[]): ExperienceDefinition {
-    return assembleScene({ plan: this.#plan, tracked: this.#tracked, groupPlan: this.#groupPlan, bodySets: this.#bodySets, moonPanel: this.#moonPanel, picker: this.#picker, places: this.#places, story: this.#story, timeline: this.#timeline, viewPlan: this.#viewPlan, camera: this.camera, scale: this.#scale, scaleOnly: this.#scaleOnly, look: this.#look, bodyReadouts: this.#bodyReadouts }, data);
+    return assembleScene({ plan: this.#plan, tracked: this.#tracked, groupPlan: this.#groupPlan, bodySets: this.#bodySets, moonPanel: this.#moonPanel, picker: this.#picker, places: this.#places, story: this.#story, timeline: this.#timeline, viewPlan: this.#viewPlan, skyFigures: this.#skyFigures, camera: this.camera, scale: this.#scale, scaleOnly: this.#scaleOnly, look: this.#look, bodyReadouts: this.#bodyReadouts }, data);
   }
 }

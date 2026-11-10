@@ -37,7 +37,8 @@ import { loadStarCatalogue } from "../assets/sky";
 import { withSkyObject, type StarStatus } from "./skyModel";
 import { ORBIT_LOOK_LIMITS, resolveOrbitLook, type OrbitLook } from "../assets/orbitLook";
 import { DEFAULT_BODY_SET_LOOK, type BodySetLook } from "./bodySet";
-import { displaySwitchItems, hostReachable, orbitStart, type SwitchBindings } from "./displaySwitches";
+import { displaySwitchItems, hostReachable, orbitStart, skyLineStart, type SwitchBindings } from "./displaySwitches";
+import { DEFAULT_SKY_LINES } from "./skyFigures";
 import { experienceInView, hiddenByView, viewById } from "./viewHiding";
 import type { RingLook } from "../assets/rings";
 import { baseGlowOf, glowLookOf, markerSettingsOf } from "./bodyDraw";
@@ -137,6 +138,7 @@ function buildRuntime(definition: ExperienceDefinition, search: string) {
       trackedBodies: trackedBodiesOf(definition),
       groups: groupsOf(definition),
       bodySets: bodySetsOf(definition),
+      skyFigures: definition.skyFigures ?? [],
       ...sunCentredOf(definition),
       cameraReach: cameraReachOf(definition),
       look,
@@ -190,6 +192,7 @@ function initialSceneControls(
     ...(definition.pacing === undefined ? {} : { paceAuto: true, pace: { shown: shownEventsOf(definition, startViewId(definition, search)) } satisfies PaceView }),
     up: viewUpVector(startViewUp(definition, search)),
     showMilkyWay: runtime.sky.milkyWay,
+    skyLines: skyLineStart(definition.displaySwitches, DEFAULT_SKY_LINES),
     skyVisible: runtime.sky.visible,
     bodyMarker: markerSettingsOf(runtime.look),
     ...(glowBase === null ? {} : { glowLook: glowLookOf(runtime.look, glowBase) }),
@@ -281,6 +284,7 @@ export function App({ definition, writeTitle = true, address, developerTools, ho
   const [timelineGlow, setTimelineGlow] = useState<TimelineGlowLook>(DEFAULT_TIMELINE_GLOW);
   const [phoneLayout, setPhoneLayout] = useState<PhoneLayoutSettings>(DEFAULT_PHONE_LAYOUT);
   const [anchorLabels, setAnchorLabels] = useState(controls.current.showAnchorLabels);
+  const [skyLinesShown, setSkyLinesShown] = useState(controls.current.skyLines);
   const [glowShown, setGlowShown] = useState<GlowLook | null>(copyOfGlow(controls.current.glowLook));
   const orbitPaths = orbitPathsOf(runtime);
   const orbitDefault = useMemo(() => resolveOrbitLook(orbitPaths[0]?.look), [orbitPaths]);
@@ -458,7 +462,7 @@ export function App({ definition, writeTitle = true, address, developerTools, ho
     if (host === undefined) return undefined;
     hostAttached.current = true;
     shownKey.current = null; // the presentation is read afresh after each attach
-    host.attach({ ...(definition.picker === undefined ? {} : { picker: { id: definition.picker.id, values: definition.picker.options.map((option) => option.value), start: definition.picker.value } }), window: runtime.loopWindow, events: experience.events, rates: definition.experience.rates, paced: runtime.pacing !== undefined, read: stateNow, seek: hostSeekTo, setRate: changeRate, playable: definition.experience.hideTimeline !== true, setPlaying: hostSetPlaying, views: viewIds, setView: chooseView, cameraTargets, readCamera, setCamera, setSelected: hostSetSelected, scales: hostScales, setScale: hostSetScale, setLook: hostSetLook, setSwitch: hostSetSwitch });
+    host.attach({ ...(definition.picker === undefined ? {} : { picker: { id: definition.picker.id, values: definition.picker.options.map((option) => option.value), start: definition.picker.value } }), window: runtime.loopWindow, skyFigures: runtime.skyFigures.map(({ id, label, kind }) => Object.freeze({ id, label, kind })), events: experience.events, rates: definition.experience.rates, paced: runtime.pacing !== undefined, read: stateNow, seek: hostSeekTo, setRate: changeRate, playable: definition.experience.hideTimeline !== true, setPlaying: hostSetPlaying, views: viewIds, setView: chooseView, cameraTargets, readCamera, setCamera, setSelected: hostSetSelected, scales: hostScales, setScale: hostSetScale, setLook: hostSetLook, setSwitch: hostSetSwitch });
     return () => { hostAttached.current = false; host.detach(); };
   }, [host, runtime, definition, hostSeekTo, changeRate, viewIds, chooseView, cameraTargets, readCamera, setCamera, hostSetSelected, experience, hostSetPlaying, hostScales, hostSetScale, hostSetLook, hostSetSwitch]);
 
@@ -500,6 +504,10 @@ export function App({ definition, writeTitle = true, address, developerTools, ho
     settings: definition.displaySwitches,
     orbit: { present: orbitPaths.length > 0, look: { ...orbitDefault, ...controls.current.orbitLook }, set: setOrbit },
     moons: { present: bodySets.length > 0, look: controls.current.bodySetLook ?? DEFAULT_BODY_SET_LOOK, set: changeSetLook },
+    skyLines: {
+      figures: runtime.skyFigures.some(({ kind }) => kind === "figure"), boundaries: runtime.skyFigures.some(({ kind }) => kind === "boundary"), on: controls.current.skyLines,
+      set: (key, on) => { controls.current.skyLines = { ...controls.current.skyLines, [key]: on }; setSkyLinesShown(controls.current.skyLines); },
+    },
     sky: { present: controls.current.skyVisible !== false, on: controls.current.showMilkyWay, set: (on) => { controls.current.showMilkyWay = on; setMilkyWayOn(on); } },
     labels: {
       objectIds: experience.objects.map((object) => object.id), hidden: controls.current.hiddenLabels ?? hiddenLabels,
@@ -526,7 +534,7 @@ export function App({ definition, writeTitle = true, address, developerTools, ho
     const changed = shownKey.current !== null && shownKey.current !== key;
     shownKey.current = key;
     if (changed) host?.publish(state, "visitor");
-  }, [host, stateNow, scale, skyVisible, starBrightness, milkyWayBrightness, milkyWayOn, glowShown, markerPx, loadFade, orbitShown, setLook, hiddenLabels, anchorLabels]);
+  }, [host, stateNow, scale, skyVisible, starBrightness, milkyWayBrightness, milkyWayOn, glowShown, markerPx, loadFade, orbitShown, setLook, hiddenLabels, anchorLabels, skyLinesShown]);
   const hasStoryPanels = (storySet?.panels.length ?? 0) > 0;
   const showDisplay = showsDisplayControls(definition, runtime, skyVisible, orbitPaths.length, storyMarkerSpecs.length);
   // Orbit-line sliders: the first four stay in view, the rest sit in a nested "Fine-tune" fold (T-090).

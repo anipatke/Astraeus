@@ -9,6 +9,7 @@ import { BodySetView } from "./BodySetView";
 import { OrbitSetView } from "./OrbitSetView";
 import { PointsView } from "./PointsView";
 import { SkyView } from "./SkyView";
+import { SkyFiguresView } from "./SkyFiguresView";
 import { TrackedBodyView } from "./TrackedBodyView";
 
 /**
@@ -60,9 +61,11 @@ export function useSceneViews(runtime: SceneRuntime, gl: WebGLRenderer) {
   const sunCentredViews = useMemo(() => createPathViews(runtime.paths ?? []), [runtime.paths]);
   const compositionPaths = useMemo(() => (runtime.composition?.paths ?? []).map((path) => compositionPathView(path, runtime.resolver, runtime.catalogue)), [runtime.composition, runtime.resolver, runtime.catalogue]);
   const skyView = useMemo(() => (runtime.sky !== undefined && (runtime.sky.visible || runtime.sky.live === true) ? new SkyView({ starBrightness: runtime.sky.starBrightness, milkyWayBrightness: runtime.sky.milkyWayBrightness, pixelRatio: gl.getPixelRatio(), maxAnisotropy: gl.capabilities.getMaxAnisotropy(), milkyWay: runtime.sky.milkyWay, picture: null, pictureSet: milkyWayPicture(runtime.pictures ?? NO_PICTURES) }) : null), [runtime.sky, runtime.pictures, gl]);
+  const skyFiguresView = useMemo(() => new SkyFiguresView(runtime.skyFigures), [runtime.skyFigures]);
+  useEffect(() => () => skyFiguresView.dispose(), [skyFiguresView]);
   const bodySetViews = useMemo(() => (runtime.bodySets ?? []).map((layer) => new BodySetView(layer)), [runtime.bodySets]);
   const orbitSetViews = useMemo(() => (runtime.bodySets ?? []).map((layer) => new OrbitSetView(layer)), [runtime.bodySets]);
   useEffect(() => () => { for (const view of bodySetViews) view.dispose(); }, [bodySetViews]);
   useEffect(() => () => { for (const view of orbitSetViews) view.dispose(); }, [orbitSetViews]);
-  return { trackedViews, groupViews, sunCentredViews, compositionPaths, skyView, bodySetViews, orbitSetViews };
+  return { trackedViews, groupViews, sunCentredViews, compositionPaths, skyView, skyFiguresView, bodySetViews, orbitSetViews };
 }

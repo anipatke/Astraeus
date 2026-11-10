@@ -12,6 +12,7 @@ import type { PickChange } from "./pickerInput";
 import { ViewerViews } from "./viewerViews";
 import { ViewerZones } from "./viewerZones";
 import type { TimeInput } from "./time";
+import type { SceneSkyFigureRead } from "./sceneReads";
 
 /** What a host is told when the viewer's time, speed or playing state changes. */
 export interface ViewerChange {
@@ -207,6 +208,7 @@ export class ViewerLink implements ViewerPort {
   get selected(): string | undefined { return this.#selection.selected; }
   get camera(): CameraPose | undefined { return this.#camera.camera; }
   get pick(): string | undefined { return this.#picker.pick; }
+  get skyFigures(): readonly SceneSkyFigureRead[] | undefined { const control = this.#access.control(); return control === undefined ? undefined : control.skyFigures ?? []; }
 
   get look(): LookRead | undefined { return this.#looks.look; }
   get scale(): string | undefined { return this.#looks.scale; }

@@ -1,6 +1,7 @@
 import type { LookInput, LookRead } from "./look";
 import type { PickChange } from "./pickerInput";
 import type { TimeInput } from "./time";
+import type { SceneSkyFigureRead } from "./sceneReads";
 import type { SelectionChange } from "./viewerSelection";
 import type { CameraPose, CameraTarget, EventZoneChange, ViewerChange, ViewerLink } from "./viewerLink";
 
@@ -61,6 +62,8 @@ export interface ViewerHandle {
   readonly scale: string | undefined;
   /** Switches to one of the scales the viewer offers (`Scene.scales`); any other id throws `bad-scale`; before `ready` or after `unmount`, `not-mounted`. `onChange` hears it with `cause: "host"`. */
   setScale(id: string): void;
+  /** The sky figures the viewer draws (`Scene.addSkyFigures`), in the order added: id, label and kind; empty when the scene added none; undefined until `ready` has resolved and after `unmount`. */
+  readonly skyFigures: readonly SceneSkyFigureRead[] | undefined;
   /** The display switches the scene placed (`setSwitches`, wherever it placed them) that have something to act on, each on or off, by id (`orbitLines`, `labels`, `milkyWay`); empty when it placed none; undefined until `ready` has resolved and after `unmount`. */
   readonly switches: Readonly<Record<string, boolean>> | undefined;
   /** Turns a display switch the scene placed on or off, as the visitor's switch does; an id it did not place, or a non-boolean, throws `bad-switch`; before `ready` or after `unmount`, `not-mounted`. `onChange` hears it with `cause: "host"`. */
@@ -97,6 +100,7 @@ export function viewerHandleOf(link: ViewerLink): ViewerHandle {
     get look() { return link.look; },
     get scale() { return link.scale; },
     get switches() { return link.switches; },
+    get skyFigures() { return link.skyFigures; },
     get pick() { return link.pick; },
     setPick: (value) => link.setPick(value),
     onPick: (listener) => link.onPick(listener),

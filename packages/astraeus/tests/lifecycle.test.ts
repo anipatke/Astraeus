@@ -128,7 +128,7 @@ const reactDriver = (strict: boolean): Driver => ({
 });
 
 /** The handle's members, read from one table: a new member of `ViewerHandle` must join it (the last test fails otherwise). */
-const READS = ["timeUtcMs", "rate", "playing", "view", "camera", "eventZones", "selected", "look", "scale", "switches", "pick"] as const;
+const READS = ["timeUtcMs", "rate", "playing", "view", "camera", "eventZones", "selected", "look", "scale", "switches", "pick", "skyFigures"] as const;
 const CALLS: Record<string, (handle: ViewerHandle) => void> = {
   setTime: (handle) => handle.setTime(MID),
   setRate: (handle) => handle.setRate(RATE),

@@ -58,6 +58,8 @@ export interface ViewerControl {
   setLook(look: LookInput): void;
   /** Turns the display switch `id` (one of the keys of `read().switches`) on or off, as a visitor's switch does. */
   setSwitch(id: string, on: boolean): void;
+  /** The sky figures the viewer draws, in the order added (id, label, kind); empty or absent when the scene added none. */
+  readonly skyFigures?: readonly { readonly id: string; readonly label: string; readonly kind: "figure" | "boundary" }[];
   /** The host's picker (`Scene.setPicker`): its id, the option values and the one pressed at the start; absent without a picker. */
   readonly picker?: { readonly id: string; readonly values: readonly string[]; readonly start: string };
   /** The ids of the objects the showing view shows, which a host may point the camera at. */

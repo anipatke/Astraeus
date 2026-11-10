@@ -50,6 +50,10 @@ export type SceneErrorCode =
   | "bad-picker"
   /** A body's places (`addPlaces`) are malformed, or name a body the scene does not hold. */
   | "bad-places"
+  /** A sky figure (`addSkyFigures`) is malformed: its id, label, kind, segments, points or label position. */
+  | "bad-sky-figure"
+  /** A sky figure names a star whose Hipparcos number is not in the engine's star list (stars of magnitude 6.5 or brighter). Found when the scene is built, as the star list loads then. */
+  | "unknown-star"
   /** An activity curve is malformed. */
   | "bad-activity"
   /** A camera call or pose is malformed, or names an object the view cannot show. */

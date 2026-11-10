@@ -16095,7 +16095,7 @@
    "error": {
     "name": "SceneError",
     "code": "bad-switch",
-    "message": "setSwitches: give an object such as { orbitLines: { place: \"top-bar\" } } (switches: orbitLines, labels, milkyWay)"
+    "message": "setSwitches: give an object such as { orbitLines: { place: \"top-bar\" } } (switches: orbitLines, labels, milkyWay, skyFigures, skyBoundaries, ecliptic, celestialEquator)"
    }
   },
   "setSwitches: unknown switch": {
@@ -16103,7 +16103,7 @@
    "error": {
     "name": "SceneError",
     "code": "bad-switch",
-    "message": "setSwitches: \"colour\" is not a switch (known: orbitLines, labels, milkyWay)"
+    "message": "setSwitches: \"colour\" is not a switch (known: orbitLines, labels, milkyWay, skyFigures, skyBoundaries, ecliptic, celestialEquator)"
    }
   },
   "setSwitches: bad place": {

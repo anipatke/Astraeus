@@ -4,6 +4,13 @@ Versions follow [semantic versioning](https://semver.org). While the version sta
 
 ## Unreleased
 
+Sky figures (G-018, O-065, first step): an app can draw named figures and outlines on the sky, like the stars, and switch the ecliptic and the celestial equator on. Additions only; no existing call shape or error code changed.
+
+- `scene.addSkyFigures(figures)`: each figure is `{ id, label, kind?, segments?, points?, labelAt? }`. A `"figure"` (the default) has `segments`, pairs of ends, an end being `{ star: <Hipparcos number> }` or `{ raDeg, decDeg }`; a `"boundary"` has `points`, a closed loop of at least three positions. Drawn at infinity in the J2000 equatorial frame, above the Sun's glow, from the orbit camera and from a look-out view; each has a label in the viewer's one name layout. New types `SkyFigureInput`, `SkyFigureEnd`, `SceneSkyFigureRead`.
+- Four new display switches for `setSwitches` (and `handle.setSwitch`): `skyFigures` (starts on), `skyBoundaries`, `ecliptic` and `celestialEquator` (start off). The ecliptic uses the engine's own J2000 obliquity.
+- Reads: `scene.skyFigures` and `handle.skyFigures` (`{ id, label, kind }` each) on the `mount` handle and on `AstraeusScene`.
+- Two error codes: `bad-sky-figure` (a malformed figure; none of the call is added) and `unknown-star` (a star number not in the star list; found when the scene is built, because the star list loads then). A star list that cannot be read throws `missing-data` at that point. A repeated id throws `duplicate-id`. Colours are fixed defaults in this step.
+
 Look out from a body (G-018, O-064): the camera can stand at a body's centre and turn to look around the sky. The public camera API and the camera menu entry are in; the sky figures come in a later step.
 
 **Type-level change for apps that read the camera.** The camera reading, `CameraPose` (what `camera` reads and `onCameraChange` and `setStartView` carry), is now one of two kinds: an `OrbitPose` (today's `{ focus, azimuthDeg, elevationDeg, distance }`, unchanged) or a `SkyPose` `{ lookOut, raDeg, decDeg, fovDeg }` (the body stood in, where it points in J2000 equatorial degrees, the vertical field of view in degrees, 5 to 100). An orbit camera still reads as an orbit pose, so a scene that never looks out sees no change at run time, but TypeScript no longer lets an app read `pose.distance` or `pose.focus` without narrowing. The one-line check an app that reads `distance` needs: `if ("lookOut" in pose) { /* sky pose */ } else { /* orbit pose: pose.distance */ }` (a sky pose has no `focus` and no `distance`; an orbit pose has no `lookOut`). Both kinds are plain data: keep one and hand it to `setCamera`, or to `scene.camera.setStartView`, to restore it.

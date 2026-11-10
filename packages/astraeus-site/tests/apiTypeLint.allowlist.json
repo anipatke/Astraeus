@@ -2,6 +2,11 @@
   "_about": "API-04 public-type lint (tools/api-rules.mjs publicTypeBreaks). `unitless`: number fields that have no unit, by field name (permanent). `exceptions`: lint hits that are not breaks (permanent, with the reason). `breaks`: today's breaks, one per site, with the review finding (docs/architecture/api-review-2026-11-01.md) and the Objective expected to remove it. An entry that no longer matches fails the test; entries may only be removed.",
   "unitless": [
     {
+      "field": "star",
+      "reason": "a Hipparcos catalogue number: an identifier, not a measured quantity, so it has no unit (O-065 T-295)",
+      "approved": { "by": "owner", "at": "2026-11-10", "reason": "Owner chose \"Approve it\": a figure names a star by its catalogue number, an identifier with no unit (O-065 T-295)" }
+    },
+    {
       "field": "rate",
       "reason": "a multiple of real time (x1, x60), no unit"
     },

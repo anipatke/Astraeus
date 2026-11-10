@@ -35,6 +35,7 @@ import type { FrameStats } from "./frameStats";
 import type { GroupFill } from "./FrameRateSection";
 import { TRACK_LAYER } from "./TrackedBodyView";
 import { type BodySetLayer, type BodySetLook } from "./bodySet";
+import type { SkyFigureLayer, SkyLineSwitches } from "./skyFigures";
 import type { RingLook } from "../assets/rings";
 import type { Pictures } from "../assets/pictures";
 import { type StoryMarkerSpec } from "./StoryMarkers";
@@ -77,6 +78,8 @@ export interface SceneRuntime {
   readonly pictures?: Pictures;
   /** Paths the `sun-centred` layer draws; empty when the experience has none. */
   readonly paths?: readonly PathLayer[];
+  /** Figures and outlines drawn on the sky; empty when the experience has none. */
+  readonly skyFigures: readonly SkyFigureLayer[];
   /** The experience's declared camera reach; empty keeps the built-in limits. */
   readonly cameraReach: CameraReach;
   /** The sky behind the scene: whether it is drawn and how bright. Absent means no sky. `live`: the host may show a sky that starts hidden (`SceneControls.skyVisible`), so it is built either way. */
@@ -92,6 +95,8 @@ export interface SceneControls {
   showAnchorLabels: boolean;
   /** Presentation only: draw the Milky Way picture behind the stars (the stars are always drawn while the sky is). */
   showMilkyWay: boolean;
+  /** Presentation only: which kinds of sky line show (live, replaced on a switch). */
+  skyLines: SkyLineSwitches;
   /** Presentation only: when a sphere is too small to see it is drawn as a marker (see `drawsAsMarker`). */
   bodyMarker: BodyMarkerSettings;
   /** Presentation only: the live halo settings of a body whose record has a glow (the Sun). */
@@ -210,11 +215,11 @@ function SceneContents({ runtime, controls, readout, layers, frameState }: Scene
   const orbit = useRef<OrbitCameraState>(createOrbitCameraState(START_CAMERA_DISTANCE, runtime.sceneCenter));
   const { placement, readoutPair, pairLabels, assets, bodyFamilies } = useSceneDerived(runtime, catalogue);
   const views = useSceneViews(runtime, gl);
-  const { trackedViews, groupViews, compositionPaths, skyView, bodySetViews, orbitSetViews, sunCentredViews } = views;
+  const { trackedViews, groupViews, compositionPaths, skyView, skyFiguresView, bodySetViews, orbitSetViews, sunCentredViews } = views;
   useSkyStars(gl.domElement, skyView);
   useDrawWakes(gl.domElement, frameState);
   useReleaseSharedTextures();
-  const layerRefs = useOverlayLayers(gl.domElement, controls, trackedViews, bodySetViews);
+  const layerRefs = useOverlayLayers(gl.domElement, controls, trackedViews, bodySetViews, skyFiguresView.labels);
   useScenePointer(gl.domElement, runtime, controls, catalogue, orbit, frameState);
   useSceneFrame(rootRef, { runtime, controls, readout, catalogue, origin, orbit, state: frameState, assets, bodyRefs, lightRefs, placement, views, layers: layerRefs, bodyFamilies, readoutPair, pairLabels });
 
@@ -224,6 +229,7 @@ function SceneContents({ runtime, controls, readout, layers, frameState }: Scene
         <SceneBody key={asset.definition.id} asset={asset} layer={layers.get(asset.definition.id)!} controls={controls} desktopTextures={runtime.desktopTextures === true} pictures={runtime.pictures} ringLookOf={ringLookOf} onParts={partsFor.get(asset.definition.id)} groupRef={refFor(groupRefs.current, asset.definition.id)} orientRef={refFor(orientRefs.current, asset.definition.id)} lightRef={refFor(lightRefs.current, asset.definition.id)} />
       ))}
       {skyView !== null && <primitive object={skyView.group} />}
+      <primitive object={skyFiguresView.group} />
       {compositionPaths.map((view) => <primitive key={view.id} object={view.group} />)}
       {trackedViews.map((view) => <primitive key={view.body.id} object={view.group} />)}
       {groupViews.map((view) => <primitive key={view.id} object={view.group} />)}

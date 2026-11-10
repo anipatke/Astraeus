@@ -6,8 +6,9 @@ import { readableScale, trueScale } from "../src/core/scalePolicy";
 import type { BodyId } from "../src/core/body";
 import { createOrbitCameraState } from "../src/app/CameraController";
 import type { SceneControls, SceneRuntime } from "../src/app/AstraeusScene";
-import { applyViewVisibility, hiddenOf, bodiesMounted, cameraSettled, createFrameState, decideDraw, IDLE_GRACE_FRAMES, shouldDrawFrame, frameTime, placeLightsAndReadout, placeScene, placeViews, publishCanvasReadouts, stepAndPoseCamera, syncViews, updateOverlays, viewUpOf, type FrameContext } from "../src/app/sceneFrame";
+import { applyViewVisibility, hiddenOf, bodiesMounted, cameraSettled, createFrameState, decideDraw, IDLE_GRACE_FRAMES, shouldDrawFrame, frameTime, placeLightsAndReadout, placeScene, placeSkyFigures, placeViews, publishCanvasReadouts, stepAndPoseCamera, syncViews, updateOverlays, viewUpOf, type FrameContext } from "../src/app/sceneFrame";
 import { DEFAULT_BODY_SET_LOOK } from "../src/app/bodySet";
+import { SkyFiguresView } from "../src/app/SkyFiguresView";
 import { EQUATORIAL_UP } from "../src/app/viewUp";
 
 import { makeContext, T0 } from "./helpers/frameContext";
@@ -280,6 +281,40 @@ describe("publishCanvasReadouts", () => {
     const none = makeContext();
     publishCanvasReadouts(none.ctx);
     expect(none.ctx.canvas.dataset.skyPicture).toBeUndefined(); // ?sky=off: no sky view, no sky readouts
+  });
+});
+
+describe("placeSkyFigures (stage 4b, O-065)", () => {
+  const layer = { id: "kite", label: "The Kite", kind: "figure", segments: [[[1, 0, 0], [0, 1, 0]]], labelAt: [0.7, 0.7, 0] } as never;
+
+  it("stands the sky figures on the camera and shows the kinds the switches say, and publishes what is shown", () => {
+    const { ctx } = makeContext({ controls: { skyLines: { figures: true, boundaries: false, ecliptic: true, celestialEquator: false } } });
+    const views = { ...ctx.views, skyFiguresView: new SkyFiguresView([layer]) };
+    const framed = { ...ctx, views } as FrameContext;
+    ctx.camera.position.set(3, 4, 5);
+    placeSkyFigures(framed);
+    expect(views.skyFiguresView.group.position.toArray()).toEqual([3, 4, 5]);
+    expect(ctx.canvas.dataset.skyLines).toBe("sky-figures,sky-ecliptic");
+  });
+
+  it("follows a switch the next frame, with no rebuild of the figures", () => {
+    const { ctx } = makeContext();
+    const view = new SkyFiguresView([layer]);
+    const framed = { ...ctx, views: { ...ctx.views, skyFiguresView: view } } as FrameContext;
+    placeSkyFigures(framed);
+    const lines = view.group.children[0];
+    ctx.controls.skyLines.figures = false;
+    placeSkyFigures(framed);
+    expect(view.group.children[0]).toBe(lines);
+    expect(ctx.canvas.dataset.skyLines).toBe("");
+  });
+
+  it("is a named stage of the frame: a changed switch wakes the draw rule", () => {
+    const { ctx } = makeContext();
+    expect(decideDraw(ctx, T0)).toBe(true);
+    for (let i = 0; i <= IDLE_GRACE_FRAMES + 1; i += 1) decideDraw(ctx, T0);
+    ctx.controls.skyLines = { ...ctx.controls.skyLines, ecliptic: true };
+    expect(decideDraw(ctx, T0)).toBe(true);
   });
 });
 

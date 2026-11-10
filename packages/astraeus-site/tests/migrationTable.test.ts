@@ -50,15 +50,18 @@ function holds(root: Root, name: string): boolean {
 }
 
 /** Every removed or changed public name between two surfaces, as `Type` or `Type.member`. */
+/** A signature with its top-level union members in a fixed order: the compiler lists a union's members by when it first met each one, so an unrelated new literal elsewhere can reorder `"a" | "b"` without changing what is accepted. */
+const canonical = (signature: string): string => (signature.includes("(") || signature.includes("<") ? signature : signature.split(" | ").sort().join(" | "));
+
 function brokenNames(before: Root, after: Root): string[] {
   const names: string[] = [];
   for (const [name, entry] of Object.entries(before)) {
     const now = after[name];
     if (now === undefined) { names.push(name); continue; }
-    if (entry.signature !== now.signature || JSON.stringify(entry.constructors) !== JSON.stringify(now.constructors)) names.push(name);
+    if (canonical(entry.signature) !== canonical(now.signature) || JSON.stringify(entry.constructors) !== JSON.stringify(now.constructors)) names.push(name);
     for (const member of entry.members) {
       const kept = now.members.find((item) => item.name === member.name);
-      if (kept === undefined || kept.signature !== member.signature || kept.optional !== member.optional) names.push(`${name}.${member.name}`);
+      if (kept === undefined || canonical(kept.signature) !== canonical(member.signature) || kept.optional !== member.optional) names.push(`${name}.${member.name}`);
     }
   }
   return names;
