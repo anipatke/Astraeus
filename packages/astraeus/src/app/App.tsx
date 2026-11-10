@@ -412,12 +412,14 @@ export function App({ definition, writeTitle = true, address, developerTools, ho
   // `origin` "move": time or the view moved and the selection followed (a drop or a view rule's framing target); the link names whatever last moved them (a host call, the visitor or playback).
   // The host's `setSelected` not yet applied by the shell (id "" clears); the shell applies it after its own view-switch choices, so the host call is the last word.
   const hostSelect = useRef<string | null>(null);
-  const [selectRequest, setSelectRequest] = useState<{ readonly id: string; readonly serial: number } | null>(null);
-  const hostSetSelected = useCallback((id: string | undefined) => {
+  const [selectRequest, setSelectRequest] = useState<{ readonly id: string; readonly serial: number; readonly quiet?: boolean } | null>(null);
+  /** `quiet`: a story panel's select, which follows the visitor-tap rule for the card (the shell decides: wide screens open it, phones do not); a host call opens it always. */
+  const selectWith = useCallback((id: string | undefined, quiet: boolean) => {
     hostSelect.current = id ?? "";
     controls.current.selectedObjectId = id ?? ""; // `read()` shows it at once
-    setSelectRequest((previous) => ({ id: id ?? "", serial: (previous?.serial ?? 0) + 1 }));
+    setSelectRequest((previous) => ({ id: id ?? "", serial: (previous?.serial ?? 0) + 1, ...(quiet ? { quiet } : {}) }));
   }, []);
+  const hostSetSelected = useCallback((id: string | undefined) => selectWith(id, false), [selectWith]);
   const hostSelectApplied = useCallback(() => { hostSelect.current = null; }, []);
   const hostSetPanel = useCallback((id: string | undefined) => {
     controls.current.openStoryPanelId = id ?? null; // `read()` shows it at once
@@ -511,12 +513,12 @@ export function App({ definition, writeTitle = true, address, developerTools, ho
     if (panel === undefined) return;
     // The panel's actions go through the host calls, in this order: camera, select, trace.
     if (panel.camera !== undefined) setCamera(panel.camera as CameraRequest);
-    if (panel.select === true && panel.objectId !== undefined) hostSetSelected(panel.objectId);
+    if (panel.select === true && panel.objectId !== undefined) selectWith(panel.objectId, true);
     if (panel.trace !== undefined && panel.objectId !== undefined) {
       hostTraceSkyFigure(panel.objectId, panel.trace.seconds, panel.trace.after);
       panelTrace.current = panel.objectId;
     }
-  }, [host, stateNow, definition, setCamera, hostSetSelected, hostTraceSkyFigure, hostClearSkyTrace]);
+  }, [host, stateNow, definition, setCamera, selectWith, hostTraceSkyFigure, hostClearSkyTrace]);
   useEffect(() => {
     if (host === undefined) return undefined;
     hostAttached.current = true;

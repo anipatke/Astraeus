@@ -23,7 +23,10 @@ export function addSkyTraceControl(_host: HTMLElement, handle: MountedScene): ()
   root.setAttribute("role", "group");
   root.setAttribute("aria-label", "Trace a sky figure");
   Object.assign(root.style, { position: "fixed", right: "8px", top: "36%", zIndex: "7", display: "flex", flexDirection: "column", gap: "4px", padding: "6px", font: "12px system-ui, sans-serif", color: "#e8eefc", background: "rgba(10,14,24,0.78)", border: "1px solid rgba(143,180,255,0.35)", borderRadius: "8px", alignItems: "flex-end" });
-  // Closed it is one small button, so on a phone it never covers the switch panel or the timeline; open it holds the figure choice and the three buttons.
+  // On a wide screen at the right foot above the timeline (the story panel hangs from the top right and the card from the top left); on a phone on the right, under the cog while a story panel is open (the panel rises from the foot), so a story panel never covers it. Closed it is one small button, so on a phone it never covers the switch panel or the timeline; open it holds the figure choice and the three buttons.
+  const phoneRule = document.createElement("style");
+  phoneRule.textContent = "@media (min-width: 701px) { [data-site-sky-trace] { top: auto !important; bottom: 84px !important; } } @media (max-width: 700px) { body:has(.story-panel) [data-site-sky-trace] { top: 60px !important; } }";
+  root.append(phoneRule);
   const toggle = document.createElement("button");
   toggle.type = "button";
   toggle.dataset.traceToggle = "";

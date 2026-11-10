@@ -153,7 +153,7 @@ interface Props {
   readonly onOpenFeatureChange?: (key: string | null) => void;
   /** Asks the shell to fly to an object a tap or click picked in the scene (focus only, no information); a new `serial` asks again. */
   /** A host `setSelected` (id "" clears the selection), applied after the shell's own view-switch choices so the host's call is the last word; `onSelectRequestApplied` tells the app it has been. */
-  readonly selectRequest?: { readonly id: string; readonly serial: number } | null;
+  readonly selectRequest?: { readonly id: string; readonly serial: number; readonly quiet?: boolean } | null;
   readonly onSelectRequestApplied?: () => void;
   readonly pickRequest?: { readonly id: string; readonly serial: number } | null;
   readonly children: ReactNode;
@@ -367,7 +367,9 @@ export function AstraeusShell({
     hostCleared.current = selectRequest.id === "";
     setSelectedObjectId(selectRequest.id);
     // As a visitor's menu choice does: the object's card opens (the camera is left alone); a clear closes it.
-    setInfo((now) => (selectRequest.id === "" ? (now?.kind === "object" ? null : now) : { kind: "object" }));
+    // A story panel's select (`quiet`) follows the visitor-tap rule: on a phone it selects without opening the card, which would cover the panel's Back and Next.
+    const opens = selectRequest.quiet === true ? pickOpensInfo(phone) : true;
+    setInfo((now) => (selectRequest.id === "" ? (now?.kind === "object" ? null : now) : opens ? { kind: "object" } : now));
     onSelectRequestApplied?.();
     // Only a new request applies.
     // eslint-disable-next-line react-hooks/exhaustive-deps

@@ -48,6 +48,8 @@ export interface MountOptions {
   readonly switcher?: ExperienceSwitch;
   /** Made-up display switches (their `on` is the start; pressing one flips it, as the app would). */
   readonly displaySwitches?: readonly DisplaySwitchItem[];
+  /** A select request as `App` makes it (`quiet`: a story panel's select), applied once at the start. */
+  readonly selectRequest?: { readonly id: string; readonly serial: number; readonly quiet?: boolean };
 }
 
 /** Tells the page whether it is a phone, framed or asked for reduced motion: the three things the shell reads from its window. */
@@ -135,6 +137,7 @@ function Host({ options, clock, probe }: { readonly options: MountOptions; reado
     onSelectionChange: (id: string) => { selected.current = id; probe.selected = id; },
     onSetPlaying: (playing: boolean) => { if (playing) clock.play(); else clock.pause(); refresh(); },
     panelRequest,
+    selectRequest: options.selectRequest,
     onOpenPanelChange: (id: string | null, cause: string) => { if (probe.panelChanges.at(-1)?.id !== id) probe.panelChanges.push({ id, cause }); },
     scaleId,
     onScaleChange: setScaleId,

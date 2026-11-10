@@ -116,3 +116,24 @@ describe("phone layout rules (375x667 and 1280x720)", () => {
     expect(open()?.querySelectorAll(".story-panel-steps button")).toHaveLength(2);
   });
 });
+
+describe("a story panel's select follows the visitor-tap rule for the card (O-066, planner decision 2026-11-10)", () => {
+  const objectId = base.objects[0]!.id;
+  const card = () => m.container.querySelector(".info-panel");
+  it("on a phone selects without opening the card, so Back and Next stay unobstructed", () => {
+    m = mountShell({ experience: withSteps(), phone: true, selectRequest: { id: objectId, serial: 1, quiet: true } });
+    expect(m.selected()).toBe(objectId);
+    expect(card()).toBeNull();
+    expect(openId()).toBe("one");
+    expect(next().disabled).toBe(false);
+  });
+  it("on a wide screen opens the card", () => {
+    m = mountShell({ experience: withSteps(), selectRequest: { id: objectId, serial: 1, quiet: true } });
+    expect(m.selected()).toBe(objectId);
+    expect(card()).not.toBeNull();
+  });
+  it("a host select (not quiet) opens the card on a phone too", () => {
+    m = mountShell({ experience: withSteps(), phone: true, selectRequest: { id: objectId, serial: 1 } });
+    expect(card()).not.toBeNull();
+  });
+});
