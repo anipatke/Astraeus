@@ -36,7 +36,7 @@ Measured (T-145): `browser-20261022T202311Z` 44 s, `browser-20261022T202358Z` 45
 | `planets-phone` | 9 s | 14 s | 25 s |
 | `meteor-shower` | 22 s | 22 s | 40 s |
 | `views` | 42 s | 25 s | 40 s |
-| `look-out` | new (O-064 T-293) | 59 s (run alone, 2026-11-10, after O-066 T-302; 41 s before it; 59 s before the I-165 repair; limit 30 -> 50 s, owner 2026-11-10 "Raise to 50 s") | 50 s |
+| `look-out` | new (O-064 T-293) | 62 s (run alone, 2026-11-10, after O-066 T-302; 41 s before it; 59 s before the I-165 repair; limit 30 -> 50 s, owner 2026-11-10 "Raise to 50 s"; 50 -> 75 s, owner 2026-11-10 "raise to 75 s") | 75 s |
 | `hello-scene` | 11 s | 14 s | 25 s |
 | `hello-react` | 4 s | 4 s | 12 s |
 | `hello-planets` | 10 s | 6 s | 15 s |

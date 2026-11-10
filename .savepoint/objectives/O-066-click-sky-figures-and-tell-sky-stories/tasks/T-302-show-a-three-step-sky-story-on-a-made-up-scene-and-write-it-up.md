@@ -2,8 +2,7 @@
 id: T-302
 title: Show a three-step sky story on a made-up scene and write it up
 objective: O-066
-status: in_progress
-stage: audit
+status: done
 depends_on: [{task: T-301, requires: clear}]
 owner_validation: {required: true}
 check_waiver: {task: T-302, reason: 'Owner said "orchestrate O66" under the standing run rules (one builder at a time, no per-step checks, coordinator marks done once gates pass and any owner look is given, one Full Objective Check at the end); the optional Task Check is waived.', actor: {role: owner, session: o066-run-20261110}, recorded_at: '2026-11-10T06:15:12Z'}
@@ -114,3 +113,5 @@ Design reconciliation of every drift note of T-299 to T-302 (all in `.savepoint/
 - T-300 `StoryPanelSet.steps`, optional `at`, `neighbourStep`: reflected, Sky stories (1). Opening rule for the first step (and the mixed-case and closed-story gaps): reflected, (1). Handle `panel`/`setPanel`/`onPanel`, `ViewerPanels`, `publishPanel`: reflected, (2). Optional `StoryMarkerSpec.timeUtcMs`: reflected, (1). Shell `useStoryPanels`/`StepNav` and the complexity split: step nav reflected, (1); the complexity split into two small functions is non-architectural (a lint measure, no behaviour). Deferred demo-contracts paragraph: done in `docs/architecture/demo-contracts.md`.
 - T-301 optional look-out `direction`: reflected, (4). Panel actions on `StoryPanel`/`StoryStep`, applied by the app, `actedPanel`: reflected, (3). `onTurnToFigure`: reflected, (5). `cameraRequest.ts` and `traceOptionsOf`: reflected, (3). Clearing on leave cannot tell a host re-trace: reflected, (3). Design reconciliation deferral: done.
 - T-302 (this step): site-only changes (scene cards and story, trace control position, browser step): reflected in Sky stories (6); the trace control's new position is site layout, non-architectural beyond that mention. The phone card-over-story finding is recorded in Sky stories (6) as a known gap.
+
+Owner validation 2026-11-10 (coordinator session o066-run-20261110): on localhost:5490 the owner said "looks ok, raise to 75 s". The look-out step's warn limit in `tools/gate-limits.json` raised 50 -> 75 s on that instruction (measured 62 s alone); `docs/BROWSER_CHECKS.md` row updated. The owner did not ask for a visitor control to reopen a closed steps-only story (recorded as a limit in Design "Sky stories"). Coordinator marks T-302 done under the standing run rules.
