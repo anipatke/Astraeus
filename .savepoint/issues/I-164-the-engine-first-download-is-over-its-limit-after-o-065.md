@@ -27,6 +27,10 @@ history:
     kind: rechecked
     note: 'C-164 re-check: size part proven (browser public-build-assets passes at 1,745,198 / 501,483 B within the reset limit 1,833,000 / 527,000; limit matches measured + 5% rounded up; the test is honest, about 3 to 5.6 s, and fails one byte below). Not verified: the new engineBudget.test.ts rebuilds packages/astraeus/dist (build-example.mjs -> build-packages.mjs rmSync) while packagePacks.test.ts rebuilds and packs the same folder in another Vitest worker. npm test failed in 2 of 3 full runs and 3 of 7 paired runs (stray *.node.node.js files; vite build failed; tsc TS1010 on a half-written scene.d.ts); each file alone passes. Caused by the repair. Blocking: the ordinary test gate and the publish workflow npm test are not reliably green.'
     check: C-164
+  - at: '2026-11-10T17:30:00Z'
+    actor: {role: executor, session: o065-repair2-20261110}
+    kind: repair_attempted
+    note: 'Repair (executor evidence, not verified) for the C-164 test clash, owner decision "Fold into one build": engineBudget.test.ts deleted; the size check (checkEngineBudget vs ENGINE_LIMIT, and a limit one byte below fails with both problems) is now the second test in packagePacks.test.ts, straight after the checkPacks() build, via buildExample("hello-scene", { buildPackages: false }) so one file owns packages/*/dist. No other test file builds into packages/astraeus/dist or the example build folders (checked by search). build-example.mjs: npm install now --prefer-offline; cleanEnv keeps npm_config registry/cache/userconfig/proxy/cert settings. docs/BROWSER_CHECKS.md shows 1,745,198 / 501,483 beside the limit. Proof: npm test x5 all pass (241 files, 3563 tests each); lint, typecheck, build, check:pack pass. Earlier history entry time 16:20Z was local time; left as is.'
 ---
 
 # I-164: The engine's first download is over its limit after O-065
@@ -59,3 +63,5 @@ The size limit is fixed and proven. The fast test added by the repair breaks the
 - Scenario: `npx vitest run --project preloaded packages/astraeus-site/tests/packagePacks.test.ts packages/astraeus-site/tests/engineBudget.test.ts` → 3 of 7 runs fail; `npx vitest run` (whole suite) → 2 of 3 fail with `astraeus: stray file src/api/AstraeusScene.node.node.js` / `index.node.node.js`. Each file alone passes.
 
 Further Proof Needed: the engine size check stays in the fast suite and fails below the limit, without sharing a build folder with another test file in parallel; repeated `npm test` runs (and the two files run together repeatedly) pass. Also correct the "measured 1,652,588 / 472,895" beside the new limit in `docs/BROWSER_CHECKS.md`.
+
+Owner decision 2026-11-10 (coordinator session o065-run-20261110), after C-164: "Fold into one build" — the engine size check joins the existing packaging test so one test owns the `packages/astraeus/dist` build (no two test files build it at once); the size check stays in the ordinary test gate; prove with five repeated `npm test` runs; then a targeted recheck.
