@@ -26,6 +26,7 @@ import { Scene } from "../src/api/scene";
 import { viewerHandleOf, type ViewerHandle } from "../src/api/viewerHandle";
 import { ViewerLink, type ViewerChange, type CameraPose } from "../src/api/viewerLink";
 import type { SelectionChange } from "../src/api/viewerSelection";
+import type { PanelChange } from "../src/api/viewerPanels";
 import { pretendScreen } from "./domSetup";
 import { PICTURES } from "astraeus-data";
 import { describeBody } from "../src/app/bodyDraw";
@@ -39,6 +40,7 @@ const T0 = Date.parse("2026-03-01T00:00:00Z");
 const MIN = 60_000;
 const DAY = 86_400_000;
 const path = (x: number) => [0, 1, 2, 3].map((i) => ({ time: T0 + i * 10 * MIN, positionKm: [x + i * 1_000, 0, 0], velocityKmS: [1, 0, 0] }));
+const MADE = { sourceType: "illustrative", sources: ["Made up"], accuracy: "None claimed.", notes: "Made up." } as const;
 /** Views a (probe A) and b (probe B); the Moon and Earth are in every view. Built fresh for each viewer. */
 const makeScene = () => new Scene().addBody(earth).addBody(moon)
   .addTrajectory({ id: "pa", label: "Probe A", center: "earth", samples: path(10_000) })
@@ -46,6 +48,7 @@ const makeScene = () => new Scene().addBody(earth).addBody(moon)
   .setViews([{ id: "a", label: "View A", objects: ["pa"] }, { id: "b", label: "View B", objects: ["pb"] }], { place: "top-bar" })
   .setSwitches({ labels: { place: "top-bar" } })
   .setPicker({ id: "world", label: "World", options: [{ value: "one", label: "One" }, { value: "two", label: "Two" }], value: "one" })
+  .addStoryPanels([{ id: "s1", title: "Step one", body: "A made-up line.", provenance: MADE }, { id: "s2", title: "Step two", body: "Another made-up line.", provenance: MADE }])
   .setTimeline({ start: T0, end: T0 + 100 * DAY, rate: 60, rates: [60, 3600] });
 
 /** One opened viewer, the same shape through either path. */
@@ -111,19 +114,20 @@ const PAIRINGS: readonly Pairing[] = [
 ];
 
 /** What a viewer's own listeners heard. */
-interface Heard { readonly changes: ViewerChange[]; readonly selects: SelectionChange[]; readonly cameras: CameraPose[]; }
+interface Heard { readonly changes: ViewerChange[]; readonly selects: SelectionChange[]; readonly panels: PanelChange[]; readonly cameras: CameraPose[]; }
 function listen(handle: ViewerHandle): Heard {
-  const heard: Heard = { changes: [], selects: [], cameras: [] };
+  const heard: Heard = { changes: [], selects: [], panels: [], cameras: [] };
   handle.onChange((c) => heard.changes.push(c));
   handle.onSelect((c) => heard.selects.push(c));
+  handle.onPanel((c) => heard.panels.push(c));
   handle.onCameraChange((c) => heard.cameras.push(c));
   return heard;
 }
-const total = (heard: Heard): number => heard.changes.length + heard.selects.length + heard.cameras.length;
+const total = (heard: Heard): number => heard.changes.length + heard.selects.length + heard.panels.length + heard.cameras.length;
 
 /** Every read of the handle at one moment, as a plain value. */
 const snapshot = (handle: ViewerHandle) => ({
-  time: handle.timeUtcMs, rate: handle.rate, playing: handle.playing, view: handle.view, camera: handle.camera, eventZones: handle.eventZones, selected: handle.selected, look: handle.look, scale: handle.scale, switches: handle.switches, pick: handle.pick,
+  time: handle.timeUtcMs, rate: handle.rate, playing: handle.playing, view: handle.view, camera: handle.camera, eventZones: handle.eventZones, selected: handle.selected, panel: handle.panel, look: handle.look, scale: handle.scale, switches: handle.switches, pick: handle.pick,
 });
 
 /** The scene's stand-in for a camera standing here (the real scene writes it every frame). */
@@ -141,7 +145,7 @@ interface Row {
   /** What that viewer's handle then reads. */
   readonly reads: (handle: ViewerHandle) => void;
   /** Which of that viewer's own listeners must have heard it. */
-  readonly hears?: "changes" | "cameras" | "selects";
+  readonly hears?: "changes" | "cameras" | "selects" | "panels";
   /** What the scene would do after the call, when the stand-in has to do it. */
   readonly settle?: (viewer: Viewer) => void;
 }
@@ -156,6 +160,7 @@ const SETTERS: Record<keyof Setter, Row> = {
   setScale: { call: (v) => v.handle.setScale("readable-scale"), reads: (hd) => expect(hd.scale).toBe("readable-scale"), hears: "changes" },
   setSwitch: { call: (v) => v.handle.setSwitch("labels", false), reads: (hd) => expect(hd.switches).toEqual({ labels: false }), hears: "changes" },
   setSelected: { call: (v) => v.handle.setSelected("pa"), reads: (hd) => expect(hd.selected).toBe("pa"), hears: "selects" },
+  setPanel: { call: (v) => v.handle.setPanel("s2"), reads: (hd) => expect(hd.panel).toBe("s2"), hears: "panels" },
   setPick: { call: (v) => v.handle.setPick("two"), reads: (hd) => expect(hd.pick).toBe("two") }, // moves the pressed option and tells no listener
   setCamera: {
     call: (v) => v.handle.setCamera({ focus: "moon" }),

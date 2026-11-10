@@ -80,7 +80,8 @@ export type StoryPanelAt = { readonly time: TimeInput } | { readonly event: stri
 export interface StoryPanelInput {
   /** Unique among the scene's panels: a repeat throws `duplicate-id`. */
   readonly id: string;
-  readonly at: StoryPanelAt;
+  /** When the panel opens. Left out, it is a step: steps keep the order added, never open from playback, and show Back and Next. */
+  readonly at?: StoryPanelAt;
   readonly title: string;
   /** Paragraphs, in order; one text is one paragraph. */
   readonly body: string | readonly string[];

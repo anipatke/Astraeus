@@ -2,9 +2,10 @@ import { lazy, Suspense, useEffect, useId, useRef, useState, type ComponentProps
 import type { ClockSnapshot } from "../core/clock";
 import type { TimelineEvent } from "../core/events";
 import type { TimelineWindow } from "../core/timeWindow";
-import { StoryPanelView } from "./StoryPanelView";
+import { StoryPanelView, type StepNav } from "./StoryPanelView";
 import { useDrawers } from "./useDrawers";
-import { useStoryPanels, type StoryPanelSettings } from "./useStoryPanels";
+import { useStoryPanels, type PanelCause, type StoryPanelSettings } from "./useStoryPanels";
+import { neighbourStep, type StoryPanel, type StoryStep } from "./storyPanels";
 import { TimelineBar } from "./TimelineBar";
 import type { TimelineGlowLook } from "./timelineGlow";
 import { requestObjectId, type ExperienceCameraPreset, type ExperienceConfig, type ExperienceObject } from "./experience";
@@ -141,9 +142,9 @@ interface Props {
   /** Starts or holds playback; the shell uses it to pause while a panel opens by itself. */
   readonly onSetPlaying?: (playing: boolean) => void;
   /** Asks the shell to open a panel (a scene marker was pressed); a new `serial` asks again. */
-  readonly panelRequest?: { readonly id: string; readonly serial: number } | null;
-  /** Called when the open panel changes, so the app can mark its scene marker. */
-  readonly onOpenPanelChange?: (panelId: string | null) => void;
+  readonly panelRequest?: { readonly id: string; readonly serial: number; /** True: the host's `setPanel` (id "" closes the open panel). */ readonly host?: boolean } | null;
+  /** Called when the open panel changes, with who changed it, so the app can mark its scene marker and tell the host. */
+  readonly onOpenPanelChange?: (panelId: string | null, cause: PanelCause) => void;
   /** Asks the shell to open a tagged place's information (a place marker was pressed); a new `serial` asks again. */
   readonly featureRequest?: { readonly key: string; readonly serial: number } | null;
   /** Called with the key of the place whose information is open, or null, so the app can mark its scene marker. */
@@ -184,6 +185,28 @@ function useViewSwitch(viewCamera: Props["viewCamera"]) {
 
 function panelsOf(storySet: ExperienceConfig["storyPanels"]) {
   return storySet?.panels ?? [];
+}
+
+/** Back and Next for the open panel when it is a step: each is absent where there is no neighbour. */
+function stepNavOf(panel: StoryPanel | StoryStep | null, steps: readonly StoryStep[], open: (id: string) => void): StepNav | undefined {
+  if (panel === null || !("step" in panel)) return undefined;
+  const to = (by: -1 | 1) => {
+    const neighbour = neighbourStep(steps, panel, by);
+    return neighbour === undefined ? undefined : () => open(neighbour.id);
+  };
+  return { number: panel.step, count: steps.length, onBack: to(-1), onNext: to(1) };
+}
+
+/** A request to open a panel (a marker press or the host's `setPanel`; id "" closes the open one), told with who made it. */
+function applyPanelRequest(story: Pick<ReturnType<typeof useStoryPanels>, "open" | "close">, request: { readonly id: string; readonly host?: boolean } | null | undefined): void {
+  if (request === null || request === undefined) return;
+  const by = request.host === true ? "host" : "visitor";
+  if (request.id === "") story.close(by);
+  else story.open(request.id, by);
+}
+
+function stepsOf(storySet: ExperienceConfig["storyPanels"]) {
+  return storySet?.steps ?? [];
 }
 
 function objectLabelOr(experience: ExperienceConfig, objectId: string, fallback: string): string {
@@ -259,14 +282,21 @@ export function AstraeusShell({
 
   const storySet = experience.storyPanels;
   const storyPanels = panelsOf(storySet);
-  const story = useStoryPanels(storyPanels, storyPanelSettings ?? ownStorySettings(storySet), snapshot, onSetPlaying);
+  const storySteps = stepsOf(storySet);
+  const story = useStoryPanels(storyPanels, storySteps, storyPanelSettings ?? ownStorySettings(storySet), snapshot, onSetPlaying);
   if (storySeekNote !== undefined) storySeekNote.current = story.noteSeek;
   useEffect(() => () => { if (storySeekNote !== undefined) storySeekNote.current = null; }, [storySeekNote]);
   const openPanelId = story.openPanel?.id ?? null;
-  useEffect(() => { onOpenPanelChange?.(openPanelId); }, [onOpenPanelChange, openPanelId]);
+  const storyCause = story.cause;
+  // Only a change of the open panel is reported; the cause read then is the one that change came with.
+  const lastCause = useRef(storyCause);
+  lastCause.current = storyCause;
+  useEffect(() => { onOpenPanelChange?.(openPanelId, lastCause.current); }, [onOpenPanelChange, openPanelId]);
+  const closePanel = () => story.close();
+  const stepNav = stepNavOf(story.openPanel, storySteps, story.open);
   const requestedSerial = serialOf(panelRequest);
   useEffect(() => {
-    if (panelRequest !== null && panelRequest !== undefined) story.open(panelRequest.id);
+    applyPanelRequest(story, panelRequest);
     // Only a new request opens a panel; the open function is stable.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [requestedSerial]);
@@ -484,7 +514,13 @@ export function AstraeusShell({
         {view !== null && <InfoPanel view={view} metrics={metrics} onClose={() => setInfo(null)} id={infoPanelId} />}
       </div>
       {story.openPanel !== null && (
-        <StoryPanelView panel={story.openPanel} holding={story.holding} onClose={story.close} onContinue={story.continuePlayback} />
+        <StoryPanelView
+          panel={story.openPanel}
+          holding={story.holding}
+          onClose={closePanel}
+          onContinue={story.continuePlayback}
+          step={stepNav}
+        />
       )}
       <DeveloperDrawer developerMode={developerMode} onDeveloperModeChange={onDeveloperModeChange}>{developerTools}</DeveloperDrawer>
       <ShellTimeline

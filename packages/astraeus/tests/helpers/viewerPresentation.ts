@@ -5,4 +5,4 @@ export const FAKE_LOOK: LookRead = { starBrightness: 1, milkyWay: false, milkyWa
 export const FAKE_PRESENTATION = { scale: "true-scale", look: FAKE_LOOK, switches: {} } as const;
 
 /** The presentation part of a stand-in `ViewerControl`. */
-export const FAKE_PRESENTATION_CONTROL = { scales: ["true-scale", "readable-scale"], setScale: () => undefined, setLook: () => undefined, setSwitch: () => undefined, traceSkyFigure: () => undefined, clearSkyTrace: () => undefined, setSelected: () => undefined } as const;
+export const FAKE_PRESENTATION_CONTROL = { scales: ["true-scale", "readable-scale"], setScale: () => undefined, setLook: () => undefined, setSwitch: () => undefined, traceSkyFigure: () => undefined, clearSkyTrace: () => undefined, setSelected: () => undefined, panels: () => [], setPanel: () => undefined } as const;

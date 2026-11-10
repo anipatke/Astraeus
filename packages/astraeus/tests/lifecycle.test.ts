@@ -128,7 +128,7 @@ const reactDriver = (strict: boolean): Driver => ({
 });
 
 /** The handle's members, read from one table: a new member of `ViewerHandle` must join it (the last test fails otherwise). */
-const READS = ["timeUtcMs", "rate", "playing", "view", "camera", "eventZones", "selected", "look", "scale", "switches", "pick", "skyFigures"] as const;
+const READS = ["timeUtcMs", "rate", "playing", "view", "camera", "eventZones", "selected", "panel", "look", "scale", "switches", "pick", "skyFigures"] as const;
 const CALLS: Record<string, (handle: ViewerHandle) => void> = {
   setTime: (handle) => handle.setTime(MID),
   setRate: (handle) => handle.setRate(RATE),
@@ -136,6 +136,7 @@ const CALLS: Record<string, (handle: ViewerHandle) => void> = {
   setView: (handle) => handle.setView("a"),
   setCamera: (handle) => handle.setCamera({ follow: "x" }),
   setSelected: (handle) => handle.setSelected("x"),
+  setPanel: (handle) => handle.setPanel("x"),
   setLook: (handle) => handle.setLook({ starBrightness: 1.2 }),
   setScale: (handle) => handle.setScale("readable-scale"),
   setSwitch: (handle) => handle.setSwitch("labels", false),
@@ -144,7 +145,7 @@ const CALLS: Record<string, (handle: ViewerHandle) => void> = {
   clearSkyTrace: (handle) => handle.clearSkyTrace("kite"),
 };
 /** Listener registration is allowed at any time (the scene's own `onChange` is registered before `ready`); what is promised is that nothing is called after unmount. */
-const LISTENERS = ["onChange", "onEventZone", "onSelect", "onCameraChange", "onFirstDraw", "onPick"] as const;
+const LISTENERS = ["onChange", "onEventZone", "onSelect", "onPanel", "onCameraChange", "onFirstDraw", "onPick"] as const;
 const codeOf = (run: () => void): string | undefined => { try { run(); } catch (error) { return errorCode(error); } return undefined; };
 const expectUnusable = (handle: ViewerHandle): void => {
   for (const read of READS) expect(handle[read], read).toBeUndefined();

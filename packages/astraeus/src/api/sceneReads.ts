@@ -100,10 +100,11 @@ export interface SceneEventRead {
   readonly provenance?: Provenance;
 }
 
-/** A story panel the scene holds (`addStoryPanels`), as `Scene.panels` lists it (sorted by time, the times resolved). */
+/** A story panel the scene holds (`addStoryPanels`), as `Scene.panels` lists it (moment panels by time, then steps in the order added). */
 export interface ScenePanelRead {
   readonly id: string;
-  readonly timeUtcMs: number;
+  /** The panel's moment (Unix milliseconds UTC); absent on a step. */
+  readonly timeUtcMs?: number;
   readonly title: string;
   /** Paragraphs, in order. */
   readonly body: readonly string[];

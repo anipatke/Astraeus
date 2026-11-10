@@ -133,7 +133,6 @@ describe("addStoryPanels", () => {
     ["an empty body", { body: [] }, "bad", "body"],
     ["details that are not text", { details: [5] }, "bad", "details[0]"],
     ["an object that is not text", { object: 5 }, "bad", "object"],
-    ["no at", { at: undefined }, "bad", "at"],
     ["two moments at once", { at: { time: T0, event: "burn" } }, "bad", "at"],
     ["a moment that is not one", { at: { time: "soon" } }, "bad", "at.time"],
     ["an empty event name", { at: { event: "" } }, "bad", "at.event"],

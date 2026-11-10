@@ -40,7 +40,7 @@ export function experienceInView(experience: ExperienceConfig, settings: ViewSet
     ...experience,
     objects: experience.objects.filter((object) => !objects.has(object.id)),
     events: experience.events.filter((event) => !hiddenEvents.has(event.id)),
-    ...(storySet === undefined ? {} : { storyPanels: { ...storySet, panels: storySet.panels.filter((panel) => !panels.has(panel.id)) } }),
+    ...(storySet === undefined ? {} : { storyPanels: { ...storySet, panels: storySet.panels.filter((panel) => !panels.has(panel.id)), ...(storySet.steps === undefined ? {} : { steps: storySet.steps.filter((step) => !panels.has(step.id)) }) } }),
   };
 }
 

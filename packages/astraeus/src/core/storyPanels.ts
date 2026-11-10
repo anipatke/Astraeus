@@ -17,9 +17,18 @@ export interface StoryPanel {
   readonly objectId?: string;
 }
 
+/** A story step: a panel with no moment, shown in the order added with Back and Next. */
+export type StoryStep = Omit<StoryPanel, "timeUtcMs"> & {
+  /** The step's place among the steps, counting from 1 in the order added. */
+  readonly step: number;
+};
+
 /** The panels an experience offers, with the defaults of the two settings that govern them. */
 export interface StoryPanelSet {
+  /** The moment panels, sorted by time. */
   readonly panels: readonly StoryPanel[];
+  /** The steps, in the order added; absent or empty when there are none. */
+  readonly steps?: readonly StoryStep[];
   /** How long playback holds when a panel opens by itself, in seconds (0 never pauses). */
   readonly pauseSeconds: number;
   /** Whether panels open by themselves as forward playback reaches them. */
@@ -36,7 +45,8 @@ export const DEFAULT_PANEL_PLAYBACK: PanelPlayback = Object.freeze({ pauseSecond
 
 /** A panel whose own shape is sound and whose moment is converted. What it names (an event, an anchor, an object) is left for `resolveStoryPanels`, because those may be added later. */
 export interface CheckedPanel extends Omit<StoryPanel, "timeUtcMs" | "objectId"> {
-  readonly at: { readonly timeUtcMs: number } | { readonly event: string } | { readonly anchor: string };
+  /** Absent: a step. */
+  readonly at?: { readonly timeUtcMs: number } | { readonly event: string } | { readonly anchor: string };
   readonly object?: string;
 }
 
@@ -74,7 +84,8 @@ function lines(panel: string, field: string, value: unknown): readonly string[] 
 }
 
 function atOf(panel: string, at: unknown): CheckedPanel["at"] {
-  if (!isRecord(at)) throw new StoryPanelError(panel, "at", "must name a time: { time }, { event } or { anchor }");
+  if (at === undefined) return undefined;
+  if (!isRecord(at)) throw new StoryPanelError(panel, "at", "must name a time ({ time }, { event } or { anchor }), or be left out for a step");
   const keys = ["time", "event", "anchor"].filter((key) => at[key] !== undefined);
   if (keys.length !== 1) throw new StoryPanelError(panel, "at", "must give exactly one of time, event or anchor");
   if (keys[0] === "event") return { event: text(panel, "at.event", at.event) };
@@ -99,9 +110,10 @@ export function checkStoryPanel(raw: unknown, index: number): CheckedPanel {
   if (!isRecord(raw)) throw new StoryPanelError(`#${index + 1}`, "entry", "must be an object");
   const id = text(`#${index + 1}`, "id", raw.id);
   const object = raw.object === undefined ? undefined : text(id, "object", raw.object);
+  const at = atOf(id, raw.at);
   return {
     id,
-    at: atOf(id, raw.at),
+    ...(at === undefined ? {} : { at }),
     title: text(id, "title", raw.title),
     body: lines(id, "body", raw.body),
     details: raw.details === undefined ? [] : lines(id, "details", raw.details),
@@ -122,7 +134,7 @@ export function checkPanelPlayback(raw: unknown): PanelPlayback {
   return { pauseSeconds, autoOpen };
 }
 
-function timeOf({ id, at }: CheckedPanel, lookup: PanelLookup): number {
+function timeOf(id: string, at: NonNullable<CheckedPanel["at"]>, lookup: PanelLookup): number {
   if ("timeUtcMs" in at) return at.timeUtcMs;
   if ("event" in at) {
     const event = lookup.events.find((candidate) => candidate.id === at.event);
@@ -134,20 +146,36 @@ function timeOf({ id, at }: CheckedPanel, lookup: PanelLookup): number {
   return anchor;
 }
 
-function resolvePanel(panel: CheckedPanel, lookup: PanelLookup): StoryPanel {
-  const { id, title, body, details, provenance, object } = panel;
-  const timeUtcMs = timeOf(panel, lookup);
-  if (lookup.window !== undefined && (timeUtcMs < lookup.window.startUtcMs || timeUtcMs > lookup.window.endUtcMs)) {
-    throw new StoryPanelError(id, "at", "falls outside the timeline window");
-  }
+function checkLinks({ id, object }: CheckedPanel, lookup: PanelLookup): void {
   if (object !== undefined && lookup.objectIds !== undefined && !lookup.objectIds.includes(object)) {
     throw new StoryPanelError(id, "object", `names "${object}", which the experience lacks`);
   }
+}
+
+function resolvePanel(panel: CheckedPanel & { readonly at: NonNullable<CheckedPanel["at"]> }, lookup: PanelLookup): StoryPanel {
+  const { id, at, title, body, details, provenance, object } = panel;
+  const timeUtcMs = timeOf(id, at, lookup);
+  if (lookup.window !== undefined && (timeUtcMs < lookup.window.startUtcMs || timeUtcMs > lookup.window.endUtcMs)) {
+    throw new StoryPanelError(id, "at", "falls outside the timeline window");
+  }
+  checkLinks(panel, lookup);
   return { id, timeUtcMs, title, body, details, provenance, ...(object === undefined ? {} : { objectId: object }) };
 }
 
-/** Resolves each checked panel's time and links against the scene as built. Panels come back sorted by time. */
+function resolveStep(panel: CheckedPanel, lookup: PanelLookup, step: number): StoryStep {
+  const { id, title, body, details, provenance, object } = panel;
+  checkLinks(panel, lookup);
+  return { id, step, title, body, details, provenance, ...(object === undefined ? {} : { objectId: object }) };
+}
+
+/** Resolves each checked panel's time and links against the scene as built. Moment panels come back sorted by time; steps (no `at`) in the order given, numbered from 1. */
 export function resolveStoryPanels(panels: readonly CheckedPanel[], playback: PanelPlayback, lookup: PanelLookup): StoryPanelSet {
-  const resolved = panels.map((panel) => resolvePanel(panel, lookup));
-  return { panels: resolved.sort((a, b) => a.timeUtcMs - b.timeUtcMs), ...playback };
+  const moments = panels.flatMap((panel) => (panel.at === undefined ? [] : [resolvePanel({ ...panel, at: panel.at }, lookup)]));
+  const steps = panels.filter((panel) => panel.at === undefined).map((panel, index) => resolveStep(panel, lookup, index + 1));
+  return { panels: moments.sort((a, b) => a.timeUtcMs - b.timeUtcMs), ...(steps.length === 0 ? {} : { steps }), ...playback };
+}
+
+/** The step Back or Next opens from `step`: the one `by` places along (-1 or 1), or undefined at either end. */
+export function neighbourStep(steps: readonly StoryStep[], step: StoryStep, by: -1 | 1): StoryStep | undefined {
+  return steps.find((candidate) => candidate.step === step.step + by);
 }

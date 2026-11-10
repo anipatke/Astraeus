@@ -24,7 +24,7 @@ describe("the demo wiring (T-059 Done When 5)", () => {
     }
     expect(panels[0]!.timeUtcMs).toBe(-14542676800);
     expect(panels[3]!.timeUtcMs).toBe(-14182940100);
-    expect(panels.map((panel) => panel.timeUtcMs)).toEqual([...panels.map((panel) => panel.timeUtcMs)].sort((a, b) => a - b));
+    expect(panels.map((panel) => panel.timeUtcMs)).toEqual([...panels.map((panel) => panel.timeUtcMs)].sort((a, b) => (a ?? 0) - (b ?? 0)));
   });
 });
 

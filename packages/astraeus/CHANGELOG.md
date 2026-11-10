@@ -4,6 +4,12 @@ Versions follow [semantic versioning](https://semver.org). While the version sta
 
 ## Unreleased
 
+Story steps (G-018, O-066, second step): story panels can be steps with Back and Next, and a host can open a panel and hear which is open. Additions only; no existing call shape or error code changed (a panel with no `at`, which threw `bad-panels` before, is now a step).
+
+- `StoryPanelInput.at` is optional. A panel without it is a step: steps keep the order added across `addStoryPanels` calls, never open from playback, and show Back and Next (and "Step n of m") on the panel; panels with `at` behave as before. With steps and no moment panel the first step is open when the viewer opens, with or without a timeline; otherwise a step opens from its `object`'s marker or `setPanel`.
+- `scene.panels` lists the moment panels by time, then the steps in the order added; `ScenePanelRead.timeUtcMs` is absent on a step.
+- New on the `mount` handle and `AstraeusScene`: `handle.panel` (the open panel id), `handle.setPanel(id | undefined)` (open one by id, or close the open one; an id the showing view does not show throws `bad-panels`) and `handle.onPanel(listener)` (`{ panel?, timeUtcMs, cause }`, with `cause` `visitor`, `host` or `playback`; new type `PanelChange`).
+
 Selecting sky figures (G-018, O-066, first step): a visitor can tap a sky figure and see its card. Additions only; no existing call shape or error code changed.
 
 - `SkyFigureInput` gains `description`, `facts` (`CardFactInput[]`), `sources`, `provenance` and `listed`, as `addBody` and `addTrajectory` take them (`listed` and the provenance default as there; a bad one throws `bad-sky-figure`). `scene.skyFigures` and `handle.skyFigures` read `listed`, `provenance`, `description` and `facts` too.

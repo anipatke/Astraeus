@@ -13,6 +13,7 @@ import type { DebugReadout } from "./debugReadout";
 import { bodySetsOf, cameraReachOf, catalogueOf, compositionOf, experienceWithGroups, groupsOf, initialObjectIdOf, mountedBodiesOf, pageTitleOf, scaleChoiceIdsOf, sceneCenterOf, sunCentredOf, trackedBodiesOf, visualOverridesOf, type ExperienceDefinition } from "./experienceDefinition";
 import { AstraeusShell, type SelectionOrigin } from "../shell/AstraeusShell";
 import type { ViewChoice } from "../shell/DisplaySwitches";
+import type { PanelCause } from "../shell/useStoryPanels";
 import type { ExperienceCameraRequest, ExperienceConfig } from "../shell/experience";
 import { SCALE_CHOICES, scaleChoicesFor, scalePolicyFor, startScaleFor, type ScaleId } from "../shell/scaleModel";
 import { scaleFromSearch, showFromSearch, timeFromSearch, viewFromAngles, viewFromSearch, type CameraView } from "./viewLink";
@@ -289,7 +290,7 @@ export function App({ definition, writeTitle = true, address, developerTools, ho
   const glowBase = useMemo(() => baseGlowOf(runtime.bodies.map((id) => runtime.catalogue.get(id))), [runtime]);
   const storySet = definition.experience.storyPanels;
   const storyMarkerSpecs = useMemo<readonly StoryMarkerSpec[]>(
-    () => (storySet?.panels ?? []).flatMap((panel) => (panel.objectId === undefined ? [] : [{ panelId: panel.id, objectId: panel.objectId, title: panel.title, timeUtcMs: panel.timeUtcMs }])),
+    () => [...(storySet?.panels ?? []), ...(storySet?.steps ?? [])].flatMap((panel) => (panel.objectId === undefined ? [] : [{ panelId: panel.id, objectId: panel.objectId, title: panel.title, ..."timeUtcMs" in panel ? { timeUtcMs: panel.timeUtcMs } : {} }])),
     [storySet],
   );
   const controls = useRef<SceneControls>(initialSceneControls(definition, runtime, experience, startScale, glowBase, storyMarkerSpecs, suppliedPolicies, search));
@@ -340,7 +341,7 @@ export function App({ definition, writeTitle = true, address, developerTools, ho
   const [markerPx, setMarkerPx] = useState(() => controls.current.bodyMarker.minSpherePx);
   const [storyAutoOpen, setStoryAutoOpen] = useState(storyStartOf(storySet).autoOpen);
   const [storyPauseSeconds, setStoryPauseSeconds] = useState(storyStartOf(storySet).pauseSeconds);
-  const [panelRequest, setPanelRequest] = useState<{ readonly id: string; readonly serial: number } | null>(null);
+  const [panelRequest, setPanelRequest] = useState<{ readonly id: string; readonly serial: number; readonly host?: boolean } | null>(null);
   const [pickRequest, setPickRequest] = useState<{ readonly id: string; readonly serial: number } | null>(null);
   const [featureRequest, setFeatureRequest] = useState<{ readonly key: string; readonly serial: number } | null>(null);
   const [hud, setHud] = useState<DebugReadout | null>(null);
@@ -357,7 +358,6 @@ export function App({ definition, writeTitle = true, address, developerTools, ho
   const requestPick = useCallback((id: string) => setPickRequest((previous) => ({ id, serial: (previous?.serial ?? 0) + 1 })), []);
   const requestFeature = useCallback((key: string) => setFeatureRequest((previous) => ({ key, serial: (previous?.serial ?? 0) + 1 })), []);
   const markOpenFeature = useCallback((key: string | null) => { controls.current.openFeatureKey = key; }, []);
-  const markOpenPanel = useCallback((id: string | null) => { controls.current.openStoryPanelId = id; }, []);
   const setPlaying = useCallback((playing: boolean) => {
     if (playing) runtime.clock.play();
     else runtime.clock.pause();
@@ -398,6 +398,7 @@ export function App({ definition, writeTitle = true, address, developerTools, ho
       ...(runtime.eventZones === undefined ? {} : { zones: activeEventZones(runtime.eventZones, shownEventsOf(definition, viewRef.current), snapshot.timeUtcMs) }),
       ...(definition.views === undefined ? {} : { view: viewRef.current }),
       ...(controls.current.selectedObjectId === "" ? {} : { selected: controls.current.selectedObjectId }),
+      ...(controls.current.openStoryPanelId == null ? {} : { panel: controls.current.openStoryPanelId }),
     };
   }, [runtime, definition]);
   // A selection that changes is told to the host at once (the shell calls this for a menu choice, a pick and a view switch that drops the object); the opening selection and any before the host is attached wait for the attach reading.
@@ -414,6 +415,21 @@ export function App({ definition, writeTitle = true, address, developerTools, ho
     setSelectRequest((previous) => ({ id: id ?? "", serial: (previous?.serial ?? 0) + 1 }));
   }, []);
   const hostSelectApplied = useCallback(() => { hostSelect.current = null; }, []);
+  const hostSetPanel = useCallback((id: string | undefined) => {
+    controls.current.openStoryPanelId = id ?? null; // `read()` shows it at once
+    setPanelRequest((previous) => ({ id: id ?? "", serial: (previous?.serial ?? 0) + 1, host: true }));
+  }, []);
+  /** The shell's open panel changed (a visitor, a host call already shown, playback crossing a panel, or a view switch dropping it); a change is told to the host, the opening panel is read at attach. */
+  const markOpenPanel = useCallback((id: string | null, cause: PanelCause) => {
+    const changed = (controls.current.openStoryPanelId ?? null) !== id;
+    controls.current.openStoryPanelId = id;
+    if (changed && hostAttached.current) host?.publishPanel(stateNow(), cause);
+  }, [host, stateNow]);
+  const panelIds = useCallback((): readonly string[] => {
+    const set = definition.experience.storyPanels;
+    const hidden = controls.current.viewHidden?.panels;
+    return [...(set?.panels ?? []), ...(set?.steps ?? [])].map(({ id }) => id).filter((id) => hidden === undefined || !hidden.has(id));
+  }, [definition]);
   const updateSelectedObject = useCallback((objectId: string, origin: SelectionOrigin) => {
     if (hostSelect.current !== null) return; // a host `setSelected` is waiting for the shell: the shell's older choice must not undo it (the host-call order rule)
     const changed = controls.current.selectedObjectId !== objectId;
@@ -482,9 +498,9 @@ export function App({ definition, writeTitle = true, address, developerTools, ho
     if (host === undefined) return undefined;
     hostAttached.current = true;
     shownKey.current = null; // the presentation is read afresh after each attach
-    host.attach({ ...(definition.picker === undefined ? {} : { picker: { id: definition.picker.id, values: definition.picker.options.map((option) => option.value), start: definition.picker.value } }), window: runtime.loopWindow, skyFigures: skyFigureReads(runtime.skyFigures, experience.skyFigures), events: experience.events, rates: definition.experience.rates, paced: runtime.pacing !== undefined, read: stateNow, seek: hostSeekTo, setRate: changeRate, playable: definition.experience.hideTimeline !== true, setPlaying: hostSetPlaying, views: viewIds, setView: chooseView, cameraTargets, readCamera, setCamera, setSelected: hostSetSelected, scales: hostScales, setScale: hostSetScale, setLook: hostSetLook, setSwitch: hostSetSwitch, traceSkyFigure: hostTraceSkyFigure, clearSkyTrace: hostClearSkyTrace });
+    host.attach({ ...(definition.picker === undefined ? {} : { picker: { id: definition.picker.id, values: definition.picker.options.map((option) => option.value), start: definition.picker.value } }), window: runtime.loopWindow, skyFigures: skyFigureReads(runtime.skyFigures, experience.skyFigures), events: experience.events, rates: definition.experience.rates, paced: runtime.pacing !== undefined, read: stateNow, seek: hostSeekTo, setRate: changeRate, playable: definition.experience.hideTimeline !== true, setPlaying: hostSetPlaying, views: viewIds, setView: chooseView, cameraTargets, readCamera, setCamera, setSelected: hostSetSelected, panels: panelIds, setPanel: hostSetPanel, scales: hostScales, setScale: hostSetScale, setLook: hostSetLook, setSwitch: hostSetSwitch, traceSkyFigure: hostTraceSkyFigure, clearSkyTrace: hostClearSkyTrace });
     return () => { hostAttached.current = false; host.detach(); };
-  }, [host, runtime, definition, hostSeekTo, changeRate, viewIds, chooseView, cameraTargets, readCamera, setCamera, hostSetSelected, experience, hostSetPlaying, hostScales, hostSetScale, hostSetLook, hostSetSwitch, hostTraceSkyFigure, hostClearSkyTrace]);
+  }, [host, runtime, definition, hostSeekTo, changeRate, viewIds, chooseView, cameraTargets, readCamera, setCamera, hostSetSelected, panelIds, hostSetPanel, experience, hostSetPlaying, hostScales, hostSetScale, hostSetLook, hostSetSwitch, hostTraceSkyFigure, hostClearSkyTrace]);
 
   useEffect(() => {
     if (!developerMode) return undefined;

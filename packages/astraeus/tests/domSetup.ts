@@ -23,6 +23,10 @@ export interface Mounted {
   readonly cameraRequests: ExperienceCameraPreset["request"][];
   readonly clock: SimulationClock;
   readonly selected: () => string;
+  /** What the shell reported as the open panel, in order: the id (null: none) and who changed it. */
+  readonly panelChanges: { readonly id: string | null; readonly cause: string }[];
+  /** Asks the shell as the host's `setPanel` does (id "" closes). */
+  readonly hostPanel: (id: string) => void;
   /** Lets `ms` of real time pass for the clock (it only moves while playing) and draws the shell as the app does every frame. */
   readonly advance: (ms: number) => void;
   /** Asks the shell to open a story panel, as a scene marker press does. */
@@ -102,17 +106,17 @@ export function $(container: ParentNode, selector: string): HTMLElement {
   return found;
 }
 
-interface Probe { selected: string; scale: string; refresh: () => void; requestPanel: (id: string) => void }
+interface Probe { selected: string; scale: string; refresh: () => void; requestPanel: (id: string, host?: boolean) => void; panelChanges: Mounted["panelChanges"] }
 
 function Host({ options, clock, probe }: { readonly options: MountOptions; readonly clock: SimulationClock; readonly probe: Mounted["cameraRequests"] & Probe }) {
-  const [panelRequest, setPanelRequest] = useState<{ id: string; serial: number } | null>(null);
+  const [panelRequest, setPanelRequest] = useState<{ id: string; serial: number; host?: boolean } | null>(null);
   const [snapshot, setSnapshot] = useState<ClockSnapshot>(() => clock.snapshot());
   const [developer, setDeveloper] = useState(false);
   const [scaleId, setScaleId] = useState(options.scaleChoices?.[0]?.id ?? "true-scale");
   const selected = useRef("");
   const refresh = () => setSnapshot(clock.snapshot());
   probe.refresh = refresh;
-  probe.requestPanel = (id) => setPanelRequest((previous) => ({ id, serial: (previous?.serial ?? 0) + 1 }));
+  probe.requestPanel = (id, host) => setPanelRequest((previous) => ({ id, serial: (previous?.serial ?? 0) + 1, ...(host === true ? { host } : {}) }));
   const [flipped, setFlipped] = useState<ReadonlySet<string>>(new Set());
   const displaySwitches = options.displaySwitches?.map((item) => ({ ...item, on: item.on !== flipped.has(item.id), onToggle: () => { item.onToggle(); setFlipped((was) => new Set(was.has(item.id) ? [...was].filter((id) => id !== item.id) : [...was, item.id])); } }));
   const experience = options.experience ?? syntheticDefinition.experience;
@@ -131,6 +135,7 @@ function Host({ options, clock, probe }: { readonly options: MountOptions; reado
     onSelectionChange: (id: string) => { selected.current = id; probe.selected = id; },
     onSetPlaying: (playing: boolean) => { if (playing) clock.play(); else clock.pause(); refresh(); },
     panelRequest,
+    onOpenPanelChange: (id: string | null, cause: string) => { if (probe.panelChanges.at(-1)?.id !== id) probe.panelChanges.push({ id, cause }); },
     scaleId,
     onScaleChange: setScaleId,
     scaleChoices: options.scaleChoices,
@@ -155,6 +160,7 @@ export function mountShell(options: MountOptions = {}): Mounted {
   const clock = new SimulationClock(syntheticDefinition.clock.startUtcMs, () => monotonicMs);
   clock.setRate(experience.rates?.[0] ?? syntheticDefinition.clock.rate);
   const probe = [] as unknown as Mounted["cameraRequests"] & Probe;
+  probe.panelChanges = [];
   act(() => { root.render(createElement(Host, { options, clock, probe })); });
   return {
     container,
@@ -163,6 +169,8 @@ export function mountShell(options: MountOptions = {}): Mounted {
     selected: () => probe.selected,
     advance: (ms) => { monotonicMs += ms; act(() => probe.refresh()); },
     requestPanel: (id) => { act(() => probe.requestPanel(id)); },
+    panelChanges: probe.panelChanges,
+    hostPanel: (id) => { act(() => probe.requestPanel(id, true)); },
     scale: () => probe.scale,
     unmount: () => { act(() => root.unmount()); container.remove(); },
   };

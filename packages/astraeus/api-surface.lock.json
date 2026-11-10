@@ -822,8 +822,8 @@
         },
         {
           "name": "timeUtcMs",
-          "optional": false,
-          "signature": "number"
+          "optional": true,
+          "signature": "number | undefined"
         },
         {
           "name": "title",
@@ -2092,8 +2092,8 @@
         },
         {
           "name": "at",
-          "optional": false,
-          "signature": "StoryPanelAt"
+          "optional": true,
+          "signature": "StoryPanelAt | undefined"
         },
         {
           "name": "title",
@@ -2539,6 +2539,21 @@
           "signature": "(listener: (change: SelectionChange) => void): () => void"
         },
         {
+          "name": "panel",
+          "optional": false,
+          "signature": "string | undefined"
+        },
+        {
+          "name": "setPanel",
+          "optional": false,
+          "signature": "(id: string | undefined): void"
+        },
+        {
+          "name": "onPanel",
+          "optional": false,
+          "signature": "(listener: (change: PanelChange) => void): () => void"
+        },
+        {
           "name": "onCameraChange",
           "optional": false,
           "signature": "(listener: (camera: CameraPose) => void): () => void"
@@ -2694,6 +2709,21 @@
           "name": "onSelect",
           "optional": false,
           "signature": "(listener: (change: SelectionChange) => void): () => void"
+        },
+        {
+          "name": "panel",
+          "optional": false,
+          "signature": "string | undefined"
+        },
+        {
+          "name": "setPanel",
+          "optional": false,
+          "signature": "(id: string | undefined): void"
+        },
+        {
+          "name": "onPanel",
+          "optional": false,
+          "signature": "(listener: (change: PanelChange) => void): () => void"
         },
         {
           "name": "onCameraChange",
@@ -2877,6 +2907,28 @@
       "members": [
         {
           "name": "object",
+          "optional": true,
+          "signature": "string | undefined"
+        },
+        {
+          "name": "timeUtcMs",
+          "optional": false,
+          "signature": "number"
+        },
+        {
+          "name": "cause",
+          "optional": false,
+          "signature": "ViewerChangeCause"
+        }
+      ]
+    },
+    "PanelChange": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "panel",
           "optional": true,
           "signature": "string | undefined"
         },
