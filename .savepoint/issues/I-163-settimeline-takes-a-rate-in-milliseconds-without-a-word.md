@@ -18,6 +18,10 @@ history:
     kind: observed
     note: 'Follow-up outside the O-064 scope (setTimeline is not changed by O-064); not material to O-064 closure. Captured under the AGENTS.md "Strategic fix first" rule because the owner hit the trap during the T-293 look (commit 67f3cd32).'
     check: C-161
+  - at: '2026-11-10T02:47:40Z'
+    actor: {role: owner, session: o064-run-20261110}
+    kind: deferred
+    note: 'Owner chose "Later in 0.9.0": fix before 0.9.0 ships, not inside O-064 (recorded by the coordinator on the owner''s direct answer).'
 ---
 
 # I-163: setTimeline takes a rate in milliseconds without a word
