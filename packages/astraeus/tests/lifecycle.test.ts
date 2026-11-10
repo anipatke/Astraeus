@@ -28,9 +28,9 @@ import { SceneError } from "../src/api/errors";
 import { mount } from "../src/api/mount";
 import { Scene } from "../src/api/scene";
 import { SceneCamera } from "../src/api/planCamera";
-import { earth } from "../src/api/bodies";
+import { earth, mars, moon } from "../src/api/bodies";
 import { viewerHandleOf, type ViewerHandle } from "../src/api/viewerHandle";
-import { ViewerLink, type CameraPose, type ViewerChange } from "../src/api/viewerLink";
+import { ViewerLink, type CameraPose, type CameraTarget, type ViewerChange } from "../src/api/viewerLink";
 import { syntheticDefinition } from "../src/synthetic/syntheticDefinition";
 import { definitionOf, missingDataOf } from "../src/api/definitionOf";
 
@@ -427,6 +427,75 @@ describe.each([mountDriver, reactDriver(false)])("lifecycle: $name", (driver) =>
     opened.unmount();
   });
 
+  it("look out: setCamera stands inside a shown body toward a star-map position or an object, bad input throws bad-camera, and a sky reading is read, heard and put back (made-up Mars, not only Earth)", async () => {
+    prepared.real = true; openNow();
+    const opened = await driver.open(new Scene().addBody(earth).addBody(moon).addBody(mars));
+    await opened.ready();
+    const handle = opened.handle!;
+    const controls = () => sceneProps.latest!.controls;
+    const code = (target: unknown): string | undefined => { try { handle.setCamera(target as CameraTarget); } catch (error) { return errorCode(error); } return undefined; };
+    handle.setCamera({ lookOut: "mars", direction: { raDeg: 90, decDeg: 0 }, fovDeg: 30 });
+    const request = controls().cameraRequest as { kind: string; body: string; direction: number[]; fovDeg: number };
+    expect([request.kind, request.body, request.fovDeg]).toEqual(["lookOut", "mars", 30]);
+    expect(request.direction[0]).toBeCloseTo(0, 9);
+    expect(request.direction[1]).toBeCloseTo(1, 9);
+    expect(controls().hostCameraRequest).toBe(controls().cameraRequest); // the host's slot, so the opening view yields to it
+    handle.setCamera({ lookOut: "earth", direction: "moon" });
+    expect(controls().cameraRequest).toEqual({ kind: "lookOut", body: "earth", direction: "moon" });
+    for (const bad of [{ lookOut: "" }, { lookOut: "nowhere" }, { lookOut: 3 }, { lookOut: "earth", direction: "nowhere" }, { lookOut: "earth", direction: "earth" }, { lookOut: "earth", direction: { raDeg: 10, decDeg: 91 } },
+      { lookOut: "earth", direction: { raDeg: Number.NaN, decDeg: 0 } }, { lookOut: "earth", direction: { raDeg: 1 } }, { lookOut: "earth", direction: 5 }, { lookOut: "earth", fovDeg: 4 }, { lookOut: "earth", fovDeg: 101 }, { lookOut: "earth", fovDeg: "40" },
+      { lookOut: "earth", extra: 1 }, { lookOut: "earth", direction: "moon", raDeg: 1, decDeg: 1 }, { lookOut: "earth", raDeg: 10 }]) {
+      expect(code(bad), JSON.stringify(bad)).toBe("bad-camera");
+    }
+    const heard: CameraPose[] = [];
+    handle.onCameraChange((pose) => heard.push(pose));
+    vi.advanceTimersByTime(100);
+    const sky = { lookOut: "mars", raDeg: 210.5, decDeg: -12.25, fovDeg: 45 };
+    controls().viewReadout = sky;
+    vi.advanceTimersByTime(100);
+    expect(heard).toEqual([sky]);
+    expect(handle.camera).toEqual(sky);
+    // A read sky pose goes back with setCamera (the flat form), and a lookOut with no direction keeps the one it looks along.
+    controls().cameraRequest = null;
+    handle.setCamera(handle.camera!);
+    const back = controls().cameraRequest as unknown as { body: string; direction: number[]; fovDeg: number };
+    expect(back.body).toBe("mars");
+    expect(back.fovDeg).toBe(45);
+    handle.setCamera({ lookOut: "earth", fovDeg: 20 });
+    const kept = (controls().cameraRequest as unknown as { direction: number[] }).direction;
+    expect(Math.atan2(kept[1], kept[0]) * 180 / Math.PI + 360).toBeCloseTo(210.5, 6);
+    // An orbit reading is still read and put back.
+    controls().viewReadout = { focus: "moon", azimuthDeg: 10, elevationDeg: 5, distance: 8 };
+    controls().cameraRequest = null;
+    handle.setCamera(handle.camera!);
+    expect(controls().cameraRequest).toMatchObject({ kind: "pose" });
+    opened.unmount();
+  });
+
+  it("look out: the scene opens looking out (camera.lookOut or a sky start view), and the build refuses a body not added", async () => {
+    prepared.real = true; openNow();
+    const scene = new Scene().addBody(earth).addBody(mars);
+    scene.camera.lookOut("mars", { direction: { raDeg: 12, decDeg: 34 }, fovDeg: 50 });
+    expect(definitionOf(scene).startView).toEqual({ lookOut: "mars", raDeg: 12, decDeg: 34, fovDeg: 50 });
+    const plain = new Scene().addBody(earth).addBody(mars);
+    plain.camera.lookOut("earth");
+    expect(definitionOf(plain).startView).toEqual({ lookOut: "earth", raDeg: 0, decDeg: 0, fovDeg: 60 });
+    scene.camera.setStartView({ focus: "earth", azimuthDeg: 1, elevationDeg: 2, distance: 3 }); // the last opening call wins
+    expect(definitionOf(scene).startView).toEqual({ focus: "earth", azimuthDeg: 1, elevationDeg: 2, distance: 3 });
+    scene.camera.setStartView({ lookOut: "mars", raDeg: 370, decDeg: 0, fovDeg: 20 });
+    expect(definitionOf(scene).startView).toMatchObject({ raDeg: 10 });
+    expect(codeOf(() => scene.camera.lookOut("moon"))).toBe("unknown-body");
+    expect(codeOf(() => scene.camera.setStartView({ lookOut: "moon", raDeg: 0, decDeg: 0, fovDeg: 20 }))).toBe("unknown-body");
+    for (const bad of [{ fovDeg: 4 }, { fovDeg: 101 }, { direction: { raDeg: 0, decDeg: 95 } }, { direction: { raDeg: Number.NaN, decDeg: 0 } }]) expect(codeOf(() => scene.camera.lookOut("earth", bad)), JSON.stringify(bad)).toBe("bad-camera");
+    expect(codeOf(() => scene.camera.setStartView({ lookOut: "earth", raDeg: 0, decDeg: 0 } as never))).toBe("bad-camera");
+    // Opened through either path: the opening reading is the sky reading, read before the first frame.
+    scene.camera.lookOut("mars", { fovDeg: 33 });
+    const opened = await driver.open(scene);
+    await opened.ready();
+    expect(opened.handle!.camera).toEqual({ lookOut: "mars", raDeg: 0, decDeg: 0, fovDeg: 33 });
+    opened.unmount();
+  });
+
   it("onCameraChange: reads the opening pose without reporting it, reports each change once (at most every 100 ms), nothing when unchanged or after unmount, and a throwing listener spares the others", async () => {
     openNow();
     const opened = await driver.open(new Scene());
@@ -450,7 +519,7 @@ describe.each([mountDriver, reactDriver(false)])("lifecycle: $name", (driver) =>
     vi.advanceTimersByTime(300); // settled: nothing more
     expect(heard.length).toBe(1);
     standAt(20); vi.advanceTimersByTime(100); standAt(30); vi.advanceTimersByTime(100); // a pose moving every tick: one report per tick
-    expect(heard.map((pose) => pose.azimuthDeg)).toEqual([10, 20, 30]);
+    expect(heard.map((pose) => (pose as { azimuthDeg: number }).azimuthDeg)).toEqual([10, 20, 30]);
     stop();
     standAt(40); vi.advanceTimersByTime(100);
     expect(heard.length).toBe(4);
@@ -501,16 +570,16 @@ describe("lifecycle: AstraeusScene under StrictMode", () => {
 });
 
 /** Every method that edits a scene or its camera, found by name so a future mutator cannot escape the freeze. */
-const mutators = (proto: object): string[] => Object.getOwnPropertyNames(proto).filter((name) => /^(add|set|follow|focus|fitOrbit)/.test(name) && typeof Object.getOwnPropertyDescriptor(proto, name)?.value === "function");
+const mutators = (proto: object): string[] => Object.getOwnPropertyNames(proto).filter((name) => /^(add|set|follow|focus|lookOut|fitOrbit)/.test(name) && typeof Object.getOwnPropertyDescriptor(proto, name)?.value === "function");
 
 describe("a mounted scene is frozen", () => {
-  it("every add, set, follow, focus and fitOrbit method of Scene and SceneCamera throws scene-mounted after mount; reads still answer", () => {
+  it("every add, set, follow, focus, lookOut and fitOrbit method of Scene and SceneCamera throws scene-mounted after mount; reads still answer", () => {
     prepared.real = true; openNow();
     const scene = new Scene().addBody("earth").addBody("moon");
     const sceneMethods = mutators(Scene.prototype);
     const cameraMethods = mutators(SceneCamera.prototype);
     expect(sceneMethods.length).toBeGreaterThanOrEqual(12);
-    expect(cameraMethods.sort()).toEqual(["fitOrbit", "focus", "follow", "setFollowChoices", "setReach", "setStartView"]);
+    expect(cameraMethods.sort()).toEqual(["fitOrbit", "focus", "follow", "lookOut", "setFollowChoices", "setReach", "setStartView"]);
     const element = document.createElement("div");
     document.body.append(element);
     const viewer = mount(element, scene);

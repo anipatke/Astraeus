@@ -4,7 +4,8 @@ import { catalogue } from "../src/assets/catalogue";
 import { readableScale } from "../src/core/scalePolicy";
 import { createOrbitCameraState, poseCamera, resolveCamera, type CameraRequest } from "../src/app/CameraController";
 import { FloatingOrigin } from "../src/app/floatingOrigin";
-import { clampFov, LOOK_OUT_FOV_RANGE_DEG, LOOK_OUT_NEAR, panLookOut, zoomLookOut } from "../src/app/lookOut";
+import { clampFov, LOOK_OUT_FOV_RANGE_DEG, LOOK_OUT_NEAR, panLookOut, skyViewOf, zoomLookOut } from "../src/app/lookOut";
+import { eqjUnitVector } from "../src/core/startView";
 import { eqjToRenderVector, type RenderVector } from "../src/app/renderCoordinates";
 import { stepCameraTarget, type CameraStepInput } from "../src/app/sceneCamera";
 import type { SceneTargets } from "../src/app/sceneTargets";
@@ -161,5 +162,21 @@ describe("hiddenWithLookOut", () => {
     expect([...merged!.objects].sort()).toEqual(["earth", "moon"]);
     expect(merged!.panels).toBe(hidden.panels);
     expect(hiddenWithLookOut(undefined, "earth")!.objects.has("earth")).toBe(true);
+  });
+});
+
+describe("the sky reading", () => {
+  it("reads back the direction a look-out request set, for either up, to the rounding of a link (made-up directions, not one catalogue star)", () => {
+    for (const up of ["equatorial", "ecliptic"] as const) {
+      for (const [ra, dec] of [[0, 0], [83.63, 22.01], [210.5, -12.25], [359.99, 89], [120, -89]] as const) {
+        const { step } = run({ kind: "lookOut", body: "mars", direction: eqjUnitVector(ra, dec), fovDeg: 33.333 }, { viewUp: viewUpVector(up) });
+        const { lookOut } = step.camState;
+        const sky = skyViewOf("mars", step.camState.azimuth, step.camState.elevation, viewUpVector(up), lookOut!.fovDeg);
+        expect(sky.lookOut).toBe("mars");
+        expect(sky.fovDeg).toBe(33.33);
+        expect(sky.decDeg).toBeCloseTo(dec, 1);
+        expect(Math.abs(((sky.raDeg - ra + 540) % 360) - 180)).toBeLessThan(0.02 / Math.max(0.05, Math.cos((dec * Math.PI) / 180)));
+      }
+    }
   });
 });

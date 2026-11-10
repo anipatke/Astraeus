@@ -1,3 +1,4 @@
+import { eqjUnitVector, isSkyView, type StartView } from "../src/core/startView";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { Group } from "three";
 import { SimulationClock } from "../src/core/clock";
@@ -97,7 +98,7 @@ describe("stepAndPoseCamera", () => {
     expect(told).toHaveBeenCalledTimes(1);
     expect(ctx.orbit.focus).toBe("moon");
     expect(ctx.state.started).toBe(true);
-    expect(ctx.controls.viewReadout?.focus).toBe("moon");
+    expect((ctx.controls.viewReadout as StartView | undefined)?.focus).toBe("moon");
     ctx.orbit.focus = "earth";
     stepAndPoseCamera(ctx, T0, placed);
     expect(raf).toHaveBeenCalledTimes(1);
@@ -147,6 +148,28 @@ describe("look out through the frame stages", () => {
     expect(ctx.camera.fov).toBe(45);
     expect(hiddenOf(ctx)).toBeUndefined();
     expect(groups.get("earth")!.visible).toBe(true);
+  });
+
+  it("reads the camera as a sky reading while looking out (never orbit values), and as an orbit view again on return", () => {
+    vi.stubGlobal("requestAnimationFrame", vi.fn());
+    const { ctx } = makeContext();
+    const placed = placeScene(ctx, T0);
+    ctx.controls.cameraRequest = { kind: "lookOut", body: "earth", direction: eqjUnitVector(83.63, 22.01), fovDeg: 40 };
+    stepAndPoseCamera(ctx, T0, placed);
+    expect(ctx.controls.viewReadout).toEqual({ lookOut: "earth", raDeg: 83.63, decDeg: 22.01, fovDeg: 40 });
+    ctx.controls.cameraRequest = { kind: "focus", target: "moon" };
+    stepAndPoseCamera(ctx, T0, placed);
+    expect(isSkyView(ctx.controls.viewReadout!)).toBe(false);
+  });
+
+  it("opens looking out when the start view is a sky view", () => {
+    vi.stubGlobal("requestAnimationFrame", vi.fn());
+    const { ctx } = makeContext();
+    const placed = placeScene(ctx, T0);
+    ctx.controls.startView = { lookOut: "moon", raDeg: 200, decDeg: -30, fovDeg: 25 };
+    stepAndPoseCamera(ctx, T0, placed);
+    expect(ctx.camera.fov).toBe(25);
+    expect(ctx.controls.viewReadout).toEqual({ lookOut: "moon", raDeg: 200, decDeg: -30, fovDeg: 25 });
   });
 });
 

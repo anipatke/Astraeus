@@ -1,5 +1,6 @@
 // O-059 T-266: the small public settings, each proved on a made-up scene that changes that one input alone (ARCH-03; Guardrails API-02: `Scene` calls reach the viewer
 // through `toDefinition`, which `mount` and `AstraeusScene` both use, so one path covers both). Defaults are asserted beside each setting.
+import type { StartView } from "../src/core/startView";
 import { describe, expect, it } from "vitest";
 import { Scene, SceneError, earth, moon, sun, type DataSource } from "astraeus";
 import { catalogue } from "../src/assets/catalogue";
@@ -150,7 +151,7 @@ describe("SceneCamera.setStartView", () => {
     const built = scene();
     built.camera.setStartView(pose).follow("earth");
     expect(definitionOf(built, [everything]).experience.startCameraPresetId).toBe("follow-earth");
-    expect(definitionOf(built, [everything]).startView?.focus).toBe("earth");
+    expect((definitionOf(built, [everything]).startView as StartView | undefined)?.focus).toBe("earth");
     const back = scene();
     back.camera.focus("earth").setStartView(pose);
     const definition = definitionOf(back, [everything]);

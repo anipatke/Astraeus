@@ -6,7 +6,7 @@ import { createRoot, type Root } from "react-dom/client";
 import { afterEach, describe, expect, it } from "vitest";
 import { ViewLinkReadout } from "../src/app/DeveloperSettings";
 import { shareViewLink } from "../src/app/address";
-import { formatView, parseView, viewFromSearch, type StartView } from "../src/app/viewLink";
+import { formatView, parseView, viewFromSearch, type SkyView, type StartView } from "../src/app/viewLink";
 import { ScaleControl } from "../src/shell/ScaleControl";
 import { scaleChoicesFor } from "../src/shell/scaleModel";
 import { $, press, pressKey } from "./domSetup";
@@ -117,7 +117,7 @@ describe("Copy view link (browser-view-link)", () => {
   it("opens in a fresh page at the same view (focus, angles, distance)", async () => {
     withClipboard(async () => undefined);
     const shared = await shareViewLink(state);
-    const restored = viewFromSearch(new URL(shared.url).search)!;
+    const restored = viewFromSearch(new URL(shared.url).search)! as StartView;
     expect(restored.focus).toBe(view.focus);
     expect(restored.azimuthDeg).toBeCloseTo(view.azimuthDeg, 1);
     expect(restored.elevationDeg).toBeCloseTo(view.elevationDeg, 1);
@@ -137,6 +137,26 @@ describe("Copy view link (browser-view-link)", () => {
   it("says Copied to the clipboard when it worked", () => {
     const page = mount(createElement(ViewLinkReadout, { viewNow: null, viewLink: { url: "http://x/?view=a", copied: true }, scale: "true-scale", upChoice: "ecliptic" }));
     expect($(page, ".view-link-field span").textContent).toBe("Copied to the clipboard.");
+  });
+
+  it("carries a sky view (body, right ascension, declination, field of view) and opens looking out from the same link", async () => {
+    withClipboard(async () => undefined);
+    const sky: SkyView = { lookOut: "mars", raDeg: 210.5, decDeg: -12.25, fovDeg: 45 };
+    const shared = await shareViewLink({ ...state, view: sky });
+    expect(new URL(shared.url).searchParams.get("view")).toBe("mars,210.5,-12.25,45,sky");
+    expect(viewFromSearch(new URL(shared.url).search)).toEqual(sky);
+    expect(parseView(formatView({ lookOut: "a b", raDeg: 0, decDeg: 90, fovDeg: 5 }))).toEqual({ lookOut: "a b", raDeg: 0, decDeg: 90, fovDeg: 5 });
+    expect(parseView("earth,360,0,60,sky")).toMatchObject({ raDeg: 0 }); // the right ascension wraps, as the azimuth does
+    const page = mount(createElement(ViewLinkReadout, { viewNow: sky, viewLink: shared, scale: "readable-scale", upChoice: "ecliptic" }));
+    expect($(page, '[data-testid="view-values"]').textContent).toContain("View: mars,210.5,-12.25,45,sky (body, right ascension");
+  });
+
+  it("refuses a bad sky view as a bad orbit view is refused, and still tells the two kinds apart by the fifth part", () => {
+    for (const text of ["earth,10,95,60,sky", "earth,10,0,4,sky", "earth,10,0,101,sky", "earth,x,0,60,sky", "earth,10,0,,sky", ",10,0,60,sky", "earth,10,0,60,orbit", "earth,10,0,60,sky,extra"]) {
+      expect(() => parseView(text), text).toThrow(RangeError);
+      expect(viewFromSearch(`?view=${text}`), text).toBeUndefined();
+    }
+    expect(parseView("earth,10,20,3")).toMatchObject({ focus: "earth", distance: 3 });
   });
 
   it("opens the experience as usual on a malformed link", () => {

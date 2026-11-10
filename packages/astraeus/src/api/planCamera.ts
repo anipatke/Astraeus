@@ -6,8 +6,8 @@ import type { BodyRef } from "./bodies";
 import { SceneError } from "./errors";
 import { frozenCopy } from "./frozenCopy";
 import type { FollowView } from "./scene";
-import type { CameraPose } from "./viewerLink";
-import { validateStartView } from "../core/startView";
+import type { CameraPose, SkyDirection } from "./viewerLink";
+import { validateCameraView } from "../core/startView";
 import { farthestSunDistanceKm } from "./sunOrbit";
 import { planetSeriesLoaded } from "../core/planetSeries";
 import type { TimelineSetting } from "./story";
@@ -49,18 +49,36 @@ export class SceneCamera {
     return this;
   }
   /**
-   * Opens at a pose with no camera button pressed (neither Focus nor Follow shows as pressed, and choosing another body moves the camera as it does without a start). The pose is what `ViewerHandle.camera` reads:
-   * `{ focus, azimuthDeg, elevationDeg, distance }`, distance in Earth radii. `focus` must be a body or trajectory already added (else `unknown-body`); a bad angle or distance throws `bad-camera`.
-   * The last of `follow`, `focus` and `setStartView` wins. Default: none.
+   * Opens standing inside a body (at its centre) and looking out, with no camera button pressed. `body` must be a body or trajectory already added (else `unknown-body`).
+   * `look.direction` is a star-map position (`{ raDeg, decDeg }`, J2000 equatorial degrees; default right ascension 0, declination 0) and `look.fovDeg` the vertical field of view in degrees (5 to 100; default 60);
+   * a direction or field of view out of range throws `bad-camera`. Same as `setStartView` with a sky pose. The last of `follow`, `focus`, `lookOut` and `setStartView` wins.
+   * @example
+   * scene.camera.lookOut("earth", { direction: { raDeg: 83.6, decDeg: 22 }, fovDeg: 40 });
+   */
+  lookOut(body: BodyRef | BodyId, look: { readonly direction?: SkyDirection; readonly fovDeg?: number } = {}): this {
+    const id = typeof body === "string" ? body : body?.id;
+    const direction = look?.direction;
+    if (direction !== undefined && (typeof direction !== "object" || direction === null)) throw new SceneError("bad-camera", "camera.lookOut: direction must be { raDeg, decDeg }");
+    return this.#start({ lookOut: id, raDeg: direction?.raDeg ?? 0, decDeg: direction?.decDeg ?? 0, fovDeg: look?.fovDeg ?? 60 }, "camera.lookOut");
+  }
+  /**
+   * Opens at a pose with no camera button pressed (neither Focus nor Follow shows as pressed, and choosing another body moves the camera as it does without a start). The pose is what `ViewerHandle.camera` reads, either kind:
+   * an orbit pose `{ focus, azimuthDeg, elevationDeg, distance }` (distance in Earth radii), or a sky pose `{ lookOut, raDeg, decDeg, fovDeg }` (standing inside a body, looking out).
+   * `focus` or `lookOut` must be a body or trajectory already added (else `unknown-body`); a bad angle, distance or field of view throws `bad-camera`.
+   * The last of `follow`, `focus`, `lookOut` and `setStartView` wins. Default: none.
    * @example
    * scene.camera.setStartView({ focus: "earth", azimuthDeg: 20, elevationDeg: 30, distance: 40 });
    */
   setStartView(pose: CameraPose): this {
+    return this.#start(pose, "camera.setStartView");
+  }
+  #start(pose: unknown, call: string): this {
     this.#editable();
-    const focus = (pose as { focus?: unknown } | null)?.focus;
-    if (typeof focus === "string" && !this.#has(focus)) throw new SceneError("unknown-body", `camera.setStartView: "${focus}" has not been added to the scene`);
+    const record = pose as { focus?: unknown; lookOut?: unknown } | null;
+    const named = record?.lookOut ?? record?.focus;
+    if (typeof named === "string" && !this.#has(named)) throw new SceneError("unknown-body", `${call}: "${named}" has not been added to the scene`);
     try {
-      this.#pose = validateStartView(pose, "camera.setStartView pose");
+      this.#pose = validateCameraView(pose, `${call} pose`);
     } catch (error) {
       if (error instanceof RangeError) throw new SceneError("bad-camera", error.message);
       throw error;

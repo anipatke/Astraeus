@@ -22,9 +22,9 @@ export interface ViewerHandle {
   setRate(rate: number | "auto"): void;
   /** Switches to the view with this id (`setViews`). An unknown id, or a scene without views, throws `bad-view`; before `ready` or after `unmount` throws `not-mounted`. `onChange` hears it with `cause: "host"`. */
   setView(id: string): void;
-  /** The camera as a plain value ({ focus, azimuthDeg, elevationDeg, distance }, the pose a copied view link carries); undefined until `ready` and after `unmount`; before the first frame is drawn it is the opening camera. Keep it and hand it to `setCamera` to put the camera back. */
+  /** The camera as a plain value (an orbit pose `{ focus, azimuthDeg, elevationDeg, distance }`, or a sky pose `{ lookOut, raDeg, decDeg, fovDeg }` while looking out; the pose a copied view link carries); undefined until `ready` and after `unmount`; before the first frame is drawn it is the opening camera. Keep it and hand it to `setCamera` to put the camera back. */
   readonly camera: CameraPose | undefined;
-  /** Points the camera: `{ follow: id }` keeps the distance, `{ focus: id }` frames the object, or a pose from `camera` puts it back where it was read (relative to its object, which a moving object carries along). The object must be one the showing view shows; an unknown or hidden id, or a malformed argument, throws `bad-camera`; before `ready` or after `unmount`, `not-mounted`. The camera eases there. */
+  /** Points the camera: `{ follow: id }` keeps the distance, `{ focus: id }` frames the object, `{ lookOut: id, direction?, fovDeg? }` stands inside a body looking out (direction: `{ raDeg, decDeg }` or an object id), or a pose from `camera` (either kind) puts it back where it was read (an orbit pose relative to its object, which a moving object carries along). The object must be one the showing view shows; an unknown or hidden id (the body or the object to turn toward), a direction or field of view out of range, or a malformed argument, throws `bad-camera`; before `ready` or after `unmount`, `not-mounted`. The camera eases there. */
   setCamera(target: CameraTarget): void;
   /** The ids of the events whose zone (`withinSeconds` of an event, or a pacing rule) holds the viewer's time now, among the zones the showing view has (an empty list in a scene without event zones); undefined until `ready` and after `unmount`. */
   readonly eventZones: readonly string[] | undefined;
@@ -48,7 +48,7 @@ export interface ViewerHandle {
    */
   onSelect(listener: (change: SelectionChange) => void): () => void;
   /**
-   * Calls `listener(pose)` with the camera as a plain value ({ focus, azimuthDeg, elevationDeg, distance }, what `camera` reads) when it changes: a visitor's drag, zoom or pick, a view's camera rule, or your own `setCamera`
+   * Calls `listener(pose)` with the camera as a plain value (an orbit pose or a sky pose, what `camera` reads) when it changes: a visitor's drag, zoom or pick, a view's camera rule, or your own `setCamera`
    * (it reports as the camera eases, then stops when the pose settles). At most about ten times a second; an unchanged pose reports nothing, and neither does a camera following a moving object at a fixed pose.
    * The pose the viewer opens with is read from `camera`, not reported. The engine moves nothing in response. No callbacks arrive after `unmount`. A listener that throws is reported to the page (`reportError`) and does not stop the listeners after it. Returns the function that stops it.
    */

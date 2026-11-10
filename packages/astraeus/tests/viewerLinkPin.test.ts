@@ -218,7 +218,7 @@ describe("ViewerLink setters", () => {
       `camera ${JSON.stringify({ kind: "pose", view: { focus: "earth", azimuthDeg: 10, elevationDeg: 20, distance: 5 } })}`,
     ]);
     expect(code(() => link.setCamera({ follow: "mars" }))).toBe('bad-camera: setCamera: "mars" is not an object the showing view shows (earth, moon)');
-    const tail = "; give { follow: id }, { focus: id } or a pose from camera";
+    const tail = "; give { follow: id }, { focus: id }, { lookOut: id, direction?, fovDeg? } or a pose from camera";
     expect(code(() => link.setCamera(null as never))).toBe(`bad-camera: setCamera: null is not an object${tail}`);
     expect(code(() => link.setCamera([] as never))).toBe(`bad-camera: setCamera: ${String([])} is not an object${tail}`);
     expect(code(() => link.setCamera({ follow: "earth", focus: "moon" } as never))).toBe(`bad-camera: setCamera: the target must be exactly one of follow or focus, naming a non-empty id${tail}`);
@@ -335,7 +335,7 @@ describe("ViewerLink camera (O-054 T-248)", () => {
     vi.useFakeTimers({ toFake: ["performance"] });
     const link = new ViewerLink();
     const heard: unknown[] = [];
-    link.onCameraChange((p) => heard.push(p));
+    link.onCameraChange((p) => heard.push(p as { azimuthDeg: number }));
     const { control, set, move } = fake();
     pub(link, set); // before attach
     link.attach(control);
@@ -354,7 +354,7 @@ describe("ViewerLink camera (O-054 T-248)", () => {
     vi.useFakeTimers({ toFake: ["performance"] });
     const link = new ViewerLink();
     const heard: Array<{ azimuthDeg: number }> = [];
-    link.onCameraChange((p) => heard.push(p));
+    link.onCameraChange((p) => heard.push(p as { azimuthDeg: number }));
     const { control, set, move } = fake();
     link.attach(control);
     for (let az = 10; az <= 15; az += 1) { move({ azimuthDeg: az }); pub(link, set); vi.advanceTimersByTime(20); } // six changes in 120 ms: two reports
@@ -368,7 +368,7 @@ describe("ViewerLink camera (O-054 T-248)", () => {
     const link = new ViewerLink();
     const heard: number[] = [];
     link.onCameraChange(() => { throw new Error("boom"); });
-    link.onCameraChange((p) => heard.push(p.azimuthDeg));
+    link.onCameraChange((p) => heard.push((p as { azimuthDeg: number }).azimuthDeg));
     const stop = link.onCameraChange(() => heard.push(-1));
     const { control, set, move } = fake();
     link.attach(control);

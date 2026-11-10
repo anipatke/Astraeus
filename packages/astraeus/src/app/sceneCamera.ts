@@ -25,10 +25,11 @@ import { clampFov, clampLookElevation, LOOK_OUT_OPENING_FOV_DEG } from "./lookOu
 import { eqjToRenderVector } from "./renderCoordinates";
 import { orbitAnglesFor, orbitBasis } from "./viewUp";
 import type { StartView } from "./viewLink";
+import { eqjUnitVector, isSkyView, type CameraView } from "../core/startView";
 
 /** The two control fields the camera step reads and clears. */
 export interface CameraControls {
-  startView?: StartView;
+  startView?: CameraView;
   cameraRequest: CameraRequest | null;
   /** The host's last `setCamera`, kept apart from `cameraRequest` so the opening view and a view's own camera rule cannot discard it (the host-call order rule). */
   hostCameraRequest?: CameraRequest | null;
@@ -78,8 +79,9 @@ function applyStartView(camState: OrbitCameraState, view: StartView): void {
 function openFirstFrame(input: CameraStepInput): boolean {
   const { camState, controls, targets, frame, reach } = input;
   const view = controls.startView;
-  if (view !== undefined && canFocus(targets, view.focus)) {
-    applyStartView(camState, view);
+  if (view !== undefined && canFocus(targets, isSkyView(view) ? view.lookOut : view.focus)) {
+    if (isSkyView(view)) applyLookOut(input, { kind: "lookOut", body: view.lookOut, direction: eqjUnitVector(view.raDeg, view.decDeg), fovDeg: view.fovDeg });
+    else applyStartView(camState, view);
     // The opening view replaces any request made before the first frame, except the host's: that one is applied after it.
     controls.cameraRequest = controls.hostCameraRequest ?? null;
     return false;

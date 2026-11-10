@@ -1,5 +1,6 @@
 // @vitest-environment happy-dom
 // The engine's small public API (O-036 T-160): a scene built with the documented calls becomes the app's definition, bad input fails with a named error, and mount/unmount leaves nothing behind.
+import type { StartView } from "../src/core/startView";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { act, createElement } from "react";
 import { createRoot, type Root } from "react-dom/client";
@@ -53,7 +54,7 @@ describe("Scene", () => {
     expect(trackedBodiesOf(definition).map((body) => body.id)).toEqual(["apollo11"]);
     expect(definition.clock.startUtcMs).toBe(Date.parse(T0));
     expect(scaleChoiceIdsOf(definition)).toEqual(["readable-scale", "true-scale"]);
-    expect(definition.startView?.focus).toBe("apollo11");
+    expect((definition.startView as StartView | undefined)?.focus).toBe("apollo11");
     expect(definition.experience.startCameraPresetId).toBe("follow-apollo11");
     expect(definition.experience.cameraPresets.map((preset) => preset.id)).toEqual(["overview", "focus-earth", "follow-earth", "focus-moon", "follow-moon", "focus-apollo11", "follow-apollo11"]);
     expect(definition.experience.objects.map((object) => object.id)).toEqual(["earth", "moon", "apollo11"]);

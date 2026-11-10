@@ -212,6 +212,11 @@
           "signature": "(id: string, view?: FollowView): SceneCamera"
         },
         {
+          "name": "lookOut",
+          "optional": false,
+          "signature": "(body: BodyRef | BodyId, look?: { readonly direction?: SkyDirection; readonly fovDeg?: number; }): SceneCamera"
+        },
+        {
           "name": "setStartView",
           "optional": false,
           "signature": "(pose: CameraPose): SceneCamera"
@@ -2679,6 +2684,12 @@
       ]
     },
     "CameraPose": {
+      "kind": "type",
+      "signature": "OrbitPose | SkyPose",
+      "constructors": [],
+      "members": []
+    },
+    "OrbitPose": {
       "kind": "interface",
       "signature": "",
       "constructors": [],
@@ -2705,9 +2716,75 @@
         }
       ]
     },
+    "SkyPose": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "lookOut",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "raDeg",
+          "optional": false,
+          "signature": "number"
+        },
+        {
+          "name": "decDeg",
+          "optional": false,
+          "signature": "number"
+        },
+        {
+          "name": "fovDeg",
+          "optional": false,
+          "signature": "number"
+        }
+      ]
+    },
+    "SkyDirection": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "raDeg",
+          "optional": false,
+          "signature": "number"
+        },
+        {
+          "name": "decDeg",
+          "optional": false,
+          "signature": "number"
+        }
+      ]
+    },
+    "LookOutTarget": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "lookOut",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "direction",
+          "optional": true,
+          "signature": "string | SkyDirection | undefined"
+        },
+        {
+          "name": "fovDeg",
+          "optional": true,
+          "signature": "number | undefined"
+        }
+      ]
+    },
     "CameraTarget": {
       "kind": "type",
-      "signature": "{ readonly follow: string } | { readonly focus: string } | CameraPose",
+      "signature": "{ readonly follow: string } | { readonly focus: string } | LookOutTarget | CameraPose",
       "constructors": [],
       "members": []
     },

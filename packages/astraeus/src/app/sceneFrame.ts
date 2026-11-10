@@ -29,6 +29,7 @@ import type { SceneLabelLayer } from "./SceneLabels";
 import { updateSky } from "./sceneSky";
 import { labelPositionOf, type SceneTargets } from "./sceneTargets";
 import type { StoryMarkerLayer } from "./StoryMarkers";
+import { skyViewOf } from "./lookOut";
 import { hiddenWithLookOut, type ViewHidden } from "./viewHiding";
 import { viewFromAngles } from "./viewLink";
 import { EQUATORIAL_UP } from "./viewUp";
@@ -199,7 +200,8 @@ export function stepAndPoseCamera(ctx: FrameContext, t: number, placed: PlacedSc
   placeBodies(ctx.assets, placed.composed.states, ctx.bodyRefs, policy, ctx.origin);
   poseCamera(camera, orbit, focusRadius(focusBody, policy, catalogue), ctx.origin, reach.far ?? DEFAULT_CAMERA_FAR, viewUp);
   if (firstFrame && state.onFirstDraw !== undefined) { const told = state.onFirstDraw; requestAnimationFrame(told); }
-  controls.viewReadout = viewFromAngles(orbit.focus, orbit.azimuth, orbit.elevation, orbit.distance);
+  // Looking out, the angles are the way the camera looks, not an offset from a target: a sky reading, never orbit values.
+  controls.viewReadout = orbit.lookOut === null ? viewFromAngles(orbit.focus, orbit.azimuth, orbit.elevation, orbit.distance) : skyViewOf(orbit.focus, orbit.azimuth, orbit.elevation, viewUp, orbit.lookOut.fovDeg);
   return { targets };
 }
 

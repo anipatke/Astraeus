@@ -14,7 +14,7 @@ import { AstraeusShell, type SelectionOrigin } from "../shell/AstraeusShell";
 import type { ViewChoice } from "../shell/DisplaySwitches";
 import type { ExperienceCameraRequest } from "../shell/experience";
 import { SCALE_CHOICES, scaleChoicesFor, scalePolicyFor, startScaleFor, type ScaleId } from "../shell/scaleModel";
-import { scaleFromSearch, showFromSearch, timeFromSearch, viewFromAngles, viewFromSearch, type StartView } from "./viewLink";
+import { scaleFromSearch, showFromSearch, timeFromSearch, viewFromAngles, viewFromSearch, type CameraView } from "./viewLink";
 import { createOrbitCameraState } from "./CameraController";
 import { START_CAMERA_DISTANCE } from "./sceneFraming";
 import { addressSearch, shareViewLink } from "./address";
@@ -163,7 +163,7 @@ function showsDisplayControls(definition: ExperienceDefinition, runtime: Runtime
 }
 
 /** The camera as the scene opens it (the start view, else its default framing): what a host reads before the scene's first frame writes `viewReadout`. */
-function openingCamera(definition: ExperienceDefinition, runtime: Runtime, search: string): StartView {
+function openingCamera(definition: ExperienceDefinition, runtime: Runtime, search: string): CameraView {
   const start = viewFromSearch(search) ?? definition.startView;
   if (start !== undefined) return start;
   const opening = createOrbitCameraState(START_CAMERA_DISTANCE, runtime.sceneCenter);
@@ -324,7 +324,7 @@ export function App({ definition, writeTitle = true, address, developerTools, ho
   const [hud, setHud] = useState<DebugReadout | null>(null);
   const [frames, setFrames] = useState<FrameSnapshot | null>(null);
   const [fpsHistory, setFpsHistory] = useState<readonly number[]>([]);
-  const [viewNow, setViewNow] = useState<StartView | null>(null);
+  const [viewNow, setViewNow] = useState<CameraView | null>(null);
   const [viewLink, setViewLink] = useState<{ readonly url: string; readonly copied: boolean } | null>(null);
   const [fills, setFills] = useState<readonly GroupFill[]>([]);
   const updateCameraRequest = useCallback((request: ExperienceCameraRequest) => {
@@ -444,7 +444,7 @@ export function App({ definition, writeTitle = true, address, developerTools, ho
     return experience.objects.map(({ id }) => id).filter((id) => hidden === undefined || !hidden.has(id));
   }, [experience]);
   const opening = useMemo(() => openingCamera(definition, runtime, search), []); // eslint-disable-line react-hooks/exhaustive-deps
-  const readCamera = useCallback((): StartView | undefined => {
+  const readCamera = useCallback((): CameraView | undefined => {
     return { ...(controls.current.viewReadout ?? opening) };
   }, [opening]);
   // A host camera call is the last word: it is also kept in `hostCameraRequest`, so the opening view (first frame) and a view's own camera rule (shell) yield to it.

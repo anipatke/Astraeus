@@ -1,5 +1,5 @@
 // Planet settings: the settings types and their strict validation from a planet file (data/planets/<planet>.json), the Showers pattern.
-import type { CameraPose } from "astraeus";
+import type { OrbitPose } from "astraeus";
 
 /** A plain object read from JSON-like data. */
 type Raw = Readonly<Record<string, unknown>>;
@@ -52,7 +52,7 @@ export interface PlanetSettings {
   /** Repo-relative path of the story's panels file (`data/stories/<story>/panels.json`). */
   readonly story: { readonly panels: string };
   readonly camera: { readonly maxFocusDistance: number; readonly far: number };
-  readonly startView: CameraPose;
+  readonly startView: OrbitPose;
 }
 
 export class PlanetSettingsError extends TypeError {
@@ -97,7 +97,7 @@ function positive(parent: Raw, key: string, path: string): number {
 const MAX_ELEVATION_DEG = 89;
 
 /** Checks the opening camera view's fields, naming the offending one; returns the view with the azimuth wrapped to 0 up to 360. */
-function startViewOf(raw: unknown, where: string): CameraPose {
+function startViewOf(raw: unknown, where: string): OrbitPose {
   const view = record(raw, where);
   for (const key of Object.keys(view)) if (!["focus", "azimuthDeg", "elevationDeg", "distance"].includes(key)) fail(`${where}.${key}`, "is not a view field");
   const focus = text(view, "focus", where);

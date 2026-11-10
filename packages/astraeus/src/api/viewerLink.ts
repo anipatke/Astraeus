@@ -49,8 +49,8 @@ export interface EventZoneChange {
   readonly via: "time" | "view";
 }
 
-/** The camera as a plain value: the object it is centred on and where it stands from it. Read from `MountedScene.camera`, put back with `setCamera`. */
-export interface CameraPose {
+/** The camera orbiting an object, as a plain value: the object it is centred on and where it stands from it. One of the two kinds of `CameraPose`. */
+export interface OrbitPose {
   /** The id of the object the camera is centred on (and follows as it moves). */
   readonly focus: string;
   /** Degrees about the up direction, 0 up to 360 (rounded to 0.01). */
@@ -61,8 +61,44 @@ export interface CameraPose {
   readonly distance: number;
 }
 
-/** What `setCamera` takes: follow an object (keep the distance), focus it (frame it), or put the camera back on a pose from `camera`. */
-export type CameraTarget = { readonly follow: string } | { readonly focus: string } | CameraPose;
+/** A star-map position: J2000 equatorial degrees (the engine's EQJ frame). */
+export interface SkyDirection {
+  /** Right ascension in degrees, 0 up to 360 (a value outside wraps). */
+  readonly raDeg: number;
+  /** Declination in degrees, within ±90. */
+  readonly decDeg: number;
+}
+
+/** The camera standing inside a body and looking out, as a plain value: the body, where it points and its field of view. One of the two kinds of `CameraPose`. */
+export interface SkyPose {
+  /** The id of the body the camera stands in (at its centre). */
+  readonly lookOut: string;
+  /** Right ascension of the look direction, degrees 0 up to 360, J2000 equatorial (rounded to 0.01). */
+  readonly raDeg: number;
+  /** Declination of the look direction, degrees within ±90, J2000 equatorial (rounded to 0.01). */
+  readonly decDeg: number;
+  /** Vertical field of view in degrees, 5 to 100: the zoom (rounded to 0.01). */
+  readonly fovDeg: number;
+}
+
+/**
+ * What `MountedScene.camera` reads and `onCameraChange` reports: an orbit pose (has `distance`) while the camera orbits an object, or a sky pose
+ * (has `lookOut`) while it stands inside a body looking out. Tell them apart with `"lookOut" in pose`; put either back with `setCamera`.
+ */
+export type CameraPose = OrbitPose | SkyPose;
+
+/** Stand inside a body (at its centre) and look out: turned to a star-map position or toward an object, with an optional field of view. */
+export interface LookOutTarget {
+  /** The id of the body to stand in; a body the showing view shows. */
+  readonly lookOut: string;
+  /** Where to point: a star-map position, or the id of an object to turn toward. Omitted: the direction it already looks while looking out, else right ascension 0, declination 0. */
+  readonly direction?: SkyDirection | string;
+  /** Vertical field of view in degrees, 5 to 100. Omitted: the current one while looking out, else 60. */
+  readonly fovDeg?: number;
+}
+
+/** What `setCamera` takes: follow an object (keep the distance), focus it (frame it), look out from a body, or put the camera back on a pose from `camera`. */
+export type CameraTarget = { readonly follow: string } | { readonly focus: string } | LookOutTarget | CameraPose;
 
 /** Where the playback rate comes from. `scene` is the rate the scene opened at; `chosen` is one a visitor or the host picked, which stays until it is released. */
 export type RateSource = "scene" | "chosen";

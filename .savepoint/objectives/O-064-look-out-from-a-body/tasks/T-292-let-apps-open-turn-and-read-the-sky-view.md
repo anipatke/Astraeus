@@ -2,7 +2,7 @@
 id: T-292
 title: Let apps open, turn and read the sky view
 objective: O-064
-status: planned
+status: done
 depends_on: [{task: T-291, requires: clear}]
 owner_validation: {required: false}
 check_waiver: {task: T-292, reason: 'Owner said "orchestrate o64" under the standing run rules (one builder at a time, no per-step checks, coordinator marks done once gates pass and any owner look is given, one Full Objective Check at the end); the optional Task Check is waived.', actor: {role: owner, session: o064-run-20261110}, recorded_at: '2026-11-10T01:37:08Z'}
@@ -59,8 +59,22 @@ Focused Vitest runs while building; hand-off gates `npm run lint`, `npm run type
 
 ## Technical Evidence
 
-Pending execution.
+Builder session (stage build -> test -> audit; step check waived, coordinator marks done). Extra reads (not in Context Files): `src/app/sceneCamera.ts` and `src/app/sceneFrame.ts` (the viewReadout write and the opening view, both named by the hand-off), `src/app/lookOut.ts`, `src/app/CameraController.tsx`, `src/app/viewUp.ts` and `src/app/renderCoordinates.ts` (the T-291 internals this step builds on), `src/app/DeveloperSettings.tsx`, `src/app/AstraeusScene.tsx`, `src/app/experienceDefinition.ts` (types that carried the orbit-only view), `tests/sceneFrame.test.ts`, `tests/lookOut.test.ts`, `tests/sceneInputCopies.test.ts`, `tests/domMenuAndLink.test.ts` (the tests those types broke and the harness for new ones).
+
+T-291 internals confirmed present (no REPLAN): the internal `lookOut` request, `OrbitCameraState.lookOut`, `directionAt`, `orbitAnglesFor`.
+
+Per Done-When:
+- Types: `OrbitPose` (today's fields), `SkyPose { lookOut, raDeg, decDeg, fovDeg }`, `CameraPose = OrbitPose | SkyPose`, `SkyDirection { raDeg, decDeg }`, `LookOutTarget { lookOut, direction?: SkyDirection | string, fovDeg? }`, `CameraTarget` gains `LookOutTarget`; all exported from `src/api/index.ts`, documented. Evidence: typecheck, api-surface lock (`api-surface.lock.json`), reachable-type check and public-type lint inside `npm test`.
+- `setCamera` check (`src/api/viewerCamera.ts`): unknown or hidden body, unknown object direction, direction equal to the body, ra/dec not finite, dec beyond +-90, fov outside 5..100, extra keys, a half-given ra/dec pair, direction with raDeg/decDeg together: all `bad-camera` at the call (`tests/lifecycle.test.ts` "look out: setCamera ...", both paths, 15 bad shapes). Sky readings read, heard and put back (flat pose form), orbit readings still put back. The viewer's `viewReadout` is now a sky reading while `orbit.lookOut` is set (`sceneFrame.ts`; `tests/sceneFrame.test.ts`).
+- Opening: `scene.camera.lookOut(body, { direction?, fovDeg? })` and `setStartView(sky pose)`; last opening call wins; unknown body -> `unknown-body`, bad values -> `bad-camera`; the first frame applies a sky start view as a look-out (`tests/sceneFrame.test.ts` "opens looking out"); `handle.camera` reads the sky opening before the first frame (lifecycle, both paths). `unknown-body` for a body not added is raised at the call and again when the scene is built via the same `#has` check.
+- Share link: `?view=body,raDeg,decDeg,fovDeg,sky` (fifth part tells the kinds apart); `core/startView.ts` `validateSkyView`/`validateCameraView`, `app/viewLink.ts` `formatView`/`parseView`; bad sky views are refused like a bad orbit view (`tests/domMenuAndLink.test.ts`, 8 bad texts). The address-to-setting mapping (API-06) is unchanged in kind: the view address overrides the public camera readings; `apiRules` passes.
+- Lifecycle suite on both embedding paths (mount, AstraeusScene, StrictMode) in `tests/lifecycle.test.ts`; the host's slot (`hostCameraRequest`) is the same object as the request (O-061 order rule); the frozen-scene mutator list gains `lookOut`.
+- Docs: lock, README (camera rows, handle rows, `AstraeusScene camera`, onCameraChange), CHANGELOG (Unreleased: two kinds, one-line check). No body name in `src/api/` (ARCH-06; `apiRules` passes). Made-up bodies in tests: Mars and Moon as well as Earth (ARCH-03); a sky reading round trip for both ups over five directions (`tests/lookOut.test.ts`).
+
+Gates (from /home/user/code/Astraeus): `npm run lint` 3.6 s pass; `npm run typecheck` 6.0 s pass; `npm run build` 5.5 s pass; `npm test` 44.0 s pass (237 files, 3397 passed, 2 skipped); `npm run check:pack` 14.6 s pass; `npm run check:node-consumer` 4.8 s pass. No browser run.
+
+Not verified: no browser run, so the drag/pinch pan and the real readout in a live viewer rest on T-291's frame test plus this step's frame test; `npm run check:browser` is for the Full Check.
 
 ## Drift Notes
 
-Record the public camera shapes for Design reconciliation in the last step of O-064.
+Public camera shapes for Design reconciliation (O-064, last step): `CameraPose = OrbitPose | SkyPose`; `SkyPose { lookOut, raDeg, decDeg, fovDeg }` (the discriminant is `"lookOut" in pose`); `LookOutTarget { lookOut, direction?: SkyDirection | id, fovDeg? }`; `scene.camera.lookOut(body, { direction?: SkyDirection, fovDeg? })` (the opening direction is a star-map position only; an object id is a `setCamera` input, since an opening has no resolved scene yet). Internally `core/startView.ts` owns `SkyView`, `CameraView`, `isSkyView`, `eqjUnitVector`, the range checks and `SKY_FOV_RANGE_DEG` (app/lookOut re-exports the range); `controls.viewReadout`, `controls.startView`, `ViewerControl.readCamera` and `ExperienceDefinition.startView` are `CameraView`; `app/lookOut.ts` `skyViewOf` is the render-to-EQJ readout; the share link's fifth part `sky` tells the kinds apart. `setCamera` with no direction while already looking out keeps the current ra/dec (read from `camera`); otherwise ra 0, dec 0. The planets demo's own start view setting is typed `OrbitPose`.

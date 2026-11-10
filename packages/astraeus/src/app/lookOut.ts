@@ -1,4 +1,6 @@
 // Look-out camera: standing at a body's centre and turning to look around the sky. Camera-only state; nothing in State is read or written.
+import { orbitBasis } from "./viewUp";
+import { SKY_FOV_RANGE_DEG, type SkyView } from "../core/startView";
 import type { RenderVector } from "./renderCoordinates";
 
 /** What a camera that stands inside a body carries beyond the orbit angles: the field of view is its zoom. The look direction is the orbit state's azimuth and elevation about the up in force. */
@@ -7,7 +9,7 @@ export interface LookOutState {
   fovDeg: number;
 }
 
-export const LOOK_OUT_FOV_RANGE_DEG = { min: 5, max: 100 } as const;
+export const LOOK_OUT_FOV_RANGE_DEG = SKY_FOV_RANGE_DEG;
 export const LOOK_OUT_OPENING_FOV_DEG = 60;
 /** The nearest the look-out camera draws: positive, and far inside anything a sky shows. */
 export const LOOK_OUT_NEAR = 1e-3;
@@ -49,4 +51,21 @@ export function directionAt(azimuth: number, elevation: number, east: RenderVect
   const cosEl = Math.cos(elevation);
   const [sa, ca, se] = [Math.sin(azimuth), Math.cos(azimuth), Math.sin(elevation)];
   return [0, 1, 2].map((k) => cosEl * (sa * east[k] + ca * south[k]) + se * up[k]) as RenderVector;
+}
+
+const round2 = (value: number): number => Number(value.toFixed(2));
+
+/** The look-out camera as a sky reading: the way it looks (render axes, from the angles about `up`) as J2000 equatorial degrees, rounded the way a link rounds them. */
+export function skyViewOf(body: string, azimuth: number, elevation: number, up: RenderVector, fovDeg: number): SkyView {
+  const { east, south } = orbitBasis(up);
+  const [rx, ry, rz] = directionAt(azimuth, elevation, east, south, up);
+  // The inverse of `eqjToRenderVector`: render (x, y, z) is EQJ (x, -z, y).
+  const [x, y, z] = [rx, -rz, ry];
+  const deg = 180 / Math.PI;
+  return {
+    lookOut: body,
+    raDeg: round2(((Math.atan2(y, x) * deg) % 360 + 360) % 360) % 360,
+    decDeg: round2(Math.asin(Math.max(-1, Math.min(1, z))) * deg),
+    fovDeg: round2(fovDeg),
+  };
 }

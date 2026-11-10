@@ -2,6 +2,17 @@
 
 Versions follow [semantic versioning](https://semver.org). While the version starts with `0.`, the public API (the names exported from `astraeus`) may still change between minor versions; each change is listed here.
 
+## Unreleased
+
+Look out from a body (G-018, O-064): the camera can stand at a body's centre and turn to look around the sky. This step is the public camera API; the camera menu entry and the sky figures come in later steps.
+
+**Type-level change for apps that read the camera.** The camera reading, `CameraPose` (what `camera` reads and `onCameraChange` and `setStartView` carry), is now one of two kinds: an `OrbitPose` (today's `{ focus, azimuthDeg, elevationDeg, distance }`, unchanged) or a `SkyPose` `{ lookOut, raDeg, decDeg, fovDeg }` (the body stood in, where it points in J2000 equatorial degrees, the vertical field of view in degrees, 5 to 100). An orbit camera still reads as an orbit pose, so a scene that never looks out sees no change at run time, but TypeScript no longer lets an app read `pose.distance` or `pose.focus` without narrowing. The one-line check an app that reads `distance` needs: `if ("lookOut" in pose) { /* sky pose */ } else { /* orbit pose: pose.distance */ }` (a sky pose has no `focus` and no `distance`; an orbit pose has no `lookOut`). Both kinds are plain data: keep one and hand it to `setCamera`, or to `scene.camera.setStartView`, to restore it.
+
+- `setCamera({ lookOut: id, direction?, fovDeg? })` stands inside the body `id` (a body the showing view shows) looking out. `direction` is `{ raDeg, decDeg }` (J2000 equatorial degrees; the right ascension wraps, the declination is within ±90) or the id of an object to turn toward; omitted, the camera keeps the direction it already looks along, else right ascension 0, declination 0. `fovDeg` (5 to 100; omitted: the current one, else 60) is the zoom. A sky pose read from `camera` is also a valid argument. An unknown or hidden body or object, a direction or field of view out of range, or a malformed shape throws `bad-camera` at the call. Focus, Follow, Overview or an orbit pose returns to the orbit camera. The visitor drags to pan and wheels or pinches to change the field of view.
+- `scene.camera.lookOut(body, { direction?, fovDeg? })` opens the scene looking out (a body not added throws `unknown-body`); `scene.camera.setStartView` takes a sky pose; the last opening call wins.
+- The share link carries a sky pose as `?view=body,raDeg,decDeg,fovDeg,sky` (a fifth part tells it from an orbit view's four); a malformed one is refused as a malformed orbit view is.
+- New exported types: `OrbitPose`, `SkyPose`, `SkyDirection`, `LookOutTarget`. `CameraTarget` gains `LookOutTarget`; `CameraPose` becomes `OrbitPose | SkyPose`. No ecliptic-longitude input: an app converts to right ascension and declination itself.
+
 ## 0.8.1 (2026-11-10)
 
 First download of the packed example (`npm run measure:example`): 1,720,047 bytes raw, 493,478 bytes gzip (code and styles loaded on first open), against 1,716,429 raw and 492,249 gzip at 0.8.0 (+3,618 raw, +1,229 gzip, the new host calls). The planet data is a lazy chunk and not part of that total.
