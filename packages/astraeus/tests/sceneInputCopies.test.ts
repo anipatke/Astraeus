@@ -66,6 +66,7 @@ const ROWS: readonly Row[] = [
   { name: "camera.setStartView", scene: () => base(), input: () => ({ focus: "earth", azimuthDeg: 20, elevationDeg: 30, distance: 40 }), apply: (s, i) => { s.camera.setStartView(i); return s; } },
   { name: "camera.lookOut", scene: () => base(), input: () => ({ direction: { raDeg: 10, decDeg: 20 }, fovDeg: 40 }), apply: (s, i) => { s.camera.lookOut("earth", i); return s; } },
   { name: "camera.setFollowChoices", scene: () => base(), input: () => ["earth", { id: "moon" }], apply: (s, i) => { s.camera.setFollowChoices(i); return s; } },
+  { name: "camera.setLookOutChoices", scene: () => base(), input: () => ["earth", { id: "moon" }], apply: (s, i) => { s.camera.setLookOutChoices(i); return s; } },
   { name: "camera.setReach (distance, options)", scene: () => base(), input: () => ({ distance: 800, options: { farEarthRadii: 2000 } }), apply: (s, i: { distance: number; options: never }) => { s.camera.setReach(i.distance, i.options); return s; } },
   { name: "camera.fitOrbit", scene: () => base(), input: () => ({ id: "earth" }), apply: (s, i) => { s.camera.fitOrbit(i); return s; } },
 ];

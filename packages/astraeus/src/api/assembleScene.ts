@@ -143,7 +143,7 @@ export function assembleScene(parts: ScenePlanners, data: readonly DataSource[])
   const definition: ExperienceDefinition = {
     experience: {
       objects,
-      cameraPresets: cameraPresetsOf(labelled, camera.followChoices),
+      cameraPresets: cameraPresetsOf(labelled, camera.followChoices, camera.lookOutChoices),
       ...startPresetEntry(camera),
       ...(moonFamilies === undefined ? {} : { moonFamilies }),
       ...(bodyFeatures.length === 0 ? {} : { bodyFeatures }),

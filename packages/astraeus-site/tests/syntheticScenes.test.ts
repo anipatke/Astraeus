@@ -11,6 +11,7 @@ import { buildSyntheticListedScene, LISTED_MEMBER_COUNT } from "../src/synthetic
 import { buildSyntheticEccentricScene } from "../src/synthetic/syntheticEccentricScene";
 import { buildSyntheticProbeScene, PROBE_FLYBY_UTC_MS } from "../src/synthetic/syntheticProbeScene";
 import { buildSyntheticViewsScene } from "../src/synthetic/syntheticViewsScene";
+import { buildSyntheticLookOutScene, LOOKOUT_OPEN_DIRECTION, loadLookOutPlanets } from "../src/synthetic/syntheticLookOutScene";
 import { buildSyntheticJourneyScene, JOURNEY_JUPITER_UTC_MS } from "../src/synthetic/syntheticJourneyScene";
 
 type Before = Record<string, { events: [string, number][]; window: { startUtcMs: number; endUtcMs: number }; rates: number[]; clockRate: number; panels: string[]; groups: { id: string; count: number }[]; windows: unknown[][]; camera?: unknown }>;
@@ -110,5 +111,12 @@ describe("the three moved scenes", () => {
     const scene = buildSyntheticJourneyScene();
     expect(scene.paths.map((path) => path.id)).toEqual(["traveller"]);
     expect(scene.events.find((event) => event.id === "traveller-jupiter")?.timeUtcMs).toBe(JOURNEY_JUPITER_UTC_MS);
+  });
+
+  it("look out: opens looking out from Earth and lists Earth and Mars for the menu", async () => {
+    await loadLookOutPlanets();
+    const scene = buildSyntheticLookOutScene();
+    expect(scene.camera.pose).toEqual({ lookOut: "earth", ...LOOKOUT_OPEN_DIRECTION, fovDeg: 60 });
+    expect(scene.camera.lookOutChoices).toEqual(["earth", "mars"]);
   });
 });

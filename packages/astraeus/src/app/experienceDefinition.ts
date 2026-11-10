@@ -9,7 +9,7 @@ import { catalogue as builtInCatalogue, rootBodyId, type BodyAsset, type BodyCat
 import type { SystemComposition } from "../assets/compositions";
 import type { BodyVisual } from "../assets/visual";
 import type { Metric } from "../shell/metrics";
-import type { ExperienceConfig, ExperienceObject } from "../shell/experience";
+import { requestObjectId, type ExperienceConfig, type ExperienceObject } from "../shell/experience";
 import { scaleChoicesFor, type ScaleId } from "../shell/scaleModel";
 import type { TrackedBody } from "./mission";
 import type { SkySettings } from "../assets/sky";
@@ -327,7 +327,8 @@ export function initialObjectIdOf(definition: ExperienceDefinition): string {
   const config = experienceWithGroups(definition);
   const objects = config.objects;
   const start = config.cameraPresets.find((preset) => preset.id === config.startCameraPresetId)?.request;
-  if (start !== undefined && start.kind !== "overview" && objects.some((object) => object.id === start.target)) return start.target;
+  const startId = start === undefined ? undefined : requestObjectId(start);
+  if (startId !== undefined && objects.some((object) => object.id === startId)) return startId;
   const centre = sceneCenterOf(definition);
   return objects.some((object) => object.id === centre) ? centre : objects[0]?.id ?? centre;
 }

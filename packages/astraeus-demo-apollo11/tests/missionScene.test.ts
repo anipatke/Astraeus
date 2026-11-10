@@ -128,17 +128,17 @@ describe("camera presentation independence", () => {
     const focus = findCameraPreset(apollo11Experience, "focus", columbia.id)!;
     const follow = findCameraPreset(apollo11Experience, "follow", columbia.id)!;
     const origin = new FloatingOrigin();
-    switchFocus(camera, overview.request.kind === "overview" ? "earth" : overview.request.target, [0, 0, 0]);
+    switchFocus(camera, "target" in overview.request ? overview.request.target : "earth", [0, 0, 0]);
     camera.targetDistance = 144;
     resolveCamera(camera, [0, 0, 0], origin, 0.1, 1);
-    switchFocus(camera, focus.request.kind === "overview" ? "earth" : focus.request.target, target);
+    switchFocus(camera, "target" in focus.request ? focus.request.target : "earth", target);
     camera.targetDistance = 0.3;
     resolveCamera(camera, target, origin, 0.1, 1);
     expect(camera.distance).toBeGreaterThan(0.3);
     expect(camera.distance).toBeLessThan(144);
     expect(camera.targetAbsolute).not.toEqual(target);
     for (let frame = 0; frame < 80; frame += 1) resolveCamera(camera, target, origin, 0.1, 1);
-    switchFocus(camera, follow.request.kind === "overview" ? "earth" : follow.request.target, target);
+    switchFocus(camera, "target" in follow.request ? follow.request.target : "earth", target);
     resolveCamera(camera, target, origin, 0.1, 1);
 
     expect(camera.focus).toBe(columbia.id);

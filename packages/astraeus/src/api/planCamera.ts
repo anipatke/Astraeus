@@ -7,7 +7,7 @@ import { SceneError } from "./errors";
 import { frozenCopy } from "./frozenCopy";
 import type { FollowView } from "./scene";
 import type { CameraPose, SkyDirection } from "./viewerLink";
-import { validateCameraView } from "../core/startView";
+import { eqjUnitVector, validateCameraView } from "../core/startView";
 import { farthestSunDistanceKm } from "./sunOrbit";
 import { planetSeriesLoaded } from "../core/planetSeries";
 import type { TimelineSetting } from "./story";
@@ -21,6 +21,7 @@ export class SceneCamera {
   #far: number | undefined;
   #pose: CameraPose | undefined;
   #followIds: readonly string[] | undefined;
+  #lookOutIds: readonly string[] = Object.freeze([]);
   #fit: string | undefined;
   readonly #has: (id: string) => boolean;
   readonly #circlesSun: (id: string) => boolean;
@@ -103,6 +104,20 @@ export class SceneCamera {
     return this;
   }
   /**
+   * Chooses the bodies whose "Look out from" entry the camera menu offers, by body, id or path already added to the scene (else `unknown-body`); the entry stands inside the body and looks out, and any other camera entry leaves it.
+   * Default: none. An empty list offers none. The opening view is separate: `lookOut` opens looking out whether or not the body is listed.
+   * @example
+   * scene.camera.setLookOutChoices(["earth", "mars"]);
+   */
+  setLookOutChoices(ids: readonly (BodyRef | BodyId)[]): this {
+    this.#editable();
+    if (!Array.isArray(ids)) throw new SceneError("bad-camera", "camera.setLookOutChoices: give a list of bodies or ids");
+    const named = ids.map((item) => (typeof item === "string" ? item : item?.id));
+    for (const id of named) if (typeof id !== "string" || !this.#has(id)) throw new SceneError("unknown-body", `camera.setLookOutChoices("${String(id)}"): no body or trajectory with that id has been added to the scene`);
+    this.#lookOutIds = Object.freeze([...new Set(named)]);
+    return this;
+  }
+  /**
    * Sets how far the viewer can zoom out from what they look at, in Earth radii (the scene's scaled unit); a finite number above 0, else `bad-camera`.
    * Also sets the camera's far plane (where drawing stops) to 2.5 times `distance`, so what lies out to the reach is still drawn; `farEarthRadii` (a finite number at least `distance`, in Earth radii) sets the far plane itself instead.
    * Labels reach as far: a body's label stays shown at any distance the camera can take. Without this call the camera frames the scene as before.
@@ -147,6 +162,8 @@ export class SceneCamera {
   get pose(): CameraPose | undefined { return this.#pose; }
   /** The objects offering Follow (`setFollowChoices`); undefined: every one. */
   get followChoices(): readonly string[] | undefined { return this.#followIds; }
+  /** The bodies offering "Look out from" (`setLookOutChoices`); none by default. */
+  get lookOutChoices(): readonly string[] { return this.#lookOutIds; }
   get target(): string | undefined { return this.#target; }
   /** Whether the opening view follows its target (`follow`) rather than only looking at it (`focus`). */
   get following(): boolean { return this.#following; }
@@ -189,13 +206,14 @@ export function viewEntries(timeline: TimelineSetting | undefined, camera: Scene
   };
 }
 
-/** The camera menu: Overview, Focus for every body and path, and Follow for every one unless `setFollowChoices` named fewer. */
-export function cameraPresetsOf(objects: readonly { readonly id: string; readonly label: string }[], followChoices?: readonly string[]): ExperienceDefinition["experience"]["cameraPresets"] {
+/** The camera menu: Overview, Focus for every body and path, Follow for every one unless `setFollowChoices` named fewer, and "Look out from" for the bodies `setLookOutChoices` listed (the look is toward right ascension 0, declination 0 until the visitor turns). */
+export function cameraPresetsOf(objects: readonly { readonly id: string; readonly label: string }[], followChoices?: readonly string[], lookOutChoices: readonly string[] = []): ExperienceDefinition["experience"]["cameraPresets"] {
   return [
     { id: "overview", label: "Overview", request: { kind: "overview" } },
     ...objects.flatMap(({ id, label }) => [
       { id: `focus-${id}`, label: `Focus ${label}`, request: { kind: "focus" as const, target: id } },
       ...(followChoices === undefined || followChoices.includes(id) ? [{ id: `follow-${id}`, label: `Follow ${label}`, request: { kind: "follow" as const, target: id } }] : []),
+      ...(lookOutChoices.includes(id) ? [{ id: `lookout-${id}`, label: `Look out from ${label}`, request: { kind: "lookOut" as const, body: id, direction: eqjUnitVector(0, 0) } }] : []),
     ]),
   ];
 }

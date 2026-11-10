@@ -227,6 +227,11 @@
           "signature": "(ids: readonly (BodyRef | BodyId)[]): SceneCamera"
         },
         {
+          "name": "setLookOutChoices",
+          "optional": false,
+          "signature": "(ids: readonly (BodyRef | BodyId)[]): SceneCamera"
+        },
+        {
           "name": "setReach",
           "optional": false,
           "signature": "(distance: number, options?: { readonly farEarthRadii?: number; }): SceneCamera"
@@ -260,6 +265,11 @@
           "name": "followChoices",
           "optional": false,
           "signature": "readonly string[] | undefined"
+        },
+        {
+          "name": "lookOutChoices",
+          "optional": false,
+          "signature": "readonly string[]"
         },
         {
           "name": "target",
