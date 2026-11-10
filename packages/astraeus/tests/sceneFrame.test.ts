@@ -5,7 +5,7 @@ import { readableScale, trueScale } from "../src/core/scalePolicy";
 import type { BodyId } from "../src/core/body";
 import { createOrbitCameraState } from "../src/app/CameraController";
 import type { SceneControls, SceneRuntime } from "../src/app/AstraeusScene";
-import { bodiesMounted, cameraSettled, createFrameState, decideDraw, IDLE_GRACE_FRAMES, shouldDrawFrame, frameTime, placeLightsAndReadout, placeScene, placeViews, publishCanvasReadouts, stepAndPoseCamera, syncViews, updateOverlays, viewUpOf, type FrameContext } from "../src/app/sceneFrame";
+import { applyViewVisibility, hiddenOf, bodiesMounted, cameraSettled, createFrameState, decideDraw, IDLE_GRACE_FRAMES, shouldDrawFrame, frameTime, placeLightsAndReadout, placeScene, placeViews, publishCanvasReadouts, stepAndPoseCamera, syncViews, updateOverlays, viewUpOf, type FrameContext } from "../src/app/sceneFrame";
 import { DEFAULT_BODY_SET_LOOK } from "../src/app/bodySet";
 import { EQUATORIAL_UP } from "../src/app/viewUp";
 
@@ -124,6 +124,29 @@ describe("stepAndPoseCamera", () => {
     const local = ctx.origin.toLocal(moon);
     expect(groups.get("moon")!.position.x).toBeCloseTo(local[0], 4);
     expect(ctx.camera.position.length()).toBeGreaterThan(0);
+  });
+});
+
+describe("look out through the frame stages", () => {
+  it("poses the camera at Earth's centre at the field of view, hides Earth through the hidden set, and shows it again on return", () => {
+    vi.stubGlobal("requestAnimationFrame", vi.fn());
+    const { ctx, groups } = makeContext();
+    const placed = placeScene(ctx, T0);
+    ctx.controls.cameraRequest = { kind: "lookOut", body: "earth", direction: [0, 0, 1], fovDeg: 30 };
+    stepAndPoseCamera(ctx, T0, placed);
+    applyViewVisibility(ctx);
+    expect(ctx.camera.fov).toBe(30);
+    expect(ctx.camera.near).toBeGreaterThan(0);
+    expect(ctx.camera.position.length()).toBeLessThan(1e-9);
+    expect(hiddenOf(ctx)?.objects.has("earth")).toBe(true);
+    expect(groups.get("earth")!.visible).toBe(false);
+    expect(groups.get("moon")!.visible).toBe(true);
+    ctx.controls.cameraRequest = { kind: "overview" };
+    stepAndPoseCamera(ctx, T0, placed);
+    applyViewVisibility(ctx);
+    expect(ctx.camera.fov).toBe(45);
+    expect(hiddenOf(ctx)).toBeUndefined();
+    expect(groups.get("earth")!.visible).toBe(true);
   });
 });
 

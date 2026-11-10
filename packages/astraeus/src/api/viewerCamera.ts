@@ -55,7 +55,7 @@ export class ViewerCamera {
   setCamera(target: CameraTarget): void {
     const control = this.access.open("setCamera");
     const request = this.#request(target);
-    const id = request.kind === "pose" ? request.view.focus : request.kind === "overview" || request.kind === "hold" ? "" : request.target;
+    const id = request.kind === "pose" ? request.view.focus : request.kind === "lookOut" ? request.body : request.kind === "overview" || request.kind === "hold" ? "" : request.target;
     if (!control.cameraTargets().includes(id)) {
       throw new SceneError("bad-camera", `setCamera: "${id}" is not an object the showing view shows (${control.cameraTargets().join(", ")})`);
     }

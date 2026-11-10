@@ -2,7 +2,7 @@
 id: T-291
 title: Let the camera stand inside a body and look out
 objective: O-064
-status: planned
+status: done
 depends_on: []
 owner_validation: {required: false}
 check_waiver: {task: T-291, reason: 'Owner said "orchestrate o64" under the standing run rules (one builder at a time, no per-step checks, coordinator marks done once gates pass and any owner look is given, one Full Objective Check at the end); the optional Task Check is waived.', actor: {role: owner, session: o064-run-20261110}, recorded_at: '2026-11-10T01:37:08Z'}
@@ -59,8 +59,25 @@ Focused Vitest runs while building; hand-off gates `npm run lint`, `npm run type
 
 ## Technical Evidence
 
-Pending execution.
+Extra reads: none beyond Context Files (`packages/astraeus/src/api/viewerCamera.ts` line 58 edited only to keep the internal union exhaustive, `tests/viewFrame.test.ts` mocks gained `orbit: { lookOut: null }`).
+
+Done When, per item:
+- Request and state: `CameraRequest` gains `{ kind: "lookOut", body, direction: [x,y,z] EQJ | objectId, fovDeg? }`; `OrbitCameraState.lookOut: { fovDeg } | null` (direction is the existing azimuth/elevation about the up in force). Tests `tests/lookOut.test.ts` (Earth, Mars, ecliptic up, object id, invalid requests ignored, fov default 60 / kept / clamped).
+- Frame: `resolveCamera` places camera at the body centre (target one unit ahead), `poseCamera` sets `camera.fov` from state and `near = 1e-3` in look-out; floating origin rebases on the camera (test moves Mars and checks); up change keeps the direction. Tests in `lookOut.test.ts`, `sceneFrame.test.ts` ("look out through the frame stages").
+- Gestures: `panLookOut` (direct manipulation scaled by fov, elevation within +/-89 deg, cos floor near the pole) and `zoomLookOut` (fov 5..100) in `src/app/lookOut.ts`; `attachOrbitGestures` routes by `state.lookOut` (wheel and pinch change fov, never distance). Pure functions tested; the DOM handlers are not exercised (no browser run).
+- Hiding: `hiddenWithLookOut` adds the stood-in body to the one hidden set (`hiddenOf(ctx)` in `sceneFrame.ts`), read by visibility, label/tap and story-marker stages; test shows Earth group hidden and shown again on return.
+- Readers of `camera.fov`: all already read `camera.fov` (BodySetView, BodyView, marker/screen stages); Canvas literal 45 untouched. `stepAndPoseCamera` passes the orbit fov to framing while looking out so a return frames at 45.
+- Return: focus, follow, overview, pose requests set `lookOut = null` (target tween starts from where the camera stood); test checks fov 45 and orbit near. A `hold` is ignored while looking out. Existing camera tests unchanged and passing.
+
+Gates (2026-11-10): `npm run lint` pass 4 s; `npm run typecheck` pass 7 s; `npm run build` pass 4 s (chunk-size warning as before); `npm test` pass 46 s, 237 files, 3384 passed, 2 skipped. No browser run.
+
+Unverified: real pointer/wheel feel (no browser); `controls.viewReadout` still reports orbit angles/distance while looking out (T-292 must handle camera reading and share link).
 
 ## Drift Notes
 
 Record architecture deltas (camera modes, field of view as state) for Design reconciliation in the last step of O-064.
+
+- Camera mode: `OrbitCameraState.lookOut` (null = orbit) with `fovDeg`; the look direction reuses azimuth/elevation about the up in force (`directionAt` is the one rule shared with the orbit offset). `CameraRequest` has a `lookOut` kind. Camera-only; no State involved.
+- Field of view is camera state in look-out (5 to 100 deg, opening 60); the orbit camera stays at `CAMERA_FOV_DEG` (45) and `poseCamera` writes `camera.fov` every frame.
+- The stood-in body is hidden by `hiddenOf` (view's hidden set plus the look-out body), the single hidden-set path; no second mechanism.
+- Look-out camera sits at the body centre, target one unit along the look direction; near plane constant 1e-3.

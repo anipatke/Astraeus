@@ -18,7 +18,7 @@ import type { RenderVector } from "./renderCoordinates";
 import { cameraTargetAbsolute, rescaleCameraForPolicy, stepCameraTarget } from "./sceneCamera";
 import type { SceneControls, SceneReadout, SceneRuntime } from "./AstraeusScene";
 import { buildFrameReadout, publishBodyData, publishPathData, publishPointsData, publishSceneData, recordFrameStats } from "./sceneDebug";
-import { focusRadius, liveReach, type SceneFrame } from "./sceneFraming";
+import { CAMERA_FOV_DEG, focusRadius, liveReach, type SceneFrame } from "./sceneFraming";
 import { bodyScreenReadouts, placeBodies, swapSmallBodiesToMarkers, type BodyRefs } from "./sceneBodies";
 import { publishBodySets } from "./sceneBodySets";
 import type { useSceneViews } from "./sceneHooks";
@@ -29,6 +29,7 @@ import type { SceneLabelLayer } from "./SceneLabels";
 import { updateSky } from "./sceneSky";
 import { labelPositionOf, type SceneTargets } from "./sceneTargets";
 import type { StoryMarkerLayer } from "./StoryMarkers";
+import { hiddenWithLookOut, type ViewHidden } from "./viewHiding";
 import { viewFromAngles } from "./viewLink";
 import { EQUATORIAL_UP } from "./viewUp";
 
@@ -192,7 +193,7 @@ export function stepAndPoseCamera(ctx: FrameContext, t: number, placed: PlacedSc
   const firstFrame = !state.started;
   state.started = true;
   const reach = liveReach(runtime.cameraReach, policy, camera.aspect);
-  const focusBody = stepCameraTarget({ camState: orbit, controls, targets, frame, catalogue, reach, fovDeg: camera.fov, viewUp, firstFrame, previousUp: state.lastUp });
+  const focusBody = stepCameraTarget({ camState: orbit, controls, targets, frame, catalogue, reach, fovDeg: orbit.lookOut === null ? camera.fov : CAMERA_FOV_DEG, viewUp, firstFrame, previousUp: state.lastUp });
   state.lastUp = viewUp;
   resolveCamera(orbit, cameraTargetAbsolute(orbit, targets), ctx.origin, ctx.delta, REBASE_THRESHOLD, viewUp);
   placeBodies(ctx.assets, placed.composed.states, ctx.bodyRefs, policy, ctx.origin);
@@ -244,9 +245,14 @@ export function placeViews(ctx: FrameContext, t: number, placed: PlacedScene, se
   return hoverGain;
 }
 
+/** What this frame hides: the view's hidden ids, and the body the camera stands inside while looking out (the one hidden-set path, read by the visibility, label and tap stages). */
+export function hiddenOf(ctx: Pick<FrameContext, "controls" | "orbit">): ViewHidden | undefined {
+  return hiddenWithLookOut(ctx.controls.viewHidden, ctx.orbit.lookOut === null ? null : ctx.orbit.focus);
+}
+
 /** Stage 5b: shows or hides each drawn group by the current view's hidden ids (bodies, paths, point groups, body sets). One set, read here; nothing is rebuilt. */
 export function applyViewVisibility(ctx: FrameContext): void {
-  const hidden = ctx.controls.viewHidden?.objects;
+  const hidden = hiddenOf(ctx)?.objects;
   const { views, bodyRefs } = ctx;
   const show = (id: string, group: { visible: boolean }) => { group.visible = hidden?.has(id) !== true; };
   for (const [id, group] of bodyRefs.groups) show(id, group);
@@ -270,7 +276,7 @@ export function featureHostOf(assets: readonly BodyAsset[], parts: ReadonlyMap<B
 /** What the labels and taps see under the current view: the objects and body sets it shows, and the label-hidden ids with the view's own added. Allocates only when a view hides something. */
 function shownUnderView(ctx: FrameContext) {
   const { controls, views } = ctx;
-  const hidden = controls.viewHidden?.objects;
+  const hidden = hiddenOf(ctx)?.objects;
   if (hidden === undefined || hidden.size === 0) return { objects: controls.labelObjects, bodySetViews: views.bodySetViews, hiddenLabels: controls.hiddenLabels };
   return {
     objects: controls.labelObjects.filter((object) => !hidden.has(object.id)),
@@ -293,7 +299,7 @@ export function updateOverlays(ctx: FrameContext, t: number, step: CameraStep, h
   canvas.style.cursor = hover === null ? "" : "pointer";
   canvas.dataset.pickHover = hover ?? "";
   layers.sceneLabels.current?.setHover(hover, hoverGain);
-  layers.storyMarkers.current?.update(positionFor, camera, size.width, size.height, origin, controls.openStoryPanelId ?? null, t, controls.viewHidden);
+  layers.storyMarkers.current?.update(positionFor, camera, size.width, size.height, origin, controls.openStoryPanelId ?? null, t, hiddenOf(ctx));
   const featureReadout = layers.featureMarkers.current?.update((id) => featureHostOf(ctx.assets, ctx.bodyRefs.parts, id, controls.policy), camera, camera.fov, size.width, size.height, controls.openFeatureKey ?? null, controls.featureMinBodyPx ?? DEFAULT_FEATURE_MIN_BODY_PX);
   if (featureReadout !== null && featureReadout !== undefined) canvas.dataset.featureMarkers = JSON.stringify(featureReadout);
 }
