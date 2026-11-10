@@ -2,8 +2,7 @@
 id: T-293
 title: Add Look out to the camera menu and show it
 objective: O-064
-status: in_progress
-stage: audit
+status: done
 depends_on: [{task: T-292, requires: clear}]
 owner_validation: {required: true}
 check_waiver: {task: T-293, reason: 'Owner said "orchestrate o64" under the standing run rules (one builder at a time, no per-step checks, coordinator marks done once gates pass and any owner look is given, one Full Objective Check at the end); the optional Task Check is waived.', actor: {role: owner, session: o064-run-20261110}, recorded_at: '2026-11-10T01:37:08Z'}
@@ -83,6 +82,10 @@ Owner: "Cant see the sun". Measured on the dev server (driver, no screenshot): t
 - Browser: journey-look-out.mjs now asserts the Sun is drawn, in view near the middle and labelled on opening; ran against my own dev server on 5483 (desktop and phone), passed, server stopped.
 - Gates: lint 7 s pass, typecheck 6 s pass, build 3 s pass, test 44 s pass (run after the last edit except build, which ran before a test-only edit).
 - Not verified: pixels (no screenshots, by rule); the owner should look again at localhost:5490 (reload).
+
+## Owner Validation (2026-11-10T02:36:42Z)
+
+The owner looked at `localhost:5490/app.html?experience=synthetic-lookout`. First look: "Cant see the sun, looks oK other than that" (cause: the scene's rates in milliseconds and the orbit far plane; repaired in 67f3cd32; a second look first saw the stale preview server, restarted). Then: "there it is...and mars?" (Mars shown left of the Sun with its label), then "looks good go". The owner set the Task done on the board.
 
 ## Drift Notes
 
