@@ -50,6 +50,62 @@ export function pickTarget(candidates: readonly PickCandidate[], x: number, y: n
   return best;
 }
 
+/** A tap selects a sky figure within this many CSS px of one of its drawn lines (a finger's reach, for mouse and touch alike); farther, or inside a boundary outline, selects nothing. */
+export const SKY_LINE_MARGIN_PX = 16;
+
+/** One sky figure a tap can select: its drawn lines as screen segments `[x1, y1, x2, y2]` (CSS px from the canvas's top left) and the rectangle of its shown name, if any. */
+export interface SkyPickFigure {
+  readonly id: string;
+  readonly lines: readonly (readonly [number, number, number, number])[];
+  readonly label?: PickRect | null;
+}
+
+/**
+ * The screen segment `[x1, y1, x2, y2]` (CSS px, ends may lie outside the canvas) of the 3D segment between two camera-space points (the camera looks along -z), or null when none of it is in front of the camera.
+ * A segment with one end behind the camera is cut at the camera plane, so its visible part is kept. `tanHalfFov` is the tangent of half the vertical field of view; `aspect` is width over height.
+ */
+export function projectSegmentClipped(a: readonly [number, number, number], b: readonly [number, number, number], tanHalfFov: number, aspect: number, widthPx: number, heightPx: number): readonly [number, number, number, number] | null {
+  const front = 1e-6 * Math.max(1, Math.abs(a[2]), Math.abs(b[2])); // how far in front of the camera a point must be
+  const inFront = (p: readonly [number, number, number]) => -p[2] >= front;
+  if (!inFront(a) && !inFront(b)) return null;
+  const cut = (kept: readonly [number, number, number], lost: readonly [number, number, number]): readonly [number, number, number] => {
+    const share = (-kept[2] - front) / (-kept[2] + lost[2]);
+    return [kept[0] + (lost[0] - kept[0]) * share, kept[1] + (lost[1] - kept[1]) * share, -front];
+  };
+  const from = inFront(a) ? a : cut(b, a);
+  const to = inFront(b) ? b : cut(a, b);
+  const screen = (p: readonly [number, number, number]): readonly [number, number] => [(0.5 + (p[0] / -p[2]) / (2 * tanHalfFov * aspect)) * widthPx, (0.5 - (p[1] / -p[2]) / (2 * tanHalfFov)) * heightPx];
+  const [x1, y1] = screen(from);
+  const [x2, y2] = screen(to);
+  return [x1, y1, x2, y2];
+}
+
+/** The distance from `(x, y)` to the segment from `(x1, y1)` to `(x2, y2)`. */
+export function distanceToSegment(x: number, y: number, x1: number, y1: number, x2: number, y2: number): number {
+  const dx = x2 - x1;
+  const dy = y2 - y1;
+  const lengthSquared = dx * dx + dy * dy;
+  const along = lengthSquared === 0 ? 0 : Math.min(1, Math.max(0, ((x - x1) * dx + (y - y1) * dy) / lengthSquared));
+  return Math.hypot(x - (x1 + along * dx), y - (y1 + along * dy));
+}
+
+/**
+ * The sky figure under `(x, y)`: one whose shown name holds the point, else the one with a line nearest the point within `SKY_LINE_MARGIN_PX`; null when none. Only names and lines answer: the inside of
+ * an outline never does. Callers try the bodies first (`pickTarget`), so a body in front of the sky wins where it is hit.
+ */
+export function pickSkyFigure(figures: readonly SkyPickFigure[], x: number, y: number): string | null {
+  let best: string | null = null;
+  let bestDistance = Number.POSITIVE_INFINITY;
+  for (const figure of figures) {
+    const label = figure.label;
+    const named = label !== undefined && label !== null && x >= label.left && x <= label.right && y >= label.top && y <= label.bottom;
+    const toLines = figure.lines.reduce((nearest, [x1, y1, x2, y2]) => Math.min(nearest, distanceToSegment(x, y, x1, y1, x2, y2)), Number.POSITIVE_INFINITY);
+    const distance = named ? 0 : toLines <= SKY_LINE_MARGIN_PX ? toLines : Number.POSITIVE_INFINITY;
+    if (distance < bestDistance) { best = figure.id; bestDistance = distance; }
+  }
+  return best;
+}
+
 /** A mouse hovering a target brightens its name by this factor (a live setting, Developer > Labels); touch never hovers. */
 export const HOVER_BRIGHTNESS_DEFAULT = 1.4;
 export const HOVER_BRIGHTNESS_LIMITS = Object.freeze({ min: 1, max: 3 });

@@ -1,5 +1,5 @@
 import type { ExperienceCameraPreset, ExperienceConfig } from "./experience";
-import { findCameraPreset, focusPresetFor, isObjectAvailable, listedObjects, relatedObjects } from "./objectModel";
+import { findCameraPreset, focusPresetFor, isObjectAvailable, listedFigures, listedObjects, relatedObjects, skyFigureById } from "./objectModel";
 import { ButtonText, FocusIcon, LookOutIcon, FollowIcon, InfoIcon, OrbitIcon, OverviewIcon } from "./topBarIcons";
 
 interface Props {
@@ -27,7 +27,9 @@ export function ObjectControls({
   infoPanelId,
 }: Props) {
   const selected = experience.objects.find((object) => object.id === selectedObjectId);
+  const selectedFigure = skyFigureById(experience, selectedObjectId);
   const selectedAvailable = selected !== undefined && isObjectAvailable(selected, timeUtcMs);
+  const infoLabel = selected?.label ?? selectedFigure?.label;
   const overview = findCameraPreset(experience, "overview");
   const focus = selected === undefined ? undefined : focusPresetFor(experience, selected);
   const follow = selected === undefined ? undefined : findCameraPreset(experience, "follow", selected.id);
@@ -82,16 +84,17 @@ export function ObjectControls({
             </option>
           );
         })}
+        {listedFigures(experience, selectedObjectId).map((figure) => <option key={figure.id} value={figure.id} data-sky-figure="">{figure.label}</option>)}
       </select>
       <button
         type="button"
         className="top-bar-button ui-icon object-info-toggle"
         data-closes-drawer=""
-        aria-label={selected === undefined ? "Information" : `Information about ${selected.label}`}
-        title={selected === undefined ? "Information" : `Information about ${selected.label}`}
+        aria-label={infoLabel === undefined ? "Information" : `Information about ${infoLabel}`}
+        title={infoLabel === undefined ? "Information" : `Information about ${infoLabel}`}
         aria-expanded={infoOpen}
         aria-controls={infoPanelId}
-        disabled={!selectedAvailable}
+        disabled={!selectedAvailable && selectedFigure === undefined}
         onClick={onToggleInfo}
       >
         <InfoIcon />

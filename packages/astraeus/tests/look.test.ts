@@ -27,7 +27,7 @@ const CASES: readonly { readonly key: string; readonly set: number | boolean | s
   { key: "loadFadeSeconds", set: 1, param: "loadfade", asked: "2", askedValue: 2, read: bootFadeSeconds, defaultRead: BOOT_FADE_DEFAULT_SECONDS },
   { key: "desktopPictures", set: true, param: "desktop", asked: "off", askedValue: false, read: (l) => desktopPicturesOf({}, l), defaultRead: false },
   // No address parameter (T-296, owner decision): `param: null` means the address cannot reach the look, and the test checks that it cannot.
-  ...(["figure", "label", "boundary", "ecliptic", "equator", "traced", "faded"] as const).map((name) => ({ key: `skyLines.${name}`, set: "#123456", param: null, asked: "#abcdef", askedValue: "#123456", read: (l: LookInput) => skyColoursOf(l)[name], defaultRead: DEFAULT_SKY_COLOURS[name] })),
+  ...(["figure", "label", "boundary", "ecliptic", "equator", "traced", "faded", "selected"] as const).map((name) => ({ key: `skyLines.${name}`, set: "#123456", param: null, asked: "#abcdef", askedValue: "#123456", read: (l: LookInput) => skyColoursOf(l)[name], defaultRead: DEFAULT_SKY_COLOURS[name] })),
   { key: "labels.fontFamily", set: "Georgia, serif", param: null, asked: "x", askedValue: "Georgia, serif", read: (l) => labelStyleOf(l).fontFamily, defaultRead: "inherit" },
   { key: "labels.sizePx", set: 16, param: null, asked: "20", askedValue: 16, read: (l) => labelStyleOf(l).sizePx, defaultRead: 12 },
 ];

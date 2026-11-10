@@ -38,7 +38,7 @@ export interface ViewerHandle {
   /** The id of the object whose information the viewer has open (the one the object menu, a click or a view switch chose); undefined until `ready` has resolved, after `unmount`, and when nothing is selected. Set it with `setSelected`. */
   readonly selected: string | undefined;
   /**
-   * Selects the object with this id, or clears the selection with `undefined`; `selected` reads it at once and `onSelect` hears it with `cause: "host"` (nothing is reported when the selection is already that).
+   * Selects the object (or sky figure, see `skyFigures`) with this id, or clears the selection with `undefined`; `selected` reads it at once and `onSelect` hears it with `cause: "host"` (nothing is reported when the selection is already that).
    * The object must be one the showing view shows: an unknown or hidden id, an empty or non-string id throws `bad-selection`; before `ready` or after `unmount`, `not-mounted`. Like the object menu it opens the object's card, but the camera stays where it is (`setCamera` points the camera); a clear closes the card.
    * Like every host call it is the last word: made straight after `await ready`, before the first frame, or inside an `onChange` report of a view switch, it holds; a later view switch that no longer shows the object drops it as it drops a visitor's choice.
    */

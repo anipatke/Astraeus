@@ -4,6 +4,7 @@ import type { CameraRequest } from "./CameraController";
 import type { CameraView } from "./viewLink";
 import type { LookInput, LookRead } from "../api/look";
 import type { SkyTraceAfter } from "../core/skyTrace";
+import type { Provenance } from "../core/provenance";
 
 /** The one clock's reading as a host sees it. */
 export interface ViewerState {
@@ -60,7 +61,7 @@ export interface ViewerControl {
   /** Turns the display switch `id` (one of the keys of `read().switches`) on or off, as a visitor's switch does. */
   setSwitch(id: string, on: boolean): void;
   /** The sky figures the viewer draws, in the order added (id, label, kind); empty or absent when the scene added none. */
-  readonly skyFigures?: readonly { readonly id: string; readonly label: string; readonly kind: "figure" | "boundary" }[];
+  readonly skyFigures?: readonly { readonly id: string; readonly label: string; readonly kind: "figure" | "boundary"; readonly listed: boolean; readonly provenance: Provenance; readonly description?: string; readonly facts?: readonly { readonly label: string; readonly value: string }[] }[];
   /** Starts tracing a sky figure (an id from `skyFigures`, already checked), as `SkyTraceOptions` says; a trace already running on it restarts. Takes effect at the next frame, in call order with the other host calls. */
   traceSkyFigure(id: string, seconds: number, after: SkyTraceAfter): void;
   /** Removes a sky figure's trace (an id from `skyFigures`, already checked) over `seconds` (0: at once); none running does nothing. Takes effect at the next frame, in call order with the other host calls. */

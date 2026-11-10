@@ -4,6 +4,12 @@ Versions follow [semantic versioning](https://semver.org). While the version sta
 
 ## Unreleased
 
+Selecting sky figures (G-018, O-066, first step): a visitor can tap a sky figure and see its card. Additions only; no existing call shape or error code changed.
+
+- `SkyFigureInput` gains `description`, `facts` (`CardFactInput[]`), `sources`, `provenance` and `listed`, as `addBody` and `addTrajectory` take them (`listed` and the provenance default as there; a bad one throws `bad-sky-figure`). `scene.skyFigures` and `handle.skyFigures` read `listed`, `provenance`, `description` and `facts` too.
+- A tap on a figure's shown name, or within 16 px of one of its drawn lines, selects it (never inside an outline; a body hit wins; a figure that is not drawn is not tappable). `handle.setSelected(id)`, `handle.selected`, `onSelect` and the `AstraeusScene` equivalents take a sky figure id; the object menu lists figures that are `listed`; the card shows in the same info panel as a body's.
+- The selected figure's lines and name take the new look `skyLines.selected` (default `#ffffff`), changeable with `setLook` and in the Developer drawer.
+
 Sky figures (G-018, O-065, first step): an app can draw named figures and outlines on the sky, like the stars, and switch the ecliptic and the celestial equator on. Additions only; no existing call shape or error code changed.
 
 - `scene.addSkyFigures(figures)`: each figure is `{ id, label, kind?, segments?, points?, labelAt? }`. A `"figure"` (the default) has `segments`, pairs of ends, an end being `{ star: <Hipparcos number> }` or `{ raDeg, decDeg }`; a `"boundary"` has `points`, a closed loop of at least three positions. Drawn at infinity in the J2000 equatorial frame, above the Sun's glow, from the orbit camera and from a look-out view; each has a label in the viewer's one name layout. New types `SkyFigureInput`, `SkyFigureEnd`, `SceneSkyFigureRead`.

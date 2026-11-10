@@ -1,3 +1,5 @@
+import type { Provenance } from "../core/provenance";
+import type { CardFactInput } from "./scene";
 import type { SkyDirection } from "./viewerLink";
 
 /** One end of a figure's line: a catalogue star by its Hipparcos number (`{ star: 11767 }`), or a star-map position (`{ raDeg, decDeg }`, J2000 degrees). */
@@ -30,4 +32,14 @@ export interface SkyFigureInput {
   readonly labelFont?: string;
   /** This figure's label size in pixels, 8 to 24; default: the look's `labels.sizePx`. */
   readonly labelSizePx?: number;
+  /** One or two plain sentences for the figure's info card (shown when a visitor taps it or picks it from the object menu). None by default. */
+  readonly description?: string;
+  /** Labelled facts for the card, in order, as for `addBody`: both texts non-empty. None by default. */
+  readonly facts?: readonly CardFactInput[];
+  /** Sources added to the card's provenance after its own, each a non-empty text. None by default. */
+  readonly sources?: readonly string[];
+  /** Where the figure's drawn lines come from, shown on the card. Default: illustrative, supplied by the caller (as for `addTrajectory`). */
+  readonly provenance?: Provenance;
+  /** False leaves the figure out of the viewer's object menu (default true, as for `addBody`); it stays tappable and the menu shows it while it is the selected one. */
+  readonly listed?: boolean;
 }

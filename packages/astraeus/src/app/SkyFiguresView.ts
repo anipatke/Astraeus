@@ -1,9 +1,10 @@
-import { BufferAttribute, BufferGeometry, Color, Group, LineBasicMaterial, LineSegments } from "three";
+import { BufferAttribute, BufferGeometry, Color, Group, LineBasicMaterial, LineSegments, Vector3 } from "three";
 import type { PerspectiveCamera } from "three";
 import { celestialEquatorSegments, eclipticSegments, type EqjDirection, type SkyColours, type SkyFigureLayer, type SkyClearRequest, type SkyLineSwitches, type SkyTraceRequest } from "./skyFigures";
 import { stepHide, stepTrace, type SkyHideRun, type SkyTraceRun } from "../core/skyTrace";
 import { eqjToRenderVector, type RenderVector } from "./renderCoordinates";
 import { TRACK_LAYER } from "./TrackedBodyView";
+import { projectSegmentClipped, type PickRect, type SkyPickFigure } from "./scenePicking";
 
 type Segments = readonly (readonly [EqjDirection, EqjDirection])[];
 
@@ -72,6 +73,9 @@ export class SkyFiguresView {
   readonly labels: readonly SkyLabelSpec[];
   readonly #layers: ReadonlyMap<string, SkyFigureLayer>;
   readonly #traces = new Map<string, Overlay>();
+  /** The emphasis lines over the selected figure (one set at most), built when the selection first names a figure. */
+  #selected: { readonly id: string; readonly object: LineSegments } | null = null;
+  readonly #point = new Vector3();
 
   constructor(layers: readonly SkyFigureLayer[]) {
     this.#layers = new Map(layers.map((layer) => [layer.id, layer]));
@@ -95,7 +99,7 @@ export class SkyFiguresView {
   }
 
   /** Stands the group on the camera, sized between its planes, shows the kinds the switches say (building a reference circle the first time it shows) and paints the lines in the colours given. */
-  place(camera: PerspectiveCamera, on: Readonly<SkyLineSwitches>, colours: Readonly<SkyColours>): void {
+  place(camera: PerspectiveCamera, on: Readonly<SkyLineSwitches>, colours: Readonly<SkyColours>, selectedId = ""): void {
     this.group.position.copy(camera.position);
     this.group.scale.setScalar(0.5 * (camera.near + camera.far));
     for (const [shows, colour, make, key] of [["ecliptic", "ecliptic", eclipticSegments, "sky-ecliptic"], ["celestialEquator", "equator", celestialEquatorSegments, "sky-celestial-equator"]] as const) {
@@ -111,6 +115,49 @@ export class SkyFiguresView {
       this.#applied = { ...colours };
     }
     for (const entry of this.#drawn) entry.object.visible = on[entry.shows];
+    this.#emphasise(selectedId, on, colours);
+  }
+
+  /** Whether a tap or the emphasis can reach the figure now: its kind's switch is on and, for one shown only when traced, a trace shows it. */
+  #tappable(layer: SkyFigureLayer, on: Readonly<SkyLineSwitches>): boolean {
+    return on[layer.kind === "figure" ? "figures" : "boundaries"] && (layer.whenTraced !== true || this.labelOpacity(layer.id) > 0);
+  }
+
+  /** Draws the selected figure's lines over it in the look's `selected` colour (and removes them when the selection moves or is not a figure); the name takes the same colour in the label layer. */
+  #emphasise(selectedId: string, on: Readonly<SkyLineSwitches>, colours: Readonly<SkyColours>): void {
+    const layer = this.#layers.get(selectedId);
+    if (this.#selected !== null && this.#selected.id !== layer?.id) {
+      this.group.remove(this.#selected.object);
+      this.#selected.object.geometry.dispose();
+      (this.#selected.object.material as LineBasicMaterial).dispose();
+      this.#selected = null;
+    }
+    if (layer === undefined) return;
+    if (this.#selected === null) {
+      const object = lines(layer.segments, colours.selected, `sky-selected:${layer.id}`);
+      object.renderOrder = 3;
+      this.group.add(object);
+      this.#selected = { id: layer.id, object };
+    }
+    (this.#selected.object.material as LineBasicMaterial).color.set(colours.selected);
+    this.#selected.object.visible = this.#tappable(layer, on);
+  }
+
+  /**
+   * The figures a tap can select, as screen lines (CSS px from the canvas's top left) and the rectangle of each shown name (`labelRects` are page rectangles; `box` is the canvas's). A figure whose switch is off, or that is
+   * shown only when traced and has no trace showing, is left out. A segment is kept whenever any part of it is in front of the camera (cut at the camera plane), even with both ends off screen. Worked out when asked, not each frame.
+   */
+  screenFigures(camera: PerspectiveCamera, widthPx: number, heightPx: number, on: Readonly<SkyLineSwitches>, labelRects: ReadonlyMap<string, PickRect> | undefined, box: { readonly left: number; readonly top: number }): readonly SkyPickFigure[] {
+    camera.updateMatrixWorld(true);
+    const reach = 0.5 * (camera.near + camera.far); // where the lines are drawn, as the names are placed
+    const tanHalfFov = Math.tan((camera.fov * Math.PI) / 360);
+    const aspect = widthPx / heightPx;
+    const inCamera = (direction: EqjDirection): [number, number, number] => { const p = this.#point.fromArray(eqjToRenderVector(direction)).multiplyScalar(reach).add(camera.position).applyMatrix4(camera.matrixWorldInverse); return [p.x, p.y, p.z]; };
+    return [...this.#layers.values()].filter((layer) => this.#tappable(layer, on)).map((layer): SkyPickFigure => {
+      const rect = labelRects?.get(layer.id);
+      const lines = layer.segments.flatMap(([from, to]) => { const line = projectSegmentClipped(inCamera(from), inCamera(to), tanHalfFov, aspect, widthPx, heightPx); return line === null ? [] : [line]; });
+      return { id: layer.id, lines, label: rect === undefined ? null : { left: rect.left - box.left, top: rect.top - box.top, right: rect.right - box.left, bottom: rect.bottom - box.top } };
+    });
   }
 
   /** Begins tracing the figure `request.id` (a trace already on it restarts). The trace is a separate set of lines drawn over the figure (the whole drawing of a figure shown only when traced); the figure itself is untouched. An id the view does not hold does nothing. */

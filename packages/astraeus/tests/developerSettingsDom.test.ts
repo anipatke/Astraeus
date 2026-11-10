@@ -133,7 +133,7 @@ describe("LabelSettings", () => {
     change(container.querySelector<HTMLInputElement>('input[aria-label="Sky Ecliptic colour"]')!, "#112233");
     expect(controls.current.skyColours.ecliptic).toBe("#112233");
     expect(controls.current.skyColours.figure).toBe(DEFAULT_SKY_COLOURS.figure);
-    expect(container.querySelectorAll('[data-setting-group="sky-line-colours"] input[type="color"]')).toHaveLength(7);
+    expect(container.querySelectorAll('[data-setting-group="sky-line-colours"] input[type="color"]')).toHaveLength(8);
   });
 
   it("shows no button row when there is nothing to toggle, and no anchor button without tracked bodies", () => {

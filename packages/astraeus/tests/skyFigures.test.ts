@@ -32,7 +32,7 @@ afterEach(() => vi.clearAllMocks());
 describe("Scene.addSkyFigures: the call", () => {
   it("adds figures and outlines in order and reads them back (id, label, kind)", () => {
     const scene = base().addSkyFigures([kite]).addSkyFigures([ring]);
-    expect(scene.skyFigures).toEqual([{ id: "kite", label: "The Kite", kind: "figure" }, { id: "ring", label: "The Ring", kind: "boundary" }]);
+    expect(scene.skyFigures.map(({ id, label, kind, listed }) => ({ id, label, kind, listed }))).toEqual([{ id: "kite", label: "The Kite", kind: "figure", listed: true }, { id: "ring", label: "The Ring", kind: "boundary", listed: true }]);
     expect(Object.isFrozen(scene.skyFigures)).toBe(true);
   });
   it.each([

@@ -22,7 +22,7 @@ import { presetForViewRule } from "./viewCamera";
 import type { ExperienceSwitch } from "./SwitchControl";
 import { DeveloperToggle, TopBar } from "./TopBar";
 import type { ScaleChoice, ScaleId } from "./scaleModel";
-import { availableObjectById, findCameraPreset, firstAvailableObject, focusPresetFor, isObjectAvailable } from "./objectModel";
+import { availableObjectById, findCameraPreset, firstAvailableObject, focusPresetFor, isObjectAvailable, skyFigureById } from "./objectModel";
 import "./controls.css";
 import "./style.css";
 import "./phone.css";
@@ -161,8 +161,9 @@ type InfoState = { readonly kind: "object" } | { readonly kind: "event"; readonl
 
 /** The serial of a request that is asked again by sending a new one; absent request: undefined. */
 /** Whether the selection has been lost and a fallback must take its place: the object is gone or not available now, unless the host cleared the selection on purpose. */
-function selectionLost(selected: ExperienceObject | undefined, timeUtcMs: number, clearedByHost: boolean): boolean {
-  return !clearedByHost && (selected === undefined || !isObjectAvailable(selected, timeUtcMs));
+function selectionLost(selected: ExperienceObject | undefined, timeUtcMs: number, clearedByHost: boolean, isFigure: boolean): boolean {
+  // A selected sky figure is never lost: it has no availability and no view hides it.
+  return !clearedByHost && !isFigure && (selected === undefined || !isObjectAvailable(selected, timeUtcMs));
 }
 
 function serialOf(request: { readonly serial: number } | null | undefined): number | undefined {
@@ -186,7 +187,7 @@ function panelsOf(storySet: ExperienceConfig["storyPanels"]) {
 }
 
 function objectLabelOr(experience: ExperienceConfig, objectId: string, fallback: string): string {
-  return experience.objects.find((object) => object.id === objectId)?.label ?? fallback;
+  return experience.objects.find((object) => object.id === objectId)?.label ?? skyFigureById(experience, objectId)?.label ?? fallback;
 }
 
 /** The information panel's content and, for an object, its live measurements. */
@@ -194,7 +195,7 @@ function infoContent(experience: ExperienceConfig, info: InfoState, selectedObje
   const view = info === null
     ? null
     : infoView(experience, info.kind === "object" ? { kind: "object", id: selectedObjectId } : info, timeUtcMs);
-  const metrics = view?.target.kind === "object" && metricsFor !== undefined ? metricsFor(view.target.id, timeUtcMs) : [];
+  const metrics = view?.target.kind === "object" && metricsFor !== undefined && skyFigureById(experience, view.target.id) === undefined ? metricsFor(view.target.id, timeUtcMs) : [];
   return { view, metrics };
 }
 
@@ -299,7 +300,7 @@ export function AstraeusShell({
     const switchRule = takeSwitchRule();
     if (selectedObjectId !== "") hostCleared.current = false;
     const selected = experience.objects.find((object) => object.id === selectedObjectId);
-    if (selectionLost(selected, snapshot.timeUtcMs, hostCleared.current && selectedObjectId === "")) {
+    if (selectionLost(selected, snapshot.timeUtcMs, hostCleared.current && selectedObjectId === "", skyFigureById(experience, selectedObjectId) !== undefined)) {
       const fallbackId = firstAvailableObject(experience, snapshot.timeUtcMs)?.id ?? "";
       setSelectedObjectId(fallbackId);
       onSelectionChange(fallbackId, "move");
@@ -367,7 +368,9 @@ export function AstraeusShell({
   /** An object tapped or clicked in the scene: the picker's focus; on a wide screen it also opens the card, on a phone it does not (T-138). A tapped body-set member that is no listed object just flies there. */
   const pickObject = (id: string) => {
     const object = availableObjectById(experience, id, snapshot.timeUtcMs);
-    if (object !== undefined) {
+    if (skyFigureById(experience, id) !== undefined) {
+      selectFigure(id, pickOpensInfo(phone));
+    } else if (object !== undefined) {
       activatePreset(focusPresetFor(experience, object));
       if (pickOpensInfo(phone)) setInfo({ kind: "object" });
     } else if (!experience.objects.some((candidate) => candidate.id === id)) onCameraRequest({ kind: "focus", target: id });
@@ -379,7 +382,15 @@ export function AstraeusShell({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [requestedPickSerial]);
 
+  /** A sky figure chosen in the object menu or tapped in the scene: it becomes the selection (the one selection path) and its card opens when `open`; the camera is left alone. */
+  const selectFigure = (id: string, open: boolean) => {
+    setSelectedObjectId(id);
+    onSelectionChange(id, "visitor");
+    if (open) setInfo({ kind: "object" });
+  };
+
   const selectObject = (id: string) => {
+    if (skyFigureById(experience, id) !== undefined) { selectFigure(id, true); return; }
     const object = availableObjectById(experience, id, snapshot.timeUtcMs);
     if (object === undefined) return;
     setSelectedObjectId(id);

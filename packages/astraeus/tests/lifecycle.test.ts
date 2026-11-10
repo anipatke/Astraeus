@@ -371,6 +371,29 @@ describe.each([mountDriver, reactDriver(false)])("lifecycle: $name", (driver) =>
     expect(handle.selected).toBeUndefined();
     expect(heard.length).toBe(1);
   });
+  it("sky figures take part in selection (O-066 T-299): the menu lists them, a visitor's pick and setSelected take their id, onSelect hears each once, and the card shows it", async () => {
+    prepared.real = true; openNow();
+    const scene = new Scene().addBody(earth).addSkyFigures([{ id: "kite", label: "The Kite", segments: [[{ raDeg: 10, decDeg: 20 }, { raDeg: 20, decDeg: 30 }]], description: "A made-up kite.", facts: [{ label: "Stars", value: "2" }] }, { id: "hidden", label: "Hidden Kite", listed: false, segments: [[{ raDeg: 40, decDeg: 20 }, { raDeg: 50, decDeg: 30 }]] }]);
+    const opened = await driver.open(scene);
+    await opened.ready();
+    const handle = opened.handle!;
+    const heard: Array<{ object?: string; cause: string }> = [];
+    handle.onSelect((c) => heard.push({ ...(c.object === undefined ? {} : { object: c.object }), cause: c.cause }));
+    const picker = document.querySelector<HTMLSelectElement>("[aria-label='Select object']")!;
+    expect([...picker.options].map((option) => option.value)).toContain("kite");
+    expect([...picker.options].map((option) => option.value)).not.toContain("hidden"); // the listing rule bodies follow
+    flushSync(() => {
+      Object.getOwnPropertyDescriptor(Object.getPrototypeOf(picker), "value")!.set!.call(picker, "kite");
+      picker.dispatchEvent(new window.Event("change", { bubbles: true }));
+    });
+    expect(handle.selected).toBe("kite");
+    expect(heard).toEqual([{ object: "kite", cause: "visitor" }]);
+    expect(document.querySelector(".info-panel")?.textContent).toContain("A made-up kite.");
+    flushSync(() => handle.setSelected("hidden"));
+    expect(handle.selected).toBe("hidden");
+    expect(codeOf(() => handle.setSelected("nope"))).toBe("bad-selection");
+    opened.unmount();
+  });
   it("onPick and setPick (O-059 T-269): the picker opens on its value, a visitor's press is heard once and moves nothing, setPick moves the pressed option alone, a throwing listener spares the next, and nothing is heard after unmount", async () => {
     prepared.real = true; openNow();
     const scene = new Scene().addBody(earth).setPicker({ id: "world", label: "World", options: [{ value: "a", label: "A" }, { value: "b", label: "B" }], value: "a" });

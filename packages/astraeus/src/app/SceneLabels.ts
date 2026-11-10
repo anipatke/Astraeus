@@ -41,6 +41,8 @@ export interface SkyLabelFrame {
   readonly distance: number;
   /** The look's colour for a sky label that has no colour of its own. */
   readonly labelColor: string;
+  /** The look's colour for the selected sky figure's name. */
+  readonly selectedColor?: string;
   /** How much of a sky label shows, 0 (not drawn) to 1; absent: all show. */
   readonly opacity?: (id: string) => number;
 }
@@ -58,7 +60,8 @@ export class SceneLabelLayer {
   /** Per object id, whether the latest layout showed it; absent when it was not a candidate (unplaced, out of reach or switched off). */
   readonly #lastShown = new Map<string, boolean>();
   readonly #sky: ReadonlyMap<string, SkyLabelSpec>;
-  #skyColour: string | null = null;
+  /** The colour last set on each sky label (by id), so a change of look or selection repaints only what changed. */
+  readonly #skyColours = new Map<string, string>();
 
   constructor(host: HTMLElement, objects: readonly ExperienceObject[], skyLabels: readonly SkyLabelSpec[] = []) {
     this.#root.className = "scene-labels";
@@ -100,9 +103,14 @@ export class SceneLabelLayer {
     sky?: SkyLabelFrame,
   ): void {
     camera.updateMatrixWorld(true);
-    if (sky !== undefined && sky.labelColor !== this.#skyColour) {
-      this.#skyColour = sky.labelColor;
-      for (const entry of this.#entries) if (this.#sky.get(entry.object.id)?.color === undefined && this.#sky.has(entry.object.id)) entry.element.style.setProperty("--label-color", sky.labelColor);
+    if (sky !== undefined) {
+      // A sky label takes its figure's own colour, else the look's; the selected figure's name takes the look's selected colour.
+      for (const entry of this.#entries) {
+        const spec = this.#sky.get(entry.object.id);
+        if (spec === undefined) continue;
+        const colour = entry.object.id === selectedObjectId ? sky.selectedColor ?? sky.labelColor : spec.color ?? sky.labelColor;
+        if (this.#skyColours.get(spec.id) !== colour) { this.#skyColours.set(spec.id, colour); entry.element.style.setProperty("--label-color", colour); }
+      }
     }
     this.#shown.clear();
     const previous = new Map(this.#lastShown);

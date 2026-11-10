@@ -1,11 +1,13 @@
 // Scene pointer: the hover and tap listeners on the canvas, separate from React.
 import { attachOrbitGestures, type DistanceLimits, type OrbitCameraState } from "./CameraController";
-import { pickTarget, type PickCandidate } from "./scenePicking";
+import { pickSkyFigure, pickTarget, type PickCandidate, type SkyPickFigure } from "./scenePicking";
 
 /** The slice of the frame state the pointer listeners read and write. */
 export interface PointerState {
   readonly pickables: readonly PickCandidate[];
   hoverPoint: { x: number; y: number } | null;
+  /** The sky figures a tap can select now, built when asked (a tap), never per frame. */
+  skyFigures?: () => readonly SkyPickFigure[];
 }
 
 /**
@@ -14,7 +16,8 @@ export interface PointerState {
  */
 export function attachScenePointer(canvas: HTMLCanvasElement, orbit: OrbitCameraState, state: PointerState, limits: () => DistanceLimits, onPickObject: ((id: string) => void) | undefined): () => void {
   const onTap = (x: number, y: number, pointer: "mouse" | "touch") => {
-    const id = pickTarget(state.pickables, x, y, pointer);
+    // Bodies first: a body hit wins over any sky figure behind it.
+    const id = pickTarget(state.pickables, x, y, pointer) ?? pickSkyFigure(state.skyFigures?.() ?? [], x, y);
     if (id === null) return;
     canvas.dataset.pickTarget = id;
     onPickObject?.(id);

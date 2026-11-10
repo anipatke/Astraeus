@@ -42,9 +42,11 @@ export interface SkyColours {
   readonly equator: string;
   readonly traced: string;
   readonly faded: string;
+  /** The lines and name of the selected sky figure. */
+  readonly selected: string;
 }
 
-export const DEFAULT_SKY_COLOURS: Readonly<SkyColours> = Object.freeze({ figure: "#8fb4ff", label: "#cfe0ff", boundary: "#5f7a9c", ecliptic: "#e0b25a", equator: "#7fd1b9", traced: "#ffd166", faded: "#44546d" });
+export const DEFAULT_SKY_COLOURS: Readonly<SkyColours> = Object.freeze({ figure: "#8fb4ff", label: "#cfe0ff", boundary: "#5f7a9c", ecliptic: "#e0b25a", equator: "#7fd1b9", traced: "#ffd166", faded: "#44546d", selected: "#ffffff" });
 
 /** A trace the host asked for (checked): the figure, how long, what follows, and whether the person asked for less motion when it was asked. */
 export interface SkyTraceRequest {

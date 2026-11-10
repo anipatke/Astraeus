@@ -220,7 +220,7 @@ describe("AstraeusScene hands React apps the handle (O-054 T-242)", () => {
 
   it("skyFigures reads the figures the viewer draws (id, label, kind) the same through mount and AstraeusScene, and is undefined before ready and after unmount (O-065 T-295, API-02)", async () => {
     prepared.skyFigures = [{ id: "kite", label: "The Kite", kind: "figure", segments: [], labelAt: [1, 0, 0] }, { id: "ring", label: "The Ring", kind: "boundary", segments: [], labelAt: [0, 1, 0] }];
-    const expected = [{ id: "kite", label: "The Kite", kind: "figure" }, { id: "ring", label: "The Ring", kind: "boundary" }];
+    const expected = [{ id: "kite", label: "The Kite", kind: "figure", listed: true, provenance: expect.objectContaining({ sourceType: "illustrative" }) }, { id: "ring", label: "The Ring", kind: "boundary", listed: true, provenance: expect.objectContaining({ sourceType: "illustrative" }) }];
     const mounted = mount(host, new Scene());
     expect(mounted.skyFigures).toBeUndefined();
     await drawn(mounted);

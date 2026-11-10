@@ -24,7 +24,7 @@ import { publishBodySets } from "./sceneBodySets";
 import type { useSceneViews } from "./sceneHooks";
 import { bodyAbsolute, placeComposition, type PlacedComposition, type ScenePlacement } from "./sceneLayout";
 import { placeBodyLights } from "./sceneLights";
-import { clampHoverBrightness, HOVER_BRIGHTNESS_DEFAULT, hoverTarget, pickCandidatesOf, type PickCandidate } from "./scenePicking";
+import { clampHoverBrightness, HOVER_BRIGHTNESS_DEFAULT, hoverTarget, pickCandidatesOf, type PickCandidate, type SkyPickFigure } from "./scenePicking";
 import type { SceneLabelLayer } from "./SceneLabels";
 import { updateSky } from "./sceneSky";
 import { labelPositionOf, type SceneTargets } from "./sceneTargets";
@@ -50,6 +50,8 @@ export interface FrameState {
   pickables: readonly PickCandidate[];
   /** The mouse's place over the canvas in CSS px while it hovers with no button down; null for touch, a drag or outside. */
   hoverPoint: { x: number; y: number } | null;
+  /** The sky figures a tap can select (names and lines, screen px from the canvas); read by a tap only. */
+  skyFigures: () => readonly SkyPickFigure[];
   /** Whether the renderer should draw this frame (`decideDraw`). True until the first frame has decided. */
   drawThisFrame: boolean;
   /** Frames the renderer has drawn since mount (`data-frames-drawn`). */
@@ -75,7 +77,7 @@ export interface DrawnMemo {
 
 export function createFrameState(policyId: ScalePolicy["id"], onFirstDraw?: () => void): FrameState {
   return {
-    started: false, onFirstDraw, spanScaled: 6, lastPolicyId: policyId, lastUp: null, pickables: [], hoverPoint: null,
+    started: false, onFirstDraw, spanScaled: 6, lastPolicyId: policyId, lastUp: null, pickables: [], hoverPoint: null, skyFigures: () => [],
     drawThisFrame: true, framesDrawn: 0, wakes: 0,
     drawn: { timeUtcMs: Number.NaN, pose: [], size: "", controls: new Map(), wakes: 0, mounted: -1, quietFrames: 0 },
   };
@@ -233,7 +235,7 @@ export function publishCanvasReadouts(ctx: FrameContext): void {
 /** Stage 4b: stands the sky figures, outlines and reference circles on the camera and shows the kinds the switches say. Looks only at the camera's orientation and the switches (ARCH-02). */
 export function placeSkyFigures(ctx: FrameContext): void {
   const { controls, camera, canvas, views } = ctx;
-  views.skyFiguresView.place(camera, controls.skyLines, controls.skyColours);
+  views.skyFiguresView.place(camera, controls.skyLines, controls.skyColours, controls.selectedObjectId);
   canvas.dataset.skyLines = views.skyFiguresView.shown.join(",");
 }
 
@@ -306,14 +308,16 @@ function shownUnderView(ctx: FrameContext) {
 
 /** Stage 6: updates the overlay layers (names, story and feature markers) and rebuilds what a tap or hover can pick. */
 export function updateOverlays(ctx: FrameContext, t: number, step: CameraStep, hoverGain: number): void {
-  const { controls, camera, canvas, size, origin, state, layers } = ctx;
+  const { controls, camera, canvas, size, origin, state, layers, views } = ctx;
   const bodyScreens = bodyScreenReadouts(ctx.assets, ctx.bodyRefs, camera, camera.fov, size.height, controls.policy, controls.glowLook);
   publishBodyData(canvas, bodyScreens);
   layers.anchorLabels.current?.update(controls.showAnchorLabels, camera, size.width, size.height);
   const positionFor = (id: string): RenderVector | null => labelPositionOf(step.targets, id);
   const shown = shownUnderView(ctx);
-  layers.sceneLabels.current?.update(positionFor, camera, size.width, size.height, origin, controls.selectedObjectId, shown.hiddenLabels, { on: controls.skyLines, labelColor: controls.skyColours.label, opacity: (id) => ctx.views.skyFiguresView.labelOpacity(id), distance: 0.5 * (camera.near + camera.far) });
+  layers.sceneLabels.current?.update(positionFor, camera, size.width, size.height, origin, controls.selectedObjectId, shown.hiddenLabels, { on: controls.skyLines, labelColor: controls.skyColours.label, selectedColor: controls.skyColours.selected, opacity: (id) => ctx.views.skyFiguresView.labelOpacity(id), distance: 0.5 * (camera.near + camera.far) });
   state.pickables = pickCandidatesOf({ objects: shown.objects, bodyIdFor: ctx.bodyIdFor, bodyScreens, widthPx: size.width, heightPx: size.height, labelRects: layers.sceneLabels.current?.shownRects, canvas, bodySetViews: shown.bodySetViews });
+  // Sky figures are projected only when a tap asks, from this frame's camera and shown names (no per-frame work).
+  state.skyFigures = () => views.skyFiguresView.screenFigures(camera, size.width, size.height, controls.skyLines, layers.sceneLabels.current?.shownRects, canvas.getBoundingClientRect());
   const hover = state.hoverPoint === null ? null : hoverTarget(state.pickables, state.hoverPoint.x, state.hoverPoint.y, "mouse");
   canvas.style.cursor = hover === null ? "" : "pointer";
   canvas.dataset.pickHover = hover ?? "";

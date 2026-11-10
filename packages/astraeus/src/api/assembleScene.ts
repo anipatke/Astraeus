@@ -152,6 +152,7 @@ export function assembleScene(parts: ScenePlanners, data: readonly DataSource[])
       ...startPresetEntry(camera),
       ...(moonFamilies === undefined ? {} : { moonFamilies }),
       ...(bodyFeatures.length === 0 ? {} : { bodyFeatures }),
+      ...(skyFigures.figures.size === 0 ? {} : { skyFigures: skyFigures.cards() }),
       events: story.events,
       ...story.provenanceEntries(),
       ...(storyPanels === undefined ? {} : { storyPanels }),

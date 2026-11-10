@@ -4,7 +4,8 @@ import type { GlowLook } from "./bodyDraw";
 import { viewUpFromSearch, viewUpVector, type ViewUp } from "./viewUp";
 import { activeEventZones, applyPacing, startPaceEase, type PaceView } from "../core/pacing";
 import { openClock } from "./openClock";
-import type { ViewerPort, ViewerState } from "./viewerPort";
+import { createProvenance } from "../core/provenance";
+import type { ViewerControl, ViewerPort, ViewerState } from "./viewerPort";
 import { pickerSwitch } from "./listSwitch";
 import { createSolarSystemScale, type ScalePolicy } from "../core/scalePolicy";
 import type { CameraRequest } from "./CameraController";
@@ -12,7 +13,7 @@ import type { DebugReadout } from "./debugReadout";
 import { bodySetsOf, cameraReachOf, catalogueOf, compositionOf, experienceWithGroups, groupsOf, initialObjectIdOf, mountedBodiesOf, pageTitleOf, scaleChoiceIdsOf, sceneCenterOf, sunCentredOf, trackedBodiesOf, visualOverridesOf, type ExperienceDefinition } from "./experienceDefinition";
 import { AstraeusShell, type SelectionOrigin } from "../shell/AstraeusShell";
 import type { ViewChoice } from "../shell/DisplaySwitches";
-import type { ExperienceCameraRequest } from "../shell/experience";
+import type { ExperienceCameraRequest, ExperienceConfig } from "../shell/experience";
 import { SCALE_CHOICES, scaleChoicesFor, scalePolicyFor, startScaleFor, type ScaleId } from "../shell/scaleModel";
 import { scaleFromSearch, showFromSearch, timeFromSearch, viewFromAngles, viewFromSearch, type CameraView } from "./viewLink";
 import { createOrbitCameraState } from "./CameraController";
@@ -70,6 +71,16 @@ export function loopFromSearch(search: string, fallback: boolean): boolean {
 }
 
 /** The scene view showing at the start: `?show=<id>` when it names one of the scene's views, else the scene's own `start` (an unknown id is not an error). */
+const NO_CARD_PROVENANCE = createProvenance({ sourceType: "illustrative", sources: ["Supplied by the caller"], accuracy: "As supplied; the engine makes no claim.", notes: "" });
+
+/** The sky figures as the host link reads them: each drawn figure with its card words (`experience.skyFigures`). */
+function skyFigureReads(layers: readonly { readonly id: string; readonly label: string; readonly kind: "figure" | "boundary" }[], cards: ExperienceConfig["skyFigures"]): NonNullable<ViewerControl["skyFigures"]> {
+  return layers.map(({ id, label, kind }) => {
+    const card = cards?.find((candidate) => candidate.id === id); // a hand-written definition may draw a figure with no card: it then reads as listed, with the default provenance
+    return Object.freeze({ id, label, kind, listed: card?.listed ?? true, provenance: card?.provenance ?? NO_CARD_PROVENANCE, ...(card?.description === undefined ? {} : { description: card.description }), ...(card?.facts === undefined ? {} : { facts: card.facts }) });
+  });
+}
+
 function startViewId(definition: ExperienceDefinition, search: string): string {
   const asked = showFromSearch(search);
   const known = asked !== undefined && definition.views?.views.some((view) => view.id === asked) === true;
@@ -471,7 +482,7 @@ export function App({ definition, writeTitle = true, address, developerTools, ho
     if (host === undefined) return undefined;
     hostAttached.current = true;
     shownKey.current = null; // the presentation is read afresh after each attach
-    host.attach({ ...(definition.picker === undefined ? {} : { picker: { id: definition.picker.id, values: definition.picker.options.map((option) => option.value), start: definition.picker.value } }), window: runtime.loopWindow, skyFigures: runtime.skyFigures.map(({ id, label, kind }) => Object.freeze({ id, label, kind })), events: experience.events, rates: definition.experience.rates, paced: runtime.pacing !== undefined, read: stateNow, seek: hostSeekTo, setRate: changeRate, playable: definition.experience.hideTimeline !== true, setPlaying: hostSetPlaying, views: viewIds, setView: chooseView, cameraTargets, readCamera, setCamera, setSelected: hostSetSelected, scales: hostScales, setScale: hostSetScale, setLook: hostSetLook, setSwitch: hostSetSwitch, traceSkyFigure: hostTraceSkyFigure, clearSkyTrace: hostClearSkyTrace });
+    host.attach({ ...(definition.picker === undefined ? {} : { picker: { id: definition.picker.id, values: definition.picker.options.map((option) => option.value), start: definition.picker.value } }), window: runtime.loopWindow, skyFigures: skyFigureReads(runtime.skyFigures, experience.skyFigures), events: experience.events, rates: definition.experience.rates, paced: runtime.pacing !== undefined, read: stateNow, seek: hostSeekTo, setRate: changeRate, playable: definition.experience.hideTimeline !== true, setPlaying: hostSetPlaying, views: viewIds, setView: chooseView, cameraTargets, readCamera, setCamera, setSelected: hostSetSelected, scales: hostScales, setScale: hostSetScale, setLook: hostSetLook, setSwitch: hostSetSwitch, traceSkyFigure: hostTraceSkyFigure, clearSkyTrace: hostClearSkyTrace });
     return () => { hostAttached.current = false; host.detach(); };
   }, [host, runtime, definition, hostSeekTo, changeRate, viewIds, chooseView, cameraTargets, readCamera, setCamera, hostSetSelected, experience, hostSetPlaying, hostScales, hostSetScale, hostSetLook, hostSetSwitch, hostTraceSkyFigure, hostClearSkyTrace]);
 
