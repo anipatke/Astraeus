@@ -7,10 +7,16 @@ import { SceneError } from "./errors";
 import { frozenCopy } from "./frozenCopy";
 import type { FollowView } from "./scene";
 import type { CameraPose, SkyDirection } from "./viewerLink";
-import { eqjUnitVector, validateCameraView, validateSkyLook } from "../core/startView";
+import { eqjUnitVector, SKY_OPENING_FOV_DEG, validateCameraView } from "../core/startView";
+import type { LookOutRequest } from "../app/CameraController";
+import { hiddenByView, viewById } from "../app/viewHiding";
+import { cameraRequestOf, checkToward } from "./cameraRequest";
 import { farthestSunDistanceKm } from "./sunOrbit";
 import { planetSeriesLoaded } from "../core/planetSeries";
 import type { TimelineSetting } from "./story";
+
+/** Each camera's opening look-out toward an id, kept out of the public class: the request the viewer runs on its first frame, as it runs a `setCamera` one. */
+const towardIds = new WeakMap<SceneCamera, LookOutRequest>();
 
 /** The scene's camera: what it opens on. */
 export class SceneCamera {
@@ -45,27 +51,35 @@ export class SceneCamera {
     if (view.up !== undefined && view.up !== "equatorial" && view.up !== "ecliptic") throw new SceneError("bad-camera", `camera.${call}("${id}"): up "${String(view.up)}" must be "equatorial" or "ecliptic"`);
     this.#target = id;
     this.#pose = undefined;
+    towardIds.delete(this);
     this.#following = following;
     this.#view = frozenCopy(view);
     return this;
   }
   /**
    * Opens standing inside a body (at its centre) and looking out, with no camera button pressed. `body` must be a body or trajectory already added (else `unknown-body`).
-   * `look.direction` is a star-map position (`{ raDeg, decDeg }`, J2000 equatorial degrees; default right ascension 0, declination 0) and `look.fovDeg` the vertical field of view in degrees (5 to 100; default 60);
-   * a direction or field of view out of range throws `bad-camera`. Same as `setStartView` with a sky pose. The last of `follow`, `focus`, `lookOut` and `setStartView` wins.
+   * `look` is checked by the rule `setCamera`'s look-out uses: `direction` is a star-map position (`{ raDeg, decDeg }`, J2000 degrees; default 0, 0) or the id of an object or sky figure to turn toward
+   * (a figure may be added later); `fovDeg` is the vertical field of view, 5 to 100 degrees (default 60). A malformed look throws `bad-camera`; an id the opening view cannot turn toward throws `bad-camera` when the scene is built.
+   * The viewer turns toward an id on its first frame as `setCamera` does; until then `pose` and `ViewerHandle.camera` are undefined. The last of `follow`, `focus`, `lookOut` and `setStartView` wins.
    * @example
    * scene.camera.lookOut("earth", { direction: { raDeg: 83.6, decDeg: 22 }, fovDeg: 40 });
+   * scene.camera.lookOut("earth", { direction: "Leo", fovDeg: 80 });
    */
-  lookOut(body: BodyRef | BodyId, look: { readonly direction?: SkyDirection; readonly fovDeg?: number } = {}): this {
+  lookOut(body: BodyRef | BodyId, look: { readonly direction?: SkyDirection | string; readonly fovDeg?: number } = {}): this {
+    this.#editable();
     const id = typeof body === "string" ? body : body?.id;
-    let sky;
-    try {
-      sky = validateSkyLook(look, "camera.lookOut");
-    } catch (error) {
-      if (error instanceof RangeError) throw new SceneError("bad-camera", error.message);
-      throw error;
+    if (typeof look !== "object" || look === null || Array.isArray(look) || "lookOut" in look) throw new SceneError("bad-camera", `camera.lookOut: the look must be { direction?, fovDeg? }, got ${JSON.stringify(look)}`);
+    const request = cameraRequestOf({ ...look, lookOut: id }, "camera.lookOut", undefined) as LookOutRequest;
+    if (typeof request.direction !== "string") {
+      // Already checked: the nested or flat position, else right ascension 0, declination 0.
+      const record = look as Record<string, unknown>;
+      const { raDeg, decDeg } = (record.direction ?? ("raDeg" in record ? record : { raDeg: 0, decDeg: 0 })) as SkyDirection;
+      return this.#start({ lookOut: id, raDeg, decDeg, fovDeg: request.fovDeg ?? SKY_OPENING_FOV_DEG }, "camera.lookOut");
     }
-    return this.#start({ lookOut: id, ...sky }, "camera.lookOut");
+    if (!this.#has(request.body)) throw new SceneError("unknown-body", `camera.lookOut: "${request.body}" has not been added to the scene`);
+    this.#reset();
+    towardIds.set(this, request);
+    return this;
   }
   /**
    * Opens at a pose with no camera button pressed (neither Focus nor Follow shows as pressed, and choosing another body moves the camera as it does without a start). The pose is what `ViewerHandle.camera` reads, either kind:
@@ -92,7 +106,15 @@ export class SceneCamera {
     this.#target = undefined;
     this.#following = false;
     this.#view = {};
+    towardIds.delete(this);
     return this;
+  }
+  /** Clears every opening call before a look-out toward an id. */
+  #reset(): void {
+    this.#target = undefined;
+    this.#pose = undefined;
+    this.#following = false;
+    this.#view = {};
   }
   /**
    * Chooses the objects whose Follow button the camera menu offers, by body, id, path or group already added to the scene (else `unknown-body`); the others offer Focus only. An empty list offers Follow on none.
@@ -163,7 +185,7 @@ export class SceneCamera {
   get reachEarthRadii(): number | undefined { return this.#reach; }
   /** The far plane set with `setReach`'s `farEarthRadii`, if any. */
   get farEarthRadii(): number | undefined { return this.#far; }
-  /** The pose `setStartView` set, if it is the last opening call. */
+  /** The pose `setStartView` or `lookOut` set, if it is the last opening call (undefined after a `lookOut` toward an id). */
   get pose(): CameraPose | undefined { return this.#pose; }
   /** The objects offering Follow (`setFollowChoices`); undefined: every one. */
   get followChoices(): readonly string[] | undefined { return this.#followIds; }
@@ -173,6 +195,19 @@ export class SceneCamera {
   /** Whether the opening view follows its target (`follow`) rather than only looking at it (`focus`). */
   get following(): boolean { return this.#following; }
   get view(): FollowView { return this.#view; }
+}
+
+/**
+ * Refuses an opening look-out toward an id `setCamera` would refuse on the opening view (`checkToward`, the same check and wording): the direction must name an object the opening view shows or a sky figure.
+ * Called when the scene is built, after every figure is in.
+ */
+export function checkOpeningLook(camera: SceneCamera, definition: ExperienceDefinition, groupIds: Iterable<string>, figureIds: Iterable<string>): void {
+  const toward = towardIds.get(camera);
+  if (toward === undefined) return;
+  const views = definition.views;
+  const hidden = hiddenByView(views, viewById(views, views?.start ?? ""), definition.experience).objects;
+  const shown = [...definition.experience.objects.map(({ id }) => id), ...groupIds].filter((id) => !hidden.has(id));
+  if (typeof toward.direction === "string") checkToward(toward.direction, "camera.lookOut", shown, [...figureIds], "the opening view");
 }
 
 /** The fitted body's farthest Sun distance, read once when the viewer first needs it (a planet's reads the planet series, loaded by then); undefined when no orbit is fitted. */
@@ -193,6 +228,8 @@ export function startPresetEntry(camera: SceneCamera): { startCameraPresetId?: s
 
 /** The `startView` entry of the definition: the opening framing of the camera's target (absent when none was asked for). */
 export function startViewEntry(camera: SceneCamera): Pick<ExperienceDefinition, "startView"> {
+  const toward = towardIds.get(camera);
+  if (toward !== undefined) return { startView: toward };
   if (camera.pose !== undefined) return { startView: { ...camera.pose } };
   const target = camera.target;
   const view = camera.view;

@@ -178,10 +178,13 @@ function showsDisplayControls(definition: ExperienceDefinition, runtime: Runtime
     || runtime.bodies.some((id) => runtime.catalogue.get(id).visual.kind === "sphere");
 }
 
-/** The camera as the scene opens it (the start view, else its default framing): what a host reads before the scene's first frame writes `viewReadout`. */
-function openingCamera(definition: ExperienceDefinition, runtime: Runtime, search: string): CameraView {
+/**
+ * The camera as the scene opens it (the start view, else its default framing): what a host reads before the scene's first frame writes `viewReadout`.
+ * Undefined for a look-out toward an id: its direction is known only once the first frame resolves it, and a guess would be a false reading.
+ */
+function openingCamera(definition: ExperienceDefinition, runtime: Runtime, search: string): CameraView | undefined {
   const start = viewFromSearch(search) ?? definition.startView;
-  if (start !== undefined) return start;
+  if (start !== undefined) return "kind" in start ? undefined : start;
   const opening = createOrbitCameraState(START_CAMERA_DISTANCE, runtime.sceneCenter);
   return viewFromAngles(opening.focus, opening.azimuth, opening.elevation, opening.distance);
 }
@@ -197,7 +200,9 @@ function initialSceneControls(
   suppliedPolicies: readonly ScalePolicy[],
   search: string,
 ): SceneControls {
-  const startView = viewFromSearch(search) ?? definition.startView;
+  // A look-out toward an id is aimed as a `setCamera` one is: a sky figure becomes its label point here, an object is turned toward on the first frame.
+  const opening = definition.startView;
+  const startView = viewFromSearch(search) ?? (opening !== undefined && "kind" in opening ? aimAtFigure(opening, runtime.skyFigures) : opening);
   return {
     policy: scalePolicyFor(startScale, suppliedPolicies),
     cameraRequest: null,
@@ -484,7 +489,8 @@ export function App({ definition, writeTitle = true, address, developerTools, ho
   }, [experience]);
   const opening = useMemo(() => openingCamera(definition, runtime, search), []); // eslint-disable-line react-hooks/exhaustive-deps
   const readCamera = useCallback((): CameraView | undefined => {
-    return { ...(controls.current.viewReadout ?? opening) };
+    const view = controls.current.viewReadout ?? opening;
+    return view === undefined ? undefined : { ...view };
   }, [opening]);
   // A host camera call is the last word: it is also kept in `hostCameraRequest`, so the opening view (first frame) and a view's own camera rule (shell) yield to it.
   const setCamera = useCallback((request: CameraRequest) => { controls.current.cameraRequest = controls.current.hostCameraRequest = aimAtFigure(request, runtime.skyFigures); }, [runtime]);

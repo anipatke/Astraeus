@@ -1,6 +1,4 @@
-import { cameraIdsOf } from "../core/storyPanels";
-import { cameraRequestOf } from "./cameraRequest";
-import { SceneError } from "./errors";
+import { cameraRequestOf, checkCameraIds } from "./cameraRequest";
 import { callListeners } from "./listeners";
 import type { CameraPose, CameraTarget, LinkAccess } from "./viewerLink";
 
@@ -47,7 +45,7 @@ export class ViewerCamera {
     callListeners(this.#listeners, pose);
   }
 
-  /** The camera pose, or undefined before the viewer is drawn and after it is gone; before its first frame it is the opening camera. */
+  /** The camera pose, or undefined before the viewer is drawn and after it is gone; before its first frame it is the opening camera, or undefined when the opening look-out turns toward an id (resolved on that frame). */
   get camera(): CameraPose | undefined { return this.access.control()?.readCamera(); }
 
   /**
@@ -59,13 +57,7 @@ export class ViewerCamera {
   setCamera(target: CameraTarget): void {
     const control = this.access.open("setCamera");
     const request = cameraRequestOf(target, "setCamera", this.camera);
-    const known = control.cameraTargets();
-    const { bodies, toward } = cameraIdsOf(request);
-    for (const id of bodies) {
-      if (!known.includes(id)) throw new SceneError("bad-camera", `setCamera: "${id}" is not an object the showing view shows (${known.join(", ")})`);
-    }
-    const figures = (control.skyFigures ?? []).map(({ id }) => id);
-    if (toward !== undefined && !known.includes(toward) && !figures.includes(toward)) throw new SceneError("bad-camera", `setCamera: "${toward}" is neither an object the showing view shows (${known.join(", ")}) nor a sky figure the viewer draws (${figures.join(", ")})`);
+    checkCameraIds(request, "setCamera", control.cameraTargets(), (control.skyFigures ?? []).map(({ id }) => id));
     control.setCamera(request);
   }
 }

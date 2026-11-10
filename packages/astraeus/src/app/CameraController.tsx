@@ -27,6 +27,9 @@ export type CameraRequest =
   /** Puts the camera back on a pose read earlier: it follows the pose's object and eases to its angles and distance (the offset is the object's own, so a moving object is followed from where it is now). */
   | { readonly kind: "pose"; readonly view: StartView };
 
+/** A look-out request: what `setCamera`, a story panel camera and an opening look-out toward an id all run (`sceneCamera.ts` `applyLookOut`). */
+export type LookOutRequest = Extract<CameraRequest, { readonly kind: "lookOut" }>;
+
 export interface OrbitCameraState {
   azimuth: number;
   targetAzimuth: number;

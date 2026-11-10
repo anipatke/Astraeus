@@ -15,7 +15,7 @@ import type { Metric } from "../shell/metrics";
 import type { ExperienceObject } from "../shell/experience";
 import { checkDataSources, installData, type DataSource } from "./data";
 import { SceneError } from "./errors";
-import { cameraPresetsOf, fitFarthestKm, startPresetEntry, startViewEntry, viewEntries, type SceneCamera } from "./planCamera";
+import { cameraPresetsOf, checkOpeningLook, fitFarthestKm, startPresetEntry, startViewEntry, viewEntries, type SceneCamera } from "./planCamera";
 import type { BodyPlan } from "./planBodies";
 import type { BodySetPlan } from "./planBodySets";
 import type { MoonPanelPlan } from "./planMoonPanel";
@@ -198,6 +198,7 @@ export function assembleScene(parts: ScenePlanners, data: readonly DataSource[])
       await figures.settle();
     },
   };
+  checkOpeningLook(camera, definition, groupPlan.groups.keys(), skyFigures.figures.keys());
   return definition;
 }
 

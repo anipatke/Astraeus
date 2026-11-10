@@ -287,3 +287,30 @@ describe("camera to the encounter and back through AstraeusScene and its handle 
     expect(controls().cameraRequest).toMatchObject({ kind: "pose", view: { focus: "earth", azimuthDeg: 10, elevationDeg: 20, distance: 30 } });
   });
 });
+
+describe("the opening look-out toward an id (I-169)", () => {
+  const kite = { id: "kite", label: "The Kite", segments: [[{ raDeg: 10, decDeg: 20 }, { raDeg: 20, decDeg: 30 }]] } as const;
+  it("hands the viewer the request setCamera would send, and reads no pose before the first frame", async () => {
+    const scene = makeScene();
+    scene.camera.lookOut("earth", { direction: "moon", fovDeg: 50 });
+    const handle = mount(host, scene);
+    await drawn(handle);
+    expect(controls().startView).toEqual({ kind: "lookOut", body: "earth", direction: "moon", fovDeg: 50 });
+    expect(handle.camera).toBeUndefined();
+    handle.setCamera({ lookOut: "earth", direction: "moon", fovDeg: 50 });
+    expect(controls().cameraRequest).toEqual(controls().startView);
+    handle.unmount();
+  });
+
+  it("a sky figure is aimed at the label point setCamera aims at", async () => {
+    const scene = makeScene().addSkyFigures([kite]);
+    scene.camera.lookOut("earth", { direction: "kite" });
+    const handle = mount(host, scene);
+    await drawn(handle);
+    const opening = controls().startView as { readonly direction: readonly number[] };
+    expect(opening.direction).toHaveLength(3);
+    handle.setCamera({ lookOut: "earth", direction: "kite" });
+    expect(controls().cameraRequest).toEqual(opening);
+    handle.unmount();
+  });
+});

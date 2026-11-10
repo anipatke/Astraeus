@@ -1,6 +1,6 @@
 // Look-out camera: standing at a body's centre and turning to look around the sky. Camera-only state; nothing in State is read or written.
 import { orbitBasis } from "./viewUp";
-import { SKY_FOV_RANGE_DEG, type SkyView } from "../core/startView";
+import { SKY_FOV_RANGE_DEG, SKY_OPENING_FOV_DEG, type SkyView } from "../core/startView";
 import type { RenderVector } from "./renderCoordinates";
 
 /** What a camera that stands inside a body carries beyond the orbit angles: the field of view is its zoom. The look direction is the orbit state's azimuth and elevation about the up in force. */
@@ -10,7 +10,7 @@ export interface LookOutState {
 }
 
 export const LOOK_OUT_FOV_RANGE_DEG = SKY_FOV_RANGE_DEG;
-export const LOOK_OUT_OPENING_FOV_DEG = 60;
+export const LOOK_OUT_OPENING_FOV_DEG = SKY_OPENING_FOV_DEG;
 /** The nearest the look-out camera draws: positive, and far inside anything a sky shows. */
 export const LOOK_OUT_NEAR = 1e-3;
 const MAX_LOOK_ELEVATION = (89 * Math.PI) / 180;

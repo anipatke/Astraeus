@@ -41,6 +41,8 @@ export function validateStartView(raw: unknown, where = "startView"): StartView 
 
 /** The field of view a sky reading may carry, in degrees (a look-out camera's zoom). */
 export const SKY_FOV_RANGE_DEG = { min: 5, max: 100 } as const;
+/** The field of view a look-out opens at when none is given, in degrees. */
+export const SKY_OPENING_FOV_DEG = 60;
 
 /**
  * A camera standing inside `lookOut` (a body's id) and looking out: `raDeg` and `decDeg` are where it points in J2000 equatorial degrees
@@ -80,16 +82,6 @@ export function validateSkyPosition(raw: unknown, where: string): { readonly raD
   if (typeof raw !== "object" || raw === null || Array.isArray(raw) || Object.keys(raw).some((key) => key !== "raDeg" && key !== "decDeg")) throw new RangeError(`${where} must be { raDeg, decDeg }`);
   const position = raw as Record<string, unknown>;
   return validateSkyDirection(position.raDeg, position.decDeg, where);
-}
-
-/** Checks an opening look (`{ direction?, fovDeg? }`) and fills the defaults (right ascension 0, declination 0, field of view 60); an omitted `look` or field takes its default, anything else must pass the same checks as `setCamera`. */
-export function validateSkyLook(look: unknown, where: string): { readonly raDeg: number; readonly decDeg: number; readonly fovDeg: number } {
-  if (look === undefined) return { raDeg: 0, decDeg: 0, fovDeg: 60 };
-  if (typeof look !== "object" || look === null || Array.isArray(look)) throw new RangeError(`${where} must be { direction?, fovDeg? }`);
-  const record = look as Record<string, unknown>;
-  for (const key of Object.keys(record)) if (key !== "direction" && key !== "fovDeg") throw new RangeError(`${where}.${key} is not a look field (use direction and fovDeg)`);
-  const direction = record.direction === undefined ? { raDeg: 0, decDeg: 0 } : validateSkyPosition(record.direction, `${where}.direction`);
-  return { ...direction, fovDeg: "fovDeg" in record && record.fovDeg !== undefined ? validateSkyFov(record.fovDeg, where) : 60 };
 }
 
 /** Checks a field of view in degrees against the range a look-out camera takes. */

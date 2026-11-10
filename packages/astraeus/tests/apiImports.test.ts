@@ -20,6 +20,7 @@ const ALLOWED: Readonly<Record<string, string>> = {
   "app/skyFigures": "the definition contract: the drawable sky figures a definition carries (EQJ directions) and the sky-line switch state",
   "app/look": "the look table: the one place each look's address parameter and range are written, which setLook checks against",
   "app/views": "the definition contract: view places and camera rules (the viewer's own settings shape)",
+  "app/viewHiding": "the definition contract: which objects a view hides, so the opening look-out checks its direction id against the opening view as setCamera checks the showing one (I-169)",
   "shell/metrics": "the definition contract: the Metric and RateMetric types",
   "shell/experience": "the definition contract: ExperienceObject and ExperienceConfig, what the scene hands the shell",
   "app/viewerPort": "the viewer port: the control and state a host link talks to",

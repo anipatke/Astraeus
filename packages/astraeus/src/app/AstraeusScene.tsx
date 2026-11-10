@@ -27,6 +27,7 @@ import { LayeredRender } from "./LayeredRender";
 import type { RenderVector } from "./renderCoordinates";
 import { useSceneViews, useSkyStars } from "./sceneHooks";
 import type { CameraView } from "./viewLink";
+import type { OpeningView } from "./sceneCamera";
 import {
   assignBodyLayers,
   START_CAMERA_DISTANCE,
@@ -159,8 +160,8 @@ export interface SceneControls {
   frameStats: FrameStats | null;
   /** Each group's refill count, written by the scene while `frameStats` is set; read by the Developer tools poll. */
   readonly groupFills: GroupFill[];
-  /** The view to open on (from `?view=` or the experience's `startView`). Used once, on the first frame; absent: today's opening. */
-  startView?: CameraView;
+  /** The view to open on (from `?view=` or the experience's `startView`, a look-out toward an id as a request). Used once, on the first frame; absent: today's opening. */
+  startView?: OpeningView;
   /** The camera's current view, written every frame by the scene for "Copy view link": an orbit view, or a sky view while looking out. */
   viewReadout?: CameraView;
   /** How long the loading cover fades when the first frame is drawn (the address's `loadfade` when the address is on, else the saved setting). */

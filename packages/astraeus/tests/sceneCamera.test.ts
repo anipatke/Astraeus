@@ -87,6 +87,21 @@ describe("stepCameraTarget", () => {
     expect(controls.cameraRequest).toBeNull();
   });
 
+  it("an opening look-out toward an object runs the same step as a setCamera look-out toward it (I-169), and a host request still wins", () => {
+    const toward = { kind: "lookOut", body: "earth", direction: "moon", fovDeg: 40 } as const;
+    const opened = input({ firstFrame: true }, { cameraRequest: { kind: "overview" }, startView: toward });
+    const asked = input({ firstFrame: false }, { cameraRequest: toward });
+    stepCameraTarget(opened);
+    stepCameraTarget(asked);
+    expect(opened.camState.lookOut).toEqual({ fovDeg: 40 });
+    expect([opened.camState.focus, opened.camState.azimuth, opened.camState.elevation]).toEqual([asked.camState.focus, asked.camState.azimuth, asked.camState.elevation]);
+    expect(opened.controls.cameraRequest).toBeNull();
+    const host = { kind: "focus", target: "moon" } as const;
+    const overruled = input({ firstFrame: true }, { cameraRequest: host, hostCameraRequest: host, startView: toward });
+    expect(stepCameraTarget(overruled)).toBe("moon");
+    expect(overruled.camState.lookOut).toBeNull();
+  });
+
   it("ignores the start view after the first frame and when it names something unknown", () => {
     const later = input({ firstFrame: false }, { cameraRequest: null, startView: { focus: "moon", azimuthDeg: 0, elevationDeg: 0, distance: 8 } });
     expect(stepCameraTarget(later)).toBe("earth");

@@ -224,7 +224,7 @@
         {
           "name": "lookOut",
           "optional": false,
-          "signature": "(body: BodyRef | BodyId, look?: { readonly direction?: SkyDirection; readonly fovDeg?: number; }): SceneCamera"
+          "signature": "(body: BodyRef | BodyId, look?: { readonly direction?: SkyDirection | string; readonly fovDeg?: number; }): SceneCamera"
         },
         {
           "name": "setStartView",

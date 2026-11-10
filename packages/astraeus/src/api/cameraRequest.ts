@@ -1,4 +1,5 @@
 import type { CameraRequest } from "../app/CameraController";
+import { cameraIdsOf } from "../core/storyPanels";
 import { eqjUnitVector, validateSkyDirection, validateSkyFov, validateSkyPosition, validateStartView } from "../core/startView";
 import { SceneError } from "./errors";
 import type { CameraPose } from "./viewerLink";
@@ -22,6 +23,21 @@ export function cameraRequestOf(target: unknown, call: string, now: CameraPose |
   const id = record[named[0]];
   if (named.length > 1 || Object.keys(record).length > 1 || typeof id !== "string" || id === "") throw bad("the target must be exactly one of follow or focus, naming a non-empty id");
   return { kind: named[0], target: id };
+}
+
+/**
+ * Checks the ids a camera request names against what the viewer can turn toward: each body or object must be one of `shown` (the objects the view named by `view` shows),
+ * and a look-out direction id one of those or of `figures` (the scene's sky figures). Throws `bad-camera` leading with `call`. `setCamera` runs it as it is called; the opening look-out runs `checkToward` when the scene is built.
+ */
+export function checkCameraIds(request: CameraRequest, call: string, shown: readonly string[], figures: readonly string[], view = "the showing view"): void {
+  const { bodies, toward } = cameraIdsOf(request);
+  for (const id of bodies) if (!shown.includes(id)) throw new SceneError("bad-camera", `${call}: "${id}" is not an object ${view} shows (${shown.join(", ")})`);
+  if (toward !== undefined) checkToward(toward, call, shown, figures, view);
+}
+
+/** The look-out direction id half of `checkCameraIds`: `toward` must be an object `view` shows or a sky figure, else `bad-camera` naming it. */
+export function checkToward(toward: string, call: string, shown: readonly string[], figures: readonly string[], view = "the showing view"): void {
+  if (!shown.includes(toward) && !figures.includes(toward)) throw new SceneError("bad-camera", `${call}: "${toward}" is neither an object ${view} shows (${shown.join(", ")}) nor a sky figure the viewer draws (${figures.join(", ") || "none added"})`);
 }
 
 /** A look-out target or a sky pose: the body, a direction (`direction`, or `raDeg` and `decDeg` together), and a field of view. */

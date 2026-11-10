@@ -1,0 +1,24 @@
+{
+  "name": "check-hello-planets",
+  "at": "2026-11-10T23:41:27.789Z",
+  "ok": true,
+  "results": [
+    {
+      "viewport": "desktop",
+      "result": {
+        "scaleFrom": "solar-system",
+        "scaleTo": "true-scale",
+        "stars": 0.4
+      }
+    },
+    {
+      "viewport": "phone",
+      "result": {
+        "scaleFrom": "solar-system",
+        "scaleTo": "true-scale",
+        "stars": 0.4
+      }
+    }
+  ],
+  "errors": []
+}

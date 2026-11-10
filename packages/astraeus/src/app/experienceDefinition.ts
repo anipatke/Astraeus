@@ -203,8 +203,11 @@ export interface ExperienceDefinition {
   readonly views?: ViewSettings;
   /** Which direction the camera treats as up (default "equatorial", celestial north; "ecliptic" orbits about the ecliptic pole so the planets' plane reads flat). */
   readonly viewUp?: import("./viewUp").ViewUp;
-  /** The camera view to open on (focus id, azimuth and elevation in degrees, distance in scaled units). Absent: the usual opening. `?view=` overrides it. */
-  readonly startView?: import("./viewLink").CameraView;
+  /**
+   * The camera view to open on (focus id, azimuth and elevation in degrees, distance in scaled units; or a sky view), or a look-out request whose direction is an id (`scene.camera.lookOut` toward an object or sky figure),
+   * which the viewer resolves on the first frame by the same steps as a `setCamera` look-out. Absent: the usual opening. `?view=` overrides it.
+   */
+  readonly startView?: import("./sceneCamera").OpeningView;
   /** The sky behind the scene (stars and the Milky Way, at infinity). On at full brightness unless this says otherwise; presentation only. */
   readonly sky?: SkySettings;
   /** The looks the scene set (`Scene.setLook`); the page address (when on) overrides them, see `app/look.ts`. Presentation only. */

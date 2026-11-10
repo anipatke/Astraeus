@@ -5,6 +5,7 @@ import {
   clampDistance,
   switchFocus,
   type CameraRequest,
+  type LookOutRequest,
   type OrbitCameraState,
 } from "./CameraController";
 import type { CameraReach } from "./experienceDefinition";
@@ -27,9 +28,12 @@ import { orbitAnglesFor, orbitBasis } from "./viewUp";
 import type { StartView } from "./viewLink";
 import { eqjUnitVector, isSkyView, type CameraView } from "../core/startView";
 
+/** What the scene opens on: a view in numbers, or a look-out request whose direction is an id, resolved on the first frame as a `setCamera` look-out is (the figure aim already applied, `aimAtFigure`). */
+export type OpeningView = CameraView | LookOutRequest;
+
 /** The two control fields the camera step reads and clears. */
 export interface CameraControls {
-  startView?: CameraView;
+  startView?: OpeningView;
   cameraRequest: CameraRequest | null;
   /** The host's last `setCamera`, kept apart from `cameraRequest` so the opening view and a view's own camera rule cannot discard it (the host-call order rule). */
   hostCameraRequest?: CameraRequest | null;
@@ -79,9 +83,11 @@ function applyStartView(camState: OrbitCameraState, view: StartView): void {
 function openFirstFrame(input: CameraStepInput): boolean {
   const { camState, controls, targets, frame, reach } = input;
   const view = controls.startView;
-  if (view !== undefined && canFocus(targets, isSkyView(view) ? view.lookOut : view.focus)) {
-    if (isSkyView(view)) applyLookOut(input, { kind: "lookOut", body: view.lookOut, direction: eqjUnitVector(view.raDeg, view.decDeg), fovDeg: view.fovDeg });
-    else applyStartView(camState, view);
+  // A sky view opens through the same look-out step as a request does.
+  const opening = view === undefined || "kind" in view || !isSkyView(view) ? view : { kind: "lookOut", body: view.lookOut, direction: eqjUnitVector(view.raDeg, view.decDeg), fovDeg: view.fovDeg } as const;
+  if (opening !== undefined && canFocus(targets, "kind" in opening ? opening.body : opening.focus)) {
+    if ("kind" in opening) applyLookOut(input, opening);
+    else applyStartView(camState, opening);
     // The opening view replaces any request made before the first frame, except the host's: that one is applied after it.
     controls.cameraRequest = controls.hostCameraRequest ?? null;
     return false;
@@ -123,7 +129,7 @@ function faceParent(camState: OrbitCameraState, targets: SceneTargets, viewUp: R
 }
 
 /** The render-frame direction a look-out request names: an EQJ vector, or the way from the body to the object to turn toward. Null when it names no direction. */
-function lookDirectionOf(input: CameraStepInput, request: Extract<CameraRequest, { kind: "lookOut" }>): RenderVector | null {
+function lookDirectionOf(input: CameraStepInput, request: LookOutRequest): RenderVector | null {
   const { targets } = input;
   let direction: RenderVector;
   if (request.direction === undefined) {
@@ -140,7 +146,7 @@ function lookDirectionOf(input: CameraStepInput, request: Extract<CameraRequest,
 }
 
 /** Stands the camera at the body's centre looking along the requested direction; nothing happens for a body or direction it cannot resolve. */
-function applyLookOut(input: CameraStepInput, request: Extract<CameraRequest, { kind: "lookOut" }>): void {
+function applyLookOut(input: CameraStepInput, request: LookOutRequest): void {
   const { camState, targets, viewUp } = input;
   if (!canFocus(targets, request.body)) return;
   // No direction: keep the one already looked along while looking out, else right ascension 0, declination 0.
