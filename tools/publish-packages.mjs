@@ -2,6 +2,8 @@
 // and `npm run check:pack`; never run it by hand except with --dry-run (docs/RELEASING.md).
 //   - Each package is published from packages/<name>/dist (the folder build-packages.mjs wrote), engine first.
 //   - A package whose version is already on npm is skipped, so a failed release can be re-run.
+//   - A package that has never been on npm is refused, and then nothing is published: its first version goes up by hand and needs its trusted-publisher link (docs/RELEASING.md,
+//     "Adding a package"); the workflow's OIDC sign-in cannot create a package (0.9.0, astraeus-data-constellations).
 //   - With --tag, every package's version must equal the tag without its leading "v"; otherwise nothing is published.
 //   - Without --dry-run, `npm publish --provenance --access public` (npm trusted publishing: no token; the runner's OIDC identity signs in). With --dry-run, `npm publish --dry-run`
 //     and no provenance, which proves the folder would publish without sending anything.
@@ -13,8 +15,9 @@ import { PACKAGES } from "./build-packages.mjs";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 
-/** What to do for one package: "publish" or "skip" (already on npm), or a refusal when the tag and the version disagree. */
-export function planFor({ name, version, tag, published }) {
+/** What to do for one package: "publish" or "skip" (already on npm), or a refusal when the tag and the version disagree or the package has never been on npm (`onNpm` false). */
+export function planFor({ name, version, tag, published, onNpm = true }) {
+  if (!onNpm) return { name, action: "refuse", reason: `${name} has never been published: publish its first version by hand and link its trusted publisher (docs/RELEASING.md, "Adding a package")` };
   if (tag !== undefined && tag.replace(/^v/, "") !== version) return { name, action: "refuse", reason: `release tag ${tag} does not match ${name} version ${version}` };
   if (published) return { name, action: "skip", reason: `${name}@${version} is already on npm` };
   return { name, action: "publish", reason: `${name}@${version} is not on npm yet` };
@@ -25,11 +28,12 @@ export function publishArgs(dir, dryRun) {
   return ["publish", dir, "--access", "public", ...(dryRun ? ["--dry-run"] : ["--provenance"])];
 }
 
-function isPublished(name, version) {
-  const view = spawnSync("npm", ["view", `${name}@${version}`, "version", "--json"], { encoding: "utf8" });
+/** Whether `spec` (`name` or `name@version`) is on npm; throws when npm cannot say. */
+function onRegistry(spec) {
+  const view = spawnSync("npm", ["view", spec, "version", "--json"], { encoding: "utf8" });
   if (view.status === 0) return view.stdout.trim() !== "";
   if (/E404|404 Not Found/.test(`${view.stdout}${view.stderr}`)) return false;
-  throw new Error(`npm view ${name}@${version} failed: ${view.stderr}`);
+  throw new Error(`npm view ${spec} failed: ${view.stderr}`);
 }
 
 export function publishAll({ dryRun = false, tag } = {}) {
@@ -37,10 +41,10 @@ export function publishAll({ dryRun = false, tag } = {}) {
     const dir = join(root, "packages", name, "dist");
     if (!existsSync(join(dir, "package.json"))) throw new Error(`${name}: ${dir} has no package.json; run npm run build:packages first`);
     const { version } = JSON.parse(readFileSync(join(dir, "package.json"), "utf8"));
-    return { dir, ...planFor({ name, version, tag, published: isPublished(name, version) }) };
+    return { dir, ...planFor({ name, version, tag, published: onRegistry(`${name}@${version}`), onNpm: onRegistry(name) }) };
   });
   for (const plan of plans) console.log(`${plan.action.padEnd(7)} ${plan.reason}`);
-  if (plans.some((plan) => plan.action === "refuse")) throw new Error("nothing was published: a tag and a version disagree");
+  if (plans.some((plan) => plan.action === "refuse")) throw new Error("nothing was published: see the refusals above");
   for (const plan of plans.filter((one) => one.action === "publish")) {
     const run = spawnSync("npm", publishArgs(plan.dir, dryRun), { stdio: "inherit" });
     if (run.status !== 0) throw new Error(`npm publish failed for ${plan.name}`);

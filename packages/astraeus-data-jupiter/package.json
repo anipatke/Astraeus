@@ -1,6 +1,6 @@
 {
   "name": "astraeus-data-jupiter",
-  "version": "0.8.1",
+  "version": "0.9.0",
   "description": "Jupiter's moon positions for the Astraeus engine: piecewise Chebyshev fits of JPL Horizons state vectors, 2010 to 2030, the main moons and the planet from 1950.",
   "license": "MIT",
   "type": "module",
@@ -17,7 +17,7 @@
     "jupiter"
   ],
   "peerDependencies": {
-    "astraeus": ">=0.8.0 <0.9.0"
+    "astraeus": ">=0.9.0 <0.10.0"
   },
   "exports": {
     ".": "./src/index.ts",

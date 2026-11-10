@@ -2,7 +2,11 @@
 
 Versions follow [semantic versioning](https://semver.org). While the version starts with `0.`, the public API (the names exported from `astraeus`) may still change between minor versions; each change is listed here.
 
-## Unreleased
+## 0.9.0 (2026-11-11)
+
+Look out at the sky, draw and trace any figure on it, tap it for a card, and tell a story in steps that turns to it and traces it (G-018). The new optional package `astraeus-data-constellations` supplies all 88 IAU constellations. Additions only, apart from one type-level change for apps that read the camera (`CameraPose` is now `OrbitPose | SkyPose`, see "Look out from a body" below). Every `astraeus-data*` package now peers on `astraeus` `>=0.9.0 <0.10.0`.
+
+First download of the packed example (`npm run measure:example`): 1,758,392 bytes raw, 505,337 bytes gzip (code and styles loaded on first open), against 1,720,047 raw and 493,478 gzip at 0.8.1.
 
 Star-end sky figures load in Node (I-167): `scene.load()` now reads the engine's bundled star list through the same reader as the moon fit chunks (a `file:` address through `node:fs`, anything else by `fetch`), so a headless app with figures whose ends name stars (`{ star: HIP }`, for example from `astraeus-data-constellations`) no longer gets `missing-data`. No call shape changed.
 

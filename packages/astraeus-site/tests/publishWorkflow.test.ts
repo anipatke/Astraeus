@@ -46,6 +46,12 @@ describe("publish plan", () => {
     expect(planFor({ name: "astraeus", version: "0.1.0", tag: "0.1.0", published: false }).action).toBe("publish");
   });
 
+  it("refuses a package that has never been on npm, whose first version goes up by hand (0.9.0)", () => {
+    const plan = planFor({ name: "astraeus-data-new", version: "0.9.0", tag: "v0.9.0", published: false, onNpm: false });
+    expect(plan.action).toBe("refuse");
+    expect(plan.reason).toContain("by hand");
+  });
+
   it("publishes with provenance, and a dry run sends and signs nothing", () => {
     expect(publishArgs("dist", false)).toEqual(["publish", "dist", "--access", "public", "--provenance"]);
     expect(publishArgs("dist", true)).toEqual(["publish", "dist", "--access", "public", "--dry-run"]);

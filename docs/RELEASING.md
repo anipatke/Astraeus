@@ -1,6 +1,6 @@
 # Releasing the Astraeus packages to npm
 
-For the owner. Eight packages are published together, always with the same version number: `astraeus`, `astraeus-data`, `astraeus-data-jupiter`, `-saturn`, `-uranus`, `-neptune`, `-mars` and `-pluto`. A GitHub release triggers `.github/workflows/publish.yml`, which runs the project's checks and then publishes them. Why it is built this way, and the npm sources: `docs/NPM_PACKAGING.md`.
+For the owner. Nine packages are published together, always with the same version number: `astraeus`, `astraeus-data`, `astraeus-data-jupiter`, `-saturn`, `-uranus`, `-neptune`, `-mars`, `-pluto` and `-constellations` (since 0.9.0). A GitHub release triggers `.github/workflows/publish.yml`, which runs the project's checks and then publishes them. Why it is built this way, and the npm sources: `docs/NPM_PACKAGING.md`.
 
 ## One-time setup (before the first release)
 
@@ -34,8 +34,8 @@ The workflow itself needs no secret: it signs in to npm with GitHub's own identi
 
 ## Each release
 
-1. **Pick the version.** While the version starts with `0.`, a new feature or an API change is a minor bump (`0.2.0`); a fix only is a patch (`0.1.1`). All eight packages move together.
-2. **Bump it** in the `version` field of the eight `packages/<name>/package.json` files (the `x-publish` block needs no change). Nothing else names the version; `npm run check:pack` fails if a built package disagrees with its source.
+1. **Pick the version.** While the version starts with `0.`, a new feature or an API change is a minor bump (`0.2.0`); a fix only is a patch (`0.1.1`). All nine packages move together.
+2. **Bump it** in the `version` field of the nine `packages/<name>/package.json` files (and, on a minor bump, the `astraeus` peer range of every `astraeus-data*` package, for example `>=0.9.0 <0.10.0`) (the `x-publish` block needs no change). Nothing else names the version; `npm run check:pack` fails if a built package disagrees with its source.
 3. **Write the changelog.** Add a `## <version>` section at the top of `packages/astraeus/CHANGELOG.md` and `packages/astraeus-data/CHANGELOG.md`: what a user will notice, and every change to the public API.
 4. **Check it passes here:** `npm run lint`, `npm run typecheck`, `npm run build`, `npm test`, `npm run check:engine-alone`, `npm run check:pack`. (The workflow runs the same, so a failure there stops the release before anything is published.)
 5. **Record the first-download size.** Run `npm run measure:example` and put its first-open total (raw and gzip bytes) in the changelog section and the release notes, so the size is part of every release.
@@ -45,9 +45,19 @@ The workflow itself needs no secret: it signs in to npm with GitHub's own identi
 
 The workflow then: checks out, runs `npm ci` and the gates, builds and checks the packs, and publishes each package from its `dist` folder with provenance. A package whose version is already on npm is skipped, so if one step fails you can fix the cause and run the workflow again (Actions, the failed run, "Re-run all jobs") without a duplicate-version error.
 
+## Adding a package
+
+A package that has never been on npm cannot be created by the workflow: npm accepts a trusted publisher only for a package that already exists. `tools/publish-packages.mjs` therefore refuses the whole release (dry run included) while any package in `PACKAGES` has never been published, naming it. Before the release that first ships it, in your own terminal (it asks for your 2FA code):
+
+1. `npm run check:pack` with the release's version already in its `package.json`.
+2. `npm publish packages/<name>/dist --access public` (this first version carries no provenance badge; later ones do).
+3. `npm trust github <name> --repo anipatke/Astraeus --file publish.yml --allow-publish --yes`, then `npm trust list <name>` to see the link.
+
+Then create the release as usual: the workflow skips the version you published by hand and publishes the others. 0.9.0 did this for `astraeus-data-constellations`.
+
 ## After a release
 
-- On npmjs.com, each of the eight packages shows the new version and a "Built and signed on GitHub Actions" provenance badge.
+- On npmjs.com, each of the nine packages shows the new version and a "Built and signed on GitHub Actions" provenance badge.
 - In a scratch folder: `npm create vite@latest probe -- --template vanilla && cd probe && npm install astraeus`, paste the 20-line example from `packages/astraeus/README.md` into `main.js`, `npm run build`. The build must succeed and `npx vite preview` must draw Earth, the Moon and the probe.
 - If something is wrong, do not unpublish (npm restricts it after 72 hours and it breaks installs). Fix it and release the next patch version; `npm deprecate astraeus@<bad> "use <good>"` marks the bad one.
 
