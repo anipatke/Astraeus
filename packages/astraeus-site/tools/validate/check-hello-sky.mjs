@@ -20,8 +20,8 @@ await checkScript({ name: "check-hello-sky", viewports: SIZES }, async (page, { 
   await ui.waitForStoryPanel(page, "the-hunter");
   // The first step: the view is the sky around Orion, Orion's figure is hidden, its neighbours show.
   await ui.waitForSkyLines(page, { present: ["sky-figures:Tau", "sky-figures:Gem"], absent: ["sky-figures:Ori", "sky-trace:Ori", "sky-selected:Ori"] });
-  const start = await ui.waitForExampleCamera(page, (pose) => pose?.lookOut === "earth" && pose.fovDeg === 60);
-  assert.ok(start?.lookOut === "earth" && near(start, { raDeg: 83.7, decDeg: 0 }, 1), `${name}: step 1 looks out from Earth toward Orion (${JSON.stringify(start)})`);
+  const start = await ui.waitForExampleCamera(page, (pose) => pose?.lookOut === "earth" && pose.fovDeg === 90);
+  assert.ok(start?.lookOut === "earth" && near(start, { raDeg: 83.7, decDeg: 0 }, 1) && start.fovDeg === 90, `${name}: step 1 looks out from Earth toward Orion (${JSON.stringify(start)})`);
   assert.equal(await ui.storyStepEnabled(page, "back"), false, `${name}: Back is off on the first step`);
   assert.equal(await ui.storyStepEnabled(page, "next"), true, `${name}: Next is on the first step`);
 
@@ -44,8 +44,8 @@ await checkScript({ name: "check-hello-sky", viewports: SIZES }, async (page, { 
 
   await ui.pressStoryStep(page, "next");
   await ui.waitForOpenStoryPanel(page, "belt-and-sword");
-  const belt = await ui.waitForExampleCamera(page, (pose) => pose?.lookOut === "earth" && pose.fovDeg === 28);
-  assert.ok(belt?.lookOut === "earth" && near(belt, { raDeg: 84, decDeg: -3 }, 1), `${name}: step 2 turns to the belt and sword (${JSON.stringify(belt)})`);
+  const belt = await ui.waitForExampleCamera(page, (pose) => pose?.lookOut === "earth" && near(pose, { raDeg: 84, decDeg: -3 }, 1));
+  assert.ok(belt?.lookOut === "earth" && near(belt, { raDeg: 84, decDeg: -3 }, 1) && belt.fovDeg === 90, `${name}: step 2 turns to the belt and sword and keeps the field of view (${JSON.stringify(belt)})`);
   await ui.waitForSkyLines(page, { present: ["sky-trace:Ori", "sky-selected:Ori"] });
   await ui.waitForPicked(page, "Ori");
   assert.equal(await ui.storyStepEnabled(page, "back"), true, `${name}: Back is on in step 2`);
@@ -53,8 +53,8 @@ await checkScript({ name: "check-hello-sky", viewports: SIZES }, async (page, { 
 
   await ui.pressStoryStep(page, "next");
   await ui.waitForOpenStoryPanel(page, "betelgeuse-and-rigel");
-  const whole = await ui.waitForExampleCamera(page, (pose) => pose?.lookOut === "earth" && pose.fovDeg === 38);
-  assert.ok(whole?.lookOut === "earth" && near(whole, { raDeg: 83.7, decDeg: 0 }, 1), `${name}: step 3 widens to the whole hunter (${JSON.stringify(whole)})`);
+  const whole = await ui.waitForExampleCamera(page, (pose) => pose?.lookOut === "earth" && near(pose, { raDeg: 83.7, decDeg: 0 }, 1));
+  assert.ok(whole?.lookOut === "earth" && near(whole, { raDeg: 83.7, decDeg: 0 }, 1) && whole.fovDeg === 90, `${name}: step 3 turns back to the whole hunter and keeps the field of view (${JSON.stringify(whole)})`);
   await ui.waitForSkyLines(page, { present: ["sky-trace:Ori"] });
   assert.equal(await ui.storyStepEnabled(page, "next"), false, `${name}: Next is off on the last step`);
   await fit("step 3");
@@ -79,6 +79,21 @@ await checkScript({ name: "check-hello-sky", viewports: SIZES }, async (page, { 
   assert.equal(await ui.storyStepEnabled(page, "back"), false, `${name}: Back is off again on the first step`);
   assert.equal(await panelId(page), "the-hunter", `${name}: the first step is open again`);
 
+  // The page's own slider (outside the viewer) sets the view width and keeps the direction; a later step turns without changing it.
+  const hostFit = await ui.hostControlsFit(page);
+  assert.equal(hostFit.count, 1, `${name}: the page has its one slider`);
+  assert.deepEqual([hostFit.overlaps, hostFit.outside, hostFit.sideways], [[], [], false], `${name}: the slider is inside the window and overlaps nothing (${JSON.stringify(hostFit)})`);
+  const before = await ui.exampleCamera(page);
+  await ui.setHostSlider(page, "view-width", 40);
+  const narrow = await ui.waitForExampleCamera(page, (pose) => pose?.fovDeg === 40);
+  assert.ok(narrow?.fovDeg === 40 && near(narrow, before, 0.1), `${name}: the slider sets the view width and keeps the direction (${JSON.stringify([before, narrow])})`);
+  await ui.pressStoryStep(page, "next");
+  await ui.waitForOpenStoryPanel(page, "belt-and-sword");
+  const turned = await ui.waitForExampleCamera(page, (pose) => pose?.lookOut === "earth" && near(pose, { raDeg: 84, decDeg: -3 }, 1));
+  assert.equal(turned.fovDeg, 40, `${name}: a step keeps the width the slider set (${JSON.stringify(turned)})`);
+  await ui.setHostSlider(page, "view-width", 90);
+  await ui.waitForExampleCamera(page, (pose) => pose?.fovDeg === 90);
+  assert.deepEqual(await ui.overlappingSceneLabels(page), [], `${name}: no two labels overlap after the slider`);
   // The ecliptic switch draws the Sun's path.
   assert.ok(!(await ui.displaySwitchOn(page, "ecliptic")), `${name}: the ecliptic starts off`);
   await ui.toggleDisplaySwitch(page, "ecliptic");
