@@ -6,7 +6,7 @@ import { spawnSync } from "node:child_process";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
-import { buildPackage, PACKAGES } from "./build-packages.mjs";
+import { buildPackage, isPositionPackage, PACKAGES } from "./build-packages.mjs";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const MB = 1_000_000;
@@ -22,6 +22,8 @@ export const LIMITS = {
   "astraeus-data-neptune": { packed: 20.5 * MB, unpacked: 22 * MB, files: 580 },
   "astraeus-data-mars": { packed: 6.1 * MB, unpacked: 6.2 * MB, files: 80 },
   "astraeus-data-pluto": { packed: 2 * MB, unpacked: 2.1 * MB, files: 140 },
+  // O-067 T-304: measured 66.5 KB packed, 202.5 KB unpacked, 10 files; limits are that plus room (35%, 23%, 2x): four data files and the loader code.
+  "astraeus-data-constellations": { packed: 0.09 * MB, unpacked: 0.25 * MB, files: 20 },
 };
 
 const COMMON = ["package\\.json", "README\\.md", "CHANGELOG\\.md", "LICENSE", "NOTICE", "licenses/[^/]+"];
@@ -30,6 +32,7 @@ const CODE = "src/.+\\.(?:js|d\\.ts)";
 const ALLOWED = {
   astraeus: [...COMMON, CODE, "src/.+\\.(?:css|jpg|png|json)", "data/.+\\.json"],
   "astraeus-data": [...COMMON, CODE, "src/textures/[^/]+\\.jpg", "data/bodies/[^/]+\\.(?:json|md)", "data/bodies/[a-z]+/[a-z]+\\.json"],
+  "astraeus-data-constellations": [...COMMON, CODE, "data/(?:figures|boundaries|names|provenance)\\.json"],
   position: [...COMMON, CODE, "data/[a-z]+-moons/index\\.json", "data/[a-z]+-moons/(?:list|fit-errors)\\.json", "data/[a-z]+-moons/[^/]+/\\d{4}\\.bin"],
 };
 /** Never packed, whatever else matches. */
@@ -85,7 +88,7 @@ export function extensionlessImports(dir) {
 /** Compiled-code problems: extensionless relative imports (I-077) and, in a position package, a chunk URL that Vite could inline (I-078). */
 function codeProblems(name, dir) {
   const problems = extensionlessImports(dir).map((one) => `${name}: extensionless relative import in ${one}`);
-  if (name.startsWith("astraeus-data-")) {
+  if (isPositionPackage(name)) {
     const urls = readFileSync(join(dir, "src", "chunks.js"), "utf8").match(/new URL\([^)]*\)/g) ?? [];
     if (urls.length === 0) problems.push(`${name}: src/chunks.js lists no chunk`);
     if (urls.some((url) => !/\.bin\?no-inline"/.test(url))) problems.push(`${name}: a chunk URL in src/chunks.js lacks ?no-inline (Vite would inline it)`);

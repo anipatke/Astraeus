@@ -3811,6 +3811,17 @@
       "./bodies/*": "./data/bodies/*",
       "./package.json": "./package.json"
     },
+    "astraeus-data-constellations": {
+      ".": {
+        "types": "./src/index.d.ts",
+        "import": "./src/index.js"
+      },
+      "./figures.json": "./data/figures.json",
+      "./boundaries.json": "./data/boundaries.json",
+      "./names.json": "./data/names.json",
+      "./provenance.json": "./data/provenance.json",
+      "./package.json": "./package.json"
+    },
     "astraeus-data-jupiter": {
       ".": {
         "types": "./src/index.d.ts",
@@ -3900,6 +3911,14 @@
       ".": "./src/index.ts",
       "./bodies/*": "./data/bodies/*",
       "./data/*": "./data/*",
+      "./package.json": "./package.json"
+    },
+    "astraeus-data-constellations": {
+      ".": "./src/index.ts",
+      "./figures.json": "./data/figures.json",
+      "./boundaries.json": "./data/boundaries.json",
+      "./names.json": "./data/names.json",
+      "./provenance.json": "./data/provenance.json",
       "./package.json": "./package.json"
     },
     "astraeus-data-jupiter": {

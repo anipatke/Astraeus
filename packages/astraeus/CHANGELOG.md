@@ -4,6 +4,8 @@ Versions follow [semantic versioning](https://semver.org). While the version sta
 
 ## Unreleased
 
+New package `astraeus-data-constellations` (G-018, O-067, first build step): the 88 IAU constellations' stick figures, J2000 boundary outlines and names as plain data (`loadFigures`, `loadBoundaries`, `loadNames`, `loadProvenance`, and the same JSON under `exports`). Figures and boundaries are CC BY-SA 4.0 (Stellarium team; IAU and Sky & Telescope origin), names CC BY 4.0 (IAU), code MIT. Additions only; the engine itself is unchanged, and its public lock gains only the new package's exports.
+
 Story actions (G-018, O-066, third step): a story panel can turn the camera, select its object and trace its sky figure when it opens, and an event can name a sky figure. Additions only; no existing call shape or error code changed.
 
 - `StoryPanelInput` gains `camera` (anything `setCamera` takes), `select` (true: select the panel's `object`; as for a visitor's tap, the card opens on a wide screen and not on a phone, where it would cover the panel's buttons; `setSelected` still opens it always) and `trace` (`true` or `SkyTraceOptions`: trace the panel's `object`, which must be a sky figure). They apply when the panel opens, whoever opens it, in the order camera, select, trace, through the same paths as `setCamera`, `setSelected` and `traceSkyFigure`. Leaving the panel clears the trace it started over the default fade; the camera and selection are left. A bad shape throws `bad-panels` at `addStoryPanels`, a name the scene lacks at `check` and `mount`. A panel's `object` may name a sky figure.

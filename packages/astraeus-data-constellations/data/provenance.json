@@ -1,0 +1,76 @@
+{
+  "package": "astraeus-data-constellations",
+  "generator": "tools/import/constellations.mjs (rerun it to rebuild every file here; the pins below are checked by SHA-256)",
+  "sources": {
+    "figures": {
+      "what": "IAU constellation stick figures (drawn for the IAU by Sky & Telescope, Alan MacRobert; Roger Sinnott and Rick Fienberg), as Hipparcos-number lists typed in by the Stellarium team",
+      "from": "Stellarium skycultures/modern_iau/index.json at commit dc5679c9723685585196c4d6ecd7ffd33da59ecd",
+      "url": "https://raw.githubusercontent.com/Stellarium/stellarium/dc5679c9723685585196c4d6ecd7ffd33da59ecd/skycultures/modern_iau/index.json",
+      "sha256": "2b7aa4fa2860566ea68aca0c0b087ba815aea38a92d1bb9b3c04b6c0758f726b",
+      "licence": "CC BY-SA 4.0",
+      "licenceUrl": "https://creativecommons.org/licenses/by-sa/4.0/"
+    },
+    "boundaries": {
+      "what": "IAU constellation boundaries: the corner points of Delporte (1930), epoch B1875, as published in the same Stellarium file",
+      "from": "Stellarium skycultures/modern_iau/index.json at commit dc5679c9723685585196c4d6ecd7ffd33da59ecd (edges, edges_source https://pbarbier.com/constellations/edges_18.txt)",
+      "licence": "CC BY-SA 4.0",
+      "licenceUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "reference": "Delporte, E. 1930, Delimitation scientifique des constellations (Cambridge University Press); Davenhall and Leggett 1989, CDS catalogue VI/49"
+    },
+    "names": {
+      "what": "IAU constellation names, abbreviations, English names and genitives",
+      "from": "IAU constellations page, Internet Archive copy of 2025-01-08 (the page is no longer on iau.org)",
+      "url": "https://web.archive.org/web/20250108164011id_/https://www.iau.org/public/themes/constellations/",
+      "sha256": "bdd1ddc5215aece2c8d54df5e2682a9fc032b176ced8262776e975896d4a9c88",
+      "licence": "CC BY 4.0",
+      "licenceUrl": "https://creativecommons.org/licenses/by/4.0/",
+      "credit": "IAU"
+    },
+    "crossCheck": {
+      "what": "CDS VI/49 bound_20.dat (Davenhall and Leggett 1989), used only to check the J2000 boundaries; none of it is shipped",
+      "url": "https://vizier.cfa.harvard.edu/ftp/cats/VI/49/bound_20.dat.gz",
+      "sha256": "879cd6e7a1c908f1e19a5f5fe8cc75fb1d1077564e3890f9152a3680affe9aac"
+    }
+  },
+  "changes": [
+    "Figures: each polyline split into steps; 4 zero-length and 87 repeated steps dropped; ends kept as Hipparcos numbers where the engine's star list holds the star, otherwise given as a J2000 position.",
+    "Boundaries: edges chained into one closed outline per constellation (Serpens has two); points added every 1 degree of arc or less along each edge (meridian edges at constant right ascension, parallel edges at constant declination, as Delporte drew them); every point precessed from B1875.0 to J2000 with the IAU 1976 precession angles; stored to 3 decimals as flat right ascension, declination pairs in degrees. The last point joins the first; it is not repeated.",
+    "Names: the four columns of the IAU table kept as published (the pronunciation text dropped)."
+  ],
+  "counts": {
+    "constellations": 88,
+    "figureSteps": 843,
+    "figureStepsZeroLengthDropped": 4,
+    "figureStepsRepeatedDropped": 87,
+    "figureLines": 752,
+    "figureEnds": 1504,
+    "figureEndsAsHipparcos": 1503,
+    "figureEndsAsPosition": 1,
+    "positionEnds": [
+      {
+        "hip": 55203,
+        "star": "xi Ursae Majoris (Alula Australis)"
+      }
+    ],
+    "boundaryOutlines": 89,
+    "boundaryOutlinesByConstellation": {
+      "Ser": 2
+    },
+    "boundaryEdges": 781,
+    "boundaryPoints": 9900,
+    "namesNotMatchingStellariumNative": []
+  },
+  "crossCheck": {
+    "toleranceDegrees": 0.01,
+    "maxPointToOutlineDegrees": 0.000157,
+    "maxPointToOutlineAt": "CEP",
+    "maxCornerToCornerDegrees": 0.000088,
+    "maxCornerToCornerAt": "AQL",
+    "vizierOriginalCorners": 1533,
+    "ourCorners": 1562,
+    "maxOurCornerToVizierPointDegrees": 0.0001,
+    "maxShippedChordDriftDegrees": 0.00494,
+    "method": "Every VI/49 J2000 point (original and interpolated) is compared with our outline of the same code drawn at 0.05 degree spacing (distance to the nearest great-circle segment); every original VI/49 corner is compared with the nearest corner of ours. In the other direction, every corner of ours is compared with the nearest VI/49 point of the same code (of either kind: the two polar constellations' corners are flagged interpolated there, which is why 29 more corners are ours than original VI/49 corners). The chord drift is how far the shipped outline's straight lines lie from the same edges drawn at 0.02 degrees."
+  },
+  "precession": "IAU 1976 (Lieske) precession angles from B1875.0 (JD 2405889.25855) to J2000.0; no FK4 to FK5 equinox correction (about 0.07 arcseconds)."
+}

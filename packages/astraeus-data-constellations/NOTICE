@@ -1,0 +1,11 @@
+astraeus-data-constellations: figures, boundaries and names
+
+The package code is MIT (see LICENSE). The data keep their own licences; every source, pin, change and check is recorded in data/provenance.json.
+
+Constellation figures (data/figures.json) and boundaries (data/boundaries.json): CC BY-SA 4.0 (https://creativecommons.org/licenses/by-sa/4.0/).
+  Figures: the IAU's constellation figures, drawn for the IAU by Sky & Telescope (Alan MacRobert; Roger Sinnott and Rick Fienberg) and typed in as Hipparcos-number lists by the Stellarium team: Stellarium skycultures/modern_iau/index.json at commit dc5679c9723685585196c4d6ecd7ffd33da59ecd, CC BY-SA 4.0 (https://github.com/Stellarium/stellarium).
+  Boundaries: the IAU boundaries defined by Delporte (1930); the corner points at epoch B1875 are those in the same Stellarium file (edges, from pbarbier.com), CC BY-SA 4.0. They were checked against Davenhall and Leggett (1989), CDS catalogue VI/49; none of that catalogue is shipped.
+  Changes made: figure lines split into steps, 4 zero-length and 87 repeated steps dropped, ends given as Hipparcos numbers (one end, xi Ursae Majoris, as a J2000 position); boundary edges chained into one closed outline per constellation (Serpens has two), points added along each edge about every degree, every point precessed from B1875.0 to J2000 (IAU 1976 precession) and rounded to 0.001 degree.
+  Share-alike applies to these two files and adaptations of them, not to the code.
+
+Constellation names (data/names.json): IAU constellation names, abbreviations, English names and genitives from the IAU constellations page (Internet Archive copy of 2025-01-08), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/). Credit: IAU. The pronunciation text of the page was left out.

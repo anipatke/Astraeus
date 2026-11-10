@@ -16,7 +16,9 @@ import { dirname, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-export const PACKAGES = ["astraeus", "astraeus-data", "astraeus-data-jupiter", "astraeus-data-saturn", "astraeus-data-uranus", "astraeus-data-neptune", "astraeus-data-mars", "astraeus-data-pluto"];
+export const PACKAGES = ["astraeus", "astraeus-data", "astraeus-data-jupiter", "astraeus-data-saturn", "astraeus-data-uranus", "astraeus-data-neptune", "astraeus-data-mars", "astraeus-data-pluto", "astraeus-data-constellations"];
+/** The data packages that hold moon positions (a chunk list, `src/chunks.js`); `astraeus-data-constellations` holds plain JSON files instead. */
+export const isPositionPackage = (name) => name.startsWith("astraeus-data-") && name !== "astraeus-data-constellations";
 const ASSET = /\.(?:jpg|jpeg|png|webp)$/;
 
 function walk(dir, visit) {
@@ -178,7 +180,7 @@ export function buildPackage(name) {
     mkdirSync(dirname(dest), { recursive: true });
     copyFileSync(file, dest);
   });
-  const chunks = name.startsWith("astraeus-data-") ? writeChunkList(pkg, out) : 0;
+  const chunks = isPositionPackage(name) ? writeChunkList(pkg, out) : 0;
   for (const file of ["README.md", "CHANGELOG.md", "NOTICE"]) if (existsSync(join(pkg, file))) copyFileSync(join(pkg, file), join(out, file));
   copyFileSync(join(root, "LICENSE"), join(out, "LICENSE"));
   if (existsSync(join(pkg, "licenses"))) cpSync(join(pkg, "licenses"), join(out, "licenses"), { recursive: true });

@@ -2,7 +2,7 @@
 id: T-304
 title: Build the constellations data package from the chosen sources
 objective: O-067
-status: planned
+status: done
 depends_on: [{task: T-303, requires: clear}]
 owner_validation: {required: false}
 check_waiver: {task: T-304, reason: 'Owner said "orchestrate O67" under the standing run rules (one builder at a time, no per-step checks, coordinator marks done once gates pass and any owner look is given, one Full Objective Check at the end); the optional Task Check is waived.', actor: {role: owner, session: o067-run-20261110}, recorded_at: '2026-11-10T08:40:31Z'}
@@ -57,8 +57,21 @@ Hand-off gates `npm run lint`, `npm run typecheck`, `npm run build`, `npm test`,
 
 ## Technical Evidence
 
-Pending execution.
+Built at `stage: build`, gates all green after the last change (lint, typecheck, build, `npm test` 246 files / 3652 passed, `npm run check:pack` pass; no browser run).
+
+- Import tool `packages/astraeus-data-constellations/tools/import/constellations.mjs` (next to the other per-package import tools): fetches pinned sources, checks each SHA-256, writes `data/{figures,boundaries,names,provenance}.json`; a second run gave byte-identical files. Sources: Stellarium `skycultures/modern_iau/index.json` at commit `dc5679c9723685585196c4d6ecd7ffd33da59ecd` (figures and the Delporte B1875 edges; CC BY-SA 4.0, sha256 `2b7aa4fa...`), IAU constellations page via Internet Archive 2025-01-08 (names; CC BY 4.0; sha256 of the decoded page `bdd1ddc5...`), CDS VI/49 `bound_20.dat.gz` from the CfA mirror (check only, sha256 `879cd6e7...`; the mirror now serves it only as .gz).
+- Counts: 88 constellations; 843 figure steps, 4 zero-length and 87 repeated dropped, 752 lines; 1504 ends, 1503 as Hipparcos numbers (all in the engine star list) and 1 as a position (HIP 55203, xi UMa, row `[169.54677, 31.52878]` of the engine list, checked to exist); 89 boundary outlines (Serpens two: Caput, Cauda; one figure for Serpens); 781 edges, 9900 boundary points; names: all 88 equal Stellarium's native names.
+- Boundaries: edges chained by corner id into closed rings (every corner on exactly 2 edges); points at most 1 degree of arc apart (meridian edges at constant RA, parallel edges at constant Dec, tighter near a pole so a chord never lies more than 0.005 degree off the edge); IAU 1976 precession B1875.0 to J2000; 3 decimals.
+- Cross-check against VI/49 `bound_20`: tolerance 0.01 degree (fails above). Max VI/49 point (all 12948) to our outline at 0.05 degree spacing 0.000157 degree (CEP); max original VI/49 corner to our nearest corner 0.000088 degree (AQL); max of our corners to a VI/49 point 0.0001 degree; shipped chord drift 0.00494 degree. Our corners 1562 vs VI/49 original 1533: the 29 extra are the polar UMi and Oct corners, which VI/49 flags as interpolated (all match a VI/49 point).
+- Package: `packed 66.5 kB, unpacked 202.5 kB, 10 files`. Limits set in `tools/check-packs.mjs`: packed 0.09 MB, unpacked 0.25 MB, files 20. Allow-list entry for its four data files added; `isPositionPackage` in `tools/build-packages.mjs` stops the chunk-list step and chunk check applying to it. `node tools/publish-packages.mjs --dry-run` lists it (dry run only).
+- Tests: `packages/astraeus-data-constellations/tests/data.test.ts` (6 cases: 88 and uniqueness, HIP ends resolve, repeats dropped and counts, Orion sample, closed outlines and Serpens two, cross-check and licences recorded).
+- Other edits the new package required: `packages/astraeus/api-surface.lock.json` (`npm run api:lock`: only the new package's exports added) with a CHANGELOG line, `packageBoundaries.test.ts` package count 12 to 13, `docs/agents/build.md` package list, `package-lock.json` (new workspace entry).
 
 ## Drift Notes
 
-Record architecture deltas; Design is reconciled in the last step of this Objective.
+Design is reconciled in the last step of this Objective (O-067 integration Task; name it when notes are deferred).
+
+- New package `astraeus-data-constellations` (9th publishable package): `loadFigures`, `loadBoundaries`, `loadNames`, `loadProvenance` plus `./figures.json` etc. exports; no abbreviation-to-`SkyFigureInput` helper yet (next step). Data shapes: figures `abbr -> [[end, end], ...]` (end = Hipparcos number or `[raDeg, decDeg]`), boundaries `abbr -> [flat [ra, dec, ...], ...]` (J2000 degrees, closed, first point not repeated; Serpens has two), names `abbr -> {name, english, genitive}`. Design.md codebase map and Sky figures interface need these.
+- `tools/check-packs.mjs` / `tools/build-packages.mjs` now distinguish position packages (`isPositionPackage`) from the constellations package; the pack-check docs in `docs/NPM_PACKAGING.md` (size limits section) not updated here.
+- The import tool lives in the package (`tools/import`), not the repo-level `tools/`, like the other per-package importers; the IAU table and VI/49 mirror are outside the owner's control (Internet Archive, CfA).
+- Boundary points: 9900 shipped vs 12948 in VI/49 (they interpolate more densely near the poles); cross-check is by distance to the outline, not by point count.

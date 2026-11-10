@@ -1,0 +1,50 @@
+{
+  "name": "astraeus-data-constellations",
+  "version": "0.8.1",
+  "description": "The 88 IAU constellations for the Astraeus engine: stick figures, boundary outlines in J2000 and names. Optional data; the engine draws without it.",
+  "license": "MIT",
+  "type": "module",
+  "sideEffects": false,
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/anipatke/Astraeus.git"
+  },
+  "keywords": [
+    "astraeus",
+    "astronomy",
+    "constellations",
+    "iau"
+  ],
+  "peerDependencies": {
+    "astraeus": ">=0.8.0 <0.9.0"
+  },
+  "exports": {
+    ".": "./src/index.ts",
+    "./figures.json": "./data/figures.json",
+    "./boundaries.json": "./data/boundaries.json",
+    "./names.json": "./data/names.json",
+    "./provenance.json": "./data/provenance.json",
+    "./package.json": "./package.json"
+  },
+  "x-publish": {
+    "exports": {
+      ".": {
+        "types": "./src/index.d.ts",
+        "import": "./src/index.js"
+      },
+      "./figures.json": "./data/figures.json",
+      "./boundaries.json": "./data/boundaries.json",
+      "./names.json": "./data/names.json",
+      "./provenance.json": "./data/provenance.json",
+      "./package.json": "./package.json"
+    },
+    "files": [
+      "src",
+      "data",
+      "README.md",
+      "NOTICE",
+      "LICENSE"
+    ],
+    "linkData": true
+  }
+}

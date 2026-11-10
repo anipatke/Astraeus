@@ -314,7 +314,7 @@ const use = (spec: string) => `import "${spec}";\n`;
 describe("package boundaries (ARCH-03)", () => {
   it("holds across the real packages", () => {
     const packagesDir = resolve(__dirname, "../..");
-    expect(loadPackages(packagesDir).size).toBe(12);
+    expect(loadPackages(packagesDir).size).toBe(13);
     expect(boundaryOffences(packagesDir)).toEqual([]);
   });
 
