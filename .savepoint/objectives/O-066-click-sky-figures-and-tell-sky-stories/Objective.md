@@ -1,7 +1,7 @@
 ---
 id: O-066
 title: Click sky figures and tell sky stories
-status: planned
+status: done
 depends_on: [O-065]
 release: G-018
 priority: high
