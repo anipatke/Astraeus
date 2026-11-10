@@ -21,6 +21,13 @@ await checkScript({ name: "journey-look-out", viewports: SIZES }, async (page, {
   const earth = await ui.sceneBody(page, "earth");
   assert.ok(earth === undefined || earth.as === "none" || !earth.inView, `${name}: Earth, the body stood in, is not drawn in view (${JSON.stringify(earth)})`);
 
+  // T-293 repair: the Sun lies in the opening view (the scene opens on the date and direction that put it there; playback is slow enough to keep it), is drawn, and keeps its label (the other bodies are named too).
+  const sunOpen = await ui.sceneBody(page, "sun");
+  assert.ok(sunOpen && sunOpen.as !== "none" && sunOpen.inView, `${name}: the Sun is drawn and in view on opening (${JSON.stringify(sunOpen)})`);
+  assert.ok(Math.abs(sunOpen.x - 0.5) < 0.2 && Math.abs(sunOpen.y - 0.5) < 0.2, `${name}: the Sun is near the middle of the view on opening (${sunOpen.x}, ${sunOpen.y})`);
+  const named = await ui.shownSceneLabelIds(page);
+  assert.ok(named.includes("sun"), `${name}: the Sun's label shows in the look-out view (shown: ${named.join(", ") || "none"})`);
+
   // The menu: with Earth picked its Look out entry shows beside Focus and Follow; Mars offers one too; the Sun does not.
   await ui.pickBody(page, "earth");
   assert.ok(await ui.cameraOffered(page, "lookout-earth"), `${name}: the menu offers Look out from Earth`);

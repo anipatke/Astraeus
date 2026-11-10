@@ -150,6 +150,20 @@ describe("look out through the frame stages", () => {
     expect(groups.get("earth")!.visible).toBe(true);
   });
 
+  it("draws out to the farthest body while looking out, past the far plane an orbit framing would use (T-293 repair: the Sun 23,000 radii away was cut off)", () => {
+    vi.stubGlobal("requestAnimationFrame", vi.fn());
+    const { ctx } = makeContext();
+    const placed = placeScene(ctx, T0);
+    const far = new Map(placed.composed.absolutes);
+    far.set("moon", [0, 0, 24_000]);
+    ctx.controls.cameraRequest = { kind: "lookOut", body: "earth", direction: [0, 0, 1], fovDeg: 60 };
+    stepAndPoseCamera(ctx, T0, { ...placed, composed: { ...placed.composed, absolutes: far } });
+    expect(ctx.camera.far).toBeGreaterThan(24_000);
+    ctx.controls.cameraRequest = { kind: "overview" };
+    stepAndPoseCamera(ctx, T0, { ...placed, composed: { ...placed.composed, absolutes: far } });
+    expect(ctx.camera.far).toBeLessThan(24_000);
+  });
+
   it("reads the camera as a sky reading while looking out (never orbit values), and as an orbit view again on return", () => {
     vi.stubGlobal("requestAnimationFrame", vi.fn());
     const { ctx } = makeContext();

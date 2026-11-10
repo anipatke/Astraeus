@@ -73,6 +73,16 @@ Gates (2026-11-10, from /home/user/code/Astraeus): `npm run lint` pass 4 s; `npm
 
 Unverified: real touch drag and pinch feel and the wheel's pace in a live viewer (the step drives one wheel turn on desktop only; pan and pinch maths are in the fast suite); the owner's look at the preview (appearance, the Sun's glow when looking toward it).
 
+### Repair after owner look (2026-11-10)
+
+Owner: "Cant see the sun". Measured on the dev server (driver, no screenshot): the page's time read 2030-05-01T12:00Z (the window's end), and the Sun's readout stood at x 1.338 (outside the view) although the camera read ra 281.6 dec -23. A node projection of the engine's Sun (geocentric ra 282.0, dec -22.8 at 2030-01-01T12Z) with the same camera put it at 0.4998, 0.5001, so the direction was right and the date was wrong.
+- Cause 1 (the reported one): `syntheticLookOutScene` gave `rates` and `rate` in milliseconds (`DAY_MS`); the API takes simulated seconds per real second, so the clock played 1000 days per second and reached the window end at once; the Sun had moved ~120 degrees out of the view. Fixed: `rates: [3600, 86400, 604800]`, `rate: 3600` (the Sun stays in view for minutes).
+- Cause 2 (found on the way, real but not what the owner saw first): the far plane in look-out was the orbit-framing one (`reach.far ?? 5000` Earth radii) while the Sun is ~23,400 radii from Earth, so the Sun would be clipped even at the right date. Fixed generally: `lookOutFar` (sceneFraming.ts) raises a look-out camera's far plane to 1.5 x the farthest placed body; no body names; the orbit camera is unchanged. Logarithmic depth is on, so a large far with near 1e-3 is safe.
+- Labels: the Sun's label already shows in the look-out view (a Sun-centred scene sets no label limit, planBodies.labelReach); the journey step now asserts it. Mars's label shows only when Mars is on screen, as for any body.
+- Tests: tests/sceneFrame.test.ts "draws out to the farthest body while looking out" (fails before the fix, TEST-02: stashing src gave 1 failed); astraeus-site tests/syntheticScenes.test.ts "look out: opens with the Sun in the view and plays slowly enough to stay there" (rate and Sun direction at the opening date; fails with the old rates).
+- Browser: journey-look-out.mjs now asserts the Sun is drawn, in view near the middle and labelled on opening; ran against my own dev server on 5483 (desktop and phone), passed, server stopped.
+- Gates: lint 7 s pass, typecheck 6 s pass, build 3 s pass, test 44 s pass (run after the last edit except build, which ran before a test-only edit).
+- Not verified: pixels (no screenshots, by rule); the owner should look again at localhost:5490 (reload).
 
 ## Drift Notes
 

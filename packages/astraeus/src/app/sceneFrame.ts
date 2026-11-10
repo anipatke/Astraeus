@@ -18,7 +18,7 @@ import type { RenderVector } from "./renderCoordinates";
 import { cameraTargetAbsolute, rescaleCameraForPolicy, stepCameraTarget } from "./sceneCamera";
 import type { SceneControls, SceneReadout, SceneRuntime } from "./AstraeusScene";
 import { buildFrameReadout, publishBodyData, publishPathData, publishPointsData, publishSceneData, recordFrameStats } from "./sceneDebug";
-import { CAMERA_FOV_DEG, focusRadius, liveReach, type SceneFrame } from "./sceneFraming";
+import { CAMERA_FOV_DEG, focusRadius, liveReach, lookOutFar, type SceneFrame } from "./sceneFraming";
 import { bodyScreenReadouts, placeBodies, swapSmallBodiesToMarkers, type BodyRefs } from "./sceneBodies";
 import { publishBodySets } from "./sceneBodySets";
 import type { useSceneViews } from "./sceneHooks";
@@ -198,7 +198,10 @@ export function stepAndPoseCamera(ctx: FrameContext, t: number, placed: PlacedSc
   state.lastUp = viewUp;
   resolveCamera(orbit, cameraTargetAbsolute(orbit, targets), ctx.origin, ctx.delta, REBASE_THRESHOLD, viewUp);
   placeBodies(ctx.assets, placed.composed.states, ctx.bodyRefs, policy, ctx.origin);
-  poseCamera(camera, orbit, focusRadius(focusBody, policy, catalogue), ctx.origin, reach.far ?? DEFAULT_CAMERA_FAR, viewUp);
+  const baseFar = reach.far ?? DEFAULT_CAMERA_FAR;
+  // Looking out, the camera stands at a body, so a far plane sized for orbit framing could cut off the Sun or any body beyond it: reach everything placed.
+  const far = orbit.lookOut === null ? baseFar : lookOutFar(baseFar, orbit.cameraAbsolute, placed.composed.absolutes);
+  poseCamera(camera, orbit, focusRadius(focusBody, policy, catalogue), ctx.origin, far, viewUp);
   if (firstFrame && state.onFirstDraw !== undefined) { const told = state.onFirstDraw; requestAnimationFrame(told); }
   // Looking out, the angles are the way the camera looks, not an offset from a target: a sky reading, never orbit values.
   controls.viewReadout = orbit.lookOut === null ? viewFromAngles(orbit.focus, orbit.azimuth, orbit.elevation, orbit.distance) : skyViewOf(orbit.focus, orbit.azimuth, orbit.elevation, viewUp, orbit.lookOut.fovDeg);

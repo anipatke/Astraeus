@@ -6,6 +6,9 @@ import { earth, mars, Scene, solarSystemScale, sun } from "astraeus";
 
 export const LOOKOUT_START_UTC_MS = Date.UTC(2030, 0, 1, 12);
 const DAY_MS = 86_400_000;
+/** Playback speeds are simulated seconds per real second: an hour a second keeps the Sun in the opening view for a while; a day a second and a week a second are offered. */
+const HOUR_S = 3_600;
+const DAY_S = 86_400;
 /** Where the Sun lies on 1 January, as seen from Earth: J2000 right ascension and declination in degrees (about 18 h 45 m, minus 23 degrees). */
 export const LOOKOUT_OPEN_DIRECTION = { raDeg: 281.6, decDeg: -23 } as const;
 
@@ -21,7 +24,7 @@ export function buildSyntheticLookOutScene(): Scene {
     .addBody(earth, { enlarge: 60, orbit: true })
     .addBody(mars, { enlarge: 60, orbit: true })
     .setScale(solarSystemScale)
-    .setTimeline({ start: LOOKOUT_START_UTC_MS, end: LOOKOUT_START_UTC_MS + 120 * DAY_MS, rates: [DAY_MS, 7 * DAY_MS], rate: DAY_MS })
+    .setTimeline({ start: LOOKOUT_START_UTC_MS, end: LOOKOUT_START_UTC_MS + 120 * DAY_MS, rates: [HOUR_S, DAY_S, 7 * DAY_S], rate: HOUR_S })
     .setTime(LOOKOUT_START_UTC_MS);
   scene.camera.lookOut("earth", { direction: LOOKOUT_OPEN_DIRECTION, fovDeg: 60 }).setLookOutChoices(["earth", "mars"]);
   return scene;

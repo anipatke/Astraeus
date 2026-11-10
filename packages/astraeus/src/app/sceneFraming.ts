@@ -61,6 +61,19 @@ export const ORBIT_FIT_MARGIN = 1.1;
 /** The far plane of a fitted reach, as a multiple of the reach (what `camera.setReach` uses too). */
 export const FAR_PER_REACH = 2.5;
 
+/** Room a look-out far plane keeps past the farthest drawn body, as a multiple of its distance. */
+export const LOOK_OUT_FAR_MARGIN = 1.5;
+
+/**
+ * The far plane of a camera standing inside a body: the declared or default `far` (sized for orbit framing about a focus) but never nearer than the farthest placed body
+ * (times `LOOK_OUT_FAR_MARGIN`), since a sky shows everything the scene holds, however far from where the camera stands. One rule for every body (ARCH-06).
+ */
+export function lookOutFar(far: number, cameraAbsolute: readonly number[], placed: ReadonlyMap<string, readonly number[]>): number {
+  let farthest = 0;
+  for (const position of placed.values()) farthest = Math.max(farthest, Math.hypot(position[0] - cameraAbsolute[0], position[1] - cameraAbsolute[1], position[2] - cameraAbsolute[2]));
+  return Math.max(far, farthest * LOOK_OUT_FAR_MARGIN);
+}
+
 /**
  * The camera-to-focus distance at which a sphere of radius `farthestUnits` about the focus fits the canvas from any view direction:
  * the farthest distance divided by the sine of the narrower half field of view (vertical, or horizontal from the aspect ratio), times the margin.
