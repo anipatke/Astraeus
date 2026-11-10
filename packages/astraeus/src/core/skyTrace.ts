@@ -1,0 +1,46 @@
+// How a sky-figure trace runs (O-065 T-297): pure arithmetic with no drawing, shared by the host call's checks (`src/api`) and the frame stage (`src/app`). Wall time only: the scene clock never enters.
+
+/** What follows a trace: the traced lines stay, fade away, or are cleared at once. */
+export type SkyTraceAfter = "stay" | "fade" | "clear";
+
+export const SKY_TRACE_AFTER: readonly SkyTraceAfter[] = Object.freeze(["stay", "fade", "clear"] as const);
+
+/** How long a trace takes, in seconds, when the app does not say. */
+export const DEFAULT_TRACE_SECONDS = 2;
+/** The range of `seconds` a trace accepts. */
+export const TRACE_SECONDS_LIMITS = Object.freeze({ min: 0.1, max: 60 });
+/** How long a `fade` takes after the trace, in seconds. */
+export const TRACE_FADE_SECONDS = 1;
+
+/** One trace in progress. `reduced`: the person asked for less motion, so the whole figure shows at once. */
+export interface SkyTraceRun {
+  readonly seconds: number;
+  readonly after: SkyTraceAfter;
+  readonly reduced: boolean;
+  /** Real seconds since the trace began. */
+  elapsed: number;
+}
+
+/** What one step of a trace says to draw. */
+export interface SkyTraceFrame {
+  /** The share of the figure's segments drawn, 0 to 1 (segments in order, each growing from its first end). */
+  readonly drawn: number;
+  /** How far the lines have faded, 0 to 1 (0: the traced colour; 1: the faded colour, then gone). */
+  readonly fade: number;
+  /** True: the trace is over and its lines go (`clear`, or a finished `fade`). */
+  readonly done: boolean;
+  /** True: this step changed what is drawn, so the scene must draw this frame. */
+  readonly moving: boolean;
+}
+
+/** Moves a trace on by `deltaSeconds` of real time and says what to draw. A `stay` trace holds its drawn figure for good (until the app traces it again). */
+export function stepTrace(run: SkyTraceRun, deltaSeconds: number): SkyTraceFrame {
+  const unsettled = run.elapsed < run.seconds; // a `stay` trace changes only until it is fully drawn
+  run.elapsed += Math.max(0, deltaSeconds);
+  const drawn = run.reduced ? 1 : Math.min(1, run.elapsed / run.seconds);
+  if (run.elapsed < run.seconds) return { drawn, fade: 0, done: false, moving: true };
+  if (run.after === "stay") return { drawn: 1, fade: 0, done: false, moving: unsettled };
+  if (run.after === "clear" || run.reduced) return { drawn: 1, fade: 1, done: true, moving: true };
+  const fade = Math.min(1, (run.elapsed - run.seconds) / TRACE_FADE_SECONDS);
+  return { drawn: 1, fade, done: fade >= 1, moving: true };
+}

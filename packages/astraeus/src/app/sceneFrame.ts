@@ -237,6 +237,13 @@ export function placeSkyFigures(ctx: FrameContext): void {
   canvas.dataset.skyLines = views.skyFiguresView.shown.join(",");
 }
 
+/** Stage 4c: starts the traces the host asked for since the last frame (in call order) and moves every trace on by this frame's real time; a moving trace wakes the draw rule. Wall time only (CODE-02, ARCH-02). */
+export function advanceSkyTraces(ctx: FrameContext): void {
+  const { controls, state, views, delta } = ctx;
+  for (const request of controls.skyTraces.splice(0)) views.skyFiguresView.startTrace(request);
+  if (views.skyFiguresView.advanceTraces(delta, controls.skyColours, controls.skyLines)) state.wakes += 1;
+}
+
 /** Stage 5: places every view about the floating origin and publishes the views' readouts. Returns the hover brightness gain. */
 export function placeViews(ctx: FrameContext, t: number, placed: PlacedScene, setLook: BodySetLook): number {
   const { controls, camera, canvas, size, views, origin } = ctx;
@@ -429,6 +436,7 @@ export function runFrame(ctx: FrameContext): void {
   const step = stepAndPoseCamera(ctx, t, placed);
   publishCanvasReadouts(ctx);
   placeSkyFigures(ctx);
+  advanceSkyTraces(ctx);
   applyViewVisibility(ctx);
   const hoverGain = placeViews(ctx, t, placed, setLook);
   updateOverlays(ctx, t, step, hoverGain);

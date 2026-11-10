@@ -13,6 +13,7 @@ import { ViewerViews } from "./viewerViews";
 import { ViewerZones } from "./viewerZones";
 import type { TimeInput } from "./time";
 import type { SceneSkyFigureRead } from "./sceneReads";
+import { checkedTrace, type SkyTraceOptions } from "./skyTraceInput";
 
 /** What a host is told when the viewer's time, speed or playing state changes. */
 export interface ViewerChange {
@@ -226,6 +227,13 @@ export class ViewerLink implements ViewerPort {
   setSelected(id: string | undefined): void { this.#selection.setSelected(id); this.#afterHost(); }
   onChange(listener: (change: ViewerChange) => void): () => void { return this.#clock.onChange(listener); }
   onEventZone(listener: (change: EventZoneChange) => void): () => void { return this.#zones.onEventZone(listener); }
+
+  /** Traces a sky figure line by line (checked here, `unknown-sky-figure` or `bad-sky-trace`); the viewer starts it at its next frame, after any host call made before it. */
+  traceSkyFigure(id: string, options?: SkyTraceOptions): void {
+    const control = this.#access.open("traceSkyFigure");
+    const { seconds, after } = checkedTrace(id, options, (control.skyFigures ?? []).map((figure) => figure.id));
+    control.traceSkyFigure(id, seconds, after);
+  }
 
   setPick(value: string): void { this.#picker.setPick(value); }
   onPick(listener: (change: PickChange) => void): () => void { return this.#picker.onPick(listener); }

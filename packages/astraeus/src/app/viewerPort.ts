@@ -3,6 +3,7 @@ import type { TimeBounds } from "../core/trajectory";
 import type { CameraRequest } from "./CameraController";
 import type { CameraView } from "./viewLink";
 import type { LookInput, LookRead } from "../api/look";
+import type { SkyTraceAfter } from "../core/skyTrace";
 
 /** The one clock's reading as a host sees it. */
 export interface ViewerState {
@@ -60,6 +61,8 @@ export interface ViewerControl {
   setSwitch(id: string, on: boolean): void;
   /** The sky figures the viewer draws, in the order added (id, label, kind); empty or absent when the scene added none. */
   readonly skyFigures?: readonly { readonly id: string; readonly label: string; readonly kind: "figure" | "boundary" }[];
+  /** Starts tracing a sky figure (an id from `skyFigures`, already checked), as `SkyTraceOptions` says; a trace already running on it restarts. Takes effect at the next frame, in call order with the other host calls. */
+  traceSkyFigure(id: string, seconds: number, after: SkyTraceAfter): void;
   /** The host's picker (`Scene.setPicker`): its id, the option values and the one pressed at the start; absent without a picker. */
   readonly picker?: { readonly id: string; readonly values: readonly string[]; readonly start: string };
   /** The ids of the objects the showing view shows, which a host may point the camera at. */

@@ -36,7 +36,7 @@ import type { GroupFill } from "./FrameRateSection";
 import { TRACK_LAYER } from "./TrackedBodyView";
 import { type BodySetLayer, type BodySetLook } from "./bodySet";
 import type { LabelStyle } from "./labelStyle";
-import type { SkyColours, SkyFigureLayer, SkyLineSwitches } from "./skyFigures";
+import type { SkyColours, SkyFigureLayer, SkyLineSwitches, SkyTraceRequest } from "./skyFigures";
 import type { RingLook } from "../assets/rings";
 import type { Pictures } from "../assets/pictures";
 import { type StoryMarkerSpec } from "./StoryMarkers";
@@ -100,6 +100,8 @@ export interface SceneControls {
   skyLines: SkyLineSwitches;
   /** Presentation only: the colours of the sky lines and their labels (the look `skyLines`; live). */
   skyColours: SkyColours;
+  /** Traces the host asked for, not yet started: the frame's `advanceSkyTraces` stage takes them in call order (the host link pushes, the frame empties it). */
+  skyTraces: SkyTraceRequest[];
   /** Presentation only: the label font and size (the look `labels`; live). The viewer root carries it to every label as CSS variables. */
   labelStyle: LabelStyle;
   /** Presentation only: when a sphere is too small to see it is drawn as a marker (see `drawsAsMarker`). */

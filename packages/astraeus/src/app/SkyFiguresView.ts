@@ -1,6 +1,7 @@
-import { BufferAttribute, BufferGeometry, Group, LineBasicMaterial, LineSegments } from "three";
+import { BufferAttribute, BufferGeometry, Color, Group, LineBasicMaterial, LineSegments } from "three";
 import type { PerspectiveCamera } from "three";
-import { celestialEquatorSegments, eclipticSegments, type EqjDirection, type SkyColours, type SkyFigureLayer, type SkyLineSwitches } from "./skyFigures";
+import { celestialEquatorSegments, eclipticSegments, type EqjDirection, type SkyColours, type SkyFigureLayer, type SkyLineSwitches, type SkyTraceRequest } from "./skyFigures";
+import { stepTrace, type SkyTraceRun } from "../core/skyTrace";
 import { eqjToRenderVector, type RenderVector } from "./renderCoordinates";
 import { TRACK_LAYER } from "./TrackedBodyView";
 
@@ -24,6 +25,17 @@ interface Drawn {
   readonly colour: keyof SkyColours;
   readonly own: boolean;
 }
+
+/** One trace in progress: the lines drawn over the figure, the figure's full positions, and the run's timing. */
+interface Overlay {
+  readonly object: LineSegments;
+  readonly full: Float32Array;
+  readonly kind: SkyFigureLayer["kind"];
+  readonly run: SkyTraceRun;
+}
+
+const FADED = new Color();
+const TRACE_OPACITY = 0.85;
 
 function lines(segments: Segments, color: string, key: string): LineSegments {
   const positions = new Float32Array(segments.length * 6);
@@ -50,8 +62,11 @@ export class SkyFiguresView {
   readonly #drawn: Drawn[] = [];
   #applied: Readonly<SkyColours> | null = null;
   readonly labels: readonly SkyLabelSpec[];
+  readonly #layers: ReadonlyMap<string, SkyFigureLayer>;
+  readonly #traces = new Map<string, Overlay>();
 
   constructor(layers: readonly SkyFigureLayer[]) {
+    this.#layers = new Map(layers.map((layer) => [layer.id, layer]));
     const add = (segments: Segments, shows: Drawn["shows"], colour: Drawn["colour"], key: string, own?: string): void => {
       if (segments.length === 0) return;
       const object = lines(segments, own ?? "#ffffff", key);
@@ -88,6 +103,58 @@ export class SkyFiguresView {
       this.#applied = { ...colours };
     }
     for (const entry of this.#drawn) entry.object.visible = on[entry.shows];
+  }
+
+  /** Begins tracing the figure `request.id` (a trace already on it restarts). The trace is a separate set of lines drawn over the figure; the figure itself is untouched. An id the view does not hold does nothing. */
+  startTrace(request: SkyTraceRequest): void {
+    const layer = this.#layers.get(request.id);
+    if (layer === undefined) return;
+    this.#removeTrace(request.id);
+    const object = lines(layer.segments, "#ffffff", `sky-trace:${request.id}`);
+    object.renderOrder = 2;
+    object.geometry.setDrawRange(0, 0);
+    const full = Float32Array.from(object.geometry.getAttribute("position").array);
+    this.group.add(object);
+    this.#traces.set(request.id, { object, full, kind: layer.kind, run: { seconds: request.seconds, after: request.after, reduced: request.reduced, elapsed: 0 } });
+  }
+
+  /**
+   * Moves every trace on by `deltaSeconds` of real time (the scene clock never enters): draws the segments reached so far, the last one part-grown from its first end, in the traced colour (the faded colour while fading),
+   * shows each with its figure's switch, and removes finished ones. Returns true while anything changed, so the caller wakes the draw rule.
+   */
+  advanceTraces(deltaSeconds: number, colours: Readonly<SkyColours>, on: Readonly<SkyLineSwitches>): boolean {
+    let moving = false;
+    for (const [id, trace] of this.#traces) {
+      const frame = stepTrace(trace.run, deltaSeconds);
+      moving ||= frame.moving;
+      if (frame.done) { this.#removeTrace(id); continue; }
+      const count = trace.full.length / 6;
+      const reached = frame.drawn * count;
+      const last = Math.min(count - 1, Math.floor(reached));
+      const grown = frame.drawn >= 1 ? 1 : reached - last;
+      const positions = trace.object.geometry.getAttribute("position") as BufferAttribute;
+      positions.array.set(trace.full.subarray(0, (last + 1) * 6));
+      const at = last * 6;
+      const end = [0, 1, 2].map((axis) => trace.full[at + axis]! + (trace.full[at + 3 + axis]! - trace.full[at + axis]!) * grown);
+      const length = Math.hypot(end[0]!, end[1]!, end[2]!);
+      end.forEach((value, axis) => { positions.array[at + 3 + axis] = length > 1e-9 ? value / length : value; });
+      positions.needsUpdate = true;
+      trace.object.geometry.setDrawRange(0, (last + 1) * 2);
+      const material = trace.object.material as LineBasicMaterial;
+      material.color.set(colours.traced).lerp(FADED.set(colours.faded), frame.fade);
+      material.opacity = TRACE_OPACITY * (1 - frame.fade);
+      trace.object.visible = on[trace.kind === "figure" ? "figures" : "boundaries"];
+    }
+    return moving;
+  }
+
+  #removeTrace(id: string): void {
+    const trace = this.#traces.get(id);
+    if (trace === undefined) return;
+    this.#traces.delete(id);
+    this.group.remove(trace.object);
+    trace.object.geometry.dispose();
+    (trace.object.material as LineBasicMaterial).dispose();
   }
 
   /** Which lines are shown now, by name (read by tests and the canvas data). */

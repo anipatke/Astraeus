@@ -2,6 +2,7 @@
 export { Scene, type SceneCamera, type AddBodyOptions, type CardFactInput, type OrbitLapInput, type BodyReadoutKind, type AnchorInput, type ReadoutInput, type DataSource, type SceneLoadOptions, type SceneBodyRead, type SceneActivityRead, type ScenePathRead, type SceneGroupRead, type SceneBodySetRead, type SceneMoonPanelRead, type ScenePlacesRead, type SceneSkyFigureRead, type SceneEventRead, type ScenePanelRead, type SceneViewRead, type SceneViewsRead, type SceneTimelineRead, type MoonPositions, type MoonIndex, type FollowView, type GroupInput, type GroupOrbitInput, type GroupClumpInput, type GroupReadoutInput, type ActivityInput, type ActivitySampleInput, type ActivitySourceInput, type ElementsBodyRecord, type TimeInput, type TrajectoryInput, type TrajectorySampleInput, type TrajectoryBase } from "./scene";
 export type { MoonPanelInput, MoonPanelFamilyInput, MoonPanelMoonInput, PlacesInput, PlaceInput, PlaceCategoryInput } from "./moonPanelInput";
 export type { SkyFigureInput, SkyFigureEnd } from "./skyFigureInput";
+export type { SkyTraceOptions } from "./skyTraceInput";
 export type { PickerInput, PickerOptionInput, PickChange } from "./pickerInput";
 export type { BodySetInput, BodySetFamilyInput, BodySetMemberInput, BodySetElementsInput, BodySetBodyInput, BodySetBalanceInput } from "./bodySetInput";
 export { type EventInput, type AddEventsOptions, type TimelineInput, type PacingInput, type StoryPanelAt, type StoryPanelInput, type StoryPanelPlaybackInput } from "./story";

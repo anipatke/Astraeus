@@ -25,7 +25,7 @@ function fakeCanvas(): HTMLCanvasElement {
 export function makeContext(over: { controls?: Partial<SceneControls>; runtime?: Partial<SceneRuntime>; clock?: SimulationClock } = {}) {
   const clock = over.clock ?? new SimulationClock(T0);
   const runtime = { clock, resolver, bodies: BODIES, sceneCenter: "earth", trackedBodies: [], groups: [], cameraReach: {}, ...over.runtime } as SceneRuntime;
-  const controls = { policy: readableScale, cameraRequest: null, showAnchorLabels: false, showMilkyWay: false, skyLines: { ...DEFAULT_SKY_LINES }, skyColours: DEFAULT_SKY_COLOURS, bodyMarker: DEFAULT_BODY_MARKER, starBrightness: 1, milkyWayBrightness: 1, labelObjects: [{ id: "earth", label: "Earth" }], selectedObjectId: "earth", frameStats: null, groupFills: [], ...over.controls } as SceneControls;
+  const controls = { policy: readableScale, cameraRequest: null, showAnchorLabels: false, showMilkyWay: false, skyLines: { ...DEFAULT_SKY_LINES }, skyColours: DEFAULT_SKY_COLOURS, skyTraces: [], bodyMarker: DEFAULT_BODY_MARKER, starBrightness: 1, milkyWayBrightness: 1, labelObjects: [{ id: "earth", label: "Earth" }], selectedObjectId: "earth", frameStats: null, groupFills: [], ...over.controls } as SceneControls;
   const groups = new Map<BodyId, Group>(BODIES.map((id) => [id, new Group()]));
   const orients = new Map<BodyId, Group>(BODIES.map((id) => [id, new Group()]));
   const layers: FrameLayers = { bodySetLabels: { current: [] }, anchorLabels: { current: null }, sceneLabels: { current: null }, storyMarkers: { current: null }, featureMarkers: { current: null } };

@@ -237,6 +237,31 @@ describe("AstraeusScene hands React apps the handle (O-054 T-242)", () => {
     other.remove();
   });
 
+  it("traceSkyFigure checks the call the same through mount and AstraeusScene: unknown figure, bad options, not-mounted after unmount (O-065 T-297, API-02)", async () => {
+    prepared.skyFigures = [{ id: "kite", label: "The Kite", kind: "figure", segments: [], labelAt: [1, 0, 0] }];
+    const check = (handle: ViewerHandle): void => {
+      expect(() => handle.traceSkyFigure("kite")).not.toThrow();
+      expect(() => handle.traceSkyFigure("kite", { durationSeconds: 5, after: "fade" })).not.toThrow();
+      expect(codeOf(() => handle.traceSkyFigure("nope"))).toBe("unknown-sky-figure");
+      expect(codeOf(() => handle.traceSkyFigure("kite", { durationSeconds: 0 }))).toBe("bad-sky-trace");
+      expect(codeOf(() => handle.traceSkyFigure("kite", { after: "linger" as never }))).toBe("bad-sky-trace");
+    };
+    const mounted = mount(host, new Scene());
+    expect(codeOf(() => mounted.traceSkyFigure("kite"))).toBe("not-mounted");
+    await drawn(mounted);
+    check(mounted);
+    act(() => mounted.unmount());
+    expect(codeOf(() => mounted.traceSkyFigure("kite"))).toBe("not-mounted");
+    const ref: { current: ViewerHandle | null } = { current: null };
+    const other = document.createElement("div");
+    document.body.append(other);
+    root = createRoot(other);
+    await act(async () => { root!.render(createElement(AstraeusScene, { scene: new Scene(), ref })); });
+    await act(async () => { await vi.advanceTimersByTimeAsync(50); });
+    check(ref.current!);
+    other.remove();
+  });
+
   it("skyFigures is an empty list in a scene that added none", async () => {
     const mounted = mount(host, new Scene());
     await drawn(mounted);

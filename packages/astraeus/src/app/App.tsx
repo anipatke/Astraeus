@@ -38,7 +38,8 @@ import { withSkyObject, type StarStatus } from "./skyModel";
 import { ORBIT_LOOK_LIMITS, resolveOrbitLook, type OrbitLook } from "../assets/orbitLook";
 import { DEFAULT_BODY_SET_LOOK, type BodySetLook } from "./bodySet";
 import { displaySwitchItems, hostReachable, orbitStart, skyLineStart, type SwitchBindings } from "./displaySwitches";
-import { DEFAULT_SKY_LINES, skyColoursOf } from "./skyFigures";
+import type { SkyTraceAfter } from "../core/skyTrace";
+import { DEFAULT_SKY_LINES, prefersReducedMotion, skyColoursOf } from "./skyFigures";
 import { labelStyleOf } from "./labelStyle";
 import { experienceInView, hiddenByView, viewById } from "./viewHiding";
 import type { RingLook } from "../assets/rings";
@@ -195,6 +196,7 @@ function initialSceneControls(
     showMilkyWay: runtime.sky.milkyWay,
     skyLines: skyLineStart(definition.displaySwitches, DEFAULT_SKY_LINES),
     skyColours: skyColoursOf(runtime.look),
+    skyTraces: [],
     labelStyle: labelStyleOf(runtime.look),
     skyVisible: runtime.sky.visible,
     bodyMarker: markerSettingsOf(runtime.look),
@@ -462,14 +464,15 @@ export function App({ definition, writeTitle = true, address, developerTools, ho
   const hostScales = useMemo(() => scaleChoiceIds ?? SCALE_CHOICES.map((choice) => choice.id), [scaleChoiceIds]);
   const hostSetLook = useCallback((look: LookInput) => live.current?.setLook(look), []);
   const hostSetScale = useCallback((id: string) => live.current?.setScale(id), []);
+  const hostTraceSkyFigure = useCallback((id: string, seconds: number, after: SkyTraceAfter) => { controls.current.skyTraces.push({ id, seconds, after, reduced: prefersReducedMotion() }); }, []);
   const hostSetSwitch = useCallback((id: string, on: boolean) => live.current?.setSwitch(id, on), []);
   useEffect(() => {
     if (host === undefined) return undefined;
     hostAttached.current = true;
     shownKey.current = null; // the presentation is read afresh after each attach
-    host.attach({ ...(definition.picker === undefined ? {} : { picker: { id: definition.picker.id, values: definition.picker.options.map((option) => option.value), start: definition.picker.value } }), window: runtime.loopWindow, skyFigures: runtime.skyFigures.map(({ id, label, kind }) => Object.freeze({ id, label, kind })), events: experience.events, rates: definition.experience.rates, paced: runtime.pacing !== undefined, read: stateNow, seek: hostSeekTo, setRate: changeRate, playable: definition.experience.hideTimeline !== true, setPlaying: hostSetPlaying, views: viewIds, setView: chooseView, cameraTargets, readCamera, setCamera, setSelected: hostSetSelected, scales: hostScales, setScale: hostSetScale, setLook: hostSetLook, setSwitch: hostSetSwitch });
+    host.attach({ ...(definition.picker === undefined ? {} : { picker: { id: definition.picker.id, values: definition.picker.options.map((option) => option.value), start: definition.picker.value } }), window: runtime.loopWindow, skyFigures: runtime.skyFigures.map(({ id, label, kind }) => Object.freeze({ id, label, kind })), events: experience.events, rates: definition.experience.rates, paced: runtime.pacing !== undefined, read: stateNow, seek: hostSeekTo, setRate: changeRate, playable: definition.experience.hideTimeline !== true, setPlaying: hostSetPlaying, views: viewIds, setView: chooseView, cameraTargets, readCamera, setCamera, setSelected: hostSetSelected, scales: hostScales, setScale: hostSetScale, setLook: hostSetLook, setSwitch: hostSetSwitch, traceSkyFigure: hostTraceSkyFigure });
     return () => { hostAttached.current = false; host.detach(); };
-  }, [host, runtime, definition, hostSeekTo, changeRate, viewIds, chooseView, cameraTargets, readCamera, setCamera, hostSetSelected, experience, hostSetPlaying, hostScales, hostSetScale, hostSetLook, hostSetSwitch]);
+  }, [host, runtime, definition, hostSeekTo, changeRate, viewIds, chooseView, cameraTargets, readCamera, setCamera, hostSetSelected, experience, hostSetPlaying, hostScales, hostSetScale, hostSetLook, hostSetSwitch, hostTraceSkyFigure]);
 
   useEffect(() => {
     if (!developerMode) return undefined;

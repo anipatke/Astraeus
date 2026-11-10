@@ -1,5 +1,6 @@
 // Sky figures as the app draws them: figures, outlines and the two reference circles, all as unit directions in the EQJ frame at infinity (ARCH-02: presentation only, no State).
 import { createOrbTwoBodyAdapter } from "../core/twoBodyAdapter";
+import type { SkyTraceAfter } from "../core/skyTrace";
 
 export type EqjDirection = readonly [number, number, number];
 
@@ -42,6 +43,19 @@ export interface SkyColours {
 }
 
 export const DEFAULT_SKY_COLOURS: Readonly<SkyColours> = Object.freeze({ figure: "#8fb4ff", label: "#cfe0ff", boundary: "#5f7a9c", ecliptic: "#e0b25a", equator: "#7fd1b9", traced: "#ffd166", faded: "#44546d" });
+
+/** A trace the host asked for (checked): the figure, how long, what follows, and whether the person asked for less motion when it was asked. */
+export interface SkyTraceRequest {
+  readonly id: string;
+  readonly seconds: number;
+  readonly after: SkyTraceAfter;
+  readonly reduced: boolean;
+}
+
+/** True when the person asked the system for less motion (`prefers-reduced-motion: reduce`); false where the browser cannot say. */
+export function prefersReducedMotion(): boolean {
+  return typeof globalThis.matchMedia === "function" && globalThis.matchMedia("(prefers-reduced-motion: reduce)").matches;
+}
 
 /** The sky colours in force: the look's `skyLines`, every one not named at its default. */
 export function skyColoursOf(look: { readonly skyLines?: Partial<SkyColours> }): SkyColours {
