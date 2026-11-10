@@ -1,6 +1,6 @@
 import type { ExperienceCameraPreset, ExperienceConfig } from "./experience";
 import { findCameraPreset, focusPresetFor, isObjectAvailable, listedObjects, relatedObjects } from "./objectModel";
-import { ButtonText, FocusIcon, FollowIcon, InfoIcon, OrbitIcon, OverviewIcon } from "./topBarIcons";
+import { ButtonText, FocusIcon, LookOutIcon, FollowIcon, InfoIcon, OrbitIcon, OverviewIcon } from "./topBarIcons";
 
 interface Props {
   readonly experience: ExperienceConfig;
@@ -31,13 +31,14 @@ export function ObjectControls({
   const overview = findCameraPreset(experience, "overview");
   const focus = selected === undefined ? undefined : focusPresetFor(experience, selected);
   const follow = selected === undefined ? undefined : findCameraPreset(experience, "follow", selected.id);
+  const lookOut = selected === undefined ? undefined : findCameraPreset(experience, "lookOut", selected.id);
 
   const related = selected === undefined ? [] : relatedObjects(experience, selected.id);
 
   const presetIcon = (preset: ExperienceCameraPreset) =>
-    preset.request.kind === "overview" ? <OverviewIcon /> : preset.request.kind === "follow" ? <FollowIcon /> : <FocusIcon />;
+    preset.request.kind === "overview" ? <OverviewIcon /> : preset.request.kind === "follow" ? <FollowIcon /> : preset.request.kind === "lookOut" ? <LookOutIcon /> : <FocusIcon />;
 
-  const presetText = (preset: ExperienceCameraPreset) => (preset.request.kind === "overview" ? "Overview" : preset.request.kind === "follow" ? "Follow" : "Focus");
+  const presetText = (preset: ExperienceCameraPreset) => (preset.request.kind === "overview" ? "Overview" : preset.request.kind === "follow" ? "Follow" : preset.request.kind === "lookOut" ? "Look out" : "Focus");
 
   const renderPreset = (preset: ExperienceCameraPreset | undefined) => preset && (
     <button
@@ -99,6 +100,7 @@ export function ObjectControls({
       <div className="object-camera-actions">
         {renderPreset(focus)}
         {renderPreset(follow)}
+        {renderPreset(lookOut)}
         {renderPreset(overview)}
         {related.map((object) => (
           <button

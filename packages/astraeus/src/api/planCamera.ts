@@ -6,8 +6,8 @@ import type { BodyRef } from "./bodies";
 import { SceneError } from "./errors";
 import { frozenCopy } from "./frozenCopy";
 import type { FollowView } from "./scene";
-import type { CameraPose } from "./viewerLink";
-import { validateStartView } from "../core/startView";
+import type { CameraPose, SkyDirection } from "./viewerLink";
+import { eqjUnitVector, validateCameraView, validateSkyLook } from "../core/startView";
 import { farthestSunDistanceKm } from "./sunOrbit";
 import { planetSeriesLoaded } from "../core/planetSeries";
 import type { TimelineSetting } from "./story";
@@ -21,6 +21,7 @@ export class SceneCamera {
   #far: number | undefined;
   #pose: CameraPose | undefined;
   #followIds: readonly string[] | undefined;
+  #lookOutIds: readonly string[] = Object.freeze([]);
   #fit: string | undefined;
   readonly #has: (id: string) => boolean;
   readonly #circlesSun: (id: string) => boolean;
@@ -49,18 +50,41 @@ export class SceneCamera {
     return this;
   }
   /**
-   * Opens at a pose with no camera button pressed (neither Focus nor Follow shows as pressed, and choosing another body moves the camera as it does without a start). The pose is what `ViewerHandle.camera` reads:
-   * `{ focus, azimuthDeg, elevationDeg, distance }`, distance in Earth radii. `focus` must be a body or trajectory already added (else `unknown-body`); a bad angle or distance throws `bad-camera`.
-   * The last of `follow`, `focus` and `setStartView` wins. Default: none.
+   * Opens standing inside a body (at its centre) and looking out, with no camera button pressed. `body` must be a body or trajectory already added (else `unknown-body`).
+   * `look.direction` is a star-map position (`{ raDeg, decDeg }`, J2000 equatorial degrees; default right ascension 0, declination 0) and `look.fovDeg` the vertical field of view in degrees (5 to 100; default 60);
+   * a direction or field of view out of range throws `bad-camera`. Same as `setStartView` with a sky pose. The last of `follow`, `focus`, `lookOut` and `setStartView` wins.
+   * @example
+   * scene.camera.lookOut("earth", { direction: { raDeg: 83.6, decDeg: 22 }, fovDeg: 40 });
+   */
+  lookOut(body: BodyRef | BodyId, look: { readonly direction?: SkyDirection; readonly fovDeg?: number } = {}): this {
+    const id = typeof body === "string" ? body : body?.id;
+    let sky;
+    try {
+      sky = validateSkyLook(look, "camera.lookOut");
+    } catch (error) {
+      if (error instanceof RangeError) throw new SceneError("bad-camera", error.message);
+      throw error;
+    }
+    return this.#start({ lookOut: id, ...sky }, "camera.lookOut");
+  }
+  /**
+   * Opens at a pose with no camera button pressed (neither Focus nor Follow shows as pressed, and choosing another body moves the camera as it does without a start). The pose is what `ViewerHandle.camera` reads, either kind:
+   * an orbit pose `{ focus, azimuthDeg, elevationDeg, distance }` (distance in Earth radii), or a sky pose `{ lookOut, raDeg, decDeg, fovDeg }` (standing inside a body, looking out).
+   * `focus` or `lookOut` must be a body or trajectory already added (else `unknown-body`); a bad angle, distance or field of view throws `bad-camera`.
+   * The last of `follow`, `focus`, `lookOut` and `setStartView` wins. Default: none.
    * @example
    * scene.camera.setStartView({ focus: "earth", azimuthDeg: 20, elevationDeg: 30, distance: 40 });
    */
   setStartView(pose: CameraPose): this {
+    return this.#start(pose, "camera.setStartView");
+  }
+  #start(pose: unknown, call: string): this {
     this.#editable();
-    const focus = (pose as { focus?: unknown } | null)?.focus;
-    if (typeof focus === "string" && !this.#has(focus)) throw new SceneError("unknown-body", `camera.setStartView: "${focus}" has not been added to the scene`);
+    const record = pose as { focus?: unknown; lookOut?: unknown } | null;
+    const named = record?.lookOut ?? record?.focus;
+    if (typeof named === "string" && !this.#has(named)) throw new SceneError("unknown-body", `${call}: "${named}" has not been added to the scene`);
     try {
-      this.#pose = validateStartView(pose, "camera.setStartView pose");
+      this.#pose = validateCameraView(pose, `${call} pose`);
     } catch (error) {
       if (error instanceof RangeError) throw new SceneError("bad-camera", error.message);
       throw error;
@@ -82,6 +106,20 @@ export class SceneCamera {
     const named = ids.map((item) => (typeof item === "string" ? item : item?.id));
     for (const id of named) if (typeof id !== "string" || !this.#has(id)) throw new SceneError("unknown-body", `camera.setFollowChoices("${String(id)}"): no body or trajectory with that id has been added to the scene`);
     this.#followIds = Object.freeze([...new Set(named)]);
+    return this;
+  }
+  /**
+   * Chooses the bodies whose "Look out from" entry the camera menu offers, by body, id or path already added to the scene (else `unknown-body`); the entry stands inside the body and looks out, and any other camera entry leaves it.
+   * Default: none. An empty list offers none. The opening view is separate: `lookOut` opens looking out whether or not the body is listed.
+   * @example
+   * scene.camera.setLookOutChoices(["earth", "mars"]);
+   */
+  setLookOutChoices(ids: readonly (BodyRef | BodyId)[]): this {
+    this.#editable();
+    if (!Array.isArray(ids)) throw new SceneError("bad-camera", "camera.setLookOutChoices: give a list of bodies or ids");
+    const named = ids.map((item) => (typeof item === "string" ? item : item?.id));
+    for (const id of named) if (typeof id !== "string" || !this.#has(id)) throw new SceneError("unknown-body", `camera.setLookOutChoices("${String(id)}"): no body or trajectory with that id has been added to the scene`);
+    this.#lookOutIds = Object.freeze([...new Set(named)]);
     return this;
   }
   /**
@@ -129,6 +167,8 @@ export class SceneCamera {
   get pose(): CameraPose | undefined { return this.#pose; }
   /** The objects offering Follow (`setFollowChoices`); undefined: every one. */
   get followChoices(): readonly string[] | undefined { return this.#followIds; }
+  /** The bodies offering "Look out from" (`setLookOutChoices`); none by default. */
+  get lookOutChoices(): readonly string[] { return this.#lookOutIds; }
   get target(): string | undefined { return this.#target; }
   /** Whether the opening view follows its target (`follow`) rather than only looking at it (`focus`). */
   get following(): boolean { return this.#following; }
@@ -171,13 +211,14 @@ export function viewEntries(timeline: TimelineSetting | undefined, camera: Scene
   };
 }
 
-/** The camera menu: Overview, Focus for every body and path, and Follow for every one unless `setFollowChoices` named fewer. */
-export function cameraPresetsOf(objects: readonly { readonly id: string; readonly label: string }[], followChoices?: readonly string[]): ExperienceDefinition["experience"]["cameraPresets"] {
+/** The camera menu: Overview, Focus for every body and path, Follow for every one unless `setFollowChoices` named fewer, and "Look out from" for the bodies `setLookOutChoices` listed (the look is toward right ascension 0, declination 0 until the visitor turns). */
+export function cameraPresetsOf(objects: readonly { readonly id: string; readonly label: string }[], followChoices?: readonly string[], lookOutChoices: readonly string[] = []): ExperienceDefinition["experience"]["cameraPresets"] {
   return [
     { id: "overview", label: "Overview", request: { kind: "overview" } },
     ...objects.flatMap(({ id, label }) => [
       { id: `focus-${id}`, label: `Focus ${label}`, request: { kind: "focus" as const, target: id } },
       ...(followChoices === undefined || followChoices.includes(id) ? [{ id: `follow-${id}`, label: `Follow ${label}`, request: { kind: "follow" as const, target: id } }] : []),
+      ...(lookOutChoices.includes(id) ? [{ id: `lookout-${id}`, label: `Look out from ${label}`, request: { kind: "lookOut" as const, body: id, direction: eqjUnitVector(0, 0) } }] : []),
     ]),
   ];
 }

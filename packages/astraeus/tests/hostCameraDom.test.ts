@@ -162,7 +162,7 @@ describe("onCameraChange on the mount handle (O-054 T-248)", () => {
     const handle = mount(host, makeScene());
     await drawn(handle);
     const heard: Array<{ focus: string; azimuthDeg: number }> = [];
-    const stop = handle.onCameraChange((pose) => heard.push(pose));
+    const stop = handle.onCameraChange((pose) => heard.push(pose as { focus: string; azimuthDeg: number }));
     standAt("earth", 216, 14.32, 16);
     tick(); tick();
     expect(heard).toEqual([]); // the opening pose is not a change
@@ -174,7 +174,7 @@ describe("onCameraChange on the mount handle (O-054 T-248)", () => {
     stop();
     standAt("moon", 90, 14.32, 12); tick();
     expect(heard.length).toBe(2);
-    handle.onCameraChange((pose) => heard.push(pose));
+    handle.onCameraChange((pose) => heard.push(pose as { focus: string; azimuthDeg: number }));
     handle.unmount();
     standAt("moon", 45, 14.32, 12); tick();
     expect(heard.length).toBe(2);

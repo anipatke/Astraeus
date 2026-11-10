@@ -1816,3 +1816,64 @@ export const hostControlsFit = (page) => page.evaluate(() => {
   const outside = controls.filter((c) => c.left < 0 || c.top < 0 || c.right > innerWidth || c.bottom > innerHeight).map((c) => c.id);
   return { count: controls.length, overlaps, outside, sideways: document.documentElement.scrollWidth > innerWidth + 1 };
 });
+
+// ---------------------------------------------------------------------------------------------------------------------------------------------
+// The sky view (O-064 T-293): the camera reading in the Developer drawer's view line, and the camera menu's "Look out from" entry.
+// ---------------------------------------------------------------------------------------------------------------------------------------------
+
+/** The camera reading in the drawer's view line as it stands now (the drawer must be open): a sky view `{ sky: true, body, raDeg, decDeg, fovDeg }` while the camera looks out (the line's values end in `sky`), else `{ sky: false, text }`. */
+async function drawerCameraReading(page) {
+  const text = await viewValuesText(page);
+  const values = /^View: (\S+)/.exec(text)?.[1]?.split(",") ?? [];
+  if (values.length === 5 && values[4] === "sky") return { sky: true, body: values[0], raDeg: Number(values[1]), decDeg: Number(values[2]), fovDeg: Number(values[3]) };
+  return { sky: false, text };
+}
+/** The drawer refreshes its view line every 250 ms and keeps the last line while shut, so a reading waits out one refresh after opening it. */
+const DRAWER_REFRESH_MS = 400;
+/**
+ * The camera reading from the Developer drawer's view line (opens the drawer, waits one refresh, reads it, closes it): a sky view `{ sky: true, body, raDeg, decDeg, fovDeg }` while the camera looks out
+ * (the line's values end in `sky`), else `{ sky: false, text }` for an orbit view.
+ */
+export async function cameraReading(page) {
+  await openDeveloper(page);
+  await page.waitForTimeout(DRAWER_REFRESH_MS);
+  const reading = await drawerCameraReading(page);
+  await closeDeveloper(page);
+  return reading;
+}
+/** Polls the camera reading (drawer open throughout) until `done(reading)` is true or `timeout` passes; returns the last reading. The caller asserts on what comes back. */
+export async function waitForCameraReading(page, done, { timeout = 6000 } = {}) {
+  await openDeveloper(page);
+  const deadline = Date.now() + timeout;
+  await page.waitForTimeout(DRAWER_REFRESH_MS);
+  let reading = await drawerCameraReading(page);
+  while (Date.now() < deadline && !done(reading)) {
+    await page.waitForTimeout(DRAWER_REFRESH_MS);
+    reading = await drawerCameraReading(page);
+  }
+  await closeDeveloper(page);
+  return reading;
+}
+/** One camera menu entry against the rest of the screen: inside the window and which neighbours (the controls in the same row, the cog, the timeline and the pill) it overlaps, and its smaller side in pixels. */
+export async function cameraEntryFit(page, presetId) {
+  await reveal(page, page.locator(`[data-camera-preset="${presetId}"]`));
+  await drawersSettled(page);
+  return page.evaluate((id) => {
+    const entry = document.querySelector(`[data-camera-preset="${id}"]`);
+    const box = (element) => { const r = element.getBoundingClientRect(); return { left: r.left, right: r.right, top: r.top, bottom: r.bottom }; };
+    const mine = box(entry);
+    const crosses = (other) => other.left < mine.right - 0.5 && mine.left < other.right - 0.5 && other.top < mine.bottom - 0.5 && mine.top < other.bottom - 0.5;
+    const rows = [...entry.parentElement.children].filter((element) => element !== entry && getComputedStyle(element).display !== "none" && element.getBoundingClientRect().width > 0);
+    const named = [...rows.map((element, index) => [`neighbour-${index}`, element]), ...[["cog", ".developer-mode-toggle"], ["timeline", ".timeline-bar"], ["pill", "button.controls-pill"]].map(([name, selector]) => [name, document.querySelector(selector)])];
+    const overlaps = named.filter(([, element]) => element !== null && getComputedStyle(element).visibility !== "hidden" && crosses(box(element))).map(([name]) => name);
+    return { insideWindow: mine.left >= 0 && mine.top >= 0 && mine.right <= innerWidth && mine.bottom <= innerHeight, overlaps, smallestPx: Math.round(Math.min(mine.right - mine.left, mine.bottom - mine.top)) };
+  }, presetId);
+}
+/** A mouse wheel turn over the free canvas (desktop pages): zooms the sky view's field of view. Returns false when no free canvas point exists. */
+export async function wheelOverCanvas(page, deltaY) {
+  const point = await freeCanvasPoint(page);
+  if (point === null || point === undefined) return false;
+  await page.mouse.move(point.x, point.y);
+  await page.mouse.wheel(0, deltaY);
+  return true;
+}

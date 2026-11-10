@@ -26,7 +26,7 @@ import type { TrackedBody } from "./mission";
 import { LayeredRender } from "./LayeredRender";
 import type { RenderVector } from "./renderCoordinates";
 import { useSceneViews, useSkyStars } from "./sceneHooks";
-import type { StartView } from "./viewLink";
+import type { CameraView } from "./viewLink";
 import {
   assignBodyLayers,
   START_CAMERA_DISTANCE,
@@ -146,9 +146,9 @@ export interface SceneControls {
   /** Each group's refill count, written by the scene while `frameStats` is set; read by the Developer tools poll. */
   readonly groupFills: GroupFill[];
   /** The view to open on (from `?view=` or the experience's `startView`). Used once, on the first frame; absent: today's opening. */
-  startView?: StartView;
-  /** The camera's current view, written every frame by the scene for "Copy view link". */
-  viewReadout?: StartView;
+  startView?: CameraView;
+  /** The camera's current view, written every frame by the scene for "Copy view link": an orbit view, or a sky view while looking out. */
+  viewReadout?: CameraView;
   /** How long the loading cover fades when the first frame is drawn (the address's `loadfade` when the address is on, else the saved setting). */
   loadFadeSeconds?: number;
   /** Whether wide screens draw the larger desktop pictures: set when the viewer is built, read back by `look`. */

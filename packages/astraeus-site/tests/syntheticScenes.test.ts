@@ -11,6 +11,7 @@ import { buildSyntheticListedScene, LISTED_MEMBER_COUNT } from "../src/synthetic
 import { buildSyntheticEccentricScene } from "../src/synthetic/syntheticEccentricScene";
 import { buildSyntheticProbeScene, PROBE_FLYBY_UTC_MS } from "../src/synthetic/syntheticProbeScene";
 import { buildSyntheticViewsScene } from "../src/synthetic/syntheticViewsScene";
+import { buildSyntheticLookOutScene, LOOKOUT_OPEN_DIRECTION, loadLookOutPlanets } from "../src/synthetic/syntheticLookOutScene";
 import { buildSyntheticJourneyScene, JOURNEY_JUPITER_UTC_MS } from "../src/synthetic/syntheticJourneyScene";
 
 type Before = Record<string, { events: [string, number][]; window: { startUtcMs: number; endUtcMs: number }; rates: number[]; clockRate: number; panels: string[]; groups: { id: string; count: number }[]; windows: unknown[][]; camera?: unknown }>;
@@ -110,5 +111,28 @@ describe("the three moved scenes", () => {
     const scene = buildSyntheticJourneyScene();
     expect(scene.paths.map((path) => path.id)).toEqual(["traveller"]);
     expect(scene.events.find((event) => event.id === "traveller-jupiter")?.timeUtcMs).toBe(JOURNEY_JUPITER_UTC_MS);
+  });
+
+  it("look out: opens looking out from Earth and lists Earth and Mars for the menu", async () => {
+    await loadLookOutPlanets();
+    const scene = buildSyntheticLookOutScene();
+    expect(scene.camera.pose).toEqual({ lookOut: "earth", ...LOOKOUT_OPEN_DIRECTION, fovDeg: 60 });
+    expect(scene.camera.lookOutChoices).toEqual(["earth", "mars"]);
+  });
+
+  it("look out: opens with the Sun in the view and plays slowly enough to stay there (T-293 repair: rates were milliseconds, so the clock ran to the end at once)", async () => {
+    await loadLookOutPlanets();
+    const scene = buildSyntheticLookOutScene();
+    const t = scene.timeline!;
+    expect(t.openUtcMs).toBe(t.windowStartUtcMs);
+    // Speeds are simulated seconds per real second: playing from the start for ten real seconds stays within days of the opening, not months.
+    expect(t.rate * 10).toBeLessThan(10 * 86_400);
+    const [x, y, z] = scene.stateOf("earth", t.openUtcMs).positionKm;
+    const sun = [-x!, -y!, -z!];
+    const d = Math.hypot(sun[0]!, sun[1]!, sun[2]!);
+    const raDeg = ((Math.atan2(sun[1]!, sun[0]!) * 180) / Math.PI + 360) % 360;
+    const decDeg = (Math.asin(sun[2]! / d) * 180) / Math.PI;
+    expect(Math.abs(raDeg - LOOKOUT_OPEN_DIRECTION.raDeg)).toBeLessThan(2);
+    expect(Math.abs(decDeg - LOOKOUT_OPEN_DIRECTION.decDeg)).toBeLessThan(2);
   });
 });

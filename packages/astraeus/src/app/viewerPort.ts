@@ -1,7 +1,7 @@
 import type { TimelineEvent } from "../core/events";
 import type { TimeBounds } from "../core/trajectory";
 import type { CameraRequest } from "./CameraController";
-import type { StartView } from "./viewLink";
+import type { CameraView } from "./viewLink";
 import type { LookInput, LookRead } from "../api/look";
 
 /** The one clock's reading as a host sees it. */
@@ -62,8 +62,8 @@ export interface ViewerControl {
   readonly picker?: { readonly id: string; readonly values: readonly string[]; readonly start: string };
   /** The ids of the objects the showing view shows, which a host may point the camera at. */
   cameraTargets(): readonly string[];
-  /** The camera as the viewer's view link writes it; undefined until the scene has drawn its first frame. */
-  readCamera(): StartView | undefined;
+  /** The camera as the viewer's view link writes it (an orbit view, or a sky view while looking out); undefined until the scene has drawn its first frame. */
+  readCamera(): CameraView | undefined;
   /** Selects the object with this id (one of `cameraTargets()`), or clears the selection (`undefined`); `read()` shows it at once. */
   setSelected(id: string | undefined): void;
   /** Asks the scene camera for a follow, focus or pose through its own request path (the same one a view's camera rule uses). */

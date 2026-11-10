@@ -9,7 +9,8 @@ import type { SceneControls } from "./AstraeusScene";
 import { DebugOverlay, type DebugReadout } from "./DebugOverlay";
 import { FrameRateSection, type GroupFill } from "./FrameRateSection";
 import type { FrameSnapshot } from "./frameStats";
-import { formatView, type StartView } from "./viewLink";
+import { formatView, type CameraView } from "./viewLink";
+import { isSkyView } from "../core/startView";
 import type { ViewUp } from "./viewUp";
 import { HudSection, SettingButtons, SettingColor, SettingGroup, SettingSlider } from "./SettingControls";
 
@@ -167,14 +168,14 @@ export function LabelSettings({ controls, hoverBrightness, setHoverBrightness, l
 }
 
 export function ViewLinkReadout({ viewNow, viewLink, scale, upChoice }: {
-  readonly viewNow: StartView | null;
+  readonly viewNow: CameraView | null;
   readonly viewLink: { readonly url: string; readonly copied: boolean } | null;
   readonly scale: string;
   readonly upChoice: ViewUp;
 }) {
   return (
     <>
-          {viewNow !== null && <p className="view-link-values" data-testid="view-values">{`View: ${formatView(viewNow).replace(/%2C/g, ",")} (focus, azimuth °, elevation °, distance) · scale ${scale} · up ${upChoice}`}</p>}
+          {viewNow !== null && <p className="view-link-values" data-testid="view-values">{`View: ${formatView(viewNow).replace(/%2C/g, ",")} ${isSkyView(viewNow) ? "(body, right ascension °, declination °, field of view °, sky)" : "(focus, azimuth °, elevation °, distance)"} · scale ${scale} · up ${upChoice}`}</p>}
           {viewLink !== null && (
             <p className="view-link-field">
               <input readOnly aria-label="View link" data-testid="view-link" value={viewLink.url} onFocus={(event) => event.currentTarget.select()} />

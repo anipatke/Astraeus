@@ -1,6 +1,6 @@
-import type { ExperienceCameraPreset, ExperienceConfig, ExperienceObject } from "./experience";
+import { requestObjectId, type ExperienceCameraPreset, type ExperienceConfig, type ExperienceObject } from "./experience";
 
-export type CameraMode = "overview" | "focus" | "follow";
+export type CameraMode = "overview" | "focus" | "follow" | "lookOut";
 
 export function isObjectAvailable(object: ExperienceObject, timeUtcMs: number): boolean {
   const bounds = object.availability;
@@ -39,7 +39,7 @@ export function findCameraPreset(
   return experience.cameraPresets.find((preset) => {
     const request = preset.request;
     if (request.kind === "overview") return mode === "overview";
-    return request.kind === mode && request.target === target;
+    return request.kind === mode && requestObjectId(request) === target;
   });
 }
 

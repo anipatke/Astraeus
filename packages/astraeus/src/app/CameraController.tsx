@@ -6,6 +6,8 @@ import type { FloatingOrigin } from "./floatingOrigin";
 import type { RenderVector } from "./renderCoordinates";
 import { TapTracker, type PickPointer } from "./scenePicking";
 import { EQUATORIAL_UP, orbitBasis } from "./viewUp";
+import { CAMERA_FOV_DEG } from "./sceneFraming";
+import { directionAt, LOOK_OUT_NEAR, panLookOut, zoomLookOut, type LookOutState } from "./lookOut";
 import type { StartView } from "./viewLink";
 
 /** The id of a catalogued body, or of any tracked trajectory body, group or path. */
@@ -17,6 +19,11 @@ export type CameraRequest =
   | { readonly kind: "overview" }
   /** Holds the camera where it is: its target becomes the point it looks at now, fixed in the scene frame; the pose is kept. A later focus, follow or overview request replaces it. */
   | { readonly kind: "hold" }
+  /**
+   * Stands the camera at the centre of `body` looking out: the direction is a unit vector in EQJ or an object id to turn toward, and `fovDeg` (default: the current one, else 60) is the zoom.
+   * Camera-only. A focus, follow, overview or pose request puts the orbit camera back; a hold is ignored while looking out.
+   */
+  | { readonly kind: "lookOut"; readonly body: FocusId; readonly direction: readonly [number, number, number] | FocusId; readonly fovDeg?: number }
   /** Puts the camera back on a pose read earlier: it follows the pose's object and eases to its angles and distance (the offset is the object's own, so a moving object is followed from where it is now). */
   | { readonly kind: "pose"; readonly view: StartView };
 
@@ -33,6 +40,8 @@ export interface OrbitCameraState {
   fixedPoint: [number, number, number] | null;
   /** Decaying offset that tweens the displayed target from the previous focus to the new one. */
   transition: [number, number, number];
+  /** Set while the camera stands inside `focus` looking out: the field of view, with azimuth and elevation as the look direction. Null is the orbit camera. */
+  lookOut: LookOutState | null;
   /** Scaled absolute camera/target positions (Float64, render axes) for the latest frame. */
   cameraAbsolute: [number, number, number];
   targetAbsolute: [number, number, number];
@@ -49,6 +58,7 @@ export function createOrbitCameraState(distance: number, focus: FocusId): OrbitC
     focus,
     fixedPoint: null,
     transition: [0, 0, 0],
+    lookOut: null,
     cameraAbsolute: [0, 0, 0],
     targetAbsolute: [0, 0, 0],
   };
@@ -108,10 +118,14 @@ export function attachOrbitGestures(
     if (pointers.size >= 2) {
       const spread = pointerSpread(pointers);
       if (pinchDistance !== null) {
-        state.distance = clampDistance(state.distance * Math.exp(-(spread - pinchDistance) * PINCH_SENSITIVITY), getLimits());
-        cancelCameraTransition(state);
+        zoomBy(state, Math.exp(-(spread - pinchDistance) * PINCH_SENSITIVITY), getLimits());
       }
       pinchDistance = spread;
+      return;
+    }
+    if (state.lookOut !== null) {
+      panLookOut(state, state.lookOut.fovDeg, next.x - previous.x, next.y - previous.y, window.innerHeight);
+      cancelCameraTransition(state);
       return;
     }
     const sensitivity = event.pointerType === "touch" ? TOUCH_DRAG_SENSITIVITY : DRAG_SENSITIVITY;
@@ -140,8 +154,7 @@ export function attachOrbitGestures(
 
   const onWheel = (event: WheelEvent) => {
     event.preventDefault();
-    state.distance = clampDistance(state.distance * Math.exp(event.deltaY * WHEEL_SENSITIVITY), getLimits());
-    cancelCameraTransition(state);
+    zoomBy(state, Math.exp(event.deltaY * WHEEL_SENSITIVITY), getLimits());
   };
 
   element.addEventListener("pointerdown", onPointerDown);
@@ -156,6 +169,13 @@ export function attachOrbitGestures(
     element.removeEventListener("pointercancel", onPointerCancel);
     element.removeEventListener("wheel", onWheel);
   };
+}
+
+/** A wheel or pinch step: the distance in orbit, the field of view while looking out. */
+function zoomBy(state: OrbitCameraState, factor: number, limits: DistanceLimits): void {
+  if (state.lookOut !== null) zoomLookOut(state.lookOut, factor);
+  else state.distance = clampDistance(state.distance * factor, limits);
+  cancelCameraTransition(state);
 }
 
 /** Stops any scripted framing while keeping the viewer's current manual pose. */
@@ -203,12 +223,23 @@ export function resolveCamera(
     if (Math.abs(state.transition[i]) < 1e-9) state.transition[i] = 0;
     state.targetAbsolute[i] = focusAbsolute[i] + state.transition[i];
   }
-  const cosEl = Math.cos(state.elevation);
   const { east, south } = orbitBasis(up);
-  const [sa, ca, se] = [Math.sin(state.azimuth), Math.cos(state.azimuth), Math.sin(state.elevation)];
-  const offset = [0, 1, 2].map((k) => state.distance * (cosEl * (sa * east[k] + ca * south[k]) + se * up[k])) as RenderVector;
-  for (let i = 0; i < 3; i += 1) state.cameraAbsolute[i] = state.targetAbsolute[i] + offset[i];
+  const direction = directionAt(state.azimuth, state.elevation, east, south, up);
+  if (state.lookOut !== null) {
+    placeLookOut(state, focusAbsolute, direction);
+    origin.rebaseIfFar(state.cameraAbsolute, rebaseThreshold);
+    return;
+  }
+  for (let i = 0; i < 3; i += 1) state.cameraAbsolute[i] = state.targetAbsolute[i] + state.distance * direction[i];
   origin.rebaseIfFar(state.targetAbsolute, rebaseThreshold);
+}
+
+/** Looking out: the camera is at the body's centre and its target one unit along the look direction (a point to aim at, not a place). */
+function placeLookOut(state: OrbitCameraState, bodyAbsolute: RenderVector, direction: RenderVector): void {
+  for (let i = 0; i < 3; i += 1) {
+    state.cameraAbsolute[i] = bodyAbsolute[i];
+    state.targetAbsolute[i] = bodyAbsolute[i] + direction[i];
+  }
 }
 
 function shortestAngleDelta(from: number, to: number): number {
@@ -229,7 +260,8 @@ export function poseCamera(
   camera.position.set(cx, cy, cz);
   camera.up.set(up[0], up[1], up[2]);
   camera.lookAt(tx, ty, tz);
-  camera.near = Math.max(1e-3, 0.1 * (state.distance - focusRadius));
+  camera.near = state.lookOut === null ? Math.max(1e-3, 0.1 * (state.distance - focusRadius)) : LOOK_OUT_NEAR;
+  camera.fov = state.lookOut?.fovDeg ?? CAMERA_FOV_DEG;
   camera.far = far;
   camera.updateProjectionMatrix();
 }

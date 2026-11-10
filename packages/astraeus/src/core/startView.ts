@@ -38,3 +38,82 @@ export function validateStartView(raw: unknown, where = "startView"): StartView 
   if (!(distance > 0)) throw new RangeError(`${where}.distance must be positive, got ${distance}`);
   return { focus: record.focus, azimuthDeg: wrapAzimuth(azimuthDeg), elevationDeg, distance };
 }
+
+/** The field of view a sky reading may carry, in degrees (a look-out camera's zoom). */
+export const SKY_FOV_RANGE_DEG = { min: 5, max: 100 } as const;
+
+/**
+ * A camera standing inside `lookOut` (a body's id) and looking out: `raDeg` and `decDeg` are where it points in J2000 equatorial degrees
+ * (right ascension 0 up to 360, declination within ±90), `fovDeg` the vertical field of view. Text and number checks only: no body is named here.
+ */
+export interface SkyView {
+  readonly lookOut: string;
+  readonly raDeg: number;
+  readonly decDeg: number;
+  readonly fovDeg: number;
+}
+
+/** Either kind of camera reading: an orbit view (has `distance`) or a sky view (has `lookOut`). */
+export type CameraView = StartView | SkyView;
+
+/** True for a sky view: the one test that tells the two kinds apart. */
+export function isSkyView(view: CameraView): view is SkyView {
+  return "lookOut" in view;
+}
+
+/** The unit vector (J2000 equatorial axes) toward a right ascension and declination in degrees. */
+export function eqjUnitVector(raDeg: number, decDeg: number): [number, number, number] {
+  const [ra, dec] = [(raDeg * Math.PI) / 180, (decDeg * Math.PI) / 180];
+  return [Math.cos(dec) * Math.cos(ra), Math.cos(dec) * Math.sin(ra), Math.sin(dec)];
+}
+
+/** Checks a right ascension and declination, naming the offending field; returns the pair with the right ascension wrapped to 0 up to 360. */
+export function validateSkyDirection(raDeg: unknown, decDeg: unknown, where: string): { readonly raDeg: number; readonly decDeg: number } {
+  if (typeof raDeg !== "number" || !Number.isFinite(raDeg)) throw new RangeError(`${where}.raDeg must be a finite number, got ${String(raDeg)}`);
+  if (typeof decDeg !== "number" || !Number.isFinite(decDeg)) throw new RangeError(`${where}.decDeg must be a finite number, got ${String(decDeg)}`);
+  if (Math.abs(decDeg) > 90) throw new RangeError(`${where}.decDeg must be within ±90, got ${decDeg}`);
+  return { raDeg: wrapAzimuth(raDeg), decDeg };
+}
+
+/** Checks a star-map position given as an object: exactly `raDeg` and `decDeg` (a half pair, an array or any other key is refused). Shared by `setCamera` and the opening `lookOut`. */
+export function validateSkyPosition(raw: unknown, where: string): { readonly raDeg: number; readonly decDeg: number } {
+  if (typeof raw !== "object" || raw === null || Array.isArray(raw) || Object.keys(raw).some((key) => key !== "raDeg" && key !== "decDeg")) throw new RangeError(`${where} must be { raDeg, decDeg }`);
+  const position = raw as Record<string, unknown>;
+  return validateSkyDirection(position.raDeg, position.decDeg, where);
+}
+
+/** Checks an opening look (`{ direction?, fovDeg? }`) and fills the defaults (right ascension 0, declination 0, field of view 60); an omitted `look` or field takes its default, anything else must pass the same checks as `setCamera`. */
+export function validateSkyLook(look: unknown, where: string): { readonly raDeg: number; readonly decDeg: number; readonly fovDeg: number } {
+  if (look === undefined) return { raDeg: 0, decDeg: 0, fovDeg: 60 };
+  if (typeof look !== "object" || look === null || Array.isArray(look)) throw new RangeError(`${where} must be { direction?, fovDeg? }`);
+  const record = look as Record<string, unknown>;
+  for (const key of Object.keys(record)) if (key !== "direction" && key !== "fovDeg") throw new RangeError(`${where}.${key} is not a look field (use direction and fovDeg)`);
+  const direction = record.direction === undefined ? { raDeg: 0, decDeg: 0 } : validateSkyPosition(record.direction, `${where}.direction`);
+  return { ...direction, fovDeg: "fovDeg" in record && record.fovDeg !== undefined ? validateSkyFov(record.fovDeg, where) : 60 };
+}
+
+/** Checks a field of view in degrees against the range a look-out camera takes. */
+export function validateSkyFov(fovDeg: unknown, where: string): number {
+  if (typeof fovDeg !== "number" || !(fovDeg >= SKY_FOV_RANGE_DEG.min && fovDeg <= SKY_FOV_RANGE_DEG.max)) {
+    throw new RangeError(`${where}.fovDeg must be a number from ${SKY_FOV_RANGE_DEG.min} to ${SKY_FOV_RANGE_DEG.max}, got ${String(fovDeg)}`);
+  }
+  return fovDeg;
+}
+
+/** Checks a sky view's fields, naming the offending one. Returns the view with the right ascension wrapped. */
+export function validateSkyView(raw: unknown, where = "sky view"): SkyView {
+  if (typeof raw !== "object" || raw === null || Array.isArray(raw)) throw new RangeError(`${where} must be an object with lookOut, raDeg, decDeg and fovDeg`);
+  const record = raw as Record<string, unknown>;
+  for (const key of Object.keys(record)) {
+    if (!["lookOut", "raDeg", "decDeg", "fovDeg"].includes(key)) throw new RangeError(`${where}.${key} is not a sky view field`);
+  }
+  if (typeof record.lookOut !== "string" || record.lookOut === "") throw new RangeError(`${where}.lookOut must be a non-empty id, got ${String(record.lookOut)}`);
+  const direction = validateSkyDirection(record.raDeg, record.decDeg, where);
+  return { lookOut: record.lookOut, ...direction, fovDeg: validateSkyFov(record.fovDeg, where) };
+}
+
+/** Checks either kind of reading: one with `lookOut` is a sky view, anything else an orbit view. */
+export function validateCameraView(raw: unknown, where = "view"): CameraView {
+  const isSky = typeof raw === "object" && raw !== null && "lookOut" in raw;
+  return isSky ? validateSkyView(raw, where) : validateStartView(raw, where);
+}

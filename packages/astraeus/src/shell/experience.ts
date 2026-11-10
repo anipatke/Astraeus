@@ -42,7 +42,14 @@ export interface ExperienceObject {
 
 export type ExperienceCameraRequest =
   | { readonly kind: "overview" }
-  | { readonly kind: "focus" | "follow"; readonly target: string };
+  | { readonly kind: "focus" | "follow"; readonly target: string }
+  /** Stand inside `body` looking out: `direction` is a unit vector in the J2000 equatorial frame, or an object id to turn toward. */
+  | { readonly kind: "lookOut"; readonly body: string; readonly direction: readonly [number, number, number] | string; readonly fovDeg?: number };
+
+/** The object a camera request frames or stands in: none for the overview. */
+export function requestObjectId(request: ExperienceCameraRequest): string | undefined {
+  return request.kind === "overview" ? undefined : request.kind === "lookOut" ? request.body : request.target;
+}
 
 export interface ExperienceCameraPreset {
   readonly id: string;

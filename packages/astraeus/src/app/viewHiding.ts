@@ -43,3 +43,9 @@ export function experienceInView(experience: ExperienceConfig, settings: ViewSet
     ...(storySet === undefined ? {} : { storyPanels: { ...storySet, panels: storySet.panels.filter((panel) => !panels.has(panel.id)) } }),
   };
 }
+
+/** `hidden` with the body the camera stands inside added while it looks out. The same object when nothing is added, so a normal frame allocates nothing. */
+export function hiddenWithLookOut(hidden: ViewHidden | undefined, body: string | null): ViewHidden | undefined {
+  if (body === null) return hidden;
+  return { objects: new Set([...(hidden?.objects ?? []), body]), panels: hidden?.panels ?? new Set() };
+}

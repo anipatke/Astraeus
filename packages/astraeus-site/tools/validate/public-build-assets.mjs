@@ -160,7 +160,7 @@ export function proveStarAssetHandling() {
 }
 
 /** The entry keys of the made-up (synthetic) experiences; a public build must not mount them (T-068). */
-export const SYNTHETIC_KEYS = ["synthetic", "synthetic-ring", "synthetic-belt", "synthetic-listed", "synthetic-eccentric", "synthetic-probe", "synthetic-journey", "synthetic-views"];
+export const SYNTHETIC_KEYS = ["synthetic", "synthetic-ring", "synthetic-belt", "synthetic-listed", "synthetic-eccentric", "synthetic-probe", "synthetic-journey", "synthetic-views", "synthetic-lookout"];
 
 /**
  * The made-up experiences are test fixtures: a public build must contain none of them. Fails on a file whose name carries a synthetic module

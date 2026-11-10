@@ -21,12 +21,15 @@ import {
   type SceneFrame,
 } from "./sceneFraming";
 import { canFocus, focusAbsoluteOf, framedViewOf, type SceneTargets } from "./sceneTargets";
+import { clampFov, clampLookElevation, LOOK_OUT_OPENING_FOV_DEG } from "./lookOut";
+import { eqjToRenderVector } from "./renderCoordinates";
 import { orbitAnglesFor, orbitBasis } from "./viewUp";
 import type { StartView } from "./viewLink";
+import { eqjUnitVector, isSkyView, type CameraView } from "../core/startView";
 
 /** The two control fields the camera step reads and clears. */
 export interface CameraControls {
-  startView?: StartView;
+  startView?: CameraView;
   cameraRequest: CameraRequest | null;
   /** The host's last `setCamera`, kept apart from `cameraRequest` so the opening view and a view's own camera rule cannot discard it (the host-call order rule). */
   hostCameraRequest?: CameraRequest | null;
@@ -76,8 +79,9 @@ function applyStartView(camState: OrbitCameraState, view: StartView): void {
 function openFirstFrame(input: CameraStepInput): boolean {
   const { camState, controls, targets, frame, reach } = input;
   const view = controls.startView;
-  if (view !== undefined && canFocus(targets, view.focus)) {
-    applyStartView(camState, view);
+  if (view !== undefined && canFocus(targets, isSkyView(view) ? view.lookOut : view.focus)) {
+    if (isSkyView(view)) applyLookOut(input, { kind: "lookOut", body: view.lookOut, direction: eqjUnitVector(view.raDeg, view.decDeg), fovDeg: view.fovDeg });
+    else applyStartView(camState, view);
     // The opening view replaces any request made before the first frame, except the host's: that one is applied after it.
     controls.cameraRequest = controls.hostCameraRequest ?? null;
     return false;
@@ -118,8 +122,49 @@ function faceParent(camState: OrbitCameraState, targets: SceneTargets, viewUp: R
   camState.targetAzimuth = Math.atan2(along(east), along(south));
 }
 
+/** The render-frame direction a look-out request names: an EQJ vector, or the way from the body to the object to turn toward. Null when it names no direction. */
+function lookDirectionOf(input: CameraStepInput, request: Extract<CameraRequest, { kind: "lookOut" }>): RenderVector | null {
+  const { targets } = input;
+  let direction: RenderVector;
+  if (typeof request.direction === "string") {
+    if (!canFocus(targets, request.direction)) return null;
+    const from = focusAbsoluteOf(targets, request.body);
+    const to = focusAbsoluteOf(targets, request.direction);
+    direction = [to[0] - from[0], to[1] - from[1], to[2] - from[2]];
+  } else {
+    direction = eqjToRenderVector(request.direction);
+  }
+  return direction.every(Number.isFinite) && Math.hypot(...direction) > 0 ? direction : null;
+}
+
+/** Stands the camera at the body's centre looking along the requested direction; nothing happens for a body or direction it cannot resolve. */
+function applyLookOut(input: CameraStepInput, request: Extract<CameraRequest, { kind: "lookOut" }>): void {
+  const { camState, targets, viewUp } = input;
+  if (!canFocus(targets, request.body)) return;
+  const direction = lookDirectionOf(input, request);
+  const angles = direction === null ? null : orbitAnglesFor(direction, viewUp);
+  if (angles === null) return;
+  camState.focus = request.body;
+  camState.fixedPoint = null;
+  camState.transition.fill(0);
+  camState.azimuth = camState.targetAzimuth = angles.azimuth;
+  camState.elevation = camState.targetElevation = clampLookElevation(angles.elevation);
+  camState.lookOut = { fovDeg: clampFov(request.fovDeg ?? camState.lookOut?.fovDeg ?? LOOK_OUT_OPENING_FOV_DEG) };
+}
+
+/** Back to the orbit camera: the target tween starts from where the camera stood, not from the aiming point one unit out. */
+function leaveLookOut(camState: OrbitCameraState): void {
+  if (camState.lookOut === null) return;
+  camState.lookOut = null;
+  for (let i = 0; i < 3; i += 1) camState.targetAbsolute[i] = camState.cameraAbsolute[i];
+}
+
 function applyCameraRequest(input: CameraStepInput, request: CameraRequest): void {
   const { camState, targets, frame, catalogue, viewUp } = input;
+  if (request.kind === "lookOut") return applyLookOut(input, request);
+  // A hold would keep the aiming point as a place; looking out already holds the camera where it stands.
+  if (request.kind === "hold" && camState.lookOut !== null) return;
+  leaveLookOut(camState);
   if (request.kind === "hold") {
     // The target stops where it is (including any tween still running); angles and distance are untouched. Scene-frame state only: nothing in State changes.
     const now = cameraTargetAbsolute(camState, targets);
@@ -149,7 +194,9 @@ function applyCameraRequest(input: CameraStepInput, request: CameraRequest): voi
 /** A change of up direction keeps the camera where it is: the same offset from the target is re-expressed in the new orbit basis. */
 function keepViewOnUpChange(camState: OrbitCameraState, previousUp: RenderVector | null, viewUp: RenderVector): void {
   if (previousUp === null || !previousUp.some((v, k) => v !== viewUp[k])) return;
-  const offset = [0, 1, 2].map((k) => camState.cameraAbsolute[k] - camState.targetAbsolute[k]);
+  // Orbiting, the angles are of the camera's offset from its target; looking out, of the way it looks (the target is a unit ahead).
+  const side = camState.lookOut === null ? 1 : -1;
+  const offset = [0, 1, 2].map((k) => side * (camState.cameraAbsolute[k] - camState.targetAbsolute[k]));
   const angles = orbitAnglesFor(offset as RenderVector, viewUp);
   if (angles === null) return;
   camState.elevation = camState.targetElevation = angles.elevation;

@@ -1,3 +1,4 @@
+import { eqjUnitVector, isSkyView, type StartView } from "../src/core/startView";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { Group } from "three";
 import { SimulationClock } from "../src/core/clock";
@@ -5,7 +6,7 @@ import { readableScale, trueScale } from "../src/core/scalePolicy";
 import type { BodyId } from "../src/core/body";
 import { createOrbitCameraState } from "../src/app/CameraController";
 import type { SceneControls, SceneRuntime } from "../src/app/AstraeusScene";
-import { bodiesMounted, cameraSettled, createFrameState, decideDraw, IDLE_GRACE_FRAMES, shouldDrawFrame, frameTime, placeLightsAndReadout, placeScene, placeViews, publishCanvasReadouts, stepAndPoseCamera, syncViews, updateOverlays, viewUpOf, type FrameContext } from "../src/app/sceneFrame";
+import { applyViewVisibility, hiddenOf, bodiesMounted, cameraSettled, createFrameState, decideDraw, IDLE_GRACE_FRAMES, shouldDrawFrame, frameTime, placeLightsAndReadout, placeScene, placeViews, publishCanvasReadouts, stepAndPoseCamera, syncViews, updateOverlays, viewUpOf, type FrameContext } from "../src/app/sceneFrame";
 import { DEFAULT_BODY_SET_LOOK } from "../src/app/bodySet";
 import { EQUATORIAL_UP } from "../src/app/viewUp";
 
@@ -97,7 +98,7 @@ describe("stepAndPoseCamera", () => {
     expect(told).toHaveBeenCalledTimes(1);
     expect(ctx.orbit.focus).toBe("moon");
     expect(ctx.state.started).toBe(true);
-    expect(ctx.controls.viewReadout?.focus).toBe("moon");
+    expect((ctx.controls.viewReadout as StartView | undefined)?.focus).toBe("moon");
     ctx.orbit.focus = "earth";
     stepAndPoseCamera(ctx, T0, placed);
     expect(raf).toHaveBeenCalledTimes(1);
@@ -124,6 +125,65 @@ describe("stepAndPoseCamera", () => {
     const local = ctx.origin.toLocal(moon);
     expect(groups.get("moon")!.position.x).toBeCloseTo(local[0], 4);
     expect(ctx.camera.position.length()).toBeGreaterThan(0);
+  });
+});
+
+describe("look out through the frame stages", () => {
+  it("poses the camera at Earth's centre at the field of view, hides Earth through the hidden set, and shows it again on return", () => {
+    vi.stubGlobal("requestAnimationFrame", vi.fn());
+    const { ctx, groups } = makeContext();
+    const placed = placeScene(ctx, T0);
+    ctx.controls.cameraRequest = { kind: "lookOut", body: "earth", direction: [0, 0, 1], fovDeg: 30 };
+    stepAndPoseCamera(ctx, T0, placed);
+    applyViewVisibility(ctx);
+    expect(ctx.camera.fov).toBe(30);
+    expect(ctx.camera.near).toBeGreaterThan(0);
+    expect(ctx.camera.position.length()).toBeLessThan(1e-9);
+    expect(hiddenOf(ctx)?.objects.has("earth")).toBe(true);
+    expect(groups.get("earth")!.visible).toBe(false);
+    expect(groups.get("moon")!.visible).toBe(true);
+    ctx.controls.cameraRequest = { kind: "overview" };
+    stepAndPoseCamera(ctx, T0, placed);
+    applyViewVisibility(ctx);
+    expect(ctx.camera.fov).toBe(45);
+    expect(hiddenOf(ctx)).toBeUndefined();
+    expect(groups.get("earth")!.visible).toBe(true);
+  });
+
+  it("draws out to the farthest body while looking out, past the far plane an orbit framing would use (T-293 repair: the Sun 23,000 radii away was cut off)", () => {
+    vi.stubGlobal("requestAnimationFrame", vi.fn());
+    const { ctx } = makeContext();
+    const placed = placeScene(ctx, T0);
+    const far = new Map(placed.composed.absolutes);
+    far.set("moon", [0, 0, 24_000]);
+    ctx.controls.cameraRequest = { kind: "lookOut", body: "earth", direction: [0, 0, 1], fovDeg: 60 };
+    stepAndPoseCamera(ctx, T0, { ...placed, composed: { ...placed.composed, absolutes: far } });
+    expect(ctx.camera.far).toBeGreaterThan(24_000);
+    ctx.controls.cameraRequest = { kind: "overview" };
+    stepAndPoseCamera(ctx, T0, { ...placed, composed: { ...placed.composed, absolutes: far } });
+    expect(ctx.camera.far).toBeLessThan(24_000);
+  });
+
+  it("reads the camera as a sky reading while looking out (never orbit values), and as an orbit view again on return", () => {
+    vi.stubGlobal("requestAnimationFrame", vi.fn());
+    const { ctx } = makeContext();
+    const placed = placeScene(ctx, T0);
+    ctx.controls.cameraRequest = { kind: "lookOut", body: "earth", direction: eqjUnitVector(83.63, 22.01), fovDeg: 40 };
+    stepAndPoseCamera(ctx, T0, placed);
+    expect(ctx.controls.viewReadout).toEqual({ lookOut: "earth", raDeg: 83.63, decDeg: 22.01, fovDeg: 40 });
+    ctx.controls.cameraRequest = { kind: "focus", target: "moon" };
+    stepAndPoseCamera(ctx, T0, placed);
+    expect(isSkyView(ctx.controls.viewReadout!)).toBe(false);
+  });
+
+  it("opens looking out when the start view is a sky view", () => {
+    vi.stubGlobal("requestAnimationFrame", vi.fn());
+    const { ctx } = makeContext();
+    const placed = placeScene(ctx, T0);
+    ctx.controls.startView = { lookOut: "moon", raDeg: 200, decDeg: -30, fovDeg: 25 };
+    stepAndPoseCamera(ctx, T0, placed);
+    expect(ctx.camera.fov).toBe(25);
+    expect(ctx.controls.viewReadout).toEqual({ lookOut: "moon", raDeg: 200, decDeg: -30, fovDeg: 25 });
   });
 });
 

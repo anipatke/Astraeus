@@ -7,7 +7,7 @@ import { useDrawers } from "./useDrawers";
 import { useStoryPanels, type StoryPanelSettings } from "./useStoryPanels";
 import { TimelineBar } from "./TimelineBar";
 import type { TimelineGlowLook } from "./timelineGlow";
-import type { ExperienceCameraPreset, ExperienceConfig, ExperienceObject } from "./experience";
+import { requestObjectId, type ExperienceCameraPreset, type ExperienceConfig, type ExperienceObject } from "./experience";
 import { InfoPanel } from "./InfoPanel";
 import { infoView } from "./infoModel";
 import type { Metric } from "./metrics";
@@ -45,7 +45,8 @@ function useTimelineSpace(root: { readonly current: HTMLElement | null }, phone:
 /** The object selected when the shell opens: the first one available at the clock time, else the first listed. */
 export function initialObjectId(experience: ExperienceConfig, timeUtcMs: number): string {
   const start = experience.cameraPresets.find((preset) => preset.id === experience.startCameraPresetId)?.request;
-  if (start !== undefined && start.kind !== "overview" && experience.objects.some((object) => object.id === start.target)) return start.target;
+  const startId = start === undefined ? undefined : requestObjectId(start);
+  if (startId !== undefined && experience.objects.some((object) => object.id === startId)) return startId;
   return firstAvailableObject(experience, timeUtcMs)?.id ?? experience.objects[0]?.id ?? "";
 }
 
@@ -307,7 +308,7 @@ export function AstraeusShell({
     if (switchRule?.rule === "start" && switchRule.framing?.always === true) {
       applyViewRule(switchRule); // opted in: the view's framing applies on every switch to it
     } else if (activeRequest !== undefined && activeRequest.kind !== "overview") {
-      const target = experience.objects.find((object) => object.id === activeRequest.target);
+      const target = experience.objects.find((object) => object.id === requestObjectId(activeRequest));
       if (switchRule !== undefined && target === undefined) {
         applyViewRule(switchRule);
       } else if (target === undefined || !isObjectAvailable(target, snapshot.timeUtcMs)) {
@@ -337,7 +338,7 @@ export function AstraeusShell({
   /** The view's camera rule for a followed or focused object the new view does not show: `stay` keeps the pose and stops following; otherwise the rule's framing is requested. */
   const applyViewRule = (rule: ViewCameraRule) => {
     const asked = presetForViewRule(rule, experience);
-    const target = asked === undefined || asked.request.kind === "overview" ? undefined : availableObjectById(experience, asked.request.target, snapshot.timeUtcMs);
+    const target = asked === undefined || asked.request.kind === "overview" ? undefined : availableObjectById(experience, requestObjectId(asked.request) ?? "", snapshot.timeUtcMs);
     // A framing whose object is not available now falls back to the overview, like any other lost target.
     const preset = asked !== undefined && asked.request.kind !== "overview" && target === undefined ? findCameraPreset(experience, "overview") : asked;
     if (target !== undefined) {
@@ -396,8 +397,9 @@ export function AstraeusShell({
   };
 
   const activatePreset = (preset: ExperienceCameraPreset, atUtcMs: number = snapshot.timeUtcMs) => {
-    if (preset.request.kind !== "overview") {
-      const target = availableObjectById(experience, preset.request.target, atUtcMs);
+    const objectId = requestObjectId(preset.request);
+    if (objectId !== undefined) {
+      const target = availableObjectById(experience, objectId, atUtcMs);
       if (target === undefined) return;
       setSelectedObjectId(target.id);
       onSelectionChange(target.id, "visitor");

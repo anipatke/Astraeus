@@ -28,7 +28,7 @@ export interface AstraeusSceneProps {
   readonly rate?: number | "auto";
   /** Switches to this view (an id from `setViews`) once drawn, and again whenever it changes. Not a controlled value: a visitor can switch too, and the view showing arrives through `onChange`. An unknown id, or a scene without views, reports `bad-view` to `onError`. */
   readonly view?: string;
-  /** Points the camera once drawn, and whenever the target changes by value (a new object with the same target does not re-apply): `{ follow: id }`, `{ focus: id }` or a pose read from a `mount` handle. Not a controlled value: a visitor can move the camera afterwards. A bad one reports `bad-camera` to `onError`. */
+  /** Points the camera once drawn, and whenever the target changes by value (a new object with the same target does not re-apply): `{ follow: id }`, `{ focus: id }`, `{ lookOut: id, direction?, fovDeg? }` or a pose (either kind) read from a `mount` handle. Not a controlled value: a visitor can move the camera afterwards. A bad one reports `bad-camera` to `onError`. */
   readonly camera?: CameraTarget;
   /** Called whenever the viewer's time, speed, playing state or view changes: playback running, a visitor using the timeline or the view choice, or the `time` / `rate` / `view` props. About ten times a second while playing. */
   readonly onChange?: (change: ViewerChange) => void;
@@ -52,7 +52,10 @@ const FILL: CSSProperties = { width: "100%", height: "100%" };
 const asError = (cause: unknown): Error => (cause instanceof Error ? cause : new Error(String(cause)));
 
 /** A camera target as text by value: keys in sorted order, so the same pose with its keys in another order is the same key. */
-const cameraValueKey = (camera: CameraTarget): string => JSON.stringify(Object.entries(camera).sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0)));
+const cameraValueKey = (camera: CameraTarget): string => {
+  const sorted = (value: unknown): unknown => (typeof value !== "object" || value === null ? value : Object.fromEntries(Object.entries(value).sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0)).map(([key, inner]) => [key, sorted(inner)])));
+  return JSON.stringify(Object.entries(sorted(camera) as object));
+};
 
 /**
  * The full viewer `mount` draws, as a React component: `<AstraeusScene scene={scene} data={[...]} />`. Waits for the scene's data, then draws; cleans up on unmount.

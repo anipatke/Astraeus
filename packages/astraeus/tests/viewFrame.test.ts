@@ -20,6 +20,7 @@ describe("applyViewVisibility", () => {
     const body = node(); const path = node(); const other = node(); const tracked = node();
     const ctx = {
       controls: { viewHidden: hidden === undefined ? undefined : { objects: hidden, panels: new Set<string>() } },
+      orbit: { lookOut: null },
       bodyRefs: { groups: new Map([["earth", body]]) },
       views: { trackedViews: [{ body: { id: "tr" }, group: tracked }], groupViews: [], sunCentredViews: [{ id: "pa", group: path }], compositionPaths: [{ id: "pb", layer: { source: { body: "x" } }, group: other }], bodySetViews: [], orbitSetViews: [] },
     } as unknown as FrameContext;
@@ -47,6 +48,7 @@ describe("lines follow the body they belong to", () => {
     const line = node(); const setLines = node(); const own = node();
     const ctx = {
       controls: { viewHidden: { objects: hidden, panels: new Set<string>() } },
+      orbit: { lookOut: null },
       bodyRefs: { groups: new Map() },
       views: { trackedViews: [], groupViews: [], sunCentredViews: [], compositionPaths: [{ id: "moon-orbit", layer: { source: { body: "moon" } }, group: line }, { id: "mine", layer: { source: { body: "mine" } }, group: own }], bodySetViews: [], orbitSetViews: [{ id: "set-orbits", layer: { id: "set" }, group: setLines }] },
     } as unknown as FrameContext;
