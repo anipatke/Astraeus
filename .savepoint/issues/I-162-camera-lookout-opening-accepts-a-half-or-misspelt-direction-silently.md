@@ -2,16 +2,22 @@
 id: I-162
 title: camera.lookOut opening accepts a half or misspelt direction silently
 type: defect
-status: open
+status: resolved
 source:
   kind: check
   check: C-161
   actor: {role: checker, session: o064-check-20261110}
   at: '2026-11-10T02:44:58Z'
 tasks: [T-292]
-checks: [C-161]
+checks: [C-161, C-162]
 guardrail_ids: [API-04, API-05, STYLE-07]
 severity: low
+resolution:
+  disposition: verified
+  check: C-162
+  actor: {role: checker, session: o064-recheck-20261110}
+  at: '2026-11-10T02:56:00Z'
+  reason: Repair proven by C-162 (CLEAR).
 history:
   - at: '2026-11-10T02:44:58Z'
     actor: {role: checker, session: o064-check-20261110}
@@ -22,6 +28,11 @@ history:
     actor: {role: executor, session: o064-i162-repair-20261110}
     kind: repair_attempted
     note: 'Repair done, awaiting the re-check. src/core/startView.ts: new shared validateSkyPosition (exactly raDeg and decDeg; half pair, array, extra key refused) and validateSkyLook (opening look: only direction and fovDeg keys, non-object look refused, omitted fields default to 0, 0, 60); setCamera lookDirection (viewerCamera.ts) now uses validateSkyPosition and camera.lookOut (planCamera.ts) uses validateSkyLook, so one check serves both (STYLE-07). Regression: lifecycle.test.ts "camera.lookOut opening refuses a half, empty, misspelt or extra-key direction and a non-object look as setCamera does (I-162)" failed before the fix. README and CHANGELOG lookOut lines updated. lint, typecheck, build, npm test pass.'
+  - at: '2026-11-10T02:56:00Z'
+    actor: {role: checker, session: o064-recheck-20261110}
+    kind: rechecked
+    note: 'Proof Needed met, by C-162 (CLEAR): through the public API at 754c2798, scene.camera.lookOut throws bad-camera at the call, keeping the prior opening pose, for a half pair either way, {}, [], null, misspelt or extra direction keys, non-number or out-of-range direction parts, unknown look keys ({fov}), non-object look (string, null, array, number, boolean, function) and null/string/out-of-range fovDeg; lookOut(body), lookOut(body, {}), {fovDeg} alone and {direction} alone keep the 0/0/60 defaults; setCamera refuses and accepts the same shapes as in C-161 (18 bad shapes, object/flat/id/keep/default directions vs a textbook oracle). One position check (validateSkyPosition) serves both. Regression test in lifecycle.test.ts passes on both drivers; full gate passes.'
+    check: C-162
 ---
 
 # I-162: camera.lookOut opening accepts a half or misspelt direction silently
