@@ -256,7 +256,7 @@ describe("sky labels join the one name layout", () => {
     draw();
     expect(hiddenOf("kite")).toBe(false);
     expect(host.querySelector<HTMLElement>('[data-label-id="kite"]')!.style.opacity).toBe("0.5");
-    expect(host.querySelector<HTMLElement>('[data-label-id="ring"]')!.style.opacity).toBe("");
+    expect(host.querySelector<HTMLElement>('[data-label-id="ring"]')!.style.opacity).toBe("1"); // an always-shown name takes its kind's fade-in share (T-306)
     layer.dispose();
   });
   it("hides a label behind the camera, and one whose kind is switched off", () => {

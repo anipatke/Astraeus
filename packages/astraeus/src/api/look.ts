@@ -54,6 +54,8 @@ export interface LookInput {
   readonly featureMinBodyPx?: number;
   /** How long the host's loading cover fades out at the first drawn frame, in seconds, 0 to 3. Default 0.6 (a value saved from the Developer drawer stands in its place). */
   readonly loadFadeSeconds?: number;
+  /** How long sky figures, outlines and the reference circles take to fade in, lines and names together, when they appear (when the viewer opens, or when their switch turns on), in seconds, 0 to 3; 0 shows them at once. Default 0.5. A person who asked for less motion sees them at once. Figures shown only when traced appear by their trace instead. */
+  readonly skyFadeInSeconds?: number;
   /** Whether bodies with a larger desktop picture use it on a wide screen (default false: the phone-sized picture everywhere). Read when the viewer is built: a later `setLook` neither swaps pictures nor changes what `look` reads. */
   readonly desktopPictures?: boolean;
   /** Colours of the sky lines and their names. Default: see `SkyLinesLook`. */
@@ -72,6 +74,7 @@ export interface LookRead {
   readonly markerSwapRadiusPx: number;
   readonly featureMinBodyPx: number;
   readonly loadFadeSeconds: number;
+  readonly skyFadeInSeconds: number;
   /** Whether wide screens use the larger desktop pictures: the value the viewer was built with (the scene's look, or the page address); `setLook` does not change it. */
   readonly desktopPictures: boolean;
   /** The sky line colours in force, every one filled in. */

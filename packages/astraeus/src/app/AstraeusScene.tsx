@@ -102,6 +102,8 @@ export interface SceneControls {
   skyColours: SkyColours;
   /** Traces the host asked for, not yet started: the frame's `advanceSkyTraces` stage takes them in call order (the host link pushes, the frame empties it). */
   skyTraces: (SkyTraceRequest | SkyClearRequest)[];
+  /** Presentation only: how long sky lines and their names fade in when they appear, in seconds (the look `skyFadeInSeconds`; live). */
+  skyFadeInSeconds: number;
   /** Presentation only: the label font and size (the look `labels`; live). The viewer root carries it to every label as CSS variables. */
   labelStyle: LabelStyle;
   /** Presentation only: when a sphere is too small to see it is drawn as a marker (see `drawsAsMarker`). */

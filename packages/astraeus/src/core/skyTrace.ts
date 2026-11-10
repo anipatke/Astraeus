@@ -12,6 +12,17 @@ export const TRACE_SECONDS_LIMITS = Object.freeze({ min: 0.1, max: 60 });
 /** How long a `fade` takes after the trace, in seconds. */
 export const TRACE_FADE_SECONDS = 1;
 
+/** How long sky lines and their names take to fade in when they appear, in seconds, when the look does not say (owner, T-306). */
+export const DEFAULT_SKY_FADE_IN_SECONDS = 0.5;
+/** The longest step one frame moves the fade-in on, in seconds, so a frame after an idle spell (the scene draws only when needed) does not skip the fade. */
+export const SKY_FADE_IN_STEP_LIMIT = 0.1;
+
+/** The share of a fade-in shown after one more step: `from` moved on by `deltaSeconds` (capped at `SKY_FADE_IN_STEP_LIMIT`) of `seconds`; 0 seconds shows it all at once. */
+export function stepFadeIn(from: number, deltaSeconds: number, seconds: number): number {
+  if (seconds <= 0) return 1;
+  return Math.min(1, from + Math.min(SKY_FADE_IN_STEP_LIMIT, Math.max(0, deltaSeconds)) / seconds);
+}
+
 /** One trace in progress. `reduced`: the person asked for less motion, so the whole figure shows at once. */
 export interface SkyTraceRun {
   readonly seconds: number;

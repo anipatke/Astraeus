@@ -1,7 +1,7 @@
 ---
 id: O-067
 title: Ship the 88 constellations as a data package
-status: in_progress
+status: done
 depends_on: [O-066]
 release: G-018
 priority: medium

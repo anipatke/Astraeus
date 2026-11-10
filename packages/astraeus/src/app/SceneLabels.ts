@@ -128,7 +128,7 @@ export class SceneLabelLayer {
         entry.element.hidden = true;
         return [];
       }
-      if (spec?.whenTraced === true) entry.element.style.opacity = String(opacity);
+      if (spec !== undefined) entry.element.style.opacity = String(opacity);
       // A sky label is projected from the camera's own place, at a fixed distance along its direction: it never moves with the scene, only with the camera's turn.
       if (spec !== undefined) this.#local.copy(camera.position).addScaledVector(this.#direction.fromArray(spec.direction), sky!.distance);
       else this.#local.fromArray(origin.toLocal(absolute!));

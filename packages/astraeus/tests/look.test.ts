@@ -6,7 +6,8 @@ import { glowLookOf, markerSettingsOf, DEFAULT_BODY_MARKER } from "../src/app/bo
 import { featureMinBodyPxOf, DEFAULT_FEATURE_MIN_BODY_PX } from "../src/app/FeatureMarkers";
 import { LOOK_FIELDS, lookName, lookWith, resolveLook, type LookInput } from "../src/app/look";
 import { labelStyleOf } from "../src/app/labelStyle";
-import { DEFAULT_SKY_COLOURS, skyColoursOf } from "../src/app/skyFigures";
+import { DEFAULT_SKY_COLOURS, skyColoursOf, skyFadeInSecondsOf } from "../src/app/skyFigures";
+import { DEFAULT_SKY_FADE_IN_SECONDS } from "../src/core/skyTrace";
 import { desktopPicturesOf } from "../src/app/liveLook";
 import { BOOT_FADE_DEFAULT_SECONDS, bootFadeSeconds } from "../src/shell/bootLoader";
 import { definitionOf } from "../src/api/definitionOf";
@@ -25,6 +26,7 @@ const CASES: readonly { readonly key: string; readonly set: number | boolean | s
   { key: "markerSwapRadiusPx", set: 5, param: "markerpx", asked: "9", askedValue: 9, read: (l) => markerSettingsOf(l).minSpherePx, defaultRead: DEFAULT_BODY_MARKER.minSpherePx },
   { key: "featureMinBodyPx", set: 80, param: "featurepx", asked: "120", askedValue: 120, read: featureMinBodyPxOf, defaultRead: DEFAULT_FEATURE_MIN_BODY_PX },
   { key: "loadFadeSeconds", set: 1, param: "loadfade", asked: "2", askedValue: 2, read: bootFadeSeconds, defaultRead: BOOT_FADE_DEFAULT_SECONDS },
+  { key: "skyFadeInSeconds", set: 1, param: null, asked: "2", askedValue: 1, read: skyFadeInSecondsOf, defaultRead: DEFAULT_SKY_FADE_IN_SECONDS },
   { key: "desktopPictures", set: true, param: "desktop", asked: "off", askedValue: false, read: (l) => desktopPicturesOf({}, l), defaultRead: false },
   // No address parameter (T-296, owner decision): `param: null` means the address cannot reach the look, and the test checks that it cannot.
   ...(["figure", "label", "boundary", "ecliptic", "equator", "traced", "faded", "selected"] as const).map((name) => ({ key: `skyLines.${name}`, set: "#123456", param: null, asked: "#abcdef", askedValue: "#123456", read: (l: LookInput) => skyColoursOf(l)[name], defaultRead: DEFAULT_SKY_COLOURS[name] })),

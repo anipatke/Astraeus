@@ -1,6 +1,6 @@
 // Sky figures as the app draws them: figures, outlines and the two reference circles, all as unit directions in the EQJ frame at infinity (ARCH-02: presentation only, no State).
 import { createOrbTwoBodyAdapter } from "../core/twoBodyAdapter";
-import type { SkyTraceAfter } from "../core/skyTrace";
+import { DEFAULT_SKY_FADE_IN_SECONDS, type SkyTraceAfter } from "../core/skyTrace";
 import type { CameraRequest } from "./CameraController";
 
 export type EqjDirection = readonly [number, number, number];
@@ -72,6 +72,11 @@ export function prefersReducedMotion(): boolean {
 /** The sky colours in force: the look's `skyLines`, every one not named at its default. */
 export function skyColoursOf(look: { readonly skyLines?: Partial<SkyColours> }): SkyColours {
   return { ...DEFAULT_SKY_COLOURS, ...look.skyLines };
+}
+
+/** How long sky lines and their names fade in when they appear: the look's `skyFadeInSeconds`, else the default. */
+export function skyFadeInSecondsOf(look: { readonly skyFadeInSeconds?: number }): number {
+  return look.skyFadeInSeconds ?? DEFAULT_SKY_FADE_IN_SECONDS;
 }
 
 /** How many segments a built-in great circle is cut into (about 2 degrees each). */

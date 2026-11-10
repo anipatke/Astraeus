@@ -3,7 +3,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { SceneError } from "astraeus";
 import { checkedClear, checkedTrace } from "../src/api/skyTraceInput";
 import { ViewerLink } from "../src/api/viewerLink";
-import { DEFAULT_TRACE_SECONDS, TRACE_FADE_SECONDS, stepHide, stepTrace, type SkyHideRun, type SkyTraceRun } from "../src/core/skyTrace";
+import { DEFAULT_SKY_FADE_IN_SECONDS, DEFAULT_TRACE_SECONDS, SKY_FADE_IN_STEP_LIMIT, TRACE_FADE_SECONDS, stepFadeIn, stepHide, stepTrace, type SkyHideRun, type SkyTraceRun } from "../src/core/skyTrace";
 import { DEFAULT_SKY_COLOURS, prefersReducedMotion } from "../src/app/skyFigures";
 import { eqjToRenderVector } from "../src/app/renderCoordinates";
 import { SkyFiguresView } from "../src/app/SkyFiguresView";
@@ -275,11 +275,13 @@ describe("advanceSkyTraces (stage 4c, O-065)", () => {
 
   it("wakes the draw rule while a trace moves and not once a stay trace is complete", () => {
     const { ctx } = framed(1);
+    advanceSkyTraces(ctx); // the lines' own fade-in (0 s here) settles first
+    const settled = ctx.state.wakes;
     ctx.controls.skyTraces.push(request({ seconds: 2 }));
     advanceSkyTraces(ctx);
     advanceSkyTraces(ctx);
     const woken = ctx.state.wakes;
-    expect(woken).toBe(2);
+    expect(woken - settled).toBe(2);
     advanceSkyTraces(ctx);
     expect(ctx.state.wakes).toBe(woken);
   });
@@ -306,6 +308,7 @@ describe("a figure shown only when traced (O-065 T-298)", () => {
 
   it("draws no lines and no label before a trace (the always-shown outline still draws)", () => {
     const { ctx, view } = framed(0.5);
+    ctx.controls.skyLines = { ...ctx.controls.skyLines, boundaries: true };
     advanceSkyTraces(ctx);
     expect(names(view)).toEqual(["sky-boundaries"]);
     expect(view.labelOpacity("kite")).toBe(0);
@@ -317,7 +320,7 @@ describe("a figure shown only when traced (O-065 T-298)", () => {
     ctx.controls.skyTraces.push(request());
     advanceSkyTraces(ctx);
     expect(names(view)).toContain("sky-trace:kite");
-    expect(view.labelOpacity("kite")).toBe(1);
+    expect(view.labelOpacity("kite")).toBeCloseTo(0.5); // a quarter drawn: the name fades in over the first half of the trace (T-306)
   });
   it("stay keeps lines and label", () => {
     const { ctx, view } = framed(3);
@@ -356,7 +359,7 @@ describe("a figure shown only when traced (O-065 T-298)", () => {
     advanceSkyTraces(ctx);
     const line = view.group.children.find((child) => child.name === "sky-trace:kite") as import("three").LineSegments;
     expect(line.geometry.drawRange.count).toBe(2);
-    expect(view.labelOpacity("kite")).toBe(1);
+    expect(view.labelOpacity("kite")).toBeCloseTo(0.02); // restarted from nothing: 1% drawn, the name rising with it
   });
   it("reduced motion shows it at once, then applies after", () => {
     const { ctx, view } = framed(0.01);
@@ -382,5 +385,88 @@ describe("prefersReducedMotion", () => {
     expect(prefersReducedMotion()).toBe(false);
     vi.stubGlobal("matchMedia", (query: string) => ({ matches: query.includes("reduce") }));
     expect(prefersReducedMotion()).toBe(true);
+  });
+});
+
+describe("sky lines fade in when they appear (owner, T-306)", () => {
+  const material = (view: SkyFiguresView, name: string) => (view.group.children.find((child) => child.name === name) as unknown as { material: { opacity: number } }).material;
+  const framed = (delta: number, seconds = DEFAULT_SKY_FADE_IN_SECONDS) => {
+    const { ctx } = makeContext({ controls: { skyFadeInSeconds: seconds } });
+    const view = new SkyFiguresView([kite, ring]);
+    return { ctx: { ...ctx, delta, views: { ...ctx.views, skyFiguresView: view } } as FrameContext, view };
+  };
+
+  it("steps the share on by real time, capped per frame, and shows it all at once for 0 seconds", () => {
+    expect(stepFadeIn(0, 0.1, 0.5)).toBeCloseTo(0.2);
+    expect(stepFadeIn(0.9, 0.1, 0.5)).toBe(1);
+    expect(stepFadeIn(0, 30, 0.5)).toBeCloseTo(SKY_FADE_IN_STEP_LIMIT / 0.5);
+    expect(stepFadeIn(0, 0, 0)).toBe(1);
+  });
+
+  it("fades the lines and names of a shown kind in from nothing, waking the draw rule until done", () => {
+    const { ctx, view } = framed(0.1);
+    expect(view.labelOpacity("kite")).toBe(0);
+    advanceSkyTraces(ctx);
+    expect(view.labelOpacity("kite")).toBeCloseTo(0.2);
+    expect(material(view, "sky-figures").opacity).toBeCloseTo(0.85 * 0.2);
+    expect(ctx.state.wakes).toBe(1);
+    for (let i = 0; i < 4; i += 1) advanceSkyTraces(ctx);
+    expect(view.labelOpacity("kite")).toBe(1);
+    const woken = ctx.state.wakes;
+    advanceSkyTraces(ctx);
+    expect(ctx.state.wakes).toBe(woken);
+    expect(view.labelOpacity("ring")).toBe(0); // the outline switch is off
+  });
+
+  it("fades a kind in again each time its switch turns on", () => {
+    const { ctx, view } = framed(0.1);
+    for (let i = 0; i < 5; i += 1) advanceSkyTraces(ctx);
+    ctx.controls.skyLines = { ...ctx.controls.skyLines, figures: false };
+    advanceSkyTraces(ctx);
+    expect(view.labelOpacity("kite")).toBe(0);
+    ctx.controls.skyLines = { ...ctx.controls.skyLines, figures: true };
+    advanceSkyTraces(ctx);
+    expect(view.labelOpacity("kite")).toBeCloseTo(0.2);
+  });
+
+  it("shows them at once for 0 seconds or when the person asked for less motion", () => {
+    const { ctx, view } = framed(0.01, 0);
+    advanceSkyTraces(ctx);
+    expect(view.labelOpacity("kite")).toBe(1);
+    vi.stubGlobal("matchMedia", () => ({ matches: true }));
+    const reduced = framed(0.01);
+    advanceSkyTraces(reduced.ctx);
+    expect(reduced.view.labelOpacity("kite")).toBe(1);
+  });
+});
+
+describe("a selected figure being traced (owner, T-306)", () => {
+  const hidden = { ...(kite as object), whenTraced: true } as never;
+  const framed = (delta: number) => {
+    const { ctx } = makeContext({ controls: { selectedObjectId: "kite" } });
+    const view = new SkyFiguresView([hidden]);
+    return { ctx: { ...ctx, delta, views: { ...ctx.views, skyFiguresView: view } } as FrameContext, view };
+  };
+  const child = (view: SkyFiguresView, name: string) => view.group.children.find((c) => c.name === name) as import("three").LineSegments | undefined;
+  const frame = (ctx: FrameContext, view: SkyFiguresView) => { view.place(ctx.camera, ctx.controls.skyLines, ctx.controls.skyColours, ctx.controls.selectedObjectId); advanceSkyTraces(ctx); };
+
+  it("grows the trace in the selected colour with no whole-figure emphasis over it, then shows the emphasis once drawn", () => {
+    const { ctx, view } = framed(0.5);
+    ctx.controls.skyTraces.push({ id: "kite", seconds: 2, after: "stay", reduced: false });
+    frame(ctx, view);
+    frame(ctx, view);
+    const trace = child(view, "sky-trace:kite")!;
+    expect((trace.material as import("three").LineBasicMaterial).color.getHexString()).toBe(DEFAULT_SKY_COLOURS.selected.slice(1));
+    expect(child(view, "sky-selected:kite")!.visible).toBe(false);
+    for (let i = 0; i < 4; i += 1) frame(ctx, view);
+    expect(child(view, "sky-selected:kite")!.visible).toBe(true);
+    expect(view.labelOpacity("kite")).toBe(1);
+  });
+
+  it("keeps a figure tappable from the moment its trace starts", () => {
+    const { ctx, view } = framed(0);
+    view.startTrace({ id: "kite", seconds: 2, after: "stay", reduced: false });
+    view.place(ctx.camera, ctx.controls.skyLines, ctx.controls.skyColours, "kite");
+    expect(view.screenFigures(ctx.camera, 800, 600, ctx.controls.skyLines, undefined, { left: 0, top: 0 }).map(({ id }) => id)).toEqual(["kite"]);
   });
 });

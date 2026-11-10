@@ -1,7 +1,7 @@
 import { BufferAttribute, BufferGeometry, Color, Group, LineBasicMaterial, LineSegments, Vector3 } from "three";
 import type { PerspectiveCamera } from "three";
 import { celestialEquatorSegments, eclipticSegments, type EqjDirection, type SkyColours, type SkyFigureLayer, type SkyClearRequest, type SkyLineSwitches, type SkyTraceRequest } from "./skyFigures";
-import { stepHide, stepTrace, type SkyHideRun, type SkyTraceRun } from "../core/skyTrace";
+import { stepFadeIn, stepHide, stepTrace, type SkyHideRun, type SkyTraceRun } from "../core/skyTrace";
 import { eqjToRenderVector, type RenderVector } from "./renderCoordinates";
 import { TRACK_LAYER } from "./TrackedBodyView";
 import { projectSegmentClipped, type PickRect, type SkyPickFigure } from "./scenePicking";
@@ -45,6 +45,10 @@ interface Overlay {
 
 const FADED = new Color();
 const TRACE_OPACITY = 0.85;
+/** The share of a trace over which the name of a figure shown only when traced fades in (owner, T-306: it no longer appears at once). */
+const TRACE_LABEL_IN_SHARE = 0.5;
+/** The opacity of an always-shown line once it has faded in. */
+const LINE_OPACITY = 0.85;
 
 function lines(segments: Segments, color: string, key: string): LineSegments {
   const positions = new Float32Array(segments.length * 6);
@@ -53,7 +57,7 @@ function lines(segments: Segments, color: string, key: string): LineSegments {
   geometry.setAttribute("position", new BufferAttribute(positions, 3));
   // Depth is tested (a body in front of the sky hides the line) but never written. The lines are on the last render pass (TRACK_LAYER), after every body's pass, so the Sun's halo
   // (drawn earlier, without depth) never covers them (owner decision 3, O-065).
-  const material = new LineBasicMaterial({ color, transparent: true, opacity: 0.85, depthTest: true, depthWrite: false });
+  const material = new LineBasicMaterial({ color, transparent: true, opacity: LINE_OPACITY, depthTest: true, depthWrite: false });
   const object = new LineSegments(geometry, material);
   object.name = key;
   object.layers.set(TRACK_LAYER);
@@ -76,6 +80,8 @@ export class SkyFiguresView {
   /** The emphasis lines over the selected figure (one set at most), built when the selection first names a figure. */
   #selected: { readonly id: string; readonly object: LineSegments } | null = null;
   readonly #point = new Vector3();
+  /** How far each kind of line (and its names) has faded in since its switch last turned on, 0 to 1; 0 while the switch is off, so the next turn-on fades in again. */
+  readonly #shownShare: Record<keyof SkyLineSwitches, number> = { figures: 0, boundaries: 0, ecliptic: 0, celestialEquator: 0 };
 
   constructor(layers: readonly SkyFigureLayer[]) {
     this.#layers = new Map(layers.map((layer) => [layer.id, layer]));
@@ -120,7 +126,13 @@ export class SkyFiguresView {
 
   /** Whether a tap or the emphasis can reach the figure now: its kind's switch is on and, for one shown only when traced, a trace shows it. */
   #tappable(layer: SkyFigureLayer, on: Readonly<SkyLineSwitches>): boolean {
-    return on[layer.kind === "figure" ? "figures" : "boundaries"] && (layer.whenTraced !== true || this.labelOpacity(layer.id) > 0);
+    return on[layer.kind === "figure" ? "figures" : "boundaries"] && (layer.whenTraced !== true || (this.#traces.get(layer.id)?.fade ?? 1) < 1);
+  }
+
+  /** True while a trace of `id` is still growing (not yet fully drawn, and not being cleared). */
+  #drawing(id: string): boolean {
+    const trace = this.#traces.get(id);
+    return trace !== undefined && trace.hide === undefined && trace.drawn < 1;
   }
 
   /** Draws the selected figure's lines over it in the look's `selected` colour (and removes them when the selection moves or is not a figure); the name takes the same colour in the label layer. */
@@ -139,8 +151,11 @@ export class SkyFiguresView {
       this.group.add(object);
       this.#selected = { id: layer.id, object };
     }
-    (this.#selected.object.material as LineBasicMaterial).color.set(colours.selected);
-    this.#selected.object.visible = this.#tappable(layer, on);
+    const material = this.#selected.object.material as LineBasicMaterial;
+    material.color.set(colours.selected);
+    material.opacity = LINE_OPACITY * (layer.whenTraced === true ? 1 : this.#shownShare[layer.kind === "figure" ? "figures" : "boundaries"]);
+    // While the figure's trace is still drawing, the trace itself grows in the selected colour (`advanceTraces`) and the whole-figure emphasis waits, so it never covers the growing line (owner, T-306).
+    this.#selected.object.visible = this.#tappable(layer, on) && !this.#drawing(layer.id);
   }
 
   /**
@@ -185,7 +200,7 @@ export class SkyFiguresView {
    * Moves every trace on by `deltaSeconds` of real time (the scene clock never enters): draws the segments reached so far, the last one part-grown from its first end, in the traced colour (the faded colour while fading),
    * shows each with its figure's switch, and removes finished ones. Returns true while anything changed, so the caller wakes the draw rule.
    */
-  advanceTraces(deltaSeconds: number, colours: Readonly<SkyColours>, on: Readonly<SkyLineSwitches>): boolean {
+  advanceTraces(deltaSeconds: number, colours: Readonly<SkyColours>, on: Readonly<SkyLineSwitches>, selectedId = ""): boolean {
     let moving = false;
     for (const [id, trace] of this.#traces) {
       const frame = trace.hide === undefined ? stepTrace(trace.run, deltaSeconds) : stepHide(trace.hide, deltaSeconds, trace.drawn);
@@ -206,18 +221,36 @@ export class SkyFiguresView {
       positions.needsUpdate = true;
       trace.object.geometry.setDrawRange(0, (last + 1) * 2);
       const material = trace.object.material as LineBasicMaterial;
-      material.color.set(colours.traced).lerp(FADED.set(colours.faded), frame.fade);
+      material.color.set(id === selectedId && frame.drawn < 1 && trace.hide === undefined ? colours.selected : colours.traced).lerp(FADED.set(colours.faded), frame.fade);
       material.opacity = TRACE_OPACITY * (1 - frame.fade);
       trace.object.visible = on[trace.kind === "figure" ? "figures" : "boundaries"];
     }
     return moving;
   }
 
-  /** How much of a label shows, 0 to 1: always 1 for a figure that is always shown; for one shown only when traced, 0 until a trace starts, then 1 (fading to 0 with a `fade` trace; 0 again once the trace is removed). */
+  /**
+   * Moves the fade-in of every kind of line on by `deltaSeconds` of real time over `seconds` (0: at once), and sets the lines' opacity; a kind whose switch is off goes back to 0 so it fades in again
+   * when it next turns on. Returns true while a fade-in is still running, so the caller wakes the draw rule.
+   */
+  advanceFadeIn(deltaSeconds: number, seconds: number, on: Readonly<SkyLineSwitches>): boolean {
+    let moving = false;
+    for (const kind of Object.keys(this.#shownShare) as (keyof SkyLineSwitches)[]) {
+      const before = this.#shownShare[kind];
+      const after = on[kind] ? stepFadeIn(before, deltaSeconds, seconds) : 0;
+      this.#shownShare[kind] = after;
+      if (after !== before) moving = true;
+    }
+    for (const entry of this.#drawn) (entry.object.material as LineBasicMaterial).opacity = LINE_OPACITY * this.#shownShare[entry.shows];
+    return moving;
+  }
+
+  /** How much of a label shows, 0 to 1: for a figure that is always shown, how far its kind has faded in; for one shown only when traced, 0 until a trace starts, then rising with the trace to 1 at half drawn (fading to 0 with a `fade` trace; 0 again once the trace is removed). */
   labelOpacity(id: string): number {
-    if (this.#layers.get(id)?.whenTraced !== true) return 1;
+    const layer = this.#layers.get(id);
+    if (layer === undefined) return 1;
+    if (layer.whenTraced !== true) return this.#shownShare[layer.kind === "figure" ? "figures" : "boundaries"];
     const trace = this.#traces.get(id);
-    return trace === undefined ? 0 : 1 - trace.fade;
+    return trace === undefined ? 0 : Math.min(1, trace.drawn / TRACE_LABEL_IN_SHARE) * (1 - trace.fade);
   }
 
   #removeTrace(id: string): void {

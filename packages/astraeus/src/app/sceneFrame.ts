@@ -33,6 +33,7 @@ import { skyViewOf } from "./lookOut";
 import { hiddenWithLookOut, type ViewHidden } from "./viewHiding";
 import { viewFromAngles } from "./viewLink";
 import { EQUATORIAL_UP } from "./viewUp";
+import { prefersReducedMotion } from "./skyFigures";
 
 /** Floating-origin rebase threshold in scaled units (Earth radii). */
 const REBASE_THRESHOLD = 1;
@@ -243,7 +244,8 @@ export function placeSkyFigures(ctx: FrameContext): void {
 export function advanceSkyTraces(ctx: FrameContext): void {
   const { controls, state, views, delta } = ctx;
   for (const request of controls.skyTraces.splice(0)) { if ("after" in request) views.skyFiguresView.startTrace(request); else views.skyFiguresView.clearTrace(request); }
-  if (views.skyFiguresView.advanceTraces(delta, controls.skyColours, controls.skyLines)) state.wakes += 1;
+  if (views.skyFiguresView.advanceTraces(delta, controls.skyColours, controls.skyLines, controls.selectedObjectId)) state.wakes += 1;
+  if (views.skyFiguresView.advanceFadeIn(delta, prefersReducedMotion() ? 0 : controls.skyFadeInSeconds, controls.skyLines)) state.wakes += 1;
 }
 
 /** Stage 5: places every view about the floating origin and publishes the views' readouts. Returns the hover brightness gain. */

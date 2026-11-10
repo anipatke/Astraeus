@@ -2206,6 +2206,11 @@
           "signature": "number | undefined"
         },
         {
+          "name": "skyFadeInSeconds",
+          "optional": true,
+          "signature": "number | undefined"
+        },
+        {
           "name": "desktopPictures",
           "optional": true,
           "signature": "boolean | undefined"
@@ -2264,6 +2269,11 @@
         },
         {
           "name": "loadFadeSeconds",
+          "optional": false,
+          "signature": "number"
+        },
+        {
+          "name": "skyFadeInSeconds",
           "optional": false,
           "signature": "number"
         },

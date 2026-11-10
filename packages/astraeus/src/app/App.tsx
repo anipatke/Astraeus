@@ -41,7 +41,7 @@ import { ORBIT_LOOK_LIMITS, resolveOrbitLook, type OrbitLook } from "../assets/o
 import { DEFAULT_BODY_SET_LOOK, type BodySetLook } from "./bodySet";
 import { displaySwitchItems, hostReachable, orbitStart, skyLineStart, type SwitchBindings } from "./displaySwitches";
 import { TRACE_FADE_SECONDS, type SkyTraceAfter } from "../core/skyTrace";
-import { aimAtFigure, DEFAULT_SKY_LINES, prefersReducedMotion, skyColoursOf } from "./skyFigures";
+import { aimAtFigure, DEFAULT_SKY_LINES, prefersReducedMotion, skyColoursOf, skyFadeInSecondsOf } from "./skyFigures";
 import { labelStyleOf } from "./labelStyle";
 import { experienceInView, hiddenByView, viewById } from "./viewHiding";
 import type { RingLook } from "../assets/rings";
@@ -209,6 +209,7 @@ function initialSceneControls(
     skyLines: skyLineStart(definition.displaySwitches, DEFAULT_SKY_LINES),
     skyColours: skyColoursOf(runtime.look),
     skyTraces: [],
+    skyFadeInSeconds: skyFadeInSecondsOf(runtime.look),
     labelStyle: labelStyleOf(runtime.look),
     skyVisible: runtime.sky.visible,
     bodyMarker: markerSettingsOf(runtime.look),
