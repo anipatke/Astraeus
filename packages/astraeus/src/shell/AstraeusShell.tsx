@@ -105,6 +105,8 @@ interface Props {
   readonly paceAuto?: boolean | undefined;
   readonly onSeek: (timeUtcMs: number) => void;
   readonly onCameraRequest: (request: ExperienceCameraPreset["request"]) => void;
+  /** Turns the camera toward a sky figure, only while it looks out (an event naming a figure: Go to); the app decides, so an orbiting camera is left alone. */
+  readonly onTurnToFigure?: (id: string) => void;
   /** Holds the camera where it is, its target fixed in the scene (a view's `stay` rule); a later camera request replaces it. */
   readonly onCameraHold?: () => void;
   /** True when the host has set the camera since the last view switch: that call answers the switch, so the view's own camera rule does not replace it. */
@@ -236,6 +238,7 @@ export function AstraeusShell({
   paceAuto,
   onSeek,
   onCameraRequest,
+  onTurnToFigure,
   onCameraHold,
   hostCameraSet,
   storySeekNote,
@@ -458,6 +461,11 @@ export function AstraeusShell({
     // The event's own object, framed as the picker's Focus does (and `camera.focus` opens): the event, never a default body, names it.
     const object = event.object === undefined ? undefined : availableObjectById(experience, event.object, event.timeUtcMs);
     if (object !== undefined) activatePreset(focusPresetFor(experience, object), event.timeUtcMs);
+    // A sky figure is selected (its card stays as it is) and turned toward only while the camera looks out.
+    else if (event.object !== undefined && skyFigureById(experience, event.object) !== undefined) {
+      selectFigure(event.object, false);
+      onTurnToFigure?.(event.object);
+    }
     if (info?.kind === "event") setInfo({ kind: "event", id: event.id });
   };
 

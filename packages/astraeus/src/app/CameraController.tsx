@@ -20,10 +20,10 @@ export type CameraRequest =
   /** Holds the camera where it is: its target becomes the point it looks at now, fixed in the scene frame; the pose is kept. A later focus, follow or overview request replaces it. */
   | { readonly kind: "hold" }
   /**
-   * Stands the camera at the centre of `body` looking out: the direction is a unit vector in EQJ or an object id to turn toward, and `fovDeg` (default: the current one, else 60) is the zoom.
+   * Stands the camera at the centre of `body` looking out: the direction is a unit vector in EQJ or an object id to turn toward (absent: the direction already looked along, else right ascension 0, declination 0), and `fovDeg` (default: the current one, else 60) is the zoom.
    * Camera-only. A focus, follow, overview or pose request puts the orbit camera back; a hold is ignored while looking out.
    */
-  | { readonly kind: "lookOut"; readonly body: FocusId; readonly direction: readonly [number, number, number] | FocusId; readonly fovDeg?: number }
+  | { readonly kind: "lookOut"; readonly body: FocusId; readonly direction?: readonly [number, number, number] | FocusId; readonly fovDeg?: number }
   /** Puts the camera back on a pose read earlier: it follows the pose's object and eases to its angles and distance (the offset is the object's own, so a moving object is followed from where it is now). */
   | { readonly kind: "pose"; readonly view: StartView };
 

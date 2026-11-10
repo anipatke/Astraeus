@@ -2,7 +2,7 @@
 id: T-301
 title: Let story steps and events turn to, select and trace a figure
 objective: O-066
-status: planned
+status: done
 depends_on: [{task: T-300, requires: clear}]
 owner_validation: {required: false}
 check_waiver: {task: T-301, reason: 'Owner said "orchestrate O66" under the standing run rules (one builder at a time, no per-step checks, coordinator marks done once gates pass and any owner look is given, one Full Objective Check at the end); the optional Task Check is waived.', actor: {role: owner, session: o066-run-20261110}, recorded_at: '2026-11-10T06:15:12Z'}
@@ -59,8 +59,24 @@ Focused Vitest runs while building; hand-off gates `npm run lint`, `npm run type
 
 ## Technical Evidence
 
-Pending execution.
+Extra reads (reason: the Task's own code paths were not all in Context Files): `packages/astraeus/src/api/viewerLink.ts` (CameraTarget/LookOutTarget docs and LinkAccess), `packages/astraeus/src/app/CameraController.tsx` (CameraRequest type), `packages/astraeus/src/shell/objectModel.ts` via grep (skyFigureById), `packages/astraeus/src/shell/experience.ts` (ExperienceConfig/camera request), `packages/astraeus/src/api/scene.ts` and `assembleScene.ts` (where panel object ids and event object ids are collected), `packages/astraeus/tests/domSetup.ts` (shell harness), `packages/astraeus-site/tools/validate/load-budget.mjs` via the API page test (budget).
+
+Per criterion:
+- Look-out `direction` may name a sky figure: `setCamera` accepts a figure id the viewer draws (`ViewerCamera.setCamera` checks bodies against `cameraTargets()` and the turn-toward id against objects or figures); an unknown id is still `bad-camera`; a figure as the body or as `focus` is refused. One resolver, `aimAtFigure` (`src/app/skyFigures.ts`), turns the id into the figure's label point for both `setCamera` and the app's own camera requests. `scene.camera.lookOut` takes star-map positions only (no object ids), so there is nothing to extend there. Tests: `storyActions.test.ts` (cameraRequestOf, aimAtFigure, link).
+- Panel `camera` / `select` / `trace` and `object` naming a figure: shape checked at `addStoryPanels` (`panelActionsOf` in `src/api/story.ts`, reusing `cameraRequestOf` (moved out of `viewerCamera.ts`) and `traceOptionsOf` (split out of `checkedTrace`)); names checked at build in `core/storyPanels.ts` (`checkLinks`; `PanelLookup.figureIds`). Applied in `App.markOpenPanel` whenever the shell's open panel changes, whoever opened it, in the order camera, select, trace, through the host-call paths `setCamera`, `hostSetSelected`, `hostTraceSkyFigure` (STYLE-07). Tests: `storyActions.test.ts` (carry, order, defaults, 9 bad shapes, 5 bad names) and `lifecycle.test.ts` "story step actions" on both embedding paths (first step at start, host `setPanel`, close).
+- Leaving a step clears the trace it started (`hostClearSkyTrace` with `TRACE_FADE_SECONDS`); camera and selection are not undone. Test: lifecycle "story step actions".
+- `EventInput.object` may name a figure: `checkEventObjects` accepts figure ids; the shell's Go to selects the figure and calls `onTurnToFigure`, which the app answers only while `viewReadout` has `lookOut`. Tests: `storyActions.test.ts` (accepted, bad name, orbiting camera left alone) and lifecycle "an event naming a sky figure ..." (turns while looking out; both paths).
+- Panels without these fields unchanged: existing story tests pass untouched; the bad-event message text is unchanged (scenePin snapshot).
+- API lock regenerated (`npm run api:lock`), README and CHANGELOG updated; no body or constellation name in `src/api/` (made-up ids only in tests).
+- Budget: owner decision 2026-11-10 "Raise to 230 KB, restore": API page raw limit 200,000 -> 230,000 in `packages/astraeus-site/tools/validate/load-budget.mjs` (gzip 44,000 kept); the original wording of every doc comment I had shortened in `src/api/story.ts` was restored, and `EventInput.object` now states a sky figure is selected and turned toward only while looking out (not framed as `camera.focus`). Page measured at 200,586 B raw.
+
+Gates (re-run after the owner-decision changes): `npm run lint` clean, `npm run typecheck` clean, `npm run build` ok, `npm test` 245 files / 3643 passed (2 skipped as before), `npm run check:pack` pass, `npm run check:node-consumer` pass. No browser run. Task Check waived by the owner.
 
 ## Drift Notes
 
-Record architecture deltas; Design is reconciled in the last step of this Objective.
+- `CameraRequest` (and `PanelCameraRequest`) look-out `direction` is now optional: absent means the direction already looked along while looking out, else right ascension 0, declination 0 (`applyLookOut` in `sceneCamera.ts`). `setCamera` still fills the direction from the last reading; only a panel's camera leaves it out, so it is decided as the panel opens.
+- Panel actions live on `StoryPanel`/`StoryStep` (`camera`, `select`, `trace` via `PanelActions` in `core/storyPanels.ts`) and are applied by the app (`App.markOpenPanel`), not by the host link, so a viewer with no host handle applies them too. `actedPanel` (not `openStoryPanelId`) tells whether a panel's actions ran, because a host `setPanel` shows its panel at once.
+- Shell prop `onTurnToFigure` (app decides whether the camera looks out).
+- New `src/api/cameraRequest.ts` (`cameraRequestOf`, the one shape check for `setCamera` and panel cameras); `traceOptionsOf` in `skyTraceInput.ts`.
+- Clearing on leave cannot tell whether a host re-traced the same figure meanwhile; it clears that figure's trace on leaving.
+- Design.md reconciliation is left to the last step of O-066 (sections "The sky view" and "Sky figures", "Host calls land in order").

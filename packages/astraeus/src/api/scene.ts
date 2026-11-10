@@ -263,7 +263,7 @@ export class Scene {
   /** The story panels (`addStoryPanels`): moment panels by time (times resolved), then the steps (no `at`) in the order added against the events, path anchors and timeline as `mount` resolves them; empty when none were added. A bad panel throws `bad-panels`, as `mount` would. A fresh frozen list on every read. */
   get panels(): readonly ScenePanelRead[] {
     const { window } = this.#timelineSpan();
-    return this.#story.panelReads(window, this.#tracked.values(), [...this.#plan.bodies.keys(), ...this.#tracked.keys(), ...this.#groupPlan.groups.keys(), ...this.#bodySets.memberIds()]);
+    return this.#story.panelReads(window, this.#tracked.values(), [...this.#plan.bodies.keys(), ...this.#tracked.keys(), ...this.#groupPlan.groups.keys(), ...this.#bodySets.memberIds()], [...this.#skyFigures.figures.keys()]);
   }
 
   /** The views the scene names (`setViews`): the id of the opening view (`startId`), where the choice shows and each view's id, label and the `objects`, `events` and `panels` it shows (ids, as the viewer resolves them: what the view names plus whatever no view names); undefined when none were named. Checks the ids as `mount` does, so a bad one throws `bad-view`. A fresh frozen object on every read. */

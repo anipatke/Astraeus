@@ -1,5 +1,5 @@
-import type { CameraRequest } from "../app/CameraController";
-import { eqjUnitVector, validateSkyDirection, validateSkyFov, validateSkyPosition, validateStartView } from "../core/startView";
+import { cameraIdsOf } from "../core/storyPanels";
+import { cameraRequestOf } from "./cameraRequest";
 import { SceneError } from "./errors";
 import { callListeners } from "./listeners";
 import type { CameraPose, CameraTarget, LinkAccess } from "./viewerLink";
@@ -53,76 +53,19 @@ export class ViewerCamera {
   /**
    * Points the camera: `{ follow: id }` keeps the distance, `{ focus: id }` frames the object, `{ lookOut: id, direction?, fovDeg? }` stands inside a body looking out,
    * a pose (from `camera`, either kind) puts the camera back where it was read (an orbit pose relative to its object).
-   * Every id must be an object the showing view shows; an unknown or hidden id, a direction or field of view out of range, or a malformed argument, throws `bad-camera`.
+   * Every id must be an object the showing view shows (a look-out `direction` may name a sky figure too); an unknown or hidden id, a direction or field of view out of range, or a malformed argument, throws `bad-camera`.
    * Before the viewer is drawn or after it is gone, `not-mounted`. The move eases in as a view's camera rule does.
    */
   setCamera(target: CameraTarget): void {
     const control = this.access.open("setCamera");
-    const request = this.#request(target);
+    const request = cameraRequestOf(target, "setCamera", this.camera);
     const known = control.cameraTargets();
-    for (const id of idsOf(request)) {
+    const { bodies, toward } = cameraIdsOf(request);
+    for (const id of bodies) {
       if (!known.includes(id)) throw new SceneError("bad-camera", `setCamera: "${id}" is not an object the showing view shows (${known.join(", ")})`);
     }
+    const figures = (control.skyFigures ?? []).map(({ id }) => id);
+    if (toward !== undefined && !known.includes(toward) && !figures.includes(toward)) throw new SceneError("bad-camera", `setCamera: "${toward}" is neither an object the showing view shows (${known.join(", ")}) nor a sky figure the viewer draws (${figures.join(", ")})`);
     control.setCamera(request);
   }
-
-  #request(target: unknown): CameraRequest {
-    const bad = (why: string) => new SceneError("bad-camera", `setCamera: ${why}; give { follow: id }, { focus: id }, { lookOut: id, direction?, fovDeg? } or a pose from camera`);
-    if (typeof target !== "object" || target === null || Array.isArray(target)) throw bad(`${String(target)} is not an object`);
-    const record = target as Record<string, unknown>;
-    if ("lookOut" in record) return this.#lookOut(record, bad);
-    // A pose names its object with `focus` too; its angle and distance fields tell it from `{ focus: id }`.
-    const isPose = ["azimuthDeg", "elevationDeg", "distance"].some((key) => key in record) || !("follow" in record || "focus" in record);
-    const named = (["follow", "focus"] as const).filter((key) => key in record);
-    if (isPose) {
-      try { return { kind: "pose", view: validateStartView(record, "pose") }; } catch (cause) { throw bad(cause instanceof Error ? cause.message : "a malformed pose"); }
-    }
-    const id = record[named[0]];
-    if (named.length > 1 || Object.keys(record).length > 1 || typeof id !== "string" || id === "") throw bad("the target must be exactly one of follow or focus, naming a non-empty id");
-    return { kind: named[0], target: id };
-  }
-
-  /** A look-out target or a sky pose: the body, a direction (`direction`, or `raDeg` and `decDeg` together), and a field of view. */
-  #lookOut(record: Record<string, unknown>, bad: (why: string) => SceneError): CameraRequest {
-    const body = record.lookOut;
-    if (typeof body !== "string" || body === "") throw bad("lookOut must name a non-empty body id");
-    for (const key of Object.keys(record)) if (!["lookOut", "direction", "fovDeg", "raDeg", "decDeg"].includes(key)) throw bad(`${key} is not a look-out field`);
-    try {
-      const fovDeg = record.fovDeg === undefined ? undefined : validateSkyFov(record.fovDeg, "lookOut");
-      const direction = lookDirection(record, body, this.camera, bad);
-      return { kind: "lookOut", body, direction, ...(fovDeg === undefined ? {} : { fovDeg }) };
-    } catch (cause) {
-      throw cause instanceof RangeError ? bad(cause.message) : cause;
-    }
-  }
 }
-
-/** The object ids a request names, which must all be objects the showing view shows. */
-function idsOf(request: CameraRequest): readonly string[] {
-  switch (request.kind) {
-    case "pose": return [request.view.focus];
-    case "lookOut": return typeof request.direction === "string" ? [request.body, request.direction] : [request.body];
-    case "overview": case "hold": return [];
-    default: return [request.target];
-  }
-}
-
-/** The look direction a look-out target names: `raDeg` and `decDeg` together (a sky pose), `direction` as a position or an object id, else the one already looked along (else right ascension 0, declination 0). Throws a `bad-camera` SceneError (or a RangeError from the range checks, which the caller turns into one). */
-function lookDirection(record: Record<string, unknown>, body: string, now: CameraPose | undefined, bad: (why: string) => SceneError): readonly [number, number, number] | string {
-  const flat = "raDeg" in record || "decDeg" in record;
-  const given = record.direction;
-  if (flat && given !== undefined) throw bad("give direction or raDeg and decDeg, not both");
-  if (flat) return pointOf(record.raDeg, record.decDeg, "lookOut");
-  if (typeof given === "string") {
-    if (given === "" || given === body) throw bad("direction must name an object other than the body looked out from");
-    return given;
-  }
-  if (given === undefined) return now !== undefined && "lookOut" in now ? pointOf(now.raDeg, now.decDeg, "lookOut") : pointOf(0, 0, "lookOut");
-  const position = validateSkyPosition(given, "direction");
-  return eqjUnitVector(position.raDeg, position.decDeg);
-}
-
-const pointOf = (raDeg: unknown, decDeg: unknown, where: string): [number, number, number] => {
-  const checked = validateSkyDirection(raDeg, decDeg, where);
-  return eqjUnitVector(checked.raDeg, checked.decDeg);
-};

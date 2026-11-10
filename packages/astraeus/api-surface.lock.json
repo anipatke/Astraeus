@@ -2119,6 +2119,21 @@
           "name": "object",
           "optional": true,
           "signature": "string | undefined"
+        },
+        {
+          "name": "camera",
+          "optional": true,
+          "signature": "CameraTarget | undefined"
+        },
+        {
+          "name": "select",
+          "optional": true,
+          "signature": "boolean | undefined"
+        },
+        {
+          "name": "trace",
+          "optional": true,
+          "signature": "true | SkyTraceOptions | undefined"
         }
       ]
     },

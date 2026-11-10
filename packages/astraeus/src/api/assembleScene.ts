@@ -123,7 +123,7 @@ export function assembleScene(parts: ScenePlanners, data: readonly DataSource[])
   const fit = deferredRead(ids, window, fault, undefined, () => fitFarthestKm(camera, plan.catalogue, plan.own, startUtcMs));
   // The lines read planet positions; when the planet series are not loaded yet (a consumer's mount), they are drawn in `prepare`, once the series are in. The viewer draws only after `prepare` resolves.
   const sunPaths: PathLayer[] = deferredRead<PathLayer[]>(ids, window, fault, [], () => plan.earlySunPaths(sunOrbitIds, startUtcMs, planetSeriesLoaded()));
-  const storyPanels = story.panels(window, trackedMap.values(), [...plan.bodies.keys(), ...trackedMap.keys(), ...groupPlan.groups.keys(), ...bodySets.memberIds()]);
+  const storyPanels = story.panels(window, trackedMap.values(), [...plan.bodies.keys(), ...trackedMap.keys(), ...groupPlan.groups.keys(), ...bodySets.memberIds()], [...skyFigures.figures.keys()]);
   groupPlan.check(ids);
   bodySets.check({ ids, catalogue: plan.catalogue, orbits: plan.orbits });
   // A clump near a body reads its position; with the planet series not loaded yet, those groups are built in `prepare` (the viewer draws only after it resolves).
@@ -134,7 +134,7 @@ export function assembleScene(parts: ScenePlanners, data: readonly DataSource[])
   const labelled = [...plan.bodies.values(), ...tracked, ...[...groupPlan.groups.values()]].map(({ id, label }) => ({ id, label }));
   const catalogue = plan.catalogue;
   if (camera.following && camera.target !== undefined && camera.followChoices !== undefined && !camera.followChoices.includes(camera.target)) throw new SceneError("bad-camera", `camera.follow("${camera.target}"): the opening view follows "${camera.target}", which camera.setFollowChoices does not list`);
-  story.checkObjects(new Set(labelled.map(({ id }) => id)));
+  story.checkObjects(new Set([...labelled.map(({ id }) => id), ...skyFigures.figures.keys()]));
   const objects: ExperienceObject[] = [
     ...[...plan.bodies.values()].map((body) => plan.bodyObject(body, ids, sunCentred, camera)),
     ...[...trackedMap.values()].map(({ body, description, knownLimitations, provenanceSpans }): ExperienceObject => ({ id: body.id, label: body.label, color: body.color, availability: body.trajectory.bounds, labelPriority: 80, ...plan.labelReach(body.id, sunCentred, camera), provenance: body.provenance, ...(provenanceSpans === undefined ? {} : { provenanceSpans }), ...(description === undefined ? {} : { description }), ...(knownLimitations === undefined ? {} : { knownLimitations }) })),

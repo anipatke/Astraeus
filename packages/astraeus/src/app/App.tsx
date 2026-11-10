@@ -40,8 +40,8 @@ import { withSkyObject, type StarStatus } from "./skyModel";
 import { ORBIT_LOOK_LIMITS, resolveOrbitLook, type OrbitLook } from "../assets/orbitLook";
 import { DEFAULT_BODY_SET_LOOK, type BodySetLook } from "./bodySet";
 import { displaySwitchItems, hostReachable, orbitStart, skyLineStart, type SwitchBindings } from "./displaySwitches";
-import type { SkyTraceAfter } from "../core/skyTrace";
-import { DEFAULT_SKY_LINES, prefersReducedMotion, skyColoursOf } from "./skyFigures";
+import { TRACE_FADE_SECONDS, type SkyTraceAfter } from "../core/skyTrace";
+import { aimAtFigure, DEFAULT_SKY_LINES, prefersReducedMotion, skyColoursOf } from "./skyFigures";
 import { labelStyleOf } from "./labelStyle";
 import { experienceInView, hiddenByView, viewById } from "./viewHiding";
 import type { RingLook } from "../assets/rings";
@@ -351,8 +351,12 @@ export function App({ definition, writeTitle = true, address, developerTools, ho
   const [viewLink, setViewLink] = useState<{ readonly url: string; readonly copied: boolean } | null>(null);
   const [fills, setFills] = useState<readonly GroupFill[]>([]);
   const updateCameraRequest = useCallback((request: ExperienceCameraRequest) => {
-    controls.current.cameraRequest = request as CameraRequest;
-  }, []);
+    controls.current.cameraRequest = aimAtFigure(request as CameraRequest, runtime.skyFigures);
+  }, [runtime]);
+  const turnToFigure = useCallback((id: string) => {
+    const now = controls.current.viewReadout;
+    if (now !== undefined && "lookOut" in now) updateCameraRequest({ kind: "lookOut", body: now.lookOut, direction: id });
+  }, [updateCameraRequest]);
   const holdCamera = useCallback(() => { controls.current.cameraRequest = { kind: "hold" }; }, []);
   const requestPanel = useCallback((id: string) => setPanelRequest((previous) => ({ id, serial: (previous?.serial ?? 0) + 1 })), []);
   const requestPick = useCallback((id: string) => setPickRequest((previous) => ({ id, serial: (previous?.serial ?? 0) + 1 })), []);
@@ -419,12 +423,6 @@ export function App({ definition, writeTitle = true, address, developerTools, ho
     controls.current.openStoryPanelId = id ?? null; // `read()` shows it at once
     setPanelRequest((previous) => ({ id: id ?? "", serial: (previous?.serial ?? 0) + 1, host: true }));
   }, []);
-  /** The shell's open panel changed (a visitor, a host call already shown, playback crossing a panel, or a view switch dropping it); a change is told to the host, the opening panel is read at attach. */
-  const markOpenPanel = useCallback((id: string | null, cause: PanelCause) => {
-    const changed = (controls.current.openStoryPanelId ?? null) !== id;
-    controls.current.openStoryPanelId = id;
-    if (changed && hostAttached.current) host?.publishPanel(stateNow(), cause);
-  }, [host, stateNow]);
   const panelIds = useCallback((): readonly string[] => {
     const set = definition.experience.storyPanels;
     const hidden = controls.current.viewHidden?.panels;
@@ -486,7 +484,7 @@ export function App({ definition, writeTitle = true, address, developerTools, ho
     return { ...(controls.current.viewReadout ?? opening) };
   }, [opening]);
   // A host camera call is the last word: it is also kept in `hostCameraRequest`, so the opening view (first frame) and a view's own camera rule (shell) yield to it.
-  const setCamera = useCallback((request: CameraRequest) => { controls.current.cameraRequest = controls.current.hostCameraRequest = request; }, []);
+  const setCamera = useCallback((request: CameraRequest) => { controls.current.cameraRequest = controls.current.hostCameraRequest = aimAtFigure(request, runtime.skyFigures); }, [runtime]);
   const hostCameraSet = useCallback(() => controls.current.hostCameraRequest != null, []);
   const hostScales = useMemo(() => scaleChoiceIds ?? SCALE_CHOICES.map((choice) => choice.id), [scaleChoiceIds]);
   const hostSetLook = useCallback((look: LookInput) => live.current?.setLook(look), []);
@@ -494,6 +492,31 @@ export function App({ definition, writeTitle = true, address, developerTools, ho
   const hostClearSkyTrace = useCallback((id: string, seconds: number) => { controls.current.skyTraces.push({ id, seconds, reduced: prefersReducedMotion() }); }, []);
   const hostTraceSkyFigure = useCallback((id: string, seconds: number, after: SkyTraceAfter) => { controls.current.skyTraces.push({ id, seconds, after, reduced: prefersReducedMotion() }); }, []);
   const hostSetSwitch = useCallback((id: string, on: boolean) => live.current?.setSwitch(id, on), []);
+  /** The figure the open story panel traced when it opened; it is cleared (default fade) when the panel is left. */
+  const panelTrace = useRef<string | null>(null);
+  /** The panel whose actions were last applied (a host `setPanel` shows its panel at once, so `openStoryPanelId` cannot say whether the shell has opened it yet). */
+  const actedPanel = useRef<string | null>(null);
+  /** The shell's open panel changed (a visitor, a host call already shown, playback crossing a panel, or a view switch dropping it); a change is told to the host, the opening panel is read at attach. */
+  const markOpenPanel = useCallback((id: string | null, cause: PanelCause) => {
+    const changed = (controls.current.openStoryPanelId ?? null) !== id;
+    controls.current.openStoryPanelId = id;
+    if (changed && hostAttached.current) host?.publishPanel(stateNow(), cause);
+    if (actedPanel.current === id) return;
+    actedPanel.current = id;
+    // Leaving a panel clears the trace it started; what a host or visitor did since is left as it is.
+    if (panelTrace.current !== null) hostClearSkyTrace(panelTrace.current, TRACE_FADE_SECONDS);
+    panelTrace.current = null;
+    const set = definition.experience.storyPanels;
+    const panel = id === null ? undefined : [...(set?.panels ?? []), ...(set?.steps ?? [])].find((candidate) => candidate.id === id);
+    if (panel === undefined) return;
+    // The panel's actions go through the host calls, in this order: camera, select, trace.
+    if (panel.camera !== undefined) setCamera(panel.camera as CameraRequest);
+    if (panel.select === true && panel.objectId !== undefined) hostSetSelected(panel.objectId);
+    if (panel.trace !== undefined && panel.objectId !== undefined) {
+      hostTraceSkyFigure(panel.objectId, panel.trace.seconds, panel.trace.after);
+      panelTrace.current = panel.objectId;
+    }
+  }, [host, stateNow, definition, setCamera, hostSetSelected, hostTraceSkyFigure, hostClearSkyTrace]);
   useEffect(() => {
     if (host === undefined) return undefined;
     hostAttached.current = true;
@@ -753,6 +776,7 @@ export function App({ definition, writeTitle = true, address, developerTools, ho
         host?.publish(stateNow(), "visitor");
       }}
       onCameraRequest={updateCameraRequest}
+      onTurnToFigure={turnToFigure}
       onCameraHold={holdCamera}
       hostCameraSet={hostCameraSet}
       storySeekNote={storySeekNote}

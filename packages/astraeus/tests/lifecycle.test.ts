@@ -506,6 +506,76 @@ describe.each([mountDriver, reactDriver(false)])("lifecycle: $name", (driver) =>
     opened.unmount();
   });
 
+  it("story step actions (O-066 T-301): opening a step turns the camera (toward a sky figure too), selects and traces in that order; leaving clears only the trace; host and visitor opens act alike", async () => {
+    prepared.real = true; openNow();
+    const made = { sourceType: "illustrative", sources: ["Made up"], accuracy: "None claimed.", notes: "Made up." } as const;
+    const scene = new Scene().addBody(earth).addBody(moon)
+      .addSkyFigures([{ id: "kite", label: "The Kite", segments: [[{ raDeg: 90, decDeg: 0 }, { raDeg: 90, decDeg: 0 }]] }])
+      .addStoryPanels([
+        { id: "s1", title: "One", body: "Made up.", provenance: made, object: "kite", camera: { lookOut: "earth", direction: "kite", fovDeg: 30 }, select: true, trace: { durationSeconds: 3, after: "fade" } },
+        { id: "s2", title: "Two", body: "Made up.", provenance: made },
+        { id: "s3", title: "Three", body: "Made up.", provenance: made, object: "moon", camera: { focus: "moon" }, select: true },
+      ]);
+    const opened = await driver.open(scene);
+    await opened.ready();
+    const handle = opened.handle!;
+    const controls = () => sceneProps.latest!.controls;
+    await tick();
+    // The first step is open at the start: its camera is the host's slot, the figure's label point is the direction, then the selection and the trace follow.
+    expect(handle.panel).toBe("s1");
+    const look = controls().cameraRequest as { kind: string; body: string; direction: number[]; fovDeg: number };
+    expect([look.kind, look.body, look.fovDeg]).toEqual(["lookOut", "earth", 30]);
+    expect(look.direction[1]).toBeCloseTo(1, 9);
+    expect(controls().hostCameraRequest).toBe(controls().cameraRequest);
+    expect(handle.selected).toBe("kite");
+    expect(controls().skyTraces).toEqual([{ id: "kite", seconds: 3, after: "fade", reduced: false }]);
+    controls().skyTraces.length = 0;
+    // Another step with no actions: the trace it left clears over the default fade; nothing else is undone.
+    flushSync(() => handle.setPanel("s2"));
+    await tick();
+    expect(controls().skyTraces).toEqual([{ id: "kite", seconds: 1, reduced: false }]);
+    expect(controls().cameraRequest).toBe(controls().hostCameraRequest);
+    expect(handle.selected).toBe("kite");
+    controls().skyTraces.length = 0;
+    // A step by the host: camera, then select. No trace to clear (s2 started none).
+    flushSync(() => handle.setPanel("s3"));
+    await tick();
+    expect(controls().cameraRequest).toEqual({ kind: "focus", target: "moon" });
+    expect(handle.selected).toBe("moon");
+    expect(controls().skyTraces).toEqual([]);
+    // Opened again by the visitor (Back), the first step acts the same; closing it clears its trace.
+    flushSync(() => handle.setPanel("s1"));
+    await tick();
+    expect(controls().skyTraces).toHaveLength(1);
+    controls().skyTraces.length = 0;
+    flushSync(() => handle.setPanel(undefined));
+    await tick();
+    expect(handle.panel).toBeUndefined();
+    expect(controls().skyTraces).toEqual([{ id: "kite", seconds: 1, reduced: false }]);
+    opened.unmount();
+  });
+  it("an event naming a sky figure turns toward it only while the camera looks out (O-066 T-301)", async () => {
+    prepared.real = true; openNow();
+    const T0 = Date.UTC(2026, 5, 1);
+    const scene = new Scene().addBody(earth).addBody(moon)
+      .addSkyFigures([{ id: "kite", label: "The Kite", segments: [[{ raDeg: 90, decDeg: 0 }, { raDeg: 90, decDeg: 0 }]] }])
+      .addEvents([{ id: "rise", label: "Rise", time: T0 + 60_000, object: "kite" }]).setTimeline({ start: T0, end: T0 + 3_600_000 });
+    const opened = await driver.open(scene);
+    await opened.ready();
+    const handle = opened.handle!;
+    const controls = () => sceneProps.latest!.controls;
+    const goTo = () => flushSync(() => { (document.querySelector<HTMLElement>("[aria-label='Go to Rise']") ?? [...document.querySelectorAll<HTMLElement>(".timeline-expanded li button")].find((b) => b.textContent?.includes("Rise"))!).click(); });
+    controls().cameraRequest = undefined as never;
+    goTo();
+    expect(handle.selected).toBe("kite");
+    expect(controls().cameraRequest).toBeFalsy(); // orbiting: the camera is left alone
+    controls().viewReadout = { lookOut: "earth", raDeg: 0, decDeg: 0, fovDeg: 60 } as never;
+    goTo();
+    const turn = controls().cameraRequest as { kind: string; body: string; direction: number[] };
+    expect([turn.kind, turn.body]).toEqual(["lookOut", "earth"]);
+    expect(turn.direction[1]).toBeCloseTo(1, 9);
+    opened.unmount();
+  });
   it("look out: the scene opens looking out (camera.lookOut or a sky start view), and the build refuses a body not added", async () => {
     prepared.real = true; openNow();
     const scene = new Scene().addBody(earth).addBody(mars);

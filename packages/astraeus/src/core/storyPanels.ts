@@ -1,9 +1,38 @@
 import { createProvenance, PROVENANCE_SOURCE_TYPES, type Provenance, type ProvenanceSourceType } from "./provenance";
+import type { StartView } from "./startView";
+import type { SkyTraceAfter } from "./skyTrace";
 import { timeInputMs, type TimeInput } from "./timeInput";
 import type { TimeBounds } from "./trajectory";
 
+/** A camera request a panel makes when it opens (checked): the same shapes the scene camera takes. A look-out `direction` that is absent keeps the direction already looked along (else right ascension 0, declination 0). */
+export type PanelCameraRequest =
+  | { readonly kind: "focus" | "follow"; readonly target: string }
+  | { readonly kind: "overview" }
+  | { readonly kind: "hold" }
+  | { readonly kind: "lookOut"; readonly body: string; readonly direction?: readonly [number, number, number] | string; readonly fovDeg?: number }
+  | { readonly kind: "pose"; readonly view: StartView };
+
+/** What a panel does when it opens, in this order: the camera turns, its object is selected, its object's sky figure is traced. */
+export interface PanelActions {
+  readonly camera?: PanelCameraRequest;
+  /** True: select the panel's `object`. */
+  readonly select?: true;
+  /** Trace the panel's `object`, a sky figure, this way. */
+  readonly trace?: { readonly seconds: number; readonly after: SkyTraceAfter };
+}
+
+/** The ids a camera request names: the bodies it points at, and the id a look-out turns toward (a body or a sky figure). */
+export function cameraIdsOf(request: PanelCameraRequest): { readonly bodies: readonly string[]; readonly toward?: string } {
+  switch (request.kind) {
+    case "focus": case "follow": return { bodies: [request.target] };
+    case "pose": return { bodies: [request.view.focus] };
+    case "lookOut": return typeof request.direction === "string" ? { bodies: [request.body], toward: request.direction } : { bodies: [request.body] };
+    default: return { bodies: [] };
+  }
+}
+
 /** One short story panel, resolved to a UTC time. */
-export interface StoryPanel {
+export interface StoryPanel extends PanelActions {
   readonly id: string;
   readonly timeUtcMs: number;
   readonly title: string;
@@ -57,6 +86,8 @@ export interface PanelLookup {
   readonly anchors?: ReadonlyMap<string, number>;
   /** Ids a panel's `object` may name. Absent: any id is accepted. */
   readonly objectIds?: readonly string[];
+  /** The sky figures' ids: a panel's `object` may name one, and a look-out camera may turn toward one. Absent: none. */
+  readonly figureIds?: readonly string[];
   /** When given, every panel must fall inside it. */
   readonly window?: TimeBounds;
 }
@@ -146,11 +177,22 @@ function timeOf(id: string, at: NonNullable<CheckedPanel["at"]>, lookup: PanelLo
   return anchor;
 }
 
-function checkLinks({ id, object }: CheckedPanel, lookup: PanelLookup): void {
-  if (object !== undefined && lookup.objectIds !== undefined && !lookup.objectIds.includes(object)) {
+function checkLinks({ id, object, camera, trace }: CheckedPanel, lookup: PanelLookup): void {
+  const figures = lookup.figureIds ?? [];
+  if (object !== undefined && lookup.objectIds !== undefined && !lookup.objectIds.includes(object) && !figures.includes(object)) {
     throw new StoryPanelError(id, "object", `names "${object}", which the experience lacks`);
   }
+  if (trace !== undefined && (object === undefined || !figures.includes(object))) {
+    throw new StoryPanelError(id, "trace", `needs an object that names a sky figure${object === undefined ? "" : `; "${object}" is not one`}`);
+  }
+  if (camera === undefined || lookup.objectIds === undefined) return;
+  const { bodies, toward } = cameraIdsOf(camera);
+  for (const body of bodies) if (!lookup.objectIds.includes(body)) throw new StoryPanelError(id, "camera", `names "${body}", which is not an object the experience shows`);
+  if (toward !== undefined && !lookup.objectIds.includes(toward) && !figures.includes(toward)) throw new StoryPanelError(id, "camera", `turns toward "${toward}", which is neither an object nor a sky figure the experience has`);
 }
+
+/** The actions a panel carries, in the order they apply. */
+const actionsOf = ({ camera, select, trace }: PanelActions): PanelActions => ({ ...(camera === undefined ? {} : { camera }), ...(select === undefined ? {} : { select }), ...(trace === undefined ? {} : { trace }) });
 
 function resolvePanel(panel: CheckedPanel & { readonly at: NonNullable<CheckedPanel["at"]> }, lookup: PanelLookup): StoryPanel {
   const { id, at, title, body, details, provenance, object } = panel;
@@ -159,13 +201,13 @@ function resolvePanel(panel: CheckedPanel & { readonly at: NonNullable<CheckedPa
     throw new StoryPanelError(id, "at", "falls outside the timeline window");
   }
   checkLinks(panel, lookup);
-  return { id, timeUtcMs, title, body, details, provenance, ...(object === undefined ? {} : { objectId: object }) };
+  return { id, timeUtcMs, title, body, details, provenance, ...(object === undefined ? {} : { objectId: object }), ...actionsOf(panel) };
 }
 
 function resolveStep(panel: CheckedPanel, lookup: PanelLookup, step: number): StoryStep {
   const { id, title, body, details, provenance, object } = panel;
   checkLinks(panel, lookup);
-  return { id, step, title, body, details, provenance, ...(object === undefined ? {} : { objectId: object }) };
+  return { id, step, title, body, details, provenance, ...(object === undefined ? {} : { objectId: object }), ...actionsOf(panel) };
 }
 
 /** Resolves each checked panel's time and links against the scene as built. Moment panels come back sorted by time; steps (no `at`) in the order given, numbered from 1. */

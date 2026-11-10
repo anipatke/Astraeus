@@ -2,8 +2,11 @@ import { createEvents, type TimelineEvent } from "../core/events";
 import { zoneAround, type PaceZone, type Pacing } from "../core/pacing";
 import { createProvenance, type Provenance } from "../core/provenance";
 import type { TimeBounds } from "../core/trajectory";
-import { checkPanelPlayback, checkStoryPanel, resolveStoryPanels, StoryPanelError, type CheckedPanel, type PanelLookup, type PanelPlayback, type StoryPanelSet } from "../core/storyPanels";
+import { checkPanelPlayback, checkStoryPanel, resolveStoryPanels, StoryPanelError, type CheckedPanel, type PanelActions, type PanelCameraRequest, type PanelLookup, type PanelPlayback, type StoryPanelSet } from "../core/storyPanels";
 import { SceneError } from "./errors";
+import { cameraRequestOf } from "./cameraRequest";
+import { traceOptionsOf, type SkyTraceOptions } from "./skyTraceInput";
+import type { CameraTarget } from "./viewerLink";
 import { rejectRenamed } from "./renamedInputs";
 import { toUtcMs, type TimeInput } from "./time";
 
@@ -16,7 +19,7 @@ export interface EventInput {
   readonly type?: string;
   /** Where this event's time comes from. Shown with the event; an event without one shows the `provenance` of `addEvents`. Malformed: `addEvents` throws "bad-event" naming the event. */
   readonly provenance?: Provenance;
-  /** The body or trajectory (its id) this event is about. Go to this event seeks to its time and frames the object as `camera.focus` does. Not in the scene when the scene is built (`mount`): "bad-event" naming the event and the id. Without one, Go to only seeks. */
+  /** The body, trajectory or sky figure (its id) this event is about. Go to this event seeks to its time and, for a body or trajectory, frames the object as `camera.focus` does; for a sky figure it seeks, selects it and turns toward it only while the camera looks out. Not in the scene when the scene is built (`mount`): "bad-event" naming the event and the id. Without one, Go to only seeks. */
   readonly object?: string;
   /**
    * Gives the event a zone of its own: from `withinSeconds` before its time to `withinSeconds` after it (simulated seconds, positive and finite). A host hears entering and leaving it
@@ -89,8 +92,14 @@ export interface StoryPanelInput {
   readonly details?: string | readonly string[];
   /** Where the panel's facts come from. The badge shows the word for `sourceType`; `sources`, `accuracy` and `notes` show in the panel's folded section. `sources` is never empty and `accuracy` is never blank: where a source states none, say so. */
   readonly provenance: Provenance;
-  /** The id of a body or path the panel is about; it gets a marker that reopens the panel. */
+  /** The id of a body, path or sky figure the panel is about; a body or path gets a marker that reopens the panel. */
   readonly object?: string;
+  /** Turns the camera when the panel opens (anything `setCamera` takes). */
+  readonly camera?: CameraTarget;
+  /** True: selects the `object`. */
+  readonly select?: boolean;
+  /** Traces the `object`, a sky figure. */
+  readonly trace?: true | SkyTraceOptions;
 }
 
 /** The playback settings of a scene's story panels. */
@@ -170,11 +179,37 @@ export function panelBatchOf(inputs: readonly StoryPanelInput[], known: readonly
     const where = `addStoryPanels: story panel ${typeof named === "string" ? named : `#${index + 1}`}`;
     rejectRenamed("StoryPanelInput", input, where);
     rejectRenamed("StoryPanelAt", (input as { at?: unknown } | null | undefined)?.at, `${where} at`);
-    const panel = panelCheck("addStoryPanels", () => checkStoryPanel(input, index));
+    const checked = panelCheck("addStoryPanels", () => checkStoryPanel(input, index));
+    const panel = { ...checked, ...panelActionsOf(input as Record<string, unknown>, checked.id, checked.object) };
     if (ids.has(panel.id)) throw new SceneError("duplicate-id", `${where}: that id is already in the scene's panels`);
     ids.add(panel.id);
     return panel;
   });
+}
+
+/** The actions of a panel (`camera`, `select`, `trace`), checked in shape; a mistake throws `bad-panels` naming the panel and field. What they name is checked when the scene is built. */
+function panelActionsOf(input: Record<string, unknown>, id: string, object: string | undefined): PanelActions {
+  const bad = (field: string, why: string) => new SceneError("bad-panels", `addStoryPanels: story panel ${id}: ${field} ${why}`);
+  let camera: PanelCameraRequest | undefined;
+  if (input.camera !== undefined) {
+    try {
+      camera = cameraRequestOf(input.camera, "camera", undefined, true) as PanelCameraRequest;
+    } catch (error) {
+      throw bad("camera", `is not a camera target (${error instanceof Error ? error.message : String(error)})`);
+    }
+  }
+  if (input.select !== undefined && typeof input.select !== "boolean") throw bad("select", "must be true or false");
+  if (input.select === true && object === undefined) throw bad("select", "needs an object to select");
+  let trace: PanelActions["trace"];
+  if (input.trace !== undefined && input.trace !== false) {
+    if (object === undefined) throw bad("trace", "needs an object that names a sky figure");
+    try {
+      trace = traceOptionsOf(input.trace === true ? undefined : input.trace);
+    } catch (error) {
+      throw bad("trace", `is not true or trace options (${error instanceof Error ? error.message : String(error)})`);
+    }
+  }
+  return { ...(camera === undefined ? {} : { camera }), ...(input.select === true ? { select: true as const } : {}), ...(trace === undefined ? {} : { trace }) };
 }
 
 /** Checks a `setStoryPanelPlayback` argument; a mistake throws `bad-panels`. */

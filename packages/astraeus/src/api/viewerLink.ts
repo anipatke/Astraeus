@@ -94,7 +94,7 @@ export type CameraPose = OrbitPose | SkyPose;
 export interface LookOutTarget {
   /** The id of the body to stand in; a body the showing view shows. */
   readonly lookOut: string;
-  /** Where to point: a star-map position, or the id of an object to turn toward. Omitted: the direction it already looks while looking out, else right ascension 0, declination 0. */
+  /** Where to point: a star-map position, or the id of an object or sky figure to turn toward. Omitted: the direction it already looks while looking out, else right ascension 0, declination 0. */
   readonly direction?: SkyDirection | string;
   /** Vertical field of view in degrees, 5 to 100. Omitted: the current one while looking out, else 60. */
   readonly fovDeg?: number;
