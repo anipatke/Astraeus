@@ -11,6 +11,48 @@ const SIZES = [
   { name: "phone", width: 375, height: 667, isMobile: true, hasTouch: true },
 ];
 
+/** O-065 T-298: the made-up figures (Lantern, Kettle), the Lantern field outline and the four switches. Figures and outline start on, the circles off; each switch draws its set; labels show and never overlap. */
+async function checkSkySwitches(page, name) {
+  await ui.waitForSkyLines(page, { present: ["sky-figures", "sky-boundaries"], absent: ["sky-ecliptic", "sky-celestial-equator"] });
+  const places = await ui.displaySwitchPlaces(page);
+  assert.ok(places.topBar.includes("skyFigures"), `${name}: the figures switch is in the top bar (${JSON.stringify(places)})`);
+  for (const id of ["skyBoundaries", "ecliptic", "celestialEquator"]) assert.ok(places.panel.includes(id), `${name}: the ${id} switch is in the switch panel (${JSON.stringify(places)})`);
+  const switchLines = [["skyFigures", "sky-figures"], ["skyBoundaries", "sky-boundaries"], ["ecliptic", "sky-ecliptic"], ["celestialEquator", "sky-celestial-equator"]];
+  for (const [id, lines] of switchLines) {
+    const wasOn = await ui.displaySwitchOn(page, id);
+    await ui.toggleDisplaySwitch(page, id);
+    await ui.waitForSkyLines(page, wasOn ? { absent: [lines] } : { present: [lines] });
+    await ui.toggleDisplaySwitch(page, id);
+    await ui.waitForSkyLines(page, wasOn ? { present: [lines] } : { absent: [lines] });
+  }
+  const skyNamed = await ui.shownSceneLabelIds(page);
+  for (const id of ["lantern", "kettle", "lantern-field"]) assert.ok(skyNamed.includes(id), `${name}: the label ${id} shows (shown: ${skyNamed.join(", ")})`);
+  const collisions = await ui.overlappingSceneLabels(page);
+  assert.deepEqual(collisions, [], `${name}: no two labels overlap (${JSON.stringify(collisions)})`);
+  return ui.skyLinesShown(page);
+}
+
+/** The trace control is the site's, outside the viewer: it offers the two figures (not the outline), sits clear of the other controls, and each end state is reached. */
+async function checkSkyTrace(page, name) {
+  const options = await ui.skyTraceOptions(page);
+  assert.deepEqual(options?.map((option) => option.value), ["lantern", "kettle"], `${name}: the trace control offers the two figures (${JSON.stringify(options)})`);
+  const traceFit = await ui.skyTraceFit(page);
+  assert.ok(traceFit.insideWindow && traceFit.overlaps.length === 0, `${name}: the trace control is inside the window and clear of the other controls (overlaps: ${traceFit.overlaps.join(", ") || "none"})`);
+  assert.ok(traceFit.smallestPx >= (name === "phone" ? 44 : 24), `${name}: the trace buttons are big enough to press (${traceFit.smallestPx} px)`);
+  await ui.setSkyTraceOpen(page, true);
+  const openFit = await ui.skyTraceFit(page);
+  assert.ok(openFit.insideWindow && openFit.overlaps.filter((other) => other !== "switches").length === 0, `${name}: the open trace control is inside the window and clear of the bar, timeline and cog (overlaps: ${openFit.overlaps.join(", ") || "none"})`);
+  assert.ok(openFit.smallestPx >= (name === "phone" ? 44 : 24), `${name}: the open trace buttons are big enough to press (${openFit.smallestPx} px)`);
+  for (const after of ["stay", "fade", "clear"]) {
+    await ui.pressSkyTrace(page, after);
+    assert.equal(await ui.skyTraceStatus(page), "tracing", `${name}: pressing Trace then ${after} starts a trace`);
+    await ui.waitForSkyTraceStatus(page, after, 8000);
+    await ui.waitForSkyLines(page, { present: ["sky-figures"] }); // the figure itself is still drawn once the trace has ended
+  }
+  assert.equal((await ui.overlappingSceneLabels(page)).length, 0, `${name}: no labels overlap after the traces`);
+
+}
+
 await checkScript({ name: "journey-look-out", viewports: SIZES }, async (page, { name }) => {
   await ui.loadAddress(page, appUrl("experience=synthetic-lookout"));
   await ui.waitForShell(page);
@@ -27,6 +69,9 @@ await checkScript({ name: "journey-look-out", viewports: SIZES }, async (page, {
   assert.ok(Math.abs(sunOpen.x - 0.5) < 0.2 && Math.abs(sunOpen.y - 0.5) < 0.2, `${name}: the Sun is near the middle of the view on opening (${sunOpen.x}, ${sunOpen.y})`);
   const named = await ui.shownSceneLabelIds(page);
   assert.ok(named.includes("sun"), `${name}: the Sun's label shows in the look-out view (shown: ${named.join(", ") || "none"})`);
+
+  const lineSets = await checkSkySwitches(page, name);
+  await checkSkyTrace(page, name);
 
   // The menu: with Earth picked its Look out entry shows beside Focus and Follow; Mars offers one too; the Sun does not.
   await ui.pickBody(page, "earth");
@@ -63,5 +108,5 @@ await checkScript({ name: "journey-look-out", viewports: SIZES }, async (page, {
   assert.ok(earthBack?.inView && earthBack.as !== "none", `${name}: Earth is drawn and in view again once the camera is back in orbit (${JSON.stringify(earthBack)})`);
   await ui.pickBody(page, "mars");
   assert.equal(await ui.cameraActive(page, "lookout-mars"), false, `${name}: the Look out entry no longer shows as pressed`);
-  return { opened, atMars, zoomedFovDeg: zoomed?.fovDeg ?? null, entryPx: fit.smallestPx };
+  return { opened, lineSets, atMars, zoomedFovDeg: zoomed?.fovDeg ?? null, entryPx: fit.smallestPx };
 });

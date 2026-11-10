@@ -4,6 +4,7 @@ import { PLANET_SYSTEMS } from "astraeus-demo-planets/experiences/planets/planet
 import { createAddressNavigation, switchAddress } from "./addressNavigation";
 import { createBootCover, hideBootLoader } from "./bootCover";
 import { pageTitle } from "./pageTitle";
+import { addSkyTraceControl } from "./skyTraceControl";
 import { chooseEntry } from "./entryChoice";
 import { pickerOf } from "./listChoice";
 import type { PlanetEntry } from "./planetChoice";
@@ -25,6 +26,8 @@ interface Built {
   readonly keep?: readonly string[];
   /** O-051 T-221: the dev page hands the handle of the made-up views scene to the browser check as `window.astraeusHost`. */
   readonly exposeHost?: boolean;
+  /** O-065 T-298: a control the site draws beside the viewer over the handle (the sky-figure trace buttons); returns what removes it. */
+  readonly hostControl?: (host: HTMLElement, handle: MountedScene) => () => void;
 }
 const own = (scene: Scene, extra: readonly DataSource[] = []): Built => ({ scene, data: [pictureData, ...extra] });
 const SYNTHETIC: Readonly<Record<string, () => Promise<Built>>> = __PUBLIC_BUILD__ ? {} : {
@@ -38,7 +41,7 @@ const SYNTHETIC: Readonly<Record<string, () => Promise<Built>>> = __PUBLIC_BUILD
   "synthetic-lookout": async () => {
     const { buildSyntheticLookOutScene, loadLookOutPlanets } = await import("./synthetic/syntheticLookOutScene");
     await loadLookOutPlanets();
-    return own(buildSyntheticLookOutScene());
+    return { ...own(buildSyntheticLookOutScene()), exposeHost: true, hostControl: addSkyTraceControl };
   },
   "synthetic-probe": async () => own((await import("./synthetic/syntheticProbeScene")).buildSyntheticProbeScene()),
   // The journey reads Earth, Jupiter and Saturn from the planet series (`mount` loads it); its moons come from data sources like the Jupiter and Saturn packages', handed to `mount` as a host hands them.
@@ -108,6 +111,7 @@ const DEFAULT_FADE_SECONDS = 0.6;
 const cover = createBootCover(document);
 // The viewer on show: a new scene unmounts it whole (its canvas and the scene's GPU resources are disposed) before the new one starts.
 let current: MountedScene | undefined;
+let removeHostControl: (() => void) | undefined;
 const navigation = createAddressNavigation({
   push: (address) => window.history.pushState(null, "", address),
   showCover: cover.show,
@@ -118,11 +122,14 @@ const navigation = createAddressNavigation({
   fail: (error) => { cover.fail(); throw error; },
 });
 function show(built: Built): void {
+  removeHostControl?.();
+  removeHostControl = undefined;
   current?.unmount();
   const reach = cover.claim();
   const handle = mount(host, built.scene, { data: built.data, address: true, developerTools: true });
   current = handle;
   document.title = pageTitle(built.label);
+  removeHostControl = built.hostControl?.(host, handle);
   if (built.exposeHost === true) (window as unknown as { astraeusHost?: MountedScene }).astraeusHost = handle;
   // The first drawn frame fades this mounting's cover, unless a later showing took it back (I-074).
   handle.onFirstDraw(() => hideBootLoader(reach, handle.look?.loadFadeSeconds ?? DEFAULT_FADE_SECONDS));
