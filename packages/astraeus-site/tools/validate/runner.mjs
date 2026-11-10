@@ -4,7 +4,7 @@
 // preview-server.log go to a scratch folder under the OS temp directory whose path the summary prints.
 //
 // A step is { name, script, scene?, args?, env?, public?, example? } (`scene` is the experience the step opens, printed in the summary). `public` steps read a scratch PUBLIC build: a script with no browser gets its directory as the last argument, a browser
-// script gets ASTRAEUS_URL pointing at a preview of it. An `example: "<folder>"` step builds the examples (`hello-scene`, `hello-react`, `hello-planets`) from the packed tarballs (`tools/build-example.mjs`, once) and gets ASTRAEUS_URL pointing at a preview of it. Other steps get ASTRAEUS_URL for the dev server and ASTRAEUS_EVIDENCE_DIR for a fresh directory of their own.
+// script gets ASTRAEUS_URL pointing at a preview of it. An `example: "<folder>"` step builds the examples (`hello-scene`, `hello-react`, `hello-planets`, `hello-sky`) from the packed tarballs (`tools/build-example.mjs`, once) and gets ASTRAEUS_URL pointing at a preview of it. Other steps get ASTRAEUS_URL for the dev server and ASTRAEUS_EVIDENCE_DIR for a fresh directory of their own.
 import { spawn, spawnSync } from "node:child_process";
 import { mkdirSync, mkdtempSync, rmSync, appendFileSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -18,7 +18,7 @@ const DEV_PORT = process.env.DEV_PORT ?? "5479";
 const PUBLIC_PORT = process.env.PUBLIC_PORT ?? "5480";
 const EXAMPLE_PORT = process.env.EXAMPLE_PORT ?? "5481";
 /** The example apps a step can open (`example: "<folder>"`); each previews on its own port, counting up from EXAMPLE_PORT. */
-const EXAMPLE_NAMES = ["hello-scene", "hello-react", "hello-planets"];
+const EXAMPLE_NAMES = ["hello-scene", "hello-react", "hello-planets", "hello-sky"];
 const examplePort = (name) => Number(EXAMPLE_PORT) + EXAMPLE_NAMES.indexOf(name);
 const stamp = () => new Date().toISOString().replace(/[-:]/g, "").replace(/\.\d+Z$/, "Z");
 const ERROR_LINE = /console error|pageerror|page error/i;

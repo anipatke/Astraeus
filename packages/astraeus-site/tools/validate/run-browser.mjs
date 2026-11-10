@@ -13,6 +13,7 @@ const STEPS = [
   { name: "hello-scene", script: "check-hello-scene.mjs", example: "hello-scene", env: { HELLO_STORY: "1" }, scene: "examples/hello-scene from the packed tarballs: the made-up story (anchors, events, one panel, looking at the probe), Earth and Moon drawn, time set, desktop and phone" },
   { name: "hello-react", script: "check-hello-scene.mjs", example: "hello-react", scene: "examples/hello-react (AstraeusScene) from the packed tarballs: Earth, Moon and the followed path drawn, time set, desktop and phone" },
   { name: "hello-planets", script: "check-hello-planets.mjs", example: "hello-planets", scene: "examples/hello-planets from the packed tarballs: the Sun to Mars drawn, the page's own sliders and scale button drive the viewer, Earth's distance from the Sun, no overlap, desktop and phone" },
+  { name: "hello-sky", script: "check-hello-sky.mjs", example: "hello-sky", scene: "examples/hello-sky from the packed engine and constellations tarballs: looks out from Earth toward Orion, three story steps (turn, select, trace Orion, the trace cleared on leaving), Orion hidden until traced, its card, the ecliptic switch, no overlap, desktop and phone" },
   { name: "public-build-assets", script: "public-build-assets.mjs", public: true, noBrowser: true },
   { name: "public-addresses", script: "public-addresses.mjs", public: true, noBrowser: true },
 ];

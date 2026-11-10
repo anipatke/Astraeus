@@ -83,7 +83,8 @@ const endOf = (end: FigureEnd): SkyFigureEnd => (typeof end === "number" ? { sta
  * scene.addSkyFigures(await constellations("all", { outlines: true })); // all 88, with outlines
  */
 export const constellations = async (which: readonly string[] | "all", options: ConstellationsOptions = {}): Promise<readonly SkyFigureInput[]> => {
-  const [figures, boundaries, names] = await Promise.all([loadFigures(), loadBoundaries(), loadNames()]);
+  // The outlines are the biggest file (about 150 kB raw), so an app that asks for none never downloads it.
+  const [figures, boundaries, names] = await Promise.all([loadFigures(), options.outlines === true ? loadBoundaries() : Promise.resolve<ConstellationBoundaries>({}), loadNames()]);
   const abbrs = which === "all" ? Object.keys(names).sort() : which;
   const seen = new Set<string>();
   const unknown: string[] = [];

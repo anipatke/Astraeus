@@ -49,7 +49,10 @@ Measured with `npm pack` of the spike; limits are about 10% above measured. The 
 | `astraeus-data-neptune` | about 17.8 MB (18.5 MB with Triton, Nereid and Neptune back to 1950, O-047 T-200) | 20.5 MB, 580 files |
 | `astraeus-data-mars` | about 5.5 MB | 6.1 MB, 80 files |
 | `astraeus-data-pluto` | about 1.8 MB | 2 MB, 140 files |
+| `astraeus-data-constellations` (O-067 T-304) | 66.5 kB packed / 202.5 kB unpacked / 10 files | 0.09 MB packed / 0.25 MB unpacked / 20 files (`tools/check-packs.mjs`) |
 | Single `astraeus-data` (if you refuse A) | 146.0 MB / 155.7 MB / 9,297 | 160 MB / 171 MB / 9,400 |
+
+(The constellations package holds plain JSON, not position chunks: `isPositionPackage` in `tools/build-packages.mjs` stops the chunk-list step and chunk check applying to it, and its limits are its own.)
 
 (Per-system figures are the committed file sizes plus the generated list; the pack check of step 3 replaces them with real `npm pack` numbers.)
 

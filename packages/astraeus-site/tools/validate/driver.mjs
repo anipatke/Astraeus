@@ -1866,6 +1866,15 @@ export async function waitForBodyMoved(page, id, from, { minDelta = 0.01, timeou
   return now;
 }
 /** The dev page's host link for the views scene (the same one `mount` gives a host page): the view it reports, then `setView`, and the changes it has heard (`watchHostChanges` first). */
+/** The camera pose the viewer handle of an example reports (`window.viewer.camera`, set by examples/hello-sky): a sky view `{ lookOut, raDeg, decDeg, fovDeg }`, or an orbit pose. */
+export const exampleCamera = (page) => page.evaluate(() => window.viewer?.camera);
+/** Polls `exampleCamera` until `done(pose)` is true or `timeout` passes; returns the last pose. */
+export const waitForExampleCamera = async (page, done, timeout = 6000) => {
+  const deadline = Date.now() + timeout;
+  let pose = await exampleCamera(page);
+  while (Date.now() < deadline && !done(pose)) { await page.waitForTimeout(200); pose = await exampleCamera(page); }
+  return pose;
+};
 export const hostView = (page) => page.evaluate(() => window.astraeusHost?.view);
 export const hostSetView = (page, id) => page.evaluate((view) => window.astraeusHost.setView(view), id);
 /** Starts recording what the host link hears from the viewer, as { view, cause, time } lines. */
