@@ -1,5 +1,5 @@
 import type { CameraRequest } from "../app/CameraController";
-import { eqjUnitVector, validateSkyDirection, validateSkyFov, validateStartView } from "../core/startView";
+import { eqjUnitVector, validateSkyDirection, validateSkyFov, validateSkyPosition, validateStartView } from "../core/startView";
 import { SceneError } from "./errors";
 import { callListeners } from "./listeners";
 import type { CameraPose, CameraTarget, LinkAccess } from "./viewerLink";
@@ -118,9 +118,8 @@ function lookDirection(record: Record<string, unknown>, body: string, now: Camer
     return given;
   }
   if (given === undefined) return now !== undefined && "lookOut" in now ? pointOf(now.raDeg, now.decDeg, "lookOut") : pointOf(0, 0, "lookOut");
-  if (typeof given !== "object" || given === null || Array.isArray(given) || Object.keys(given).some((key) => key !== "raDeg" && key !== "decDeg")) throw bad("direction must be { raDeg, decDeg } or an object id");
-  const position = given as Record<string, unknown>;
-  return pointOf(position.raDeg, position.decDeg, "direction");
+  const position = validateSkyPosition(given, "direction");
+  return eqjUnitVector(position.raDeg, position.decDeg);
 }
 
 const pointOf = (raDeg: unknown, decDeg: unknown, where: string): [number, number, number] => {

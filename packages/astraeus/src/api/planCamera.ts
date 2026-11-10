@@ -7,7 +7,7 @@ import { SceneError } from "./errors";
 import { frozenCopy } from "./frozenCopy";
 import type { FollowView } from "./scene";
 import type { CameraPose, SkyDirection } from "./viewerLink";
-import { eqjUnitVector, validateCameraView } from "../core/startView";
+import { eqjUnitVector, validateCameraView, validateSkyLook } from "../core/startView";
 import { farthestSunDistanceKm } from "./sunOrbit";
 import { planetSeriesLoaded } from "../core/planetSeries";
 import type { TimelineSetting } from "./story";
@@ -58,9 +58,14 @@ export class SceneCamera {
    */
   lookOut(body: BodyRef | BodyId, look: { readonly direction?: SkyDirection; readonly fovDeg?: number } = {}): this {
     const id = typeof body === "string" ? body : body?.id;
-    const direction = look?.direction;
-    if (direction !== undefined && (typeof direction !== "object" || direction === null)) throw new SceneError("bad-camera", "camera.lookOut: direction must be { raDeg, decDeg }");
-    return this.#start({ lookOut: id, raDeg: direction?.raDeg ?? 0, decDeg: direction?.decDeg ?? 0, fovDeg: look?.fovDeg ?? 60 }, "camera.lookOut");
+    let sky;
+    try {
+      sky = validateSkyLook(look, "camera.lookOut");
+    } catch (error) {
+      if (error instanceof RangeError) throw new SceneError("bad-camera", error.message);
+      throw error;
+    }
+    return this.#start({ lookOut: id, ...sky }, "camera.lookOut");
   }
   /**
    * Opens at a pose with no camera button pressed (neither Focus nor Follow shows as pressed, and choosing another body moves the camera as it does without a start). The pose is what `ViewerHandle.camera` reads, either kind:

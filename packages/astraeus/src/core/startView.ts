@@ -75,6 +75,23 @@ export function validateSkyDirection(raDeg: unknown, decDeg: unknown, where: str
   return { raDeg: wrapAzimuth(raDeg), decDeg };
 }
 
+/** Checks a star-map position given as an object: exactly `raDeg` and `decDeg` (a half pair, an array or any other key is refused). Shared by `setCamera` and the opening `lookOut`. */
+export function validateSkyPosition(raw: unknown, where: string): { readonly raDeg: number; readonly decDeg: number } {
+  if (typeof raw !== "object" || raw === null || Array.isArray(raw) || Object.keys(raw).some((key) => key !== "raDeg" && key !== "decDeg")) throw new RangeError(`${where} must be { raDeg, decDeg }`);
+  const position = raw as Record<string, unknown>;
+  return validateSkyDirection(position.raDeg, position.decDeg, where);
+}
+
+/** Checks an opening look (`{ direction?, fovDeg? }`) and fills the defaults (right ascension 0, declination 0, field of view 60); an omitted `look` or field takes its default, anything else must pass the same checks as `setCamera`. */
+export function validateSkyLook(look: unknown, where: string): { readonly raDeg: number; readonly decDeg: number; readonly fovDeg: number } {
+  if (look === undefined) return { raDeg: 0, decDeg: 0, fovDeg: 60 };
+  if (typeof look !== "object" || look === null || Array.isArray(look)) throw new RangeError(`${where} must be { direction?, fovDeg? }`);
+  const record = look as Record<string, unknown>;
+  for (const key of Object.keys(record)) if (key !== "direction" && key !== "fovDeg") throw new RangeError(`${where}.${key} is not a look field (use direction and fovDeg)`);
+  const direction = record.direction === undefined ? { raDeg: 0, decDeg: 0 } : validateSkyPosition(record.direction, `${where}.direction`);
+  return { ...direction, fovDeg: "fovDeg" in record && record.fovDeg !== undefined ? validateSkyFov(record.fovDeg, where) : 60 };
+}
+
 /** Checks a field of view in degrees against the range a look-out camera takes. */
 export function validateSkyFov(fovDeg: unknown, where: string): number {
   if (typeof fovDeg !== "number" || !(fovDeg >= SKY_FOV_RANGE_DEG.min && fovDeg <= SKY_FOV_RANGE_DEG.max)) {

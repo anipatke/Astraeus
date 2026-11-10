@@ -496,6 +496,25 @@ describe.each([mountDriver, reactDriver(false)])("lifecycle: $name", (driver) =>
     opened.unmount();
   });
 
+  it("camera.lookOut opening refuses a half, empty, misspelt or extra-key direction and a non-object look as setCamera does (I-162)", () => {
+    const scene = new Scene().addBody(earth).addBody(mars);
+    const shapes: unknown[] = [
+      { direction: { raDeg: 10 } }, { direction: { decDeg: 10 } }, { direction: {} }, { direction: [] }, { direction: null },
+      { direction: { ra: 83.6, dec: 22 } }, { direction: { raDeg: 1, decDeg: 2, x: 1 } },
+      { fov: 40 }, { fovDeg: null }, { fovDeg: "40" }, "x", null, [], 5,
+    ];
+    for (const bad of shapes) expect(codeOf(() => scene.camera.lookOut("earth", bad as never)), JSON.stringify(bad)).toBe("bad-camera");
+    // Omitted look or fields keep the defaults.
+    scene.camera.lookOut("earth");
+    expect(definitionOf(scene).startView).toEqual({ lookOut: "earth", raDeg: 0, decDeg: 0, fovDeg: 60 });
+    scene.camera.lookOut("earth", {});
+    expect(definitionOf(scene).startView).toEqual({ lookOut: "earth", raDeg: 0, decDeg: 0, fovDeg: 60 });
+    scene.camera.lookOut("earth", { fovDeg: 40 });
+    expect(definitionOf(scene).startView).toEqual({ lookOut: "earth", raDeg: 0, decDeg: 0, fovDeg: 40 });
+    scene.camera.lookOut("earth", { direction: { raDeg: 5, decDeg: 6 } });
+    expect(definitionOf(scene).startView).toEqual({ lookOut: "earth", raDeg: 5, decDeg: 6, fovDeg: 60 });
+  });
+
   it("onCameraChange: reads the opening pose without reporting it, reports each change once (at most every 100 ms), nothing when unchanged or after unmount, and a throwing listener spares the others", async () => {
     openNow();
     const opened = await driver.open(new Scene());

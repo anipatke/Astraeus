@@ -18,6 +18,10 @@ history:
     kind: observed
     note: 'Found by the O-064 Full Objective Check probe harness (session scratchpad, probe/extra.probe.test.ts). scene.camera.lookOut("earth", { direction: { raDeg: 10 } }) returns normally with pose { lookOut: "earth", raDeg: 10, decDeg: 0, fovDeg: 60 }; the same shape given to handle.setCamera throws bad-camera (lifecycle.test.ts line 446 asserts it).'
     check: C-161
+  - at: '2026-11-10T13:50:00Z'
+    actor: {role: executor, session: o064-i162-repair-20261110}
+    kind: repair_attempted
+    note: 'Repair done, awaiting the re-check. src/core/startView.ts: new shared validateSkyPosition (exactly raDeg and decDeg; half pair, array, extra key refused) and validateSkyLook (opening look: only direction and fovDeg keys, non-object look refused, omitted fields default to 0, 0, 60); setCamera lookDirection (viewerCamera.ts) now uses validateSkyPosition and camera.lookOut (planCamera.ts) uses validateSkyLook, so one check serves both (STYLE-07). Regression: lifecycle.test.ts "camera.lookOut opening refuses a half, empty, misspelt or extra-key direction and a non-object look as setCamera does (I-162)" failed before the fix. README and CHANGELOG lookOut lines updated. lint, typecheck, build, npm test pass.'
 ---
 
 # I-162: camera.lookOut opening accepts a half or misspelt direction silently
