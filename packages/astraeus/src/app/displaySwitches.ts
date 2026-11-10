@@ -1,10 +1,11 @@
 import type { DisplaySwitchItem } from "../shell/DisplaySwitches";
 import type { OrbitLook } from "../assets/orbitLook";
 import type { BodySetLook } from "./bodySet";
+import type { SkyLineSwitches } from "./skyFigures";
 
 /** The display switches a story can place. Each one drives the same state as its Developer-drawer buttons, so the two never disagree. */
-export const DISPLAY_SWITCH_IDS = ["orbitLines", "labels", "milkyWay"] as const;
-/** The name of one display switch: "orbitLines", "labels" or "milkyWay" (a key of `SwitchesInput`). */
+export const DISPLAY_SWITCH_IDS = ["orbitLines", "labels", "milkyWay", "skyFigures", "skyBoundaries", "ecliptic", "celestialEquator"] as const;
+/** The name of one display switch: "orbitLines", "labels", "milkyWay", "skyFigures", "skyBoundaries", "ecliptic" or "celestialEquator" (a key of `SwitchesInput`). */
 export type DisplaySwitchId = (typeof DISPLAY_SWITCH_IDS)[number];
 
 /** Where a switch shows: a button in the top bar, a row in the story switch panel opened from the bar, or only in the Developer drawer (where every switch stays). */
@@ -19,7 +20,7 @@ export interface DisplaySwitchSetting {
 }
 export type DisplaySwitchSettings = Readonly<Partial<Record<DisplaySwitchId, DisplaySwitchSetting>>>;
 
-export const DISPLAY_SWITCH_LABELS: Readonly<Record<DisplaySwitchId, string>> = { orbitLines: "Orbit lines", labels: "Labels", milkyWay: "Milky Way" };
+export const DISPLAY_SWITCH_LABELS: Readonly<Record<DisplaySwitchId, string>> = { orbitLines: "Orbit lines", labels: "Labels", milkyWay: "Milky Way", skyFigures: "Sky figures", skyBoundaries: "Sky outlines", ecliptic: "Ecliptic", celestialEquator: "Celestial equator" };
 
 /** Orbit lines are on while the ring, the trailing arc or the moon orbits show: the Developer buttons for any of them keep the switch in step. */
 export function orbitLinesOn(orbit: Pick<OrbitLook, "baseOn" | "arcOn"> | null, moonOrbitsOn: boolean | null): boolean {
@@ -42,6 +43,8 @@ export interface SwitchBindings {
   readonly orbit: { readonly present: boolean; readonly look: Pick<OrbitLook, "baseOn" | "arcOn">; readonly set: (change: Partial<OrbitLook>) => void };
   readonly moons: { readonly present: boolean; readonly look: Pick<BodySetLook, "orbitsOn">; readonly set: (change: Partial<BodySetLook>) => void };
   readonly sky: { readonly present: boolean; readonly on: boolean; readonly set: (on: boolean) => void };
+  /** The sky lines: which kinds the scene has figures of (the ecliptic and the equator are always there), the state now, and a setter for one. */
+  readonly skyLines: { readonly figures: boolean; readonly boundaries: boolean; readonly on: Readonly<SkyLineSwitches>; readonly set: (key: keyof SkyLineSwitches, on: boolean) => void };
   readonly labels: { readonly objectIds: readonly string[]; readonly hidden: ReadonlySet<string>; readonly setHidden: (hidden: ReadonlySet<string>) => void; readonly anchorsPresent: boolean; readonly anchors: boolean; readonly setAnchors: (on: boolean) => void };
 }
 
@@ -56,7 +59,19 @@ function setLabels(bindings: SwitchBindings, on: boolean): void {
   if (labels.anchorsPresent) labels.setAnchors(on);
 }
 
-/** The switches to draw in the top bar and the switch panel: the placed ones the scene has something for, in the order orbit lines, labels, Milky Way. */
+/** One sky-line switch: `applies` says whether the scene has anything of that kind; the state and the toggle are the live sky-line switches'. */
+function skyLineState(bindings: SwitchBindings, key: keyof SkyLineSwitches, applies: boolean): { readonly applies: boolean; readonly on: boolean; readonly toggle: () => void } {
+  const on = bindings.skyLines.on[key];
+  return { applies, on, toggle: () => bindings.skyLines.set(key, !on) };
+}
+
+/** The sky lines' starting state: the defaults, with a story's `on` laid over the ones it named. */
+export function skyLineStart(settings: DisplaySwitchSettings | undefined, defaults: Readonly<SkyLineSwitches>): SkyLineSwitches {
+  const pick = (id: DisplaySwitchId, fallback: boolean): boolean => settings?.[id]?.on ?? fallback;
+  return { figures: pick("skyFigures", defaults.figures), boundaries: pick("skyBoundaries", defaults.boundaries), ecliptic: pick("ecliptic", defaults.ecliptic), celestialEquator: pick("celestialEquator", defaults.celestialEquator) };
+}
+
+/** The switches to draw in the top bar and the switch panel: the placed ones the scene has something for, in the order orbit lines, labels, Milky Way, sky figures, sky outlines, ecliptic, celestial equator. */
 export function displaySwitchItems(bindings: SwitchBindings): readonly DisplaySwitchItem[] {
   const { settings } = bindings;
   if (settings === undefined) return [];
@@ -66,6 +81,10 @@ export function displaySwitchItems(bindings: SwitchBindings): readonly DisplaySw
     orbitLines: { applies: bindings.orbit.present || bindings.moons.present, on: orbitOn, toggle: () => setOrbitLines(bindings, !orbitOn) },
     labels: { applies: bindings.labels.objectIds.length > 0 || bindings.labels.anchorsPresent, on: labelsNow, toggle: () => setLabels(bindings, !labelsNow) },
     milkyWay: { applies: bindings.sky.present, on: bindings.sky.on, toggle: () => bindings.sky.set(!bindings.sky.on) },
+    skyFigures: skyLineState(bindings, "figures", bindings.skyLines.figures),
+    skyBoundaries: skyLineState(bindings, "boundaries", bindings.skyLines.boundaries),
+    ecliptic: skyLineState(bindings, "ecliptic", true),
+    celestialEquator: skyLineState(bindings, "celestialEquator", true),
   };
   return DISPLAY_SWITCH_IDS.flatMap((id) => {
     const place = settings[id]?.place;

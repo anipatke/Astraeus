@@ -57,7 +57,7 @@ function renderHook<T>(use: () => T): { readonly current: () => T; readonly rere
 const resolver = createSceneResolver(createOrbAstronomyAdapter(), catalogue);
 const baseRuntime = (extra: Partial<SceneRuntime> = {}): SceneRuntime => ({
   clock: new SimulationClock(Date.UTC(2030, 0, 1)),
-  resolver, bodies: ["earth", "moon"], sceneCenter: "earth", trackedBodies: [], groups: [], ...extra,
+  resolver, bodies: ["earth", "moon"], sceneCenter: "earth", trackedBodies: [], groups: [], skyFigures: [], ...extra,
 } as SceneRuntime);
 const policy = createSolarSystemScale({ exaggeration: {}, defaultExaggeration: 1 });
 

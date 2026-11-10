@@ -18,6 +18,7 @@ const ADDS: readonly AddRow[] = [
   { name: "addStoryPanels", add: (scene, id) => scene.addStoryPanels([panel(id)]), ids: (scene) => scene.panels.map((item) => item.id) },
   { name: "addEvents", add: (scene, id) => scene.addEvents([{ id, label: id, time: T0 }]), ids: (scene) => scene.events.map((item) => item.id) },
   { name: "addTrajectory", add: (scene, id) => scene.addTrajectory({ id, samples }), ids: (scene) => scene.paths.map((item) => item.id).filter((id) => id !== "probe") },
+  { name: "addSkyFigures", add: (scene, id) => scene.addSkyFigures([{ id, label: id, segments: [[{ raDeg: 1, decDeg: 2 }, { raDeg: 3, decDeg: 4 }]] }]), ids: (scene) => scene.skyFigures.map((item) => item.id) },
   { name: "addActivity", add: (scene, id) => scene.addActivity(activity(id)), ids: (scene) => scene.activities.map((item) => item.id) },
 ];
 

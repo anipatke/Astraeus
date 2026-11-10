@@ -12,6 +12,8 @@ import type { PickChange } from "./pickerInput";
 import { ViewerViews } from "./viewerViews";
 import { ViewerZones } from "./viewerZones";
 import type { TimeInput } from "./time";
+import type { SceneSkyFigureRead } from "./sceneReads";
+import { checkedClear, checkedTrace, type SkyClearOptions, type SkyTraceOptions } from "./skyTraceInput";
 
 /** What a host is told when the viewer's time, speed or playing state changes. */
 export interface ViewerChange {
@@ -207,6 +209,7 @@ export class ViewerLink implements ViewerPort {
   get selected(): string | undefined { return this.#selection.selected; }
   get camera(): CameraPose | undefined { return this.#camera.camera; }
   get pick(): string | undefined { return this.#picker.pick; }
+  get skyFigures(): readonly SceneSkyFigureRead[] | undefined { const control = this.#access.control(); return control === undefined ? undefined : control.skyFigures ?? []; }
 
   get look(): LookRead | undefined { return this.#looks.look; }
   get scale(): string | undefined { return this.#looks.scale; }
@@ -224,6 +227,20 @@ export class ViewerLink implements ViewerPort {
   setSelected(id: string | undefined): void { this.#selection.setSelected(id); this.#afterHost(); }
   onChange(listener: (change: ViewerChange) => void): () => void { return this.#clock.onChange(listener); }
   onEventZone(listener: (change: EventZoneChange) => void): () => void { return this.#zones.onEventZone(listener); }
+
+  /** Traces a sky figure line by line (checked here, `unknown-sky-figure` or `bad-sky-trace`); the viewer starts it at its next frame, after any host call made before it. */
+  traceSkyFigure(id: string, options?: SkyTraceOptions): void {
+    const control = this.#access.open("traceSkyFigure");
+    const { seconds, after } = checkedTrace(id, options, (control.skyFigures ?? []).map((figure) => figure.id));
+    control.traceSkyFigure(id, seconds, after);
+  }
+
+  /** Removes a figure's trace (checked here, `unknown-sky-figure` or `bad-sky-trace`); a figure with no trace is left alone. Takes its place in call order like `traceSkyFigure`. */
+  clearSkyTrace(id: string, options?: SkyClearOptions): void {
+    const control = this.#access.open("clearSkyTrace");
+    const { seconds } = checkedClear(id, options, (control.skyFigures ?? []).map((figure) => figure.id));
+    control.clearSkyTrace(id, seconds);
+  }
 
   setPick(value: string): void { this.#picker.setPick(value); }
   onPick(listener: (change: PickChange) => void): () => void { return this.#picker.onPick(listener); }

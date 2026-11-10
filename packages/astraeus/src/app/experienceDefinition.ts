@@ -17,6 +17,7 @@ import type { LookInput } from "./look";
 import type { Pictures } from "../assets/pictures";
 import { validateBodySet, type BodySetLayer } from "./bodySet";
 import type { DisplaySwitchSettings } from "./displaySwitches";
+import type { SkyFigureLayer } from "./skyFigures";
 import type { ViewSettings } from "./views";
 
 /** Generic scene parts an experience opts into. Nothing here names a mission. */
@@ -210,6 +211,8 @@ export interface ExperienceDefinition {
   readonly look?: LookInput;
   /** Many small bodies drawn as batches (dots with a pixel floor, balls close up, names on demand, orbit lines by family). Absent: none. */
   readonly bodySets?: readonly BodySetLayer[];
+  /** Figures and outlines drawn on the sky at infinity (EQJ unit directions). Filled by `prepare` when a star list is needed to place them; the viewer draws after it resolves. Absent: none. */
+  readonly skyFigures?: readonly SkyFigureLayer[];
   /** Data to load before the scene mounts (for example the curve-fit chunks of the window). The entry awaits it once. */
   readonly prepare?: () => Promise<void>;
 }

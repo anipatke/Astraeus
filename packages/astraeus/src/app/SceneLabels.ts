@@ -4,6 +4,8 @@ import { createLabelElement } from "../shell/Label";
 import { projectToScreen } from "./AnchorLabels";
 import type { FloatingOrigin } from "./floatingOrigin";
 import type { RenderVector } from "./renderCoordinates";
+import type { SkyLabelSpec } from "./SkyFiguresView";
+import type { SkyLineSwitches } from "./skyFigures";
 
 interface ProjectedEntry {
   readonly object: ExperienceObject;
@@ -30,20 +32,46 @@ export const LABEL_PADDING_PX = 6;
  */
 export const LABEL_REAPPEAR_MARGIN_PX = 14;
 
+/** Sky labels rank below every object label, so a name on the sky never hides a body's (figures above outlines). */
+export const SKY_LABEL_PRIORITY = { figure: -10, boundary: -20 } as const;
+
+/** Where the sky labels stand this frame: which kinds show, and the distance (render units) from the camera they are projected at. */
+export interface SkyLabelFrame {
+  readonly on: Readonly<SkyLineSwitches>;
+  readonly distance: number;
+  /** The look's colour for a sky label that has no colour of its own. */
+  readonly labelColor: string;
+  /** How much of a sky label shows, 0 (not drawn) to 1; absent: all show. */
+  readonly opacity?: (id: string) => number;
+}
+
+/** How much of a sky label shows, 0 to 1 (1 for an object label and where the frame names no rule). */
+const skyOpacity = (spec: SkyLabelSpec | undefined, sky: SkyLabelFrame | undefined): number => (spec === undefined ? 1 : sky?.opacity?.(spec.id) ?? 1);
+
 /** App adapter that places configured labels; the label presentation itself stays generic. */
 export class SceneLabelLayer {
   readonly #root = document.createElement("div");
   readonly #entries: readonly ProjectedEntry[];
   readonly #local = new Vector3();
+  readonly #direction = new Vector3();
   readonly #shown = new Map<string, Rect>();
   /** Per object id, whether the latest layout showed it; absent when it was not a candidate (unplaced, out of reach or switched off). */
   readonly #lastShown = new Map<string, boolean>();
+  readonly #sky: ReadonlyMap<string, SkyLabelSpec>;
+  #skyColour: string | null = null;
 
-  constructor(host: HTMLElement, objects: readonly ExperienceObject[]) {
+  constructor(host: HTMLElement, objects: readonly ExperienceObject[], skyLabels: readonly SkyLabelSpec[] = []) {
     this.#root.className = "scene-labels";
-    this.#entries = objects.map((object) => {
+    // A sky label is an object-like entry (its id, text and colour) with a priority below every object's and a place at infinity; it joins the one layout below, so it collides and keeps its place by the same rule.
+    const asObjects: readonly ExperienceObject[] = [...objects, ...skyLabels.map((spec): ExperienceObject => ({ id: spec.id, label: spec.label, ...(spec.color === undefined ? {} : { color: spec.color }), labelPriority: SKY_LABEL_PRIORITY[spec.kind] }))];
+    this.#sky = new Map(skyLabels.map((spec) => [spec.id, spec]));
+    this.#entries = asObjects.map((object) => {
       const element = createLabelElement(object.label, object.color, "scene-object-label");
       element.dataset.labelId = object.id;
+      // A figure's own font and size go on its label through the same variables the viewer root sets for every label.
+      const own = this.#sky.get(object.id);
+      if (own?.font !== undefined) element.style.setProperty("--label-font", own.font);
+      if (own?.sizePx !== undefined) element.style.setProperty("--label-size", `${own.sizePx}px`);
       element.hidden = true; // not shown until the first layout places it (I-108: unplaced labels all showed for a moment, so a reader could see a label the settled layout then hides)
       this.#root.appendChild(element);
       return { object, element };
@@ -69,8 +97,13 @@ export class SceneLabelLayer {
     origin: FloatingOrigin,
     selectedObjectId: string,
     hiddenIds?: ReadonlySet<string>,
+    sky?: SkyLabelFrame,
   ): void {
     camera.updateMatrixWorld(true);
+    if (sky !== undefined && sky.labelColor !== this.#skyColour) {
+      this.#skyColour = sky.labelColor;
+      for (const entry of this.#entries) if (this.#sky.get(entry.object.id)?.color === undefined && this.#sky.has(entry.object.id)) entry.element.style.setProperty("--label-color", sky.labelColor);
+    }
     this.#shown.clear();
     const previous = new Map(this.#lastShown);
     this.#lastShown.clear();
@@ -79,12 +112,19 @@ export class SceneLabelLayer {
         entry.element.hidden = true;
         return [];
       }
-      const absolute = positionFor(entry.object.id);
-      if (absolute === null) {
+      const spec = this.#sky.get(entry.object.id);
+      const absolute = spec === undefined ? positionFor(entry.object.id) : null;
+      const opacity = skyOpacity(spec, sky);
+      const skyShown = spec !== undefined && sky !== undefined && opacity > 0 && sky.on[spec.kind === "figure" ? "figures" : "boundaries"];
+      if (spec === undefined ? absolute === null : !skyShown) {
         entry.element.hidden = true;
         return [];
       }
-      const screen = projectToScreen(this.#local.fromArray(origin.toLocal(absolute)), camera, widthPx, heightPx);
+      if (spec?.whenTraced === true) entry.element.style.opacity = String(opacity);
+      // A sky label is projected from the camera's own place, at a fixed distance along its direction: it never moves with the scene, only with the camera's turn.
+      if (spec !== undefined) this.#local.copy(camera.position).addScaledVector(this.#direction.fromArray(spec.direction), sky!.distance);
+      else this.#local.fromArray(origin.toLocal(absolute!));
+      const screen = projectToScreen(this.#local, camera, widthPx, heightPx);
       const distance = this.#local.distanceTo(camera.position);
       const maxDistance = entry.object.labelMaxDistance ?? Number.POSITIVE_INFINITY;
       if (screen === null || distance > maxDistance) {

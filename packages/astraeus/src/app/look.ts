@@ -4,21 +4,25 @@
  * parameter to its `LookInput` key and parser; every reader takes the resolved `LookInput` from `resolveLook`, so none parses the address itself. Precedence: address over `setLook` over default.
  */
 import type { LookInput } from "../api/look";
+import { LABEL_SIZE_LIMITS } from "../core/lookValues";
 export type { LookInput } from "../api/look";
 
 /** The address parameters that set a look. */
 export type LookParam = "stars" | "milkyway" | "milkywaybrightness" | "sky" | "sunglow" | "sunbrightness" | "sunglowscale" | "markerpx" | "featurepx" | "loadfade" | "desktop";
 
-/** How a look is written: a number in a range, an `on`/`off` switch, or a switch the address can only turn off. */
+/** How a look is written: a number in a range, an `on`/`off` switch, a switch the address can only turn off, a CSS colour text or a font-family text. */
 export type LookKind =
   | { readonly kind: "range"; readonly min: number; readonly max: number }
   | { readonly kind: "onoff" }
-  | { readonly kind: "offOnly" };
+  | { readonly kind: "offOnly" }
+  | { readonly kind: "colour" }
+  | { readonly kind: "font" };
 
-/** One look: where it sits in `LookInput` (`["sunGlow", "sizePx"]` for a nested one), its address parameter and how it is written. */
-export interface LookField { readonly path: readonly [string] | readonly [string, string]; readonly param: LookParam; readonly spec: LookKind }
+/** One look: where it sits in `LookInput` (`["sunGlow", "sizePx"]` for a nested one), its address parameter (null: the look has none, it is set only with `setLook`) and how it is written. */
+export interface LookField { readonly path: readonly [string] | readonly [string, string]; readonly param: LookParam | null; readonly spec: LookKind }
 
-const range = (path: LookField["path"], param: LookParam, min: number, max: number): LookField => ({ path, param, spec: { kind: "range", min, max } });
+const range = (path: LookField["path"], param: LookParam | null, min: number, max: number): LookField => ({ path, param, spec: { kind: "range", min, max } });
+const colour = (name: string): LookField => ({ path: ["skyLines", name], param: null, spec: { kind: "colour" } });
 
 /** Every look. The one table; the order is the order of `LookInput`. */
 export const LOOK_FIELDS: readonly LookField[] = [
@@ -33,6 +37,10 @@ export const LOOK_FIELDS: readonly LookField[] = [
   range(["featureMinBodyPx"], "featurepx", 0, 2000),
   range(["loadFadeSeconds"], "loadfade", 0, 3),
   { path: ["desktopPictures"], param: "desktop", spec: { kind: "onoff" } },
+  // Sky line colours and the label font and size have no address parameter (T-296, owner decision): they are set with `setLook` and the Developer drawer only.
+  colour("figure"), colour("label"), colour("boundary"), colour("ecliptic"), colour("equator"), colour("traced"), colour("faded"),
+  { path: ["labels", "fontFamily"], param: null, spec: { kind: "font" } },
+  range(["labels", "sizePx"], null, LABEL_SIZE_LIMITS.min, LABEL_SIZE_LIMITS.max),
 ];
 
 /** The name a look is called in a message: `sunGlow.sizePx`. */
@@ -41,13 +49,13 @@ export const lookName = (field: LookField): string => field.path.join(".");
 type Tree = Record<string, unknown>;
 
 /** The value a look has in `look`, or undefined. */
-export function lookValue(look: LookInput, field: LookField): number | boolean | undefined {
+export function lookValue(look: LookInput, field: LookField): number | boolean | string | undefined {
   const [first, second] = field.path;
   const top = (look as Tree)[first];
-  return (second === undefined ? top : (top as Tree | undefined)?.[second]) as number | boolean | undefined;
+  return (second === undefined ? top : (top as Tree | undefined)?.[second]) as number | boolean | string | undefined;
 }
 
-function withValue(look: LookInput, field: LookField, value: number | boolean): LookInput {
+function withValue(look: LookInput, field: LookField, value: number | boolean | string): LookInput {
   const [first, second] = field.path;
   const copy: Tree = { ...(look as Tree) };
   copy[first] = second === undefined ? value : { ...((copy[first] as Tree | undefined) ?? {}), [second]: value };
@@ -63,9 +71,11 @@ function rawParam(search: string, param: LookParam): string | null {
 
 /** What one address parameter says: the value, or undefined when it is absent or unusable (an unusable number warns on the console, never throws). */
 function fromAddress(search: string, field: LookField): number | boolean | undefined {
+  if (field.param === null) return undefined;
   const raw = rawParam(search, field.param);
   if (raw === null) return undefined;
   const { spec } = field;
+  if (spec.kind === "colour" || spec.kind === "font") return undefined;
   if (spec.kind === "onoff") return raw === "on" ? true : raw === "off" ? false : undefined;
   if (spec.kind === "offOnly") return raw === "off" ? false : undefined;
   const value = raw.trim() === "" ? Number.NaN : Number(raw);

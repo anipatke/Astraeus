@@ -230,6 +230,20 @@ export function publishCanvasReadouts(ctx: FrameContext): void {
   }
 }
 
+/** Stage 4b: stands the sky figures, outlines and reference circles on the camera and shows the kinds the switches say. Looks only at the camera's orientation and the switches (ARCH-02). */
+export function placeSkyFigures(ctx: FrameContext): void {
+  const { controls, camera, canvas, views } = ctx;
+  views.skyFiguresView.place(camera, controls.skyLines, controls.skyColours);
+  canvas.dataset.skyLines = views.skyFiguresView.shown.join(",");
+}
+
+/** Stage 4c: starts the traces and removes the ones the host asked for since the last frame (in call order) and moves every trace on by this frame's real time; a moving trace wakes the draw rule. Wall time only (CODE-02, ARCH-02). */
+export function advanceSkyTraces(ctx: FrameContext): void {
+  const { controls, state, views, delta } = ctx;
+  for (const request of controls.skyTraces.splice(0)) { if ("after" in request) views.skyFiguresView.startTrace(request); else views.skyFiguresView.clearTrace(request); }
+  if (views.skyFiguresView.advanceTraces(delta, controls.skyColours, controls.skyLines)) state.wakes += 1;
+}
+
 /** Stage 5: places every view about the floating origin and publishes the views' readouts. Returns the hover brightness gain. */
 export function placeViews(ctx: FrameContext, t: number, placed: PlacedScene, setLook: BodySetLook): number {
   const { controls, camera, canvas, size, views, origin } = ctx;
@@ -298,7 +312,7 @@ export function updateOverlays(ctx: FrameContext, t: number, step: CameraStep, h
   layers.anchorLabels.current?.update(controls.showAnchorLabels, camera, size.width, size.height);
   const positionFor = (id: string): RenderVector | null => labelPositionOf(step.targets, id);
   const shown = shownUnderView(ctx);
-  layers.sceneLabels.current?.update(positionFor, camera, size.width, size.height, origin, controls.selectedObjectId, shown.hiddenLabels);
+  layers.sceneLabels.current?.update(positionFor, camera, size.width, size.height, origin, controls.selectedObjectId, shown.hiddenLabels, { on: controls.skyLines, labelColor: controls.skyColours.label, opacity: (id) => ctx.views.skyFiguresView.labelOpacity(id), distance: 0.5 * (camera.near + camera.far) });
   state.pickables = pickCandidatesOf({ objects: shown.objects, bodyIdFor: ctx.bodyIdFor, bodyScreens, widthPx: size.width, heightPx: size.height, labelRects: layers.sceneLabels.current?.shownRects, canvas, bodySetViews: shown.bodySetViews });
   const hover = state.hoverPoint === null ? null : hoverTarget(state.pickables, state.hoverPoint.x, state.hoverPoint.y, "mouse");
   canvas.style.cursor = hover === null ? "" : "pointer";
@@ -421,6 +435,8 @@ export function runFrame(ctx: FrameContext): void {
   const placed = placeScene(ctx, t);
   const step = stepAndPoseCamera(ctx, t, placed);
   publishCanvasReadouts(ctx);
+  placeSkyFigures(ctx);
+  advanceSkyTraces(ctx);
   applyViewVisibility(ctx);
   const hoverGain = placeViews(ctx, t, placed, setLook);
   updateOverlays(ctx, t, step, hoverGain);

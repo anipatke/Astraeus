@@ -13,8 +13,10 @@ const root = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..", "..", 
 export const ENGINE_EXAMPLE_DIR = join(root, "examples", "hello-scene", "dist");
 /**
  * Measured 1,652,588 B raw / 472,895 B gzip on 2026-11-01 (after O-051 T-218 to T-220), plus 5%, rounded up to the next 1,000 bytes (owner decision, 2026-11-01).
+ * Reset 2026-11-10 (owner decision "Reset limit, add fast test", I-164, after O-065): measured 1,745,198 B raw / 501,483 B gzip, plus 5%, rounded up to the next 1,000 bytes.
+ * `packages/astraeus-site/tests/packagePacks.test.ts` (right after the package build it owns) builds the example and holds it to this limit in `npm test`.
  */
-export const ENGINE_LIMIT = { rawLimit: 1_735_000, gzipLimit: 497_000 };
+export const ENGINE_LIMIT = { rawLimit: 1_833_000, gzipLimit: 527_000 };
 
 /** The plain example's first download against the engine limit. Returns { ok, raw, gzip, rawLimit, gzipLimit, problems }. */
 export function checkEngineBudget({ exampleDir = ENGINE_EXAMPLE_DIR, limit = ENGINE_LIMIT } = {}) {

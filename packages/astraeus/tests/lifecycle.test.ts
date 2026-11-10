@@ -128,7 +128,7 @@ const reactDriver = (strict: boolean): Driver => ({
 });
 
 /** The handle's members, read from one table: a new member of `ViewerHandle` must join it (the last test fails otherwise). */
-const READS = ["timeUtcMs", "rate", "playing", "view", "camera", "eventZones", "selected", "look", "scale", "switches", "pick"] as const;
+const READS = ["timeUtcMs", "rate", "playing", "view", "camera", "eventZones", "selected", "look", "scale", "switches", "pick", "skyFigures"] as const;
 const CALLS: Record<string, (handle: ViewerHandle) => void> = {
   setTime: (handle) => handle.setTime(MID),
   setRate: (handle) => handle.setRate(RATE),
@@ -140,6 +140,8 @@ const CALLS: Record<string, (handle: ViewerHandle) => void> = {
   setScale: (handle) => handle.setScale("readable-scale"),
   setSwitch: (handle) => handle.setSwitch("labels", false),
   setPick: (handle) => handle.setPick("b"),
+  traceSkyFigure: (handle) => handle.traceSkyFigure("kite"),
+  clearSkyTrace: (handle) => handle.clearSkyTrace("kite"),
 };
 /** Listener registration is allowed at any time (the scene's own `onChange` is registered before `ready`); what is promised is that nothing is called after unmount. */
 const LISTENERS = ["onChange", "onEventZone", "onSelect", "onCameraChange", "onFirstDraw", "onPick"] as const;
@@ -329,6 +331,14 @@ describe.each([mountDriver, reactDriver(false)])("lifecycle: $name", (driver) =>
     expect(handle.scale).toBe("readable-scale");
     expect(heard.map((c) => c.cause)).toEqual(["host", "host", "host"]);
     expect(heard.map((c) => c.stars)).toEqual([1.5, 1, 1]);
+    // T-296: sky line colours and the label font and size are looks too (API-02): set live, read back filled in, back to the defaults when the whole look is replaced.
+    handle.setLook({ skyLines: { ecliptic: "#112233" }, labels: { sizePx: 16, fontFamily: "Georgia, serif" } });
+    expect(handle.look).toMatchObject({ skyLines: { ecliptic: "#112233", figure: "#8fb4ff" }, labels: { sizePx: 16, fontFamily: "Georgia, serif" } });
+    handle.setLook({});
+    expect(handle.look).toMatchObject({ skyLines: { ecliptic: "#e0b25a" }, labels: { sizePx: 12, fontFamily: "inherit" } });
+    expect(codeOf(() => handle.setLook({ skyLines: { figure: "not a colour" } }))).toBe("bad-look");
+    expect(codeOf(() => handle.setLook({ labels: { sizePx: 99 } }))).toBe("bad-look");
+    expect(codeOf(() => handle.setLook({ labels: { fontFamily: " " } }))).toBe("bad-look");
     expect(heard.at(-1)?.scale).toBe("readable-scale");
     expect(codeOf(() => handle.setLook({ starBrightness: 9 }))).toBe("bad-look");
     expect(codeOf(() => handle.setScale("nope"))).toBe("bad-scale");

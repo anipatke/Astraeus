@@ -172,7 +172,7 @@
   padding: 9px;
 }
 .astraeus-shell[data-phone="true"] .shell-top { top: 8px; left: 8px; width: calc(100vw - 16px); max-width: calc(100vw - 16px); max-height: none; }
-.astraeus-shell[data-phone="true"] .astraeus-label { font-size: 12px; }
+.astraeus-shell[data-phone="true"] .astraeus-label { font-size: var(--label-size, 12px); }
 
 @media (prefers-reduced-motion: reduce) {
   .astraeus-shell .controls-drawer,

@@ -1,4 +1,8 @@
+import { Color } from "three";
 import type { MutableRefObject } from "react";
+import { isFontFamily } from "../core/lookValues";
+import { LABEL_SIZE_LIMITS, type LabelStyle } from "./labelStyle";
+import type { SkyColours } from "./skyFigures";
 import type { GlowLook } from "./bodyDraw";
 import { GLOW_LIMITS } from "./bodyDraw";
 import { BODY_SET_LOOK_LIMITS, DEFAULT_BODY_SET_LOOK, familyColorOf, type BodySetLayer, type BodySetLook } from "./bodySet";
@@ -135,8 +139,19 @@ export function SkyAndSunSettings({ illuminateAll, setIlluminateAll, visible, gl
   );
 }
 
-export function LabelSettings({ controls, hoverBrightness, setHoverBrightness, labelToggles, trackedCount, anchorLabels, setAnchorLabels, hiddenLabels, setHiddenLabels }: {
+/** A colour input takes `#rrggbb` only; the look may hold any CSS colour the viewer accepts, so show it as hex. */
+const hexOf = (colour: string): string => `#${new Color(colour).getHexString()}`;
+
+const SKY_COLOUR_ROWS = [["figure", "Figure lines"], ["label", "Figure names"], ["boundary", "Outlines"], ["ecliptic", "Ecliptic"], ["equator", "Celestial equator"], ["traced", "Traced lines"], ["faded", "Faded lines"]] as const;
+
+export function LabelSettings({ controls, hoverBrightness, setHoverBrightness, labelToggles, trackedCount, anchorLabels, setAnchorLabels, hiddenLabels, setHiddenLabels, labelStyle, setLabelStyle, skyColours, setSkyColours, hasSky }: {
   readonly controls: Controls;
+  readonly labelStyle: LabelStyle;
+  readonly setLabelStyle: (style: LabelStyle) => void;
+  readonly skyColours: SkyColours;
+  readonly setSkyColours: (colours: SkyColours) => void;
+  /** Whether the sky is drawn, so its line colours have something to act on. */
+  readonly hasSky: boolean;
   readonly hoverBrightness: number;
   readonly setHoverBrightness: (value: number) => void;
   readonly labelToggles: readonly { readonly id: string; readonly label: string }[];
@@ -150,6 +165,21 @@ export function LabelSettings({ controls, hoverBrightness, setHoverBrightness, l
         <>
           <SettingSlider label="Hover name brightness" ariaLabel="Hover name brightness" testId="hover-brightness-value" display={hoverBrightness.toFixed(2)} min={HOVER_BRIGHTNESS_LIMITS.min} max={HOVER_BRIGHTNESS_LIMITS.max} step={0.05} value={hoverBrightness}
             onChange={(value) => { controls.current.hoverBrightness = value; setHoverBrightness(value); }} />
+          <SettingSlider label="Label size (px)" ariaLabel="Label size" testId="label-size-value" display={labelStyle.sizePx.toFixed(0)} min={LABEL_SIZE_LIMITS.min} max={LABEL_SIZE_LIMITS.max} step={1} value={labelStyle.sizePx}
+            onChange={(sizePx) => { controls.current.labelStyle = { ...controls.current.labelStyle, sizePx }; setLabelStyle(controls.current.labelStyle); }} />
+          <label className="setting">
+            <span className="setting-label">Label font</span>
+            <input type="text" aria-label="Label font" data-testid="label-font" defaultValue={labelStyle.fontFamily} spellCheck={false}
+              onChange={(event) => { if (isFontFamily(event.target.value)) { controls.current.labelStyle = { ...controls.current.labelStyle, fontFamily: event.target.value.trim() }; setLabelStyle(controls.current.labelStyle); } }} />
+          </label>
+          {hasSky && (
+            <SettingGroup name="sky-line-colours" title="Sky line colours">
+              {SKY_COLOUR_ROWS.map(([key, label]) => (
+                <SettingColor key={key} label={label} ariaLabel={`Sky ${label} colour`} testId={`sky-colour-${key}`} value={hexOf(skyColours[key])}
+                  onChange={(value) => { controls.current.skyColours = { ...controls.current.skyColours, [key]: value }; setSkyColours(controls.current.skyColours); }} />
+              ))}
+            </SettingGroup>
+          )}
           {(labelToggles.length > 0 || trackedCount > 0) && <SettingButtons>
             {trackedCount > 0 && <button aria-pressed={anchorLabels} onClick={() => { controls.current.showAnchorLabels = !anchorLabels; setAnchorLabels(!anchorLabels); }}>Anchor labels</button>}
             {labelToggles.map((object) => (

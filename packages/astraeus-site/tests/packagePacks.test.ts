@@ -5,6 +5,8 @@ import { describe, expect, it } from "vitest";
 import { PICTURES } from "astraeus-data";
 import { checkPacks, enginePeerRange, extensionlessImports, LIMITS, pastTheEntry, ringFactProblems, strayFiles } from "../../../tools/check-packs.mjs";
 import { PACKAGES } from "../../../tools/build-packages.mjs";
+import { buildExample } from "../../../tools/build-example.mjs";
+import { checkEngineBudget, ENGINE_LIMIT } from "../tools/validate/engine-budget.mjs";
 
 // O-036 T-161: the publishable packages build and pack within the decided contents and sizes (the same check as `npm run check:pack`).
 // Slow part first: one build and eight `npm pack --dry-run` runs, about 12 s.
@@ -14,6 +16,19 @@ describe("publishable packages", () => {
     expect(result.problems).toEqual([]);
     expect(result.rows.map((row) => row.name)).toEqual([...PACKAGES]);
     expect(Object.keys(LIMITS).sort()).toEqual([...PACKAGES].sort());
+  }, 120_000);
+
+  // I-164: the engine's first download is held to ENGINE_LIMIT in the ordinary test run, so growth fails at the change that causes it. It lives in this file, straight after the build above, so ONE test file owns the
+  // packages' dist (two files building it in parallel clashed). It packs the engine from that dist into examples/hello-scene and measures it the way the browser check's public-build-assets step does.
+  it("keeps the plain example's first download within ENGINE_LIMIT, and fails when the limit is set one byte below it", () => {
+    buildExample("hello-scene", { buildPackages: false });
+    const result = checkEngineBudget();
+    expect(result.problems).toEqual([]);
+    expect(result.raw).toBeLessThanOrEqual(ENGINE_LIMIT.rawLimit);
+    expect(result.gzip).toBeLessThanOrEqual(ENGINE_LIMIT.gzipLimit);
+    const tight = checkEngineBudget({ limit: { rawLimit: result.raw - 1, gzipLimit: result.gzip - 1 } });
+    expect(tight.ok).toBe(false);
+    expect(tight.problems).toHaveLength(2);
   }, 120_000);
 
   it("fails on a test file, a source file and a cache folder in a package", () => {

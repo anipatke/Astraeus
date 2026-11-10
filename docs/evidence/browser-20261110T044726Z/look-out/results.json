@@ -1,0 +1,33 @@
+{
+  "name": "journey-look-out",
+  "at": "2026-11-10T04:50:52.774Z",
+  "ok": false,
+  "results": [
+    {
+      "viewport": "desktop",
+      "result": {
+        "opened": {
+          "sky": true,
+          "body": "earth",
+          "raDeg": 281.6,
+          "decDeg": -23,
+          "fovDeg": 60
+        },
+        "lineSets": [
+          "sky-boundaries"
+        ],
+        "atMars": {
+          "sky": true,
+          "body": "mars",
+          "raDeg": 0,
+          "decDeg": 0,
+          "fovDeg": 60
+        },
+        "zoomedFovDeg": 29.21,
+        "entryPx": 36
+      }
+    }
+  ],
+  "errors": [],
+  "failure": "locator.evaluate: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-developer-panel] [data-fold-toggle][aria-expanded=\"false\"]').first()\u001b[22m\n\n    at expandDeveloperGroups (/home/user/code/Astraeus/packages/astraeus-site/tools/validate/driver.mjs:468:95)\n    at async toggleDeveloper (/home/user/code/Astraeus/packages/astraeus-site/tools/validate/driver.mjs:478:17)\n    at async openDeveloper (/home/user/code/Astraeus/packages/astraeus-site/tools/validate/driver.mjs:492:3)\n    at async Module.waitForCameraReading (/home/user/code/Astraeus/packages/astraeus-site/tools/validate/driver.mjs:1904:3)\n    at async file:///home/user/code/Astraeus/packages/astraeus-site/tools/validate/journey-look-out.mjs:121:18\n    at async checkScript (/home/user/code/Astraeus/packages/astraeus-site/tools/validate/harness.mjs:47:60)\n    at async file:///home/user/code/Astraeus/packages/astraeus-site/tools/validate/journey-look-out.mjs:86:1"
+}

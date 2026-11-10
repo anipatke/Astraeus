@@ -19,6 +19,7 @@ import { focusLimits, liveReach } from "./sceneFraming";
 import { useHostLayer, type useSceneViews } from "./sceneHooks";
 import { readoutPairOf, type ScenePlacement } from "./sceneLayout";
 import { SceneLabelLayer } from "./SceneLabels";
+import type { SkyLabelSpec } from "./SkyFiguresView";
 import { attachScenePointer } from "./scenePointer";
 import { StoryMarkerLayer } from "./StoryMarkers";
 import type { BodySetView } from "./BodySetView";
@@ -61,8 +62,10 @@ export function useSceneDerived(runtime: SceneRuntime, catalogue: BodyCatalogue)
   return { placement, readoutPair, pairLabels, assets, bodyFamilies };
 }
 
+const NO_SKY_LABELS: readonly SkyLabelSpec[] = [];
+
 /** Mounts every DOM layer the frame updates (names, anchor labels, story and feature markers) and returns the refs the frame reads. */
-export function useOverlayLayers(canvas: HTMLCanvasElement, controls: SceneControls, trackedViews: readonly TrackedBodyView[], bodySetViews: readonly BodySetView[]): FrameLayers {
+export function useOverlayLayers(canvas: HTMLCanvasElement, controls: SceneControls, trackedViews: readonly TrackedBodyView[], bodySetViews: readonly BodySetView[], skyLabels: readonly SkyLabelSpec[] = NO_SKY_LABELS): FrameLayers {
   const bodySetLabels = useRef<BodySetLabelLayer[]>([]);
   const anchorLabels = useRef<AnchorLabelLayer | null>(null);
   const sceneLabels = useRef<SceneLabelLayer | null>(null);
@@ -76,7 +79,7 @@ export function useOverlayLayers(canvas: HTMLCanvasElement, controls: SceneContr
     return () => { for (const layer of layers) layer.dispose(); bodySetLabels.current = []; };
   }, [canvas, bodySetViews, controls]);
   useHostLayer(canvas, anchorLabels, (host) => new AnchorLabelLayer(host, trackedViews), [canvas, trackedViews]);
-  useHostLayer(canvas, sceneLabels, (host) => new SceneLabelLayer(host, controls.labelObjects), [canvas, controls.labelObjects]);
+  useHostLayer(canvas, sceneLabels, (host) => new SceneLabelLayer(host, controls.labelObjects, skyLabels), [canvas, controls.labelObjects, skyLabels]);
   useHostLayer(canvas, storyMarkers, (host) => (controls.storyMarkers === undefined || controls.storyMarkers.length === 0 ? null : new StoryMarkerLayer(host, controls.storyMarkers, (panelId) => controls.onStoryMarker?.(panelId))), [canvas, controls]);
   useHostLayer(canvas, featureMarkers, (host) => (controls.featureMarkers === undefined || controls.featureMarkers.length === 0 ? null : new FeatureMarkerLayer(host, controls.featureMarkers, (key) => controls.onFeatureMarker?.(key))), [canvas, controls]);
   return { bodySetLabels, anchorLabels, sceneLabels, storyMarkers, featureMarkers };

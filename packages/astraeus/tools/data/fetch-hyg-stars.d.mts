@@ -1,8 +1,10 @@
-export type HygRow = [raDeg: number, decDeg: number, vMag: number, bMinusV: number | null];
+export type HygRow = [raDeg: number, decDeg: number, vMag: number, bMinusV: number | null, hip: number];
 export interface HygParsed {
   readonly records: number;
   readonly skipped: number;
   readonly stars: HygRow[];
+  /** Hipparcos numbers that appear on more than one kept star (should be empty). */
+  readonly duplicateHip: number[];
 }
 export const HYG_URL: string;
 export const HYG_PAGE_URL: string;

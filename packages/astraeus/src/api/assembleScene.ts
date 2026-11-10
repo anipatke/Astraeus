@@ -26,6 +26,9 @@ import { autoPaths, checkNamedReadouts, checkReadouts, pathCover, type Tracked }
 import type { StoryPlan } from "./planStory";
 import type { TimelinePlan } from "./planTimeline";
 import type { ViewPlan } from "./planViews";
+import type { SkyFigurePlan } from "./planSkyFigures";
+import { loadStarCatalogue, starIdsOf } from "../assets/sky";
+import type { SkyFigureLayer } from "../app/skyFigures";
 
 /** What a `Scene` hands the assembler: the planners it has filled, its camera and its scale choice. Internal; never exported from the package. */
 export interface ScenePlanners {
@@ -39,6 +42,7 @@ export interface ScenePlanners {
   readonly story: StoryPlan;
   readonly timeline: TimelinePlan;
   readonly viewPlan: ViewPlan;
+  readonly skyFigures: SkyFigurePlan;
   readonly camera: SceneCamera;
   readonly scale: ScalePolicy;
   readonly scaleOnly: boolean;
@@ -94,7 +98,7 @@ function deferredRead<T>(ids: readonly BodyId[], window: TimeBounds, fault: { er
 
 /** The app's plug-in contract for a scene's planners. Throws if the scene is empty or a body needs a data package not passed in `data`. */
 export function assembleScene(parts: ScenePlanners, data: readonly DataSource[]): ExperienceDefinition {
-  const { plan, groupPlan, bodySets, moonPanel, places, story, timeline: timelinePlan, viewPlan, camera, tracked: trackedMap } = parts;
+  const { plan, groupPlan, bodySets, moonPanel, places, story, timeline: timelinePlan, viewPlan, camera, tracked: trackedMap, skyFigures } = parts;
   if (plan.bodies.size === 0) throw new SceneError("empty-scene", "the scene has no bodies; call addBody before mount");
   checkDataSources(data);
   plan.checkData(data);
@@ -139,6 +143,7 @@ export function assembleScene(parts: ScenePlanners, data: readonly DataSource[])
   const pictures = mergePictures(data.map((source) => source.pictures));
   const members = new Set(bodySets.memberIds());
   const moonFamilies = moonPanel.list(new Map(objects.filter(({ id }) => plan.bodies.has(id) || members.has(id)).map(({ id, label }) => [id, label])), new Set(ids), plan.catalogue, (picture) => pictures[picture]?.url);
+  const figures = skyFigureLayers(skyFigures);
   const bodyFeatures = places.featureSets(new Map(objects.map(({ id, label }) => [id, label])));
   const definition: ExperienceDefinition = {
     experience: {
@@ -160,6 +165,7 @@ export function assembleScene(parts: ScenePlanners, data: readonly DataSource[])
     ...groupLayersEntry(layers, groupPlan.groups.size > 0, sunOrbitIds.length > 0),
     ...(sunOrbitIds.length === 0 ? {} : { paths: sunPaths }),
     ...(setLayers.length === 0 ? {} : { bodySets: setLayers }),
+    ...figures.entry,
     ...(plan.catalogue === builtInCatalogue ? {} : { catalogue: plan.catalogue }),
     ...plan.visualOverrides(),
     // The viewer draws only the pictures of the packages passed to it (T-252); nothing is shared between viewers.
@@ -188,6 +194,7 @@ export function assembleScene(parts: ScenePlanners, data: readonly DataSource[])
       if (sunPaths.length < sunOrbitIds.length) sunPaths.push(...planetRead(ids, window, () => sunOrbitIds.map((id) => plan.sunPath(id, startUtcMs))));
       if (fit !== undefined) planetRead(ids, window, () => fit.settle());
       await installData(data, ids, window, catalogue, bodySets.load());
+      await figures.settle();
     },
   };
   return definition;
@@ -197,4 +204,20 @@ export function assembleScene(parts: ScenePlanners, data: readonly DataSource[])
 function picturesEntry(data: readonly DataSource[]): Pick<ExperienceDefinition, "pictures"> {
   const pictures = mergePictures(data.map((source) => source.pictures));
   return Object.keys(pictures).length === 0 ? {} : { pictures };
+}
+
+/** The sky figures' drawable layers: placed now when no end names a star, else by `settle` (in `prepare`), once the star list has loaded (the viewer draws only after `prepare` resolves). */
+function skyFigureLayers(plan: SkyFigurePlan): { readonly entry: Pick<ExperienceDefinition, "skyFigures">; readonly settle: () => Promise<void> } {
+  const layers: SkyFigureLayer[] = plan.needsStars ? [] : [...plan.layers(new Map())];
+  return {
+    entry: plan.figures.size === 0 ? {} : { skyFigures: layers },
+    settle: async () => { if (plan.needsStars && layers.length === 0) layers.push(...plan.layers(await starsOf())); },
+  };
+}
+
+/** The star list's stars by Hipparcos number, for placing figures that name stars; the list unreadable throws `missing-data`. */
+async function starsOf(): Promise<ReturnType<typeof starIdsOf>> {
+  const loaded = await loadStarCatalogue();
+  if (loaded === null) throw new SceneError("missing-data", "a sky figure names a star, but the engine's star list could not be read; check that the star file is served with the app, or place the figure by { raDeg, decDeg }");
+  return starIdsOf(loaded);
 }

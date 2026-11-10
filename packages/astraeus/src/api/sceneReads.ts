@@ -166,6 +166,14 @@ export interface SceneTimelineRead {
   readonly loop: boolean;
 }
 
+/** A sky figure the scene holds (`addSkyFigures`), as `Scene.skyFigures` lists it (in the order added) and the viewer handle reads it. */
+export interface SceneSkyFigureRead {
+  readonly id: string;
+  readonly label: string;
+  /** `"figure"` (lines between stars) or `"boundary"` (a closed outline). */
+  readonly kind: "figure" | "boundary";
+}
+
 /** Freezes a list and each of its items, and returns it. */
 export function frozenList<T extends object>(items: readonly T[]): readonly T[] {
   for (const item of items) Object.freeze(item);

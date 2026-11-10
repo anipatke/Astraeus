@@ -463,9 +463,18 @@ const developerButton = (page) => page.getByRole("button", { name: "Developer mo
  * left them). Scripts reach a control by name; the driver opens the groups first so no script has to know the panel's layout.
  */
 export async function expandDeveloperGroups(page) {
-  const closed = page.locator('[data-developer-panel] [data-fold-toggle][aria-expanded="false"]');
   await devFolds(page).first().waitFor({ timeout: 10000 });
-  for (let guard = 0; guard < 30 && (await closed.count()) > 0; guard++) await closed.first().evaluate((element) => element.click());
+  // I-165: finding a closed fold and pressing it is one step inside the page. Counting first and then re-resolving a locator for the click waited 30 s when the panel re-rendered between the two (the fold was gone).
+  for (let guard = 0; guard < 30; guard++) {
+    const pressed = await page.evaluate(() => {
+      const fold = document.querySelector('[data-developer-panel] [data-fold-toggle][aria-expanded="false"]');
+      if (fold === null) return false;
+      fold.click();
+      return true;
+    });
+    if (!pressed) break;
+    await page.evaluate(() => new Promise((resolve) => requestAnimationFrame(() => resolve(undefined)))); // let the panel draw the opened fold before looking again
+  }
 }
 /** Whether a group (fold) of the developer panel is open, by its id ("demo", "camera", "timeline", "orbit-lines", "orbit-fine-tune", "sky-sun", "labels", "phone-layout", "under-the-hood"). */
 export const developerGroupOpen = async (page, id) => (await page.locator(`[data-developer-panel] [data-fold-toggle="${id}"]`).getAttribute("aria-expanded")) === "true";
@@ -1729,6 +1738,64 @@ export async function switchPanelFit(page) {
     return { insideWindow: panel.left >= 0 && panel.top >= 0 && panel.right <= innerWidth && panel.bottom <= innerHeight, overlaps };
   }, [HOOK.switchPanel]);
 }
+
+// ---------------------------------------------------------------------------------------------------------------------------------------------
+// Sky figures (O-065 T-298): the line sets the scene reports drawing (`data-sky-lines`) and the site's own trace control beside the viewer (`data-site-sky-trace`).
+// ---------------------------------------------------------------------------------------------------------------------------------------------
+
+/** The sky line sets drawn now, by name (`sky-figures`, `sky-boundaries`, `sky-ecliptic`, `sky-celestial-equator`, `sky-figures:<id>`). */
+export const skyLinesShown = (page) => page.locator("canvas").first().evaluate((canvas) => (canvas.dataset.skyLines ?? "").split(",").filter((name) => name !== ""));
+/** Waits until the sky line sets drawn satisfy `wanted` (a list of names that must show, and `absent` names that must not). */
+export const waitForSkyLines = (page, { present = [], absent = [] }, timeout = 8000) => page.waitForFunction(([yes, no]) => {
+  const shown = (document.querySelector("canvas")?.dataset.skyLines ?? "").split(",");
+  return yes.every((name) => shown.includes(name)) && no.every((name) => !shown.includes(name));
+}, [present, absent], { timeout });
+const skyTrace = (page) => page.locator("[data-site-sky-trace]");
+/** Whether the site's trace control is on the page, and the figures it offers. */
+export async function skyTraceOptions(page) {
+  if ((await skyTrace(page).count()) === 0) return null;
+  return skyTrace(page).locator("select option").evaluateAll((options) => options.map((option) => ({ value: option.value, label: option.textContent.trim() })));
+}
+/** Opens the control (it is one small button until pressed) or closes it. */
+export async function setSkyTraceOpen(page, open) {
+  const toggle = skyTrace(page).locator("button[data-trace-toggle]");
+  if (((await toggle.getAttribute("aria-expanded")) === "true") !== open) await toggle.click();
+}
+/** Picks the figure the control traces next. */
+export async function chooseSkyTraceFigure(page, id) {
+  await setSkyTraceOpen(page, true);
+  await skyTrace(page).locator("select").selectOption(id);
+}
+/** Waits until the scene label `id` is shown (or, with `shown` false, not shown). */
+export const waitForSceneLabel = (page, id, shown, timeout = 8000) => page.waitForFunction(([labelId, wanted]) => [...document.querySelectorAll("[data-label-id]")].some((el) => el.dataset.labelId === labelId && !el.hidden) === wanted, [id, shown], { timeout });
+/** Presses the control's "Stay | Fade" button (trace, then that) or its "Hide" button, opening the control first. */
+export async function pressSkyTrace(page, after) {
+  await setSkyTraceOpen(page, true);
+  await skyTrace(page).locator(`button[data-trace-after="${after}"]`).click();
+}
+/** The control's status: idle, tracing, stay, fade, hiding or hidden (the site's account of the call). */
+export const skyTraceStatus = (page) => skyTrace(page).locator("[data-trace-status]").getAttribute("data-trace-status");
+export const waitForSkyTraceStatus = (page, status, timeout = 8000) => page.waitForFunction((wanted) => document.querySelector("[data-site-sky-trace] [data-trace-status]")?.getAttribute("data-trace-status") === wanted, status, { timeout });
+/** The trace control against the window and the other controls: whether it lies inside the window, the smallest button side in px, and which of the cog, the timeline, the top bar, the pill and the information panels it overlaps. */
+export const skyTraceFit = (page) => page.evaluate(() => {
+  const box = (element) => { const r = element.getBoundingClientRect(); return { left: r.left, right: r.right, top: r.top, bottom: r.bottom }; };
+  const mine = box(document.querySelector("[data-site-sky-trace]"));
+  const crosses = (other) => other.left < mine.right - 0.5 && mine.left < other.right - 0.5 && other.top < mine.bottom - 0.5 && mine.top < other.bottom - 0.5;
+  const others = { cog: ".developer-mode-toggle", timeline: ".timeline-bar", toolbar: ".shell-toolbar", info: ".info-panel", story: ".story-panel", pill: "button.controls-pill", switches: ".switch-panel" };
+  const overlaps = Object.entries(others).filter(([, selector]) => { const element = document.querySelector(selector); return element !== null && getComputedStyle(element).visibility !== "hidden" && crosses(box(element)); }).map(([name]) => name);
+  const sides = [...document.querySelectorAll("[data-site-sky-trace] button, [data-site-sky-trace] select")].filter((control) => control.getBoundingClientRect().width > 0).map((control) => Math.min(control.getBoundingClientRect().width, control.getBoundingClientRect().height));
+  return { insideWindow: mine.left >= 0 && mine.top >= 0 && mine.right <= innerWidth && mine.bottom <= innerHeight, smallestPx: Math.min(...sides), overlaps };
+});
+/** Pairs of the scene labels showing that overlap each other (by label id). */
+export const overlappingSceneLabels = (page) => page.evaluate(() => {
+  const shown = [...document.querySelectorAll("[data-label-id]")].filter((el) => !el.hidden && el.getBoundingClientRect().width > 0).map((el) => ({ id: el.dataset.labelId, box: el.getBoundingClientRect() }));
+  const pairs = [];
+  for (let i = 0; i < shown.length; i += 1) for (let j = i + 1; j < shown.length; j += 1) {
+    const a = shown[i].box, b = shown[j].box;
+    if (a.left < b.right && b.left < a.right && a.top < b.bottom && b.top < a.bottom) pairs.push([shown[i].id, shown[j].id]);
+  }
+  return pairs;
+});
 
 // ---------------------------------------------------------------------------------------------------------------------------------------------
 // Views a scene names (O-051 T-221): the view choice in the top bar (the phone drawer's grid), and the dev page's host link for the made-up views scene.

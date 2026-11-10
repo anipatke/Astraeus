@@ -18,7 +18,9 @@ beforeEach(() => { container = document.createElement("div"); document.body.appe
 afterEach(() => { act(() => root.unmount()); container.remove(); vi.restoreAllMocks(); });
 
 const show = (element: ReturnType<typeof createElement>) => act(() => root.render(element));
-const liveControls = (extra: Partial<SceneControls> = {}) => ({ current: { ...extra } as SceneControls }) as MutableRefObject<SceneControls>;
+import { DEFAULT_LABEL_STYLE } from "../src/app/labelStyle";
+import { DEFAULT_SKY_COLOURS } from "../src/app/skyFigures";
+const liveControls = (extra: Partial<SceneControls> = {}) => ({ current: { labelStyle: DEFAULT_LABEL_STYLE, skyColours: DEFAULT_SKY_COLOURS, ...extra } as SceneControls }) as MutableRefObject<SceneControls>;
 const button = (name: string) => [...container.querySelectorAll("button")].find((b) => b.textContent === name)!;
 const press = (el: Element) => act(() => { (el as HTMLElement).click(); });
 const slider = (label: string) => container.querySelector<HTMLInputElement>(`input[aria-label="${label}"]`)!;
@@ -99,7 +101,9 @@ describe("LabelSettings", () => {
     const [hover, setHover] = useState(1.4);
     const [anchors, setAnchors] = useState(false);
     const [hidden, setHidden] = useState<ReadonlySet<string>>(new Set(["moon"]));
-    return createElement(LabelSettings, { controls, hoverBrightness: hover, setHoverBrightness: setHover, labelToggles: toggles, trackedCount: tracked, anchorLabels: anchors, setAnchorLabels: setAnchors, hiddenLabels: hidden, setHiddenLabels: setHidden });
+    const [style, setStyle] = useState(controls.current.labelStyle);
+    const [colours, setColours] = useState(controls.current.skyColours);
+    return createElement(LabelSettings, { controls, hoverBrightness: hover, setHoverBrightness: setHover, labelToggles: toggles, trackedCount: tracked, anchorLabels: anchors, setAnchorLabels: setAnchors, hiddenLabels: hidden, setHiddenLabels: setHidden, labelStyle: style, setLabelStyle: setStyle, skyColours: colours, setSkyColours: setColours, hasSky: true });
   }
   it("sets the hover brightness, toggles anchor labels and each named label, keeping the hidden set in step", () => {
     const controls = liveControls({ hiddenLabels: new Set(["moon"]) }); // the scene starts with the Moon's label hidden, as the page's own state does
@@ -116,6 +120,20 @@ describe("LabelSettings", () => {
     expect(button("Moon label").getAttribute("aria-pressed")).toBe("true");
     expect(button("Sun label").getAttribute("aria-pressed")).toBe("false");
     expect([...controls.current.hiddenLabels!]).toEqual(["sun"]);
+  });
+
+  it("sets the label size, the label font and each sky line colour in the live controls", () => {
+    const controls = liveControls();
+    show(createElement(Host, { controls, toggles: [], tracked: 0 }));
+    change(slider("Label size"), "16");
+    expect(controls.current.labelStyle.sizePx).toBe(16);
+    expect(out("label-size-value")).toBe("16");
+    change(container.querySelector<HTMLInputElement>('input[data-testid="label-font"]')!, "Georgia, serif");
+    expect(controls.current.labelStyle.fontFamily).toBe("Georgia, serif");
+    change(container.querySelector<HTMLInputElement>('input[aria-label="Sky Ecliptic colour"]')!, "#112233");
+    expect(controls.current.skyColours.ecliptic).toBe("#112233");
+    expect(controls.current.skyColours.figure).toBe(DEFAULT_SKY_COLOURS.figure);
+    expect(container.querySelectorAll('[data-setting-group="sky-line-colours"] input[type="color"]')).toHaveLength(7);
   });
 
   it("shows no button row when there is nothing to toggle, and no anchor button without tracked bodies", () => {

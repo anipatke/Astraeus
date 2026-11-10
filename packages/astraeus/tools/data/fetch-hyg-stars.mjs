@@ -5,7 +5,7 @@
 // Source: https://www.astronexus.com/downloads/catalogs/hygdata_v42.csv.gz (project page https://www.astronexus.com/projects/hyg, whose
 // text names v4.2 as current and the licence as Creative Commons Attribution-ShareAlike 4.0). The archive's own home is
 // https://codeberg.org/astronexus/hyg, which has since moved to v4.4 (labels and duplicate Gliese entries only; same licence).
-// Columns used (header names): ra (hours, J2000), dec (degrees, J2000), mag (V), ci (B-V), id (0 is the Sun, skipped).
+// Columns used (header names): ra (hours, J2000), dec (degrees, J2000), mag (V), ci (B-V), hip (Hipparcos number, 0 where HYG has none), id (0 is the Sun, skipped).
 // The download is data, never code: it is parsed as CSV text and nothing in it is run.
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
@@ -21,7 +21,7 @@ export const HYG_LICENCE_URL = "https://creativecommons.org/licenses/by-sa/4.0/"
 /** Faintest magnitude kept: the naked-eye limit. */
 export const MAGNITUDE_LIMIT = 6.5;
 export const DEFAULT_OUT = join(ROOT, "src", "assets", "stars", "hyg-v42-naked-eye.json");
-export const ATTRIBUTION = "HYG database v4.2 (Hipparcos, Yale Bright Star, Gliese catalogues), astronexus (astronexus.com), CC BY-SA 4.0. Rows with V <= 6.5 kept; right ascension converted from hours to degrees and rounded to 5 decimals; no other change.";
+export const ATTRIBUTION = "HYG database v4.2 (Hipparcos, Yale Bright Star, Gliese catalogues), astronexus (astronexus.com), CC BY-SA 4.0. Rows with V <= 6.5 kept; right ascension converted from hours to degrees and rounded to 5 decimals; Hipparcos number added as a fifth column (0 where HYG has none); no other change.";
 
 /** Splits one CSV line into fields, honouring double quotes (HYG quotes empty text fields and names). */
 export function splitCsvLine(line) {
@@ -39,13 +39,15 @@ export function splitCsvLine(line) {
   return fields;
 }
 
-/** Parses HYG CSV text into [raDeg, decDeg, vMag, bMinusV | null] rows with V <= `limit`, the Sun and rows without a usable position or V skipped. */
+/** Parses HYG CSV text into [raDeg, decDeg, vMag, bMinusV | null, hip] rows with V <= `limit`, the Sun and rows without a usable position or V skipped. */
 export function parseHyg(text, limit = MAGNITUDE_LIMIT) {
   const lines = text.split(/\r?\n/);
   const header = splitCsvLine(lines[0] ?? "");
-  const column = Object.fromEntries(["id", "ra", "dec", "mag", "ci"].map((name) => [name, header.indexOf(name)]));
+  const column = Object.fromEntries(["id", "ra", "dec", "mag", "ci", "hip"].map((name) => [name, header.indexOf(name)]));
   for (const [name, index] of Object.entries(column)) if (index < 0) throw new Error(`HYG header has no "${name}" column`);
   const stars = [];
+  const seenHip = new Map();
+  const duplicateHip = [];
   let records = 0;
   let skipped = 0;
   for (const line of lines.slice(1)) {
@@ -59,9 +61,15 @@ export function parseHyg(text, limit = MAGNITUDE_LIMIT) {
     if (![ra, dec, mag].every(Number.isFinite) || dec < -90 || dec > 90 || ra < 0 || ra >= 24) { skipped += 1; continue; }
     if (mag > limit) continue;
     const ci = f[column.ci] === "" ? NaN : Number(f[column.ci]);
-    stars.push([Number((ra * 15).toFixed(5)), Number(dec.toFixed(5)), mag, Number.isFinite(ci) ? ci : null]);
+    const hipValue = f[column.hip] === "" ? 0 : Number(f[column.hip]);
+    const hip = Number.isInteger(hipValue) && hipValue > 0 ? hipValue : 0;
+    if (hip > 0) {
+      if (seenHip.has(hip)) duplicateHip.push(hip);
+      seenHip.set(hip, true);
+    }
+    stars.push([Number((ra * 15).toFixed(5)), Number(dec.toFixed(5)), mag, Number.isFinite(ci) ? ci : null, hip]);
   }
-  return { records, skipped, stars };
+  return { records, skipped, stars, duplicateHip };
 }
 
 /** The file written: a provenance header with the AssetLicence fields (PROV-02) and the rows. */
@@ -82,7 +90,7 @@ export function starFile({ stars, records, skipped }, accessed, limit = MAGNITUD
       skipped,
       count: stars.length,
       epoch: "J2000.0 as given by HYG (proper motion not applied)",
-      columns: ["raDeg", "decDeg", "vMag", "bMinusV"],
+      columns: ["raDeg", "decDeg", "vMag", "bMinusV", "hip"],
       licenceScope: "This file only. The Astraeus code is MIT.",
     },
     stars,
@@ -107,6 +115,7 @@ async function main() {
   if (bytes[0] !== 0x1f || bytes[1] !== 0x8b) throw new Error(`not a gzip file (${bytes.length} bytes)`);
   const parsed = parseHyg(gunzipSync(bytes).toString("utf8"));
   if (parsed.stars.length < 8000 || parsed.stars.length > 10000) throw new Error(`expected about 8,900 stars with mag <= ${MAGNITUDE_LIMIT}, got ${parsed.stars.length}; the upstream file may have changed`);
+  if (parsed.duplicateHip.length > 0) throw new Error(`duplicate Hipparcos numbers among the kept stars: ${parsed.duplicateHip.join(", ")}; the id lookup needs each number once`);
   mkdirSync(dirname(out), { recursive: true });
   writeFileSync(out, `${JSON.stringify(starFile(parsed, new Date().toISOString().slice(0, 10)))}\n`);
   console.log(`wrote ${parsed.stars.length} stars (${parsed.records} records, ${parsed.skipped} skipped) to ${out}`);

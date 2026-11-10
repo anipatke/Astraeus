@@ -39,7 +39,7 @@ export const ALL_PAGES = [
   { id: "index.html", files: [], htmlPage: "index.html", rawLimit: 600_000, gzipLimit: 530_000 },
   { id: "assets.html", files: [], htmlPage: "assets.html", rawLimit: 670_000, gzipLimit: 520_000 },
   // I-142: the API reference text grows with the documented API (118,927 B raw, 26,894 B gzip after O-056), and the compressed size is what a visitor downloads, so the raw limit was raised and the gzip limit kept (owner decision, 2026-11-03); raw raised again to 200,000 B for the O-059 public forms (owner, 2026-11-07). tests/apiReference.test.ts holds the generated page to these limits.
-  { id: "api/index.html", files: [], htmlPage: "api/index.html", rawLimit: 200_000, gzipLimit: 40_000 },
+  { id: "api/index.html", files: [], htmlPage: "api/index.html", rawLimit: 200_000, gzipLimit: 44_000 }, // gzip 40,000 -> 44,000: owner 2026-11-10 ("Raise to 44 KB"), room for the rest of 0.9.0 (O-065 T-296)
   { id: "app.html (Apollo 11)", files: [...APP_SHARED, "panels.js", "apollo11Scene.js", "scene.js", "bodyMetrics.js", "events.js", "trackedMetrics.js", "ephemerisProvenance.js", "moon-lroc-2k.jpg", "earth-bmng-july-4k.jpg"], rawLimit: 4_240_000, gzipLimit: 2_850_000 },
   // T-098: Jupiter's moons. The other three mapped moons' pictures, the curve-fit index (jupiter-moons.js) and the window's year of fit chunks
   // (2016.bin: the larger files; the smaller ones are inlined in jupiterIo.js), and the 2014 and 2015 chunks of the slow moons whose orbit lines reach back that far.
