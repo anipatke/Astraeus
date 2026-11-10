@@ -124,4 +124,8 @@ The import tool must drop the 4 zero-length and 87 repeated steps.
 
 ## Owner decision
 
-Pending: the figure set (recommended: Stellarium Modern (IAU)), the boundary source (recommended: VI/49 1875 corners via our import tool, or Stellarium edges for a written licence), and the names source (recommended: IAU, CC BY 4.0).
+Owner, 2026-11-10 (coordinator session o067-run-20261110):
+
+- **Figures:** "Official IAU drawing" — Stellarium Modern (IAU), CC BY-SA 4.0.
+- **Boundaries:** "Stellarium's copy" — the Delporte 1875 corner points as published in Stellarium under CC BY-SA 4.0 (one clear licence with the figures); the import tool densifies the edges, converts to J2000 and cross-checks against CDS VI/49 `bound_20.dat`.
+- **Names:** IAU table, CC BY 4.0 (the recommendation; not separately questioned).

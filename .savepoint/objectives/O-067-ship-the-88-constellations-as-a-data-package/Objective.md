@@ -30,6 +30,8 @@ G-018: owner chose an "Optional data package" so any app can trace any constella
 
 - **Licence:** "Share-alike is fine" — a CC BY-SA (or similar share-alike) figure set is acceptable, like the engine's HYG star list.
 - **How apps add them:** "Package hands back figures" — e.g. `scene.addSkyFigures(constellations(["Ori", "Tau"]))`; no engine call that knows the package.
+- **Figures** (after T-303): "Official IAU drawing" — Stellarium Modern (IAU), CC BY-SA 4.0 (DATA-01 approval for shipping it).
+- **Boundaries** (after T-303): "Stellarium's copy" — Delporte corners from Stellarium, CC BY-SA 4.0, converted to J2000 by the import tool and cross-checked against CDS VI/49. Names: IAU table, CC BY 4.0.
 - Planner: research first (bounded Task with a named deliverable, as O-063); the build steps are detailed after the owner chooses a source.
 
 ## Architectural Considerations

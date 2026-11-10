@@ -2,8 +2,7 @@
 id: T-303
 title: Find openly licensed constellation figures and boundaries
 objective: O-067
-status: in_progress
-stage: audit
+status: done
 depends_on: []
 owner_validation: {required: true}
 check_waiver: {task: T-303, reason: 'Owner said "orchestrate O67" under the standing run rules (one builder at a time, no per-step checks, coordinator marks done once gates pass and any owner look is given, one Full Objective Check at the end); the optional Task Check is waived.', actor: {role: owner, session: o067-run-20261110}, recorded_at: '2026-11-10T08:21:23Z'}
@@ -84,3 +83,5 @@ Builder session o067-run-20261110 (T-303), 2026-11-10. Research only; owner vali
 ## Drift Notes
 
 - Build steps: the Modern (IAU) file has 4 zero-length and 87 repeated steps, which the import tool must drop. Xi UMa (HIP 55203) must be a position end. Serpens needs two boundary figures, because `SkyFigureInput` boundaries hold one ring. The J2000 boundaries should be generated from the B1875 corners (interpolate 1 deg, precess), not read from the RA-sorted `bound_20.dat`. Non-architectural for Design.md unless the Serpens two-figure choice changes the package's public helper; account for it in the integration step.
+
+Owner validation 2026-11-10 (coordinator session o067-run-20261110): after reading the choices, the owner chose "Official IAU drawing" (figures: Stellarium Modern (IAU), CC BY-SA 4.0) and "Stellarium's copy" (boundaries: Stellarium's Delporte corners, CC BY-SA 4.0); recorded in the note's Owner decision section and the Objective. Coordinator marks T-303 done under the standing run rules.
