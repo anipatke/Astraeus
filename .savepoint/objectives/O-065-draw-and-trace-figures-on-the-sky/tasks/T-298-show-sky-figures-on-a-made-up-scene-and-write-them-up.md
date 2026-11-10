@@ -2,8 +2,7 @@
 id: T-298
 title: Show sky figures on a made-up scene and write them up
 objective: O-065
-status: in_progress
-stage: audit
+status: done
 depends_on: [{task: T-297, requires: clear}]
 owner_validation: {required: true}
 check_waiver: {task: T-298, reason: 'Owner said "orchestrate O65" under the standing run rules (one builder at a time, no per-step checks, coordinator marks done once gates pass and any owner look is given, one Full Objective Check at the end); the optional Task Check is waived.', actor: {role: owner, session: o065-run-20261110}, recorded_at: '2026-11-10T03:16:41Z'}
@@ -91,3 +90,20 @@ Owner's change "figure hidden until traced" built in this Task. Extra reads: `Sk
 - Site: Lantern and Kettle `shown: "whenTraced"`; `journey-look-out.mjs` now checks only the outline shows at start, then per figure and per stay/fade/clear: lines and label appear on trace, stay holds (and the figures switch hides and returns them), fade and clear leave nothing, no label overlaps. New driver helpers `chooseSkyTraceFigure`, `waitForSceneLabel`.
 - Gates: `npm run lint`, `typecheck`, `build`, `test`, `check:pack`, `check:node-consumer` pass. Focused `journey-look-out` on scratch port 5199 (stopped): ok first run at 1280x720 and 375x667.
 - Not verified: the look itself (traced lines stay in the traced colour, not the figure colour; fade timing); owner validation pending. `check:browser` in full not run.
+
+- T-298 hide request: `clearSkyTrace`, `SkyClearRequest` on the one queue, `SkyFiguresView.clearTrace`, `stepHide`, `after` without `clear`: reflected in Design (7).
+
+Owner look 2026-11-10 (second look, coordinator session): owner asked what `clear` does (draws, then vanishes at once). Owner chose "Add a hide request": drop `clear` from `after`, add a host request that removes a figure's trace at any time, faded or at once (Objective Decisions record it). Routed back to build in this Task.
+
+## Technical Evidence: hide request (third build, 2026-11-10)
+
+Owner's "Add a hide request" built in this Task (Objective Decisions record it). Extra reads: `tests/verbGrammar.test.ts` (no verb rule beyond add/set/on), T-297 evidence, `viewerLink.ts`, `viewerHandle.ts`, `viewerPort.ts`, `App.tsx` host wiring, README API tables and generated error table.
+
+- Names: `handle.clearSkyTrace(id, { durationSeconds? })`, pairing with `traceSkyFigure` (a trace is cleared); no verb-grammar rule covers it and the lint needs no allowlist entry (the unit is in `durationSeconds`, API-04). `after` is `"stay"` | `"fade"`; `"clear"` throws `bad-sky-trace`.
+- Behaviour: `durationSeconds` 0 to 60, default 1 (the fade time), 0 at once; a running trace keeps the share drawn so far and eases out (a fade in progress continues from its fade). `whenTraced` figure: lines and label go; always-shown: only the trace highlight goes. No trace: no-op; unknown id `unknown-sky-figure`; bad options `bad-sky-trace`; reduced motion removes at once; a later trace starts from nothing. One mechanism: the clear request is pushed on the same `SceneControls.skyTraces` queue (call order), taken by `advanceSkyTraces`, applied by `SkyFiguresView.clearTrace` to the same overlay as a hide run (`stepHide` in `core/skyTrace.ts`); label opacity follows the same `fade`. Both embedding paths through `viewerLink`/`viewerHandle`/`App`.
+- Tests: `skyTrace.test.ts` (`stepHide`, `checkedClear`, link, clear mid-trace, after stay, during fade, at once vs faded, reduced motion, no-op, unknown id, call order, label dimming; `after: "clear"` refused), `viewerHostDom.test.ts` (both paths, errors, not-mounted), `lifecycle.test.ts`. Docs: README (row, mount handle list, regenerated error table), CHANGELOG, `api-surface.lock.json` regenerated, Design.md Sky figures (7).
+- Site: `skyTraceControl.ts` buttons Stay, Fade, Hide (Hide calls `clearSkyTrace`; status hiding then hidden); `journey-look-out.mjs` runs stay, fade, then stay plus Hide per figure; driver comments updated.
+- Gates: lint, typecheck, build, `npm test` (241 files, 3562 passed, 2 skipped), `check:pack`, `check:node-consumer` pass. Focused `journey-look-out` on scratch port 5199 (stopped): ok at 1280x720 and 375x667, first run. API page gzip limit (44,000) not touched.
+- Not verified: the look (hide fade timing, label dimming). `check:browser` in full not run. Owner validation pending.
+
+Owner validation 2026-11-10 (coordinator session o065-run-20261110): after the hidden-until-traced change the owner said "looks ok" on localhost:5490, and chose "Go once tests pass" for the Hide change (tick done once its gates pass, without a further look). The Hide change's gates passed (npm test 3562 passed, 2 skipped; lint, typecheck, build, check:pack, check:node-consumer; focused journey-look-out ok at both sizes). Coordinator marks T-298 done under the standing run rules.

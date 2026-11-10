@@ -1759,12 +1759,12 @@ export async function chooseSkyTraceFigure(page, id) {
 }
 /** Waits until the scene label `id` is shown (or, with `shown` false, not shown). */
 export const waitForSceneLabel = (page, id, shown, timeout = 8000) => page.waitForFunction(([labelId, wanted]) => [...document.querySelectorAll("[data-label-id]")].some((el) => el.dataset.labelId === labelId && !el.hidden) === wanted, [id, shown], { timeout });
-/** Presses the control's "Stay | Fade | Clear" button (trace, then that), opening the control first. */
+/** Presses the control's "Stay | Fade" button (trace, then that) or its "Hide" button, opening the control first. */
 export async function pressSkyTrace(page, after) {
   await setSkyTraceOpen(page, true);
   await skyTrace(page).locator(`button[data-trace-after="${after}"]`).click();
 }
-/** The control's status: idle, tracing, stay, fade or clear (the site's account of the call). */
+/** The control's status: idle, tracing, stay, fade, hiding or hidden (the site's account of the call). */
 export const skyTraceStatus = (page) => skyTrace(page).locator("[data-trace-status]").getAttribute("data-trace-status");
 export const waitForSkyTraceStatus = (page, status, timeout = 8000) => page.waitForFunction((wanted) => document.querySelector("[data-site-sky-trace] [data-trace-status]")?.getAttribute("data-trace-status") === wanted, status, { timeout });
 /** The trace control against the window and the other controls: whether it lies inside the window, the smallest button side in px, and which of the cog, the timeline, the top bar, the pill and the information panels it overlaps. */

@@ -2,7 +2,7 @@ import type { LookInput, LookRead } from "./look";
 import type { PickChange } from "./pickerInput";
 import type { TimeInput } from "./time";
 import type { SceneSkyFigureRead } from "./sceneReads";
-import type { SkyTraceOptions } from "./skyTraceInput";
+import type { SkyClearOptions, SkyTraceOptions } from "./skyTraceInput";
 import type { SelectionChange } from "./viewerSelection";
 import type { CameraPose, CameraTarget, EventZoneChange, ViewerChange, ViewerLink } from "./viewerLink";
 
@@ -66,11 +66,17 @@ export interface ViewerHandle {
   /** The sky figures the viewer draws (`Scene.addSkyFigures`), in the order added: id, label and kind; empty when the scene added none; undefined until `ready` has resolved and after `unmount`. */
   readonly skyFigures: readonly SceneSkyFigureRead[] | undefined;
   /**
-   * Traces the sky figure `id` (one of `skyFigures`) line by line: its segments are drawn in the order added, each growing from its first end, over `durationSeconds` (0.1 to 60, default 2) in the look's `skyLines.traced` colour; then `after` decides: `"stay"` (default) keeps them, `"fade"` eases them to `skyLines.faded` and removes them, `"clear"` removes them at once.
+   * Traces the sky figure `id` (one of `skyFigures`) line by line: its segments are drawn in the order added, each growing from its first end, over `durationSeconds` (0.1 to 60, default 2) in the look's `skyLines.traced` colour; then `after` decides: `"stay"` (default) keeps them, `"fade"` eases them to `skyLines.faded` and removes them.
    * The trace is drawn over the figure and follows the figure's switch (`skyFigures` or `skyBoundaries`): with the switch off it runs unseen. It runs on real time, so pausing or changing the scene clock does not change it; calling again restarts it. With `prefers-reduced-motion: reduce` the whole figure shows at once, stays for `seconds`, and then `after` applies (a `fade` removes it at once).
-   * An id that is not a figure the viewer draws throws `unknown-sky-figure`; options other than `{ durationSeconds?, after? }`, a `durationSeconds` outside its range or an `after` other than the three throws `bad-sky-trace`; before `ready` or after `unmount`, `not-mounted`. It takes its place in call order with the other host calls.
+   * An id that is not a figure the viewer draws throws `unknown-sky-figure`; options other than `{ durationSeconds?, after? }`, a `durationSeconds` outside its range or an `after` other than `stay` or `fade` throws `bad-sky-trace`; before `ready` or after `unmount`, `not-mounted`. It takes its place in call order with the other host calls.
    */
   traceSkyFigure(id: string, options?: SkyTraceOptions): void;
+  /**
+   * Removes the trace of the sky figure `id` at any time (while it runs, after `stay`, or during a `fade`): the traced lines ease out over `durationSeconds` (0 to 60, default 1; 0 removes them at once), keeping the part drawn so far.
+   * A figure shown only when traced (`shown: "whenTraced"`) is then hidden, lines and label; an always-shown figure only loses the trace highlight and keeps its ordinary look. A figure with no trace is left alone (no error), and a later trace starts from nothing. With `prefers-reduced-motion: reduce` it removes the trace at once.
+   * An id that is not a figure the viewer draws throws `unknown-sky-figure`; options other than `{ durationSeconds? }` or a `durationSeconds` outside its range throws `bad-sky-trace`; before `ready` or after `unmount`, `not-mounted`. It takes its place in call order with the other host calls.
+   */
+  clearSkyTrace(id: string, options?: SkyClearOptions): void;
   /** The display switches the scene placed (`setSwitches`, wherever it placed them) that have something to act on, each on or off, by id (`orbitLines`, `labels`, `milkyWay`); empty when it placed none; undefined until `ready` has resolved and after `unmount`. */
   readonly switches: Readonly<Record<string, boolean>> | undefined;
   /** Turns a display switch the scene placed on or off, as the visitor's switch does; an id it did not place, or a non-boolean, throws `bad-switch`; before `ready` or after `unmount`, `not-mounted`. `onChange` hears it with `cause: "host"`. */
@@ -115,6 +121,7 @@ export function viewerHandleOf(link: ViewerLink): ViewerHandle {
     setScale: (id) => link.setScale(id),
     setSwitch: (id, on) => link.setSwitch(id, on),
     traceSkyFigure: (id, options) => link.traceSkyFigure(id, options),
+    clearSkyTrace: (id, options) => link.clearSkyTrace(id, options),
     setView: (id) => link.setView(id),
     setCamera: (target) => link.setCamera(target),
     setSelected: (id) => link.setSelected(id),

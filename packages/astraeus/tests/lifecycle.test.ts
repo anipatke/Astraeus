@@ -141,6 +141,7 @@ const CALLS: Record<string, (handle: ViewerHandle) => void> = {
   setSwitch: (handle) => handle.setSwitch("labels", false),
   setPick: (handle) => handle.setPick("b"),
   traceSkyFigure: (handle) => handle.traceSkyFigure("kite"),
+  clearSkyTrace: (handle) => handle.clearSkyTrace("kite"),
 };
 /** Listener registration is allowed at any time (the scene's own `onChange` is registered before `ready`); what is promised is that nothing is called after unmount. */
 const LISTENERS = ["onChange", "onEventZone", "onSelect", "onCameraChange", "onFirstDraw", "onPick"] as const;

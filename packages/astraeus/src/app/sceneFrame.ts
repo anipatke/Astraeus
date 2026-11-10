@@ -237,10 +237,10 @@ export function placeSkyFigures(ctx: FrameContext): void {
   canvas.dataset.skyLines = views.skyFiguresView.shown.join(",");
 }
 
-/** Stage 4c: starts the traces the host asked for since the last frame (in call order) and moves every trace on by this frame's real time; a moving trace wakes the draw rule. Wall time only (CODE-02, ARCH-02). */
+/** Stage 4c: starts the traces and removes the ones the host asked for since the last frame (in call order) and moves every trace on by this frame's real time; a moving trace wakes the draw rule. Wall time only (CODE-02, ARCH-02). */
 export function advanceSkyTraces(ctx: FrameContext): void {
   const { controls, state, views, delta } = ctx;
-  for (const request of controls.skyTraces.splice(0)) views.skyFiguresView.startTrace(request);
+  for (const request of controls.skyTraces.splice(0)) { if ("after" in request) views.skyFiguresView.startTrace(request); else views.skyFiguresView.clearTrace(request); }
   if (views.skyFiguresView.advanceTraces(delta, controls.skyColours, controls.skyLines)) state.wakes += 1;
 }
 

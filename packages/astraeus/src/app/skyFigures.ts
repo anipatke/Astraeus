@@ -54,6 +54,13 @@ export interface SkyTraceRequest {
   readonly reduced: boolean;
 }
 
+/** A request to remove a figure's trace the host made (checked): the figure, how long it takes to go (0: at once), and whether the person asked for less motion (then it goes at once). */
+export interface SkyClearRequest {
+  readonly id: string;
+  readonly seconds: number;
+  readonly reduced: boolean;
+}
+
 /** True when the person asked the system for less motion (`prefers-reduced-motion: reduce`); false where the browser cannot say. */
 export function prefersReducedMotion(): boolean {
   return typeof globalThis.matchMedia === "function" && globalThis.matchMedia("(prefers-reduced-motion: reduce)").matches;

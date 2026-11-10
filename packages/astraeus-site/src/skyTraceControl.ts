@@ -1,14 +1,14 @@
-// O-065 T-298: a small control the SITE draws beside the viewer (outside the engine) to trace one sky figure with stay, fade or clear. It is only a host over the public handle:
-// `handle.skyFigures` lists the figures and `handle.traceSkyFigure(id, { durationSeconds, after })` draws one. The status line is the site's own wall-time account of the call, not the engine's.
+// O-065 T-298: a small control the SITE draws beside the viewer (outside the engine) to trace one sky figure with Stay or Fade after it, and a Hide button. It is only a host over the public handle:
+// `handle.skyFigures` lists the figures, `handle.traceSkyFigure(id, { durationSeconds, after })` draws one and `handle.clearSkyTrace(id)` removes its trace. The status line is the site's own wall-time account of the call, not the engine's.
 import type { MountedScene } from "astraeus";
 
-const AFTERS = ["stay", "fade", "clear"] as const;
+const AFTERS = ["stay", "fade"] as const;
 type After = (typeof AFTERS)[number];
 /** How long a trace runs on the site's control (seconds); a fade then takes about one more second inside the engine. */
 export const SITE_TRACE_SECONDS = 2;
 const FADE_ALLOWANCE_MS = 1_200;
 
-const END_TEXT: Readonly<Record<After, string>> = { stay: "stays", fade: "faded", clear: "cleared" };
+const END_TEXT: Readonly<Record<After, string>> = { stay: "stays", fade: "faded" };
 
 /** Adds the trace control to the page body (the viewer owns `host`: it clears it when it renders) and returns what removes it. */
 export function addSkyTraceControl(_host: HTMLElement, handle: MountedScene): () => void {
@@ -52,6 +52,15 @@ export function addSkyTraceControl(_host: HTMLElement, handle: MountedScene): ()
     status.textContent = "Tracing";
     timer = setTimeout(() => { status.dataset.traceStatus = after; status.textContent = `Trace ${END_TEXT[after]}`; }, SITE_TRACE_SECONDS * 1000 + (after === "fade" ? FADE_ALLOWANCE_MS : 200));
   };
+  const hide = () => {
+    fill();
+    if (pick.value === "") return;
+    clearTimeout(timer);
+    handle.clearSkyTrace(pick.value);
+    status.dataset.traceStatus = "hiding";
+    status.textContent = "Hiding";
+    timer = setTimeout(() => { status.dataset.traceStatus = "hidden"; status.textContent = "Trace hidden"; }, FADE_ALLOWANCE_MS);
+  };
   const row = document.createElement("div");
   Object.assign(row.style, { display: "flex", gap: "4px" });
   body.append(title, pick, row);
@@ -66,6 +75,14 @@ export function addSkyTraceControl(_host: HTMLElement, handle: MountedScene): ()
     button.addEventListener("click", () => trace(after));
     row.append(button);
   }
+  const hideButton = document.createElement("button");
+  hideButton.type = "button";
+  hideButton.dataset.traceAfter = "hide";
+  hideButton.textContent = "Hide";
+  hideButton.setAttribute("aria-label", "Hide the trace");
+  Object.assign(hideButton.style, { minHeight: "44px", flex: "1", font: "inherit", cursor: "pointer" });
+  hideButton.addEventListener("click", hide);
+  row.append(hideButton);
   body.append(status);
   document.body.append(root);
   // The figures list is readable once the viewer is ready.

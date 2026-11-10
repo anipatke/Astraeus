@@ -13,7 +13,7 @@ import { ViewerViews } from "./viewerViews";
 import { ViewerZones } from "./viewerZones";
 import type { TimeInput } from "./time";
 import type { SceneSkyFigureRead } from "./sceneReads";
-import { checkedTrace, type SkyTraceOptions } from "./skyTraceInput";
+import { checkedClear, checkedTrace, type SkyClearOptions, type SkyTraceOptions } from "./skyTraceInput";
 
 /** What a host is told when the viewer's time, speed or playing state changes. */
 export interface ViewerChange {
@@ -233,6 +233,13 @@ export class ViewerLink implements ViewerPort {
     const control = this.#access.open("traceSkyFigure");
     const { seconds, after } = checkedTrace(id, options, (control.skyFigures ?? []).map((figure) => figure.id));
     control.traceSkyFigure(id, seconds, after);
+  }
+
+  /** Removes a figure's trace (checked here, `unknown-sky-figure` or `bad-sky-trace`); a figure with no trace is left alone. Takes its place in call order like `traceSkyFigure`. */
+  clearSkyTrace(id: string, options?: SkyClearOptions): void {
+    const control = this.#access.open("clearSkyTrace");
+    const { seconds } = checkedClear(id, options, (control.skyFigures ?? []).map((figure) => figure.id));
+    control.clearSkyTrace(id, seconds);
   }
 
   setPick(value: string): void { this.#picker.setPick(value); }

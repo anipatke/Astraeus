@@ -37,6 +37,7 @@ Made-up figures only in engine code and tests (ARCH-01, ARCH-03); no real conste
 - **Label font and size:** "Every label" — one viewer-wide label look; a sky figure may override.
 - **Glow:** "Sun only" — lines and labels draw above the Sun's glow; no Moon glow.
 - **Hidden until traced** (owner look at T-298, 2026-11-10: "yes, figure hidden until traced"): a figure can start hidden, and a trace reveals it line by line; then `stay` keeps it, `fade` dims it away, `clear` removes it. Planner shape: a per-figure option (default: shown, so a constellation browser can show all figures) that the made-up scene uses for its figures; its label appears with the trace and leaves with the lines.
+- **Removing a trace** (owner look at T-298, 2026-11-10: "Add a hide request"): a trace ends with `stay` or `fade` only (`clear` dropped, it duplicated `fade`); a separate host request removes a figure's trace at any time, faded over a given time or at once (0), on both embedding paths, so a story step can hide the figure it showed.
 - Planner defaults stated in the confirmed design: colours and fonts are `setLook` and Developer-drawer settings with no page-address parameter (API-06 allows a look without one); figure stars are not emphasised; five steps in sequence.
 
 ## Architectural Considerations

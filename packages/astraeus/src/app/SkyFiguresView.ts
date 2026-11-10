@@ -1,7 +1,7 @@
 import { BufferAttribute, BufferGeometry, Color, Group, LineBasicMaterial, LineSegments } from "three";
 import type { PerspectiveCamera } from "three";
-import { celestialEquatorSegments, eclipticSegments, type EqjDirection, type SkyColours, type SkyFigureLayer, type SkyLineSwitches, type SkyTraceRequest } from "./skyFigures";
-import { stepTrace, type SkyTraceRun } from "../core/skyTrace";
+import { celestialEquatorSegments, eclipticSegments, type EqjDirection, type SkyColours, type SkyFigureLayer, type SkyClearRequest, type SkyLineSwitches, type SkyTraceRequest } from "./skyFigures";
+import { stepHide, stepTrace, type SkyHideRun, type SkyTraceRun } from "../core/skyTrace";
 import { eqjToRenderVector, type RenderVector } from "./renderCoordinates";
 import { TRACK_LAYER } from "./TrackedBodyView";
 
@@ -34,6 +34,10 @@ interface Overlay {
   readonly full: Float32Array;
   readonly kind: SkyFigureLayer["kind"];
   readonly run: SkyTraceRun;
+  /** Set when the host asked to clear the trace: it then holds its drawn share and eases out instead of following `run`. */
+  hide?: SkyHideRun;
+  /** The share of the figure drawn at the last step, 0 to 1. */
+  drawn: number;
   /** How far the trace has faded, 0 to 1 (the label fades with it). */
   fade: number;
 }
@@ -119,7 +123,15 @@ export class SkyFiguresView {
     object.geometry.setDrawRange(0, 0);
     const full = Float32Array.from(object.geometry.getAttribute("position").array);
     this.group.add(object);
-    this.#traces.set(request.id, { object, full, kind: layer.kind, run: { seconds: request.seconds, after: request.after, reduced: request.reduced, elapsed: 0 }, fade: 0 });
+    this.#traces.set(request.id, { object, full, kind: layer.kind, run: { seconds: request.seconds, after: request.after, reduced: request.reduced, elapsed: 0 }, drawn: 0, fade: 0 });
+  }
+
+  /** Removes the trace of `request.id` over `request.seconds` (at once for 0 or reduced motion), keeping what it had drawn; a figure with no trace, or an id the view does not hold, is left alone. */
+  clearTrace(request: SkyClearRequest): void {
+    const trace = this.#traces.get(request.id);
+    if (trace === undefined) return;
+    if (request.reduced || request.seconds <= 0) this.#removeTrace(request.id);
+    else trace.hide = { seconds: request.seconds, from: trace.fade, elapsed: 0 };
   }
 
   /**
@@ -129,9 +141,10 @@ export class SkyFiguresView {
   advanceTraces(deltaSeconds: number, colours: Readonly<SkyColours>, on: Readonly<SkyLineSwitches>): boolean {
     let moving = false;
     for (const [id, trace] of this.#traces) {
-      const frame = stepTrace(trace.run, deltaSeconds);
+      const frame = trace.hide === undefined ? stepTrace(trace.run, deltaSeconds) : stepHide(trace.hide, deltaSeconds, trace.drawn);
       moving ||= frame.moving;
       trace.fade = frame.fade;
+      trace.drawn = frame.drawn;
       if (frame.done) { this.#removeTrace(id); continue; }
       const count = trace.full.length / 6;
       const reached = frame.drawn * count;

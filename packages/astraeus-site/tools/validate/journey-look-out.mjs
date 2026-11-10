@@ -47,7 +47,19 @@ async function checkSkyTrace(page, name) {
   for (const id of ["lantern", "kettle"]) {
     await ui.chooseSkyTraceFigure(page, id);
     const lines = `sky-trace:${id}`;
-    for (const after of ["stay", "fade", "clear"]) {
+    for (const after of ["stay", "fade", "hide"]) {
+      if (after === "hide") {
+        // Stay (to be hidden by the Hide button): the trace shows, then the request removes lines and label.
+        await ui.pressSkyTrace(page, "stay");
+        await ui.waitForSkyLines(page, { present: [lines] });
+        await ui.waitForSkyTraceStatus(page, "stay", 8000);
+        await ui.pressSkyTrace(page, "hide");
+        assert.equal(await ui.skyTraceStatus(page), "hiding", `${name}: pressing Hide starts removing the ${id} trace`);
+        await ui.waitForSkyTraceStatus(page, "hidden", 8000);
+        await ui.waitForSkyLines(page, { absent: [lines] });
+        await ui.waitForSceneLabel(page, id, false);
+        continue;
+      }
       await ui.pressSkyTrace(page, after);
       assert.equal(await ui.skyTraceStatus(page), "tracing", `${name}: pressing Trace then ${after} starts a trace of ${id}`);
       await ui.waitForSkyLines(page, { present: [lines] });
@@ -63,7 +75,7 @@ async function checkSkyTrace(page, name) {
         await ui.waitForSkyLines(page, { present: [lines] });
         await ui.waitForSceneLabel(page, id, true);
       } else {
-        await ui.waitForSkyLines(page, { absent: [lines] }); // fade and clear leave nothing of the figure
+        await ui.waitForSkyLines(page, { absent: [lines] }); // a fade leaves nothing of the figure
         await ui.waitForSceneLabel(page, id, false);
       }
     }

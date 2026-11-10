@@ -1,13 +1,13 @@
 // How a sky-figure trace runs (O-065 T-297): pure arithmetic with no drawing, shared by the host call's checks (`src/api`) and the frame stage (`src/app`). Wall time only: the scene clock never enters.
 
-/** What follows a trace: the traced lines stay, fade away, or are cleared at once. */
-export type SkyTraceAfter = "stay" | "fade" | "clear";
+/** What follows a trace: the traced lines stay, or fade away. (Removing a trace at any time is `clearSkyTrace`.) */
+export type SkyTraceAfter = "stay" | "fade";
 
-export const SKY_TRACE_AFTER: readonly SkyTraceAfter[] = Object.freeze(["stay", "fade", "clear"] as const);
+export const SKY_TRACE_AFTER: readonly SkyTraceAfter[] = Object.freeze(["stay", "fade"] as const);
 
 /** How long a trace takes, in seconds, when the app does not say. */
 export const DEFAULT_TRACE_SECONDS = 2;
-/** The range of `seconds` a trace accepts. */
+/** The range of `durationSeconds` a trace accepts. */
 export const TRACE_SECONDS_LIMITS = Object.freeze({ min: 0.1, max: 60 });
 /** How long a `fade` takes after the trace, in seconds. */
 export const TRACE_FADE_SECONDS = 1;
@@ -40,7 +40,24 @@ export function stepTrace(run: SkyTraceRun, deltaSeconds: number): SkyTraceFrame
   const drawn = run.reduced ? 1 : Math.min(1, run.elapsed / run.seconds);
   if (run.elapsed < run.seconds) return { drawn, fade: 0, done: false, moving: true };
   if (run.after === "stay") return { drawn: 1, fade: 0, done: false, moving: unsettled };
-  if (run.after === "clear" || run.reduced) return { drawn: 1, fade: 1, done: true, moving: true };
+  if (run.reduced) return { drawn: 1, fade: 1, done: true, moving: true };
   const fade = Math.min(1, (run.elapsed - run.seconds) / TRACE_FADE_SECONDS);
   return { drawn: 1, fade, done: fade >= 1, moving: true };
+}
+
+/** A trace on its way out because the host asked to clear it: eases from the fade it had to 1 over `seconds` (0: gone this step). */
+export interface SkyHideRun {
+  readonly seconds: number;
+  /** The fade the trace had when the request was taken, 0 to 1. */
+  readonly from: number;
+  /** Real seconds since the request was taken. */
+  elapsed: number;
+}
+
+/** Moves a hide on by `deltaSeconds` of real time; `drawn` is the share the trace had reached, which a hide holds. */
+export function stepHide(run: SkyHideRun, deltaSeconds: number, drawn: number): SkyTraceFrame {
+  run.elapsed += Math.max(0, deltaSeconds);
+  const share = run.seconds <= 0 ? 1 : Math.min(1, run.elapsed / run.seconds);
+  const fade = run.from + (1 - run.from) * share;
+  return { drawn, fade, done: share >= 1, moving: true };
 }

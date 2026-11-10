@@ -1,9 +1,9 @@
 // O-065 T-297: tracing a sky figure when the app asks. Made-up figures only (ARCH-03); the frame stage is tested on its own (CODE-02).
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { SceneError } from "astraeus";
-import { checkedTrace } from "../src/api/skyTraceInput";
+import { checkedClear, checkedTrace } from "../src/api/skyTraceInput";
 import { ViewerLink } from "../src/api/viewerLink";
-import { DEFAULT_TRACE_SECONDS, TRACE_FADE_SECONDS, stepTrace, type SkyTraceRun } from "../src/core/skyTrace";
+import { DEFAULT_TRACE_SECONDS, TRACE_FADE_SECONDS, stepHide, stepTrace, type SkyHideRun, type SkyTraceRun } from "../src/core/skyTrace";
 import { DEFAULT_SKY_COLOURS, prefersReducedMotion } from "../src/app/skyFigures";
 import { eqjToRenderVector } from "../src/app/renderCoordinates";
 import { SkyFiguresView } from "../src/app/SkyFiguresView";
@@ -31,11 +31,6 @@ describe("stepTrace", () => {
     expect(stepTrace(r, 2)).toMatchObject({ drawn: 1, fade: 0, done: false, moving: true }); // the step that finishes it
     expect(stepTrace(r, 1)).toMatchObject({ drawn: 1, fade: 0, done: false, moving: false });
   });
-  it("clear is done the step the trace completes", () => {
-    const r = run({ seconds: 1, after: "clear" });
-    expect(stepTrace(r, 0.5).done).toBe(false);
-    expect(stepTrace(r, 0.5).done).toBe(true);
-  });
   it("fade eases to 1 over the fade time, then is done", () => {
     const r = run({ seconds: 1, after: "fade" });
     stepTrace(r, 1);
@@ -51,16 +46,26 @@ describe("stepTrace", () => {
   });
 });
 
+describe("stepHide", () => {
+  const hide = (over: Partial<SkyHideRun> = {}): SkyHideRun => ({ seconds: 2, from: 0, elapsed: 0, ...over });
+  it("eases the fade from where it was to 1 over the time, holding the drawn share, then is done", () => {
+    const r = hide({ from: 0.5 });
+    expect(stepHide(r, 1, 0.4)).toMatchObject({ drawn: 0.4, fade: 0.75, done: false });
+    expect(stepHide(r, 1, 0.4)).toMatchObject({ fade: 1, done: true });
+  });
+  it("0 seconds is done at once", () => { expect(stepHide(hide({ seconds: 0 }), 0, 1)).toMatchObject({ fade: 1, done: true }); });
+});
+
 describe("checkedTrace", () => {
   const known = ["kite", "ring"];
   it("fills the defaults", () => { expect(checkedTrace("kite", undefined, known)).toEqual({ id: "kite", seconds: DEFAULT_TRACE_SECONDS, after: "stay" }); });
-  it("takes seconds and after", () => { expect(checkedTrace("ring", { durationSeconds: 0.1, after: "clear" }, known)).toEqual({ id: "ring", seconds: 0.1, after: "clear" }); });
+  it("takes seconds and after", () => { expect(checkedTrace("ring", { durationSeconds: 0.1, after: "fade" }, known)).toEqual({ id: "ring", seconds: 0.1, after: "fade" }); });
   it.each([["an unknown id", "nope"], ["a non-string id", 4], ["any id when the scene has none", "kite"]])("%s throws unknown-sky-figure", (name, id) => {
     expect(codeOf(() => checkedTrace(id, undefined, name.startsWith("any") ? [] : known))).toBe("unknown-sky-figure");
   });
   it.each([
     ["seconds 0", { durationSeconds: 0 }], ["seconds below the range", { durationSeconds: 0.09 }], ["seconds above the range", { durationSeconds: 61 }], ["seconds NaN", { durationSeconds: Number.NaN }],
-    ["seconds text", { durationSeconds: "3" }], ["after unknown", { after: "linger" }], ["an unknown option", { speed: 2 }], ["options text", "stay"], ["options null", null],
+    ["seconds text", { durationSeconds: "3" }], ["after unknown", { after: "linger" }], ["after clear (dropped: clearSkyTrace removes a trace)", { after: "clear" }], ["an unknown option", { speed: 2 }], ["options text", "stay"], ["options null", null],
   ])("%s throws bad-sky-trace", (_name, options) => {
     expect(codeOf(() => checkedTrace("kite", options, known))).toBe("bad-sky-trace");
   });
@@ -79,6 +84,37 @@ describe("the host link's traceSkyFigure", () => {
     expect(codeOf(() => link.traceSkyFigure("ring"))).toBe("unknown-sky-figure");
     expect(heard).toEqual([["kite", DEFAULT_TRACE_SECONDS, "stay"], ["kite", 3, "fade"]]);
   });
+  it("clearSkyTrace checks, then hands the viewer the figure and seconds; not-mounted before attach", () => {
+    const link = new ViewerLink();
+    expect(codeOf(() => link.clearSkyTrace("kite"))).toBe("not-mounted");
+    const heard: unknown[] = [];
+    link.attach({ ...(FAKE_PRESENTATION as object), window: { startUtcMs: 0, endUtcMs: 10 }, events: [], rates: [1], paced: false, playable: true, setPlaying: () => undefined, read: () => ({ timeUtcMs: 1, rate: 1, playing: false, ...FAKE_PRESENTATION }), seek: () => undefined, setRate: () => undefined,
+      views: [], setView: () => undefined, cameraTargets: () => [], readCamera: () => undefined, setSelected: () => undefined, setCamera: () => undefined, scales: [], setScale: () => undefined, setLook: () => undefined, setSwitch: () => undefined,
+      skyFigures: [{ id: "kite", label: "The Kite", kind: "figure" }], clearSkyTrace: (...args: unknown[]) => heard.push(args) } as never);
+    link.clearSkyTrace("kite");
+    link.clearSkyTrace("kite", { durationSeconds: 0 });
+    expect(codeOf(() => link.clearSkyTrace("ring"))).toBe("unknown-sky-figure");
+    expect(codeOf(() => link.clearSkyTrace("kite", { durationSeconds: -1 }))).toBe("bad-sky-trace");
+    expect(heard).toEqual([["kite", TRACE_FADE_SECONDS], ["kite", 0]]);
+  });
+});
+
+describe("checkedClear", () => {
+  const known = ["kite", "ring"];
+  it("fills the default fade time and takes 0 (at once) up to 60", () => {
+    expect(checkedClear("kite", undefined, known)).toEqual({ id: "kite", seconds: TRACE_FADE_SECONDS });
+    expect(checkedClear("kite", {}, known)).toEqual({ id: "kite", seconds: TRACE_FADE_SECONDS });
+    expect(checkedClear("ring", { durationSeconds: 0 }, known)).toEqual({ id: "ring", seconds: 0 });
+    expect(checkedClear("ring", { durationSeconds: 60 }, known)).toEqual({ id: "ring", seconds: 60 });
+  });
+  it("an unknown or non-string id, or any id when the scene has none, throws unknown-sky-figure", () => {
+    expect(codeOf(() => checkedClear("nope", undefined, known))).toBe("unknown-sky-figure");
+    expect(codeOf(() => checkedClear(4, undefined, known))).toBe("unknown-sky-figure");
+    expect(codeOf(() => checkedClear("kite", undefined, []))).toBe("unknown-sky-figure");
+  });
+  it.each([["negative", { durationSeconds: -1 }], ["above the range", { durationSeconds: 61 }], ["NaN", { durationSeconds: Number.NaN }], ["text", { durationSeconds: "1" }], ["an unknown option", { after: "stay" }], ["options text", "now"], ["options null", null]])("%s throws bad-sky-trace", (_name, options) => {
+    expect(codeOf(() => checkedClear("kite", options, known))).toBe("bad-sky-trace");
+  });
 });
 
 describe("advanceSkyTraces (stage 4c, O-065)", () => {
@@ -88,6 +124,7 @@ describe("advanceSkyTraces (stage 4c, O-065)", () => {
     return { ctx: { ...ctx, delta, views: { ...ctx.views, skyFiguresView: view } } as FrameContext, view };
   };
   const request = (over: object = {}) => ({ id: "kite", seconds: 3, after: "stay" as const, reduced: false, ...over });
+  const clearing = (over: object = {}) => ({ id: "kite", seconds: 1, reduced: false, ...over });
   const overlay = (view: SkyFiguresView) => view.group.children.find((child) => child.name === "sky-trace:kite") as import("three").LineSegments | undefined;
 
   it("takes the asked traces in call order and empties the queue", () => {
@@ -143,14 +180,81 @@ describe("advanceSkyTraces (stage 4c, O-065)", () => {
     expect(overlay(view)).not.toBe(first);
     expect(overlay(view)!.geometry.drawRange.count).toBe(2);
     (ctx as { delta: number }).delta = 20;
-    ctx.controls.skyTraces.push(request({ after: "clear", seconds: 1 }));
+    ctx.controls.skyTraces.push(clearing({ seconds: 1 }));
     advanceSkyTraces(ctx);
     expect(overlay(view)).toBeUndefined();
   });
 
+  describe("a clear request", () => {
+    it("mid-trace holds the share drawn and eases it out over the time, then removes it", () => {
+      const { ctx, view } = framed(1);
+      ctx.controls.skyTraces.push(request()); // 3 s trace, 1 s in: a third drawn
+      advanceSkyTraces(ctx);
+      const count = overlay(view)!.geometry.drawRange.count;
+      ctx.controls.skyTraces.push(clearing({ seconds: 2 }));
+      (ctx as { delta: number }).delta = 1;
+      advanceSkyTraces(ctx);
+      expect(overlay(view)!.geometry.drawRange.count).toBe(count);
+      expect((overlay(view)!.material as import("three").LineBasicMaterial).opacity).toBeCloseTo(0.85 * 0.5);
+      advanceSkyTraces(ctx);
+      expect(overlay(view)).toBeUndefined();
+    });
+    it("after stay removes it, faded over the default time or at once with 0", () => {
+      for (const [seconds, steps] of [[1, 2], [0, 1]] as const) {
+        const { ctx, view } = framed(4);
+        ctx.controls.skyTraces.push(request());
+        advanceSkyTraces(ctx);
+        expect(overlay(view)).toBeDefined();
+        ctx.controls.skyTraces.push(clearing({ seconds }));
+        (ctx as { delta: number }).delta = seconds === 0 ? 0 : 0.5;
+        advanceSkyTraces(ctx);
+        expect(overlay(view) === undefined).toBe(steps === 1);
+        (ctx as { delta: number }).delta = 0.5;
+        advanceSkyTraces(ctx);
+        expect(overlay(view)).toBeUndefined();
+      }
+    });
+    it("during a fade carries on from the fade it had", () => {
+      const { ctx, view } = framed(3);
+      ctx.controls.skyTraces.push(request({ after: "fade" }));
+      advanceSkyTraces(ctx);
+      (ctx as { delta: number }).delta = 0.5;
+      advanceSkyTraces(ctx); // half faded
+      ctx.controls.skyTraces.push(clearing({ seconds: 1 }));
+      (ctx as { delta: number }).delta = 0.5;
+      advanceSkyTraces(ctx); // 0.5 + 0.5 * 0.5
+      expect((overlay(view)!.material as import("three").LineBasicMaterial).opacity).toBeCloseTo(0.85 * 0.25);
+      advanceSkyTraces(ctx);
+      expect(overlay(view)).toBeUndefined();
+    });
+    it("reduced motion removes it at once", () => {
+      const { ctx, view } = framed(1);
+      ctx.controls.skyTraces.push(request());
+      advanceSkyTraces(ctx);
+      ctx.controls.skyTraces.push(clearing({ seconds: 5, reduced: true }));
+      (ctx as { delta: number }).delta = 0;
+      advanceSkyTraces(ctx);
+      expect(overlay(view)).toBeUndefined();
+    });
+    it("on a figure with no trace is a no-op, an unknown id too, and the figure's own lines stay", () => {
+      const { ctx, view } = framed(0.5);
+      const before = view.group.children.map((child) => child.name);
+      ctx.controls.skyTraces.push(clearing(), clearing({ id: "nope" }));
+      advanceSkyTraces(ctx);
+      expect(view.group.children.map((child) => child.name)).toEqual(before);
+      expect(ctx.controls.skyTraces).toEqual([]);
+    });
+    it("keeps call order with a trace: trace, clear, trace leaves the last trace running from nothing", () => {
+      const { ctx, view } = framed(0.1);
+      ctx.controls.skyTraces.push(request(), clearing({ seconds: 0 }), request({ seconds: 10 }));
+      advanceSkyTraces(ctx);
+      expect(overlay(view)!.geometry.drawRange.count).toBe(2);
+    });
+  });
+
   it("reduced motion draws the whole figure at once and still applies after", () => {
     const { ctx, view } = framed(0.01);
-    ctx.controls.skyTraces.push(request({ reduced: true, after: "clear" }));
+    ctx.controls.skyTraces.push(request({ reduced: true, after: "fade" }));
     advanceSkyTraces(ctx);
     expect(overlay(view)!.geometry.drawRange.count).toBe(6);
     (ctx as { delta: number }).delta = 3;
@@ -235,9 +339,15 @@ describe("a figure shown only when traced (O-065 T-298)", () => {
     expect(names(view)).not.toContain("sky-trace:kite");
     expect(view.labelOpacity("kite")).toBe(0);
   });
-  it("clear removes lines and label at once; tracing again restarts from nothing", () => {
+  it("a clear request hides lines and label (at once with 0, dimming with a time); tracing again restarts from nothing", () => {
     const { ctx, view } = framed(2);
-    ctx.controls.skyTraces.push(request({ after: "clear" }));
+    ctx.controls.skyTraces.push(request());
+    advanceSkyTraces(ctx);
+    ctx.controls.skyTraces.push({ id: "kite", seconds: 1, reduced: false });
+    (ctx as { delta: number }).delta = 0.5;
+    advanceSkyTraces(ctx);
+    expect(view.labelOpacity("kite")).toBeCloseTo(0.5);
+    ctx.controls.skyTraces.push({ id: "kite", seconds: 0, reduced: false });
     advanceSkyTraces(ctx);
     expect(names(view)).not.toContain("sky-trace:kite");
     expect(view.labelOpacity("kite")).toBe(0);
@@ -250,7 +360,7 @@ describe("a figure shown only when traced (O-065 T-298)", () => {
   });
   it("reduced motion shows it at once, then applies after", () => {
     const { ctx, view } = framed(0.01);
-    ctx.controls.skyTraces.push(request({ reduced: true, after: "clear" }));
+    ctx.controls.skyTraces.push(request({ reduced: true, after: "fade" }));
     advanceSkyTraces(ctx);
     expect((view.group.children.find((child) => child.name === "sky-trace:kite") as import("three").LineSegments).geometry.drawRange.count).toBe(6);
     expect(view.labelOpacity("kite")).toBe(1);

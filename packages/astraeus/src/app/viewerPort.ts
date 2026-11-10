@@ -63,6 +63,8 @@ export interface ViewerControl {
   readonly skyFigures?: readonly { readonly id: string; readonly label: string; readonly kind: "figure" | "boundary" }[];
   /** Starts tracing a sky figure (an id from `skyFigures`, already checked), as `SkyTraceOptions` says; a trace already running on it restarts. Takes effect at the next frame, in call order with the other host calls. */
   traceSkyFigure(id: string, seconds: number, after: SkyTraceAfter): void;
+  /** Removes a sky figure's trace (an id from `skyFigures`, already checked) over `seconds` (0: at once); none running does nothing. Takes effect at the next frame, in call order with the other host calls. */
+  clearSkyTrace(id: string, seconds: number): void;
   /** The host's picker (`Scene.setPicker`): its id, the option values and the one pressed at the start; absent without a picker. */
   readonly picker?: { readonly id: string; readonly values: readonly string[]; readonly start: string };
   /** The ids of the objects the showing view shows, which a host may point the camera at. */
