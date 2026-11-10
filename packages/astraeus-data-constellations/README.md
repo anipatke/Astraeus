@@ -16,6 +16,19 @@ const figures = await loadFigures(); // figures.Ori is a list of [end, end] pair
 const names = await loadNames(); // names.Ori.name is "Orion"
 ```
 
+## Add constellations to a scene
+
+`constellations(abbreviations | "all", options?)` returns ready sky figures for `scene.addSkyFigures`:
+
+```ts
+import { constellations } from "astraeus-data-constellations";
+
+scene.addSkyFigures(await constellations(["Ori", "Tau"], { shown: "whenTraced" })); // hidden until traced
+scene.addSkyFigures(await constellations("all", { outlines: true, color: "#6aa" })); // all 88 with boundary outlines
+```
+
+Options: `outlines` (default false), `shown` (`"always"` or `"whenTraced"`), `color`, `labelColor`, `listed` (menu), `idPrefix`. Ids are the abbreviation (`Ori`), `Ori-boundary` for an outline, and `Ser-boundary-1` (Caput) and `Ser-boundary-2` (Cauda) for Serpens. An unknown or repeated abbreviation throws a `RangeError` naming it. Cards carry provenance and no facts; the app adds those. Star ends need the engine's star list, which the viewer loads itself.
+
 The figures use Hipparcos numbers; one end, xi Ursae Majoris (HIP 55203, Alula Australis), is a position because the engine's star list holds that star without a Hipparcos number.
 
 Rebuild everything with `node packages/astraeus-data-constellations/tools/import/constellations.mjs` (it fetches the pinned sources, checks their SHA-256 and fails if the boundary cross-check against CDS VI/49 is above its tolerance).

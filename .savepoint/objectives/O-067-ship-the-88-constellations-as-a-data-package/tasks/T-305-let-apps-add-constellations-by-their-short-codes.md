@@ -2,7 +2,7 @@
 id: T-305
 title: Let apps add constellations by their short codes
 objective: O-067
-status: planned
+status: done
 depends_on: [{task: T-304, requires: clear}]
 owner_validation: {required: false}
 check_waiver: {task: T-305, reason: 'Owner said "orchestrate O67" under the standing run rules (one builder at a time, no per-step checks, coordinator marks done once gates pass and any owner look is given, one Full Objective Check at the end); the optional Task Check is waived.', actor: {role: owner, session: o067-run-20261110}, recorded_at: '2026-11-10T08:40:31Z'}
@@ -56,8 +56,11 @@ Hand-off gates `npm run lint`, `npm run typecheck`, `npm run build`, `npm test`,
 
 ## Technical Evidence
 
-Pending execution.
+Added `constellations(which: readonly string[] | "all", options?: ConstellationsOptions): Promise<readonly SkyFigureInput[]>` to `packages/astraeus-data-constellations/src/index.ts` (async because the data load as chunks). Types come from `astraeus` (`SkyFigureInput`, `SkyFigureEnd`, `Provenance`), imported as types only. Options: `outlines` (default false), `shown`, `color`, `labelColor`, `listed`, `idPrefix`; unset options are omitted from the output. Ids: `Ori`; outline `Ori-boundary`; Serpens `Ser-boundary-1` (Caput) and `Ser-boundary-2` (Cauda), labelled "Serpens Caput/Cauda". Figures: `kind: "figure"`, label the IAU name, no `labelAt` (engine default mean of ends), `provenance` illustrative with CC BY-SA 4.0 / CC BY 4.0 source lines, no facts or description. Unknown or repeated abbreviations throw `RangeError` naming them. Tests: `packages/astraeus-data-constellations/tests/constellations.test.ts` (6 cases incl. all 88 with outlines in a real `Scene`: `scene.check()` and `await scene.load()` resolve, so every HIP end resolves). README section with a three-line example added; `packages/astraeus/README.md` optional-packages table names the package. Gates, all pass: lint, typecheck, build, test, check:pack (constellations 0.07 MB packed / 0.21 unpacked / 10 files, inside limits, none changed), check:node-consumer.
 
 ## Drift Notes
 
 Record architecture deltas; Design is reconciled in the last step of this Objective.
+
+- Design.md (Interfaces and Data Flow, Sky figures): a data package may hand back `SkyFigureInput[]` through a helper (`constellations()`), importing only public `astraeus` types; deferred to the last step of O-067 for reconciliation.
+- Headless `scene.load()` cannot read the star list in Node: the engine reads it by `fetch` of a bundled URL and returns `missing-data` when that fails. The all-88 test stubs `fetch` with the committed HYG file (test-only, no engine change). A Node consumer placing star-end figures has no supported route; possible later Issue for the owner (not raised here).
