@@ -1,7 +1,7 @@
 ---
 id: O-065
 title: Draw and trace figures on the sky
-status: planned
+status: done
 depends_on: [O-064]
 release: G-018
 priority: high
