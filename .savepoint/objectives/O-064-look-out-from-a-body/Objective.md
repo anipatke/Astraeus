@@ -1,7 +1,7 @@
 ---
 id: O-064
 title: Look out from a body
-status: in_progress
+status: done
 depends_on: [O-063]
 release: G-018
 priority: high
