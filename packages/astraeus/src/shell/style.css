@@ -251,6 +251,13 @@
 .astraeus-shell .sources-section li + li { margin-top: 3px; }
 .astraeus-shell :where(.story-panel-close) { font-size: 20px; line-height: 1; }
 .astraeus-shell :where(.story-panel-continue) { align-self: flex-start; }
+/* Touch targets: Close, Back, Next and Continue are at least 44 px each way, at 375x667 and 1280x720 alike. */
+.astraeus-shell :where(.story-panel-close, .story-panel-back, .story-panel-next, .story-panel-continue) { min-width: 44px; min-height: 44px; }
+/* Steps: Back and Next stay at the foot of the panel as it scrolls; the count between them shrinks and wraps before either button does. */
+.astraeus-shell .story-panel-steps { position: sticky; bottom: -14px; display: flex; align-items: center; justify-content: space-between; gap: 8px; margin: 0 -14px -14px; padding: 6px 14px 14px; background: var(--ui-panel, rgba(13, 13, 13, .94)); }
+.astraeus-shell .story-panel-step-count { flex: 1 1 auto; min-width: 0; text-align: center; color: var(--ui-subtle, #a99e94); font-size: 13px; overflow-wrap: anywhere; }
+.astraeus-shell .story-panel-steps button { flex: 0 0 auto; }
+.astraeus-shell .story-panel-steps button:disabled { opacity: .4; cursor: default; }
 
 /* The badge: monospace caps pill, tinted by how far to trust the facts. */
 .astraeus-shell .story-badge {

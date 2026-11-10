@@ -1,6 +1,8 @@
 import { isCssColour, isFontFamily, LABEL_SIZE_LIMITS } from "../core/lookValues";
 import { eqjUnit, type StarById } from "../assets/sky";
 import { meanDirection, type EqjDirection, type SkyFigureLayer } from "../app/skyFigures";
+import { createProvenance, type Provenance } from "../core/provenance";
+import type { SkyFigureCard } from "../shell/experience";
 import { SceneError } from "./errors";
 import { frozenCopy } from "./frozenCopy";
 import type { SkyFigureEnd, SkyFigureInput } from "./skyFigureInput";
@@ -14,6 +16,24 @@ const isStar = (value: unknown): value is { star: number } => typeof value === "
 
 function checkEnd(id: string, end: unknown, where: string): void {
   if (!isStar(end) && !isPosition(end)) throw bad(id, `${where} must be { star: <Hipparcos number> } or { raDeg, decDeg } with a declination within ±90, got ${JSON.stringify(end)}`);
+}
+
+/** Checks the card fields (description, facts, sources, provenance) and the menu flag, as `addBody` and `addTrajectory` check theirs. */
+function checkCard(id: string, figure: SkyFigureInput): void {
+  if (figure.description !== undefined && !isText(figure.description)) throw bad(id, `description must be a non-empty text, got ${JSON.stringify(figure.description)}`);
+  const { facts, sources } = figure;
+  if (facts !== undefined && !(Array.isArray(facts) && facts.every((fact) => isText(fact?.label) && isText(fact?.value)))) throw bad(id, "facts must be a list of { label, value } with both texts non-empty");
+  if (sources !== undefined && !(Array.isArray(sources) && sources.every(isText))) throw bad(id, "sources must be a list of non-empty texts");
+  if (figure.listed !== undefined && typeof figure.listed !== "boolean") throw bad(id, `listed must be true or false, got ${JSON.stringify(figure.listed)}`);
+  if (figure.provenance !== undefined) {
+    try { createProvenance(figure.provenance); } catch (error) { throw bad(id, `provenance is malformed (${error instanceof Error ? error.message : String(error)})`); }
+  }
+}
+
+/** The provenance a figure's card shows: the one given (default: illustrative, supplied by the caller, as for a path) with `sources` added after its own. */
+function provenanceOf(figure: SkyFigureInput): Provenance {
+  const own = figure.provenance ?? createProvenance({ sourceType: "illustrative", sources: ["Supplied by the caller"], accuracy: "As supplied; the engine makes no claim.", notes: "The figure's lines were passed to addSkyFigures." });
+  return createProvenance({ ...own, sources: [...own.sources, ...(figure.sources ?? [])] });
 }
 
 /** Checks a figure's own colours, label font and label size. */
@@ -47,6 +67,7 @@ function checkShape(figure: SkyFigureInput): void {
   if (figure.labelAt !== undefined && !isPosition(figure.labelAt)) throw bad(id, `labelAt must be { raDeg, decDeg } with a declination within ±90, got ${JSON.stringify(figure.labelAt)}`);
   if (figure.shown !== undefined && figure.shown !== "always" && figure.shown !== "whenTraced") throw bad(id, `shown must be "always" or "whenTraced", got ${JSON.stringify(figure.shown)}`);
   checkLooks(id, figure);
+  checkCard(id, figure);
 }
 
 const endsOf = (figure: SkyFigureInput): readonly SkyFigureEnd[] => (figure.segments ?? []).flat();
@@ -71,9 +92,14 @@ export class SkyFigurePlan {
 
   has(id: string): boolean { return this.figures.has(id); }
 
-  /** The figures in the order added: id, label, kind. */
+  /** The figures in the order added: id, label, kind, and the card words as given (`listed` true unless said false). */
   reads(): readonly SceneSkyFigureRead[] {
-    return frozenList([...this.figures.values()].map(({ id, label, kind = "figure" }): SceneSkyFigureRead => ({ id, label, kind })));
+    return frozenList([...this.figures.values()].map((figure): SceneSkyFigureRead => ({ id: figure.id, label: figure.label, kind: figure.kind ?? "figure", listed: figure.listed !== false, provenance: provenanceOf(figure), ...(figure.description === undefined ? {} : { description: figure.description }), ...(figure.facts === undefined ? {} : { facts: figure.facts }) })));
+  }
+
+  /** What the viewer's info card and object menu read for each figure (no star list needed). */
+  cards(): readonly SkyFigureCard[] {
+    return [...this.figures.values()].map((figure): SkyFigureCard => ({ id: figure.id, label: figure.label, listed: figure.listed !== false, provenance: provenanceOf(figure), ...(figure.description === undefined ? {} : { description: figure.description }), ...(figure.facts === undefined ? {} : { facts: figure.facts }) }));
   }
 
   /** Whether any end names a catalogue star, so the star list is needed to place it. */

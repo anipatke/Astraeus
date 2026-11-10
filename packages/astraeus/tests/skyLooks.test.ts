@@ -18,7 +18,7 @@ const code = (run: () => unknown) => { try { run(); } catch (error) { return (er
 describe("the new looks sit in the one look table with no page-address parameter", () => {
   it("lists the sky colours and the label font and size, each without an address parameter", () => {
     const own = LOOK_FIELDS.filter((field) => field.path[0] === "skyLines" || field.path[0] === "labels");
-    expect(own.map(lookName)).toEqual(["skyLines.figure", "skyLines.label", "skyLines.boundary", "skyLines.ecliptic", "skyLines.equator", "skyLines.traced", "skyLines.faded", "labels.fontFamily", "labels.sizePx"]);
+    expect(own.map(lookName)).toEqual(["skyLines.figure", "skyLines.label", "skyLines.boundary", "skyLines.ecliptic", "skyLines.equator", "skyLines.traced", "skyLines.faded", "skyLines.selected", "labels.fontFamily", "labels.sizePx"]);
     expect(own.every((field) => field.param === null)).toBe(true);
     // an address that names them changes nothing
     expect(resolveLook({ labels: { sizePx: 14 } }, "?labels=20&sizepx=20&figure=red")).toEqual({ labels: { sizePx: 14 } });

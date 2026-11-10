@@ -1,4 +1,4 @@
-import { requestObjectId, type ExperienceCameraPreset, type ExperienceConfig, type ExperienceObject } from "./experience";
+import { requestObjectId, type ExperienceCameraPreset, type ExperienceConfig, type ExperienceObject, type SkyFigureCard } from "./experience";
 
 export type CameraMode = "overview" | "focus" | "follow" | "lookOut";
 
@@ -51,4 +51,14 @@ export function listedObjects(experience: ExperienceConfig, selectedId: string):
 /** Unlisted objects that belong to `id` (an orbit line to its body), for the related buttons in the top bar. */
 export function relatedObjects(experience: ExperienceConfig, id: string): readonly ExperienceObject[] {
   return experience.objects.filter((object) => object.listed === false && object.partOf === id);
+}
+
+/** The sky figure a selected id names, or undefined (object ids and figure ids never collide: the scene checks it). */
+export function skyFigureById(experience: ExperienceConfig, id: string): SkyFigureCard | undefined {
+  return experience.skyFigures?.find((figure) => figure.id === id);
+}
+
+/** The sky figures the Object list offers, under the rule objects follow (`listed`): the listed ones, and the selected one even when unlisted. */
+export function listedFigures(experience: ExperienceConfig, selectedId: string): readonly SkyFigureCard[] {
+  return (experience.skyFigures ?? []).filter((figure) => figure.listed || figure.id === selectedId);
 }

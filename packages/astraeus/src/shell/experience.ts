@@ -58,6 +58,17 @@ export interface ExperienceCameraPreset {
 }
 
 /** The labels and timeline data a reusable viewer shell needs from an experience. */
+/** What the info card and object menu show for a sky figure (`Scene.addSkyFigures`); the figure's lines and name are drawn by the app, not by the shell. */
+export interface SkyFigureCard {
+  readonly id: string;
+  readonly label: string;
+  readonly description?: string;
+  readonly facts?: readonly { readonly label: string; readonly value: string }[];
+  readonly provenance: Provenance;
+  /** False leaves it out of the object menu (the menu shows it while it is selected). */
+  readonly listed: boolean;
+}
+
 export interface ExperienceConfig {
   readonly objects: readonly ExperienceObject[];
   readonly cameraPresets: readonly ExperienceCameraPreset[];
@@ -76,6 +87,8 @@ export interface ExperienceConfig {
   readonly moonFamilies?: MoonFamilyList;
   /** Tagged places on bodies (a body package's features): drawn as markers on the body and opened in the information panel. Omit for an experience with none. */
   readonly bodyFeatures?: readonly BodyFeatureSet[];
+  /** Sky figures a visitor can select (tap or object menu): their cards and menu flags. Omit for an experience with none. Ids are distinct from every object id. */
+  readonly skyFigures?: readonly SkyFigureCard[];
   /** Where the event times come from, shown with every event. */
   readonly eventProvenance?: Provenance;
   /** Provenance of single events by event id; an event listed here shows it instead of `eventProvenance`. */

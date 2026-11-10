@@ -45,16 +45,21 @@ function optionsOf(options: unknown, allowed: readonly string[], verb: string): 
   return given;
 }
 
+/** Checks the options of a trace (`traceSkyFigure`'s, or a story panel's `trace`) and fills the defaults; throws `bad-sky-trace`. */
+export function traceOptionsOf(options: unknown, verb = "traceSkyFigure"): { readonly seconds: number; readonly after: SkyTraceAfter } {
+  const given = optionsOf(options, ["durationSeconds", "after"], verb);
+  const seconds = given.durationSeconds ?? DEFAULT_TRACE_SECONDS;
+  const { min, max } = TRACE_SECONDS_LIMITS;
+  if (typeof seconds !== "number" || !Number.isFinite(seconds) || seconds < min || seconds > max) throw bad(`durationSeconds must be a number from ${min} to ${max}, got ${String(seconds)}`, verb);
+  const after = given.after ?? "stay";
+  if (!SKY_TRACE_AFTER.includes(after as SkyTraceAfter)) throw bad(`after must be one of ${SKY_TRACE_AFTER.join(", ")}, got ${String(after)}`, verb);
+  return { seconds, after: after as SkyTraceAfter };
+}
+
 /** Checks a trace request against the figures the viewer draws; throws `unknown-sky-figure` (the id) or `bad-sky-trace` (the options). */
 export function checkedTrace(id: unknown, options: unknown, known: readonly string[]): CheckedTrace {
   knownFigure(id, known, "traceSkyFigure");
-  const given = optionsOf(options, ["durationSeconds", "after"], "traceSkyFigure");
-  const seconds = given.durationSeconds ?? DEFAULT_TRACE_SECONDS;
-  const { min, max } = TRACE_SECONDS_LIMITS;
-  if (typeof seconds !== "number" || !Number.isFinite(seconds) || seconds < min || seconds > max) throw bad(`durationSeconds must be a number from ${min} to ${max}, got ${String(seconds)}`);
-  const after = given.after ?? "stay";
-  if (!SKY_TRACE_AFTER.includes(after as SkyTraceAfter)) throw bad(`after must be one of ${SKY_TRACE_AFTER.join(", ")}, got ${String(after)}`);
-  return { id, seconds, after: after as SkyTraceAfter };
+  return { id, ...traceOptionsOf(options) };
 }
 
 /** Checks a clear request as `checkedTrace` checks a trace; `durationSeconds` may be 0 (at once). */

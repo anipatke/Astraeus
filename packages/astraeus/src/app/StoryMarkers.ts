@@ -11,8 +11,8 @@ export interface StoryMarkerSpec {
   readonly panelId: string;
   readonly objectId: string;
   readonly title: string;
-  /** The panel's moment, so a marker shared by several panels can pick the one the clock has reached. */
-  readonly timeUtcMs: number;
+  /** The panel's moment, so a marker shared by several panels can pick the one the clock has reached; absent on a step, which comes after the moment panels. */
+  readonly timeUtcMs?: number;
 }
 
 /** One scene marker: an object and every panel that names it, in time order. */
@@ -32,7 +32,7 @@ export function groupStoryMarkers(specs: readonly StoryMarkerSpec[]): readonly S
     if (list === undefined) groups.set(spec.objectId, [spec]);
     else list.push(spec);
   }
-  return [...groups].map(([objectId, panels]) => ({ objectId, panels: [...panels].sort((a, b) => a.timeUtcMs - b.timeUtcMs) }));
+  return [...groups].map(([objectId, panels]) => ({ objectId, panels: [...panels.filter((panel) => panel.timeUtcMs !== undefined).sort((a, b) => a.timeUtcMs! - b.timeUtcMs!), ...panels.filter((panel) => panel.timeUtcMs === undefined)] }));
 }
 
 /**
@@ -45,7 +45,7 @@ export function panelForMarkerPress(group: StoryMarkerGroup, timeUtcMs: number, 
   const openIndex = panels.findIndex((panel) => panel.panelId === openPanelId);
   if (openIndex >= 0) return panels[(openIndex + 1) % panels.length]!.panelId;
   let reached = 0;
-  panels.forEach((panel, index) => { if (panel.timeUtcMs <= timeUtcMs) reached = index; });
+  panels.forEach((panel, index) => { if (panel.timeUtcMs !== undefined && panel.timeUtcMs <= timeUtcMs) reached = index; });
   return panels[reached]!.panelId;
 }
 

@@ -4,6 +4,7 @@ import type { CameraRequest } from "./CameraController";
 import type { CameraView } from "./viewLink";
 import type { LookInput, LookRead } from "../api/look";
 import type { SkyTraceAfter } from "../core/skyTrace";
+import type { Provenance } from "../core/provenance";
 
 /** The one clock's reading as a host sees it. */
 export interface ViewerState {
@@ -19,6 +20,8 @@ export interface ViewerState {
   readonly zones?: readonly string[];
   /** The id of the object whose information the viewer has selected; absent when nothing is selected. */
   readonly selected?: string;
+  /** The id of the story panel open; absent when none is. */
+  readonly panel?: string;
   /** The id of the scale showing. */
   readonly scale: string;
   /** The looks in force, every one filled in. */
@@ -60,7 +63,7 @@ export interface ViewerControl {
   /** Turns the display switch `id` (one of the keys of `read().switches`) on or off, as a visitor's switch does. */
   setSwitch(id: string, on: boolean): void;
   /** The sky figures the viewer draws, in the order added (id, label, kind); empty or absent when the scene added none. */
-  readonly skyFigures?: readonly { readonly id: string; readonly label: string; readonly kind: "figure" | "boundary" }[];
+  readonly skyFigures?: readonly { readonly id: string; readonly label: string; readonly kind: "figure" | "boundary"; readonly listed: boolean; readonly provenance: Provenance; readonly description?: string; readonly facts?: readonly { readonly label: string; readonly value: string }[] }[];
   /** Starts tracing a sky figure (an id from `skyFigures`, already checked), as `SkyTraceOptions` says; a trace already running on it restarts. Takes effect at the next frame, in call order with the other host calls. */
   traceSkyFigure(id: string, seconds: number, after: SkyTraceAfter): void;
   /** Removes a sky figure's trace (an id from `skyFigures`, already checked) over `seconds` (0: at once); none running does nothing. Takes effect at the next frame, in call order with the other host calls. */
@@ -73,6 +76,10 @@ export interface ViewerControl {
   readCamera(): CameraView | undefined;
   /** Selects the object with this id (one of `cameraTargets()`), or clears the selection (`undefined`); `read()` shows it at once. */
   setSelected(id: string | undefined): void;
+  /** The ids of the story panels (moment panels and steps) the showing view shows, which a host may open. */
+  panels(): readonly string[];
+  /** Opens the story panel with this id (one of `panels()`), or closes the open one (`undefined`); `read()` shows it at once. */
+  setPanel(id: string | undefined): void;
   /** Asks the scene camera for a follow, focus or pose through its own request path (the same one a view's camera rule uses). */
   setCamera(request: CameraRequest): void;
 }
@@ -87,6 +94,8 @@ export interface ViewerPort {
   publish(state: ViewerState, cause: ViewerChangeCause): void;
   /** The viewer's selected object changed. `byMove`: the selection followed a move of the clock or the view (a drop, or a view rule's framing target; the cause is whatever last moved them); otherwise the visitor chose it. */
   publishSelection(state: ViewerState, byMove: boolean): void;
+  /** The viewer's open story panel changed (a visitor, a host call, playback crossing a panel, or `"move"`: a view switch dropped it, and the cause is whatever last moved the view). */
+  publishPanel(state: ViewerState, cause: ViewerChangeCause | "move"): void;
   /** The pressed option of the host's picker now (undefined until attached and without a picker). */
   pickNow(): string | undefined;
   /** Calls `watcher` when the pressed option moves (the host's `setPick`, or an attach or detach); returns the function that stops it. */

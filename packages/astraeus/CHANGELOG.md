@@ -4,6 +4,24 @@ Versions follow [semantic versioning](https://semver.org). While the version sta
 
 ## Unreleased
 
+Story actions (G-018, O-066, third step): a story panel can turn the camera, select its object and trace its sky figure when it opens, and an event can name a sky figure. Additions only; no existing call shape or error code changed.
+
+- `StoryPanelInput` gains `camera` (anything `setCamera` takes), `select` (true: select the panel's `object`; as for a visitor's tap, the card opens on a wide screen and not on a phone, where it would cover the panel's buttons; `setSelected` still opens it always) and `trace` (`true` or `SkyTraceOptions`: trace the panel's `object`, which must be a sky figure). They apply when the panel opens, whoever opens it, in the order camera, select, trace, through the same paths as `setCamera`, `setSelected` and `traceSkyFigure`. Leaving the panel clears the trace it started over the default fade; the camera and selection are left. A bad shape throws `bad-panels` at `addStoryPanels`, a name the scene lacks at `check` and `mount`. A panel's `object` may name a sky figure.
+- A look-out `direction` (`setCamera`'s `LookOutTarget`, and a panel's `camera`) may name a sky figure: the camera turns toward its label point. An id that is neither an object nor a sky figure still throws `bad-camera`. A panel's look-out without a `direction` keeps the one already looked along.
+- `EventInput.object` may name a sky figure: Go to seeks and selects it, and turns toward it only while the camera looks out. A name that is neither throws `bad-event`.
+
+Story steps (G-018, O-066, second step): story panels can be steps with Back and Next, and a host can open a panel and hear which is open. Additions only; no existing call shape or error code changed (a panel with no `at`, which threw `bad-panels` before, is now a step).
+
+- `StoryPanelInput.at` is optional. A panel without it is a step: steps keep the order added across `addStoryPanels` calls, never open from playback, and show Back and Next (and "Step n of m") on the panel; panels with `at` behave as before. With steps and no moment panel the first step is open when the viewer opens, with or without a timeline; otherwise a step opens from its `object`'s marker or `setPanel`.
+- `scene.panels` lists the moment panels by time, then the steps in the order added; `ScenePanelRead.timeUtcMs` is absent on a step.
+- New on the `mount` handle and `AstraeusScene`: `handle.panel` (the open panel id), `handle.setPanel(id | undefined)` (open one by id, or close the open one; an id the showing view does not show throws `bad-panels`) and `handle.onPanel(listener)` (`{ panel?, timeUtcMs, cause }`, with `cause` `visitor`, `host` or `playback`; new type `PanelChange`).
+
+Selecting sky figures (G-018, O-066, first step): a visitor can tap a sky figure and see its card. Additions only; no existing call shape or error code changed.
+
+- `SkyFigureInput` gains `description`, `facts` (`CardFactInput[]`), `sources`, `provenance` and `listed`, as `addBody` and `addTrajectory` take them (`listed` and the provenance default as there; a bad one throws `bad-sky-figure`). `scene.skyFigures` and `handle.skyFigures` read `listed`, `provenance`, `description` and `facts` too.
+- A tap on a figure's shown name, or within 16 px of one of its drawn lines, selects it (never inside an outline; a body hit wins; a figure that is not drawn is not tappable). `handle.setSelected(id)`, `handle.selected`, `onSelect` and the `AstraeusScene` equivalents take a sky figure id; the object menu lists figures that are `listed`; the card shows in the same info panel as a body's.
+- The selected figure's lines and name take the new look `skyLines.selected` (default `#ffffff`), changeable with `setLook` and in the Developer drawer.
+
 Sky figures (G-018, O-065, first step): an app can draw named figures and outlines on the sky, like the stars, and switch the ecliptic and the celestial equator on. Additions only; no existing call shape or error code changed.
 
 - `scene.addSkyFigures(figures)`: each figure is `{ id, label, kind?, segments?, points?, labelAt? }`. A `"figure"` (the default) has `segments`, pairs of ends, an end being `{ star: <Hipparcos number> }` or `{ raDeg, decDeg }`; a `"boundary"` has `points`, a closed loop of at least three positions. Drawn at infinity in the J2000 equatorial frame, above the Sun's glow, from the orbit camera and from a look-out view; each has a label in the viewer's one name layout. New types `SkyFigureInput`, `SkyFigureEnd`, `SceneSkyFigureRead`.

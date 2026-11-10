@@ -4,6 +4,7 @@ import type { TimeInput } from "./time";
 import type { SceneSkyFigureRead } from "./sceneReads";
 import type { SkyClearOptions, SkyTraceOptions } from "./skyTraceInput";
 import type { SelectionChange } from "./viewerSelection";
+import type { PanelChange } from "./viewerPanels";
 import type { CameraPose, CameraTarget, EventZoneChange, ViewerChange, ViewerLink } from "./viewerLink";
 
 /** Everything a host reads, sets and listens to on a drawn viewer: the handle `mount` returns (as `MountedScene`). Every call before the viewer is drawn or after it is gone throws `not-mounted`; reads are then undefined. */
@@ -38,7 +39,7 @@ export interface ViewerHandle {
   /** The id of the object whose information the viewer has open (the one the object menu, a click or a view switch chose); undefined until `ready` has resolved, after `unmount`, and when nothing is selected. Set it with `setSelected`. */
   readonly selected: string | undefined;
   /**
-   * Selects the object with this id, or clears the selection with `undefined`; `selected` reads it at once and `onSelect` hears it with `cause: "host"` (nothing is reported when the selection is already that).
+   * Selects the object (or sky figure, see `skyFigures`) with this id, or clears the selection with `undefined`; `selected` reads it at once and `onSelect` hears it with `cause: "host"` (nothing is reported when the selection is already that).
    * The object must be one the showing view shows: an unknown or hidden id, an empty or non-string id throws `bad-selection`; before `ready` or after `unmount`, `not-mounted`. Like the object menu it opens the object's card, but the camera stays where it is (`setCamera` points the camera); a clear closes the card.
    * Like every host call it is the last word: made straight after `await ready`, before the first frame, or inside an `onChange` report of a view switch, it holds; a later view switch that no longer shows the object drops it as it drops a visitor's choice.
    */
@@ -49,6 +50,12 @@ export interface ViewerHandle {
    * No callbacks arrive after `unmount`. A listener that throws is reported to the page (`reportError`) and does not stop the listeners after it. Returns the function that stops it.
    */
   onSelect(listener: (change: SelectionChange) => void): () => void;
+  /** The id of the open story panel or step; undefined until `ready`, after `unmount`, and when none is open. Set it with `setPanel`. */
+  readonly panel: string | undefined;
+  /** Opens the story panel or step with this id, or closes the open one with `undefined`; `onPanel` hears it with `cause: "host"`. Moves nothing else. An id the showing view does not show throws `bad-panels`; before `ready` or after `unmount`, `not-mounted`. */
+  setPanel(id: string | undefined): void;
+  /** Calls `listener({ panel?, timeUtcMs, cause })` when the open panel changes: `cause` is `visitor`, `host` (`setPanel`, or a drop by `setView`) or `playback` (a moment panel opened by itself). The opening panel is read, not reported. Returns the function that stops it. */
+  onPanel(listener: (change: PanelChange) => void): () => void;
   /**
    * Calls `listener(pose)` with the camera as a plain value (an orbit pose or a sky pose, what `camera` reads) when it changes: a visitor's drag, zoom or pick, a view's camera rule, or your own `setCamera`
    * (it reports as the camera eases, then stops when the pose settles). At most about ten times a second; an unchanged pose reports nothing, and neither does a camera following a moving object at a fixed pose.
@@ -110,6 +117,7 @@ export function viewerHandleOf(link: ViewerLink): ViewerHandle {
     get camera() { return link.camera; },
     get eventZones() { return link.eventZones; },
     get selected() { return link.selected; },
+    get panel() { return link.panel; },
     get look() { return link.look; },
     get scale() { return link.scale; },
     get switches() { return link.switches; },
@@ -125,6 +133,8 @@ export function viewerHandleOf(link: ViewerLink): ViewerHandle {
     setView: (id) => link.setView(id),
     setCamera: (target) => link.setCamera(target),
     setSelected: (id) => link.setSelected(id),
+    setPanel: (id) => link.setPanel(id),
+    onPanel: (listener) => link.onPanel(listener),
     setTime: (time) => link.setTime(time),
     setRate: (rate) => link.setRate(rate),
     setPlaying: (playing) => link.setPlaying(playing),

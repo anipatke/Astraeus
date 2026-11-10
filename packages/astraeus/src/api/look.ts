@@ -24,6 +24,8 @@ export interface SkyLinesLook {
   readonly traced?: string;
   /** A figure line that is fading back after a trace. Default `"#44546d"`. */
   readonly faded?: string;
+  /** The lines and name of the selected sky figure. Default `"#ffffff"`. */
+  readonly selected?: string;
 }
 
 /** The font and size of every label in the viewer (bodies, paths, sky figures and anchors). Every field is optional and keeps its default when absent. A sky figure's own `labelFont` and `labelSizePx` win over these. */
@@ -73,7 +75,7 @@ export interface LookRead {
   /** Whether wide screens use the larger desktop pictures: the value the viewer was built with (the scene's look, or the page address); `setLook` does not change it. */
   readonly desktopPictures: boolean;
   /** The sky line colours in force, every one filled in. */
-  readonly skyLines: { readonly figure: string; readonly label: string; readonly boundary: string; readonly ecliptic: string; readonly equator: string; readonly traced: string; readonly faded: string };
+  readonly skyLines: { readonly figure: string; readonly label: string; readonly boundary: string; readonly ecliptic: string; readonly equator: string; readonly traced: string; readonly faded: string; readonly selected: string };
   /** The label font and size in force. */
   readonly labels: { readonly fontFamily: string; readonly sizePx: number };
 }

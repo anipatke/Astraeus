@@ -2,6 +2,7 @@ import type { Provenance, ProvenanceSourceType } from "../core/provenance";
 import type { ExperienceConfig } from "./experience";
 import { provenanceAt, rateAt, spanProvenanceAt } from "../core/timeWindow";
 import { findFeature } from "./bodyFeatures";
+import { skyFigureById } from "./objectModel";
 import { formatUtcTimestamp, formatWindowRate } from "./timelineModel";
 
 /** The badge text for each provenance status. The status is always written, never shown by colour alone. */
@@ -88,7 +89,7 @@ function featureInfo(experience: ExperienceConfig, target: InfoTarget): InfoView
 
 function objectInfo(experience: ExperienceConfig, target: InfoTarget, timeUtcMs?: number): InfoView | null {
   const object = experience.objects.find((candidate) => candidate.id === target.id);
-  if (object === undefined) return null;
+  if (object === undefined) return skyFigureInfo(experience, target);
   const source = (timeUtcMs === undefined || object.provenanceSpans === undefined ? null : spanProvenanceAt(object.provenanceSpans, timeUtcMs)) ?? object.provenance;
   return {
     target,
@@ -109,4 +110,11 @@ function eventInfo(experience: ExperienceConfig, target: InfoTarget): InfoView |
     subtitle: formatUtcTimestamp(event.timeUtcMs),
     provenance: source === undefined ? null : provenanceView(source),
   };
+}
+
+/** The card of a selected sky figure: the same card a body has (description, facts, provenance), with the kind as its subtitle. */
+function skyFigureInfo(experience: ExperienceConfig, target: InfoTarget): InfoView | null {
+  const figure = skyFigureById(experience, target.id);
+  if (figure === undefined) return null;
+  return { target, title: figure.label, ...(figure.description === undefined ? {} : { description: figure.description }), ...(figure.facts === undefined ? {} : { facts: figure.facts }), provenance: provenanceView(figure.provenance) };
 }

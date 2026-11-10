@@ -626,6 +626,16 @@ export const storyPanelDetailsShown = (page) => page.locator(`${HOOK.storyPanel}
 export const closeStorySources = async (page) => { if (await storySourcesOpen(page)) await page.locator(`${HOOK.storyPanel} ${HOOK.sourcesSection} summary`).click(); };
 export const storyPanelHandleVisible = (page) => page.locator(`${HOOK.storyPanel} .sheet-handle`).isVisible();
 export const storyPanelBox = (page) => page.locator(HOOK.storyPanel).boundingBox();
+/** The value of the object list (the selected body or sky figure id). */
+export const selectedObjectValue = (page) => page.locator('select[aria-label="Select object"]').evaluate((select) => select.value);
+/** Presses a step button of the open story panel: "back" or "next". */
+export const pressStoryStep = (page, which) => page.locator(`${HOOK.storyPanel} .story-panel-${which}`).click();
+export const storyStepEnabled = (page, which) => page.locator(`${HOOK.storyPanel} .story-panel-${which}`).isEnabled();
+/** Whether the story step button is the topmost element at its centre (nothing covers it). */
+export const storyStepReachable = (page, which) => page.locator(`${HOOK.storyPanel} .story-panel-${which}`).evaluate((button) => { const r = button.getBoundingClientRect(); const top = document.elementFromPoint((r.left + r.right) / 2, (r.top + r.bottom) / 2); return top === button || button.contains(top); });
+export const storyStepBox = (page, which) => page.locator(`${HOOK.storyPanel} .story-panel-${which}`).boundingBox();
+/** Waits until the open story panel is the one with this id. */
+export const waitForOpenStoryPanel = (page, id, timeout = 8000) => page.waitForFunction((want) => document.querySelector(".story-panel")?.dataset.panelId === want, id, { timeout });
 export const storyPanelBadgeElement = (page) => page.locator(`${HOOK.storyPanel} .story-badge`);
 /** The timeline's story-panel markers (a locator, for counts and attributes). */
 export const storyMarkers = (page, id) => id === undefined ? page.locator(HOOK.storyMarker) : page.locator(`${HOOK.storyMarker}[data-panel-id="${id}"]`);

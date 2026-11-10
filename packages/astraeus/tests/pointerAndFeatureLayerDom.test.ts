@@ -55,6 +55,21 @@ describe("attachScenePointer", () => {
     expect(picked).toHaveBeenCalledTimes(1);
   });
 
+  it("selects a sky figure for a tap near its line, but a body hit wins where both are hit and a tap far from every line selects nothing (O-066 T-299)", () => {
+    const picked = vi.fn();
+    const state: PointerState = { ...stateWith(), skyFigures: () => [{ id: "kite", lines: [[150, 150, 400, 150]] }] };
+    attachScenePointer(canvas, createOrbitCameraState(16, "earth"), state, limits, picked);
+    fire(canvas, "pointerdown", { x: 400, y: 210 }); // canvas (300, 160): ten px from the kite's line, away from Mars
+    fire(canvas, "pointerup", { x: 400, y: 210 });
+    expect(picked).toHaveBeenLastCalledWith("kite");
+    fire(canvas, "pointerdown", { x: 300, y: 200 }); // canvas (200, 150): on Mars and on the kite's line
+    fire(canvas, "pointerup", { x: 300, y: 200 });
+    expect(picked).toHaveBeenLastCalledWith("mars");
+    fire(canvas, "pointerdown", { x: 400, y: 450 }); // canvas (300, 400): far from the line
+    fire(canvas, "pointerup", { x: 400, y: 450 });
+    expect(picked).toHaveBeenCalledTimes(2);
+  });
+
   it("turns the camera on a drag and, once detached, ignores the pointer and clears the cursor and hover readout", () => {
     const orbit = createOrbitCameraState(16, "earth");
     const state = stateWith();

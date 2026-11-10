@@ -260,10 +260,10 @@ export class Scene {
   /** The events the scene holds (`addEvents`), sorted by time: id, label, `timeUtcMs`, type, object and provenance (the event's own, else the batch's). A fresh frozen list on every read. */
   get events(): readonly SceneEventRead[] { return this.#story.eventReads(); }
 
-  /** The story panels (`addStoryPanels`), sorted by time with their times resolved against the events, path anchors and timeline as `mount` resolves them; empty when none were added. A bad panel throws `bad-panels`, as `mount` would. A fresh frozen list on every read. */
+  /** The story panels (`addStoryPanels`): moment panels by time (times resolved), then the steps (no `at`) in the order added against the events, path anchors and timeline as `mount` resolves them; empty when none were added. A bad panel throws `bad-panels`, as `mount` would. A fresh frozen list on every read. */
   get panels(): readonly ScenePanelRead[] {
     const { window } = this.#timelineSpan();
-    return this.#story.panelReads(window, this.#tracked.values(), [...this.#plan.bodies.keys(), ...this.#tracked.keys(), ...this.#groupPlan.groups.keys(), ...this.#bodySets.memberIds()]);
+    return this.#story.panelReads(window, this.#tracked.values(), [...this.#plan.bodies.keys(), ...this.#tracked.keys(), ...this.#groupPlan.groups.keys(), ...this.#bodySets.memberIds()], [...this.#skyFigures.figures.keys()]);
   }
 
   /** The views the scene names (`setViews`): the id of the opening view (`startId`), where the choice shows and each view's id, label and the `objects`, `events` and `panels` it shows (ids, as the viewer resolves them: what the view names plus whatever no view names); undefined when none were named. Checks the ids as `mount` does, so a bad one throws `bad-view`. A fresh frozen object on every read. */
@@ -482,7 +482,7 @@ export class Scene {
   }
 
   /**
-   * Appends story panels that open as playback reaches them. A panel opens only when forward playback crosses its time, so one at the opening instant never opens by itself
+   * Appends story panels: those with `at` open as playback reaches them; those without are steps with Back and Next. A panel opens only when forward playback crosses its time, so one at the opening instant never opens by itself
    * (a panel with an `object` still has its marker on that object). `at.time` is any moment inside the timeline, in any year. A bad shape throws `bad-panels` here, naming the panel and field, and a repeated id `duplicate-id`.
    * Panel times may name events (`addEvents`) and path anchors, and `object` a body or path; these may be added later, so they are checked when the scene is built (`check`, `mount`), and a mistake throws `bad-panels` naming the panel and field.
    */

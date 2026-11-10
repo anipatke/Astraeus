@@ -100,10 +100,11 @@ export interface SceneEventRead {
   readonly provenance?: Provenance;
 }
 
-/** A story panel the scene holds (`addStoryPanels`), as `Scene.panels` lists it (sorted by time, the times resolved). */
+/** A story panel the scene holds (`addStoryPanels`), as `Scene.panels` lists it (moment panels by time, then steps in the order added). */
 export interface ScenePanelRead {
   readonly id: string;
-  readonly timeUtcMs: number;
+  /** The panel's moment (Unix milliseconds UTC); absent on a step. */
+  readonly timeUtcMs?: number;
   readonly title: string;
   /** Paragraphs, in order. */
   readonly body: readonly string[];
@@ -172,6 +173,14 @@ export interface SceneSkyFigureRead {
   readonly label: string;
   /** `"figure"` (lines between stars) or `"boundary"` (a closed outline). */
   readonly kind: "figure" | "boundary";
+  /** The words on its info card: the `description` given to `addSkyFigures`, else absent. */
+  readonly description?: string;
+  /** The facts on its info card, as given (`facts`); absent when none were given. */
+  readonly facts?: readonly { readonly label: string; readonly value: string }[];
+  /** Whether the object menu offers it (`listed`); true unless `addSkyFigures` said false. */
+  readonly listed: boolean;
+  /** The provenance its card shows: the one given (default illustrative, supplied by the caller) with `sources` added. */
+  readonly provenance: Provenance;
 }
 
 /** Freezes a list and each of its items, and returns it. */

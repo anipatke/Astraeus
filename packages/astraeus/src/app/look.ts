@@ -38,7 +38,7 @@ export const LOOK_FIELDS: readonly LookField[] = [
   range(["loadFadeSeconds"], "loadfade", 0, 3),
   { path: ["desktopPictures"], param: "desktop", spec: { kind: "onoff" } },
   // Sky line colours and the label font and size have no address parameter (T-296, owner decision): they are set with `setLook` and the Developer drawer only.
-  colour("figure"), colour("label"), colour("boundary"), colour("ecliptic"), colour("equator"), colour("traced"), colour("faded"),
+  colour("figure"), colour("label"), colour("boundary"), colour("ecliptic"), colour("equator"), colour("traced"), colour("faded"), colour("selected"),
   { path: ["labels", "fontFamily"], param: null, spec: { kind: "font" } },
   range(["labels", "sizePx"], null, LABEL_SIZE_LIMITS.min, LABEL_SIZE_LIMITS.max),
 ];

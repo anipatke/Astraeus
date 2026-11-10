@@ -1,6 +1,7 @@
 // Sky figures as the app draws them: figures, outlines and the two reference circles, all as unit directions in the EQJ frame at infinity (ARCH-02: presentation only, no State).
 import { createOrbTwoBodyAdapter } from "../core/twoBodyAdapter";
 import type { SkyTraceAfter } from "../core/skyTrace";
+import type { CameraRequest } from "./CameraController";
 
 export type EqjDirection = readonly [number, number, number];
 
@@ -42,9 +43,11 @@ export interface SkyColours {
   readonly equator: string;
   readonly traced: string;
   readonly faded: string;
+  /** The lines and name of the selected sky figure. */
+  readonly selected: string;
 }
 
-export const DEFAULT_SKY_COLOURS: Readonly<SkyColours> = Object.freeze({ figure: "#8fb4ff", label: "#cfe0ff", boundary: "#5f7a9c", ecliptic: "#e0b25a", equator: "#7fd1b9", traced: "#ffd166", faded: "#44546d" });
+export const DEFAULT_SKY_COLOURS: Readonly<SkyColours> = Object.freeze({ figure: "#8fb4ff", label: "#cfe0ff", boundary: "#5f7a9c", ecliptic: "#e0b25a", equator: "#7fd1b9", traced: "#ffd166", faded: "#44546d", selected: "#ffffff" });
 
 /** A trace the host asked for (checked): the figure, how long, what follows, and whether the person asked for less motion when it was asked. */
 export interface SkyTraceRequest {
@@ -99,4 +102,11 @@ export function eclipticSegments(): readonly (readonly [EqjDirection, EqjDirecti
     const y = Math.sin(angle);
     return [m[0]! * x + m[1]! * y, m[3]! * x + m[4]! * y, m[6]! * x + m[7]! * y];
   });
+}
+
+/** A camera request with a look-out direction that names a sky figure turned into that figure's label point (the one place a figure id becomes a direction); any other request is returned as it is. */
+export function aimAtFigure<T extends CameraRequest>(request: T, figures: readonly Pick<SkyFigureLayer, "id" | "labelAt">[]): T {
+  if (request.kind !== "lookOut" || typeof request.direction !== "string") return request;
+  const figure = figures.find(({ id }) => id === request.direction);
+  return figure === undefined ? request : { ...request, direction: figure.labelAt };
 }

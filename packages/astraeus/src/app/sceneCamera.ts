@@ -126,7 +126,9 @@ function faceParent(camState: OrbitCameraState, targets: SceneTargets, viewUp: R
 function lookDirectionOf(input: CameraStepInput, request: Extract<CameraRequest, { kind: "lookOut" }>): RenderVector | null {
   const { targets } = input;
   let direction: RenderVector;
-  if (typeof request.direction === "string") {
+  if (request.direction === undefined) {
+    direction = eqjToRenderVector([1, 0, 0]);
+  } else if (typeof request.direction === "string") {
     if (!canFocus(targets, request.direction)) return null;
     const from = focusAbsoluteOf(targets, request.body);
     const to = focusAbsoluteOf(targets, request.direction);
@@ -141,14 +143,18 @@ function lookDirectionOf(input: CameraStepInput, request: Extract<CameraRequest,
 function applyLookOut(input: CameraStepInput, request: Extract<CameraRequest, { kind: "lookOut" }>): void {
   const { camState, targets, viewUp } = input;
   if (!canFocus(targets, request.body)) return;
+  // No direction: keep the one already looked along while looking out, else right ascension 0, declination 0.
+  const keep = request.direction === undefined && camState.lookOut !== null;
   const direction = lookDirectionOf(input, request);
   const angles = direction === null ? null : orbitAnglesFor(direction, viewUp);
-  if (angles === null) return;
+  if (angles === null && !keep) return;
   camState.focus = request.body;
   camState.fixedPoint = null;
   camState.transition.fill(0);
-  camState.azimuth = camState.targetAzimuth = angles.azimuth;
-  camState.elevation = camState.targetElevation = clampLookElevation(angles.elevation);
+  if (angles !== null && !keep) {
+    camState.azimuth = camState.targetAzimuth = angles.azimuth;
+    camState.elevation = camState.targetElevation = clampLookElevation(angles.elevation);
+  }
   camState.lookOut = { fovDeg: clampFov(request.fovDeg ?? camState.lookOut?.fovDeg ?? LOOK_OUT_OPENING_FOV_DEG) };
 }
 

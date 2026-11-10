@@ -745,6 +745,26 @@
           "name": "kind",
           "optional": false,
           "signature": "\"figure\" | \"boundary\""
+        },
+        {
+          "name": "description",
+          "optional": true,
+          "signature": "string | undefined"
+        },
+        {
+          "name": "facts",
+          "optional": true,
+          "signature": "readonly { readonly label: string; readonly value: string; }[] | undefined"
+        },
+        {
+          "name": "listed",
+          "optional": false,
+          "signature": "boolean"
+        },
+        {
+          "name": "provenance",
+          "optional": false,
+          "signature": "Provenance"
         }
       ]
     },
@@ -802,8 +822,8 @@
         },
         {
           "name": "timeUtcMs",
-          "optional": false,
-          "signature": "number"
+          "optional": true,
+          "signature": "number | undefined"
         },
         {
           "name": "title",
@@ -1647,6 +1667,31 @@
           "name": "labelSizePx",
           "optional": true,
           "signature": "number | undefined"
+        },
+        {
+          "name": "description",
+          "optional": true,
+          "signature": "string | undefined"
+        },
+        {
+          "name": "facts",
+          "optional": true,
+          "signature": "readonly CardFactInput[] | undefined"
+        },
+        {
+          "name": "sources",
+          "optional": true,
+          "signature": "readonly string[] | undefined"
+        },
+        {
+          "name": "provenance",
+          "optional": true,
+          "signature": "Provenance | undefined"
+        },
+        {
+          "name": "listed",
+          "optional": true,
+          "signature": "boolean | undefined"
         }
       ]
     },
@@ -2047,8 +2092,8 @@
         },
         {
           "name": "at",
-          "optional": false,
-          "signature": "StoryPanelAt"
+          "optional": true,
+          "signature": "StoryPanelAt | undefined"
         },
         {
           "name": "title",
@@ -2074,6 +2119,21 @@
           "name": "object",
           "optional": true,
           "signature": "string | undefined"
+        },
+        {
+          "name": "camera",
+          "optional": true,
+          "signature": "CameraTarget | undefined"
+        },
+        {
+          "name": "select",
+          "optional": true,
+          "signature": "boolean | undefined"
+        },
+        {
+          "name": "trace",
+          "optional": true,
+          "signature": "true | SkyTraceOptions | undefined"
         }
       ]
     },
@@ -2215,7 +2275,7 @@
         {
           "name": "skyLines",
           "optional": false,
-          "signature": "{ readonly figure: string; readonly label: string; readonly boundary: string; readonly ecliptic: string; readonly equator: string; readonly traced: string; readonly faded: string; }"
+          "signature": "{ readonly figure: string; readonly label: string; readonly boundary: string; readonly ecliptic: string; readonly equator: string; readonly traced: string; readonly faded: string; readonly selected: string; }"
         },
         {
           "name": "labels",
@@ -2283,6 +2343,11 @@
         },
         {
           "name": "faded",
+          "optional": true,
+          "signature": "string | undefined"
+        },
+        {
+          "name": "selected",
           "optional": true,
           "signature": "string | undefined"
         }
@@ -2489,6 +2554,21 @@
           "signature": "(listener: (change: SelectionChange) => void): () => void"
         },
         {
+          "name": "panel",
+          "optional": false,
+          "signature": "string | undefined"
+        },
+        {
+          "name": "setPanel",
+          "optional": false,
+          "signature": "(id: string | undefined): void"
+        },
+        {
+          "name": "onPanel",
+          "optional": false,
+          "signature": "(listener: (change: PanelChange) => void): () => void"
+        },
+        {
           "name": "onCameraChange",
           "optional": false,
           "signature": "(listener: (camera: CameraPose) => void): () => void"
@@ -2644,6 +2724,21 @@
           "name": "onSelect",
           "optional": false,
           "signature": "(listener: (change: SelectionChange) => void): () => void"
+        },
+        {
+          "name": "panel",
+          "optional": false,
+          "signature": "string | undefined"
+        },
+        {
+          "name": "setPanel",
+          "optional": false,
+          "signature": "(id: string | undefined): void"
+        },
+        {
+          "name": "onPanel",
+          "optional": false,
+          "signature": "(listener: (change: PanelChange) => void): () => void"
         },
         {
           "name": "onCameraChange",
@@ -2827,6 +2922,28 @@
       "members": [
         {
           "name": "object",
+          "optional": true,
+          "signature": "string | undefined"
+        },
+        {
+          "name": "timeUtcMs",
+          "optional": false,
+          "signature": "number"
+        },
+        {
+          "name": "cause",
+          "optional": false,
+          "signature": "ViewerChangeCause"
+        }
+      ]
+    },
+    "PanelChange": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "panel",
           "optional": true,
           "signature": "string | undefined"
         },
@@ -3052,7 +3169,7 @@
     },
     "SceneErrorCode": {
       "kind": "type",
-      "signature": "| \"unknown-body\" /** An id is already used in the scene, so the new body, path, group, orbit line, activity, event or story panel cannot take it. */ | \"duplicate-id\" /** A moment is not a valid time, or lies outside the span it must fall in. */ | \"bad-time\" /** A path (`addTrajectory`) is malformed: its id, provider, bounds, plane, spans or line stretches. */ | \"bad-trajectory\" /** A data package passed to the viewer is malformed, for example moon positions that name a planet without a moon system. */ | \"bad-data\" /** The scale is not one of the engine's scales, or does not suit this scene. */ | \"bad-scale\" /** Position data a body needs was not given to the viewer: pass its data package. */ | \"missing-data\" /** The viewer is not drawn yet, or has been unmounted: a handle call before `ready` or after `unmount`. */ | \"not-mounted\" /** The timeline reaches outside the years a body's data package covers. */ | \"out-of-span\" /** The scene was edited after a viewer took it; build a new scene instead. */ | \"scene-mounted\" /** The scene has no bodies to show. */ | \"empty-scene\" /** An orbital-elements record, or the element to mount into, is malformed. */ | \"bad-element\" /** An orbit line was asked for a body whose data give no closed orbit, or about a body not in the scene. */ | \"no-orbit\" /** A path anchor is malformed, repeated or outside the path. */ | \"bad-anchor\" /** A readout is of an unknown kind, or lacks or misnames the body or activity it measures. */ | \"bad-readout\" /** An event is malformed or names an object that is not in the scene. */ | \"bad-event\" /** The story panels are malformed. */ | \"bad-panels\" /** The timeline, its pacing or its speeds are malformed, or a call needs pacing the scene lacks. */ | \"bad-timeline\" /** A display switch is unknown or malformed. */ | \"bad-switch\" /** An option of `addBody` is malformed. */ | \"bad-body\" /** A point group is malformed or refers to a body that is not in the scene. */ | \"bad-group\" /** A body set (`addBodySet`) is malformed, or names a centre, moon, body or balance point the scene cannot draw it with. */ | \"bad-body-set\" /** The moon panel (`setMoonPanel`) is malformed, or names a moon the scene does not hold. */ | \"bad-moon-panel\" /** The picker (`setPicker`, `setPick`) is malformed, or a pick names an option it does not have. */ | \"bad-picker\" /** A body's places (`addPlaces`) are malformed, or name a body the scene does not hold. */ | \"bad-places\" /** A sky figure (`addSkyFigures`) is malformed: its id, label, kind, segments, points or label position. */ | \"bad-sky-figure\" /** `traceSkyFigure` or `clearSkyTrace` was given a figure id the viewer does not draw (see `handle.skyFigures`). */ | \"unknown-sky-figure\" /** `traceSkyFigure` was given options that are not `{ durationSeconds?, after? }`, a `durationSeconds` outside 0.1 to 60, or an `after` other than `stay` or `fade`; or `clearSkyTrace` was given options that are not `{ durationSeconds? }` or a `durationSeconds` outside 0 to 60. */ | \"bad-sky-trace\" /** A sky figure names a star whose Hipparcos number is not in the engine's star list (stars of magnitude 6.5 or brighter). Found when the scene is built, as the star list loads then. */ | \"unknown-star\" /** An activity curve is malformed. */ | \"bad-activity\" /** A camera call or pose is malformed, or names an object the view cannot show. */ | \"bad-camera\" /** A scene view is malformed, repeated, or not one of the scene's views. */ | \"bad-view\" /** `setSelected` was given something other than an id of an object the showing view shows, or `undefined`. */ | \"bad-selection\" /** A look (`setLook`) is unknown or out of its range. */ | \"bad-look\" /** An input field was given under a name it no longer has; the message names the old field and its replacement. */ | \"renamed\"",
+      "signature": "| \"unknown-body\" /** An id is already used in the scene, so the new body, path, group, orbit line, activity, event or story panel cannot take it. */ | \"duplicate-id\" /** A moment is not a valid time, or lies outside the span it must fall in. */ | \"bad-time\" /** A path (`addTrajectory`) is malformed: its id, provider, bounds, plane, spans or line stretches. */ | \"bad-trajectory\" /** A data package passed to the viewer is malformed, for example moon positions that name a planet without a moon system. */ | \"bad-data\" /** The scale is not one of the engine's scales, or does not suit this scene. */ | \"bad-scale\" /** Position data a body needs was not given to the viewer: pass its data package. */ | \"missing-data\" /** The viewer is not drawn yet, or has been unmounted: a handle call before `ready` or after `unmount`. */ | \"not-mounted\" /** The timeline reaches outside the years a body's data package covers. */ | \"out-of-span\" /** The scene was edited after a viewer took it; build a new scene instead. */ | \"scene-mounted\" /** The scene has no bodies to show. */ | \"empty-scene\" /** An orbital-elements record, or the element to mount into, is malformed. */ | \"bad-element\" /** An orbit line was asked for a body whose data give no closed orbit, or about a body not in the scene. */ | \"no-orbit\" /** A path anchor is malformed, repeated or outside the path. */ | \"bad-anchor\" /** A readout is of an unknown kind, or lacks or misnames the body or activity it measures. */ | \"bad-readout\" /** An event is malformed or names an object that is not in the scene. */ | \"bad-event\" /** The story panels are malformed. */ | \"bad-panels\" /** The timeline, its pacing or its speeds are malformed, or a call needs pacing the scene lacks. */ | \"bad-timeline\" /** A display switch is unknown or malformed. */ | \"bad-switch\" /** An option of `addBody` is malformed. */ | \"bad-body\" /** A point group is malformed or refers to a body that is not in the scene. */ | \"bad-group\" /** A body set (`addBodySet`) is malformed, or names a centre, moon, body or balance point the scene cannot draw it with. */ | \"bad-body-set\" /** The moon panel (`setMoonPanel`) is malformed, or names a moon the scene does not hold. */ | \"bad-moon-panel\" /** The picker (`setPicker`, `setPick`) is malformed, or a pick names an option it does not have. */ | \"bad-picker\" /** A body's places (`addPlaces`) are malformed, or name a body the scene does not hold. */ | \"bad-places\" /** A sky figure (`addSkyFigures`) is malformed: its id, label, kind, segments, points or label position. */ | \"bad-sky-figure\" /** `traceSkyFigure` or `clearSkyTrace` was given a figure id the viewer does not draw (see `handle.skyFigures`). */ | \"unknown-sky-figure\" /** `traceSkyFigure` was given options that are not `{ durationSeconds?, after? }`, a `durationSeconds` outside 0.1 to 60, or an `after` other than `stay` or `fade`; or `clearSkyTrace` was given options that are not `{ durationSeconds? }` or a `durationSeconds` outside 0 to 60. */ | \"bad-sky-trace\" /** A sky figure names a star whose Hipparcos number is not in the engine's star list (stars of magnitude 6.5 or brighter). Found when the scene is built, as the star list loads then. */ | \"unknown-star\" /** An activity curve is malformed. */ | \"bad-activity\" /** A camera call or pose is malformed, or names an object the view cannot show. */ | \"bad-camera\" /** A scene view is malformed, repeated, or not one of the scene's views. */ | \"bad-view\" /** `setSelected` was given something other than an id of an object the showing view shows, a sky figure, or `undefined`. */ | \"bad-selection\" /** A look (`setLook`) is unknown or out of its range. */ | \"bad-look\" /** An input field was given under a name it no longer has; the message names the old field and its replacement. */ | \"renamed\"",
       "constructors": [],
       "members": []
     },

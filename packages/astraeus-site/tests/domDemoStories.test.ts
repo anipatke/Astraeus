@@ -28,6 +28,6 @@ describe.each(DEMOS)("%s story panels", (_name, scene) => {
       expect(panel.provenance.notes.trim(), `${panel.id} has notes`).not.toBe("");
       expect(`${panel.provenance.accuracy} ${panel.provenance.notes}`, `${panel.id} uses no dash as punctuation`).not.toMatch(/ - | – | — |—/);
     }
-    expect(panels.map((panel) => panel.timeUtcMs)).toEqual([...panels.map((panel) => panel.timeUtcMs)].sort((a, b) => a - b));
+    expect(panels.map((panel) => panel.timeUtcMs)).toEqual([...panels.map((panel) => panel.timeUtcMs)].sort((a, b) => (a ?? 0) - (b ?? 0)));
   });
 });

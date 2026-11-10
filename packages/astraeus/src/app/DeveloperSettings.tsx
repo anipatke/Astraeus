@@ -142,7 +142,7 @@ export function SkyAndSunSettings({ illuminateAll, setIlluminateAll, visible, gl
 /** A colour input takes `#rrggbb` only; the look may hold any CSS colour the viewer accepts, so show it as hex. */
 const hexOf = (colour: string): string => `#${new Color(colour).getHexString()}`;
 
-const SKY_COLOUR_ROWS = [["figure", "Figure lines"], ["label", "Figure names"], ["boundary", "Outlines"], ["ecliptic", "Ecliptic"], ["equator", "Celestial equator"], ["traced", "Traced lines"], ["faded", "Faded lines"]] as const;
+const SKY_COLOUR_ROWS = [["figure", "Figure lines"], ["label", "Figure names"], ["boundary", "Outlines"], ["ecliptic", "Ecliptic"], ["equator", "Celestial equator"], ["traced", "Traced lines"], ["faded", "Faded lines"], ["selected", "Selected figure"]] as const;
 
 export function LabelSettings({ controls, hoverBrightness, setHoverBrightness, labelToggles, trackedCount, anchorLabels, setAnchorLabels, hiddenLabels, setHiddenLabels, labelStyle, setLabelStyle, skyColours, setSkyColours, hasSky }: {
   readonly controls: Controls;

@@ -6,6 +6,7 @@ import { ViewerLooks } from "./viewerLooks";
 import { ViewerCamera } from "./viewerCamera";
 import { ViewerClock } from "./viewerClock";
 import { ViewerSelection, type SelectionChange } from "./viewerSelection";
+import { ViewerPanels, type PanelChange } from "./viewerPanels";
 import { ViewerFirstDraw } from "./viewerFirstDraw";
 import { ViewerPicker } from "./viewerPicker";
 import type { PickChange } from "./pickerInput";
@@ -93,7 +94,7 @@ export type CameraPose = OrbitPose | SkyPose;
 export interface LookOutTarget {
   /** The id of the body to stand in; a body the showing view shows. */
   readonly lookOut: string;
-  /** Where to point: a star-map position, or the id of an object to turn toward. Omitted: the direction it already looks while looking out, else right ascension 0, declination 0. */
+  /** Where to point: a star-map position, or the id of an object or sky figure to turn toward. Omitted: the direction it already looks while looking out, else right ascension 0, declination 0. */
   readonly direction?: SkyDirection | string;
   /** Vertical field of view in degrees, 5 to 100. Omitted: the current one while looking out, else 60. */
   readonly fovDeg?: number;
@@ -141,6 +142,7 @@ export class ViewerLink implements ViewerPort {
   readonly #camera = new ViewerCamera(this.#access);
   readonly #zones = new ViewerZones(this.#access);
   readonly #selection = new ViewerSelection(this.#access);
+  readonly #panels = new ViewerPanels(this.#access);
   readonly #looks = new ViewerLooks(this.#access);
   readonly #frame = new ViewerFirstDraw();
   readonly #picker = new ViewerPicker(this.#access);
@@ -155,6 +157,7 @@ export class ViewerLink implements ViewerPort {
     this.#control = control;
     this.#clock.reset(control.read());
     this.#selection.reset(control.read());
+    this.#panels.reset(control.read());
     this.#mover = "playback";
     this.#camera.reset();
     this.#picker.reset(control);
@@ -167,6 +170,7 @@ export class ViewerLink implements ViewerPort {
     this.#control = undefined;
     this.#clock.reset(undefined);
     this.#selection.reset(undefined);
+    this.#panels.reset(undefined);
     this.#mover = "playback";
     this.#camera.reset();
     this.#picker.reset(undefined);
@@ -189,6 +193,7 @@ export class ViewerLink implements ViewerPort {
     this.#clock.clearListeners();
     this.#zones.clearListeners();
     this.#selection.clearListeners();
+    this.#panels.clearListeners();
     this.#camera.clearListeners();
     this.#frame.clearListeners();
     this.#picker.clearListeners();
@@ -207,6 +212,7 @@ export class ViewerLink implements ViewerPort {
   get eventZones(): readonly string[] | undefined { return this.#zones.eventZones; }
   get view(): string | undefined { return this.#views.view; }
   get selected(): string | undefined { return this.#selection.selected; }
+  get panel(): string | undefined { return this.#panels.panel; }
   get camera(): CameraPose | undefined { return this.#camera.camera; }
   get pick(): string | undefined { return this.#picker.pick; }
   get skyFigures(): readonly SceneSkyFigureRead[] | undefined { const control = this.#access.control(); return control === undefined ? undefined : control.skyFigures ?? []; }
@@ -225,6 +231,8 @@ export class ViewerLink implements ViewerPort {
   setScale(id: string): void { this.#looks.setScale(id); this.#afterHost(); }
   setSwitch(id: string, on: boolean): void { this.#looks.setSwitch(id, on); this.#afterHost(); }
   setSelected(id: string | undefined): void { this.#selection.setSelected(id); this.#afterHost(); }
+  setPanel(id: string | undefined): void { this.#panels.setPanel(id); this.#afterHost(); }
+  onPanel(listener: (change: PanelChange) => void): () => void { return this.#panels.onPanel(listener); }
   onChange(listener: (change: ViewerChange) => void): () => void { return this.#clock.onChange(listener); }
   onEventZone(listener: (change: EventZoneChange) => void): () => void { return this.#zones.onEventZone(listener); }
 
@@ -260,11 +268,15 @@ export class ViewerLink implements ViewerPort {
     const now = this.#publishes === serial ? state : this.#control?.read() ?? state;
     this.#zones.publish(now, cause);
     this.#selection.publish(now, cause);
+    this.#panels.publish(now, cause);
     this.#camera.publish();
   }
 
   /** The selection changed. A drop by time or the view names whatever last moved them (`onChange` names the same), so the cause is never a second opinion. */
   publishSelection(state: ViewerState, byMove: boolean): void { this.#selection.publish(state, byMove ? this.#mover : "visitor"); }
+
+  /** The open story panel changed. A drop by a view switch names whatever last moved the view (`onChange` names the same). */
+  publishPanel(state: ViewerState, cause: ViewerChangeCause | "move"): void { this.#panels.publish(state, cause === "move" ? this.#mover : cause); }
 
   /** A host call moved the clock or the view: report the control's reading, change then zones. */
   #afterHost(): void { this.publish(this.#access.open("publish").read(), "host"); }

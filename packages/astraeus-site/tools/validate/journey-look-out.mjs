@@ -1,6 +1,6 @@
 // Journey "Look out" (O-064 T-293), a step of `npm run check:browser`: the made-up look-out scene (`?experience=synthetic-lookout`, dev server only: the Sun, Earth and Mars) at 1280x720 and 375x667 with touch.
 // The scene opens with the camera at Earth's centre looking out (the Developer drawer's view line is a sky view of Earth, the stood-in Earth is not drawn); the camera menu offers Look out from Earth and from Mars, clear of
-// the other controls; the Mars entry moves the sky view to Mars, and Focus returns to the orbit camera; a wheel turn changes the field of view (desktop). Everything goes through driver.mjs; no screenshot is taken.
+// the other controls; O-066 T-302: figure taps and a three-step sky story (see checkFigureTaps and checkSkyStory); the Mars entry moves the sky view to Mars, and Focus returns to the orbit camera; a wheel turn changes the field of view (desktop). Everything goes through driver.mjs; no screenshot is taken.
 // Alone: ASTRAEUS_URL=<app.html url> ASTRAEUS_EVIDENCE_DIR=<new dir> node tools/validate/journey-look-out.mjs
 import assert from "node:assert/strict";
 import * as ui from "./driver.mjs";
@@ -84,6 +84,146 @@ async function checkSkyTrace(page, name) {
   await ui.setSkyTraceOpen(page, false); // leave the site control closed: the rest of the journey opens the Developer drawer and the menu
 }
 
+/** Projects a star-map position to canvas px from a sky reading (north up, east to the left, `fovDeg` the vertical angle); null when behind the camera. */
+function projectSky(reading, box, raDeg, decDeg) {
+  const rad = Math.PI / 180;
+  const unit = (ra, dec) => [Math.cos(dec * rad) * Math.cos(ra * rad), Math.cos(dec * rad) * Math.sin(ra * rad), Math.sin(dec * rad)];
+  const dot = (a, b) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
+  const cross = (a, b) => [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];
+  const norm = (a) => { const l = Math.hypot(...a); return a.map((v) => v / l); };
+  const d = unit(reading.raDeg, reading.decDeg);
+  const right = norm(cross(d, [0, 0, 1]));
+  const up = cross(right, d);
+  const p = unit(raDeg, decDeg);
+  const depth = dot(p, d);
+  if (depth <= 0.05) return null;
+  const tan = Math.tan((reading.fovDeg * rad) / 2);
+  return { x: box.width / 2 + (dot(p, right) / depth / (tan * (box.width / box.height))) * (box.width / 2), y: box.height / 2 - (dot(p, up) / depth / tan) * (box.height / 2) };
+}
+
+/** Loads the scene again: the opening view, the first step open, nothing traced. */
+async function reopen(page) {
+  await ui.loadAddress(page, appUrl("experience=synthetic-lookout&skyTraceSeconds=0.5"));
+  await ui.waitForShell(page);
+  await ui.ensurePaused(page);
+  await ui.waitForCameraReading(page, (reading) => reading.sky);
+}
+const sameDirection = (a, b) => Math.abs(a.raDeg - b.raDeg) < 0.6 && Math.abs(a.decDeg - b.decDeg) < 0.6;
+
+/** O-066 T-299 (desktop): a tap inside the outline selects nothing; a tap on its name and a tap near its line each select it and open its card. Runs at the opening view with nothing selected. */
+async function checkFigureTaps(page, name) {
+  const reading = await ui.cameraReading(page);
+  assert.ok(reading.sky, `${name}: the figure taps start in the sky view`);
+  const box = await page.locator("canvas").first().boundingBox();
+  const before = await ui.selectedObjectValue(page);
+  const inside = projectSky(reading, box, 288, -22);
+  assert.ok(inside, `${name}: a point inside the outline is in front of the camera`);
+  await ui.tapScenePoint(page, inside.x, inside.y);
+  await page.waitForTimeout(400);
+  assert.equal(await ui.selectedObjectValue(page), before, `${name}: a tap inside the outline selects nothing (was ${before})`);
+  assert.equal(await ui.infoOpen(page), false, `${name}: a tap inside the outline opens no card`);
+  await ui.tapLabel(page, "lantern-field");
+  await ui.waitForPicked(page, "lantern-field");
+  await ui.waitForInfo(page, { timeout: 5000 });
+  assert.equal(await ui.infoTargetId(page), "lantern-field", `${name}: tapping the outline's name opens its card`);
+  assert.match(await ui.infoText(page), /Lantern field/, `${name}: the card names the outline`);
+  assert.ok((await ui.skyLinesShown(page)).includes("sky-selected:lantern-field"), `${name}: the selected outline is drawn highlighted`);
+  await reopen(page); // a menu pick of a body would focus it, so the opening view comes back by loading the scene again
+  const corner = projectSky(reading, box, 291, -24); // on the outline's east side, between its corners
+  assert.ok(corner && corner.x > 0 && corner.y > 0 && corner.x < box.width && corner.y < box.height, `${name}: a point on the outline line is in view (${JSON.stringify(corner)})`);
+  await ui.tapScenePoint(page, corner.x - 4, corner.y);
+  await ui.waitForPicked(page, "lantern-field");
+  await ui.waitForInfo(page, { timeout: 5000 });
+  assert.equal(await ui.infoTargetId(page), "lantern-field", `${name}: tapping near the outline's line opens its card`);
+  await ui.closeInfo(page);
+  return { insideTap: inside, lineTap: corner };
+}
+
+const panelId = async (page) => (await ui.openStoryPanelIds(page))[0] ?? null;
+const pressStep = ui.pressStoryStep;
+const stepEnabled = ui.storyStepEnabled;
+const waitForStep = (page, id) => ui.waitForOpenStoryPanel(page, id);
+
+/** O-066 T-300 and T-301: the three-step story. The first step is open at the start; Back is off there and Next off on the last; each step's camera reading, selection and trace line set match; leaving a step clears its trace; a step turns the camera from an orbit view too; nothing collides. */
+async function checkSkyStory(page, name) {
+  assert.equal(await panelId(page), "step-start", `${name}: the first step is open at the start (open: ${JSON.stringify(await ui.openStoryPanelIds(page))})`);
+  assert.equal(await stepEnabled(page, "back"), false, `${name}: Back is off on the first step`);
+  const fit = async (label) => {
+    // A panel's select follows the tap rule: the card opens on a wide screen (beside the panel), not on a phone (it would cover Back and Next).
+    const cardOpen = await ui.infoOpen(page);
+    if (name === "phone") assert.equal(cardOpen, false, `${name}: ${label}: a step's select opens no card sheet`);
+    else if (label !== "step 1") assert.equal(cardOpen, true, `${name}: ${label}: a step's select opens the card`);
+    if (cardOpen) {
+      const [card, story] = [await ui.infoPanel(page).boundingBox(), await ui.storyPanelBox(page)];
+      assert.ok(card !== null && story !== null && !(card.x < story.x + story.width && story.x < card.x + card.width && card.y < story.y + story.height && story.y < card.y + card.height), `${name}: ${label}: the card and the story panel do not overlap (card ${JSON.stringify(card)}, story ${JSON.stringify(story)})`);
+    }
+    for (const which of ["back", "next"]) assert.equal(await ui.storyStepReachable(page, which), true, `${name}: ${label}: ${which} is not covered by anything`);
+    assert.deepEqual(await ui.overlappingSceneLabels(page), [], `${name}: ${label}: no two labels overlap`);
+    const traceFit = await ui.skyTraceFit(page);
+    assert.ok(traceFit.insideWindow && traceFit.overlaps.length === 0, `${name}: ${label}: the trace control is clear of the story panel, the card and the other controls (overlaps: ${traceFit.overlaps.join(", ") || "none"}; story ${JSON.stringify(await ui.storyPanelBox(page))}, control ${JSON.stringify(await page.locator("[data-site-sky-trace]").boundingBox())})`);
+    const box = await ui.storyPanelBox(page);
+    const view = page.viewportSize();
+    assert.ok(box && box.x >= 0 && box.y >= 0 && box.x + box.width <= view.width + 0.5 && box.y + box.height <= view.height + 0.5, `${name}: ${label}: the story panel is inside the window (${JSON.stringify(box)})`);
+    for (const which of ["back", "next"]) {
+      const b = await ui.storyStepBox(page, which);
+      assert.ok(b && Math.min(b.width, b.height) >= (name === "phone" ? 44 : 24) && b.y + b.height <= view.height + 0.5, `${name}: ${label}: ${which} is big enough and inside the window (${JSON.stringify(b)})`);
+    }
+  };
+  await fit("step 1");
+  const start = await ui.cameraReading(page);
+  assert.ok(start.sky && sameDirection(start, { raDeg: 281.6, decDeg: -23 }) && start.fovDeg === 60, `${name}: step 1 holds the opening view (${JSON.stringify(start)})`);
+  const readings = { start };
+
+  // From an orbit view: Focus on Earth leaves the sky view; Next must turn the camera back into it, looking at Lantern.
+  await ui.pickBody(page, "earth");
+  await ui.chooseCamera(page, "focus-earth");
+  await ui.waitForCameraReading(page, (reading) => !reading.sky);
+  await ui.closeInfo(page); // a menu pick opens the card, which covers the story's buttons on a phone
+  if (name === "phone") { await ui.closeControlsDrawer(page); await ui.closeTimelineDrawer(page); } // the camera entry opened the drawers too
+  await pressStep(page, "next");
+  await waitForStep(page, "step-lantern");
+  const lantern = await ui.waitForCameraReading(page, (reading) => reading.sky && reading.fovDeg === 40);
+  assert.ok(lantern.sky && lantern.body === "earth" && sameDirection(lantern, { raDeg: 288.5, decDeg: -18 }), `${name}: step 2 turns from the orbit view to look out at Lantern (${JSON.stringify(lantern)})`);
+  readings.lantern = lantern;
+  await ui.waitForPicked(page, "lantern");
+  await ui.waitForSkyLines(page, { present: ["sky-trace:lantern", "sky-selected:lantern"], absent: ["sky-trace:kettle"] });
+  assert.equal(await stepEnabled(page, "back"), true, `${name}: Back is on in step 2`);
+  await fit("step 2");
+
+  await pressStep(page, "next");
+  await waitForStep(page, "step-kettle");
+  const kettle = await ui.waitForCameraReading(page, (reading) => reading.sky && !sameDirection(reading, lantern));
+  assert.ok(kettle.fovDeg === 40 && kettle.raDeg < lantern.raDeg - 3, `${name}: step 3 turns west to Kettle (${JSON.stringify(kettle)})`);
+  readings.kettle = kettle;
+  await ui.waitForPicked(page, "kettle");
+  await ui.waitForSkyLines(page, { present: ["sky-trace:kettle", "sky-selected:kettle"], absent: ["sky-trace:lantern", "sky-selected:lantern"] }); // leaving step 2 cleared Lantern's trace
+  assert.equal(await stepEnabled(page, "next"), false, `${name}: Next is off on the last step`);
+  await fit("step 3");
+
+  await pressStep(page, "back");
+  await waitForStep(page, "step-lantern");
+  const again = await ui.waitForCameraReading(page, (reading) => reading.sky && sameDirection(reading, lantern));
+  assert.ok(again.sky, `${name}: Back returns the camera to Lantern`);
+  await ui.waitForPicked(page, "lantern");
+  await ui.waitForSkyLines(page, { present: ["sky-trace:lantern"], absent: ["sky-trace:kettle"] }); // leaving step 3 cleared Kettle's trace; step 2 traces Lantern again
+  await pressStep(page, "back");
+  await waitForStep(page, "step-start");
+  const home = await ui.waitForCameraReading(page, (reading) => reading.sky && sameDirection(reading, start) && reading.fovDeg === 60);
+  assert.ok(home.sky, `${name}: Back to step 1 returns the opening view`);
+  await ui.waitForSkyLines(page, { absent: ["sky-trace:lantern", "sky-trace:kettle"] });
+  assert.equal(await stepEnabled(page, "back"), false, `${name}: Back is off again on the first step`);
+  return readings;
+}
+
+/** Figure taps (desktop), then the story; it ends on step 1, the opening view, and closes the panel, so the rest of the journey goes on from there. */
+async function checkFiguresAndStory(page, name) {
+  const taps = name === "desktop" ? await checkFigureTaps(page, name) : null;
+  const story = await checkSkyStory(page, name);
+  await ui.closeInfo(page);
+  await ui.closeStoryPanel(page);
+  return { taps, story };
+}
+
 await checkScript({ name: "journey-look-out", viewports: SIZES }, async (page, { name }) => {
   await ui.loadAddress(page, appUrl("experience=synthetic-lookout&skyTraceSeconds=0.5"));
   await ui.waitForShell(page);
@@ -101,6 +241,8 @@ await checkScript({ name: "journey-look-out", viewports: SIZES }, async (page, {
   const named = await ui.shownSceneLabelIds(page);
   assert.ok(named.includes("sun"), `${name}: the Sun's label shows in the look-out view (shown: ${named.join(", ") || "none"})`);
 
+  const { taps, story } = await checkFiguresAndStory(page, name);
+  await ui.waitForSceneLabel(page, "lantern-field", true); // the labels follow the camera back to the opening view
   const lineSets = await checkSkySwitches(page, name);
   await checkSkyTrace(page, name);
 
@@ -139,5 +281,5 @@ await checkScript({ name: "journey-look-out", viewports: SIZES }, async (page, {
   assert.ok(earthBack?.inView && earthBack.as !== "none", `${name}: Earth is drawn and in view again once the camera is back in orbit (${JSON.stringify(earthBack)})`);
   await ui.pickBody(page, "mars");
   assert.equal(await ui.cameraActive(page, "lookout-mars"), false, `${name}: the Look out entry no longer shows as pressed`);
-  return { opened, lineSets, atMars, zoomedFovDeg: zoomed?.fovDeg ?? null, entryPx: fit.smallestPx };
+  return { opened, taps, story, lineSets, atMars, zoomedFovDeg: zoomed?.fovDeg ?? null, entryPx: fit.smallestPx };
 });

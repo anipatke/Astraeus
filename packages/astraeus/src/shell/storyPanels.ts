@@ -10,6 +10,8 @@ export {
   type PanelLookup,
   type StoryPanel,
   type StoryPanelSet,
+  type StoryStep,
+  neighbourStep,
 } from "../core/storyPanels";
 
 /**
