@@ -18,6 +18,10 @@ history:
     kind: observed
     note: 'Low materiality; recommended to combine with the I-164/I-165 repair (a few lines of text).'
     check: C-163
+  - at: '2026-11-10T16:20:00Z'
+    actor: {role: executor, session: o065-repair-20261110}
+    kind: repair_attempted
+    note: 'Repair (executor evidence, not verified): removed every offer of after clear: the SkyFigureInput.shown doc comment, the CHANGELOG bad-sky-trace line (now after other than stay or fade, and names SkyTraceOptions and SkyClearOptions), run-browser.mjs step description, docs/BROWSER_CHECKS.md (Stay, Fade and Stay-then-Hide; the trace is read back through the sky-trace:<id> line set), Design.md Sky figures (8). api:lock unchanged. npm test, typecheck, lint, build and check:pack pass.'
 ---
 
 # I-166: Sky trace docs still describe the dropped "clear" option

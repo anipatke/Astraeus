@@ -13,8 +13,13 @@ export const EXAMPLES = ["hello-scene", "hello-react", "hello-planets"];
 /** The packages the examples install: the engine only (it draws Earth, the Moon and a path with no data package). */
 export const EXAMPLE_PACKAGES = ["astraeus"];
 
+/** The environment without the outer npm run's own settings (`npm_config_*`, `NODE_ENV`, vitest's own variables): a nested `npm install` rejects some of them (`--allow-scripts` from a parent `npm test` / `npx`, I-164) and a test mode makes a bigger bundle (2.07 MB instead of 1.75 MB under `npm test`), so the example must install the same way however it is started. */
+function cleanEnv() {
+  return Object.fromEntries(Object.entries(process.env).filter(([name]) => !/^(?:npm_config_|NODE_ENV$|VITEST|VITE_|TEST$|MODE$)/i.test(name)));
+}
+
 function run(command, args, cwd) {
-  const result = spawnSync(command, args, { cwd, stdio: "inherit", shell: process.platform === "win32" });
+  const result = spawnSync(command, args, { cwd, stdio: "inherit", env: cleanEnv(), shell: process.platform === "win32" });
   if (result.status !== 0) throw new Error(`${command} ${args.join(" ")} failed (exit ${result.status})`);
 }
 

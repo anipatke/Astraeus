@@ -6,6 +6,11 @@ const AFTERS = ["stay", "fade"] as const;
 type After = (typeof AFTERS)[number];
 /** How long a trace runs on the site's control (seconds); a fade then takes about one more second inside the engine. */
 export const SITE_TRACE_SECONDS = 2;
+/** The seconds a trace runs: `SITE_TRACE_SECONDS`, or the page address's `skyTraceSeconds` (0.1 to 60, the engine's range) so the browser check can run the trace quickly (I-165). */
+function traceSeconds(): number {
+  const asked = Number(new URLSearchParams(window.location.search).get("skyTraceSeconds"));
+  return Number.isFinite(asked) && asked >= 0.1 && asked <= 60 ? asked : SITE_TRACE_SECONDS;
+}
 const FADE_ALLOWANCE_MS = 1_200;
 
 const END_TEXT: Readonly<Record<After, string>> = { stay: "stays", fade: "faded" };
@@ -47,10 +52,11 @@ export function addSkyTraceControl(_host: HTMLElement, handle: MountedScene): ()
     fill();
     if (pick.value === "") return;
     clearTimeout(timer);
-    handle.traceSkyFigure(pick.value, { durationSeconds: SITE_TRACE_SECONDS, after });
+    const seconds = traceSeconds();
+    handle.traceSkyFigure(pick.value, { durationSeconds: seconds, after });
     status.dataset.traceStatus = "tracing";
     status.textContent = "Tracing";
-    timer = setTimeout(() => { status.dataset.traceStatus = after; status.textContent = `Trace ${END_TEXT[after]}`; }, SITE_TRACE_SECONDS * 1000 + (after === "fade" ? FADE_ALLOWANCE_MS : 200));
+    timer = setTimeout(() => { status.dataset.traceStatus = after; status.textContent = `Trace ${END_TEXT[after]}`; }, seconds * 1000 + (after === "fade" ? FADE_ALLOWANCE_MS : 200));
   };
   const hide = () => {
     fill();

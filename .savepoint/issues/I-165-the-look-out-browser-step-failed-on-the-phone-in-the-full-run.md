@@ -18,6 +18,10 @@ history:
     kind: observed
     note: 'The official browser run failed this step at 375x667; one focused rerun of the step alone passed (59 s). Cause not established; treated as an intermittent failure of a step O-065 extended. The re-check browser run must pass it.'
     check: C-163
+  - at: '2026-11-10T16:20:00Z'
+    actor: {role: executor, session: o065-repair-20261110}
+    kind: repair_attempted
+    note: 'Repair (executor evidence, not verified): cause from code, not reproduced: expandDeveloperGroups counted closed folds then re-resolved closed.first() for the click, so a panel re-render between the two left the click waiting 30 s. It now finds and presses the fold in one page.evaluate (every caller), with a frame between presses. The step also closes the site trace control after the traces, and opens the scene with skyTraceSeconds=0.5 (new optional address setting of the site trace control, default 2 s) so the traces run quickly. Focused journey-look-out on scratch port 5199 (stopped): three runs in a row exit 0 at both sizes, 41 s each (59 s before). Still over the 30 s limit in gate-limits.json, not changed; 50 s proposed to the owner. docs/BROWSER_CHECKS.md updated. Not run: full check:browser.'
 ---
 
 # I-165: The look-out browser step failed on the phone in the full run and runs far over its time limit
@@ -39,3 +43,5 @@ The step also runs far over its time limit: 90 s in the full run (with the 30 s 
 - The re-check's one `npm run check:browser` run passes `look-out` at both sizes.
 - The step leaves no open site control behind before the O-064 part of the journey (or the journey shows it does not matter), and `expandDeveloperGroups` clicks a fold it has just found rather than re-resolving a locator that may no longer match (strategic fix: the shared driver, so every script benefits).
 - `tools/gate-limits.json` `look-out` and the `docs/agents/build.md` / `docs/BROWSER_CHECKS.md` time rows state a limit and time measured after T-298, with the reason, or the step is made faster.
+
+Owner decision 2026-11-10 (coordinator session o065-run-20261110): the look-out step's warn limit in `tools/gate-limits.json` raised 30 -> 50 s ("Raise to 50 s"); measured 41 s alone after the repair; `docs/BROWSER_CHECKS.md` row updated.

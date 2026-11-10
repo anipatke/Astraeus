@@ -81,10 +81,11 @@ async function checkSkyTrace(page, name) {
     }
   }
   assert.equal((await ui.overlappingSceneLabels(page)).length, 0, `${name}: no labels overlap after the traces`);
+  await ui.setSkyTraceOpen(page, false); // leave the site control closed: the rest of the journey opens the Developer drawer and the menu
 }
 
 await checkScript({ name: "journey-look-out", viewports: SIZES }, async (page, { name }) => {
-  await ui.loadAddress(page, appUrl("experience=synthetic-lookout"));
+  await ui.loadAddress(page, appUrl("experience=synthetic-lookout&skyTraceSeconds=0.5"));
   await ui.waitForShell(page);
   await ui.ensurePaused(page);
   const opened = await ui.waitForCameraReading(page, (reading) => reading.sky);

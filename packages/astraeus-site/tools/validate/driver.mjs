@@ -463,9 +463,18 @@ const developerButton = (page) => page.getByRole("button", { name: "Developer mo
  * left them). Scripts reach a control by name; the driver opens the groups first so no script has to know the panel's layout.
  */
 export async function expandDeveloperGroups(page) {
-  const closed = page.locator('[data-developer-panel] [data-fold-toggle][aria-expanded="false"]');
   await devFolds(page).first().waitFor({ timeout: 10000 });
-  for (let guard = 0; guard < 30 && (await closed.count()) > 0; guard++) await closed.first().evaluate((element) => element.click());
+  // I-165: finding a closed fold and pressing it is one step inside the page. Counting first and then re-resolving a locator for the click waited 30 s when the panel re-rendered between the two (the fold was gone).
+  for (let guard = 0; guard < 30; guard++) {
+    const pressed = await page.evaluate(() => {
+      const fold = document.querySelector('[data-developer-panel] [data-fold-toggle][aria-expanded="false"]');
+      if (fold === null) return false;
+      fold.click();
+      return true;
+    });
+    if (!pressed) break;
+    await page.evaluate(() => new Promise((resolve) => requestAnimationFrame(() => resolve(undefined)))); // let the panel draw the opened fold before looking again
+  }
 }
 /** Whether a group (fold) of the developer panel is open, by its id ("demo", "camera", "timeline", "orbit-lines", "orbit-fine-tune", "sky-sun", "labels", "phone-layout", "under-the-hood"). */
 export const developerGroupOpen = async (page, id) => (await page.locator(`[data-developer-panel] [data-fold-toggle="${id}"]`).getAttribute("aria-expanded")) === "true";

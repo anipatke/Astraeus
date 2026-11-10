@@ -24,7 +24,7 @@ Tracing figures (G-018, O-065, third step): an app can ask the viewer to draw a 
 
 - `handle.traceSkyFigure(id, { durationSeconds?, after? })` on the `mount` handle and on `AstraeusScene`: draws the figure's segments in order, each growing from its first end, over `durationSeconds` (0.1 to 60, default 2) in the `skyLines.traced` colour, then `after` (`"stay"` default, or `"fade"` to the `skyLines.faded` colour and away over a second). It runs only when the app asks, on real time (pause and speed of the scene clock do not change it); calling again restarts it; it follows the figure's switch. With `prefers-reduced-motion: reduce` the whole figure shows at once.
 - `handle.clearSkyTrace(id, { durationSeconds? })` on both embedding paths: removes a figure's trace at any time (running, after `"stay"`, or during a `"fade"`), easing it out over `durationSeconds` (0 to 60, default 1; 0 at once). A `whenTraced` figure is hidden, an always-shown one loses only the trace highlight; a figure with no trace is left alone; unknown id throws `unknown-sky-figure`, bad options `bad-sky-trace`.
-- Two error codes: `unknown-sky-figure` (an id the viewer does not draw) and `bad-sky-trace` (bad options, `durationSeconds` out of range, or an `after` other than the three). Exported type: `SkyTraceOptions`.
+- Two error codes: `unknown-sky-figure` (an id the viewer does not draw) and `bad-sky-trace` (bad options, `durationSeconds` out of range, or an `after` other than `"stay"` or `"fade"`). Exported types: `SkyTraceOptions` and `SkyClearOptions`.
 
 Look out from a body (G-018, O-064): the camera can stand at a body's centre and turn to look around the sky. The public camera API and the camera menu entry are in; the sky figures come in a later step.
 

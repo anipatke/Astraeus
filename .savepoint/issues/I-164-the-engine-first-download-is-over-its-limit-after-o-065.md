@@ -18,6 +18,10 @@ history:
     kind: observed
     note: 'Blocking for O-065: the one browser gate of the Full Objective Check fails on its public-build-assets step. Deterministic (a build size), not a flake.'
     check: C-163
+  - at: '2026-11-10T16:20:00Z'
+    actor: {role: executor, session: o065-repair-20261110}
+    kind: repair_attempted
+    note: 'Repair (executor evidence, not verified): ENGINE_LIMIT reset to 1,833,000 raw / 527,000 gzip (measured 1,745,198 / 501,483 by node tools/measure-example.mjs, plus 5%, rounded up to the next 1,000; owner decision 2026-11-10). New fast test packages/astraeus-site/tests/engineBudget.test.ts builds the packed engine and hello-scene (about 3 s) in npm test and holds it to ENGINE_LIMIT, and shows a limit one byte below fails. tools/build-example.mjs now runs its nested npm and vite without the outer npm_config_*, NODE_ENV and vitest variables (under npm test the build was 2,068,776 raw and npm install failed on --allow-scripts); tools/build-example.d.mts added. npm test, typecheck, lint, build and check:pack pass. check:browser not run (the recheck runs it).'
 ---
 
 # I-164: The engine's first download is over its limit after O-065
@@ -38,3 +42,5 @@ No fast-suite test measures this limit, so every step's builder gates (`npm test
 
 - `npm run check:browser` passes `public-build-assets` with the engine's first download within its limit. Two ways get there: the engine's first download shrinks (for example, code only a sky-figure scene needs is loaded when a scene adds figures), or the owner records a new engine limit with a reason, as the owner did for the API page (`load-budget.mjs`, O-065 T-296).
 - Strategic fix (AGENTS.md "Strategic fix first"; I-142 is the precedent): a fast-suite or `check:pack`-time check holds the engine's first download to `ENGINE_LIMIT` from the one source, so engine growth fails at the step that causes it, shown to fail when the limit is set below the current size.
+
+Owner decision 2026-11-10 (coordinator session o065-run-20261110): "Reset limit, add fast test" — reset `ENGINE_LIMIT` by the owner's 2026-11-01 rule (measured size plus 5%, rounded up to the next 1,000 bytes) and add a fast size test so the ordinary test gate catches this next time.
