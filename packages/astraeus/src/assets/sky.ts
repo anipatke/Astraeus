@@ -1,6 +1,7 @@
 // The sky behind every experience: directions at infinity in the EQJ (J2000 equatorial) frame. Frame layer only; it never
 // touches State (ARCH-02). The stars come from the committed HYG file (tools/data/fetch-hyg-stars.mjs, CC BY-SA 4.0); the Milky Way image is committed
 // with its licence (PROV-02).
+import { fetchBytesOf } from "../core/readBytes";
 import type { AssetLicence, TextureRef } from "./licence";
 import hygStarsUrl from "./stars/hyg-v42-naked-eye.json?url";
 import type { Pictures } from "./pictures";
@@ -160,14 +161,13 @@ let starRequest: Promise<StarCatalogue | null> | undefined;
 
 async function fetchStarFile(url: string): Promise<StarCatalogue | null> {
   try {
-    const response = await fetch(url);
-    return response.ok ? parseStarFile(JSON.parse(await response.text())) : null;
+    return parseStarFile(JSON.parse(new TextDecoder().decode(await fetchBytesOf(url))));
   } catch {
     return null;
   }
 }
 
-/** The star catalogue: the committed HYG file served with the app. Absent (null) when it cannot be read or is not a valid star file. */
+/** The star catalogue: the committed HYG file served with the app (read from disk in Node, by the engine's one bundled-file reader). Absent (null) when it cannot be read or is not a valid star file. */
 export function loadStarCatalogue(): Promise<StarCatalogue | null> {
   starRequest ??= fetchStarFile(hygStarsUrl);
   return starRequest;

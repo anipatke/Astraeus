@@ -10,6 +10,7 @@ import { ChebyshevEphemeris, parseEphemerisIndex } from "../chebyshevEphemeris";
 import { type IauRotationElements, iauOrientation } from "../iauRotation";
 import { type BalancePoint, periodAboutBalanceS } from "../orbitPeriod";
 import { NotLoadedError } from "../planetSeries";
+import { fetchBytesOf } from "../readBytes";
 import { createProvenance } from "../provenance";
 import { assertUtcUnixMs, createState, type State } from "../state";
 import type { TimeBounds, Trajectory } from "../trajectory";
@@ -99,20 +100,6 @@ const HISTORY_MARGIN = 1.05;
 const DECODE_SLICE_MS = 8;
 /** Half the time step (s) the orbit-derived tidal-lock orientation looks along the orbit, as Io's mean-element orientation did. */
 const ORIENTATION_STEP_S = 1800;
-
-/** Reads a `file:` address with Node's own module (found at run time, so a browser bundle never resolves it); Node's `fetch` does not serve `file:`. */
-async function readFileUrl(url: string): Promise<Uint8Array> {
-  const nodeFs = (globalThis as { process?: { getBuiltinModule?: (id: string) => unknown } }).process?.getBuiltinModule?.("node:fs/promises") as { readFile(path: URL): Promise<Uint8Array> } | undefined;
-  if (nodeFs === undefined) throw new Error(`moon fit chunk ${url}: this runtime cannot read a file: address`);
-  return new Uint8Array(await nodeFs.readFile(new URL(url)));
-}
-
-const fetchBytesOf = async (url: string): Promise<Uint8Array> => {
-  if (url.startsWith("file:")) return readFileUrl(url);
-  const response = await fetch(url);
-  if (!response.ok) throw new Error(`moon fit chunk ${url}: HTTP ${response.status}`);
-  return new Uint8Array(await response.arrayBuffer());
-};
 
 /** One system's installed set and everything made from it. Each `createMoonSystem` call holds its own set (a page loads the systems it shows). */
 export interface MoonSystem {

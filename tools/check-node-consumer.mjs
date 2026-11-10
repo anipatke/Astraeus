@@ -18,8 +18,8 @@ function run(command, args, cwd, quiet = false) {
 
 let failed = false;
 try {
-  // The engine and one data package (Jupiter's moons), both packed and unpacked as a customer installs them (the cold-start case below uses the package's own `dataSource`).
-  const packed = ["astraeus", "astraeus-data-jupiter"];
+  // The engine and two data packages (Jupiter's moons, the constellations), both packed and unpacked as a customer installs them (the cold-start case below uses the package's own `dataSource`).
+  const packed = ["astraeus", "astraeus-data-jupiter", "astraeus-data-constellations"];
   run(process.execPath, [join(root, "tools", "build-packages.mjs"), ...packed], root);
   const modules = join(scratch, "node_modules");
   for (const name of packed) {
@@ -167,6 +167,14 @@ try {
     "  expect(fault(() => scene().setViews([A, B], { place: 'top-bar', start: 'nope' }))).toMatch(/^bad-view: .*start/);",
     "  expect(fault(() => scene().setViews([{ ...A, objects: ['probe-z'] }], top).check())).toMatch(/^bad-view: .*probe-z/); // an id the scene does not hold is caught when it is built",
     "  expect(fault(() => scene().setViews([{ ...A, camera: { follow: 'probe-b' } }, B], top).check())).toMatch(/^bad-view: /); // a camera target the view hides",
+    "});",
+    'test("a sky figure that names stars loads in plain Node: the engine reads its own star list from disk (I-167)", async () => {',
+    "  const { constellations } = await import('astraeus-data-constellations');",
+    "  const scene = new Scene().addBody(earth).addSkyFigures(await constellations(['Ori'], { outlines: true })); // every end of Orion names a Hipparcos star",
+    "  expect(() => scene.check()).not.toThrow();",
+    "  await expect(scene.load()).resolves.toBeUndefined(); // no fetch stub; was missing-data",
+    "  const unknown = new Scene().addBody(earth).addSkyFigures([{ id: 'nowhere', label: 'Nowhere', segments: [[{ star: 1 }, { star: 2_000_000 }]] }]);",
+    "  await expect(unknown.load()).rejects.toMatchObject({ code: 'unknown-star' }); // a number not in the list is still named, not read as missing data",
     "});",
     "",
   ].join("\n"));

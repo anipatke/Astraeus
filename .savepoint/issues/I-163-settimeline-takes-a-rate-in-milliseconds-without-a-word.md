@@ -2,16 +2,22 @@
 id: I-163
 title: setTimeline takes a rate in milliseconds without a word
 type: guardrail
-status: open
+status: resolved
 source:
   kind: check
   check: C-161
   actor: {role: checker, session: o064-check-20261110}
   at: '2026-11-10T02:44:58Z'
 tasks: [T-293]
-checks: [C-161]
+checks: [C-161, C-168]
 guardrail_ids: [API-04]
 severity: low
+resolution:
+  disposition: verified
+  check: C-168
+  actor: {role: checker, session: release-0-9-0-issue-check-20261111}
+  at: '2026-11-10T21:20:00Z'
+  reason: Repair proven by C-168 (CLEAR).
 history:
   - at: '2026-11-10T02:44:58Z'
     actor: {role: checker, session: o064-check-20261110}
@@ -22,6 +28,15 @@ history:
     actor: {role: owner, session: o064-run-20261110}
     kind: deferred
     note: 'Owner chose "Later in 0.9.0": fix before 0.9.0 ships, not inside O-064 (recorded by the coordinator on the owner''s direct answer).'
+  - at: '2026-11-11T08:10:00Z'
+    actor: {role: executor, session: release-0-9-0-builder}
+    kind: repair_attempted
+    note: 'Direct repair on release-0-9-0 (uncommitted), coordinator rule: warn, never throw. No warning channel existed in src/api, so setTimeline (timelineOf in api/story.ts) calls console.warn, as app/look.ts does, when rate or any offered rate would cross the whole span in under one real second; the message names ''simulated seconds per real second'', the value(s) and suggests milliseconds. Proof Needed re-run: packages/astraeus/tests/timelineRateWarning.test.ts plants the T-293 shape (rates [DAY_MS, 7*DAY_MS], rate DAY_MS over 120 days): one warning naming both values, no throw; one fast offered rate with a sane opening rate also warns. Neighbours: no warning for the right units, for a 2 h span at 7200 s/s (exactly one second), for none:true, or for the synthetic journey scene; the whole npm test run printed no such warning, which covers every scene built in tests and the site/demo/example scenes the suite builds (their rates read by hand: all cross their span in over a second). Documented in the setTimeline README row, CHANGELOG Unreleased and Design.md. api:lock unchanged. Gates all pass as in I-167''s entry. Unverified: pacing rates are not checked (only rate and rates); examples/ run in a browser were read, not run. Not verified or resolved by this entry.'
+  - at: '2026-11-10T21:20:00Z'
+    actor: {role: checker, session: release-0-9-0-issue-check-20261111}
+    kind: rechecked
+    note: 'Proof Needed holds under the coordinator rule (warn, never throw): the T-293 shape warns once naming the unit and both values; independent probes on the packed engine (ISO and Date moments, rates only, negative rate, 7201 s/s over 7200 s) warn; sane rates and none:true do not; rate 0 still throws bad-timeline; no warning in npm test or check:browser logs. Pacing rates not checked (observation).'
+    check: C-168
 ---
 
 # I-163: setTimeline takes a rate in milliseconds without a word

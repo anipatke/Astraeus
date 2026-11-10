@@ -129,7 +129,7 @@ describe("HYG fetch tool parsing", () => {
 });
 
 describe("star catalogue loading", () => {
-  it("loads the committed HYG file, once, with no address switch or local file", async () => {
+  it("loads the committed HYG file, once, from disk in Node (no fetch, I-167), with no address switch or local file", async () => {
     const requested: string[] = [];
     vi.stubGlobal("fetch", async (url: string) => {
       requested.push(url);
@@ -139,8 +139,7 @@ describe("star catalogue loading", () => {
       const loaded = await loadStarCatalogue();
       expect(loaded?.stars.length).toBe(hyg.stars.length);
       expect(await loadStarCatalogue()).toBe(loaded);
-      expect(requested).toHaveLength(1);
-      expect(requested[0]).not.toContain("data/local");
+      expect(requested).toHaveLength(0); // the tests' star list address is a file: address, which the engine's one bundled-file reader reads with node:fs
     } finally {
       vi.unstubAllGlobals();
     }

@@ -1,8 +1,5 @@
-import { readFileSync } from "node:fs";
-import { dirname, join } from "node:path";
-import { fileURLToPath } from "node:url";
 import { Scene, earth } from "astraeus";
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 import { constellations } from "../src/index.js";
 
 // O-067 T-305: the helper hands back public sky figures that a real scene accepts.
@@ -55,14 +52,11 @@ describe("constellations()", () => {
   });
 
   it("loads in a real scene: all 88 with outlines resolve every star end (no unknown-star)", async () => {
-    // The engine reads its star list by fetch (it is served with the app); Node has no such server, so the test serves the committed file from disk. The engine is untouched.
-    const file = readFileSync(join(dirname(fileURLToPath(import.meta.url)), "..", "..", "astraeus", "src", "assets", "stars", "hyg-v42-naked-eye.json"), "utf8");
-    vi.stubGlobal("fetch", async () => new Response(file, { status: 200 }));
+    // No fetch stub: the engine reads its own star list from disk in Node (I-167).
     const scene = new Scene();
     scene.addBody(earth);
     scene.addSkyFigures(await constellations("all", { outlines: true }));
     scene.check();
     await expect(scene.load()).resolves.toBeUndefined();
-    vi.unstubAllGlobals();
   });
 });

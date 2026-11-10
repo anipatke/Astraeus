@@ -1,0 +1,113 @@
+{
+  "name": "journey-look-out",
+  "at": "2026-11-10T21:11:52.723Z",
+  "ok": true,
+  "results": [
+    {
+      "viewport": "desktop",
+      "result": {
+        "opened": {
+          "sky": true,
+          "body": "earth",
+          "raDeg": 281.6,
+          "decDeg": -23,
+          "fovDeg": 60
+        },
+        "taps": {
+          "insideTap": {
+            "x": 575.2014206310198,
+            "y": 350.47343127870244
+          },
+          "lineTap": {
+            "x": 545.8875073051911,
+            "y": 374.0314873632391
+          }
+        },
+        "story": {
+          "start": {
+            "sky": true,
+            "body": "earth",
+            "raDeg": 281.6,
+            "decDeg": -23,
+            "fovDeg": 60
+          },
+          "lantern": {
+            "sky": true,
+            "body": "earth",
+            "raDeg": 288.5,
+            "decDeg": -18,
+            "fovDeg": 40
+          },
+          "kettle": {
+            "sky": true,
+            "body": "earth",
+            "raDeg": 273.89,
+            "decDeg": -31.87,
+            "fovDeg": 40
+          }
+        },
+        "lineSets": [
+          "sky-boundaries"
+        ],
+        "atMars": {
+          "sky": true,
+          "body": "mars",
+          "raDeg": 0,
+          "decDeg": 0,
+          "fovDeg": 60
+        },
+        "zoomedFovDeg": 29.21,
+        "entryPx": 36
+      }
+    },
+    {
+      "viewport": "phone",
+      "result": {
+        "opened": {
+          "sky": true,
+          "body": "earth",
+          "raDeg": 281.6,
+          "decDeg": -23,
+          "fovDeg": 60
+        },
+        "taps": null,
+        "story": {
+          "start": {
+            "sky": true,
+            "body": "earth",
+            "raDeg": 281.6,
+            "decDeg": -23,
+            "fovDeg": 60
+          },
+          "lantern": {
+            "sky": true,
+            "body": "earth",
+            "raDeg": 288.5,
+            "decDeg": -18,
+            "fovDeg": 40
+          },
+          "kettle": {
+            "sky": true,
+            "body": "earth",
+            "raDeg": 273.89,
+            "decDeg": -31.87,
+            "fovDeg": 40
+          }
+        },
+        "lineSets": [
+          "sky-boundaries"
+        ],
+        "atMars": {
+          "sky": true,
+          "body": "mars",
+          "raDeg": 0,
+          "decDeg": 0,
+          "fovDeg": 60
+        },
+        "zoomedFovDeg": null,
+        "entryPx": 44
+      }
+    }
+  ],
+  "errors": []
+}

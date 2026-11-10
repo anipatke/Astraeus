@@ -144,6 +144,17 @@ export function eventsOf(inputs: readonly EventInput[], known: readonly Timeline
   return createEvents([...known, ...added].sort((a, b) => a.timeUtcMs - b.timeUtcMs));
 }
 
+/** A rate that crosses the whole span in under this many real seconds is probably a unit mistake (milliseconds given for seconds). */
+const MIN_CROSSING_REAL_SECONDS = 1;
+
+/** Warns (never throws: a short span at a fast rate can be meant) when a `rate` or an offered rate crosses the whole timeline span in under a real second; I-163. */
+function warnOfFastRates(window: { readonly startUtcMs: number; readonly endUtcMs: number }, input: { readonly rate?: number; readonly rates?: readonly number[] }): void {
+  const spanSeconds = (window.endUtcMs - window.startUtcMs) / 1000;
+  const fast = [...new Set([...(input.rates ?? []), ...(input.rate === undefined ? [] : [input.rate])].filter((rate) => spanSeconds / Math.abs(rate) < MIN_CROSSING_REAL_SECONDS))];
+  if (fast.length === 0) return;
+  console.warn(`setTimeline: rate ${fast.join(", ")} is in simulated seconds per real second and would cross the whole ${spanSeconds}-second span in under a real second; if the value is in milliseconds (for example DAY_MS), divide it by 1000`);
+}
+
 /** Checks a `setTimeline` argument and converts its moments. */
 export function timelineOf(input: TimelineInput): TimelineSetting {
   const bad = (message: string) => new SceneError("bad-timeline", `setTimeline: ${message}`);
@@ -156,6 +167,7 @@ export function timelineOf(input: TimelineInput): TimelineSetting {
   const rates = input.rates;
   if (rates !== undefined && (!Array.isArray(rates) || rates.length === 0 || !rates.every((rate) => Number.isFinite(rate) && rate > 0))) throw bad("rates must be a non-empty list of positive numbers");
   const pacing = pacingOf(input.pacing, bad);
+  warnOfFastRates(window, input);
   return { none: false, window, ...(rates === undefined ? {} : { rates }), ...(pacing === undefined ? {} : { pacing }), ...(input.rate === undefined ? {} : { rate: input.rate }), ...(input.loop === true ? { loop: true } : {}) };
 }
 

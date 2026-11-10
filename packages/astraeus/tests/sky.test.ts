@@ -219,12 +219,12 @@ describe("the sky sits at infinity (Done When 3, ARCH-02)", () => {
     expect(SKY_PROBE_DIRECTION.length).toBe(3);
   });
 
-  it("keeps State out: the sky modules import nothing from the scientific core except provenance", () => {
+  it("keeps State out: the sky modules import nothing from the scientific core except provenance and the byte reader", () => {
     expect(Object.keys(skySources)).toHaveLength(3);
     for (const [source, text] of Object.entries(skySources)) {
       const imports = [...text.matchAll(/from\s+["']([^"']+)["']/g)].map((match) => match[1]);
       const core = imports.filter((specifier) => /core\//.test(specifier));
-      expect(core.filter((specifier) => !/core\/provenance$/.test(specifier)), source).toEqual([]);
+      expect(core.filter((specifier) => !/core\/(provenance|readBytes)$/.test(specifier)), source).toEqual([]);
     }
   });
 });
