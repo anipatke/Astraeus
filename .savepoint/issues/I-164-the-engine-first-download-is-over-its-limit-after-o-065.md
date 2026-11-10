@@ -2,16 +2,22 @@
 id: I-164
 title: The engine's first download is over its limit after O-065
 type: defect
-status: open
+status: resolved
 source:
   kind: check
   check: C-163
   actor: {role: checker, session: o065-check-20261110}
   at: '2026-11-10T04:56:00Z'
 tasks: [T-295, T-296, T-297, T-298]
-checks: [C-163, C-164]
+checks: [C-163, C-164, C-165]
 guardrail_ids: [TEST-01]
 severity: medium
+resolution:
+  disposition: verified
+  check: C-165
+  actor: {role: checker, session: o065-recheck2-20261110}
+  at: '2026-11-10T05:50:00Z'
+  reason: 'Fast size check folded into packagePacks.test.ts (one dist build); npm test repeated 6 times and the file alone twice pass; size within the reset limit in npm test and the fresh browser run (browser-20261110T054242Z); fails one byte under.'
 history:
   - at: '2026-11-10T04:56:00Z'
     actor: {role: checker, session: o065-check-20261110}
@@ -31,6 +37,11 @@ history:
     actor: {role: executor, session: o065-repair2-20261110}
     kind: repair_attempted
     note: 'Repair (executor evidence, not verified) for the C-164 test clash, owner decision "Fold into one build": engineBudget.test.ts deleted; the size check (checkEngineBudget vs ENGINE_LIMIT, and a limit one byte below fails with both problems) is now the second test in packagePacks.test.ts, straight after the checkPacks() build, via buildExample("hello-scene", { buildPackages: false }) so one file owns packages/*/dist. No other test file builds into packages/astraeus/dist or the example build folders (checked by search). build-example.mjs: npm install now --prefer-offline; cleanEnv keeps npm_config registry/cache/userconfig/proxy/cert settings. docs/BROWSER_CHECKS.md shows 1,745,198 / 501,483 beside the limit. Proof: npm test x5 all pass (241 files, 3563 tests each); lint, typecheck, build, check:pack pass. Earlier history entry time 16:20Z was local time; left as is.'
+  - at: '2026-11-10T05:50:00Z'
+    actor: {role: checker, session: o065-recheck2-20261110}
+    kind: rechecked
+    note: 'C-165 targeted re-check CLEAR: engineBudget.test.ts removed; the size check is the second case in packagePacks.test.ts after its one checkPacks() build (buildExample hello-scene, buildPackages false); no other test file builds into packages/*/dist or the example folders (grep). npm test 4 of 4 plus test and test:full in check:gates pass (3,565 tests); packagePacks.test.ts alone 2 of 2 pass. Size 1,745,198 / 501,483 B within 1,833,000 / 527,000 in npm test, the CLI measure and the fresh browser run (browser-20261110T054242Z public-build-assets); one byte under on either count fails. BROWSER_CHECKS.md states the current measurement.'
+    check: C-165
 ---
 
 # I-164: The engine's first download is over its limit after O-065

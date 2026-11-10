@@ -1,0 +1,13 @@
+logs: /tmp/astraeus-check-logs-3m7qn2
+smoke | scene=every public page and demo view, desktop and phone | exit=0 | 05:42:58-05:44:55 | 117s | limit 170s | error-lines=0
+smoke-public-showers | scene=showers views on the scratch public build: stream dots drawn | exit=0 | 05:44:55-05:45:09 | 14s | limit 30s | error-lines=0
+planets-phone | scene=planets on a phone: switch planet, focus Io, open a place card | exit=0 | 05:45:09-05:45:20 | 11s | limit 25s | error-lines=0
+meteor-shower | scene=showers (Perseids): play, seek, open a story panel | exit=0 | 05:45:20-05:45:38 | 18s | limit 40s | error-lines=0
+views | scene=synthetic-views (made-up, two probes, three views): a visitor switch and a host setView at desktop and phone size, the stay rule holds the camera still | exit=0 | 05:45:38-05:46:03 | 24s | limit 40s | error-lines=0
+look-out | scene=synthetic-lookout (made-up, Sun, Earth and Mars): opens looking out from Earth, the menu offers Look out from Earth and Mars clear of the controls, Focus returns; two made-up sky figures, an outline and four switches, the site trace control (Stay, Fade and Stay-then-Hide, each waiting for the `sky-trace:<id>` line set in `data-sky-lines` to appear and go), labels do not overlap; desktop and phone size | exit=0 | 05:46:03-05:46:43 | 41s | limit 50s | error-lines=0
+hello-scene | scene=examples/hello-scene from the packed tarballs: the made-up story (anchors, events, one panel, looking at the probe), Earth and Moon drawn, time set, desktop and phone | exit=0 | 05:46:43-05:46:54 | 11s | limit 25s | error-lines=0
+hello-react | scene=examples/hello-react (AstraeusScene) from the packed tarballs: Earth, Moon and the followed path drawn, time set, desktop and phone | exit=0 | 05:46:54-05:47:01 | 7s | limit 12s | error-lines=0
+hello-planets | scene=examples/hello-planets from the packed tarballs: the Sun to Mars drawn, the page's own sliders and scale button drive the viewer, Earth's distance from the Sun, no overlap, desktop and phone | exit=0 | 05:47:01-05:47:07 | 6s | limit 15s | error-lines=0
+public-build-assets | scene=none (files only) | exit=0 | 05:47:07-05:47:09 | 2s | limit 8s | error-lines=0
+public-addresses | scene=none (files only) | exit=0 | 05:47:09-05:47:09 | 0s | limit 5s | error-lines=0
+total 266s (servers and public build included) | limit 320s

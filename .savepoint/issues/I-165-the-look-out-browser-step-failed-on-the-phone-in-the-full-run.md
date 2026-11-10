@@ -2,16 +2,22 @@
 id: I-165
 title: The look-out browser step failed on the phone in the full run and runs far over its time limit
 type: verification
-status: open
+status: resolved
 source:
   kind: check
   check: C-163
   actor: {role: checker, session: o065-check-20261110}
   at: '2026-11-10T04:56:00Z'
 tasks: [T-298]
-checks: [C-163, C-164]
+checks: [C-163, C-164, C-165]
 guardrail_ids: [TEST-01]
 severity: medium
+resolution:
+  disposition: verified
+  check: C-165
+  actor: {role: checker, session: o065-recheck2-20261110}
+  at: '2026-11-10T05:50:00Z'
+  reason: 'Fresh check:browser (browser-20261110T054242Z) passes look-out at both sizes in 41 s within the owner 50 s limit; driver fold press atomic, trace control closed before the O-064 part.'
 history:
   - at: '2026-11-10T04:56:00Z'
     actor: {role: checker, session: o065-check-20261110}
@@ -27,6 +33,11 @@ history:
     kind: rechecked
     note: 'C-164 re-check: Proof Needed met. Official check:browser run (docs/evidence/browser-20261110T051452Z) passes look-out at 1280x720 and 375x667 in 43 s (limit 50 s, owner); driver expandDeveloperGroups finds and presses a fold in one page.evaluate; the journey closes the site trace control before the O-064 part; gate-limits.json and docs/BROWSER_CHECKS.md state the limit and measured time. Stays open only because C-164 is NEEDS WORK (on I-164); close as verified at the clearing re-check.'
     check: C-164
+  - at: '2026-11-10T05:50:00Z'
+    actor: {role: checker, session: o065-recheck2-20261110}
+    kind: rechecked
+    note: 'C-165 targeted re-check CLEAR: fresh npm run check:browser (docs/evidence/browser-20261110T054242Z) passes look-out at 1280x720 and 375x667 in 41 s (limit 50 s); C-164 proof stands.'
+    check: C-165
 ---
 
 # I-165: The look-out browser step failed on the phone in the full run and runs far over its time limit

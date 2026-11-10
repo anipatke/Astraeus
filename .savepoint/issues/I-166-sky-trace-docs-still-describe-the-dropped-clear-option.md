@@ -2,16 +2,22 @@
 id: I-166
 title: Sky trace docs still describe the dropped "clear" option
 type: drift
-status: open
+status: resolved
 source:
   kind: check
   check: C-163
   actor: {role: checker, session: o065-check-20261110}
   at: '2026-11-10T04:56:00Z'
 tasks: [T-297, T-298]
-checks: [C-163, C-164]
+checks: [C-163, C-164, C-165]
 guardrail_ids: [API-07, API-01]
 severity: low
+resolution:
+  disposition: verified
+  check: C-165
+  actor: {role: checker, session: o065-recheck2-20261110}
+  at: '2026-11-10T05:50:00Z'
+  reason: 'No published text offers after clear; CHANGELOG names SkyClearOptions; browser map lists Stay, Fade and Stay-then-Hide and the sky-trace read-back.'
 history:
   - at: '2026-11-10T04:56:00Z'
     actor: {role: checker, session: o065-check-20261110}
@@ -27,6 +33,11 @@ history:
     kind: rechecked
     note: 'C-164 re-check: Proof Needed met. No offer of after clear in src doc comments, README, CHANGELOG, docs/BROWSER_CHECKS.md, run-browser.mjs or Design (grep); CHANGELOG names SkyTraceOptions and SkyClearOptions; the browser map lists Stay, Fade and Stay-then-Hide and the sky-trace:<id> read-back. Stays open only because C-164 is NEEDS WORK (on I-164); close as verified at the clearing re-check.'
     check: C-164
+  - at: '2026-11-10T05:50:00Z'
+    actor: {role: checker, session: o065-recheck2-20261110}
+    kind: rechecked
+    note: 'C-165 targeted re-check CLEAR: no published text offers after clear (grep over engine src, README, CHANGELOG, BROWSER_CHECKS.md, run-browser.mjs, Design, Objective); C-164 proof stands.'
+    check: C-165
 ---
 
 # I-166: Sky trace docs still describe the dropped "clear" option
