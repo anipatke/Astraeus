@@ -9,7 +9,7 @@ source:
   actor: {role: checker, session: o065-check-20261110}
   at: '2026-11-10T04:56:00Z'
 tasks: [T-295, T-296, T-297, T-298]
-checks: [C-163]
+checks: [C-163, C-164]
 guardrail_ids: [TEST-01]
 severity: medium
 history:
@@ -22,6 +22,11 @@ history:
     actor: {role: executor, session: o065-repair-20261110}
     kind: repair_attempted
     note: 'Repair (executor evidence, not verified): ENGINE_LIMIT reset to 1,833,000 raw / 527,000 gzip (measured 1,745,198 / 501,483 by node tools/measure-example.mjs, plus 5%, rounded up to the next 1,000; owner decision 2026-11-10). New fast test packages/astraeus-site/tests/engineBudget.test.ts builds the packed engine and hello-scene (about 3 s) in npm test and holds it to ENGINE_LIMIT, and shows a limit one byte below fails. tools/build-example.mjs now runs its nested npm and vite without the outer npm_config_*, NODE_ENV and vitest variables (under npm test the build was 2,068,776 raw and npm install failed on --allow-scripts); tools/build-example.d.mts added. npm test, typecheck, lint, build and check:pack pass. check:browser not run (the recheck runs it).'
+  - at: '2026-11-10T05:30:00Z'
+    actor: {role: checker, session: o065-recheck-20261110}
+    kind: rechecked
+    note: 'C-164 re-check: size part proven (browser public-build-assets passes at 1,745,198 / 501,483 B within the reset limit 1,833,000 / 527,000; limit matches measured + 5% rounded up; the test is honest, about 3 to 5.6 s, and fails one byte below). Not verified: the new engineBudget.test.ts rebuilds packages/astraeus/dist (build-example.mjs -> build-packages.mjs rmSync) while packagePacks.test.ts rebuilds and packs the same folder in another Vitest worker. npm test failed in 2 of 3 full runs and 3 of 7 paired runs (stray *.node.node.js files; vite build failed; tsc TS1010 on a half-written scene.d.ts); each file alone passes. Caused by the repair. Blocking: the ordinary test gate and the publish workflow npm test are not reliably green.'
+    check: C-164
 ---
 
 # I-164: The engine's first download is over its limit after O-065
@@ -44,3 +49,13 @@ No fast-suite test measures this limit, so every step's builder gates (`npm test
 - Strategic fix (AGENTS.md "Strategic fix first"; I-142 is the precedent): a fast-suite or `check:pack`-time check holds the engine's first download to `ENGINE_LIMIT` from the one source, so engine growth fails at the step that causes it, shown to fail when the limit is set below the current size.
 
 Owner decision 2026-11-10 (coordinator session o065-run-20261110): "Reset limit, add fast test" — reset `ENGINE_LIMIT` by the owner's 2026-11-01 rule (measured size plus 5%, rounded up to the next 1,000 bytes) and add a fast size test so the ordinary test gate catches this next time.
+
+## Re-check C-164 (2026-11-10)
+
+The size limit is fixed and proven. The fast test added by the repair breaks the ordinary test gate intermittently:
+
+- `packages/astraeus-site/tests/engineBudget.test.ts` calls `buildExample("hello-scene")` → `tools/build-packages.mjs astraeus` → `buildPackage` `rmSync(out)` and rewrite of `packages/astraeus/dist`, then `npm pack`, `npm install`, `vite build` in `examples/hello-scene`.
+- `packages/astraeus-site/tests/packagePacks.test.ts` `checkPacks()` (`tools/check-packs.mjs:232`) rebuilds the same `packages/astraeus/dist` and packs it, and its planted-file cases write into it. Vitest runs the two files in parallel workers.
+- Scenario: `npx vitest run --project preloaded packages/astraeus-site/tests/packagePacks.test.ts packages/astraeus-site/tests/engineBudget.test.ts` → 3 of 7 runs fail; `npx vitest run` (whole suite) → 2 of 3 fail with `astraeus: stray file src/api/AstraeusScene.node.node.js` / `index.node.node.js`. Each file alone passes.
+
+Further Proof Needed: the engine size check stays in the fast suite and fails below the limit, without sharing a build folder with another test file in parallel; repeated `npm test` runs (and the two files run together repeatedly) pass. Also correct the "measured 1,652,588 / 472,895" beside the new limit in `docs/BROWSER_CHECKS.md`.

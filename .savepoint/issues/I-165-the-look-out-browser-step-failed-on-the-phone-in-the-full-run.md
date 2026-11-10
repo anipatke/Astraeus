@@ -9,7 +9,7 @@ source:
   actor: {role: checker, session: o065-check-20261110}
   at: '2026-11-10T04:56:00Z'
 tasks: [T-298]
-checks: [C-163]
+checks: [C-163, C-164]
 guardrail_ids: [TEST-01]
 severity: medium
 history:
@@ -22,6 +22,11 @@ history:
     actor: {role: executor, session: o065-repair-20261110}
     kind: repair_attempted
     note: 'Repair (executor evidence, not verified): cause from code, not reproduced: expandDeveloperGroups counted closed folds then re-resolved closed.first() for the click, so a panel re-render between the two left the click waiting 30 s. It now finds and presses the fold in one page.evaluate (every caller), with a frame between presses. The step also closes the site trace control after the traces, and opens the scene with skyTraceSeconds=0.5 (new optional address setting of the site trace control, default 2 s) so the traces run quickly. Focused journey-look-out on scratch port 5199 (stopped): three runs in a row exit 0 at both sizes, 41 s each (59 s before). Still over the 30 s limit in gate-limits.json, not changed; 50 s proposed to the owner. docs/BROWSER_CHECKS.md updated. Not run: full check:browser.'
+  - at: '2026-11-10T05:30:00Z'
+    actor: {role: checker, session: o065-recheck-20261110}
+    kind: rechecked
+    note: 'C-164 re-check: Proof Needed met. Official check:browser run (docs/evidence/browser-20261110T051452Z) passes look-out at 1280x720 and 375x667 in 43 s (limit 50 s, owner); driver expandDeveloperGroups finds and presses a fold in one page.evaluate; the journey closes the site trace control before the O-064 part; gate-limits.json and docs/BROWSER_CHECKS.md state the limit and measured time. Stays open only because C-164 is NEEDS WORK (on I-164); close as verified at the clearing re-check.'
+    check: C-164
 ---
 
 # I-165: The look-out browser step failed on the phone in the full run and runs far over its time limit
