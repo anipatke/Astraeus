@@ -11,13 +11,13 @@ const SIZES = [
   { name: "phone", width: 375, height: 667, isMobile: true, hasTouch: true },
 ];
 
-/** O-065 T-298: the made-up figures (Lantern, Kettle), the Lantern field outline and the four switches. Figures and outline start on, the circles off; each switch draws its set; labels show and never overlap. */
+/** O-065 T-298: the made-up figures (Lantern, Kettle), the Lantern field outline and the four switches. The outline starts on, the circles off, the figures are hidden until traced (their switch is checked on a trace); each switch draws its set; the outline label shows and no labels overlap. */
 async function checkSkySwitches(page, name) {
-  await ui.waitForSkyLines(page, { present: ["sky-figures", "sky-boundaries"], absent: ["sky-ecliptic", "sky-celestial-equator"] });
+  await ui.waitForSkyLines(page, { present: ["sky-boundaries"], absent: ["sky-figures", "sky-ecliptic", "sky-celestial-equator", "sky-trace:lantern", "sky-trace:kettle"] });
   const places = await ui.displaySwitchPlaces(page);
   assert.ok(places.topBar.includes("skyFigures"), `${name}: the figures switch is in the top bar (${JSON.stringify(places)})`);
   for (const id of ["skyBoundaries", "ecliptic", "celestialEquator"]) assert.ok(places.panel.includes(id), `${name}: the ${id} switch is in the switch panel (${JSON.stringify(places)})`);
-  const switchLines = [["skyFigures", "sky-figures"], ["skyBoundaries", "sky-boundaries"], ["ecliptic", "sky-ecliptic"], ["celestialEquator", "sky-celestial-equator"]];
+  const switchLines = [["skyBoundaries", "sky-boundaries"], ["ecliptic", "sky-ecliptic"], ["celestialEquator", "sky-celestial-equator"]];
   for (const [id, lines] of switchLines) {
     const wasOn = await ui.displaySwitchOn(page, id);
     await ui.toggleDisplaySwitch(page, id);
@@ -26,7 +26,8 @@ async function checkSkySwitches(page, name) {
     await ui.waitForSkyLines(page, wasOn ? { present: [lines] } : { absent: [lines] });
   }
   const skyNamed = await ui.shownSceneLabelIds(page);
-  for (const id of ["lantern", "kettle", "lantern-field"]) assert.ok(skyNamed.includes(id), `${name}: the label ${id} shows (shown: ${skyNamed.join(", ")})`);
+  assert.ok(skyNamed.includes("lantern-field"), `${name}: the outline label shows (shown: ${skyNamed.join(", ")})`);
+  for (const id of ["lantern", "kettle"]) assert.ok(!skyNamed.includes(id), `${name}: the label ${id} is not shown before its figure is traced (shown: ${skyNamed.join(", ")})`);
   const collisions = await ui.overlappingSceneLabels(page);
   assert.deepEqual(collisions, [], `${name}: no two labels overlap (${JSON.stringify(collisions)})`);
   return ui.skyLinesShown(page);
@@ -43,14 +44,31 @@ async function checkSkyTrace(page, name) {
   const openFit = await ui.skyTraceFit(page);
   assert.ok(openFit.insideWindow && openFit.overlaps.filter((other) => other !== "switches").length === 0, `${name}: the open trace control is inside the window and clear of the bar, timeline and cog (overlaps: ${openFit.overlaps.join(", ") || "none"})`);
   assert.ok(openFit.smallestPx >= (name === "phone" ? 44 : 24), `${name}: the open trace buttons are big enough to press (${openFit.smallestPx} px)`);
-  for (const after of ["stay", "fade", "clear"]) {
-    await ui.pressSkyTrace(page, after);
-    assert.equal(await ui.skyTraceStatus(page), "tracing", `${name}: pressing Trace then ${after} starts a trace`);
-    await ui.waitForSkyTraceStatus(page, after, 8000);
-    await ui.waitForSkyLines(page, { present: ["sky-figures"] }); // the figure itself is still drawn once the trace has ended
+  for (const id of ["lantern", "kettle"]) {
+    await ui.chooseSkyTraceFigure(page, id);
+    const lines = `sky-trace:${id}`;
+    for (const after of ["stay", "fade", "clear"]) {
+      await ui.pressSkyTrace(page, after);
+      assert.equal(await ui.skyTraceStatus(page), "tracing", `${name}: pressing Trace then ${after} starts a trace of ${id}`);
+      await ui.waitForSkyLines(page, { present: [lines] });
+      await ui.waitForSceneLabel(page, id, true);
+      await ui.waitForSkyTraceStatus(page, after, 8000);
+      if (after === "stay") {
+        assert.ok((await ui.skyLinesShown(page)).includes(lines) && (await ui.shownSceneLabelIds(page)).includes(id), `${name}: after a stay trace the ${id} lines and label stay`);
+        assert.deepEqual(await ui.overlappingSceneLabels(page), [], `${name}: no labels overlap with ${id} shown`);
+        await ui.toggleDisplaySwitch(page, "skyFigures"); // the figures switch hides a traced figure's lines and label
+        await ui.waitForSkyLines(page, { absent: [lines] });
+        await ui.waitForSceneLabel(page, id, false);
+        await ui.toggleDisplaySwitch(page, "skyFigures");
+        await ui.waitForSkyLines(page, { present: [lines] });
+        await ui.waitForSceneLabel(page, id, true);
+      } else {
+        await ui.waitForSkyLines(page, { absent: [lines] }); // fade and clear leave nothing of the figure
+        await ui.waitForSceneLabel(page, id, false);
+      }
+    }
   }
   assert.equal((await ui.overlappingSceneLabels(page)).length, 0, `${name}: no labels overlap after the traces`);
-
 }
 
 await checkScript({ name: "journey-look-out", viewports: SIZES }, async (page, { name }) => {

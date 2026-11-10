@@ -14,6 +14,8 @@ export interface SkyFigureLayer {
   readonly labelAt: EqjDirection;
   /** This figure's own line colour, over the look's. */
   readonly color?: string;
+  /** True: nothing of the figure (lines or label) is drawn until a trace of it starts (`SkyFigureInput.shown: "whenTraced"`). */
+  readonly whenTraced?: boolean;
   /** This figure's own label colour, font and size, over the look's. */
   readonly labelColor?: string;
   readonly labelFont?: string;

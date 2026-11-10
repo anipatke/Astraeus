@@ -45,6 +45,7 @@ function checkShape(figure: SkyFigureInput): void {
     figure.points.forEach((point, index) => { if (!isPosition(point)) throw bad(id, `points[${index}] must be { raDeg, decDeg } with a declination within ±90, got ${JSON.stringify(point)}`); });
   }
   if (figure.labelAt !== undefined && !isPosition(figure.labelAt)) throw bad(id, `labelAt must be { raDeg, decDeg } with a declination within ±90, got ${JSON.stringify(figure.labelAt)}`);
+  if (figure.shown !== undefined && figure.shown !== "always" && figure.shown !== "whenTraced") throw bad(id, `shown must be "always" or "whenTraced", got ${JSON.stringify(figure.shown)}`);
   checkLooks(id, figure);
 }
 
@@ -95,7 +96,7 @@ export class SkyFigurePlan {
         : figure.points!.map((point, index) => [eqjUnit(point.raDeg, point.decDeg), eqjUnit(figure.points![(index + 1) % figure.points!.length]!.raDeg, figure.points![(index + 1) % figure.points!.length]!.decDeg)] as const);
       const labelAt = figure.labelAt === undefined ? meanDirection(segments.flatMap(([from, to]) => [from, to])) : eqjUnit(figure.labelAt.raDeg, figure.labelAt.decDeg);
       const own = (["color", "labelColor", "labelFont", "labelSizePx"] as const).filter((key) => figure[key] !== undefined);
-      return { id: figure.id, label: figure.label, kind, segments, labelAt, ...Object.fromEntries(own.map((key) => [key, figure[key]])) };
+      return { id: figure.id, label: figure.label, kind, segments, labelAt, ...(figure.shown === "whenTraced" ? { whenTraced: true } : {}), ...Object.fromEntries(own.map((key) => [key, figure[key]])) };
     });
   }
 }

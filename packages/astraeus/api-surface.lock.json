@@ -1624,6 +1624,11 @@
           "signature": "SkyDirection | undefined"
         },
         {
+          "name": "shown",
+          "optional": true,
+          "signature": "\"always\" | \"whenTraced\" | undefined"
+        },
+        {
           "name": "color",
           "optional": true,
           "signature": "string | undefined"

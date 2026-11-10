@@ -20,6 +20,8 @@ export interface SkyFigureInput {
   readonly points?: readonly SkyDirection[];
   /** Where the label stands. */
   readonly labelAt?: SkyDirection;
+  /** `"always"` (the default): the figure is drawn whenever its switch is on. `"whenTraced"`: nothing of it (lines or label) is drawn until `traceSkyFigure` starts a trace of it; the trace then draws its lines and shows its label, and `after` decides whether they stay, fade or clear. */
+  readonly shown?: "always" | "whenTraced";
   /** This figure's line colour, a CSS colour text; default: the look's `skyLines.figure` or `skyLines.boundary`. */
   readonly color?: string;
   /** This figure's label colour, a CSS colour text; default: the look's `skyLines.label`. */

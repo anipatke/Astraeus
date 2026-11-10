@@ -190,6 +190,83 @@ describe("advanceSkyTraces (stage 4c, O-065)", () => {
   });
 });
 
+describe("a figure shown only when traced (O-065 T-298)", () => {
+  const hidden = { ...(kite as object), whenTraced: true } as never;
+  const framed = (delta: number) => {
+    const { ctx } = makeContext();
+    const view = new SkyFiguresView([hidden, ring]);
+    return { ctx: { ...ctx, delta, views: { ...ctx.views, skyFiguresView: view } } as FrameContext, view };
+  };
+  const request = (over: object = {}) => ({ id: "kite", seconds: 2, after: "stay" as const, reduced: false, ...over });
+  const names = (view: SkyFiguresView) => view.group.children.map((child) => child.name);
+
+  it("draws no lines and no label before a trace (the always-shown outline still draws)", () => {
+    const { ctx, view } = framed(0.5);
+    advanceSkyTraces(ctx);
+    expect(names(view)).toEqual(["sky-boundaries"]);
+    expect(view.labelOpacity("kite")).toBe(0);
+    expect(view.labelOpacity("ring")).toBe(1);
+    expect(view.labels.find((label) => label.id === "kite")?.whenTraced).toBe(true);
+  });
+  it("shows the label and the growing lines once a trace starts", () => {
+    const { ctx, view } = framed(0.5);
+    ctx.controls.skyTraces.push(request());
+    advanceSkyTraces(ctx);
+    expect(names(view)).toContain("sky-trace:kite");
+    expect(view.labelOpacity("kite")).toBe(1);
+  });
+  it("stay keeps lines and label", () => {
+    const { ctx, view } = framed(3);
+    ctx.controls.skyTraces.push(request());
+    advanceSkyTraces(ctx);
+    advanceSkyTraces(ctx);
+    expect(names(view)).toContain("sky-trace:kite");
+    expect(view.labelOpacity("kite")).toBe(1);
+  });
+  it("fade dims the label with the lines, then both are gone", () => {
+    const { ctx, view } = framed(2);
+    ctx.controls.skyTraces.push(request({ after: "fade" }));
+    advanceSkyTraces(ctx); // drawn
+    (ctx as { delta: number }).delta = TRACE_FADE_SECONDS / 2;
+    advanceSkyTraces(ctx);
+    expect(view.labelOpacity("kite")).toBeCloseTo(0.5);
+    (ctx as { delta: number }).delta = TRACE_FADE_SECONDS;
+    advanceSkyTraces(ctx);
+    expect(names(view)).not.toContain("sky-trace:kite");
+    expect(view.labelOpacity("kite")).toBe(0);
+  });
+  it("clear removes lines and label at once; tracing again restarts from nothing", () => {
+    const { ctx, view } = framed(2);
+    ctx.controls.skyTraces.push(request({ after: "clear" }));
+    advanceSkyTraces(ctx);
+    expect(names(view)).not.toContain("sky-trace:kite");
+    expect(view.labelOpacity("kite")).toBe(0);
+    (ctx as { delta: number }).delta = 0.1;
+    ctx.controls.skyTraces.push(request({ seconds: 10 }));
+    advanceSkyTraces(ctx);
+    const line = view.group.children.find((child) => child.name === "sky-trace:kite") as import("three").LineSegments;
+    expect(line.geometry.drawRange.count).toBe(2);
+    expect(view.labelOpacity("kite")).toBe(1);
+  });
+  it("reduced motion shows it at once, then applies after", () => {
+    const { ctx, view } = framed(0.01);
+    ctx.controls.skyTraces.push(request({ reduced: true, after: "clear" }));
+    advanceSkyTraces(ctx);
+    expect((view.group.children.find((child) => child.name === "sky-trace:kite") as import("three").LineSegments).geometry.drawRange.count).toBe(6);
+    expect(view.labelOpacity("kite")).toBe(1);
+    (ctx as { delta: number }).delta = 3;
+    advanceSkyTraces(ctx);
+    expect(view.labelOpacity("kite")).toBe(0);
+  });
+  it("the kind switch hides the traced lines when off", () => {
+    const { ctx, view } = framed(0.5);
+    ctx.controls.skyLines = { ...ctx.controls.skyLines, figures: false };
+    ctx.controls.skyTraces.push(request());
+    advanceSkyTraces(ctx);
+    expect(view.shown).not.toContain("sky-trace:kite");
+  });
+});
+
 describe("prefersReducedMotion", () => {
   it("reads the system setting and is false where the browser cannot say", () => {
     expect(prefersReducedMotion()).toBe(false);

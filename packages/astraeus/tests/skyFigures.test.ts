@@ -54,8 +54,14 @@ describe("Scene.addSkyFigures: the call", () => {
     ["a boundary given segments", [{ ...ring, segments: kite.segments }]],
     ["a bad point", [{ ...ring, points: [...ring.points.slice(0, 2), { raDeg: 1 }] }]],
     ["a bad labelAt", [{ ...kite, labelAt: { raDeg: 1 } }]],
+    ["a shown value that is not always or whenTraced", [{ ...kite, shown: "never" }]],
+    ["a shown value that is not text", [{ ...kite, shown: true }]],
   ])("refuses %s with bad-sky-figure", (_name, figures) => {
     expect(codeOf(() => base().addSkyFigures(figures as never))).toBe("bad-sky-figure");
+  });
+  it("takes shown: whenTraced and carries it to the drawable layer; always (the default) carries nothing", () => {
+    const { skyFigures } = definitionOf(base().addSkyFigures([{ ...kite, shown: "whenTraced" }, { ...ring, shown: "always" }, { ...kite, id: "plain" }]));
+    expect(skyFigures!.map((layer) => layer.whenTraced)).toEqual([true, undefined, undefined]);
   });
   it("names the figure and the field in the message", () => {
     expect(() => call({ ...kite, label: "" })).toThrow(/addSkyFigures\("kite"\): label must be a non-empty text/);
@@ -237,6 +243,20 @@ describe("sky labels join the one name layout", () => {
     expect(hiddenOf("kite")).toBe(false);
     expect(SKY_LABEL_PRIORITY.figure).toBeLessThan(0);
     expect(SKY_LABEL_PRIORITY.boundary).toBeLessThan(SKY_LABEL_PRIORITY.figure);
+    layer.dispose();
+  });
+  it("a label shown only when traced draws only while its opacity is above 0, at that opacity", () => {
+    const layer = new SceneLabelLayer(host, [], [{ ...spec("kite", "figure", [0, 0, -1]), whenTraced: true }, spec("ring", "boundary", [0, 0, -1])]);
+    let opacity = 0;
+    const draw = () => layer.update(() => null, camera, 800, 600, new FloatingOrigin(), "", undefined, { on: { ...DEFAULT_SKY_LINES, boundaries: true }, labelColor: "#abcdef", distance: 500, opacity: (id) => (id === "kite" ? opacity : 1) });
+    draw();
+    expect(hiddenOf("kite")).toBe(true);
+    expect(hiddenOf("ring")).toBe(false);
+    opacity = 0.5;
+    draw();
+    expect(hiddenOf("kite")).toBe(false);
+    expect(host.querySelector<HTMLElement>('[data-label-id="kite"]')!.style.opacity).toBe("0.5");
+    expect(host.querySelector<HTMLElement>('[data-label-id="ring"]')!.style.opacity).toBe("");
     layer.dispose();
   });
   it("hides a label behind the camera, and one whose kind is switched off", () => {

@@ -41,7 +41,12 @@ export interface SkyLabelFrame {
   readonly distance: number;
   /** The look's colour for a sky label that has no colour of its own. */
   readonly labelColor: string;
+  /** How much of a sky label shows, 0 (not drawn) to 1; absent: all show. */
+  readonly opacity?: (id: string) => number;
 }
+
+/** How much of a sky label shows, 0 to 1 (1 for an object label and where the frame names no rule). */
+const skyOpacity = (spec: SkyLabelSpec | undefined, sky: SkyLabelFrame | undefined): number => (spec === undefined ? 1 : sky?.opacity?.(spec.id) ?? 1);
 
 /** App adapter that places configured labels; the label presentation itself stays generic. */
 export class SceneLabelLayer {
@@ -109,11 +114,13 @@ export class SceneLabelLayer {
       }
       const spec = this.#sky.get(entry.object.id);
       const absolute = spec === undefined ? positionFor(entry.object.id) : null;
-      const skyShown = spec !== undefined && sky !== undefined && sky.on[spec.kind === "figure" ? "figures" : "boundaries"];
+      const opacity = skyOpacity(spec, sky);
+      const skyShown = spec !== undefined && sky !== undefined && opacity > 0 && sky.on[spec.kind === "figure" ? "figures" : "boundaries"];
       if (spec === undefined ? absolute === null : !skyShown) {
         entry.element.hidden = true;
         return [];
       }
+      if (spec?.whenTraced === true) entry.element.style.opacity = String(opacity);
       // A sky label is projected from the camera's own place, at a fixed distance along its direction: it never moves with the scene, only with the camera's turn.
       if (spec !== undefined) this.#local.copy(camera.position).addScaledVector(this.#direction.fromArray(spec.direction), sky!.distance);
       else this.#local.fromArray(origin.toLocal(absolute!));

@@ -312,7 +312,7 @@ export function updateOverlays(ctx: FrameContext, t: number, step: CameraStep, h
   layers.anchorLabels.current?.update(controls.showAnchorLabels, camera, size.width, size.height);
   const positionFor = (id: string): RenderVector | null => labelPositionOf(step.targets, id);
   const shown = shownUnderView(ctx);
-  layers.sceneLabels.current?.update(positionFor, camera, size.width, size.height, origin, controls.selectedObjectId, shown.hiddenLabels, { on: controls.skyLines, labelColor: controls.skyColours.label, distance: 0.5 * (camera.near + camera.far) });
+  layers.sceneLabels.current?.update(positionFor, camera, size.width, size.height, origin, controls.selectedObjectId, shown.hiddenLabels, { on: controls.skyLines, labelColor: controls.skyColours.label, opacity: (id) => ctx.views.skyFiguresView.labelOpacity(id), distance: 0.5 * (camera.near + camera.far) });
   state.pickables = pickCandidatesOf({ objects: shown.objects, bodyIdFor: ctx.bodyIdFor, bodyScreens, widthPx: size.width, heightPx: size.height, labelRects: layers.sceneLabels.current?.shownRects, canvas, bodySetViews: shown.bodySetViews });
   const hover = state.hoverPoint === null ? null : hoverTarget(state.pickables, state.hoverPoint.x, state.hoverPoint.y, "mouse");
   canvas.style.cursor = hover === null ? "" : "pointer";

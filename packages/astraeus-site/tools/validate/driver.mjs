@@ -1752,6 +1752,13 @@ export async function setSkyTraceOpen(page, open) {
   const toggle = skyTrace(page).locator("button[data-trace-toggle]");
   if (((await toggle.getAttribute("aria-expanded")) === "true") !== open) await toggle.click();
 }
+/** Picks the figure the control traces next. */
+export async function chooseSkyTraceFigure(page, id) {
+  await setSkyTraceOpen(page, true);
+  await skyTrace(page).locator("select").selectOption(id);
+}
+/** Waits until the scene label `id` is shown (or, with `shown` false, not shown). */
+export const waitForSceneLabel = (page, id, shown, timeout = 8000) => page.waitForFunction(([labelId, wanted]) => [...document.querySelectorAll("[data-label-id]")].some((el) => el.dataset.labelId === labelId && !el.hidden) === wanted, [id, shown], { timeout });
 /** Presses the control's "Stay | Fade | Clear" button (trace, then that), opening the control first. */
 export async function pressSkyTrace(page, after) {
   await setSkyTraceOpen(page, true);

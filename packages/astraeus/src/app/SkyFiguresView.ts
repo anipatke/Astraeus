@@ -15,6 +15,8 @@ export interface SkyLabelSpec {
   readonly font?: string;
   readonly sizePx?: number;
   readonly kind: "figure" | "boundary";
+  /** True: the label shows only while a trace of the figure runs or stays (`labelOpacity`). */
+  readonly whenTraced?: boolean;
   readonly direction: RenderVector;
 }
 
@@ -32,6 +34,8 @@ interface Overlay {
   readonly full: Float32Array;
   readonly kind: SkyFigureLayer["kind"];
   readonly run: SkyTraceRun;
+  /** How far the trace has faded, 0 to 1 (the label fades with it). */
+  fade: number;
 }
 
 const FADED = new Color();
@@ -75,12 +79,12 @@ export class SkyFiguresView {
     };
     // Figures that take the look's colour share one set of lines per kind; a figure with its own colour is drawn on its own so a live look change leaves it alone.
     for (const [kind, shows, key] of [["figure", "figures", "sky-figures"], ["boundary", "boundaries", "sky-boundaries"]] as const) {
-      const of = layers.filter((layer) => layer.kind === kind);
+      const of = layers.filter((layer) => layer.kind === kind && layer.whenTraced !== true); // a figure shown only when traced has no lines of its own: its trace is the whole drawing
       add(of.filter((layer) => layer.color === undefined).flatMap((layer) => layer.segments), shows, kind, key);
       for (const layer of of) if (layer.color !== undefined) add(layer.segments, shows, kind, `${key}:${layer.id}`, layer.color);
     }
     this.labels = layers.map((layer) => ({
-      id: layer.id, label: layer.label, kind: layer.kind, direction: eqjToRenderVector(layer.labelAt),
+      id: layer.id, label: layer.label, kind: layer.kind, direction: eqjToRenderVector(layer.labelAt), ...(layer.whenTraced === true ? { whenTraced: true } : {}),
       ...(layer.labelColor === undefined ? {} : { color: layer.labelColor }), ...(layer.labelFont === undefined ? {} : { font: layer.labelFont }), ...(layer.labelSizePx === undefined ? {} : { sizePx: layer.labelSizePx }),
     }));
     this.group.name = "sky-lines";
@@ -105,7 +109,7 @@ export class SkyFiguresView {
     for (const entry of this.#drawn) entry.object.visible = on[entry.shows];
   }
 
-  /** Begins tracing the figure `request.id` (a trace already on it restarts). The trace is a separate set of lines drawn over the figure; the figure itself is untouched. An id the view does not hold does nothing. */
+  /** Begins tracing the figure `request.id` (a trace already on it restarts). The trace is a separate set of lines drawn over the figure (the whole drawing of a figure shown only when traced); the figure itself is untouched. An id the view does not hold does nothing. */
   startTrace(request: SkyTraceRequest): void {
     const layer = this.#layers.get(request.id);
     if (layer === undefined) return;
@@ -115,7 +119,7 @@ export class SkyFiguresView {
     object.geometry.setDrawRange(0, 0);
     const full = Float32Array.from(object.geometry.getAttribute("position").array);
     this.group.add(object);
-    this.#traces.set(request.id, { object, full, kind: layer.kind, run: { seconds: request.seconds, after: request.after, reduced: request.reduced, elapsed: 0 } });
+    this.#traces.set(request.id, { object, full, kind: layer.kind, run: { seconds: request.seconds, after: request.after, reduced: request.reduced, elapsed: 0 }, fade: 0 });
   }
 
   /**
@@ -127,6 +131,7 @@ export class SkyFiguresView {
     for (const [id, trace] of this.#traces) {
       const frame = stepTrace(trace.run, deltaSeconds);
       moving ||= frame.moving;
+      trace.fade = frame.fade;
       if (frame.done) { this.#removeTrace(id); continue; }
       const count = trace.full.length / 6;
       const reached = frame.drawn * count;
@@ -146,6 +151,13 @@ export class SkyFiguresView {
       trace.object.visible = on[trace.kind === "figure" ? "figures" : "boundaries"];
     }
     return moving;
+  }
+
+  /** How much of a label shows, 0 to 1: always 1 for a figure that is always shown; for one shown only when traced, 0 until a trace starts, then 1 (fading to 0 with a `fade` trace; 0 again once the trace is removed). */
+  labelOpacity(id: string): number {
+    if (this.#layers.get(id)?.whenTraced !== true) return 1;
+    const trace = this.#traces.get(id);
+    return trace === undefined ? 0 : 1 - trace.fade;
   }
 
   #removeTrace(id: string): void {

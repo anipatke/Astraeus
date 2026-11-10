@@ -19,12 +19,12 @@ export async function loadLookOutPlanets(): Promise<void> {
 
 /** Two invented figures built from real Hipparcos numbers (and one point of the sky by position), and an invented outline around the Sun's place on 1 January. No real constellation name (ARCH-01). */
 export const LOOKOUT_SKY_FIGURES: readonly SkyFigureInput[] = [
-  // Lantern: a bent line of four stars about the Sun's place; its second segment crosses the Sun's glow.
-  { id: "lantern", label: "Lantern", labelAt: { raDeg: 288.5, decDeg: -18 }, segments: [
+  // Both figures are hidden until traced (the outline is always shown). Lantern: a bent line of four stars about the Sun's place; its second segment crosses the Sun's glow.
+  { id: "lantern", label: "Lantern", shown: "whenTraced", labelAt: { raDeg: 288.5, decDeg: -18 }, segments: [
     [{ star: 92855 }, { star: 93085 }], [{ star: 93085 }, { star: 93683 }], [{ star: 93683 }, { star: 94141 }], [{ star: 92041 }, { star: 93085 }],
   ] },
   // Kettle: a hook of stars west of the Sun's place, ending on a point of the sky given by position.
-  { id: "kettle", label: "Kettle", segments: [
+  { id: "kettle", label: "Kettle", shown: "whenTraced", segments: [
     [{ star: 90496 }, { star: 89931 }], [{ star: 89931 }, { star: 88635 }], [{ star: 88635 }, { star: 90185 }], [{ star: 90185 }, { raDeg: 268, decDeg: -40 }],
   ] },
   { id: "lantern-field", label: "Lantern field", kind: "boundary", points: [{ raDeg: 276, decDeg: -17 }, { raDeg: 291, decDeg: -17 }, { raDeg: 291, decDeg: -31 }, { raDeg: 276, decDeg: -31 }], labelAt: { raDeg: 283.5, decDeg: -30 } },
