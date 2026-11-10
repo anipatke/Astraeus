@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { HYG_STAR_LICENCE, eqjUnit, loadStarCatalogue, parseStarFile, type StarRow } from "../src/assets/sky";
+import { HYG_STAR_LICENCE, eqjUnit, loadStarCatalogue, parseStarFile, starIdTable, starIdsOf, type StarRow } from "../src/assets/sky";
 import { textureRightsProblem } from "../src/assets/licence";
 import { ATTRIBUTION, HYG_LICENCE, HYG_URL, MAGNITUDE_LIMIT, parseHyg, splitCsvLine, starFile } from "../tools/data/fetch-hyg-stars.mjs";
 
@@ -52,8 +52,46 @@ describe("HYG star asset (T-060)", () => {
     expect(textureRightsProblem({ url: "x", widthPx: 1, heightPx: 1, licence: HYG_STAR_LICENCE })).toBeNull();
   });
 
-  it("stays under 330 KB, so it is cheap to ship", () => {
-    expect(new TextEncoder().encode(hygText).length).toBeLessThan(330_000);
+  it("stays under 345 KB (with the Hipparcos column), so it is cheap to ship", () => {
+    expect(new TextEncoder().encode(hygText).length).toBeLessThan(345_000);
+  });
+});
+
+describe("Hipparcos ids (T-294)", () => {
+  it("carries a Hipparcos number on the real rows: Sirius is HIP 32349, Polaris HIP 11767, and 0 means none", () => {
+    expect(hyg.provenance?.columns).toEqual(["raDeg", "decDeg", "vMag", "bMinusV", "hip"]);
+    expect(hyg.stars.every((star) => star.length === 5)).toBe(true);
+    const ids = starIdsOf(hyg);
+    expect(ids.size).toBeGreaterThan(8000);
+    expect(angleBetween(ids.get(32349)!.direction, eqjUnit(NAMED[0].ra, NAMED[0].dec))).toBeLessThan(3 * ARCSEC);
+    expect(angleBetween(ids.get(11767)!.direction, eqjUnit(NAMED[1].ra, NAMED[1].dec))).toBeLessThan(3 * ARCSEC);
+    expect(ids.get(32349)!.vMag).toBeCloseTo(-1.44, 1);
+    expect(ids.has(0)).toBe(false);
+    expect(starIdsOf(hyg)).toBe(ids);
+  });
+
+  it("repeats no listed number in the committed file", () => {
+    const listed = hyg.stars.map((star) => star[4] ?? 0).filter((hip) => hip > 0);
+    expect(new Set(listed).size).toBe(listed.length);
+  });
+
+  it("resolves a listed made-up id to its direction and an unlisted one to none", () => {
+    const table = starIdTable([[90, 0, 3.5, null, 7], [0, 90, 2, 0.4, 9], [10, 10, 5, null, 0], [20, 20, 5, null]]);
+    expect(table.size).toBe(2);
+    expect(table.get(7)?.vMag).toBe(3.5);
+    expect(angleBetween(table.get(7)!.direction, [0, 1, 0])).toBeLessThan(1e-9);
+    expect(angleBetween(table.get(9)!.direction, [0, 0, 1])).toBeLessThan(1e-9);
+    expect(table.get(8)).toBeUndefined();
+    expect(table.get(0)).toBeUndefined();
+  });
+
+  it("keeps the first row on a repeated id; the fetch tool reports the repeat", () => {
+    expect(starIdTable([[0, 0, 1, null, 5], [90, 0, 2, null, 5]]).get(5)?.vMag).toBe(1);
+  });
+
+  it("rejects a bad id column", () => {
+    expect(() => parseStarFile({ stars: [[1, 2, 3, null, -1]] })).toThrow(/hip/);
+    expect(() => parseStarFile({ stars: [[1, 2, 3, null, 1.5]] })).toThrow(/hip/);
   });
 });
 
@@ -79,7 +117,8 @@ describe("HYG fetch tool parsing", () => {
     const parsed = parseHyg(text);
     expect(parsed.records).toBe(7);
     expect(parsed.skipped).toBe(4);
-    expect(parsed.stars).toEqual([[101.25, -16.7, -1.44, 0], [180, 10, 6.5, null]]);
+    expect(parsed.stars).toEqual([[101.25, -16.7, -1.44, 0, 1], [180, 10, 6.5, null, 1]]);
+    expect(parsed.duplicateHip).toEqual([1]);
     expect(parseStarFile(starFile(parsed, "2026-10-16")).stars).toHaveLength(2);
     expect(starFile(parsed, "2026-10-16").provenance).toMatchObject({ licence: "CC BY-SA 4.0", accessed: "2026-10-16", count: 2 });
   });

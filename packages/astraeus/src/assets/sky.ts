@@ -93,8 +93,8 @@ export interface PictureSet {
 
 // ---------------------------------------------------------------- stars
 
-/** One catalogue row: J2000 right ascension and declination (degrees), V magnitude, B-V colour index (null when unknown). */
-export type StarRow = readonly [raDeg: number, decDeg: number, vMag: number, bMinusV: number | null];
+/** One catalogue row: J2000 right ascension and declination (degrees), V magnitude, B-V colour index (null when unknown), Hipparcos number (0 or absent when HYG gives none). */
+export type StarRow = readonly [raDeg: number, decDeg: number, vMag: number, bMinusV: number | null, hip?: number];
 
 export interface StarCatalogue {
   readonly stars: readonly StarRow[];
@@ -102,16 +102,17 @@ export interface StarCatalogue {
   readonly provenance?: Readonly<Record<string, unknown>>;
 }
 
-/** Validates a parsed star file (`{ provenance?, stars: [[ra, dec, v, bv|null], ...] }`); throws naming the first bad row. */
+/** Validates a parsed star file (`{ provenance?, stars: [[ra, dec, v, bv|null, hip?], ...] }`); throws naming the first bad row. */
 export function parseStarFile(json: unknown): StarCatalogue {
   const file = json as { stars?: unknown; provenance?: unknown } | null;
   if (file === null || typeof file !== "object" || !Array.isArray(file.stars)) throw new TypeError("star file needs a stars array");
   file.stars.forEach((row: unknown, index: number) => {
-    const ok = Array.isArray(row) && row.length === 4
+    const ok = Array.isArray(row) && (row.length === 4 || row.length === 5)
       && [0, 1, 2].every((i) => Number.isFinite(row[i]))
       && (row[3] === null || Number.isFinite(row[3]))
+      && (row.length === 4 || (Number.isInteger(row[4]) && row[4] >= 0))
       && row[1] >= -90 && row[1] <= 90;
-    if (!ok) throw new RangeError(`star ${index} must be [raDeg, decDeg, vMag, bMinusV|null]`);
+    if (!ok) throw new RangeError(`star ${index} must be [raDeg, decDeg, vMag, bMinusV|null, hip?]`);
   });
   const provenance = file.provenance !== null && typeof file.provenance === "object" ? (file.provenance as Record<string, unknown>) : undefined;
   return { stars: file.stars as StarRow[], ...(provenance === undefined ? {} : { provenance }) };
@@ -122,9 +123,38 @@ export const HYG_STAR_LICENCE: AssetLicence = Object.freeze({
   source: "HYG database v4.2 (Hipparcos, Yale Bright Star, Gliese catalogues), astronexus",
   url: "https://www.astronexus.com/projects/hyg",
   licence: "CC BY-SA 4.0",
-  attribution: "HYG database v4.2, astronexus (astronexus.com), CC BY-SA 4.0. Stars of V 6.5 or brighter kept, right ascension converted from hours to degrees; no other change.",
-  accessed: "2026-10-16",
+  attribution: "HYG database v4.2, astronexus (astronexus.com), CC BY-SA 4.0. Stars of V 6.5 or brighter kept, right ascension converted from hours to degrees, Hipparcos number added; no other change.",
+  accessed: "2026-11-10",
 });
+
+/** A listed star found by its Hipparcos number: its EQJ unit direction (x, y, z) and V magnitude. */
+export interface StarById {
+  readonly direction: Vec3;
+  readonly vMag: number;
+}
+
+/** One table from Hipparcos number to direction and magnitude, built once per star load (rows with no number, 0 or absent, are not listed). On a repeated number the first row wins. */
+export function starIdTable(stars: readonly StarRow[]): ReadonlyMap<number, StarById> {
+  const table = new Map<number, StarById>();
+  for (const row of stars) {
+    const hip = row[4];
+    if (hip === undefined || hip <= 0 || table.has(hip)) continue;
+    table.set(hip, { direction: eqjUnit(row[0], row[1]), vMag: row[2] });
+  }
+  return table;
+}
+
+const starIdCache = new WeakMap<StarCatalogue, ReadonlyMap<number, StarById>>();
+
+/** The id table of a loaded catalogue, built on first use and kept for that catalogue. */
+export function starIdsOf(catalogue: StarCatalogue): ReadonlyMap<number, StarById> {
+  let table = starIdCache.get(catalogue);
+  if (table === undefined) {
+    table = starIdTable(catalogue.stars);
+    starIdCache.set(catalogue, table);
+  }
+  return table;
+}
 
 let starRequest: Promise<StarCatalogue | null> | undefined;
 
