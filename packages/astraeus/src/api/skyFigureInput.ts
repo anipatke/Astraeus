@@ -20,4 +20,12 @@ export interface SkyFigureInput {
   readonly points?: readonly SkyDirection[];
   /** Where the label stands. */
   readonly labelAt?: SkyDirection;
+  /** This figure's line colour, a CSS colour text; default: the look's `skyLines.figure` or `skyLines.boundary`. */
+  readonly color?: string;
+  /** This figure's label colour, a CSS colour text; default: the look's `skyLines.label`. */
+  readonly labelColor?: string;
+  /** This figure's label font, a CSS font-family text; default: the look's `labels.fontFamily`. */
+  readonly labelFont?: string;
+  /** This figure's label size in pixels, 8 to 24; default: the look's `labels.sizePx`. */
+  readonly labelSizePx?: number;
 }

@@ -140,7 +140,8 @@
   top: 0;
   left: 0;
   margin: -14px 0 0 6px;
-  font-size: 12px;
+  font-family: var(--label-font, inherit);
+  font-size: var(--label-size, 12px);
   line-height: 1.2;
   white-space: nowrap;
   text-shadow: 0 0 2px #000, 0 0 3px #000;

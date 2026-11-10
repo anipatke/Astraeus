@@ -94,7 +94,8 @@
   border-radius: 5px;
   background: rgba(13, 13, 13, .84);
   color: var(--label-color, #f0e6da);
-  font-size: 12px;
+  font-family: var(--label-font, inherit);
+  font-size: var(--label-size, 12px);
   line-height: 1.35;
   text-overflow: ellipsis;
   white-space: nowrap;

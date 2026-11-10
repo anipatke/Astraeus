@@ -11,6 +11,12 @@ export interface SkyFigureLayer {
   readonly segments: readonly (readonly [EqjDirection, EqjDirection])[];
   /** Unit EQJ direction of the label. */
   readonly labelAt: EqjDirection;
+  /** This figure's own line colour, over the look's. */
+  readonly color?: string;
+  /** This figure's own label colour, font and size, over the look's. */
+  readonly labelColor?: string;
+  readonly labelFont?: string;
+  readonly labelSizePx?: number;
 }
 
 /** Which kinds of sky line are shown now (the four display switches; live, replaced in place by value). */
@@ -24,8 +30,23 @@ export interface SkyLineSwitches {
 /** The starting state of the four switches: the figures show, the rest wait for the app to ask. */
 export const DEFAULT_SKY_LINES: Readonly<SkyLineSwitches> = Object.freeze({ figures: true, boundaries: false, ecliptic: false, celestialEquator: false });
 
-/** The fixed default colours of the lines and their labels (T-296 turns these into looks); the one place they are stated. */
-export const SKY_LINE_COLOURS = Object.freeze({ figure: "#8fb4ff", boundary: "#5f7a9c", ecliptic: "#e0b25a", celestialEquator: "#7fd1b9" });
+/** The colours of the sky lines and their labels, and of the lines a trace draws (T-297): every one a CSS colour text. The look `skyLines` sets them; `DEFAULT_SKY_COLOURS` is the one place the defaults are stated. */
+export interface SkyColours {
+  readonly figure: string;
+  readonly label: string;
+  readonly boundary: string;
+  readonly ecliptic: string;
+  readonly equator: string;
+  readonly traced: string;
+  readonly faded: string;
+}
+
+export const DEFAULT_SKY_COLOURS: Readonly<SkyColours> = Object.freeze({ figure: "#8fb4ff", label: "#cfe0ff", boundary: "#5f7a9c", ecliptic: "#e0b25a", equator: "#7fd1b9", traced: "#ffd166", faded: "#44546d" });
+
+/** The sky colours in force: the look's `skyLines`, every one not named at its default. */
+export function skyColoursOf(look: { readonly skyLines?: Partial<SkyColours> }): SkyColours {
+  return { ...DEFAULT_SKY_COLOURS, ...look.skyLines };
+}
 
 /** How many segments a built-in great circle is cut into (about 2 degrees each). */
 const CIRCLE_SEGMENTS = 180;

@@ -1,3 +1,4 @@
+import { isCssColour, isFontFamily, LABEL_SIZE_LIMITS } from "../core/lookValues";
 import { eqjUnit, type StarById } from "../assets/sky";
 import { meanDirection, type EqjDirection, type SkyFigureLayer } from "../app/skyFigures";
 import { SceneError } from "./errors";
@@ -13,6 +14,14 @@ const isStar = (value: unknown): value is { star: number } => typeof value === "
 
 function checkEnd(id: string, end: unknown, where: string): void {
   if (!isStar(end) && !isPosition(end)) throw bad(id, `${where} must be { star: <Hipparcos number> } or { raDeg, decDeg } with a declination within ±90, got ${JSON.stringify(end)}`);
+}
+
+/** Checks a figure's own colours, label font and label size. */
+function checkLooks(id: string, figure: SkyFigureInput): void {
+  if (figure.color !== undefined && !isCssColour(figure.color)) throw bad(id, `color must be a CSS colour such as "#8fb4ff", got ${JSON.stringify(figure.color)}`);
+  if (figure.labelColor !== undefined && !isCssColour(figure.labelColor)) throw bad(id, `labelColor must be a CSS colour such as "#cfe0ff", got ${JSON.stringify(figure.labelColor)}`);
+  if (figure.labelFont !== undefined && !isFontFamily(figure.labelFont)) throw bad(id, `labelFont must be a non-empty CSS font-family text, got ${JSON.stringify(figure.labelFont)}`);
+  if (figure.labelSizePx !== undefined && !(isNumber(figure.labelSizePx) && figure.labelSizePx >= LABEL_SIZE_LIMITS.min && figure.labelSizePx <= LABEL_SIZE_LIMITS.max)) throw bad(id, `labelSizePx must be a number from ${LABEL_SIZE_LIMITS.min} to ${LABEL_SIZE_LIMITS.max}, got ${JSON.stringify(figure.labelSizePx)}`);
 }
 
 /** Checks one figure's shape; throws `bad-sky-figure` naming the field. */
@@ -36,6 +45,7 @@ function checkShape(figure: SkyFigureInput): void {
     figure.points.forEach((point, index) => { if (!isPosition(point)) throw bad(id, `points[${index}] must be { raDeg, decDeg } with a declination within ±90, got ${JSON.stringify(point)}`); });
   }
   if (figure.labelAt !== undefined && !isPosition(figure.labelAt)) throw bad(id, `labelAt must be { raDeg, decDeg } with a declination within ±90, got ${JSON.stringify(figure.labelAt)}`);
+  checkLooks(id, figure);
 }
 
 const endsOf = (figure: SkyFigureInput): readonly SkyFigureEnd[] => (figure.segments ?? []).flat();
@@ -84,7 +94,8 @@ export class SkyFigurePlan {
         ? figure.segments!.map(([from, to]) => [direction(figure.id, from), direction(figure.id, to)] as const)
         : figure.points!.map((point, index) => [eqjUnit(point.raDeg, point.decDeg), eqjUnit(figure.points![(index + 1) % figure.points!.length]!.raDeg, figure.points![(index + 1) % figure.points!.length]!.decDeg)] as const);
       const labelAt = figure.labelAt === undefined ? meanDirection(segments.flatMap(([from, to]) => [from, to])) : eqjUnit(figure.labelAt.raDeg, figure.labelAt.decDeg);
-      return { id: figure.id, label: figure.label, kind, segments, labelAt };
+      const own = (["color", "labelColor", "labelFont", "labelSizePx"] as const).filter((key) => figure[key] !== undefined);
+      return { id: figure.id, label: figure.label, kind, segments, labelAt, ...Object.fromEntries(own.map((key) => [key, figure[key]])) };
     });
   }
 }

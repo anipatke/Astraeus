@@ -1,18 +1,28 @@
 import { BufferAttribute, BufferGeometry, Group, LineBasicMaterial, LineSegments } from "three";
 import type { PerspectiveCamera } from "three";
-import { celestialEquatorSegments, eclipticSegments, SKY_LINE_COLOURS, type EqjDirection, type SkyFigureLayer, type SkyLineSwitches } from "./skyFigures";
+import { celestialEquatorSegments, eclipticSegments, type EqjDirection, type SkyColours, type SkyFigureLayer, type SkyLineSwitches } from "./skyFigures";
 import { eqjToRenderVector, type RenderVector } from "./renderCoordinates";
 import { TRACK_LAYER } from "./TrackedBodyView";
 
 type Segments = readonly (readonly [EqjDirection, EqjDirection])[];
 
-/** One label to place on the sky: its text, colour and unit render-frame direction, and the kind (the switch that shows it). */
+/** One label to place on the sky: its text and unit render-frame direction, the kind (the switch that shows it) and the figure's own colour, font and size when it has them (else the looks apply). */
 export interface SkyLabelSpec {
   readonly id: string;
   readonly label: string;
-  readonly color: string;
+  readonly color?: string;
+  readonly font?: string;
+  readonly sizePx?: number;
   readonly kind: "figure" | "boundary";
   readonly direction: RenderVector;
+}
+
+/** One drawn set of lines: which switch shows it and which look colour it takes (unless it has its own). */
+interface Drawn {
+  readonly object: LineSegments;
+  readonly shows: keyof SkyLineSwitches;
+  readonly colour: keyof SkyColours;
+  readonly own: boolean;
 }
 
 function lines(segments: Segments, color: string, key: string): LineSegments {
@@ -37,32 +47,47 @@ function lines(segments: Segments, color: string, key: string): LineSegments {
  */
 export class SkyFiguresView {
   readonly group = new Group();
-  readonly #figures: LineSegments | null;
-  readonly #boundaries: LineSegments | null;
-  #ecliptic: LineSegments | null = null;
-  #equator: LineSegments | null = null;
+  readonly #drawn: Drawn[] = [];
+  #applied: Readonly<SkyColours> | null = null;
   readonly labels: readonly SkyLabelSpec[];
 
   constructor(layers: readonly SkyFigureLayer[]) {
-    const of = (kind: SkyFigureLayer["kind"]): Segments => layers.filter((layer) => layer.kind === kind).flatMap((layer) => layer.segments);
-    const make = (kind: SkyFigureLayer["kind"], color: string, key: string): LineSegments | null => (of(kind).length === 0 ? null : lines(of(kind), color, key));
-    this.#figures = make("figure", SKY_LINE_COLOURS.figure, "sky-figures");
-    this.#boundaries = make("boundary", SKY_LINE_COLOURS.boundary, "sky-boundaries");
-    for (const object of [this.#figures, this.#boundaries]) if (object !== null) this.group.add(object);
-    this.labels = layers.map((layer) => ({ id: layer.id, label: layer.label, kind: layer.kind, color: layer.kind === "figure" ? SKY_LINE_COLOURS.figure : SKY_LINE_COLOURS.boundary, direction: eqjToRenderVector(layer.labelAt) }));
-    this.group.name = "sky-figures";
+    const add = (segments: Segments, shows: Drawn["shows"], colour: Drawn["colour"], key: string, own?: string): void => {
+      if (segments.length === 0) return;
+      const object = lines(segments, own ?? "#ffffff", key);
+      this.#drawn.push({ object, shows, colour, own: own !== undefined });
+      this.group.add(object);
+    };
+    // Figures that take the look's colour share one set of lines per kind; a figure with its own colour is drawn on its own so a live look change leaves it alone.
+    for (const [kind, shows, key] of [["figure", "figures", "sky-figures"], ["boundary", "boundaries", "sky-boundaries"]] as const) {
+      const of = layers.filter((layer) => layer.kind === kind);
+      add(of.filter((layer) => layer.color === undefined).flatMap((layer) => layer.segments), shows, kind, key);
+      for (const layer of of) if (layer.color !== undefined) add(layer.segments, shows, kind, `${key}:${layer.id}`, layer.color);
+    }
+    this.labels = layers.map((layer) => ({
+      id: layer.id, label: layer.label, kind: layer.kind, direction: eqjToRenderVector(layer.labelAt),
+      ...(layer.labelColor === undefined ? {} : { color: layer.labelColor }), ...(layer.labelFont === undefined ? {} : { font: layer.labelFont }), ...(layer.labelSizePx === undefined ? {} : { sizePx: layer.labelSizePx }),
+    }));
+    this.group.name = "sky-lines";
   }
 
-  /** Stands the group on the camera, sized between its planes, and shows the kinds the switches say (building a reference circle the first time it shows). */
-  place(camera: PerspectiveCamera, on: Readonly<SkyLineSwitches>): void {
+  /** Stands the group on the camera, sized between its planes, shows the kinds the switches say (building a reference circle the first time it shows) and paints the lines in the colours given. */
+  place(camera: PerspectiveCamera, on: Readonly<SkyLineSwitches>, colours: Readonly<SkyColours>): void {
     this.group.position.copy(camera.position);
     this.group.scale.setScalar(0.5 * (camera.near + camera.far));
-    if (on.ecliptic && this.#ecliptic === null) { this.#ecliptic = lines(eclipticSegments(), SKY_LINE_COLOURS.ecliptic, "sky-ecliptic"); this.group.add(this.#ecliptic); }
-    if (on.celestialEquator && this.#equator === null) { this.#equator = lines(celestialEquatorSegments(), SKY_LINE_COLOURS.celestialEquator, "sky-celestial-equator"); this.group.add(this.#equator); }
-    if (this.#figures !== null) this.#figures.visible = on.figures;
-    if (this.#boundaries !== null) this.#boundaries.visible = on.boundaries;
-    if (this.#ecliptic !== null) this.#ecliptic.visible = on.ecliptic;
-    if (this.#equator !== null) this.#equator.visible = on.celestialEquator;
+    for (const [shows, colour, make, key] of [["ecliptic", "ecliptic", eclipticSegments, "sky-ecliptic"], ["celestialEquator", "equator", celestialEquatorSegments, "sky-celestial-equator"]] as const) {
+      if (on[shows] && !this.#drawn.some((entry) => entry.shows === shows)) {
+        const object = lines(make(), "#ffffff", key);
+        this.#drawn.push({ object, shows, colour, own: false });
+        this.group.add(object);
+        this.#applied = null;
+      }
+    }
+    if (this.#applied === null || Object.keys(colours).some((name) => colours[name as keyof SkyColours] !== this.#applied![name as keyof SkyColours])) {
+      for (const entry of this.#drawn) if (!entry.own) (entry.object.material as LineBasicMaterial).color.set(colours[entry.colour]);
+      this.#applied = { ...colours };
+    }
+    for (const entry of this.#drawn) entry.object.visible = on[entry.shows];
   }
 
   /** Which lines are shown now, by name (read by tests and the canvas data). */

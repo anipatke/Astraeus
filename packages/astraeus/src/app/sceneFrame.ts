@@ -233,7 +233,7 @@ export function publishCanvasReadouts(ctx: FrameContext): void {
 /** Stage 4b: stands the sky figures, outlines and reference circles on the camera and shows the kinds the switches say. Looks only at the camera's orientation and the switches (ARCH-02). */
 export function placeSkyFigures(ctx: FrameContext): void {
   const { controls, camera, canvas, views } = ctx;
-  views.skyFiguresView.place(camera, controls.skyLines);
+  views.skyFiguresView.place(camera, controls.skyLines, controls.skyColours);
   canvas.dataset.skyLines = views.skyFiguresView.shown.join(",");
 }
 
@@ -305,7 +305,7 @@ export function updateOverlays(ctx: FrameContext, t: number, step: CameraStep, h
   layers.anchorLabels.current?.update(controls.showAnchorLabels, camera, size.width, size.height);
   const positionFor = (id: string): RenderVector | null => labelPositionOf(step.targets, id);
   const shown = shownUnderView(ctx);
-  layers.sceneLabels.current?.update(positionFor, camera, size.width, size.height, origin, controls.selectedObjectId, shown.hiddenLabels, { on: controls.skyLines, distance: 0.5 * (camera.near + camera.far) });
+  layers.sceneLabels.current?.update(positionFor, camera, size.width, size.height, origin, controls.selectedObjectId, shown.hiddenLabels, { on: controls.skyLines, labelColor: controls.skyColours.label, distance: 0.5 * (camera.near + camera.far) });
   state.pickables = pickCandidatesOf({ objects: shown.objects, bodyIdFor: ctx.bodyIdFor, bodyScreens, widthPx: size.width, heightPx: size.height, labelRects: layers.sceneLabels.current?.shownRects, canvas, bodySetViews: shown.bodySetViews });
   const hover = state.hoverPoint === null ? null : hoverTarget(state.pickables, state.hoverPoint.x, state.hoverPoint.y, "mouse");
   canvas.style.cursor = hover === null ? "" : "pointer";

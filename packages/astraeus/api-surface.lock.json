@@ -1622,6 +1622,26 @@
           "name": "labelAt",
           "optional": true,
           "signature": "SkyDirection | undefined"
+        },
+        {
+          "name": "color",
+          "optional": true,
+          "signature": "string | undefined"
+        },
+        {
+          "name": "labelColor",
+          "optional": true,
+          "signature": "string | undefined"
+        },
+        {
+          "name": "labelFont",
+          "optional": true,
+          "signature": "string | undefined"
+        },
+        {
+          "name": "labelSizePx",
+          "optional": true,
+          "signature": "number | undefined"
         }
       ]
     },
@@ -2095,6 +2115,16 @@
           "name": "desktopPictures",
           "optional": true,
           "signature": "boolean | undefined"
+        },
+        {
+          "name": "skyLines",
+          "optional": true,
+          "signature": "SkyLinesLook | undefined"
+        },
+        {
+          "name": "labels",
+          "optional": true,
+          "signature": "LabelsLook | undefined"
         }
       ]
     },
@@ -2147,6 +2177,16 @@
           "name": "desktopPictures",
           "optional": false,
           "signature": "boolean"
+        },
+        {
+          "name": "skyLines",
+          "optional": false,
+          "signature": "{ readonly figure: string; readonly label: string; readonly boundary: string; readonly ecliptic: string; readonly equator: string; readonly traced: string; readonly faded: string; }"
+        },
+        {
+          "name": "labels",
+          "optional": false,
+          "signature": "{ readonly fontFamily: string; readonly sizePx: number; }"
         }
       ]
     },
@@ -2167,6 +2207,65 @@
         },
         {
           "name": "scale",
+          "optional": true,
+          "signature": "number | undefined"
+        }
+      ]
+    },
+    "SkyLinesLook": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "figure",
+          "optional": true,
+          "signature": "string | undefined"
+        },
+        {
+          "name": "label",
+          "optional": true,
+          "signature": "string | undefined"
+        },
+        {
+          "name": "boundary",
+          "optional": true,
+          "signature": "string | undefined"
+        },
+        {
+          "name": "ecliptic",
+          "optional": true,
+          "signature": "string | undefined"
+        },
+        {
+          "name": "equator",
+          "optional": true,
+          "signature": "string | undefined"
+        },
+        {
+          "name": "traced",
+          "optional": true,
+          "signature": "string | undefined"
+        },
+        {
+          "name": "faded",
+          "optional": true,
+          "signature": "string | undefined"
+        }
+      ]
+    },
+    "LabelsLook": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "fontFamily",
+          "optional": true,
+          "signature": "string | undefined"
+        },
+        {
+          "name": "sizePx",
           "optional": true,
           "signature": "number | undefined"
         }

@@ -329,6 +329,14 @@ describe.each([mountDriver, reactDriver(false)])("lifecycle: $name", (driver) =>
     expect(handle.scale).toBe("readable-scale");
     expect(heard.map((c) => c.cause)).toEqual(["host", "host", "host"]);
     expect(heard.map((c) => c.stars)).toEqual([1.5, 1, 1]);
+    // T-296: sky line colours and the label font and size are looks too (API-02): set live, read back filled in, back to the defaults when the whole look is replaced.
+    handle.setLook({ skyLines: { ecliptic: "#112233" }, labels: { sizePx: 16, fontFamily: "Georgia, serif" } });
+    expect(handle.look).toMatchObject({ skyLines: { ecliptic: "#112233", figure: "#8fb4ff" }, labels: { sizePx: 16, fontFamily: "Georgia, serif" } });
+    handle.setLook({});
+    expect(handle.look).toMatchObject({ skyLines: { ecliptic: "#e0b25a" }, labels: { sizePx: 12, fontFamily: "inherit" } });
+    expect(codeOf(() => handle.setLook({ skyLines: { figure: "not a colour" } }))).toBe("bad-look");
+    expect(codeOf(() => handle.setLook({ labels: { sizePx: 99 } }))).toBe("bad-look");
+    expect(codeOf(() => handle.setLook({ labels: { fontFamily: " " } }))).toBe("bad-look");
     expect(heard.at(-1)?.scale).toBe("readable-scale");
     expect(codeOf(() => handle.setLook({ starBrightness: 9 }))).toBe("bad-look");
     expect(codeOf(() => handle.setScale("nope"))).toBe("bad-scale");

@@ -38,7 +38,8 @@ import { withSkyObject, type StarStatus } from "./skyModel";
 import { ORBIT_LOOK_LIMITS, resolveOrbitLook, type OrbitLook } from "../assets/orbitLook";
 import { DEFAULT_BODY_SET_LOOK, type BodySetLook } from "./bodySet";
 import { displaySwitchItems, hostReachable, orbitStart, skyLineStart, type SwitchBindings } from "./displaySwitches";
-import { DEFAULT_SKY_LINES } from "./skyFigures";
+import { DEFAULT_SKY_LINES, skyColoursOf } from "./skyFigures";
+import { labelStyleOf } from "./labelStyle";
 import { experienceInView, hiddenByView, viewById } from "./viewHiding";
 import type { RingLook } from "../assets/rings";
 import { baseGlowOf, glowLookOf, markerSettingsOf } from "./bodyDraw";
@@ -193,6 +194,8 @@ function initialSceneControls(
     up: viewUpVector(startViewUp(definition, search)),
     showMilkyWay: runtime.sky.milkyWay,
     skyLines: skyLineStart(definition.displaySwitches, DEFAULT_SKY_LINES),
+    skyColours: skyColoursOf(runtime.look),
+    labelStyle: labelStyleOf(runtime.look),
     skyVisible: runtime.sky.visible,
     bodyMarker: markerSettingsOf(runtime.look),
     ...(glowBase === null ? {} : { glowLook: glowLookOf(runtime.look, glowBase) }),
@@ -285,6 +288,8 @@ export function App({ definition, writeTitle = true, address, developerTools, ho
   const [phoneLayout, setPhoneLayout] = useState<PhoneLayoutSettings>(DEFAULT_PHONE_LAYOUT);
   const [anchorLabels, setAnchorLabels] = useState(controls.current.showAnchorLabels);
   const [skyLinesShown, setSkyLinesShown] = useState(controls.current.skyLines);
+  const [skyColoursShown, setSkyColoursShown] = useState(controls.current.skyColours);
+  const [labelStyleShown, setLabelStyleShown] = useState(controls.current.labelStyle);
   const [glowShown, setGlowShown] = useState<GlowLook | null>(copyOfGlow(controls.current.glowLook));
   const orbitPaths = orbitPathsOf(runtime);
   const orbitDefault = useMemo(() => resolveOrbitLook(orbitPaths[0]?.look), [orbitPaths]);
@@ -522,6 +527,7 @@ export function App({ definition, writeTitle = true, address, developerTools, ho
       setStarBrightness(read.starBrightness); setMilkyWayBrightness(read.milkyWayBrightness); setMilkyWayOn(read.milkyWay); setSkyVisible(read.skyVisible);
       if (read.sunGlow !== undefined) setGlowShown({ ...controls.current.glowLook! });
       setMarkerPx(read.markerSwapRadiusPx); setLoadFade(read.loadFadeSeconds);
+      setSkyColoursShown(controls.current.skyColours); setLabelStyleShown(controls.current.labelStyle);
     },
     setScale: updateScale,
     items: () => displaySwitchItems({ ...bindingsNow(), settings: hostReachable(definition.displaySwitches) }),
@@ -534,7 +540,7 @@ export function App({ definition, writeTitle = true, address, developerTools, ho
     const changed = shownKey.current !== null && shownKey.current !== key;
     shownKey.current = key;
     if (changed) host?.publish(state, "visitor");
-  }, [host, stateNow, scale, skyVisible, starBrightness, milkyWayBrightness, milkyWayOn, glowShown, markerPx, loadFade, orbitShown, setLook, hiddenLabels, anchorLabels, skyLinesShown]);
+  }, [host, stateNow, scale, skyVisible, starBrightness, milkyWayBrightness, milkyWayOn, glowShown, markerPx, loadFade, orbitShown, setLook, hiddenLabels, anchorLabels, skyLinesShown, skyColoursShown, labelStyleShown]);
   const hasStoryPanels = (storySet?.panels.length ?? 0) > 0;
   const showDisplay = showsDisplayControls(definition, runtime, skyVisible, orbitPaths.length, storyMarkerSpecs.length);
   // Orbit-line sliders: the first four stay in view, the rest sit in a nested "Fine-tune" fold (T-090).
@@ -642,7 +648,8 @@ export function App({ definition, writeTitle = true, address, developerTools, ho
     {
       id: "labels", title: "Labels",
       body: (
-        <LabelSettings controls={controls} hoverBrightness={hoverBrightness} setHoverBrightness={setHoverBrightness} labelToggles={labelToggles} trackedCount={runtime.trackedBodies.length} anchorLabels={anchorLabels} setAnchorLabels={setAnchorLabels} hiddenLabels={hiddenLabels} setHiddenLabels={setHiddenLabels} />
+        <LabelSettings controls={controls} hoverBrightness={hoverBrightness} setHoverBrightness={setHoverBrightness} labelToggles={labelToggles} trackedCount={runtime.trackedBodies.length} anchorLabels={anchorLabels} setAnchorLabels={setAnchorLabels} hiddenLabels={hiddenLabels} setHiddenLabels={setHiddenLabels}
+          labelStyle={labelStyleShown} setLabelStyle={setLabelStyleShown} skyColours={skyColoursShown} setSkyColours={setSkyColoursShown} hasSky={skyVisible} />
       ),
     },
     !showDisplay ? null : {
@@ -698,6 +705,7 @@ export function App({ definition, writeTitle = true, address, developerTools, ho
       snapshot={clockSnapshot}
       paceAuto={runtime.pacing === undefined ? undefined : paceAuto}
       developerMode={developerMode}
+      labelStyle={labelStyleShown}
       onDeveloperModeChange={setDeveloperMode}
       onTogglePlayback={() => {
         if (runtime.clock.playing) runtime.clock.pause();

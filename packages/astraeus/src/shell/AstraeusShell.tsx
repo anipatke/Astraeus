@@ -14,6 +14,7 @@ import type { Metric } from "./metrics";
 import { PanelLoadBoundary } from "../app/PanelLoadBoundary";
 import { ControlsDrawer } from "./ControlsDrawer";
 import { isEmbedded } from "./embedded";
+import { labelStyleVars } from "../app/labelStyle";
 import { DEFAULT_PHONE_LAYOUT, phoneLayoutStyle, pickOpensInfo, usePhone, type PhoneLayoutSettings } from "./phoneLayout";
 import type { DisplaySwitchItem, ViewChoice } from "./DisplaySwitches";
 import type { ViewCameraRule } from "../app/views";
@@ -132,6 +133,8 @@ interface Props {
   readonly timelineGlow?: TimelineGlowLook;
   /** The phone layout's live numbers (drawer heights, animation, swipe distance); absent: the defaults. */
   readonly phoneLayout?: PhoneLayoutSettings;
+  /** The font and size of every label (the look `labels`), carried to them as CSS variables on the root; absent: the stylesheet's own. */
+  readonly labelStyle?: { readonly fontFamily: string; readonly sizePx: number };
   /** The family of moons lit up in the scene now (the moon panel's choice), or null; the app draws it. */
   readonly highlightedFamily?: string | null;
   readonly onHighlightFamily?: (familyId: string | null) => void;
@@ -225,6 +228,7 @@ export function AstraeusShell({
   storyPanelSettings,
   timelineGlow,
   phoneLayout = DEFAULT_PHONE_LAYOUT,
+  labelStyle,
   highlightedFamily = null,
   onHighlightFamily,
   onSetPlaying,
@@ -460,7 +464,7 @@ export function AstraeusShell({
   );
 
   return (
-    <main className="astraeus-shell" ref={root} data-phone={phone} data-timeline-hidden={experience.hideTimeline === true} data-embedded={embedded} style={phoneLayoutStyle(phoneLayout)}>
+    <main className="astraeus-shell" ref={root} data-phone={phone} data-timeline-hidden={experience.hideTimeline === true} data-embedded={embedded} style={{ ...phoneLayoutStyle(phoneLayout), ...labelStyleVars(labelStyle) }}>
       <div className="shell-canvas">{children}</div>
       {phone && <ControlsDrawer label={selectedLabel} open={controlsOpen} onOpenChange={openControls} swipeThresholdPx={phoneLayout.swipeThresholdPx}>{topBar}{moonPanel}</ControlsDrawer>}
       <div className="shell-top">

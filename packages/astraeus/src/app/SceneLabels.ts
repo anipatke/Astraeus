@@ -39,6 +39,8 @@ export const SKY_LABEL_PRIORITY = { figure: -10, boundary: -20 } as const;
 export interface SkyLabelFrame {
   readonly on: Readonly<SkyLineSwitches>;
   readonly distance: number;
+  /** The look's colour for a sky label that has no colour of its own. */
+  readonly labelColor: string;
 }
 
 /** App adapter that places configured labels; the label presentation itself stays generic. */
@@ -51,15 +53,20 @@ export class SceneLabelLayer {
   /** Per object id, whether the latest layout showed it; absent when it was not a candidate (unplaced, out of reach or switched off). */
   readonly #lastShown = new Map<string, boolean>();
   readonly #sky: ReadonlyMap<string, SkyLabelSpec>;
+  #skyColour: string | null = null;
 
   constructor(host: HTMLElement, objects: readonly ExperienceObject[], skyLabels: readonly SkyLabelSpec[] = []) {
     this.#root.className = "scene-labels";
     // A sky label is an object-like entry (its id, text and colour) with a priority below every object's and a place at infinity; it joins the one layout below, so it collides and keeps its place by the same rule.
-    const asObjects: readonly ExperienceObject[] = [...objects, ...skyLabels.map((spec): ExperienceObject => ({ id: spec.id, label: spec.label, color: spec.color, labelPriority: SKY_LABEL_PRIORITY[spec.kind] }))];
+    const asObjects: readonly ExperienceObject[] = [...objects, ...skyLabels.map((spec): ExperienceObject => ({ id: spec.id, label: spec.label, ...(spec.color === undefined ? {} : { color: spec.color }), labelPriority: SKY_LABEL_PRIORITY[spec.kind] }))];
     this.#sky = new Map(skyLabels.map((spec) => [spec.id, spec]));
     this.#entries = asObjects.map((object) => {
       const element = createLabelElement(object.label, object.color, "scene-object-label");
       element.dataset.labelId = object.id;
+      // A figure's own font and size go on its label through the same variables the viewer root sets for every label.
+      const own = this.#sky.get(object.id);
+      if (own?.font !== undefined) element.style.setProperty("--label-font", own.font);
+      if (own?.sizePx !== undefined) element.style.setProperty("--label-size", `${own.sizePx}px`);
       element.hidden = true; // not shown until the first layout places it (I-108: unplaced labels all showed for a moment, so a reader could see a label the settled layout then hides)
       this.#root.appendChild(element);
       return { object, element };
@@ -88,6 +95,10 @@ export class SceneLabelLayer {
     sky?: SkyLabelFrame,
   ): void {
     camera.updateMatrixWorld(true);
+    if (sky !== undefined && sky.labelColor !== this.#skyColour) {
+      this.#skyColour = sky.labelColor;
+      for (const entry of this.#entries) if (this.#sky.get(entry.object.id)?.color === undefined && this.#sky.has(entry.object.id)) entry.element.style.setProperty("--label-color", sky.labelColor);
+    }
     this.#shown.clear();
     const previous = new Map(this.#lastShown);
     this.#lastShown.clear();

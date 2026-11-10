@@ -11,6 +11,8 @@ import { featureMinBodyPxOf } from "./FeatureMarkers";
 import { resolveLook } from "./look";
 import type { DisplaySwitchItem } from "../shell/DisplaySwitches";
 import { resolveSkySettings } from "./skyModel";
+import { labelStyleOf } from "./labelStyle";
+import { skyColoursOf } from "./skyFigures";
 
 /** The sky settings in force: the experience's own, then the look (the scene's `setLook`, with the address over it). The Milky Way switch's start sits between the two. */
 export function skySettingsOf(definition: ExperienceDefinition, look: LookInput) {
@@ -42,6 +44,8 @@ export function lookReadOf(controls: SceneControls): LookRead {
     featureMinBodyPx: featureMinBodyPxOf({ featureMinBodyPx: controls.featureMinBodyPx }),
     loadFadeSeconds: controls.loadFadeSeconds ?? bootFadeSeconds(),
     desktopPictures: controls.desktopPictures,
+    skyLines: { ...controls.skyColours },
+    labels: { ...controls.labelStyle },
   };
 }
 
@@ -60,6 +64,8 @@ export function applyLook(controls: SceneControls, definition: ExperienceDefinit
   controls.bodyMarker = { ...controls.bodyMarker, minSpherePx: markerSettingsOf(look).minSpherePx };
   controls.featureMinBodyPx = featureMinBodyPxOf(look);
   controls.loadFadeSeconds = bootFadeSeconds(look);
+  controls.skyColours = skyColoursOf(look);
+  controls.labelStyle = labelStyleOf(look);
   return lookReadOf(controls);
 }
 

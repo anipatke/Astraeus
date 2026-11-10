@@ -5,6 +5,8 @@ import { earth } from "../src/api/bodies";
 import { glowLookOf, markerSettingsOf, DEFAULT_BODY_MARKER } from "../src/app/bodyDraw";
 import { featureMinBodyPxOf, DEFAULT_FEATURE_MIN_BODY_PX } from "../src/app/FeatureMarkers";
 import { LOOK_FIELDS, lookName, lookWith, resolveLook, type LookInput } from "../src/app/look";
+import { labelStyleOf } from "../src/app/labelStyle";
+import { DEFAULT_SKY_COLOURS, skyColoursOf } from "../src/app/skyFigures";
 import { desktopPicturesOf } from "../src/app/liveLook";
 import { BOOT_FADE_DEFAULT_SECONDS, bootFadeSeconds } from "../src/shell/bootLoader";
 import { definitionOf } from "../src/api/definitionOf";
@@ -12,7 +14,7 @@ import { definitionOf } from "../src/api/definitionOf";
 const base = { sizePx: 72, brightness: 1, scale: 2.5 };
 
 /** Each look: a value to set, a different value the address asks, and the reader that must show it. */
-const CASES: readonly { readonly key: string; readonly set: number | boolean; readonly param: string; readonly asked: string; readonly askedValue: number | boolean; readonly read: (look: LookInput) => unknown; readonly defaultRead: unknown }[] = [
+const CASES: readonly { readonly key: string; readonly set: number | boolean | string; readonly param: string | null; readonly asked: string; readonly askedValue: number | boolean | string; readonly read: (look: LookInput) => unknown; readonly defaultRead: unknown }[] = [
   { key: "starBrightness", set: 1.4, param: "stars", asked: "0.5", askedValue: 0.5, read: (l) => l.starBrightness, defaultRead: undefined },
   { key: "milkyWay", set: true, param: "milkyway", asked: "off", askedValue: false, read: (l) => l.milkyWay, defaultRead: undefined },
   { key: "milkyWayBrightness", set: 1.2, param: "milkywaybrightness", asked: "0.3", askedValue: 0.3, read: (l) => l.milkyWayBrightness, defaultRead: undefined },
@@ -24,6 +26,10 @@ const CASES: readonly { readonly key: string; readonly set: number | boolean; re
   { key: "featureMinBodyPx", set: 80, param: "featurepx", asked: "120", askedValue: 120, read: featureMinBodyPxOf, defaultRead: DEFAULT_FEATURE_MIN_BODY_PX },
   { key: "loadFadeSeconds", set: 1, param: "loadfade", asked: "2", askedValue: 2, read: bootFadeSeconds, defaultRead: BOOT_FADE_DEFAULT_SECONDS },
   { key: "desktopPictures", set: true, param: "desktop", asked: "off", askedValue: false, read: (l) => desktopPicturesOf({}, l), defaultRead: false },
+  // No address parameter (T-296, owner decision): `param: null` means the address cannot reach the look, and the test checks that it cannot.
+  ...(["figure", "label", "boundary", "ecliptic", "equator", "traced", "faded"] as const).map((name) => ({ key: `skyLines.${name}`, set: "#123456", param: null, asked: "#abcdef", askedValue: "#123456", read: (l: LookInput) => skyColoursOf(l)[name], defaultRead: DEFAULT_SKY_COLOURS[name] })),
+  { key: "labels.fontFamily", set: "Georgia, serif", param: null, asked: "x", askedValue: "Georgia, serif", read: (l) => labelStyleOf(l).fontFamily, defaultRead: "inherit" },
+  { key: "labels.sizePx", set: 16, param: null, asked: "20", askedValue: 16, read: (l) => labelStyleOf(l).sizePx, defaultRead: 12 },
 ];
 
 describe("looks are public settings", () => {
@@ -37,7 +43,9 @@ describe("looks are public settings", () => {
     const field = LOOK_FIELDS.find((f) => lookName(f) === c.key)!;
     const set = lookWith({}, field, c.set);
     expect(c.read(resolveLook(set, ""))).toBe(c.set);
-    expect(c.read(resolveLook(set, `?${c.param}=${c.asked}`))).toBe(c.askedValue);
+    // a look with no address parameter ignores the address: any parameter named like it, or like its key, leaves the set value alone
+    const search = c.param === null ? `?${c.key}=${c.asked}&${c.key.split(".").pop()}=${c.asked}` : `?${c.param}=${c.asked}`;
+    expect(c.read(resolveLook(set, search))).toBe(c.askedValue);
   });
 
   it("an unusable address value keeps the scene's look and warns", () => {

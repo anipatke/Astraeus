@@ -9,7 +9,7 @@ import { starIdTable, type StarCatalogue } from "../src/assets/sky";
 import { FloatingOrigin } from "../src/app/floatingOrigin";
 import { SceneLabelLayer, SKY_LABEL_PRIORITY } from "../src/app/SceneLabels";
 import { SkyFiguresView } from "../src/app/SkyFiguresView";
-import { celestialEquatorSegments, DEFAULT_SKY_LINES, eclipticSegments, meanDirection, SKY_LINE_COLOURS, type SkyFigureLayer } from "../src/app/skyFigures";
+import { celestialEquatorSegments, DEFAULT_SKY_LINES, eclipticSegments, meanDirection, DEFAULT_SKY_COLOURS, type SkyFigureLayer } from "../src/app/skyFigures";
 import { createOrbTwoBodyAdapter } from "../src/core/twoBodyAdapter";
 import { TRACK_LAYER } from "../src/app/TrackedBodyView";
 
@@ -166,13 +166,13 @@ describe("SkyFiguresView: drawn at infinity, above the Sun's glow", () => {
 
   it("stands on the camera and sits between its planes, so only the camera's turn moves it", () => {
     const view = new SkyFiguresView(layers());
-    view.place(camera, DEFAULT_SKY_LINES);
+    view.place(camera, DEFAULT_SKY_LINES, DEFAULT_SKY_COLOURS);
     expect(view.group.position.toArray()).toEqual([5, 6, 7]);
     expect(view.group.scale.x).toBeCloseTo(0.5 * (0.1 + 1000), 9);
   });
   it("draws on the last render pass, after every body and its halo, tests depth but writes none", () => {
     const view = new SkyFiguresView(layers());
-    view.place(camera, { ...DEFAULT_SKY_LINES, boundaries: true });
+    view.place(camera, { ...DEFAULT_SKY_LINES, boundaries: true }, DEFAULT_SKY_COLOURS);
     expect(view.group.children.length).toBe(2);
     for (const child of view.group.children) {
       expect(child.layers.mask).toBe(1 << TRACK_LAYER);
@@ -183,20 +183,27 @@ describe("SkyFiguresView: drawn at infinity, above the Sun's glow", () => {
   });
   it("shows each kind by its switch, and builds the circles only when first switched on", () => {
     const view = new SkyFiguresView(layers());
-    view.place(camera, DEFAULT_SKY_LINES);
+    view.place(camera, DEFAULT_SKY_LINES, DEFAULT_SKY_COLOURS);
     expect(view.shown).toEqual(["sky-figures"]);
-    view.place(camera, { figures: false, boundaries: true, ecliptic: true, celestialEquator: true });
+    view.place(camera, { figures: false, boundaries: true, ecliptic: true, celestialEquator: true }, DEFAULT_SKY_COLOURS);
     expect([...view.shown].sort()).toEqual(["sky-boundaries", "sky-celestial-equator", "sky-ecliptic"]);
-    view.place(camera, { figures: true, boundaries: false, ecliptic: false, celestialEquator: true });
+    view.place(camera, { figures: true, boundaries: false, ecliptic: false, celestialEquator: true }, DEFAULT_SKY_COLOURS);
     expect([...view.shown].sort()).toEqual(["sky-celestial-equator", "sky-figures"]);
   });
-  it("draws the figures in the fixed default colours stated in one place", () => {
-    const view = new SkyFiguresView(layers());
-    expect(view.labels.map(({ kind, color }) => [kind, color])).toEqual([["figure", SKY_LINE_COLOURS.figure], ["boundary", SKY_LINE_COLOURS.boundary]]);
+  it("paints the lines in the look's colours (defaults stated in one place) and repaints when they change, leaving a figure with its own colour alone", () => {
+    const view = new SkyFiguresView([...layers(), { ...layers()[0]!, id: "own", color: "#123456" }]);
+    const colourOf = (name: string) => (view.group.getObjectByName(name) as unknown as { material: { color: { getHexString(): string } } }).material.color.getHexString();
+    view.place(camera, { ...DEFAULT_SKY_LINES, boundaries: true }, DEFAULT_SKY_COLOURS);
+    expect(colourOf("sky-figures")).toBe(DEFAULT_SKY_COLOURS.figure.slice(1));
+    expect(colourOf("sky-boundaries")).toBe(DEFAULT_SKY_COLOURS.boundary.slice(1));
+    view.place(camera, { ...DEFAULT_SKY_LINES, boundaries: true }, { ...DEFAULT_SKY_COLOURS, figure: "#ff0000", boundary: "rgb(0, 255, 0)" });
+    expect(colourOf("sky-figures")).toBe("ff0000");
+    expect(colourOf("sky-boundaries")).toBe("00ff00");
+    expect(colourOf("sky-figures:own")).toBe("123456");
   });
   it("has nothing to draw for a scene with no figures except what is switched on, and disposes cleanly", () => {
     const view = new SkyFiguresView([]);
-    view.place(camera, { ...DEFAULT_SKY_LINES, ecliptic: true });
+    view.place(camera, { ...DEFAULT_SKY_LINES, ecliptic: true }, DEFAULT_SKY_COLOURS);
     expect(view.shown).toEqual(["sky-ecliptic"]);
     expect(() => view.dispose()).not.toThrow();
     expect(view.group.children).toHaveLength(0);
@@ -221,7 +228,7 @@ describe("sky labels join the one name layout", () => {
   camera.lookAt(0, 0, -1);
   const spec = (id: string, kind: "figure" | "boundary", direction: [number, number, number]) => ({ id, label: id, color: "#fff", kind, direction });
   const hiddenOf = (id: string) => host.querySelector<HTMLElement>(`[data-label-id="${id}"]`)!.hidden;
-  const frame = (layer: SceneLabelLayer, on = DEFAULT_SKY_LINES) => layer.update(() => null, camera, 800, 600, new FloatingOrigin(), "", undefined, { on, distance: 500 });
+  const frame = (layer: SceneLabelLayer, on = DEFAULT_SKY_LINES) => layer.update(() => null, camera, 800, 600, new FloatingOrigin(), "", undefined, { on, labelColor: "#abcdef", distance: 500 });
 
   it("is one layer: the sky label is an entry of the object label layer, ranked below every object", () => {
     const layer = new SceneLabelLayer(host, [], [spec("kite", "figure", [0, 0, -1])]);
@@ -245,7 +252,7 @@ describe("sky labels join the one name layout", () => {
   it("keeps a body's name over a sky name when they collide (no overlap)", () => {
     const body = { id: "earth", label: "Earth", color: "#fff", labelPriority: 0 } as never;
     const layer = new SceneLabelLayer(host, [body], [spec("kite", "figure", [0, 0, -1])]);
-    layer.update((id) => (id === "earth" ? [0, 0, -50] : null), camera, 800, 600, new FloatingOrigin(), "", undefined, { on: DEFAULT_SKY_LINES, distance: 500 });
+    layer.update((id) => (id === "earth" ? [0, 0, -50] : null), camera, 800, 600, new FloatingOrigin(), "", undefined, { on: DEFAULT_SKY_LINES, labelColor: "#abcdef", distance: 500 });
     expect(hiddenOf("earth")).toBe(false);
     expect(hiddenOf("kite")).toBe(true);
     layer.dispose();
