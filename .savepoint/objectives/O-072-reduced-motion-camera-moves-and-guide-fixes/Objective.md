@@ -1,7 +1,7 @@
 ---
 id: O-072
 title: Reduced-motion camera moves and guide fixes
-status: planned
+status: in_progress
 depends_on: [O-071]
 release: G-019
 priority: medium

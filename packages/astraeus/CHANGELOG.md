@@ -10,6 +10,10 @@ Fix: a `provider` path is no longer drawn at 128 evenly spaced moments alone. A 
 
 Fix: where pacing pieces overlap or their ramps meet, the paced speed is now what the README says, instead of a product of eases that was slower than both. Faster spans set the cruise (the faster wins where they meet); slower spans and event rules ease down from it (the slowest of what each alone would give wins where they meet), so a slow-down inside a faster span starts without a jump in speed. No call shape changed.
 
+Fix: with `prefers-reduced-motion: reduce`, every eased camera move (host `setCamera`, a view's camera rule, the timeline's Go to framing, the visitor's own picks) now arrives on the next frame instead of gliding; without it nothing changes. No call shape changed.
+
+Docs: the README now states the whole-millisecond time rule (a fractional time throws a plain `RangeError` today), the ecliptic obliquity the engine rotates `plane: "ecliptic-j2000"` data by (84381.406 arcseconds, against JPL Horizons' 84381.448, about 30 km at 1 au), the `provider` `stateAt(timeUtcMs, center?)` contract and the State it returns, the orbit camera's 45 degree vertical field of view, the colours of an `addBodyFromElements` body and that path anchor labels are off until the `labels` switch is on.
+
 Fix: playback now steps through every slow-down whatever the frame length. A frame used to run at the one speed read at its start, so a long frame at cruise could carry the clock over a whole zone and its ramps (a short one still could, at a fast cruise); each frame is now advanced through the speeds it crosses, so playback always eases into a zone and `onEventZone` reports it; the same holds while a view switch eases the speed (the ease now smooths only the change the switch caused, so a zone reached during it still slows playback). No call shape changed.
 
 ## 0.9.0 (2026-11-11)

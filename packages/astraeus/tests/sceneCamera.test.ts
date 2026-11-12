@@ -302,3 +302,28 @@ describe("a pose read and restored (the host camera, T-225)", () => {
     expect(step.camState.fixedPoint).toBeNull();
   });
 });
+
+describe("reduced motion (resolveCamera)", () => {
+  const pending = () => {
+    const state = createOrbitCameraState(16, "earth");
+    state.distance = 16; state.targetDistance = 4;
+    state.azimuth = 0; state.targetAzimuth = 1;
+    state.elevation = 0; state.targetElevation = 0.5;
+    state.transition = [10, -20, 30]; // a focus tween still to run
+    return state;
+  };
+  const cases = [
+    { name: "focus tween", read: (s: ReturnType<typeof pending>) => s.transition[0], target: 0 },
+    { name: "distance", read: (s: ReturnType<typeof pending>) => s.distance, target: 4 },
+    { name: "azimuth", read: (s: ReturnType<typeof pending>) => s.azimuth, target: 1 },
+    { name: "elevation", read: (s: ReturnType<typeof pending>) => s.elevation, target: 0.5 },
+  ];
+  it.each(cases.flatMap((c) => [{ ...c, reduced: true }, { ...c, reduced: false }]))("$name after one frame, reduced $reduced", ({ read, target, reduced }) => {
+    const state = pending();
+    resolveCamera(state, [0, 0, 0], new FloatingOrigin(), 0.016, 1e12, EQUATORIAL_UP, reduced);
+    if (reduced) expect(read(state)).toBe(target);
+    else expect(read(state)).not.toBe(target);
+    if (reduced) expect(state.transition).toEqual([0, 0, 0]);
+    else expect(Math.abs(state.transition[0])).toBeGreaterThan(0);
+  });
+});

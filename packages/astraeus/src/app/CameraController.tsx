@@ -206,6 +206,7 @@ export function switchFocus(state: OrbitCameraState, focus: FocusId, newTargetAb
  * Step 1 (before bodies are placed): computes the absolute target/camera in Float64 render axes
  * and rebases the floating origin when the target drifts away from it, so bodies and camera
  * always use the same origin within a frame. Scientific state is never read or written here.
+ * With `reducedMotion` the distance, angles and focus tween land on their targets in one frame.
  */
 export function resolveCamera(
   state: OrbitCameraState,
@@ -214,8 +215,10 @@ export function resolveCamera(
   deltaSeconds: number,
   rebaseThreshold: number,
   up: RenderVector = EQUATORIAL_UP,
+  reducedMotion = false,
 ): void {
-  const decay = Math.exp(-TRANSITION_RATE_PER_S * deltaSeconds);
+  // Reduced motion: every eased move arrives within this frame (decay 0, blend 1).
+  const decay = reducedMotion ? 0 : Math.exp(-TRANSITION_RATE_PER_S * deltaSeconds);
   const blend = 1 - decay;
   state.distance += (state.targetDistance - state.distance) * blend;
   if (Math.abs(state.targetDistance - state.distance) < 1e-9) state.distance = state.targetDistance;

@@ -2,7 +2,7 @@
 id: T-312
 title: Make camera moves jump for reduced motion and fill the guide's gaps
 objective: O-072
-status: planned
+status: done
 depends_on: []
 owner_validation: {required: false}
 check_waiver: {task: T-312, reason: 'Owner said "orchestrate next" to orchestrate O-072 under the standing run rules (one builder at a time, no per-step checks, coordinator marks done once gates pass, one Full Objective Check at the end); the optional Task Check is waived.', actor: {role: owner, session: o072-run-20261112}, recorded_at: '2026-11-12T12:15:03Z'}
@@ -76,8 +76,16 @@ Focused `tests/sceneCamera.test.ts` during iteration; handoff runs lint, typeche
 
 ## Technical Evidence
 
-Pending execution.
+Extra reads (path, reason): `packages/astraeus/src/core/twoBodyAdapter.ts` (the matrix source); `src/core/trajectory.ts`, `src/core/stateResolver.ts`, `src/api/planPaths.ts`, `src/app/mission.ts`, `src/app/trackedMetrics.ts`, `src/app/TrackedBodyView.ts` (provider `stateAt` call sites); `src/core/elementsBody.ts`, `src/assets/catalogue.ts`, `src/api/sunOrbit.ts`, `src/api/planBodies.ts`, `src/app/catalogueItem.ts`, `src/app/bodyDraw.ts` (elements-body colours); `src/app/App.tsx`, `src/app/displaySwitches.ts` (anchor labels); `.savepoint/objectives/O-069..O-071` Objective.md and CHANGELOG top section (release notes).
+
+Criteria:
+- Reduced motion: `resolveCamera(..., up, reducedMotion = false)` in `src/app/CameraController.tsx` uses decay 0 / blend 1 when reduced; `sceneFrame.ts` passes `prefersReducedMotion()`. Table test `reduced motion (resolveCamera)` in `tests/sceneCamera.test.ts` (4 values x reduced on/off = 8 cases). Fails on the unfixed source (stashed `src/app`: 4 failed, the reduced-true cases; 25 passed), passes fixed (29 passed). Existing tests untouched.
+- README (each verified in source): obliquity 84381.406" read from `createOrbTwoBodyAdapter().eclipticJ2000ToEqjMatrix()` (acos(m[8]) = 84381.406"; the review's 84381.448 is JPL's, not the engine's); RangeError: `assertUtcUnixMs` in `src/core/state.ts:41-45` (plain RangeError, no `code`); provider contract: `planPaths.ts:97-103,167,189` (center passed when planning the line and reach) vs `mission.ts:91,97,106`, `trackedMetrics.ts:26` (no center), `state.ts` State fields, `velocityKmS` optional (`trackedMetrics.ts:27`), `orientation: null` accepted (`createState`); fov `CAMERA_FOV_DEG = 45` at `src/app/sceneFraming.ts:58`; elements-body colours: `catalogue.ts:114` (visual colour = `marker.color`), `sunOrbit.ts:119,127` (`color || visual.material.color`), `catalogueItem.ts:15` and `planBodies.ts:181,305` (label colour: option over visual), `bodyDraw.ts:67` + `BodyView.tsx:52` (dot always marker); default `#9fe3ff` (`elementsBody.ts:16`); anchor labels: `App.tsx:211` (`showAnchorLabels` starts false unless the labels switch starts on), `displaySwitches.ts:59` (labels switch drives anchors). The review was not copied; the time and provider rows differ from its guesses (provider center is optional, `createState` is not public so providers return plain State objects).
+- CHANGELOG `## Unreleased` has the two new entries; `docs/release-notes-0.9.1.md` written in the 0.9.0 shape; first-download size left "to be measured at release". No version bump, tag or publish.
+- Gates (fresh, after the last edit): `npm run lint`, `npm run typecheck`, `npm run build`, `npm test` all exit 0; 255 files, 3813 passed, 2 skipped.
 
 ## Drift Notes
 
-If `Design.md` `Host-page behaviour` should name the camera's reduced-motion rule, note it here for reconciliation before the Full Objective Check.
+Design.md `Host-page behaviour` should gain one sentence: every eased camera move (host `setCamera`, a view's rule, Go to framing, the visitor's picks) lands on the next frame under `prefers-reduced-motion: reduce`, via the `reducedMotion` parameter of `resolveCamera` (the one read is `prefersReducedMotion()` in `sceneFrame.ts`, shared with the sky fade-in rule in `Sky figures` item 11). Reconcile before the Full Objective Check. No other drift.
+
+Marked done by the coordinator 2026-11-12T12:19:25Z under the owner's "orchestrate next" (O-072) standing rule ("I mark them as they pass"): gates passed (lint, typecheck, build, test 3,813 passed, 2 skipped); diff reviewed (resolveCamera gains a reducedMotion parameter, sceneFrame passes prefersReducedMotion(); new table test only, no existing test changed); focused sceneCamera test rerun by the coordinator, 29/29.

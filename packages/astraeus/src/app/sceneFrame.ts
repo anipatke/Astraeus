@@ -208,7 +208,7 @@ export function stepAndPoseCamera(ctx: FrameContext, t: number, placed: PlacedSc
   const reach = liveReach(runtime.cameraReach, policy, camera.aspect);
   const focusBody = stepCameraTarget({ camState: orbit, controls, targets, frame, catalogue, reach, fovDeg: orbit.lookOut === null ? camera.fov : CAMERA_FOV_DEG, viewUp, firstFrame, previousUp: state.lastUp });
   state.lastUp = viewUp;
-  resolveCamera(orbit, cameraTargetAbsolute(orbit, targets), ctx.origin, ctx.delta, REBASE_THRESHOLD, viewUp);
+  resolveCamera(orbit, cameraTargetAbsolute(orbit, targets), ctx.origin, ctx.delta, REBASE_THRESHOLD, viewUp, prefersReducedMotion());
   placeBodies(ctx.assets, placed.composed.states, ctx.bodyRefs, policy, ctx.origin);
   const baseFar = reach.far ?? DEFAULT_CAMERA_FAR;
   // Looking out, the camera stands at a body, so a far plane sized for orbit framing could cut off the Sun or any body beyond it: reach everything placed.
