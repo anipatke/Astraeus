@@ -2,16 +2,22 @@
 id: I-177
 title: The README time rule is wrong for a provider path
 type: defect
-status: open
+status: resolved
 source:
   kind: check
   check: C-178
   actor: {role: checker, session: o072-check-20261112}
   at: '2026-11-12T12:22:30Z'
 tasks: [T-312]
-checks: [C-178]
+checks: [C-178, C-179]
 guardrail_ids: [API-07]
 severity: low
+resolution:
+  disposition: verified
+  check: C-179
+  actor: {role: checker, session: o072-recheck-20261112}
+  at: '2026-11-12T12:45:30Z'
+  reason: Repair proven by C-179 (CLEAR).
 history:
   - at: '2026-11-12T12:22:30Z'
     actor: {role: checker, session: o072-check-20261112}
@@ -22,6 +28,11 @@ history:
     actor: {role: executor, session: o072-run-20261112}
     kind: repair_attempted
     note: 'Direct repair, unverified by a checker. Owner chose (2026-11-12) "Engine refuses them": the provider wrapper in planPaths.ts calls assertUtcUnixMs before the host stateAt, so every call (stateOf, line planning, reach, sampling) refuses a fractional time with the same plain RangeError as a body or samples path. README addTrajectory row names stateOf among the center cases and states the refusal; CHANGELOG Unreleased and release-notes-0.9.1 note it. tests/fractionalTime.test.ts tables stateOf with a fractional time on a body, a samples path and a provider path (RangeError, not SceneError, provider not reached) plus a whole-ms pass-through; the provider row fails on the unfixed planPaths.ts and all pass now. lint, typecheck, build, npm test pass.'
+  - at: '2026-11-12T12:45:30Z'
+    actor: {role: checker, session: o072-recheck-20261112}
+    kind: rechecked
+    note: 'Proof Needed met, by C-179 (CLEAR): the provider wrapper in planPaths.ts refuses a fractional time with assertUtcUnixMs before the host stateAt, so the README sentence holds; the README row lists stateOf among the center cases. tests/fractionalTime.test.ts drives scene.stateOf with a fractional time on a body, a samples path and a provider path (RangeError, not SceneError, provider not reached): its provider row fails on planPaths.ts from 8f9ec36c and all pass at ceb545af. An independent 64-cell probe (EQJ and ecliptic provider, Earth- and Sun-first scenes) agrees; whole ms still reach the provider unchanged with center.'
+    check: C-179
 ---
 
 # I-177: The README time rule is wrong for a provider path
