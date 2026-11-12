@@ -30,6 +30,7 @@ G-019, Closest Calls F-09 and F-15. Today `applyPacing` (`src/core/pacing.ts`) r
 - "Fix the engine to match the guide": overlapping ramps take the slower speed.
 - 0.9.1, additions only: behaviour fixes only, no new or changed public input.
 - Owner, 2026-11-12T05:45:43Z (o069-run-20261112, I-171 repair): "Ease only the switch" — the view-switch ease smooths only the speed change the switch itself caused; a slow-down reached during the ease still slows playback, so nothing is skipped, even though the ease then differs from today's shape.
+- Owner, 2026-11-12T06:03:08Z (o069-run-20261112, I-172 after C-172): "Fix with the full rule" — spans faster than the base set the cruise (where they meet, the faster of each alone over the base); every slower span and every event rule eases from that cruise in log space, and where they meet the slowest of each alone wins; one table test covers fast spans, slow spans and event rules together. Accepted as a consequence of "Ease only the switch": a view switch that newly shows a zone the clock is already within about half an hour of may pass it unreported.
 
 ## Architectural Considerations
 
