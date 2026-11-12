@@ -10,6 +10,7 @@ import type { TimeBounds, Trajectory } from "../core/trajectory";
 import { planetSeriesLoaded } from "../core/planetSeries";
 import { catalogue as builtInCatalogue, type BodyCatalogue } from "../assets/catalogue";
 import { lineBodies, type LineStretch, type TrackedBody } from "../app/mission";
+import { providerPathTimes } from "./providerPathTimes";
 import { planLineStretches, planPathProvenance } from "./pathProvenance";
 import { influenceStretches, sphereOfInfluenceKm, type InfluenceCandidate } from "./sphereOfInfluence";
 import { SceneError } from "./errors";
@@ -19,7 +20,6 @@ import type { AnchorInput, ReadoutInput, TrajectoryInput } from "./scene";
 import { frozenList, type ScenePathRead } from "./sceneReads";
 
 const DEFAULT_COLOR = "#ffd27a";
-const PROVIDER_PATH_SAMPLES = 128;
 
 /** Samples along a path when its farthest distance is read for the default zoom-out. */
 const PATH_COVER_SAMPLES = 400;
@@ -54,7 +54,7 @@ export function buildTracked(input: TrajectoryInput, center: BodyId, labelReache
   }
   if (input.plane !== undefined && input.plane !== "EQJ" && input.plane !== "ecliptic-j2000") throw new SceneError("bad-trajectory", `addTrajectory("${id}"): plane "${String(input.plane)}" must be "EQJ" or "ecliptic-j2000"`);
   const toEqj = input.plane === "ecliptic-j2000" ? createOrbTwoBodyAdapter().eclipticJ2000ToEqjMatrix() : null;
-  const body = "samples" in input ? sampledBody(common, input, center, toEqj) : providerBody(common, input, toEqj);
+  const body = "samples" in input ? sampledBody(common, input, center, toEqj) : providerBody(common, input, center, toEqj);
   const span = { startUtcMs: body.trajectory.bounds.startUtcMs, endUtcMs: body.trajectory.bounds.endUtcMs };
   const provenanceSpans = input.provenanceSpans === undefined ? undefined : planPathProvenance(id, input.provenanceSpans, span);
   checkLineFixedToType(id, input.lineFixedTo);
@@ -90,14 +90,13 @@ function checkLineFixedToType(id: string, value: unknown): void {
   if (value !== undefined && typeof value !== "string" && typeof value !== "object") throw new SceneError("bad-trajectory", `addTrajectory("${id}"): lineFixedTo ${String(value)} must be a body id, "auto" or a list of stretches`);
 }
 
-function providerBody(common: Common, input: Extract<TrajectoryInput, { provider: unknown }>, toEqj: Float64Array | null): TrackedBody {
+function providerBody(common: Common, input: Extract<TrajectoryInput, { provider: unknown }>, center: BodyId, toEqj: Float64Array | null): TrackedBody {
   if (typeof input.provider?.stateAt !== "function") throw new SceneError("bad-trajectory", `addTrajectory("${common.id}"): provider needs a stateAt(time) function`);
   const bounds: TimeBounds = { startUtcMs: toUtcMs(input.bounds?.start, `addTrajectory("${common.id}") bounds.start`), endUtcMs: toUtcMs(input.bounds?.end, `addTrajectory("${common.id}") bounds.end`) };
   if (bounds.endUtcMs <= bounds.startUtcMs) throw new SceneError("bad-trajectory", `addTrajectory("${common.id}"): bounds must end after they start`);
   const trajectory: Trajectory & { readonly bounds: TimeBounds } = { body: common.id, bounds, stateAt: (timeUtcMs, center) => rotatedState(toEqj, input.provider.stateAt(timeUtcMs, center)) };
-  // Whole milliseconds, because the state resolver refuses a fractional time (the line is placed against another body at these times).
-  const step = (bounds.endUtcMs - bounds.startUtcMs) / (PROVIDER_PATH_SAMPLES - 1);
-  return { ...common, trajectory, pathTimesUtcMs: Array.from({ length: PROVIDER_PATH_SAMPLES }, (_, index) => Math.round(bounds.startUtcMs + index * step)) };
+  // Whole milliseconds, because the state resolver refuses a fractional time (the line is placed against another body at these times). The 128 even moments gain more where the path bends or the body moves fast, as seen from `center`.
+  return { ...common, trajectory, pathTimesUtcMs: providerPathTimes(bounds.startUtcMs, bounds.endUtcMs, (t) => trajectory.stateAt(t, center).positionKm) };
 }
 
 /** A provider's State with its position and velocity rotated into EQJ; unchanged for EQJ input. */

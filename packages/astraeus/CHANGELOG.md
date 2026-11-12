@@ -4,6 +4,8 @@ Versions follow [semantic versioning](https://semver.org). While the version sta
 
 ## Unreleased
 
+Fix: a `provider` path is no longer drawn at 128 evenly spaced moments alone. A one-hour flyby on a six-year path fell between two of them and was drawn as a straight line past the marker. The line now also takes moments where the path bends or the body moves fast, as seen from the path's `center`, up to 4,096 in all; where more would be needed (a very close, fast pass) the most useful are kept. A `samples` path and the public API are unchanged.
+
 Fix: where pacing pieces overlap or their ramps meet, the paced speed is now what the README says, instead of a product of eases that was slower than both. Faster spans set the cruise (the faster wins where they meet); slower spans and event rules ease down from it (the slowest of what each alone would give wins where they meet), so a slow-down inside a faster span starts without a jump in speed. No call shape changed.
 
 Fix: playback now steps through every slow-down whatever the frame length. A frame used to run at the one speed read at its start, so a long frame at cruise could carry the clock over a whole zone and its ramps (a short one still could, at a fast cruise); each frame is now advanced through the speeds it crosses, so playback always eases into a zone and `onEventZone` reports it; the same holds while a view switch eases the speed (the ease now smooths only the change the switch caused, so a zone reached during it still slows playback). No call shape changed.

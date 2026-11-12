@@ -2,7 +2,7 @@
 id: T-309
 title: Add line points where a provider path bends or moves fast
 objective: O-070
-status: planned
+status: done
 depends_on: []
 owner_validation: {required: false}
 planned_by: {role: planner, session: plan-o070-20261112}
@@ -63,8 +63,27 @@ Focused `npx vitest run tests/providerPathTimes.test.ts tests/publicApiProviderL
 
 ## Technical Evidence
 
-Pending execution.
+Gates (repo root, where the scripts live; `packages/astraeus` has no `lint` script): `npm run lint` pass, `npm run typecheck` pass, `npm run build` pass, `npm test` pass (253 files, 3,768 passed, 2 skipped, 0 failed). `api-surface.lock.json` unchanged. No browser run. Extra reads: none beyond Context Files.
+
+Method (`src/api/providerPathTimes.ts`, `providerPathTimes(start, end, positionAt)`): start from the 128 even moments (as before, deduplicated for very short bounds). Each interval is scored by the larger of (sweep angle about the centre between its ends / 3 degrees) and (distance of the true whole-ms midpoint from the time-weighted chord point / (0.25% of max(midpoint distance, nearer end distance))). A max-heap on the score (ties to the earlier interval) splits the worst interval at its floor midpoint while the score exceeds 1 and the interval is at least 2 ms, until none is left or 4,096 moments exist. If the provider throws or gives no finite 3-vector at planning, the 128 even moments stand alone (the old behaviour; the fault surfaces when drawn, so the existing `publicApi` stub provider and the unloaded-series order keep working).
+
+Counts: flyby (3 Earth radii, six years) 231 moments, 461 provider calls; circular orbit (2.3-year period, six years) 509; a 27-day circle over six years hits the 4,096 cap; near-still path 128.
+
+| Done When | Evidence |
+|---|---|
+| Pure function in a new file, 128 even + refined, whole-ms, strictly increasing, <= 4,096, deterministic | `src/api/providerPathTimes.ts`; `tests/providerPathTimes.test.ts` "what every path keeps" (table over circle, near-still, flyby, pathological), "is deterministic" |
+| `providerBody` uses it with positions about `center` after the plane rotation; `PROVIDER_PATH_SAMPLES` gone; `samples` untouched | `src/api/planPaths.ts` `providerBody` reads `trajectory.stateAt(t, center).positionKm` (the rotated trajectory); constant removed; `sampledBody` unchanged |
+| F-05 regression: line within 1% at every minute within closest approach +/- 3 h; 128 even moments alone fail | `providerPathTimes.test.ts` first describe: even moments alone give a gap above 0.01 (asserted), planned moments below 0.01; closest approach falls midway between two even moments |
+| Circular orbit and near-still: all 128 even moments present, count <= 4,096 | "what every path keeps" table (even moments contained, bounds, cap); near-still adds nothing (length 128) |
+| Pathological provider: <= 4,096, with the 128 even moments and bounds | 60 s-period circle over six years: exactly 4,096, even moments and bounds present |
+| Very short bounds valid | "very short bounds" table, spans 1, 2, 3, 7, 50, 200 ms |
+| `publicApiProviderLines.test.ts` unchanged and passing | file untouched; passes |
+| Pin entries for provider paths rewritten deliberately | `tests/fixtures/scenePin.json`, trackedBodies entry `bump` (the only provider path), in both orders (series loaded and not loaded): `pathTimesUtcMs` `[numbers]` 128 -> 210 and `sum` 226260172800000 -> 371196105874000; `head` and `tail` unchanged. Why: the made-up provider drifts in x about the Sun, so the planner adds moments where the angle swept about the centre is above 3 degrees. Regenerated with `vitest -u` on that file and the diff checked to be only those 4 lines; no test setup changed. |
+| Unreadable provider keeps the 128 | `providerPathTimes.test.ts` "a provider that gives no position at planning" table (throws, none, NaN) |
+| README `addTrajectory` row sentence; CHANGELOG Unreleased fix | `README.md` `addTrajectory` row (end), `CHANGELOG.md` Unreleased top entry |
+
+Marked done by the coordinator 2026-11-12T08:03:07Z under the owner's "orchestrate O-070" standing rule ("I mark them as they pass"): gates passed (lint, typecheck, build, test 3,768 passed); focused rerun by the coordinator 21/21; `api-surface.lock.json` unchanged.
 
 ## Drift Notes
 
-None yet. If the Design `Paths across the solar system` text needs a sentence on provider line sampling, note it here for reconciliation before the Full Check.
+Design `Paths across the solar system` has no sentence on provider line sampling; add one at reconciliation before the Full Check (128 even moments plus up to 4,096 in all, bends judged from the path center, an unreadable provider at planning keeps the 128). Original note: if the Design `Paths across the solar system` text needs a sentence on provider line sampling, note it here for reconciliation before the Full Check.
