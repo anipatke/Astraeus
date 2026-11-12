@@ -12,6 +12,7 @@ A patch release from the Closest Calls review: playback and flybys behave as the
 - **Flyby lines.** A `provider` path is drawn through its 128 even moments plus up to 3,968 more where it bends or the body moves fast, as seen from the path's `center`, so a one-hour flyby on a six-year path no longer draws as a straight line past the marker. A `samples` path is unchanged. (O-070)
 - **Show for a span of time.** `shownDuring: { start?, end? }` on `addBody`, `addBodyFromElements` and `addTrajectory` shows a body or path only while `start <= t < end`. Outside it nothing is drawn, it cannot be picked, it leaves the object menu and `setSelected` and `setCamera` refuse it; a selection it held is dropped and the camera holds. `stateOf` and the readouts are unchanged. (O-071)
 - **Reduced motion.** With `prefers-reduced-motion: reduce`, every eased camera move arrives on the next frame. Without it nothing changes. (O-072)
+- **Provider times.** `scene.stateOf` on a `provider` path refuses a fractional time with the same `RangeError` as a body or `samples` path, so a provider's `stateAt` only sees whole milliseconds. (O-072, I-177)
 - **README.** States the whole-millisecond time rule and its current `RangeError`, the ecliptic obliquity (84381.406 arcseconds, against JPL Horizons' 84381.448), the `provider` `stateAt` contract, the 45 degree orbit field of view, an elements body's colours and the anchor-label switch. (O-072)
 
 Full details: `packages/astraeus/CHANGELOG.md`.

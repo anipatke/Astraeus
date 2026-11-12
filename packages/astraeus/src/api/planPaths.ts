@@ -2,7 +2,7 @@ import type { BodyId } from "../core/body";
 import { createProvenance } from "../core/provenance";
 import type { WindowProvenanceSpan } from "../core/timeWindow";
 import { SampledTrajectory, type TrajectorySample } from "../core/sampledTrajectory";
-import { createState, type State } from "../core/state";
+import { assertUtcUnixMs, createState, type State } from "../core/state";
 import { createOrbTwoBodyAdapter } from "../core/twoBodyAdapter";
 import { createStateResolver } from "../core/stateResolver";
 import { createOrbAstronomyAdapter } from "../core/astronomyAdapter";
@@ -98,7 +98,11 @@ function providerBody(common: Common, input: Extract<TrajectoryInput, { provider
   if (typeof input.provider?.stateAt !== "function") throw new SceneError("bad-trajectory", `addTrajectory("${common.id}"): provider needs a stateAt(time) function`);
   const bounds: TimeBounds = { startUtcMs: toUtcMs(input.bounds?.start, `addTrajectory("${common.id}") bounds.start`), endUtcMs: toUtcMs(input.bounds?.end, `addTrajectory("${common.id}") bounds.end`) };
   if (bounds.endUtcMs <= bounds.startUtcMs) throw new SceneError("bad-trajectory", `addTrajectory("${common.id}"): bounds must end after they start`);
-  const trajectory: Trajectory & { readonly bounds: TimeBounds } = { body: common.id, bounds, stateAt: (timeUtcMs, center) => rotatedState(toEqj, input.provider.stateAt(timeUtcMs, center)) };
+  const trajectory: Trajectory & { readonly bounds: TimeBounds } = { body: common.id, bounds, stateAt: (timeUtcMs, center) => {
+    // Every call reaches the host here (`stateOf`, line planning, reach, sampling): a provider only ever sees whole milliseconds (I-177).
+    assertUtcUnixMs(timeUtcMs);
+    return rotatedState(toEqj, input.provider.stateAt(timeUtcMs, center));
+  } };
   // Whole milliseconds, because the state resolver refuses a fractional time (the line is placed against another body at these times). The 128 even moments gain more where the path bends or the body moves fast, as seen from `center`.
   return { ...common, trajectory, pathTimesUtcMs: providerPathTimes(bounds.startUtcMs, bounds.endUtcMs, (t) => trajectory.stateAt(t, center).positionKm) };
 }

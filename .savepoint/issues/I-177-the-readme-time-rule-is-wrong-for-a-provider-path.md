@@ -18,6 +18,10 @@ history:
     kind: observed
     note: Found by the O-072 Full Objective Check probe of the README time and provider facts against the public API.
     check: C-178
+  - at: '2026-11-12T12:35:15Z'
+    actor: {role: executor, session: o072-run-20261112}
+    kind: repair_attempted
+    note: 'Direct repair, unverified by a checker. Owner chose (2026-11-12) "Engine refuses them": the provider wrapper in planPaths.ts calls assertUtcUnixMs before the host stateAt, so every call (stateOf, line planning, reach, sampling) refuses a fractional time with the same plain RangeError as a body or samples path. README addTrajectory row names stateOf among the center cases and states the refusal; CHANGELOG Unreleased and release-notes-0.9.1 note it. tests/fractionalTime.test.ts tables stateOf with a fractional time on a body, a samples path and a provider path (RangeError, not SceneError, provider not reached) plus a whole-ms pass-through; the provider row fails on the unfixed planPaths.ts and all pass now. lint, typecheck, build, npm test pass.'
 ---
 
 # I-177: The README time rule is wrong for a provider path
