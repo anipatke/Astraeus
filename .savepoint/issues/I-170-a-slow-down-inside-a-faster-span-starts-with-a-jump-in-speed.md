@@ -9,7 +9,7 @@ source:
   actor: {role: checker, session: o069-check-20261112}
   at: '2026-11-12T04:15:00Z'
 tasks: [T-307]
-checks: [C-171]
+checks: [C-171, C-172]
 severity: medium
 history:
   - at: '2026-11-12T04:15:00Z'
@@ -21,6 +21,11 @@ history:
     actor: {role: executor, session: o069-repair-20261112}
     kind: repair_attempted
     note: "pacedRate now lays spans over the base as the cruise (slowest last) and eases each event rule from the cruise; result is the minimum. New tests/pacingRepairs.test.ts (4 tests) and the existing pacing tests pass; the nested/touching fixture in pacing.test.ts now gives its zones event ids (they are rules, not spans). Awaiting a Check."
+  - at: '2026-11-12T06:00:00Z'
+    actor: {role: checker, session: o069-recheck-20261112}
+    kind: rechecked
+    note: "I-170 Proof Needed met (continuity at every edge incl. a rule inside/touching a faster span, order-independent, F-15 unchanged, base exact; synthetic journey 1985-11-25/1986-03-25 continuous). Not closed: C-172 is NEEDS WORK because this repair made spans layered, which broke Success Condition 3 for slow spans (I-172)."
+    check: C-172
 ---
 
 # I-170: A slow-down inside a faster span starts with a jump in speed

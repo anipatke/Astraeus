@@ -9,7 +9,7 @@ source:
   actor: {role: checker, session: o069-check-20261112}
   at: '2026-11-12T04:15:00Z'
 tasks: [T-308]
-checks: [C-171]
+checks: [C-171, C-172]
 severity: low
 history:
   - at: '2026-11-12T04:15:00Z'
@@ -21,6 +21,11 @@ history:
     actor: {role: executor, session: o069-repair-20261112}
     kind: repair_attempted
     note: "pacedAdvance takes an optional ease and integrates the eased rate (sub-steps stop at every edge and cover at most 1/32 of the ease second); stepPacing no longer falls back mid-ease. Partly proven: an ease from a slow rate enters every zone at 16-1000 ms frames; an ease from a cruise-scale rate still skips (the unchanged blend holds near the old rate for the zone's few milliseconds). Owner decision (O-069 Objective.md Decisions): ease only the switch. Then: the ease is the paced shape times exp(k0 (1 - weight)), k0 = log(fromRate) - log(paced rate at the switch), in both applyPacing and pacedAdvance; eases from cruise-scale rates now enter every zone. Awaiting a Check."
+  - at: '2026-11-12T06:00:00Z'
+    actor: {role: checker, session: o069-recheck-20261112}
+    kind: rechecked
+    note: "I-171 Proof Needed met under the owner's Ease only the switch: frozen cell 3,040 cases (offsets 12-40 h, frames 16-1,000 ms, from 5x to 10x cruise) all enter; constant-paced ease shape unchanged. Not closed: C-172 is NEEDS WORK on I-172."
+    check: C-172
 ---
 
 # I-171: A view-switch ease can still skip a slow-down
