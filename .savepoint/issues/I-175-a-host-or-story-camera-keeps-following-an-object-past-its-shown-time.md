@@ -2,16 +2,22 @@
 id: I-175
 title: A host or story camera keeps following an object past its shown time
 type: defect
-status: open
+status: resolved
 source:
   kind: check
   check: C-176
   actor: {role: checker, session: o071-check-20261112}
   at: '2026-11-12T11:05:00Z'
 tasks: [T-311]
-checks: [C-176]
+checks: [C-176, C-177]
 guardrail_ids: [TEST-01]
 severity: medium
+resolution:
+  disposition: verified
+  check: C-177
+  actor: {role: checker, session: o071-recheck-20261112}
+  at: '2026-11-12T11:28:00Z'
+  reason: Repair proven by C-177 (CLEAR).
 history:
   - at: '2026-11-12T11:05:00Z'
     actor: {role: checker, session: o071-check-20261112}
@@ -22,6 +28,11 @@ history:
     actor: {role: executor, session: o071-repair-20261112}
     kind: repair_attempted
     note: 'Direct repair, unverified by a checker. App.tsx keeps the ids the last camera request named (preset, host setCamera, story panel) and holdCameraOffShown holds the camera once one is not shown (hiddenWithShownSpans); the shell tells it the time (onTimeShown). shownDuringMenu.test.ts adds a table test {setCamera, story panel camera} x {host setTime, visitor time change, playback} on mount and AstraeusScene: 12 cases fail on the unfixed src and pass now; the preset-path test is unchanged. lint, typecheck, build, npm test pass.'
+  - at: '2026-11-12T11:28:00Z'
+    actor: {role: checker, session: o071-recheck-20261112}
+    kind: rechecked
+    note: 'Proof Needed met, by C-177 (CLEAR): the 12-case table test passes on d0ad5ab0 and fails on 48423eef source; checker probe on both paths: focus, lookOut toward pa and story-step focus hold at exactly the edge; no hold for a shown target or after re-aiming; preset-path test unchanged and passing.'
+    check: C-177
 ---
 
 # I-175: A host or story camera keeps following an object past its shown time
