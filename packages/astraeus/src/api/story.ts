@@ -267,7 +267,7 @@ function pacingOf(input: unknown, bad: (message: string) => SceneError): readonl
 }
 
 /**
- * The pacing the viewer runs, laid over the events: spans, then one zone per event of each rule's type. `pacedRate` lays the zones fastest first, so the slowest applicable piece wins wherever they meet, whatever contains what.
+ * The pacing the viewer runs, laid over the events: spans, then one zone per event of each rule's type. `pacedRate` lets faster spans set the cruise (the faster wins) and eases slower spans and event rules down from it (the slowest wins wherever they meet), whatever contains what.
  * A rule whose type has no event throws `bad-timeline` naming the piece (a mistyped type would otherwise slow nothing, silently).
  */
 export function pacingFor(setting: TimelineSetting, events: readonly TimelineEvent[], baseRate: number): Pacing | undefined {

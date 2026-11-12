@@ -2,7 +2,7 @@
 id: I-172
 title: Two slow spans whose ramps meet play slower than either
 type: defect
-status: open
+status: in_progress
 source:
   kind: check
   check: C-172
@@ -17,6 +17,10 @@ history:
     kind: observed
     note: Found by the O-069 Full Objective recheck; regression from the I-170 repair (38c05537).
     check: C-172
+  - at: '2026-11-12T07:00:00Z'
+    actor: {role: executor, session: o069-repair-20261112b}
+    kind: repair_attempted
+    note: "Owner decision (O-069 Objective.md Decisions): fast spans set the cruise (max of each alone), slow spans and event rules ease down from it (min of each alone). pacedRate rewritten to that rule; the layered span blend is gone. Table test over every way pieces meet (pacingOverlaps.test.ts) and the T-307 spans fixture restored in pacing.test.ts; no existing test changed. Awaiting a Check."
 ---
 
 # I-172: Two slow spans whose ramps meet play slower than either
@@ -35,3 +39,13 @@ The I-170 repair lays spans over the base as one cruise (slowest last) instead o
 ## Proof Needed
 
 A node test with spans slower than the base that touch, and two whose ramps meet across a gap: the paced rate is the minimum of each span alone at every time (or what an owner decision on Success Condition 3 says instead), still continuous across every ramp edge, with the I-170 cases (a slow rule inside or touching a faster span) and the existing pacing tests unchanged.
+
+## Repair evidence
+
+| Proof Needed | Test |
+|---|---|
+| Slow spans that touch: the paced rate is the minimum of each alone at every time | `packages/astraeus/tests/pacing.test.ts` "nested, touching and unordered spans (slower than the base)" (T-307 setup as spans: every minute equals the minimum of each alone, 5,000x at +9 h, reversed order the same); `pacingOverlaps.test.ts` "two slow spans meeting (the T-307 example)" |
+| Two slow spans whose ramps meet across a gap: the minimum of each alone | `pacingOverlaps.test.ts` "two slow spans whose ramps meet across a gap" (base-relative: mid-gap equals the minimum of each alone) within the table over every combination |
+| Still continuous across every ramp edge | `pacingOverlaps.test.ts`, every case: per-second log step under 0.01 over the sweep and under 1e-4 across 1 ms either side of every ramp edge |
+| The I-170 cases (a slow rule inside or touching a faster span) hold | `pacingOverlaps.test.ts` "a rule inside a fast span", "a rule touching a fast span", "a rule straddling a fast span's edge"; `pacingRepairs.test.ts` I-170 tests unchanged and passing |
+| Existing pacing tests unchanged | `pacing.test.ts`, `pacingViews.test.ts`, `pacedAdvance.test.ts`, `pacingRepairs.test.ts`, `syntheticJourney.test.ts` pass with no input changed |

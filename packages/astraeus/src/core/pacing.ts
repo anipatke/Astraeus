@@ -60,7 +60,7 @@ export function activeEventZones(zones: readonly EventZone[], shown: ShownEvents
 }
 
 /**
- * A scene's pacing: the rate outside every zone and its zones. Spans (zones with no event) set the cruise over the base; an event rule eases down from the cruise, and where rules overlap or their ramps meet the slowest
+ * A scene's pacing: the rate outside every zone and its zones. Faster spans (zones with no event) set the cruise over the base and the faster wins where they meet; slower spans and event rules ease down from the cruise, and where they overlap or their ramps meet the slowest
  * speed any one of them alone would give wins, whatever order they are listed in.
  */
 export interface Pacing {
@@ -70,14 +70,14 @@ export interface Pacing {
 
 const smooth = (x: number): number => x * x * (3 - 2 * x);
 
-/** A zone list split into its spans (fastest first, so the slowest is laid last and wins where ramps meet) and its event rules. Cached per zone list. */
+/** A zone list split into its spans and its event rules. Cached per zone list. */
 interface Layers { readonly spans: readonly PaceZone[]; readonly rules: readonly PaceZone[] }
 const layered = new WeakMap<readonly PaceZone[], Layers>();
 
 function layersOf(zones: readonly PaceZone[]): Layers {
   let layers = layered.get(zones);
   if (layers === undefined) {
-    layers = { spans: zones.filter((zone) => zone.eventId === undefined).sort((a, b) => b.rate - a.rate), rules: zones.filter((zone) => zone.eventId !== undefined) };
+    layers = { spans: zones.filter((zone) => zone.eventId === undefined), rules: zones.filter((zone) => zone.eventId !== undefined) };
     layered.set(zones, layers);
   }
   return layers;
@@ -90,19 +90,27 @@ function zoneWeight(zone: PaceZone, timeUtcMs: number): number {
 }
 
 /**
- * The playback rate at `timeUtcMs`. The cruise is the base with the spans laid over it, slowest last (log-space blend). An event rule touching that time eases from the cruise toward its rate by its weight, and the paced
- * rate is the slowest of the cruise and of what each touching rule gives (a rule faster than the cruise changes nothing). Each term is continuous in time, so the rate is continuous at every zone and ramp edge, and
- * the minimum does not depend on the order of the zones. Untouched, it is exactly the base. A pure function of its arguments: nothing about the State changes.
+ * The playback rate at `timeUtcMs`, all blends in log space by the zone weight. The cruise is the base, raised to the fastest of what each span faster than the base gives alone (the faster wins where such spans meet).
+ * The rate is the slowest of the cruise and of what each slower span (rate at or under the base) and each event rule touching that time gives easing from the cruise toward its rate (the slowest wins where they meet; a piece
+ * whose blend is faster than the cruise changes nothing). Each term equals its underlying value where its weight is 0, so the rate is continuous at every zone and ramp edge, and it does not depend on the order of the zones.
+ * Untouched, it is exactly the base. A pure function of its arguments: nothing about the State changes.
  */
 export function pacedRate(pacing: Pacing, timeUtcMs: number, shown?: ShownEvents): number {
   const { spans, rules } = layersOf(pacing.zones);
-  let logCruise = Math.log(pacing.baseRate);
+  const logBase = Math.log(pacing.baseRate);
   let touched = false;
+  let logCruise = logBase;
   for (const zone of spans) {
+    if (zone.rate <= pacing.baseRate) continue;
     const weight = zoneWeight(zone, timeUtcMs);
-    if (weight > 0) { touched = true; logCruise += (Math.log(zone.rate) - logCruise) * weight; }
+    if (weight > 0) { touched = true; logCruise = Math.max(logCruise, logBase + (Math.log(zone.rate) - logBase) * weight); }
   }
   let logRate = logCruise;
+  for (const zone of spans) {
+    if (zone.rate > pacing.baseRate) continue;
+    const weight = zoneWeight(zone, timeUtcMs);
+    if (weight > 0) { touched = true; logRate = Math.min(logRate, logCruise + (Math.log(zone.rate) - logCruise) * weight); }
+  }
   for (const zone of rules) {
     if (!zoneInView(zone, shown)) continue;
     const weight = zoneWeight(zone, timeUtcMs);

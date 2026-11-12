@@ -67,6 +67,8 @@ Note: a piece faster than the base still raises speed where it alone touches a t
 
 Repair (C-171, I-170/I-171, 2026-11-12): `pacedRate` now lays spans as the cruise and eases each event rule from it (I-170); evidence in I-170 and `tests/pacingRepairs.test.ts`.
 
+Repair (C-172, I-172, 2026-11-12, owner decision): `pacedRate` is now cruise = max(base, each faster span's blend), result = min(cruise, each slower span's and each rule's blend from the cruise); the layered span blend is gone. Evidence in I-172, `tests/pacingOverlaps.test.ts` and the T-307 spans test in `pacing.test.ts`.
+
 
 ## Drift Notes
 

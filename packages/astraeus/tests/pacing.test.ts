@@ -129,6 +129,27 @@ describe("overlapping ramps take the slower speed (O-069 T-307, F-15)", () => {
     expect(pacedRate({ baseRate: base, zones }, T0 + 5 * HOUR - 1)).toBeCloseTo(100, 0);
   });
 
+  it("nested, touching and unordered spans (slower than the base): the minimum of each alone, continuous, exactly the base when untouched (I-172)", () => {
+    const outer = zone(T0, T0 + 10 * HOUR, 5_000, 3 * HOUR);
+    const inner = zone(T0 + 4 * HOUR, T0 + 5 * HOUR, 100, 2 * HOUR);
+    const touching = zone(T0 + 10 * HOUR, T0 + 12 * HOUR, 800, 3 * HOUR);
+    const zones = [outer, inner, touching];
+    let previous = pacedRate({ baseRate: base, zones }, T0 - 5 * HOUR);
+    for (let minutes = -300; minutes <= 17 * 60; minutes += 1) {
+      const t = T0 + minutes * 60_000;
+      const touched = zones.filter((z) => t > z.fromUtcMs - z.rampMs && t < z.toUtcMs + z.rampMs);
+      const expected = touched.length === 0 ? base : Math.min(...touched.map((z) => solo(z, t)));
+      const got = pacedRate({ baseRate: base, zones }, t);
+      expect(got).toBeCloseTo(expected, 6);
+      expect(pacedRate({ baseRate: base, zones: [...zones].reverse() }, t)).toBeCloseTo(got, 6);
+      expect(Math.abs(Math.log(got / previous))).toBeLessThan(0.3);
+      previous = got;
+    }
+    expect(pacedRate({ baseRate: base, zones }, T0 - 4 * DAY)).toBe(base);
+    expect(pacedRate({ baseRate: base, zones }, T0 + 9 * HOUR)).toBeCloseTo(5_000, 6);
+    expect(pacedRate({ baseRate: base, zones }, T0 + 5 * HOUR - 1)).toBeCloseTo(100, 0);
+  });
+
   it("a view that does not show an event ignores its zone, ramp included", () => {
     const a = zone(T0, T0 + HOUR, 1_200, 4 * HOUR, "a");
     const b = zone(T0 + 6 * HOUR, T0 + 7 * HOUR, 1_200, HOUR, "b");
