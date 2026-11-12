@@ -20,11 +20,16 @@ G-019, Closest Calls F-12 (setCamera eased about 1.5 s and a view switch about 3
 
 ## Success Conditions
 
-To be settled when this Objective is detailed. Planner's outline: one shared reduced-motion rule for every eased camera move (with a node test of the rule and one browser step); README: ecliptic J2000 obliquity 84381.406" (IAU 2006) and its difference from JPL's 84381.448"; `stateOf` and other times take whole Unix milliseconds, and what a fractional value throws (if it is not a `SceneError`, record an Issue for the API-05 gap rather than widening this Objective); a provider's `stateAt(timeUtcMs, center?)` contract (when `center` is passed, what the returned State must hold); the orbit camera's 45° vertical field of view; which colour an elements body's orbit line, dot and label take; path anchor labels off by default and the `labels` switch. CHANGELOG; 0.9.1 release notes prepared for the owner.
+Owner-confirmed 2026-11-12 (lean: one Task; owner asked whether each piece is really needed and reusable, and kept all of it except the browser step).
+
+- With `prefers-reduced-motion: reduce`, every eased camera move arrives on the next frame: `handle.setCamera`, a view's camera rule, the timeline's Go to framing, and the visitor's own picks from the viewer (owner decision 1: every glide jumps, not only host moves). Without the setting nothing changes. Proven by a node test of the shared glide rule; no browser step (owner).
+- README states: the ecliptic J2000 obliquity the engine uses, 84381.406" (IAU 2006), and its difference from JPL's 84381.448"; that times are whole Unix milliseconds and what a fractional one throws; a provider's `stateAt(timeUtcMs, center?)` contract (when `center` is passed and what the returned State must then hold, plus `Float64Array` positions and `orientation: null`); the orbit camera's 45° vertical field of view; which colour an elements body's orbit line, dot and label take; path anchor labels off by default and shown by the `labels` switch; and the camera's reduced-motion behaviour.
+- The fractional-time throw is a plain `RangeError`, not a `SceneError`: recorded as an Issue (API-05 gap), not fixed here.
+- CHANGELOG `Unreleased` entry and `docs/release-notes-0.9.1.md` prepared for the owner; no version bump, tag or publish.
 
 ## Architectural Considerations
 
-The reduced-motion read already lives in `src/app/skyFigures.ts` (`prefersReducedMotion`); reuse it for the camera ease (STYLE-07). README tables are checked against the API (API-07).
+The reduced-motion read already lives in `src/app/skyFigures.ts` (`prefersReducedMotion`); reuse it for the camera ease (STYLE-07). Every scripted camera move (focus tween `transition`, target distance, azimuth, elevation) settles in one place, `resolveCamera` in `src/app/CameraController.tsx`, called once per frame from `src/app/sceneFrame.ts`; the rule goes there, so no request path needs its own branch. README tables are checked against the API (API-07).
 
 ## Boundaries
 
