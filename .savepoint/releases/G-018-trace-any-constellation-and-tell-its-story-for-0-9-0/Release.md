@@ -1,7 +1,7 @@
 ---
 id: G-018
 title: Trace any constellation and tell its story, for 0.9.0
-status: planned
+status: done
 ---
 
 ## Outcome

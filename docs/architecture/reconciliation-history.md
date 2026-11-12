@@ -192,3 +192,112 @@ Paths across the solar system (O-046, branch o046-sun-paths, 2026-10-30; T-189 t
 - **T-200 packages from 1950, Saturn above the split target, two UTC definitions, planet segment grid anchored at 1969:** reflected in state-and-assets.md and Design.md; the Saturn size is an owner-accepted limit (T-200 done), the two UTC definitions are an accepted limit; the grid anchoring is a maintainer-tool detail, non-architectural.
 - **T-201 `pacing`, `pacedRate`, viewer wiring:** reflected in Design.md. The pack file limit 450 to 460 (`tools/check-packs.mjs`) is a gate setting, non-architectural. The second-order time error of per-tick pacing is an accepted limit, not measured.
 - **Added by T-203, reflected:** `CameraReach.cover` and `liveReach`'s widen-only default (I-114); `SimulationClock.stopWithin` and `SceneRuntime.stopAtWindow`; the `synthetic-journey` fixture, `journeyData.ts` and one browser-smoke case.
+
+### G-016 drift accounting (moved from Design.md, 2026-11-12)
+
+Moved verbatim from `.savepoint/Design.md` under `Public API shape` to keep Design an overview (owner, 2026-11-12, token overhead).
+
+Drift accounting for T-228 to T-230 (deferred to this integration Task, AGENTS.md "Deferred Design reconciliation"):
+
+- Lock location (`packages/astraeus/`) and generator (`tools/`): non-architectural, tooling placement; named above.
+- "Published" read as `private` not true. The lock records, per published package, the `x-publish.exports` map npm receives (else `exports`) and the source `exports` map; a deep entry added to either changes the lock and fails the test (I-133). `check:pack` verifies the built maps' targets. The change is not architectural.
+- Deep-import counts include tests and tools, not only `src/`: non-architectural, a stricter count; counts only go down.
+- The type walk did not descend into types declared outside `src/api/` (superseded, O-057 T-275: it now descends into every type the root reaches), and the type lint reads the compiler view of the root entry, not `dist/*.d.ts`: limits of the checks, recorded here; outside types are listed in the allowlist and vanish with the O-057 leaks.
+
+Drift accounting for O-056 T-259 to T-263 (deferred to T-264, AGENTS.md "Deferred Design reconciliation"):
+
+- T-259, `file:` chunk reading, `NotLoadedError`, the `cold` project: reflected in the paragraph above (`file:` and `NotLoadedError`); the two Vitest projects (`preloaded`, `cold`) are test tooling, non-architectural, named in the map's tests row.
+- T-260, spans: **settled by the owner, 2026-11-07: API-04 spans bind inputs only** (Guardrails API-04 says so; see "Names and shapes as built"). The tension as written then: API-04 says a span is `{ start, end }`, but the public-type lint refuses `{ start, end }` numbers (unit and time rules) and a `start*`/`end*` pair in one type, so reads are flat: `timeline.windowStartUtcMs` / `windowEndUtcMs`, `views.startId`, `events[i].timeUtcMs`. Neither the wording nor the lint is changed here. Cards' `description` and `knownLimitations` on the reads, and `scaleChoicesOf` moving to `BodyPlan.scaleChoices` with group card helpers into `group.ts` and `core/listedOrbitGroup.ts`: reflected (reads) and non-architectural (moves; the plan split above already holds).
+- T-261, `LookInput` in `api/look.ts`, table in `app/look.ts`, `apiImports` ALLOWED gaining `app/look`, precedence, `resolveLook` as the single resolver: reflected above. `?loadfade=<not a number>` falling through to the saved or default value: non-architectural, a bug-compatible edge. The allowlist-growth rule change: reflected in the "Allowlist growth" bullet.
+- T-262, the seam carrying scale, look and switches, live look in the scene's controls, live set wins, sky built while hidden: reflected above. The `ViewerLink.publish` mover cause counting a look, scale or switch change is a behaviour detail of selection-drop causes, not asserted by a test, left for the Check; non-architectural.
+- T-263, `eventZones`, `withinMs`, `zoneAround`, `eventZonesOf`: reflected above. The regenerated `scenePin.json` fixture (additions only) pins the scene's assembly; corrected at T-280: it stays, reading through the `definitionOf` helper, and did not go with `toDefinition`. Non-architectural.
+- The CSS scan covers every `.css` under `packages/astraeus/src/`, derived from the folder, so a new stylesheet is scanned; its shell breaks were allowlisted per file with F3 and O-055 (I-134) and have all been removed by O-055 (the allowlist is empty). It reads the source files, not the built `dist` CSS.
+- The lint finds more or fewer breaks than the review listed, and internal types reach the root through leaks (F7, O-057): reflected in the allowlists, which fall as O-054 to O-057 land; non-architectural.
+- Two error breaks the review missed (`pathProvenance.ts` plain `Error`, `sunOrbit.ts` message-text match, F8): allowlisted for O-054; non-architectural.
+- Every `SceneErrorCode` has a doc comment and the lock's signature text includes them: non-architectural; the lock may be regenerated with comments stripped later.
+- The `public` settings map names `FollowView.up`, `TimelineInput.loop` and `AddBodyOptions.showLabel`: reflected in `apiSettings.allowlist.json`; O-056 (T-261) made every look a public setting with a default in `scene.setLook`, emptied the `addressOnly` section, and the `public` section is no longer counted for growth (owner, 2026-11-03).
+
+Drift accounting for T-231 to T-238 (deferred to T-239, AGENTS.md "Deferred Design reconciliation"):
+
+- T-231 fixture size (about 770 KB, intentionally broad pin): non-architectural, a maintenance note.
+- T-232 `planPaths.ts` type-only import cycle with `scene.ts`; `checkLabelReach` in `planPaths.ts`: reflected above (accepted cycle); placement non-architectural.
+- T-233 internal `BodyPlan` with callbacks, type-only `AddBodyOptions` import, `SceneCamera` passed structurally: reflected above.
+- T-234 internal `GroupPlan` and `StoryPlan`, not exported, `lateGroups(seriesIn)`: reflected in the codebase map; the helper is non-architectural.
+- T-235 `TimelinePlan` and `ViewPlan` (`viewsEntry` takes ids from `Scene`): reflected in the codebase map.
+- T-236 `planCamera.ts`, `assembleScene.ts`, `ScenePlanners`, `FollowView` type-only cycle, top-level `SCALES` in `scene.ts`: reflected in the map; `SCALES` is non-architectural (a validation constant).
+- T-237 parsers in `core/`, `api/` display imports limited by test, `api-rules.mjs` path: reflected above.
+- T-238 `LinkAccess` and the four link parts: reflected in the map; the jsdoc placement is non-architectural.
+
+Drift accounting for O-059 T-265 to T-272 (deferred to T-273, AGENTS.md "Deferred Design reconciliation"):
+
+- T-265 places data to `astraeus-data`, moon lists and fit errors to `astraeus-data-<planet>`: reflected (codebase map and the O-059 paragraph); the asset text in `state-and-assets.md` is updated too.
+- T-265 moon list parsing leaves the engine for the demo: reflected (map row of the demo; the engine reads no list).
+- T-265 `src/synthetic` stays as engine fixtures, preview scenes in the site: reflected in the map.
+- T-265 `onFirstFrame` as a signal beside `ready`: reflected; the public name is `onFirstDraw` (T-266 item 6, API-04 `frame` rule unchanged).
+- T-265 scene centre needs no setting (already the first body): non-architectural, no setting was added.
+- T-266 1 `?desktop=on|off` mapped to `LookInput.desktopPictures`: reflected (O-059 paragraph; settings map in `apiSettings.allowlist.json`).
+- T-266 2 and 3 `SceneCamera` getters and the `bad-camera` guard for an unlisted opening follow: reflected (getters); the guard is non-architectural, a build check.
+- T-266 4 `no-orbit` for a Sun-circling or parentless `orbit` lap and `bad-camera` for a short `farEarthRadii`: non-architectural, guards on existing codes.
+- T-266 5 `facts`/`listed` on the internal object, `SceneBodyRead.texture` is the engine's own picture only: non-architectural, a read detail.
+- T-266 6 coordinator acceptances: reflected as the same items.
+- T-267 pack limit 9.8 MB until T-270 and API page gzip 40,000: reflected in the O-059 paragraph (pack limit back to 9.5 MB at T-270; the limits file is the authority).
+- T-267 `core/bodySetFamilies.ts` and the family `brightness`: non-architectural, a placement and an internal field; `app/bodySet.ts` re-exports.
+- T-268 `moonCountText`, `moonListDateText`, `moonListSummary` to `core/moonListText.ts`: reflected (O-059 paragraph).
+- T-268 `check-packs.mjs` accepts a `*` export target; the importer writes to `packages/astraeus-data/data/bodies`: non-architectural tooling, named in the map rows.
+- T-268 demo deep imports 123 to 98: non-architectural, a count that only fell (it is 0 after T-272).
+- T-269 API page raw 200,000, `onPick` prop test, gates: non-architectural limits and a test; limit named above.
+- T-270 a mapped moon's own `knownLimitations`: non-architectural, a demo settings field.
+- T-270 `assets.html` source-id wording: non-architectural, page text.
+- T-270 Jupiter ships 108 chunks per year against 96 loaded: non-architectural, unchanged from before; not made worse.
+- T-270 Mars builds no body set, so no 3-day orbit history: non-architectural, same three files load.
+- T-270 `toDefinition` stop-gap in `planetViews.test.ts` and `main.tsx`: `main.tsx` was re-pointed by T-272; `planetViews.test.ts` and the site's `syntheticScenes.test.ts` still use it and O-057, which removes `toDefinition`, must re-point both (the latter needs a public read for activities); done in O-057 T-274 (`scene.activities`), reflected in the map's boundary sentence.
+- T-271 `addBodyFromElements` with made-up records for the Sun-centred scenes: non-architectural, a fixture choice (no Design change).
+- T-271 `createViewsHost` fixture import: resolved by T-272, which deleted `createViewsHost`; reflected.
+- T-271 journey builder is synchronous and needs the planet series first: reflected (O-059 paragraph); `scene.load` does the same publicly.
+- T-271 public-build `loadBudget` failure present before and after: resolved or reported at T-273 (see its Technical Evidence); non-architectural.
+- T-272 engine private paths removed (`claimCover`, `onOpenAddress`, `switcher`, `SwitchControl` address work, `hideBootLoader`/`CoverClaim`, `createViewsHost`): reflected (O-059 paragraph).
+- T-272 dropped seven kinds of assertion that needed `toDefinition` internals. Five are still held by named tests (orbit-line listing: `demoShowers.test.ts` and `rebuildComparison.test.ts`; label defaults and Earth path samples: showers `rebuildComparison.test.ts`; scale factor: `demoShowers.test.ts` and `bodyMarkers.test.ts`; Apollo metric rows: Apollo `rebuildComparison.test.ts` and `metricVisuals.test.ts`). Two were restored after C-148 (I-144) as engine tests on made-up data: a Moon-free scene never asks the resolver about the Moon (`moonFreeMetrics.test.ts`), and the marker rule on bodies a scene defines for itself, as a shower defines its comet (`markerRuleEveryBody.test.ts`). Not an architecture change.
+- T-272 the site no longer wraps in StrictMode: non-architectural, dev only.
+
+Drift accounting for O-057 T-274 to T-279 (deferred to T-280, AGENTS.md "Deferred Design reconciliation"):
+
+- T-274 `src/api/definitionOf.ts` as the internal route, and `astraeus/tests/definitionOf` for other packages' tests: reflected ("Names and shapes as built").
+- T-274 `scene.activities` and `SceneActivityRead`, with `windowStartUtcMs`, `windowEndUtcMs` and `peak: { label, value, timeUtcMs? }`: reflected (reads paragraph and "Names and shapes as built"); the field grouping is non-architectural, a read detail that follows API-04.
+- T-274 retired planets compare (owner "Retire it, keep public parts", 2026-11-07): the whole-definition compare against `planet-views-before.json` is gone. `planetViews.test.ts` holds what public reads show for all nine planets. Lost nine-planet cover, accepted by the owner: info card rows, the Focus camera presets and preset menu, label priority and reach per object, the moon orbit loops' spans and look, place coordinates and descriptions, and full definition equality. Partial cover stays on made-up data (`publicApiPaths.test.ts`, `focusPreset.test.ts`, `moonOrbitLines.test.ts`, `planetScene.test.ts`). Non-architectural, a test scope decision, recorded here because the cover is lost.
+- T-274 consumer checks lost definition-only assertions, now covered by engine tests; the O-048 packed-consumer read of `assets/catalogue.js` moved to `check:pack` under I-147 (ring facts stay proven there, and a test fails if a consumer check imports past the public entry): non-architectural, a test placement.
+- T-275 the walk descends into root-named types, and method and function symbols count as signatures: reflected (Public surface lock bullet); the sentence in the T-228 accounting is corrected in place.
+- T-276 `MoonIndex` has every field optional: non-architectural. The engine checks a whole index when it loads, and a stricter type would only move that check; no owner choice is needed unless a data package author asks for one.
+- T-276 a view's merged `objects`: reflected (views paragraph). A body listed where a path was once required no longer errors, because one id space has one list; an unknown id still throws `bad-view`, and a set or member is still refused.
+- T-276 `renamed` rows carry `call`, and group `plane` has no row: non-architectural. `plane` is a requirement, not a rename, so `bad-group` answers it.
+- T-277 `accuracy.valid` as `{ start, end }`, `core/timeInput.ts`: reflected ("Names and shapes as built"). `apiRules.test.ts` losing its `frame` key: non-architectural, the break it named is cleared.
+- T-278 `parseStoryPanels` replaced by `checkStoryPanel`, `checkPanelPlayback` and `resolveStoryPanels`, and `timeInputMs`: reflected. `demo-contracts.md` is updated to match.
+- T-278 `addStoryPanels([])` still gives an empty panel set, and `setStoryPanelPlayback` alone gives none: non-architectural, a behaviour detail held by the planets `no-panels` story.
+- T-278 `tools/api-rules.mjs` lost its parser-reading case: reflected (map of the split above).
+- T-278 `tests/verbGrammar.test.ts` started the call-twice table, and I-145 kept `addEvents` out: reflected; T-280 repaired I-145 and added the row. The `Scene.setTimeline` doc comment and `demo-contracts.md`, `codebase-details.md` and `state-and-assets.md` are updated; `o059-public-forms.md`, `api-review-2026-11-01.md`, the release notes and the reconciliation history keep their history.
+- T-278 Apollo powered-descent, touchdown and ascent-docking stay `observed`: non-architectural, a data judgement left for the owner's look.
+- T-279 Swift-Tuttle out of the catalogue, `BUILT_IN_SAMPLING` gone: reflected ("Names and shapes as built", demo map row, O-045 paragraph). ARCH-01's note in Guardrails already said so.
+- T-279 provenance wording of Swift-Tuttle through the generic elements path: non-architectural, the cost of having no special case. The accuracy reads "approximate: ..." with the Horizons comparison in the statement, the sources are the record citation and the Sun's gravity line, the first known limit is the generic one, and `maxErrorFraction` is the class limit 0.01 where it was the measured 0.00857. The measured 0.00857 and 10,686,093 km stay in the statement and are asserted against the Horizons fixture (`rebuildComparison.test.ts` `sameProvenance`, `swiftTuttle.test.ts`). A record cannot carry a second source line or an exact fraction; adding that would be a Design choice no one has asked for.
+- T-263's `scenePin.json` note, wrong since it said the pin goes with `toDefinition`: corrected in place; the pin stays through the helper.
+- T-260's span tension: settled and corrected in place.
+- T-280 `fixtures/api-surface-0.7.0.json` and `migrationTable.test.ts`: reflected (map row, Public surface lock bullet). v0.7.0 had no lock, so the fixture is `currentSurface` run on a `git archive` of the tag. What each view shows had no public read: I-146, owner "Add the read now" (2026-11-07), so `SceneViewRead` now carries `objects`, `events` and `panels` (the resolved lists, shared items included), resolved by `ViewPlan.read` with `resolveViews` against the finished scene and so checked as `mount` checks (reflected).
+
+### O-060 gate timings (moved from docs/agents/build.md, 2026-11-12)
+
+Moved verbatim to keep the gates note short (owner, 2026-11-12, token overhead); `docs/agents/build.md` keeps the operative rules and the limit table.
+
+- Timed gates and time limits (O-060): `tools/gate-limits.json` is the one file that states every limit, in seconds of wall clock. `npm run check:gates` (`tools/time-gates.mjs`) runs lint, typecheck, build, test, test:full, check:engine-alone, check:pack, check:node-consumer and check:react-consumer one after another (or only those named: `npm run check:gates -- lint test`) and prints each time against its limit; `check:browser` prints each step and the total against theirs in its summary. A run over a limit prints a `WARNING:` line and never changes the exit code; only a failing gate does (`packages/astraeus-site/tests/gateLimits.test.ts` plants a limit to prove it). A limit is the slowest time measured plus room for ordinary variation, about 1.4 to 1.6 times (long gates: `test` 41 s to 65 s, `test:full` 72 s to 105 s, `check:browser` 230 s to 320 s), and several times for the short ones whose time is mostly start-up, so a run does not warn while the owner works on other things (T-282 saw `npm test` at 46 s and `check:pack` at 18 s on a busy machine, both within their limits); when a gate grows past its limit, look at why before raising the number. The table below must state the file's numbers, and a test fails if it does not.
+
+| Gate | Before (6aad8e6a) | After | Limit |
+|------|------|------|------|
+| `lint` | 3.5 s | 3.6 s | 15 s |
+| `typecheck` | 5.6 s | 5.6 s | 20 s |
+| `build` | 2.3 s | 2.4 s | 15 s |
+| `test` | 42 s | 41 s | 65 s |
+| `test:full` | 72 s | 72.4 s | 105 s |
+| `check:engine-alone` | 25 s | 22.7 s | 40 s |
+| `check:pack` | 14 s | 14.2 s | 30 s |
+| `check:node-consumer` | 5 s | 4.6 s | 15 s |
+| `check:react-consumer` | 9 s | 9 s | 25 s |
+| `check:browser` | 353 s | 230 s | 320 s |
+
+The aim for `npm test` was about 30 s and was not reached: the run is bound by the Apollo determinism pair (two `reconstruct` runs, about 26 s alone) and the pack build (about 14 s), neither of which can be shortened without touching what is proved or the tool code (O-060 T-282). `check:browser` met its target of about 230 s (moved by the owner from 180 s). Times were taken on an idle machine, wall clock only.
