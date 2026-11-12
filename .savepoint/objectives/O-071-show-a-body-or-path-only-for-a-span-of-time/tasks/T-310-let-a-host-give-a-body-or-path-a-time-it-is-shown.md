@@ -2,7 +2,7 @@
 id: T-310
 title: Let a host give a body or path a time it is shown
 objective: O-071
-status: planned
+status: done
 depends_on: []
 owner_validation: {required: false}
 planned_by: {role: planner, session: plan-o071-20261112}
@@ -58,8 +58,20 @@ Focused vitest runs while iterating (from the repo root config); hand-off gates 
 
 ## Technical Evidence
 
-Pending execution.
+Gates from the repo root, all passing after the last edit: `npm run lint`, `npm run typecheck`, `npm run build`, `npm test` (254 files, 3784 passed, 2 skipped). `npm run api:lock` regenerated `packages/astraeus/api-surface.lock.json`. No browser run. The lifecycle I-174 test did not fail. One earlier `npm test` failed `packages/astraeus-site/tests/apiReference.test.ts` (generated API page gzip over the 44,000 B limit by 257 B); fixed by shortening the new doc comments, limit untouched.
+
+| Done When | Evidence |
+|---|---|
+| Public input `shownDuring?: { start?, end? }` on the three calls, checked at the call with the call's own code | `ShownDuringInput` in `src/api/shownDuring.ts` (root export in `src/api/index.ts`); `AddBodyOptions.shownDuring` (so `addBody` and `addBodyFromElements`, `bad-body`) and `TrajectoryInput.shownDuring` (`bad-trajectory`) in `src/api/scene.ts`; one checker `planShownDuring` called from `BodyPlan.#register` (`planBodies.ts`) and `buildTracked` (`planPaths.ts`). `tests/shownDuring.test.ts` "shownDuring input": a table across the three calls covers not an object, null, a list, neither end, a bad start, a bad end, end equal to and before start, each asserting the code and call name. The checker uses `toUtcMs` like every other moment; the repo has no separate whole-millisecond rule for moments to copy, so none is added. |
+| Resolved once into the object list as ms, with one pure `shownAt` rule; orbit line follows | `ExperienceObject.shownDuring?: ShownSpan` (`src/shell/experience.ts`, separate from `availability`), set in `BodyPlan.bodyObject` and the tracked-object map in `assembleScene.ts`. `shownAt` in `src/app/viewHiding.ts`; test "shownAt" covers start-1, start, end-1, end, open start, open end, no span, and the before/after pair at T over T-3..T+3 (never both shown, never both hidden). "puts the span in ms on the object list" per call. Orbit line: `partOf` followers in `hiddenWithShownSpans` (test "adds every object not shown ... and what is part of one"), and the frame test hides the moon's composition orbit line through the existing `showOwned`. |
+| One hidden set built in one place, applied by `applyViewVisibility`; no change for a frame with no spans | `hiddenWithShownSpans` in `src/app/viewHiding.ts` next to `hiddenByView`/`hiddenWithLookOut`; `hiddenOf(ctx, t)` in `src/app/sceneFrame.ts` calls it, and `applyViewVisibility(ctx, t)`, `shownUnderView(ctx, t)` and the story-marker call read that one set; `runFrame` passes `t`. Test "returns the same object when nothing is hidden by time" asserts identity (`toBe`) with no spans, spans all showing, and no time given; it allocates a set only when something is out. |
+| `stateOf`, readouts, State unchanged (ARCH-02) | Test "changes nothing about State": `stateOf("probe", t)` equal with and without `shownDuring` at four times in and out of the span. The change touches no `core/` file. |
+| Tests: table across calls, shownAt, before/after at T, combines with a view, orbit line hides with it, frame draws nothing outside | All in `packages/astraeus/tests/shownDuring.test.ts` (16 tests, synthetic scenes only): "combines with the view's hidden set" (hidden by either, view sets not edited); "draws the marker and line only while the span holds, and the label and pick list follow" runs `applyViewVisibility`, `shownUnderView` (pick list and label-hidden ids) and `hiddenOf` at T0, start, path end and body end. |
+| API lock, README rows, CHANGELOG | `npm run api:lock` (diff: `shownDuring` rows on `addBody` options and `addTrajectory` input, `ShownDuringInput`); README `Bodies and paths` rows of `addBody`, `addTrajectory` (signature and text) and `addBodyFromElements` (via "`addBody`'s options, `shownDuring` included"); CHANGELOG Unreleased "Added" entry. `apiReference.test.ts` page-size test passes. |
+| No existing test's setup changes | `git status` shows only the new `tests/shownDuring.test.ts`; no existing test file is modified. The `hiddenOf`/`applyViewVisibility` extra argument is optional, so the existing `viewFrame.test.ts` calls run as before. |
+
+Marked done by the coordinator 2026-11-12T10:47:43Z under the owner's "go" (orchestrate O-071) standing rule ("I mark them as they pass"): gates passed (lint, typecheck, build, test 3,784 passed); diff reviewed.
 
 ## Drift Notes
 
-Record the hidden-set change for the Design `Views of one scene` paragraph.
+For Design `Views of one scene` (hidden set): the frame's hidden set is now the view's hidden ids, plus every object not shown at the frame's clock time (`shownDuring`) and what is `partOf` one, plus the look-out body. The time-aware builder is `hiddenWithShownSpans(hidden, objects, timeUtcMs)` in `packages/astraeus/src/app/viewHiding.ts`; the pure rule is `shownAt(object, t)` in the same file (`startUtcMs <= t < endUtcMs`, open ends unbounded). `hiddenOf(ctx, t?)` in `src/app/sceneFrame.ts` is the one call site (reads `controls.labelObjects`, the full unfiltered experience object list, never the view-filtered one); `applyViewVisibility`, `shownUnderView` (now exported) and the story-marker stage all go through it. Next task (menu, selection, camera): reuse `shownAt` for the menu and picking lists and `hiddenWithShownSpans` or `hiddenOf` where it needs the set; `ExperienceObject.shownDuring` (ms) is the data. The experience object list given to the shell is not filtered by time, so the Object menu still lists a not-shown object until that task. The generated API page was 16 B over its gzip limit at first; doc comments on the new input were shortened to stay within 44,000 (no limit raised).

@@ -30,7 +30,7 @@ import { updateSky } from "./sceneSky";
 import { labelPositionOf, type SceneTargets } from "./sceneTargets";
 import type { StoryMarkerLayer } from "./StoryMarkers";
 import { skyViewOf } from "./lookOut";
-import { hiddenWithLookOut, type ViewHidden } from "./viewHiding";
+import { hiddenWithLookOut, hiddenWithShownSpans, type ViewHidden } from "./viewHiding";
 import { viewFromAngles } from "./viewLink";
 import { EQUATORIAL_UP } from "./viewUp";
 import { prefersReducedMotion } from "./skyFigures";
@@ -277,14 +277,14 @@ export function placeViews(ctx: FrameContext, t: number, placed: PlacedScene, se
   return hoverGain;
 }
 
-/** What this frame hides: the view's hidden ids, and the body the camera stands inside while looking out (the one hidden-set path, read by the visibility, label and tap stages). */
-export function hiddenOf(ctx: Pick<FrameContext, "controls" | "orbit">): ViewHidden | undefined {
-  return hiddenWithLookOut(ctx.controls.viewHidden, ctx.orbit.lookOut === null ? null : ctx.orbit.focus);
+/** What this frame hides: the view's hidden ids, the objects not shown at clock time `t` (`shownDuring`; none when `t` is not given), and the body the camera stands inside while looking out (the one hidden-set path, read by the visibility, label and tap stages). */
+export function hiddenOf(ctx: Pick<FrameContext, "controls" | "orbit">, t?: number): ViewHidden | undefined {
+  return hiddenWithLookOut(hiddenWithShownSpans(ctx.controls.viewHidden, ctx.controls.labelObjects, t), ctx.orbit.lookOut === null ? null : ctx.orbit.focus);
 }
 
 /** Stage 5b: shows or hides each drawn group by the current view's hidden ids (bodies, paths, point groups, body sets). One set, read here; nothing is rebuilt. */
-export function applyViewVisibility(ctx: FrameContext): void {
-  const hidden = hiddenOf(ctx)?.objects;
+export function applyViewVisibility(ctx: FrameContext, t?: number): void {
+  const hidden = hiddenOf(ctx, t)?.objects;
   const { views, bodyRefs } = ctx;
   const show = (id: string, group: { visible: boolean }) => { group.visible = hidden?.has(id) !== true; };
   for (const [id, group] of bodyRefs.groups) show(id, group);
@@ -306,9 +306,9 @@ export function featureHostOf(assets: readonly BodyAsset[], parts: ReadonlyMap<B
 }
 
 /** What the labels and taps see under the current view: the objects and body sets it shows, and the label-hidden ids with the view's own added. Allocates only when a view hides something. */
-function shownUnderView(ctx: FrameContext) {
+export function shownUnderView(ctx: FrameContext, t?: number) {
   const { controls, views } = ctx;
-  const hidden = hiddenOf(ctx)?.objects;
+  const hidden = hiddenOf(ctx, t)?.objects;
   if (hidden === undefined || hidden.size === 0) return { objects: controls.labelObjects, bodySetViews: views.bodySetViews, hiddenLabels: controls.hiddenLabels };
   return {
     objects: controls.labelObjects.filter((object) => !hidden.has(object.id)),
@@ -324,7 +324,7 @@ export function updateOverlays(ctx: FrameContext, t: number, step: CameraStep, h
   publishBodyData(canvas, bodyScreens);
   layers.anchorLabels.current?.update(controls.showAnchorLabels, camera, size.width, size.height);
   const positionFor = (id: string): RenderVector | null => labelPositionOf(step.targets, id);
-  const shown = shownUnderView(ctx);
+  const shown = shownUnderView(ctx, t);
   layers.sceneLabels.current?.update(positionFor, camera, size.width, size.height, origin, controls.selectedObjectId, shown.hiddenLabels, { on: controls.skyLines, labelColor: controls.skyColours.label, selectedColor: controls.skyColours.selected, opacity: (id) => ctx.views.skyFiguresView.labelOpacity(id), distance: 0.5 * (camera.near + camera.far) });
   state.pickables = pickCandidatesOf({ objects: shown.objects, bodyIdFor: ctx.bodyIdFor, bodyScreens, widthPx: size.width, heightPx: size.height, labelRects: layers.sceneLabels.current?.shownRects, canvas, bodySetViews: shown.bodySetViews });
   // Sky figures are projected only when a tap asks, from this frame's camera and shown names (no per-frame work).
@@ -333,7 +333,7 @@ export function updateOverlays(ctx: FrameContext, t: number, step: CameraStep, h
   canvas.style.cursor = hover === null ? "" : "pointer";
   canvas.dataset.pickHover = hover ?? "";
   layers.sceneLabels.current?.setHover(hover, hoverGain);
-  layers.storyMarkers.current?.update(positionFor, camera, size.width, size.height, origin, controls.openStoryPanelId ?? null, t, hiddenOf(ctx));
+  layers.storyMarkers.current?.update(positionFor, camera, size.width, size.height, origin, controls.openStoryPanelId ?? null, t, hiddenOf(ctx, t));
   const featureReadout = layers.featureMarkers.current?.update((id) => featureHostOf(ctx.assets, ctx.bodyRefs.parts, id, controls.policy), camera, camera.fov, size.width, size.height, controls.openFeatureKey ?? null, controls.featureMinBodyPx ?? DEFAULT_FEATURE_MIN_BODY_PX);
   if (featureReadout !== null && featureReadout !== undefined) canvas.dataset.featureMarkers = JSON.stringify(featureReadout);
 }
@@ -452,7 +452,7 @@ export function runFrame(ctx: FrameContext): void {
   publishCanvasReadouts(ctx);
   placeSkyFigures(ctx);
   advanceSkyTraces(ctx);
-  applyViewVisibility(ctx);
+  applyViewVisibility(ctx, t);
   const hoverGain = placeViews(ctx, t, placed, setLook);
   updateOverlays(ctx, t, step, hoverGain);
   placeLightsAndReadout(ctx, t, placed);

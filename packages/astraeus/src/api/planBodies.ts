@@ -4,7 +4,8 @@ import { catalogue as builtInCatalogue, extendCatalogue, extendCatalogueWithMoon
 import { buildElementsBody, ElementsBodyError, parseElementsBodyRecord, type ElementsBodyRecord } from "../core/elementsBody";
 import type { CompositionPath } from "../assets/compositions";
 import type { ExperienceDefinition, PathLayer, VisualOverride } from "../app/experienceDefinition";
-import type { ExperienceObject } from "../shell/experience";
+import type { ExperienceObject, ShownSpan } from "../shell/experience";
+import { planShownDuring } from "./shownDuring";
 import { catalogueItem } from "../app/catalogueItem";
 import type { EccentricSampling } from "../core/sunCentredSources";
 import { circlesTheSun, sunOrbitIdOf, sunOrbitLayer } from "./sunOrbit";
@@ -106,6 +107,7 @@ export class BodyPlan {
   readonly laps = new Map<BodyId, OrbitLapInput>();
   readonly cards = new Map<BodyId, Pick<AddBodyOptions, "listed" | "facts" | "sources" | "labelPriority">>();
   readonly looks = new Map<BodyId, Pick<AddBodyOptions, "color" | "knownLimitations">>();
+  readonly shown = new Map<BodyId, ShownSpan>();
   catalogue: BodyCatalogue = builtInCatalogue;
   readonly #taken: (id: string) => boolean;
   readonly #firstBody: (id: BodyId) => void;
@@ -188,7 +190,9 @@ export class BodyPlan {
     if (!this.catalogue.has(id)) throw new SceneError("unknown-body", `${call}("${id}"): not a catalogued body (known: ${builtInCatalogue.ids().join(", ")}; any moon in the moon lists is added by its id, and \`listedMoons(planet)\` names them with the data package each needs)`);
     if (this.#taken(id)) throw new SceneError("duplicate-id", `${call}("${id}"): already in the scene`);
     checkBodyLook(id, options);
+    const shown = planShownDuring(call, id, "bad-body", options.shownDuring);
     this.#remember(call, id, options);
+    if (shown !== undefined) this.shown.set(id, shown);
     this.bodies.set(id, ref);
     if (this.bodies.size === 1 && builtInCatalogue.has(id)) this.#firstBody(id);
   }
@@ -298,7 +302,7 @@ export class BodyPlan {
     const card = this.cards.get(body.id);
     const sources = card?.sources;
     const base = this.catalogue.get(body.id).definition.accuracy.position;
-    const own = { labelPriority: card?.labelPriority ?? 100 - ids.indexOf(body.id), ...(card?.listed === undefined ? {} : { listed: card.listed }), ...(card?.facts === undefined ? {} : { facts: card.facts }), ...(sources === undefined ? {} : { provenance: withSources(base, sources) }), ...this.labelReach(body.id, sunCentred, camera), ...(this.shape.get(body.id)?.showLabel === undefined ? {} : { showLabel: this.shape.get(body.id)!.showLabel }), ...(this.notes.has(body.id) ? { description: this.notes.get(body.id) } : {}), ...this.looks.get(body.id) };
+    const own = { labelPriority: card?.labelPriority ?? 100 - ids.indexOf(body.id), ...(card?.listed === undefined ? {} : { listed: card.listed }), ...(card?.facts === undefined ? {} : { facts: card.facts }), ...(sources === undefined ? {} : { provenance: withSources(base, sources) }), ...this.labelReach(body.id, sunCentred, camera), ...(this.shape.get(body.id)?.showLabel === undefined ? {} : { showLabel: this.shape.get(body.id)!.showLabel }), ...(this.notes.has(body.id) ? { description: this.notes.get(body.id) } : {}), ...(this.shown.has(body.id) ? { shownDuring: this.shown.get(body.id) } : {}), ...this.looks.get(body.id) };
     return { ...catalogueItem(body.id, own, this.catalogue), label: body.label };
   }
 }

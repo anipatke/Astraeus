@@ -4,6 +4,8 @@ Versions follow [semantic versioning](https://semver.org). While the version sta
 
 ## Unreleased
 
+Added: `shownDuring: { start?, end? }` on `addBody`, `addBodyFromElements` and `addTrajectory` shows the body or path only while `start <= t < end` (an absent end is unbounded). Outside it the scene draws none of it (marker, line, label, orbit line) and it cannot be picked, in every view, through the same per-frame hidden set a view uses. Presentation only: `stateOf` and the readouts are unchanged. A bad value throws `bad-body` or `bad-trajectory`.
+
 Fix: a `provider` path is no longer drawn at 128 evenly spaced moments alone. A one-hour flyby on a six-year path fell between two of them and was drawn as a straight line past the marker. The line now also takes moments where the path bends or the body moves fast, as seen from the path's `center`, up to 4,096 in all; where more would be needed (a very close, fast pass) the most useful are kept. A `samples` path and the public API are unchanged.
 
 Fix: where pacing pieces overlap or their ramps meet, the paced speed is now what the README says, instead of a product of eases that was slower than both. Faster spans set the cruise (the faster wins where they meet); slower spans and event rules ease down from it (the slowest of what each alone would give wins where they meet), so a slow-down inside a faster span starts without a jump in speed. No call shape changed.

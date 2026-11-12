@@ -6,12 +6,20 @@ import type { BodyFeatureSet } from "./bodyFeatures";
 import type { MoonFamilyList } from "./moonFamilies";
 import type { StoryPanelSet } from "./storyPanels";
 
+/** When an object is shown, in Unix milliseconds: `startUtcMs <= t < endUtcMs`; an absent end is unbounded. Presentation only (`shownDuring`); not the object's `availability`. */
+export interface ShownSpan {
+  readonly startUtcMs?: number;
+  readonly endUtcMs?: number;
+}
+
 export interface ExperienceObject {
   readonly id: string;
   readonly label: string;
   readonly color?: string;
   /** Omit for objects that are always available. */
   readonly availability?: TimeBounds;
+  /** Omit to show the object at every time. Outside the span the scene draws none of it (marker, line, label) and it cannot be picked; its state is unchanged. */
+  readonly shownDuring?: ShownSpan;
   /** Higher values win when projected labels would overlap. */
   readonly labelPriority?: number;
   /**

@@ -42,6 +42,8 @@ export type { SceneCamera } from "./planCamera";
 import { StoryPlan } from "./planStory";
 import { buildTracked, pathReads, type Tracked } from "./planPaths";
 import { toUtcMs, type TimeInput } from "./time";
+import type { ShownDuringInput } from "./shownDuring";
+export type { ShownDuringInput } from "./shownDuring";
 import { TimelinePlan } from "./planTimeline";
 import { ViewPlan } from "./planViews";
 import type { SwitchesInput } from "./switches";
@@ -66,6 +68,8 @@ export interface AddBodyOptions {
   readonly showLabel?: boolean;
   /** How far from the camera the body's label shows, in the camera's `distance` units (Earth radii, as `camera.setReach`); a positive finite number. When absent the scene's shared rule applies: no limit in a Sun-centred or fitted scene, else the camera reach (at least 500). */
   readonly labelReachEarthRadii?: number;
+  /** Shows the body only within a span (`ShownDuringInput`). */
+  readonly shownDuring?: ShownDuringInput;
   /** One or two plain sentences for the body's info card. */
   readonly description?: string;
   /** The body's colour on its info card and label, as a CSS hex colour such as "#9fd8ff"; the catalogue's own when absent. A bad value throws `bad-body`. */
@@ -157,6 +161,8 @@ export interface TrajectoryBase {
    * Sorted, not overlapping, inside the path's span; a fault throws `bad-trajectory` naming the index. Where no span covers the time, `provenance` (or the illustrative default) shows.
    */
   readonly provenanceSpans?: readonly ActivitySourceInput[];
+  /** Shows the path only within a span (`ShownDuringInput`). */
+  readonly shownDuring?: ShownDuringInput;
   /** One or two plain sentences for the path's info card. */
   readonly description?: string;
   /** Published limits of the data, shown with the provenance. */

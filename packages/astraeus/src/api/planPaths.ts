@@ -16,6 +16,8 @@ import { influenceStretches, sphereOfInfluenceKm, type InfluenceCandidate } from
 import { SceneError } from "./errors";
 import { rejectRenamed } from "./renamedInputs";
 import { toUtcMs } from "./time";
+import { planShownDuring } from "./shownDuring";
+import type { ShownSpan } from "../shell/experience";
 import type { AnchorInput, ReadoutInput, TrajectoryInput } from "./scene";
 import { frozenList, type ScenePathRead } from "./sceneReads";
 
@@ -32,6 +34,7 @@ export interface Tracked {
   readonly description?: string;
   readonly knownLimitations?: readonly string[];
   readonly provenanceSpans?: readonly WindowProvenanceSpan[];
+  readonly shownDuring?: ShownSpan;
   readonly readouts: readonly ReadoutInput[];
 }
 
@@ -57,10 +60,11 @@ export function buildTracked(input: TrajectoryInput, center: BodyId, labelReache
   const body = "samples" in input ? sampledBody(common, input, center, toEqj) : providerBody(common, input, center, toEqj);
   const span = { startUtcMs: body.trajectory.bounds.startUtcMs, endUtcMs: body.trajectory.bounds.endUtcMs };
   const provenanceSpans = input.provenanceSpans === undefined ? undefined : planPathProvenance(id, input.provenanceSpans, span);
+  const shownDuring = planShownDuring("addTrajectory", id, "bad-trajectory", input.shownDuring);
   checkLineFixedToType(id, input.lineFixedTo);
   const auto = input.lineFixedTo === "auto";
   const lineFixedTo = typeof input.lineFixedTo === "object" ? planLineStretches(id, input.lineFixedTo, span) : auto ? undefined : input.lineFixedTo;
-  return { center, ...(auto ? { auto: true as const } : {}), body: withAnchors(lineFixedTo === undefined ? body : { ...body, lineFixedTo }, input.anchors), readouts, ...(provenanceSpans === undefined ? {} : { provenanceSpans }), ...(input.description === undefined ? {} : { description: input.description }), ...(input.knownLimitations === undefined ? {} : { knownLimitations: input.knownLimitations }) };
+  return { center, ...(auto ? { auto: true as const } : {}), body: withAnchors(lineFixedTo === undefined ? body : { ...body, lineFixedTo }, input.anchors), readouts, ...(provenanceSpans === undefined ? {} : { provenanceSpans }), ...(shownDuring === undefined ? {} : { shownDuring }), ...(input.description === undefined ? {} : { description: input.description }), ...(input.knownLimitations === undefined ? {} : { knownLimitations: input.knownLimitations }) };
 }
 
 type Common = Pick<TrackedBody, "id" | "label" | "color" | "anchorTimesUtcMs" | "provenance">;

@@ -1,5 +1,5 @@
 // What the current view hides: one derivation of the ids a view does not show, and the one filtered experience the shell lists read (T-219, I-124).
-import type { ExperienceConfig } from "../shell/experience";
+import type { ExperienceConfig, ExperienceObject } from "../shell/experience";
 import type { ResolvedView, ViewSettings } from "./views";
 
 /** The ids the current view hides: objects (bodies, paths, groups) and story panels. Empty sets: everything shows. */
@@ -48,4 +48,23 @@ export function experienceInView(experience: ExperienceConfig, settings: ViewSet
 export function hiddenWithLookOut(hidden: ViewHidden | undefined, body: string | null): ViewHidden | undefined {
   if (body === null) return hidden;
   return { objects: new Set([...(hidden?.objects ?? []), body]), panels: hidden?.panels ?? new Set() };
+}
+
+/** Whether `object` is shown at `timeUtcMs`: `startUtcMs <= t < endUtcMs`, an absent end unbounded, no span always shown (`shownDuring`). The one rule, so an object that ends at T and one that starts at T never both show or both hide. */
+export function shownAt(object: Pick<ExperienceObject, "shownDuring">, timeUtcMs: number): boolean {
+  const span = object.shownDuring;
+  return span === undefined || ((span.startUtcMs === undefined || span.startUtcMs <= timeUtcMs) && (span.endUtcMs === undefined || timeUtcMs < span.endUtcMs));
+}
+
+/**
+ * `hidden` with every object not shown at `timeUtcMs` added, and what belongs to one (`partOf`: a body's orbit line) with it. The same object when no object has a span or
+ * every span shows, so a frame without `shownDuring` allocates nothing. The one place the time-aware hidden set is built; the frame's `hiddenOf` calls it.
+ */
+export function hiddenWithShownSpans(hidden: ViewHidden | undefined, objects: readonly ExperienceObject[] | undefined, timeUtcMs: number | undefined): ViewHidden | undefined {
+  if (objects === undefined || timeUtcMs === undefined) return hidden;
+  let ids: Set<string> | undefined;
+  for (const object of objects) if (!shownAt(object, timeUtcMs)) (ids ??= new Set(hidden?.objects)).add(object.id);
+  if (ids === undefined) return hidden;
+  for (const object of objects) if (object.partOf !== undefined && ids.has(object.partOf)) ids.add(object.id);
+  return { objects: ids, panels: hidden?.panels ?? new Set() };
 }

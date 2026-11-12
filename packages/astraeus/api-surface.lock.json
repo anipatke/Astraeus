@@ -324,6 +324,11 @@
           "signature": "number | undefined"
         },
         {
+          "name": "shownDuring",
+          "optional": true,
+          "signature": "ShownDuringInput | undefined"
+        },
+        {
           "name": "description",
           "optional": true,
           "signature": "string | undefined"
@@ -1278,6 +1283,23 @@
         }
       ]
     },
+    "ShownDuringInput": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "start",
+          "optional": true,
+          "signature": "TimeInput | undefined"
+        },
+        {
+          "name": "end",
+          "optional": true,
+          "signature": "TimeInput | undefined"
+        }
+      ]
+    },
     "ElementsBodyRecord": {
       "kind": "interface",
       "signature": "",
@@ -1413,6 +1435,11 @@
           "name": "provenanceSpans",
           "optional": true,
           "signature": "readonly ActivitySourceInput[] | undefined"
+        },
+        {
+          "name": "shownDuring",
+          "optional": true,
+          "signature": "ShownDuringInput | undefined"
         },
         {
           "name": "description",

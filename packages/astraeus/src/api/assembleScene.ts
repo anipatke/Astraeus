@@ -137,7 +137,7 @@ export function assembleScene(parts: ScenePlanners, data: readonly DataSource[])
   story.checkObjects(new Set([...labelled.map(({ id }) => id), ...skyFigures.figures.keys()]));
   const objects: ExperienceObject[] = [
     ...[...plan.bodies.values()].map((body) => plan.bodyObject(body, ids, sunCentred, camera)),
-    ...[...trackedMap.values()].map(({ body, description, knownLimitations, provenanceSpans }): ExperienceObject => ({ id: body.id, label: body.label, color: body.color, availability: body.trajectory.bounds, labelPriority: 80, ...plan.labelReach(body.id, sunCentred, camera), provenance: body.provenance, ...(provenanceSpans === undefined ? {} : { provenanceSpans }), ...(description === undefined ? {} : { description }), ...(knownLimitations === undefined ? {} : { knownLimitations }) })),
+    ...[...trackedMap.values()].map(({ body, description, knownLimitations, provenanceSpans, shownDuring }): ExperienceObject => ({ id: body.id, label: body.label, color: body.color, availability: body.trajectory.bounds, labelPriority: 80, ...plan.labelReach(body.id, sunCentred, camera), provenance: body.provenance, ...(provenanceSpans === undefined ? {} : { provenanceSpans }), ...(shownDuring === undefined ? {} : { shownDuring }), ...(description === undefined ? {} : { description }), ...(knownLimitations === undefined ? {} : { knownLimitations }) })),
     ...bodySets.objects({ ids, catalogue: plan.catalogue }),
   ];
   const pictures = mergePictures(data.map((source) => source.pictures));
