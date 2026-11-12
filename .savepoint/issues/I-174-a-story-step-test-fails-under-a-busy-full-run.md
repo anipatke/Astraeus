@@ -14,6 +14,10 @@ history:
     actor: {role: executor, session: o070-run-20261112}
     kind: observed
     note: Seen while closing O-070; unrelated to its change (O-070 touched provider path sampling only).
+  - at: '2026-11-12T11:15:12Z'
+    actor: {role: executor, session: o071-repair-20261112}
+    kind: repair_attempted
+    note: 'Direct repair, unverified by a checker. lifecycle.test.ts story step actions: the five fixed 20 ms tick() waits are replaced by vi.waitFor on the asserted effect; no scene, input, step or expected value changed. Three npm run test:full runs under a parallel full vitest run: the story test passed in all three, but each run failed other unrelated tests (timeouts: packagePacks, loadingCoverChain, computedLook, showersMeasured, apiReference, apiRules; 8, 5, 3 failures), so a green loaded full run was not shown.'
 ---
 
 # I-174: A story-step test fails when the full test run is busy

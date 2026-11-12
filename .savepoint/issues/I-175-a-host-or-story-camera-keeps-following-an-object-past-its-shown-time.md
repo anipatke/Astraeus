@@ -18,6 +18,10 @@ history:
     kind: observed
     note: Found by the O-071 Full Objective Check (C-176), probe P1.
     check: C-176
+  - at: '2026-11-12T11:15:12Z'
+    actor: {role: executor, session: o071-repair-20261112}
+    kind: repair_attempted
+    note: 'Direct repair, unverified by a checker. App.tsx keeps the ids the last camera request named (preset, host setCamera, story panel) and holdCameraOffShown holds the camera once one is not shown (hiddenWithShownSpans); the shell tells it the time (onTimeShown). shownDuringMenu.test.ts adds a table test {setCamera, story panel camera} x {host setTime, visitor time change, playback} on mount and AstraeusScene: 12 cases fail on the unfixed src and pass now; the preset-path test is unchanged. lint, typecheck, build, npm test pass.'
 ---
 
 # I-175: A host or story camera keeps following an object past its shown time

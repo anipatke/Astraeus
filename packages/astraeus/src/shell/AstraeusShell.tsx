@@ -110,6 +110,8 @@ interface Props {
   readonly onTurnToFigure?: (id: string) => void;
   /** Holds the camera where it is, its target fixed in the scene (a view's `stay` rule); a later camera request replaces it. */
   readonly onCameraHold?: () => void;
+  /** Told the clock time as it moves, so the app can hold a camera whose target (named by a host or a story panel, not a preset) is no longer shown. */
+  readonly onTimeShown?: (timeUtcMs: number) => void;
   /** True when the host has set the camera since the last view switch: that call answers the switch, so the view's own camera rule does not replace it. */
   readonly hostCameraSet?: () => boolean;
   /** Filled with the shell's story seek note, so a host's time jump re-bases the panel crossing check exactly as a visitor's seek does. */
@@ -247,6 +249,7 @@ export function AstraeusShell({
   onCameraRequest,
   onTurnToFigure,
   onCameraHold,
+  onTimeShown,
   hostCameraSet,
   storySeekNote,
   onSelectionChange,
@@ -348,6 +351,7 @@ export function AstraeusShell({
       if (switchRule !== undefined && selected === undefined) setInfo((now) => (now?.kind === "object" ? null : now));
     }
 
+    onTimeShown?.(snapshot.timeUtcMs);
     const active = experience.cameraPresets.find((preset) => preset.id === activePresetId);
     const activeRequest = active?.request;
     if (switchRule?.rule === "start" && switchRule.framing?.always === true) {

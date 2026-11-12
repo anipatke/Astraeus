@@ -520,7 +520,7 @@ describe.each([mountDriver, reactDriver(false)])("lifecycle: $name", (driver) =>
     await opened.ready();
     const handle = opened.handle!;
     const controls = () => sceneProps.latest!.controls;
-    await tick();
+    await vi.waitFor(() => expect(controls().skyTraces).toHaveLength(1)); // the first step's actions have run (wait for the effect, not a fixed time)
     // The first step is open at the start: its camera is the host's slot, the figure's label point is the direction, then the selection and the trace follow.
     expect(handle.panel).toBe("s1");
     const look = controls().cameraRequest as { kind: string; body: string; direction: number[]; fovDeg: number };
@@ -532,24 +532,25 @@ describe.each([mountDriver, reactDriver(false)])("lifecycle: $name", (driver) =>
     controls().skyTraces.length = 0;
     // Another step with no actions: the trace it left clears over the default fade; nothing else is undone.
     flushSync(() => handle.setPanel("s2"));
-    await tick();
+    await vi.waitFor(() => expect(controls().skyTraces).toEqual([{ id: "kite", seconds: 1, reduced: false }]));
     expect(controls().skyTraces).toEqual([{ id: "kite", seconds: 1, reduced: false }]);
     expect(controls().cameraRequest).toBe(controls().hostCameraRequest);
     expect(handle.selected).toBe("kite");
     controls().skyTraces.length = 0;
     // A step by the host: camera, then select. No trace to clear (s2 started none).
     flushSync(() => handle.setPanel("s3"));
-    await tick();
+    await vi.waitFor(() => expect(controls().cameraRequest).toEqual({ kind: "focus", target: "moon" }));
+    await vi.waitFor(() => expect(handle.selected).toBe("moon"));
     expect(controls().cameraRequest).toEqual({ kind: "focus", target: "moon" });
     expect(handle.selected).toBe("moon");
     expect(controls().skyTraces).toEqual([]);
     // Opened again by the visitor (Back), the first step acts the same; closing it clears its trace.
     flushSync(() => handle.setPanel("s1"));
-    await tick();
+    await vi.waitFor(() => expect(controls().skyTraces).toHaveLength(1));
     expect(controls().skyTraces).toHaveLength(1);
     controls().skyTraces.length = 0;
     flushSync(() => handle.setPanel(undefined));
-    await tick();
+    await vi.waitFor(() => expect(controls().skyTraces).toEqual([{ id: "kite", seconds: 1, reduced: false }]));
     expect(handle.panel).toBeUndefined();
     expect(controls().skyTraces).toEqual([{ id: "kite", seconds: 1, reduced: false }]);
     opened.unmount();

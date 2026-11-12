@@ -176,3 +176,41 @@ describe("a story step's camera and an object outside its shown time", () => {
     m.unmount();
   });
 });
+
+// I-175: a camera aimed by a host `setCamera` or a story panel's `camera` holds its pose and stops following when its object leaves its span, as the preset path does.
+describe.each(PATHS)("%s: a camera aimed at an object that leaves its span", (_name) => {
+  const made = { sourceType: "illustrative", sources: ["Made up"], accuracy: "None claimed.", notes: "Made up." } as const;
+  const withStep = () => makeScene().addStoryPanels([{ id: "s1", title: "Step s1", body: "A made-up line.", provenance: made, camera: { follow: "pa" } }]);
+  const aims: readonly (readonly [string, (handle: ViewerHandle) => void])[] = [
+    ["setCamera", (h) => { act(() => h.setCamera({ follow: "pa" })); }],
+    ["story panel camera", (h) => { act(() => h.setPanel("s1")); }],
+  ];
+  const moves: readonly (readonly [string, (handle: ViewerHandle, cameraRequest: () => unknown) => void])[] = [
+    ["host setTime", (h) => { act(() => h.setTime(EDGE + MIN)); }],
+    ["visitor time change", () => { const scrub = byLabel(host, "Seek timeline") as HTMLInputElement; act(() => change(scrub, scrub.max)); }],
+    ["playback", (h, request) => { act(() => h.setPlaying(true)); for (let i = 0; i < 300 && JSON.stringify(request()).includes("follow"); i++) act(() => { vi.advanceTimersByTime(100); }); }],
+  ];
+  const cases = aims.flatMap(([aim, aimAt]) => moves.map(([move, doMove]) => [aim, aimAt, move, doMove] as const));
+  it.each(cases.map((c) => ({ title: `${c[0]} then ${c[2]}`, c })))("$title: the request becomes a hold", async ({ c: [aim, aimAt, move, doMove] }) => {
+    // The scene differs per aim, so it is started here rather than by `start`.
+    let handle: ViewerHandle; let stop: () => void; let ready: Promise<void>;
+    if (_name === "mount") { const m = mount(host, aim === "setCamera" ? makeScene() : withStep()); handle = m; stop = () => m.unmount(); ready = m.ready; }
+    else {
+      let got: ViewerHandle | undefined;
+      root = createRoot(host);
+      act(() => root!.render(createElement(AstraeusScene, { scene: aim === "setCamera" ? makeScene() : withStep(), onReady: (h: ViewerHandle) => { got = h; } })));
+      handle = new Proxy({} as ViewerHandle, { get: (_t, key) => Reflect.get(got!, key) });
+      stop = () => { act(() => root!.unmount()); root = undefined; };
+      ready = vi.waitFor(() => expect(got).toBeDefined());
+    }
+    await drawn({ ready });
+    const request = () => sceneProps.latest!.controls.cameraRequest;
+    act(() => { handle.setPlaying(false); handle.setTime(move === "playback" ? EDGE - MIN : T0 + MIN); });
+    aimAt(handle);
+    expect(request(), `${aim} aimed`).toEqual({ kind: "follow", target: "pa" });
+    doMove(handle, request);
+    expect(request(), `${aim} then ${move}`).toEqual({ kind: "hold" });
+    stop();
+    if (root) host.replaceChildren();
+  });
+});

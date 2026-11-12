@@ -358,14 +358,24 @@ export function App({ definition, writeTitle = true, address, developerTools, ho
   const [viewNow, setViewNow] = useState<CameraView | null>(null);
   const [viewLink, setViewLink] = useState<{ readonly url: string; readonly copied: boolean } | null>(null);
   const [fills, setFills] = useState<readonly GroupFill[]>([]);
+  /** The ids the camera's last request named (a preset, a host `setCamera`, a story panel's camera): the one rule below holds the camera when one of them stops being shown. */
+  const cameraNamed = useRef<readonly string[]>([]);
+  const noteCameraIds = (request: CameraRequest) => { const { bodies, toward } = cameraIdsOf(request); cameraNamed.current = toward === undefined ? bodies : [...bodies, toward]; };
   const updateCameraRequest = useCallback((request: ExperienceCameraRequest) => {
+    noteCameraIds(request as CameraRequest);
     controls.current.cameraRequest = aimAtFigure(request as CameraRequest, runtime.skyFigures);
   }, [runtime]);
   const turnToFigure = useCallback((id: string) => {
     const now = controls.current.viewReadout;
     if (now !== undefined && "lookOut" in now) updateCameraRequest({ kind: "lookOut", body: now.lookOut, direction: id });
   }, [updateCameraRequest]);
-  const holdCamera = useCallback(() => { controls.current.cameraRequest = { kind: "hold" }; }, []);
+  const holdCamera = useCallback(() => { cameraNamed.current = []; controls.current.cameraRequest = { kind: "hold" }; }, []);
+  /** O-071 (I-175): whatever named the camera's target, once that object is not shown at `timeUtcMs` the camera keeps its pose and stops following (`shownAt`, via `hiddenWithShownSpans`). */
+  const holdCameraOffShown = useCallback((timeUtcMs: number) => {
+    if (cameraNamed.current.length === 0) return;
+    const out = hiddenWithShownSpans(undefined, experience.objects, timeUtcMs)?.objects;
+    if (out !== undefined && cameraNamed.current.some((id) => out.has(id))) holdCamera();
+  }, [experience, holdCamera]);
   const requestPanel = useCallback((id: string) => setPanelRequest((previous) => ({ id, serial: (previous?.serial ?? 0) + 1 })), []);
   const requestPick = useCallback((id: string) => setPickRequest((previous) => ({ id, serial: (previous?.serial ?? 0) + 1 })), []);
   const requestFeature = useCallback((key: string) => setFeatureRequest((previous) => ({ key, serial: (previous?.serial ?? 0) + 1 })), []);
@@ -494,7 +504,7 @@ export function App({ definition, writeTitle = true, address, developerTools, ho
     return view === undefined ? undefined : { ...view };
   }, [opening]);
   // A host camera call is the last word: it is also kept in `hostCameraRequest`, so the opening view (first frame) and a view's own camera rule (shell) yield to it.
-  const setCamera = useCallback((request: CameraRequest) => { controls.current.cameraRequest = controls.current.hostCameraRequest = aimAtFigure(request, runtime.skyFigures); }, [runtime]);
+  const setCamera = useCallback((request: CameraRequest) => { noteCameraIds(request); controls.current.cameraRequest = controls.current.hostCameraRequest = aimAtFigure(request, runtime.skyFigures); }, [runtime]);
   const hostCameraSet = useCallback(() => controls.current.hostCameraRequest != null, []);
   const hostScales = useMemo(() => scaleChoiceIds ?? SCALE_CHOICES.map((choice) => choice.id), [scaleChoiceIds]);
   const hostSetLook = useCallback((look: LookInput) => live.current?.setLook(look), []);
@@ -794,6 +804,7 @@ export function App({ definition, writeTitle = true, address, developerTools, ho
       onCameraRequest={updateCameraRequest}
       onTurnToFigure={turnToFigure}
       onCameraHold={holdCamera}
+      onTimeShown={holdCameraOffShown}
       hostCameraSet={hostCameraSet}
       storySeekNote={storySeekNote}
       onSelectionChange={updateSelectedObject}
