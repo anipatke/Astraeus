@@ -4,9 +4,9 @@ Versions follow [semantic versioning](https://semver.org). While the version sta
 
 ## Unreleased
 
-Fix: where two pacing pieces' ramps overlap or meet, the paced speed is now the slowest speed any one piece alone would give there, as the README says, instead of a product of the eases that was slower than both. No call shape changed.
+Fix: where two pacing event rules' ramps overlap or meet, the paced speed is now the slower of what each alone would give there, as the README says, instead of a product of the eases that was slower than both. Spans set the cruise and an event rule eases down from it, so a slow-down inside a faster span starts without a jump in speed. No call shape changed.
 
-Fix: playback now steps through every slow-down whatever the frame length. A frame used to run at the one speed read at its start, so a long frame at cruise could carry the clock over a whole zone and its ramps (a short one still could, at a fast cruise); each frame is now advanced through the speeds it crosses, so playback always eases into a zone and `onEventZone` reports it. No call shape changed.
+Fix: playback now steps through every slow-down whatever the frame length. A frame used to run at the one speed read at its start, so a long frame at cruise could carry the clock over a whole zone and its ramps (a short one still could, at a fast cruise); each frame is now advanced through the speeds it crosses, so playback always eases into a zone and `onEventZone` reports it; the same holds while a view switch eases the speed (the ease now smooths only the change the switch caused, so a zone reached during it still slows playback). No call shape changed.
 
 ## 0.9.0 (2026-11-11)
 

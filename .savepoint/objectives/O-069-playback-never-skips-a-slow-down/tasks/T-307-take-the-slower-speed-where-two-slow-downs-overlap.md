@@ -65,6 +65,9 @@ Gates: `npm run lint` pass, `npm run typecheck` pass, `npm run build` pass, `npm
 
 Note: a piece faster than the base still raises speed where it alone touches a time (cruise spans); the minimum is over touching pieces only, with base where none touches.
 
+Repair (C-171, I-170/I-171, 2026-11-12): `pacedRate` now lays spans as the cruise and eases each event rule from it (I-170); evidence in I-170 and `tests/pacingRepairs.test.ts`.
+
+
 ## Drift Notes
 
 Record architecture deltas; Design is reconciled in the next step.

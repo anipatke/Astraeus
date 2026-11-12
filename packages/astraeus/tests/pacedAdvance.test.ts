@@ -158,7 +158,7 @@ describe("the clock follows the steps (stepPacing, frameTime)", () => {
     expect(clock.now() - paused).toBeLessThan(CRUISE * 100 * 1.01); // the paused 5 s did not advance it
   });
 
-  it("falls back to one rate for the frame while a view-switch ease runs", () => {
+  it("integrates the eased rate for the frame while a view-switch ease runs", () => {
     const { clock, view, tick } = playing();
     stepPacing(clock, pacing, view, tick(16));
     view.ease = { fromRate: 5, startMs: 16 };

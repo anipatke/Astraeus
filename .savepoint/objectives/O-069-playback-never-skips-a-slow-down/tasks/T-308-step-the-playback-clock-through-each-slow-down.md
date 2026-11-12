@@ -72,6 +72,8 @@ Gates: `npm run lint`, `npm run typecheck`, `npm run build`, `npm test` all pass
 | README and CHANGELOG | README "Paced playback" says playback eases into every slow-down whatever the frame rate; CHANGELOG `## Unreleased` has a second Fix entry. Design reconciliation left to the coordinator, per the run brief. |
 | No public API change | `api-surface.lock.json` not modified; `pacedAdvance`, `stepPacing`, `MAX_PACE_STEPS` and `PaceView.last` are internal to `core/pacing.ts`. |
 
+Repair (C-171, I-170/I-171, 2026-11-12): `pacedAdvance` integrates a running view-switch ease and `stepPacing` no longer falls back mid-ease (I-171, partly proven; see the Issue); evidence in `tests/pacingRepairs.test.ts`.
+
 
 ## Drift Notes
 

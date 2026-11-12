@@ -29,6 +29,7 @@ G-019, Closest Calls F-09 and F-15. Today `applyPacing` (`src/core/pacing.ts`) r
 
 - "Fix the engine to match the guide": overlapping ramps take the slower speed.
 - 0.9.1, additions only: behaviour fixes only, no new or changed public input.
+- Owner, 2026-11-12T05:45:43Z (o069-run-20261112, I-171 repair): "Ease only the switch" — the view-switch ease smooths only the speed change the switch itself caused; a slow-down reached during the ease still slows playback, so nothing is skipped, even though the ease then differs from today's shape.
 
 ## Architectural Considerations
 

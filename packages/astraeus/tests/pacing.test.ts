@@ -110,9 +110,9 @@ describe("overlapping ramps take the slower speed (O-069 T-307, F-15)", () => {
   });
 
   it("nested, touching and unordered zones: the minimum of each alone, continuous, exactly the base when untouched", () => {
-    const outer = zone(T0, T0 + 10 * HOUR, 5_000, 3 * HOUR);
-    const inner = zone(T0 + 4 * HOUR, T0 + 5 * HOUR, 100, 2 * HOUR);
-    const touching = zone(T0 + 10 * HOUR, T0 + 12 * HOUR, 800, 3 * HOUR);
+    const outer = zone(T0, T0 + 10 * HOUR, 5_000, 3 * HOUR, "outer");
+    const inner = zone(T0 + 4 * HOUR, T0 + 5 * HOUR, 100, 2 * HOUR, "inner");
+    const touching = zone(T0 + 10 * HOUR, T0 + 12 * HOUR, 800, 3 * HOUR, "touching");
     const zones = [outer, inner, touching];
     let previous = pacedRate({ baseRate: base, zones }, T0 - 5 * HOUR);
     for (let minutes = -300; minutes <= 17 * 60; minutes += 1) {

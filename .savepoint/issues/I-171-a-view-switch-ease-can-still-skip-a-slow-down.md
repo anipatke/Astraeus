@@ -2,7 +2,7 @@
 id: I-171
 title: A view-switch ease can still skip a slow-down
 type: defect
-status: open
+status: in_progress
 source:
   kind: check
   check: C-171
@@ -17,6 +17,10 @@ history:
     kind: observed
     note: Found by the O-069 Full Objective Check.
     check: C-171
+  - at: '2026-11-12T05:00:00Z'
+    actor: {role: executor, session: o069-repair-20261112}
+    kind: repair_attempted
+    note: "pacedAdvance takes an optional ease and integrates the eased rate (sub-steps stop at every edge and cover at most 1/32 of the ease second); stepPacing no longer falls back mid-ease. Partly proven: an ease from a slow rate enters every zone at 16-1000 ms frames; an ease from a cruise-scale rate still skips (the unchanged blend holds near the old rate for the zone's few milliseconds). Owner decision (O-069 Objective.md Decisions): ease only the switch. Then: the ease is the paced shape times exp(k0 (1 - weight)), k0 = log(fromRate) - log(paced rate at the switch), in both applyPacing and pacedAdvance; eases from cruise-scale rates now enter every zone. Awaiting a Check."
 ---
 
 # I-171: A view-switch ease can still skip a slow-down
@@ -33,3 +37,10 @@ history:
 ## Proof Needed
 
 A node test: with a view-switch ease running, frames of 16 ms to 1,000 ms through a zone still enter it and report it with cause `playback`, while the rate blend over `PACE_EASE_MS` keeps its present shape (existing pacing-view ease tests unchanged).
+
+## Repair evidence
+
+| Proof Needed | Test |
+|---|---|
+| Frames of 16 ms to 1,000 ms through a zone with an ease running still enter it and report it with cause `playback` | `packages/astraeus/tests/pacingRepairs.test.ts` "enters the zone at 16 ms to 1,000 ms frames ... with an ease from any rate" (starts at 5x, 1,000x and the cruise-scale rates, 16/100/250/1,000 ms frames, offsets 12-40 h); also from CRUISE, CRUISE/2, CRUISE/4, CRUISE x1.01 and x4; reported with cause `playback` in "reports the zone with cause playback..." (16, 250, 1,000 ms) |
+| Rate blend over `PACE_EASE_MS` keeps its present shape | same file, "integrates the eased rate" (area under the eased rate where the paced rate is constant: the shape is unchanged there); `pacingViews.test.ts` ease test unchanged |
