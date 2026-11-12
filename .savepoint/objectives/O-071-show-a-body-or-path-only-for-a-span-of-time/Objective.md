@@ -20,7 +20,22 @@ G-019, Closest Calls F-01, F-07, F-08: the app built 21 views (11 named "Overvie
 
 ## Success Conditions
 
-To be settled in the owner design interview when this Objective is detailed (after O-070): option name and shape (API-04 span rules), what happens to a selected or followed object leaving its span, cards, camera targets, `stateOf` (planner's view: unchanged, presentation only, ARCH-02), interaction with views, and an addition-only API (lock and README updated).
+Confirmed by the owner, 2026-11-12 (session plan-o071-20261112), in the lean form ("Lean, two steps"):
+
+1. `addBody`, `addBodyFromElements` and `addTrajectory` take `shownDuring: { start?, end? }` (each end a `TimeInput`; either may be left off for an open end; at least one given; `end` after `start`); a bad value throws `bad-body`, `bad-element` (or the call's own body code) or `bad-trajectory` naming the field.
+2. The object is shown from `start` up to but not including `end`: a "before" object ending at a moment and an "after" object starting at it never show together and leave no gap.
+3. Outside its span the object counts as hidden exactly as when a view hides it: marker, line, orbit ring (`partOf`), label and picks are not drawn; it leaves the object menu; `setSelected` and `setCamera` refuse it as a hidden id; `cameraTargets` omits it. View and span combine: shown only when both allow it.
+4. A selected object leaving its span is dropped and `onSelect` reports it with the cause of the move (`playback`, `visitor` or `host`, as for a path past its samples); the camera stays where it is (does not follow an unshown point or jump).
+5. The change at a span edge is instant (no fade).
+6. Presentation only: `stateOf`, readouts and State are unchanged (ARCH-02).
+7. Additions only: API lock, README rows, CHANGELOG; the hello-scene example uses it; proven on both embedding paths (API-02) with synthetic scenes (ARCH-03). No owner preview check.
+
+## Decisions
+
+- **Shape** (owner, 2026-11-12): `shownDuring: { start?, end? }`, start counts and end does not. Rejected: both ends inclusive (both orbits at the handover); separate `shownFrom`/`shownUntil` (breaks API-04's one-span shape).
+- **Leaving the span while selected** (owner, 2026-11-12): drop the selection with the move's cause, camera stays put. Rejected: keep it selected while hidden.
+- **Lean build** (owner, 2026-11-12, asked "are we overcooking this?"): the span feeds the engine's existing hidden-object set (`viewHiding.ts`, `SceneControls.viewHidden`), so drawing, labels, picks, menu, selection checks and camera targets follow it; two steps. No fade, no preview look, no new object kinds (body sets, groups, sky figures out).
+- I-157 (labels over a stretch of time) is covered for bodies and paths shown over a span; a label alone over a span is not. I-157 stays open for the owner to place.
 
 ## Architectural Considerations
 
