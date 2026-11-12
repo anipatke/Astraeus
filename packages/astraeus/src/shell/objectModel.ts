@@ -1,10 +1,12 @@
+import { shownAt } from "../app/viewHiding";
 import { requestObjectId, type ExperienceCameraPreset, type ExperienceConfig, type ExperienceObject, type SkyFigureCard } from "./experience";
 
 export type CameraMode = "overview" | "focus" | "follow" | "lookOut";
 
+/** Whether the object can be used at `timeUtcMs`: shown by its `shownDuring` span (the one rule, `shownAt`) and inside its `availability`. */
 export function isObjectAvailable(object: ExperienceObject, timeUtcMs: number): boolean {
   const bounds = object.availability;
-  return bounds === undefined || (timeUtcMs >= bounds.startUtcMs && timeUtcMs <= bounds.endUtcMs);
+  return shownAt(object, timeUtcMs) && (bounds === undefined || (timeUtcMs >= bounds.startUtcMs && timeUtcMs <= bounds.endUtcMs));
 }
 
 export function availableObjectById(
@@ -43,9 +45,9 @@ export function findCameraPreset(
   });
 }
 
-/** The objects the Object list offers: the listed ones, and the selected one even when unlisted so the list never shows a blank. */
-export function listedObjects(experience: ExperienceConfig, selectedId: string): readonly ExperienceObject[] {
-  return experience.objects.filter((object) => object.listed !== false || object.id === selectedId);
+/** The objects the Object list offers: the listed ones shown at `timeUtcMs` (an object outside its `shownDuring` span is absent), and the selected one even when unlisted so the list never shows a blank. */
+export function listedObjects(experience: ExperienceConfig, selectedId: string, timeUtcMs?: number): readonly ExperienceObject[] {
+  return experience.objects.filter((object) => object.id === selectedId || (object.listed !== false && (timeUtcMs === undefined || shownAt(object, timeUtcMs))));
 }
 
 /** Unlisted objects that belong to `id` (an orbit line to its body), for the related buttons in the top bar. */

@@ -44,7 +44,8 @@ import { displaySwitchItems, hostReachable, orbitStart, skyLineStart, type Switc
 import { TRACE_FADE_SECONDS, type SkyTraceAfter } from "../core/skyTrace";
 import { aimAtFigure, DEFAULT_SKY_LINES, prefersReducedMotion, skyColoursOf, skyFadeInSecondsOf } from "./skyFigures";
 import { labelStyleOf } from "./labelStyle";
-import { experienceInView, hiddenByView, viewById } from "./viewHiding";
+import { experienceInView, hiddenByView, hiddenWithShownSpans, viewById } from "./viewHiding";
+import { cameraIdsOf } from "../core/storyPanels";
 import type { RingLook } from "../assets/rings";
 import { baseGlowOf, glowLookOf, markerSettingsOf } from "./bodyDraw";
 import { resolveLook } from "./look";
@@ -482,11 +483,11 @@ export function App({ definition, writeTitle = true, address, developerTools, ho
   }, [runtime]);
   // The same play handler the visitor's button reaches, so a host and a visitor share one clock.
   const hostSetPlaying = setPlaying;
-  // The objects a host may point the camera at: those the showing view shows (read live, so a view switch is already counted).
+  // The objects a host may point the camera at: those the showing view shows and that are shown at the clock time (read live, so a view switch or a time move is already counted).
   const cameraTargets = useCallback((): readonly string[] => {
-    const hidden = controls.current.viewHidden?.objects;
+    const hidden = hiddenWithShownSpans(controls.current.viewHidden, experience.objects, runtime.clock.snapshot().timeUtcMs)?.objects;
     return experience.objects.map(({ id }) => id).filter((id) => hidden === undefined || !hidden.has(id));
-  }, [experience]);
+  }, [experience, runtime]);
   const opening = useMemo(() => openingCamera(definition, runtime, search), []); // eslint-disable-line react-hooks/exhaustive-deps
   const readCamera = useCallback((): CameraView | undefined => {
     const view = controls.current.viewReadout ?? opening;
@@ -505,6 +506,12 @@ export function App({ definition, writeTitle = true, address, developerTools, ho
   const panelTrace = useRef<string | null>(null);
   /** The panel whose actions were last applied (a host `setPanel` shows its panel at once, so `openStoryPanelId` cannot say whether the shell has opened it yet). */
   const actedPanel = useRef<string | null>(null);
+  /** Whether the objects a story panel's camera names are shown at the clock time; a request toward one outside its `shownDuring` span is refused as `setCamera` refuses it. */
+  const shownAtClock = useCallback((request: CameraRequest): boolean => {
+    const out = hiddenWithShownSpans(undefined, experience.objects, runtime.clock.snapshot().timeUtcMs)?.objects;
+    const { bodies, toward } = cameraIdsOf(request);
+    return out === undefined || ![...bodies, ...(toward === undefined ? [] : [toward])].some((id) => out.has(id));
+  }, [experience, runtime]);
   /** The shell's open panel changed (a visitor, a host call already shown, playback crossing a panel, or a view switch dropping it); a change is told to the host, the opening panel is read at attach. */
   const markOpenPanel = useCallback((id: string | null, cause: PanelCause) => {
     const changed = (controls.current.openStoryPanelId ?? null) !== id;
@@ -519,13 +526,13 @@ export function App({ definition, writeTitle = true, address, developerTools, ho
     const panel = id === null ? undefined : [...(set?.panels ?? []), ...(set?.steps ?? [])].find((candidate) => candidate.id === id);
     if (panel === undefined) return;
     // The panel's actions go through the host calls, in this order: camera, select, trace.
-    if (panel.camera !== undefined) setCamera(panel.camera as CameraRequest);
+    if (panel.camera !== undefined && shownAtClock(panel.camera as CameraRequest)) setCamera(panel.camera as CameraRequest);
     if (panel.select === true && panel.objectId !== undefined) selectWith(panel.objectId, true);
     if (panel.trace !== undefined && panel.objectId !== undefined) {
       hostTraceSkyFigure(panel.objectId, panel.trace.seconds, panel.trace.after);
       panelTrace.current = panel.objectId;
     }
-  }, [host, stateNow, definition, setCamera, selectWith, hostTraceSkyFigure, hostClearSkyTrace]);
+  }, [host, stateNow, definition, setCamera, shownAtClock, selectWith, hostTraceSkyFigure, hostClearSkyTrace]);
   useEffect(() => {
     if (host === undefined) return undefined;
     hostAttached.current = true;

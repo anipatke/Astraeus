@@ -69,7 +69,7 @@ export function ObjectControls({
         value={selectedObjectId}
         onChange={(event) => onSelectObject(event.target.value)}
       >
-        {listedObjects(experience, selectedObjectId).map((object) => {
+        {listedObjects(experience, selectedObjectId, timeUtcMs).map((object) => {
           const available = isObjectAvailable(object, timeUtcMs);
           return (
             <option

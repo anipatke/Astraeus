@@ -34,7 +34,7 @@ const scene = new Scene()
     // Bars on the probe's info card, in order.
     readouts: [{ kind: "range", marker: "moon" }, { kind: "speed" }, { kind: "distance", to: "moon" }, { kind: "altitude", above: "earth" }],
   })
-  .addTrajectory({ id: "probe-b", label: "Probe B", samples: circle(200_000, 9, 35), provenance: madeUp, description: "A second made-up probe on a tilted circle, one lap in nine hours.", knownLimitations: ["Invented path: not a real spacecraft."] })
+  .addTrajectory({ id: "probe-b", label: "Probe B", samples: circle(200_000, 9, 35), shownDuring: { start: start + 2 * HOUR }, provenance: madeUp, description: "A second made-up probe on a tilted circle, one lap in nine hours.", knownLimitations: ["Invented path: not a real spacecraft."] })
   // The 40 orbits as one group of dots: one colour, one menu item and info card, a quarter of the dots drawn near the Moon.
   .addGroup({ id: "ring", label: "Made-up ring", plane: "ecliptic-j2000", orbits, color: "#9de3a8", seed: 7, clump: { near: "moon", fraction: 0.25, widthDeg: 20 }, provenance: madeUp, description: "Forty invented orbits about Earth, one dot each.", knownLimitations: ["Invented orbits: not a real population."] })
   // Two moments on the timeline, and one story panel that opens at the second.

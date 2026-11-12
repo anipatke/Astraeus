@@ -23,6 +23,7 @@ import { presetForViewRule } from "./viewCamera";
 import type { ExperienceSwitch } from "./SwitchControl";
 import { DeveloperToggle, TopBar } from "./TopBar";
 import type { ScaleChoice, ScaleId } from "./scaleModel";
+import { shownAt } from "../app/viewHiding";
 import { availableObjectById, findCameraPreset, firstAvailableObject, focusPresetFor, isObjectAvailable, skyFigureById } from "./objectModel";
 import "./controls.css";
 import "./style.css";
@@ -167,6 +168,12 @@ type InfoState = { readonly kind: "object" } | { readonly kind: "event"; readonl
 function selectionLost(selected: ExperienceObject | undefined, timeUtcMs: number, clearedByHost: boolean, isFigure: boolean): boolean {
   // A selected sky figure is never lost: it has no availability and no view hides it.
   return !clearedByHost && !isFigure && (selected === undefined || !isObjectAvailable(selected, timeUtcMs));
+}
+
+/** What a camera preset's object asks of the camera at `timeUtcMs`: "hold" when its shown time has ended or not begun (keep the pose), "overview" when it is gone or unavailable, else undefined. */
+function cameraTargetLoss(target: ExperienceObject | undefined, timeUtcMs: number): "hold" | "overview" | undefined {
+  if (target !== undefined && !shownAt(target, timeUtcMs)) return "hold";
+  return target === undefined || !isObjectAvailable(target, timeUtcMs) ? "overview" : undefined;
 }
 
 function serialOf(request: { readonly serial: number } | null | undefined): number | undefined {
@@ -349,12 +356,8 @@ export function AstraeusShell({
       const target = experience.objects.find((object) => object.id === requestObjectId(activeRequest));
       if (switchRule !== undefined && target === undefined) {
         applyViewRule(switchRule);
-      } else if (target === undefined || !isObjectAvailable(target, snapshot.timeUtcMs)) {
-        const overview = findCameraPreset(experience, "overview");
-        if (overview !== undefined) {
-          setActivePresetId(overview.id);
-          onCameraRequest(overview.request);
-        }
+      } else {
+        loseCameraTarget(cameraTargetLoss(target, snapshot.timeUtcMs));
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -374,6 +377,20 @@ export function AstraeusShell({
     // Only a new request applies.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [requestedSelectSerial]);
+
+  /** The camera's object is gone or not shown: "hold" keeps the pose and stops following (its shown time ended or has not begun, no jump); "overview" frames the overview. */
+  const loseCameraTarget = (loss: "hold" | "overview" | undefined) => {
+    if (loss === "hold") {
+      setActivePresetId(null);
+      onCameraHold?.();
+    } else if (loss === "overview") {
+      const overview = findCameraPreset(experience, "overview");
+      if (overview !== undefined) {
+        setActivePresetId(overview.id);
+        onCameraRequest(overview.request);
+      }
+    }
+  };
 
   /** The view's camera rule for a followed or focused object the new view does not show: `stay` keeps the pose and stops following; otherwise the rule's framing is requested. */
   const applyViewRule = (rule: ViewCameraRule) => {

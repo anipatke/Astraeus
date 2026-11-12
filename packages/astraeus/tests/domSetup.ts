@@ -23,6 +23,8 @@ export interface Mounted {
   readonly cameraRequests: ExperienceCameraPreset["request"][];
   readonly clock: SimulationClock;
   readonly selected: () => string;
+  /** How many times the shell asked the camera to hold its pose (keep it, stop following). */
+  readonly holds: () => number;
   /** What the shell reported as the open panel, in order: the id (null: none) and who changed it. */
   readonly panelChanges: { readonly id: string | null; readonly cause: string }[];
   /** Asks the shell as the host's `setPanel` does (id "" closes). */
@@ -108,7 +110,7 @@ export function $(container: ParentNode, selector: string): HTMLElement {
   return found;
 }
 
-interface Probe { selected: string; scale: string; refresh: () => void; requestPanel: (id: string, host?: boolean) => void; panelChanges: Mounted["panelChanges"] }
+interface Probe { selected: string; holds: number; scale: string; refresh: () => void; requestPanel: (id: string, host?: boolean) => void; panelChanges: Mounted["panelChanges"] }
 
 function Host({ options, clock, probe }: { readonly options: MountOptions; readonly clock: SimulationClock; readonly probe: Mounted["cameraRequests"] & Probe }) {
   const [panelRequest, setPanelRequest] = useState<{ id: string; serial: number; host?: boolean } | null>(null);
@@ -134,6 +136,7 @@ function Host({ options, clock, probe }: { readonly options: MountOptions; reado
     onRateChange: (rate: number | "auto") => { if (rate !== "auto") clock.setRate(rate); refresh(); },
     onSeek: (timeUtcMs: number) => { clock.seek(timeUtcMs); refresh(); },
     onCameraRequest: (request: ExperienceCameraPreset["request"]) => { probe.push(request); },
+    onCameraHold: () => { probe.holds += 1; },
     onSelectionChange: (id: string) => { selected.current = id; probe.selected = id; },
     onSetPlaying: (playing: boolean) => { if (playing) clock.play(); else clock.pause(); refresh(); },
     panelRequest,
@@ -164,12 +167,14 @@ export function mountShell(options: MountOptions = {}): Mounted {
   clock.setRate(experience.rates?.[0] ?? syntheticDefinition.clock.rate);
   const probe = [] as unknown as Mounted["cameraRequests"] & Probe;
   probe.panelChanges = [];
+  probe.holds = 0;
   act(() => { root.render(createElement(Host, { options, clock, probe })); });
   return {
     container,
     cameraRequests: probe,
     clock,
     selected: () => probe.selected,
+    holds: () => probe.holds,
     advance: (ms) => { monotonicMs += ms; act(() => probe.refresh()); },
     requestPanel: (id) => { act(() => probe.requestPanel(id)); },
     panelChanges: probe.panelChanges,
