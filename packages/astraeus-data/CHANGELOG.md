@@ -2,6 +2,10 @@
 
 Versions follow [semantic versioning](https://semver.org). It is released together with `astraeus`, with the same version number.
 
+## 0.9.1 (2026-11-12)
+
+No changes to the pictures, data or this package's code. Released with `astraeus` 0.9.1 to keep the version numbers together; the `astraeus` peer stays `>=0.9.0 <0.10.0`.
+
 ## 0.9.0 (2026-11-11)
 
 No changes to the pictures, data or this package's code. Released with `astraeus` 0.9.0 to keep the version numbers together; every `astraeus-data*` package now peers on `astraeus` `>=0.9.0 <0.10.0`. New sibling package: `astraeus-data-constellations` (the 88 IAU constellations' figures, outlines and names; see the `astraeus` 0.9.0 changelog).

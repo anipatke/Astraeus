@@ -2,7 +2,9 @@
 
 Versions follow [semantic versioning](https://semver.org). While the version starts with `0.`, the public API (the names exported from `astraeus`) may still change between minor versions; each change is listed here.
 
-## Unreleased
+## 0.9.1 (2026-11-12)
+
+First download of the packed example (`npm run measure:example`): 1,764,446 bytes raw, 507,330 bytes gzip (code and styles loaded on first open), against 1,759,084 raw and 505,483 gzip at 0.9.0 (+5,362 raw, +1,847 gzip). Additions and fixes only (G-019); every `astraeus-data*` package still peers on `>=0.9.0 <0.10.0`.
 
 Added: `shownDuring: { start?, end? }` on `addBody`, `addBodyFromElements` and `addTrajectory` shows the body or path only while `start <= t < end` (an absent end is unbounded). Outside it the scene draws none of it (marker, line, label, orbit line) and it cannot be picked, in every view, through the same per-frame hidden set a view uses. Presentation only: `stateOf` and the readouts are unchanged. A bad value throws `bad-body` or `bad-trajectory`. An object outside its span is absent from the object menu (bar and phone drawer), `setSelected` and `setCamera` refuse it as they refuse a view-hidden id (`bad-selection`, `bad-camera`), and a selection it held is dropped when the clock leaves the span (`onSelect` reports the move's cause; the camera keeps its pose).
 

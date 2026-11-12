@@ -1,6 +1,6 @@
 {
   "name": "astraeus-data-constellations",
-  "version": "0.9.0",
+  "version": "0.9.1",
   "description": "The 88 IAU constellations for the Astraeus engine: stick figures, boundary outlines in J2000 and names. Optional data; the engine draws without it.",
   "license": "MIT",
   "type": "module",

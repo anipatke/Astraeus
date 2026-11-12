@@ -1,8 +1,8 @@
 # Astraeus 0.9.1
 
-## astraeus 0.9.1 (unreleased)
+## astraeus 0.9.1 (2026-11-12)
 
-First-download size: to be measured at release (`npm run measure:example`); 0.9.0 was 1,759,084 bytes raw, 505,483 bytes gzip.
+First download of the packed example (`npm run measure:example`): 1,764,446 bytes raw, 507,330 bytes gzip (code and styles loaded on first open), against 1,759,084 raw and 505,483 gzip at 0.9.0 (+5,362 raw, +1,847 gzip).
 
 A patch release from the Closest Calls review: playback and flybys behave as the README says, a body or path can be shown for a span of time only, reduced-motion visitors no longer wait for the camera, and the README fills the gaps the review found. Additions and fixes only; no call changed shape. The nine packages move together to 0.9.1; the `astraeus-data*` packages are unchanged in content and keep peering on `astraeus` `>=0.9.0 <0.10.0`.
 
