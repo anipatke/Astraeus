@@ -89,6 +89,56 @@ describe("the paced rate", () => {
   });
 });
 
+describe("overlapping ramps take the slower speed (O-069 T-307, F-15)", () => {
+  const HOUR = 3_600_000;
+  const zone = (fromUtcMs: number, toUtcMs: number, rate: number, rampMs: number, eventId?: string) => ({ fromUtcMs, toUtcMs, rate, rampMs, eventId });
+  const base = 86_400 * 30;
+  const solo = (z: ReturnType<typeof zone>, t: number, shown?: ReadonlySet<string>) => pacedRate({ baseRate: base, zones: [z] }, t, shown);
+
+  it("two pieces at 1,200x with 4 h and 1 h ramps give the slower of the two alone, not the product of eases (F-15)", () => {
+    const a = zone(T0, T0 + HOUR, 1_200, 4 * HOUR);
+    const b = zone(T0 + 6 * HOUR, T0 + 7 * HOUR, 1_200, HOUR);
+    const t = T0 + 4.9 * HOUR;
+    const slower = Math.min(solo(a, t), solo(b, t));
+    expect(solo(a, t)).toBeGreaterThan(1_200);
+    expect(solo(b, t)).toBeGreaterThan(solo(a, t)); // b's ramp is steeper, so a alone is the slower here
+    expect(pacedRate({ baseRate: base, zones: [a, b] }, t)).toBeCloseTo(slower, 6);
+    expect(pacedRate({ baseRate: base, zones: [b, a] }, t)).toBeCloseTo(slower, 6);
+    // The old layering (b over a, in log space) gave a rate below both.
+    const lw = (z: ReturnType<typeof zone>) => solo(z, t);
+    expect(pacedRate({ baseRate: base, zones: [a, b] }, t)).toBeGreaterThanOrEqual(Math.min(lw(a), lw(b)) * (1 - 1e-9));
+  });
+
+  it("nested, touching and unordered zones: the minimum of each alone, continuous, exactly the base when untouched", () => {
+    const outer = zone(T0, T0 + 10 * HOUR, 5_000, 3 * HOUR);
+    const inner = zone(T0 + 4 * HOUR, T0 + 5 * HOUR, 100, 2 * HOUR);
+    const touching = zone(T0 + 10 * HOUR, T0 + 12 * HOUR, 800, 3 * HOUR);
+    const zones = [outer, inner, touching];
+    let previous = pacedRate({ baseRate: base, zones }, T0 - 5 * HOUR);
+    for (let minutes = -300; minutes <= 17 * 60; minutes += 1) {
+      const t = T0 + minutes * 60_000;
+      const touched = zones.filter((z) => t > z.fromUtcMs - z.rampMs && t < z.toUtcMs + z.rampMs);
+      const expected = touched.length === 0 ? base : Math.min(...touched.map((z) => solo(z, t)));
+      const got = pacedRate({ baseRate: base, zones }, t);
+      expect(got).toBeCloseTo(expected, 6);
+      expect(pacedRate({ baseRate: base, zones: [...zones].reverse() }, t)).toBeCloseTo(got, 6);
+      expect(Math.abs(Math.log(got / previous))).toBeLessThan(0.3);
+      previous = got;
+    }
+    expect(pacedRate({ baseRate: base, zones }, T0 - 4 * DAY)).toBe(base);
+    expect(pacedRate({ baseRate: base, zones }, T0 + 5 * HOUR - 1)).toBeCloseTo(100, 0);
+  });
+
+  it("a view that does not show an event ignores its zone, ramp included", () => {
+    const a = zone(T0, T0 + HOUR, 1_200, 4 * HOUR, "a");
+    const b = zone(T0 + 6 * HOUR, T0 + 7 * HOUR, 1_200, HOUR, "b");
+    const t = T0 + 4.9 * HOUR;
+    expect(pacedRate({ baseRate: base, zones: [a, b] }, t, new Set(["b"]))).toBeCloseTo(solo(b, t), 6);
+    expect(pacedRate({ baseRate: base, zones: [a, b] }, t, new Set(["a"]))).toBeCloseTo(solo(a, t), 6);
+    expect(pacedRate({ baseRate: base, zones: [a, b] }, t, new Set())).toBe(base);
+  });
+});
+
 describe("pacing checks (bad-timeline names the field)", () => {
   const timeline = (pacing: unknown) => () => definitionOf(new Scene().addBody(earth).addEvents([{ id: "a", label: "A", time: at(1), type: "flyby" }]).setTimeline({ start: at(0), end: at(10), pacing } as never));
   it("refuses a bad rate, ramp, within, span or shape", () => {

@@ -1,7 +1,7 @@
 ---
 id: O-069
 title: Playback never skips a slow-down
-status: planned
+status: in_progress
 depends_on: []
 release: G-019
 priority: high

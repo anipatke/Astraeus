@@ -2,7 +2,7 @@
 id: T-307
 title: Take the slower speed where two slow-downs overlap
 objective: O-069
-status: planned
+status: done
 depends_on: []
 owner_validation: {required: false}
 planned_by: {role: planner, session: closest-calls-review-20261112}
@@ -54,8 +54,21 @@ Hand-off gates `npm run lint`, `npm run typecheck`, `npm run build`, `npm test`;
 
 ## Technical Evidence
 
-Pending execution.
+| Done When | Evidence |
+|---|---|
+| `pacedRate` = slowest of each touching piece's own blend; untouched = exact base; continuous; order-independent | `src/core/pacing.ts` `pacedRate` (layer order removed); `pacing.test.ts` "nested, touching and unordered zones" compares to per-piece solo rates over a minute grid, reversed order equal, continuity bound, untouched `toBe(base)` |
+| F-15 regression, nested, touching, view-filtered, existing cases unchanged | `pacing.test.ts` "overlapping ramps take the slower speed (O-069 T-307, F-15)" (3 tests; 1,200x pieces with 4 h and 1 h ramps give the slower solo rate, not the layered product); existing pacing, pacingViews and syntheticJourney tests pass unchanged |
+| README sentence and CHANGELOG | `packages/astraeus/README.md` Paced playback; `packages/astraeus/CHANGELOG.md` `## Unreleased` fix |
+| No public API change | `api-surface.lock.json` not modified (git status) |
+
+Gates: `npm run lint` pass, `npm run typecheck` pass, `npm run build` pass, `npm test` 249 files pass, 3719 passed, 2 skipped, 0 failed. No browser run. The regression test checks the equality with the slower solo rate at a probe time rather than pinning the F-15 absolute 1,659x figure (its base differs).
+
+Note: a piece faster than the base still raises speed where it alone touches a time (cruise spans); the minimum is over touching pieces only, with base where none touches.
 
 ## Drift Notes
 
 Record architecture deltas; Design is reconciled in the next step.
+
+- `inLayerOrder` and its WeakMap cache removed from `pacing.ts`; `pacedRate` now takes the minimum of per-piece blends (Design `Journeys across years` pacing wording "laid fastest first" if present should say minimum of each piece alone). Not an API change.
+
+Coordinator (2026-11-12T03:55:46Z): gates pass per hand-off (lint, typecheck, build, test 3719 passed / 2 skipped / 0 failed); status done under the owner's "orchestrate O-069" standing rule ("I mark them as they pass"). Deviation accepted: the minimum runs over touching pieces only, not the base, because a piece may be faster than the base (cruise spans); a time touched by no piece is exactly the base, as Done When requires.

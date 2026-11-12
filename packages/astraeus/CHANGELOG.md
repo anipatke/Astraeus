@@ -2,6 +2,10 @@
 
 Versions follow [semantic versioning](https://semver.org). While the version starts with `0.`, the public API (the names exported from `astraeus`) may still change between minor versions; each change is listed here.
 
+## Unreleased
+
+Fix: where two pacing pieces' ramps overlap or meet, the paced speed is now the slowest speed any one piece alone would give there, as the README says, instead of a product of the eases that was slower than both. No call shape changed.
+
 ## 0.9.0 (2026-11-11)
 
 Look out at the sky, draw and trace any figure on it, tap it for a card, and tell a story in steps that turns to it and traces it (G-018). The new optional package `astraeus-data-constellations` supplies all 88 IAU constellations. Additions only, apart from one type-level change for apps that read the camera (`CameraPose` is now `OrbitPose | SkyPose`, see "Look out from a body" below). Every `astraeus-data*` package now peers on `astraeus` `>=0.9.0 <0.10.0`.

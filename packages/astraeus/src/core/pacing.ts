@@ -59,42 +59,29 @@ export function activeEventZones(zones: readonly EventZone[], shown: ShownEvents
   return ids;
 }
 
-/** A scene's pacing: the rate outside every zone and its zones. Where zones overlap the slowest wins whatever order they are listed in (`pacedRate` lays the fastest first and the slowest last). */
+/** A scene's pacing: the rate outside every zone and its zones. Where zones overlap or their ramps meet the slowest speed any one of them alone would give wins, whatever order they are listed in. */
 export interface Pacing {
   readonly baseRate: number;
   readonly zones: readonly PaceZone[];
 }
 
-const slowestLast = new WeakMap<readonly PaceZone[], readonly PaceZone[]>();
-
-/** The zones fastest first, so the slowest is laid last and wins wherever zones meet, ramps included. Cached per zone list. */
-function inLayerOrder(zones: readonly PaceZone[]): readonly PaceZone[] {
-  let sorted = slowestLast.get(zones);
-  if (sorted === undefined) {
-    sorted = [...zones].sort((a, b) => b.rate - a.rate);
-    slowestLast.set(zones, sorted);
-  }
-  return sorted;
-}
-
 const smooth = (x: number): number => x * x * (3 - 2 * x);
 
 /**
- * The playback rate at `timeUtcMs`: the base rate, with each zone laid over it in turn, fastest first so the slowest wins where zones meet (order-independent). A zone's weight is 1 inside it and falls to 0 over its ramp
- * (smoothstep); the rate blends in log space, so a jump of several orders of magnitude eases evenly. Every weight is continuous in time, so the
- * result is continuous too. A pure function of its arguments: nothing about the State changes.
+ * The playback rate at `timeUtcMs`: the slowest of what each zone touching that time alone would give there (order-independent), the base rate where none does. A zone alone has weight 1 inside it and falling to 0 over its ramp
+ * (smoothstep) and blends the base toward its rate in log space, so a jump of several orders of magnitude eases evenly. Each such rate is continuous in time and so is their minimum.
+ * A pure function of its arguments: nothing about the State changes.
  */
 export function pacedRate(pacing: Pacing, timeUtcMs: number, shown?: ShownEvents): number {
-  let logRate = Math.log(pacing.baseRate);
-  let touched = false;
-  for (const zone of inLayerOrder(pacing.zones)) {
+  const logBase = Math.log(pacing.baseRate);
+  let logRate = Infinity;
+  for (const zone of pacing.zones) {
     if (!zoneInView(zone, shown)) continue;
     const distance = timeUtcMs < zone.fromUtcMs ? zone.fromUtcMs - timeUtcMs : timeUtcMs > zone.toUtcMs ? timeUtcMs - zone.toUtcMs : 0;
     const weight = distance === 0 ? 1 : distance >= zone.rampMs ? 0 : smooth(1 - distance / zone.rampMs);
-    if (weight > 0) touched = true;
-    if (weight > 0) logRate += (Math.log(zone.rate) - logRate) * weight;
+    if (weight > 0) logRate = Math.min(logRate, logBase + (Math.log(zone.rate) - logBase) * weight);
   }
-  return touched ? Math.exp(logRate) : pacing.baseRate; // untouched: exactly the base, not its log round trip
+  return logRate === Infinity ? pacing.baseRate : Math.exp(logRate); // untouched: exactly the base, not its log round trip
 }
 
 /** How long, in real milliseconds, a change of the paced rate that comes from a view switch takes to ease in. */
