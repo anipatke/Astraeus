@@ -6,6 +6,7 @@ status: planned
 depends_on: []
 owner_validation: {required: false}
 planned_by: {role: planner, session: closest-calls-review-20261112}
+check_waiver: {task: T-307, reason: 'Owner said "orchestrate O-069" under the standing run rules (one builder at a time, no per-step checks, coordinator marks done once gates pass, one Full Objective Check at the end); the optional Task Check is waived.', actor: {role: owner, session: o069-run-20261112}, recorded_at: '2026-11-12T03:50:52Z'}
 ---
 
 # Take the slower speed where two slow-downs overlap
