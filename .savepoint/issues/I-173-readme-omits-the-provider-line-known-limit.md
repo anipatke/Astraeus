@@ -2,16 +2,22 @@
 id: I-173
 title: README omits the provider line's known limit (bends seen only against another body)
 type: drift
-status: open
+status: resolved
 source:
   kind: check
   check: C-174
   actor: {role: checker, session: o070-check-20261112}
   at: '2026-11-12T08:13:00Z'
 tasks: [T-309]
-checks: [C-174]
+checks: [C-174, C-175]
 guardrail_ids: [API-07]
 severity: low
+resolution:
+  disposition: verified
+  check: C-175
+  actor: {role: checker, session: o070-recheck-20261112}
+  at: '2026-11-12T08:18:29Z'
+  reason: Repair proven by C-175 (CLEAR).
 history:
   - at: '2026-11-12T08:13:00Z'
     actor: {role: checker, session: o070-check-20261112}
@@ -23,6 +29,11 @@ history:
     kind: repair_attempted
     note: 'README addTrajectory row now says bends are judged about the path center only, so a bend seen only against another body is not refined (Sun-centred path with lineFixedTo "earth" keeps its chords; give it an Earth center). Proof Needed re-run: grep finds the sentence once; no other README text changed (git diff is the one clause); CHANGELOG and Design already state the same rule; npm run lint, tools/api-rules.mjs and publicApiSunPaths.test.ts pass. Executor evidence only.'
     check: C-174
+  - at: '2026-11-12T08:18:29Z'
+    actor: {role: checker, session: o070-recheck-20261112}
+    kind: rechecked
+    note: 'Proof Needed met, by C-175 (CLEAR): the README addTrajectory row states bends are judged about the path center only and a bend seen only against another body (Sun-centred path, lineFixedTo earth) is not refined, with the Earth-center remedy; CHANGELOG and Design agree; the diff since C-174 is that one README clause.'
+    check: C-175
 ---
 
 # I-173: README omits the provider line's known limit (bends seen only against another body)
