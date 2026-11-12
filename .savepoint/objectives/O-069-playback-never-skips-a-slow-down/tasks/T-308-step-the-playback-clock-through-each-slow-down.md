@@ -2,7 +2,7 @@
 id: T-308
 title: Step the playback clock through each slow-down
 objective: O-069
-status: planned
+status: done
 depends_on: [{task: T-307, requires: clear}]
 owner_validation: {required: false}
 planned_by: {role: planner, session: closest-calls-review-20261112}
@@ -57,8 +57,28 @@ Hand-off gates `npm run lint`, `npm run typecheck`, `npm run build`, `npm test`;
 
 ## Technical Evidence
 
-Pending execution.
+Step 1 confirmed: the clock ran at one rate per frame (`frameTime` and the 100 ms interval in `App.tsx` each called `applyPacing`, which sets one rate for the clock's current time); no replan.
+
+Gates: `npm run lint`, `npm run typecheck`, `npm run build`, `npm test` all pass (250 files, 3,731 passed, 2 skipped). No browser run. `api-surface.lock.json` unchanged.
+
+| Done When | Evidence |
+|-----------|----------|
+| Pure `pacedAdvance` in `core/pacing.ts`, sub-stepped, bounded, forward and backward, no story names | `pacedAdvance(pacing, fromUtcMs, realElapsedMs, shown?, direction)`; sub-step stops at the next zone or ramp edge, at most 1/32 of a ramp inside one, trapezoid-timed, `MAX_PACE_STEPS` 4096, whole ms. Tests in `tests/pacedAdvance.test.ts`: "returns a whole millisecond...", "runs backward...", "is bounded...", "copes with a pacing without zones and with zero-width ramps", "honours the view filter". |
+| Frame stage moves the clock by it while `paceAuto`; clock keeps no pacing knowledge; chosen speed, pause, seek, loop, end stop, ease unchanged | `stepPacing` (core/pacing.ts) uses only `clock.seek`/`setRate`/`now`; `frameTime` (sceneFrame.ts) calls it, then wrap/stop, and re-applies the paced rate after a wrap or stop; App's 100 ms interval now calls `frameTime`; `seekTo` clears `PaceView.last`. Tests: "does not step through a seek, a pause or a changed rate", "falls back to one rate for the frame while a view-switch ease runs"; existing sceneFrame loop/stop tests unchanged. |
+| Synthetic node test: six years, ~26 d/s, ten zones of +-1.5 h at 1,200x, 4 h ramps; frames 16/33/100/250/1,000 ms | "enters every zone at every frame length, and activeEventZones sees each at least once"; "spends about the same real time crossing each zone, and the whole journey": whole pass within 1% + one frame of the 1 ms reference (about 224 s), per-zone in-zone real time (9 s) within two frames. |
+| Regression: old one-rate-per-frame advance skips zones | "regression: one rate per frame (the old advance) skips zones at these frame lengths": at 100, 250 and 1,000 ms it misses zones; at 16 and 33 ms it misses zones or is off by more than 1% in pass time. |
+| Zone reports follow | "moves a long frame through the slow-down it crosses, and reports each zone enter and leave with cause playback": `frameTime` at 1,000 ms frames feeding `ViewerZones.publish`; heard enter/leave for z0..z2, cause `playback`. |
+| Existing tests pass unchanged | `tests/pacing.test.ts`, `tests/pacingViews.test.ts`, `tests/syntheticJourney.test.ts`, `tests/sceneFrame.test.ts`, `tests/eventZonesDom.test.ts` pass with no edits (full suite green). |
+| README and CHANGELOG | README "Paced playback" says playback eases into every slow-down whatever the frame rate; CHANGELOG `## Unreleased` has a second Fix entry. Design reconciliation left to the coordinator, per the run brief. |
+| No public API change | `api-surface.lock.json` not modified; `pacedAdvance`, `stepPacing`, `MAX_PACE_STEPS` and `PaceView.last` are internal to `core/pacing.ts`. |
+
 
 ## Drift Notes
 
-Record architecture deltas; reconcile Design in this step before the Full Objective Check.
+- `PaceView` gained `last?: { timeUtcMs, rate, nowMs }` (where the last pacing step left the clock). New `core/pacing.ts` exports `pacedAdvance`, `stepPacing`, `MAX_PACE_STEPS`; `applyPacing` is kept (the fallback inside `stepPacing`, the seek, the "auto" switch and the open-time call). Design `Journeys across years` pacing paragraph: playback integrates `pacedRate` per frame instead of one rate per frame.
+- `stepPacing` detects a move it did not make (seek, pause/play, rate change) by comparing the clock's own advance with the real time elapsed (slack 5 ms + 2/rate); `App.seekTo` also clears `last`. During a view-switch ease (about 1 s) the frame falls back to the old one-rate advance.
+- The 100 ms interval in `App.tsx` now calls `frameTime` (shared with the frame stage) instead of its own wrap/stop/pace lines; order is pace step, then wrap or stop, then re-apply paced rate if the clock was wrapped or stopped.
+- Pacing rates are positive only, so the live path is forward; `pacedAdvance`'s `direction` argument (-1) is exercised in tests only.
+- Frames longer than 4,096 sub-steps drop the remaining real time (slows rather than skips). These notes are for the coordinator's Design reconciliation (T-308 is the integration Task for them).
+
+Coordinator (2026-11-12T04:00:59Z): gates pass per hand-off (lint, typecheck, build, test 3731 passed / 2 skipped / 0 failed); status done under the owner's "orchestrate O-069" standing rule ("I mark them as they pass"). Reviewed: `stepPacing` falls back to the one-rate step on the first step, while paused, during the ~1 s view-switch ease (Success Condition 2 keeps that ease as today) and after an outside move; the 100 ms interval and the render frame share `frameTime`, and steps compose from `PaceView.last`.

@@ -91,6 +91,8 @@ export const PACE_EASE_MS = 1000;
 export interface PaceView {
   shown?: ShownEvents;
   ease?: { readonly fromRate: number; readonly startMs: number };
+  /** Where `stepPacing` left the clock: its time and rate, and the real time it did so. Absent until the first step, and cleared by a seek or any other move of the clock the step did not make. */
+  last?: { readonly timeUtcMs: number; readonly rate: number; readonly nowMs: number };
 }
 
 /** Starts the ease from the clock's present rate; the next `applyPacing` calls blend from it to the paced rate over `PACE_EASE_MS`. */
@@ -108,4 +110,70 @@ export function applyPacing(clock: SimulationClock, pacing: Pacing, view?: PaceV
     else if (progress >= 0) rate = Math.exp(Math.log(ease.fromRate) + (Math.log(rate) - Math.log(ease.fromRate)) * smooth(progress));
   }
   if (rate !== clock.rate) clock.setRate(rate);
+}
+
+/** The most sub-steps one `pacedAdvance` call takes; real time left over after them is dropped, so a frame that long (a tab left hidden) slows the clock rather than skipping a zone. */
+export const MAX_PACE_STEPS = 4096;
+/** A sub-step inside a ramp covers at most this part of the ramp's simulated length. */
+const RAMP_STEP_FRACTION = 1 / 32;
+
+/** The longest simulated distance a sub-step from `t` may cover in `direction`: to the next zone or ramp edge, and a fraction of the ramp while inside one. */
+function stepCap(zones: readonly PaceZone[], t: number, direction: 1 | -1): number {
+  let cap = Infinity;
+  for (const zone of zones) {
+    const edges = [zone.fromUtcMs - zone.rampMs, zone.fromUtcMs, zone.toUtcMs, zone.toUtcMs + zone.rampMs];
+    for (const edge of edges) {
+      const distance = direction * (edge - t);
+      if (distance > 0) cap = Math.min(cap, distance);
+    }
+    if (zone.rampMs > 0) {
+      for (const [lo, hi] of [[edges[0]!, edges[1]!], [edges[2]!, edges[3]!]] as const) {
+        const inside = direction === 1 ? t >= lo && t < hi : t > lo && t <= hi;
+        if (inside) cap = Math.min(cap, zone.rampMs * RAMP_STEP_FRACTION);
+      }
+    }
+  }
+  return cap;
+}
+
+/**
+ * The time `realElapsedMs` of real time after `fromUtcMs` when the clock runs at `pacedRate` throughout (`direction` -1 runs it backward): the rate is integrated, not read once, so a long frame still slows down
+ * through every zone and ramp it crosses. Each sub-step stops at the next zone or ramp edge, covers at most 1/32 of a ramp, and is timed by the trapezoid rule on the rates at its two ends (the far one a millisecond short).
+ * At most `MAX_PACE_STEPS` sub-steps; the result is a whole millisecond. A pure function of its arguments.
+ */
+export function pacedAdvance(pacing: Pacing, fromUtcMs: number, realElapsedMs: number, shown?: ShownEvents, direction: 1 | -1 = 1): number {
+  const zones = zonesInView(pacing.zones, shown);
+  let t = fromUtcMs;
+  let left = realElapsedMs;
+  for (let step = 0; step < MAX_PACE_STEPS && left > 0; step += 1) {
+    const startRate = pacedRate(pacing, t, shown);
+    const length = Math.min(stepCap(zones, t, direction), startRate * left);
+    const end = t + direction * length;
+    const endRate = pacedRate(pacing, end - direction * Math.min(1, length / 2), shown); // a millisecond short of the end, so a jump of rate at a hard edge is not read early
+    const needed = (length * (1 / startRate + 1 / endRate)) / 2; // trapezoid: real time is the mean of the reciprocal rates times the distance
+    if (needed <= left) { t = end; left -= needed; }
+    else { t += (direction * length * left) / needed; left = 0; }
+  }
+  return Math.round(t);
+}
+
+/** Real-time slack, in milliseconds, between the clock's own advance and the real time `stepPacing` measured before the move is taken as someone else's (a seek). */
+const STEP_SLACK_MS = 5;
+
+/**
+ * One pacing step per frame: moves the clock from where the last step left it by `pacedAdvance` over the real time since, then sets the paced rate for the new time (`applyPacing`'s job). Falls back to `applyPacing`
+ * (one rate for the frame) on the first step, while paused, mid-ease, or when the clock was moved or re-rated since the last step. The clock is moved through its public `seek` and `setRate`.
+ */
+export function stepPacing(clock: SimulationClock, pacing: Pacing, view: PaceView, nowMs: number = performance.now()): void {
+  const last = view.last;
+  const realMs = last === undefined ? 0 : nowMs - last.nowMs;
+  const clockMs = last === undefined ? 0 : (clock.now() - last.timeUtcMs) / last.rate;
+  const continuous = last !== undefined && clock.playing && view.ease === undefined && clock.rate === last.rate && realMs > 0 && Math.abs(clockMs - realMs) <= STEP_SLACK_MS + 2 / last.rate;
+  if (continuous) {
+    const to = pacedAdvance(pacing, last.timeUtcMs, realMs, view.shown);
+    if (to !== clock.now()) clock.seek(to);
+  }
+  applyPacing(clock, pacing, view, nowMs);
+  if (clock.playing) view.last = { timeUtcMs: clock.now(), rate: clock.rate, nowMs };
+  else delete view.last;
 }

@@ -3,6 +3,7 @@ import { createOrbAstronomyAdapter } from "../core/astronomyAdapter";
 import type { GlowLook } from "./bodyDraw";
 import { viewUpFromSearch, viewUpVector, type ViewUp } from "./viewUp";
 import { activeEventZones, applyPacing, startPaceEase, type PaceView } from "../core/pacing";
+import { frameTime } from "./sceneFrame";
 import { openClock } from "./openClock";
 import { createProvenance } from "../core/provenance";
 import type { ViewerControl, ViewerPort, ViewerState } from "./viewerPort";
@@ -444,10 +445,8 @@ export function App({ definition, writeTitle = true, address, developerTools, ho
   }, [host, stateNow]);
   useEffect(() => {
     const id = window.setInterval(() => {
-      // The readout wraps with the scene, so the shown time never rests past the end while looping.
-      if (controls.current.loop === true) runtime.clock.wrapWithin(runtime.loopWindow);
-      else if (runtime.stopAtWindow === true && runtime.loopWindow !== undefined) runtime.clock.stopWithin(runtime.loopWindow);
-      if (controls.current.paceAuto === true && runtime.pacing !== undefined) applyPacing(runtime.clock, runtime.pacing, controls.current.pace);
+      // The readout wraps, stops and paces with the scene, so the shown time never rests past the end while looping and a host's playback reports follow the slow-downs.
+      frameTime(runtime, controls.current);
       setClockSnapshot(runtime.clock.snapshot());
       host?.publish(stateNow(), "playback");
     }, 100);
@@ -456,6 +455,7 @@ export function App({ definition, writeTitle = true, address, developerTools, ho
   // The host reaches the one clock through the same seek and rate handlers a visitor's timeline uses.
   const seekTo = useCallback((timeUtcMs: number) => {
     runtime.clock.seek(timeUtcMs);
+    if (controls.current.pace !== undefined) delete controls.current.pace.last; // the paced step starts again from the new time
     // A seek lands on the paced rate for the new time at once, not through a view-switch ease.
     if (controls.current.pace !== undefined) {
       delete controls.current.pace.ease;

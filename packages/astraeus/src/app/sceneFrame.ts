@@ -8,7 +8,7 @@ import type { BodyParts } from "./BodyView";
 import { drawnRadii } from "./bodyDraw";
 import type { BodySetLabelLayer } from "./BodySetLabels";
 import { DEFAULT_BODY_SET_LOOK, familyColorOf, type BodySetLayer, type BodySetLook } from "./bodySet";
-import { applyPacing } from "../core/pacing";
+import { applyPacing, stepPacing } from "../core/pacing";
 import { poseCamera, resolveCamera, type OrbitCameraState } from "./CameraController";
 import { DEFAULT_CAMERA_FAR } from "./experienceDefinition";
 import { DEFAULT_FEATURE_MIN_BODY_PX, type FeatureHost, type FeatureMarkerLayer } from "./FeatureMarkers";
@@ -140,11 +140,20 @@ export function bodiesMounted(runtime: SceneRuntime, refs: BodyRefs): boolean {
   return runtime.bodies.every((id) => refs.groups.has(id) && refs.orients.has(id));
 }
 
-/** Stage 0: the time of this frame; looping playback wraps inside its window first, and other playback stops on the window's edge (a scene with a timeline bar). */
-export function frameTime(runtime: SceneRuntime, controls: Pick<SceneControls, "loop" | "paceAuto" | "pace">): number {
-  if (controls.loop === true && runtime.loopWindow !== undefined) runtime.clock.wrapWithin(runtime.loopWindow);
-  else if (runtime.stopAtWindow === true && runtime.loopWindow !== undefined) runtime.clock.stopWithin(runtime.loopWindow);
-  if (controls.paceAuto === true && runtime.pacing !== undefined) applyPacing(runtime.clock, runtime.pacing, controls.pace);
+/**
+ * Stage 0: the time of this frame. While pacing is in charge the clock is first stepped through the frame's real time under the paced rate (so no frame passes over a slow-down); looping playback then wraps inside its window,
+ * and other playback stops on the window's edge (a scene with a timeline bar). A wrap or stop lands on the paced rate for its new time at once.
+ */
+export function frameTime(runtime: SceneRuntime, controls: Pick<SceneControls, "loop" | "paceAuto" | "pace">, nowMs: number = performance.now()): number {
+  const paced = controls.paceAuto === true && runtime.pacing !== undefined;
+  if (paced && controls.pace !== undefined) stepPacing(runtime.clock, runtime.pacing!, controls.pace, nowMs);
+  let moved = false;
+  if (controls.loop === true && runtime.loopWindow !== undefined) moved = runtime.clock.wrapWithin(runtime.loopWindow);
+  else if (runtime.stopAtWindow === true && runtime.loopWindow !== undefined) moved = runtime.clock.stopWithin(runtime.loopWindow);
+  if (paced && (moved || controls.pace === undefined)) {
+    if (controls.pace !== undefined) delete controls.pace.last;
+    applyPacing(runtime.clock, runtime.pacing!, controls.pace, nowMs);
+  }
   return runtime.clock.now();
 }
 
