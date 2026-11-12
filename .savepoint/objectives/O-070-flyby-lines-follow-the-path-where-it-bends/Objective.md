@@ -20,7 +20,19 @@ G-019, Closest Calls F-05: `PROVIDER_PATH_SAMPLES = 128` in `src/api/planPaths.t
 
 ## Success Conditions
 
-To be settled when this Objective is detailed (after O-069). Planner's outline: a synthetic provider with a fast close pass is drawn within a stated chord error of its true path near the pass; the sample count stays under a stated cap; slow-moving provider paths draw as before (within tolerance); README states how a provider path's line is drawn; no public API change.
+Confirmed by the owner, 2026-11-12 (session plan-o070-20261112):
+
+1. A synthetic provider about Earth with a one-hour close pass (closest approach a few Earth radii) on six-year bounds: at every minute within closest approach ± 3 h, the drawn line (straight segments between the sample positions) lies within 1% of the body's distance from the path's centre of its true position, so the line passes through the marker.
+2. At most 4,096 samples per provider path; the first and last are the bounds; times are whole milliseconds and strictly increasing.
+3. The 128 evenly spaced moments drawn today stay in every provider path's sample list, so no path gets fewer points than before.
+4. README states how a provider path's line is drawn: 128 even moments plus moments added where the line bends or the body moves fast as seen from the path's `center`, capped at 4,096; and the known limit that bends seen only against another body (a Sun-centred path drawn fixed to Earth) are not refined.
+5. No public API change (`api-surface.lock.json` unchanged); CHANGELOG Unreleased entry (fix).
+6. No owner preview check: no demo draws a provider path; node tests are the evidence.
+
+## Decisions
+
+- **Frame for judging bends** (owner, 2026-11-12): the path's own `center` (the provider's positions as given), worked out once when the path is built. Rejected: the body the line is pinned to (`lineFixedTo`), which needs planet series before planning and feeds the `"auto"` stretches that are themselves planned from these times.
+- **Cap** (owner, 2026-11-12): 4,096 samples; no host density setting.
 
 ## Architectural Considerations
 
