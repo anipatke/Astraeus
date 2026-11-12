@@ -60,7 +60,7 @@ Good guest (O-055, G-016; T-250 to T-258): several viewers share a page without 
 
 ### Host-page behaviour
 
-Host-page behaviour (O-044): `App` has an internal `writeTitle` prop (not public API) that `mount` and `AstraeusScene` set false, so the viewer never writes `document.title`; the viewer's Escape handlers yield to a `defaultPrevented` keydown; both mount routes set `isolation: isolate`. A scene with no `setTime`, timeline window or trajectory opens at the current time with a window of +/- 15 days (`TimelinePlan.span` in `api/planTimeline.ts`). On phones the story sheet forwards wheel and pinch to the scene canvas (`shell/useZoomThrough.ts`).
+Host-page behaviour (O-044): `App` has an internal `writeTitle` prop (not public API) that `mount` and `AstraeusScene` set false, so the viewer never writes `document.title`; the viewer's Escape handlers yield to a `defaultPrevented` keydown; both mount routes set `isolation: isolate`. A scene with no `setTime`, timeline window or trajectory opens at the current time with a window of +/- 15 days (`TimelinePlan.span` in `api/planTimeline.ts`). On phones the story sheet forwards wheel and pinch to the scene canvas (`shell/useZoomThrough.ts`). Reduced motion for the camera (O-072, T-312): every eased camera move (host `setCamera`, a view's camera rule, the timeline's Go to framing and the visitor's own picks) settles in `resolveCamera` (`CameraController.tsx`), which takes a `reducedMotion` parameter; when true the distance, angles and focus tween reach their targets in one frame. `sceneFrame.ts` passes `prefersReducedMotion()` (`skyFigures.ts`), the same single read the sky fade-in uses (Sky figures item 11); there is no camera option.
 
 ### Paths across the solar system
 
