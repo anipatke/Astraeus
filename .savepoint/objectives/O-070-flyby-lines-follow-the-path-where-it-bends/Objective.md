@@ -1,7 +1,7 @@
 ---
 id: O-070
 title: Flyby lines follow the path where it bends
-status: planned
+status: done
 depends_on: [O-069]
 release: G-019
 priority: medium
