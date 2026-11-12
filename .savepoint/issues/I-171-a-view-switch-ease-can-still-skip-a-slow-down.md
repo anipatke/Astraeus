@@ -2,15 +2,21 @@
 id: I-171
 title: A view-switch ease can still skip a slow-down
 type: defect
-status: in_progress
+status: resolved
 source:
   kind: check
   check: C-171
   actor: {role: checker, session: o069-check-20261112}
   at: '2026-11-12T04:15:00Z'
 tasks: [T-308]
-checks: [C-171, C-172]
+checks: [C-171, C-172, C-173]
 severity: low
+resolution:
+  disposition: verified
+  check: C-173
+  actor: {role: checker, session: o069-recheck2-20261112}
+  at: '2026-11-12T06:15:30Z'
+  reason: Repair proven by C-173 (CLEAR).
 history:
   - at: '2026-11-12T04:15:00Z'
     actor: {role: checker, session: o069-check-20261112}
@@ -26,6 +32,11 @@ history:
     kind: rechecked
     note: "I-171 Proof Needed met under the owner's Ease only the switch: frozen cell 3,040 cases (offsets 12-40 h, frames 16-1,000 ms, from 5x to 10x cruise) all enter; constant-paced ease shape unchanged. Not closed: C-172 is NEEDS WORK on I-172."
     check: C-172
+  - at: '2026-11-12T06:15:30Z'
+    actor: {role: checker, session: o069-recheck2-20261112}
+    kind: rechecked
+    note: 'Proof Needed met, by C-173 (CLEAR): frozen C-171 cell re-run on 88a6d184, 3,040 ease cases at 16-1,000 ms frames, 0 skipped; constant-paced ease shape unchanged; ease code unchanged since C-172.'
+    check: C-173
 ---
 
 # I-171: A view-switch ease can still skip a slow-down

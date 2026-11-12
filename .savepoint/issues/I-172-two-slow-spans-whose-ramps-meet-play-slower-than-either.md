@@ -2,15 +2,21 @@
 id: I-172
 title: Two slow spans whose ramps meet play slower than either
 type: defect
-status: in_progress
+status: resolved
 source:
   kind: check
   check: C-172
   actor: {role: checker, session: o069-recheck-20261112}
   at: '2026-11-12T06:00:00Z'
 tasks: [T-307]
-checks: [C-172]
+checks: [C-172, C-173]
 severity: low
+resolution:
+  disposition: verified
+  check: C-173
+  actor: {role: checker, session: o069-recheck2-20261112}
+  at: '2026-11-12T06:15:30Z'
+  reason: Repair proven by C-173 (CLEAR).
 history:
   - at: '2026-11-12T06:00:00Z'
     actor: {role: checker, session: o069-recheck-20261112}
@@ -21,6 +27,11 @@ history:
     actor: {role: executor, session: o069-repair-20261112b}
     kind: repair_attempted
     note: "Owner decision (O-069 Objective.md Decisions): fast spans set the cruise (max of each alone), slow spans and event rules ease down from it (min of each alone). pacedRate rewritten to that rule; the layered span blend is gone. Table test over every way pieces meet (pacingOverlaps.test.ts) and the T-307 spans fixture restored in pacing.test.ts; no existing test changed. Awaiting a Check."
+  - at: '2026-11-12T06:15:30Z'
+    actor: {role: checker, session: o069-recheck2-20261112}
+    kind: rechecked
+    note: 'Proof Needed met, by C-173 (CLEAR) under the owner''s "Fix with the full rule": 400 random mixes of fast spans, slow spans and rules match the decided rule (worst |log| 1e-15), continuous at every ramp edge (2.4e-5 per 2 ms), order-independent (exact), base exact; with no fast span the minimum of each alone exactly (incl. the T-307 touching spans, 5,000x at +9 h, and a gap); existing tests'' setups unchanged (additions only since c2a9d687).'
+    check: C-173
 ---
 
 # I-172: Two slow spans whose ramps meet play slower than either

@@ -2,15 +2,21 @@
 id: I-170
 title: A slow-down inside a faster span starts with a jump in speed
 type: defect
-status: in_progress
+status: resolved
 source:
   kind: check
   check: C-171
   actor: {role: checker, session: o069-check-20261112}
   at: '2026-11-12T04:15:00Z'
 tasks: [T-307]
-checks: [C-171, C-172]
+checks: [C-171, C-172, C-173]
 severity: medium
+resolution:
+  disposition: verified
+  check: C-173
+  actor: {role: checker, session: o069-recheck2-20261112}
+  at: '2026-11-12T06:15:30Z'
+  reason: Repair proven by C-173 (CLEAR).
 history:
   - at: '2026-11-12T04:15:00Z'
     actor: {role: checker, session: o069-check-20261112}
@@ -26,6 +32,11 @@ history:
     kind: rechecked
     note: "I-170 Proof Needed met (continuity at every edge incl. a rule inside/touching a faster span, order-independent, F-15 unchanged, base exact; synthetic journey 1985-11-25/1986-03-25 continuous). Not closed: C-172 is NEEDS WORK because this repair made spans layered, which broke Success Condition 3 for slow spans (I-172)."
     check: C-172
+  - at: '2026-11-12T06:15:30Z'
+    actor: {role: checker, session: o069-recheck2-20261112}
+    kind: rechecked
+    note: 'Proof Needed met, by C-173 (CLEAR): C-172 I-170 probes re-run on 88a6d184 pass (every ramp edge continuous incl. a slow rule inside/touching/straddling a faster span, 20 shuffles exact, F-15 slower alone exact, base exact, synthetic journey continuous); held under the full-rule pacedRate.'
+    check: C-173
 ---
 
 # I-170: A slow-down inside a faster span starts with a jump in speed
