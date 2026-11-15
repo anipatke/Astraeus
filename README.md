@@ -16,7 +16,7 @@ Astraeus is a TypeScript and Three.js engine for telling stories with real astro
 |---|---|
 | ![Apollo 11's free-return path from above, Earth and the Moon](packages/astraeus-site/site/apollo-moon.jpg) | ![The Perseid stream ribbon along comet Swift-Tuttle's orbit, seen obliquely past Earth's orbit and Jupiter's orbit](packages/astraeus-site/site/perseids-gmn.jpg) |
 | **Apollo 11.** Eight days to the Moon and back, rebuilt between the anchor points in NASA's mission report. Seven story panels. | **The Perseids.** Earth through comet Swift-Tuttle's trail, 25,588 measured orbits. Three story panels. |
-| [Try it](https://astraeus.anipatke.com/app.html) (going live soon) | [Try it](https://astraeus.anipatke.com/app.html?experience=showers) (going live soon) |
+| [Try it](https://astraeus.anipatke.com/app.html) | [Try it](https://astraeus.anipatke.com/app.html?experience=showers) |
 
 <sub>Perseids image: orbits from the Global Meteor Network, CC BY 4.0.</sub>
 
