@@ -89,7 +89,7 @@ export function useOverlayLayers(canvas: HTMLCanvasElement, controls: SceneContr
 export function useScenePointer(canvas: HTMLCanvasElement, runtime: SceneRuntime, controls: SceneControls, catalogue: BodyCatalogue, orbit: { current: OrbitCameraState }, state: { current: FrameState }): void {
   useEffect(() => {
     const limits = () => focusLimits(bodyIdOf(runtime, catalogue, orbit.current.focus) ?? orbit.current.focus, { centre: runtime.sceneCenter, span: state.current.spanScaled, bodies: catalogue }, controls.policy, liveReach(runtime.cameraReach, controls.policy, canvas.clientHeight > 0 ? canvas.clientWidth / canvas.clientHeight : 1));
-    return attachScenePointer(canvas, orbit.current, state.current, limits, (id) => controls.onPickObject?.(id));
+    return attachScenePointer(canvas, orbit.current, state.current, limits, (id, options) => (options === undefined ? controls.onPickObject?.(id) : controls.onPickObject?.(id, options)));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [canvas, controls]);
 }

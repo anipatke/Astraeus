@@ -158,7 +158,7 @@ interface Props {
   /** A host `setSelected` (id "" clears the selection), applied after the shell's own view-switch choices so the host's call is the last word; `onSelectRequestApplied` tells the app it has been. */
   readonly selectRequest?: { readonly id: string; readonly serial: number; readonly quiet?: boolean } | null;
   readonly onSelectRequestApplied?: () => void;
-  readonly pickRequest?: { readonly id: string; readonly serial: number } | null;
+  readonly pickRequest?: { readonly id: string; readonly serial: number; readonly keepSky?: boolean } | null;
   readonly children: ReactNode;
 }
 
@@ -422,10 +422,15 @@ export function AstraeusShell({
   };
 
   /** An object tapped or clicked in the scene: the picker's focus; on a wide screen it also opens the card, on a phone it does not (T-138). A tapped body-set member that is no listed object just flies there. */
-  const pickObject = (id: string) => {
+  const pickObject = (id: string, keepSky = false) => {
     const object = availableObjectById(experience, id, snapshot.timeUtcMs);
     if (skyFigureById(experience, id) !== undefined) {
       selectFigure(id, pickOpensInfo(phone));
+    } else if (object !== undefined && keepSky) {
+      // A tap from a look-out camera: select it and stay in the sky (owner, 2026-11-15); the menu's Focus and Follow still fly there.
+      setSelectedObjectId(object.id);
+      onSelectionChange(object.id, "visitor");
+      if (pickOpensInfo(phone)) setInfo({ kind: "object" });
     } else if (object !== undefined) {
       activatePreset(focusPresetFor(experience, object));
       if (pickOpensInfo(phone)) setInfo({ kind: "object" });
@@ -433,7 +438,7 @@ export function AstraeusShell({
   };
   const requestedPickSerial = serialOf(pickRequest);
   useEffect(() => {
-    if (pickRequest !== null && pickRequest !== undefined) pickObject(pickRequest.id);
+    if (pickRequest !== null && pickRequest !== undefined) pickObject(pickRequest.id, pickRequest.keepSky === true);
     // Only a new request flies; the handler reads the current time and experience.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [requestedPickSerial]);

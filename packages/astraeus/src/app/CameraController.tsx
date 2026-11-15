@@ -45,6 +45,8 @@ export interface OrbitCameraState {
   transition: [number, number, number];
   /** Set while the camera stands inside `focus` looking out: the field of view, with azimuth and elevation as the look direction. Null is the orbit camera. */
   lookOut: LookOutState | null;
+  /** A look-out field of view the camera is easing toward; null when none is pending (a visitor's zoom clears it). */
+  targetFovDeg: number | null;
   /** Scaled absolute camera/target positions (Float64, render axes) for the latest frame. */
   cameraAbsolute: [number, number, number];
   targetAbsolute: [number, number, number];
@@ -62,6 +64,7 @@ export function createOrbitCameraState(distance: number, focus: FocusId): OrbitC
     fixedPoint: null,
     transition: [0, 0, 0],
     lookOut: null,
+    targetFovDeg: null,
     cameraAbsolute: [0, 0, 0],
     targetAbsolute: [0, 0, 0],
   };
@@ -176,7 +179,7 @@ export function attachOrbitGestures(
 
 /** A wheel or pinch step: the distance in orbit, the field of view while looking out. */
 function zoomBy(state: OrbitCameraState, factor: number, limits: DistanceLimits): void {
-  if (state.lookOut !== null) zoomLookOut(state.lookOut, factor);
+  if (state.lookOut !== null) { state.targetFovDeg = null; zoomLookOut(state.lookOut, factor); }
   else state.distance = clampDistance(state.distance * factor, limits);
   cancelCameraTransition(state);
 }
@@ -224,6 +227,10 @@ export function resolveCamera(
   if (Math.abs(state.targetDistance - state.distance) < 1e-9) state.distance = state.targetDistance;
   state.azimuth += shortestAngleDelta(state.azimuth, state.targetAzimuth) * blend;
   state.elevation += (state.targetElevation - state.elevation) * blend;
+  if (state.lookOut !== null && state.targetFovDeg !== null) {
+    state.lookOut.fovDeg += (state.targetFovDeg - state.lookOut.fovDeg) * blend;
+    if (Math.abs(state.targetFovDeg - state.lookOut.fovDeg) < 1e-6) { state.lookOut.fovDeg = state.targetFovDeg; state.targetFovDeg = null; }
+  }
   for (let i = 0; i < 3; i += 1) {
     state.transition[i] *= decay;
     if (Math.abs(state.transition[i]) < 1e-9) state.transition[i] = 0;

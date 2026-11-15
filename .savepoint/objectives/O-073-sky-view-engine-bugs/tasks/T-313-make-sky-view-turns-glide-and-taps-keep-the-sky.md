@@ -2,7 +2,8 @@
 id: T-313
 title: Make sky-view turns glide and taps keep the sky
 objective: O-073
-status: planned
+status: in_progress
+stage: audit
 depends_on: []
 owner_validation: {required: true}
 check_waiver: {task: T-313, reason: 'Owner said "go" to orchestrate O-073 under the standing run rules (one builder at a time, no per-step checks, coordinator marks done once gates pass, one Full Objective Check at the end); the optional Task Check is waived.', actor: {role: owner, session: plan-g020-20261115}, recorded_at: '2026-11-15T04:10:47Z'}
@@ -66,8 +67,19 @@ Focused tests while iterating; configured gates at handoff; owner look on `local
 
 ## Technical Evidence
 
-Pending execution.
+Per criterion:
+- Glide rule: `packages/astraeus/tests/lookOutGlide.test.ts` "look-out turns while already looking out" (table over EQJ direction, toward an object, zoom only; each run unreduced then reduced: field of view strictly between start and target after one frame, reaches target within 600 frames; reduced reaches targets in one frame) and "still cuts when entering look-out from the orbit camera". Would fail on the unfixed source (fov set directly to the target on the request frame).
+- Story panel camera and Go to: both reach the camera through the same `cameraRequest` `lookOut` request that `applyLookOut` handles (no separate path), so the table test covers them; no separate test names.
+- Picking: `lookOutGlide.test.ts` "a tap in a look-out camera" (figure over body picks the figure with `{ keepSky: true }`; body-only tap in look-out picks with keepSky; orbit tap unchanged, called with the id alone). Orbit picking tests unchanged and passing: `pointerAndFeatureLayerDom.test.ts` "a body hit wins where both are hit", `sceneHooksDom.test.ts` "reports the body under a tap". The shell's keepSky branch (`pickObject`) selects without `activatePreset`, so the look-out camera request is never issued; not covered by a DOM test (limitation).
+- README (sky figures row; `handle.setCamera` row) and CHANGELOG Unreleased updated.
+- Gates: `npm run lint`, `npm run typecheck`, `npm run build` passed; `npm test` 257 files, 3823 passed, 2 skipped.
+
+Files changed: src/app/CameraController.tsx (targetFovDeg on OrbitCameraState, eased in resolveCamera, cleared by a visitor zoom), src/app/sceneCamera.ts (applyLookOut sets targets only when already looking out; leaveLookOut clears target), src/app/scenePointer.ts (figure first in look-out; PickOptions), src/app/sceneContentsHooks.ts, src/app/AstraeusScene.tsx, src/app/App.tsx (pass keepSky through the pick request), src/shell/AstraeusShell.tsx (keepSky pick selects without focus preset), README.md, CHANGELOG.md, tests/lookOutGlide.test.ts (new). Extra reads: src/app/App.tsx, sceneContentsHooks.ts, AstraeusScene.tsx (type plumbing for the pick options), tests/pointerAndFeatureLayerDom.test.ts and sceneHooksDom.test.ts (existing pick tests). `LookOutState` left as `{ fovDeg }` because `sceneCamera.test.ts` asserts it with toEqual; the target field lives on `OrbitCameraState`.
+
+Limitations: no browser run (owner looks on localhost:5490); check:engine-alone / API lock checks not separately run (internal types only; `npm test` includes the lock test).
 
 ## Drift Notes
 
 Record changes to the look-out or picking contract for Design `The sky view`.
+
+- Design `The sky view`: while looking out, a camera request eases direction and field of view (`OrbitCameraState.targetFovDeg`); entering from orbit still cuts. In a look-out camera the pick order is sky figure first, and a body pick selects without the focus preset (pick request carries `keepSky`). Not yet reflected in Design.md.

@@ -350,7 +350,7 @@ export function App({ definition, writeTitle = true, address, developerTools, ho
   const [storyAutoOpen, setStoryAutoOpen] = useState(storyStartOf(storySet).autoOpen);
   const [storyPauseSeconds, setStoryPauseSeconds] = useState(storyStartOf(storySet).pauseSeconds);
   const [panelRequest, setPanelRequest] = useState<{ readonly id: string; readonly serial: number; readonly host?: boolean } | null>(null);
-  const [pickRequest, setPickRequest] = useState<{ readonly id: string; readonly serial: number } | null>(null);
+  const [pickRequest, setPickRequest] = useState<{ readonly id: string; readonly serial: number; readonly keepSky?: boolean } | null>(null);
   const [featureRequest, setFeatureRequest] = useState<{ readonly key: string; readonly serial: number } | null>(null);
   const [hud, setHud] = useState<DebugReadout | null>(null);
   const [frames, setFrames] = useState<FrameSnapshot | null>(null);
@@ -377,7 +377,7 @@ export function App({ definition, writeTitle = true, address, developerTools, ho
     if (out !== undefined && cameraNamed.current.some((id) => out.has(id))) holdCamera();
   }, [experience, holdCamera]);
   const requestPanel = useCallback((id: string) => setPanelRequest((previous) => ({ id, serial: (previous?.serial ?? 0) + 1 })), []);
-  const requestPick = useCallback((id: string) => setPickRequest((previous) => ({ id, serial: (previous?.serial ?? 0) + 1 })), []);
+  const requestPick = useCallback((id: string, options?: { readonly keepSky?: boolean }) => setPickRequest((previous) => ({ id, serial: (previous?.serial ?? 0) + 1, ...(options?.keepSky === true ? { keepSky: true } : {}) })), []);
   const requestFeature = useCallback((key: string) => setFeatureRequest((previous) => ({ key, serial: (previous?.serial ?? 0) + 1 })), []);
   const markOpenFeature = useCallback((key: string | null) => { controls.current.openFeatureKey = key; }, []);
   const setPlaying = useCallback((playing: boolean) => {

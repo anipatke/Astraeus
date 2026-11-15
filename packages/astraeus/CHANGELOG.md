@@ -2,6 +2,11 @@
 
 Versions follow [semantic versioning](https://semver.org). While the version starts with `0.`, the public API (the names exported from `astraeus`) may still change between minor versions; each change is listed here.
 
+## Unreleased
+
+- Fixed: while the camera is already looking out, `setCamera({ lookOut, direction?, fovDeg? })`, a story panel's camera and the timeline's Go to now ease the look direction and the field of view instead of cutting; with `prefers-reduced-motion: reduce` they arrive on the next frame. Entering a look-out from the orbit camera still cuts.
+- Fixed: in a look-out camera a tap on a sky figure's name or line wins over a body under it, and a tap on a body selects it and keeps the sky view instead of flying away; orbit-camera taps are unchanged.
+
 ## 0.9.1 (2026-11-12)
 
 First download of the packed example (`npm run measure:example`): 1,764,446 bytes raw, 507,330 bytes gzip (code and styles loaded on first open), against 1,759,084 raw and 505,483 gzip at 0.9.0 (+5,362 raw, +1,847 gzip). Additions and fixes only (G-019); every `astraeus-data*` package still peers on `>=0.9.0 <0.10.0`.

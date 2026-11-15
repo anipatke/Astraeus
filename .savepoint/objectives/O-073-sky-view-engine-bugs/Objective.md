@@ -1,7 +1,7 @@
 ---
 id: O-073
 title: Sky-view engine bugs
-status: planned
+status: in_progress
 depends_on: []
 release: G-020
 priority: high

@@ -146,7 +146,7 @@ export interface SceneControls {
   /** The story panel now open, so its marker reads as pressed. */
   openStoryPanelId?: string | null;
   /** Called with an object's id when a tap or click lands on a body, a body-set member or a shown name. The shell flies to it like its picker does. */
-  onPickObject?: (id: string) => void;
+  onPickObject?: (id: string, options?: { readonly keepSky?: boolean }) => void;
   /** Tagged places on bodies (a body package's features); each gets a marker drawn on its body that opens the place's information. */
   readonly featureMarkers?: readonly FeatureMarkerSpec[];
   /** Called with the place's key when a feature marker is pressed. */

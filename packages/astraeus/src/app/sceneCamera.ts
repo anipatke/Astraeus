@@ -157,17 +157,29 @@ function applyLookOut(input: CameraStepInput, request: LookOutRequest): void {
   camState.focus = request.body;
   camState.fixedPoint = null;
   camState.transition.fill(0);
-  if (angles !== null && !keep) {
+  const fovDeg = clampFov(request.fovDeg ?? camState.targetFovDeg ?? camState.lookOut?.fovDeg ?? LOOK_OUT_OPENING_FOV_DEG);
+  if (camState.lookOut !== null) {
+    // Already looking out: only the targets move, and resolveCamera eases the turn and the zoom (at once under reduced motion).
+    if (angles !== null && !keep) {
+      camState.targetAzimuth = angles.azimuth;
+      camState.targetElevation = clampLookElevation(angles.elevation);
+    }
+    camState.targetFovDeg = fovDeg;
+    return;
+  }
+  if (angles !== null) {
     camState.azimuth = camState.targetAzimuth = angles.azimuth;
     camState.elevation = camState.targetElevation = clampLookElevation(angles.elevation);
   }
-  camState.lookOut = { fovDeg: clampFov(request.fovDeg ?? camState.lookOut?.fovDeg ?? LOOK_OUT_OPENING_FOV_DEG) };
+  camState.targetFovDeg = null;
+  camState.lookOut = { fovDeg };
 }
 
 /** Back to the orbit camera: the target tween starts from where the camera stood, not from the aiming point one unit out. */
 function leaveLookOut(camState: OrbitCameraState): void {
   if (camState.lookOut === null) return;
   camState.lookOut = null;
+  camState.targetFovDeg = null;
   for (let i = 0; i < 3; i += 1) camState.targetAbsolute[i] = camState.cameraAbsolute[i];
 }
 

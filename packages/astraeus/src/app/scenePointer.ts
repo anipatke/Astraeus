@@ -2,6 +2,9 @@
 import { attachOrbitGestures, type DistanceLimits, type OrbitCameraState } from "./CameraController";
 import { pickSkyFigure, pickTarget, type PickCandidate, type SkyPickFigure } from "./scenePicking";
 
+/** `keepSky`: the tap came from a look-out camera, so the shell selects a body without flying away from the sky. */
+export interface PickOptions { readonly keepSky?: boolean }
+
 /** The slice of the frame state the pointer listeners read and write. */
 export interface PointerState {
   readonly pickables: readonly PickCandidate[];
@@ -14,13 +17,16 @@ export interface PointerState {
  * Wires orbit gestures, the mouse hover point and tap picking to the canvas. `state` is read live (the frame rebuilds `pickables`);
  * returns the detach function, which also clears the cursor and the hover readout.
  */
-export function attachScenePointer(canvas: HTMLCanvasElement, orbit: OrbitCameraState, state: PointerState, limits: () => DistanceLimits, onPickObject: ((id: string) => void) | undefined): () => void {
+export function attachScenePointer(canvas: HTMLCanvasElement, orbit: OrbitCameraState, state: PointerState, limits: () => DistanceLimits, onPickObject: ((id: string, options?: PickOptions) => void) | undefined): () => void {
   const onTap = (x: number, y: number, pointer: "mouse" | "touch") => {
-    // Bodies first: a body hit wins over any sky figure behind it.
-    const id = pickTarget(state.pickables, x, y, pointer) ?? pickSkyFigure(state.skyFigures?.() ?? [], x, y);
+    // Orbiting, bodies first: a body hit wins over any sky figure behind it. Looking out the sky is the subject, so a figure's name or line wins and a body pick keeps the sky view.
+    const lookingOut = orbit.lookOut !== null;
+    const figure = () => pickSkyFigure(state.skyFigures?.() ?? [], x, y);
+    const id = lookingOut ? figure() ?? pickTarget(state.pickables, x, y, pointer) : pickTarget(state.pickables, x, y, pointer) ?? figure();
     if (id === null) return;
     canvas.dataset.pickTarget = id;
-    onPickObject?.(id);
+    if (lookingOut) onPickObject?.(id, { keepSky: true });
+    else onPickObject?.(id);
   };
   const onHoverMove = (event: PointerEvent) => {
     if (event.pointerType !== "mouse") { state.hoverPoint = null; return; }
