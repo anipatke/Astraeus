@@ -188,12 +188,13 @@ export class SkyFiguresView {
     this.#traces.set(request.id, { object, full, kind: layer.kind, run: { seconds: request.seconds, after: request.after, reduced: request.reduced, elapsed: 0 }, drawn: 0, fade: 0 });
   }
 
-  /** Removes the trace of `request.id` over `request.seconds` (at once for 0 or reduced motion), keeping what it had drawn; a figure with no trace, or an id the view does not hold, is left alone. */
-  clearTrace(request: SkyClearRequest): void {
+  /** Removes the trace of `request.id` over `request.seconds` (at once for 0 or reduced motion), keeping what it had drawn; a figure with no trace, or an id the view does not hold, is left alone. Returns true when it removed the trace at once, so the caller wakes the draw rule (a timed clear wakes through `advanceTraces`). */
+  clearTrace(request: SkyClearRequest): boolean {
     const trace = this.#traces.get(request.id);
-    if (trace === undefined) return;
-    if (request.reduced || request.seconds <= 0) this.#removeTrace(request.id);
-    else trace.hide = { seconds: request.seconds, from: trace.fade, elapsed: 0 };
+    if (trace === undefined) return false;
+    if (request.reduced || request.seconds <= 0) { this.#removeTrace(request.id); return true; }
+    trace.hide = { seconds: request.seconds, from: trace.fade, elapsed: 0 };
+    return false;
   }
 
   /**

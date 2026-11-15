@@ -40,7 +40,7 @@ export interface AddEventsOptions {
  * or, when `rate` is given, runs on from there at that rate.
  */
 export type TimelineInput =
-  | { readonly start: TimeInput; readonly end: TimeInput; readonly rates?: readonly number[]; readonly rate?: number; /** Playback that slows for encounters and speeds up for cruise: see `PacingInput`. */ readonly pacing?: readonly PacingInput[]; /** True: while playing, reaching the end wraps to the start and plays on. The viewer can still seek and pause. Default false. Not available with `none: true`, where it is ignored. */ readonly loop?: boolean; readonly none?: undefined }
+  | { readonly start: TimeInput; readonly end: TimeInput; readonly rates?: readonly number[]; readonly rate?: number; /** Playback that slows for encounters and speeds up for cruise: see `PacingInput`. */ readonly pacing?: readonly PacingInput[]; /** True: while playing, reaching the end wraps to the start and plays on. Default false. Not available with `none: true`, where it is ignored. */ readonly loop?: boolean; readonly playing?: boolean; readonly none?: undefined }
   | { readonly none: true; readonly at?: TimeInput; readonly rate?: number };
 
 /**
@@ -65,6 +65,8 @@ export interface TimelineSetting {
   readonly rate?: number;
   /** Playback wraps from the end of the span to its start. */
   readonly loop?: boolean;
+  /** False: the clock opens paused. Absent: opens playing. */
+  readonly playing?: false;
   /** The checked pacing pieces (absent: none). */
   readonly pacing?: readonly PacingPiece[];
   /** No timeline bar. */
@@ -160,7 +162,7 @@ export function timelineOf(input: TimelineInput): TimelineSetting {
   const bad = (message: string) => new SceneError("bad-timeline", `setTimeline: ${message}`);
   if (typeof input !== "object" || input === null) throw bad("give an object such as { start, end } or { none: true }");
   if (input.rate !== undefined && !(Number.isFinite(input.rate) && input.rate !== 0)) throw bad(`rate must be a finite, non-zero number, got ${String(input.rate)}`);
-  if ((input as { loop?: unknown }).loop !== undefined && typeof (input as { loop?: unknown }).loop !== "boolean") throw bad("loop must be true or false");
+  const flags = timelineFlags(input, bad);
   if (input.none === true) return { none: true, ...(input.at === undefined ? {} : { atUtcMs: toUtcMs(input.at, "setTimeline at") }), ...(input.rate === undefined ? {} : { rate: input.rate }) };
   const window = { startUtcMs: toUtcMs(input.start, "setTimeline start"), endUtcMs: toUtcMs(input.end, "setTimeline end") };
   if (window.endUtcMs <= window.startUtcMs) throw bad("end must be after start");
@@ -168,7 +170,14 @@ export function timelineOf(input: TimelineInput): TimelineSetting {
   if (rates !== undefined && (!Array.isArray(rates) || rates.length === 0 || !rates.every((rate) => Number.isFinite(rate) && rate > 0))) throw bad("rates must be a non-empty list of positive numbers");
   const pacing = pacingOf(input.pacing, bad);
   warnOfFastRates(window, input);
-  return { none: false, window, ...(rates === undefined ? {} : { rates }), ...(pacing === undefined ? {} : { pacing }), ...(input.rate === undefined ? {} : { rate: input.rate }), ...(input.loop === true ? { loop: true } : {}) };
+  return { none: false, window, ...(rates === undefined ? {} : { rates }), ...(pacing === undefined ? {} : { pacing }), ...(input.rate === undefined ? {} : { rate: input.rate }), ...flags };
+}
+
+/** The checked `loop` and `playing` flags of a `setTimeline` argument: only a `true` loop and a `false` playing are kept (the defaults are false and true); a non-boolean throws. */
+function timelineFlags(input: TimelineInput, bad: (message: string) => SceneError): Pick<TimelineSetting, "loop" | "playing"> {
+  const given = input as { loop?: unknown; playing?: unknown };
+  for (const flag of ["loop", "playing"] as const) if (given[flag] !== undefined && typeof given[flag] !== "boolean") throw bad(`${flag} must be true or false`);
+  return { ...(given.loop === true ? { loop: true } : {}), ...(given.playing === false ? { playing: false as const } : {}) };
 }
 
 /** Runs a core panel check, turning a `StoryPanelError` into a `bad-panels` SceneError that leads with `call`. */

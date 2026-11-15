@@ -29,6 +29,7 @@ export function panelsCrossed(panels: readonly StoryPanel[], previousMs: number,
  */
 export class CrossingTracker {
   #previousMs: number;
+  #wasPlaying = false;
 
   constructor(startMs: number) {
     this.#previousMs = startMs;
@@ -36,12 +37,17 @@ export class CrossingTracker {
 
   rebase(timeUtcMs: number): void {
     this.#previousMs = timeUtcMs;
+    this.#wasPlaying = false;
   }
 
-  /** The newest panel crossed since the last tick, or null: nothing crossed, the clock is not playing, or auto-open is off. */
+  /**
+   * The newest panel crossed since the last tick, or null: nothing crossed, the clock is not playing, or auto-open is off.
+   * A tick that finds the clock stopped but saw it playing on the last tick counts as playback too, so a stop on the timeline's end opens the panel there.
+   */
   advance(panels: readonly StoryPanel[], timeUtcMs: number, playing: boolean, autoOpen: boolean): StoryPanel | null {
-    const crossed = autoOpen && playing ? panelsCrossed(panels, this.#previousMs, timeUtcMs) : [];
+    const crossed = autoOpen && (playing || this.#wasPlaying) ? panelsCrossed(panels, this.#previousMs, timeUtcMs) : [];
     this.#previousMs = timeUtcMs;
+    this.#wasPlaying = playing;
     return crossed[crossed.length - 1] ?? null;
   }
 }

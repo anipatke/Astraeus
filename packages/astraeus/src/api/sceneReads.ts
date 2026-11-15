@@ -165,6 +165,8 @@ export interface SceneTimelineRead {
   readonly rate: number;
   /** Whether playback wraps from the end to the start. */
   readonly loop: boolean;
+  /** Opens playing. */
+  readonly playing: boolean;
 }
 
 /** A sky figure the scene holds (`addSkyFigures`), as `Scene.skyFigures` lists it (in the order added) and the viewer handle reads it. */

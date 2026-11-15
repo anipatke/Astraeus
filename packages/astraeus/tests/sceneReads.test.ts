@@ -55,7 +55,7 @@ const READS: readonly (readonly [string, (scene: Scene) => unknown, unknown])[] 
     { id: "all", label: "All", objects: ["sun", "earth", "moon", "ring", "swarm"], events: ["early", "late"], panels: ["by-anchor", "by-event"] },
   ] }],
   ["scales", (scene) => scene.scales, ["solar-system", "true-scale"]],
-  ["timeline", (scene) => scene.timeline, { windowStartUtcMs: T0, windowEndUtcMs: T0 + 60 * MIN, openUtcMs: T0, rates: [10, 100], rate: 100, loop: true }],
+  ["timeline", (scene) => scene.timeline, { windowStartUtcMs: T0, windowEndUtcMs: T0 + 60 * MIN, openUtcMs: T0, rates: [10, 100], rate: 100, loop: true, playing: true }],
 ];
 
 describe("what a scene holds", () => {

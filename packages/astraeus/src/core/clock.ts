@@ -93,8 +93,9 @@ export class SimulationClock {
     if (!this.#playing) return false;
     const now = this.now();
     if (now >= window.startUtcMs && now <= window.endUtcMs) return false;
-    this.seek(now > window.endUtcMs ? window.endUtcMs : window.startUtcMs);
+    // Pause first: a seek while playing re-anchors on a second monotonic read, so pausing after it would carry the time past the edge.
     this.pause();
+    this.seek(now > window.endUtcMs ? window.endUtcMs : window.startUtcMs);
     return true;
   }
 

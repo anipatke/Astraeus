@@ -2,7 +2,7 @@
 id: T-314
 title: Open paused and stop cleanly at the timeline's end
 objective: O-073
-status: planned
+status: done
 depends_on: []
 owner_validation: {required: false}
 check_waiver: {task: T-314, reason: 'Owner said "go" to orchestrate O-073 under the standing run rules (one builder at a time, no per-step checks, coordinator marks done once gates pass, one Full Objective Check at the end); the optional Task Check is waived.', actor: {role: owner, session: plan-g020-20261115}, recorded_at: '2026-11-15T04:10:47Z'}
@@ -69,8 +69,19 @@ Focused tests while iterating; configured gates at handoff.
 
 ## Technical Evidence
 
-Pending execution.
+Per criterion (Task Check waived; claims for the Full Objective Check):
+- playing: setTimeline({ playing }) validated (non-boolean -> bad-timeline), `scene.timeline.playing`, plumbed through planTimeline to definition.clock.playing (openClock unchanged). Test `openPausedAndEdgeStop.test.ts`: both mount and AstraeusScene, handle.playing false and timeUtcMs equal to the opening time after 5 s of timers.
+- stopWithin: pause before seek in src/core/clock.ts; table test (end forward, start backward) with a ticking monotonic source fails on the unfixed source (confirmed by reverting).
+- Panel at end: CrossingTracker remembers whether the last tick was playing; a stopped tick right after a playing one counts as playback. Tests: stop at end opens panel; seek (rebase) to end opens nothing.
+- Zero-length clear: SkyFiguresView.clearTrace returns true when it removed at once; advanceSkyTraces bumps state.wakes. Test checks wakes raised and lines gone.
+- Docs: README setTimeline and clearSkyTrace rows; CHANGELOG Unreleased (3 bullets); api-surface.lock.json regenerated (`npm run api:lock`).
+- Gates: npm run lint, typecheck, build clean; npm test 258 files, 3838 passed, 2 skipped. Not run: test:full, check:browser, check:engine-alone/pack (Full Objective Check).
+Files read: the Task's Context Files, docs/agents/build.md, packages/astraeus-site/tests/migrationTable.test.ts (extra read: test failed on TimelineInput), tests/helpers/frameContext.ts, tests/domSetup.ts, tests/publicApiStory.test.ts, tests/shownDuringMenu.test.ts, tests/core.test.ts (patterns).
+Files changed: src/core/clock.ts, src/shell/storyPanels.ts, src/api/story.ts, src/api/planTimeline.ts, src/api/sceneReads.ts, src/app/SkyFiguresView.ts, src/app/sceneFrame.ts, README.md, CHANGELOG.md, api-surface.lock.json, tests/openPausedAndEdgeStop.test.ts (new); expectation-only edits: tests/sceneReads.test.ts (timeline read gains `playing: true`), astraeus-site/tests/migrationTable.test.ts (WIDENED row for TimelineInput).
+Limitations: a user pause between two ticks that also crosses a panel now opens it (counted as playback); api/index.html gzip budget (44,000) was exceeded by the new member, so the `loop` doc lost the sentence "The viewer can still seek and pause."; no browser run.
+
+- Coordinator marks done (gates passed: lint, typecheck, build, npm test 258 files / 3838 passed / 2 skipped; focused rerun of openPausedAndEdgeStop + sceneReads 49 passed), per the owner's "go" orchestration. Note for the Full Check: the stopped-after-playing crossing rule also counts a crossing on the tick a visitor pauses (only if that tick's time moved past a panel, which is a real playback crossing).
 
 ## Drift Notes
 
-Note the opening play state for Design `Sky stories` or the timeline section.
+Drift: the opening play state (`setTimeline({ playing })`, default true; no-timeline frozen scenes read playing false) is not yet in Design. Note it for Design `Sky stories` or the timeline section.

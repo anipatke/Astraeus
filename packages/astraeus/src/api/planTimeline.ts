@@ -51,13 +51,14 @@ export class TimelinePlan {
       rates: Object.freeze([...this.rates()]),
       rate: this.clock(startUtcMs).rate,
       loop: this.setting?.none !== true && this.setting?.loop === true,
+      playing: this.clock(startUtcMs).playing !== false,
     });
   }
 
   /** The clock's opening: 60 times real time unless set; with no timeline and no rate, frozen. */
   clock(startUtcMs: number): ExperienceDefinition["clock"] {
     const timeline = this.setting;
-    return { startUtcMs, rate: timeline?.rate ?? 60, ...(timeline?.none === true && timeline.rate === undefined ? { playing: false } : {}) };
+    return { startUtcMs, rate: timeline?.rate ?? 60, ...(timeline?.playing === false || (timeline?.none === true && timeline.rate === undefined) ? { playing: false } : {}) };
   }
 
   /** The pacing the timeline asked for, laid over the scene's events; a rule naming an event type with no events throws `bad-timeline`. */

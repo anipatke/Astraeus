@@ -945,6 +945,11 @@
           "name": "loop",
           "optional": false,
           "signature": "boolean"
+        },
+        {
+          "name": "playing",
+          "optional": false,
+          "signature": "boolean"
         }
       ]
     },
@@ -2091,7 +2096,7 @@
     },
     "TimelineInput": {
       "kind": "type",
-      "signature": "| { readonly start: TimeInput; readonly end: TimeInput; readonly rates?: readonly number[]; readonly rate?: number; /** Playback that slows for encounters and speeds up for cruise: see `PacingInput`. */ readonly pacing?: readonly PacingInput[]; /** True: while playing, reaching the end wraps to the start and plays on. The viewer can still seek and pause. Default false. Not available with `none: true`, where it is ignored. */ readonly loop?: boolean; readonly none?: undefined } | { readonly none: true; readonly at?: TimeInput; readonly rate?: number }",
+      "signature": "| { readonly start: TimeInput; readonly end: TimeInput; readonly rates?: readonly number[]; readonly rate?: number; /** Playback that slows for encounters and speeds up for cruise: see `PacingInput`. */ readonly pacing?: readonly PacingInput[]; /** True: while playing, reaching the end wraps to the start and plays on. Default false. Not available with `none: true`, where it is ignored. */ readonly loop?: boolean; readonly playing?: boolean; readonly none?: undefined } | { readonly none: true; readonly at?: TimeInput; readonly rate?: number }",
       "constructors": [],
       "members": []
     },
