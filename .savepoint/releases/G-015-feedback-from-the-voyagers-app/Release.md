@@ -1,7 +1,7 @@
 ---
 id: G-015
 title: Feedback from the Voyagers app
-status: planned
+status: done
 ---
 
 ## Outcome

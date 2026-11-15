@@ -1,7 +1,7 @@
 ---
 id: G-017
 title: App commands, timeline and flyby accuracy for 0.8.1
-status: planned
+status: done
 ---
 
 ## Outcome
