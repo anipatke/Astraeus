@@ -1,7 +1,7 @@
 ---
 id: O-071
 title: Show a body or path only for a span of time
-status: planned
+status: done
 depends_on: [O-070]
 release: G-019
 priority: medium

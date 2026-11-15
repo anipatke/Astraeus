@@ -1,7 +1,7 @@
 ---
 id: G-019
 title: Story timing and flyby fixes for 0.9.1
-status: planned
+status: done
 ---
 
 ## Outcome
@@ -30,3 +30,7 @@ Every member Objective is done.
 **In scope:** the `astraeus` engine package, its public API, README, CHANGELOG, tests and examples.
 
 **Out of scope:** breaking changes (0.9.1 adds only; the data packages' `>=0.9.0 <0.10.0` peers stay valid and are not re-released); asteroid or flyby data (story data stays out of the engine); new demos; changes to the Earth's Closest Calls app; publishing a release (the owner's action through the GitHub release workflow).
+
+## Workflow Review
+
+No change, because G-019's NEEDS WORK Checks (C-174, C-176, C-178) each found a contract gap the Full Check is meant to catch, each closed in one repair round, and the lessons (quote an Issue's Proof Needed, read the existing rule first) are already standing practice. Planning session plan-g020-20261115, 2026-11-15.
