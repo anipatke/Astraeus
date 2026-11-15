@@ -2,8 +2,7 @@
 id: T-313
 title: Make sky-view turns glide and taps keep the sky
 objective: O-073
-status: in_progress
-stage: audit
+status: done
 depends_on: []
 owner_validation: {required: true}
 check_waiver: {task: T-313, reason: 'Owner said "go" to orchestrate O-073 under the standing run rules (one builder at a time, no per-step checks, coordinator marks done once gates pass, one Full Objective Check at the end); the optional Task Check is waived.', actor: {role: owner, session: plan-g020-20261115}, recorded_at: '2026-11-15T04:10:47Z'}
@@ -77,6 +76,8 @@ Per criterion:
 Files changed: src/app/CameraController.tsx (targetFovDeg on OrbitCameraState, eased in resolveCamera, cleared by a visitor zoom), src/app/sceneCamera.ts (applyLookOut sets targets only when already looking out; leaveLookOut clears target), src/app/scenePointer.ts (figure first in look-out; PickOptions), src/app/sceneContentsHooks.ts, src/app/AstraeusScene.tsx, src/app/App.tsx (pass keepSky through the pick request), src/shell/AstraeusShell.tsx (keepSky pick selects without focus preset), README.md, CHANGELOG.md, tests/lookOutGlide.test.ts (new). Extra reads: src/app/App.tsx, sceneContentsHooks.ts, AstraeusScene.tsx (type plumbing for the pick options), tests/pointerAndFeatureLayerDom.test.ts and sceneHooksDom.test.ts (existing pick tests). `LookOutState` left as `{ fovDeg }` because `sceneCamera.test.ts` asserts it with toEqual; the target field lives on `OrbitCameraState`.
 
 Limitations: no browser run (owner looks on localhost:5490); check:engine-alone / API lock checks not separately run (internal types only; `npm test` includes the lock test).
+
+- Owner validation (2026-11-15T04:18:59Z): owner looked on localhost:5490 `app.html?experience=synthetic-lookout` (story Next / menu turns glide; a planet or Sun tap keeps the sky) and answered "Looks right". Coordinator marks done (gates passed: lint, typecheck, build, npm test 257 files / 3823 passed / 2 skipped), per the owner's "go" orchestration.
 
 ## Drift Notes
 
