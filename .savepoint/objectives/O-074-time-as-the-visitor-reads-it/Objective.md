@@ -1,7 +1,7 @@
 ---
 id: O-074
 title: Time as the visitor reads it
-status: in_progress
+status: done
 depends_on: [O-073]
 release: G-020
 priority: medium
