@@ -2,16 +2,22 @@
 id: I-178
 title: README and CHANGELOG say every bad moment throws bad-time
 type: defect
-status: open
+status: resolved
 source:
   kind: check
   check: C-180
   actor: {role: checker, session: o073-check-20261115}
   at: '2026-11-15T04:40:50Z'
 tasks: [T-315]
-checks: [C-180]
+checks: [C-180, C-181]
 guardrail_ids: [API-05, API-07]
 severity: low
+resolution:
+  disposition: verified
+  check: C-181
+  actor: {role: checker, session: o073-recheck-20261115}
+  at: '2026-11-15T04:53:21Z'
+  reason: Repair proven by C-181 (CLEAR).
 history:
   - at: '2026-11-15T04:40:50Z'
     actor: {role: checker, session: o073-check-20261115}
@@ -26,6 +32,11 @@ history:
     actor: {role: executor, session: plan-g020-20261115}
     kind: repair_attempted
     note: README time rule (addTrajectory row) names the code per call; addStoryPanels row says at.time is whole-millisecond and throws bad-panels; CHANGELOG bad-time bullet narrowed and a Changed bullet lists the new panel/anchor/shownDuring refusals. tests/badTime.test.ts unchanged (pins the codes); npm test rerun below.
+  - at: '2026-11-15T04:53:21Z'
+    actor: {role: checker, session: o073-recheck-20261115}
+    kind: rechecked
+    note: 'Proof Needed holds at 54810bcb: owner decision recorded in O-073 SC7 and history; README addTrajectory time rule and addStoryPanels row name bad-panels/bad-anchor/bad-body/bad-trajectory; CHANGELOG Fixed bullet narrowed and Changed bullet lists the new refusals; tests/badTime.test.ts pins the same codes (npm test pass). Docs-only diff since C-180.'
+    check: C-181
 ---
 
 # I-178: README and CHANGELOG say every bad moment throws bad-time
