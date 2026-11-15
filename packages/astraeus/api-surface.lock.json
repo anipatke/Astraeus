@@ -83,6 +83,21 @@
           "signature": "SceneTimelineRead"
         },
         {
+          "name": "look",
+          "optional": false,
+          "signature": "LookRead"
+        },
+        {
+          "name": "switches",
+          "optional": false,
+          "signature": "Readonly<Record<string, SceneSwitchRead>>"
+        },
+        {
+          "name": "panelPlayback",
+          "optional": false,
+          "signature": "ScenePanelPlaybackRead"
+        },
+        {
           "name": "addBody",
           "optional": false,
           "signature": "(body: BodyRef | BodyId, options?: AddBodyOptions): Scene"
@@ -960,6 +975,61 @@
           "name": "playing",
           "optional": false,
           "signature": "boolean"
+        },
+        {
+          "name": "pacing",
+          "optional": true,
+          "signature": "readonly ScenePacingRead[] | undefined"
+        }
+      ]
+    },
+    "ScenePacingRead": {
+      "kind": "type",
+      "signature": "| { readonly spanStartUtcMs: number; readonly spanEndUtcMs: number; readonly rate: number; readonly rampSeconds: number } | { readonly near: { readonly type: string; readonly withinSeconds: number }; readonly rate: number; readonly rampSeconds: number }",
+      "constructors": [],
+      "members": []
+    },
+    "ScenePanelPlaybackRead": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "pauseSeconds",
+          "optional": false,
+          "signature": "number"
+        },
+        {
+          "name": "autoOpen",
+          "optional": false,
+          "signature": "boolean"
+        },
+        {
+          "name": "closeAfterSeconds",
+          "optional": true,
+          "signature": "number | undefined"
+        }
+      ]
+    },
+    "SceneSwitchRead": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "place",
+          "optional": false,
+          "signature": "\"top-bar\" | \"panel\" | \"developer\""
+        },
+        {
+          "name": "on",
+          "optional": false,
+          "signature": "boolean"
+        },
+        {
+          "name": "label",
+          "optional": true,
+          "signature": "string | undefined"
         }
       ]
     },

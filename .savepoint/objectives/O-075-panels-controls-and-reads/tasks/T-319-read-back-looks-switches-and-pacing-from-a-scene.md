@@ -2,7 +2,7 @@
 id: T-319
 objective: O-075
 title: Read back looks, switches and pacing from a scene
-status: planned
+status: done
 depends_on: [{task: T-318, requires: clear}]
 owner_validation: {required: false}
 check_waiver: {task: T-319, reason: 'Owner said "orchestrate O75" (orchestrate O-075) under the standing run rules (one builder at a time, no per-step checks, coordinator marks done once gates pass, one Full Objective Check at the end); the optional Task Check is waived.', actor: {role: owner, session: plan-o075-20261115}, recorded_at: '2026-11-15T10:09:53Z'}
@@ -66,8 +66,14 @@ Focused tests while iterating; configured gates at handoff. Evaluated later unde
 
 ## Technical Evidence
 
-Pending execution.
+Extra reads: none beyond Context Files (also read `src/app/App.tsx` `initialSceneControls` region, `src/app/look.ts` `resolveLook`, `src/core/storyPanels.ts` playback, `src/api/story.ts` pacing types, `tools/api-rules.mjs` span rule, to match the viewer's resolvers and fix a lint trip).
+Cases (`tests/sceneLookReads.test.ts`, new file; no existing test's setup changed): one table over defaults and set values for `look` (incl. `sheetMaxPercent`, `sunGlow`), `switches` (incl. `label`, trimmed; `on` filled true), `panelPlayback` (incl. `closeAfterSeconds`), `timeline.pacing` (span and near pieces, ramps filled); frozen checks on every read and nested part; no `sunGlow` without the Sun; `Scene.look` equals `ViewerLink.look` on a fresh mount (default look, and a heavily set look plus a milkyWay switch off).
+Gates: lint clean; typecheck clean; build ok; test 263 files passed, 4021 passed, 2 skipped. `npm run api:lock` rerun (lock updated).
+Files: `src/app/liveLook.ts` (new pure `lookReadFrom`, `skySettingsOf` takes a Pick), `src/api/scene.ts` (getters `look`, `switches`, `panelPlayback`), `planViews.ts` (`switchReads`), `planStory.ts` (`playbackRead`), `planTimeline.ts` (pacing read), `sceneReads.ts` (3 new types, `pacing?` on `SceneTimelineRead`), `index.ts`, `tests/apiImports.test.ts`, `tests/sceneLookReads.test.ts`, README, CHANGELOG, `api-surface.lock.json`.
+Deviations: (1) `tests/apiImports.test.ts` ALLOWED gained `app/liveLook` with a reason (api/scene.ts now imports it; the look resolvers live in app/, so this is the one import). (2) The pacing span piece names its ends `spanStartUtcMs`/`spanEndUtcMs`, since API-04's span rule rejects `startUtcMs`/`endUtcMs`. (3) Doc comments were shortened to stay under the 45,000 B API page gzip limit; no limit raised.
 
 ## Drift Notes
 
-Record the new reads for Design reconciliation before the Full Objective Check.
+New reads for Design.md (Public API shape; Headless use and looks as settings): `Scene.look` (LookRead via `lookReadFrom`, the same resolvers as `initialSceneControls`; with no page address), `Scene.switches`, `Scene.panelPlayback`, `Scene.timeline.pacing`. Known limit: `sunGlow` is present when a body the scene adds carries a halo (the Sun added with `addBody`); a Sun mounted only by a Sun-centred layer is not counted. `loadFadeSeconds` goes through `bootFadeSeconds(look)`, so a value saved from the Developer drawer in this browser shows in both reads.
+
+- Coordinator (2026-11-15T10:37:26Z): accepted the deviations (`app/liveLook` added to the `apiImports` allowlist with a reason, as the look resolvers live in `app/`; pacing span ends read as `spanStartUtcMs`/`spanEndUtcMs` per the API-04 lint; doc comments shortened to stay under the 45,000 B limit). Gates pass (lint, typecheck, build, test 263 files / 4021 passed / 2 skipped); marked done per the owner's "orchestrate O75".

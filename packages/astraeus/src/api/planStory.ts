@@ -5,7 +5,7 @@ import { DEFAULT_PANEL_PLAYBACK, type CheckedPanel, type PanelPlayback, type Sto
 import type { ExperienceConfig } from "../shell/experience";
 import { checkEventObjects, eventProvenanceOf, eventsOf, panelBatchOf, panelPlaybackOf, panelsOf, type AddEventsOptions, type EventInput, type StoryPanelInput, type StoryPanelPlaybackInput } from "./story";
 import type { Tracked } from "./planPaths";
-import { frozenList, type SceneEventRead, type ScenePanelRead } from "./sceneReads";
+import { frozenList, type SceneEventRead, type ScenePanelPlaybackRead, type ScenePanelRead } from "./sceneReads";
 
 /** What a `Scene` has planned for its story layer: events, where their times come from, and story panels. */
 export class StoryPlan {
@@ -32,6 +32,12 @@ export class StoryPlan {
 
   setPanelPlayback(playback: StoryPanelPlaybackInput): void {
     this.#playback = panelPlaybackOf(playback);
+  }
+
+  /** How panels play, as the public read states it. */
+  playbackRead(): ScenePanelPlaybackRead {
+    const { pauseSeconds, autoOpen, closeAfterSeconds } = this.#playback;
+    return Object.freeze({ pauseSeconds, autoOpen, ...(closeAfterSeconds === undefined ? {} : { closeAfterSeconds }) });
   }
 
   /** The events name only objects the scene holds. */

@@ -2,7 +2,7 @@ import type { DisplaySwitchSettings } from "../app/displaySwitches";
 import type { ViewSettings } from "../app/views";
 import type { StoryPanelSet } from "../core/storyPanels";
 import { switchesOf, type SwitchesInput } from "./switches";
-import type { SceneViewsRead } from "./sceneReads";
+import type { SceneSwitchRead, SceneViewsRead } from "./sceneReads";
 import { resolveViews, viewsOf, type ViewInput, type ViewScope, type ViewsOptions, type ViewsPlan } from "./views";
 import { frozenList } from "./sceneReads";
 
@@ -17,6 +17,11 @@ export class ViewPlan {
 
   setViews(views: readonly ViewInput[], options: ViewsOptions): void {
     this.#views = viewsOf(views, options);
+  }
+
+  /** The switches `setSwitches` placed, as the public read states them (`on` filled in); an unnamed switch is absent. */
+  switchReads(): Readonly<Record<string, SceneSwitchRead>> {
+    return Object.freeze(Object.fromEntries(Object.entries(this.#switches ?? {}).map(([id, { place, on, label }]) => [id, Object.freeze({ place, on: on ?? true, ...(label === undefined ? {} : { label }) })])));
   }
 
   /** The views as the public read states them, each with the objects, events and panels it shows (the lists the viewer uses, resolved against the finished scene); absent when none were named. `scope` is asked for only when views were named. */

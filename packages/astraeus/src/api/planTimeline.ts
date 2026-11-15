@@ -3,11 +3,18 @@ import type { TimeBounds } from "../core/trajectory";
 import type { ExperienceDefinition } from "../app/experienceDefinition";
 import { SceneError } from "./errors";
 import { toUtcMs, type TimeInput } from "./time";
-import type { SceneTimelineRead } from "./sceneReads";
+import { frozenList, type SceneTimelineRead, type ScenePacingRead } from "./sceneReads";
 import { eventZonesOf } from "../core/pacing";
-import { pacingFor, timelineOf, type TimelineInput, type TimelineSetting } from "./story";
+import { pacingFor, timelineOf, type PacingPiece, type TimelineInput, type TimelineSetting } from "./story";
 
 const DAY_MS = 86_400_000;
+
+/** A checked pacing piece as the public read states it (seconds and UTC milliseconds). */
+function pacingReadOf(piece: PacingPiece): ScenePacingRead {
+  return "fromUtcMs" in piece
+    ? { spanStartUtcMs: piece.fromUtcMs, spanEndUtcMs: piece.toUtcMs, rate: piece.rate, rampSeconds: piece.rampMs / 1000 }
+    : { near: { type: piece.type, withinSeconds: piece.withinMs / 1000 }, rate: piece.rate, rampSeconds: piece.rampMs / 1000 };
+}
 
 /** What a `Scene` has planned for its timeline: the opening time, the timeline setting, and from them the span, clock, rates and pacing. */
 export class TimelinePlan {
@@ -52,6 +59,7 @@ export class TimelinePlan {
       rate: this.clock(startUtcMs).rate,
       loop: this.setting?.none !== true && this.setting?.loop === true,
       playing: this.clock(startUtcMs).playing !== false,
+      ...(this.setting?.pacing === undefined ? {} : { pacing: frozenList(this.setting.pacing.map(pacingReadOf)) }),
     });
   }
 

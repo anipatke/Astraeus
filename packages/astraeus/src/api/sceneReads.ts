@@ -167,7 +167,28 @@ export interface SceneTimelineRead {
   readonly loop: boolean;
   /** Opens playing. */
   readonly playing: boolean;
+  /** The pacing `setTimeline` was given. */
+  readonly pacing?: readonly ScenePacingRead[];
 }
+
+/** A placed switch (`setSwitches`), as `Scene.switches` reads it. */
+export interface SceneSwitchRead {
+  readonly place: "top-bar" | "panel" | "developer";
+  readonly on: boolean;
+  readonly label?: string;
+}
+
+/** Panel playback, as `Scene.panelPlayback` reads it. */
+export interface ScenePanelPlaybackRead {
+  readonly pauseSeconds: number;
+  readonly autoOpen: boolean;
+  readonly closeAfterSeconds?: number;
+}
+
+/** One piece of `setTimeline`'s `pacing`, as `Scene.timeline.pacing` reads it: UTC milliseconds, ramps filled in. */
+export type ScenePacingRead =
+  | { readonly spanStartUtcMs: number; readonly spanEndUtcMs: number; readonly rate: number; readonly rampSeconds: number }
+  | { readonly near: { readonly type: string; readonly withinSeconds: number }; readonly rate: number; readonly rampSeconds: number };
 
 /** A sky figure the scene holds (`addSkyFigures`), as `Scene.skyFigures` lists it (in the order added) and the viewer handle reads it. */
 export interface SceneSkyFigureRead {

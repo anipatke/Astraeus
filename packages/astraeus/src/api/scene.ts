@@ -36,8 +36,8 @@ import { assembleScene } from "./assembleScene";
 import { SceneCamera } from "./planCamera";
 import { definitionOf, registerDefinition, registerMissingData } from "./definitionOf";
 import { isMounted } from "./sceneFreeze";
-import type { SceneActivityRead, SceneBodyRead, SceneBodySetRead, SceneEventRead, SceneGroupRead, SceneMoonPanelRead, ScenePanelRead, ScenePlacesRead, ScenePathRead, SceneSkyFigureRead, SceneTimelineRead, SceneViewsRead } from "./sceneReads";
-export type { SceneActivityRead, SceneBodyRead, SceneBodySetRead, SceneEventRead, SceneGroupRead, SceneMoonPanelRead, ScenePanelRead, ScenePlacesRead, ScenePathRead, SceneSkyFigureRead, SceneTimelineRead, SceneViewRead, SceneViewsRead } from "./sceneReads";
+import type { SceneActivityRead, SceneBodyRead, SceneBodySetRead, SceneEventRead, SceneGroupRead, SceneMoonPanelRead, ScenePanelPlaybackRead, ScenePanelRead, ScenePlacesRead, ScenePathRead, SceneSkyFigureRead, SceneSwitchRead, SceneTimelineRead, SceneViewsRead } from "./sceneReads";
+export type { SceneActivityRead, SceneBodyRead, SceneBodySetRead, SceneEventRead, SceneGroupRead, SceneMoonPanelRead, ScenePacingRead, ScenePanelPlaybackRead, ScenePanelRead, ScenePlacesRead, ScenePathRead, SceneSkyFigureRead, SceneSwitchRead, SceneTimelineRead, SceneViewRead, SceneViewsRead } from "./sceneReads";
 export type { SceneCamera } from "./planCamera";
 import { StoryPlan } from "./planStory";
 import { buildTracked, pathReads, type Tracked } from "./planPaths";
@@ -47,7 +47,9 @@ export type { ShownDuringInput } from "./shownDuring";
 import { TimelinePlan } from "./planTimeline";
 import { ViewPlan } from "./planViews";
 import type { SwitchesInput } from "./switches";
-import type { LookInput } from "./look";
+import type { LookInput, LookRead } from "./look";
+import { lookReadFrom } from "../app/liveLook";
+import { resolveLook } from "../app/look";
 import { checkedLook } from "./lookInput";
 import type { ViewInput, ViewsOptions } from "./views";
 import { type AddEventsOptions, type EventInput, type StoryPanelInput, type StoryPanelPlaybackInput, type TimelineInput } from "./story";
@@ -285,6 +287,19 @@ export class Scene {
 
   /** The timeline the scene opens with: its span and opening moment in UTC milliseconds (`windowStartUtcMs`, `windowEndUtcMs`, `openUtcMs`), the speeds offered (`rates`), the opening `rate` and whether playback wraps (`loop`). With no span or moment set and no path or activity, the span is a month about the moment of the read. A moment outside a span set with `setTimeline` throws `bad-timeline`, as `mount` would. */
   get timeline(): SceneTimelineRead { return this.#timeline.read(this.#spans()); }
+
+  /** The looks `setLook` set, defaults filled in: what `ViewerHandle.look` reads on a fresh mount. */
+  get look(): LookRead {
+    const read = lookReadFrom(resolveLook(this.#look, ""), this.#viewPlan.switchesEntry(), [...this.#plan.bodies.keys()].map((id) => this.#plan.catalogue.get(id)));
+    for (const part of [read.sunGlow, read.skyLines, read.labels, read.time]) if (part !== undefined) Object.freeze(part);
+    return Object.freeze(read);
+  }
+
+  /** The switches `setSwitches` placed, each `{ place, on, label? }`; an unnamed one is absent. Frozen. */
+  get switches(): Readonly<Record<string, SceneSwitchRead>> { return this.#viewPlan.switchReads(); }
+
+  /** How story panels play (`setStoryPanelPlayback`), defaults filled in. Frozen. */
+  get panelPlayback(): ScenePanelPlaybackRead { return this.#story.playbackRead(); }
 
   /** The spans of the paths and activities, which the timeline follows when nothing sets it. */
   #spans(): readonly TimeBounds[] {

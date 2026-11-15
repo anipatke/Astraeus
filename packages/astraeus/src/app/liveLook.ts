@@ -3,10 +3,11 @@
  * (the one place the Developer drawer, the host's `setLook` and the page address all end up), every one filled in; `applyLook` replaces the whole look. Presentation only (ARCH-02).
  */
 import type { LookInput, LookRead } from "../api/look";
+import type { BodyAsset } from "../assets/catalogue";
 import { DEFAULT_PHONE_LAYOUT } from "../shell/phoneLayout";
 import { bootFadeSeconds } from "../shell/bootLoader";
 import type { SceneControls } from "./AstraeusScene";
-import { glowLookOf, markerSettingsOf, type GlowLook } from "./bodyDraw";
+import { baseGlowOf, glowLookOf, markerSettingsOf, type GlowLook } from "./bodyDraw";
 import type { ExperienceDefinition } from "./experienceDefinition";
 import { featureMinBodyPxOf } from "./FeatureMarkers";
 import { resolveLook } from "./look";
@@ -17,7 +18,7 @@ import { timeLookOf } from "./timeLook";
 import { skyColoursOf, skyFadeInSecondsOf } from "./skyFigures";
 
 /** The sky settings in force: the experience's own, then the look (the scene's `setLook`, with the address over it). The Milky Way switch's start sits between the two. */
-export function skySettingsOf(definition: ExperienceDefinition, look: LookInput) {
+export function skySettingsOf(definition: Pick<ExperienceDefinition, "sky" | "displaySwitches">, look: LookInput) {
   const settings = resolveSkySettings(definition.sky);
   return {
     ...settings,
@@ -51,6 +52,29 @@ export function lookReadOf(controls: SceneControls): LookRead {
     labels: { ...controls.labelStyle },
     time: { ...controls.timeLook },
     sheetMaxPercent: controls.sheetMaxPercent,
+  };
+}
+
+/** The looks a fresh viewer opens with, every one filled in, from the resolved look alone (no browser, no controls): the same resolvers `initialSceneControls` uses. `bodies` are the scene's mounted bodies, whose first halo (the Sun's) sets `sunGlow`. */
+export function lookReadFrom(look: LookInput, definition: Pick<ExperienceDefinition, "sky" | "displaySwitches">, bodies: readonly BodyAsset[]): LookRead {
+  const glowBase = baseGlowOf(bodies);
+  const sky = skySettingsOf(definition, look);
+  const glow = glowBase === null ? undefined : glowLookOf(look, glowBase);
+  return {
+    starBrightness: sky.starBrightness,
+    milkyWay: sky.milkyWay,
+    milkyWayBrightness: sky.milkyWayBrightness,
+    skyVisible: sky.visible,
+    ...(glow === undefined ? {} : { sunGlow: { sizePx: glow.sizePx, brightness: glow.brightness, scale: glow.scale } }),
+    markerSwapRadiusPx: markerSettingsOf(look).minSpherePx,
+    featureMinBodyPx: featureMinBodyPxOf(look),
+    loadFadeSeconds: bootFadeSeconds(look),
+    skyFadeInSeconds: skyFadeInSecondsOf(look),
+    desktopPictures: desktopPicturesOf({ desktopTextures: undefined }, look),
+    skyLines: { ...skyColoursOf(look) },
+    labels: { ...labelStyleOf(look) },
+    time: { ...timeLookOf(look) },
+    sheetMaxPercent: look.sheetMaxPercent ?? DEFAULT_PHONE_LAYOUT.sheetMaxPercent,
   };
 }
 
