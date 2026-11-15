@@ -22,6 +22,7 @@ const WIDENED = new Map([
   ["AstraeusScene", "takes more optional props"],
   ["MountedScene", "now extends ViewerHandle, which adds reads and calls"],
   ["ViewCameraInput", "a follow or focus framing also takes always: true (0.8.1)"],
+  ["SwitchesInput", "each switch also takes label, its own name in the bar and the panel"],
   ["TimelineInput", "a span timeline also takes playing: false, to open paused"],
 ]);
 

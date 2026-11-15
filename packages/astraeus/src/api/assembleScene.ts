@@ -15,7 +15,7 @@ import type { Metric } from "../shell/metrics";
 import type { ExperienceObject } from "../shell/experience";
 import { checkDataSources, installData, type DataSource } from "./data";
 import { SceneError } from "./errors";
-import { cameraPresetsOf, checkOpeningLook, fitFarthestKm, startPresetEntry, startViewEntry, viewEntries, type SceneCamera } from "./planCamera";
+import { cameraChoicesOf, cameraPresetsOf, checkOpeningChoices, checkOpeningLook, fitFarthestKm, startPresetEntry, startViewEntry, viewEntries, type SceneCamera } from "./planCamera";
 import type { BodyPlan } from "./planBodies";
 import type { BodySetPlan } from "./planBodySets";
 import type { MoonPanelPlan } from "./planMoonPanel";
@@ -133,7 +133,7 @@ export function assembleScene(parts: ScenePlanners, data: readonly DataSource[])
   const setLayers = bodySets.layers({ ids, catalogue: plan.catalogue, orbits: plan.orbits, window, startUtcMs });
   const labelled = [...plan.bodies.values(), ...tracked, ...[...groupPlan.groups.values()]].map(({ id, label }) => ({ id, label }));
   const catalogue = plan.catalogue;
-  if (camera.following && camera.target !== undefined && camera.followChoices !== undefined && !camera.followChoices.includes(camera.target)) throw new SceneError("bad-camera", `camera.follow("${camera.target}"): the opening view follows "${camera.target}", which camera.setFollowChoices does not list`);
+  checkOpeningChoices(camera);
   story.checkObjects(new Set([...labelled.map(({ id }) => id), ...skyFigures.figures.keys()]));
   const objects: ExperienceObject[] = [
     ...[...plan.bodies.values()].map((body) => plan.bodyObject(body, ids, sunCentred, camera)),
@@ -148,7 +148,8 @@ export function assembleScene(parts: ScenePlanners, data: readonly DataSource[])
   const definition: ExperienceDefinition = {
     experience: {
       objects,
-      cameraPresets: cameraPresetsOf(labelled, camera.followChoices, camera.lookOutChoices),
+      cameraPresets: cameraPresetsOf(labelled, cameraChoicesOf(camera)),
+      ...(cameraChoicesOf(camera).focus === undefined ? {} : { focusListed: true }),
       ...startPresetEntry(camera),
       ...(moonFamilies === undefined ? {} : { moonFamilies }),
       ...(bodyFeatures.length === 0 ? {} : { bodyFeatures }),

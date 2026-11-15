@@ -516,7 +516,7 @@ export class Scene {
    * Places the display switches: for each of `orbitLines` (orbit ring, trailing arc and moon orbits), `labels` (body and anchor labels) and `milkyWay` (the sky picture), `place` is
    * `"top-bar"` (a button in the bar), `"panel"` (a row in one switch panel opened from the bar) or `"developer"` (only in the Developer drawer, where every switch stays), and `on` is
    * whether it starts on (default on). A switch the scene has nothing for (orbit lines with no orbit drawn) shows nowhere. May be called more than once; later calls replace the same switch.
-   * A bad switch name, place or `on` throws `bad-switch`.
+   * A bad switch name, place, `on` or `label` throws `bad-switch`.
    * @example
    * scene.setSwitches({ orbitLines: { place: "top-bar" }, labels: { place: "panel", on: false }, milkyWay: { place: "developer", on: false } });
    */

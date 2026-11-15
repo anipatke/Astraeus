@@ -703,7 +703,7 @@ describe("a mounted scene is frozen", () => {
     const sceneMethods = mutators(Scene.prototype);
     const cameraMethods = mutators(SceneCamera.prototype);
     expect(sceneMethods.length).toBeGreaterThanOrEqual(12);
-    expect(cameraMethods.sort()).toEqual(["fitOrbit", "focus", "follow", "lookOut", "setFollowChoices", "setLookOutChoices", "setReach", "setStartView"]);
+    expect(cameraMethods.sort()).toEqual(["fitOrbit", "focus", "follow", "lookOut", "setFocusChoices", "setFollowChoices", "setLookOutChoices", "setOverview", "setReach", "setStartView"]);
     const element = document.createElement("div");
     document.body.append(element);
     const viewer = mount(element, scene);

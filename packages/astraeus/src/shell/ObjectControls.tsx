@@ -31,7 +31,7 @@ export function ObjectControls({
   const selectedAvailable = selected !== undefined && isObjectAvailable(selected, timeUtcMs);
   const infoLabel = selected?.label ?? selectedFigure?.label;
   const overview = findCameraPreset(experience, "overview");
-  const focus = selected === undefined ? undefined : focusPresetFor(experience, selected);
+  const focus = selected === undefined ? undefined : experience.focusListed === true ? findCameraPreset(experience, "focus", selected.id) : focusPresetFor(experience, selected);
   const follow = selected === undefined ? undefined : findCameraPreset(experience, "follow", selected.id);
   const lookOut = selected === undefined ? undefined : findCameraPreset(experience, "lookOut", selected.id);
 

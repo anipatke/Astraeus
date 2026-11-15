@@ -18,6 +18,15 @@ import type { TimelineSetting } from "./story";
 /** Each camera's opening look-out toward an id, kept out of the public class: the request the viewer runs on its first frame, as it runs a `setCamera` one. */
 const towardIds = new WeakMap<SceneCamera, LookOutRequest>();
 
+/** Each camera's Focus choices and Overview flag (`setFocusChoices`, `setOverview`), kept out of the public class: the assembler reads them with `cameraChoicesOf`. */
+const choices = new WeakMap<SceneCamera, { focus?: readonly string[]; overview: boolean }>();
+const offered = (camera: SceneCamera): { focus?: readonly string[]; overview: boolean } => { let own = choices.get(camera); if (own === undefined) choices.set(camera, (own = { overview: true })); return own; };
+
+/** Every camera button choice the scene made: `focus` and `follow` list objects (undefined: every one), `lookOut` the bodies, `overview` whether Overview shows. */
+export function cameraChoicesOf(camera: SceneCamera): CameraChoices & { readonly overview: boolean } {
+  return { focus: offered(camera).focus, follow: camera.followChoices, lookOut: camera.lookOutChoices, overview: offered(camera).overview };
+}
+
 /** The scene's camera: what it opens on. */
 export class SceneCamera {
   #target: string | undefined;
@@ -130,6 +139,22 @@ export class SceneCamera {
     this.#followIds = Object.freeze([...new Set(named)]);
     return this;
   }
+  /** The objects offering Focus, as `setFollowChoices`. */
+  setFocusChoices(ids: readonly (BodyRef | BodyId)[]): this {
+    this.#editable();
+    if (!Array.isArray(ids)) throw new SceneError("bad-camera", "camera.setFocusChoices: give a list of bodies or ids");
+    const named = ids.map((item) => (typeof item === "string" ? item : item?.id));
+    for (const id of named) if (typeof id !== "string" || !this.#has(id)) throw new SceneError("unknown-body", `camera.setFocusChoices("${String(id)}"): no body or trajectory with that id has been added to the scene`);
+    offered(this).focus = Object.freeze([...new Set(named)]);
+    return this;
+  }
+  /** Whether Overview shows (default true). */
+  setOverview(on: boolean): this {
+    this.#editable();
+    if (typeof on !== "boolean") throw new SceneError("bad-camera", `camera.setOverview: give true or false, got ${JSON.stringify(on)}`);
+    offered(this).overview = on;
+    return this;
+  }
   /**
    * Chooses the bodies whose "Look out from" entry the camera menu offers, by body, id or path already added to the scene (else `unknown-body`); the entry stands inside the body and looks out, and any other camera entry leaves it.
    * Default: none. An empty list offers none. The opening view is separate: `lookOut` opens looking out whether or not the body is listed.
@@ -197,6 +222,15 @@ export class SceneCamera {
   get view(): FollowView { return this.#view; }
 }
 
+/** Refuses an opening `follow` or `focus` of an object the scene's `setFollowChoices` or `setFocusChoices` leaves out. Called when the scene is built. */
+export function checkOpeningChoices(camera: SceneCamera): void {
+  const { target, following } = camera;
+  if (target === undefined) return;
+  const own = cameraChoicesOf(camera);
+  const [call, listed, setter] = following ? (["follow", own.follow, "setFollowChoices"] as const) : (["focus", own.focus, "setFocusChoices"] as const);
+  if (listed !== undefined && !listed.includes(target)) throw new SceneError("bad-camera", `camera.${call}("${target}"): the opening view ${call === "follow" ? "follows" : "focuses"} "${target}", which camera.${setter} does not list`);
+}
+
 /**
  * Refuses an opening look-out toward an id `setCamera` would refuse on the opening view (`checkToward`, the same check and wording): the direction must name an object the opening view shows or a sky figure.
  * Called when the scene is built, after every figure is in.
@@ -248,14 +282,23 @@ export function viewEntries(timeline: TimelineSetting | undefined, camera: Scene
   };
 }
 
-/** The camera menu: Overview, Focus for every body and path, Follow for every one unless `setFollowChoices` named fewer, and "Look out from" for the bodies `setLookOutChoices` listed (the look is toward right ascension 0, declination 0 until the visitor turns). */
-export function cameraPresetsOf(objects: readonly { readonly id: string; readonly label: string }[], followChoices?: readonly string[], lookOutChoices: readonly string[] = []): ExperienceDefinition["experience"]["cameraPresets"] {
+/** Which camera buttons the menu offers: `focus` and `follow` list the objects (undefined: every one), `lookOut` the bodies (none by default), `overview` whether Overview shows (default true). */
+export interface CameraChoices {
+  readonly focus?: readonly string[];
+  readonly follow?: readonly string[];
+  readonly lookOut?: readonly string[];
+  readonly overview?: boolean;
+}
+
+/** The camera menu: Overview unless `setOverview(false)`, Focus and Follow for every body and path unless `setFocusChoices` or `setFollowChoices` named fewer, and "Look out from" for the bodies `setLookOutChoices` listed (the look is toward right ascension 0, declination 0 until the visitor turns). */
+export function cameraPresetsOf(objects: readonly { readonly id: string; readonly label: string }[], choices: CameraChoices = {}): ExperienceDefinition["experience"]["cameraPresets"] {
+  const { focus, follow, lookOut = [], overview = true } = choices;
   return [
-    { id: "overview", label: "Overview", request: { kind: "overview" } },
+    ...(overview ? [{ id: "overview", label: "Overview", request: { kind: "overview" as const } }] : []),
     ...objects.flatMap(({ id, label }) => [
-      { id: `focus-${id}`, label: `Focus ${label}`, request: { kind: "focus" as const, target: id } },
-      ...(followChoices === undefined || followChoices.includes(id) ? [{ id: `follow-${id}`, label: `Follow ${label}`, request: { kind: "follow" as const, target: id } }] : []),
-      ...(lookOutChoices.includes(id) ? [{ id: `lookout-${id}`, label: `Look out from ${label}`, request: { kind: "lookOut" as const, body: id, direction: eqjUnitVector(0, 0) } }] : []),
+      ...(focus === undefined || focus.includes(id) ? [{ id: `focus-${id}`, label: `Focus ${label}`, request: { kind: "focus" as const, target: id } }] : []),
+      ...(follow === undefined || follow.includes(id) ? [{ id: `follow-${id}`, label: `Follow ${label}`, request: { kind: "follow" as const, target: id } }] : []),
+      ...(lookOut.includes(id) ? [{ id: `lookout-${id}`, label: `Look out from ${label}`, request: { kind: "lookOut" as const, body: id, direction: eqjUnitVector(0, 0) } }] : []),
     ]),
   ];
 }

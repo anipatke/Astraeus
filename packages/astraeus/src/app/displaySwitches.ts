@@ -17,6 +17,8 @@ export type DisplaySwitchPlace = (typeof DISPLAY_SWITCH_PLACES)[number];
 export interface DisplaySwitchSetting {
   readonly place: DisplaySwitchPlace;
   readonly on?: boolean;
+  /** The switch's own name in the bar, the panel and the Developer drawer; absent: the built-in one. */
+  readonly label?: string;
 }
 export type DisplaySwitchSettings = Readonly<Partial<Record<DisplaySwitchId, DisplaySwitchSetting>>>;
 
@@ -89,7 +91,7 @@ export function displaySwitchItems(bindings: SwitchBindings): readonly DisplaySw
   return DISPLAY_SWITCH_IDS.flatMap((id) => {
     const place = settings[id]?.place;
     if ((place !== "top-bar" && place !== "panel") || !state[id].applies) return [];
-    return [{ id, label: DISPLAY_SWITCH_LABELS[id], place, on: state[id].on, onToggle: state[id].toggle }];
+    return [{ id, label: settings[id]?.label ?? DISPLAY_SWITCH_LABELS[id], place, on: state[id].on, onToggle: state[id].toggle }];
   });
 }
 

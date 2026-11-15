@@ -80,6 +80,8 @@ export interface SkyFigureCard {
 export interface ExperienceConfig {
   readonly objects: readonly ExperienceObject[];
   readonly cameraPresets: readonly ExperienceCameraPreset[];
+  /** True: a Focus button shows only for an object with a focus preset (the scene chose its Focus choices); absent: every listed object has one. */
+  readonly focusListed?: boolean;
   /** The camera preset that is already in force when the shell opens (for example a Follow preset, so the scene starts following). Absent: none, as before. */
   readonly startCameraPresetId?: string;
   readonly events: readonly TimelineEvent[];

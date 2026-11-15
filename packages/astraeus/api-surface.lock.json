@@ -237,6 +237,16 @@
           "signature": "(ids: readonly (BodyRef | BodyId)[]): SceneCamera"
         },
         {
+          "name": "setFocusChoices",
+          "optional": false,
+          "signature": "(ids: readonly (BodyRef | BodyId)[]): SceneCamera"
+        },
+        {
+          "name": "setOverview",
+          "optional": false,
+          "signature": "(on: boolean): SceneCamera"
+        },
+        {
           "name": "setLookOutChoices",
           "optional": false,
           "signature": "(ids: readonly (BodyRef | BodyId)[]): SceneCamera"
@@ -2198,7 +2208,7 @@
     },
     "SwitchesInput": {
       "kind": "type",
-      "signature": "{ readonly [id in DisplaySwitchId]?: { readonly place: DisplaySwitchPlace; readonly on?: boolean } }",
+      "signature": "{ readonly [id in DisplaySwitchId]?: { readonly place: DisplaySwitchPlace; readonly on?: boolean; readonly label?: string } }",
       "constructors": [],
       "members": []
     },

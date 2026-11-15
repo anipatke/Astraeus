@@ -2,7 +2,7 @@
 id: T-318
 objective: O-075
 title: Choose which camera buttons show and rename switches
-status: planned
+status: done
 depends_on: [{task: T-317, requires: clear}]
 owner_validation: {required: true}
 check_waiver: {task: T-318, reason: 'Owner said "orchestrate O75" (orchestrate O-075) under the standing run rules (one builder at a time, no per-step checks, coordinator marks done once gates pass, one Full Objective Check at the end); the optional Task Check is waived.', actor: {role: owner, session: plan-o075-20261115}, recorded_at: '2026-11-15T10:09:53Z'}
@@ -67,8 +67,35 @@ Focused tests while iterating; configured gates at handoff, including the browse
 
 ## Technical Evidence
 
-Pending execution.
+Per criterion:
+- Focus choices, overview flag, errors: `camera.setFocusChoices` / `setOverview` in `planCamera.ts`; `cameraPresetsOf(objects, choices)` omits the focus, follow, look-out or overview preset; `ObjectControls` draws no Focus button when `experience.focusListed` is set and the object has no focus preset (the plain-focus fallback stays for scenes with no focus choice, and for selecting an object). Opening-target errors via new `checkOpeningChoices` (moved the follow check out of `assembleScene` to stay under the lint complexity limit). Tests: `tests/cameraChoices.test.ts` table of 11 rows (default, empty, partial across focus, follow, look-out, overview, and the sky-only combination), each rendered through `ObjectControls` for two selected bodies, plus unknown-body, non-list, non-boolean, opening focus and follow outside the choices, opening focus inside; the default scene's presets and absent `focusListed` asserted.
+- Switch label: `label?` on `SwitchesInput` and `DisplaySwitchSetting`; `switchesOf` trims and refuses empty, blank or non-string (`bad-switch`); `displaySwitchItems` uses it for the top-bar button and the panel row (rendered through `DisplaySwitches` in the table test, with built-in names unchanged). A later `setSwitches` entry replaces the whole entry (tested).
+- DEVIATION: the Developer drawer has no per-switch rows (its controls are fixed, each switch maps to several), so the label applies to the bar and the panel only; README and CHANGELOG say so. Not a replan: nothing else depends on it.
+- README rows for the two calls, `label` in the `setSwitches` row, sky-only recipe; CHANGELOG `Unreleased` (two entries); `npm run api:lock` rerun.
+
+Gates (final run): lint pass; typecheck pass; build pass; test 4015 passed, 2 skipped, 1 failed of 4018: `astraeus-site/tests/apiReference.test.ts` load budget, generated API page gzip 44569 bytes against the limit 44500 (baseline without this Task 44490, so +79). Docs already trimmed to one line; not raised. Owner or planner to decide (trim other member docs, or raise the limit).
+Test-support edits (not setup changes): `tests/lifecycle.test.ts` camera method list gains `setFocusChoices`, `setOverview`; `tests/sceneInputCopies.test.ts` gains two rows (API-04 walk requires one per mutator-named call); `astraeus-site/tests/migrationTable.test.ts` WIDENED allowlist gains `SwitchesInput` (additive label; allowlist edit, reported).
+No browser run (per instruction).
+Files: packages/astraeus/src/api/{planCamera,assembleScene,scene,switches}.ts, src/app/displaySwitches.ts, src/shell/{ObjectControls.tsx,experience.ts}, tests/{cameraChoices(new),lifecycle,sceneInputCopies}.test.ts, astraeus-site/tests/migrationTable.test.ts, README.md, CHANGELOG.md, api-surface.lock.json.
+Extra reads: src/shell/objectModel.ts (focusPresetFor fallback), src/shell/DisplaySwitches.tsx (bar/panel rows), src/shell/AstraeusShell.tsx and viewCamera.ts (overview-preset fallbacks), src/app/App.tsx and DeveloperSettings.tsx (where switch labels show), tests/sceneInputCopies.test.ts, astraeus-site/tests/{apiReference,migrationTable}.test.ts and tools/site/api-reference.mjs (failing gates).
+
+User Check recipe (host code; closest existing scene is any look-out sky demo on localhost:5490):
+```ts
+scene.camera.setFocusChoices([]).setFollowChoices([]).setOverview(false).setLookOutChoices(["earth"]);
+scene.camera.lookOut("earth", { direction: { raDeg: 83.6, decDeg: 22 }, fovDeg: 60 });
+scene.setScale(solarSystemScale, { only: true });
+scene.setSwitches({ skyBoundaries: { place: "top-bar", label: "Constellation outlines" } });
+```
+Expect the bar to show Look out, Info and the relabelled switch, with no Focus, Follow, Overview or scale buttons, at 375x667 and 1280x720.
 
 ## Drift Notes
 
-Record the new camera plan fields and switch label path for Design reconciliation before the Full Objective Check.
+For Design.md reconciliation (Public API shape):
+- Camera plan: `SceneCamera` gains `setFocusChoices(ids)` and `setOverview(on)`; their state is kept in a module WeakMap in `planCamera.ts` (read by `cameraChoicesOf`), not public getters, to keep the API page small. `cameraPresetsOf(objects, { focus, follow, lookOut, overview })` takes one choices object (was positional). `checkOpeningChoices` refuses an opening follow or focus outside its choices.
+- `ExperienceConfig.focusListed?: boolean` (set only when `setFocusChoices` was called): the Focus button shows only for objects with a focus preset; absent keeps the plain-focus fallback.
+- Switch label path: `SwitchesInput[id].label` -> `switchesOf` (trim, `bad-switch`) -> `DisplaySwitchSetting.label` in `definition.displaySwitches` -> `displaySwitchItems` (`label ?? DISPLAY_SWITCH_LABELS[id]`) -> top-bar button and panel row. The Developer drawer keeps its fixed controls.
+- With no Overview preset, the shell's overview fallbacks (lost target, view rule) find none and hold the pose.
+
+- Owner decision (2026-11-15T10:29:23Z): api/index.html gzip limit 44,500 -> 45,000 B (`packages/astraeus-site/tools/validate/load-budget.mjs`); owner chose "Raise to 45,000 bytes" (page 44,569 B; covers T-319). `apiReference.test.ts` rerun: 4 passed.
+- Owner validation (2026-11-15T10:29:23Z): with a temporary, reverted change to the look-out fixture (empty Focus and Follow choices, Overview off, `setScale(solarSystemScale, { only: true })`, switches labelled "Star patterns" and "Constellation outlines" in the top bar), the owner looked on localhost:5490 `app.html?experience=synthetic-lookout` and answered "looks good". Fixture restored byte for byte.
+- Coordinator: accepted the deviations (Developer drawer has no per-switch rows, so labels show in the bar and panel only, as the README says; `SwitchesInput` in the migration `WIDENED` allowlist, an additive field; expected-list additions in `lifecycle.test.ts` and `sceneInputCopies.test.ts`, no setup changed; `checkOpeningChoices` split for complexity). Gates pass with the raised limit; marked done per the owner's "orchestrate O75".
