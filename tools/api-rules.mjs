@@ -14,7 +14,7 @@ const oneLine = (text, max = 90) => { const flat = text.replace(/\s+/g, " ").tri
 // ---------- Public-type lint (API-04) ----------
 
 /** A numeric field's name must end in one of these (a unit), or be on the unitless list. */
-export const UNIT_SUFFIX = /(Km|KmS|Km3S2|Deg|Degrees|Px|Ms|Seconds|Minutes|Hours|Days|Years|EarthRadii|Au|Rad|Hz|Fps|Kg|Metres|Jd|JdTdb|Fraction)$|^(km|jd|au|deg|px|ms)$/;
+export const UNIT_SUFFIX = /(Km|KmS|Km3S2|Deg|Degrees|Px|Ms|Seconds|Minutes|Hours|Days|Years|EarthRadii|Au|Rad|Hz|Fps|Kg|Metres|Jd|JdTdb|Fraction|Percent)$|^(km|jd|au|deg|px|ms)$/;
 const TIME_LIKE = /^(time|at|from|to|start|end|until|since|when|utc|date|moment)$|(Time|Utc|Date|Moment)$/;
 const FRAME_LIKE = /^frame$|Frame$|^referenceSystem$|^coordinateSystem$/;
 

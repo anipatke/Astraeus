@@ -2166,6 +2166,11 @@
           "name": "trace",
           "optional": true,
           "signature": "true | SkyTraceOptions | undefined"
+        },
+        {
+          "name": "closeAfterSeconds",
+          "optional": true,
+          "signature": "number | undefined"
         }
       ]
     },
@@ -2183,6 +2188,11 @@
           "name": "autoOpen",
           "optional": true,
           "signature": "boolean | undefined"
+        },
+        {
+          "name": "closeAfterSeconds",
+          "optional": true,
+          "signature": "number | undefined"
         }
       ]
     },
@@ -2261,6 +2271,11 @@
           "name": "time",
           "optional": true,
           "signature": "TimeLook | undefined"
+        },
+        {
+          "name": "sheetMaxPercent",
+          "optional": true,
+          "signature": "number | undefined"
         }
       ]
     },
@@ -2333,6 +2348,11 @@
           "name": "time",
           "optional": false,
           "signature": "Required<TimeLook>"
+        },
+        {
+          "name": "sheetMaxPercent",
+          "optional": false,
+          "signature": "number"
         }
       ]
     },

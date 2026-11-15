@@ -9,6 +9,7 @@ import { labelStyleOf } from "../src/app/labelStyle";
 import { timeLookOf } from "../src/app/timeLook";
 import { DEFAULT_SKY_COLOURS, skyColoursOf, skyFadeInSecondsOf } from "../src/app/skyFigures";
 import { DEFAULT_SKY_FADE_IN_SECONDS } from "../src/core/skyTrace";
+import { DEFAULT_PHONE_LAYOUT } from "../src/shell/phoneLayout";
 import { desktopPicturesOf } from "../src/app/liveLook";
 import { BOOT_FADE_DEFAULT_SECONDS, bootFadeSeconds } from "../src/shell/bootLoader";
 import { definitionOf } from "../src/api/definitionOf";
@@ -35,6 +36,8 @@ const CASES: readonly { readonly key: string; readonly set: number | boolean | s
   { key: "labels.sizePx", set: 16, param: null, asked: "20", askedValue: 16, read: (l) => labelStyleOf(l).sizePx, defaultRead: 12 },
   { key: "time.zone", set: "Australia/Sydney", param: null, asked: "local", askedValue: "Australia/Sydney", read: (l) => timeLookOf(l).zone, defaultRead: "UTC" },
   { key: "time.precision", set: "day", param: null, asked: "minute", askedValue: "day", read: (l) => timeLookOf(l).precision, defaultRead: "second" },
+  // The phone sheet's height cap (O-075 T-317): no address parameter; the same value the Developer drawer's "Sheet height" slider holds.
+  { key: "sheetMaxPercent", set: 70, param: null, asked: "80", askedValue: 70, read: (l) => l.sheetMaxPercent ?? DEFAULT_PHONE_LAYOUT.sheetMaxPercent, defaultRead: 50 },
 ];
 
 describe("looks are public settings", () => {

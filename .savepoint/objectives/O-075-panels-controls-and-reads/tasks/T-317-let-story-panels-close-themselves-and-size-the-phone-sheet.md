@@ -2,7 +2,7 @@
 id: T-317
 objective: O-075
 title: Let story panels close themselves and size the phone sheet
-status: planned
+status: done
 depends_on: []
 owner_validation: {required: false}
 check_waiver: {task: T-317, reason: 'Owner said "orchestrate O75" (orchestrate O-075) under the standing run rules (one builder at a time, no per-step checks, coordinator marks done once gates pass, one Full Objective Check at the end); the optional Task Check is waived.', actor: {role: owner, session: plan-o075-20261115}, recorded_at: '2026-11-15T10:09:53Z'}
@@ -70,8 +70,22 @@ Focused tests while iterating; configured gates at handoff. Evaluated later unde
 
 ## Technical Evidence
 
-Pending execution.
+Per criterion:
+- Inputs: `StoryPanelPlaybackInput.closeAfterSeconds` and `StoryPanelInput.closeAfterSeconds` checked in `core/storyPanels.ts` (`spanOf`: finite, above 0); on a step or a bad value `bad-panels` names panel and field. Tests: `tests/storyPanelClose.test.ts` "closeAfterSeconds checks" (6 throw cases, 1 accept).
+- Close rule: pure `panelSpanPassed` beside `CrossingTracker` in `shell/storyPanels.ts` (adds `previousMs`/`wasPlaying` getters); `useStoryPanels` calls it each tick before `advance`; a newly crossed panel wins the same tick; close reports cause `playback`. Table test 4 span kinds (playback span, panel span over longer playback span, panel span not yet reached, none) x 4 movements (forward pass, seek past, rewind, paused) = 16 rows, plus a stop-on-end row. DOM test: auto-opened panel stays open then closes, reported `{id: null, cause: "playback"}`; no span never closes.
+- Sheet look: `sheetMaxPercent` row in `LOOK_FIELDS` (`param: null`, range from `PHONE_LAYOUT_LIMITS`), `LookInput`/`LookRead`, `SceneControls.sheetMaxPercent` (one value) set by `applyLook`, read by `lookReadOf`; App's phone layout takes it from `sheetShown`, and the Developer slider and Reset write the controls. Tests: look table row in `tests/look.test.ts` (default 50, set, address ignored), `storyPanelClose.test.ts` sheet look (default, live change via `applyLook`, `bad-look` for 29, 86, NaN).
+- Docs: README rows (`addStoryPanels`, `setStoryPanelPlayback`, `setLook`, `handle.look`), CHANGELOG Unreleased, `npm run api:lock` rerun (lock updated).
+
+Gates (repo root): `npm run lint` pass; `npm run typecheck` pass; `npm run build` pass; `npm test -- --reporter=default --reporter=junit --outputFile.junit=junit.xml` 261 files passed, 3982 tests passed, 2 skipped. (An earlier test run failed `apiRules` API-04 on `sheetMaxPercent`; fixed by adding `Percent` to `UNIT_SUFFIX` in `tools/api-rules.mjs`, since percent is a unit; no allowlist entry added.) A first lint run flagged `App` complexity 22; moved the story settings into `liveStorySettings`.
+
+Files changed: packages/astraeus/src/core/storyPanels.ts, src/shell/storyPanels.ts, src/shell/useStoryPanels.ts, src/shell/AstraeusShell.tsx, src/api/story.ts, src/api/scene.ts, src/api/look.ts, src/app/look.ts, src/app/liveLook.ts, src/app/AstraeusScene.tsx, src/app/App.tsx, tests/storyPanelClose.test.ts (new), tests/look.test.ts (one CASES row, required by its coverage test), tests/helpers/viewerPresentation.ts (FAKE_LOOK gains `sheetMaxPercent: 50`, required by the LookRead type), README.md, CHANGELOG.md, api-surface.lock.json, tools/api-rules.mjs, this Task file.
+Extra reads: none beyond the Context Files (README/CHANGELOG by the named headings only; `tests/domStory.test.ts`, `tests/domSetup.ts`, `src/shell/AstraeusShell.tsx` (story settings line), `src/synthetic/syntheticDefinition.ts` (panel/rates), `src/api/lookInput.ts`, `tools/api-rules.mjs` read to write the DOM test and fix the API-04 lint).
+Limitations: no browser run (not required); a panel opened by the visitor after the clock is already past its span stays open until a visitor close (the rule fires only on a crossing).
 
 ## Drift Notes
 
-Record where the close rule and the sheet look are carried for Design reconciliation before the Full Objective Check.
+- Close rule: `panelSpanPassed` in `src/shell/storyPanels.ts` (beside `CrossingTracker`), called from `useStoryPanels`; span carried as `StoryPanel.closeAfterSeconds` (resolved from the panel input) and `StoryPanelSet.closeAfterSeconds` / `PanelPlayback` (playback), passed to the hook as `StoryPanelSettings.closeAfterSeconds` (App `liveStorySettings`, shell `ownStorySettings`). Steps carry none.
+- Sheet look: `sheetMaxPercent` row in the look table (`src/app/look.ts`), held in `SceneControls.sheetMaxPercent` (`liveLook.ts` apply/read); App's `phoneLayout` is the own phone settings with `sheetMaxPercent` from that one value; the Developer "Sheet height" slider and Reset write it.
+- Tooling: `tools/api-rules.mjs` `UNIT_SUFFIX` gains `Percent` (API-04).
+
+- Coordinator (2026-11-15T10:15:57Z): accepted the builder's two flagged changes: adding `Percent` to `UNIT_SUFFIX` in `tools/api-rules.mjs` (a percent is a unit, the general fix over an allowlist entry), and the additive look-table row and `FAKE_LOOK` field (no existing setup changed). Gates pass (lint, typecheck, build, test 261 files / 3982 passed); marked done per the owner's "orchestrate O75".

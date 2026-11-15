@@ -110,6 +110,8 @@ export interface SceneControls {
   labelStyle: LabelStyle;
   /** Presentation only: the zone and precision of every visitor-facing time (the look `time`; live). */
   timeLook: TimeLook;
+  /** Presentation only: the phone sheet's height cap, percent of the screen (the look `sheetMaxPercent`; live). The Developer drawer's slider and the look are this one value. */
+  sheetMaxPercent: number;
   /** Presentation only: when a sphere is too small to see it is drawn as a marker (see `drawsAsMarker`). */
   bodyMarker: BodyMarkerSettings;
   /** Presentation only: the live halo settings of a body whose record has a glow (the Sun). */

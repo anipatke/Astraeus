@@ -56,7 +56,7 @@ export function initialObjectId(experience: ExperienceConfig, timeUtcMs: number)
 
 /** The story-panel settings the experience carries itself, used when the app gives none live. */
 function ownStorySettings(storySet: ExperienceConfig["storyPanels"]): StoryPanelSettings {
-  return { autoOpen: storySet?.autoOpen ?? false, pauseSeconds: storySet?.pauseSeconds ?? 0 };
+  return { autoOpen: storySet?.autoOpen ?? false, pauseSeconds: storySet?.pauseSeconds ?? 0, ...(storySet?.closeAfterSeconds === undefined ? {} : { closeAfterSeconds: storySet.closeAfterSeconds }) };
 }
 
 /** The timeline bar, or nothing when the experience says it has no timeline. */

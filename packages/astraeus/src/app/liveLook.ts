@@ -3,6 +3,7 @@
  * (the one place the Developer drawer, the host's `setLook` and the page address all end up), every one filled in; `applyLook` replaces the whole look. Presentation only (ARCH-02).
  */
 import type { LookInput, LookRead } from "../api/look";
+import { DEFAULT_PHONE_LAYOUT } from "../shell/phoneLayout";
 import { bootFadeSeconds } from "../shell/bootLoader";
 import type { SceneControls } from "./AstraeusScene";
 import { glowLookOf, markerSettingsOf, type GlowLook } from "./bodyDraw";
@@ -49,6 +50,7 @@ export function lookReadOf(controls: SceneControls): LookRead {
     skyLines: { ...controls.skyColours },
     labels: { ...controls.labelStyle },
     time: { ...controls.timeLook },
+    sheetMaxPercent: controls.sheetMaxPercent,
   };
 }
 
@@ -71,6 +73,7 @@ export function applyLook(controls: SceneControls, definition: ExperienceDefinit
   controls.skyFadeInSeconds = skyFadeInSecondsOf(look);
   controls.labelStyle = labelStyleOf(look);
   controls.timeLook = timeLookOf(look);
+  controls.sheetMaxPercent = look.sheetMaxPercent ?? DEFAULT_PHONE_LAYOUT.sheetMaxPercent;
   return lookReadOf(controls);
 }
 

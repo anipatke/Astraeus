@@ -4,6 +4,7 @@
  * parameter to its `LookInput` key and parser; every reader takes the resolved `LookInput` from `resolveLook`, so none parses the address itself. Precedence: address over `setLook` over default.
  */
 import type { LookInput } from "../api/look";
+import { PHONE_LAYOUT_LIMITS } from "../shell/phoneLayout";
 import { LABEL_SIZE_LIMITS, TIME_PRECISIONS } from "../core/lookValues";
 export type { LookInput } from "../api/look";
 
@@ -47,6 +48,8 @@ export const LOOK_FIELDS: readonly LookField[] = [
   // The zone and precision of the viewer's times (O-074 T-316) have no address parameter either: the address `t` stays UTC.
   { path: ["time", "zone"], param: null, spec: { kind: "zone" } },
   { path: ["time", "precision"], param: null, spec: { kind: "choice", values: TIME_PRECISIONS } },
+  // The tallest a phone's information or story sheet grows (O-075 T-317, review F-18): no address parameter; the Developer drawer's "Sheet height" slider is this same value.
+  range(["sheetMaxPercent"], null, PHONE_LAYOUT_LIMITS.sheetMaxPercent.min, PHONE_LAYOUT_LIMITS.sheetMaxPercent.max),
 ];
 
 /** The name a look is called in a message: `sunGlow.sizePx`. */

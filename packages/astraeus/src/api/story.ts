@@ -102,6 +102,8 @@ export interface StoryPanelInput {
   readonly select?: boolean;
   /** Traces the `object`, a sky figure. */
   readonly trace?: true | SkyTraceOptions;
+  /** Simulated seconds after `at` when forward playback closes this panel (above 0); overrides the playback setting. A seek, rewind or pause never closes it. Not for a step: that throws `bad-panels`. */
+  readonly closeAfterSeconds?: number;
 }
 
 /** The playback settings of a scene's story panels. */
@@ -110,6 +112,8 @@ export interface StoryPanelPlaybackInput {
   readonly pauseSeconds?: number;
   /** Whether panels open by themselves as forward playback crosses them (default true). */
   readonly autoOpen?: boolean;
+  /** Simulated seconds after a moment panel's time when forward playback closes it (above 0; absent: panels close only when the visitor closes them). A panel's own `closeAfterSeconds` wins. */
+  readonly closeAfterSeconds?: number;
 }
 
 /** Throws "bad-event" naming the first event whose `object` is not among the scene's `objectIds`. */

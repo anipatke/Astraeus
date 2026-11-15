@@ -72,6 +72,8 @@ export interface LookInput {
   readonly labels?: LabelsLook;
   /** How times read in the clock bar, event list and cards. Default UTC to the second. */
   readonly time?: TimeLook;
+  /** The tallest a phone's information or story sheet grows, as a percent of the screen height, 30 to 85. Default 50. Has no page address parameter; the Developer drawer's "Sheet height" slider is this same value. */
+  readonly sheetMaxPercent?: number;
 }
 
 /** The looks a running viewer shows, every one filled in (`ViewerHandle.look`): the scene's `setLook`, the page address and the Developer drawer laid over the defaults. `sunGlow` is absent in a scene without the Sun. */
@@ -92,4 +94,6 @@ export interface LookRead {
   /** The label font and size in force. */
   readonly labels: { readonly fontFamily: string; readonly sizePx: number };
   readonly time: Required<TimeLook>;
+  /** The phone sheet's height cap in force, a percent of the screen height (30 to 85). */
+  readonly sheetMaxPercent: number;
 }

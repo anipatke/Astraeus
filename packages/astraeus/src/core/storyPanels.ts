@@ -45,10 +45,12 @@ export interface StoryPanel extends PanelActions {
   readonly provenance: Provenance;
   /** A shell object this panel is about; the scene draws a marker on it that reopens the panel. */
   readonly objectId?: string;
+  /** This panel's own span, in simulated seconds: forward playback closes it once the clock passes its time plus this. Overrides the playback setting; absent, the playback setting (or none) applies. */
+  readonly closeAfterSeconds?: number;
 }
 
-/** A story step: a panel with no moment, shown in the order added with Back and Next. */
-export type StoryStep = Omit<StoryPanel, "timeUtcMs"> & {
+/** A story step: a panel with no moment, shown in the order added with Back and Next. A step never closes by itself. */
+export type StoryStep = Omit<StoryPanel, "timeUtcMs" | "closeAfterSeconds"> & {
   /** The step's place among the steps, counting from 1 in the order added. */
   readonly step: number;
 };
@@ -63,13 +65,15 @@ export interface StoryPanelSet {
   readonly pauseSeconds: number;
   /** Whether panels open by themselves as forward playback reaches them. */
   readonly autoOpen: boolean;
+  /** Simulated seconds after a moment panel's time at which forward playback closes it; absent: never (a panel's own span wins). */
+  readonly closeAfterSeconds?: number;
 }
 
 export const DEFAULT_PANEL_PAUSE_SECONDS = 6;
 export const MAX_PANEL_PAUSE_SECONDS = 20;
 
-/** The two playback settings of a scene's story panels. */
-export type PanelPlayback = Pick<StoryPanelSet, "pauseSeconds" | "autoOpen">;
+/** The playback settings of a scene's story panels. */
+export type PanelPlayback = Pick<StoryPanelSet, "pauseSeconds" | "autoOpen" | "closeAfterSeconds">;
 
 export const DEFAULT_PANEL_PLAYBACK: PanelPlayback = Object.freeze({ pauseSeconds: DEFAULT_PANEL_PAUSE_SECONDS, autoOpen: true });
 
@@ -137,12 +141,20 @@ function provenanceOf(panel: string, value: unknown): Provenance {
   return createProvenance(value as unknown as Provenance);
 }
 
+/** A close span: finite and above 0, in simulated seconds. */
+function spanOf(panel: string, field: string, value: unknown): number {
+  if (typeof value !== "number" || !Number.isFinite(value) || value <= 0) throw new StoryPanelError(panel, field, `must be a number of seconds above 0, got ${JSON.stringify(value)}`);
+  return value;
+}
+
 /** Checks the shape of one panel, the `index`th of the list it came in. Nothing here looks at the scene: links are `resolveStoryPanels`' job. */
 export function checkStoryPanel(raw: unknown, index: number): CheckedPanel {
   if (!isRecord(raw)) throw new StoryPanelError(`#${index + 1}`, "entry", "must be an object");
   const id = text(`#${index + 1}`, "id", raw.id);
   const object = raw.object === undefined ? undefined : text(id, "object", raw.object);
   const at = atOf(id, raw.at);
+  if (at === undefined && raw.closeAfterSeconds !== undefined) throw new StoryPanelError(id, "closeAfterSeconds", "is for a moment panel: a step never closes by itself");
+  const closeAfterSeconds = raw.closeAfterSeconds === undefined ? undefined : spanOf(id, "closeAfterSeconds", raw.closeAfterSeconds);
   return {
     id,
     ...(at === undefined ? {} : { at }),
@@ -151,19 +163,21 @@ export function checkStoryPanel(raw: unknown, index: number): CheckedPanel {
     details: raw.details === undefined ? [] : lines(id, "details", raw.details),
     provenance: provenanceOf(id, raw.provenance),
     ...(object === undefined ? {} : { object }),
+    ...(closeAfterSeconds === undefined ? {} : { closeAfterSeconds }),
   };
 }
 
 /** Checks the two playback settings; a setting left out takes its default, so the result is the whole setting. */
 export function checkPanelPlayback(raw: unknown): PanelPlayback {
-  if (!isRecord(raw)) throw new StoryPanelError("settings", "playback", "must be an object: { pauseSeconds?, autoOpen? }");
+  if (!isRecord(raw)) throw new StoryPanelError("settings", "playback", "must be an object: { pauseSeconds?, autoOpen?, closeAfterSeconds? }");
   const pauseSeconds = raw.pauseSeconds ?? DEFAULT_PANEL_PLAYBACK.pauseSeconds;
   if (typeof pauseSeconds !== "number" || !Number.isFinite(pauseSeconds) || pauseSeconds < 0 || pauseSeconds > MAX_PANEL_PAUSE_SECONDS) {
     throw new StoryPanelError("settings", "pauseSeconds", `must be between 0 and ${MAX_PANEL_PAUSE_SECONDS}, got ${JSON.stringify(pauseSeconds)}`);
   }
   const autoOpen = raw.autoOpen ?? DEFAULT_PANEL_PLAYBACK.autoOpen;
   if (typeof autoOpen !== "boolean") throw new StoryPanelError("settings", "autoOpen", "must be true or false");
-  return { pauseSeconds, autoOpen };
+  const closeAfterSeconds = raw.closeAfterSeconds === undefined ? undefined : spanOf("settings", "closeAfterSeconds", raw.closeAfterSeconds);
+  return { pauseSeconds, autoOpen, ...(closeAfterSeconds === undefined ? {} : { closeAfterSeconds }) };
 }
 
 function timeOf(id: string, at: NonNullable<CheckedPanel["at"]>, lookup: PanelLookup): number {
@@ -196,13 +210,13 @@ function checkLinks({ id, object, camera, trace }: CheckedPanel, lookup: PanelLo
 const actionsOf = ({ camera, select, trace }: PanelActions): PanelActions => ({ ...(camera === undefined ? {} : { camera }), ...(select === undefined ? {} : { select }), ...(trace === undefined ? {} : { trace }) });
 
 function resolvePanel(panel: CheckedPanel & { readonly at: NonNullable<CheckedPanel["at"]> }, lookup: PanelLookup): StoryPanel {
-  const { id, at, title, body, details, provenance, object } = panel;
+  const { id, at, title, body, details, provenance, object, closeAfterSeconds } = panel;
   const timeUtcMs = timeOf(id, at, lookup);
   if (lookup.window !== undefined && (timeUtcMs < lookup.window.startUtcMs || timeUtcMs > lookup.window.endUtcMs)) {
     throw new StoryPanelError(id, "at", "falls outside the timeline window");
   }
   checkLinks(panel, lookup);
-  return { id, timeUtcMs, title, body, details, provenance, ...(object === undefined ? {} : { objectId: object }), ...actionsOf(panel) };
+  return { id, timeUtcMs, title, body, details, provenance, ...(object === undefined ? {} : { objectId: object }), ...(closeAfterSeconds === undefined ? {} : { closeAfterSeconds }), ...actionsOf(panel) };
 }
 
 function resolveStep(panel: CheckedPanel, lookup: PanelLookup, step: number): StoryStep {

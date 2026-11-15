@@ -1,0 +1,123 @@
+// @vitest-environment happy-dom
+// Story panels that close themselves and the phone sheet's height cap (O-075 T-317, Zodiac review F-18): the pure close decision as a table over every input kind
+// and every movement, the DOM close of an auto-opened panel, the `bad-panels` cases and the sheet look (default, live change, `bad-look`).
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { Scene } from "../src/api/scene";
+import { earth } from "../src/api/bodies";
+import { definitionOf } from "../src/api/definitionOf";
+import { applyLook, lookReadOf } from "../src/app/liveLook";
+import type { SceneControls } from "../src/app/AstraeusScene";
+import { syntheticDefinition } from "../src/synthetic/syntheticDefinition";
+import { CrossingTracker, panelSpanPassed } from "../src/shell/storyPanels";
+import { $, press, type Mounted, mountShell } from "./domSetup";
+
+const T = Date.UTC(2100, 0, 1);
+const S = 1000;
+const provenance = { sourceType: "illustrative" as const, sources: ["Made-up source"], accuracy: "None claimed.", notes: "Made up." };
+
+/** Plays one tick the way the hook does: decide before `advance` moves the tracker's memory. */
+function tick(tracker: CrossingTracker, panel: { timeUtcMs: number; closeAfterSeconds?: number }, playbackSpan: number | undefined, toMs: number, playing: boolean): boolean {
+  const passed = panelSpanPassed(panel, playbackSpan, tracker.previousMs, toMs, playing || tracker.wasPlaying);
+  tracker.advance([], toMs, playing, true);
+  return passed;
+}
+
+const SPANS = [
+  ["playback span", { playbackSpan: 10 as number | undefined, panelSpan: undefined as number | undefined }, true],
+  ["panel span (over a longer playback span)", { playbackSpan: 100, panelSpan: 10 }, true],
+  ["panel span (over a shorter playback span, not yet reached)", { playbackSpan: 1, panelSpan: 100 }, false],
+  ["no span", { playbackSpan: undefined, panelSpan: undefined }, false],
+] as const;
+const MOVES = [
+  ["a forward pass", (tracker: CrossingTracker, run: (to: number, playing: boolean) => boolean) => { tracker.rebase(T + 5 * S); run(T + 6 * S, true); return run(T + 15 * S, true); }, true],
+  ["a seek past", (tracker: CrossingTracker, run: (to: number, playing: boolean) => boolean) => { tracker.rebase(T + 5 * S); run(T + 6 * S, true); tracker.rebase(T + 15 * S); return run(T + 15 * S, true); }, false],
+  ["a rewind", (tracker: CrossingTracker, run: (to: number, playing: boolean) => boolean) => { tracker.rebase(T + 15 * S); run(T + 15 * S, true); return run(T + 5 * S, true); }, false],
+  ["paused", (tracker: CrossingTracker, run: (to: number, playing: boolean) => boolean) => { tracker.rebase(T + 5 * S); return run(T + 15 * S, false); }, false],
+] as const;
+
+describe("the close decision", () => {
+  it.each(SPANS.flatMap(([spanName, spans, closes]) => MOVES.map(([moveName, move, moves]) => [spanName, moveName, spans, move, closes && moves] as const)))(
+    "%s x %s",
+    (_spanName, _moveName, spans, move, expected) => {
+      const tracker = new CrossingTracker(T);
+      const panel = { timeUtcMs: T, ...(spans.panelSpan === undefined ? {} : { closeAfterSeconds: spans.panelSpan }) };
+      expect(move(tracker, (to, playing) => tick(tracker, panel, spans.playbackSpan, to, playing))).toBe(expected);
+    },
+  );
+
+  it("closes on the tick that finds the clock stopped on the end of the timeline after playing into it", () => {
+    const tracker = new CrossingTracker(T + 5 * S);
+    expect(tick(tracker, { timeUtcMs: T }, 10, T + 6 * S, true)).toBe(false);
+    expect(tick(tracker, { timeUtcMs: T }, 10, T + 10 * S, false)).toBe(true);
+  });
+});
+
+describe("closeAfterSeconds checks", () => {
+  const panel = { id: "p", at: { time: "2100-01-01T00:00:00Z" }, title: "T", body: "B", provenance };
+  it.each([
+    ["zero on a panel", () => new Scene().addStoryPanels([{ ...panel, closeAfterSeconds: 0 }]), /story panel p: closeAfterSeconds must be a number of seconds above 0/],
+    ["a negative span", () => new Scene().addStoryPanels([{ ...panel, closeAfterSeconds: -3 }]), /story panel p: closeAfterSeconds/],
+    ["text for a span", () => new Scene().addStoryPanels([{ ...panel, closeAfterSeconds: "5" as never }]), /story panel p: closeAfterSeconds/],
+    ["a span on a step", () => new Scene().addStoryPanels([{ id: "s", title: "T", body: "B", provenance, closeAfterSeconds: 5 }]), /story panel s: closeAfterSeconds is for a moment panel/],
+    ["a bad playback span", () => new Scene().setStoryPanelPlayback({ closeAfterSeconds: Number.NaN }), /settings: closeAfterSeconds must be a number of seconds above 0/],
+    ["a zero playback span", () => new Scene().setStoryPanelPlayback({ closeAfterSeconds: 0 }), /settings: closeAfterSeconds/],
+  ])("%s throws bad-panels", (_name, run, message) => {
+    expect(run).toThrow(expect.objectContaining({ code: "bad-panels", message: expect.stringMatching(message) }));
+  });
+
+  it("accepts a good span on a panel and on the playback", () => {
+    expect(() => new Scene().addStoryPanels([{ ...panel, closeAfterSeconds: 30 }]).setStoryPanelPlayback({ closeAfterSeconds: 45 })).not.toThrow();
+  });
+});
+
+describe("an auto-opened panel closes after its span", () => {
+  let m: Mounted;
+  beforeEach(() => { vi.useFakeTimers(); });
+  afterEach(() => { m.unmount(); vi.useRealTimers(); });
+  const panels = syntheticDefinition.experience.storyPanels!.panels;
+  const panelEl = () => m.container.querySelector<HTMLElement>(".story-panel");
+  /** Seeks a second before the first panel and plays (100 ms real is six simulated seconds at the first rate). */
+  const start = (closeAfterSeconds: number | undefined) => {
+    m = mountShell({ storyPanelSettings: { autoOpen: true, pauseSeconds: 0, ...(closeAfterSeconds === undefined ? {} : { closeAfterSeconds }) } });
+    m.clock.seek(panels[0].timeUtcMs - 1_000);
+    m.advance(0);
+    press($(m.container, ".timeline-play"));
+    m.advance(100);
+  };
+
+  it("stays open before the span passes and closes, reported as playback, once it does", () => {
+    start(20);
+    expect(panelEl()?.getAttribute("data-panel-id")).toBe(panels[0].id);
+    m.advance(100);
+    expect(panelEl()).not.toBeNull();
+    m.advance(100);
+    m.advance(100);
+    expect(panelEl()).toBeNull();
+    expect(m.panelChanges[m.panelChanges.length - 1]).toEqual({ id: null, cause: "playback" });
+  });
+
+  it("never closes by itself with no span", () => {
+    start(undefined);
+    for (let i = 0; i < 8; i += 1) m.advance(100);
+    expect(panelEl()?.getAttribute("data-panel-id")).toBe(panels[0].id);
+  });
+});
+
+describe("the sheet look", () => {
+  const controls = () => ({ bodyMarker: { minSpherePx: 3 }, skyColours: {}, labelStyle: {}, timeLook: {}, sheetMaxPercent: 50 }) as unknown as SceneControls;
+  const definition = definitionOf(new Scene().addBody(earth));
+
+  it("sets through the scene, defaults to 50 and changes live", () => {
+    expect(definitionOf(new Scene().addBody(earth).setLook({ sheetMaxPercent: 70 })).look).toEqual({ sheetMaxPercent: 70 });
+    const live = controls();
+    expect(applyLook(live, definition, null, {}).sheetMaxPercent).toBe(50);
+    expect(applyLook(live, definition, null, { sheetMaxPercent: 85 }).sheetMaxPercent).toBe(85);
+    expect(live.sheetMaxPercent).toBe(85);
+    expect(lookReadOf(live).sheetMaxPercent).toBe(85);
+    expect(applyLook(live, definition, null, {}).sheetMaxPercent).toBe(50);
+  });
+
+  it.each([[29], [86], [Number.NaN]])("%s throws bad-look", (value) => {
+    expect(() => new Scene().setLook({ sheetMaxPercent: value })).toThrow(expect.objectContaining({ code: "bad-look" }));
+  });
+});

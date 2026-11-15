@@ -498,7 +498,7 @@ export class Scene {
     return this;
   }
 
-  /** Sets how story panels play: `pauseSeconds` and `autoOpen` (see `StoryPanelPlaybackInput`). Replaces the whole setting, so a field left out returns to its default. A bad value throws `bad-panels`. */
+  /** Sets how story panels play: `pauseSeconds`, `autoOpen` and `closeAfterSeconds` (see `StoryPanelPlaybackInput`). Replaces the whole setting, so a field left out returns to its default. A bad value throws `bad-panels`. */
   setStoryPanelPlayback(playback: StoryPanelPlaybackInput): this {
     this.#editable();
     this.#story.setPanelPlayback(frozenCopy(playback));

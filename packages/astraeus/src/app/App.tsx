@@ -132,6 +132,11 @@ function storyStartOf(storySet: ExperienceDefinition["experience"]["storyPanels"
   return { autoOpen: storySet?.autoOpen ?? false, pauseSeconds: storySet?.pauseSeconds ?? 0 };
 }
 
+/** The story-panel settings in force: the two the Developer drawer changes live, and the close span the scene set. */
+function liveStorySettings(storySet: ExperienceDefinition["experience"]["storyPanels"], autoOpen: boolean, pauseSeconds: number) {
+  return { autoOpen, pauseSeconds, ...(storySet?.closeAfterSeconds === undefined ? {} : { closeAfterSeconds: storySet.closeAfterSeconds }) };
+}
+
 /** Everything one mounted experience shares: clock, resolver, catalogue and the settings read from its definition and the address. */
 function buildRuntime(definition: ExperienceDefinition, search: string) {
     const adapter = createOrbAstronomyAdapter();
@@ -220,6 +225,7 @@ function initialSceneControls(
     skyFadeInSeconds: skyFadeInSecondsOf(runtime.look),
     labelStyle: labelStyleOf(runtime.look),
     timeLook: timeLookOf(runtime.look),
+    sheetMaxPercent: runtime.look.sheetMaxPercent ?? DEFAULT_PHONE_LAYOUT.sheetMaxPercent,
     skyVisible: runtime.sky.visible,
     bodyMarker: markerSettingsOf(runtime.look),
     ...(glowBase === null ? {} : { glowLook: glowLookOf(runtime.look, glowBase) }),
@@ -309,7 +315,10 @@ export function App({ definition, writeTitle = true, address, developerTools, ho
   const [scale, setScale] = useState<ScaleId>(startScale);
   const [developerMode, setDeveloperMode] = useState(false);
   const [timelineGlow, setTimelineGlow] = useState<TimelineGlowLook>(DEFAULT_TIMELINE_GLOW);
-  const [phoneLayout, setPhoneLayout] = useState<PhoneLayoutSettings>(DEFAULT_PHONE_LAYOUT);
+  const [phoneLayoutOwn, setPhoneLayout] = useState<PhoneLayoutSettings>(DEFAULT_PHONE_LAYOUT);
+  // The sheet cap is a look: the live controls hold it, so `setLook`, the handle's `look` and the Developer slider are one value (STYLE-07).
+  const [sheetShown, setSheetShown] = useState(controls.current.sheetMaxPercent);
+  const phoneLayout: PhoneLayoutSettings = { ...phoneLayoutOwn, sheetMaxPercent: sheetShown };
   const [anchorLabels, setAnchorLabels] = useState(controls.current.showAnchorLabels);
   const [skyLinesShown, setSkyLinesShown] = useState(controls.current.skyLines);
   const [skyColoursShown, setSkyColoursShown] = useState(controls.current.skyColours);
@@ -610,7 +619,7 @@ export function App({ definition, writeTitle = true, address, developerTools, ho
       setStarBrightness(read.starBrightness); setMilkyWayBrightness(read.milkyWayBrightness); setMilkyWayOn(read.milkyWay); setSkyVisible(read.skyVisible);
       if (read.sunGlow !== undefined) setGlowShown({ ...controls.current.glowLook! });
       setMarkerPx(read.markerSwapRadiusPx); setLoadFade(read.loadFadeSeconds);
-      setSkyColoursShown(controls.current.skyColours); setLabelStyleShown(controls.current.labelStyle); setTimeLookShown(controls.current.timeLook);
+      setSkyColoursShown(controls.current.skyColours); setLabelStyleShown(controls.current.labelStyle); setTimeLookShown(controls.current.timeLook); setSheetShown(read.sheetMaxPercent);
     },
     setScale: updateScale,
     items: () => displaySwitchItems({ ...bindingsNow(), settings: hostReachable(definition.displaySwitches) }),
@@ -623,7 +632,7 @@ export function App({ definition, writeTitle = true, address, developerTools, ho
     const changed = shownKey.current !== null && shownKey.current !== key;
     shownKey.current = key;
     if (changed) host?.publish(state, "visitor");
-  }, [host, stateNow, scale, skyVisible, starBrightness, milkyWayBrightness, milkyWayOn, glowShown, markerPx, loadFade, orbitShown, setLook, hiddenLabels, anchorLabels, skyLinesShown, skyColoursShown, labelStyleShown, timeLookShown]);
+  }, [host, stateNow, scale, skyVisible, starBrightness, milkyWayBrightness, milkyWayOn, glowShown, markerPx, loadFade, orbitShown, setLook, hiddenLabels, anchorLabels, skyLinesShown, skyColoursShown, labelStyleShown, timeLookShown, sheetShown]);
   const hasStoryPanels = (storySet?.panels.length ?? 0) > 0;
   const showDisplay = showsDisplayControls(definition, runtime, skyVisible, orbitPaths.length, storyMarkerSpecs.length);
   // Orbit-line sliders: the first four stay in view, the rest sit in a nested "Fine-tune" fold (T-090).
@@ -747,10 +756,12 @@ export function App({ definition, writeTitle = true, address, developerTools, ho
           ["swipeThresholdPx", "Swipe distance (px)", "Phone swipe distance", "phone-swipe-value"],
         ] as const).map(([key, label, ariaLabel, testId]) => (
           <SettingSlider key={key} label={label} ariaLabel={ariaLabel} testId={testId} display={String(phoneLayout[key])} min={PHONE_LAYOUT_LIMITS[key].min} max={PHONE_LAYOUT_LIMITS[key].max} step={PHONE_LAYOUT_LIMITS[key].step} value={phoneLayout[key]}
-            onChange={(value) => setPhoneLayout({ ...phoneLayout, [key]: value })} />
+            onChange={(value) => {
+              if (key === "sheetMaxPercent") { controls.current.sheetMaxPercent = value; setSheetShown(value); } else setPhoneLayout({ ...phoneLayoutOwn, [key]: value });
+            }} />
         ))}
         <SettingButtons>
-          <button onClick={() => setPhoneLayout(DEFAULT_PHONE_LAYOUT)}>Reset phone layout</button>
+          <button onClick={() => { setPhoneLayout(DEFAULT_PHONE_LAYOUT); controls.current.sheetMaxPercent = DEFAULT_PHONE_LAYOUT.sheetMaxPercent; setSheetShown(DEFAULT_PHONE_LAYOUT.sheetMaxPercent); }}>Reset phone layout</button>
         </SettingButtons>
       
         </>
@@ -821,7 +832,7 @@ export function App({ definition, writeTitle = true, address, developerTools, ho
       viewCamera={currentView === undefined ? undefined : { id: currentView.id, rule: currentView.camera }}
       metricsFor={metricsFor}
       developerTools={drawerWhen(developerTools, drawer)}
-      storyPanelSettings={{ autoOpen: storyAutoOpen, pauseSeconds: storyPauseSeconds }}
+      storyPanelSettings={liveStorySettings(storySet, storyAutoOpen, storyPauseSeconds)}
       timelineGlow={timelineGlow}
       phoneLayout={phoneLayout}
       highlightedFamily={setLook.highlightFamily}
