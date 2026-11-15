@@ -28,7 +28,7 @@ Owner-confirmed 2026-11-15.
 - **Stop exactly on the end (F-26).** Playback that runs into a timeline edge stops on the edge, never one clock tick past it.
 - **A panel at the end opens (F-25).** A moment panel at the timeline's end opens when forward playback stops there.
 - **Zero-length clear clears (F-22).** `clearSkyTrace(id, { durationSeconds: 0 })` removes lines and label on the next drawn frame, paused or playing.
-- **Fractional time (F-08, I-176).** Every public time input given a fractional or out-of-range value throws `SceneError` code `bad-time` (still an instance of `RangeError`, so existing catches keep working); README Errors and time rule updated; `tests/fractionalTime.test.ts` expectation moves with it.
+- **Fractional time (F-08, I-176).** Every public time input given a fractional or out-of-range value throws `SceneError` code `bad-time` (still an instance of `RangeError`, so existing catches keep working); README Errors and time rule updated; `tests/fractionalTime.test.ts` expectation moves with it. Owner decision (2026-11-15T04:50:00Z, I-178): calls with their own documented code for a bad moment keep it (panel `at.time` `bad-panels`, anchors `bad-anchor`, `shownDuring` `bad-body`/`bad-trajectory`), and fractional panel times are refused (owner "Keep refusing").
 - **See-through colours (F-01).** A look line colour with alpha (`rgba()`, `hsla()`, `#rrggbbaa` if accepted) draws with that alpha multiplied into the line's opacity.
 - **Docs (F-16).** README `addEvents`, `EventInput` and `SceneEventRead` agree that an event's object may be a body, path or sky figure.
 - CHANGELOG `Unreleased` entries; no version bump.

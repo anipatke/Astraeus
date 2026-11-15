@@ -4,7 +4,8 @@ Versions follow [semantic versioning](https://semver.org). While the version sta
 
 ## Unreleased
 
-- Fixed: a fractional or out-of-range time given to any call that takes a time (`stateOf`, `setTime`, timeline, event, panel, path, provider and body-set times) now throws a `SceneError` with code `bad-time` (still an `instanceof RangeError`), where `stateOf` and a provider's `stateAt` used to throw a plain `RangeError` and `stateOf(provider, 1e16)` threw "Invalid time value". The engine still refuses a fractional time rather than rounding it (I-176).
+- Fixed: a fractional or out-of-range time given to a call that takes a time (`stateOf`, `setTime`, timeline, event, sample, provider and body-set times) now throws a `SceneError` with code `bad-time` (still an `instanceof RangeError`), where `stateOf` and a provider's `stateAt` used to throw a plain `RangeError` and `stateOf(provider, 1e16)` threw "Invalid time value". The engine still refuses a fractional time rather than rounding it (I-176).
+- Changed: a fractional or out-of-range story panel `at.time`, anchor `time` or `shownDuring` end, accepted before, is now refused with that call's own code (`bad-panels`, `bad-anchor`, `bad-body` or `bad-trajectory`), so every time the engine takes is a whole Unix millisecond.
 - Fixed: a sky-line colour with alpha (`rgba()`, `hsla()`, `#rrggbbaa`, `#rgba`) now draws with that alpha, multiplied into the line's opacity, for figures, outlines, the ecliptic and equator, traces and the selected figure; the drawing library used to ignore it and log a warning.
 - Fixed: the README, `EventInput` and `SceneEventRead` now agree that an event's `object` may be a body, path or sky figure.
 - Added: `setTimeline({ playing: false })` opens the viewer paused on its opening time before the first frame (default stays playing); `scene.timeline.playing` reads it (a new field on `SceneTimelineRead`). A non-boolean throws `bad-timeline`.
