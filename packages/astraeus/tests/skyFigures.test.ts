@@ -284,3 +284,46 @@ describe("sky labels join the one name layout", () => {
     layer.dispose();
   });
 });
+
+describe("SkyFiguresView: a colour with alpha (T-315, F-01)", () => {
+  const camera = new PerspectiveCamera(60, 1, 0.1, 1000);
+  const layers = (): readonly SkyFigureLayer[] => definitionOf(base().addSkyFigures([kite, ring])).skyFigures!;
+  const lineOf = (view: SkyFiguresView, name: string) => (view.group.getObjectByName(name) as unknown as { material: { opacity: number; color: { getHexString(): string } } }).material;
+  const on = { figures: true, boundaries: true, ecliptic: true, celestialEquator: true };
+  // One row per kind of look line colour and per spelling of alpha; the opacity is the line's own 0.85 times the alpha, the colour the opaque part.
+  it.each([
+    ["figure, rgba", "figure", "sky-figures", "rgba(255, 0, 0, 0.5)", "ff0000", 0.5],
+    ["boundary, hsla", "boundary", "sky-boundaries", "hsla(120, 100%, 50%, 0.25)", "00ff00", 0.25],
+    ["ecliptic, #rrggbbaa", "ecliptic", "sky-ecliptic", "#0000ff80", "0000ff", 128 / 255],
+    ["equator, #rgba", "equator", "sky-celestial-equator", "#f008", "ff0000", 0x88 / 255],
+    ["figure, no alpha", "figure", "sky-figures", "#00ff00", "00ff00", 1],
+  ] as const)("%s", (_name, colour, line, text, hex, alpha) => {
+    const view = new SkyFiguresView(layers());
+    view.place(camera, on, { ...DEFAULT_SKY_COLOURS, [colour]: text });
+    view.advanceFadeIn(10, 0, on);
+    expect(lineOf(view, line).color.getHexString()).toBe(hex);
+    expect(lineOf(view, line).opacity).toBeCloseTo(0.85 * alpha, 6);
+  });
+  it("a figure's own colour with alpha", () => {
+    const view = new SkyFiguresView([{ ...layers()[0]!, id: "own", color: "rgba(0, 0, 255, 0.4)" }]);
+    view.place(camera, on, DEFAULT_SKY_COLOURS);
+    view.advanceFadeIn(10, 0, on);
+    expect(lineOf(view, "sky-figures:own").color.getHexString()).toBe("0000ff");
+    expect(lineOf(view, "sky-figures:own").opacity).toBeCloseTo(0.85 * 0.4, 6);
+  });
+  it("the selected figure's lines and a trace take the alpha of selected and traced", () => {
+    const view = new SkyFiguresView(layers());
+    const colours = { ...DEFAULT_SKY_COLOURS, selected: "rgba(255, 255, 0, 0.5)", traced: "rgba(0, 255, 255, 0.2)" };
+    view.place(camera, on, colours, "kite");
+    view.advanceFadeIn(10, 0, on);
+    view.place(camera, on, colours, "kite");
+    expect(lineOf(view, "sky-selected:kite").color.getHexString()).toBe("ffff00");
+    expect(lineOf(view, "sky-selected:kite").opacity).toBeCloseTo(0.85 * 0.5, 6);
+    view.startTrace({ id: "kite", seconds: 1, after: "stay", reduced: false } as never);
+    view.advanceTraces(0.1, colours, on, "kite");
+    expect(lineOf(view, "sky-trace:kite").color.getHexString()).toBe("ffff00");
+    view.advanceTraces(5, colours, on);
+    expect(lineOf(view, "sky-trace:kite").color.getHexString()).toBe("00ffff");
+    expect(lineOf(view, "sky-trace:kite").opacity).toBeCloseTo(0.85 * 0.2, 6);
+  });
+});

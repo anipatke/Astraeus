@@ -4,7 +4,7 @@ export type SceneErrorCode =
   | "unknown-body"
   /** An id is already used in the scene, so the new body, path, group, orbit line, activity, event or story panel cannot take it. */
   | "duplicate-id"
-  /** A moment is not a valid time, or lies outside the span it must fall in. */
+  /** A moment is not a valid or whole time, or lies outside the span it must fall in. */
   | "bad-time"
   /** A path (`addTrajectory`) is malformed: its id, provider, bounds, plane, spans or line stretches. */
   | "bad-trajectory"

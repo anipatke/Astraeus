@@ -19,7 +19,7 @@ export interface EventInput {
   readonly type?: string;
   /** Where this event's time comes from. Shown with the event; an event without one shows the `provenance` of `addEvents`. Malformed: `addEvents` throws "bad-event" naming the event. */
   readonly provenance?: Provenance;
-  /** The body, trajectory or sky figure (its id) this event is about. Go to this event seeks to its time and, for a body or trajectory, frames the object as `camera.focus` does; for a sky figure it seeks, selects it and turns toward it only while the camera looks out. Not in the scene when the scene is built (`mount`): "bad-event" naming the event and the id. Without one, Go to only seeks. */
+  /** The body, path or sky figure (its id) this event is about. Go to this event seeks to its time and, for a body or trajectory, frames the object as `camera.focus` does; for a sky figure it seeks, selects it and turns toward it only while the camera looks out. Not in the scene when the scene is built (`mount`): "bad-event" naming the event and the id. Without one, Go to only seeks. */
   readonly object?: string;
   /**
    * Gives the event a zone of its own: from `withinSeconds` before its time to `withinSeconds` after it (simulated seconds, positive and finite). A host hears entering and leaving it

@@ -38,8 +38,13 @@ export interface StateInput {
 
 const MAX_DATE_MS = 8.64e15;
 
+/** True for a whole-millisecond JavaScript UTC Unix time inside the Date range. */
+export function isUtcUnixMs(timeUtcMs: number): boolean {
+  return Number.isSafeInteger(timeUtcMs) && Math.abs(timeUtcMs) <= MAX_DATE_MS;
+}
+
 export function assertUtcUnixMs(timeUtcMs: number): void {
-  if (!Number.isSafeInteger(timeUtcMs) || Math.abs(timeUtcMs) > MAX_DATE_MS) {
+  if (!isUtcUnixMs(timeUtcMs)) {
     throw new RangeError("timeUtcMs must be an integer JavaScript UTC Unix-millisecond value");
   }
 }

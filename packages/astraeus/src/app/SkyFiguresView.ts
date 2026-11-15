@@ -1,6 +1,7 @@
 import { BufferAttribute, BufferGeometry, Color, Group, LineBasicMaterial, LineSegments, Vector3 } from "three";
 import type { PerspectiveCamera } from "three";
 import { celestialEquatorSegments, eclipticSegments, type EqjDirection, type SkyColours, type SkyFigureLayer, type SkyClearRequest, type SkyLineSwitches, type SkyTraceRequest } from "./skyFigures";
+import { splitColourAlpha } from "../core/lookValues";
 import { stepFadeIn, stepHide, stepTrace, type SkyHideRun, type SkyTraceRun } from "../core/skyTrace";
 import { eqjToRenderVector, type RenderVector } from "./renderCoordinates";
 import { TRACK_LAYER } from "./TrackedBodyView";
@@ -27,6 +28,8 @@ interface Drawn {
   readonly shows: keyof SkyLineSwitches;
   readonly colour: keyof SkyColours;
   readonly own: boolean;
+  /** The alpha of the colour the lines are painted in, multiplied into their opacity (the drawing library ignores a colour's own alpha). */
+  alpha: number;
 }
 
 /** One trace in progress: the lines drawn over the figure, the figure's full positions, and the run's timing. */
@@ -50,6 +53,13 @@ const TRACE_LABEL_IN_SHARE = 0.5;
 /** The opacity of an always-shown line once it has faded in. */
 const LINE_OPACITY = 0.85;
 
+/** Paints a material in a CSS colour's opaque part and returns the colour's alpha for the caller to multiply into the opacity. */
+function paint(material: LineBasicMaterial, colour: string): number {
+  const { colour: opaque, alpha } = splitColourAlpha(colour);
+  material.color.set(opaque);
+  return alpha;
+}
+
 function lines(segments: Segments, color: string, key: string): LineSegments {
   const positions = new Float32Array(segments.length * 6);
   segments.forEach(([from, to], i) => positions.set([...eqjToRenderVector(from), ...eqjToRenderVector(to)], i * 6));
@@ -57,8 +67,9 @@ function lines(segments: Segments, color: string, key: string): LineSegments {
   geometry.setAttribute("position", new BufferAttribute(positions, 3));
   // Depth is tested (a body in front of the sky hides the line) but never written. The lines are on the last render pass (TRACK_LAYER), after every body's pass, so the Sun's halo
   // (drawn earlier, without depth) never covers them (owner decision 3, O-065).
-  const material = new LineBasicMaterial({ color, transparent: true, opacity: LINE_OPACITY, depthTest: true, depthWrite: false });
+  const material = new LineBasicMaterial({ transparent: true, opacity: LINE_OPACITY, depthTest: true, depthWrite: false });
   const object = new LineSegments(geometry, material);
+  object.userData.alpha = paint(material, color);
   object.name = key;
   object.layers.set(TRACK_LAYER);
   object.frustumCulled = false;
@@ -88,7 +99,7 @@ export class SkyFiguresView {
     const add = (segments: Segments, shows: Drawn["shows"], colour: Drawn["colour"], key: string, own?: string): void => {
       if (segments.length === 0) return;
       const object = lines(segments, own ?? "#ffffff", key);
-      this.#drawn.push({ object, shows, colour, own: own !== undefined });
+      this.#drawn.push({ object, shows, colour, own: own !== undefined, alpha: object.userData.alpha as number });
       this.group.add(object);
     };
     // Figures that take the look's colour share one set of lines per kind; a figure with its own colour is drawn on its own so a live look change leaves it alone.
@@ -111,13 +122,13 @@ export class SkyFiguresView {
     for (const [shows, colour, make, key] of [["ecliptic", "ecliptic", eclipticSegments, "sky-ecliptic"], ["celestialEquator", "equator", celestialEquatorSegments, "sky-celestial-equator"]] as const) {
       if (on[shows] && !this.#drawn.some((entry) => entry.shows === shows)) {
         const object = lines(make(), "#ffffff", key);
-        this.#drawn.push({ object, shows, colour, own: false });
+        this.#drawn.push({ object, shows, colour, own: false, alpha: 1 });
         this.group.add(object);
         this.#applied = null;
       }
     }
     if (this.#applied === null || Object.keys(colours).some((name) => colours[name as keyof SkyColours] !== this.#applied![name as keyof SkyColours])) {
-      for (const entry of this.#drawn) if (!entry.own) (entry.object.material as LineBasicMaterial).color.set(colours[entry.colour]);
+      for (const entry of this.#drawn) if (!entry.own) entry.alpha = paint(entry.object.material as LineBasicMaterial, colours[entry.colour]);
       this.#applied = { ...colours };
     }
     for (const entry of this.#drawn) entry.object.visible = on[entry.shows];
@@ -152,8 +163,7 @@ export class SkyFiguresView {
       this.#selected = { id: layer.id, object };
     }
     const material = this.#selected.object.material as LineBasicMaterial;
-    material.color.set(colours.selected);
-    material.opacity = LINE_OPACITY * (layer.whenTraced === true ? 1 : this.#shownShare[layer.kind === "figure" ? "figures" : "boundaries"]);
+    material.opacity = paint(material, colours.selected) * LINE_OPACITY * (layer.whenTraced === true ? 1 : this.#shownShare[layer.kind === "figure" ? "figures" : "boundaries"]);
     // While the figure's trace is still drawing, the trace itself grows in the selected colour (`advanceTraces`) and the whole-figure emphasis waits, so it never covers the growing line (owner, T-306).
     this.#selected.object.visible = this.#tappable(layer, on) && !this.#drawing(layer.id);
   }
@@ -222,8 +232,10 @@ export class SkyFiguresView {
       positions.needsUpdate = true;
       trace.object.geometry.setDrawRange(0, (last + 1) * 2);
       const material = trace.object.material as LineBasicMaterial;
-      material.color.set(id === selectedId && frame.drawn < 1 && trace.hide === undefined ? colours.selected : colours.traced).lerp(FADED.set(colours.faded), frame.fade);
-      material.opacity = TRACE_OPACITY * (1 - frame.fade);
+      const base = splitColourAlpha(id === selectedId && frame.drawn < 1 && trace.hide === undefined ? colours.selected : colours.traced);
+      const faded = splitColourAlpha(colours.faded);
+      material.color.set(base.colour).lerp(FADED.set(faded.colour), frame.fade);
+      material.opacity = TRACE_OPACITY * (1 - frame.fade) * (base.alpha + (faded.alpha - base.alpha) * frame.fade);
       trace.object.visible = on[trace.kind === "figure" ? "figures" : "boundaries"];
     }
     return moving;
@@ -241,7 +253,7 @@ export class SkyFiguresView {
       this.#shownShare[kind] = after;
       if (after !== before) moving = true;
     }
-    for (const entry of this.#drawn) (entry.object.material as LineBasicMaterial).opacity = LINE_OPACITY * this.#shownShare[entry.shows];
+    for (const entry of this.#drawn) (entry.object.material as LineBasicMaterial).opacity = LINE_OPACITY * entry.alpha * this.#shownShare[entry.shows];
     return moving;
   }
 

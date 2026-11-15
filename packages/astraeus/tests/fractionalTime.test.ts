@@ -22,14 +22,15 @@ describe("a fractional time (I-177)", () => {
     ["a body", "moon"],
     ["a samples path", "sampled"],
     ["a provider path", "provided"],
-  ])("on %s throws a plain RangeError and reaches no provider", (_kind, id) => {
+  ])("on %s throws a bad-time SceneError (still a RangeError) and reaches no provider", (_kind, id) => {
     const seen: number[] = [];
     const scene = sceneWithPaths(seen);
     seen.length = 0;
     let thrown: unknown;
     try { scene.stateOf(id, T0 + DAY + 0.5); } catch (error) { thrown = error; }
     expect(thrown).toBeInstanceOf(RangeError);
-    expect(thrown).not.toBeInstanceOf(SceneError);
+    expect(thrown).toBeInstanceOf(SceneError);
+    expect((thrown as SceneError).code).toBe("bad-time");
     expect(seen).toEqual([]);
   });
 

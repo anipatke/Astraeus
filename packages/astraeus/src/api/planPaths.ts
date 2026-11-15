@@ -2,7 +2,7 @@ import type { BodyId } from "../core/body";
 import { createProvenance } from "../core/provenance";
 import type { WindowProvenanceSpan } from "../core/timeWindow";
 import { SampledTrajectory, type TrajectorySample } from "../core/sampledTrajectory";
-import { assertUtcUnixMs, createState, type State } from "../core/state";
+import { createState, type State } from "../core/state";
 import { createOrbTwoBodyAdapter } from "../core/twoBodyAdapter";
 import { createStateResolver } from "../core/stateResolver";
 import { createOrbAstronomyAdapter } from "../core/astronomyAdapter";
@@ -100,7 +100,7 @@ function providerBody(common: Common, input: Extract<TrajectoryInput, { provider
   if (bounds.endUtcMs <= bounds.startUtcMs) throw new SceneError("bad-trajectory", `addTrajectory("${common.id}"): bounds must end after they start`);
   const trajectory: Trajectory & { readonly bounds: TimeBounds } = { body: common.id, bounds, stateAt: (timeUtcMs, center) => {
     // Every call reaches the host here (`stateOf`, line planning, reach, sampling): a provider only ever sees whole milliseconds (I-177).
-    assertUtcUnixMs(timeUtcMs);
+    toUtcMs(timeUtcMs, `addTrajectory("${common.id}") provider time`);
     return rotatedState(toEqj, input.provider.stateAt(timeUtcMs, center));
   } };
   // Whole milliseconds, because the state resolver refuses a fractional time (the line is placed against another body at these times). The 128 even moments gain more where the path bends or the body moves fast, as seen from `center`.

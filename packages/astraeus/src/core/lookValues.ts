@@ -17,6 +17,24 @@ export function isCssColour(value: unknown): value is string {
   return HEX.test(text) || FUNCTION.test(text) || NAMED.has(text.toLowerCase());
 }
 
+const FUNCTION_PARTS = /^(rgb|hsl)a?\(\s*([\d.]+%?)\s*,\s*([\d.]+%?)\s*,\s*([\d.]+%?)\s*(?:,\s*([\d.]+%?)\s*)?\)$/i;
+
+function alphaOf(text: string | undefined): number {
+  if (text === undefined) return 1;
+  const value = text.endsWith("%") ? Number.parseFloat(text) / 100 : Number.parseFloat(text);
+  return Number.isFinite(value) ? Math.min(1, Math.max(0, value)) : 1;
+}
+
+/** A CSS colour split into its opaque part (what the drawing library can take) and its alpha, 0 to 1 (1 for a colour with none): `#rrggbbaa`, `#rgba`, `rgba()` and `hsla()` carry one. The drawing library ignores an alpha in a colour, so a line multiplies it into its opacity. */
+export function splitColourAlpha(colour: string): { readonly colour: string; readonly alpha: number } {
+  const text = colour.trim();
+  if (/^#[0-9a-f]{4}$/i.test(text)) return { colour: `#${text[1]}${text[2]}${text[3]}`, alpha: Number.parseInt(text[4]! + text[4]!, 16) / 255 };
+  if (/^#[0-9a-f]{8}$/i.test(text)) return { colour: text.slice(0, 7), alpha: Number.parseInt(text.slice(7), 16) / 255 };
+  const parts = FUNCTION_PARTS.exec(text);
+  if (parts === null || parts[5] === undefined) return { colour: text, alpha: 1 };
+  return { colour: `${parts[1]!.toLowerCase()}(${parts[2]}, ${parts[3]}, ${parts[4]})`, alpha: alphaOf(parts[5]) };
+}
+
 /** True for a non-blank font family text (any CSS font-family list, or `inherit`). */
 export function isFontFamily(value: unknown): value is string {
   return typeof value === "string" && value.trim() !== "" && !/[;{}]/.test(value);

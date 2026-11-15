@@ -1,6 +1,7 @@
 import { createProvenance, PROVENANCE_SOURCE_TYPES, type Provenance, type ProvenanceSourceType } from "./provenance";
 import type { StartView } from "./startView";
 import type { SkyTraceAfter } from "./skyTrace";
+import { isUtcUnixMs } from "./state";
 import { timeInputMs, type TimeInput } from "./timeInput";
 import type { TimeBounds } from "./trajectory";
 
@@ -122,7 +123,7 @@ function atOf(panel: string, at: unknown): CheckedPanel["at"] {
   if (keys[0] === "event") return { event: text(panel, "at.event", at.event) };
   if (keys[0] === "anchor") return { anchor: text(panel, "at.anchor", at.anchor) };
   const timeUtcMs = timeInputMs(at.time as TimeInput);
-  if (!Number.isFinite(timeUtcMs)) throw new StoryPanelError(panel, "at.time", `must be a valid moment (ISO text, a Date or Unix milliseconds), got ${JSON.stringify(at.time)}`);
+  if (!isUtcUnixMs(timeUtcMs)) throw new StoryPanelError(panel, "at.time", `must be a valid moment (ISO text, a Date or Unix milliseconds), got ${JSON.stringify(at.time)}`);
   return { timeUtcMs };
 }
 
