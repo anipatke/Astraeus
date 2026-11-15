@@ -1,7 +1,7 @@
 ---
 id: O-074
 title: Time as the visitor reads it
-status: planned
+status: in_progress
 depends_on: [O-073]
 release: G-020
 priority: medium

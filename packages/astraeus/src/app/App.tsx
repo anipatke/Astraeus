@@ -44,6 +44,7 @@ import { displaySwitchItems, hostReachable, orbitStart, skyLineStart, type Switc
 import { TRACE_FADE_SECONDS, type SkyTraceAfter } from "../core/skyTrace";
 import { aimAtFigure, DEFAULT_SKY_LINES, prefersReducedMotion, skyColoursOf, skyFadeInSecondsOf } from "./skyFigures";
 import { labelStyleOf } from "./labelStyle";
+import { timeLookOf } from "./timeLook";
 import { experienceInView, hiddenByView, hiddenWithShownSpans, viewById } from "./viewHiding";
 import { cameraIdsOf } from "../core/storyPanels";
 import type { RingLook } from "../assets/rings";
@@ -218,6 +219,7 @@ function initialSceneControls(
     skyTraces: [],
     skyFadeInSeconds: skyFadeInSecondsOf(runtime.look),
     labelStyle: labelStyleOf(runtime.look),
+    timeLook: timeLookOf(runtime.look),
     skyVisible: runtime.sky.visible,
     bodyMarker: markerSettingsOf(runtime.look),
     ...(glowBase === null ? {} : { glowLook: glowLookOf(runtime.look, glowBase) }),
@@ -312,6 +314,7 @@ export function App({ definition, writeTitle = true, address, developerTools, ho
   const [skyLinesShown, setSkyLinesShown] = useState(controls.current.skyLines);
   const [skyColoursShown, setSkyColoursShown] = useState(controls.current.skyColours);
   const [labelStyleShown, setLabelStyleShown] = useState(controls.current.labelStyle);
+  const [timeLookShown, setTimeLookShown] = useState(controls.current.timeLook);
   const [glowShown, setGlowShown] = useState<GlowLook | null>(copyOfGlow(controls.current.glowLook));
   const orbitPaths = orbitPathsOf(runtime);
   const orbitDefault = useMemo(() => resolveOrbitLook(orbitPaths[0]?.look), [orbitPaths]);
@@ -607,7 +610,7 @@ export function App({ definition, writeTitle = true, address, developerTools, ho
       setStarBrightness(read.starBrightness); setMilkyWayBrightness(read.milkyWayBrightness); setMilkyWayOn(read.milkyWay); setSkyVisible(read.skyVisible);
       if (read.sunGlow !== undefined) setGlowShown({ ...controls.current.glowLook! });
       setMarkerPx(read.markerSwapRadiusPx); setLoadFade(read.loadFadeSeconds);
-      setSkyColoursShown(controls.current.skyColours); setLabelStyleShown(controls.current.labelStyle);
+      setSkyColoursShown(controls.current.skyColours); setLabelStyleShown(controls.current.labelStyle); setTimeLookShown(controls.current.timeLook);
     },
     setScale: updateScale,
     items: () => displaySwitchItems({ ...bindingsNow(), settings: hostReachable(definition.displaySwitches) }),
@@ -620,7 +623,7 @@ export function App({ definition, writeTitle = true, address, developerTools, ho
     const changed = shownKey.current !== null && shownKey.current !== key;
     shownKey.current = key;
     if (changed) host?.publish(state, "visitor");
-  }, [host, stateNow, scale, skyVisible, starBrightness, milkyWayBrightness, milkyWayOn, glowShown, markerPx, loadFade, orbitShown, setLook, hiddenLabels, anchorLabels, skyLinesShown, skyColoursShown, labelStyleShown]);
+  }, [host, stateNow, scale, skyVisible, starBrightness, milkyWayBrightness, milkyWayOn, glowShown, markerPx, loadFade, orbitShown, setLook, hiddenLabels, anchorLabels, skyLinesShown, skyColoursShown, labelStyleShown, timeLookShown]);
   const hasStoryPanels = (storySet?.panels.length ?? 0) > 0;
   const showDisplay = showsDisplayControls(definition, runtime, skyVisible, orbitPaths.length, storyMarkerSpecs.length);
   // Orbit-line sliders: the first four stay in view, the rest sit in a nested "Fine-tune" fold (T-090).
@@ -786,6 +789,7 @@ export function App({ definition, writeTitle = true, address, developerTools, ho
       paceAuto={runtime.pacing === undefined ? undefined : paceAuto}
       developerMode={developerMode}
       labelStyle={labelStyleShown}
+      timeLook={timeLookShown}
       onDeveloperModeChange={setDeveloperMode}
       onTogglePlayback={() => {
         if (runtime.clock.playing) runtime.clock.pause();

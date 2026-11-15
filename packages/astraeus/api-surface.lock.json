@@ -2256,6 +2256,11 @@
           "name": "labels",
           "optional": true,
           "signature": "LabelsLook | undefined"
+        },
+        {
+          "name": "time",
+          "optional": true,
+          "signature": "TimeLook | undefined"
         }
       ]
     },
@@ -2323,6 +2328,11 @@
           "name": "labels",
           "optional": false,
           "signature": "{ readonly fontFamily: string; readonly sizePx: number; }"
+        },
+        {
+          "name": "time",
+          "optional": false,
+          "signature": "Required<TimeLook>"
         }
       ]
     },
@@ -2409,6 +2419,23 @@
           "name": "sizePx",
           "optional": true,
           "signature": "number | undefined"
+        }
+      ]
+    },
+    "TimeLook": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "zone",
+          "optional": true,
+          "signature": "string | undefined"
+        },
+        {
+          "name": "precision",
+          "optional": true,
+          "signature": "\"day\" | \"minute\" | \"second\" | undefined"
         }
       ]
     },

@@ -2,7 +2,7 @@
 id: T-316
 title: Show times in the visitor's zone and to the day
 objective: O-074
-status: planned
+status: done
 depends_on: []
 owner_validation: {required: false}
 check_waiver: {task: T-316, reason: 'Owner said "orchestratew O74" (orchestrate O-074) under the standing run rules (one builder at a time, no per-step checks, coordinator marks done once gates pass, one Full Objective Check at the end); the optional Task Check is waived.', actor: {role: owner, session: plan-o074-20261115}, recorded_at: '2026-11-15T09:10:52Z'}
@@ -72,8 +72,17 @@ Focused tests while iterating; configured gates at handoff (lint, typecheck, bui
 
 ## Technical Evidence
 
-Pending execution.
+- Cases: `tests/timeLook.test.ts` (24 tests): one table over zone (UTC, local with TZ pinned to Asia/Kolkata, Australia/Sydney, America/New_York across a date boundary: 02:37Z is the 14th in New York) x (day, minute, second) with the language pinned to en-US; UTC/second byte-identical to `formatUtcTimestamp`; default and explicit UTC/second render today's exact strings in the bar timestamp, slider `aria-valuetext`, bounds, and event and window info cards; a named zone changes all of those while `dateTime` stays ISO UTC; read-back default; `Scene.setLook` keeps a good time look and the address cannot reach it; six `bad-look` cases; `applyLook` live change, read-back and `setLook(read)` round-trip. `tests/look.test.ts` gained two CASES rows (`time.zone`, `time.precision`) so its "covers every look in the table" check holds; no existing setup changed.
+- Gates: lint pass; typecheck pass; build pass; test: 259 files passed, 1 failed; 3950 passed, 1 failed (`packages/astraeus-site/tests/apiReference.test.ts`, the api/index.html gzip budget: 44,225 B against the 44,000 B limit in `tools/validate/load-budget.mjs`). The new documented surface (`TimeLook`, `LookInput.time`, `LookRead.time`) pushes the generated API page over; I shortened the docs but the limit was already within a few hundred bytes. Raising `gzipLimit` is an owner decision (earlier raises: owner 2026-11-03, 2026-11-10); not changed here. The `apiSurface` allowlist needed no entry (TimeLook exported from `src/api/index.ts`).
+- `npm run api:lock` rerun.
+- Files changed: src/core/lookValues.ts (isTimeZone, isTimePrecision, TIME_PRECISIONS), src/app/look.ts (zone and choice kinds; time.zone, time.precision fields), src/api/lookInput.ts, src/api/look.ts (TimeLook, LookInput.time, LookRead.time), src/api/index.ts (export TimeLook), src/shell/timelineModel.ts (TimeLook, DEFAULT_TIME_LOOK, withDefaultTime, formatTime), src/shell/TimelineBar.tsx, src/shell/infoModel.ts, src/shell/AstraeusShell.tsx, src/app/timeLook.ts (new, timeLookOf), src/app/AstraeusScene.tsx (SceneControls.timeLook), src/app/liveLook.ts, src/app/App.tsx, tests/timeLook.test.ts (new), tests/look.test.ts (two rows), tests/helpers/viewerPresentation.ts (FAKE_LOOK gained `time`, required by the LookRead type), README.md (setLook row, handle.look row), CHANGELOG.md (Unreleased), api-surface.lock.json.
+- Extra reads: none beyond Context Files (plus README.md/CHANGELOG.md rows by line).
+
+- Owner decision (2026-11-15T09:20:17Z): api/index.html gzip limit 44,000 -> 44,500 B (`packages/astraeus-site/tools/validate/load-budget.mjs`); owner chose "Raise to 44,500 bytes". The page measured 44,225 B with the time look. `apiReference.test.ts` rerun: 4 passed. The rest of the builder's full test run (259 files, 3950 passed, 1 failed, which was this test) is unaffected by the change to the limit alone.
+- Coordinator marks done (lint, typecheck, build pass; test gate passes once the limit is raised), per the owner's "orchestratew O74".
 
 ## Drift Notes
 
 Record any architecture delta (for example where the time look is carried) for reconciliation before the Full Objective Check.
+
+- The time look is carried like the label style: `SceneControls.timeLook` (set by `applyLook`, read by `lookReadOf`), mirrored in App state (`timeLookShown`) and passed as the `timeLook` prop of `AstraeusShell`, which hands it to `TimelineBar` (and `TimelineExpanded`) and to `infoView` (optional 4th argument). `formatTime` in `shell/timelineModel.ts` is the one formatter; `DebugOverlay` and `dateTime` attributes still use `formatUtcTimestamp`. The look has two new spec kinds (`zone`, `choice`) in `app/look.ts`, both with `param: null`. Design.md reconciliation: note the new kinds and the shell prop.

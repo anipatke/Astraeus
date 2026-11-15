@@ -6,6 +6,7 @@ import { glowLookOf, markerSettingsOf, DEFAULT_BODY_MARKER } from "../src/app/bo
 import { featureMinBodyPxOf, DEFAULT_FEATURE_MIN_BODY_PX } from "../src/app/FeatureMarkers";
 import { LOOK_FIELDS, lookName, lookWith, resolveLook, type LookInput } from "../src/app/look";
 import { labelStyleOf } from "../src/app/labelStyle";
+import { timeLookOf } from "../src/app/timeLook";
 import { DEFAULT_SKY_COLOURS, skyColoursOf, skyFadeInSecondsOf } from "../src/app/skyFigures";
 import { DEFAULT_SKY_FADE_IN_SECONDS } from "../src/core/skyTrace";
 import { desktopPicturesOf } from "../src/app/liveLook";
@@ -32,6 +33,8 @@ const CASES: readonly { readonly key: string; readonly set: number | boolean | s
   ...(["figure", "label", "boundary", "ecliptic", "equator", "traced", "faded", "selected"] as const).map((name) => ({ key: `skyLines.${name}`, set: "#123456", param: null, asked: "#abcdef", askedValue: "#123456", read: (l: LookInput) => skyColoursOf(l)[name], defaultRead: DEFAULT_SKY_COLOURS[name] })),
   { key: "labels.fontFamily", set: "Georgia, serif", param: null, asked: "x", askedValue: "Georgia, serif", read: (l) => labelStyleOf(l).fontFamily, defaultRead: "inherit" },
   { key: "labels.sizePx", set: 16, param: null, asked: "20", askedValue: 16, read: (l) => labelStyleOf(l).sizePx, defaultRead: 12 },
+  { key: "time.zone", set: "Australia/Sydney", param: null, asked: "local", askedValue: "Australia/Sydney", read: (l) => timeLookOf(l).zone, defaultRead: "UTC" },
+  { key: "time.precision", set: "day", param: null, asked: "minute", askedValue: "day", read: (l) => timeLookOf(l).precision, defaultRead: "second" },
 ];
 
 describe("looks are public settings", () => {

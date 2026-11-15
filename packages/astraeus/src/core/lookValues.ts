@@ -42,3 +42,25 @@ export function isFontFamily(value: unknown): value is string {
 
 /** Label size range in pixels: small enough for a crowded sky, large enough to read on a phone. */
 export const LABEL_SIZE_LIMITS = Object.freeze({ min: 8, max: 24 });
+
+/** The precisions a time can be shown to. */
+export const TIME_PRECISIONS = Object.freeze(["day", "minute", "second"] as const);
+/** How precisely a time reads: `"day"`, `"minute"` or `"second"`. */
+export type TimePrecision = (typeof TIME_PRECISIONS)[number];
+
+/** True for a time precision name. */
+export function isTimePrecision(value: unknown): value is TimePrecision {
+  return typeof value === "string" && (TIME_PRECISIONS as readonly string[]).includes(value);
+}
+
+/** True for a zone the time look takes: `"UTC"`, `"local"` (the visitor's own) or an IANA name the runtime's `Intl` accepts. */
+export function isTimeZone(value: unknown): value is string {
+  if (typeof value !== "string" || value.trim() === "") return false;
+  if (value === "UTC" || value === "local") return true;
+  try {
+    new Intl.DateTimeFormat(undefined, { timeZone: value });
+    return true;
+  } catch {
+    return false;
+  }
+}

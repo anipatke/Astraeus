@@ -11,6 +11,7 @@ import type { TimelineGlowLook } from "./timelineGlow";
 import { requestObjectId, type ExperienceCameraPreset, type ExperienceConfig, type ExperienceObject } from "./experience";
 import { InfoPanel } from "./InfoPanel";
 import { infoView } from "./infoModel";
+import type { TimeLook } from "./timelineModel";
 import type { Metric } from "./metrics";
 import { PanelLoadBoundary } from "../app/PanelLoadBoundary";
 import { ControlsDrawer } from "./ControlsDrawer";
@@ -141,6 +142,8 @@ interface Props {
   readonly phoneLayout?: PhoneLayoutSettings;
   /** The font and size of every label (the look `labels`), carried to them as CSS variables on the root; absent: the stylesheet's own. */
   readonly labelStyle?: { readonly fontFamily: string; readonly sizePx: number };
+  /** The zone and precision of every visitor-facing time (the look `time`); absent: UTC to the second. */
+  readonly timeLook?: TimeLook;
   /** The family of moons lit up in the scene now (the moon panel's choice), or null; the app draws it. */
   readonly highlightedFamily?: string | null;
   readonly onHighlightFamily?: (familyId: string | null) => void;
@@ -225,10 +228,10 @@ function objectLabelOr(experience: ExperienceConfig, objectId: string, fallback:
 }
 
 /** The information panel's content and, for an object, its live measurements. */
-function infoContent(experience: ExperienceConfig, info: InfoState, selectedObjectId: string, timeUtcMs: number, metricsFor: Props["metricsFor"]) {
+function infoContent(experience: ExperienceConfig, info: InfoState, selectedObjectId: string, timeUtcMs: number, metricsFor: Props["metricsFor"], timeLook: TimeLook | undefined) {
   const view = info === null
     ? null
-    : infoView(experience, info.kind === "object" ? { kind: "object", id: selectedObjectId } : info, timeUtcMs);
+    : infoView(experience, info.kind === "object" ? { kind: "object", id: selectedObjectId } : info, timeUtcMs, timeLook);
   const metrics = view?.target.kind === "object" && metricsFor !== undefined && skyFigureById(experience, view.target.id) === undefined ? metricsFor(view.target.id, timeUtcMs) : [];
   return { view, metrics };
 }
@@ -266,6 +269,7 @@ export function AstraeusShell({
   timelineGlow,
   phoneLayout = DEFAULT_PHONE_LAYOUT,
   labelStyle,
+  timeLook,
   highlightedFamily = null,
   onHighlightFamily,
   onSetPlaying,
@@ -502,7 +506,7 @@ export function AstraeusShell({
     if (info?.kind === "window") setInfo({ kind: "window", id: window.id });
   };
 
-  const { view, metrics } = infoContent(experience, info, selectedObjectId, snapshot.timeUtcMs, metricsFor);
+  const { view, metrics } = infoContent(experience, info, selectedObjectId, snapshot.timeUtcMs, metricsFor, timeLook);
 
   // On a wide screen the moons sheet and the information panel share the left column under the toolbar: opening one closes the other.
   const toggleMoons = () => {
@@ -563,6 +567,7 @@ export function AstraeusShell({
         hidden={experience.hideTimeline === true}
         experience={experience}
         snapshot={snapshot}
+        timeLook={timeLook}
         onTogglePlayback={onTogglePlayback}
         onRateChange={onRateChange}
         paceAuto={paceAuto}

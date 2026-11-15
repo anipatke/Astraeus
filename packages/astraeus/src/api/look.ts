@@ -36,6 +36,14 @@ export interface LabelsLook {
   readonly sizePx?: number;
 }
 
+/** The zone and precision of the viewer's times. */
+export interface TimeLook {
+  /** `"UTC"` (default, ISO text), `"local"` (the visitor's zone) or an IANA name such as `"Australia/Sydney"`; else `bad-look`. */
+  readonly zone?: string;
+  /** `"day"`, `"minute"` or `"second"` (default). */
+  readonly precision?: "day" | "minute" | "second";
+}
+
 /** The looks a scene may set with `Scene.setLook`: presentation settings that change how the scene is drawn, never where anything is. Each is optional and keeps its default when absent. */
 export interface LookInput {
   /** Brightness of the catalogue stars, 0 to 2; 1 is the baseline star curve and 0 hides them in effect. Default 1. */
@@ -62,6 +70,8 @@ export interface LookInput {
   readonly skyLines?: SkyLinesLook;
   /** The font and size of every label. Default: the page's font at 12 pixels, as before. */
   readonly labels?: LabelsLook;
+  /** How times read in the clock bar, event list and cards. Default UTC to the second. */
+  readonly time?: TimeLook;
 }
 
 /** The looks a running viewer shows, every one filled in (`ViewerHandle.look`): the scene's `setLook`, the page address and the Developer drawer laid over the defaults. `sunGlow` is absent in a scene without the Sun. */
@@ -81,4 +91,5 @@ export interface LookRead {
   readonly skyLines: { readonly figure: string; readonly label: string; readonly boundary: string; readonly ecliptic: string; readonly equator: string; readonly traced: string; readonly faded: string; readonly selected: string };
   /** The label font and size in force. */
   readonly labels: { readonly fontFamily: string; readonly sizePx: number };
+  readonly time: Required<TimeLook>;
 }

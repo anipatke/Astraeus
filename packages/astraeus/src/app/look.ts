@@ -4,7 +4,7 @@
  * parameter to its `LookInput` key and parser; every reader takes the resolved `LookInput` from `resolveLook`, so none parses the address itself. Precedence: address over `setLook` over default.
  */
 import type { LookInput } from "../api/look";
-import { LABEL_SIZE_LIMITS } from "../core/lookValues";
+import { LABEL_SIZE_LIMITS, TIME_PRECISIONS } from "../core/lookValues";
 export type { LookInput } from "../api/look";
 
 /** The address parameters that set a look. */
@@ -16,7 +16,9 @@ export type LookKind =
   | { readonly kind: "onoff" }
   | { readonly kind: "offOnly" }
   | { readonly kind: "colour" }
-  | { readonly kind: "font" };
+  | { readonly kind: "font" }
+  | { readonly kind: "zone" }
+  | { readonly kind: "choice"; readonly values: readonly string[] };
 
 /** One look: where it sits in `LookInput` (`["sunGlow", "sizePx"]` for a nested one), its address parameter (null: the look has none, it is set only with `setLook`) and how it is written. */
 export interface LookField { readonly path: readonly [string] | readonly [string, string]; readonly param: LookParam | null; readonly spec: LookKind }
@@ -42,6 +44,9 @@ export const LOOK_FIELDS: readonly LookField[] = [
   colour("figure"), colour("label"), colour("boundary"), colour("ecliptic"), colour("equator"), colour("traced"), colour("faded"), colour("selected"),
   { path: ["labels", "fontFamily"], param: null, spec: { kind: "font" } },
   range(["labels", "sizePx"], null, LABEL_SIZE_LIMITS.min, LABEL_SIZE_LIMITS.max),
+  // The zone and precision of the viewer's times (O-074 T-316) have no address parameter either: the address `t` stays UTC.
+  { path: ["time", "zone"], param: null, spec: { kind: "zone" } },
+  { path: ["time", "precision"], param: null, spec: { kind: "choice", values: TIME_PRECISIONS } },
 ];
 
 /** The name a look is called in a message: `sunGlow.sizePx`. */
@@ -76,7 +81,7 @@ function fromAddress(search: string, field: LookField): number | boolean | undef
   const raw = rawParam(search, field.param);
   if (raw === null) return undefined;
   const { spec } = field;
-  if (spec.kind === "colour" || spec.kind === "font") return undefined;
+  if (spec.kind === "colour" || spec.kind === "font" || spec.kind === "zone" || spec.kind === "choice") return undefined;
   if (spec.kind === "onoff") return raw === "on" ? true : raw === "off" ? false : undefined;
   if (spec.kind === "offOnly") return raw === "off" ? false : undefined;
   const value = raw.trim() === "" ? Number.NaN : Number(raw);

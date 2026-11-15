@@ -3,7 +3,7 @@ import type { ExperienceConfig } from "./experience";
 import { provenanceAt, rateAt, spanProvenanceAt } from "../core/timeWindow";
 import { findFeature } from "./bodyFeatures";
 import { skyFigureById } from "./objectModel";
-import { formatUtcTimestamp, formatWindowRate } from "./timelineModel";
+import { DEFAULT_TIME_LOOK, formatTime, formatWindowRate, type TimeLook } from "./timelineModel";
 
 /** The badge text for each provenance status. The status is always written, never shown by colour alone. */
 export const PROVENANCE_STATUS: Readonly<Record<ProvenanceSourceType, string>> = {
@@ -50,23 +50,23 @@ export function provenanceView(provenance: Provenance, knownLimitations: readonl
  * What the info panel shows for a configured object, event or window, or null when the id is not configured.
  * A window's rate and source depend on `timeUtcMs`, the clock.
  */
-export function infoView(experience: ExperienceConfig, target: InfoTarget, timeUtcMs?: number): InfoView | null {
-  if (target.kind === "window") return windowInfo(experience, target, timeUtcMs);
+export function infoView(experience: ExperienceConfig, target: InfoTarget, timeUtcMs?: number, timeLook: TimeLook = DEFAULT_TIME_LOOK): InfoView | null {
+  if (target.kind === "window") return windowInfo(experience, target, timeUtcMs, timeLook);
   if (target.kind === "feature") return featureInfo(experience, target);
   if (target.kind === "object") return objectInfo(experience, target, timeUtcMs);
-  return eventInfo(experience, target);
+  return eventInfo(experience, target, timeLook);
 }
 
-function windowInfo(experience: ExperienceConfig, target: InfoTarget, timeUtcMs?: number): InfoView | null {
+function windowInfo(experience: ExperienceConfig, target: InfoTarget, timeUtcMs: number | undefined, timeLook: TimeLook): InfoView | null {
   const window = experience.windows?.find((candidate) => candidate.id === target.id);
   if (window === undefined) return null;
   const rate = timeUtcMs === undefined ? null : rateAt(window, timeUtcMs);
   const source = (timeUtcMs === undefined ? null : provenanceAt(window, timeUtcMs)) ?? experience.eventProvenance;
   const facts: InfoFact[] = [
-    { label: "Starts", value: formatUtcTimestamp(window.startUtcMs) },
-    { label: "Ends", value: formatUtcTimestamp(window.endUtcMs) },
+    { label: "Starts", value: formatTime(window.startUtcMs, timeLook) },
+    { label: "Ends", value: formatTime(window.endUtcMs, timeLook) },
   ];
-  if (window.peakUtcMs !== undefined) facts.push({ label: "Peak", value: formatUtcTimestamp(window.peakUtcMs) });
+  if (window.peakUtcMs !== undefined) facts.push({ label: "Peak", value: formatTime(window.peakUtcMs, timeLook) });
   if (window.rate !== undefined) {
     facts.push({ label: "Rate now", value: rate === null ? "Not available at this time" : formatWindowRate(rate, window.rate.unit) });
   }
@@ -100,14 +100,14 @@ function objectInfo(experience: ExperienceConfig, target: InfoTarget, timeUtcMs?
   };
 }
 
-function eventInfo(experience: ExperienceConfig, target: InfoTarget): InfoView | null {
+function eventInfo(experience: ExperienceConfig, target: InfoTarget, timeLook: TimeLook): InfoView | null {
   const event = experience.events.find((candidate) => candidate.id === target.id);
   if (event === undefined) return null;
   const source = experience.eventProvenanceById?.[event.id] ?? experience.eventProvenance;
   return {
     target,
     title: event.label,
-    subtitle: formatUtcTimestamp(event.timeUtcMs),
+    subtitle: formatTime(event.timeUtcMs, timeLook),
     provenance: source === undefined ? null : provenanceView(source),
   };
 }

@@ -37,6 +37,7 @@ import type { GroupFill } from "./FrameRateSection";
 import { TRACK_LAYER } from "./TrackedBodyView";
 import { type BodySetLayer, type BodySetLook } from "./bodySet";
 import type { LabelStyle } from "./labelStyle";
+import type { TimeLook } from "./timeLook";
 import type { SkyColours, SkyClearRequest, SkyFigureLayer, SkyLineSwitches, SkyTraceRequest } from "./skyFigures";
 import type { RingLook } from "../assets/rings";
 import type { Pictures } from "../assets/pictures";
@@ -107,6 +108,8 @@ export interface SceneControls {
   skyFadeInSeconds: number;
   /** Presentation only: the label font and size (the look `labels`; live). The viewer root carries it to every label as CSS variables. */
   labelStyle: LabelStyle;
+  /** Presentation only: the zone and precision of every visitor-facing time (the look `time`; live). */
+  timeLook: TimeLook;
   /** Presentation only: when a sphere is too small to see it is drawn as a marker (see `drawsAsMarker`). */
   bodyMarker: BodyMarkerSettings;
   /** Presentation only: the live halo settings of a body whose record has a glow (the Sun). */

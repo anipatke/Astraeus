@@ -2,7 +2,7 @@ import { useEffect, useId, useMemo, useRef, useState, type CSSProperties, type P
 import type { ClockSnapshot } from "../core/clock";
 import type { TimelineEvent } from "../core/events";
 import type { TimelineWindow } from "../core/timeWindow";
-import { eventContextAt, formatUtcTimestamp, formatWindowRate, navigationStops, windowContextAt, timePositionPercent, type NavigationStop, speedsOf, TIMELINE_STEP_MS, clampToBounds, formatRateCompact, formatRate, groupMarkers } from "./timelineModel";
+import { DEFAULT_TIME_LOOK, withDefaultTime, eventContextAt, formatTime, formatUtcTimestamp, formatWindowRate, navigationStops, windowContextAt, timePositionPercent, type NavigationStop, speedsOf, TIMELINE_STEP_MS, clampToBounds, formatRateCompact, formatRate, groupMarkers, type TimeLook } from "./timelineModel";
 import { activityAt, DEFAULT_TIMELINE_GLOW, glowDescription, glowGradient, glowProfile, glowTooltip, type TimelineGlowLook } from "./timelineGlow";
 import type { ExperienceConfig } from "./experience";
 import { Label } from "./Label";
@@ -32,6 +32,8 @@ interface Props {
   readonly onWindowInfo: (window: TimelineWindow) => void;
   /** How the activity glow looks (live settings); absent: the defaults. */
   readonly glowLook?: TimelineGlowLook;
+  /** The zone and precision every time reads in (the look `time`). Default UTC to the second. */
+  readonly timeLook?: TimeLook;
   /** On a phone the timeline has a drawer (speed slider, events) under its two lines; absent: the larger-screen bar. */
   readonly drawer?: { readonly open: boolean; readonly onOpenChange: (open: boolean) => void; readonly swipeThresholdPx: number };
   /** The id of the information panel the event buttons open, made once per viewer by the shell. */
@@ -56,10 +58,15 @@ function SpeedMenu({ speeds, rate, paceAuto, compact, onRateChange }: { readonly
   );
 }
 
+/** The timestamp as the narrow bar shows it: UTC ISO text without its seconds and `T`; a zone's text as it is. */
+function shortTimestamp(timestamp: string, timeLook: TimeLook): string {
+  return timeLook.zone === "UTC" ? timestamp.slice(0, 16).replace("T", " ") : timestamp;
+}
+
 /** The seek slider's spoken value: the time, with the activity window and its rate when one is running. */
-function seekValueText(timeUtcMs: number, activityNow: ReturnType<typeof activityAt>): string {
-  if (activityNow === null || activityNow.window.rate === undefined) return formatUtcTimestamp(timeUtcMs);
-  return `${formatUtcTimestamp(timeUtcMs)}, ${activityNow.window.label}: ${formatWindowRate(activityNow.rate, activityNow.window.rate.unit)}`;
+function seekValueText(timeUtcMs: number, activityNow: ReturnType<typeof activityAt>, timeLook: TimeLook): string {
+  if (activityNow === null || activityNow.window.rate === undefined) return formatTime(timeUtcMs, timeLook);
+  return `${formatTime(timeUtcMs, timeLook)}, ${activityNow.window.label}: ${formatWindowRate(activityNow.rate, activityNow.window.rate.unit)}`;
 }
 
 /** One marker on the track, whatever it opens: an event, a story panel or a window's peak. */
@@ -72,7 +79,8 @@ interface TrackMarker {
   readonly activate: () => void;
 }
 
-export function TimelineBar({ experience, snapshot, onTogglePlayback, onRateChange, paceAuto, onSeek, panels = [], openPanelId = null, onPanelOpen, onEventSeek, onEventInfo, onWindowSeek, onWindowInfo, glowLook = DEFAULT_TIMELINE_GLOW, drawer, infoPanelId }: Props) {
+export function TimelineBar({ experience, snapshot, onTogglePlayback, onRateChange, paceAuto, onSeek, panels = [], openPanelId = null, onPanelOpen, onEventSeek, onEventInfo, onWindowSeek, onWindowInfo, glowLook = DEFAULT_TIMELINE_GLOW, timeLook: timeLookProp, drawer, infoPanelId }: Props) {
+  const timeLook = withDefaultTime(timeLookProp);
   const drawerId = `${useId()}-timeline-drawer`;
   const windows = experience.windows ?? [];
   const profile = useMemo(() => glowProfile(windows, experience.window), [windows, experience.window]);
@@ -81,7 +89,7 @@ export function TimelineBar({ experience, snapshot, onTogglePlayback, onRateChan
   const [hoverTitle, setHoverTitle] = useState<string | null>(null);
   const playedPercent = timePositionPercent(clampToBounds(snapshot.timeUtcMs, experience.window), experience.window);
   const activityNow = activityAt(windows, snapshot.timeUtcMs);
-  const valueText = seekValueText(snapshot.timeUtcMs, activityNow);
+  const valueText = seekValueText(snapshot.timeUtcMs, activityNow, timeLook);
   const moveOnTrack = (event: ReactPointerEvent<HTMLDivElement>) => {
     if (profile === null) return;
     const box = event.currentTarget.getBoundingClientRect();
@@ -97,7 +105,7 @@ export function TimelineBar({ experience, snapshot, onTogglePlayback, onRateChan
   const stopLabel = (direction: "Previous" | "Next", stop: NavigationStop | null) =>
     windows.length === 0 || stop === null ? `${direction} event` : `${direction}: ${stop.label}`;
   const speeds = speedsOf(experience.rates);
-  const timestamp = formatUtcTimestamp(snapshot.timeUtcMs);
+  const timestamp = formatTime(snapshot.timeUtcMs, timeLook);
   const handle = useDrawerSwipe({
     thresholdPx: drawer?.swipeThresholdPx ?? 0,
     onTap: () => drawer?.onOpenChange(!drawer.open),
@@ -193,8 +201,8 @@ export function TimelineBar({ experience, snapshot, onTogglePlayback, onRateChan
       />
     </div>
     <div className="timeline-bounds" aria-hidden="true">
-      <time dateTime={formatUtcTimestamp(experience.window.startUtcMs)}>{formatUtcTimestamp(experience.window.startUtcMs).slice(0, 10)}</time>
-      <time dateTime={formatUtcTimestamp(experience.window.endUtcMs)}>{formatUtcTimestamp(experience.window.endUtcMs).slice(0, 10)}</time>
+      <time dateTime={formatUtcTimestamp(experience.window.startUtcMs)}>{formatTime(experience.window.startUtcMs, { ...timeLook, precision: "day" })}</time>
+      <time dateTime={formatUtcTimestamp(experience.window.endUtcMs)}>{formatTime(experience.window.endUtcMs, { ...timeLook, precision: "day" })}</time>
     </div>
   </div>
   );
@@ -231,9 +239,9 @@ export function TimelineBar({ experience, snapshot, onTogglePlayback, onRateChan
           </button>
         </div>
 
-        <time className="timeline-time" dateTime={timestamp} aria-label={timestamp}>
+        <time className="timeline-time" dateTime={formatUtcTimestamp(snapshot.timeUtcMs)} aria-label={timestamp}>
           <span className="timeline-time-full">{timestamp}</span>
-          <span className="timeline-time-short" aria-hidden="true">{timestamp.slice(0, 16).replace("T", " ")}</span>
+          <span className="timeline-time-short" aria-hidden="true">{shortTimestamp(timestamp, timeLook)}</span>
         </time>
 
         <SpeedMenu speeds={speeds} rate={snapshot.rate} paceAuto={paceAuto} compact={drawer !== undefined} onRateChange={onRateChange} />
@@ -243,7 +251,7 @@ export function TimelineBar({ experience, snapshot, onTogglePlayback, onRateChan
         {drawer === undefined && (
           <details className="timeline-event-list">
             <summary className="ui-button" title="Events: what just happened, what is next, and the full list">Events <span>({experience.events.length})</span></summary>
-            <TimelineExpanded experience={experience} snapshot={snapshot} onEventSeek={onEventSeek} onEventInfo={onEventInfo} onWindowInfo={onWindowInfo} infoPanelId={infoPanelId} />
+            <TimelineExpanded experience={experience} snapshot={snapshot} timeLook={timeLook} onEventSeek={onEventSeek} onEventInfo={onEventInfo} onWindowInfo={onWindowInfo} infoPanelId={infoPanelId} />
           </details>
         )}
       </div>
@@ -271,7 +279,7 @@ export function TimelineBar({ experience, snapshot, onTogglePlayback, onRateChan
               />
               <output>{speedText}</output>
             </div>
-            <TimelineExpanded experience={experience} snapshot={snapshot} onEventSeek={onEventSeek} onEventInfo={onEventInfo} onWindowInfo={onWindowInfo} infoPanelId={infoPanelId} />
+            <TimelineExpanded experience={experience} snapshot={snapshot} timeLook={timeLook} onEventSeek={onEventSeek} onEventInfo={onEventInfo} onWindowInfo={onWindowInfo} infoPanelId={infoPanelId} />
           </div>
         </div>
       )}
@@ -287,6 +295,7 @@ function Symbol({ path }: { readonly path: string }) {
 interface ExpandedProps {
   readonly experience: ExperienceConfig;
   readonly snapshot: ClockSnapshot;
+  readonly timeLook?: TimeLook;
   readonly onEventSeek: (event: TimelineEvent) => void;
   readonly onEventInfo: (event: TimelineEvent) => void;
   readonly onWindowInfo: (window: TimelineWindow) => void;
@@ -297,7 +306,7 @@ interface ExpandedProps {
  * The timeline's expanded content: "Just happened / Up next / Inside" and the full event list.
  * On larger screens it opens from the Events button; the phone drawer shows the same content when expanded.
  */
-export function TimelineExpanded({ experience, snapshot, onEventSeek, onEventInfo, onWindowInfo, infoPanelId }: ExpandedProps) {
+export function TimelineExpanded({ experience, snapshot, timeLook = DEFAULT_TIME_LOOK, onEventSeek, onEventInfo, onWindowInfo, infoPanelId }: ExpandedProps) {
   const context = eventContextAt(experience.events, snapshot.timeUtcMs);
   const inside = windowContextAt(experience.windows ?? [], snapshot.timeUtcMs);
   return (
@@ -343,7 +352,7 @@ export function TimelineExpanded({ experience, snapshot, onEventSeek, onEventInf
               aria-current={context.current?.id === event.id ? "time" : undefined}
               onClick={() => { onEventSeek(event); onEventInfo(event); }}
             >
-              <time dateTime={formatUtcTimestamp(event.timeUtcMs)}>{formatUtcTimestamp(event.timeUtcMs)}</time>
+              <time dateTime={formatUtcTimestamp(event.timeUtcMs)}>{formatTime(event.timeUtcMs, timeLook)}</time>
               <span>{event.label}</span>
             </button>
           </li>

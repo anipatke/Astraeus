@@ -116,6 +116,41 @@ export function formatUtcTimestamp(timeUtcMs: number): string {
   return new Date(timeUtcMs).toISOString().replace(".000Z", "Z");
 }
 
+/** How the viewer's times read (the look `time`): a zone (`"UTC"`, `"local"` or an IANA name) and a precision. */
+export interface TimeLook { readonly zone: string; readonly precision: "day" | "minute" | "second" }
+
+/** Today's time look: ISO text in UTC to the second. */
+export const DEFAULT_TIME_LOOK: Readonly<TimeLook> = Object.freeze({ zone: "UTC", precision: "second" });
+
+/** The time look, or the default when none is given. */
+export function withDefaultTime(look: TimeLook | undefined): TimeLook {
+  return look ?? DEFAULT_TIME_LOOK;
+}
+
+const zoneFormats = new Map<string, Intl.DateTimeFormat>();
+
+function zoneFormat(look: TimeLook): Intl.DateTimeFormat {
+  const key = `${look.zone}|${look.precision}`;
+  let format = zoneFormats.get(key);
+  if (format === undefined) {
+    const date: Intl.DateTimeFormatOptions = { day: "numeric", month: "short", year: "numeric" };
+    const clock: Intl.DateTimeFormatOptions = look.precision === "day" ? {} : { hour: "numeric", minute: "2-digit", ...(look.precision === "second" ? { second: "2-digit" } : {}), timeZoneName: "short" };
+    format = new Intl.DateTimeFormat(undefined, { ...date, ...clock, ...(look.zone === "local" ? {} : { timeZone: look.zone }) });
+    zoneFormats.set(key, format);
+  }
+  return format;
+}
+
+/** A moment as the viewer's reader sees it (the look `time`): in UTC, ISO text (`2026-11-15T04:37:12Z`, `2026-11-15T04:37Z`, `2026-11-15`; to the second it is `formatUtcTimestamp`); in the visitor's or a named zone, the visitor's language style with the zone's short name. The one formatter for every visitor-facing time; `<time dateTime>`, the Developer drawer and the page address stay `formatUtcTimestamp`. */
+export function formatTime(timeUtcMs: number, look: TimeLook = DEFAULT_TIME_LOOK): string {
+  if (look.zone === "UTC") {
+    if (look.precision === "second") return formatUtcTimestamp(timeUtcMs);
+    const iso = new Date(timeUtcMs).toISOString();
+    return look.precision === "day" ? iso.slice(0, 10) : `${iso.slice(0, 16)}Z`;
+  }
+  return zoneFormat(look).format(timeUtcMs);
+}
+
 /** A time's position on the timeline, clamped to 0–100. */
 export function timePositionPercent(timeUtcMs: number, bounds: TimeBounds): number {
   const span = bounds.endUtcMs - bounds.startUtcMs;
