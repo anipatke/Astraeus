@@ -2,7 +2,7 @@
 
 Versions follow [semantic versioning](https://semver.org). It is released together with `astraeus`, with the same version number.
 
-## Unreleased
+## 0.9.2 (2026-11-17)
 
 - Added: the subpath `astraeus-data/milky-way` exports `milkyWaySource`, a source holding the Milky Way picture alone, so a sky-only app's build copies that picture and not the moon and Venus maps. The main export (`dataSource`, `PICTURES`) and every picture file and licence record are unchanged. The `astraeus` peer stays `>=0.9.0 <0.10.0`.
 
