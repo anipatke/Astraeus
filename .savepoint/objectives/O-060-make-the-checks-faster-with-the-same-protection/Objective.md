@@ -5,6 +5,7 @@ status: done
 depends_on: [O-057]
 release: G-016
 priority: high
+exception: {requirements: [O-060 Same protection, T-281 Done When], reason: 'Owner accepted the C-156 remainder (I-149, two overstated header comment lines in assertion-list.mjs, fixed in the merge efaaa5dd on the owner''s choice "Fix the wording") on 2026-11-07: "Accepted mark for me and continue"; recorded as an exception on the owner''s instruction on 2026-11-17 ("Yes, record it") so G-016 can close.', owner: owner, recorded_at: '2026-11-16T23:41:50Z', check: C-156}
 ---
 
 # O-060: Make the checks faster with the same protection

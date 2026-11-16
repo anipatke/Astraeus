@@ -1,7 +1,7 @@
 ---
 id: O-076
 title: Constellation data and 0.9.2 notes
-status: planned
+status: done
 depends_on: [O-075]
 release: G-020
 priority: medium
