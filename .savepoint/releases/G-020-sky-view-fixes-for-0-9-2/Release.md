@@ -1,7 +1,7 @@
 ---
 id: G-020
 title: Sky-view fixes for 0.9.2
-status: planned
+status: done
 ---
 
 ## Outcome
