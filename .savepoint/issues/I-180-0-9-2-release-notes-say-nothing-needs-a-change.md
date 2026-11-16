@@ -18,6 +18,10 @@ history:
     kind: observed
     note: Found by the O-076 Full Objective Check while mapping each release-notes claim to the CHANGELOG and the code.
     check: C-186
+  - at: '2026-11-16T10:12:04Z'
+    actor: {role: executor, session: orchestrate-o076-20261116}
+    kind: repair_attempted
+    note: 'Direct docs repair. docs/release-notes-0.9.2.md intro now says one stricter check may need a change (panel at.time, anchor time, shownDuring end must be a whole millisecond within range); Upgrading names the refused inputs, their codes (bad-panels, bad-anchor, bad-body, bad-trajectory) and the fix (round, e.g. Math.round(ms)), then "Nothing else needs a change". Re-read every other claim: unchanged, each still maps to a CHANGELOG line (CHANGELOG Changed line 16). No code change. Also Design.md Constellations item (4) now names outlineLabel and constellationFinder (C-186 non-blocking note).'
 ---
 
 # I-180: The 0.9.2 release notes say nothing needs a change, but fractional panel, anchor and shownDuring times are now refused

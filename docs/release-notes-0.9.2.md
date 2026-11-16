@@ -2,7 +2,7 @@
 
 ## astraeus 0.9.2
 
-A patch release from the Zodiac project review of 0.9.1: look-out camera turns glide as the README says, a tap keeps the sky view, a scene can open paused, the clock can read in the visitor's zone, and a scene can say back what it was set to. Additions and fixes only; no call changed shape and nothing needs a change. The nine packages move together to 0.9.2; the `astraeus-data*` packages keep peering on `astraeus` `>=0.9.0 <0.10.0`.
+A patch release from the Zodiac project review of 0.9.1: look-out camera turns glide as the README says, a tap keeps the sky view, a scene can open paused, the clock can read in the visitor's zone, and a scene can say back what it was set to. Additions and fixes only; no call changed shape. One stricter check may need a change: a story panel `at.time`, an anchor `time` or a `shownDuring` end must now be a whole millisecond within range (see Upgrading). The nine packages move together to 0.9.2; the `astraeus-data*` packages keep peering on `astraeus` `>=0.9.0 <0.10.0`.
 
 ### What changed for app makers
 
@@ -38,4 +38,4 @@ This package has no changelog file of its own; its entries are in `packages/astr
 
 ### Upgrading
 
-Install the `astraeus-data*` packages with `astraeus` 0.9.2 (they accept any 0.9.x, `>=0.9.0 <0.10.0`). Nothing needs a change. A `bad-time` error is still an `instanceof RangeError`, so existing catches keep working.
+Install the `astraeus-data*` packages with `astraeus` 0.9.2 (they accept any 0.9.x, `>=0.9.0 <0.10.0`). One change may be needed: a fractional or out-of-range story panel `at.time`, anchor `time` or `shownDuring` end, accepted in 0.9.1, is now refused with that call's own code (`bad-panels`, `bad-anchor`, `bad-body` or `bad-trajectory`); round such times to a whole millisecond (for example `Math.round(ms)`). Nothing else needs a change. A `bad-time` error is still an `instanceof RangeError`, so existing catches keep working.
