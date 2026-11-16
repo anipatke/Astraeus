@@ -21,6 +21,7 @@
   },
   "exports": {
     ".": "./src/index.ts",
+    "./milky-way": "./src/milkyWay.ts",
     "./bodies/*": "./data/bodies/*",
     "./data/*": "./data/*",
     "./package.json": "./package.json"
@@ -30,6 +31,10 @@
       ".": {
         "types": "./src/index.d.ts",
         "import": "./src/index.js"
+      },
+      "./milky-way": {
+        "types": "./src/milkyWay.d.ts",
+        "import": "./src/milkyWay.js"
       },
       "./bodies/*": "./data/bodies/*",
       "./package.json": "./package.json"

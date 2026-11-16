@@ -2,3 +2,6 @@ export interface MeasureRow { file: string; raw: number; gzip: number; when: "fi
 export interface Measure { rows: MeasureRow[]; totals: { raw: number; gzip: number } }
 export function measureBuild(dir: string): Measure;
 export function formatMeasure(measure: Measure): string;
+export const ALLOWED_PICTURES: Record<string, string[]>;
+export function dataPictureNames(): string[];
+export function unexpectedPictures(dir: string, allowed: string[], dataPictures?: string[]): string[];

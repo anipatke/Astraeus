@@ -1,5 +1,6 @@
 import "astraeus/style.css";
 import { Scene, earth, mount, solarSystemScale, sun } from "astraeus";
+import { milkyWaySource } from "astraeus-data/milky-way";
 import { constellations } from "astraeus-data-constellations";
 
 // Looking out from Earth's centre toward Orion, with Orion's story in three steps. The figures come from the constellations package; the words are this example's own, short and plain.
@@ -47,7 +48,8 @@ const scene = new Scene()
   .setTimeline({ start: Date.parse("2027-01-01T00:00:00Z"), end: Date.parse("2027-02-01T00:00:00Z") });
 scene.camera.lookOut("earth", { direction: { raDeg: 83.7, decDeg: 0 }, fovDeg: OPENING_VIEW_WIDTH_DEG });
 
-const viewer = mount(document.getElementById("app"), scene);
+// The Milky Way picture alone (`astraeus-data/milky-way`): the build copies that one picture, not the moon and Venus maps.
+const viewer = mount(document.getElementById("app"), scene, { data: [milkyWaySource] });
 await viewer.ready;
 // The handle is on the window so the browser console (and the browser check) can read `viewer.camera` or call `viewer.setPanel("belt-and-sword")`.
 window.viewer = viewer;

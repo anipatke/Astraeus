@@ -12,8 +12,8 @@ const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 export const EXAMPLES = ["hello-scene", "hello-react", "hello-planets", "hello-sky"];
 /** The packages the examples install: the engine only (it draws Earth, the Moon and a path with no data package). */
 export const EXAMPLE_PACKAGES = ["astraeus"];
-/** The packages an example installs when it needs more than the engine (`hello-sky` adds the constellations package). */
-const EXTRA_PACKAGES = { "hello-sky": ["astraeus-data-constellations"] };
+/** The packages an example installs when it needs more than the engine (`hello-sky` adds the constellations package and `astraeus-data`, for its Milky Way picture alone). */
+const EXTRA_PACKAGES = { "hello-sky": ["astraeus-data-constellations", "astraeus-data"] };
 const packagesOf = (name) => [...EXAMPLE_PACKAGES, ...(EXTRA_PACKAGES[name] ?? [])];
 
 /** The environment without the outer npm run's own settings (`npm_config_*`, `NODE_ENV`, vitest's own variables): a nested `npm install` rejects some of them (the registry, cache, proxy and certificate settings are kept) (`--allow-scripts` from a parent `npm test` / `npx`, I-164) and a test mode makes a bigger bundle (2.07 MB instead of 1.75 MB under `npm test`), so the example must install the same way however it is started. */

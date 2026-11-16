@@ -2,7 +2,7 @@
 id: T-321
 objective: O-076
 title: Offer the Milky Way picture on its own
-status: planned
+status: done
 depends_on: [{task: T-320, requires: clear}]
 owner_validation: {required: false}
 check_waiver: {task: T-321, reason: 'Owner said "orchestrate o76" (orchestrate O-076) under the standing run rules (one builder at a time, no per-step checks, coordinator marks done once gates pass, one Full Objective Check at the end); the optional Task Check is waived.', actor: {role: owner, session: plan-o076-20261116}, recorded_at: '2026-11-16T09:29:54Z'}
@@ -66,8 +66,20 @@ Focused tests while iterating; configured gates at handoff plus `npm run check:p
 
 ## Technical Evidence
 
-Pending execution.
+Cases: `packages/astraeus/tests/milkyWaySource.test.ts` (2: the subpath source is the Milky Way alone, `provides: []`, name `astraeus-data/milky-way`; its picture is the same object, licence included, as `PICTURES["milky-way"]` and `dataSource.pictures["milky-way"]`); `packages/astraeus-site/tests/measureExample.test.ts` (2 new: the emitted-pictures check). Existing tests untouched in setup (`skyPicture.test.ts` passes).
+
+Emitted-pictures proof: `tools/measure-example.mjs` now, for `hello-sky`, fails when the build emits any `.jpg` that is an `astraeus-data` picture (names read from `packages/astraeus-data/src/textures`) other than `milky-way`; it ran on the packed build: "pictures: only milky-way emitted" (the engine's own 2k planet pictures are not astraeus-data's and are not checked). `examples/hello-sky/dist/assets` holds `milky-way-*.jpg` and the engine's own 2k planet maps, no moon or Venus-8k map.
+
+Gates: lint pass; typecheck pass; build pass; test 265 files / 4047 passed, 2 skipped (first run had 1 failure, the API-01 surface lock, fixed by listing the subpath in `packages/astraeus/CHANGELOG.md` and `npm run api:lock`); `check:pack` pass (astraeus-data 125 files of 130, 35.57 MB packed of 39, 36.17 unpacked of 39); `check:node-consumer` pass (12 tests, now packs astraeus-data and imports `astraeus-data` and `astraeus-data/milky-way` under Node); `measure:example hello-sky` first-open 1,775,626 raw / 511,211 gzip bytes (pictures not counted), no limit changed.
+
+Files changed: `packages/astraeus-data/src/milkyWay.ts` (new), `src/pictures.ts`, `package.json` (exports and x-publish.exports), `README.md`, `CHANGELOG.md` (the package's own changelog, new Unreleased section); `packages/astraeus/CHANGELOG.md` (Unreleased entry the surface lock requires), `packages/astraeus/api-surface.lock.json`; `examples/hello-sky/src/main.js`; `tools/build-example.mjs`, `tools/check-node-consumer.mjs`, `tools/measure-example.mjs` and `.d.mts`; the two test files above. No picture or licence file changed; `PICTURES` and `dataSource` values are the same objects as before.
+
+Extra reads: `packages/astraeus-site/tests/measureExample.test.ts` and `tools/measure-example.mjs` (where the build-output check lives), `tools/build-packages.mjs` heads (jpg rewrite). No browser run.
 
 ## Drift Notes
 
 Record the new subpath and the hello-sky change for Design reconciliation before the Full Objective Check.
+
+Deferred to the O-076 integration/notes Task: new subpath `astraeus-data/milky-way` (`milkyWaySource`, `src/milkyWay.ts`; `PICTURES` re-uses its record) for Design `Public API shape` and `Current Technical State` (package exports and Node twins). `examples/hello-sky` now installs `astraeus-data` and mounts with `{ data: [milkyWaySource] }`, so it draws the Milky Way (the Full Check browser run covers it). `tools/measure-example.mjs` gained the emitted-pictures check; `check-node-consumer` now also packs `astraeus-data`.
+
+- Coordinator (2026-11-16T09:39:42Z): accepted (the emitted-pictures check covers astraeus-data's pictures only, as the engine's own planet maps legitimately ship; api lock rerun for the new subpath). Gates pass (lint, typecheck, build, test 265 files / 4047 passed / 2 skipped; check:pack, check:node-consumer, measure:example hello-sky 1,775,626 B raw / 511,211 B gzip first open, "pictures: only milky-way emitted"); marked done per the owner's "orchestrate o76".

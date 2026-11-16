@@ -19,4 +19,17 @@ import { dataSource as saturnMoons } from "astraeus-data-saturn";
 mount(element, new Scene().addBody(saturn).addBody(titan), { data: [pictures, saturnMoons] });
 ```
 
+## The Milky Way alone
+
+A sky-only app (stars, constellations, no moons) can take the Milky Way picture without the moon and Venus maps. Import `milkyWaySource` from the `astraeus-data/milky-way` subpath; a build then copies that one picture:
+
+```ts
+import { mount, Scene } from "astraeus";
+import { milkyWaySource } from "astraeus-data/milky-way";
+
+mount(element, new Scene(), { data: [milkyWaySource] });
+```
+
+It gives the sky exactly the Milky Way that `dataSource` does, with the same licence record, and provides no bodies. The main export `astraeus-data` is unchanged.
+
 Every picture carries its licence record (`PICTURES[name].licence`); `NOTICE` lists them. Most are NASA/JPL or USGS public-domain or credit-required work; the Milky Way is CC BY 4.0.

@@ -18,8 +18,8 @@ function run(command, args, cwd, quiet = false) {
 
 let failed = false;
 try {
-  // The engine and two data packages (Jupiter's moons, the constellations), both packed and unpacked as a customer installs them (the cold-start case below uses the package's own `dataSource`).
-  const packed = ["astraeus", "astraeus-data-jupiter", "astraeus-data-constellations"];
+  // The engine and three data packages (the pictures, Jupiter's moons, the constellations), both packed and unpacked as a customer installs them (the cold-start case below uses the package's own `dataSource`).
+  const packed = ["astraeus", "astraeus-data", "astraeus-data-jupiter", "astraeus-data-constellations"];
   run(process.execPath, [join(root, "tools", "build-packages.mjs"), ...packed], root);
   const modules = join(scratch, "node_modules");
   for (const name of packed) {
@@ -175,6 +175,13 @@ try {
     "  await expect(scene.load()).resolves.toBeUndefined(); // no fetch stub; was missing-data",
     "  const unknown = new Scene().addBody(earth).addSkyFigures([{ id: 'nowhere', label: 'Nowhere', segments: [[{ star: 1 }, { star: 2_000_000 }]] }]);",
     "  await expect(unknown.load()).rejects.toMatchObject({ code: 'unknown-star' }); // a number not in the list is still named, not read as missing data",
+    "});",
+    'test("the pictures package and its Milky Way subpath load in plain Node (O-076 T-321)", async () => {',
+    "  const whole = await import('astraeus-data');",
+    "  const alone = await import('astraeus-data/milky-way');",
+    "  expect(alone.milkyWaySource).toMatchObject({ name: 'astraeus-data/milky-way', provides: [] });",
+    "  expect(Object.keys(alone.milkyWaySource.pictures)).toEqual(['milky-way']);",
+    "  expect(alone.milkyWaySource.pictures['milky-way']).toBe(whole.PICTURES['milky-way']); // the same record, with its licence",
     "});",
     "",
   ].join("\n"));

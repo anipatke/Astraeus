@@ -66,8 +66,38 @@ export function formatMeasure({ rows, totals }) {
   return lines.join("\n");
 }
 
+/** The astraeus-data pictures an example's build may emit, by file name without the hash (O-076 T-321): `hello-sky` imports `astraeus-data/milky-way`, so its build copies the Milky Way alone, never the moon and Venus maps. The engine's own planet pictures are not astraeus-data's and are not checked. Examples not listed are not checked. */
+export const ALLOWED_PICTURES = { "hello-sky": ["milky-way"] };
+
+/** The names (no extension) of every picture in astraeus-data, from its textures folder. */
+export const dataPictureNames = () => readdirSync(join(root, "packages", "astraeus-data", "src", "textures")).filter((file) => /\.jpe?g$/i.test(file)).map((file) => file.replace(/\.jpe?g$/i, ""));
+
+/** The `.jpg` files in a build folder that are one of `dataPictures` but not in `allowed` (an emitted name is the picture's name and a hash: `titan-4k-9d8e7f.jpg` is `titan-4k`). */
+export function unexpectedPictures(dir, allowed, dataPictures = dataPictureNames()) {
+  const found = [];
+  const walk = (sub) => {
+    for (const entry of readdirSync(join(dir, sub), { withFileTypes: true })) {
+      const path = sub ? `${sub}/${entry.name}` : entry.name;
+      if (entry.isDirectory()) { walk(path); continue; }
+      const name = /^(.+?)(?:-[A-Za-z0-9_-]{6,8})?\.jpe?g$/i.exec(entry.name);
+      if (!name) continue;
+      const picture = dataPictures.find((candidate) => entry.name.startsWith(`${candidate}-`) || entry.name === `${candidate}.jpg`);
+      if (picture !== undefined && !allowed.includes(picture)) found.push(path);
+    }
+  };
+  walk("");
+  return found.sort();
+}
+
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const name = process.argv[2] ?? "hello-scene";
   buildExample(name);
-  console.log(formatMeasure(measureBuild(join(root, "examples", name, "dist"))));
+  const dir = join(root, "examples", name, "dist");
+  console.log(formatMeasure(measureBuild(dir)));
+  const allowed = ALLOWED_PICTURES[name];
+  if (allowed) {
+    const extra = unexpectedPictures(dir, allowed);
+    if (extra.length > 0) throw new Error(`measure-example: ${name} emitted pictures it should not: ${extra.join(", ")}`);
+    console.log(`pictures: only ${allowed.join(", ")} emitted`);
+  }
 }

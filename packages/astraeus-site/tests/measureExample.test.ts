@@ -3,7 +3,7 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterAll, describe, expect, it } from "vitest";
-import { formatMeasure, measureBuild } from "../../../tools/measure-example.mjs";
+import { ALLOWED_PICTURES, formatMeasure, measureBuild, unexpectedPictures } from "../../../tools/measure-example.mjs";
 
 // O-043 T-178: the first-open counting works on a made-up build folder (no real build).
 const dir = mkdtempSync(join(tmpdir(), "measure-example-"));
@@ -59,5 +59,23 @@ describe("measureBuild", () => {
     } finally {
       rmSync(broken, { recursive: true, force: true });
     }
+  });
+});
+
+describe("unexpectedPictures", () => {
+  it("lists a data picture that is not allowed, by path, and leaves the engine's own pictures and the allowed one alone", () => {
+    const pictures = mkdtempSync(join(tmpdir(), "measure-example-pictures-"));
+    try {
+      mkdirSync(join(pictures, "assets"));
+      for (const file of ["milky-way-3fa9c1.jpg", "titan-4k-9d8e7f.jpg", "venus-8k-balanced-aa11.jpg", "earth-bmng-july-4k-BJxMI6UV.jpg", "milky-way-extra.jpg.txt"]) writeFileSync(join(pictures, "assets", file), "x");
+      expect(unexpectedPictures(pictures, ["milky-way"], ["milky-way", "titan-4k", "venus-8k-balanced"])).toEqual(["assets/titan-4k-9d8e7f.jpg", "assets/venus-8k-balanced-aa11.jpg"]);
+      expect(unexpectedPictures(pictures, ["milky-way", "titan-4k", "venus-8k-balanced"], ["milky-way", "titan-4k", "venus-8k-balanced"])).toEqual([]);
+    } finally {
+      rmSync(pictures, { recursive: true, force: true });
+    }
+  });
+
+  it("names hello-sky as an example that may emit the Milky Way alone", () => {
+    expect(ALLOWED_PICTURES["hello-sky"]).toEqual(["milky-way"]);
   });
 });

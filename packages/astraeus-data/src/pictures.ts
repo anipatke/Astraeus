@@ -2,6 +2,7 @@
 // whose picture was not given to its viewer as a flat colour; a viewer given this set (the package passed in `data`, which `mount` carries to that
 // viewer alone) draws the map. The records were moved here unchanged from the engine's `assets/bodies/*` files (O-036 T-161).
 import type { AssetLicence, TextureRef } from "astraeus";
+import { MILKY_WAY_PICTURE } from "./milkyWay.js";
 import callistoUrl from "./textures/callisto-2k.jpg";
 import charonUrl from "./textures/charon-2k.jpg";
 import dioneUrl from "./textures/dione-4k.jpg";
@@ -11,7 +12,6 @@ import ganymedeUrl from "./textures/ganymede-2k.jpg";
 import iapetusUrl from "./textures/iapetus-4k.jpg";
 import ioUrl from "./textures/io-2k.jpg";
 import mimasUrl from "./textures/mimas-4k.jpg";
-import milkyWayUrl from "./textures/milky-way.jpg";
 import plutoUrl from "./textures/pluto-4k.jpg";
 import rheaUrl from "./textures/rhea-4k.jpg";
 import tethysUrl from "./textures/tethys-4k.jpg";
@@ -43,16 +43,6 @@ const IO_TEXTURE_LICENCE: AssetLicence = Object.freeze({
   attribution: "Io texture: USGS Astrogeology Science Center; NASA/JPL Galileo and Voyager missions",
   accessed: "2026-10-12",
 });
-
-const MILKY_WAY_LICENCE: AssetLicence = Object.freeze({
-  source: "Milky Way 360 equirectangular rendering with foreground stars removed (Wikimedia Commons), Kevinmloch, bsrender, from Gaia EDR3",
-  url: "https://commons.wikimedia.org/wiki/File:Milky_Way_360_equirectangular_rendering_with_foreground_stars_removed.png",
-  licence: "CC BY-SA 4.0",
-  attribution: "Milky Way render by Kevinmloch (bsrender) from Gaia EDR3, ESA/Gaia/DPAC, CC BY-SA 4.0. The 8000x4000 original was resized to 3840x1920 by Wikimedia Commons and re-encoded as JPEG here; no other change (it is dimmed when drawn, not in the file)."
-,
-  accessed: "2026-10-29",
-});
-
 
 // Europa, Ganymede and Callisto (donor commit 84f8d3e, 2048x1024 maps copied byte for byte).
 const galileanAccessed = "2026-10-18";
@@ -110,7 +100,7 @@ export const PICTURES: Readonly<Record<string, TextureRef>> = Object.freeze({
   triton: picture(tritonUrl, 4096, 2048, nasa("Triton", `NASA/JPL-Caltech/Lunar & Planetary Institute Map of Triton (PIA18668), Voyager 2 simple-cylindrical colour map via the public-domain Wikimedia copy; donor file 14,138x7,069 (donor README); ${RESIZE}`, "https://pds-rings.seti.org/press_releases/pages/PIA18xxx/PIA18668.html", "NASA/JPL-Caltech/Lunar & Planetary Institute")),
   charon: picture(charonUrl, 1024, 512, nasa("Charon", "USGS Astrogeology, Charon New Horizons LORRI MVIC Global Mosaic 300 m (Jul 2017), 1024 px preview JPG (byte-identical to the donor's charon-2k.jpg; no donor README entry, source recorded by Astraeus)", "https://astrogeology.usgs.gov/", "New Horizons team; NASA, JHUAPL, SwRI, LPI; USGS Astrogeology 2017", "USGS use constraint: please cite authors")),
   "venus-8k": picture(venus8kUrl, 8192, 4096, VENUS_LICENCE),
-  "milky-way": picture(milkyWayUrl, 3840, 1920, MILKY_WAY_LICENCE),
+  "milky-way": MILKY_WAY_PICTURE,
 });
 
 /** The bodies that gain a map from this package (the others in `PICTURES` are the sky and Venus's wide-screen file). */
