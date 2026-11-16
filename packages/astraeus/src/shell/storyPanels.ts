@@ -61,6 +61,8 @@ export class CrossingTracker {
   /** Whether the next tick counts as playback (the clock was playing on the last one); with `previousMs`, what `panelSpanPassed` needs before `advance` moves them. */
   get wasPlaying(): boolean { return this.#wasPlaying; }
   get previousMs(): number { return this.#previousMs; }
+  /** The clock as the panel logic knows it: rebased by a seek, moved on by every tick. A panel's arming reads this, so one opened right after a jump counts the clock it jumped to. */
+  get timeUtcMs(): number { return this.#previousMs; }
 
   rebase(timeUtcMs: number): void {
     this.#previousMs = timeUtcMs;

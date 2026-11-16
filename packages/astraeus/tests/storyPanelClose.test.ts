@@ -151,6 +151,14 @@ describe("the close as a state test (I-179)", () => {
   it("no span never closes", () => {
     expect(run(true, [[T + 5 * S, true], [T + 10_000 * S, true]], null)).toEqual([false, false]);
   });
+  it("the tracker reads the clock it was rebased to, then each tick's", () => {
+    const tracker = new CrossingTracker(T - 500);
+    expect(tracker.timeUtcMs).toBe(T - 500);
+    tracker.rebase(T + 50 * S);
+    expect(tracker.timeUtcMs).toBe(T + 50 * S);
+    tracker.advance([], T + 51 * S, true, true);
+    expect(tracker.timeUtcMs).toBe(T + 51 * S);
+  });
   it("arms only when the clock is before the close moment", () => {
     const panel = { timeUtcMs: T, closeAfterSeconds: 10 };
     expect([panelArmedAt(panel, undefined, T + 9 * S), panelArmedAt(panel, undefined, T + 10 * S), panelArmedAt({ timeUtcMs: T }, undefined, T + 99 * S)]).toEqual([true, false, true]);
@@ -197,5 +205,36 @@ describe("a panel whose span passes within one frame closes (I-179)", () => {
     m.requestPanel(panels[0].id);
     for (let i = 0; i < 4; i += 1) m.advance(100);
     expect(panelEl()?.getAttribute("data-panel-id")).toBe(panels[0].id);
+  });
+});
+
+describe("a panel opened from the timeline is armed by the clock it jumps to (I-179)", () => {
+  let m: Mounted;
+  beforeEach(() => { vi.useFakeTimers(); });
+  afterEach(() => { m.unmount(); vi.useRealTimers(); });
+  const panels = syntheticDefinition.experience.storyPanels!.panels;
+  const panelEl = () => m.container.querySelector<HTMLElement>(".story-panel");
+  const fromTrack = () => press($(m.container, `button[aria-label="Open story panel: ${panels[0].title}"]`));
+  /** Plays the clock to `fromMs` from the panel's time, presses the panel on the track (it jumps the clock to the panel) and plays on past its close moment. */
+  const run = (fromMs: number) => {
+    m = mountShell({ storyPanelSettings: { autoOpen: true, pauseSeconds: 0, closeAfterSeconds: 20 } });
+    m.clock.seek(panels[0].timeUtcMs + fromMs);
+    m.advance(0);
+    fromTrack();
+    press($(m.container, ".timeline-play"));
+    expect(panelEl()?.getAttribute("data-panel-id")).toBe(panels[0].id);
+    for (let i = 0; i < 12; i += 1) m.advance(100);
+  };
+
+  it("closes when opened from the track after playback passed its close moment (the clock lands at the panel)", () => {
+    run(59_000);
+    expect(panelEl()).toBeNull();
+    expect(m.panelChanges[m.panelChanges.length - 1]).toEqual({ id: null, cause: "playback" });
+  });
+
+  it("closes when opened from the track with the clock before the panel", () => {
+    run(-50_000);
+    expect(panelEl()).toBeNull();
+    expect(m.panelChanges[m.panelChanges.length - 1]).toEqual({ id: null, cause: "playback" });
   });
 });

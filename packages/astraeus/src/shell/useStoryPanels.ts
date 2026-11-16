@@ -75,9 +75,9 @@ export function useStoryPanels(
     setHolding(false);
   }, []);
   const open = useCallback((id: string, by: PanelCause = "visitor") => {
-    const { panels: list, settings: now, snapshot: shot } = latest.current;
+    const { panels: list, settings: now } = latest.current;
     const target = list.find((panel) => panel.id === id);
-    armedId.current = target !== undefined && panelArmedAt(target, now.closeAfterSeconds, shot.timeUtcMs) ? id : null;
+    armedId.current = target !== undefined && panelArmedAt(target, now.closeAfterSeconds, tracker.current.timeUtcMs) ? id : null;
     cause.current = by;
     setOpenId(id);
   }, []);

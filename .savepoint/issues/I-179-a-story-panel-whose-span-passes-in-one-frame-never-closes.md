@@ -26,6 +26,10 @@ history:
     kind: observed
     note: 'Re-check C-184 (NEEDS WORK). The original Proof Needed holds (one-frame span closes on the next tick, raised speed closes, hold then resume closes, MOVES table and DOM tests unchanged and green, README/CHANGELOG state the marker-reopen case). The repair regressed C-183 row 7: a panel opened from the timeline track (seek to its time, then open) is armed from the pre-seek clock (useStoryPanels.ts open reads latest.current.snapshot), so after playback has passed the panel it stays open while forward playback runs past its close moment again; with the clock before the panel at the press it closes. Stays open until a CLEAR Check.'
     check: C-184
+  - at: '2026-11-16T08:31:26Z'
+    actor: {role: executor, session: i179-repair-2}
+    kind: repair_attempted
+    note: 'Second repair for C-184. CrossingTracker gains a timeUtcMs read (the clock as panel logic knows it: rebased by noteSeek, advanced each tick); useStoryPanels open() arms from it instead of the pre-seek snapshot, so a panel opened from the timeline track or event list is armed by the clock it jumps to. General rule, no caller-specific parameter. New tests in storyPanelClose.test.ts: tracker read after rebase and tick; DOM open-from-track after the close moment passed (fails on the old code) and with the clock before the panel (both close, cause playback); existing I-179 cases unchanged and passing. README (addStoryPanels, setStoryPanelPlayback) and CHANGELOG state the rule and the scene-marker case. Note: the earlier repair_attempted entry''s 09:00:00Z stamp was not a real time; that repair was committed at 2026-11-16T08:24:52Z (commit 189c821f). Browser not run. Not verified by a Check.'
 ---
 
 # I-179: A story panel whose close span passes within one frame never closes by itself
