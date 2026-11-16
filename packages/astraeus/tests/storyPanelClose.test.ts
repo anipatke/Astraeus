@@ -8,7 +8,7 @@ import { definitionOf } from "../src/api/definitionOf";
 import { applyLook, lookReadOf } from "../src/app/liveLook";
 import type { SceneControls } from "../src/app/AstraeusScene";
 import { syntheticDefinition } from "../src/synthetic/syntheticDefinition";
-import { CrossingTracker, panelSpanPassed } from "../src/shell/storyPanels";
+import { CrossingTracker, panelArmedAt, panelSpanPassed } from "../src/shell/storyPanels";
 import { $, press, type Mounted, mountShell } from "./domSetup";
 
 const T = Date.UTC(2100, 0, 1);
@@ -119,5 +119,83 @@ describe("the sheet look", () => {
 
   it.each([[29], [86], [Number.NaN]])("%s throws bad-look", (value) => {
     expect(() => new Scene().setLook({ sheetMaxPercent: value })).toThrow(expect.objectContaining({ code: "bad-look" }));
+  });
+});
+
+// I-179: the close is a state test (the clock ends at or past the close moment on a forward tick after the opening one), not a crossing.
+// The table plays the hook's rule: arm at open (`panelArmedAt`; a crossing opens armed), then ask `panelSpanPassed` on each later tick.
+describe("the close as a state test (I-179)", () => {
+  type Step = readonly [toMs: number, playing: boolean];
+  const run = (armed: boolean, steps: readonly Step[], span: number | null = 1): boolean[] => {
+    const panel = { timeUtcMs: T, ...(span === null ? {} : { closeAfterSeconds: span }) };
+    const tracker = new CrossingTracker(T - 500);
+    return steps.map(([to, playing], index) => {
+      // The first step is the opening tick: the hook never asks about a panel on the tick that opens it.
+      const passed = index > 0 && armed && panelSpanPassed(panel, undefined, tracker.previousMs, to, playing || tracker.wasPlaying);
+      tracker.advance([], to, playing, true);
+      return passed;
+    });
+  };
+  const CASES: readonly (readonly [string, boolean, readonly Step[], readonly boolean[], number?])[] = [
+    ["span shorter than a frame: opens on the tick, closes on the next", true, [[T + 5 * S, true], [T + 10 * S, true]], [false, true]],
+    ["span longer than a frame: closes only once passed", true, [[T + 2 * S, true], [T + 4 * S, true], [T + 11 * S, true]], [false, false, true], 10],
+    ["speed raised after opening", true, [[T + 500, true], [T + 700, true], [T + 3_000_000, true]], [false, false, true]],
+    ["opened by the visitor after the close moment: stays open", false, [[T + 5 * S, true], [T + 10 * S, true]], [false, false]],
+    ["seek past: closes nothing", true, [[T + 50 * S, false]], [false]],
+    ["rewind: closes nothing", true, [[T + 10 * S, true], [T + 2 * S, true]], [false, false]],
+    ["paused: closes nothing", true, [[T + 10 * S, false]], [false]],
+  ];
+  for (const [name, armed, steps, expected, span] of CASES) {
+    it(name, () => { expect(run(armed, steps, span)).toEqual(expected); });
+  }
+  it("no span never closes", () => {
+    expect(run(true, [[T + 5 * S, true], [T + 10_000 * S, true]], null)).toEqual([false, false]);
+  });
+  it("arms only when the clock is before the close moment", () => {
+    const panel = { timeUtcMs: T, closeAfterSeconds: 10 };
+    expect([panelArmedAt(panel, undefined, T + 9 * S), panelArmedAt(panel, undefined, T + 10 * S), panelArmedAt({ timeUtcMs: T }, undefined, T + 99 * S)]).toEqual([true, false, true]);
+  });
+});
+
+describe("a panel whose span passes within one frame closes (I-179)", () => {
+  let m: Mounted;
+  beforeEach(() => { vi.useFakeTimers(); });
+  afterEach(() => { m.unmount(); vi.useRealTimers(); });
+  const panels = syntheticDefinition.experience.storyPanels!.panels;
+  const panelEl = () => m.container.querySelector<HTMLElement>(".story-panel");
+  const start = (closeAfterSeconds: number) => {
+    m = mountShell({ storyPanelSettings: { autoOpen: true, pauseSeconds: 0, closeAfterSeconds } });
+    m.clock.seek(panels[0].timeUtcMs - 1_000);
+    m.advance(0);
+    press($(m.container, ".timeline-play"));
+  };
+
+  it("opens on the crossing tick and closes on the next, reported as playback", () => {
+    start(1);
+    m.advance(100);
+    expect(panelEl()?.getAttribute("data-panel-id")).toBe(panels[0].id);
+    m.advance(100);
+    expect(panelEl()).toBeNull();
+    expect(m.panelChanges[m.panelChanges.length - 1]).toEqual({ id: null, cause: "playback" });
+  });
+
+  it("closes after the speed is raised once it is open", () => {
+    start(20);
+    m.advance(100);
+    expect(panelEl()).not.toBeNull();
+    m.clock.setRate(m.clock.snapshot().rate * 1000);
+    m.advance(100);
+    expect(panelEl()).toBeNull();
+    expect(m.panelChanges[m.panelChanges.length - 1]).toEqual({ id: null, cause: "playback" });
+  });
+
+  it("keeps a panel the visitor opened after its close moment", () => {
+    start(1);
+    m.advance(100);
+    m.advance(100);
+    expect(panelEl()).toBeNull();
+    m.requestPanel(panels[0].id);
+    for (let i = 0; i < 4; i += 1) m.advance(100);
+    expect(panelEl()?.getAttribute("data-panel-id")).toBe(panels[0].id);
   });
 });

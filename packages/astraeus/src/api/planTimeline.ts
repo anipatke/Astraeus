@@ -13,7 +13,7 @@ const DAY_MS = 86_400_000;
 function pacingReadOf(piece: PacingPiece): ScenePacingRead {
   return "fromUtcMs" in piece
     ? { spanStartUtcMs: piece.fromUtcMs, spanEndUtcMs: piece.toUtcMs, rate: piece.rate, rampSeconds: piece.rampMs / 1000 }
-    : { near: { type: piece.type, withinSeconds: piece.withinMs / 1000 }, rate: piece.rate, rampSeconds: piece.rampMs / 1000 };
+    : { near: Object.freeze({ type: piece.type, withinSeconds: piece.withinMs / 1000 }), rate: piece.rate, rampSeconds: piece.rampMs / 1000 };
 }
 
 /** What a `Scene` has planned for its timeline: the opening time, the timeline setting, and from them the span, clock, rates and pacing. */

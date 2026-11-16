@@ -17,6 +17,10 @@ history:
     kind: observed
     note: Found by the O-075 Full Objective Check probe of the close rule at a playback speed where one frame moves the clock further than the span.
     check: C-183
+  - at: '2026-11-16T09:00:00Z'
+    actor: {role: executor, session: i179-repair}
+    kind: repair_attempted
+    note: 'Replaced the crossing test with a state test (storyPanels.ts: panelCloseMs, panelArmedAt, panelSpanPassed with armed flag; useStoryPanels.ts tracks armedId). A panel that opened with the clock before its close moment closes on the first forward-playing tick after its opening tick whose clock ends at or past it, cause playback; one opened (visitor/host) at or past it stays open. Re-ran: span 1 s at opening speed closes on the next tick (DOM test); speed raised after opening closes (DOM test); visitor reopen after close moment stays open (DOM test); new table covers short span, long span, raised speed, opened-after, seek past, rewind, paused, no span; existing MOVES table, stop-on-end close and DOM tests unchanged and passing. README and CHANGELOG state the rule and the reopen case. Also froze the nested near object in Scene.timeline.pacing and corrected the displaySwitches.ts label comment (C-183 notes). Gates: lint, typecheck, build clean; npm test 263 files, 4033 passed, 2 skipped (before a test-typing tidy; storyPanelClose 42 passed after). Browser not run (unverified). Not verified by a Check.'
 ---
 
 # I-179: A story panel whose close span passes within one frame never closes by itself

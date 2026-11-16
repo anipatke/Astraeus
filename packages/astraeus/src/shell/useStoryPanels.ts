@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { ClockSnapshot } from "../core/clock";
-import { CrossingTracker, panelSpanPassed, type StoryPanel, type StoryStep } from "./storyPanels";
+import { CrossingTracker, panelArmedAt, panelSpanPassed, type StoryPanel, type StoryStep } from "./storyPanels";
 
 export interface StoryPanelSettings {
   readonly autoOpen: boolean;
@@ -15,7 +15,8 @@ export type PanelCause = "visitor" | "host" | "playback" | "move";
 /**
  * Which story panel is open and whether playback is held for it. A panel opens by itself only when forward playback
  * carries the clock across its time; a seek (slider, Previous, Next, a link) re-bases the crossing check and opens nothing.
- * An open moment panel closes by itself once forward playback passes its time plus its span (`closeAfterSeconds`); a seek, rewind or pause never closes it.
+ * An open moment panel closes by itself on the first forward-playing tick after it opened whose clock ends at or past its time plus its span (`closeAfterSeconds`), if it opened while the clock was before that moment
+ * (a panel opened at or past it stays open until closed); a seek, rewind or pause never closes it.
  * Only one panel is open at a time: the newest replaces the one before. A step never opens from playback; with steps and no moment panel the first step is open at the start.
  */
 export function useStoryPanels(
@@ -29,19 +30,22 @@ export function useStoryPanels(
   const cause = useRef<PanelCause>("visitor");
   const [holding, setHolding] = useState(false);
   const tracker = useRef(new CrossingTracker(snapshot.timeUtcMs));
+  /** The panel the close applies to: the one that opened while the clock was before its close moment (null: none open, or one opened at or past it). */
+  const armedId = useRef<string | null>(null);
   const latest = useRef({ panels, settings, snapshot, setPlaying, holding, openId });
   latest.current = { panels, settings, snapshot, setPlaying, holding, openId };
 
   useEffect(() => {
     const { panels: list, settings: now, snapshot: shot, setPlaying: control, openId: shownId } = latest.current;
     const shown = list.find((panel) => panel.id === shownId);
-    const spanPassed = shown !== undefined && panelSpanPassed(shown, now.closeAfterSeconds, tracker.current.previousMs, shot.timeUtcMs, shot.playing || tracker.current.wasPlaying);
+    const spanPassed = shown !== undefined && armedId.current === shown.id && panelSpanPassed(shown, now.closeAfterSeconds, tracker.current.previousMs, shot.timeUtcMs, shot.playing || tracker.current.wasPlaying);
     const newest = tracker.current.advance(list, shot.timeUtcMs, shot.playing, now.autoOpen);
     if (newest === null) {
       if (spanPassed) { cause.current = "playback"; setOpenId(null); }
       return;
     }
     cause.current = "playback";
+    armedId.current = newest.id;
     setOpenId(newest.id);
     if (now.pauseSeconds > 0 && control !== undefined) {
       control(false);
@@ -65,9 +69,18 @@ export function useStoryPanels(
 
   const noteSeek = useCallback((timeUtcMs: number) => {
     tracker.current.rebase(timeUtcMs);
+    const { panels: list, settings: now, openId: shownId } = latest.current;
+    const shown = list.find((panel) => panel.id === shownId);
+    armedId.current = shown !== undefined && panelArmedAt(shown, now.closeAfterSeconds, timeUtcMs) ? shown.id : null;
     setHolding(false);
   }, []);
-  const open = useCallback((id: string, by: PanelCause = "visitor") => { cause.current = by; setOpenId(id); }, []);
+  const open = useCallback((id: string, by: PanelCause = "visitor") => {
+    const { panels: list, settings: now, snapshot: shot } = latest.current;
+    const target = list.find((panel) => panel.id === id);
+    armedId.current = target !== undefined && panelArmedAt(target, now.closeAfterSeconds, shot.timeUtcMs) ? id : null;
+    cause.current = by;
+    setOpenId(id);
+  }, []);
   const close = useCallback((by: PanelCause = "visitor") => {
     cause.current = by;
     setOpenId(null);

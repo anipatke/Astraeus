@@ -17,7 +17,7 @@ export type DisplaySwitchPlace = (typeof DISPLAY_SWITCH_PLACES)[number];
 export interface DisplaySwitchSetting {
   readonly place: DisplaySwitchPlace;
   readonly on?: boolean;
-  /** The switch's own name in the bar, the panel and the Developer drawer; absent: the built-in one. */
+  /** The switch's own name in the top bar and the switch panel; absent: the built-in one. */
   readonly label?: string;
 }
 export type DisplaySwitchSettings = Readonly<Partial<Record<DisplaySwitchId, DisplaySwitchSetting>>>;

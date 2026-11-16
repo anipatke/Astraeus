@@ -37,6 +37,7 @@ Panel close rule beside crossings in `src/shell/storyPanels.ts`; sheet cap `shee
 - D2 Hiding camera buttons: Focus choices and an Overview on/off beside the existing Follow and Look-out choices, not one "sky only" switch. Owner: "Match the Follow choice". The scale switch already hides with `setScale(x, { only: true })`, so only the README recipe is added for it.
 - D3 Read-backs: on the scene (Node-testable); the viewer handle's live reads stay as they are (no live pacing-mode read). Owner: "On the scene".
 - Planner choices in the confirmed summary: the sheet cap is a look (API-06), not a separate call; a switch label applies everywhere the switch shows. Owner confirmed the summary: "Yes, plan it".
+- D4 Switch labels in the Developer drawer (2026-11-16T08:20:48Z, after C-183): the drawer has fixed controls with no per-switch rows, so a switch `label` shows in the top bar and switch panel only, as README and CHANGELOG say. Owner: "Accept as is".
 
 ## Boundaries
 
