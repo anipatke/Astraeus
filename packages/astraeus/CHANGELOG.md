@@ -19,7 +19,6 @@ Versions follow [semantic versioning](https://semver.org). While the version sta
 - Added: `setTimeline({ playing: false })` opens the viewer paused on its opening time before the first frame (default stays playing); `scene.timeline.playing` reads it (a new field on `SceneTimelineRead`). A non-boolean throws `bad-timeline`.
 - Fixed: playback that runs into a timeline edge now stops exactly on it (it used to land a few milliseconds past), and a moment panel at the timeline's end opens when forward playback stops there; a seek to the end still opens nothing.
 - Fixed: `clearSkyTrace(id, { durationSeconds: 0 })` removes the lines and label on the next drawn frame even when the viewer is paused and still.
-
 - Fixed: while the camera is already looking out, `setCamera({ lookOut, direction?, fovDeg? })`, a story panel's camera and the timeline's Go to now ease the look direction and the field of view instead of cutting; with `prefers-reduced-motion: reduce` they arrive on the next frame. Entering a look-out from the orbit camera still cuts.
 - Fixed: in a look-out camera a tap on a sky figure's name or line wins over a body under it, and a tap on a body selects it and keeps the sky view instead of flying away; orbit-camera taps are unchanged.
 

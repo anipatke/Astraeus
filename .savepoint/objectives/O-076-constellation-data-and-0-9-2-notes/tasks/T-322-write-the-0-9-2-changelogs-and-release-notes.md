@@ -2,7 +2,8 @@
 id: T-322
 objective: O-076
 title: Write the 0.9.2 changelogs and release notes
-status: planned
+status: in_progress
+stage: audit
 depends_on: [{task: T-321, requires: clear}]
 owner_validation: {required: true}
 check_waiver: {task: T-322, reason: 'Owner said "orchestrate o76" (orchestrate O-076) under the standing run rules (one builder at a time, no per-step checks, coordinator marks done once gates pass, one Full Objective Check at the end); the optional Task Check is waived.', actor: {role: owner, session: plan-o076-20261116}, recorded_at: '2026-11-16T09:29:54Z'}
@@ -63,7 +64,13 @@ Configured gates at handoff. Evaluated later under `agent-skills/references/chec
 
 ## Technical Evidence
 
-Pending execution.
+Reconciled (builder, 2026-11-16):
+- astraeus: every `Unreleased` line checked against the O-073..O-075 Success Conditions, `api-surface.lock.json` (names/types: ScenePanelPlaybackRead, SceneSwitchRead, ScenePacingRead, TimeLook, LookRead time/sheetMaxPercent, setFocusChoices, setOverview, closeAfterSeconds, playing) and source (planCamera, story, planTimeline, sceneReads, SkyFiguresView, lookValues). No claim found unproven. Only correction: removed a stray blank line splitting the entry list. Heading stays `Unreleased` (0.9.1 notes were dated at release).
+- astraeus-data: one Unreleased entry (`astraeus-data/milky-way`, `milkyWaySource`) matches package.json exports and src/milkyWay.ts; no change.
+- astraeus-data-constellations: no CHANGELOG of its own (RELEASING.md names only astraeus and astraeus-data); its entries live in `packages/astraeus/CHANGELOG.md` and the notes say so. No other package changed in `packages` besides site tests/tools.
+- Created `docs/release-notes-0.9.2.md` in the 0.9.1 shape, one bullet per changelog line. Not yet included (owner's release step): first-download size from `npm run measure:example`, and the dated headings.
+- Gates: lint, typecheck, build pass; test 265 files, 4047 passed, 2 skipped.
+- Files: packages/astraeus/CHANGELOG.md (whitespace only), docs/release-notes-0.9.2.md (new), this Task.
 
 ## Drift Notes
 
