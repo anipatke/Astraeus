@@ -1,7 +1,7 @@
 ---
 id: O-075
 title: Panels, controls and reads
-status: planned
+status: done
 depends_on: [O-074]
 release: G-020
 priority: medium
