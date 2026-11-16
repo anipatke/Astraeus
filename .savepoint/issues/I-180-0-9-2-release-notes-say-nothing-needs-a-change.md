@@ -2,16 +2,22 @@
 id: I-180
 title: The 0.9.2 release notes say nothing needs a change, but fractional panel, anchor and shownDuring times are now refused
 type: drift
-status: open
+status: resolved
 source:
   kind: check
   check: C-186
   actor: {role: checker, session: check-o076-20261116}
   at: '2026-11-16T10:10:06Z'
 tasks: [T-322]
-checks: [C-186]
+checks: [C-186, C-187]
 guardrail_ids: [API-07]
 severity: low
+resolution:
+  disposition: verified
+  check: C-187
+  actor: {role: checker, session: recheck-o076-20261116}
+  at: '2026-11-16T10:13:30Z'
+  reason: Repair proven by C-187 (CLEAR).
 history:
   - at: '2026-11-16T10:10:06Z'
     actor: {role: checker, session: check-o076-20261116}
@@ -22,6 +28,11 @@ history:
     actor: {role: executor, session: orchestrate-o076-20261116}
     kind: repair_attempted
     note: 'Direct docs repair. docs/release-notes-0.9.2.md intro now says one stricter check may need a change (panel at.time, anchor time, shownDuring end must be a whole millisecond within range); Upgrading names the refused inputs, their codes (bad-panels, bad-anchor, bad-body, bad-trajectory) and the fix (round, e.g. Math.round(ms)), then "Nothing else needs a change". Re-read every other claim: unchanged, each still maps to a CHANGELOG line (CHANGELOG Changed line 16). No code change. Also Design.md Constellations item (4) now names outlineLabel and constellationFinder (C-186 non-blocking note).'
+  - at: '2026-11-16T10:13:30Z'
+    actor: {role: checker, session: recheck-o076-20261116}
+    kind: rechecked
+    note: 'Re-check C-187 (CLEAR). Intro (line 5) and Upgrading (line 41) name the refused panel at.time, anchor time and shownDuring end, their codes and the rounding fix; no unqualified "nothing needs a change" remains; matches CHANGELOG line 16 and badTime.test.ts 50-57; other claims unchanged and still mapped; no code change since a6ccb200.'
+    check: C-187
 ---
 
 # I-180: The 0.9.2 release notes say nothing needs a change, but fractional panel, anchor and shownDuring times are now refused
