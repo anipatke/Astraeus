@@ -2,8 +2,7 @@
 id: T-322
 objective: O-076
 title: Write the 0.9.2 changelogs and release notes
-status: in_progress
-stage: audit
+status: done
 depends_on: [{task: T-321, requires: clear}]
 owner_validation: {required: true}
 check_waiver: {task: T-322, reason: 'Owner said "orchestrate o76" (orchestrate O-076) under the standing run rules (one builder at a time, no per-step checks, coordinator marks done once gates pass, one Full Objective Check at the end); the optional Task Check is waived.', actor: {role: owner, session: plan-o076-20261116}, recorded_at: '2026-11-16T09:29:54Z'}
@@ -75,3 +74,5 @@ Reconciled (builder, 2026-11-16):
 ## Drift Notes
 
 None expected.
+
+- Owner validation (2026-11-16T10:00:24Z): the owner read `docs/release-notes-0.9.2.md` and answered "ready, carry on" (heading stays `Unreleased` for the release step; the repeated Milky Way entry kept). Coordinator marks done (gates pass: lint, typecheck, build, test 265 files / 4047 passed / 2 skipped), per the owner's "orchestrate o76".
