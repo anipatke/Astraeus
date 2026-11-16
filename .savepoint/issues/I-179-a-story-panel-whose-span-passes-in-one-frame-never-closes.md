@@ -2,15 +2,21 @@
 id: I-179
 title: A story panel whose close span passes within one frame never closes by itself
 type: defect
-status: open
+status: resolved
 source:
   kind: check
   check: C-183
   actor: {role: checker, session: o075-check-20261116}
   at: '2026-11-16T08:19:29Z'
 tasks: [T-317]
-checks: [C-183, C-184]
+checks: [C-183, C-184, C-185]
 severity: medium
+resolution:
+  disposition: verified
+  check: C-185
+  actor: {role: checker, session: o075-recheck2-20261116}
+  at: '2026-11-16T08:38:30Z'
+  reason: Repair proven by C-185 (CLEAR).
 history:
   - at: '2026-11-16T08:19:29Z'
     actor: {role: checker, session: o075-check-20261116}
@@ -30,6 +36,11 @@ history:
     actor: {role: executor, session: i179-repair-2}
     kind: repair_attempted
     note: 'Second repair for C-184. CrossingTracker gains a timeUtcMs read (the clock as panel logic knows it: rebased by noteSeek, advanced each tick); useStoryPanels open() arms from it instead of the pre-seek snapshot, so a panel opened from the timeline track or event list is armed by the clock it jumps to. General rule, no caller-specific parameter. New tests in storyPanelClose.test.ts: tracker read after rebase and tick; DOM open-from-track after the close moment passed (fails on the old code) and with the clock before the panel (both close, cause playback); existing I-179 cases unchanged and passing. README (addStoryPanels, setStoryPanelPlayback) and CHANGELOG state the rule and the scene-marker case. Note: the earlier repair_attempted entry''s 09:00:00Z stamp was not a real time; that repair was committed at 2026-11-16T08:24:52Z (commit 189c821f). Browser not run. Not verified by a Check.'
+  - at: '2026-11-16T08:38:30Z'
+    actor: {role: checker, session: o075-recheck2-20261116}
+    kind: rechecked
+    note: 'Proof Needed met, by C-185 (CLEAR) at bfb93558: C-184 scenario L1 (play through, track press at T+59 s, play on) now closes with cause playback; from T-50 s closes; span 1 s from the track closes on the next forward tick, not the opening one; paused track press closes once played; rewind keeps it open; marker reopen and host open past the span stay open, host open before closes; one-frame span, raised speed, hold, MOVES table and stop-on-end unchanged and green. New DOM test fails on the pre-repair hook. README and CHANGELOG state the timeline and scene-marker cases as the code applies them. Full gate green.'
+    check: C-185
 ---
 
 # I-179: A story panel whose close span passes within one frame never closes by itself

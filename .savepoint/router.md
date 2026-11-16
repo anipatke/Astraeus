@@ -8,7 +8,7 @@ This file records state and selection only. `savepoint resume` computes the read
 state: check
 objective: O-075
 task: T-319
-issue: I-179
+issue: none
 release: G-020
 ```
 
