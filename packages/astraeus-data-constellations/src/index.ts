@@ -1,4 +1,7 @@
+import { buildFinder, type SkyDirection } from "./finder.js";
 import type { Provenance, SkyFigureEnd, SkyFigureInput } from "astraeus";
+
+export type { SkyDirection } from "./finder.js";
 
 /** One end of a figure line: a Hipparcos number the engine's star list holds, or a J2000 position `[raDeg, decDeg]` (a star the list holds without a Hipparcos number). */
 export type FigureEnd = number | readonly [raDeg: number, decDeg: number];
@@ -45,6 +48,21 @@ export const loadNames = (): Promise<Readonly<Record<string, ConstellationName>>
 /** Sources, licences, changes and the boundary cross-check. */
 export const loadProvenance = (): Promise<ConstellationProvenance> => read(() => import("../data/provenance.json", { with: { type: "json" } }));
 
+let finder: Promise<(direction: SkyDirection) => string> | undefined;
+
+/**
+ * Which of the 88 constellations holds a J2000 direction. Loads the boundary outlines once (later calls reuse them) and resolves to a synchronous function giving the IAU abbreviation (`"Ori"`); both Serpens loops answer `"Ser"`.
+ * Right ascension is taken modulo 360; a declination outside -90..90 or a non-finite number throws a `RangeError` naming the field.
+ * A direction exactly on a shared edge (within 1e-9 radian) answers the first abbreviation in alphabetical order of the constellations that edge touches.
+ * @example
+ * const which = await constellationFinder();
+ * which({ raDeg: 88.79, decDeg: 7.41 }); // "Ori"
+ */
+export const constellationFinder = (): Promise<(direction: SkyDirection) => string> => {
+  finder ??= loadBoundaries().then(buildFinder, (error: unknown) => { finder = undefined; throw error; });
+  return finder;
+};
+
 /** What `constellations` can be told. */
 export interface ConstellationsOptions {
   /** Also return each constellation's boundary outline (`kind: "boundary"`; Serpens has two). Default false. */
@@ -59,6 +77,8 @@ export interface ConstellationsOptions {
   readonly listed?: boolean;
   /** Text put before every id, to avoid a clash with the app's own ids (default none). */
   readonly idPrefix?: string;
+  /** Names each outline's label: called with the label it would have had (`"Aries"`, `"Serpens Cauda"`), returns the text to use (non-empty). Figures keep their names. Default: the label as is. */
+  readonly outlineLabel?: (name: string) => string;
 }
 
 const provenance = (what: string, sources: readonly string[]): Provenance => ({
@@ -96,6 +116,14 @@ export const constellations = async (which: readonly string[] | "all", options: 
   }
   if (unknown.length > 0) throw new RangeError(`constellations: not an IAU abbreviation: ${unknown.join(", ")}`);
   if (repeated.length > 0) throw new RangeError(`constellations: repeated: ${repeated.join(", ")}`);
+  const outlineLabel = options.outlineLabel;
+  if (outlineLabel !== undefined && typeof outlineLabel !== "function") throw new RangeError("constellations: outlineLabel must be a function");
+  const labelOutline = (name: string): string => {
+    if (outlineLabel === undefined) return name;
+    const text: unknown = outlineLabel(name);
+    if (typeof text !== "string" || text === "") throw new RangeError(`constellations: outlineLabel must return non-empty text, got ${typeof text === "string" ? "an empty string" : typeof text} for "${name}"`);
+    return text;
+  };
   const prefix = options.idPrefix ?? "";
   const common = {
     ...(options.shown === undefined ? {} : { shown: options.shown }),
@@ -122,7 +150,7 @@ export const constellations = async (which: readonly string[] | "all", options: 
         const part = loops.length > 1 ? SERPENS_PARTS[index] : undefined;
         out.push({
           id: `${prefix}${abbr}-boundary${loops.length > 1 ? `-${index + 1}` : ""}`,
-          label: part === undefined ? label : `${label} ${part}`,
+          label: labelOutline(part === undefined ? label : `${label} ${part}`),
           kind: "boundary",
           points,
           provenance: provenance("Constellation boundaries", BOUNDARY_SOURCES),

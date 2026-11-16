@@ -27,7 +27,21 @@ scene.addSkyFigures(await constellations(["Ori", "Tau"], { shown: "whenTraced" }
 scene.addSkyFigures(await constellations("all", { outlines: true, color: "#6aa" })); // all 88 with boundary outlines
 ```
 
-Options: `outlines` (default false), `shown` (`"always"` or `"whenTraced"`), `color`, `labelColor`, `listed` (menu), `idPrefix`. Ids are the abbreviation (`Ori`), `Ori-boundary` for an outline, and `Ser-boundary-1` (Caput) and `Ser-boundary-2` (Cauda) for Serpens. An unknown or repeated abbreviation throws a `RangeError` naming it. Cards carry provenance and no facts; the app adds those. Star ends need the engine's star list, which the viewer loads itself.
+Options: `outlines` (default false), `shown` (`"always"` or `"whenTraced"`), `color`, `labelColor`, `listed` (menu), `idPrefix`, `outlineLabel` (a function from the label an outline would have, such as `"Aries"` or `"Serpens Cauda"`, to the text it gets, so an app can tell an outline's name from its figure's; a non-function, or a result that is not a non-empty string, throws a `RangeError`). Ids are the abbreviation (`Ori`), `Ori-boundary` for an outline, and `Ser-boundary-1` (Caput) and `Ser-boundary-2` (Cauda) for Serpens. An unknown or repeated abbreviation throws a `RangeError` naming it. Cards carry provenance and no facts; the app adds those. Star ends need the engine's star list, which the viewer loads itself.
+
+### Which constellation holds a direction
+
+`constellationFinder()` loads the outlines once and resolves to a synchronous function from a J2000 direction to the IAU abbreviation:
+
+```ts
+import { constellationFinder } from "astraeus-data-constellations";
+
+const which = await constellationFinder();
+which({ raDeg: 88.79, decDeg: 7.41 }); // "Ori"
+which({ raDeg: 280, decDeg: -3 }); // "Ser" (both Serpens loops answer "Ser")
+```
+
+Right ascension is taken modulo 360; a `decDeg` outside -90 to 90, or a non-finite number, throws a `RangeError` naming the field. The edges are great-circle arcs between the outline points, and the poles and the 0/360 seam are handled. A direction within 1e-9 radian of an edge shared by constellations answers the first abbreviation in alphabetical order among those; if rounding leaves a direction inside no outline, it answers the constellation of the nearest edge. J2000 only: precess a date's direction first.
 
 The figures use Hipparcos numbers; one end, xi Ursae Majoris (HIP 55203, Alula Australis), is a position because the engine's star list holds that star without a Hipparcos number.
 
