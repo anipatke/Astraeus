@@ -1,7 +1,7 @@
 ---
 id: G-016
 title: A modular, consumable package for 0.8.0
-status: planned
+status: done
 ---
 
 ## Outcome
