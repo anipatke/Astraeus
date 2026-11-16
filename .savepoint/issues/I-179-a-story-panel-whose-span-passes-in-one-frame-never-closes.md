@@ -9,7 +9,7 @@ source:
   actor: {role: checker, session: o075-check-20261116}
   at: '2026-11-16T08:19:29Z'
 tasks: [T-317]
-checks: [C-183]
+checks: [C-183, C-184]
 severity: medium
 history:
   - at: '2026-11-16T08:19:29Z'
@@ -21,6 +21,11 @@ history:
     actor: {role: executor, session: i179-repair}
     kind: repair_attempted
     note: 'Replaced the crossing test with a state test (storyPanels.ts: panelCloseMs, panelArmedAt, panelSpanPassed with armed flag; useStoryPanels.ts tracks armedId). A panel that opened with the clock before its close moment closes on the first forward-playing tick after its opening tick whose clock ends at or past it, cause playback; one opened (visitor/host) at or past it stays open. Re-ran: span 1 s at opening speed closes on the next tick (DOM test); speed raised after opening closes (DOM test); visitor reopen after close moment stays open (DOM test); new table covers short span, long span, raised speed, opened-after, seek past, rewind, paused, no span; existing MOVES table, stop-on-end close and DOM tests unchanged and passing. README and CHANGELOG state the rule and the reopen case. Also froze the nested near object in Scene.timeline.pacing and corrected the displaySwitches.ts label comment (C-183 notes). Gates: lint, typecheck, build clean; npm test 263 files, 4033 passed, 2 skipped (before a test-typing tidy; storyPanelClose 42 passed after). Browser not run (unverified). Not verified by a Check.'
+  - at: '2026-11-16T08:30:00Z'
+    actor: {role: checker, session: o075-recheck-20261116}
+    kind: observed
+    note: 'Re-check C-184 (NEEDS WORK). The original Proof Needed holds (one-frame span closes on the next tick, raised speed closes, hold then resume closes, MOVES table and DOM tests unchanged and green, README/CHANGELOG state the marker-reopen case). The repair regressed C-183 row 7: a panel opened from the timeline track (seek to its time, then open) is armed from the pre-seek clock (useStoryPanels.ts open reads latest.current.snapshot), so after playback has passed the panel it stays open while forward playback runs past its close moment again; with the clock before the panel at the press it closes. Stays open until a CLEAR Check.'
+    check: C-184
 ---
 
 # I-179: A story panel whose close span passes within one frame never closes by itself
@@ -57,3 +62,12 @@ Adjacent case for the repair to decide (Check observation, not separately blocki
 - With a span shorter than one frame's clock advance, an auto-opened moment panel closes by itself on a later forward-playing tick (or on the opening tick, as the repair defines), reported as `cause: "playback"`; a test pins it (including a speed raised after the panel opened).
 - The existing table (seek past, rewind, paused never close; no span never closes; the stop-on-end close) still holds.
 - README/CHANGELOG state the rule the code applies, including the marker-reopen-after-span case.
+
+## Re-check C-184 (recurring evidence)
+
+Probe through `mountShell` (span 20 s, `pauseSeconds: 0`): play through `marker-loop` (opens, closes with cause playback) to T+59 s; press the timeline track button "Open story panel: ..." (`openPanelFromTimeline`, `AstraeusShell.tsx:333-336`: seek to T, then `story.open`); play ten 100 ms ticks to T+60 s. Expected: closes with cause `playback` (clock was at T, before T+20 s, when it opened). Actual: stays open; panel changes end `{id:"marker-loop", cause:"visitor"}`. The same press made with the clock at T-50 s closes. Cause: `open` (`useStoryPanels.ts:77-83`) arms against `latest.current.snapshot.timeUtcMs`, the clock before the seek in the same handler.
+
+Further Proof Needed:
+
+- A panel opened from the timeline track or event list is armed by the clock when it opens (after the seek), not before; a DOM test opens from the track after and before the span and pins the close (or, if the owner decides list reopen always stays open, pins that regardless of the prior clock).
+- README `setStoryPanelPlayback`/`addStoryPanels` rows and the CHANGELOG entry describe the list case as the code applies it.
