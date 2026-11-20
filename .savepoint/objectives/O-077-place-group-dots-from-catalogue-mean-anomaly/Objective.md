@@ -6,6 +6,7 @@ depends_on: []
 release: G-021
 priority: high
 rank: 1
+last_check: C-188
 ---
 
 # O-077: Place group dots from catalogue mean anomaly
