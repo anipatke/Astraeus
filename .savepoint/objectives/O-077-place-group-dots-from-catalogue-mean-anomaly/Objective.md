@@ -1,7 +1,7 @@
 ---
 id: O-077
 title: Place group dots from catalogue mean anomaly
-status: in_progress
+status: done
 depends_on: []
 release: G-021
 priority: high
