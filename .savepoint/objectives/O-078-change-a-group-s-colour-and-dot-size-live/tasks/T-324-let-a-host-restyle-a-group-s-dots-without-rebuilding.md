@@ -2,8 +2,7 @@
 id: T-324
 title: Let a host restyle a group's dots without rebuilding
 objective: O-078
-status: in_progress
-stage: audit
+status: done
 depends_on: []
 check_waiver: {task: T-324, reason: 'Owner chose "Skip step check, one final (Recommended)" for the single build step of O-078; the mandatory Full Objective Check covers the same diff.', actor: {role: owner, session: plan-g022-20261120}, recorded_at: '2026-11-20T20:15:18Z'}
 owner_validation: {required: false}
@@ -84,3 +83,7 @@ Executor session exec-t324-20261120 (same session as planning; the Full Objectiv
 - Planned writes changed: `KeplerPoints.ts` needed no change (its material is set through `PointsView.setLook`); added `src/api/groupLookInput.ts`, `src/api/group.ts` (exports the one `HEX` pattern, reused), `src/api/index.ts`, `tests/lifecycle.test.ts` and `tests/twoViewers.test.ts` (the handle tables a new member must join; `twoViewers` makeScene gained one small group for its row), `docs/architecture/groups-and-time.md`.
 - `ViewerControl.groups`, `groupLook` and `setGroupLook` are optional members, so the existing test stand-ins of the control stay unchanged (as `skyFigures` is optional).
 - Design: reconciled in `docs/architecture/groups-and-time.md` ("Live group looks"), linked from Design.md "Groups and the `points` layer"; Design.md itself needs no change.
+
+## Owner Decision
+
+Owner 2026-11-20 (session plan-g022-20261120), after the handoff gates passed: "Mark done, run final check (Recommended)". Status set to done by the executor on that instruction; the mandatory Full Objective Check follows in a fresh session.
