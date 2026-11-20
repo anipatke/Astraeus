@@ -2,6 +2,7 @@ import type { CameraRequest } from "../app/CameraController";
 import { cameraIdsOf } from "../core/storyPanels";
 import { eqjUnitVector, validateSkyDirection, validateSkyFov, validateSkyPosition, validateStartView } from "../core/startView";
 import { SceneError } from "./errors";
+import { isPlainObject } from "./plainObject";
 import type { CameraPose } from "./viewerLink";
 
 /**
@@ -11,8 +12,8 @@ import type { CameraPose } from "./viewerLink";
  */
 export function cameraRequestOf(target: unknown, call: string, now: CameraPose | undefined, keepDirection = false): CameraRequest {
   const bad = (why: string) => new SceneError("bad-camera", `${call}: ${why}; give { follow: id }, { focus: id }, { lookOut: id, direction?, fovDeg? } or a pose from camera`);
-  if (typeof target !== "object" || target === null || Array.isArray(target)) throw bad(`${String(target)} is not an object`);
-  const record = target as Record<string, unknown>;
+  if (!isPlainObject(target)) throw bad(`${String(target)} is not an object`);
+  const record = target;
   if ("lookOut" in record) return lookOutOf(record, now, keepDirection, bad);
   // A pose names its object with `focus` too; its angle and distance fields tell it from `{ focus: id }`.
   const isPose = ["azimuthDeg", "elevationDeg", "distance"].some((key) => key in record) || !("follow" in record || "focus" in record);

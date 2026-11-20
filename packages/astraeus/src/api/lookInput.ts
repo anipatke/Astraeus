@@ -2,13 +2,14 @@ import { isCssColour, isFontFamily, isTimeZone } from "../core/lookValues";
 import { LOOK_FIELDS, lookName, lookValue, lookWith, type LookField } from "../app/look";
 import type { LookInput } from "./look";
 import { SceneError } from "./errors";
+import { isPlainObject } from "./plainObject";
 
 const TOP_LEVEL = [...new Set(LOOK_FIELDS.map(({ path }) => path[0]))];
 
 /** Checks a `setLook` argument: an object of known looks, each a finite number in its range, a boolean, a CSS colour, a font-family text, a time zone or one of a few names as its field says. Returns a frozen copy (the scene keeps no reference to the caller's object). */
 export function checkedLook(input: LookInput): LookInput {
   const bad = (message: string) => new SceneError("bad-look", `setLook: ${message}`);
-  const isObject = (value: unknown): value is Record<string, unknown> => typeof value === "object" && value !== null && !Array.isArray(value);
+  const isObject = isPlainObject;
   if (!isObject(input)) throw bad(`give an object such as { starBrightness: 1.4 } (looks: ${TOP_LEVEL.join(", ")})`);
   for (const [key, value] of Object.entries(input)) {
     const fields = LOOK_FIELDS.filter(({ path }) => path[0] === key);

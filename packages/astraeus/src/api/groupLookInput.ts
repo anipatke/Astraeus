@@ -1,5 +1,6 @@
 import { SceneError } from "./errors";
 import { HEX } from "./group";
+import { isPlainObject } from "./plainObject";
 
 /** What `handle.setGroupLook` takes; a field left out keeps its value. */
 export interface GroupLookInput {
@@ -28,8 +29,8 @@ export function checkedGroupLook(id: unknown, look: unknown, current: GroupLookR
   if (typeof id !== "string" || current === undefined) {
     throw bad(id, `"${String(id)}" is not a group this viewer draws (${groups.length === 0 ? "the scene added none; add them with addGroup" : groups.join(", ")})`);
   }
-  if (typeof look !== "object" || look === null || Array.isArray(look)) throw bad(id, `expected { color?, dotSizePx? }, got ${String(look)}`);
-  const given = look as Record<string, unknown>;
+  if (!isPlainObject(look)) throw bad(id, `expected { color?, dotSizePx? }, got ${String(look)}`);
+  const given = look;
   for (const key of Object.keys(given)) if (!FIELDS.includes(key)) throw bad(id, `"${key}" is not a group look field (${FIELDS.join(", ")})`);
   const { color = current.color, dotSizePx = current.dotSizePx } = given;
   if (typeof color !== "string" || !HEX.test(color)) throw bad(id, `color "${String(color)}" is not a hex colour such as "#9de3a8"`);
