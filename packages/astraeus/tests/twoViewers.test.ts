@@ -45,6 +45,7 @@ const MADE = { sourceType: "illustrative", sources: ["Made up"], accuracy: "None
 const makeScene = () => new Scene().addBody(earth).addBody(moon)
   .addTrajectory({ id: "pa", label: "Probe A", center: "earth", samples: path(10_000) })
   .addTrajectory({ id: "pb", label: "Probe B", center: "earth", samples: path(20_000) })
+  .addGroup({ id: "dust", label: "Dust", center: "earth", plane: "ecliptic-j2000", orbits: [{ id: "d1", semiMajorAxisKm: 9e4, eccentricity: 0.1, inclinationDeg: 5, raanDeg: 40, argumentOfPeriapsisDeg: 70 }] }) // for setGroupLook
   .setViews([{ id: "a", label: "View A", objects: ["pa"] }, { id: "b", label: "View B", objects: ["pb"] }], { place: "top-bar" })
   .setSwitches({ labels: { place: "top-bar" } })
   .setPicker({ id: "world", label: "World", options: [{ value: "one", label: "One" }, { value: "two", label: "Two" }], value: "one" })
@@ -162,6 +163,7 @@ const SETTERS: Record<keyof Setter, Row> = {
   setSelected: { call: (v) => v.handle.setSelected("pa"), reads: (hd) => expect(hd.selected).toBe("pa"), hears: "selects" },
   setPanel: { call: (v) => v.handle.setPanel("s2"), reads: (hd) => expect(hd.panel).toBe("s2"), hears: "panels" },
   setPick: { call: (v) => v.handle.setPick("two"), reads: (hd) => expect(hd.pick).toBe("two") }, // moves the pressed option and tells no listener
+  setGroupLook: { call: (v) => v.handle.setGroupLook("dust", { color: "#123456" }), reads: (hd) => expect(hd.groupLook("dust")).toEqual({ color: "#123456", dotSizePx: 2.5 }) }, // presentation only: tells no listener
   setCamera: {
     call: (v) => v.handle.setCamera({ focus: "moon" }),
     settle: (v) => { expect(cameraRequest(v)).toEqual({ kind: "focus", target: "moon" }); standAt(v, CAMERA_POSE); vi.advanceTimersByTime(300); },

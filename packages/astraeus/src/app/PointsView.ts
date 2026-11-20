@@ -12,7 +12,14 @@ import { TRACK_LAYER } from "./TrackedBodyView";
 // Measured in T-030 for 10^4 members: a 5-minute span blends to within about 8 km of the exact position on a ring 26,000 km
 // across, and costs one ~12 ms slide per span; shorter spans slide more often, longer ones drift further from exact.
 export const DEFAULT_REFILL_AFTER_MS = 300_000;
-const DEFAULT_POINT_SIZE_PX = 2.5;
+/** A group's dot size in screen pixels when its layer gives none. */
+export const DEFAULT_POINT_SIZE_PX = 2.5;
+
+/** A group's dot colour and size as drawn (presentation only). */
+export interface GroupDotLook {
+  readonly color: string;
+  readonly dotSizePx: number;
+}
 /**
  * Milliseconds of each frame the points layer may spend computing the next fill ahead of time (see `refillSliceMs`).
  * About 8 ms leaves most of a 30 fps frame for drawing; 0 turns the look-ahead off and every fill happens in one frame.
@@ -146,6 +153,7 @@ export class PointsView {
   #holdKm: [number, number, number] | null = null;
   #mappedFor = "";
   #drawn = false;
+  #look: GroupDotLook;
 
   constructor(readonly layer: GroupLayer, now: () => number = () => performance.now()) {
     const count = layer.group.count;
@@ -160,14 +168,15 @@ export class PointsView {
     }
     this.#before = this.#emptyFill();
     this.#after = this.#emptyFill();
+    this.#look = { color: layer.color, dotSizePx: layer.pointSizePx ?? DEFAULT_POINT_SIZE_PX };
     const geometry = new BufferGeometry();
     this.#from = new BufferAttribute(new Float32Array(3 * count), 3);
     this.#to = new BufferAttribute(new Float32Array(3 * count), 3);
     geometry.setAttribute("position", this.#from);
     geometry.setAttribute("positionTo", this.#to);
     this.#material = dotMaterial({
-      color: layer.color,
-      size: layer.pointSizePx ?? DEFAULT_POINT_SIZE_PX,
+      color: this.#look.color,
+      size: this.#look.dotSizePx,
       sizeAttenuation: false,
       transparent: true,
       opacity: 0.9,
@@ -181,8 +190,27 @@ export class PointsView {
     this.#points.visible = false;
     this.group.add(this.#points);
     const elements = count > SLICE_CHUNK_MEMBERS ? layer.group.keplerElements?.() : undefined;
-    this.#kepler = elements === undefined ? null : new KeplerPoints(elements, layer.color, layer.pointSizePx ?? DEFAULT_POINT_SIZE_PX);
+    this.#kepler = elements === undefined ? null : new KeplerPoints(elements, this.#look.color, this.#look.dotSizePx);
     if (this.#kepler !== null) this.group.add(this.#kepler.points);
+  }
+
+  /** The dot colour and size in force: the layer's own until `setLook` changes them. */
+  get look(): GroupDotLook {
+    return this.#look;
+  }
+
+  /**
+   * Gives the dots a new colour and size on both ways of drawing (the blend material and, when present, the shader-placed one), so a later switch
+   * between them keeps it. Only material values change: no geometry, fill or shader rebuild, and the dots stay where they are. Returns whether anything changed.
+   */
+  setLook(look: GroupDotLook): boolean {
+    if (look.color === this.#look.color && look.dotSizePx === this.#look.dotSizePx) return false;
+    this.#look = { color: look.color, dotSizePx: look.dotSizePx };
+    for (const material of this.#kepler === null ? [this.#material] : [this.#material, this.#kepler.material]) {
+      material.color.set(look.color);
+      material.size = look.dotSizePx;
+    }
+    return true;
   }
 
   /** Whether the graphics chip places the dots at the last `sync`, rather than the blend of exact fills. */

@@ -54,6 +54,7 @@ const skyOpacity = (spec: SkyLabelSpec | undefined, sky: SkyLabelFrame | undefin
 export class SceneLabelLayer {
   readonly #root = document.createElement("div");
   readonly #entries: readonly ProjectedEntry[];
+  readonly #byId: ReadonlyMap<string, ProjectedEntry>;
   readonly #local = new Vector3();
   readonly #direction = new Vector3();
   readonly #shown = new Map<string, Rect>();
@@ -79,7 +80,15 @@ export class SceneLabelLayer {
       this.#root.appendChild(element);
       return { object, element };
     });
+    this.#byId = new Map(this.#entries.map((entry) => [entry.object.id, entry]));
     host.appendChild(this.#root);
+  }
+
+  /** Gives the object label `id` the colour `colour` (a group's live colour, `setGroupLook`); an id with no object label, or the colour it already has, changes nothing. */
+  setColor(id: string, colour: string): void {
+    const entry = this.#byId.get(id);
+    if (entry === undefined || this.#sky.has(id) || entry.element.style.getPropertyValue("--label-color") === colour) return;
+    entry.element.style.setProperty("--label-color", colour);
   }
 
   /** The page rectangles of the labels shown after the latest update, by object id: the targets a tap on a name can hit. */

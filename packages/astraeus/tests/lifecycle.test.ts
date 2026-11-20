@@ -143,12 +143,18 @@ const CALLS: Record<string, (handle: ViewerHandle) => void> = {
   setPick: (handle) => handle.setPick("b"),
   traceSkyFigure: (handle) => handle.traceSkyFigure("kite"),
   clearSkyTrace: (handle) => handle.clearSkyTrace("kite"),
+  setGroupLook: (handle) => handle.setGroupLook("x", { color: "#123456" }),
+};
+/** Reads that take an argument: undefined whenever the handle is unusable, like `READS`. */
+const READ_CALLS: Record<string, (handle: ViewerHandle) => unknown> = {
+  groupLook: (handle) => handle.groupLook("x"),
 };
 /** Listener registration is allowed at any time (the scene's own `onChange` is registered before `ready`); what is promised is that nothing is called after unmount. */
 const LISTENERS = ["onChange", "onEventZone", "onSelect", "onPanel", "onCameraChange", "onFirstDraw", "onPick"] as const;
 const codeOf = (run: () => void): string | undefined => { try { run(); } catch (error) { return errorCode(error); } return undefined; };
 const expectUnusable = (handle: ViewerHandle): void => {
   for (const read of READS) expect(handle[read], read).toBeUndefined();
+  for (const [name, read] of Object.entries(READ_CALLS)) expect(read(handle), name).toBeUndefined();
   for (const [name, call] of Object.entries(CALLS)) expect(codeOf(() => call(handle)), name).toBe("not-mounted");
   for (const name of LISTENERS) expect(typeof handle[name](() => undefined), name).toBe("function");
 };
@@ -748,7 +754,7 @@ describe("the handle member table", () => {
   it("lists every member of ViewerHandle, so a new member must join the lifecycle cases", () => {
     const members = new Set<string>();
     for (const key in viewerHandleOf(new ViewerLink())) members.add(key);
-    expect([...members].sort()).toEqual([...READS, ...Object.keys(CALLS), ...LISTENERS].sort());
+    expect([...members].sort()).toEqual([...READS, ...Object.keys(READ_CALLS), ...Object.keys(CALLS), ...LISTENERS].sort());
   });
 });
 

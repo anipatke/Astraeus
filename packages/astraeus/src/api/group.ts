@@ -97,7 +97,8 @@ export interface PlannedGroup {
 }
 
 const GROUP_COLOR = "#9de3a8";
-const HEX = /^#[0-9a-fA-F]{3}([0-9a-fA-F]{3})?$/;
+/** A hex colour as `addGroup` (and `setGroupLook`) takes it: `#rgb` or `#rrggbb`. */
+export const HEX = /^#[0-9a-fA-F]{3}([0-9a-fA-F]{3})?$/;
 const bad = (id: unknown, message: string): SceneError => new SceneError("bad-group", `addGroup("${String(id)}"): ${message}`);
 
 /** Checks what can be checked before the scene is complete; the centre, the clump body and the id clash with other things are checked at build. */

@@ -38,6 +38,7 @@ import { TRACK_LAYER } from "./TrackedBodyView";
 import { type BodySetLayer, type BodySetLook } from "./bodySet";
 import type { LabelStyle } from "./labelStyle";
 import type { TimeLook } from "./timeLook";
+import type { GroupDotLook } from "./PointsView";
 import type { SkyColours, SkyClearRequest, SkyFigureLayer, SkyLineSwitches, SkyTraceRequest } from "./skyFigures";
 import type { RingLook } from "../assets/rings";
 import type { Pictures } from "../assets/pictures";
@@ -104,6 +105,8 @@ export interface SceneControls {
   skyColours: SkyColours;
   /** Traces the host asked for, not yet started: the frame's `advanceSkyTraces` stage takes them in call order (the host link pushes, the frame empties it). */
   skyTraces: (SkyTraceRequest | SkyClearRequest)[];
+  /** Presentation only: the colour and dot size per point group id the host set (`setGroupLook`), over the group's own; the frame applies them to the dots and the group's label. Absent, or an id not in it: the group's own. */
+  groupLooks?: Map<string, GroupDotLook>;
   /** Presentation only: how long sky lines and their names fade in when they appear, in seconds (the look `skyFadeInSeconds`; live). */
   skyFadeInSeconds: number;
   /** Presentation only: the label font and size (the look `labels`; live). The viewer root carries it to every label as CSS variables. */

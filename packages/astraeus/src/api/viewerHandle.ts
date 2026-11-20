@@ -1,4 +1,5 @@
 import type { LookInput, LookRead } from "./look";
+import type { GroupLookInput, GroupLookRead } from "./groupLookInput";
 import type { PickChange } from "./pickerInput";
 import type { TimeInput } from "./time";
 import type { SceneSkyFigureRead } from "./sceneReads";
@@ -66,6 +67,10 @@ export interface ViewerHandle {
   readonly look: LookRead | undefined;
   /** Sets the whole look, checked as `Scene.setLook` checks it (a look not named takes its default; a bad one throws `bad-look`); before `ready` or after `unmount` throws `not-mounted`. It wins over the same look in the page address, which only starts the viewer. Presentation only. `onChange` hears it with `cause: "host"`. */
   setLook(look: LookInput): void;
+  /** The colour and dot size the group `id` is drawn with now; undefined until `ready`, after `unmount`, and for a non-group id. */
+  groupLook(id: string): GroupLookRead | undefined;
+  /** Changes a group's dot colour and size (and its label's colour) from the next frame without a rebuild; fields left out keep their value. Presentation only; `Scene.groups` is unchanged. A bad id or value throws `bad-group`; before `ready` or after `unmount`, `not-mounted`. */
+  setGroupLook(id: string, look: GroupLookInput): void;
   /** The id of the scale showing; undefined until `ready` has resolved and after `unmount`. */
   readonly scale: string | undefined;
   /** Switches to one of the scales the viewer offers (`Scene.scales`); any other id throws `bad-scale`; before `ready` or after `unmount`, `not-mounted`. `onChange` hears it with `cause: "host"`. */
@@ -126,6 +131,8 @@ export function viewerHandleOf(link: ViewerLink): ViewerHandle {
     setPick: (value) => link.setPick(value),
     onPick: (listener) => link.onPick(listener),
     setLook: (look) => link.setLook(look),
+    groupLook: (id) => link.groupLook(id),
+    setGroupLook: (id, look) => link.setGroupLook(id, look),
     setScale: (id) => link.setScale(id),
     setSwitch: (id, on) => link.setSwitch(id, on),
     traceSkyFigure: (id, options) => link.traceSkyFigure(id, options),

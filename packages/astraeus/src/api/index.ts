@@ -3,6 +3,7 @@ export { Scene, type SceneCamera, type AddBodyOptions, type CardFactInput, type 
 export type { MoonPanelInput, MoonPanelFamilyInput, MoonPanelMoonInput, PlacesInput, PlaceInput, PlaceCategoryInput } from "./moonPanelInput";
 export type { SkyFigureInput, SkyFigureEnd } from "./skyFigureInput";
 export type { SkyClearOptions, SkyTraceOptions } from "./skyTraceInput";
+export type { GroupLookInput, GroupLookRead } from "./groupLookInput";
 export type { PickerInput, PickerOptionInput, PickChange } from "./pickerInput";
 export type { BodySetInput, BodySetFamilyInput, BodySetMemberInput, BodySetElementsInput, BodySetBodyInput, BodySetBalanceInput } from "./bodySetInput";
 export { type EventInput, type AddEventsOptions, type TimelineInput, type PacingInput, type StoryPanelAt, type StoryPanelInput, type StoryPanelPlaybackInput } from "./story";

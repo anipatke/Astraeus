@@ -1847,6 +1847,40 @@
         }
       ]
     },
+    "GroupLookInput": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "color",
+          "optional": true,
+          "signature": "string | undefined"
+        },
+        {
+          "name": "dotSizePx",
+          "optional": true,
+          "signature": "number | undefined"
+        }
+      ]
+    },
+    "GroupLookRead": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "color",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "dotSizePx",
+          "optional": false,
+          "signature": "number"
+        }
+      ]
+    },
     "PickerInput": {
       "kind": "interface",
       "signature": "",
@@ -2758,6 +2792,16 @@
           "signature": "(look: LookInput): void"
         },
         {
+          "name": "groupLook",
+          "optional": false,
+          "signature": "(id: string): GroupLookRead | undefined"
+        },
+        {
+          "name": "setGroupLook",
+          "optional": false,
+          "signature": "(id: string, look: GroupLookInput): void"
+        },
+        {
           "name": "scale",
           "optional": false,
           "signature": "string | undefined"
@@ -2928,6 +2972,16 @@
           "name": "setLook",
           "optional": false,
           "signature": "(look: LookInput): void"
+        },
+        {
+          "name": "groupLook",
+          "optional": false,
+          "signature": "(id: string): GroupLookRead | undefined"
+        },
+        {
+          "name": "setGroupLook",
+          "optional": false,
+          "signature": "(id: string, look: GroupLookInput): void"
         },
         {
           "name": "scale",

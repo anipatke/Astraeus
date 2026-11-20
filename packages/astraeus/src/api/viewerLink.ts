@@ -3,6 +3,7 @@ import type { ViewerControl } from "../app/viewerPort";
 import { SceneError } from "./errors";
 import type { LookInput, LookRead } from "./look";
 import { ViewerLooks } from "./viewerLooks";
+import type { GroupLookInput, GroupLookRead } from "./groupLookInput";
 import { ViewerCamera } from "./viewerCamera";
 import { ViewerClock } from "./viewerClock";
 import { ViewerSelection, type SelectionChange } from "./viewerSelection";
@@ -230,6 +231,9 @@ export class ViewerLink implements ViewerPort {
   setLook(look: LookInput): void { this.#looks.setLook(look); this.#afterHost(); }
   setScale(id: string): void { this.#looks.setScale(id); this.#afterHost(); }
   setSwitch(id: string, on: boolean): void { this.#looks.setSwitch(id, on); this.#afterHost(); }
+  groupLook(id: string): GroupLookRead | undefined { return this.#looks.groupLook(id); }
+  /** Presentation only: moves no clock, view or selection, so nothing is published. */
+  setGroupLook(id: string, look: GroupLookInput): void { this.#looks.setGroupLook(id, look); }
   setSelected(id: string | undefined): void { this.#selection.setSelected(id); this.#afterHost(); }
   setPanel(id: string | undefined): void { this.#panels.setPanel(id); this.#afterHost(); }
   onPanel(listener: (change: PanelChange) => void): () => void { return this.#panels.onPanel(listener); }

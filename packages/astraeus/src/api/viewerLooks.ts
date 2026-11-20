@@ -1,6 +1,7 @@
 import { SceneError } from "./errors";
 import type { LookInput, LookRead } from "./look";
 import { checkedLook } from "./lookInput";
+import { checkedGroupLook, type GroupLookInput, type GroupLookRead } from "./groupLookInput";
 import type { LinkAccess } from "./viewerLink";
 
 /** The host link's presentation: the looks, the scale and the display switches, their reads and their setters. */
@@ -27,6 +28,19 @@ export class ViewerLooks {
     const control = this.access.open("setScale");
     if (!control.scales.includes(id)) throw new SceneError("bad-scale", `setScale: "${String(id)}" is not one of the scales this viewer offers (${control.scales.join(", ")})`);
     control.setScale(id);
+  }
+
+  /** The colour and dot size the group `id` is drawn with now; undefined before the viewer is drawn, after it is gone, and for an id that is not a group. */
+  groupLook(id: string): GroupLookRead | undefined {
+    const look = this.access.control()?.groupLook?.(id);
+    return look === undefined ? undefined : { color: look.color, dotSizePx: look.dotSizePx };
+  }
+
+  /** Changes a group's colour and dot size, the fields left out kept (`bad-group` for a non-group id or a bad value); the dots take it at the next frame. */
+  setGroupLook(id: string, look: GroupLookInput): void {
+    const control = this.access.open("setGroupLook");
+    const checked = checkedGroupLook(id, look, typeof id === "string" ? control.groupLook?.(id) : undefined, control.groups ?? []);
+    control.setGroupLook?.(id, checked);
   }
 
   /** Turns a display switch the scene placed on or off; an id it did not place, or a non-boolean, throws `bad-switch`. */

@@ -2,6 +2,12 @@
 
 Versions follow [semantic versioning](https://semver.org). While the version starts with `0.`, the public API (the names exported from `astraeus`) may still change between minor versions; each change is listed here.
 
+## 0.9.4 (proposed, unreleased)
+
+Additions only (G-022); every `astraeus-data*` package still peers on `>=0.9.0 <0.10.0`. The owner sets the version and publishes.
+
+- Added: `handle.setGroupLook(id, { color?, dotSizePx? })` and `handle.groupLook(id)` on the `mount` handle and the `AstraeusScene` ref (types `GroupLookInput`, `GroupLookRead`). A host changes a point group's dot colour and size on a mounted viewer: the dots take it on the next drawn frame, also while paused, on either way the group is drawn, with no new scene, geometry, refill or re-plan, so the dots stay where they are; the group's name label takes the colour (the card shows no colour and is unchanged). Fields left out keep their value; `groupLook` reads the look in force, `undefined` before `ready`, after `unmount` and for a non-group id. `scene.groups` keeps describing the scene as built. A non-group id, a bad colour, a size that is not a finite number above 0 or an unknown field throws `bad-group`; before `ready` or after `unmount`, `not-mounted` (no new error code). Presentation only: State, positions, provenance, views and selection are unchanged. 25 calls on 25 groups of 126,000 dots in all took under 0.3 ms in headless Chromium with SwiftShader, against about 1.4 s to rebuild the scene.
+
 ## 0.9.3 (2026-11-20)
 
 First download of the packed example (`npm run measure:example`): 1,775,354 bytes raw, 510,719 bytes gzip (code and styles loaded on first open), against 1,773,029 raw and 510,085 gzip at 0.9.2 (+2,325 raw, +634 gzip). Additions only (G-021); every `astraeus-data*` package still peers on `>=0.9.0 <0.10.0`.

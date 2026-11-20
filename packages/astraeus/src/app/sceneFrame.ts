@@ -260,11 +260,24 @@ export function advanceSkyTraces(ctx: FrameContext): void {
   if (views.skyFiguresView.advanceFadeIn(delta, prefersReducedMotion() ? 0 : controls.skyFadeInSeconds, controls.skyLines)) state.wakes += 1;
 }
 
+/** Stage 5a: gives each point group the colour and dot size the host set (`setGroupLook`) and its label the colour; a change wakes the draw rule, so a paused viewer draws it. Presentation only (ARCH-02): no fill, geometry or State is touched. */
+export function applyGroupLooks(ctx: Pick<FrameContext, "controls" | "views" | "state" | "layers">): void {
+  const looks = ctx.controls.groupLooks;
+  if (looks === undefined || looks.size === 0) return;
+  for (const view of ctx.views.groupViews) {
+    const look = looks.get(view.id);
+    if (look !== undefined && view.setLook(look)) ctx.state.wakes += 1;
+  }
+  const labels = ctx.layers.sceneLabels.current;
+  if (labels !== null) for (const [id, look] of looks) labels.setColor(id, look.color);
+}
+
 /** Stage 5: places every view about the floating origin and publishes the views' readouts. Returns the hover brightness gain. */
 export function placeViews(ctx: FrameContext, t: number, placed: PlacedScene, setLook: BodySetLook): number {
   const { controls, camera, canvas, size, views, origin } = ctx;
   const policy = controls.policy;
   for (const view of views.trackedViews) view.update(t, policy, origin, camera, ctx.placement);
+  applyGroupLooks(ctx);
   for (const view of views.groupViews) view.place(origin);
   for (const view of views.sunCentredViews) view.place(origin);
   for (const view of views.compositionPaths) view.place(origin, { fovDeg: camera.fov, viewportHeightPx: size.height });

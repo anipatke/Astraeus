@@ -52,6 +52,7 @@ import { baseGlowOf, glowLookOf, markerSettingsOf } from "./bodyDraw";
 import { resolveLook } from "./look";
 import { applyLook, desktopPicturesOf, lookReadOf, presentationOf, skySettingsOf, type LivePresentation } from "./liveLook";
 import type { LookInput } from "../api/look";
+import { DEFAULT_POINT_SIZE_PX, type GroupDotLook } from "./PointsView";
 
 /** Frames-per-second readings kept for the graph: one per 250 ms poll, so about 15 seconds. */
 const FPS_HISTORY = 60;
@@ -524,6 +525,14 @@ export function App({ definition, writeTitle = true, address, developerTools, ho
   const hostClearSkyTrace = useCallback((id: string, seconds: number) => { controls.current.skyTraces.push({ id, seconds, reduced: prefersReducedMotion() }); }, []);
   const hostTraceSkyFigure = useCallback((id: string, seconds: number, after: SkyTraceAfter) => { controls.current.skyTraces.push({ id, seconds, after, reduced: prefersReducedMotion() }); }, []);
   const hostSetSwitch = useCallback((id: string, on: boolean) => live.current?.setSwitch(id, on), []);
+  // The host's group looks belong to this scene's groups: a viewer rebuilt with a new scene starts from that scene's own colours and sizes.
+  const groupLooks = useMemo(() => new Map<string, GroupDotLook>(), [runtime]);
+  const groupIds = useMemo(() => runtime.groups.map((layer) => layer.object.id), [runtime]);
+  const hostGroupLook = useCallback((id: string): GroupDotLook | undefined => {
+    const layer = runtime.groups.find((candidate) => candidate.object.id === id);
+    return layer === undefined ? undefined : groupLooks.get(id) ?? { color: layer.color, dotSizePx: layer.pointSizePx ?? DEFAULT_POINT_SIZE_PX };
+  }, [runtime, groupLooks]);
+  const hostSetGroupLook = useCallback((id: string, look: GroupDotLook) => { groupLooks.set(id, { color: look.color, dotSizePx: look.dotSizePx }); }, [groupLooks]);
   /** The figure the open story panel traced when it opened; it is cleared (default fade) when the panel is left. */
   const panelTrace = useRef<string | null>(null);
   /** The panel whose actions were last applied (a host `setPanel` shows its panel at once, so `openStoryPanelId` cannot say whether the shell has opened it yet). */
@@ -559,9 +568,10 @@ export function App({ definition, writeTitle = true, address, developerTools, ho
     if (host === undefined) return undefined;
     hostAttached.current = true;
     shownKey.current = null; // the presentation is read afresh after each attach
-    host.attach({ ...(definition.picker === undefined ? {} : { picker: { id: definition.picker.id, values: definition.picker.options.map((option) => option.value), start: definition.picker.value } }), window: runtime.loopWindow, skyFigures: skyFigureReads(runtime.skyFigures, experience.skyFigures), events: experience.events, rates: definition.experience.rates, paced: runtime.pacing !== undefined, read: stateNow, seek: hostSeekTo, setRate: changeRate, playable: definition.experience.hideTimeline !== true, setPlaying: hostSetPlaying, views: viewIds, setView: chooseView, cameraTargets, readCamera, setCamera, setSelected: hostSetSelected, panels: panelIds, setPanel: hostSetPanel, scales: hostScales, setScale: hostSetScale, setLook: hostSetLook, setSwitch: hostSetSwitch, traceSkyFigure: hostTraceSkyFigure, clearSkyTrace: hostClearSkyTrace });
+    controls.current.groupLooks = groupLooks;
+    host.attach({ ...(definition.picker === undefined ? {} : { picker: { id: definition.picker.id, values: definition.picker.options.map((option) => option.value), start: definition.picker.value } }), window: runtime.loopWindow, skyFigures: skyFigureReads(runtime.skyFigures, experience.skyFigures), events: experience.events, rates: definition.experience.rates, paced: runtime.pacing !== undefined, read: stateNow, seek: hostSeekTo, setRate: changeRate, playable: definition.experience.hideTimeline !== true, setPlaying: hostSetPlaying, views: viewIds, setView: chooseView, cameraTargets, readCamera, setCamera, setSelected: hostSetSelected, panels: panelIds, setPanel: hostSetPanel, scales: hostScales, setScale: hostSetScale, setLook: hostSetLook, setSwitch: hostSetSwitch, traceSkyFigure: hostTraceSkyFigure, clearSkyTrace: hostClearSkyTrace, groups: groupIds, groupLook: hostGroupLook, setGroupLook: hostSetGroupLook });
     return () => { hostAttached.current = false; host.detach(); };
-  }, [host, runtime, definition, hostSeekTo, changeRate, viewIds, chooseView, cameraTargets, readCamera, setCamera, hostSetSelected, panelIds, hostSetPanel, experience, hostSetPlaying, hostScales, hostSetScale, hostSetLook, hostSetSwitch, hostTraceSkyFigure, hostClearSkyTrace]);
+  }, [host, runtime, definition, hostSeekTo, changeRate, viewIds, chooseView, cameraTargets, readCamera, setCamera, hostSetSelected, panelIds, hostSetPanel, experience, hostSetPlaying, hostScales, hostSetScale, hostSetLook, hostSetSwitch, hostTraceSkyFigure, hostClearSkyTrace, groupLooks, groupIds, hostGroupLook, hostSetGroupLook]);
 
   useEffect(() => {
     if (!developerMode) return undefined;

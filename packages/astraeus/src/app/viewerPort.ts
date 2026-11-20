@@ -68,6 +68,12 @@ export interface ViewerControl {
   traceSkyFigure(id: string, seconds: number, after: SkyTraceAfter): void;
   /** Removes a sky figure's trace (an id from `skyFigures`, already checked) over `seconds` (0: at once); none running does nothing. Takes effect at the next frame, in call order with the other host calls. */
   clearSkyTrace(id: string, seconds: number): void;
+  /** The ids of the point groups the scene added (`addGroup`), in order; empty when it added none. */
+  readonly groups?: readonly string[];
+  /** The colour and dot size the point group `id` (one added with `addGroup`) is drawn with now: the host's last `setGroupLook`, else the group's own; undefined for an id that is not a group. */
+  groupLook?(id: string): { readonly color: string; readonly dotSizePx: number } | undefined;
+  /** Gives the point group `id` (already checked) this colour and dot size, both filled in; `groupLook` reads it at once and the dots and the group's label take it at the next frame. */
+  setGroupLook?(id: string, look: { readonly color: string; readonly dotSizePx: number }): void;
   /** The host's picker (`Scene.setPicker`): its id, the option values and the one pressed at the start; absent without a picker. */
   readonly picker?: { readonly id: string; readonly values: readonly string[]; readonly start: string };
   /** The ids of the objects the showing view shows, which a host may point the camera at. */
