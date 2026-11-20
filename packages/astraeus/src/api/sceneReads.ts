@@ -47,7 +47,7 @@ export interface SceneGroupRead {
   readonly center: BodyId;
   /** The plane the elements are given in. */
   readonly plane: "ecliptic-j2000" | "EQJ";
-  /** The provenance its card shows: always illustrative, with the source's own type kept in the accuracy line. */
+  /** The provenance its card shows: the source's own type when every orbit gives `meanAnomalyDeg` (measured positions); otherwise illustrative, with the source's own type kept in the accuracy line. */
   readonly provenance: Provenance;
   /** The words on its info card: those given to `addGroup`, else a sentence stating the count. */
   readonly description: string;

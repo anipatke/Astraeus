@@ -1230,6 +1230,11 @@
           "name": "time",
           "optional": true,
           "signature": "TimeInput | undefined"
+        },
+        {
+          "name": "meanAnomalyDeg",
+          "optional": true,
+          "signature": "number | undefined"
         }
       ]
     },

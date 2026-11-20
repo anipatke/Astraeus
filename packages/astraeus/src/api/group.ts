@@ -9,7 +9,7 @@ import type { GroupLayer } from "../app/experienceDefinition";
 import { SceneError } from "./errors";
 import { toUtcMs, type TimeInput } from "./time";
 
-/** One listed orbit of a group: its own id (the record it came from) and its shape and orientation. Angles in degrees, length in km. The orbit carries no position along itself; the group chooses that. */
+/** One listed orbit of a group: its own id (the record it came from), its shape and orientation, and optionally where along itself it is (`meanAnomalyDeg`). Angles in degrees, length in km. */
 export interface GroupOrbitInput {
   /** The orbit's own id, such as the record it was listed under; distinct within the group. */
   readonly id: string;
@@ -19,8 +19,10 @@ export interface GroupOrbitInput {
   readonly inclinationDeg: number;
   readonly raanDeg: number;
   readonly argumentOfPeriapsisDeg: number;
-  /** The moment the record was measured, kept with the record; it does not place the dot. Defaults to the group's reference time. */
+  /** The moment the record was measured (its epoch); it places the dot only with `meanAnomalyDeg`. Defaults to the group's reference time. */
   readonly time?: TimeInput;
+  /** The mean anomaly in degrees at `time`, as a catalogue lists it (finite; wraps). Give it for every orbit or none: then each dot sits at its record's position. A mix throws `bad-group`. */
+  readonly meanAnomalyDeg?: number;
 }
 
 /** A stated share of the dots drawn near a body's position along its orbit: a model, not a measurement. */
@@ -42,8 +44,8 @@ export interface GroupReadoutInput {
 
 /**
  * A group of listed orbits drawn as one set of dots: one dot per orbit, on its own ellipse, one colour and dot size, one menu item and one info card.
- * The group's id joins the camera menu (`focus-<id>`, `follow-<id>`) and may be named by story panels. The orbits' shapes are as listed; where each dot sits
- * along its orbit is a drawing choice (an even spread, shuffled by `seed`) and the info card says so.
+ * The group's id joins the camera menu (`focus-<id>`, `follow-<id>`) and may be named by story panels. The orbits' shapes are as listed. Where each dot sits
+ * along its orbit is measured when every orbit gives `meanAnomalyDeg`, else a drawing choice (an even spread, shuffled by `seed`); the card says which.
  */
 export interface GroupInput {
   /** The group's id: its menu item, camera target and panel `object`. Not shared with any body, path or other group. */
@@ -62,16 +64,17 @@ export interface GroupInput {
   readonly dotSizePx?: number;
   /** The moment each orbit's dot is placed from (then it moves by two-body motion); the scene's opening time when absent. */
   readonly referenceTime?: TimeInput;
-  /** A whole number from 0 to 4294967295 that shuffles which orbit takes which place along its orbit; the same seed gives the same picture. Default 0. */
+  /** A whole number from 0 to 4294967295 that shuffles which orbit takes which place along its orbit; the same seed gives the same picture. Default 0. Not with `meanAnomalyDeg` (`bad-group`). */
   readonly seed?: number;
-  /** Draws a share of the dots near a body's position along its orbit. */
+  /** Draws a share of the dots near a body's position along its orbit. Not with `meanAnomalyDeg` (`bad-group`). */
   readonly clump?: GroupClumpInput;
   /** How often, in simulated milliseconds, the dots are placed again exactly; between fills the picture blends the two nearest. Presentation only. Default five minutes. */
   readonly refillAfterMs?: number;
   /** Milliseconds of each frame the dots layer may spend computing the next fill ahead of time, so a large group does not hitch; 0 or a positive number. 0 makes every fill whole in one frame. Presentation only. Default 8. */
   readonly refillSliceMs?: number;
   /**
-   * Where the orbit list came from. The group's own card always shows `sourceType` "illustrative", because the position along each orbit is a drawing choice;
+   * Where the orbit list came from. With `meanAnomalyDeg` the card keeps this, with a note that each position comes from its record's mean anomaly.
+   * Otherwise the group's own card shows `sourceType` "illustrative", because the position along each orbit is a drawing choice;
    * the orbits' `sourceType` here is kept in the accuracy line as "Orbit elements are as listed (<sourceType>); the position along each orbit is illustrative."
    * Your `sources` stay, and the group appends this note to your `notes`: "Each orbit's shape and orientation come from its record, but the records give no
    * position along the orbit: that position is an even spread of mean anomaly at the reference time, a drawing choice (illustrative), advanced by unperturbed
@@ -102,7 +105,9 @@ export function planGroup(input: GroupInput, catalogue: BodyCatalogue = builtInC
   const id = input?.id;
   if (typeof id !== "string" || id === "") throw bad(id, "the group needs a non-empty id");
   if (input.plane !== "ecliptic-j2000" && input.plane !== "EQJ") throw bad(id, `plane must be "ecliptic-j2000" or "EQJ", got ${input.plane === undefined ? "nothing" : JSON.stringify(input.plane)}; say which plane the elements are given in`);
-  checkOrbits(id, input.orbits);
+  const measured = checkOrbits(id, input.orbits);
+  if (measured && input.seed !== undefined) throw bad(id, "seed only shuffles illustrative positions; every orbit gives meanAnomalyDeg, so the positions are measured: drop seed");
+  if (measured && input.clump !== undefined) throw bad(id, "clump only shapes illustrative positions; every orbit gives meanAnomalyDeg, so the positions are measured: drop clump");
   checkLook(id, input);
   if (input.clump !== undefined) checkClump(id, input.clump, catalogue);
   checkReadouts(id, input.readouts);
@@ -110,14 +115,28 @@ export function planGroup(input: GroupInput, catalogue: BodyCatalogue = builtInC
   return { id, label: input.label ?? id, input };
 }
 
-function checkOrbits(id: string, orbits: readonly GroupOrbitInput[]): void {
+/** Checks ids and the all-or-none mean anomaly rule; returns whether the group has measured positions. */
+function checkOrbits(id: string, orbits: readonly GroupOrbitInput[]): boolean {
   if (!Array.isArray(orbits) || orbits.length === 0) throw bad(id, "the group needs at least one orbit; the list is empty");
+  const measured = orbits.some((orbit) => orbit?.meanAnomalyDeg !== undefined);
   const seen = new Set<string>();
   for (const orbit of orbits) {
     if (typeof orbit?.id !== "string" || orbit.id === "") throw bad(id, "every orbit needs a non-empty id");
     if (seen.has(orbit.id)) throw bad(id, `orbit "${orbit.id}" appears twice`);
     seen.add(orbit.id);
+    const m = orbit.meanAnomalyDeg;
+    if (m === undefined) {
+      if (measured) throw bad(id, `orbit "${orbit.id}" gives no meanAnomalyDeg while others do; give it for every orbit (measured positions) or for none (illustrative positions)`);
+    } else if (!(typeof m === "number" && Number.isFinite(m))) {
+      throw bad(id, `orbit "${orbit.id}" meanAnomalyDeg must be a finite number of degrees, got ${String(m)}`);
+    }
   }
+  return measured;
+}
+
+/** Whether every orbit of a (planned) group gives its mean anomaly: measured positions. */
+function isMeasured(input: GroupInput): boolean {
+  return input.orbits[0]?.meanAnomalyDeg !== undefined;
 }
 
 const positive = (value: number | undefined): boolean => value === undefined || (Number.isFinite(value) && value > 0);
@@ -146,6 +165,7 @@ function checkClump(id: string, clump: GroupClumpInput, catalogue: BodyCatalogue
   if (!(clump.widthDeg > 0 && clump.widthDeg <= 180)) throw bad(id, `clump.widthDeg must be above 0 and at most 180, got ${String(clump.widthDeg)}`);
 }
 
+const MEASURED_PLACEMENT_LIMIT = "Each dot's position comes from its record's mean anomaly by unperturbed two-body motion from the record's epoch; perturbations are ignored, so a dot drifts from the true position the further the time is from that epoch.";
 const PLACEMENT_LIMIT = "The position of each dot along its orbit is illustrative: the list gives the orbit's shape and orientation, and the dots are spread evenly along them.";
 const MOTION_LIMIT = "Motion is unperturbed two-body motion about the centre.";
 const CLUMP_LIMIT = (catalogue: BodyCatalogue, near: BodyId, fraction: number): string => `${Math.round(fraction * 100)}% of the dots are drawn near ${catalogue.get(near).definition.label}'s position along its orbit. That clump is a model, not a measurement.`;
@@ -157,9 +177,9 @@ function groupSource(input: GroupInput): Provenance {
   return input.provenance ?? AS_SUPPLIED;
 }
 
-/** The provenance a group's card shows (`Scene.groups`): the engine's illustrative statement over the caller's source. */
+/** The provenance a group's card shows (`Scene.groups`): the caller's source with the engine's placement statement (measured or illustrative). */
 export function groupCardProvenance(input: GroupInput): Provenance {
-  return listedGroupProvenance(groupSource(input), input.clump !== undefined);
+  return listedGroupProvenance(groupSource(input), input.clump !== undefined, isMeasured(input));
 }
 
 /** The words on a group's card: the caller's, else a sentence stating the count. */
@@ -167,10 +187,10 @@ export function groupDescription(input: GroupInput, count: number): string {
   return input.description ?? `${count} listed orbit${count === 1 ? "" : "s"}, each drawn as one dot. One item stands for the whole group; its focus point is the centroid of the dots.`;
 }
 
-/** The known limits on a group's card: the caller's, then the engine's own about placement, the clump and motion. */
+/** The known limits on a group's card: the caller's, then the engine's own about placement (measured or illustrative), the clump and motion. */
 export function groupLimitations(input: GroupInput, catalogue: BodyCatalogue): readonly string[] {
   const clump = input.clump;
-  return [...(input.knownLimitations ?? []), PLACEMENT_LIMIT, ...(clump === undefined ? [] : [CLUMP_LIMIT(catalogue, clump.near, clump.fraction)]), MOTION_LIMIT];
+  return [...(input.knownLimitations ?? []), isMeasured(input) ? MEASURED_PLACEMENT_LIMIT : PLACEMENT_LIMIT, ...(clump === undefined ? [] : [CLUMP_LIMIT(catalogue, clump.near, clump.fraction)]), MOTION_LIMIT];
 }
 
 /** Builds the draw layer: the listed-orbit group and its one shell item. `center` and `openUtcMs` come from the finished scene; a group error from the engine is renamed `bad-group`. */
@@ -181,6 +201,7 @@ export function buildGroupLayer(plan: PlannedGroup, catalogue: BodyCatalogue, ce
     recordId: orbit.id,
     epochUtcMs: orbit.time === undefined ? referenceUtcMs : toUtcMs(orbit.time, `addGroup("${id}") orbit "${orbit.id}" time`),
     elements: { semiMajorAxisKm: orbit.semiMajorAxisKm, eccentricity: orbit.eccentricity, inclinationDeg: orbit.inclinationDeg, raanDeg: orbit.raanDeg, argumentOfPeriapsisDeg: orbit.argumentOfPeriapsisDeg },
+    ...(orbit.meanAnomalyDeg === undefined ? {} : { meanAnomalyDeg: orbit.meanAnomalyDeg }),
   }));
   const clump = input.clump;
   try {

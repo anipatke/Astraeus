@@ -150,3 +150,88 @@ describe("clump near an elements body and refillSliceMs (O-042 T-177)", () => {
     for (const bad of [-1, Number.NaN, Infinity]) expect(codeOf(() => base().addGroup(ring({ refillSliceMs: bad })))).toBe("bad-group");
   });
 });
+
+// O-077 T-323: an orbit may carry its catalogue mean anomaly at its own time; a group where every orbit does places each dot at its real position.
+describe("measured positions with meanAnomalyDeg (O-077 T-323)", () => {
+  const AU_KM = 149_597_870.7;
+  // Ceres from JPL SBDB, epoch JD 2461200.5 TDB, ecliptic J2000.
+  const CERES = { semiMajorAxisAu: 2.765552595034094, eccentricity: 0.07969229514816586, inclinationDeg: 10.58802780183462, ascendingNodeDeg: 80.24862682043221, argumentOfPerihelionDeg: 73.29421453021587, meanAnomalyDeg: 274.4193463761342 };
+  const EPOCH_UTC_MS = (2461200.5 - 2440587.5) * 86_400_000 - 69_184;
+  const YEAR_MS = 365.25 * 86_400_000;
+  const ceresOrbit = { id: "1", time: EPOCH_UTC_MS, meanAnomalyDeg: CERES.meanAnomalyDeg, semiMajorAxisKm: CERES.semiMajorAxisAu * AU_KM, eccentricity: CERES.eccentricity, inclinationDeg: CERES.inclinationDeg, raanDeg: CERES.ascendingNodeDeg, argumentOfPeriapsisDeg: CERES.argumentOfPerihelionDeg };
+  const measuredRing = (extra: Partial<GroupInput> = {}): GroupInput => ring({ orbits: [0, 1, 2, 3, 4, 5].map((k) => ({ ...orbit(k), time: T0 - k * 86_400_000, meanAnomalyDeg: 50 * k - 30 })), ...extra });
+  const observed = { sourceType: "observed" as const, sources: ["Made-up survey"], accuracy: "Made up.", notes: "Invented rocks." };
+
+  it("agrees with addBodyFromElements for the same record, at the epoch and a year later", async () => {
+    const { sun } = await import("astraeus");
+    const scene = new Scene().addBody(sun).addBodyFromElements({
+      id: "ceres", label: "Ceres", elements: CERES,
+      epoch: { jd: 2461200.5, timeScale: "TDB", ttMinusUtcSeconds: 69.184 }, plane: "ecliptic-j2000",
+      source: { name: "JPL Small-Body Database", url: "https://ssd.jpl.nasa.gov/tools/sbdb_lookup.html#/?sstr=1", solution: "JPL 48", accessed: "2026-11-20" },
+      accuracy: { classification: "indicative", statement: "Two-body.", valid: { start: "2026-01-01T00:00:00Z", end: "2028-12-31T00:00:00Z" }, limitations: ["Two-body."] },
+      marker: { color: "#ff9966", sizePx: 8 },
+    }).addGroup({ id: "belt", plane: "ecliptic-j2000", center: "sun", orbits: [ceresOrbit] }).setTimeline({ start: EPOCH_UTC_MS, end: EPOCH_UTC_MS + 2 * YEAR_MS });
+    const group = definitionOf(scene).groups![0]!.group;
+    for (const t of [EPOCH_UTC_MS, EPOCH_UTC_MS + YEAR_MS]) {
+      const dot = new Float64Array(3);
+      group.fillPositionsKm(t, dot);
+      const body = scene.stateOf("ceres", t).positionKm;
+      // Both paths use the Sun's GM 132712440018 km³/s² and the same epoch, so they differ only by rounding (well under a metre); 1e-3 km leaves room for it.
+      expect(Math.hypot(dot[0]! - body[0]!, dot[1]! - body[1]!, dot[2]! - body[2]!)).toBeLessThan(1e-3);
+    }
+  });
+
+  it("keeps the caller's sourceType on the card and in scene.groups, with the measured note and limit and the motion limit", () => {
+    const scene = base().addGroup(measuredRing({ provenance: observed, knownLimitations: ["Invented rocks."] }));
+    const read = scene.groups[0]!;
+    const layer = groupsOf(definitionOf(scene))[0]!;
+    const card = experienceWithGroups(definitionOf(scene)).objects.find((object) => object.id === "ring")!;
+    expect(read.provenance).toEqual({ ...observed, notes: "Invented rocks. Each dot's position along its orbit comes from its record's mean anomaly at the record's epoch, advanced by unperturbed two-body motion about the centre." });
+    expect(layer.group.provenance).toEqual(read.provenance);
+    expect(card.provenance).toEqual(read.provenance);
+    expect(read.knownLimitations).toEqual([
+      "Invented rocks.",
+      "Each dot's position comes from its record's mean anomaly by unperturbed two-body motion from the record's epoch; perturbations are ignored, so a dot drifts from the true position the further the time is from that epoch.",
+      "Motion is unperturbed two-body motion about the centre.",
+    ]);
+    expect(layer.object.knownLimitations).toEqual(read.knownLimitations);
+  });
+
+  it("leaves an illustrative group's card exactly as before", () => {
+    const read = base().addGroup(ring({ provenance: observed, knownLimitations: ["Invented rocks."] })).groups[0]!;
+    expect(read.provenance).toEqual({
+      sourceType: "illustrative",
+      sources: ["Made-up survey"],
+      accuracy: "Made up. Orbit elements are as listed (observed); the position along each orbit is illustrative.",
+      notes: "Invented rocks. Each orbit's shape and orientation come from its record, but the records give no position along the orbit: that position is an even spread of mean anomaly at the reference time, a drawing choice (illustrative), advanced by unperturbed two-body motion about the centre.",
+    });
+    expect(read.description).toBe("6 listed orbits, each drawn as one dot. One item stands for the whole group; its focus point is the centroid of the dots.");
+    expect(read.knownLimitations).toEqual([
+      "Invented rocks.",
+      "The position of each dot along its orbit is illustrative: the list gives the orbit's shape and orientation, and the dots are spread evenly along them.",
+      "Motion is unperturbed two-body motion about the centre.",
+    ]);
+  });
+
+  it("places the same dots whatever the reference time and list order", () => {
+    const a = positions(definitionOf(base().addGroup(measuredRing())));
+    const b = positions(definitionOf(base().addGroup(measuredRing({ referenceTime: T0 + 40 * 86_400_000 }))));
+    for (let k = 0; k < a.length; k++) expect(Math.abs(a[k]! - b[k]!)).toBeLessThan(1e-6);
+    const reversed = measuredRing();
+    const back = positions(definitionOf(base().addGroup({ ...reversed, orbits: [...reversed.orbits].reverse() })));
+    for (let k = 0; k < 6; k++) expect(back.slice(3 * (5 - k), 3 * (5 - k) + 3)).toEqual(a.slice(3 * k, 3 * k + 3));
+  });
+
+  it("refuses a mix, a non-finite mean anomaly, and seed or clump, with bad-group naming the cause", () => {
+    const orbits = measuredRing().orbits;
+    const mixed = [orbits[0]!, { ...orbits[1]!, meanAnomalyDeg: undefined }, ...orbits.slice(2)];
+    expect(codeOf(() => base().addGroup(ring({ orbits: mixed })))).toBe("bad-group");
+    expect(() => base().addGroup(ring({ orbits: mixed }))).toThrow(/orbit "rock-1" gives no meanAnomalyDeg/);
+    for (const bad of [Number.NaN, Infinity, "12" as unknown as number]) {
+      expect(codeOf(() => base().addGroup(ring({ orbits: [orbits[0]!, { ...orbits[1]!, meanAnomalyDeg: bad }] })))).toBe("bad-group");
+    }
+    expect(() => base().addGroup(measuredRing({ seed: 0 }))).toThrow(/seed only shuffles illustrative positions/);
+    expect(codeOf(() => base().addGroup(measuredRing({ seed: 0 })))).toBe("bad-group");
+    expect(() => base().addGroup(measuredRing({ clump: { near: "moon", fraction: 0.5, widthDeg: 20 } }))).toThrow(/clump only shapes illustrative positions/);
+  });
+});

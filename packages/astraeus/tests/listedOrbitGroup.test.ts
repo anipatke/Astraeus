@@ -411,3 +411,148 @@ describe("the made-up listed experience (T-052 Done When 5)", () => {
     expect(text).not.toMatch(/meteor|shower|perseid|geminid|apollo/i);
   });
 });
+
+// O-077 T-323: measured-phase groups. Every member gives its catalogue mean anomaly at its own epoch, and the dot sits at that record's position.
+describe("measured-phase listed group (O-077 T-323)", () => {
+  // Ceres from JPL SBDB: epoch JD 2461200.5 TDB, ecliptic J2000.
+  const CERES = { a: 2.765552595034094, e: 0.07969229514816586, i: 10.58802780183462, node: 80.24862682043221, peri: 73.29421453021587, m: 274.4193463761342 };
+  const TT_MINUS_UTC_MS = 69_184;
+  const CERES_EPOCH_UTC_MS = (2461200.5 - 2440587.5) * DAY - TT_MINUS_UTC_MS;
+  const YEAR_MS = 365.25 * DAY;
+  // Written out here, not read from the engine: the Sun's GM (km³/s²) and the IAU 2006 J2000 obliquity (84381.406″).
+  const GM_SUN = 132_712_440_018;
+  const OBLIQUITY = (84381.406 / 3600) * RADIANS;
+  const ceresMember: ListedMember = {
+    recordId: "1",
+    epochUtcMs: CERES_EPOCH_UTC_MS,
+    meanAnomalyDeg: CERES.m,
+    elements: { semiMajorAxisKm: CERES.a * AU_KM, eccentricity: CERES.e, inclinationDeg: CERES.i, raanDeg: CERES.node, argumentOfPeriapsisDeg: CERES.peri },
+  };
+
+  // An independent two-body position about the Sun, in EQJ: Kepler's equation by bisection, the perifocal ellipse, the three element rotations, then the obliquity.
+  function independentEqjKm(el: typeof CERES, epochUtcMs: number, t: number): number[] {
+    const aKm = el.a * AU_KM;
+    const n = Math.sqrt(GM_SUN / aKm ** 3);
+    const nu = trueAnomalyDeg(el.m + (n * ((t - epochUtcMs) / 1000)) / RADIANS, el.e) * RADIANS;
+    const r = (aKm * (1 - el.e * el.e)) / (1 + el.e * Math.cos(nu));
+    const u = el.peri * RADIANS + nu;
+    const O = el.node * RADIANS;
+    const inc = el.i * RADIANS;
+    const x = r * (Math.cos(O) * Math.cos(u) - Math.sin(O) * Math.sin(u) * Math.cos(inc));
+    const y = r * (Math.sin(O) * Math.cos(u) + Math.cos(O) * Math.sin(u) * Math.cos(inc));
+    const z = r * Math.sin(u) * Math.sin(inc);
+    return [x, y * Math.cos(OBLIQUITY) - z * Math.sin(OBLIQUITY), y * Math.sin(OBLIQUITY) + z * Math.cos(OBLIQUITY)];
+  }
+
+  const measured = (members: ListedMember[], referenceUtcMs: number, extra: Partial<ListedOrbitGroupInput> = {}) =>
+    createListedOrbitGroup(baseInput(members, { phase: { referenceUtcMs }, ...extra }), adapter);
+
+  it("puts Ceres where an independent two-body calculation does, at the epoch and a year later, within 1 km", () => {
+    for (const reference of [CERES_EPOCH_UTC_MS, CERES_EPOCH_UTC_MS - 400 * DAY]) {
+      const group = measured([ceresMember], reference);
+      for (const t of [CERES_EPOCH_UTC_MS, CERES_EPOCH_UTC_MS + YEAR_MS]) {
+        const got = fill(group, t);
+        const want = independentEqjKm(CERES, CERES_EPOCH_UTC_MS, t);
+        expect(Math.hypot(got[0] - want[0], got[1] - want[1], got[2] - want[2])).toBeLessThan(1);
+      }
+    }
+  });
+
+  it("advances the mean anomaly by n·Δt to the reference time: a quarter period on a circular orbit is exactly 90°", () => {
+    const aKm = 3 * AU_KM;
+    const periodMs = (2 * Math.PI) / Math.sqrt(GM_SUN / aKm ** 3) * 1000;
+    const epoch = REFERENCE - Math.round(periodMs / 4);
+    const quarter = Math.round(periodMs / 4) / periodMs * 360; // the exact share of the orbit the rounded ms covers
+    const circle: ListedMember = { recordId: "c", epochUtcMs: epoch, meanAnomalyDeg: 10, elements: { semiMajorAxisKm: aKm, eccentricity: 0, inclinationDeg: 0, raanDeg: 0, argumentOfPeriapsisDeg: 0 } };
+    const group = measured([circle], REFERENCE);
+    expect(group.meanAnomalyDegAt(0)).toBeCloseTo(10 + quarter, 9);
+    expect(quarter).toBeCloseTo(90, 6);
+    // The position, in the ecliptic, is 90° on from where it was at the epoch.
+    const at = (t: number) => {
+      const p = fill(group, t);
+      const y = p[1] * Math.cos(OBLIQUITY) + p[2] * Math.sin(OBLIQUITY);
+      return Math.atan2(y, p[0]) / RADIANS;
+    };
+    expect(((at(REFERENCE) - at(epoch)) % 360 + 360) % 360).toBeCloseTo(quarter, 6);
+    expect(at(epoch)).toBeCloseTo(10, 6);
+  });
+
+  it("wraps the mean anomaly: −90 and 270 give the same position, and the reading is from 0 to 360", () => {
+    const at = (m: number) => measured([{ ...ceresMember, meanAnomalyDeg: m }], CERES_EPOCH_UTC_MS + 30 * DAY);
+    const a = at(-90);
+    const b = at(270);
+    const c = at(630);
+    expect([...fill(a, REFERENCE)]).toEqual([...fill(b, REFERENCE)]);
+    expect([...fill(c, REFERENCE)]).toEqual([...fill(b, REFERENCE)]);
+    expect(a.meanAnomalyDegAt(0)).toBe(b.meanAnomalyDegAt(0));
+    expect(a.meanAnomalyDegAt(0)).toBeGreaterThanOrEqual(0);
+    expect(a.meanAnomalyDegAt(0)).toBeLessThan(360);
+    // At the epoch the reading is the record's own value.
+    expect(measured([{ ...ceresMember, meanAnomalyDeg: -90 }], CERES_EPOCH_UTC_MS).meanAnomalyDegAt(0)).toBe(270);
+  });
+
+  it("is deterministic and does not depend on list order", () => {
+    const members = madeUpMembers(50).map((member, k) => ({ ...member, meanAnomalyDeg: 7.3 * k - 40 }));
+    const forward = measured(members, REFERENCE);
+    const again = measured(members, REFERENCE);
+    const reversed = measured([...members].reverse(), REFERENCE);
+    const out = fill(forward, REFERENCE + 90 * DAY);
+    expect([...fill(again, REFERENCE + 90 * DAY)]).toEqual([...out]);
+    const back = fill(reversed, REFERENCE + 90 * DAY);
+    members.forEach((member, i) => {
+      const j = members.length - 1 - i;
+      expect(reversed.recordIdAt(j)).toBe(member.recordId);
+      expect([...back.subarray(3 * j, 3 * j + 3)]).toEqual([...out.subarray(3 * i, 3 * i + 3)]);
+    });
+  });
+
+  it("refuses a mix, a non-finite mean anomaly, and a seed or concentration, naming the cause", () => {
+    const members = madeUpMembers(3).map((member) => ({ ...member, meanAnomalyDeg: 12 }));
+    const mixed = [members[0], { ...members[1], meanAnomalyDeg: undefined }, members[2]];
+    expect(() => measured(mixed, REFERENCE)).toThrow(GroupElementsError);
+    expect(() => measured(mixed, REFERENCE)).toThrow(/member 1 \(record "rec-1"\) gives no meanAnomalyDeg/);
+    expect(() => measured([{ ...members[0], meanAnomalyDeg: undefined }, members[1]], REFERENCE)).toThrow(/member 0 \(record "rec-0"\) gives no meanAnomalyDeg/);
+    for (const bad of [Number.NaN, Infinity, -Infinity]) {
+      expect(() => measured([members[0], { ...members[1], meanAnomalyDeg: bad }], REFERENCE)).toThrow(/meanAnomalyDeg must be finite/);
+    }
+    expect(() => createListedOrbitGroup(baseInput(members, { phase: { referenceUtcMs: REFERENCE, seed: 0 } }), adapter)).toThrow(/seed/);
+    const around = createTwoBodyTrajectory({ body: "ref", plane: "ecliptic-j2000", epochUtcMs: REFERENCE, elements: { semiMajorAxisKm: 3 * AU_KM, eccentricity: 0.1, inclinationDeg: 0, raanDeg: 0, argumentOfPeriapsisDeg: 0, trueAnomalyDeg: 0 } }, adapter);
+    expect(() => createListedOrbitGroup(baseInput(members, { phase: { referenceUtcMs: REFERENCE, concentration: { around, fraction: 0.5, widthDeg: 10 } } }), adapter)).toThrow(/concentration/);
+  });
+
+  it("keeps the source's type on the card and states where the positions come from; an illustrative group's card is unchanged", () => {
+    const group = measured([ceresMember], CERES_EPOCH_UTC_MS);
+    expect(group.provenance).toEqual({
+      sourceType: "observed",
+      sources: ["made-up list for contract tests"],
+      accuracy: "none; invented orbits",
+      notes: "Invented for contract tests. Each dot's position along its orbit comes from its record's mean anomaly at the record's epoch, advanced by unperturbed two-body motion about the centre.",
+    });
+    const illustrative = createListedOrbitGroup(baseInput(madeUpMembers(3)), adapter);
+    expect(illustrative.provenance).toEqual({
+      sourceType: "illustrative",
+      sources: ["made-up list for contract tests"],
+      accuracy: "none; invented orbits Orbit elements are as listed (observed); the position along each orbit is illustrative.",
+      notes: "Invented for contract tests. Each orbit's shape and orientation come from its record, but the records give no position along the orbit: that position is an even spread of mean anomaly at the reference time, a drawing choice (illustrative), advanced by unperturbed two-body motion about the centre.",
+    });
+  });
+
+  it("builds and fills 110,000 main-belt orbits in one group (timings are a measurement, not a threshold)", () => {
+    const r = lcg(110);
+    const epoch = Date.UTC(2026, 5, 1);
+    const members: ListedMember[] = Array.from({ length: 110_000 }, (_, k) => ({
+      recordId: String(k + 1),
+      epochUtcMs: epoch,
+      meanAnomalyDeg: 360 * r(),
+      elements: { semiMajorAxisKm: (2.1 + 1.2 * r()) * AU_KM, eccentricity: 0.3 * r(), inclinationDeg: 30 * r(), raanDeg: 360 * r(), argumentOfPeriapsisDeg: 360 * r() },
+    }));
+    const started = performance.now();
+    const group = measured(members, REFERENCE);
+    const built = performance.now();
+    const out = fill(group, REFERENCE + 10 * DAY);
+    const filled = performance.now();
+    expect(group.count).toBe(110_000);
+    expect(out.every(Number.isFinite)).toBe(true);
+    console.log(`[O-077 scale] 110,000 measured orbits: build ${(built - started).toFixed(0)} ms, one full fillPositionsKm ${(filled - built).toFixed(0)} ms`);
+  }, 60_000);
+});

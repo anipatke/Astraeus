@@ -25,12 +25,17 @@ export interface ListedElements {
   readonly argumentOfPeriapsisDeg: number;
 }
 
-/** One record of a measured list: its own source id, the time its elements were measured, and the elements. */
+/** One record of a measured list: its own source id, the time its elements were measured, the elements, and optionally its position along the orbit. */
 export interface ListedMember {
   readonly recordId: string;
-  /** The record's own time. Kept with the record; it does not place the dot (see ListedPhase). */
+  /** The record's own time (its epoch). With `meanAnomalyDeg` it fixes where the dot is; without, it is kept with the record and does not place the dot (see ListedPhase). */
   readonly epochUtcMs: number;
   readonly elements: ListedElements;
+  /**
+   * The record's mean anomaly in degrees at `epochUtcMs`; finite, any value (it wraps to 0 to 360). All members give it or none do:
+   * with it the group is measured-phase (each dot at its record's position, advanced by two-body motion); without it the phase is a drawing choice.
+   */
+  readonly meanAnomalyDeg?: number;
 }
 
 /** A stated share of the members drawn near a reference body's position along its orbit. A model, not a measurement. */
@@ -44,10 +49,14 @@ export interface ListedConcentration {
 }
 
 export interface ListedPhase {
-  /** The instant at which each member's mean anomaly is the drawing choice below; members then move by two-body motion. */
+  /**
+   * The instant from which members move by two-body motion. For an illustrative group, each member's mean anomaly here is the drawing choice below;
+   * for a measured-phase group (every member gives `meanAnomalyDeg`), it is the record's mean anomaly advanced from its epoch to this instant.
+   */
   readonly referenceUtcMs: number;
-  /** Unsigned 32-bit integer picking which member takes which slot; defaults to 0. */
+  /** Unsigned 32-bit integer picking which member takes which slot; defaults to 0. Illustrative groups only: a measured-phase group with a seed throws. */
   readonly seed?: number;
+  /** Illustrative groups only: a measured-phase group with a concentration throws. */
   readonly concentration?: ListedConcentration;
 }
 
@@ -59,14 +68,14 @@ export interface ListedOrbitGroupInput {
   readonly members: readonly ListedMember[];
   readonly phase: ListedPhase;
   readonly bounds?: TimeBounds;
-  /** Where the elements came from. The group restates the position along each orbit as illustrative. */
+  /** Where the elements came from. An illustrative group restates the position along each orbit as illustrative; a measured-phase group keeps this `sourceType`. */
   readonly provenance: Provenance;
 }
 
 export interface ListedOrbitGroup extends PointGroup {
   /** The source record id of member `index`; also the suffix of that member's State body id. */
   recordIdAt(index: number): string;
-  /** Member `index`'s mean anomaly (degrees, 0 to 360) at the reference time: the drawing choice. */
+  /** Member `index`'s mean anomaly (degrees, 0 to 360) at the reference time: the record's own, advanced from its epoch, for a measured-phase group; the drawing choice otherwise. */
   meanAnomalyDegAt(index: number): number;
 }
 
@@ -80,9 +89,13 @@ function describe(member: ListedMember, index: number): string {
   return `member ${index} (record "${String(member.recordId)}")`;
 }
 
-/** The rejection rule: a record must give a finite, bound orbit; unbound records are for the loader to drop. */
-function assertMembers(members: readonly ListedMember[]): void {
+/**
+ * The rejection rule: a record must give a finite, bound orbit; unbound records are for the loader to drop. Mean anomalies are all or none.
+ * Returns whether the group is measured-phase (every member gives `meanAnomalyDeg`).
+ */
+function assertMembers(members: readonly ListedMember[]): boolean {
   if (members.length === 0) throw new GroupCountError("a listed group needs at least one member; the list is empty");
+  const measured = members[0]?.meanAnomalyDeg !== undefined;
   const seen = new Set<string>();
   members.forEach((member, index) => {
     const who = describe(member, index);
@@ -107,11 +120,20 @@ function assertMembers(members: readonly ListedMember[]): void {
     if (!(e.inclinationDeg >= 0 && e.inclinationDeg <= 180)) {
       throw new GroupElementsError(`${who}: inclinationDeg must be from 0 to 180, got ${e.inclinationDeg}`);
     }
+    const m = member.meanAnomalyDeg;
+    if (m !== undefined && !(typeof m === "number" && Number.isFinite(m))) throw new GroupElementsError(`${who}: meanAnomalyDeg must be finite, got ${String(m)}`);
+    if ((m !== undefined) !== measured) {
+      const missing = measured ? who : describe(members[0], 0);
+      throw new GroupElementsError(`${missing} gives no meanAnomalyDeg: give it for every member (measured positions) or for none (illustrative positions)`);
+    }
   });
+  return measured;
 }
 
-function assertPhase(phase: ListedPhase): void {
+function assertPhase(phase: ListedPhase, measured: boolean): void {
   assertUtcUnixMs(phase.referenceUtcMs);
+  if (measured && phase.seed !== undefined) throw new GroupElementsError("a seed only shuffles illustrative positions; the members give meanAnomalyDeg, so their positions are measured: drop the seed");
+  if (measured && phase.concentration !== undefined) throw new GroupElementsError("a concentration only shapes illustrative positions; the members give meanAnomalyDeg, so their positions are measured: drop the concentration");
   const seed = phase.seed ?? 0;
   if (!Number.isInteger(seed) || seed < 0 || seed > 0xffffffff) throw new GroupElementsError("phase seed must be an unsigned 32-bit integer");
   const c = phase.concentration;
@@ -207,12 +229,42 @@ function assignMeanAnomaliesDeg(count: number, phase: ListedPhase, referenceDeg:
   return result;
 }
 
+/**
+ * Mean anomalies in degrees (0 to 360) at the reference time, one per member, from each record's own mean anomaly at its epoch:
+ * M = M_epoch + n·Δt with n = √(μ / a³), the same μ the group propagates with, so placement and later motion agree.
+ */
+function measuredMeanAnomaliesDeg(members: readonly ListedMember[], referenceUtcMs: number, mu: number): Float64Array {
+  const result = new Float64Array(members.length);
+  for (let i = 0; i < members.length; i++) {
+    const member = members[i];
+    const a = member.elements.semiMajorAxisKm;
+    const epochDeg = (((member.meanAnomalyDeg as number) % 360) + 360) % 360;
+    const m = epochDeg * RADIANS + Math.sqrt(mu / (a * a * a)) * ((referenceUtcMs - member.epochUtcMs) / 1000);
+    const wrapped = ((m % TWO_PI) + TWO_PI) % TWO_PI;
+    result[i] = wrapped / RADIANS;
+  }
+  return result;
+}
+
 const PHASE_NOTE = "Each orbit's shape and orientation come from its record, but the records give no position along the orbit: "
   + "that position is an even spread of mean anomaly at the reference time, a drawing choice (illustrative), advanced by unperturbed two-body motion about the centre.";
+const MEASURED_PHASE_NOTE = "Each dot's position along its orbit comes from its record's mean anomaly at the record's epoch, advanced by unperturbed two-body motion about the centre.";
 const CONCENTRATION_NOTE = "A stated share of the dots is placed near the reference body's position along the orbit: a model, not a measurement. No orbit is added.";
 
-/** The provenance a group's own card carries: always illustrative, since the position along each orbit is a drawing choice; the source's type stays in the accuracy line. */
-export function listedGroupProvenance(source: Provenance, concentrated: boolean): Provenance {
+/**
+ * The provenance a group's own card carries. Illustrative (the default): `sourceType` "illustrative", since the position along each orbit is a drawing
+ * choice; the source's type stays in the accuracy line. Measured-phase: the source's `sourceType`, `sources` and `accuracy` as given, with a note that
+ * each position comes from its record's mean anomaly.
+ */
+export function listedGroupProvenance(source: Provenance, concentrated: boolean, measured = false): Provenance {
+  if (measured) {
+    return createProvenance({
+      sourceType: source.sourceType,
+      sources: source.sources,
+      accuracy: source.accuracy,
+      notes: `${source.notes} ${MEASURED_PHASE_NOTE}`.trim(),
+    });
+  }
   return createProvenance({
     sourceType: "illustrative",
     sources: source.sources,
@@ -222,21 +274,27 @@ export function listedGroupProvenance(source: Provenance, concentrated: boolean)
 }
 
 /**
- * A group drawn from a list of measured orbits: each member has its own elements, record time and source record id. Only the
- * position along each orbit is chosen here (see ListedPhase); every member then moves on its own ellipse by two-body motion.
+ * A group drawn from a list of measured orbits: each member has its own elements, record time and source record id. The position along
+ * each orbit is the record's own when every member gives `meanAnomalyDeg` (measured-phase), else chosen here (see ListedPhase); every
+ * member then moves on its own ellipse by two-body motion.
  */
 export function createListedOrbitGroup(input: ListedOrbitGroupInput, adapter: TwoBodyAdapter): ListedOrbitGroup {
-  assertMembers(input.members);
-  assertPhase(input.phase);
+  const measured = assertMembers(input.members);
+  assertPhase(input.phase, measured);
   const count = input.members.length;
   assertGroupCount(count);
   const { center, bounds } = input;
   const { referenceUtcMs, concentration } = input.phase;
 
-  const referenceDeg = concentration === undefined
-    ? null
-    : referenceMeanAnomalyRad(concentration.around, center, referenceUtcMs, adapter) / RADIANS;
-  const anomaliesDeg = assignMeanAnomaliesDeg(count, input.phase, referenceDeg);
+  let anomaliesDeg: Float64Array;
+  if (measured) {
+    anomaliesDeg = measuredMeanAnomaliesDeg(input.members, referenceUtcMs, gravitationalParameterOf(adapter, center));
+  } else {
+    const referenceDeg = concentration === undefined
+      ? null
+      : referenceMeanAnomalyRad(concentration.around, center, referenceUtcMs, adapter) / RADIANS;
+    anomaliesDeg = assignMeanAnomaliesDeg(count, input.phase, referenceDeg);
+  }
 
   const states = memberStatesOf(input.members.map(({ elements }, member) => ({
     semiMajorAxisKm: elements.semiMajorAxisKm,
@@ -248,7 +306,7 @@ export function createListedOrbitGroup(input: ListedOrbitGroupInput, adapter: Tw
   })), input.plane, center, adapter);
 
   const recordIds = input.members.map((member) => member.recordId);
-  const provenance = listedGroupProvenance(input.provenance, concentration !== undefined);
+  const provenance = listedGroupProvenance(input.provenance, concentration !== undefined, measured);
 
   let kepler: KeplerElements | null = null;
   const group: ListedOrbitGroup & { fillPositionsRangeKm(timeUtcMs: number, out: Float64Array, start: number, end: number): void } = {
