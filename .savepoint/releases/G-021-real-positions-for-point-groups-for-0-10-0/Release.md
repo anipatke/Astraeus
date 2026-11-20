@@ -1,7 +1,7 @@
 ---
 id: G-021
 title: Real positions for point groups for 0.9.3
-status: in_progress
+status: done
 ---
 
 ## Outcome
