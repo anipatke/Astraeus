@@ -2,8 +2,7 @@
 id: T-323
 title: Let group dots use each record's mean anomaly
 objective: O-077
-status: in_progress
-stage: audit
+status: done
 depends_on: []
 check_waiver: {task: T-323, reason: 'Owner chose "Skip the step check (Recommended)" for the single build step of O-077; the mandatory Full Objective Check covers the same diff.', actor: {role: owner, session: plan-g021-20261120}, recorded_at: '2026-11-20T08:09:59Z'}
 owner_validation: {required: false}
@@ -81,3 +80,7 @@ Executor session exec-t323-20261120 (same session as planning; the Full Objectiv
 
 - Planned writes grew by `packages/astraeus/src/api/sceneReads.ts` (doc comment said "always illustrative") and `packages/astraeus-site/tools/validate/load-budget.mjs` (owner-approved budget raise).
 - Design: non-architectural. Groups now have two placement modes inside the existing listed-orbit group; no new module, interface or data owner. Design.md "Public API shape" needs no change; the Full Check may confirm.
+
+## Owner Decision
+
+Owner 2026-11-20 (session plan-g021-20261120), after the handoff gates passed: "Mark done, run final check (Recommended)". Status set to done by the executor on that instruction; the mandatory Full Objective Check follows in a fresh session.
