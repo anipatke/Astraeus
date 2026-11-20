@@ -6,6 +6,7 @@ depends_on: []
 release: G-022
 priority: high
 rank: 1
+last_check: C-190
 ---
 
 # O-078: Change a group's colour and dot size live
