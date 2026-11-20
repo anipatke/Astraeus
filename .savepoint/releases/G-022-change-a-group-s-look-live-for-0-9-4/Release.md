@@ -1,7 +1,7 @@
 ---
 id: G-022
 title: Change a group's look live for 0.9.4
-status: planned
+status: done
 ---
 
 ## Outcome

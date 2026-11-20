@@ -1,7 +1,7 @@
 ---
 id: O-078
 title: Change a group's colour and dot size live
-status: in_progress
+status: done
 depends_on: []
 release: G-022
 priority: high
@@ -42,6 +42,8 @@ G-022: the Asteroid Belt app dims 23 of 25 groups when a visitor picks a Kirkwoo
 - Owner 2026-11-20: new Goal G-022 with this one Objective; version 0.9.4 proposed in the CHANGELOG ("0.9.4 (Recommended)"); the owner bumps and publishes.
 - Owner 2026-11-20: "Skip step check, one final (Recommended)": the single Task's optional Task Check is waived; the mandatory Full Objective Check runs once, by a fresh checker session.
 - Owner 2026-11-20: "Yes, build it (Recommended)" to the design above, including `scene.groups` keeping the scene's original values and the card unchanged because it shows no colour.
+
+- Owner 2026-11-20, after C-190 CLEAR: "do all of this, you are authorised" — fix the C-190 observation (I-183, accepted), record O-078 done, merge, and release 0.9.4.
 
 ## Boundaries
 
