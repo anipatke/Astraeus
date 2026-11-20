@@ -2,16 +2,22 @@
 id: I-182
 title: README and CHANGELOG say referenceTime makes no difference to a measured group, but it does when orbits omit time
 type: drift
-status: open
+status: resolved
 source:
   kind: check
   check: C-188
   actor: {role: checker, session: check-o077-20261120}
   at: '2026-11-20T08:32:30Z'
 tasks: [T-323]
-checks: [C-188]
+checks: [C-188, C-189]
 guardrail_ids: [API-07, PROV-01]
 severity: low
+resolution:
+  disposition: verified
+  check: C-189
+  actor: {role: checker, session: recheck-o077-20261120}
+  at: '2026-11-20T08:41:20Z'
+  reason: Repair proven by C-189 (CLEAR).
 history:
   - at: '2026-11-20T08:32:30Z'
     actor: {role: checker, session: check-o077-20261120}
@@ -22,6 +28,11 @@ history:
     actor: {role: executor, session: exec-t323-20261120}
     kind: repair_attempted
     note: 'README addGroup row and CHANGELOG 0.10.0 now say an orbit without time has its mean anomaly read at referenceTime, and referenceTime makes no difference only when every orbit gives time (behaviour unchanged, per the O-077 rule). New test publicApiGroup "reads an orbit''s mean anomaly at referenceTime when the orbit gives no time": without time, moving referenceTime 2 days moves dots > 1,000 km and equals giving time = referenceTime explicitly; the existing test, renamed "... when every orbit gives its time", keeps the other side. No doc comment changed; apiReference budget test passes. Gates 08:34:09Z-08:35:50Z all exit 0 (npm test 4060 passed). Not verified by a checker.'
+  - at: '2026-11-20T08:41:20Z'
+    actor: {role: checker, session: recheck-o077-20261120}
+    kind: rechecked
+    note: 'Proof Needed met, by C-189 (CLEAR): README addGroup row and CHANGELOG 0.10.0 qualify that referenceTime makes no difference only when every orbit gives time, and an orbit without time is read at referenceTime; new and renamed publicApiGroup tests cover both sides (green in a fresh full gate, 4062 tests); independent Kepler-oracle probe confirms both rules and the mixed case; no doc comment changed; rebuilt tarball carries the README and CHANGELOG.'
+    check: C-189
 ---
 
 # I-182: README and CHANGELOG say referenceTime makes no difference to a measured group, but it does when orbits omit time

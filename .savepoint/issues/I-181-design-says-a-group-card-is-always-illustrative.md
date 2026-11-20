@@ -2,15 +2,21 @@
 id: I-181
 title: Design says a group's card source type is always illustrative, but measured-phase groups keep the caller's
 type: drift
-status: open
+status: resolved
 source:
   kind: check
   check: C-188
   actor: {role: checker, session: check-o077-20261120}
   at: '2026-11-20T08:32:30Z'
 tasks: [T-323]
-checks: [C-188]
+checks: [C-188, C-189]
 severity: low
+resolution:
+  disposition: verified
+  check: C-189
+  actor: {role: checker, session: recheck-o077-20261120}
+  at: '2026-11-20T08:41:20Z'
+  reason: Repair proven by C-189 (CLEAR).
 history:
   - at: '2026-11-20T08:32:30Z'
     actor: {role: checker, session: check-o077-20261120}
@@ -21,6 +27,11 @@ history:
     actor: {role: executor, session: exec-t323-20261120}
     kind: repair_attempted
     note: '.savepoint/Design.md "Answers for sites" now says the card is illustrative unless every orbit gives meanAnomalyDeg, then keeps the caller''s source type, sources and accuracy with the measured note and the two-body drift limit (matches listedGroupProvenance and groupLimitations). The diff touching this Issue is Design.md only; the same repair commit also carries the I-182 README/CHANGELOG/test change. Gates 08:34:09Z-08:35:50Z: lint, typecheck, build, npm test (4060 passed), check:engine-alone, check:pack all exit 0. Not verified by a checker.'
+  - at: '2026-11-20T08:41:20Z'
+    actor: {role: checker, session: recheck-o077-20261120}
+    kind: rechecked
+    note: 'Proof Needed met, by C-189 (CLEAR): Design.md Answers for sites now states both modes (illustrative with the elements'' type in accuracy; measured keeps the caller''s source type, sources and accuracy, adds the mean-anomaly note and the two-body drift limit in place of the placement limit), matching listedGroupProvenance and groupLimitations; no source, fixture or dependency change since C-188 (the test change in the same commit is I-182''s).'
+    check: C-189
 ---
 
 # I-181: Design says a group's card source type is always illustrative, but measured-phase groups keep the caller's
