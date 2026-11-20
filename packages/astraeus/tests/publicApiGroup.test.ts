@@ -213,7 +213,18 @@ describe("measured positions with meanAnomalyDeg (O-077 T-323)", () => {
     ]);
   });
 
-  it("places the same dots whatever the reference time and list order", () => {
+  it("reads an orbit's mean anomaly at referenceTime when the orbit gives no time, so referenceTime then moves the dots (I-182)", () => {
+    const withoutTime = (extra: Partial<GroupInput> = {}) => measuredRing({ orbits: measuredRing().orbits.map(({ time: _time, ...rest }) => rest), ...extra });
+    const shifted = T0 + 2 * 86_400_000;
+    const a = positions(definitionOf(base().addGroup(withoutTime())));
+    const b = positions(definitionOf(base().addGroup(withoutTime({ referenceTime: shifted }))));
+    // Same as giving each orbit time = referenceTime explicitly.
+    const explicit = measuredRing({ referenceTime: shifted, orbits: measuredRing().orbits.map((o) => ({ ...o, time: shifted })) });
+    expect(b).toEqual(positions(definitionOf(base().addGroup(explicit))));
+    expect(Math.max(...a.map((v, k) => Math.abs(v - b[k]!)))).toBeGreaterThan(1_000);
+  });
+
+  it("places the same dots whatever the reference time and list order, when every orbit gives its time", () => {
     const a = positions(definitionOf(base().addGroup(measuredRing())));
     const b = positions(definitionOf(base().addGroup(measuredRing({ referenceTime: T0 + 40 * 86_400_000 }))));
     for (let k = 0; k < a.length; k++) expect(Math.abs(a[k]! - b[k]!)).toBeLessThan(1e-6);

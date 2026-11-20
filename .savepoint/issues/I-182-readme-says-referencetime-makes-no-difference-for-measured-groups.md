@@ -18,6 +18,10 @@ history:
     kind: observed
     note: Found by the O-077 Full Objective Check with an independent probe of a measured group whose orbits give meanAnomalyDeg but no time.
     check: C-188
+  - at: '2026-11-20T08:36:00Z'
+    actor: {role: executor, session: exec-t323-20261120}
+    kind: repair_attempted
+    note: 'README addGroup row and CHANGELOG 0.10.0 now say an orbit without time has its mean anomaly read at referenceTime, and referenceTime makes no difference only when every orbit gives time (behaviour unchanged, per the O-077 rule). New test publicApiGroup "reads an orbit''s mean anomaly at referenceTime when the orbit gives no time": without time, moving referenceTime 2 days moves dots > 1,000 km and equals giving time = referenceTime explicitly; the existing test, renamed "... when every orbit gives its time", keeps the other side. No doc comment changed; apiReference budget test passes. Gates 08:34:09Z-08:35:50Z all exit 0 (npm test 4060 passed). Not verified by a checker.'
 ---
 
 # I-182: README and CHANGELOG say referenceTime makes no difference to a measured group, but it does when orbits omit time

@@ -17,6 +17,10 @@ history:
     kind: observed
     note: Found by the O-077 Full Objective Check during Design reconciliation; the executor's drift note judged Design.md to need no change.
     check: C-188
+  - at: '2026-11-20T08:36:00Z'
+    actor: {role: executor, session: exec-t323-20261120}
+    kind: repair_attempted
+    note: '.savepoint/Design.md "Answers for sites" now says the card is illustrative unless every orbit gives meanAnomalyDeg, then keeps the caller''s source type, sources and accuracy with the measured note and the two-body drift limit (matches listedGroupProvenance and groupLimitations). The diff touching this Issue is Design.md only; the same repair commit also carries the I-182 README/CHANGELOG/test change. Gates 08:34:09Z-08:35:50Z: lint, typecheck, build, npm test (4060 passed), check:engine-alone, check:pack all exit 0. Not verified by a checker.'
 ---
 
 # I-181: Design says a group's card source type is always illustrative, but measured-phase groups keep the caller's
