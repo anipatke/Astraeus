@@ -2,9 +2,9 @@
 
 Versions follow [semantic versioning](https://semver.org). While the version starts with `0.`, the public API (the names exported from `astraeus`) may still change between minor versions; each change is listed here.
 
-## 0.10.0 (proposed, unreleased)
+## 0.9.3 (proposed, unreleased)
 
-Proposed version: a new public field, so a minor bump under `docs/RELEASING.md` (the owner bumps, moves the data peers and publishes). G-021.
+Additions only (G-021), as for 0.8.1, 0.9.1 and 0.9.2: every `astraeus-data*` package still peers on `>=0.9.0 <0.10.0`. The owner bumps the versions and publishes.
 
 - Added: `GroupOrbitInput.meanAnomalyDeg`, an orbit's catalogue mean anomaly in degrees at its own `time` (its epoch); finite, wrapping to 0 to 360. When every orbit of an `addGroup` gives it, each dot sits at its record's real position, advanced from its epoch by unperturbed two-body motion about the centre with the same GM the group moves with, instead of the illustrative even spread. An orbit without `time` has its mean anomaly read at `referenceTime`; when every orbit gives `time`, `referenceTime` makes no difference. The card and `scene.groups[].provenance` keep the caller's `sourceType`, sources and accuracy, add the note "Each dot's position along its orbit comes from its record's mean anomaly at the record's epoch, advanced by unperturbed two-body motion about the centre.", and replace the illustrative placement limit with one on two-body drift from each epoch. A list where some orbits give it and some do not, a non-finite value, or `seed` or `clump` with it throws `bad-group` (no new error code). Groups without it are unchanged, card text included. 110,000 orbits in one group build in about 0.4 s and fill once in about 0.1 s in Node.
 

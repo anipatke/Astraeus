@@ -27,7 +27,7 @@ G-021: the Asteroid Belt app needs ~110,000 real asteroid positions as point gro
 - Card and `scene.groups[].provenance` agree: measured-phase keeps the caller's `sourceType`; a measured phase note replaces PHASE_NOTE and a measured placement limit replaces PLACEMENT_LIMIT; MOTION_LIMIT kept. Illustrative groups unchanged (exact-string test).
 - `ListedOrbitGroup.meanAnomalyDegAt(index)` returns the real reference-time value for a measured group.
 - Ceres (JPL SBDB) at epoch and epoch + 1 year matches an independent two-body calculation within 1 km and agrees with `addBodyFromElements` within a stated GM-difference tolerance; quarter-period advance; wrap; determinism and order independence; a 110,000-orbit smoke test with build and fill times recorded as measurement.
-- README `addGroup` row and "Groups of dots" wording, CHANGELOG 0.10.0 entry (proposed, no version bump), API lock and doc comments updated; `bad-group` reused (no error code change); configured gates plus `check:engine-alone` and `check:pack` pass; a packed tarball is reported for the belt app.
+- README `addGroup` row and "Groups of dots" wording, CHANGELOG entry for the proposed version (0.9.3 after the owner's 2026-11-20 choice; first 0.10.0), no version bump, API lock and doc comments updated; `bad-group` reused (no error code change); configured gates plus `check:engine-alone` and `check:pack` pass; a packed tarball is reported for the belt app.
 
 ## Architectural Considerations
 
@@ -38,6 +38,7 @@ G-021: the Asteroid Belt app needs ~110,000 real asteroid positions as point gro
 ## Decisions
 
 - Owner 2026-11-20: new Goal G-021, version 0.10.0 proposed in the CHANGELOG; the owner bumps and publishes.
+- Owner 2026-11-20, after C-189: "yes, make it 0.9.3" (additions only; data peers stay `>=0.9.0 <0.10.0`). CHANGELOG heading changed; no code change.
 - Owner 2026-11-20: the single Task's optional Task Check is waived; the mandatory Full Objective Check runs once, by a fresh checker session.
 - Planner: the measured card keeps the caller's `accuracy` text unchanged (no "illustrative" clause); only `notes` gains the measured phase note.
 

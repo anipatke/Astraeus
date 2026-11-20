@@ -1,6 +1,6 @@
 ---
 id: G-021
-title: Real positions for point groups for 0.10.0
+title: Real positions for point groups for 0.9.3
 status: in_progress
 ---
 
@@ -10,7 +10,7 @@ status: in_progress
 
 ## Why
 
-Owner, 2026-11-20 (session plan-g021-20261120): a new app, "Astraeus: The Asteroid Belt" (`/home/user/code/belt`, a separate app), draws about 110,000 real main-belt asteroids from NASA/JPL SBDB elements as point groups. With 0.9.2 their positions would be made up, which that app's science rules forbid. The engine already places each member from a mean anomaly; only the source of that number is missing. Owner chose "Yes, as described": a new Goal with one Objective, version 0.10.0 (a new public field is a minor bump under docs/RELEASING.md).
+Owner, 2026-11-20 (session plan-g021-20261120): a new app, "Astraeus: The Asteroid Belt" (`/home/user/code/belt`, a separate app), draws about 110,000 real main-belt asteroids from NASA/JPL SBDB elements as point groups. With 0.9.2 their positions would be made up, which that app's science rules forbid. The engine already places each member from a mean anomaly; only the source of that number is missing. Owner chose "Yes, as described": a new Goal with one Objective. Version: first proposed as 0.10.0 (docs/RELEASING.md: a new feature is a minor bump); on review the owner chose 0.9.3 (2026-11-20, "yes, make it 0.9.3"), additions only like 0.8.1, 0.9.1 and 0.9.2, so the data peers `>=0.9.0 <0.10.0` stay valid.
 
 ## Success Conditions
 
