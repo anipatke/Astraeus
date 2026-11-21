@@ -2,7 +2,7 @@
 id: T-384
 title: Moon data loaded only for the tests that use it
 objective: O-086
-status: planned
+status: done
 depends_on: []
 check_waiver: {task: T-384, reason: 'Owner said "work through this list of objectives one by one. Orchestrate each objective to completion" (G-024 decision 7) and "carry on" (2026-11-22): standing orchestration rules waive the optional step checks; the mandatory Full Objective Check covers the whole diff.', actor: {role: owner, session: orchestrate-g024-20261121}, recorded_at: '2026-11-21T20:47:35Z'}
 owner_validation: {required: false}
@@ -65,8 +65,19 @@ Focused: `npx vitest run --project moons`, `npx vitest run --project preloaded`;
 
 ## Technical Evidence
 
-Pending execution.
+**Done When -> evidence**
+- Setup split: `vitest.setup.ts` keeps `loadPlanetSeries()`; moon code moved unchanged to `vitest.moons.setup.ts`.
+- `moons` project + one `MOONS` constant (include and `preloaded` exclude), comment says how a file joins; `cold` unchanged.
+- List by evidence: `preloaded` run with the moon part removed (5098 tests) failed in 11 moon files (NotLoadedError naming Jupiter/Mars/Saturn moon fits, or fitted positions not matched in sceneMoonBinding/sceneMoonScope): bodyMarkers, composedVelocity, jupiterIo, jupiterMoonsWindow, mapOrientation, orientationLabels, planetMoonSystems, plutoOrbitLines, sceneMoonBinding, sceneMoonScope, stateResolver. Other failures in that run were not moon: viewsJourneyState (wall-clock mismatch under load, passes alone and now passes), and other builders' in-flight site/scratch tests (browserExitPath, gateLimits, packagePacks, zz-scratch385). 11 files, well under 60.
+- No test file edited.
+- Counts: `npx vitest run --project moons` 11 files / 137 tests pass. test:full before 5114 tests (2 failures, both other builders' in-flight/load: zz-scratch385, twoViewers); after 5113 tests (1 failure, zz-scratch385). Totals differ by 1 because other builders add tests concurrently; no moon-related failure in either.
+- Timing (shared machine, 6 builders running, so rough): `npm test` before 52.5 s, setup 8% of summed time; after 34.4 s, setup 2%. `test:full` before 79.8 s (setup 10%), after 75.0 s (setup 2%).
+- check:engine-alone passes; it copies all of `packages/astraeus`, so the new setup file travels with the shared config (no change needed).
+- Gates: prettier clean on my 3 files; typecheck, engine-alone pass; build see reply. Lint's prettier --check warns only on other builders' files.
+
 
 ## Drift Notes
 
-None expected.
+None.
+
+Coordinator (orchestrate-g024-20261121): `moons` project 11 files / 137 tests green; build, typecheck, `check:engine-alone` green; its files pass prettier; other failures were siblings' in-flight files or load flakes; full gates at the Full Check. A test that needs moon data outside the list fails loudly (`NotLoadedError`), so the list cannot silently go stale. `status: done` set by the coordinator under the standing orchestration rule ("I mark them as they pass", O-038) and G-024 decision 7.

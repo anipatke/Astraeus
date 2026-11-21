@@ -5,8 +5,24 @@ declare const process: { readonly env: Readonly<Record<string, string | undefine
 
 const COLD = "packages/astraeus/tests/cold/**/*.test.ts";
 
+// The test files that read moon data (the 2016 chunks and fits of Jupiter, Mars, Saturn, Neptune and Pluto; vitest.moons.setup.ts). They run in the `moons` project; `preloaded` leaves them out, so the other files do not each load the moon data (AH-31, O-086).
+// A file joins this list when it fails in `preloaded` with a NotLoadedError naming a moon system ("... moon fits are not loaded"), or with a moon position that is not the fitted one. Keep it sorted.
+const MOONS = [
+  "packages/astraeus/tests/bodyMarkers.test.ts",
+  "packages/astraeus/tests/composedVelocity.test.ts",
+  "packages/astraeus/tests/jupiterIo.test.ts",
+  "packages/astraeus/tests/jupiterMoonsWindow.test.ts",
+  "packages/astraeus/tests/mapOrientation.test.ts",
+  "packages/astraeus/tests/orientationLabels.test.ts",
+  "packages/astraeus/tests/planetMoonSystems.test.ts",
+  "packages/astraeus/tests/plutoOrbitLines.test.ts",
+  "packages/astraeus/tests/sceneMoonBinding.test.ts",
+  "packages/astraeus/tests/sceneMoonScope.test.ts",
+  "packages/astraeus/tests/stateResolver.test.ts",
+];
+
 // One test run over the five packages (packages/*/tests). The made-up experiences are left in (the flag is false) unless a public build is being tested.
-// Two projects: the ordinary one preloads the planet series and the moon fits (vitest.setup.ts); the cold one (packages/astraeus/tests/cold) does not, so it sees what a Node consumer sees (O-056).
+// Three projects: the ordinary one preloads the planet series (vitest.setup.ts); `moons` adds the moon data for the files in MOONS; the cold one (packages/astraeus/tests/cold) does not, so it sees what a Node consumer sees (O-056).
 // A `.json?url` import is the file's own `file:` address under test, as the packed package gives (build-packages), so the engine's one bundled-file reader reads it from disk in Node (I-167).
 const jsonFileUrls = {
   name: "json-file-urls",
@@ -49,8 +65,17 @@ export default defineConfig({
           ...common.test,
           name: "preloaded",
           include: ["packages/*/tests/**/*.test.ts"],
-          exclude: [COLD, "**/node_modules/**"],
+          exclude: [COLD, ...MOONS, "**/node_modules/**"],
           setupFiles: ["./packages/astraeus/vitest.setup.ts"],
+        },
+      },
+      {
+        ...common,
+        test: {
+          ...common.test,
+          name: "moons",
+          include: MOONS,
+          setupFiles: ["./packages/astraeus/vitest.setup.ts", "./packages/astraeus/vitest.moons.setup.ts"],
         },
       },
       { ...common, test: { ...common.test, name: "cold", include: [COLD] } },
