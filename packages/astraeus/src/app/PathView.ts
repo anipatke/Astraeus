@@ -188,6 +188,11 @@ export class PathView {
   #ribbonScaled: Float64Array | null = null;
   #arcTimes: readonly number[] = [];
   #arcPositions: BufferAttribute | null = null;
+  /** The inputs of the last full `sync`; null when it must run again. */
+  #synced: { t: number; center: CenterId; resolver: StateResolver; policy: ScalePolicy } | null = null;
+  /** Set by a full `sync`, cleared by the `place` that uploads it; `#placedAt` is that upload's origin and screen. */
+  #fresh = true;
+  #placedAt: readonly number[] = [];
 
   constructor(
     readonly layer: PathLayer,
@@ -449,7 +454,10 @@ export class PathView {
   /** Applies a look live: layers switch and opacities change at once (the shapes follow in `sync`). Ignored for a plain line. */
   setLook(look: OrbitLook): void {
     if (this.#ring === null || this.#arc === null) return;
+    const now = this.#look;
+    if (now !== null && (Object.keys(look) as (keyof OrbitLook)[]).every((k) => look[k] === now[k])) return;
     this.#look = look;
+    this.#synced = null;
     this.#ring.visible = look.baseOn;
     this.#arc.visible = look.arcOn;
     this.#applyOpacity();
@@ -548,7 +556,19 @@ export class PathView {
       this.#resample(windowTimesUtcMs(timeUtcMs, span.windowMs, this.#capacity));
       this.#windowCentre = timeUtcMs;
       this.#builtRealMs = realNowMs;
+      this.#synced = null;
     }
+    const was = this.#synced;
+    if (
+      was !== null &&
+      was.t === timeUtcMs &&
+      was.center === placement.center &&
+      was.resolver === placement.resolver &&
+      was.policy === policy
+    )
+      return;
+    this.#synced = { t: timeUtcMs, center: placement.center, resolver: placement.resolver, policy };
+    this.#fresh = true;
     const km = this.#vertexKm(placement, timeUtcMs);
     this.#scaled.set(eqjMapped(km, policy));
     let cx = 0;
@@ -582,6 +602,10 @@ export class PathView {
       this.#zoom = Math.max(0, Math.min(1, (distance / this.#extentScaled - 1) / (far - 1)));
       this.#applyOpacity();
     }
+    const at = [ox, oy, oz, screen?.fovDeg ?? -1, screen?.viewportHeightPx ?? -1];
+    if (!this.#fresh && at.every((v, i) => v === this.#placedAt[i])) return;
+    this.#fresh = false;
+    this.#placedAt = at;
     const out = this.#positions.array as Float32Array;
     for (let i = 0; i < out.length; i += 3) {
       out[i] = this.#scaled[i] - ox;

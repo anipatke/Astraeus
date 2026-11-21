@@ -2,7 +2,7 @@
 id: T-399
 title: Path lines skip unchanged frames
 objective: O-087
-status: planned
+status: done
 depends_on: []
 owner_validation: {required: false}
 check_waiver: {task: T-399, reason: 'Owner said "work through this list of objectives one by one. Orchestrate each objective to completion" (G-024 decision 7) and "carry on orchestrating G-024" (2026-11-22): standing orchestration rules waive the optional step checks; the mandatory Full Objective Check covers the whole diff.', actor: {role: owner, session: orchestrate-g024-20261122}, recorded_at: '2026-11-21T22:11:52Z'}
@@ -67,8 +67,26 @@ Focused: `npx vitest run packages/astraeus/tests/pathViewSync.test.ts packages/a
 
 ## Technical Evidence
 
-Pending execution.
+| Done When | Evidence |
+|-----------|----------|
+| `setLook` value-equal no-op | `pathViewSync.test.ts` "does not re-evaluate an unchanged frame" passes a value-equal fresh look; 0 `stateAt` calls and identical output (fails on HEAD) |
+| `sync` early-out | same test, 3 path kinds (orbit, relative trail, inertial trail): 0 `stateAt` calls on a repeated sync (fails on HEAD) |
+| `place` skips upload | "does not re-upload an unchanged frame": position attribute versions unchanged for same origin/screen, change when screen or origin moves (fails on HEAD) |
+| Changed input re-evaluates | "re-evaluates when an input changes": time, centre, policy and every look field give output equal to a fresh view (time: differs from before); green on HEAD and new code, as a guard |
+| orbitLook, longOrbitPaths, renderHandedness unchanged | focused run: 3 files pass, 42 tests with the new file's 9 passing |
+| Engine size | not measured (no cheap size command found); change is about 24 added source lines in PathView.ts, estimated under 300 B minified |
+| Gates | typecheck pass; build pass; test 321 files / 5147 passed, 3 skipped; prettier clean on my files; lint: one error, `OrbitSetView.ts` `sync` complexity 21 (T-398's file, not mine) |
+
+Red-first: HEAD's PathView.ts copied aside; 6 of 9 new tests failed (the evaluate and upload cases for each kind); restored.
+
+Files changed: `packages/astraeus/src/app/PathView.ts`, `packages/astraeus/tests/pathViewSync.test.ts`.
+
+Limitations: the early-out key compares the placement resolver and scale policy by identity.
 
 ## Drift Notes
 
-None expected.
+None.
+
+## Coordinator
+
+Set done by the orchestrating session after the combined handoff gates passed with T-395, T-397, T-398, T-399 together (owner: "I mark them as they pass", O-038; G-024 decision 7 "Orchestrate each objective to completion"; "carry on orchestrating G-024", 2026-11-22): lint and Prettier clean, typecheck clean, build ok, `npm test` 321 files, 5147 passed, 3 skipped; `npm run check:pack` engine budget 1,835,598 B raw (limit 1,836,000), 525,328 B gzip (limit 527,000).
