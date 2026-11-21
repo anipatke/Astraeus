@@ -15,7 +15,7 @@ import { placementAbout } from "astraeus/tests/scenePlacement";
 import { createOrbAstronomyAdapter } from "astraeus/core/astronomyAdapter";
 import { createProvenance } from "astraeus/core/provenance";
 import { earthStateAt, sunPositionFromEarthAt } from "astraeus/core/referenceCenters";
-import { readableScale, trueScale } from "astraeus/core/scalePolicy";
+import { readableScale, trueScale } from "astraeus";
 import { createEarthSunTrajectory, createTwoBodyTrajectory, samplePathKm } from "astraeus/core/sunCentredSources";
 import { createOrbTwoBodyAdapter } from "astraeus/core/twoBodyAdapter";
 import { apollo11Definition } from "./apollo11Definition";

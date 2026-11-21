@@ -2,7 +2,7 @@ import columbiaFile from "../data/apollo11/generated/columbia.json";
 import { describe, expect, it } from "vitest";
 import { PerspectiveCamera, Vector3 } from "three";
 import { SimulationClock } from "astraeus/core/clock";
-import { readableScale, trueScale } from "astraeus/core/scalePolicy";
+import { readableScale, trueScale } from "astraeus";
 import { FloatingOrigin } from "astraeus/app/floatingOrigin";
 import { cancelCameraTransition, createOrbitCameraState, resolveCamera, switchFocus } from "astraeus/app/CameraController";
 import { projectToScreen } from "astraeus/app/AnchorLabels";

@@ -5,7 +5,7 @@ import type { ExperienceDefinition } from "../../src/app/experienceDefinition";
 import { earth, mars, sun, venus } from "../../src/api/bodies";
 import { Scene } from "../../src/api/scene";
 import { definitionOf } from "../../src/api/definitionOf";
-import { solarSystemScale } from "../../src/core/scalePolicy";
+import { solarSystemScale } from "../../src/presentation/scalePolicy";
 import { createOrbTwoBodyAdapter } from "../../src/core/twoBodyAdapter";
 
 export const PROBE_START_UTC_MS = Date.parse("2026-01-01T00:00:00Z");

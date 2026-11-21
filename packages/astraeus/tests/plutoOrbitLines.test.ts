@@ -8,7 +8,7 @@ import { createMoonSystem } from "../src/core/bodies/moonSystem";
 import plutoIndex from "astraeus-data-pluto/index.json";
 import { createEphemerisGroup } from "../src/core/ephemerisGroup";
 import { createProvenance } from "../src/core/provenance";
-import { trueScale } from "../src/core/scalePolicy";
+import { trueScale } from "../src/presentation/scalePolicy";
 import { placementAbout } from "./scenePlacement";
 
 // O-039 T-133 (I-056): each moon's orbit line spans one true lap. Pluto's moons circle the Pluto-Charon balance point, so their periods come

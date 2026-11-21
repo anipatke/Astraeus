@@ -1,4 +1,4 @@
-import type { ScaleId } from "../core/scalePolicy";
+import type { ScaleId } from "../presentation/scalePolicy";
 import type { ViewerChangeCause, ViewerPort, ViewerState } from "../app/viewerPort";
 import type { ViewerControl } from "../app/viewerPort";
 import { SceneError } from "./errors";

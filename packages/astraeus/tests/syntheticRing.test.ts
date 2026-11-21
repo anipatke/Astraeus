@@ -9,7 +9,7 @@ import { eqjToRenderVector } from "../src/app/renderCoordinates";
 import { createOrbAstronomyAdapter } from "../src/core/astronomyAdapter";
 import { SimulationClock } from "../src/core/clock";
 import { composeCenteredPositions, sunPositionFromEarthAt } from "../src/core/referenceCenters";
-import { readableScale, trueScale } from "../src/core/scalePolicy";
+import { readableScale, trueScale } from "../src/presentation/scalePolicy";
 import { AstraeusShell } from "../src/shell/AstraeusShell";
 import { findCameraPreset } from "../src/shell/objectModel";
 import {

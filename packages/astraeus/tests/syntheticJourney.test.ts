@@ -2,7 +2,7 @@
 import { beforeAll, describe, expect, it } from "vitest";
 import { Scene, earth, sun, type DataSource } from "astraeus";
 import { loadPlanetSeries } from "../src/core/planetSeries";
-import { solarSystemScale } from "../src/core/scalePolicy";
+import { solarSystemScale } from "../src/presentation/scalePolicy";
 import { createOrbitCameraState } from "../src/app/CameraController";
 import { stepCameraTarget, type CameraStepInput } from "../src/app/sceneCamera";
 import { cameraReachOf } from "../src/app/experienceDefinition";

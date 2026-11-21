@@ -3,7 +3,7 @@ import { Object3D, Quaternion as ThreeQuaternion, Vector3 } from "three";
 import { catalogue, type BodyCatalogue } from "../assets/catalogue";
 import type { BodyId, CenterId } from "../core/body";
 import type { State } from "../core/state";
-import type { ScalePolicy } from "../core/scalePolicy";
+import type { ScalePolicy } from "../presentation/scalePolicy";
 import type { AstronomyAdapter } from "../core/astronomyAdapter";
 import { createStateResolver, type StateResolver } from "../core/stateResolver";
 import { FloatingOrigin } from "./floatingOrigin";

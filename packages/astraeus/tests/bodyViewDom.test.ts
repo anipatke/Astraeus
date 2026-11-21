@@ -20,7 +20,7 @@ vi.mock("../src/app/bodyDraw", async (importOriginal) => {
 import { BodyView, type BodyParts } from "../src/app/BodyView";
 import { catalogue } from "../src/assets/catalogue";
 import { releaseGlowTexture } from "../src/app/bodyDraw";
-import { createSolarSystemScale } from "../src/core/scalePolicy";
+import { createSolarSystemScale } from "../src/presentation/scalePolicy";
 import type { RingSystem } from "../src/assets/rings";
 
 (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;

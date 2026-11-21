@@ -5,7 +5,7 @@ import { textureUrlFor } from "../assets/licence";
 import { NO_PICTURES, textureOf, type Pictures } from "../assets/pictures";
 import type { AtmosphereConfig, BodyMaterialConfig } from "../assets/visual";
 import type { CelestialBodyDefinition } from "../core/body";
-import type { ScalePolicy } from "../core/scalePolicy";
+import type { ScalePolicy } from "../presentation/scalePolicy";
 import type { LookInput } from "./look";
 
 /** The two radii a body is drawn with, in scaled units. Equal for a sphere. */

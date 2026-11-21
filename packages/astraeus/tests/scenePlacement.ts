@@ -3,7 +3,7 @@ import type { BodyId } from "../src/core/body";
 import { Object3D } from "three";
 import { catalogue } from "../src/assets/catalogue";
 import type { State } from "../src/core/state";
-import type { ScalePolicy } from "../src/core/scalePolicy";
+import type { ScalePolicy } from "../src/presentation/scalePolicy";
 import { FloatingOrigin } from "../src/app/floatingOrigin";
 import { createSceneResolver, placeBody, type PlacedState, type ScenePlacement } from "../src/app/sceneLayout";
 

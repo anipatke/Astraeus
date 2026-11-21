@@ -7,7 +7,7 @@
 // Named deviation from the composition lines: no trailing arc.
 import { BufferAttribute, BufferGeometry, Color, Group, LineSegments, ShaderMaterial, Vector3, type Camera } from "three";
 import { balanceShare, meanPeriodS, periodAboutBalanceS } from "../core/orbitPeriod";
-import type { ScalePolicy } from "../core/scalePolicy";
+import type { ScalePolicy } from "../presentation/scalePolicy";
 import { familyColorOf, familyGainOf, MAX_BODY_SET_FAMILIES, type BodySetLayer, type BodySetLook } from "./bodySet";
 import type { FloatingOrigin } from "./floatingOrigin";
 import { eqjToRenderVector, type RenderVector } from "./renderCoordinates";

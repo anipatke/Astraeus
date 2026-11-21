@@ -1,7 +1,7 @@
 import { PerspectiveCamera, Vector3 } from "three";
 import { describe, expect, it } from "vitest";
 import { catalogue } from "../src/assets/catalogue";
-import { readableScale } from "../src/core/scalePolicy";
+import { readableScale } from "../src/presentation/scalePolicy";
 import { createOrbitCameraState, poseCamera, resolveCamera, type CameraRequest } from "../src/app/CameraController";
 import { FloatingOrigin } from "../src/app/floatingOrigin";
 import { clampFov, LOOK_OUT_FOV_RANGE_DEG, LOOK_OUT_NEAR, panLookOut, skyViewOf, zoomLookOut } from "../src/app/lookOut";

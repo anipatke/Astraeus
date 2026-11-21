@@ -4,7 +4,7 @@ import type { PathView } from "../src/app/PathView";
 import type { PointsView } from "../src/app/PointsView";
 import type { BodySetView } from "../src/app/BodySetView";
 import type { TrackedBodyView } from "../src/app/TrackedBodyView";
-import { trueScale } from "../src/core/scalePolicy";
+import { trueScale } from "../src/presentation/scalePolicy";
 import { bodySetMemberAbsolute, canFocus, focusAbsoluteOf, framedViewOf, labelPositionOf, type SceneTargets } from "../src/app/sceneTargets";
 import type { RenderVector } from "../src/app/renderCoordinates";
 

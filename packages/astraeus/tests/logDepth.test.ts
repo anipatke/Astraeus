@@ -2,7 +2,7 @@
 import { describe, expect, it } from "vitest";
 import { PerspectiveCamera } from "three";
 import { Scene, earth, sun } from "astraeus";
-import { solarSystemScale } from "../src/core/scalePolicy";
+import { solarSystemScale } from "../src/presentation/scalePolicy";
 import { cameraReachOf } from "../src/app/experienceDefinition";
 import { createOrbitCameraState, poseCamera } from "../src/app/CameraController";
 import { FloatingOrigin } from "../src/app/floatingOrigin";

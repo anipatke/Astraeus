@@ -1,4 +1,4 @@
-import type { ScaleId } from "../core/scalePolicy";
+import type { ScaleId } from "../presentation/scalePolicy";
 import type { TimelineEvent } from "../core/events";
 import type { TimeBounds } from "../core/trajectory";
 import type { CameraRequest } from "./CameraController";

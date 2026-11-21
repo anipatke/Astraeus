@@ -9,7 +9,7 @@ import { createProvenance } from "../core/provenance";
 import type { ViewerControl, ViewerPort, ViewerState } from "./viewerPort";
 import { pickerSwitch } from "./listSwitch";
 import { useShelf } from "./useShelf";
-import { createSolarSystemScale, type ScalePolicy } from "../core/scalePolicy";
+import { createSolarSystemScale, type ScalePolicy } from "../presentation/scalePolicy";
 import type { CameraRequest } from "./CameraController";
 import type { DebugReadout } from "./debugReadout";
 import { bodySetsOf, cameraReachOf, catalogueOf, compositionOf, experienceWithGroups, groupsOf, initialObjectIdOf, mountedBodiesOf, pageTitleOf, scaleChoiceIdsOf, sceneCenterOf, sunCentredOf, trackedBodiesOf, visualOverridesOf, type ExperienceDefinition } from "./experienceDefinition";

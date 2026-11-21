@@ -5,7 +5,7 @@ import { Scene, SceneError, earth, mars, moon, sun } from "astraeus";
 import { catalogue } from "../src/assets/catalogue";
 import { createOrbAstronomyAdapter } from "../src/core/astronomyAdapter";
 import { createStateResolver } from "../src/core/stateResolver";
-import { trueScale } from "../src/core/scalePolicy";
+import { trueScale } from "../src/presentation/scalePolicy";
 import { FloatingOrigin } from "../src/app/floatingOrigin";
 import { TrackedBodyView } from "../src/app/TrackedBodyView";
 import { trackedBodiesOf } from "../src/app/experienceDefinition";

@@ -12,7 +12,7 @@ import {
   sunPositionFromEarthAt,
 } from "../src/core/referenceCenters";
 import { createCenteredPosition, createState } from "../src/core/state";
-import { createSolarSystemScale, readableScale, trueScale } from "../src/core/scalePolicy";
+import { createSolarSystemScale, readableScale, trueScale } from "../src/presentation/scalePolicy";
 
 function magnitude(vector: ArrayLike<number>): number {
   return Math.hypot(vector[0], vector[1], vector[2]);

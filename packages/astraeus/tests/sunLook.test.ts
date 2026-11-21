@@ -3,11 +3,11 @@ import { baseGlowOf, DEFAULT_GLOW_SCALE, drawnRadii, GLOW_LIMITS, glowLookOf, gl
 import { resolveLook } from "../src/app/look";
 const glowLookFromSearch = (search: string, base: Parameters<typeof glowLookOf>[1]) => glowLookOf(resolveLook(undefined, search), base);
 import { focusLimits, focusRadius } from "../src/app/sceneFraming";
-import { createSolarSystemScale } from "../src/core/scalePolicy";
+import { createSolarSystemScale } from "../src/presentation/scalePolicy";
 import { textureRightsProblem } from "../src/assets/licence";
 import { catalogue, extendCatalogue } from "../src/assets/catalogue";
 import { SUN_VISUAL } from "../src/assets/bodies/sun";
-import { trueScale } from "../src/core/scalePolicy";
+import { trueScale } from "../src/presentation/scalePolicy";
 
 const sun = catalogue.get("sun");
 /** A made-up long-period comet drawn as a marker (the catalogue holds no comet since O-057 T-279). */

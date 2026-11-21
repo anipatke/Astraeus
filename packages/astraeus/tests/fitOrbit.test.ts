@@ -1,7 +1,7 @@
 // O-045 T-186: camera.fitOrbit sets the farthest zoom-out from a body's orbit and the live canvas shape (ARCH-03, TEST-03).
 import { describe, expect, it } from "vitest";
 import { Scene, SceneError, earth, moon, sun, type ElementsBodyRecord } from "astraeus";
-import { trueScale } from "../src/core/scalePolicy";
+import { trueScale } from "../src/presentation/scalePolicy";
 import { createOrbitCameraState } from "../src/app/CameraController";
 import { stepCameraTarget, type CameraStepInput } from "../src/app/sceneCamera";
 import { fitReach, liveReach } from "../src/app/sceneFraming";

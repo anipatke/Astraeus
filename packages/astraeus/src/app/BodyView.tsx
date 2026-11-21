@@ -4,7 +4,7 @@ import { Vector3, type Group, type PerspectiveCamera } from "three";
 const worldPosition = new Vector3();
 import type { BodyAsset } from "../assets/catalogue";
 import type { Pictures } from "../assets/pictures";
-import type { ScalePolicy } from "../core/scalePolicy";
+import type { ScalePolicy } from "../presentation/scalePolicy";
 import { AtmosphereGlow } from "./AtmosphereGlow";
 import { BodyMesh } from "./BodyMesh";
 import { useFrame } from "@react-three/fiber";

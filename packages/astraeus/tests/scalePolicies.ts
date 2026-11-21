@@ -1,4 +1,4 @@
-import { createSolarSystemScale, type ScalePolicy } from "../src/core/scalePolicy";
+import { createSolarSystemScale, type ScalePolicy } from "../src/presentation/scalePolicy";
 
 /** The engine's solar-system scale with the named bodies enlarged by the stated factors (test helper). */
 export function solarSystemPolicyForTest(exaggeration: Readonly<Record<string, number>>): ScalePolicy {

@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import { PerspectiveCamera } from "three";
 import { Scene, SceneError, earth, mars, sun } from "astraeus";
 import { createState } from "../src/core/state";
-import { trueScale } from "../src/core/scalePolicy";
+import { trueScale } from "../src/presentation/scalePolicy";
 import { FloatingOrigin } from "../src/app/floatingOrigin";
 import { TrackedBodyView } from "../src/app/TrackedBodyView";
 import { trackedBodiesOf } from "../src/app/experienceDefinition";

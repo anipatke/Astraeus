@@ -19,7 +19,7 @@ const BODY_NAME_ALLOWLIST: Readonly<Record<string, string>> = {
   "src/core/illumination.ts": "Lunar phase is defined for the Moon seen from Earth with the Sun as the source; its guards name those three bodies.",
   "src/core/moonTrajectory.ts": "The Moon's own state provider (Earth-centred series); it is the Moon's binding, kept beside the other providers.",
   "src/core/referenceCenters.ts": "Earth-from-Sun and Sun-from-Earth geometry from the Orb library, the root of every body chain.",
-  "src/core/scalePolicy.ts": "True and Readable scale are defined in Earth radii, so Earth's radius is the unit.",
+  "src/presentation/scalePolicy.ts": "True and Readable scale are defined in Earth radii, so Earth's radius is the unit.",
   "src/core/state.ts": "Defines the body-id type guards and frame defaults used with the built-in bodies.",
   "src/core/sunCentredSources.ts": "Earth's Sun-centred trajectory and two-body defaults about the Sun: providers for the built-in Sun and Earth.",
   "src/core/twoBodyAdapter.ts": "Default gravitational parameters come from the three built-in body definitions.",

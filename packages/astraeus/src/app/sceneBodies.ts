@@ -2,7 +2,7 @@
 import { Vector3, type Camera, type Group } from "three";
 import type { BodyAsset } from "../assets/catalogue";
 import type { BodyId } from "../core/body";
-import type { ScalePolicy } from "../core/scalePolicy";
+import type { ScalePolicy } from "../presentation/scalePolicy";
 import type { State } from "../core/state";
 import type { BodyParts } from "./BodyView";
 import { DEFAULT_GLOW_SCALE, GLOW_BEHIND_DISC_PX, drawnRadii, drawsAsMarker, glowSizePx, projectedRadiusPx, type BodyMarkerSettings, type GlowLook } from "./bodyDraw";

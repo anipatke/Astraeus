@@ -20,7 +20,7 @@ import {
 } from "three";
 import { dotMaterial } from "./dotMaterial";
 import type { BodyId } from "../core/body";
-import type { ScalePolicy } from "../core/scalePolicy";
+import type { ScalePolicy } from "../presentation/scalePolicy";
 import type { StateResolver } from "../core/stateResolver";
 import { projectedRadiusPx } from "./bodyDraw";
 import type { PointsScreenReadout } from "./PointsView";

@@ -2,7 +2,7 @@
 // T-313 (O-073): a look-out turn made while already looking out glides, and a tap in a look-out camera keeps the sky.
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { catalogue } from "../src/assets/catalogue";
-import { readableScale } from "../src/core/scalePolicy";
+import { readableScale } from "../src/presentation/scalePolicy";
 import { createOrbitCameraState, resolveCamera } from "../src/app/CameraController";
 import { cameraTargetAbsolute, stepCameraTarget, type CameraStepInput } from "../src/app/sceneCamera";
 import type { SceneTargets } from "../src/app/sceneTargets";

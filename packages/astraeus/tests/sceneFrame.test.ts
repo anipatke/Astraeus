@@ -2,7 +2,7 @@ import { eqjUnitVector, isSkyView, type StartView } from "../src/presentation/st
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { Group } from "three";
 import { SimulationClock } from "../src/core/clock";
-import { readableScale, trueScale } from "../src/core/scalePolicy";
+import { readableScale, trueScale } from "../src/presentation/scalePolicy";
 import type { BodyId } from "../src/core/body";
 import { createOrbitCameraState } from "../src/app/CameraController";
 import type { SceneControls, SceneRuntime } from "../src/app/AstraeusScene";

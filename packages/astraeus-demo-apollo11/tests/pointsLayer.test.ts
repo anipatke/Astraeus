@@ -18,7 +18,7 @@ import type { CenterId } from "astraeus/core/body";
 import { createProvenance } from "astraeus/core/provenance";
 import { memberState, type PointGroup } from "astraeus/core/pointGroup";
 import { composeCenteredPositions, sunPositionFromEarthAt } from "astraeus/core/referenceCenters";
-import { readableScale, trueScale } from "astraeus/core/scalePolicy";
+import { readableScale, trueScale } from "astraeus";
 import { AstraeusShell } from "astraeus/shell/AstraeusShell";
 import { findCameraPreset } from "astraeus/shell/objectModel";
 import { apollo11Definition } from "./apollo11Definition";

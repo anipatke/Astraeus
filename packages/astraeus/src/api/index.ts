@@ -28,7 +28,7 @@ export { type PanelChange } from "./viewerPanels";
 export { type ViewerChange, type EventZoneChange, type CameraPose, type OrbitPose, type SkyPose, type SkyDirection, type LookOutTarget, type CameraTarget } from "./viewerLink";
 export { SceneError, type SceneErrorCode } from "./errors";
 export { sun, mercury, venus, earth, moon, mars, jupiter, saturn, uranus, neptune, pluto, io, europa, ganymede, callisto, mimas, enceladus, tethys, dione, rhea, titan, iapetus, triton, charon, phobos, deimos, listedMoons, type BodyRef } from "./bodies";
-export { trueScale, readableScale, solarSystemScale, type ScaleId, type ScalePolicy, type SolarSystemScalePolicy } from "../core/scalePolicy";
+export { trueScale, readableScale, solarSystemScale, type ScaleId, type ScalePolicy, type SolarSystemScalePolicy } from "../presentation/scalePolicy";
 export type { State, CenteredPosition, FrameId, Quaternion } from "../core/state";
 export type { Provenance, ProvenanceSourceType } from "../core/provenance";
 export type { Pictures } from "../assets/pictures";

@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { hasEarthMoon } from "./scenePlacement";
 import { focusLimits } from "../src/app/sceneFraming";
 import { MOON } from "../src/core/body";
-import { readableScale, trueScale } from "../src/core/scalePolicy";
+import { readableScale, trueScale } from "../src/presentation/scalePolicy";
 import {
   DEFAULT_CAMERA_FAR,
   cameraReachOf,

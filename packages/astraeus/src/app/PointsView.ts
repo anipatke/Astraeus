@@ -1,6 +1,6 @@
 import { BufferAttribute, BufferGeometry, Group, Points, type PointsMaterial, Vector3, type Camera, type WebGLProgramParametersWithUniforms } from "three";
 import { dotMaterial } from "./dotMaterial";
-import type { ScalePolicy } from "../core/scalePolicy";
+import type { ScalePolicy } from "../presentation/scalePolicy";
 import type { GroupLayer } from "./experienceDefinition";
 import type { FloatingOrigin } from "./floatingOrigin";
 import { fillKeplerRangeKm } from "../core/keplerElements";

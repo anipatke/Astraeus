@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { START_CAMERA_DISTANCE, startsInsideFocus } from "../src/app/sceneFraming";
-import { trueScale } from "../src/core/scalePolicy";
+import { trueScale } from "../src/presentation/scalePolicy";
 
 describe("the start camera (I-028)", () => {
   it("opens at the overview when the centre body is so large that the start distance would be clamped inside it", () => {

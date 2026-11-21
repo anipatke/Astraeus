@@ -1,5 +1,5 @@
 import type { CenterId } from "../core/body";
-import type { ScalePolicy } from "../core/scalePolicy";
+import type { ScalePolicy } from "../presentation/scalePolicy";
 import { sceneOffsetKm, type ScenePlacement } from "./sceneLayout";
 
 /** Sample times and the positions a state source gave at them (km, EQJ, about the source's own centre), 3 per time. */

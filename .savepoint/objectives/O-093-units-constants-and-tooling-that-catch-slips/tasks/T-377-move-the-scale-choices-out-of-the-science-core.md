@@ -2,7 +2,7 @@
 id: T-377
 title: Move the scale choices out of the science core
 objective: O-093
-status: planned
+status: done
 depends_on: [{task: T-376, requires: clear}, {task: T-373, requires: clear}, {task: T-374, requires: clear}]
 check_waiver: {task: T-377, reason: 'Owner said "work through this list of objectives one by one. Orchestrate each objective to completion" (G-024 decision 7) and "carry on" (2026-11-22): standing orchestration rules waive the optional step checks; the mandatory Full Objective Check covers the whole diff.', actor: {role: owner, session: orchestrate-g024-20261121}, recorded_at: '2026-11-21T19:19:52Z'}
 owner_validation: {required: false}
@@ -62,8 +62,19 @@ Focused: `npx vitest run packages/astraeus/tests/presentationLayer.test.ts packa
 
 ## Technical Evidence
 
-Pending execution.
+| Done When | Evidence |
+|---|---|
+| git mv, `../core/body` import, importers import lines only | `git mv`; 72 engine importers re-pathed by sed (`core/scalePolicy"` to `presentation/scalePolicy"`); numstat shows no changed file with more than a 1-line edit (apart from the rename) |
+| Nine demo tests | 8 now import `"astraeus"`; `apollo11/tests/controls.test.ts` (createSolarSystemScale) imports `astraeus/presentation/scalePolicy`; DEEP_IMPORT_COUNTS apollo11 129 to 125, showers 65 to 61; packageBoundaries test green |
+| nameCheck allowlist | key re-keyed, reason unchanged; nameCheck and allowlistGrowth green |
+| presentationLayer unedited; api:lock | test passes unedited; `npm run api:lock` left api-surface.lock.json unchanged |
+| scenePin.json; engine-alone | file untouched (no diff); `check:engine-alone` pass |
+| Gates | lint, typecheck, build clean; npm test 311 files, 5071 passed, 2 skipped; engine-alone pass |
+
+Extra reads: none beyond Context Files.
 
 ## Drift Notes
 
 For Design reconciliation (`Core layers and demos`): scale policies are presentation (`src/presentation/scalePolicy.ts`); `src/core/` holds science only.
+
+Coordinator (orchestrate-g024-20261121): gates green (lint, typecheck, build; `npm test` 311 files, 5071 passed; `check:engine-alone`); lock and scene pin unchanged; demo deep-import counts fell (apollo11 129 → 125, showers 65 → 61). `status: done` set by the coordinator under the standing orchestration rule ("I mark them as they pass", O-038) and G-024 decision 7.

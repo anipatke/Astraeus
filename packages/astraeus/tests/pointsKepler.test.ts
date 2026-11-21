@@ -7,7 +7,7 @@ import { sceneOffsetKm } from "../src/app/sceneLayout";
 import { createOrbAstronomyAdapter } from "../src/core/astronomyAdapter";
 import { createOrbitGroup } from "../src/core/orbitGroup";
 import { createProvenance } from "../src/core/provenance";
-import { readableScale, trueScale, type ScalePolicy } from "../src/core/scalePolicy";
+import { readableScale, trueScale, type ScalePolicy } from "../src/presentation/scalePolicy";
 import { createOrbTwoBodyAdapter } from "../src/core/twoBodyAdapter";
 import { placementAbout } from "./scenePlacement";
 

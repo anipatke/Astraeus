@@ -4,7 +4,7 @@ import { SimulationClock } from "../src/core/clock";
 import { createEvents } from "../src/core/events";
 import { createProvenance } from "../src/core/provenance";
 import { SampledTrajectory, TrajectoryOutOfRangeError, type TrajectorySample } from "../src/core/sampledTrajectory";
-import { readableScale, trueScale } from "../src/core/scalePolicy";
+import { readableScale, trueScale } from "../src/presentation/scalePolicy";
 
 const T0 = 1_000_000;
 const STEP_MS = 60_000;

@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { PerspectiveCamera, Vector3 } from "three";
 import { createOrbAstronomyAdapter } from "../src/core/astronomyAdapter";
-import { trueScale } from "../src/core/scalePolicy";
+import { trueScale } from "../src/presentation/scalePolicy";
 import { eccentricAnomalyFromMean, eccentricPathTimesUtcMs, pathTimesUtcMs } from "../src/core/sunCentredSources";
 import { DEFAULT_ECCENTRIC_SAMPLE_COUNT, DEFAULT_PATH_SAMPLE_COUNT, validatePathSpec, type PathLayer } from "../src/app/experienceDefinition";
 import { FloatingOrigin } from "../src/app/floatingOrigin";

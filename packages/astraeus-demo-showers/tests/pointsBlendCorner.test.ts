@@ -4,7 +4,7 @@ import { FloatingOrigin } from "astraeus/app/floatingOrigin";
 import { PointsView } from "astraeus/app/PointsView";
 import { eqjToRenderVector } from "astraeus/app/renderCoordinates";
 import { createOrbAstronomyAdapter } from "astraeus/core/astronomyAdapter";
-import { trueScale, type ScalePolicy } from "astraeus/core/scalePolicy";
+import { trueScale, type ScalePolicy } from "astraeus";
 import { buildShowerDefinition } from "./helpers/showerDefinition";
 import { parseShowerSettings } from "../src/experiences/showers/showerSettings";
 import geminidsFile from "../data/showers/geminids.json";

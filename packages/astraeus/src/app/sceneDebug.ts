@@ -2,7 +2,7 @@
 import type { BodyId } from "../core/body";
 import type { SimulationClock } from "../core/clock";
 import { rootBodyId } from "../assets/catalogue";
-import type { ScalePolicy } from "../core/scalePolicy";
+import type { ScalePolicy } from "../presentation/scalePolicy";
 import type { StateResolver } from "../core/stateResolver";
 import type { Camera } from "three";
 import type { PathScreenReadout } from "./PathView";

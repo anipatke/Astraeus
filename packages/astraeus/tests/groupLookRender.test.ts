@@ -10,7 +10,7 @@ import { SceneLabelLayer } from "../src/app/SceneLabels";
 import { applyGroupLooks } from "../src/app/sceneFrame";
 import { createOrbitGroup } from "../src/core/orbitGroup";
 import { createProvenance } from "../src/core/provenance";
-import { trueScale, type ScalePolicy } from "../src/core/scalePolicy";
+import { trueScale, type ScalePolicy } from "../src/presentation/scalePolicy";
 import { createOrbTwoBodyAdapter } from "../src/core/twoBodyAdapter";
 import { checkedGroupLook } from "../src/api/groupLookInput";
 import { placementAbout } from "./scenePlacement";

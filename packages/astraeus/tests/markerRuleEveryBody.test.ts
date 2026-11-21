@@ -5,7 +5,7 @@ import { Scene, sun, type ElementsBodyRecord } from "astraeus";
 import { mountedBodiesOf } from "../src/app/experienceDefinition";
 import { drawnRadii, drawsAsMarker, projectedRadiusPx } from "../src/app/bodyDraw";
 import { catalogue } from "../src/assets/catalogue";
-import { trueScale } from "../src/core/scalePolicy";
+import { trueScale } from "../src/presentation/scalePolicy";
 import { definitionOf } from "../src/api/definitionOf";
 
 const FOV = 45;

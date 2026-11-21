@@ -4,7 +4,7 @@ import { createComposition, earthMoonSystem, jupiterIoSystem, SIDEREAL_MONTH_MS 
 import { catalogue } from "../src/assets/catalogue";
 import { DEFAULT_ORBIT_LOOK, resolveOrbitLook } from "../src/assets/orbitLook";
 import { createOrbAstronomyAdapter } from "../src/core/astronomyAdapter";
-import { readableScale } from "../src/core/scalePolicy";
+import { readableScale } from "../src/presentation/scalePolicy";
 import { FloatingOrigin } from "../src/app/floatingOrigin";
 import { compositionPathView } from "../src/app/PathView";
 import { arcSegmentAlpha, ringAlpha, windowEdgeAlpha } from "../src/app/pathRules";

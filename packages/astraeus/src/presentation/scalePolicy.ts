@@ -1,4 +1,4 @@
-import { EARTH, type BodyId } from "./body";
+import { EARTH, type BodyId } from "../core/body";
 
 /** The three scales the engine offers; `setScale` accepts only these. */
 export type ScaleId = "true-scale" | "readable-scale" | "solar-system";

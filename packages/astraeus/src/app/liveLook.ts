@@ -1,4 +1,4 @@
-import type { ScaleId } from "../core/scalePolicy";
+import type { ScaleId } from "../presentation/scalePolicy";
 /**
  * The looks of a running viewer (O-056 T-262). `skySettingsOf` is the sky as a look lays it over the experience's own; `lookReadOf` reads the looks in force back from the scene's live controls
  * (the one place the Developer drawer, the host's `setLook` and the page address all end up), every one filled in; `applyLook` replaces the whole look. Presentation only (ARCH-02).

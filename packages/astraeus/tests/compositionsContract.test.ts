@@ -8,7 +8,7 @@ import type { CelestialBodyDefinition, StateSourceBinding } from "../src/core/bo
 import { directionFromCenterToSun, directionToSun } from "../src/core/illumination";
 import { createProvenance } from "../src/core/provenance";
 import { earthStateAt, sunPositionFromEarthAt } from "../src/core/referenceCenters";
-import { readableScale, trueScale, type ScalePolicy } from "../src/core/scalePolicy";
+import { readableScale, trueScale, type ScalePolicy } from "../src/presentation/scalePolicy";
 import { createStateResolver } from "../src/core/stateResolver";
 import { createState, type Quaternion, type State } from "../src/core/state";
 import type { Trajectory } from "../src/core/trajectory";

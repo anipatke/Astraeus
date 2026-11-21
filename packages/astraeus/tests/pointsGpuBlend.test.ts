@@ -5,7 +5,7 @@ import { PointsView } from "../src/app/PointsView";
 import { createOrbAstronomyAdapter } from "../src/core/astronomyAdapter";
 import { createProvenance } from "../src/core/provenance";
 import { memberState, type PointGroup } from "../src/core/pointGroup";
-import { readableScale, trueScale } from "../src/core/scalePolicy";
+import { readableScale, trueScale } from "../src/presentation/scalePolicy";
 import { eqjToRenderVector } from "../src/app/renderCoordinates";
 import { sceneOffsetKm } from "../src/app/sceneLayout";
 import { placementAbout } from "./scenePlacement";

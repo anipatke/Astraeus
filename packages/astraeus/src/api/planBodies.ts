@@ -1,6 +1,6 @@
 import { DAY_MS } from "../core/constants";
 import type { BodyId } from "../core/body";
-import { readableScale, solarSystemScale, trueScale, type ScaleId, type ScalePolicy } from "../core/scalePolicy";
+import { readableScale, solarSystemScale, trueScale, type ScaleId, type ScalePolicy } from "../presentation/scalePolicy";
 import { catalogue as builtInCatalogue, bindCatalogue, extendCatalogue, extendCatalogueWithMoons, rootBodyId, type BodyCatalogue } from "../assets/catalogue";
 import { createSceneMoonData } from "../core/moonData";
 import { buildElementsBody, ElementsBodyError, parseElementsBodyRecord, type ElementsBodyRecord } from "../core/elementsBody";

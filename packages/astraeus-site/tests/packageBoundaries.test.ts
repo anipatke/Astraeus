@@ -265,9 +265,9 @@ function deepImportCounts(packagesDir: string): Record<string, number> {
  * a count that rises fails, and a count that falls must be lowered here in the same change. O-059 builds the planets demo and the site on the front door and takes the rest to zero.
  */
 const DEEP_IMPORT_COUNTS: Record<string, number> = {
-  "astraeus-demo-apollo11": 129, // src is on the front door (PUBLIC_API_DEMOS); the rest is tests and tools
+  "astraeus-demo-apollo11": 125, // src is on the front door (PUBLIC_API_DEMOS); the rest is tests and tools
   "astraeus-demo-planets": 0, // on the front door (PUBLIC_API_DEMOS), tests included (O-059 T-270)
-  "astraeus-demo-showers": 65, // src is on the front door; the rest is tests and tools
+  "astraeus-demo-showers": 61, // src is on the front door; the rest is tests and tools
   "astraeus-site": 0, // on the front door, src, tests and tools (O-059 T-272)
 };
 

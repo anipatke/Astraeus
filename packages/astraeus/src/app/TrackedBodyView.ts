@@ -14,7 +14,7 @@ import {
   type Camera,
 } from "three";
 import { dotMaterial } from "./dotMaterial";
-import type { ScalePolicy } from "../core/scalePolicy";
+import type { ScalePolicy } from "../presentation/scalePolicy";
 import type { FloatingOrigin } from "./floatingOrigin";
 import type { PathScreenReadout } from "./PathView";
 import { anchorLabelsOf, markerRadiusUnits, lineAgainstAt, lineBodies, sampleTrackedPositions, stateClampedToBounds, stateIfInBounds, travelledCount, type TrackedBody } from "./mission";

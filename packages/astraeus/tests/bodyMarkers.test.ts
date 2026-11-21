@@ -3,7 +3,7 @@ import { PerspectiveCamera, Vector3 } from "three";
 import { catalogue, extendCatalogue } from "../src/assets/catalogue";
 import { createOrbAstronomyAdapter } from "../src/core/astronomyAdapter";
 import { solarSystemPolicyForTest } from "./scalePolicies";
-import { trueScale } from "../src/core/scalePolicy";
+import { trueScale } from "../src/presentation/scalePolicy";
 import { createStateResolver } from "../src/core/stateResolver";
 import { BUILT_IN_BINDINGS, BUILT_IN_BODIES } from "../src/core/bodies";
 import { createMarker, DEFAULT_BODY_MARKER, drawnRadii, drawsAsMarker, markerOf, markerSettingsOf, projectedRadiusPx } from "../src/app/bodyDraw";

@@ -20,7 +20,7 @@ import { earth, moon } from "../src/api/bodies";
 import type { ViewerHandle } from "../src/api/viewerHandle";
 import type { ViewerChange } from "../src/api/viewerLink";
 import { catalogue } from "../src/assets/catalogue";
-import { readableScale } from "../src/core/scalePolicy";
+import { readableScale } from "../src/presentation/scalePolicy";
 import { createOrbitCameraState } from "../src/app/CameraController";
 import { stepCameraTarget } from "../src/app/sceneCamera";
 import type { SceneTargets } from "../src/app/sceneTargets";

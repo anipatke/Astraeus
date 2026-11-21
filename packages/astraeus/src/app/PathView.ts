@@ -1,6 +1,6 @@
 import { BufferAttribute, BufferGeometry, DoubleSide, Group, Line, LineBasicMaterial, Mesh, MeshBasicMaterial, Vector3, type Camera, type PerspectiveCamera } from "three";
 import type { CenterId } from "../core/body";
-import type { ScalePolicy } from "../core/scalePolicy";
+import type { ScalePolicy } from "../presentation/scalePolicy";
 import { eccentricPathTimesUtcMs, pathTimesUtcMs, samplePositionsKm, windowTimesUtcMs } from "../core/sunCentredSources";
 import type { StateResolver } from "../core/stateResolver";
 import type { Trajectory } from "../core/trajectory";

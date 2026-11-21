@@ -1,4 +1,4 @@
-import { readableScale, trueScale, type ScaleId, type ScalePolicy } from "../core/scalePolicy";
+import { readableScale, trueScale, type ScaleId, type ScalePolicy } from "../presentation/scalePolicy";
 
 export type { ScaleId };
 

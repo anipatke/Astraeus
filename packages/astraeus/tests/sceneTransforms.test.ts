@@ -6,7 +6,7 @@ import { rotateVectorByQuaternion } from "../src/core/bodyOrientation";
 import { directionFromCenterToSun, directionToSun, lunarIlluminatedFraction } from "../src/core/illumination";
 import { MoonTrajectory } from "../src/core/moonTrajectory";
 import { earthStateAt, sunPositionFromEarthAt } from "../src/core/referenceCenters";
-import { readableScale, trueScale, type ScalePolicy } from "../src/core/scalePolicy";
+import { readableScale, trueScale, type ScalePolicy } from "../src/presentation/scalePolicy";
 import { FloatingOrigin } from "../src/app/floatingOrigin";
 import { mapPathKm, pathNeedsRefresh } from "../src/app/pathRules";
 import { DEFAULT_WINDOW_SAMPLE_COUNT } from "../src/app/experienceDefinition";

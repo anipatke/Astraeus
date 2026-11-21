@@ -9,7 +9,7 @@ import { createOrbAstronomyAdapter } from "astraeus/core/astronomyAdapter";
 import { EARTH, MOON } from "astraeus/core/body";
 import { MoonTrajectory } from "astraeus/core/moonTrajectory";
 import { earthStateAt, sunPositionFromEarthAt } from "astraeus/core/referenceCenters";
-import { createSolarSystemScale, readableScale, trueScale, type ScalePolicy } from "astraeus/core/scalePolicy";
+import { createSolarSystemScale, readableScale, trueScale, type ScalePolicy } from "astraeus/presentation/scalePolicy";
 import { buildDebugReadout, overlayRows, type DebugReadout } from "astraeus/app/DebugOverlay";
 import { FloatingOrigin } from "astraeus/app/floatingOrigin";
 import { pathNeedsRefresh } from "astraeus/app/pathRules";

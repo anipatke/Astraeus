@@ -5,7 +5,7 @@ import { JUPITER_VISUAL } from "../src/assets/bodies/jupiter";
 import { createOrbAstronomyAdapter } from "../src/core/astronomyAdapter";
 import { BUILT_IN_BODIES, JUPITER, MARS, MERCURY, VENUS } from "../src/core/bodies";
 import { createStateResolver } from "../src/core/stateResolver";
-import { trueScale } from "../src/core/scalePolicy";
+import { trueScale } from "../src/presentation/scalePolicy";
 import { PLANETS, positionFixture } from "./planetFixtures";
 
 const textureFiles = Object.keys(import.meta.glob("../src/assets/textures/*.jpg", { query: "?url" }));

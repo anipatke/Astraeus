@@ -1,7 +1,7 @@
 // Scene frame: one frame of the scene as named stages over one frame context. The React component keeps refs and effects; the work is here.
 import type { DirectionalLight, PerspectiveCamera } from "three";
 import type { BodyId } from "../core/body";
-import type { ScalePolicy } from "../core/scalePolicy";
+import type { ScalePolicy } from "../presentation/scalePolicy";
 import type { BodyAsset, BodyCatalogue } from "../assets/catalogue";
 import type { AnchorLabelLayer } from "./AnchorLabels";
 import type { BodyParts } from "./BodyView";

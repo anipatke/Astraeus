@@ -24,7 +24,7 @@ import { createSceneResolver } from "../src/app/sceneLayout";
 import { createFrameState } from "../src/app/sceneFrame";
 import { createOrbAstronomyAdapter } from "../src/core/astronomyAdapter";
 import { SimulationClock } from "../src/core/clock";
-import { createSolarSystemScale } from "../src/core/scalePolicy";
+import { createSolarSystemScale } from "../src/presentation/scalePolicy";
 import { bodyIdOf, refFor, useBodyRefs, useOverlayLayers, useSceneDerived, useSceneFrame, useScenePointer } from "../src/app/sceneContentsHooks";
 import { useSceneViews, useSkyStars } from "../src/app/sceneHooks";
 import { SkyView } from "../src/app/SkyView";

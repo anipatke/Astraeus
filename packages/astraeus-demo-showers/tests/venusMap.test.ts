@@ -4,7 +4,7 @@ import { describeBody } from "astraeus/app/bodyDraw";
 import { catalogue } from "astraeus/assets/catalogue";
 import { VENUS_LIGHT, VENUS_MATERIAL, VENUS_TEXTURE, VENUS_VISUAL } from "astraeus/assets/bodies/venus";
 import { textureRightsProblem, textureUrlFor } from "astraeus/assets/licence";
-import { trueScale } from "astraeus/core/scalePolicy";
+import { trueScale } from "astraeus";
 import { buildShowerDefinition } from "./helpers/showerDefinition";
 import { parseShowerSettings } from "../src/experiences/showers/showerSettings";
 import perseidsFile from "../data/showers/perseids.json";

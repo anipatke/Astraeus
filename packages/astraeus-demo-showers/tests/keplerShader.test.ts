@@ -15,7 +15,7 @@ import { fillKeplerRangeKm } from "astraeus/core/keplerElements";
 import { createOrbitGroup } from "astraeus/core/orbitGroup";
 import { createProvenance } from "astraeus/core/provenance";
 import type { PointGroup } from "astraeus/core/pointGroup";
-import { trueScale } from "astraeus/core/scalePolicy";
+import { trueScale } from "astraeus";
 import { createOrbTwoBodyAdapter } from "astraeus/core/twoBodyAdapter";
 import { buildShowerDefinition } from "./helpers/showerDefinition";
 import { parseShowerSettings } from "../src/experiences/showers/showerSettings";

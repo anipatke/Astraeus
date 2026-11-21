@@ -2,7 +2,7 @@ import type { BodyId } from "../core/body";
 import type { Provenance } from "../core/provenance";
 import type { ActivitySourceInput } from "./activity";
 import type { LineStretchInput } from "./pathProvenance";
-import { readableScale, solarSystemScale, trueScale, type ScaleId, type ScalePolicy } from "../core/scalePolicy";
+import { readableScale, solarSystemScale, trueScale, type ScaleId, type ScalePolicy } from "../presentation/scalePolicy";
 import type { State } from "../core/state";
 import { createStateResolver } from "../core/stateResolver";
 import { createOrbAstronomyAdapter } from "../core/astronomyAdapter";

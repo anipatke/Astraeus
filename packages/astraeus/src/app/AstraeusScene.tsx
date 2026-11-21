@@ -7,7 +7,7 @@ import type { DirectionalLight, Group } from "three";
 import type { SimulationClock } from "../core/clock";
 import type { PaceView, Pacing } from "../presentation/pacing";
 import type { BodyId } from "../core/body";
-import type { ScalePolicy } from "../core/scalePolicy";
+import type { ScalePolicy } from "../presentation/scalePolicy";
 import type { StateResolver } from "../core/stateResolver";
 import { catalogue as builtInCatalogue, type BodyAsset, type BodyCatalogue } from "../assets/catalogue";
 import type { SystemComposition } from "../assets/compositions";

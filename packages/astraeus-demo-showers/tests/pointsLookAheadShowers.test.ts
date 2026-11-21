@@ -3,7 +3,7 @@ import { groupsOf } from "astraeus/app/experienceDefinition";
 import { FloatingOrigin } from "astraeus/app/floatingOrigin";
 import { PointsView } from "astraeus/app/PointsView";
 import { createOrbAstronomyAdapter } from "astraeus/core/astronomyAdapter";
-import { trueScale, type ScalePolicy } from "astraeus/core/scalePolicy";
+import { trueScale, type ScalePolicy } from "astraeus";
 import { buildShowerDefinition } from "./helpers/showerDefinition";
 import { parseShowerSettings } from "../src/experiences/showers/showerSettings";
 import perseidsFile from "../data/showers/perseids.json";

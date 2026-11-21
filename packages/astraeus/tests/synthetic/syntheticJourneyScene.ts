@@ -6,7 +6,7 @@
 import { Scene } from "../../src/api/scene";
 import { callisto, dione, earth, enceladus, europa, ganymede, iapetus, io, jupiter, mimas, rhea, saturn, sun, tethys, titan, uranus } from "../../src/api/bodies";
 import type { Provenance } from "../../src/core/provenance";
-import { solarSystemScale } from "../../src/core/scalePolicy";
+import { solarSystemScale } from "../../src/presentation/scalePolicy";
 
 const HOUR_MS = 3_600_000;
 const DAY_MS = 86_400_000;

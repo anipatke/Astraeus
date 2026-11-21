@@ -1,5 +1,5 @@
 import type { BodyId } from "../core/body";
-import type { ScalePolicy } from "../core/scalePolicy";
+import type { ScalePolicy } from "../presentation/scalePolicy";
 import type { TimeBounds } from "../core/trajectory";
 import { isPlanetId, loadPlanetSeries, planetSeriesLoaded, planetSeriesSpan } from "../core/planetSeries";
 import { TimeScaleOutOfRangeError } from "../core/timeScale";

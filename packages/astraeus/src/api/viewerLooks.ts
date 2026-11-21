@@ -1,4 +1,4 @@
-import type { ScaleId } from "../core/scalePolicy";
+import type { ScaleId } from "../presentation/scalePolicy";
 import { SceneError } from "./errors";
 import type { LookInput, LookRead } from "./look";
 import { checkedLook } from "./lookInput";

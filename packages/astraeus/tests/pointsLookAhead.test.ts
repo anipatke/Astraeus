@@ -5,7 +5,7 @@ import { PointsView, SLICE_CHUNK_MEMBERS } from "../src/app/PointsView";
 import { createOrbAstronomyAdapter } from "../src/core/astronomyAdapter";
 import { createProvenance } from "../src/core/provenance";
 import { memberState, type PointGroup } from "../src/core/pointGroup";
-import { readableScale, trueScale } from "../src/core/scalePolicy";
+import { readableScale, trueScale } from "../src/presentation/scalePolicy";
 import { placementAbout } from "./scenePlacement";
 
 // T-073 (I-034): a big group's next fill is computed a few milliseconds per frame ahead of time. Proven on a made-up

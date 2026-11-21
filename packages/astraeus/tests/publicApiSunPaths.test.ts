@@ -7,7 +7,7 @@ import { createOrbAstronomyAdapter } from "../src/core/astronomyAdapter";
 import { createStateResolver } from "../src/core/stateResolver";
 import { createState } from "../src/core/state";
 import { createOrbTwoBodyAdapter } from "../src/core/twoBodyAdapter";
-import { trueScale } from "../src/core/scalePolicy";
+import { trueScale } from "../src/presentation/scalePolicy";
 import { FloatingOrigin } from "../src/app/floatingOrigin";
 import { relativeTrailKm } from "../src/app/pathRules";
 import { TrackedBodyView } from "../src/app/TrackedBodyView";

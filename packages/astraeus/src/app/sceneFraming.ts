@@ -1,7 +1,7 @@
 // Scene framing: default distances and fit rules for tracked bodies, groups and bare scenes.
 import { catalogue, type BodyCatalogue } from "../assets/catalogue";
 import type { BodyId } from "../core/body";
-import type { ScalePolicy } from "../core/scalePolicy";
+import type { ScalePolicy } from "../presentation/scalePolicy";
 import { TRACK_LAYER } from "./TrackedBodyView";
 import { DEFAULT_CAMERA_FAR, type CameraReach } from "./experienceDefinition";
 

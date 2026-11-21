@@ -4,7 +4,7 @@ import { earthMoonSystem, SIDEREAL_MONTH_MS } from "astraeus/assets/compositions
 import { createOrbAstronomyAdapter } from "astraeus/core/astronomyAdapter";
 import type { CenterId } from "astraeus/core/body";
 import { createProvenance } from "astraeus/core/provenance";
-import { readableScale, trueScale } from "astraeus/core/scalePolicy";
+import { readableScale, trueScale } from "astraeus";
 import { createState, EQJ } from "astraeus/core/state";
 import type { Trajectory } from "astraeus/core/trajectory";
 import { samplePathKm } from "astraeus/core/sunCentredSources";

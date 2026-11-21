@@ -1,4 +1,4 @@
-import type { ScaleId } from "../core/scalePolicy";
+import type { ScaleId } from "../presentation/scalePolicy";
 import type { LookInput, LookRead } from "./look";
 import type { GroupLookInput, GroupLookRead } from "./groupLookInput";
 import type { PickChange } from "./pickerInput";

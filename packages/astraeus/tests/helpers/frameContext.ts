@@ -2,7 +2,7 @@
 import { Group, PerspectiveCamera } from "three";
 import { createOrbAstronomyAdapter } from "../../src/core/astronomyAdapter";
 import { SimulationClock } from "../../src/core/clock";
-import { readableScale } from "../../src/core/scalePolicy";
+import { readableScale } from "../../src/presentation/scalePolicy";
 import type { BodyId } from "../../src/core/body";
 import { catalogue } from "../../src/assets/catalogue";
 import { createOrbitCameraState } from "../../src/app/CameraController";

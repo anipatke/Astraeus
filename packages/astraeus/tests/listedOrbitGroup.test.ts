@@ -7,7 +7,7 @@ import { FloatingOrigin } from "../src/app/floatingOrigin";
 import { PointsView } from "../src/app/PointsView";
 import { SimulationClock } from "../src/core/clock";
 import { createOrbAstronomyAdapter } from "../src/core/astronomyAdapter";
-import { trueScale } from "../src/core/scalePolicy";
+import { trueScale } from "../src/presentation/scalePolicy";
 import { AstraeusShell } from "../src/shell/AstraeusShell";
 import { findCameraPreset } from "../src/shell/objectModel";
 import { LISTED_LOOK, LISTED_MEMBER_COUNT, syntheticListedDefinition, syntheticListedLayer } from "./synthetic/syntheticListedDefinition";

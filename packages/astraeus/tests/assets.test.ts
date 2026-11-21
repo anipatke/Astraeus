@@ -4,7 +4,7 @@ import { catalogue, createCatalogue, type BodyAsset, type VisualEntry } from "..
 import { BUILT_IN_BINDINGS, BUILT_IN_BODIES, EARTH, MOON, SUN } from "../src/core/bodies";
 import type { CelestialBodyDefinition, StateSourceBinding } from "../src/core/body";
 import { createProvenance } from "../src/core/provenance";
-import { readableScale, trueScale } from "../src/core/scalePolicy";
+import { readableScale, trueScale } from "../src/presentation/scalePolicy";
 import { createStateResolver } from "../src/core/stateResolver";
 import { createOrbAstronomyAdapter } from "../src/core/astronomyAdapter";
 import { createMarker, describeBody, drawnRadii, markerOf } from "../src/app/bodyDraw";

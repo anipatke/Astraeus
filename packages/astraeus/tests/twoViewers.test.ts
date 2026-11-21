@@ -38,7 +38,7 @@ import { PICTURES } from "astraeus-data";
 import { describeBody } from "../src/app/bodyDraw";
 import { catalogue } from "../src/assets/catalogue";
 import { milkyWayPicture } from "../src/assets/sky";
-import { trueScale } from "../src/core/scalePolicy";
+import { trueScale } from "../src/presentation/scalePolicy";
 
 (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = false;
 

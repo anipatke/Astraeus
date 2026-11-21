@@ -1,7 +1,7 @@
 // The debug readout's values, built every frame by the scene. The panel that draws them is DebugOverlay.tsx (loaded on demand, T-179).
 import { directionFromCenterToSun, directionToSun, illuminatedFraction } from "../core/illumination";
 import type { CenteredPosition, State } from "../core/state";
-import type { ScalePolicy } from "../core/scalePolicy";
+import type { ScalePolicy } from "../presentation/scalePolicy";
 import type { FloatingOrigin } from "./floatingOrigin";
 import type { PlacedState } from "./sceneLayout";
 

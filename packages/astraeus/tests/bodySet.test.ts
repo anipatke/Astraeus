@@ -12,7 +12,7 @@ import { bodySetMemberAbsolute } from "../src/app/sceneTargets";
 import type { ChebyshevEphemeris } from "../src/core/chebyshevEphemeris";
 import { createEphemerisGroup } from "../src/core/ephemerisGroup";
 import { createProvenance } from "../src/core/provenance";
-import { trueScale } from "../src/core/scalePolicy";
+import { trueScale } from "../src/presentation/scalePolicy";
 import { createState, EQJ } from "../src/core/state";
 import { placementAbout } from "./scenePlacement";
 

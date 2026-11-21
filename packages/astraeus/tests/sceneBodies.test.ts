@@ -3,7 +3,7 @@ import { Group, PerspectiveCamera } from "three";
 import { catalogue } from "../src/assets/catalogue";
 import type { BodyId } from "../src/core/body";
 import type { State } from "../src/core/state";
-import { readableScale } from "../src/core/scalePolicy";
+import { readableScale } from "../src/presentation/scalePolicy";
 import type { BodyParts } from "../src/app/BodyView";
 import { DEFAULT_BODY_MARKER } from "../src/app/bodyDraw";
 import { FloatingOrigin } from "../src/app/floatingOrigin";

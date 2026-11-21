@@ -9,7 +9,7 @@ import type { ExperienceDefinition } from "../../src/app/experienceDefinition";
 import { Scene } from "../../src/api/scene";
 import { definitionOf } from "../../src/api/definitionOf";
 import { earth } from "../../src/api/bodies";
-import { trueScale } from "../../src/core/scalePolicy";
+import { trueScale } from "../../src/presentation/scalePolicy";
 
 export const VIEWS_START_UTC_MS = Date.parse("2026-01-01T00:00:00Z");
 const HOUR_MS = 3_600_000;

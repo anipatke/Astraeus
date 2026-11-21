@@ -6,7 +6,7 @@ import { describeBody } from "../src/app/bodyDraw";
 import { catalogue } from "../src/assets/catalogue";
 import { NO_PICTURES, mergePictures, picturesProblem, textureOf } from "../src/assets/pictures";
 import { milkyWayPicture } from "../src/assets/sky";
-import { trueScale } from "../src/core/scalePolicy";
+import { trueScale } from "../src/presentation/scalePolicy";
 import { Scene } from "../src/api/scene";
 import { saturn, titan } from "../src/api/bodies";
 import type { DataSource } from "../src/api/data";
