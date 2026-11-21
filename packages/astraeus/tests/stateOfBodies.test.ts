@@ -84,12 +84,10 @@ describe("stateOf for any body", () => {
     const scene = new Scene().addBody(sun).addBodyFromElements(record);
     expect(code(() => scene.stateOf("earth", T))).toBe("unknown-body");
     // Catalogue sources are unbounded (the viewer draws them at any date), so only a path has a data range.
-    const path = new Scene()
-      .addBody(earth)
-      .addTrajectory({
-        id: "probe",
-        samples: [0, 1].map((m) => ({ time: T + m * 60_000, positionKm: [8_000 + m, 0, 0], velocityKmS: [1, 0, 0] })),
-      });
+    const path = new Scene().addBody(earth).addTrajectory({
+      id: "probe",
+      samples: [0, 1].map((m) => ({ time: T + m * 60_000, positionKm: [8_000 + m, 0, 0], velocityKmS: [1, 0, 0] })),
+    });
     expect(path.stateOf("probe", T + 30_000).positionKm[0]).toBeCloseTo(8_000.5, 6);
     expect(code(() => path.stateOf("probe", T + 5 * 60_000))).toBe("bad-time");
     expect(code(() => scene.stateOf("rock", Date.UTC(2040, 0, 1)))).toBe("none");

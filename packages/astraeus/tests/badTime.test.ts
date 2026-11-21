@@ -134,30 +134,26 @@ describe("bad-time on every public time input (I-176)", () => {
     [
       "addTrajectory anchor",
       (t: number) =>
-        new Scene()
-          .addBody(earth)
-          .addTrajectory({
-            id: "x",
-            center: "earth",
-            samples: [sample(0), sample(1)],
-            anchors: [{ id: "a", time: t }],
-          }),
+        new Scene().addBody(earth).addTrajectory({
+          id: "x",
+          center: "earth",
+          samples: [sample(0), sample(1)],
+          anchors: [{ id: "a", time: t }],
+        }),
       "bad-anchor",
     ],
     [
       "addStoryPanels at.time",
       (t: number) =>
-        new Scene()
-          .addBody(earth)
-          .addStoryPanels([
-            {
-              id: "p",
-              at: { time: t },
-              title: "T",
-              body: "B",
-              provenance: { sourceType: "illustrative", sources: ["s"], accuracy: "a", notes: "n" },
-            },
-          ]),
+        new Scene().addBody(earth).addStoryPanels([
+          {
+            id: "p",
+            at: { time: t },
+            title: "T",
+            body: "B",
+            provenance: { sourceType: "illustrative", sources: ["s"], accuracy: "a", notes: "n" },
+          },
+        ]),
       "bad-panels",
     ],
   ] as const)("%s refuses a fractional and an out-of-range time with its own code %s", (_call, run, code) => {

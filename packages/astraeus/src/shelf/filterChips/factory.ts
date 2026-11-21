@@ -135,22 +135,18 @@ export function filterChips(input: FilterChipsInput): BlockPart<"filterChips"> {
         },
         setSelected: (values: readonly string[]) => {
           const now = state("FilterChipsControl.setSelected");
-          link
-            .cell("FilterChipsControl.setSelected")
-            .set({
-              choices: now.choices,
-              selected: selectionOf(values, now.choices, several, "FilterChipsControl.setSelected"),
-            } satisfies FilterChipsState);
+          link.cell("FilterChipsControl.setSelected").set({
+            choices: now.choices,
+            selected: selectionOf(values, now.choices, several, "FilterChipsControl.setSelected"),
+          } satisfies FilterChipsState);
         },
         setChoices: (next: readonly ChipChoice[]) => {
           const now = state("FilterChipsControl.setChoices");
           const replaced = choicesOf(next, "FilterChipsControl.setChoices");
-          link
-            .cell("FilterChipsControl.setChoices")
-            .set({
-              choices: replaced,
-              selected: replaced.map(({ value }) => value).filter((value) => now.selected.includes(value)),
-            } satisfies FilterChipsState);
+          link.cell("FilterChipsControl.setChoices").set({
+            choices: replaced,
+            selected: replaced.map(({ value }) => value).filter((value) => now.selected.includes(value)),
+          } satisfies FilterChipsState);
         },
         onSelect: (listener: (selection: ChipSelection) => void) =>
           link.listen((event) => listener(event as ChipSelection)),

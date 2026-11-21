@@ -101,23 +101,21 @@ describe("addGroup", () => {
     expect(definition.experience.storyPanels?.panels.map((panel) => panel.objectId)).toEqual(["ring"]);
     expect(() =>
       definitionOf(
-        new Scene()
-          .addBody(earth)
-          .addStoryPanels([
-            {
-              id: "p",
-              at: { time: "2026-01-01T00:00:00Z" },
-              title: "x",
-              body: ["y"],
-              provenance: {
-                sourceType: "illustrative" as const,
-                sources: ["z"],
-                accuracy: "None claimed.",
-                notes: "Made up.",
-              },
-              object: "ring",
+        new Scene().addBody(earth).addStoryPanels([
+          {
+            id: "p",
+            at: { time: "2026-01-01T00:00:00Z" },
+            title: "x",
+            body: ["y"],
+            provenance: {
+              sourceType: "illustrative" as const,
+              sources: ["z"],
+              accuracy: "None claimed.",
+              notes: "Made up.",
             },
-          ]),
+            object: "ring",
+          },
+        ]),
       ),
     ).toThrow();
   });

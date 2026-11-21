@@ -64,14 +64,12 @@ describe("camera.fitOrbit", () => {
   });
 
   it("takes a body reference or an id, and a long-period comet added from elements", () => {
-    const comet = new Scene()
-      .addBody(sun)
-      .addBodyFromElements({
-        ...record,
-        id: "long-comet",
-        label: "Long comet",
-        elements: { ...record.elements, semiMajorAxisAu: 26, eccentricity: 0.96 },
-      });
+    const comet = new Scene().addBody(sun).addBodyFromElements({
+      ...record,
+      id: "long-comet",
+      label: "Long comet",
+      elements: { ...record.elements, semiMajorAxisAu: 26, eccentricity: 0.96 },
+    });
     comet.camera.fitOrbit("long-comet");
     expect(reachAt(comet, 1280, 800).maxFocusDistance!).toBeGreaterThan(1e6);
     const byRef = new Scene().addBody(sun).addBody(earth);

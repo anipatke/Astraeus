@@ -86,13 +86,11 @@ const storyPanel = (extra: object = {}) =>
 // For each row, a call that gives the old name alone: every other field is valid under its new name.
 const DRIVERS: Record<string, (old: string) => () => unknown> = {
   "MoonPositions.centre": (old) => () =>
-    new Scene()
-      .addBody(jupiter)
-      .load({
-        data: [
-          { ...moonData({}), moonPositions: { [old]: "jupiter", loadIndex: async () => ({}), chunkUrls: {} } } as never,
-        ],
-      }),
+    new Scene().addBody(jupiter).load({
+      data: [
+        { ...moonData({}), moonPositions: { [old]: "jupiter", loadIndex: async () => ({}), chunkUrls: {} } } as never,
+      ],
+    }),
   "TextureRefDesktop.minViewportWidth": (old) => () =>
     new Scene().addBody(earth).load({ data: [withPicture({ [old]: 768 })] }),
   "PacingSpan.from": (old) => timeline([{ [old]: at(1), end: at(2), rate: 5 }]),

@@ -87,18 +87,16 @@ describe("anchors", () => {
     }));
     const body = trackedBodiesOf(
       definitionOf(
-        new Scene()
-          .addBody(earth)
-          .addTrajectory({
-            id: "marker",
-            label: "Marker",
-            center: "earth",
-            samples: many,
-            anchors: Array.from({ length: 12 }, (_, index) => ({
-              id: `mark-${index + 1}`,
-              time: T0 + (index + 1) * 40 * MIN,
-            })),
-          }),
+        new Scene().addBody(earth).addTrajectory({
+          id: "marker",
+          label: "Marker",
+          center: "earth",
+          samples: many,
+          anchors: Array.from({ length: 12 }, (_, index) => ({
+            id: `mark-${index + 1}`,
+            time: T0 + (index + 1) * 40 * MIN,
+          })),
+        }),
       ),
     )[0]!;
     expect(body.anchorLabels).toEqual(Array.from({ length: 12 }, (_, index) => `mark-${index + 1}`));

@@ -30,33 +30,31 @@ const calls = {
   addBodyFromElements: {
     code: "bad-body",
     build: (shownDuring: unknown) =>
-      new Scene()
-        .addBody(sun)
-        .addBodyFromElements(
-          {
-            id: "rock",
-            label: "Rock",
-            elements: {
-              semiMajorAxisAu: 2.2,
-              eccentricity: 0.1,
-              inclinationDeg: 5,
-              ascendingNodeDeg: 20,
-              argumentOfPerihelionDeg: 30,
-              meanAnomalyDeg: 10,
-            },
-            epoch: { jd: 2461000.5, timeScale: "TDB", ttMinusUtcSeconds: 69.184 },
-            plane: "ecliptic-j2000",
-            source: { name: "Made up", url: "https://example.invalid", solution: "none", accessed: "2026-01-01" },
-            marker: { color: "#ffaa00", sizePx: 6 },
-            accuracy: {
-              classification: "approximate",
-              statement: "Made up.",
-              valid: { start: "2025-01-01T00:00:00Z", end: "2030-01-01T00:00:00Z" },
-              limitations: ["Made up."],
-            },
+      new Scene().addBody(sun).addBodyFromElements(
+        {
+          id: "rock",
+          label: "Rock",
+          elements: {
+            semiMajorAxisAu: 2.2,
+            eccentricity: 0.1,
+            inclinationDeg: 5,
+            ascendingNodeDeg: 20,
+            argumentOfPerihelionDeg: 30,
+            meanAnomalyDeg: 10,
           },
-          { shownDuring: shownDuring as never },
-        ),
+          epoch: { jd: 2461000.5, timeScale: "TDB", ttMinusUtcSeconds: 69.184 },
+          plane: "ecliptic-j2000",
+          source: { name: "Made up", url: "https://example.invalid", solution: "none", accessed: "2026-01-01" },
+          marker: { color: "#ffaa00", sizePx: 6 },
+          accuracy: {
+            classification: "approximate",
+            statement: "Made up.",
+            valid: { start: "2025-01-01T00:00:00Z", end: "2030-01-01T00:00:00Z" },
+            limitations: ["Made up."],
+          },
+        },
+        { shownDuring: shownDuring as never },
+      ),
     id: "rock",
   },
   addTrajectory: {
