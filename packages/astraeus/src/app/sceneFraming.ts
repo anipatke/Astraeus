@@ -2,6 +2,7 @@
 import { catalogue, type BodyCatalogue } from "../assets/catalogue";
 import type { BodyId } from "../core/body";
 import type { ScalePolicy } from "../core/scalePolicy";
+import { TRACK_LAYER } from "./TrackedBodyView";
 import { DEFAULT_CAMERA_FAR, type CameraReach } from "./experienceDefinition";
 
 /** A tracked body is a point: the camera may come very close and is framed in Earth radii. */
@@ -139,10 +140,17 @@ export function scaleLength(policy: ScalePolicy, km: number): number {
 /** First render layer used for a lit body; layer 0 holds shared lines and TRACK_LAYER holds overlays. */
 const FIRST_BODY_LAYER = 1;
 const MAX_LAYER = 31;
+/** Most lit spheres a scene can draw: one per render layer from `FIRST_BODY_LAYER` to `MAX_LAYER`, less the overlay layer (`TRACK_LAYER`) when it lies inside that range. The one copy of the limit. */
+export const MAX_LIT_BODIES = MAX_LAYER - FIRST_BODY_LAYER + 1 - (TRACK_LAYER >= FIRST_BODY_LAYER && TRACK_LAYER <= MAX_LAYER ? 1 : 0);
+
+/** The bodies that need a lit-sphere layer: every body not drawn as a marker. `assignBodyLayers` and the build-time check count the same list. */
+export function litBodiesOf(bodies: readonly BodyId[], source: BodyCatalogue): readonly BodyId[] {
+  return bodies.filter((id) => source.get(id).visual.kind !== "marker");
+}
 
 /**
  * One render layer per lit sphere, in draw order, skipping the overlay layer; markers draw on the overlay layer.
- * Earth and the Moon keep layers 1 and 2.
+ * Earth and the Moon keep layers 1 and 2. The guard below is unreachable from the public API: `assembleScene` refuses more than `MAX_LIT_BODIES` first.
  */
 export function assignBodyLayers(bodies: readonly BodyId[], overlayLayer: number, source: BodyCatalogue = catalogue): ReadonlyMap<BodyId, number> {
   const layers = new Map<BodyId, number>();
@@ -153,7 +161,7 @@ export function assignBodyLayers(bodies: readonly BodyId[], overlayLayer: number
       continue;
     }
     if (next === overlayLayer) next += 1;
-    if (next > MAX_LAYER) throw new RangeError(`a scene draws at most ${MAX_LAYER - 1} lit bodies; "${id}" would need layer ${next}`);
+    if (next > MAX_LAYER) throw new RangeError(`a scene draws at most ${MAX_LIT_BODIES} lit bodies; "${id}" would need layer ${next}`);
     layers.set(id, next);
     next += 1;
   }

@@ -423,6 +423,7 @@ Every call that refuses its input throws a `SceneError`, a `RangeError` with a s
 | `bad-data` | A data package passed to the viewer is malformed or cannot be read, for example moon positions that name a planet without a moon system, or a file or address that does not load. |
 | `bad-scene` | What was given as a scene is not a `Scene` (`mount`, `AstraeusScene`, a check or load of something else). |
 | `bad-scale` | The scale is not one of the engine's scales, or does not suit this scene. |
+| `too-many-bodies` | The scene holds more lit bodies (spheres, not markers) than the viewer can draw (30); drop some or draw them as markers. |
 | `missing-data` | Position data a body needs was not given to the viewer: pass its data package. |
 | `not-mounted` | The viewer is not drawn yet, or has been unmounted: a handle call before `ready` or after `unmount`. |
 | `out-of-span` | The timeline, or a moment asked of `stateOf`, reaches outside the years a body's data covers (a planet's series or a moon's data package). |

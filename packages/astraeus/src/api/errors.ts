@@ -14,6 +14,8 @@ export type SceneErrorCode =
   | "bad-scene"
   /** The scale is not one of the engine's scales, or does not suit this scene. */
   | "bad-scale"
+  /** The scene holds more lit bodies (spheres, not markers) than the viewer can draw (30); drop some or draw them as markers. */
+  | "too-many-bodies"
   /** Position data a body needs was not given to the viewer: pass its data package. */
   | "missing-data"
   /** The viewer is not drawn yet, or has been unmounted: a handle call before `ready` or after `unmount`. */

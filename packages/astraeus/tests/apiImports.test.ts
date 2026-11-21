@@ -22,6 +22,7 @@ const ALLOWED: Readonly<Record<string, string>> = {
   "app/liveLook": "the look reader: `Scene.look` states the looks a fresh viewer opens with through the same resolvers the viewer uses (T-319)",
   "app/shelfContract": "the shelf contract: the internal shape of a part descriptor (its public fields and the view that draws it) that `Scene.addParts` stores and the definition carries",
   "app/views": "the definition contract: view places and camera rules (the viewer's own settings shape)",
+  "app/sceneFraming": "the viewer limit: the one constant for how many lit bodies the viewer draws, which the build checks the scene against (T-345)",
   "app/viewHiding": "the definition contract: which objects a view hides, so the opening look-out checks its direction id against the opening view as setCamera checks the showing one (I-169)",
   "shell/metrics": "the definition contract: the Metric and RateMetric types",
   "shell/experience": "the definition contract: ExperienceObject and ExperienceConfig, what the scene hands the shell",

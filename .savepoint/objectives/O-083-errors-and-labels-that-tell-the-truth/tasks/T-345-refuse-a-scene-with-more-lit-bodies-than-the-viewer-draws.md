@@ -2,7 +2,7 @@
 id: T-345
 title: Refuse a scene with more lit bodies than the viewer draws
 objective: O-083
-status: planned
+status: done
 depends_on: [{task: T-344, requires: clear}]
 check_waiver: {task: T-345, reason: 'Owner said "work through this list of objectives one by one. Orchestrate each objective to completion" (G-024 decision 7): standing orchestration rules waive the optional step checks; the mandatory Full Objective Check covers the whole diff.', actor: {role: owner, session: orchestrate-g024-20261121}, recorded_at: '2026-11-21T11:22:41Z'}
 owner_validation: {required: false}
@@ -66,8 +66,24 @@ Focused: `npx vitest run packages/astraeus/tests/publicErrorContract.test.ts pac
 
 ## Technical Evidence
 
-Pending execution.
+| Done When | Evidence |
+|---|---|
+| One exported limit | `MAX_LIT_BODIES` in `app/sceneFraming.ts`, derived from `MAX_LAYER`, `FIRST_BODY_LAYER`, `TRACK_LAYER`; `assignBodyLayers` message uses it; `litBodiesOf` is the shared lit rule. No second 30. |
+| `assembleScene` throws `too-many-bodies` naming count, limit, first over | `tests/publicErrorContract.test.ts` "31 lit bodies -> too-many-bodies from check()" |
+| mount throws it | `tests/tooManyBodiesMount.test.ts` (happy-dom; new file, because publicErrorContract runs without a DOM and mount needs one) |
+| Code + doc, table, lock | `errors.ts` (after `bad-scale`); `npm run api:errors` (one new README row); `npm run api:lock` (diff only the SceneErrorCode signature line) |
+| Internal guard kept | `assignBodyLayers` RangeError unchanged, comment says unreachable from the public API |
+| 30 lit + markers no throw | same file, "30 lit bodies plus marker bodies do not throw" (5 elements bodies, which are markers) |
+| Existing tests unchanged | full suite green incl. bodyMarkers, compositionsContract; only change to an existing test file: one entry added to the ALLOWED list in `tests/apiImports.test.ts` (new `app/sceneFraming` import from api) |
+
+Lit bodies in the rows: the built-in catalogue has only 25 lit bodies and elements bodies are always markers, so the rows use jupiter, saturn, uranus, neptune plus listed moons (spheres) with data packages declared (`provides`). Failing-first: the check row first ran against the old code with no throw (31 elements bodies, which turned out markers; then 31 giants+moons before the change was not re-run after finalising rows because the code was already in); not shown as a clean RangeError.
+
+Reads beyond Context Files: tests/publicErrorContract.test.ts, tests/apiImports.test.ts (add allowlist entry), src/assets/catalogue.ts (why elements bodies are markers).
+
+Gates (flock): lint clean, typecheck clean, build ok, tests 299 files / 4997 passed, 2 skipped, 0 failed. Files: src/app/sceneFraming.ts, src/api/assembleScene.ts, src/api/errors.ts, README.md, api-surface.lock.json, tests/publicErrorContract.test.ts, tests/tooManyBodiesMount.test.ts (new), tests/apiImports.test.ts (allowlist). Limitation: no browser run.
 
 ## Drift Notes
 
 Record for Design reconciliation: the lit-body limit is now a build-time `too-many-bodies` refusal.
+
+Coordinator (orchestrate-g024-20261121): red-first shown by the coordinator: with HEAD's `api/assembleScene.ts` swapped in, "31 lit bodies -> too-many-bodies from check()" and "... from mount" fail (2 failed, 30 passed); with the change, 32 passed. Hand-off gates green (lint, typecheck, build; `npm test` 299 files, 4997 passed). The `apiImports` ALLOWED entry is that list's own mechanism, not a setup change. `status: done` set by the coordinator under the standing orchestration rule ("I mark them as they pass", O-038) and G-024 decision 7.

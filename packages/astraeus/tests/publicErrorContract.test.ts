@@ -5,7 +5,7 @@ import { pathToFileURL } from "node:url";
 import { describe, expect, it } from "vitest";
 import jupiterIndex from "astraeus-data-jupiter/index.json";
 import marsIndex from "astraeus-data-mars/index.json";
-import { Scene, SceneError, earth, io, jupiter, mars, mercury, neptune, parseElementsBodyRecord, phobos, saturn, sun, triton, uranus, venus, mount, type DataSource } from "astraeus";
+import { Scene, SceneError, earth, io, jupiter, mars, mercury, neptune, parseElementsBodyRecord, phobos, saturn, sun, triton, uranus, venus, mount, listedMoons, type DataSource } from "astraeus";
 
 const folder = `${dirname(createRequire(import.meta.url).resolve("astraeus-data-jupiter/package.json"))}/data/jupiter-moons/`;
 const jupiterData: DataSource = {
@@ -94,5 +94,31 @@ describe("T-344: raw throws are coded", () => {
   });
   it("load of a non-Scene's route (definitionOf) and a checkable Scene still work", () => {
     expect(() => Scene.prototype.check.call(goodScene())).not.toThrow();
+  });
+});
+
+// T-345: more lit spheres than the viewer has render layers for is refused when the scene is built (check, mount), not as a raw RangeError during render.
+// The built-in catalogue holds 25 lit bodies, so the lit bodies here are the four giant planets plus listed moons (spheres), which any scene may add; elements bodies are markers (overlay layer) and are not counted.
+const GIANTS = ["uranus", "saturn", "neptune", "jupiter"];
+const litIds = (n: number): string[] => [...GIANTS, ...GIANTS.flatMap((planet) => listedMoons(planet).map((moon) => moon.id))].slice(0, n);
+const MARKER = { id: "x", label: "X", elements: { semiMajorAxisAu: 2, eccentricity: 0.1, inclinationDeg: 5, ascendingNodeDeg: 100, argumentOfPerihelionDeg: 60, meanAnomalyDeg: 200 }, epoch: { jd: 2_461_000.5, timeScale: "TDB" as const, ttMinusUtcSeconds: 69.184 }, plane: "ecliptic-j2000" as const, source: { name: "Invented Survey", url: "https://example.invalid/x", solution: "A", accessed: "2026-10-24" }, accuracy: { classification: "indicative" as const, statement: "Made up.", valid: { start: "2025-01-01T00:00:00Z", end: "2027-01-01T00:00:00Z" }, limitations: ["Invented for a test."] }, marker: { color: "#ff9966", sizePx: 8 } };
+const litScene = (lit: number, markers = 0): Scene => {
+  const ids = litIds(lit);
+  expect(ids).toHaveLength(lit);
+  const scene = new Scene().addBody(sun).setTime(OPEN);
+  for (const id of ids) scene.addBody(id);
+  for (let k = 0; k < markers; k++) scene.addBodyFromElements({ ...MARKER, id: `marker-${k}`, label: `Marker ${k}` });
+  return scene;
+};
+const allData: DataSource[] = GIANTS.map((planet) => ({ name: `astraeus-data-${planet}`, provides: listedMoons(planet).map((moon) => moon.id) }));
+const catchOf = (run: () => unknown): unknown => { try { run(); } catch (error) { return error; } return undefined; };
+describe("T-345: too many lit bodies", () => {
+  it("31 lit bodies -> too-many-bodies from check()", () => {
+    const thrown = catchOf(() => litScene(31).check({ data: allData }));
+    expect(thrown).toBeInstanceOf(SceneError);
+    expect((thrown as SceneError).code).toBe("too-many-bodies");
+  });
+  it("30 lit bodies plus marker bodies do not throw", () => {
+    expect(() => litScene(30, 5).check({ data: allData })).not.toThrow();
   });
 });

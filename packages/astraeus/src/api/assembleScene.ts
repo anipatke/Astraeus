@@ -6,6 +6,7 @@ import { TimeScaleOutOfRangeError } from "../core/timeScale";
 import { catalogue as builtInCatalogue } from "../assets/catalogue";
 import { createComposition } from "../assets/compositions";
 import { mergePictures } from "../assets/pictures";
+import { MAX_LIT_BODIES, litBodiesOf } from "../app/sceneFraming";
 import { bodyMetrics, type BodyMetricKind } from "../app/bodyMetrics";
 import type { ExperienceDefinition, GroupLayer, PathLayer } from "../app/experienceDefinition";
 import type { LookInput } from "./look";
@@ -109,6 +110,8 @@ export function assembleScene(parts: ScenePlanners, data: readonly DataSource[])
   bodySets.checkData(data);
   groupPlan.checkReadouts();
   const ids = [...plan.bodies.keys()];
+  const lit = litBodiesOf(ids, plan.catalogue);
+  if (lit.length > MAX_LIT_BODIES) throw new SceneError("too-many-bodies", `the scene holds ${lit.length} lit bodies but the viewer draws at most ${MAX_LIT_BODIES}; "${lit[MAX_LIT_BODIES]}" is the first over the limit (drop bodies, or give them a marker)`);
   const paths = plan.moonPaths();
   const sunCentred = plan.checkSunCentred(ids);
   plan.checkSolarSystemScale(parts.scale, sunCentred);
