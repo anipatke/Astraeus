@@ -32,3 +32,17 @@ export function waitForSettledCamera(
   done?: (reading: { sky: boolean; [key: string]: unknown }) => boolean,
   options?: { timeout?: number; polls?: number; what?: string },
 ): Promise<Record<string, unknown>>;
+export function requestDiagnostics(page: unknown, on: boolean): Promise<void>;
+export interface FrameMetrics {
+  seconds: number;
+  ScriptDuration: number;
+  TaskDuration: number;
+  LayoutCount: number;
+  LayoutDuration: number;
+  RecalcStyleCount: number;
+  RecalcStyleDuration: number;
+  JSHeapUsedSizeChange: number;
+  framesDrawnPerSecond: number;
+}
+/** Per-second deltas of the browser's script, task, layout and style-recalc metrics, the heap change and frames drawn over a window (default 10 s). */
+export function frameMetrics(page: unknown, windowMs?: number): Promise<FrameMetrics>;

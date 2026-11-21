@@ -2,7 +2,7 @@
 id: T-394
 title: Record frame-loop profiles before the changes
 objective: O-087
-status: planned
+status: done
 depends_on: []
 owner_validation: {required: false}
 check_waiver: {task: T-394, reason: 'Owner said "work through this list of objectives one by one. Orchestrate each objective to completion" (G-024 decision 7) and "carry on orchestrating G-024" (2026-11-22): standing orchestration rules waive the optional step checks; the mandatory Full Objective Check covers the whole diff.', actor: {role: owner, session: orchestrate-g024-20261122}, recorded_at: '2026-11-21T22:11:52Z'}
@@ -66,8 +66,24 @@ Focused: `npx vitest run packages/astraeus-site/tests/browserDriverGuard.test.ts
 
 ## Technical Evidence
 
-Pending execution.
+| Done When | Evidence |
+|---|---|
+| One command builds the public site once, one Chromium, cases in sequence | `run-profile.mjs` -> `runSet("profile", [step], undefined, "steps")` with one `public: true` step; run exit=0, 349 s, error-lines=0 |
+| 8 cases (2 scenes x paused/playing x diagnostics on/off), 1280x800, fixed `t=` address, first draw then 2 s settle | `profile-frame-loop.mjs`; `docs/evidence/o087-frame-profile/before.json` holds 8 cases |
+| CDP metrics deltas per second over 10 s, 3 runs, median/min/max | `frameMetrics` in driver.mjs; before.json fields per case |
+| `requestDiagnostics(page, on)` init script | driver.mjs; note in before.json says off rows equal on rows pre draft 02 |
+| Driver helpers, no selectors in script; guard passes | `npx vitest run browserDriverGuard browserAssertions`: 10 passed |
+| Not a STEPS entry; own one-step set with "steps" tier | `browser-steps.mjs` untouched |
+| Output to ASTRAEUS_PROFILE_OUT, copied to before.json with commit, cores, Chromium, command | before.json: commit f785544013f401e64dd5d776625ba9a603921aa1, cores 16 |
+| Gates | lint, typecheck, build clean; tests 317 files, 5118 passed, 3 skipped |
+
+Files: packages/astraeus-site/tools/validate/{driver.mjs,driver.d.mts,profile-frame-loop.mjs,run-profile.mjs}, docs/evidence/o087-frame-profile/before.json. Untracked run folder docs/evidence/profile-steps-20261121T221322Z left as is.
+Limitations: Saturn planets page records 0 frames drawn/s in both paused and playing (playing clock did not make the scene redraw in this window; recorded as is). Apollo paused still draws 6-8 frames/s and recalcs style ~70/s. Diagnostics on/off differences are noise (flag unread).
 
 ## Drift Notes
 
-None yet.
+None.
+
+## Coordinator
+
+Set done by the orchestrating session after the handoff gates passed (owner: "I mark them as they pass", O-038; G-024 decision 7 "Orchestrate each objective to completion"; "carry on orchestrating G-024", 2026-11-22). Profile run exit 0; lint, typecheck, build clean; `npm test` 5118 passed, 3 skipped. Carried to T-400: the Saturn planets page reads 0 frames drawn per second even while playing, so its frames column is not a signal; compare script, layout and style-recalc rows there.

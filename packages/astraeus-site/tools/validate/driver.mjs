@@ -3120,3 +3120,54 @@ export async function catalogueChart(page, part) {
     };
   }, part);
 }
+
+// ---------------------------------------------------------------------------------------------------------------------------------------------
+// Frame-loop profile (O-087 T-394): CPU numbers for a fixed window, read from the browser's own metrics. No selectors beyond the scene canvas.
+// ---------------------------------------------------------------------------------------------------------------------------------------------
+
+/** Call before `goto`: sets `globalThis.__ASTRAEUS_DIAGNOSTICS__` to `on` before any page script runs (the engine reads it from O-087 draft 02; before that it does nothing). */
+export const requestDiagnostics = (page, on) =>
+  page.addInitScript((value) => {
+    globalThis.__ASTRAEUS_DIAGNOSTICS__ = value;
+  }, on === true);
+
+/** The Chrome DevTools Protocol metrics counted per second over a window. */
+const FRAME_METRICS = [
+  "ScriptDuration",
+  "TaskDuration",
+  "LayoutCount",
+  "LayoutDuration",
+  "RecalcStyleCount",
+  "RecalcStyleDuration",
+];
+
+/**
+ * Reads `Performance.getMetrics` before and after a `windowMs` wait and returns the per-second deltas of script, task, layout and style-recalc time and counts, the JS heap change in bytes,
+ * and the frames drawn per second (`data-frames-drawn`). Durations are seconds of work per second of wall time.
+ */
+export async function frameMetrics(page, windowMs = 10000) {
+  const session = await page.context().newCDPSession(page);
+  try {
+    await session.send("Performance.enable");
+    const read = async () =>
+      Object.fromEntries((await session.send("Performance.getMetrics")).metrics.map((m) => [m.name, m.value]));
+    const framesBefore = await framesDrawn(page);
+    const startedAt = Date.now();
+    const before = await read();
+    await page.waitForTimeout(windowMs);
+    const after = await read();
+    const framesAfter = await framesDrawn(page);
+    const seconds = (Date.now() - startedAt) / 1000;
+    const perSecond = Object.fromEntries(
+      FRAME_METRICS.map((name) => [name, ((after[name] ?? 0) - (before[name] ?? 0)) / seconds]),
+    );
+    return {
+      seconds,
+      ...perSecond,
+      JSHeapUsedSizeChange: (after.JSHeapUsedSize ?? 0) - (before.JSHeapUsedSize ?? 0),
+      framesDrawnPerSecond: (framesAfter - framesBefore) / seconds,
+    };
+  } finally {
+    await session.detach();
+  }
+}
