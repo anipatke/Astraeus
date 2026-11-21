@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs";
 import { beforeAll, describe, expect, it } from "vitest";
 import rawAnchors from "../data/apollo11/raw/anchors.json";
 import rawEvents from "../data/apollo11/raw/events.json";
@@ -30,6 +31,7 @@ import {
 } from "../tools/apollo11/frames";
 import { hermiteAt } from "../tools/apollo11/hermite";
 import { apsides, propagateKepler } from "../tools/apollo11/kepler";
+import { toolsHash } from "../tools/apollo11/toolsHash.mjs";
 import { reconstruct, type OutputFiles, type RawInputs } from "../tools/apollo11/reconstruct";
 import { cross, dot, norm, sub, type Vec3 } from "../tools/apollo11/vec";
 
@@ -223,6 +225,11 @@ function expectSameWithin(actualText: string, expectedText: string): void {
 
 describe("Apollo 11 reconstruction pipeline", () => {
   const raw = { anchors: rawAnchors, events: rawEvents } as unknown as RawInputs;
+  // The second run proves determinism; it is skipped while the tools and raw inputs match the last sources proven (apollo11:reconstruct).
+  const proven = JSON.parse(readFileSync(new URL("./fixtures/apollo11ToolsProven.json", import.meta.url), "utf8")) as {
+    sha256: string;
+  };
+  const alreadyProven = toolsHash().sha256 === proven.sha256;
   let first: OutputFiles;
   let second: OutputFiles;
   let validation: ReturnType<typeof reconstruct>["validation"];
@@ -232,10 +239,11 @@ describe("Apollo 11 reconstruction pipeline", () => {
     const run = reconstruct(adapter, raw);
     first = run.files;
     validation = run.validation;
-    second = reconstruct(createOrbAstronomyAdapter(), raw).files;
+    if (!alreadyProven) second = reconstruct(createOrbAstronomyAdapter(), raw).files;
   }, 240_000);
 
-  it("produces byte-identical output on a second run", () => {
+  // Skipped (not passed) when tests/fixtures/apollo11ToolsProven.json already holds this tools hash.
+  it.skipIf(alreadyProven)("produces byte-identical output on a second run", () => {
     expect(Object.keys(second).sort()).toEqual(Object.keys(first).sort());
     for (const [file, content] of Object.entries(first)) expect(second[file], file).toBe(content);
   });

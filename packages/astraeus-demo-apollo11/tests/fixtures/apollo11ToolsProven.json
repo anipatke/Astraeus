@@ -1,0 +1,27 @@
+{
+  "sha256": "f3f7ab468f020c4dc5211db17605cf6d6a3fd46aec9d3fb35df6cbdde084d294",
+  "files": [
+    "data/apollo11/raw/anchors.json",
+    "data/apollo11/raw/events.json",
+    "tools/apollo11/anchors.ts",
+    "tools/apollo11/burn.ts",
+    "tools/apollo11/config.json",
+    "tools/apollo11/conventions.ts",
+    "tools/apollo11/dynamics.ts",
+    "tools/apollo11/ephemeris.ts",
+    "tools/apollo11/format.ts",
+    "tools/apollo11/frames.ts",
+    "tools/apollo11/hermite.ts",
+    "tools/apollo11/kepler.ts",
+    "tools/apollo11/reconstruct.ts",
+    "tools/apollo11/report.ts",
+    "tools/apollo11/run.mjs",
+    "tools/apollo11/sampling.ts",
+    "tools/apollo11/segments.ts",
+    "tools/apollo11/toolsHash.d.mts",
+    "tools/apollo11/toolsHash.mjs",
+    "tools/apollo11/trajectory.ts",
+    "tools/apollo11/validation.ts",
+    "tools/apollo11/vec.ts"
+  ]
+}
