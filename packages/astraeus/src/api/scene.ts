@@ -27,6 +27,8 @@ import { BodySetPlan, type BodySetContext } from "./planBodySets";
 import { MoonPanelPlan } from "./planMoonPanel";
 import { PickerPlan } from "./planPicker";
 import type { PickerInput } from "./pickerInput";
+import { AboutPlan } from "./planAbout";
+import type { AboutInput } from "./aboutInput";
 import { PlacesPlan } from "./planPlaces";
 import { SkyFigurePlan } from "./planSkyFigures";
 import type { SkyFigureInput } from "./skyFigureInput";
@@ -221,6 +223,7 @@ export class Scene {
   readonly #places = new PlacesPlan();
   readonly #skyFigures = new SkyFigurePlan((id) => this.#taken(id));
   readonly #picker = new PickerPlan();
+  readonly #about = new AboutPlan();
   readonly #story = new StoryPlan();
   readonly #timeline = new TimelinePlan();
   readonly #viewPlan = new ViewPlan();
@@ -255,6 +258,9 @@ export class Scene {
 
   /** The picker (`setPicker`), as set; undefined when none was set. */
   get picker(): PickerInput | undefined { return this.#picker.input; }
+
+  /** The About as set; undefined when none. */
+  get about(): AboutInput | undefined { return this.#about.about; }
 
   /** The moon panel (`setMoonPanel`): how many moons it lists and the line that states them with their source and date; undefined when none was set. */
   get moonPanel(): SceneMoonPanelRead | undefined { return this.#moonPanel.read(); }
@@ -396,6 +402,13 @@ export class Scene {
   setMoonPanel(input: MoonPanelInput): this {
     this.#editable();
     this.#moonPanel.set(input);
+    return this;
+  }
+
+  /** Sets the title and About panel; replaces any earlier. A bad shape throws `bad-about` naming the field. */
+  setAbout(input: AboutInput): this {
+    this.#editable();
+    this.#about.set(input);
     return this;
   }
 
@@ -636,6 +649,6 @@ export class Scene {
 
   /** The app's plug-in contract for this scene (`assembleScene.ts`), reached through `definitionOf`. Throws if the scene is empty or a body needs a data package not passed in `data`. */
   #definition(data: readonly DataSource[]): ExperienceDefinition {
-    return assembleScene({ plan: this.#plan, tracked: this.#tracked, groupPlan: this.#groupPlan, bodySets: this.#bodySets, moonPanel: this.#moonPanel, picker: this.#picker, places: this.#places, story: this.#story, timeline: this.#timeline, viewPlan: this.#viewPlan, skyFigures: this.#skyFigures, camera: this.camera, scale: this.#scale, scaleOnly: this.#scaleOnly, look: this.#look, bodyReadouts: this.#bodyReadouts }, data);
+    return assembleScene({ plan: this.#plan, tracked: this.#tracked, groupPlan: this.#groupPlan, bodySets: this.#bodySets, moonPanel: this.#moonPanel, picker: this.#picker, about: this.#about, places: this.#places, story: this.#story, timeline: this.#timeline, viewPlan: this.#viewPlan, skyFigures: this.#skyFigures, camera: this.camera, scale: this.#scale, scaleOnly: this.#scaleOnly, look: this.#look, bodyReadouts: this.#bodyReadouts }, data);
   }
 }

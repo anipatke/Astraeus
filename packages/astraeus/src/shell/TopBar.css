@@ -23,7 +23,7 @@
 .astraeus-shell .top-bar > * { flex: 0 0 auto; }
 /* Free space sits between the left group (title, switch, story) and the right one (engine controls, menu); the negative margins cancel the two gaps around it, so the fit rule's one gap per item holds. */
 .astraeus-shell .bar-spacer { flex: 1 1 0; min-width: 0; margin: 0 calc(var(--astraeus-space-3) * -1); }
-.astraeus-shell .bar-title { display: inline-flex; align-items: center; min-height: var(--astraeus-control-height); padding: 0 var(--astraeus-space-3); color: var(--astraeus-text); font-size: var(--astraeus-text-l); font-weight: 600; white-space: nowrap; }
+.astraeus-shell .bar-title { display: inline-flex; border: 0; background: transparent; font-family: inherit; cursor: pointer; align-items: center; min-height: var(--astraeus-control-height); padding: 0 var(--astraeus-space-3); color: var(--astraeus-text); font-size: var(--astraeus-text-l); font-weight: 600; white-space: nowrap; }
 .astraeus-shell .bar-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 .astraeus-shell .bar-menu-button { touch-action: none; }
 .astraeus-shell .switch-compact { max-width: var(--astraeus-size-9); }

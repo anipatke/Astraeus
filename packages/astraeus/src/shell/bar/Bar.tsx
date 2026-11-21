@@ -10,13 +10,20 @@ import type { BarFit } from "./fitBar";
 /** A bar item with what draws it: `render` returns the control for the form the fit rule chose (engine items have one form). */
 export type BarEntry = BarItem & { readonly render: (form: BarForm) => ReactNode };
 
-/** The title place: the About title, or the selected object's name until About lands. Not a control; the full name stays for a screen reader whatever is shown. */
-export function TitlePlace({ full, shown }: { readonly full: string; readonly shown: string }) {
+/** What the title place does when pressed: it opens (or closes) the panel it names. `controls` is that panel's id while it is drawn, so no reference dangles. */
+export interface TitleAction {
+  readonly open: boolean;
+  readonly controls?: string | undefined;
+  readonly onPress: () => void;
+}
+
+/** The title place: the About title, or the selected object's name when the scene has no About. A button that opens its panel; the full name stays for a screen reader whatever is shown ("i" included). */
+export function TitlePlace({ full, shown, action }: { readonly full: string; readonly shown: string; readonly action: TitleAction }) {
   return (
-    <span className="bar-title" data-bar-title="" title={full}>
+    <button type="button" className="bar-title" data-bar-title="" title={full} aria-expanded={action.open} aria-controls={action.controls} onClick={action.onPress}>
       <span aria-hidden="true">{shown}</span>
       <span className="bar-sr">{full}</span>
-    </span>
+    </button>
   );
 }
 

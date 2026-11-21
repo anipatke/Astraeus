@@ -10,6 +10,8 @@ import { ViewerSelection, type SelectionChange } from "./viewerSelection";
 import { ViewerPanels, type PanelChange } from "./viewerPanels";
 import { ViewerFirstDraw } from "./viewerFirstDraw";
 import { ViewerPicker } from "./viewerPicker";
+import { ViewerAbout } from "./viewerAbout";
+import type { AboutInput } from "./aboutInput";
 import type { PickChange } from "./pickerInput";
 import { ViewerViews } from "./viewerViews";
 import { ViewerZones } from "./viewerZones";
@@ -147,6 +149,7 @@ export class ViewerLink implements ViewerPort {
   readonly #looks = new ViewerLooks(this.#access);
   readonly #frame = new ViewerFirstDraw();
   readonly #picker = new ViewerPicker(this.#access);
+  readonly #about = new ViewerAbout(this.#access);
   #wait = newWait();
   /** What last moved the clock or the view, as published; a selection dropped by time or the view names it. */
   #mover: ViewerChangeCause = "playback";
@@ -162,6 +165,7 @@ export class ViewerLink implements ViewerPort {
     this.#mover = "playback";
     this.#camera.reset();
     this.#picker.reset(control);
+    this.#about.reset(control);
     this.#zones.reset(); // nothing is known to be active yet: the first publish reports every zone the time is already inside
     this.#wait.done = true;
     this.#wait.resolve();
@@ -175,6 +179,7 @@ export class ViewerLink implements ViewerPort {
     this.#mover = "playback";
     this.#camera.reset();
     this.#picker.reset(undefined);
+    this.#about.reset(undefined);
     this.#frame.reset();
     if (this.#wait.done && !this.#closed) this.#wait = newWait();
   }
@@ -216,6 +221,7 @@ export class ViewerLink implements ViewerPort {
   get panel(): string | undefined { return this.#panels.panel; }
   get camera(): CameraPose | undefined { return this.#camera.camera; }
   get pick(): string | undefined { return this.#picker.pick; }
+  get about(): AboutInput | undefined { return this.#about.about; }
   get skyFigures(): readonly SceneSkyFigureRead[] | undefined { const control = this.#access.control(); return control === undefined ? undefined : control.skyFigures ?? []; }
 
   get look(): LookRead | undefined { return this.#looks.look; }
@@ -259,6 +265,10 @@ export class ViewerLink implements ViewerPort {
   pickNow(): string | undefined { return this.#picker.pick; }
   watchPick(watcher: () => void): () => void { return this.#picker.watch(watcher); }
   picked(value: string): void { this.#picker.press(value); }
+
+  setAbout(input: AboutInput): void { this.#about.setAbout(input); }
+  aboutNow(): AboutInput | undefined { return this.#about.about; }
+  watchAbout(watcher: () => void): () => void { return this.#about.watch(watcher); }
 
   onFirstDraw(listener: () => void): () => void { return this.#frame.onFirstDraw(listener); }
   firstDraw(): void { this.#frame.publish(); }

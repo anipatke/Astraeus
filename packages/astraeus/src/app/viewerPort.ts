@@ -76,6 +76,8 @@ export interface ViewerControl {
   setGroupLook?(id: string, look: { readonly color: string; readonly dotSizePx: number }): void;
   /** The host's picker (`Scene.setPicker`): its id, the option values and the one pressed at the start; absent without a picker. */
   readonly picker?: { readonly id: string; readonly values: readonly string[]; readonly start: string };
+  /** The scene's About (`Scene.setAbout`) when the viewer attaches; absent without one. The link then holds the live About (the host's `setAbout`). */
+  readonly about?: import("../api/aboutInput").AboutInput | undefined;
   /** The ids of the objects the showing view shows, which a host may point the camera at. */
   cameraTargets(): readonly string[];
   /** The camera as the viewer's view link writes it (an orbit view, or a sky view while looking out); undefined until the scene has drawn its first frame. */
@@ -108,6 +110,10 @@ export interface ViewerPort {
   watchPick(watcher: () => void): () => void;
   /** A visitor pressed an option of the picker other than the pressed one; the link tells the host's `onPick` listeners. */
   picked(value: string): void;
+  /** The About now: the scene's, or the host's last `setAbout` (undefined until attached and without one). */
+  aboutNow(): import("../api/aboutInput").AboutInput | undefined;
+  /** Calls `watcher` when the About changes (the host's `setAbout`, or an attach or detach); returns the function that stops it. */
+  watchAbout(watcher: () => void): () => void;
   /** The scene has drawn its first frame; the link tells the host's `onFirstDraw` listeners. */
   firstDraw(): void;
 }

@@ -1,6 +1,7 @@
 import type { LookInput, LookRead } from "./look";
 import type { GroupLookInput, GroupLookRead } from "./groupLookInput";
 import type { PickChange } from "./pickerInput";
+import type { AboutInput } from "./aboutInput";
 import type { TimeInput } from "./time";
 import type { SceneSkyFigureRead } from "./sceneReads";
 import type { SkyClearOptions, SkyTraceOptions } from "./skyTraceInput";
@@ -107,6 +108,10 @@ export interface ViewerHandle {
    * and the viewer never navigates or touches the page address. To keep the clock across a choice, read `timeUtcMs` inside the listener and set it on the next scene (`setTime`). No callbacks arrive after `unmount`. A listener that throws is reported to the page (`reportError`) and does not stop the listeners after it.
    */
   onPick(listener: (change: PickChange) => void): () => void;
+  /** The About shown now; undefined until `ready`, after `unmount`, and with none. */
+  readonly about: AboutInput | undefined;
+  /** Replaces the About (`bad-about` if malformed); before `ready` or after `unmount`, `not-mounted`. */
+  setAbout(about: AboutInput): void;
   /** Calls `listener` on every change (see `MountOptions.onChange`); returns the function that stops it. No callbacks arrive after `unmount`. A listener that throws is reported to the page (`reportError`) and does not stop the listeners after it. */
   onChange(listener: (change: ViewerChange) => void): () => void;
 }
@@ -128,6 +133,8 @@ export function viewerHandleOf(link: ViewerLink): ViewerHandle {
     get switches() { return link.switches; },
     get skyFigures() { return link.skyFigures; },
     get pick() { return link.pick; },
+    get about() { return link.about; },
+    setAbout: (about) => link.setAbout(about),
     setPick: (value) => link.setPick(value),
     onPick: (listener) => link.onPick(listener),
     setLook: (look) => link.setLook(look),

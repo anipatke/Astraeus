@@ -4,12 +4,12 @@
 /** Wide: a left column, a right column and a developer column. Phone: left, right and developer all map onto one sheet place (detail over story). */
 export type Layout = "wide" | "phone";
 
-/** What can hold a place. `card` is the object, event, window or place card; `popup` is any small pop-up (named by id, one at a time). */
-export type Occupant = "card" | "moons" | "story" | "developer" | "menu" | "timeline";
+/** What can hold a place. `about` is the About panel; `card` is the object, event, window or place card; `popup` is any small pop-up (named by id, one at a time). */
+export type Occupant = "about" | "card" | "moons" | "story" | "developer" | "menu" | "timeline";
 
 /** Which occupants are open. `left` is the shared left place; `popup` is the id of the one open pop-up. */
 export interface PanelState {
-  readonly left: "card" | "moons" | null;
+  readonly left: "about" | "card" | "moons" | null;
   readonly story: boolean;
   readonly developer: boolean;
   /** The menu drawer (a phone's controls drawer; the bar's menu later). */
@@ -45,6 +45,7 @@ export function topmost(state: PanelState): { readonly occupant: Occupant | "pop
 
 function closeOccupant(state: PanelState, occupant: Occupant): PanelState {
   switch (occupant) {
+    case "about": return state.left === "about" ? { ...state, left: null } : state;
     case "card": return state.left === "card" ? { ...state, left: null } : state;
     case "moons": return state.left === "moons" ? { ...state, left: null } : state;
     case "story": return { ...state, story: false };
@@ -58,6 +59,7 @@ function openOccupant(state: PanelState, occupant: Occupant, layout: Layout): Pa
   const phone = layout === "phone";
   switch (occupant) {
     // Any occupant of the left place replaces the other one; on a phone it is a detail sheet, which also replaces the developer sheet. The story sheet stays under it.
+    case "about":
     case "card":
     case "moons": return { ...state, left: occupant, developer: phone ? false : state.developer };
     // Newest story panel wins (there is only one place); the detail sheet stays over it.

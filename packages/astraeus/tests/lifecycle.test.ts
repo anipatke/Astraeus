@@ -128,7 +128,7 @@ const reactDriver = (strict: boolean): Driver => ({
 });
 
 /** The handle's members, read from one table: a new member of `ViewerHandle` must join it (the last test fails otherwise). */
-const READS = ["timeUtcMs", "rate", "playing", "view", "camera", "eventZones", "selected", "panel", "look", "scale", "switches", "pick", "skyFigures"] as const;
+const READS = ["timeUtcMs", "rate", "playing", "view", "camera", "eventZones", "selected", "panel", "look", "scale", "switches", "pick", "skyFigures", "about"] as const;
 const CALLS: Record<string, (handle: ViewerHandle) => void> = {
   setTime: (handle) => handle.setTime(MID),
   setRate: (handle) => handle.setRate(RATE),
@@ -141,6 +141,7 @@ const CALLS: Record<string, (handle: ViewerHandle) => void> = {
   setScale: (handle) => handle.setScale("readable-scale"),
   setSwitch: (handle) => handle.setSwitch("labels", false),
   setPick: (handle) => handle.setPick("b"),
+  setAbout: (handle) => handle.setAbout({ title: "A tarn" }),
   traceSkyFigure: (handle) => handle.traceSkyFigure("kite"),
   clearSkyTrace: (handle) => handle.clearSkyTrace("kite"),
   setGroupLook: (handle) => handle.setGroupLook("x", { color: "#123456" }),
@@ -444,6 +445,54 @@ describe.each([mountDriver, reactDriver(false)])("lifecycle: $name", (driver) =>
     await opened.ready();
     expect(opened.handle!.pick).toBeUndefined();
     expect(codeOf(() => opened.handle!.setPick("a"))).toBe("bad-picker");
+    opened.unmount();
+  });
+
+  it("about and setAbout (O-079 T-325): the scene's About opens the viewer, the title opens the panel, a host setAbout replaces it live (an open panel changes), bad shapes throw bad-about, call order holds, a rebuild goes back to the scene's own, and after unmount reads undefined and throws not-mounted", async () => {
+    prepared.real = true; openNow();
+    const scene = new Scene().addBody(earth).setAbout({ title: "Tarn", status: "First status", links: [{ text: "Notes", url: "https://example.org/n" }] });
+    const opened = await driver.open(scene);
+    await opened.ready();
+    const handle = opened.handle!;
+    const title = (): HTMLElement | null => document.querySelector("[data-bar-title]");
+    const panel = (): HTMLElement | null => document.querySelector("[data-about]");
+    const changes: unknown[] = [];
+    handle.onChange((c) => changes.push(c));
+    expect(handle.about).toEqual({ title: "Tarn", status: "First status", links: [{ text: "Notes", url: "https://example.org/n" }] });
+    expect(title()!.textContent).toContain("Tarn");
+    expect(panel()).toBeNull();
+    flushSync(() => title()!.click());
+    expect(panel()!.querySelector("[data-about-status]")!.textContent).toBe("First status");
+    flushSync(() => handle.setAbout({ title: "Mere", status: "Second status" }));
+    expect(handle.about).toEqual({ title: "Mere", status: "Second status" });
+    expect(panel()!.querySelector("[data-about-status]")!.textContent).toBe("Second status");
+    expect(panel()!.querySelector("[data-about-links]")).toBeNull();
+    expect(title()!.textContent).toContain("Mere");
+    // Host calls land in order: the last word wins, and a bad one changes nothing.
+    flushSync(() => { handle.setAbout({ title: "One" }); handle.setAbout({ title: "Two" }); });
+    expect(handle.about).toEqual({ title: "Two" });
+    expect(codeOf(() => handle.setAbout({ title: "" }))).toBe("bad-about");
+    expect(codeOf(() => handle.setAbout(undefined as never))).toBe("bad-about");
+    expect(handle.about).toEqual({ title: "Two" });
+    expect(changes, "no clock signal").toEqual([]);
+    flushSync(() => document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true })));
+    expect(panel()).toBeNull();
+    await opened.rebuild(new Scene().addBody(earth).setAbout({ title: "Tarn" }));
+    expect(opened.handle!.about!.title).toBe("Tarn");
+    expect(opened.handle!.about!.status).toBeUndefined();
+    opened.unmount();
+    expect(handle.about).toBeUndefined();
+    expect(codeOf(() => handle.setAbout({ title: "A" }))).toBe("not-mounted");
+  });
+
+  it("a scene without an About reads about as undefined, and a host's setAbout gives the bar its title", async () => {
+    prepared.real = true; openNow();
+    const opened = await driver.open(new Scene().addBody(earth));
+    await opened.ready();
+    expect(opened.handle!.about).toBeUndefined();
+    expect(document.querySelector("[data-bar-title]")).toBeNull();
+    flushSync(() => opened.handle!.setAbout({ title: "Fen" }));
+    expect(document.querySelector("[data-bar-title]")!.textContent).toContain("Fen");
     opened.unmount();
   });
 

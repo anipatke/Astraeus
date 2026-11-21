@@ -13,6 +13,9 @@ import { TimelineBar } from "./TimelineBar";
 import type { TimelineGlowLook } from "./timelineGlow";
 import { requestObjectId, type ExperienceCameraPreset, type ExperienceConfig, type ExperienceObject } from "./experience";
 import { InfoPanel } from "./InfoPanel";
+import { AboutPanel } from "./AboutPanel";
+import { useTitlePlace } from "./useTitlePlace";
+import type { AboutInput } from "../api/aboutInput";
 import { infoView } from "./infoModel";
 import type { TimeLook } from "./timelineModel";
 import type { Metric } from "./metrics";
@@ -67,10 +70,11 @@ function MenuArea({ entries, fit, ...drawer }: { readonly entries: ComponentProp
   );
 }
 
-/** The left place: the moons sheet and the card (the panel rule lets one be open). */
-function LeftArea({ moonPanel, moonsSheetId, moonsOpen, view, metrics, onClose, infoPanelId }: { readonly moonPanel: ReactNode; readonly moonsSheetId: string; readonly moonsOpen: boolean; readonly view: ComponentProps<typeof InfoPanel>["view"] | null; readonly metrics: readonly Metric[]; readonly onClose: () => void; readonly infoPanelId: string }) {
+/** The left place: the About panel, the moons sheet and the card (the panel rule lets one be open). */
+function LeftArea({ about, aboutOpen, aboutPanelId, onAboutClose, moonPanel, moonsSheetId, moonsOpen, view, metrics, onClose, infoPanelId }: { readonly about: AboutInput | undefined; readonly aboutOpen: boolean; readonly aboutPanelId: string; readonly onAboutClose: () => void; readonly moonPanel: ReactNode; readonly moonsSheetId: string; readonly moonsOpen: boolean; readonly view: ComponentProps<typeof InfoPanel>["view"] | null; readonly metrics: readonly Metric[]; readonly onClose: () => void; readonly infoPanelId: string }) {
   return (
     <Area name="left">
+      {about !== undefined && aboutOpen && <AboutPanel about={about} onClose={onAboutClose} id={aboutPanelId} />}
       {moonPanel !== null && <MoonsSheet id={moonsSheetId} open={moonsOpen}>{moonPanel}</MoonsSheet>}
       {view !== null && <InfoPanel view={view} metrics={metrics} onClose={onClose} id={infoPanelId} />}
     </Area>
@@ -129,6 +133,8 @@ interface Props {
   readonly scaleId: ScaleId;
   readonly onScaleChange: (id: ScaleId) => void;
   readonly scaleChoices?: readonly ScaleChoice[];
+  /** The scene's title and About (`Scene.setAbout`, or the host's live `setAbout`): the bar's title item and its panel; absent: the title place shows the selected object's name (a phone) and opens its card. */
+  readonly about?: AboutInput | undefined;
   /** A choice between versions of the experience (top bar and phone drawer); absent: none. */
   readonly switcher?: ExperienceSwitch;
   /** Display switches a story placed in the top bar or its switch panel (also in the phone drawer); absent or empty: none. */
@@ -268,6 +274,7 @@ export function AstraeusShell({
   scaleId,
   onScaleChange,
   scaleChoices,
+  about,
   switcher,
   displaySwitches,
   viewChoice,
@@ -293,6 +300,7 @@ export function AstraeusShell({
   children,
 }: Props) {
   const infoPanelId = `${useId()}-info-panel`;
+  const aboutPanelId = `${useId()}-about-panel`;
   const moonsSheetId = `${useId()}-moons-panel`;
   const developerDrawerId = `${useId()}-developer-tools`;
   const controlsDrawerId = `${useId()}-controls-drawer`;
@@ -521,6 +529,7 @@ export function AstraeusShell({
 
   const { view, metrics } = infoContent(experience, shownInfo, selectedObjectId, snapshot.timeUtcMs, metricsFor, timeLook);
 
+  const { aboutOpen, titleAction } = useTitlePlace({ about, panels, aboutPanelId, infoPanelId, info: shownInfo, cardDrawn: view !== null, showObjectCard: () => showInfo({ kind: "object" }) });
   const moonsOpen = panels.state.left === "moons";
   const toggleMoons = () => panels.toggle("moons");
 
@@ -533,11 +542,11 @@ export function AstraeusShell({
   );
 
   const moonsToggle = moonPanel === null ? null : <MoonsToggle key="moons" planetLabel={experience.moonFamilies?.planetLabel} open={moonsOpen} sheetId={moonsSheetId} onToggle={toggleMoons} />;
-  // The bar's one item list (bar/): the title place (a phone shows the selected object's name until About lands), the switches, the engine controls and the cog.
+  // The bar's one item list (bar/): the title place (the About title, or on a phone the selected object's name), the switches, the engine controls and the cog.
   const entries = barEntries({
     experience, timeUtcMs: snapshot.timeUtcMs, selectedObjectId, activePresetId, onSelectObject: selectObject, onCameraPreset: activatePreset,
     infoOpen: shownInfo?.kind === "object", onToggleInfo: () => (shownInfo?.kind === "object" ? panels.close("card") : showInfo({ kind: "object" })), infoPanelId,
-    phone, selectedLabel: objectLabelOr(experience, selectedObjectId, "Controls"),
+    phone, selectedLabel: objectLabelOr(experience, selectedObjectId, "Controls"), about, titleAction,
     scaleId, onScaleChange, scaleChoices, switcher, displaySwitches, viewChoice,
     moonsToggle, moonsLabel: experience.moonFamilies?.planetLabel,
     developerPresent: developerTools !== undefined, developerDrawerId, developerMode, onDeveloperModeChange,
@@ -555,7 +564,7 @@ export function AstraeusShell({
             <Bar entries={entries} fit={fitting.fit} rowRef={fitting.rowRef} ghostsRef={fitting.ghostsRef} phone={phone} menuOpen={panels.state.menu} drawerId={controlsDrawerId} onOpenChange={(open) => panels.set("menu", open)} swipeThresholdPx={phoneLayout.swipeThresholdPx} />
           </Area>
           <MenuArea entries={entries} fit={fitting.fit} id={controlsDrawerId} open={panels.state.menu} phone={phone} onOpenChange={(open) => panels.set("menu", open)} onItemChosen={() => panels.chooseInDrawer("menu")} swipeThresholdPx={phoneLayout.swipeThresholdPx} />
-          <LeftArea moonPanel={moonPanel} moonsSheetId={moonsSheetId} moonsOpen={moonsOpen} view={view} metrics={metrics} onClose={() => panels.close("card")} infoPanelId={infoPanelId} />
+          <LeftArea about={about} aboutOpen={aboutOpen} aboutPanelId={aboutPanelId} onAboutClose={() => panels.close("about")} moonPanel={moonPanel} moonsSheetId={moonsSheetId} moonsOpen={moonsOpen} view={view} metrics={metrics} onClose={() => panels.close("card")} infoPanelId={infoPanelId} />
           <Area name="right">
             {story.openPanel !== null && <StoryPanelView panel={story.openPanel} holding={story.holding} onClose={closePanel} onContinue={story.continuePlayback} step={stepNav} />}
           </Area>

@@ -69,7 +69,7 @@ export function usePanels(layout: Layout, viewer: RefObject<Element | null>, onE
 }
 
 function latestOpen(state: PanelState, occupant: Occupant): boolean {
-  return occupant === "card" || occupant === "moons" ? state.left === occupant : state[occupant];
+  return occupant === "about" || occupant === "card" || occupant === "moons" ? state.left === occupant : state[occupant];
 }
 
 /**

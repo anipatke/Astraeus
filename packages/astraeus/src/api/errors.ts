@@ -68,6 +68,8 @@ export type SceneErrorCode =
   | "bad-selection"
   /** A look (`setLook`) is unknown or out of its range. */
   | "bad-look"
+  /** The About (`setAbout`) is malformed; the message names the field. */
+  | "bad-about"
   /** An input field was given under a name it no longer has; the message names the old field and its replacement. */
   | "renamed";
 

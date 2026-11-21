@@ -197,6 +197,8 @@ export interface ExperienceDefinition {
   readonly loop?: boolean;
   /** A host's picker (`Scene.setPicker`), a press is reported to the host link and nothing else happens. Absent: none. */
   readonly picker?: import("../api/pickerInput").PickerInput;
+  /** The scene's title and About (`Scene.setAbout`): the bar's title item and its panel. Absent: the title place shows the selected object's name (a phone). */
+  readonly about?: import("../api/aboutInput").AboutInput;
   /** Where the orbit-lines, labels and Milky Way switches show (top bar, switch panel or the Developer drawer only) and whether each starts on. Absent: all in the Developer drawer, the scene's own start. The address (`?labels=`, `?sky=`) still overrides the start. */
   readonly displaySwitches?: DisplaySwitchSettings;
   /** Named views of this one scene (presentation only), resolved once: per view, the object, event and story-panel ids it shows. Anything no view names is in every view. Absent: no views, everything shows. */

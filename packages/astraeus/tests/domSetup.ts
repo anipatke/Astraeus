@@ -16,6 +16,7 @@ import type { StoryPanelSettings } from "../src/shell/useStoryPanels";
 import type { DisplaySwitchItem } from "../src/shell/DisplaySwitches";
 import type { ExperienceSwitch } from "../src/shell/SwitchControl";
 import type { ScaleChoice } from "../src/shell/scaleModel";
+import type { AboutInput } from "../src/api/aboutInput";
 
 (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
 
@@ -48,6 +49,8 @@ export interface MountOptions {
   readonly phoneLayout?: PhoneLayoutSettings;
   readonly interfaceLook?: InterfaceLookSettings;
   readonly storyPanelSettings?: StoryPanelSettings;
+  /** A made-up About (`Scene.setAbout`): the bar's title item and its panel. */
+  readonly about?: AboutInput;
   /** A made-up choice between versions, shown first in the top bar. */
   readonly switcher?: ExperienceSwitch;
   /** Made-up display switches (their `on` is the start; pressing one flips it, as the app would). */
@@ -153,6 +156,7 @@ function Host({ options, clock, probe }: { readonly options: MountOptions; reado
     interfaceLook: options.interfaceLook,
     storyPanelSettings: options.storyPanelSettings,
     switcher: options.switcher,
+    about: options.about,
     displaySwitches,
     children: null,
   });

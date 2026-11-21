@@ -254,6 +254,12 @@ function initialSceneControls(
 /** The Developer drawer when the host asked for developer tools, else nothing (the shell then draws no toggle and no drawer). */
 const drawerWhen = (asked: boolean | undefined, drawer: ReactNode): ReactNode => (asked === true ? drawer : undefined);
 
+/** The About the viewer shows: the host's live one once attached (its `setAbout`), else the scene's own. */
+function useAbout(definition: ExperienceDefinition, host: ViewerPort | undefined) {
+  const watch = useCallback((watcher: () => void) => host?.watchAbout(watcher) ?? (() => undefined), [host]);
+  return useSyncExternalStore(watch, () => host?.aboutNow()) ?? definition.about;
+}
+
 /**
  * `writeTitle`: whether the page heading is set to the experience's name (default true); `mount` and `AstraeusScene` pass false so a host page keeps its own title.
  * `developerTools`: whether the viewer shows the Developer toggle and drawer (default false; the drawer's code is fetched only when a visitor opens it, so off never fetches it; the demo site passes true).
@@ -274,6 +280,7 @@ export function App({ definition, writeTitle = true, address, developerTools, ho
   const watchPick = useCallback((watcher: () => void) => host?.watchPick(watcher) ?? (() => undefined), [host]);
   const hostPick = useSyncExternalStore(watchPick, () => host?.pickNow());
   const choosePick = useCallback((value: string) => host?.picked(value), [host]);
+  const about = useAbout(definition, host);
   const experienceRuntime = useMemo(
     () => ({ clock: runtime.clock, resolver: runtime.resolver, catalogue: runtime.catalogue }),
     [runtime],
@@ -572,7 +579,7 @@ export function App({ definition, writeTitle = true, address, developerTools, ho
     hostAttached.current = true;
     shownKey.current = null; // the presentation is read afresh after each attach
     controls.current.groupLooks = groupLooks;
-    host.attach({ ...(definition.picker === undefined ? {} : { picker: { id: definition.picker.id, values: definition.picker.options.map((option) => option.value), start: definition.picker.value } }), window: runtime.loopWindow, skyFigures: skyFigureReads(runtime.skyFigures, experience.skyFigures), events: experience.events, rates: definition.experience.rates, paced: runtime.pacing !== undefined, read: stateNow, seek: hostSeekTo, setRate: changeRate, playable: definition.experience.hideTimeline !== true, setPlaying: hostSetPlaying, views: viewIds, setView: chooseView, cameraTargets, readCamera, setCamera, setSelected: hostSetSelected, panels: panelIds, setPanel: hostSetPanel, scales: hostScales, setScale: hostSetScale, setLook: hostSetLook, setSwitch: hostSetSwitch, traceSkyFigure: hostTraceSkyFigure, clearSkyTrace: hostClearSkyTrace, groups: groupIds, groupLook: hostGroupLook, setGroupLook: hostSetGroupLook });
+    host.attach({ about: definition.about, ...(definition.picker === undefined ? {} : { picker: { id: definition.picker.id, values: definition.picker.options.map((option) => option.value), start: definition.picker.value } }), window: runtime.loopWindow, skyFigures: skyFigureReads(runtime.skyFigures, experience.skyFigures), events: experience.events, rates: definition.experience.rates, paced: runtime.pacing !== undefined, read: stateNow, seek: hostSeekTo, setRate: changeRate, playable: definition.experience.hideTimeline !== true, setPlaying: hostSetPlaying, views: viewIds, setView: chooseView, cameraTargets, readCamera, setCamera, setSelected: hostSetSelected, panels: panelIds, setPanel: hostSetPanel, scales: hostScales, setScale: hostSetScale, setLook: hostSetLook, setSwitch: hostSetSwitch, traceSkyFigure: hostTraceSkyFigure, clearSkyTrace: hostClearSkyTrace, groups: groupIds, groupLook: hostGroupLook, setGroupLook: hostSetGroupLook });
     return () => { hostAttached.current = false; host.detach(); };
   }, [host, runtime, definition, hostSeekTo, changeRate, viewIds, chooseView, cameraTargets, readCamera, setCamera, hostSetSelected, panelIds, hostSetPanel, experience, hostSetPlaying, hostScales, hostSetScale, hostSetLook, hostSetSwitch, hostTraceSkyFigure, hostClearSkyTrace, groupLooks, groupIds, hostGroupLook, hostSetGroupLook]);
 
@@ -841,6 +848,7 @@ export function App({ definition, writeTitle = true, address, developerTools, ho
       onScaleChange={updateScale}
       scaleChoices={scaleChoices}
       switcher={definition.picker === undefined ? undefined : pickerSwitch(definition.picker, hostPick ?? definition.picker.value, choosePick)}
+      about={about}
       displaySwitches={displaySwitches}
       viewChoice={viewChoice}
       viewCamera={currentView === undefined ? undefined : { id: currentView.id, rule: currentView.camera }}

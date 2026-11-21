@@ -163,6 +163,7 @@ const SETTERS: Record<keyof Setter, Row> = {
   setSelected: { call: (v) => v.handle.setSelected("pa"), reads: (hd) => expect(hd.selected).toBe("pa"), hears: "selects" },
   setPanel: { call: (v) => v.handle.setPanel("s2"), reads: (hd) => expect(hd.panel).toBe("s2"), hears: "panels" },
   setPick: { call: (v) => v.handle.setPick("two"), reads: (hd) => expect(hd.pick).toBe("two") }, // moves the pressed option and tells no listener
+  setAbout: { call: (v) => v.handle.setAbout({ title: "Changed" }), reads: (hd) => expect(hd.about?.title).toBe("Changed") }, // presentation only: tells no listener
   setGroupLook: { call: (v) => v.handle.setGroupLook("dust", { color: "#123456" }), reads: (hd) => expect(hd.groupLook("dust")).toEqual({ color: "#123456", dotSizePx: 2.5 }) }, // presentation only: tells no listener
   setCamera: {
     call: (v) => v.handle.setCamera({ focus: "moon" }),
@@ -292,6 +293,32 @@ describe.each(PAIRINGS)("two viewers on one page: $name", (pairing) => {
     await vi.waitFor(() => expect(a.element.querySelector('[data-switch-value="two"]')!.getAttribute("aria-pressed")).toBe("true"));
     expect(b.element.querySelector('[data-switch-value="one"]')!.getAttribute("aria-pressed")).toBe("true");
     expect(b.handle.pick).toBe("one");
+  });
+
+  it("API-03: each viewer holds its own About: A's title, panel, setAbout and Escape touch A only", async () => {
+    const a = await pairing.first.open({ scene: makeScene().setAbout({ title: "Viewer A", status: "A status" }) });
+    open.push(a);
+    const b = await pairing.second.open({ scene: makeScene().setAbout({ title: "Viewer B", status: "B status" }) });
+    open.push(b);
+    const title = (v: Viewer) => v.element.querySelector<HTMLElement>("[data-bar-title]")!;
+    const panelOf = (v: Viewer) => v.element.querySelector<HTMLElement>("[data-about]");
+    expect(title(a).textContent).toContain("Viewer A");
+    expect(title(b).textContent).toContain("Viewer B");
+    expect(a.handle.about!.title).toBe("Viewer A");
+    expect(b.handle.about!.title).toBe("Viewer B");
+    title(a).click();
+    title(b).click();
+    await vi.waitFor(() => { expect(panelOf(a)).not.toBeNull(); expect(panelOf(b)).not.toBeNull(); });
+    expect(panelOf(a)!.querySelector("[data-about-status]")!.textContent).toBe("A status");
+    expect(panelOf(b)!.querySelector("[data-about-status]")!.textContent).toBe("B status");
+    a.handle.setAbout({ title: "Viewer A", status: "A changed" });
+    await vi.waitFor(() => expect(panelOf(a)!.querySelector("[data-about-status]")!.textContent).toBe("A changed"));
+    expect(panelOf(b)!.querySelector("[data-about-status]")!.textContent).toBe("B status");
+    expect(b.handle.about!.status).toBe("B status");
+    // A key pressed inside A is A's alone.
+    title(a).dispatchEvent(new window.KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
+    await vi.waitFor(() => expect(panelOf(a)).toBeNull());
+    expect(panelOf(b)).not.toBeNull();
   });
 
   it("unmounting A leaves B's handle working and B's page in place", async () => {

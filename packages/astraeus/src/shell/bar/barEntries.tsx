@@ -9,14 +9,18 @@ import { SwitchControl, type ExperienceSwitch } from "../SwitchControl";
 import type { ScaleChoice, ScaleId } from "../scaleModel";
 import { SCALE_CHOICES } from "../scaleModel";
 import { buildBarItems, engineItem, ENGINE_PRIORITY, switchItem, titleItem, type BarForm, type BarItem, type Ghost } from "./barItems";
-import { TitlePlace, type BarEntry } from "./Bar";
+import { TitlePlace, type BarEntry, type TitleAction } from "./Bar";
 
 type ObjectInput = Parameters<typeof objectControlParts>[0];
 
 export interface BarEntriesInput extends ObjectInput {
-  /** A phone shows the title place (the selected object's name until About lands); a wide bar does not yet. */
+  /** A phone shows the title place whatever the scene holds (the About title, or the selected object's name); a wide bar shows it only when the scene has an About. */
   readonly phone: boolean;
   readonly selectedLabel: string;
+  /** The scene's About title and its shorter title; absent: no About (the title place shows `selectedLabel`). */
+  readonly about?: { readonly title: string; readonly shortTitle?: string | undefined } | undefined;
+  /** What a press on the title place does: the About panel's, or (no About) the card's. */
+  readonly titleAction: TitleAction;
   readonly scaleId: ScaleId;
   readonly onScaleChange: (id: ScaleId) => void;
   readonly scaleChoices?: readonly ScaleChoice[] | undefined;
@@ -40,9 +44,10 @@ const withForm = (form: BarForm): "full" | "short" | "compact" => (form === "sho
 /** The title place, then the host's picker and the views as switches. */
 function leadEntries(input: BarEntriesInput): readonly BarEntry[] {
   const entries: BarEntry[] = [];
-  if (input.phone) {
-    const full = input.selectedLabel;
-    entries.push(entry(titleItem("title", full), (form) => <TitlePlace key="title" full={full} shown={form === "i" ? "i" : full} />));
+  if (input.about !== undefined || input.phone) {
+    const { title, shortTitle } = input.about ?? { title: input.selectedLabel, shortTitle: undefined };
+    const action = input.titleAction;
+    entries.push(entry(titleItem("title", title, shortTitle), (form) => <TitlePlace key="title" full={title} shown={form === "i" ? "i" : form === "short" && shortTitle !== undefined ? shortTitle : title} action={action} />));
   }
   const { switcher, viewChoice: views } = input;
   if (switcher !== undefined && switcher.options.length > 1) entries.push(entry(switchItem("picker-switch", switcher.options), (form) => <SwitchControl key="picker-switch" choice={switcher} form={withForm(form)} />));
