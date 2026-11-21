@@ -29,6 +29,9 @@ describe("the nine planets are built as their settings say (public reads only)",
 
     it("builds without a viewer, given the planet's data", () => {
       expect(() => scene.check({ data: [pictureData, ...system.data] })).not.toThrow();
+      // check returns nothing (it throws on a fault), so the quiet result is what it checked: the scene it passed holds the planet as its centre.
+      expect(scene.check({ data: [pictureData, ...system.data] })).toBeUndefined();
+      expect(scene.bodies.map((body) => body.id)).toContain(settings.centre.id);
     });
 
     it("lists the planet first (the scene's centre), then its mapped moons, in draw order, all listed", () => {

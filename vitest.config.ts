@@ -26,8 +26,8 @@ const common = {
   test: {
     environment: "node" as const,
     clearMocks: true,
-    // GitHub's runners are slower than a desk machine; the heavy data cases (showers, look-ahead) passed 5 s there only by luck (v0.1.1 publish runs).
-    testTimeout: process.env.CI ? 30_000 : 5_000,
+    // One timeout locally and on CI: the heavy data cases (showers, look-ahead) time out at 5 s under load on a desk machine as on GitHub's slower runners. Per-test timeouts above this stay as they are.
+    testTimeout: 30_000,
   },
 };
 

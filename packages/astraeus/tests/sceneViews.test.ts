@@ -106,6 +106,7 @@ describe("Scene.setViews", () => {
   it("takes a body and a path in the one list (a body given where a path was once required is now an object like any other)", () => {
     const built = scene().setViews([{ ...A, objects: ["moon"] }, B], bar);
     expect(() => definitionOf(built)).not.toThrow();
+    expect(definitionOf(built).views!.views.find((view) => view.id === "a")!.objects).toContain("moon");
   });
 
   it("refuses a panel id when the scene has no story panels", () => {

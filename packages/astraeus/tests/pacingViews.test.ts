@@ -86,6 +86,7 @@ describe("the switch ease", () => {
 describe("loading", () => {
   it("a near rule whose events belong to different views still loads", () => {
     expect(() => definitionOf(scene([{ near: { type: "flyby", withinSeconds: 86_400 }, rate: 60 }]))).not.toThrow();
+    expect(definitionOf(scene([{ near: { type: "flyby", withinSeconds: 86_400 }, rate: 60 }])).pacing!.zones.map((zone) => zone.eventId).sort()).toEqual(["ea", "eb", "es"]);
   });
   it("a near rule whose type matches no event still throws bad-timeline", () => {
     try { definitionOf(scene([{ near: { type: "nothing", withinSeconds: 86_400 }, rate: 60 }])); expect.unreachable(); } catch (error) { expect((error as SceneError).code).toBe("bad-timeline"); }

@@ -37,6 +37,38 @@ const withTodaysPlanets = (rows: Rec[], t: number): Rec[] => rows.map((row) => {
   return planet === null ? row : { ...row, value: Math.hypot(...planetAboutSunKm(planet, t)) };
 });
 type Rec = Record<string, any>;
+/**
+ * Relative tolerance for a non-integer number in a rate series. The rates are computed with floating-point exponentials, and Node 22 and Node 24 differ in the last bit
+ * (measured 1 to 3 parts in 1e16 on the three failing cases); 1e-12 is far above that and many orders below what the rate shows (`digits: 0`), so a real change in the
+ * curve still fails. Integer-valued numbers (such as `timeUtcMs`), strings, booleans, null, keys and lengths are compared exactly (O-085 T-362).
+ */
+const RATE_RELATIVE_TOLERANCE = 1e-12;
+const numberDifference = (now: number, was: number, path: string): string | undefined => {
+  if (Number.isInteger(now) || Number.isInteger(was)) return now === was ? undefined : `${path}: ${now} is not ${was}`;
+  return Math.abs(now - was) <= RATE_RELATIVE_TOLERANCE * Math.max(Math.abs(now), Math.abs(was)) ? undefined : `${path}: ${now} differs from ${was} by more than ${RATE_RELATIVE_TOLERANCE} relative`;
+};
+const firstDifference = (keys: string[], at: (key: string) => string | undefined): string | undefined => {
+  for (const key of keys) { const d = at(key); if (d !== undefined) return d; }
+  return undefined;
+};
+/** Why two values differ, or `undefined` when they match: structure and text exactly, non-integer numbers within RATE_RELATIVE_TOLERANCE. */
+const rateDifference = (now: unknown, was: unknown, path = "value"): string | undefined => {
+  if (typeof now === "number" && typeof was === "number") return numberDifference(now, was, path);
+  if (Array.isArray(now) || Array.isArray(was)) {
+    if (!Array.isArray(now) || !Array.isArray(was) || now.length !== was.length) return `${path}: array length or kind differs`;
+    return firstDifference(now.map((_v, i) => String(i)), (i) => rateDifference(now[Number(i)], was[Number(i)], `${path}[${i}]`));
+  }
+  if (typeof now === "object" && now !== null && typeof was === "object" && was !== null) {
+    const keys = Object.keys(now).sort();
+    if (keys.join() !== Object.keys(was).sort().join()) return `${path}: keys differ`;
+    return firstDifference(keys, (key) => rateDifference((now as Rec)[key], (was as Rec)[key], `${path}.${key}`));
+  }
+  return now === was ? undefined : `${path}: ${String(now)} is not ${String(was)}`;
+};
+const expectSameRate = (now: unknown, was: unknown, message?: string): void => {
+  const difference = rateDifference(now, was);
+  expect(difference, message).toBeUndefined();
+};
 /** The provenance as the replaced definition had it: without the class and fraction O-045 T-185 added. */
 const unclassed = (value: any) => (value && typeof value === "object" && "accuracyClass" in value ? Object.fromEntries(Object.entries(value).filter(([key]) => key !== "accuracyClass" && key !== "maxErrorFraction")) : value);
 const byId = (list: readonly Rec[], id: string) => list.find((item) => item.id === id)!;
@@ -173,7 +205,7 @@ describe.each([["perseids", perseidsFile, "swift-tuttle"], ["geminids", geminids
     expect(window.startUtcMs).toBe(was.startUtcMs);
     expect(window.endUtcMs).toBe(was.endUtcMs);
     expect(window.peakUtcMs).toBe(was.peakUtcMs);
-    expect(window.rate).toEqual(was.rate);
+    expectSameRate(window.rate, was.rate);
     expect(window.provenance).toEqual(was.provenance);
     expect(plain(definition.experience.window)).toEqual(old.window);
     expect(plain(definition.experience.rates)).toEqual(old.rates);
@@ -252,7 +284,7 @@ describe.each([["perseids", perseidsFile, "swift-tuttle"], ["geminids", geminids
       const now = plain(metrics(streamId, t)) as unknown as Rec[];
       const wasRate = was.find((r) => r.kind === "rate")!;
       expect(now.map((r) => r.kind)).toEqual(["rate"]);
-      expect(now[0]!.value, `rate at ${t}`).toBe(wasRate.value);
+      expectSameRate(now[0]!.value, wasRate.value, `rate at ${t}`);
       expect(now[0]!.unit).toBe(wasRate.unit);
       expect(now[0]!.label).toBe(wasRate.label);
       expect(now[0]!.peak).toEqual(wasRate.peak);
@@ -297,5 +329,21 @@ describe.each([["perseids", perseidsFile, "swift-tuttle"], ["geminids", geminids
 
   it("FLAG: scene layers now list 'tracked-bodies' too, (Decision 1)", () => {
     expect(plain(definition.sceneLayers)).toEqual(["tracked-bodies", ...old.sceneLayers]);
+  });
+});
+
+describe("the rate comparison helper", () => {
+  const curve = { unit: "per hour", samples: [{ timeUtcMs: 1000, value: 12.5, id: "a" }, { timeUtcMs: 2000, value: 40.25, id: "b" }] };
+  const changed = (edit: (c: typeof curve) => void): typeof curve => { const c = JSON.parse(JSON.stringify(curve)) as typeof curve; edit(c); return c; };
+  it("passes a value off by less than the tolerance", () => {
+    expect(rateDifference(changed((c) => { c.samples[1]!.value *= 1 + RATE_RELATIVE_TOLERANCE / 10; }), curve)).toBeUndefined();
+  });
+  it.each([
+    ["a changed id", (c: typeof curve) => { c.samples[0]!.id = "z"; }],
+    ["a dropped sample", (c: typeof curve) => { c.samples.pop(); }],
+    ["a changed timeUtcMs", (c: typeof curve) => { c.samples[1]!.timeUtcMs += 1; }],
+    ["a value off by more than the tolerance", (c: typeof curve) => { c.samples[1]!.value *= 1 + RATE_RELATIVE_TOLERANCE * 10; }],
+  ])("fails %s", (_name, edit) => {
+    expect(rateDifference(changed(edit), curve)).toBeDefined();
   });
 });

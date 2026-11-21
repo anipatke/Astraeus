@@ -102,16 +102,25 @@ describe("the view choice", () => {
     expect(container.innerHTML).toContain("Shared event");
   });
 
-  it("keeps time, speed and playing state across a switch", async () => {
+  // Both starting states: a switch that pauses or starts playback fails one of the rows.
+  it.each([["playing", true], ["paused", false]] as const)("keeps time, speed and playing state across a switch (%s)", async (_name, startPlaying) => {
     await open();
+    if (!startPlaying) await act(async () => { press(container.querySelector<HTMLElement>(".timeline-play")!); }); // the viewer opens playing
     // The clock readout and the speed choices (the text before the event list, which a view changes).
     const clockText = () => (container.querySelector(".timeline-bar")?.textContent ?? "").split("Playback rate")[0] + [...container.querySelectorAll("[aria-label^=\"Speed\"], [aria-pressed][data-rate]")].map((el) => el.getAttribute("aria-pressed")).join();
+    const playLabel = () => container.querySelector(".timeline-play")?.getAttribute("aria-label");
+    // The clock's own state, from the runtime the page hands the stand-in scene: a switch that changes it without the shell refreshing its label is caught too.
+    const clockPlaying = () => (sceneProps.latest as unknown as { runtime: { clock: { playing: boolean } } }).runtime.clock.playing;
     const before = clockText();
-    const playing = container.querySelector('[aria-label="Play"], [aria-label="Pause"]')?.getAttribute("aria-label");
+    const playing = playLabel();
+    expect(clockPlaying()).toBe(startPlaying);
+    expect(playing).toMatch(/^(Play|Pause) playback$/);
+    expect(playing).toBe(startPlaying ? "Pause playback" : "Play playback");
     await choose("View B");
     await choose("Both");
-    expect(clockText()).toBe(before);
-    expect(container.querySelector('[aria-label="Play"], [aria-label="Pause"]')?.getAttribute("aria-label")).toBe(playing);
+    expect(playLabel()).toBe(playing);
+    expect(clockPlaying()).toBe(startPlaying);
+    if (!startPlaying) expect(clockText()).toBe(before);
   });
 
   it("leaves a scene without views exactly as it was: no choice, nothing hidden", async () => {

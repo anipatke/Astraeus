@@ -98,10 +98,15 @@ describe("pacedAdvance", () => {
   });
 
   it("is bounded: a frame longer than the step budget drops the rest instead of looping or skipping", () => {
-    const start = Date.now();
-    const to = pacedAdvance(pacing, START, 10 * 365 * DAY);
-    expect(Date.now() - start).toBeLessThan(2_000);
+    // Three hundred zones with ramps need far more than MAX_PACE_STEPS sub-steps to cross; ten years of real time is far more than crossing them takes, so an unbounded walk would end past the last zone.
+    const many: Pacing = { baseRate: CRUISE, zones: Array.from({ length: 300 }, (_, i) => {
+      const centre = START + (i + 1) * 2 * DAY;
+      return { fromUtcMs: centre - 1.5 * HOUR, toUtcMs: centre + 1.5 * HOUR, rate: ZONE_RATE, rampMs: 4 * HOUR, eventId: `m${i}` };
+    }) };
+    const lastZoneEnd = many.zones[299]!.toUtcMs;
+    const to = pacedAdvance(many, START, 10 * 365 * DAY);
     expect(Number.isFinite(to) && to > START).toBe(true);
+    expect(to).toBeLessThan(lastZoneEnd); // the rest of the real time is dropped, not walked
     expect(MAX_PACE_STEPS).toBeGreaterThan(0);
   });
 

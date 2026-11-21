@@ -3,7 +3,10 @@ import { useMemo } from "react";
 import { AdditiveBlending, BackSide, Color } from "three";
 import type { AtmosphereConfig } from "../assets/visual";
 
+// The renderer uses the logarithmic depth buffer; the donor code ran without it, so the log-depth chunks are added here.
 const VERTEX = /* glsl */ `
+  #include <common>
+  #include <logdepthbuf_pars_vertex>
   varying vec3 vNormal;
   varying vec3 vViewPosition;
   void main() {
@@ -11,16 +14,19 @@ const VERTEX = /* glsl */ `
     vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
     vViewPosition = -mvPosition.xyz;
     gl_Position = projectionMatrix * mvPosition;
+    #include <logdepthbuf_vertex>
   }
 `;
 
 const FRAGMENT = /* glsl */ `
+  #include <logdepthbuf_pars_fragment>
   uniform vec3 uColor;
   uniform float uIntensity;
   uniform float uPower;
   varying vec3 vNormal;
   varying vec3 vViewPosition;
   void main() {
+    #include <logdepthbuf_fragment>
     vec3 viewDir = normalize(vViewPosition);
     float ndotv = abs(dot(viewDir, normalize(vNormal)));
     float edge = clamp(1.0 - ndotv, 0.0, 1.0);

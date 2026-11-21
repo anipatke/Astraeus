@@ -137,7 +137,7 @@ describe("the site's page entry", () => {
     expect((window as { astraeusHost?: unknown }).astraeusHost).toBeUndefined();
   });
 
-  it("back and forward open the address now in the location without pushing a new one, and an address that fails shows the failure cover", async () => {
+  it("back and forward open the address now in the location without pushing a new one", async () => {
     window.history.replaceState(null, "", "/?experience=synthetic");
     await import("../src/main");
     await drawnScenes(1);

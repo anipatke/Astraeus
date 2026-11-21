@@ -254,6 +254,7 @@ describe("publishCanvasReadouts", () => {
   it("updates the sky only when the scene has a sky view, and reads it back only in developer mode", () => {
     const { ctx } = makeContext();
     expect(() => publishCanvasReadouts(ctx)).not.toThrow();
+    expect(ctx.canvas.dataset.skyPicture).toBeUndefined();
     const sky = fakeSky();
     const withSky = { ...ctx, views: { ...ctx.views, skyView: sky } } as unknown as FrameContext;
     publishCanvasReadouts(withSky);

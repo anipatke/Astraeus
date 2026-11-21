@@ -21,6 +21,7 @@ Engineering health repairs (G-024). Behaviour may change where it was wrong (own
 - Fixed: each scene keeps its own moon data. Loading a moon package for one scene no longer moves a planet in another scene (Jupiter moved about 143 km at the same instant); decoded files are still fetched once per data package.
 - Fixed: a moon's orbit line in the first weeks of 1950 no longer throws.
 - Fixed: a viewer that was paused when its moon data finished loading now shows the planet's centre straight away, instead of a position worked out before the load.
+- Fixed: Earth's atmosphere glow now uses the logarithmic depth buffer, so bodies and lines behind the rim no longer cut into it.
 
 ### Breaking changes in 0.10.0
 
