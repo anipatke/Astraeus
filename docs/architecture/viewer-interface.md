@@ -1,6 +1,6 @@
 # Viewer interface reset (G-023)
 
-Decision note for O-079 (T-328), also binding O-080 and O-081. The build Tasks implement this note; where it and an Objective's draft shapes differ, this note wins. Status: **drafted, awaiting owner confirmation of the summary**.
+Decision note for O-079 (T-328), also binding O-080 and O-081. The build Tasks implement this note; where it and an Objective's draft shapes differ, this note wins. Status: **confirmed by the owner 2026-11-21 and built in O-079** (T-330, T-329, T-326, T-331, T-325, T-332, T-327). Where the build deliberately differs, the section says so under "As built"; Design.md "Viewer interface" describes the result.
 
 ## Summary for the owner
 
@@ -72,7 +72,7 @@ Verdict: **keep** means the logic stays and only placement and styling move to t
 | Developer loading | `app/App.tsx:790` (`role="status"`) | developer area | Keep |
 | Loading cover | host's (`shell/bootLoader.ts:1-2`; Design "Good guest" (5)) | host page | Not an interface part; unchanged |
 | Labels, story and place markers | `style.css:85-106,279-345`; `app/style.css:137-150` | scene overlay | Keep; tokens only |
-| Marker occlusion | `app/FeatureMarkers.ts:59-63,224-240` (a list of 12 class names) | measures panels | Rebuild selector: every area carries `data-area`, and the layer measures `[data-area]`, so a new panel is counted without editing the list |
+| Marker occlusion | `app/FeatureMarkers.ts:59-63,224-240` (a list of 12 class names) | measures panels | Rebuild selector: every area carries `data-area`, and the layer measures `[data-area]`, so a new panel is counted without editing the list. As built: not done in O-079; the class list stays (`.controls-pill` removed) |
 | Embedded detection | `shell/embedded.ts:7-14`; `embedded.css:7-36` | slim bars when framed | Keep detection; CSS becomes token overrides |
 | Phone detection | `shell/phoneLayout.ts:6,57-68` (window media query) | | Rebuild: decided from the viewer's own size (§2) |
 | Provenance, sources, metrics, folds | `ProvenanceBadge.tsx`, `Sources.tsx`, `MetricVisual.tsx`, `Collapsible.tsx` | inside cards and panels | Keep; tokens only |
@@ -95,12 +95,14 @@ Areas are one CSS grid laid over the canvas (`pointer-events: none` except on oc
 
 **What changes on a phone (the one description).** `shell/areas/screen.ts` decides four root attributes from one `ResizeObserver` on the viewer root plus two media reads:
 
-- `data-layout="phone"` when the **viewer's** width ≤ 700 px, or its height ≤ 500 px with a coarse pointer (today's `PHONE_QUERY`, `phoneLayout.ts:6`, measured on the viewer instead of the window).
+- `data-layout="phone"` (as built: `data-phone="true"`, kept because tests, the site driver and `useZoomThrough` read it) when the **viewer's** width ≤ 700 px, or its height ≤ 500 px with a coarse pointer (today's `PHONE_QUERY`, `phoneLayout.ts:6`, measured on the viewer instead of the window).
 - `data-pointer="coarse|fine"` sets the control height (44/36).
 - `data-embedded`: framed, from `embedded.ts`.
 - `data-motion="reduced"` sets `--astraeus-motion: 0ms`.
 
 With phone layout, `left`, `right` and `developer` map onto `sheet`, the bar keeps engine items in the menu, and a pick opens no card (kept, `phoneLayout.ts:9-11`). That is the whole phone difference.
+
+**As built.** Until the viewer root has a measurable size (first paint, test pages) `readScreen` falls back to the window phone query. The phone grid is `"bar" "sheet" "timeline"`; parts render once by their wide area name and the phone map moves them onto the sheet, so no `sheet` element is drawn yet. The last row is `auto` (no `--timeline-space`). The root is the `astraeus-viewer` size container, the timeline area `astraeus-timeline` (inline-size), the Developer drawer `astraeus-developer`; rule 6 is `@container astraeus-timeline (max-width: 876px)`, because the area is 24 px narrower than the viewer, so the switch stays at a 900 px viewer. The phone drawer, sheet and menu height limits (`phoneLayoutStyle`) are `cqh` of the viewer. A phone-sized viewer keeps 44 px controls through `data-phone` as well as a coarse pointer.
 
 Rules it replaces (each removed in T-330/T-326/T-329/T-331):
 
@@ -118,7 +120,7 @@ Rules it replaces (each removed in T-330/T-326/T-329/T-331):
 
 `@media` is allowed only in `shell/areas/areas.css` (the drift check enforces it). A part may wrap its own content with `@container` against its area.
 
-**Embedded viewers.** A framed viewer (`data-embedded`, wide layout, fine pointer) overrides tokens only: control height 30, space steps one smaller, text one step smaller (today `embedded.css:7-31`). A phone-sized frame keeps 44 px targets (`embedded.css:33-36`). A viewer mounted into any page element takes its layout from its own size, so two viewers on a page may differ (API-03).
+**Embedded viewers.** A framed viewer (`data-embedded`, wide layout, fine pointer) overrides tokens only: control height 30, space steps one smaller, text one step smaller (today `embedded.css:7-31`). As built: control height 30 and control text are tokens in `look.css`; the space steps were not scaled, because `shell/parts/embedded.css` keeps a framed wide bar's padding and gap overrides (as tokens) and scaling both would shrink twice. A phone-sized frame keeps 44 px targets (`embedded.css:33-36`). A viewer mounted into any page element takes its layout from its own size, so two viewers on a page may differ (API-03).
 
 ## 3. Look
 
@@ -144,6 +146,8 @@ All raw values live in `shell/look/look.css` as custom properties on `.astraeus-
 | `--astraeus-blur` | `12px` | `style.css:234` |
 | `--astraeus-motion` | `240ms`; `--astraeus-ease` `cubic-bezier(.32,.72,0,1)` | `phoneLayout.ts:28`, `phone.css:12` |
 | `--astraeus-layer-*` | scene 0, labels 1, markers 2, areas 3, popover 6, drawer 7, top 9 | 10 z-index values scattered |
+
+As built, `look.css` also holds internal tokens the table does not list: the ordinal size scale `--astraeus-size-1..17`, `--astraeus-hit` (44), `--astraeus-control-text`, `--astraeus-mono`, `--astraeus-subtle`, `--astraeus-arrow` (the select arrow, which holds a literal colour), layers `-panel` (4) and `-bar` (5) (the right and left places), and the bar's own 8 px blur beside `--astraeus-blur`. Buttons are pills; selects, text inputs and list rows use `--astraeus-radius-s`.
 
 **Colour mapping** (every literal in the 7 sheets, 60 distinct values counted by `grep` over `shell/*.css` and `app/style.css`):
 
@@ -188,6 +192,8 @@ All raw values live in `shell/look/look.css` as custom properties on `.astraeus-
 
 Total = sum of row widths + `g` × (row items − 1).
 
+**As built.** The title is a bar item on both bars only with an About; without one a wide bar shows no title (the object picker already names the object) and the phone title place shows the selected object's name and opens its card. Step 6's compact switch is a native `<select>`. `barEntries.tsx` builds the items from state so `barItems.ts` stays plain data; related objects are one item per object and camera presets one item each (priority 3). The measuring row is ghost spans styled like the controls, so widths are close, not exact. An outside press closes the wide ⋯ drop-down; a phone menu drawer stays open.
+
 **Worked cases** use Belt's Jupiter view (title "The asteroid belt" / "Asteroid belt"; tabs "Asteroid belt" | "Jupiter's influence" / "Belt" | "Jupiter"; buttons "Kirkwood gaps" / "Gaps", "How empty is it?" / "How empty?"). Widths are estimated from 7 px per character at 13 px (wide) and 7.4 px at 14 px (phone), plus padding. The build measures real widths.
 
 - Phone: `W` = viewport − 24, `g` = 6, 44 px controls. Widths: title 150/122/44; tabs 289/134 (compact 96); Gaps 122/56; How empty 144/100; ☰ 44. Engine items are always in the menu.
@@ -197,8 +203,8 @@ Total = sum of row widths + `g` × (row items − 1).
   - **430** (`W` 406): step 4 gives 402 ✓. `[i][Belt|Jupiter][Gaps][How empty?][☰]`.
   - 360, Belt view (Gaps hidden): step 4 gives 340 > 336, step 5 moves How empty → 234. Give back: short title 312 ✓. `[Asteroid belt][Belt|Jupiter][☰]`.
 - Wide: `W` = viewport − 36, `g` = 6, 36 px (fine pointer). Widths: title 145/117/36; tabs 276/129; Gaps 117/54; How empty 138/96; picker 160; Info, Focus, Follow, Overview 36 each; scale 104 + help 36; ⋯ 36.
-  - **1280** (`W` 1244): full = 145+276+117+138+444+66 = 1186 ✓. Everything on the row, no menu. With developer tools: 1228 ✓.
-  - **768** (`W` 732): full 1186. Step 1 → 934. Step 2 moves Overview (menu appears, net 0), Follow → 892, Focus → 850, scale + help → 698 ✓. Row: `[The asteroid belt][Belt|Jupiter][Gaps][How empty?] … [picker][Info][⋯]`. ⋯ holds Focus, Follow, Overview, Scale.
+  - **1280** (`W` 1244): full = 145+276+117+138+444+60 = 1180 ✓ (11 row items, 10 gaps). Everything on the row, no menu. With developer tools: 1222 ✓.
+  - **768** (`W` 732): full 1180. Step 1 → 928. Step 2 moves Overview (menu appears, net 0), Follow → 886, Focus → 844, scale + help → 692 ✓. Row: `[The asteroid belt][Belt|Jupiter][Gaps][How empty?] … [picker][Info][⋯]`. ⋯ holds Focus, Follow, Overview, Scale.
   - A coarse-pointer tablet at 768 uses 44 px widths in the same function.
 
 **Wide overflow:** ⋯ opens the `menu` area as a drop-down under the bar's right end. It holds the same `BarMenu` content the phone drawer shows: "This story" buttons first, then engine items with their names. The bar's left group (title, switch, story) and right group (engine, menu) are split by flexible space.
@@ -238,6 +244,8 @@ Total = sum of row widths + `g` × (row items − 1).
 
 Story timing (auto-open, hold, `closeAfterSeconds`) stays in `useStoryPanels.ts` and reaches the rule as open/close actions with their cause, so host signals are unchanged.
 
+**As built.** `shell/panels/` also holds `PopupContext.tsx`, through which parts report pop-up intents without prop drilling; a part drawn alone (tests) uses the same rule with `scope: "standalone"`. The story panel's open state (`useStoryPanels`) and the Developer mode (host-owned) are mirrored into the rule, which is authoritative for `left`, `menu`, `timeline` and `popup`; Escape on the story calls `story.close()`. The Developer drawer has no Escape, as before. About is the `left` occupant `about`. A view switch dropping a story panel is still derived in `useStoryPanels` (cause `move`); the rule's `viewSwitch` action is used for the card.
+
 **Rules it replaces:**
 
 - `AstraeusShell.tsx:291-294` (menu closes card and story when moons exist; removed)
@@ -276,8 +284,8 @@ Verb grammar is unchanged: `add*` appends (`duplicate-id`), `set*` replaces, `on
 ```ts
 interface AboutInput { title: string; shortTitle?: string; status?: string;
   credits?: readonly { text: string; url?: string }[]; links?: readonly { text: string; url: string }[] }
-scene.setAbout(about: AboutInput): this;   scene.about: AboutRead | undefined
-handle.about: AboutRead | undefined;       handle.setAbout(about: AboutInput): void   // replaces the whole About
+scene.setAbout(about: AboutInput): this;   scene.about: AboutInput | undefined   // a frozen copy
+handle.about: AboutInput | undefined;      handle.setAbout(about: AboutInput): void   // replaces the whole About
 PickerOptionInput.shortLabel?: string      // bad-picker
 ViewInput.shortLabel?: string              // bad-view
 LookInput.interface?: InterfaceLookInput;  LookRead.interface   // bad-look; §10
@@ -287,6 +295,7 @@ LookInput.interface?: InterfaceLookInput;  LookRead.interface   // bad-look; §1
 - A bad shape throws the new code `bad-about`, naming the field.
 - The About panel ends with "Built with Astraeus" linking to `https://astraeus.anipatke.com/`, with the version read from the engine's `package.json` at build.
 - `handle.setAbout` throws `not-mounted` outside the lifecycle, and holds in host call order.
+- As built: there is no separate `AboutRead` type (reads return `AboutInput`, frozen), to keep the API reference page under its size cap.
 
 **O-080 and O-081: shelf parts.**
 
@@ -363,17 +372,24 @@ handle.part(chips).onSelect(({ values, cause }) => ...);   handle.part(chips).se
 ## 9. Module structure and contributor guide
 
 ```
+app/style.css          the one stylesheet entry (published as astraeus/style.css): @imports every sheet below, in cascade order
 shell/
-  AstraeusShell.tsx    composition only: state → areas, bar, panels
-  selection/           selection and camera-preset logic, moved unchanged from AstraeusShell
+  AstraeusShell.tsx    composition: state → areas, bar, panels (selection and camera-preset logic still here)
   look/                look.css (every raw value), interfaceLook.ts (public settings → CSS vars)
   areas/               screen.ts (layout attributes), areas.css (grid, the only @media), Area.tsx
-  bar/                 barItems.ts, fitBar.ts (pure), useBarFit.ts (measures), Bar.tsx, BarMenu.tsx
-  panels/              panelRule.ts (pure), usePanels.ts (applies; one Escape and outside-press listener)
-  parts/               one folder per part: about, card, story, moons, tabs, objectControls, scale,
-                       display, developer, timeline, loadError
+  bar/                 barItems.ts (plain data), barEntries.tsx (state → items), fitBar.ts (pure),
+                       useBarFit.ts (measures), Bar.tsx, BarMenu.tsx, bar.css
+  panels/              panelRule.ts (pure), usePanels.ts (applies; one Escape and outside-press listener),
+                       PopupContext.tsx (parts report pop-up intents)
+  parts/               controls.css, parts.css, phone.css, embedded.css (each covers several parts),
+                       timeline/timeline.css
+  *.tsx                the part components, still flat files: AboutPanel, InfoPanel, StoryPanelView,
+                       MoonFamilyPanel, TimelineBar, ObjectControls, ScaleControl, DisplaySwitches,
+                       SwitchControl, ControlsDrawer, DeveloperToggle; useTitlePlace.ts (the title place)
 shelf/                 one folder per shelf part (O-080/81): factory.ts, View.tsx, part.css
 ```
+
+As built, the planned `selection/` folder and the one-folder-per-part split of `parts/` (components and sheets) were not done in O-079; the tree above is the code. A later split moves a part's component and rules together.
 
 Each module starts with a header comment saying its one job and what it must not do:
 
@@ -387,10 +403,12 @@ Each module starts with a header comment saying its one job and what it must not
 
 **Add a panel:** add an occupant row to `panelRule.ts` (wide area, phone area, layer). Render it through `Area`. Add its close-table rows as cases.
 
+**Add styles:** add the class in the component before its rule. A new stylesheet is one `@import` line in `app/style.css`, never an import in a component. `tests/interfaceLeftovers.test.ts` fails on a class selector no component renders, a look token nothing reads, a sheet `app/style.css` does not load and a stylesheet import outside the two entry files (`api/mount.ts`, `api/AstraeusScene.tsx`); run-time class families and class carriers are listed in the test.
+
 **Drift check** (`packages/astraeus/tests/lookDrift.test.ts`, T-330) scans every `.css` under `src/shell`, `src/shelf` and `src/app/style.css`, and `style={…}` objects in `.tsx` under those folders. Outside `shell/look/look.css` it fails on:
 
 - hex, `rgb()`, `hsl()` and named colours (except `transparent`, `currentColor`, `inherit`);
-- lengths other than `0` and `1px`;
+- lengths other than `0` and `1px` (as built, `cqw`/`cqh` viewer units are also allowed, and `@container` breakpoints are not scanned);
 - `z-index` other than `var(--astraeus-layer-*)`;
 - `@media` outside `areas.css`.
 

@@ -8,7 +8,8 @@
   "exports": {
     "./experiences/*": "./src/experiences/*.ts",
     "./experiences/planets/surfacePlace.mjs": "./src/experiences/planets/surfacePlace.mjs",
-    "./data/*": "./data/*"
+    "./data/*": "./data/*",
+    "./credits/*": "./credits/*"
   },
   "dependencies": {
     "astraeus": "*",

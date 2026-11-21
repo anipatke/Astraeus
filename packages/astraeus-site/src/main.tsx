@@ -3,6 +3,7 @@ import { dataSource as pictureData } from "astraeus-data";
 import { PLANET_SYSTEMS } from "astraeus-demo-planets/experiences/planets/planetSystems";
 import { createAddressNavigation, switchAddress } from "./addressNavigation";
 import { createBootCover, hideBootLoader } from "./bootCover";
+import { demoAbout } from "./demoAbout";
 import { pageTitle } from "./pageTitle";
 import { addSkyTraceControl } from "./skyTraceControl";
 import { chooseEntry } from "./entryChoice";
@@ -17,11 +18,15 @@ const host: HTMLElement = app;
 // Each is its own chunk, fetched only for the experience asked for (I-022), so the others' code and data never download.
 // The made-up (synthetic) ones are test experiences: the dev server mounts them, a public build (ASTRAEUS_PUBLIC_BUILD=1) leaves them out of the bundle, so they fall back to the default experience (T-068).
 // Each is a `Scene` built on the public API; `mount` draws it, with the data it needs.
-// A scene the site mounts: what `mount` draws, the data it needs, the page heading's name, and the picker's address parameters (a scene with a picker) and whether the dev page exposes its handle.
+// A scene the site mounts: what `mount` draws, the data it needs, the page heading's name (also its About title, with a short one and its package's credit lines), and the picker's address parameters (a scene with a picker) and whether the dev page exposes its handle.
 interface Built {
   readonly scene: Scene;
   readonly data: readonly DataSource[];
   readonly label?: string;
+  /** O-079 T-327: the About's short title for a tight phone row; absent: the label. */
+  readonly shortLabel?: string;
+  /** O-079 T-327: the demo package's `credits/CREDITS.md` text, whose lines the About lists; absent for the made-up scenes. */
+  readonly credits?: string;
   /** The address parameters the picker keeps across a choice (the clock's `t`); absent: the scene has no picker. */
   readonly keep?: readonly string[];
   /** O-051 T-221: the dev page hands the handle of the made-up views scene to the browser check as `window.astraeusHost`. */
@@ -79,11 +84,11 @@ async function build(): Promise<Built> {
     const { choice } = entry;
     const [{ parsePlanetSettings }, { buildPlanetScene }] = await Promise.all([import("astraeus-demo-planets/experiences/planets/planetSettings"), import("astraeus-demo-planets/experiences/planets/planetScene")]);
     const settings = parsePlanetSettings(PLANET_FILES[`../../astraeus-demo-planets/data/planets/${choice.name}.json`]);
-    const [systemModule, panels] = await Promise.all([PLANET_SYSTEMS[settings.system]!(), STORY_PANELS[`../${settings.story.panels}`]!()]);
+    const [systemModule, panels, credits] = await Promise.all([PLANET_SYSTEMS[settings.system]!(), STORY_PANELS[`../${settings.story.panels}`]!(), import("astraeus-demo-planets/credits/CREDITS.md?raw")]);
     const system = systemModule[`${settings.system}System`]!;
     // A planet is a scene on the public API (`astraeus`); the moon maps come with `astraeus-data`, the moon positions with the planet's own system, and the planet switch is the picker the site adds.
     const scene = buildPlanetScene(settings, system, panels).setPicker(pickerOf(choice.switcher));
-    return { ...own(scene, system.data), label: settings.experienceLabel, keep: choice.switcher.keep ?? [] };
+    return { ...own(scene, system.data), label: settings.experienceLabel, shortLabel: settings.label, credits: credits.default, keep: choice.switcher.keep ?? [] };
   }
   if (entry.kind === "showers") {
     const { choice } = entry;
@@ -94,15 +99,15 @@ async function build(): Promise<Built> {
     ]);
     const settings = parseShowerSettings(SHOWER_FILES[`../../astraeus-demo-showers/data/showers/${choice.name}.json`]);
     // Only the chosen shower's panels file is fetched, beside its orbits.
-    const [load, panelsFile] = await Promise.all([loadMeasuredOrbits(settings.stream.iauCode, settings.id), loadShowerPanelsFile(settings, STORY_PANELS)]);
+    const [load, panelsFile, credits] = await Promise.all([loadMeasuredOrbits(settings.stream.iauCode, settings.id), loadShowerPanelsFile(settings, STORY_PANELS), import("astraeus-demo-showers/credits/CREDITS.md?raw")]);
     // A shower is a story on the public API (`astraeus`), with the shower switch as the picker the site adds.
     const scene = buildShowerScene(settings, load, panelsFile).setPicker(pickerOf(choice.switcher));
-    return { ...own(scene), label: settings.label, keep: choice.switcher.keep ?? [] };
+    return { ...own(scene), label: settings.label, credits: credits.default, keep: choice.switcher.keep ?? [] };
   }
   if (entry.kind === "synthetic") return SYNTHETIC[entry.name]!();
   // Apollo 11 is the default: a story built on the public API (`astraeus`).
-  const { APOLLO11_LABEL, buildApollo11Scene } = await import("astraeus-demo-apollo11/experiences/apollo11/apollo11Scene");
-  return { ...own(buildApollo11Scene()), label: APOLLO11_LABEL };
+  const [{ APOLLO11_LABEL, buildApollo11Scene }, credits] = await Promise.all([import("astraeus-demo-apollo11/experiences/apollo11/apollo11Scene"), import("astraeus-demo-apollo11/credits/CREDITS.md?raw")]);
+  return { ...own(buildApollo11Scene()), label: APOLLO11_LABEL, credits: credits.default };
 }
 
 /** The fade time when the viewer's look is not yet readable: the engine's default. */
@@ -126,6 +131,8 @@ function show(built: Built): void {
   removeHostControl = undefined;
   current?.unmount();
   const reach = cover.claim();
+  // Every demo carries an About (the bar's title): its name and credits, read from the records that already hold them.
+  built.scene.setAbout(demoAbout(built));
   const handle = mount(host, built.scene, { data: built.data, address: true, developerTools: true });
   current = handle;
   document.title = pageTitle(built.label);
