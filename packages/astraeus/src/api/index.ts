@@ -33,7 +33,8 @@ export type { State, CenteredPosition, FrameId, Quaternion } from "../core/state
 export type { Provenance, ProvenanceSourceType } from "../core/provenance";
 export type { Pictures } from "../assets/pictures";
 export type { AssetLicence, TextureRef, LocalOnlyDeclaration, PublicReplacement } from "../assets/licence";
-export { APPROXIMATE_LIMIT_FRACTION, INDICATIVE_LIMIT_FRACTION, classifyPositionError, parseElementsBodyRecord, type AccuracyClassification, type ElementsSource, type ElementsTimeScale } from "../core/elementsBody";
+export { APPROXIMATE_LIMIT_FRACTION, INDICATIVE_LIMIT_FRACTION, classifyPositionError, type AccuracyClassification, type ElementsSource, type ElementsTimeScale } from "../core/elementsBody";
+export { parseElementsBodyRecord } from "./elementsRecord";
 export type { BodyId, CenterId } from "../core/body";
 export type { DisplaySwitchId, DisplaySwitchPlace } from "../app/displaySwitches";
 export type { ViewPlace } from "../app/views";

@@ -2,7 +2,7 @@
 id: T-344
 title: Turn the other reviewed raw throws into coded errors
 objective: O-083
-status: planned
+status: done
 depends_on: [{task: T-343, requires: clear}]
 check_waiver: {task: T-344, reason: 'Owner said "work through this list of objectives one by one. Orchestrate each objective to completion" (G-024 decision 7): standing orchestration rules waive the optional step checks; the mandatory Full Objective Check covers the whole diff.', actor: {role: owner, session: orchestrate-g024-20261121}, recorded_at: '2026-11-21T11:22:41Z'}
 owner_validation: {required: false}
@@ -78,8 +78,27 @@ Focused: `npx vitest run packages/astraeus/tests/publicErrorContract.test.ts pac
 
 ## Technical Evidence
 
-Pending execution.
+Rows shown failing first (src and tools stashed): 10 rows in `publicErrorContract.test.ts`, 2 in `astraeusSceneBadScene.test.ts`, 1 in `apiRules.test.ts` failed; with the change all pass.
+
+| Done When | Evidence |
+|---|---|
+| bad-scene from mount / AstraeusScene / definitionOf routes | `definitionOf.ts` `builderOf` (and `missingDataOf`); rows "mount of ... Scene", "mount of null" (publicErrorContract), 2 rows in new `astraeusSceneBadScene.test.ts` (happy-dom; AstraeusScene needs a DOM, so not in the node table) |
+| setViews uncopyable -> bad-view | `views.ts` `copied`; rows function / symbol |
+| addTrajectory non-object / samples not a list -> bad-trajectory | `scene.ts`, `planPaths.ts sampledBody`; rows null, text, samples |
+| parseElementsBodyRecord -> bad-element via wrapper | new `api/elementsRecord.ts`, `index.ts` re-exports it; rows `{}` and null; signature unchanged (lock) |
+| unreadable data package -> bad-data; out-of-span and SceneError kept | `data.ts moonLoadFailure`; rows index unreadable (neptune) and chunk address unreadable (mars); existing out-of-span rows green |
+| errorBreaks covers re-exports; allowlist empty | `tools/api-rules.mjs`; new apiRules sample case; `node tools/api-rules.mjs errors` reports no break on the real source; `apiErrors.allowlist.json` untouched |
+| errors.ts bad-scene, bad-data comment; README table; lock | `npm run api:errors` (table), `npm run api:lock`: lock diff = SceneErrorCode union (bad-scene, bad-data comment) plus `parseElementsBodyRecord` entry re-ordered, identical signature |
+| scenePin | `-u` regenerated; diff is only `addTrajectory: samples not a list`: TypeError -> SceneError / bad-trajectory |
+| Existing tests unchanged, green | full suite: 297 files, 4961 passed, 2 skipped; no existing test edited (only additions) |
+| Gates | lint, typecheck, build clean; `npm test` as above |
+
+Each unreadable-package row uses its own planet (neptune, mars) because a moon system keeps what it loaded, so an earlier-loaded package is not read again. Extra read: none beyond Context Files.
+
+Limitations: only the moon load is mapped to bad-data (a host `prepare` failure still passes through raw, not named by the Task). Re-export scan judges each re-exported function/class's own throw statements, not their callees.
 
 ## Drift Notes
 
-Record for Design reconciliation (`O-053 checks`): the API-05 scan now covers re-exported helpers; the new `bad-scene` code.
+Record for Design reconciliation (`O-053 checks`): the API-05 scan now covers re-exported helpers; the new `bad-scene` code; `parseElementsBodyRecord` now lives in `api/elementsRecord.ts`; `bad-data` also covers unreadable moon packages.
+
+Coordinator (orchestrate-g024-20261121): hand-off gates green (sole builder: lint, typecheck, build; `npm test` 297 files, 4961 passed, 2 skipped); `status: done` set by the coordinator under the standing orchestration rule ("I mark them as they pass", O-038) and G-024 decision 7.

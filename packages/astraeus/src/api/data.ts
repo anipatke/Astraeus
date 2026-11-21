@@ -62,15 +62,16 @@ export async function installData(data: readonly DataSource[], sceneBodies: read
     system.provideIndex(positions.loadIndex);
     const moons = [...sceneBodies.filter((id) => catalogue.has(id) && catalogue.get(id).definition.parentId === positions.center), ...(sets?.moons ?? []).filter((moon) => moon.parent === positions.center).map(({ id }) => id)];
     const maxMs = sets?.historyMs.get(positions.center) ?? 0;
-    if (moons.length > 0) await system.load({ window, bodies: moons, chunkUrls: positions.chunkUrls, ...(maxMs > 0 ? { history: { bodies: moons, maxMs } } : {}) }).catch(outOfSpan(source.name));
+    if (moons.length > 0) await system.load({ window, bodies: moons, chunkUrls: positions.chunkUrls, ...(maxMs > 0 ? { history: { bodies: moons, maxMs } } : {}) }).catch(moonLoadFailure(source.name));
   }
   for (const source of data) await source.prepare?.();
 }
 
-/** Turns a moon's span refusal into the public error, naming the package that holds the positions (once: the load promise is shared). */
-function outOfSpan(packageName: string): (error: unknown) => never {
+/** Turns a moon load's failure into the public error, naming the package that holds the positions (once: the load promise is shared): a span refusal is `out-of-span`, a `SceneError` passes, and bytes that cannot be read or parsed are `bad-data`. */
+function moonLoadFailure(packageName: string): (error: unknown) => never {
   return (error) => {
     if (error instanceof MoonOutOfSpanError) throw new SceneError("out-of-span", `${error.body} is outside the years ${packageName} covers: ${error.message}; set the timeline inside that span, or refit the data for the longer years`);
-    throw error;
+    if (error instanceof SceneError) throw error;
+    throw new SceneError("bad-data", `${packageName}: its moon positions could not be read or parsed: ${error instanceof Error ? error.message : String(error)}`);
   };
 }

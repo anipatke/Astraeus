@@ -141,7 +141,7 @@ export function publicTypeBreaks(entry = PUBLIC_ENTRY) {
 /** The `.ts` files directly in a folder, as absolute paths. */
 export const filesIn = (dir) => readdirSync(dir).filter((name) => /\.tsx?$/.test(name)).sort().map((name) => join(dir, name));
 
-/** Breaks where something thrown from `dir` is not a `SceneError`, or an error is recognised by its message text. Each is `{ rule: "throw" | "message", site: "file: source text" }`. */
+/** Breaks where something thrown from `dir`, or from a function or class its `index.ts` re-exports from outside it, is not a `SceneError`, or an error is recognised by its message text. Each is `{ rule: "throw" | "message", site: "file: source text" }`. */
 export function errorBreaks(dir = join(ENGINE_SRC, "api")) {
   const program = ts.createProgram(filesIn(dir), OPTIONS);
   const checker = program.getTypeChecker();
@@ -164,7 +164,7 @@ export function errorBreaks(dir = join(ENGINE_SRC, "api")) {
   };
   const MATCHERS = new Set(["startsWith", "endsWith", "includes", "indexOf", "match", "matchAll", "search", "test", "exec"]);
   const mentionsMessage = (node) => { let found = false; const walk = (n) => { if (ts.isPropertyAccessExpression(n) && n.name.text === "message") found = true; else ts.forEachChild(n, walk); }; walk(node); return found; };
-  for (const file of program.getSourceFiles().filter((f) => dir === dirname(f.fileName))) {
+  const scan = (file, root) => {
     const visit = (node) => {
       if (ts.isThrowStatement(node) && node.expression !== undefined) {
         const thrown = node.expression;
@@ -177,7 +177,20 @@ export function errorBreaks(dir = join(ENGINE_SRC, "api")) {
         && (mentionsMessage(node.left) || mentionsMessage(node.right)) && !/null|undefined/.test(node.left.getText(file) + node.right.getText(file))) add("message", file, node);
       ts.forEachChild(node, visit);
     };
-    visit(file);
+    visit(root);
+  };
+  for (const file of program.getSourceFiles().filter((f) => dir === dirname(f.fileName))) scan(file, file);
+  // A function or class `index.ts` re-exports from outside `dir` is the host's to call too: its own throw statements are judged the same way (a re-exported core function cannot leak an internal error class unseen).
+  const index = program.getSourceFile(join(dir, "index.ts"));
+  const indexSymbol = index === undefined ? undefined : checker.getSymbolAtLocation(index);
+  for (const exported of indexSymbol === undefined ? [] : checker.getExportsOfModule(indexSymbol)) {
+    const target = exported.flags & ts.SymbolFlags.Alias ? checker.getAliasedSymbol(exported) : exported;
+    for (const declaration of target.declarations ?? []) {
+      const file = declaration.getSourceFile();
+      if (dirname(file.fileName) === dir || file.isDeclarationFile) continue;
+      const callable = ts.isFunctionDeclaration(declaration) || ts.isClassDeclaration(declaration) || (ts.isVariableDeclaration(declaration) && declaration.initializer !== undefined && (ts.isArrowFunction(declaration.initializer) || ts.isFunctionExpression(declaration.initializer)));
+      if (callable) scan(file, declaration);
+    }
   }
   return [...breaks.values()].sort((a, b) => `${a.rule} ${a.site}`.localeCompare(`${b.rule} ${b.site}`));
 }

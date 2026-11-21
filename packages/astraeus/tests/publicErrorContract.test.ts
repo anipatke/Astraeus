@@ -4,7 +4,8 @@ import { dirname } from "node:path";
 import { pathToFileURL } from "node:url";
 import { describe, expect, it } from "vitest";
 import jupiterIndex from "astraeus-data-jupiter/index.json";
-import { Scene, SceneError, earth, io, jupiter, mars, mercury, neptune, saturn, sun, uranus, venus, type DataSource } from "astraeus";
+import marsIndex from "astraeus-data-mars/index.json";
+import { Scene, SceneError, earth, io, jupiter, mars, mercury, neptune, parseElementsBodyRecord, phobos, saturn, sun, triton, uranus, venus, mount, type DataSource } from "astraeus";
 
 const folder = `${dirname(createRequire(import.meta.url).resolve("astraeus-data-jupiter/package.json"))}/data/jupiter-moons/`;
 const jupiterData: DataSource = {
@@ -52,5 +53,46 @@ describe("public calls throw a coded SceneError", () => {
   it("Earth and the Sun answer before the planet series (recorded: they have no series cut-off)", async () => {
     const scene = await planetScene();
     for (const id of ["earth", "sun"]) expect(() => scene.stateOf(id, BEFORE)).not.toThrow();
+  });
+});
+
+// T-344: the entry paths (AstraeusScene shares `mount`'s prepareScene; its row is in astraeusSceneBadScene.test.ts, which needs a DOM) that used to throw raw (a TypeError, a DataCloneError, an internal error class, a bare fetch error) now throw a coded SceneError. One table across them; the code is asserted, never the message.
+const fakeElement = { appendChild: () => undefined, style: {} } as unknown as HTMLElement;
+const goodScene = (): Scene => new Scene().addBody(earth);
+// Each unreadable-package row uses its own planet: a moon system keeps what it loaded, so a package already read by an earlier row would not be read again.
+const unreadableIndex: DataSource = { name: "astraeus-data-neptune", provides: ["triton"], moonPositions: { center: "neptune", loadIndex: async () => { throw new Error("HTTP 404"); }, chunkUrls: {} } };
+const unreadableChunks: DataSource = { name: "astraeus-data-mars", provides: ["phobos"], moonPositions: { center: "mars", loadIndex: async () => marsIndex, chunkUrls: new Proxy({}, { get: () => "file:///nonexistent/chunk.bin" }) as Record<string, string> } };
+const asScene = (value: unknown): Scene => value as Scene;
+const rawRows: { name: string; run: () => unknown; code: string }[] = [
+  { name: "mount of something that is not a Scene", run: () => mount(fakeElement, asScene({})), code: "bad-scene" },
+  { name: "mount of null", run: () => mount(fakeElement, asScene(null)), code: "bad-scene" },
+  { name: "setViews with a function inside", run: () => goodScene().setViews([{ id: "a", label: "A", objects: [() => 1] as unknown as string[] }], { place: "top-bar" }), code: "bad-view" },
+  { name: "setViews with a symbol inside", run: () => goodScene().setViews([{ id: "a", label: "A", objects: [Symbol("x")] as unknown as string[] }], { place: "top-bar" }), code: "bad-view" },
+  { name: "addTrajectory(null)", run: () => goodScene().addTrajectory(null as never), code: "bad-trajectory" },
+  { name: "addTrajectory of a text", run: () => goodScene().addTrajectory("path" as never), code: "bad-trajectory" },
+  { name: "addTrajectory with samples that are not a list", run: () => goodScene().addTrajectory({ id: "p", samples: "none" } as never), code: "bad-trajectory" },
+  { name: "parseElementsBodyRecord of an empty object", run: () => parseElementsBodyRecord({}), code: "bad-element" },
+  { name: "parseElementsBodyRecord of null", run: () => parseElementsBodyRecord(null), code: "bad-element" },
+];
+const moonLoad = (body: typeof triton, centre: typeof neptune, source: DataSource): Promise<void> => new Scene().addBody(sun).addBody(centre).addBody(body).setTime(OPEN).load({ data: [source] });
+const asyncRows: { name: string; run: () => Promise<unknown>; code: string }[] = [
+  { name: "load of a data package whose index cannot be read", run: () => moonLoad(triton, neptune, unreadableIndex), code: "bad-data" },
+  { name: "load of a data package whose chunk address is unreadable", run: () => moonLoad(phobos, mars, unreadableChunks), code: "bad-data" },
+];
+
+describe("T-344: raw throws are coded", () => {
+  it.each(rawRows)("$name -> $code", ({ run, code }) => {
+    let thrown: unknown;
+    try { run(); } catch (error) { thrown = error; }
+    expect(thrown).toBeInstanceOf(SceneError);
+    expect((thrown as SceneError).code).toBe(code);
+  });
+  it.each(asyncRows)("$name -> $code", async ({ run, code }) => {
+    const thrown = await run().then(() => undefined, (error: unknown) => error);
+    expect(thrown).toBeInstanceOf(SceneError);
+    expect((thrown as SceneError).code).toBe(code);
+  });
+  it("load of a non-Scene's route (definitionOf) and a checkable Scene still work", () => {
+    expect(() => Scene.prototype.check.call(goodScene())).not.toThrow();
   });
 });

@@ -117,6 +117,19 @@ describe("errors (API-05)", () => {
     expect(allowlistOffences(hits, [], "errors")).toHaveLength(5);
   });
 
+  it("also judges the throws of a function or class index.ts re-exports from outside the api folder", () => {
+    const sample = `
+      export class SceneError extends RangeError { constructor(readonly code: string, message: string) { super(message); } }
+      export class Leak extends TypeError {}
+      export function leaky(x: number): number { if (x > 1) throw new Leak("x"); return x; }
+      export const arrow = (x: number): number => { if (x > 1) throw new Error("y"); return x; };
+      export function fine(x: number): number { if (x > 1) throw new SceneError("bad-time", "z"); return x; }
+      export function unseen(x: number): number { if (x > 1) throw new Error("not re-exported"); return x; }
+    `;
+    const hits = withDir({ "core/helpers.ts": sample, "api/index.ts": `export { SceneError, leaky, arrow, fine } from "../core/helpers";\n` }, (dir) => errorBreaks(join(dir, "api")));
+    expect(hits.map((hit) => hit.site)).toEqual(["../core/helpers.ts: throw new Error(\"y\");", "../core/helpers.ts: throw new Leak(\"x\");"]);
+  });
+
   it("documents every SceneErrorCode with a one-line meaning", () => {
     const codes = errorCodes();
     expect(codes.length).toBeGreaterThan(20);

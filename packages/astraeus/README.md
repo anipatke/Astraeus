@@ -420,7 +420,8 @@ Every call that refuses its input throws a `SceneError`, a `RangeError` with a s
 | `duplicate-id` | An id is already used in the scene, so the new body, path, group, orbit line, activity, event or story panel cannot take it. |
 | `bad-time` | A moment is not a valid or whole time, or lies outside the span it must fall in. |
 | `bad-trajectory` | A path (`addTrajectory`) is malformed: its id, provider, bounds, plane, spans or line stretches. |
-| `bad-data` | A data package passed to the viewer is malformed, for example moon positions that name a planet without a moon system. |
+| `bad-data` | A data package passed to the viewer is malformed or cannot be read, for example moon positions that name a planet without a moon system, or a file or address that does not load. |
+| `bad-scene` | What was given as a scene is not a `Scene` (`mount`, `AstraeusScene`, a check or load of something else). |
 | `bad-scale` | The scale is not one of the engine's scales, or does not suit this scene. |
 | `missing-data` | Position data a body needs was not given to the viewer: pass its data package. |
 | `not-mounted` | The viewer is not drawn yet, or has been unmounted: a handle call before `ready` or after `unmount`. |

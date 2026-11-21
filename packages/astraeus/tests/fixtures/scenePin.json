@@ -15209,8 +15209,9 @@
   "addTrajectory: samples not a list": {
    "stage": "call",
    "error": {
-    "name": "TypeError",
-    "message": "input.samples.map is not a function"
+    "name": "SceneError",
+    "code": "bad-trajectory",
+    "message": "addTrajectory(\"p\"): samples must be a list of { time, positionKm }"
    }
   },
   "addTrajectory: provider without stateAt": {

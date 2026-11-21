@@ -76,6 +76,7 @@ function rotated(matrix: Float64Array | null, v: ArrayLike<number> | undefined):
 }
 
 function sampledBody(common: Common, input: Extract<TrajectoryInput, { samples: unknown }>, center: BodyId, toEqj: Float64Array | null): TrackedBody {
+  if (!Array.isArray(input.samples)) throw new SceneError("bad-trajectory", `addTrajectory("${common.id}"): samples must be a list of { time, positionKm }`);
   const samples: TrajectorySample[] = input.samples.map((sample, index) => {
     const velocityKmS = rotated(toEqj, sample.velocityKmS);
     return { positionKm: rotated(toEqj, sample.positionKm)!, ...(velocityKmS === undefined ? {} : { velocityKmS }), timeUtcMs: toUtcMs(sample.time, `addTrajectory("${common.id}") sample ${index} time`) };

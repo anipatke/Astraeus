@@ -8,8 +8,10 @@ export type SceneErrorCode =
   | "bad-time"
   /** A path (`addTrajectory`) is malformed: its id, provider, bounds, plane, spans or line stretches. */
   | "bad-trajectory"
-  /** A data package passed to the viewer is malformed, for example moon positions that name a planet without a moon system. */
+  /** A data package passed to the viewer is malformed or cannot be read, for example moon positions that name a planet without a moon system, or a file or address that does not load. */
   | "bad-data"
+  /** What was given as a scene is not a `Scene` (`mount`, `AstraeusScene`, a check or load of something else). */
+  | "bad-scene"
   /** The scale is not one of the engine's scales, or does not suit this scene. */
   | "bad-scale"
   /** Position data a body needs was not given to the viewer: pass its data package. */

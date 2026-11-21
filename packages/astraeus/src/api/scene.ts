@@ -347,6 +347,7 @@ export class Scene {
   /** Adds a path to follow and draw, from sampled states or a provider with `stateAt(time)`. */
   addTrajectory(input: TrajectoryInput): this {
     this.#editable();
+    if (typeof input !== "object" || input === null) throw new SceneError("bad-trajectory", `addTrajectory: give an object such as { id, samples } or { id, provider, bounds }, got ${input === null ? "null" : typeof input}`);
     const own = frozenCopy(input);
     const id = own.id;
     if (typeof id !== "string" || id === "") throw new SceneError("bad-trajectory", "addTrajectory: the trajectory needs a non-empty id");
