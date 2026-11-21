@@ -1,7 +1,7 @@
 # Publishes the Astraeus packages to npm (O-036 T-162). Runs when you publish a GitHub release; docs/RELEASING.md is the owner's step-by-step.
 # npm trusted publishing: no token is stored; the runner signs in to npm with its OIDC identity (id-token: write) and npm adds a provenance statement.
 # A manual run (Actions tab, "Run workflow") is a DRY RUN: it does every step except sending anything to npm.
-# Before publishing it checks: lint, typecheck, build, tests, the engine alone, the packed packages, a Node test importing the packed engine, the React consumer, and the four packed examples in a browser.
+# Before publishing it checks: lint, typecheck, build, tests, the engine alone, the packed packages, a Node test importing the packed engine, the React consumer, the engine against the newest three.js in its peer range, and the four packed examples in a browser.
 name: publish
 
 on:
@@ -42,6 +42,8 @@ jobs:
         run: npm run check:node-consumer
       - name: Check the packed engine with the latest React 19.x
         run: npm run check:react-consumer
+      - name: Check the engine against the newest three.js in its peer range
+        run: npm run check:three-newest
       - name: Install the Chromium the browser checks launch
         run: npx playwright-core install --with-deps chromium
       - name: Check the four packed examples in a browser

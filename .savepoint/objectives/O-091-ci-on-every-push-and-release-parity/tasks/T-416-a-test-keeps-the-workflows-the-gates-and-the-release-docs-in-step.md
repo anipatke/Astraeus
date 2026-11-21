@@ -2,7 +2,7 @@
 id: T-416
 title: A test keeps the workflows, the gates and the release docs in step
 objective: O-091
-status: planned
+status: done
 depends_on: [{task: T-413, requires: clear}, {task: T-414, requires: clear}, {task: T-415, requires: clear}]
 owner_validation: {required: false}
 check_waiver: {task: T-416, reason: 'Owner said "work through this list of objectives one by one. Orchestrate each objective to completion" (G-024 decision 7) and "I am remote now, add park the check and move on" (2026-11-22): standing orchestration rules waive the optional step checks; the mandatory Full Objective Check covers the whole diff.', actor: {role: owner, session: orchestrate-g024-20261122}, recorded_at: '2026-11-21T23:30:07Z'}
@@ -74,8 +74,29 @@ Focused: `npx vitest run packages/astraeus-site/tests/workflowParity.test.ts pac
 
 ## Technical Evidence
 
-Pending execution.
+Done When -> evidence:
+
+| Done When | Evidence |
+|---|---|
+| `yaml` exact-pinned devDependency | package.json `"yaml": "2.9.1"`; lock diff is `node_modules/yaml` plus the root devDependencies line only. `semver` was already a root devDependency (`^7.8.5`, installed 7.8.5), so T-415's import is declared; left as is (no package.json change needed). |
+| publish.yml gains check:three-newest | step "Check the engine against the newest three.js in its peer range" after check:react-consumer, before the Chromium install; header comment updated. Rule 5 checks it. |
+| workflowParity.test.ts, 9 rules, table test with plants | `npx vitest run packages/astraeus-site/tests/workflowParity.test.ts packages/astraeus-site/tests/gateLimits.test.ts`: 27 passed (13 new: real files clean, 11 plants each named, every-rule-has-a-plant). |
+| RELEASING.md table, paragraph, step 4 | "What is checked where" gained ci.yml, node consumer, React consumer, three-newest, packed-examples rows; "The workflow then" paragraph lists the order; step 4 clause added; O-088 T-411 step 3 untouched. Rule 9 checks the table. |
+| build.md CI bullet | "CI (O-091)" bullet after Package gates incl. pinning and SHA refresh; engine-alone sentence now mentions `--keep-going`. |
+| Gates | lint clean, typecheck clean, build ok, npm test 325 files / 5332 passed, 2 skipped. |
+
+Mutation: removed the lint step from ci.yml and the node-consumer step from publish.yml; the parity test failed ("ci.yml gate steps ... differ from quality_gates"; the plants prove the release rule). Both files restored; `git diff .github` shows only the intended three-newest edit to publish.yml.
+
+Files changed: packages/astraeus-site/tests/workflowParity.test.ts (new), .github/workflows/publish.yml, package.json, package-lock.json, docs/agents/build.md, docs/RELEASING.md, this Task file. ci.yml unchanged.
+
+Limitations: workflows not run on GitHub (T-417). Rule 8 uses the SHA-pin default.
 
 ## Drift Notes
 
 For the coordinator's Design reconciliation before the Full Objective Check: `.savepoint/Design.md` `Current Technical State` gains one sentence on CI (push/PR Task gates on Node 22 and 24; release runs the consumers, newest three and packed examples; parity mechanised by `workflowParity.test.ts`); `Decisions` > `O-053 checks` "Honest versions and docs" gains the three peer rule (range kept only as wide as `check:three-newest` proves, re-proved at release).
+
+Recorded by builder: Design `Current Technical State` gains the CI sentence; `Decisions` > O-053 gains the three peer rule (range `>=0.169.0 <0.181.0`, I-195, re-proved at release by check:three-newest in publish.yml); release steps now include node consumer, React consumer, three-newest and packed-example browser steps.
+
+## Coordinator (gates)
+
+Set done by the orchestrating session after the gates passed (owner: "I mark them as they pass", O-038; G-024 decision 7): lint, typecheck, build clean; `npm test` 325 files, 5332 passed, 2 skipped. Drift notes reconciled into Design (`CI on every push (O-091)`; three peer range under `Honest versions and docs`).

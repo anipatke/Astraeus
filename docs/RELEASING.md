@@ -37,13 +37,13 @@ The workflow itself needs no secret: it signs in to npm with GitHub's own identi
 1. **Pick the version.** While the version starts with `0.`, a new feature or an API change is a minor bump (`0.2.0`); a fix only is a patch (`0.1.1`). All nine packages move together.
 2. **Bump it** in the `version` field of the nine `packages/<name>/package.json` files (and, on a minor bump, the `astraeus` peer range of every `astraeus-data*` package, for example `>=0.9.0 <0.10.0`) (the `x-publish` block needs no change). Nothing else names the version; `npm run check:pack` fails if a built package disagrees with its source.
 3. **Write the changelog.** Add a `## <version>` section at the top of `packages/astraeus/CHANGELOG.md` and `packages/astraeus-data/CHANGELOG.md`: what a user will notice, and every change to the public API. In the same commit refresh the previous-release surface the breaking-changes test compares against: `node -e 'const fs=require("fs");fs.writeFileSync("packages/astraeus-site/tests/fixtures/api-surface-previous.json",JSON.stringify({version:"<version>",root:JSON.parse(fs.readFileSync("packages/astraeus/api-surface.lock.json","utf8")).root},null,2)+"\n")'`.
-4. **Check it passes here:** `npm run lint`, `npm run typecheck`, `npm run build`, `npm test`, `npm run check:engine-alone`, `npm run check:pack`, `npm run check:public-build` and the full browser tier, `npm run check:browser` (about 5 minutes; a release always runs the full tier, not the quick one). (The workflow runs the same, so a failure there stops the release before anything is published.)
+4. **Check it passes here:** `npm run lint`, `npm run typecheck`, `npm run build`, `npm test`, `npm run check:engine-alone`, `npm run check:pack`, `npm run check:public-build` and the full browser tier, `npm run check:browser` (about 5 minutes; a release always runs the full tier, not the quick one). (The workflow re-runs these, plus the Node consumer, the React consumer, the newest three.js and the four packed examples in a browser, so a failure there stops the release before anything is published.)
 5. **Record the first-download size.** Run `npm run measure:example` and put its first-open total (raw and gzip bytes) in the changelog section and the release notes, so the size is part of every release.
 6. **Commit and push** to the default branch.
 7. **Optional dry run.** On GitHub: Actions, "publish", "Run workflow". A manual run does every step except sending anything to npm (`npm publish --dry-run`).
 8. **Create the release.** On GitHub: Releases, "Draft a new release", create a new tag named `v<version>` (for example `v0.2.0`) on the default branch, paste the changelog section as the notes, and press **Publish release**. The tag must equal the version in the packages, or the workflow refuses to publish anything.
 
-The workflow then: checks out, runs `npm ci` and the gates, builds and checks the packs, and publishes each package from its `dist` folder with provenance. A package whose version is already on npm is skipped, so if one step fails you can fix the cause and run the workflow again (Actions, the failed run, "Re-run all jobs") without a duplicate-version error.
+The workflow then: checks out, runs `npm ci` and the gates, runs the engine alone, builds and checks the packs, runs the Node consumer, the React consumer, the engine against the newest three.js in its peer range and the four packed examples in a browser, and publishes each package from its `dist` folder with provenance. A package whose version is already on npm is skipped, so if one step fails you can fix the cause and run the workflow again (Actions, the failed run, "Re-run all jobs") without a duplicate-version error.
 
 ## Adding a package
 
@@ -65,7 +65,12 @@ Then create the release as usual: the workflow skips the version you published b
 
 | Check | Where |
 |---|---|
-| Lint, typecheck, build, tests, engine alone | locally, and again in the workflow |
+| Task gates (lint, typecheck, build, tests) on Node 22 and 24, every push and pull request | `.github/workflows/ci.yml` |
+| Lint, typecheck, build, tests, `npm run check:engine-alone` | locally, and again in the release workflow |
+| A Node test imports the packed engine | `npm run check:node-consumer`, in the workflow |
+| The packed engine installs with the latest React 19.x | `npm run check:react-consumer`, in the workflow |
+| The engine against the newest three.js in its peer range | `npm run check:three-newest`, in the workflow |
+| The four packed examples draw in a browser | `npm run check:browser -- --step hello-scene ...`, in the workflow (the full tier stays the local step 4) |
 | Package contents and sizes | `npm run check:pack`, locally and in the workflow |
 | The example app installs the packed tarball and draws | `npm run check:browser` (step `hello-scene`) at a Full Objective Check; locally `npm run build:example` |
 | The tag equals every package version | `tools/publish-packages.mjs`, in the workflow |
