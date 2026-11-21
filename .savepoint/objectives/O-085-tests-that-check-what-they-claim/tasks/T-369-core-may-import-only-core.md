@@ -2,7 +2,7 @@
 id: T-369
 title: Core may import only core
 objective: O-085
-status: planned
+status: done
 depends_on: []
 check_waiver: {task: T-369, reason: 'Owner said "work through this list of objectives one by one. Orchestrate each objective to completion" (G-024 decision 7): standing orchestration rules waive the optional step checks; the mandatory Full Objective Check covers the whole diff.', actor: {role: owner, session: orchestrate-g024-20261121}, recorded_at: '2026-11-21T12:50:31Z'}
 owner_validation: {required: false}
@@ -64,8 +64,24 @@ Focused: `npx vitest run packages/astraeus/tests/layerRule.test.ts`. Handoff: `q
 
 ## Technical Evidence
 
-Pending execution.
+| Done When | Evidence |
+|---|---|
+| Whitelist replaces FORBIDDEN | `layerRule.test.ts`: `coreOffences` requires relative specifiers to resolve to `core` (or JSON in the package `data/` folder, see Deviation) and bare ones to be on `CORE_LIBRARIES` (`@lizard-isana/orb` and subpaths, with reason). |
+| Real imports via `preProcessFile` | `specifiers` uses `ts.preProcessFile(source, true, true)` from `typescript6`. Count over `src/core/`: 256 by `preProcessFile` vs 258 by the old regex (the 2 extra are text in strings, e.g. `stateResolver.ts:94`). |
+| Sample case extended | "would catch an upward import, including from a subfolder (whitelist)": reports exactly `../app/ephemerisProvenance`, `../../shell/a`, `../api/errors`, `../types/orb`, `three`, `../app/x` (dynamic); the template-literal `from "${x}"`, a comment import, `./body`, orb subpath and a data JSON are not reported. Three `layerOf` assertions kept. |
+| Planted violation | `import type { SceneErrorCode } from "../api/errors";` added to `src/core/stateResolver.ts`: old test on HEAD PASSED (3/3); new test FAILED naming `../src/core/stateResolver.ts imports ../api/errors`. Reverted with `git checkout`; `git diff --stat packages/astraeus/src` empty. |
+| assets rule kept | Same rule, reads specifiers through `specifiers`; passes. |
+| Time | File run: 0.90 s before (1.54 s wall), 0.67-0.77 s after (about 0.7 s). |
+| Gates | lint, typecheck, build clean; `npm test`: 303 files passed, 5037 passed, 2 skipped. No new dependency; `typescript6` import lints clean. |
+
+Files changed: `packages/astraeus/tests/layerRule.test.ts` only.
+
+Deviation: the first whitelist run found 19 real relative imports from `src/core/bodies/*` of `../../../data/{orbits,rings}/*.json` (packages/astraeus/data). They resolve outside `src/core/`, so the plain rule failed them. Added a named exemption (`isCoreData`): JSON files in the package `data/` folder only. Reported to the coordinator.
+
+Limitations: `import x = require()` and non-literal dynamic imports are not seen by `preProcessFile` (none in core).
 
 ## Drift Notes
 
 Record for Guardrails/Design reconciliation: ARCH-04's wording ("core imports nothing from assets, app, shell or experiences") is narrower than the mechanised rule now held ("core imports only core and the named libraries"); the planner decides whether to restate ARCH-04 at Full Check reconciliation.
+
+Coordinator (orchestrate-g024-20261121): the `isCoreData` exemption (JSON in the package's own `data/` folder) is accepted: planet and moon data are core (owner, "Moon data is core") and those files hold no code. Gates green (lint, typecheck, build; `npm test` 303 files, 5037 passed). `status: done` set by the coordinator under the standing orchestration rule ("I mark them as they pass", O-038) and G-024 decision 7.
