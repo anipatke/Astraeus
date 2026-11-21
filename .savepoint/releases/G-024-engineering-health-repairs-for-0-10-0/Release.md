@@ -27,6 +27,8 @@ Owner decisions, 2026-11-21:
    - O-091 three.js peer range: "Test newest, narrow if it fails".
    - Full Objective Checks: "Orchestrator session runs it" (the orchestrating session, not the Sonnet builders, writes the Check).
 
+8. Final objective (owner, 2026-11-22, "consider this a final objective"): the owner's documentation-trim plan becomes O-090's scope and O-090 runs last, after every other G-024 Objective (plan recorded in O-090's Decisions).
+
 ## Success Conditions
 
 Every member Objective is done.
