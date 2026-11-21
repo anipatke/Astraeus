@@ -1,0 +1,43 @@
+# Runs the Task gates on every push and pull request (O-091 T-413): lint, typecheck, build, test, on Node 22 and Node 24.
+# The four commands are `quality_gates` in .savepoint/config.yml; workflowParity.test.ts keeps this list equal to it.
+# No browser step and no network-dependent check here: those are release-workflow and Full-Check gates.
+name: ci
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  gates:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        node: [22, 24]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: ${{ matrix.node }}
+          cache: npm
+      - name: Print versions
+        run: |
+          node --version
+          npm --version
+      - run: npm ci
+      - name: lint
+        run: npm run lint
+      - name: typecheck
+        run: npm run typecheck
+      - name: build
+        run: npm run build
+      - name: test
+        run: npm test -- --reporter=default --reporter=junit --outputFile.junit=junit.xml
