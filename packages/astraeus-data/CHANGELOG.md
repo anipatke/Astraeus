@@ -2,6 +2,10 @@
 
 Versions follow [semantic versioning](https://semver.org). It is released together with `astraeus`, with the same version number.
 
+## 0.9.5 (2026-11-21)
+
+No changes to the pictures, data or this package's code. Released with `astraeus` 0.9.5 to keep the version numbers together; the `astraeus` peer stays `>=0.9.0 <0.10.0`.
+
 ## 0.9.4 (2026-11-21)
 
 No changes to the pictures, data or this package's code. Released with `astraeus` 0.9.4 to keep the version numbers together; the `astraeus` peer stays `>=0.9.0 <0.10.0`.
