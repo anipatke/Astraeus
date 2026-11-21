@@ -2,7 +2,7 @@
 id: T-340
 title: Measure the package and show the tile and chart to the owner
 objective: O-081
-status: planned
+status: done
 depends_on: [{task: T-339, requires: clear}]
 check_waiver: {task: T-340, reason: 'Owner said "Orchestrate this obj" (O-081): standing orchestration rules waive the optional step checks; the mandatory Full Objective Check covers the whole diff.', actor: {role: owner, session: orchestrate-o081-20261121}, recorded_at: '2026-11-21T07:23:30Z'}
 owner_validation: {required: true}
@@ -58,8 +58,31 @@ Configured gates; `node tools/check-packs.mjs`; the API page measure as in O-080
 
 ## Technical Evidence
 
-Pending execution.
+Executed 2026-11-21 by the coordinator (Opus), after T-337..T-339.
+
+**Sizes (all green; no owner decision needed)**
+
+| Measure | Now | Limit |
+|---|---|---|
+| Engine pack, unpacked (`npm run check:pack`) | 9.30 MB | 9.5 MB |
+| Engine pack, packed | 7.24 MB | 8.0 MB |
+| `api/index.html` raw / gzip (`renderApiPage`, `zlib`) | 200,798 B / 43,693 B | 230,000 / 46,000 |
+| `api/shelf.html` raw / gzip (`renderShelfApiPage`) | 32,117 B / 6,701 B | 35,000 / 8,000 |
+
+`check:pack` passed for every package. Split check page (T-338): 2,196,139 B raw, 750,896 B gzip with `readoutTile`.
+
+**Design reconciliation (each drift note)**
+
+- T-337: names `low`/`high`/`value` and `axisLabel`, highlight within the bins, `setBins` dropping a stale highlight → note section 7 (as built) and 11 table; Design "Viewer interface" Shelf bullet. `chartSummary`, the `bad-part` message naming `chart`, the cell's internal shape → non-architectural (implementation detail; the contract is unchanged). Objective text already used `low/high/value` (updated at the owner's naming decision).
+- T-338: tile fields and control, `TilePart` and the widened `addParts`, `ShelfTile`/`ShelfPart`, tile-in-blocks `bad-part`, `checkTiles` and unlisted tiles, the `tile` grid rows under `:has`, the strip button, the `tile` occupant and `dropsTile` → note sections 2 (as built), 7, 11 and Design Shelf bullet. Section 5's "Tile expanded" row already matches. Shell class names avoiding the split marker → non-architectural.
+- T-339: first `addParts` entry may be any shelf part, optional `live(viewer)`, the 1fr/2fr grid → note section 11 "Public catalogue page". The shelf API page listing itself → no change needed (already said: every export under `src/shelf/`).
+
+**Owner look**: owner opened localhost:5490/components.html, ran Readout tile and Chart at desktop and phone sizes: "Looks right, run the final check (Recommended)" (2026-11-21). Owner validation is recorded against the Full Objective Check id once it exists.
+
+Files changed: `.savepoint/Design.md` (Viewer interface, Shelf bullet), `docs/architecture/viewer-interface.md` (sections 2, 7, 11).
 
 ## Drift Notes
 
 None expected; this Task reconciles the others.
+
+Coordinator marked done (owner: "Looks right, run the final check (Recommended)"); owner acceptance is recorded against the Full Objective Check id.

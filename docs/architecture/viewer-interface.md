@@ -102,7 +102,7 @@ Areas are one CSS grid laid over the canvas (`pointer-events: none` except on oc
 
 With phone layout, `left`, `right` and `developer` map onto `sheet`, the bar keeps engine items in the menu, and a pick opens no card (kept, `phoneLayout.ts:9-11`). That is the whole phone difference.
 
-**As built.** Until the viewer root has a measurable size (first paint, test pages) `readScreen` falls back to the window phone query. The phone grid is `"bar" "sheet" "timeline"`; parts render once by their wide area name and the phone map moves them onto the sheet, so no `sheet` element is drawn yet. The last row is `auto` (no `--timeline-space`). The root is the `astraeus-viewer` size container, the timeline area `astraeus-timeline` (inline-size), the Developer drawer `astraeus-developer`; rule 6 is `@container astraeus-timeline (max-width: 876px)`, because the area is 24 px narrower than the viewer, so the switch stays at a 900 px viewer. The phone drawer, sheet and menu height limits (`phoneLayoutStyle`) are `cqh` of the viewer. A phone-sized viewer keeps 44 px controls through `data-phone` as well as a coarse pointer.
+**As built.** Until the viewer root has a measurable size (first paint, test pages) `readScreen` falls back to the window phone query. The phone grid is `"bar" "sheet" "timeline"`, with a `tile` row above the timeline only while the showing view has a readout tile (O-081; wide, the tile gets its own row above `left`, both under `:has` in `areas.css`); parts render once by their wide area name and the phone map moves them onto the sheet, so no `sheet` element is drawn yet. The last row is `auto` (no `--timeline-space`). The root is the `astraeus-viewer` size container, the timeline area `astraeus-timeline` (inline-size), the Developer drawer `astraeus-developer`; rule 6 is `@container astraeus-timeline (max-width: 876px)`, because the area is 24 px narrower than the viewer, so the switch stays at a 900 px viewer. The phone drawer, sheet and menu height limits (`phoneLayoutStyle`) are `cqh` of the viewer. A phone-sized viewer keeps 44 px controls through `data-phone` as well as a coarse pointer.
 
 Rules it replaces (each removed in T-330/T-326/T-329/T-331):
 
@@ -319,7 +319,8 @@ handle.part(chips).onSelect(({ values, cause }) => ...);   handle.part(chips).se
   - `ColourKeyControl`: `setEntries`.
   - `CustomBlockControl`: `element`.
   - `ChartControl`: `setBins`, `setHighlight`.
-  - `ReadoutTileControl`: `setValue`.
+  - `ReadoutTileControl`: `setValue(value, scaleValue?)`, `setScaleValue`, `setFacts`.
+- As built (O-081): `scene.addParts` takes `(PanelPart | TilePart)[]`; a readout tile is a top-level part, never a block. At most one tile shows in a view (`bad-part` at build naming both); a tile no view lists shows in every view. Ranges use `{ low, high }` and a point is `value` (owner, API-04: `from`/`to`/`at` read as times).
 - View scoping reuses the view rule: a part id listed in some `ViewInput.panels` shows only in those views (Design "Views of one scene"). No new field.
 - React parity (API-02): parts are scene data and controls are on the shared `ViewerHandle`, so `mount` and `AstraeusScene` match. One lifecycle suite covers both.
 
@@ -446,8 +447,8 @@ It allows `var(--astraeus-*)`, `calc()` and `color-mix(in srgb, var(--astraeus-*
 | `filterChips` | O-080 | `choices [{value, label, color?}]`, `multiple`, `selected` | `onSelect` | block |
 | `colourKey` | O-080 | `entries [{label, color, count?, note?}]` | — | block |
 | `customBlock` | O-080 | none | `element` | block |
-| `chart` | O-081 | `bins [{from, to, count, color?}]`, axis label, `highlight? {from, to}` | — | block |
-| `readoutTile` | O-081 | `label`, `value`, `scale? {min, max, at}` | — | `tile` area |
+| `chart` | O-081 | `bins [{low, high, count, color?}]`, `axisLabel`, `marks? [{value, label}]`, `highlight? {low, high}` (within the bins) | — | block |
+| `readoutTile` | O-081 | `label`, `value` (text), `scale? {low, high, value, stretch?: "linear" \| "log", marks? [{value, label}]}`, `facts? [{label, value}]` (at most 4) | — | `tile` area (wide top of `left`; phone strip, tap opens the sheet) |
 
 **One contract.** Every part:
 
@@ -500,7 +501,7 @@ The proof is `npm run check:shelf-split` (`tools/check-shelf-split.mjs`). It pac
 - the Run button and a live example on a synthetic scene: `src/catalogue/examples/<part>.ts`, run on demand one viewer at a time, shown as text through a `?raw` import, so the shown code is the run code;
 - a closed "For developers" fold holding the code name, the first sentence of the factory's doc comment (one source with the README), the import line and the `addParts` line, and the whole example.
 
-A section "Already in every viewer" lists the basic parts in plain words, from the same JSON, with their calls in a "For developers" fold. `packages/astraeus-site/tests/shelfCatalogue.test.ts` fails when a root export whose doc comment carries `@shelf` has no entry or example, or when an entry names no such export. O-080 creates the page with its parts. O-081 adds its two. The parts' types are on their own API page, `api/shelf.html` (every export declared under `src/shelf/`), linked from the catalogue and listed by name on the main API page (O-080 T-336).
+A section "Already in every viewer" lists the basic parts in plain words, from the same JSON, with their calls in a "For developers" fold. `packages/astraeus-site/tests/shelfCatalogue.test.ts` fails when a root export whose doc comment carries `@shelf` has no entry or example, or when an entry names no such export. O-080 creates the page with its parts. O-081 adds its two. An example's first `addParts` entry may be any `@shelf` part (a tile stands alone), and an example may export `live(viewer)`, which the page calls after `ready` to drive synthetic motion (the tile's value follows the clock; the chart moves its highlight). The entry grid is 1fr/2fr so a demo box at a 1280 px window stays wider than the 700 px phone rule (the viewer's own width decides its layout). The parts' types are on their own API page, `api/shelf.html` (every export declared under `src/shelf/`), linked from the catalogue and listed by name on the main API page (O-080 T-336).
 
 ## Open choices for the owner
 
