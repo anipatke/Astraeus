@@ -5,7 +5,7 @@ import { join } from "node:path";
 import { gzipSync } from "node:zlib";
 import { beforeAll, describe, expect, it } from "vitest";
 import { PAGES } from "../tools/validate/load-budget.mjs";
-import { collectExports, renderApiPage, undocumentedExports } from "../tools/site/api-reference.mjs";
+import { collectExports, renderApiPage, renderShelfApiPage, shelfExports, undocumentedExports } from "../tools/site/api-reference.mjs";
 
 describe("API reference", () => {
   // I-080: building the TypeScript program of the public entry is the slow part (several seconds under coverage), so it is done once for the file.
@@ -45,6 +45,27 @@ describe("API reference", () => {
     for (const name of names) expect(page, name).toContain(name);
     expect(page).toContain("addTrajectory");
     expect(page).toContain('name="viewport"');
+    expect(page).not.toContain("<script");
+  });
+
+  it("puts the shelf parts' exports on api/shelf.html within its load-budget limits, each named and linked from the main page (O-080 T-336)", () => {
+    const shelf = shelfExports(items);
+    expect(shelf.filter((item) => item.shelf).map((item) => item.name)).toEqual(expect.arrayContaining(["panel", "customBlock", "explainer", "actions", "filterChips", "colourKey"]));
+    expect(shelf.every((item) => item.shelf || item.module.startsWith("shelf/"))).toBe(true);
+    expect(items.filter((item) => item.module.startsWith("shelf/") && !shelf.includes(item))).toEqual([]);
+    const limit = PAGES.find((page) => page.id === "api/shelf.html");
+    if (limit === undefined) throw new Error("load-budget.mjs lists no api/shelf.html page");
+    const page = renderShelfApiPage(items);
+    expect(Buffer.byteLength(page)).toBeLessThanOrEqual(limit.rawLimit);
+    expect(gzipSync(Buffer.from(page)).length).toBeLessThanOrEqual(limit.gzipLimit);
+    const main = renderApiPage(items);
+    for (const item of shelf) {
+      expect(page, item.name).toContain(`id="${item.name.toLowerCase()}"`);
+      expect(main, item.name).toContain(`href="shelf.html#${item.name.toLowerCase()}"`);
+      expect(main, item.name).not.toContain(`<h3 id="${item.name.toLowerCase()}">`);
+    }
+    expect(page).toContain('href="./"');
+    expect(page).toContain('href="../components.html"');
     expect(page).not.toContain("<script");
   });
 });

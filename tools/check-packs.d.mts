@@ -7,3 +7,4 @@ export function enginePeerRange(version: string): string;
 export const REACT_PEER_RANGE: string;
 export function ringFactProblems(dir: string): string[];
 export function pastTheEntry(source: string): string[];
+export function packedComments(text: string): string[];

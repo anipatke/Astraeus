@@ -34,20 +34,24 @@ export function publicBuildAliases(): readonly { readonly find: RegExp; readonly
 
 /**
  * The API reference at /api (O-040 T-165): generated from the engine's public entry and its doc comments (tools/site/api-reference.mjs), emitted into the build as
- * api/index.html and served by the dev server at /api. It is a static page of its own with no script, so it adds no chunk.
+ * api/index.html and, for the shelf parts' own exports, api/shelf.html (O-080 T-336), and served by the dev server at /api and /api/shelf.html. Static pages with no script, so they add no chunk.
  */
 function apiReference(): Plugin {
-  const page = async (): Promise<string> => (await import("./tools/site/api-reference.mjs")).buildApiPage();
+  const pages = async (): Promise<{ index: string; shelf: string }> => (await import("./tools/site/api-reference.mjs")).buildApiPages();
   return {
     name: "astraeus-api-reference",
     async generateBundle() {
-      this.emitFile({ type: "asset", fileName: "api/index.html", source: await page() });
+      const { index, shelf } = await pages();
+      this.emitFile({ type: "asset", fileName: "api/index.html", source: index });
+      this.emitFile({ type: "asset", fileName: "api/shelf.html", source: shelf });
     },
     configureServer(server) {
       server.middlewares.use(async (request, response, next) => {
-        if (!/^\/api\/?(\?.*)?$/.test(request.url ?? "")) return next();
+        const url = request.url ?? "";
+        const which = /^\/api\/?(\?.*)?$/.test(url) ? "index" : /^\/api\/shelf\.html(\?.*)?$/.test(url) ? "shelf" : undefined;
+        if (which === undefined) return next();
         response.setHeader("Content-Type", "text/html; charset=utf-8");
-        response.end(await page());
+        response.end((await pages())[which]);
       });
     },
   };

@@ -3,7 +3,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { PICTURES } from "astraeus-data";
-import { checkPacks, enginePeerRange, extensionlessImports, LIMITS, pastTheEntry, ringFactProblems, strayFiles } from "../../../tools/check-packs.mjs";
+import { checkPacks, enginePeerRange, extensionlessImports, LIMITS, packedComments, pastTheEntry, ringFactProblems, strayFiles } from "../../../tools/check-packs.mjs";
 import { PACKAGES } from "../../../tools/build-packages.mjs";
 import { buildExample } from "../../../tools/build-example.mjs";
 import { checkEngineBudget, ENGINE_LIMIT } from "../tools/validate/engine-budget.mjs";
@@ -113,6 +113,18 @@ describe("publishable packages", () => {
       expect(checkPacks({ build: false, only: ["astraeus-data-pluto"] }).problems).toContain("astraeus-data-pluto: extensionless relative import in src/bad.js: ./chunks");
     } finally {
       rmSync(join(dist, "src", "bad.js"), { force: true });
+    }
+  }, 60_000);
+
+  it("fails on a comment left in packed JS, but not on a kept banner or a // inside a string, template or regular expression (O-080 T-336)", () => {
+    expect(packedComments('/** A doc comment. */\nexport const a = 1; // trailing\n/* block */ const b = 2;\n')).toEqual(["line 1: /** A doc comment. */", "line 2: // trailing", "line 3: /* block */"]);
+    expect(packedComments('/*! kept banner */\n/* @license MIT */\nconst url = "https://x.org/a"; const t = `//${url}`; const re = /\\/\\//g;\nexport { url, t, re };\n')).toEqual([]);
+    const dist = join(__dirname, "..", "..", "astraeus-data-pluto", "dist");
+    writeFileSync(join(dist, "src", "commented.js"), "// left behind\nexport const a = 1;\n");
+    try {
+      expect(checkPacks({ build: false, only: ["astraeus-data-pluto"] }).problems).toContain("astraeus-data-pluto: packed JS keeps a comment in src/commented.js: line 1: // left behind");
+    } finally {
+      rmSync(join(dist, "src", "commented.js"), { force: true });
     }
   }, 60_000);
 

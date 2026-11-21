@@ -309,8 +309,8 @@ handle.part(chips).onSelect(({ values, cause }) => ...);   handle.part(chips).se
 ```
 
 - `scene.addParts(parts)` appends. Part and block ids are unique across the scene (`duplicate-id`).
-- A factory checks shape at the call and throws the new code `bad-part`. Build-time checks (for example a view naming an unknown part) also throw `bad-part`.
-- `handle.part(x)` takes the object a factory returned and gives a typed control for this viewer. A part not in this viewer's scene throws `bad-part`. Outside the lifecycle it throws `not-mounted`.
+- A factory checks shape at the call and throws the new code `bad-part`. Build-time checks of parts (an action's camera naming a missing object) also throw `bad-part`. As built, a view naming an unknown id in `panels` stays `bad-view`, since story panel ids and part ids share that one list.
+- `handle.part(x)` takes the object a factory returned and gives a typed control for this viewer (as built, one generic signature `part<P extends AnyPart>(part: P): ControlFor<P>`). A part not in this viewer's scene throws `bad-part`. Outside the lifecycle it throws `not-mounted`.
 - Controls (all hear only visitor actions; setters are silent):
   - `PanelControl`: `open`, `setOpen`, `onOpen`.
   - `FilterChipsControl`: `selected`, `setSelected`, `setChoices`, `onSelect`. Chips move themselves on a press and report it.
@@ -386,7 +386,8 @@ shell/
   *.tsx                the part components, still flat files: AboutPanel, InfoPanel, StoryPanelView,
                        MoonFamilyPanel, TimelineBar, ObjectControls, ScaleControl, DisplaySwitches,
                        SwitchControl, ControlsDrawer, DeveloperToggle; useTitlePlace.ts (the title place)
-shelf/                 one folder per shelf part (O-080/81): factory.ts, View.tsx, part.css
+shelf/                 part.ts (registry, checks, public descriptor types), useCell.ts, and one folder
+                       per part (O-080/81): factory.ts, View.tsx, part.css (when it has rules; loaded by app/style.css)
 ```
 
 As built, the planned `selection/` folder and the one-folder-per-part split of `parts/` (components and sheets) were not done in O-079; the tree above is the code. A later split moves a part's component and rules together.
@@ -459,9 +460,17 @@ It allows `var(--astraeus-*)`, `calc()` and `color-mix(in srgb, var(--astraeus-*
 - is proven on a synthetic scene (ARCH-03);
 - names no app (ARCH-01).
 
-**Pick by import.** Each part lives in its own `src/shelf/<part>/` module tree. The descriptor carries its own view component (an internal field, not in the public type), so the shell renders `descriptor.view` and never imports a shelf module itself. An unused factory is therefore unreachable and dropped by tree shaking. `sideEffects` stays `["**/*.css"]` (`packages/astraeus/package.json:47-49`). A part's CSS is imported by its own view, so it drops with it.
+**Pick by import.** Each part lives in its own `src/shelf/<part>/` module tree. The descriptor carries its own view component (an internal field, not in the public type), so the shell renders `descriptor.view` and never imports a shelf module itself. An unused factory is therefore unreachable and dropped by tree shaking. `sideEffects` stays `["**/*.css"]` (`packages/astraeus/package.json:47-49`). A part's CSS is not imported by its view: only the two entry files may import a stylesheet (`tests/interfaceLeftovers.test.ts`, because the Node copy of the entry files cannot load CSS), so each `shelf/<part>/part.css` is one `@import` line in `app/style.css` and ships to every app (about 4.2 KB raw for the four parts that have rules; Vite itself would have dropped unused part CSS).
 
-The proof is a new test in O-080, `tools/check-shelf-split.mjs` (beside `tools/measure-example.mjs`). It builds an example that imports only `filterChips` and fails if any other part's marker class appears in the emitted JS or CSS. If Vite keeps unused part CSS, that test fails, and the fallback is part CSS in the shared sheet (small, a few hundred bytes each), recorded in that Task.
+The proof is `npm run check:shelf-split` (`tools/check-shelf-split.mjs`). It packs the engine, builds a page in `examples/hello-scene` that imports only `filterChips` and fails if any other part's marker class appears in the emitted JS, or if an imported part's marker is missing; it prints the CSS bytes. `--import filterChips,explainer --allow filterChips` must fail (the check's own proof).
+
+**As built (O-080).**
+
+- The internal descriptor shape is in `app/shelfContract.ts` (not in `src/shelf/`), so the shell, `api/` and the definition read it without importing a shelf module: a descriptor carries `view`, and a block also `data`, `initial` and `control` (its control's setters live with the part, so `api/viewerParts.ts` imports no part). A block's changing content is a per-viewer `ShelfCell` (made in `app/useShelf.ts` per viewer and per rebuild) that the view and the control share; `ShelfRuntime` gives a view its `cell`, `report` and `moveCamera`.
+- `scene.addParts` takes `PanelPart[]`; the content parts are blocks (`BlockPart<K>`, `CustomBlockPart` is one) and go in a panel's `blocks`, never added alone.
+- A shelf panel is the panel rule's `left` occupant `shelf:<id>` (`ShelfOccupant`); it replaces About, a card, the moons or another shelf panel, and on a phone it is the sheet. A view switch closes a shelf panel the view does not show (`viewSwitch` `dropsShelf`), silently: the host hears the switch through `onChange`. A host `setOpen(true)` for a panel the showing view does not show leaves it closed, without an error.
+- Events: `onOpen` `{ part, open }` hears a visitor's button, Close, Escape, and another `left` occupant taking the place; `onSelect` `{ part, values, cause: "visitor" }`; `onAction` `{ part, action }`, after the action's camera has turned (a camera toward an object the clock time does not show is refused, as a story panel's is).
+- A `customBlock` element is made per viewer by `app/useShelf.ts` and handed to the link at attach; `handle.part(block).element` is undefined before `ready` and after `unmount`, and a rebuild makes a new one.
 
 **Worked example: Belt** (`/home/user/code/belt`, read only):
 
@@ -492,7 +501,7 @@ The proof is a new test in O-080, `tools/check-shelf-split.mjs` (beside `tools/m
 - a live example on a synthetic scene: `src/catalogue/examples/<part>.ts`, run on demand one viewer at a time, and shown as text through a `?raw` import, so the shown code is the run code;
 - the import line and the `addParts` line, taken from the same example.
 
-A section "What you get out of the box" lists the basic parts, from the same JSON. `packages/astraeus-site/tests/shelfCatalogue.test.ts` fails when a root export whose doc comment carries `@shelf` has no entry or example, or when an entry names no such export. O-080 creates the page with its parts. O-081 adds its two.
+A section "What you get out of the box" lists the basic parts, from the same JSON. `packages/astraeus-site/tests/shelfCatalogue.test.ts` fails when a root export whose doc comment carries `@shelf` has no entry or example, or when an entry names no such export. O-080 creates the page with its parts. O-081 adds its two. The parts' types are on their own API page, `api/shelf.html` (every export declared under `src/shelf/`), linked from the catalogue and listed by name on the main API page (O-080 T-336).
 
 ## Open choices for the owner
 

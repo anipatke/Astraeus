@@ -146,7 +146,7 @@ describe("first-load size budget (T-070)", () => {
   it("holds one positive raw and gzip limit for the site pages, each experience and the whole build, once each", () => {
     const ids = PAGES.map((page) => page.id);
     expect(new Set(ids).size).toBe(ids.length);
-    expect(ids).toEqual(["index.html", "assets.html", "components.html", "api/index.html", "app.html (Apollo 11)", ...PUBLIC_PLANETS.map((planet: string) => `app.html?experience=planets&planet=${planet}`), "app.html?experience=showers", "app.html?experience=showers&shower=geminids"]);
+    expect(ids).toEqual(["index.html", "assets.html", "components.html", "api/index.html", "api/shelf.html", "app.html (Apollo 11)", ...PUBLIC_PLANETS.map((planet: string) => `app.html?experience=planets&planet=${planet}`), "app.html?experience=showers", "app.html?experience=showers&shower=geminids"]);
     for (const limit of [...PAGES, BUILD_LIMIT]) {
       expect(limit.rawLimit).toBeGreaterThan(0);
       expect(limit.gzipLimit).toBeGreaterThan(0);

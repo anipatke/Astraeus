@@ -48,8 +48,12 @@ export function useShelf(parts: readonly ShelfPart[] | undefined, view: Resolved
   /** The open panel as the host reads it (a host call is read at once), and the open panel the shell last reported. */
   const open = useRef<string | null>(null);
   const reported = useRef<string | null>(null);
-  /** Set by a host call that changes the open panel, so the report that follows it is not told to the host (setters are silent). */
-  const silent = useRef(false);
+  /**
+   * The open panel the host's last call asked for, until the shell reports it (O-080 T-336). Every report before that one is the host's own change, a step on the
+   * way included, so it is not told to the host (setters are silent) and leaves the host's read alone. A single "next report is silent" flag was consumed by the
+   * report of an earlier host call when a second call came before that report, and the host then heard its own call.
+   */
+  const hostWants = useRef<string | null | undefined>(undefined);
   const control = useMemo<ShelfControl | undefined>(() => {
     if (all.length === 0) return undefined;
     const kinds = new Map(all.flatMap((part) => [[part.id, "panel"] as const, ...part.blocks.map((block) => [block.id, block.kind] as const)]));
@@ -59,8 +63,9 @@ export function useShelf(parts: readonly ShelfPart[] | undefined, view: Resolved
       setOpen: (id, wanted) => {
         // A panel the showing view does not show cannot open; asking to close a closed one changes nothing.
         if ((wanted && !shownRef.current.some((part) => part.id === id)) || (open.current === id) === wanted) return;
-        silent.current = true;
         open.current = wanted ? id : null;
+        // When the shell already shows what the host now wants, no report will follow, so nothing is waited for.
+        hostWants.current = open.current === reported.current ? undefined : open.current;
         setRequest((previous) => ({ id, open: wanted, serial: (previous?.serial ?? 0) + 1 }));
       },
     };
@@ -68,11 +73,17 @@ export function useShelf(parts: readonly ShelfPart[] | undefined, view: Resolved
   const onOpenChange = useCallback((id: string | null) => {
     const before = reported.current;
     reported.current = id;
+    // A host call's own change is silent, up to the report of what it asked for.
+    if (hostWants.current !== undefined) {
+      // Done when the shell shows it, or closed when the showing view no longer shows the panel the host asked for (it cannot open now).
+      const wanted = hostWants.current;
+      if (id === wanted || (id === null && !shownRef.current.some((part) => part.id === wanted))) hostWants.current = undefined;
+      return;
+    }
     open.current = id;
     if (before === id) return;
-    // A host call's own change is silent; so is a panel the showing view dropped (the view switch is what the host hears, `onChange`).
+    // A panel the showing view dropped is silent too (the view switch is what the host hears, `onChange`).
     const dropped = before !== null && id === null && !shownRef.current.some((part) => part.id === before);
-    if (silent.current) { silent.current = false; return; }
     if (dropped) return;
     if (before !== null) host?.partOpened(before, false);
     if (id !== null) host?.partOpened(id, true);

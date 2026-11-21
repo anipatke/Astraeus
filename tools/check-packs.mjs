@@ -5,6 +5,7 @@
 import { spawnSync } from "node:child_process";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
+import { createRequire } from "node:module";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { buildPackage, isPositionPackage, PACKAGES } from "./build-packages.mjs";
 
@@ -85,9 +86,59 @@ export function extensionlessImports(dir) {
   return found;
 }
 
-/** Compiled-code problems: extensionless relative imports (I-077) and, in a position package, a chunk URL that Vite could inline (I-078). */
+/** A comment packed JS may keep: a `/*!` banner, or one marked `@license` or `@preserve` (tsc's `removeComments` keeps only `/*!`). */
+const KEPT_COMMENT = /^\/\*!|@license|@preserve/;
+
+/**
+ * The comments in one compiled JS text that a build should have removed (O-080 T-336): the packed JS ships without comments (tools/build-packages.mjs emits it
+ * with `removeComments`; the doc comments live in the .d.ts). Read by the TypeScript 6 parser (the root `typescript` 7 has no JS API), so a `//` inside a string,
+ * template or regular expression is not a comment. Each as `line N: first characters`.
+ */
+export function packedComments(text) {
+  const ts = createRequire(import.meta.url)("typescript6");
+  const source = ts.createSourceFile("packed.js", text, ts.ScriptTarget.Latest, true, ts.ScriptKind.JS);
+  const starts = new Set();
+  const found = [];
+  const note = (ranges) => {
+    for (const range of ranges ?? []) {
+      if (starts.has(range.pos)) continue;
+      starts.add(range.pos);
+      const comment = text.slice(range.pos, range.end);
+      if (!KEPT_COMMENT.test(comment)) found.push(`line ${source.getLineAndCharacterOfPosition(range.pos).line + 1}: ${comment.slice(0, 40).replace(/\s+/g, " ")}`);
+    }
+  };
+  const visit = (node) => {
+    note(ts.getLeadingCommentRanges(text, node.pos));
+    note(ts.getTrailingCommentRanges(text, node.end));
+    for (const child of node.getChildren(source)) visit(child);
+  };
+  visit(source);
+  return found;
+}
+
+/** Packed `.js` files under `src` that still hold an ordinary comment, as `src/x.js: line N: ...` (the first comment of each file), and an engine whose declarations lost their doc comments. */
+function commentProblems(name, dir) {
+  const problems = [];
+  const visit = (folder) => {
+    for (const entry of readdirSync(folder, { withFileTypes: true })) {
+      const path = join(folder, entry.name);
+      if (entry.isDirectory()) visit(path);
+      else if (entry.name.endsWith(".js")) {
+        const [first] = packedComments(readFileSync(path, "utf8"));
+        if (first !== undefined) problems.push(`${name}: packed JS keeps a comment in ${path.slice(dir.length + 1)}: ${first}`);
+      }
+    }
+  };
+  visit(join(dir, "src"));
+  // The second tsc pass keeps the doc comments in the engine's declarations; without it editors would lose them.
+  if (name === "astraeus" && !readFileSync(join(dir, "src", "api", "scene.d.ts"), "utf8").includes("/**")) problems.push(`${name}: src/api/scene.d.ts has no doc comments (the declarations must keep them)`);
+  return problems;
+}
+
+/** Compiled-code problems: extensionless relative imports (I-077), comments left in packed JS (O-080 T-336) and, in a position package, a chunk URL that Vite could inline (I-078). */
 function codeProblems(name, dir) {
   const problems = extensionlessImports(dir).map((one) => `${name}: extensionless relative import in ${one}`);
+  problems.push(...commentProblems(name, dir));
   if (isPositionPackage(name)) {
     const urls = readFileSync(join(dir, "src", "chunks.js"), "utf8").match(/new URL\([^)]*\)/g) ?? [];
     if (urls.length === 0) problems.push(`${name}: src/chunks.js lists no chunk`);

@@ -47,6 +47,14 @@ const MID = startUtcMs + Math.floor((endUtcMs - startUtcMs) / 2);
 const MID_2026 = Date.UTC(2026, 5, 1);
 const RATE = syntheticDefinition.experience.rates[0];
 const tick = (ms = 20) => new Promise<void>((resolve) => setTimeout(resolve, ms)); // setTimeout stays real; only the interval clock is held
+/** Polls `check` on real timeouts until it stops throwing (2 s at most), so a case waits for the drawn state, not a fixed time. Unlike `vi.waitFor` it never advances the held interval clock, so it adds no clock signal (O-080 T-336). */
+async function until(check: () => void, timeoutMs = 2000): Promise<void> {
+  const end = Date.now() + timeoutMs;
+  for (;;) {
+    try { check(); return; } catch (error) { if (Date.now() > end) throw error; }
+    await tick(10);
+  }
+}
 
 /** What a host sees of one opened scene, the same through either path. */
 interface Opened {
@@ -528,16 +536,17 @@ describe.each([mountDriver, reactDriver(false)])("lifecycle: $name", (driver) =>
     expect([gaps.open, shown()]).toEqual([true, "gaps"]);
     expect(heard).toEqual([{ part: "gaps", open: true }]);
     // the host's setOpen replaces it and says nothing, to either panel's listener
-    empty.setOpen(true); await tick(60);
-    expect([gaps.open, empty.open, shown()]).toEqual([false, true, "empty"]);
+    empty.setOpen(true);
+    await until(() => expect([gaps.open, empty.open, shown()]).toEqual([false, true, "empty"])); // wait for the drawn state, not a fixed time
     expect(heard).toEqual([{ part: "gaps", open: true }]);
     // host calls land in order: the last word wins
-    gaps.setOpen(true); empty.setOpen(true); await tick(60);
-    expect([gaps.open, empty.open, shown()]).toEqual([false, true, "empty"]);
-    empty.setOpen(false); empty.setOpen(false); await tick(60);
-    expect([empty.open, shown()]).toEqual([false, undefined]);
+    gaps.setOpen(true); empty.setOpen(true);
+    await until(() => expect([gaps.open, empty.open, shown()]).toEqual([false, true, "empty"]));
+    empty.setOpen(false); empty.setOpen(false);
+    await until(() => expect([empty.open, shown()]).toEqual([false, undefined]));
     // Escape is the visitor's
-    gaps.setOpen(true); await tick(60);
+    gaps.setOpen(true);
+    await until(() => expect(shown()).toBe("gaps"));
     flushSync(() => document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true })));
     expect([gaps.open, shown()]).toEqual([false, undefined]);
     expect(heard).toEqual([{ part: "gaps", open: true }, { part: "gaps", open: false }]);
@@ -551,10 +560,10 @@ describe.each([mountDriver, reactDriver(false)])("lifecycle: $name", (driver) =>
     expect(handle.part(body).element).toBe(element);
     expect(element.isConnected).toBe(true);
     element.append("host content");
-    gaps.setOpen(false); await tick(60);
-    expect(element.isConnected).toBe(false);
-    gaps.setOpen(true); await tick(60);
-    expect(element.isConnected).toBe(true);
+    gaps.setOpen(false);
+    await until(() => expect(element.isConnected).toBe(false));
+    gaps.setOpen(true);
+    await until(() => expect(element.isConnected).toBe(true));
     expect(element.textContent).toBe("host content");
     // bad-part: a part this viewer's scene does not hold, a lookalike, a bad argument
     const stranger = panel({ id: "stranger", button: { label: "S" }, title: "S", blocks: [customBlock({ id: "stranger-body" })] });
@@ -679,18 +688,18 @@ describe.each([mountDriver, reactDriver(false)])("lifecycle: $name", (driver) =>
     handle.part(gapsPanel).onOpen((change) => heard.push(change));
     expect(handle.view).toBe("b");
     expect(buttons()).toEqual(["gaps", "every"]);
-    handle.part(gapsPanel).setOpen(true); await tick(60);
-    expect(document.querySelector("[data-shelf-panel]")!.getAttribute("data-shelf-panel")).toBe("gaps");
-    flushSync(() => handle.setView("a")); await tick(60);
-    expect(buttons()).toEqual(["every"]);
-    expect(document.querySelector("[data-shelf-panel]")).toBeNull();
+    handle.part(gapsPanel).setOpen(true);
+    await until(() => expect(document.querySelector("[data-shelf-panel]")?.getAttribute("data-shelf-panel")).toBe("gaps")); // wait for the drawn state, not a fixed time
+    flushSync(() => handle.setView("a"));
+    await until(() => expect(buttons()).toEqual(["every"]));
+    await until(() => expect(document.querySelector("[data-shelf-panel]")).toBeNull());
     expect(handle.part(gapsPanel).open).toBe(false);
     // a panel the showing view does not show stays closed
     handle.part(gapsPanel).setOpen(true); await tick(60);
     expect(handle.part(gapsPanel).open).toBe(false);
     expect(document.querySelector("[data-shelf-panel]")).toBeNull();
-    flushSync(() => handle.setView("b")); await tick(60);
-    expect(buttons()).toEqual(["gaps", "every"]);
+    flushSync(() => handle.setView("b"));
+    await until(() => expect(buttons()).toEqual(["gaps", "every"]));
     expect(heard).toEqual([]);
     opened.unmount();
   });
