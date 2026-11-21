@@ -2,7 +2,7 @@
 id: I-191
 title: The engine's first download is 801 bytes over its raw size cap after each scene got its own moon data
 type: verification
-status: open
+status: in_progress
 source:
   kind: check
   check: C-198
@@ -17,6 +17,14 @@ history:
     actor: {role: checker, session: check-o084-orchestrator-20261121}
     kind: observed
     note: 'C-198: packagePacks.test.ts and the browser public-build-assets step fail: examples/hello-scene first download 1,833,801 B raw against ENGINE_LIMIT.rawLimit 1,833,000 (+801 B); gzip 524,620 B within 527,000. Growth by Task: T-357 +405 B (moon-data seam), T-358 +292 B, T-359 +104 B (O-083 ended at 1,832,087 B, 913 B under). The cap is an owner decision (engine-budget.mjs; resets 2026-11-01 and 2026-11-10 were "measured + 5%"), and G-024 decision 7 parks an Objective whose size budget goes red.'
+  - at: '2026-11-21T19:07:46Z'
+    actor: {role: owner, session: orchestrate-g024-20261121}
+    kind: decision
+    note: 'Owner: "carry on size option a" (option 1, a small raise of the raw cap by 3,000 B to 1,836,000 B; gzip unchanged).'
+  - at: '2026-11-21T19:07:46Z'
+    actor: {role: executor, session: orchestrate-g024-20261121}
+    kind: repair_attempted
+    note: 'ENGINE_LIMIT.rawLimit 1,836,000 in engine-budget.mjs (comment names the decision), publicBuild.test.ts pin, docs/BROWSER_CHECKS.md and Design Size budgets updated; publicBuild + packagePacks 44 passed.'
 ---
 
 # The engine's first download is 801 bytes over its raw size cap
