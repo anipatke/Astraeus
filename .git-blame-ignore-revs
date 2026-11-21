@@ -1,0 +1,2 @@
+# Commit of the Prettier reformat (O-093 T-381); `git config blame.ignoreRevsFile .git-blame-ignore-revs` hides it from blame
+3a1c4078b99a17e142afbc6f5ddaeda160cf00f1
