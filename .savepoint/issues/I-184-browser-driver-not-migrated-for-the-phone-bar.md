@@ -2,16 +2,22 @@
 id: I-184
 title: The browser driver is not migrated for the phone bar, so the planets phone and look-out journeys fail
 type: defect
-status: open
+status: resolved
 source:
   kind: check
   check: C-191
   actor: {role: checker, session: check-o079-20261121}
   at: '2026-11-21T04:14:23Z'
 tasks: [T-326, T-327]
-checks: [C-191]
+checks: [C-191, C-192]
 guardrail_ids: [TEST-01]
 severity: medium
+resolution:
+  disposition: verified
+  check: C-192
+  actor: {role: checker, session: recheck-o079-20261121}
+  at: '2026-11-21T05:06:30Z'
+  reason: 'C-192 CLEAR: driver.mjs reads and chooses both switch forms (readSwitchGroup, switchShowsActive) and reveals the Developer cog through withRevealed, restoring the menu; the single check:browser run (2026-11-21T04:58:25Z, docs/evidence/browser-20261121T045825Z) passes planets-phone (phone journey) and look-out at desktop and phone; browserDriverPhoneBar.test.ts cases fail against the HEAD~1 driver.'
 history:
   - at: '2026-11-21T04:14:23Z'
     actor: {role: checker, session: check-o079-20261121}
@@ -28,6 +34,11 @@ history:
     kind: repair_attempted
     note: 'Follow-up repair (coordinator decision: driver route; the site trace control is not moved again). driver.mjs: new withSwitchesRestored(page, act) records whether the menu and the switch panel were open, runs the action, then closes the switch panel (closeSwitchPanel, by its toggle) and the menu again when each was closed. displaySwitchOn, toggleDisplaySwitch, displaySwitchPlaces and switchPanelFit (every driver helper that opens the switch panel) run through it, so no helper leaves the panel or a phone menu open beyond the action asked. New fast cases in packages/astraeus-site/tests/browserDriverPhoneBar.test.ts (stand-in phone page whose switch panel lives in the menu): each of the four helpers from a closed menu ends with panel and menu closed; a read and a press still act on the panel switch; an open menu and panel stay open. Browser, own servers (dev :5491, example previews :5492/:5493 after node tools/build-example.mjs), each run once, scratch evidence: journey-look-out.mjs PASS desktop and phone; check-hello-scene.mjs (HELLO_STORY=1, hello-scene) PASS desktop and phone; check-hello-sky.mjs PASS desktop and phone; browser-smoke.mjs all views 18/18 PASS. journey-planets-phone.mjs passed earlier (before this restore change; it calls no switch-panel helper). Not changed: other reveal-based driver helpers (pickBody, view buttons, scale, camera entries and similar) can still leave a phone menu open after a read; most presses close it through data-closes-drawer. Making all of them restore touches scripts outside this run list (journey-views, meteor-shower), so it is left for a decision. Gates green: lint, typecheck, build, npm test (284 files, 4407 passed), check:engine-alone, check:pack.'
     check: C-191
+  - at: '2026-11-21T05:06:30Z'
+    actor: {role: checker, session: recheck-o079-20261121}
+    kind: rechecked
+    note: 'C-192: Proof Needed met; closed as verified.'
+    check: C-192
 ---
 
 # I-184: The browser driver is not migrated for the phone bar, so the planets phone and look-out journeys fail

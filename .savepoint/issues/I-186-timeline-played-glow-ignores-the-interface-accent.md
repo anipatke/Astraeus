@@ -2,16 +2,22 @@
 id: I-186
 title: The timeline's played glow keeps the old orange and ignores the interface accent
 type: defect
-status: open
+status: resolved
 source:
   kind: check
   check: C-191
   actor: {role: checker, session: check-o079-20261121}
   at: '2026-11-21T04:14:23Z'
 tasks: [T-330, T-331]
-checks: [C-191]
+checks: [C-191, C-192]
 guardrail_ids: [API-06, STYLE-07]
 severity: medium
+resolution:
+  disposition: verified
+  check: C-192
+  actor: {role: checker, session: recheck-o079-20261121}
+  at: '2026-11-21T05:06:30Z'
+  reason: 'C-192 CLEAR: the default played glow is built from var(--astraeus-accent) (color-mix at the old opacities), a host interface.accent reaches the token, a Developer-set played colour still overrides (timelineGlowAccent.test.ts); the lookDrift TypeScript scan fails against the HEAD~1 timelineGlow.ts.'
 history:
   - at: '2026-11-21T04:14:23Z'
     actor: {role: checker, session: check-o079-20261121}
@@ -28,6 +34,11 @@ history:
     kind: repair_attempted
     note: 'Coordinator decisions (orchestrate-o079-20261121, recorded as instructed): (1) accepted that shell/bodyFeatures.ts featureColor fallback ''#ffffff'' stays as the one named KNOWN exception, with its reason, in the TypeScript colour scan; (2) accepted the changed expected strings in packages/astraeus-demo-apollo11/tests/timeline.test.ts ''glows evenly at the steady brightness'' (input unchanged; the old strings pinned the replaced orange); (3) accepted the computed-look baseline regenerated with npm run look:lock (only phone-place justify-content and the glow gradients changed).'
     check: C-191
+  - at: '2026-11-21T05:06:30Z'
+    actor: {role: checker, session: recheck-o079-20261121}
+    kind: rechecked
+    note: 'C-192: Proof Needed met; closed as verified.'
+    check: C-192
 ---
 
 # I-186: The timeline's played glow keeps the old orange and ignores the interface accent

@@ -2,16 +2,22 @@
 id: I-185
 title: The phone smoke of the synthetic journey finds no free point on the scene at Saturn
 type: defect
-status: open
+status: resolved
 source:
   kind: check
   check: C-191
   actor: {role: checker, session: check-o079-20261121}
   at: '2026-11-21T04:14:23Z'
 tasks: [T-329, T-326, T-331, T-327]
-checks: [C-191]
+checks: [C-191, C-192]
 guardrail_ids: [TEST-01]
 severity: medium
+resolution:
+  disposition: verified
+  check: C-192
+  actor: {role: checker, session: recheck-o079-20261121}
+  at: '2026-11-21T05:06:30Z'
+  reason: 'C-192 CLEAR: cause (phone sheet places content-sized, so the --sheet-max cap never resolved) fixed in areas.css (stretch, flex-end); driver probes the band under the bar for the intended capped card; smoke passes for every view at both sizes (18/18) in the single check:browser run; phoneSheetPlace.test.ts fails against the HEAD~1 areas.css and the free-point cases against the HEAD~1 driver.'
 history:
   - at: '2026-11-21T04:14:23Z'
     actor: {role: checker, session: check-o079-20261121}
@@ -28,6 +34,11 @@ history:
     kind: repair_attempted
     note: 'Follow-up verification: browser-smoke.mjs for all views on the own dev server (:5491), run once after the follow-up driver change: 18/18 loads pass (apollo11, planets, showers, showers-geminids, showers-perseids, synthetic-probe, synthetic-journey 76.8 s desktop / 77.4 s phone, index-page, assets-page; desktop and phone). Gates green (as in the I-184 entry of the same time).'
     check: C-191
+  - at: '2026-11-21T05:06:30Z'
+    actor: {role: checker, session: recheck-o079-20261121}
+    kind: rechecked
+    note: 'C-192: Proof Needed met; closed as verified.'
+    check: C-192
 ---
 
 # I-185: The phone smoke of the synthetic journey finds no free point on the scene at Saturn
