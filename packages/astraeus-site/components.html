@@ -61,7 +61,16 @@ section { padding-block: clamp(2.25rem, 5vw, 3.5rem); border-bottom: 1px solid v
 .part:first-of-type { border-top: 0; padding-top: 0; }
 .part > * { min-width: 0; }
 .part h2 { font-size: 1.4rem; letter-spacing: -0.02em; }
-.part .what { margin-top: 8px; font-size: 0.95rem; }
+.part .purpose { margin-top: 8px; font-size: 1rem; }
+.part .example { margin-top: 10px; font-size: 0.9rem; color: var(--muted); }
+.part .example b { color: var(--ink); font-weight: 500; }
+.dev { margin-top: 14px; }
+.dev summary { display: flex; align-items: center; min-height: 44px; cursor: pointer; font-family: var(--mono); font-size: 0.78rem; color: var(--muted); }
+.dev-body { display: grid; gap: 8px; padding-top: 4px; }
+.dev-body .what { font-size: 0.86rem; color: var(--muted); }
+.code-name code { color: var(--ink); font-size: 0.9rem; }
+.code-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; font-size: 0.84rem; }
+.code-list code { color: var(--muted); }
 .uses { list-style: none; margin: 14px 0 0; padding: 0; display: grid; gap: 8px; }
 .uses li { font-size: 0.86rem; color: var(--muted); line-height: 1.5; overflow-wrap: anywhere; }
 .job { display: inline-block; margin-right: 8px; padding: 0 8px; border: 1px solid var(--rule-strong); border-radius: 999px; font-family: var(--mono); font-size: 0.66rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink); }
@@ -71,11 +80,9 @@ section { padding-block: clamp(2.25rem, 5vw, 3.5rem); border-bottom: 1px solid v
 /* The viewer's box needs a size, and the viewer fills it. */
 .stage { position: relative; height: 420px; border: 1px solid var(--rule-strong); border-radius: 14px; background: #050507; overflow: hidden; }
 .stage .idle-note { position: absolute; inset: 0; display: grid; place-items: center; padding: 16px; text-align: center; font-size: 0.84rem; color: var(--faint); }
-.lines { margin-top: 12px; display: grid; gap: 4px; }
-.lines pre, .source pre { margin: 0; padding: 10px 12px; background: var(--raised); border: 1px solid var(--rule); border-radius: 10px; font-size: 0.74rem; line-height: 1.5; color: var(--body); overflow-x: auto; white-space: pre; }
-.source { margin-top: 12px; }
-.source summary { cursor: pointer; font-family: var(--mono); font-size: 0.74rem; color: var(--muted); padding: 6px 0; }
-.source pre { margin-top: 6px; max-height: 24rem; overflow: auto; }
+.lines { margin-top: 4px; display: grid; gap: 4px; }
+.lines pre, .dev-body pre { margin: 0; padding: 10px 12px; background: var(--raised); border: 1px solid var(--rule); border-radius: 10px; font-size: 0.74rem; line-height: 1.5; color: var(--body); overflow-x: auto; white-space: pre; }
+.dev-body pre { max-height: 24rem; overflow: auto; }
 
 footer { padding-block: 28px 44px; font-size: 0.84rem; color: var(--faint); }
 
@@ -99,15 +106,15 @@ footer { padding-block: 28px 44px; font-size: 0.84rem; color: var(--faint); }
 <main>
   <div class="wrap">
     <div class="intro">
-      <span class="eyebrow">Components</span>
-      <h1>The parts a story <span class="spec">adds</span></h1>
-      <p>Every viewer comes with a basic interface. A story adds its own buttons and panels from the shelf below, each its own import from <code>astraeus</code>, so an app bundles only the parts it uses. Run an example to see it on a made-up scene.</p>
+      <span class="eyebrow">Parts for stories</span>
+      <h1>Ready-made pieces for your <span class="spec">story</span></h1>
+      <p>Building a story with Astraeus? These are ready-made pieces you can add to the viewer: buttons, panels, filters and keys, filled with your own words and numbers. Try each one below; pressing the button on an entry runs it on a made-up scene. Code details are folded away under &ldquo;For developers&rdquo;.</p>
     </div>
     <!--shelf-catalogue-->
   </div>
 </main>
 
-<footer><div class="wrap">Examples use invented data and the public <code>astraeus</code> API only. <a href="api/shelf.html">Parts API →</a> <a href="api/">API reference →</a></div></footer>
+<footer><div class="wrap">Examples use invented data and the public <code>astraeus</code> API only. For developers: <a href="api/shelf.html">Parts API →</a> <a href="api/">API reference →</a></div></footer>
 <script type="module" src="/src/catalogue/page.ts"></script>
 </body>
 </html>

@@ -2049,12 +2049,12 @@ export async function catalogueActive(page) {
 export async function catalogueViewerCount(page) {
   return page.evaluate(() => document.querySelectorAll("[data-part-stage] canvas").length);
 }
-/** An entry's box text, the lines shown beside it and its whole code, as the page prints them (textContent, so a control the viewer folds into a menu still counts). */
+/** An entry's plain name, whether its For developers fold is open, its box text, the lines shown beside it and its whole code, as the page prints them (textContent, so a control the viewer folds into a menu still counts). */
 export async function catalogueEntry(page, part) {
   return page.evaluate((name) => {
     const entry = document.querySelector(`[data-part="${name}"]`);
     const text = (hook) => entry.querySelector(`[${hook}]`).textContent;
-    return { stage: text("data-part-stage"), importLines: text("data-part-import"), addLines: text("data-part-add"), code: text("data-part-code"), runLabel: text("data-part-run"), runHeightPx: Math.round(entry.querySelector("[data-part-run]").getBoundingClientRect().height) };
+    return { name: text("data-part-name"), devOpen: entry.querySelector("details.dev").open, stage: text("data-part-stage"), importLines: text("data-part-import"), addLines: text("data-part-add"), code: text("data-part-code"), runLabel: text("data-part-run"), runHeightPx: Math.round(entry.querySelector("[data-part-run]").getBoundingClientRect().height) };
   }, part);
 }
 /** The "What you get out of the box" items on the page. */

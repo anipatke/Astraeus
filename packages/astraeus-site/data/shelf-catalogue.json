@@ -1,5 +1,5 @@
 {
-  "about": "What the public catalogue page (components.html) says about the story-component shelf, beside what it reads from the engine's doc comments (the first sentence of each part's). One entry per root export whose doc comment carries @shelf, with an example of the same name in src/catalogue/examples; tests/shelfCatalogue.test.ts keeps the three together (O-080 T-335).",
+  "about": "What the public catalogue page (components.html) says about the story-component shelf, in plain words first (name, purpose, example, tags), beside what it reads from the engine's doc comments (the first sentence of each part's, shown in the For developers fold). One entry per root export whose doc comment carries @shelf, with an example of the same name in src/catalogue/examples; tests/shelfCatalogue.test.ts keeps the three together (O-080 T-335, plain words T-336).",
   "jobs": {
     "switch": "A switch: a button or choice that changes what is shown or where the camera looks",
     "filter": "A filter: lights some of the things in the scene and dims the rest",
@@ -7,56 +7,144 @@
     "explainer": "An explainer: words that say what is going on"
   },
   "outOfTheBox": [
-    { "name": "Title and About", "text": "The bar shows your title; pressing it opens the About panel with a status line, credits, links and the Built with Astraeus mark (scene.setAbout)." },
-    { "name": "Picker and views", "text": "A choice in the bar between the things your page offers, and named views of one scene that show some objects and events and not others (scene.setPicker, scene.setViews)." },
-    { "name": "Display switches", "text": "Orbit lines, labels, the Milky Way and the sky lines, each a button in the bar, a row in one panel or a row in the Developer drawer (scene.setSwitches)." },
-    { "name": "Timeline", "text": "Play and pause, a speed choice, a scrubber, and a list of the moments you add (scene.setTimeline, scene.addEvents)." },
-    { "name": "Camera and objects", "text": "An object list, focus and follow, overview and, where you offer it, looking out from a body (scene.camera)." },
-    { "name": "Info cards", "text": "A card for each body, path or group with its description, readouts, source and known limits." },
-    { "name": "Story panels", "text": "Steps or moments with a title and words that can move the camera and select an object (scene.addStoryPanels)." }
+    {
+      "name": "Title and About",
+      "text": "Your title sits in the top bar. Pressing it opens an About panel with a status line, credits, links and the Built with Astraeus mark.",
+      "code": "scene.setAbout"
+    },
+    {
+      "name": "Picker and views",
+      "text": "A choice in the bar between the things your page offers, and named views of one scene that show some objects and events and hide others.",
+      "code": "scene.setPicker, scene.setViews"
+    },
+    {
+      "name": "Display switches",
+      "text": "Orbit lines, labels, the Milky Way and the sky lines, each as a button in the bar or a row in a panel.",
+      "code": "scene.setSwitches"
+    },
+    {
+      "name": "Timeline",
+      "text": "Play and pause, a speed choice, a slider to scrub through time, and a list of the moments you add.",
+      "code": "scene.setTimeline, scene.addEvents"
+    },
+    {
+      "name": "Camera and objects",
+      "text": "A list of objects, buttons to focus on one or follow it, an overview, and, where you offer it, a view from out of a planet's sky.",
+      "code": "scene.camera"
+    },
+    {
+      "name": "Info cards",
+      "text": "A card for each planet, path or group with its description, figures, source and known limits.",
+      "code": ""
+    },
+    {
+      "name": "Story panels",
+      "text": "Steps or moments with a title and some words, which can move the camera and pick out an object.",
+      "code": "scene.addStoryPanels"
+    }
   ],
   "parts": [
     {
       "export": "panel",
+      "name": "Panel with a bar button",
+      "purpose": "A button in the top bar that opens a panel of your own, holding whatever you want to say or offer.",
+      "example": "a \"Kirkwood gaps\" button that opens a panel explaining the gaps in the asteroid belt.",
       "uses": [
-        { "job": "switch", "text": "Put a story's own button in the bar: it opens a panel that holds the controls for that story." },
-        { "job": "explainer", "text": "Give a topic its own place, so the words are one press away and not in the way of the scene." }
+        {
+          "job": "switch",
+          "text": "Put your story's own button in the bar; it opens a panel with the controls for that story."
+        },
+        {
+          "job": "explainer",
+          "text": "Give a topic its own place, so the words are one press away and out of the way of the scene."
+        }
       ]
     },
     {
       "export": "customBlock",
+      "name": "Your own space",
+      "purpose": "An empty box inside a panel where you draw anything you like, such as a chart or a picture.",
+      "example": "a small chart of how fast a comet moves along its orbit, drawn inside a panel.",
       "uses": [
-        { "job": "readout", "text": "Draw your own picture or chart in the panel; the engine hands you an empty box and you fill it." },
-        { "job": "switch", "text": "Any control the shelf does not have yet, until it does." }
+        {
+          "job": "readout",
+          "text": "Draw your own picture or chart in the panel; the viewer gives you an empty box and you fill it."
+        },
+        {
+          "job": "switch",
+          "text": "Any control the shelf does not have yet, until it does."
+        }
       ]
     },
     {
       "export": "explainer",
+      "name": "Explainer text",
+      "purpose": "A heading, a few paragraphs and a small note, to say what the visitor is looking at.",
+      "example": "a short passage on why a planet speeds up near the Sun, with a note that the orbit is invented.",
       "uses": [
-        { "job": "explainer", "text": "Say what is on screen: a heading, a few paragraphs and a small note for a caveat or a source." },
-        { "job": "readout", "text": "Change the words from your code as the visitor moves the time or the camera." }
+        {
+          "job": "explainer",
+          "text": "Say what is on screen: a heading, a few paragraphs and a small note for a caveat or a source."
+        },
+        {
+          "job": "readout",
+          "text": "Change the words as the visitor moves the time or the camera."
+        }
       ]
     },
     {
       "export": "actions",
+      "name": "Action buttons",
+      "purpose": "A row of buttons that each do one thing, like flying the camera to a place you want the visitor to see.",
+      "example": "\"Fly to the closest approach\" and \"Fly to the far end of the orbit\" buttons for a guided tour.",
       "uses": [
-        { "job": "switch", "text": "Buttons that fly the camera to a place the story wants the visitor to see." },
-        { "job": "explainer", "text": "A guided tour in a panel: one button for each stop." }
+        {
+          "job": "switch",
+          "text": "Buttons that fly the camera to a place the story wants the visitor to see."
+        },
+        {
+          "job": "explainer",
+          "text": "A guided tour in a panel: one button for each stop."
+        }
       ]
     },
     {
       "export": "filterChips",
+      "name": "Filter chips",
+      "purpose": "Small toggle buttons for picking one group or several; your story decides what changes, such as lighting that group up.",
+      "example": "chips for \"Rocky\", \"Icy\" and \"Metal\" asteroids, so the visitor can see one kind at a time.",
       "uses": [
-        { "job": "filter", "text": "Pick one group, or several, to light up while your code dims the rest." },
-        { "job": "switch", "text": "A choice between a few modes of the same scene, shown as chips instead of a menu." }
+        {
+          "job": "filter",
+          "text": "Pick one group, or several, to light up while the rest dims."
+        },
+        {
+          "job": "switch",
+          "text": "A choice between a few modes of the same scene, shown as chips instead of a menu."
+        }
       ]
     },
     {
       "export": "colourKey",
+      "name": "Colour key",
+      "purpose": "A key that says what each colour means and how many things wear it.",
+      "example": "a key beside the chips showing that blue is icy, orange is rocky, with a count for each.",
       "uses": [
-        { "job": "readout", "text": "Say what each colour means, with how many things wear it." },
-        { "job": "filter", "text": "Sit beside a set of chips so the visitor can see what each chip lights." }
+        {
+          "job": "readout",
+          "text": "Say what each colour means, with how many things wear it."
+        },
+        {
+          "job": "filter",
+          "text": "Sit beside a set of chips so the visitor can see what each chip lights."
+        }
       ]
     }
-  ]
+  ],
+  "jobLabels": {
+    "switch": "Buttons",
+    "filter": "Filtering",
+    "readout": "Information",
+    "explainer": "Explaining"
+  }
 }

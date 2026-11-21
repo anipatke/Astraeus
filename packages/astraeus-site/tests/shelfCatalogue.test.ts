@@ -41,6 +41,12 @@ describe("the catalogue holds every shelf export and nothing else", () => {
   it("covers the four story jobs between its uses", () => {
     expect(new Set(catalogue.parts.flatMap((part) => part.uses.map((use) => use.job)))).toEqual(new Set(["switch", "filter", "readout", "explainer"]));
   });
+  it("gives every entry its plain words: a name, a purpose and an example, and a plain label for each story job", () => {
+    for (const part of catalogue.parts) {
+      for (const field of ["name", "purpose", "example"] as const) expect(typeof part[field] === "string" && part[field].trim() !== "", `${part.export}: ${field}`).toBe(true);
+    }
+    for (const job of Object.keys(catalogue.jobs)) expect(catalogue.jobLabels[job]?.trim(), `job label for ${job}`).toBeTruthy();
+  });
   it("has an out-of-the-box section", () => {
     expect(catalogue.outOfTheBox.length).toBeGreaterThan(3);
     for (const item of catalogue.outOfTheBox) expect(item.name !== "" && item.text !== "").toBe(true);
@@ -77,10 +83,22 @@ describe("the page text", () => {
     expect(main.match(/data-part-run/g)?.length).toBe(shelfNames.length);
     for (const hook of ["data-part-stage", "data-part-import", "data-part-add", "data-part-code"]) expect(main.match(new RegExp(hook, "g"))?.length, hook).toBe(shelfNames.length);
   });
-  it("gives each part the first sentence of its doc comment", () => {
+  it("gives each part the first sentence of its doc comment (in the developers fold)", () => {
     for (const { name, doc } of shelf) {
       const sentence = firstSentence(doc).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/`([^`]+)`/g, "<code>$1</code>");
       expect(main, name).toContain(`<p class="what">${sentence}</p>`);
+    }
+  });
+  it("opens each entry with its plain name, purpose and example, and folds the developer material away", () => {
+    for (const part of catalogue.parts) {
+      const entry = main.slice(main.indexOf(`id="part-${part.export}"`)).split("</article>")[0]!;
+      const head = entry.split('<details class="dev">')[0]!;
+      expect(head, `${part.export}: name`).toContain(`<h2 data-part-name>${part.name}</h2>`);
+      expect(head, `${part.export}: example line`).toContain("For example:");
+      expect(head, `${part.export}: no code name before the fold`).not.toContain(`<code>${part.export}</code>`);
+      expect(entry, `${part.export}: fold`).toMatch(/<details class="dev"><summary>For developers<\/summary>/);
+      expect(entry.match(/<details class="dev" open/)).toBeNull();
+      expect(entry, `${part.export}: code name inside the fold`).toContain(`<code>${part.export}</code>`);
     }
   });
   it("lists the out-of-the-box parts", () => {

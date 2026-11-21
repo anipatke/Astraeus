@@ -2,8 +2,7 @@
 id: T-336
 objective: O-080
 title: Measure the package and show the shelf to the owner
-status: in_progress
-stage: test
+status: done
 depends_on: [{task: T-335, requires: clear}]
 check_waiver: {task: T-336, reason: 'Owner said "Orchestrate 080": standing orchestration rules waive the optional step checks; the mandatory Full Objective Check covers the whole diff.', actor: {role: owner, session: orchestrate-o080-20261121}, recorded_at: '2026-11-21T05:15:22Z'}
 owner_validation: {required: true}
@@ -268,6 +267,12 @@ The owner chose P1 and A1 (Objective Decisions, last bullet; relayed by the coor
 - **Comments tsc strips:** a future comment the build relies on, such as `/* @vite-ignore */`, would be removed by tsc before the pack check sees it. None exists today. Only `/*!` survives, which the check allows.
 - **Not seen in a browser:** the API pages and the new links (owner look in step 4).
 
+### Third pass: catalogue page plain words
+
+Owner: "Plain words first, code tucked away". Changed `data/shelf-catalogue.json` (new `name`, `purpose`, `example`, `jobLabels`, basics `code`), `tools/site/shelf-catalogue.mjs` (entry layout; code name, doc sentence, import/add lines and whole example in a closed "For developers" fold; basics section in plain words), `components.html` (intro, styles), `tests/shelfCatalogue.test.ts` (missing plain fields fail; fold and order checked; nothing existing changed), `tools/validate/driver.mjs` and `journey-catalogue.mjs` (name and fold-closed readouts; not run, no browser), `docs/architecture/viewer-interface.md` section 11. Gates: lint clean, `tsc --noEmit` clean, `npm test` 288 files / 4532 passed, 2 skipped (shelfCatalogue 36). Browser journey and `load-budget.mjs` not run.
+
 ## Drift Notes
 
 None expected; this Task reconciles the others.
+
+Coordinator: corrected the Filter chips plain purpose (the part does not dim anything; the story decides what changes); `shelfCatalogue.test.ts` 36 passed. Owner on the localhost:5490 preview after the plain-words rewrite: "better" — owner look recorded; owner_validation to be recorded against the Full Objective Check id. Coordinator marked done (owner: "Orchestrate 080"); full gates green after the second pass (npm test 4530 passed, 0 failed; check:pack, check:engine-alone, check:node-consumer, check:shelf-split pass); third pass lint, typecheck and npm test 4532 passed, 0 failed.

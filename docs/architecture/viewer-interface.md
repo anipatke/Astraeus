@@ -494,14 +494,13 @@ The proof is `npm run check:shelf-split` (`tools/check-shelf-split.mjs`). It pac
 - The failure note → About `status`.
 - Story panels are unchanged.
 
-**Public catalogue page.** `packages/astraeus-site/components.html`, linked from the site navigation beside Assets (`index.html:207`). Each entry has:
+**Public catalogue page.** `packages/astraeus-site/components.html`, linked from the site navigation beside Assets as "Parts" (`index.html:207`). Plain words first (owner, 2026-11-21): the intro says who the page is for, and each entry opens with:
 
-- what it is: the first sentence of the factory's doc comment, so it has one source with the README;
-- suggested uses by story job (switch, filter, readout, explainer), from `packages/astraeus-site/data/shelf-catalogue.json`;
-- a live example on a synthetic scene: `src/catalogue/examples/<part>.ts`, run on demand one viewer at a time, and shown as text through a `?raw` import, so the shown code is the run code;
-- the import line and the `addParts` line, taken from the same example.
+- a plain name, one plain sentence on what it is for, and a "For example:" line about a space story, with the story jobs as small plain tags, all from `packages/astraeus-site/data/shelf-catalogue.json` (`name`, `purpose`, `example`, `jobLabels`);
+- the Run button and a live example on a synthetic scene: `src/catalogue/examples/<part>.ts`, run on demand one viewer at a time, shown as text through a `?raw` import, so the shown code is the run code;
+- a closed "For developers" fold holding the code name, the first sentence of the factory's doc comment (one source with the README), the import line and the `addParts` line, and the whole example.
 
-A section "What you get out of the box" lists the basic parts, from the same JSON. `packages/astraeus-site/tests/shelfCatalogue.test.ts` fails when a root export whose doc comment carries `@shelf` has no entry or example, or when an entry names no such export. O-080 creates the page with its parts. O-081 adds its two. The parts' types are on their own API page, `api/shelf.html` (every export declared under `src/shelf/`), linked from the catalogue and listed by name on the main API page (O-080 T-336).
+A section "Already in every viewer" lists the basic parts in plain words, from the same JSON, with their calls in a "For developers" fold. `packages/astraeus-site/tests/shelfCatalogue.test.ts` fails when a root export whose doc comment carries `@shelf` has no entry or example, or when an entry names no such export. O-080 creates the page with its parts. O-081 adds its two. The parts' types are on their own API page, `api/shelf.html` (every export declared under `src/shelf/`), linked from the catalogue and listed by name on the main API page (O-080 T-336).
 
 ## Open choices for the owner
 

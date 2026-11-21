@@ -28,6 +28,8 @@ await checkScript({ name: "journey-catalogue", viewports: SIZES }, async (page, 
   const minButtonPx = name === "phone" ? 44 : 24;
   for (const part of PARTS) {
     const entry = await ui.catalogueEntry(page, part);
+    assert.equal(entry.name, catalogue.parts.find((item) => item.export === part).name, `${part}: the entry opens with its plain name`);
+    assert.equal(entry.devOpen, false, `${part}: the For developers fold starts closed`);
     assert.ok(entry.importLines.includes(`from "astraeus"`) && entry.importLines.includes(part), `${part}: the import line names the part`);
     assert.ok(entry.addLines.startsWith("scene.addParts(") && entry.addLines.includes(`${part}(`), `${part}: the add line holds the part`);
     assert.ok(entry.code.includes(entry.addLines), `${part}: the shown code is the code that runs (it holds the add line as written)`);

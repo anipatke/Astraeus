@@ -1,5 +1,5 @@
 // The public catalogue page's text (O-080 T-335, design note `docs/architecture/viewer-interface.md` section 11): one entry for every root export of the engine whose doc comment carries `@shelf`,
-// with what it is (the first sentence of its doc comment, so the README and the API page share its one source), its suggested uses by story job (data/shelf-catalogue.json) and an example's place
+// with what it is (the first sentence of its doc comment, so the README and the API page share its one source), its plain name, purpose, example and tags by story job (data/shelf-catalogue.json) and an example's place
 // for the page script to fill. `tests/shelfCatalogue.test.ts` holds the JSON, the examples and the `@shelf` exports together. The page script (src/catalogue/page.ts) adds the live example and its source.
 import { readdirSync, readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
@@ -23,20 +23,27 @@ export const firstSentence = (doc) => (doc.match(/^.*?[.!?](?=\s|$)/s)?.[0] ?? d
 const escape = (value) => value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 const prose = (value) => escape(value).replace(/`([^`]+)`/g, "<code>$1</code>");
 
-/** One part's entry. The run button, the viewer box and the code are inert until the page script wires them (every hook is a `data-` attribute, which the browser driver reads). */
-function renderPart(part, doc, jobs) {
-  const uses = part.uses.map((use) => `<li><span class="job" data-job="${escape(use.job)}" title="${escape(jobs[use.job] ?? use.job)}">${escape(use.job)}</span>${prose(use.text)}</li>`).join("");
+/** One part's entry, plain words first: its name, what it is for, an example, the story jobs as small tags and the Run button; the developer material (code name, doc-comment sentence, import and add lines, the whole example) sits in a closed "For developers" fold. Every hook is a `data-` attribute, which the browser driver reads (textContent, so a closed fold still reads). */
+function renderPart(part, doc, jobs, jobLabels) {
+  const uses = part.uses.map((use) => `<li><span class="job" data-job="${escape(use.job)}" title="${escape(jobs[use.job] ?? use.job)}">${escape(jobLabels[use.job] ?? use.job)}</span>${prose(use.text)}</li>`).join("");
   return `<article class="part" id="part-${escape(part.export)}" data-part="${escape(part.export)}" data-state="idle">
   <div class="part-text">
-    <h2><code>${escape(part.export)}</code></h2>
-    <p class="what">${prose(firstSentence(doc))}</p>
-    <ul class="uses" aria-label="Suggested uses">${uses}</ul>
+    <h2 data-part-name>${escape(part.name)}</h2>
+    <p class="purpose">${prose(part.purpose)}</p>
+    <p class="example"><b>For example:</b> ${prose(part.example)}</p>
+    <ul class="uses" aria-label="Good for">${uses}</ul>
     <button type="button" class="run" data-part-run>Run the example</button>
   </div>
   <div class="part-demo">
     <div class="stage" data-part-stage><p class="idle-note">The example runs when you press the button; one viewer at a time.</p></div>
-    <div class="lines"><span class="eyebrow">Import</span><pre data-part-import></pre><span class="eyebrow">Add</span><pre data-part-add></pre></div>
-    <details class="source"><summary>The whole example</summary><pre data-part-code></pre></details>
+    <details class="dev"><summary>For developers</summary>
+      <div class="dev-body">
+        <p class="code-name"><code>${escape(part.export)}</code></p>
+        <p class="what">${prose(firstSentence(doc))}</p>
+        <div class="lines"><span class="eyebrow">Import</span><pre data-part-import></pre><span class="eyebrow">Add</span><pre data-part-add></pre></div>
+        <span class="eyebrow">The whole example</span><pre data-part-code></pre>
+      </div>
+    </details>
   </div>
 </article>`;
 }
@@ -48,11 +55,13 @@ export function renderCatalogueMain() {
   const parts = catalogue.parts.map((part) => {
     const doc = docs.get(part.export);
     if (doc === undefined) throw new Error(`data/shelf-catalogue.json names "${part.export}", which is not an engine export with @shelf`);
-    return renderPart(part, doc, catalogue.jobs);
+    return renderPart(part, doc, catalogue.jobs, catalogue.jobLabels);
   });
   const basics = catalogue.outOfTheBox.map((item) => `<li><b>${escape(item.name)}</b><span>${prose(item.text)}</span></li>`).join("");
-  return `<section class="basics" id="out-of-the-box"><div class="head"><h2>What you get out of the box</h2><p>The basic interface needs no shelf part; these come with every viewer.</p></div><ul class="basic-list" data-basics>${basics}</ul></section>
-<section class="parts" id="parts"><div class="head"><h2>The shelf</h2><p>Parts a story adds on top. Each example runs on a made-up scene, built only through the public API.</p></div>
+  const basicCode = catalogue.outOfTheBox.filter((item) => item.code).map((item) => `<li><b>${escape(item.name)}</b> <code>${escape(item.code)}</code></li>`).join("");
+  return `<section class="basics" id="out-of-the-box"><div class="head"><h2>Already in every viewer</h2><p>You do not need to add any of these; they come with the viewer, and you fill them with your own words and numbers.</p></div><ul class="basic-list" data-basics>${basics}</ul>
+<details class="dev"><summary>For developers</summary><div class="dev-body"><p>The calls that set these up:</p><ul class="code-list">${basicCode}</ul></div></details></section>
+<section class="parts" id="parts"><div class="head"><h2>Ready-made pieces</h2><p>Each one is added on top of the viewer. The examples run on a made-up scene.</p></div>
 ${parts.join("\n")}
 </section>`;
 }
