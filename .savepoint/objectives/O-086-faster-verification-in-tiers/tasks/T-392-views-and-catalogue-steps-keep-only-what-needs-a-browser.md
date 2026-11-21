@@ -2,7 +2,7 @@
 id: T-392
 title: Views and catalogue steps keep only what needs a browser
 objective: O-086
-status: planned
+status: done
 depends_on: [{task: T-387, requires: clear}, {task: T-389, requires: clear}, {task: T-391, requires: clear}]
 check_waiver: {task: T-392, reason: 'Owner said "work through this list of objectives one by one. Orchestrate each objective to completion" (G-024 decision 7) and "carry on" (2026-11-22): standing orchestration rules waive the optional step checks; the mandatory Full Objective Check covers the whole diff.', actor: {role: owner, session: orchestrate-g024-20261121}, recorded_at: '2026-11-21T20:47:35Z'}
 owner_validation: {required: false}
@@ -63,8 +63,28 @@ Focused: `npx vitest run packages/astraeus-site/tests/browserAssertions.test.ts 
 
 ## Technical Evidence
 
-Pending execution.
+### Done When -> evidence
+| Done When | Evidence |
+|---|---|
+| Every **moves** row removed, **stays** untouched, orphaned reads gone | `journey-views.mjs` lost the options, opening-view, host-view, menu, event-row, panel-marker, clock, speed, pressed-button and host-change asserts (17 sites) and their reads (`IN_VIEW` lists, `viewChoice`, `watchHostChanges`, `hostChanges`, `speed`, event-list reads); path-drawn, fit, button size, camera stay/follow, clock-ran-on kept. `journey-catalogue.mjs` lost the part list, idle, viewer-at-open, out-of-the-box, name, fold, import, add and shown-code asserts and the `holdsAddLines` import; Run-button size, fit, one viewer, chart, tile kept. |
+| `RETIRED` + `missing()` forgiveness + failing-case proof | `browserAssertions.test.ts`: `RETIRED` (17 entries, all journey-views; the catalogue script was not in the baseline), `provesIt()` reads the named file for the case title; case "each retired site names a real baseline site, a present test file and the case in it"; planted case adds: forgiven with the true case, not forgiven with no entry, with a wrong case title, with a missing file. 6 tests pass. Baseline JSON and `assertion-list.mjs` unchanged. |
+| Both sizes, visitor switch and host setView each move the view, stay/follow, paths, button fit; catalogue fit, sizes, mount/replace/stop, chart and tile | Both steps green at both sizes (runs below). Views: after each visitor switch (b, both, a) and after host `setView("b")`, `expectView` reads each probe's drawn path. |
+| `docs/BROWSER_CHECKS.md` | `views` and `catalogue` bullets rewritten naming the two Vitest files (and viewerHostDom); retired-map row added; timing rows updated. |
+| Browser runs before and after | `npm run check:browser -- --step views --step catalogue` under the flock: before (HEAD scripts swapped in, then restored) views 25 s, catalogue 6 s, total 33 s, green; after views 21 s, catalogue 6 s, total 28 s, green. Evidence folders deleted. |
+| Gates | `npm run lint` clean (prettier included), `typecheck` clean, `build` ok, `npm test`: 316 files, 5116 passed, 3 skipped. |
+
+### Deviation
+The existing planted case in `browserAssertions.test.ts` used the real assertion `ui.shownView(page), "a", "the scene opens on its first view"` as its sample line, which is now retired. Two sample lines (script text of the planted case, not a fixture or tolerance) were changed to a made-up `"z"` line so the case still proves removal is caught; its expectations are unchanged.
+
+### Extra reads
+`viewerHostDom.test.ts` (case titles near 526-560), `viewsJourneyState.test.ts` (titles): to name exact case titles for `RETIRED`.
+
+### Limitations
+`browser-steps.mjs` step descriptions (not in planned_writes) still say the old wording for `views` and `catalogue` ("import and add lines"). Dead driver exports (`viewChoice`, `watchHostChanges`, `hostChanges`, `speed`, `catalogueBasics`, ...) left for O-088.
+
 
 ## Drift Notes
 
-None expected.
+None.
+
+Coordinator (orchestrate-g024-20261121): gates green (lint, typecheck, build; `npm test` 316 files, 5116 passed); views and catalogue steps green. Accepted: the planted case's sample script line changed to a made-up line because its old sample was itself retired (expectations unchanged). Step descriptions and dead driver exports go to T-393 / O-088. `status: done` set by the coordinator under the standing orchestration rule ("I mark them as they pass", O-038) and G-024 decision 7.

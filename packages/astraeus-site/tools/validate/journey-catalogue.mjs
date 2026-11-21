@@ -1,10 +1,9 @@
 // Journey "Catalogue" (O-080 T-335), a step of `npm run check:browser`: the component catalogue page (components.html) at 1280x720 and at 375x667 with touch. Every shelf part in data/shelf-catalogue.json has its entry with its
-// import and add lines and its whole example; the page fits its window with the words and the example of an entry clear of each other; starting an example draws one viewer that holds the part's own words, starting another
-// stops the first (one viewer at a time), and stopping leaves none. Everything goes through driver.mjs and the page's own data- readouts; no screenshot is taken.
+// Run button big enough to press; the page fits its window with the words and the example of an entry clear of each other; starting an example draws one viewer that holds the part's own words, starting another
+// stops the first (one viewer at a time), and stopping leaves none. The entries, their names, closed folds and import, add and shown lines are checked in tests/catalogueEntries.test.ts (O-086 T-392). Everything goes through driver.mjs and the page's own data- readouts; no screenshot is taken.
 // Alone: ASTRAEUS_URL=<app.html url> ASTRAEUS_EVIDENCE_DIR=<new dir> node tools/validate/journey-catalogue.mjs
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { holdsAddLines } from "./catalogue-lines.mjs";
 import * as ui from "./driver.mjs";
 import { appUrl, checkScript } from "./harness.mjs";
 
@@ -28,45 +27,9 @@ const ITS_WORDS = {
 
 await checkScript({ name: "journey-catalogue", viewports: SIZES }, async (page, { name }) => {
   await page.goto(new URL("components.html", appUrl()).href);
-  const listed = await ui.catalogueParts(page);
-  assert.deepEqual(
-    listed.map((entry) => entry.part),
-    PARTS,
-    "the page has one entry for each part of the catalogue, in its order",
-  );
-  assert.ok(
-    listed.every((entry) => entry.state === "idle"),
-    "no example runs when the page opens",
-  );
-  assert.equal(await ui.catalogueViewerCount(page), 0, "no viewer is drawn when the page opens");
-  const basics = await ui.catalogueBasics(page);
-  assert.deepEqual(
-    basics,
-    catalogue.outOfTheBox.map((item) => item.name),
-    "the page lists what comes out of the box",
-  );
-
   const minButtonPx = name === "phone" ? 44 : 24;
   for (const part of PARTS) {
     const entry = await ui.catalogueEntry(page, part);
-    assert.equal(
-      entry.name,
-      catalogue.parts.find((item) => item.export === part).name,
-      `${part}: the entry opens with its plain name`,
-    );
-    assert.equal(entry.devOpen, false, `${part}: the For developers fold starts closed`);
-    assert.ok(
-      entry.importLines.includes(`from "astraeus"`) && entry.importLines.includes(part),
-      `${part}: the import line names the part`,
-    );
-    assert.ok(
-      entry.addLines.startsWith("scene.addParts(") && entry.addLines.includes(`${part}(`),
-      `${part}: the add line holds the part`,
-    );
-    assert.ok(
-      holdsAddLines(entry.code, entry.addLines),
-      `${part}: the shown code is the code that runs (it holds the add lines, each without its leading space)`,
-    );
     assert.ok(
       entry.runHeightPx >= minButtonPx,
       `${name}: ${part}'s Run button is big enough to press (${entry.runHeightPx} px, need ${minButtonPx})`,

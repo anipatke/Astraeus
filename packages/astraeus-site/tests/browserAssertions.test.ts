@@ -1,4 +1,5 @@
 import { execFileSync } from "node:child_process";
+import { existsSync, readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import baseline from "./fixtures/browserAssertionsBaseline.json";
 import {
@@ -14,6 +15,7 @@ import {
 // (`matches`, `found`), or a failure returned as a literal (`ok: false`). tests/browserExitPath.test.ts proves a failing step fails the run; the Full Objective Check's independent
 // rebuild is what shows nothing else was lost. (Adding sites is free; the list only grows by an owner-approved rebuild.)
 type List = Record<string, string[]>;
+type Retired = { script: string; was: string; movedTo: string; reason: string };
 type Reviewed = { script: string; was: string; now: string | string[]; reason: string };
 
 /** Baseline sites T-281 deliberately changed, each named with its reason. A site listed here passes only if its exact new text is present (every part of it, when `now` is a list because
@@ -34,8 +36,141 @@ const REVIEWED: Reviewed[] = [
   },
 ];
 
+/** Baseline sites a Task moved into the fast suite on purpose (O-086), each named with the test case that now proves it ("<file from the repo root> > <case title>"). A retired site is forgiven only while that
+ * file exists and holds the case title; nothing else is forgiven. */
+const RETIRED: Retired[] = [
+  {
+    script: "journey-views.mjs",
+    was: 'assert.deepEqual(options.map((option) => option.id), ["a", "b", "both"], "the bar offers the three views in order")',
+    movedTo:
+      "packages/astraeus/tests/viewsJourneyState.test.ts > offers the three views in order, labelled, and opens on the first",
+    reason: "T-392: the offered views and their order are state the shell holds, read without a browser.",
+  },
+  {
+    script: "journey-views.mjs",
+    was: 'assert.deepEqual(options.map((option) => option.label), ["Probe A", "Probe B", "Both"])',
+    movedTo:
+      "packages/astraeus/tests/viewsJourneyState.test.ts > offers the three views in order, labelled, and opens on the first",
+    reason: "T-392: the labels are text in the made-up scene's own view list.",
+  },
+  {
+    script: "journey-views.mjs",
+    was: 'assert.equal(await ui.shownView(page), "a", "the scene opens on its first view")',
+    movedTo:
+      "packages/astraeus/tests/viewsJourneyState.test.ts > offers the three views in order, labelled, and opens on the first",
+    reason: "T-392: the opening view is state, read in happy-dom.",
+  },
+  {
+    script: "journey-views.mjs",
+    was: 'assert.equal(await ui.hostView(page), "a", "the host link reports the view showing")',
+    movedTo:
+      "packages/astraeus/tests/viewerHostDom.test.ts > publishes the view: cause host for setView, visitor for the view choice, and the time and speed stay as they were",
+    reason: "T-392: the host handle's view is state, read in happy-dom.",
+  },
+  {
+    script: "journey-views.mjs",
+    was: "assert.equal(await ui.shownView(page), id, `the ${id} button shows as chosen`)",
+    movedTo:
+      "packages/astraeus/tests/viewsJourneyState.test.ts > switching to %s shows its objects, events and panel markers, and leaves the clock and the speed",
+    reason: "T-392: the pressed button is read from the real shell DOM in happy-dom.",
+  },
+  {
+    script: "journey-views.mjs",
+    was: "assert.equal(await ui.clockIso(page), before.clock, `switching to ${id} leaves the clock where it was`)",
+    movedTo:
+      "packages/astraeus/tests/viewsJourneyState.test.ts > switching to %s shows its objects, events and panel markers, and leaves the clock and the speed",
+    reason: "T-392: the clock snapshot is equal across a switch, read in happy-dom.",
+  },
+  {
+    script: "journey-views.mjs",
+    was: "assert.equal(await ui.speed(page), before.speed, `switching to ${id} leaves the speed as it was`)",
+    movedTo:
+      "packages/astraeus/tests/viewsJourneyState.test.ts > switching to %s shows its objects, events and panel markers, and leaves the clock and the speed",
+    reason: "T-392: the rate is equal across a switch, read in happy-dom.",
+  },
+  {
+    script: "journey-views.mjs",
+    was: 'assert.ok(heard.some((change) => change.view === "b" && change.cause === "visitor"), "the host hears the visitor\'s switch to b")',
+    movedTo:
+      "packages/astraeus/tests/viewerHostDom.test.ts > publishes the view: cause host for setView, visitor for the view choice, and the time and speed stay as they were",
+    reason: "T-392: the host change record (view and cause) is state, read in happy-dom.",
+  },
+  {
+    script: "journey-views.mjs",
+    was: 'assert.equal(await ui.hostView(page), "b")',
+    movedTo:
+      "packages/astraeus/tests/viewerHostDom.test.ts > reads the opening view, switches it, names an unknown id, and refuses before ready and after unmount",
+    reason: "T-392: the host handle's view after setView is state, read in happy-dom.",
+  },
+  {
+    script: "journey-views.mjs",
+    was: 'assert.equal(await ui.shownView(page), "b", "the buttons follow a host\'s setView")',
+    movedTo:
+      "packages/astraeus/tests/viewerHostDom.test.ts > reads the opening view, switches it, names an unknown id, and refuses before ready and after unmount",
+    reason: "T-392: the pressed button after setView is read from the real shell DOM in happy-dom.",
+  },
+  {
+    script: "journey-views.mjs",
+    was: 'assert.equal(await ui.clockIso(page), clock, "a host\'s setView leaves the clock where it was")',
+    movedTo:
+      "packages/astraeus/tests/viewerHostDom.test.ts > publishes the view: cause host for setView, visitor for the view choice, and the time and speed stay as they were",
+    reason: "T-392: time and rate equal across setView, read in happy-dom.",
+  },
+  {
+    script: "journey-views.mjs",
+    was: 'assert.deepEqual({ view: last.view, cause: last.cause }, { view: "b", cause: "host" }, "the host hears its own switch as host")',
+    movedTo:
+      "packages/astraeus/tests/viewerHostDom.test.ts > publishes the view: cause host for setView, visitor for the view choice, and the time and speed stay as they were",
+    reason: "T-392: the host change record is state, read in happy-dom.",
+  },
+  {
+    script: "journey-views.mjs",
+    was: 'assert.ok(menu.includes(body), `view ${id}: the Object list holds ${body} (${menu.join(", ")})`)',
+    movedTo:
+      "packages/astraeus/tests/viewsJourneyState.test.ts > switching to %s shows its objects, events and panel markers, and leaves the clock and the speed",
+    reason: "T-392: the menu is read from the real shell DOM in happy-dom (and on opening, in the opening-view case).",
+  },
+  {
+    script: "journey-views.mjs",
+    was: "assert.ok(!menu.includes(body), `view ${id}: the Object list leaves out ${body}`)",
+    movedTo:
+      "packages/astraeus/tests/viewsJourneyState.test.ts > switching to %s shows its objects, events and panel markers, and leaves the clock and the speed",
+    reason: "T-392: the menu is read from the real shell DOM in happy-dom.",
+  },
+  {
+    script: "journey-views.mjs",
+    was: 'assert.ok(rows.includes(event), `view ${id}: the timeline lists "${event}"`)',
+    movedTo:
+      "packages/astraeus/tests/viewsJourneyState.test.ts > switching to %s shows its objects, events and panel markers, and leaves the clock and the speed",
+    reason: "T-392: the event rows are read from the real shell DOM in happy-dom.",
+  },
+  {
+    script: "journey-views.mjs",
+    was: 'assert.ok(!rows.includes(event), `view ${id}: the timeline leaves out "${event}"`)',
+    movedTo:
+      "packages/astraeus/tests/viewsJourneyState.test.ts > switching to %s shows its objects, events and panel markers, and leaves the clock and the speed",
+    reason: "T-392: the event rows are read from the real shell DOM in happy-dom.",
+  },
+  {
+    script: "journey-views.mjs",
+    was: "assert.deepEqual(await ui.listedStoryPanelIds(page), [...want.panels].sort(), `view ${id}: the timeline carries only this view's panel markers`)",
+    movedTo:
+      "packages/astraeus/tests/viewsJourneyState.test.ts > switching to %s shows its objects, events and panel markers, and leaves the clock and the speed",
+    reason: "T-392: the panel marker ids are read from the real shell DOM in happy-dom.",
+  },
+];
+
+const repoRoot = new URL("../../../", import.meta.url);
+
+/** True when `movedTo` names a test file that exists and whose text holds the case title. */
+function provesIt(movedTo: string): boolean {
+  const [file, ...title] = movedTo.split(" > ");
+  const path = new URL(file, repoRoot);
+  return title.length > 0 && existsSync(path) && readFileSync(path, "utf8").includes(title.join(" > "));
+}
+
 /** Each baseline site that the `now` scripts no longer hold (counting repeats), as "script: text". */
-function missing(before: List, now: List, reviewed: Reviewed[] = REVIEWED): string[] {
+function missing(before: List, now: List, reviewed: Reviewed[] = REVIEWED, retired: Retired[] = RETIRED): string[] {
   const lost: string[] = [];
   for (const [script, items] of Object.entries(before)) {
     const left = [...(now[script] ?? [])];
@@ -45,6 +180,7 @@ function missing(before: List, now: List, reviewed: Reviewed[] = REVIEWED): stri
         left.splice(at, 1);
         continue;
       }
+      if (retired.some((entry) => entry.script === script && entry.was === item && provesIt(entry.movedTo))) continue;
       const swap = reviewed.find((entry) => entry.script === script && entry.was === item)?.now;
       const parts = swap === undefined ? [] : Array.isArray(swap) ? swap : [swap];
       const places = parts.map((part) => left.indexOf(part));
@@ -73,13 +209,22 @@ describe("the browser check keeps every assertion it had at 6aad8e6a", () => {
     }
   });
 
+  it("each retired site names a real baseline site, a present test file and the case in it", () => {
+    for (const entry of RETIRED) {
+      expect(baselineList[entry.script]).toContain(entry.was);
+      expect(provesIt(entry.movedTo), entry.movedTo).toBe(true);
+      expect(entry.reason.length).toBeGreaterThan(20);
+    }
+    expect(new Set(RETIRED.map((entry) => entry.was)).size).toBe(RETIRED.length);
+  });
+
   it("every baseline assertion is still in the scripts", () => {
     expect(missing(baselineList, currentAssertions())).toEqual([]);
   });
 
   it("fails when a listed raise site is removed, its guard loosened or disabled, or its script dropped (planted)", () => {
     const script = [
-      'assert.equal(await ui.shownView(page), "a", "the scene opens on its first view");',
+      'assert.equal(await ui.shownView(page), "z", "a planted view that no retired entry names");',
       'if (!(saturn.radiusPx > 20)) throw new Error("Saturn is too small");',
       'if (depthMode !== "logarithmic") throw new Error("depth");',
       "const wholeProblems = [];",
@@ -103,7 +248,10 @@ describe("the browser check keeps every assertion it had at 6aad8e6a", () => {
       missing(
         before,
         listOf(
-          script.replace('assert.equal(await ui.shownView(page), "a", "the scene opens on its first view");\n', ""),
+          script.replace(
+            'assert.equal(await ui.shownView(page), "z", "a planted view that no retired entry names");\n',
+            "",
+          ),
         ),
       ),
     ).toHaveLength(1);
@@ -125,6 +273,17 @@ describe("the browser check keeps every assertion it had at 6aad8e6a", () => {
     const was = { "journey-views.mjs": [exception.was] };
     expect(missing(was, { "journey-views.mjs": [exception.now as string] }, [exception])).toEqual([]);
     expect(missing(was, { "journey-views.mjs": ['if (a > 2) => throw new Error("x");'] }, [exception])).toHaveLength(1);
+    // a retired site is forgiven only while its named case exists
+    const real = RETIRED[0];
+    const gone = { [real.script]: [real.was] };
+    expect(missing(gone, {})).toEqual([]);
+    expect(missing(gone, {}, [], [])).toHaveLength(1);
+    expect(
+      missing(gone, {}, [], [{ ...real, movedTo: `${real.movedTo.split(" > ")[0]} > a case nobody wrote` }]),
+    ).toHaveLength(1);
+    expect(
+      missing(gone, {}, [], [{ ...real, movedTo: "packages/astraeus/tests/noSuchFile.test.ts > x" }]),
+    ).toHaveLength(1);
     // a site that became two holds only while both halves are present
     const split: Reviewed = {
       script: "journey-views.mjs",
