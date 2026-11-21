@@ -7,6 +7,16 @@
       "approved": { "by": "owner", "at": "2026-11-10", "reason": "Owner chose \"Approve it\": a figure names a star by its catalogue number, an identifier with no unit (O-065 T-295)" }
     },
     {
+      "field": "low",
+      "reason": "a position on the app's own axis; the app names the unit in the part's label (O-081 T-337)",
+      "approved": { "by": "owner", "at": "2026-11-21", "reason": "Owner chose \"low / high / value for both (Recommended)\" for the shelf chart and readout tile ranges (O-081 T-337)" }
+    },
+    {
+      "field": "high",
+      "reason": "a position on the app's own axis; the app names the unit in the part's label (O-081 T-337)",
+      "approved": { "by": "owner", "at": "2026-11-21", "reason": "Owner chose \"low / high / value for both (Recommended)\" for the shelf chart and readout tile ranges (O-081 T-337)" }
+    },
+    {
       "field": "rate",
       "reason": "a multiple of real time (x1, x60), no unit"
     },

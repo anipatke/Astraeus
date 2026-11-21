@@ -139,6 +139,18 @@
           "text": "Sit beside a set of chips so the visitor can see what each chip lights."
         }
       ]
+    },
+    {
+      "export": "chart",
+      "name": "Bar chart",
+      "purpose": "A bar chart of counts the app gives, with marks on its axis and a range to light.",
+      "example": "bars of how many objects fall in each size band, a mark at the limit, and the bars outside the chosen band dimmed.",
+      "uses": [
+        {
+          "job": "readout",
+          "text": "Show how many things fall in each band, and dim the bars outside the range the visitor chose."
+        }
+      ]
     }
   ],
   "jobLabels": {

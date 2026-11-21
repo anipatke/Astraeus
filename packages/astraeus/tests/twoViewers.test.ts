@@ -27,6 +27,7 @@ import { customBlock } from "../src/shelf/customBlock/factory";
 import { panel } from "../src/shelf/panel/factory";
 import { explainer } from "../src/shelf/explainer/factory";
 import { filterChips } from "../src/shelf/filterChips/factory";
+import { chart } from "../src/shelf/chart/factory";
 import { viewerHandleOf, type ViewerHandle } from "../src/api/viewerHandle";
 import { ViewerLink, type ViewerChange, type CameraPose } from "../src/api/viewerLink";
 import type { SelectionChange } from "../src/api/viewerSelection";
@@ -385,6 +386,24 @@ describe.each(PAIRINGS)("two viewers on one page: $name", (pairing) => {
     a.handle.part(text).setParagraphs(["Only A."]);
     await vi.waitFor(() => expect(a.element.querySelector('[data-shelf-block="why"]')!.textContent).toContain("Only A."));
     expect(b.element.querySelector('[data-shelf-block="why"]')!.textContent).toContain("Same.");
+  });
+
+  it("API-03 (O-081 T-337): a chart shared by two viewers keeps each viewer's own bars and highlight: A's setHighlight and setBins touch A only", async () => {
+    const sizes = chart({ id: "sizes", axisLabel: "Size", bins: [{ low: 0, high: 1, count: 3 }, { low: 1, high: 2, count: 5 }] });
+    const holder = panel({ id: "charts", button: { label: "Charts" }, title: "Charts", blocks: [sizes] });
+    const a = await pairing.first.open({ scene: makeScene().addParts([holder]) });
+    open.push(a);
+    const b = await pairing.second.open({ scene: makeScene().addParts([holder]) });
+    open.push(b);
+    for (const v of [a, b]) v.element.querySelector<HTMLElement>('[data-story-button="charts"]')!.click();
+    for (const v of [a, b]) await vi.waitFor(() => expect(v.element.querySelector('[data-shelf-block="sizes"]')).not.toBeNull());
+    const bars = (v: Viewer) => [...v.element.querySelectorAll('[data-shelf-block="sizes"] .shelf-chart-bar')].map((el) => el.classList.contains("is-dim"));
+    a.handle.part(sizes).setHighlight({ low: 0, high: 1 });
+    await vi.waitFor(() => expect(bars(a)).toEqual([false, true]));
+    expect(bars(b)).toEqual([false, false]);
+    b.handle.part(sizes).setBins([{ low: 0, high: 1, count: 1 }]);
+    await vi.waitFor(() => expect(bars(b)).toEqual([false]));
+    expect(bars(a)).toEqual([false, true]);
   });
 
   it("unmounting A leaves B's handle working and B's page in place", async () => {

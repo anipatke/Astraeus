@@ -11,6 +11,7 @@ export { explainer, type ExplainerInput, type ExplainerControl } from "../shelf/
 export { actions, type ActionsInput, type ActionInput, type ActionChange, type ActionsControl } from "../shelf/actions/factory";
 export { filterChips, type FilterChipsInput, type ChipChoice, type ChipSelection, type FilterChipsControl } from "../shelf/filterChips/factory";
 export { colourKey, type ColourKeyInput, type ColourKeyEntry, type ColourKeyControl } from "../shelf/colourKey/factory";
+export { chart, type ChartInput, type ChartBin, type ChartMark, type ChartRange, type ChartControl } from "../shelf/chart/factory";
 export type { PanelPart, CustomBlockPart, BlockPart, PanelBlock, AnyPart, ControlFor } from "../shelf/part";
 export type { PickerInput, PickerOptionInput, PickChange } from "./pickerInput";
 export type { BodySetInput, BodySetFamilyInput, BodySetMemberInput, BodySetElementsInput, BodySetBodyInput, BodySetBalanceInput } from "./bodySetInput";

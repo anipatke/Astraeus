@@ -2,7 +2,7 @@
 // copies its input and is shared between scenes, and an action's camera is checked as a story panel's is (shape at the call, ids when the scene is built), each on a made-up scene (ARCH-03).
 // The viewer, the handle and the two embedding paths run in lifecycle.test.ts and twoViewers.test.ts.
 import { describe, expect, it } from "vitest";
-import { Scene, SceneError, actions, colourKey, earth, explainer, filterChips, panel } from "astraeus";
+import { Scene, SceneError, actions, chart, colourKey, earth, explainer, filterChips, panel } from "astraeus";
 import { definitionOf } from "../src/api/definitionOf";
 import { blockOf } from "../src/shelf/part";
 import type { ActionsData } from "../src/shelf/actions/factory";
@@ -111,5 +111,45 @@ describe("a part's ids are checked with the scene's (duplicate-id), and an actio
     expect(colourKey({ id: "k", entries: [] })).toMatchObject({ kind: "colourKey" });
     const chips = filterChips({ id: "f", choices: [{ value: "a", label: "A" }, { value: "b", label: "B" }], multiple: true, selected: ["b", "a"] });
     expect((blockOf(chips as never).initial as { selected: string[] }).selected).toEqual(["a", "b"]);
+  });
+});
+
+describe("chart checks its input at the call (bad-part), O-081 T-337", () => {
+  const bins = [{ low: 0, high: 10, count: 4 }, { low: 10, high: 20, count: 9, color: "#8fb4ff" }];
+  const make = (change: Record<string, unknown> = {}) => chart({ id: "c", axisLabel: "Size (km)", bins, ...change } as never);
+  it.each([
+    [{ id: "" }, /id must be a non-empty string/], [{ axisLabel: "" }, /axisLabel must be a non-empty string/], [{ axisLabel: 3 }, /axisLabel must be a non-empty string/],
+    [{ bins: [] }, /bins must be a non-empty list/], [{ bins: "x" }, /bins must be a non-empty list/], [{ bins: ["x"] }, /bins\[0\] must be/],
+    [{ bins: [{ low: 5, high: 5, count: 1 }] }, /bins\[0\]\.low must be less than bins\[0\]\.high/], [{ bins: [{ low: 6, high: 5, count: 1 }] }, /bins\[0\]\.low must be less than/],
+    [{ bins: [{ low: 0, high: Number.POSITIVE_INFINITY, count: 1 }] }, /bins\[0\]\.low and bins\[0\]\.high must be finite/], [{ bins: [{ low: "0", high: 1, count: 1 }] }, /must be finite numbers/],
+    [{ bins: [{ low: 0, high: 1, count: -1 }] }, /bins\[0\]\.count must be a number of 0 or more/], [{ bins: [{ low: 0, high: 1, count: Number.NaN }] }, /bins\[0\]\.count/],
+    [{ bins: [{ low: 0, high: 1, count: Number.POSITIVE_INFINITY }] }, /bins\[0\]\.count/], [{ bins: [{ low: 0, high: 1, count: 1, color: "loud" }] }, /bins\[0\]\.color must be a CSS colour text/],
+    [{ highlight: { low: 5, high: 5 } }, /highlight\.low must be less than highlight\.high/], [{ highlight: { low: 8, high: 2 } }, /highlight\.low must be less than/], [{ highlight: { low: -1, high: 5 } }, /highlight must lie within the bins' range/],
+    [{ highlight: { low: 5, high: 25 } }, /within the bins' range/], [{ highlight: { low: 5 } }, /highlight must be a \{ low, high \} object/], [{ highlight: "all" }, /highlight must be a \{ low, high \}/],
+    [{ marks: "x" }, /marks must be a list/], [{ marks: ["x"] }, /marks\[0\] must be/], [{ marks: [{ value: Number.NaN, label: "A" }] }, /marks\[0\]\.value must be a finite number/],
+    [{ marks: [{ value: 1, label: "" }] }, /marks\[0\]\.label must be a non-empty string/],
+  ] as const)("refuses %j", (change, message) => {
+    const text = codeOf(() => make(change as Record<string, unknown>));
+    expect(text).toMatch(/^bad-part: chart: /);
+    expect(text).toMatch(message);
+  });
+
+  it("is not a plain object", () => {
+    expect(codeOf(() => chart(undefined as never))).toMatch(/^bad-part: chart: give an \{/);
+    expect(codeOf(() => chart([] as never))).toMatch(/^bad-part/);
+  });
+
+  it("makes a frozen descriptor a panel accepts, copies its input, and takes no marks or highlight", () => {
+    const part = make();
+    expect(Object.isFrozen(part)).toBe(true);
+    expect(blockOf(part as never).kind).toBe("chart");
+    const mine = [{ low: 0, high: 1, count: 1 }];
+    const copy = chart({ id: "d", axisLabel: "x", bins: mine, highlight: { low: 0, high: 1 }, marks: [{ value: 0.5, label: "Half" }] });
+    mine[0].count = 99; mine.push({ low: 1, high: 2, count: 1 });
+    const initial = blockOf(copy as never).initial as { bins: { count: number }[]; highlight: unknown };
+    expect([initial.bins.length, initial.bins[0].count, initial.highlight]).toEqual([1, 1, { low: 0, high: 1 }]);
+    expect(Object.isFrozen(initial)).toBe(true);
+    expect(definitionOf(base().addParts([holding(part as never)]), [...made]).parts).toHaveLength(1);
+    expect(blockOf(chart({ id: "e", axisLabel: "x", bins: mine }) as never).data).toEqual({ axisLabel: "x", marks: [] });
   });
 });

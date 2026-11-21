@@ -33,6 +33,7 @@ import { explainer } from "../src/shelf/explainer/factory";
 import { actions } from "../src/shelf/actions/factory";
 import { filterChips } from "../src/shelf/filterChips/factory";
 import { colourKey } from "../src/shelf/colourKey/factory";
+import { chart } from "../src/shelf/chart/factory";
 import { SceneCamera } from "../src/api/planCamera";
 import { earth, mars, moon } from "../src/api/bodies";
 import { viewerHandleOf, type ViewerHandle } from "../src/api/viewerHandle";
@@ -720,6 +721,55 @@ describe.each([mountDriver, reactDriver(false)])("lifecycle: $name", (driver) =>
     expect(codeOf(() => handle.part(key).setEntries([]))).toBe("not-mounted");
     expect(codeOf(() => handle.part(fly))).toBe("not-mounted");
     expect(chipControl.onSelect(() => undefined)).toBeTypeOf("function");
+  });
+
+  it("chart (O-081 T-337): bars draw from the bins, setHighlight dims the bars outside the range and setBins redraws while the panel is open, both silent and checked, kept across close and reopen, summary on the image, not-mounted after unmount", async () => {
+    prepared.real = true; openNow();
+    const sizes = chart({ id: "sizes", axisLabel: "Diameter (km)", bins: [{ low: 0, high: 10, count: 4 }, { low: 10, high: 20, count: 9, color: "#8fb4ff" }, { low: 20, high: 30, count: 1 }], marks: [{ value: 10, label: "Limit" }, { value: 99, label: "Off" }] });
+    const hold = panel({ id: "charts", button: { label: "Charts" }, title: "Charts", blocks: [sizes] });
+    const opened = await driver.open(new Scene().addBody(earth).addParts([hold]));
+    await opened.ready();
+    const handle = opened.handle!;
+    const heard: unknown[] = [];
+    handle.part(hold).onOpen((change) => heard.push(change));
+    flushSync(() => document.querySelector<HTMLElement>('[data-story-button="charts"]')!.click());
+    heard.length = 0;
+    const root = () => document.querySelector('[data-shelf-block="sizes"]')!;
+    const bars = () => [...root().querySelectorAll(".shelf-chart-bar")];
+    const dimmed = () => bars().map((bar) => bar.classList.contains("is-dim"));
+    expect(bars()).toHaveLength(3);
+    expect(dimmed()).toEqual([false, false, false]);
+    expect(root().querySelector("svg")!.getAttribute("role")).toBe("img");
+    expect(root().querySelector("svg")!.getAttribute("aria-label")).toBe("Bar chart of Diameter (km): 3 bars from 0 to 30; the largest, 10 to 20, holds 9.");
+    expect([...root().querySelectorAll("[data-shelf-mark] text")].map((t) => t.textContent)).toEqual(["Limit"]);
+    expect(root().textContent).toContain("Diameter (km)");
+    flushSync(() => handle.part(sizes).setHighlight({ low: 10, high: 20 }));
+    expect(dimmed()).toEqual([true, false, true]);
+    expect(root().querySelector("svg")!.getAttribute("aria-label")).toContain("10 to 20 is highlighted (1 bars)");
+    flushSync(() => handle.part(sizes).setBins([{ low: 0, high: 20, count: 5 }, { low: 20, high: 30, count: 2 }]));
+    expect(bars()).toHaveLength(2);
+    expect(dimmed()).toEqual([false, true]);
+    flushSync(() => handle.part(sizes).setBins([{ low: 0, high: 5, count: 5 }]));
+    expect(dimmed()).toEqual([false]);
+    flushSync(() => handle.part(sizes).setHighlight(undefined));
+    expect(dimmed()).toEqual([false]);
+    expect(codeOf(() => handle.part(sizes).setBins([]))).toBe("bad-part");
+    expect(codeOf(() => handle.part(sizes).setBins([{ low: 3, high: 1, count: 1 }]))).toBe("bad-part");
+    expect(codeOf(() => handle.part(sizes).setHighlight({ low: 0, high: 50 }))).toBe("bad-part");
+    expect(codeOf(() => handle.part(sizes).setHighlight({ low: 3, high: 1 }))).toBe("bad-part");
+    expect(bars()).toHaveLength(1);
+    expect(heard, "setters say nothing").toEqual([]);
+    // the bars kept across closing and reopening the panel
+    flushSync(() => handle.part(sizes).setHighlight({ low: 0, high: 5 }));
+    flushSync(() => document.querySelector<HTMLElement>('[data-story-button="charts"]')!.click());
+    flushSync(() => document.querySelector<HTMLElement>('[data-story-button="charts"]')!.click());
+    expect(bars()).toHaveLength(1);
+    // a tap on a bar does nothing the host hears
+    heard.length = 0;
+    flushSync(() => bars()[0].dispatchEvent(new window.MouseEvent("click", { bubbles: true })));
+    expect(heard).toEqual([]);
+    opened.unmount();
+    expect(codeOf(() => handle.part(sizes))).toBe("not-mounted");
   });
 
   it("a part id some view lists shows only in those views: the button is hidden and an open panel closes (silently) on a switch away, whichever path opened it", async () => {

@@ -35,7 +35,7 @@ export class ViewerParts {
   /** The typed control of a part of this viewer's scene; a value no factory made, or a part this scene does not hold, throws `bad-part`; before the viewer is drawn or after it is gone, `not-mounted`. */
   part<P extends AnyPart>(descriptor: P): ControlFor<P> {
     this.access.open("part");
-    if (!isMade(descriptor)) throw new SceneError("bad-part", "part: give the object a shelf factory (panel, customBlock, explainer, actions, filterChips, colourKey) returned");
+    if (!isMade(descriptor)) throw new SceneError("bad-part", "part: give the object a shelf factory (panel, customBlock, explainer, actions, filterChips, colourKey, chart) returned");
     const { id, kind } = descriptor;
     if (this.#shelf?.kinds.get(id) !== kind) throw new SceneError("bad-part", `part: the ${kind} "${id}" is not in this viewer's scene (add it with scene.addParts)`);
     return (kind === "panel" ? this.#panelControl(id) : this.#blockControl(id)) as ControlFor<P>;

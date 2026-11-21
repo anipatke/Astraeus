@@ -8,6 +8,7 @@ import type { ExplainerControl } from "./explainer/factory";
 import type { ActionsControl } from "./actions/factory";
 import type { FilterChipsControl } from "./filterChips/factory";
 import type { ColourKeyControl } from "./colourKey/factory";
+import type { ChartControl } from "./chart/factory";
 import { isCssColour } from "../core/lookValues";
 import type { ShelfBlock, ShelfPart } from "../app/shelfContract";
 
@@ -30,13 +31,13 @@ export interface BlockPart<K extends string = string> {
 }
 
 /** The blocks a panel holds. */
-export type PanelBlock = CustomBlockPart | BlockPart<"explainer" | "actions" | "filterChips" | "colourKey">;
+export type PanelBlock = CustomBlockPart | BlockPart<"explainer" | "actions" | "filterChips" | "colourKey" | "chart">;
 
 /** Any part a factory makes. */
 export type AnyPart = PanelPart | PanelBlock;
 
 /** The control `handle.part` gives for the part `P`. */
-export type ControlFor<P extends AnyPart> = { panel: PanelControl; customBlock: CustomBlockControl; explainer: ExplainerControl; actions: ActionsControl; filterChips: FilterChipsControl; colourKey: ColourKeyControl }[P["kind"]];
+export type ControlFor<P extends AnyPart> = { panel: PanelControl; customBlock: CustomBlockControl; explainer: ExplainerControl; actions: ActionsControl; filterChips: FilterChipsControl; colourKey: ColourKeyControl; chart: ChartControl }[P["kind"]];
 
 /** The descriptors the factories made, so a value that only looks like one is refused. A descriptor is frozen and names no viewer, so one may be shared between scenes. */
 const made = new WeakSet<object>();

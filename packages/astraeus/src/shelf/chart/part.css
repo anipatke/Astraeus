@@ -1,0 +1,10 @@
+/* The chart part's look: the shared tokens only (look.css); loaded by app/style.css with the other sheets, since the Node copy of the entry files cannot import a stylesheet from a view. */
+.astraeus-shell .shelf-chart { min-width: 0; }
+.astraeus-shell .shelf-chart-svg { display: block; width: 100%; height: auto; font-family: var(--astraeus-font); }
+.astraeus-shell .shelf-chart-bar { fill: var(--shelf-colour, var(--astraeus-accent)); transition: opacity var(--astraeus-motion) var(--astraeus-ease); }
+.astraeus-shell .shelf-chart-bar.is-dim { opacity: 0.25; }
+.astraeus-shell .shelf-chart-axis { stroke: var(--astraeus-border); stroke-width: 1; }
+.astraeus-shell .shelf-chart-mark line { stroke: var(--astraeus-muted); stroke-width: 1; stroke-dasharray: 3 2; }
+.astraeus-shell .shelf-chart-mark text { fill: var(--astraeus-text); font-size: var(--astraeus-text-xs); }
+.astraeus-shell .shelf-chart-tick { fill: var(--astraeus-muted); font-size: var(--astraeus-text-xs); font-variant-numeric: tabular-nums; }
+.astraeus-shell .shelf-chart-label { fill: var(--astraeus-muted); font-size: var(--astraeus-text-xs); }

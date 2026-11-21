@@ -16,8 +16,8 @@ const entryNames = catalogue.parts.map((part) => part.export).sort();
 const exampleSource = (name: string): string => readFileSync(join(EXAMPLES_DIR, `${name}.ts`), "utf8");
 
 describe("the catalogue holds every shelf export and nothing else", () => {
-  it("finds the six parts of this Objective as @shelf exports", () => {
-    expect(shelfNames).toEqual(["actions", "colourKey", "customBlock", "explainer", "filterChips", "panel"]);
+  it("finds every shelf part as an @shelf export", () => {
+    expect(shelfNames).toEqual(["actions", "chart", "colourKey", "customBlock", "explainer", "filterChips", "panel"]);
   });
   it("has an entry for each @shelf export", () => {
     expect(shelfNames.filter((name) => !entryNames.includes(name)), "exports with no entry in data/shelf-catalogue.json").toEqual([]);
