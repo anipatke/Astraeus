@@ -2,7 +2,7 @@
 id: T-353
 title: Describe the new error, time, scale and label contracts in the docs
 objective: O-083
-status: planned
+status: done
 depends_on: [{task: T-343, requires: clear}, {task: T-344, requires: clear}, {task: T-345, requires: clear}, {task: T-346, requires: clear}, {task: T-347, requires: clear}, {task: T-348, requires: clear}, {task: T-349, requires: clear}, {task: T-350, requires: clear}, {task: T-351, requires: clear}, {task: T-352, requires: clear}]
 check_waiver: {task: T-353, reason: 'Owner said "work through this list of objectives one by one. Orchestrate each objective to completion" (G-024 decision 7): standing orchestration rules waive the optional step checks; the mandatory Full Objective Check covers the whole diff.', actor: {role: owner, session: orchestrate-g024-20261121}, recorded_at: '2026-11-21T11:22:41Z'}
 owner_validation: {required: false}
@@ -63,8 +63,31 @@ Focused: `npx vitest run packages/astraeus-site/tests/apiRules.test.ts packages/
 
 ## Technical Evidence
 
-Pending execution.
+| Done When | Evidence |
+|---|---|
+| CHANGELOG 0.10.0 entries and `Breaking changes` list with migration lines; migration-table row | `packages/astraeus/CHANGELOG.md`: 10 new bullets (Fixed/Added/Changed) after O-082's two, then `### Breaking changes in 0.10.0` (9 lines, each with its migration); new `changed` row for `ScalePolicy.id` in the 0.7.0-to-0.8.0 migration table (the one table `migrationTable.test.ts` parses) |
+| README by heading: `Numbers without a viewer`, `In a React app`, `Reading and setting the time`/`Clock and changes`, `Bodies and paths`, `Page address`, `Errors` (prose only), `Drawing it` | Edits: `scene.stateOf` row (spans, refusals, composed velocity); `onError` prop text (console default, prop errors); `handle.setTime` row (accepted forms, `Z` example); `addTrajectory` row (`time is ISO text with a zone`); `t` row; Errors prose line after the table intro; `parseElementsBodyRecord` sentence. Claims checked against `core/timeInput.ts`, `api/time.ts`, `app/viewLink.ts` (`timeFromSearch` returns undefined for NaN), `api/AstraeusScene.tsx` (`report`), `api/scene.ts` (`#catalogueRefusal`), `core/stateResolver.ts` |
+| `Scene.stateOf` doc comment | `api/scene.ts`: velocity sentence extended for composed legs (T-351); span sentence already matched T-343 (read, unchanged) |
+| `npm run api:errors` leaves README table unchanged; apiRules, apiSurface, migrationTable green | `npm run api:errors` rewrote the table with no change to it (README diff is only the 7 prose lines); `npx vitest run` of the three files: 3 files, 139 tests passed |
+| Coordinator decision: `ScalePolicy.id` | Removed its WIDENED entry from `packages/astraeus-site/tests/migrationTable.test.ts` (only change to that file) and added the CHANGELOG row; the test passes with the row (the "has a row for every removed or changed name" and "changed" rows cover it) |
+| Drift Notes collected | below |
+| Gates | lint, typecheck, build clean; `npm test`: 301 files, 5025 passed, 2 skipped, 0 failed |
+
+Files changed: `packages/astraeus/CHANGELOG.md`, `packages/astraeus/README.md`, `packages/astraeus/src/api/scene.ts` (doc comment only), `packages/astraeus-site/tests/migrationTable.test.ts` (WIDENED entry removed). Extra reads: T-343..T-352 Technical Evidence/Drift Notes (named in Context Files); `core/timeInput.ts`, `api/time.ts`, `app/viewLink.ts`, `api/AstraeusScene.tsx`, `api/scene.ts` stateOf (to check claims). Limitation: the `bad-view`/`bad-trajectory`/`bad-element` breaking line says "a raw error" because the evidence names the previous error class only for `addTrajectory` (TypeError).
 
 ## Drift Notes
 
-The collected O-083 drift list for Design reconciliation goes here.
+Collected for the orchestrator's Design reconciliation (this Task edits no Design.md):
+- T-343: `stateOf` refusals by cause: `out-of-span` for data years (planet series, moon data), `bad-time` for a moon's moment outside the loaded window; Earth and the Sun have no cut-off. Reflect in `Answers for sites`.
+- T-344: API-05 scan covers re-exported helpers (`O-053 checks`); new `bad-scene` code; `parseElementsBodyRecord` lives in `api/elementsRecord.ts`; `bad-data` also covers unreadable moon packages.
+- T-345: the lit-body limit (`MAX_LIT_BODIES`) is a build-time `too-many-bodies` refusal.
+- T-346: the scale is a closed `ScaleId` in the public types; shell-side inputs stay `string`, validated at runtime.
+- T-347: optional Design line under `One handle, one lifecycle`: without `onError` the component reports to `console.error`.
+- T-348: accepted moment text is `YYYY-MM-DD` or `YYYY-MM-DDTHH:MM[:SS[.fraction]]` plus `Z` or `+-HH:MM`; zone-less and free forms are NaN from `timeInputMs` (`bad-time` / `bad-panels` / ignored page `t`); `isZonelessDateTime` is exported from `core/timeInput.ts`.
+- T-349: mapped moons pair definition and binding from one record (`mappedMoon` returns both; `orientationFacts` owns label and sentence per model); Design `Every listed moon addable` / `Core layers and demos` should say so; the Io mean-element trajectory is test-only, not a bound source.
+- T-350: body definitions carry `accuracy.positionLimitations`; cards show position then orientation limits.
+- T-351: the resolver composes velocity when every leg has it (implemented; nothing further).
+- T-352: pacing works on rate magnitude and keeps its sign (negative opening `rate` with `pacing` reachable; fixed in `core/pacing.ts`); non-architectural, at most a note.
+- T-353: none beyond the above.
+
+Coordinator (orchestrate-g024-20261121): the `ScalePolicy.id` row sits in the 0.7.0→0.8.0 table only because `migrationTable.test.ts` reads that table alone (it compares the 0.7.0 surface with today's lock); the coordinator prefixed the row "From 0.10.0 (O-083):" so it does not read as 0.8.0 history (test still 110 passed). Design.md was reconciled by the coordinator (commit 4cdcc2bb). Hand-off gates green (lint, typecheck, build; `npm test` 301 files, 5025 passed). `status: done` set by the coordinator under the standing orchestration rule ("I mark them as they pass", O-038) and G-024 decision 7.

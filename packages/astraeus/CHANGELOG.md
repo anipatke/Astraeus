@@ -8,6 +8,30 @@ Engineering health repairs (G-024). Behaviour may change where it was wrong (own
 
 - Fixed: every CPU Kepler solve in the engine goes through one solver that always converges, so a body from orbit elements, a group member or a long orbit path is placed correctly for every eccentricity from 0 up to (not including) 1; near-parabolic orbits (e ≈ 0.999) could land far off or on the wrong side of the orbit before. Eccentricity outside 0 ≤ e < 1 is refused with a named error instead of giving a wrong position.
 - Fixed: `scene.addBodyFromElements` converts the record's epoch to TDB before measuring from `perihelionJdTdb`, so the same instant written in UTC or TT gives the same position (they were about 2,000 km apart); a TDB-written epoch keeps the documented "TDB taken as TT" clock convention (within about 2 ms). Its two-body motion uses the centre's own mass.
+- Fixed: `scene.stateOf` for a planet outside the years the planet series cover, or a moon outside the years its data covers, throws `out-of-span` naming the body and the span instead of a raw `TimeScaleOutOfRangeError`, `PlanetFitsUncoveredError` or `TrajectoryOutOfRangeError`; a moon's moment inside its package's years but outside the window the scene loaded throws `bad-time` naming that window. Earth and the Sun have no cut-off.
+- Added: `bad-scene` (what was given as a scene is not a `Scene`: `mount`, `AstraeusScene`, `check`, `load`) and `bad-data` for a moon data package that cannot be read. `setViews` given something it cannot copy throws `bad-view`, `addTrajectory` given a non-object or samples that are not a list throws `bad-trajectory`, and `parseElementsBodyRecord` throws `bad-element` for a record that is not an object. The API-05 scan now covers re-exported helpers.
+- Added: `too-many-bodies`. A scene with more than 30 lit bodies (spheres, not markers) is refused by `check` and `mount`, naming the count, the limit and the first one over; it used to fail as an internal `RangeError` while drawing.
+- Added: `ScaleId` (`"true-scale" | "readable-scale" | "solar-system"`), exported from `astraeus`. `ScalePolicy.id`, `Scene.scales`, `ViewerHandle.scale`, `setScale` and `ViewerChange.scale` are typed with it. The runtime `bad-scale` refusal is unchanged.
+- Fixed: `AstraeusScene` reports an error to `console.error` when the host gave no `onError`, for a bad scene, a failed data load and a bad `time`, `rate`, `view` or `camera` prop; they were swallowed before.
+- Changed: ISO text for a moment must say its zone. `YYYY-MM-DD` is midnight UTC; date-time text ends in `Z` or an offset such as `+10:00`. Date-time text with no zone (`"2026-08-12T21:00:00"`) used to be read in the machine's local zone, so one scene meant different instants for different visitors; it now throws `bad-time` (`bad-panels` for a story panel's `at.time`) and a page address `t` with no zone is ignored.
+- Fixed: orientation labels follow the rotation model that turns each moon. Thirteen moons (Io, Europa, Ganymede, Callisto, Mimas, Enceladus, Tethys, Dione, Rhea, Titan, Iapetus, Triton, Charon) are `iau-rotation`, not `tidal-lock`, and their cards say so; only Phobos and Deimos are tidal-lock. A moon's definition and binding are now made together from one record, so label and state cannot disagree.
+- Added: a body definition's `accuracy.positionLimitations` holds the position limits its ephemeris record states (planets, the Moon); a card lists them, then the orientation limits, and a host's own `knownLimitations` still replaces both. Earth's polar-motion sentence stays an orientation limit.
+- Fixed: a state composed from several legs keeps its velocity where every leg has one (the sum, or the negation, of the legs' velocities) and has none where any leg lacks it; it was dropped whenever a state was measured from another body.
+- Fixed: reverse playback with pacing. Pacing now works on the magnitude of the rate and keeps its sign, so `setTimeline({ rate: -3600, pacing })` no longer turns the rate into `NaN` (which threw `RangeError` on a view switch), and a backward step through a zone slows as a forward one does. A visitor cannot reach it through the rate picker (`rates` must be positive); only a negative opening `rate` with `pacing` does.
+
+### Breaking changes in 0.10.0
+
+Each line is a change a host written for 0.9.5 can notice, with the one-line migration.
+
+- Date-time text with no zone throws `bad-time`. Add `Z` or an offset (`"2026-08-12T21:00:00Z"`); a date alone is still midnight UTC.
+- `scene.stateOf` throws `out-of-span` (and `bad-time` outside a loaded window) where it threw a raw error. Branch on `error.code`, not on the error class.
+- New codes `bad-scene` and `too-many-bodies`, and `bad-data` now also covers a data package that cannot be read. A `switch` over `SceneErrorCode` needs the new cases; a scene with more than 30 lit bodies now fails at `check`/`mount`, so draw the extras as markers or drop them.
+- `bad-view`, `bad-trajectory` and `bad-element` now cover inputs that used to throw a raw `TypeError` or other error. Catch `SceneError` and branch on `code`.
+- `ScaleId` closes the scale types (see the migration table, `ScalePolicy.id`). Pass one of the three ids; a `string` variable needs a check or a cast.
+- `AstraeusScene` without `onError` logs errors to `console.error`. Pass `onError` to handle or silence them.
+- The orientation label of 13 moons changes from `tidal-lock` to `iau-rotation`, and the card's limits change for them and for the planets and the Moon (position limits first). Do not match on the old sentences; read `orientation` and `knownLimitations`.
+- A composed state may now carry `velocityKmS` where it carried none. Check it before use, as before.
+- Reverse pacing: a negative opening `rate` with `pacing` now paces (it threw or went `NaN`). Remove any guard that avoided it.
 
 ## 0.9.5 (2026-11-21)
 
@@ -245,6 +269,7 @@ This one table lists every change an app built on 0.7.0 must act on, from O-053 
 | behaviour | A pacing `near` rule slowed every view | It slows only at the showing view's events | Add the events to each view that should slow. A scene without views is unchanged. |
 | behaviour | A throwing listener stopped the rest | The rest run; the error goes to `reportError` | Remove any `try`/`catch` kept only to protect other listeners. |
 | behaviour | `astraeus-data*` peers took any `0.x` engine | Each peers on the engine's own minor | Install every `astraeus-data*` package at the engine's version. |
+| changed | `ScalePolicy.id` (`string`) | `ScalePolicy.id` (`ScaleId`) | From 0.10.0 (O-083): a custom scale policy typed with another id no longer compiles; use one of `"true-scale"`, `"readable-scale"` or `"solar-system"`. `setScale` already refused any other id with `bad-scale`. |
 
 `EventZoneChange` is new since 0.7.0 and carries `timeUtcMs` from the start, as do `SelectionChange` and the reads; the step entries list everything else that is new, none of which needs action.
 
