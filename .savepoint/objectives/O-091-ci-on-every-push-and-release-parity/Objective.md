@@ -36,3 +36,11 @@ Never `npm publish` or run the publish script without `--dry-run`; GitHub releas
 
 **Out of scope:**
 - Data-package versioning (AH-40).
+
+## Decisions
+
+- Owner 2026-11-21 (G-024 decision 7): "work through this list of objectives one by one. Orchestrate each objective to completion"; owner 2026-11-22 "I am remote now, add park the check and move on". Step checks waived on every Task. No owner look.
+- Branch `o091-ci-every-push` is stacked on the parked `o088-outcome-checks` (shared `package.json`, `docs/RELEASING.md`, browser steps), so it merges after O-087 and O-088.
+- Owner rule (G-024 orchestration): no throwaway failing-test branch push and no GitHub release-workflow run, dry run included. T-417 is therefore the post-merge `main` CI run only; the red proof and the release proof are local (T-416 parity test with planted copies, T-414 local release steps). Objective success condition 1's GitHub red run is recorded as not run, by owner rule.
+- Planner (orchestrate-g024-20261121) defaults taken: CI gates = `quality_gates` verbatim (nothing network- or browser-bound on push); Node 22 and 24 matrix; actions pinned to full commit SHAs with `# vX.Y.Z` comments, `id-token: write` job-scoped; newest three.js checked with `check-engine-alone.mjs --three` (narrow the peer range only if it fails); parity test parses the real YAML with an exact-pinned `yaml` devDependency.
+- Waves: T-413, T-414, T-415 side by side (T-414 is the only browser job); then T-416; T-417 after the merge.
