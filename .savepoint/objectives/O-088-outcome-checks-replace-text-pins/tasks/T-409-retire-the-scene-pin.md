@@ -2,7 +2,7 @@
 id: T-409
 title: Retire the scene pin
 objective: O-088
-status: planned
+status: done
 depends_on: [{task: T-406, requires: clear}, {task: T-407, requires: clear}, {task: T-408, requires: clear}]
 owner_validation: {required: false}
 check_waiver: {task: T-409, reason: 'Owner said "work through this list of objectives one by one. Orchestrate each objective to completion" (G-024 decision 7) and "I am remote now, add park the check and move on" (2026-11-22): standing orchestration rules waive the optional step checks; the mandatory Full Objective Check covers the whole diff.', actor: {role: owner, session: orchestrate-g024-20261122}, recorded_at: '2026-11-21T22:56:58Z'}
@@ -56,8 +56,21 @@ Focused: `npx vitest run packages/astraeus/tests/sceneFaultOrder.test.ts package
 
 ## Technical Evidence
 
-Pending execution.
+Extra reads: T-406/T-407/T-408 Technical Evidence (case maps); group.ts and planTimeline.ts (to place breaks).
+
+| Done When | Evidence |
+|---|---|
+| Replacements green; one planted break per file re-confirmed | Focused run: 3 files, 270 passed. (406) swap `groupPlan.checkReadouts()` before the data checks in assembleScene.ts: sceneFaultOrder "two faults: missing data package and a bad group readout" fails. (407) planTimeline pacing default `?? 60` -> `?? 61`: sceneBuildContract "pacing with no rate set paces over the default base rate of 60" fails. (408) assembleScene.ts body label made to depend on `planetSeriesLoaded()`: sceneLoadOrder 11 of 31 fail. All restored from copies (cmp identical). |
+| Cross-check: a break today's pin catches also fails one of the three | Pacing `?? 61`: the pin's diff shows the 61 change (it catches it) and sceneBuildContract fails. Gap found: group.ts layer default `dotSizePx ?? 2.5` -> 2.6 is caught by the pin but by none of the three files (full suite with that break: only scenePin, groupLookHandle.test.ts and twoViewers.test.ts fail). It is still covered by other existing tests; recorded for the coordinator, not a blocker. |
+| Deleted; search | Both files deleted. `scenePin` search outside excluded paths: `.savepoint/Design.md` line 41, and a comment mention in packages/astraeus/tests/sceneBuildContract.test.ts (T-407 file, not edited by me). |
+| Gates; npm test time | lint, typecheck, build clean. npm test: 324 files, 5318 passed, 1 failed (twoViewers API-03 panel case, passes alone: 101/101, load flake while the full suite ran), 2 skipped. Time about 38.6 s wall after deletion (before: about 38.2 s wall in the dotSizePx break run, which still included the pin). |
+
+Limitations: no browser run.
 
 ## Drift Notes
 
-Expected: `.savepoint/Design.md` under `Scene and host-link split` says "`tests/scenePin.test.ts` pins the scene output"; the planner rewrites it to name the three replacement files.
+Expected (plus the scenePin comment mention in sceneBuildContract.test.ts): `.savepoint/Design.md` under `Scene and host-link split` says "`tests/scenePin.test.ts` pins the scene output"; the planner rewrites it to name the three replacement files.
+
+## Coordinator (gates)
+
+Set done by the orchestrating session after the combined handoff gates passed with T-402..T-404 and T-406..T-412 together (owner: "I mark them as they pass", O-038; G-024 decision 7 "Orchestrate each objective to completion"; owner 2026-11-22 "I am remote now, add park the check and move on"): lint and Prettier clean, typecheck clean, `npm test` 324 files, 5319 passed, 2 skipped; `npm run check:pack` pass, engine 1,836,372 B raw (cap 1,838,000), 525,692 B gzip (cap 527,000).
