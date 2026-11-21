@@ -54,6 +54,20 @@ function apiReference(): Plugin {
 }
 
 /**
+ * The component catalogue page (O-080 T-335): components.html carries a placeholder that the build (and the dev server) fills with the shelf's entries, written from the engine's doc comments and data/shelf-catalogue.json
+ * (tools/site/shelf-catalogue.mjs). The page's script (src/catalogue/page.ts) loads the engine and an example only when a visitor presses Run.
+ */
+function shelfCatalogue(): Plugin {
+  return {
+    name: "astraeus-shelf-catalogue",
+    async transformIndexHtml(html, context) {
+      if (!context.filename.endsWith("components.html")) return html;
+      return html.replace("<!--shelf-catalogue-->", (await import("./tools/site/shelf-catalogue.mjs")).renderCatalogueMain());
+    },
+  };
+}
+
+/**
  * With ASTRAEUS_ENGINE_SHARE=1 (the browser check's public build; never a deploy build), writes `engine-share.json`: for each script chunk, the rendered bytes that come from the engine package
  * (modules under packages/astraeus/) and the chunk's rendered total. `tools/validate/load-budget.mjs` scales a chunk's file size by that ratio to find the engine's share of a page, so a demo's
  * limit guards only what the demo adds beyond the engine (O-051 T-221).
@@ -99,7 +113,7 @@ function localData(): Plugin {
 
 // ASTRAEUS_PUBLIC_BUILD=1 swaps every local-only texture for the placeholder at its import (design C.3, output gate).
 export default defineConfig({
-  // Three pages: the pitch page (index.html), its assets sub-page, and the app (app.html).
+  // Four pages: the pitch page (index.html), its assets and components sub-pages, and the app (app.html).
   build: {
     // The site's root is its package folder; the build lands in the repository's dist folder, as vercel.json expects.
     outDir: decodeURIComponent(new URL("../../dist", import.meta.url).pathname),
@@ -108,6 +122,7 @@ export default defineConfig({
       input: {
         index: decodeURIComponent(new URL("./index.html", import.meta.url).pathname),
         assets: decodeURIComponent(new URL("./assets.html", import.meta.url).pathname),
+        components: decodeURIComponent(new URL("./components.html", import.meta.url).pathname),
         app: decodeURIComponent(new URL("./app.html", import.meta.url).pathname),
       },
     },
@@ -115,5 +130,5 @@ export default defineConfig({
   // True in a public build: the made-up (synthetic) experiences are then left out of the entry, so no chunk of them is built (T-068).
   define: { __PUBLIC_BUILD__: JSON.stringify(process.env.ASTRAEUS_PUBLIC_BUILD === "1") },
   resolve: { alias: process.env.ASTRAEUS_PUBLIC_BUILD === "1" ? [...publicBuildAliases()] : [] },
-  plugins: [localData(), apiReference(), engineShare()],
+  plugins: [localData(), apiReference(), shelfCatalogue(), engineShare()],
 });

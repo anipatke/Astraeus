@@ -1,7 +1,7 @@
 // The smoke step of `npm run check:browser` (O-038 T-145), grown out of browser-lite.mjs: open every public page and every demo view once at desktop and phone size.
 // Each load fails on any page or console error, a missing shell, or a scene with no body, orbit path or dot in view (the scene's own readouts; stars alone do not count; no picture). Nothing else is asserted.
 // Views are discovered as browser-lite does: Apollo (no query), the planets and showers experiences (src/main.tsx no longer holds a table of definitions since O-059 T-272; the made-up scenes are listed below), and every data/showers/<name>.json.
-// The made-up (synthetic) scenes are not public pages and are left to the DOM tests, except the Sun-centred probe path (O-046 T-193). Pages: index.html and assets.html beside app.html.
+// The made-up (synthetic) scenes are not public pages and are left to the DOM tests, except the Sun-centred probe path (O-046 T-193). Pages: index.html, assets.html and components.html beside app.html.
 // Apollo 11 must also stop drawing once paused and untouched (the frames-drawn readout stops counting, O-031 T-149).
 // Shower views (id starting "showers") must also draw the meteor stream: dots in view, not just any body (I-071). ASTRAEUS_VIEWS=showers limits the run to those views
 // (the step against the scratch public build uses it, so the shipped stream copy is what loads).
@@ -32,7 +32,7 @@ function discoverViews() {
   views.push({ id: "synthetic-probe", url: `${appUrl}?experience=synthetic-probe`, scene: true, sunPath: true });
   // O-047 T-203: the made-up 1977-to-170-AU journey (dev server only): moons at their dates, Saturn's orbit line, and the whole path framed at its end (`journeyChecks`).
   views.push({ id: "synthetic-journey", url: `${appUrl}?experience=synthetic-journey`, scene: true, journey: true });
-  for (const page of ["index", "assets"]) views.push({ id: `${page}-page`, url: new URL(`${page}.html`, appUrl).href, scene: false });
+  for (const page of ["index", "assets", "components"]) views.push({ id: `${page}-page`, url: new URL(`${page}.html`, appUrl).href, scene: false });
   const only = process.env.ASTRAEUS_VIEWS;
   return only === undefined || only === "" ? views : views.filter((view) => view.id.startsWith(only));
 }

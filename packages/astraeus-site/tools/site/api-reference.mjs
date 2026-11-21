@@ -45,7 +45,7 @@ function kindOf(target, declaration) {
 
 /**
  * Every export of `entry`, in source order: [{ name, kind, doc, examples, signature, members, constructors }]. `doc` is empty when the export has no doc comment.
- * `kind` is class, interface, type, function or const; a const whose type is `BodyRef` is a ready-made body (`body: true`).
+ * `shelf` is true when its doc comment carries `@shelf` (a story-component shelf factory, O-080); `kind` is class, interface, type, function or const; a const whose type is `BodyRef` is a ready-made body (`body: true`).
  */
 export function collectExports(entry = PUBLIC_ENTRY) {
   const program = ts.createProgram([entry], OPTIONS);
@@ -58,7 +58,7 @@ export function collectExports(entry = PUBLIC_ENTRY) {
     const declaration = target.declarations?.[0];
     const kind = kindOf(target, declaration);
     const entryNode = declaration ?? source;
-    const out = { name: exported.name, kind, doc: text(target.getDocumentationComment(checker)), examples: target.getJsDocTags(checker).filter((tag) => tag.name === "example").map((tag) => text(tag.text ?? [])), signature: "", members: [], constructors: [], body: false };
+    const out = { name: exported.name, kind, doc: text(target.getDocumentationComment(checker)), examples: target.getJsDocTags(checker).filter((tag) => tag.name === "example").map((tag) => text(tag.text ?? [])), shelf: target.getJsDocTags(checker).some((tag) => tag.name === "shelf"), signature: "", members: [], constructors: [], body: false };
     if (kind === "class" || kind === "interface") {
       const declared = checker.getDeclaredTypeOfSymbol(target);
       out.members = describeMembers(checker, declared, entryNode);

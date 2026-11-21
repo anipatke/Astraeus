@@ -13,9 +13,11 @@ import { gzipSync } from "node:zlib";
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..", "..", "..");
 
 /** The app page, its script and style, and what every experience loads: the sky stars. Each entry is `<stem>.<ext>` of a hashed file in assets/, or a page at the top. */
-const APP_SHARED = ["app.html", "app.js", "app.css", "preload-helper.js", "hyg-v42-naked-eye.json", "elementsBody.js", "timeScale.js", "licence.js"];
+const APP_SHARED = ["app.html", "app.js", "app.css", "preload-helper.js", "hyg-v42-naked-eye.json", "elementsBody.js", "timeScale.js", "licence.js", "api.js", "api.css", "frameStats.js"];
 /** Shared chunks the dev-free production build splits out but the public build folds into their importers; listed when present, not required (2026-10-20). */
-const SPLIT_CHUNKS = new Set(["preload-helper.js", "ephemerisProvenance.js", "elementsBody.js", "timeScale.js", "bodyMetrics.js", "events.js", "trackedMetrics.js", "listedOrbitGroup.js", "orbitGroup.js", "settingsFields.js", "licence.js", "moonFamilies.js", "planetSystemParts.js"]);
+const SPLIT_CHUNKS = new Set(["preload-helper.js", "ephemerisProvenance.js", "elementsBody.js", "timeScale.js", "bodyMetrics.js", "events.js", "trackedMetrics.js", "listedOrbitGroup.js", "orbitGroup.js", "settingsFields.js", "licence.js", "moonFamilies.js", "planetSystemParts.js",
+  // O-080 T-335: the catalogue page imports the engine too, so the bundler moves the engine (with React and three) out of app.js into the chunk `api.js` (and its style, and `frameStats.js`) that both pages share; app.css and scene.js are then folded into them. Optional, like the chunks above: a build without the catalogue page keeps them in app.js.
+  "api.js", "api.css", "frameStats.js", "app.css", "scene.js"]);
 const VIEW_LIMITS = JSON.parse(readFileSync(join(root, "packages", "astraeus-demo-planets", "src", "experiences", "planets", "viewLimits.json"), "utf8"));
 const PLANET_TEXTURES = ["earth-bmng-july-4k.jpg", "jupiter-2k.jpg"];
 const SHOWER_COMMON = ["showerScene.js", "scene.js", "bodyMetrics.js", "events.js", "listedOrbitGroup.js", "orbitGroup.js", "showerSettings.js", "measuredOrbits.js", "ephemerisProvenance.js", "planetModels.js", "mars-2k.jpg", "mercury-2k.jpg", "venus-2k-balanced.jpg", "sun-2k.jpg", ...PLANET_TEXTURES];
@@ -38,6 +40,9 @@ const planetView = (name, textures, { moons = true, ...limits }) => ({
 export const ALL_PAGES = [
   { id: "index.html", files: [], htmlPage: "index.html", rawLimit: 600_000, gzipLimit: 530_000 },
   { id: "assets.html", files: [], htmlPage: "assets.html", rawLimit: 670_000, gzipLimit: 520_000 },
+  // O-080 T-335: the component catalogue. A visitor downloads the page and its script; pressing Run loads the engine chunk (api.js, with its style and the shared frame stats chunk) and that part's example. The page set lists those files (an html page's
+  // own listing would follow the engine's lazy references to every body picture), and every example is listed, the most one visitor can reach by pressing each Run in turn. The engine's share is subtracted as for the other app pages. Limits: own share measured 2026-11-21 on the public build (1,308,490 B raw, 363,637 B gzip: React, three and the page) plus 5%, rounded up to the next 10,000 bytes.
+  { id: "components.html", files: ["components.html", "components.js", "preload-helper.js", "api.js", "api.css", "frameStats.js", "madeUpScene.js", "panel.js", "customBlock.js", "explainer.js", "actions.js", "filterChips.js", "colourKey.js"], rawLimit: 1_380_000, gzipLimit: 390_000 },
   // I-142: the API reference text grows with the documented API (118,927 B raw, 26,894 B gzip after O-056), and the compressed size is what a visitor downloads, so the raw limit was raised and the gzip limit kept (owner decision, 2026-11-03); raw raised again to 200,000 B for the O-059 public forms (owner, 2026-11-07). tests/apiReference.test.ts holds the generated page to these limits.
   { id: "api/index.html", files: [], htmlPage: "api/index.html", rawLimit: 230_000, gzipLimit: 46_000 }, // gzip 45,000 -> 46,000: owner 2026-11-20 ("Raise cap to 46,000"), O-077 T-323 (page measured at 45,167 B with GroupOrbitInput.meanAnomalyDeg documented; 44,977 B before). gzip 44,500 -> 45,000: owner 2026-11-15 ("Raise to 45,000 bytes"), O-075 T-318 (page measured at 44,569 B with the camera choices and switch labels; covers T-319). raw 200,000 -> 230,000: owner 2026-11-10 ("Raise to 230 KB, restore"), O-066 T-301 (page measured at 200,586 B with the new panel fields and original doc wording restored).
   // gzip 44,000 -> 44,500: owner 2026-11-15 ("Raise to 44,500 bytes"), O-074 T-316 (page measured at 44,225 B with the time look)

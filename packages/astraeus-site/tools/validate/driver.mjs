@@ -2025,3 +2025,58 @@ export async function wheelOverCanvas(page, deltaY) {
   await page.mouse.wheel(0, deltaY);
   return true;
 }
+
+// ---- The component catalogue page (O-080 T-335): components.html, one entry per shelf part, each with a Run button, a viewer box and its code. Every hook is a data- attribute the page sets. ----
+const CATALOGUE_STAGE_TIMEOUT_MS = 60000;
+/** The catalogue's entries in page order: `{ part, state }` with state idle, loading, running or failed. */
+export async function catalogueParts(page) {
+  await page.waitForSelector("[data-part]");
+  return page.evaluate(() => [...document.querySelectorAll("[data-part]")].map((entry) => ({ part: entry.getAttribute("data-part"), state: entry.getAttribute("data-state") })));
+}
+/** Presses an entry's Run button (it starts the example, or stops it when it is the one running). */
+export async function pressCatalogueRun(page, part) {
+  await page.locator(`[data-part="${part}"] [data-part-run]`).click();
+}
+/** Waits until an entry's state is `state` (idle, running or failed); a failed example reads its note from the box. */
+export async function waitForCatalogueState(page, part, state) {
+  await page.waitForSelector(`[data-part="${part}"][data-state="${state}"]`, { timeout: CATALOGUE_STAGE_TIMEOUT_MS });
+}
+/** The entries whose example is loading or running now. */
+export async function catalogueActive(page) {
+  return page.evaluate(() => [...document.querySelectorAll("[data-part]")].filter((entry) => ["loading", "running"].includes(entry.getAttribute("data-state"))).map((entry) => entry.getAttribute("data-part")));
+}
+/** How many viewers (scene canvases) the whole page draws now. */
+export async function catalogueViewerCount(page) {
+  return page.evaluate(() => document.querySelectorAll("[data-part-stage] canvas").length);
+}
+/** An entry's box text, the lines shown beside it and its whole code, as the page prints them (textContent, so a control the viewer folds into a menu still counts). */
+export async function catalogueEntry(page, part) {
+  return page.evaluate((name) => {
+    const entry = document.querySelector(`[data-part="${name}"]`);
+    const text = (hook) => entry.querySelector(`[${hook}]`).textContent;
+    return { stage: text("data-part-stage"), importLines: text("data-part-import"), addLines: text("data-part-add"), code: text("data-part-code"), runLabel: text("data-part-run"), runHeightPx: Math.round(entry.querySelector("[data-part-run]").getBoundingClientRect().height) };
+  }, part);
+}
+/** The "What you get out of the box" items on the page. */
+export async function catalogueBasics(page) {
+  return page.evaluate(() => [...document.querySelectorAll("[data-basics] li b")].map((name) => name.textContent));
+}
+/** Whether the page fits its window: no sideways scroll, each entry's words and its example side by side or stacked without crossing, and the viewer box inside the window's width. */
+export async function catalogueFit(page) {
+  return page.evaluate(() => {
+    const box = (element) => { const r = element.getBoundingClientRect(); return { left: r.left, right: r.right, top: r.top, bottom: r.bottom }; };
+    const crosses = (a, b) => a.left < b.right - 0.5 && b.left < a.right - 0.5 && a.top < b.bottom - 0.5 && b.top < a.bottom - 0.5;
+    const overlaps = [];
+    const outside = [];
+    for (const entry of document.querySelectorAll("[data-part]")) {
+      const name = entry.getAttribute("data-part");
+      const text = box(entry.querySelector(".part-text"));
+      const demo = box(entry.querySelector(".part-demo"));
+      if (crosses(text, demo)) overlaps.push(name);
+      const stage = box(entry.querySelector("[data-part-stage]"));
+      if (stage.left < 0 || stage.right > innerWidth + 0.5) outside.push(name);
+    }
+    const root = document.documentElement;
+    return { sidewaysScrollPx: Math.max(0, root.scrollWidth - innerWidth), overlaps, outside };
+  });
+}
