@@ -2,7 +2,7 @@
 id: I-190
 title: The bad-part doc comment and README row name only panel and customBlock shape errors
 type: drift
-status: open
+status: resolved
 source:
   kind: check
   check: C-193
@@ -10,8 +10,14 @@ source:
   at: '2026-11-21T06:47:10Z'
 tasks: [T-334]
 guardrail_ids: [API-07]
-checks: [C-193]
+checks: [C-193, C-194]
 severity: low
+resolution:
+  disposition: verified
+  check: C-194
+  actor: {role: checker, session: recheck-o080-20261121}
+  at: '2026-11-21T07:10:16Z'
+  reason: Repair proven by C-194 (CLEAR).
 history:
   - at: '2026-11-21T06:47:10Z'
     actor: {role: checker, session: check-o080-20261121}
@@ -22,6 +28,11 @@ history:
     actor: {role: executor, session: repair-o080-c193-20261121}
     kind: repair_attempted
     note: 'Repair (executor): errors.ts bad-part doc now reads: a shelf factory (panel, customBlock, explainer, actions, filterChips, colourKey) or a part control''s setter given a bad value, addParts given a value no factory made, an action''s camera naming what the scene lacks (at build), or handle.part given a part this viewer''s scene does not hold. npm run api:errors rewrote README.md:454 to match; npm run api:lock rewrote api-surface.lock.json. After npm run build: dist/api/index.html 199,695 B raw (limit 230,000), 43,454 B gzip at Node default level (was 43,388; limit 46,000). Gates as I-188''s entry.'
+  - at: '2026-11-21T07:10:16Z'
+    actor: {role: checker, session: recheck-o080-20261121}
+    kind: rechecked
+    note: 'C-194: bad-part doc names every factory, the setters, the build-time action camera and foreign parts; README row matches (apiRules test in the full gate). Verified.'
+    check: C-194
 ---
 
 # I-190: The bad-part doc comment and README row name only panel and customBlock shape errors

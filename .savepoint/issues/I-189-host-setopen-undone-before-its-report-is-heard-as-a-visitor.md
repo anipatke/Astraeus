@@ -2,15 +2,21 @@
 id: I-189
 title: A host setOpen undone right after the panel is drawn is heard by the host as two visitor changes
 type: defect
-status: open
+status: resolved
 source:
   kind: check
   check: C-193
   actor: {role: checker, session: check-o080-20261121}
   at: '2026-11-21T06:47:10Z'
 tasks: [T-333, T-336]
-checks: [C-193]
+checks: [C-193, C-194]
 severity: low
+resolution:
+  disposition: verified
+  check: C-194
+  actor: {role: checker, session: recheck-o080-20261121}
+  at: '2026-11-21T07:10:16Z'
+  reason: Repair proven by C-194 (CLEAR).
 history:
   - at: '2026-11-21T06:47:10Z'
     actor: {role: checker, session: check-o080-20261121}
@@ -21,6 +27,11 @@ history:
     actor: {role: executor, session: repair-o080-c193-20261121}
     kind: repair_attempted
     note: 'Repair (executor): host or visitor is now decided at the source instead of guessed afterwards. useShelfPanels.tsx applies a host request and sets its serial (state `applied`) in the same effect, so both reach the same render, and reports onOpenChange(id, applied). useShelf.ts counts host calls in a ref (`asked`, outside any state updater) and drops the hostWants flag: a report drawn with a newly applied serial is that host call''s change and is never told to the host; the host''s read follows the shell only once every host call is applied (applied === asked), so it stays the host''s last word meanwhile. Visitor paths (button, Close, Escape, About/card taking the place) and the silent view-switch drop are unchanged. Chips (setSelected) and the other setters already write the cell without any report, so they do not share the flaw; covered in the same case. Proof: new lifecycle.test.ts case "a host setter undone between the part''s draw and its report is silent (I-189)" in the describe.each over mount and AstraeusScene: setOpen(true) then setOpen(false) from a MutationObserver when the panel is drawn; from an open panel setOpen(false) then setOpen(true) when it is gone; chips setSelected([a]) then setSelected([]) when lit; reads checked at each step; heard stays []; a visitor press after is still heard. Before the fix it failed on both paths (heard [{gaps,true},{gaps,false}], as C-193''s probe); after, 5 of 5 repeated runs pass with the other shelf cases, and lifecycle + twoViewers 164/164. Gates as I-188''s entry.'
+  - at: '2026-11-21T07:10:16Z'
+    actor: {role: checker, session: recheck-o080-20261121}
+    kind: rechecked
+    note: 'C-194: the new lifecycle case fails on both paths against the pre-repair useShelf.ts/useShelfPanels.tsx/AstraeusShell.tsx (scratch copy) and passes 5 of 5 on current code; checker probe (three calls in one draw, cross-panel undo, visitor heard after) passes on both paths. Verified.'
+    check: C-194
 ---
 
 # I-189: A host setOpen undone right after the panel is drawn is heard by the host as two visitor changes
