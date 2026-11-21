@@ -40,21 +40,6 @@ import "./style.css";
 import "./phone.css";
 import "./embedded.css";
 
-/** Keeps `--timeline-space` at the distance from the screen's bottom to the top of the timeline bar, so a phone sheet can sit above it. */
-function useTimelineSpace(root: { readonly current: HTMLElement | null }, phone: boolean): void {
-  useEffect(() => {
-    const shell = root.current;
-    const bar = shell?.querySelector<HTMLElement>(".timeline-bar") ?? null;
-    if (shell === null || bar === null || typeof ResizeObserver === "undefined") return undefined;
-    const measure = () => shell.style.setProperty("--timeline-space", `${Math.ceil(window.innerHeight - bar.getBoundingClientRect().top)}px`);
-    measure();
-    const observer = new ResizeObserver(measure);
-    observer.observe(bar);
-    window.addEventListener("resize", measure);
-    return () => { observer.disconnect(); window.removeEventListener("resize", measure); shell.style.removeProperty("--timeline-space"); };
-  }, [root, phone]);
-}
-
 /** The object selected when the shell opens: the first one available at the clock time, else the first listed. */
 export function initialObjectId(experience: ExperienceConfig, timeUtcMs: number): string {
   const start = experience.cameraPresets.find((preset) => preset.id === experience.startCameraPresetId)?.request;
@@ -316,7 +301,6 @@ export function AstraeusShell({
   /** The viewer's own screen (areas/screen.ts): its layout follows this viewer's size, not the window's. */
   const screen = useScreen(root);
   const phone = screen.layout === "phone";
-  useTimelineSpace(root, phone);
   const [activePresetId, setActivePresetId] = useState<string | null>(experience.startCameraPresetId ?? null);
   /** What the card is about; whether it is open is the panel rule's (`panels.state.left`). The object card follows the selected object; an event card names its event. */
   const [info, setInfo] = useState<InfoState>(null);

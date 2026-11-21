@@ -12,8 +12,8 @@
   inset: 0;
   display: grid;
   grid-template-columns: var(--astraeus-panel-width) minmax(0, 1fr) var(--astraeus-panel-width);
-  /* The last row is the timeline's own height (the shell measures it into --timeline-space; none when the experience has no timeline). */
-  grid-template-rows: auto minmax(0, 1fr) var(--timeline-space, var(--astraeus-size-10));
+  /* The last row is as tall as the timeline (nothing is measured; no height when the experience has no timeline). */
+  grid-template-rows: auto minmax(0, 1fr) auto;
   grid-template-areas: "bar bar bar" "left . right" "timeline timeline timeline";
   gap: var(--astraeus-space-4);
   padding: var(--astraeus-space-5) var(--astraeus-space-5) 0;
@@ -24,7 +24,7 @@
 .astraeus-shell [data-area="bar"] { grid-area: bar; z-index: var(--astraeus-layer-top); }
 .astraeus-shell [data-area="left"] { grid-area: left; z-index: var(--astraeus-layer-bar); }
 .astraeus-shell [data-area="right"] { grid-area: right; z-index: var(--astraeus-layer-panel); }
-.astraeus-shell [data-area="timeline"] { grid-area: timeline; z-index: var(--astraeus-layer-areas); }
+.astraeus-shell [data-area="timeline"] { grid-area: timeline; align-self: end; z-index: var(--astraeus-layer-areas); container: astraeus-timeline / inline-size; }
 .astraeus-shell [data-area="timeline"][data-layer="drawer"] { z-index: var(--astraeus-layer-drawer); }
 .astraeus-shell [data-area="timeline"][data-layer="popup"] { z-index: var(--astraeus-layer-top); }
 .astraeus-shell [data-area="left"],
@@ -44,8 +44,8 @@
 /* Phone: one column; left, right and developer map onto the sheet above the timeline, detail over story. */
 .astraeus-shell[data-phone="true"] .astraeus-areas {
   grid-template-columns: minmax(0, 1fr);
-  grid-template-areas: "bar" "." "sheet" "timeline";
-  grid-template-rows: auto minmax(0, 1fr) auto var(--timeline-space, var(--astraeus-size-10));
+  grid-template-areas: "bar" "sheet" "timeline";
+  grid-template-rows: auto minmax(0, 1fr) auto;
   padding: calc(var(--astraeus-space-4) + var(--safe-top, 0px)) calc(var(--astraeus-space-4) + var(--safe-right, 0px)) 0 calc(var(--astraeus-space-4) + var(--safe-left, 0px));
 }
 .astraeus-shell[data-phone="true"] [data-area="left"],

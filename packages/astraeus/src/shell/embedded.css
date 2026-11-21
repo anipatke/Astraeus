@@ -12,7 +12,7 @@
 .astraeus-shell[data-embedded="true"][data-phone="false"] .scale-explanation-panel { top: calc(100% + var(--astraeus-space-2)); }
 
 /* Timeline: one slim line, a thinner scrubber. */
-.astraeus-shell[data-embedded="true"][data-phone="false"] .timeline-bar { right: var(--astraeus-space-3); bottom: var(--astraeus-space-3); left: var(--astraeus-space-3); padding: var(--astraeus-space-2) var(--astraeus-space-4); border-radius: var(--astraeus-radius-s); font-size: var(--astraeus-text-s); }
+.astraeus-shell[data-embedded="true"][data-phone="false"] .timeline-bar { margin-bottom: 0; padding: var(--astraeus-space-2) var(--astraeus-space-4); border-radius: var(--astraeus-radius-s); font-size: var(--astraeus-text-s); }
 .astraeus-shell[data-embedded="true"][data-phone="false"] .timeline-main-row { gap: var(--astraeus-space-4); }
 .astraeus-shell[data-embedded="true"][data-phone="false"] .timeline-time { font-size: var(--astraeus-text-s); }
 .astraeus-shell[data-embedded="true"][data-phone="false"] .timeline-bar .timeline-speed select { width: var(--astraeus-size-10); }
@@ -24,4 +24,4 @@
 .astraeus-shell[data-embedded="true"][data-phone="false"] .timeline-bar .timeline-expanded { bottom: calc(100% + var(--astraeus-space-3)); }
 
 /* A phone-sized frame keeps its one row, drawers and 44 px targets; only the margins and the timeline's padding tighten. */
-.astraeus-shell[data-embedded="true"][data-phone="true"] .timeline-bar { right: calc(var(--astraeus-space-2) + var(--safe-right)); bottom: calc(var(--astraeus-space-2) + var(--safe-bottom)); left: calc(var(--astraeus-space-2) + var(--safe-left)); padding: var(--astraeus-space-6) var(--astraeus-space-4) 1px; }
+.astraeus-shell[data-embedded="true"][data-phone="true"] .timeline-bar { margin-bottom: calc(var(--astraeus-space-2) + var(--safe-bottom)); padding: var(--astraeus-space-6) var(--astraeus-space-4) 1px; }

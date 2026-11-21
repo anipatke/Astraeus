@@ -76,9 +76,7 @@
 
 /* ---- Bottom: the two-line timeline and its drawer ---- */
 .astraeus-shell[data-phone="true"] .timeline-bar {
-  right: calc(var(--astraeus-space-4) + var(--safe-right));
-  bottom: calc(var(--astraeus-space-4) + var(--safe-bottom));
-  left: calc(var(--astraeus-space-4) + var(--safe-left));
+  margin-bottom: calc(var(--astraeus-space-4) + var(--safe-bottom));
   /* Slimmer (owner, 2026-10-18: "quite a bit of space above the pause play buttons same below the timeline"): the grip sits in the top
      16 px, the handle's hit area ends where the buttons begin, and the 44 px track keeps its touch height. */
   padding: var(--astraeus-space-6) var(--astraeus-space-5) var(--astraeus-space-1);
@@ -131,7 +129,7 @@
 .astraeus-shell[data-phone="true"] .moons-sheet {
   box-sizing: border-box;
   width: auto;
-  max-height: min(var(--sheet-max, 50cqh), calc(100cqh - var(--timeline-space, var(--astraeus-size-10)) - var(--astraeus-space-4) - var(--astraeus-size-7) - var(--safe-top)));
+  max-height: min(var(--sheet-max, 50cqh), 100%);
   overflow-y: auto;
   overscroll-behavior: contain;
   padding: var(--astraeus-space-3) var(--astraeus-space-6) var(--astraeus-space-6);
@@ -146,7 +144,7 @@
 /* ---- The Developer panel: a detail sheet, with a taller cap ---- */
 .astraeus-shell[data-phone="true"] .developer-tools {
   width: auto;
-  max-height: max(var(--astraeus-size-10), calc(100cqh - var(--astraeus-size-6) - var(--safe-top) - var(--timeline-space, var(--astraeus-size-10)) - var(--astraeus-space-6)));
+  max-height: max(var(--astraeus-size-10), 100%);
   padding: var(--astraeus-space-4);
 }
 .astraeus-shell[data-phone="true"] .astraeus-label { font-size: var(--label-size, var(--astraeus-text-s)); }

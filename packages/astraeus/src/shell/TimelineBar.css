@@ -1,10 +1,8 @@
 /* The timeline bar: one slim line on larger screens, two lines on phones and tablets (T-080, O-020). Its rules live here, beside TimelineBar.tsx. */
+/* The bar sits in the timeline area, which is the grid's last row and as tall as the bar (nothing is measured); the margin below is its distance from the edge. */
 .astraeus-shell .timeline-bar {
-  position: absolute;
-  z-index: var(--astraeus-layer-areas);
-  right: var(--astraeus-space-5);
-  bottom: calc(var(--astraeus-space-5) + env(safe-area-inset-bottom, 0px));
-  left: var(--astraeus-space-5);
+  position: relative;
+  margin-bottom: calc(var(--astraeus-space-5) + env(safe-area-inset-bottom, 0px));
   padding: var(--astraeus-space-4) var(--astraeus-space-5);
   border: 1px solid var(--astraeus-border);
   border-radius: var(--astraeus-radius);
@@ -100,8 +98,9 @@
 .astraeus-shell .timeline-panel-marker[aria-pressed="true"]::after { background: var(--astraeus-accent) !important; }
 
 /* Tablets and phones: two lines. Transport, time and speed above; scrubber and Events below. Sizes of the controls come from controls.css. */
-@container astraeus-viewer (max-width: 900px) {
-  .astraeus-shell .timeline-bar { right: var(--astraeus-space-4); bottom: calc(var(--astraeus-space-4) + env(safe-area-inset-bottom, 0px)); left: var(--astraeus-space-4); padding: var(--astraeus-space-4); }
+/* 876px: the timeline area is 24px narrower than the viewer (its side insets), so this keeps the two-line switch at a 900px viewer as before. */
+@container astraeus-timeline (max-width: 876px) {
+  .astraeus-shell .timeline-bar { margin-bottom: calc(var(--astraeus-space-4) + env(safe-area-inset-bottom, 0px)); padding: var(--astraeus-space-4); }
   .astraeus-shell .timeline-main-row { flex-wrap: wrap; gap: var(--astraeus-space-2) var(--astraeus-space-3); }
   .astraeus-shell .timeline-transport { gap: 0; }
   .astraeus-shell .timeline-time { margin-left: auto; font-size: var(--astraeus-text-s); }
@@ -112,9 +111,6 @@
   .astraeus-shell .timeline-track { height: var(--astraeus-hit); }
   .astraeus-shell .timeline-track input[type="range"] { height: var(--astraeus-hit); }
 }
-
-/* No timeline (experience.hideTimeline): nothing sits at the bottom, so nothing is reserved for it on a wide or a phone screen. */
-.astraeus-shell:is(main)[data-timeline-hidden="true"] { --timeline-space: 0px; }
 
 /* Markers that sit closer than the minimum spacing gather under one numbered mark; pressing it lists them, each a full-size button. The list opens above the track, aligned to the screen side the mark is near so it stays on a phone. */
 .astraeus-shell .timeline-marker-group { position: absolute; top: 0; height: 100%; width: var(--astraeus-size-1); transform: translateX(-50%); pointer-events: none; }
