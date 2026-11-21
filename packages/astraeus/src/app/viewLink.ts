@@ -1,4 +1,5 @@
 import { isSkyView, MAX_ELEVATION_DEG, validateSkyView, validateStartView, wrapAzimuth, type CameraView, type SkyView, type StartView } from "../core/startView";
+import { timeInputMs } from "../core/timeInput";
 
 export { validateStartView, type CameraView, type SkyView, type StartView };
 
@@ -58,7 +59,7 @@ export function viewFromSearch(search: string): CameraView | undefined {
 export function timeFromSearch(search: string): number | undefined {
   const raw = new URLSearchParams(search).get("t");
   if (raw === null) return undefined;
-  const ms = Date.parse(raw);
+  const ms = timeInputMs(raw);
   return Number.isFinite(ms) ? ms : undefined;
 }
 

@@ -2,7 +2,7 @@
 id: T-348
 title: Refuse date-time text that does not say its time zone
 objective: O-083
-status: planned
+status: done
 depends_on: []
 check_waiver: {task: T-348, reason: 'Owner said "work through this list of objectives one by one. Orchestrate each objective to completion" (G-024 decision 7): standing orchestration rules waive the optional step checks; the mandatory Full Objective Check covers the whole diff.', actor: {role: owner, session: orchestrate-g024-20261121}, recorded_at: '2026-11-21T11:22:41Z'}
 owner_validation: {required: false}
@@ -65,8 +65,21 @@ Focused: `npx vitest run packages/astraeus/tests/timeText.test.ts packages/astra
 
 ## Technical Evidence
 
-Pending execution.
+| Done When | Evidence |
+|---|---|
+| `timeInputMs` accepts only date-only / zoned date-time forms | `tests/timeText.test.ts` table (7 accepted, 8 refused rows) x 6 entry points x 3 process zones; zone-less and free-form rows were seen failing (accepted) before the change |
+| `toUtcMs` specific `bad-time` message, generic kept | `timeText.test.ts` message tests |
+| Page address `t` reads through `timeInputMs` | `timeFromSearch` rows in the table; `addressNavigation` green |
+| `TimeInput` doc comments state the forms | `core/timeInput.ts`, `api/time.ts` |
+| New table test over toUtcMs, setTime, setTimeline start/end, story panel at.time, page `t`, TZ UTC/Sydney/LA | `timeText.test.ts` |
+| Repo search for zone-less text | `grep -rnE "[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9:.]+[\"'\`]"` over the repo (excluding docs, .savepoint, node_modules): only `showersYearHorizons.test.ts` lines 82-83 (expected-output strings from `toISOString().slice`); site/browser scripts and demos use `Z` text. Other `Date.parse` sites read record fields already demanding `Z`. |
+| Existing tests unchanged and green | focused run: timeText + addressNavigation + publicApi 310 passed; gates below |
+
+Files: `core/timeInput.ts`, `api/time.ts`, `app/viewLink.ts`, `tests/timeText.test.ts`. Gates: lint, typecheck, build clean; full test result in the coordinator report.
+
 
 ## Drift Notes
 
-Record for Design reconciliation: accepted moment text forms.
+Accepted moment text forms (Design reconciliation): `YYYY-MM-DD` (midnight UTC) or `YYYY-MM-DDTHH:MM[:SS[.fraction]]` plus `Z` or `±HH:MM`; zone-less date-time and free forms are NaN from `timeInputMs` (`bad-time` / `bad-panels` / ignored page `t`). `isZonelessDateTime` exported from `core/timeInput.ts` for the specific message.
+
+Coordinator (orchestrate-g024-20261121): with T-343, T-347, T-348, T-351 and T-352 all in the tree and no builder running, the coordinator ran `npm run api:lock` (one-line lock change: the widened `out-of-span` comment) and the hand-off gates: lint, typecheck, build ok; `npm test` 296 files, 4946 passed, 2 skipped, 0 failed. `status: done` set by the coordinator under the standing orchestration rule ("I mark them as they pass", O-038) and G-024 decision 7.
