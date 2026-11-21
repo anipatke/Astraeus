@@ -1,12 +1,12 @@
 ---
 id: O-085
 title: Tests that check what they claim
-status: in_progress
+status: done
 depends_on: []
 release: G-024
 priority: high
 rank: 4
-last_check: C-199
+last_check: C-201
 lanes: [{key: timing, title: Timing warnings}, {key: numbers, title: Rate tolerance}, {key: timeout, title: One timeout}, {key: views, title: Views playing state}, {key: assertions, title: Empty checks}, {key: shaders, title: Patched shaders}, {key: atmosphere, title: Atmosphere log depth}, {key: handedness, title: Render handedness}, {key: layers, title: Core whitelist}]
 ---
 
@@ -59,3 +59,4 @@ TEST guardrails; the owner's no-screenshot browser rule stands. Shader work touc
 ## Parked (2026-11-22, orchestrate-g024-20261121)
 
 Eight of nine Tasks are done; T-367 (Earth's glow on the log-depth buffer) is built and tested and waits only for the owner's look on localhost:5490 (G-024 decision 7, "Park it, move to the next"). Preliminary Full Objective Check C-199 is CLEAR technically. Left unmerged on branch `o085-tests-that-check-what-they-claim`. After the look: accept T-367 against C-199 and set it done, close O-085, fast-forward merge to main and push.
+- Owner, 2026-11-22: "earth glow looks right, accept T-367". O-085 set done by the orchestrating session after re-check C-201 CLEAR (G-024 decision 7, "Orchestrate each objective to completion"; "CLEAR: fast-forward merge to main and push").
