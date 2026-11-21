@@ -2,7 +2,7 @@ import type { BodyId } from "../core/body";
 import type { Provenance } from "../core/provenance";
 import type { ActivitySourceInput } from "./activity";
 import type { LineStretchInput } from "./pathProvenance";
-import { readableScale, solarSystemScale, trueScale, type ScalePolicy } from "../core/scalePolicy";
+import { readableScale, solarSystemScale, trueScale, type ScaleId, type ScalePolicy } from "../core/scalePolicy";
 import type { State } from "../core/state";
 import { createStateResolver } from "../core/stateResolver";
 import { createOrbAstronomyAdapter } from "../core/astronomyAdapter";
@@ -292,7 +292,7 @@ export class Scene {
   }
 
   /** The scale choices the viewer will offer, in order, as ids ("true-scale", "readable-scale", "solar-system"); the first is the opening scale and `setScale(.., { only: true })` leaves just that one. */
-  get scales(): readonly string[] { return Object.freeze(this.#plan.scaleChoices(this.#scale, this.#scaleOnly)); }
+  get scales(): readonly ScaleId[] { return Object.freeze(this.#plan.scaleChoices(this.#scale, this.#scaleOnly)); }
 
   /** The activities added with `addActivity`, in the order added: each one's `id`, `label`, `unit`, span, peak and curve in UTC milliseconds, and where its stretches come from. Fresh, frozen and a copy of what was given, so editing the list or the input afterwards changes nothing. */
   get activities(): readonly SceneActivityRead[] { return this.#groupPlan.activityReads(); }

@@ -1,3 +1,4 @@
+import type { ScaleId } from "../core/scalePolicy";
 /**
  * The looks of a running viewer (O-056 T-262). `skySettingsOf` is the sky as a look lays it over the experience's own; `lookReadOf` reads the looks in force back from the scene's live controls
  * (the one place the Developer drawer, the host's `setLook` and the page address all end up), every one filled in; `applyLook` replaces the whole look. Presentation only (ARCH-02).
@@ -109,13 +110,13 @@ export function applyLook(controls: SceneControls, definition: ExperienceDefinit
 export interface LivePresentation {
   switches(): Readonly<Record<string, boolean>>;
   setLook(look: LookInput): void;
-  setScale(id: string): void;
+  setScale(id: ScaleId): void;
   setSwitch(id: string, on: boolean): void;
 }
 
 /** The host's view of the presentation: `items` (read fresh each time) are the display switches the scene placed (those with something to act on), so a switch is read and set exactly as its visible button does. */
 export function presentationOf(
-  parts: { readonly setLook: (look: LookInput) => void; readonly setScale: (id: string) => void; readonly items: () => readonly DisplaySwitchItem[] },
+  parts: { readonly setLook: (look: LookInput) => void; readonly setScale: (id: ScaleId) => void; readonly items: () => readonly DisplaySwitchItem[] },
 ): LivePresentation {
   return {
     switches: () => Object.fromEntries(parts.items().map(({ id, on }) => [id, on])),

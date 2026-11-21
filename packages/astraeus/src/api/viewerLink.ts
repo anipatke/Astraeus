@@ -1,3 +1,4 @@
+import type { ScaleId } from "../core/scalePolicy";
 import type { ViewerChangeCause, ViewerPort, ViewerState } from "../app/viewerPort";
 import type { ViewerControl } from "../app/viewerPort";
 import { SceneError } from "./errors";
@@ -31,7 +32,7 @@ export interface ViewerChange {
   /** Only in a scene with views: the id of the view showing. */
   readonly view?: string;
   /** The id of the scale showing. */
-  readonly scale: string;
+  readonly scale: ScaleId;
   /** The looks in force, every one filled in (what `look` reads). */
   readonly look: LookRead;
   /** Only in a scene that placed display switches: each placed switch, on or off (what `switches` reads). */
@@ -231,7 +232,7 @@ export class ViewerLink implements ViewerPort {
   get skyFigures(): readonly SceneSkyFigureRead[] | undefined { const control = this.#access.control(); return control === undefined ? undefined : control.skyFigures ?? []; }
 
   get look(): LookRead | undefined { return this.#looks.look; }
-  get scale(): string | undefined { return this.#looks.scale; }
+  get scale(): ScaleId | undefined { return this.#looks.scale; }
   get switches(): Readonly<Record<string, boolean>> | undefined { return this.#looks.switches; }
 
   // Each member below is documented where it is done: viewerClock, viewerViews, viewerCamera, viewerZones, viewerSelection.
@@ -241,7 +242,7 @@ export class ViewerLink implements ViewerPort {
   setPlaying(playing: boolean): void { this.#clock.setPlaying(playing); this.#afterHost(); }
   setCamera(target: CameraTarget): void { this.#camera.setCamera(target); }
   setLook(look: LookInput): void { this.#looks.setLook(look); this.#afterHost(); }
-  setScale(id: string): void { this.#looks.setScale(id); this.#afterHost(); }
+  setScale(id: ScaleId): void { this.#looks.setScale(id); this.#afterHost(); }
   setSwitch(id: string, on: boolean): void { this.#looks.setSwitch(id, on); this.#afterHost(); }
   groupLook(id: string): GroupLookRead | undefined { return this.#looks.groupLook(id); }
   /** Presentation only: moves no clock, view or selection, so nothing is published. */

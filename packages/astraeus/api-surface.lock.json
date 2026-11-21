@@ -75,7 +75,7 @@
         {
           "name": "scales",
           "optional": false,
-          "signature": "readonly string[]"
+          "signature": "readonly ScaleId[]"
         },
         {
           "name": "activities",
@@ -3657,12 +3657,12 @@
         {
           "name": "scale",
           "optional": false,
-          "signature": "string | undefined"
+          "signature": "ScaleId | undefined"
         },
         {
           "name": "setScale",
           "optional": false,
-          "signature": "(id: string): void"
+          "signature": "(id: ScaleId): void"
         },
         {
           "name": "skyFigures",
@@ -3854,12 +3854,12 @@
         {
           "name": "scale",
           "optional": false,
-          "signature": "string | undefined"
+          "signature": "ScaleId | undefined"
         },
         {
           "name": "setScale",
           "optional": false,
-          "signature": "(id: string): void"
+          "signature": "(id: ScaleId): void"
         },
         {
           "name": "skyFigures",
@@ -4098,7 +4098,7 @@
         {
           "name": "scale",
           "optional": false,
-          "signature": "string"
+          "signature": "ScaleId"
         },
         {
           "name": "look",
@@ -4486,6 +4486,12 @@
       "constructors": [],
       "members": []
     },
+    "ScaleId": {
+      "kind": "type",
+      "signature": "\"true-scale\" | \"readable-scale\" | \"solar-system\"",
+      "constructors": [],
+      "members": []
+    },
     "ScalePolicy": {
       "kind": "interface",
       "signature": "",
@@ -4494,7 +4500,7 @@
         {
           "name": "id",
           "optional": false,
-          "signature": "string"
+          "signature": "ScaleId"
         },
         {
           "name": "mapPosition",

@@ -6,7 +6,7 @@ import { ChevronIcon, InfoIcon, ScaleIcon } from "./topBarIcons";
 import { usePopup } from "./panels/PopupContext";
 
 interface Props {
-  readonly scaleId: ScaleId;
+  readonly scaleId: string;
   readonly onScaleChange: (id: ScaleId) => void;
   /** The choices to offer; the engine's True and Readable pair when the application supplies none. */
   readonly choices?: readonly ScaleChoice[];

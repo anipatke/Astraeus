@@ -1,6 +1,6 @@
-import { readableScale, trueScale, type ScalePolicy } from "../core/scalePolicy";
+import { readableScale, trueScale, type ScaleId, type ScalePolicy } from "../core/scalePolicy";
 
-export type ScaleId = string;
+export type { ScaleId };
 
 export interface ScaleChoice {
   readonly id: ScaleId;
@@ -31,7 +31,7 @@ const SOLAR_SYSTEM_CHOICE: ScaleChoice = {
 const KNOWN_CHOICES: readonly ScaleChoice[] = [...SCALE_CHOICES, SOLAR_SYSTEM_CHOICE];
 
 /** The choices an application offers, in its order, with the engine's wording. An unknown id is a mistake, not a fallback. */
-export function scaleChoicesFor(ids: readonly ScaleId[]): readonly ScaleChoice[] {
+export function scaleChoicesFor(ids: readonly string[]): readonly ScaleChoice[] {
   return ids.map((id) => {
     const choice = KNOWN_CHOICES.find((candidate) => candidate.id === id);
     if (choice === undefined) throw new RangeError(`unknown scale choice: ${id}`);
@@ -42,14 +42,14 @@ export function scaleChoicesFor(ids: readonly ScaleId[]): readonly ScaleChoice[]
 export const SCALE_NOTE = "Only the picture changes. Positions, distances, speeds and times in the readouts are the same under both.";
 
 /** The policy a choice selects: one the application supplies, else True or Readable (the default is True). */
-export function scalePolicyFor(id: ScaleId, supplied: readonly ScalePolicy[] = []): ScalePolicy {
+export function scalePolicyFor(id: string, supplied: readonly ScalePolicy[] = []): ScalePolicy {
   const own = supplied.find((policy) => policy.id === id);
   if (own !== undefined) return own;
   return id === readableScale.id ? readableScale : trueScale;
 }
 
 /** The scale to start in: the address's, when this experience offers it, else the experience's first (True when it states none). */
-export function startScaleFor(linked: ScaleId | undefined, offered: readonly ScaleId[] | undefined): ScaleId {
-  const ids = offered ?? SCALE_CHOICES.map((choice) => choice.id);
-  return linked !== undefined && ids.includes(linked) ? linked : offered?.[0] ?? "true-scale";
+export function startScaleFor(linked: string | undefined, offered: readonly ScaleId[] | undefined): ScaleId {
+  const ids: readonly ScaleId[] = offered ?? SCALE_CHOICES.map((choice) => choice.id);
+  return ids.find((id) => id === linked) ?? offered?.[0] ?? "true-scale";
 }

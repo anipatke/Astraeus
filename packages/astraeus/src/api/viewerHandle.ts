@@ -1,3 +1,4 @@
+import type { ScaleId } from "../core/scalePolicy";
 import type { LookInput, LookRead } from "./look";
 import type { GroupLookInput, GroupLookRead } from "./groupLookInput";
 import type { PickChange } from "./pickerInput";
@@ -74,9 +75,9 @@ export interface ViewerHandle {
   /** Changes a group's dot colour and size (and its label's colour) from the next frame without a rebuild; fields left out keep their value. Presentation only; `Scene.groups` is unchanged. A bad id or value throws `bad-group`; before `ready` or after `unmount`, `not-mounted`. */
   setGroupLook(id: string, look: GroupLookInput): void;
   /** The id of the scale showing; undefined until `ready` has resolved and after `unmount`. */
-  readonly scale: string | undefined;
+  readonly scale: ScaleId | undefined;
   /** Switches to one of the scales the viewer offers (`Scene.scales`); any other id throws `bad-scale`; before `ready` or after `unmount`, `not-mounted`. `onChange` hears it with `cause: "host"`. */
-  setScale(id: string): void;
+  setScale(id: ScaleId): void;
   /** The sky figures the viewer draws (`Scene.addSkyFigures`), in the order added: id, label and kind; empty when the scene added none; undefined until `ready` has resolved and after `unmount`. */
   readonly skyFigures: readonly SceneSkyFigureRead[] | undefined;
   /**

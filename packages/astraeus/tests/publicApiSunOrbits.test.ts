@@ -204,6 +204,6 @@ describe("setScale(solarSystemScale)", () => {
   it("refuses it elsewhere with a bad-scale error, and names all three scales for a made-up one", () => {
     expect(codeOf(() => definitionOf(solar().addBody(earth).setScale(solarSystemScale)))).toMatch(/^bad-scale: .*Solar system scale needs a Sun-centred scene with an enlarged body/);
     expect(codeOf(() => definitionOf(new Scene().addBody(earth, { enlarge: 20 }).addBody(mars).setTime(T0).setScale(solarSystemScale)))).toMatch(/^bad-scale/);
-    expect(codeOf(() => solar().setScale({ ...readableScale, id: "made-up" }))).toMatch(/trueScale, readableScale or solarSystemScale/);
+    expect(codeOf(() => solar().setScale({ ...readableScale, id: "made-up" as never }))).toMatch(/trueScale, readableScale or solarSystemScale/);
   });
 });

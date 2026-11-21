@@ -1,9 +1,11 @@
 import { EARTH, type BodyId } from "./body";
 
-/** How kilometres become scene units: a position mapping and a radius mapping. `trueScale` and `readableScale` are the two the engine offers. */
+/** The three scales the engine offers; `setScale` accepts only these. */
+export type ScaleId = "true-scale" | "readable-scale" | "solar-system";
+
+/** How kilometres become scene units: a position mapping and a radius mapping. The engine offers three (`trueScale`, `readableScale`, `solarSystemScale`); `ScaleId` names them and `setScale` accepts no other. */
 export interface ScalePolicy {
-  /** Open: an application may supply policies beyond the engine's own three. */
-  readonly id: string;
+  readonly id: ScaleId;
   mapPosition(positionKm: ArrayLike<number>): Float64Array;
   /**
    * Present when `mapPosition` is exactly a plain multiplication of every component by this number (scaled units per km), so a
@@ -25,7 +27,7 @@ function validatePosition(positionKm: ArrayLike<number>): void {
 }
 
 abstract class EarthRadiusScale implements ScalePolicy {
-  abstract readonly id: string;
+  abstract readonly id: ScaleId;
   protected abstract readonly distanceFactor: number;
 
   get linearUnitsPerKm(): number {

@@ -178,7 +178,7 @@ export interface ExperienceDefinition {
   /** Per-body presentation overrides; state is untouched. */
   readonly visualOverrides?: Readonly<Record<BodyId, VisualOverride>>;
   /** The scale choices offered, in order; the first is the starting one. Default: true and readable scale. */
-  readonly scaleChoices?: readonly ScaleId[];
+  readonly scaleChoices?: readonly string[];
   /** Drawn only when the `tracked-bodies` layer is listed. */
   readonly trackedBodies: readonly TrackedBody[];
   /** Drawn only when the `points` layer is listed. */
@@ -274,8 +274,7 @@ export function scaleChoiceIdsOf(definition: ExperienceDefinition): readonly Sca
   if (ids === undefined) return undefined;
   if (ids.length === 0) throw new RangeError("scaleChoices must name at least one choice");
   if (new Set(ids).size !== ids.length) throw new RangeError(`scaleChoices lists a choice twice: ${ids.join(", ")}`);
-  scaleChoicesFor(ids);
-  return ids;
+  return scaleChoicesFor(ids).map((choice) => choice.id);
 }
 
 /** The validated overrides: every body catalogued, every enlargement finite and at least 1. Empty when none are declared. */

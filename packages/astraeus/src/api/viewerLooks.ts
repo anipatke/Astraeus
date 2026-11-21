@@ -1,3 +1,4 @@
+import type { ScaleId } from "../core/scalePolicy";
 import { SceneError } from "./errors";
 import type { LookInput, LookRead } from "./look";
 import { checkedLook } from "./lookInput";
@@ -12,7 +13,7 @@ export class ViewerLooks {
   get look(): LookRead | undefined { return this.access.control()?.read().look; }
 
   /** The id of the scale showing; undefined like `look`. */
-  get scale(): string | undefined { return this.access.control()?.read().scale; }
+  get scale(): ScaleId | undefined { return this.access.control()?.read().scale; }
 
   /** The display switches the scene placed, each on or off (empty when it placed none); undefined like `look`. */
   get switches(): Readonly<Record<string, boolean>> | undefined { return this.access.control()?.read().switches; }
@@ -24,7 +25,7 @@ export class ViewerLooks {
   }
 
   /** Switches to one of the scales the viewer offers (`Scene.scales`); any other id throws `bad-scale`. */
-  setScale(id: string): void {
+  setScale(id: ScaleId): void {
     const control = this.access.open("setScale");
     if (!control.scales.includes(id)) throw new SceneError("bad-scale", `setScale: "${String(id)}" is not one of the scales this viewer offers (${control.scales.join(", ")})`);
     control.setScale(id);

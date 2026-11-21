@@ -1,3 +1,4 @@
+import type { ScaleId } from "../core/scalePolicy";
 import type { TimelineEvent } from "../core/events";
 import type { TimeBounds } from "../core/trajectory";
 import type { CameraRequest } from "./CameraController";
@@ -23,7 +24,7 @@ export interface ViewerState {
   /** The id of the story panel open; absent when none is. */
   readonly panel?: string;
   /** The id of the scale showing. */
-  readonly scale: string;
+  readonly scale: ScaleId;
   /** The looks in force, every one filled in. */
   readonly look: LookRead;
   /** The display switches the scene placed (those with something to act on), each on or off; empty when it placed none. */
@@ -55,9 +56,9 @@ export interface ViewerControl {
   /** Switches to the view with this id (one of `views`), as a visitor's button does. */
   setView(id: string): void;
   /** The ids of the scales the viewer offers, in order. */
-  readonly scales: readonly string[];
+  readonly scales: readonly ScaleId[];
   /** Switches to the scale with this id (one of `scales`), as a visitor's scale buttons do. */
-  setScale(id: string): void;
+  setScale(id: ScaleId): void;
   /** Sets the whole look (already checked); a look not named takes its default. A live set wins over the page address, which only starts the viewer. */
   setLook(look: LookInput): void;
   /** Turns the display switch `id` (one of the keys of `read().switches`) on or off, as a visitor's switch does. */

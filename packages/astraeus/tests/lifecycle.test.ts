@@ -366,7 +366,7 @@ describe.each([mountDriver, reactDriver(false)])("lifecycle: $name", (driver) =>
     expect(codeOf(() => handle.setLook({ labels: { fontFamily: " " } }))).toBe("bad-look");
     expect(heard.at(-1)?.scale).toBe("readable-scale");
     expect(codeOf(() => handle.setLook({ starBrightness: 9 }))).toBe("bad-look");
-    expect(codeOf(() => handle.setScale("nope"))).toBe("bad-scale");
+    expect(codeOf(() => handle.setScale("nope" as never))).toBe("bad-scale");
     expect(codeOf(() => handle.setSwitch("labels", false))).toBe("bad-switch"); // this scene placed no switches
     expect(handle.switches).toEqual({});
     opened.unmount();

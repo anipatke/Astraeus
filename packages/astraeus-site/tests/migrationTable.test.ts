@@ -24,6 +24,7 @@ const WIDENED = new Map([
   ["ViewCameraInput", "a follow or focus framing also takes always: true (0.8.1)"],
   ["SwitchesInput", "each switch also takes label, its own name in the bar and the panel"],
   ["TimelineInput", "a span timeline also takes playing: false, to open paused"],
+  ["ScalePolicy.id", "typed as the three built-in ScaleIds (O-083 T-346); setScale already refused any other id with bad-scale, so no working host changes"],
 ]);
 
 const rowsOf = (text: string): Row[] => {

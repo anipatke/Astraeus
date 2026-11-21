@@ -541,7 +541,7 @@ export function App({ definition, writeTitle = true, address, developerTools, ho
   const hostCameraSet = useCallback(() => controls.current.hostCameraRequest != null, []);
   const hostScales = useMemo(() => scaleChoiceIds ?? SCALE_CHOICES.map((choice) => choice.id), [scaleChoiceIds]);
   const hostSetLook = useCallback((look: LookInput) => live.current?.setLook(look), []);
-  const hostSetScale = useCallback((id: string) => live.current?.setScale(id), []);
+  const hostSetScale = useCallback((id: ScaleId) => live.current?.setScale(id), []);
   const hostClearSkyTrace = useCallback((id: string, seconds: number) => { controls.current.skyTraces.push({ id, seconds, reduced: prefersReducedMotion() }); }, []);
   const hostTraceSkyFigure = useCallback((id: string, seconds: number, after: SkyTraceAfter) => { controls.current.skyTraces.push({ id, seconds, after, reduced: prefersReducedMotion() }); }, []);
   const hostSetSwitch = useCallback((id: string, on: boolean) => live.current?.setSwitch(id, on), []);
