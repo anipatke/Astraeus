@@ -4,6 +4,7 @@ title: Use one reliable Kepler solver across the science core
 objective: O-082
 status: planned
 depends_on: []
+check_waiver: {task: T-341, reason: 'Owner said "work through this list of objectives one by one. Orchestrate each objective to completion" (G-024 decision 7): standing orchestration rules waive the optional step checks; the mandatory Full Objective Check covers the whole diff.', actor: {role: owner, session: orchestrate-g024-20261121}, recorded_at: '2026-11-21T11:00:13Z'}
 owner_validation: {required: false}
 planned_by: {role: planner, session: plan-g024-20261121}
 lane: solver
