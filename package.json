@@ -17,6 +17,7 @@
     "apollo11:reconstruct": "node packages/astraeus-demo-apollo11/tools/apollo11/run.mjs",
     "check:gates": "node tools/time-gates.mjs",
     "check:engine-alone": "node tools/check-engine-alone.mjs",
+    "check:three-newest": "node tools/check-engine-alone.mjs --three newest",
     "check:pack": "node tools/check-packs.mjs",
     "check:public-build": "node tools/check-public-build.mjs",
     "check:shelf-split": "node tools/check-shelf-split.mjs",

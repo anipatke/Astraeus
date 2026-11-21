@@ -10,7 +10,7 @@ A 3D solar system for the browser. Place bodies and recorded paths in a scene, m
 npm install astraeus react react-dom @react-three/fiber three
 ```
 
-`react` (19), `react-dom` (19), `@react-three/fiber` (9.8.2 or later 9.x) and `three` (0.169 or later) are peer dependencies: your app's own copies are used, so install them beside `astraeus` (npm 7 and later installs missing peers for you).
+`react` (19), `react-dom` (19), `@react-three/fiber` (9.8.2 or later 9.x) and `three` (0.169 up to, not including, 0.181) are peer dependencies: your app's own copies are used, so install them beside `astraeus` (npm 7 and later installs missing peers for you).
 
 A plain-JavaScript page still needs React: `mount` draws the viewer with React and `@react-three/fiber` inside, so all four peers must be installed even if your own code never touches React.
 

@@ -71,6 +71,7 @@ export function reactCappers(appDir, newest) {
 
 const consumerScript = [
   'import { createRequire } from "node:module";',
+  'import { readFileSync } from "node:fs";',
   'import { createElement } from "react";',
   'import { renderToString } from "react-dom/server";',
   'import { AstraeusScene, Scene, earth, sun } from "astraeus";',
@@ -79,7 +80,7 @@ const consumerScript = [
   "scene.check(); // throws a SceneError when the scene does not build",
   "const html = renderToString(createElement(AstraeusScene, { scene, data: [] }));",
   'if (typeof html !== "string" || html.length === 0) throw new Error("AstraeusScene rendered nothing");',
-  'console.log(JSON.stringify({ react: require("react/package.json").version, reactDom: require("react-dom/package.json").version, rendered: html.length }));',
+  'console.log(JSON.stringify({ react: require("react/package.json").version, reactDom: require("react-dom/package.json").version, three: JSON.parse(readFileSync("node_modules/three/package.json", "utf8")).version, rendered: html.length }));',
   "",
 ].join("\n");
 
@@ -104,7 +105,7 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     writeFileSync(join(app, "consumer.mjs"), consumerScript);
     const out = JSON.parse(run(process.execPath, ["consumer.mjs"], app, true).trim().split("\n").pop());
     console.log(
-      `installed: react ${out.react}, react-dom ${out.reactDom}; AstraeusScene rendered ${out.rendered} characters on the server`,
+      `installed: react ${out.react}, react-dom ${out.reactDom}, three ${out.three}; AstraeusScene rendered ${out.rendered} characters on the server`,
     );
     if (!/^19\.\d+\.\d+$/.test(out.react) || !/^19\.\d+\.\d+$/.test(out.reactDom))
       throw new Error(`installed react ${out.react} / react-dom ${out.reactDom}, not a 19.x`);

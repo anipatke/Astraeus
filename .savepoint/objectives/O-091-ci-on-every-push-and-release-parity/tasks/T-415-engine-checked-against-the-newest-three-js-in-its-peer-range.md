@@ -2,7 +2,7 @@
 id: T-415
 title: Engine checked against the newest three.js in its peer range
 objective: O-091
-status: planned
+status: done
 depends_on: []
 owner_validation: {required: false}
 check_waiver: {task: T-415, reason: 'Owner said "work through this list of objectives one by one. Orchestrate each objective to completion" (G-024 decision 7) and "I am remote now, add park the check and move on" (2026-11-22): standing orchestration rules waive the optional step checks; the mandatory Full Objective Check covers the whole diff.', actor: {role: owner, session: orchestrate-g024-20261122}, recorded_at: '2026-11-21T23:30:07Z'}
@@ -73,8 +73,41 @@ No change to engine source or tests (a failure is reported, not fixed); no chang
 
 ## Technical Evidence
 
-Pending execution.
+Extra read (not planned): `tools/check-react-consumer.mjs` lines 35-42 and 86-125 (planned read, specific lines) and root `package.json` scripts, to place the edits.
+
+Newest-three result (`npm run check:three-newest`, 2026-11-22): three 0.187.0 (REVISION 187), @types/three 0.187.0 -> FAIL at typecheck (0.9 s). Run again with `--keep-going` (all steps): typecheck FAIL, lint pass (4.1 s), test pass (247 files, 4202 passed, 1 skipped, 18.7 s). So the only failure is types, no runtime or lint failure.
+
+Type errors (first, same in 0.181 to 0.187): `packages/astraeus/src/app/useBodyTexture.ts(8,12): TS2416 Property 'load' in type 'SafeTextureLoader' is not assignable to the same property in base type 'TextureLoader'` (the `onLoad` callback's texture is `Texture<unknown>` where three's types now give `Texture<HTMLImageElement>`). From 0.182 and 0.183 also `packages/astraeus/tests/glowAndHooksDom.test.ts(31,71): TS2739 Type 'CanvasRenderingContext2D' is missing the following properties from type 'GPUCanvasContext'`.
+
+Bisect (each `node tools/check-engine-alone.mjs --three <v>`; @types/three same minor): 0.186.1 FAIL typecheck; 0.185.1 FAIL; 0.184.0 FAIL; 0.183.2 FAIL (2 errors); 0.182.0 FAIL (2 errors); 0.181.2 FAIL (2 errors); 0.180.0 pass (typecheck, lint, test, 30.3 s); 0.179.1, 0.178.0, 0.177.0, 0.176.0 pass. M = 180. Lower minors (0.175 and below to 0.170) not run (0.169 is the locked version, proved by every gate).
+
+Narrowing: `packages/astraeus/package.json` `peerDependencies.three` `>=0.169.0 <1` -> `>=0.169.0 <0.181.0`. `npm install --package-lock-only --ignore-scripts` ran; the lock diff is one line, the engine workspace's `three` peer entry (`package-lock.json` line 3952), nothing else. README line 13 and the `## 0.10.0 (proposed)` section of `packages/astraeus/CHANGELOG.md` (one bullet) updated.
+
+After narrowing: `npm run check:three-newest` -> three 0.180.0 (REVISION 180), @types/three 0.180.0; typecheck pass 0.8 s, lint pass 3.5 s, test pass 21.5 s, engine alone pass in 30.3 s. `npm run check:engine-alone` (no flag) pass in 24.9 s (typecheck 0.9, lint 3.5, test 17.7). `npm run check:react-consumer`: `installed: react 19.3.1, react-dom 19.3.1, three 0.180.0; ... pass` (first run failed: three's `exports` hides `three/package.json`; fixed by reading `node_modules/three/package.json` with `readFileSync`).
+
+Hand-off gates (under the gates flock): `npm run lint` pass (ESLint + Prettier), `npm run typecheck` pass, `npm run build` pass, `npm test` 324 files passed, 5319 passed, 2 skipped. No engine source or test changed, so `check:pack` was not run.
+
+| Done When | Evidence |
+|---|---|
+| `--three <version\|newest>`; no flag unchanged | `tools/check-engine-alone.mjs`: range read from the manifest, `semver.maxSatisfying` over `npm view`, literal checked against range, @types same minor with fallback, one prefix install in `<scratch>/.peers`, one-copy check via `npm ls three`, REVISION line; no-flag run passes with same steps |
+| Script entry | `package.json` `check:three-newest`; ran, printed `three 0.180.0 (REVISION 180), @types/three 0.180.0` |
+| react-consumer prints three | `installed: ... three 0.180.0` run above |
+| Run and record | results above |
+| Fails branch: narrow, lock, README, CHANGELOG, rerun | done as above |
+| build.md sentence | `docs/agents/build.md` Engine-alone gate bullet |
+| Unit test | none added: version choice is a one-line `semver.maxSatisfying`; npm resolution needs the network |
+| Gates + engine-alone | above |
+
+Limitations: the single-copy check and literal-version mismatch error paths were not exercised by a planted failure; a literal version outside the range was not run. `semver` is imported from the root `node_modules` (a transitive dependency, not a root devDependency). `--keep-going` flag added to `check-engine-alone.mjs` (not planned; runs every step after a failure) to record all failures of a newer three; no-flag behaviour unchanged.
+
+Files changed: tools/check-engine-alone.mjs, tools/check-react-consumer.mjs, package.json, docs/agents/build.md, packages/astraeus/package.json, package-lock.json (one line), packages/astraeus/README.md, packages/astraeus/CHANGELOG.md, this Task file.
 
 ## Drift Notes
 
-None yet.
+- For an Issue (coordinator to capture): the engine does not type-check against three 0.181 or later (`useBodyTexture.ts` `SafeTextureLoader.load` vs `TextureLoader.load`; from 0.182 also a `CanvasRenderingContext2D`/`GPUCanvasContext` error in `tests/glowAndHooksDom.test.ts`). Runtime tests and lint pass on 0.187. Fixing the engine is out of scope here; the peer range is narrowed to `<0.181.0` until it is fixed, then widen it and let `check:three-newest` prove it.
+- Design reconciliation: the peer range for three is now `>=0.169.0 <0.181.0` (any Design.md/README text stating `<1` or "0.169 or later"). Release workflow (T-414) re-proves it before publish; with the narrowed range it tests 0.180.x.
+- `docs/agents/build.md` also should name `--keep-going` if wanted; left out.
+
+## Coordinator (gates)
+
+Set done by the orchestrating session after the combined handoff gates passed with T-413, T-414 and T-415 together (owner: "I mark them as they pass", O-038; G-024 decision 7; owner 2026-11-22 "I am remote now, add park the check and move on"): lint and Prettier clean, typecheck clean, `npm test` 324 files, 5319 passed, 2 skipped; `npm run check:pack` pass, engine 1,836,378 B raw (cap 1,838,000).
