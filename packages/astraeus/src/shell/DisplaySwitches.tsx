@@ -1,3 +1,5 @@
+// Part: the display switches and the view choice, as bar buttons or rows in the switch panel pop-up.
+// Must not: set a position, layer, raw colour or raw size (areas/ places it, look.css holds the values), or open or close another part; the switch panel opens through the pop-up intent (PopupContext), never by itself.
 import { useId } from "react";
 import { usePopup } from "./panels/PopupContext";
 import { CompactSwitch, type SwitchForm } from "./SwitchControl";

@@ -1,3 +1,5 @@
+// Part helper: one small text label for a projected scene point or a timeline mark, as a React element or a DOM element.
+// Must not: set a raw colour or size of its own (a caller's data colour passes through), place itself in an area, or open any part.
 import type { CSSProperties } from "react";
 
 export interface LabelProps {

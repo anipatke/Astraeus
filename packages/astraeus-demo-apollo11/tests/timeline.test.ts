@@ -180,8 +180,9 @@ describe("timeline activity glow (T-084)", () => {
   it("glows evenly at the steady brightness when there is no rate (T-086)", () => {
     const look = { ...DEFAULT_TIMELINE_GLOW, steadyBrightness: 0.37 };
     const ahead = glowGradient(null, look, "ahead");
-    expect(ahead).toBe("linear-gradient(to right, rgba(207, 224, 255, 0.370) 0.000%, rgba(207, 224, 255, 0.370) 100.000%)");
-    expect(glowGradient(null, look, "played")).toContain("rgba(252, 99, 35, 0.622) 0.000%");
+    // I-186: the default glow names no colour; each part reads its look token at the same opacity (0.37 ahead, the played floor lifting it to 0.622).
+    expect(ahead).toBe("linear-gradient(to right, color-mix(in srgb, var(--astraeus-glow) 37.0%, transparent) 0.000%, color-mix(in srgb, var(--astraeus-glow) 37.0%, transparent) 100.000%)");
+    expect(glowGradient(null, look, "played")).toContain("color-mix(in srgb, var(--astraeus-accent) 62.2%, transparent) 0.000%");
     expect(glowTooltip([windows[1]], 5)).toBe("");
   });
 });

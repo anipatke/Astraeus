@@ -1,3 +1,5 @@
+// Part: the menu's container, a phone's swipe drawer or a wide bar's drop-down, holding what the fit rule put in the menu.
+// Must not: set a position, layer, raw colour or raw size (areas/ places it, look.css holds the values), or open or close another part; a chosen item is reported (`onItemChosen`) and the panel rule closes the menu.
 import type { ReactNode } from "react";
 import { MENU_HOST, POPUP_HOST_ATTRIBUTE } from "./panels/usePanels";
 import { useDrawerSwipe } from "./useDrawerSwipe";

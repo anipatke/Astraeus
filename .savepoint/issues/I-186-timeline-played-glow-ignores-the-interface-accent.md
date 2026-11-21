@@ -18,6 +18,16 @@ history:
     kind: observed
     note: 'C-191: DEFAULT_TIMELINE_GLOW.playedColor is "#fc6323" (shell/timelineGlow.ts:30), drawn as the inline --glow-played gradient; the accent is now #e8b06a and LookInput.interface.accent is documented to colour the played timeline. The drift check does not see colours computed in TypeScript.'
     check: C-191
+  - at: '2026-11-21T04:42:13Z'
+    actor: {role: executor, session: repair-o079-c191-20261121}
+    kind: repair_attempted
+    note: 'Repair: DEFAULT_TIMELINE_GLOW names no colour (color and playedColor optional, unset by default); glowGradient builds an unset part from its look token, color-mix(in srgb, var(--astraeus-accent) N%, transparent) for the played part and var(--astraeus-glow) ahead, at the same opacities as before, so the browser resolves them at the viewer root and a host interface.accent (set there as --astraeus-accent by interfaceLookVars) recolours the played glow. A colour set in the Developer drawer still draws rgba() of that colour. look.css gains the internal token --astraeus-glow: #cfe0ff (the ahead colour, unchanged); interfaceLook.ts INTERNAL_LOOK_COLOURS.glow lets the drawer''s picker show it; App.tsx glowColoursShown shows the set colour or the token in force (accent for played). Strategic check: lookDrift.test.ts gains ''look drift in TypeScript'': every non-test .ts/.tsx under src/shell is scanned for typed colours in strings; outside shell/look/ none may stand, inside it each must equal a look.css token value; named trip samples include the old playedColor: ''#fc6323''. One KNOWN entry left for an owner decision: shell/bodyFeatures.ts featureColor fallback ''#ffffff'' (place markers; the stylesheet already falls back to --astraeus-text); removing it means changing the existing assertion in sceneMoonPanelPlaces.test.ts:147, which I did not do. New tests/timelineGlowAccent.test.ts (default gradients read the tokens and type no colour, with and without a rate; host accent reaches the token; a set played colour overrides at equal opacities). Existing apollo11 tests/timeline.test.ts ''glows evenly at the steady brightness'' kept its input and now expects the token form at the same opacities (0.37 and 0.622): its old expected strings pinned the orange. Computed-look baseline regenerated (look:lock). CHANGELOG 0.9.5 (proposed) line added. Gates green.'
+    check: C-191
+  - at: '2026-11-21T04:51:54Z'
+    actor: {role: executor, session: repair-o079-c191-20261121}
+    kind: repair_attempted
+    note: 'Coordinator decisions (orchestrate-o079-20261121, recorded as instructed): (1) accepted that shell/bodyFeatures.ts featureColor fallback ''#ffffff'' stays as the one named KNOWN exception, with its reason, in the TypeScript colour scan; (2) accepted the changed expected strings in packages/astraeus-demo-apollo11/tests/timeline.test.ts ''glows evenly at the steady brightness'' (input unchanged; the old strings pinned the replaced orange); (3) accepted the computed-look baseline regenerated with npm run look:lock (only phone-place justify-content and the glow gradients changed).'
+    check: C-191
 ---
 
 # I-186: The timeline's played glow keeps the old orange and ignores the interface accent

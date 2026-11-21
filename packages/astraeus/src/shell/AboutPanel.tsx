@@ -1,3 +1,5 @@
+// Part: the About panel (title, status, credits, links, Built with Astraeus and version), drawn in the left place.
+// Must not: set a position, layer, raw colour or raw size (areas/ places it, look.css holds the values), or open or close another part; its close button reports `onClose` and the panel rule decides.
 import { useId, useRef } from "react";
 import type { AboutInput } from "../api/aboutInput";
 import { BUILT_WITH_URL, ENGINE_VERSION } from "../app/engineVersion";

@@ -1,3 +1,5 @@
+// Part: the host's picker switch, as buttons (full or short labels) or the fit rule's compact drop-down.
+// Must not: set a position, layer, raw colour or raw size (areas/ places it, look.css holds the values), or open or close another part; a press reports `choose` and never reads or writes the address.
 /** A choice a host offers between versions of its scene (a host's picker, `Scene.setPicker`): the control only reports a press, it never reads or writes the address. Names come from the host's data, never from the shell. */
 export interface ExperienceSwitch {
   /** The accessible name of the group. */

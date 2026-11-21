@@ -7,10 +7,10 @@ import { formatWindowRate, timePositionPercent, windowPeakRateText } from "./tim
 
 /** How the glow looks. Every number is a live setting in the Display settings panel. */
 export interface TimelineGlowLook {
-  /** The glow's colour before the playhead (#rrggbb). */
-  readonly color: string;
-  /** The glow's colour for the played part; keeps the accent. */
-  readonly playedColor: string;
+  /** The glow's colour before the playhead (#rrggbb); unset (the default): the look's `--astraeus-glow` token. */
+  readonly color?: string;
+  /** The glow's colour for the played part (#rrggbb); unset (the default): the look's accent, `--astraeus-accent`, so a host's `interface.accent` recolours it (I-186). */
+  readonly playedColor?: string;
   /** Brightness (0-1) where nothing happens. */
   readonly minBrightness: number;
   /** Brightness (0-1) of the whole line when the experience has no rate to follow. */
@@ -25,9 +25,8 @@ export interface TimelineGlowLook {
   readonly haloPx: number;
 }
 
+/** The defaults name no colour: both parts follow the look tokens until the Developer drawer sets one. */
 export const DEFAULT_TIMELINE_GLOW: TimelineGlowLook = {
-  color: "#cfe0ff",
-  playedColor: "#fc6323",
   minBrightness: 0.1,
   steadyBrightness: 0.5,
   curve: 0.45,
@@ -77,14 +76,22 @@ function rgb(hex: string): string {
   return `${(n >> 16) & 255}, ${(n >> 8) & 255}, ${n & 255}`;
 }
 
+/** The look token each part follows when the look names no colour for it. */
+const PART_TOKEN = { ahead: "var(--astraeus-glow)", played: "var(--astraeus-accent)" } as const;
+
+/** One stop's colour: the set colour at that opacity, or the part's token mixed to that opacity (resolved by the browser, so it follows the viewer's look). */
+function paint(set: string | undefined, part: "ahead" | "played", alpha: number): string {
+  return set === undefined ? `color-mix(in srgb, ${PART_TOKEN[part]} ${(alpha * 100).toFixed(1)}%, transparent)` : `rgba(${rgb(set)}, ${alpha.toFixed(3)})`;
+}
+
 /** A CSS gradient along the track (a null profile is the even glow) for the unplayed ("ahead") or played colour. */
 export function glowGradient(profile: readonly GlowStop[] | null, look: TimelineGlowLook, part: "ahead" | "played"): string {
-  const colour = rgb(part === "ahead" ? look.color : look.playedColor);
+  const set = part === "ahead" ? look.color : look.playedColor;
   // No rate to follow: two stops, the same brightness end to end.
   const stops = (profile ?? [{ percent: 0, value: 0 }, { percent: 100, value: 0 }]).map((stop) => {
     const b = profile === null ? Math.max(0, Math.min(1, look.steadyBrightness)) : glowBrightness(stop.value, look);
     const alpha = part === "ahead" ? b : look.playedFloor + (1 - look.playedFloor) * b;
-    return `rgba(${colour}, ${alpha.toFixed(3)}) ${stop.percent.toFixed(3)}%`;
+    return `${paint(set, part, alpha)} ${stop.percent.toFixed(3)}%`;
   });
   return `linear-gradient(to right, ${stops.join(", ")})`;
 }

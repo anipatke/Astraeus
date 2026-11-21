@@ -1,3 +1,5 @@
+// Part: the timeline bar (transport, time, speed, track, marks, activity glow, events list), drawn in the timeline place.
+// Must not: set a position, layer, raw colour or raw size (areas/ places it, look.css holds the values), or open or close another part; its pop-ups (events, a marker group) open through the pop-up intent, and the glow's colours are look tokens unless the Developer drawer sets one.
 import { usePopupPlace, openGroupKey, EVENTS_POPUP, GROUP_POPUP } from "./panels/PopupContext";
 import { POPUP_HOST_ATTRIBUTE } from "./panels/usePanels";
 import { useEffect, useId, useMemo, useRef, useState, type CSSProperties, type PointerEvent as ReactPointerEvent } from "react";

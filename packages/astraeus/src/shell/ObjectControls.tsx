@@ -1,3 +1,5 @@
+// Part: the object picker, Info and camera buttons as separate bar items, each with its priority and measuring ghost.
+// Must not: set a position, layer, raw colour or raw size (areas/ places it, look.css holds the values), or open or close another part; it does not decide what fits in the row (fitBar does).
 import type { ExperienceCameraPreset, ExperienceConfig } from "./experience";
 import { findCameraPreset, focusPresetFor, isObjectAvailable, listedFigures, listedObjects, relatedObjects, skyFigureById } from "./objectModel";
 import { ButtonText, FocusIcon, LookOutIcon, FollowIcon, InfoIcon, OrbitIcon, OverviewIcon } from "./topBarIcons";

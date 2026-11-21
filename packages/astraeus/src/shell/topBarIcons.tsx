@@ -1,3 +1,5 @@
+// Part helper: the bar's stroke icons and the button text that hides on narrow forms; decoration only, the button carries the name.
+// Must not: set a raw colour or size (icons use currentColor), place anything, or open any part.
 import type { ReactNode } from "react";
 
 /** The top bar's icons (stroke icons from the approved mock-up); each is decoration, the button carries the name. */

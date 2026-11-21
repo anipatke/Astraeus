@@ -45,7 +45,7 @@ import { TRACE_FADE_SECONDS, type SkyTraceAfter } from "../core/skyTrace";
 import { aimAtFigure, DEFAULT_SKY_LINES, prefersReducedMotion, skyColoursOf, skyFadeInSecondsOf } from "./skyFigures";
 import { labelStyleOf } from "./labelStyle";
 import { timeLookOf } from "./timeLook";
-import { interfaceLookOf } from "../shell/look/interfaceLook";
+import { INTERNAL_LOOK_COLOURS, interfaceLookOf } from "../shell/look/interfaceLook";
 import { experienceInView, hiddenByView, hiddenWithShownSpans, viewById } from "./viewHiding";
 import { cameraIdsOf } from "../core/storyPanels";
 import type { RingLook } from "../assets/rings";
@@ -258,6 +258,11 @@ const drawerWhen = (asked: boolean | undefined, drawer: ReactNode): ReactNode =>
 function useAbout(definition: ExperienceDefinition, host: ViewerPort | undefined) {
   const watch = useCallback((watcher: () => void) => host?.watchAbout(watcher) ?? (() => undefined), [host]);
   return useSyncExternalStore(watch, () => host?.aboutNow()) ?? definition.about;
+}
+
+/** The colours the Developer drawer's glow pickers show: the set colour, else the look token in force (the internal glow colour, the viewer's accent; I-186). */
+function glowColoursShown(glow: TimelineGlowLook, accent: string): { readonly ahead: string; readonly played: string } {
+  return { ahead: glow.color ?? INTERNAL_LOOK_COLOURS.glow, played: glow.playedColor ?? accent };
 }
 
 /**
@@ -704,8 +709,8 @@ export function App({ definition, writeTitle = true, address, developerTools, ho
       body: (
         <>
           <SettingGroup name="timeline-glow" title="Timeline glow">
-            <SettingColor label="Glow colour" ariaLabel="Timeline glow colour" testId="glow-color-value" value={timelineGlow.color} onChange={(color) => setTimelineGlow({ ...timelineGlow, color })} />
-            <SettingColor label="Played colour" ariaLabel="Timeline played colour" testId="glow-played-value" value={timelineGlow.playedColor} onChange={(playedColor) => setTimelineGlow({ ...timelineGlow, playedColor })} />
+            <SettingColor label="Glow colour" ariaLabel="Timeline glow colour" testId="glow-color-value" value={glowColoursShown(timelineGlow, interfaceShown.accent).ahead} onChange={(color) => setTimelineGlow({ ...timelineGlow, color })} />
+            <SettingColor label="Played colour" ariaLabel="Timeline played colour" testId="glow-played-value" value={glowColoursShown(timelineGlow, interfaceShown.accent).played} onChange={(playedColor) => setTimelineGlow({ ...timelineGlow, playedColor })} />
             {([
               ["minBrightness", "Quiet brightness", "Timeline quiet brightness", "glow-min-value", 0, 1, 0.01],
               ["steadyBrightness", "Steady brightness (no rate)", "Timeline steady brightness", "glow-steady-value", 0, 1, 0.01],

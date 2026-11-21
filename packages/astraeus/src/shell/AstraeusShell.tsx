@@ -1,3 +1,5 @@
+// Composition: turns the scene's state into the areas, the bar and the panels, and holds the selection and camera-preset logic still kept here.
+// Must not: hold a raw colour or size, or decide a place or what closes what itself (the areas, fitBar and panelRule decide; this file wires them).
 import { lazy, Suspense, useEffect, useId, useRef, useState, type ComponentProps, type ReactNode } from "react";
 import type { ClockSnapshot } from "../core/clock";
 import type { TimelineEvent } from "../core/events";

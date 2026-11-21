@@ -1,3 +1,5 @@
+// Part: the scale toggle or menu and its ⓘ explanation, a bar item.
+// Must not: set a position, layer, raw colour or raw size (areas/ places it, look.css holds the values), or open or close another part; its pop-ups open and close through the pop-up intent (the panel rule).
 import { useEffect, useId, useRef, type KeyboardEvent } from "react";
 import { SCALE_CHOICES, SCALE_NOTE, type ScaleChoice, type ScaleId } from "./scaleModel";
 import { ChevronIcon, InfoIcon, ScaleIcon } from "./topBarIcons";

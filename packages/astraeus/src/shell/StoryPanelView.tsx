@@ -1,3 +1,5 @@
+// Part: one story panel (badge, text, Back and Next), drawn in the right place (a phone's sheet).
+// Must not: set a position, layer, raw colour or raw size (areas/ places it, look.css holds the values), or open or close another part; it reports `onClose` and `onContinue`.
 import { useId, useRef } from "react";
 import { Sources } from "./Sources";
 import { PROVENANCE_STATUS } from "./infoModel";

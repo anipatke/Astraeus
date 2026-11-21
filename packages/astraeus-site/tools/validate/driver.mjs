@@ -92,6 +92,17 @@ async function reveal(page, locator) {
   await drawersSettled(page);
   return locator;
 }
+/**
+ * Reveals the control (opening the menu that holds it when it is hidden, as on a phone), runs `act` on it, then puts the menu back as it was:
+ * closed again when it was closed (I-184: a read must not leave the menu open; a press marked `data-closes-drawer` has usually closed it already).
+ */
+export async function withRevealed(page, locator, act) {
+  const menuWasOpen = (await drawerStates(page)).controls;
+  await reveal(page, locator);
+  const result = await act(locator);
+  if (!menuWasOpen) { await drawersSettled(page); await closeMenu(page); }
+  return result;
+}
 
 // ---------------------------------------------------------------------------------------------------------------------------------------------
 // The shell as a whole
@@ -485,7 +496,8 @@ export const developerGroupOpen = async (page, id) => (await page.locator(`[data
 export const developerGroups = (page) => devFolds(page).evaluateAll((els) => els.map((el) => ({ id: el.dataset.foldToggle, open: el.getAttribute("aria-expanded") === "true", label: el.textContent.trim(), height: el.getBoundingClientRect().height })));
 /** Opens or closes the developer drawer; an opened drawer has all its groups opened. */
 export async function toggleDeveloper(page, { expand = true } = {}) {
-  await developerButton(page).click();
+  // On a phone the cog sits in the menu drawer, hidden while it is closed (I-184): reveal it, press it, and leave the menu as it was.
+  await withRevealed(page, developerButton(page), (button) => button.click());
   if (await developerOpen(page)) {
     if (expand) await expandDeveloperGroups(page);
     else await devFolds(page).first().waitFor({ timeout: 10000 });
@@ -498,7 +510,8 @@ export async function openDeveloperGroup(page, id) {
   if ((await page.locator(`[data-developer-panel] [data-fold-toggle="${id}"]`).getAttribute("aria-expanded")) !== "true") await toggleDeveloperGroup(page, id);
 }
 export const developerButtonCount = (page) => developerButton(page).count();
-export const developerOpen = async (page) => (await developerButton(page).getAttribute("aria-pressed")) === "true";
+/** Whether the developer drawer is open, read from the cog's pressed state; the cog is revealed first (the phone menu) and the menu restored after. */
+export const developerOpen = async (page) => withRevealed(page, developerButton(page), async (button) => (await button.getAttribute("aria-pressed")) === "true");
 export async function openDeveloper(page) {
   if (await developerOpen(page)) return;
   await toggleDeveloper(page);
@@ -829,10 +842,15 @@ export async function sceneDrawsSomething(page) {
   const bodies = (await sceneBodies(page)).filter((body) => body.as !== "none" && body.inView).length;
   return { bodies, dots: await sceneDotsInView(page), paths: (await scenePaths(page)).filter((path) => path.visible && path.inView > 0).length, stars: (await sceneSky(page)).stars };
 }
+/**
+ * Where `freeCanvasPoint` looks, in order: the middle first, then around it, then the upper band. On a phone an open card or story sheet is meant to fill
+ * up to half the viewer above the timeline (the sheet cap, --sheet-max), so the free scene there is the band under the bar (I-185).
+ */
+export const FREE_POINT_PROBES = [[0.5, 0.5], [0.5, 0.4], [0.4, 0.5], [0.6, 0.5], [0.5, 0.6], [0.3, 0.3], [0.7, 0.3], [0.3, 0.6], [0.5, 0.2], [0.3, 0.2], [0.7, 0.2], [0.5, 0.15]];
 /** A point on the scene canvas where the canvas itself is on top (no story marker, label or panel over it), the middle first: where a wheel or drag reaches the camera. Null when nothing is free. */
 export async function freeCanvasPoint(page) {
   const box = await page.getByTestId("earth-moon-canvas").boundingBox();
-  for (const [fx, fy] of [[0.5, 0.5], [0.5, 0.4], [0.4, 0.5], [0.6, 0.5], [0.5, 0.6], [0.3, 0.3], [0.7, 0.3], [0.3, 0.6]]) {
+  for (const [fx, fy] of FREE_POINT_PROBES) {
     const point = { x: box.x + box.width * fx, y: box.y + box.height * fy };
     if (await page.evaluate(({ x, y }) => document.elementFromPoint(x, y)?.tagName === "CANVAS", point)) return point;
   }
@@ -1167,18 +1185,34 @@ export const hasExperienceSwitch = async (page) => (await experienceSwitch(page)
 export async function experienceSwitchState(page) {
   if (!(await hasExperienceSwitch(page))) return null;
   await reveal(page, experienceSwitch(page));
-  return experienceSwitch(page).evaluate((group) => ({
-    name: group.getAttribute("aria-label"),
-    param: group.getAttribute("data-switch-param"),
-    options: [...group.querySelectorAll("[data-switch-value]")].map((button) => ({ value: button.getAttribute("data-switch-value"), label: button.textContent.trim(), active: button.getAttribute("aria-pressed") === "true" })),
-  }));
+  return experienceSwitch(page).evaluate(readSwitchGroup);
 }
-/** Presses a switch option by its value and waits for the experience to open again (the address changes, the new option is the active one, the shell is there). The page is switched in place, not reloaded. */
+/**
+ * Reads a switch element in either of its forms (I-184): the buttons (`[data-switch-value]`, pressed = active) or the fit rule's compact native
+ * `<select>` (its options, selected = active). Runs inside the page; self-contained so it can be handed to `evaluate`.
+ */
+export function readSwitchGroup(group) {
+  const compact = group.tagName === "SELECT";
+  const options = compact
+    ? [...group.options].map((option) => ({ value: option.value, label: option.textContent.trim(), active: option.selected }))
+    : [...group.querySelectorAll("[data-switch-value]")].map((button) => ({ value: button.getAttribute("data-switch-value"), label: button.textContent.trim(), active: button.getAttribute("aria-pressed") === "true" }));
+  return { name: group.getAttribute("aria-label"), param: group.getAttribute("data-switch-param"), compact, options };
+}
+/** Whether the switch element shows `value` as its active option, in either form (the page-side test `chooseSwitchOption` waits on). */
+export function switchShowsActive(value) {
+  const group = document.querySelector("[data-switch-param]");
+  if (group === null) return false;
+  return group.tagName === "SELECT" ? group.value === value : group.querySelector(`[data-switch-value="${value}"][aria-pressed="true"]`) !== null;
+}
+/** Presses a switch option by its value (a button, or the compact select's option) and waits for the experience to open again (the address changes, the new option is the active one, the shell is there). The page is switched in place, not reloaded. */
 export async function chooseSwitchOption(page, value) {
-  const param = await experienceSwitch(page).getAttribute("data-switch-param");
-  const button = (await reveal(page, experienceSwitch(page).locator(`[data-switch-value="${value}"]`))).first();
-  await Promise.all([page.waitForURL((address) => new URL(address).searchParams.get(param) === value), button.click()]);
-  await page.waitForSelector(`[data-switch-param] [data-switch-value="${value}"][aria-pressed="true"]`, { state: "attached" });
+  const group = experienceSwitch(page);
+  const param = await group.getAttribute("data-switch-param");
+  await reveal(page, group);
+  const compact = await group.first().evaluate((element) => element.tagName === "SELECT");
+  const choose = compact ? () => group.first().selectOption(value) : () => group.locator(`[data-switch-value="${value}"]`).first().click();
+  await Promise.all([page.waitForURL((address) => new URL(address).searchParams.get(param) === value), choose()]);
+  await page.waitForFunction(switchShowsActive, value);
   await page.waitForSelector("canvas");
   await waitForShell(page);
 }
@@ -1716,31 +1750,55 @@ async function openSwitchPanel(page) {
   if ((await toggle.getAttribute("aria-expanded")) !== "true") await toggle.click();
   await page.locator(HOOK.switchPanel).waitFor({ state: "visible" });
 }
-/** Where each placed switch shows: the ids in the top bar and the ids in the switch panel (the panel is opened to read it, and left open). */
-export async function displaySwitchPlaces(page) {
+/** Closes the switch panel by its toggle when it is open. */
+async function closeSwitchPanel(page) {
+  const toggle = page.locator(HOOK.switchPanelToggle);
+  if ((await toggle.count()) > 0 && (await toggle.first().getAttribute("aria-expanded")) === "true") {
+    await toggle.first().click();
+    await page.locator(HOOK.switchPanel).waitFor({ state: "hidden" });
+  }
+}
+/**
+ * Runs `act` (which may open the menu and the switch panel to reach a switch), then leaves both as it found them: the switch panel closed again when it was
+ * closed, then the menu (I-184: a driver call changes nothing beyond the action asked; an open switch panel left in a phone's menu covered the site's controls).
+ */
+export async function withSwitchesRestored(page, act) {
+  const menuWasOpen = (await drawerStates(page)).controls;
+  const toggle = page.locator(HOOK.switchPanelToggle);
+  const panelWasOpen = (await toggle.count()) > 0 && (await toggle.first().getAttribute("aria-expanded")) === "true";
+  const result = await act();
+  if (!panelWasOpen) await closeSwitchPanel(page);
+  if (!menuWasOpen) { await drawersSettled(page); await closeMenu(page); }
+  return result;
+}
+/** Reaches a placed switch: opens the switch panel when it lives there, else reveals it (the menu). */
+async function reachSwitch(page, control) {
+  if (await page.locator(HOOK.switchPanel).locator(control).count()) await openSwitchPanel(page);
+  else await reveal(page, control);
+}
+/** Where each placed switch shows: the ids in the top bar and the ids in the switch panel (the panel is opened to read it, then the panel and menu are left as found). */
+export const displaySwitchPlaces = (page) => withSwitchesRestored(page, async () => {
   const bar = await reveal(page, page.locator(".display-switches > button[data-display-switch]"));
   const inBar = await bar.evaluateAll((buttons) => buttons.map((button) => button.dataset.displaySwitch));
   const hasPanel = (await page.locator(HOOK.switchPanelToggle).count()) > 0;
   if (hasPanel) await openSwitchPanel(page);
   const inPanel = hasPanel ? await page.locator(`${HOOK.switchPanel} [data-display-switch]`).evaluateAll((rows) => rows.map((row) => row.dataset.displaySwitch)) : [];
   return { topBar: inBar, panel: inPanel };
-}
-/** Whether a placed switch is on (its pressed state). */
-export async function displaySwitchOn(page, id) {
+});
+/** Whether a placed switch is on (its pressed state); the panel and menu are left as found. */
+export const displaySwitchOn = (page, id) => withSwitchesRestored(page, async () => {
   const control = displaySwitch(page, id);
-  if (await page.locator(HOOK.switchPanel).locator(control).count()) await openSwitchPanel(page);
-  else await reveal(page, control);
+  await reachSwitch(page, control);
   return (await control.getAttribute("aria-pressed")) === "true";
-}
-/** Presses a placed switch (opening the switch panel first when it lives there). */
-export async function toggleDisplaySwitch(page, id) {
+});
+/** Presses a placed switch (opening the switch panel first when it lives there); the panel and menu are left as found. */
+export const toggleDisplaySwitch = (page, id) => withSwitchesRestored(page, async () => {
   const control = displaySwitch(page, id);
-  if (await page.locator(HOOK.switchPanel).locator(control).count()) await openSwitchPanel(page);
-  else await reveal(page, control);
+  await reachSwitch(page, control);
   await control.click();
-}
-/** The open switch panel against the rest of the screen: whether it lies inside the window, and which of the cog, the timeline and the open information panel it overlaps. */
-export async function switchPanelFit(page) {
+});
+/** The open switch panel against the rest of the screen: whether it lies inside the window, and which of the cog, the timeline and the open information panel it overlaps. The panel is opened to measure it, then the panel and menu are left as found. */
+export const switchPanelFit = (page) => withSwitchesRestored(page, async () => {
   await openSwitchPanel(page);
   await drawersSettled(page);
   return page.evaluate(([panelHook]) => {
@@ -1751,7 +1809,7 @@ export async function switchPanelFit(page) {
     const overlaps = Object.entries(others).filter(([, selector]) => { const element = document.querySelector(selector); return element !== null && getComputedStyle(element).visibility !== "hidden" && crosses(box(element)); }).map(([name]) => name);
     return { insideWindow: panel.left >= 0 && panel.top >= 0 && panel.right <= innerWidth && panel.bottom <= innerHeight, overlaps };
   }, [HOOK.switchPanel]);
-}
+});
 
 // ---------------------------------------------------------------------------------------------------------------------------------------------
 // Sky figures (O-065 T-298): the line sets the scene reports drawing (`data-sky-lines`) and the site's own trace control beside the viewer (`data-site-sky-trace`).

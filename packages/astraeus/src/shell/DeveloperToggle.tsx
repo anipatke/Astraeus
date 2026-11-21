@@ -1,3 +1,5 @@
+// Part: the Developer cog, a bar item that reports a press to open or close the Developer drawer.
+// Must not: set a position, layer, raw colour or raw size (areas/ places it, look.css holds the values), or open or close another part; it reports `onDeveloperModeChange` only.
 import { ButtonText, CogIcon } from "./topBarIcons";
 
 interface DeveloperProps {

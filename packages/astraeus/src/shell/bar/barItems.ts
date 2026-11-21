@@ -1,6 +1,7 @@
 // The bar's item model: one ordered list of what the bar can show, each with the forms it can take and the priority that says what leaves the row first
 // (viewer-interface note, section 4). Job: describe items as plain data for the fit rule and the measuring row. It must not render, measure or decide a place
-// (`fitBar.ts` decides, `Bar.tsx` draws). Adding a bar item means adding its entry here (kind, priority, forms) and its component; the fit rule needs no change.
+// (`fitBar.ts` decides, `Bar.tsx` draws). A new bar item is made with a constructor below (and an `ENGINE_PRIORITY` key for a new engine kind) in `barEntries.tsx`,
+// which pairs it with its component; the fit rule needs no change.
 
 /** The shapes an item takes, longest first: `full`; `short` (short labels, the short title); `i` (the title as "i"); `compact` (a switch as a drop-down). */
 export type BarForm = "full" | "short" | "i" | "compact";

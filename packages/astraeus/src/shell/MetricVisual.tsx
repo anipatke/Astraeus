@@ -1,3 +1,5 @@
+// Part helper: one measurement of the card (number and unit, then a small visual where it has a real reference).
+// Must not: set a position, layer, raw colour or raw size (areas/ places it, look.css holds the values), or open or close another part.
 import type { ReactNode } from "react";
 import {
   altitudeGlyph,

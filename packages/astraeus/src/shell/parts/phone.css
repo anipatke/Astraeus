@@ -148,4 +148,3 @@
   padding: var(--astraeus-space-4);
 }
 .astraeus-shell[data-phone="true"] .astraeus-label { font-size: var(--label-size, var(--astraeus-text-s)); }
-

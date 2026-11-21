@@ -1,3 +1,5 @@
+// Part helper: the status button that discloses a fact's source, accuracy, notes and limitations.
+// Must not: set a position, layer, raw colour or raw size (areas/ places it, look.css holds the values), or open or close another part.
 import { useId, useState } from "react";
 import type { ProvenanceView } from "./infoModel";
 import { Sources } from "./Sources";

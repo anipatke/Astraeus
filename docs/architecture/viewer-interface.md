@@ -399,9 +399,18 @@ Each module starts with a header comment saying its one job and what it must not
 - A part draws its content and reports intents (`open`, `close`, `choose`). It never sets `position`, `z-index` or a raw colour or size, and never opens or closes another part.
 - `selection`: never touches placement.
 
-**Add a bar item:** add its entry in `barItems.ts` (kind, priority, labels, view scope) and its component in `parts/`. The fit rule needs no change. Add a case to `fitBar.test.ts`.
+**Add a bar item** (checked against the code, I-187):
 
-**Add a panel:** add an occupant row to `panelRule.ts` (wide area, phone area, layer). Render it through `Area`. Add its close-table rows as cases.
+1. Write its component as a flat file in `src/shell/` (for example `src/shell/MyControl.tsx`) with the part header (its one job; it never sets a place, layer or raw value, and never opens another part). Its sheet rules go in the matching `parts/` stylesheet.
+2. Add its entry in `src/shell/bar/barEntries.tsx`, in the function for its group: `leadEntries` (title place, picker switch, views), `controlEntries` (engine controls) or `trailingEntries` (moons, Developer cog). Make the item with a constructor from `src/shell/bar/barItems.ts`: `titleItem`, `switchItem`, `storyItem` or `engineItem(id, priority, ghosts)`; an engine item takes its priority from `ENGINE_PRIORITY` (add a key there for a new kind) and ghosts that measure each form. Pair it with the function that draws the component for a form (`entry(item, (form) => …)`). A view scope is a condition in that function (add the entry only when the scene offers it), not a field.
+3. The fit rule (`fitBar.ts`) needs no change. Add a case to `tests/fitBar.test.ts` for its priority, and to `tests/barDom.test.ts` when it changes what the row or menu shows.
+
+**Add a panel** (checked against the code, I-187):
+
+1. In `src/shell/panels/panelRule.ts`: add its name to the `Occupant` union, its open state to `PanelState` (and `NO_PANELS`), and its cases to `openOccupant` (what opening it closes, wide and phone), `closeOccupant` and, if Escape should close it, `topmost`. The rule holds no area or layer.
+2. Choose its place by rendering it inside the `<Area name="…">` it belongs in, in `src/shell/AstraeusShell.tsx` (`LeftArea` for the left place, or the `right`, `developer`, `menu` or `timeline` area). The place's position and layer come from `areas/areas.css` (on a phone, left, right and developer all map onto the one sheet place); a panel never sets them.
+3. Open and close it through the shell's `panels` (`panels.open("…")`, `panels.close("…")`, from `usePanels`); the part itself only reports `onClose`.
+4. Add its rows of the close table as cases in `tests/panelRule.test.ts` (both layouts), and a placement case in `tests/panelPlacementDom.test.ts` when it adds a place.
 
 **Add styles:** add the class in the component before its rule. A new stylesheet is one `@import` line in `app/style.css`, never an import in a component. `tests/interfaceLeftovers.test.ts` fails on a class selector no component renders, a look token nothing reads, a sheet `app/style.css` does not load and a stylesheet import outside the two entry files (`api/mount.ts`, `api/AstraeusScene.tsx`); run-time class families and class carriers are listed in the test.
 
@@ -412,7 +421,7 @@ Each module starts with a header comment saying its one job and what it must not
 - `z-index` other than `var(--astraeus-layer-*)`;
 - `@media` outside `areas.css`.
 
-It allows `var(--astraeus-*)`, `calc()` and `color-mix(in srgb, var(--astraeus-*) N%, …)` of tokens, `%`, `fr` and unitless numbers. Data-driven colours (group or place colours set at run time) are not literals and pass. There is no allowlist.
+It allows `var(--astraeus-*)`, `calc()` and `color-mix(in srgb, var(--astraeus-*) N%, …)` of tokens, `%`, `fr` and unitless numbers. Data-driven colours (group or place colours set at run time) are not literals and pass. There is no allowlist for stylesheets. Since I-186 it also scans the non-test TypeScript under `src/shell`: a typed colour in a string fails outside `shell/look/`, and a default inside it must equal a `look.css` token (its `KNOWN` list names one place-marker fallback left for an owner decision). A header check (`tests/interfaceHeaders.test.ts`) fails on an interface module without its header.
 
 ## 10. Shared look
 

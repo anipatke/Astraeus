@@ -35,6 +35,9 @@ export const DEFAULT_INTERFACE_LOOK: Readonly<InterfaceLookRead> = Object.freeze
   motionMs: 240,
 });
 
+/** Internal look colours a setting control must show as a value (the Developer drawer's glow colour), equal to their `look.css` tokens (tests/lookDrift.test.ts). */
+export const INTERNAL_LOOK_COLOURS: Readonly<{ readonly glow: string }> = Object.freeze({ glow: "#cfe0ff" });
+
 /** The range each number setting accepts. */
 export const INTERFACE_LOOK_LIMITS = Object.freeze({ textSizePx: { min: 11, max: 18 }, radiusPx: { min: 0, max: 20 }, motionMs: { min: 0, max: 800 } });
 

@@ -51,4 +51,6 @@
 .astraeus-shell[data-phone="true"] [data-area="left"],
 .astraeus-shell[data-phone="true"] [data-area="right"],
 .astraeus-shell[data-phone="true"] [data-area="developer"],
-.astraeus-shell[data-phone="true"] [data-area="sheet"] { grid-area: sheet; position: static; align-self: end; align-items: stretch; }
+.astraeus-shell[data-phone="true"] [data-area="sheet"] { grid-area: sheet; position: static; align-self: stretch; justify-content: flex-end; align-items: stretch; }
+/* The sheet place fills its row (stretch, content pushed to the bottom) so it has a definite height: a sheet's `max-height` in % of it (the phone sheet cap,
+   --sheet-max) resolves. With `align-self: end` the place grew with its content and the cap was ignored, so a long card covered the scene (I-185). */

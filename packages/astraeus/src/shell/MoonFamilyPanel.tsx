@@ -1,3 +1,5 @@
+// Part: the moons list (families, search, pictures) inside the moons sheet.
+// Must not: set a position, layer, raw colour or raw size (areas/ places it, look.css holds the values), or open or close another part; choosing a moon reports `onSelectMoon`.
 import { useId, useState } from "react";
 import { Collapsible } from "./Collapsible";
 import { moonCountText, moonFamilyListSummary, searchMoons, splitNamed, type MoonFamilyList, type MoonFamilyListing, type MoonListing } from "./moonFamilies";

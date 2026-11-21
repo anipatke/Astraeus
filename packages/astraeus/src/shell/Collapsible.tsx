@@ -1,3 +1,5 @@
+// Part helper: one fold (heading button and body) that remembers whether it was left open.
+// Must not: set a position, layer, raw colour or raw size (areas/ places it, look.css holds the values), or open or close another part.
 import { useEffect, useId, useState, type ReactNode } from "react";
 
 const STORAGE_PREFIX = "astraeus.fold.";

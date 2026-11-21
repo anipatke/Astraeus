@@ -173,3 +173,49 @@ describe("the drift rules see what they must (samples that must trip them)", () 
     expect(trips(".astraeus-shell { --astraeus-accent: #e8b06a; --astraeus-space-4: 8px; }", LOOK)).toBe(false);
   });
 });
+
+// I-186: a colour typed in the interface's TypeScript bypassed the check above (the timeline's played glow kept the old `#fc6323` beside the new accent, and a
+// host's `interface.accent` did not recolour it). Every non-test `.ts`/`.tsx` under `src/shell` is scanned for a typed colour in a string: hex, or rgb()/hsl()
+// with numbers. Outside the look module (`shell/look/`) none may stand; inside it each must equal a token's value in `look.css` (the defaults a control shows).
+// KNOWN names the colours left for an owner decision, each with its reason; a new entry needs one.
+const KNOWN: Readonly<Record<string, string>> = {
+  "shell/bodyFeatures.ts #ffffff": "a place category's marker colour fallback for scene data (the stylesheet already falls back to --astraeus-text when no colour is set); dropping it changes the existing assertion in sceneMoonPanelPlaces.test.ts, so it waits for the owner (I-186 repair note)",
+};
+const TS_COLOUR = /#[0-9a-fA-F]{3,8}\b|\b(?:rgba?|hsla?)\(\s*\d[^)]*\)/g;
+
+/** The typed colours inside the string literals of one TypeScript source (comments are left out). */
+export function tsColours(source: string): string[] {
+  const code = source.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:"'`])\/\/.*$/gm, "$1");
+  return [...code.matchAll(/"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'|`(?:\\.|[^`\\])*`/g)].flatMap((literal) => literal[0].match(TS_COLOUR) ?? []);
+}
+/** The values `look.css` gives its tokens, normalised (spaces and case). */
+const norm = (value: string) => value.replace(/\s+/g, "").toLowerCase();
+const lookValues = new Set([...readFileSync(join(SRC, LOOK), "utf8").matchAll(/--astraeus-[\w-]+:\s*([^;]+);/g)].map((match) => norm(match[1] ?? "")));
+
+/** What the TypeScript colour rule flags in one file (`file` is its path under `src`). */
+export function tsColourFindings(file: string, source: string): Finding[] {
+  return tsColours(source).flatMap((colour) => {
+    if (file.startsWith("shell/look/")) return lookValues.has(norm(colour)) ? [] : [{ where: file, problem: `look default ${colour} differs from every look.css token` }];
+    return KNOWN[`${file} ${colour}`] !== undefined ? [] : [{ where: file, problem: `typed colour ${colour} in interface TypeScript (read a var(--astraeus-*) token or leave the colour unset)` }];
+  });
+}
+
+describe("look drift in TypeScript: interface colours come from the look tokens (I-186)", () => {
+  const TS = walk(join(SRC, "shell"), ".ts").concat(walk(join(SRC, "shell"), ".tsx"));
+  it("flags no typed colour in src/shell TypeScript outside the look module, and no look default that differs from look.css", () => {
+    expect(TS.flatMap((path) => tsColourFindings(rel(path), readFileSync(path, "utf8")))).toEqual([]);
+  });
+  it("trips on a typed hex or rgb colour default, a look default that differs from look.css, and lets tokens through", () => {
+    expect(tsColourFindings("shell/timelineGlow.ts", 'export const DEFAULT = { playedColor: "#fc6323" };')).toHaveLength(1);
+    expect(tsColourFindings("shell/X.tsx", "const a = `rgba(252, 99, 35, ${alpha})`;")).toHaveLength(1);
+    expect(tsColourFindings("shell/look/interfaceLook.ts", 'const a = { accent: "#fc6323" };')).toHaveLength(1);
+    expect(tsColourFindings("shell/look/interfaceLook.ts", 'const a = { accent: "#e8b06a", glow: "#cfe0ff" };')).toEqual([]);
+    expect(tsColourFindings("shell/timelineGlow.ts", "const a = `color-mix(in srgb, var(--astraeus-accent) ${n}%, transparent)`; // was #fc6323")).toEqual([]);
+  });
+  it("every KNOWN entry is still there (a stale entry is removed)", () => {
+    for (const key of Object.keys(KNOWN)) {
+      const [file, colour] = key.split(" ");
+      expect(tsColours(readFileSync(join(SRC, file!), "utf8"))).toContain(colour);
+    }
+  });
+});

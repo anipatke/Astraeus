@@ -1,3 +1,5 @@
+// Part: the information card (object, event, window or place), drawn in the left place.
+// Must not: set a position, layer, raw colour or raw size (areas/ places it, look.css holds the values), or open or close another part; its close button reports `onClose`.
 import { useId, useRef } from "react";
 import type { InfoView } from "./infoModel";
 import type { Metric } from "./metrics";

@@ -1,3 +1,5 @@
+// Part helper: the collapsible details and sources section shared by the card and the story panels.
+// Must not: set a position, layer, raw colour or raw size (areas/ places it, look.css holds the values), or open or close another part.
 /**
  * A collapsible section, closed until tapped (O-020 Decision 4). The credits stay complete and one tap away (PROV-01).
  * Shared by the information and story panels. With `details` it is "The details and sources" (O-015 Decision 5); without, it is "Sources".
