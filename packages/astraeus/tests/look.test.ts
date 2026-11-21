@@ -8,7 +8,7 @@ import { LOOK_FIELDS, lookName, lookWith, resolveLook, type LookInput } from "..
 import { labelStyleOf } from "../src/app/labelStyle";
 import { timeLookOf } from "../src/app/timeLook";
 import { DEFAULT_SKY_COLOURS, skyColoursOf, skyFadeInSecondsOf } from "../src/app/skyFigures";
-import { DEFAULT_SKY_FADE_IN_SECONDS } from "../src/core/skyTrace";
+import { DEFAULT_SKY_FADE_IN_SECONDS } from "../src/presentation/skyTrace";
 import { DEFAULT_PHONE_LAYOUT } from "../src/shell/phoneLayout";
 import { desktopPicturesOf } from "../src/app/liveLook";
 import { BOOT_FADE_DEFAULT_SECONDS, bootFadeSeconds } from "../src/shell/bootLoader";

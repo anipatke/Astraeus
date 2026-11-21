@@ -7,6 +7,12 @@
 
 import { J2000_NOON_UNIX_MS, DAY_S, DAY_MS } from "./constants";
 
+declare const scaleBrand: unique symbol;
+/** Seconds from J2000 in TDB: a type-only brand (no runtime field), made only by the conversions here, so a UTC millisecond cannot stand in for it. */
+export type TdbSeconds = number & { readonly [scaleBrand]: "tdb" };
+/** Seconds from J2000 in TT, made only by the conversions here. */
+export type TtSeconds = number & { readonly [scaleBrand]: "tt" };
+
 /** One piece of TT - UTC: from `fromUtcMs` on, `ttMinusUtcS + driftSPerDay * days since fromUtcMs`, until the next piece starts. */
 export interface TtMinusUtcPiece {
   readonly fromUtcMs: number;
@@ -90,8 +96,13 @@ export function ttMinusUtcSeconds(table: TimeScaleTable, timeUtcMs: number): num
   return piece.ttMinusUtcS + piece.driftSPerDay * ((timeUtcMs - piece.fromUtcMs) / DAY_MS);
 }
 
+/** TT seconds from J2000 at a UTC instant. */
+export function utcMsToTtSeconds(table: TimeScaleTable, timeUtcMs: number): TtSeconds {
+  return ((timeUtcMs - J2000_NOON_UNIX_MS) / 1000 + ttMinusUtcSeconds(table, timeUtcMs)) as TtSeconds;
+}
+
 /** TDB seconds from J2000 at a UTC instant. */
-export function utcMsToTdbSeconds(table: TimeScaleTable, timeUtcMs: number): number {
-  const tt = (timeUtcMs - J2000_NOON_UNIX_MS) / 1000 + ttMinusUtcSeconds(table, timeUtcMs);
-  return tt + tdbMinusTtSeconds(tt);
+export function utcMsToTdbSeconds(table: TimeScaleTable, timeUtcMs: number): TdbSeconds {
+  const tt = utcMsToTtSeconds(table, timeUtcMs);
+  return (tt + tdbMinusTtSeconds(tt)) as TdbSeconds;
 }

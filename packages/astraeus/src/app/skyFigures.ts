@@ -1,6 +1,6 @@
 // Sky figures as the app draws them: figures, outlines and the two reference circles, all as unit directions in the EQJ frame at infinity (ARCH-02: presentation only, no State).
 import { createOrbTwoBodyAdapter } from "../core/twoBodyAdapter";
-import { DEFAULT_SKY_FADE_IN_SECONDS, type SkyTraceAfter } from "../core/skyTrace";
+import { DEFAULT_SKY_FADE_IN_SECONDS, type SkyTraceAfter } from "../presentation/skyTrace";
 import type { CameraRequest } from "./CameraController";
 
 export type EqjDirection = readonly [number, number, number];

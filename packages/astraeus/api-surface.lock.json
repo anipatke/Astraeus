@@ -5010,6 +5010,7 @@
       "./app/*": "./src/app/*.ts",
       "./assets/*": "./src/assets/*.ts",
       "./core/*": "./src/core/*.ts",
+      "./presentation/*": "./src/presentation/*.ts",
       "./shell/*": "./src/shell/*.ts",
       "./data/*": "./data/*",
       "./tests/*": "./tests/*.ts",

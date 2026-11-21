@@ -1,6 +1,6 @@
 // @vitest-environment happy-dom
 // The engine's small public API (O-036 T-160): a scene built with the documented calls becomes the app's definition, bad input fails with a named error, and mount/unmount leaves nothing behind.
-import type { StartView } from "../src/core/startView";
+import type { StartView } from "../src/presentation/startView";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { act, createElement } from "react";
 import { createRoot, type Root } from "react-dom/client";

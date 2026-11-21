@@ -26,7 +26,7 @@ const BODY_NAME_ALLOWLIST: Readonly<Record<string, string>> = {
 };
 
 const sources = import.meta.glob(
-  ["../src/core/**/*.{ts,tsx}", "../src/assets/**/*.{ts,tsx}", "../src/shell/**/*.{ts,tsx}", "../src/app/*.{ts,tsx}", "../src/api/**/*.{ts,tsx}"],
+  ["../src/core/**/*.{ts,tsx}", "../src/presentation/**/*.{ts,tsx}", "../src/assets/**/*.{ts,tsx}", "../src/shell/**/*.{ts,tsx}", "../src/app/*.{ts,tsx}", "../src/api/**/*.{ts,tsx}"],
   { query: "?raw", import: "default", eager: true },
 ) as Record<string, string>;
 

@@ -5,7 +5,7 @@
  */
 import type { LookInput } from "../api/look";
 import { PHONE_LAYOUT_LIMITS } from "../shell/phoneLayout";
-import { LABEL_SIZE_LIMITS, TIME_PRECISIONS } from "../core/lookValues";
+import { LABEL_SIZE_LIMITS, TIME_PRECISIONS } from "../presentation/lookValues";
 import { INTERFACE_LOOK_LIMITS } from "../shell/look/interfaceLook";
 export type { LookInput } from "../api/look";
 

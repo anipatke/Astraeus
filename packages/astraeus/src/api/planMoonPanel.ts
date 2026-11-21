@@ -1,5 +1,5 @@
 import type { BodyCatalogue } from "../assets/catalogue";
-import { moonListSummary } from "../core/moonListText";
+import { moonListSummary } from "../presentation/moonListText";
 import type { ExperienceDefinition } from "../app/experienceDefinition";
 import { SceneError } from "./errors";
 import { frozenCopy } from "./frozenCopy";

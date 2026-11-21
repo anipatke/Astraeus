@@ -5,11 +5,18 @@
  * order segment, axis, k. Dependency-free except the shared Chebyshev sum, so the browser speed probe loads it on its own.
  */
 import { chebyshevValue, chebyshevValueAndSlope } from "./chebyshev";
+import type { TdbSeconds, TtSeconds } from "./timeScale";
 
 export const CHUNK_MAGIC = "ACF1";
 export const CHUNK_HEADER_BYTES = 20;
 
-export interface SeriesChunk {
+/** The time scale a chunk is a function of; the seconds it is evaluated at must be in the same one. */
+export type SeriesScale = "tdb" | "tt";
+interface ScaleSeconds { readonly tdb: TdbSeconds; readonly tt: TtSeconds }
+
+/** `S` is type-only (the optional `scale` field is never set): a "tdb" chunk and a "tt" chunk are different types. Moon chunks are "tdb"; planet fits "tt". */
+export interface SeriesChunk<S extends SeriesScale = "tdb"> {
+  readonly scale?: S;
   /** TDB seconds from J2000 at the start of the first segment. */
   readonly startTdbS: number;
   readonly segmentSeconds: number;
@@ -36,7 +43,7 @@ export interface ChunkExpectation {
 }
 
 /** Reads a chunk file and checks it against what the index says it holds. */
-export function decodeChunk(bytes: Uint8Array, expected: ChunkExpectation): SeriesChunk {
+export function decodeChunk<S extends SeriesScale = "tdb">(bytes: Uint8Array, expected: ChunkExpectation): SeriesChunk<S> {
   if (bytes.byteLength < CHUNK_HEADER_BYTES) throw new SeriesFormatError("chunk is shorter than its header");
   const magic = String.fromCharCode(bytes[0], bytes[1], bytes[2], bytes[3]);
   if (magic !== CHUNK_MAGIC) throw new SeriesFormatError(`chunk magic is "${magic}", not "${CHUNK_MAGIC}"`);
@@ -78,12 +85,12 @@ export function decodeChunk(bytes: Uint8Array, expected: ChunkExpectation): Seri
 }
 
 /** True when `tdbS` lies in the chunk; the shared instant between two chunks belongs to both. */
-export function chunkCovers(chunk: SeriesChunk, tdbS: number): boolean {
+export function chunkCovers<S extends SeriesScale>(chunk: SeriesChunk<S>, tdbS: ScaleSeconds[S]): boolean {
   return tdbS >= chunk.startTdbS && tdbS <= chunk.startTdbS + chunk.segmentCount * chunk.segmentSeconds;
 }
 
 /** Segment index and normalised argument for an instant inside the chunk. */
-function locate(chunk: SeriesChunk, tdbS: number): { offset: number; x: number } {
+function locate(chunk: SeriesChunk<SeriesScale>, tdbS: number): { offset: number; x: number } {
   const elapsed = (tdbS - chunk.startTdbS) / chunk.segmentSeconds;
   const segment = Math.min(chunk.segmentCount - 1, Math.max(0, Math.floor(elapsed)));
   const x = 2 * (elapsed - segment) - 1;
@@ -91,7 +98,7 @@ function locate(chunk: SeriesChunk, tdbS: number): { offset: number; x: number }
 }
 
 /** Position in km into out[outIndex .. outIndex + 2]. The caller has checked `chunkCovers`. */
-export function chunkPositionInto(chunk: SeriesChunk, tdbS: number, out: Float64Array, outIndex: number): void {
+export function chunkPositionInto<S extends SeriesScale>(chunk: SeriesChunk<S>, tdbS: ScaleSeconds[S], out: Float64Array, outIndex: number): void {
   const { offset, x } = locate(chunk, tdbS);
   const n = chunk.coefficientCount;
   out[outIndex] = chebyshevValue(chunk.coefficients, offset, n, x);
@@ -100,7 +107,7 @@ export function chunkPositionInto(chunk: SeriesChunk, tdbS: number, out: Float64
 }
 
 /** Position (km) and velocity (km/s) into the two buffers. The caller has checked `chunkCovers`. */
-export function chunkStateInto(chunk: SeriesChunk, tdbS: number, position: Float64Array, velocity: Float64Array): void {
+export function chunkStateInto<S extends SeriesScale>(chunk: SeriesChunk<S>, tdbS: ScaleSeconds[S], position: Float64Array, velocity: Float64Array): void {
   const { offset, x } = locate(chunk, tdbS);
   const n = chunk.coefficientCount;
   const pair = new Float64Array(2);

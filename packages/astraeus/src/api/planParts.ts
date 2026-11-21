@@ -1,7 +1,7 @@
 import { SceneError } from "./errors";
 import { badPart, isMade, partOf, type PanelPart, type TilePart } from "../shelf/part";
 import { idsOfPart, type ShelfPart } from "../app/shelfContract";
-import { cameraIdsOf, type StoryPanelSet } from "../core/storyPanels";
+import { cameraIdsOf, type StoryPanelSet } from "../presentation/storyPanels";
 import type { ResolvedView } from "../app/views";
 import type { ActionsData } from "../shelf/actions/factory";
 

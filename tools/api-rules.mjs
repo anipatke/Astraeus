@@ -1,7 +1,7 @@
 // Checks for the API rules on shape, errors, settings and page isolation (O-053 T-229; Guardrails API-03 to API-06). Each function returns the breaks it finds as
 // `{ rule, site }` objects; a test compares them with an allowlist next to it, so a new break fails and a fixed one must be taken off the list.
 // The type lint reads the public entry with the same compiler read as the surface lock (tools/api-surface.mjs).
-import { readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import { dirname, join, relative } from "node:path";
 import ts from "typescript6";
 import { PUBLIC_ENTRY } from "../packages/astraeus-site/tools/site/api-reference.mjs";
@@ -330,9 +330,9 @@ function isFixedId(node, usesUseId) {
 }
 
 /** Fixed DOM ids written as literals in `dirs` (relative to src): a JSX `id`, `aria-labelledby`, `aria-controls` or `htmlFor` with a literal, `getElementById("…")`, `.id = "…"`, `setAttribute("id", …)`. Each `{ rule: "id", site: "file: text" }`. */
-export function idLiteralBreaks(src = ENGINE_SRC, dirs = ["shell", "app"]) {
+export function idLiteralBreaks(src = ENGINE_SRC, dirs = ["shell", "app", "presentation"]) {
   const breaks = new Map();
-  for (const dir of dirs) {
+  for (const dir of dirs.filter((name) => existsSync(join(src, name)))) {
     for (const path of allSources(join(src, dir))) {
       const file = ts.createSourceFile(path, readFileSync(path, "utf8"), ts.ScriptTarget.ES2022, true, path.endsWith("x") ? ts.ScriptKind.TSX : ts.ScriptKind.TS);
       // a name bound to `useId()` makes an id per viewer: a literal that builds on one is not fixed

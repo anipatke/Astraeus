@@ -2,7 +2,7 @@
 id: T-375
 title: Move story-panel, start-view and look wording out of the science core
 objective: O-093
-status: planned
+status: done
 depends_on: [{task: T-370, requires: clear}, {task: T-373, requires: clear}]
 check_waiver: {task: T-375, reason: 'Owner said "work through this list of objectives one by one. Orchestrate each objective to completion" (G-024 decision 7) and "carry on" (2026-11-22): standing orchestration rules waive the optional step checks; the mandatory Full Objective Check covers the whole diff.', actor: {role: owner, session: orchestrate-g024-20261121}, recorded_at: '2026-11-21T19:19:52Z'}
 owner_validation: {required: false}
@@ -64,8 +64,17 @@ Focused: `npx vitest run packages/astraeus/tests/presentationLayer.test.ts packa
 
 ## Technical Evidence
 
-Pending execution.
+Done When -> evidence:
+- Six files moved (plain mv, no shims) with only import paths changed: `git diff -U0` over src/tests/tools shows 535 changed lines, all `core/<name>` -> `presentation/<name>` paths (plus 4 relative imports inside storyPanels.ts to `../core/`). `ls src/core` no longer lists them.
+- tests/presentationLayer.test.ts (preProcessFile): 3 tests pass; planted `../app/look` import in presentation/startView.ts failed it, planted `../presentation/skyTrace` import in core/state.ts failed it; both reverted (git diff empty on both).
+- package.json exports gains `./presentation/*`; `npm run api:lock` diff is that one line only.
+- nameCheck glob adds src/presentation; no allowlist entry. tools/api-rules.mjs idLiteralBreaks dirs gain "presentation" (none of the six render ids; a guard only) and now skip a dir that is absent (the existing apiRules test feeds a tree without it; its setup unchanged).
+- scenePin.json md5 c6d2308f6c2e40459ffc4d3256a7fb81 before and after. check:engine-alone passes.
+- Gates: lint clean, typecheck clean, build ok, test 311 files / 5071 passed, 2 skipped; check:engine-alone pass; measure:example first-open total 1834160 B (524787 gz), unchanged by a move.
+Extra reads: none beyond Context Files (builder-rules; Objective Decisions).
 
 ## Drift Notes
 
 For Design reconciliation (`Components/Codebase Map`, `Core layers and demos`): new `src/presentation/` layer (pure TypeScript, imports core only); story-panel and start-view parsers live there, not in core. Guardrails ARCH-04 wording should gain the presentation layer (planner to reconcile).
+
+Coordinator (orchestrate-g024-20261121): gates green (lint, typecheck, build; `npm test` 311 files, 5071 passed; `check:engine-alone`); scene pin md5 unchanged. The `existsSync` filter in `tools/api-rules.mjs` is accepted (a guard that skips a folder a made-up test tree lacks; that test's setup unchanged). `measure:example` 1,834,160 B raw (+359 since O-084's 1,833,801, from T-371/T-373; 1,840 B under the cap). `status: done` set by the coordinator under the standing orchestration rule ("I mark them as they pass", O-038) and G-024 decision 7.

@@ -3,7 +3,7 @@
 import type { BodyId } from "../core/body";
 import type { EphemerisGroup } from "../core/ephemerisGroup";
 import type { BalancePoint } from "../core/orbitPeriod";
-import { DEFAULT_FAMILY_PALETTE, MAX_BODY_SET_FAMILIES, familiesWithPalette, type BodySetFamily } from "../core/bodySetFamilies";
+import { DEFAULT_FAMILY_PALETTE, MAX_BODY_SET_FAMILIES, familiesWithPalette, type BodySetFamily } from "../presentation/bodySetFamilies";
 export { DEFAULT_FAMILY_PALETTE, MAX_BODY_SET_FAMILIES, familiesWithPalette, type BodySetFamily };
 
 export interface BodySetMember {

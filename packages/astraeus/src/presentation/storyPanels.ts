@@ -1,9 +1,9 @@
-import { createProvenance, PROVENANCE_SOURCE_TYPES, type Provenance, type ProvenanceSourceType } from "./provenance";
+import { createProvenance, PROVENANCE_SOURCE_TYPES, type Provenance, type ProvenanceSourceType } from "../core/provenance";
 import type { StartView } from "./startView";
 import type { SkyTraceAfter } from "./skyTrace";
-import { isUtcUnixMs } from "./state";
-import { timeInputMs, type TimeInput } from "./timeInput";
-import type { TimeBounds } from "./trajectory";
+import { isUtcUnixMs } from "../core/state";
+import { timeInputMs, type TimeInput } from "../core/timeInput";
+import type { TimeBounds } from "../core/trajectory";
 
 /** A camera request a panel makes when it opens (checked): the same shapes the scene camera takes. A look-out `direction` that is absent keeps the direction already looked along (else right ascension 0, declination 0). */
 export type PanelCameraRequest =

@@ -26,7 +26,7 @@ import { clampFov, clampLookElevation, LOOK_OUT_OPENING_FOV_DEG } from "./lookOu
 import { eqjToRenderVector } from "./renderCoordinates";
 import { orbitAnglesFor, orbitBasis } from "./viewUp";
 import type { StartView } from "./viewLink";
-import { eqjUnitVector, isSkyView, type CameraView } from "../core/startView";
+import { eqjUnitVector, isSkyView, type CameraView } from "../presentation/startView";
 
 /** What the scene opens on: a view in numbers, or a look-out request whose direction is an id, resolved on the first frame as a `setCamera` look-out is (the figure aim already applied, `aimAtFigure`). */
 export type OpeningView = CameraView | LookOutRequest;

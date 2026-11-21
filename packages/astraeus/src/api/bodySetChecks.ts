@@ -1,4 +1,4 @@
-import { MAX_BODY_SET_FAMILIES } from "../core/bodySetFamilies";
+import { MAX_BODY_SET_FAMILIES } from "../presentation/bodySetFamilies";
 import { listedMoon } from "../core/bodies/listedMoons";
 import type { BodySetFamilyInput, BodySetInput, BodySetMemberInput } from "./bodySetInput";
 import { SceneError } from "./errors";

@@ -1,4 +1,4 @@
-import { moonCountText, moonListDateText, moonListSummary } from "../core/moonListText";
+import { moonCountText, moonListDateText, moonListSummary } from "../presentation/moonListText";
 export { moonCountText, moonListDateText, moonListSummary };
 
 /**

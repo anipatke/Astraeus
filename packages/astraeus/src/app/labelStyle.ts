@@ -7,7 +7,7 @@ export interface LabelStyle { readonly fontFamily: string; readonly sizePx: numb
 /** Today's label look: the page's own font (`inherit`) at 12 px. */
 export const DEFAULT_LABEL_STYLE: Readonly<LabelStyle> = Object.freeze({ fontFamily: "inherit", sizePx: 12 });
 
-export { LABEL_SIZE_LIMITS } from "../core/lookValues";
+export { LABEL_SIZE_LIMITS } from "../presentation/lookValues";
 
 /** The label style in force: the look's `labels`, every part not named at its default. */
 export function labelStyleOf(look: { readonly labels?: Partial<LabelStyle> }): LabelStyle {

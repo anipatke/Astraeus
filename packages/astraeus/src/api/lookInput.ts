@@ -1,4 +1,4 @@
-import { isCssColour, isFontFamily, isTimeZone } from "../core/lookValues";
+import { isCssColour, isFontFamily, isTimeZone } from "../presentation/lookValues";
 import { LOOK_FIELDS, lookName, lookValue, lookWith, type LookField } from "../app/look";
 import type { LookInput } from "./look";
 import { SceneError } from "./errors";

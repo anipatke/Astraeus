@@ -1,4 +1,4 @@
-import type { StoryPanel } from "../core/storyPanels";
+import type { StoryPanel } from "../presentation/storyPanels";
 
 export {
   checkPanelPlayback,
@@ -12,7 +12,7 @@ export {
   type StoryPanelSet,
   type StoryStep,
   neighbourStep,
-} from "../core/storyPanels";
+} from "../presentation/storyPanels";
 
 /**
  * The panels forward playback just passed: those with `previousMs < time <= currentMs`, in time order.

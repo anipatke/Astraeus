@@ -1,5 +1,5 @@
 import { SceneError } from "./errors";
-import { DEFAULT_TRACE_SECONDS, SKY_TRACE_AFTER, TRACE_FADE_SECONDS, TRACE_SECONDS_LIMITS, type SkyTraceAfter } from "../core/skyTrace";
+import { DEFAULT_TRACE_SECONDS, SKY_TRACE_AFTER, TRACE_FADE_SECONDS, TRACE_SECONDS_LIMITS, type SkyTraceAfter } from "../presentation/skyTrace";
 
 /** What `handle.traceSkyFigure` takes besides the figure's id. */
 export interface SkyTraceOptions {

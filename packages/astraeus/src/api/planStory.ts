@@ -1,7 +1,7 @@
 import type { TimelineEvent } from "../core/events";
 import type { Provenance } from "../core/provenance";
 import type { TimeBounds } from "../core/trajectory";
-import { DEFAULT_PANEL_PLAYBACK, type CheckedPanel, type PanelPlayback, type StoryPanel, type StoryPanelSet, type StoryStep } from "../core/storyPanels";
+import { DEFAULT_PANEL_PLAYBACK, type CheckedPanel, type PanelPlayback, type StoryPanel, type StoryPanelSet, type StoryStep } from "../presentation/storyPanels";
 import type { ExperienceConfig } from "../shell/experience";
 import { checkEventObjects, eventProvenanceOf, eventsOf, panelBatchOf, panelPlaybackOf, panelsOf, type AddEventsOptions, type EventInput, type StoryPanelInput, type StoryPanelPlaybackInput } from "./story";
 import type { Tracked } from "./planPaths";

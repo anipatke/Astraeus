@@ -4,7 +4,7 @@ import type { TimeBounds } from "../core/trajectory";
 import type { CameraRequest } from "./CameraController";
 import type { CameraView } from "./viewLink";
 import type { LookInput, LookRead } from "../api/look";
-import type { SkyTraceAfter } from "../core/skyTrace";
+import type { SkyTraceAfter } from "../presentation/skyTrace";
 import type { Provenance } from "../core/provenance";
 
 /** The one clock's reading as a host sees it. */

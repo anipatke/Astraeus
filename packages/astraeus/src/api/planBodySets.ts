@@ -10,7 +10,7 @@ import type { State } from "../core/state";
 import type { TimeBounds } from "../core/trajectory";
 import type { BalancePoint } from "../core/orbitPeriod";
 import type { BodyCatalogue } from "../assets/catalogue";
-import { familiesWithPalette } from "../core/bodySetFamilies";
+import { familiesWithPalette } from "../presentation/bodySetFamilies";
 import type { ExperienceDefinition } from "../app/experienceDefinition";
 
 type BodySetLayer = NonNullable<ExperienceDefinition["bodySets"]>[number];

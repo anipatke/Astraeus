@@ -4,7 +4,7 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { Scene } from "../src/api/scene";
 import { earth } from "../src/api/bodies";
 import { definitionOf } from "../src/api/definitionOf";
-import { isCssColour, isFontFamily } from "../src/core/lookValues";
+import { isCssColour, isFontFamily } from "../src/presentation/lookValues";
 import { DEFAULT_LABEL_STYLE, labelStyleOf, labelStyleVars } from "../src/app/labelStyle";
 import { LOOK_FIELDS, lookName, resolveLook } from "../src/app/look";
 import { SceneLabelLayer } from "../src/app/SceneLabels";

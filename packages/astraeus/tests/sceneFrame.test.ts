@@ -1,4 +1,4 @@
-import { eqjUnitVector, isSkyView, type StartView } from "../src/core/startView";
+import { eqjUnitVector, isSkyView, type StartView } from "../src/presentation/startView";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { Group } from "three";
 import { SimulationClock } from "../src/core/clock";

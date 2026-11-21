@@ -1,6 +1,6 @@
 import type { CameraRequest } from "../app/CameraController";
-import { cameraIdsOf } from "../core/storyPanels";
-import { eqjUnitVector, validateSkyDirection, validateSkyFov, validateSkyPosition, validateStartView } from "../core/startView";
+import { cameraIdsOf } from "../presentation/storyPanels";
+import { eqjUnitVector, validateSkyDirection, validateSkyFov, validateSkyPosition, validateStartView } from "../presentation/startView";
 import { SceneError } from "./errors";
 import { isPlainObject } from "./plainObject";
 import type { CameraPose } from "./viewerLink";

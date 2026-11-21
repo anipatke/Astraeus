@@ -10,7 +10,7 @@ import type { FilterChipsControl } from "./filterChips/factory";
 import type { ColourKeyControl } from "./colourKey/factory";
 import type { ChartControl } from "./chart/factory";
 import type { ReadoutTileControl } from "./readoutTile/factory";
-import { isCssColour } from "../core/lookValues";
+import { isCssColour } from "../presentation/lookValues";
 import type { ShelfBlock, ShelfPanel, ShelfTile } from "../app/shelfContract";
 
 /** A panel: a story button in the bar and the panel it opens. Made with `panel`. */

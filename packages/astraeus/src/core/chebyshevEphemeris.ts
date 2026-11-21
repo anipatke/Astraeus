@@ -10,7 +10,7 @@ import { chunkCovers, chunkPositionInto, chunkStateInto, decodeChunk, type Serie
 import { createProvenance, type Provenance } from "./provenance";
 import { TrajectoryOutOfRangeError } from "./sampledTrajectory";
 import { assertUtcUnixMs, createState, EQJ, type State } from "./state";
-import { assertTimeScaleTable, tdbMinusTtSeconds, ttMinusUtcSeconds, utcMsToTdbSeconds, type TimeScaleTable } from "./timeScale";
+import { assertTimeScaleTable, tdbMinusTtSeconds, ttMinusUtcSeconds, utcMsToTdbSeconds, type TdbSeconds, type TimeScaleTable } from "./timeScale";
 import type { TimeBounds, Trajectory } from "./trajectory";
 
 export const EPHEMERIS_INDEX_FORMAT = "astraeus.chebyshev-ephemeris/1";
@@ -166,6 +166,7 @@ export function parseEphemerisIndex(raw: unknown): EphemerisIndex {
 function utcMsForTdb(table: TimeScaleTable, tdbS: number, inward: "up" | "down"): number {
   let guess = J2000_NOON_UNIX_MS + tdbS * 1000;
   for (let pass = 0; pass < 3; pass += 1) {
+    // Gemini CQ-02: the series is written for TT but is given TDB here; the two differ by under 2 ms, so the result changes by under 1e-12 s.
     const tt = tdbS - tdbMinusTtSeconds(tdbS);
     guess = J2000_NOON_UNIX_MS + (tt - ttMinusUtcSeconds(table, Math.min(table.validToUtcMs, Math.max(table.pieces[0].fromUtcMs, Math.round(guess))))) * 1000;
   }
@@ -313,7 +314,7 @@ export class ChebyshevEphemeris {
     return utcMsForTdb(this.index.timeScale, Math.max(own, centre, this.#tableStartTdbS()), "up");
   }
 
-  #chunkAt(body: LoadedBody, tdbS: number, timeUtcMs: number): SeriesChunk {
+  #chunkAt(body: LoadedBody, tdbS: TdbSeconds, timeUtcMs: number): SeriesChunk {
     if (body.last !== null && chunkCovers(body.last, tdbS)) return body.last;
     const { entry } = body;
     let low = 0;

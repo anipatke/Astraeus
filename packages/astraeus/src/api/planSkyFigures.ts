@@ -1,4 +1,4 @@
-import { isCssColour, isFontFamily, LABEL_SIZE_LIMITS } from "../core/lookValues";
+import { isCssColour, isFontFamily, LABEL_SIZE_LIMITS } from "../presentation/lookValues";
 import { eqjUnit, type StarById } from "../assets/sky";
 import { meanDirection, type EqjDirection, type SkyFigureLayer } from "../app/skyFigures";
 import { createProvenance, type Provenance } from "../core/provenance";

@@ -2,7 +2,7 @@ import { createEvents, type TimelineEvent } from "../core/events";
 import { zoneAround, type PaceZone, type Pacing } from "../core/pacing";
 import { createProvenance, type Provenance } from "../core/provenance";
 import type { TimeBounds } from "../core/trajectory";
-import { checkPanelPlayback, checkStoryPanel, resolveStoryPanels, StoryPanelError, type CheckedPanel, type PanelActions, type PanelCameraRequest, type PanelLookup, type PanelPlayback, type StoryPanelSet } from "../core/storyPanels";
+import { checkPanelPlayback, checkStoryPanel, resolveStoryPanels, StoryPanelError, type CheckedPanel, type PanelActions, type PanelCameraRequest, type PanelLookup, type PanelPlayback, type StoryPanelSet } from "../presentation/storyPanels";
 import { SceneError } from "./errors";
 import { cameraRequestOf } from "./cameraRequest";
 import { traceOptionsOf, type SkyTraceOptions } from "./skyTraceInput";

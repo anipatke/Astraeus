@@ -5,7 +5,7 @@ import { readableScale } from "../src/core/scalePolicy";
 import { createOrbitCameraState, poseCamera, resolveCamera, type CameraRequest } from "../src/app/CameraController";
 import { FloatingOrigin } from "../src/app/floatingOrigin";
 import { clampFov, LOOK_OUT_FOV_RANGE_DEG, LOOK_OUT_NEAR, panLookOut, skyViewOf, zoomLookOut } from "../src/app/lookOut";
-import { eqjUnitVector } from "../src/core/startView";
+import { eqjUnitVector } from "../src/presentation/startView";
 import { eqjToRenderVector, type RenderVector } from "../src/app/renderCoordinates";
 import { stepCameraTarget, type CameraStepInput } from "../src/app/sceneCamera";
 import type { SceneTargets } from "../src/app/sceneTargets";

@@ -1,4 +1,4 @@
-import { isSkyView, MAX_ELEVATION_DEG, validateSkyView, validateStartView, wrapAzimuth, type CameraView, type SkyView, type StartView } from "../core/startView";
+import { isSkyView, MAX_ELEVATION_DEG, validateSkyView, validateStartView, wrapAzimuth, type CameraView, type SkyView, type StartView } from "../presentation/startView";
 import { timeInputMs } from "../core/timeInput";
 
 export { validateStartView, type CameraView, type SkyView, type StartView };

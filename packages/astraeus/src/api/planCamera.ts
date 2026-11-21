@@ -7,7 +7,7 @@ import { SceneError } from "./errors";
 import { frozenCopy } from "./frozenCopy";
 import type { FollowView } from "./scene";
 import type { CameraPose, SkyDirection } from "./viewerLink";
-import { eqjUnitVector, SKY_OPENING_FOV_DEG, validateCameraView } from "../core/startView";
+import { eqjUnitVector, SKY_OPENING_FOV_DEG, validateCameraView } from "../presentation/startView";
 import type { LookOutRequest } from "../app/CameraController";
 import { hiddenByView, viewById } from "../app/viewHiding";
 import { cameraRequestOf, checkToward } from "./cameraRequest";

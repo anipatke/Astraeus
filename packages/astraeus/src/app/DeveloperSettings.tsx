@@ -1,6 +1,6 @@
 import { Color } from "three";
 import type { MutableRefObject } from "react";
-import { isFontFamily } from "../core/lookValues";
+import { isFontFamily } from "../presentation/lookValues";
 import { LABEL_SIZE_LIMITS, type LabelStyle } from "./labelStyle";
 import type { SkyColours } from "./skyFigures";
 import type { GlowLook } from "./bodyDraw";
@@ -14,7 +14,7 @@ import { DebugOverlay, type DebugReadout } from "./DebugOverlay";
 import { FrameRateSection, type GroupFill } from "./FrameRateSection";
 import type { FrameSnapshot } from "./frameStats";
 import { formatView, type CameraView } from "./viewLink";
-import { isSkyView } from "../core/startView";
+import { isSkyView } from "../presentation/startView";
 import type { ViewUp } from "./viewUp";
 import { HudSection, SettingButtons, SettingColor, SettingGroup, SettingSlider } from "./SettingControls";
 

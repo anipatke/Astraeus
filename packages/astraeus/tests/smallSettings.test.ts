@@ -1,6 +1,6 @@
 // O-059 T-266: the small public settings, each proved on a made-up scene that changes that one input alone (ARCH-03; Guardrails API-02: `Scene` calls reach the viewer
 // through `toDefinition`, which `mount` and `AstraeusScene` both use, so one path covers both). Defaults are asserted beside each setting.
-import type { StartView } from "../src/core/startView";
+import type { StartView } from "../src/presentation/startView";
 import { describe, expect, it } from "vitest";
 import { Scene, SceneError, earth, moon, sun, type DataSource } from "astraeus";
 import { catalogue } from "../src/assets/catalogue";

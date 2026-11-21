@@ -3,7 +3,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { SceneError } from "astraeus";
 import { checkedClear, checkedTrace } from "../src/api/skyTraceInput";
 import { ViewerLink } from "../src/api/viewerLink";
-import { DEFAULT_SKY_FADE_IN_SECONDS, DEFAULT_TRACE_SECONDS, SKY_FADE_IN_STEP_LIMIT, TRACE_FADE_SECONDS, stepFadeIn, stepHide, stepTrace, type SkyHideRun, type SkyTraceRun } from "../src/core/skyTrace";
+import { DEFAULT_SKY_FADE_IN_SECONDS, DEFAULT_TRACE_SECONDS, SKY_FADE_IN_STEP_LIMIT, TRACE_FADE_SECONDS, stepFadeIn, stepHide, stepTrace, type SkyHideRun, type SkyTraceRun } from "../src/presentation/skyTrace";
 import { DEFAULT_SKY_COLOURS, prefersReducedMotion } from "../src/app/skyFigures";
 import { eqjToRenderVector } from "../src/app/renderCoordinates";
 import { SkyFiguresView } from "../src/app/SkyFiguresView";

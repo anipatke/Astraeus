@@ -1,9 +1,12 @@
 import { describe, expect, it } from "vitest";
 import { chebyshevValue, chebyshevValueAndSlope } from "../src/core/chebyshev";
 import { chunkPositionInto, chunkStateInto, decodeChunk, SeriesFormatError } from "../src/core/chebyshevSeries";
+import type { TdbSeconds } from "../src/core/timeScale";
 import { encodeChunk, fitSegment, leastSquares, quantize, type StateSample } from "../tools/import/chebyshevFit";
 
 const DAY = 86_400;
+/** The made-up times here are TDB seconds; the chunk functions take them branded. */
+const at = (s: number): TdbSeconds => s as TdbSeconds;
 
 /** A made-up eccentric, precessing orbit with a small fast wobble: smooth, known exactly, and not a polynomial. */
 function synthetic(tdbS: number): { p: [number, number, number]; v: [number, number, number] } {
@@ -123,9 +126,9 @@ describe("synthetic round trip: fit, quantise, encode, decode, evaluate", () => 
     let worstUnquantised = 0;
     for (let t = startS + 1_234.5; t < startS + segments * lengthS; t += 1_777.25) {
       const { p } = synthetic(t);
-      chunkPositionInto(chunk, t, out, 0);
+      chunkPositionInto(chunk, at(t), out, 0);
       worst = Math.max(worst, Math.hypot(out[0] - p[0], out[1] - p[1], out[2] - p[2]));
-      chunkPositionInto(unquantised, t, out, 0);
+      chunkPositionInto(unquantised, at(t), out, 0);
       worstUnquantised = Math.max(worstUnquantised, Math.hypot(out[0] - p[0], out[1] - p[1], out[2] - p[2]));
     }
     expect(worstUnquantised).toBeLessThan(1e-6);
@@ -137,7 +140,7 @@ describe("synthetic round trip: fit, quantise, encode, decode, evaluate", () => 
     const position = new Float64Array(3);
     const velocity = new Float64Array(3);
     const t = startS + 2.3 * lengthS;
-    chunkStateInto(chunk, t, position, velocity);
+    chunkStateInto(chunk, at(t), position, velocity);
     const { v } = synthetic(t);
     for (let axis = 0; axis < 3; axis += 1) expect(velocity[axis]).toBeCloseTo(v[axis], 7);
   });
@@ -147,8 +150,8 @@ describe("synthetic round trip: fit, quantise, encode, decode, evaluate", () => 
     const after = new Float64Array(3);
     for (let k = 1; k < segments; k += 1) {
       const join = startS + k * lengthS;
-      chunkPositionInto(chunk, join - 1e-3, before, 0);
-      chunkPositionInto(chunk, join + 1e-3, after, 0);
+      chunkPositionInto(chunk, at(join - 1e-3), before, 0);
+      chunkPositionInto(chunk, at(join + 1e-3), after, 0);
       const { v } = synthetic(join);
       // The body moves |v| * 2 ms between the two instants; any step at the join must hide inside 5 cm on top of that.
       const moved = Math.hypot(v[0], v[1], v[2]) * 2e-3;

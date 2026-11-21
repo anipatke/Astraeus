@@ -5,7 +5,7 @@ import { afterEach, describe, expect, it } from "vitest";
 import { Scene, SceneError, earth, mars, moon, type DataSource } from "astraeus";
 import { catalogue } from "../src/assets/catalogue";
 import { definitionOf } from "../src/api/definitionOf";
-import { eqjUnitVector } from "../src/core/startView";
+import { eqjUnitVector } from "../src/presentation/startView";
 import { $, press, mountShell, type Mounted } from "./domSetup";
 
 const everything: DataSource = { name: "made-up", provides: catalogue.ids() };

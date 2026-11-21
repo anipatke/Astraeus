@@ -1,8 +1,8 @@
 import { BufferAttribute, BufferGeometry, Color, Group, LineBasicMaterial, LineSegments, Vector3 } from "three";
 import type { PerspectiveCamera } from "three";
 import { celestialEquatorSegments, eclipticSegments, type EqjDirection, type SkyColours, type SkyFigureLayer, type SkyClearRequest, type SkyLineSwitches, type SkyTraceRequest } from "./skyFigures";
-import { splitColourAlpha } from "../core/lookValues";
-import { stepFadeIn, stepHide, stepTrace, type SkyHideRun, type SkyTraceRun } from "../core/skyTrace";
+import { splitColourAlpha } from "../presentation/lookValues";
+import { stepFadeIn, stepHide, stepTrace, type SkyHideRun, type SkyTraceRun } from "../presentation/skyTrace";
 import { eqjToRenderVector, type RenderVector } from "./renderCoordinates";
 import { TRACK_LAYER } from "./TrackedBodyView";
 import { projectSegmentClipped, type PickRect, type SkyPickFigure } from "./scenePicking";
