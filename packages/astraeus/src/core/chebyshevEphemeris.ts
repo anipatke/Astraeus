@@ -254,12 +254,18 @@ export class ChebyshevEphemeris {
     const body = this.#body(bodyId);
     // A chunk may run a little past the time-scale table (Pluto's last year ends a day after it): the table's own ends, less a second so the conversion back stays inside it, limit the answer.
     const { timeScale } = this.index;
-    const start = Math.max(body.startTdbS, this.#centre.startTdbS, utcMsToTdbSeconds(timeScale, timeScale.pieces[0].fromUtcMs) + 1);
+    const start = Math.max(body.startTdbS, this.#centre.startTdbS, this.#tableStartTdbS());
     const end = Math.min(body.endTdbS, this.#centre.endTdbS, utcMsToTdbSeconds(timeScale, timeScale.validToUtcMs) - 1);
     return Object.freeze({
       startUtcMs: utcMsForTdb(this.index.timeScale, start, "up"),
       endUtcMs: utcMsForTdb(this.index.timeScale, end, "down"),
     });
+  }
+
+  /** The first instant (TDB s) the time-scale table lets the conversion back to UTC use: its start, plus a second. */
+  #tableStartTdbS(): number {
+    const { timeScale } = this.index;
+    return utcMsToTdbSeconds(timeScale, timeScale.pieces[0].fromUtcMs) + 1;
   }
 
   /** The start (TDB s) of the run of loaded chunks of `body` that covers `tdbS`, or null when the chunk covering it is not loaded. */
@@ -274,7 +280,8 @@ export class ChebyshevEphemeris {
 
   /**
    * The earliest UTC time from which a body's centre-relative position can be asked for continuously up to `timeUtcMs` with the chunks
-   * loaded now (its own and the centre's), or null when `timeUtcMs` itself is not covered. For drawing a body's recent path.
+   * loaded now (its own and the centre's), or null when `timeUtcMs` itself is not covered. For drawing a body's recent path. Limited like
+   * `boundsOf`: never earlier than the time-scale table allows, so it answers in the first year of data.
    */
   loadedFromUtcMs(bodyId: BodyId, timeUtcMs: number): number | null {
     assertUtcUnixMs(timeUtcMs);
@@ -282,7 +289,7 @@ export class ChebyshevEphemeris {
     const own = this.#loadedRunStart(this.#body(bodyId), tdbS);
     const centre = this.#loadedRunStart(this.#centre, tdbS);
     if (own === null || centre === null) return null;
-    return utcMsForTdb(this.index.timeScale, Math.max(own, centre), "up");
+    return utcMsForTdb(this.index.timeScale, Math.max(own, centre, this.#tableStartTdbS()), "up");
   }
 
   #chunkAt(body: LoadedBody, tdbS: number, timeUtcMs: number): SeriesChunk {

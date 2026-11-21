@@ -2,7 +2,7 @@
 id: T-355
 title: Keep moon orbit lines from failing in the first year of data
 objective: O-084
-status: planned
+status: done
 depends_on: []
 check_waiver: {task: T-355, reason: 'Owner said "work through this list of objectives one by one. Orchestrate each objective to completion" (G-024 decision 7): standing orchestration rules waive the optional step checks; the mandatory Full Objective Check covers the whole diff.', actor: {role: owner, session: orchestrate-g024-20261121}, recorded_at: '2026-11-21T12:08:49Z'}
 owner_validation: {required: false}
@@ -66,8 +66,17 @@ Focused: `npx vitest run packages/astraeus/tests/moonLoadedFrom1950.test.ts pack
 
 ## Technical Evidence
 
-Pending execution.
+Done When -> evidence:
+- Clamp in `loadedFromUtcMs` (max of own run start, centre run start, `#tableStartTdbS()`; helper shared with `boundsOf`; doc comment says limited like `boundsOf`) -> `src/core/chebyshevEphemeris.ts`, rows 1-3 below.
+- Row 1 (Feb 1950 Io: finite, >= boundsOf start, <= asked) -> `tests/moonLoadedFrom1950.test.ts` (1). Red first: before the change it threw `TimeScaleOutOfRangeError: time -631162828932 is outside the TT - UTC table [-631152000000, 1893628800000]` from `utcMsForTdb` in `loadedFromUtcMs`. AH-48 reproduces. Green after.
+- Row 2 (via `createEphemerisGroup(...).memberLoadedFromUtcMs`) -> test (2): same raw error before, green after.
+- Row 3 (2016 unchanged) -> test (3) pins 1451735931817, the value read from the unchanged code (an early draft with a wrong bound failed only on that bound; the value itself was recorded pre-change). Green after.
+- Existing tests unchanged and green -> focused run of the new file + bodySet + moonLoadTwice: 27 passed.
+- Gates: lint clean, typecheck clean, build ok, `npm test`: 303 files, 5031 passed, 4 expected fail, 2 skipped. (A first run showed 4 failures in one file while T-354's new cold test was being written concurrently; the rerun was clean.)
+Files changed: src/core/chebyshevEphemeris.ts, tests/moonLoadedFrom1950.test.ts (new). Limitations: no browser look (per Task).
 
 ## Drift Notes
 
-None expected (an internal bound).
+None.
+
+Coordinator (orchestrate-g024-20261121): hand-off gates green (lint, typecheck, build; `npm test` 303 files, 5031 passed, 4 expected-fail). `status: done` set by the coordinator under the standing orchestration rule ("I mark them as they pass", O-038) and G-024 decision 7.
