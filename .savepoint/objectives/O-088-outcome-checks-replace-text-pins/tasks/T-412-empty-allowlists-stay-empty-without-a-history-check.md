@@ -2,7 +2,7 @@
 id: T-412
 title: Empty allowlists stay empty without a history check
 objective: O-088
-status: planned
+status: done
 depends_on: []
 owner_validation: {required: false}
 check_waiver: {task: T-412, reason: 'Owner said "work through this list of objectives one by one. Orchestrate each objective to completion" (G-024 decision 7) and "I am remote now, add park the check and move on" (2026-11-22): standing orchestration rules waive the optional step checks; the mandatory Full Objective Check covers the whole diff.', actor: {role: owner, session: orchestrate-g024-20261122}, recorded_at: '2026-11-21T22:56:58Z'}
@@ -62,8 +62,24 @@ Focused: `npx vitest run packages/astraeus-site/tests/allowlistGrowth.test.ts pa
 
 ## Technical Evidence
 
-Pending execution.
+Counts today (JSON query): apiOutsideTypes.entries 0, apiTypeLint.breaks 0 (unitless 18, exceptions 3), apiErrors.breaks 0, apiSettings.addressOnly 0 (public 18, never counted), apiIsolation.breaks 0; DEEP_IMPORT_COUNTS unchanged (apollo11 125, showers 61, not re-read; owner default: counts keep the may-only-go-down check).
+
+| Done When | Evidence |
+|---|---|
+| Counts recorded | above |
+| Break sections held empty directly | `emptySectionOffences` + per-file cases in `allowlistGrowth.test.ts`, read with no git (run with `ALLOWLIST_BASE=no-such-ref`: 6 passed, 1 skipped) |
+| Git comparison only for apiTypeLint unitless/exceptions and DEEP_IMPORT_COUNTS | per-file loop replaced by one `PERMANENT` case; made-up growth case unchanged. New made-up rows (unapproved fails, owner-approved passes, agent-approved fails) sit in the ungated empty-sections describe so they also run in a shallow checkout |
+| ARCH-06 not reduced | src/api body-name allowlist untouched |
+| Planted break | made-up entry in apiErrors `breaks`, `ALLOWLIST_BASE=no-such-ref`: the apiErrors empty-section case failed (1 failed, 5 passed, 1 skipped); reverted, `git diff` of the file empty |
+| Gates | focused vitest (allowlistGrowth + apiRules) 28 passed; `npm test` 323 files / 5279 passed, 3 skipped; build ok; eslint cannot run here (typescript-eslint does not support TS 7.0); prettier applied; no tsc error in my file. `npm run lint` failed only on missing `migrationTable.test.ts` and `npm run typecheck` only on `sceneFaultOrder.test.ts` unused `NOW` (other builders' files; not fixed) |
+
+Files changed: packages/astraeus-site/tests/allowlistGrowth.test.ts (plus this Task file).
+Limitations: the git-skip describe title changed; full lint/typecheck not green because of others' in-flight files.
 
 ## Drift Notes
 
-Expected: the Design "Allowlist growth counted per finding" bullet gains one clause (empty break sections held empty directly); the planner reconciles.
+Reconcile: the Design "Allowlist growth counted per finding" bullet gains one clause (empty break sections held empty directly); the planner reconciles.
+
+## Coordinator (gates)
+
+Set done by the orchestrating session after the combined handoff gates passed with T-402..T-404 and T-406..T-412 together (owner: "I mark them as they pass", O-038; G-024 decision 7 "Orchestrate each objective to completion"; owner 2026-11-22 "I am remote now, add park the check and move on"): lint and Prettier clean, typecheck clean, `npm test` 324 files, 5319 passed, 2 skipped; `npm run check:pack` pass, engine 1,836,372 B raw (cap 1,838,000), 525,692 B gzip (cap 527,000).

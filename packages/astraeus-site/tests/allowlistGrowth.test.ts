@@ -9,9 +9,16 @@ import { describe, expect, it } from "vitest";
 // does not have yet (the branch that first adds it) is skipped with a note, as is the whole check when git or the base ref is unavailable (a shallow CI checkout).
 
 const BASE = process.env.ALLOWLIST_BASE ?? "main";
-const FILES = ["apiOutsideTypes", "apiTypeLint", "apiErrors", "apiSettings", "apiIsolation"].map(
-  (name) => `${name}.allowlist.json`,
-);
+// Break sections that are empty today and are held empty directly (no git): file -> section (T-412, O-088).
+const EMPTY_SECTIONS: readonly [string, string][] = [
+  ["apiOutsideTypes.allowlist.json", "entries"],
+  ["apiTypeLint.allowlist.json", "breaks"],
+  ["apiErrors.allowlist.json", "breaks"],
+  ["apiSettings.allowlist.json", "addressOnly"],
+  ["apiIsolation.allowlist.json", "breaks"],
+];
+// Permanent sections that still hold entries: the only ones compared with the base by git (the deep-import counts are the other).
+const PERMANENT = { file: "apiTypeLint.allowlist.json", sections: ["unitless", "exceptions"] } as const;
 const REPO = join(__dirname, "..", "..", "..");
 const rel = (file: string): string => `packages/astraeus-site/tests/${file}`;
 
@@ -134,27 +141,62 @@ export function countOffences(base: Record<string, number>, now: Record<string, 
     );
 }
 
+/** Entries of an empty break section that carry no owner approval, each named by file and section. */
+export function emptySectionOffences(json: Json, file: string, section: string): string[] {
+  const value = json[section];
+  const items = Array.isArray(value) ? (value as Json[]) : [];
+  return items
+    .filter((item) => !approvalOk(item.approved as Approval | undefined))
+    .map(
+      (item) =>
+        `${file} ${section}: ${JSON.stringify(item).slice(0, 160)} is not allowed in an empty section without approved: {by: "owner", at, reason}`,
+    );
+}
+
 const baseAvailable =
   spawnSync("git", ["rev-parse", "--verify", "--quiet", `${BASE}^{commit}`], { cwd: REPO }).status === 0;
 
-describe("allowlists only shrink (O-053, compared with the base branch)", () => {
+describe("empty break sections stay empty (read directly, no git)", () => {
+  for (const [file, section] of EMPTY_SECTIONS) {
+    it(`${file} ${section} has no entry without an owner approval`, () => {
+      const json = JSON.parse(readFileSync(join(__dirname, file), "utf8")) as Json;
+      expect(Array.isArray(json[section]), `${file} has a ${section} list`).toBe(true);
+      expect(emptySectionOffences(json, file, section)).toEqual([]);
+    });
+  }
+
+  it("an unapproved entry fails, an owner-approved one passes (made-up data)", () => {
+    const approved = { by: "owner", at: "2026-11-22", reason: "a reason that is long enough" };
+    expect(emptySectionOffences({ breaks: [] }, "f", "breaks")).toEqual([]);
+    expect(emptySectionOffences({ breaks: [{ site: "a" }] }, "f", "breaks")).toEqual([
+      expect.stringContaining("f breaks"),
+    ]);
+    expect(emptySectionOffences({ breaks: [{ site: "a", approved }] }, "f", "breaks")).toEqual([]);
+    expect(
+      emptySectionOffences({ breaks: [{ site: "a", approved: { ...approved, by: "agent" } }] }, "f", "breaks"),
+    ).toHaveLength(1);
+  });
+});
+
+describe("permanent allowlist sections and deep-import counts only shrink (O-053, compared with the base branch)", () => {
   if (!baseAvailable) {
     it.skip(`skipped: git or ref ${BASE} is not available (shallow checkout?)`, () => undefined);
     return;
   }
 
-  for (const file of FILES) {
-    it(`${file} gains no entry without an owner approval`, () => {
-      const base = gitShow(rel(file));
-      if (base === undefined) {
-        console.warn(`allowlist growth: ${BASE} has no ${file} yet; skipped`);
-        return;
-      }
-      expect(
-        growthOffences(JSON.parse(base) as Json, JSON.parse(readFileSync(join(__dirname, file), "utf8")) as Json, file),
-      ).toEqual([]);
-    });
-  }
+  it(`${PERMANENT.file} gains no permanent entry without an owner approval`, () => {
+    const base = gitShow(rel(PERMANENT.file));
+    if (base === undefined) {
+      console.warn(`allowlist growth: ${BASE} has no ${PERMANENT.file} yet; skipped`);
+      return;
+    }
+    const keep = (json: Json): Json =>
+      Object.fromEntries(
+        Object.entries(json).filter(([k]) => k === "_about" || (PERMANENT.sections as readonly string[]).includes(k)),
+      );
+    const now = JSON.parse(readFileSync(join(__dirname, PERMANENT.file), "utf8")) as Json;
+    expect(growthOffences(keep(JSON.parse(base) as Json), keep(now), PERMANENT.file)).toEqual([]);
+  });
 
   it("DEEP_IMPORT_COUNTS has no value above the base version", () => {
     const base = gitShow(rel("packageBoundaries.test.ts"));
