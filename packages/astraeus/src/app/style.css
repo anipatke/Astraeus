@@ -1,7 +1,7 @@
 /*
  * The viewer's stylesheet, and the one place its sheets are loaded (O-079 T-332): the entry files (api/mount.ts, api/AstraeusScene.tsx) import this file and nothing
  * else, and it pulls in the interface sheets in cascade order: values, areas, then the parts, the phone and framed layouts last. No component imports a stylesheet
- * (tests/interfaceLeftovers.test.ts), so the build writes a Node copy of the entry files only. The published `astraeus/style.css` is this file, so it is the whole look.
+ * (tests/interfaceLeftovers.test.ts), so the build writes a Node copy of the entry files only. The published `astraeus/style.css` is this file, so it is the whole look. The shelf parts' sheets (`shelf/<part>/part.css`, about 4.2 KB in all) load here too: a part's own view cannot import its sheet, or the Node copy of the entry files would break; the JS is still picked by import (tools/check-shelf-split.mjs).
  */
 @import "../shell/look/look.css";
 @import "../shell/areas/areas.css";
@@ -9,6 +9,10 @@
 @import "../shell/bar/bar.css";
 @import "../shell/parts/controls.css";
 @import "../shell/parts/parts.css";
+@import "../shelf/explainer/part.css";
+@import "../shelf/actions/part.css";
+@import "../shelf/filterChips/part.css";
+@import "../shelf/colourKey/part.css";
 @import "../shell/parts/phone.css";
 @import "../shell/parts/embedded.css";
 /* An empty rule on purpose: the test page (happy-dom) drops the first rule after an `@import` when a test injects this text, and it must not drop a real one. A browser and a bundler read it as nothing. */

@@ -1,0 +1,9 @@
+/* The filterChips part's look: the shared tokens only (look.css); loaded by app/style.css with the other sheets, since the Node copy of the entry files cannot import a stylesheet from a view. */
+.astraeus-shell .shelf-chips { display: grid; gap: var(--astraeus-space-3); min-width: 0; }
+.astraeus-shell .shelf-chips-label { color: var(--astraeus-muted); font-size: var(--astraeus-text-xs); letter-spacing: calc(var(--astraeus-text-size) * .14); text-transform: uppercase; }
+.astraeus-shell .shelf-chip-row { display: flex; flex-wrap: wrap; gap: var(--astraeus-space-3); }
+.astraeus-shell .shelf-chip { display: inline-flex; align-items: center; gap: var(--astraeus-space-3); max-width: 100%; min-height: var(--astraeus-size-4); padding: 0 var(--astraeus-space-5); border: 1px solid var(--astraeus-border); background: transparent; color: var(--astraeus-text); font: inherit; font-size: var(--astraeus-text-s); cursor: pointer; overflow-wrap: anywhere; }
+.astraeus-shell .shelf-chip:hover { border-color: var(--astraeus-accent); }
+.astraeus-shell .shelf-chip[aria-pressed="true"] { border-color: var(--astraeus-accent); background: color-mix(in srgb, var(--astraeus-accent) 22%, transparent); color: var(--astraeus-accent); }
+.astraeus-shell .shelf-chip:focus-visible { outline: var(--astraeus-space-1) solid var(--astraeus-accent); outline-offset: var(--astraeus-space-1); }
+.astraeus-shell .shelf-chip-dot { width: var(--astraeus-space-4); height: var(--astraeus-space-4); border-radius: var(--astraeus-radius-pill); background: var(--shelf-colour); }

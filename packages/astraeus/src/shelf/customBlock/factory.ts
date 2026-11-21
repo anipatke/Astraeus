@@ -6,18 +6,18 @@ import { CustomBlockView } from "./View";
 
 /** What `customBlock` takes. */
 export interface CustomBlockInput {
-  /** The block's id, unique among all part and block ids in the scene. */
+  /** Unique among part and block ids in the scene. */
   readonly id: string;
 }
 
 /** What `handle.part(customBlock)` gives for one viewer. */
 export interface CustomBlockControl {
-  /** The empty element the engine made inside the panel for this viewer; undefined before `ready` and after `unmount`. It lives from `ready` to `unmount` and is out of the page while its panel is closed, so what the host put in it survives closing and reopening. Put the host's styles under its own class inside it. */
+  /** The empty element made inside the panel for this viewer, alive from `ready` to `unmount` (out of the page while its panel is closed, its content kept); undefined outside that. Put the host's styles under its own class inside it. */
   readonly element: HTMLElement | undefined;
 }
 
 /**
- * An empty block in a panel for the host to fill with its own content: the one part that hands out an element. A panel whose only block is a custom block is a custom panel.
+ * An empty block in a panel for the host to fill: the one part that hands out an element. A panel holding only one is a custom panel.
  * @shelf
  * @example
  * const custom = customBlock({ id: "ring" });
@@ -27,6 +27,6 @@ export interface CustomBlockControl {
 export function customBlock(input: CustomBlockInput): CustomBlockPart {
   const who = "customBlock";
   const fields = checkedInput(input, who, "a { id } object");
-  const block: ShelfBlock = { kind: "customBlock", id: checkedId(fields, who), view: CustomBlockView };
+  const block: ShelfBlock = { kind: "customBlock", id: checkedId(fields, who), view: CustomBlockView, control: (link) => ({ get element() { return link.element(); } } satisfies CustomBlockControl) };
   return registered(block) as unknown as CustomBlockPart;
 }

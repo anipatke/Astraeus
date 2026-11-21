@@ -1,7 +1,8 @@
 // The viewer's side of the shelf (viewer-interface note, section 11). Job: from the scene's parts and the showing view, work out the parts to draw, make the per-viewer elements of
 // the custom blocks, apply the host's `PanelControl.setOpen` (silently) and report a visitor's open or close to the host link. It decides no place (the panel rule does) and names no part.
 import { useCallback, useMemo, useRef, useState } from "react";
-import type { ShelfPart, ShelfRuntime } from "./shelfContract";
+import { makeCell, type ShelfBlock, type ShelfCell, type ShelfPart, type ShelfRuntime } from "./shelfContract";
+import type { CameraRequest } from "./CameraController";
 import type { ShelfControl, ViewerPort } from "./viewerPort";
 import type { ResolvedView } from "./views";
 
@@ -26,10 +27,20 @@ export function shownParts(parts: readonly ShelfPart[], view: ResolvedView | und
   return view === undefined ? parts : parts.filter((part) => view.panels.has(part.id));
 }
 
-export function useShelf(parts: readonly ShelfPart[] | undefined, view: ResolvedView | undefined, host: ViewerPort | undefined): ShelfState {
+export function useShelf(parts: readonly ShelfPart[] | undefined, view: ResolvedView | undefined, host: ViewerPort | undefined, moveCamera: (request: CameraRequest) => void): ShelfState {
   const all = parts ?? NONE;
   // One element per custom block, per viewer: made here, so two viewers (or a rebuilt one) never share one.
   const elements = useMemo(() => new Map(typeof document === "undefined" ? [] : all.flatMap((part) => part.blocks.filter((block) => block.kind === "customBlock").map((block) => [block.id, document.createElement("div")] as const))), [all]);
+  // One cell per block, per viewer, made on first use from the block's starting content; a rebuilt scene starts over.
+  const blocks = useMemo(() => new Map<string, ShelfBlock>(all.flatMap((part) => part.blocks.map((block) => [block.id, block] as const))), [all]);
+  const cells = useMemo(() => new Map<string, ShelfCell>(), [blocks]);
+  const cellOf = useCallback((id: string): ShelfCell | undefined => {
+    const block = blocks.get(id);
+    if (block === undefined) return undefined;
+    const made = cells.get(id) ?? makeCell(block.initial);
+    cells.set(id, made);
+    return made;
+  }, [blocks, cells]);
   const shown = useMemo(() => shownParts(all, view), [all, view]);
   const shownRef = useRef(shown);
   shownRef.current = shown;
@@ -41,9 +52,9 @@ export function useShelf(parts: readonly ShelfPart[] | undefined, view: Resolved
   const silent = useRef(false);
   const control = useMemo<ShelfControl | undefined>(() => {
     if (all.length === 0) return undefined;
-    const kinds = new Map(all.flatMap((part) => [[part.id, "panel"] as const, ...part.blocks.map((block) => [block.id, block.kind as "customBlock"] as const)]));
+    const kinds = new Map(all.flatMap((part) => [[part.id, "panel"] as const, ...part.blocks.map((block) => [block.id, block.kind] as const)]));
     return {
-      kinds, elements,
+      kinds, elements, blocks, cell: cellOf,
       isOpen: (id) => open.current === id,
       setOpen: (id, wanted) => {
         // A panel the showing view does not show cannot open; asking to close a closed one changes nothing.
@@ -53,7 +64,7 @@ export function useShelf(parts: readonly ShelfPart[] | undefined, view: Resolved
         setRequest((previous) => ({ id, open: wanted, serial: (previous?.serial ?? 0) + 1 }));
       },
     };
-  }, [all, elements]);
+  }, [all, elements, blocks, cellOf]);
   const onOpenChange = useCallback((id: string | null) => {
     const before = reported.current;
     reported.current = id;
@@ -66,6 +77,11 @@ export function useShelf(parts: readonly ShelfPart[] | undefined, view: Resolved
     if (before !== null) host?.partOpened(before, false);
     if (id !== null) host?.partOpened(id, true);
   }, [host]);
-  const runtime = useMemo<ShelfRuntime>(() => ({ element: (id) => elements.get(id) }), [elements]);
+  const runtime = useMemo<ShelfRuntime>(() => ({
+    element: (id) => elements.get(id),
+    cell: (block) => cellOf(block.id) ?? makeCell(block.initial),
+    report: (id, event) => host?.partHeard(id, event),
+    moveCamera,
+  }), [elements, cellOf, host, moveCamera]);
   return { shown, runtime, request, onOpenChange, control };
 }

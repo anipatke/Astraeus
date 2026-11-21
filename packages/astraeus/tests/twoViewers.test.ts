@@ -25,6 +25,8 @@ import { mount } from "../src/api/mount";
 import { Scene } from "../src/api/scene";
 import { customBlock } from "../src/shelf/customBlock/factory";
 import { panel } from "../src/shelf/panel/factory";
+import { explainer } from "../src/shelf/explainer/factory";
+import { filterChips } from "../src/shelf/filterChips/factory";
 import { viewerHandleOf, type ViewerHandle } from "../src/api/viewerHandle";
 import { ViewerLink, type ViewerChange, type CameraPose } from "../src/api/viewerLink";
 import type { SelectionChange } from "../src/api/viewerSelection";
@@ -356,6 +358,33 @@ describe.each(PAIRINGS)("two viewers on one page: $name", (pairing) => {
     expect(panelOf(b)).not.toBeNull();
     expect(heardA).toEqual([{ part: "notes", open: true }, { part: "notes", open: false }]);
     expect(heardB).toEqual([]);
+  });
+
+  it("API-03: chips, text and a key shared by two viewers keep each viewer's own lit values, paragraphs and listeners: A's press, setSelected and setParagraphs touch A only", async () => {
+    const chips = filterChips({ id: "gap", choices: [{ value: "3:1", label: "3:1" }, { value: "5:2", label: "5:2" }] });
+    const text = explainer({ id: "why", paragraphs: ["Same."] });
+    const holder = panel({ id: "holder", button: { label: "Holder" }, title: "Holder", blocks: [text, chips] });
+    const a = await pairing.first.open({ scene: makeScene().addParts([holder]) });
+    open.push(a);
+    const b = await pairing.second.open({ scene: makeScene().addParts([holder]) });
+    open.push(b);
+    for (const v of [a, b]) v.element.querySelector<HTMLElement>('[data-story-button="holder"]')!.click();
+    await vi.waitFor(() => expect(b.element.querySelector("[data-shelf-panel]")).not.toBeNull());
+    await vi.waitFor(() => expect(a.element.querySelector("[data-shelf-panel]")).not.toBeNull());
+    const heardA: unknown[] = [];
+    const heardB: unknown[] = [];
+    a.handle.part(chips).onSelect((selection) => heardA.push(selection));
+    b.handle.part(chips).onSelect((selection) => heardB.push(selection));
+    const litIn = (v: Viewer) => [...v.element.querySelectorAll('[data-shelf-block="gap"] [aria-pressed="true"]')].map((el) => el.getAttribute("data-shelf-chip"));
+    a.element.querySelector<HTMLElement>('[data-shelf-chip="3:1"]')!.click();
+    await vi.waitFor(() => expect(litIn(a)).toEqual(["3:1"]));
+    expect([litIn(b), heardA.length, heardB.length]).toEqual([[], 1, 0]);
+    b.handle.part(chips).setSelected(["5:2"]);
+    await vi.waitFor(() => expect(litIn(b)).toEqual(["5:2"]));
+    expect([litIn(a), a.handle.part(chips).selected, b.handle.part(chips).selected, heardA.length, heardB.length]).toEqual([["3:1"], ["3:1"], ["5:2"], 1, 0]);
+    a.handle.part(text).setParagraphs(["Only A."]);
+    await vi.waitFor(() => expect(a.element.querySelector('[data-shelf-block="why"]')!.textContent).toContain("Only A."));
+    expect(b.element.querySelector('[data-shelf-block="why"]')!.textContent).toContain("Same.");
   });
 
   it("unmounting A leaves B's handle working and B's page in place", async () => {

@@ -97,7 +97,11 @@ export interface ViewerControl {
 /** What a viewer hands its link about the scene's shelf parts (`Scene.addParts`). */
 export interface ShelfControl {
   /** The id of every panel and block, with its kind. */
-  readonly kinds: ReadonlyMap<string, "panel" | "customBlock">;
+  readonly kinds: ReadonlyMap<string, string>;
+  /** Every block by id: what `handle.part(block)` builds its control from. */
+  readonly blocks: ReadonlyMap<string, import("./shelfContract").ShelfBlock>;
+  /** The block's changing content for this viewer (its setters write it, a visitor's press writes it too); undefined for an id that is not a block. */
+  cell(id: string): import("./shelfContract").ShelfCell | undefined;
   /** The element the viewer made for each custom block: alive from attach to detach. */
   readonly elements: ReadonlyMap<string, HTMLElement>;
   /** Whether the panel `id` is open now. */
@@ -130,6 +134,8 @@ export interface ViewerPort {
   watchAbout(watcher: () => void): () => void;
   /** A visitor opened or closed the shelf panel `id` (or something that shares its place did); the link tells the host's `PanelControl.onOpen` listeners. */
   partOpened(id: string, open: boolean): void;
+  /** A visitor acted in the shelf block `id` (a chip press, an action button): the link tells the host's listeners for that block. */
+  partHeard(id: string, event: unknown): void;
   /** The scene has drawn its first frame; the link tells the host's `onFirstDraw` listeners. */
   firstDraw(): void;
 }

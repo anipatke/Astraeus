@@ -1,0 +1,5 @@
+/* The actions part's look: the shared tokens only (look.css); loaded by app/style.css with the other sheets, since the Node copy of the entry files cannot import a stylesheet from a view. */
+.astraeus-shell .shelf-actions { display: flex; flex-wrap: wrap; gap: var(--astraeus-space-4); min-width: 0; }
+.astraeus-shell .shelf-action { max-width: 100%; min-height: var(--astraeus-size-5); padding: 0 var(--astraeus-space-6); border: 1px solid var(--astraeus-border); background: transparent; color: var(--astraeus-text); font: inherit; font-size: var(--astraeus-text-m); cursor: pointer; overflow-wrap: anywhere; }
+.astraeus-shell .shelf-action:hover { border-color: var(--astraeus-accent); color: var(--astraeus-accent); }
+.astraeus-shell .shelf-action:focus-visible { outline: var(--astraeus-space-1) solid var(--astraeus-accent); outline-offset: var(--astraeus-space-1); }

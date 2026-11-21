@@ -29,6 +29,10 @@ import { mount } from "../src/api/mount";
 import { Scene } from "../src/api/scene";
 import { customBlock } from "../src/shelf/customBlock/factory";
 import { panel } from "../src/shelf/panel/factory";
+import { explainer } from "../src/shelf/explainer/factory";
+import { actions } from "../src/shelf/actions/factory";
+import { filterChips } from "../src/shelf/filterChips/factory";
+import { colourKey } from "../src/shelf/colourKey/factory";
 import { SceneCamera } from "../src/api/planCamera";
 import { earth, mars, moon } from "../src/api/bodies";
 import { viewerHandleOf, type ViewerHandle } from "../src/api/viewerHandle";
@@ -570,6 +574,96 @@ describe.each([mountDriver, reactDriver(false)])("lifecycle: $name", (driver) =>
     expect(codeOf(() => lastGaps.setOpen(true))).toBe("not-mounted");
     expect(codeOf(() => lastGaps.open)).toBe("not-mounted");
     expect(lastGaps.onOpen(() => undefined)).toBeTypeOf("function");
+  });
+
+  it("shelf content parts (O-080 T-334): chips light up on a press and the host hears the values (visitor), setSelected and the other setters are silent, an action turns the camera as a story panel's does and is heard, setParagraphs and setEntries change an open panel, and each control is not-mounted after unmount", async () => {
+    prepared.real = true; openNow();
+    const intro = explainer({ id: "intro", heading: "Why", paragraphs: ["First."], notes: ["A note."] });
+    const chips = filterChips({ id: "gap", label: "Gap", choices: [{ value: "3:1", label: "3:1", color: "#8fb4ff" }, { value: "5:2", label: "5:2" }, { value: "2:1", label: "2:1" }] });
+    const many = filterChips({ id: "kinds", choices: [{ value: "a", label: "A" }, { value: "b", label: "B" }, { value: "c", label: "C" }], multiple: true, selected: ["b"] });
+    const fly = actions({ id: "fly", actions: [{ id: "to-earth", label: "Fly to Earth", camera: { focus: "earth" } }, { id: "plain", label: "Just tell the host" }] });
+    const key = colourKey({ id: "key", entries: [{ label: "Main belt", color: "#8fb4ff", count: 1200, note: "Between Mars and Jupiter." }] });
+    const hold = panel({ id: "hold", button: { label: "Everything" }, title: "Everything", blocks: [intro, chips, many, fly, key] });
+    const opened = await driver.open(new Scene().addBody(earth).addParts([hold]));
+    await opened.ready();
+    const handle = opened.handle!;
+    const controls = () => sceneProps.latest!.controls;
+    flushSync(() => document.querySelector<HTMLElement>('[data-story-button="hold"]')!.click());
+    const chip = (block: string, value: string) => document.querySelector<HTMLElement>(`[data-shelf-block="${block}"] [data-shelf-chip="${value}"]`)!;
+    const lit = (block: string) => [...document.querySelectorAll(`[data-shelf-block="${block}"] [aria-pressed="true"]`)].map((b) => b.getAttribute("data-shelf-chip"));
+    const chipControl = handle.part(chips);
+    const manyControl = handle.part(many);
+    const heard: unknown[] = [];
+    chipControl.onSelect((selection) => heard.push(selection));
+    manyControl.onSelect((selection) => heard.push(selection));
+    expect([chipControl.selected, manyControl.selected, lit("gap"), lit("kinds")]).toEqual([[], ["b"], [], ["b"]]);
+    // a press lights the chip at once and the host hears the values with cause visitor; pressing the lit one clears it; a single row holds one
+    flushSync(() => chip("gap", "3:1").click());
+    expect(lit("gap")).toEqual(["3:1"]);
+    flushSync(() => chip("gap", "5:2").click());
+    expect([lit("gap"), chipControl.selected]).toEqual([["5:2"], ["5:2"]]);
+    flushSync(() => chip("gap", "5:2").click());
+    expect([lit("gap"), chipControl.selected]).toEqual([[], []]);
+    flushSync(() => chip("kinds", "a").click());
+    flushSync(() => chip("kinds", "b").click());
+    expect(lit("kinds")).toEqual(["a"]);
+    expect(heard).toEqual([
+      { part: "gap", values: ["3:1"], cause: "visitor" }, { part: "gap", values: ["5:2"], cause: "visitor" }, { part: "gap", values: [], cause: "visitor" },
+      { part: "kinds", values: ["a", "b"], cause: "visitor" }, { part: "kinds", values: ["a"], cause: "visitor" },
+    ]);
+    // the setters are silent and move the chips; setChoices keeps the values still there
+    heard.length = 0;
+    flushSync(() => chipControl.setSelected(["2:1"]));
+    expect([lit("gap"), chipControl.selected]).toEqual([["2:1"], ["2:1"]]);
+    flushSync(() => chipControl.setChoices([{ value: "2:1", label: "2:1" }, { value: "7:3", label: "7:3" }]));
+    expect([lit("gap"), [...document.querySelectorAll('[data-shelf-block="gap"] [data-shelf-chip]')].map((b) => b.getAttribute("data-shelf-chip"))]).toEqual([["2:1"], ["2:1", "7:3"]]);
+    flushSync(() => chipControl.setChoices([{ value: "7:3", label: "7:3" }]));
+    expect(chipControl.selected).toEqual([]);
+    expect(codeOf(() => chipControl.setSelected(["nope"]))).toBe("bad-part");
+    expect(codeOf(() => chipControl.setSelected(["7:3", "7:3"]))).toBe("bad-part");
+    expect(codeOf(() => manyControl.setSelected(["a", "a"]))).toBe("bad-part");
+    expect(codeOf(() => chipControl.setChoices([] as never))).toBe("bad-part");
+    expect(heard, "setters say nothing").toEqual([]);
+    // keyboard: chips and actions are native buttons, reachable and pressable (Enter and Space press a button)
+    const first = chip("kinds", "c");
+    first.focus();
+    expect(document.activeElement).toBe(first);
+    expect([first.tagName, first.getAttribute("type")]).toEqual(["BUTTON", "button"]);
+    // actions: the camera turns through the story panel's request path, then the host hears the press
+    const pressed: unknown[] = [];
+    handle.part(fly).onAction((change) => pressed.push(change));
+    controls().cameraRequest = null;
+    flushSync(() => document.querySelector<HTMLElement>('[data-shelf-action="to-earth"]')!.click());
+    expect(controls().cameraRequest).toEqual({ kind: "focus", target: "earth" });
+    controls().cameraRequest = null;
+    flushSync(() => document.querySelector<HTMLElement>('[data-shelf-action="plain"]')!.click());
+    expect(controls().cameraRequest).toBeNull();
+    expect(pressed).toEqual([{ part: "fly", action: "to-earth" }, { part: "fly", action: "plain" }]);
+    expect(document.querySelector('[data-shelf-action="plain"]')!.tagName).toBe("BUTTON");
+    // text and key change while the panel is open, silently
+    expect(document.querySelector('[data-shelf-block="intro"]')!.textContent).toContain("First.");
+    flushSync(() => handle.part(intro).setParagraphs(["Second.", "Third."]));
+    expect([...document.querySelectorAll('[data-shelf-block="intro"] .shelf-explainer-text')].map((p) => p.textContent)).toEqual(["Second.", "Third."]);
+    expect(codeOf(() => handle.part(intro).setParagraphs([""]))).toBe("bad-part");
+    flushSync(() => handle.part(key).setEntries([{ label: "Trojans", color: "#e8b06a", count: 7 }]));
+    expect(document.querySelector('[data-shelf-block="key"]')!.textContent).toContain("Trojans");
+    expect(document.querySelector('[data-shelf-block="key"]')!.textContent).not.toContain("Main belt");
+    expect(codeOf(() => handle.part(key).setEntries([{ label: "x", color: "not a colour" }]))).toBe("bad-part");
+    // the text kept across closing and reopening the panel (the cell is the viewer's, not the view's)
+    flushSync(() => document.querySelector<HTMLElement>('[data-story-button="hold"]')!.click());
+    flushSync(() => document.querySelector<HTMLElement>('[data-story-button="hold"]')!.click());
+    expect(document.querySelector('[data-shelf-block="intro"]')!.textContent).toContain("Second.");
+    expect(lit("kinds")).toEqual(["a"]);
+    // a part this viewer's scene does not hold is bad-part, and everything is not-mounted after unmount
+    expect(codeOf(() => handle.part(explainer({ id: "stranger", paragraphs: ["x"] })))).toBe("bad-part");
+    opened.unmount();
+    expect(codeOf(() => chipControl.selected)).toBe("not-mounted");
+    expect(codeOf(() => chipControl.setSelected([]))).toBe("not-mounted");
+    expect(codeOf(() => chipControl.setChoices([{ value: "x", label: "x" }]))).toBe("not-mounted");
+    expect(codeOf(() => handle.part(intro).setParagraphs(["x"]))).toBe("not-mounted");
+    expect(codeOf(() => handle.part(key).setEntries([]))).toBe("not-mounted");
+    expect(codeOf(() => handle.part(fly))).toBe("not-mounted");
+    expect(chipControl.onSelect(() => undefined)).toBeTypeOf("function");
   });
 
   it("a part id some view lists shows only in those views: the button is hidden and an open panel closes (silently) on a switch away, whichever path opened it", async () => {

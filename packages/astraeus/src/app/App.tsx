@@ -314,7 +314,10 @@ export function App({ definition, writeTitle = true, address, developerTools, ho
   // The current view (App state, like the display switches). The shell's lists read one experience, filtered here once; the scene hides the same ids from `controls.viewHidden`.
   const [viewId, setViewId] = useState(() => startViewId(definition, search));
   const currentView = useMemo(() => viewById(definition.views, viewId), [definition.views, viewId]);
-  const shelf = useShelf(definition.parts, currentView, host);
+  // A shelf action's camera goes through the same request path as a story panel's camera (set below, once `setCamera` exists).
+  const shelfCamera = useRef<(request: CameraRequest) => void>(() => undefined);
+  const moveShelfCamera = useCallback((request: CameraRequest) => shelfCamera.current(request), []);
+  const shelf = useShelf(definition.parts, currentView, host, moveShelfCamera);
   const viewExperience = useMemo(() => experienceInView(experience, definition.views, currentView), [experience, definition.views, currentView]);
   // Whether the sky is drawn: the look's `skyVisible`, live (a host's `setLook` changes it).
   const [skyVisible, setSkyVisible] = useState(runtime.sky.visible);
@@ -560,6 +563,7 @@ export function App({ definition, writeTitle = true, address, developerTools, ho
     const { bodies, toward } = cameraIdsOf(request);
     return out === undefined || ![...bodies, ...(toward === undefined ? [] : [toward])].some((id) => out.has(id));
   }, [experience, runtime]);
+  shelfCamera.current = (request) => { if (shownAtClock(request)) setCamera(request); };
   /** The shell's open panel changed (a visitor, a host call already shown, playback crossing a panel, or a view switch dropping it); a change is told to the host, the opening panel is read at attach. */
   const markOpenPanel = useCallback((id: string | null, cause: PanelCause) => {
     const changed = (controls.current.openStoryPanelId ?? null) !== id;

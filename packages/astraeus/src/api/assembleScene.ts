@@ -127,8 +127,10 @@ export function assembleScene(parts: ScenePlanners, data: readonly DataSource[])
   const fit = deferredRead(ids, window, fault, undefined, () => fitFarthestKm(camera, plan.catalogue, plan.own, startUtcMs));
   // The lines read planet positions; when the planet series are not loaded yet (a consumer's mount), they are drawn in `prepare`, once the series are in. The viewer draws only after `prepare` resolves.
   const sunPaths: PathLayer[] = deferredRead<PathLayer[]>(ids, window, fault, [], () => plan.earlySunPaths(sunOrbitIds, startUtcMs, planetSeriesLoaded()));
-  const storyPanels = story.panels(window, trackedMap.values(), [...plan.bodies.keys(), ...trackedMap.keys(), ...groupPlan.groups.keys(), ...bodySets.memberIds()], [...skyFigures.figures.keys()]);
+  const objectIds = [...plan.bodies.keys(), ...trackedMap.keys(), ...groupPlan.groups.keys(), ...bodySets.memberIds()];
+  const storyPanels = story.panels(window, trackedMap.values(), objectIds, [...skyFigures.figures.keys()]);
   parts.parts.checkAgainst(storyPanels);
+  parts.parts.checkCameras(objectIds, [...skyFigures.figures.keys()]);
   groupPlan.check(ids);
   bodySets.check({ ids, catalogue: plan.catalogue, orbits: plan.orbits });
   // A clump near a body reads its position; with the planet series not loaded yet, those groups are built in `prepare` (the viewer draws only after it resolves).

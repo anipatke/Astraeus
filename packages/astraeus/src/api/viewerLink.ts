@@ -12,9 +12,7 @@ import { ViewerFirstDraw } from "./viewerFirstDraw";
 import { ViewerPicker } from "./viewerPicker";
 import { ViewerAbout } from "./viewerAbout";
 import { ViewerParts } from "./viewerParts";
-import type { CustomBlockPart, PanelPart } from "../shelf/part";
-import type { CustomBlockControl } from "../shelf/customBlock/factory";
-import type { PanelControl } from "../shelf/panel/factory";
+import type { AnyPart, ControlFor } from "../shelf/part";
 import type { AboutInput } from "./aboutInput";
 import type { PickChange } from "./pickerInput";
 import { ViewerViews } from "./viewerViews";
@@ -274,10 +272,9 @@ export class ViewerLink implements ViewerPort {
   watchPick(watcher: () => void): () => void { return this.#picker.watch(watcher); }
   picked(value: string): void { this.#picker.press(value); }
 
-  part(descriptor: PanelPart): PanelControl;
-  part(descriptor: CustomBlockPart): CustomBlockControl;
-  part(descriptor: PanelPart | CustomBlockPart): PanelControl | CustomBlockControl { return this.#parts.part(descriptor as PanelPart); }
+  part<P extends AnyPart>(descriptor: P): ControlFor<P> { return this.#parts.part(descriptor); }
   partOpened(id: string, open: boolean): void { this.#parts.press(id, open); }
+  partHeard(id: string, event: unknown): void { this.#parts.heard(id, event); }
 
   setAbout(input: AboutInput): void { this.#about.setAbout(input); }
   aboutNow(): AboutInput | undefined { return this.#about.about; }

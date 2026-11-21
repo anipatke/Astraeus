@@ -2,9 +2,7 @@ import type { LookInput, LookRead } from "./look";
 import type { GroupLookInput, GroupLookRead } from "./groupLookInput";
 import type { PickChange } from "./pickerInput";
 import type { AboutInput } from "./aboutInput";
-import type { CustomBlockPart, PanelPart } from "../shelf/part";
-import type { CustomBlockControl } from "../shelf/customBlock/factory";
-import type { PanelControl } from "../shelf/panel/factory";
+import type { AnyPart, ControlFor } from "../shelf/part";
 import type { TimeInput } from "./time";
 import type { SceneSkyFigureRead } from "./sceneReads";
 import type { SkyClearOptions, SkyTraceOptions } from "./skyTraceInput";
@@ -116,11 +114,10 @@ export interface ViewerHandle {
   /** Replaces the About (`bad-about` if malformed); before `ready` or after `unmount`, `not-mounted`. */
   setAbout(about: AboutInput): void;
   /**
-   * The typed control of a shelf part for this viewer (`Scene.addParts`): `PanelControl` (`open`, `setOpen`, `onOpen`) for a `panel`, `CustomBlockControl` (`element`) for a `customBlock`. Setters are silent and `on*` hear visitors only.
-   * A value no shelf factory made, or a part this viewer's scene does not hold, throws `bad-part`; before `ready` or after `unmount`, `not-mounted`.
+   * The typed control of a shelf part for this viewer. Setters are silent and `on*` hear visitors only.
+   * A part no factory made, or this scene does not hold, is `bad-part`; before `ready` or after `unmount`, `not-mounted`.
    */
-  part(part: PanelPart): PanelControl;
-  part(part: CustomBlockPart): CustomBlockControl;
+  part<P extends AnyPart>(part: P): ControlFor<P>;
   /** Calls `listener` on every change (see `MountOptions.onChange`); returns the function that stops it. No callbacks arrive after `unmount`. A listener that throws is reported to the page (`reportError`) and does not stop the listeners after it. */
   onChange(listener: (change: ViewerChange) => void): () => void;
 }
@@ -144,7 +141,7 @@ export function viewerHandleOf(link: ViewerLink): ViewerHandle {
     get pick() { return link.pick; },
     get about() { return link.about; },
     setAbout: (about) => link.setAbout(about),
-    part: ((descriptor: PanelPart | CustomBlockPart) => link.part(descriptor as PanelPart)) as ViewerHandle["part"],
+    part: ((descriptor: AnyPart) => link.part(descriptor)) as ViewerHandle["part"],
     setPick: (value) => link.setPick(value),
     onPick: (listener) => link.onPick(listener),
     setLook: (look) => link.setLook(look),

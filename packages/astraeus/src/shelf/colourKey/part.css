@@ -1,0 +1,7 @@
+/* The colourKey part's look: the shared tokens only (look.css); loaded by app/style.css with the other sheets, since the Node copy of the entry files cannot import a stylesheet from a view. */
+.astraeus-shell .shelf-colour-key { display: grid; gap: var(--astraeus-space-4); margin: 0; padding: 0; list-style: none; min-width: 0; }
+.astraeus-shell .shelf-colour-row { display: grid; grid-template-columns: auto 1fr auto; align-items: center; column-gap: var(--astraeus-space-4); row-gap: var(--astraeus-space-1); min-width: 0; }
+.astraeus-shell .shelf-colour-swatch { width: var(--astraeus-size-1); height: var(--astraeus-space-6); border-radius: var(--astraeus-radius-s); background: var(--shelf-colour); border: 1px solid var(--astraeus-border); }
+.astraeus-shell .shelf-colour-label { color: var(--astraeus-text); font-size: var(--astraeus-text-m); overflow-wrap: anywhere; }
+.astraeus-shell .shelf-colour-count { color: var(--astraeus-muted); font-size: var(--astraeus-text-s); font-variant-numeric: tabular-nums; }
+.astraeus-shell .shelf-colour-note { grid-column: 2 / -1; color: var(--astraeus-muted); font-size: var(--astraeus-text-s); line-height: 1.4; overflow-wrap: anywhere; }

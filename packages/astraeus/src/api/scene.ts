@@ -416,8 +416,8 @@ export class Scene {
   }
 
   /**
-   * Adds story parts from the shelf (today the `panel`); each panel puts a button in the bar's story group, in the order added, and opens its panel in the left place. Appends; an id (a panel's or a block's) already used by a part or block of this scene throws `duplicate-id`,
-   * and a value no shelf factory made throws `bad-part`. A part id listed in some `ViewInput.panels` shows only in those views. Hear and set a part through `handle.part(descriptor)`.
+   * Adds shelf panels (each holds blocks such as `explainer`, `filterChips`); a panel puts a button in the bar's story group, in the order added, and opens in the left place. Appends; an id already used by a part or block throws `duplicate-id`,
+   * and a value no shelf factory made throws `bad-part`. A part id listed in some `ViewInput.panels` shows only in those views. Hear and set a part through `handle.part`.
    * @example
    * scene.addParts([panel({ id: "notes", button: { label: "Notes" }, title: "Notes", blocks: [customBlock({ id: "notes-body" })] })]);
    */

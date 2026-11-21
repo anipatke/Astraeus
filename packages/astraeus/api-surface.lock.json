@@ -1957,7 +1957,7 @@
         {
           "name": "blocks",
           "optional": false,
-          "signature": "readonly CustomBlockPart[]"
+          "signature": "readonly PanelBlock[]"
         }
       ]
     },
@@ -2030,6 +2030,296 @@
         }
       ]
     },
+    "explainer": {
+      "kind": "function",
+      "signature": "explainer(input: ExplainerInput): BlockPart<\"explainer\">",
+      "constructors": [],
+      "members": []
+    },
+    "ExplainerInput": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "id",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "heading",
+          "optional": true,
+          "signature": "string | undefined"
+        },
+        {
+          "name": "paragraphs",
+          "optional": false,
+          "signature": "readonly string[]"
+        },
+        {
+          "name": "notes",
+          "optional": true,
+          "signature": "readonly string[] | undefined"
+        }
+      ]
+    },
+    "ExplainerControl": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "setParagraphs",
+          "optional": false,
+          "signature": "(paragraphs: readonly string[]): void"
+        }
+      ]
+    },
+    "actions": {
+      "kind": "function",
+      "signature": "actions(input: ActionsInput): BlockPart<\"actions\">",
+      "constructors": [],
+      "members": []
+    },
+    "ActionsInput": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "id",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "actions",
+          "optional": false,
+          "signature": "readonly ActionInput[]"
+        }
+      ]
+    },
+    "ActionInput": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "id",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "label",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "camera",
+          "optional": true,
+          "signature": "CameraTarget | undefined"
+        }
+      ]
+    },
+    "ActionChange": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "part",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "action",
+          "optional": false,
+          "signature": "string"
+        }
+      ]
+    },
+    "ActionsControl": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "onAction",
+          "optional": false,
+          "signature": "(listener: (change: ActionChange) => void): () => void"
+        }
+      ]
+    },
+    "filterChips": {
+      "kind": "function",
+      "signature": "filterChips(input: FilterChipsInput): BlockPart<\"filterChips\">",
+      "constructors": [],
+      "members": []
+    },
+    "FilterChipsInput": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "id",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "choices",
+          "optional": false,
+          "signature": "readonly ChipChoice[]"
+        },
+        {
+          "name": "multiple",
+          "optional": true,
+          "signature": "boolean | undefined"
+        },
+        {
+          "name": "selected",
+          "optional": true,
+          "signature": "readonly string[] | undefined"
+        },
+        {
+          "name": "label",
+          "optional": true,
+          "signature": "string | undefined"
+        }
+      ]
+    },
+    "ChipChoice": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "value",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "label",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "color",
+          "optional": true,
+          "signature": "string | undefined"
+        }
+      ]
+    },
+    "ChipSelection": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "part",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "values",
+          "optional": false,
+          "signature": "readonly string[]"
+        },
+        {
+          "name": "cause",
+          "optional": false,
+          "signature": "\"visitor\""
+        }
+      ]
+    },
+    "FilterChipsControl": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "selected",
+          "optional": false,
+          "signature": "readonly string[]"
+        },
+        {
+          "name": "setSelected",
+          "optional": false,
+          "signature": "(values: readonly string[]): void"
+        },
+        {
+          "name": "setChoices",
+          "optional": false,
+          "signature": "(choices: readonly ChipChoice[]): void"
+        },
+        {
+          "name": "onSelect",
+          "optional": false,
+          "signature": "(listener: (selection: ChipSelection) => void): () => void"
+        }
+      ]
+    },
+    "colourKey": {
+      "kind": "function",
+      "signature": "colourKey(input: ColourKeyInput): BlockPart<\"colourKey\">",
+      "constructors": [],
+      "members": []
+    },
+    "ColourKeyInput": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "id",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "entries",
+          "optional": false,
+          "signature": "readonly ColourKeyEntry[]"
+        }
+      ]
+    },
+    "ColourKeyEntry": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "label",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "color",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "count",
+          "optional": true,
+          "signature": "number | undefined"
+        },
+        {
+          "name": "note",
+          "optional": true,
+          "signature": "string | undefined"
+        }
+      ]
+    },
+    "ColourKeyControl": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "setEntries",
+          "optional": false,
+          "signature": "(entries: readonly ColourKeyEntry[]): void"
+        }
+      ]
+    },
     "PanelPart": {
       "kind": "interface",
       "signature": "",
@@ -2058,11 +2348,17 @@
         {
           "name": "blocks",
           "optional": false,
-          "signature": "readonly CustomBlockPart[]"
+          "signature": "readonly PanelBlock[]"
         }
       ]
     },
     "CustomBlockPart": {
+      "kind": "type",
+      "signature": "BlockPart<\"customBlock\">",
+      "constructors": [],
+      "members": []
+    },
+    "BlockPart": {
       "kind": "interface",
       "signature": "",
       "constructors": [],
@@ -2070,7 +2366,7 @@
         {
           "name": "kind",
           "optional": false,
-          "signature": "\"customBlock\""
+          "signature": "K"
         },
         {
           "name": "id",
@@ -2081,7 +2377,19 @@
     },
     "PanelBlock": {
       "kind": "type",
-      "signature": "CustomBlockPart",
+      "signature": "CustomBlockPart | BlockPart<\"explainer\" | \"actions\" | \"filterChips\" | \"colourKey\">",
+      "constructors": [],
+      "members": []
+    },
+    "AnyPart": {
+      "kind": "type",
+      "signature": "PanelPart | PanelBlock",
+      "constructors": [],
+      "members": []
+    },
+    "ControlFor": {
+      "kind": "type",
+      "signature": "{ panel: PanelControl; customBlock: CustomBlockControl; explainer: ExplainerControl; actions: ActionsControl; filterChips: FilterChipsControl; colourKey: ColourKeyControl }[P[\"kind\"]]",
       "constructors": [],
       "members": []
     },
@@ -3150,7 +3458,7 @@
         {
           "name": "part",
           "optional": false,
-          "signature": "(part: PanelPart): PanelControl\n(part: CustomBlockPart): CustomBlockControl"
+          "signature": "<P extends AnyPart>(part: P): ControlFor<P>"
         },
         {
           "name": "onChange",
@@ -3347,7 +3655,7 @@
         {
           "name": "part",
           "optional": false,
-          "signature": "(part: PanelPart): PanelControl\n(part: CustomBlockPart): CustomBlockControl"
+          "signature": "<P extends AnyPart>(part: P): ControlFor<P>"
         },
         {
           "name": "onChange",

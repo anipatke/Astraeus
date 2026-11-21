@@ -1,7 +1,8 @@
 import { SceneError } from "./errors";
 import { badPart, isMade, partOf, type PanelPart } from "../shelf/part";
 import { idsOfPart, type ShelfPart } from "../app/shelfContract";
-import type { StoryPanelSet } from "../core/storyPanels";
+import { cameraIdsOf, type StoryPanelSet } from "../core/storyPanels";
+import type { ActionsData } from "../shelf/actions/factory";
 
 /** What a `Scene` has planned for its shelf parts (`addParts`), in the order added. */
 export class PartPlan {
@@ -36,6 +37,21 @@ export class PartPlan {
   checkAgainst(storyPanels: StoryPanelSet | undefined): void {
     const story = new Set([...(storyPanels?.panels ?? []), ...(storyPanels?.steps ?? [])].map(({ id }) => id));
     for (const id of this.#ids) if (story.has(id)) throw new SceneError("duplicate-id", `addParts: "${id}" is also the id of a story panel; part and story panel ids share \`ViewInput.panels\``);
+  }
+
+  /** Build-time check: an action's camera may only name an object the scene has, or turn toward an object or a sky figure it has (`bad-part`, as a story panel's camera is checked). */
+  checkCameras(objectIds: readonly string[], figureIds: readonly string[]): void {
+    for (const part of this.#parts) {
+      for (const block of part.blocks) {
+        if (block.kind !== "actions") continue;
+        for (const action of (block.data as ActionsData).actions) {
+          if (action.camera === undefined) continue;
+          const { bodies, toward } = cameraIdsOf(action.camera as Parameters<typeof cameraIdsOf>[0]);
+          for (const id of bodies) if (!objectIds.includes(id)) throw new SceneError("bad-part", `actions "${block.id}": action "${action.id}" camera names "${id}", which is not an object in the scene`);
+          if (toward !== undefined && !objectIds.includes(toward) && !figureIds.includes(toward)) throw new SceneError("bad-part", `actions "${block.id}": action "${action.id}" camera turns toward "${toward}", which is neither an object nor a sky figure in the scene`);
+        }
+      }
+    }
   }
 
   /** The definition's entry; absent when none was added. */
