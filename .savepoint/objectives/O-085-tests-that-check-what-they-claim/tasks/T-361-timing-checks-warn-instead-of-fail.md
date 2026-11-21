@@ -2,7 +2,7 @@
 id: T-361
 title: Timing checks warn instead of fail
 objective: O-085
-status: planned
+status: done
 depends_on: []
 check_waiver: {task: T-361, reason: 'Owner said "work through this list of objectives one by one. Orchestrate each objective to completion" (G-024 decision 7): standing orchestration rules waive the optional step checks; the mandatory Full Objective Check covers the whole diff.', actor: {role: owner, session: orchestrate-g024-20261121}, recorded_at: '2026-11-21T12:50:31Z'}
 owner_validation: {required: false}
@@ -65,8 +65,40 @@ Focused: `npx vitest run packages/astraeus-demo-showers/tests/showersMeasured.te
 
 ## Technical Evidence
 
-Pending execution.
+### Search (`performance.now()` / `Date.now() -` under packages/*/tests)
+
+- showersMeasured.test.ts:257: was a failing assertion (`toBeLessThan(100)`); now warning-only (`console.warn` at >= 100 ms) plus the existing `console.info`.
+- frameStats.test.ts:73-78: was a failing assertion (`toBeLessThan(50)`); now warning-only (>= 50 us) plus the existing `console.log`.
+- pacedAdvance.test.ts:101-103: was a failing assertion (`Date.now() - start < 2000`); replaced by a clock-free check (below).
+- groupLookRender.test.ts:136-138: log-only (`console.log` median/worst; no timing assertion).
+- listedOrbitGroup.test.ts:344-353: opt-in (`it.skipIf(perfOnRequest)`, ASTRAEUS_PERF=1), left as is.
+- listedOrbitGroup.test.ts:549-553: log-only (O-077 scale `console.log`).
+- lifecycle.test.ts:54-56: `until` poll deadline, not a timing measure.
+No further failing wall-clock assertion found.
+
+### Before / after
+
+- showersMeasured ~258: `expect(ms).toBeLessThan(100);` -> `if (ms >= 100) console.warn(...)`.
+- frameStats ~80: `expect(tickUs).toBeLessThan(50);` -> `if (tickUs >= 50) console.warn(...)`.
+- pacedAdvance ~101-103: removed `const start = Date.now()` and `expect(Date.now() - start).toBeLessThan(2_000)`. The existing pacing (10 zones) never reaches MAX_PACE_STEPS, so the old test did not exercise the bound; the case now builds a local 300-zone pacing (ramps; needs far more than 4096 sub-steps) and asserts the ten-year advance is finite, > START, and `< ` the last zone's end (the remainder is dropped). The existing `MAX_PACE_STEPS > 0` assertion stays.
+
+### Done When -> evidence
+
+| Done When | Evidence |
+|---|---|
+| three wall-clock assertions gone | diff above; focused run 3 files / 43 tests passed |
+| showers: warn, title unchanged | showersMeasured.test.ts, warn line |
+| frameStats: warn | frameStats.test.ts, warn line |
+| pacedAdvance clock-free bound | mutation: `step < MAX_PACE_STEPS &&` -> `true &&` in pacing.ts made "is bounded" fail (expected 708417197920919600 < 1945301400000); pacing.ts restored (git diff empty) |
+| ASTRAEUS_PERF case untouched | not edited |
+| search recorded | list above |
+| other assertions unchanged | diff limited to the named lines |
+| gates | lint: 1 error, only in other builder's file (packages/astraeus-demo-showers/tests/rebuildComparison.test.ts:47 complexity 23, T-362), not fixed; typecheck clean; build ok; npm test 301 files, 5031 passed, 2 skipped |
+
+Not run: coverage focused run (showersMeasured under --coverage).
 
 ## Drift Notes
 
-None expected.
+None.
+
+Coordinator (orchestrate-g024-20261121): ran the focused coverage run the Task lists (`npx vitest run packages/astraeus-demo-showers/tests/showersMeasured.test.ts --coverage`): 19 passed, no failure under coverage. Typecheck, build, `npm test` (5031 passed) green; the one lint error was T-362's in-flight `rebuildComparison.test.ts` (checked again at the Full Check). The `pacedAdvance` case gained its own 300-zone pacing because the Task's subject is that case's assertion (planner decision 1, boundedness, not wall clock). `status: done` set by the coordinator under the standing orchestration rule ("I mark them as they pass", O-038) and G-024 decision 7.
