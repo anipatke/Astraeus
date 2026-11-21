@@ -9,7 +9,11 @@ import type { ResolvedView } from "./views";
 const NONE: readonly ShelfPart[] = [];
 
 /** One host call to open or close a panel, applied by the shell once per `serial`. */
-export interface ShelfRequest { readonly id: string; readonly open: boolean; readonly serial: number }
+export interface ShelfRequest {
+  readonly id: string;
+  readonly open: boolean;
+  readonly serial: number;
+}
 
 export interface ShelfState {
   /** The parts the showing view shows, in the scene's order. */
@@ -27,21 +31,49 @@ export function shownParts(parts: readonly ShelfPart[], view: ResolvedView | und
   return view === undefined ? parts : parts.filter((part) => view.panels.has(part.id));
 }
 
-export function useShelf(parts: readonly ShelfPart[] | undefined, view: ResolvedView | undefined, host: ViewerPort | undefined, moveCamera: (request: CameraRequest) => void): ShelfState {
+export function useShelf(
+  parts: readonly ShelfPart[] | undefined,
+  view: ResolvedView | undefined,
+  host: ViewerPort | undefined,
+  moveCamera: (request: CameraRequest) => void,
+): ShelfState {
   const all = parts ?? NONE;
   // One element per custom block, per viewer: made here, so two viewers (or a rebuilt one) never share one.
-  const elements = useMemo(() => new Map(typeof document === "undefined" ? [] : all.flatMap((part) => (part.kind === "panel" ? part.blocks : []).filter((block) => block.kind === "customBlock").map((block) => [block.id, document.createElement("div")] as const))), [all]);
+  const elements = useMemo(
+    () =>
+      new Map(
+        typeof document === "undefined"
+          ? []
+          : all.flatMap((part) =>
+              (part.kind === "panel" ? part.blocks : [])
+                .filter((block) => block.kind === "customBlock")
+                .map((block) => [block.id, document.createElement("div")] as const),
+            ),
+      ),
+    [all],
+  );
   // One cell per block, per viewer, made on first use from the block's starting content; a rebuilt scene starts over.
-  const blocks = useMemo(() => new Map<string, ShelfBlock>(all.flatMap((part) => (part.kind === "panel" ? part.blocks : [part]).map((block) => [block.id, block] as const))), [all]);
+  const blocks = useMemo(
+    () =>
+      new Map<string, ShelfBlock>(
+        all.flatMap((part) =>
+          (part.kind === "panel" ? part.blocks : [part]).map((block) => [block.id, block] as const),
+        ),
+      ),
+    [all],
+  );
   // eslint-disable-next-line react-hooks/exhaustive-deps -- blocks is the reset key: a rebuilt scene starts over
   const cells = useMemo(() => new Map<string, ShelfCell>(), [blocks]);
-  const cellOf = useCallback((id: string): ShelfCell | undefined => {
-    const block = blocks.get(id);
-    if (block === undefined) return undefined;
-    const made = cells.get(id) ?? makeCell(block.initial);
-    cells.set(id, made);
-    return made;
-  }, [blocks, cells]);
+  const cellOf = useCallback(
+    (id: string): ShelfCell | undefined => {
+      const block = blocks.get(id);
+      if (block === undefined) return undefined;
+      const made = cells.get(id) ?? makeCell(block.initial);
+      cells.set(id, made);
+      return made;
+    },
+    [blocks, cells],
+  );
   const shown = useMemo(() => shownParts(all, view), [all, view]);
   const shownRef = useRef(shown);
   shownRef.current = shown;
@@ -58,9 +90,17 @@ export function useShelf(parts: readonly ShelfPart[] | undefined, view: Resolved
   const seen = useRef<number | undefined>(undefined);
   const control = useMemo<ShelfControl | undefined>(() => {
     if (all.length === 0) return undefined;
-    const kinds = new Map(all.flatMap((part) => [[part.id, part.kind] as const, ...(part.kind === "panel" ? part.blocks : []).map((block) => [block.id, block.kind] as const)]));
+    const kinds = new Map(
+      all.flatMap((part) => [
+        [part.id, part.kind] as const,
+        ...(part.kind === "panel" ? part.blocks : []).map((block) => [block.id, block.kind] as const),
+      ]),
+    );
     return {
-      kinds, elements, blocks, cell: cellOf,
+      kinds,
+      elements,
+      blocks,
+      cell: cellOf,
       isOpen: (id) => open.current === id,
       setOpen: (id, wanted) => {
         // A panel the showing view does not show cannot open; asking to close a closed one changes nothing.
@@ -72,25 +112,31 @@ export function useShelf(parts: readonly ShelfPart[] | undefined, view: Resolved
       },
     };
   }, [all, elements, blocks, cellOf]);
-  const onOpenChange = useCallback((id: string | null, applied: number | undefined) => {
-    const before = reported.current;
-    reported.current = id;
-    const byHost = applied !== seen.current;
-    seen.current = applied;
-    // The host's read follows the shell once every host call is applied (a visitor, a view switch or another occupant may have changed it).
-    if (applied === asked.current) open.current = id;
-    if (byHost || before === id) return;
-    // A panel the showing view dropped is silent too (the view switch is what the host hears, `onChange`).
-    const dropped = before !== null && id === null && !shownRef.current.some((part) => part.id === before);
-    if (dropped) return;
-    if (before !== null) host?.partOpened(before, false);
-    if (id !== null) host?.partOpened(id, true);
-  }, [host]);
-  const runtime = useMemo<ShelfRuntime>(() => ({
-    element: (id) => elements.get(id),
-    cell: (block) => cellOf(block.id) ?? makeCell(block.initial),
-    report: (id, event) => host?.partHeard(id, event),
-    moveCamera,
-  }), [elements, cellOf, host, moveCamera]);
+  const onOpenChange = useCallback(
+    (id: string | null, applied: number | undefined) => {
+      const before = reported.current;
+      reported.current = id;
+      const byHost = applied !== seen.current;
+      seen.current = applied;
+      // The host's read follows the shell once every host call is applied (a visitor, a view switch or another occupant may have changed it).
+      if (applied === asked.current) open.current = id;
+      if (byHost || before === id) return;
+      // A panel the showing view dropped is silent too (the view switch is what the host hears, `onChange`).
+      const dropped = before !== null && id === null && !shownRef.current.some((part) => part.id === before);
+      if (dropped) return;
+      if (before !== null) host?.partOpened(before, false);
+      if (id !== null) host?.partOpened(id, true);
+    },
+    [host],
+  );
+  const runtime = useMemo<ShelfRuntime>(
+    () => ({
+      element: (id) => elements.get(id),
+      cell: (block) => cellOf(block.id) ?? makeCell(block.initial),
+      report: (id, event) => host?.partHeard(id, event),
+      moveCamera,
+    }),
+    [elements, cellOf, host, moveCamera],
+  );
   return { shown, runtime, request, onOpenChange, control };
 }

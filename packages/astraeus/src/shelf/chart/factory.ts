@@ -1,7 +1,16 @@
 // The chart part: a bar chart of counts the app gives, with an axis label, optional labelled marks and an optional highlighted range. Job: check its input and build the descriptor that carries
 // its view and its control. It must not know what the counts mean (the story's words say that), fetch data or hear a tap: the bars take none.
 import type { ShelfBlock } from "../../app/shelfContract";
-import { badPart, checkedColour, checkedId, checkedInput, checkedItems, checkedText, registered, type BlockPart } from "../part";
+import {
+  badPart,
+  checkedColour,
+  checkedId,
+  checkedInput,
+  checkedItems,
+  checkedText,
+  registered,
+  type BlockPart,
+} from "../part";
 import { ChartView } from "./View";
 
 /** One bar: the counted range `low` up to `high`, and how many fell in it. */
@@ -49,37 +58,73 @@ export interface ChartControl {
 }
 
 /** What one viewer's chart shows and changes. */
-export interface ChartState { readonly bins: readonly ChartBin[]; readonly highlight?: ChartRange }
+export interface ChartState {
+  readonly bins: readonly ChartBin[];
+  readonly highlight?: ChartRange;
+}
 
 /** What the chart was given that never changes. */
-export interface ChartData { readonly axisLabel: string; readonly marks: readonly ChartMark[] }
+export interface ChartData {
+  readonly axisLabel: string;
+  readonly marks: readonly ChartMark[];
+}
 
 const finite = (value: unknown): value is number => typeof value === "number" && Number.isFinite(value);
 
-const binsOf = (value: unknown, who: string): readonly ChartBin[] => checkedItems(value, who, "bins", "{ low, high, count, color? } objects", (record, at) => {
-  const { low, high, count } = record;
-  if (!finite(low) || !finite(high)) throw badPart(who, `${at}.low and ${at}.high must be finite numbers`);
-  if (low >= high) throw badPart(who, `${at}.low must be less than ${at}.high`);
-  if (!finite(count) || count < 0) throw badPart(who, `${at}.count must be a number of 0 or more`);
-  return Object.freeze({ low, high, count, ...(record.color === undefined ? {} : { color: checkedColour(record.color, who, `${at}.color`) }) });
-});
+const binsOf = (value: unknown, who: string): readonly ChartBin[] =>
+  checkedItems(value, who, "bins", "{ low, high, count, color? } objects", (record, at) => {
+    const { low, high, count } = record;
+    if (!finite(low) || !finite(high)) throw badPart(who, `${at}.low and ${at}.high must be finite numbers`);
+    if (low >= high) throw badPart(who, `${at}.low must be less than ${at}.high`);
+    if (!finite(count) || count < 0) throw badPart(who, `${at}.count must be a number of 0 or more`);
+    return Object.freeze({
+      low,
+      high,
+      count,
+      ...(record.color === undefined ? {} : { color: checkedColour(record.color, who, `${at}.color`) }),
+    });
+  });
 
-const marksOf = (value: unknown, who: string): readonly ChartMark[] => value === undefined ? Object.freeze([]) : checkedItems(value, who, "marks", "{ value, label } objects", (record, at) => {
-  if (!finite(record.value)) throw badPart(who, `${at}.value must be a finite number`);
-  return Object.freeze({ value: record.value, label: checkedText(record.label, who, `${at}.label`) });
-}, true);
+const marksOf = (value: unknown, who: string): readonly ChartMark[] =>
+  value === undefined
+    ? Object.freeze([])
+    : checkedItems(
+        value,
+        who,
+        "marks",
+        "{ value, label } objects",
+        (record, at) => {
+          if (!finite(record.value)) throw badPart(who, `${at}.value must be a finite number`);
+          return Object.freeze({ value: record.value, label: checkedText(record.label, who, `${at}.label`) });
+        },
+        true,
+      );
 
 /** The range of the axis the bins cover. */
-export const extentOf = (bins: readonly ChartBin[]): ChartRange => ({ low: Math.min(...bins.map((bin) => bin.low)), high: Math.max(...bins.map((bin) => bin.high)) });
+export const extentOf = (bins: readonly ChartBin[]): ChartRange => ({
+  low: Math.min(...bins.map((bin) => bin.low)),
+  high: Math.max(...bins.map((bin) => bin.high)),
+});
 
 /** True when `range` lies within what `bins` cover. */
-const fits = (range: ChartRange, bins: readonly ChartBin[]): boolean => { const extent = extentOf(bins); return range.low >= extent.low && range.high <= extent.high; };
+const fits = (range: ChartRange, bins: readonly ChartBin[]): boolean => {
+  const extent = extentOf(bins);
+  return range.low >= extent.low && range.high <= extent.high;
+};
 
 const rangeOf = (value: unknown, who: string, bins: readonly ChartBin[]): ChartRange => {
   const record = value as { low?: unknown; high?: unknown } | null;
-  if (typeof record !== "object" || record === null || Array.isArray(record) || !finite(record.low) || !finite(record.high)) throw badPart(who, "highlight must be a { low, high } object of finite numbers");
+  if (
+    typeof record !== "object" ||
+    record === null ||
+    Array.isArray(record) ||
+    !finite(record.low) ||
+    !finite(record.high)
+  )
+    throw badPart(who, "highlight must be a { low, high } object of finite numbers");
   if (record.low >= record.high) throw badPart(who, "highlight.low must be less than highlight.high");
-  if (!fits({ low: record.low, high: record.high }, bins)) throw badPart(who, "highlight must lie within the bins' range");
+  if (!fits({ low: record.low, high: record.high }, bins))
+    throw badPart(who, "highlight must lie within the bins' range");
   return Object.freeze({ low: record.low, high: record.high });
 };
 
@@ -94,25 +139,44 @@ export function chart(input: ChartInput): BlockPart<"chart"> {
   const who = "chart";
   const fields = checkedInput(input, who, "an { id, bins, axisLabel } object");
   const bins = binsOf(fields.bins, who);
-  const state: ChartState = Object.freeze({ bins, ...(fields.highlight === undefined ? {} : { highlight: rangeOf(fields.highlight, who, bins) }) });
+  const state: ChartState = Object.freeze({
+    bins,
+    ...(fields.highlight === undefined ? {} : { highlight: rangeOf(fields.highlight, who, bins) }),
+  });
   const block: ShelfBlock = {
-    kind: "chart", id: checkedId(fields, who), view: ChartView,
-    data: Object.freeze({ axisLabel: checkedText(fields.axisLabel, who, "axisLabel"), marks: marksOf(fields.marks, who) } satisfies ChartData),
+    kind: "chart",
+    id: checkedId(fields, who),
+    view: ChartView,
+    data: Object.freeze({
+      axisLabel: checkedText(fields.axisLabel, who, "axisLabel"),
+      marks: marksOf(fields.marks, who),
+    } satisfies ChartData),
     initial: state,
-    control: (link) => ({
-      setBins: (next: readonly ChartBin[]) => {
-        const nextBins = binsOf(next, "ChartControl.setBins");
-        const cell = link.cell("ChartControl.setBins");
-        const kept = (cell.get() as ChartState).highlight;
-        cell.set(Object.freeze({ bins: nextBins, ...(kept !== undefined && fits(kept, nextBins) ? { highlight: kept } : {}) }) satisfies ChartState);
-      },
-      setHighlight: (range: ChartRange | undefined) => {
-        const cell = link.cell("ChartControl.setHighlight");
-        const current = cell.get() as ChartState;
-        const highlight = range === undefined ? undefined : rangeOf(range, "ChartControl.setHighlight", current.bins);
-        cell.set(Object.freeze({ bins: current.bins, ...(highlight === undefined ? {} : { highlight }) }) satisfies ChartState);
-      },
-    } satisfies ChartControl),
+    control: (link) =>
+      ({
+        setBins: (next: readonly ChartBin[]) => {
+          const nextBins = binsOf(next, "ChartControl.setBins");
+          const cell = link.cell("ChartControl.setBins");
+          const kept = (cell.get() as ChartState).highlight;
+          cell.set(
+            Object.freeze({
+              bins: nextBins,
+              ...(kept !== undefined && fits(kept, nextBins) ? { highlight: kept } : {}),
+            }) satisfies ChartState,
+          );
+        },
+        setHighlight: (range: ChartRange | undefined) => {
+          const cell = link.cell("ChartControl.setHighlight");
+          const current = cell.get() as ChartState;
+          const highlight = range === undefined ? undefined : rangeOf(range, "ChartControl.setHighlight", current.bins);
+          cell.set(
+            Object.freeze({
+              bins: current.bins,
+              ...(highlight === undefined ? {} : { highlight }),
+            }) satisfies ChartState,
+          );
+        },
+      }) satisfies ChartControl,
   };
   return registered(block) as unknown as BlockPart<"chart">;
 }

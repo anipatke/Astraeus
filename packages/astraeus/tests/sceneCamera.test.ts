@@ -2,7 +2,12 @@ import { describe, expect, it } from "vitest";
 import { catalogue } from "../src/assets/catalogue";
 import { readableScale } from "../src/presentation/scalePolicy";
 import { createOrbitCameraState, resolveCamera } from "../src/app/CameraController";
-import { cameraTargetAbsolute, rescaleCameraForPolicy, stepCameraTarget, type CameraStepInput } from "../src/app/sceneCamera";
+import {
+  cameraTargetAbsolute,
+  rescaleCameraForPolicy,
+  stepCameraTarget,
+  type CameraStepInput,
+} from "../src/app/sceneCamera";
 import type { SceneTargets } from "../src/app/sceneTargets";
 import type { RenderVector } from "../src/app/renderCoordinates";
 import { focusLimits } from "../src/app/sceneFraming";
@@ -10,18 +15,42 @@ import { FloatingOrigin } from "../src/app/floatingOrigin";
 import { EQUATORIAL_UP } from "../src/app/viewUp";
 import { viewFromAngles, type StartView } from "../src/app/viewLink";
 
-const positions = new Map<string, RenderVector>([["earth", [0, 0, 0]], ["moon", [60, 0, 0]], ["sun", [0, 0, 20000]]]);
+const positions = new Map<string, RenderVector>([
+  ["earth", [0, 0, 0]],
+  ["moon", [60, 0, 0]],
+  ["sun", [0, 0, 20000]],
+]);
 const targets: SceneTargets = {
   bodyIdFor: (id) => (catalogue.has(id) ? id : null),
   placed: positions as SceneTargets["placed"],
   absoluteOf: (id) => positions.get(id) ?? [0, 0, 0],
-  groupViews: [], sunCentredViews: [], trackedViews: [], bodySetViews: [],
-  timeUtcMs: 0, policy: readableScale, placement: {} as SceneTargets["placement"],
+  groupViews: [],
+  sunCentredViews: [],
+  trackedViews: [],
+  bodySetViews: [],
+  timeUtcMs: 0,
+  policy: readableScale,
+  placement: {} as SceneTargets["placement"],
 };
 const frame = { centre: "earth", span: 60, bodies: catalogue } as const;
 
-function input(over: Partial<CameraStepInput> = {}, controls: CameraStepInput["controls"] = { cameraRequest: null }): CameraStepInput {
-  return { camState: createOrbitCameraState(16, "earth"), controls, targets, frame, catalogue, reach: {}, fovDeg: 45, viewUp: EQUATORIAL_UP, firstFrame: false, previousUp: null, ...over };
+function input(
+  over: Partial<CameraStepInput> = {},
+  controls: CameraStepInput["controls"] = { cameraRequest: null },
+): CameraStepInput {
+  return {
+    camState: createOrbitCameraState(16, "earth"),
+    controls,
+    targets,
+    frame,
+    catalogue,
+    reach: {},
+    fovDeg: 45,
+    viewUp: EQUATORIAL_UP,
+    firstFrame: false,
+    previousUp: null,
+    ...over,
+  };
 }
 
 describe("rescaleCameraForPolicy", () => {
@@ -78,7 +107,10 @@ describe("stepCameraTarget", () => {
   });
 
   it("opens exactly on an explicit start view on the first frame and consumes any request", () => {
-    const controls = { cameraRequest: { kind: "overview" } as const, startView: { focus: "moon", azimuthDeg: 90, elevationDeg: 30, distance: 8 } };
+    const controls = {
+      cameraRequest: { kind: "overview" } as const,
+      startView: { focus: "moon", azimuthDeg: 90, elevationDeg: 30, distance: 8 },
+    };
     const step = input({ firstFrame: true }, controls);
     expect(stepCameraTarget(step)).toBe("moon");
     expect(step.camState.azimuth).toBeCloseTo(Math.PI / 2, 6);
@@ -94,7 +126,11 @@ describe("stepCameraTarget", () => {
     stepCameraTarget(opened);
     stepCameraTarget(asked);
     expect(opened.camState.lookOut).toEqual({ fovDeg: 40 });
-    expect([opened.camState.focus, opened.camState.azimuth, opened.camState.elevation]).toEqual([asked.camState.focus, asked.camState.azimuth, asked.camState.elevation]);
+    expect([opened.camState.focus, opened.camState.azimuth, opened.camState.elevation]).toEqual([
+      asked.camState.focus,
+      asked.camState.azimuth,
+      asked.camState.elevation,
+    ]);
     expect(opened.controls.cameraRequest).toBeNull();
     const host = { kind: "focus", target: "moon" } as const;
     const overruled = input({ firstFrame: true }, { cameraRequest: host, hostCameraRequest: host, startView: toward });
@@ -103,9 +139,15 @@ describe("stepCameraTarget", () => {
   });
 
   it("ignores the start view after the first frame and when it names something unknown", () => {
-    const later = input({ firstFrame: false }, { cameraRequest: null, startView: { focus: "moon", azimuthDeg: 0, elevationDeg: 0, distance: 8 } });
+    const later = input(
+      { firstFrame: false },
+      { cameraRequest: null, startView: { focus: "moon", azimuthDeg: 0, elevationDeg: 0, distance: 8 } },
+    );
     expect(stepCameraTarget(later)).toBe("earth");
-    const unknown = input({ firstFrame: true }, { cameraRequest: null, startView: { focus: "nowhere", azimuthDeg: 0, elevationDeg: 0, distance: 8 } });
+    const unknown = input(
+      { firstFrame: true },
+      { cameraRequest: null, startView: { focus: "nowhere", azimuthDeg: 0, elevationDeg: 0, distance: 8 } },
+    );
     expect(stepCameraTarget(unknown)).toBe("earth");
   });
 
@@ -154,12 +196,24 @@ describe("a held camera (a view's stay rule)", () => {
   const frameOf = (step: CameraStepInput, origin: FloatingOrigin) => {
     stepCameraTarget(step);
     resolveCamera(step.camState, cameraTargetAbsolute(step.camState, step.targets), origin, 0.5, 1e12, EQUATORIAL_UP);
-    return { target: [...step.camState.targetAbsolute], camera: [...step.camState.cameraAbsolute], distance: step.camState.distance, azimuth: step.camState.azimuth, elevation: step.camState.elevation };
+    return {
+      target: [...step.camState.targetAbsolute],
+      camera: [...step.camState.cameraAbsolute],
+      distance: step.camState.distance,
+      azimuth: step.camState.azimuth,
+      elevation: step.camState.elevation,
+    };
   };
 
   it("keeps the target and camera still while the object it was on moves on, and keeps the distance and angles", () => {
     const moving = new Map(positions);
-    const step = input({ targets: { ...targets, placed: moving as SceneTargets["placed"], absoluteOf: (id) => moving.get(id) ?? [0, 0, 0] } });
+    const step = input({
+      targets: {
+        ...targets,
+        placed: moving as SceneTargets["placed"],
+        absoluteOf: (id) => moving.get(id) ?? [0, 0, 0],
+      },
+    });
     const origin = new FloatingOrigin();
     step.camState.focus = "moon";
     step.camState.distance = step.camState.targetDistance = 5;
@@ -176,7 +230,13 @@ describe("a held camera (a view's stay rule)", () => {
 
   it("is replaced by the next focus: picking a new object focuses it normally and the target follows it again", () => {
     const moving = new Map(positions);
-    const step = input({ targets: { ...targets, placed: moving as SceneTargets["placed"], absoluteOf: (id) => moving.get(id) ?? [0, 0, 0] } });
+    const step = input({
+      targets: {
+        ...targets,
+        placed: moving as SceneTargets["placed"],
+        absoluteOf: (id) => moving.get(id) ?? [0, 0, 0],
+      },
+    });
     const origin = new FloatingOrigin();
     step.camState.focus = "moon";
     step.controls.cameraRequest = { kind: "hold" };
@@ -225,7 +285,15 @@ describe("a pose read and restored (the host camera, T-225)", () => {
   };
   const standing = (focus: string, azimuth: number, elevation: number, distance: number): CameraStepInput => {
     const step = input();
-    Object.assign(step.camState, { focus, azimuth, targetAzimuth: azimuth, elevation, targetElevation: elevation, distance, targetDistance: distance });
+    Object.assign(step.camState, {
+      focus,
+      azimuth,
+      targetAzimuth: azimuth,
+      elevation,
+      targetElevation: elevation,
+      distance,
+      targetDistance: distance,
+    });
     return step;
   };
   const near = (a: StartView, b: StartView) => {
@@ -238,7 +306,15 @@ describe("a pose read and restored (the host camera, T-225)", () => {
   it("puts the camera back where it was read after the visitor moved it", () => {
     const step = standing("moon", 2, 0.3, 9);
     const read = settle(step);
-    Object.assign(step.camState, { focus: "earth", azimuth: 4, targetAzimuth: 4, elevation: -0.2, targetElevation: -0.2, distance: 14, targetDistance: 14 });
+    Object.assign(step.camState, {
+      focus: "earth",
+      azimuth: 4,
+      targetAzimuth: 4,
+      elevation: -0.2,
+      targetElevation: -0.2,
+      distance: 14,
+      targetDistance: 14,
+    });
     step.controls.cameraRequest = { kind: "pose", view: read };
     near(settle(step), read);
     expect(step.controls.cameraRequest).toBeNull();
@@ -246,12 +322,25 @@ describe("a pose read and restored (the host camera, T-225)", () => {
 
   it("each input alone: only the focus, only the azimuth, only the elevation or only the distance differs", () => {
     const base = { azimuth: 2, elevation: 0.3, distance: 9 };
-    const changes: Array<Partial<typeof base> & { focus?: string }> = [{ focus: "earth" }, { azimuth: 5 }, { elevation: -0.4 }, { distance: 30 }];
+    const changes: Array<Partial<typeof base> & { focus?: string }> = [
+      { focus: "earth" },
+      { azimuth: 5 },
+      { elevation: -0.4 },
+      { distance: 30 },
+    ];
     for (const change of changes) {
       const step = standing("moon", base.azimuth, base.elevation, base.distance);
       const read = settle(step);
       const moved = { focus: "moon", ...base, ...change };
-      Object.assign(step.camState, { focus: moved.focus, azimuth: moved.azimuth, targetAzimuth: moved.azimuth, elevation: moved.elevation, targetElevation: moved.elevation, distance: moved.distance, targetDistance: moved.distance });
+      Object.assign(step.camState, {
+        focus: moved.focus,
+        azimuth: moved.azimuth,
+        targetAzimuth: moved.azimuth,
+        elevation: moved.elevation,
+        targetElevation: moved.elevation,
+        distance: moved.distance,
+        targetDistance: moved.distance,
+      });
       step.controls.cameraRequest = { kind: "pose", view: read };
       near(settle(step), read);
     }
@@ -268,7 +357,9 @@ describe("a pose read and restored (the host camera, T-225)", () => {
       near(settle(step), read);
       expect(step.camState.targetAbsolute).toEqual([400, 55, -30]);
       const offsetAfter = step.camState.cameraAbsolute.map((v, k) => v - step.camState.targetAbsolute[k]);
-      offsetAfter.forEach((v, k) => expect(v / Math.hypot(...offsetBefore)).toBeCloseTo(offsetBefore[k] / Math.hypot(...offsetBefore), 4));
+      offsetAfter.forEach((v, k) =>
+        expect(v / Math.hypot(...offsetBefore)).toBeCloseTo(offsetBefore[k] / Math.hypot(...offsetBefore), 4),
+      );
     } finally {
       positions.set("moon", [60, 0, 0]);
     }
@@ -306,9 +397,12 @@ describe("a pose read and restored (the host camera, T-225)", () => {
 describe("reduced motion (resolveCamera)", () => {
   const pending = () => {
     const state = createOrbitCameraState(16, "earth");
-    state.distance = 16; state.targetDistance = 4;
-    state.azimuth = 0; state.targetAzimuth = 1;
-    state.elevation = 0; state.targetElevation = 0.5;
+    state.distance = 16;
+    state.targetDistance = 4;
+    state.azimuth = 0;
+    state.targetAzimuth = 1;
+    state.elevation = 0;
+    state.targetElevation = 0.5;
     state.transition = [10, -20, 30]; // a focus tween still to run
     return state;
   };
@@ -318,7 +412,12 @@ describe("reduced motion (resolveCamera)", () => {
     { name: "azimuth", read: (s: ReturnType<typeof pending>) => s.azimuth, target: 1 },
     { name: "elevation", read: (s: ReturnType<typeof pending>) => s.elevation, target: 0.5 },
   ];
-  it.each(cases.flatMap((c) => [{ ...c, reduced: true }, { ...c, reduced: false }]))("$name after one frame, reduced $reduced", ({ read, target, reduced }) => {
+  it.each(
+    cases.flatMap((c) => [
+      { ...c, reduced: true },
+      { ...c, reduced: false },
+    ]),
+  )("$name after one frame, reduced $reduced", ({ read, target, reduced }) => {
     const state = pending();
     resolveCamera(state, [0, 0, 0], new FloatingOrigin(), 0.016, 1e12, EQUATORIAL_UP, reduced);
     if (reduced) expect(read(state)).toBe(target);

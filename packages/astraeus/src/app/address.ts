@@ -16,9 +16,18 @@ export function addressSearch(enabled: boolean | undefined): string {
  */
 export async function shareViewLink(state: ViewLinkState): Promise<{ readonly url: string; readonly copied: boolean }> {
   const search = viewLinkSearch(window.location.search, state);
-  try { window.history.replaceState(null, "", `${window.location.pathname}${search}${window.location.hash}`); } catch { /* the link below still works */ }
+  try {
+    window.history.replaceState(null, "", `${window.location.pathname}${search}${window.location.hash}`);
+  } catch {
+    /* the link below still works */
+  }
   const url = `${window.location.origin}${window.location.pathname}${search}`;
   let copied = false;
-  try { await navigator.clipboard.writeText(url); copied = true; } catch { copied = false; }
+  try {
+    await navigator.clipboard.writeText(url);
+    copied = true;
+  } catch {
+    copied = false;
+  }
   return { url, copied };
 }

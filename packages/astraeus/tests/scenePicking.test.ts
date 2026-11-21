@@ -1,10 +1,33 @@
 import { describe, expect, it } from "vitest";
-import { projectSegmentClipped, distanceToSegment, pickSkyFigure, SKY_LINE_MARGIN_PX, type SkyPickFigure, clampHoverBrightness, HOVER_BRIGHTNESS_DEFAULT, HOVER_BRIGHTNESS_LIMITS, hoverTarget, MOUSE_TOLERANCE_PX, pickCandidatesOf, pickTarget, TapTracker, TOUCH_TAP_SLOP_PX, TOUCH_TOLERANCE_PX, type PickCandidate } from "../src/app/scenePicking";
+import {
+  projectSegmentClipped,
+  distanceToSegment,
+  pickSkyFigure,
+  SKY_LINE_MARGIN_PX,
+  type SkyPickFigure,
+  clampHoverBrightness,
+  HOVER_BRIGHTNESS_DEFAULT,
+  HOVER_BRIGHTNESS_LIMITS,
+  hoverTarget,
+  MOUSE_TOLERANCE_PX,
+  pickCandidatesOf,
+  pickTarget,
+  TapTracker,
+  TOUCH_TAP_SLOP_PX,
+  TOUCH_TOLERANCE_PX,
+  type PickCandidate,
+} from "../src/app/scenePicking";
 
 // Made-up candidates: the module is generic, so no experience or body name matters here (ARCH-01).
 const big: PickCandidate = { id: "big", x: 200, y: 200, radiusPx: 40 };
 const tiny: PickCandidate = { id: "tiny", x: 400, y: 100, radiusPx: 0.3 };
-const named: PickCandidate = { id: "named", x: 100, y: 300, radiusPx: 2, label: { left: 110, top: 292, right: 170, bottom: 308 } };
+const named: PickCandidate = {
+  id: "named",
+  x: 100,
+  y: 300,
+  radiusPx: 2,
+  label: { left: 110, top: 292, right: 170, bottom: 308 },
+};
 
 describe("pickTarget", () => {
   it("hits inside a body's disc", () => {
@@ -75,7 +98,7 @@ describe("pickCandidatesOf", () => {
   const canvas = { getBoundingClientRect: () => ({ left: 10, top: 20 }) };
   const frame = {
     objects: [{ id: "alpha" }, { id: "beta-star" }, { id: "probe" }, { id: "orbit-line" }, { id: "offscreen" }],
-    bodyIdFor: (id: string) => ({ alpha: "alpha", "beta-star": "beta" } as Record<string, string>)[id] ?? null,
+    bodyIdFor: (id: string) => (({ alpha: "alpha", "beta-star": "beta" }) as Record<string, string>)[id] ?? null,
     bodyScreens: [
       { id: "alpha", x: 0.5, y: 0.25, radiusPx: 12, inView: true, as: "sphere" },
       { id: "beta", x: 0.1, y: 0.9, radiusPx: 0.2, inView: true, as: "marker" },
@@ -85,13 +108,26 @@ describe("pickCandidatesOf", () => {
     heightPx: 400,
     labelRects: new Map([["alpha", { left: 430, top: 110, right: 480, bottom: 126 }]]),
     canvas,
-    bodySetViews: [{ layer: { members: [{ id: "m0" }, { id: "m1" }] }, screen: [{ x: 5, y: 6, radiusPx: 1, visible: true }, { x: 7, y: 8, radiusPx: 1, visible: false }] }],
+    bodySetViews: [
+      {
+        layer: { members: [{ id: "m0" }, { id: "m1" }] },
+        screen: [
+          { x: 5, y: 6, radiusPx: 1, visible: true },
+          { x: 7, y: 8, radiusPx: 1, visible: false },
+        ],
+      },
+    ],
   };
   const candidates = pickCandidatesOf(frame);
 
   it("offers catalogued bodies on screen and visible set members, in canvas pixels", () => {
     expect(candidates.map((c) => c.id)).toEqual(["alpha", "beta-star", "m0"]);
-    expect(candidates[0]).toMatchObject({ x: 400, y: 100, radiusPx: 12, label: { left: 420, top: 90, right: 470, bottom: 106 } });
+    expect(candidates[0]).toMatchObject({
+      x: 400,
+      y: 100,
+      radiusPx: 12,
+      label: { left: 420, top: 90, right: 470, bottom: 106 },
+    });
   });
   it("makes a body that is not an Apollo or Jupiter one tappable, and a tracked non-catalogue subject or orbit line not (ARCH-01, ARCH-03)", () => {
     expect(pickTarget(candidates, 400, 100, "mouse")).toBe("alpha");
@@ -99,9 +135,16 @@ describe("pickCandidatesOf", () => {
     expect(candidates.some((c) => c.id === "probe" || c.id === "orbit-line" || c.id === "offscreen")).toBe(false);
   });
   it("keeps a shown name a target when its body is not drawn in view, and only the name answers", () => {
-    const hidden = { ...frame, objects: [...frame.objects, { id: "gamma" }], bodyIdFor: (id: string) => (id === "gamma" ? "gone" : frame.bodyIdFor(id)) };
+    const hidden = {
+      ...frame,
+      objects: [...frame.objects, { id: "gamma" }],
+      bodyIdFor: (id: string) => (id === "gamma" ? "gone" : frame.bodyIdFor(id)),
+    };
     expect(pickCandidatesOf(hidden).some((c) => c.id === "gamma")).toBe(false);
-    const named = pickCandidatesOf({ ...hidden, labelRects: new Map([...frame.labelRects, ["gamma", { left: 610, top: 300, right: 660, bottom: 316 }]]) });
+    const named = pickCandidatesOf({
+      ...hidden,
+      labelRects: new Map([...frame.labelRects, ["gamma", { left: 610, top: 300, right: 660, bottom: 316 }]]),
+    });
     expect(pickTarget(named, 625, 288, "touch")).toBe("gamma");
     expect(pickTarget(named, 400, 180, "touch")).toBeNull();
   });
@@ -110,7 +153,12 @@ describe("pickCandidatesOf", () => {
 describe("hover", () => {
   const all = [big, tiny, named];
   it("resolves the same target as a tap at the same point", () => {
-    for (const [x, y] of [[220, 210], [404, 100], [160, 300], [600, 600]] as const) {
+    for (const [x, y] of [
+      [220, 210],
+      [404, 100],
+      [160, 300],
+      [600, 600],
+    ] as const) {
       expect(hoverTarget(all, x, y, "mouse")).toBe(pickTarget(all, x, y, "mouse"));
     }
   });
@@ -130,8 +178,23 @@ describe("hover", () => {
 
 // O-066 T-299: the sky-figure tap rule on made-up screen lines (ARCH-03).
 describe("pickSkyFigure", () => {
-  const kite: SkyPickFigure = { id: "kite", lines: [[100, 100, 200, 100], [200, 100, 200, 200]], label: { left: 300, top: 50, right: 360, bottom: 70 } };
-  const ring: SkyPickFigure = { id: "ring", lines: [[400, 100, 500, 100], [500, 100, 450, 200], [450, 200, 400, 100]], label: null };
+  const kite: SkyPickFigure = {
+    id: "kite",
+    lines: [
+      [100, 100, 200, 100],
+      [200, 100, 200, 200],
+    ],
+    label: { left: 300, top: 50, right: 360, bottom: 70 },
+  };
+  const ring: SkyPickFigure = {
+    id: "ring",
+    lines: [
+      [400, 100, 500, 100],
+      [500, 100, 450, 200],
+      [450, 200, 400, 100],
+    ],
+    label: null,
+  };
   it("measures the distance to a segment, to its end beyond the span, and for a point-like one", () => {
     expect(distanceToSegment(150, 110, 100, 100, 200, 100)).toBeCloseTo(10, 9);
     expect(distanceToSegment(230, 140, 100, 100, 200, 100)).toBeCloseTo(Math.hypot(30, 40), 9);
@@ -152,7 +215,13 @@ describe("pickSkyFigure", () => {
     const near: SkyPickFigure = { id: "near", lines: [[100, 106, 200, 106]] };
     expect(pickSkyFigure([kite, near], 150, 104)).toBe("near");
     expect(pickSkyFigure([kite, near], 150, 101)).toBe("kite");
-    expect(pickSkyFigure([{ id: "named", lines: [], label: { left: 140, top: 90, right: 160, bottom: 110 } }, kite], 150, 100)).toBe("named");
+    expect(
+      pickSkyFigure(
+        [{ id: "named", lines: [], label: { left: 140, top: 90, right: 160, bottom: 110 } }, kite],
+        150,
+        100,
+      ),
+    ).toBe("named");
   });
   it("selects nothing from no figures", () => {
     expect(pickSkyFigure([], 10, 10)).toBeNull();
@@ -160,7 +229,8 @@ describe("pickSkyFigure", () => {
 });
 
 describe("projectSegmentClipped (O-066 T-299)", () => {
-  const project = (a: [number, number, number], b: [number, number, number]) => projectSegmentClipped(a, b, Math.tan(Math.PI / 6), 4 / 3, 800, 600);
+  const project = (a: [number, number, number], b: [number, number, number]) =>
+    projectSegmentClipped(a, b, Math.tan(Math.PI / 6), 4 / 3, 800, 600);
   it("keeps a long line crossing the screen with both ends off screen, tappable in the middle", () => {
     const [x1, y1, x2, y2] = project([-50, 0, -10], [50, 0, -10])!;
     expect(x1).toBeLessThan(0);

@@ -18,33 +18,225 @@ import { DEFAULT_INTERFACE_LOOK, interfaceLookOf } from "../src/shell/look/inter
 const base = { sizePx: 72, brightness: 1, scale: 2.5 };
 
 /** Each look: a value to set, a different value the address asks, and the reader that must show it. */
-const CASES: readonly { readonly key: string; readonly set: number | boolean | string; readonly param: string | null; readonly asked: string; readonly askedValue: number | boolean | string; readonly read: (look: LookInput) => unknown; readonly defaultRead: unknown }[] = [
-  { key: "starBrightness", set: 1.4, param: "stars", asked: "0.5", askedValue: 0.5, read: (l) => l.starBrightness, defaultRead: undefined },
-  { key: "milkyWay", set: true, param: "milkyway", asked: "off", askedValue: false, read: (l) => l.milkyWay, defaultRead: undefined },
-  { key: "milkyWayBrightness", set: 1.2, param: "milkywaybrightness", asked: "0.3", askedValue: 0.3, read: (l) => l.milkyWayBrightness, defaultRead: undefined },
-  { key: "skyVisible", set: true, param: "sky", asked: "off", askedValue: false, read: (l) => l.skyVisible, defaultRead: undefined },
-  { key: "sunGlow.sizePx", set: 100, param: "sunglow", asked: "200", askedValue: 200, read: (l) => glowLookOf(l, base).sizePx, defaultRead: 72 },
-  { key: "sunGlow.brightness", set: 1.5, param: "sunbrightness", asked: "0.5", askedValue: 0.5, read: (l) => glowLookOf(l, base).brightness, defaultRead: 1 },
-  { key: "sunGlow.scale", set: 4, param: "sunglowscale", asked: "5", askedValue: 5, read: (l) => glowLookOf(l, base).scale, defaultRead: 2.5 },
-  { key: "markerSwapRadiusPx", set: 5, param: "markerpx", asked: "9", askedValue: 9, read: (l) => markerSettingsOf(l).minSpherePx, defaultRead: DEFAULT_BODY_MARKER.minSpherePx },
-  { key: "featureMinBodyPx", set: 80, param: "featurepx", asked: "120", askedValue: 120, read: featureMinBodyPxOf, defaultRead: DEFAULT_FEATURE_MIN_BODY_PX },
-  { key: "loadFadeSeconds", set: 1, param: "loadfade", asked: "2", askedValue: 2, read: bootFadeSeconds, defaultRead: BOOT_FADE_DEFAULT_SECONDS },
-  { key: "skyFadeInSeconds", set: 1, param: null, asked: "2", askedValue: 1, read: skyFadeInSecondsOf, defaultRead: DEFAULT_SKY_FADE_IN_SECONDS },
-  { key: "desktopPictures", set: true, param: "desktop", asked: "off", askedValue: false, read: (l) => desktopPicturesOf({}, l), defaultRead: false },
+const CASES: readonly {
+  readonly key: string;
+  readonly set: number | boolean | string;
+  readonly param: string | null;
+  readonly asked: string;
+  readonly askedValue: number | boolean | string;
+  readonly read: (look: LookInput) => unknown;
+  readonly defaultRead: unknown;
+}[] = [
+  {
+    key: "starBrightness",
+    set: 1.4,
+    param: "stars",
+    asked: "0.5",
+    askedValue: 0.5,
+    read: (l) => l.starBrightness,
+    defaultRead: undefined,
+  },
+  {
+    key: "milkyWay",
+    set: true,
+    param: "milkyway",
+    asked: "off",
+    askedValue: false,
+    read: (l) => l.milkyWay,
+    defaultRead: undefined,
+  },
+  {
+    key: "milkyWayBrightness",
+    set: 1.2,
+    param: "milkywaybrightness",
+    asked: "0.3",
+    askedValue: 0.3,
+    read: (l) => l.milkyWayBrightness,
+    defaultRead: undefined,
+  },
+  {
+    key: "skyVisible",
+    set: true,
+    param: "sky",
+    asked: "off",
+    askedValue: false,
+    read: (l) => l.skyVisible,
+    defaultRead: undefined,
+  },
+  {
+    key: "sunGlow.sizePx",
+    set: 100,
+    param: "sunglow",
+    asked: "200",
+    askedValue: 200,
+    read: (l) => glowLookOf(l, base).sizePx,
+    defaultRead: 72,
+  },
+  {
+    key: "sunGlow.brightness",
+    set: 1.5,
+    param: "sunbrightness",
+    asked: "0.5",
+    askedValue: 0.5,
+    read: (l) => glowLookOf(l, base).brightness,
+    defaultRead: 1,
+  },
+  {
+    key: "sunGlow.scale",
+    set: 4,
+    param: "sunglowscale",
+    asked: "5",
+    askedValue: 5,
+    read: (l) => glowLookOf(l, base).scale,
+    defaultRead: 2.5,
+  },
+  {
+    key: "markerSwapRadiusPx",
+    set: 5,
+    param: "markerpx",
+    asked: "9",
+    askedValue: 9,
+    read: (l) => markerSettingsOf(l).minSpherePx,
+    defaultRead: DEFAULT_BODY_MARKER.minSpherePx,
+  },
+  {
+    key: "featureMinBodyPx",
+    set: 80,
+    param: "featurepx",
+    asked: "120",
+    askedValue: 120,
+    read: featureMinBodyPxOf,
+    defaultRead: DEFAULT_FEATURE_MIN_BODY_PX,
+  },
+  {
+    key: "loadFadeSeconds",
+    set: 1,
+    param: "loadfade",
+    asked: "2",
+    askedValue: 2,
+    read: bootFadeSeconds,
+    defaultRead: BOOT_FADE_DEFAULT_SECONDS,
+  },
+  {
+    key: "skyFadeInSeconds",
+    set: 1,
+    param: null,
+    asked: "2",
+    askedValue: 1,
+    read: skyFadeInSecondsOf,
+    defaultRead: DEFAULT_SKY_FADE_IN_SECONDS,
+  },
+  {
+    key: "desktopPictures",
+    set: true,
+    param: "desktop",
+    asked: "off",
+    askedValue: false,
+    read: (l) => desktopPicturesOf({}, l),
+    defaultRead: false,
+  },
   // No address parameter (T-296, owner decision): `param: null` means the address cannot reach the look, and the test checks that it cannot.
-  ...(["figure", "label", "boundary", "ecliptic", "equator", "traced", "faded", "selected"] as const).map((name) => ({ key: `skyLines.${name}`, set: "#123456", param: null, asked: "#abcdef", askedValue: "#123456", read: (l: LookInput) => skyColoursOf(l)[name], defaultRead: DEFAULT_SKY_COLOURS[name] })),
-  { key: "labels.fontFamily", set: "Georgia, serif", param: null, asked: "x", askedValue: "Georgia, serif", read: (l) => labelStyleOf(l).fontFamily, defaultRead: "inherit" },
-  { key: "labels.sizePx", set: 16, param: null, asked: "20", askedValue: 16, read: (l) => labelStyleOf(l).sizePx, defaultRead: 12 },
-  { key: "time.zone", set: "Australia/Sydney", param: null, asked: "local", askedValue: "Australia/Sydney", read: (l) => timeLookOf(l).zone, defaultRead: "UTC" },
-  { key: "time.precision", set: "day", param: null, asked: "minute", askedValue: "day", read: (l) => timeLookOf(l).precision, defaultRead: "second" },
+  ...(["figure", "label", "boundary", "ecliptic", "equator", "traced", "faded", "selected"] as const).map((name) => ({
+    key: `skyLines.${name}`,
+    set: "#123456",
+    param: null,
+    asked: "#abcdef",
+    askedValue: "#123456",
+    read: (l: LookInput) => skyColoursOf(l)[name],
+    defaultRead: DEFAULT_SKY_COLOURS[name],
+  })),
+  {
+    key: "labels.fontFamily",
+    set: "Georgia, serif",
+    param: null,
+    asked: "x",
+    askedValue: "Georgia, serif",
+    read: (l) => labelStyleOf(l).fontFamily,
+    defaultRead: "inherit",
+  },
+  {
+    key: "labels.sizePx",
+    set: 16,
+    param: null,
+    asked: "20",
+    askedValue: 16,
+    read: (l) => labelStyleOf(l).sizePx,
+    defaultRead: 12,
+  },
+  {
+    key: "time.zone",
+    set: "Australia/Sydney",
+    param: null,
+    asked: "local",
+    askedValue: "Australia/Sydney",
+    read: (l) => timeLookOf(l).zone,
+    defaultRead: "UTC",
+  },
+  {
+    key: "time.precision",
+    set: "day",
+    param: null,
+    asked: "minute",
+    askedValue: "day",
+    read: (l) => timeLookOf(l).precision,
+    defaultRead: "second",
+  },
   // The phone sheet's height cap (O-075 T-317): no address parameter; the same value the Developer drawer's "Sheet height" slider holds.
-  { key: "sheetMaxPercent", set: 70, param: null, asked: "80", askedValue: 70, read: (l) => l.sheetMaxPercent ?? DEFAULT_PHONE_LAYOUT.sheetMaxPercent, defaultRead: 50 },
+  {
+    key: "sheetMaxPercent",
+    set: 70,
+    param: null,
+    asked: "80",
+    askedValue: 70,
+    read: (l) => l.sheetMaxPercent ?? DEFAULT_PHONE_LAYOUT.sheetMaxPercent,
+    defaultRead: 50,
+  },
   // The viewer's own interface look (O-079 T-330, API-06): per viewer, no address parameter, the same table and the same checks as every look above.
-  ...(["panel", "text", "muted", "accent", "border", "data"] as const).map((name) => ({ key: `interface.${name}`, set: "#123456", param: null, asked: "#abcdef", askedValue: "#123456", read: (l: LookInput) => interfaceLookOf(l)[name], defaultRead: DEFAULT_INTERFACE_LOOK[name] })),
-  { key: "interface.fontFamily", set: "Georgia, serif", param: null, asked: "x", askedValue: "Georgia, serif", read: (l) => interfaceLookOf(l).fontFamily, defaultRead: DEFAULT_INTERFACE_LOOK.fontFamily },
-  { key: "interface.textSizePx", set: 16, param: null, asked: "12", askedValue: 16, read: (l) => interfaceLookOf(l).textSizePx, defaultRead: 14 },
-  { key: "interface.radiusPx", set: 8, param: null, asked: "4", askedValue: 8, read: (l) => interfaceLookOf(l).radiusPx, defaultRead: 12 },
-  { key: "interface.motionMs", set: 100, param: null, asked: "0", askedValue: 100, read: (l) => interfaceLookOf(l).motionMs, defaultRead: 240 },
+  ...(["panel", "text", "muted", "accent", "border", "data"] as const).map((name) => ({
+    key: `interface.${name}`,
+    set: "#123456",
+    param: null,
+    asked: "#abcdef",
+    askedValue: "#123456",
+    read: (l: LookInput) => interfaceLookOf(l)[name],
+    defaultRead: DEFAULT_INTERFACE_LOOK[name],
+  })),
+  {
+    key: "interface.fontFamily",
+    set: "Georgia, serif",
+    param: null,
+    asked: "x",
+    askedValue: "Georgia, serif",
+    read: (l) => interfaceLookOf(l).fontFamily,
+    defaultRead: DEFAULT_INTERFACE_LOOK.fontFamily,
+  },
+  {
+    key: "interface.textSizePx",
+    set: 16,
+    param: null,
+    asked: "12",
+    askedValue: 16,
+    read: (l) => interfaceLookOf(l).textSizePx,
+    defaultRead: 14,
+  },
+  {
+    key: "interface.radiusPx",
+    set: 8,
+    param: null,
+    asked: "4",
+    askedValue: 8,
+    read: (l) => interfaceLookOf(l).radiusPx,
+    defaultRead: 12,
+  },
+  {
+    key: "interface.motionMs",
+    set: 100,
+    param: null,
+    asked: "0",
+    askedValue: 100,
+    read: (l) => interfaceLookOf(l).motionMs,
+    defaultRead: 240,
+  },
 ];
 
 describe("looks are public settings", () => {
@@ -59,7 +251,8 @@ describe("looks are public settings", () => {
     const set = lookWith({}, field, c.set);
     expect(c.read(resolveLook(set, ""))).toBe(c.set);
     // a look with no address parameter ignores the address: any parameter named like it, or like its key, leaves the set value alone
-    const search = c.param === null ? `?${c.key}=${c.asked}&${c.key.split(".").pop()}=${c.asked}` : `?${c.param}=${c.asked}`;
+    const search =
+      c.param === null ? `?${c.key}=${c.asked}&${c.key.split(".").pop()}=${c.asked}` : `?${c.param}=${c.asked}`;
     expect(c.read(resolveLook(set, search))).toBe(c.askedValue);
   });
 
@@ -91,7 +284,9 @@ describe("Scene.setLook", () => {
     ["a number for a switch", { milkyWay: 1 }],
     ["not an object", null],
   ])("%s throws bad-look", (_name, look) => {
-    expect(() => new Scene().setLook(look as never)).toThrow(expect.objectContaining({ code: "bad-look", name: "SceneError" }));
+    expect(() => new Scene().setLook(look as never)).toThrow(
+      expect.objectContaining({ code: "bad-look", name: "SceneError" }),
+    );
   });
 
   it("is frozen after a viewer takes the scene, like every mutator", async () => {

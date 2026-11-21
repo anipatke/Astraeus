@@ -5,11 +5,19 @@ import { act, createElement } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-const sceneProps = vi.hoisted(() => ({ latest: null as null | { controls: import("../src/app/AstraeusScene").SceneControls } }));
-vi.mock("../src/app/AstraeusScene", () => ({
-  AstraeusScene: (props: NonNullable<typeof sceneProps.latest>) => { sceneProps.latest = props; return createElement("div", { "data-testid": "scene" }); },
+const sceneProps = vi.hoisted(() => ({
+  latest: null as null | { controls: import("../src/app/AstraeusScene").SceneControls },
 }));
-vi.mock("../src/assets/sky", async (importOriginal) => ({ ...(await importOriginal<typeof import("../src/assets/sky")>()), loadStarCatalogue: vi.fn().mockResolvedValue(null) }));
+vi.mock("../src/app/AstraeusScene", () => ({
+  AstraeusScene: (props: NonNullable<typeof sceneProps.latest>) => {
+    sceneProps.latest = props;
+    return createElement("div", { "data-testid": "scene" });
+  },
+}));
+vi.mock("../src/assets/sky", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("../src/assets/sky")>()),
+  loadStarCatalogue: vi.fn().mockResolvedValue(null),
+}));
 
 import { AstraeusScene } from "../src/api/AstraeusScene";
 import { SceneError } from "../src/api/errors";
@@ -24,12 +32,22 @@ import { pretendScreen } from "./domSetup";
 
 const T0 = Date.parse("2026-03-01T00:00:00Z");
 const MIN = 60_000;
-const samples = (x: number) => [0, 1, 2, 3].map((i) => ({ time: T0 + i * 10 * MIN, positionKm: [x + i * 1_000, 0, 0], velocityKmS: [1, 0, 0] }));
+const samples = (x: number) =>
+  [0, 1, 2, 3].map((i) => ({ time: T0 + i * 10 * MIN, positionKm: [x + i * 1_000, 0, 0], velocityKmS: [1, 0, 0] }));
 /** Views a (probe A) and b (probe B); the Moon and Earth are in every view. */
-const makeScene = () => new Scene().addBody(earth).addBody(moon)
-  .addTrajectory({ id: "pa", label: "Probe A", center: "earth", samples: samples(10_000) })
-  .addTrajectory({ id: "pb", label: "Probe B", center: "earth", samples: samples(20_000) })
-  .setViews([{ id: "a", label: "View A", objects: ["pa"] }, { id: "b", label: "View B", objects: ["pb"] }], { place: "top-bar" });
+const makeScene = () =>
+  new Scene()
+    .addBody(earth)
+    .addBody(moon)
+    .addTrajectory({ id: "pa", label: "Probe A", center: "earth", samples: samples(10_000) })
+    .addTrajectory({ id: "pb", label: "Probe B", center: "earth", samples: samples(20_000) })
+    .setViews(
+      [
+        { id: "a", label: "View A", objects: ["pa"] },
+        { id: "b", label: "View B", objects: ["pb"] },
+      ],
+      { place: "top-bar" },
+    );
 
 let host: HTMLElement;
 let root: Root | undefined;
@@ -40,13 +58,36 @@ beforeEach(() => {
   host = document.createElement("div");
   document.body.append(host);
 });
-afterEach(() => { if (root) act(() => root!.unmount()); root = undefined; host.remove(); sceneProps.latest = null; vi.unstubAllGlobals(); vi.useRealTimers(); });
+afterEach(() => {
+  if (root) act(() => root!.unmount());
+  root = undefined;
+  host.remove();
+  sceneProps.latest = null;
+  vi.unstubAllGlobals();
+  vi.useRealTimers();
+});
 
 const controls = () => sceneProps.latest!.controls;
-const codeOf = (run: () => void): string | undefined => { try { run(); } catch (error) { return error instanceof SceneError ? error.code : String(error); } return undefined; };
-const messageOf = (run: () => void): string => { try { run(); } catch (error) { return (error as Error).message; } return ""; };
+const codeOf = (run: () => void): string | undefined => {
+  try {
+    run();
+  } catch (error) {
+    return error instanceof SceneError ? error.code : String(error);
+  }
+  return undefined;
+};
+const messageOf = (run: () => void): string => {
+  try {
+    run();
+  } catch (error) {
+    return (error as Error).message;
+  }
+  return "";
+};
 /** What the scene would have written for a camera standing here (it does so every frame). */
-const standAt = (focus: string, azimuthDeg: number, elevationDeg: number, distance: number) => { controls().viewReadout = { focus, azimuthDeg, elevationDeg, distance }; };
+const standAt = (focus: string, azimuthDeg: number, elevationDeg: number, distance: number) => {
+  controls().viewReadout = { focus, azimuthDeg, elevationDeg, distance };
+};
 
 describe("setCamera on the mount handle", () => {
   it("follow: sends a follow request for a shown object, with the camera request path the view rules use", async () => {
@@ -90,10 +131,28 @@ describe("setCamera on the mount handle", () => {
   it("malformed arguments throw bad-camera", async () => {
     const handle = mount(host, makeScene());
     await drawn(handle);
-    const bad: unknown[] = [undefined, null, "pa", 5, [], {}, { follow: "" }, { follow: 3 }, { follow: "pa", focus: "moon" }, { follow: "pa", extra: 1 },
-      { focus: "earth", azimuthDeg: 1, elevationDeg: 1, distance: 5, bogus: 1 }, { focus: "earth", azimuthDeg: "1", elevationDeg: 1, distance: 5 },
-      { focus: "earth", azimuthDeg: 1, elevationDeg: 95, distance: 5 }, { focus: "earth", azimuthDeg: 1, elevationDeg: 1, distance: 0 }, { azimuthDeg: 1, elevationDeg: 1, distance: 5 }];
-    for (const target of bad) expect(codeOf(() => handle.setCamera(target as CameraTarget)), JSON.stringify(target)).toBe("bad-camera");
+    const bad: unknown[] = [
+      undefined,
+      null,
+      "pa",
+      5,
+      [],
+      {},
+      { follow: "" },
+      { follow: 3 },
+      { follow: "pa", focus: "moon" },
+      { follow: "pa", extra: 1 },
+      { focus: "earth", azimuthDeg: 1, elevationDeg: 1, distance: 5, bogus: 1 },
+      { focus: "earth", azimuthDeg: "1", elevationDeg: 1, distance: 5 },
+      { focus: "earth", azimuthDeg: 1, elevationDeg: 95, distance: 5 },
+      { focus: "earth", azimuthDeg: 1, elevationDeg: 1, distance: 0 },
+      { azimuthDeg: 1, elevationDeg: 1, distance: 5 },
+    ];
+    for (const target of bad)
+      expect(
+        codeOf(() => handle.setCamera(target as CameraTarget)),
+        JSON.stringify(target),
+      ).toBe("bad-camera");
     expect(controls().cameraRequest).toBeNull();
     handle.unmount();
   });
@@ -157,26 +216,36 @@ describe("camera pose read and restore on the mount handle", () => {
 });
 
 describe("onCameraChange on the mount handle (O-054 T-248)", () => {
-  const tick = () => act(() => { vi.advanceTimersByTime(100); });
+  const tick = () =>
+    act(() => {
+      vi.advanceTimersByTime(100);
+    });
   it("a setCamera that eases reports each tick's pose, then stops when the pose settles; an unchanged pose and a pose after unmount report nothing", async () => {
     const handle = mount(host, makeScene());
     await drawn(handle);
     const heard: Array<{ focus: string; azimuthDeg: number }> = [];
     const stop = handle.onCameraChange((pose) => heard.push(pose as { focus: string; azimuthDeg: number }));
     standAt("earth", 216, 14.32, 16);
-    tick(); tick();
+    tick();
+    tick();
     expect(heard).toEqual([]); // the opening pose is not a change
     handle.setCamera({ focus: "moon" });
-    standAt("moon", 200, 14.32, 16); tick();
-    standAt("moon", 180, 14.32, 12); tick();
-    standAt("moon", 180, 14.32, 12); tick(); tick(); // settled
+    standAt("moon", 200, 14.32, 16);
+    tick();
+    standAt("moon", 180, 14.32, 12);
+    tick();
+    standAt("moon", 180, 14.32, 12);
+    tick();
+    tick(); // settled
     expect(heard.map((p) => `${p.focus}@${p.azimuthDeg}`)).toEqual(["moon@200", "moon@180"]);
     stop();
-    standAt("moon", 90, 14.32, 12); tick();
+    standAt("moon", 90, 14.32, 12);
+    tick();
     expect(heard.length).toBe(2);
     handle.onCameraChange((pose) => heard.push(pose as { focus: string; azimuthDeg: number }));
     handle.unmount();
-    standAt("moon", 45, 14.32, 12); tick();
+    standAt("moon", 45, 14.32, 12);
+    tick();
     expect(heard.length).toBe(2);
   });
 });
@@ -185,7 +254,9 @@ describe("the camera at ready (as T-222: ready means usable)", () => {
   it("is the opening pose as soon as a bare await ready resolves, before the scene's first frame, and setCamera accepts it straight away", async () => {
     const handle = mount(host, makeScene());
     const ready = handle.ready;
-    await act(async () => { for (let i = 0; i < 5; i++) await Promise.resolve(); });
+    await act(async () => {
+      for (let i = 0; i < 5; i++) await Promise.resolve();
+    });
     await ready;
     const opening = handle.camera;
     expect(opening).toMatchObject({ focus: "earth", azimuthDeg: 216, elevationDeg: 14.32, distance: 16 });
@@ -205,10 +276,14 @@ describe("the camera at ready (as T-222: ready means usable)", () => {
 });
 
 describe("the camera prop of AstraeusScene", () => {
-  const draw = (props: { camera?: CameraTarget }, errors: Error[], scene: Scene) => act(async () => {
-    root!.render(createElement(AstraeusScene, { scene, ...props, onError: (e) => errors.push(e) }));
-  });
-  const settle = () => act(async () => { for (let i = 0; i < 5; i++) await Promise.resolve(); });
+  const draw = (props: { camera?: CameraTarget }, errors: Error[], scene: Scene) =>
+    act(async () => {
+      root!.render(createElement(AstraeusScene, { scene, ...props, onError: (e) => errors.push(e) }));
+    });
+  const settle = () =>
+    act(async () => {
+      for (let i = 0; i < 5; i++) await Promise.resolve();
+    });
 
   it("is applied once drawn, and again when its target changes", async () => {
     const errors: Error[] = [];
@@ -233,7 +308,10 @@ describe("the camera prop of AstraeusScene", () => {
     await draw({ camera: { follow: "pa" } }, errors, scene);
     expect(controls().cameraRequest).toBeNull();
     await draw({ camera: { focus: "earth", azimuthDeg: 5, elevationDeg: 6, distance: 7 } }, errors, scene);
-    expect(controls().cameraRequest).toMatchObject({ kind: "pose", view: { focus: "earth", azimuthDeg: 5, elevationDeg: 6, distance: 7 } });
+    expect(controls().cameraRequest).toMatchObject({
+      kind: "pose",
+      view: { focus: "earth", azimuthDeg: 5, elevationDeg: 6, distance: 7 },
+    });
     controls().cameraRequest = null;
     await draw({ camera: { focus: "earth", azimuthDeg: 5, elevationDeg: 6, distance: 7 } }, errors, scene);
     expect(controls().cameraRequest).toBeNull();
@@ -262,10 +340,20 @@ describe("the camera prop of AstraeusScene", () => {
 
 describe("camera to the encounter and back through AstraeusScene and its handle (O-054 T-249, as examples/hello-react)", () => {
   const DAY = 86_400_000;
-  const withZone = () => new Scene().addBody(earth)
-    .addTrajectory({ id: "pa", label: "Probe A", center: "earth", samples: samples(10_000) })
-    .addEvents([{ id: "ea", label: "A flyby", time: new Date(T0 + 20 * DAY).toISOString(), type: "flyby", object: "pa" }])
-    .setTimeline({ start: new Date(T0).toISOString(), end: new Date(T0 + 100 * DAY).toISOString(), rate: 86_400, rates: [60, 86_400], pacing: [{ near: { type: "flyby", withinSeconds: 86_400 }, rate: 60 }] });
+  const withZone = () =>
+    new Scene()
+      .addBody(earth)
+      .addTrajectory({ id: "pa", label: "Probe A", center: "earth", samples: samples(10_000) })
+      .addEvents([
+        { id: "ea", label: "A flyby", time: new Date(T0 + 20 * DAY).toISOString(), type: "flyby", object: "pa" },
+      ])
+      .setTimeline({
+        start: new Date(T0).toISOString(),
+        end: new Date(T0 + 100 * DAY).toISOString(),
+        rate: 86_400,
+        rates: [60, 86_400],
+        pacing: [{ near: { type: "flyby", withinSeconds: 86_400 }, rate: 60 }],
+      });
 
   it("follows the probe on enter and puts the saved pose back on leave via time, the handle coming from ref", async () => {
     const scene = withZone();
@@ -273,23 +361,53 @@ describe("camera to the encounter and back through AstraeusScene and its handle 
     let saved: CameraTarget | undefined;
     const onEventZone = ({ entered, object, via }: { entered: boolean; object?: string; via: string }) => {
       const viewer = handle.current!;
-      if (entered) { saved = viewer.camera; if (object) viewer.setCamera({ follow: object }); } else if (via === "time" && saved) viewer.setCamera(saved);
+      if (entered) {
+        saved = viewer.camera;
+        if (object) viewer.setCamera({ follow: object });
+      } else if (via === "time" && saved) viewer.setCamera(saved);
       if (!entered) saved = undefined;
     };
     root = createRoot(host);
-    const draw = (time: string) => act(async () => { root!.render(createElement(AstraeusScene, { ref: handle, scene, onEventZone, time, onError: (e) => { throw e; } })); });
+    const draw = (time: string) =>
+      act(async () => {
+        root!.render(
+          createElement(AstraeusScene, {
+            ref: handle,
+            scene,
+            onEventZone,
+            time,
+            onError: (e) => {
+              throw e;
+            },
+          }),
+        );
+      });
     await draw(new Date(T0).toISOString());
-    await act(async () => { for (let i = 0; i < 5; i++) await Promise.resolve(); });
+    await act(async () => {
+      for (let i = 0; i < 5; i++) await Promise.resolve();
+    });
     controls().viewReadout = { focus: "earth", azimuthDeg: 10, elevationDeg: 20, distance: 30 };
     await draw(new Date(T0 + 20 * DAY).toISOString());
     expect(controls().cameraRequest).toEqual({ kind: "follow", target: "pa" });
     await draw(new Date(T0 + 30 * DAY).toISOString());
-    expect(controls().cameraRequest).toMatchObject({ kind: "pose", view: { focus: "earth", azimuthDeg: 10, elevationDeg: 20, distance: 30 } });
+    expect(controls().cameraRequest).toMatchObject({
+      kind: "pose",
+      view: { focus: "earth", azimuthDeg: 10, elevationDeg: 20, distance: 30 },
+    });
   });
 });
 
 describe("the opening look-out toward an id (I-169)", () => {
-  const kite = { id: "kite", label: "The Kite", segments: [[{ raDeg: 10, decDeg: 20 }, { raDeg: 20, decDeg: 30 }]] } as const;
+  const kite = {
+    id: "kite",
+    label: "The Kite",
+    segments: [
+      [
+        { raDeg: 10, decDeg: 20 },
+        { raDeg: 20, decDeg: 30 },
+      ],
+    ],
+  } as const;
   it("hands the viewer the request setCamera would send, and reads no pose before the first frame", async () => {
     const scene = makeScene();
     scene.camera.lookOut("earth", { direction: "moon", fovDeg: 50 });

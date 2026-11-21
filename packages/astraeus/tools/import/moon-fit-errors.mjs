@@ -9,16 +9,24 @@ export const FIT_ERROR_PLANETS = ["mars", "saturn", "uranus", "neptune", "pluto"
 export function worstFigures(index) {
   const out = {};
   for (const body of index.bodies) {
-    const figures = Object.values(body.accuracy ?? {}).flatMap((entry) => (entry !== null && typeof entry === "object" && typeof entry.worstM === "number" ? [entry.worstM] : []));
+    const figures = Object.values(body.accuracy ?? {}).flatMap((entry) =>
+      entry !== null && typeof entry === "object" && typeof entry.worstM === "number" ? [entry.worstM] : [],
+    );
     if (figures.length > 0) out[body.id] = Math.max(...figures);
   }
   return out;
 }
 
 export function fitErrorsOf(planet) {
-  return worstFigures(JSON.parse(readFileSync(new URL(`../astraeus-data-${planet}/data/${planet}-moons/index.json`, root), "utf8")));
+  return worstFigures(
+    JSON.parse(readFileSync(new URL(`../astraeus-data-${planet}/data/${planet}-moons/index.json`, root), "utf8")),
+  );
 }
 
 if (process.argv[1] && new URL(`file://${process.argv[1]}`).href === import.meta.url) {
-  for (const planet of FIT_ERROR_PLANETS) writeFileSync(new URL(`../astraeus-data-${planet}/data/${planet}-moons/fit-errors.json`, root), JSON.stringify(fitErrorsOf(planet)) + "\n");
+  for (const planet of FIT_ERROR_PLANETS)
+    writeFileSync(
+      new URL(`../astraeus-data-${planet}/data/${planet}-moons/fit-errors.json`, root),
+      JSON.stringify(fitErrorsOf(planet)) + "\n",
+    );
 }

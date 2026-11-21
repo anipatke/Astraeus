@@ -12,7 +12,12 @@ export class PanelLoadBoundary extends Component<{ children: ReactNode; message?
   }
 
   render(): ReactNode {
-    if (this.state.failed) return <p className="developer-loading" role="alert">{this.props.message ?? "Developer tools could not load. Reload the page to try again."}</p>;
+    if (this.state.failed)
+      return (
+        <p className="developer-loading" role="alert">
+          {this.props.message ?? "Developer tools could not load. Reload the page to try again."}
+        </p>
+      );
     return this.props.children;
   }
 }

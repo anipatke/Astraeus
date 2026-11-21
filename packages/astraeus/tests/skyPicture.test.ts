@@ -16,9 +16,16 @@ const renderToEqj = (x: number, y: number, z: number): [number, number, number] 
 
 describe("the Milky Way picture", () => {
   it("is the galactic one-tile picture, within the GPU texture limit, with its licence", () => {
-    expect(MILKY_WAY_PICTURE).toMatchObject({ columns: 1, rows: 1, licence: "CC BY-SA 4.0", credit: "Kevinmloch (bsrender), Gaia EDR3, ESA/Gaia/DPAC" });
+    expect(MILKY_WAY_PICTURE).toMatchObject({
+      columns: 1,
+      rows: 1,
+      licence: "CC BY-SA 4.0",
+      credit: "Kevinmloch (bsrender), Gaia EDR3, ESA/Gaia/DPAC",
+    });
     expect(MILKY_WAY_PICTURE.tiles).toHaveLength(1);
-    expect(MILKY_WAY_PICTURE.tiles.every((tile) => tile.widthPx <= MAX_TILE_PX && tile.heightPx <= MAX_TILE_PX)).toBe(true);
+    expect(MILKY_WAY_PICTURE.tiles.every((tile) => tile.widthPx <= MAX_TILE_PX && tile.heightPx <= MAX_TILE_PX)).toBe(
+      true,
+    );
   });
 
   it("places every vertex of each tile mesh on the galactic picture coordinates its own texture coordinates name", () => {
@@ -40,12 +47,24 @@ describe("the Milky Way picture", () => {
   });
 
   it("has no source setting: the resolved sky settings carry only visibility and the two strengths and the picture switch", () => {
-    expect(Object.keys(resolveSkySettings(undefined)).sort()).toEqual(["milkyWay", "milkyWayBrightness", "starBrightness", "visible"]);
+    expect(Object.keys(resolveSkySettings(undefined)).sort()).toEqual([
+      "milkyWay",
+      "milkyWayBrightness",
+      "starBrightness",
+      "visible",
+    ]);
   });
 
   it("is built only when asked for, once, keeping the on/off state and brightness", () => {
     vi.spyOn(TextureLoader.prototype, "load").mockImplementation(() => new Texture());
-    const view = new SkyView({ starBrightness: 1, milkyWayBrightness: 0.8, pixelRatio: 1, picture: null, pictureSet: MILKY_WAY_PICTURE, milkyWay: false });
+    const view = new SkyView({
+      starBrightness: 1,
+      milkyWayBrightness: 0.8,
+      pixelRatio: 1,
+      picture: null,
+      pictureSet: MILKY_WAY_PICTURE,
+      milkyWay: false,
+    });
     const meshes = () => view.group.children.filter((child) => child.type === "Mesh");
     expect(meshes()).toHaveLength(0);
     view.requestPicture();

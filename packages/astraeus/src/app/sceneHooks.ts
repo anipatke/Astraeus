@@ -16,7 +16,12 @@ import { TrackedBodyView } from "./TrackedBodyView";
  * Mounts a DOM layer (labels, markers) next to the canvas and keeps `ref` pointing at it; `create` returns null when there is nothing to
  * mount. The layer is disposed and the ref cleared when `deps` change or the scene goes.
  */
-export function useHostLayer<L extends { dispose(): void }>(canvas: HTMLCanvasElement, ref: { current: L | null }, create: (host: HTMLElement) => L | null, deps: readonly unknown[]): void {
+export function useHostLayer<L extends { dispose(): void }>(
+  canvas: HTMLCanvasElement,
+  ref: { current: L | null },
+  create: (host: HTMLElement) => L | null,
+  deps: readonly unknown[],
+): void {
   useEffect(() => {
     const host = canvas.parentElement;
     if (host === null) return undefined;
@@ -56,16 +61,62 @@ export function useSkyStars(canvas: HTMLCanvasElement, skyView: SkyView | null):
 
 /** The scene's own views, built once per runtime: tracked bodies, point groups, the declared paths, the composition's paths and the sky. */
 export function useSceneViews(runtime: SceneRuntime, gl: WebGLRenderer) {
-  const trackedViews = useMemo(() => runtime.trackedBodies.map((body) => new TrackedBodyView(body)), [runtime.trackedBodies]);
+  const trackedViews = useMemo(
+    () => runtime.trackedBodies.map((body) => new TrackedBodyView(body)),
+    [runtime.trackedBodies],
+  );
   const groupViews = useMemo(() => runtime.groups.map((layer) => new PointsView(layer)), [runtime.groups]);
   const sunCentredViews = useMemo(() => createPathViews(runtime.paths ?? []), [runtime.paths]);
-  const compositionPaths = useMemo(() => (runtime.composition?.paths ?? []).map((path) => compositionPathView(path, runtime.resolver, runtime.catalogue)), [runtime.composition, runtime.resolver, runtime.catalogue]);
-  const skyView = useMemo(() => (runtime.sky !== undefined && (runtime.sky.visible || runtime.sky.live === true) ? new SkyView({ starBrightness: runtime.sky.starBrightness, milkyWayBrightness: runtime.sky.milkyWayBrightness, pixelRatio: gl.getPixelRatio(), maxAnisotropy: gl.capabilities.getMaxAnisotropy(), milkyWay: runtime.sky.milkyWay, picture: null, pictureSet: milkyWayPicture(runtime.pictures ?? NO_PICTURES) }) : null), [runtime.sky, runtime.pictures, gl]);
+  const compositionPaths = useMemo(
+    () =>
+      (runtime.composition?.paths ?? []).map((path) => compositionPathView(path, runtime.resolver, runtime.catalogue)),
+    [runtime.composition, runtime.resolver, runtime.catalogue],
+  );
+  const skyView = useMemo(
+    () =>
+      runtime.sky !== undefined && (runtime.sky.visible || runtime.sky.live === true)
+        ? new SkyView({
+            starBrightness: runtime.sky.starBrightness,
+            milkyWayBrightness: runtime.sky.milkyWayBrightness,
+            pixelRatio: gl.getPixelRatio(),
+            maxAnisotropy: gl.capabilities.getMaxAnisotropy(),
+            milkyWay: runtime.sky.milkyWay,
+            picture: null,
+            pictureSet: milkyWayPicture(runtime.pictures ?? NO_PICTURES),
+          })
+        : null,
+    [runtime.sky, runtime.pictures, gl],
+  );
   const skyFiguresView = useMemo(() => new SkyFiguresView(runtime.skyFigures), [runtime.skyFigures]);
   useEffect(() => () => skyFiguresView.dispose(), [skyFiguresView]);
-  const bodySetViews = useMemo(() => (runtime.bodySets ?? []).map((layer) => new BodySetView(layer)), [runtime.bodySets]);
-  const orbitSetViews = useMemo(() => (runtime.bodySets ?? []).map((layer) => new OrbitSetView(layer)), [runtime.bodySets]);
-  useEffect(() => () => { for (const view of bodySetViews) view.dispose(); }, [bodySetViews]);
-  useEffect(() => () => { for (const view of orbitSetViews) view.dispose(); }, [orbitSetViews]);
-  return { trackedViews, groupViews, sunCentredViews, compositionPaths, skyView, skyFiguresView, bodySetViews, orbitSetViews };
+  const bodySetViews = useMemo(
+    () => (runtime.bodySets ?? []).map((layer) => new BodySetView(layer)),
+    [runtime.bodySets],
+  );
+  const orbitSetViews = useMemo(
+    () => (runtime.bodySets ?? []).map((layer) => new OrbitSetView(layer)),
+    [runtime.bodySets],
+  );
+  useEffect(
+    () => () => {
+      for (const view of bodySetViews) view.dispose();
+    },
+    [bodySetViews],
+  );
+  useEffect(
+    () => () => {
+      for (const view of orbitSetViews) view.dispose();
+    },
+    [orbitSetViews],
+  );
+  return {
+    trackedViews,
+    groupViews,
+    sunCentredViews,
+    compositionPaths,
+    skyView,
+    skyFiguresView,
+    bodySetViews,
+    orbitSetViews,
+  };
 }

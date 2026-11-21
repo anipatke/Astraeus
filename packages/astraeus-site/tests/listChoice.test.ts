@@ -20,7 +20,10 @@ describe("list choice (T-171)", () => {
   });
 
   it("opens the requested entry, and the default for an unknown one", () => {
-    expect(chooseSwitch(entries, "second", SWITCH)!.switcher.options.map((option) => option.active)).toEqual([false, true]);
+    expect(chooseSwitch(entries, "second", SWITCH)!.switcher.options.map((option) => option.active)).toEqual([
+      false,
+      true,
+    ]);
     expect(chooseSwitch(entries, "nope", SWITCH)!.name).toBe("first");
   });
 
@@ -32,6 +35,14 @@ describe("list choice (T-171)", () => {
 describe("the picker a scene offers (O-059 T-272)", () => {
   it("lists the entries as options, presses the one opened, and names the choice by its address parameter", () => {
     const choice = chooseSwitch(entries, "second", SWITCH)!;
-    expect(pickerOf(choice.switcher)).toEqual({ id: "kind", label: "Kind", options: [{ value: "first", label: "First" }, { value: "second", label: "Second" }], value: "second" });
+    expect(pickerOf(choice.switcher)).toEqual({
+      id: "kind",
+      label: "Kind",
+      options: [
+        { value: "first", label: "First" },
+        { value: "second", label: "Second" },
+      ],
+      value: "second",
+    });
   });
 });

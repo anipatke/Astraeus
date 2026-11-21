@@ -9,7 +9,10 @@ import { ALLOWED_PICTURES, formatMeasure, measureBuild, unexpectedPictures } fro
 const dir = mkdtempSync(join(tmpdir(), "measure-example-"));
 const write = (file: string, text: string) => writeFileSync(join(dir, file), text);
 mkdirSync(join(dir, "assets"));
-write("index.html", '<html><head><script type="module" crossorigin src="/assets/entry.js"></script><link rel="stylesheet" href="/assets/app.css"></head></html>');
+write(
+  "index.html",
+  '<html><head><script type="module" crossorigin src="/assets/entry.js"></script><link rel="stylesheet" href="/assets/app.css"></head></html>',
+);
 write("assets/entry.js", 'import{a}from"./shared.js";const later=()=>import("./lazy.js");export{a,later};');
 write("assets/shared.js", 'import"./deep.js";export const a=1;');
 write("assets/deep.js", "export const d=2;");
@@ -39,7 +42,9 @@ describe("measureBuild", () => {
     const shared = 'import"./deep.js";export const a=1;';
     const deep = "export const d=2;";
     expect(result.totals.raw).toBe(css.length + entry.length + shared.length + deep.length);
-    expect(result.totals.gzip).toBe([css, entry, shared, deep].reduce((sum, text) => sum + gzipSync(Buffer.from(text)).length, 0));
+    expect(result.totals.gzip).toBe(
+      [css, entry, shared, deep].reduce((sum, text) => sum + gzipSync(Buffer.from(text)).length, 0),
+    );
   });
 
   it("prints a header, one tab-separated row per file and the totals", () => {
@@ -53,7 +58,10 @@ describe("measureBuild", () => {
     const broken = mkdtempSync(join(tmpdir(), "measure-example-missing-"));
     try {
       mkdirSync(join(broken, "assets"));
-      writeFileSync(join(broken, "index.html"), '<script type="module" src="/assets/entry.js"></script><script type="module" src="https://cdn.example/x.js"></script>');
+      writeFileSync(
+        join(broken, "index.html"),
+        '<script type="module" src="/assets/entry.js"></script><script type="module" src="https://cdn.example/x.js"></script>',
+      );
       writeFileSync(join(broken, "assets/entry.js"), 'import"./gone.js";');
       expect(() => measureBuild(broken)).toThrow("assets/entry.js loads assets/gone.js");
     } finally {
@@ -67,9 +75,25 @@ describe("unexpectedPictures", () => {
     const pictures = mkdtempSync(join(tmpdir(), "measure-example-pictures-"));
     try {
       mkdirSync(join(pictures, "assets"));
-      for (const file of ["milky-way-3fa9c1.jpg", "titan-4k-9d8e7f.jpg", "venus-8k-balanced-aa11.jpg", "earth-bmng-july-4k-BJxMI6UV.jpg", "milky-way-extra.jpg.txt"]) writeFileSync(join(pictures, "assets", file), "x");
-      expect(unexpectedPictures(pictures, ["milky-way"], ["milky-way", "titan-4k", "venus-8k-balanced"])).toEqual(["assets/titan-4k-9d8e7f.jpg", "assets/venus-8k-balanced-aa11.jpg"]);
-      expect(unexpectedPictures(pictures, ["milky-way", "titan-4k", "venus-8k-balanced"], ["milky-way", "titan-4k", "venus-8k-balanced"])).toEqual([]);
+      for (const file of [
+        "milky-way-3fa9c1.jpg",
+        "titan-4k-9d8e7f.jpg",
+        "venus-8k-balanced-aa11.jpg",
+        "earth-bmng-july-4k-BJxMI6UV.jpg",
+        "milky-way-extra.jpg.txt",
+      ])
+        writeFileSync(join(pictures, "assets", file), "x");
+      expect(unexpectedPictures(pictures, ["milky-way"], ["milky-way", "titan-4k", "venus-8k-balanced"])).toEqual([
+        "assets/titan-4k-9d8e7f.jpg",
+        "assets/venus-8k-balanced-aa11.jpg",
+      ]);
+      expect(
+        unexpectedPictures(
+          pictures,
+          ["milky-way", "titan-4k", "venus-8k-balanced"],
+          ["milky-way", "titan-4k", "venus-8k-balanced"],
+        ),
+      ).toEqual([]);
     } finally {
       rmSync(pictures, { recursive: true, force: true });
     }

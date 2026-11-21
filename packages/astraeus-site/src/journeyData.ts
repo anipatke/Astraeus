@@ -3,16 +3,51 @@
 // the five main Uranus moons (listed moons added by id, O-049 T-212), the four large Jupiter moons and the seven inner Saturn moons it shows, with each planet's own series, every year of the index (1950 to 2030).
 import type { DataSource, MoonIndex } from "astraeus";
 
-const JUPITER_FILES = import.meta.glob("../../astraeus-data-jupiter/data/jupiter-moons/{jupiter,io,europa,ganymede,callisto}/*.bin", { query: "?url", import: "default", eager: true }) as Record<string, string>;
-const SATURN_FILES = import.meta.glob("../../astraeus-data-saturn/data/saturn-moons/{saturn,mimas,enceladus,tethys,dione,rhea,titan,iapetus}/*.bin", { query: "?url", import: "default", eager: true }) as Record<string, string>;
-const URANUS_FILES = import.meta.glob("../../astraeus-data-uranus/data/uranus-moons/{uranus,miranda,ariel,umbriel,titania,oberon}/*.bin", { query: "?url", import: "default", eager: true }) as Record<string, string>;
+const JUPITER_FILES = import.meta.glob(
+  "../../astraeus-data-jupiter/data/jupiter-moons/{jupiter,io,europa,ganymede,callisto}/*.bin",
+  { query: "?url", import: "default", eager: true },
+) as Record<string, string>;
+const SATURN_FILES = import.meta.glob(
+  "../../astraeus-data-saturn/data/saturn-moons/{saturn,mimas,enceladus,tethys,dione,rhea,titan,iapetus}/*.bin",
+  { query: "?url", import: "default", eager: true },
+) as Record<string, string>;
+const URANUS_FILES = import.meta.glob(
+  "../../astraeus-data-uranus/data/uranus-moons/{uranus,miranda,ariel,umbriel,titania,oberon}/*.bin",
+  { query: "?url", import: "default", eager: true },
+) as Record<string, string>;
 
 /** File paths keyed as the moon loader looks them up: `<body>/<year>.bin`, relative to the system's folder. */
 const keyed = (files: Readonly<Record<string, string>>, folder: string): Readonly<Record<string, string>> =>
-  Object.fromEntries(Object.entries(files).map(([path, url]) => [path.slice(path.indexOf(`/${folder}/`) + folder.length + 2), url]));
+  Object.fromEntries(
+    Object.entries(files).map(([path, url]) => [path.slice(path.indexOf(`/${folder}/`) + folder.length + 2), url]),
+  );
 
 export const journeyData: readonly DataSource[] = [
-  { name: "astraeus-data-jupiter", provides: ["io", "europa", "ganymede", "callisto"], moonPositions: { center: "jupiter", loadIndex: async () => (await import("astraeus-data-jupiter/index.json")).default as MoonIndex, chunkUrls: keyed(JUPITER_FILES, "jupiter-moons") } },
-  { name: "astraeus-data-saturn", provides: ["mimas", "enceladus", "tethys", "dione", "rhea", "titan", "iapetus"], moonPositions: { center: "saturn", loadIndex: async () => (await import("astraeus-data-saturn/index.json")).default as MoonIndex, chunkUrls: keyed(SATURN_FILES, "saturn-moons") } },
-  { name: "astraeus-data-uranus", provides: ["miranda", "ariel", "umbriel", "titania", "oberon"], moonPositions: { center: "uranus", loadIndex: async () => (await import("astraeus-data-uranus/index.json")).default as MoonIndex, chunkUrls: keyed(URANUS_FILES, "uranus-moons") } },
+  {
+    name: "astraeus-data-jupiter",
+    provides: ["io", "europa", "ganymede", "callisto"],
+    moonPositions: {
+      center: "jupiter",
+      loadIndex: async () => (await import("astraeus-data-jupiter/index.json")).default as MoonIndex,
+      chunkUrls: keyed(JUPITER_FILES, "jupiter-moons"),
+    },
+  },
+  {
+    name: "astraeus-data-saturn",
+    provides: ["mimas", "enceladus", "tethys", "dione", "rhea", "titan", "iapetus"],
+    moonPositions: {
+      center: "saturn",
+      loadIndex: async () => (await import("astraeus-data-saturn/index.json")).default as MoonIndex,
+      chunkUrls: keyed(SATURN_FILES, "saturn-moons"),
+    },
+  },
+  {
+    name: "astraeus-data-uranus",
+    provides: ["miranda", "ariel", "umbriel", "titania", "oberon"],
+    moonPositions: {
+      center: "uranus",
+      loadIndex: async () => (await import("astraeus-data-uranus/index.json")).default as MoonIndex,
+      chunkUrls: keyed(URANUS_FILES, "uranus-moons"),
+    },
+  },
 ];

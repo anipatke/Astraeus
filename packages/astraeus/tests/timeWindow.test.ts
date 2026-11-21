@@ -7,13 +7,33 @@ const T0 = Date.UTC(2030, 0, 1);
 const observed = { sourceType: "observed", sources: ["log"], accuracy: "measured", notes: "" } as const;
 const illustrative = { sourceType: "illustrative", sources: [], accuracy: "shape only", notes: "" } as const;
 
-const eclipseLike: TimelineWindow = { id: "dim", label: "Dimming", type: "eclipse", startUtcMs: T0, endUtcMs: T0 + 2 * H };
+const eclipseLike: TimelineWindow = {
+  id: "dim",
+  label: "Dimming",
+  type: "eclipse",
+  startUtcMs: T0,
+  endUtcMs: T0 + 2 * H,
+};
 const pass: TimelineWindow = {
-  id: "pass", label: "Pass", startUtcMs: T0, endUtcMs: T0 + 10 * H, peakUtcMs: T0 + 5 * H,
-  rate: { unit: "per hour", samples: [{ timeUtcMs: T0 + H, value: 0 }, { timeUtcMs: T0 + 5 * H, value: 100 }, { timeUtcMs: T0 + 9 * H, value: 20 }] },
+  id: "pass",
+  label: "Pass",
+  startUtcMs: T0,
+  endUtcMs: T0 + 10 * H,
+  peakUtcMs: T0 + 5 * H,
+  rate: {
+    unit: "per hour",
+    samples: [
+      { timeUtcMs: T0 + H, value: 0 },
+      { timeUtcMs: T0 + 5 * H, value: 100 },
+      { timeUtcMs: T0 + 9 * H, value: 20 },
+    ],
+  },
 };
 const mixed: TimelineWindow = {
-  id: "mixed", label: "Mixed", startUtcMs: T0, endUtcMs: T0 + 10 * H,
+  id: "mixed",
+  label: "Mixed",
+  startUtcMs: T0,
+  endUtcMs: T0 + 10 * H,
   provenance: [
     { startUtcMs: T0, endUtcMs: T0 + 4 * H, provenance: observed },
     { startUtcMs: T0 + 4 * H, endUtcMs: T0 + 8 * H, provenance: illustrative },
@@ -80,7 +100,9 @@ describe("createWindows", () => {
 
   it("rejects negative or non-finite values", () => {
     for (const value of [-1, Number.NaN, Number.POSITIVE_INFINITY]) {
-      expect(() => createWindows([{ ...pass, rate: { unit: "x", samples: [{ timeUtcMs: T0, value }] } }])).toThrow(/finite/);
+      expect(() => createWindows([{ ...pass, rate: { unit: "x", samples: [{ timeUtcMs: T0, value }] } }])).toThrow(
+        /finite/,
+      );
     }
   });
 
@@ -98,7 +120,9 @@ describe("createWindows", () => {
     expect(() => createWindows([{ ...mixed, provenance: [b, a] }])).toThrow(/sorted and not overlap/);
     const overlap = { ...b, startUtcMs: a.endUtcMs - 1 };
     expect(() => createWindows([{ ...mixed, provenance: [a, overlap] }])).toThrow(/sorted and not overlap/);
-    expect(() => createWindows([{ ...mixed, provenance: [{ ...a, endUtcMs: a.startUtcMs }] }])).toThrow(/end must be after/);
+    expect(() => createWindows([{ ...mixed, provenance: [{ ...a, endUtcMs: a.startUtcMs }] }])).toThrow(
+      /end must be after/,
+    );
   });
 
   it("validates span provenance and allows gaps", () => {

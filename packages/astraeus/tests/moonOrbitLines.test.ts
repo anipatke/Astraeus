@@ -9,15 +9,26 @@ import mimasOrbit from "../data/orbits/mimas.json";
 import { definitionOf } from "../src/api/definitionOf";
 
 const DAY_MS = 86_400_000;
-const codeOf = (fn: () => unknown) => { try { fn(); } catch (error) { return error instanceof SceneError ? `${error.code}: ${error.message}` : String(error); } return "no error"; };
+const codeOf = (fn: () => unknown) => {
+  try {
+    fn();
+  } catch (error) {
+    return error instanceof SceneError ? `${error.code}: ${error.message}` : String(error);
+  }
+  return "no error";
+};
 // A made-up data source that provides every catalogued body, so the scene builds without the data packages (only the orbit lines are read).
 const everything: DataSource = { name: "made-up", provides: catalogue.ids() };
 const pathsOf = (scene: Scene) => definitionOf(scene, [everything]).composition?.paths ?? [];
 
 describe("an orbit line for any catalogued moon (I-119)", () => {
   it("draws the Moon and Io exactly as before", () => {
-    expect(pathsOf(new Scene().addBody("earth").addBody("moon", { orbit: true }))).toEqual([{ body: "moon", spanMs: SIDEREAL_MONTH_MS }]);
-    expect(pathsOf(new Scene().addBody("jupiter").addBody("io", { orbit: true }))).toEqual([{ body: "io", spanMs: IO_PERIOD_DAYS * DAY_MS, look: { endFadeOn: false } }]);
+    expect(pathsOf(new Scene().addBody("earth").addBody("moon", { orbit: true }))).toEqual([
+      { body: "moon", spanMs: SIDEREAL_MONTH_MS },
+    ]);
+    expect(pathsOf(new Scene().addBody("jupiter").addBody("io", { orbit: true }))).toEqual([
+      { body: "io", spanMs: IO_PERIOD_DAYS * DAY_MS, look: { endFadeOn: false } },
+    ]);
   });
 
   it("draws Europa, Titan and Mimas about their planet over one lap of the catalogue's period", () => {
@@ -31,8 +42,12 @@ describe("an orbit line for any catalogued moon (I-119)", () => {
   });
 
   it("reads the period off the catalogue definition for every moon that has one", () => {
-    const moons = catalogue.definitions().filter((d) => d.parentId !== undefined && d.parentId !== "sun" && d.orbitPeriodDays !== undefined);
-    expect(moons.map((d) => d.id)).toEqual(expect.arrayContaining(["moon", "io", "europa", "titan", "mimas", "triton", "charon"]));
+    const moons = catalogue
+      .definitions()
+      .filter((d) => d.parentId !== undefined && d.parentId !== "sun" && d.orbitPeriodDays !== undefined);
+    expect(moons.map((d) => d.id)).toEqual(
+      expect.arrayContaining(["moon", "io", "europa", "titan", "mimas", "triton", "charon"]),
+    );
     for (const d of moons) {
       const scene = new Scene().addBody(d.parentId!).addBody(d.id, { orbit: true });
       expect(pathsOf(scene)[0]!.spanMs).toBeCloseTo(d.orbitPeriodDays! * DAY_MS, 3);
@@ -40,7 +55,11 @@ describe("an orbit line for any catalogued moon (I-119)", () => {
   });
 
   it("refuses a moon whose data give no period, and one whose planet is not in the scene", () => {
-    expect(codeOf(() => new Scene().addBody("mars").addBody("phobos", { orbit: true }))).toMatch(/^no-orbit: .*period about its planet/);
-    expect(codeOf(() => definitionOf(new Scene().addBody("europa", { orbit: true }), [everything]))).toMatch(/^no-orbit: .*about jupiter/);
+    expect(codeOf(() => new Scene().addBody("mars").addBody("phobos", { orbit: true }))).toMatch(
+      /^no-orbit: .*period about its planet/,
+    );
+    expect(codeOf(() => definitionOf(new Scene().addBody("europa", { orbit: true }), [everything]))).toMatch(
+      /^no-orbit: .*about jupiter/,
+    );
   });
 });

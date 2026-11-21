@@ -62,8 +62,19 @@ export function nearestPoint(o: Ellipse, target: ArrayLike<number>): { nu: numbe
     let [x1, x2] = [hi - g * (hi - lo), lo + g * (hi - lo)];
     let [f1, f2] = [f(x1), f(x2)];
     for (let k = 0; k < 28; k += 1) {
-      if (f1 < f2) { hi = x2; x2 = x1; f2 = f1; x1 = hi - g * (hi - lo); f1 = f(x1); }
-      else { lo = x1; x1 = x2; f1 = f2; x2 = lo + g * (hi - lo); f2 = f(x2); }
+      if (f1 < f2) {
+        hi = x2;
+        x2 = x1;
+        f2 = f1;
+        x1 = hi - g * (hi - lo);
+        f1 = f(x1);
+      } else {
+        lo = x1;
+        x1 = x2;
+        f1 = f2;
+        x2 = lo + g * (hi - lo);
+        f2 = f(x2);
+      }
     }
     const nu = (lo + hi) / 2;
     const d = f(nu);
@@ -85,9 +96,15 @@ export const apply = (m: ArrayLike<number>, v: ArrayLike<number>): [number, numb
 ];
 
 /** Earth's heliocentric position and velocity in the ecliptic J2000 frame (the velocity by a +-1 h central difference of the ephemeris). */
-export function earthEcliptic(adapter: AstronomyAdapter, toEqj: ArrayLike<number>, timeUtcMs: number): { position: [number, number, number]; velocity: [number, number, number] } {
+export function earthEcliptic(
+  adapter: AstronomyAdapter,
+  toEqj: ArrayLike<number>,
+  timeUtcMs: number,
+): { position: [number, number, number]; velocity: [number, number, number] } {
   const position = applyTransposed(toEqj, adapter.earthPositionFromSunKm(Math.round(timeUtcMs)));
-  const [before, after] = [-3_600_000, 3_600_000].map((dt) => applyTransposed(toEqj, adapter.earthPositionFromSunKm(Math.round(timeUtcMs + dt))));
+  const [before, after] = [-3_600_000, 3_600_000].map((dt) =>
+    applyTransposed(toEqj, adapter.earthPositionFromSunKm(Math.round(timeUtcMs + dt))),
+  );
   return { position, velocity: [0, 1, 2].map((k) => (after[k] - before[k]) / 7200) as [number, number, number] };
 }
 
@@ -104,7 +121,13 @@ export function solarLongitudeDeg(adapter: AstronomyAdapter, toEqj: ArrayLike<nu
 }
 
 /** The instant in [fromUtcMs, toUtcMs] at which the solar longitude passes `targetDeg` (bisection; the longitude rises monotonically). */
-export function timeOfSolarLongitude(adapter: AstronomyAdapter, toEqj: ArrayLike<number>, targetDeg: number, fromUtcMs: number, toUtcMs: number): number {
+export function timeOfSolarLongitude(
+  adapter: AstronomyAdapter,
+  toEqj: ArrayLike<number>,
+  targetDeg: number,
+  fromUtcMs: number,
+  toUtcMs: number,
+): number {
   const signed = (t: number): number => ((solarLongitudeDeg(adapter, toEqj, t) - targetDeg + 540) % 360) - 180;
   let [lo, hi] = [fromUtcMs, toUtcMs];
   for (let k = 0; k < 60; k += 1) {
@@ -117,7 +140,7 @@ export function timeOfSolarLongitude(adapter: AstronomyAdapter, toEqj: ArrayLike
 
 export const raDecOf = (v: ArrayLike<number>): { raDeg: number; decDeg: number } => {
   const r = Math.hypot(v[0], v[1], v[2]);
-  return { raDeg: ((Math.atan2(v[1], v[0]) / RAD) + 360) % 360, decDeg: Math.asin(v[2] / r) / RAD };
+  return { raDeg: (Math.atan2(v[1], v[0]) / RAD + 360) % 360, decDeg: Math.asin(v[2] / r) / RAD };
 };
 
 export const separationDeg = (a: { raDeg: number; decDeg: number }, b: { raDeg: number; decDeg: number }): number => {

@@ -11,10 +11,18 @@ export function BarMenu({ entries, fit }: { readonly entries: readonly BarEntry[
     <div className="bar-menu-list">
       {story.length > 0 && (
         <section className="bar-menu-story" aria-label="This story">
-          {story.map((entry) => <span key={entry.id} className="bar-menu-item">{entry.render("full")}</span>)}
+          {story.map((entry) => (
+            <span key={entry.id} className="bar-menu-item">
+              {entry.render("full")}
+            </span>
+          ))}
         </section>
       )}
-      {rest.map((entry) => <span key={entry.id} className="bar-menu-item" data-bar-item={entry.id}>{entry.render("full")}</span>)}
+      {rest.map((entry) => (
+        <span key={entry.id} className="bar-menu-item" data-bar-item={entry.id}>
+          {entry.render("full")}
+        </span>
+      ))}
     </div>
   );
 }

@@ -7,7 +7,10 @@ import { PanelLoadBoundary } from "../src/app/PanelLoadBoundary";
 
 (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
 
-afterEach(() => { vi.restoreAllMocks(); document.body.innerHTML = ""; });
+afterEach(() => {
+  vi.restoreAllMocks();
+  document.body.innerHTML = "";
+});
 
 async function draw(panel: ComponentType): Promise<HTMLElement> {
   const host = document.createElement("div");
@@ -15,11 +18,18 @@ async function draw(panel: ComponentType): Promise<HTMLElement> {
   const root = createRoot(host);
   const fallback = createElement("p", { role: "status" }, "Loading developer tools...");
   await act(async () => {
-    root.render(createElement("main", null,
-      createElement("p", null, "scene"),
-      createElement(PanelLoadBoundary, null, createElement(Suspense, { fallback }, createElement(panel)))));
+    root.render(
+      createElement(
+        "main",
+        null,
+        createElement("p", null, "scene"),
+        createElement(PanelLoadBoundary, null, createElement(Suspense, { fallback }, createElement(panel))),
+      ),
+    );
   });
-  await act(async () => { await new Promise((resolve) => setTimeout(resolve, 0)); });
+  await act(async () => {
+    await new Promise((resolve) => setTimeout(resolve, 0));
+  });
   return host;
 }
 
@@ -29,7 +39,9 @@ describe("PanelLoadBoundary", () => {
     const failing = lazy<ComponentType>(() => Promise.reject(new Error("Failed to fetch dynamically imported module")));
     const host = await draw(failing);
     expect(host.textContent).toContain("scene");
-    expect(host.querySelector('[role="alert"]')?.textContent).toBe("Developer tools could not load. Reload the page to try again.");
+    expect(host.querySelector('[role="alert"]')?.textContent).toBe(
+      "Developer tools could not load. Reload the page to try again.",
+    );
   });
 
   it("draws the panels when their load succeeds", async () => {

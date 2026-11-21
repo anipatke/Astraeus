@@ -19,7 +19,11 @@ export const GALACTIC_CENTRE = Object.freeze({ raDeg: 266.405, decDeg: -28.936 }
 
 type Vec3 = [number, number, number];
 const dot = (a: ArrayLike<number>, b: ArrayLike<number>): number => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
-const cross = (a: Vec3, b: Vec3): Vec3 => [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];
+const cross = (a: Vec3, b: Vec3): Vec3 => [
+  a[1] * b[2] - a[2] * b[1],
+  a[2] * b[0] - a[0] * b[2],
+  a[0] * b[1] - a[1] * b[0],
+];
 
 /** Unit vector in EQJ for a right ascension and declination in degrees. */
 export function eqjUnit(raDeg: number, decDeg: number): Vec3 {
@@ -59,7 +63,10 @@ export function galacticToEqj(lDeg: number, bDeg: number): Vec3 {
 export function eqjToGalactic(eqj: ArrayLike<number>): [lDeg: number, bDeg: number] {
   const length = Math.hypot(eqj[0], eqj[1], eqj[2]);
   const unit: Vec3 = [eqj[0] / length, eqj[1] / length, eqj[2] / length];
-  return [Math.atan2(dot(unit, AXES.y), dot(unit, AXES.x)) / RAD, Math.asin(Math.max(-1, Math.min(1, dot(unit, AXES.z)))) / RAD];
+  return [
+    Math.atan2(dot(unit, AXES.y), dot(unit, AXES.x)) / RAD,
+    Math.asin(Math.max(-1, Math.min(1, dot(unit, AXES.z)))) / RAD,
+  ];
 }
 
 /** The picture is equirectangular and galactic: longitude 0 at the centre, increasing leftwards; latitude +90 at the top. */
@@ -106,16 +113,23 @@ export interface StarCatalogue {
 /** Validates a parsed star file (`{ provenance?, stars: [[ra, dec, v, bv|null, hip?], ...] }`); throws naming the first bad row. */
 export function parseStarFile(json: unknown): StarCatalogue {
   const file = json as { stars?: unknown; provenance?: unknown } | null;
-  if (file === null || typeof file !== "object" || !Array.isArray(file.stars)) throw new TypeError("star file needs a stars array");
+  if (file === null || typeof file !== "object" || !Array.isArray(file.stars))
+    throw new TypeError("star file needs a stars array");
   file.stars.forEach((row: unknown, index: number) => {
-    const ok = Array.isArray(row) && (row.length === 4 || row.length === 5)
-      && [0, 1, 2].every((i) => Number.isFinite(row[i]))
-      && (row[3] === null || Number.isFinite(row[3]))
-      && (row.length === 4 || (Number.isInteger(row[4]) && row[4] >= 0))
-      && row[1] >= -90 && row[1] <= 90;
+    const ok =
+      Array.isArray(row) &&
+      (row.length === 4 || row.length === 5) &&
+      [0, 1, 2].every((i) => Number.isFinite(row[i])) &&
+      (row[3] === null || Number.isFinite(row[3])) &&
+      (row.length === 4 || (Number.isInteger(row[4]) && row[4] >= 0)) &&
+      row[1] >= -90 &&
+      row[1] <= 90;
     if (!ok) throw new RangeError(`star ${index} must be [raDeg, decDeg, vMag, bMinusV|null, hip?]`);
   });
-  const provenance = file.provenance !== null && typeof file.provenance === "object" ? (file.provenance as Record<string, unknown>) : undefined;
+  const provenance =
+    file.provenance !== null && typeof file.provenance === "object"
+      ? (file.provenance as Record<string, unknown>)
+      : undefined;
   return { stars: file.stars as StarRow[], ...(provenance === undefined ? {} : { provenance }) };
 }
 
@@ -124,7 +138,8 @@ export const HYG_STAR_LICENCE: AssetLicence = Object.freeze({
   source: "HYG database v4.2 (Hipparcos, Yale Bright Star, Gliese catalogues), astronexus",
   url: "https://www.astronexus.com/projects/hyg",
   licence: "CC BY-SA 4.0",
-  attribution: "HYG database v4.2, astronexus (astronexus.com), CC BY-SA 4.0. Stars of V 6.5 or brighter kept, right ascension converted from hours to degrees, Hipparcos number added; no other change.",
+  attribution:
+    "HYG database v4.2, astronexus (astronexus.com), CC BY-SA 4.0. Stars of V 6.5 or brighter kept, right ascension converted from hours to degrees, Hipparcos number added; no other change.",
   accessed: "2026-11-10",
 });
 
@@ -203,18 +218,23 @@ export function starAppearance(vMag: number): { readonly sizePx: number; readonl
  * The picture, one 3840x1920 image (under every GPU's texture limit). The file ships in astraeus-data (name "milky-way"); a viewer
  * that was not given it has an empty list and no picture is drawn.
  */
-export const milkyWayTiles = (pictures: Pictures): readonly TextureRef[] => ["milky-way"].flatMap((name) => pictures[name] ?? []);
+export const milkyWayTiles = (pictures: Pictures): readonly TextureRef[] =>
+  ["milky-way"].flatMap((name) => pictures[name] ?? []);
 
 /** The Gaia EDR3 render (stars removed) as a one-tile galactic picture, from the pictures this viewer was given: the one Milky Way picture (no tiles without it). */
-export const milkyWayPicture = (pictures: Pictures): PictureSet => Object.freeze<PictureSet>({
-  name: "Milky Way, Gaia EDR3 render without foreground stars (Kevinmloch)",
-  columns: 1,
-  rows: 1,
-  tiles: milkyWayTiles(pictures).map((tile) => Object.freeze({ column: 0, row: 0, url: tile.url, widthPx: tile.widthPx, heightPx: tile.heightPx })),
-  credit: "Kevinmloch (bsrender), Gaia EDR3, ESA/Gaia/DPAC",
-  licence: "CC BY-SA 4.0",
-  source: "https://commons.wikimedia.org/wiki/File:Milky_Way_360_equirectangular_rendering_with_foreground_stars_removed.png",
-});
+export const milkyWayPicture = (pictures: Pictures): PictureSet =>
+  Object.freeze<PictureSet>({
+    name: "Milky Way, Gaia EDR3 render without foreground stars (Kevinmloch)",
+    columns: 1,
+    rows: 1,
+    tiles: milkyWayTiles(pictures).map((tile) =>
+      Object.freeze({ column: 0, row: 0, url: tile.url, widthPx: tile.widthPx, heightPx: tile.heightPx }),
+    ),
+    credit: "Kevinmloch (bsrender), Gaia EDR3, ESA/Gaia/DPAC",
+    licence: "CC BY-SA 4.0",
+    source:
+      "https://commons.wikimedia.org/wiki/File:Milky_Way_360_equirectangular_rendering_with_foreground_stars_removed.png",
+  });
 
 export const SKY_SOURCES: readonly string[] = Object.freeze([
   "HYG star database v4.2 (Hipparcos, Yale Bright Star, Gliese catalogues), astronexus (https://www.astronexus.com/projects/hyg), CC BY-SA 4.0. The star file only; the code is MIT.",
@@ -233,4 +253,3 @@ export interface SkySettings {
   /** Whether the Milky Way picture is drawn behind the stars. Defaults to false (owner decision, 2026-10-15); the catalogue stars are drawn either way. */
   readonly milkyWay?: boolean;
 }
-

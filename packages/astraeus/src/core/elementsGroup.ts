@@ -34,12 +34,23 @@ const RADIANS = Math.PI / 180;
 const VELOCITY_HALF_STEP_MS = 500;
 
 function classical(elements: OrbitElements, id: BodyId): ClassicalElements {
-  for (const key of ["semiMajorAxisKm", "eccentricity", "inclinationDeg", "raanDeg", "argumentOfPeriapsisDeg", "trueAnomalyDeg"] as const) {
+  for (const key of [
+    "semiMajorAxisKm",
+    "eccentricity",
+    "inclinationDeg",
+    "raanDeg",
+    "argumentOfPeriapsisDeg",
+    "trueAnomalyDeg",
+  ] as const) {
     if (!Number.isFinite(elements[key])) throw new GroupElementsError(`member "${id}" ${key} must be finite`);
   }
   const { semiMajorAxisKm, eccentricity } = elements;
-  if (!(semiMajorAxisKm > 0) || !(eccentricity >= 0 && eccentricity < 1)) throw new GroupElementsError(`member "${id}" needs a bound orbit: a positive semi-major axis and an eccentricity from 0 to below 1`);
-  if (!(elements.inclinationDeg >= 0 && elements.inclinationDeg <= 180)) throw new GroupElementsError(`member "${id}" inclination must be from 0 to 180 degrees`);
+  if (!(semiMajorAxisKm > 0) || !(eccentricity >= 0 && eccentricity < 1))
+    throw new GroupElementsError(
+      `member "${id}" needs a bound orbit: a positive semi-major axis and an eccentricity from 0 to below 1`,
+    );
+  if (!(elements.inclinationDeg >= 0 && elements.inclinationDeg <= 180))
+    throw new GroupElementsError(`member "${id}" inclination must be from 0 to 180 degrees`);
   return {
     semiMajorAxisKm,
     eccentricity,
@@ -58,13 +69,18 @@ export function createElementsGroup(input: ElementsGroupInput, adapter: TwoBodyA
   if (!(bounds.endUtcMs >= bounds.startUtcMs)) throw new RangeError(`group "${id}" bounds end before they start`);
   input.members.forEach((member) => assertUtcUnixMs(member.epochUtcMs));
   // One state per member at its own moment: the shared placement takes each member's elements in turn.
-  const states = input.members.map((member) => memberStatesOf([classical(member.elements, member.id)], member.plane, center, adapter));
+  const states = input.members.map((member) =>
+    memberStatesOf([classical(member.elements, member.id)], member.plane, center, adapter),
+  );
   const count = members.length;
   const one = new Float64Array(3);
   const at = (index: number, timeUtcMs: number, out: Float64Array, offset: number): void => {
     assertMemberIndex(count, index);
     assertUtcUnixMs(timeUtcMs);
-    out.set(propagatedPositionOf(states[index], 0, (timeUtcMs - input.members[index].epochUtcMs) / 1000, center, adapter), offset);
+    out.set(
+      propagatedPositionOf(states[index], 0, (timeUtcMs - input.members[index].epochUtcMs) / 1000, center, adapter),
+      offset,
+    );
   };
   const group: EphemerisGroup = {
     id,
@@ -100,8 +116,18 @@ export function createElementsGroup(input: ElementsGroupInput, adapter: TwoBodyA
       at(index, timeUtcMs, here, 0);
       at(index, timeUtcMs - VELOCITY_HALF_STEP_MS, before, 0);
       at(index, timeUtcMs + VELOCITY_HALF_STEP_MS, after, 0);
-      const velocityKmS = Float64Array.from([0, 1, 2].map((k) => (after[k] - before[k]) / (2 * VELOCITY_HALF_STEP_MS / 1000)));
-      return createState({ body: members[index], center, timeUtcMs, plane: EQJ, positionKm: here, velocityKmS, orientation: null });
+      const velocityKmS = Float64Array.from(
+        [0, 1, 2].map((k) => (after[k] - before[k]) / ((2 * VELOCITY_HALF_STEP_MS) / 1000)),
+      );
+      return createState({
+        body: members[index],
+        center,
+        timeUtcMs,
+        plane: EQJ,
+        positionKm: here,
+        velocityKmS,
+        orientation: null,
+      });
     },
   };
   return Object.freeze(group);

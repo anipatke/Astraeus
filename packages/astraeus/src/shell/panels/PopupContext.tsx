@@ -33,7 +33,12 @@ export function usePopup(id: string) {
   const place = usePopupPlace();
   const toggle = useCallback(() => place.toggle(id), [place, id]);
   const close = useCallback(() => place.close(id), [place, id]);
-  return { open: place.openId === id, toggle, close, hostProps: { [POPUP_HOST_ATTRIBUTE]: id } as Record<string, string> };
+  return {
+    open: place.openId === id,
+    toggle,
+    close,
+    hostProps: { [POPUP_HOST_ATTRIBUTE]: id } as Record<string, string>,
+  };
 }
 
 /** The key of the open marker group, or null (a group's pop-up id is `marker-group:<key>`). */

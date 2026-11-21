@@ -122,10 +122,18 @@ export interface LinkAccess {
 
 const NOT_OPEN = "the viewer is not drawn yet (or is gone); wait for `ready` first";
 
-interface Wait { readonly promise: Promise<void>; resolve: () => void; reject: (reason: Error) => void; done: boolean }
+interface Wait {
+  readonly promise: Promise<void>;
+  resolve: () => void;
+  reject: (reason: Error) => void;
+  done: boolean;
+}
 function newWait(): Wait {
   const wait = { done: false } as Wait;
-  (wait as { promise: Promise<void> }).promise = new Promise<void>((resolve, reject) => { wait.resolve = resolve; wait.reject = reject; });
+  (wait as { promise: Promise<void> }).promise = new Promise<void>((resolve, reject) => {
+    wait.resolve = resolve;
+    wait.reject = reject;
+  });
   wait.promise.catch(() => undefined); // a wait nobody holds when the link closes is not an unhandled rejection
   return wait;
 }
@@ -200,7 +208,8 @@ export class ViewerLink implements ViewerPort {
   /** Stops all callbacks for good (the host unmounted). */
   close(): void {
     this.#closed = true;
-    if (!this.#wait.done) this.#wait.reject(new SceneError("not-mounted", "the viewer was unmounted before it was drawn"));
+    if (!this.#wait.done)
+      this.#wait.reject(new SceneError("not-mounted", "the viewer was unmounted before it was drawn"));
     this.detach();
     this.#clock.clearListeners();
     this.#zones.clearListeners();
@@ -216,81 +225,191 @@ export class ViewerLink implements ViewerPort {
    * Resolves once the viewer has attached its clock, so every read and call works from then on; at once when it already has. A `close` before it attached rejects it with
    * `not-mounted` (a closed link is not usable); it never stays pending. A detach (the viewer rebuilt) arms a fresh wait.
    */
-  whenAttached(): Promise<void> { return this.#wait.promise; }
+  whenAttached(): Promise<void> {
+    return this.#wait.promise;
+  }
 
-  get rateSource(): RateSource { return this.#clock.rateSource; }
-  get timeUtcMs(): number | undefined { return this.#clock.timeUtcMs; }
-  get rate(): number | undefined { return this.#clock.rate; }
-  get playing(): boolean | undefined { return this.#clock.playing; }
-  get eventZones(): readonly string[] | undefined { return this.#zones.eventZones; }
-  get view(): string | undefined { return this.#views.view; }
-  get selected(): string | undefined { return this.#selection.selected; }
-  get panel(): string | undefined { return this.#panels.panel; }
-  get camera(): CameraPose | undefined { return this.#camera.camera; }
-  get pick(): string | undefined { return this.#picker.pick; }
-  get about(): AboutInput | undefined { return this.#about.about; }
-  get skyFigures(): readonly SceneSkyFigureRead[] | undefined { const control = this.#access.control(); return control === undefined ? undefined : control.skyFigures ?? []; }
+  get rateSource(): RateSource {
+    return this.#clock.rateSource;
+  }
+  get timeUtcMs(): number | undefined {
+    return this.#clock.timeUtcMs;
+  }
+  get rate(): number | undefined {
+    return this.#clock.rate;
+  }
+  get playing(): boolean | undefined {
+    return this.#clock.playing;
+  }
+  get eventZones(): readonly string[] | undefined {
+    return this.#zones.eventZones;
+  }
+  get view(): string | undefined {
+    return this.#views.view;
+  }
+  get selected(): string | undefined {
+    return this.#selection.selected;
+  }
+  get panel(): string | undefined {
+    return this.#panels.panel;
+  }
+  get camera(): CameraPose | undefined {
+    return this.#camera.camera;
+  }
+  get pick(): string | undefined {
+    return this.#picker.pick;
+  }
+  get about(): AboutInput | undefined {
+    return this.#about.about;
+  }
+  get skyFigures(): readonly SceneSkyFigureRead[] | undefined {
+    const control = this.#access.control();
+    return control === undefined ? undefined : (control.skyFigures ?? []);
+  }
 
-  get look(): LookRead | undefined { return this.#looks.look; }
-  get scale(): ScaleId | undefined { return this.#looks.scale; }
-  get switches(): Readonly<Record<string, boolean>> | undefined { return this.#looks.switches; }
+  get look(): LookRead | undefined {
+    return this.#looks.look;
+  }
+  get scale(): ScaleId | undefined {
+    return this.#looks.scale;
+  }
+  get switches(): Readonly<Record<string, boolean>> | undefined {
+    return this.#looks.switches;
+  }
 
   // Each member below is documented where it is done: viewerClock, viewerViews, viewerCamera, viewerZones, viewerSelection.
-  setView(id: string): void { this.#views.setView(id); this.#afterHost(); }
-  setTime(time: TimeInput): void { this.#clock.setTime(time); this.#afterHost(); }
-  setRate(rate: number | "auto"): void { this.#clock.setRate(rate); this.#afterHost(); }
-  setPlaying(playing: boolean): void { this.#clock.setPlaying(playing); this.#afterHost(); }
-  setCamera(target: CameraTarget): void { this.#camera.setCamera(target); }
-  setLook(look: LookInput): void { this.#looks.setLook(look); this.#afterHost(); }
-  setScale(id: ScaleId): void { this.#looks.setScale(id); this.#afterHost(); }
-  setSwitch(id: string, on: boolean): void { this.#looks.setSwitch(id, on); this.#afterHost(); }
-  groupLook(id: string): GroupLookRead | undefined { return this.#looks.groupLook(id); }
+  setView(id: string): void {
+    this.#views.setView(id);
+    this.#afterHost();
+  }
+  setTime(time: TimeInput): void {
+    this.#clock.setTime(time);
+    this.#afterHost();
+  }
+  setRate(rate: number | "auto"): void {
+    this.#clock.setRate(rate);
+    this.#afterHost();
+  }
+  setPlaying(playing: boolean): void {
+    this.#clock.setPlaying(playing);
+    this.#afterHost();
+  }
+  setCamera(target: CameraTarget): void {
+    this.#camera.setCamera(target);
+  }
+  setLook(look: LookInput): void {
+    this.#looks.setLook(look);
+    this.#afterHost();
+  }
+  setScale(id: ScaleId): void {
+    this.#looks.setScale(id);
+    this.#afterHost();
+  }
+  setSwitch(id: string, on: boolean): void {
+    this.#looks.setSwitch(id, on);
+    this.#afterHost();
+  }
+  groupLook(id: string): GroupLookRead | undefined {
+    return this.#looks.groupLook(id);
+  }
   /** Presentation only: moves no clock, view or selection, so nothing is published. */
-  setGroupLook(id: string, look: GroupLookInput): void { this.#looks.setGroupLook(id, look); }
-  setSelected(id: string | undefined): void { this.#selection.setSelected(id); this.#afterHost(); }
-  setPanel(id: string | undefined): void { this.#panels.setPanel(id); this.#afterHost(); }
-  onPanel(listener: (change: PanelChange) => void): () => void { return this.#panels.onPanel(listener); }
-  onChange(listener: (change: ViewerChange) => void): () => void { return this.#clock.onChange(listener); }
-  onEventZone(listener: (change: EventZoneChange) => void): () => void { return this.#zones.onEventZone(listener); }
+  setGroupLook(id: string, look: GroupLookInput): void {
+    this.#looks.setGroupLook(id, look);
+  }
+  setSelected(id: string | undefined): void {
+    this.#selection.setSelected(id);
+    this.#afterHost();
+  }
+  setPanel(id: string | undefined): void {
+    this.#panels.setPanel(id);
+    this.#afterHost();
+  }
+  onPanel(listener: (change: PanelChange) => void): () => void {
+    return this.#panels.onPanel(listener);
+  }
+  onChange(listener: (change: ViewerChange) => void): () => void {
+    return this.#clock.onChange(listener);
+  }
+  onEventZone(listener: (change: EventZoneChange) => void): () => void {
+    return this.#zones.onEventZone(listener);
+  }
 
   /** Traces a sky figure line by line (checked here, `unknown-sky-figure` or `bad-sky-trace`); the viewer starts it at its next frame, after any host call made before it. */
   traceSkyFigure(id: string, options?: SkyTraceOptions): void {
     const control = this.#access.open("traceSkyFigure");
-    const { seconds, after } = checkedTrace(id, options, (control.skyFigures ?? []).map((figure) => figure.id));
+    const { seconds, after } = checkedTrace(
+      id,
+      options,
+      (control.skyFigures ?? []).map((figure) => figure.id),
+    );
     control.traceSkyFigure(id, seconds, after);
   }
 
   /** Removes a figure's trace (checked here, `unknown-sky-figure` or `bad-sky-trace`); a figure with no trace is left alone. Takes its place in call order like `traceSkyFigure`. */
   clearSkyTrace(id: string, options?: SkyClearOptions): void {
     const control = this.#access.open("clearSkyTrace");
-    const { seconds } = checkedClear(id, options, (control.skyFigures ?? []).map((figure) => figure.id));
+    const { seconds } = checkedClear(
+      id,
+      options,
+      (control.skyFigures ?? []).map((figure) => figure.id),
+    );
     control.clearSkyTrace(id, seconds);
   }
 
-  setPick(value: string): void { this.#picker.setPick(value); }
-  onPick(listener: (change: PickChange) => void): () => void { return this.#picker.onPick(listener); }
-  pickNow(): string | undefined { return this.#picker.pick; }
-  watchPick(watcher: () => void): () => void { return this.#picker.watch(watcher); }
-  picked(value: string): void { this.#picker.press(value); }
+  setPick(value: string): void {
+    this.#picker.setPick(value);
+  }
+  onPick(listener: (change: PickChange) => void): () => void {
+    return this.#picker.onPick(listener);
+  }
+  pickNow(): string | undefined {
+    return this.#picker.pick;
+  }
+  watchPick(watcher: () => void): () => void {
+    return this.#picker.watch(watcher);
+  }
+  picked(value: string): void {
+    this.#picker.press(value);
+  }
 
-  part<P extends AnyPart>(descriptor: P): ControlFor<P> { return this.#parts.part(descriptor); }
-  partOpened(id: string, open: boolean): void { this.#parts.press(id, open); }
-  partHeard(id: string, event: unknown): void { this.#parts.heard(id, event); }
+  part<P extends AnyPart>(descriptor: P): ControlFor<P> {
+    return this.#parts.part(descriptor);
+  }
+  partOpened(id: string, open: boolean): void {
+    this.#parts.press(id, open);
+  }
+  partHeard(id: string, event: unknown): void {
+    this.#parts.heard(id, event);
+  }
 
-  setAbout(input: AboutInput): void { this.#about.setAbout(input); }
-  aboutNow(): AboutInput | undefined { return this.#about.about; }
-  watchAbout(watcher: () => void): () => void { return this.#about.watch(watcher); }
+  setAbout(input: AboutInput): void {
+    this.#about.setAbout(input);
+  }
+  aboutNow(): AboutInput | undefined {
+    return this.#about.about;
+  }
+  watchAbout(watcher: () => void): () => void {
+    return this.#about.watch(watcher);
+  }
 
-  onFirstDraw(listener: () => void): () => void { return this.#frame.onFirstDraw(listener); }
-  firstDraw(): void { this.#frame.publish(); }
-  onSelect(listener: (change: SelectionChange) => void): () => void { return this.#selection.onSelect(listener); }
-  onCameraChange(listener: (camera: CameraPose) => void): () => void { return this.#camera.onCameraChange(listener); }
+  onFirstDraw(listener: () => void): () => void {
+    return this.#frame.onFirstDraw(listener);
+  }
+  firstDraw(): void {
+    this.#frame.publish();
+  }
+  onSelect(listener: (change: SelectionChange) => void): () => void {
+    return this.#selection.onSelect(listener);
+  }
+  onCameraChange(listener: (camera: CameraPose) => void): () => void {
+    return this.#camera.onCameraChange(listener);
+  }
 
   publish(state: ViewerState, cause: ViewerChangeCause): void {
     const serial = ++this.#publishes;
     if (this.#clock.publish(state, cause)) this.#mover = cause;
     // An `onChange` listener that made a host call published inside the call above, with a newer reading: the rest of this publish goes by that reading, not the older one it was handed.
-    const now = this.#publishes === serial ? state : this.#control?.read() ?? state;
+    const now = this.#publishes === serial ? state : (this.#control?.read() ?? state);
     this.#zones.publish(now, cause);
     this.#selection.publish(now, cause);
     this.#panels.publish(now, cause);
@@ -298,11 +417,17 @@ export class ViewerLink implements ViewerPort {
   }
 
   /** The selection changed. A drop by time or the view names whatever last moved them (`onChange` names the same), so the cause is never a second opinion. */
-  publishSelection(state: ViewerState, byMove: boolean): void { this.#selection.publish(state, byMove ? this.#mover : "visitor"); }
+  publishSelection(state: ViewerState, byMove: boolean): void {
+    this.#selection.publish(state, byMove ? this.#mover : "visitor");
+  }
 
   /** The open story panel changed. A drop by a view switch names whatever last moved the view (`onChange` names the same). */
-  publishPanel(state: ViewerState, cause: ViewerChangeCause | "move"): void { this.#panels.publish(state, cause === "move" ? this.#mover : cause); }
+  publishPanel(state: ViewerState, cause: ViewerChangeCause | "move"): void {
+    this.#panels.publish(state, cause === "move" ? this.#mover : cause);
+  }
 
   /** A host call moved the clock or the view: report the control's reading, change then zones. */
-  #afterHost(): void { this.publish(this.#access.open("publish").read(), "host"); }
+  #afterHost(): void {
+    this.publish(this.#access.open("publish").read(), "host");
+  }
 }

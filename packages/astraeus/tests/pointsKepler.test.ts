@@ -19,19 +19,56 @@ const START = Date.UTC(2030, 0, 1);
 const BOUNDS = { startUtcMs: START, endUtcMs: START + 400 * DAY };
 const COUNT = 2500;
 const adapter = createOrbAstronomyAdapter();
-const provenance = createProvenance({ sourceType: "illustrative", sources: ["Made up inside the Kepler points tests"], accuracy: "None claimed.", notes: "Fixture." });
+const provenance = createProvenance({
+  sourceType: "illustrative",
+  sources: ["Made up inside the Kepler points tests"],
+  accuracy: "None claimed.",
+  notes: "Fixture.",
+});
 
 function stream(): GroupLayer {
-  const group = createOrbitGroup({
-    id: "kepler-fixture", count: COUNT, center: "sun", plane: "ecliptic-j2000", epochUtcMs: START + 100 * DAY, provenance, seed: 11, bounds: BOUNDS,
-    base: { semiMajorAxisKm: 2.2e8, eccentricity: 0.4, inclinationDeg: 30, raanDeg: 100, argumentOfPeriapsisDeg: 200, trueAnomalyDeg: 90 },
-    spread: { semiMajorAxisKm: 8e7, eccentricity: 0.2, inclinationDeg: 20, raanDeg: 40, argumentOfPeriapsisDeg: 60, trueAnomalyDeg: 180 },
-  }, createOrbTwoBodyAdapter());
-  return { group, color: "#7fe3c4", object: { id: "kepler-fixture", label: "Fixture", description: "Made up.", knownLimitations: ["Made up."] } };
+  const group = createOrbitGroup(
+    {
+      id: "kepler-fixture",
+      count: COUNT,
+      center: "sun",
+      plane: "ecliptic-j2000",
+      epochUtcMs: START + 100 * DAY,
+      provenance,
+      seed: 11,
+      bounds: BOUNDS,
+      base: {
+        semiMajorAxisKm: 2.2e8,
+        eccentricity: 0.4,
+        inclinationDeg: 30,
+        raanDeg: 100,
+        argumentOfPeriapsisDeg: 200,
+        trueAnomalyDeg: 90,
+      },
+      spread: {
+        semiMajorAxisKm: 8e7,
+        eccentricity: 0.2,
+        inclinationDeg: 20,
+        raanDeg: 40,
+        argumentOfPeriapsisDeg: 60,
+        trueAnomalyDeg: 180,
+      },
+    },
+    createOrbTwoBodyAdapter(),
+  );
+  return {
+    group,
+    color: "#7fe3c4",
+    object: { id: "kepler-fixture", label: "Fixture", description: "Made up.", knownLimitations: ["Made up."] },
+  };
 }
 
 /** A policy that scales exactly but does not say so: the group must keep the fills-plus-blend path. */
-const unlabelled: ScalePolicy = { id: "true-scale", mapPosition: (p) => trueScale.mapPosition(p), mapRadius: (r) => trueScale.mapRadius(r) };
+const unlabelled: ScalePolicy = {
+  id: "true-scale",
+  mapPosition: (p) => trueScale.mapPosition(p),
+  mapRadius: (r) => trueScale.mapRadius(r),
+};
 
 const sunPlacement = placementAbout("sun", adapter);
 const origin = new FloatingOrigin();
@@ -78,7 +115,10 @@ describe("a large two-body group under a scaling policy is placed by the shader"
     show(view, START + 120 * DAY, trueScale);
     expect(view.placedByShader).toBe(true);
     // Small groups, and groups with no elements, keep the earlier path.
-    const small = new PointsView({ ...layer, group: { ...layer.group, count: 10, keplerElements: undefined } as never });
+    const small = new PointsView({
+      ...layer,
+      group: { ...layer.group, count: 10, keplerElements: undefined } as never,
+    });
     expect(small.placedByShader).toBe(false);
   });
 
@@ -87,11 +127,22 @@ describe("a large two-body group under a scaling policy is placed by the shader"
     const view = new PointsView(layer);
     const hour = 3_600_000;
     let t = START + 50 * DAY;
-    for (let k = 0; k < 30; k += 1) { t += 6 * hour; show(view, t); expect(gapKm(view, layer, t, trueScale)).toBeLessThan(TOLERANCE_KM); }
+    for (let k = 0; k < 30; k += 1) {
+      t += 6 * hour;
+      show(view, t);
+      expect(gapKm(view, layer, t, trueScale)).toBeLessThan(TOLERANCE_KM);
+    }
     const fills = view.fillCount;
-    for (let k = 0; k < 5; k += 1) { show(view, t); expect(gapKm(view, layer, t, trueScale)).toBeLessThan(TOLERANCE_KM); } // paused
+    for (let k = 0; k < 5; k += 1) {
+      show(view, t);
+      expect(gapKm(view, layer, t, trueScale)).toBeLessThan(TOLERANCE_KM);
+    } // paused
     expect(view.fillCount).toBe(fills);
-    for (let k = 0; k < 30; k += 1) { t -= 6 * hour; show(view, t); expect(gapKm(view, layer, t, trueScale)).toBeLessThan(TOLERANCE_KM); }
+    for (let k = 0; k < 30; k += 1) {
+      t -= 6 * hour;
+      show(view, t);
+      expect(gapKm(view, layer, t, trueScale)).toBeLessThan(TOLERANCE_KM);
+    }
     for (const seek of [START + 390 * DAY, START + 3 * DAY, START + 200 * DAY + 1234]) {
       show(view, seek);
       expect(gapKm(view, layer, seek, trueScale)).toBeLessThan(TOLERANCE_KM);
@@ -158,7 +209,9 @@ describe("a large two-body group under a scaling policy is placed by the shader"
       show(view, t);
       const truth = centroidAt(t);
       const c = view.absolute();
-      expect(Math.hypot(c[0] - truth[0], c[1] - truth[1], c[2] - truth[2])).toBeLessThan(2e-4 * view.extentUnits(trueScale)); // measured about 1.5e-4 of the extent for this fast, wide fixture
+      expect(Math.hypot(c[0] - truth[0], c[1] - truth[1], c[2] - truth[2])).toBeLessThan(
+        2e-4 * view.extentUnits(trueScale),
+      ); // measured about 1.5e-4 of the extent for this fast, wide fixture
     }
     expect(view.fillCount - fills).toBeLessThanOrEqual(6); // one per week, not one per frame
     expect(view.extentUnits(trueScale)).toBeGreaterThan(1000);
@@ -168,7 +221,10 @@ describe("a large two-body group under a scaling policy is placed by the shader"
     const layer = stream();
     const view = new PointsView(layer);
     let t = START + 10 * DAY;
-    for (let k = 0; k < 400; k += 1) { t += 3_600_000; show(view, t); }
+    for (let k = 0; k < 400; k += 1) {
+      t += 3_600_000;
+      show(view, t);
+    }
     expect(view.rebases).toBeGreaterThanOrEqual(1);
     expect(view.rebases).toBeLessThan(40);
   }, 60_000);

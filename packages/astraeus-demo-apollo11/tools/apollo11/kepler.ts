@@ -57,7 +57,7 @@ export function propagateKepler(mu: number, state: OrbitState, dtSeconds: number
     if (iteration > 200 || !Number.isFinite(chi)) throw new RangeError("Kepler propagation did not converge");
     const z = alpha * chi * chi;
     const { c, s } = stumpff(z);
-    const f = ((rv / sqrtMu) * chi * chi * c) + (1 - alpha * r0) * chi * chi * chi * s + r0 * chi - sqrtMu * dt;
+    const f = (rv / sqrtMu) * chi * chi * c + (1 - alpha * r0) * chi * chi * chi * s + r0 * chi - sqrtMu * dt;
     const df = (rv / sqrtMu) * chi * (1 - z * s) + (1 - alpha * r0) * chi * chi * c + r0;
     const step = f / df;
     chi -= step;

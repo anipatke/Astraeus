@@ -61,15 +61,20 @@ function accuracyOf(group: PointGroup, times: readonly number[]): Accuracy {
     const origin = eqjToRenderVector(centroid.map((v) => v * K));
     const direction = t >= previous ? 1 : -1;
     previous = t;
-    const truths = (i: number): number[] => eqjToRenderVector([exact[3 * i] * K, exact[3 * i + 1] * K, exact[3 * i + 2] * K]);
+    const truths = (i: number): number[] =>
+      eqjToRenderVector([exact[3 * i] * K, exact[3 * i + 1] * K, exact[3 * i + 2] * K]);
     kepler.update(t, direction, K, [0, 0, 0]);
     const kernel = Array.from({ length: group.count }, (_, i) => kepler.localPosition(i));
     kepler.update(t, direction, K, [-origin[0], -origin[1], -origin[2]]);
     for (let i = 0; i < group.count; i++) {
       const truth = truths(i);
       const km = Math.hypot(kernel[i][0] - truth[0], kernel[i][1] - truth[1], kernel[i][2] - truth[2]) / K;
-      const speed = elements.semiMajorAxisKm[i] * Math.sqrt((1 + elements.eccentricity[i]) / (1 - elements.eccentricity[i]));
-      if (km > result.maxKm) { result.maxKm = km; result.worst = i; }
+      const speed =
+        elements.semiMajorAxisKm[i] * Math.sqrt((1 + elements.eccentricity[i]) / (1 - elements.eccentricity[i]));
+      if (km > result.maxKm) {
+        result.maxKm = km;
+        result.worst = i;
+      }
       result.maxOfOrbit = Math.max(result.maxOfOrbit, km / speed);
       const local = [0, 1, 2].map((k) => truth[k] - origin[k]);
       const drawn = kepler.localPosition(i);
@@ -81,12 +86,40 @@ function accuracyOf(group: PointGroup, times: readonly number[]): Accuracy {
 }
 
 function spread(count: number): PointGroup {
-  const provenance = createProvenance({ sourceType: "illustrative", sources: ["Made up inside the Kepler shader tests"], accuracy: "None claimed.", notes: "Fixture." });
-  return createOrbitGroup({
-    id: "wide-e", count, center: "sun", plane: "ecliptic-j2000", epochUtcMs: Date.UTC(2030, 0, 1), provenance, seed: 7,
-    base: { semiMajorAxisKm: 2.2e8, eccentricity: 0.9, inclinationDeg: 40, raanDeg: 120, argumentOfPeriapsisDeg: 200, trueAnomalyDeg: 180 },
-    spread: { semiMajorAxisKm: 1.9e8, eccentricity: 0.0899, inclinationDeg: 38, raanDeg: 180, argumentOfPeriapsisDeg: 180, trueAnomalyDeg: 180 },
-  }, createOrbTwoBodyAdapter());
+  const provenance = createProvenance({
+    sourceType: "illustrative",
+    sources: ["Made up inside the Kepler shader tests"],
+    accuracy: "None claimed.",
+    notes: "Fixture.",
+  });
+  return createOrbitGroup(
+    {
+      id: "wide-e",
+      count,
+      center: "sun",
+      plane: "ecliptic-j2000",
+      epochUtcMs: Date.UTC(2030, 0, 1),
+      provenance,
+      seed: 7,
+      base: {
+        semiMajorAxisKm: 2.2e8,
+        eccentricity: 0.9,
+        inclinationDeg: 40,
+        raanDeg: 120,
+        argumentOfPeriapsisDeg: 200,
+        trueAnomalyDeg: 180,
+      },
+      spread: {
+        semiMajorAxisKm: 1.9e8,
+        eccentricity: 0.0899,
+        inclinationDeg: 38,
+        raanDeg: 180,
+        argumentOfPeriapsisDeg: 180,
+        trueAnomalyDeg: 180,
+      },
+    },
+    createOrbTwoBodyAdapter(),
+  );
 }
 
 describe("the shader's structure", () => {
@@ -98,9 +131,18 @@ describe("the shader's structure", () => {
     }
     const glsl = keplerGlsl();
     const body = glsl.slice(glsl.indexOf("{"));
-    expect([...body.matchAll(/\b(floor|sign|sin|cos)\(/g)].map((m) => m[1])).toEqual(["floor", "sign", "sin", "cos", "cos", "sin"]);
+    expect([...body.matchAll(/\b(floor|sign|sin|cos)\(/g)].map((m) => m[1])).toEqual([
+      "floor",
+      "sign",
+      "sin",
+      "cos",
+      "cos",
+      "sin",
+    ]);
     expect(body).toContain(`i < ${KEPLER_MAX_STEPS}`);
-    expect(body).toContain(`int steps = e < 0.5 ? ${keplerStepsFor(0)} : (e < 0.95 ? ${keplerStepsFor(0.9)} : ${keplerStepsFor(0.99)});`);
+    expect(body).toContain(
+      `int steps = e < 0.5 ? ${keplerStepsFor(0)} : (e < 0.95 ? ${keplerStepsFor(0.9)} : ${keplerStepsFor(0.99)});`,
+    );
     expect(glsl).toContain("E = E - g / (d - 0.5 * g * (e * s) / d);");
     expect(KEPLER_BEGIN_VERTEX_GLSL).toContain("keplerKm(position, keplerQ, keplerShape, uDt)");
   });
@@ -122,12 +164,28 @@ describe("the shader's structure", () => {
 
 describe("the 64-bit fill from the elements", () => {
   it("reproduces the group's own positions to a part in 10^9, on a made-up group and both shipped sets", () => {
-    const groups = [spread(1500), ...[["perseids", 7, perseidsFile], ["geminids", 4, geminidsFile]].map(([story, iau, file]) =>
-      groupsOf(buildShowerDefinition(parseShowerSettings(file as typeof geminidsFile), { kind: "loaded", orbits: readShippedOrbits(story as string, iau as number) }))[0].group)];
+    const groups = [
+      spread(1500),
+      ...[
+        ["perseids", 7, perseidsFile],
+        ["geminids", 4, geminidsFile],
+      ].map(
+        ([story, iau, file]) =>
+          groupsOf(
+            buildShowerDefinition(parseShowerSettings(file as typeof geminidsFile), {
+              kind: "loaded",
+              orbits: readShippedOrbits(story as string, iau as number),
+            }),
+          )[0].group,
+      ),
+    ];
     for (const group of groups) {
       const own = new Float64Array(3 * group.count);
       const theirs = new Float64Array(3 * group.count);
-      const at = group.bounds === undefined ? Date.UTC(2030, 5, 1) : Math.round((group.bounds.startUtcMs + group.bounds.endUtcMs) / 2);
+      const at =
+        group.bounds === undefined
+          ? Date.UTC(2030, 5, 1)
+          : Math.round((group.bounds.startUtcMs + group.bounds.endUtcMs) / 2);
       group.fillPositionsKm(at, theirs);
       fillKeplerRangeKm(group.keplerElements!(), at, own, 0, group.count);
       let worst = 0;
@@ -159,9 +217,13 @@ describe.each([
 ])("$name shipped set", ({ story, iau, file }) => {
   it("matches every member across the timeline", () => {
     const settings = parseShowerSettings(file);
-    const layer = groupsOf(buildShowerDefinition(settings, { kind: "loaded", orbits: readShippedOrbits(story, iau) }))[0];
+    const layer = groupsOf(
+      buildShowerDefinition(settings, { kind: "loaded", orbits: readShippedOrbits(story, iau) }),
+    )[0];
     const { bounds } = layer.group;
-    const times = Array.from({ length: 24 }, (_, k) => Math.round(bounds!.startUtcMs + ((bounds!.endUtcMs - bounds!.startUtcMs) * k) / 23));
+    const times = Array.from({ length: 24 }, (_, k) =>
+      Math.round(bounds!.startUtcMs + ((bounds!.endUtcMs - bounds!.startUtcMs) * k) / 23),
+    );
     const found = accuracyOf(layer.group, times);
     console.info(story, layer.group.count, JSON.stringify(found));
     expect(found.maxOfOrbit).toBeLessThan(TOLERANCE_OF_ORBIT);

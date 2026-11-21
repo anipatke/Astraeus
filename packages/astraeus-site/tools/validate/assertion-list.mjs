@@ -22,14 +22,21 @@ const here = dirname(fileURLToPath(import.meta.url));
 const FAILURE_LIST = /problem|failure|error|fail|violation/i;
 const printer = ts.createPrinter({ removeComments: true });
 
-const nameOf = (node) => (ts.isIdentifier(node) ? node.text : ts.isPropertyAccessExpression(node) ? node.name.text : undefined);
-const squash = (text) => text.replace(/\s+/g, " ").replace(/,\s*}/g, " }").replace(/,\s*([)\]])/g, "$1").trim(); // a trailing comma is layout too
+const nameOf = (node) =>
+  ts.isIdentifier(node) ? node.text : ts.isPropertyAccessExpression(node) ? node.name.text : undefined;
+const squash = (text) =>
+  text
+    .replace(/\s+/g, " ")
+    .replace(/,\s*}/g, " }")
+    .replace(/,\s*([)\]])/g, "$1")
+    .trim(); // a trailing comma is layout too
 
 /** The arrays a script hands on as failures: `problems: list`, `{ problems }`. */
 function handedOnLists(root) {
   const names = new Set();
   const visit = (node) => {
-    if (ts.isPropertyAssignment(node) && FAILURE_LIST.test(node.name.getText()) && ts.isIdentifier(node.initializer)) names.add(node.initializer.text);
+    if (ts.isPropertyAssignment(node) && FAILURE_LIST.test(node.name.getText()) && ts.isIdentifier(node.initializer))
+      names.add(node.initializer.text);
     ts.forEachChild(node, visit);
   };
   visit(root);
@@ -60,9 +67,19 @@ function guardsOf(node) {
     } else if (ts.isConditionalExpression(parent) && child !== parent.condition) {
       const test = squash(printer.printNode(ts.EmitHint.Expression, parent.condition, parent.getSourceFile()));
       guards.unshift(child === parent.whenTrue ? `(${test})` : `!(${test})`);
-    } else if (ts.isBinaryExpression(parent) && child === parent.right && [ts.SyntaxKind.AmpersandAmpersandToken, ts.SyntaxKind.BarBarToken, ts.SyntaxKind.QuestionQuestionToken].includes(parent.operatorToken.kind)) {
+    } else if (
+      ts.isBinaryExpression(parent) &&
+      child === parent.right &&
+      [ts.SyntaxKind.AmpersandAmpersandToken, ts.SyntaxKind.BarBarToken, ts.SyntaxKind.QuestionQuestionToken].includes(
+        parent.operatorToken.kind,
+      )
+    ) {
       const test = squash(printer.printNode(ts.EmitHint.Expression, parent.left, parent.getSourceFile()));
-      guards.unshift(parent.operatorToken.kind === ts.SyntaxKind.AmpersandAmpersandToken ? `(${test})` : `${parent.operatorToken.kind === ts.SyntaxKind.BarBarToken ? "!" : "nullish "}(${test})`);
+      guards.unshift(
+        parent.operatorToken.kind === ts.SyntaxKind.AmpersandAmpersandToken
+          ? `(${test})`
+          : `${parent.operatorToken.kind === ts.SyntaxKind.BarBarToken ? "!" : "nullish "}(${test})`,
+      );
     }
   }
   return guards;
@@ -74,15 +91,24 @@ export function extractAssertions(source) {
   const lists = handedOnLists(file);
   const raisers = new Set();
   const found = [];
-  for (let again = true; again; ) {
+  for (let again = true; again;) {
     again = false;
     found.length = 0;
     const visit = (node, owner) => {
-      const declared = ts.isFunctionDeclaration(node) ? node.name?.text : ts.isVariableDeclaration(node) && node.initializer !== undefined && (ts.isArrowFunction(node.initializer) || ts.isFunctionExpression(node.initializer)) ? nameOf(node.name) : undefined;
+      const declared = ts.isFunctionDeclaration(node)
+        ? node.name?.text
+        : ts.isVariableDeclaration(node) &&
+            node.initializer !== undefined &&
+            (ts.isArrowFunction(node.initializer) || ts.isFunctionExpression(node.initializer))
+          ? nameOf(node.name)
+          : undefined;
       const here = declared ?? owner;
       if (isRaise(node, lists, raisers)) {
         found.push(node);
-        if (here !== undefined && !raisers.has(here)) { raisers.add(here); again = true; }
+        if (here !== undefined && !raisers.has(here)) {
+          raisers.add(here);
+          again = true;
+        }
       }
       ts.forEachChild(node, (child) => visit(child, here));
     };
@@ -97,7 +123,12 @@ export function extractAssertions(source) {
 
 /** { script: [assertion, ...] } for every .mjs script in tools/validate, read from `read(name)`. */
 export function listAssertions(names, read) {
-  return Object.fromEntries(names.filter((name) => name !== "assertion-list.mjs").sort().map((name) => [name, extractAssertions(read(name))]));
+  return Object.fromEntries(
+    names
+      .filter((name) => name !== "assertion-list.mjs")
+      .sort()
+      .map((name) => [name, extractAssertions(read(name))]),
+  );
 }
 
 export function currentAssertions() {
@@ -108,13 +139,20 @@ export function currentAssertions() {
 /** The same list as it was at `commit`, read with git. */
 export function assertionsAt(commit) {
   const dir = "packages/astraeus-site/tools/validate";
-  const git = (...args) => execFileSync("git", args, { encoding: "utf8", maxBuffer: 2 ** 26, cwd: join(here, "..", "..", "..", "..") });
-  const names = git("ls-tree", "--name-only", commit, `${dir}/`).split("\n").filter((path) => path.endsWith(".mjs")).map((path) => path.slice(dir.length + 1));
+  const git = (...args) =>
+    execFileSync("git", args, { encoding: "utf8", maxBuffer: 2 ** 26, cwd: join(here, "..", "..", "..", "..") });
+  const names = git("ls-tree", "--name-only", commit, `${dir}/`)
+    .split("\n")
+    .filter((path) => path.endsWith(".mjs"))
+    .map((path) => path.slice(dir.length + 1));
   return listAssertions(names, (name) => git("show", `${commit}:${dir}/${name}`));
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const commit = process.argv[2];
-  if (commit === undefined) { console.error("usage: node assertion-list.mjs <commit>"); process.exit(2); }
+  if (commit === undefined) {
+    console.error("usage: node assertion-list.mjs <commit>");
+    process.exit(2);
+  }
   console.log(JSON.stringify({ commit, assertions: assertionsAt(commit) }, null, 1));
 }

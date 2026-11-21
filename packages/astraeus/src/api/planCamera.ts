@@ -20,11 +20,20 @@ const towardIds = new WeakMap<SceneCamera, LookOutRequest>();
 
 /** Each camera's Focus choices and Overview flag (`setFocusChoices`, `setOverview`), kept out of the public class: the assembler reads them with `cameraChoicesOf`. */
 const choices = new WeakMap<SceneCamera, { focus?: readonly string[]; overview: boolean }>();
-const offered = (camera: SceneCamera): { focus?: readonly string[]; overview: boolean } => { let own = choices.get(camera); if (own === undefined) choices.set(camera, (own = { overview: true })); return own; };
+const offered = (camera: SceneCamera): { focus?: readonly string[]; overview: boolean } => {
+  let own = choices.get(camera);
+  if (own === undefined) choices.set(camera, (own = { overview: true }));
+  return own;
+};
 
 /** Every camera button choice the scene made: `focus` and `follow` list objects (undefined: every one), `lookOut` the bodies, `overview` whether Overview shows. */
 export function cameraChoicesOf(camera: SceneCamera): CameraChoices & { readonly overview: boolean } {
-  return { focus: offered(camera).focus, follow: camera.followChoices, lookOut: camera.lookOutChoices, overview: offered(camera).overview };
+  return {
+    focus: offered(camera).focus,
+    follow: camera.followChoices,
+    lookOut: camera.lookOutChoices,
+    overview: offered(camera).overview,
+  };
 }
 
 /** The scene's camera: what it opens on. */
@@ -56,8 +65,16 @@ export class SceneCamera {
   }
   #open(call: string, id: string, view: FollowView, following: boolean): this {
     this.#editable();
-    if (!this.#has(id)) throw new SceneError("unknown-body", `camera.${call}("${id}"): no body or trajectory with that id has been added to the scene`);
-    if (view.up !== undefined && view.up !== "equatorial" && view.up !== "ecliptic") throw new SceneError("bad-camera", `camera.${call}("${id}"): up "${String(view.up)}" must be "equatorial" or "ecliptic"`);
+    if (!this.#has(id))
+      throw new SceneError(
+        "unknown-body",
+        `camera.${call}("${id}"): no body or trajectory with that id has been added to the scene`,
+      );
+    if (view.up !== undefined && view.up !== "equatorial" && view.up !== "ecliptic")
+      throw new SceneError(
+        "bad-camera",
+        `camera.${call}("${id}"): up "${String(view.up)}" must be "equatorial" or "ecliptic"`,
+      );
     this.#target = id;
     this.#pose = undefined;
     towardIds.delete(this);
@@ -74,18 +91,30 @@ export class SceneCamera {
    * scene.camera.lookOut("earth", { direction: { raDeg: 83.6, decDeg: 22 }, fovDeg: 40 });
    * scene.camera.lookOut("earth", { direction: "Leo", fovDeg: 80 });
    */
-  lookOut(body: BodyRef | BodyId, look: { readonly direction?: SkyDirection | string; readonly fovDeg?: number } = {}): this {
+  lookOut(
+    body: BodyRef | BodyId,
+    look: { readonly direction?: SkyDirection | string; readonly fovDeg?: number } = {},
+  ): this {
     this.#editable();
     const id = typeof body === "string" ? body : body?.id;
-    if (typeof look !== "object" || look === null || Array.isArray(look) || "lookOut" in look) throw new SceneError("bad-camera", `camera.lookOut: the look must be { direction?, fovDeg? }, got ${JSON.stringify(look)}`);
+    if (typeof look !== "object" || look === null || Array.isArray(look) || "lookOut" in look)
+      throw new SceneError(
+        "bad-camera",
+        `camera.lookOut: the look must be { direction?, fovDeg? }, got ${JSON.stringify(look)}`,
+      );
     const request = cameraRequestOf({ ...look, lookOut: id }, "camera.lookOut", undefined) as LookOutRequest;
     if (typeof request.direction !== "string") {
       // Already checked: the nested or flat position, else right ascension 0, declination 0.
       const record = look as Record<string, unknown>;
-      const { raDeg, decDeg } = (record.direction ?? ("raDeg" in record ? record : { raDeg: 0, decDeg: 0 })) as SkyDirection;
-      return this.#start({ lookOut: id, raDeg, decDeg, fovDeg: request.fovDeg ?? SKY_OPENING_FOV_DEG }, "camera.lookOut");
+      const { raDeg, decDeg } = (record.direction ??
+        ("raDeg" in record ? record : { raDeg: 0, decDeg: 0 })) as SkyDirection;
+      return this.#start(
+        { lookOut: id, raDeg, decDeg, fovDeg: request.fovDeg ?? SKY_OPENING_FOV_DEG },
+        "camera.lookOut",
+      );
     }
-    if (!this.#has(request.body)) throw new SceneError("unknown-body", `camera.lookOut: "${request.body}" has not been added to the scene`);
+    if (!this.#has(request.body))
+      throw new SceneError("unknown-body", `camera.lookOut: "${request.body}" has not been added to the scene`);
     this.#reset();
     towardIds.set(this, request);
     return this;
@@ -105,7 +134,8 @@ export class SceneCamera {
     this.#editable();
     const record = pose as { focus?: unknown; lookOut?: unknown } | null;
     const named = record?.lookOut ?? record?.focus;
-    if (typeof named === "string" && !this.#has(named)) throw new SceneError("unknown-body", `${call}: "${named}" has not been added to the scene`);
+    if (typeof named === "string" && !this.#has(named))
+      throw new SceneError("unknown-body", `${call}: "${named}" has not been added to the scene`);
     try {
       this.#pose = validateCameraView(pose, `${call} pose`);
     } catch (error) {
@@ -133,9 +163,15 @@ export class SceneCamera {
    */
   setFollowChoices(ids: readonly (BodyRef | BodyId)[]): this {
     this.#editable();
-    if (!Array.isArray(ids)) throw new SceneError("bad-camera", "camera.setFollowChoices: give a list of bodies or ids");
+    if (!Array.isArray(ids))
+      throw new SceneError("bad-camera", "camera.setFollowChoices: give a list of bodies or ids");
     const named = ids.map((item) => (typeof item === "string" ? item : item?.id));
-    for (const id of named) if (typeof id !== "string" || !this.#has(id)) throw new SceneError("unknown-body", `camera.setFollowChoices("${String(id)}"): no body or trajectory with that id has been added to the scene`);
+    for (const id of named)
+      if (typeof id !== "string" || !this.#has(id))
+        throw new SceneError(
+          "unknown-body",
+          `camera.setFollowChoices("${String(id)}"): no body or trajectory with that id has been added to the scene`,
+        );
     this.#followIds = Object.freeze([...new Set(named)]);
     return this;
   }
@@ -144,14 +180,20 @@ export class SceneCamera {
     this.#editable();
     if (!Array.isArray(ids)) throw new SceneError("bad-camera", "camera.setFocusChoices: give a list of bodies or ids");
     const named = ids.map((item) => (typeof item === "string" ? item : item?.id));
-    for (const id of named) if (typeof id !== "string" || !this.#has(id)) throw new SceneError("unknown-body", `camera.setFocusChoices("${String(id)}"): no body or trajectory with that id has been added to the scene`);
+    for (const id of named)
+      if (typeof id !== "string" || !this.#has(id))
+        throw new SceneError(
+          "unknown-body",
+          `camera.setFocusChoices("${String(id)}"): no body or trajectory with that id has been added to the scene`,
+        );
     offered(this).focus = Object.freeze([...new Set(named)]);
     return this;
   }
   /** Whether Overview shows (default true). */
   setOverview(on: boolean): this {
     this.#editable();
-    if (typeof on !== "boolean") throw new SceneError("bad-camera", `camera.setOverview: give true or false, got ${JSON.stringify(on)}`);
+    if (typeof on !== "boolean")
+      throw new SceneError("bad-camera", `camera.setOverview: give true or false, got ${JSON.stringify(on)}`);
     offered(this).overview = on;
     return this;
   }
@@ -163,9 +205,15 @@ export class SceneCamera {
    */
   setLookOutChoices(ids: readonly (BodyRef | BodyId)[]): this {
     this.#editable();
-    if (!Array.isArray(ids)) throw new SceneError("bad-camera", "camera.setLookOutChoices: give a list of bodies or ids");
+    if (!Array.isArray(ids))
+      throw new SceneError("bad-camera", "camera.setLookOutChoices: give a list of bodies or ids");
     const named = ids.map((item) => (typeof item === "string" ? item : item?.id));
-    for (const id of named) if (typeof id !== "string" || !this.#has(id)) throw new SceneError("unknown-body", `camera.setLookOutChoices("${String(id)}"): no body or trajectory with that id has been added to the scene`);
+    for (const id of named)
+      if (typeof id !== "string" || !this.#has(id))
+        throw new SceneError(
+          "unknown-body",
+          `camera.setLookOutChoices("${String(id)}"): no body or trajectory with that id has been added to the scene`,
+        );
     this.#lookOutIds = Object.freeze([...new Set(named)]);
     return this;
   }
@@ -177,9 +225,17 @@ export class SceneCamera {
    */
   setReach(distance: number, options: { readonly farEarthRadii?: number } = {}): this {
     this.#editable();
-    if (!(typeof distance === "number" && Number.isFinite(distance) && distance > 0)) throw new SceneError("bad-camera", `camera.setReach: distance must be a finite number above 0, got ${String(distance)}`);
+    if (!(typeof distance === "number" && Number.isFinite(distance) && distance > 0))
+      throw new SceneError(
+        "bad-camera",
+        `camera.setReach: distance must be a finite number above 0, got ${String(distance)}`,
+      );
     const far = options.farEarthRadii;
-    if (far !== undefined && !(typeof far === "number" && Number.isFinite(far) && far >= distance)) throw new SceneError("bad-camera", `camera.setReach: farEarthRadii must be a finite number of at least the distance (${distance}), got ${String(far)}`);
+    if (far !== undefined && !(typeof far === "number" && Number.isFinite(far) && far >= distance))
+      throw new SceneError(
+        "bad-camera",
+        `camera.setReach: farEarthRadii must be a finite number of at least the distance (${distance}), got ${String(far)}`,
+      );
     this.#reach = distance;
     this.#far = far;
     this.#fit = undefined;
@@ -197,29 +253,55 @@ export class SceneCamera {
   fitOrbit(body: BodyRef | BodyId): this {
     this.#editable();
     const id = typeof body === "string" ? body : body.id;
-    if (!this.#has(id)) throw new SceneError("unknown-body", `camera.fitOrbit("${id}"): no body or trajectory with that id has been added to the scene`);
-    if (!this.#circlesSun(id)) throw new SceneError("bad-camera", `camera.fitOrbit("${id}"): "${id}" is not a body that circles the Sun (a planet, a comet or one added with addBodyFromElements)`);
+    if (!this.#has(id))
+      throw new SceneError(
+        "unknown-body",
+        `camera.fitOrbit("${id}"): no body or trajectory with that id has been added to the scene`,
+      );
+    if (!this.#circlesSun(id))
+      throw new SceneError(
+        "bad-camera",
+        `camera.fitOrbit("${id}"): "${id}" is not a body that circles the Sun (a planet, a comet or one added with addBodyFromElements)`,
+      );
     this.#fit = id;
     this.#reach = undefined;
     this.#far = undefined;
     return this;
   }
   /** The body `fitOrbit` fits the zoom-out to, if any. */
-  get fitted(): string | undefined { return this.#fit; }
+  get fitted(): string | undefined {
+    return this.#fit;
+  }
   /** The farthest zoom-out set with `setReach`, if any. */
-  get reachEarthRadii(): number | undefined { return this.#reach; }
+  get reachEarthRadii(): number | undefined {
+    return this.#reach;
+  }
   /** The far plane set with `setReach`'s `farEarthRadii`, if any. */
-  get farEarthRadii(): number | undefined { return this.#far; }
+  get farEarthRadii(): number | undefined {
+    return this.#far;
+  }
   /** The pose `setStartView` or `lookOut` set, if it is the last opening call (undefined after a `lookOut` toward an id). */
-  get pose(): CameraPose | undefined { return this.#pose; }
+  get pose(): CameraPose | undefined {
+    return this.#pose;
+  }
   /** The objects offering Follow (`setFollowChoices`); undefined: every one. */
-  get followChoices(): readonly string[] | undefined { return this.#followIds; }
+  get followChoices(): readonly string[] | undefined {
+    return this.#followIds;
+  }
   /** The bodies offering "Look out from" (`setLookOutChoices`); none by default. */
-  get lookOutChoices(): readonly string[] { return this.#lookOutIds; }
-  get target(): string | undefined { return this.#target; }
+  get lookOutChoices(): readonly string[] {
+    return this.#lookOutIds;
+  }
+  get target(): string | undefined {
+    return this.#target;
+  }
   /** Whether the opening view follows its target (`follow`) rather than only looking at it (`focus`). */
-  get following(): boolean { return this.#following; }
-  get view(): FollowView { return this.#view; }
+  get following(): boolean {
+    return this.#following;
+  }
+  get view(): FollowView {
+    return this.#view;
+  }
 }
 
 /** Refuses an opening `follow` or `focus` of an object the scene's `setFollowChoices` or `setFocusChoices` leaves out. Called when the scene is built. */
@@ -227,25 +309,42 @@ export function checkOpeningChoices(camera: SceneCamera): void {
   const { target, following } = camera;
   if (target === undefined) return;
   const own = cameraChoicesOf(camera);
-  const [call, listed, setter] = following ? (["follow", own.follow, "setFollowChoices"] as const) : (["focus", own.focus, "setFocusChoices"] as const);
-  if (listed !== undefined && !listed.includes(target)) throw new SceneError("bad-camera", `camera.${call}("${target}"): the opening view ${call === "follow" ? "follows" : "focuses"} "${target}", which camera.${setter} does not list`);
+  const [call, listed, setter] = following
+    ? (["follow", own.follow, "setFollowChoices"] as const)
+    : (["focus", own.focus, "setFocusChoices"] as const);
+  if (listed !== undefined && !listed.includes(target))
+    throw new SceneError(
+      "bad-camera",
+      `camera.${call}("${target}"): the opening view ${call === "follow" ? "follows" : "focuses"} "${target}", which camera.${setter} does not list`,
+    );
 }
 
 /**
  * Refuses an opening look-out toward an id `setCamera` would refuse on the opening view (`checkToward`, the same check and wording): the direction must name an object the opening view shows or a sky figure.
  * Called when the scene is built, after every figure is in.
  */
-export function checkOpeningLook(camera: SceneCamera, definition: ExperienceDefinition, groupIds: Iterable<string>, figureIds: Iterable<string>): void {
+export function checkOpeningLook(
+  camera: SceneCamera,
+  definition: ExperienceDefinition,
+  groupIds: Iterable<string>,
+  figureIds: Iterable<string>,
+): void {
   const toward = towardIds.get(camera);
   if (toward === undefined) return;
   const views = definition.views;
   const hidden = hiddenByView(views, viewById(views, views?.start ?? ""), definition.experience).objects;
   const shown = [...definition.experience.objects.map(({ id }) => id), ...groupIds].filter((id) => !hidden.has(id));
-  if (typeof toward.direction === "string") checkToward(toward.direction, "camera.lookOut", shown, [...figureIds], "the opening view");
+  if (typeof toward.direction === "string")
+    checkToward(toward.direction, "camera.lookOut", shown, [...figureIds], "the opening view");
 }
 
 /** The fitted body's farthest Sun distance, read once when the viewer first needs it (a planet's reads the planet series, loaded by then); undefined when no orbit is fitted. */
-export function fitFarthestKm(camera: SceneCamera, catalogue: BodyCatalogue, own: ReadonlyMap<BodyId, EccentricSampling>, openUtcMs: number): { readonly read: () => number; readonly settle: () => void } | undefined {
+export function fitFarthestKm(
+  camera: SceneCamera,
+  catalogue: BodyCatalogue,
+  own: ReadonlyMap<BodyId, EccentricSampling>,
+  openUtcMs: number,
+): { readonly read: () => number; readonly settle: () => void } | undefined {
   const id = camera.fitted;
   if (id === undefined) return undefined;
   let km: number | undefined;
@@ -267,17 +366,33 @@ export function startViewEntry(camera: SceneCamera): Pick<ExperienceDefinition, 
   if (camera.pose !== undefined) return { startView: { ...camera.pose } };
   const target = camera.target;
   const view = camera.view;
-  return target === undefined ? {} : { startView: { focus: target, azimuthDeg: view.azimuthDeg ?? 0, elevationDeg: view.elevationDeg ?? 30, distance: view.distance ?? 40 } };
+  return target === undefined
+    ? {}
+    : {
+        startView: {
+          focus: target,
+          azimuthDeg: view.azimuthDeg ?? 0,
+          elevationDeg: view.elevationDeg ?? 30,
+          distance: view.distance ?? 40,
+        },
+      };
 }
 
 /** The playback and camera settings the scene asked for: looping, the farthest zoom-out and the ecliptic up. */
-export function viewEntries(timeline: TimelineSetting | undefined, camera: SceneCamera, farthestKm: (() => number) | undefined, cover: (() => number) | undefined): Pick<ExperienceDefinition, "loop" | "camera" | "viewUp"> {
+export function viewEntries(
+  timeline: TimelineSetting | undefined,
+  camera: SceneCamera,
+  farthestKm: (() => number) | undefined,
+  cover: (() => number) | undefined,
+): Pick<ExperienceDefinition, "loop" | "camera" | "viewUp"> {
   const { reachEarthRadii: reach, view, target } = camera;
   return {
     ...(timeline?.loop === true ? { loop: true } : {}),
     ...(reach === undefined ? {} : { camera: { maxFocusDistance: reach, far: camera.farEarthRadii ?? reach * 2.5 } }),
     ...(farthestKm === undefined ? {} : { camera: { fitOrbit: { farthestKm } } }),
-    ...(reach !== undefined || farthestKm !== undefined || cover === undefined ? {} : { camera: { cover: { farthestKm: cover } } }),
+    ...(reach !== undefined || farthestKm !== undefined || cover === undefined
+      ? {}
+      : { camera: { cover: { farthestKm: cover } } }),
     ...(view.up === undefined || target === undefined ? {} : { viewUp: view.up }),
   };
 }
@@ -291,14 +406,29 @@ export interface CameraChoices {
 }
 
 /** The camera menu: Overview unless `setOverview(false)`, Focus and Follow for every body and path unless `setFocusChoices` or `setFollowChoices` named fewer, and "Look out from" for the bodies `setLookOutChoices` listed (the look is toward right ascension 0, declination 0 until the visitor turns). */
-export function cameraPresetsOf(objects: readonly { readonly id: string; readonly label: string }[], choices: CameraChoices = {}): ExperienceDefinition["experience"]["cameraPresets"] {
+export function cameraPresetsOf(
+  objects: readonly { readonly id: string; readonly label: string }[],
+  choices: CameraChoices = {},
+): ExperienceDefinition["experience"]["cameraPresets"] {
   const { focus, follow, lookOut = [], overview = true } = choices;
   return [
     ...(overview ? [{ id: "overview", label: "Overview", request: { kind: "overview" as const } }] : []),
     ...objects.flatMap(({ id, label }) => [
-      ...(focus === undefined || focus.includes(id) ? [{ id: `focus-${id}`, label: `Focus ${label}`, request: { kind: "focus" as const, target: id } }] : []),
-      ...(follow === undefined || follow.includes(id) ? [{ id: `follow-${id}`, label: `Follow ${label}`, request: { kind: "follow" as const, target: id } }] : []),
-      ...(lookOut.includes(id) ? [{ id: `lookout-${id}`, label: `Look out from ${label}`, request: { kind: "lookOut" as const, body: id, direction: eqjUnitVector(0, 0) } }] : []),
+      ...(focus === undefined || focus.includes(id)
+        ? [{ id: `focus-${id}`, label: `Focus ${label}`, request: { kind: "focus" as const, target: id } }]
+        : []),
+      ...(follow === undefined || follow.includes(id)
+        ? [{ id: `follow-${id}`, label: `Follow ${label}`, request: { kind: "follow" as const, target: id } }]
+        : []),
+      ...(lookOut.includes(id)
+        ? [
+            {
+              id: `lookout-${id}`,
+              label: `Look out from ${label}`,
+              request: { kind: "lookOut" as const, body: id, direction: eqjUnitVector(0, 0) },
+            },
+          ]
+        : []),
     ]),
   ];
 }

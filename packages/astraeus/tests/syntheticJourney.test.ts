@@ -12,28 +12,71 @@ import type { SceneTargets } from "../src/app/sceneTargets";
 import type { RenderVector } from "../src/app/renderCoordinates";
 import { pacedRate } from "../src/presentation/pacing";
 import { infoView } from "../src/shell/infoModel";
-import { buildSyntheticJourneyScene, JOURNEY_END_AU, JOURNEY_END_UTC_MS, JOURNEY_JUPITER_UTC_MS, JOURNEY_LAUNCH_UTC_MS, JOURNEY_SATURN_UTC_MS, JOURNEY_URANUS_UTC_MS } from "./synthetic/syntheticJourneyScene";
+import {
+  buildSyntheticJourneyScene,
+  JOURNEY_END_AU,
+  JOURNEY_END_UTC_MS,
+  JOURNEY_JUPITER_UTC_MS,
+  JOURNEY_LAUNCH_UTC_MS,
+  JOURNEY_SATURN_UTC_MS,
+  JOURNEY_URANUS_UTC_MS,
+} from "./synthetic/syntheticJourneyScene";
 import { solarSystemPolicyForTest } from "./scalePolicies";
 import type { ExperienceDefinition } from "../src/app/experienceDefinition";
 import { definitionOf } from "../src/api/definitionOf";
 
 const AU_KM = 149_597_870.7;
 const stub = (name: string, provides: string[]): DataSource => ({ name, provides });
-const DATA = [stub("astraeus-data-jupiter", ["io", "europa", "ganymede", "callisto"]), stub("astraeus-data-saturn", ["mimas", "enceladus", "tethys", "dione", "rhea", "titan", "iapetus"]), stub("astraeus-data-uranus", ["miranda", "ariel", "umbriel", "titania", "oberon"])];
+const DATA = [
+  stub("astraeus-data-jupiter", ["io", "europa", "ganymede", "callisto"]),
+  stub("astraeus-data-saturn", ["mimas", "enceladus", "tethys", "dione", "rhea", "titan", "iapetus"]),
+  stub("astraeus-data-uranus", ["miranda", "ariel", "umbriel", "titania", "oberon"]),
+];
 const policy = solarSystemPolicyForTest({ earth: 60 });
 
 /** The camera's farthest zoom-out the viewer allows, clamping a huge request, in scaled units. */
 function farthestZoom(definition: ExperienceDefinition, aspect: number, span: number): number {
   const positions = new Map<string, RenderVector>([["sun", [0, 0, 0]]]);
-  const targets: SceneTargets = { bodyIdFor: (id) => id, placed: positions as SceneTargets["placed"], absoluteOf: () => [0, 0, 0], groupViews: [], sunCentredViews: [], trackedViews: [], bodySetViews: [], timeUtcMs: 0, policy, placement: {} as SceneTargets["placement"] };
-  const input: CameraStepInput = { camState: createOrbitCameraState(1e12, "sun"), controls: { cameraRequest: null }, targets, frame: { centre: "sun", span }, catalogue: definition.catalogue!, reach: liveReach(cameraReachOf(definition), policy, aspect), fovDeg: 45, viewUp: EQUATORIAL_UP, firstFrame: false, previousUp: null };
+  const targets: SceneTargets = {
+    bodyIdFor: (id) => id,
+    placed: positions as SceneTargets["placed"],
+    absoluteOf: () => [0, 0, 0],
+    groupViews: [],
+    sunCentredViews: [],
+    trackedViews: [],
+    bodySetViews: [],
+    timeUtcMs: 0,
+    policy,
+    placement: {} as SceneTargets["placement"],
+  };
+  const input: CameraStepInput = {
+    camState: createOrbitCameraState(1e12, "sun"),
+    controls: { cameraRequest: null },
+    targets,
+    frame: { centre: "sun", span },
+    catalogue: definition.catalogue!,
+    reach: liveReach(cameraReachOf(definition), policy, aspect),
+    fovDeg: 45,
+    viewUp: EQUATORIAL_UP,
+    firstFrame: false,
+    previousUp: null,
+  };
   stepCameraTarget(input);
   return input.camState.distance;
 }
 
 describe("a Sun-centred scene with a path reaching 170 AU (I-114)", () => {
-  const far = [0, 100, 200].map((i) => ({ time: Date.UTC(1977, 0, 1) + i * 86_400_000 * 365, positionKm: [(JOURNEY_END_AU * AU_KM * i) / 200, 0, 0] }));
-  const scene = () => new Scene().addBody(sun).addBody(earth, { enlarge: 60 }).setTime(far[0]!.time).addTrajectory({ id: "far", center: "sun", samples: far, lineFixedTo: "sun" }).setScale(solarSystemScale);
+  const far = [0, 100, 200].map((i) => ({
+    time: Date.UTC(1977, 0, 1) + i * 86_400_000 * 365,
+    positionKm: [(JOURNEY_END_AU * AU_KM * i) / 200, 0, 0],
+  }));
+  const scene = () =>
+    new Scene()
+      .addBody(sun)
+      .addBody(earth, { enlarge: 60 })
+      .setTime(far[0]!.time)
+      .addTrajectory({ id: "far", center: "sun", samples: far, lineFixedTo: "sun" })
+      .setScale(solarSystemScale);
 
   it("widens the default zoom-out and far plane so the whole path fits from any point on it, at a desktop and a phone shape", () => {
     const definition = definitionOf(scene());
@@ -50,7 +93,17 @@ describe("a Sun-centred scene with a path reaching 170 AU (I-114)", () => {
   });
 
   it("never narrows the default: a short path leaves the reach to the scene's own span, and a declared reach wins", () => {
-    const short = new Scene().addBody(sun).addBody(earth, { enlarge: 60 }).setTime(far[0]!.time).addTrajectory({ id: "near", center: "sun", samples: far.map((s, i) => ({ time: s.time, positionKm: [AU_KM * 0.5 * i, 0, 0] })), lineFixedTo: "sun" }).setScale(solarSystemScale);
+    const short = new Scene()
+      .addBody(sun)
+      .addBody(earth, { enlarge: 60 })
+      .setTime(far[0]!.time)
+      .addTrajectory({
+        id: "near",
+        center: "sun",
+        samples: far.map((s, i) => ({ time: s.time, positionKm: [AU_KM * 0.5 * i, 0, 0] })),
+        lineFixedTo: "sun",
+      })
+      .setScale(solarSystemScale);
     const huge = farthestZoom(definitionOf(short), 1.6, 2000);
     expect(huge).toBeGreaterThanOrEqual(2000 * 3.5);
     const declared = scene();
@@ -60,16 +113,27 @@ describe("a Sun-centred scene with a path reaching 170 AU (I-114)", () => {
 });
 
 describe("the made-up journey", () => {
-  beforeAll(async () => { await loadPlanetSeries(); });
+  beforeAll(async () => {
+    await loadPlanetSeries();
+  });
   const definition = () => definitionOf(buildSyntheticJourneyScene(), DATA);
 
   it("builds inside every body's years and frames the 170 AU end of the path", () => {
     const built = definition();
     expect(built.experience.window).toEqual({ startUtcMs: JOURNEY_LAUNCH_UTC_MS, endUtcMs: JOURNEY_END_UTC_MS });
-    expect(built.experience.events.map((event) => event.id)).toEqual(["traveller-io", "traveller-jupiter", "traveller-europa", "traveller-ganymede", "traveller-saturn", "traveller-uranus"]);
+    expect(built.experience.events.map((event) => event.id)).toEqual([
+      "traveller-io",
+      "traveller-jupiter",
+      "traveller-europa",
+      "traveller-ganymede",
+      "traveller-saturn",
+      "traveller-uranus",
+    ]);
     // O-050 T-217: one path drawn against the Sun, then Jupiter for 20 days either side of its pass, then the Sun; one menu entry
     const traveller = built.trackedBodies![0]!;
-    expect((traveller.lineFixedTo as readonly { body: string; startUtcMs: number; endUtcMs: number }[]).map((s) => s.body)).toEqual(["sun", "jupiter", "sun"]);
+    expect(
+      (traveller.lineFixedTo as readonly { body: string; startUtcMs: number; endUtcMs: number }[]).map((s) => s.body),
+    ).toEqual(["sun", "jupiter", "sun"]);
     expect(built.experience.objects.filter((object) => object.id === "traveller")).toHaveLength(1);
     const end = built.trackedBodies![0]!.trajectory.stateAt(JOURNEY_END_UTC_MS).positionKm;
     expect(Math.hypot(...end) / AU_KM).toBeCloseTo(JOURNEY_END_AU, 3);

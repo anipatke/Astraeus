@@ -8,14 +8,81 @@ import { checkPanelPlayback, checkStoryPanel, resolveStoryPanels } from "astraeu
  */
 const START = Date.UTC(2100, 0, 1);
 const MIN = 60_000;
-const story = resolveStoryPanels([
-    { id: "dock", at: { time: "2100-01-01T01:30:00Z" }, object: "lander", title: "Docking", body: "D.", provenance: { sourceType: "observed" as const, sources: ["Made-up source D"], accuracy: "None claimed.", notes: "Made up." } },
-    { id: "descend", at: { time: "2100-01-01T00:10:00Z" }, object: "lander", title: "Descent", body: "A.", provenance: { sourceType: "observed" as const, sources: ["Made-up source A"], accuracy: "None claimed.", notes: "Made up." } },
-    { id: "orbit", at: { time: "2100-01-01T00:20:00Z" }, object: "mothership", title: "Orbit", body: "O.", provenance: { sourceType: "modelled" as const, sources: ["Made-up source O"], accuracy: "None claimed.", notes: "Made up." } },
-    { id: "land", at: { time: "2100-01-01T00:25:00Z" }, object: "lander", title: "Landing", body: "B.", provenance: { sourceType: "observed" as const, sources: ["Made-up source B"], accuracy: "None claimed.", notes: "Made up." } },
-    { id: "loose", at: { time: "2100-01-01T00:40:00Z" }, title: "No object", body: "N.", provenance: { sourceType: "illustrative" as const, sources: ["Made-up source N"], accuracy: "None claimed.", notes: "Made up." } },
-].map(checkStoryPanel), checkPanelPlayback({}), { events: [] });
-const specs: StoryMarkerSpec[] = story.panels.flatMap((panel) => (panel.objectId === undefined ? [] : [{ panelId: panel.id, objectId: panel.objectId, title: panel.title, timeUtcMs: panel.timeUtcMs }]));
+const story = resolveStoryPanels(
+  [
+    {
+      id: "dock",
+      at: { time: "2100-01-01T01:30:00Z" },
+      object: "lander",
+      title: "Docking",
+      body: "D.",
+      provenance: {
+        sourceType: "observed" as const,
+        sources: ["Made-up source D"],
+        accuracy: "None claimed.",
+        notes: "Made up.",
+      },
+    },
+    {
+      id: "descend",
+      at: { time: "2100-01-01T00:10:00Z" },
+      object: "lander",
+      title: "Descent",
+      body: "A.",
+      provenance: {
+        sourceType: "observed" as const,
+        sources: ["Made-up source A"],
+        accuracy: "None claimed.",
+        notes: "Made up.",
+      },
+    },
+    {
+      id: "orbit",
+      at: { time: "2100-01-01T00:20:00Z" },
+      object: "mothership",
+      title: "Orbit",
+      body: "O.",
+      provenance: {
+        sourceType: "modelled" as const,
+        sources: ["Made-up source O"],
+        accuracy: "None claimed.",
+        notes: "Made up.",
+      },
+    },
+    {
+      id: "land",
+      at: { time: "2100-01-01T00:25:00Z" },
+      object: "lander",
+      title: "Landing",
+      body: "B.",
+      provenance: {
+        sourceType: "observed" as const,
+        sources: ["Made-up source B"],
+        accuracy: "None claimed.",
+        notes: "Made up.",
+      },
+    },
+    {
+      id: "loose",
+      at: { time: "2100-01-01T00:40:00Z" },
+      title: "No object",
+      body: "N.",
+      provenance: {
+        sourceType: "illustrative" as const,
+        sources: ["Made-up source N"],
+        accuracy: "None claimed.",
+        notes: "Made up.",
+      },
+    },
+  ].map(checkStoryPanel),
+  checkPanelPlayback({}),
+  { events: [] },
+);
+const specs: StoryMarkerSpec[] = story.panels.flatMap((panel) =>
+  panel.objectId === undefined
+    ? []
+    : [{ panelId: panel.id, objectId: panel.objectId, title: panel.title, timeUtcMs: panel.timeUtcMs }],
+);
 
 describe("stacked story markers on one object (I-031)", () => {
   const groups = groupStoryMarkers(specs);
@@ -24,7 +91,9 @@ describe("stacked story markers on one object (I-031)", () => {
   it("draws one marker per object, carrying every panel that names it in time order", () => {
     expect(groups.map((group) => group.objectId)).toEqual(["lander", "mothership"]);
     expect(lander.panels.map((panel) => panel.panelId)).toEqual(["descend", "land", "dock"]);
-    expect(groups.find((group) => group.objectId === "mothership")!.panels.map((panel) => panel.panelId)).toEqual(["orbit"]);
+    expect(groups.find((group) => group.objectId === "mothership")!.panels.map((panel) => panel.panelId)).toEqual([
+      "orbit",
+    ]);
   });
 
   it("opens the panel the clock has reached, or the first before them all", () => {
@@ -57,11 +126,21 @@ describe("the demo stories' scene markers (T-088 Done When 5)", () => {
   it("never stack two markers on one object, and every Apollo 11 panel has a scene marker", async () => {
     const { apollo11Experience } = await import("./support");
     const panels = apollo11Experience.storyPanels?.panels ?? [];
-    const apolloSpecs = panels.flatMap((panel) => (panel.objectId === undefined ? [] : [{ panelId: panel.id, objectId: panel.objectId, title: panel.title, timeUtcMs: panel.timeUtcMs }]));
+    const apolloSpecs = panels.flatMap((panel) =>
+      panel.objectId === undefined
+        ? []
+        : [{ panelId: panel.id, objectId: panel.objectId, title: panel.title, timeUtcMs: panel.timeUtcMs }],
+    );
     expect(apolloSpecs.map((spec) => spec.panelId)).toEqual(panels.map((panel) => panel.id));
     const groups = groupStoryMarkers(apolloSpecs);
     expect(new Set(groups.map((group) => group.objectId)).size).toBe(groups.length);
-    expect(groups.flatMap((group) => group.panels.map((panel) => panel.panelId)).sort()).toEqual(panels.map((panel) => panel.id).sort());
-    expect(groups.find((group) => group.objectId === "eagle")!.panels.map((panel) => panel.panelId)).toEqual(["powered-descent", "touchdown", "ascent-docking"]);
+    expect(groups.flatMap((group) => group.panels.map((panel) => panel.panelId)).sort()).toEqual(
+      panels.map((panel) => panel.id).sort(),
+    );
+    expect(groups.find((group) => group.objectId === "eagle")!.panels.map((panel) => panel.panelId)).toEqual([
+      "powered-descent",
+      "touchdown",
+      "ascent-docking",
+    ]);
   });
 });

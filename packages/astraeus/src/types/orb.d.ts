@@ -5,18 +5,41 @@ interface OrbPlanetVector {
   readonly coordinate_keywords: string;
   readonly unit_keywords: string;
 }
-interface OrbPlanetOptions { readonly vsop87a?: "short" | "full"; }
+interface OrbPlanetOptions {
+  readonly vsop87a?: "short" | "full";
+}
 
 // The library's source modules are imported one by one, not through its bundled entry, so the compact planet tables
 // (which the entry keeps alive) stay out of the main chunk (I-022).
 declare module "@lizard-isana/orb/src/orb-planet.js" {
-  export class Mercury { constructor(options?: OrbPlanetOptions); xyz(date: Date): OrbPlanetVector; }
-  export class Venus { constructor(options?: OrbPlanetOptions); xyz(date: Date): OrbPlanetVector; }
-  export class Mars { constructor(options?: OrbPlanetOptions); xyz(date: Date): OrbPlanetVector; }
-  export class Jupiter { constructor(options?: OrbPlanetOptions); xyz(date: Date): OrbPlanetVector; }
-  export class Saturn { constructor(options?: OrbPlanetOptions); xyz(date: Date): OrbPlanetVector; }
-  export class Uranus { constructor(options?: OrbPlanetOptions); xyz(date: Date): OrbPlanetVector; }
-  export class Neptune { constructor(options?: OrbPlanetOptions); xyz(date: Date): OrbPlanetVector; }
+  export class Mercury {
+    constructor(options?: OrbPlanetOptions);
+    xyz(date: Date): OrbPlanetVector;
+  }
+  export class Venus {
+    constructor(options?: OrbPlanetOptions);
+    xyz(date: Date): OrbPlanetVector;
+  }
+  export class Mars {
+    constructor(options?: OrbPlanetOptions);
+    xyz(date: Date): OrbPlanetVector;
+  }
+  export class Jupiter {
+    constructor(options?: OrbPlanetOptions);
+    xyz(date: Date): OrbPlanetVector;
+  }
+  export class Saturn {
+    constructor(options?: OrbPlanetOptions);
+    xyz(date: Date): OrbPlanetVector;
+  }
+  export class Uranus {
+    constructor(options?: OrbPlanetOptions);
+    xyz(date: Date): OrbPlanetVector;
+  }
+  export class Neptune {
+    constructor(options?: OrbPlanetOptions);
+    xyz(date: Date): OrbPlanetVector;
+  }
 }
 
 declare module "@lizard-isana/orb/src/orb-vsop87a-registry.js" {
@@ -102,10 +125,24 @@ declare module "@lizard-isana/orb/kepler" {
   ): KeplerVectors;
 }
 
-declare module "@lizard-isana/orb/vsop87a/mercury" { export const MERCURY_FULL_COEF: readonly unknown[]; }
-declare module "@lizard-isana/orb/vsop87a/venus" { export const VENUS_FULL_COEF: readonly unknown[]; }
-declare module "@lizard-isana/orb/vsop87a/mars" { export const MARS_FULL_COEF: readonly unknown[]; }
-declare module "@lizard-isana/orb/vsop87a/jupiter" { export const JUPITER_FULL_COEF: readonly unknown[]; }
-declare module "@lizard-isana/orb/vsop87a/saturn" { export const SATURN_FULL_COEF: readonly unknown[]; }
-declare module "@lizard-isana/orb/vsop87a/uranus" { export const URANUS_FULL_COEF: readonly unknown[]; }
-declare module "@lizard-isana/orb/vsop87a/neptune" { export const NEPTUNE_FULL_COEF: readonly unknown[]; }
+declare module "@lizard-isana/orb/vsop87a/mercury" {
+  export const MERCURY_FULL_COEF: readonly unknown[];
+}
+declare module "@lizard-isana/orb/vsop87a/venus" {
+  export const VENUS_FULL_COEF: readonly unknown[];
+}
+declare module "@lizard-isana/orb/vsop87a/mars" {
+  export const MARS_FULL_COEF: readonly unknown[];
+}
+declare module "@lizard-isana/orb/vsop87a/jupiter" {
+  export const JUPITER_FULL_COEF: readonly unknown[];
+}
+declare module "@lizard-isana/orb/vsop87a/saturn" {
+  export const SATURN_FULL_COEF: readonly unknown[];
+}
+declare module "@lizard-isana/orb/vsop87a/uranus" {
+  export const URANUS_FULL_COEF: readonly unknown[];
+}
+declare module "@lizard-isana/orb/vsop87a/neptune" {
+  export const NEPTUNE_FULL_COEF: readonly unknown[];
+}

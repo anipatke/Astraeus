@@ -10,7 +10,11 @@ import { useZoomThrough } from "./useZoomThrough";
 
 /** A small pill saying how far to trust a panel's facts, after Planetary Explorer's Badge. */
 export function StoryBadge({ sourceType }: { readonly sourceType: ProvenanceSourceType }) {
-  return <span className="story-badge" data-badge={sourceType}>{PROVENANCE_STATUS[sourceType]}</span>;
+  return (
+    <span className="story-badge" data-badge={sourceType}>
+      {PROVENANCE_STATUS[sourceType]}
+    </span>
+  );
 }
 
 /** A step's place and its neighbours: `onBack` and `onNext` are absent at the first and last step. */
@@ -41,23 +45,61 @@ export function StoryPanelView({ panel, step, holding, onClose, onContinue }: Pr
   useSwipeToDismiss(sheet, onClose);
   useZoomThrough(sheet);
   return (
-    <aside className="story-panel" ref={sheet} role="dialog" aria-modal="false" aria-labelledby={titleId} data-panel-id={panel.id}>
+    <aside
+      className="story-panel"
+      ref={sheet}
+      role="dialog"
+      aria-modal="false"
+      aria-labelledby={titleId}
+      data-panel-id={panel.id}
+    >
       <div className="sheet-handle" aria-hidden="true" />
       <header className="story-panel-header">
         <StoryBadge sourceType={panel.provenance.sourceType} />
-        <button type="button" className="story-panel-close ui-icon" aria-label="Close story panel" onClick={onClose}>×</button>
+        <button type="button" className="story-panel-close ui-icon" aria-label="Close story panel" onClick={onClose}>
+          ×
+        </button>
       </header>
       <h2 id={titleId}>{panel.title}</h2>
-      <div className="story-panel-body">{panel.body.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}</div>
-      <Sources sources={panel.provenance.sources} details={panel.details} accuracy={panel.provenance.accuracy} notes={panel.provenance.notes} />
+      <div className="story-panel-body">
+        {panel.body.map((paragraph) => (
+          <p key={paragraph}>{paragraph}</p>
+        ))}
+      </div>
+      <Sources
+        sources={panel.provenance.sources}
+        details={panel.details}
+        accuracy={panel.provenance.accuracy}
+        notes={panel.provenance.notes}
+      />
       {step !== undefined && (
         <nav className="story-panel-steps" aria-label="Story steps">
-          <button type="button" className="story-panel-back ui-icon" disabled={step.onBack === undefined} onClick={step.onBack}>Back</button>
-          <span className="story-panel-step-count">Step {step.number} of {step.count}</span>
-          <button type="button" className="story-panel-next ui-accent" disabled={step.onNext === undefined} onClick={step.onNext}>Next</button>
+          <button
+            type="button"
+            className="story-panel-back ui-icon"
+            disabled={step.onBack === undefined}
+            onClick={step.onBack}
+          >
+            Back
+          </button>
+          <span className="story-panel-step-count">
+            Step {step.number} of {step.count}
+          </span>
+          <button
+            type="button"
+            className="story-panel-next ui-accent"
+            disabled={step.onNext === undefined}
+            onClick={step.onNext}
+          >
+            Next
+          </button>
         </nav>
       )}
-      {holding && <button type="button" className="story-panel-continue ui-accent" onClick={onContinue}>Continue playback</button>}
+      {holding && (
+        <button type="button" className="story-panel-continue ui-accent" onClick={onContinue}>
+          Continue playback
+        </button>
+      )}
     </aside>
   );
 }

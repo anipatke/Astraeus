@@ -12,7 +12,8 @@ export function periodsFor(planet, moons) {
   const rows = table.periods[planet] ?? [];
   const byNaif = new Map(rows.map((row) => [row.naifId, row.periodDays]));
   const stray = rows.filter((row) => !moons.some((moon) => moon.naifId === row.naifId));
-  if (stray.length > 0) throw new Error(`${planet}: periods for moons not in the list: ${stray.map((row) => row.id).join(", ")}`);
+  if (stray.length > 0)
+    throw new Error(`${planet}: periods for moons not in the list: ${stray.map((row) => row.id).join(", ")}`);
   const periodOf = (moon) => byNaif.get(moon.naifId) ?? null;
   const missing = moons.filter((moon) => periodOf(moon) === null).map((moon) => moon.id);
   return { periodOf, note: { source: PERIODS_SOURCE, column: "P (days)", fetched: PERIODS_FETCHED, missing } };

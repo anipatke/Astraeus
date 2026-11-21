@@ -4,7 +4,18 @@ import { PICTURES } from "astraeus-data";
 import ioFixture from "./fixtures/io-horizons.json";
 import { createOrbAstronomyAdapter } from "../src/core/astronomyAdapter";
 import { BUILT_IN_BINDINGS, BUILT_IN_BODIES, JUPITER, MARS, MERCURY } from "../src/core/bodies";
-import { IO, IO_DIAMETER_KM, IO_EPHEMERIS_LIMITATIONS, IO_EPOCH_UTC_MS, IO_MAX_ERROR_KM, IO_MEAN_ELEMENTS, IO_PERIOD_DAYS, createIoTrajectory, siderealPeriodDays, trueAnomalyFromMean } from "../src/core/bodies/io";
+import {
+  IO,
+  IO_DIAMETER_KM,
+  IO_EPHEMERIS_LIMITATIONS,
+  IO_EPOCH_UTC_MS,
+  IO_MAX_ERROR_KM,
+  IO_MEAN_ELEMENTS,
+  IO_PERIOD_DAYS,
+  createIoTrajectory,
+  siderealPeriodDays,
+  trueAnomalyFromMean,
+} from "../src/core/bodies/io";
 import type { CelestialBodyDefinition, StateSourceBinding } from "../src/core/body";
 import { createProvenance } from "../src/core/provenance";
 import { createStateResolver } from "../src/core/stateResolver";
@@ -19,11 +30,25 @@ const adapter = createOrbAstronomyAdapter();
 const resolver = createStateResolver(BUILT_IN_BODIES, BUILT_IN_BINDINGS, adapter);
 const samples = ioFixture.bodies.io.samples;
 // Horizons' own Jupiter-centred vectors for Io in 2016 (T-096 fixture), the year the test setup loads the fits for.
-const rows2016 = (moonFixture as { bodies: Record<string, { rows: { utc: string; positionKm: number[] }[] }> }).bodies.io.rows
-  .filter((row) => row.utc.startsWith("2016")).map((row) => ({ utcMs: Date.parse(row.utc), positionKm: row.positionKm }));
+const rows2016 = (
+  moonFixture as { bodies: Record<string, { rows: { utc: string; positionKm: number[] }[] }> }
+).bodies.io.rows
+  .filter((row) => row.utc.startsWith("2016"))
+  .map((row) => ({ utcMs: Date.parse(row.utc), positionKm: row.positionKm }));
 
 const distance = (a: ArrayLike<number>, b: ArrayLike<number>) => Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]);
-const angleDeg = (a: ArrayLike<number>, b: ArrayLike<number>) => Math.acos(Math.max(-1, Math.min(1, (a[0] * b[0] + a[1] * b[1] + a[2] * b[2]) / (Math.hypot(a[0], a[1], a[2]) * Math.hypot(b[0], b[1], b[2]))))) * 180 / Math.PI;
+const angleDeg = (a: ArrayLike<number>, b: ArrayLike<number>) =>
+  (Math.acos(
+    Math.max(
+      -1,
+      Math.min(
+        1,
+        (a[0] * b[0] + a[1] * b[1] + a[2] * b[2]) / (Math.hypot(a[0], a[1], a[2]) * Math.hypot(b[0], b[1], b[2])),
+      ),
+    ),
+  ) *
+    180) /
+  Math.PI;
 
 describe("Io about Jupiter", () => {
   it("is defined once: Jupiter-parented, tidally locked, with the Horizons radius and GM", () => {
@@ -79,7 +104,8 @@ describe("Io about Jupiter", () => {
 
   it("is placed where Horizons puts it: the resolver's Io is within 2 m of Horizons at the 2016 fixture dates", () => {
     expect(rows2016.length).toBeGreaterThanOrEqual(3);
-    for (const row of rows2016) expect(distance(resolver.stateOf("io", row.utcMs, "jupiter").positionKm, row.positionKm) * 1000).toBeLessThan(2);
+    for (const row of rows2016)
+      expect(distance(resolver.stateOf("io", row.utcMs, "jupiter").positionKm, row.positionKm) * 1000).toBeLessThan(2);
   });
 
   it("composes: Io from the Sun is Jupiter from the Sun plus Io from Jupiter, and Io from Io is zero", () => {
@@ -87,7 +113,9 @@ describe("Io about Jupiter", () => {
       const ioSun = resolver.stateOf("io", sample.utcMs, "sun").positionKm;
       const jupiterSun = resolver.stateOf("jupiter", sample.utcMs, "sun").positionKm;
       const ioJupiter = resolver.stateOf("io", sample.utcMs, "jupiter").positionKm;
-      expect(distance([ioSun[0] - jupiterSun[0], ioSun[1] - jupiterSun[1], ioSun[2] - jupiterSun[2]], ioJupiter)).toBeLessThan(1e-6);
+      expect(
+        distance([ioSun[0] - jupiterSun[0], ioSun[1] - jupiterSun[1], ioSun[2] - jupiterSun[2]], ioJupiter),
+      ).toBeLessThan(1e-6);
       const self = resolver.stateOf("io", sample.utcMs, "io");
       expect(Array.from(self.positionKm)).toEqual([0, 0, 0]);
       expect(self.orientation).not.toBeNull();
@@ -113,7 +141,12 @@ describe("Io about Jupiter", () => {
 
 describe("a centre that is neither Earth nor the Sun, through the same contracts (fake pair)", () => {
   const made = createProvenance({ sourceType: "illustrative", sources: ["made up"], accuracy: "none", notes: "" });
-  const accuracy = { dimensions: made, position: made, validUtc: { startUtcMs: 0, endUtcMs: 1e13 }, orientationLimitations: [] };
+  const accuracy = {
+    dimensions: made,
+    position: made,
+    validUtc: { startUtcMs: 0, endUtcMs: 1e13 },
+    orientationLimitations: [],
+  };
   const GM = 4.0e5;
   const A = 1.0e4;
   const definitions: CelestialBodyDefinition[] = [
@@ -123,13 +156,41 @@ describe("a centre that is neither Earth nor the Sun, through the same contracts
   ];
   const twoBody = createOrbTwoBodyAdapter([definitions[1]]);
   const bindings: StateSourceBinding[] = [
-    { body: "planet", create: () => ({ body: "planet", stateAt: (t, center = "origin") => ({ body: "planet", center, timeUtcMs: t, plane: "EQJ", positionKm: Float64Array.of(1e8, 0, 0), orientation: null }) as never }) },
+    {
+      body: "planet",
+      create: () => ({
+        body: "planet",
+        stateAt: (t, center = "origin") =>
+          ({
+            body: "planet",
+            center,
+            timeUtcMs: t,
+            plane: "EQJ",
+            positionKm: Float64Array.of(1e8, 0, 0),
+            orientation: null,
+          }) as never,
+      }),
+    },
     {
       body: "satellite",
-      create: () => createTwoBodyTrajectory({
-        body: "satellite", center: "planet", plane: "EQJ", epochUtcMs: 0,
-        elements: { semiMajorAxisKm: A, eccentricity: 0, inclinationDeg: 0, raanDeg: 0, argumentOfPeriapsisDeg: 0, trueAnomalyDeg: 0 },
-      }, twoBody),
+      create: () =>
+        createTwoBodyTrajectory(
+          {
+            body: "satellite",
+            center: "planet",
+            plane: "EQJ",
+            epochUtcMs: 0,
+            elements: {
+              semiMajorAxisKm: A,
+              eccentricity: 0,
+              inclinationDeg: 0,
+              raanDeg: 0,
+              argumentOfPeriapsisDeg: 0,
+              trueAnomalyDeg: 0,
+            },
+          },
+          twoBody,
+        ),
     },
   ];
   const fake = createStateResolver(definitions, bindings, adapter);
@@ -176,7 +237,11 @@ describe("full-turn span for planet orbits", () => {
   it("finds the sidereal periods of the planets from their own state sources", () => {
     const t = Date.UTC(2027, 7, 13);
     const day = 86_400_000;
-    for (const [definition, days] of [[MERCURY, 87.969], [MARS, 686.98], [JUPITER, 4332.59]] as const) {
+    for (const [definition, days] of [
+      [MERCURY, 87.969],
+      [MARS, 686.98],
+      [JUPITER, 4332.59],
+    ] as const) {
       const source = catalogue.get(definition.id).source!.create(adapter);
       const span = fullTurnSpanMs(source, t, 2 * day, 3000) / day;
       expect(Math.abs(span - days) / days, definition.id).toBeLessThan(0.005);

@@ -23,15 +23,24 @@ function hiddenIds(settings: ViewSettings, view: ResolvedView, kind: Kind): Read
 }
 
 /** What `view` hides. A scene without views hides nothing. An object that belongs to a hidden one (`partOf`: a body's Sun-orbit line) is hidden with it, so a view never names orbit lines. */
-export function hiddenByView(settings: ViewSettings | undefined, view: ResolvedView | undefined, experience?: ExperienceConfig): ViewHidden {
+export function hiddenByView(
+  settings: ViewSettings | undefined,
+  view: ResolvedView | undefined,
+  experience?: ExperienceConfig,
+): ViewHidden {
   if (settings === undefined || view === undefined) return { objects: new Set(), panels: new Set() };
   const objects = new Set(hiddenIds(settings, view, "objects"));
-  for (const object of experience?.objects ?? []) if (object.partOf !== undefined && objects.has(object.partOf)) objects.add(object.id);
+  for (const object of experience?.objects ?? [])
+    if (object.partOf !== undefined && objects.has(object.partOf)) objects.add(object.id);
   return { objects, panels: hiddenIds(settings, view, "panels") };
 }
 
 /** The experience as the view shows it: its objects, timeline events and story panels. The same object when there are no views, so a scene without views is untouched. */
-export function experienceInView(experience: ExperienceConfig, settings: ViewSettings | undefined, view: ResolvedView | undefined): ExperienceConfig {
+export function experienceInView(
+  experience: ExperienceConfig,
+  settings: ViewSettings | undefined,
+  view: ResolvedView | undefined,
+): ExperienceConfig {
   if (settings === undefined || view === undefined) return experience;
   const hiddenEvents = hiddenIds(settings, view, "events");
   const { objects, panels } = hiddenByView(settings, view, experience);
@@ -40,7 +49,15 @@ export function experienceInView(experience: ExperienceConfig, settings: ViewSet
     ...experience,
     objects: experience.objects.filter((object) => !objects.has(object.id)),
     events: experience.events.filter((event) => !hiddenEvents.has(event.id)),
-    ...(storySet === undefined ? {} : { storyPanels: { ...storySet, panels: storySet.panels.filter((panel) => !panels.has(panel.id)), ...(storySet.steps === undefined ? {} : { steps: storySet.steps.filter((step) => !panels.has(step.id)) }) } }),
+    ...(storySet === undefined
+      ? {}
+      : {
+          storyPanels: {
+            ...storySet,
+            panels: storySet.panels.filter((panel) => !panels.has(panel.id)),
+            ...(storySet.steps === undefined ? {} : { steps: storySet.steps.filter((step) => !panels.has(step.id)) }),
+          },
+        }),
   };
 }
 
@@ -53,14 +70,22 @@ export function hiddenWithLookOut(hidden: ViewHidden | undefined, body: string |
 /** Whether `object` is shown at `timeUtcMs`: `startUtcMs <= t < endUtcMs`, an absent end unbounded, no span always shown (`shownDuring`). The one rule, so an object that ends at T and one that starts at T never both show or both hide. */
 export function shownAt(object: Pick<ExperienceObject, "shownDuring">, timeUtcMs: number): boolean {
   const span = object.shownDuring;
-  return span === undefined || ((span.startUtcMs === undefined || span.startUtcMs <= timeUtcMs) && (span.endUtcMs === undefined || timeUtcMs < span.endUtcMs));
+  return (
+    span === undefined ||
+    ((span.startUtcMs === undefined || span.startUtcMs <= timeUtcMs) &&
+      (span.endUtcMs === undefined || timeUtcMs < span.endUtcMs))
+  );
 }
 
 /**
  * `hidden` with every object not shown at `timeUtcMs` added, and what belongs to one (`partOf`: a body's orbit line) with it. The same object when no object has a span or
  * every span shows, so a frame without `shownDuring` allocates nothing. The one place the time-aware hidden set is built; the frame's `hiddenOf` calls it.
  */
-export function hiddenWithShownSpans(hidden: ViewHidden | undefined, objects: readonly ExperienceObject[] | undefined, timeUtcMs: number | undefined): ViewHidden | undefined {
+export function hiddenWithShownSpans(
+  hidden: ViewHidden | undefined,
+  objects: readonly ExperienceObject[] | undefined,
+  timeUtcMs: number | undefined,
+): ViewHidden | undefined {
   if (objects === undefined || timeUtcMs === undefined) return hidden;
   let ids: Set<string> | undefined;
   for (const object of objects) if (!shownAt(object, timeUtcMs)) (ids ??= new Set(hidden?.objects)).add(object.id);

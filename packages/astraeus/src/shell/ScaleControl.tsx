@@ -20,9 +20,15 @@ interface Props {
 export function ScaleControl({ scaleId, onScaleChange, choices = SCALE_CHOICES }: Props) {
   const current = choices.find((choice) => choice.id === scaleId) ?? choices[0];
   const options = choices.map((choice) => choice.id).join(",");
-  const common = { className: "scale-control", "aria-label": "Scale", "data-scale-current": current?.id, "data-scale-options": options } as const;
+  const common = {
+    className: "scale-control",
+    "aria-label": "Scale",
+    "data-scale-current": current?.id,
+    "data-scale-options": options,
+  } as const;
   if (current === undefined || choices.length < 2) return null;
-  if (choices.length >= 3) return <ScaleMenu choices={choices} current={current} onScaleChange={onScaleChange} {...common} />;
+  if (choices.length >= 3)
+    return <ScaleMenu choices={choices} current={current} onScaleChange={onScaleChange} {...common} />;
   const other = choices.find((choice) => choice.id !== current.id);
   if (other === undefined) return null;
   const name = `Scale: ${current.label}. Switch to ${other.label}`;
@@ -80,7 +86,10 @@ function ScaleMenu({ choices, current, onScaleChange, ...attributes }: MenuProps
   };
 
   const onTriggerKey = (event: KeyboardEvent) => {
-    if (event.key === "ArrowDown" || event.key === "ArrowUp") { event.preventDefault(); if (!open) popup.toggle(); }
+    if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+      event.preventDefault();
+      if (!open) popup.toggle();
+    }
   };
 
   const onMenuKey = (event: KeyboardEvent) => {
@@ -118,7 +127,9 @@ function ScaleMenu({ choices, current, onScaleChange, ...attributes }: MenuProps
         {choices.map((choice, index) => (
           <button
             key={choice.id}
-            ref={(element) => { items.current[index] = element; }}
+            ref={(element) => {
+              items.current[index] = element;
+            }}
             type="button"
             className="ui-row"
             role="menuitemradio"
@@ -126,7 +137,10 @@ function ScaleMenu({ choices, current, onScaleChange, ...attributes }: MenuProps
             tabIndex={-1}
             title={choice.explanation}
             data-scale={choice.id}
-            onClick={() => { onScaleChange(choice.id); close(true); }}
+            onClick={() => {
+              onScaleChange(choice.id);
+              close(true);
+            }}
           >
             {choice.label}
           </button>
@@ -156,9 +170,17 @@ function ScaleExplanation({ choices }: { readonly choices: readonly ScaleChoice[
       >
         <InfoIcon />
       </button>
-      <div className="scale-explanation-panel" id={panelId} role="region" aria-label="What the scales mean" hidden={!open}>
+      <div
+        className="scale-explanation-panel"
+        id={panelId}
+        role="region"
+        aria-label="What the scales mean"
+        hidden={!open}
+      >
         {choices.map((choice) => (
-          <p key={choice.id} data-scale-explained={choice.id}><strong>{choice.label}.</strong> {choice.explanation}</p>
+          <p key={choice.id} data-scale-explained={choice.id}>
+            <strong>{choice.label}.</strong> {choice.explanation}
+          </p>
         ))}
         <p className="scale-explanation-note">{SCALE_NOTE}</p>
       </div>

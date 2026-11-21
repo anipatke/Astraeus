@@ -48,7 +48,8 @@ export interface SkyLabelFrame {
 }
 
 /** How much of a sky label shows, 0 to 1 (1 for an object label and where the frame names no rule). */
-const skyOpacity = (spec: SkyLabelSpec | undefined, sky: SkyLabelFrame | undefined): number => (spec === undefined ? 1 : sky?.opacity?.(spec.id) ?? 1);
+const skyOpacity = (spec: SkyLabelSpec | undefined, sky: SkyLabelFrame | undefined): number =>
+  spec === undefined ? 1 : (sky?.opacity?.(spec.id) ?? 1);
 
 /** App adapter that places configured labels; the label presentation itself stays generic. */
 export class SceneLabelLayer {
@@ -67,7 +68,15 @@ export class SceneLabelLayer {
   constructor(host: HTMLElement, objects: readonly ExperienceObject[], skyLabels: readonly SkyLabelSpec[] = []) {
     this.#root.className = "scene-labels";
     // A sky label is an object-like entry (its id, text and colour) with a priority below every object's and a place at infinity; it joins the one layout below, so it collides and keeps its place by the same rule.
-    const asObjects: readonly ExperienceObject[] = [...objects, ...skyLabels.map((spec): ExperienceObject => ({ id: spec.id, label: spec.label, ...(spec.color === undefined ? {} : { color: spec.color }), labelPriority: SKY_LABEL_PRIORITY[spec.kind] }))];
+    const asObjects: readonly ExperienceObject[] = [
+      ...objects,
+      ...skyLabels.map((spec): ExperienceObject => ({
+        id: spec.id,
+        label: spec.label,
+        ...(spec.color === undefined ? {} : { color: spec.color }),
+        labelPriority: SKY_LABEL_PRIORITY[spec.kind],
+      })),
+    ];
     this.#sky = new Map(skyLabels.map((spec) => [spec.id, spec]));
     this.#entries = asObjects.map((object) => {
       const element = createLabelElement(object.label, object.color, "scene-object-label");
@@ -87,7 +96,8 @@ export class SceneLabelLayer {
   /** Gives the object label `id` the colour `colour` (a group's live colour, `setGroupLook`); an id with no object label, or the colour it already has, changes nothing. */
   setColor(id: string, colour: string): void {
     const entry = this.#byId.get(id);
-    if (entry === undefined || this.#sky.has(id) || entry.element.style.getPropertyValue("--label-color") === colour) return;
+    if (entry === undefined || this.#sky.has(id) || entry.element.style.getPropertyValue("--label-color") === colour)
+      return;
     entry.element.style.setProperty("--label-color", colour);
   }
 
@@ -98,7 +108,8 @@ export class SceneLabelLayer {
 
   /** Brightens the name of the hovered object by `gain` (1 leaves it alone); null clears it. */
   setHover(id: string | null, gain: number): void {
-    for (const entry of this.#entries) entry.element.style.filter = entry.object.id === id && gain !== 1 ? `brightness(${gain})` : "";
+    for (const entry of this.#entries)
+      entry.element.style.filter = entry.object.id === id && gain !== 1 ? `brightness(${gain})` : "";
   }
 
   update(
@@ -117,48 +128,63 @@ export class SceneLabelLayer {
       for (const entry of this.#entries) {
         const spec = this.#sky.get(entry.object.id);
         if (spec === undefined) continue;
-        const colour = entry.object.id === selectedObjectId ? sky.selectedColor ?? sky.labelColor : spec.color ?? sky.labelColor;
-        if (this.#skyColours.get(spec.id) !== colour) { this.#skyColours.set(spec.id, colour); entry.element.style.setProperty("--label-color", colour); }
+        const colour =
+          entry.object.id === selectedObjectId ? (sky.selectedColor ?? sky.labelColor) : (spec.color ?? sky.labelColor);
+        if (this.#skyColours.get(spec.id) !== colour) {
+          this.#skyColours.set(spec.id, colour);
+          entry.element.style.setProperty("--label-color", colour);
+        }
       }
     }
     this.#shown.clear();
     const previous = new Map(this.#lastShown);
     this.#lastShown.clear();
-    const candidates = this.#entries.flatMap((entry) => {
-      if (hiddenIds?.has(entry.object.id) === true) {
-        entry.element.hidden = true;
-        return [];
-      }
-      const spec = this.#sky.get(entry.object.id);
-      const absolute = spec === undefined ? positionFor(entry.object.id) : null;
-      const opacity = skyOpacity(spec, sky);
-      const skyShown = spec !== undefined && sky !== undefined && opacity > 0 && sky.on[spec.kind === "figure" ? "figures" : "boundaries"];
-      if (spec === undefined ? absolute === null : !skyShown) {
-        entry.element.hidden = true;
-        return [];
-      }
-      if (spec !== undefined) entry.element.style.opacity = String(opacity);
-      // A sky label is projected from the camera's own place, at a fixed distance along its direction: it never moves with the scene, only with the camera's turn.
-      if (spec !== undefined) this.#local.copy(camera.position).addScaledVector(this.#direction.fromArray(spec.direction), sky!.distance);
-      else this.#local.fromArray(origin.toLocal(absolute!));
-      const screen = projectToScreen(this.#local, camera, widthPx, heightPx);
-      const distance = this.#local.distanceTo(camera.position);
-      const maxDistance = entry.object.labelMaxDistance ?? Number.POSITIVE_INFINITY;
-      if (screen === null || distance > maxDistance) {
-        entry.element.hidden = true;
-        return [];
-      }
-      // The selected (and so followed) object's label wins every collision: the bonus outranks any labelPriority (I-108).
-      const selectedPriority = entry.object.id === selectedObjectId ? SELECTED_PRIORITY : 0;
-      return [{ ...entry, screen, priority: (entry.object.labelPriority ?? 0) + selectedPriority }];
-    }).sort((a, b) => b.priority - a.priority || a.object.id.localeCompare(b.object.id));
+    const candidates = this.#entries
+      .flatMap((entry) => {
+        if (hiddenIds?.has(entry.object.id) === true) {
+          entry.element.hidden = true;
+          return [];
+        }
+        const spec = this.#sky.get(entry.object.id);
+        const absolute = spec === undefined ? positionFor(entry.object.id) : null;
+        const opacity = skyOpacity(spec, sky);
+        const skyShown =
+          spec !== undefined &&
+          sky !== undefined &&
+          opacity > 0 &&
+          sky.on[spec.kind === "figure" ? "figures" : "boundaries"];
+        if (spec === undefined ? absolute === null : !skyShown) {
+          entry.element.hidden = true;
+          return [];
+        }
+        if (spec !== undefined) entry.element.style.opacity = String(opacity);
+        // A sky label is projected from the camera's own place, at a fixed distance along its direction: it never moves with the scene, only with the camera's turn.
+        if (spec !== undefined)
+          this.#local.copy(camera.position).addScaledVector(this.#direction.fromArray(spec.direction), sky!.distance);
+        else this.#local.fromArray(origin.toLocal(absolute!));
+        const screen = projectToScreen(this.#local, camera, widthPx, heightPx);
+        const distance = this.#local.distanceTo(camera.position);
+        const maxDistance = entry.object.labelMaxDistance ?? Number.POSITIVE_INFINITY;
+        if (screen === null || distance > maxDistance) {
+          entry.element.hidden = true;
+          return [];
+        }
+        // The selected (and so followed) object's label wins every collision: the bonus outranks any labelPriority (I-108).
+        const selectedPriority = entry.object.id === selectedObjectId ? SELECTED_PRIORITY : 0;
+        return [{ ...entry, screen, priority: (entry.object.labelPriority ?? 0) + selectedPriority }];
+      })
+      .sort((a, b) => b.priority - a.priority || a.object.id.localeCompare(b.object.id));
 
     const occupied: Rect[] = [];
     for (const candidate of candidates) {
       candidate.element.hidden = false;
       let placed: Rect | null = null;
       const padding = LABEL_PADDING_PX + (previous.get(candidate.object.id) === false ? LABEL_REAPPEAR_MARGIN_PX : 0);
-      for (const [dx, dy] of [[8, 0], [-8, 0], [0, -20]] as const) {
+      for (const [dx, dy] of [
+        [8, 0],
+        [-8, 0],
+        [0, -20],
+      ] as const) {
         candidate.element.style.transform = `translate(${candidate.screen.x + dx}px, ${candidate.screen.y + dy}px) translate(${dx < 0 ? "-100%" : "0"}, -50%)`;
         const bounds = candidate.element.getBoundingClientRect();
         const rect = { left: bounds.left, top: bounds.top, right: bounds.right, bottom: bounds.bottom };
@@ -183,6 +209,7 @@ export class SceneLabelLayer {
 }
 
 function overlapsWithPadding(a: Rect, b: Rect, padding: number): boolean {
-  return a.left < b.right + padding && a.right + padding > b.left
-    && a.top < b.bottom + padding && a.bottom + padding > b.top;
+  return (
+    a.left < b.right + padding && a.right + padding > b.left && a.top < b.bottom + padding && a.bottom + padding > b.top
+  );
 }

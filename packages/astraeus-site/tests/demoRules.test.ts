@@ -21,9 +21,14 @@ import venusFile from "astraeus-demo-planets/data/planets/venus.json";
 import noPanels from "astraeus-demo-planets/data/stories/no-panels/panels.json";
 import { madeUpOrbits } from "astraeus-demo-showers/tests/helpers/measuredOrbits";
 
-const planet = (file: unknown, system: unknown): Scene => buildPlanetScene(parsePlanetSettings(file), system as PlanetSystem, noPanels);
-const shower = (file: unknown): Scene => buildShowerScene(parseShowerSettings(file), { kind: "loaded", orbits: madeUpOrbits(7, 20) });
-const SHOWERS: [string, Scene][] = [["Perseids", shower(perseidsFile)], ["Geminids", shower(geminidsFile)]];
+const planet = (file: unknown, system: unknown): Scene =>
+  buildPlanetScene(parsePlanetSettings(file), system as PlanetSystem, noPanels);
+const shower = (file: unknown): Scene =>
+  buildShowerScene(parseShowerSettings(file), { kind: "loaded", orbits: madeUpOrbits(7, 20) });
+const SHOWERS: [string, Scene][] = [
+  ["Perseids", shower(perseidsFile)],
+  ["Geminids", shower(geminidsFile)],
+];
 const OTHERS: [string, Scene][] = [
   ["Apollo 11", buildApollo11Scene()],
   ["Jupiter", jupiterIoScene],

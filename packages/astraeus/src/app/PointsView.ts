@@ -1,4 +1,13 @@
-import { BufferAttribute, BufferGeometry, Group, Points, type PointsMaterial, Vector3, type Camera, type WebGLProgramParametersWithUniforms } from "three";
+import {
+  BufferAttribute,
+  BufferGeometry,
+  Group,
+  Points,
+  type PointsMaterial,
+  Vector3,
+  type Camera,
+  type WebGLProgramParametersWithUniforms,
+} from "three";
 import { dotMaterial } from "./dotMaterial";
 import type { ScalePolicy } from "../presentation/scalePolicy";
 import type { GroupLayer } from "./experienceDefinition";
@@ -155,7 +164,10 @@ export class PointsView {
   #drawn = false;
   #look: GroupDotLook;
 
-  constructor(readonly layer: GroupLayer, now: () => number = () => performance.now()) {
+  constructor(
+    readonly layer: GroupLayer,
+    now: () => number = () => performance.now(),
+  ) {
     const count = layer.group.count;
     this.#now = now;
     this.#sliceMs = layer.refillSliceMs ?? DEFAULT_REFILL_SLICE_MS;
@@ -276,12 +288,17 @@ export class PointsView {
     if (gpu) {
       this.#unitsPerKm = policy.linearUnitsPerKm!;
       const shift = centreOffsetKm(this.layer, placement, timeUtcMs);
-      this.#centreShift = eqjToRenderVector([shift[0] * this.#unitsPerKm, shift[1] * this.#unitsPerKm, shift[2] * this.#unitsPerKm]);
+      this.#centreShift = eqjToRenderVector([
+        shift[0] * this.#unitsPerKm,
+        shift[1] * this.#unitsPerKm,
+        shift[2] * this.#unitsPerKm,
+      ]);
     }
     const key = this.#mapKey(policy);
     const moved = timeUtcMs - this.#lastTimeUtcMs;
     const direction = moved > 0 ? 1 : moved < 0 ? -1 : this.#direction;
-    if (this.#pending !== null && (direction !== this.#pending.direction || key !== this.#pending.policyId)) this.#pending = null;
+    if (this.#pending !== null && (direction !== this.#pending.direction || key !== this.#pending.policyId))
+      this.#pending = null;
     this.#lastTimeUtcMs = timeUtcMs;
     this.#direction = direction;
     const fillsBefore = this.fillCount;
@@ -314,8 +331,13 @@ export class PointsView {
       this.#placeByShader(origin);
       return;
     }
-    if (this.#uploadedBefore !== this.#before || this.#uploadedBeforeVersion !== this.#before.version
-      || this.#uploadedAfter !== this.#after || this.#uploadedAfterVersion !== this.#after.version) this.#upload();
+    if (
+      this.#uploadedBefore !== this.#before ||
+      this.#uploadedBeforeVersion !== this.#before.version ||
+      this.#uploadedAfter !== this.#after ||
+      this.#uploadedAfterVersion !== this.#after.version
+    )
+      this.#upload();
     const [ox, oy, oz] = origin.scaledCameraOrigin;
     const anchor = this.#anchor;
     this.#offset[0] = anchor[0] - ox;
@@ -337,7 +359,12 @@ export class PointsView {
 
   /** The numbers the shader mixes as last placed; tests prove them against the exact blend. */
   get blendInputs(): BlendInputs {
-    return { from: this.#from.array as Float32Array, to: this.#to.array as Float32Array, factor: this.#blend, offset: this.#offset };
+    return {
+      from: this.#from.array as Float32Array,
+      to: this.#to.array as Float32Array,
+      factor: this.#blend,
+      offset: this.#offset,
+    };
   }
 
   /** Copies both fills into the attributes relative to a common anchor, narrowed to 32 bits. */
@@ -369,7 +396,10 @@ export class PointsView {
     shader.uniforms.uBlend = this.#uniforms.uBlend;
     shader.uniforms.uOffset = this.#uniforms.uOffset;
     shader.vertexShader = shader.vertexShader
-      .replace("void main() {", "attribute vec3 positionTo;\nuniform float uBlend;\nuniform vec3 uOffset;\nvoid main() {")
+      .replace(
+        "void main() {",
+        "attribute vec3 positionTo;\nuniform float uBlend;\nuniform vec3 uOffset;\nvoid main() {",
+      )
       .replace("#include <begin_vertex>", "vec3 transformed = position + uBlend * (positionTo - position) + uOffset;");
   }
 
@@ -396,7 +426,10 @@ export class PointsView {
       const sx = (point.x + 1) / 2;
       const sy = (1 - point.y) / 2;
       out.inView += 1;
-      out.minX = Math.min(out.minX, sx); out.maxX = Math.max(out.maxX, sx); out.minY = Math.min(out.minY, sy); out.maxY = Math.max(out.maxY, sy);
+      out.minX = Math.min(out.minX, sx);
+      out.maxX = Math.max(out.maxX, sx);
+      out.minY = Math.min(out.minY, sy);
+      out.maxY = Math.max(out.maxY, sy);
     }
     out.sampled = seen;
     out.inView = Math.round((out.inView / seen) * members);
@@ -475,7 +508,9 @@ export class PointsView {
   /** Whether this group can be filled a range at a time, and is big enough for that to matter. */
   get #canSlice(): boolean {
     const { group } = this.layer;
-    return this.#sliceMs > 0 && (this.#gpu || group.fillPositionsRangeKm !== undefined) && group.count > SLICE_CHUNK_MEMBERS;
+    return (
+      this.#sliceMs > 0 && (this.#gpu || group.fillPositionsRangeKm !== undefined) && group.count > SLICE_CHUNK_MEMBERS
+    );
   }
 
   /** Members `from` up to `to` of the group at a time, in km: from the elements when the shader draws (a cheaper path), else the group's own fill. */

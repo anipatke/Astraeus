@@ -17,7 +17,16 @@ export interface StoryButtonSpec {
 export function StoryButton({ spec, form }: { readonly spec: StoryButtonSpec; readonly form: BarForm }) {
   const shown = form === "short" && spec.shortLabel !== undefined ? spec.shortLabel : spec.label;
   return (
-    <button type="button" className="story-button ui-pill" data-story-button={spec.id} title={spec.label} aria-expanded={spec.open} aria-controls={spec.controls} data-closes-drawer="" onClick={spec.onPress}>
+    <button
+      type="button"
+      className="story-button ui-pill"
+      data-story-button={spec.id}
+      title={spec.label}
+      aria-expanded={spec.open}
+      aria-controls={spec.controls}
+      data-closes-drawer=""
+      onClick={spec.onPress}
+    >
       <span aria-hidden="true">{shown}</span>
       <span className="bar-sr">{spec.label}</span>
     </button>

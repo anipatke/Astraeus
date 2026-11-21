@@ -1,6 +1,15 @@
 import { BufferAttribute, BufferGeometry, Color, Group, LineBasicMaterial, LineSegments, Vector3 } from "three";
 import type { PerspectiveCamera } from "three";
-import { celestialEquatorSegments, eclipticSegments, type EqjDirection, type SkyColours, type SkyFigureLayer, type SkyClearRequest, type SkyLineSwitches, type SkyTraceRequest } from "./skyFigures";
+import {
+  celestialEquatorSegments,
+  eclipticSegments,
+  type EqjDirection,
+  type SkyColours,
+  type SkyFigureLayer,
+  type SkyClearRequest,
+  type SkyLineSwitches,
+  type SkyTraceRequest,
+} from "./skyFigures";
 import { splitColourAlpha } from "../presentation/lookValues";
 import { stepFadeIn, stepHide, stepTrace, type SkyHideRun, type SkyTraceRun } from "../presentation/skyTrace";
 import { eqjToRenderVector, type RenderVector } from "./renderCoordinates";
@@ -67,7 +76,12 @@ function lines(segments: Segments, color: string, key: string): LineSegments {
   geometry.setAttribute("position", new BufferAttribute(positions, 3));
   // Depth is tested (a body in front of the sky hides the line) but never written. The lines are on the last render pass (TRACK_LAYER), after every body's pass, so the Sun's halo
   // (drawn earlier, without depth) never covers them (owner decision 3, O-065).
-  const material = new LineBasicMaterial({ transparent: true, opacity: LINE_OPACITY, depthTest: true, depthWrite: false });
+  const material = new LineBasicMaterial({
+    transparent: true,
+    opacity: LINE_OPACITY,
+    depthTest: true,
+    depthWrite: false,
+  });
   const object = new LineSegments(geometry, material);
   object.userData.alpha = paint(material, color);
   object.name = key;
@@ -92,34 +106,68 @@ export class SkyFiguresView {
   #selected: { readonly id: string; readonly object: LineSegments } | null = null;
   readonly #point = new Vector3();
   /** How far each kind of line (and its names) has faded in since its switch last turned on, 0 to 1; 0 while the switch is off, so the next turn-on fades in again. */
-  readonly #shownShare: Record<keyof SkyLineSwitches, number> = { figures: 0, boundaries: 0, ecliptic: 0, celestialEquator: 0 };
+  readonly #shownShare: Record<keyof SkyLineSwitches, number> = {
+    figures: 0,
+    boundaries: 0,
+    ecliptic: 0,
+    celestialEquator: 0,
+  };
 
   constructor(layers: readonly SkyFigureLayer[]) {
     this.#layers = new Map(layers.map((layer) => [layer.id, layer]));
-    const add = (segments: Segments, shows: Drawn["shows"], colour: Drawn["colour"], key: string, own?: string): void => {
+    const add = (
+      segments: Segments,
+      shows: Drawn["shows"],
+      colour: Drawn["colour"],
+      key: string,
+      own?: string,
+    ): void => {
       if (segments.length === 0) return;
       const object = lines(segments, own ?? "#ffffff", key);
       this.#drawn.push({ object, shows, colour, own: own !== undefined, alpha: object.userData.alpha as number });
       this.group.add(object);
     };
     // Figures that take the look's colour share one set of lines per kind; a figure with its own colour is drawn on its own so a live look change leaves it alone.
-    for (const [kind, shows, key] of [["figure", "figures", "sky-figures"], ["boundary", "boundaries", "sky-boundaries"]] as const) {
+    for (const [kind, shows, key] of [
+      ["figure", "figures", "sky-figures"],
+      ["boundary", "boundaries", "sky-boundaries"],
+    ] as const) {
       const of = layers.filter((layer) => layer.kind === kind && layer.whenTraced !== true); // a figure shown only when traced has no lines of its own: its trace is the whole drawing
-      add(of.filter((layer) => layer.color === undefined).flatMap((layer) => layer.segments), shows, kind, key);
-      for (const layer of of) if (layer.color !== undefined) add(layer.segments, shows, kind, `${key}:${layer.id}`, layer.color);
+      add(
+        of.filter((layer) => layer.color === undefined).flatMap((layer) => layer.segments),
+        shows,
+        kind,
+        key,
+      );
+      for (const layer of of)
+        if (layer.color !== undefined) add(layer.segments, shows, kind, `${key}:${layer.id}`, layer.color);
     }
     this.labels = layers.map((layer) => ({
-      id: layer.id, label: layer.label, kind: layer.kind, direction: eqjToRenderVector(layer.labelAt), ...(layer.whenTraced === true ? { whenTraced: true } : {}),
-      ...(layer.labelColor === undefined ? {} : { color: layer.labelColor }), ...(layer.labelFont === undefined ? {} : { font: layer.labelFont }), ...(layer.labelSizePx === undefined ? {} : { sizePx: layer.labelSizePx }),
+      id: layer.id,
+      label: layer.label,
+      kind: layer.kind,
+      direction: eqjToRenderVector(layer.labelAt),
+      ...(layer.whenTraced === true ? { whenTraced: true } : {}),
+      ...(layer.labelColor === undefined ? {} : { color: layer.labelColor }),
+      ...(layer.labelFont === undefined ? {} : { font: layer.labelFont }),
+      ...(layer.labelSizePx === undefined ? {} : { sizePx: layer.labelSizePx }),
     }));
     this.group.name = "sky-lines";
   }
 
   /** Stands the group on the camera, sized between its planes, shows the kinds the switches say (building a reference circle the first time it shows) and paints the lines in the colours given. */
-  place(camera: PerspectiveCamera, on: Readonly<SkyLineSwitches>, colours: Readonly<SkyColours>, selectedId = ""): void {
+  place(
+    camera: PerspectiveCamera,
+    on: Readonly<SkyLineSwitches>,
+    colours: Readonly<SkyColours>,
+    selectedId = "",
+  ): void {
     this.group.position.copy(camera.position);
     this.group.scale.setScalar(0.5 * (camera.near + camera.far));
-    for (const [shows, colour, make, key] of [["ecliptic", "ecliptic", eclipticSegments, "sky-ecliptic"], ["celestialEquator", "equator", celestialEquatorSegments, "sky-celestial-equator"]] as const) {
+    for (const [shows, colour, make, key] of [
+      ["ecliptic", "ecliptic", eclipticSegments, "sky-ecliptic"],
+      ["celestialEquator", "equator", celestialEquatorSegments, "sky-celestial-equator"],
+    ] as const) {
       if (on[shows] && !this.#drawn.some((entry) => entry.shows === shows)) {
         const object = lines(make(), "#ffffff", key);
         this.#drawn.push({ object, shows, colour, own: false, alpha: 1 });
@@ -127,8 +175,14 @@ export class SkyFiguresView {
         this.#applied = null;
       }
     }
-    if (this.#applied === null || Object.keys(colours).some((name) => colours[name as keyof SkyColours] !== this.#applied![name as keyof SkyColours])) {
-      for (const entry of this.#drawn) if (!entry.own) entry.alpha = paint(entry.object.material as LineBasicMaterial, colours[entry.colour]);
+    if (
+      this.#applied === null ||
+      Object.keys(colours).some(
+        (name) => colours[name as keyof SkyColours] !== this.#applied![name as keyof SkyColours],
+      )
+    ) {
+      for (const entry of this.#drawn)
+        if (!entry.own) entry.alpha = paint(entry.object.material as LineBasicMaterial, colours[entry.colour]);
       this.#applied = { ...colours };
     }
     for (const entry of this.#drawn) entry.object.visible = on[entry.shows];
@@ -137,7 +191,10 @@ export class SkyFiguresView {
 
   /** Whether a tap or the emphasis can reach the figure now: its kind's switch is on and, for one shown only when traced, a trace shows it. */
   #tappable(layer: SkyFigureLayer, on: Readonly<SkyLineSwitches>): boolean {
-    return on[layer.kind === "figure" ? "figures" : "boundaries"] && (layer.whenTraced !== true || (this.#traces.get(layer.id)?.fade ?? 1) < 1);
+    return (
+      on[layer.kind === "figure" ? "figures" : "boundaries"] &&
+      (layer.whenTraced !== true || (this.#traces.get(layer.id)?.fade ?? 1) < 1)
+    );
   }
 
   /** True while a trace of `id` is still growing (not yet fully drawn, and not being cleared). */
@@ -163,7 +220,10 @@ export class SkyFiguresView {
       this.#selected = { id: layer.id, object };
     }
     const material = this.#selected.object.material as LineBasicMaterial;
-    material.opacity = paint(material, colours.selected) * LINE_OPACITY * (layer.whenTraced === true ? 1 : this.#shownShare[layer.kind === "figure" ? "figures" : "boundaries"]);
+    material.opacity =
+      paint(material, colours.selected) *
+      LINE_OPACITY *
+      (layer.whenTraced === true ? 1 : this.#shownShare[layer.kind === "figure" ? "figures" : "boundaries"]);
     // While the figure's trace is still drawing, the trace itself grows in the selected colour (`advanceTraces`) and the whole-figure emphasis waits, so it never covers the growing line (owner, T-306).
     this.#selected.object.visible = this.#tappable(layer, on) && !this.#drawing(layer.id);
   }
@@ -172,17 +232,48 @@ export class SkyFiguresView {
    * The figures a tap can select, as screen lines (CSS px from the canvas's top left) and the rectangle of each shown name (`labelRects` are page rectangles; `box` is the canvas's). A figure whose switch is off, or that is
    * shown only when traced and has no trace showing, is left out. A segment is kept whenever any part of it is in front of the camera (cut at the camera plane), even with both ends off screen. Worked out when asked, not each frame.
    */
-  screenFigures(camera: PerspectiveCamera, widthPx: number, heightPx: number, on: Readonly<SkyLineSwitches>, labelRects: ReadonlyMap<string, PickRect> | undefined, box: { readonly left: number; readonly top: number }): readonly SkyPickFigure[] {
+  screenFigures(
+    camera: PerspectiveCamera,
+    widthPx: number,
+    heightPx: number,
+    on: Readonly<SkyLineSwitches>,
+    labelRects: ReadonlyMap<string, PickRect> | undefined,
+    box: { readonly left: number; readonly top: number },
+  ): readonly SkyPickFigure[] {
     camera.updateMatrixWorld(true);
     const reach = 0.5 * (camera.near + camera.far); // where the lines are drawn, as the names are placed
     const tanHalfFov = Math.tan((camera.fov * Math.PI) / 360);
     const aspect = widthPx / heightPx;
-    const inCamera = (direction: EqjDirection): [number, number, number] => { const p = this.#point.fromArray(eqjToRenderVector(direction)).multiplyScalar(reach).add(camera.position).applyMatrix4(camera.matrixWorldInverse); return [p.x, p.y, p.z]; };
-    return [...this.#layers.values()].filter((layer) => this.#tappable(layer, on)).map((layer): SkyPickFigure => {
-      const rect = labelRects?.get(layer.id);
-      const lines = layer.segments.flatMap(([from, to]) => { const line = projectSegmentClipped(inCamera(from), inCamera(to), tanHalfFov, aspect, widthPx, heightPx); return line === null ? [] : [line]; });
-      return { id: layer.id, lines, label: rect === undefined ? null : { left: rect.left - box.left, top: rect.top - box.top, right: rect.right - box.left, bottom: rect.bottom - box.top } };
-    });
+    const inCamera = (direction: EqjDirection): [number, number, number] => {
+      const p = this.#point
+        .fromArray(eqjToRenderVector(direction))
+        .multiplyScalar(reach)
+        .add(camera.position)
+        .applyMatrix4(camera.matrixWorldInverse);
+      return [p.x, p.y, p.z];
+    };
+    return [...this.#layers.values()]
+      .filter((layer) => this.#tappable(layer, on))
+      .map((layer): SkyPickFigure => {
+        const rect = labelRects?.get(layer.id);
+        const lines = layer.segments.flatMap(([from, to]) => {
+          const line = projectSegmentClipped(inCamera(from), inCamera(to), tanHalfFov, aspect, widthPx, heightPx);
+          return line === null ? [] : [line];
+        });
+        return {
+          id: layer.id,
+          lines,
+          label:
+            rect === undefined
+              ? null
+              : {
+                  left: rect.left - box.left,
+                  top: rect.top - box.top,
+                  right: rect.right - box.left,
+                  bottom: rect.bottom - box.top,
+                },
+        };
+      });
   }
 
   /** Begins tracing the figure `request.id` (a trace already on it restarts). The trace is a separate set of lines drawn over the figure (the whole drawing of a figure shown only when traced); the figure itself is untouched. An id the view does not hold does nothing. */
@@ -195,14 +286,24 @@ export class SkyFiguresView {
     object.geometry.setDrawRange(0, 0);
     const full = Float32Array.from(object.geometry.getAttribute("position").array);
     this.group.add(object);
-    this.#traces.set(request.id, { object, full, kind: layer.kind, run: { seconds: request.seconds, after: request.after, reduced: request.reduced, elapsed: 0 }, drawn: 0, fade: 0 });
+    this.#traces.set(request.id, {
+      object,
+      full,
+      kind: layer.kind,
+      run: { seconds: request.seconds, after: request.after, reduced: request.reduced, elapsed: 0 },
+      drawn: 0,
+      fade: 0,
+    });
   }
 
   /** Removes the trace of `request.id` over `request.seconds` (at once for 0 or reduced motion), keeping what it had drawn; a figure with no trace, or an id the view does not hold, is left alone. Returns true when it removed the trace at once, so the caller wakes the draw rule (a timed clear wakes through `advanceTraces`). */
   clearTrace(request: SkyClearRequest): boolean {
     const trace = this.#traces.get(request.id);
     if (trace === undefined) return false;
-    if (request.reduced || request.seconds <= 0) { this.#removeTrace(request.id); return true; }
+    if (request.reduced || request.seconds <= 0) {
+      this.#removeTrace(request.id);
+      return true;
+    }
     trace.hide = { seconds: request.seconds, from: trace.fade, elapsed: 0 };
     return false;
   }
@@ -211,14 +312,23 @@ export class SkyFiguresView {
    * Moves every trace on by `deltaSeconds` of real time (the scene clock never enters): draws the segments reached so far, the last one part-grown from its first end, in the traced colour (the faded colour while fading),
    * shows each with its figure's switch, and removes finished ones. Returns true while anything changed, so the caller wakes the draw rule.
    */
-  advanceTraces(deltaSeconds: number, colours: Readonly<SkyColours>, on: Readonly<SkyLineSwitches>, selectedId = ""): boolean {
+  advanceTraces(
+    deltaSeconds: number,
+    colours: Readonly<SkyColours>,
+    on: Readonly<SkyLineSwitches>,
+    selectedId = "",
+  ): boolean {
     let moving = false;
     for (const [id, trace] of this.#traces) {
-      const frame = trace.hide === undefined ? stepTrace(trace.run, deltaSeconds) : stepHide(trace.hide, deltaSeconds, trace.drawn);
+      const frame =
+        trace.hide === undefined ? stepTrace(trace.run, deltaSeconds) : stepHide(trace.hide, deltaSeconds, trace.drawn);
       moving ||= frame.moving;
       trace.fade = frame.fade;
       trace.drawn = frame.drawn;
-      if (frame.done) { this.#removeTrace(id); continue; }
+      if (frame.done) {
+        this.#removeTrace(id);
+        continue;
+      }
       const count = trace.full.length / 6;
       const reached = frame.drawn * count;
       const last = Math.min(count - 1, Math.floor(reached));
@@ -226,13 +336,19 @@ export class SkyFiguresView {
       const positions = trace.object.geometry.getAttribute("position") as BufferAttribute;
       positions.array.set(trace.full.subarray(0, (last + 1) * 6));
       const at = last * 6;
-      const end = [0, 1, 2].map((axis) => trace.full[at + axis]! + (trace.full[at + 3 + axis]! - trace.full[at + axis]!) * grown);
+      const end = [0, 1, 2].map(
+        (axis) => trace.full[at + axis]! + (trace.full[at + 3 + axis]! - trace.full[at + axis]!) * grown,
+      );
       const length = Math.hypot(end[0]!, end[1]!, end[2]!);
-      end.forEach((value, axis) => { positions.array[at + 3 + axis] = length > 1e-9 ? value / length : value; });
+      end.forEach((value, axis) => {
+        positions.array[at + 3 + axis] = length > 1e-9 ? value / length : value;
+      });
       positions.needsUpdate = true;
       trace.object.geometry.setDrawRange(0, (last + 1) * 2);
       const material = trace.object.material as LineBasicMaterial;
-      const base = splitColourAlpha(id === selectedId && frame.drawn < 1 && trace.hide === undefined ? colours.selected : colours.traced);
+      const base = splitColourAlpha(
+        id === selectedId && frame.drawn < 1 && trace.hide === undefined ? colours.selected : colours.traced,
+      );
       const faded = splitColourAlpha(colours.faded);
       material.color.set(base.colour).lerp(FADED.set(faded.colour), frame.fade);
       material.opacity = TRACE_OPACITY * (1 - frame.fade) * (base.alpha + (faded.alpha - base.alpha) * frame.fade);
@@ -253,7 +369,8 @@ export class SkyFiguresView {
       this.#shownShare[kind] = after;
       if (after !== before) moving = true;
     }
-    for (const entry of this.#drawn) (entry.object.material as LineBasicMaterial).opacity = LINE_OPACITY * entry.alpha * this.#shownShare[entry.shows];
+    for (const entry of this.#drawn)
+      (entry.object.material as LineBasicMaterial).opacity = LINE_OPACITY * entry.alpha * this.#shownShare[entry.shows];
     return moving;
   }
 

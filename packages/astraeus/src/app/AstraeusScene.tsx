@@ -1,6 +1,15 @@
 import type { ViewHidden } from "./viewHiding";
 import { createFrameState, type FrameState } from "./sceneFrame";
-import { useBodyRefs, useDrawWakes, useOverlayLayers, useReleaseSharedTextures, useSceneDerived, useScenePointer, useSceneFrame, refFor } from "./sceneContentsHooks";
+import {
+  useBodyRefs,
+  useDrawWakes,
+  useOverlayLayers,
+  useReleaseSharedTextures,
+  useSceneDerived,
+  useScenePointer,
+  useSceneFrame,
+  refFor,
+} from "./sceneContentsHooks";
 import { useMemo, useRef } from "react";
 import { Canvas, useThree } from "@react-three/fiber";
 import type { DirectionalLight, Group } from "three";
@@ -14,24 +23,24 @@ import type { SystemComposition } from "../assets/compositions";
 import { BodyView, type BodyParts } from "./BodyView";
 import { type BodyMarkerSettings, type GlowLook } from "./bodyDraw";
 import type { OrbitLook } from "../assets/orbitLook";
-import {
-  createOrbitCameraState,
-  type CameraRequest,
-  type OrbitCameraState,
-} from "./CameraController";
+import { createOrbitCameraState, type CameraRequest, type OrbitCameraState } from "./CameraController";
 import type { DebugReadout } from "./debugReadout";
 import { FloatingOrigin } from "./floatingOrigin";
-import { DEFAULT_CAMERA_FAR, type CameraReach, type GroupLayer, type PathLayer, type SunBody, type VisualOverride } from "./experienceDefinition";
+import {
+  DEFAULT_CAMERA_FAR,
+  type CameraReach,
+  type GroupLayer,
+  type PathLayer,
+  type SunBody,
+  type VisualOverride,
+} from "./experienceDefinition";
 import type { TrackedBody } from "./mission";
 import { LayeredRender } from "./LayeredRender";
 import type { RenderVector } from "./renderCoordinates";
 import { useSceneViews, useSkyStars } from "./sceneHooks";
 import type { CameraView } from "./viewLink";
 import type { OpeningView } from "./sceneCamera";
-import {
-  assignBodyLayers,
-  START_CAMERA_DISTANCE,
-} from "./sceneFraming";
+import { assignBodyLayers, START_CAMERA_DISTANCE } from "./sceneFraming";
 import type { FrameStats } from "./frameStats";
 import type { GroupFill } from "./FrameRateSection";
 import { TRACK_LAYER } from "./TrackedBodyView";
@@ -88,7 +97,13 @@ export interface SceneRuntime {
   /** The experience's declared camera reach; empty keeps the built-in limits. */
   readonly cameraReach: CameraReach;
   /** The sky behind the scene: whether it is drawn and how bright. Absent means no sky. `live`: the host may show a sky that starts hidden (`SceneControls.skyVisible`), so it is built either way. */
-  readonly sky?: { readonly visible: boolean; readonly starBrightness: number; readonly milkyWayBrightness: number; readonly milkyWay: boolean; readonly live?: boolean };
+  readonly sky?: {
+    readonly visible: boolean;
+    readonly starBrightness: number;
+    readonly milkyWayBrightness: number;
+    readonly milkyWay: boolean;
+    readonly live?: boolean;
+  };
 }
 
 export interface SceneControls {
@@ -197,7 +212,10 @@ export function AstraeusScene(props: Props) {
   const { runtime } = props;
   const catalogue = runtime.catalogue ?? builtInCatalogue;
   const layers = useMemo(() => assignBodyLayers(runtime.bodies, TRACK_LAYER, catalogue), [runtime.bodies, catalogue]);
-  const lightLayers = useMemo(() => runtime.bodies.filter((id) => catalogue.get(id).visual.light !== undefined).map((id) => layers.get(id)!), [runtime.bodies, layers, catalogue]);
+  const lightLayers = useMemo(
+    () => runtime.bodies.filter((id) => catalogue.get(id).visual.light !== undefined).map((id) => layers.get(id)!),
+    [runtime.bodies, layers, catalogue],
+  );
   // One frame state for the whole canvas: the scene contents decide whether a frame is drawn and the layered render obeys.
   const frameState = useRef<FrameState>(createFrameState(props.controls.policy.id, props.onFirstDraw));
   return (
@@ -213,7 +231,9 @@ export function AstraeusScene(props: Props) {
       data-composition-paths={runtime.composition?.paths?.length ?? 0}
       data-point-groups={runtime.groups.length}
       data-sun-centred={(runtime.sun === undefined ? 0 : 1) + (runtime.paths?.length ?? 0)}
-      data-rings={runtime.bodies.map((id) => (runtime.overrides?.get(id)?.rings ?? catalogue.get(id).visual.rings)?.bands.length ?? 0).reduce((sum, n) => sum + n, 0)}
+      data-rings={runtime.bodies
+        .map((id) => (runtime.overrides?.get(id)?.rings ?? catalogue.get(id).visual.rings)?.bands.length ?? 0)
+        .reduce((sum, n) => sum + n, 0)}
     >
       <SceneContents {...props} layers={layers} frameState={frameState} />
       <LayeredRender lightLayers={lightLayers} state={frameState} />
@@ -236,27 +256,77 @@ function SceneContents({ runtime, controls, readout, layers, frameState }: Scene
   const orbit = useRef<OrbitCameraState>(createOrbitCameraState(START_CAMERA_DISTANCE, runtime.sceneCenter));
   const { placement, readoutPair, pairLabels, assets, bodyFamilies } = useSceneDerived(runtime, catalogue);
   const views = useSceneViews(runtime, gl);
-  const { trackedViews, groupViews, compositionPaths, skyView, skyFiguresView, bodySetViews, orbitSetViews, sunCentredViews } = views;
+  const {
+    trackedViews,
+    groupViews,
+    compositionPaths,
+    skyView,
+    skyFiguresView,
+    bodySetViews,
+    orbitSetViews,
+    sunCentredViews,
+  } = views;
   useSkyStars(gl.domElement, skyView);
   useDrawWakes(gl.domElement, frameState);
   useReleaseSharedTextures();
   const layerRefs = useOverlayLayers(gl.domElement, controls, trackedViews, bodySetViews, skyFiguresView.labels);
   useScenePointer(gl.domElement, runtime, controls, catalogue, orbit, frameState);
-  useSceneFrame(rootRef, { runtime, controls, readout, catalogue, origin, orbit, state: frameState, assets, bodyRefs, lightRefs, placement, views, layers: layerRefs, bodyFamilies, readoutPair, pairLabels });
+  useSceneFrame(rootRef, {
+    runtime,
+    controls,
+    readout,
+    catalogue,
+    origin,
+    orbit,
+    state: frameState,
+    assets,
+    bodyRefs,
+    lightRefs,
+    placement,
+    views,
+    layers: layerRefs,
+    bodyFamilies,
+    readoutPair,
+    pairLabels,
+  });
 
   return (
     <group ref={rootRef}>
       {assets.map((asset) => (
-        <SceneBody key={asset.definition.id} asset={asset} layer={layers.get(asset.definition.id)!} controls={controls} desktopTextures={runtime.desktopTextures === true} pictures={runtime.pictures} ringLookOf={ringLookOf} onParts={partsFor.get(asset.definition.id)} groupRef={refFor(groupRefs.current, asset.definition.id)} orientRef={refFor(orientRefs.current, asset.definition.id)} lightRef={refFor(lightRefs.current, asset.definition.id)} />
+        <SceneBody
+          key={asset.definition.id}
+          asset={asset}
+          layer={layers.get(asset.definition.id)!}
+          controls={controls}
+          desktopTextures={runtime.desktopTextures === true}
+          pictures={runtime.pictures}
+          ringLookOf={ringLookOf}
+          onParts={partsFor.get(asset.definition.id)}
+          groupRef={refFor(groupRefs.current, asset.definition.id)}
+          orientRef={refFor(orientRefs.current, asset.definition.id)}
+          lightRef={refFor(lightRefs.current, asset.definition.id)}
+        />
       ))}
       {skyView !== null && <primitive object={skyView.group} />}
       <primitive object={skyFiguresView.group} />
-      {compositionPaths.map((view) => <primitive key={view.id} object={view.group} />)}
-      {trackedViews.map((view) => <primitive key={view.body.id} object={view.group} />)}
-      {groupViews.map((view) => <primitive key={view.id} object={view.group} />)}
-      {sunCentredViews.map((view) => <primitive key={view.id} object={view.group} />)}
-      {bodySetViews.map((view) => <primitive key={view.id} object={view.group} />)}
-      {orbitSetViews.map((view) => <primitive key={view.id} object={view.group} />)}
+      {compositionPaths.map((view) => (
+        <primitive key={view.id} object={view.group} />
+      ))}
+      {trackedViews.map((view) => (
+        <primitive key={view.body.id} object={view.group} />
+      ))}
+      {groupViews.map((view) => (
+        <primitive key={view.id} object={view.group} />
+      ))}
+      {sunCentredViews.map((view) => (
+        <primitive key={view.id} object={view.group} />
+      ))}
+      {bodySetViews.map((view) => (
+        <primitive key={view.id} object={view.group} />
+      ))}
+      {orbitSetViews.map((view) => (
+        <primitive key={view.id} object={view.group} />
+      ))}
     </group>
   );
 }
@@ -275,11 +345,35 @@ interface SceneBodyProps {
 }
 
 /** One catalogued body: its view and, when its record has a light, the ambient and directional light on its layer. */
-function SceneBody({ asset, layer, controls, desktopTextures, pictures, ringLookOf, onParts, groupRef, orientRef, lightRef }: SceneBodyProps) {
+function SceneBody({
+  asset,
+  layer,
+  controls,
+  desktopTextures,
+  pictures,
+  ringLookOf,
+  onParts,
+  groupRef,
+  orientRef,
+  lightRef,
+}: SceneBodyProps) {
   const light = asset.visual.light;
   return (
     <group>
-      <BodyView asset={asset} policy={controls.policy} desktopTextures={desktopTextures} pictures={pictures} layer={layer} markerLayer={TRACK_LAYER} markerPx={controls.bodyMarker.markerPx} glowLook={controls.glowLook} ringLookOf={ringLookOf} onParts={onParts} groupRef={groupRef} orientRef={orientRef} />
+      <BodyView
+        asset={asset}
+        policy={controls.policy}
+        desktopTextures={desktopTextures}
+        pictures={pictures}
+        layer={layer}
+        markerLayer={TRACK_LAYER}
+        markerPx={controls.bodyMarker.markerPx}
+        glowLook={controls.glowLook}
+        ringLookOf={ringLookOf}
+        onParts={onParts}
+        groupRef={groupRef}
+        orientRef={orientRef}
+      />
       {light !== undefined && (
         <>
           <ambientLight layers={layer} intensity={light.ambient} />

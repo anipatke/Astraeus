@@ -13,13 +13,24 @@ await checkScript({ name: "journey-planets-phone", viewports: [PHONE] }, async (
   await ui.ensurePaused(page);
   assert.ok(await ui.switchInBarRow(page), "the planet switch is on the phone's one bar row, with no menu opened");
   assert.ok((await ui.barTitleName(page)) !== null, "the bar row has a title place");
-  assert.equal((await ui.experienceSwitchState(page)).options.find((option) => option.active)?.value, "mercury", "Mercury is the open planet");
+  assert.equal(
+    (await ui.experienceSwitchState(page)).options.find((option) => option.active)?.value,
+    "mercury",
+    "Mercury is the open planet",
+  );
 
   await ui.chooseSwitchOption(page, "jupiter");
   await ui.waitForShell(page);
   await ui.ensurePaused(page);
-  assert.equal((await ui.experienceSwitchState(page)).options.find((option) => option.active)?.value, "jupiter", "the switch moved to Jupiter");
-  assert.ok((await ui.pickableBodies(page)).some((option) => option.value === "io"), "Jupiter's view lists Io");
+  assert.equal(
+    (await ui.experienceSwitchState(page)).options.find((option) => option.active)?.value,
+    "jupiter",
+    "the switch moved to Jupiter",
+  );
+  assert.ok(
+    (await ui.pickableBodies(page)).some((option) => option.value === "io"),
+    "Jupiter's view lists Io",
+  );
 
   await ui.openMoonPanel(page);
   await ui.chooseMoon(page, "io");

@@ -83,13 +83,15 @@ function vehicleFile(
       firstSampleIndex: cursor,
       sampleCount: entry.samples.length,
       ...smoothingFields(entry),
-      ...(entry.segment.burn === undefined ? {} : {
-        constantAccelerationKmS2: entry.segment.burn.constantAccelerationKmS2.map((x) => roundTo(x, 12)),
-        cutoffPositionResidualKm: roundTo(entry.segment.burn.cutoffPositionResidualKm, 6),
-        cutoffVelocityResidualMs: roundTo(entry.segment.burn.cutoffVelocityResidualMs, 6),
-        speedReferenceBody: entry.segment.from!.refBody,
-        peakSpeedKmS: burnPeakSpeedsKmS.get(entry.segment.id),
-      }),
+      ...(entry.segment.burn === undefined
+        ? {}
+        : {
+            constantAccelerationKmS2: entry.segment.burn.constantAccelerationKmS2.map((x) => roundTo(x, 12)),
+            cutoffPositionResidualKm: roundTo(entry.segment.burn.cutoffPositionResidualKm, 6),
+            cutoffVelocityResidualMs: roundTo(entry.segment.burn.cutoffVelocityResidualMs, 6),
+            speedReferenceBody: entry.segment.from!.refBody,
+            peakSpeedKmS: burnPeakSpeedsKmS.get(entry.segment.id),
+          }),
     };
     cursor += entry.samples.length;
     return row;
@@ -139,7 +141,12 @@ function normalisedAnchorsFile(anchors: readonly NormalisedAnchor[], rangeZeroGm
         refBody: a.refBody,
         surfaceFixed: a.surfaceFixed,
         source: a.source,
-        flags: a.inferredOverride !== undefined ? ["inferred-override"] : suspect.has(a.id) ? ["suspected-transcription-error"] : [],
+        flags:
+          a.inferredOverride !== undefined
+            ? ["inferred-override"]
+            : suspect.has(a.id)
+              ? ["suspected-transcription-error"]
+              : [],
         ...(a.inferredOverride === undefined ? {} : { inferredOverride: a.inferredOverride }),
         inputs: {
           latitudeDeg: a.inputs.latitudeDeg,
@@ -149,7 +156,11 @@ function normalisedAnchorsFile(anchors: readonly NormalisedAnchor[], rangeZeroGm
           flightPathAngleDeg: a.inputs.flightPathAngleDeg,
           headingDeg: a.inputs.headingDeg,
         },
-        native: { center: a.native.center, positionKm: roundPosition(a.native.r), velocityKmS: roundVelocity(a.native.v) },
+        native: {
+          center: a.native.center,
+          positionKm: roundPosition(a.native.r),
+          velocityKmS: roundVelocity(a.native.v),
+        },
         earthCentred: { positionKm: roundPosition(a.earthCentred.r), velocityKmS: roundVelocity(a.earthCentred.v) },
         printRoundingUncertainty: {
           positionKm: roundTo(a.printRoundingUncertainty.positionKm, 3),
@@ -177,7 +188,10 @@ function eventsFile(raw: RawInputs["events"]): string {
 }
 
 /** Runs the whole offline pipeline; pure apart from the adapter, so identical inputs give identical files. */
-export function reconstruct(adapter: AstronomyAdapter, raw: RawInputs): { files: OutputFiles; validation: ReturnType<typeof buildValidation> } {
+export function reconstruct(
+  adapter: AstronomyAdapter,
+  raw: RawInputs,
+): { files: OutputFiles; validation: ReturnType<typeof buildValidation> } {
   if (Date.parse(raw.events.range_zero_gmt) !== CONSTANTS.rangeZeroUtcMs) {
     throw new RangeError("configured range zero does not match events.json range_zero_gmt");
   }
@@ -191,7 +205,14 @@ export function reconstruct(adapter: AstronomyAdapter, raw: RawInputs): { files:
   }
   anchors.set(
     config.liftoff.anchorId,
-    liftoffAnchor(adapter, touchdown, config.liftoff.anchorId, getToUtcMs(liftoffEvent.get_printed), liftoffEvent.label, liftoffEvent.get_printed),
+    liftoffAnchor(
+      adapter,
+      touchdown,
+      config.liftoff.anchorId,
+      getToUtcMs(liftoffEvent.get_printed),
+      liftoffEvent.label,
+      liftoffEvent.get_printed,
+    ),
   );
 
   const plans: Record<string, VehiclePlan> = {
@@ -213,12 +234,20 @@ export function reconstruct(adapter: AstronomyAdapter, raw: RawInputs): { files:
   );
   const finals = Object.fromEntries(
     Object.entries(built).map(([name, entry]) => {
-      const samples = pinAnchors(entry.vehicle.samples, entry.vehicle.anchorSampleIndex, anchors, entry.vehicle.cutoffAnchorIds);
+      const samples = pinAnchors(
+        entry.vehicle.samples,
+        entry.vehicle.anchorSampleIndex,
+        anchors,
+        entry.vehicle.cutoffAnchorIds,
+      );
       return [name, roundedSamples(samples)];
     }),
   );
   const trajectories = Object.fromEntries(
-    Object.entries(finals).map(([name, samples]) => [name, new SampledTrajectory({ body: name, center: "earth", samples })]),
+    Object.entries(finals).map(([name, samples]) => [
+      name,
+      new SampledTrajectory({ body: name, center: "earth", samples }),
+    ]),
   );
 
   const validation = buildValidation(adapter, anchors, plans, built, trajectories);
@@ -231,8 +260,22 @@ export function reconstruct(adapter: AstronomyAdapter, raw: RawInputs): { files:
       [...anchors.values()].sort((a, b) => a.timeUtcMs - b.timeUtcMs || a.id.localeCompare(b.id)),
       raw.events.range_zero_gmt,
     ),
-    "data/apollo11/generated/columbia.json": vehicleFile("columbia", "Columbia (CSM)", built.columbia.vehicle, finals.columbia, anchors, burnPeakSpeedsById),
-    "data/apollo11/generated/eagle.json": vehicleFile("eagle", "Eagle (LM)", built.eagle.vehicle, finals.eagle, anchors, burnPeakSpeedsById),
+    "data/apollo11/generated/columbia.json": vehicleFile(
+      "columbia",
+      "Columbia (CSM)",
+      built.columbia.vehicle,
+      finals.columbia,
+      anchors,
+      burnPeakSpeedsById,
+    ),
+    "data/apollo11/generated/eagle.json": vehicleFile(
+      "eagle",
+      "Eagle (LM)",
+      built.eagle.vehicle,
+      finals.eagle,
+      anchors,
+      burnPeakSpeedsById,
+    ),
     "data/apollo11/generated/events.json": eventsFile(raw.events),
     "data/apollo11/generated/validation.json": formatJson(validation as unknown as Record<string, unknown>, []),
     "docs/APOLLO11_RECONSTRUCTION.md": renderReport(validation, anchors),
@@ -265,13 +308,15 @@ function buildValidation(
       endMissKm: roundTo(s.endMissKm, 3),
       endMissMs: roundTo(s.endMissMs, 3),
       ...smoothingFields(s),
-      ...(s.segment.burn === undefined ? {} : {
-        constantAccelerationKmS2: s.segment.burn.constantAccelerationKmS2.map((x) => roundTo(x, 12)),
-        cutoffPositionResidualKm: roundTo(s.segment.burn.cutoffPositionResidualKm, 6),
-        cutoffVelocityResidualMs: roundTo(s.segment.burn.cutoffVelocityResidualMs, 6),
-        speedReferenceBody: s.segment.from!.refBody,
-        peakSpeedKmS: burnPeakSpeedKmS(adapter, trajectories[name], s.segment),
-      }),
+      ...(s.segment.burn === undefined
+        ? {}
+        : {
+            constantAccelerationKmS2: s.segment.burn.constantAccelerationKmS2.map((x) => roundTo(x, 12)),
+            cutoffPositionResidualKm: roundTo(s.segment.burn.cutoffPositionResidualKm, 6),
+            cutoffVelocityResidualMs: roundTo(s.segment.burn.cutoffVelocityResidualMs, 6),
+            speedReferenceBody: s.segment.from!.refBody,
+            peakSpeedKmS: burnPeakSpeedKmS(adapter, trajectories[name], s.segment),
+          }),
       interpolationMaxKm: roundTo(s.interpolationMaxKm, 4),
       interpolationMaxMs: roundTo(s.interpolationMaxMs, 4),
     })),
@@ -283,10 +328,17 @@ function buildValidation(
     targets: { anchorPositionKm: 1, anchorVelocityMs: 1, interpolationKm: 1, selectionThresholdKm: 0.25 },
     smoothingReportThreshold: config.smoothingReportThreshold,
     suspectAnchors: config.suspectAnchors,
-    sampleCounts: Object.fromEntries(Object.entries(trajectories).map(([k, t]) => [k, { startUtcMs: t.bounds.startUtcMs, endUtcMs: t.bounds.endUtcMs }])),
+    sampleCounts: Object.fromEntries(
+      Object.entries(trajectories).map(([k, t]) => [
+        k,
+        { startUtcMs: t.bounds.startUtcMs, endUtcMs: t.bounds.endUtcMs },
+      ]),
+    ),
     anchorResiduals: residuals,
     segments,
-    oneSecondSpeedScan: Object.fromEntries(Object.entries(trajectories).map(([name, trajectory]) => [name, oneSecondSpeedScan(trajectory)])),
+    oneSecondSpeedScan: Object.fromEntries(
+      Object.entries(trajectories).map(([name, trajectory]) => [name, oneSecondSpeedScan(trajectory)]),
+    ),
     consistency: consistencyTable(adapter, anchors),
     orbitCrossChecks: orbitCrossChecks(anchors),
     qualitative: qualitativeChecks({

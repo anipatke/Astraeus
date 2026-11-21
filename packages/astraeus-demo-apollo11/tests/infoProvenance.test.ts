@@ -7,7 +7,12 @@ import { createProvenance } from "astraeus/core/provenance";
 import { createSceneResolver } from "astraeus/app/sceneLayout";
 import { trackedAbsolute } from "astraeus/app/sceneLayout";
 import { placementAbout } from "astraeus/tests/scenePlacement";
-import { APOLLO11_DATA, buildApollo11Scene, POST_TLI_COAST_ID, type GeneratedValidation } from "../src/experiences/apollo11/apollo11Scene";
+import {
+  APOLLO11_DATA,
+  buildApollo11Scene,
+  POST_TLI_COAST_ID,
+  type GeneratedValidation,
+} from "../src/experiences/apollo11/apollo11Scene";
 import { apolloMetrics, apollo11Experience, apollo11Mission } from "./support";
 import type { ExperienceConfig } from "astraeus/shell/experience";
 import { infoView, PROVENANCE_STATUS } from "astraeus/shell/infoModel";
@@ -18,7 +23,8 @@ import { formatUtcTimestamp } from "astraeus/shell/timelineModel";
 const validation = validationFile as unknown as GeneratedValidation;
 const n = formatMetricNumber;
 const objectIds = apollo11Experience.objects.map((object) => object.id);
-const limitationsOf = (id: string) => apollo11Experience.objects.find((object) => object.id === id)?.knownLimitations ?? [];
+const limitationsOf = (id: string) =>
+  apollo11Experience.objects.find((object) => object.id === id)?.knownLimitations ?? [];
 const [columbia, eagle] = apollo11Mission.bodies;
 const eagleMid = Math.round((eagle.trajectory.bounds.startUtcMs + eagle.trajectory.bounds.endUtcMs) / 2);
 
@@ -45,9 +51,7 @@ describe("provenance reachability", () => {
     expect(infoView(apollo11Experience, { kind: "object", id: "eagle" })?.provenance?.status).toBe("Reconstructed");
     expect(infoView(apollo11Experience, { kind: "object", id: "earth" })?.provenance?.status).toBe("Ephemeris");
     expect(infoView(apollo11Experience, { kind: "object", id: "moon" })?.provenance?.status).toBe("Ephemeris");
-    expect(apollo11Experience.objects.find((object) => object.id === "columbia")?.provenance).toBe(
-      columbia.provenance,
-    );
+    expect(apollo11Experience.objects.find((object) => object.id === "columbia")?.provenance).toBe(columbia.provenance);
   });
 
   it("gives every event its title, time and source status", () => {
@@ -62,8 +66,28 @@ describe("provenance reachability", () => {
   it("renders any experience's objects and events from configuration alone", () => {
     const stream: ExperienceConfig = {
       objects: [
-        { id: "comet", label: "Parent comet", description: "Source of the stream.", provenance: createProvenance({ sourceType: "observed", sources: ["catalogue"], accuracy: "orbit fit", notes: "" }) },
-        { id: "stream", label: "Meteor stream", provenance: createProvenance({ sourceType: "illustrative", sources: ["model"], accuracy: "schematic", notes: "not to scale" }), knownLimitations: ["Particle density is drawn, not measured."] },
+        {
+          id: "comet",
+          label: "Parent comet",
+          description: "Source of the stream.",
+          provenance: createProvenance({
+            sourceType: "observed",
+            sources: ["catalogue"],
+            accuracy: "orbit fit",
+            notes: "",
+          }),
+        },
+        {
+          id: "stream",
+          label: "Meteor stream",
+          provenance: createProvenance({
+            sourceType: "illustrative",
+            sources: ["model"],
+            accuracy: "schematic",
+            notes: "not to scale",
+          }),
+          knownLimitations: ["Particle density is drawn, not measured."],
+        },
       ],
       cameraPresets: [{ id: "overview", label: "Overview", request: { kind: "overview" } }],
       events: createEvents([{ id: "peak", label: "Shower peak", timeUtcMs: 1_000_000 }]),
@@ -81,7 +105,8 @@ describe("provenance reachability", () => {
 });
 
 describe("window information", () => {
-  const src = (name: string, sourceType: "observed" | "illustrative") => createProvenance({ sourceType, sources: [name], accuracy: "test", notes: "" });
+  const src = (name: string, sourceType: "observed" | "illustrative") =>
+    createProvenance({ sourceType, sources: [name], accuracy: "test", notes: "" });
   const windowed: ExperienceConfig = {
     objects: [],
     cameraPresets: [],
@@ -91,8 +116,19 @@ describe("window information", () => {
     eventProvenance: src("event list", "observed"),
     windows: createWindows([
       {
-        id: "w", label: "Made-up period", startUtcMs: 10, endUtcMs: 90, peakUtcMs: 50,
-        rate: { unit: "things per hour", samples: [{ timeUtcMs: 10, value: 0 }, { timeUtcMs: 50, value: 20 }, { timeUtcMs: 90, value: 0 }] },
+        id: "w",
+        label: "Made-up period",
+        startUtcMs: 10,
+        endUtcMs: 90,
+        peakUtcMs: 50,
+        rate: {
+          unit: "things per hour",
+          samples: [
+            { timeUtcMs: 10, value: 0 },
+            { timeUtcMs: 50, value: 20 },
+            { timeUtcMs: 90, value: 0 },
+          ],
+        },
         provenance: [
           { startUtcMs: 10, endUtcMs: 40, provenance: src("first source", "observed") },
           { startUtcMs: 40, endUtcMs: 90, provenance: src("second source", "illustrative") },
@@ -131,14 +167,17 @@ describe("window information", () => {
 });
 
 describe("Apollo known limitations come from the generated reconstruction data", () => {
-  const segment = (vehicle: string, id: string) => validation.segments.find((s) => s.vehicle === vehicle && s.id === id)!;
+  const segment = (vehicle: string, id: string) =>
+    validation.segments.find((s) => s.vehicle === vehicle && s.id === id)!;
 
   it("cover smoothed joins and burn cutoff residuals for each vehicle, quoting the validation figures", () => {
     for (const vehicle of ["columbia", "eagle"]) {
       const text = limitationsOf(vehicle).join("\n");
       const own = validation.segments.filter((s) => s.vehicle === vehicle);
       const corrections = own.flatMap((s) => (s.maxCorrectionKm === undefined ? [] : [s.maxCorrectionKm]));
-      const residuals = own.flatMap((s) => (s.cutoffPositionResidualKm === undefined ? [] : [s.cutoffPositionResidualKm]));
+      const residuals = own.flatMap((s) =>
+        s.cutoffPositionResidualKm === undefined ? [] : [s.cutoffPositionResidualKm],
+      );
       expect(text).toMatch(/^Smoothed joins: /m);
       expect(text).toContain(`by up to ${n(Math.max(...corrections), 0)} km`);
       expect(text).toMatch(/^Burn cutoffs: /m);
@@ -152,10 +191,12 @@ describe("Apollo known limitations come from the generated reconstruction data",
     const text = limitationsOf("columbia").find((line) => line.startsWith("Speed just after translunar injection"));
     expect(text).toContain(`${n(burn.cutoffPositionResidualKm!, 1)} km cutoff miss`);
     expect(text).toContain(`${n(coast.maxCorrectionMs!, 0)} m/s`);
-    const peak = Math.max(...Array.from({ length: 101 }, (_, i) => {
-      const v = columbia.trajectory.stateAt(coast.startUtcMs + i * 100).velocityKmS!;
-      return Math.hypot(...v);
-    }));
+    const peak = Math.max(
+      ...Array.from({ length: 101 }, (_, i) => {
+        const v = columbia.trajectory.stateAt(coast.startUtcMs + i * 100).velocityKmS!;
+        return Math.hypot(...v);
+      }),
+    );
     expect(peak).toBeGreaterThan(20);
     expect(text).toContain(`reaches ${n(peak, 1)} km/s`);
   });
@@ -173,9 +214,16 @@ describe("Apollo known limitations come from the generated reconstruction data",
     const altered: GeneratedValidation = {
       ...validation,
       landingSiteOffset: validation.landingSiteOffset.map((o) => ({ ...o, offsetKm: o.offsetKm + 1000 })),
-      segments: validation.segments.map((s) => (s.cutoffPositionResidualKm === undefined ? s : { ...s, cutoffPositionResidualKm: s.cutoffPositionResidualKm + 1000 })),
+      segments: validation.segments.map((s) =>
+        s.cutoffPositionResidualKm === undefined
+          ? s
+          : { ...s, cutoffPositionResidualKm: s.cutoffPositionResidualKm + 1000 },
+      ),
     };
-    const limits = (data: typeof APOLLO11_DATA) => { const scene = buildApollo11Scene(data); return Object.fromEntries([...scene.bodies, ...scene.paths].map((read) => [read.id, read.knownLimitations])); };
+    const limits = (data: typeof APOLLO11_DATA) => {
+      const scene = buildApollo11Scene(data);
+      return Object.fromEntries([...scene.bodies, ...scene.paths].map((read) => [read.id, read.knownLimitations]));
+    };
     const before = limits(APOLLO11_DATA);
     const after = limits({ ...APOLLO11_DATA, validation: altered });
     expect(after.eagle.join()).not.toBe(before.eagle.join());
@@ -188,19 +236,23 @@ describe("scale choice independence", () => {
   it("maps each shell choice to the unchanged engine policy", () => {
     expect(SCALE_CHOICES.map((choice) => scalePolicyFor(choice.id).id)).toEqual(["true-scale", "readable-scale"]);
     expect(SCALE_CHOICES.map((choice) => choice.label)).toEqual(["True", "Readable"]);
-    expect(SCALE_CHOICES.find((choice) => choice.id === "readable-scale")?.explanation).toMatch(/closer.*true size.*drawn on top/s);
+    expect(SCALE_CHOICES.find((choice) => choice.id === "readable-scale")?.explanation).toMatch(
+      /closer.*true size.*drawn on top/s,
+    );
   });
 
   it("leaves State and every info readout identical under True and Readable through the shell's choice", () => {
     const metricsFor = apolloMetrics(createSceneResolver(createOrbAstronomyAdapter()));
     const snapshot = () => objectIds.map((id) => metricsFor(id, eagleMid));
-    const states = () => apollo11Mission.bodies.map((body) => {
-      const state = body.trajectory.stateAt(eagleMid);
-      return [Array.from(state.positionKm), Array.from(state.velocityKmS ?? [])];
-    });
+    const states = () =>
+      apollo11Mission.bodies.map((body) => {
+        const state = body.trajectory.stateAt(eagleMid);
+        return [Array.from(state.positionKm), Array.from(state.velocityKmS ?? [])];
+      });
     const readouts = SCALE_CHOICES.map((choice) => {
       const policy = scalePolicyFor(choice.id);
-      for (const body of apollo11Mission.bodies) trackedAbsolute(body.trajectory.stateAt(eagleMid), policy, placementAbout("earth"));
+      for (const body of apollo11Mission.bodies)
+        trackedAbsolute(body.trajectory.stateAt(eagleMid), policy, placementAbout("earth"));
       return { metrics: snapshot(), states: states() };
     });
     expect(readouts[0].metrics.every((metrics) => metrics.length > 0)).toBe(true);

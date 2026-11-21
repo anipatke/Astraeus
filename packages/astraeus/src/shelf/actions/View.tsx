@@ -12,7 +12,17 @@ export function ActionsView({ block, runtime }: { readonly block: ShelfBlock; re
   };
   return (
     <div className="shelf-actions" data-shelf-block={block.id}>
-      {actions.map((action) => <button key={action.id} type="button" className="shelf-action ui-pill" data-shelf-action={action.id} onClick={() => press(action)}>{action.label}</button>)}
+      {actions.map((action) => (
+        <button
+          key={action.id}
+          type="button"
+          className="shelf-action ui-pill"
+          data-shelf-action={action.id}
+          onClick={() => press(action)}
+        >
+          {action.label}
+        </button>
+      ))}
     </div>
   );
 }

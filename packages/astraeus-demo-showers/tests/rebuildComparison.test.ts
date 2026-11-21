@@ -19,7 +19,14 @@ const plain = <T>(value: T): T => JSON.parse(JSON.stringify(value)) as T;
 /** The story panels in the words the fixture was recorded in: `provenance` gave them `badge` and `sources`, so comparing those words proves the move changed neither (O-057 T-278). */
 const oldPanelWords = <T>(set: T): unknown => {
   const { panels, ...rest } = set as { panels: { provenance: { sourceType: string; sources: string[] } }[] };
-  return { ...rest, panels: panels.map(({ provenance, ...panel }) => ({ ...panel, badge: provenance.sourceType, sources: provenance.sources })) };
+  return {
+    ...rest,
+    panels: panels.map(({ provenance, ...panel }) => ({
+      ...panel,
+      badge: provenance.sourceType,
+      sources: provenance.sources,
+    })),
+  };
 };
 const resolver = createSceneResolver(createOrbAstronomyAdapter());
 /**
@@ -28,14 +35,17 @@ const resolver = createSceneResolver(createOrbAstronomyAdapter());
  * with the same quantity computed from the planet series the engine ships now, so this test still proves the rebuild changed nothing.
  */
 const PLANETS = ["mercury", "venus", "mars", "jupiter", "saturn", "uranus", "neptune", "pluto"];
-const planetAboutSunKm = (planet: string, t: number) => catalogue.get(planet).source!.create(createOrbAstronomyAdapter()).stateAt(Math.round(t), "sun").positionKm;
+const planetAboutSunKm = (planet: string, t: number) =>
+  catalogue.get(planet).source!.create(createOrbAstronomyAdapter()).stateAt(Math.round(t), "sun").positionKm;
 /** The planet a captured distance row measures from the Sun (`sun-to-<planet>` or `<planet>-range`), or null for a row that is not a planet's. */
-const planetOfRow = (rowId: string): string | null => PLANETS.find((planet) => rowId === `sun-to-${planet}` || rowId === `${planet}-range`) ?? null;
+const planetOfRow = (rowId: string): string | null =>
+  PLANETS.find((planet) => rowId === `sun-to-${planet}` || rowId === `${planet}-range`) ?? null;
 /** A captured row set with each planet distance recomputed from today's planet series (other rows exactly as captured). */
-const withTodaysPlanets = (rows: Rec[], t: number): Rec[] => rows.map((row) => {
-  const planet = row.kind === "distance" ? planetOfRow(row.id) : null;
-  return planet === null ? row : { ...row, value: Math.hypot(...planetAboutSunKm(planet, t)) };
-});
+const withTodaysPlanets = (rows: Rec[], t: number): Rec[] =>
+  rows.map((row) => {
+    const planet = row.kind === "distance" ? planetOfRow(row.id) : null;
+    return planet === null ? row : { ...row, value: Math.hypot(...planetAboutSunKm(planet, t)) };
+  });
 type Rec = Record<string, any>;
 /**
  * Relative tolerance for a non-integer number in a rate series. The rates are computed with floating-point exponentials, and Node 22 and Node 24 differ in the last bit
@@ -45,18 +55,27 @@ type Rec = Record<string, any>;
 const RATE_RELATIVE_TOLERANCE = 1e-12;
 const numberDifference = (now: number, was: number, path: string): string | undefined => {
   if (Number.isInteger(now) || Number.isInteger(was)) return now === was ? undefined : `${path}: ${now} is not ${was}`;
-  return Math.abs(now - was) <= RATE_RELATIVE_TOLERANCE * Math.max(Math.abs(now), Math.abs(was)) ? undefined : `${path}: ${now} differs from ${was} by more than ${RATE_RELATIVE_TOLERANCE} relative`;
+  return Math.abs(now - was) <= RATE_RELATIVE_TOLERANCE * Math.max(Math.abs(now), Math.abs(was))
+    ? undefined
+    : `${path}: ${now} differs from ${was} by more than ${RATE_RELATIVE_TOLERANCE} relative`;
 };
 const firstDifference = (keys: string[], at: (key: string) => string | undefined): string | undefined => {
-  for (const key of keys) { const d = at(key); if (d !== undefined) return d; }
+  for (const key of keys) {
+    const d = at(key);
+    if (d !== undefined) return d;
+  }
   return undefined;
 };
 /** Why two values differ, or `undefined` when they match: structure and text exactly, non-integer numbers within RATE_RELATIVE_TOLERANCE. */
 const rateDifference = (now: unknown, was: unknown, path = "value"): string | undefined => {
   if (typeof now === "number" && typeof was === "number") return numberDifference(now, was, path);
   if (Array.isArray(now) || Array.isArray(was)) {
-    if (!Array.isArray(now) || !Array.isArray(was) || now.length !== was.length) return `${path}: array length or kind differs`;
-    return firstDifference(now.map((_v, i) => String(i)), (i) => rateDifference(now[Number(i)], was[Number(i)], `${path}[${i}]`));
+    if (!Array.isArray(now) || !Array.isArray(was) || now.length !== was.length)
+      return `${path}: array length or kind differs`;
+    return firstDifference(
+      now.map((_v, i) => String(i)),
+      (i) => rateDifference(now[Number(i)], was[Number(i)], `${path}[${i}]`),
+    );
   }
   if (typeof now === "object" && now !== null && typeof was === "object" && was !== null) {
     const keys = Object.keys(now).sort();
@@ -70,7 +89,10 @@ const expectSameRate = (now: unknown, was: unknown, message?: string): void => {
   expect(difference, message).toBeUndefined();
 };
 /** The provenance as the replaced definition had it: without the class and fraction O-045 T-185 added. */
-const unclassed = (value: any) => (value && typeof value === "object" && "accuracyClass" in value ? Object.fromEntries(Object.entries(value).filter(([key]) => key !== "accuracyClass" && key !== "maxErrorFraction")) : value);
+const unclassed = (value: any) =>
+  value && typeof value === "object" && "accuracyClass" in value
+    ? Object.fromEntries(Object.entries(value).filter(([key]) => key !== "accuracyClass" && key !== "maxErrorFraction"))
+    : value;
 const byId = (list: readonly Rec[], id: string) => list.find((item) => item.id === id)!;
 /**
  * The Perseids' comet left the engine catalogue for the demo's data (O-057 T-279), so its provenance is now what the generic elements path writes from the file's record:
@@ -86,19 +108,31 @@ function sameProvenance(now: Rec, was: Rec, movedComet: boolean, where: string):
     expect(now.notes, where).toBe(was.notes);
     return;
   }
-  if (!movedComet || was.accuracyClass !== undefined || !String(was.sources?.[0]).includes("109P/Swift-Tuttle")) { expect(unclassed(now), where).toEqual(was); return; }
+  if (!movedComet || was.accuracyClass !== undefined || !String(was.sources?.[0]).includes("109P/Swift-Tuttle")) {
+    expect(unclassed(now), where).toEqual(was);
+    return;
+  }
   expect(now.sourceType, where).toBe(was.sourceType);
   expect(now.notes, where).toBe(was.notes);
-  expect(now.accuracy, where).toBe(`approximate: ${was.accuracy} Compared with JPL Horizons, target DES=109P;CAP (solution JPL#32), centre 500@10, ICRF.`);
+  expect(now.accuracy, where).toBe(
+    `approximate: ${was.accuracy} Compared with JPL Horizons, target DES=109P;CAP (solution JPL#32), centre 500@10, ICRF.`,
+  );
   expect(now.sources[0], where).toContain("109P/Swift-Tuttle");
   expect(now.sources[0], where).toContain("SB405-CPV-2");
   expect(now.sources[1], where).toBe(`Two-body motion about the gravitational parameter of "sun" (catalogue)`);
 }
 
-describe.each([["perseids", perseidsFile, "swift-tuttle"], ["geminids", geminidsFile, "phaethon"]] as const)("the rebuilt %s against the definition it replaced", (name, file, parent) => {
+describe.each([
+  ["perseids", perseidsFile, "swift-tuttle"],
+  ["geminids", geminidsFile, "phaethon"],
+] as const)("the rebuilt %s against the definition it replaced", (name, file, parent) => {
   const old = before[name] as Rec;
   const settings = parseShowerSettings(file);
-  const definition = buildShowerDefinition(settings, { kind: "loaded", orbits: readShippedOrbits(name, settings.stream.iauCode) }, shippedPanelsOf(settings));
+  const definition = buildShowerDefinition(
+    settings,
+    { kind: "loaded", orbits: readShippedOrbits(name, settings.stream.iauCode) },
+    shippedPanelsOf(settings),
+  );
   const objects = plain(definition.experience.objects) as unknown as Rec[];
   const layer = groupsOf(definition)[0]!;
   const streamId = old.streamId as string;
@@ -107,8 +141,15 @@ describe.each([["perseids", perseidsFile, "swift-tuttle"], ["geminids", geminids
   it("has the same bodies in the same order with the same ids, labels, colours and provenance", () => {
     expect(objects.map((o) => o.id)).toEqual(old.objects.map((o: Rec) => o.id));
     for (const was of old.objects) {
-      for (const field of ["label", "color"]) expect(byId(objects, was.id)[field], `${was.id}.${field}`).toEqual(was[field]);
-      if (was.id === parent && name === "perseids") sameProvenance(byId(objects, was.id).provenance, was.provenance.position ?? was.provenance, true, `${was.id}.provenance`);
+      for (const field of ["label", "color"])
+        expect(byId(objects, was.id)[field], `${was.id}.${field}`).toEqual(was[field]);
+      if (was.id === parent && name === "perseids")
+        sameProvenance(
+          byId(objects, was.id).provenance,
+          was.provenance.position ?? was.provenance,
+          true,
+          `${was.id}.provenance`,
+        );
       else sameProvenance(byId(objects, was.id).provenance, was.provenance, false, `${was.id}.provenance`);
     }
   });
@@ -120,7 +161,9 @@ describe.each([["perseids", perseidsFile, "swift-tuttle"], ["geminids", geminids
       const position = catalogue.get(was.id).definition.accuracy.positionLimitations ?? [];
       expect(now.knownLimitations, was.id).toEqual([...new Set([...position, ...was.knownLimitations.slice(0, -1)])]);
       expect(was.knownLimitations.at(-1)).toMatch(/times larger than life/);
-      expect(now.description, was.id).toContain(`${settings.look.planetExaggeration} times larger than life so it can be seen; distances stay true.`);
+      expect(now.description, was.id).toContain(
+        `${settings.look.planetExaggeration} times larger than life so it can be seen; distances stay true.`,
+      );
       expect(now.description, was.id).toContain(was.description);
     }
   });
@@ -141,8 +184,12 @@ describe.each([["perseids", perseidsFile, "swift-tuttle"], ["geminids", geminids
     const was = byId(old.objects, parent).knownLimitations as string[];
     if (name === "perseids") {
       // The generic path writes the first limit from the record's epoch (JD, time scale) and then the record's own; the old hand-written first limit is split across two.
-      expect(limits[0]).toBe("Unperturbed two-body motion about the Sun from osculating elements at JD 2450000.5 TDB: no planetary perturbations and no non-gravitational forces.");
-      expect(was[0]).toBe("Unperturbed two-body motion about the Sun from osculating elements at 1995-10-10: no planetary perturbations and no non-gravitational forces (comet outgassing). The elements are a fit to the 1737-1995 observations.");
+      expect(limits[0]).toBe(
+        "Unperturbed two-body motion about the Sun from osculating elements at JD 2450000.5 TDB: no planetary perturbations and no non-gravitational forces.",
+      );
+      expect(was[0]).toBe(
+        "Unperturbed two-body motion about the Sun from osculating elements at 1995-10-10: no planetary perturbations and no non-gravitational forces (comet outgassing). The elements are a fit to the 1737-1995 observations.",
+      );
       expect(limits.slice(1)).toEqual(["The elements are a fit to the 1737-1995 observations.", ...was.slice(1)]);
     } else expect(limits).toEqual(was);
   });
@@ -163,8 +210,15 @@ describe.each([["perseids", perseidsFile, "swift-tuttle"], ["geminids", geminids
     expect(layer.group.frame).toBe(was.frame);
     expect(plain(layer.group.bounds)).toEqual(was.bounds);
     // A 0% clump is not placed, so the group's notes no longer say a share is placed near the reference body (FLAG: the Geminids only; nothing was clumped before either).
-    const noShare = (notes: string) => notes.replace(" A stated share of the dots is placed near the reference body's position along the orbit: a model, not a measurement. No orbit is added.", "");
-    expect({ ...plain(layer.group.provenance), notes: noShare(layer.group.provenance.notes) }).toEqual({ ...was.provenance, notes: noShare(was.provenance.notes) });
+    const noShare = (notes: string) =>
+      notes.replace(
+        " A stated share of the dots is placed near the reference body's position along the orbit: a model, not a measurement. No orbit is added.",
+        "",
+      );
+    expect({ ...plain(layer.group.provenance), notes: noShare(layer.group.provenance.notes) }).toEqual({
+      ...was.provenance,
+      notes: noShare(was.provenance.notes),
+    });
     expect(layer.color).toBe(was.color);
     expect(layer.pointSizePx).toBe(was.pointSizePx);
     expect(layer.refillAfterMs).toBe(was.refillAfterMs);
@@ -173,8 +227,12 @@ describe.each([["perseids", perseidsFile, "swift-tuttle"], ["geminids", geminids
     layer.group.fillPositionsKm(peak, out);
     for (const member of was.members) {
       expect((layer.group as Rec).recordIdAt(member.i), `member ${member.i} id`).toBe(member.recordId);
-      expect((layer.group as Rec).meanAnomalyDegAt(member.i), `member ${member.i} anomaly`).toBeCloseTo(member.meanAnomalyDeg, 9);
-      for (let k = 0; k < 3; k += 1) expect(out[3 * member.i + k]!, `member ${member.i}[${k}]`).toBeCloseTo(member.positionKm[k], 3);
+      expect((layer.group as Rec).meanAnomalyDegAt(member.i), `member ${member.i} anomaly`).toBeCloseTo(
+        member.meanAnomalyDeg,
+        9,
+      );
+      for (let k = 0; k < 3; k += 1)
+        expect(out[3 * member.i + k]!, `member ${member.i}[${k}]`).toBeCloseTo(member.positionKm[k], 3);
     }
   });
 
@@ -190,7 +248,8 @@ describe.each([["perseids", perseidsFile, "swift-tuttle"], ["geminids", geminids
     expect(limits[0]).toBe(was.knownLimitations[0]);
     for (const kept of [was.knownLimitations[3], was.knownLimitations[4]]) expect(limits).toContain(kept);
     expect(limits.join(" ")).toContain("The position of each dot along its orbit is illustrative");
-    if (settings.stream.concentration.fraction > 0) expect(limits.join(" ")).toContain(`Basis of the clump near ${settings.parentBody}`);
+    if (settings.stream.concentration.fraction > 0)
+      expect(limits.join(" ")).toContain(`Basis of the clump near ${settings.parentBody}`);
     else expect(limits.join(" ")).not.toMatch(/clump/); // FLAG: the Geminids' stated 0% clump is not mentioned (it was a '0%' sentence before)
   });
 
@@ -241,9 +300,27 @@ describe.each([["perseids", perseidsFile, "swift-tuttle"], ["geminids", geminids
   it("builds the camera menu itself (Decision 6): Overview, then Focus and Follow for every body and the stream; 'Focus parent' and 'Whole orbit' leave, 'Focus stream' keeps its place by name", () => {
     const ids = definition.experience.cameraPresets.map((p) => p.id);
     expect(ids).toHaveLength(17);
-    expect(ids).toEqual(["overview", ...["sun", "earth", "mercury", "venus", "mars", "jupiter", parent, streamId].flatMap((id) => [`focus-${id}`, `follow-${id}`])]);
-    expect(old.cameraPresets.map((p: Rec) => p.id)).toEqual(["overview", "focus-earth", "follow-earth", "focus-parent", "whole-orbit", "focus-stream", "follow-stream"]);
-    expect(definition.experience.cameraPresets.map((p) => p.label).slice(0, 3)).toEqual(["Overview", "Focus Sun", "Follow Sun"]);
+    expect(ids).toEqual([
+      "overview",
+      ...["sun", "earth", "mercury", "venus", "mars", "jupiter", parent, streamId].flatMap((id) => [
+        `focus-${id}`,
+        `follow-${id}`,
+      ]),
+    ]);
+    expect(old.cameraPresets.map((p: Rec) => p.id)).toEqual([
+      "overview",
+      "focus-earth",
+      "follow-earth",
+      "focus-parent",
+      "whole-orbit",
+      "focus-stream",
+      "follow-stream",
+    ]);
+    expect(definition.experience.cameraPresets.map((p) => p.label).slice(0, 3)).toEqual([
+      "Overview",
+      "Focus Sun",
+      "Follow Sun",
+    ]);
   });
 
   it("draws the same orbit lines on the same bodies; the Earth line is 'earth-orbit' (was 'earth-path'), lines take their body's colour and start at the opening time (FLAG), the parent's lies on the old one", () => {
@@ -252,7 +329,10 @@ describe.each([["perseids", perseidsFile, "swift-tuttle"], ["geminids", geminids
     expect(ids).toEqual(old.paths.map((p: Rec) => (p.object.id === "earth-path" ? "earth-orbit" : p.object.id)));
     for (const was of old.paths) {
       const id = was.object.id === "earth-path" ? "earth-orbit" : was.object.id;
-      const now = byId(paths.map((p) => ({ ...p, id: p.object.id })), id);
+      const now = byId(
+        paths.map((p) => ({ ...p, id: p.object.id })),
+        id,
+      );
       expect(now.object.partOf).toBe(was.object.partOf);
       expect(now.object.showLabel).toBe(false);
       sameProvenance(now.object.provenance, was.object.provenance, name === "perseids", id);
@@ -261,7 +341,7 @@ describe.each([["perseids", perseidsFile, "swift-tuttle"], ["geminids", geminids
         expect(now.sampling.eccentricity).toBeCloseTo(was.sampling.eccentricity, 12);
         // The comet's period and periapsis come from the catalogue's own record (built-in) or the settings' record; the demo's sweep found them to within minutes.
         expect(Math.abs(now.sampling.periodMs - was.sampling.periodMs)).toBeLessThan(60 * 60_000);
-        const gap = Math.abs(((now.sampling.periapsisUtcMs - was.sampling.periapsisUtcMs) % was.sampling.periodMs));
+        const gap = Math.abs((now.sampling.periapsisUtcMs - was.sampling.periapsisUtcMs) % was.sampling.periodMs);
         expect(Math.min(gap, was.sampling.periodMs - gap)).toBeLessThan(5 * 60_000);
       }
       // The line is the same position source: where the old line stood at the old sample times, the new source is there (a planet's line: where
@@ -297,11 +377,16 @@ describe.each([["perseids", perseidsFile, "swift-tuttle"], ["geminids", geminids
   });
 
   // The planet series now starts in 1950 (O-047 T-200): its segment starts are computed from an earlier origin, so a distance can differ in the 1e-9 km digits. Compare to a metre.
-  const settle = (value: unknown): unknown => JSON.parse(JSON.stringify(value), (_key, v) => (typeof v === "number" ? Math.round(v * 1e3) / 1e3 : v));
+  const settle = (value: unknown): unknown =>
+    JSON.parse(JSON.stringify(value), (_key, v) => (typeof v === "number" ? Math.round(v * 1e3) / 1e3 : v));
   it("gives every other object the distance row it had", () => {
     // The viewer builds its resolver from the definition's own catalogue (App.tsx), which holds an elements body.
     const own = definition.catalogue ?? catalogue;
-    const metrics = definition.createMetrics({ clock: new SimulationClock(peak), resolver: createSceneResolver(createOrbAstronomyAdapter(), own), catalogue: own });
+    const metrics = definition.createMetrics({
+      clock: new SimulationClock(peak),
+      resolver: createSceneResolver(createOrbAstronomyAdapter(), own),
+      catalogue: own,
+    });
     // The old Perseids comet was catalogued and already showed "Distance from Sun", so moving it into the demo changes no row.
     const hadDistance = (old.metricRows[parent][0] as Rec[]).some((row) => row.label === "Distance from Sun");
     const gained = !catalogue.has(parent) && !hadDistance;
@@ -311,7 +396,10 @@ describe.each([["perseids", perseidsFile, "swift-tuttle"], ["geminids", geminids
         const wasRows = withTodaysPlanets(old.metricRows[id][k] as Rec[], t);
         // O-045 T-187: a body added from an elements record now shows "Distance from Sun" like the built-in comet; nothing else about its row changes.
         if (gained && id === parent) {
-          expect(rows.map((row) => row.label), `${id} at ${t}`).toEqual(["Distance from Sun", ...old.metricRows[id][k].map((row: Rec) => row.label)]);
+          expect(
+            rows.map((row) => row.label),
+            `${id} at ${t}`,
+          ).toEqual(["Distance from Sun", ...old.metricRows[id][k].map((row: Rec) => row.label)]);
           expect(settle(rows.slice(1)), `${id} at ${t}`).toEqual(settle(wasRows));
         } else if (gained && id === "sun") {
           // The Sun, as the comet's parent, also lists its distance to the comet, after the rows it had.
@@ -333,16 +421,53 @@ describe.each([["perseids", perseidsFile, "swift-tuttle"], ["geminids", geminids
 });
 
 describe("the rate comparison helper", () => {
-  const curve = { unit: "per hour", samples: [{ timeUtcMs: 1000, value: 12.5, id: "a" }, { timeUtcMs: 2000, value: 40.25, id: "b" }] };
-  const changed = (edit: (c: typeof curve) => void): typeof curve => { const c = JSON.parse(JSON.stringify(curve)) as typeof curve; edit(c); return c; };
+  const curve = {
+    unit: "per hour",
+    samples: [
+      { timeUtcMs: 1000, value: 12.5, id: "a" },
+      { timeUtcMs: 2000, value: 40.25, id: "b" },
+    ],
+  };
+  const changed = (edit: (c: typeof curve) => void): typeof curve => {
+    const c = JSON.parse(JSON.stringify(curve)) as typeof curve;
+    edit(c);
+    return c;
+  };
   it("passes a value off by less than the tolerance", () => {
-    expect(rateDifference(changed((c) => { c.samples[1]!.value *= 1 + RATE_RELATIVE_TOLERANCE / 10; }), curve)).toBeUndefined();
+    expect(
+      rateDifference(
+        changed((c) => {
+          c.samples[1]!.value *= 1 + RATE_RELATIVE_TOLERANCE / 10;
+        }),
+        curve,
+      ),
+    ).toBeUndefined();
   });
   it.each([
-    ["a changed id", (c: typeof curve) => { c.samples[0]!.id = "z"; }],
-    ["a dropped sample", (c: typeof curve) => { c.samples.pop(); }],
-    ["a changed timeUtcMs", (c: typeof curve) => { c.samples[1]!.timeUtcMs += 1; }],
-    ["a value off by more than the tolerance", (c: typeof curve) => { c.samples[1]!.value *= 1 + RATE_RELATIVE_TOLERANCE * 10; }],
+    [
+      "a changed id",
+      (c: typeof curve) => {
+        c.samples[0]!.id = "z";
+      },
+    ],
+    [
+      "a dropped sample",
+      (c: typeof curve) => {
+        c.samples.pop();
+      },
+    ],
+    [
+      "a changed timeUtcMs",
+      (c: typeof curve) => {
+        c.samples[1]!.timeUtcMs += 1;
+      },
+    ],
+    [
+      "a value off by more than the tolerance",
+      (c: typeof curve) => {
+        c.samples[1]!.value *= 1 + RATE_RELATIVE_TOLERANCE * 10;
+      },
+    ],
   ])("fails %s", (_name, edit) => {
     expect(rateDifference(changed(edit), curve)).toBeDefined();
   });

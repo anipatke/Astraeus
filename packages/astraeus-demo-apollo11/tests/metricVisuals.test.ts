@@ -6,7 +6,12 @@ import { MoonTrajectory } from "astraeus/core/moonTrajectory";
 import { catalogue } from "astraeus/assets/catalogue";
 import { createStateResolver } from "astraeus/core/stateResolver";
 import { sceneMetrics } from "astraeus/app/metricReadouts";
-import { peakAnchorSpeedKmS, referenceInSameFrame, spacecraftRangeMetric, spacecraftSpeedMetric } from "astraeus/app/trackedMetrics";
+import {
+  peakAnchorSpeedKmS,
+  referenceInSameFrame,
+  spacecraftRangeMetric,
+  spacecraftSpeedMetric,
+} from "astraeus/app/trackedMetrics";
 import { stateIfInBounds, trackedReadouts } from "astraeus/app/mission";
 import { MOON } from "astraeus/core/body";
 import { apollo11Mission, apolloMetrics } from "./support";
@@ -33,13 +38,29 @@ import {
 const render = (metric: Metric) => renderToStaticMarkup(createElement(MetricVisual, { metric }));
 
 const speed = (overrides: Partial<SpeedMetric> = {}): SpeedMetric => ({
-  kind: "speed", id: "s", label: "Speed", value: 5, unit: "km/s", digits: 1, ...overrides,
+  kind: "speed",
+  id: "s",
+  label: "Speed",
+  value: 5,
+  unit: "km/s",
+  digits: 1,
+  ...overrides,
 });
 const distance = (overrides: Partial<DistanceMetric> = {}): DistanceMetric => ({
-  kind: "distance", id: "d", label: "Distance", value: 100, unit: "km", digits: 0, ...overrides,
+  kind: "distance",
+  id: "d",
+  label: "Distance",
+  value: 100,
+  unit: "km",
+  digits: 0,
+  ...overrides,
 });
 const phase = (overrides: Partial<PhaseMetric> = {}): PhaseMetric => ({
-  kind: "phase", id: "p", label: "Phase", fraction: 0.25, ...overrides,
+  kind: "phase",
+  id: "p",
+  label: "Phase",
+  fraction: 0.25,
+  ...overrides,
 });
 
 describe("metric visual references and numeric-only fallback", () => {
@@ -48,7 +69,10 @@ describe("metric visual references and numeric-only fallback", () => {
     expect(speedGauge(speed({ value: null, range: { min: 0, max: 10, basis: "b" } }))).toBeNull();
     expect(speedGauge(speed({ range: { min: 0, max: 0, basis: "b" } }))).toBeNull();
     expect(speedGauge(speed({ range: { min: 0, max: 10, basis: "b" } }))).toEqual({ fraction: 0.5, outside: false });
-    expect(speedGauge(speed({ value: 12, range: { min: 0, max: 10, basis: "b" } }))).toEqual({ fraction: 1, outside: true });
+    expect(speedGauge(speed({ value: 12, range: { min: 0, max: 10, basis: "b" } }))).toEqual({
+      fraction: 1,
+      outside: true,
+    });
   });
 
   it("draws a distance bar only against reference markers and spans them all", () => {
@@ -58,7 +82,9 @@ describe("metric visual references and numeric-only fallback", () => {
     expect(scale?.span).toBe(400);
     expect(scale?.valueFraction).toBe(0.25);
     expect(scale?.markers[0].fraction).toBe(1);
-    expect(distanceScale(distance({ value: 500, markers: [{ label: "Near", value: 400 }] }))?.markers[0].fraction).toBe(0.8);
+    expect(distanceScale(distance({ value: 500, markers: [{ label: "Near", value: 400 }] }))?.markers[0].fraction).toBe(
+      0.8,
+    );
   });
 
   it("draws a phase glyph only when the lit side is known, otherwise a 0–100% band", () => {
@@ -79,13 +105,17 @@ describe("metric visual references and numeric-only fallback", () => {
   it("renders numeric-only readouts without any visual, and states unavailable values", () => {
     expect(render(speed())).not.toContain("<svg");
     expect(render(distance())).not.toContain("<svg");
-    const unavailable = render(speed({ value: null, unavailable: "not modeled", range: { min: 0, max: 10, basis: "b" } }));
+    const unavailable = render(
+      speed({ value: null, unavailable: "not modeled", range: { min: 0, max: 10, basis: "b" } }),
+    );
     expect(unavailable).toContain("not modeled");
     expect(unavailable).not.toContain("<svg");
   });
 
   it("carries value, unit, context and references in text, not only in the shape", () => {
-    const text = describeMetric(distance({ context: "Body centre · frame", markers: [{ label: "Moon now", value: 400 }] }));
+    const text = describeMetric(
+      distance({ context: "Body centre · frame", markers: [{ label: "Moon now", value: 400 }] }),
+    );
     expect(text).toBe("Distance: 100 km; Body centre · frame; Moon now 400 km.");
     const arc = render(speed({ range: { min: 0, max: 10, basis: "peak" } }));
     expect(arc).toContain('role="img"');
@@ -95,7 +125,16 @@ describe("metric visual references and numeric-only fallback", () => {
 
 describe("relative distance, altitude, progress, uncertainty and coordinates", () => {
   it("draws a relative distance in the target's radii, broken beyond the window, numeric-only without a radius", () => {
-    const base = { kind: "relative-distance", id: "r", label: "Gap", value: 1_900, unit: "km", digits: 0, from: "Craft", to: "Moon" } as const;
+    const base = {
+      kind: "relative-distance",
+      id: "r",
+      label: "Gap",
+      value: 1_900,
+      unit: "km",
+      digits: 0,
+      from: "Craft",
+      to: "Moon",
+    } as const;
     expect(relationGlyph(base)).toBeNull();
     expect(relationGlyph({ ...base, targetRadius: 1_900 })).toEqual({ radii: 1, beyondWindow: false });
     expect(relationGlyph({ ...base, value: 380_000, targetRadius: 1_900 })).toEqual({ radii: 200, beyondWindow: true });
@@ -104,7 +143,16 @@ describe("relative distance, altitude, progress, uncertainty and coordinates", (
   });
 
   it("draws altitude against the body's radius and says when the value is below the datum", () => {
-    const base = { kind: "altitude", id: "a", label: "Altitude", value: 110, unit: "km", digits: 1, body: "Moon", datum: "mean radius" } as const;
+    const base = {
+      kind: "altitude",
+      id: "a",
+      label: "Altitude",
+      value: 110,
+      unit: "km",
+      digits: 1,
+      body: "Moon",
+      datum: "mean radius",
+    } as const;
     expect(altitudeGlyph(base)).toBeNull();
     expect(altitudeGlyph({ ...base, bodyRadius: 1_100 })).toEqual({ radii: 0.1, beyondWindow: false });
     expect(render({ ...base, bodyRadius: 1_737.4 })).toContain("above Moon mean radius (1,737.4 km)");
@@ -112,9 +160,23 @@ describe("relative distance, altitude, progress, uncertainty and coordinates", (
   });
 
   it("shows progress as a share of a known total with milestones", () => {
-    const metric = { kind: "progress", id: "p", label: "Journey", value: 50, total: 200, unit: "h", digits: 1,
-      startLabel: "start", endLabel: "end", markers: [{ label: "half", value: 100 }] } as const;
-    expect(progressScale(metric)).toEqual({ span: 200, valueFraction: 0.25, markers: [{ label: "half", value: 100, fraction: 0.5 }] });
+    const metric = {
+      kind: "progress",
+      id: "p",
+      label: "Journey",
+      value: 50,
+      total: 200,
+      unit: "h",
+      digits: 1,
+      startLabel: "start",
+      endLabel: "end",
+      markers: [{ label: "half", value: 100 }],
+    } as const;
+    expect(progressScale(metric)).toEqual({
+      span: 200,
+      valueFraction: 0.25,
+      markers: [{ label: "half", value: 100, fraction: 0.5 }],
+    });
     expect(progressScale({ ...metric, total: 0 })).toBeNull();
     const html = render(metric);
     expect(html).toContain("25.0");
@@ -131,25 +193,58 @@ describe("relative distance, altitude, progress, uncertainty and coordinates", (
   });
 
   it("names the coordinate system, frame and origin for each system", () => {
-    const html = render({ kind: "coordinates", id: "c", label: "Radiant", system: "radec", frame: "J2000 equatorial", origin: "Earth",
-      components: [{ label: "RA", value: 48.0, unit: "°", digits: 1 }, { label: "Dec", value: 58.0, unit: "°", digits: 1 }] });
+    const html = render({
+      kind: "coordinates",
+      id: "c",
+      label: "Radiant",
+      system: "radec",
+      frame: "J2000 equatorial",
+      origin: "Earth",
+      components: [
+        { label: "RA", value: 48.0, unit: "°", digits: 1 },
+        { label: "Dec", value: 58.0, unit: "°", digits: 1 },
+      ],
+    });
     expect(html).toContain("Right ascension / declination · J2000 equatorial · from Earth");
     expect(html).toContain("RA 48.0");
-    expect(render({ kind: "coordinates", id: "n", label: "Site", system: "latlon", frame: "WGS84", origin: "Earth", components: null })).toContain("unavailable");
+    expect(
+      render({
+        kind: "coordinates",
+        id: "n",
+        label: "Site",
+        system: "latlon",
+        frame: "WGS84",
+        origin: "Earth",
+        components: null,
+      }),
+    ).toContain("unavailable");
   });
 });
 
 describe("coordinate radar view", () => {
-  const position = (references: readonly { label: string; xyz: readonly [number, number, number] }[] | undefined) => ({
-    kind: "coordinates", id: "pos", label: "Position", system: "xyz", frame: "EQJ", origin: "Body centre",
-    components: [{ label: "x", value: -200, unit: "km", digits: 0 }, { label: "y", value: 50, unit: "km", digits: 0 }, { label: "z", value: 10, unit: "km", digits: 0 }],
-    ...(references === undefined ? {} : { planViews: { references } }),
-  }) as const;
+  const position = (references: readonly { label: string; xyz: readonly [number, number, number] }[] | undefined) =>
+    ({
+      kind: "coordinates",
+      id: "pos",
+      label: "Position",
+      system: "xyz",
+      frame: "EQJ",
+      origin: "Body centre",
+      components: [
+        { label: "x", value: -200, unit: "km", digits: 0 },
+        { label: "y", value: 50, unit: "km", digits: 0 },
+        { label: "z", value: 10, unit: "km", digits: 0 },
+      ],
+      ...(references === undefined ? {} : { planViews: { references } }),
+    }) as const;
 
   it("projects onto x–y and z on one scale that fits every point inside the round view and the tick", () => {
     const views = planViews(position([{ label: "Moon", xyz: [-400, 0, -100] }]));
     expect(views?.halfSpan).toBe(400);
-    expect(views?.views.map((v) => [v.name, ...v.axes])).toEqual([["top", "x", "y"], ["side", "x", "z"]]);
+    expect(views?.views.map((v) => [v.name, ...v.axes])).toEqual([
+      ["top", "x", "y"],
+      ["side", "x", "z"],
+    ]);
     expect(views?.views[0].object).toEqual([-0.5, 0.125]);
     expect(views?.views[1].object).toEqual([-0.5, 0.025]);
     expect(views?.views[1].references[0]).toEqual({ label: "Moon", point: [-1, -0.25] });
@@ -170,15 +265,58 @@ describe("coordinate radar view", () => {
 describe("metric visuals reuse outside Apollo", () => {
   // A meteor-shower style experience: different objects, units and references, same components.
   const fixture: readonly Metric[] = [
-    { kind: "speed", id: "meteoroid-speed", label: "Entry speed", value: 59.4, unit: "km/s", digits: 1,
-      context: "relative to Earth's atmosphere", range: { min: 11.2, max: 72.8, basis: "physical limits for bound meteoroids" } },
-    { kind: "distance", id: "meteor-height", label: "Height", value: 105, unit: "km", digits: 0,
-      origin: "sea level", markers: [{ label: "Kármán line", value: 100 }] },
-    { kind: "phase", id: "moon-tonight", label: "Moon tonight", fraction: 0.62, litLimb: "left", context: "seen from the observer" },
+    {
+      kind: "speed",
+      id: "meteoroid-speed",
+      label: "Entry speed",
+      value: 59.4,
+      unit: "km/s",
+      digits: 1,
+      context: "relative to Earth's atmosphere",
+      range: { min: 11.2, max: 72.8, basis: "physical limits for bound meteoroids" },
+    },
+    {
+      kind: "distance",
+      id: "meteor-height",
+      label: "Height",
+      value: 105,
+      unit: "km",
+      digits: 0,
+      origin: "sea level",
+      markers: [{ label: "Kármán line", value: 100 }],
+    },
+    {
+      kind: "phase",
+      id: "moon-tonight",
+      label: "Moon tonight",
+      fraction: 0.62,
+      litLimb: "left",
+      context: "seen from the observer",
+    },
     { kind: "distance", id: "comet-distance", label: "Parent comet distance", value: 2.7, unit: "au", digits: 2 },
-    { kind: "coordinates", id: "radiant", label: "Radiant", system: "radec", frame: "J2000 equatorial", origin: "Earth centre",
-      components: [{ label: "RA", value: 48.0, unit: "°", digits: 1 }, { label: "Dec", value: 58.0, unit: "°", digits: 1 }] },
-    { kind: "progress", id: "shower", label: "Shower activity window", value: 25, total: 39, unit: "days", digits: 0, startLabel: "17 July", endLabel: "24 August" },
+    {
+      kind: "coordinates",
+      id: "radiant",
+      label: "Radiant",
+      system: "radec",
+      frame: "J2000 equatorial",
+      origin: "Earth centre",
+      components: [
+        { label: "RA", value: 48.0, unit: "°", digits: 1 },
+        { label: "Dec", value: 58.0, unit: "°", digits: 1 },
+      ],
+    },
+    {
+      kind: "progress",
+      id: "shower",
+      label: "Shower activity window",
+      value: 25,
+      total: 39,
+      unit: "days",
+      digits: 0,
+      startLabel: "17 July",
+      endLabel: "24 August",
+    },
   ];
 
   it("renders every type through the same components with the fixture's own labels and units", () => {
@@ -216,7 +354,12 @@ describe("Apollo metric configuration", () => {
     expect(speedGauge(pinned)).toEqual({ fraction: 1, outside: true });
     expect(describeMetric(pinned)).toContain("value outside this range");
     const row = trackedReadouts([columbia], time)[0];
-    expect(spacecraftSpeedMetric(row, peak).range).toEqual({ min: 0, max: peak, basis: "peak at NASA source anchors", digits: 1 });
+    expect(spacecraftSpeedMetric(row, peak).range).toEqual({
+      min: 0,
+      max: peak,
+      basis: "peak at NASA source anchors",
+      digits: 1,
+    });
     expect(spacecraftSpeedMetric(row, null).range).toBeUndefined();
   });
 
@@ -233,11 +376,20 @@ describe("Apollo metric configuration", () => {
 
   it("keeps Earth–Moon distance numeric-only and lunar illumination as a band without a lit side", () => {
     const [earthMoon, rendered, illumination] = sceneMetrics({
-      timeUtcMs: time, rate: 1, policyId: "true-scale",
+      timeUtcMs: time,
+      rate: 1,
+      policyId: "true-scale",
       moonPosition: { frame: "EQJ", center: "earth", units: "km", positionKm: [384_000, 0, 0] },
-      moonDistanceKm: 384_000, renderedDistanceUnits: 60.2, earthOrientation: null, moonOrientation: null,
-      earthSunDirection: [1, 0, 0], moonSunDirection: [1, 0, 0], lunarIlluminatedFraction: 0.4,
-      scaledOrigin: [0, 0, 0], earthLocal: [0, 0, 0], moonLocal: [0, 0, 0],
+      moonDistanceKm: 384_000,
+      renderedDistanceUnits: 60.2,
+      earthOrientation: null,
+      moonOrientation: null,
+      earthSunDirection: [1, 0, 0],
+      moonSunDirection: [1, 0, 0],
+      lunarIlluminatedFraction: 0.4,
+      scaledOrigin: [0, 0, 0],
+      earthLocal: [0, 0, 0],
+      moonLocal: [0, 0, 0],
     });
     expect(earthMoon.kind === "distance" && distanceScale(earthMoon)).toBeNull();
     expect(rendered.kind === "distance" && distanceScale(rendered)).toBeNull();
@@ -248,16 +400,28 @@ describe("Apollo metric configuration", () => {
     const metricsFor = apolloMetrics(resolver);
     const rows = (id: string) => metricsFor(id, time);
     const eagleRows = rows("eagle");
-    expect(eagleRows.map((row) => row.id)).toEqual(["eagle-range", "eagle-speed", "eagle-to-moon", "eagle-altitude-earth", "eagle-altitude-moon"]);
+    expect(eagleRows.map((row) => row.id)).toEqual([
+      "eagle-range",
+      "eagle-speed",
+      "eagle-to-moon",
+      "eagle-altitude-earth",
+      "eagle-altitude-moon",
+    ]);
     const [, eagleRow] = trackedReadouts(apollo11Mission.bodies, time);
     const moonFromEarth = moon.stateAt(time);
-    const value = (list: readonly Metric[], id: string) => { const row = list.find((r) => r.id === id) as { value: number | null }; return row.value!; };
+    const value = (list: readonly Metric[], id: string) => {
+      const row = list.find((r) => r.id === id) as { value: number | null };
+      return row.value!;
+    };
     const gap = value(eagleRows, "eagle-to-moon");
     expect(gap).toBeCloseTo(Math.hypot(...eagleRow.positionKm.map((c, i) => c - moonFromEarth.positionKm[i])), 3);
     expect(value(eagleRows, "eagle-altitude-moon")).toBeCloseTo(gap - MOON.radiusKm, 3);
     expect(Math.abs(value(eagleRows, "eagle-altitude-moon"))).toBeLessThan(10); // on the surface: near the mean radius, either side
     expect(value(eagleRows, "eagle-altitude-earth")).toBeCloseTo(Math.hypot(...eagleRow.positionKm) - 6371, -1);
-    expect(eagleRows.filter((row) => row.kind === "altitude").map((row) => (row as { body: string }).body)).toEqual(["Earth", "Moon"]);
+    expect(eagleRows.filter((row) => row.kind === "altitude").map((row) => (row as { body: string }).body)).toEqual([
+      "Earth",
+      "Moon",
+    ]);
     const range = eagleRows.find((row) => row.id === "eagle-range") as { markers?: { label: string }[] };
     expect(range.markers?.map((marker) => marker.label)).toEqual(["Moon now"]);
   });
@@ -275,12 +439,18 @@ describe("Apollo metric configuration", () => {
 
 describe("rate metric", () => {
   const rate = (overrides: Partial<RateMetric> = {}): RateMetric => ({
-    kind: "rate", id: "r", label: "Passes", value: 40, unit: "per hour", digits: 0, ...overrides,
+    kind: "rate",
+    id: "r",
+    label: "Passes",
+    value: 40,
+    unit: "per hour",
+    digits: 0,
+    ...overrides,
   });
 
   it("reads numbers-first and is numeric-only without a range or peak", () => {
     const html = render(rate());
-    expect(html).toContain("<strong class=\"metric-value\">40</strong>");
+    expect(html).toContain('<strong class="metric-value">40</strong>');
     expect(html).toContain("per hour");
     expect(html).not.toContain("<svg");
     expect(rateScale(rate())).toBeNull();

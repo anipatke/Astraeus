@@ -1,6 +1,12 @@
 import { describe, expect, it } from "vitest";
 import { DEFAULT_BODY_SET_LOOK, familyGainOf } from "../src/app/bodySet";
-import { moonCountText, moonFamilyListSummary, moonListDateText, searchMoons, splitNamed } from "../src/shell/moonFamilies";
+import {
+  moonCountText,
+  moonFamilyListSummary,
+  moonListDateText,
+  searchMoons,
+  splitNamed,
+} from "../src/shell/moonFamilies";
 import { jupiterMoonPanel, jupiterRawList } from "./helpers/jupiterMoonPanel";
 
 // O-025 T-099: the moon panel's model (families, counts, named first, search) and the family highlight, on Jupiter's real moon list (astraeus-data-jupiter).
@@ -11,7 +17,9 @@ const data = jupiterRawList();
 describe("moon panel model", () => {
   it("lists every catalogued moon once, under its family, with counts from the data", () => {
     expect(list.families.map((family) => family.id)).toEqual(data.families.map((family) => family.id));
-    expect(list.families.flatMap((family) => family.moons.map((moon) => moon.id)).sort()).toEqual(data.moons.map((moon) => moon.id).sort());
+    expect(list.families.flatMap((family) => family.moons.map((moon) => moon.id)).sort()).toEqual(
+      data.moons.map((moon) => moon.id).sort(),
+    );
     expect(list.featuredFamilyId).toBe("galilean");
     expect(list.families[0].moons.every((moon) => moon.pictureUrl !== undefined)).toBe(true);
     expect(moonCountText(1)).toBe("1 moon");

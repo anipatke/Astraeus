@@ -34,14 +34,26 @@ export function wrapAnomaly(radians: number): number {
 export function gravitationalParameterOf(adapter: TwoBodyAdapter, center: CenterId): number {
   const r = 1e6;
   const { velocity } = adapter.elementsToState(
-    { semiMajorAxisKm: r, eccentricity: 0, inclinationRad: 0, raanRad: 0, argumentOfPeriapsisRad: 0, trueAnomalyRad: 0 },
+    {
+      semiMajorAxisKm: r,
+      eccentricity: 0,
+      inclinationRad: 0,
+      raanRad: 0,
+      argumentOfPeriapsisRad: 0,
+      trueAnomalyRad: 0,
+    },
     center,
   );
   return (velocity[0] ** 2 + velocity[1] ** 2 + velocity[2] ** 2) * r;
 }
 
 /** Elements for `count` members from six-values-per-member states (position then velocity, EQJ) about a centre of parameter `mu`. */
-export function keplerElementsFromStates(states: Float64Array, count: number, mu: number, epochUtcMs: number): KeplerElements {
+export function keplerElementsFromStates(
+  states: Float64Array,
+  count: number,
+  mu: number,
+  epochUtcMs: number,
+): KeplerElements {
   const a = new Float64Array(count);
   const e = new Float64Array(count);
   const p = new Float64Array(3 * count);
@@ -50,7 +62,14 @@ export function keplerElementsFromStates(states: Float64Array, count: number, mu
   const n = new Float64Array(count);
   for (let i = 0; i < count; i++) {
     const o = 6 * i;
-    const [rx, ry, rz, vx, vy, vz] = [states[o], states[o + 1], states[o + 2], states[o + 3], states[o + 4], states[o + 5]];
+    const [rx, ry, rz, vx, vy, vz] = [
+      states[o],
+      states[o + 1],
+      states[o + 2],
+      states[o + 3],
+      states[o + 4],
+      states[o + 5],
+    ];
     const r = Math.hypot(rx, ry, rz);
     const hx = ry * vz - rz * vy;
     const hy = rz * vx - rx * vz;
@@ -88,7 +107,16 @@ export function keplerElementsFromStates(states: Float64Array, count: number, mu
     m0[i] = wrapAnomaly(E - eccentric * Math.sin(E));
     n[i] = Math.sqrt(mu / (semiMajor * semiMajor * semiMajor));
   }
-  return { count, epochUtcMs, semiMajorAxisKm: a, eccentricity: e, periapsisDirection: p, quadratureDirection: q, meanAnomalyRad: m0, meanMotionRadS: n };
+  return {
+    count,
+    epochUtcMs,
+    semiMajorAxisKm: a,
+    eccentricity: e,
+    periapsisDirection: p,
+    quadratureDirection: q,
+    meanAnomalyRad: m0,
+    meanMotionRadS: n,
+  };
 }
 
 /**
@@ -96,9 +124,22 @@ export function keplerElementsFromStates(states: Float64Array, count: number, mu
  * E from Newton's method. The same positions as the group's own fill (proven in tests), without that fill's per-member allocation.
  * Positions go into `out` (EQJ km, three per member) at the member's own index.
  */
-export function fillKeplerRangeKm(elements: KeplerElements, timeUtcMs: number, out: Float64Array, start: number, end: number): void {
+export function fillKeplerRangeKm(
+  elements: KeplerElements,
+  timeUtcMs: number,
+  out: Float64Array,
+  start: number,
+  end: number,
+): void {
   const dtSeconds = (timeUtcMs - elements.epochUtcMs) / 1000;
-  const { semiMajorAxisKm: a, eccentricity: ecc, periapsisDirection: p, quadratureDirection: q, meanAnomalyRad: m0, meanMotionRadS: n } = elements;
+  const {
+    semiMajorAxisKm: a,
+    eccentricity: ecc,
+    periapsisDirection: p,
+    quadratureDirection: q,
+    meanAnomalyRad: m0,
+    meanMotionRadS: n,
+  } = elements;
   for (let i = start; i < end; i++) {
     const e = ecc[i];
     const m = wrapAnomaly(m0[i] + n[i] * dtSeconds);

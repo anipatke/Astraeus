@@ -8,10 +8,23 @@ import { createRoot } from "react-dom/client";
 import { act } from "react";
 import { afterEach, describe, expect, it } from "vitest";
 import { Collapsible } from "../src/shell/Collapsible";
-import { $, byLabel, change, mountShell, press, pressKey, selectObject, swipe, touchDrag, type Mounted } from "./domSetup";
+import {
+  $,
+  byLabel,
+  change,
+  mountShell,
+  press,
+  pressKey,
+  selectObject,
+  swipe,
+  touchDrag,
+  type Mounted,
+} from "./domSetup";
 
 let m: Mounted;
-afterEach(() => { m.unmount(); });
+afterEach(() => {
+  m.unmount();
+});
 const drawers = () => ({
   controls: $(m.container, ".controls-drawer").getAttribute("data-open") === "true",
   timeline: $(m.container, ".timeline-drawer").getAttribute("data-open") === "true",
@@ -19,7 +32,9 @@ const drawers = () => ({
 const pill = () => $(m.container, "button.bar-menu-button");
 const controlsHandle = () => $(m.container, "button.drawer-handle-bottom");
 const timelineHandle = () => $(m.container, "button.drawer-handle-top");
-const phone = (options = {}) => { m = mountShell({ phone: true, ...options }); };
+const phone = (options = {}) => {
+  m = mountShell({ phone: true, ...options });
+};
 
 describe("the phone shows only its small chrome (browser-phone: layout)", () => {
   it("shows the name pill with the picked object, the cog, and both drawers closed", () => {
@@ -110,7 +125,10 @@ describe("the timeline drawer (browser-phone: timeline drawer)", () => {
   it("keeps the time and the playing state through opening and closing both drawers", () => {
     phone();
     const before = { time: m.clock.now(), playing: m.clock.playing };
-    press(pill()); press(controlsHandle()); press(timelineHandle()); press(timelineHandle());
+    press(pill());
+    press(controlsHandle());
+    press(timelineHandle());
+    press(timelineHandle());
     expect({ time: m.clock.now(), playing: m.clock.playing }).toEqual(before);
   });
   it("a drag on the scene opens no drawer", () => {
@@ -126,7 +144,13 @@ describe("the timeline drawer (browser-phone: timeline drawer)", () => {
 });
 
 describe("the information sheet (browser-phone: information sheet)", () => {
-  const openInfo = () => { phone(); selectObject(m.container, "survey-marker"); press(byLabel(m.container, "Close information")); press(pill()); press(byLabel(m.container, /^Information about /)); };
+  const openInfo = () => {
+    phone();
+    selectObject(m.container, "survey-marker");
+    press(byLabel(m.container, "Close information"));
+    press(pill());
+    press(byLabel(m.container, /^Information about /));
+  };
   it("opening information closes the top drawer", () => {
     openInfo();
     expect(m.container.querySelector(".info-panel")).not.toBeNull();
@@ -151,7 +175,10 @@ describe("the information sheet (browser-phone: information sheet)", () => {
 });
 
 describe("a story panel on a phone (browser-phone: story panel; browser-story-panels: phone)", () => {
-  const openStory = () => { phone(); press($(m.container, ".timeline-panel-marker")); };
+  const openStory = () => {
+    phone();
+    press($(m.container, ".timeline-panel-marker"));
+  };
   it("opens from its timeline marker with Sources closed and the source lines in the page", () => {
     openStory();
     const sources = $(m.container, ".story-panel .sources-section") as HTMLDetailsElement;
@@ -175,11 +202,27 @@ describe("a story panel on a phone (browser-phone: story panel; browser-story-pa
 
 describe("the phone settings and reduced motion (browser-phone: settings, reduced motion)", () => {
   it("hands the animation setting to the drawers as a stylesheet number", () => {
-    phone({ phoneLayout: { animationMs: 0, timelineDrawerMaxPercent: 55, controlsDrawerMaxPercent: 60, sheetMaxPercent: 50, swipeThresholdPx: 30 } });
+    phone({
+      phoneLayout: {
+        animationMs: 0,
+        timelineDrawerMaxPercent: 55,
+        controlsDrawerMaxPercent: 60,
+        sheetMaxPercent: 50,
+        swipeThresholdPx: 30,
+      },
+    });
     expect(($(m.container, "main") as HTMLElement).style.getPropertyValue("--astraeus-motion")).toBe("0ms");
   });
   it("uses the swipe distance setting: a swipe shorter than it is a tap", () => {
-    phone({ phoneLayout: { animationMs: 0, timelineDrawerMaxPercent: 55, controlsDrawerMaxPercent: 60, sheetMaxPercent: 50, swipeThresholdPx: 100 } });
+    phone({
+      phoneLayout: {
+        animationMs: 0,
+        timelineDrawerMaxPercent: 55,
+        controlsDrawerMaxPercent: 60,
+        sheetMaxPercent: 50,
+        swipeThresholdPx: 100,
+      },
+    });
     swipe(pill(), 60);
     expect(drawers().controls).toBe(true); // a 60 px move under a 100 px threshold counts as a tap, which opens
     press(controlsHandle());
@@ -208,7 +251,16 @@ describe("the developer folds (browser-phone: developer groups)", () => {
     document.body.appendChild(host);
     const render = () => {
       const root = createRoot(host);
-      act(() => root.render(createElement(Collapsible, { fold: "t143-group", title: "Group", defaultOpen: false, children: createElement("p", null, "inside") })));
+      act(() =>
+        root.render(
+          createElement(Collapsible, {
+            fold: "t143-group",
+            title: "Group",
+            defaultOpen: false,
+            children: createElement("p", null, "inside"),
+          }),
+        ),
+      );
       return root;
     };
     window.localStorage.clear();

@@ -16,10 +16,18 @@ export class PartPlan {
     const taken = new Set(this.#ids);
     const added: ShelfPart[] = [];
     parts.forEach((part, index) => {
-      if (!isMade(part) || ((part as { kind?: unknown }).kind !== "panel" && (part as { kind?: unknown }).kind !== "readoutTile")) throw badPart("addParts", `parts[${index}] is not a part made by a shelf factory (a panel or a readoutTile); blocks go in a panel's blocks`);
+      if (
+        !isMade(part) ||
+        ((part as { kind?: unknown }).kind !== "panel" && (part as { kind?: unknown }).kind !== "readoutTile")
+      )
+        throw badPart(
+          "addParts",
+          `parts[${index}] is not a part made by a shelf factory (a panel or a readoutTile); blocks go in a panel's blocks`,
+        );
       const internal = partOf(part);
       for (const id of idsOfPart(internal)) {
-        if (taken.has(id)) throw new SceneError("duplicate-id", `addParts: "${id}" is already the id of a part or block in this scene`);
+        if (taken.has(id))
+          throw new SceneError("duplicate-id", `addParts: "${id}" is already the id of a part or block in this scene`);
         taken.add(id);
       }
       added.push(internal);
@@ -29,15 +37,24 @@ export class PartPlan {
   }
 
   /** The parts, in the order added. */
-  get parts(): readonly ShelfPart[] { return this.#parts; }
+  get parts(): readonly ShelfPart[] {
+    return this.#parts;
+  }
 
   /** The ids views may name: the parts' own. */
-  get ids(): readonly string[] { return this.#parts.map(({ id }) => id); }
+  get ids(): readonly string[] {
+    return this.#parts.map(({ id }) => id);
+  }
 
   /** Build-time check: a part id may not also be a story panel's id (a view names both in `panels`). */
   checkAgainst(storyPanels: StoryPanelSet | undefined): void {
     const story = new Set([...(storyPanels?.panels ?? []), ...(storyPanels?.steps ?? [])].map(({ id }) => id));
-    for (const id of this.#ids) if (story.has(id)) throw new SceneError("duplicate-id", `addParts: "${id}" is also the id of a story panel; part and story panel ids share \`ViewInput.panels\``);
+    for (const id of this.#ids)
+      if (story.has(id))
+        throw new SceneError(
+          "duplicate-id",
+          `addParts: "${id}" is also the id of a story panel; part and story panel ids share \`ViewInput.panels\``,
+        );
   }
 
   /** Build-time check: an action's camera may only name an object the scene has, or turn toward an object or a sky figure it has (`bad-part`, as a story panel's camera is checked). */
@@ -49,8 +66,17 @@ export class PartPlan {
         for (const action of (block.data as ActionsData).actions) {
           if (action.camera === undefined) continue;
           const { bodies, toward } = cameraIdsOf(action.camera as Parameters<typeof cameraIdsOf>[0]);
-          for (const id of bodies) if (!objectIds.includes(id)) throw new SceneError("bad-part", `actions "${block.id}": action "${action.id}" camera names "${id}", which is not an object in the scene`);
-          if (toward !== undefined && !objectIds.includes(toward) && !figureIds.includes(toward)) throw new SceneError("bad-part", `actions "${block.id}": action "${action.id}" camera turns toward "${toward}", which is neither an object nor a sky figure in the scene`);
+          for (const id of bodies)
+            if (!objectIds.includes(id))
+              throw new SceneError(
+                "bad-part",
+                `actions "${block.id}": action "${action.id}" camera names "${id}", which is not an object in the scene`,
+              );
+          if (toward !== undefined && !objectIds.includes(toward) && !figureIds.includes(toward))
+            throw new SceneError(
+              "bad-part",
+              `actions "${block.id}": action "${action.id}" camera turns toward "${toward}", which is neither an object nor a sky figure in the scene`,
+            );
         }
       }
     }
@@ -63,8 +89,14 @@ export class PartPlan {
   checkTiles(views: readonly ResolvedView[] | undefined): void {
     const tiles = this.#parts.filter((part) => part.kind === "readoutTile");
     if (tiles.length < 2) return;
-    for (const shown of views === undefined ? [tiles] : views.map((view) => tiles.filter((tile) => view.panels.has(tile.id)))) {
-      if (shown.length > 1) throw badPart("addParts", `the readoutTiles "${shown[0]!.id}" and "${shown[1]!.id}" would show in the same view; at most one tile shows in a view (list each in a different view's panels)`);
+    for (const shown of views === undefined
+      ? [tiles]
+      : views.map((view) => tiles.filter((tile) => view.panels.has(tile.id)))) {
+      if (shown.length > 1)
+        throw badPart(
+          "addParts",
+          `the readoutTiles "${shown[0]!.id}" and "${shown[1]!.id}" would show in the same view; at most one tile shows in a view (list each in a different view's panels)`,
+        );
     }
   }
 

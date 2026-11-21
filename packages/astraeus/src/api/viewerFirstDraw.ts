@@ -5,10 +5,14 @@ export class ViewerFirstDraw {
   readonly #listeners = new Set<() => void>();
   #drawn = false;
 
-  clearListeners(): void { this.#listeners.clear(); }
+  clearListeners(): void {
+    this.#listeners.clear();
+  }
 
   /** The viewer is going away (or being rebuilt): the next one has drawn nothing yet. */
-  reset(): void { this.#drawn = false; }
+  reset(): void {
+    this.#drawn = false;
+  }
 
   /**
    * Calls `listener()` once when a scene's first frame has been drawn; returns the function that stops it. A listener added after that frame is called at once, so one added after `ready` is not left waiting.
@@ -17,7 +21,9 @@ export class ViewerFirstDraw {
   onFirstDraw(listener: () => void): () => void {
     this.#listeners.add(listener);
     if (this.#drawn) callListeners(new Set([listener]), undefined);
-    return () => { this.#listeners.delete(listener); };
+    return () => {
+      this.#listeners.delete(listener);
+    };
   }
 
   /** The scene drew its first frame. */

@@ -53,5 +53,17 @@ await checkScript({ name: "journey-meteor-shower", viewports: [LAPTOP] }, async 
   await page.waitForTimeout(800);
   const geminids = await ui.sceneDrawsSomething(page);
   assertStreamDrawn(geminids.dots, "the Geminids after the switch");
-  return { switched: "geminids", geminidDots: geminids.dots, idleAt, afterNudge, idleAgain, afterTap, whilePlaying, panel: id, start: new Date(start).toISOString(), middle: new Date(middle).toISOString(), drawn };
+  return {
+    switched: "geminids",
+    geminidDots: geminids.dots,
+    idleAt,
+    afterNudge,
+    idleAgain,
+    afterTap,
+    whilePlaying,
+    panel: id,
+    start: new Date(start).toISOString(),
+    middle: new Date(middle).toISOString(),
+    drawn,
+  };
 });

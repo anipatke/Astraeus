@@ -9,7 +9,13 @@ import { TRACK_LAYER } from "./TrackedBodyView";
  * Chosen over React Three Fiber's `frameloop: "demand"` because the draws are the cost and the per-frame work is small; demand would need every
  * DOM overlay, hover and load to call `invalidate()`, where a missed one freezes the picture.
  */
-export function LayeredRender({ lightLayers, state }: { readonly lightLayers: readonly number[]; readonly state: { readonly current: FrameState } }) {
+export function LayeredRender({
+  lightLayers,
+  state,
+}: {
+  readonly lightLayers: readonly number[];
+  readonly state: { readonly current: FrameState };
+}) {
   useFrame(({ gl, scene, camera }) => {
     if (!state.current.drawThisFrame) return;
     const previousAutoClear = gl.autoClear;

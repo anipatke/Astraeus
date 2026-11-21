@@ -6,11 +6,19 @@ import { createElement, act } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-const sceneProps = vi.hoisted(() => ({ latest: null as null | { controls: import("../src/app/AstraeusScene").SceneControls } }));
-vi.mock("../src/app/AstraeusScene", () => ({
-  AstraeusScene: (props: NonNullable<typeof sceneProps.latest>) => { sceneProps.latest = props; return createElement("div", { "data-testid": "scene" }); },
+const sceneProps = vi.hoisted(() => ({
+  latest: null as null | { controls: import("../src/app/AstraeusScene").SceneControls },
 }));
-vi.mock("../src/assets/sky", async (importOriginal) => ({ ...(await importOriginal<typeof import("../src/assets/sky")>()), loadStarCatalogue: vi.fn().mockResolvedValue(null) }));
+vi.mock("../src/app/AstraeusScene", () => ({
+  AstraeusScene: (props: NonNullable<typeof sceneProps.latest>) => {
+    sceneProps.latest = props;
+    return createElement("div", { "data-testid": "scene" });
+  },
+}));
+vi.mock("../src/assets/sky", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("../src/assets/sky")>()),
+  loadStarCatalogue: vi.fn().mockResolvedValue(null),
+}));
 
 import { Scene, earth, moon } from "astraeus";
 import { App } from "../src/app/App";
@@ -21,28 +29,65 @@ import { definitionOf } from "../src/api/definitionOf";
 
 const T0 = Date.parse("2026-03-01T00:00:00Z");
 const MIN = 60_000;
-const samples = (x: number) => [0, 1, 2, 3].map((i) => ({ time: T0 + i * 10 * MIN, positionKm: [x + i * 1_000, 0, 0], velocityKmS: [1, 0, 0] }));
-const panel = (id: string, object: string) => ({ id, at: { time: "2026-03-01T00:05:00Z" }, object, title: `Title ${id}`, body: ["A line."], provenance: { sourceType: "observed" as const, sources: ["A made-up source"], accuracy: "None claimed.", notes: "Made up." } });
-const definitionAt = (place: "top-bar" | "panel") => definitionOf(new Scene().addBody(earth).addBody(moon)
-  .addTrajectory({ id: "pa", label: "Probe A", center: "earth", samples: samples(10_000) })
-  .addTrajectory({ id: "pb", label: "Probe B", center: "earth", samples: samples(20_000) })
-  .addEvents([{ id: "ea", label: "A event", time: T0 + 5 * MIN }, { id: "eb", label: "B event", time: T0 + 6 * MIN }, { id: "es", label: "Shared event", time: T0 + 7 * MIN }])
-  .addStoryPanels([panel("qa", "pa"), panel("qb", "pb"), panel("qs", "earth")])
-  .setViews([
-    { id: "a", label: "View A", objects: ["pa"], events: ["ea"], panels: ["qa"] },
-    { id: "b", label: "View B", objects: ["pb"], events: ["eb"], panels: ["qb"] },
-    { id: "both", label: "Both", objects: ["pa", "pb"], events: ["ea", "eb"], panels: ["qa", "qb"] },
-  ], { place }));
+const samples = (x: number) =>
+  [0, 1, 2, 3].map((i) => ({ time: T0 + i * 10 * MIN, positionKm: [x + i * 1_000, 0, 0], velocityKmS: [1, 0, 0] }));
+const panel = (id: string, object: string) => ({
+  id,
+  at: { time: "2026-03-01T00:05:00Z" },
+  object,
+  title: `Title ${id}`,
+  body: ["A line."],
+  provenance: {
+    sourceType: "observed" as const,
+    sources: ["A made-up source"],
+    accuracy: "None claimed.",
+    notes: "Made up.",
+  },
+});
+const definitionAt = (place: "top-bar" | "panel") =>
+  definitionOf(
+    new Scene()
+      .addBody(earth)
+      .addBody(moon)
+      .addTrajectory({ id: "pa", label: "Probe A", center: "earth", samples: samples(10_000) })
+      .addTrajectory({ id: "pb", label: "Probe B", center: "earth", samples: samples(20_000) })
+      .addEvents([
+        { id: "ea", label: "A event", time: T0 + 5 * MIN },
+        { id: "eb", label: "B event", time: T0 + 6 * MIN },
+        { id: "es", label: "Shared event", time: T0 + 7 * MIN },
+      ])
+      .addStoryPanels([panel("qa", "pa"), panel("qb", "pb"), panel("qs", "earth")])
+      .setViews(
+        [
+          { id: "a", label: "View A", objects: ["pa"], events: ["ea"], panels: ["qa"] },
+          { id: "b", label: "View B", objects: ["pb"], events: ["eb"], panels: ["qb"] },
+          { id: "both", label: "Both", objects: ["pa", "pb"], events: ["ea", "eb"], panels: ["qa", "qb"] },
+        ],
+        { place },
+      ),
+  );
 
 let container: HTMLElement;
 let root: Root;
 const controls = () => sceneProps.latest!.controls;
-const open = async (place: "top-bar" | "panel" = "top-bar") => { await act(async () => { root.render(createElement(App, { definition: definitionAt(place) })); }); };
-const viewButton = (label: string) => [...container.querySelectorAll<HTMLElement>("[data-view-id]")].find((b) => b.textContent === label)!;
-const choose = async (label: string) => { await act(async () => { press(viewButton(label)); }); };
+const open = async (place: "top-bar" | "panel" = "top-bar") => {
+  await act(async () => {
+    root.render(createElement(App, { definition: definitionAt(place) }));
+  });
+};
+const viewButton = (label: string) =>
+  [...container.querySelectorAll<HTMLElement>("[data-view-id]")].find((b) => b.textContent === label)!;
+const choose = async (label: string) => {
+  await act(async () => {
+    press(viewButton(label));
+  });
+};
 const hiddenObjects = () => [...controls().viewHidden!.objects].sort();
 const hiddenPanels = () => [...controls().viewHidden!.panels].sort();
-const markerLabels = () => [...container.querySelectorAll("[data-event-id], .timeline-marker, [data-marker-key]")].map((el) => el.getAttribute("aria-label") ?? "");
+const markerLabels = () =>
+  [...container.querySelectorAll("[data-event-id], .timeline-marker, [data-marker-key]")].map(
+    (el) => el.getAttribute("aria-label") ?? "",
+  );
 
 beforeEach(() => {
   pretendScreen({});
@@ -51,13 +96,21 @@ beforeEach(() => {
   document.body.appendChild(container);
   root = createRoot(container);
 });
-afterEach(() => { act(() => root.unmount()); container.remove(); vi.restoreAllMocks(); });
+afterEach(() => {
+  act(() => root.unmount());
+  container.remove();
+  vi.restoreAllMocks();
+});
 
 describe("the view choice", () => {
   it("shows one pressed button per view in the bar, the opening view pressed", async () => {
     await open();
     const group = container.querySelector('.top-bar [role="group"][aria-label="View"]')!;
-    expect([...group.querySelectorAll("button")].map((b) => [b.textContent, b.getAttribute("aria-pressed")])).toEqual([["View A", "true"], ["View B", "false"], ["Both", "false"]]);
+    expect([...group.querySelectorAll("button")].map((b) => [b.textContent, b.getAttribute("aria-pressed")])).toEqual([
+      ["View A", "true"],
+      ["View B", "false"],
+      ["Both", "false"],
+    ]);
     expect(group.querySelector("button")!.className).toContain("switch-option");
   });
 
@@ -90,7 +143,10 @@ describe("the view choice", () => {
 
   it("lists only the view's objects in the object menu, and filters events and story panels the same way", async () => {
     await open();
-    const objectNames = () => [...container.querySelectorAll<HTMLElement>("[data-object-id], option")].map((el) => el.getAttribute("data-object-id") ?? el.textContent ?? "").join(" ");
+    const objectNames = () =>
+      [...container.querySelectorAll<HTMLElement>("[data-object-id], option")]
+        .map((el) => el.getAttribute("data-object-id") ?? el.textContent ?? "")
+        .join(" ");
     expect(container.textContent).toContain("Probe A");
     expect(objectNames()).not.toContain("Probe B");
     await choose("View B");
@@ -103,14 +159,25 @@ describe("the view choice", () => {
   });
 
   // Both starting states: a switch that pauses or starts playback fails one of the rows.
-  it.each([["playing", true], ["paused", false]] as const)("keeps time, speed and playing state across a switch (%s)", async (_name, startPlaying) => {
+  it.each([
+    ["playing", true],
+    ["paused", false],
+  ] as const)("keeps time, speed and playing state across a switch (%s)", async (_name, startPlaying) => {
     await open();
-    if (!startPlaying) await act(async () => { press(container.querySelector<HTMLElement>(".timeline-play")!); }); // the viewer opens playing
+    if (!startPlaying)
+      await act(async () => {
+        press(container.querySelector<HTMLElement>(".timeline-play")!);
+      }); // the viewer opens playing
     // The clock readout and the speed choices (the text before the event list, which a view changes).
-    const clockText = () => (container.querySelector(".timeline-bar")?.textContent ?? "").split("Playback rate")[0] + [...container.querySelectorAll("[aria-label^=\"Speed\"], [aria-pressed][data-rate]")].map((el) => el.getAttribute("aria-pressed")).join();
+    const clockText = () =>
+      (container.querySelector(".timeline-bar")?.textContent ?? "").split("Playback rate")[0] +
+      [...container.querySelectorAll('[aria-label^="Speed"], [aria-pressed][data-rate]')]
+        .map((el) => el.getAttribute("aria-pressed"))
+        .join();
     const playLabel = () => container.querySelector(".timeline-play")?.getAttribute("aria-label");
     // The clock's own state, from the runtime the page hands the stand-in scene: a switch that changes it without the shell refreshing its label is caught too.
-    const clockPlaying = () => (sceneProps.latest as unknown as { runtime: { clock: { playing: boolean } } }).runtime.clock.playing;
+    const clockPlaying = () =>
+      (sceneProps.latest as unknown as { runtime: { clock: { playing: boolean } } }).runtime.clock.playing;
     const before = clockText();
     const playing = playLabel();
     expect(clockPlaying()).toBe(startPlaying);
@@ -125,7 +192,9 @@ describe("the view choice", () => {
 
   it("leaves a scene without views exactly as it was: no choice, nothing hidden", async () => {
     const { views: _views, ...plain } = definitionAt("top-bar");
-    await act(async () => { root.render(createElement(App, { definition: plain })); });
+    await act(async () => {
+      root.render(createElement(App, { definition: plain }));
+    });
     expect(container.querySelector("[data-view-choice]")).toBeNull();
     expect(controls().viewHidden!.objects.size).toBe(0);
     expect(controls().viewHidden!.panels.size).toBe(0);
@@ -133,9 +202,25 @@ describe("the view choice", () => {
 });
 
 describe("a moon and its orbit line", () => {
-  const moonScene = () => definitionOf(new Scene().addBody(earth).addBody(moon, { orbit: true })
-    .setViews([{ id: "near", label: "Near", objects: ["moon"] }, { id: "far", label: "Far", objects: ["earth"] }, { id: "all", label: "All", objects: ["moon", "earth"] }], { place: "top-bar" }));
-  const openMoon = async () => { await act(async () => { root.render(createElement(App, { definition: moonScene() })); }); };
+  const moonScene = () =>
+    definitionOf(
+      new Scene()
+        .addBody(earth)
+        .addBody(moon, { orbit: true })
+        .setViews(
+          [
+            { id: "near", label: "Near", objects: ["moon"] },
+            { id: "far", label: "Far", objects: ["earth"] },
+            { id: "all", label: "All", objects: ["moon", "earth"] },
+          ],
+          { place: "top-bar" },
+        ),
+    );
+  const openMoon = async () => {
+    await act(async () => {
+      root.render(createElement(App, { definition: moonScene() }));
+    });
+  };
   it("hides the moon (so its label and pick target) only in the view without it, and shows it where it is shared", async () => {
     await openMoon();
     expect(hiddenObjects()).toEqual(["earth"]);

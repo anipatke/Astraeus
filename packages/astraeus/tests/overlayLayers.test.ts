@@ -20,8 +20,14 @@ function camera(): PerspectiveCamera {
 const POSITIONS: Record<string, RenderVector | null> = { a: [0, 0, 0], b: [2, 0, 0], c: null, behind: [0, 0, 50] };
 const positionFor = (id: string) => POSITIONS[id] ?? null;
 let host: HTMLElement;
-beforeEach(() => { host = document.createElement("div"); document.body.appendChild(host); });
-afterEach(() => { host.remove(); vi.restoreAllMocks(); });
+beforeEach(() => {
+  host = document.createElement("div");
+  document.body.appendChild(host);
+});
+afterEach(() => {
+  host.remove();
+  vi.restoreAllMocks();
+});
 
 /** A label's page rectangle follows its translate(), 40 px wide and 10 px high, so the layer's overlap rule sees real boxes. */
 function stubRects(): void {
@@ -29,8 +35,29 @@ function stubRects(): void {
     const m = /translate\(([-\d.]+)px, ([-\d.]+)px\)/.exec(this.style.transform);
     const x = m === null ? 0 : Number(m[1]);
     const y = m === null ? 0 : Number(m[2]);
-    if (this.style.transform.includes("-100%")) return { left: x - 40, top: y, right: x, bottom: y + 10, width: 40, height: 10, x: x - 40, y, toJSON: () => ({}) } as DOMRect;
-    return { left: x, top: y, right: x + 40, bottom: y + 10, width: 40, height: 10, x, y, toJSON: () => ({}) } as DOMRect;
+    if (this.style.transform.includes("-100%"))
+      return {
+        left: x - 40,
+        top: y,
+        right: x,
+        bottom: y + 10,
+        width: 40,
+        height: 10,
+        x: x - 40,
+        y,
+        toJSON: () => ({}),
+      } as DOMRect;
+    return {
+      left: x,
+      top: y,
+      right: x + 40,
+      bottom: y + 10,
+      width: 40,
+      height: 10,
+      x,
+      y,
+      toJSON: () => ({}),
+    } as DOMRect;
   });
 }
 
@@ -59,7 +86,12 @@ describe("SceneLabelLayer", () => {
 
   it("keeps the selected label first, moves the next to the left slot, puts a third above, and hides a fourth that fits nowhere", () => {
     stubRects();
-    const three = [{ id: "a", label: "A", labelPriority: 5 }, { id: "b", label: "B" }, { id: "behind", label: "C", labelPriority: 1 }, { id: "c", label: "D" }];
+    const three = [
+      { id: "a", label: "A", labelPriority: 5 },
+      { id: "b", label: "B" },
+      { id: "behind", label: "C", labelPriority: 1 },
+      { id: "c", label: "D" },
+    ];
     const layer = new SceneLabelLayer(host, three);
     layer.update(() => [0, 0, 0], camera(), 800, 600, new FloatingOrigin(), "b");
     expect(labelOf("b").style.transform).toContain("translate(408px, 300px)"); // selection outranks priority: b takes the right slot
@@ -71,7 +103,12 @@ describe("SceneLabelLayer", () => {
   });
 
   describe("collisions (I-108; made-up labels at one point)", () => {
-    const pile = [{ id: "high", label: "High", labelPriority: 100 }, { id: "mid", label: "Mid", labelPriority: 90 }, { id: "low", label: "Low", labelPriority: 10 }, { id: "path", label: "Path", labelPriority: 80 }];
+    const pile = [
+      { id: "high", label: "High", labelPriority: 100 },
+      { id: "mid", label: "Mid", labelPriority: 90 },
+      { id: "low", label: "Low", labelPriority: 10 },
+      { id: "path", label: "Path", labelPriority: 80 },
+    ];
     const run = (selected: string) => {
       stubRects();
       const layer = new SceneLabelLayer(host, pile);
@@ -192,8 +229,14 @@ describe("rings", () => {
     const stops: string[] = [];
     const ctx = {
       clearRect: () => calls.push("clear"),
-      createRadialGradient: (_x: number, _y: number, r0: number, _x1: number, _y1: number, r1: number) => { calls.push(`grad ${r0}-${r1}`); return { addColorStop: (_o: number, c: string) => stops.push(c) }; },
-      beginPath: () => undefined, arc: () => undefined, closePath: () => undefined, fill: () => calls.push("fill"),
+      createRadialGradient: (_x: number, _y: number, r0: number, _x1: number, _y1: number, r1: number) => {
+        calls.push(`grad ${r0}-${r1}`);
+        return { addColorStop: (_o: number, c: string) => stops.push(c) };
+      },
+      beginPath: () => undefined,
+      arc: () => undefined,
+      closePath: () => undefined,
+      fill: () => calls.push("fill"),
     } as unknown as CanvasRenderingContext2D;
     drawRingTexture(ctx, [...bands, { ...bands[0]!, id: "empty", innerKm: 50, outerKm: 50 }], 400, 800);
     expect(calls).toEqual(["clear", "grad 100-200", "fill", "grad 250-400", "fill"]);
@@ -208,7 +251,13 @@ describe("rings", () => {
     expect(view.mesh.userData.outerKm).toBe(400);
     const before = view.readout();
     expect(before.shown).toBe(false); // not in a scene yet
-    expect(before.bands[1]).toMatchObject({ id: "outer", innerUnits: 2.5, outerUnits: 4, color: "#0000ff", opacity: 0.8 });
+    expect(before.bands[1]).toMatchObject({
+      id: "outer",
+      innerUnits: 2.5,
+      outerUnits: 4,
+      color: "#0000ff",
+      opacity: 0.8,
+    });
     const group = new (view.mesh.constructor as new () => typeof view.mesh)();
     group.add(view.mesh);
     expect(view.readout().shown).toBe(true);

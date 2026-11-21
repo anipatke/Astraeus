@@ -13,19 +13,32 @@ export const EXAMPLES_DIR = join(site, "src", "catalogue", "examples");
 
 export const readCatalogue = () => JSON.parse(readFileSync(CATALOGUE_FILE, "utf8"));
 /** The names of the example modules in src/catalogue/examples (without `.ts`). */
-export const exampleNames = () => readdirSync(EXAMPLES_DIR).filter((file) => file.endsWith(".ts")).map((file) => file.slice(0, -3)).sort();
+export const exampleNames = () =>
+  readdirSync(EXAMPLES_DIR)
+    .filter((file) => file.endsWith(".ts"))
+    .map((file) => file.slice(0, -3))
+    .sort();
 /** The root exports whose doc comment carries `@shelf`, as `{ name, doc }`. */
-export const shelfExports = () => collectExports().filter((item) => item.shelf).map(({ name, doc }) => ({ name, doc }));
+export const shelfExports = () =>
+  collectExports()
+    .filter((item) => item.shelf)
+    .map(({ name, doc }) => ({ name, doc }));
 
 /** The first sentence of a doc comment: up to the first full stop followed by a space or the end; the whole text when it has none. */
 export const firstSentence = (doc) => (doc.match(/^.*?[.!?](?=\s|$)/s)?.[0] ?? doc).replace(/\s+/g, " ").trim();
 
-const escape = (value) => value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+const escape = (value) =>
+  value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 const prose = (value) => escape(value).replace(/`([^`]+)`/g, "<code>$1</code>");
 
 /** One part's entry, plain words first: its name, what it is for, an example, the story jobs as small tags and the Run button; the developer material (code name, doc-comment sentence, import and add lines, the whole example) sits in a closed "For developers" fold. Every hook is a `data-` attribute, which the browser driver reads (textContent, so a closed fold still reads). */
 function renderPart(part, doc, jobs, jobLabels) {
-  const uses = part.uses.map((use) => `<li><span class="job" data-job="${escape(use.job)}" title="${escape(jobs[use.job] ?? use.job)}">${escape(jobLabels[use.job] ?? use.job)}</span>${prose(use.text)}</li>`).join("");
+  const uses = part.uses
+    .map(
+      (use) =>
+        `<li><span class="job" data-job="${escape(use.job)}" title="${escape(jobs[use.job] ?? use.job)}">${escape(jobLabels[use.job] ?? use.job)}</span>${prose(use.text)}</li>`,
+    )
+    .join("");
   return `<article class="part" id="part-${escape(part.export)}" data-part="${escape(part.export)}" data-state="idle">
   <div class="part-text">
     <h2 data-part-name>${escape(part.name)}</h2>
@@ -54,11 +67,17 @@ export function renderCatalogueMain() {
   const docs = new Map(shelfExports().map(({ name, doc }) => [name, doc]));
   const parts = catalogue.parts.map((part) => {
     const doc = docs.get(part.export);
-    if (doc === undefined) throw new Error(`data/shelf-catalogue.json names "${part.export}", which is not an engine export with @shelf`);
+    if (doc === undefined)
+      throw new Error(`data/shelf-catalogue.json names "${part.export}", which is not an engine export with @shelf`);
     return renderPart(part, doc, catalogue.jobs, catalogue.jobLabels);
   });
-  const basics = catalogue.outOfTheBox.map((item) => `<li><b>${escape(item.name)}</b><span>${prose(item.text)}</span></li>`).join("");
-  const basicCode = catalogue.outOfTheBox.filter((item) => item.code).map((item) => `<li><b>${escape(item.name)}</b> <code>${escape(item.code)}</code></li>`).join("");
+  const basics = catalogue.outOfTheBox
+    .map((item) => `<li><b>${escape(item.name)}</b><span>${prose(item.text)}</span></li>`)
+    .join("");
+  const basicCode = catalogue.outOfTheBox
+    .filter((item) => item.code)
+    .map((item) => `<li><b>${escape(item.name)}</b> <code>${escape(item.code)}</code></li>`)
+    .join("");
   return `<section class="basics" id="out-of-the-box"><div class="head"><h2>Already in every viewer</h2><p>You do not need to add any of these; they come with the viewer, and you fill them with your own words and numbers.</p></div><ul class="basic-list" data-basics>${basics}</ul>
 <details class="dev"><summary>For developers</summary><div class="dev-body"><p>The calls that set these up:</p><ul class="code-list">${basicCode}</ul></div></details></section>
 <section class="parts" id="parts"><div class="head"><h2>Ready-made pieces</h2><p>Each one is added on top of the viewer. The examples run on a made-up scene.</p></div>

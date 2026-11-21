@@ -1,9 +1,7 @@
 import { describe, expect, it } from "vitest";
 import phaseFixture from "./fixtures/usno-moon-phases-2024.json";
 import { createOrbAstronomyAdapter } from "../src/core/astronomyAdapter";
-import {
-  rotateVectorByQuaternion,
-} from "../src/core/bodyOrientation";
+import { rotateVectorByQuaternion } from "../src/core/bodyOrientation";
 import { directionFromCenterToSun, directionToSun, lunarIlluminatedFraction } from "../src/core/illumination";
 import { MoonTrajectory } from "../src/core/moonTrajectory";
 import { earthStateAt, sunPositionFromEarthAt } from "../src/core/referenceCenters";
@@ -18,11 +16,17 @@ function dot(a: ArrayLike<number>, b: ArrayLike<number>): number {
 }
 
 function angularDifferenceDegrees(a: ArrayLike<number>, b: ArrayLike<number>): number {
-  return Math.acos(Math.max(-1, Math.min(1, dot(a, b) / (Math.hypot(a[0], a[1], a[2]) * Math.hypot(b[0], b[1], b[2]))))) * 180 / Math.PI;
+  return (
+    (Math.acos(Math.max(-1, Math.min(1, dot(a, b) / (Math.hypot(a[0], a[1], a[2]) * Math.hypot(b[0], b[1], b[2]))))) *
+      180) /
+    Math.PI
+  );
 }
 
 function phaseTimeUtcMs(event: { year: number; month: number; day: number; time: string }): number {
-  return Date.parse(`${event.year}-${String(event.month).padStart(2, "0")}-${String(event.day).padStart(2, "0")}T${event.time}:00Z`);
+  return Date.parse(
+    `${event.year}-${String(event.month).padStart(2, "0")}-${String(event.day).padStart(2, "0")}T${event.time}:00Z`,
+  );
 }
 
 describe("scientific Earth and Moon orientation", () => {
@@ -42,7 +46,7 @@ describe("scientific Earth and Moon orientation", () => {
     const phase0 = Math.atan2(primeMeridian0[1], primeMeridian0[0]);
     const phase1 = Math.atan2(primeMeridian1[1], primeMeridian1[0]);
     const wrappedAdvance = (phase1 - phase0 + 2 * Math.PI) % (2 * Math.PI);
-    const advanceDegrees = wrappedAdvance * 180 / Math.PI;
+    const advanceDegrees = (wrappedAdvance * 180) / Math.PI;
     // 1.002737909 sidereal turns per mean solar day, allowing the small date-frame terms.
     expect(advanceDegrees).toBeGreaterThan(0.95);
     expect(advanceDegrees).toBeLessThan(1.02);
@@ -84,16 +88,17 @@ describe("geometric Sun direction and lunar illumination", () => {
 
   it("matches USNO new, quarter and full Moon event fractions within one percent", () => {
     const selected = phaseFixture.phasedata.filter((event) => event.month === 1 && event.year === 2024);
-    expect(selected.filter((event) => ["Last Quarter", "New Moon", "First Quarter", "Full Moon"].includes(event.phase)))
-      .toHaveLength(4);
-    for (const event of selected.filter((item) => ["Last Quarter", "New Moon", "First Quarter", "Full Moon"].includes(item.phase))) {
+    expect(
+      selected.filter((event) => ["Last Quarter", "New Moon", "First Quarter", "Full Moon"].includes(event.phase)),
+    ).toHaveLength(4);
+    for (const event of selected.filter((item) =>
+      ["Last Quarter", "New Moon", "First Quarter", "Full Moon"].includes(item.phase),
+    )) {
       const time = phaseTimeUtcMs(event);
       const moonState = moon.stateAt(time);
       const sunState = sunPositionFromEarthAt(adapter, time);
       const fraction = lunarIlluminatedFraction(moonState, sunState);
-      const expected = event.phase === "New Moon" ? 0
-        : event.phase === "Full Moon" ? 1
-          : 0.5;
+      const expected = event.phase === "New Moon" ? 0 : event.phase === "Full Moon" ? 1 : 0.5;
       expect(Math.abs(fraction - expected), event.phase).toBeLessThanOrEqual(0.01);
     }
   });

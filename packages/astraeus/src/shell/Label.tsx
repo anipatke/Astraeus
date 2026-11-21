@@ -14,7 +14,7 @@ export function Label({ text, className = "", color, hidden = false }: LabelProp
   return (
     <span
       className={`astraeus-label ${className}`.trim()}
-      style={color === undefined ? undefined : { "--label-color": color } as CSSProperties}
+      style={color === undefined ? undefined : ({ "--label-color": color } as CSSProperties)}
       hidden={hidden}
       aria-hidden="true"
     >

@@ -10,7 +10,8 @@ export type BodyId = string;
 export type CenterId = BodyId;
 
 export function assertCenterId(id: BodyId): void {
-  if (typeof id !== "string" || id.length === 0) throw new RangeError("a reference center id must be a non-empty string");
+  if (typeof id !== "string" || id.length === 0)
+    throw new RangeError("a reference center id must be a non-empty string");
 }
 
 /** Provenance and known limitations for a body's own ephemeris. */

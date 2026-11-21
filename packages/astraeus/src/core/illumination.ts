@@ -18,11 +18,14 @@ function validateSameCenter(a: CenteredPosition, b: CenteredPosition): void {
 export function directionToSun(body: CenteredPosition, sun: CenteredPosition): Float64Array {
   validateSameCenter(body, sun);
   if (sun.body !== "sun") throw new RangeError("light source must be the Sun");
-  return unit([
-    sun.positionKm[0] - body.positionKm[0],
-    sun.positionKm[1] - body.positionKm[1],
-    sun.positionKm[2] - body.positionKm[2],
-  ], "body-to-Sun vector");
+  return unit(
+    [
+      sun.positionKm[0] - body.positionKm[0],
+      sun.positionKm[1] - body.positionKm[1],
+      sun.positionKm[2] - body.positionKm[2],
+    ],
+    "body-to-Sun vector",
+  );
 }
 
 export function directionFromCenterToSun(sun: CenteredPosition): Float64Array {

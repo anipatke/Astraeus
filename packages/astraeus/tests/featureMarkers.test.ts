@@ -2,7 +2,15 @@ import { Group, PerspectiveCamera, SphereGeometry } from "three";
 import { describe, expect, it } from "vitest";
 import { readJson } from "../tools/import/test-io.mjs";
 import { resolveLook } from "../src/app/look";
-import { featureMarkerSpecs, featureMinBodyPxOf, isFeatureVisible, latLonToXYZ, placeBodyFeatures, DEFAULT_FEATURE_MIN_BODY_PX, MARKER_RADIUS_MULTIPLIER } from "../src/app/FeatureMarkers";
+import {
+  featureMarkerSpecs,
+  featureMinBodyPxOf,
+  isFeatureVisible,
+  latLonToXYZ,
+  placeBodyFeatures,
+  DEFAULT_FEATURE_MIN_BODY_PX,
+  MARKER_RADIUS_MULTIPLIER,
+} from "../src/app/FeatureMarkers";
 import { bodyFeatureSet, featureKey, type BodyFeatureSet } from "../src/shell/bodyFeatures";
 import { createProvenance } from "../src/core/provenance";
 import { infoView } from "../src/shell/infoModel";
@@ -12,9 +20,22 @@ import type { ExperienceConfig } from "../src/shell/experience";
 // tests use the packages as inputs and a made-up body for the geometry.
 const DONOR = "/home/user/code/planetary-explorer";
 const MOONS = { io: 12, europa: 19, ganymede: 25, callisto: 22 } as const;
-const readPackage = (body: string, file: string): unknown => readJson(new URL(`../../astraeus-data/data/bodies/${body}/${file}.json`, import.meta.url).pathname);
-const provenance = createProvenance({ sourceType: "reconstructed", sources: ["Made-up source"], accuracy: "Made-up.", notes: "Made-up." });
-const setOf = (body: string): BodyFeatureSet => bodyFeatureSet({ bodyId: body, bodyLabel: body, features: readPackage(body, "features") as never, categories: readPackage(body, "categories") as never, provenance });
+const readPackage = (body: string, file: string): unknown =>
+  readJson(new URL(`../../astraeus-data/data/bodies/${body}/${file}.json`, import.meta.url).pathname);
+const provenance = createProvenance({
+  sourceType: "reconstructed",
+  sources: ["Made-up source"],
+  accuracy: "Made-up.",
+  notes: "Made-up.",
+});
+const setOf = (body: string): BodyFeatureSet =>
+  bodyFeatureSet({
+    bodyId: body,
+    bodyLabel: body,
+    features: readPackage(body, "features") as never,
+    categories: readPackage(body, "categories") as never,
+    provenance,
+  });
 const sets = Object.keys(MOONS).map(setOf);
 
 /** The donor's latLonToXYZ, copied verbatim from planetary-explorer src/entities/hotspot.ts (84f8d3e). */
@@ -29,15 +50,23 @@ describe("T-103: feature positions", () => {
     const specs = featureMarkerSpecs(sets);
     expect(specs).toHaveLength(Object.values(MOONS).reduce((sum, n) => sum + n, 0));
     for (const set of sets) {
-      const stored = (readPackage(set.bodyId, "features") as { features: { id: string; latitude: number; longitude: number }[] }).features;
+      const stored = (
+        readPackage(set.bodyId, "features") as { features: { id: string; latitude: number; longitude: number }[] }
+      ).features;
       expect(set.features).toHaveLength(MOONS[set.bodyId as keyof typeof MOONS]);
       for (const feature of stored) {
         const spec = specs.find((candidate) => candidate.key === featureKey(set.bodyId, feature.id))!;
-        expect(Object.is(spec.latitude, feature.latitude) && Object.is(spec.longitude, feature.longitude), `${set.bodyId}/${feature.id} coordinates`).toBe(true);
+        expect(
+          Object.is(spec.latitude, feature.latitude) && Object.is(spec.longitude, feature.longitude),
+          `${set.bodyId}/${feature.id} coordinates`,
+        ).toBe(true);
         for (const radius of [1, 1.3, 2439.7 * MARKER_RADIUS_MULTIPLIER]) {
           const mine = latLonToXYZ(spec.latitude, spec.longitude, radius);
           const donor = donorLatLonToXYZ(feature.latitude, feature.longitude, radius);
-          expect(mine.map((v, i) => Object.is(v, donor[i])), `${set.bodyId}/${feature.id} @${radius}`).toEqual([true, true, true]);
+          expect(
+            mine.map((v, i) => Object.is(v, donor[i])),
+            `${set.bodyId}/${feature.id} @${radius}`,
+          ).toEqual([true, true, true]);
         }
       }
     }
@@ -49,11 +78,20 @@ describe("T-103: feature positions", () => {
     try {
       donor = (await import(/* @vite-ignore */ `${DONOR}/src/entities/hotspot.ts`)) as typeof donor;
       math = (await import(/* @vite-ignore */ `${DONOR}/src/shared/utils/mathUtils.ts`)) as typeof math;
-    } catch { return; }
+    } catch {
+      return;
+    }
     for (const spec of featureMarkerSpecs(sets)) {
-      expect(latLonToXYZ(spec.latitude, spec.longitude, 1.7)).toEqual(donor!.latLonToXYZ(spec.latitude, spec.longitude, 1.7));
+      expect(latLonToXYZ(spec.latitude, spec.longitude, 1.7)).toEqual(
+        donor!.latLonToXYZ(spec.latitude, spec.longitude, 1.7),
+      );
       const normal = latLonToXYZ(spec.latitude, spec.longitude, 1);
-      for (const camera of [[0, 0, 4], [3, -2, 1], [-1, 5, -2]] as const) expect(isFeatureVisible(normal, camera, 1)).toBe(math!.isFeatureVisible(normal, camera, 1));
+      for (const camera of [
+        [0, 0, 4],
+        [3, -2, 1],
+        [-1, 5, -2],
+      ] as const)
+        expect(isFeatureVisible(normal, camera, 1)).toBe(math!.isFeatureVisible(normal, camera, 1));
     }
   });
 
@@ -75,7 +113,11 @@ describe("T-103: feature positions", () => {
 });
 
 describe("T-103: which markers show", () => {
-  const entry = (lat: number, lon: number) => ({ key: `${lat},${lon}`, position: latLonToXYZ(lat, lon, 1.02), normal: latLonToXYZ(lat, lon, 1) });
+  const entry = (lat: number, lon: number) => ({
+    key: `${lat},${lon}`,
+    position: latLonToXYZ(lat, lon, 1.02),
+    normal: latLonToXYZ(lat, lon, 1),
+  });
   const camera = new PerspectiveCamera(45, 1, 0.01, 100);
   camera.position.set(0, 0, 5);
   camera.lookAt(0, 0, 0);
@@ -86,7 +128,9 @@ describe("T-103: which markers show", () => {
     const sphere = new Group();
     sphere.rotation.y = turn;
     sphere.visible = visible;
-    return placeBodyFeatures([facing, away], { sphere, radius }, camera, 45, 800, 800, minPx).map((p) => p.screen !== null);
+    return placeBodyFeatures([facing, away], { sphere, radius }, camera, 45, 800, 800, minPx).map(
+      (p) => p.screen !== null,
+    );
   };
 
   it("shows the near side at the middle of the screen and hides the far side", () => {
@@ -115,7 +159,14 @@ describe("T-103: which markers show", () => {
 });
 
 describe("T-103: a place's information", () => {
-  const experience = { objects: [], cameraPresets: [], events: [], window: { startUtcMs: 0, endUtcMs: 1 }, rates: [1], bodyFeatures: sets } as unknown as ExperienceConfig;
+  const experience = {
+    objects: [],
+    cameraPresets: [],
+    events: [],
+    window: { startUtcMs: 0, endUtcMs: 1 },
+    rates: [1],
+    bodyFeatures: sets,
+  } as unknown as ExperienceConfig;
 
   it("names the place, its kind and body, its description and details, and carries the provenance", () => {
     const view = infoView(experience, { kind: "feature", id: featureKey("io", "loki-patera") })!;

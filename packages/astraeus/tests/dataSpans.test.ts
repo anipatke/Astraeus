@@ -14,17 +14,35 @@ import type { ExperienceDefinition } from "../src/app/experienceDefinition";
 import { definitionOf } from "../src/api/definitionOf";
 
 // O-047 T-195: a window outside the years a loaded body's positions cover fails once, by name, at load. Made-up two-body index, different spans.
-const TABLE = { pieces: [{ fromUtcMs: Date.UTC(1940, 0, 1), ttMinusUtcS: 64.184, driftSPerDay: 0 }], validToUtcMs: Date.UTC(2040, 0, 1) };
-const chunk = (path: string, startUtc: string) => ({ path, startTdbS: (Date.parse(startUtc) - Date.UTC(2000, 0, 1, 12)) / 1000 + 64.184, segmentCount: 10, bytes: 1 });
+const TABLE = {
+  pieces: [{ fromUtcMs: Date.UTC(1940, 0, 1), ttMinusUtcS: 64.184, driftSPerDay: 0 }],
+  validToUtcMs: Date.UTC(2040, 0, 1),
+};
+const chunk = (path: string, startUtc: string) => ({
+  path,
+  startTdbS: (Date.parse(startUtc) - Date.UTC(2000, 0, 1, 12)) / 1000 + 64.184,
+  segmentCount: 10,
+  bytes: 1,
+});
 const entry = (id: string, startUtc: string) => ({
-  id, label: id, fit: { segmentSeconds: 86_400 * 365.25, degree: 3, quantumKm: 1 }, chunks: [chunk(`${id}/a.bin`, startUtc)],
+  id,
+  label: id,
+  fit: { segmentSeconds: 86_400 * 365.25, degree: 3, quantumKm: 1 },
+  chunks: [chunk(`${id}/a.bin`, startUtc)],
   provenance: { sourceType: "ephemeris", sources: ["made up"], accuracy: "made up", notes: "" },
 });
 // jupiter (the centre) spans 1950 to 1960; io only 1952 to 1958 by its own span.
-const index = ({
-  format: "astraeus.chebyshev-ephemeris/1", id: "made-up", frame: "EQJ", centre: "jupiter", timeScale: TABLE,
-  bodies: [entry("jupiter", "1950-01-01"), { ...entry("io", "1950-01-01"), span: { fromUtc: "1952-01-01", toUtc: "1958-01-01" } }],
-});
+const index = {
+  format: "astraeus.chebyshev-ephemeris/1",
+  id: "made-up",
+  frame: "EQJ",
+  centre: "jupiter",
+  timeScale: TABLE,
+  bodies: [
+    entry("jupiter", "1950-01-01"),
+    { ...entry("io", "1950-01-01"), span: { fromUtc: "1952-01-01", toUtc: "1958-01-01" } },
+  ],
+};
 
 describe("a window outside a body's span", () => {
   it("refuses once with the body and its span, as the engine's error", async () => {
@@ -42,7 +60,11 @@ describe("a window outside a body's span", () => {
 
   it("reaches the public API as SceneError out-of-span naming the package", async () => {
     JUPITER_MOON_SYSTEM.install(null);
-    const source = { name: "astraeus-data-made-up", provides: ["io"], moonPositions: { center: "jupiter", loadIndex: async () => index, chunkUrls: {} } };
+    const source = {
+      name: "astraeus-data-made-up",
+      provides: ["io"],
+      moonPositions: { center: "jupiter", loadIndex: async () => index, chunkUrls: {} },
+    };
     const window = { startUtcMs: Date.UTC(1951, 0, 1), endUtcMs: Date.UTC(1955, 0, 1) };
     const error = await installData([source], ["jupiter", "io"], window).catch((caught: unknown) => caught);
     expect(error).toBeInstanceOf(SceneError);
@@ -52,14 +74,40 @@ describe("a window outside a body's span", () => {
   });
 
   it("holds every shipped index to the years its bodies' own spans name (the rest 2010 to 2030; T-200 moved the main moons to 1950)", () => {
-    const HISTORICAL = new Set(["io", "europa", "ganymede", "callisto", "jupiter", "mimas", "enceladus", "tethys", "dione", "rhea", "titan", "hyperion", "iapetus", "phoebe", "saturn",
-      "miranda", "ariel", "umbriel", "titania", "oberon", "uranus", "triton", "nereid", "neptune"]);
+    const HISTORICAL = new Set([
+      "io",
+      "europa",
+      "ganymede",
+      "callisto",
+      "jupiter",
+      "mimas",
+      "enceladus",
+      "tethys",
+      "dione",
+      "rhea",
+      "titan",
+      "hyperion",
+      "iapetus",
+      "phoebe",
+      "saturn",
+      "miranda",
+      "ariel",
+      "umbriel",
+      "titania",
+      "oberon",
+      "uranus",
+      "triton",
+      "nereid",
+      "neptune",
+    ]);
     for (const raw of [jupiterIndex, marsIndex, saturnIndex, uranusIndex, neptuneIndex, plutoIndex]) {
       const parsed = parseEphemerisIndex(raw);
       const set = new ChebyshevEphemeris(parsed);
       for (const body of parsed.bodies) {
         const bounds = set.boundsOf(body.id);
-        expect(bounds.startUtcMs, body.id).toBeGreaterThanOrEqual(Date.UTC(HISTORICAL.has(body.id) ? 1949 : 2009, 11, 1));
+        expect(bounds.startUtcMs, body.id).toBeGreaterThanOrEqual(
+          Date.UTC(HISTORICAL.has(body.id) ? 1949 : 2009, 11, 1),
+        );
         if (!HISTORICAL.has(body.id)) expect(bounds.startUtcMs, body.id).toBeGreaterThanOrEqual(Date.UTC(2009, 11, 1));
         expect(bounds.endUtcMs, body.id).toBeLessThanOrEqual(Date.UTC(2030, 0, 3));
         if (body.span !== undefined) {
@@ -72,11 +120,19 @@ describe("a window outside a body's span", () => {
 });
 
 describe("a window outside the planet series (I-110)", () => {
-  const windows = { "before 1950": { start: "1945-01-01T00:00:00Z", end: "1946-01-01T00:00:00Z" }, "straddling 1950": { start: "1949-06-01T00:00:00Z", end: "1951-01-01T00:00:00Z" }, "after 2045": { start: "2046-01-01T00:00:00Z", end: "2047-01-01T00:00:00Z" } };
+  const windows = {
+    "before 1950": { start: "1945-01-01T00:00:00Z", end: "1946-01-01T00:00:00Z" },
+    "straddling 1950": { start: "1949-06-01T00:00:00Z", end: "1951-01-01T00:00:00Z" },
+    "after 2045": { start: "2046-01-01T00:00:00Z", end: "2047-01-01T00:00:00Z" },
+  };
   const variants: Record<string, (scene: Scene) => Scene> = {
     plain: (scene) => scene.addBody(saturn),
     "with an orbit line": (scene) => scene.addBody(saturn, { orbit: true }),
-    "with fitOrbit": (scene) => { scene.addBody(saturn); scene.camera.fitOrbit("saturn"); return scene; },
+    "with fitOrbit": (scene) => {
+      scene.addBody(saturn);
+      scene.camera.fitOrbit("saturn");
+      return scene;
+    },
   };
   const outOfSpan = { code: "out-of-span", message: expect.stringMatching(/saturn.*1950-01-01 to 2045-01-01/) };
   for (const [windowName, timeline] of Object.entries(windows)) {
@@ -86,17 +142,28 @@ describe("a window outside the planet series (I-110)", () => {
         // The error always arrives from prepare, never thrown by toDefinition (so mount never throws), with the series not loaded yet or already loaded.
         const first = make();
         let definition: ExperienceDefinition | undefined;
-        expect(() => { definition = definitionOf(first); }).not.toThrow();
+        expect(() => {
+          definition = definitionOf(first);
+        }).not.toThrow();
         await expect(definition!.prepare!()).rejects.toMatchObject(outOfSpan);
         // The series are loaded by now (a consumer's second mount): same surface.
         const second = make();
-        expect(() => { definition = definitionOf(second); }).not.toThrow();
+        expect(() => {
+          definition = definitionOf(second);
+        }).not.toThrow();
         await expect(definition!.prepare!()).rejects.toMatchObject(outOfSpan);
         await expect(definition!.prepare!()).rejects.toMatchObject(outOfSpan);
       });
     }
   }
   it("a window inside the series still resolves", async () => {
-    await expect(definitionOf(new Scene().addBody(sun).addBody(saturn, { orbit: true }).setTimeline({ start: "1960-01-01T00:00:00Z", end: "1961-01-01T00:00:00Z" })).prepare!()).resolves.toBeUndefined();
+    await expect(
+      definitionOf(
+        new Scene()
+          .addBody(sun)
+          .addBody(saturn, { orbit: true })
+          .setTimeline({ start: "1960-01-01T00:00:00Z", end: "1961-01-01T00:00:00Z" }),
+      ).prepare!(),
+    ).resolves.toBeUndefined();
   });
 });

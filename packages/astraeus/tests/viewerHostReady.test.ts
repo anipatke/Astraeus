@@ -5,12 +5,16 @@ import { createElement } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("../src/app/AstraeusScene", () => ({ AstraeusScene: () => createElement("div", { "data-testid": "scene" }) }));
-const prepared = vi.hoisted(() => ({ views: undefined as undefined | import("../src/app/views").ViewSettings, fail: false }));
+const prepared = vi.hoisted(() => ({
+  views: undefined as undefined | import("../src/app/views").ViewSettings,
+  fail: false,
+}));
 vi.mock("../src/api/prepared", async () => {
   const { syntheticDefinition } = await import("./synthetic/syntheticDefinition");
   return {
     prepareScene: () => ({
-      definition: prepared.views === undefined ? syntheticDefinition : { ...syntheticDefinition, views: prepared.views },
+      definition:
+        prepared.views === undefined ? syntheticDefinition : { ...syntheticDefinition, views: prepared.views },
       ready: prepared.fail ? Promise.reject(new Error("load failed")) : Promise.resolve(),
     }),
   };
@@ -40,10 +44,30 @@ beforeEach(() => {
   host = document.createElement("div");
   document.body.append(host);
 });
-afterEach(() => { prepared.views = undefined; prepared.fail = false; host.remove(); vi.unstubAllGlobals(); vi.useRealTimers(); });
+afterEach(() => {
+  prepared.views = undefined;
+  prepared.fail = false;
+  host.remove();
+  vi.unstubAllGlobals();
+  vi.useRealTimers();
+});
 
-const codeOf = (run: () => void): string | undefined => { try { run(); } catch (error) { return error instanceof SceneError ? error.code : String(error); } return undefined; };
-const view = (id: string) => ({ id, label: id.toUpperCase(), camera: { rule: "stay" } as const, objects: new Set<string>(), events: new Set<string>(), panels: new Set<string>() });
+const codeOf = (run: () => void): string | undefined => {
+  try {
+    run();
+  } catch (error) {
+    return error instanceof SceneError ? error.code : String(error);
+  }
+  return undefined;
+};
+const view = (id: string) => ({
+  id,
+  label: id.toUpperCase(),
+  camera: { rule: "stay" } as const,
+  objects: new Set<string>(),
+  events: new Set<string>(),
+  panels: new Set<string>(),
+});
 
 describe("mount: ready means usable", () => {
   it("README time/rate example: after a bare `await ready`, time and rate are defined and setTime / setRate work", async () => {
@@ -87,17 +111,41 @@ describe("mount: ready means usable", () => {
 
   it("(b) unmount after the load but before the viewer attaches: ready rejects not-mounted instead of staying pending", async () => {
     const handle = mount(host, new Scene());
-    await Promise.resolve(); await Promise.resolve(); // the load has settled and the viewer is rendering; its effect has not run
+    await Promise.resolve();
+    await Promise.resolve(); // the load has settled and the viewer is rendering; its effect has not run
     handle.unmount();
-    const outcome = await Promise.race([handle.ready.then(() => "resolved", (error: unknown) => (error instanceof SceneError ? error.code : String(error))), new Promise<string>((r) => setTimeout(() => r("pending"), 200))]);
+    const outcome = await Promise.race([
+      handle.ready.then(
+        () => "resolved",
+        (error: unknown) => (error instanceof SceneError ? error.code : String(error)),
+      ),
+      new Promise<string>((r) => setTimeout(() => r("pending"), 200)),
+    ]);
     expect(outcome).toBe("not-mounted");
     expect(codeOf(() => handle.setTime(MID))).toBe("not-mounted");
   });
 });
 
 describe("ViewerLink.whenAttached", () => {
-  const control = { events: [], window: { startUtcMs, endUtcMs }, rates: RATES, paced: false, playable: true, setPlaying: () => undefined, read: () => ({ timeUtcMs: MID, rate: RATES[0], playing: false, ...FAKE_PRESENTATION }), seek: () => undefined, setRate: () => undefined, views: [], setView: () => undefined, cameraTargets: () => [], readCamera: () => undefined, setCamera: () => undefined, ...FAKE_PRESENTATION_CONTROL };
-  const settled = async (promise: Promise<void>): Promise<boolean> => Promise.race([promise.then(() => true), new Promise<boolean>((r) => setTimeout(() => r(false), 20))]);
+  const control = {
+    events: [],
+    window: { startUtcMs, endUtcMs },
+    rates: RATES,
+    paced: false,
+    playable: true,
+    setPlaying: () => undefined,
+    read: () => ({ timeUtcMs: MID, rate: RATES[0], playing: false, ...FAKE_PRESENTATION }),
+    seek: () => undefined,
+    setRate: () => undefined,
+    views: [],
+    setView: () => undefined,
+    cameraTargets: () => [],
+    readCamera: () => undefined,
+    setCamera: () => undefined,
+    ...FAKE_PRESENTATION_CONTROL,
+  };
+  const settled = async (promise: Promise<void>): Promise<boolean> =>
+    Promise.race([promise.then(() => true), new Promise<boolean>((r) => setTimeout(() => r(false), 20))]);
 
   it("waits for attach, is resolved after it, and waits again after a detach (a rebuild)", async () => {
     const link = new ViewerLink();
@@ -124,10 +172,20 @@ describe("AstraeusScene: onReady fires after the link attaches", () => {
     let atReady: { drawn: boolean; changes: number } | undefined;
     const root = createRoot(host);
     const done = new Promise<void>((resolve) => {
-      root.render(h(AstraeusScene, {
-        scene: new Scene(), time: MID, onChange: (c: ViewerChange) => seen.push(c),
-        onReady: () => { atReady = { drawn: host.querySelector(".canvas-host") !== null, changes: seen.filter((c) => c.cause === "host").length }; resolve(); },
-      }));
+      root.render(
+        h(AstraeusScene, {
+          scene: new Scene(),
+          time: MID,
+          onChange: (c: ViewerChange) => seen.push(c),
+          onReady: () => {
+            atReady = {
+              drawn: host.querySelector(".canvas-host") !== null,
+              changes: seen.filter((c) => c.cause === "host").length,
+            };
+            resolve();
+          },
+        }),
+      );
     });
     await done;
     expect(atReady).toEqual({ drawn: true, changes: 1 });
@@ -139,10 +197,20 @@ describe("AstraeusScene: onReady fires after the link attaches", () => {
     const ref: { current: ViewerHandle | null } = { current: null };
     const root = createRoot(host);
     const done = new Promise<void>((resolve) => {
-      root.render(h(StrictMode, null, h(AstraeusScene, {
-        scene: new Scene(), ref,
-        onReady: (handle: ViewerHandle) => { calls.push({ handle, time: handle.timeUtcMs }); resolve(); },
-      })));
+      root.render(
+        h(
+          StrictMode,
+          null,
+          h(AstraeusScene, {
+            scene: new Scene(),
+            ref,
+            onReady: (handle: ViewerHandle) => {
+              calls.push({ handle, time: handle.timeUtcMs });
+              resolve();
+            },
+          }),
+        ),
+      );
     });
     await done;
     await new Promise((resolve) => setTimeout(resolve, 20));

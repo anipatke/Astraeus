@@ -32,7 +32,9 @@ export const DEFAULT_PHONE_LAYOUT: PhoneLayoutSettings = {
 };
 
 /** The range each setting's live control offers. */
-export const PHONE_LAYOUT_LIMITS: Readonly<Record<keyof PhoneLayoutSettings, { readonly min: number; readonly max: number; readonly step: number }>> = {
+export const PHONE_LAYOUT_LIMITS: Readonly<
+  Record<keyof PhoneLayoutSettings, { readonly min: number; readonly max: number; readonly step: number }>
+> = {
   animationMs: { min: 0, max: 800, step: 20 },
   timelineDrawerMaxPercent: { min: 25, max: 80, step: 5 },
   controlsDrawerMaxPercent: { min: 25, max: 80, step: 5 },

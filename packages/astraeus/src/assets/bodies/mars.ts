@@ -14,7 +14,8 @@ export const MARS_TEXTURE_LICENCE: AssetLicence = Object.freeze({
   source: "Solar System Scope textures, based on NASA elevation and imagery data",
   url: "https://www.solarsystemscope.com/textures/",
   licence: "CC BY 4.0",
-  attribution: "Mars texture: Solar System Scope (solarsystemscope.com/textures), CC BY 4.0, based on NASA elevation and imagery data",
+  attribution:
+    "Mars texture: Solar System Scope (solarsystemscope.com/textures), CC BY 4.0, based on NASA elevation and imagery data",
   accessed: "2026-10-12",
 });
 

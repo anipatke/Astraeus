@@ -146,14 +146,31 @@ describe("provenance and events", () => {
       provenance: { sourceType: "reconstructed", sources: ["doc A"], accuracy: "~1 km", notes: "synthetic" },
     });
     expect(documented.provenance?.sourceType).toBe("reconstructed");
-    expect(Array.from(documented.stateAt(T0 + 30_000).positionKm)).toEqual(Array.from(plain.stateAt(T0 + 30_000).positionKm));
+    expect(Array.from(documented.stateAt(T0 + 30_000).positionKm)).toEqual(
+      Array.from(plain.stateAt(T0 + 30_000).positionKm),
+    );
     expect(() => createProvenance({ sourceType: "guess" as never, sources: [], accuracy: "", notes: "" })).toThrow();
   });
 
   it("validates events: sorted and unique ids", () => {
-    expect(createEvents([{ timeUtcMs: 1, id: "a", label: "A" }, { timeUtcMs: 2, id: "b", label: "B", type: "x" }])).toHaveLength(2);
-    expect(() => createEvents([{ timeUtcMs: 2, id: "a", label: "A" }, { timeUtcMs: 1, id: "b", label: "B" }])).toThrow(/sorted/);
-    expect(() => createEvents([{ timeUtcMs: 1, id: "a", label: "A" }, { timeUtcMs: 2, id: "a", label: "B" }])).toThrow(/duplicate/);
+    expect(
+      createEvents([
+        { timeUtcMs: 1, id: "a", label: "A" },
+        { timeUtcMs: 2, id: "b", label: "B", type: "x" },
+      ]),
+    ).toHaveLength(2);
+    expect(() =>
+      createEvents([
+        { timeUtcMs: 2, id: "a", label: "A" },
+        { timeUtcMs: 1, id: "b", label: "B" },
+      ]),
+    ).toThrow(/sorted/);
+    expect(() =>
+      createEvents([
+        { timeUtcMs: 1, id: "a", label: "A" },
+        { timeUtcMs: 2, id: "a", label: "B" },
+      ]),
+    ).toThrow(/duplicate/);
   });
 });
 

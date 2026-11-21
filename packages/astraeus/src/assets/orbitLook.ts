@@ -82,7 +82,8 @@ export function resolveOrbitLook(partial: Partial<OrbitLook> | undefined, owner 
   const look = { ...DEFAULT_ORBIT_LOOK, ...partial };
   for (const [key, bounds] of Object.entries(ORBIT_LOOK_LIMITS)) {
     const value = look[key as keyof typeof ORBIT_LOOK_LIMITS];
-    if (!(value >= bounds.min && value <= bounds.max)) throw new RangeError(`${owner}: ${key} must be from ${bounds.min} to ${bounds.max}`);
+    if (!(value >= bounds.min && value <= bounds.max))
+      throw new RangeError(`${owner}: ${key} must be from ${bounds.min} to ${bounds.max}`);
   }
   return Object.freeze(look);
 }

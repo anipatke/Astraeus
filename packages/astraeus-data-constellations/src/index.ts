@@ -37,16 +37,20 @@ const read = async <T>(load: () => Promise<unknown>): Promise<T> => {
 };
 
 /** The stick figures of all 88 constellations (IAU, as drawn by Sky & Telescope). */
-export const loadFigures = (): Promise<ConstellationFigures> => read(() => import("../data/figures.json", { with: { type: "json" } }));
+export const loadFigures = (): Promise<ConstellationFigures> =>
+  read(() => import("../data/figures.json", { with: { type: "json" } }));
 
 /** The boundary outlines of all 88 constellations in J2000 (Delporte, 1930). */
-export const loadBoundaries = (): Promise<ConstellationBoundaries> => read(() => import("../data/boundaries.json", { with: { type: "json" } }));
+export const loadBoundaries = (): Promise<ConstellationBoundaries> =>
+  read(() => import("../data/boundaries.json", { with: { type: "json" } }));
 
 /** The IAU names of all 88 constellations, by abbreviation. */
-export const loadNames = (): Promise<Readonly<Record<string, ConstellationName>>> => read(() => import("../data/names.json", { with: { type: "json" } }));
+export const loadNames = (): Promise<Readonly<Record<string, ConstellationName>>> =>
+  read(() => import("../data/names.json", { with: { type: "json" } }));
 
 /** Sources, licences, changes and the boundary cross-check. */
-export const loadProvenance = (): Promise<ConstellationProvenance> => read(() => import("../data/provenance.json", { with: { type: "json" } }));
+export const loadProvenance = (): Promise<ConstellationProvenance> =>
+  read(() => import("../data/provenance.json", { with: { type: "json" } }));
 
 let finder: Promise<(direction: SkyDirection) => string> | undefined;
 
@@ -59,7 +63,10 @@ let finder: Promise<(direction: SkyDirection) => string> | undefined;
  * which({ raDeg: 88.79, decDeg: 7.41 }); // "Ori"
  */
 export const constellationFinder = (): Promise<(direction: SkyDirection) => string> => {
-  finder ??= loadBoundaries().then(buildFinder, (error: unknown) => { finder = undefined; throw error; });
+  finder ??= loadBoundaries().then(buildFinder, (error: unknown) => {
+    finder = undefined;
+    throw error;
+  });
   return finder;
 };
 
@@ -87,11 +94,18 @@ const provenance = (what: string, sources: readonly string[]): Provenance => ({
   accuracy: `${what} are conventional drawings, not measurements.`,
   notes: "From the astraeus-data-constellations package; see its NOTICE for licences.",
 });
-const FIGURE_SOURCES = ["IAU constellation figures (drawn by Sky & Telescope), via Stellarium skycultures/modern_iau, CC BY-SA 4.0", "Names: IAU, CC BY 4.0"];
-const BOUNDARY_SOURCES = ["Constellation boundaries: Delporte (1930), via Stellarium skycultures/modern_iau, CC BY-SA 4.0, precessed to J2000", "Names: IAU, CC BY 4.0"];
+const FIGURE_SOURCES = [
+  "IAU constellation figures (drawn by Sky & Telescope), via Stellarium skycultures/modern_iau, CC BY-SA 4.0",
+  "Names: IAU, CC BY 4.0",
+];
+const BOUNDARY_SOURCES = [
+  "Constellation boundaries: Delporte (1930), via Stellarium skycultures/modern_iau, CC BY-SA 4.0, precessed to J2000",
+  "Names: IAU, CC BY 4.0",
+];
 const SERPENS_PARTS = ["Caput", "Cauda"];
 
-const endOf = (end: FigureEnd): SkyFigureEnd => (typeof end === "number" ? { star: end } : { raDeg: end[0], decDeg: end[1] });
+const endOf = (end: FigureEnd): SkyFigureEnd =>
+  typeof end === "number" ? { star: end } : { raDeg: end[0], decDeg: end[1] };
 
 /**
  * Ready sky figures (and, when asked, boundary outlines) for constellations, to give to `scene.addSkyFigures`. Pass IAU abbreviations (`["Ori", "UMa"]`) or `"all"` for the 88.
@@ -102,9 +116,16 @@ const endOf = (end: FigureEnd): SkyFigureEnd => (typeof end === "number" ? { sta
  * scene.addSkyFigures(await constellations(["Ori", "Tau"], { shown: "whenTraced" }));
  * scene.addSkyFigures(await constellations("all", { outlines: true })); // all 88, with outlines
  */
-export const constellations = async (which: readonly string[] | "all", options: ConstellationsOptions = {}): Promise<readonly SkyFigureInput[]> => {
+export const constellations = async (
+  which: readonly string[] | "all",
+  options: ConstellationsOptions = {},
+): Promise<readonly SkyFigureInput[]> => {
   // The outlines are the biggest file (about 150 kB raw), so an app that asks for none never downloads it.
-  const [figures, boundaries, names] = await Promise.all([loadFigures(), options.outlines === true ? loadBoundaries() : Promise.resolve<ConstellationBoundaries>({}), loadNames()]);
+  const [figures, boundaries, names] = await Promise.all([
+    loadFigures(),
+    options.outlines === true ? loadBoundaries() : Promise.resolve<ConstellationBoundaries>({}),
+    loadNames(),
+  ]);
   const abbrs = which === "all" ? Object.keys(names).sort() : which;
   const seen = new Set<string>();
   const unknown: string[] = [];
@@ -117,11 +138,15 @@ export const constellations = async (which: readonly string[] | "all", options: 
   if (unknown.length > 0) throw new RangeError(`constellations: not an IAU abbreviation: ${unknown.join(", ")}`);
   if (repeated.length > 0) throw new RangeError(`constellations: repeated: ${repeated.join(", ")}`);
   const outlineLabel = options.outlineLabel;
-  if (outlineLabel !== undefined && typeof outlineLabel !== "function") throw new RangeError("constellations: outlineLabel must be a function");
+  if (outlineLabel !== undefined && typeof outlineLabel !== "function")
+    throw new RangeError("constellations: outlineLabel must be a function");
   const labelOutline = (name: string): string => {
     if (outlineLabel === undefined) return name;
     const text: unknown = outlineLabel(name);
-    if (typeof text !== "string" || text === "") throw new RangeError(`constellations: outlineLabel must return non-empty text, got ${typeof text === "string" ? "an empty string" : typeof text} for "${name}"`);
+    if (typeof text !== "string" || text === "")
+      throw new RangeError(
+        `constellations: outlineLabel must return non-empty text, got ${typeof text === "string" ? "an empty string" : typeof text} for "${name}"`,
+      );
     return text;
   };
   const prefix = options.idPrefix ?? "";
@@ -146,7 +171,8 @@ export const constellations = async (which: readonly string[] | "all", options: 
       const loops = boundaries[abbr] ?? [];
       loops.forEach((flat, index) => {
         const points = [];
-        for (let i = 0; i + 1 < flat.length; i += 2) points.push({ raDeg: flat[i] as number, decDeg: flat[i + 1] as number });
+        for (let i = 0; i + 1 < flat.length; i += 2)
+          points.push({ raDeg: flat[i] as number, decDeg: flat[i + 1] as number });
         const part = loops.length > 1 ? SERPENS_PARTS[index] : undefined;
         out.push({
           id: `${prefix}${abbr}-boundary${loops.length > 1 ? `-${index + 1}` : ""}`,

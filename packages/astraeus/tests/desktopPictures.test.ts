@@ -5,11 +5,22 @@ import { createElement, act } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { createRoot, type Root } from "react-dom/client";
 
-const sceneProps = vi.hoisted(() => ({ latest: null as null | { runtime: { desktopTextures: boolean }; controls: import("../src/app/AstraeusScene").SceneControls } }));
-vi.mock("../src/app/AstraeusScene", () => ({
-  AstraeusScene: (props: NonNullable<typeof sceneProps.latest>) => { sceneProps.latest = props; return createElement("div", { "data-testid": "scene" }); },
+const sceneProps = vi.hoisted(() => ({
+  latest: null as null | {
+    runtime: { desktopTextures: boolean };
+    controls: import("../src/app/AstraeusScene").SceneControls;
+  },
 }));
-vi.mock("../src/assets/sky", async (importOriginal) => ({ ...(await importOriginal<typeof import("../src/assets/sky")>()), loadStarCatalogue: vi.fn().mockResolvedValue(null) }));
+vi.mock("../src/app/AstraeusScene", () => ({
+  AstraeusScene: (props: NonNullable<typeof sceneProps.latest>) => {
+    sceneProps.latest = props;
+    return createElement("div", { "data-testid": "scene" });
+  },
+}));
+vi.mock("../src/assets/sky", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("../src/assets/sky")>()),
+  loadStarCatalogue: vi.fn().mockResolvedValue(null),
+}));
 
 import { Scene, earth, moon } from "astraeus";
 import { App } from "../src/app/App";
@@ -25,7 +36,9 @@ const visit = (search: string) => window.history.replaceState(null, "", `/page.h
 const scene = () => new Scene().addBody(earth).addBody(moon);
 const open = async (built: Scene, address = false) => {
   const link = new ViewerLink();
-  await act(async () => { root.render(createElement(App, { definition: definitionOf(built), address, host: link })); });
+  await act(async () => {
+    root.render(createElement(App, { definition: definitionOf(built), address, host: link }));
+  });
   return link;
 };
 
@@ -36,7 +49,11 @@ beforeEach(() => {
   document.body.appendChild(container);
   root = createRoot(container);
 });
-afterEach(() => { act(() => root.unmount()); container.remove(); visit(""); });
+afterEach(() => {
+  act(() => root.unmount());
+  container.remove();
+  visit("");
+});
 
 describe("LookInput.desktopPictures", () => {
   it("is off by default, in what the scene is handed and in what the host reads", async () => {
@@ -71,6 +88,8 @@ describe("LookInput.desktopPictures", () => {
   });
 
   it("is checked like the other looks: a non-boolean is bad-look", () => {
-    expect(() => scene().setLook({ desktopPictures: "yes" as never })).toThrow(/bad-look|desktopPictures must be true or false/);
+    expect(() => scene().setLook({ desktopPictures: "yes" as never })).toThrow(
+      /bad-look|desktopPictures must be true or false/,
+    );
   });
 });

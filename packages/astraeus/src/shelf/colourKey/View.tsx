@@ -13,9 +13,15 @@ export function ColourKeyView({ block, runtime }: { readonly block: ShelfBlock; 
     <ul className="shelf-colour-key" data-shelf-block={block.id}>
       {entries.map((entry, index) => (
         <li key={index} className="shelf-colour-row">
-          <span className="shelf-colour-swatch" style={{ "--shelf-colour": entry.color } as CSSProperties} aria-hidden="true" />
+          <span
+            className="shelf-colour-swatch"
+            style={{ "--shelf-colour": entry.color } as CSSProperties}
+            aria-hidden="true"
+          />
           <span className="shelf-colour-label">{entry.label}</span>
-          {entry.count === undefined ? null : <span className="shelf-colour-count">{entry.count.toLocaleString("en-US")}</span>}
+          {entry.count === undefined ? null : (
+            <span className="shelf-colour-count">{entry.count.toLocaleString("en-US")}</span>
+          )}
           {entry.note === undefined ? null : <span className="shelf-colour-note">{entry.note}</span>}
         </li>
       ))}

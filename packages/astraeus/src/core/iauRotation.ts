@@ -28,13 +28,17 @@ const DAYS_PER_CENTURY = 36_525;
 
 export function assertIauRotationElements(elements: IauRotationElements): void {
   for (const pair of [elements.poleRaDeg, elements.poleDecDeg, elements.primeMeridianDeg]) {
-    if (pair.length !== 2 || pair.some((value) => !Number.isFinite(value))) throw new TypeError("IAU rotation elements must be finite [constant, rate] pairs");
+    if (pair.length !== 2 || pair.some((value) => !Number.isFinite(value)))
+      throw new TypeError("IAU rotation elements must be finite [constant, rate] pairs");
   }
   if (elements.citation.trim() === "") throw new TypeError("IAU rotation elements need a citation");
 }
 
 /** Pole direction (RA, Dec in radians) and prime-meridian angle W (radians, unwrapped) at `daysSinceJ2000` (TT, standing in for TDB). */
-export function iauAnglesAt(elements: IauRotationElements, daysSinceJ2000: number): { raRad: number; decRad: number; wRad: number } {
+export function iauAnglesAt(
+  elements: IauRotationElements,
+  daysSinceJ2000: number,
+): { raRad: number; decRad: number; wRad: number } {
   const centuries = daysSinceJ2000 / DAYS_PER_CENTURY;
   let ra = elements.poleRaDeg[0] + elements.poleRaDeg[1] * centuries;
   let dec = elements.poleDecDeg[0] + elements.poleDecDeg[1] * centuries;
@@ -67,11 +71,7 @@ export function iauBodyToEqjMatrix(elements: IauRotationElements, daysSinceJ2000
     pole[0] * node[1] - pole[1] * node[0],
   ];
   const x = node.map((value, k) => value * Math.cos(wRad) + poleCrossNode[k] * Math.sin(wRad));
-  const y = [
-    pole[1] * x[2] - pole[2] * x[1],
-    pole[2] * x[0] - pole[0] * x[2],
-    pole[0] * x[1] - pole[1] * x[0],
-  ];
+  const y = [pole[1] * x[2] - pole[2] * x[1], pole[2] * x[0] - pole[0] * x[2], pole[0] * x[1] - pole[1] * x[0]];
   return Float64Array.of(x[0], y[0], pole[0], x[1], y[1], pole[1], x[2], y[2], pole[2]);
 }
 
@@ -99,14 +99,18 @@ export function iauElementsFromRecord(record: IauRotationRecord): IauRotationEle
     poleRaDeg: [record.poleRaDeg.constant, record.poleRaDeg.perCentury],
     poleDecDeg: [record.poleDecDeg.constant, record.poleDecDeg.perCentury],
     primeMeridianDeg: [record.primeMeridianDeg.constant, record.primeMeridianDeg.perDay],
-    ...(record.periodicTerms === undefined ? {} : {
-      periodic: {
-        anglesDeg: record.periodicTerms.nutationPrecessionAngles.map(([constant, perCentury]) => [constant, perCentury] as const),
-        poleRaDeg: record.periodicTerms.coefficientsRaDeg,
-        poleDecDeg: record.periodicTerms.coefficientsDecDeg,
-        primeMeridianDeg: record.periodicTerms.coefficientsPrimeMeridianDeg,
-      },
-    }),
+    ...(record.periodicTerms === undefined
+      ? {}
+      : {
+          periodic: {
+            anglesDeg: record.periodicTerms.nutationPrecessionAngles.map(
+              ([constant, perCentury]) => [constant, perCentury] as const,
+            ),
+            poleRaDeg: record.periodicTerms.coefficientsRaDeg,
+            poleDecDeg: record.periodicTerms.coefficientsDecDeg,
+            primeMeridianDeg: record.periodicTerms.coefficientsPrimeMeridianDeg,
+          },
+        }),
     citation: record.model,
   });
 }

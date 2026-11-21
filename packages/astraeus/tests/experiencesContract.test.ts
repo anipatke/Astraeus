@@ -54,7 +54,10 @@ describe("the Earth and Moon readouts", () => {
     expect(metrics("moon", t).map((metric) => metric.kind)).toEqual(["distance", "phase", "coordinates"]);
     expect(metrics("earth", t).map((metric) => metric.label)).toEqual(["Distance to Moon"]);
     const distance = metrics("moon", t)[0];
-    expect(distance.kind === "distance" ? distance.value : 0).toBeCloseTo(Math.hypot(...resolver.stateOf("moon", t, "earth").positionKm), 6);
+    expect(distance.kind === "distance" ? distance.value : 0).toBeCloseTo(
+      Math.hypot(...resolver.stateOf("moon", t, "earth").positionKm),
+      6,
+    );
     const phase = metrics("moon", t)[1];
     expect(phase.kind === "phase" ? phase.fraction : -1).toBeGreaterThanOrEqual(0);
   });
@@ -81,11 +84,17 @@ describe("the Moon about Earth", () => {
 });
 
 describe("visual overrides and scale choices", () => {
-  const withOverrides = (visualOverrides: ExperienceDefinition["visualOverrides"]): ExperienceDefinition => ({ ...syntheticDefinition, ...(visualOverrides === undefined ? {} : { visualOverrides }) });
+  const withOverrides = (visualOverrides: ExperienceDefinition["visualOverrides"]): ExperienceDefinition => ({
+    ...syntheticDefinition,
+    ...(visualOverrides === undefined ? {} : { visualOverrides }),
+  });
 
   it("lays an override over the record without touching the catalogue", () => {
     const sun = catalogue.get("sun");
-    const drawn = assetWithOverride(sun, { marker: { sizePx: 12 }, material: { color: "#ffffff", roughness: 1, metalness: 0 } });
+    const drawn = assetWithOverride(sun, {
+      marker: { sizePx: 12 },
+      material: { color: "#ffffff", roughness: 1, metalness: 0 },
+    });
     expect(drawn.visual.marker?.sizePx).toBe(12);
     expect(drawn.visual.material.color).toBe("#ffffff");
     expect(sun.visual.marker?.sizePx).toBe(9);
@@ -114,9 +123,14 @@ describe("visual overrides and scale choices", () => {
     expect(scaleChoiceIdsOf(syntheticDefinition)).toBeUndefined();
     expect(scaleChoiceIdsOf(syntheticBeltDefinition)).toBeUndefined();
     expect(() => scaleChoiceIdsOf({ ...syntheticDefinition, scaleChoices: [] })).toThrow(/at least one/);
-    expect(() => scaleChoiceIdsOf({ ...syntheticDefinition, scaleChoices: ["true-scale", "true-scale"] })).toThrow(/twice/);
+    expect(() => scaleChoiceIdsOf({ ...syntheticDefinition, scaleChoices: ["true-scale", "true-scale"] })).toThrow(
+      /twice/,
+    );
     expect(() => scaleChoiceIdsOf({ ...syntheticDefinition, scaleChoices: ["huge"] })).toThrow(/unknown scale choice/);
-    expect(scaleChoicesFor(["true-scale", "solar-system"]).map((choice) => choice.label)).toEqual(["True", "Solar system"]);
+    expect(scaleChoicesFor(["true-scale", "solar-system"]).map((choice) => choice.label)).toEqual([
+      "True",
+      "Solar system",
+    ]);
   });
 });
 
@@ -133,7 +147,10 @@ describe("default selection and camera focus come from the experience, not from 
   // Earth-free compositions of built-in bodies: the Moon alone, and the Sun alone.
   const moonAlone = createComposition(catalogue, { id: "moon-alone", bodies: ["moon"], defaultCenter: "moon" });
   const sunAlone = createComposition(catalogue, { id: "sun-alone", bodies: ["sun"], defaultCenter: "sun" });
-  const around = (composition: typeof moonAlone, objects: ExperienceDefinition["experience"]["objects"]): ExperienceDefinition => ({
+  const around = (
+    composition: typeof moonAlone,
+    objects: ExperienceDefinition["experience"]["objects"],
+  ): ExperienceDefinition => ({
     ...syntheticDefinition,
     composition,
     experience: { ...syntheticDefinition.experience, objects },

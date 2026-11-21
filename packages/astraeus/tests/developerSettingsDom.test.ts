@@ -6,7 +6,13 @@ import { createRoot, type Root } from "react-dom/client";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { SceneControls } from "../src/app/AstraeusScene";
 import { DEFAULT_BODY_SET_LOOK, type BodySetLayer, type BodySetLook } from "../src/app/bodySet";
-import { LabelSettings, MoonsAndRingsSettings, SkyAndSunSettings, StoryPanelSettings, ViewLinkReadout } from "../src/app/DeveloperSettings";
+import {
+  LabelSettings,
+  MoonsAndRingsSettings,
+  SkyAndSunSettings,
+  StoryPanelSettings,
+  ViewLinkReadout,
+} from "../src/app/DeveloperSettings";
 import type { GlowLook } from "../src/app/bodyDraw";
 import type { RingLook, RingSystem } from "../src/assets/rings";
 
@@ -14,15 +20,29 @@ import type { RingLook, RingSystem } from "../src/assets/rings";
 
 let container: HTMLElement;
 let root: Root;
-beforeEach(() => { container = document.createElement("div"); document.body.appendChild(container); root = createRoot(container); });
-afterEach(() => { act(() => root.unmount()); container.remove(); vi.restoreAllMocks(); });
+beforeEach(() => {
+  container = document.createElement("div");
+  document.body.appendChild(container);
+  root = createRoot(container);
+});
+afterEach(() => {
+  act(() => root.unmount());
+  container.remove();
+  vi.restoreAllMocks();
+});
 
 const show = (element: ReturnType<typeof createElement>) => act(() => root.render(element));
 import { DEFAULT_LABEL_STYLE } from "../src/app/labelStyle";
 import { DEFAULT_SKY_COLOURS } from "../src/app/skyFigures";
-const liveControls = (extra: Partial<SceneControls> = {}) => ({ current: { labelStyle: DEFAULT_LABEL_STYLE, skyColours: DEFAULT_SKY_COLOURS, ...extra } as SceneControls }) as MutableRefObject<SceneControls>;
+const liveControls = (extra: Partial<SceneControls> = {}) =>
+  ({
+    current: { labelStyle: DEFAULT_LABEL_STYLE, skyColours: DEFAULT_SKY_COLOURS, ...extra } as SceneControls,
+  }) as MutableRefObject<SceneControls>;
 const button = (name: string) => [...container.querySelectorAll("button")].find((b) => b.textContent === name)!;
-const press = (el: Element) => act(() => { (el as HTMLElement).click(); });
+const press = (el: Element) =>
+  act(() => {
+    (el as HTMLElement).click();
+  });
 const slider = (label: string) => container.querySelector<HTMLInputElement>(`input[aria-label="${label}"]`)!;
 const out = (id: string) => container.querySelector(`[data-testid="${id}"]`)!.textContent;
 /** Moves a range or colour input the way a user does: sets the value through the native setter and fires the input event React listens for. */
@@ -37,7 +57,18 @@ describe("StoryPanelSettings", () => {
   function Host({ controls }: { controls: { auto: boolean[]; pause: number[] } }) {
     const [auto, setAuto] = useState(false);
     const [pause, setPause] = useState(0);
-    return createElement(StoryPanelSettings, { storyAutoOpen: auto, setStoryAutoOpen: (on: boolean) => { controls.auto.push(on); setAuto(on); }, storyPauseSeconds: pause, setStoryPauseSeconds: (s: number) => { controls.pause.push(s); setPause(s); } });
+    return createElement(StoryPanelSettings, {
+      storyAutoOpen: auto,
+      setStoryAutoOpen: (on: boolean) => {
+        controls.auto.push(on);
+        setAuto(on);
+      },
+      storyPauseSeconds: pause,
+      setStoryPauseSeconds: (s: number) => {
+        controls.pause.push(s);
+        setPause(s);
+      },
+    });
   }
   it("toggles opening panels automatically and shows the pause as off, then in seconds", () => {
     const log = { auto: [] as boolean[], pause: [] as number[] };
@@ -53,13 +84,34 @@ describe("StoryPanelSettings", () => {
 });
 
 describe("SkyAndSunSettings", () => {
-  function Host({ controls, visible, glow }: { controls: MutableRefObject<SceneControls>; visible: boolean; glow: GlowLook | null }) {
+  function Host({
+    controls,
+    visible,
+    glow,
+  }: {
+    controls: MutableRefObject<SceneControls>;
+    visible: boolean;
+    glow: GlowLook | null;
+  }) {
     const [illuminateAll, setIlluminateAll] = useState(false);
     const [glowShown, setGlowShown] = useState<GlowLook | null>(glow);
     const [milkyWayOn, setMilkyWayOn] = useState(true);
     const [stars, setStars] = useState(1);
     const [milky, setMilky] = useState(1);
-    return createElement(SkyAndSunSettings, { illuminateAll, setIlluminateAll, visible, glowShown, setGlowShown: (look: GlowLook) => setGlowShown(look), controls, milkyWayOn, setMilkyWayOn, starBrightness: stars, setStarBrightness: setStars, milkyWayBrightness: milky, setMilkyWayBrightness: setMilky });
+    return createElement(SkyAndSunSettings, {
+      illuminateAll,
+      setIlluminateAll,
+      visible,
+      glowShown,
+      setGlowShown: (look: GlowLook) => setGlowShown(look),
+      controls,
+      milkyWayOn,
+      setMilkyWayOn,
+      starBrightness: stars,
+      setStarBrightness: setStars,
+      milkyWayBrightness: milky,
+      setMilkyWayBrightness: setMilky,
+    });
   }
   it("writes lighting, Milky Way and brightness choices to the live scene controls and shows the new values", () => {
     const controls = liveControls();
@@ -92,22 +144,58 @@ describe("SkyAndSunSettings", () => {
     change(slider("Sun glow brightness"), "0.5");
     change(slider("Sun glow reach"), "3");
     expect(controls.current.glowLook).toEqual({ sizePx: 150, brightness: 0.5, scale: 3 });
-    expect([out("sun-glow-size-value"), out("sun-glow-brightness-value"), out("sun-glow-scale-value")]).toEqual(["150", "0.50", "3.0"]);
+    expect([out("sun-glow-size-value"), out("sun-glow-brightness-value"), out("sun-glow-scale-value")]).toEqual([
+      "150",
+      "0.50",
+      "3.0",
+    ]);
   });
 });
 
 describe("LabelSettings", () => {
-  function Host({ controls, toggles, tracked }: { controls: MutableRefObject<SceneControls>; toggles: { id: string; label: string }[]; tracked: number }) {
+  function Host({
+    controls,
+    toggles,
+    tracked,
+  }: {
+    controls: MutableRefObject<SceneControls>;
+    toggles: { id: string; label: string }[];
+    tracked: number;
+  }) {
     const [hover, setHover] = useState(1.4);
     const [anchors, setAnchors] = useState(false);
     const [hidden, setHidden] = useState<ReadonlySet<string>>(new Set(["moon"]));
     const [style, setStyle] = useState(controls.current.labelStyle);
     const [colours, setColours] = useState(controls.current.skyColours);
-    return createElement(LabelSettings, { controls, hoverBrightness: hover, setHoverBrightness: setHover, labelToggles: toggles, trackedCount: tracked, anchorLabels: anchors, setAnchorLabels: setAnchors, hiddenLabels: hidden, setHiddenLabels: setHidden, labelStyle: style, setLabelStyle: setStyle, skyColours: colours, setSkyColours: setColours, hasSky: true });
+    return createElement(LabelSettings, {
+      controls,
+      hoverBrightness: hover,
+      setHoverBrightness: setHover,
+      labelToggles: toggles,
+      trackedCount: tracked,
+      anchorLabels: anchors,
+      setAnchorLabels: setAnchors,
+      hiddenLabels: hidden,
+      setHiddenLabels: setHidden,
+      labelStyle: style,
+      setLabelStyle: setStyle,
+      skyColours: colours,
+      setSkyColours: setColours,
+      hasSky: true,
+    });
   }
   it("sets the hover brightness, toggles anchor labels and each named label, keeping the hidden set in step", () => {
     const controls = liveControls({ hiddenLabels: new Set(["moon"]) }); // the scene starts with the Moon's label hidden, as the page's own state does
-    show(createElement(Host, { controls, toggles: [{ id: "moon", label: "Moon" }, { id: "sun", label: "Sun" }], tracked: 2 }));
+    show(
+      createElement(Host, {
+        controls,
+        toggles: [
+          { id: "moon", label: "Moon" },
+          { id: "sun", label: "Sun" },
+        ],
+        tracked: 2,
+      }),
+    );
     expect(button("Moon label").getAttribute("aria-pressed")).toBe("false"); // starts hidden
     expect(button("Sun label").getAttribute("aria-pressed")).toBe("true");
     change(slider("Hover name brightness"), "2");
@@ -145,14 +233,50 @@ describe("LabelSettings", () => {
 });
 
 describe("MoonsAndRingsSettings", () => {
-  const layer = { id: "jup", families: [{ id: "gal", label: "Galilean", color: "#112233" }, { id: "irr", label: "Irregular", color: "#445566" }] } as unknown as BodySetLayer;
-  const rings: RingSystem = { body: "saturn", sources: [], bands: [{ id: "b", label: "B ring", innerKm: 1, outerKm: 2, color: "#aabbcc", opacity: 0.8 }] };
-  function Host({ controls, sets, systems }: { controls: MutableRefObject<SceneControls>; sets: readonly BodySetLayer[]; systems: readonly RingSystem[] }) {
+  const layer = {
+    id: "jup",
+    families: [
+      { id: "gal", label: "Galilean", color: "#112233" },
+      { id: "irr", label: "Irregular", color: "#445566" },
+    ],
+  } as unknown as BodySetLayer;
+  const rings: RingSystem = {
+    body: "saturn",
+    sources: [],
+    bands: [{ id: "b", label: "B ring", innerKm: 1, outerKm: 2, color: "#aabbcc", opacity: 0.8 }],
+  };
+  function Host({
+    controls,
+    sets,
+    systems,
+  }: {
+    controls: MutableRefObject<SceneControls>;
+    sets: readonly BodySetLayer[];
+    systems: readonly RingSystem[];
+  }) {
     const [setLook, setSetLook] = useState<BodySetLook>(DEFAULT_BODY_SET_LOOK);
     const [ringLook, setRingLook] = useState<RingLook>({});
-    const changeSetLook = (change: Partial<BodySetLook>) => { const next = { ...setLook, ...change }; controls.current.bodySetLook = next; setSetLook(next); };
-    const changeRing = (band: string, change: { color?: string; opacity?: number }) => { const next = { ...ringLook, [band]: { ...ringLook[band], ...change } }; controls.current.ringLook = next; setRingLook(next); };
-    return createElement(MoonsAndRingsSettings, { bodySets: sets, ringSystems: systems, setLook, changeSetLook, ringLook, changeRing, controls, setSetLook, setRingLook });
+    const changeSetLook = (change: Partial<BodySetLook>) => {
+      const next = { ...setLook, ...change };
+      controls.current.bodySetLook = next;
+      setSetLook(next);
+    };
+    const changeRing = (band: string, change: { color?: string; opacity?: number }) => {
+      const next = { ...ringLook, [band]: { ...ringLook[band], ...change } };
+      controls.current.ringLook = next;
+      setRingLook(next);
+    };
+    return createElement(MoonsAndRingsSettings, {
+      bodySets: sets,
+      ringSystems: systems,
+      setLook,
+      changeSetLook,
+      ringLook,
+      changeRing,
+      controls,
+      setSetLook,
+      setRingLook,
+    });
   }
 
   it("shows nothing for a scene with no moon sets and no rings", () => {
@@ -197,11 +321,27 @@ describe("MoonsAndRingsSettings", () => {
 describe("ViewLinkReadout", () => {
   const view = { focus: "io", azimuthDeg: 10, elevationDeg: 20, distance: 5 };
   it("states the view, scale and up, and the link with a copied or not-copied message", () => {
-    show(createElement(ViewLinkReadout, { viewNow: view, viewLink: { url: "https://x/app?view=io", copied: true }, scale: "solar", upChoice: "ecliptic" }));
-    expect(out("view-values")).toBe("View: io,10,20,5 (focus, azimuth °, elevation °, distance) · scale solar · up ecliptic");
+    show(
+      createElement(ViewLinkReadout, {
+        viewNow: view,
+        viewLink: { url: "https://x/app?view=io", copied: true },
+        scale: "solar",
+        upChoice: "ecliptic",
+      }),
+    );
+    expect(out("view-values")).toBe(
+      "View: io,10,20,5 (focus, azimuth °, elevation °, distance) · scale solar · up ecliptic",
+    );
     expect(container.querySelector<HTMLInputElement>('[data-testid="view-link"]')!.value).toBe("https://x/app?view=io");
     expect(container.textContent).toContain("Copied to the clipboard.");
-    show(createElement(ViewLinkReadout, { viewNow: view, viewLink: { url: "u", copied: false }, scale: "solar", upChoice: "ecliptic" }));
+    show(
+      createElement(ViewLinkReadout, {
+        viewNow: view,
+        viewLink: { url: "u", copied: false },
+        scale: "solar",
+        upChoice: "ecliptic",
+      }),
+    );
     expect(container.textContent).toContain("Clipboard unavailable");
   });
   it("shows nothing before a view is read or a link made", () => {
@@ -209,10 +349,19 @@ describe("ViewLinkReadout", () => {
     expect(container.textContent).toBe("");
   });
   it("selects the whole link when its field is focused", () => {
-    show(createElement(ViewLinkReadout, { viewNow: null, viewLink: { url: "abc", copied: true }, scale: "s", upChoice: "equatorial" }));
+    show(
+      createElement(ViewLinkReadout, {
+        viewNow: null,
+        viewLink: { url: "abc", copied: true },
+        scale: "s",
+        upChoice: "equatorial",
+      }),
+    );
     const field = container.querySelector<HTMLInputElement>('[data-testid="view-link"]')!;
     const select = vi.spyOn(field, "select");
-    act(() => { field.dispatchEvent(new FocusEvent("focusin", { bubbles: true })); });
+    act(() => {
+      field.dispatchEvent(new FocusEvent("focusin", { bubbles: true }));
+    });
     expect(select).toHaveBeenCalled();
   });
 });

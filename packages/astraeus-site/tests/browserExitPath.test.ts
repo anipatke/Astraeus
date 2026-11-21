@@ -21,25 +21,42 @@ afterAll(() => {
 });
 
 function runNode(args: string[], env: Record<string, string> = {}) {
-  return spawnSync(process.execPath, args, { cwd: root, encoding: "utf8", env: { ...process.env, ...env }, timeout: 120_000 });
+  return spawnSync(process.execPath, args, {
+    cwd: root,
+    encoding: "utf8",
+    env: { ...process.env, ...env },
+    timeout: 120_000,
+  });
 }
 
 // The harness case opens a real (blank) browser page. The release workflow installs no browser, because the browser checks run on the owner's machine (docs/RELEASING.md, "What is
 // checked where"), so this case is skipped only where Playwright reports its browser missing; any other launch failure still fails it.
-const browserProbe = spawnSync(process.execPath, ["--input-type=module", "-e", "const { chromium } = await import('playwright-core'); const b = await chromium.launch(); await b.close();"], { cwd: root, encoding: "utf8", timeout: 60_000 });
+const browserProbe = spawnSync(
+  process.execPath,
+  [
+    "--input-type=module",
+    "-e",
+    "const { chromium } = await import('playwright-core'); const b = await chromium.launch(); await b.close();",
+  ],
+  { cwd: root, encoding: "utf8", timeout: 60_000 },
+);
 const browserMissing = browserProbe.status !== 0 && /Executable doesn't exist/.test(browserProbe.stderr);
 
 describe("a failing browser step fails the run", () => {
-  it.skipIf(browserMissing)("harness: a step that throws through checkScript exits non-zero, and the same step without the throw exits 0 (skipped where no browser is installed)", () => {
-    const pass = runNode([join(fixtures, "passes-through-harness.mjs")]);
-    expect(pass.stderr).toBe("");
-    expect(pass.status).toBe(0);
-    expect(pass.stdout).toContain('"ok": true');
-    const fail = runNode([join(fixtures, "throws-through-harness.mjs")]);
-    expect(fail.stdout).toContain('"ok": false');
-    expect(fail.stdout).toContain("planted assertion failure");
-    expect(fail.status).toBe(1);
-  }, 150_000);
+  it.skipIf(browserMissing)(
+    "harness: a step that throws through checkScript exits non-zero, and the same step without the throw exits 0 (skipped where no browser is installed)",
+    () => {
+      const pass = runNode([join(fixtures, "passes-through-harness.mjs")]);
+      expect(pass.stderr).toBe("");
+      expect(pass.status).toBe(0);
+      expect(pass.stdout).toContain('"ok": true');
+      const fail = runNode([join(fixtures, "throws-through-harness.mjs")]);
+      expect(fail.stdout).toContain('"ok": false');
+      expect(fail.stdout).toContain("planted assertion failure");
+      expect(fail.status).toBe(1);
+    },
+    150_000,
+  );
 
   // The runner starts servers it does not need for this; `npx` is replaced by a sleeper and the dev address by a stub that answers, so only the step loop and the exit result run.
   async function runSetWith(steps: object[]) {
@@ -56,7 +73,10 @@ console.log("RESULT " + result);`;
     writeFileSync(file, code);
     // asynchronous, so the stub's event loop stays free to answer the runner
     const out = await new Promise<{ stdout: string; stderr: string }>((done) => {
-      const child = spawn(process.execPath, [file], { cwd: root, env: { ...process.env, PATH: `${bin}:${process.env.PATH}`, DEV_PORT: port } });
+      const child = spawn(process.execPath, [file], {
+        cwd: root,
+        env: { ...process.env, PATH: `${bin}:${process.env.PATH}`, DEV_PORT: port },
+      });
       let stdout = "";
       let stderr = "";
       child.stdout.on("data", (d) => (stdout += d));
@@ -68,7 +88,11 @@ console.log("RESULT " + result);`;
     if (evidence !== undefined) evidenceDirs.push(evidence);
     return { ...out, summary: evidence === undefined ? "" : readFileSync(join(evidence, "summary.txt"), "utf8") };
   }
-  const step = (name: string, script: string) => ({ name, script: `../../tests/fixtures/browser-exit/${script}`, scene: "fixture" });
+  const step = (name: string, script: string) => ({
+    name,
+    script: `../../tests/fixtures/browser-exit/${script}`,
+    scene: "fixture",
+  });
 
   it("runner: a step that exits non-zero is reported as failed and the run's result is 1; passing steps give 0", async () => {
     const good = await runSetWith([step("fine", "exits-zero.mjs")]);

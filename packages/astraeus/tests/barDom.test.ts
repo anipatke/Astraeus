@@ -6,11 +6,19 @@ import { act } from "react";
 import { $, mountShell, press, pressKey, swipe, type Mounted } from "./domSetup";
 
 let m: Mounted;
-afterEach(() => { m.unmount(); vi.restoreAllMocks(); });
+afterEach(() => {
+  m.unmount();
+  vi.restoreAllMocks();
+});
 
 const switcher = {
-  label: "Version", param: "version", choose: () => undefined,
-  options: [{ label: "Alpha version", shortLabel: "A", value: "a", active: true }, { label: "Beta version", shortLabel: "B", value: "b", active: false }],
+  label: "Version",
+  param: "version",
+  choose: () => undefined,
+  options: [
+    { label: "Alpha version", shortLabel: "A", value: "a", active: true },
+    { label: "Beta version", shortLabel: "B", value: "b", active: false },
+  ],
 };
 const menuButton = () => $(m.container, "button.bar-menu-button");
 const row = () => $(m.container, '[data-area="bar"] .top-bar');
@@ -20,7 +28,11 @@ const drawer = () => $(m.container, ".controls-drawer");
 function laidOut(width: number): void {
   vi.spyOn(Element.prototype, "getBoundingClientRect").mockImplementation(function (this: Element) {
     const ghost = this.hasAttribute("data-ghost-id");
-    const w = ghost ? [...this.children].reduce((sum, child) => sum + (child.textContent ?? "").length * 10 + 20, 0) : this.classList.contains("top-bar") ? width : 0;
+    const w = ghost
+      ? [...this.children].reduce((sum, child) => sum + (child.textContent ?? "").length * 10 + 20, 0)
+      : this.classList.contains("top-bar")
+        ? width
+        : 0;
     return { width: w, height: 0, top: 0, left: 0, right: w, bottom: 0, x: 0, y: 0, toJSON: () => ({}) } as DOMRect;
   });
 }
@@ -30,7 +42,10 @@ describe("the phone row", () => {
     m = mountShell({ phone: true, switcher });
     expect(m.container.querySelector(".controls-pill")).toBeNull();
     expect($(row(), "[data-bar-title]").textContent).toContain("Earth");
-    expect([...row().querySelectorAll('[data-switch-param="version"] button')].map((b) => b.textContent)).toEqual(["Alpha version", "Beta version"]);
+    expect([...row().querySelectorAll('[data-switch-param="version"] button')].map((b) => b.textContent)).toEqual([
+      "Alpha version",
+      "Beta version",
+    ]);
     expect(row().contains(menuButton())).toBe(true);
     expect(row().querySelector("select.object-picker")).toBeNull();
     expect(row().closest('[data-area="bar"]')).not.toBeNull();
@@ -49,7 +64,8 @@ describe("the phone row", () => {
     expect(drawer().getAttribute("data-open")).toBe("true");
     expect(menuButton().getAttribute("aria-expanded")).toBe("true");
     expect(menuButton().getAttribute("aria-controls")).toBe(drawer().id);
-    for (const hook of ["select.object-picker", ".object-info-toggle", ".scale-control", ".developer-mode-toggle"]) expect(drawer().querySelector(hook), hook).not.toBeNull();
+    for (const hook of ["select.object-picker", ".object-info-toggle", ".scale-control", ".developer-mode-toggle"])
+      expect(drawer().querySelector(hook), hook).not.toBeNull();
     press(menuButton());
     expect(drawer().getAttribute("data-open")).toBe("false");
     swipe(menuButton(), 120);
@@ -69,7 +85,14 @@ describe("the wide bar", () => {
   it("is one row with the controls and the cog in it, no title place and no menu button while everything fits", () => {
     m = mountShell({ developerTools: "x", switcher });
     expect(row().getAttribute("data-bar")).toBe("wide");
-    for (const hook of ["select.object-picker", ".object-info-toggle", ".scale-control", ".developer-mode-toggle", '[data-switch-param="version"]']) expect(row().querySelector(hook), hook).not.toBeNull();
+    for (const hook of [
+      "select.object-picker",
+      ".object-info-toggle",
+      ".scale-control",
+      ".developer-mode-toggle",
+      '[data-switch-param="version"]',
+    ])
+      expect(row().querySelector(hook), hook).not.toBeNull();
     expect(row().querySelector("[data-bar-title]")).toBeNull();
     expect(m.container.querySelector("button.bar-menu-button")).toBeNull();
     expect(m.container.querySelector(".controls-drawer")).toBeNull();
@@ -91,14 +114,20 @@ describe("the wide bar", () => {
 });
 
 describe("the fit on the page (widths stubbed)", () => {
-  it("shows full labels when the row has room, short labels when it does not, and the title as \"i\" when that is still too wide", () => {
+  it('shows full labels when the row has room, short labels when it does not, and the title as "i" when that is still too wide', () => {
     laidOut(500);
     m = mountShell({ phone: true, switcher });
-    expect([...row().querySelectorAll('[data-switch-param="version"] button')].map((b) => b.textContent)).toEqual(["Alpha version", "Beta version"]);
+    expect([...row().querySelectorAll('[data-switch-param="version"] button')].map((b) => b.textContent)).toEqual([
+      "Alpha version",
+      "Beta version",
+    ]);
     m.unmount();
     laidOut(300);
     m = mountShell({ phone: true, switcher });
-    expect([...row().querySelectorAll('[data-switch-param="version"] button')].map((b) => b.textContent)).toEqual(["A", "B"]);
+    expect([...row().querySelectorAll('[data-switch-param="version"] button')].map((b) => b.textContent)).toEqual([
+      "A",
+      "B",
+    ]);
     expect($(row(), "[data-bar-title] [aria-hidden]").textContent).toBe("Earth");
     m.unmount();
     laidOut(130);
@@ -125,7 +154,10 @@ describe("the wide drop-down and an outside press", () => {
   it("closes on a press outside it, stays open on a press on its button or inside it", () => {
     laidOut(200);
     m = mountShell({ developerTools: "x", switcher });
-    const down = (target: Element) => act(() => { target.dispatchEvent(new window.PointerEvent("pointerdown", { bubbles: true })); });
+    const down = (target: Element) =>
+      act(() => {
+        target.dispatchEvent(new window.PointerEvent("pointerdown", { bubbles: true }));
+      });
     press(menuButton());
     down(menuButton());
     down(drawer());

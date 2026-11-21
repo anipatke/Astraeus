@@ -15,14 +15,24 @@ const adapter = createOrbAstronomyAdapter();
 type Row = [number, number, number, number, number];
 const series = fixture.series as unknown as Record<string, Row[]>;
 const OBLIQUITY = (84_381.448 / 3600) * (Math.PI / 180);
-const icrfOf = ([, , x, y, z]: Row) => [x, y * Math.cos(OBLIQUITY) - z * Math.sin(OBLIQUITY), y * Math.sin(OBLIQUITY) + z * Math.cos(OBLIQUITY)];
+const icrfOf = ([, , x, y, z]: Row) => [
+  x,
+  y * Math.cos(OBLIQUITY) - z * Math.sin(OBLIQUITY),
+  y * Math.sin(OBLIQUITY) + z * Math.cos(OBLIQUITY),
+];
 /**
  * The Horizons rows of each planet's barycentre in the fixture (the body centre where barycentre and centre agree). Uranus and Neptune are fitted
  * to the barycentre their satellite ephemerides imply (Horizons' 799 or 899 about the Sun minus about the barycentre, O-063 Decision 1), which is
  * not the DE441 barycentre body 7 or 8 in this fixture; tests/planetAccuracyFlybys.test.ts holds them, with their moon packages, to Horizons'
  * planet centre within 1 km, and the importer's own check against its Horizons input is `worstErrorKm` below.
  */
-const truthKey = { mercury: "mercury/body", venus: "venus/body", mars: "mars/body", jupiter: "jupiter/bary", saturn: "saturn/bary" } as const;
+const truthKey = {
+  mercury: "mercury/body",
+  venus: "venus/body",
+  mars: "mars/body",
+  jupiter: "jupiter/bary",
+  saturn: "saturn/bary",
+} as const;
 
 describe("planet curve fits", () => {
   it("stay within 1 km of the Horizons system barycentre (Mercury to Saturn) on 2 January of each year 1972 to 2044", () => {

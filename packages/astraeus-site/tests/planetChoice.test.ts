@@ -29,7 +29,10 @@ describe("planet choice (T-136)", () => {
   it("opens the default planet unless the address names another, and lists planets in order", () => {
     const opened = choosePlanet([jupiter, mars], null)!;
     expect(opened.name).toBe("jupiter");
-    expect(opened.switcher.options.map((option) => [option.value, option.active])).toEqual([["mars", false], ["jupiter", true]]);
+    expect(opened.switcher.options.map((option) => [option.value, option.active])).toEqual([
+      ["mars", false],
+      ["jupiter", true],
+    ]);
     expect(choosePlanet([jupiter, mars], "nope")!.name).toBe("jupiter");
   });
 

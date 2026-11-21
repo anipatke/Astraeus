@@ -2,7 +2,18 @@ import { createEvents, type TimelineEvent } from "../core/events";
 import { zoneAround, type PaceZone, type Pacing } from "../presentation/pacing";
 import { createProvenance, type Provenance } from "../core/provenance";
 import type { TimeBounds } from "../core/trajectory";
-import { checkPanelPlayback, checkStoryPanel, resolveStoryPanels, StoryPanelError, type CheckedPanel, type PanelActions, type PanelCameraRequest, type PanelLookup, type PanelPlayback, type StoryPanelSet } from "../presentation/storyPanels";
+import {
+  checkPanelPlayback,
+  checkStoryPanel,
+  resolveStoryPanels,
+  StoryPanelError,
+  type CheckedPanel,
+  type PanelActions,
+  type PanelCameraRequest,
+  type PanelLookup,
+  type PanelPlayback,
+  type StoryPanelSet,
+} from "../presentation/storyPanels";
 import { SceneError } from "./errors";
 import { cameraRequestOf } from "./cameraRequest";
 import { traceOptionsOf, type SkyTraceOptions } from "./skyTraceInput";
@@ -40,7 +51,16 @@ export interface AddEventsOptions {
  * or, when `rate` is given, runs on from there at that rate.
  */
 export type TimelineInput =
-  | { readonly start: TimeInput; readonly end: TimeInput; readonly rates?: readonly number[]; readonly rate?: number; /** Playback that slows for encounters and speeds up for cruise: see `PacingInput`. */ readonly pacing?: readonly PacingInput[]; /** True: while playing, reaching the end wraps to the start and plays on. Default false. Not available with `none: true`, where it is ignored. */ readonly loop?: boolean; readonly playing?: boolean; readonly none?: undefined }
+  | {
+      readonly start: TimeInput;
+      readonly end: TimeInput;
+      readonly rates?: readonly number[];
+      readonly rate?: number;
+      /** Playback that slows for encounters and speeds up for cruise: see `PacingInput`. */ readonly pacing?: readonly PacingInput[];
+      /** True: while playing, reaching the end wraps to the start and plays on. Default false. Not available with `none: true`, where it is ignored. */ readonly loop?: boolean;
+      readonly playing?: boolean;
+      readonly none?: undefined;
+    }
   | { readonly none: true; readonly at?: TimeInput; readonly rate?: number };
 
 /**
@@ -51,7 +71,11 @@ export type TimelineInput =
  */
 export type PacingInput =
   | { readonly start: TimeInput; readonly end: TimeInput; readonly rate: number; readonly rampSeconds?: number }
-  | { readonly near: { readonly type: string; readonly withinSeconds: number }; readonly rate: number; readonly rampSeconds?: number };
+  | {
+      readonly near: { readonly type: string; readonly withinSeconds: number };
+      readonly rate: number;
+      readonly rampSeconds?: number;
+    };
 
 /** A checked pacing piece: moments as Unix milliseconds, seconds as milliseconds. */
 export type PacingPiece =
@@ -119,7 +143,11 @@ export interface StoryPanelPlaybackInput {
 /** Throws "bad-event" naming the first event whose `object` is not among the scene's `objectIds`. */
 export function checkEventObjects(events: readonly TimelineEvent[], objectIds: ReadonlySet<string>): void {
   for (const event of events) {
-    if (event.object !== undefined && !objectIds.has(event.object)) throw new SceneError("bad-event", `addEvents: event "${event.id}" object "${event.object}" is not a body or trajectory in the scene`);
+    if (event.object !== undefined && !objectIds.has(event.object))
+      throw new SceneError(
+        "bad-event",
+        `addEvents: event "${event.id}" object "${event.object}" is not a body or trajectory in the scene`,
+      );
   }
 }
 
@@ -129,7 +157,10 @@ export function eventProvenanceOf(value: unknown, eventId?: string): Provenance 
   try {
     return createProvenance(value as Provenance);
   } catch (error) {
-    throw new SceneError("bad-event", `${where} is malformed (${error instanceof Error ? error.message : String(error)})`);
+    throw new SceneError(
+      "bad-event",
+      `${where} is malformed (${error instanceof Error ? error.message : String(error)})`,
+    );
   }
 }
 
@@ -138,14 +169,32 @@ export function eventsOf(inputs: readonly EventInput[], known: readonly Timeline
   if (!Array.isArray(inputs)) throw new SceneError("bad-event", "addEvents: events must be a list");
   const ids = new Set(known.map((event) => event.id));
   const added = inputs.map((input): TimelineEvent => {
-    if (typeof input?.id !== "string" || input.id === "") throw new SceneError("bad-event", "addEvents: every event needs a non-empty id");
-    if (typeof input.label !== "string" || input.label === "") throw new SceneError("bad-event", `addEvents: event "${input.id}" needs a non-empty label`);
-    if (ids.has(input.id)) throw new SceneError("duplicate-id", `addEvents: event "${input.id}" is already in the scene's events`);
+    if (typeof input?.id !== "string" || input.id === "")
+      throw new SceneError("bad-event", "addEvents: every event needs a non-empty id");
+    if (typeof input.label !== "string" || input.label === "")
+      throw new SceneError("bad-event", `addEvents: event "${input.id}" needs a non-empty label`);
+    if (ids.has(input.id))
+      throw new SceneError("duplicate-id", `addEvents: event "${input.id}" is already in the scene's events`);
     ids.add(input.id);
     const timeUtcMs = toUtcMs(input.time, `addEvents: event "${input.id}" time`);
-    if (input.object !== undefined && (typeof input.object !== "string" || input.object === "")) throw new SceneError("bad-event", `addEvents: event "${input.id}" object must be a non-empty id`);
-    if (input.withinSeconds !== undefined && !(typeof input.withinSeconds === "number" && Number.isFinite(input.withinSeconds) && input.withinSeconds > 0)) throw new SceneError("bad-event", `addEvents: event "${input.id}" withinSeconds must be a positive, finite number of seconds, got ${String(input.withinSeconds)}`);
-    return { id: input.id, label: input.label, timeUtcMs, ...(input.withinSeconds === undefined ? {} : { withinMs: input.withinSeconds * 1000 }), ...(input.type === undefined ? {} : { type: input.type }), ...(input.object === undefined ? {} : { object: input.object }) };
+    if (input.object !== undefined && (typeof input.object !== "string" || input.object === ""))
+      throw new SceneError("bad-event", `addEvents: event "${input.id}" object must be a non-empty id`);
+    if (
+      input.withinSeconds !== undefined &&
+      !(typeof input.withinSeconds === "number" && Number.isFinite(input.withinSeconds) && input.withinSeconds > 0)
+    )
+      throw new SceneError(
+        "bad-event",
+        `addEvents: event "${input.id}" withinSeconds must be a positive, finite number of seconds, got ${String(input.withinSeconds)}`,
+      );
+    return {
+      id: input.id,
+      label: input.label,
+      timeUtcMs,
+      ...(input.withinSeconds === undefined ? {} : { withinMs: input.withinSeconds * 1000 }),
+      ...(input.type === undefined ? {} : { type: input.type }),
+      ...(input.object === undefined ? {} : { object: input.object }),
+    };
   });
   return createEvents([...known, ...added].sort((a, b) => a.timeUtcMs - b.timeUtcMs));
 }
@@ -154,34 +203,72 @@ export function eventsOf(inputs: readonly EventInput[], known: readonly Timeline
 const MIN_CROSSING_REAL_SECONDS = 1;
 
 /** Warns (never throws: a short span at a fast rate can be meant) when a `rate` or an offered rate crosses the whole timeline span in under a real second; I-163. */
-function warnOfFastRates(window: { readonly startUtcMs: number; readonly endUtcMs: number }, input: { readonly rate?: number; readonly rates?: readonly number[] }): void {
+function warnOfFastRates(
+  window: { readonly startUtcMs: number; readonly endUtcMs: number },
+  input: { readonly rate?: number; readonly rates?: readonly number[] },
+): void {
   const spanSeconds = (window.endUtcMs - window.startUtcMs) / 1000;
-  const fast = [...new Set([...(input.rates ?? []), ...(input.rate === undefined ? [] : [input.rate])].filter((rate) => spanSeconds / Math.abs(rate) < MIN_CROSSING_REAL_SECONDS))];
+  const fast = [
+    ...new Set(
+      [...(input.rates ?? []), ...(input.rate === undefined ? [] : [input.rate])].filter(
+        (rate) => spanSeconds / Math.abs(rate) < MIN_CROSSING_REAL_SECONDS,
+      ),
+    ),
+  ];
   if (fast.length === 0) return;
-  console.warn(`setTimeline: rate ${fast.join(", ")} is in simulated seconds per real second and would cross the whole ${spanSeconds}-second span in under a real second; if the value is in milliseconds (for example DAY_MS), divide it by 1000`);
+  console.warn(
+    `setTimeline: rate ${fast.join(", ")} is in simulated seconds per real second and would cross the whole ${spanSeconds}-second span in under a real second; if the value is in milliseconds (for example DAY_MS), divide it by 1000`,
+  );
 }
 
 /** Checks a `setTimeline` argument and converts its moments. */
 export function timelineOf(input: TimelineInput): TimelineSetting {
   const bad = (message: string) => new SceneError("bad-timeline", `setTimeline: ${message}`);
   if (typeof input !== "object" || input === null) throw bad("give an object such as { start, end } or { none: true }");
-  if (input.rate !== undefined && !(Number.isFinite(input.rate) && input.rate !== 0)) throw bad(`rate must be a finite, non-zero number, got ${String(input.rate)}`);
+  if (input.rate !== undefined && !(Number.isFinite(input.rate) && input.rate !== 0))
+    throw bad(`rate must be a finite, non-zero number, got ${String(input.rate)}`);
   const flags = timelineFlags(input, bad);
-  if (input.none === true) return { none: true, ...(input.at === undefined ? {} : { atUtcMs: toUtcMs(input.at, "setTimeline at") }), ...(input.rate === undefined ? {} : { rate: input.rate }) };
-  const window = { startUtcMs: toUtcMs(input.start, "setTimeline start"), endUtcMs: toUtcMs(input.end, "setTimeline end") };
+  if (input.none === true)
+    return {
+      none: true,
+      ...(input.at === undefined ? {} : { atUtcMs: toUtcMs(input.at, "setTimeline at") }),
+      ...(input.rate === undefined ? {} : { rate: input.rate }),
+    };
+  const window = {
+    startUtcMs: toUtcMs(input.start, "setTimeline start"),
+    endUtcMs: toUtcMs(input.end, "setTimeline end"),
+  };
   if (window.endUtcMs <= window.startUtcMs) throw bad("end must be after start");
   const rates = input.rates;
-  if (rates !== undefined && (!Array.isArray(rates) || rates.length === 0 || !rates.every((rate) => Number.isFinite(rate) && rate > 0))) throw bad("rates must be a non-empty list of positive numbers");
+  if (
+    rates !== undefined &&
+    (!Array.isArray(rates) || rates.length === 0 || !rates.every((rate) => Number.isFinite(rate) && rate > 0))
+  )
+    throw bad("rates must be a non-empty list of positive numbers");
   const pacing = pacingOf(input.pacing, bad);
   warnOfFastRates(window, input);
-  return { none: false, window, ...(rates === undefined ? {} : { rates }), ...(pacing === undefined ? {} : { pacing }), ...(input.rate === undefined ? {} : { rate: input.rate }), ...flags };
+  return {
+    none: false,
+    window,
+    ...(rates === undefined ? {} : { rates }),
+    ...(pacing === undefined ? {} : { pacing }),
+    ...(input.rate === undefined ? {} : { rate: input.rate }),
+    ...flags,
+  };
 }
 
 /** The checked `loop` and `playing` flags of a `setTimeline` argument: only a `true` loop and a `false` playing are kept (the defaults are false and true); a non-boolean throws. */
-function timelineFlags(input: TimelineInput, bad: (message: string) => SceneError): Pick<TimelineSetting, "loop" | "playing"> {
+function timelineFlags(
+  input: TimelineInput,
+  bad: (message: string) => SceneError,
+): Pick<TimelineSetting, "loop" | "playing"> {
   const given = input as { loop?: unknown; playing?: unknown };
-  for (const flag of ["loop", "playing"] as const) if (given[flag] !== undefined && typeof given[flag] !== "boolean") throw bad(`${flag} must be true or false`);
-  return { ...(given.loop === true ? { loop: true } : {}), ...(given.playing === false ? { playing: false as const } : {}) };
+  for (const flag of ["loop", "playing"] as const)
+    if (given[flag] !== undefined && typeof given[flag] !== "boolean") throw bad(`${flag} must be true or false`);
+  return {
+    ...(given.loop === true ? { loop: true } : {}),
+    ...(given.playing === false ? { playing: false as const } : {}),
+  };
 }
 
 /** Runs a core panel check, turning a `StoryPanelError` into a `bad-panels` SceneError that leads with `call`. */
@@ -195,7 +282,10 @@ function panelCheck<T>(call: string, check: () => T): T {
 }
 
 /** Checks the shape of a batch for `addStoryPanels`: old forms throw `renamed`, a bad shape `bad-panels`, and an id already in `known` or repeated in the batch `duplicate-id`. */
-export function panelBatchOf(inputs: readonly StoryPanelInput[], known: readonly CheckedPanel[]): readonly CheckedPanel[] {
+export function panelBatchOf(
+  inputs: readonly StoryPanelInput[],
+  known: readonly CheckedPanel[],
+): readonly CheckedPanel[] {
   rejectRenamed("AddStoryPanelsCall", inputs, "addStoryPanels");
   if (!Array.isArray(inputs)) throw new SceneError("bad-panels", "addStoryPanels: give a list of panels");
   const ids = new Set(known.map(({ id }) => id));
@@ -214,7 +304,8 @@ export function panelBatchOf(inputs: readonly StoryPanelInput[], known: readonly
 
 /** The actions of a panel (`camera`, `select`, `trace`), checked in shape; a mistake throws `bad-panels` naming the panel and field. What they name is checked when the scene is built. */
 function panelActionsOf(input: Record<string, unknown>, id: string, object: string | undefined): PanelActions {
-  const bad = (field: string, why: string) => new SceneError("bad-panels", `addStoryPanels: story panel ${id}: ${field} ${why}`);
+  const bad = (field: string, why: string) =>
+    new SceneError("bad-panels", `addStoryPanels: story panel ${id}: ${field} ${why}`);
   let camera: PanelCameraRequest | undefined;
   if (input.camera !== undefined) {
     try {
@@ -234,7 +325,11 @@ function panelActionsOf(input: Record<string, unknown>, id: string, object: stri
       throw bad("trace", `is not true or trace options (${error instanceof Error ? error.message : String(error)})`);
     }
   }
-  return { ...(camera === undefined ? {} : { camera }), ...(input.select === true ? { select: true as const } : {}), ...(trace === undefined ? {} : { trace }) };
+  return {
+    ...(camera === undefined ? {} : { camera }),
+    ...(input.select === true ? { select: true as const } : {}),
+    ...(trace === undefined ? {} : { trace }),
+  };
 }
 
 /** Checks a `setStoryPanelPlayback` argument; a mistake throws `bad-panels`. */
@@ -250,31 +345,58 @@ export function panelsOf(panels: readonly CheckedPanel[], playback: PanelPlaybac
 /** Checks `pacing`: each piece names the field that is wrong (`pacing[2].rate`); spans must not overlap. */
 function pacingOf(input: unknown, bad: (message: string) => SceneError): readonly PacingPiece[] | undefined {
   if (input === undefined) return undefined;
-  if (!Array.isArray(input)) throw bad("pacing must be a list of { start, end, rate } and { near: { type, withinSeconds }, rate }");
-  const positive = (value: unknown): value is number => typeof value === "number" && Number.isFinite(value) && value > 0;
+  if (!Array.isArray(input))
+    throw bad("pacing must be a list of { start, end, rate } and { near: { type, withinSeconds }, rate }");
+  const positive = (value: unknown): value is number =>
+    typeof value === "number" && Number.isFinite(value) && value > 0;
   const pieces = input.map((raw: unknown, index): PacingPiece => {
     const at = `pacing[${index}]`;
     if (typeof raw !== "object" || raw === null) throw bad(`${at} must be an object`);
-    const piece = raw as { start?: TimeInput; end?: TimeInput; near?: { type?: unknown; withinSeconds?: unknown }; rate?: unknown; rampSeconds?: unknown };
+    const piece = raw as {
+      start?: TimeInput;
+      end?: TimeInput;
+      near?: { type?: unknown; withinSeconds?: unknown };
+      rate?: unknown;
+      rampSeconds?: unknown;
+    };
     rejectRenamed(piece.near === undefined ? "PacingSpan" : "PacingRule", piece, `setTimeline: ${at}`);
     if (!positive(piece.rate)) throw bad(`${at}.rate must be a positive number, got ${String(piece.rate)}`);
-    if (piece.rampSeconds !== undefined && !(typeof piece.rampSeconds === "number" && Number.isFinite(piece.rampSeconds) && piece.rampSeconds >= 0)) throw bad(`${at}.rampSeconds must be zero or more seconds, got ${String(piece.rampSeconds)}`);
+    if (
+      piece.rampSeconds !== undefined &&
+      !(typeof piece.rampSeconds === "number" && Number.isFinite(piece.rampSeconds) && piece.rampSeconds >= 0)
+    )
+      throw bad(`${at}.rampSeconds must be zero or more seconds, got ${String(piece.rampSeconds)}`);
     if (piece.near !== undefined) {
       rejectRenamed("PacingNear", piece.near, `setTimeline: ${at}.near`);
       const { type, withinSeconds } = piece.near;
       if (typeof type !== "string" || type === "") throw bad(`${at}.near.type must be a non-empty event type`);
-      if (!positive(withinSeconds)) throw bad(`${at}.near.withinSeconds must be a positive number of seconds, got ${String(withinSeconds)}`);
-      return { type, withinMs: withinSeconds * 1000, rate: piece.rate, rampMs: (piece.rampSeconds ?? withinSeconds) * 1000 };
+      if (!positive(withinSeconds))
+        throw bad(`${at}.near.withinSeconds must be a positive number of seconds, got ${String(withinSeconds)}`);
+      return {
+        type,
+        withinMs: withinSeconds * 1000,
+        rate: piece.rate,
+        rampMs: (piece.rampSeconds ?? withinSeconds) * 1000,
+      };
     }
-    if (piece.start === undefined || piece.end === undefined) throw bad(`${at} needs { start, end, rate } or { near: { type, withinSeconds }, rate }`);
+    if (piece.start === undefined || piece.end === undefined)
+      throw bad(`${at} needs { start, end, rate } or { near: { type, withinSeconds }, rate }`);
     const fromUtcMs = toUtcMs(piece.start, `setTimeline ${at}.start`);
     const toUtcMsValue = toUtcMs(piece.end, `setTimeline ${at}.end`);
     if (toUtcMsValue <= fromUtcMs) throw bad(`${at}.end must be after ${at}.start`);
-    return { fromUtcMs, toUtcMs: toUtcMsValue, rate: piece.rate, rampMs: piece.rampSeconds === undefined ? (toUtcMsValue - fromUtcMs) / 10 : piece.rampSeconds * 1000 };
+    return {
+      fromUtcMs,
+      toUtcMs: toUtcMsValue,
+      rate: piece.rate,
+      rampMs: piece.rampSeconds === undefined ? (toUtcMsValue - fromUtcMs) / 10 : piece.rampSeconds * 1000,
+    };
   });
-  const spans = pieces.flatMap((piece, index) => ("fromUtcMs" in piece ? [{ piece, index }] : [])).sort((a, b) => a.piece.fromUtcMs - b.piece.fromUtcMs);
+  const spans = pieces
+    .flatMap((piece, index) => ("fromUtcMs" in piece ? [{ piece, index }] : []))
+    .sort((a, b) => a.piece.fromUtcMs - b.piece.fromUtcMs);
   for (let i = 1; i < spans.length; i += 1) {
-    if (spans[i]!.piece.fromUtcMs < spans[i - 1]!.piece.toUtcMs) throw bad(`pacing[${spans[i]!.index}] overlaps pacing[${spans[i - 1]!.index}]; spans may touch but not overlap`);
+    if (spans[i]!.piece.fromUtcMs < spans[i - 1]!.piece.toUtcMs)
+      throw bad(`pacing[${spans[i]!.index}] overlaps pacing[${spans[i - 1]!.index}]; spans may touch but not overlap`);
   }
   return pieces.length === 0 ? undefined : pieces;
 }
@@ -283,15 +405,27 @@ function pacingOf(input: unknown, bad: (message: string) => SceneError): readonl
  * The pacing the viewer runs, laid over the events: spans, then one zone per event of each rule's type. `pacedRate` lets faster spans set the cruise (the faster wins) and eases slower spans and event rules down from it (the slowest wins wherever they meet), whatever contains what.
  * A rule whose type has no event throws `bad-timeline` naming the piece (a mistyped type would otherwise slow nothing, silently).
  */
-export function pacingFor(setting: TimelineSetting, events: readonly TimelineEvent[], baseRate: number): Pacing | undefined {
+export function pacingFor(
+  setting: TimelineSetting,
+  events: readonly TimelineEvent[],
+  baseRate: number,
+): Pacing | undefined {
   if (setting.pacing === undefined) return undefined;
   const spans: PaceZone[] = [];
   const near: PaceZone[] = [];
   setting.pacing.forEach((piece, index) => {
-    if ("fromUtcMs" in piece) { spans.push({ fromUtcMs: piece.fromUtcMs, toUtcMs: piece.toUtcMs, rate: piece.rate, rampMs: piece.rampMs }); return; }
+    if ("fromUtcMs" in piece) {
+      spans.push({ fromUtcMs: piece.fromUtcMs, toUtcMs: piece.toUtcMs, rate: piece.rate, rampMs: piece.rampMs });
+      return;
+    }
     const matching = events.filter((event) => event.type === piece.type);
-    if (matching.length === 0) throw new SceneError("bad-timeline", `setTimeline: pacing[${index}].near.type "${piece.type}" matches no event; give the events that type with addEvents`);
-    for (const event of matching) near.push({ ...zoneAround(event, piece.withinMs), rate: piece.rate, rampMs: piece.rampMs });
+    if (matching.length === 0)
+      throw new SceneError(
+        "bad-timeline",
+        `setTimeline: pacing[${index}].near.type "${piece.type}" matches no event; give the events that type with addEvents`,
+      );
+    for (const event of matching)
+      near.push({ ...zoneAround(event, piece.withinMs), rate: piece.rate, rampMs: piece.rampMs });
   });
   return { baseRate, zones: [...spans, ...near] };
 }

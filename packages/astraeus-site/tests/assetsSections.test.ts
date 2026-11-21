@@ -16,9 +16,18 @@ const ROOT = new URL("../", import.meta.url).pathname;
 const DATA_PKG = new URL("../../astraeus-data/", import.meta.url).pathname;
 const DATA = new URL("../../", import.meta.url).pathname; // the packages folder: each planet's moon list is in astraeus-data-<planet>
 const PLANETS = new URL("../../astraeus-demo-planets/", import.meta.url).pathname;
-interface Moon { id: string; name: string; bodyPackage: string | null }
-const moonList = (planet: string): readonly Moon[] => (readJson(`${DATA}astraeus-data-${planet}/data/${planet}-moons/list.json`) as { moons: Moon[] }).moons;
-const bodies = (readJson(`${DATA_PKG}data/bodies/catalogue.json`) as { bodies: { body: string; parent: string | null; featureCount: number }[] }).bodies;
+interface Moon {
+  id: string;
+  name: string;
+  bodyPackage: string | null;
+}
+const moonList = (planet: string): readonly Moon[] =>
+  (readJson(`${DATA}astraeus-data-${planet}/data/${planet}-moons/list.json`) as { moons: Moon[] }).moons;
+const bodies = (
+  readJson(`${DATA_PKG}data/bodies/catalogue.json`) as {
+    bodies: { body: string; parent: string | null; featureCount: number }[];
+  }
+).bodies;
 
 describe("assets page sections follow the data (T-120)", () => {
   for (const [name, block] of Object.entries(generatedBlocks() as Record<string, string>)) {
@@ -33,10 +42,16 @@ describe("assets page sections follow the data (T-120)", () => {
   it("lists every moon of Mars, Saturn, Uranus, Neptune and Pluto once, and every tagged place of every body", () => {
     for (const planet of MOON_PLANETS as string[]) {
       const listed = [...assets.matchAll(new RegExp(`data-planet-moon="${planet}/([^"]+)"`, "g"))].map((m) => m[1]);
-      expect(listed.sort(), planet).toEqual(moonList(planet).map((moon) => moon.id).sort());
+      expect(listed.sort(), planet).toEqual(
+        moonList(planet)
+          .map((moon) => moon.id)
+          .sort(),
+      );
     }
     for (const entry of bodies) {
-      const features = (readJson(`${DATA_PKG}data/bodies/${entry.body}/features.json`) as { features: { id: string }[] }).features;
+      const features = (
+        readJson(`${DATA_PKG}data/bodies/${entry.body}/features.json`) as { features: { id: string }[] }
+      ).features;
       expect(features.length, entry.body).toBe(entry.featureCount);
       const listed = [...assets.matchAll(new RegExp(`data-place="${entry.body}/([^"]+)"`, "g"))].map((m) => m[1]);
       expect(listed, entry.body).toEqual(features.map((feature) => feature.id));
@@ -48,12 +63,22 @@ describe("assets page sections follow the data (T-120)", () => {
     const listed = new Map<string, number>();
     for (const file of ["mercury", "venus", "earth", "mars", "jupiter", "saturn", "uranus", "neptune", "pluto"]) {
       for (const body of (readJson(`${PLANETS}data/planets/${file}.json`) as { bodyFeatures: string[] }).bodyFeatures) {
-        const list = (readJson(`${DATA_PKG}data/bodies/${body}/features.json`) as { features: { latitude?: number; ringRadius?: number; moonRadius?: number }[] }).features;
-        listed.set(body, list.filter((f) => f.latitude !== undefined && f.ringRadius === undefined && f.moonRadius === undefined).length);
+        const list = (
+          readJson(`${DATA_PKG}data/bodies/${body}/features.json`) as {
+            features: { latitude?: number; ringRadius?: number; moonRadius?: number }[];
+          }
+        ).features;
+        listed.set(
+          body,
+          list.filter((f) => f.latitude !== undefined && f.ringRadius === undefined && f.moonRadius === undefined)
+            .length,
+        );
       }
     }
     for (const entry of bodies) {
-      const tag = new RegExp(`data-places-body="${entry.body}"[^>]*data-shown="(yes|no)"(?: data-shown-count="(\\d+)")?`).exec(assets)!;
+      const tag = new RegExp(
+        `data-places-body="${entry.body}"[^>]*data-shown="(yes|no)"(?: data-shown-count="(\\d+)")?`,
+      ).exec(assets)!;
       expect(tag[1], entry.body).toBe(listed.has(entry.body) ? "yes" : "no");
       if (listed.has(entry.body)) expect(Number(tag[2]), entry.body).toBe(listed.get(entry.body));
     }
@@ -65,7 +90,9 @@ describe("assets page sections follow the data (T-120)", () => {
 describe("home shelf and demo card (T-120)", () => {
   const shelf = index.slice(index.indexOf('<div class="globes"'), index.indexOf('<div class="shelf2"'));
   const PLANETS = ["sun", "mercury", "venus", "earth", "mars", "jupiter", "saturn", "uranus", "neptune", "pluto"];
-  const globes = [...shelf.matchAll(/<div class="globe">(.*?)<\/div>(?=\s*<div class="globe">|\s*<\/div>)/gs)].map((m) => m[0]);
+  const globes = [...shelf.matchAll(/<div class="globe">(.*?)<\/div>(?=\s*<div class="globe">|\s*<\/div>)/gs)].map(
+    (m) => m[0],
+  );
 
   it("is one row of the Sun and the nine planets, in order, each with a thumbnail that exists", () => {
     expect(globes.map((g) => /<b>(.*?)<\/b>/.exec(g)?.[1].toLowerCase())).toEqual(PLANETS);
@@ -81,11 +108,26 @@ describe("home shelf and demo card (T-120)", () => {
       const chip = /<\/b><span>(.*?)<\/span>/.exec(g)?.[1] ?? "";
       const licence = licenceOf(id);
       if (licence === undefined) throw new Error(`${id} has no texture licence`);
-      const expected = licence === "public domain" ? (id === "earth" ? "NASA Earth Observatory" : "Public domain") : licence.startsWith("NASA/JPL") ? "NASA/JPL" : licence;
+      const expected =
+        licence === "public domain"
+          ? id === "earth"
+            ? "NASA Earth Observatory"
+            : "Public domain"
+          : licence.startsWith("NASA/JPL")
+            ? "NASA/JPL"
+            : licence;
       expect(chip, id).toBe(expected);
-      const count = id === "earth" ? bodies.filter((b) => b.parent === "earth").length : MOON_PLANETS.concat("jupiter").includes(id) ? moonList(id).length : 0;
+      const count =
+        id === "earth"
+          ? bodies.filter((b) => b.parent === "earth").length
+          : MOON_PLANETS.concat("jupiter").includes(id)
+            ? moonList(id).length
+            : 0;
       const link = /<a class="moons" href="assets\.html#([^"]+)">\+(\d+) (moons?)<\/a>/.exec(g);
-      if (count === 0) { expect(link, id).toBeNull(); continue; }
+      if (count === 0) {
+        expect(link, id).toBeNull();
+        continue;
+      }
       expect(link, id).not.toBeNull();
       expect(Number(link?.[2]), id).toBe(count);
       expect(link?.[3]).toBe(count === 1 ? "moon" : "moons");

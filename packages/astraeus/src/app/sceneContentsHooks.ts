@@ -27,7 +27,11 @@ import { releaseDotTexture } from "./dotMaterial";
 import { releaseAnchorSprite, type TrackedBodyView } from "./TrackedBodyView";
 
 /** The catalogued body a focus or label id names: the Sun's shell item stands for the Sun body. */
-export function bodyIdOf(runtime: { readonly sun?: { readonly object: { readonly id: string } } }, catalogue: BodyCatalogue, id: string): BodyId | null {
+export function bodyIdOf(
+  runtime: { readonly sun?: { readonly object: { readonly id: string } } },
+  catalogue: BodyCatalogue,
+  id: string,
+): BodyId | null {
   if (runtime.sun !== undefined && id === runtime.sun.object.id) return rootBodyId();
   return catalogue.has(id) ? id : null;
 }
@@ -47,25 +51,55 @@ export function useBodyRefs(runtime: SceneRuntime) {
   const lightRefs = useRef(new Map<BodyId, DirectionalLight>());
   const partsRefs = useRef(new Map<BodyId, BodyParts>());
   // One stable callback per body, so a body's effect is not re-run by every render.
-  const partsFor = useMemo(() => new Map(runtime.bodies.map((id) => [id, refFor(partsRefs.current, id)] as const)), [runtime.bodies]);
+  const partsFor = useMemo(
+    () => new Map(runtime.bodies.map((id) => [id, refFor(partsRefs.current, id)] as const)),
+    [runtime.bodies],
+  );
   const bodyRefs: BodyRefs = { groups: groupRefs.current, orients: orientRefs.current, parts: partsRefs.current };
   return { groupRefs, orientRefs, lightRefs, partsFor, bodyRefs };
 }
 
 /** What the scene derives from its runtime: the placement, the readout pair and its labels, the body assets and the families of bodies drawn outside the sets. */
 export function useSceneDerived(runtime: SceneRuntime, catalogue: BodyCatalogue) {
-  const placement = useMemo<ScenePlacement>(() => ({ resolver: runtime.resolver, center: runtime.sceneCenter }), [runtime.resolver, runtime.sceneCenter]);
+  const placement = useMemo<ScenePlacement>(
+    () => ({ resolver: runtime.resolver, center: runtime.sceneCenter }),
+    [runtime.resolver, runtime.sceneCenter],
+  );
   const readoutPair = useMemo(() => readoutPairOf(runtime.bodies, catalogue), [runtime.bodies, catalogue]);
-  const pairLabels = useMemo(() => (readoutPair === null ? undefined : { parent: catalogue.get(readoutPair.parent).definition.label, child: catalogue.get(readoutPair.child).definition.label }), [readoutPair, catalogue]);
-  const assets = useMemo<readonly BodyAsset[]>(() => runtime.bodies.map((id) => assetWithOverride(catalogue.get(id), runtime.overrides?.get(id))), [runtime.bodies, runtime.overrides, catalogue]);
-  const bodyFamilies = useMemo(() => (runtime.bodySets ?? []).flatMap((layer) => Object.entries(layer.bodyFamilies ?? {}).map(([body, family]) => ({ layer, body, family }))), [runtime.bodySets]);
+  const pairLabels = useMemo(
+    () =>
+      readoutPair === null
+        ? undefined
+        : {
+            parent: catalogue.get(readoutPair.parent).definition.label,
+            child: catalogue.get(readoutPair.child).definition.label,
+          },
+    [readoutPair, catalogue],
+  );
+  const assets = useMemo<readonly BodyAsset[]>(
+    () => runtime.bodies.map((id) => assetWithOverride(catalogue.get(id), runtime.overrides?.get(id))),
+    [runtime.bodies, runtime.overrides, catalogue],
+  );
+  const bodyFamilies = useMemo(
+    () =>
+      (runtime.bodySets ?? []).flatMap((layer) =>
+        Object.entries(layer.bodyFamilies ?? {}).map(([body, family]) => ({ layer, body, family })),
+      ),
+    [runtime.bodySets],
+  );
   return { placement, readoutPair, pairLabels, assets, bodyFamilies };
 }
 
 const NO_SKY_LABELS: readonly SkyLabelSpec[] = [];
 
 /** Mounts every DOM layer the frame updates (names, anchor labels, story and feature markers) and returns the refs the frame reads. */
-export function useOverlayLayers(canvas: HTMLCanvasElement, controls: SceneControls, trackedViews: readonly TrackedBodyView[], bodySetViews: readonly BodySetView[], skyLabels: readonly SkyLabelSpec[] = NO_SKY_LABELS): FrameLayers {
+export function useOverlayLayers(
+  canvas: HTMLCanvasElement,
+  controls: SceneControls,
+  trackedViews: readonly TrackedBodyView[],
+  bodySetViews: readonly BodySetView[],
+  skyLabels: readonly SkyLabelSpec[] = NO_SKY_LABELS,
+): FrameLayers {
   const bodySetLabels = useRef<BodySetLabelLayer[]>([]);
   const anchorLabels = useRef<AnchorLabelLayer | null>(null);
   const sceneLabels = useRef<SceneLabelLayer | null>(null);
@@ -76,20 +110,62 @@ export function useOverlayLayers(canvas: HTMLCanvasElement, controls: SceneContr
     if (host === null) return undefined;
     const layers = bodySetViews.map((view) => new BodySetLabelLayer(host, canvas, view));
     bodySetLabels.current = layers;
-    return () => { for (const layer of layers) layer.dispose(); bodySetLabels.current = []; };
+    return () => {
+      for (const layer of layers) layer.dispose();
+      bodySetLabels.current = [];
+    };
   }, [canvas, bodySetViews, controls]);
   useHostLayer(canvas, anchorLabels, (host) => new AnchorLabelLayer(host, trackedViews), [canvas, trackedViews]);
-  useHostLayer(canvas, sceneLabels, (host) => new SceneLabelLayer(host, controls.labelObjects, skyLabels), [canvas, controls.labelObjects, skyLabels]);
-  useHostLayer(canvas, storyMarkers, (host) => (controls.storyMarkers === undefined || controls.storyMarkers.length === 0 ? null : new StoryMarkerLayer(host, controls.storyMarkers, (panelId) => controls.onStoryMarker?.(panelId))), [canvas, controls]);
-  useHostLayer(canvas, featureMarkers, (host) => (controls.featureMarkers === undefined || controls.featureMarkers.length === 0 ? null : new FeatureMarkerLayer(host, controls.featureMarkers, (key) => controls.onFeatureMarker?.(key))), [canvas, controls]);
+  useHostLayer(canvas, sceneLabels, (host) => new SceneLabelLayer(host, controls.labelObjects, skyLabels), [
+    canvas,
+    controls.labelObjects,
+    skyLabels,
+  ]);
+  useHostLayer(
+    canvas,
+    storyMarkers,
+    (host) =>
+      controls.storyMarkers === undefined || controls.storyMarkers.length === 0
+        ? null
+        : new StoryMarkerLayer(host, controls.storyMarkers, (panelId) => controls.onStoryMarker?.(panelId)),
+    [canvas, controls],
+  );
+  useHostLayer(
+    canvas,
+    featureMarkers,
+    (host) =>
+      controls.featureMarkers === undefined || controls.featureMarkers.length === 0
+        ? null
+        : new FeatureMarkerLayer(host, controls.featureMarkers, (key) => controls.onFeatureMarker?.(key)),
+    [canvas, controls],
+  );
   return { bodySetLabels, anchorLabels, sceneLabels, storyMarkers, featureMarkers };
 }
 
 /** Wires the canvas's orbit gestures, hover and tap picking to the camera and frame state. */
-export function useScenePointer(canvas: HTMLCanvasElement, runtime: SceneRuntime, controls: SceneControls, catalogue: BodyCatalogue, orbit: { current: OrbitCameraState }, state: { current: FrameState }): void {
+export function useScenePointer(
+  canvas: HTMLCanvasElement,
+  runtime: SceneRuntime,
+  controls: SceneControls,
+  catalogue: BodyCatalogue,
+  orbit: { current: OrbitCameraState },
+  state: { current: FrameState },
+): void {
   useEffect(() => {
-    const limits = () => focusLimits(bodyIdOf(runtime, catalogue, orbit.current.focus) ?? orbit.current.focus, { centre: runtime.sceneCenter, span: state.current.spanScaled, bodies: catalogue }, controls.policy, liveReach(runtime.cameraReach, controls.policy, canvas.clientHeight > 0 ? canvas.clientWidth / canvas.clientHeight : 1));
-    return attachScenePointer(canvas, orbit.current, state.current, limits, (id, options) => (options === undefined ? controls.onPickObject?.(id) : controls.onPickObject?.(id, options)));
+    const limits = () =>
+      focusLimits(
+        bodyIdOf(runtime, catalogue, orbit.current.focus) ?? orbit.current.focus,
+        { centre: runtime.sceneCenter, span: state.current.spanScaled, bodies: catalogue },
+        controls.policy,
+        liveReach(
+          runtime.cameraReach,
+          controls.policy,
+          canvas.clientHeight > 0 ? canvas.clientWidth / canvas.clientHeight : 1,
+        ),
+      );
+    return attachScenePointer(canvas, orbit.current, state.current, limits, (id, options) =>
+      options === undefined ? controls.onPickObject?.(id) : controls.onPickObject?.(id, options),
+    );
     // eslint-disable-next-line react-hooks/exhaustive-deps -- the pointer handlers attach once per canvas or controls; runtime, catalogue, orbit and state are read through refs/current at call time
   }, [canvas, controls]);
 }
@@ -122,7 +198,17 @@ export function useSceneFrame(rootRef: { current: Group | null }, inputs: FrameI
     inputs.state.current.drawThisFrame = true;
     if (!rootRef.current || !bodiesMounted(inputs.runtime, inputs.bodyRefs)) return;
     const { orbit, state, lightRefs, ...rest } = inputs;
-    runFrame({ ...rest, camera: camera as PerspectiveCamera, canvas: gl.domElement, size, orbit: orbit.current, state: state.current, delta, lightRefs: lightRefs.current, bodyIdFor: (id) => bodyIdOf(inputs.runtime, inputs.catalogue, id) });
+    runFrame({
+      ...rest,
+      camera: camera as PerspectiveCamera,
+      canvas: gl.domElement,
+      size,
+      orbit: orbit.current,
+      state: state.current,
+      delta,
+      lightRefs: lightRefs.current,
+      bodyIdFor: (id) => bodyIdOf(inputs.runtime, inputs.catalogue, id),
+    });
   });
 }
 
@@ -132,7 +218,14 @@ export function useSceneFrame(rootRef: { current: Group | null }, inputs: FrameI
  * the pictures are disposed, which every renderer that drew them hears and forgets.
  */
 export function useReleaseSharedTextures(): void {
-  useEffect(() => () => { releaseGlowTexture(); releaseAnchorSprite(); releaseDotTexture(); }, []);
+  useEffect(
+    () => () => {
+      releaseGlowTexture();
+      releaseAnchorSprite();
+      releaseDotTexture();
+    },
+    [],
+  );
 }
 
 /**
@@ -142,13 +235,27 @@ export function useReleaseSharedTextures(): void {
  */
 export function useDrawWakes(canvas: HTMLCanvasElement, state: { current: FrameState }): void {
   useEffect(() => {
-    const wake = () => { state.current.wakes += 1; };
+    const wake = () => {
+      state.current.wakes += 1;
+    };
     const manager = DefaultLoadingManager;
     const { onStart, onProgress, onLoad, onError } = manager;
-    manager.onStart = (...args) => { wake(); onStart?.(...args); };
-    manager.onProgress = (...args) => { wake(); onProgress?.(...args); };
-    manager.onLoad = () => { wake(); onLoad?.(); };
-    manager.onError = (url) => { wake(); onError?.(url); };
+    manager.onStart = (...args) => {
+      wake();
+      onStart?.(...args);
+    };
+    manager.onProgress = (...args) => {
+      wake();
+      onProgress?.(...args);
+    };
+    manager.onLoad = () => {
+      wake();
+      onLoad?.();
+    };
+    manager.onError = (url) => {
+      wake();
+      onError?.(url);
+    };
     canvas.addEventListener("webglcontextrestored", wake);
     return () => {
       manager.onStart = onStart;

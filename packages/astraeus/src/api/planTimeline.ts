@@ -8,12 +8,20 @@ import { frozenList, type SceneTimelineRead, type ScenePacingRead } from "./scen
 import { eventZonesOf } from "../presentation/pacing";
 import { pacingFor, timelineOf, type PacingPiece, type TimelineInput, type TimelineSetting } from "./story";
 
-
 /** A checked pacing piece as the public read states it (seconds and UTC milliseconds). */
 function pacingReadOf(piece: PacingPiece): ScenePacingRead {
   return "fromUtcMs" in piece
-    ? { spanStartUtcMs: piece.fromUtcMs, spanEndUtcMs: piece.toUtcMs, rate: piece.rate, rampSeconds: piece.rampMs / 1000 }
-    : { near: Object.freeze({ type: piece.type, withinSeconds: piece.withinMs / 1000 }), rate: piece.rate, rampSeconds: piece.rampMs / 1000 };
+    ? {
+        spanStartUtcMs: piece.fromUtcMs,
+        spanEndUtcMs: piece.toUtcMs,
+        rate: piece.rate,
+        rampSeconds: piece.rampMs / 1000,
+      }
+    : {
+        near: Object.freeze({ type: piece.type, withinSeconds: piece.withinMs / 1000 }),
+        rate: piece.rate,
+        rampSeconds: piece.rampMs / 1000,
+      };
 }
 
 /** What a `Scene` has planned for its timeline: the opening time, the timeline setting, and from them the span, clock, rates and pacing. */
@@ -40,10 +48,18 @@ export class TimelinePlan {
     const timeline = this.setting;
     const setTime = (timeline?.none === true ? timeline.atUtcMs : undefined) ?? this.#timeUtcMs;
     // With nothing setting a span or a moment, the month window is centred on now and the clock opens at now (not at the window's start).
-    const now = setTime === undefined && timeline?.window === undefined && tracked.length === 0 ? Date.now() : undefined;
+    const now =
+      setTime === undefined && timeline?.window === undefined && tracked.length === 0 ? Date.now() : undefined;
     const window = timeline?.window ?? windowOf(tracked, setTime ?? now);
-    if (timeline?.window !== undefined && setTime !== undefined && (setTime < window.startUtcMs || setTime > window.endUtcMs)) {
-      throw new SceneError("bad-timeline", `setTime ${new Date(setTime).toISOString()} is outside the timeline (${new Date(window.startUtcMs).toISOString()} to ${new Date(window.endUtcMs).toISOString()})`);
+    if (
+      timeline?.window !== undefined &&
+      setTime !== undefined &&
+      (setTime < window.startUtcMs || setTime > window.endUtcMs)
+    ) {
+      throw new SceneError(
+        "bad-timeline",
+        `setTime ${new Date(setTime).toISOString()} is outside the timeline (${new Date(window.startUtcMs).toISOString()} to ${new Date(window.endUtcMs).toISOString()})`,
+      );
     }
     return { window, startUtcMs: setTime ?? now ?? window.startUtcMs };
   }
@@ -66,7 +82,13 @@ export class TimelinePlan {
   /** The clock's opening: 60 times real time unless set; with no timeline and no rate, frozen. */
   clock(startUtcMs: number): ExperienceDefinition["clock"] {
     const timeline = this.setting;
-    return { startUtcMs, rate: timeline?.rate ?? 60, ...(timeline?.playing === false || (timeline?.none === true && timeline.rate === undefined) ? { playing: false } : {}) };
+    return {
+      startUtcMs,
+      rate: timeline?.rate ?? 60,
+      ...(timeline?.playing === false || (timeline?.none === true && timeline.rate === undefined)
+        ? { playing: false }
+        : {}),
+    };
   }
 
   /** The pacing the timeline asked for, laid over the scene's events; a rule naming an event type with no events throws `bad-timeline`. */
@@ -83,7 +105,8 @@ function windowOf(tracked: readonly TimeBounds[], timeUtcMs: number | undefined)
   if (tracked.length > 0) {
     const start = Math.min(...tracked.map((bounds) => bounds.startUtcMs));
     const end = Math.max(...tracked.map((bounds) => bounds.endUtcMs));
-    if (timeUtcMs === undefined || (timeUtcMs >= start && timeUtcMs <= end)) return { startUtcMs: start, endUtcMs: end };
+    if (timeUtcMs === undefined || (timeUtcMs >= start && timeUtcMs <= end))
+      return { startUtcMs: start, endUtcMs: end };
   }
   const centre = timeUtcMs ?? Date.now();
   return { startUtcMs: centre - 15 * DAY_MS, endUtcMs: centre + 15 * DAY_MS };

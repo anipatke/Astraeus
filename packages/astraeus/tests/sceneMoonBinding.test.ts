@@ -13,7 +13,8 @@ import { readBytes } from "../tools/import/test-io.mjs";
 
 const adapter = createOrbAstronomyAdapter();
 const T = Date.parse("2016-06-01T00:00:00Z");
-const folder = (planet: string) => `${dirname(createRequire(import.meta.url).resolve(`astraeus-data-${planet}/package.json`))}/data/${planet}-moons/`;
+const folder = (planet: string) =>
+  `${dirname(createRequire(import.meta.url).resolve(`astraeus-data-${planet}/package.json`))}/data/${planet}-moons/`;
 
 const resolverOf = (moonData?: ReturnType<typeof createSceneMoonData>) => {
   const bound = moonData === undefined ? builtIn : bindCatalogue(builtIn, moonData);
@@ -30,24 +31,35 @@ async function loadJupiter(moonData: ReturnType<typeof createSceneMoonData>): Pr
   await system.load({
     window: { startUtcMs: Date.UTC(2016, 1, 10), endUtcMs: Date.UTC(2016, 11, 30) },
     bodies: ["io"],
-    chunkUrls: new Proxy({}, { get: (_target, path: string) => (path.endsWith("/2016.bin") ? `${root}${path}` : undefined) }) as Record<string, string>,
+    chunkUrls: new Proxy(
+      {},
+      { get: (_target, path: string) => (path.endsWith("/2016.bin") ? `${root}${path}` : undefined) },
+    ) as Record<string, string>,
     fetchBytes: async (path) => readBytes(path),
   });
 }
 
 describe("a catalogue bound to a scene's moon data", () => {
-  it.each([["jupiter", "io"], ["saturn", "titan"]] as const)("holds %s at its barycentre and refuses %s while the scene's own system is not loaded", (planet, moon) => {
-    const resolver = resolverOf(createSceneMoonData());
-    expect(Array.from(resolver.stateOf(planet, T, "sun").positionKm)).toEqual(Array.from(barycentre(planet)));
-    expect(() => resolver.stateOf(moon, T, planet)).toThrow(NotLoadedError);
-  });
+  it.each([
+    ["jupiter", "io"],
+    ["saturn", "titan"],
+  ] as const)(
+    "holds %s at its barycentre and refuses %s while the scene's own system is not loaded",
+    (planet, moon) => {
+      const resolver = resolverOf(createSceneMoonData());
+      expect(Array.from(resolver.stateOf(planet, T, "sun").positionKm)).toEqual(Array.from(barycentre(planet)));
+      expect(() => resolver.stateOf(moon, T, planet)).toThrow(NotLoadedError);
+    },
+  );
 
   it("answers from the scene's system once that is loaded, leaves Saturn at its barycentre, and another scene's data is unaffected", async () => {
     const mine = createSceneMoonData();
     const other = createSceneMoonData();
     await loadJupiter(mine);
     const resolver = resolverOf(mine);
-    expect(Array.from(resolver.stateOf("jupiter", T, "sun").positionKm)).toEqual(Array.from(unbound.stateOf("jupiter", T, "sun").positionKm));
+    expect(Array.from(resolver.stateOf("jupiter", T, "sun").positionKm)).toEqual(
+      Array.from(unbound.stateOf("jupiter", T, "sun").positionKm),
+    );
     expect(resolver.stateOf("io", T, "jupiter").positionKm.length).toBe(3);
     expect(Array.from(resolver.stateOf("saturn", T, "sun").positionKm)).toEqual(Array.from(barycentre("saturn")));
     const second = resolverOf(other);
@@ -57,7 +69,13 @@ describe("a catalogue bound to a scene's moon data", () => {
 
   it("leaves an unbound catalogue on the process-wide systems: Jupiter carries its offset from the barycentre, Io answers", () => {
     const jupiter = unbound.stateOf("jupiter", T, "sun").positionKm;
-    expect(Math.hypot(jupiter[0] - barycentre("jupiter")[0], jupiter[1] - barycentre("jupiter")[1], jupiter[2] - barycentre("jupiter")[2])).toBeGreaterThan(1);
+    expect(
+      Math.hypot(
+        jupiter[0] - barycentre("jupiter")[0],
+        jupiter[1] - barycentre("jupiter")[1],
+        jupiter[2] - barycentre("jupiter")[2],
+      ),
+    ).toBeGreaterThan(1);
     expect(unbound.stateOf("io", T, "jupiter").positionKm.length).toBe(3);
   });
 });

@@ -65,7 +65,11 @@ export function oneSecondSpeedScan(trajectory: SampledTrajectory) {
   let maxExcessKm = -Infinity;
   let worst: { startUtcMs: number; moveKm: number; localSpeedKmS: number; excessKm: number } | undefined;
   const firstViolations: { startUtcMs: number; moveKm: number; localSpeedKmS: number; excessKm: number }[] = [];
-  for (let startUtcMs = trajectory.bounds.startUtcMs; startUtcMs + SPEED_SCAN_STEP_MS <= trajectory.bounds.endUtcMs; startUtcMs += SPEED_SCAN_STEP_MS) {
+  for (
+    let startUtcMs = trajectory.bounds.startUtcMs;
+    startUtcMs + SPEED_SCAN_STEP_MS <= trajectory.bounds.endUtcMs;
+    startUtcMs += SPEED_SCAN_STEP_MS
+  ) {
     const startState = trajectory.stateAt(startUtcMs);
     const midpointState = trajectory.stateAt(startUtcMs + SPEED_SCAN_STEP_MS / 2);
     const endState = trajectory.stateAt(startUtcMs + SPEED_SCAN_STEP_MS);
@@ -100,12 +104,15 @@ export function oneSecondSpeedScan(trajectory: SampledTrajectory) {
       localSpeedKmS: roundTo(violation.localSpeedKmS, 6),
       excessKm: roundTo(violation.excessKm, 6),
     })),
-    worst: worst === undefined ? undefined : {
-      startUtcMs: worst.startUtcMs,
-      moveKm: roundTo(worst.moveKm, 6),
-      localSpeedKmS: roundTo(worst.localSpeedKmS, 6),
-      excessKm: roundTo(worst.excessKm, 6),
-    },
+    worst:
+      worst === undefined
+        ? undefined
+        : {
+            startUtcMs: worst.startUtcMs,
+            moveKm: roundTo(worst.moveKm, 6),
+            localSpeedKmS: roundTo(worst.localSpeedKmS, 6),
+            excessKm: roundTo(worst.excessKm, 6),
+          },
     maxExcessKm: roundTo(Number.isFinite(maxExcessKm) ? maxExcessKm : 0, 6),
   };
 }
@@ -122,7 +129,17 @@ export function burnPeakSpeedKmS(adapter: AstronomyAdapter, trajectory: SampledT
 /** Printed-style parameters of an Earth-centred inertial state, for comparing predictions with the table. */
 function printedParameters(adapter: AstronomyAdapter, r: Vec3, v: Vec3, timeUtcMs: number) {
   const rotation = Array.from(adapter.earthFixedToEqjMatrix(timeUtcMs)) as unknown as Mat3;
-  const transposed: Mat3 = [rotation[0], rotation[3], rotation[6], rotation[1], rotation[4], rotation[7], rotation[2], rotation[5], rotation[8]];
+  const transposed: Mat3 = [
+    rotation[0],
+    rotation[3],
+    rotation[6],
+    rotation[1],
+    rotation[4],
+    rotation[7],
+    rotation[2],
+    rotation[5],
+    rotation[8],
+  ];
   const fixed = mulMatVec(transposed, r);
   const velocity = mulMatVec(transposed, v);
   const geodetic = fixedToGeodetic(fixed, CONSTANTS.earth.equatorialRadiusKm, CONSTANTS.earth.inverseFlattening);
@@ -144,7 +161,12 @@ export function consistencyTable(adapter: AstronomyAdapter, anchors: ReadonlyMap
   if (reference === undefined) throw new RangeError("consistency reference anchor missing");
   const rows = [];
   for (const anchor of anchors.values()) {
-    if (anchor.refBody !== "earth" || anchor.timeUtcMs <= reference.timeUtcMs || anchor.timeUtcMs > anchors.get("A-09")!.timeUtcMs) continue;
+    if (
+      anchor.refBody !== "earth" ||
+      anchor.timeUtcMs <= reference.timeUtcMs ||
+      anchor.timeUtcMs > anchors.get("A-09")!.timeUtcMs
+    )
+      continue;
     const propagated = propagateKepler(
       CONSTANTS.earth.muKm3S2,
       { r: reference.earthCentred.r, v: reference.earthCentred.v },
@@ -213,16 +235,27 @@ export function qualitativeChecks(input: QualitativeInput) {
   const departureAngle = angleBetweenDeg(tli.earthCentred.r, moonAtLoi);
 
   const translunar = input.columbiaSegments.find((segment) => segment.id === "A-10>A-11");
-  const arrival = translunar === undefined ? undefined : {
-    sphereOfInfluenceUtcMs: translunar.sphereOfInfluenceUtcMs,
-    propagatedSelenocentricRadiusKm: roundTo(
-      norm(sub(toVec3(columbia.stateAt(loi.timeUtcMs - NUMERICS.joinGapMs).positionKm), moonFromEarth(adapter, loi.timeUtcMs - NUMERICS.joinGapMs).r)),
-      1,
-    ),
-    anchorSelenocentricRadiusKm: roundTo(norm(loi.native.r), 1),
-  };
+  const arrival =
+    translunar === undefined
+      ? undefined
+      : {
+          sphereOfInfluenceUtcMs: translunar.sphereOfInfluenceUtcMs,
+          propagatedSelenocentricRadiusKm: roundTo(
+            norm(
+              sub(
+                toVec3(columbia.stateAt(loi.timeUtcMs - NUMERICS.joinGapMs).positionKm),
+                moonFromEarth(adapter, loi.timeUtcMs - NUMERICS.joinGapMs).r,
+              ),
+            ),
+            1,
+          ),
+          anchorSelenocentricRadiusKm: roundTo(norm(loi.native.r), 1),
+        };
 
-  const lunarWindow = { start: get(config.intervals.lunarOrbitWindow.fromAnchor).timeUtcMs, end: get(config.intervals.lunarOrbitWindow.toAnchor).timeUtcMs };
+  const lunarWindow = {
+    start: get(config.intervals.lunarOrbitWindow.fromAnchor).timeUtcMs,
+    end: get(config.intervals.lunarOrbitWindow.toAnchor).timeUtcMs,
+  };
   const staleMoon = moonFromEarth(adapter, lunarWindow.start).r;
   const orbitRange = (trajectory: SampledTrajectory, from: number, to: number) => {
     let min = Infinity;
@@ -230,7 +263,11 @@ export function qualitativeChecks(input: QualitativeInput) {
     let stale = Infinity;
     let count = 0;
     const step = 300_000;
-    for (let t = Math.max(from, trajectory.bounds.startUtcMs); t <= Math.min(to, trajectory.bounds.endUtcMs); t += step) {
+    for (
+      let t = Math.max(from, trajectory.bounds.startUtcMs);
+      t <= Math.min(to, trajectory.bounds.endUtcMs);
+      t += step
+    ) {
       const position = toVec3(trajectory.stateAt(t).positionKm);
       const distance = norm(sub(position, moonFromEarth(adapter, t).r));
       min = Math.min(min, distance);
@@ -254,7 +291,20 @@ export function qualitativeChecks(input: QualitativeInput) {
   const earthAltitudeKm = (timeUtcMs: number): number => {
     const state = entry.generate(timeUtcMs);
     const rotation = Array.from(adapter.earthFixedToEqjMatrix(timeUtcMs)) as unknown as Mat3;
-    const fixed = mulMatVec([rotation[0], rotation[3], rotation[6], rotation[1], rotation[4], rotation[7], rotation[2], rotation[5], rotation[8]], state.r);
+    const fixed = mulMatVec(
+      [
+        rotation[0],
+        rotation[3],
+        rotation[6],
+        rotation[1],
+        rotation[4],
+        rotation[7],
+        rotation[2],
+        rotation[5],
+        rotation[8],
+      ],
+      state.r,
+    );
     return fixedToGeodetic(fixed, CONSTANTS.earth.equatorialRadiusKm, CONSTANTS.earth.inverseFlattening).heightKm;
   };
   let crossing = entry.startUtcMs;
@@ -273,12 +323,21 @@ export function qualitativeChecks(input: QualitativeInput) {
     entryAltitudeKm: CONSTANTS.entryInterfaceAltitudeKm,
   };
 
-  return { departure: { angleBetweenTliPositionAndMoonAtLoiDeg: roundTo(departureAngle, 2) }, arrival, lunarOrbit, entryInterface };
+  return {
+    departure: { angleBetweenTliPositionAndMoonAtLoiDeg: roundTo(departureAngle, 2) },
+    arrival,
+    lunarOrbit,
+    entryInterface,
+  };
 }
 
 /** Offset between the IAU-placed landing site and the same selenographic point under the runtime Moon orientation. */
 export function landingSiteOffset(adapter: AstronomyAdapter, touchdown: NormalisedAnchor, timeUtcMs: number) {
-  const fixed = sphericalToFixedKm(touchdown.inputs.latitudeDeg, touchdown.inputs.longitudeDeg, CONSTANTS.moon.referenceRadiusKm);
+  const fixed = sphericalToFixedKm(
+    touchdown.inputs.latitudeDeg,
+    touchdown.inputs.longitudeDeg,
+    CONSTANTS.moon.referenceRadiusKm,
+  );
   const iau = mulMatVec(lunarFixedToEqj(timeUtcMs), fixed);
   const orientation = iauOrientation(MOON_ROTATION, adapter.daysSinceJ2000Tt(timeUtcMs));
   const runtime = toVec3(rotateVectorByQuaternion(orientation, fixed));
@@ -292,7 +351,9 @@ export function landingSiteOffset(adapter: AstronomyAdapter, touchdown: Normalis
 /** Lowest altitude above the reference sphere along the two-anchor surface arcs, probed every second. */
 export function surfaceClearance(segments: readonly Segment[]) {
   return segments
-    .filter((segment) => segment.method === "powered-descent-two-anchor" || segment.method === "powered-ascent-two-anchor")
+    .filter(
+      (segment) => segment.method === "powered-descent-two-anchor" || segment.method === "powered-ascent-two-anchor",
+    )
     .map((segment) => {
       let minimum = Infinity;
       for (let t = segment.startUtcMs; t <= segment.endUtcMs; t += 1000) {

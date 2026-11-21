@@ -14,11 +14,17 @@ import geminidsFile from "../data/showers/geminids.json";
 const node = async (name: string): Promise<any> => import(/* @vite-ignore */ `node:${name}`);
 const shippedPackage = async () => {
   const { readFileSync } = await node("fs");
-  return JSON.parse(readFileSync("packages/astraeus-data/data/bodies/venus/map.json", "utf8") as string) as { textures: { src: string; sha256: string; minViewportWidth?: number }[] };
+  return JSON.parse(readFileSync("packages/astraeus-data/data/bodies/venus/map.json", "utf8") as string) as {
+    textures: { src: string; sha256: string; minViewportWidth?: number }[];
+  };
 };
 const sha = async (file: string): Promise<string> => {
   const [{ readFileSync }, { createHash }] = [await node("fs"), await node("crypto")];
-  return createHash("sha256").update(readFileSync(`packages/${file.includes("8k") ? "astraeus-data/src" : "astraeus/src/assets"}/textures/${file}`)).digest("hex") as string;
+  return createHash("sha256")
+    .update(
+      readFileSync(`packages/${file.includes("8k") ? "astraeus-data/src" : "astraeus/src/assets"}/textures/${file}`),
+    )
+    .digest("hex") as string;
 };
 // The 8k file ships in astraeus-data and reaches a viewer through its pictures (T-252); the look names it.
 const desktop = { ...PICTURES["venus-8k"]!, minViewportWidthPx: 768 };
@@ -59,7 +65,9 @@ describe("Venus Magellan map (I-054)", () => {
       const definition = buildShowerDefinition(settings, { kind: "absent" });
       expect(definition.composition?.bodies).toContain("venus");
       expect(definition.desktopTextures).toBeUndefined();
-      expect(describeBody(catalogue.get("venus"), trueScale, definition.desktopTextures === true, PICTURES).textureUrl).toBe(VENUS_TEXTURE.url);
+      expect(
+        describeBody(catalogue.get("venus"), trueScale, definition.desktopTextures === true, PICTURES).textureUrl,
+      ).toBe(VENUS_TEXTURE.url);
     }
   });
 
@@ -77,7 +85,13 @@ describe("Venus Magellan map (I-054)", () => {
   });
 
   it("uses the donor material and lighting, with no yaw, and a public-domain licence", () => {
-    expect(VENUS_MATERIAL).toEqual({ color: "#f6e1b9", emissive: "#4f2e16", emissiveIntensity: 0.04, roughness: 0.9, metalness: 0.04 });
+    expect(VENUS_MATERIAL).toEqual({
+      color: "#f6e1b9",
+      emissive: "#4f2e16",
+      emissiveIntensity: 0.04,
+      roughness: 0.9,
+      metalness: 0.04,
+    });
     expect(VENUS_LIGHT).toEqual({ ambient: 0.24, directional: 1.18 });
     expect(VENUS_VISUAL.light).toBe(VENUS_LIGHT);
     expect(VENUS_VISUAL.textureYawRad).toBe(0);

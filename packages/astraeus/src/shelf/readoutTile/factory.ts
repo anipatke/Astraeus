@@ -52,10 +52,20 @@ export interface ReadoutTileControl {
 }
 
 /** What one viewer's tile shows and changes. */
-export interface ReadoutTileState { readonly value: string; readonly scaleValue?: number; readonly facts: readonly ReadoutFact[] }
+export interface ReadoutTileState {
+  readonly value: string;
+  readonly scaleValue?: number;
+  readonly facts: readonly ReadoutFact[];
+}
 
 /** What the tile was given that never changes. */
-export interface ReadoutTileData { readonly label: string; readonly scale?: Omit<ReadoutScale, "value"> & { readonly stretch: "linear" | "log"; readonly marks: readonly ReadoutMark[] } }
+export interface ReadoutTileData {
+  readonly label: string;
+  readonly scale?: Omit<ReadoutScale, "value"> & {
+    readonly stretch: "linear" | "log";
+    readonly marks: readonly ReadoutMark[];
+  };
+}
 
 /** The most facts a tile holds. */
 export const MAX_FACTS = 4;
@@ -63,7 +73,18 @@ export const MAX_FACTS = 4;
 const finite = (value: unknown): value is number => typeof value === "number" && Number.isFinite(value);
 
 const factsOf = (value: unknown, who: string): readonly ReadoutFact[] => {
-  const facts = checkedItems(value, who, "facts", "{ label, value } objects", (record, at) => Object.freeze({ label: checkedText(record.label, who, `${at}.label`), value: checkedText(record.value, who, `${at}.value`) }), true);
+  const facts = checkedItems(
+    value,
+    who,
+    "facts",
+    "{ label, value } objects",
+    (record, at) =>
+      Object.freeze({
+        label: checkedText(record.label, who, `${at}.label`),
+        value: checkedText(record.value, who, `${at}.value`),
+      }),
+    true,
+  );
   if (facts.length > MAX_FACTS) throw badPart(who, `facts holds at most ${MAX_FACTS} entries, got ${facts.length}`);
   return facts;
 };
@@ -71,24 +92,43 @@ const factsOf = (value: unknown, who: string): readonly ReadoutFact[] => {
 const within = (position: number, low: number, high: number): boolean => position >= low && position <= high;
 
 /** The position of the dot or a mark along the line, from 0 (at `low`) to 1 (at `high`), on the line's own stretch. */
-export function scaleFraction(scale: { readonly low: number; readonly high: number; readonly stretch: "linear" | "log" }, value: number): number {
-  if (scale.stretch === "log") return (Math.log(value) - Math.log(scale.low)) / (Math.log(scale.high) - Math.log(scale.low));
+export function scaleFraction(
+  scale: { readonly low: number; readonly high: number; readonly stretch: "linear" | "log" },
+  value: number,
+): number {
+  if (scale.stretch === "log")
+    return (Math.log(value) - Math.log(scale.low)) / (Math.log(scale.high) - Math.log(scale.low));
   return (value - scale.low) / (scale.high - scale.low);
 }
 
-const scaleOf = (value: unknown, who: string): { readonly data: NonNullable<ReadoutTileData["scale"]>; readonly start: number } => {
+const scaleOf = (
+  value: unknown,
+  who: string,
+): { readonly data: NonNullable<ReadoutTileData["scale"]>; readonly start: number } => {
   const record = checkedInput(value, who, "scale as { low, high, value, stretch?, marks? }");
   const { low, high } = record;
   if (!finite(low) || !finite(high)) throw badPart(who, "scale.low and scale.high must be finite numbers");
   if (low >= high) throw badPart(who, "scale.low must be less than scale.high");
-  if (!finite(record.value) || !within(record.value, low, high)) throw badPart(who, "scale.value must be a finite number from scale.low to scale.high");
+  if (!finite(record.value) || !within(record.value, low, high))
+    throw badPart(who, "scale.value must be a finite number from scale.low to scale.high");
   const stretch = record.stretch === undefined ? "linear" : record.stretch;
   if (stretch !== "linear" && stretch !== "log") throw badPart(who, 'scale.stretch must be "linear" or "log"');
   if (stretch === "log" && low <= 0) throw badPart(who, "a log scale needs scale.low above 0");
-  const marks = record.marks === undefined ? Object.freeze([]) : checkedItems(record.marks, who, "scale.marks", "{ value, label } objects", (mark, at) => {
-    if (!finite(mark.value) || !within(mark.value, low, high)) throw badPart(who, `${at}.value must be a finite number from scale.low to scale.high`);
-    return Object.freeze({ value: mark.value, label: checkedText(mark.label, who, `${at}.label`) });
-  }, true);
+  const marks =
+    record.marks === undefined
+      ? Object.freeze([])
+      : checkedItems(
+          record.marks,
+          who,
+          "scale.marks",
+          "{ value, label } objects",
+          (mark, at) => {
+            if (!finite(mark.value) || !within(mark.value, low, high))
+              throw badPart(who, `${at}.value must be a finite number from scale.low to scale.high`);
+            return Object.freeze({ value: mark.value, label: checkedText(mark.label, who, `${at}.label`) });
+          },
+          true,
+        );
   return { data: Object.freeze({ low, high, stretch, marks }), start: record.value };
 };
 
@@ -108,14 +148,23 @@ export function readoutTile(input: ReadoutTileInput): TilePart {
   const scale = fields.scale === undefined ? undefined : scaleOf(fields.scale, who);
   const facts = fields.facts === undefined ? Object.freeze([]) : factsOf(fields.facts, who);
   const shelf: ShelfTile = {
-    kind: "readoutTile", id, label, view: ReadoutTileView, strip: ReadoutTileStrip,
+    kind: "readoutTile",
+    id,
+    label,
+    view: ReadoutTileView,
+    strip: ReadoutTileStrip,
     data: Object.freeze({ label, ...(scale === undefined ? {} : { scale: scale.data }) } satisfies ReadoutTileData),
-    initial: Object.freeze({ value, ...(scale === undefined ? {} : { scaleValue: scale.start }), facts } satisfies ReadoutTileState),
+    initial: Object.freeze({
+      value,
+      ...(scale === undefined ? {} : { scaleValue: scale.start }),
+      facts,
+    } satisfies ReadoutTileState),
     control: (link, block) => {
       const data = block.data as ReadoutTileData;
       const position = (next: unknown, what: string): number => {
         if (data.scale === undefined) throw badPart(what, "this tile has no scale");
-        if (!finite(next) || !within(next, data.scale.low, data.scale.high)) throw badPart(what, `the position must be a finite number from ${data.scale.low} to ${data.scale.high}`);
+        if (!finite(next) || !within(next, data.scale.low, data.scale.high))
+          throw badPart(what, `the position must be a finite number from ${data.scale.low} to ${data.scale.high}`);
         return next;
       };
       const write = (what: string, change: (now: ReadoutTileState) => Partial<ReadoutTileState>): void => {

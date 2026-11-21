@@ -10,7 +10,9 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 vi.mock("../src/app/AstraeusScene", () => ({ AstraeusScene: () => createElement("div", { "data-testid": "scene" }) }));
 vi.mock("../src/api/prepared", async () => {
   const { syntheticDefinition } = await import("./synthetic/syntheticDefinition");
-  return { prepareScene: () => ({ definition: { ...syntheticDefinition, label: "Made-up survey" }, ready: Promise.resolve() }) };
+  return {
+    prepareScene: () => ({ definition: { ...syntheticDefinition, label: "Made-up survey" }, ready: Promise.resolve() }),
+  };
 });
 
 import { AstraeusScene } from "../src/api/AstraeusScene";
@@ -21,9 +23,32 @@ import { drawn } from "./domSetup";
 (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
 
 const SRC = join(process.cwd(), "packages", "astraeus", "src");
-const SHEETS = ["shell/look/look.css", "shell/areas/areas.css", "app/style.css", "shell/parts/controls.css", "shell/parts/parts.css", "shell/parts/phone.css", "shell/parts/embedded.css", "shell/bar/bar.css", "shell/parts/timeline/timeline.css"];
-const HOST_CSS = "body { font-family: Georgia, serif; color: rgb(10, 20, 30); } button { border: 3px dotted rgb(1, 2, 3); padding: 7px; }";
-const PROPS = ["font-family", "color", "background-color", "margin-top", "position", "overflow", "height", "color-scheme", "border-top-width", "padding-top", "font-size"];
+const SHEETS = [
+  "shell/look/look.css",
+  "shell/areas/areas.css",
+  "app/style.css",
+  "shell/parts/controls.css",
+  "shell/parts/parts.css",
+  "shell/parts/phone.css",
+  "shell/parts/embedded.css",
+  "shell/bar/bar.css",
+  "shell/parts/timeline/timeline.css",
+];
+const HOST_CSS =
+  "body { font-family: Georgia, serif; color: rgb(10, 20, 30); } button { border: 3px dotted rgb(1, 2, 3); padding: 7px; }";
+const PROPS = [
+  "font-family",
+  "color",
+  "background-color",
+  "margin-top",
+  "position",
+  "overflow",
+  "height",
+  "color-scheme",
+  "border-top-width",
+  "padding-top",
+  "font-size",
+];
 
 const snapshot = (elements: Record<string, Element>): Record<string, string> => {
   const out: Record<string, string> = {};
@@ -36,7 +61,8 @@ const snapshot = (elements: Record<string, Element>): Record<string, string> => 
 
 /** The nearest ancestor of `element` that is positioned: what an absolutely positioned `element` is placed against. */
 const containingBlock = (element: Element): Element => {
-  for (let up = element.parentElement; up !== null; up = up.parentElement) if (getComputedStyle(up).position !== "static") return up;
+  for (let up = element.parentElement; up !== null; up = up.parentElement)
+    if (getComputedStyle(up).position !== "static") return up;
   return document.documentElement;
 };
 
@@ -54,7 +80,13 @@ beforeEach(() => {
   hostButton.textContent = "Host button";
   document.body.append(page, hostButton);
 });
-afterEach(() => { viewerStyle?.remove(); hostStyle.remove(); page.remove(); hostButton.remove(); vi.unstubAllGlobals(); });
+afterEach(() => {
+  viewerStyle?.remove();
+  hostStyle.remove();
+  page.remove();
+  hostButton.remove();
+  vi.unstubAllGlobals();
+});
 
 const injectViewerSheets = (): void => {
   viewerStyle = document.createElement("style");
@@ -74,22 +106,42 @@ describe("the test environment applies a stylesheet", () => {
 });
 
 /** Both ways in: `mount` on an element, and the React `AstraeusScene` (whose wrapper is the element). */
-const ENTRIES: ReadonlyArray<{ readonly name: string; readonly start: (element: HTMLElement) => Promise<{ readonly stop: () => void; readonly area: () => HTMLElement }> }> = [
+const ENTRIES: ReadonlyArray<{
+  readonly name: string;
+  readonly start: (element: HTMLElement) => Promise<{ readonly stop: () => void; readonly area: () => HTMLElement }>;
+}> = [
   {
     name: "mount",
     start: async (element) => {
       const handle = mount(element, new Scene());
       await drawn(handle);
-      return { stop: () => { act(() => { handle.unmount(); }); }, area: () => element };
+      return {
+        stop: () => {
+          act(() => {
+            handle.unmount();
+          });
+        },
+        area: () => element,
+      };
     },
   },
   {
     name: "AstraeusScene",
     start: async (element) => {
       const root: Root = createRoot(element);
-      await act(async () => { root.render(createElement(AstraeusScene, { scene: new Scene() })); await Promise.resolve(); });
-      await act(async () => { await new Promise((done) => setTimeout(done, 0)); });
-      return { stop: () => { act(() => root.unmount()); }, area: () => element.firstElementChild as HTMLElement };
+      await act(async () => {
+        root.render(createElement(AstraeusScene, { scene: new Scene() }));
+        await Promise.resolve();
+      });
+      await act(async () => {
+        await new Promise((done) => setTimeout(done, 0));
+      });
+      return {
+        stop: () => {
+          act(() => root.unmount());
+        },
+        area: () => element.firstElementChild as HTMLElement,
+      };
     },
   },
 ];
@@ -103,10 +155,19 @@ describe.each(ENTRIES)("a viewer started by $name", ({ start }) => {
     expect(before["button border-top-width"]).toBe("3px");
     const started = await start(page);
     expect(page.querySelector(".astraeus-shell")).not.toBeNull();
-    expect(snapshot(pageElements())).toEqual({ ...before, "page position": expect.any(String), "page overflow": expect.any(String), "page height": expect.any(String) });
-    for (const key of ["html", "body", "button"]) for (const property of PROPS) expect(snapshot(pageElements())[`${key} ${property}`]).toBe(before[`${key} ${property}`]);
+    expect(snapshot(pageElements())).toEqual({
+      ...before,
+      "page position": expect.any(String),
+      "page overflow": expect.any(String),
+      "page height": expect.any(String),
+    });
+    for (const key of ["html", "body", "button"])
+      for (const property of PROPS)
+        expect(snapshot(pageElements())[`${key} ${property}`]).toBe(before[`${key} ${property}`]);
     started.stop();
-    for (const key of ["html", "body", "button"]) for (const property of PROPS) expect(snapshot(pageElements())[`${key} ${property}`]).toBe(before[`${key} ${property}`]);
+    for (const key of ["html", "body", "button"])
+      for (const property of PROPS)
+        expect(snapshot(pageElements())[`${key} ${property}`]).toBe(before[`${key} ${property}`]);
   });
 
   it("puts the custom properties and base font on the viewer's root", async () => {
@@ -165,23 +226,75 @@ describe.each(ENTRIES)("a viewer started by $name", ({ start }) => {
 const HOST_WRAPPERS: ReadonlyArray<{ readonly name: string; readonly attributes: Readonly<Record<string, string>> }> = [
   { name: "no state attribute", attributes: {} },
   { name: "data-phone=true (phone rules)", attributes: { "data-phone": "true" } },
-  { name: "data-embedded=true data-phone=false (embedded rules)", attributes: { "data-embedded": "true", "data-phone": "false" } },
-  { name: "data-embedded=true data-phone=true (embedded phone rules)", attributes: { "data-embedded": "true", "data-phone": "true" } },
+  {
+    name: "data-embedded=true data-phone=false (embedded rules)",
+    attributes: { "data-embedded": "true", "data-phone": "false" },
+  },
+  {
+    name: "data-embedded=true data-phone=true (embedded phone rules)",
+    attributes: { "data-embedded": "true", "data-phone": "true" },
+  },
   { name: "data-timeline-hidden=true", attributes: { "data-timeline-hidden": "true" } },
 ];
-const HOST_PARTS = ["timeline-bar", "timeline-main-row", "timeline-time", "timeline-track", "timeline-marker", "timeline-group-item", "timeline-drawer", "top-bar", "shell-toolbar", "scale-menu", "switch-panel", "controls-drawer", "drawer-handle", "sheet-handle", "developer-mode-toggle", "story-panel", "info-panel"];
-const BAR_PROPS = ["position", "z-index", "display", "padding-top", "bottom", "top", "right", "left", "width", "height", "min-height", "font-size", "border-top-width", "border-radius", "background-color", "gap", "max-width", "--shell-timeline-space", "--timeline-space"];
+const HOST_PARTS = [
+  "timeline-bar",
+  "timeline-main-row",
+  "timeline-time",
+  "timeline-track",
+  "timeline-marker",
+  "timeline-group-item",
+  "timeline-drawer",
+  "top-bar",
+  "shell-toolbar",
+  "scale-menu",
+  "switch-panel",
+  "controls-drawer",
+  "drawer-handle",
+  "sheet-handle",
+  "developer-mode-toggle",
+  "story-panel",
+  "info-panel",
+];
+const BAR_PROPS = [
+  "position",
+  "z-index",
+  "display",
+  "padding-top",
+  "bottom",
+  "top",
+  "right",
+  "left",
+  "width",
+  "height",
+  "min-height",
+  "font-size",
+  "border-top-width",
+  "border-radius",
+  "background-color",
+  "gap",
+  "max-width",
+  "--shell-timeline-space",
+  "--timeline-space",
+];
 
 describe.each(HOST_WRAPPERS)("a host element with $name outside any viewer", ({ attributes }) => {
   it("is not restyled by the bar, phone or embedded sheets", () => {
     const wrapper = document.createElement("div");
     for (const [name, value] of Object.entries(attributes)) wrapper.setAttribute(name, value);
-    const parts = HOST_PARTS.map((name) => { const part = document.createElement("div"); part.className = name; wrapper.append(part); return part; });
+    const parts = HOST_PARTS.map((name) => {
+      const part = document.createElement("div");
+      part.className = name;
+      wrapper.append(part);
+      return part;
+    });
     const track = document.createElement("input");
     track.type = "range";
     wrapper.querySelector(".timeline-main-row")!.append(track);
     page.append(wrapper);
-    const read = () => [...parts, track, wrapper].map((element) => BAR_PROPS.map((property) => getComputedStyle(element).getPropertyValue(property)));
+    const read = () =>
+      [...parts, track, wrapper].map((element) =>
+        BAR_PROPS.map((property) => getComputedStyle(element).getPropertyValue(property)),
+      );
     const before = read();
     injectViewerSheets();
     expect(read()).toEqual(before);
@@ -190,21 +303,31 @@ describe.each(HOST_WRAPPERS)("a host element with $name outside any viewer", ({ 
   });
 });
 
-describe.each(ENTRIES)("a viewer started by $name, beside a host element with the same state attributes", ({ start }) => {
-  it.each([["data-phone", "true"], ["data-embedded", "true"]])("applies %s=%s rules to the viewer's own parts only", async (attribute, value) => {
-    injectViewerSheets();
-    const host = document.createElement("div");
-    host.setAttribute(attribute, value);
-    host.setAttribute("data-phone", attribute === "data-phone" ? value : "false");
-    host.innerHTML = '<div class="timeline-bar"></div><div class="controls-pill"></div>';
-    document.body.append(host);
-    const before = BAR_PROPS.map((property) => getComputedStyle(host.querySelector(".timeline-bar")!).getPropertyValue(property));
-    const started = await start(page);
-    const shell = page.querySelector<HTMLElement>(".astraeus-shell")!;
-    shell.setAttribute(attribute, value);
-    expect(BAR_PROPS.map((property) => getComputedStyle(host.querySelector(".timeline-bar")!).getPropertyValue(property))).toEqual(before);
-    expect(getComputedStyle(host.querySelector(".timeline-bar")!).position).not.toBe("absolute");
-    started.stop();
-    host.remove();
-  });
-});
+describe.each(ENTRIES)(
+  "a viewer started by $name, beside a host element with the same state attributes",
+  ({ start }) => {
+    it.each([
+      ["data-phone", "true"],
+      ["data-embedded", "true"],
+    ])("applies %s=%s rules to the viewer's own parts only", async (attribute, value) => {
+      injectViewerSheets();
+      const host = document.createElement("div");
+      host.setAttribute(attribute, value);
+      host.setAttribute("data-phone", attribute === "data-phone" ? value : "false");
+      host.innerHTML = '<div class="timeline-bar"></div><div class="controls-pill"></div>';
+      document.body.append(host);
+      const before = BAR_PROPS.map((property) =>
+        getComputedStyle(host.querySelector(".timeline-bar")!).getPropertyValue(property),
+      );
+      const started = await start(page);
+      const shell = page.querySelector<HTMLElement>(".astraeus-shell")!;
+      shell.setAttribute(attribute, value);
+      expect(
+        BAR_PROPS.map((property) => getComputedStyle(host.querySelector(".timeline-bar")!).getPropertyValue(property)),
+      ).toEqual(before);
+      expect(getComputedStyle(host.querySelector(".timeline-bar")!).position).not.toBe("absolute");
+      started.stop();
+      host.remove();
+    });
+  },
+);

@@ -8,7 +8,17 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { catalogue } from "../src/assets/catalogue";
 import { AnchorLabelLayer, projectToScreen } from "../src/app/AnchorLabels";
 import { resolveLook } from "../src/app/look";
-import { applyGlowLook, baseGlowOf, createGlow, DEFAULT_GLOW_SCALE, glowLookOf, glowSizePx, pxToUnits, releaseGlowTexture, type GlowLook } from "../src/app/bodyDraw";
+import {
+  applyGlowLook,
+  baseGlowOf,
+  createGlow,
+  DEFAULT_GLOW_SCALE,
+  glowLookOf,
+  glowSizePx,
+  pxToUnits,
+  releaseGlowTexture,
+  type GlowLook,
+} from "../src/app/bodyDraw";
 import { createFrameState } from "../src/app/sceneFrame";
 import { bodyIdOf, refFor, useDrawWakes } from "../src/app/sceneContentsHooks";
 import { useHostLayer } from "../src/app/sceneHooks";
@@ -18,9 +28,18 @@ import type { TrackedBodyView } from "../src/app/TrackedBodyView";
 
 beforeEach(() => {
   const gradient = { addColorStop: vi.fn() };
-  vi.spyOn(HTMLCanvasElement.prototype, "getContext").mockReturnValue({ createRadialGradient: () => gradient, fillRect: vi.fn(), set fillStyle(_v: unknown) { /* recorded by nothing */ } } as unknown as CanvasRenderingContext2D);
+  vi.spyOn(HTMLCanvasElement.prototype, "getContext").mockReturnValue({
+    createRadialGradient: () => gradient,
+    fillRect: vi.fn(),
+    set fillStyle(_v: unknown) {
+      /* recorded by nothing */
+    },
+  } as unknown as CanvasRenderingContext2D);
 });
-afterEach(() => { vi.restoreAllMocks(); releaseGlowTexture(); });
+afterEach(() => {
+  vi.restoreAllMocks();
+  releaseGlowTexture();
+});
 
 const look: GlowLook = { sizePx: 40, brightness: 1, scale: 2 };
 
@@ -37,13 +56,24 @@ describe("halo settings", () => {
 
   it("takes the first record's halo as the base, with the default scale when it states none", () => {
     expect(baseGlowOf([catalogue.get("earth")])).toBeNull();
-    const withGlow = { ...catalogue.get("earth"), visual: { ...catalogue.get("earth").visual, glow: { sizePx: 90, brightness: 0.7 } } };
-    expect(baseGlowOf([catalogue.get("earth"), withGlow])).toEqual({ sizePx: 90, brightness: 0.7, scale: DEFAULT_GLOW_SCALE });
+    const withGlow = {
+      ...catalogue.get("earth"),
+      visual: { ...catalogue.get("earth").visual, glow: { sizePx: 90, brightness: 0.7 } },
+    };
+    expect(baseGlowOf([catalogue.get("earth"), withGlow])).toEqual({
+      sizePx: 90,
+      brightness: 0.7,
+      scale: DEFAULT_GLOW_SCALE,
+    });
   });
 
   it("lets the address override each setting, and warns and keeps the base for an unusable value", () => {
     const warn = vi.spyOn(console, "warn").mockImplementation(() => undefined);
-    expect(glowLookOf(resolveLook(undefined, "?sunglow=120&sunbrightness=1.5&sunglowscale=3"), look)).toEqual({ sizePx: 120, brightness: 1.5, scale: 3 });
+    expect(glowLookOf(resolveLook(undefined, "?sunglow=120&sunbrightness=1.5&sunglowscale=3"), look)).toEqual({
+      sizePx: 120,
+      brightness: 1.5,
+      scale: 3,
+    });
     expect(glowLookOf(resolveLook(undefined, ""), look)).toEqual(look);
     expect(glowLookOf(resolveLook(undefined, "?sunglow=900&sunbrightness=abc&sunglowscale="), look)).toEqual(look);
     expect(warn).toHaveBeenCalledTimes(3);
@@ -100,7 +130,12 @@ describe("the halo sprite", () => {
 });
 
 describe("anchor labels", () => {
-  const cam = () => { const c = new PerspectiveCamera(60, 1, 0.1, 100); c.position.set(0, 0, 10); c.lookAt(0, 0, 0); return c; };
+  const cam = () => {
+    const c = new PerspectiveCamera(60, 1, 0.1, 100);
+    c.position.set(0, 0, 10);
+    c.lookAt(0, 0, 0);
+    return c;
+  };
 
   it("projects a point to pixels, and gives null behind the camera or off the edge", () => {
     expect(projectToScreen(new Vector3(0, 0, 0), cam(), 800, 600)).toEqual({ x: 400, y: 300 });
@@ -114,9 +149,24 @@ describe("anchor labels", () => {
   it("makes a coloured span per anchor and places only those whose body is shown and in view", () => {
     const host = document.createElement("div");
     const views = [
-      { anchorLabels: ["Launch", "Splashdown"], body: { color: "#00ff00" }, group: { visible: true }, anchorLocalPosition: (i: number, out: Vector3) => out.set(i === 0 ? 0 : 500, 0, 0) },
-      { anchorLabels: null, body: { color: "#fff" }, group: { visible: true }, anchorLocalPosition: (_i: number, out: Vector3) => out },
-      { anchorLabels: ["Hidden"], body: { color: "#fff" }, group: { visible: false }, anchorLocalPosition: (_i: number, out: Vector3) => out },
+      {
+        anchorLabels: ["Launch", "Splashdown"],
+        body: { color: "#00ff00" },
+        group: { visible: true },
+        anchorLocalPosition: (i: number, out: Vector3) => out.set(i === 0 ? 0 : 500, 0, 0),
+      },
+      {
+        anchorLabels: null,
+        body: { color: "#fff" },
+        group: { visible: true },
+        anchorLocalPosition: (_i: number, out: Vector3) => out,
+      },
+      {
+        anchorLabels: ["Hidden"],
+        body: { color: "#fff" },
+        group: { visible: false },
+        anchorLocalPosition: (_i: number, out: Vector3) => out,
+      },
     ] as unknown as TrackedBodyView[];
     const layer = new AnchorLabelLayer(host, views);
     const spans = [...host.querySelectorAll<HTMLElement>(".anchor-label")];
@@ -162,7 +212,10 @@ describe("effect hooks", () => {
     DefaultLoadingManager.onStart = seen;
     const originalStart = DefaultLoadingManager.onStart;
     const root = createRoot(document.createElement("div"));
-    function Probe() { useDrawWakes(canvas, state); return null; }
+    function Probe() {
+      useDrawWakes(canvas, state);
+      return null;
+    }
     act(() => root.render(createElement(Probe)));
     DefaultLoadingManager.onStart("a", 0, 1);
     DefaultLoadingManager.onProgress("a", 1, 1);
@@ -187,7 +240,15 @@ describe("effect hooks", () => {
     const none: { current: { dispose(): void } | null } = { current: null };
     const root = createRoot(document.createElement("div"));
     function Probe() {
-      useHostLayer(canvas, ref, (h) => { expect(h).toBe(host); return { dispose }; }, [canvas]);
+      useHostLayer(
+        canvas,
+        ref,
+        (h) => {
+          expect(h).toBe(host);
+          return { dispose };
+        },
+        [canvas],
+      );
       useHostLayer(canvas, none, () => null, [canvas]);
       return null;
     }
@@ -204,7 +265,10 @@ describe("effect hooks", () => {
     const create = vi.fn(() => ({ dispose: vi.fn() }));
     const root = createRoot(document.createElement("div"));
     const orphan = document.createElement("canvas");
-    function Probe() { useHostLayer(orphan, ref, create, [orphan]); return null; }
+    function Probe() {
+      useHostLayer(orphan, ref, create, [orphan]);
+      return null;
+    }
     act(() => root.render(createElement(Probe)));
     expect(create).not.toHaveBeenCalled();
     act(() => root.unmount());

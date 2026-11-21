@@ -15,7 +15,8 @@ function checkInput(input: PickerInput): void {
     if (!isText(option?.value)) throw bad("every option needs a non-empty value");
     if (!isText(option.label)) throw bad(`option "${option.value}" needs a label`);
     if (values.has(option.value)) throw bad(`option "${option.value}" appears twice`);
-    if (option.shortLabel !== undefined && !isText(option.shortLabel)) throw bad(`option "${option.value}" shortLabel must be a non-empty string when given`);
+    if (option.shortLabel !== undefined && !isText(option.shortLabel))
+      throw bad(`option "${option.value}" shortLabel must be a non-empty string when given`);
     values.add(option.value);
   }
   if (!values.has(input.value)) throw bad(`value "${String(input.value)}" is not one of the options`);
@@ -27,11 +28,26 @@ export class PickerPlan {
 
   set(input: PickerInput): void {
     checkInput(input);
-    this.#input = Object.freeze({ id: input.id, label: input.label, value: input.value, options: Object.freeze(input.options.map((option) => Object.freeze({ value: option.value, label: option.label, ...(option.shortLabel === undefined ? {} : { shortLabel: option.shortLabel }) }))) });
+    this.#input = Object.freeze({
+      id: input.id,
+      label: input.label,
+      value: input.value,
+      options: Object.freeze(
+        input.options.map((option) =>
+          Object.freeze({
+            value: option.value,
+            label: option.label,
+            ...(option.shortLabel === undefined ? {} : { shortLabel: option.shortLabel }),
+          }),
+        ),
+      ),
+    });
   }
 
   /** The picker as set (frozen); undefined when none was set. */
-  get input(): PickerInput | undefined { return this.#input; }
+  get input(): PickerInput | undefined {
+    return this.#input;
+  }
 
   /** The definition's entry; absent when none was set. */
   entry(): { readonly picker: PickerInput } | Record<string, never> {

@@ -1,4 +1,8 @@
-export interface Break { rule: string; site: string; file?: string }
+export interface Break {
+  rule: string;
+  site: string;
+  file?: string;
+}
 export const ENGINE_SRC: string;
 export const UNIT_SUFFIX: RegExp;
 export const ROOT_CLASS: string;
@@ -15,5 +19,12 @@ export function cssSelectors(css: string): string[];
 export function selectorBreaks(css: string): Break[];
 export function stylesheets(dir?: string): string[];
 export function styleSelectorBreaks(dir?: string): Break[];
-export function allowlistOffences(found: Break[], entries: { rule: string; site: string; finding?: string; removedBy?: string }[], name: string): string[];
-export function readmeApiBreaks(readme: string, members: { MountedScene: string[]; MountOptions: string[]; AstraeusSceneProps: string[] }): string[];
+export function allowlistOffences(
+  found: Break[],
+  entries: { rule: string; site: string; finding?: string; removedBy?: string }[],
+  name: string,
+): string[];
+export function readmeApiBreaks(
+  readme: string,
+  members: { MountedScene: string[]; MountOptions: string[]; AstraeusSceneProps: string[] },
+): string[];

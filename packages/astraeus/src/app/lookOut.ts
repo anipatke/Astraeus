@@ -36,7 +36,7 @@ export interface LookAngles {
  * which makes a narrow view pan slowly. Azimuth grows leftwards about the up in force, elevation upwards.
  */
 export function panLookOut(angles: LookAngles, fovDeg: number, dxPx: number, dyPx: number, heightPx: number): void {
-  const perPx = ((fovDeg * Math.PI) / 180) / heightPx;
+  const perPx = (fovDeg * Math.PI) / 180 / heightPx;
   angles.azimuth += (dxPx * perPx) / Math.max(MIN_PAN_COS, Math.cos(angles.elevation));
   angles.elevation = clampLookElevation(angles.elevation + dyPx * perPx);
 }
@@ -47,7 +47,13 @@ export function zoomLookOut(look: LookOutState, factor: number): void {
 }
 
 /** The unit direction at `azimuth` and `elevation` about `up`, given the orbit basis: the one rule the orbit offset and the look direction share. */
-export function directionAt(azimuth: number, elevation: number, east: RenderVector, south: RenderVector, up: RenderVector): RenderVector {
+export function directionAt(
+  azimuth: number,
+  elevation: number,
+  east: RenderVector,
+  south: RenderVector,
+  up: RenderVector,
+): RenderVector {
   const cosEl = Math.cos(elevation);
   const [sa, ca, se] = [Math.sin(azimuth), Math.cos(azimuth), Math.sin(elevation)];
   return [0, 1, 2].map((k) => cosEl * (sa * east[k] + ca * south[k]) + se * up[k]) as RenderVector;
@@ -64,7 +70,7 @@ export function skyViewOf(body: string, azimuth: number, elevation: number, up: 
   const deg = 180 / Math.PI;
   return {
     lookOut: body,
-    raDeg: round2(((Math.atan2(y, x) * deg) % 360 + 360) % 360) % 360,
+    raDeg: round2((((Math.atan2(y, x) * deg) % 360) + 360) % 360) % 360,
     decDeg: round2(Math.asin(Math.max(-1, Math.min(1, z))) * deg),
     fovDeg: round2(fovDeg),
   };

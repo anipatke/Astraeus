@@ -7,7 +7,8 @@ import type { Occupant } from "./panels/panelRule";
 import type { Panels } from "./panels/usePanels";
 
 const NO_PARTS: readonly ShelfPart[] = [];
-const panelsOf = (parts: readonly ShelfPart[]): readonly ShelfPanel[] => parts.filter((part): part is ShelfPanel => part.kind === "panel");
+const panelsOf = (parts: readonly ShelfPart[]): readonly ShelfPanel[] =>
+  parts.filter((part): part is ShelfPanel => part.kind === "panel");
 const NO_RUNTIME: ShelfRuntime = { element: () => undefined };
 
 const occupantOf = (id: string): Occupant => `shelf:${id}`;
@@ -23,7 +24,13 @@ interface Input {
 }
 
 /** The bar's story buttons (in the scene's order) and the open shelf panel; a panel the showing view does not show closes, and a host request or a visitor's press opens one through the rule. */
-export function useShelfPanels({ parts: showing = NO_PARTS, runtime = NO_RUNTIME, panels, request, onOpenChange }: Input): { readonly storyButtons: readonly StoryButtonSpec[]; readonly shelfPanel: ReactNode } {
+export function useShelfPanels({
+  parts: showing = NO_PARTS,
+  runtime = NO_RUNTIME,
+  panels,
+  request,
+  onOpenChange,
+}: Input): { readonly storyButtons: readonly StoryButtonSpec[]; readonly shelfPanel: ReactNode } {
   const base = useId();
   const parts = panelsOf(showing);
   const left = panels.state.left;
@@ -31,7 +38,9 @@ export function useShelfPanels({ parts: showing = NO_PARTS, runtime = NO_RUNTIME
   const shown = parts.some((part) => part.id === openId);
   const { viewSwitch, open, close } = panels;
   // A view switch (or a rebuilt scene) that no longer shows the open panel closes it.
-  useEffect(() => { if (openId !== null && !shown) viewSwitch(false, false, true); }, [openId, shown, viewSwitch]);
+  useEffect(() => {
+    if (openId !== null && !shown) viewSwitch(false, false, true);
+  }, [openId, shown, viewSwitch]);
   // A host call opens or closes a panel the showing view shows; one it does not show stays closed.
   // The applied serial is set with the change it makes, so both reach the same render: the report says at its source which changes are the host's (I-189).
   const serial = request?.serial;
@@ -44,13 +53,28 @@ export function useShelfPanels({ parts: showing = NO_PARTS, runtime = NO_RUNTIME
     // Only a new request applies.
     // eslint-disable-next-line react-hooks/exhaustive-deps -- only a new request serial applies; the other values are read as they are then
   }, [serial]);
-  useEffect(() => { onOpenChange?.(shown ? openId : null, applied); }, [onOpenChange, openId, shown, applied]);
+  useEffect(() => {
+    onOpenChange?.(shown ? openId : null, applied);
+  }, [onOpenChange, openId, shown, applied]);
   const domId = (id: string) => `${base}-shelf-${id}`;
   const storyButtons = parts.map((part): StoryButtonSpec => ({
-    id: part.id, label: part.button.label, shortLabel: part.button.shortLabel, open: openId === part.id, controls: openId === part.id ? domId(part.id) : undefined,
+    id: part.id,
+    label: part.button.label,
+    shortLabel: part.button.shortLabel,
+    open: openId === part.id,
+    controls: openId === part.id ? domId(part.id) : undefined,
     onPress: () => panels.toggle(occupantOf(part.id)),
   }));
   const current = parts.find((part) => part.id === openId);
-  const shelfPanel = current === undefined ? null : <current.view key={current.id} panel={current} runtime={runtime} id={domId(current.id)} onClose={() => close(occupantOf(current.id))} />;
+  const shelfPanel =
+    current === undefined ? null : (
+      <current.view
+        key={current.id}
+        panel={current}
+        runtime={runtime}
+        id={domId(current.id)}
+        onClose={() => close(occupantOf(current.id))}
+      />
+    );
   return { storyButtons, shelfPanel };
 }

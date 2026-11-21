@@ -25,7 +25,10 @@ const provenance = createProvenance({
   notes: "Exists to prove the points layer's fill look-ahead.",
 });
 
-interface Calls { whole: number; range: number }
+interface Calls {
+  whole: number;
+  range: number;
+}
 
 function bigGroup(calls: Calls, withRange = true): PointGroup {
   const position = (index: number, t: number): number[] => {
@@ -38,9 +41,24 @@ function bigGroup(calls: Calls, withRange = true): PointGroup {
     for (let i = start; i < end; i += 1) out.set(position(i, t), 3 * i);
   };
   return {
-    id: "big", count: COUNT, center: "earth", frame: "EQJ", bounds, provenance,
-    fillPositionsKm(t, out) { calls.whole += 1; range(t, out, 0, COUNT); },
-    ...(withRange ? { fillPositionsRangeKm(t: number, out: Float64Array, start: number, end: number) { calls.range += 1; range(t, out, start, end); } } : {}),
+    id: "big",
+    count: COUNT,
+    center: "earth",
+    frame: "EQJ",
+    bounds,
+    provenance,
+    fillPositionsKm(t, out) {
+      calls.whole += 1;
+      range(t, out, 0, COUNT);
+    },
+    ...(withRange
+      ? {
+          fillPositionsRangeKm(t: number, out: Float64Array, start: number, end: number) {
+            calls.range += 1;
+            range(t, out, start, end);
+          },
+        }
+      : {}),
     stateAt: (index, t) => memberState({ id: "big", center: "earth", bounds }, index, t, position(index, t)),
   };
 }
@@ -177,7 +195,8 @@ describe("fill look-ahead on a large group", { timeout: 30_000 }, () => {
     expect(calls.range).toBe(0);
     const off: Calls = { whole: 0, range: 0 };
     const switchedOff = new PointsView(layer(off, { refillSliceMs: 0 }));
-    for (let t = START + 600_000; t < START + 600_000 + 3 * SPAN; t += SPAN / 10) switchedOff.sync(t, placement, trueScale);
+    for (let t = START + 600_000; t < START + 600_000 + 3 * SPAN; t += SPAN / 10)
+      switchedOff.sync(t, placement, trueScale);
     expect(off.range).toBe(0);
   });
 

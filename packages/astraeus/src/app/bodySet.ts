@@ -3,7 +3,12 @@
 import type { BodyId } from "../core/body";
 import type { EphemerisGroup } from "../core/ephemerisGroup";
 import type { BalancePoint } from "../core/orbitPeriod";
-import { DEFAULT_FAMILY_PALETTE, MAX_BODY_SET_FAMILIES, familiesWithPalette, type BodySetFamily } from "../presentation/bodySetFamilies";
+import {
+  DEFAULT_FAMILY_PALETTE,
+  MAX_BODY_SET_FAMILIES,
+  familiesWithPalette,
+  type BodySetFamily,
+} from "../presentation/bodySetFamilies";
 export { DEFAULT_FAMILY_PALETTE, MAX_BODY_SET_FAMILIES, familiesWithPalette, type BodySetFamily };
 
 export interface BodySetMember {
@@ -98,21 +103,31 @@ export function familyGainOf(look: BodySetLook, family: string, base = 1): numbe
 /** Checks a layer: members and families unique, every member in a family, a positive centre GM, members as the group's. */
 export function validateBodySet(layer: BodySetLayer): BodySetLayer {
   const where = `body set "${layer.id}"`;
-  if (layer.families.length === 0 || layer.families.length > MAX_BODY_SET_FAMILIES) throw new RangeError(`${where} needs 1 to ${MAX_BODY_SET_FAMILIES} families`);
+  if (layer.families.length === 0 || layer.families.length > MAX_BODY_SET_FAMILIES)
+    throw new RangeError(`${where} needs 1 to ${MAX_BODY_SET_FAMILIES} families`);
   const families = new Set(layer.families.map((family) => family.id));
   if (families.size !== layer.families.length) throw new RangeError(`${where} lists a family twice`);
-  if (layer.members.length !== layer.group.count) throw new RangeError(`${where} has ${layer.members.length} members but its group ${layer.group.count}`);
+  if (layer.members.length !== layer.group.count)
+    throw new RangeError(`${where} has ${layer.members.length} members but its group ${layer.group.count}`);
   layer.members.forEach((member, index) => {
-    if (member.id !== layer.group.members[index]) throw new RangeError(`${where} member ${index} is "${member.id}" but the group's is "${layer.group.members[index]}"`);
-    if (!families.has(member.family)) throw new RangeError(`${where} member "${member.id}" is in unknown family "${member.family}"`);
+    if (member.id !== layer.group.members[index])
+      throw new RangeError(
+        `${where} member ${index} is "${member.id}" but the group's is "${layer.group.members[index]}"`,
+      );
+    if (!families.has(member.family))
+      throw new RangeError(`${where} member "${member.id}" is in unknown family "${member.family}"`);
     if (!(member.radiusKm > 0)) throw new RangeError(`${where} member "${member.id}" needs a positive radius`);
   });
-  for (const [body, family] of Object.entries(layer.bodyFamilies ?? {})) if (!families.has(family)) throw new RangeError(`${where} body "${body}" is in unknown family "${family}"`);
+  for (const [body, family] of Object.entries(layer.bodyFamilies ?? {}))
+    if (!families.has(family)) throw new RangeError(`${where} body "${body}" is in unknown family "${family}"`);
   const extra = layer.extraOrbits;
   if (extra !== undefined) {
-    if (extra.families.length !== extra.group.count) throw new RangeError(`${where} extra orbits need one family per body`);
-    if (extra.group.center !== layer.group.center) throw new RangeError(`${where} extra orbits must share the set's centre`);
-    for (const family of extra.families) if (!families.has(family)) throw new RangeError(`${where} extra orbit in unknown family "${family}"`);
+    if (extra.families.length !== extra.group.count)
+      throw new RangeError(`${where} extra orbits need one family per body`);
+    if (extra.group.center !== layer.group.center)
+      throw new RangeError(`${where} extra orbits must share the set's centre`);
+    for (const family of extra.families)
+      if (!families.has(family)) throw new RangeError(`${where} extra orbit in unknown family "${family}"`);
   }
   if (!(layer.centreGmKm3S2 > 0)) throw new RangeError(`${where} needs a positive centre GM`);
   return layer;

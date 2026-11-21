@@ -1,7 +1,16 @@
 // O-085 T-366: the stock three.js point material is patched through `onBeforeCompile` in two places (the blend in PointsView, the Kepler placement in
 // KeplerPoints). Each patch is run here against three's own point shader source, so a chunk rename inside the peer range fails this test and not the GPU compile.
 import { describe, expect, it } from "vitest";
-import { ShaderChunk, ShaderLib, UniformsUtils, type BufferGeometry, type Material, type Points, type WebGLProgramParametersWithUniforms, type WebGLRenderer } from "three";
+import {
+  ShaderChunk,
+  ShaderLib,
+  UniformsUtils,
+  type BufferGeometry,
+  type Material,
+  type Points,
+  type WebGLProgramParametersWithUniforms,
+  type WebGLRenderer,
+} from "three";
 import type { GroupLayer } from "../src/app/experienceDefinition";
 import { KEPLER_ATTRIBUTES_GLSL, KEPLER_BEGIN_VERTEX_GLSL } from "../src/app/keplerShader";
 import { PointsView } from "../src/app/PointsView";
@@ -11,19 +20,53 @@ import { createOrbTwoBodyAdapter } from "../src/core/twoBodyAdapter";
 
 const DAY = 86_400_000;
 const START = Date.UTC(2030, 0, 1);
-const provenance = createProvenance({ sourceType: "illustrative", sources: ["Made up inside the patched shader tests"], accuracy: "None claimed.", notes: "Fixture." });
+const provenance = createProvenance({
+  sourceType: "illustrative",
+  sources: ["Made up inside the patched shader tests"],
+  accuracy: "None claimed.",
+  notes: "Fixture.",
+});
 
 /** A made-up two-body group, big enough that the view also builds its shader-placed (Kepler) child. */
 function belt(count: number): GroupLayer {
-  const group = createOrbitGroup({
-    id: "patched", count, center: "sun", plane: "ecliptic-j2000", epochUtcMs: START + 100 * DAY, provenance, seed: 11, bounds: { startUtcMs: START, endUtcMs: START + 400 * DAY },
-    base: { semiMajorAxisKm: 4.2e8, eccentricity: 0.15, inclinationDeg: 15, raanDeg: 100, argumentOfPeriapsisDeg: 200, trueAnomalyDeg: 90 },
-    spread: { semiMajorAxisKm: 1e8, eccentricity: 0.1, inclinationDeg: 10, raanDeg: 180, argumentOfPeriapsisDeg: 180, trueAnomalyDeg: 180 },
-  }, createOrbTwoBodyAdapter());
-  return { group, color: "#7fe3c4", object: { id: "patched", label: "patched", description: "Made up.", knownLimitations: ["Made up."] } };
+  const group = createOrbitGroup(
+    {
+      id: "patched",
+      count,
+      center: "sun",
+      plane: "ecliptic-j2000",
+      epochUtcMs: START + 100 * DAY,
+      provenance,
+      seed: 11,
+      bounds: { startUtcMs: START, endUtcMs: START + 400 * DAY },
+      base: {
+        semiMajorAxisKm: 4.2e8,
+        eccentricity: 0.15,
+        inclinationDeg: 15,
+        raanDeg: 100,
+        argumentOfPeriapsisDeg: 200,
+        trueAnomalyDeg: 90,
+      },
+      spread: {
+        semiMajorAxisKm: 1e8,
+        eccentricity: 0.1,
+        inclinationDeg: 10,
+        raanDeg: 180,
+        argumentOfPeriapsisDeg: 180,
+        trueAnomalyDeg: 180,
+      },
+    },
+    createOrbTwoBodyAdapter(),
+  );
+  return {
+    group,
+    color: "#7fe3c4",
+    object: { id: "patched", label: "patched", description: "Made up.", knownLimitations: ["Made up."] },
+  };
 }
 
-const materialsOf = (view: PointsView) => (view.group.children as Points<BufferGeometry, Material>[]).map((p) => p.material);
+const materialsOf = (view: PointsView) =>
+  (view.group.children as Points<BufferGeometry, Material>[]).map((p) => p.material);
 
 interface Row {
   name: string;
@@ -35,8 +78,23 @@ interface Row {
 }
 
 const ROWS: Row[] = [
-  { name: "PointsView blend (positionTo mixed with position)", part: 0, uniforms: ["uBlend", "uOffset"], inserted: ["attribute vec3 positionTo;", "uniform float uBlend;", "uniform vec3 uOffset;", "position + uBlend * (positionTo - position) + uOffset"] },
-  { name: "KeplerPoints placement (the orbit solved in the shader)", part: 1, uniforms: ["uDt", "uUnitsPerKm", "uOffset"], inserted: [KEPLER_ATTRIBUTES_GLSL, KEPLER_BEGIN_VERTEX_GLSL, "keplerKm("] },
+  {
+    name: "PointsView blend (positionTo mixed with position)",
+    part: 0,
+    uniforms: ["uBlend", "uOffset"],
+    inserted: [
+      "attribute vec3 positionTo;",
+      "uniform float uBlend;",
+      "uniform vec3 uOffset;",
+      "position + uBlend * (positionTo - position) + uOffset",
+    ],
+  },
+  {
+    name: "KeplerPoints placement (the orbit solved in the shader)",
+    part: 1,
+    uniforms: ["uDt", "uUnitsPerKm", "uOffset"],
+    inserted: [KEPLER_ATTRIBUTES_GLSL, KEPLER_BEGIN_VERTEX_GLSL, "keplerKm("],
+  },
 ];
 
 /** The chunks the patched shader must still carry from three. */

@@ -6,7 +6,15 @@ import { solarSystemPolicyForTest } from "./scalePolicies";
 import { trueScale } from "../src/presentation/scalePolicy";
 import { createStateResolver } from "../src/core/stateResolver";
 import { BUILT_IN_BINDINGS, BUILT_IN_BODIES } from "../src/core/bodies";
-import { createMarker, DEFAULT_BODY_MARKER, drawnRadii, drawsAsMarker, markerOf, markerSettingsOf, projectedRadiusPx } from "../src/app/bodyDraw";
+import {
+  createMarker,
+  DEFAULT_BODY_MARKER,
+  drawnRadii,
+  drawsAsMarker,
+  markerOf,
+  markerSettingsOf,
+  projectedRadiusPx,
+} from "../src/app/bodyDraw";
 import { resolveLook } from "../src/app/look";
 import { TRACK_LAYER } from "../src/app/TrackedBodyView";
 import { assignBodyLayers } from "../src/app/sceneFraming";
@@ -86,7 +94,8 @@ describe("the marker never changes State or metrics", () => {
 
   it("takes no State as input, and every state is equal before and after the rule runs under any setting", () => {
     const before = BUILT_IN_BODIES.map((body) => resolver.stateOf(body.id, t, "sun"));
-    for (const minSpherePx of [0, 3, 20]) drawsAsMarker(projectedRadiusPx(1, 1e6, FOV, HEIGHT), { ...DEFAULT_BODY_MARKER, minSpherePx });
+    for (const minSpherePx of [0, 3, 20])
+      drawsAsMarker(projectedRadiusPx(1, 1e6, FOV, HEIGHT), { ...DEFAULT_BODY_MARKER, minSpherePx });
     const after = BUILT_IN_BODIES.map((body) => resolver.stateOf(body.id, t, "sun"));
     expect(after).toEqual(before);
     // The rule's whole input is a screen radius and a settings record; there is nowhere for a State to enter.
@@ -95,15 +104,30 @@ describe("the marker never changes State or metrics", () => {
 });
 
 /** A made-up long-period comet with a 7 px marker (the catalogue holds no comet since O-057 T-279). */
-const withComet = extendCatalogue(catalogue, [{
-  id: "long-comet", label: "Long comet",
-  elements: { semiMajorAxisAu: 26, eccentricity: 0.96, inclinationDeg: 113, ascendingNodeDeg: 139, argumentOfPerihelionDeg: 153, meanAnomalyDeg: 7 },
-  epoch: { jd: 2450000.5, timeScale: "TDB", ttMinusUtcSeconds: 61.184 },
-  plane: "ecliptic-j2000",
-  source: { name: "Made up", url: "https://example.invalid/long-comet", solution: "S1", accessed: "2026-11-07" },
-  accuracy: { classification: "approximate", statement: "Made up.", valid: { start: "1990-01-01T00:00:00Z", end: "2030-01-01T00:00:00Z" }, limitations: [] },
-  marker: { color: "#9fe3ff", sizePx: 7 },
-}]);
+const withComet = extendCatalogue(catalogue, [
+  {
+    id: "long-comet",
+    label: "Long comet",
+    elements: {
+      semiMajorAxisAu: 26,
+      eccentricity: 0.96,
+      inclinationDeg: 113,
+      ascendingNodeDeg: 139,
+      argumentOfPerihelionDeg: 153,
+      meanAnomalyDeg: 7,
+    },
+    epoch: { jd: 2450000.5, timeScale: "TDB", ttMinusUtcSeconds: 61.184 },
+    plane: "ecliptic-j2000",
+    source: { name: "Made up", url: "https://example.invalid/long-comet", solution: "S1", accessed: "2026-11-07" },
+    accuracy: {
+      classification: "approximate",
+      statement: "Made up.",
+      valid: { start: "1990-01-01T00:00:00Z", end: "2030-01-01T00:00:00Z" },
+      limitations: [],
+    },
+    marker: { color: "#9fe3ff", sizePx: 7 },
+  },
+]);
 
 describe("marker settings are settings", () => {
   it("default to a 3 px threshold and a 6 px dot, and read ?markerpx= from the address", () => {
@@ -118,7 +142,8 @@ describe("marker settings are settings", () => {
     const original = console.warn;
     console.warn = (message: string) => warnings.push(message);
     try {
-      for (const bad of ["?markerpx=", "?markerpx=abc", "?markerpx=-1", "?markerpx=101"]) expect(markerSettingsOf(resolveLook(undefined, bad))).toEqual(DEFAULT_BODY_MARKER);
+      for (const bad of ["?markerpx=", "?markerpx=abc", "?markerpx=-1", "?markerpx=101"])
+        expect(markerSettingsOf(resolveLook(undefined, bad))).toEqual(DEFAULT_BODY_MARKER);
     } finally {
       console.warn = original;
     }
@@ -149,7 +174,10 @@ describe("the synthetic long-orbit experience", () => {
   it("mounts the Sun and Earth, enlarges Earth only through the solar-system scale override, and offers both scales", () => {
     expect(mountedBodiesOf(syntheticEccentricDefinition)).toEqual(["sun", "earth"]);
     expect(syntheticEccentricDefinition.scaleChoices).toEqual(["true-scale", "solar-system"]);
-    const earth = assetWithOverride(catalogue.get("earth"), visualOverridesOf(syntheticEccentricDefinition).get("earth"));
+    const earth = assetWithOverride(
+      catalogue.get("earth"),
+      visualOverridesOf(syntheticEccentricDefinition).get("earth"),
+    );
     expect(earth.definition).toBe(catalogue.get("earth").definition);
     expect(syntheticSun.object.id).toBe("sun");
   });

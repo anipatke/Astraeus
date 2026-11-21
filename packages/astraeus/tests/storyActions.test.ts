@@ -12,25 +12,70 @@ import { mountShell, press } from "./domSetup";
 
 const T0 = Date.parse("2026-03-01T00:00:00Z");
 const MIN = 60_000;
-const kite = { id: "kite", label: "The Kite", segments: [[{ raDeg: 10, decDeg: 20 }, { raDeg: 20, decDeg: 30 }]] } as const;
+const kite = {
+  id: "kite",
+  label: "The Kite",
+  segments: [
+    [
+      { raDeg: 10, decDeg: 20 },
+      { raDeg: 20, decDeg: 30 },
+    ],
+  ],
+} as const;
 const base = () => new Scene().addBody(earth).addBody(moon).addSkyFigures([kite]);
-const made = { sourceType: "illustrative", sources: ["Made up"], accuracy: "None claimed.", notes: "Made up." } as const;
-const step = (id: string, extra: Partial<StoryPanelInput> = {}): StoryPanelInput => ({ id, title: `Title ${id}`, body: "A made-up line.", provenance: made, ...extra });
-const errorOf = (fn: () => unknown): { code: string; message: string } => { try { fn(); } catch (error) { return error instanceof SceneError ? { code: error.code, message: error.message } : { code: "other", message: String(error) }; } return { code: "none", message: "" }; };
+const made = {
+  sourceType: "illustrative",
+  sources: ["Made up"],
+  accuracy: "None claimed.",
+  notes: "Made up.",
+} as const;
+const step = (id: string, extra: Partial<StoryPanelInput> = {}): StoryPanelInput => ({
+  id,
+  title: `Title ${id}`,
+  body: "A made-up line.",
+  provenance: made,
+  ...extra,
+});
+const errorOf = (fn: () => unknown): { code: string; message: string } => {
+  try {
+    fn();
+  } catch (error) {
+    return error instanceof SceneError
+      ? { code: error.code, message: error.message }
+      : { code: "other", message: String(error) };
+  }
+  return { code: "none", message: "" };
+};
 const stepsOf = (scene: Scene) => definitionOf(scene).experience.storyPanels!.steps!;
 
 describe("panel actions: what a panel carries", () => {
   it("carries camera, select and trace on a step and on a moment panel, in the order they apply, with the trace defaults filled", () => {
-    const scene = base().addStoryPanels([
-      step("a", { object: "kite", camera: { lookOut: "earth", direction: "kite", fovDeg: 40 }, select: true, trace: true }),
-      step("b", { object: "kite", trace: { durationSeconds: 3, after: "fade" } }),
-      step("c", { camera: { focus: "moon" } }),
-      { ...step("m"), at: { time: T0 + 10 * MIN }, object: "kite", select: true },
-    ]).setTimeline({ start: T0, end: T0 + 60 * MIN });
+    const scene = base()
+      .addStoryPanels([
+        step("a", {
+          object: "kite",
+          camera: { lookOut: "earth", direction: "kite", fovDeg: 40 },
+          select: true,
+          trace: true,
+        }),
+        step("b", { object: "kite", trace: { durationSeconds: 3, after: "fade" } }),
+        step("c", { camera: { focus: "moon" } }),
+        { ...step("m"), at: { time: T0 + 10 * MIN }, object: "kite", select: true },
+      ])
+      .setTimeline({ start: T0, end: T0 + 60 * MIN });
     const set = definitionOf(scene).experience.storyPanels!;
     const [a, b, c] = set.steps!;
-    expect(Object.keys(a!).filter((key) => ["camera", "select", "trace"].includes(key))).toEqual(["camera", "select", "trace"]);
-    expect(a).toMatchObject({ camera: { kind: "lookOut", body: "earth", direction: "kite", fovDeg: 40 }, select: true, trace: { seconds: 2, after: "stay" }, objectId: "kite" });
+    expect(Object.keys(a!).filter((key) => ["camera", "select", "trace"].includes(key))).toEqual([
+      "camera",
+      "select",
+      "trace",
+    ]);
+    expect(a).toMatchObject({
+      camera: { kind: "lookOut", body: "earth", direction: "kite", fovDeg: 40 },
+      select: true,
+      trace: { seconds: 2, after: "stay" },
+      objectId: "kite",
+    });
     expect(b).toMatchObject({ trace: { seconds: 3, after: "fade" } });
     expect(b).not.toHaveProperty("select");
     expect(c).toMatchObject({ camera: { kind: "focus", target: "moon" } });
@@ -53,7 +98,12 @@ describe("panel actions: bad shapes and bad names throw bad-panels naming the pa
   it.each([
     ["a camera that is not a target", { camera: 5 }, "a", "camera"],
     ["a camera with two kinds", { camera: { follow: "moon", focus: "earth" } }, "a", "camera"],
-    ["a look-out direction out of range", { camera: { lookOut: "earth", direction: { raDeg: 1, decDeg: 99 } } }, "a", "camera"],
+    [
+      "a look-out direction out of range",
+      { camera: { lookOut: "earth", direction: { raDeg: 1, decDeg: 99 } } },
+      "a",
+      "camera",
+    ],
     ["a select that is not true or false", { object: "moon", select: "yes" }, "a", "select"],
     ["a select with no object", { select: true }, "a", "select"],
     ["a trace with no object", { trace: true }, "a", "trace"],
@@ -82,14 +132,31 @@ describe("panel actions: bad shapes and bad names throw bad-panels naming the pa
 
 describe("a look-out may turn toward a sky figure", () => {
   it("cameraRequestOf keeps the figure id as the direction, and leaves it out only when asked to keep", () => {
-    expect(cameraRequestOf({ lookOut: "earth", direction: "kite" }, "setCamera", undefined)).toEqual({ kind: "lookOut", body: "earth", direction: "kite" });
-    expect(cameraRequestOf({ lookOut: "earth" }, "setCamera", undefined)).toMatchObject({ kind: "lookOut", direction: [1, 0, 0] });
-    expect(cameraRequestOf({ lookOut: "earth" }, "setCamera", undefined, true)).toEqual({ kind: "lookOut", body: "earth" });
-    expect(errorOf(() => cameraRequestOf({ lookOut: "earth", direction: "earth" }, "setCamera", undefined)).code).toBe("bad-camera");
+    expect(cameraRequestOf({ lookOut: "earth", direction: "kite" }, "setCamera", undefined)).toEqual({
+      kind: "lookOut",
+      body: "earth",
+      direction: "kite",
+    });
+    expect(cameraRequestOf({ lookOut: "earth" }, "setCamera", undefined)).toMatchObject({
+      kind: "lookOut",
+      direction: [1, 0, 0],
+    });
+    expect(cameraRequestOf({ lookOut: "earth" }, "setCamera", undefined, true)).toEqual({
+      kind: "lookOut",
+      body: "earth",
+    });
+    expect(errorOf(() => cameraRequestOf({ lookOut: "earth", direction: "earth" }, "setCamera", undefined)).code).toBe(
+      "bad-camera",
+    );
   });
   it("aimAtFigure turns a figure id into its label point and leaves everything else alone", () => {
     const figures = [{ id: "kite", labelAt: [0, 1, 0] as const }];
-    expect(aimAtFigure({ kind: "lookOut", body: "earth", direction: "kite", fovDeg: 30 }, figures)).toEqual({ kind: "lookOut", body: "earth", direction: [0, 1, 0], fovDeg: 30 });
+    expect(aimAtFigure({ kind: "lookOut", body: "earth", direction: "kite", fovDeg: 30 }, figures)).toEqual({
+      kind: "lookOut",
+      body: "earth",
+      direction: [0, 1, 0],
+      fovDeg: 30,
+    });
     const body = { kind: "lookOut", body: "earth", direction: "moon" } as const;
     expect(aimAtFigure(body, figures)).toBe(body);
     const focus = { kind: "focus", target: "kite" } as const;
@@ -99,9 +166,23 @@ describe("a look-out may turn toward a sky figure", () => {
     const link = new ViewerLink();
     const asked: unknown[] = [];
     link.attach({
-      ...FAKE_PRESENTATION_CONTROL, window: { startUtcMs: 0, endUtcMs: 10 }, events: [], rates: [1], paced: false, playable: true, setPlaying: () => undefined,
-      read: () => ({ timeUtcMs: 1, rate: 1, playing: false, ...FAKE_PRESENTATION }), seek: () => undefined, setRate: () => undefined, views: [], setView: () => undefined,
-      cameraTargets: () => ["earth", "moon"], readCamera: () => undefined, setCamera: (request: unknown) => { asked.push(request); },
+      ...FAKE_PRESENTATION_CONTROL,
+      window: { startUtcMs: 0, endUtcMs: 10 },
+      events: [],
+      rates: [1],
+      paced: false,
+      playable: true,
+      setPlaying: () => undefined,
+      read: () => ({ timeUtcMs: 1, rate: 1, playing: false, ...FAKE_PRESENTATION }),
+      seek: () => undefined,
+      setRate: () => undefined,
+      views: [],
+      setView: () => undefined,
+      cameraTargets: () => ["earth", "moon"],
+      readCamera: () => undefined,
+      setCamera: (request: unknown) => {
+        asked.push(request);
+      },
       skyFigures: [{ id: "kite", label: "The Kite", kind: "figure", listed: true, provenance: made }],
     } as never);
     link.setCamera({ lookOut: "earth", direction: "kite" });
@@ -115,14 +196,20 @@ describe("an event that names a sky figure", () => {
   const scene = () => base().addEvents([{ id: "rise", label: "Rise", time: T0 + 20 * MIN, object: "kite" }]);
   it("is accepted, and a name that is neither a body nor a figure is refused naming the event", () => {
     expect(definitionOf(scene()).experience.events[0]!.object).toBe("kite");
-    const failure = errorOf(() => definitionOf(base().addEvents([{ id: "ghost", label: "G", time: T0, object: "ghost" }])));
+    const failure = errorOf(() =>
+      definitionOf(base().addEvents([{ id: "ghost", label: "G", time: T0, object: "ghost" }])),
+    );
     expect(failure.code).toBe("bad-event");
     expect(failure.message).toContain('"ghost"');
   });
   it("Go to seeks and selects the figure, and leaves the camera alone", () => {
     const m = mountShell({ experience: definitionOf(scene()).experience });
     const before = m.cameraRequests.length;
-    press([...m.container.querySelectorAll<HTMLElement>(".timeline-expanded li button")].find((row) => row.textContent?.includes("Rise"))!);
+    press(
+      [...m.container.querySelectorAll<HTMLElement>(".timeline-expanded li button")].find((row) =>
+        row.textContent?.includes("Rise"),
+      )!,
+    );
     expect(m.selected()).toBe("kite");
     expect(m.clock.now()).toBe(T0 + 20 * MIN);
     expect(m.cameraRequests.length).toBe(before);

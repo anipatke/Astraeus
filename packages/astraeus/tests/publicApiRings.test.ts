@@ -6,10 +6,16 @@ import { visualOverridesOf } from "../src/app/experienceDefinition";
 import { definitionOf } from "../src/api/definitionOf";
 
 /** The rings the drawing code would use for a body in this scene: the experience's override first, else the catalogue's. */
-const drawnRings = (scene: Scene, id: string) => (visualOverridesOf(definitionOf(scene)).get(id)?.rings ?? catalogue.get(id).visual.rings);
+const drawnRings = (scene: Scene, id: string) =>
+  visualOverridesOf(definitionOf(scene)).get(id)?.rings ?? catalogue.get(id).visual.rings;
 
 describe("rings come with the planet", () => {
-  it.each([[jupiter, "jupiter"], [saturn, "saturn"], [uranus, "uranus"], [neptune, "neptune"]] as const)("addBody(%#) draws %s's rings with their recorded source", (ref, id) => {
+  it.each([
+    [jupiter, "jupiter"],
+    [saturn, "saturn"],
+    [uranus, "uranus"],
+    [neptune, "neptune"],
+  ] as const)("addBody(%#) draws %s's rings with their recorded source", (ref, id) => {
     const rings = drawnRings(new Scene().addBody(sun).addBody(ref), id);
     expect(rings?.body).toBe(id);
     expect(rings!.bands.length).toBeGreaterThan(0);

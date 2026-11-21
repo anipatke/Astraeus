@@ -12,8 +12,16 @@ export function ExplainerView({ block, runtime }: { readonly block: ShelfBlock; 
   return (
     <section className="shelf-explainer" data-shelf-block={block.id}>
       {heading === undefined ? null : <h3 className="shelf-explainer-heading">{heading}</h3>}
-      {paragraphs.map((text, index) => <p key={index} className="shelf-explainer-text">{text}</p>)}
-      {notes.map((text, index) => <p key={`note-${index}`} className="shelf-explainer-note">{text}</p>)}
+      {paragraphs.map((text, index) => (
+        <p key={index} className="shelf-explainer-text">
+          {text}
+        </p>
+      ))}
+      {notes.map((text, index) => (
+        <p key={`note-${index}`} className="shelf-explainer-note">
+          {text}
+        </p>
+      ))}
     </section>
   );
 }

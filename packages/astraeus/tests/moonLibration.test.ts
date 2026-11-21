@@ -10,7 +10,10 @@ const adapter = createOrbAstronomyAdapter();
 const DEG = 180 / Math.PI;
 
 /** Sub-Earth point (east longitude, latitude, degrees) from a body-to-EQJ quaternion and the Moon's geocentric position. */
-function subEarth(orientation: readonly number[], moonFromEarthKm: ArrayLike<number>): { eastLonDeg: number; latDeg: number } {
+function subEarth(
+  orientation: readonly number[],
+  moonFromEarthKm: ArrayLike<number>,
+): { eastLonDeg: number; latDeg: number } {
   const conjugate = [-orientation[0], -orientation[1], -orientation[2], orientation[3]] as const;
   const toEarth = rotateVectorByQuaternion(conjugate, [-moonFromEarthKm[0], -moonFromEarthKm[1], -moonFromEarthKm[2]]);
   const range = Math.hypot(toEarth[0], toEarth[1], toEarth[2]);
@@ -33,8 +36,25 @@ describe("Moon orientation: IAU rotation with libration", () => {
     const { raRad, decRad, wRad } = iauAnglesAt(MOON_ROTATION, 0);
     const sin = (deg: number) => Math.sin((deg * Math.PI) / 180);
     const cos = (deg: number) => Math.cos((deg * Math.PI) / 180);
-    const ra = 269.9949 - 3.8787 * sin(125.045) - 0.1204 * sin(250.089) + 0.07 * sin(260.008) - 0.0172 * sin(176.625) + 0.0072 * sin(311.589) - 0.0052 * sin(15.134) + 0.0043 * sin(25.053);
-    const dec = 66.5392 + 1.5419 * cos(125.045) + 0.0239 * cos(250.089) - 0.0278 * cos(260.008) + 0.0068 * cos(176.625) - 0.0029 * cos(311.589) + 0.0009 * cos(134.963) + 0.0008 * cos(15.134) - 0.0009 * cos(25.053);
+    const ra =
+      269.9949 -
+      3.8787 * sin(125.045) -
+      0.1204 * sin(250.089) +
+      0.07 * sin(260.008) -
+      0.0172 * sin(176.625) +
+      0.0072 * sin(311.589) -
+      0.0052 * sin(15.134) +
+      0.0043 * sin(25.053);
+    const dec =
+      66.5392 +
+      1.5419 * cos(125.045) +
+      0.0239 * cos(250.089) -
+      0.0278 * cos(260.008) +
+      0.0068 * cos(176.625) -
+      0.0029 * cos(311.589) +
+      0.0009 * cos(134.963) +
+      0.0008 * cos(15.134) -
+      0.0009 * cos(25.053);
     expect(raRad * DEG).toBeCloseTo(ra, 9);
     expect(decRad * DEG).toBeCloseTo(dec, 9);
     expect(wRad * DEG).toBeGreaterThan(38);
@@ -63,14 +83,18 @@ describe("Moon orientation: IAU rotation with libration", () => {
   });
 
   it("shows libration: the sub-Earth point moves off the lock by degrees, in both longitude and latitude", () => {
-    const points = fixture.samples.map((s) => subEarth(moon.stateAt(s.utcMs).orientation!, moon.stateAt(s.utcMs).positionKm));
+    const points = fixture.samples.map((s) =>
+      subEarth(moon.stateAt(s.utcMs).orientation!, moon.stateAt(s.utcMs).positionKm),
+    );
     expect(Math.max(...points.map((p) => Math.abs(wrap(p.eastLonDeg))))).toBeGreaterThan(3);
     expect(Math.max(...points.map((p) => Math.abs(p.latDeg)))).toBeGreaterThan(4);
   });
 
   it("is generic (ARCH-03): a made-up body with libration terms follows the same formulas", () => {
     const made: IauRotationElements = {
-      poleRaDeg: [10, 0], poleDecDeg: [50, 0], primeMeridianDeg: [0, 0],
+      poleRaDeg: [10, 0],
+      poleDecDeg: [50, 0],
+      primeMeridianDeg: [0, 0],
       periodic: { anglesDeg: [[30, 0]], poleRaDeg: [2], poleDecDeg: [3], primeMeridianDeg: [4] },
       citation: "made up",
     };

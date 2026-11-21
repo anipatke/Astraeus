@@ -8,7 +8,9 @@ import { lazy, type ComponentType } from "react";
 type Panels = typeof import("./DeveloperSettings");
 
 function onDemand<K extends keyof Panels>(name: K): Panels[K] {
-  const Lazy = lazy(() => import("./DeveloperSettings").then((module) => ({ default: module[name] as unknown as ComponentType<object> })));
+  const Lazy = lazy(() =>
+    import("./DeveloperSettings").then((module) => ({ default: module[name] as unknown as ComponentType<object> })),
+  );
   return Lazy as unknown as Panels[K];
 }
 

@@ -11,10 +11,17 @@ const SRC = join(__dirname, "..", "src");
 const LOOK = "shell/look/look.css";
 const AREAS = "shell/areas/areas.css";
 
-const NAMED_COLOURS = new Set(("aliceblue antiquewhite aqua aquamarine azure beige bisque black blanchedalmond blue blueviolet brown burlywood cadetblue chartreuse chocolate coral cornflowerblue cornsilk crimson cyan darkblue darkcyan darkgoldenrod darkgray darkgreen darkgrey darkkhaki darkmagenta darkolivegreen darkorange darkorchid darkred darksalmon darkseagreen darkslateblue darkslategray darkslategrey darkturquoise darkviolet deeppink deepskyblue dimgray dimgrey dodgerblue firebrick floralwhite forestgreen fuchsia gainsboro ghostwhite gold goldenrod gray green greenyellow grey honeydew hotpink indianred indigo ivory khaki lavender lavenderblush lawngreen lemonchiffon lightblue lightcoral lightcyan lightgoldenrodyellow lightgray lightgreen lightgrey lightpink lightsalmon lightseagreen lightskyblue lightslategray lightslategrey lightsteelblue lightyellow lime limegreen linen magenta maroon mediumaquamarine mediumblue mediumorchid mediumpurple mediumseagreen mediumslateblue mediumspringgreen mediumturquoise mediumvioletred midnightblue mintcream mistyrose moccasin navajowhite navy oldlace olive olivedrab orange orangered orchid palegoldenrod palegreen paleturquoise palevioletred papayawhip peachpuff peru pink plum powderblue purple rebeccapurple red rosybrown royalblue saddlebrown salmon sandybrown seagreen seashell sienna silver skyblue slateblue slategray slategrey snow springgreen steelblue tan teal thistle tomato turquoise violet wheat white whitesmoke yellow yellowgreen").split(" "));
+const NAMED_COLOURS = new Set(
+  "aliceblue antiquewhite aqua aquamarine azure beige bisque black blanchedalmond blue blueviolet brown burlywood cadetblue chartreuse chocolate coral cornflowerblue cornsilk crimson cyan darkblue darkcyan darkgoldenrod darkgray darkgreen darkgrey darkkhaki darkmagenta darkolivegreen darkorange darkorchid darkred darksalmon darkseagreen darkslateblue darkslategray darkslategrey darkturquoise darkviolet deeppink deepskyblue dimgray dimgrey dodgerblue firebrick floralwhite forestgreen fuchsia gainsboro ghostwhite gold goldenrod gray green greenyellow grey honeydew hotpink indianred indigo ivory khaki lavender lavenderblush lawngreen lemonchiffon lightblue lightcoral lightcyan lightgoldenrodyellow lightgray lightgreen lightgrey lightpink lightsalmon lightseagreen lightskyblue lightslategray lightslategrey lightsteelblue lightyellow lime limegreen linen magenta maroon mediumaquamarine mediumblue mediumorchid mediumpurple mediumseagreen mediumslateblue mediumspringgreen mediumturquoise mediumvioletred midnightblue mintcream mistyrose moccasin navajowhite navy oldlace olive olivedrab orange orangered orchid palegoldenrod palegreen paleturquoise palevioletred papayawhip peachpuff peru pink plum powderblue purple rebeccapurple red rosybrown royalblue saddlebrown salmon sandybrown seagreen seashell sienna silver skyblue slateblue slategray slategrey snow springgreen steelblue tan teal thistle tomato turquoise violet wheat white whitesmoke yellow yellowgreen".split(
+    " ",
+  ),
+);
 
 /** One thing wrong: where and what. */
-export interface Finding { readonly where: string; readonly problem: string }
+export interface Finding {
+  readonly where: string;
+  readonly problem: string;
+}
 
 const LENGTH = /(?<![\w.#-])-?(\d*\.?\d+)(px|em|rem|ch|ex|vw|vh|vmin|vmax|dvh|dvw|svh|svw|lvh|lvw|pt|pc|cm|mm|in)\b/g;
 const COLOUR_FUNCTION = /\b(rgb|rgba|hsl|hsla|hwb|lab|lch|oklab|oklch)\(/i;
@@ -22,10 +29,16 @@ const HEX = /#[0-9a-fA-F]{3,8}\b/;
 
 /** Removes comments, and the text of `url(...)` and strings (a data URI may hold a colour; the one place for it is look.css). */
 function plain(css: string): string {
-  return css.replace(/\/\*[\s\S]*?\*\//g, "").replace(/url\([^)]*\)/g, "url()").replace(/"[^"]*"|'[^']*'/g, '""');
+  return css
+    .replace(/\/\*[\s\S]*?\*\//g, "")
+    .replace(/url\([^)]*\)/g, "url()")
+    .replace(/"[^"]*"|'[^']*'/g, '""');
 }
 
-interface Block { readonly prelude: string; readonly declarations: readonly string[] }
+interface Block {
+  readonly prelude: string;
+  readonly declarations: readonly string[];
+}
 
 /** Splits sheet text into blocks: each `{ … }` with its prelude and its own declarations (nested blocks are their own entries). */
 function blocks(css: string): Block[] {
@@ -41,13 +54,23 @@ function blocks(css: string): Block[] {
     if (ch === "{") {
       const top = stack.at(-1);
       const lastSemi = chunk.lastIndexOf(";");
-      if (top !== undefined && lastSemi >= 0) { top.text += chunk.slice(0, lastSemi + 1); chunk = chunk.slice(lastSemi + 1); }
+      if (top !== undefined && lastSemi >= 0) {
+        top.text += chunk.slice(0, lastSemi + 1);
+        chunk = chunk.slice(lastSemi + 1);
+      }
       stack.push({ prelude: chunk.trim(), text: "" });
       chunk = "";
     } else if (ch === "}") {
       flush();
       const done = stack.pop();
-      if (done !== undefined) out.push({ prelude: done.prelude, declarations: done.text.split(";").map((d) => d.trim()).filter((d) => d !== "") });
+      if (done !== undefined)
+        out.push({
+          prelude: done.prelude,
+          declarations: done.text
+            .split(";")
+            .map((d) => d.trim())
+            .filter((d) => d !== ""),
+        });
       chunk = "";
     } else chunk += ch;
   }
@@ -59,13 +82,20 @@ function valueProblems(name: string, value: string): string[] {
   const problems: string[] = [];
   const stripped = value.replace(/var\(--[\w-]+/g, "var(");
   if (name === "z-index") {
-    if (!/^var\(--astraeus-layer-[a-z]+\)$/.test(value.trim())) problems.push(`z-index must be a var(--astraeus-layer-*) token, got ${value.trim()}`);
+    if (!/^var\(--astraeus-layer-[a-z]+\)$/.test(value.trim()))
+      problems.push(`z-index must be a var(--astraeus-layer-*) token, got ${value.trim()}`);
     return problems;
   }
   if (HEX.test(stripped)) problems.push(`typed hex colour in "${name}: ${value.trim()}"`);
   if (COLOUR_FUNCTION.test(stripped)) problems.push(`typed colour function in "${name}: ${value.trim()}"`);
-  if (/^(color|background|background-color|border|border-\w+|outline|fill|stroke|box-shadow|text-shadow|accent-color|caret-color|filter|--[\w-]+)$/.test(name) || /color/.test(name)) {
-    for (const word of stripped.toLowerCase().match(/[a-z]+/g) ?? []) if (NAMED_COLOURS.has(word)) problems.push(`named colour "${word}" in "${name}: ${value.trim()}"`);
+  if (
+    /^(color|background|background-color|border|border-\w+|outline|fill|stroke|box-shadow|text-shadow|accent-color|caret-color|filter|--[\w-]+)$/.test(
+      name,
+    ) ||
+    /color/.test(name)
+  ) {
+    for (const word of stripped.toLowerCase().match(/[a-z]+/g) ?? [])
+      if (NAMED_COLOURS.has(word)) problems.push(`named colour "${word}" in "${name}: ${value.trim()}"`);
   }
   for (const match of stripped.matchAll(LENGTH)) {
     const number = Number(match[1]);
@@ -80,13 +110,15 @@ function valueProblems(name: string, value: string): string[] {
 export function cssFindings(file: string, css: string): Finding[] {
   const findings: Finding[] = [];
   for (const block of blocks(plain(css))) {
-    if (block.prelude.startsWith("@media") && file !== AREAS) findings.push({ where: file, problem: `@media outside ${AREAS}: ${block.prelude}` });
+    if (block.prelude.startsWith("@media") && file !== AREAS)
+      findings.push({ where: file, problem: `@media outside ${AREAS}: ${block.prelude}` });
     if (file === LOOK) continue;
     for (const declaration of block.declarations) {
       const colon = declaration.indexOf(":");
       if (colon < 0) continue;
       const name = declaration.slice(0, colon).trim();
-      for (const problem of valueProblems(name, declaration.slice(colon + 1))) findings.push({ where: `${file} (${block.prelude.slice(0, 60)})`, problem });
+      for (const problem of valueProblems(name, declaration.slice(colon + 1)))
+        findings.push({ where: `${file} (${block.prelude.slice(0, 60)})`, problem });
     }
   }
   return findings;
@@ -117,7 +149,11 @@ function walk(dir: string, extension: string): string[] {
 }
 
 const rel = (path: string): string => relative(SRC, path).split("\\").join("/");
-const SHEETS = [...walk(join(SRC, "shell"), ".css"), ...walk(join(SRC, "shelf"), ".css"), join(SRC, "app", "style.css")];
+const SHEETS = [
+  ...walk(join(SRC, "shell"), ".css"),
+  ...walk(join(SRC, "shelf"), ".css"),
+  join(SRC, "app", "style.css"),
+];
 const SOURCES = [...walk(join(SRC, "shell"), ".tsx"), ...walk(join(SRC, "shelf"), ".tsx")];
 
 describe("look drift: every raw colour and size lives in the look module", () => {
@@ -163,10 +199,16 @@ describe("the drift rules see what they must (samples that must trip them)", () 
     expect(trips("@media (max-width: 700px) { .a { color: var(--astraeus-text); } }", AREAS)).toBe(false);
   });
   it("a style object with a typed value", () => {
-    expect(styleObjectFindings("shell/X.tsx", 'const a = <div style={{ color: "#fff", width: "10px" }} />;').length).toBe(2);
+    expect(
+      styleObjectFindings("shell/X.tsx", 'const a = <div style={{ color: "#fff", width: "10px" }} />;').length,
+    ).toBe(2);
   });
   it("lets the tokens, calc of tokens, zero, 1px, percent and viewer units through", () => {
-    expect(trips(".a { padding: var(--astraeus-space-4) 0; border: 1px solid var(--astraeus-border); width: calc(100% - var(--astraeus-space-5)); max-width: 90cqw; z-index: var(--astraeus-layer-bar); color: color-mix(in srgb, var(--astraeus-text) 40%, transparent); background: transparent; }")).toBe(false);
+    expect(
+      trips(
+        ".a { padding: var(--astraeus-space-4) 0; border: 1px solid var(--astraeus-border); width: calc(100% - var(--astraeus-space-5)); max-width: 90cqw; z-index: var(--astraeus-layer-bar); color: color-mix(in srgb, var(--astraeus-text) 40%, transparent); background: transparent; }",
+      ),
+    ).toBe(false);
     expect(trips("@container astraeus-viewer (max-width: 900px) { .a { gap: var(--astraeus-space-2); } }")).toBe(false);
   });
   it("lets the look module hold raw values", () => {
@@ -179,24 +221,41 @@ describe("the drift rules see what they must (samples that must trip them)", () 
 // with numbers. Outside the look module (`shell/look/`) none may stand; inside it each must equal a token's value in `look.css` (the defaults a control shows).
 // KNOWN names the colours left for an owner decision, each with its reason; a new entry needs one.
 const KNOWN: Readonly<Record<string, string>> = {
-  "shell/bodyFeatures.ts #ffffff": "a place category's marker colour fallback for scene data (the stylesheet already falls back to --astraeus-text when no colour is set); dropping it changes the existing assertion in sceneMoonPanelPlaces.test.ts, so it waits for the owner (I-186 repair note)",
+  "shell/bodyFeatures.ts #ffffff":
+    "a place category's marker colour fallback for scene data (the stylesheet already falls back to --astraeus-text when no colour is set); dropping it changes the existing assertion in sceneMoonPanelPlaces.test.ts, so it waits for the owner (I-186 repair note)",
 };
 const TS_COLOUR = /#[0-9a-fA-F]{3,8}\b|\b(?:rgba?|hsla?)\(\s*\d[^)]*\)/g;
 
 /** The typed colours inside the string literals of one TypeScript source (comments are left out). */
 export function tsColours(source: string): string[] {
   const code = source.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:"'`])\/\/.*$/gm, "$1");
-  return [...code.matchAll(/"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'|`(?:\\.|[^`\\])*`/g)].flatMap((literal) => literal[0].match(TS_COLOUR) ?? []);
+  return [...code.matchAll(/"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'|`(?:\\.|[^`\\])*`/g)].flatMap(
+    (literal) => literal[0].match(TS_COLOUR) ?? [],
+  );
 }
 /** The values `look.css` gives its tokens, normalised (spaces and case). */
 const norm = (value: string) => value.replace(/\s+/g, "").toLowerCase();
-const lookValues = new Set([...readFileSync(join(SRC, LOOK), "utf8").matchAll(/--astraeus-[\w-]+:\s*([^;]+);/g)].map((match) => norm(match[1] ?? "")));
+const lookValues = new Set(
+  [...readFileSync(join(SRC, LOOK), "utf8").matchAll(/--astraeus-[\w-]+:\s*([^;]+);/g)].map((match) =>
+    norm(match[1] ?? ""),
+  ),
+);
 
 /** What the TypeScript colour rule flags in one file (`file` is its path under `src`). */
 export function tsColourFindings(file: string, source: string): Finding[] {
   return tsColours(source).flatMap((colour) => {
-    if (file.startsWith("shell/look/")) return lookValues.has(norm(colour)) ? [] : [{ where: file, problem: `look default ${colour} differs from every look.css token` }];
-    return KNOWN[`${file} ${colour}`] !== undefined ? [] : [{ where: file, problem: `typed colour ${colour} in interface TypeScript (read a var(--astraeus-*) token or leave the colour unset)` }];
+    if (file.startsWith("shell/look/"))
+      return lookValues.has(norm(colour))
+        ? []
+        : [{ where: file, problem: `look default ${colour} differs from every look.css token` }];
+    return KNOWN[`${file} ${colour}`] !== undefined
+      ? []
+      : [
+          {
+            where: file,
+            problem: `typed colour ${colour} in interface TypeScript (read a var(--astraeus-*) token or leave the colour unset)`,
+          },
+        ];
   });
 }
 
@@ -206,11 +265,20 @@ describe("look drift in TypeScript: interface colours come from the look tokens 
     expect(TS.flatMap((path) => tsColourFindings(rel(path), readFileSync(path, "utf8")))).toEqual([]);
   });
   it("trips on a typed hex or rgb colour default, a look default that differs from look.css, and lets tokens through", () => {
-    expect(tsColourFindings("shell/timelineGlow.ts", 'export const DEFAULT = { playedColor: "#fc6323" };')).toHaveLength(1);
+    expect(
+      tsColourFindings("shell/timelineGlow.ts", 'export const DEFAULT = { playedColor: "#fc6323" };'),
+    ).toHaveLength(1);
     expect(tsColourFindings("shell/X.tsx", "const a = `rgba(252, 99, 35, ${alpha})`;")).toHaveLength(1);
     expect(tsColourFindings("shell/look/interfaceLook.ts", 'const a = { accent: "#fc6323" };')).toHaveLength(1);
-    expect(tsColourFindings("shell/look/interfaceLook.ts", 'const a = { accent: "#e8b06a", glow: "#cfe0ff" };')).toEqual([]);
-    expect(tsColourFindings("shell/timelineGlow.ts", "const a = `color-mix(in srgb, var(--astraeus-accent) ${n}%, transparent)`; // was #fc6323")).toEqual([]);
+    expect(
+      tsColourFindings("shell/look/interfaceLook.ts", 'const a = { accent: "#e8b06a", glow: "#cfe0ff" };'),
+    ).toEqual([]);
+    expect(
+      tsColourFindings(
+        "shell/timelineGlow.ts",
+        "const a = `color-mix(in srgb, var(--astraeus-accent) ${n}%, transparent)`; // was #fc6323",
+      ),
+    ).toEqual([]);
   });
   it("every KNOWN entry is still there (a stale entry is removed)", () => {
     for (const key of Object.keys(KNOWN)) {

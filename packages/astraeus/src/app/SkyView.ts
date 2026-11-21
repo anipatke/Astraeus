@@ -1,4 +1,18 @@
-import { AdditiveBlending, BufferAttribute, BufferGeometry, DoubleSide, LinearFilter, LinearMipmapLinearFilter, Group, Mesh, Points, ShaderMaterial, NoColorSpace, TextureLoader, Vector3 } from "three";
+import {
+  AdditiveBlending,
+  BufferAttribute,
+  BufferGeometry,
+  DoubleSide,
+  LinearFilter,
+  LinearMipmapLinearFilter,
+  Group,
+  Mesh,
+  Points,
+  ShaderMaterial,
+  NoColorSpace,
+  TextureLoader,
+  Vector3,
+} from "three";
 import type { Camera, PerspectiveCamera, Texture } from "three";
 import { milkyWayPicture, type PictureSet, type StarRow } from "../assets/sky";
 import { buildPictureMesh, buildStarBuffers } from "./skyModel";
@@ -142,12 +156,21 @@ export class SkyView {
       const material = new ShaderMaterial({
         vertexShader: PICTURE_VERTEX,
         fragmentShader: PICTURE_FRAGMENT,
-        uniforms: { uMap: { value: texture }, uDim: { value: PICTURE_DIM }, uGain: { value: PICTURE_GAIN * this.#brightness } },
+        uniforms: {
+          uMap: { value: texture },
+          uDim: { value: PICTURE_DIM },
+          uGain: { value: PICTURE_GAIN * this.#brightness },
+        },
         side: DoubleSide,
         depthTest: false,
         depthWrite: false,
       });
-      const data = buildPictureMesh(columns, rows, { column: tile.column, row: tile.row, columns: set.columns, rows: set.rows });
+      const data = buildPictureMesh(columns, rows, {
+        column: tile.column,
+        row: tile.row,
+        columns: set.columns,
+        rows: set.rows,
+      });
       const geometry = new BufferGeometry();
       geometry.setAttribute("position", new BufferAttribute(data.positions, 3));
       geometry.setAttribute("uv", new BufferAttribute(data.uvs, 2));
@@ -163,7 +186,10 @@ export class SkyView {
   }
 
   #clear(): void {
-    for (const picture of this.#pictures) { this.group.remove(picture); picture.geometry.dispose(); }
+    for (const picture of this.#pictures) {
+      this.group.remove(picture);
+      picture.geometry.dispose();
+    }
     for (const material of this.#pictureMaterials) material.dispose();
     for (const texture of this.#textures) texture.dispose();
     this.#pictures.length = 0;
@@ -239,10 +265,16 @@ export class SkyView {
   }
 
   /** The probe direction's normalised screen position and the camera orientation it was read with. */
-  probe(camera: Camera): { readonly ndc: readonly [number, number]; readonly quaternion: readonly [number, number, number, number] } {
+  probe(camera: Camera): {
+    readonly ndc: readonly [number, number];
+    readonly quaternion: readonly [number, number, number, number];
+  } {
     camera.updateMatrixWorld(true); // the camera was posed this frame; its inverse matrix is rebuilt at render
     const point = PROBE_DIRECTION.clone().add(camera.position).project(camera);
-    return { ndc: [point.x, point.y], quaternion: [camera.quaternion.x, camera.quaternion.y, camera.quaternion.z, camera.quaternion.w] };
+    return {
+      ndc: [point.x, point.y],
+      quaternion: [camera.quaternion.x, camera.quaternion.y, camera.quaternion.z, camera.quaternion.w],
+    };
   }
 
   dispose(): void {
@@ -253,4 +285,8 @@ export class SkyView {
 }
 
 /** The probe direction in the render frame, for tests and the browser check. */
-export const SKY_PROBE_DIRECTION: readonly [number, number, number] = [PROBE_DIRECTION.x, PROBE_DIRECTION.y, PROBE_DIRECTION.z];
+export const SKY_PROBE_DIRECTION: readonly [number, number, number] = [
+  PROBE_DIRECTION.x,
+  PROBE_DIRECTION.y,
+  PROBE_DIRECTION.z,
+];

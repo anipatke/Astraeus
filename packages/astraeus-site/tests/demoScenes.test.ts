@@ -22,7 +22,9 @@ describe("Apollo 11", () => {
   });
 
   it("leaves the Perseids' objects out", () => {
-    expect([...ids(apollo), ...apollo.paths.map((path) => path.id), ...apollo.groups.map((group) => group.id)].join(" ")).not.toMatch(/perseid|swift-tuttle/i);
+    expect(
+      [...ids(apollo), ...apollo.paths.map((path) => path.id), ...apollo.groups.map((group) => group.id)].join(" "),
+    ).not.toMatch(/perseid|swift-tuttle/i);
   });
 });
 
@@ -30,7 +32,11 @@ describe("Perseids in the Sun-centred composition", () => {
   it("mounts the Sun, Earth, the planets and the comet about the Sun, with no Moon anywhere", () => {
     expect(ids(perseids)).toEqual(["sun", "earth", "mercury", "venus", "mars", "jupiter", "swift-tuttle"]);
     expect(perseids.groups.map((group) => group.id)).toContain(`${settings.id}-stream`);
-    expect([...ids(perseids), ...perseids.paths.map((path) => path.id), ...perseids.groups.map((group) => group.id)]).not.toContain("moon");
+    expect([
+      ...ids(perseids),
+      ...perseids.paths.map((path) => path.id),
+      ...perseids.groups.map((group) => group.id),
+    ]).not.toContain("moon");
   });
 
   it("lists the Sun and the stream in the Object list, and mounts nothing of Apollo's", () => {

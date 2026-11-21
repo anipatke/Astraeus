@@ -25,11 +25,15 @@ export function layoutFor(widthPx: number, heightPx: number, coarse: boolean): S
   return widthPx <= PHONE_MAX_WIDTH_PX || (heightPx <= PHONE_MAX_HEIGHT_PX && coarse) ? "phone" : "wide";
 }
 
-const query = (text: string): MediaQueryList | null => (typeof window === "undefined" || typeof window.matchMedia !== "function" ? null : window.matchMedia(text));
+const query = (text: string): MediaQueryList | null =>
+  typeof window === "undefined" || typeof window.matchMedia !== "function" ? null : window.matchMedia(text);
 const matches = (text: string): boolean => query(text)?.matches ?? false;
 
 /** The screen as it is now. `size` is the viewer's measured size; absent or empty (nothing laid out yet), the window rule decides the layout. */
-export function readScreen(size: { readonly width: number; readonly height: number } | null, embedded: boolean): Screen {
+export function readScreen(
+  size: { readonly width: number; readonly height: number } | null,
+  embedded: boolean,
+): Screen {
   const coarse = matches(COARSE_QUERY);
   const measured = size !== null && size.width > 0 && size.height > 0;
   return {
@@ -40,11 +44,22 @@ export function readScreen(size: { readonly width: number; readonly height: numb
   };
 }
 
-const same = (a: Screen, b: Screen): boolean => a.layout === b.layout && a.pointer === b.pointer && a.embedded === b.embedded && a.motion === b.motion;
+const same = (a: Screen, b: Screen): boolean =>
+  a.layout === b.layout && a.pointer === b.pointer && a.embedded === b.embedded && a.motion === b.motion;
 
 /** The root attributes for a screen. */
-export function screenAttributes(screen: Screen): { readonly "data-phone": boolean; readonly "data-pointer": Screen["pointer"]; readonly "data-embedded": boolean; readonly "data-motion": Screen["motion"] } {
-  return { "data-phone": screen.layout === "phone", "data-pointer": screen.pointer, "data-embedded": screen.embedded, "data-motion": screen.motion };
+export function screenAttributes(screen: Screen): {
+  readonly "data-phone": boolean;
+  readonly "data-pointer": Screen["pointer"];
+  readonly "data-embedded": boolean;
+  readonly "data-motion": Screen["motion"];
+} {
+  return {
+    "data-phone": screen.layout === "phone",
+    "data-pointer": screen.pointer,
+    "data-embedded": screen.embedded,
+    "data-motion": screen.motion,
+  };
 }
 
 /** The viewer's screen, following its own size (not the window's), the pointer and the reduced-motion setting. `root` is the viewer's root element. */
@@ -64,14 +79,18 @@ export function useScreen(root: RefObject<HTMLElement | null>): Screen {
     return () => observer?.disconnect();
   }, [root, embedded]);
   useEffect(() => {
-    const lists = [COARSE_QUERY, MOTION_QUERY, PHONE_QUERY].map(query).filter((list): list is MediaQueryList => list !== null);
+    const lists = [COARSE_QUERY, MOTION_QUERY, PHONE_QUERY]
+      .map(query)
+      .filter((list): list is MediaQueryList => list !== null);
     const update = () => {
       const box = root.current?.getBoundingClientRect();
       const next = readScreen(box === undefined ? null : { width: box.width, height: box.height }, embedded);
       setScreen((was) => (same(was, next) ? was : next));
     };
     for (const list of lists) list.addEventListener("change", update);
-    return () => { for (const list of lists) list.removeEventListener("change", update); };
+    return () => {
+      for (const list of lists) list.removeEventListener("change", update);
+    };
   }, [root, embedded]);
   return screen;
 }

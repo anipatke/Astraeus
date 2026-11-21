@@ -58,7 +58,8 @@ export function createCatalogue(
   }
   const sources = new Map<BodyId, StateSourceBinding>();
   for (const binding of bindings) {
-    if (!byId.has(binding.body)) throw new AssetCatalogueError(`a state source names "${binding.body}", which has no definition`);
+    if (!byId.has(binding.body))
+      throw new AssetCatalogueError(`a state source names "${binding.body}", which has no definition`);
     if (sources.has(binding.body)) throw new AssetCatalogueError(`duplicate state source for "${binding.body}"`);
     sources.set(binding.body, binding);
   }
@@ -106,7 +107,11 @@ export function createCatalogue(
 export function bindCatalogue(base: BodyCatalogue, moonData: MoonDataSelection): BodyCatalogue {
   const bound = createCatalogue(
     base.definitions(),
-    base.sources().map((binding): StateSourceBinding => Object.freeze({ body: binding.body, create: (adapter: AstronomyAdapter) => binding.create(adapter, moonData) })),
+    base
+      .sources()
+      .map((binding): StateSourceBinding =>
+        Object.freeze({ body: binding.body, create: (adapter: AstronomyAdapter) => binding.create(adapter, moonData) }),
+      ),
     base.ids().map((id) => ({ body: id, visual: base.get(id).visual })),
   );
   return Object.freeze({ ...bound, moonData });
@@ -138,18 +143,31 @@ export function extendCatalogue(base: BodyCatalogue, records: readonly ElementsB
       }),
     });
   }
-  return keepBinding(base, createCatalogue(
-    [...base.definitions(), ...built.map(({ body }) => body.definition)],
-    [...base.sources(), ...built.map(({ body }) => body.binding)],
-    visuals,
-  ));
+  return keepBinding(
+    base,
+    createCatalogue(
+      [...base.definitions(), ...built.map(({ body }) => body.definition)],
+      [...base.sources(), ...built.map(({ body }) => body.binding)],
+      visuals,
+    ),
+  );
 }
 
 /** A catalogue that holds everything `base` holds plus the listed moons given (each added to a scene on request; `base` is not changed). */
 export function extendCatalogueWithMoons(base: BodyCatalogue, moons: readonly ListedMoonBody[]): BodyCatalogue {
   if (moons.length === 0) return base;
-  const visuals: VisualEntry[] = [...base.ids().map((id) => ({ body: id, visual: base.get(id).visual })), ...moons.map(listedMoonEntry)];
-  return keepBinding(base, createCatalogue([...base.definitions(), ...moons.map(({ definition }) => definition)], [...base.sources(), ...moons.map(({ binding }) => binding)], visuals));
+  const visuals: VisualEntry[] = [
+    ...base.ids().map((id) => ({ body: id, visual: base.get(id).visual })),
+    ...moons.map(listedMoonEntry),
+  ];
+  return keepBinding(
+    base,
+    createCatalogue(
+      [...base.definitions(), ...moons.map(({ definition }) => definition)],
+      [...base.sources(), ...moons.map(({ binding }) => binding)],
+      visuals,
+    ),
+  );
 }
 
 /** The id of the catalogue's one root body (the one with no parent), the origin every chain ends at. */
@@ -160,4 +178,15 @@ export function rootBodyId(source: BodyCatalogue = catalogue): BodyId {
 }
 
 /** Explicit, import-built, no discovery. */
-export const catalogue: BodyCatalogue = createCatalogue(BUILT_IN_BODIES, BUILT_IN_BINDINGS, [SUN_ENTRY, EARTH_ENTRY, MOON_ENTRY, MERCURY_ENTRY, VENUS_ENTRY, MARS_ENTRY, JUPITER_ENTRY, IO_ENTRY, ...GALILEAN_ENTRIES, ...PLANET_SYSTEM_ENTRIES]);
+export const catalogue: BodyCatalogue = createCatalogue(BUILT_IN_BODIES, BUILT_IN_BINDINGS, [
+  SUN_ENTRY,
+  EARTH_ENTRY,
+  MOON_ENTRY,
+  MERCURY_ENTRY,
+  VENUS_ENTRY,
+  MARS_ENTRY,
+  JUPITER_ENTRY,
+  IO_ENTRY,
+  ...GALILEAN_ENTRIES,
+  ...PLANET_SYSTEM_ENTRIES,
+]);

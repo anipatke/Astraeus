@@ -11,8 +11,16 @@ import { shippedPanelsOf } from "astraeus-demo-showers/tests/helpers/shippedPane
 import geminidsFile from "astraeus-demo-showers/data/showers/geminids.json";
 import perseidsFile from "astraeus-demo-showers/data/showers/perseids.json";
 
-const shower = (file: unknown): Scene => { const settings = parseShowerSettings(file); return buildShowerScene(settings, { kind: "absent" }, shippedPanelsOf(settings)); };
-const DEMOS: [string, Scene][] = [["Apollo 11", buildApollo11Scene()], ["Perseids", shower(perseidsFile)], ["Geminids", shower(geminidsFile)], ["Jupiter", jupiterIoScene]];
+const shower = (file: unknown): Scene => {
+  const settings = parseShowerSettings(file);
+  return buildShowerScene(settings, { kind: "absent" }, shippedPanelsOf(settings));
+};
+const DEMOS: [string, Scene][] = [
+  ["Apollo 11", buildApollo11Scene()],
+  ["Perseids", shower(perseidsFile)],
+  ["Geminids", shower(geminidsFile)],
+  ["Jupiter", jupiterIoScene],
+];
 
 describe.each(DEMOS)("%s story panels", (_name, scene) => {
   it("has panels, each with a title, a badge, a body, source lines, and a moment of its own in time order", () => {
@@ -24,10 +32,17 @@ describe.each(DEMOS)("%s story panels", (_name, scene) => {
       expect(["observed", "modelled", "illustrative"], panel.id).toContain(panel.provenance.sourceType);
       expect(panel.body.length, panel.id).toBeGreaterThan(0);
       expect(panel.provenance.sources.length, panel.id).toBeGreaterThan(0);
-      expect(panel.provenance.accuracy.trim(), `${panel.id} states its accuracy, or says the source does not`).not.toBe("");
+      expect(panel.provenance.accuracy.trim(), `${panel.id} states its accuracy, or says the source does not`).not.toBe(
+        "",
+      );
       expect(panel.provenance.notes.trim(), `${panel.id} has notes`).not.toBe("");
-      expect(`${panel.provenance.accuracy} ${panel.provenance.notes}`, `${panel.id} uses no dash as punctuation`).not.toMatch(/ - | – | — |—/);
+      expect(
+        `${panel.provenance.accuracy} ${panel.provenance.notes}`,
+        `${panel.id} uses no dash as punctuation`,
+      ).not.toMatch(/ - | – | — |—/);
     }
-    expect(panels.map((panel) => panel.timeUtcMs)).toEqual([...panels.map((panel) => panel.timeUtcMs)].sort((a, b) => (a ?? 0) - (b ?? 0)));
+    expect(panels.map((panel) => panel.timeUtcMs)).toEqual(
+      [...panels.map((panel) => panel.timeUtcMs)].sort((a, b) => (a ?? 0) - (b ?? 0)),
+    );
   });
 });

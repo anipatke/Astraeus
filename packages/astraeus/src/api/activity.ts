@@ -50,7 +50,8 @@ export interface PlannedActivity {
   readonly peakLabel: string;
 }
 
-const bad = (id: unknown, message: string): SceneError => new SceneError("bad-activity", `addActivity("${String(id)}"): ${message}`);
+const bad = (id: unknown, message: string): SceneError =>
+  new SceneError("bad-activity", `addActivity("${String(id)}"): ${message}`);
 
 const isText = (value: unknown): boolean => typeof value === "string" && value !== "";
 
@@ -59,7 +60,7 @@ function checkFields(input: ActivityInput): string {
   const id = input?.id;
   if (!isText(id)) throw bad(id, "the activity needs a non-empty id");
   if (!isText(input.label)) throw bad(id, "the activity needs a non-empty label");
-  if (!isText(input.unit)) throw bad(id, "the activity needs a unit such as \"events per hour\"");
+  if (!isText(input.unit)) throw bad(id, 'the activity needs a unit such as "events per hour"');
   if (!Array.isArray(input.samples) || input.samples.length < 2) throw bad(id, "the curve needs at least two samples");
   if (input.peakLabel !== undefined && !isText(input.peakLabel)) throw bad(id, "peakLabel must be a non-empty text");
   return id;
@@ -69,21 +70,38 @@ function checkFields(input: ActivityInput): string {
 export function planActivity(input: ActivityInput): PlannedActivity {
   const id = checkFields(input);
   const moment = (time: TimeInput, what: string): number => toUtcMs(time, `addActivity("${id}") ${what}`);
-  const samples = input.samples.map((sample, index) => ({ timeUtcMs: moment(sample?.time, `sample ${index} time`), value: sample?.value as number }));
+  const samples = input.samples.map((sample, index) => ({
+    timeUtcMs: moment(sample?.time, `sample ${index} time`),
+    value: sample?.value as number,
+  }));
   try {
     const peakUtcMs = input.peak === undefined ? undefined : moment(input.peak, "peak");
-    const [window] = createWindows([{
-      id,
-      label: input.label,
-      ...(input.type === undefined ? {} : { type: input.type }),
-      startUtcMs: moment(input.start, "start"),
-      endUtcMs: moment(input.end, "end"),
-      ...(peakUtcMs === undefined ? {} : { peakUtcMs }),
-      rate: { unit: input.unit, samples },
-      ...(input.provenance === undefined ? {} : { provenance: input.provenance.map((span, index) => ({ startUtcMs: moment(span?.start, `provenance ${index} start`), endUtcMs: moment(span?.end, `provenance ${index} end`), provenance: createProvenance(span?.provenance) })) }),
-    }]);
+    const [window] = createWindows([
+      {
+        id,
+        label: input.label,
+        ...(input.type === undefined ? {} : { type: input.type }),
+        startUtcMs: moment(input.start, "start"),
+        endUtcMs: moment(input.end, "end"),
+        ...(peakUtcMs === undefined ? {} : { peakUtcMs }),
+        rate: { unit: input.unit, samples },
+        ...(input.provenance === undefined
+          ? {}
+          : {
+              provenance: input.provenance.map((span, index) => ({
+                startUtcMs: moment(span?.start, `provenance ${index} start`),
+                endUtcMs: moment(span?.end, `provenance ${index} end`),
+                provenance: createProvenance(span?.provenance),
+              })),
+            }),
+      },
+    ]);
     const atPeak = peakUtcMs === undefined ? null : rateAt(window!, peakUtcMs);
-    return { window: window!, peakValue: atPeak ?? Math.max(...samples.map((sample) => sample.value)), peakLabel: input.peakLabel ?? "Peak" };
+    return {
+      window: window!,
+      peakValue: atPeak ?? Math.max(...samples.map((sample) => sample.value)),
+      peakLabel: input.peakLabel ?? "Peak",
+    };
   } catch (error) {
     if (error instanceof SceneError) throw error;
     throw bad(id, error instanceof Error ? error.message : String(error));

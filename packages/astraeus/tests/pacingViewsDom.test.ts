@@ -16,13 +16,31 @@ import { drawn } from "./domSetup";
 const DAY = 86_400_000;
 const T0 = Date.UTC(2030, 0, 1);
 const at = (days: number) => new Date(T0 + days * DAY).toISOString();
-const samples = (x: number) => [0, 1].map((i) => ({ time: T0 + i * 100 * DAY, positionKm: [x + i, 0, 0], velocityKmS: [1, 0, 0] }));
-const scene = () => new Scene().addBody(earth)
-  .addTrajectory({ id: "pa", label: "Probe A", center: "earth", samples: samples(10_000) })
-  .addTrajectory({ id: "pb", label: "Probe B", center: "earth", samples: samples(20_000) })
-  .addEvents([{ id: "ea", label: "A flyby", time: at(20), type: "flyby" }, { id: "eb", label: "B flyby", time: at(50), type: "flyby" }])
-  .setViews([{ id: "a", label: "A", objects: ["pa"], events: ["ea"] }, { id: "b", label: "B", objects: ["pb"], events: ["eb"] }], { place: "top-bar" })
-  .setTimeline({ start: at(0), end: at(100), rate: 86_400, rates: [60, 86_400], pacing: [{ near: { type: "flyby", withinSeconds: 86_400 }, rate: 60 }] });
+const samples = (x: number) =>
+  [0, 1].map((i) => ({ time: T0 + i * 100 * DAY, positionKm: [x + i, 0, 0], velocityKmS: [1, 0, 0] }));
+const scene = () =>
+  new Scene()
+    .addBody(earth)
+    .addTrajectory({ id: "pa", label: "Probe A", center: "earth", samples: samples(10_000) })
+    .addTrajectory({ id: "pb", label: "Probe B", center: "earth", samples: samples(20_000) })
+    .addEvents([
+      { id: "ea", label: "A flyby", time: at(20), type: "flyby" },
+      { id: "eb", label: "B flyby", time: at(50), type: "flyby" },
+    ])
+    .setViews(
+      [
+        { id: "a", label: "A", objects: ["pa"], events: ["ea"] },
+        { id: "b", label: "B", objects: ["pb"], events: ["eb"] },
+      ],
+      { place: "top-bar" },
+    )
+    .setTimeline({
+      start: at(0),
+      end: at(100),
+      rate: 86_400,
+      rates: [60, 86_400],
+      pacing: [{ near: { type: "flyby", withinSeconds: 86_400 }, rate: 60 }],
+    });
 
 let host: HTMLElement;
 beforeEach(() => {
@@ -31,8 +49,15 @@ beforeEach(() => {
   host = document.createElement("div");
   document.body.append(host);
 });
-afterEach(() => { host.remove(); vi.unstubAllGlobals(); vi.useRealTimers(); });
-const tick = (ms: number) => act(() => { vi.advanceTimersByTime(ms); });
+afterEach(() => {
+  host.remove();
+  vi.unstubAllGlobals();
+  vi.useRealTimers();
+});
+const tick = (ms: number) =>
+  act(() => {
+    vi.advanceTimersByTime(ms);
+  });
 
 describe("pacing follows the showing view in the viewer", () => {
   it("opens at the opening view's rate, eases to the new view's rate over about a second, and reports it as playback", async () => {

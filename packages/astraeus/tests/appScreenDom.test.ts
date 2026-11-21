@@ -6,12 +6,24 @@ import { createElement, act } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-const sceneProps = vi.hoisted(() => ({ latest: null as null | { controls: import("../src/app/AstraeusScene").SceneControls; scaleId: string; runtime: import("../src/app/AstraeusScene").SceneRuntime } }));
+const sceneProps = vi.hoisted(() => ({
+  latest: null as null | {
+    controls: import("../src/app/AstraeusScene").SceneControls;
+    scaleId: string;
+    runtime: import("../src/app/AstraeusScene").SceneRuntime;
+  },
+}));
 vi.mock("../src/app/AstraeusScene", () => ({
-  AstraeusScene: (props: NonNullable<typeof sceneProps.latest>) => { sceneProps.latest = props; return createElement("div", { "data-testid": "scene", "data-scale": props.scaleId }); },
+  AstraeusScene: (props: NonNullable<typeof sceneProps.latest>) => {
+    sceneProps.latest = props;
+    return createElement("div", { "data-testid": "scene", "data-scale": props.scaleId });
+  },
 }));
 const stars = vi.hoisted(() => ({ load: vi.fn() }));
-vi.mock("../src/assets/sky", async (importOriginal) => ({ ...(await importOriginal<typeof import("../src/assets/sky")>()), loadStarCatalogue: stars.load }));
+vi.mock("../src/assets/sky", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("../src/assets/sky")>()),
+  loadStarCatalogue: stars.load,
+}));
 
 import { App, hiddenLabelsFrom, loopFromSearch } from "../src/app/App";
 import { syntheticBareDefinition, syntheticDefinition } from "./synthetic/syntheticDefinition";
@@ -27,17 +39,32 @@ const controls = () => sceneProps.latest!.controls;
 /** Opens the page at an address, as a visitor or a copied link does. */
 const visit = (search: string) => window.history.replaceState(null, "", `/app.html${search}`);
 async function open(definition: ExperienceDefinition = syntheticDefinition): Promise<void> {
-  await act(async () => { root.render(createElement(App, { definition, address: true, developerTools: true })); });
+  await act(async () => {
+    root.render(createElement(App, { definition, address: true, developerTools: true }));
+  });
 }
-const button = (name: string | RegExp) => [...container.querySelectorAll("button")].find((b) => (typeof name === "string" ? b.textContent === name : name.test(b.textContent ?? "")))!;
+const button = (name: string | RegExp) =>
+  [...container.querySelectorAll("button")].find((b) =>
+    typeof name === "string" ? b.textContent === name : name.test(b.textContent ?? ""),
+  )!;
 /** Lets the on-demand panels a press just asked for arrive. */
 async function settle(): Promise<void> {
-  for (let tries = 0; tries < 100 && (container.querySelector(".developer-loading") !== null || tries === 0); tries += 1) await act(async () => { await new Promise((resolve) => setTimeout(resolve, 10)); });
+  for (
+    let tries = 0;
+    tries < 100 && (container.querySelector(".developer-loading") !== null || tries === 0);
+    tries += 1
+  )
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 10));
+    });
 }
 async function openDeveloper(): Promise<void> {
   press(byLabel(container, "Developer mode"));
   // The panels are loaded on demand: wait for the chunk, as a visitor waits for the note to go.
-  for (let tries = 0; tries < 100 && container.querySelector(".developer-loading") !== null; tries += 1) await act(async () => { await new Promise((resolve) => setTimeout(resolve, 20)); });
+  for (let tries = 0; tries < 100 && container.querySelector(".developer-loading") !== null; tries += 1)
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 20));
+    });
   expect(container.querySelector(".developer-loading")).toBeNull();
 }
 
@@ -50,7 +77,13 @@ beforeEach(() => {
   document.body.appendChild(container);
   root = createRoot(container);
 });
-afterEach(() => { act(() => root.unmount()); container.remove(); vi.restoreAllMocks(); vi.useRealTimers(); visit(""); });
+afterEach(() => {
+  act(() => root.unmount());
+  container.remove();
+  vi.restoreAllMocks();
+  vi.useRealTimers();
+  visit("");
+});
 
 describe("address helpers", () => {
   it("starts the labels hidden for objects that opt out, then lets the address turn each on or off and ignores malformed parts", () => {
@@ -59,7 +92,12 @@ describe("address helpers", () => {
     expect([...hiddenLabelsFrom("?labels=a:on,b:off,c:maybe,:off,d", objects)].sort()).toEqual(["b"]);
   });
   it("reads ?loop=on and ?loop=off over the experience's own setting", () => {
-    expect([loopFromSearch("?loop=on", false), loopFromSearch("?loop=off", true), loopFromSearch("?loop=x", true), loopFromSearch("", false)]).toEqual([true, false, true, false]);
+    expect([
+      loopFromSearch("?loop=on", false),
+      loopFromSearch("?loop=off", true),
+      loopFromSearch("?loop=x", true),
+      loopFromSearch("", false),
+    ]).toEqual([true, false, true, false]);
   });
 });
 
@@ -68,7 +106,13 @@ describe("opening the screen", () => {
     await open({ ...syntheticDefinition, label: "Made-up survey" });
     expect(document.title).toBe("Made-up survey · Astraeus");
     expect($(container, '[data-testid="scene"]').parentElement!.className).toBe("canvas-host");
-    expect(controls()).toMatchObject({ loop: false, cameraRequest: null, showAnchorLabels: false, illuminateAll: expect.any(Boolean), selectedObjectId: expect.any(String) });
+    expect(controls()).toMatchObject({
+      loop: false,
+      cameraRequest: null,
+      showAnchorLabels: false,
+      illuminateAll: expect.any(Boolean),
+      selectedObjectId: expect.any(String),
+    });
     expect(controls().storyMarkers!.length).toBeGreaterThan(0);
     expect(controls().labelObjects.map((o) => o.id)).toContain("survey-marker");
     expect(sceneProps.latest!.runtime.bodies).toEqual(["earth", "moon"]);
@@ -119,7 +163,9 @@ describe("what the shell's controls do to the scene and the clock", () => {
     const picker = $(container, "select.object-picker") as HTMLSelectElement;
     changeInput(picker, "moon");
     expect(controls().selectedObjectId).toBe("moon");
-    const preset = [...container.querySelectorAll<HTMLButtonElement>("button")].find((b) => /view|focus|follow|reset/i.test(b.textContent ?? b.title));
+    const preset = [...container.querySelectorAll<HTMLButtonElement>("button")].find((b) =>
+      /view|focus|follow|reset/i.test(b.textContent ?? b.title),
+    );
     expect(preset).toBeDefined();
     press(preset!);
     expect(controls().cameraRequest).not.toBeNull();
@@ -128,9 +174,13 @@ describe("what the shell's controls do to the scene and the clock", () => {
   it("hears a story marker, a feature marker and a tapped object from the scene and acts on each", async () => {
     await open();
     const panelId = controls().storyMarkers![0]!.panelId;
-    await act(async () => { controls().onStoryMarker!(panelId); });
+    await act(async () => {
+      controls().onStoryMarker!(panelId);
+    });
     expect(controls().openStoryPanelId).toBe(panelId);
-    await act(async () => { controls().onPickObject!("moon"); });
+    await act(async () => {
+      controls().onPickObject!("moon");
+    });
     expect(($(container, "select.object-picker") as HTMLSelectElement).value).toBe("moon");
     expect(controls().selectedObjectId).toBe("moon");
     expect(() => controls().onFeatureMarker!("moon:none")).not.toThrow();
@@ -145,7 +195,9 @@ describe("the Developer tools", () => {
     await openDeveloper();
     expect(container.querySelector(".developer-tools")!.hasAttribute("hidden")).toBe(false);
     expect(container.querySelector(".developer-heading h2")!.textContent).toBe("Developer tools");
-    const titles = [...container.querySelectorAll(".dev-group")].map((g) => g.querySelector("summary, h3, button")?.textContent);
+    const titles = [...container.querySelectorAll(".dev-group")].map(
+      (g) => g.querySelector("summary, h3, button")?.textContent,
+    );
     expect(titles.join("|")).toMatch(/Camera and view/);
     expect(titles.join("|")).toMatch(/Under the hood/);
   });
@@ -177,7 +229,9 @@ describe("the Developer tools", () => {
     const auto = button("Open panels automatically");
     const wasAuto = auto.getAttribute("aria-pressed");
     press(auto);
-    expect(button("Open panels automatically").getAttribute("aria-pressed")).toBe(wasAuto === "true" ? "false" : "true");
+    expect(button("Open panels automatically").getAttribute("aria-pressed")).toBe(
+      wasAuto === "true" ? "false" : "true",
+    );
     changeInput(container.querySelector<HTMLInputElement>('input[aria-label="Story panel pause"]')!, "3");
     expect($(container, '[data-testid="story-pause-value"]').textContent).toBe("3.0");
     const phone = container.querySelector<HTMLInputElement>('input[aria-label="Phone drawer animation"]')!;
@@ -190,18 +244,30 @@ describe("the Developer tools", () => {
   it("copies the view link once the scene has read a view, shows it, and says when the clipboard refused", async () => {
     await open();
     await openDeveloper();
-    const clipboard = (writeText: () => Promise<void>) => Object.defineProperty(navigator, "clipboard", { value: { writeText }, configurable: true });
+    const clipboard = (writeText: () => Promise<void>) =>
+      Object.defineProperty(navigator, "clipboard", { value: { writeText }, configurable: true });
     clipboard(() => Promise.resolve());
-    await act(async () => { button("Copy view link").click(); await Promise.resolve(); });
+    await act(async () => {
+      button("Copy view link").click();
+      await Promise.resolve();
+    });
     expect(container.querySelector('[data-testid="view-link"]')).toBeNull(); // no view read yet: nothing to copy
     controls().viewReadout = { focus: "earth", azimuthDeg: 12, elevationDeg: 3, distance: 9 };
-    await act(async () => { button("Copy view link").click(); await Promise.resolve(); await Promise.resolve(); });
+    await act(async () => {
+      button("Copy view link").click();
+      await Promise.resolve();
+      await Promise.resolve();
+    });
     const link = container.querySelector<HTMLInputElement>('[data-testid="view-link"]')!;
     expect(link.value).toContain("view=earth");
     expect(container.textContent).toContain("Copied to the clipboard.");
     expect(window.location.search).toContain("view=earth");
     clipboard(() => Promise.reject(new Error("no")));
-    await act(async () => { button("Copy view link").click(); await Promise.resolve(); await Promise.resolve(); });
+    await act(async () => {
+      button("Copy view link").click();
+      await Promise.resolve();
+      await Promise.resolve();
+    });
     expect(container.textContent).toContain("Clipboard unavailable");
   });
 
@@ -210,10 +276,14 @@ describe("the Developer tools", () => {
     await open();
     expect(controls().frameStats).toBeNull();
     press(byLabel(container, "Developer mode"));
-    await act(async () => { await vi.advanceTimersByTimeAsync(0); });
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(0);
+    });
     expect(controls().frameStats).not.toBeNull();
     controls().viewReadout = { focus: "earth", azimuthDeg: 1, elevationDeg: 2, distance: 3 };
-    await act(async () => { await vi.advanceTimersByTimeAsync(300); });
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(300);
+    });
     expect($(container, '[data-testid="view-values"]').textContent).toContain("earth,1,2,3");
     press(byLabel(container, "Developer mode"));
     expect(controls().frameStats).toBeNull();
@@ -225,7 +295,9 @@ describe("the Developer tools", () => {
     await open();
     const { clock, loopWindow } = sceneProps.latest!.runtime;
     clock.seek(loopWindow!.endUtcMs + 3_600_000);
-    await act(async () => { await vi.advanceTimersByTimeAsync(150); });
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(150);
+    });
     expect(clock.snapshot().timeUtcMs).toBeLessThanOrEqual(loopWindow!.endUtcMs);
   });
 });

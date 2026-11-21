@@ -2,7 +2,12 @@ import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
-import type { ConstellationBoundaries, ConstellationFigures, ConstellationName, ConstellationProvenance } from "../src/index.js";
+import type {
+  ConstellationBoundaries,
+  ConstellationFigures,
+  ConstellationName,
+  ConstellationProvenance,
+} from "../src/index.js";
 
 // O-067 T-304: the shipped data are the importer's output (tools/import/constellations.mjs), so these tests state what must hold of it.
 const here = dirname(fileURLToPath(import.meta.url));
@@ -10,13 +15,20 @@ const data = <T>(name: string): T => JSON.parse(readFileSync(join(here, "..", "d
 const figures = data<ConstellationFigures>("figures.json");
 const boundaries = data<ConstellationBoundaries>("boundaries.json");
 const names = data<Record<string, ConstellationName>>("names.json");
-const provenance = data<ConstellationProvenance & { counts: Record<string, number>; crossCheck: Record<string, number> }>("provenance.json");
-const stars = (JSON.parse(readFileSync(join(here, "..", "..", "astraeus", "src", "assets", "stars", "hyg-v42-naked-eye.json"), "utf8")) as { stars: number[][] }).stars;
+const provenance = data<
+  ConstellationProvenance & { counts: Record<string, number>; crossCheck: Record<string, number> }
+>("provenance.json");
+const stars = (
+  JSON.parse(
+    readFileSync(join(here, "..", "..", "astraeus", "src", "assets", "stars", "hyg-v42-naked-eye.json"), "utf8"),
+  ) as { stars: number[][] }
+).stars;
 const hips = new Set(stars.map((row) => row[4]).filter((hip): hip is number => hip !== undefined && hip > 0));
 const abbrs = Object.keys(names).sort();
 const separation = (ra1: number, dec1: number, ra2: number, dec2: number): number => {
   const r = Math.PI / 180;
-  const cos = Math.sin(dec1 * r) * Math.sin(dec2 * r) + Math.cos(dec1 * r) * Math.cos(dec2 * r) * Math.cos((ra1 - ra2) * r);
+  const cos =
+    Math.sin(dec1 * r) * Math.sin(dec2 * r) + Math.cos(dec1 * r) * Math.cos(dec2 * r) * Math.cos((ra1 - ra2) * r);
   return Math.acos(Math.min(1, cos)) / r;
 };
 
@@ -29,7 +41,11 @@ describe("astraeus-data-constellations", () => {
     for (const abbr of abbrs) {
       expect(abbr).toMatch(/^[A-Z][A-Za-z]{2}$/);
       const name = names[abbr];
-      expect([name?.name, name?.english, name?.genitive].every((text) => typeof text === "string" && text.length > 0 && !/[<>&]/.test(text))).toBe(true);
+      expect(
+        [name?.name, name?.english, name?.genitive].every(
+          (text) => typeof text === "string" && text.length > 0 && !/[<>&]/.test(text),
+        ),
+      ).toBe(true);
     }
     expect(names["Ori"]).toEqual({ name: "Orion", english: "the Hunter", genitive: "Orionis" });
   });
@@ -68,7 +84,8 @@ describe("astraeus-data-constellations", () => {
   it("matches the source for Orion: Betelgeuse to Bellatrix to Rigel to Saiph, the belt, the shield and the club", () => {
     const ori = (figures["Ori"] ?? []).map(([a, b]) => `${String(a)}-${String(b)}`);
     expect(ori).toHaveLength(23);
-    for (const line of ["27989-26727", "26727-26311", "26311-25930", "25930-25336", "25281-24436", "26727-27366"]) expect(ori).toContain(line);
+    for (const line of ["27989-26727", "26727-26311", "26311-25930", "25930-25336", "25281-24436", "26727-27366"])
+      expect(ori).toContain(line);
   });
 
   it("gives every constellation closed J2000 outlines of nearby points (Serpens has two)", () => {
@@ -85,7 +102,10 @@ describe("astraeus-data-constellations", () => {
           const [ra, dec] = [flat[2 * i] ?? NaN, flat[2 * i + 1] ?? NaN];
           expect(ra >= 0 && ra < 360 && dec >= -90 && dec <= 90, `${abbr} point ${i}`).toBe(true);
           const next = (i + 1) % n; // the last point joins the first, which is not repeated
-          expect(separation(ra, dec, flat[2 * next] ?? NaN, flat[2 * next + 1] ?? NaN), `${abbr} step ${i}`).toBeLessThan(1.1);
+          expect(
+            separation(ra, dec, flat[2 * next] ?? NaN, flat[2 * next + 1] ?? NaN),
+            `${abbr} step ${i}`,
+          ).toBeLessThan(1.1);
         }
         expect(flat.slice(0, 2)).not.toEqual(flat.slice(-2));
       }
@@ -96,7 +116,12 @@ describe("astraeus-data-constellations", () => {
   it("records a boundary cross-check against VI/49 inside its tolerance, and the sources it came from", () => {
     const check = provenance.crossCheck;
     expect(check["toleranceDegrees"]).toBe(0.01);
-    for (const key of ["maxPointToOutlineDegrees", "maxCornerToCornerDegrees", "maxOurCornerToVizierPointDegrees", "maxShippedChordDriftDegrees"]) {
+    for (const key of [
+      "maxPointToOutlineDegrees",
+      "maxCornerToCornerDegrees",
+      "maxOurCornerToVizierPointDegrees",
+      "maxShippedChordDriftDegrees",
+    ]) {
       expect(check[key], key).toBeLessThanOrEqual(0.01);
     }
     const sources = provenance.sources as Record<string, Record<string, string>>;

@@ -2,7 +2,8 @@ import type { NormalisedAnchor } from "./anchors";
 import type { Validation } from "./reconstruct";
 
 const iso = (ms: number): string => new Date(ms).toISOString().replace(".000Z", "Z");
-const fixed = (value: number | undefined, digits: number): string => (value === undefined ? "n/a" : value.toFixed(digits));
+const fixed = (value: number | undefined, digits: number): string =>
+  value === undefined ? "n/a" : value.toFixed(digits);
 
 function table(header: readonly string[], rows: readonly (readonly (string | number)[])[]): string {
   const lines = [`| ${header.join(" | ")} |`, `|${header.map(() => "---").join("|")}|`];
@@ -37,18 +38,17 @@ Moon-relative states are normalised offline to Earth-centred EQJ with the Astrae
 /** Coasts whose smoothing correction is large enough to matter, named so the repair is never invisible. */
 function largeCorrections(validation: Validation): string {
   const { km, ms } = validation.smoothingReportThreshold;
-  const rows = validation.segments.filter(
-    (s) => (s.maxCorrectionKm ?? 0) > km || (s.maxCorrectionMs ?? 0) > ms,
-  );
+  const rows = validation.segments.filter((s) => (s.maxCorrectionKm ?? 0) > km || (s.maxCorrectionMs ?? 0) > ms);
   if (rows.length === 0) return `- No coast needed a smoothing correction above ${km} km or ${ms} m/s.\n`;
   const list = rows
     .map((s) => `${s.id} (${s.vehicle}, ${fixed(s.maxCorrectionKm, 0)} km / ${fixed(s.maxCorrectionMs, 0)} m/s)`)
     .join("; ");
   const tliBurn = validation.segments.find((s) => s.id === "A-01>A-02");
   const postTliCoast = validation.segments.find((s) => s.id === "A-02>A-03");
-  const tliNote = tliBurn?.cutoffPositionResidualKm === undefined || postTliCoast === undefined
-    ? ""
-    : ` The ${Math.round((postTliCoast.endUtcMs - postTliCoast.startUtcMs) / 1000)}-second A-02>A-03 coast starts from the modelled A-01>A-02 cutoff, whose ${fixed(tliBurn.cutoffPositionResidualKm, 1)} km position residual is listed above.`;
+  const tliNote =
+    tliBurn?.cutoffPositionResidualKm === undefined || postTliCoast === undefined
+      ? ""
+      : ` The ${Math.round((postTliCoast.endUtcMs - postTliCoast.startUtcMs) / 1000)}-second A-02>A-03 coast starts from the modelled A-01>A-02 cutoff, whose ${fixed(tliBurn.cutoffPositionResidualKm, 1)} km position residual is listed above.`;
   return `- Coasts smoothed by more than ${km} km or ${ms} m/s: ${list}. Their anchors disagree with each other under these dynamics.${tliNote} Elsewhere, likely causes include printed headings that do not fit the orbit plane, lunar gravity anomalies omitted by the point-mass Moon, and print rounding. Treat the path there as illustrative.\n`;
 }
 
@@ -61,7 +61,17 @@ export function renderReport(validation: Validation, anchors: ReadonlyMap<string
       "Residual = generated trajectory evaluated at the anchor time versus the converted anchor. Non-cutoff anchors target ≤ 1e-6 km; burn cutoff anchors are allowed to differ and their modelled residuals are published. " +
       "The last two columns are the effect of half a unit in each printed digit and of ±0.05 s in time, a property of the table, not of the tool.\n\n" +
       table(
-        ["Anchor", "Vehicle", "GET", "Event", "Residual km", "Residual m/s", "Print rounding km", "Print rounding m/s", "Flag"],
+        [
+          "Anchor",
+          "Vehicle",
+          "GET",
+          "Event",
+          "Residual km",
+          "Residual m/s",
+          "Print rounding km",
+          "Print rounding m/s",
+          "Flag",
+        ],
         validation.anchorResiduals.map((row) => {
           const anchor = anchors.get(row.anchorId)!;
           return [
@@ -73,7 +83,11 @@ export function renderReport(validation: Validation, anchors: ReadonlyMap<string
             fixed(row.velocityMs, 6),
             fixed(anchor.printRoundingUncertainty.positionKm, 2),
             fixed(anchor.printRoundingUncertainty.velocityMs, 2),
-            anchors.get(row.anchorId)!.inferredOverride !== undefined ? "inferred override" : suspect.has(row.anchorId) ? "suspect" : "",
+            anchors.get(row.anchorId)!.inferredOverride !== undefined
+              ? "inferred override"
+              : suspect.has(row.anchorId)
+                ? "suspect"
+                : "",
           ];
         }),
       ),
@@ -84,7 +98,25 @@ export function renderReport(validation: Validation, anchors: ReadonlyMap<string
       "Cutoff residual = the physical burn's modelled cutoff state versus the printed cutoff anchor. Raw miss = the coast propagated from its start state alone, at the next NASA anchor. **No pass/fail threshold is applied to those residuals.** " +
       "Correction = the largest position and velocity difference between the smoothed path and that raw propagation. Two-anchor descent and ascent segments reach their end anchor by construction (—).\n\n" +
       table(
-        ["Vehicle", "Segment", "Method", "Start UTC", "End UTC", "Interval s", "Samples", "Cutoff residual km", "Cutoff residual m/s", "Peak speed km/s", "Speed reference", "Raw miss km", "Raw miss m/s", "Correction km", "Correction m/s", "Interp. max km", "Interp. max m/s"],
+        [
+          "Vehicle",
+          "Segment",
+          "Method",
+          "Start UTC",
+          "End UTC",
+          "Interval s",
+          "Samples",
+          "Cutoff residual km",
+          "Cutoff residual m/s",
+          "Peak speed km/s",
+          "Speed reference",
+          "Raw miss km",
+          "Raw miss m/s",
+          "Correction km",
+          "Correction m/s",
+          "Interp. max km",
+          "Interp. max m/s",
+        ],
         validation.segments.map((s) => [
           s.vehicle,
           s.id,
@@ -143,7 +175,16 @@ export function renderReport(validation: Validation, anchors: ReadonlyMap<string
       "Each later Earth-reference anchor up to A-09 is compared with the state two-body-propagated from " +
       `${consistency.reference}. Large differences mark printed values that disagree with their neighbours. The raw values are kept unchanged and flagged; they are not corrected here.\n\n` +
       table(
-        ["Anchor", "Position diff km", "Alt printed / predicted nmi", "Speed printed / predicted ft/s", "FPA printed / predicted °", "Heading printed / predicted °", "Lon printed / predicted °", "Flag"],
+        [
+          "Anchor",
+          "Position diff km",
+          "Alt printed / predicted nmi",
+          "Speed printed / predicted ft/s",
+          "FPA printed / predicted °",
+          "Heading printed / predicted °",
+          "Lon printed / predicted °",
+          "Flag",
+        ],
         consistency.rows.map((row) => [
           row.anchorId,
           fixed(row.positionDifferenceKm, 0),

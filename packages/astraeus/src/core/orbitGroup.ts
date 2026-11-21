@@ -79,15 +79,22 @@ function assertInput(input: OrbitGroupInput): void {
   for (const key of ELEMENT_KEYS) {
     if (!Number.isFinite(input.base[key])) throw new GroupElementsError(`base ${key} must be finite`);
     const width = input.spread[key] ?? 0;
-    if (!Number.isFinite(width) || width < 0) throw new GroupElementsError(`spread ${key} must be finite and not negative`);
+    if (!Number.isFinite(width) || width < 0)
+      throw new GroupElementsError(`spread ${key} must be finite and not negative`);
   }
 }
 
 function assertBoundOrbit(e: ClassicalElements, member: number): void {
-  const bound = e.semiMajorAxisKm > 0 && e.eccentricity >= 0 && e.eccentricity < 1
-    && e.inclinationRad >= 0 && e.inclinationRad <= Math.PI;
+  const bound =
+    e.semiMajorAxisKm > 0 &&
+    e.eccentricity >= 0 &&
+    e.eccentricity < 1 &&
+    e.inclinationRad >= 0 &&
+    e.inclinationRad <= Math.PI;
   if (!bound) {
-    throw new GroupElementsError(`member ${member} has elements outside a bound orbit; narrow the spread or change the base`);
+    throw new GroupElementsError(
+      `member ${member} has elements outside a bound orbit; narrow the spread or change the base`,
+    );
   }
 }
 
@@ -96,8 +103,7 @@ function sampleMembers(input: OrbitGroupInput): ClassicalElements[] {
   const random = seededRandom(input.seed);
   const members: ClassicalElements[] = [];
   for (let member = 0; member < input.count; member++) {
-    const value = (key: keyof OrbitElements): number =>
-      input.base[key] + (2 * random() - 1) * (input.spread[key] ?? 0);
+    const value = (key: keyof OrbitElements): number => input.base[key] + (2 * random() - 1) * (input.spread[key] ?? 0);
     const elements: ClassicalElements = {
       semiMajorAxisKm: value("semiMajorAxisKm"),
       eccentricity: value("eccentricity"),
@@ -119,7 +125,12 @@ function rotateInto(matrix: Float64Array, v: ArrayLike<number>, out: Float64Arra
 }
 
 /** Places each member on its orbit about `center`: six values per member (position, velocity), in J2000 equatorial axes. */
-export function memberStatesOf(members: readonly ClassicalElements[], plane: ElementPlane, center: CenterId, adapter: TwoBodyAdapter): Float64Array {
+export function memberStatesOf(
+  members: readonly ClassicalElements[],
+  plane: ElementPlane,
+  center: CenterId,
+  adapter: TwoBodyAdapter,
+): Float64Array {
   const rotation = plane === "ecliptic-j2000" ? adapter.eclipticJ2000ToEqjMatrix() : null;
   const states = new Float64Array(6 * members.length);
   members.forEach((elements, member) => {
@@ -139,7 +150,13 @@ export function memberStatesOf(members: readonly ClassicalElements[], plane: Ele
  * One member's position after `dtSeconds`, by the same propagation path as the batch, on a one-member view,
  * so the single answer and the batch never disagree.
  */
-export function propagatedPositionOf(states: Float64Array, index: number, dtSeconds: number, center: CenterId, adapter: TwoBodyAdapter): Float64Array {
+export function propagatedPositionOf(
+  states: Float64Array,
+  index: number,
+  dtSeconds: number,
+  center: CenterId,
+  adapter: TwoBodyAdapter,
+): Float64Array {
   const position = new Float64Array(3);
   const single = new Float64Array(6);
   single.set(states.subarray(6 * index, 6 * index + 6));
@@ -166,7 +183,8 @@ export function createOrbitGroup(input: OrbitGroupInput, adapter: TwoBodyAdapter
       adapter.propagateMemberInto(states, member, dtSeconds, center, out);
     }
   };
-  const fillPositionsKm = (timeUtcMs: number, out: Float64Array): void => fillPositionsRangeKm(timeUtcMs, out, 0, count);
+  const fillPositionsKm = (timeUtcMs: number, out: Float64Array): void =>
+    fillPositionsRangeKm(timeUtcMs, out, 0, count);
 
   let kepler: KeplerElements | null = null;
   const group: PointGroup = {

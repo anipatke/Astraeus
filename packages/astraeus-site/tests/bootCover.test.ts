@@ -4,10 +4,16 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { createBootCover, hideBootLoader } from "../src/bootCover";
 
-const MARKUP = '<div id="boot" role="status" data-state="loading"><span class="loading">Loading</span><span class="failed">Failed</span></div>';
+const MARKUP =
+  '<div id="boot" role="status" data-state="loading"><span class="loading">Loading</span><span class="failed">Failed</span></div>';
 const boot = (): HTMLElement | null => document.getElementById("boot");
-beforeEach(() => { document.body.innerHTML = MARKUP; });
-afterEach(() => { vi.useRealTimers(); document.body.innerHTML = ""; });
+beforeEach(() => {
+  document.body.innerHTML = MARKUP;
+});
+afterEach(() => {
+  vi.useRealTimers();
+  document.body.innerHTML = "";
+});
 
 describe("the site's cover", () => {
   it("show again on a switch: an existing cover returns to loading with its fade cleared", () => {
@@ -47,7 +53,10 @@ describe("the site's cover", () => {
   it("a page that never had a cover: show and fail do nothing, and a claim reaches nothing", () => {
     document.body.innerHTML = "";
     const cover = createBootCover(document);
-    expect(() => { cover.show(); cover.fail(); }).not.toThrow();
+    expect(() => {
+      cover.show();
+      cover.fail();
+    }).not.toThrow();
     expect(cover.claim()()).toBeNull();
     expect(boot()).toBeNull();
   });
@@ -55,7 +64,9 @@ describe("the site's cover", () => {
 
 describe("hiding the cover at a scene's first frame", () => {
   const coverOf = (): HTMLElement | null => boot();
-  beforeEach(() => { vi.useFakeTimers(); });
+  beforeEach(() => {
+    vi.useFakeTimers();
+  });
   it("hides once, sets the fade, then removes the cover after the fade", () => {
     const cover = boot()!;
     hideBootLoader(coverOf, 0.5);

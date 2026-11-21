@@ -3,7 +3,11 @@ import { SceneError } from "./errors";
 import { rejectRenamed } from "./renamedInputs";
 
 /** What a view's camera does when what it follows or focuses on is not in the view: `"stay"` (default) keeps the pose and stops following, `"start"` takes the scene's start, `{ follow: id }` / `{ focus: id }` takes that framing (the object must be in the view). `always: true` on a framing applies it on every switch to the view, not only when the switch takes away what the camera follows or focuses on. */
-export type ViewCameraInput = "stay" | "start" | { readonly follow: string; readonly always?: true } | { readonly focus: string; readonly always?: true };
+export type ViewCameraInput =
+  | "stay"
+  | "start"
+  | { readonly follow: string; readonly always?: true }
+  | { readonly focus: string; readonly always?: true };
 
 /** One named view. `objects` are `addBody`, `addGroup` or `addTrajectory` ids, `events` are `addEvents` ids and `panels` are `addStoryPanels` ids. */
 export interface ViewInput {
@@ -47,7 +51,9 @@ function copied(input: readonly ViewInput[]): readonly ViewInput[] {
   try {
     return structuredClone(input);
   } catch (error) {
-    throw bad(`views must hold plain data (text, numbers, lists, objects), not functions or symbols: ${error instanceof Error ? error.message : String(error)}`);
+    throw bad(
+      `views must hold plain data (text, numbers, lists, objects), not functions or symbols: ${error instanceof Error ? error.message : String(error)}`,
+    );
   }
 }
 
@@ -55,8 +61,12 @@ function copied(input: readonly ViewInput[]): readonly ViewInput[] {
 export function viewsOf(input: readonly ViewInput[], options: ViewsOptions): ViewsPlan {
   // A deep copy first, so a later edit to the caller's objects cannot slip past the checks below.
   const views = Array.isArray(input) ? copied(input) : input;
-  if (!Array.isArray(views) || views.length === 0) throw bad(`give a non-empty list such as [{ id: "all", label: "All" }]`);
-  if (typeof options !== "object" || options === null || !(VIEW_PLACES as readonly unknown[]).includes(options.place)) throw bad(`place must be one of ${VIEW_PLACES.join(", ")}, got ${JSON.stringify((options as { place?: unknown } | null)?.place)}`);
+  if (!Array.isArray(views) || views.length === 0)
+    throw bad(`give a non-empty list such as [{ id: "all", label: "All" }]`);
+  if (typeof options !== "object" || options === null || !(VIEW_PLACES as readonly unknown[]).includes(options.place))
+    throw bad(
+      `place must be one of ${VIEW_PLACES.join(", ")}, got ${JSON.stringify((options as { place?: unknown } | null)?.place)}`,
+    );
   const seen = new Set<string>();
   views.forEach((view, index) => {
     const where = `view ${index}`;
@@ -64,12 +74,14 @@ export function viewsOf(input: readonly ViewInput[], options: ViewsOptions): Vie
     if (typeof view.id !== "string" || view.id === "") throw bad(`${where} needs a non-empty id`);
     if (typeof view.label !== "string" || view.label === "") throw bad(`view "${view.id}" needs a non-empty label`);
     if (seen.has(view.id)) throw bad(`view "${view.id}" appears twice`);
-    if (view.shortLabel !== undefined && (typeof view.shortLabel !== "string" || view.shortLabel === "")) throw bad(`view "${view.id}" shortLabel must be a non-empty string when given`);
+    if (view.shortLabel !== undefined && (typeof view.shortLabel !== "string" || view.shortLabel === ""))
+      throw bad(`view "${view.id}" shortLabel must be a non-empty string when given`);
     seen.add(view.id);
     rejectRenamed("ViewInput", view, `setViews: view "${view.id}"`);
     for (const kind of KINDS) {
       const ids = view[kind];
-      if (ids !== undefined && (!Array.isArray(ids) || !ids.every((id) => typeof id === "string" && id !== ""))) throw bad(`view "${view.id}" ${kind} must be a list of non-empty ids`);
+      if (ids !== undefined && (!Array.isArray(ids) || !ids.every((id) => typeof id === "string" && id !== "")))
+        throw bad(`view "${view.id}" ${kind} must be a list of non-empty ids`);
     }
     cameraOf(view);
   });
@@ -87,8 +99,18 @@ function cameraOf(view: ViewInput): ViewCameraRule {
   const focus = (camera as { focus?: unknown } | null)?.focus;
   const target = follow ?? focus;
   const always = (camera as { always?: unknown } | null)?.always;
-  if (always !== undefined && always !== true) throw bad(`view "${view.id}" camera always must be true when given, got ${JSON.stringify(always)}`);
-  if (typeof camera !== "object" || camera === null || typeof target !== "string" || target === "" || (follow !== undefined) === (focus !== undefined)) throw bad(`view "${view.id}" camera must be "stay", "start", { follow: id } or { focus: id }, got ${JSON.stringify(camera)}`);
+  if (always !== undefined && always !== true)
+    throw bad(`view "${view.id}" camera always must be true when given, got ${JSON.stringify(always)}`);
+  if (
+    typeof camera !== "object" ||
+    camera === null ||
+    typeof target !== "string" ||
+    target === "" ||
+    (follow !== undefined) === (focus !== undefined)
+  )
+    throw bad(
+      `view "${view.id}" camera must be "stay", "start", { follow: id } or { focus: id }, got ${JSON.stringify(camera)}`,
+    );
   const keep = always === true ? { always: true as const } : {};
   return { rule: "start", framing: follow === undefined ? { focus: target, ...keep } : { follow: target, ...keep } };
 }
@@ -99,7 +121,11 @@ function cameraOf(view: ViewInput): ViewCameraRule {
  */
 export function resolveViews(plan: ViewsPlan, scope: ViewScope): ViewSettings {
   const known = { objects: new Set(scope.objects), events: new Set(scope.events), panels: new Set(scope.panels) };
-  const what = { objects: "a body, group or path (addBody, addGroup, addTrajectory)", events: "an event (addEvents)", panels: "a story panel (addStoryPanels)" };
+  const what = {
+    objects: "a body, group or path (addBody, addGroup, addTrajectory)",
+    events: "an event (addEvents)",
+    panels: "a story panel (addStoryPanels)",
+  };
   const named = { objects: new Set<string>(), events: new Set<string>(), panels: new Set<string>() };
   for (const view of plan.views) {
     for (const kind of KINDS) {
@@ -109,15 +135,27 @@ export function resolveViews(plan: ViewsPlan, scope: ViewScope): ViewSettings {
       }
     }
   }
-  const shows = (view: ViewInput, kind: (typeof KINDS)[number], id: string): boolean => !named[kind].has(id) || (view[kind] ?? []).includes(id);
+  const shows = (view: ViewInput, kind: (typeof KINDS)[number], id: string): boolean =>
+    !named[kind].has(id) || (view[kind] ?? []).includes(id);
   const views = plan.views.map((view): ResolvedView => {
     const objects = new Set(scope.objects.filter((id) => shows(view, "objects", id)));
     const camera = cameraOf(view);
     if (camera.rule === "start" && camera.framing !== undefined) {
       const target = "follow" in camera.framing ? camera.framing.follow : camera.framing.focus;
-      if (!objects.has(target)) throw bad(`view "${view.id}" camera: "${target}" is not shown in that view (a body or path of the scene it names, or one no view hides from it)`);
+      if (!objects.has(target))
+        throw bad(
+          `view "${view.id}" camera: "${target}" is not shown in that view (a body or path of the scene it names, or one no view hides from it)`,
+        );
     }
-    return { id: view.id, label: view.label, ...(view.shortLabel === undefined ? {} : { shortLabel: view.shortLabel }), camera, objects, events: new Set(scope.events.filter((id) => shows(view, "events", id))), panels: new Set(scope.panels.filter((id) => shows(view, "panels", id))) };
+    return {
+      id: view.id,
+      label: view.label,
+      ...(view.shortLabel === undefined ? {} : { shortLabel: view.shortLabel }),
+      camera,
+      objects,
+      events: new Set(scope.events.filter((id) => shows(view, "events", id))),
+      panels: new Set(scope.panels.filter((id) => shows(view, "panels", id))),
+    };
   });
   return { place: plan.place, start: plan.start, views };
 }

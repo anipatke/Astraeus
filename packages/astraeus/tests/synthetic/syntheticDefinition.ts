@@ -60,7 +60,12 @@ const events = createEvents([
 ]);
 
 /** Two made-up story panels (one about the marker, one about nothing in particular) so the story-panel checks run without a real story. */
-const madeUpPanel = (sourceType: "illustrative" | "modelled") => ({ sourceType, sources: ["Made up for the story-panel test; not a real source"], accuracy: "None claimed.", notes: "Made up for this fixture." });
+const madeUpPanel = (sourceType: "illustrative" | "modelled") => ({
+  sourceType,
+  sources: ["Made up for the story-panel test; not a real source"],
+  accuracy: "None claimed.",
+  notes: "Made up for this fixture.",
+});
 const storyPanels = resolveStoryPanels(
   [
     {
@@ -154,8 +159,22 @@ function contactRateMetric(timeUtcMs: number): RateMetric {
 
 const experience: ExperienceConfig = {
   objects: [
-    { id: "earth", label: "Earth", color: "#9fd8ff", labelPriority: 100, labelMaxDistance: 500, description: "The planet the marker circles." },
-    { id: "moon", label: "Moon", color: "#ded7cc", labelPriority: 90, labelMaxDistance: 500, description: "Shown for scale only." },
+    {
+      id: "earth",
+      label: "Earth",
+      color: "#9fd8ff",
+      labelPriority: 100,
+      labelMaxDistance: 500,
+      description: "The planet the marker circles.",
+    },
+    {
+      id: "moon",
+      label: "Moon",
+      color: "#ded7cc",
+      labelPriority: 90,
+      labelMaxDistance: 500,
+      description: "Shown for scale only.",
+    },
     {
       id: marker.id,
       label: marker.label,
@@ -189,9 +208,19 @@ export const syntheticDefinition: ExperienceDefinition = {
   trackedBodies: [marker],
   createMetrics: ({ resolver }) => {
     const catalogued = bodyMetrics(resolver, earthMoonSystem.bodies, ["distance"]);
-    const tracked = createReadoutMetrics([{ body: marker, readouts: [{ kind: "range", marker: "moon" }, { kind: "speed" }, { kind: "distance", to: "moon" }] }], resolver);
+    const tracked = createReadoutMetrics(
+      [
+        {
+          body: marker,
+          readouts: [{ kind: "range", marker: "moon" }, { kind: "speed" }, { kind: "distance", to: "moon" }],
+        },
+      ],
+      resolver,
+    );
     return (objectId: string, timeUtcMs: number): readonly Metric[] =>
-      objectId === marker.id ? [...tracked(objectId, timeUtcMs), contactRateMetric(timeUtcMs)] : catalogued(objectId, timeUtcMs);
+      objectId === marker.id
+        ? [...tracked(objectId, timeUtcMs), contactRateMetric(timeUtcMs)]
+        : catalogued(objectId, timeUtcMs);
   },
 };
 

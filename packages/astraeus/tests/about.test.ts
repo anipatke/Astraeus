@@ -10,9 +10,18 @@ import { NO_PANELS, reducePanels, topmost, type Layout } from "../src/shell/pane
 import enginePackage from "../package.json" with { type: "json" };
 import { $, mountShell, press, pressKey, selectObject, type Mounted } from "./domSetup";
 
-const codeOf = (fn: () => unknown) => { try { fn(); } catch (error) { return error instanceof SceneError ? `${error.code}: ${error.message}` : String(error); } return "no error"; };
+const codeOf = (fn: () => unknown) => {
+  try {
+    fn();
+  } catch (error) {
+    return error instanceof SceneError ? `${error.code}: ${error.message}` : String(error);
+  }
+  return "no error";
+};
 const about: AboutInput = {
-  title: "The asteroid belt", shortTitle: "Belt", status: "Showing 1 July 2026",
+  title: "The asteroid belt",
+  shortTitle: "Belt",
+  status: "Showing 1 July 2026",
   credits: [{ text: "Orbits: JPL", url: "https://ssd.jpl.nasa.gov/" }, { text: "Pictures: NASA" }],
   links: [{ text: "Method", url: "https://example.org/method" }],
 };
@@ -42,7 +51,8 @@ describe("Scene.setAbout", () => {
   });
 
   it("refuses each malformed field alone with bad-about naming it, and keeps the earlier About", () => {
-    const bad = (change: Record<string, unknown>) => codeOf(() => base().setAbout({ ...about, ...change } as AboutInput));
+    const bad = (change: Record<string, unknown>) =>
+      codeOf(() => base().setAbout({ ...about, ...change } as AboutInput));
     expect(bad({ title: "" })).toMatch(/^bad-about: setAbout: title must be a non-empty string/);
     expect(bad({ title: 3 })).toMatch(/^bad-about: .*title/);
     expect(bad({ shortTitle: "" })).toMatch(/^bad-about: .*shortTitle must be a non-empty string/);
@@ -51,7 +61,9 @@ describe("Scene.setAbout", () => {
     expect(bad({ links: {} })).toMatch(/^bad-about: .*links must be a list/);
     expect(bad({ credits: ["x"] })).toMatch(/^bad-about: .*credits\[0\] must be a/);
     expect(bad({ credits: [{ text: "" }] })).toMatch(/^bad-about: .*credits\[0\]\.text/);
-    expect(bad({ credits: [{ text: "A", url: "ftp://x.org" }] })).toMatch(/^bad-about: .*credits\[0\]\.url must be an http or https address/);
+    expect(bad({ credits: [{ text: "A", url: "ftp://x.org" }] })).toMatch(
+      /^bad-about: .*credits\[0\]\.url must be an http or https address/,
+    );
     expect(bad({ credits: [about.credits![0], { text: "B", url: 5 }] })).toMatch(/^bad-about: .*credits\[1\]\.url/);
     expect(bad({ links: [null] })).toMatch(/^bad-about: .*links\[0\] must be a/);
     expect(bad({ links: [{ text: "", url: "https://x.org" }] })).toMatch(/^bad-about: .*links\[0\]\.text/);
@@ -76,7 +88,13 @@ describe("the engine version", () => {
 describe("the link's About (one viewer's own)", () => {
   it("is undefined before the viewer attaches, takes the scene's About on attach, replaces on setAbout, tells the viewer's watcher, and is gone on detach", () => {
     let attached = false;
-    const access = { control: () => (attached ? ({} as never) : undefined), open: (what: string) => { if (!attached) throw new SceneError("not-mounted", what); return {} as never; } };
+    const access = {
+      control: () => (attached ? ({} as never) : undefined),
+      open: (what: string) => {
+        if (!attached) throw new SceneError("not-mounted", what);
+        return {} as never;
+      },
+    };
     const part = new ViewerAbout(access);
     const told = vi.fn();
     part.watch(told);
@@ -96,7 +114,11 @@ describe("the link's About (one viewer's own)", () => {
 });
 
 let m: Mounted | undefined;
-afterEach(() => { m?.unmount(); m = undefined; vi.restoreAllMocks(); });
+afterEach(() => {
+  m?.unmount();
+  m = undefined;
+  vi.restoreAllMocks();
+});
 const shown = (): Mounted => m!;
 const bar = () => $(shown().container, '[data-area="bar"] .top-bar');
 const titleButton = () => $(bar(), "[data-bar-title]");
@@ -108,7 +130,11 @@ const card = () => shown().container.querySelector<HTMLElement>(".info-panel[dat
 function laidOut(width: number): void {
   vi.spyOn(Element.prototype, "getBoundingClientRect").mockImplementation(function (this: Element) {
     const ghost = this.hasAttribute("data-ghost-id");
-    const w = ghost ? [...this.children].reduce((sum, child) => sum + (child.textContent ?? "").length * 10 + 20, 0) : this.classList.contains("top-bar") ? width : 0;
+    const w = ghost
+      ? [...this.children].reduce((sum, child) => sum + (child.textContent ?? "").length * 10 + 20, 0)
+      : this.classList.contains("top-bar")
+        ? width
+        : 0;
     return { width: w, height: 0, top: 0, left: 0, right: w, bottom: 0, x: 0, y: 0, toJSON: () => ({}) } as DOMRect;
   });
 }
@@ -139,7 +165,9 @@ describe("the title item and the About panel on a wide screen", () => {
     expect(credits[0]!.querySelector("a")!.getAttribute("href")).toBe("https://ssd.jpl.nasa.gov/");
     expect(credits[1]!.querySelector("a")).toBeNull();
     const links = [...body.querySelectorAll("[data-about-links] a")];
-    expect(links.map((a) => [a.textContent, a.getAttribute("href")])).toEqual([["Method", "https://example.org/method"]]);
+    expect(links.map((a) => [a.textContent, a.getAttribute("href")])).toEqual([
+      ["Method", "https://example.org/method"],
+    ]);
     const last = body.lastElementChild!;
     expect(last.hasAttribute("data-about-built-with")).toBe(true);
     expect(last.querySelector("a")!.textContent).toBe("Built with Astraeus");
@@ -202,7 +230,7 @@ describe("the title item on a phone", () => {
     expect(panel()).toBeNull();
   });
 
-  it("shrinks to the short title and then to \"i\" by the bar's fit rule, the full name kept for a screen reader, and still opens About", () => {
+  it('shrinks to the short title and then to "i" by the bar\'s fit rule, the full name kept for a screen reader, and still opens About', () => {
     const wide = { title: "The asteroid belt", shortTitle: "Belt" };
     laidOut(1000);
     m = mountShell({ phone: true, about: wide });
@@ -231,10 +259,16 @@ describe("the title item on a phone", () => {
 
 describe.each<Layout>(["wide", "phone"])("the panel rule's About rows, %s", (layout) => {
   it("About is a left occupant: it replaces the card and the moons list, and they replace it", () => {
-    expect(reducePanels({ ...NO_PANELS, left: "card" }, { type: "open", occupant: "about" }, layout).left).toBe("about");
-    expect(reducePanels({ ...NO_PANELS, left: "moons" }, { type: "open", occupant: "about" }, layout).left).toBe("about");
+    expect(reducePanels({ ...NO_PANELS, left: "card" }, { type: "open", occupant: "about" }, layout).left).toBe(
+      "about",
+    );
+    expect(reducePanels({ ...NO_PANELS, left: "moons" }, { type: "open", occupant: "about" }, layout).left).toBe(
+      "about",
+    );
     expect(reducePanels({ ...NO_PANELS, left: "about" }, { type: "open", occupant: "card" }, layout).left).toBe("card");
-    expect(reducePanels({ ...NO_PANELS, left: "about" }, { type: "open", occupant: "moons" }, layout).left).toBe("moons");
+    expect(reducePanels({ ...NO_PANELS, left: "about" }, { type: "open", occupant: "moons" }, layout).left).toBe(
+      "moons",
+    );
   });
   it("it covers the story panel and keeps it open, closes by its own close, and Escape closes it as the detail occupant", () => {
     const open = reducePanels({ ...NO_PANELS, story: true }, { type: "open", occupant: "about" }, layout);
@@ -242,7 +276,9 @@ describe.each<Layout>(["wide", "phone"])("the panel rule's About rows, %s", (lay
     expect(topmost(open)).toEqual({ occupant: "about" });
     expect(reducePanels(open, { type: "escape" }, layout)).toMatchObject({ left: null, story: true });
     expect(reducePanels(open, { type: "close", occupant: "about" }, layout).left).toBeNull();
-    expect(reducePanels({ ...NO_PANELS, left: "card" }, { type: "close", occupant: "about" }, layout).left).toBe("card");
+    expect(reducePanels({ ...NO_PANELS, left: "card" }, { type: "close", occupant: "about" }, layout).left).toBe(
+      "card",
+    );
   });
   it("a drawer or pop-up above it takes Escape first", () => {
     const state = { ...NO_PANELS, left: "about" as const, popup: "scale-menu" };
@@ -252,8 +288,15 @@ describe.each<Layout>(["wide", "phone"])("the panel rule's About rows, %s", (lay
 
 describe("the phone developer sheet and About", () => {
   it("About replaces the developer sheet on a phone, and the developer sheet replaces About", () => {
-    expect(reducePanels({ ...NO_PANELS, developer: true }, { type: "open", occupant: "about" }, "phone")).toMatchObject({ left: "about", developer: false });
-    expect(reducePanels({ ...NO_PANELS, left: "about" }, { type: "open", occupant: "developer" }, "phone")).toMatchObject({ left: null, developer: true });
-    expect(reducePanels({ ...NO_PANELS, developer: true }, { type: "open", occupant: "about" }, "wide")).toMatchObject({ left: "about", developer: true });
+    expect(reducePanels({ ...NO_PANELS, developer: true }, { type: "open", occupant: "about" }, "phone")).toMatchObject(
+      { left: "about", developer: false },
+    );
+    expect(
+      reducePanels({ ...NO_PANELS, left: "about" }, { type: "open", occupant: "developer" }, "phone"),
+    ).toMatchObject({ left: null, developer: true });
+    expect(reducePanels({ ...NO_PANELS, developer: true }, { type: "open", occupant: "about" }, "wide")).toMatchObject({
+      left: "about",
+      developer: true,
+    });
   });
 });

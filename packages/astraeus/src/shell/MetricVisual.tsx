@@ -38,7 +38,13 @@ function arcPath(fraction: number): string {
   return `M ${arcPoint(ARC_START_DEG)} A 1 1 0 ${sweep > 180 ? 1 : 0} 1 ${arcPoint(ARC_START_DEG + sweep)}`;
 }
 
-function Svg({ metric, className, viewBox, stretch, children }: {
+function Svg({
+  metric,
+  className,
+  viewBox,
+  stretch,
+  children,
+}: {
   readonly metric: Metric;
   readonly className: string;
   readonly viewBox: string;
@@ -58,13 +64,34 @@ function Svg({ metric, className, viewBox, stretch, children }: {
   );
 }
 
-function Bar({ metric, scale, light }: { readonly metric: Metric; readonly scale: LinearScale; readonly light?: boolean }) {
+function Bar({
+  metric,
+  scale,
+  light,
+}: {
+  readonly metric: Metric;
+  readonly scale: LinearScale;
+  readonly light?: boolean;
+}) {
   return (
     <Svg metric={metric} className="metric-bar" viewBox="0 0 100 14" stretch>
       <line className="metric-track" x1="0" y1="7" x2="100" y2="7" />
-      <line className={light ? "metric-fill metric-fill-light" : "metric-fill"} x1="0" y1="7" x2={scale.valueFraction * 100} y2="7" />
+      <line
+        className={light ? "metric-fill metric-fill-light" : "metric-fill"}
+        x1="0"
+        y1="7"
+        x2={scale.valueFraction * 100}
+        y2="7"
+      />
       {scale.markers.map((marker) => (
-        <line key={`${marker.label}-${marker.value}`} className="metric-marker" x1={marker.fraction * 100} y1="2" x2={marker.fraction * 100} y2="12" />
+        <line
+          key={`${marker.label}-${marker.value}`}
+          className="metric-marker"
+          x1={marker.fraction * 100}
+          y1="2"
+          x2={marker.fraction * 100}
+          y2="12"
+        />
       ))}
     </Svg>
   );
@@ -90,7 +117,9 @@ function RelationVisual({ metric }: { readonly metric: RelativeDistanceMetric })
   return (
     <Svg metric={metric} className="metric-relation" viewBox={`-0.6 -1.2 ${RADII_WINDOW + 2.8} 2.4`}>
       <line className="metric-link" x1={dotX} y1="0" x2={discX} y2="0" />
-      {glyph.beyondWindow && <path className="metric-break" d={`M ${dotX + 0.55} -0.45 l 0.3 0.9 M ${dotX + 0.95} -0.45 l 0.3 0.9`} />}
+      {glyph.beyondWindow && (
+        <path className="metric-break" d={`M ${dotX + 0.55} -0.45 l 0.3 0.9 M ${dotX + 0.95} -0.45 l 0.3 0.9`} />
+      )}
       <circle className="metric-disc" cx={discX} cy="0" r="1" />
       <circle className="metric-dot" cx={dotX} cy="0" r="0.32" />
     </Svg>
@@ -135,18 +164,36 @@ function PhaseVisual({ metric }: { readonly metric: PhaseMetric }) {
   return (
     <Svg metric={metric} className="metric-glyph" viewBox="-1.1 -1.1 2.2 2.2">
       <circle className="metric-disc" r="1" />
-      {visual.litPath !== "" && <path className="metric-lit" d={visual.litPath} transform={visual.mirrored ? "scale(-1 1)" : undefined} />}
+      {visual.litPath !== "" && (
+        <path className="metric-lit" d={visual.litPath} transform={visual.mirrored ? "scale(-1 1)" : undefined} />
+      )}
     </Svg>
   );
 }
 
 const SYSTEM_GLYPHS: Record<CoordinateSystem, ReactNode> = {
   // Three axes from one origin.
-  xyz: <><path className="metric-axis" d="M 0 0 H 1.2 M 0 0 V -1.2 M 0 0 L -0.8 0.7" /><circle className="metric-dot" r="0.14" /></>,
+  xyz: (
+    <>
+      <path className="metric-axis" d="M 0 0 H 1.2 M 0 0 V -1.2 M 0 0 L -0.8 0.7" />
+      <circle className="metric-dot" r="0.14" />
+    </>
+  ),
   // Celestial sphere with its equator.
-  radec: <><circle className="metric-outline" r="1" /><ellipse className="metric-axis" rx="1" ry="0.32" /></>,
+  radec: (
+    <>
+      <circle className="metric-outline" r="1" />
+      <ellipse className="metric-axis" rx="1" ry="0.32" />
+    </>
+  ),
   // Globe with a meridian and the equator.
-  latlon: <><circle className="metric-outline" r="1" /><ellipse className="metric-axis" rx="0.42" ry="1" /><line className="metric-axis" x1="-1" y1="0" x2="1" y2="0" /></>,
+  latlon: (
+    <>
+      <circle className="metric-outline" r="1" />
+      <ellipse className="metric-axis" rx="0.42" ry="1" />
+      <line className="metric-axis" x1="-1" y1="0" x2="1" y2="0" />
+    </>
+  ),
 };
 
 const TICK_X = 1.55;
@@ -176,16 +223,30 @@ function RadarVisual({ metric }: { readonly metric: CoordinatesMetric }) {
       <line className="metric-view-axis" x1={TICK_X} y1="-1" x2={TICK_X} y2="1" />
       <line className="metric-view-origin-tick" x1={TICK_X - 0.12} y1="0" x2={TICK_X + 0.12} y2="0" />
       {side.references.map((reference) => (
-        <line key={reference.label} className="metric-view-reference-tick" x1={TICK_X - 0.16} y1={-reference.point[1]} x2={TICK_X + 0.16} y2={-reference.point[1]} />
+        <line
+          key={reference.label}
+          className="metric-view-reference-tick"
+          x1={TICK_X - 0.16}
+          y1={-reference.point[1]}
+          x2={TICK_X + 0.16}
+          y2={-reference.point[1]}
+        />
       ))}
-      <line className="metric-view-object-tick" x1={TICK_X - 0.2} y1={-side.object[1]} x2={TICK_X + 0.2} y2={-side.object[1]} />
+      <line
+        className="metric-view-object-tick"
+        x1={TICK_X - 0.2}
+        y1={-side.object[1]}
+        x2={TICK_X + 0.2}
+        y2={-side.object[1]}
+      />
     </Svg>
   );
 }
 
 function Visual({ metric }: { readonly metric: Metric }) {
   switch (metric.kind) {
-    case "speed": return <SpeedVisual metric={metric} />;
+    case "speed":
+      return <SpeedVisual metric={metric} />;
     case "distance": {
       const scale = distanceScale(metric);
       return scale === null ? null : <Bar metric={metric} scale={scale} />;
@@ -198,14 +259,20 @@ function Visual({ metric }: { readonly metric: Metric }) {
       const scale = progressScale(metric);
       return scale === null ? null : <Bar metric={metric} scale={scale} />;
     }
-    case "relative-distance": return <RelationVisual metric={metric} />;
-    case "altitude": return <AltitudeVisual metric={metric} />;
-    case "uncertainty": return <UncertaintyVisual metric={metric} />;
-    case "phase": return <PhaseVisual metric={metric} />;
+    case "relative-distance":
+      return <RelationVisual metric={metric} />;
+    case "altitude":
+      return <AltitudeVisual metric={metric} />;
+    case "uncertainty":
+      return <UncertaintyVisual metric={metric} />;
+    case "phase":
+      return <PhaseVisual metric={metric} />;
     case "coordinates":
       if (planViews(metric) !== null) return <RadarVisual metric={metric} />;
       return (
-        <Svg metric={metric} className="metric-glyph" viewBox="-1.3 -1.3 2.6 2.6">{SYSTEM_GLYPHS[metric.system]}</Svg>
+        <Svg metric={metric} className="metric-glyph" viewBox="-1.3 -1.3 2.6 2.6">
+          {SYSTEM_GLYPHS[metric.system]}
+        </Svg>
       );
   }
 }
@@ -230,7 +297,11 @@ export function MetricVisual({ metric }: { readonly metric: Metric }) {
       </div>
       {metric.context !== undefined && <span className="metric-context">{metric.context}</span>}
       {notes.length > 0 && (
-        <span className="metric-scale">{notes.map((note) => <span key={note}>{note}</span>)}</span>
+        <span className="metric-scale">
+          {notes.map((note) => (
+            <span key={note}>{note}</span>
+          ))}
+        </span>
       )}
     </div>
   );

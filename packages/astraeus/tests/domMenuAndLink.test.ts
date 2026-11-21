@@ -13,7 +13,11 @@ import { $, press, pressKey } from "./domSetup";
 
 let root: Root | undefined;
 let host: HTMLElement | undefined;
-afterEach(() => { act(() => root?.unmount()); host?.remove(); root = undefined; });
+afterEach(() => {
+  act(() => root?.unmount());
+  host?.remove();
+  root = undefined;
+});
 const mount = (node: React.ReactElement) => {
   host = document.createElement("div");
   document.body.appendChild(host);
@@ -30,7 +34,12 @@ describe("the scale menu (browser-scale-menu)", () => {
   }
   const open = () => {
     const page = mount(createElement(Menu));
-    return { page, trigger: $(page, ".scale-menu-trigger"), menu: $(page, '[role="menu"]'), items: [...page.querySelectorAll<HTMLElement>('[role="menuitemradio"]')] };
+    return {
+      page,
+      trigger: $(page, ".scale-menu-trigger"),
+      menu: $(page, '[role="menu"]'),
+      items: [...page.querySelectorAll<HTMLElement>('[role="menuitemradio"]')],
+    };
   };
   const focused = () => (document.activeElement as HTMLElement | null)?.getAttribute("data-scale");
 
@@ -86,7 +95,9 @@ describe("the scale menu (browser-scale-menu)", () => {
   it("closes on a press outside, and chooses the third scale by name", () => {
     const { page, trigger, menu, items } = open();
     press(trigger);
-    act(() => { document.body.dispatchEvent(new window.Event("pointerdown", { bubbles: true })); });
+    act(() => {
+      document.body.dispatchEvent(new window.Event("pointerdown", { bubbles: true }));
+    });
     expect(menu.hidden).toBe(true);
     press(trigger);
     press(items.find((item) => item.textContent === "Solar system")!);
@@ -97,11 +108,14 @@ describe("the scale menu (browser-scale-menu)", () => {
 describe("Copy view link (browser-view-link)", () => {
   const view: StartView = { focus: "earth", azimuthDeg: 120.5, elevationDeg: 24.25, distance: 3.5 };
   const state = { view, scaleId: "readable-scale", up: "ecliptic", timeUtcMs: Date.UTC(2016, 5, 1, 12, 0, 30) };
-  const withClipboard = (writeText: (text: string) => Promise<void>) => Object.defineProperty(navigator, "clipboard", { value: { writeText }, configurable: true });
+  const withClipboard = (writeText: (text: string) => Promise<void>) =>
+    Object.defineProperty(navigator, "clipboard", { value: { writeText }, configurable: true });
 
   it("carries the view, time, scale and up direction, puts the link on the clipboard and in the address", async () => {
     let clip = "";
-    withClipboard(async (text) => { clip = text; });
+    withClipboard(async (text) => {
+      clip = text;
+    });
     window.history.replaceState(null, "", "/app.html?experience=synthetic");
     const shared = await shareViewLink(state);
     expect(shared.copied).toBe(true);
@@ -128,14 +142,28 @@ describe("Copy view link (browser-view-link)", () => {
     withClipboard(() => Promise.reject(new Error("denied")));
     const shared = await shareViewLink(state);
     expect(shared.copied).toBe(false);
-    const page = mount(createElement(ViewLinkReadout, { viewNow: view, viewLink: shared, scale: "readable-scale", upChoice: "ecliptic" }));
+    const page = mount(
+      createElement(ViewLinkReadout, {
+        viewNow: view,
+        viewLink: shared,
+        scale: "readable-scale",
+        upChoice: "ecliptic",
+      }),
+    );
     expect(($(page, '[data-testid="view-link"]') as HTMLInputElement).value).toContain("view=");
     expect($(page, ".view-link-field span").textContent).toMatch(/Clipboard unavailable/);
     expect($(page, '[data-testid="view-values"]').textContent).toContain("View: earth,");
   });
 
   it("says Copied to the clipboard when it worked", () => {
-    const page = mount(createElement(ViewLinkReadout, { viewNow: null, viewLink: { url: "http://x/?view=a", copied: true }, scale: "true-scale", upChoice: "ecliptic" }));
+    const page = mount(
+      createElement(ViewLinkReadout, {
+        viewNow: null,
+        viewLink: { url: "http://x/?view=a", copied: true },
+        scale: "true-scale",
+        upChoice: "ecliptic",
+      }),
+    );
     expect($(page, ".view-link-field span").textContent).toBe("Copied to the clipboard.");
   });
 
@@ -145,14 +173,32 @@ describe("Copy view link (browser-view-link)", () => {
     const shared = await shareViewLink({ ...state, view: sky });
     expect(new URL(shared.url).searchParams.get("view")).toBe("mars,210.5,-12.25,45,sky");
     expect(viewFromSearch(new URL(shared.url).search)).toEqual(sky);
-    expect(parseView(formatView({ lookOut: "a b", raDeg: 0, decDeg: 90, fovDeg: 5 }))).toEqual({ lookOut: "a b", raDeg: 0, decDeg: 90, fovDeg: 5 });
+    expect(parseView(formatView({ lookOut: "a b", raDeg: 0, decDeg: 90, fovDeg: 5 }))).toEqual({
+      lookOut: "a b",
+      raDeg: 0,
+      decDeg: 90,
+      fovDeg: 5,
+    });
     expect(parseView("earth,360,0,60,sky")).toMatchObject({ raDeg: 0 }); // the right ascension wraps, as the azimuth does
-    const page = mount(createElement(ViewLinkReadout, { viewNow: sky, viewLink: shared, scale: "readable-scale", upChoice: "ecliptic" }));
-    expect($(page, '[data-testid="view-values"]').textContent).toContain("View: mars,210.5,-12.25,45,sky (body, right ascension");
+    const page = mount(
+      createElement(ViewLinkReadout, { viewNow: sky, viewLink: shared, scale: "readable-scale", upChoice: "ecliptic" }),
+    );
+    expect($(page, '[data-testid="view-values"]').textContent).toContain(
+      "View: mars,210.5,-12.25,45,sky (body, right ascension",
+    );
   });
 
   it("refuses a bad sky view as a bad orbit view is refused, and still tells the two kinds apart by the fifth part", () => {
-    for (const text of ["earth,10,95,60,sky", "earth,10,0,4,sky", "earth,10,0,101,sky", "earth,x,0,60,sky", "earth,10,0,,sky", ",10,0,60,sky", "earth,10,0,60,orbit", "earth,10,0,60,sky,extra"]) {
+    for (const text of [
+      "earth,10,95,60,sky",
+      "earth,10,0,4,sky",
+      "earth,10,0,101,sky",
+      "earth,x,0,60,sky",
+      "earth,10,0,,sky",
+      ",10,0,60,sky",
+      "earth,10,0,60,orbit",
+      "earth,10,0,60,sky,extra",
+    ]) {
       expect(() => parseView(text), text).toThrow(RangeError);
       expect(viewFromSearch(`?view=${text}`), text).toBeUndefined();
     }

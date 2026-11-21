@@ -27,7 +27,9 @@ function entryOf(source: object): SourceEntry {
 export function sharedIndex(source: object, read: () => Promise<EphemerisIndex>): Promise<EphemerisIndex> {
   const entry = entryOf(source);
   const own = (entry.index ??= read());
-  own.catch(() => { if (entry.index === own) entry.index = null; });
+  own.catch(() => {
+    if (entry.index === own) entry.index = null;
+  });
   return own;
 }
 
@@ -44,6 +46,8 @@ export function sharedChunk(source: object, url: string, produce: () => Promise<
   if (held !== undefined) return held;
   const own = produce();
   chunks.set(url, own);
-  own.catch(() => { if (chunks.get(url) === own) chunks.delete(url); });
+  own.catch(() => {
+    if (chunks.get(url) === own) chunks.delete(url);
+  });
   return own;
 }

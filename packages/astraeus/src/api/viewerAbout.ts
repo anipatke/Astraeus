@@ -18,12 +18,16 @@ export class ViewerAbout {
   }
 
   /** The About now; undefined before the viewer is drawn, after it is gone and in a scene with none (until the host sets one). */
-  get about(): AboutInput | undefined { return this.#about; }
+  get about(): AboutInput | undefined {
+    return this.#about;
+  }
 
   /** The viewer redraws when the About changes; returns the function that stops it. */
   watch(watcher: () => void): () => void {
     this.#watchers.add(watcher);
-    return () => { this.#watchers.delete(watcher); };
+    return () => {
+      this.#watchers.delete(watcher);
+    };
   }
 
   /** Replaces the whole About (checked as `Scene.setAbout` checks it, `bad-about`); before the viewer is drawn or after it is gone, `not-mounted`. */
@@ -33,5 +37,7 @@ export class ViewerAbout {
     this.#tell();
   }
 
-  #tell(): void { callListeners(this.#watchers, undefined); }
+  #tell(): void {
+    callListeners(this.#watchers, undefined);
+  }
 }

@@ -44,7 +44,15 @@ export function lookReadOf(controls: SceneControls): LookRead {
     milkyWay: controls.showMilkyWay,
     milkyWayBrightness: controls.milkyWayBrightness,
     skyVisible: controls.skyVisible !== false,
-    ...(controls.glowLook === undefined ? {} : { sunGlow: { sizePx: controls.glowLook.sizePx, brightness: controls.glowLook.brightness, scale: controls.glowLook.scale } }),
+    ...(controls.glowLook === undefined
+      ? {}
+      : {
+          sunGlow: {
+            sizePx: controls.glowLook.sizePx,
+            brightness: controls.glowLook.brightness,
+            scale: controls.glowLook.scale,
+          },
+        }),
     markerSwapRadiusPx: controls.bodyMarker.minSpherePx,
     featureMinBodyPx: featureMinBodyPxOf({ featureMinBodyPx: controls.featureMinBodyPx }),
     loadFadeSeconds: controls.loadFadeSeconds ?? bootFadeSeconds(),
@@ -59,7 +67,11 @@ export function lookReadOf(controls: SceneControls): LookRead {
 }
 
 /** The looks a fresh viewer opens with, every one filled in, from the resolved look alone (no browser, no controls): the same resolvers `initialSceneControls` uses. `bodies` are the scene's mounted bodies, whose first halo (the Sun's) sets `sunGlow`. */
-export function lookReadFrom(look: LookInput, definition: Pick<ExperienceDefinition, "sky" | "displaySwitches">, bodies: readonly BodyAsset[]): LookRead {
+export function lookReadFrom(
+  look: LookInput,
+  definition: Pick<ExperienceDefinition, "sky" | "displaySwitches">,
+  bodies: readonly BodyAsset[],
+): LookRead {
   const glowBase = baseGlowOf(bodies);
   const sky = skySettingsOf(definition, look);
   const glow = glowBase === null ? undefined : glowLookOf(look, glowBase);
@@ -86,7 +98,12 @@ export function lookReadFrom(look: LookInput, definition: Pick<ExperienceDefinit
  * Replaces the whole look in the live controls with `input` (a look not named takes its default) and returns the looks now in force. The one resolver (`resolveLook`) takes it with no page address:
  * a host's live set wins over the address, which only starts the viewer.
  */
-export function applyLook(controls: SceneControls, definition: ExperienceDefinition, glowBase: GlowLook | null, input: LookInput): LookRead {
+export function applyLook(
+  controls: SceneControls,
+  definition: ExperienceDefinition,
+  glowBase: GlowLook | null,
+  input: LookInput,
+): LookRead {
   const look = resolveLook(input, "");
   const sky = skySettingsOf(definition, look);
   controls.starBrightness = sky.starBrightness;
@@ -115,9 +132,11 @@ export interface LivePresentation {
 }
 
 /** The host's view of the presentation: `items` (read fresh each time) are the display switches the scene placed (those with something to act on), so a switch is read and set exactly as its visible button does. */
-export function presentationOf(
-  parts: { readonly setLook: (look: LookInput) => void; readonly setScale: (id: ScaleId) => void; readonly items: () => readonly DisplaySwitchItem[] },
-): LivePresentation {
+export function presentationOf(parts: {
+  readonly setLook: (look: LookInput) => void;
+  readonly setScale: (id: ScaleId) => void;
+  readonly items: () => readonly DisplaySwitchItem[];
+}): LivePresentation {
   return {
     switches: () => Object.fromEntries(parts.items().map(({ id, on }) => [id, on])),
     setLook: parts.setLook,

@@ -6,16 +6,24 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { Scene } from "../src/api/scene";
 import { earth } from "../src/api/bodies";
-import { DEFAULT_INTERFACE_LOOK, INTERFACE_LOOK_LIMITS, interfaceLookOf, interfaceLookVars } from "../src/shell/look/interfaceLook";
+import {
+  DEFAULT_INTERFACE_LOOK,
+  INTERFACE_LOOK_LIMITS,
+  interfaceLookOf,
+  interfaceLookVars,
+} from "../src/shell/look/interfaceLook";
 import { mountShell } from "./domSetup";
 
 const LOOK_CSS = readFileSync(join(__dirname, "..", "src", "shell", "look", "look.css"), "utf8");
 const token = (name: string): string => new RegExp(`--astraeus-${name}:\\s*([^;]+);`).exec(LOOK_CSS)?.[1]?.trim() ?? "";
 
 describe("interface look defaults", () => {
-  it.each(["panel", "text", "muted", "accent", "border", "data"] as const)("%s default is the value look.css defines", (name) => {
-    expect(token(name)).toBe(DEFAULT_INTERFACE_LOOK[name]);
-  });
+  it.each(["panel", "text", "muted", "accent", "border", "data"] as const)(
+    "%s default is the value look.css defines",
+    (name) => {
+      expect(token(name)).toBe(DEFAULT_INTERFACE_LOOK[name]);
+    },
+  );
   it("font, text size and radius defaults are the values look.css defines", () => {
     expect(token("font")).toBe(DEFAULT_INTERFACE_LOOK.fontFamily);
     expect(token("text-size")).toBe(`${DEFAULT_INTERFACE_LOOK.textSizePx}px`);
@@ -24,16 +32,23 @@ describe("interface look defaults", () => {
   });
   it("fills every field the look names and leaves the rest at the default", () => {
     expect(interfaceLookOf({})).toEqual(DEFAULT_INTERFACE_LOOK);
-    expect(interfaceLookOf({ interface: { accent: "#123456", motionMs: 0 } })).toEqual({ ...DEFAULT_INTERFACE_LOOK, accent: "#123456", motionMs: 0 });
+    expect(interfaceLookOf({ interface: { accent: "#123456", motionMs: 0 } })).toEqual({
+      ...DEFAULT_INTERFACE_LOOK,
+      accent: "#123456",
+      motionMs: 0,
+    });
   });
 });
 
 describe("interface look checks (Scene.setLook, API-06 ranges)", () => {
   it("accepts every field at its limits", () => {
     const { textSizePx, radiusPx, motionMs } = INTERFACE_LOOK_LIMITS;
-    for (const value of [textSizePx.min, textSizePx.max]) expect(() => new Scene().addBody(earth).setLook({ interface: { textSizePx: value } })).not.toThrow();
-    for (const value of [radiusPx.min, radiusPx.max]) expect(() => new Scene().addBody(earth).setLook({ interface: { radiusPx: value } })).not.toThrow();
-    for (const value of [motionMs.min, motionMs.max]) expect(() => new Scene().addBody(earth).setLook({ interface: { motionMs: value } })).not.toThrow();
+    for (const value of [textSizePx.min, textSizePx.max])
+      expect(() => new Scene().addBody(earth).setLook({ interface: { textSizePx: value } })).not.toThrow();
+    for (const value of [radiusPx.min, radiusPx.max])
+      expect(() => new Scene().addBody(earth).setLook({ interface: { radiusPx: value } })).not.toThrow();
+    for (const value of [motionMs.min, motionMs.max])
+      expect(() => new Scene().addBody(earth).setLook({ interface: { motionMs: value } })).not.toThrow();
   });
   it.each([
     ["text size below the range", { textSizePx: 10 }],
@@ -45,10 +60,14 @@ describe("interface look checks (Scene.setLook, API-06 ranges)", () => {
     ["an empty font", { fontFamily: " " }],
     ["an unknown field", { gap: 1 }],
   ])("%s throws bad-look", (_name, value) => {
-    expect(() => new Scene().addBody(earth).setLook({ interface: value } as never)).toThrow(expect.objectContaining({ code: "bad-look" }));
+    expect(() => new Scene().addBody(earth).setLook({ interface: value } as never)).toThrow(
+      expect.objectContaining({ code: "bad-look" }),
+    );
   });
   it("interface that is not an object throws bad-look", () => {
-    expect(() => new Scene().addBody(earth).setLook({ interface: 3 } as never)).toThrow(expect.objectContaining({ code: "bad-look" }));
+    expect(() => new Scene().addBody(earth).setLook({ interface: 3 } as never)).toThrow(
+      expect.objectContaining({ code: "bad-look" }),
+    );
   });
 });
 
@@ -58,9 +77,33 @@ describe("interface look as custom properties", () => {
     expect(interfaceLookVars(DEFAULT_INTERFACE_LOOK, false)).toEqual({});
   });
   it("sets each named setting as its custom property", () => {
-    expect(interfaceLookVars({ panel: "#111", text: "#eee", muted: "#bbb", accent: "#0af", border: "#333", data: "#a0a", fontFamily: "Georgia, serif", textSizePx: 16, radiusPx: 4, motionMs: 100 }, false)).toEqual({
-      "--astraeus-panel": "#111", "--astraeus-text": "#eee", "--astraeus-muted": "#bbb", "--astraeus-accent": "#0af", "--astraeus-border": "#333", "--astraeus-data": "#a0a",
-      "--astraeus-font": "Georgia, serif", "--astraeus-text-size": "16px", "--astraeus-radius": "4px", "--astraeus-motion": "100ms",
+    expect(
+      interfaceLookVars(
+        {
+          panel: "#111",
+          text: "#eee",
+          muted: "#bbb",
+          accent: "#0af",
+          border: "#333",
+          data: "#a0a",
+          fontFamily: "Georgia, serif",
+          textSizePx: 16,
+          radiusPx: 4,
+          motionMs: 100,
+        },
+        false,
+      ),
+    ).toEqual({
+      "--astraeus-panel": "#111",
+      "--astraeus-text": "#eee",
+      "--astraeus-muted": "#bbb",
+      "--astraeus-accent": "#0af",
+      "--astraeus-border": "#333",
+      "--astraeus-data": "#a0a",
+      "--astraeus-font": "Georgia, serif",
+      "--astraeus-text-size": "16px",
+      "--astraeus-radius": "4px",
+      "--astraeus-motion": "100ms",
     });
   });
   it("reduced motion forces the motion time to 0 whatever the setting", () => {

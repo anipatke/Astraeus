@@ -18,10 +18,18 @@ const DATA_PKG = new URL("../../astraeus-data/", import.meta.url).pathname;
 const DATA = new URL("../../", import.meta.url).pathname;
 
 /** The stated load limit of each outer planet's view: one source, shared with tools/validate/load-budget.mjs (see the note in the file). */
-const LIMITS = viewLimits as unknown as Record<string, { chunkBytes: number; indexGzipBytes: number; indexRawBytes: number }>;
+const LIMITS = viewLimits as unknown as Record<
+  string,
+  { chunkBytes: number; indexGzipBytes: number; indexRawBytes: number }
+>;
 
 /** The chunks each outer planet's window loads, counted by year (the engine's tests/planetChunksWindow.test.ts loads them from the data packages and states the same counts). */
-const LOADED: Record<string, readonly [number, number, number]> = { saturn: [293, 269, 237], uranus: [29, 10, 9], neptune: [17, 9, 8], pluto: [6, 0, 0] };
+const LOADED: Record<string, readonly [number, number, number]> = {
+  saturn: [293, 269, 237],
+  uranus: [29, 10, 9],
+  neptune: [17, 9, 8],
+  pluto: [6, 0, 0],
+};
 
 const VIEWS = [
   { name: "saturn", file: saturnFile, system: saturnSystem, urls: SATURN_CHUNK_URLS },
@@ -48,17 +56,31 @@ describe("the outer planets in the planet switch (T-118)", () => {
       it("shows its own surface places by the planet places rule (centre listed, no ring or moon entry)", () => {
         const scene = buildPlanetScene(settings, view.system as PlanetSystem, noPanels);
         expect(settings.bodyFeatures).toContain(settings.centre.id);
-        const source = (readJson(`${DATA_PKG}data/bodies/${settings.centre.id}/features.json`) as { features: { id: string; ringRadius?: number; moonRadius?: number; latitude?: number }[] }).features;
-        expect(scene.places.find((set) => set.body === settings.centre.id)!.count).toBe(source.filter((f) => f.latitude !== undefined && f.ringRadius === undefined && f.moonRadius === undefined).length);
+        const source = (
+          readJson(`${DATA_PKG}data/bodies/${settings.centre.id}/features.json`) as {
+            features: { id: string; ringRadius?: number; moonRadius?: number; latitude?: number }[];
+          }
+        ).features;
+        expect(scene.places.find((set) => set.body === settings.centre.id)!.count).toBe(
+          source.filter((f) => f.latitude !== undefined && f.ringRadius === undefined && f.moonRadius === undefined)
+            .length,
+        );
         expect(scene.places.find((set) => set.body === settings.centre.id)!.count).toBe(OWN_PLACES[view.name]);
       });
 
       it("ships the chunks its window loads, within its stated limit", () => {
         const shipped = Object.keys(view.urls);
         const byYear = (year: number) => shipped.filter((path) => path.endsWith(`/${year}.bin`)).length;
-        expect([byYear(2016), byYear(2015), byYear(2014)], "the chunks a window loads are the chunks the build ships; adjust the system's history globs").toEqual(LOADED[view.name]);
+        expect(
+          [byYear(2016), byYear(2015), byYear(2014)],
+          "the chunks a window loads are the chunks the build ships; adjust the system's history globs",
+        ).toEqual(LOADED[view.name]);
         expect(shipped).toHaveLength(LOADED[view.name]!.reduce((total, count) => total + count, 0));
-        const bytes = shipped.reduce((total, path) => total + readBytes(`${DATA}astraeus-data-${view.name}/data/${view.name}-moons/${path}`).byteLength, 0);
+        const bytes = shipped.reduce(
+          (total, path) =>
+            total + readBytes(`${DATA}astraeus-data-${view.name}/data/${view.name}-moons/${path}`).byteLength,
+          0,
+        );
         expect(bytes).toBeLessThanOrEqual(LIMITS[view.name]!.chunkBytes);
         console.info(`${view.name}: ${shipped.length} chunks, ${bytes} bytes`);
       });
@@ -74,9 +96,15 @@ describe("the outer planets in the planet switch (T-118)", () => {
 
   it("states each dot moon's own measured error, never less than the fit index's worst figure (I-050)", () => {
     for (const view of VIEWS) {
-      const index = readJson(`${DATA}astraeus-data-${view.name}/data/${view.name}-moons/index.json`) as { bodies: { id: string; accuracy?: Record<string, { worstM?: number }> }[] };
+      const index = readJson(`${DATA}astraeus-data-${view.name}/data/${view.name}-moons/index.json`) as {
+        bodies: { id: string; accuracy?: Record<string, { worstM?: number }> }[];
+      };
       const scene = buildPlanetScene(parsePlanetSettings(view.file), view.system as PlanetSystem, noPanels);
-      const dots = new Set(view.system.moonList!.moons.filter((moon) => !view.system.bodies.some((body) => body.id === moon.id)).map((moon) => moon.id));
+      const dots = new Set(
+        view.system
+          .moonList!.moons.filter((moon) => !view.system.bodies.some((body) => body.id === moon.id))
+          .map((moon) => moon.id),
+      );
       let checked = 0;
       for (const body of index.bodies) {
         if (!dots.has(body.id)) continue;

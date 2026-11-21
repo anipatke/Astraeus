@@ -75,14 +75,22 @@ export interface ReadoutTarget {
 }
 
 /** The target's state when it shares the path's centre and frame, otherwise null. */
-export function inSameFrame(row: Pick<TrackedReadout, "frame" | "center">, state: CenteredPosition | null): CenteredPosition | null {
+export function inSameFrame(
+  row: Pick<TrackedReadout, "frame" | "center">,
+  state: CenteredPosition | null,
+): CenteredPosition | null {
   return state !== null && state.center === row.center && state.plane === row.frame ? state : null;
 }
 
-export const separationKm = (a: readonly number[], b: ArrayLike<number>) => Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]);
+export const separationKm = (a: readonly number[], b: ArrayLike<number>) =>
+  Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]);
 
 /** Centre-to-centre distance from the path to a body, drawn in that body's radii. */
-export function pathDistanceMetric(row: TrackedReadout, target: ReadoutTarget, state: CenteredPosition | null): RelativeDistanceMetric {
+export function pathDistanceMetric(
+  row: TrackedReadout,
+  target: ReadoutTarget,
+  state: CenteredPosition | null,
+): RelativeDistanceMetric {
   const same = inSameFrame(row, state);
   return {
     kind: "relative-distance",
@@ -100,7 +108,11 @@ export function pathDistanceMetric(row: TrackedReadout, target: ReadoutTarget, s
 }
 
 /** Height above a body's mean radius (not terrain: on the surface the value can be negative); null when the body has no state in the path's frame. */
-export function pathAltitudeMetric(row: TrackedReadout, target: ReadoutTarget, state: CenteredPosition | null): AltitudeMetric {
+export function pathAltitudeMetric(
+  row: TrackedReadout,
+  target: ReadoutTarget,
+  state: CenteredPosition | null,
+): AltitudeMetric {
   const same = inSameFrame(row, state);
   const away = same === null ? null : separationKm(row.positionKm, same.positionKm);
   return {
@@ -129,10 +141,11 @@ export function spacecraftDiscrepancyMetric(body: TrackedBody, timeUtcMs: number
     digits: 1,
     context: segment?.basis ?? "outside the reconstructed segments",
     unavailable: "not published",
-    ...(published.length === 0 ? {} : { scale: { max: Math.max(...published), basis: "this vehicle's reconstruction" } }),
+    ...(published.length === 0
+      ? {}
+      : { scale: { max: Math.max(...published), basis: "this vehicle's reconstruction" } }),
   };
 }
-
 
 /** One bar on a path's info card. */
 export type ReadoutSpec =
@@ -154,29 +167,61 @@ export interface BodyReadouts {
   readonly readouts: readonly ReadoutSpec[];
 }
 
-const targetOf = (id: BodyId, source: BodyCatalogue): ReadoutTarget => ({ id, label: source.get(id).definition.label, radiusKm: source.get(id).definition.radiusKm });
+const targetOf = (id: BodyId, source: BodyCatalogue): ReadoutTarget => ({
+  id,
+  label: source.get(id).definition.label,
+  radiusKm: source.get(id).definition.radiusKm,
+});
 
 /** The current-position row of a catalogued body about its centre, the shape a path's row has (speed unknown without a velocity). */
 function bodyRow(resolver: StateResolver, { id, label, center }: BodyReadouts, timeUtcMs: number): TrackedReadout {
-  const state = id === center ? { plane: EQJ, center, positionKm: new Float64Array(3), velocityKmS: undefined } : resolver.stateOf(id, timeUtcMs, center);
+  const state =
+    id === center
+      ? { plane: EQJ, center, positionKm: new Float64Array(3), velocityKmS: undefined }
+      : resolver.stateOf(id, timeUtcMs, center);
   const [x, y, z] = state.positionKm;
-  return { id, label, positionKm: [x!, y!, z!], rangeFromEarthKm: Math.hypot(x!, y!, z!), speedKmS: state.velocityKmS === undefined ? null : Math.hypot(...state.velocityKmS), frame: state.plane, center: state.center };
+  return {
+    id,
+    label,
+    positionKm: [x!, y!, z!],
+    rangeFromEarthKm: Math.hypot(x!, y!, z!),
+    speedKmS: state.velocityKmS === undefined ? null : Math.hypot(...state.velocityKmS),
+    frame: state.plane,
+    center: state.center,
+  };
 }
 
 /**
  * The info card's bars for paths (and catalogued bodies) that ask for readouts, from State only. Range is from the path's centre body; a named body is read from the
  * resolver about that centre, so it shares the path's frame. A path outside its bounds and any other id have none.
  */
-export function createReadoutMetrics(paths: readonly PathReadouts[], resolver: StateResolver, source: BodyCatalogue = builtInCatalogue, bodies: readonly BodyReadouts[] = []) {
+export function createReadoutMetrics(
+  paths: readonly PathReadouts[],
+  resolver: StateResolver,
+  source: BodyCatalogue = builtInCatalogue,
+  bodies: readonly BodyReadouts[] = [],
+) {
   const peaks = new Map(paths.map(({ body }) => [body.id, peakAnchorSpeedKmS(body)]));
   const barsOf = (row: TrackedReadout, specs: readonly ReadoutSpec[], timeUtcMs: number): readonly Metric[] => {
-    const stateOf = (id: BodyId): CenteredPosition => (id === row.center ? { body: id, center: row.center, timeUtcMs, plane: row.frame, positionKm: new Float64Array(3) } : resolver.stateOf(id, timeUtcMs, row.center));
+    const stateOf = (id: BodyId): CenteredPosition =>
+      id === row.center
+        ? { body: id, center: row.center, timeUtcMs, plane: row.frame, positionKm: new Float64Array(3) }
+        : resolver.stateOf(id, timeUtcMs, row.center);
     return specs.map((spec): Metric => {
       switch (spec.kind) {
-        case "range": return spacecraftRangeMetric(row, spec.marker === undefined ? null : referenceInSameFrame(`${targetOf(spec.marker, source).label} now`, row, stateOf(spec.marker)));
-        case "speed": return spacecraftSpeedMetric(row, peaks.get(row.id) ?? null);
-        case "distance": return pathDistanceMetric(row, targetOf(spec.to, source), stateOf(spec.to));
-        case "altitude": return pathAltitudeMetric(row, targetOf(spec.above, source), stateOf(spec.above));
+        case "range":
+          return spacecraftRangeMetric(
+            row,
+            spec.marker === undefined
+              ? null
+              : referenceInSameFrame(`${targetOf(spec.marker, source).label} now`, row, stateOf(spec.marker)),
+          );
+        case "speed":
+          return spacecraftSpeedMetric(row, peaks.get(row.id) ?? null);
+        case "distance":
+          return pathDistanceMetric(row, targetOf(spec.to, source), stateOf(spec.to));
+        case "altitude":
+          return pathAltitudeMetric(row, targetOf(spec.above, source), stateOf(spec.above));
       }
     });
   };

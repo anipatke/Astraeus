@@ -2,7 +2,10 @@
 
 /** The example's `import ... from "astraeus"` lines. */
 export function importLines(source: string): string {
-  return source.split("\n").filter((line) => /^import\b.*\bfrom\s+"astraeus";?\s*$/.test(line)).join("\n");
+  return source
+    .split("\n")
+    .filter((line) => /^import\b.*\bfrom\s+"astraeus";?\s*$/.test(line))
+    .join("\n");
 }
 
 /** The index just past the `)` that closes the `(` at `open`, skipping strings, template text and comments; -1 when it never closes. Layout-free: it reads brackets, not lines. */

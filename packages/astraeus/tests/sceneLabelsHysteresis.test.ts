@@ -14,10 +14,23 @@ beforeEach(() => {
     const m = /translate\(([-\d.]+)px, ([-\d.]+)px\)/.exec(this.style.transform);
     const x = m === null ? 0 : Number(m[1]) - (this.style.transform.includes("-100%") ? 400 : 0);
     const y = m === null ? 0 : Number(m[2]);
-    return { left: x, top: y, right: x + 400, bottom: y + 30, width: 400, height: 30, x, y, toJSON: () => ({}) } as DOMRect;
+    return {
+      left: x,
+      top: y,
+      right: x + 400,
+      bottom: y + 30,
+      width: 400,
+      height: 30,
+      x,
+      y,
+      toJSON: () => ({}),
+    } as DOMRect;
   });
 });
-afterEach(() => { host.remove(); vi.restoreAllMocks(); });
+afterEach(() => {
+  host.remove();
+  vi.restoreAllMocks();
+});
 
 const objects = [
   { id: "a", label: "A", color: "#fff", labelPriority: 100 },
@@ -32,7 +45,15 @@ function sweep(xs: readonly number[], selected = "a", hidden?: ReadonlySet<strin
   const layer = new SceneLabelLayer(host, objects);
   const out = { a: [] as boolean[], b: [] as boolean[] };
   for (const x of xs) {
-    layer.update((id) => (id === "a" ? [0, 0, 0] : [x, 0, 0]), camera, 800, 600, new FloatingOrigin(), selected, hidden);
+    layer.update(
+      (id) => (id === "a" ? [0, 0, 0] : [x, 0, 0]),
+      camera,
+      800,
+      600,
+      new FloatingOrigin(),
+      selected,
+      hidden,
+    );
     out.a.push(host.querySelector<HTMLElement>('[data-label-id="a"]')!.hidden === false);
     out.b.push(host.querySelector<HTMLElement>('[data-label-id="b"]')!.hidden === false);
   }

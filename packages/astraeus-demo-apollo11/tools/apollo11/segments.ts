@@ -53,14 +53,23 @@ export interface Segment {
   readonly reverse: boolean;
 }
 
-function endpoints(from: NormalisedAnchor, to: NormalisedAnchor): Pick<Segment, "id" | "from" | "to" | "startUtcMs" | "endUtcMs"> {
+function endpoints(
+  from: NormalisedAnchor,
+  to: NormalisedAnchor,
+): Pick<Segment, "id" | "from" | "to" | "startUtcMs" | "endUtcMs"> {
   return { id: `${from.id}>${to.id}`, from, to, startUtcMs: from.timeUtcMs, endUtcMs: to.timeUtcMs };
 }
 
 const asEarth = (state: EarthState): CentreState => ({ center: "earth", r: state.r, v: state.v });
 
 /** Integrated span around an anchor, padded so callers may probe a little past either end. */
-function spanThrough(adapter: AstronomyAdapter, start: EarthState, epochUtcMs: number, startUtcMs: number, endUtcMs: number): StateTable {
+function spanThrough(
+  adapter: AstronomyAdapter,
+  start: EarthState,
+  epochUtcMs: number,
+  startUtcMs: number,
+  endUtcMs: number,
+): StateTable {
   const marginMs = NUMERICS.coastMarginS * 1000;
   return integrateSpan(adapter, start, epochUtcMs, startUtcMs - marginMs, endUtcMs + marginMs);
 }
@@ -119,7 +128,12 @@ function sphereOfInfluenceCrossing(
  * the start anchor and ends on the end anchor in position and velocity; the forward propagation's miss at the
  * end anchor is kept as the raw miss (Objective O-002, confirmed decisions 2026-10-06).
  */
-function smoothedCoast(adapter: AstronomyAdapter, from: NormalisedAnchor, to: NormalisedAnchor, startState?: EarthState): Segment {
+function smoothedCoast(
+  adapter: AstronomyAdapter,
+  from: NormalisedAnchor,
+  to: NormalisedAnchor,
+  startState?: EarthState,
+): Segment {
   const forwardStart = startState ?? from.earthCentred;
   const forward = spanThrough(adapter, forwardStart, from.timeUtcMs, from.timeUtcMs, to.timeUtcMs);
   const backward = spanThrough(adapter, to.earthCentred, to.timeUtcMs, from.timeUtcMs, to.timeUtcMs);
@@ -150,9 +164,10 @@ function smoothedCoast(adapter: AstronomyAdapter, from: NormalisedAnchor, to: No
     maxCorrectionKm = Math.max(maxCorrectionKm, norm(sub(smoothed.r, raw.r)));
     maxCorrectionMs = Math.max(maxCorrectionMs, norm(sub(smoothed.v, raw.v)) * 1000);
   }
-  const sphereOfInfluenceUtcMs = from.refBody === to.refBody
-    ? undefined
-    : sphereOfInfluenceCrossing(adapter, (t) => generate(t).r, from.timeUtcMs, to.timeUtcMs, to.refBody === "moon");
+  const sphereOfInfluenceUtcMs =
+    from.refBody === to.refBody
+      ? undefined
+      : sphereOfInfluenceCrossing(adapter, (t) => generate(t).r, from.timeUtcMs, to.timeUtcMs, to.refBody === "moon");
   return {
     ...endpoints(from, to),
     method: "coast-nbody-smoothed",
@@ -186,7 +201,12 @@ function physicalBurn(adapter: AstronomyAdapter, from: NormalisedAnchor, to: Nor
 }
 
 /** Parking orbit: the TLI-ignition anchor integrated backward, because no NASA anchor exists before it. */
-export function parkingOrbitBackward(adapter: AstronomyAdapter, startUtcMs: number, startLabel: string, to: NormalisedAnchor): Segment {
+export function parkingOrbitBackward(
+  adapter: AstronomyAdapter,
+  startUtcMs: number,
+  startLabel: string,
+  to: NormalisedAnchor,
+): Segment {
   const table = spanThrough(adapter, to.earthCentred, to.timeUtcMs, startUtcMs, to.timeUtcMs);
   return {
     id: `${startLabel}<${to.id}`,
@@ -195,7 +215,8 @@ export function parkingOrbitBackward(adapter: AstronomyAdapter, startUtcMs: numb
     startUtcMs,
     endUtcMs: to.timeUtcMs,
     method: "parking-orbit-backward",
-    generate: (timeUtcMs) => (timeUtcMs === to.timeUtcMs ? asEarth(to.earthCentred) : asEarth(tableAt(table, timeUtcMs))),
+    generate: (timeUtcMs) =>
+      timeUtcMs === to.timeUtcMs ? asEarth(to.earthCentred) : asEarth(tableAt(table, timeUtcMs)),
     reverse: true,
   };
 }
@@ -214,11 +235,7 @@ function toMoonFixed(state: CentreState, timeUtcMs: number): { p: Vec3; v: Vec3 
 }
 
 /** Hermite through two anchors in the Moon-fixed frame, so the arc follows the rotating surface. */
-function moonFixedHermite(
-  from: NormalisedAnchor,
-  to: NormalisedAnchor,
-  method: SegmentMethod,
-): Segment {
+function moonFixedHermite(from: NormalisedAnchor, to: NormalisedAnchor, method: SegmentMethod): Segment {
   const start = toMoonFixed(from.native, from.timeUtcMs);
   const end = toMoonFixed(to.native, to.timeUtcMs);
   const ends = { p0: start.p, v0: start.v, p1: end.p, v1: end.v, spanS: (to.timeUtcMs - from.timeUtcMs) / 1000 };

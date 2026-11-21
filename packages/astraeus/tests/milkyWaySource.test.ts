@@ -12,7 +12,11 @@ describe("astraeus-data/milky-way", () => {
 
   it("is the same picture record, licence included, as the whole package's", () => {
     expect(milkyWaySource.pictures?.["milky-way"]).toBe(PICTURES["milky-way"]);
-    expect(PICTURES["milky-way"]).toMatchObject({ widthPx: 3840, heightPx: 1920, licence: { licence: "CC BY-SA 4.0", accessed: "2026-10-29" } });
+    expect(PICTURES["milky-way"]).toMatchObject({
+      widthPx: 3840,
+      heightPx: 1920,
+      licence: { licence: "CC BY-SA 4.0", accessed: "2026-10-29" },
+    });
     expect(dataSource.pictures?.["milky-way"]).toBe(PICTURES["milky-way"]);
   });
 });

@@ -20,11 +20,17 @@ const DEFAULT_PARAMETER = new Map<string, string>([
   ["sceneLayout.ts:readoutPairOf", "the scene passes its catalogue; the default serves built-in-only unit tests"],
   ["sceneFraming.ts:focusRadius", "the scene passes its catalogue; the default serves built-in-only unit tests"],
   ["sceneFraming.ts:assignBodyLayers", "the scene passes its catalogue; the default serves built-in-only unit tests"],
-  ["PathView.ts:compositionPathLayer", "the scene passes definition.catalogue; the test below proves the default fails for a listed moon"],
+  [
+    "PathView.ts:compositionPathLayer",
+    "the scene passes definition.catalogue; the test below proves the default fails for a listed moon",
+  ],
   ["PathView.ts:compositionPathView", "the scene passes definition.catalogue"],
   ["bodyMetrics.ts:bodyMetrics", "the scene passes its catalogue; the default serves built-in-only unit tests"],
   ["catalogueItem.ts:catalogueItem", "experience objects are built-in bodies by definition"],
-  ["trackedMetrics.ts:createReadoutMetrics", "the scene passes its catalogue; the default serves built-in-only unit tests"],
+  [
+    "trackedMetrics.ts:createReadoutMetrics",
+    "the scene passes its catalogue; the default serves built-in-only unit tests",
+  ],
   ["experienceDefinition.ts:validatePathSpec", "the definition passes its catalogue"],
   ["experienceDefinition.ts:validateSunCentred", "the definition passes its catalogue"],
 ]);
@@ -44,13 +50,20 @@ describe("the scene's own catalogue reaches the drawing code", () => {
   });
 
   it("no file under src/app imports the built-in catalogue unaliased, except the two that use it as a parameter default", () => {
-    const offenders = readdirSync(APP).filter((file) => /\.tsx?$/.test(file) && !DEFAULT_ONLY.has(file))
-      .filter((file) => /import\s*\{[^}]*\bcatalogue\b(?!\s+as)[^}]*\}\s*from\s*"\.\.\/assets\/catalogue"/.test(readFileSync(join(APP, file), "utf8")));
+    const offenders = readdirSync(APP)
+      .filter((file) => /\.tsx?$/.test(file) && !DEFAULT_ONLY.has(file))
+      .filter((file) =>
+        /import\s*\{[^}]*\bcatalogue\b(?!\s+as)[^}]*\}\s*from\s*"\.\.\/assets\/catalogue"/.test(
+          readFileSync(join(APP, file), "utf8"),
+        ),
+      );
     expect(offenders).toEqual([]);
   });
 
   it("a composition path for a listed moon takes its parent from the scene's catalogue", () => {
-    const definition = definitionOf(new Scene().addBody(sun).addBody(uranus).addBody("miranda", { orbit: true }), [{ name: "astraeus-data-uranus", provides: ["miranda"] }]);
+    const definition = definitionOf(new Scene().addBody(sun).addBody(uranus).addBody("miranda", { orbit: true }), [
+      { name: "astraeus-data-uranus", provides: ["miranda"] },
+    ]);
     const path = definition.composition!.paths!.find((p) => p.body === "miranda")!;
     expect(() => compositionPathLayer(path, {} as StateResolver)).toThrow(/unknown body "miranda"/); // the built-in catalogue lacks it
     expect(compositionPathLayer(path, {} as StateResolver, definition.catalogue)).toMatchObject({ center: "uranus" });

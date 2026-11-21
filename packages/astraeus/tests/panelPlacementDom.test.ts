@@ -14,10 +14,21 @@ const SCALES = scaleChoicesFor(["true-scale", "readable-scale"]);
 const MOON_EXPERIENCE = { ...syntheticDefinition.experience, moonFamilies: jupiterMoonPanel() };
 
 let viewers: Mounted[] = [];
-afterEach(() => { for (const m of viewers) m.unmount(); viewers = []; });
-const mount = (options: Parameters<typeof mountShell>[0] = {}): Mounted => { const m = mountShell(options); viewers.push(m); return m; };
-const inArea = (m: Mounted, area: string, selector: string) => m.container.querySelector(`[data-area="${area}"] ${selector}`) !== null;
-const pointerDown = (target: Element) => act(() => { target.dispatchEvent(new window.Event("pointerdown", { bubbles: true })); });
+afterEach(() => {
+  for (const m of viewers) m.unmount();
+  viewers = [];
+});
+const mount = (options: Parameters<typeof mountShell>[0] = {}): Mounted => {
+  const m = mountShell(options);
+  viewers.push(m);
+  return m;
+};
+const inArea = (m: Mounted, area: string, selector: string) =>
+  m.container.querySelector(`[data-area="${area}"] ${selector}`) !== null;
+const pointerDown = (target: Element) =>
+  act(() => {
+    target.dispatchEvent(new window.Event("pointerdown", { bubbles: true }));
+  });
 const card = (m: Mounted) => m.container.querySelector(".info-panel") !== null;
 const moonsOpen = (m: Mounted) => $(m.container, ".moons-sheet").getAttribute("data-open") === "true";
 const menuOpen = (m: Mounted) => $(m.container, ".controls-drawer").getAttribute("data-open") === "true";

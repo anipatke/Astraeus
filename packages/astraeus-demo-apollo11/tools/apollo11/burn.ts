@@ -37,7 +37,12 @@ export function solvePhysicalBurn(
     thrust = add(thrust, scale(velocityResidual, 1 / durationS));
   }
 
-  if (table === undefined || endState === undefined || velocityResidual === undefined || norm(velocityResidual) > VELOCITY_TOLERANCE_KM_S) {
+  if (
+    table === undefined ||
+    endState === undefined ||
+    velocityResidual === undefined ||
+    norm(velocityResidual) > VELOCITY_TOLERANCE_KM_S
+  ) {
     const residual = velocityResidual === undefined ? Infinity : norm(velocityResidual);
     throw new RangeError(`burn ${from.id}>${to.id} did not converge to cutoff velocity (residual ${residual} km/s)`);
   }

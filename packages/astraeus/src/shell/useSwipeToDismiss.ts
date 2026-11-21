@@ -16,7 +16,9 @@ export function useSwipeToDismiss(ref: RefObject<HTMLElement | null>, onDismiss:
     const element = ref.current;
     if (element === null) return undefined;
     let startY: number | null = null;
-    const start = (event: TouchEvent) => { startY = element.scrollTop <= 0 ? event.touches[0]?.clientY ?? null : null; };
+    const start = (event: TouchEvent) => {
+      startY = element.scrollTop <= 0 ? (event.touches[0]?.clientY ?? null) : null;
+    };
     const move = (event: TouchEvent) => {
       if (startY === null) return;
       const dy = (event.touches[0]?.clientY ?? startY) - startY;

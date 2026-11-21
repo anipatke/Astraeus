@@ -41,13 +41,27 @@ export function planSegments(
   const powered = new Set(config.poweredPairs.map((pair) => pair.join(">")));
   const segments: Segment[] = [];
   if (plan.parking !== undefined) {
-    segments.push(parkingOrbitBackward(adapter, plan.parking.startUtcMs, plan.parking.startLabel, lookup(anchors, plan.parking.fromAnchor)));
+    segments.push(
+      parkingOrbitBackward(
+        adapter,
+        plan.parking.startUtcMs,
+        plan.parking.startLabel,
+        lookup(anchors, plan.parking.fromAnchor),
+      ),
+    );
   }
   let startState: EarthState | undefined;
   for (let i = 0; i + 1 < plan.chain.length; i += 1) {
     const key = `${plan.chain[i]}>${plan.chain[i + 1]}`;
     const special = config.specialPairs[key] as SegmentMethod | undefined;
-    const segment = buildSegment(adapter, lookup(anchors, plan.chain[i]), lookup(anchors, plan.chain[i + 1]), powered.has(key), special, startState);
+    const segment = buildSegment(
+      adapter,
+      lookup(anchors, plan.chain[i]),
+      lookup(anchors, plan.chain[i + 1]),
+      powered.has(key),
+      special,
+      startState,
+    );
     segments.push(segment);
     startState = segment.endState;
   }
@@ -78,14 +92,20 @@ export function buildVehicle(adapter: AstronomyAdapter, segments: readonly Segme
   if (samples[samples.length - 1].timeUtcMs !== finalAnchor.timeUtcMs) {
     throw new RangeError("trajectory does not end on its final anchor");
   }
-  const cutoffAnchorIds = new Set(segments.filter((segment) => segment.burn !== undefined).map((segment) => segment.to.id));
+  const cutoffAnchorIds = new Set(
+    segments.filter((segment) => segment.burn !== undefined).map((segment) => segment.to.id),
+  );
   return { segments: sampled, samples, anchorSampleIndex, cutoffAnchorIds };
 }
 
 /** The final anchor sample is the anchor itself, so the trajectory passes through it exactly. */
 export function withFinalAnchor(built: BuiltVehicle, finalAnchor: NormalisedAnchor): EarthSample[] {
   const samples = [...built.samples];
-  samples[samples.length - 1] = { timeUtcMs: finalAnchor.timeUtcMs, r: finalAnchor.earthCentred.r, v: finalAnchor.earthCentred.v };
+  samples[samples.length - 1] = {
+    timeUtcMs: finalAnchor.timeUtcMs,
+    r: finalAnchor.earthCentred.r,
+    v: finalAnchor.earthCentred.v,
+  };
   return samples;
 }
 
@@ -110,5 +130,9 @@ export function roundedSamples(samples: readonly EarthSample[]): {
   positionKm: number[];
   velocityKmS: number[];
 }[] {
-  return samples.map((s) => ({ timeUtcMs: s.timeUtcMs, positionKm: roundPosition(s.r), velocityKmS: roundVelocity(s.v) }));
+  return samples.map((s) => ({
+    timeUtcMs: s.timeUtcMs,
+    positionKm: roundPosition(s.r),
+    velocityKmS: roundVelocity(s.v),
+  }));
 }

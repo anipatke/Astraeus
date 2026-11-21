@@ -1,4 +1,13 @@
-import { AdditiveBlending, BufferAttribute, BufferGeometry, CanvasTexture, Group, Points, Sprite, SpriteMaterial } from "three";
+import {
+  AdditiveBlending,
+  BufferAttribute,
+  BufferGeometry,
+  CanvasTexture,
+  Group,
+  Points,
+  Sprite,
+  SpriteMaterial,
+} from "three";
 import { dotMaterial } from "./dotMaterial";
 import type { BodyAsset } from "../assets/catalogue";
 import { textureUrlFor } from "../assets/licence";
@@ -25,7 +34,10 @@ export function drawnRadii(definition: CelestialBodyDefinition, policy: ScalePol
     const mean = policy.mapRadius(definition.radiusKm, definition.id);
     return { equatorial: mean, polar: mean };
   }
-  return { equatorial: policy.mapRadius(equatorialRadiusKm, definition.id), polar: policy.mapRadius(polarRadiusKm, definition.id) };
+  return {
+    equatorial: policy.mapRadius(equatorialRadiusKm, definition.id),
+    polar: policy.mapRadius(polarRadiusKm, definition.id),
+  };
 }
 
 /**
@@ -42,7 +54,12 @@ export interface BodyMarkerSettings {
 export const DEFAULT_BODY_MARKER: BodyMarkerSettings = Object.freeze({ minSpherePx: 3, markerPx: 6 });
 
 /** Screen radius, in pixels, of a sphere of `radiusUnits` seen from `distanceUnits` by a camera of vertical field `fovDeg` over `viewportHeightPx`. */
-export function projectedRadiusPx(radiusUnits: number, distanceUnits: number, fovDeg: number, viewportHeightPx: number): number {
+export function projectedRadiusPx(
+  radiusUnits: number,
+  distanceUnits: number,
+  fovDeg: number,
+  viewportHeightPx: number,
+): number {
   if (!(distanceUnits > 0)) return Number.POSITIVE_INFINITY;
   return (radiusUnits * (viewportHeightPx / 2)) / (distanceUnits * Math.tan((fovDeg * Math.PI) / 360));
 }
@@ -70,7 +87,12 @@ export function markerOf(
 }
 
 /** A one-vertex point object at the local origin of its group; callers move `position`. */
-export function createMarker(asset: BodyAsset, layer: number, override?: { readonly color?: string; readonly sizePx?: number }, fallbackPx?: number): { readonly group: Group; readonly position: BufferAttribute } {
+export function createMarker(
+  asset: BodyAsset,
+  layer: number,
+  override?: { readonly color?: string; readonly sizePx?: number },
+  fallbackPx?: number,
+): { readonly group: Group; readonly position: BufferAttribute } {
   const { color, sizePx } = markerOf(asset, override, fallbackPx);
   const position = new BufferAttribute(new Float32Array(3), 3);
   const geometry = new BufferGeometry();
@@ -99,7 +121,12 @@ export interface BodyDrawPlan {
  * minimum viewport width up; without it the base file is used at any width. `pictures` are the ones this viewer was given: a look that names a picture
  * the viewer does not hold is drawn as a flat colour.
  */
-export function describeBody(asset: BodyAsset, policy: ScalePolicy, desktopTextures = false, pictures: Pictures = NO_PICTURES): BodyDrawPlan {
+export function describeBody(
+  asset: BodyAsset,
+  policy: ScalePolicy,
+  desktopTextures = false,
+  pictures: Pictures = NO_PICTURES,
+): BodyDrawPlan {
   const { definition, visual } = asset;
   const texture = textureOf(visual, pictures);
   const radii = drawnRadii(definition, policy);
@@ -107,7 +134,14 @@ export function describeBody(asset: BodyAsset, policy: ScalePolicy, desktopTextu
     kind: visual.kind,
     radii,
     poleScale: radii.equatorial === 0 ? 1 : radii.polar / radii.equatorial,
-    ...(texture === undefined ? {} : { textureUrl: textureUrlFor(texture, !desktopTextures ? 0 : typeof window === "undefined" ? undefined : window.innerWidth) }),
+    ...(texture === undefined
+      ? {}
+      : {
+          textureUrl: textureUrlFor(
+            texture,
+            !desktopTextures ? 0 : typeof window === "undefined" ? undefined : window.innerWidth,
+          ),
+        }),
     material: visual.material,
     ...(visual.atmosphere === undefined ? {} : { atmosphere: visual.atmosphere }),
   };
@@ -126,17 +160,27 @@ export interface GlowLook {
 export const DEFAULT_GLOW_SCALE = 2.5;
 /** From this projected diameter (px) the halo goes behind the disc. */
 export const GLOW_BEHIND_DISC_PX = 24;
-export const GLOW_LIMITS = { sizePx: { min: 0, max: 400 }, brightness: { min: 0, max: 2 }, scale: { min: 1, max: 6 } } as const;
+export const GLOW_LIMITS = {
+  sizePx: { min: 0, max: 400 },
+  brightness: { min: 0, max: 2 },
+  scale: { min: 1, max: 6 },
+} as const;
 
 /** The halo in force: the record's `base` with the look's `sunGlow` values laid over it. */
 export function glowLookOf(look: LookInput, base: GlowLook): GlowLook {
-  return { sizePx: look.sunGlow?.sizePx ?? base.sizePx, brightness: look.sunGlow?.brightness ?? base.brightness, scale: look.sunGlow?.scale ?? base.scale };
+  return {
+    sizePx: look.sunGlow?.sizePx ?? base.sizePx,
+    brightness: look.sunGlow?.brightness ?? base.brightness,
+    scale: look.sunGlow?.scale ?? base.scale,
+  };
 }
 
 /** The first halo any of these bodies' records carries: what the live settings start from. */
 export function baseGlowOf(assets: readonly BodyAsset[]): GlowLook | null {
   const glow = assets.find((asset) => asset.visual.glow !== undefined)?.visual.glow;
-  return glow === undefined ? null : { sizePx: glow.sizePx, brightness: glow.brightness, scale: glow.scale ?? DEFAULT_GLOW_SCALE };
+  return glow === undefined
+    ? null
+    : { sizePx: glow.sizePx, brightness: glow.brightness, scale: glow.scale ?? DEFAULT_GLOW_SCALE };
 }
 
 /** The halo's width on screen, px: the setting, or `scale` times the body's projected diameter when that is more. */
@@ -185,7 +229,16 @@ export function releaseGlowTexture(): void {
  * It is sized in world units each frame (see `applyGlowLook`), so it grows with the body close up and is never limited by a point-size cap.
  */
 export function createGlow(color: string, layer: number): Sprite {
-  const sprite = new Sprite(new SpriteMaterial({ color, map: softGlowTexture(), transparent: true, depthTest: false, depthWrite: false, blending: AdditiveBlending }));
+  const sprite = new Sprite(
+    new SpriteMaterial({
+      color,
+      map: softGlowTexture(),
+      transparent: true,
+      depthTest: false,
+      depthWrite: false,
+      blending: AdditiveBlending,
+    }),
+  );
   sprite.renderOrder = 1000;
   sprite.frustumCulled = false;
   sprite.layers.set(layer);
@@ -204,7 +257,8 @@ export interface GlowView {
 /** Applies the live halo settings to a halo made by `createGlow`: strength, colour and a size of at least the setting and `scale` times the disc. */
 export function applyGlowLook(sprite: Sprite, look: GlowLook, baseColor: string, view: GlowView): number {
   const material = sprite.material;
-  const diameterPx = 2 * projectedRadiusPx(view.bodyRadiusUnits, view.distanceUnits, view.fovDeg, view.viewportHeightPx);
+  const diameterPx =
+    2 * projectedRadiusPx(view.bodyRadiusUnits, view.distanceUnits, view.fovDeg, view.viewportHeightPx);
   const sizePx = glowSizePx(look, diameterPx);
   const units = pxToUnits(sizePx, view.distanceUnits, view.fovDeg, view.viewportHeightPx);
   sprite.scale.set(units, units, 1);

@@ -59,14 +59,17 @@ export function createOrbTwoBodyAdapter(
     },
 
     elementsToState(elements: ClassicalElements, center: CenterId) {
-      const state = elementsToState({
-        semiMajorAxis: elements.semiMajorAxisKm,
-        eccentricity: elements.eccentricity,
-        inclination: elements.inclinationRad,
-        raan: elements.raanRad,
-        argumentOfPeriapsis: elements.argumentOfPeriapsisRad,
-        trueAnomaly: elements.trueAnomalyRad,
-      }, gmOf(center));
+      const state = elementsToState(
+        {
+          semiMajorAxis: elements.semiMajorAxisKm,
+          eccentricity: elements.eccentricity,
+          inclination: elements.inclinationRad,
+          raan: elements.raanRad,
+          argumentOfPeriapsis: elements.argumentOfPeriapsisRad,
+          trueAnomaly: elements.trueAnomalyRad,
+        },
+        gmOf(center),
+      );
       return { position: Float64Array.from(state.r), velocity: Float64Array.from(state.v) };
     },
 

@@ -8,7 +8,9 @@ import { afterEach, describe, expect, it } from "vitest";
 import { $, byLabel, change, mountShell, press, type Mounted } from "./domSetup";
 
 let m: Mounted;
-afterEach(() => { m.unmount(); });
+afterEach(() => {
+  m.unmount();
+});
 const css = (name: string) => readFileSync(resolve(process.cwd(), "packages/astraeus/src/shell", name), "utf8");
 const shell = () => $(m.container, "main.astraeus-shell");
 
@@ -29,7 +31,10 @@ describe("framed or alone (browser-embedded)", () => {
     expect(shell().getAttribute("data-phone")).toBe("true");
   });
 
-  it.each([["laptop", false], ["phone", true]])("keeps the shared controls working in a %s frame", (_name, phone) => {
+  it.each([
+    ["laptop", false],
+    ["phone", true],
+  ])("keeps the shared controls working in a %s frame", (_name, phone) => {
     m = mountShell({ embedded: true, phone, developerTools: "tools" });
     press($(m.container, ".timeline-play"));
     expect(m.clock.playing).toBe(true);
@@ -62,13 +67,17 @@ describe("the sizes the stylesheets promise (browser-controls, browser-embedded,
     const look = css("look/look.css");
     expect(look).toMatch(/--astraeus-control-height: 36px/);
     expect(look).toMatch(/--astraeus-hit: 44px/);
-    expect(look).toMatch(/\.astraeus-shell\[data-phone="true"\][^{]*\{[^}]*--astraeus-control-height: var\(--astraeus-hit\)/);
+    expect(look).toMatch(
+      /\.astraeus-shell\[data-phone="true"\][^{]*\{[^}]*--astraeus-control-height: var\(--astraeus-hit\)/,
+    );
   });
 
   it("slims a framed laptop (30 px controls) and leaves a framed phone at 44 px", () => {
     const look = css("look/look.css");
     expect(look).toMatch(/\[data-embedded="true"\]\[data-phone="false"\]\s*\{[^}]*--astraeus-control-height: 30px/);
-    expect(look).toMatch(/\[data-embedded="true"\]\[data-phone="false"\]\[data-pointer="coarse"\]\s*\{[^}]*--astraeus-control-height: var\(--astraeus-hit\)/);
+    expect(look).toMatch(
+      /\[data-embedded="true"\]\[data-phone="false"\]\[data-pointer="coarse"\]\s*\{[^}]*--astraeus-control-height: var\(--astraeus-hit\)/,
+    );
     expect(look).not.toMatch(/\[data-phone="true"\][^{]*\{[^}]*--astraeus-control-height: (?!var\(--astraeus-hit\))/);
   });
 
@@ -86,6 +95,8 @@ describe("the sizes the stylesheets promise (browser-controls, browser-embedded,
   });
 
   it("shows a visible keyboard focus ring (2 px) on selects and summaries", () => {
-    expect(css("parts/controls.css")).toMatch(/select:focus-visible,[\s\S]*?summary\.ui-button:focus-visible \{ outline: var\(--astraeus-space-1\) solid/);
+    expect(css("parts/controls.css")).toMatch(
+      /select:focus-visible,[\s\S]*?summary\.ui-button:focus-visible \{ outline: var\(--astraeus-space-1\) solid/,
+    );
   });
 });

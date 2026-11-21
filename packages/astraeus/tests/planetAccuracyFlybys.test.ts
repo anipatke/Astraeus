@@ -4,7 +4,13 @@ import { catalogue } from "../src/assets/catalogue";
 import { createOrbAstronomyAdapter } from "../src/core/astronomyAdapter";
 import { HISTORICAL_MOON_FIT_SPAN, MOON_FIT_SPAN } from "../src/core/bodies/moonSystem";
 import { JUPITER_MOON_SYSTEM } from "../src/core/bodies/jupiterMoons";
-import { MARS_MOON_SYSTEM, NEPTUNE_MOON_SYSTEM, PLUTO_MOON_SYSTEM, SATURN_MOON_SYSTEM, URANUS_MOON_SYSTEM } from "../src/core/bodies/planetMoons";
+import {
+  MARS_MOON_SYSTEM,
+  NEPTUNE_MOON_SYSTEM,
+  PLUTO_MOON_SYSTEM,
+  SATURN_MOON_SYSTEM,
+  URANUS_MOON_SYSTEM,
+} from "../src/core/bodies/planetMoons";
 import type { PlanetId } from "../src/core/planetSeries";
 import { readBytes } from "../tools/import/test-io.mjs";
 import { moonDataFolder } from "./moonData";
@@ -42,15 +48,23 @@ const rowAt = (key: string, utcMs: number): Row => {
 /** The planet series alone: the system barycentre (EQJ km about the Sun). */
 const barycentre = (planet: PlanetId, utcMs: number) => adapter.planetPositionFromSunKm(planet, utcMs);
 /** The planet as the engine places it: the catalogue binding, which adds the offset from its moon package when that covers the time. */
-const placed = (planet: PlanetId, utcMs: number) => catalogue.get(planet).source!.create(adapter).stateAt(utcMs).positionKm;
+const placed = (planet: PlanetId, utcMs: number) =>
+  catalogue.get(planet).source!.create(adapter).stateAt(utcMs).positionKm;
 
 /** The moon systems with each one's committed centre-series span (Mars and Pluto 2010-2029; the others 1950-2029). */
 const SYSTEMS = [
-  [MARS_MOON_SYSTEM, "mars", MOON_FIT_SPAN], [JUPITER_MOON_SYSTEM, "jupiter", HISTORICAL_MOON_FIT_SPAN], [SATURN_MOON_SYSTEM, "saturn", HISTORICAL_MOON_FIT_SPAN],
-  [URANUS_MOON_SYSTEM, "uranus", HISTORICAL_MOON_FIT_SPAN], [NEPTUNE_MOON_SYSTEM, "neptune", HISTORICAL_MOON_FIT_SPAN], [PLUTO_MOON_SYSTEM, "pluto", MOON_FIT_SPAN],
+  [MARS_MOON_SYSTEM, "mars", MOON_FIT_SPAN],
+  [JUPITER_MOON_SYSTEM, "jupiter", HISTORICAL_MOON_FIT_SPAN],
+  [SATURN_MOON_SYSTEM, "saturn", HISTORICAL_MOON_FIT_SPAN],
+  [URANUS_MOON_SYSTEM, "uranus", HISTORICAL_MOON_FIT_SPAN],
+  [NEPTUNE_MOON_SYSTEM, "neptune", HISTORICAL_MOON_FIT_SPAN],
+  [PLUTO_MOON_SYSTEM, "pluto", MOON_FIT_SPAN],
 ] as const;
-const MOON_SPAN: Record<string, { startUtcMs: number; endUtcMs: number }> = Object.fromEntries(SYSTEMS.map(([, planet, span]) => [planet, span]));
-const covered = (planet: string, utcMs: number) => MOON_SPAN[planet] !== undefined && utcMs >= MOON_SPAN[planet].startUtcMs && utcMs <= MOON_SPAN[planet].endUtcMs;
+const MOON_SPAN: Record<string, { startUtcMs: number; endUtcMs: number }> = Object.fromEntries(
+  SYSTEMS.map(([, planet, span]) => [planet, span]),
+);
+const covered = (planet: string, utcMs: number) =>
+  MOON_SPAN[planet] !== undefined && utcMs >= MOON_SPAN[planet].startUtcMs && utcMs <= MOON_SPAN[planet].endUtcMs;
 
 interface Measured {
   readonly id: string;
@@ -69,7 +83,10 @@ interface Measured {
 
 let measured: Measured[] = [];
 /** Largest error on 2 January of each year 1950 to 2044, per planet: with the moon package (years it covers) and without it. */
-const span: Record<Measured7, { withMoonsKm: number | null; withoutMoonsKm: number; baryKm: number | null; pre1972Km: number }> = {} as never;
+const span: Record<
+  Measured7,
+  { withMoonsKm: number | null; withoutMoonsKm: number; baryKm: number | null; pre1972Km: number }
+> = {} as never;
 /** Horizons' UT is UT1 before 1962 and the engine reads Orb's smooth pre-1972 TT - UTC (up to about 0.7 s apart in the 1950s; UTC's rubber seconds to 1972): those years are reported apart. */
 const UTC_FROM_MS = Date.UTC(1972, 0, 1);
 let earthKm = 0;
@@ -80,7 +97,12 @@ beforeAll(async () => {
   for (const [system, planet, window] of SYSTEMS) {
     const root = moonDataFolder(planet);
     system.provideIndex(async () => JSON.parse(await readFile(`${root}index.json`, "utf8")) as unknown);
-    await system.load({ window, bodies: [], chunkUrls: new Proxy({}, { get: (_target, path: string) => `${root}${path}` }) as Record<string, string>, fetchBytes: async (url) => readBytes(url) });
+    await system.load({
+      window,
+      bodies: [],
+      chunkUrls: new Proxy({}, { get: (_target, path: string) => `${root}${path}` }) as Record<string, string>,
+      fetchBytes: async (url) => readBytes(url),
+    });
   }
 
   measured = fixture.epochs.map(({ id, planet: p, utc }) => {
@@ -89,11 +111,12 @@ beforeAll(async () => {
     const body = xyzOf(rowAt(`${planet}/body@sun/equator`, t));
     const table = rowAt(`${planet}/body@sun/ecliptic`, t);
     return {
-      id, planet,
+      id,
+      planet,
       baryKm: norm(sub(barycentre(planet, t), icrfOf(rowAt(`${planet}/bary@sun/ecliptic`, t)))),
       withMoonsKm: norm(sub(placed(planet, t), body)),
       withoutMoonsKm: norm(sub(barycentre(planet, t), body)),
-      timeS: (adapter.daysSinceJ2000Tt(t) * 86_400 - (t - Date.UTC(2000, 0, 1, 12)) / 1000) - table[1],
+      timeS: adapter.daysSinceJ2000Tt(t) * 86_400 - (t - Date.UTC(2000, 0, 1, 12)) / 1000 - table[1],
       sunVsSsbKm: norm(sub(icrfOf(rowAt(`${planet}/body@ssb/ecliptic`, t)), icrfOf(table))),
     };
   });
@@ -106,13 +129,17 @@ beforeAll(async () => {
     for (const row of series[`${planet}/body@sun/ecliptic/yearly`]) {
       const body = icrfOf(row);
       if (row[0] < UTC_FROM_MS) {
-        pre1972 = Math.max(pre1972, norm(sub(covered(planet, row[0]) ? placed(planet, row[0]) : barycentre(planet, row[0]), body)));
+        pre1972 = Math.max(
+          pre1972,
+          norm(sub(covered(planet, row[0]) ? placed(planet, row[0]) : barycentre(planet, row[0]), body)),
+        );
         continue;
       }
       without = Math.max(without, norm(sub(barycentre(planet, row[0]), body)));
       if (covered(planet, row[0])) withMoons = Math.max(withMoons ?? 0, norm(sub(placed(planet, row[0]), body)));
     }
-    for (const row of series[`${planet}/bary@sun/ecliptic/yearly`] ?? []) if (row[0] >= UTC_FROM_MS) bary = Math.max(bary ?? 0, norm(sub(barycentre(planet, row[0]), icrfOf(row))));
+    for (const row of series[`${planet}/bary@sun/ecliptic/yearly`] ?? [])
+      if (row[0] >= UTC_FROM_MS) bary = Math.max(bary ?? 0, norm(sub(barycentre(planet, row[0]), icrfOf(row))));
     span[planet] = { withMoonsKm: withMoons, withoutMoonsKm: without, baryKm: bary, pre1972Km: pre1972 };
   }
 
@@ -125,11 +152,26 @@ beforeAll(async () => {
 
   if (process.env.PLANET_ACCURACY_PRINT === "1") {
     const r = (x: number | null, d = 1) => (x === null ? "-" : x.toFixed(d));
-    console.log(["id baryKm withMoonsKm withoutMoonsKm (before T-290) timeS",
-      ...measured.map((x) => [x.id, r(x.baryKm, 3), r(x.withMoonsKm, 3), r(x.withoutMoonsKm), BEFORE_KM[x.id], r(x.timeS, 3)].join(" ")),
-      "1972-2044 yearly max: planet withMoons without bary pre1972 (before T-290, 1950-2044)",
-      ...PLANETS.map((p) => [p, r(span[p].withMoonsKm, 3), r(span[p].withoutMoonsKm, 3), r(span[p].baryKm, 3), r(span[p].pre1972Km, 1), BEFORE_SPAN_KM[p] ?? "-"].join(" ")),
-      `earth EPV00 max ${r(earthKm, 3)} km (${earthYear})`].join("\n"));
+    console.log(
+      [
+        "id baryKm withMoonsKm withoutMoonsKm (before T-290) timeS",
+        ...measured.map((x) =>
+          [x.id, r(x.baryKm, 3), r(x.withMoonsKm, 3), r(x.withoutMoonsKm), BEFORE_KM[x.id], r(x.timeS, 3)].join(" "),
+        ),
+        "1972-2044 yearly max: planet withMoons without bary pre1972 (before T-290, 1950-2044)",
+        ...PLANETS.map((p) =>
+          [
+            p,
+            r(span[p].withMoonsKm, 3),
+            r(span[p].withoutMoonsKm, 3),
+            r(span[p].baryKm, 3),
+            r(span[p].pre1972Km, 1),
+            BEFORE_SPAN_KM[p] ?? "-",
+          ].join(" "),
+        ),
+        `earth EPV00 max ${r(earthKm, 3)} km (${earthYear})`,
+      ].join("\n"),
+    );
   }
 }, 120_000);
 
@@ -139,19 +181,48 @@ function xyzOf(row: Row): Vec {
 
 /** T-289's measured VSOP87A error against the Horizons body centre (km), kept to show the gain. */
 const BEFORE_KM: Record<string, number> = {
-  "v1-jupiter": 755, "v1-saturn": 1629, "v2-jupiter": 629, "v2-saturn": 1790, "v2-uranus": 6314, "v2-neptune": 13338,
-  "made-up-jupiter": 795, "made-up-saturn": 1090, "made-up-uranus": 12738, "made-up-neptune": 4833,
+  "v1-jupiter": 755,
+  "v1-saturn": 1629,
+  "v2-jupiter": 629,
+  "v2-saturn": 1790,
+  "v2-uranus": 6314,
+  "v2-neptune": 13338,
+  "made-up-jupiter": 795,
+  "made-up-saturn": 1090,
+  "made-up-uranus": 12738,
+  "made-up-neptune": 4833,
 };
 /** T-289's largest VSOP87A error on 2 January of each year 1950 to 2044 (km, ecliptic comparison; the inner three were printed, not recorded). */
-const BEFORE_SPAN_KM: Partial<Record<Measured7, number>> = { jupiter: 1456, saturn: 2805, uranus: 20023, neptune: 43747 };
+const BEFORE_SPAN_KM: Partial<Record<Measured7, number>> = {
+  jupiter: 1456,
+  saturn: 2805,
+  uranus: 20023,
+  neptune: 43747,
+};
 
 /** Measured with T-290's data (2026-11-10): where each planet sits without its moon package, the planet's wobble about its barycentre (km). */
 const WITHOUT_MOONS_KM: Record<string, number> = {
-  "v1-jupiter": 212.4, "v1-saturn": 275.7, "v2-jupiter": 192.3, "v2-saturn": 295.5, "v2-uranus": 28.4, "v2-neptune": 74.2,
-  "made-up-jupiter": 154.0, "made-up-saturn": 294.3, "made-up-uranus": 24.5, "made-up-neptune": 76.7,
+  "v1-jupiter": 212.4,
+  "v1-saturn": 275.7,
+  "v2-jupiter": 192.3,
+  "v2-saturn": 295.5,
+  "v2-uranus": 28.4,
+  "v2-neptune": 74.2,
+  "made-up-jupiter": 154.0,
+  "made-up-saturn": 294.3,
+  "made-up-uranus": 24.5,
+  "made-up-neptune": 76.7,
 };
 /** The largest of those over 1972 to 2044 per planet (km). */
-const WITHOUT_MOONS_SPAN_KM: Record<Measured7, number> = { mercury: 0.3, venus: 0.6, mars: 0.5, jupiter: 216.4, saturn: 303.9, uranus: 44.7, neptune: 74.4 };
+const WITHOUT_MOONS_SPAN_KM: Record<Measured7, number> = {
+  mercury: 0.3,
+  venus: 0.6,
+  mars: 0.5,
+  jupiter: 216.4,
+  saturn: 303.9,
+  uranus: 44.7,
+  neptune: 74.4,
+};
 /**
  * Horizons serves Uranus (799) and Neptune (899) about the Sun through their satellite ephemerides (ura184_merged, nep098_merged), whose path of
  * the system barycentre is not DE441's barycentre body (7, 8): they agree near the Voyager encounters and drift apart away from them. The series
@@ -170,7 +241,12 @@ describe("planet accuracy against JPL Horizons DE441 (O-063)", () => {
     expect(fixture.settings).toContain("84381.448");
     expect(fixture.retrieved).toMatch(/^\d{4}-\d{2}-\d{2}$/);
     expect(fixture.flybys.map((f) => f.closestUtc)).toEqual([
-      "1979-03-05T12:04:35.000Z", "1980-11-12T23:45:38.000Z", "1979-07-09T22:29:01.000Z", "1981-08-26T03:24:04.000Z", "1986-01-24T17:58:51.000Z", "1989-08-25T03:55:40.000Z",
+      "1979-03-05T12:04:35.000Z",
+      "1980-11-12T23:45:38.000Z",
+      "1979-07-09T22:29:01.000Z",
+      "1981-08-26T03:24:04.000Z",
+      "1986-01-24T17:58:51.000Z",
+      "1989-08-25T03:55:40.000Z",
     ]);
     expect(fixture.epochs).toHaveLength(10);
   });
@@ -178,7 +254,8 @@ describe("planet accuracy against JPL Horizons DE441 (O-063)", () => {
   it("places each planet within the fit tolerance of its Horizons centre at the flybys and made-up dates, with its moon package loaded", () => {
     for (const x of measured) {
       const t = Date.parse(fixture.epochs.find((e) => e.id === x.id)!.utc);
-      if (x.id in BARY_GAP_KM) expect(Math.abs(x.baryKm - BARY_GAP_KM[x.id]), `${x.id} DE441 barycentre gap`).toBeLessThan(5);
+      if (x.id in BARY_GAP_KM)
+        expect(Math.abs(x.baryKm - BARY_GAP_KM[x.id]), `${x.id} DE441 barycentre gap`).toBeLessThan(5);
       else expect(x.baryKm, `${x.id} barycentre`).toBeLessThan(FIT_KM);
       if (!covered(x.planet, t)) expect(x.withMoonsKm, `${x.id} outside its package's years`).toBe(x.withoutMoonsKm);
       // 1955 (made-up Neptune): Horizons' UT is UT1 there, 0.7 s from the engine's reading of the date (3.8 km at Neptune's speed).
@@ -200,7 +277,9 @@ describe("planet accuracy against JPL Horizons DE441 (O-063)", () => {
         else expect(Math.abs(s.baryKm - gap), `${planet} DE441 barycentre gap`).toBeLessThan(5);
       }
       if (s.withMoonsKm !== null) expect(s.withMoonsKm, `${planet} with moons`).toBeLessThan(FIT_KM);
-      expect(Math.abs(s.withoutMoonsKm - WITHOUT_MOONS_SPAN_KM[planet]), `${planet} without moons`).toBeLessThan(planet === "mercury" || planet === "venus" || planet === "mars" ? 0.5 : 5);
+      expect(Math.abs(s.withoutMoonsKm - WITHOUT_MOONS_SPAN_KM[planet]), `${planet} without moons`).toBeLessThan(
+        planet === "mercury" || planet === "venus" || planet === "mars" ? 0.5 : 5,
+      );
       // 1950 to 1971: Horizons' UT1 (to 1962) and UTC's rubber seconds against the engine's smooth TT - UTC; a time-label difference, not a position one.
       expect(s.pre1972Km, `${planet} before 1972`).toBeLessThan(40);
     }

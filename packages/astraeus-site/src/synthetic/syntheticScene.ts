@@ -18,8 +18,19 @@ const markerProvenance = {
   accuracy: "None claimed. A circular, tilted, Earth-centred path invented for this fixture.",
   notes: "Exists to prove a second experience mounts through the same contract as the first.",
 } as const;
-const madeUpPanel = (sourceType: "illustrative" | "modelled") => ({ sourceType, sources: ["Made up for the story-panel test; not a real source"], accuracy: "None claimed.", notes: "Made up for this fixture." });
-const windowProvenance = (accuracy: string, notes: string) => ({ sourceType: "illustrative", sources: ["Made up for the window contract test; not real observations"], accuracy, notes }) as const;
+const madeUpPanel = (sourceType: "illustrative" | "modelled") => ({
+  sourceType,
+  sources: ["Made up for the story-panel test; not a real source"],
+  accuracy: "None claimed.",
+  notes: "Made up for this fixture.",
+});
+const windowProvenance = (accuracy: string, notes: string) =>
+  ({
+    sourceType: "illustrative",
+    sources: ["Made up for the window contract test; not real observations"],
+    accuracy,
+    notes,
+  }) as const;
 
 /** The made-up scene. The contact window's own card shows its rate; the marker's card has no rate row, because a rate readout belongs to a group (O-059 T-271). */
 export function buildSyntheticScene(): Scene {
@@ -33,8 +44,18 @@ export function buildSyntheticScene(): Scene {
     };
   });
   const scene = new Scene()
-    .addBody(earth, { color: "#9fd8ff", labelPriority: 100, labelReachEarthRadii: 500, description: "The planet the marker circles." })
-    .addBody(moon, { color: "#ded7cc", labelPriority: 90, labelReachEarthRadii: 500, description: "Shown for scale only." })
+    .addBody(earth, {
+      color: "#9fd8ff",
+      labelPriority: 100,
+      labelReachEarthRadii: 500,
+      description: "The planet the marker circles.",
+    })
+    .addBody(moon, {
+      color: "#ded7cc",
+      labelPriority: 90,
+      labelReachEarthRadii: 500,
+      description: "Shown for scale only.",
+    })
     .addTrajectory({
       id: "survey-marker",
       label: "Survey marker",
@@ -46,7 +67,10 @@ export function buildSyntheticScene(): Scene {
       description: "An invented object on a simple loop around Earth.",
       knownLimitations: ["Not a real object; the loop is a plain circle chosen for testing."],
       // Made-up marks along the loop, one every 40 minutes, labelled "mark-1" and on; they give the anchor-label layer something to show.
-      anchors: Array.from({ length: ANCHOR_COUNT }, (_, index) => ({ id: `mark-${index + 1}`, time: at((index + 1) * 40) })),
+      anchors: Array.from({ length: ANCHOR_COUNT }, (_, index) => ({
+        id: `mark-${index + 1}`,
+        time: at((index + 1) * 40),
+      })),
       readouts: [{ kind: "range", marker: "moon" }, { kind: "speed" }, { kind: "distance", to: "moon" }],
     })
     .addEvents([
@@ -55,8 +79,22 @@ export function buildSyntheticScene(): Scene {
     ])
     // Two made-up story panels (one about the marker, one about nothing in particular) so the story-panel checks run without a real story.
     .addStoryPanels([
-      { id: "marker-loop", at: { time: at(60) }, title: "The marker's loop", body: ["The survey marker goes round a made-up circle.", "Nothing here is a real object."], details: ["The loop radius and speed were chosen for this fixture."], provenance: madeUpPanel("illustrative"), object: "survey-marker" },
-      { id: "marker-late", at: { time: at(300) }, title: "A later note", body: ["A second made-up panel, further along the timeline."], provenance: madeUpPanel("modelled") },
+      {
+        id: "marker-loop",
+        at: { time: at(60) },
+        title: "The marker's loop",
+        body: ["The survey marker goes round a made-up circle.", "Nothing here is a real object."],
+        details: ["The loop radius and speed were chosen for this fixture."],
+        provenance: madeUpPanel("illustrative"),
+        object: "survey-marker",
+      },
+      {
+        id: "marker-late",
+        at: { time: at(300) },
+        title: "A later note",
+        body: ["A second made-up panel, further along the timeline."],
+        provenance: madeUpPanel("modelled"),
+      },
     ])
     .setStoryPanelPlayback({ pauseSeconds: 2 })
     .addActivity({
@@ -67,10 +105,32 @@ export function buildSyntheticScene(): Scene {
       start: at(30),
       end: at(210),
       peak: at(135),
-      samples: [[30, 0], [60, 12], [90, 30], [135, 48], [165, 30], [190, 12], [210, 0]].map(([minutes, value]) => ({ time: at(minutes!), value: value! })),
+      samples: [
+        [30, 0],
+        [60, 12],
+        [90, 30],
+        [135, 48],
+        [165, 30],
+        [190, 12],
+        [210, 0],
+      ].map(([minutes, value]) => ({ time: at(minutes!), value: value! })),
       provenance: [
-        { start: at(30), end: at(135), provenance: windowProvenance("None claimed. A smooth rise invented for this fixture.", "First half: a plain made-up ramp up to the peak.") },
-        { start: at(135), end: at(210), provenance: windowProvenance("None claimed. A looser fall invented for this fixture, less certain than the rise.", "Second half: a made-up fall, drawn with wider guesses than the first half.") },
+        {
+          start: at(30),
+          end: at(135),
+          provenance: windowProvenance(
+            "None claimed. A smooth rise invented for this fixture.",
+            "First half: a plain made-up ramp up to the peak.",
+          ),
+        },
+        {
+          start: at(135),
+          end: at(210),
+          provenance: windowProvenance(
+            "None claimed. A looser fall invented for this fixture, less certain than the rise.",
+            "Second half: a made-up fall, drawn with wider guesses than the first half.",
+          ),
+        },
       ],
     })
     .setTimeline({ start: SYNTHETIC_START_UTC_MS, end: at((SAMPLE_COUNT - 1) * 5), rates: [60, 600, 3_600], rate: 600 })

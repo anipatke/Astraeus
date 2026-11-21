@@ -16,11 +16,7 @@ function normalize(vector: Vector3, label: string): Float64Array {
 }
 
 function cross(a: Vector3, b: Vector3): Float64Array {
-  return Float64Array.of(
-    a[1] * b[2] - a[2] * b[1],
-    a[2] * b[0] - a[0] * b[2],
-    a[0] * b[1] - a[1] * b[0],
-  );
+  return Float64Array.of(a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]);
 }
 
 /** Converts a row-major body-to-EQJ rotation matrix into an [x,y,z,w] quaternion. */
@@ -28,9 +24,15 @@ export function quaternionFromMatrix(matrix: ArrayLike<number>): Quaternion {
   if (matrix.length !== 9 || Array.from(matrix).some((value) => !Number.isFinite(value))) {
     throw new TypeError("rotation matrix must contain nine finite values");
   }
-  const m00 = matrix[0], m01 = matrix[1], m02 = matrix[2];
-  const m10 = matrix[3], m11 = matrix[4], m12 = matrix[5];
-  const m20 = matrix[6], m21 = matrix[7], m22 = matrix[8];
+  const m00 = matrix[0],
+    m01 = matrix[1],
+    m02 = matrix[2];
+  const m10 = matrix[3],
+    m11 = matrix[4],
+    m12 = matrix[5];
+  const m20 = matrix[6],
+    m21 = matrix[7],
+    m22 = matrix[8];
   const trace = m00 + m11 + m22;
   let x: number, y: number, z: number, w: number;
   if (trace > 0) {
@@ -97,20 +99,20 @@ export function moonOrientationFromOrbit(
   earlierMoonFromEarthKm: Vector3,
   laterMoonFromEarthKm: Vector3,
 ): Quaternion {
-  const nearSideX = normalize(
-    [-moonFromEarthKm[0], -moonFromEarthKm[1], -moonFromEarthKm[2]],
-    "Moon near-side axis",
-  );
-  const orbitalNormal = normalize(
-    cross(earlierMoonFromEarthKm, laterMoonFromEarthKm),
-    "Moon local orbital normal",
-  );
+  const nearSideX = normalize([-moonFromEarthKm[0], -moonFromEarthKm[1], -moonFromEarthKm[2]], "Moon near-side axis");
+  const orbitalNormal = normalize(cross(earlierMoonFromEarthKm, laterMoonFromEarthKm), "Moon local orbital normal");
   const nearSideY = normalize(cross(orbitalNormal, nearSideX), "Moon local east axis");
   const correctedZ = normalize(cross(nearSideX, nearSideY), "Moon local pole axis");
   const bodyToEqj = [
-    nearSideX[0], nearSideY[0], correctedZ[0],
-    nearSideX[1], nearSideY[1], correctedZ[1],
-    nearSideX[2], nearSideY[2], correctedZ[2],
+    nearSideX[0],
+    nearSideY[0],
+    correctedZ[0],
+    nearSideX[1],
+    nearSideY[1],
+    correctedZ[1],
+    nearSideX[2],
+    nearSideY[2],
+    correctedZ[2],
   ];
   return quaternionFromMatrix(bodyToEqj);
 }

@@ -21,7 +21,8 @@ export function createEvents(input: readonly TimelineEvent[]): readonly Timeline
     if (event.id.length === 0) throw new TypeError("event id must be non-empty");
     if (ids.has(event.id)) throw new RangeError(`duplicate event id "${event.id}"`);
     if (event.timeUtcMs < previousMs) throw new RangeError("events must be sorted by time");
-    if (event.withinMs !== undefined && !(Number.isFinite(event.withinMs) && event.withinMs > 0)) throw new RangeError(`event "${event.id}" withinMs must be positive and finite`);
+    if (event.withinMs !== undefined && !(Number.isFinite(event.withinMs) && event.withinMs > 0))
+      throw new RangeError(`event "${event.id}" withinMs must be positive and finite`);
     ids.add(event.id);
     previousMs = event.timeUtcMs;
   }

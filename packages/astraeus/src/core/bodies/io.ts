@@ -69,26 +69,36 @@ export function createIoTrajectory(): Trajectory {
   const adapter = createOrbTwoBodyAdapter([JUPITER]);
   // Laplace plane = the plane with pole (ra, dec), node reference on the EQJ equator at ra + 90 deg; as an EQJ-plane orbit that is
   // inclination 90 - dec and node ra + 90, with the table's argument of periapsis measured from that reference.
-  const inner = createTwoBodyTrajectory({
-    body: "io",
-    center: "jupiter",
-    plane: "EQJ",
-    epochUtcMs: IO_EPOCH_UTC_MS,
-    elements: {
-      semiMajorAxisKm: periodConsistentSemiMajorAxisKm(gm, siderealPeriodDays(elements.periodDays, elements.apsisPeriodYears)),
-      eccentricity: elements.eccentricity,
-      inclinationDeg: 90 - elements.laplacePoleDecDeg + elements.inclinationDeg,
-      raanDeg: elements.laplacePoleRaDeg + 90 + elements.nodeDeg,
-      argumentOfPeriapsisDeg: elements.argumentOfPeriapsisDeg,
-      trueAnomalyDeg: trueAnomalyFromMean(elements.meanAnomalyDeg * DEGREES, elements.eccentricity) / DEGREES,
+  const inner = createTwoBodyTrajectory(
+    {
+      body: "io",
+      center: "jupiter",
+      plane: "EQJ",
+      epochUtcMs: IO_EPOCH_UTC_MS,
+      elements: {
+        semiMajorAxisKm: periodConsistentSemiMajorAxisKm(
+          gm,
+          siderealPeriodDays(elements.periodDays, elements.apsisPeriodYears),
+        ),
+        eccentricity: elements.eccentricity,
+        inclinationDeg: 90 - elements.laplacePoleDecDeg + elements.inclinationDeg,
+        raanDeg: elements.laplacePoleRaDeg + 90 + elements.nodeDeg,
+        argumentOfPeriapsisDeg: elements.argumentOfPeriapsisDeg,
+        trueAnomalyDeg: trueAnomalyFromMean(elements.meanAnomalyDeg * DEGREES, elements.eccentricity) / DEGREES,
+      },
     },
-  }, adapter);
-  const positionAt = (timeUtcMs: number): Float64Array => Float64Array.from(inner.stateAt(timeUtcMs, "jupiter").positionKm);
+    adapter,
+  );
+  const positionAt = (timeUtcMs: number): Float64Array =>
+    Float64Array.from(inner.stateAt(timeUtcMs, "jupiter").positionKm);
   return Object.freeze({
     body: "io",
     stateAt(timeUtcMs: number, center: CenterId = "jupiter"): State {
       assertUtcUnixMs(timeUtcMs);
-      if (center !== "jupiter") throw new RangeError(`Io is Jupiter-centred; centre "${center}" is not offered, the state resolver recentres it`);
+      if (center !== "jupiter")
+        throw new RangeError(
+          `Io is Jupiter-centred; centre "${center}" is not offered, the state resolver recentres it`,
+        );
       const position = positionAt(timeUtcMs);
       const orientation = moonOrientationFromOrbit(
         position,
@@ -101,8 +111,12 @@ export function createIoTrajectory(): Trajectory {
 }
 
 /** The dates the mean-element model was compared over (T-078); not the dates Io is valid for now (the fits). */
-export const IO_MEAN_ELEMENT_VALID_UTC = Object.freeze({ startUtcMs: Date.UTC(1969, 6, 21), endUtcMs: Date.UTC(2030, 5, 1) });
-const HORIZONS_PHYSICAL = "JPL Horizons satellite physical properties for Io 501 (https://ssd.jpl.nasa.gov/api/horizons.api, header archived in tests/fixtures/io-horizons-source.txt), read 2026-10-12";
+export const IO_MEAN_ELEMENT_VALID_UTC = Object.freeze({
+  startUtcMs: Date.UTC(1969, 6, 21),
+  endUtcMs: Date.UTC(2030, 5, 1),
+});
+const HORIZONS_PHYSICAL =
+  "JPL Horizons satellite physical properties for Io 501 (https://ssd.jpl.nasa.gov/api/horizons.api, header archived in tests/fixtures/io-horizons-source.txt), read 2026-10-12";
 
 /** The largest Jupiter-centred distance from Horizons over the six compared dates (tests/jupiterIo.test.ts asserts this). */
 export const IO_MAX_ERROR_KM = 9388;
@@ -130,7 +144,8 @@ export const IO: CelestialBodyDefinition = Object.freeze({
     dimensions: createProvenance({
       sourceType: "observed",
       sources: [HORIZONS_PHYSICAL],
-      accuracy: "Mean radius 1821.49 km and GM 5959.9155 km^3/s^2 as printed in the Horizons header; Io is drawn as a sphere.",
+      accuracy:
+        "Mean radius 1821.49 km and GM 5959.9155 km^3/s^2 as printed in the Horizons header; Io is drawn as a sphere.",
       notes: "Gravitational parameter in km^3/s^2.",
     }),
     position: fittedMoonPosition("Io", 0.1924, JUPITER_MOON_FIT_SPAN),

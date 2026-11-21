@@ -7,7 +7,13 @@ import type { CelestialBodyDefinition, StateSourceBinding } from "../body";
 import { JUPITER_MOON_SYSTEM } from "./jupiterMoons";
 import { listedMoon, type ListedMoon } from "./listedMoons";
 import { HISTORICAL_MOON_FIT_SPAN, type MoonSystem } from "./moonSystem";
-import { MARS_MOON_SYSTEM, NEPTUNE_MOON_SYSTEM, PLUTO_MOON_SYSTEM, SATURN_MOON_SYSTEM, URANUS_MOON_SYSTEM } from "./planetMoons";
+import {
+  MARS_MOON_SYSTEM,
+  NEPTUNE_MOON_SYSTEM,
+  PLUTO_MOON_SYSTEM,
+  SATURN_MOON_SYSTEM,
+  URANUS_MOON_SYSTEM,
+} from "./planetMoons";
 
 /** Each planet's moon system by planet id: the loader every moon of that planet shares. */
 export const MOON_SYSTEMS: Readonly<Record<string, MoonSystem>> = Object.freeze({

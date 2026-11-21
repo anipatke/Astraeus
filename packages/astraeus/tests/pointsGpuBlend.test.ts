@@ -35,19 +35,35 @@ function ring(): PointGroup {
   };
   const bounds = { startUtcMs: START, endUtcMs: END };
   return {
-    id: "ring", count: COUNT, center: "moon", frame: "EQJ", bounds, provenance,
-    fillPositionsKm(t, out) { for (let i = 0; i < COUNT; i += 1) out.set(position(i, t), 3 * i); },
+    id: "ring",
+    count: COUNT,
+    center: "moon",
+    frame: "EQJ",
+    bounds,
+    provenance,
+    fillPositionsKm(t, out) {
+      for (let i = 0; i < COUNT; i += 1) out.set(position(i, t), 3 * i);
+    },
     stateAt: (index, t) => memberState({ id: "ring", center: "moon", bounds }, index, t, position(index, t)),
   };
 }
 
 const layer: GroupLayer = {
-  group: ring(), color: "#88ccff", refillAfterMs: SPAN,
+  group: ring(),
+  color: "#88ccff",
+  refillAfterMs: SPAN,
   object: { id: "ring", label: "Ring", description: "A made-up ring.", knownLimitations: ["Made up."] },
 };
 
 /** Today's blend, in 64-bit floats from the group's own positions: what the CPU loop used to write. */
-function exact(t: number, policy: typeof trueScale, origin: ArrayLike<number>, index: number, before: number, after: number): number[] {
+function exact(
+  t: number,
+  policy: typeof trueScale,
+  origin: ArrayLike<number>,
+  index: number,
+  before: number,
+  after: number,
+): number[] {
   const at = (time: number): number[] => {
     const km = layer.group.stateAt(index, time).positionKm;
     const off = sceneOffsetKm(placement, "moon", time) ?? [0, 0, 0];

@@ -10,10 +10,14 @@ describe("the start camera (I-028)", () => {
 
   it("keeps the start distance for Earth- and Jupiter-centred scenes", () => {
     expect(startsInsideFocus(START_CAMERA_DISTANCE, "earth", { centre: "earth", span: 60 }, trueScale, {})).toBe(false);
-    expect(startsInsideFocus(START_CAMERA_DISTANCE, "jupiter", { centre: "jupiter", span: 70 }, trueScale, {})).toBe(false);
+    expect(startsInsideFocus(START_CAMERA_DISTANCE, "jupiter", { centre: "jupiter", span: 70 }, trueScale, {})).toBe(
+      false,
+    );
   });
 
   it("keeps it for a centre that is only a point", () => {
-    expect(startsInsideFocus(START_CAMERA_DISTANCE, "apollo-point", { centre: "earth", span: 60 }, trueScale, {})).toBe(false);
+    expect(startsInsideFocus(START_CAMERA_DISTANCE, "apollo-point", { centre: "earth", span: 60 }, trueScale, {})).toBe(
+      false,
+    );
   });
 });

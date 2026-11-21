@@ -21,12 +21,14 @@ describe("outer planet series against JPL Horizons planet centres (six dates 196
     it(`${planet} stays within ${targets[planet][0]} km and ${targets[planet][1]} arcsec of the archived vectors`, () => {
       const samples = fixture.bodies[planet].samples;
       expect(samples).toHaveLength(6);
-      let distance = 0, arcsec = 0;
+      let distance = 0,
+        arcsec = 0;
       for (const sample of samples) {
         const p = adapter.planetPositionFromSunKm(planet, sample.utcMs);
         const h = sample.positionKm;
         distance = Math.max(distance, Math.hypot(p[0] - h[0], p[1] - h[1], p[2] - h[2]));
-        const cosine = (p[0] * h[0] + p[1] * h[1] + p[2] * h[2]) / (Math.hypot(p[0], p[1], p[2]) * Math.hypot(h[0], h[1], h[2]));
+        const cosine =
+          (p[0] * h[0] + p[1] * h[1] + p[2] * h[2]) / (Math.hypot(p[0], p[1], p[2]) * Math.hypot(h[0], h[1], h[2]));
         arcsec = Math.max(arcsec, Math.acos(Math.min(1, cosine)) * (180 / Math.PI) * 3600);
       }
       expect(distance).toBeLessThan(targets[planet][0]);

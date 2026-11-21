@@ -38,7 +38,7 @@ export function isFeatureVisible(
   const tcz = clz - spz;
   const len = Math.sqrt(tcx * tcx + tcy * tcy + tcz * tcz);
   if (len === 0) return false;
-  return (snx * (tcx / len)) + (sny * (tcy / len)) + (snz * (tcz / len)) >= tolerance;
+  return snx * (tcx / len) + sny * (tcy / len) + snz * (tcz / len) >= tolerance;
 }
 
 /** The donor's marker radius: markers sit just above the surface. */
@@ -60,7 +60,19 @@ export function featureMinBodyPxOf(look: LookInput): number {
  * competes with the information panel, the moons sheet and its button, the timeline, the top bar, story panels or the phone drawers.
  * (Presentation only; the selectors are the shell's layout classes, not any experience's.)
  */
-export const FEATURE_OCCLUDER_SELECTOR = [".info-panel", ".moons-sheet", ".moons-toggle", ".timeline-bar", ".shell-toolbar", ".story-panel", ".controls-drawer", ".drawer-handle", ".developer-tools", ".developer-mode-toggle", ".timeline-drawer"].join(", ");
+export const FEATURE_OCCLUDER_SELECTOR = [
+  ".info-panel",
+  ".moons-sheet",
+  ".moons-toggle",
+  ".timeline-bar",
+  ".shell-toolbar",
+  ".story-panel",
+  ".controls-drawer",
+  ".drawer-handle",
+  ".developer-tools",
+  ".developer-mode-toggle",
+  ".timeline-drawer",
+].join(", ");
 /** How often the panels' areas are re-measured, ms (panels slide and resize; a frame-by-frame measure would cost layout every frame). */
 const OCCLUDER_REFRESH_MS = 200;
 /** Half the marker's tap target: a marker this close to a panel's edge is hidden too, so its tap target never reaches under the panel. */
@@ -79,14 +91,16 @@ export interface FeatureMarkerSpec {
 }
 
 export function featureMarkerSpecs(sets: readonly BodyFeatureSet[] | undefined): readonly FeatureMarkerSpec[] {
-  return (sets ?? []).flatMap((set) => set.features.map((feature): FeatureMarkerSpec => ({
-    key: featureKey(set.bodyId, feature.id),
-    bodyId: set.bodyId,
-    name: feature.name,
-    color: featureColor(set, feature),
-    latitude: feature.latitude,
-    longitude: feature.longitude,
-  })));
+  return (sets ?? []).flatMap((set) =>
+    set.features.map((feature): FeatureMarkerSpec => ({
+      key: featureKey(set.bodyId, feature.id),
+      bodyId: set.bodyId,
+      name: feature.name,
+      color: featureColor(set, feature),
+      latitude: feature.latitude,
+      longitude: feature.longitude,
+    })),
+  );
 }
 
 /** A body's drawn sphere as the markers need it: its group (carrying the body's orientation and picture turn) and drawn radius in scene units. */
@@ -96,7 +110,10 @@ export interface FeatureHost {
 }
 
 /** What one frame decides for one marker: hidden, or where on screen (pixels). */
-export type FeaturePlacement = { readonly key: string; readonly screen: { readonly x: number; readonly y: number } | null };
+export type FeaturePlacement = {
+  readonly key: string;
+  readonly screen: { readonly x: number; readonly y: number } | null;
+};
 
 /** A marker's place in its body's frame; `position` is the donor's `latLonToXYZ(lat, lon, radius * 1.02)`, remade only when the drawn radius changes. */
 interface Entry {
@@ -118,7 +135,11 @@ const scratchCentre = new Vector3();
  * turns with the body and with the picture exactly as the texture does.
  */
 export function placeBodyFeatures(
-  entries: readonly { readonly key: string; readonly position: readonly [number, number, number]; readonly normal: readonly [number, number, number] }[],
+  entries: readonly {
+    readonly key: string;
+    readonly position: readonly [number, number, number];
+    readonly normal: readonly [number, number, number];
+  }[],
   host: FeatureHost | null,
   camera: Camera,
   fovDeg: number,
@@ -130,13 +151,18 @@ export function placeBodyFeatures(
   host.sphere.updateWorldMatrix(true, false);
   camera.getWorldPosition(scratchCamera);
   scratchCentre.setFromMatrixPosition(host.sphere.matrixWorld);
-  if (projectedRadiusPx(host.radius, scratchCamera.distanceTo(scratchCentre), fovDeg, heightPx) < minBodyPx) return entries.map((entry) => ({ key: entry.key, screen: null }));
+  if (projectedRadiusPx(host.radius, scratchCamera.distanceTo(scratchCentre), fovDeg, heightPx) < minBodyPx)
+    return entries.map((entry) => ({ key: entry.key, screen: null }));
   const cameraLocal = host.sphere.worldToLocal(scratchLocal.copy(scratchCamera)).toArray() as [number, number, number];
   return entries.map((entry) => {
     if (!isFeatureVisible(entry.normal, cameraLocal, host.radius)) return { key: entry.key, screen: null };
     scratchLocal.fromArray(entry.position).applyMatrix4(host.sphere.matrixWorld).project(camera);
-    if (scratchLocal.z < -1 || scratchLocal.z > 1 || Math.abs(scratchLocal.x) > 1 || Math.abs(scratchLocal.y) > 1) return { key: entry.key, screen: null };
-    return { key: entry.key, screen: { x: ((scratchLocal.x + 1) / 2) * widthPx, y: ((1 - scratchLocal.y) / 2) * heightPx } };
+    if (scratchLocal.z < -1 || scratchLocal.z > 1 || Math.abs(scratchLocal.x) > 1 || Math.abs(scratchLocal.y) > 1)
+      return { key: entry.key, screen: null };
+    return {
+      key: entry.key,
+      screen: { x: ((scratchLocal.x + 1) / 2) * widthPx, y: ((1 - scratchLocal.y) / 2) * heightPx },
+    };
   });
 }
 
@@ -173,9 +199,19 @@ export class FeatureMarkerLayer {
       element.hidden = true;
       element.style.setProperty("--feature-color", spec.color);
       element.addEventListener("pointerdown", (event) => event.stopPropagation());
-      element.addEventListener("click", (event) => { event.stopPropagation(); onPress(spec.key); });
+      element.addEventListener("click", (event) => {
+        event.stopPropagation();
+        onPress(spec.key);
+      });
       this.#root.appendChild(element);
-      const entry: Entry = { spec, key: spec.key, normal: normalOf(spec), position: [0, 0, 0], positionRadius: Number.NaN, element };
+      const entry: Entry = {
+        spec,
+        key: spec.key,
+        normal: normalOf(spec),
+        position: [0, 0, 0],
+        positionRadius: Number.NaN,
+        element,
+      };
       const list = this.#byBody.get(spec.bodyId);
       if (list === undefined) this.#byBody.set(spec.bodyId, [entry]);
       else list.push(entry);
@@ -185,7 +221,15 @@ export class FeatureMarkerLayer {
   }
 
   /** Moves every marker for this frame; `hostOf` names a body's drawn sphere (null when it is not drawn as one). Returns the readout when it changed. */
-  update(hostOf: (bodyId: string) => FeatureHost | null, camera: Camera, fovDeg: number, widthPx: number, heightPx: number, selectedKey: string | null, minBodyPx: number): FeatureMarkerReadout | null {
+  update(
+    hostOf: (bodyId: string) => FeatureHost | null,
+    camera: Camera,
+    fovDeg: number,
+    widthPx: number,
+    heightPx: number,
+    selectedKey: string | null,
+    minBodyPx: number,
+  ): FeatureMarkerReadout | null {
     camera.updateMatrixWorld(true);
     this.#measureOccluders();
     const shown: { key: string; x: number; y: number }[] = [];
@@ -194,25 +238,35 @@ export class FeatureMarkerLayer {
       if (host !== null) {
         for (const entry of entries) {
           if (entry.positionRadius === host.radius) continue;
-          entry.position = latLonToXYZ(entry.spec.latitude, entry.spec.longitude, host.radius * MARKER_RADIUS_MULTIPLIER);
+          entry.position = latLonToXYZ(
+            entry.spec.latitude,
+            entry.spec.longitude,
+            host.radius * MARKER_RADIUS_MULTIPLIER,
+          );
           entry.positionRadius = host.radius;
         }
       }
       const placed = placeBodyFeatures(entries, host, camera, fovDeg, widthPx, heightPx, minBodyPx);
       placed.forEach((placement, index) => {
         const { element } = entries[index]!;
-        const screen = placement.screen !== null && !this.#covered(placement.screen.x, placement.screen.y) ? placement.screen : null;
+        const screen =
+          placement.screen !== null && !this.#covered(placement.screen.x, placement.screen.y) ? placement.screen : null;
         element.hidden = screen === null;
         if (screen === null) return;
         element.dataset.edgeX = screen.x < LABEL_EDGE_PX ? "left" : screen.x > widthPx - LABEL_EDGE_PX ? "right" : "";
         element.dataset.edgeY = screen.y < 40 ? "top" : "";
         element.style.transform = `translate(${screen.x}px, ${screen.y}px) translate(-50%, -50%)`;
-        shown.push({ key: placement.key, x: Math.round((screen.x / widthPx) * 1000) / 1000, y: Math.round((screen.y / heightPx) * 1000) / 1000 });
+        shown.push({
+          key: placement.key,
+          x: Math.round((screen.x / widthPx) * 1000) / 1000,
+          y: Math.round((screen.y / heightPx) * 1000) / 1000,
+        });
       });
     }
     if (selectedKey !== this.#selectedKey) {
       this.#selectedKey = selectedKey;
-      for (const entries of this.#byBody.values()) for (const { spec, element } of entries) element.setAttribute("aria-pressed", String(spec.key === selectedKey));
+      for (const entries of this.#byBody.values())
+        for (const { spec, element } of entries) element.setAttribute("aria-pressed", String(spec.key === selectedKey));
     }
     const readout: FeatureMarkerReadout = { total: this.#total, shown };
     const text = JSON.stringify(readout);
@@ -233,7 +287,14 @@ export class FeatureMarkerLayer {
       if (this.#root.contains(element)) return [];
       const box = element.getBoundingClientRect();
       if (box.width === 0 || box.height === 0) return [];
-      return [{ left: box.left - origin.left - OCCLUDER_MARGIN_PX, top: box.top - origin.top - OCCLUDER_MARGIN_PX, right: box.right - origin.left + OCCLUDER_MARGIN_PX, bottom: box.bottom - origin.top + OCCLUDER_MARGIN_PX }];
+      return [
+        {
+          left: box.left - origin.left - OCCLUDER_MARGIN_PX,
+          top: box.top - origin.top - OCCLUDER_MARGIN_PX,
+          right: box.right - origin.left + OCCLUDER_MARGIN_PX,
+          bottom: box.bottom - origin.top + OCCLUDER_MARGIN_PX,
+        },
+      ];
     });
   }
 
@@ -248,5 +309,9 @@ export class FeatureMarkerLayer {
 
 /** The donor's surface normal for a place: `new Vector3(...latLonToXYZ(lat, lon, 1)).normalize()`. */
 function normalOf(spec: FeatureMarkerSpec): [number, number, number] {
-  return new Vector3(...latLonToXYZ(spec.latitude, spec.longitude, 1)).normalize().toArray() as [number, number, number];
+  return new Vector3(...latLonToXYZ(spec.latitude, spec.longitude, 1)).normalize().toArray() as [
+    number,
+    number,
+    number,
+  ];
 }

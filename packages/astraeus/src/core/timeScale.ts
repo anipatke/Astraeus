@@ -40,15 +40,15 @@ const JULIAN_MILLENNIUM_S = 365_250 * DAY_S;
 const TDB_TT_TERMS: readonly (readonly [number, number, number])[] = [
   [1656.674564, 6283.075849991, 6.240054195],
   [22.417471, 5753.384884897, 4.296977442],
-  [13.839792, 12566.151699983, 6.196904410],
+  [13.839792, 12566.151699983, 6.19690441],
   [4.770086, 529.690965095, 0.444401603],
-  [4.676740, 6069.776754553, 4.021195093],
+  [4.67674, 6069.776754553, 4.021195093],
   [2.256707, 213.299095438, 5.543113262],
   [1.694205, -3.523118349, 5.025132748],
-  [1.554905, 77713.771467920, 5.198467090],
+  [1.554905, 77713.77146792, 5.19846709],
   [1.276839, 7860.419392439, 5.988822341],
-  [1.193379, 5223.693919802, 3.649823730],
-  [1.115322, 3930.209696220, 1.422745069],
+  [1.193379, 5223.693919802, 3.64982373],
+  [1.115322, 3930.20969622, 1.422745069],
   [0.794185, 11506.769769794, 2.322313077],
 ];
 /** The leading T^1 term of the same series: amplitude (microseconds per millennium), frequency, phase. */
@@ -65,7 +65,8 @@ export function tdbMinusTtSeconds(ttSecondsFromJ2000: number): number {
 
 /** Checks the table's shape once, at the data boundary. */
 export function assertTimeScaleTable(table: TimeScaleTable): void {
-  if (!Array.isArray(table.pieces) || table.pieces.length === 0) throw new TypeError("time scale table needs at least one piece");
+  if (!Array.isArray(table.pieces) || table.pieces.length === 0)
+    throw new TypeError("time scale table needs at least one piece");
   table.pieces.forEach((piece, index) => {
     if (![piece.fromUtcMs, piece.ttMinusUtcS, piece.driftSPerDay].every(Number.isFinite)) {
       throw new TypeError(`time scale piece ${index} must hold finite numbers`);

@@ -14,7 +14,9 @@ export function useZoomThrough(ref: RefObject<HTMLElement | null>): void {
     if (sheet === null) return undefined;
     const shell = sheet.closest<HTMLElement>(".astraeus-shell");
     const forward = (deltaY: number): void => {
-      shell?.querySelector("canvas")?.dispatchEvent(new WheelEvent("wheel", { deltaY, bubbles: true, cancelable: true }));
+      shell
+        ?.querySelector("canvas")
+        ?.dispatchEvent(new WheelEvent("wheel", { deltaY, bubbles: true, cancelable: true }));
     };
     const phone = (): boolean => shell?.dataset.phone === "true";
     const onWheel = (event: WheelEvent): void => {
@@ -25,7 +27,9 @@ export function useZoomThrough(ref: RefObject<HTMLElement | null>): void {
     let spread: number | null = null;
     const spreadOf = (touches: TouchList): number | null => {
       const [a, b] = [touches[0], touches[1]];
-      return touches.length === 2 && a !== undefined && b !== undefined ? Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY) : null;
+      return touches.length === 2 && a !== undefined && b !== undefined
+        ? Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY)
+        : null;
     };
     const onTouch = (event: TouchEvent): void => {
       const next = phone() ? spreadOf(event.touches) : null;

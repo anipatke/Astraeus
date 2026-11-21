@@ -1,7 +1,24 @@
-import { BufferAttribute, BufferGeometry, DoubleSide, Group, Line, LineBasicMaterial, Mesh, MeshBasicMaterial, Vector3, type Camera, type PerspectiveCamera } from "three";
+import {
+  BufferAttribute,
+  BufferGeometry,
+  DoubleSide,
+  Group,
+  Line,
+  LineBasicMaterial,
+  Mesh,
+  MeshBasicMaterial,
+  Vector3,
+  type Camera,
+  type PerspectiveCamera,
+} from "three";
 import type { CenterId } from "../core/body";
 import type { ScalePolicy } from "../presentation/scalePolicy";
-import { eccentricPathTimesUtcMs, pathTimesUtcMs, samplePositionsKm, windowTimesUtcMs } from "../core/sunCentredSources";
+import {
+  eccentricPathTimesUtcMs,
+  pathTimesUtcMs,
+  samplePositionsKm,
+  windowTimesUtcMs,
+} from "../core/sunCentredSources";
 import type { StateResolver } from "../core/stateResolver";
 import type { Trajectory } from "../core/trajectory";
 import { catalogue as builtInCatalogue, type BodyCatalogue } from "../assets/catalogue";
@@ -16,7 +33,19 @@ import {
   type PathLayer,
 } from "./experienceDefinition";
 import type { FloatingOrigin } from "./floatingOrigin";
-import { arcSegmentAlpha, inertialTrailKm, mapPathKm, ringAlpha, windowEdgeAlpha, orbitKm, pathNeedsRefresh, relativeTrailKm, rootFrameKm, type PathRefreshPolicy, DEFAULT_PATH_REFRESH } from "./pathRules";
+import {
+  arcSegmentAlpha,
+  inertialTrailKm,
+  mapPathKm,
+  ringAlpha,
+  windowEdgeAlpha,
+  orbitKm,
+  pathNeedsRefresh,
+  relativeTrailKm,
+  rootFrameKm,
+  type PathRefreshPolicy,
+  DEFAULT_PATH_REFRESH,
+} from "./pathRules";
 import { eqjToRenderVector, type RenderVector } from "./renderCoordinates";
 import type { ScenePlacement } from "./sceneLayout";
 import { TRACK_LAYER } from "./TrackedBodyView";
@@ -43,7 +72,14 @@ export interface PathScreenReadout {
   /** The view's width over its height, to turn the shares above into pixel proportions. */
   readonly aspect: number;
   /** The orbit look in force as drawn (null for a plain line): which layers are shown, the ring's opacity now (zoom brightening included) and the arc's peak opacity. */
-  readonly look: { readonly ring: boolean; readonly arc: boolean; readonly endFade: boolean; readonly zoomBrighten: boolean; readonly ringOpacity: number; readonly arcPeak: number } | null;
+  readonly look: {
+    readonly ring: boolean;
+    readonly arc: boolean;
+    readonly endFade: boolean;
+    readonly zoomBrighten: boolean;
+    readonly ringOpacity: number;
+    readonly arcPeak: number;
+  } | null;
 }
 
 /** Steps each arc segment is cut into, as the donor's ring slices (8). */
@@ -83,16 +119,31 @@ function clippedLineBox(a: ArrayLike<number>, count: number, camera: Camera): [n
     to.applyMatrix4(camera.projectionMatrix);
     const [dx, dy] = [to.x - from.x, to.y - from.y];
     let [t0, t1] = [0, 1];
-    for (const [p, q] of [[-dx, from.x + 1], [dx, 1 - from.x], [-dy, from.y + 1], [dy, 1 - from.y]]) {
-      if (p === 0) { if (q < 0) { t0 = 2; break; } continue; }
+    for (const [p, q] of [
+      [-dx, from.x + 1],
+      [dx, 1 - from.x],
+      [-dy, from.y + 1],
+      [dy, 1 - from.y],
+    ]) {
+      if (p === 0) {
+        if (q < 0) {
+          t0 = 2;
+          break;
+        }
+        continue;
+      }
       const r = q / p;
-      if (p < 0) t0 = Math.max(t0, r); else t1 = Math.min(t1, r);
+      if (p < 0) t0 = Math.max(t0, r);
+      else t1 = Math.min(t1, r);
     }
     if (t0 > t1) continue;
     for (const t of [t0, t1]) {
       const x = (from.x + t * dx + 1) / 2;
       const y = (1 - (from.y + t * dy)) / 2;
-      lineMinX = Math.min(lineMinX, x); lineMaxX = Math.max(lineMaxX, x); lineMinY = Math.min(lineMinY, y); lineMaxY = Math.max(lineMaxY, y);
+      lineMinX = Math.min(lineMinX, x);
+      lineMaxX = Math.max(lineMaxX, x);
+      lineMinY = Math.min(lineMinY, y);
+      lineMaxY = Math.max(lineMaxY, y);
     }
   }
   return [lineMinX, lineMaxX, lineMinY, lineMaxY];
@@ -138,23 +189,41 @@ export class PathView {
   #arcTimes: readonly number[] = [];
   #arcPositions: BufferAttribute | null = null;
 
-  constructor(readonly layer: PathLayer, style: PathStyle = {}, refresh: PathRefreshPolicy = DEFAULT_PATH_REFRESH) {
+  constructor(
+    readonly layer: PathLayer,
+    style: PathStyle = {},
+    refresh: PathRefreshPolicy = DEFAULT_PATH_REFRESH,
+  ) {
     validatePathSpec(layer.object?.id ?? "path", layer);
     this.#refresh = refresh;
     this.#explicitCentre = layer.kind === "orbit" ? layer.center : undefined;
     const rolling = isRollingSpan(layer.span);
-    this.#capacity = layer.samples ?? (rolling ? DEFAULT_WINDOW_SAMPLE_COUNT : layer.sampling === undefined ? DEFAULT_PATH_SAMPLE_COUNT : DEFAULT_ECCENTRIC_SAMPLE_COUNT);
+    this.#capacity =
+      layer.samples ??
+      (rolling
+        ? DEFAULT_WINDOW_SAMPLE_COUNT
+        : layer.sampling === undefined
+          ? DEFAULT_PATH_SAMPLE_COUNT
+          : DEFAULT_ECCENTRIC_SAMPLE_COUNT);
     this.#scaled = new Float64Array(this.#capacity * 3);
-    if (!isRollingSpan(layer.span)) this.#resample(layer.sampling === undefined ? pathTimesUtcMs(layer.span, this.#capacity) : eccentricPathTimesUtcMs(layer.span, this.#capacity, layer.sampling));
+    if (!isRollingSpan(layer.span))
+      this.#resample(
+        layer.sampling === undefined
+          ? pathTimesUtcMs(layer.span, this.#capacity)
+          : eccentricPathTimesUtcMs(layer.span, this.#capacity, layer.sampling),
+      );
     const geometry = new BufferGeometry();
     this.#positions = new BufferAttribute(new Float32Array(this.#capacity * 3), 3);
     geometry.setAttribute("position", this.#positions);
-    const line = new Line(geometry, new LineBasicMaterial({
-      color: layer.color,
-      transparent: true,
-      opacity: style.opacity ?? 0.7,
-      depthTest: style.depthTest ?? false,
-    }));
+    const line = new Line(
+      geometry,
+      new LineBasicMaterial({
+        color: layer.color,
+        transparent: true,
+        opacity: style.opacity ?? 0.7,
+        depthTest: style.depthTest ?? false,
+      }),
+    );
     line.frustumCulled = false;
     line.layers.set(style.layer ?? TRACK_LAYER);
     // Overlays are drawn after the data dots they cross, so a belt cannot swallow the line (I-020).
@@ -190,7 +259,14 @@ export class PathView {
     const ringMaterial = ring.material as LineBasicMaterial;
     ringMaterial.vertexColors = true;
     // Planetary Explorer's arc: flat ribbons, transparent, no depth write, both sides; the opacity rides on the vertices, segment by segment.
-    const arcMaterial = new MeshBasicMaterial({ vertexColors: true, color: ringMaterial.color.clone(), transparent: true, depthWrite: false, side: DoubleSide, depthTest: ringMaterial.depthTest });
+    const arcMaterial = new MeshBasicMaterial({
+      vertexColors: true,
+      color: ringMaterial.color.clone(),
+      transparent: true,
+      depthWrite: false,
+      side: DoubleSide,
+      depthTest: ringMaterial.depthTest,
+    });
     const arc = new Mesh(arcGeometry, arcMaterial);
     arc.frustumCulled = false;
     arc.layers.mask = ring.layers.mask;
@@ -209,14 +285,26 @@ export class PathView {
   #updateLook(timeUtcMs: number, placement: ScenePlacement, policy: ScalePolicy): void {
     const look = this.#look;
     const span = this.layer.span;
-    if (look === null || this.#ringColours === null || this.#arcColours === null || this.#arcScaled === null || this.#arcPositions === null || this.#arc === null || !isRollingSpan(span) || this.#frame === undefined) return;
+    if (
+      look === null ||
+      this.#ringColours === null ||
+      this.#arcColours === null ||
+      this.#arcScaled === null ||
+      this.#arcPositions === null ||
+      this.#arc === null ||
+      !isRollingSpan(span) ||
+      this.#frame === undefined
+    )
+      return;
     const times = this.#times;
     const n = times.length;
     const arcMs = look.arcFraction * span.windowMs;
     for (let i = 0; i < n; i += 1) {
       // The ring runs under the arc, as Planetary Explorer's OrbitalTrail does under its OrbitalTrailArc: seen edge-on the flat arc thins
       // away and the ring's one-pixel line still carries the orbit.
-      const alpha = look.endFadeOn ? ringAlpha(timeUtcMs, times[i], span.windowMs, look.endFade) * windowEdgeAlpha(i, n, look.endFade) : 1;
+      const alpha = look.endFadeOn
+        ? ringAlpha(timeUtcMs, times[i], span.windowMs, look.endFade) * windowEdgeAlpha(i, n, look.endFade)
+        : 1;
       this.#ringColours.setW(i, alpha);
     }
     this.#ringColours.needsUpdate = true;
@@ -233,7 +321,9 @@ export class PathView {
     this.#arcTimes = arcTimes;
     this.#arcPoints = points;
     this.#arcScaled.set(eqjMapped(orbitKm(km, this.#frame, placement, timeUtcMs), policy));
-    this.#arcBase = Float32Array.from({ length: segments }, (_, i) => arcSegmentAlpha(i, segments, look.arcPeak, look.arcExponent));
+    this.#arcBase = Float32Array.from({ length: segments }, (_, i) =>
+      arcSegmentAlpha(i, segments, look.arcPeak, look.arcExponent),
+    );
     this.#arc.geometry.setDrawRange(0, segments * ARC_SUBSTEPS * 6);
     this.#paintArc();
   }
@@ -254,7 +344,8 @@ export class PathView {
     const halfWidth = look.arcWidth * this.#extentScaled;
     const [cx, cy, cz] = this.#centre;
     // Units per pixel at unit distance; the half-width at a point is capped at half of `arcMaxWidthPx` there (owner, 2026-10-18).
-    const perPx = screen === undefined ? Infinity : (2 * Math.tan((screen.fovDeg * Math.PI) / 360)) / screen.viewportHeightPx;
+    const perPx =
+      screen === undefined ? Infinity : (2 * Math.tan((screen.fovDeg * Math.PI) / 360)) / screen.viewportHeightPx;
     const side = new Float64Array(3 * points);
     for (let k = 0; k < points; k += 1) {
       const rx = c[3 * k] - cx;
@@ -315,7 +406,11 @@ export class PathView {
     const c = this.#arcScaled;
     if (c === null) return 0;
     let longest = 0;
-    for (let k = 1; k < this.#arcPoints; k += 1) longest = Math.max(longest, Math.hypot(c[3 * k] - c[3 * k - 3], c[3 * k + 1] - c[3 * k - 2], c[3 * k + 2] - c[3 * k - 1]));
+    for (let k = 1; k < this.#arcPoints; k += 1)
+      longest = Math.max(
+        longest,
+        Math.hypot(c[3 * k] - c[3 * k - 3], c[3 * k + 1] - c[3 * k - 2], c[3 * k + 2] - c[3 * k - 1]),
+      );
     return longest;
   }
 
@@ -445,7 +540,11 @@ export class PathView {
 
   sync(timeUtcMs: number, placement: ScenePlacement, policy: ScalePolicy, realNowMs: number = performance.now()): void {
     const span = this.layer.span;
-    if (isRollingSpan(span) && (this.#ringStale(span.windowMs, timeUtcMs) || pathNeedsRefresh(this.#windowCentre, span.windowMs, timeUtcMs, realNowMs, this.#builtRealMs, this.#refresh))) {
+    if (
+      isRollingSpan(span) &&
+      (this.#ringStale(span.windowMs, timeUtcMs) ||
+        pathNeedsRefresh(this.#windowCentre, span.windowMs, timeUtcMs, realNowMs, this.#builtRealMs, this.#refresh))
+    ) {
       this.#resample(windowTimesUtcMs(timeUtcMs, span.windowMs, this.#capacity));
       this.#windowCentre = timeUtcMs;
       this.#builtRealMs = realNowMs;
@@ -464,7 +563,10 @@ export class PathView {
     this.#centreKm = this.layer.sampling === undefined ? [cx / count, cy / count, cz / count] : boundsMidpoint(km);
     let widest = 0;
     for (let i = 0; i < km.length; i += 3) {
-      widest = Math.max(widest, Math.hypot(km[i] - this.#centreKm[0], km[i + 1] - this.#centreKm[1], km[i + 2] - this.#centreKm[2]));
+      widest = Math.max(
+        widest,
+        Math.hypot(km[i] - this.#centreKm[0], km[i + 1] - this.#centreKm[1], km[i + 2] - this.#centreKm[2]),
+      );
     }
     this.#extentKm = widest;
     this.#extentScaled = scaleLength(policy, widest);
@@ -524,20 +626,54 @@ export class PathView {
       const y = (1 - point.y) / 2;
       inView += 1;
       const px = x * aspect;
-      sx += px; sy += y; sxx += px * px; syy += y * y; sxy += px * y;
-      minX = Math.min(minX, x); maxX = Math.max(maxX, x); minY = Math.min(minY, y); maxY = Math.max(maxY, y);
+      sx += px;
+      sy += y;
+      sxx += px * px;
+      syy += y * y;
+      sxy += px * y;
+      minX = Math.min(minX, x);
+      maxX = Math.max(maxX, x);
+      minY = Math.min(minY, y);
+      maxY = Math.max(maxY, y);
     }
     const [lineMinX, lineMaxX, lineMinY, lineMaxY] = clippedLineBox(a, count, camera);
     let axisDeg = 0;
     if (inView >= 3) {
       const [mx, my] = [sx / inView, sy / inView];
-      axisDeg = (0.5 * Math.atan2(2 * (sxy / inView - mx * my), sxx / inView - mx * mx - (syy / inView - my * my)) * 180) / Math.PI;
+      axisDeg =
+        (0.5 * Math.atan2(2 * (sxy / inView - mx * my), sxx / inView - mx * mx - (syy / inView - my * my)) * 180) /
+        Math.PI;
     }
     const look = this.#look;
     const ring = this.#ring;
-    const drawnLook = look === null || ring === null || this.#arc === null ? null
-      : { ring: ring.visible, arc: this.#arc.visible, endFade: look.endFadeOn, zoomBrighten: look.zoomOn, ringOpacity: (ring.material as LineBasicMaterial).opacity, arcPeak: look.arcPeak };
-    return { id: this.id, visible, vertices: count, inView, minX, maxX, minY, maxY, lineMinX, lineMaxX, lineMinY, lineMaxY, axisDeg, aspect, look: drawnLook };
+    const drawnLook =
+      look === null || ring === null || this.#arc === null
+        ? null
+        : {
+            ring: ring.visible,
+            arc: this.#arc.visible,
+            endFade: look.endFadeOn,
+            zoomBrighten: look.zoomOn,
+            ringOpacity: (ring.material as LineBasicMaterial).opacity,
+            arcPeak: look.arcPeak,
+          };
+    return {
+      id: this.id,
+      visible,
+      vertices: count,
+      inView,
+      minX,
+      maxX,
+      minY,
+      maxY,
+      lineMinX,
+      lineMaxX,
+      lineMinY,
+      lineMaxY,
+      axisDeg,
+      aspect,
+      look: drawnLook,
+    };
   }
 
   /** The centre of the drawn line, so a focused path sits in the middle of the view. */
@@ -612,16 +748,28 @@ export interface PathScreen {
   readonly viewportHeightPx: number;
 }
 
-export const COMPOSITION_PATH_STYLE: PathStyle = Object.freeze({ opacity: 0.45, depthTest: true, layer: 0, renderOrder: 0 });
+export const COMPOSITION_PATH_STYLE: PathStyle = Object.freeze({
+  opacity: 0.45,
+  depthTest: true,
+  layer: 0,
+  renderOrder: 0,
+});
 
 /**
  * A composition's declared path as an orbit layer: the body's positions about its parent from the resolver, over a window about the
  * clock, carried with the parent.
  */
-export function compositionPathLayer(path: CompositionPath, resolver: StateResolver, bodies: BodyCatalogue = builtInCatalogue): PathLayer {
+export function compositionPathLayer(
+  path: CompositionPath,
+  resolver: StateResolver,
+  bodies: BodyCatalogue = builtInCatalogue,
+): PathLayer {
   const parent = bodies.get(path.body).definition.parentId;
   if (parent === undefined) throw new RangeError(`path body "${path.body}" has no parent to orbit`);
-  const source: Trajectory = { body: path.body, stateAt: (timeUtcMs, center = parent) => resolver.stateOf(path.body, timeUtcMs, center) };
+  const source: Trajectory = {
+    body: path.body,
+    stateAt: (timeUtcMs, center = parent) => resolver.stateOf(path.body, timeUtcMs, center),
+  };
   return {
     kind: "orbit",
     center: parent,
@@ -635,6 +783,13 @@ export function compositionPathLayer(path: CompositionPath, resolver: StateResol
 }
 
 /** A composition path drawn with its orbit look (the path's own settings over the defaults), on the scene's own layer. */
-export function compositionPathView(path: CompositionPath, resolver: StateResolver, bodies: BodyCatalogue = builtInCatalogue): PathView {
-  return new PathView(compositionPathLayer(path, resolver, bodies), { ...COMPOSITION_PATH_STYLE, orbitLook: resolveOrbitLook(path.look, `path for "${path.body}"`) });
+export function compositionPathView(
+  path: CompositionPath,
+  resolver: StateResolver,
+  bodies: BodyCatalogue = builtInCatalogue,
+): PathView {
+  return new PathView(compositionPathLayer(path, resolver, bodies), {
+    ...COMPOSITION_PATH_STYLE,
+    orbitLook: resolveOrbitLook(path.look, `path for "${path.body}"`),
+  });
 }

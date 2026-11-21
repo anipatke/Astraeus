@@ -33,17 +33,41 @@ export function listedOrbits() {
 /** A made-up Sun-centred scene whose group is drawn from a list of per-member orbits; proves the listed capability needs no particular population. */
 export function buildSyntheticListedScene(): Scene {
   const scene = new Scene()
-    .addBody(sun, { labelPriority: 95, description: "The Sun, the centre the listed orbits circle. The marker's size is a drawing choice, not the Sun's real size." })
-    .addBody(earth, { color: "#9fd8ff", orbit: true, labelPriority: 100, labelReachEarthRadii: 500, description: "Earth, on its path round the Sun; the listed orbits circle the Sun." })
-    .addBodyFromElements(madeUpOrbitRecord({
-      id: "listed-parent",
-      label: "Made-up parent",
-      epochUtcMs: START_UTC_MS,
-      color: "#ffb4a2",
-      sizePx: 7,
-      what: "listed-orbits capability",
-      elements: { semiMajorAxisAu: 3.1, eccentricity: 0.55, inclinationDeg: 25, ascendingNodeDeg: 47, argumentOfPerihelionDeg: 78, meanAnomalyDeg: meanAnomalyDegOf(100, 0.55) },
-    }), { orbit: true, labelPriority: 55, description: "The invented body the clump is drawn near, from invented orbital elements." })
+    .addBody(sun, {
+      labelPriority: 95,
+      description:
+        "The Sun, the centre the listed orbits circle. The marker's size is a drawing choice, not the Sun's real size.",
+    })
+    .addBody(earth, {
+      color: "#9fd8ff",
+      orbit: true,
+      labelPriority: 100,
+      labelReachEarthRadii: 500,
+      description: "Earth, on its path round the Sun; the listed orbits circle the Sun.",
+    })
+    .addBodyFromElements(
+      madeUpOrbitRecord({
+        id: "listed-parent",
+        label: "Made-up parent",
+        epochUtcMs: START_UTC_MS,
+        color: "#ffb4a2",
+        sizePx: 7,
+        what: "listed-orbits capability",
+        elements: {
+          semiMajorAxisAu: 3.1,
+          eccentricity: 0.55,
+          inclinationDeg: 25,
+          ascendingNodeDeg: 47,
+          argumentOfPerihelionDeg: 78,
+          meanAnomalyDeg: meanAnomalyDegOf(100, 0.55),
+        },
+      }),
+      {
+        orbit: true,
+        labelPriority: 55,
+        description: "The invented body the clump is drawn near, from invented orbital elements.",
+      },
+    )
     .addGroup({
       id: "listed-orbits",
       label: "Listed orbits",
@@ -56,12 +80,27 @@ export function buildSyntheticListedScene(): Scene {
       referenceTime: START_UTC_MS,
       refillAfterMs: DAY_MS / 4,
       clump: { near: "listed-parent", fraction: 0.25, widthDeg: 15 },
-      provenance: { sourceType: "illustrative", sources: ["Made up for the listed-orbits capability test; not a real population"], accuracy: "None claimed. Invented orbits listed one by one.", notes: "Exists to prove a group can be drawn from a list of per-member orbits through the same contract as any group." },
-      description: "3,000 invented orbits, each listed with its own elements and record id, circling the Sun. One item stands for the whole group; its focus point is the centroid of the dots.",
+      provenance: {
+        sourceType: "illustrative",
+        sources: ["Made up for the listed-orbits capability test; not a real population"],
+        accuracy: "None claimed. Invented orbits listed one by one.",
+        notes:
+          "Exists to prove a group can be drawn from a list of per-member orbits through the same contract as any group.",
+      },
+      description:
+        "3,000 invented orbits, each listed with its own elements and record id, circling the Sun. One item stands for the whole group; its focus point is the centroid of the dots.",
       knownLimitations: ["Made up; not a real population."],
     })
-    .addEvents([{ id: "listed-start", label: "Listing begins", time: START_UTC_MS }, { id: "listed-half", label: "Half a year on", time: START_UTC_MS + 182 * DAY_MS }])
-    .setTimeline({ start: START_UTC_MS, end: START_UTC_MS + 400 * DAY_MS, rates: [3_600, 86_400, 604_800], rate: 86_400 })
+    .addEvents([
+      { id: "listed-start", label: "Listing begins", time: START_UTC_MS },
+      { id: "listed-half", label: "Half a year on", time: START_UTC_MS + 182 * DAY_MS },
+    ])
+    .setTimeline({
+      start: START_UTC_MS,
+      end: START_UTC_MS + 400 * DAY_MS,
+      rates: [3_600, 86_400, 604_800],
+      rate: 86_400,
+    })
     .setTime(START_UTC_MS);
   scene.camera.setReach(400_000).setFollowChoices(["listed-orbits"]);
   return scene;

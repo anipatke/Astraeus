@@ -25,14 +25,16 @@ export class AnchorLabelLayer {
   constructor(host: HTMLElement, views: readonly TrackedBodyView[]) {
     this.#root.className = "anchor-labels";
     this.#root.hidden = true;
-    this.#spans = views.flatMap((view) => (view.anchorLabels ?? []).map((text, index) => {
-      const span = document.createElement("span");
-      span.className = "anchor-label";
-      span.textContent = text;
-      span.style.color = view.body.color;
-      this.#root.appendChild(span);
-      return { view, index, span };
-    }));
+    this.#spans = views.flatMap((view) =>
+      (view.anchorLabels ?? []).map((text, index) => {
+        const span = document.createElement("span");
+        span.className = "anchor-label";
+        span.textContent = text;
+        span.style.color = view.body.color;
+        this.#root.appendChild(span);
+        return { view, index, span };
+      }),
+    );
     host.appendChild(this.#root);
   }
 

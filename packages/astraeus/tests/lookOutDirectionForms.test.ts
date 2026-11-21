@@ -10,17 +10,42 @@ import { definitionOf } from "../src/api/definitionOf";
 import { ViewerLink } from "../src/api/viewerLink";
 import { FAKE_PRESENTATION, FAKE_PRESENTATION_CONTROL } from "./helpers/viewerPresentation";
 
-const kite = { id: "kite", label: "The Kite", segments: [[{ raDeg: 10, decDeg: 20 }, { raDeg: 20, decDeg: 30 }]] } as const;
-const made = { sourceType: "illustrative", sources: ["Made up"], accuracy: "None claimed.", notes: "Made up." } as const;
+const kite = {
+  id: "kite",
+  label: "The Kite",
+  segments: [
+    [
+      { raDeg: 10, decDeg: 20 },
+      { raDeg: 20, decDeg: 30 },
+    ],
+  ],
+} as const;
+const made = {
+  sourceType: "illustrative",
+  sources: ["Made up"],
+  accuracy: "None claimed.",
+  notes: "Made up.",
+} as const;
 const T0 = Date.parse("2026-03-01T00:00:00Z");
-const samples = [0, 1, 2, 3].map((i) => ({ time: T0 + i * 600_000, positionKm: [10_000 + i * 1_000, 0, 0], velocityKmS: [1, 0, 0] }));
+const samples = [0, 1, 2, 3].map((i) => ({
+  time: T0 + i * 600_000,
+  positionKm: [10_000 + i * 1_000, 0, 0],
+  velocityKmS: [1, 0, 0],
+}));
 /** Earth, the Moon and a probe path `pa`: the objects a look-out can turn toward. */
-const scene = () => new Scene().addBody(earth).addBody(moon).addTrajectory({ id: "pa", label: "Probe A", center: "earth", samples });
+const scene = () =>
+  new Scene().addBody(earth).addBody(moon).addTrajectory({ id: "pa", label: "Probe A", center: "earth", samples });
 
 /** The outcome of one entry fed one form: accepted, or the error code and message. */
 type Outcome = { readonly code: string; readonly message: string };
 const outcomeOf = (fn: () => unknown): Outcome => {
-  try { fn(); } catch (error) { return error instanceof SceneError ? { code: error.code, message: error.message } : { code: "other", message: String(error) }; }
+  try {
+    fn();
+  } catch (error) {
+    return error instanceof SceneError
+      ? { code: error.code, message: error.message }
+      : { code: "other", message: String(error) };
+  }
   return { code: "none", message: "" };
 };
 
@@ -44,9 +69,21 @@ const FORMS: readonly { readonly name: string; readonly fields: Record<string, u
 const setCamera = (fields: Record<string, unknown>): void => {
   const link = new ViewerLink();
   link.attach({
-    ...FAKE_PRESENTATION_CONTROL, window: { startUtcMs: 0, endUtcMs: 10 }, events: [], rates: [1], paced: false, playable: true, setPlaying: () => undefined,
-    read: () => ({ timeUtcMs: 1, rate: 1, playing: false, ...FAKE_PRESENTATION }), seek: () => undefined, setRate: () => undefined, views: [], setView: () => undefined,
-    cameraTargets: () => ["earth", "moon", "pa"], readCamera: () => undefined, setCamera: () => undefined,
+    ...FAKE_PRESENTATION_CONTROL,
+    window: { startUtcMs: 0, endUtcMs: 10 },
+    events: [],
+    rates: [1],
+    paced: false,
+    playable: true,
+    setPlaying: () => undefined,
+    read: () => ({ timeUtcMs: 1, rate: 1, playing: false, ...FAKE_PRESENTATION }),
+    seek: () => undefined,
+    setRate: () => undefined,
+    views: [],
+    setView: () => undefined,
+    cameraTargets: () => ["earth", "moon", "pa"],
+    readCamera: () => undefined,
+    setCamera: () => undefined,
     skyFigures: [{ id: "kite", label: "The Kite", kind: "figure", listed: true, provenance: made }],
   } as never);
   link.setCamera({ lookOut: "earth", ...fields } as never);
@@ -54,15 +91,55 @@ const setCamera = (fields: Record<string, unknown>): void => {
 
 /** Each other entry: takes the fields and does what its call and build do with them. */
 const ENTRIES: readonly { readonly name: string; readonly open: (fields: Record<string, unknown>) => void }[] = [
-  { name: "scene.camera.lookOut, figure added before", open: (fields) => { const s = scene().addSkyFigures([kite]); s.camera.lookOut("earth", fields as never); definitionOf(s); } },
-  { name: "scene.camera.lookOut, figure added after", open: (fields) => { const s = scene(); s.camera.lookOut("earth", fields as never); definitionOf(s.addSkyFigures([kite])); } },
-  { name: "story panel camera", open: (fields) => { definitionOf(scene().addSkyFigures([kite]).addStoryPanels([{ id: "a", title: "A", body: "Made up.", provenance: made, camera: { lookOut: "earth", ...fields } } as StoryPanelInput])); } },
+  {
+    name: "scene.camera.lookOut, figure added before",
+    open: (fields) => {
+      const s = scene().addSkyFigures([kite]);
+      s.camera.lookOut("earth", fields as never);
+      definitionOf(s);
+    },
+  },
+  {
+    name: "scene.camera.lookOut, figure added after",
+    open: (fields) => {
+      const s = scene();
+      s.camera.lookOut("earth", fields as never);
+      definitionOf(s.addSkyFigures([kite]));
+    },
+  },
+  {
+    name: "story panel camera",
+    open: (fields) => {
+      definitionOf(
+        scene()
+          .addSkyFigures([kite])
+          .addStoryPanels([
+            {
+              id: "a",
+              title: "A",
+              body: "Made up.",
+              provenance: made,
+              camera: { lookOut: "earth", ...fields },
+            } as StoryPanelInput,
+          ]),
+      );
+    },
+  },
 ];
 
 describe("every entry that takes a look-out direction accepts and refuses what setCamera does", () => {
   it("the reference: setCamera accepts positions, no direction and object or figure ids, and refuses the rest", () => {
-    const accepted = FORMS.filter(({ fields }) => outcomeOf(() => setCamera(fields)).code === "none").map(({ name }) => name);
-    expect(accepted).toEqual(["a position", "a flat raDeg and decDeg", "no direction", "a body id", "a trajectory id", "a sky figure id"]);
+    const accepted = FORMS.filter(({ fields }) => outcomeOf(() => setCamera(fields)).code === "none").map(
+      ({ name }) => name,
+    );
+    expect(accepted).toEqual([
+      "a position",
+      "a flat raDeg and decDeg",
+      "no direction",
+      "a body id",
+      "a trajectory id",
+      "a sky figure id",
+    ]);
   });
   describe.each(ENTRIES)("$name", ({ open }) => {
     it.each(FORMS)("$name: the same outcome as setCamera", ({ fields }) => {
@@ -78,11 +155,17 @@ describe("every entry that takes a look-out direction accepts and refuses what s
 describe("one rule, in one place", () => {
   const apiFiles = () => {
     const dir = join(__dirname, "../src/api");
-    return readdirSync(dir).filter((name) => /\.tsx?$/.test(name)).map((name) => ({ name, text: readFileSync(join(dir, name), "utf8") }));
+    return readdirSync(dir)
+      .filter((name) => /\.tsx?$/.test(name))
+      .map((name) => ({ name, text: readFileSync(join(dir, name), "utf8") }));
   };
   it("only cameraRequest.ts checks a look-out direction's shape", () => {
-    const checkers = apiFiles().filter(({ text }) => /\bvalidateSky(Position|Direction)\b/.test(text)).map(({ name }) => name);
-    expect(checkers, "a second look-out direction check: run the look through cameraRequestOf instead").toEqual(["cameraRequest.ts"]);
+    const checkers = apiFiles()
+      .filter(({ text }) => /\bvalidateSky(Position|Direction)\b/.test(text))
+      .map(({ name }) => name);
+    expect(checkers, "a second look-out direction check: run the look through cameraRequestOf instead").toEqual([
+      "cameraRequest.ts",
+    ]);
   });
   it("no declared look-out direction in the API source is positions only", () => {
     const bare: string[] = [];
@@ -90,7 +173,8 @@ describe("one rule, in one place", () => {
       text.split("\n").forEach((line, index) => {
         const code = line.trim().startsWith("*") || line.trim().startsWith("//") ? "" : line;
         const declared = /\bdirection\??:\s*([^;,}]*)/.exec(code);
-        if (declared !== null && declared[1]!.includes("SkyDirection") && !declared[1]!.includes("string")) bare.push(`${name}:${index + 1}`);
+        if (declared !== null && declared[1]!.includes("SkyDirection") && !declared[1]!.includes("string"))
+          bare.push(`${name}:${index + 1}`);
       });
     }
     expect(bare, "a direction typed as a position only: add the id form (and a row in ENTRIES)").toEqual([]);
@@ -120,8 +204,15 @@ describe("the opening look-out toward an id", () => {
     expect(definitionOf(s).startView).toEqual({ lookOut: "earth", raDeg: 1, decDeg: 2, fovDeg: 30 });
   });
   it("an object the opening view hides is refused at build as setCamera refuses it on that view", () => {
-    const s = scene().addTrajectory({ id: "pb", label: "Probe B", center: "earth", samples })
-      .setViews([{ id: "a", label: "View A", objects: ["pa"] }, { id: "b", label: "View B", objects: ["pb"] }], { place: "top-bar" });
+    const s = scene()
+      .addTrajectory({ id: "pb", label: "Probe B", center: "earth", samples })
+      .setViews(
+        [
+          { id: "a", label: "View A", objects: ["pa"] },
+          { id: "b", label: "View B", objects: ["pb"] },
+        ],
+        { place: "top-bar" },
+      );
     s.camera.lookOut("earth", { direction: "pb" });
     const refused = outcomeOf(() => definitionOf(s));
     expect(refused.code).toBe("bad-camera");

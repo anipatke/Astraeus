@@ -76,8 +76,13 @@ describe("FrameStats", () => {
     const readStarted = performance.now();
     for (let i = 0; i < 2_000; i += 1) stats.snapshot();
     const snapUs = ((performance.now() - readStarted) / 2_000) * 1000;
-    console.log(`frameStats cost: tick ${tickUs.toFixed(3)} us/frame, snapshot ${snapUs.toFixed(3)} us/read (window 120)`);
-    if (tickUs >= 50) console.warn(`frameStats tick took ${tickUs.toFixed(3)} us/frame, over the 50 us budget (an indication only: a busy machine or coverage slows it)`);
+    console.log(
+      `frameStats cost: tick ${tickUs.toFixed(3)} us/frame, snapshot ${snapUs.toFixed(3)} us/read (window 120)`,
+    );
+    if (tickUs >= 50)
+      console.warn(
+        `frameStats tick took ${tickUs.toFixed(3)} us/frame, over the 50 us budget (an indication only: a busy machine or coverage slows it)`,
+      );
   });
 });
 
@@ -85,7 +90,9 @@ describe("FrameRateSection", () => {
   it("shows the figures with the machine note, and a placeholder before any frame", () => {
     const stats = new FrameStats();
     feed(stats, Array(30).fill(20));
-    const html = renderToStaticMarkup(createElement(FrameRateSection, { frames: stats.snapshot(), fills: [{ id: "debris-ring", count: 4 }] }));
+    const html = renderToStaticMarkup(
+      createElement(FrameRateSection, { frames: stats.snapshot(), fills: [{ id: "debris-ring", count: 4 }] }),
+    );
     expect(html).toContain("Frames per second");
     expect(html).toContain("50.0");
     expect(html).toContain("Position fills: debris-ring");
@@ -104,15 +111,24 @@ describe("fps graph geometry", () => {
   });
 
   it("draws oldest on the left and newest on the right", () => {
-    const [first, , last] = fpsGraphPoints([60, 30, 0]).split(" ").map((point) => point.split(",").map(Number));
+    const [first, , last] = fpsGraphPoints([60, 30, 0])
+      .split(" ")
+      .map((point) => point.split(",").map(Number));
     expect(first[0]).toBeLessThan(last[0]);
     expect(first[1]).toBeLessThan(last[1]);
     expect(fpsGraphPoints([])).toBe("");
   });
 
   it("labels the axes", () => {
-    const html = renderToStaticMarkup(createElement(FrameRateSection, { frames: { frames: 3, fps: 50, longestMs: 20, overBudget: 0 }, fills: [], fpsHistory: Array(41).fill(50) }));
-    for (const label of ["frames per second", ">10 s ago<", "now (50 fps)", ">30<", ">60<", ">0<"]) expect(html).toContain(label);
+    const html = renderToStaticMarkup(
+      createElement(FrameRateSection, {
+        frames: { frames: 3, fps: 50, longestMs: 20, overBudget: 0 },
+        fills: [],
+        fpsHistory: Array(41).fill(50),
+      }),
+    );
+    for (const label of ["frames per second", ">10 s ago<", "now (50 fps)", ">30<", ">60<", ">0<"])
+      expect(html).toContain(label);
   });
 });
 

@@ -14,9 +14,18 @@ export function PanelView({ panel, runtime, id, onClose }: ShelfPanelViewProps) 
       <div className="sheet-handle" aria-hidden="true" />
       <header className="info-panel-header">
         <h2 id={titleId}>{panel.title}</h2>
-        <button type="button" className="info-panel-close ui-pill" aria-label={`Close ${panel.title}`} onClick={onClose}>Close</button>
+        <button
+          type="button"
+          className="info-panel-close ui-pill"
+          aria-label={`Close ${panel.title}`}
+          onClick={onClose}
+        >
+          Close
+        </button>
       </header>
-      {panel.blocks.map((block) => <block.view key={block.id} block={block} runtime={runtime} />)}
+      {panel.blocks.map((block) => (
+        <block.view key={block.id} block={block} runtime={runtime} />
+      ))}
     </aside>
   );
 }

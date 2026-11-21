@@ -15,10 +15,19 @@ describe("gatherPackageCredits", () => {
     mkdirSync(join(demo, "data", "stories"), { recursive: true });
     writeFileSync(join(demo, "package.json"), "{}");
     writeFileSync(join(demo, "credits", "MADEUP.txt"), "Made-up credit");
-    writeFileSync(join(demo, "data", "stories", "orbits.json"), JSON.stringify({ provenance: { licence: "CC BY 4.0" } }));
+    writeFileSync(
+      join(demo, "data", "stories", "orbits.json"),
+      JSON.stringify({ provenance: { licence: "CC BY 4.0" } }),
+    );
     writeFileSync(join(demo, "data", "stories", "plain.json"), JSON.stringify({ rows: [] }));
     const found = gatherPackageCredits(made);
-    expect(found).toEqual([{ package: "astraeus-demo-madeup", licenceFiles: ["credits/MADEUP.txt"], dataLicences: [{ file: "data/stories/orbits.json", licence: "CC BY 4.0" }] }]);
+    expect(found).toEqual([
+      {
+        package: "astraeus-demo-madeup",
+        licenceFiles: ["credits/MADEUP.txt"],
+        dataLicences: [{ file: "data/stories/orbits.json", licence: "CC BY 4.0" }],
+      },
+    ]);
   });
 
   it("finds the real engine's library licences and the shipped demos' data licences", () => {
@@ -27,6 +36,10 @@ describe("gatherPackageCredits", () => {
     for (const demo of ["astraeus-demo-apollo11", "astraeus-demo-showers", "astraeus-demo-planets"]) {
       expect(found.find((entry) => entry.package === demo)?.licenceFiles.length ?? 0, demo).toBeGreaterThan(0);
     }
-    expect(found.find((entry) => entry.package === "astraeus-demo-showers")?.dataLicences.some((d) => d.licence === "CC BY 4.0")).toBe(true);
+    expect(
+      found
+        .find((entry) => entry.package === "astraeus-demo-showers")
+        ?.dataLicences.some((d) => d.licence === "CC BY 4.0"),
+    ).toBe(true);
   });
 });

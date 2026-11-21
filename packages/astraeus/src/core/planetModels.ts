@@ -1,7 +1,13 @@
 import { AU_KM } from "./constants";
 import fits from "../../data/ephemerides/planets/planets.json" with { type: "json" };
 import { chunkCovers, chunkPositionInto, decodeChunk, type SeriesChunk } from "./chebyshevSeries";
-import { PLANET_IDS, PlanetFitsUncoveredError, type PlanetId, type PlanetModel, type PlanetModels } from "./planetSeries";
+import {
+  PLANET_IDS,
+  PlanetFitsUncoveredError,
+  type PlanetId,
+  type PlanetModel,
+  type PlanetModels,
+} from "./planetSeries";
 import type { TimeBounds } from "./trajectory";
 import { assertTimeScaleTable, utcMsToTtSeconds, type TimeScaleTable } from "./timeScale";
 
@@ -30,7 +36,13 @@ function planetModel(chunk: SeriesChunk<"tt">, table: TimeScaleTable): PlanetMod
       const tt = utcMsToTtSeconds(table, date.getTime());
       if (!chunkCovers(chunk, tt)) throw new PlanetFitsUncoveredError(date);
       chunkPositionInto(chunk, tt, km, 0);
-      return { x: km[0] / AU_KM, y: km[1] / AU_KM, z: km[2] / AU_KM, coordinate_keywords: "ecliptic rectangular j2000", unit_keywords: "au" };
+      return {
+        x: km[0] / AU_KM,
+        y: km[1] / AU_KM,
+        z: km[2] / AU_KM,
+        coordinate_keywords: "ecliptic rectangular j2000",
+        unit_keywords: "au",
+      };
     },
   };
 }
@@ -52,7 +64,13 @@ export function createPlanetModels(): PlanetModels {
   const planets = fits.planets as Record<PlanetId, StoredPlanet>;
   const model = (id: PlanetId): PlanetModel => {
     const p = planets[id];
-    const chunk = decodeChunk<"tt">(decodeBase64(p.data), { startTdbS: p.startS, segmentSeconds: p.segmentSeconds, segmentCount: p.segmentCount, coefficientCount: p.coefficientCount, quantumKm: p.quantumKm });
+    const chunk = decodeChunk<"tt">(decodeBase64(p.data), {
+      startTdbS: p.startS,
+      segmentSeconds: p.segmentSeconds,
+      segmentCount: p.segmentCount,
+      coefficientCount: p.coefficientCount,
+      quantumKm: p.quantumKm,
+    });
     return planetModel(chunk, table);
   };
   return Object.fromEntries(PLANET_IDS.map((id) => [id, model(id)])) as PlanetModels;

@@ -8,7 +8,10 @@ const T0 = Date.UTC(2026, 0, 1);
 const EARTH_RADIUS_KM = 6371;
 type Reader = (timeUtcMs: number) => number[];
 
-const evenTimes = (start: number, end: number): number[] => Array.from({ length: PROVIDER_SEED_SAMPLES }, (_, i) => Math.round(start + (i * (end - start)) / (PROVIDER_SEED_SAMPLES - 1)));
+const evenTimes = (start: number, end: number): number[] =>
+  Array.from({ length: PROVIDER_SEED_SAMPLES }, (_, i) =>
+    Math.round(start + (i * (end - start)) / (PROVIDER_SEED_SAMPLES - 1)),
+  );
 
 /** A hyperbolic flyby about Earth (mu 398,600 km3/s2, 10 km/s at infinity) closest to the centre at `closestMs`; it speeds up and bends round the centre in about an hour. */
 const flyby = (closestKm: number, closestMs: number): Reader => {
@@ -26,7 +29,13 @@ const flyby = (closestKm: number, closestMs: number): Reader => {
 };
 
 /** A circle about the centre, `periodMs` per turn. */
-const circle = (radiusKm: number, periodMs: number): Reader => (t) => [radiusKm * Math.cos((2 * Math.PI * (t - T0)) / periodMs), radiusKm * Math.sin((2 * Math.PI * (t - T0)) / periodMs), 0];
+const circle =
+  (radiusKm: number, periodMs: number): Reader =>
+  (t) => [
+    radiusKm * Math.cos((2 * Math.PI * (t - T0)) / periodMs),
+    radiusKm * Math.sin((2 * Math.PI * (t - T0)) / periodMs),
+    0,
+  ];
 
 /** The shortest distance from `p` to the line through `points` (a straight segment between each neighbouring pair). */
 function distanceToLine(points: readonly number[][], p: readonly number[]): number {
@@ -36,8 +45,17 @@ function distanceToLine(points: readonly number[][], p: readonly number[]): numb
     const b = points[i]!;
     const ab = [b[0]! - a[0]!, b[1]! - a[1]!, b[2]! - a[2]!];
     const len2 = ab[0]! ** 2 + ab[1]! ** 2 + ab[2]! ** 2;
-    const f = len2 === 0 ? 0 : Math.max(0, Math.min(1, ((p[0]! - a[0]!) * ab[0]! + (p[1]! - a[1]!) * ab[1]! + (p[2]! - a[2]!) * ab[2]!) / len2));
-    best = Math.min(best, Math.hypot(p[0]! - a[0]! - f * ab[0]!, p[1]! - a[1]! - f * ab[1]!, p[2]! - a[2]!- f * ab[2]!));
+    const f =
+      len2 === 0
+        ? 0
+        : Math.max(
+            0,
+            Math.min(1, ((p[0]! - a[0]!) * ab[0]! + (p[1]! - a[1]!) * ab[1]! + (p[2]! - a[2]!) * ab[2]!) / len2),
+          );
+    best = Math.min(
+      best,
+      Math.hypot(p[0]! - a[0]! - f * ab[0]!, p[1]! - a[1]! - f * ab[1]!, p[2]! - a[2]! - f * ab[2]!),
+    );
   }
   return best;
 }
@@ -53,7 +71,8 @@ function worstGap(read: Reader, times: readonly number[], closestMs: number, win
   return worst;
 }
 
-const strictlyWholeMs = (times: readonly number[]): boolean => times.every((t, i) => Number.isInteger(t) && (i === 0 || t > times[i - 1]!));
+const strictlyWholeMs = (times: readonly number[]): boolean =>
+  times.every((t, i) => Number.isInteger(t) && (i === 0 || t > times[i - 1]!));
 
 describe("a one-hour flyby inside six-year bounds (F-05)", () => {
   const start = T0;
@@ -83,14 +102,17 @@ describe("what every path keeps", () => {
     ["a flyby", flyby(3 * EARTH_RADIUS_KM, T0 + 3 * YEAR)],
     ["a pass so close and fast the refinement would exceed the cap", circle(1e6, 60_000)],
   ];
-  it.each(cases)("%s: the 128 even moments and both bounds, whole ms, strictly increasing, within the cap", (_name, read) => {
-    const times = providerPathTimes(T0, end, read);
-    for (const t of evenTimes(T0, end)) expect(times).toContain(t);
-    expect(times[0]).toBe(T0);
-    expect(times.at(-1)).toBe(end);
-    expect(strictlyWholeMs(times)).toBe(true);
-    expect(times.length).toBeLessThanOrEqual(PROVIDER_MAX_SAMPLES);
-  });
+  it.each(cases)(
+    "%s: the 128 even moments and both bounds, whole ms, strictly increasing, within the cap",
+    (_name, read) => {
+      const times = providerPathTimes(T0, end, read);
+      for (const t of evenTimes(T0, end)) expect(times).toContain(t);
+      expect(times[0]).toBe(T0);
+      expect(times.at(-1)).toBe(end);
+      expect(strictlyWholeMs(times)).toBe(true);
+      expect(times.length).toBeLessThanOrEqual(PROVIDER_MAX_SAMPLES);
+    },
+  );
 
   it("adds nothing to a near-still path, and stops at the cap for the pathological one", () => {
     expect(providerPathTimes(T0, end, () => [1e8, 2e7, 5e6])).toHaveLength(PROVIDER_SEED_SAMPLES);
@@ -99,17 +121,29 @@ describe("what every path keeps", () => {
 });
 
 describe("a provider that gives no position at planning", () => {
-  it.each<[string, Reader]>([["throws", () => { throw new Error("data not loaded"); }], ["gives none", () => undefined as never], ["gives a fault", () => [NaN, 0, 0]]])("one that %s keeps the 128 even moments", (_name, read) => {
+  it.each<[string, Reader]>([
+    [
+      "throws",
+      () => {
+        throw new Error("data not loaded");
+      },
+    ],
+    ["gives none", () => undefined as never],
+    ["gives a fault", () => [NaN, 0, 0]],
+  ])("one that %s keeps the 128 even moments", (_name, read) => {
     expect(providerPathTimes(T0, T0 + 6 * YEAR, read)).toEqual(evenTimes(T0, T0 + 6 * YEAR));
   });
 });
 
 describe("very short bounds", () => {
-  it.each([1, 2, 3, 7, 50, 200])("%i ms still gives strictly increasing whole milliseconds from start to end", (span) => {
-    const times = providerPathTimes(T0, T0 + span, circle(1e5, 40));
-    expect(strictlyWholeMs(times)).toBe(true);
-    expect(times[0]).toBe(T0);
-    expect(times.at(-1)).toBe(T0 + span);
-    expect(times.length).toBeLessThanOrEqual(span + 1);
-  });
+  it.each([1, 2, 3, 7, 50, 200])(
+    "%i ms still gives strictly increasing whole milliseconds from start to end",
+    (span) => {
+      const times = providerPathTimes(T0, T0 + span, circle(1e5, 40));
+      expect(strictlyWholeMs(times)).toBe(true);
+      expect(times[0]).toBe(T0);
+      expect(times.at(-1)).toBe(T0 + span);
+      expect(times.length).toBeLessThanOrEqual(span + 1);
+    },
+  );
 });

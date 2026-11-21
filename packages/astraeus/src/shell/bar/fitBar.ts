@@ -30,9 +30,13 @@ export interface BarFit {
 
 /** Decides the bar. The steps (while the row is wider than `width`, take the next one that applies): short labels; engine items to the menu, lowest priority first; short title; "i"; story buttons to the menu from the end; the switch as a drop-down; then give the title its longer forms back. */
 export function fitBar({ width, gap, phone, items, widths }: FitInput): BarFit {
-  const place = new Map<string, Placement>(items.map((item) => [item.id, { place: item.kind === "engine" && phone ? "menu" : "row", form: "full" }]));
+  const place = new Map<string, Placement>(
+    items.map((item) => [item.id, { place: item.kind === "engine" && phone ? "menu" : "row", form: "full" }]),
+  );
   const get = (item: BarItem): Placement => place.get(item.id)!;
-  const set = (item: BarItem, next: Partial<Placement>): void => { place.set(item.id, { ...get(item), ...next }); };
+  const set = (item: BarItem, next: Partial<Placement>): void => {
+    place.set(item.id, { ...get(item), ...next });
+  };
   const widthOf = (item: BarItem): number => widths[item.id]?.[get(item).form] ?? widths[item.id]?.full ?? 0;
   const menuHolds = (): boolean => items.some((item) => item.kind !== "menu" && get(item).place === "menu");
   const inRow = (item: BarItem): boolean => get(item).place === "row" && (item.kind !== "menu" || menuHolds());
@@ -43,14 +47,19 @@ export function fitBar({ width, gap, phone, items, widths }: FitInput): BarFit {
   const has = (item: BarItem, form: BarForm): boolean => item.forms[form] !== undefined;
 
   const shorten = (): boolean => {
-    const wanting = items.filter((item) => (item.kind === "switch" || item.kind === "story") && has(item, "short") && get(item).form === "full");
+    const wanting = items.filter(
+      (item) => (item.kind === "switch" || item.kind === "story") && has(item, "short") && get(item).form === "full",
+    );
     wanting.forEach((item) => set(item, { form: "short" }));
     return wanting.length > 0;
   };
   const moveEngine = (): boolean => {
     const rows = items.filter((item) => item.kind === "engine" && get(item).place === "row");
     // Highest priority number leaves first; among equals, the last in the row.
-    const next = rows.reduce<BarItem | undefined>((best, item) => (best === undefined || item.priority >= best.priority ? item : best), undefined);
+    const next = rows.reduce<BarItem | undefined>(
+      (best, item) => (best === undefined || item.priority >= best.priority ? item : best),
+      undefined,
+    );
     if (next === undefined) return false;
     set(next, { place: "menu" });
     return true;
@@ -63,7 +72,10 @@ export function fitBar({ width, gap, phone, items, widths }: FitInput): BarFit {
   };
   const moveStory = (): boolean => {
     const rows = items.filter((item) => item.kind === "story" && get(item).place === "row");
-    const next = rows.reduce<BarItem | undefined>((best, item) => (best === undefined || item.priority >= best.priority ? item : best), undefined);
+    const next = rows.reduce<BarItem | undefined>(
+      (best, item) => (best === undefined || item.priority >= best.priority ? item : best),
+      undefined,
+    );
     if (next === undefined) return false;
     set(next, { place: "menu" });
     return true;
@@ -84,7 +96,9 @@ export function fitBar({ width, gap, phone, items, widths }: FitInput): BarFit {
   const steps = [shorten, moveEngine, titleTo("full", "short"), titleToI, moveStory, compact];
 
   if (width > 0) {
-    while (total() > width && steps.some((step) => step())) { /* each pass takes the first step that applies */ }
+    while (total() > width && steps.some((step) => step())) {
+      /* each pass takes the first step that applies */
+    }
     const title = items.find((item) => item.kind === "title");
     if (title !== undefined && get(title).form !== "full") {
       const order: readonly BarForm[] = ["full", "short"];
@@ -100,7 +114,8 @@ export function fitBar({ width, gap, phone, items, widths }: FitInput): BarFit {
 
   const menuButton = menuHolds();
   const placements: Record<string, Placement> = {};
-  for (const item of items) placements[item.id] = item.id === MENU_ITEM_ID && !menuButton ? { place: "menu", form: "full" } : get(item);
+  for (const item of items)
+    placements[item.id] = item.id === MENU_ITEM_ID && !menuButton ? { place: "menu", form: "full" } : get(item);
   const used = total();
   return { placements, menuButton, total: used, fits: width <= 0 || used <= width };
 }

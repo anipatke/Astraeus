@@ -21,11 +21,19 @@ await checkScript({ name: "check-hello-planets", viewports: SIZES }, async (page
   }
   const fit = await ui.hostControlsFit(page);
   assert.equal(fit.count, 4, "the host page has its three sliders and the scale button");
-  assert.deepEqual([fit.overlaps, fit.outside, fit.sideways], [[], [], false], `the host controls are inside the window and overlap nothing (${JSON.stringify(fit)})`);
+  assert.deepEqual(
+    [fit.overlaps, fit.outside, fit.sideways],
+    [[], [], false],
+    `the host controls are inside the window and overlap nothing (${JSON.stringify(fit)})`,
+  );
   // A slider moves the viewer's look: the sky reports the star brightness it now draws.
   await ui.setHostSlider(page, "stars", 0.4);
   await page.waitForTimeout(500);
-  assert.equal((await ui.sceneSky(page)).starBrightness, 0.4, "the star brightness slider sets the sky's star brightness");
+  assert.equal(
+    (await ui.sceneSky(page)).starBrightness,
+    0.4,
+    "the star brightness slider sets the sky's star brightness",
+  );
   await ui.setHostSlider(page, "glow", 0.5);
   await ui.setHostSlider(page, "glow-size", 120);
   // The scale button changes the scale in force, and the viewer's own control reports it.

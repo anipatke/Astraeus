@@ -17,7 +17,17 @@ import { dotMaterial } from "./dotMaterial";
 import type { ScalePolicy } from "../presentation/scalePolicy";
 import type { FloatingOrigin } from "./floatingOrigin";
 import type { PathScreenReadout } from "./PathView";
-import { anchorLabelsOf, markerRadiusUnits, lineAgainstAt, lineBodies, sampleTrackedPositions, stateClampedToBounds, stateIfInBounds, travelledCount, type TrackedBody } from "./mission";
+import {
+  anchorLabelsOf,
+  markerRadiusUnits,
+  lineAgainstAt,
+  lineBodies,
+  sampleTrackedPositions,
+  stateClampedToBounds,
+  stateIfInBounds,
+  travelledCount,
+  type TrackedBody,
+} from "./mission";
 import { mapPathKm, relativeTrailKm, shiftedBy, type PathSamples } from "./pathRules";
 import { eqjToRenderVector, type RenderVector } from "./renderCoordinates";
 import type { PathRule } from "./experienceDefinition";
@@ -121,8 +131,9 @@ export class TrackedBodyView {
     );
     this.#anchors.frustumCulled = false;
     this.#anchors.layers.set(TRACK_LAYER);
-    this.#materials = [this.#travelled, this.#future, this.#anchors, this.#marker]
-      .map((object) => object.material as { depthTest: boolean });
+    this.#materials = [this.#travelled, this.#future, this.#anchors, this.#marker].map(
+      (object) => object.material as { depthTest: boolean },
+    );
     this.group.add(this.#travelled, this.#future, this.#anchors, this.#marker);
   }
 
@@ -131,7 +142,13 @@ export class TrackedBodyView {
     return trackedAbsolute(stateClampedToBounds(this.body, timeUtcMs), policy, placement);
   }
 
-  update(timeUtcMs: number, policy: ScalePolicy, origin: FloatingOrigin, camera: Camera, placement: ScenePlacement): void {
+  update(
+    timeUtcMs: number,
+    policy: ScalePolicy,
+    origin: FloatingOrigin,
+    camera: Camera,
+    placement: ScenePlacement,
+  ): void {
     this.#remap(policy, placement, timeUtcMs);
     // Mapped positions are not consistent with body radii in ReadableScale, so only TrueScale occludes.
     const occlude = policy.id === "true-scale";
@@ -162,7 +179,10 @@ export class TrackedBodyView {
     const moves = lineBodies(this.body.lineFixedTo).some(({ body }) => body !== placed);
     if (this.#mappedFor === policy.id && this.#placedFor === placed && (!moves || this.#mappedAt === timeUtcMs)) return;
     this.#mappedPath = mapPathKm(this.#relative(this.#samples, placement, timeUtcMs), policy);
-    this.#mappedAnchors = mapPathKm(this.#relative({ timesUtcMs: this.body.anchorTimesUtcMs, positionsKm: this.#anchorKm }, placement, timeUtcMs), policy);
+    this.#mappedAnchors = mapPathKm(
+      this.#relative({ timesUtcMs: this.body.anchorTimesUtcMs, positionsKm: this.#anchorKm }, placement, timeUtcMs),
+      policy,
+    );
     this.#mappedFor = policy.id;
     this.#placedFor = placed;
     this.#mappedAt = timeUtcMs;
@@ -174,11 +194,15 @@ export class TrackedBodyView {
     if (count === 0) return samples.positionsKm;
     const native = this.body.trajectory.stateAt(samples.timesUtcMs[0]).center;
     const out = new Float64Array(samples.positionsKm.length);
-    for (let from = 0; from < count; ) {
+    for (let from = 0; from < count;) {
       const against = lineAgainstAt(this.body.lineFixedTo, samples.timesUtcMs[from], placement.center);
       let to = from + 1;
-      while (to < count && lineAgainstAt(this.body.lineFixedTo, samples.timesUtcMs[to], placement.center) === against) to += 1;
-      const run = { timesUtcMs: samples.timesUtcMs.slice(from, to), positionsKm: samples.positionsKm.subarray(from * 3, to * 3) };
+      while (to < count && lineAgainstAt(this.body.lineFixedTo, samples.timesUtcMs[to], placement.center) === against)
+        to += 1;
+      const run = {
+        timesUtcMs: samples.timesUtcMs.slice(from, to),
+        positionsKm: samples.positionsKm.subarray(from * 3, to * 3),
+      };
       const drawn = relativeTrailKm(run, native, placement, against);
       const carry = sceneOffsetKm(placement, against, timeUtcMs);
       out.set(carry === null ? drawn : shiftedBy(drawn, carry), from * 3);
@@ -230,10 +254,29 @@ export class TrackedBodyView {
         if (Math.abs(point.x) > 1 || Math.abs(point.y) > 1) continue;
         const [x, y] = [(point.x + 1) / 2, (1 - point.y) / 2];
         inView += 1;
-        minX = Math.min(minX, x); maxX = Math.max(maxX, x); minY = Math.min(minY, y); maxY = Math.max(maxY, y);
+        minX = Math.min(minX, x);
+        maxX = Math.max(maxX, x);
+        minY = Math.min(minY, y);
+        maxY = Math.max(maxY, y);
       }
     }
-    return { id: this.body.id, visible: this.group.visible && vertices > 0, vertices, inView, minX, maxX, minY, maxY, lineMinX: minX, lineMaxX: maxX, lineMinY: minY, lineMaxY: maxY, axisDeg: 0, aspect: (camera as { aspect?: number }).aspect ?? 1, look: null };
+    return {
+      id: this.body.id,
+      visible: this.group.visible && vertices > 0,
+      vertices,
+      inView,
+      minX,
+      maxX,
+      minY,
+      maxY,
+      lineMinX: minX,
+      lineMaxX: maxX,
+      lineMinY: minY,
+      lineMaxY: maxY,
+      axisDeg: 0,
+      aspect: (camera as { aspect?: number }).aspect ?? 1,
+      look: null,
+    };
   }
 
   /** Local (floating-origin) render position of anchor `index` as last drawn. */

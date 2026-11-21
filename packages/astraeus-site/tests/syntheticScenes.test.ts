@@ -11,10 +11,26 @@ import { buildSyntheticListedScene, LISTED_MEMBER_COUNT } from "../src/synthetic
 import { buildSyntheticEccentricScene } from "../src/synthetic/syntheticEccentricScene";
 import { buildSyntheticProbeScene, PROBE_FLYBY_UTC_MS } from "../src/synthetic/syntheticProbeScene";
 import { buildSyntheticViewsScene } from "../src/synthetic/syntheticViewsScene";
-import { buildSyntheticLookOutScene, LOOKOUT_OPEN_DIRECTION, loadLookOutPlanets } from "../src/synthetic/syntheticLookOutScene";
+import {
+  buildSyntheticLookOutScene,
+  LOOKOUT_OPEN_DIRECTION,
+  loadLookOutPlanets,
+} from "../src/synthetic/syntheticLookOutScene";
 import { buildSyntheticJourneyScene, JOURNEY_JUPITER_UTC_MS } from "../src/synthetic/syntheticJourneyScene";
 
-type Before = Record<string, { events: [string, number][]; window: { startUtcMs: number; endUtcMs: number }; rates: number[]; clockRate: number; panels: string[]; groups: { id: string; count: number }[]; windows: unknown[][]; camera?: unknown }>;
+type Before = Record<
+  string,
+  {
+    events: [string, number][];
+    window: { startUtcMs: number; endUtcMs: number };
+    rates: number[];
+    clockRate: number;
+    panels: string[];
+    groups: { id: string; count: number }[];
+    windows: unknown[][];
+    camera?: unknown;
+  }
+>;
 const before = JSON.parse(readFileSync(join(__dirname, "fixtures", "syntheticScenesBefore.json"), "utf8")) as Before;
 
 const REBUILT: readonly [string, () => Scene][] = [
@@ -37,7 +53,13 @@ describe.each(REBUILT)("the %s scene keeps what its fixture showed", (name, buil
 
   it("has the same events, timeline span, speeds and story panels", () => {
     expect(scene.events.map((event) => [event.id, event.timeUtcMs])).toEqual(was.events);
-    expect(scene.timeline).toMatchObject({ windowStartUtcMs: was.window.startUtcMs, windowEndUtcMs: was.window.endUtcMs, openUtcMs: was.window.startUtcMs, rates: was.rates, rate: was.clockRate });
+    expect(scene.timeline).toMatchObject({
+      windowStartUtcMs: was.window.startUtcMs,
+      windowEndUtcMs: was.window.endUtcMs,
+      openUtcMs: was.window.startUtcMs,
+      rates: was.rates,
+      rate: was.clockRate,
+    });
     expect(scene.panels.map((panel) => panel.id)).toEqual(was.panels);
   });
 
@@ -52,13 +74,24 @@ describe.each(REBUILT)("the %s scene keeps what its fixture showed", (name, buil
 });
 
 /** The camera's reach and far plane as the scene states them: the far plane defaults to 2.5 times the reach when `setReach` gives none (its doc comment). */
-const reachOf = (scene: Scene) => ({ maxFocusDistance: scene.camera.reachEarthRadii, far: scene.camera.farEarthRadii ?? scene.camera.reachEarthRadii! * 2.5 });
+const reachOf = (scene: Scene) => ({
+  maxFocusDistance: scene.camera.reachEarthRadii,
+  far: scene.camera.farEarthRadii ?? scene.camera.reachEarthRadii! * 2.5,
+});
 
 describe("the rebuilt scenes' own features", () => {
   it("synthetic: one marker path and the contact window with both provenance spans (read through scene.activities)", () => {
     const scene = buildSyntheticScene();
     expect(scene.paths.map((path) => path.id)).toEqual(["survey-marker"]);
-    const windows = scene.activities.map((window) => [window.id, window.windowStartUtcMs, window.windowEndUtcMs, window.peak.timeUtcMs, window.unit, window.samples.length, window.provenance?.length]);
+    const windows = scene.activities.map((window) => [
+      window.id,
+      window.windowStartUtcMs,
+      window.windowEndUtcMs,
+      window.peak.timeUtcMs,
+      window.unit,
+      window.samples.length,
+      window.provenance?.length,
+    ]);
     expect(windows).toEqual(before["synthetic"]!.windows);
   });
 
@@ -70,7 +103,11 @@ describe("the rebuilt scenes' own features", () => {
   it("belt: a Sun-centred group, Earth with its orbit line, a far object, and a reach that gives today's far plane", () => {
     const scene = buildSyntheticBeltScene();
     expect(scene.groups[0]).toMatchObject({ id: "dust-belt", count: BELT_MEMBER_COUNT, center: "sun" });
-    expect(scene.bodies.map((body) => [body.id, body.orbit])).toEqual([["sun", false], ["earth", true], ["far-marker", true]]);
+    expect(scene.bodies.map((body) => [body.id, body.orbit])).toEqual([
+      ["sun", false],
+      ["earth", true],
+      ["far-marker", true],
+    ]);
     expect(reachOf(scene)).toEqual(before["belt"]!.camera);
   });
 

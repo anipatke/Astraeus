@@ -36,26 +36,39 @@ export class CompositionError extends RangeError {
 
 /** Checks a composition against a catalogue and returns it frozen: every id catalogued, no repeats, the centre one of them. */
 export function createComposition(source: BodyCatalogue, composition: SystemComposition): SystemComposition {
-  if (typeof composition.id !== "string" || composition.id.length === 0) throw new CompositionError("a composition needs an id");
+  if (typeof composition.id !== "string" || composition.id.length === 0)
+    throw new CompositionError("a composition needs an id");
   if (composition.bodies.length === 0) throw new CompositionError(`composition "${composition.id}" lists no bodies`);
   const seen = new Set<BodyId>();
   for (const id of composition.bodies) {
-    if (!source.has(id)) throw new CompositionError(`composition "${composition.id}" names "${id}", which the catalogue lacks`);
+    if (!source.has(id))
+      throw new CompositionError(`composition "${composition.id}" names "${id}", which the catalogue lacks`);
     if (seen.has(id)) throw new CompositionError(`composition "${composition.id}" lists "${id}" twice`);
     seen.add(id);
   }
   if (!seen.has(composition.defaultCenter)) {
-    throw new CompositionError(`composition "${composition.id}" centre "${composition.defaultCenter}" is not one of its bodies`);
+    throw new CompositionError(
+      `composition "${composition.id}" centre "${composition.defaultCenter}" is not one of its bodies`,
+    );
   }
   for (const path of composition.paths ?? []) {
-    if (!seen.has(path.body)) throw new CompositionError(`composition "${composition.id}" path names "${path.body}", which is not one of its bodies`);
-    if (!(path.spanMs > 0) || !Number.isFinite(path.spanMs)) throw new CompositionError(`composition "${composition.id}" path for "${path.body}" needs a positive finite span`);
+    if (!seen.has(path.body))
+      throw new CompositionError(
+        `composition "${composition.id}" path names "${path.body}", which is not one of its bodies`,
+      );
+    if (!(path.spanMs > 0) || !Number.isFinite(path.spanMs))
+      throw new CompositionError(
+        `composition "${composition.id}" path for "${path.body}" needs a positive finite span`,
+      );
   }
-  for (const path of composition.paths ?? []) resolveOrbitLook(path.look, `composition "${composition.id}" path for "${path.body}"`);
+  for (const path of composition.paths ?? [])
+    resolveOrbitLook(path.look, `composition "${composition.id}" path for "${path.body}"`);
   return Object.freeze({
     ...composition,
     bodies: Object.freeze([...composition.bodies]),
-    ...(composition.paths === undefined ? {} : { paths: Object.freeze(composition.paths.map((path) => Object.freeze({ ...path }))) }),
+    ...(composition.paths === undefined
+      ? {}
+      : { paths: Object.freeze(composition.paths.map((path) => Object.freeze({ ...path }))) }),
   });
 }
 
@@ -108,10 +121,22 @@ export const saturnMoonsSystem: SystemComposition = createComposition(catalogue,
 });
 
 /** Uranus alone, about Uranus: none of its 28 moons has a map, so all of them are dots. */
-export const uranusMoonsSystem: SystemComposition = createComposition(catalogue, { id: "uranus-moons", bodies: ["uranus"], defaultCenter: "uranus" });
+export const uranusMoonsSystem: SystemComposition = createComposition(catalogue, {
+  id: "uranus-moons",
+  bodies: ["uranus"],
+  defaultCenter: "uranus",
+});
 
 /** Neptune and Triton, about Neptune. */
-export const neptuneMoonsSystem: SystemComposition = createComposition(catalogue, { id: "neptune-moons", bodies: ["neptune", "triton"], defaultCenter: "neptune" });
+export const neptuneMoonsSystem: SystemComposition = createComposition(catalogue, {
+  id: "neptune-moons",
+  bodies: ["neptune", "triton"],
+  defaultCenter: "neptune",
+});
 
 /** Pluto and Charon, about Pluto (Pluto sits at its own centre only once its system's fits are loaded, which the view does before its first frame). */
-export const plutoMoonsSystem: SystemComposition = createComposition(catalogue, { id: "pluto-moons", bodies: ["pluto", "charon"], defaultCenter: "pluto" });
+export const plutoMoonsSystem: SystemComposition = createComposition(catalogue, {
+  id: "pluto-moons",
+  bodies: ["pluto", "charon"],
+  defaultCenter: "pluto",
+});

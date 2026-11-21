@@ -52,7 +52,9 @@ function sphereRadius(focus: BodyId, policy: ScalePolicy, source: BodyCatalogue)
   if (!source.has(focus)) return null;
   const asset = source.get(focus);
   // A marker-kind body that also draws a self-bright sphere (emissive) has that radius too: the camera must stay outside it.
-  return asset.visual.kind === "sphere" || asset.visual.emissive === true ? policy.mapRadius(asset.definition.radiusKm, asset.definition.id) : null;
+  return asset.visual.kind === "sphere" || asset.visual.emissive === true
+    ? policy.mapRadius(asset.definition.radiusKm, asset.definition.id)
+    : null;
 }
 
 /** The camera's vertical field of view in degrees (the Canvas's `fov`). */
@@ -69,9 +71,17 @@ export const LOOK_OUT_FAR_MARGIN = 1.5;
  * The far plane of a camera standing inside a body: the declared or default `far` (sized for orbit framing about a focus) but never nearer than the farthest placed body
  * (times `LOOK_OUT_FAR_MARGIN`), since a sky shows everything the scene holds, however far from where the camera stands. One rule for every body (ARCH-06).
  */
-export function lookOutFar(far: number, cameraAbsolute: readonly number[], placed: ReadonlyMap<string, readonly number[]>): number {
+export function lookOutFar(
+  far: number,
+  cameraAbsolute: readonly number[],
+  placed: ReadonlyMap<string, readonly number[]>,
+): number {
   let farthest = 0;
-  for (const position of placed.values()) farthest = Math.max(farthest, Math.hypot(position[0] - cameraAbsolute[0], position[1] - cameraAbsolute[1], position[2] - cameraAbsolute[2]));
+  for (const position of placed.values())
+    farthest = Math.max(
+      farthest,
+      Math.hypot(position[0] - cameraAbsolute[0], position[1] - cameraAbsolute[1], position[2] - cameraAbsolute[2]),
+    );
   return Math.max(far, farthest * LOOK_OUT_FAR_MARGIN);
 }
 
@@ -91,14 +101,23 @@ export function liveReach(declared: CameraReach, policy: ScalePolicy, aspect: nu
     if (declared.cover === undefined || declared.maxFocusDistance !== undefined) return declared;
     // I-114: a path past the planets widens the default zoom-out and far plane so it fits whole; the default is never narrowed.
     const minFocusDistance = fitReach(scaleLength(policy, declared.cover.farthestKm()), aspect > 0 ? aspect : 1);
-    return { ...declared, minFocusDistance, far: Math.max(declared.far ?? DEFAULT_CAMERA_FAR, minFocusDistance * FAR_PER_REACH) };
+    return {
+      ...declared,
+      minFocusDistance,
+      far: Math.max(declared.far ?? DEFAULT_CAMERA_FAR, minFocusDistance * FAR_PER_REACH),
+    };
   }
   const maxFocusDistance = fitReach(scaleLength(policy, declared.fitOrbit.farthestKm()), aspect > 0 ? aspect : 1);
   return { maxFocusDistance, far: maxFocusDistance * FAR_PER_REACH };
 }
 
 /** Zoom limits per focus kind; a declared reach replaces only the farthest distance. */
-export function focusLimits(focus: BodyId, frame: SceneFrame, policy: ScalePolicy, declared: CameraReach): { min: number; max: number } {
+export function focusLimits(
+  focus: BodyId,
+  frame: SceneFrame,
+  policy: ScalePolicy,
+  declared: CameraReach,
+): { min: number; max: number } {
   const max = declared.maxFocusDistance ?? Math.max(30, frame.span * 3.5, declared.minFocusDistance ?? 0);
   const member = frame.memberRadius?.(focus) ?? null;
   if (member !== null) return { min: Math.max(MEMBER_MIN_DISTANCE, member * BODY_MIN_FACTOR), max };
@@ -114,7 +133,13 @@ export const START_CAMERA_DISTANCE = 16;
  * True when the start distance is closer than the focused body allows, so the first frame would be clamped up to a close-up of that body
  * (a large centre body: I-028). Such an experience opens at its overview; any other keeps the start distance.
  */
-export function startsInsideFocus(startDistance: number, focus: BodyId, frame: SceneFrame, policy: ScalePolicy, declared: CameraReach): boolean {
+export function startsInsideFocus(
+  startDistance: number,
+  focus: BodyId,
+  frame: SceneFrame,
+  policy: ScalePolicy,
+  declared: CameraReach,
+): boolean {
   return startDistance < focusLimits(focus, frame, policy, declared).min;
 }
 
@@ -141,7 +166,8 @@ export function scaleLength(policy: ScalePolicy, km: number): number {
 const FIRST_BODY_LAYER = 1;
 const MAX_LAYER = 31;
 /** Most lit spheres a scene can draw: one per render layer from `FIRST_BODY_LAYER` to `MAX_LAYER`, less the overlay layer (`TRACK_LAYER`) when it lies inside that range. The one copy of the limit. */
-export const MAX_LIT_BODIES = MAX_LAYER - FIRST_BODY_LAYER + 1 - (TRACK_LAYER >= FIRST_BODY_LAYER && TRACK_LAYER <= MAX_LAYER ? 1 : 0);
+export const MAX_LIT_BODIES =
+  MAX_LAYER - FIRST_BODY_LAYER + 1 - (TRACK_LAYER >= FIRST_BODY_LAYER && TRACK_LAYER <= MAX_LAYER ? 1 : 0);
 
 /** The bodies that need a lit-sphere layer: every body not drawn as a marker. `assignBodyLayers` and the build-time check count the same list. */
 export function litBodiesOf(bodies: readonly BodyId[], source: BodyCatalogue): readonly BodyId[] {
@@ -152,7 +178,11 @@ export function litBodiesOf(bodies: readonly BodyId[], source: BodyCatalogue): r
  * One render layer per lit sphere, in draw order, skipping the overlay layer; markers draw on the overlay layer.
  * Earth and the Moon keep layers 1 and 2. The guard below is unreachable from the public API: `assembleScene` refuses more than `MAX_LIT_BODIES` first.
  */
-export function assignBodyLayers(bodies: readonly BodyId[], overlayLayer: number, source: BodyCatalogue = catalogue): ReadonlyMap<BodyId, number> {
+export function assignBodyLayers(
+  bodies: readonly BodyId[],
+  overlayLayer: number,
+  source: BodyCatalogue = catalogue,
+): ReadonlyMap<BodyId, number> {
   const layers = new Map<BodyId, number>();
   let next = FIRST_BODY_LAYER;
   for (const id of bodies) {
@@ -161,7 +191,8 @@ export function assignBodyLayers(bodies: readonly BodyId[], overlayLayer: number
       continue;
     }
     if (next === overlayLayer) next += 1;
-    if (next > MAX_LAYER) throw new RangeError(`a scene draws at most ${MAX_LIT_BODIES} lit bodies; "${id}" would need layer ${next}`);
+    if (next > MAX_LAYER)
+      throw new RangeError(`a scene draws at most ${MAX_LIT_BODIES} lit bodies; "${id}" would need layer ${next}`);
     layers.set(id, next);
     next += 1;
   }

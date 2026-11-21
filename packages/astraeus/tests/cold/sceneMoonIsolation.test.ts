@@ -22,7 +22,11 @@ function source(host: string): DataSource {
   return {
     name: "astraeus-data-jupiter",
     provides: ["io", "europa", "ganymede", "callisto"],
-    moonPositions: { center: "jupiter", loadIndex: async () => jupiterIndex, chunkUrls: new Proxy({}, { get: (_target, path: string) => `https://${host}/${path}` }) as Record<string, string> },
+    moonPositions: {
+      center: "jupiter",
+      loadIndex: async () => jupiterIndex,
+      chunkUrls: new Proxy({}, { get: (_target, path: string) => `https://${host}/${path}` }) as Record<string, string>,
+    },
   };
 }
 const A_SRC = source("a.test");
@@ -35,14 +39,25 @@ beforeEach(() => {
   vi.stubGlobal("fetch", async (url: string) => {
     fetched.push(url);
     const bytes = readFileSync(`${folder}${new URL(url).pathname.slice(1)}`);
-    return { ok: true, status: 200, arrayBuffer: async () => bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength) };
+    return {
+      ok: true,
+      status: 200,
+      arrayBuffer: async () => bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength),
+    };
   });
 });
-afterEach(() => { vi.unstubAllGlobals(); });
+afterEach(() => {
+  vi.unstubAllGlobals();
+});
 
-const sunJupiter = (api: Api, window?: { start: string; end: string }) => { const s = new api.Scene().addBody(api.sun).addBody(api.jupiter); return window ? s.setTimeline(window) : s; };
-const jupiterIo = (api: Api, window: { start: string; end: string }) => new api.Scene().addBody(api.jupiter).addBody(api.io).setTimeline(window);
-const ioOnly = (api: Api, window: { start: string; end: string }) => new api.Scene().addBody(api.io).setTimeline(window);
+const sunJupiter = (api: Api, window?: { start: string; end: string }) => {
+  const s = new api.Scene().addBody(api.sun).addBody(api.jupiter);
+  return window ? s.setTimeline(window) : s;
+};
+const jupiterIo = (api: Api, window: { start: string; end: string }) =>
+  new api.Scene().addBody(api.jupiter).addBody(api.io).setTimeline(window);
+const ioOnly = (api: Api, window: { start: string; end: string }) =>
+  new api.Scene().addBody(api.io).setTimeline(window);
 
 type Build = (api: Api) => SceneT;
 /** What the scene answers when built and loaded alone in a fresh module graph. */
@@ -56,7 +71,14 @@ async function baseline(build: Build, data: DataSource[], ...reads: [string, str
   return answers;
 }
 const km = (a: ArrayLike<number>, b: ArrayLike<number>) => Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]);
-const codeOf = (call: () => unknown): string => { try { call(); } catch (error) { return (error as { code?: string }).code ?? "no code"; } return "no error"; };
+const codeOf = (call: () => unknown): string => {
+  try {
+    call();
+  } catch (error) {
+    return (error as { code?: string }).code ?? "no code";
+  }
+  return "no error";
+};
 
 const buildA1: Build = (api) => sunJupiter(api, W2016);
 const buildB1: Build = (api) => jupiterIo(api, W2016);
@@ -88,7 +110,8 @@ describe("one scene's moon data against another's", () => {
   });
 
   it(`concurrent loads from different sources: A's Jupiter outside its chunks matches its own answer ${FIX}`, async () => {
-    const buildA: Build = (api) => new api.Scene().addBody(api.sun).addBody(api.jupiter).addBody(api.io).setTimeline(W2016);
+    const buildA: Build = (api) =>
+      new api.Scene().addBody(api.sun).addBody(api.jupiter).addBody(api.io).setTimeline(W2016);
     const buildB: Build = (api) => jupiterIo(api, W2020);
     const [own] = await baseline(buildA, [A_SRC], ["jupiter", T2020]).catch((error: unknown) => [error]);
     const api = await import("astraeus");
@@ -99,7 +122,13 @@ describe("one scene's moon data against another's", () => {
     expect(new Set(fetched).size).toBe(fetched.length);
     expect(fetched.some((url) => url.startsWith("https://a.test/"))).toBe(true);
     expect(fetched.some((url) => url.startsWith("https://b.test/"))).toBe(true);
-    const read = (() => { try { return a.stateOf("jupiter", T2020); } catch (error) { return error; } })();
+    const read = (() => {
+      try {
+        return a.stateOf("jupiter", T2020);
+      } catch (error) {
+        return error;
+      }
+    })();
     expect(String(read)).toBe(String(own)); // both throw alike or both answer; a leak from B makes A answer where it alone cannot
     if (!(own instanceof Error)) expect(read).toEqual(own);
   });

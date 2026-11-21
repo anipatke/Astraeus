@@ -5,9 +5,14 @@ import { act, createElement } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-const sceneProps = vi.hoisted(() => ({ latest: null as null | { controls: import("../src/app/AstraeusScene").SceneControls } }));
+const sceneProps = vi.hoisted(() => ({
+  latest: null as null | { controls: import("../src/app/AstraeusScene").SceneControls },
+}));
 vi.mock("../src/app/AstraeusScene", () => ({
-  AstraeusScene: (props: NonNullable<typeof sceneProps.latest>) => { sceneProps.latest = props; return createElement("div", { "data-testid": "scene" }); },
+  AstraeusScene: (props: NonNullable<typeof sceneProps.latest>) => {
+    sceneProps.latest = props;
+    return createElement("div", { "data-testid": "scene" });
+  },
 }));
 
 import { AstraeusScene } from "../src/api/AstraeusScene";
@@ -22,19 +27,35 @@ import { $, byLabel, change, drawn, pretendScreen } from "./domSetup";
 const DAY = 86_400_000;
 const T0 = Date.UTC(2030, 0, 1);
 const at = (days: number) => new Date(T0 + days * DAY).toISOString();
-const samples = (x: number) => [0, 1].map((i) => ({ time: T0 + i * 100 * DAY, positionKm: [x + i, 0, 0], velocityKmS: [1, 0, 0] }));
+const samples = (x: number) =>
+  [0, 1].map((i) => ({ time: T0 + i * 100 * DAY, positionKm: [x + i, 0, 0], velocityKmS: [1, 0, 0] }));
 /** Probe A's flyby is on day 20 (view a), probe B's on day 50 (view b); each slows playback within a day. `start` is the day the timeline opens on. */
-const makeScene = (start = 0, extra = false, within = 86_400, rate = 60) => new Scene().addBody(earth)
-  .addTrajectory({ id: "pa", label: "Probe A", center: "earth", samples: samples(10_000) })
-  .addTrajectory({ id: "pb", label: "Probe B", center: "earth", samples: samples(20_000) })
-  .addEvents([
-    { id: "ea", label: "A flyby", time: at(20), type: "flyby", object: "pa" },
-    { id: "eb", label: "B flyby", time: at(50), type: "flyby", object: "pb" },
-    ...(extra ? [{ id: "ea2", label: "A second", time: at(20.5), type: "flyby", object: "pa" }] : []),
-  ])
-  .setViews([{ id: "a", label: "A", objects: ["pa"], events: ["ea", "ea2"].filter((id) => extra || id !== "ea2") }, { id: "b", label: "B", objects: ["pb"], events: ["eb"] }], { place: "top-bar" })
-  .setTimeline({ start: at(start), end: at(100), rate: 86_400, rates: [60, 86_400], pacing: [{ near: { type: "flyby", withinSeconds: within }, rate }] });
-const plain = () => new Scene().addBody(earth).setTimeline({ start: at(0), end: at(100), rate: 86_400, rates: [60, 86_400] });
+const makeScene = (start = 0, extra = false, within = 86_400, rate = 60) =>
+  new Scene()
+    .addBody(earth)
+    .addTrajectory({ id: "pa", label: "Probe A", center: "earth", samples: samples(10_000) })
+    .addTrajectory({ id: "pb", label: "Probe B", center: "earth", samples: samples(20_000) })
+    .addEvents([
+      { id: "ea", label: "A flyby", time: at(20), type: "flyby", object: "pa" },
+      { id: "eb", label: "B flyby", time: at(50), type: "flyby", object: "pb" },
+      ...(extra ? [{ id: "ea2", label: "A second", time: at(20.5), type: "flyby", object: "pa" }] : []),
+    ])
+    .setViews(
+      [
+        { id: "a", label: "A", objects: ["pa"], events: ["ea", "ea2"].filter((id) => extra || id !== "ea2") },
+        { id: "b", label: "B", objects: ["pb"], events: ["eb"] },
+      ],
+      { place: "top-bar" },
+    )
+    .setTimeline({
+      start: at(start),
+      end: at(100),
+      rate: 86_400,
+      rates: [60, 86_400],
+      pacing: [{ near: { type: "flyby", withinSeconds: within }, rate }],
+    });
+const plain = () =>
+  new Scene().addBody(earth).setTimeline({ start: at(0), end: at(100), rate: 86_400, rates: [60, 86_400] });
 
 let host: HTMLElement;
 let root: Root | undefined;
@@ -45,11 +66,25 @@ beforeEach(() => {
   host = document.createElement("div");
   document.body.append(host);
 });
-afterEach(() => { if (root) act(() => root!.unmount()); root = undefined; host.remove(); sceneProps.latest = null; vi.unstubAllGlobals(); vi.useRealTimers(); });
-const tick = (ms: number) => act(() => { vi.advanceTimersByTime(ms); });
+afterEach(() => {
+  if (root) act(() => root!.unmount());
+  root = undefined;
+  host.remove();
+  sceneProps.latest = null;
+  vi.unstubAllGlobals();
+  vi.useRealTimers();
+});
+const tick = (ms: number) =>
+  act(() => {
+    vi.advanceTimersByTime(ms);
+  });
 const short = (c: EventZoneChange) => `${c.entered ? "enter" : "leave"} ${c.event} ${c.cause}`;
 const vias = (seen: EventZoneChange[]) => seen.map((c) => c.via);
-const listen = (handle: { onEventZone(l: (c: EventZoneChange) => void): () => void }) => { const seen: EventZoneChange[] = []; handle.onEventZone((c) => seen.push(c)); return seen; };
+const listen = (handle: { onEventZone(l: (c: EventZoneChange) => void): () => void }) => {
+  const seen: EventZoneChange[] = [];
+  handle.onEventZone((c) => seen.push(c));
+  return seen;
+};
 
 describe("event zones from playback", () => {
   it("reports enter then leave as the clock runs across a zone, with the event's type and object, and the time", async () => {
@@ -115,8 +150,12 @@ describe("event zones from a view switch", () => {
     const seen = listen(handle);
     act(() => handle.setView("b")); // time is inside A's zone, which view b does not show
     act(() => handle.setView("a"));
-    act(() => { (host.querySelector('[data-view-id="b"]') as HTMLElement).click(); });
-    act(() => { (host.querySelector('[data-view-id="a"]') as HTMLElement).click(); });
+    act(() => {
+      (host.querySelector('[data-view-id="b"]') as HTMLElement).click();
+    });
+    act(() => {
+      (host.querySelector('[data-view-id="a"]') as HTMLElement).click();
+    });
     expect(seen.map(short)).toEqual(["leave ea host", "enter ea host", "leave ea visitor", "enter ea visitor"]);
     expect(vias(seen)).toEqual(["view", "view", "view", "view"]);
     expect($(host, '[data-view-id="a"]')).toBeTruthy();
@@ -191,9 +230,14 @@ describe("the React prop", () => {
     const seen: EventZoneChange[] = [];
     const scene = makeScene();
     root = createRoot(host);
-    const draw = (time: string) => act(async () => { root!.render(createElement(AstraeusScene, { scene, onEventZone: (c) => seen.push(c), time })); });
+    const draw = (time: string) =>
+      act(async () => {
+        root!.render(createElement(AstraeusScene, { scene, onEventZone: (c) => seen.push(c), time }));
+      });
     await draw(at(20));
-    await act(async () => { await Promise.resolve(); });
+    await act(async () => {
+      await Promise.resolve();
+    });
     await draw(at(30));
     expect(seen.map(short)).toEqual(["enter ea host", "leave ea host"]);
     expect(seen[0]).toMatchObject({ type: "flyby", object: "pa", timeUtcMs: T0 + 20 * DAY, via: "time" });
@@ -207,13 +251,19 @@ describe("the README composition: the camera to the encounter and back", () => {
     sceneProps.latest!.controls.viewReadout = { focus: "earth", azimuthDeg: 10, elevationDeg: 20, distance: 30 };
     let saved: typeof handle.camera;
     handle.onEventZone(({ entered, object, via }) => {
-      if (entered) { saved = handle.camera; handle.setCamera({ follow: object! }); } else if (via === "time" && saved) handle.setCamera(saved);
+      if (entered) {
+        saved = handle.camera;
+        handle.setCamera({ follow: object! });
+      } else if (via === "time" && saved) handle.setCamera(saved);
       if (!entered) saved = undefined;
     });
     act(() => handle.setTime(T0 + 20 * DAY));
     expect(sceneProps.latest!.controls.cameraRequest).toEqual({ kind: "follow", target: "pa" });
     act(() => handle.setTime(T0 + 30 * DAY));
-    expect(sceneProps.latest!.controls.cameraRequest).toMatchObject({ kind: "pose", view: { focus: "earth", azimuthDeg: 10, elevationDeg: 20, distance: 30 } });
+    expect(sceneProps.latest!.controls.cameraRequest).toMatchObject({
+      kind: "pose",
+      view: { focus: "earth", azimuthDeg: 10, elevationDeg: 20, distance: 30 },
+    });
     handle.unmount();
   });
 
@@ -225,9 +275,14 @@ describe("the README composition: the camera to the encounter and back", () => {
     const errors: unknown[] = [];
     handle.onEventZone(({ entered, object, via }) => {
       try {
-        if (entered) { saved = handle.camera; handle.setCamera({ follow: object! }); } else if (via === "time" && saved) handle.setCamera(saved);
+        if (entered) {
+          saved = handle.camera;
+          handle.setCamera({ follow: object! });
+        } else if (via === "time" && saved) handle.setCamera(saved);
         if (!entered) saved = undefined;
-      } catch (error) { errors.push(error); }
+      } catch (error) {
+        errors.push(error);
+      }
     });
     act(() => handle.setTime(T0 + 20 * DAY));
     expect(sceneProps.latest!.controls.cameraRequest).toEqual({ kind: "follow", target: "pa" });
@@ -241,13 +296,38 @@ describe("the README composition: the camera to the encounter and back", () => {
 
 // O-056 T-263 (G-016, owner D4): an event carries its own zone, with or without pacing.
 const ZONES_DAY_20 = 86_400; // one day either side
-const zoned = (events: readonly { id: string; day: number; within?: number; type?: string }[], opts: { views?: boolean; pacing?: readonly object[] } = {}) => {
-  let scene = new Scene().addBody(earth)
+const zoned = (
+  events: readonly { id: string; day: number; within?: number; type?: string }[],
+  opts: { views?: boolean; pacing?: readonly object[] } = {},
+) => {
+  let scene = new Scene()
+    .addBody(earth)
     .addTrajectory({ id: "pa", label: "Probe A", center: "earth", samples: samples(10_000) })
     .addTrajectory({ id: "pb", label: "Probe B", center: "earth", samples: samples(20_000) })
-    .addEvents(events.map((e) => ({ id: e.id, label: e.id, time: at(e.day), ...(e.type === undefined ? {} : { type: e.type }), ...(e.within === undefined ? {} : { withinSeconds: e.within }) })));
-  if (opts.views) scene = scene.setViews([{ id: "a", label: "A", objects: ["pa"], events: ["za"] }, { id: "b", label: "B", objects: ["pb"], events: ["zb"] }], { place: "top-bar" });
-  return scene.setTimeline({ start: at(0), end: at(100), rate: 86_400, rates: [60, 86_400], ...(opts.pacing === undefined ? {} : { pacing: opts.pacing as never }) });
+    .addEvents(
+      events.map((e) => ({
+        id: e.id,
+        label: e.id,
+        time: at(e.day),
+        ...(e.type === undefined ? {} : { type: e.type }),
+        ...(e.within === undefined ? {} : { withinSeconds: e.within }),
+      })),
+    );
+  if (opts.views)
+    scene = scene.setViews(
+      [
+        { id: "a", label: "A", objects: ["pa"], events: ["za"] },
+        { id: "b", label: "B", objects: ["pb"], events: ["zb"] },
+      ],
+      { place: "top-bar" },
+    );
+  return scene.setTimeline({
+    start: at(0),
+    end: at(100),
+    rate: 86_400,
+    rates: [60, 86_400],
+    ...(opts.pacing === undefined ? {} : { pacing: opts.pacing as never }),
+  });
 };
 
 describe("event zones from withinSeconds", () => {
@@ -255,7 +335,10 @@ describe("event zones from withinSeconds", () => {
     ["without pacing", undefined],
     ["alongside a pacing rule for another type", [{ near: { type: "other", withinSeconds: 60 }, rate: 60 }]],
   ] as const)("reports enter and leave with via time, %s", async (_name, pacing) => {
-    const events = [{ id: "za", day: 20, within: ZONES_DAY_20 }, { id: "oth", day: 80, type: "other" }];
+    const events = [
+      { id: "za", day: 20, within: ZONES_DAY_20 },
+      { id: "oth", day: 80, type: "other" },
+    ];
     const handle = mount(host, zoned(events, { ...(pacing === undefined ? {} : { pacing }) }));
     await drawn(handle);
     const seen = listen(handle);
@@ -277,8 +360,14 @@ describe("event zones from withinSeconds", () => {
   });
 
   it("zones from both sources report together: an own zone and a rule zone", async () => {
-    const events = [{ id: "za", day: 20, within: ZONES_DAY_20 }, { id: "zb", day: 20.5, type: "flyby" }];
-    const handle = mount(host, zoned(events, { pacing: [{ near: { type: "flyby", withinSeconds: 3_600 }, rate: 3_600 }] }));
+    const events = [
+      { id: "za", day: 20, within: ZONES_DAY_20 },
+      { id: "zb", day: 20.5, type: "flyby" },
+    ];
+    const handle = mount(
+      host,
+      zoned(events, { pacing: [{ near: { type: "flyby", withinSeconds: 3_600 }, rate: 3_600 }] }),
+    );
     await drawn(handle);
     act(() => handle.setTime(T0 + 20.5 * DAY));
     expect([...handle.eventZones!].sort()).toEqual(["za", "zb"]); // zone order is not part of the contract
@@ -288,8 +377,14 @@ describe("event zones from withinSeconds", () => {
   });
 
   it("a pacing rule uses the event's own withinSeconds, its own within otherwise", async () => {
-    const events = [{ id: "za", day: 20, within: ZONES_DAY_20, type: "flyby" }, { id: "zb", day: 50, type: "flyby" }];
-    const handle = mount(host, zoned(events, { pacing: [{ near: { type: "flyby", withinSeconds: 3_600 }, rate: 3_600 }] }));
+    const events = [
+      { id: "za", day: 20, within: ZONES_DAY_20, type: "flyby" },
+      { id: "zb", day: 50, type: "flyby" },
+    ];
+    const handle = mount(
+      host,
+      zoned(events, { pacing: [{ near: { type: "flyby", withinSeconds: 3_600 }, rate: 3_600 }] }),
+    );
     await drawn(handle);
     act(() => handle.setTime(T0 + 20.5 * DAY)); // 12 h from za: its own day, not the rule's hour
     expect(handle.eventZones).toEqual(["za"]);
@@ -299,7 +394,16 @@ describe("event zones from withinSeconds", () => {
   });
 
   it("a view that hides the event hides its zone", async () => {
-    const handle = mount(host, zoned([{ id: "za", day: 20, within: ZONES_DAY_20 }, { id: "zb", day: 50, within: ZONES_DAY_20 }], { views: true }));
+    const handle = mount(
+      host,
+      zoned(
+        [
+          { id: "za", day: 20, within: ZONES_DAY_20 },
+          { id: "zb", day: 50, within: ZONES_DAY_20 },
+        ],
+        { views: true },
+      ),
+    );
     await drawn(handle);
     act(() => handle.setTime(T0 + 50 * DAY)); // zb's zone, view a showing
     expect(handle.eventZones).toEqual([]);
@@ -308,15 +412,25 @@ describe("event zones from withinSeconds", () => {
     handle.unmount();
   });
 
-  it.each([[0], [-5], [Number.NaN], [Number.POSITIVE_INFINITY], ["60"]])("withinSeconds %s throws bad-event naming the event", (value) => {
-    let error: unknown;
-    try { new Scene().addEvents([{ id: "ev", label: "E", time: at(1), withinSeconds: value as never }]); } catch (caught) { error = caught; }
-    expect(error).toMatchObject({ code: "bad-event" });
-    expect((error as Error).message).toContain('"ev"');
-  });
+  it.each([[0], [-5], [Number.NaN], [Number.POSITIVE_INFINITY], ["60"]])(
+    "withinSeconds %s throws bad-event naming the event",
+    (value) => {
+      let error: unknown;
+      try {
+        new Scene().addEvents([{ id: "ev", label: "E", time: at(1), withinSeconds: value as never }]);
+      } catch (caught) {
+        error = caught;
+      }
+      expect(error).toMatchObject({ code: "bad-event" });
+      expect((error as Error).message).toContain('"ev"');
+    },
+  );
 
   it("scene.events reads withinSeconds back", () => {
-    const scene = zoned([{ id: "za", day: 20, within: 90 }, { id: "zb", day: 21 }]);
+    const scene = zoned([
+      { id: "za", day: 20, within: 90 },
+      { id: "zb", day: 21 },
+    ]);
     expect(scene.events.map((e) => e.withinSeconds)).toEqual([90, undefined]);
   });
 });

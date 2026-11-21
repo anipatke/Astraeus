@@ -13,7 +13,8 @@ export class MoonTrajectory implements Trajectory {
 
   stateAt(timeUtcMs: number, center: CenterId = "earth"): State {
     assertUtcUnixMs(timeUtcMs);
-    if (center !== "earth") throw new RangeError("Moon trajectory center must be Earth; the state resolver recentres it");
+    if (center !== "earth")
+      throw new RangeError("Moon trajectory center must be Earth; the state resolver recentres it");
     const moonFromEarthKm = this.adapter.moonPositionKm(timeUtcMs);
     const orientation = iauOrientation(MOON_ROTATION, this.adapter.daysSinceJ2000Tt(timeUtcMs));
     return createState({

@@ -10,12 +10,23 @@ import { listedObjects } from "../src/shell/objectModel";
 import { definitionOf } from "../src/api/definitionOf";
 
 const DAY_MS = 86_400_000;
-const codeOf = (fn: () => unknown) => { try { fn(); } catch (error) { return error instanceof SceneError ? `${error.code}: ${error.message}` : String(error); } return "no error"; };
+const codeOf = (fn: () => unknown) => {
+  try {
+    fn();
+  } catch (error) {
+    return error instanceof SceneError ? `${error.code}: ${error.message}` : String(error);
+  }
+  return "no error";
+};
 const everything: DataSource = { name: "made-up", provides: catalogue.ids() };
-const objectOf = (scene: Scene, id: string) => definitionOf(scene, [everything]).experience.objects.find((object) => object.id === id)!;
+const objectOf = (scene: Scene, id: string) =>
+  definitionOf(scene, [everything]).experience.objects.find((object) => object.id === id)!;
 const pathsOf = (scene: Scene) => definitionOf(scene, [everything]).composition?.paths ?? [];
 const resolver = () => createStateResolver(catalogue.definitions(), catalogue.sources(), createOrbAstronomyAdapter());
-const rowsOf = (scene: Scene, id: string) => definitionOf(scene, [everything]).createMetrics({ resolver: resolver(), catalogue, clock: undefined as never })(id, Date.UTC(2026, 3, 1)).map((row) => row.kind);
+const rowsOf = (scene: Scene, id: string) =>
+  definitionOf(scene, [everything])
+    .createMetrics({ resolver: resolver(), catalogue, clock: undefined as never })(id, Date.UTC(2026, 3, 1))
+    .map((row) => row.kind);
 
 describe("AddBodyOptions.listed", () => {
   it("defaults to listed; false leaves the body out of the object menu until it is the selected one", () => {
@@ -29,12 +40,17 @@ describe("AddBodyOptions.listed", () => {
     expect(listedObjects(experience, "moon").map((object) => object.id)).toEqual(["earth", "moon"]);
   });
   it("refuses a non-boolean with bad-body", () => {
-    expect(codeOf(() => new Scene().addBody(earth, { listed: "no" as never }))).toMatch(/^bad-body: addBody\("earth"\): listed must be true or false/);
+    expect(codeOf(() => new Scene().addBody(earth, { listed: "no" as never }))).toMatch(
+      /^bad-body: addBody\("earth"\): listed must be true or false/,
+    );
   });
 });
 
 describe("AddBodyOptions.facts", () => {
-  const facts = [{ label: "Made-up fact", value: "Invented" }, { label: "Second", value: "Also invented" }];
+  const facts = [
+    { label: "Made-up fact", value: "Invented" },
+    { label: "Second", value: "Also invented" },
+  ];
   it("shows on the info card in order and reads back from scene.bodies; absent by default", () => {
     expect(new Scene().addBody(earth).bodies[0]!.facts).toBeUndefined();
     expect(objectOf(new Scene().addBody(earth), "earth").facts).toBeUndefined();
@@ -44,7 +60,9 @@ describe("AddBodyOptions.facts", () => {
     expect(Object.isFrozen(scene.bodies[1]!.facts![0])).toBe(true);
   });
   it("refuses a fact without both texts", () => {
-    expect(codeOf(() => new Scene().addBody(earth, { facts: [{ label: "x", value: "" }] }))).toMatch(/^bad-body: .*facts must be a list/);
+    expect(codeOf(() => new Scene().addBody(earth, { facts: [{ label: "x", value: "" }] }))).toMatch(
+      /^bad-body: .*facts must be a list/,
+    );
     expect(codeOf(() => new Scene().addBody(earth, { facts: "x" as never }))).toMatch(/^bad-body/);
   });
 });
@@ -55,13 +73,21 @@ describe("AddBodyOptions.sources", () => {
     const plain = new Scene().addBody(earth).addBody(moon);
     expect(plain.provenanceOf("moon").sources).toEqual(own.sources);
     expect(objectOf(plain, "moon").provenance).toEqual(own);
-    const scene = new Scene().addBody(earth).addBody(moon, { sources: ["A made-up list, 2026", "Another made-up note"] });
-    expect(scene.provenanceOf("moon").sources).toEqual([...own.sources, "A made-up list, 2026", "Another made-up note"]);
+    const scene = new Scene()
+      .addBody(earth)
+      .addBody(moon, { sources: ["A made-up list, 2026", "Another made-up note"] });
+    expect(scene.provenanceOf("moon").sources).toEqual([
+      ...own.sources,
+      "A made-up list, 2026",
+      "Another made-up note",
+    ]);
     expect(objectOf(scene, "moon").provenance!.sources).toEqual(scene.provenanceOf("moon").sources);
     expect(objectOf(scene, "moon").provenance!.accuracy).toBe(own.accuracy);
   });
   it("refuses an empty source", () => {
-    expect(codeOf(() => new Scene().addBody(earth, { sources: [""] }))).toMatch(/^bad-body: .*sources must be a list of non-empty texts/);
+    expect(codeOf(() => new Scene().addBody(earth, { sources: [""] }))).toMatch(
+      /^bad-body: .*sources must be a list of non-empty texts/,
+    );
   });
 });
 
@@ -72,14 +98,17 @@ describe("AddBodyOptions.labelPriority", () => {
     expect(priorities(new Scene().addBody(earth).addBody(moon, { labelPriority: 250 }))).toEqual([100, 250]);
   });
   it("refuses a number that is not finite", () => {
-    expect(codeOf(() => new Scene().addBody(earth, { labelPriority: Number.NaN }))).toMatch(/^bad-body: .*labelPriority/);
+    expect(codeOf(() => new Scene().addBody(earth, { labelPriority: Number.NaN }))).toMatch(
+      /^bad-body: .*labelPriority/,
+    );
   });
 });
 
 describe("AddBodyOptions.orbit as a lap", () => {
   it("draws a moon with no period on record from the lap given, and refuses orbit: true for it", () => {
     expect(codeOf(() => new Scene().addBody("mars").addBody("phobos", { orbit: true }))).toMatch(/^no-orbit/);
-    const lap = (orbit: { lapDays: number; fades?: boolean }) => pathsOf(new Scene().addBody("mars").addBody("phobos", { orbit }));
+    const lap = (orbit: { lapDays: number; fades?: boolean }) =>
+      pathsOf(new Scene().addBody("mars").addBody("phobos", { orbit }));
     expect(lap({ lapDays: 0.5 })).toEqual([{ body: "phobos", spanMs: 0.5 * DAY_MS, look: { endFadeOn: false } }]);
     expect(lap({ lapDays: 0.5, fades: true })).toEqual([{ body: "phobos", spanMs: 0.5 * DAY_MS }]);
     expect(new Scene().addBody("mars").addBody("phobos", { orbit: { lapDays: 0.5 } }).bodies[1]!.orbit).toBe(true);
@@ -90,13 +119,23 @@ describe("AddBodyOptions.orbit as a lap", () => {
     expect(lap.spanMs).toBe(10 * DAY_MS);
     expect(own.spanMs).not.toBe(lap.spanMs);
     expect(lap.look).toEqual(own.look);
-    expect(pathsOf(new Scene().addBody("earth").addBody("moon", { orbit: { lapDays: 10, fades: false } }))[0]!.look).toEqual({ endFadeOn: false });
+    expect(
+      pathsOf(new Scene().addBody("earth").addBody("moon", { orbit: { lapDays: 10, fades: false } }))[0]!.look,
+    ).toEqual({ endFadeOn: false });
   });
   it("is checked: a bad lap or fades is bad-body, a body that circles the Sun is no-orbit, and the parent must be in the scene", () => {
-    expect(codeOf(() => new Scene().addBody(earth).addBody(moon, { orbit: { lapDays: 0 } }))).toMatch(/^bad-body: .*lapDays/);
-    expect(codeOf(() => new Scene().addBody(earth).addBody(moon, { orbit: { lapDays: 1, fades: 1 as never } }))).toMatch(/^bad-body: .*fades/);
-    expect(codeOf(() => new Scene().addBody(sun).addBody(earth, { orbit: { lapDays: 365 } }))).toMatch(/^no-orbit: .*lap form/);
-    expect(codeOf(() => definitionOf(new Scene().addBody(moon, { orbit: { lapDays: 10 } }), [everything]))).toMatch(/^no-orbit: .*about earth/);
+    expect(codeOf(() => new Scene().addBody(earth).addBody(moon, { orbit: { lapDays: 0 } }))).toMatch(
+      /^bad-body: .*lapDays/,
+    );
+    expect(
+      codeOf(() => new Scene().addBody(earth).addBody(moon, { orbit: { lapDays: 1, fades: 1 as never } })),
+    ).toMatch(/^bad-body: .*fades/);
+    expect(codeOf(() => new Scene().addBody(sun).addBody(earth, { orbit: { lapDays: 365 } }))).toMatch(
+      /^no-orbit: .*lap form/,
+    );
+    expect(codeOf(() => definitionOf(new Scene().addBody(moon, { orbit: { lapDays: 10 } }), [everything]))).toMatch(
+      /^no-orbit: .*about earth/,
+    );
   });
 });
 
@@ -107,7 +146,11 @@ describe("Scene.setBodyReadouts", () => {
     expect(base.length).toBeGreaterThan(0);
     expect(new Set(base)).toEqual(new Set(["distance"]));
     expect(rowsOf(scene().setBodyReadouts(["distance"]), "moon")).toEqual(base);
-    expect(rowsOf(scene().setBodyReadouts(["distance", "phase", "coordinates"]), "moon")).toEqual([...base, "phase", "coordinates"]);
+    expect(rowsOf(scene().setBodyReadouts(["distance", "phase", "coordinates"]), "moon")).toEqual([
+      ...base,
+      "phase",
+      "coordinates",
+    ]);
     expect(rowsOf(scene().setBodyReadouts(["phase"]), "moon")).toEqual(["phase"]);
     expect(rowsOf(scene().setBodyReadouts([]), "moon")).toEqual([]);
   });
@@ -129,7 +172,9 @@ describe("SceneCamera.setReach { farEarthRadii }", () => {
     expect(far(wide)).toEqual({ maxFocusDistance: 100, far: 700 });
   });
   it("refuses a far plane nearer than the reach, and fitOrbit forgets it", () => {
-    expect(codeOf(() => new Scene().addBody(earth).camera.setReach(100, { farEarthRadii: 50 }))).toMatch(/^bad-camera: .*farEarthRadii/);
+    expect(codeOf(() => new Scene().addBody(earth).camera.setReach(100, { farEarthRadii: 50 }))).toMatch(
+      /^bad-camera: .*farEarthRadii/,
+    );
     const scene = new Scene().addBody(sun).addBody(earth);
     scene.camera.setReach(100, { farEarthRadii: 700 }).fitOrbit("earth");
     expect(scene.camera.farEarthRadii).toBeUndefined();
@@ -159,15 +204,25 @@ describe("SceneCamera.setStartView", () => {
     expect(definition.startView).toEqual(pose);
   });
   it("is checked: an unknown focus is unknown-body, a bad angle or distance is bad-camera", () => {
-    expect(codeOf(() => scene().camera.setStartView({ ...pose, focus: "mars" }))).toMatch(/^unknown-body: camera.setStartView/);
-    expect(codeOf(() => scene().camera.setStartView({ ...pose, elevationDeg: 95 }))).toMatch(/^bad-camera: .*elevationDeg/);
+    expect(codeOf(() => scene().camera.setStartView({ ...pose, focus: "mars" }))).toMatch(
+      /^unknown-body: camera.setStartView/,
+    );
+    expect(codeOf(() => scene().camera.setStartView({ ...pose, elevationDeg: 95 }))).toMatch(
+      /^bad-camera: .*elevationDeg/,
+    );
     expect(codeOf(() => scene().camera.setStartView({ ...pose, distance: 0 }))).toMatch(/^bad-camera: .*distance/);
   });
 });
 
 describe("SceneCamera.setFollowChoices", () => {
-  const follows = (scene: Scene) => definitionOf(scene, [everything]).experience.cameraPresets.filter((preset) => preset.id.startsWith("follow-")).map((preset) => preset.id);
-  const focuses = (scene: Scene) => definitionOf(scene, [everything]).experience.cameraPresets.filter((preset) => preset.id.startsWith("focus-")).map((preset) => preset.id);
+  const follows = (scene: Scene) =>
+    definitionOf(scene, [everything])
+      .experience.cameraPresets.filter((preset) => preset.id.startsWith("follow-"))
+      .map((preset) => preset.id);
+  const focuses = (scene: Scene) =>
+    definitionOf(scene, [everything])
+      .experience.cameraPresets.filter((preset) => preset.id.startsWith("focus-"))
+      .map((preset) => preset.id);
   const scene = () => new Scene().addBody(earth).addBody(moon);
   it("offers Follow on every body by default; the list given keeps Focus on all and Follow on the listed only", () => {
     expect(follows(scene())).toEqual(["follow-earth", "follow-moon"]);

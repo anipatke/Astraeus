@@ -23,7 +23,10 @@ export interface EntryLists {
 export function chooseEntry(search: string, lists: EntryLists): EntryChoice {
   const query = new URLSearchParams(search);
   const requested = query.get("experience") ?? "";
-  const planet = requested === "planets" || requested === "jupiter-io" ? choosePlanet(lists.planets, query.get("planet")) : undefined;
+  const planet =
+    requested === "planets" || requested === "jupiter-io"
+      ? choosePlanet(lists.planets, query.get("planet"))
+      : undefined;
   if (planet !== undefined) return { kind: "planets", choice: planet };
   const shower = requested === "showers" ? chooseShower(lists.showers, query.get("shower")) : undefined;
   if (shower !== undefined) return { kind: "showers", choice: shower };

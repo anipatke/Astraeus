@@ -32,16 +32,40 @@ const CODE = "src/.+\\.(?:js|d\\.ts)";
 /** Files each package may contain (anything else fails). */
 const ALLOWED = {
   astraeus: [...COMMON, CODE, "src/.+\\.(?:css|jpg|png|json)", "data/.+\\.json"],
-  "astraeus-data": [...COMMON, CODE, "src/textures/[^/]+\\.jpg", "data/bodies/[^/]+\\.(?:json|md)", "data/bodies/[a-z]+/[a-z]+\\.json"],
+  "astraeus-data": [
+    ...COMMON,
+    CODE,
+    "src/textures/[^/]+\\.jpg",
+    "data/bodies/[^/]+\\.(?:json|md)",
+    "data/bodies/[a-z]+/[a-z]+\\.json",
+  ],
   "astraeus-data-constellations": [...COMMON, CODE, "data/(?:figures|boundaries|names|provenance)\\.json"],
-  position: [...COMMON, CODE, "data/[a-z]+-moons/index\\.json", "data/[a-z]+-moons/(?:list|fit-errors)\\.json", "data/[a-z]+-moons/[^/]+/\\d{4}\\.bin"],
+  position: [
+    ...COMMON,
+    CODE,
+    "data/[a-z]+-moons/index\\.json",
+    "data/[a-z]+-moons/(?:list|fit-errors)\\.json",
+    "data/[a-z]+-moons/[^/]+/\\d{4}\\.bin",
+  ],
 };
 /** Never packed, whatever else matches. */
-const FORBIDDEN = /(?:\.test\.|\.spec\.|(?:^|\/)tests?\/|(?:^|\/)tools\/|horizons-cache|\.map$|\.env|\.tsbuildinfo|tsconfig|(?<!\.d)\.tsx?$|vitest|\/local\/)/;
+const FORBIDDEN =
+  /(?:\.test\.|\.spec\.|(?:^|\/)tests?\/|(?:^|\/)tools\/|horizons-cache|\.map$|\.env|\.tsbuildinfo|tsconfig|(?<!\.d)\.tsx?$|vitest|\/local\/)/;
 
 /** The libraries the engine takes from the host app (T-163): peer dependencies of `astraeus`, never bundled or listed as dependencies. */
 const PEER_LIBRARIES = ["react", "react-dom", "@react-three/fiber", "three"];
-const REQUIRED_FIELDS = ["name", "version", "description", "license", "repository", "keywords", "exports", "types", "files", "type"];
+const REQUIRED_FIELDS = [
+  "name",
+  "version",
+  "description",
+  "license",
+  "repository",
+  "keywords",
+  "exports",
+  "types",
+  "files",
+  "type",
+];
 
 function targetsOf(value) {
   if (typeof value === "string") return [value];
@@ -53,13 +77,22 @@ function targetsOf(value) {
 export function exportTargetPacked(target, paths) {
   const wanted = target.replace(/^\.\//, "");
   if (!wanted.includes("*")) return paths.includes(wanted);
-  const pattern = new RegExp(`^${wanted.split("*").map((part) => part.replace(/[.+?^${}()|[\]\\]/g, "\\$&")).join(".+")}$`);
+  const pattern = new RegExp(
+    `^${wanted
+      .split("*")
+      .map((part) => part.replace(/[.+?^${}()|[\]\\]/g, "\\$&"))
+      .join(".+")}$`,
+  );
   return paths.some((path) => pattern.test(path));
 }
 
 function packOf(name) {
   const dir = join(root, "packages", name, "dist");
-  const run = spawnSync("npm", ["pack", "--dry-run", "--json", "--ignore-scripts"], { cwd: dir, encoding: "utf8", maxBuffer: 1 << 28 });
+  const run = spawnSync("npm", ["pack", "--dry-run", "--json", "--ignore-scripts"], {
+    cwd: dir,
+    encoding: "utf8",
+    maxBuffer: 1 << 28,
+  });
   if (run.status !== 0) throw new Error(`${name}: npm pack --dry-run failed\n${run.stderr}`);
   // npm 11 prints an array of packs; npm 12 prints an object keyed by package name.
   const parsed = JSON.parse(run.stdout);
@@ -77,7 +110,8 @@ export function extensionlessImports(dir) {
       if (entry.isDirectory()) visit(path);
       else if (/\.(?:js|d\.ts)$/.test(entry.name)) {
         for (const match of readFileSync(path, "utf8").matchAll(RELATIVE_SPECIFIER)) {
-          if (!/\.[a-z]+$/i.test(match[2].replace(/^(\.\.?\/)+/, ""))) found.push(`${path.slice(dir.length + 1)}: ${match[2]}`);
+          if (!/\.[a-z]+$/i.test(match[2].replace(/^(\.\.?\/)+/, "")))
+            found.push(`${path.slice(dir.length + 1)}: ${match[2]}`);
         }
       }
     }
@@ -104,7 +138,10 @@ export function packedComments(text) {
       if (starts.has(range.pos)) continue;
       starts.add(range.pos);
       const comment = text.slice(range.pos, range.end);
-      if (!KEPT_COMMENT.test(comment)) found.push(`line ${source.getLineAndCharacterOfPosition(range.pos).line + 1}: ${comment.slice(0, 40).replace(/\s+/g, " ")}`);
+      if (!KEPT_COMMENT.test(comment))
+        found.push(
+          `line ${source.getLineAndCharacterOfPosition(range.pos).line + 1}: ${comment.slice(0, 40).replace(/\s+/g, " ")}`,
+        );
     }
   };
   const visit = (node) => {
@@ -125,13 +162,15 @@ function commentProblems(name, dir) {
       if (entry.isDirectory()) visit(path);
       else if (entry.name.endsWith(".js")) {
         const [first] = packedComments(readFileSync(path, "utf8"));
-        if (first !== undefined) problems.push(`${name}: packed JS keeps a comment in ${path.slice(dir.length + 1)}: ${first}`);
+        if (first !== undefined)
+          problems.push(`${name}: packed JS keeps a comment in ${path.slice(dir.length + 1)}: ${first}`);
       }
     }
   };
   visit(join(dir, "src"));
   // The second tsc pass keeps the doc comments in the engine's declarations; without it editors would lose them.
-  if (name === "astraeus" && !readFileSync(join(dir, "src", "api", "scene.d.ts"), "utf8").includes("/**")) problems.push(`${name}: src/api/scene.d.ts has no doc comments (the declarations must keep them)`);
+  if (name === "astraeus" && !readFileSync(join(dir, "src", "api", "scene.d.ts"), "utf8").includes("/**"))
+    problems.push(`${name}: src/api/scene.d.ts has no doc comments (the declarations must keep them)`);
   return problems;
 }
 
@@ -142,8 +181,10 @@ function codeProblems(name, dir) {
   if (isPositionPackage(name)) {
     const urls = readFileSync(join(dir, "src", "chunks.js"), "utf8").match(/new URL\([^)]*\)/g) ?? [];
     if (urls.length === 0) problems.push(`${name}: src/chunks.js lists no chunk`);
-    if (urls.some((url) => !/\.bin\?no-inline"/.test(url))) problems.push(`${name}: a chunk URL in src/chunks.js lacks ?no-inline (Vite would inline it)`);
-    if (!existsSync(join(dir, "src", "chunks.d.ts"))) problems.push(`${name}: src/chunks.d.ts is missing (chunkUrls would be untyped)`);
+    if (urls.some((url) => !/\.bin\?no-inline"/.test(url)))
+      problems.push(`${name}: a chunk URL in src/chunks.js lacks ?no-inline (Vite would inline it)`);
+    if (!existsSync(join(dir, "src", "chunks.d.ts")))
+      problems.push(`${name}: src/chunks.d.ts is missing (chunkUrls would be untyped)`);
   }
   return problems;
 }
@@ -164,15 +205,23 @@ function peerProblems(name, manifest) {
   if (name.startsWith("astraeus-data")) {
     const engine = JSON.parse(readFileSync(join(root, "packages", "astraeus", "package.json"), "utf8")).version;
     const wanted = enginePeerRange(engine);
-    if (manifest.peerDependencies?.astraeus !== wanted) problems.push(`${name}: astraeus peer is ${manifest.peerDependencies?.astraeus ?? "missing"}, the engine's current minor is ${wanted}`);
+    if (manifest.peerDependencies?.astraeus !== wanted)
+      problems.push(
+        `${name}: astraeus peer is ${manifest.peerDependencies?.astraeus ?? "missing"}, the engine's current minor is ${wanted}`,
+      );
   }
   if (name !== "astraeus") return problems;
   for (const library of ["react", "react-dom"]) {
-    if (manifest.peerDependencies?.[library] !== REACT_PEER_RANGE) problems.push(`${name}: ${library} peer is ${manifest.peerDependencies?.[library] ?? "missing"}, it must cover all of React 19 (${REACT_PEER_RANGE})`);
+    if (manifest.peerDependencies?.[library] !== REACT_PEER_RANGE)
+      problems.push(
+        `${name}: ${library} peer is ${manifest.peerDependencies?.[library] ?? "missing"}, it must cover all of React 19 (${REACT_PEER_RANGE})`,
+      );
   }
   for (const library of PEER_LIBRARIES) {
-    if (manifest.dependencies?.[library] !== undefined) problems.push(`${name}: ${library} is a dependency; it must be a peerDependency (the host app's copy is used)`);
-    if (manifest.peerDependencies?.[library] === undefined) problems.push(`${name}: ${library} is not a peerDependency`);
+    if (manifest.dependencies?.[library] !== undefined)
+      problems.push(`${name}: ${library} is a dependency; it must be a peerDependency (the host app's copy is used)`);
+    if (manifest.peerDependencies?.[library] === undefined)
+      problems.push(`${name}: ${library} is not a peerDependency`);
   }
   return problems;
 }
@@ -201,16 +250,23 @@ function strayProblems(name, paths) {
   if (name !== "astraeus") return [];
   const source = join(root, "packages", name);
   const publish = JSON.parse(readFileSync(join(source, "package.json"), "utf8"))["x-publish"]?.files ?? [];
-  return strayFiles(paths, source, publish).map((path) => `${name}: stray file ${path} (no source module or listed file behind it)`);
+  return strayFiles(paths, source, publish).map(
+    (path) => `${name}: stray file ${path} (no source module or listed file behind it)`,
+  );
 }
 
 /** Sizes (and, where a package has one, the file count) over the package's limits. */
 function sizeProblems(name, pack) {
   const problems = [];
   const limit = LIMITS[name];
-  if (pack.size > limit.packed) problems.push(`${name}: packed ${(pack.size / MB).toFixed(2)} MB is over ${(limit.packed / MB).toFixed(1)} MB`);
-  if (pack.unpackedSize > limit.unpacked) problems.push(`${name}: unpacked ${(pack.unpackedSize / MB).toFixed(2)} MB is over ${(limit.unpacked / MB).toFixed(1)} MB`);
-  if (limit.files !== undefined && pack.entryCount > limit.files) problems.push(`${name}: ${pack.entryCount} files is over ${limit.files}`);
+  if (pack.size > limit.packed)
+    problems.push(`${name}: packed ${(pack.size / MB).toFixed(2)} MB is over ${(limit.packed / MB).toFixed(1)} MB`);
+  if (pack.unpackedSize > limit.unpacked)
+    problems.push(
+      `${name}: unpacked ${(pack.unpackedSize / MB).toFixed(2)} MB is over ${(limit.unpacked / MB).toFixed(1)} MB`,
+    );
+  if (limit.files !== undefined && pack.entryCount > limit.files)
+    problems.push(`${name}: ${pack.entryCount} files is over ${limit.files}`);
   return problems;
 }
 
@@ -219,9 +275,15 @@ function sizeProblems(name, pack) {
  * Read here, where reading packed files is the check's job, by a child Node process importing the packed catalogue from `dir`.
  */
 export function ringFactProblems(dir) {
-  const script = 'const { catalogue } = await import(process.argv[1]); console.log(JSON.stringify({ saturn: catalogue.get("saturn").visual.rings?.bands?.length ?? 0, mars: catalogue.get("mars").visual.rings ?? null }));';
-  const run = spawnSync(process.execPath, ["--input-type=module", "-e", script, pathToFileURL(join(dir, "src", "assets", "catalogue.js")).href], { encoding: "utf8" });
-  if (run.status !== 0) return [`astraeus: the packed catalogue would not import (${run.stderr.trim().split("\n").at(-1)})`];
+  const script =
+    'const { catalogue } = await import(process.argv[1]); console.log(JSON.stringify({ saturn: catalogue.get("saturn").visual.rings?.bands?.length ?? 0, mars: catalogue.get("mars").visual.rings ?? null }));';
+  const run = spawnSync(
+    process.execPath,
+    ["--input-type=module", "-e", script, pathToFileURL(join(dir, "src", "assets", "catalogue.js")).href],
+    { encoding: "utf8" },
+  );
+  if (run.status !== 0)
+    return [`astraeus: the packed catalogue would not import (${run.stderr.trim().split("\n").at(-1)})`];
   const facts = JSON.parse(run.stdout);
   const problems = [];
   if (!(facts.saturn > 0)) problems.push("astraeus: the packed catalogue gives Saturn no ring bands");
@@ -264,14 +326,20 @@ function problemsOf(name, dir, pack) {
   const manifest = JSON.parse(readFileSync(join(dir, "package.json"), "utf8"));
   if (manifest.name !== name) problems.push(`${name}: package.json names ${manifest.name}`);
   const sourceVersion = JSON.parse(readFileSync(join(root, "packages", name, "package.json"), "utf8")).version;
-  if (manifest.version !== sourceVersion) problems.push(`${name}: version is ${manifest.version}, the source package.json says ${sourceVersion}`);
-  for (const field of REQUIRED_FIELDS) if (manifest[field] === undefined) problems.push(`${name}: package.json has no ${field}`);
+  if (manifest.version !== sourceVersion)
+    problems.push(`${name}: version is ${manifest.version}, the source package.json says ${sourceVersion}`);
+  for (const field of REQUIRED_FIELDS)
+    if (manifest[field] === undefined) problems.push(`${name}: package.json has no ${field}`);
   if (manifest.private === true) problems.push(`${name}: package.json is private`);
-  if (Object.keys(manifest).some((key) => key.startsWith("x-"))) problems.push(`${name}: package.json still has an x- build block`);
-  for (const target of targetsOf(manifest.exports)) if (!exportTargetPacked(target, paths)) problems.push(`${name}: exports names ${target}, which is not packed`);
+  if (Object.keys(manifest).some((key) => key.startsWith("x-")))
+    problems.push(`${name}: package.json still has an x- build block`);
+  for (const target of targetsOf(manifest.exports))
+    if (!exportTargetPacked(target, paths)) problems.push(`${name}: exports names ${target}, which is not packed`);
   problems.push(...peerProblems(name, manifest));
-  for (const required of ["README.md", "LICENSE"]) if (!paths.includes(required)) problems.push(`${name}: ${required} is not packed`);
-  if (!paths.includes("NOTICE") && !paths.some((path) => path.startsWith("licenses/"))) problems.push(`${name}: no NOTICE or licenses/ (PROV-01, PROV-02)`);
+  for (const required of ["README.md", "LICENSE"])
+    if (!paths.includes(required)) problems.push(`${name}: ${required} is not packed`);
+  if (!paths.includes("NOTICE") && !paths.some((path) => path.startsWith("licenses/")))
+    problems.push(`${name}: no NOTICE or licenses/ (PROV-01, PROV-02)`);
   problems.push(...codeProblems(name, dir));
   if (name === "astraeus") problems.push(...ringFactProblems(dir));
   problems.push(...sizeProblems(name, pack));
@@ -286,7 +354,13 @@ export function checkPacks({ build = true, only = PACKAGES } = {}) {
     if (build) buildPackage(name);
     const { dir, pack } = packOf(name);
     problems.push(...problemsOf(name, dir, pack));
-    rows.push({ name, packedMB: pack.size / MB, unpackedMB: pack.unpackedSize / MB, files: pack.entryCount, limit: LIMITS[name] });
+    rows.push({
+      name,
+      packedMB: pack.size / MB,
+      unpackedMB: pack.unpackedSize / MB,
+      files: pack.entryCount,
+      limit: LIMITS[name],
+    });
   }
   return { ok: problems.length === 0, rows, problems };
 }
@@ -295,9 +369,15 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const started = Date.now();
   const result = checkPacks();
   for (const row of result.rows) {
-    console.log(`${row.name.padEnd(24)} packed ${row.packedMB.toFixed(2).padStart(6)} MB (limit ${(row.limit.packed / MB).toFixed(1)})  unpacked ${row.unpackedMB.toFixed(2).padStart(6)} MB (limit ${(row.limit.unpacked / MB).toFixed(1)})  ${String(row.files).padStart(5)} files (${row.limit.files === undefined ? "no count limit; stray-file check" : `limit ${row.limit.files}`})`);
+    console.log(
+      `${row.name.padEnd(24)} packed ${row.packedMB.toFixed(2).padStart(6)} MB (limit ${(row.limit.packed / MB).toFixed(1)})  unpacked ${row.unpackedMB.toFixed(2).padStart(6)} MB (limit ${(row.limit.unpacked / MB).toFixed(1)})  ${String(row.files).padStart(5)} files (${row.limit.files === undefined ? "no count limit; stray-file check" : `limit ${row.limit.files}`})`,
+    );
   }
   for (const problem of result.problems) console.error(`FAIL ${problem}`);
-  console.log(result.ok ? `pack check: pass (${((Date.now() - started) / 1000).toFixed(1)} s)` : `pack check: FAIL (${result.problems.length} problems)`);
+  console.log(
+    result.ok
+      ? `pack check: pass (${((Date.now() - started) / 1000).toFixed(1)} s)`
+      : `pack check: FAIL (${result.problems.length} problems)`,
+  );
   process.exit(result.ok ? 0 : 1);
 }

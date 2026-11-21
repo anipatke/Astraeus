@@ -26,7 +26,11 @@ const unit = (raDeg: number, decDeg: number): Vec => {
   return [cosDec * Math.cos(raDeg * RAD), cosDec * Math.sin(raDeg * RAD), Math.sin(decDeg * RAD)];
 };
 const dot = (a: Vec, b: Vec): number => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
-const cross = (a: Vec, b: Vec): Vec => [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];
+const cross = (a: Vec, b: Vec): Vec => [
+  a[1] * b[2] - a[2] * b[1],
+  a[2] * b[0] - a[0] * b[2],
+  a[0] * b[1] - a[1] * b[0],
+];
 const normalize = (a: Vec): Vec => {
   const length = Math.hypot(a[0], a[1], a[2]);
   return length === 0 ? a : [a[0] / length, a[1] / length, a[2] / length];
@@ -69,7 +73,11 @@ const contains = (loop: Loop, p: Vec, raDeg: number): boolean => {
     const db = dot(b, plane);
     if (da >= 0 === db >= 0) continue;
     // The point of the arc on the plane: the convex mix of the ends that cancels the signed distances.
-    const x: Vec = [a[0] * Math.abs(db) + b[0] * Math.abs(da), a[1] * Math.abs(db) + b[1] * Math.abs(da), a[2] * Math.abs(db) + b[2] * Math.abs(da)];
+    const x: Vec = [
+      a[0] * Math.abs(db) + b[0] * Math.abs(da),
+      a[1] * Math.abs(db) + b[1] * Math.abs(da),
+      a[2] * Math.abs(db) + b[2] * Math.abs(da),
+    ];
     if (x[0] * c + x[1] * s > 0 && x[2] / Math.hypot(x[0], x[1], x[2]) > p[2]) crossings++;
   }
   return (crossings % 2 === 1) !== (loop.pole === "north");
@@ -84,16 +92,28 @@ const edgeDistance = (loop: Loop, p: Vec): number => {
     const b = loop.points[(i + 1) % n] as Vec;
     const normal = loop.normals[i] as Vec;
     const within = dot(cross(a, p), normal) >= 0 && dot(cross(p, b), normal) >= 0;
-    const d = within ? Math.asin(Math.min(1, Math.abs(dot(p, normal)))) : Math.acos(Math.min(1, Math.max(dot(p, a), dot(p, b))));
+    const d = within
+      ? Math.asin(Math.min(1, Math.abs(dot(p, normal))))
+      : Math.acos(Math.min(1, Math.max(dot(p, a), dot(p, b))));
     if (d < best) best = d;
   }
   return best;
 };
 
 const checked = (direction: SkyDirection): void => {
-  if (typeof direction !== "object" || direction === null) throw new RangeError("constellationFinder: the direction must be an object { raDeg, decDeg }");
-  if (typeof direction.raDeg !== "number" || !Number.isFinite(direction.raDeg)) throw new RangeError(`constellationFinder: raDeg must be a finite number, got ${String(direction.raDeg)}`);
-  if (typeof direction.decDeg !== "number" || !Number.isFinite(direction.decDeg) || direction.decDeg < -90 || direction.decDeg > 90) throw new RangeError(`constellationFinder: decDeg must be a number from -90 to 90, got ${String(direction.decDeg)}`);
+  if (typeof direction !== "object" || direction === null)
+    throw new RangeError("constellationFinder: the direction must be an object { raDeg, decDeg }");
+  if (typeof direction.raDeg !== "number" || !Number.isFinite(direction.raDeg))
+    throw new RangeError(`constellationFinder: raDeg must be a finite number, got ${String(direction.raDeg)}`);
+  if (
+    typeof direction.decDeg !== "number" ||
+    !Number.isFinite(direction.decDeg) ||
+    direction.decDeg < -90 ||
+    direction.decDeg > 90
+  )
+    throw new RangeError(
+      `constellationFinder: decDeg must be a number from -90 to 90, got ${String(direction.decDeg)}`,
+    );
 };
 
 /** What `buildMatcher` gives: the finder itself, and (for tests) every loop's abbreviation that encloses a direction by the containment test alone, before the edge rule. */
@@ -105,7 +125,9 @@ export interface Matcher {
 /** Builds the finder from boundary outlines (`loadBoundaries()`'s result). */
 export const buildMatcher = (boundaries: ConstellationBoundaries): Matcher => {
   // Alphabetical, so every tie below resolves to the first abbreviation in this order.
-  const loops = Object.keys(boundaries).sort().flatMap((abbr) => (boundaries[abbr] ?? []).map((flat) => buildLoop(abbr, flat)));
+  const loops = Object.keys(boundaries)
+    .sort()
+    .flatMap((abbr) => (boundaries[abbr] ?? []).map((flat) => buildLoop(abbr, flat)));
   const prepare = (direction: SkyDirection): { p: Vec; raDeg: number } => {
     checked(direction);
     const raDeg = ((direction.raDeg % 360) + 360) % 360;
@@ -126,7 +148,10 @@ export const buildMatcher = (boundaries: ConstellationBoundaries): Matcher => {
     let best = Infinity;
     for (const loop of loops) {
       const d = edgeDistance(loop, p);
-      if (d < best) { best = d; nearest = loop.abbr; }
+      if (d < best) {
+        best = d;
+        nearest = loop.abbr;
+      }
     }
     return nearest;
   };
@@ -138,4 +163,5 @@ export const buildMatcher = (boundaries: ConstellationBoundaries): Matcher => {
 };
 
 /** Builds the finder from boundary outlines (`loadBoundaries()`'s result). */
-export const buildFinder = (boundaries: ConstellationBoundaries): ((direction: SkyDirection) => string) => buildMatcher(boundaries).find;
+export const buildFinder = (boundaries: ConstellationBoundaries): ((direction: SkyDirection) => string) =>
+  buildMatcher(boundaries).find;

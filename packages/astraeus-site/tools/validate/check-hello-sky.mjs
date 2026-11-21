@@ -19,33 +19,69 @@ await checkScript({ name: "check-hello-sky", viewports: SIZES }, async (page, { 
   await ui.ensurePaused(page);
   await ui.waitForStoryPanel(page, "the-hunter");
   // The first step: the view is the sky around Orion, Orion's figure is hidden, its neighbours show.
-  await ui.waitForSkyLines(page, { present: ["sky-figures:Tau", "sky-figures:Gem"], absent: ["sky-figures:Ori", "sky-trace:Ori", "sky-selected:Ori"] });
+  await ui.waitForSkyLines(page, {
+    present: ["sky-figures:Tau", "sky-figures:Gem"],
+    absent: ["sky-figures:Ori", "sky-trace:Ori", "sky-selected:Ori"],
+  });
   const start = await ui.waitForExampleCamera(page, (pose) => pose?.lookOut === "earth" && pose.fovDeg === 90);
-  assert.ok(start?.lookOut === "earth" && near(start, { raDeg: 83.7, decDeg: 0 }, 1) && start.fovDeg === 90, `${name}: step 1 looks out from Earth toward Orion (${JSON.stringify(start)})`);
+  assert.ok(
+    start?.lookOut === "earth" && near(start, { raDeg: 83.7, decDeg: 0 }, 1) && start.fovDeg === 90,
+    `${name}: step 1 looks out from Earth toward Orion (${JSON.stringify(start)})`,
+  );
   assert.equal(await ui.storyStepEnabled(page, "back"), false, `${name}: Back is off on the first step`);
   assert.equal(await ui.storyStepEnabled(page, "next"), true, `${name}: Next is on the first step`);
 
   const fit = async (label) => {
-    for (const which of ["back", "next"]) assert.equal(await ui.storyStepReachable(page, which), true, `${name}: ${label}: ${which} is not covered by anything`);
+    for (const which of ["back", "next"])
+      assert.equal(
+        await ui.storyStepReachable(page, which),
+        true,
+        `${name}: ${label}: ${which} is not covered by anything`,
+      );
     assert.deepEqual(await ui.overlappingSceneLabels(page), [], `${name}: ${label}: no two labels overlap`);
     const box = await ui.storyPanelBox(page);
     const view = page.viewportSize();
-    assert.ok(box && box.x >= 0 && box.y >= 0 && box.x + box.width <= view.width + 0.5 && box.y + box.height <= view.height + 0.5, `${name}: ${label}: the story panel is inside the window (${JSON.stringify(box)})`);
+    assert.ok(
+      box &&
+        box.x >= 0 &&
+        box.y >= 0 &&
+        box.x + box.width <= view.width + 0.5 &&
+        box.y + box.height <= view.height + 0.5,
+      `${name}: ${label}: the story panel is inside the window (${JSON.stringify(box)})`,
+    );
     if (await ui.infoOpen(page)) {
       const card = await ui.infoPanel(page).boundingBox();
-      assert.ok(card !== null && !(card.x < box.x + box.width && box.x < card.x + card.width && card.y < box.y + box.height && box.y < card.y + card.height), `${name}: ${label}: the card and the story panel do not overlap`);
+      assert.ok(
+        card !== null &&
+          !(
+            card.x < box.x + box.width &&
+            box.x < card.x + card.width &&
+            card.y < box.y + box.height &&
+            box.y < card.y + card.height
+          ),
+        `${name}: ${label}: the card and the story panel do not overlap`,
+      );
     }
     for (const which of ["back", "next"]) {
       const b = await ui.storyStepBox(page, which);
-      assert.ok(b && Math.min(b.width, b.height) >= (name === "phone" ? 44 : 24) && b.y + b.height <= view.height + 0.5, `${name}: ${label}: ${which} is big enough and inside the window`);
+      assert.ok(
+        b && Math.min(b.width, b.height) >= (name === "phone" ? 44 : 24) && b.y + b.height <= view.height + 0.5,
+        `${name}: ${label}: ${which} is big enough and inside the window`,
+      );
     }
   };
   await fit("step 1");
 
   await ui.pressStoryStep(page, "next");
   await ui.waitForOpenStoryPanel(page, "belt-and-sword");
-  const belt = await ui.waitForExampleCamera(page, (pose) => pose?.lookOut === "earth" && near(pose, { raDeg: 84, decDeg: -3 }, 1));
-  assert.ok(belt?.lookOut === "earth" && near(belt, { raDeg: 84, decDeg: -3 }, 1) && belt.fovDeg === 90, `${name}: step 2 turns to the belt and sword and keeps the field of view (${JSON.stringify(belt)})`);
+  const belt = await ui.waitForExampleCamera(
+    page,
+    (pose) => pose?.lookOut === "earth" && near(pose, { raDeg: 84, decDeg: -3 }, 1),
+  );
+  assert.ok(
+    belt?.lookOut === "earth" && near(belt, { raDeg: 84, decDeg: -3 }, 1) && belt.fovDeg === 90,
+    `${name}: step 2 turns to the belt and sword and keeps the field of view (${JSON.stringify(belt)})`,
+  );
   await ui.waitForSkyLines(page, { present: ["sky-trace:Ori", "sky-selected:Ori"] });
   await ui.waitForPicked(page, "Ori");
   assert.equal(await ui.storyStepEnabled(page, "back"), true, `${name}: Back is on in step 2`);
@@ -53,8 +89,14 @@ await checkScript({ name: "check-hello-sky", viewports: SIZES }, async (page, { 
 
   await ui.pressStoryStep(page, "next");
   await ui.waitForOpenStoryPanel(page, "betelgeuse-and-rigel");
-  const whole = await ui.waitForExampleCamera(page, (pose) => pose?.lookOut === "earth" && near(pose, { raDeg: 83.7, decDeg: 0 }, 1));
-  assert.ok(whole?.lookOut === "earth" && near(whole, { raDeg: 83.7, decDeg: 0 }, 1) && whole.fovDeg === 90, `${name}: step 3 turns back to the whole hunter and keeps the field of view (${JSON.stringify(whole)})`);
+  const whole = await ui.waitForExampleCamera(
+    page,
+    (pose) => pose?.lookOut === "earth" && near(pose, { raDeg: 83.7, decDeg: 0 }, 1),
+  );
+  assert.ok(
+    whole?.lookOut === "earth" && near(whole, { raDeg: 83.7, decDeg: 0 }, 1) && whole.fovDeg === 90,
+    `${name}: step 3 turns back to the whole hunter and keeps the field of view (${JSON.stringify(whole)})`,
+  );
   await ui.waitForSkyLines(page, { present: ["sky-trace:Ori"] });
   assert.equal(await ui.storyStepEnabled(page, "next"), false, `${name}: Next is off on the last step`);
   await fit("step 3");
@@ -62,7 +104,8 @@ await checkScript({ name: "check-hello-sky", viewports: SIZES }, async (page, { 
 
   // Orion's name opens its card (the card is the engine's own).
   // On a wide screen the step's select has opened the card already; on a phone it opens no card (it would cover Back and Next), so the visitor opens it with the information button.
-  if (name === "phone") assert.equal(await ui.infoOpen(page), false, `${name}: a step's select opens no card sheet on a phone`);
+  if (name === "phone")
+    assert.equal(await ui.infoOpen(page), false, `${name}: a step's select opens no card sheet on a phone`);
   else await ui.waitForInfo(page, { timeout: 5000 });
   if (name === "phone") await ui.toggleInfo(page);
   await ui.waitForInfo(page, { timeout: 5000 });
@@ -82,14 +125,24 @@ await checkScript({ name: "check-hello-sky", viewports: SIZES }, async (page, { 
   // The page's own slider (outside the viewer) sets the view width and keeps the direction; a later step turns without changing it.
   const hostFit = await ui.hostControlsFit(page);
   assert.equal(hostFit.count, 1, `${name}: the page has its one slider`);
-  assert.deepEqual([hostFit.overlaps, hostFit.outside, hostFit.sideways], [[], [], false], `${name}: the slider is inside the window and overlaps nothing (${JSON.stringify(hostFit)})`);
+  assert.deepEqual(
+    [hostFit.overlaps, hostFit.outside, hostFit.sideways],
+    [[], [], false],
+    `${name}: the slider is inside the window and overlaps nothing (${JSON.stringify(hostFit)})`,
+  );
   const before = await ui.exampleCamera(page);
   await ui.setHostSlider(page, "view-width", 40);
   const narrow = await ui.waitForExampleCamera(page, (pose) => pose?.fovDeg === 40);
-  assert.ok(narrow?.fovDeg === 40 && near(narrow, before, 0.1), `${name}: the slider sets the view width and keeps the direction (${JSON.stringify([before, narrow])})`);
+  assert.ok(
+    narrow?.fovDeg === 40 && near(narrow, before, 0.1),
+    `${name}: the slider sets the view width and keeps the direction (${JSON.stringify([before, narrow])})`,
+  );
   await ui.pressStoryStep(page, "next");
   await ui.waitForOpenStoryPanel(page, "belt-and-sword");
-  const turned = await ui.waitForExampleCamera(page, (pose) => pose?.lookOut === "earth" && near(pose, { raDeg: 84, decDeg: -3 }, 1));
+  const turned = await ui.waitForExampleCamera(
+    page,
+    (pose) => pose?.lookOut === "earth" && near(pose, { raDeg: 84, decDeg: -3 }, 1),
+  );
   assert.equal(turned.fovDeg, 40, `${name}: a step keeps the width the slider set (${JSON.stringify(turned)})`);
   await ui.setHostSlider(page, "view-width", 90);
   await ui.waitForExampleCamera(page, (pose) => pose?.fovDeg === 90);

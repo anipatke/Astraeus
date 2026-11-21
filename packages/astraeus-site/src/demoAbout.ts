@@ -19,10 +19,13 @@ type Credit = NonNullable<AboutInput["credits"]>[number];
 
 /** The credit lines of a credit file: each `- ` line, its trailing `<url>` as the source link. */
 export function creditLines(file: string): Credit[] {
-  return file.split("\n").filter((line) => line.startsWith("- ")).map((line) => {
-    const match = /^- (.*?)\s*(?:<(https?:\/\/\S+)>)?\s*$/.exec(line)!;
-    return { text: match[1]!, ...(match[2] === undefined ? {} : { url: match[2] }) };
-  });
+  return file
+    .split("\n")
+    .filter((line) => line.startsWith("- "))
+    .map((line) => {
+      const match = /^- (.*?)\s*(?:<(https?:\/\/\S+)>)?\s*$/.exec(line)!;
+      return { text: match[1]!, ...(match[2] === undefined ? {} : { url: match[2] }) };
+    });
 }
 
 /** The picture name the data's sky picture is kept under. */
@@ -30,16 +33,22 @@ const MILKY_WAY = "milky-way";
 
 /** The licence record of every picture the viewer can draw for the scene, in body order, then the sky picture. */
 function pictureLicences(scene: Scene, data: readonly DataSource[]): AssetLicence[] {
-  const picture = (name: string): AssetLicence | undefined => data.map((source) => source.pictures?.[name]?.licence).find((licence) => licence !== undefined);
-  return [...scene.bodies.map((body) => body.texture?.licence ?? picture(body.id)), picture(MILKY_WAY)].filter((licence): licence is AssetLicence => licence !== undefined);
+  const picture = (name: string): AssetLicence | undefined =>
+    data.map((source) => source.pictures?.[name]?.licence).find((licence) => licence !== undefined);
+  return [...scene.bodies.map((body) => body.texture?.licence ?? picture(body.id)), picture(MILKY_WAY)].filter(
+    (licence): licence is AssetLicence => licence !== undefined,
+  );
 }
 
 /** The credits: the package's credit lines, then one per distinct picture record (the credit line it asks for, else its source and licence), each linking to its source. */
 export function demoCredits(source: DemoAboutSource): Credit[] {
   const credits = new Map<string, Credit>();
-  const add = (credit: Credit): void => { if (!credits.has(credit.text)) credits.set(credit.text, credit); };
+  const add = (credit: Credit): void => {
+    if (!credits.has(credit.text)) credits.set(credit.text, credit);
+  };
   if (source.credits !== undefined) creditLines(source.credits).forEach(add);
-  for (const licence of pictureLicences(source.scene, source.data)) add({ text: licence.attribution ?? `${licence.source}, ${licence.licence}`, url: licence.url });
+  for (const licence of pictureLicences(source.scene, source.data))
+    add({ text: licence.attribution ?? `${licence.source}, ${licence.licence}`, url: licence.url });
   return [...credits.values()];
 }
 

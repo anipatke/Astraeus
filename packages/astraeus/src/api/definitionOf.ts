@@ -20,7 +20,8 @@ export function registerDefinition(scene: object, build: Build): Build | undefin
 /** The builder registered for `scene`; something that is not a `Scene` is `bad-scene`, so no route in meets the engine's own TypeError. */
 function builderOf(scene: unknown): Build {
   const build = typeof scene === "object" && scene !== null ? builders.get(scene) : undefined;
-  if (build === undefined) throw new SceneError("bad-scene", "expected a Scene: build one with new Scene().addBody(...)");
+  if (build === undefined)
+    throw new SceneError("bad-scene", "expected a Scene: build one with new Scene().addBody(...)");
   return build;
 }
 
@@ -32,7 +33,8 @@ export function definitionOf(scene: object, data: readonly DataSource[] = []): E
 /** The data packages the scene's bodies need that `data` does not provide. */
 export function missingDataOf(scene: object, data: readonly DataSource[] = []): readonly string[] {
   const find = typeof scene === "object" && scene !== null ? missing.get(scene) : undefined;
-  if (find === undefined) throw new SceneError("bad-scene", "expected a Scene: build one with new Scene().addBody(...)");
+  if (find === undefined)
+    throw new SceneError("bad-scene", "expected a Scene: build one with new Scene().addBody(...)");
   return find(data);
 }
 

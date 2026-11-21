@@ -5,9 +5,18 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 const runtimeOf = vi.hoisted(() => new WeakMap<Element, import("../src/app/AstraeusScene").SceneRuntime>());
 vi.mock("../src/app/AstraeusScene", () => ({
-  AstraeusScene: (props: { runtime: import("../src/app/AstraeusScene").SceneRuntime }) => createElement("div", { "data-testid": "scene", ref: (el: HTMLDivElement | null) => { if (el) runtimeOf.set(el, props.runtime); } }),
+  AstraeusScene: (props: { runtime: import("../src/app/AstraeusScene").SceneRuntime }) =>
+    createElement("div", {
+      "data-testid": "scene",
+      ref: (el: HTMLDivElement | null) => {
+        if (el) runtimeOf.set(el, props.runtime);
+      },
+    }),
 }));
-vi.mock("../src/assets/sky", async (importOriginal) => ({ ...(await importOriginal<typeof import("../src/assets/sky")>()), loadStarCatalogue: vi.fn().mockResolvedValue(null) }));
+vi.mock("../src/assets/sky", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("../src/assets/sky")>()),
+  loadStarCatalogue: vi.fn().mockResolvedValue(null),
+}));
 
 import { io, jupiter, sun } from "../src/api/bodies";
 import type { DataSource } from "../src/api/data";
@@ -25,25 +34,57 @@ import { moonDataFolder } from "./moonData";
 const T2016 = Date.parse("2016-06-01T00:00:00Z");
 const km = (a: ArrayLike<number>, b: ArrayLike<number>) => Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]);
 const mounted: { unmount(): void }[] = [];
-afterEach(() => { for (const m of mounted.splice(0)) m.unmount(); document.body.innerHTML = ""; vi.unstubAllGlobals(); });
+afterEach(() => {
+  for (const m of mounted.splice(0)) m.unmount();
+  document.body.innerHTML = "";
+  vi.unstubAllGlobals();
+});
 
-const sunJupiter = () => new Scene().addBody(sun).addBody(jupiter).setTimeline({ start: Date.UTC(2016, 4, 15), end: Date.UTC(2016, 5, 15), rate: 60, rates: [60, 3600] });
+const sunJupiter = () =>
+  new Scene()
+    .addBody(sun)
+    .addBody(jupiter)
+    .setTimeline({ start: Date.UTC(2016, 4, 15), end: Date.UTC(2016, 5, 15), rate: 60, rates: [60, 3600] });
 /** Jupiter's barycentre answer: a resolver whose catalogue holds no moon data of its own, made apart from any Scene. */
-const barycentre = () => { const own = bindCatalogue(catalogue, createSceneMoonData()); return createStateResolver(own.definitions(), own.sources(), createOrbAstronomyAdapter()).stateOf("jupiter", T2016, "sun"); };
-const preloaded = () => createStateResolver(catalogue.definitions(), catalogue.sources(), createOrbAstronomyAdapter()).stateOf("jupiter", T2016, "sun");
+const barycentre = () => {
+  const own = bindCatalogue(catalogue, createSceneMoonData());
+  return createStateResolver(own.definitions(), own.sources(), createOrbAstronomyAdapter()).stateOf(
+    "jupiter",
+    T2016,
+    "sun",
+  );
+};
+const preloaded = () =>
+  createStateResolver(catalogue.definitions(), catalogue.sources(), createOrbAstronomyAdapter()).stateOf(
+    "jupiter",
+    T2016,
+    "sun",
+  );
 
 /** Jupiter's committed moon fits behind a counting fetch. */
 function stubData() {
   const folder = moonDataFolder("jupiter");
   const index = readJson(`${folder}index.json`) as { bodies: { chunks: { path: string }[] }[] };
-  const chunkUrls: Record<string, string> = Object.fromEntries(index.bodies.flatMap((body) => body.chunks.map(({ path }) => [path, `${folder}${path}`])));
+  const chunkUrls: Record<string, string> = Object.fromEntries(
+    index.bodies.flatMap((body) => body.chunks.map(({ path }) => [path, `${folder}${path}`])),
+  );
   const fetched: string[] = [];
   vi.stubGlobal("fetch", async (url: string) => {
     fetched.push(url);
     const bytes = readBytes(url) as Uint8Array;
-    return { ok: true, status: 200, arrayBuffer: async () => bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength) };
+    return {
+      ok: true,
+      status: 200,
+      arrayBuffer: async () => bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength),
+    };
   });
-  const data: DataSource[] = [{ name: "astraeus-data-jupiter", provides: ["io", "amalthea"], moonPositions: { center: "jupiter", loadIndex: async () => index, chunkUrls } }];
+  const data: DataSource[] = [
+    {
+      name: "astraeus-data-jupiter",
+      provides: ["io", "amalthea"],
+      moonPositions: { center: "jupiter", loadIndex: async () => index, chunkUrls },
+    },
+  ];
   return { data, fetched };
 }
 const open = async (scene: Scene, data: readonly DataSource[] = []) => {
@@ -54,9 +95,17 @@ const open = async (scene: Scene, data: readonly DataSource[] = []) => {
   await viewer.ready;
   return runtimeOf.get(element.querySelector("[data-testid=scene]")!)!;
 };
-const listedScene = (year: number) => new Scene().addBody(jupiter).addBody(io)
-  .addBodySet({ id: "small", families: [{ id: "f", label: "F" }], members: [{ id: "amalthea", family: "f" }], provenance: { sourceType: "illustrative", sources: ["Made up"], accuracy: "Not real.", notes: "" } })
-  .setTimeline({ start: Date.UTC(year, 2, 1), end: Date.UTC(year, 2, 20), rate: 60, rates: [60, 3600] });
+const listedScene = (year: number) =>
+  new Scene()
+    .addBody(jupiter)
+    .addBody(io)
+    .addBodySet({
+      id: "small",
+      families: [{ id: "f", label: "F" }],
+      members: [{ id: "amalthea", family: "f" }],
+      provenance: { sourceType: "illustrative", sources: ["Made up"], accuracy: "Not real.", notes: "" },
+    })
+    .setTimeline({ start: Date.UTC(year, 2, 1), end: Date.UTC(year, 2, 20), rate: 60, rates: [60, 3600] });
 
 describe("a scene reads its own moon data, never the process-wide systems", () => {
   it("the preloaded systems would move Jupiter, so the other rows mean something", () => {

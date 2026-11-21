@@ -6,7 +6,10 @@ import { describe, expect, it } from "vitest";
 const SRC = resolve(dirname(fileURLToPath(import.meta.url)), "../src");
 
 /** Where a walk reads modules from: the real folder, or a made-up graph in a test. */
-interface Source { read(file: string): string; exists(file: string): boolean }
+interface Source {
+  read(file: string): string;
+  exists(file: string): boolean;
+}
 
 const disk: Source = { read: (file) => readFileSync(file, "utf8"), exists: existsSync };
 
@@ -17,7 +20,16 @@ function staticSpecifiers(text: string): string[] {
   for (const match of text.matchAll(/^(?:import|export)\s+(type\s+)?([^;'"]*?)\s+from\s+["'](\.[^"']+)["']/gms)) {
     const [, typeOnly, names, spec] = match;
     if (typeOnly !== undefined) continue;
-    if (/^\{[^}]*\}$/.test(names) && names.slice(1, -1).split(",").map((n) => n.trim()).filter(Boolean).every((n) => n.startsWith("type "))) continue;
+    if (
+      /^\{[^}]*\}$/.test(names) &&
+      names
+        .slice(1, -1)
+        .split(",")
+        .map((n) => n.trim())
+        .filter(Boolean)
+        .every((n) => n.startsWith("type "))
+    )
+      continue;
     found.push(spec);
   }
   return found;
@@ -28,7 +40,10 @@ function staticImports(file: string, source: Source = disk): string[] {
   for (const spec of staticSpecifiers(source.read(file))) {
     for (const ext of [".ts", ".tsx", "/index.ts"]) {
       const path = join(dirname(file), spec + ext);
-      if (source.exists(path)) { found.push(path); break; }
+      if (source.exists(path)) {
+        found.push(path);
+        break;
+      }
     }
   }
   return found;
@@ -68,7 +83,9 @@ describe("first-open import graph (T-179)", () => {
     expect(graph).not.toContain("shell/moonFamilies.ts");
     const text = readFileSync(join(SRC, "shell/AstraeusShell.tsx"), "utf8");
     expect(text).toContain('import("./MoonFamilyPanel")');
-    expect(staticImports(join(SRC, "shell/AstraeusShell.tsx")).map((path) => path.slice(SRC.length + 1))).not.toContain("shell/MoonFamilyPanel.tsx");
+    expect(staticImports(join(SRC, "shell/AstraeusShell.tsx")).map((path) => path.slice(SRC.length + 1))).not.toContain(
+      "shell/MoonFamilyPanel.tsx",
+    );
   });
 
   it("loads the developer panels through a dynamic import", () => {
@@ -90,7 +107,11 @@ describe("first-open walker on a made-up graph (I-090)", () => {
   });
 
   it("follows an export-star chain", () => {
-    const graph = graphOf({ "/m/index.ts": 'export * from "./mid";', "/m/mid.ts": 'export { Panel } from "./Panel";', ...panel });
+    const graph = graphOf({
+      "/m/index.ts": 'export * from "./mid";',
+      "/m/mid.ts": 'export { Panel } from "./Panel";',
+      ...panel,
+    });
     expect(graph).toContain("/m/mid.ts");
     expect(graph).toContain("/m/Panel.tsx");
   });
@@ -100,7 +121,8 @@ describe("first-open walker on a made-up graph (I-090)", () => {
   });
 
   it("does not follow type-only imports or exports", () => {
-    const text = 'import type { P } from "./Panel";\nexport type { P } from "./Panel";\nimport { type P } from "./Panel";';
+    const text =
+      'import type { P } from "./Panel";\nexport type { P } from "./Panel";\nimport { type P } from "./Panel";';
     expect(graphOf({ "/m/index.ts": text, ...panel })).not.toContain("/m/Panel.tsx");
   });
 });

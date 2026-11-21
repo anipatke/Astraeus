@@ -48,7 +48,12 @@ export function splitNamed(moons: readonly MoonListing[]): MoonSplit {
 const squash = (text: string): string => text.toLowerCase().replace(/[^a-z0-9]+/g, "");
 
 /** The summary of a whole moon list: every moon in every family, counted live. */
-export const moonFamilyListSummary = (list: MoonFamilyList): string => moonListSummary(list.families.reduce((total, family) => total + family.moons.length, 0), list.listSource, list.listDate);
+export const moonFamilyListSummary = (list: MoonFamilyList): string =>
+  moonListSummary(
+    list.families.reduce((total, family) => total + family.moons.length, 0),
+    list.listSource,
+    list.listDate,
+  );
 
 export interface MoonMatch {
   readonly moon: MoonListing;
@@ -59,7 +64,9 @@ export interface MoonMatch {
 export function searchMoons(list: MoonFamilyList, query: string): readonly MoonMatch[] {
   const wanted = squash(query);
   if (wanted === "") return [];
-  return list.families.flatMap((family) => family.moons
-    .filter((moon) => squash(moon.label).includes(wanted) || squash(moon.id).includes(wanted))
-    .map((moon) => ({ moon, familyLabel: family.label })));
+  return list.families.flatMap((family) =>
+    family.moons
+      .filter((moon) => squash(moon.label).includes(wanted) || squash(moon.id).includes(wanted))
+      .map((moon) => ({ moon, familyLabel: family.label })),
+  );
 }

@@ -17,14 +17,28 @@ import type { PathView } from "./PathView";
 import type { RenderVector } from "./renderCoordinates";
 import { cameraTargetAbsolute, rescaleCameraForPolicy, stepCameraTarget } from "./sceneCamera";
 import type { SceneControls, SceneReadout, SceneRuntime } from "./AstraeusScene";
-import { buildFrameReadout, publishBodyData, publishPathData, publishPointsData, publishSceneData, recordFrameStats } from "./sceneDebug";
+import {
+  buildFrameReadout,
+  publishBodyData,
+  publishPathData,
+  publishPointsData,
+  publishSceneData,
+  recordFrameStats,
+} from "./sceneDebug";
 import { CAMERA_FOV_DEG, focusRadius, liveReach, lookOutFar, type SceneFrame } from "./sceneFraming";
 import { bodyScreenReadouts, placeBodies, swapSmallBodiesToMarkers, type BodyRefs } from "./sceneBodies";
 import { publishBodySets } from "./sceneBodySets";
 import type { useSceneViews } from "./sceneHooks";
 import { bodyAbsolute, placeComposition, type PlacedComposition, type ScenePlacement } from "./sceneLayout";
 import { placeBodyLights } from "./sceneLights";
-import { clampHoverBrightness, HOVER_BRIGHTNESS_DEFAULT, hoverTarget, pickCandidatesOf, type PickCandidate, type SkyPickFigure } from "./scenePicking";
+import {
+  clampHoverBrightness,
+  HOVER_BRIGHTNESS_DEFAULT,
+  hoverTarget,
+  pickCandidatesOf,
+  type PickCandidate,
+  type SkyPickFigure,
+} from "./scenePicking";
 import type { SceneLabelLayer } from "./SceneLabels";
 import { updateSky } from "./sceneSky";
 import { labelPositionOf, type SceneTargets } from "./sceneTargets";
@@ -78,8 +92,17 @@ export interface DrawnMemo {
 
 export function createFrameState(policyId: ScalePolicy["id"], onFirstDraw?: () => void): FrameState {
   return {
-    started: false, onFirstDraw, spanScaled: 6, lastPolicyId: policyId, lastUp: null, pickables: [], hoverPoint: null, skyFigures: () => [],
-    drawThisFrame: true, framesDrawn: 0, wakes: 0,
+    started: false,
+    onFirstDraw,
+    spanScaled: 6,
+    lastPolicyId: policyId,
+    lastUp: null,
+    pickables: [],
+    hoverPoint: null,
+    skyFigures: () => [],
+    drawThisFrame: true,
+    framesDrawn: 0,
+    wakes: 0,
     drawn: { timeUtcMs: Number.NaN, pose: [], size: "", controls: new Map(), wakes: 0, mounted: -1, quietFrames: 0 },
   };
 }
@@ -144,12 +167,17 @@ export function bodiesMounted(runtime: SceneRuntime, refs: BodyRefs): boolean {
  * Stage 0: the time of this frame. While pacing is in charge the clock is first stepped through the frame's real time under the paced rate (so no frame passes over a slow-down); looping playback then wraps inside its window,
  * and other playback stops on the window's edge (a scene with a timeline bar). A wrap or stop lands on the paced rate for its new time at once.
  */
-export function frameTime(runtime: SceneRuntime, controls: Pick<SceneControls, "loop" | "paceAuto" | "pace">, nowMs: number = performance.now()): number {
+export function frameTime(
+  runtime: SceneRuntime,
+  controls: Pick<SceneControls, "loop" | "paceAuto" | "pace">,
+  nowMs: number = performance.now(),
+): number {
   const paced = controls.paceAuto === true && runtime.pacing !== undefined;
   if (paced && controls.pace !== undefined) stepPacing(runtime.clock, runtime.pacing!, controls.pace, nowMs);
   let moved = false;
   if (controls.loop === true && runtime.loopWindow !== undefined) moved = runtime.clock.wrapWithin(runtime.loopWindow);
-  else if (runtime.stopAtWindow === true && runtime.loopWindow !== undefined) moved = runtime.clock.stopWithin(runtime.loopWindow);
+  else if (runtime.stopAtWindow === true && runtime.loopWindow !== undefined)
+    moved = runtime.clock.stopWithin(runtime.loopWindow);
   if (paced && (moved || controls.pace === undefined)) {
     if (controls.pace !== undefined) delete controls.pace.last;
     applyPacing(runtime.clock, runtime.pacing!, controls.pace, nowMs);
@@ -167,7 +195,12 @@ export function syncViews(ctx: FrameContext, t: number): BodySetLook {
   for (const view of views.compositionPaths) {
     if (view.defaultLook !== null) view.setLook({ ...view.defaultLook, ...controls.orbitLook });
     const owned = ctx.bodyFamilies.find((entry) => `${entry.body}-orbit` === view.id);
-    if (owned !== undefined) view.setColor(setLook.highlightFamily === owned.family ? setLook.highlightColor : familyColorOf(owned.layer, setLook, owned.family));
+    if (owned !== undefined)
+      view.setColor(
+        setLook.highlightFamily === owned.family
+          ? setLook.highlightColor
+          : familyColorOf(owned.layer, setLook, owned.family),
+      );
     view.sync(t, placement, policy);
   }
   for (const view of views.bodySetViews) view.sync(t, placement, policy, runtime.resolver);
@@ -182,7 +215,8 @@ export function placeScene(ctx: FrameContext, t: number): PlacedScene {
   const policy = ctx.controls.policy;
   // Every drawn body, and the centre even when it is not drawn, measured from the scene centre.
   const composed = placeComposition(runtime.bodies, placement, policy, t);
-  const absoluteOf = (id: BodyId): RenderVector => composed.absolutes.get(id) ?? bodyAbsolute(runtime.resolver.stateOf(id, t, runtime.sceneCenter).positionKm, policy);
+  const absoluteOf = (id: BodyId): RenderVector =>
+    composed.absolutes.get(id) ?? bodyAbsolute(runtime.resolver.stateOf(id, t, runtime.sceneCenter).positionKm, policy);
   const span = composed.span;
   if (policy.id !== state.lastPolicyId) {
     rescaleCameraForPolicy(ctx.orbit, runtime.sceneCenter, span / state.spanScaled);
@@ -198,43 +232,97 @@ export function stepAndPoseCamera(ctx: FrameContext, t: number, placed: PlacedSc
   const policy = controls.policy;
   const viewUp = viewUpOf(ctx);
   const memberRadius = (id: string): number | null => {
-    for (const view of views.bodySetViews) { const r = view.memberRadiusUnits(id); if (r !== null) return r; }
+    for (const view of views.bodySetViews) {
+      const r = view.memberRadiusUnits(id);
+      if (r !== null) return r;
+    }
     return null;
   };
   const frame: SceneFrame = { centre: runtime.sceneCenter, span: placed.span, bodies: catalogue, memberRadius };
-  const targets: SceneTargets = { bodyIdFor: ctx.bodyIdFor, placed: placed.composed.absolutes, absoluteOf: placed.absoluteOf, groupViews: views.groupViews, sunCentredViews: views.sunCentredViews, trackedViews: views.trackedViews, bodySetViews: views.bodySetViews, timeUtcMs: t, policy, placement: ctx.placement };
+  const targets: SceneTargets = {
+    bodyIdFor: ctx.bodyIdFor,
+    placed: placed.composed.absolutes,
+    absoluteOf: placed.absoluteOf,
+    groupViews: views.groupViews,
+    sunCentredViews: views.sunCentredViews,
+    trackedViews: views.trackedViews,
+    bodySetViews: views.bodySetViews,
+    timeUtcMs: t,
+    policy,
+    placement: ctx.placement,
+  };
   const firstFrame = !state.started;
   state.started = true;
   const reach = liveReach(runtime.cameraReach, policy, camera.aspect);
-  const focusBody = stepCameraTarget({ camState: orbit, controls, targets, frame, catalogue, reach, fovDeg: orbit.lookOut === null ? camera.fov : CAMERA_FOV_DEG, viewUp, firstFrame, previousUp: state.lastUp });
+  const focusBody = stepCameraTarget({
+    camState: orbit,
+    controls,
+    targets,
+    frame,
+    catalogue,
+    reach,
+    fovDeg: orbit.lookOut === null ? camera.fov : CAMERA_FOV_DEG,
+    viewUp,
+    firstFrame,
+    previousUp: state.lastUp,
+  });
   state.lastUp = viewUp;
-  resolveCamera(orbit, cameraTargetAbsolute(orbit, targets), ctx.origin, ctx.delta, REBASE_THRESHOLD, viewUp, prefersReducedMotion());
+  resolveCamera(
+    orbit,
+    cameraTargetAbsolute(orbit, targets),
+    ctx.origin,
+    ctx.delta,
+    REBASE_THRESHOLD,
+    viewUp,
+    prefersReducedMotion(),
+  );
   placeBodies(ctx.assets, placed.composed.states, ctx.bodyRefs, policy, ctx.origin);
   const baseFar = reach.far ?? DEFAULT_CAMERA_FAR;
   // Looking out, the camera stands at a body, so a far plane sized for orbit framing could cut off the Sun or any body beyond it: reach everything placed.
   const far = orbit.lookOut === null ? baseFar : lookOutFar(baseFar, orbit.cameraAbsolute, placed.composed.absolutes);
   poseCamera(camera, orbit, focusRadius(focusBody, policy, catalogue), ctx.origin, far, viewUp);
-  if (firstFrame && state.onFirstDraw !== undefined) { const told = state.onFirstDraw; requestAnimationFrame(told); }
+  if (firstFrame && state.onFirstDraw !== undefined) {
+    const told = state.onFirstDraw;
+    requestAnimationFrame(told);
+  }
   // Looking out, the angles are the way the camera looks, not an offset from a target: a sky reading, never orbit values.
-  controls.viewReadout = orbit.lookOut === null ? viewFromAngles(orbit.focus, orbit.azimuth, orbit.elevation, orbit.distance) : skyViewOf(orbit.focus, orbit.azimuth, orbit.elevation, viewUp, orbit.lookOut.fovDeg);
+  controls.viewReadout =
+    orbit.lookOut === null
+      ? viewFromAngles(orbit.focus, orbit.azimuth, orbit.elevation, orbit.distance)
+      : skyViewOf(orbit.focus, orbit.azimuth, orbit.elevation, viewUp, orbit.lookOut.fovDeg);
   return { targets };
 }
 
 /** Diagnostic for the browser checks: how far the first orbit arc's head is from its body's drawn position, as a share of the orbit's size (`data-orbit-head-gap`) and its longest segment as a share of the same (`data-orbit-arc-segment`). */
-export function publishOrbitHeadGap(canvas: HTMLCanvasElement, views: readonly PathView[], absoluteOf: (id: BodyId) => RenderVector, policy: ScalePolicy): void {
+export function publishOrbitHeadGap(
+  canvas: HTMLCanvasElement,
+  views: readonly PathView[],
+  absoluteOf: (id: BodyId) => RenderVector,
+  policy: ScalePolicy,
+): void {
   const view = views.find((candidate) => candidate.arcHeadAbsolute() !== null);
   const head = view?.arcHeadAbsolute() ?? null;
   if (view === undefined || head === null) return;
   const body = absoluteOf(view.layer.source.body as BodyId);
   const extent = view.extentUnits(policy);
   canvas.dataset.orbitArcSegment = String(extent > 0 ? view.arcLongestSegment() / extent : 0);
-  canvas.dataset.orbitHeadGap = String(extent > 0 ? Math.hypot(head[0] - body[0], head[1] - body[1], head[2] - body[2]) / extent : 0);
+  canvas.dataset.orbitHeadGap = String(
+    extent > 0 ? Math.hypot(head[0] - body[0], head[1] - body[1], head[2] - body[2]) / extent : 0,
+  );
 }
 
 /** Stage 4: swaps small bodies for markers, publishes the scene's canvas readouts and updates the sky. */
 export function publishCanvasReadouts(ctx: FrameContext): void {
   const { controls, camera, canvas, size, views } = ctx;
-  const markerBodies = swapSmallBodiesToMarkers(ctx.assets, ctx.bodyRefs, camera, camera.fov, size.height, controls.policy, controls.bodyMarker);
+  const markerBodies = swapSmallBodiesToMarkers(
+    ctx.assets,
+    ctx.bodyRefs,
+    camera,
+    camera.fov,
+    size.height,
+    controls.policy,
+    controls.bodyMarker,
+  );
   publishSceneData(canvas, { markerBodies, viewUp: viewUpOf(ctx), markerMinSpherePx: controls.bodyMarker.minSpherePx });
   if (views.skyView !== null) {
     if (controls.skyVisible !== undefined) views.skyView.group.visible = controls.skyVisible;
@@ -256,8 +344,12 @@ export function advanceSkyTraces(ctx: FrameContext): void {
     if ("after" in request) views.skyFiguresView.startTrace(request);
     else if (views.skyFiguresView.clearTrace(request)) state.wakes += 1;
   }
-  if (views.skyFiguresView.advanceTraces(delta, controls.skyColours, controls.skyLines, controls.selectedObjectId)) state.wakes += 1;
-  if (views.skyFiguresView.advanceFadeIn(delta, prefersReducedMotion() ? 0 : controls.skyFadeInSeconds, controls.skyLines)) state.wakes += 1;
+  if (views.skyFiguresView.advanceTraces(delta, controls.skyColours, controls.skyLines, controls.selectedObjectId))
+    state.wakes += 1;
+  if (
+    views.skyFiguresView.advanceFadeIn(delta, prefersReducedMotion() ? 0 : controls.skyFadeInSeconds, controls.skyLines)
+  )
+    state.wakes += 1;
 }
 
 /** Stage 5a: gives each point group the colour and dot size the host set (`setGroupLook`) and its label the colour; a change wakes the draw rule, so a paused viewer draws it. Presentation only (ARCH-02): no fill, geometry or State is touched. */
@@ -295,37 +387,52 @@ export function placeViews(ctx: FrameContext, t: number, placed: PlacedScene, se
 
 /** What this frame hides: the view's hidden ids, the objects not shown at clock time `t` (`shownDuring`; none when `t` is not given), and the body the camera stands inside while looking out (the one hidden-set path, read by the visibility, label and tap stages). */
 export function hiddenOf(ctx: Pick<FrameContext, "controls" | "orbit">, t?: number): ViewHidden | undefined {
-  return hiddenWithLookOut(hiddenWithShownSpans(ctx.controls.viewHidden, ctx.controls.labelObjects, t), ctx.orbit.lookOut === null ? null : ctx.orbit.focus);
+  return hiddenWithLookOut(
+    hiddenWithShownSpans(ctx.controls.viewHidden, ctx.controls.labelObjects, t),
+    ctx.orbit.lookOut === null ? null : ctx.orbit.focus,
+  );
 }
 
 /** Stage 5b: shows or hides each drawn group by the current view's hidden ids (bodies, paths, point groups, body sets). One set, read here; nothing is rebuilt. */
 export function applyViewVisibility(ctx: FrameContext, t?: number): void {
   const hidden = hiddenOf(ctx, t)?.objects;
   const { views, bodyRefs } = ctx;
-  const show = (id: string, group: { visible: boolean }) => { group.visible = hidden?.has(id) !== true; };
+  const show = (id: string, group: { visible: boolean }) => {
+    group.visible = hidden?.has(id) !== true;
+  };
   for (const [id, group] of bodyRefs.groups) show(id, group);
   for (const view of views.trackedViews) show(view.body.id, view.group);
   for (const view of views.groupViews) show(view.id, view.group);
   for (const view of views.sunCentredViews) show(view.id, view.group);
   // A line follows the body or set it belongs to (the link the line already carries), so a view never names orbit lines.
-  const showOwned = (id: string, owner: string, group: { visible: boolean }) => { group.visible = hidden?.has(id) !== true && hidden?.has(owner) !== true; };
+  const showOwned = (id: string, owner: string, group: { visible: boolean }) => {
+    group.visible = hidden?.has(id) !== true && hidden?.has(owner) !== true;
+  };
   for (const view of views.compositionPaths) showOwned(view.id, String(view.layer.source.body), view.group);
   for (const view of views.bodySetViews) show(view.id, view.group);
   for (const view of views.orbitSetViews) showOwned(view.id, view.layer.id, view.group);
 }
 
 /** A mounted body's drawn sphere and radius for the feature markers, or null when the body is not drawn as a sphere. */
-export function featureHostOf(assets: readonly BodyAsset[], parts: ReadonlyMap<BodyId, BodyParts>, id: string, policy: ScalePolicy): FeatureHost | null {
+export function featureHostOf(
+  assets: readonly BodyAsset[],
+  parts: ReadonlyMap<BodyId, BodyParts>,
+  id: string,
+  policy: ScalePolicy,
+): FeatureHost | null {
   const sphere = parts.get(id as BodyId)?.sphere;
   const asset = assets.find((candidate) => candidate.definition.id === id);
-  return sphere === undefined || asset === undefined ? null : { sphere, radius: drawnRadii(asset.definition, policy).equatorial };
+  return sphere === undefined || asset === undefined
+    ? null
+    : { sphere, radius: drawnRadii(asset.definition, policy).equatorial };
 }
 
 /** What the labels and taps see under the current view: the objects and body sets it shows, and the label-hidden ids with the view's own added. Allocates only when a view hides something. */
 export function shownUnderView(ctx: FrameContext, t?: number) {
   const { controls, views } = ctx;
   const hidden = hiddenOf(ctx, t)?.objects;
-  if (hidden === undefined || hidden.size === 0) return { objects: controls.labelObjects, bodySetViews: views.bodySetViews, hiddenLabels: controls.hiddenLabels };
+  if (hidden === undefined || hidden.size === 0)
+    return { objects: controls.labelObjects, bodySetViews: views.bodySetViews, hiddenLabels: controls.hiddenLabels };
   return {
     objects: controls.labelObjects.filter((object) => !hidden.has(object.id)),
     bodySetViews: views.bodySetViews.filter((view) => !hidden.has(view.id)),
@@ -336,30 +443,102 @@ export function shownUnderView(ctx: FrameContext, t?: number) {
 /** Stage 6: updates the overlay layers (names, story and feature markers) and rebuilds what a tap or hover can pick. */
 export function updateOverlays(ctx: FrameContext, t: number, step: CameraStep, hoverGain: number): void {
   const { controls, camera, canvas, size, origin, state, layers, views } = ctx;
-  const bodyScreens = bodyScreenReadouts(ctx.assets, ctx.bodyRefs, camera, camera.fov, size.height, controls.policy, controls.glowLook);
+  const bodyScreens = bodyScreenReadouts(
+    ctx.assets,
+    ctx.bodyRefs,
+    camera,
+    camera.fov,
+    size.height,
+    controls.policy,
+    controls.glowLook,
+  );
   publishBodyData(canvas, bodyScreens);
   layers.anchorLabels.current?.update(controls.showAnchorLabels, camera, size.width, size.height);
   const positionFor = (id: string): RenderVector | null => labelPositionOf(step.targets, id);
   const shown = shownUnderView(ctx, t);
-  layers.sceneLabels.current?.update(positionFor, camera, size.width, size.height, origin, controls.selectedObjectId, shown.hiddenLabels, { on: controls.skyLines, labelColor: controls.skyColours.label, selectedColor: controls.skyColours.selected, opacity: (id) => ctx.views.skyFiguresView.labelOpacity(id), distance: 0.5 * (camera.near + camera.far) });
-  state.pickables = pickCandidatesOf({ objects: shown.objects, bodyIdFor: ctx.bodyIdFor, bodyScreens, widthPx: size.width, heightPx: size.height, labelRects: layers.sceneLabels.current?.shownRects, canvas, bodySetViews: shown.bodySetViews });
+  layers.sceneLabels.current?.update(
+    positionFor,
+    camera,
+    size.width,
+    size.height,
+    origin,
+    controls.selectedObjectId,
+    shown.hiddenLabels,
+    {
+      on: controls.skyLines,
+      labelColor: controls.skyColours.label,
+      selectedColor: controls.skyColours.selected,
+      opacity: (id) => ctx.views.skyFiguresView.labelOpacity(id),
+      distance: 0.5 * (camera.near + camera.far),
+    },
+  );
+  state.pickables = pickCandidatesOf({
+    objects: shown.objects,
+    bodyIdFor: ctx.bodyIdFor,
+    bodyScreens,
+    widthPx: size.width,
+    heightPx: size.height,
+    labelRects: layers.sceneLabels.current?.shownRects,
+    canvas,
+    bodySetViews: shown.bodySetViews,
+  });
   // Sky figures are projected only when a tap asks, from this frame's camera and shown names (no per-frame work).
-  state.skyFigures = () => views.skyFiguresView.screenFigures(camera, size.width, size.height, controls.skyLines, layers.sceneLabels.current?.shownRects, canvas.getBoundingClientRect());
-  const hover = state.hoverPoint === null ? null : hoverTarget(state.pickables, state.hoverPoint.x, state.hoverPoint.y, "mouse");
+  state.skyFigures = () =>
+    views.skyFiguresView.screenFigures(
+      camera,
+      size.width,
+      size.height,
+      controls.skyLines,
+      layers.sceneLabels.current?.shownRects,
+      canvas.getBoundingClientRect(),
+    );
+  const hover =
+    state.hoverPoint === null ? null : hoverTarget(state.pickables, state.hoverPoint.x, state.hoverPoint.y, "mouse");
   canvas.style.cursor = hover === null ? "" : "pointer";
   canvas.dataset.pickHover = hover ?? "";
   layers.sceneLabels.current?.setHover(hover, hoverGain);
-  layers.storyMarkers.current?.update(positionFor, camera, size.width, size.height, origin, controls.openStoryPanelId ?? null, t, hiddenOf(ctx, t));
-  const featureReadout = layers.featureMarkers.current?.update((id) => featureHostOf(ctx.assets, ctx.bodyRefs.parts, id, controls.policy), camera, camera.fov, size.width, size.height, controls.openFeatureKey ?? null, controls.featureMinBodyPx ?? DEFAULT_FEATURE_MIN_BODY_PX);
-  if (featureReadout !== null && featureReadout !== undefined) canvas.dataset.featureMarkers = JSON.stringify(featureReadout);
+  layers.storyMarkers.current?.update(
+    positionFor,
+    camera,
+    size.width,
+    size.height,
+    origin,
+    controls.openStoryPanelId ?? null,
+    t,
+    hiddenOf(ctx, t),
+  );
+  const featureReadout = layers.featureMarkers.current?.update(
+    (id) => featureHostOf(ctx.assets, ctx.bodyRefs.parts, id, controls.policy),
+    camera,
+    camera.fov,
+    size.width,
+    size.height,
+    controls.openFeatureKey ?? null,
+    controls.featureMinBodyPx ?? DEFAULT_FEATURE_MIN_BODY_PX,
+  );
+  if (featureReadout !== null && featureReadout !== undefined)
+    canvas.dataset.featureMarkers = JSON.stringify(featureReadout);
 }
 
 /** Stage 7: places each body's light and builds the frame readout the shell reads. */
 export function placeLightsAndReadout(ctx: FrameContext, t: number, placed: PlacedScene): void {
   const { runtime, controls } = ctx;
   const { camera, origin } = ctx;
-  placeBodyLights(ctx.assets, ctx.lightRefs, runtime.resolver, t, { illuminateAll: controls.illuminateAll, cameraLocal: [camera.position.x, camera.position.y, camera.position.z], bodyLocalOf: (id) => origin.toLocal(placed.absoluteOf(id)) });
-  ctx.readout.current = buildFrameReadout({ pair: ctx.readoutPair, pairLabels: ctx.pairLabels, clock: runtime.clock, resolver: runtime.resolver, absoluteOf: placed.absoluteOf, timeUtcMs: t, policy: controls.policy, origin: ctx.origin });
+  placeBodyLights(ctx.assets, ctx.lightRefs, runtime.resolver, t, {
+    illuminateAll: controls.illuminateAll,
+    cameraLocal: [camera.position.x, camera.position.y, camera.position.z],
+    bodyLocalOf: (id) => origin.toLocal(placed.absoluteOf(id)),
+  });
+  ctx.readout.current = buildFrameReadout({
+    pair: ctx.readoutPair,
+    pairLabels: ctx.pairLabels,
+    clock: runtime.clock,
+    resolver: runtime.resolver,
+    absoluteOf: placed.absoluteOf,
+    timeUtcMs: t,
+    policy: controls.policy,
+    origin: ctx.origin,
+  });
 }
 
 /** Frames the scene keeps drawing after the last thing that moved: slow loads, a late React render and fades settle inside it. About half a second at 60 fps. */
@@ -392,10 +571,12 @@ export function shouldDrawFrame(inputs: DrawInputs): boolean {
 /** Whether the camera's tweens have reached their targets. */
 export function cameraSettled(orbit: OrbitCameraState): boolean {
   const turn = Math.atan2(Math.sin(orbit.targetAzimuth - orbit.azimuth), Math.cos(orbit.targetAzimuth - orbit.azimuth));
-  return Math.abs(orbit.targetDistance - orbit.distance) <= POSE_TOLERANCE * Math.max(1, orbit.distance)
-    && Math.abs(orbit.targetElevation - orbit.elevation) <= POSE_TOLERANCE
-    && Math.abs(turn) <= POSE_TOLERANCE
-    && orbit.transition.every((v) => Math.abs(v) <= POSE_TOLERANCE);
+  return (
+    Math.abs(orbit.targetDistance - orbit.distance) <= POSE_TOLERANCE * Math.max(1, orbit.distance) &&
+    Math.abs(orbit.targetElevation - orbit.elevation) <= POSE_TOLERANCE &&
+    Math.abs(turn) <= POSE_TOLERANCE &&
+    orbit.transition.every((v) => Math.abs(v) <= POSE_TOLERANCE)
+  );
 }
 
 function poseOf(camera: PerspectiveCamera): number[] {
@@ -404,7 +585,9 @@ function poseOf(camera: PerspectiveCamera): number[] {
 }
 
 function poseMoved(from: readonly number[], to: readonly number[]): boolean {
-  return from.length !== to.length || to.some((v, i) => Math.abs(v - from[i]) > POSE_TOLERANCE * Math.max(1, Math.abs(v)));
+  return (
+    from.length !== to.length || to.some((v, i) => Math.abs(v - from[i]) > POSE_TOLERANCE * Math.max(1, Math.abs(v)))
+  );
 }
 
 /** A flat settings object (a look) is read by value, because the Developer panel edits some in place; everything else by identity. */
@@ -442,7 +625,11 @@ export function readDrawInputs(ctx: FrameContext, t: number): DrawInputs {
   if (cameraMoving) memo.pose = pose;
   const size = `${ctx.size.width}x${ctx.size.height}@${globalThis.devicePixelRatio ?? 1}`;
   const mounted = ctx.bodyRefs.parts.size;
-  const inputChanged = controlsChanged(controls, memo.controls) || size !== memo.size || state.wakes !== memo.wakes || mounted !== memo.mounted;
+  const inputChanged =
+    controlsChanged(controls, memo.controls) ||
+    size !== memo.size ||
+    state.wakes !== memo.wakes ||
+    mounted !== memo.mounted;
   memo.size = size;
   memo.wakes = state.wakes;
   memo.mounted = mounted;

@@ -5,11 +5,19 @@ import { act, createElement } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-const sceneProps = vi.hoisted(() => ({ latest: null as null | { controls: import("../src/app/AstraeusScene").SceneControls } }));
-vi.mock("../src/app/AstraeusScene", () => ({
-  AstraeusScene: (props: NonNullable<typeof sceneProps.latest>) => { sceneProps.latest = props; return createElement("div", { "data-testid": "scene" }); },
+const sceneProps = vi.hoisted(() => ({
+  latest: null as null | { controls: import("../src/app/AstraeusScene").SceneControls },
 }));
-vi.mock("../src/assets/sky", async (importOriginal) => ({ ...(await importOriginal<typeof import("../src/assets/sky")>()), loadStarCatalogue: vi.fn().mockResolvedValue(null) }));
+vi.mock("../src/app/AstraeusScene", () => ({
+  AstraeusScene: (props: NonNullable<typeof sceneProps.latest>) => {
+    sceneProps.latest = props;
+    return createElement("div", { "data-testid": "scene" });
+  },
+}));
+vi.mock("../src/assets/sky", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("../src/assets/sky")>()),
+  loadStarCatalogue: vi.fn().mockResolvedValue(null),
+}));
 
 import { AstraeusScene } from "../src/api/AstraeusScene";
 import { mount } from "../src/api/mount";
@@ -22,12 +30,28 @@ import { drawn, pretendScreen } from "./domSetup";
 (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
 
 const T0 = Date.parse("2026-03-01T00:00:00Z");
-const orbit = (id: string, a: number) => ({ id, semiMajorAxisKm: a, eccentricity: 0.1, inclinationDeg: 5, raanDeg: 40, argumentOfPeriapsisDeg: 70 });
+const orbit = (id: string, a: number) => ({
+  id,
+  semiMajorAxisKm: a,
+  eccentricity: 0.1,
+  inclinationDeg: 5,
+  raanDeg: 40,
+  argumentOfPeriapsisDeg: 70,
+});
 /** Two groups (one with its own colour and size, one on the defaults) and Earth, which is a body, not a group. */
-const makeScene = () => new Scene().addBody(earth)
-  .addGroup({ id: "inner", label: "Inner", plane: "ecliptic-j2000", color: "#ff8800", dotSizePx: 3, orbits: [orbit("i1", 9e4), orbit("i2", 1e5)] })
-  .addGroup({ id: "outer", label: "Outer", plane: "ecliptic-j2000", orbits: [orbit("o1", 2e5)] })
-  .setTimeline({ start: T0, end: T0 + 86_400_000, rate: 60 });
+const makeScene = () =>
+  new Scene()
+    .addBody(earth)
+    .addGroup({
+      id: "inner",
+      label: "Inner",
+      plane: "ecliptic-j2000",
+      color: "#ff8800",
+      dotSizePx: 3,
+      orbits: [orbit("i1", 9e4), orbit("i2", 1e5)],
+    })
+    .addGroup({ id: "outer", label: "Outer", plane: "ecliptic-j2000", orbits: [orbit("o1", 2e5)] })
+    .setTimeline({ start: T0, end: T0 + 86_400_000, rate: 60 });
 
 let host: HTMLElement;
 let root: Root | undefined;
@@ -38,23 +62,76 @@ beforeEach(() => {
   host = document.createElement("div");
   document.body.append(host);
 });
-afterEach(() => { if (root) act(() => root!.unmount()); root = undefined; host.remove(); sceneProps.latest = null; vi.unstubAllGlobals(); vi.useRealTimers(); });
+afterEach(() => {
+  if (root) act(() => root!.unmount());
+  root = undefined;
+  host.remove();
+  sceneProps.latest = null;
+  vi.unstubAllGlobals();
+  vi.useRealTimers();
+});
 
 const controls = () => sceneProps.latest!.controls;
-const settle = () => act(async () => { for (let i = 0; i < 5; i++) await Promise.resolve(); });
-const errorOf = (fn: () => unknown): SceneError => { try { fn(); } catch (error) { return error as SceneError; } throw new Error("expected a throw"); };
+const settle = () =>
+  act(async () => {
+    for (let i = 0; i < 5; i++) await Promise.resolve();
+  });
+const errorOf = (fn: () => unknown): SceneError => {
+  try {
+    fn();
+  } catch (error) {
+    return error as SceneError;
+  }
+  throw new Error("expected a throw");
+};
 
 /** Each embedding path: opens the scene and returns its handle once ready, and a way to close it. */
-interface Path { readonly name: string; readonly open: (scene: Scene) => Promise<{ handle: ViewerHandle; close: () => void; rebuild?: (scene: Scene) => Promise<void> }> }
+interface Path {
+  readonly name: string;
+  readonly open: (
+    scene: Scene,
+  ) => Promise<{ handle: ViewerHandle; close: () => void; rebuild?: (scene: Scene) => Promise<void> }>;
+}
 const paths: readonly Path[] = [
-  { name: "mount", open: async (scene) => { const handle = mount(host, scene); await drawn(handle); await handle.ready; return { handle, close: () => handle.unmount() }; } },
-  { name: "AstraeusScene", open: async (scene) => {
-    const ref: { current: ViewerHandle | null } = { current: null };
-    root = createRoot(host);
-    const render = async (next: Scene) => { await act(async () => { root!.render(createElement(AstraeusScene, { scene: next, ref, onError: (e: Error) => { throw e; } })); }); await settle(); };
-    await render(scene);
-    return { handle: ref.current!, close: () => { act(() => root!.unmount()); root = undefined; }, rebuild: render };
-  } },
+  {
+    name: "mount",
+    open: async (scene) => {
+      const handle = mount(host, scene);
+      await drawn(handle);
+      await handle.ready;
+      return { handle, close: () => handle.unmount() };
+    },
+  },
+  {
+    name: "AstraeusScene",
+    open: async (scene) => {
+      const ref: { current: ViewerHandle | null } = { current: null };
+      root = createRoot(host);
+      const render = async (next: Scene) => {
+        await act(async () => {
+          root!.render(
+            createElement(AstraeusScene, {
+              scene: next,
+              ref,
+              onError: (e: Error) => {
+                throw e;
+              },
+            }),
+          );
+        });
+        await settle();
+      };
+      await render(scene);
+      return {
+        handle: ref.current!,
+        close: () => {
+          act(() => root!.unmount());
+          root = undefined;
+        },
+        rebuild: render,
+      };
+    },
+  },
 ];
 
 describe.each(paths)("setGroupLook and groupLook ($name)", ({ open }) => {
@@ -76,13 +153,19 @@ describe.each(paths)("setGroupLook and groupLook ($name)", ({ open }) => {
     handle.setGroupLook("outer", {});
     expect(handle.groupLook("outer")).toEqual({ color: "#abc", dotSizePx: 4 });
     // What the frame applies to the dots and the label (sceneFrame `applyGroupLooks`).
-    expect(Object.fromEntries(controls().groupLooks!)).toEqual({ inner: { color: "#112233", dotSizePx: 1.5 }, outer: { color: "#abc", dotSizePx: 4 } });
+    expect(Object.fromEntries(controls().groupLooks!)).toEqual({
+      inner: { color: "#112233", dotSizePx: 1.5 },
+      outer: { color: "#abc", dotSizePx: 4 },
+    });
   });
 
   it("lands in call order: the last call wins, and the read is immediate", async () => {
     const { handle } = await open(makeScene());
     const seen: unknown[] = [];
-    for (const color of ["#000001", "#000002", "#000003"]) { handle.setGroupLook("inner", { color }); seen.push(handle.groupLook("inner")?.color); }
+    for (const color of ["#000001", "#000002", "#000003"]) {
+      handle.setGroupLook("inner", { color });
+      seen.push(handle.groupLook("inner")?.color);
+    }
     expect(seen).toEqual(["#000001", "#000002", "#000003"]);
     expect(controls().groupLooks!.get("inner")).toEqual({ color: "#000003", dotSizePx: 3 });
   });

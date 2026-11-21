@@ -12,7 +12,10 @@ export const CHUNK_HEADER_BYTES = 20;
 
 /** The time scale a chunk is a function of; the seconds it is evaluated at must be in the same one. */
 export type SeriesScale = "tdb" | "tt";
-interface ScaleSeconds { readonly tdb: TdbSeconds; readonly tt: TtSeconds }
+interface ScaleSeconds {
+  readonly tdb: TdbSeconds;
+  readonly tt: TtSeconds;
+}
 
 /** `S` is type-only (the optional `scale` field is never set): a "tdb" chunk and a "tt" chunk are different types. Moon chunks are "tdb"; planet fits "tt". */
 export interface SeriesChunk<S extends SeriesScale = "tdb"> {
@@ -43,7 +46,10 @@ export interface ChunkExpectation {
 }
 
 /** Reads a chunk file and checks it against what the index says it holds. */
-export function decodeChunk<S extends SeriesScale = "tdb">(bytes: Uint8Array, expected: ChunkExpectation): SeriesChunk<S> {
+export function decodeChunk<S extends SeriesScale = "tdb">(
+  bytes: Uint8Array,
+  expected: ChunkExpectation,
+): SeriesChunk<S> {
   if (bytes.byteLength < CHUNK_HEADER_BYTES) throw new SeriesFormatError("chunk is shorter than its header");
   const magic = String.fromCharCode(bytes[0], bytes[1], bytes[2], bytes[3]);
   if (magic !== CHUNK_MAGIC) throw new SeriesFormatError(`chunk magic is "${magic}", not "${CHUNK_MAGIC}"`);
@@ -51,10 +57,14 @@ export function decodeChunk<S extends SeriesScale = "tdb">(bytes: Uint8Array, ex
   const segmentCount = view.getUint32(4, true);
   const coefficientCount = view.getUint16(8, true);
   const startTdbS = view.getFloat64(12, true);
-  if (segmentCount !== expected.segmentCount || coefficientCount !== expected.coefficientCount || startTdbS !== expected.startTdbS) {
+  if (
+    segmentCount !== expected.segmentCount ||
+    coefficientCount !== expected.coefficientCount ||
+    startTdbS !== expected.startTdbS
+  ) {
     throw new SeriesFormatError(
-      `chunk header (${segmentCount} segments, ${coefficientCount} coefficients, start ${startTdbS}) does not match its index entry`
-      + ` (${expected.segmentCount}, ${expected.coefficientCount}, ${expected.startTdbS})`,
+      `chunk header (${segmentCount} segments, ${coefficientCount} coefficients, start ${startTdbS}) does not match its index entry` +
+        ` (${expected.segmentCount}, ${expected.coefficientCount}, ${expected.startTdbS})`,
     );
   }
   const total = segmentCount * 3 * coefficientCount;
@@ -74,7 +84,8 @@ export function decodeChunk<S extends SeriesScale = "tdb">(bytes: Uint8Array, ex
     const signed = value % 2 === 0 ? value / 2 : -(value + 1) / 2;
     coefficients[index] = signed * expected.quantumKm;
   }
-  if (position !== bytes.byteLength) throw new SeriesFormatError(`chunk has ${bytes.byteLength - position} bytes after its last coefficient`);
+  if (position !== bytes.byteLength)
+    throw new SeriesFormatError(`chunk has ${bytes.byteLength - position} bytes after its last coefficient`);
   return {
     startTdbS,
     segmentSeconds: expected.segmentSeconds,
@@ -98,7 +109,12 @@ function locate(chunk: SeriesChunk<SeriesScale>, tdbS: number): { offset: number
 }
 
 /** Position in km into out[outIndex .. outIndex + 2]. The caller has checked `chunkCovers`. */
-export function chunkPositionInto<S extends SeriesScale>(chunk: SeriesChunk<S>, tdbS: ScaleSeconds[S], out: Float64Array, outIndex: number): void {
+export function chunkPositionInto<S extends SeriesScale>(
+  chunk: SeriesChunk<S>,
+  tdbS: ScaleSeconds[S],
+  out: Float64Array,
+  outIndex: number,
+): void {
   const { offset, x } = locate(chunk, tdbS);
   const n = chunk.coefficientCount;
   out[outIndex] = chebyshevValue(chunk.coefficients, offset, n, x);
@@ -107,7 +123,12 @@ export function chunkPositionInto<S extends SeriesScale>(chunk: SeriesChunk<S>, 
 }
 
 /** Position (km) and velocity (km/s) into the two buffers. The caller has checked `chunkCovers`. */
-export function chunkStateInto<S extends SeriesScale>(chunk: SeriesChunk<S>, tdbS: ScaleSeconds[S], position: Float64Array, velocity: Float64Array): void {
+export function chunkStateInto<S extends SeriesScale>(
+  chunk: SeriesChunk<S>,
+  tdbS: ScaleSeconds[S],
+  position: Float64Array,
+  velocity: Float64Array,
+): void {
   const { offset, x } = locate(chunk, tdbS);
   const n = chunk.coefficientCount;
   const pair = new Float64Array(2);

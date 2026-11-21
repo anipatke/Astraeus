@@ -8,7 +8,9 @@ import jupiterIndex from "astraeus-data-jupiter/index.json";
 
 type Api = typeof import("astraeus");
 type DataSource = import("astraeus").DataSource;
-interface Data { readonly dataSource: DataSource }
+interface Data {
+  readonly dataSource: DataSource;
+}
 
 const WHEN = "2016-03-01T00:00:00Z";
 
@@ -18,7 +20,14 @@ const folder = `${dirname(createRequire(import.meta.url).resolve("astraeus-data-
 const dataSource: DataSource = {
   name: "astraeus-data-jupiter",
   provides: ["io", "europa", "ganymede", "callisto"],
-  moonPositions: { center: "jupiter", loadIndex: async () => jupiterIndex, chunkUrls: new Proxy({}, { get: (_target, path: string) => pathToFileURL(`${folder}${path}`).href }) as Record<string, string> },
+  moonPositions: {
+    center: "jupiter",
+    loadIndex: async () => jupiterIndex,
+    chunkUrls: new Proxy({}, { get: (_target, path: string) => pathToFileURL(`${folder}${path}`).href }) as Record<
+      string,
+      string
+    >,
+  },
 };
 
 async function fresh(): Promise<{ api: Api; data: Data }> {
@@ -28,14 +37,23 @@ async function fresh(): Promise<{ api: Api; data: Data }> {
 const jupiterScene = (api: Api) => new api.Scene().addBody(api.sun).addBody(api.jupiter).addBody(api.io).setTime(WHEN);
 /** What a call throws (or "no error"), as `code: message`, so two entry paths compare equal on both. */
 const thrown = (call: () => unknown): string => {
-  try { call(); } catch (error) { return `${(error as { code?: string }).code}: ${(error as Error).message}`; }
+  try {
+    call();
+  } catch (error) {
+    return `${(error as { code?: string }).code}: ${(error as Error).message}`;
+  }
   return "no error";
 };
 
-beforeEach(() => { vi.resetModules(); });
+beforeEach(() => {
+  vi.resetModules();
+});
 
 describe("stateOf before load", () => {
-  const rows = [["a planet", "jupiter"], ["a fitted moon", "io"]] as const;
+  const rows = [
+    ["a planet", "jupiter"],
+    ["a fitted moon", "io"],
+  ] as const;
   it.each(rows)("%s throws missing-data that names scene.load and no internal", async (_name, id) => {
     const { api } = await fresh();
     const failure = thrown(() => jupiterScene(api).stateOf(id, WHEN));
@@ -70,9 +88,24 @@ describe("Scene.load", () => {
     expect(() => scene.setTime(WHEN)).not.toThrow(); // load never froze it
   });
 
-  const refusals: readonly [string, (api: Api) => InstanceType<Api["Scene"]>, (data: Data) => readonly Data["dataSource"][], string][] = [
+  const refusals: readonly [
+    string,
+    (api: Api) => InstanceType<Api["Scene"]>,
+    (data: Data) => readonly Data["dataSource"][],
+    string,
+  ][] = [
     ["a moon whose package is not passed", jupiterScene, () => [], "missing-data"],
-    ["a window outside the years the moon data covers", (api) => new api.Scene().addBody(api.sun).addBody(api.jupiter).addBody(api.io).setTimeline({ start: "1900-01-01", end: "1900-02-01" }), (data) => [data.dataSource], "out-of-span"],
+    [
+      "a window outside the years the moon data covers",
+      (api) =>
+        new api.Scene()
+          .addBody(api.sun)
+          .addBody(api.jupiter)
+          .addBody(api.io)
+          .setTimeline({ start: "1900-01-01", end: "1900-02-01" }),
+      (data) => [data.dataSource],
+      "out-of-span",
+    ],
     ["an empty scene", (api) => new api.Scene(), () => [], "empty-scene"],
   ];
   it.each(refusals)("rejects for %s with %s", async (_name, make, pass, code) => {

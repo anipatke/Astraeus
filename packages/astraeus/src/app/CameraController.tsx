@@ -23,7 +23,12 @@ export type CameraRequest =
    * Stands the camera at the centre of `body` looking out: the direction is a unit vector in EQJ or an object id to turn toward (absent: the direction already looked along, else right ascension 0, declination 0), and `fovDeg` (default: the current one, else 60) is the zoom.
    * Camera-only. A focus, follow, overview or pose request puts the orbit camera back; a hold is ignored while looking out.
    */
-  | { readonly kind: "lookOut"; readonly body: FocusId; readonly direction?: readonly [number, number, number] | FocusId; readonly fovDeg?: number }
+  | {
+      readonly kind: "lookOut";
+      readonly body: FocusId;
+      readonly direction?: readonly [number, number, number] | FocusId;
+      readonly fovDeg?: number;
+    }
   /** Puts the camera back on a pose read earlier: it follows the pose's object and eases to its angles and distance (the offset is the object's own, so a moving object is followed from where it is now). */
   | { readonly kind: "pose"; readonly view: StartView };
 
@@ -179,8 +184,10 @@ export function attachOrbitGestures(
 
 /** A wheel or pinch step: the distance in orbit, the field of view while looking out. */
 function zoomBy(state: OrbitCameraState, factor: number, limits: DistanceLimits): void {
-  if (state.lookOut !== null) { state.targetFovDeg = null; zoomLookOut(state.lookOut, factor); }
-  else state.distance = clampDistance(state.distance * factor, limits);
+  if (state.lookOut !== null) {
+    state.targetFovDeg = null;
+    zoomLookOut(state.lookOut, factor);
+  } else state.distance = clampDistance(state.distance * factor, limits);
   cancelCameraTransition(state);
 }
 
@@ -229,7 +236,10 @@ export function resolveCamera(
   state.elevation += (state.targetElevation - state.elevation) * blend;
   if (state.lookOut !== null && state.targetFovDeg !== null) {
     state.lookOut.fovDeg += (state.targetFovDeg - state.lookOut.fovDeg) * blend;
-    if (Math.abs(state.targetFovDeg - state.lookOut.fovDeg) < 1e-6) { state.lookOut.fovDeg = state.targetFovDeg; state.targetFovDeg = null; }
+    if (Math.abs(state.targetFovDeg - state.lookOut.fovDeg) < 1e-6) {
+      state.lookOut.fovDeg = state.targetFovDeg;
+      state.targetFovDeg = null;
+    }
   }
   for (let i = 0; i < 3; i += 1) {
     state.transition[i] *= decay;

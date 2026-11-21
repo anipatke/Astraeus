@@ -1,7 +1,17 @@
 import { describe, expect, it, vi } from "vitest";
-import { baseGlowOf, DEFAULT_GLOW_SCALE, drawnRadii, GLOW_LIMITS, glowLookOf, glowSizePx, pxToUnits, projectedRadiusPx } from "../src/app/bodyDraw";
+import {
+  baseGlowOf,
+  DEFAULT_GLOW_SCALE,
+  drawnRadii,
+  GLOW_LIMITS,
+  glowLookOf,
+  glowSizePx,
+  pxToUnits,
+  projectedRadiusPx,
+} from "../src/app/bodyDraw";
 import { resolveLook } from "../src/app/look";
-const glowLookFromSearch = (search: string, base: Parameters<typeof glowLookOf>[1]) => glowLookOf(resolveLook(undefined, search), base);
+const glowLookFromSearch = (search: string, base: Parameters<typeof glowLookOf>[1]) =>
+  glowLookOf(resolveLook(undefined, search), base);
 import { focusLimits, focusRadius } from "../src/app/sceneFraming";
 import { createSolarSystemScale } from "../src/presentation/scalePolicy";
 import { textureRightsProblem } from "../src/assets/licence";
@@ -11,15 +21,30 @@ import { trueScale } from "../src/presentation/scalePolicy";
 
 const sun = catalogue.get("sun");
 /** A made-up long-period comet drawn as a marker (the catalogue holds no comet since O-057 T-279). */
-const withComet = extendCatalogue(catalogue, [{
-  id: "long-comet", label: "Long comet",
-  elements: { semiMajorAxisAu: 26, eccentricity: 0.96, inclinationDeg: 113, ascendingNodeDeg: 139, argumentOfPerihelionDeg: 153, meanAnomalyDeg: 7 },
-  epoch: { jd: 2450000.5, timeScale: "TDB", ttMinusUtcSeconds: 61.184 },
-  plane: "ecliptic-j2000",
-  source: { name: "Made up", url: "https://example.invalid/long-comet", solution: "S1", accessed: "2026-11-07" },
-  accuracy: { classification: "approximate", statement: "Made up.", valid: { start: "1990-01-01T00:00:00Z", end: "2030-01-01T00:00:00Z" }, limitations: [] },
-  marker: { color: "#9fe3ff", sizePx: 7 },
-}]);
+const withComet = extendCatalogue(catalogue, [
+  {
+    id: "long-comet",
+    label: "Long comet",
+    elements: {
+      semiMajorAxisAu: 26,
+      eccentricity: 0.96,
+      inclinationDeg: 113,
+      ascendingNodeDeg: 139,
+      argumentOfPerihelionDeg: 153,
+      meanAnomalyDeg: 7,
+    },
+    epoch: { jd: 2450000.5, timeScale: "TDB", ttMinusUtcSeconds: 61.184 },
+    plane: "ecliptic-j2000",
+    source: { name: "Made up", url: "https://example.invalid/long-comet", solution: "S1", accessed: "2026-11-07" },
+    accuracy: {
+      classification: "approximate",
+      statement: "Made up.",
+      valid: { start: "1990-01-01T00:00:00Z", end: "2030-01-01T00:00:00Z" },
+      limitations: [],
+    },
+    marker: { color: "#9fe3ff", sizePx: 7 },
+  },
+]);
 const EARTH_RADIUS_KM = catalogue.get("earth").definition.radiusKm;
 
 describe("the Sun's visual asset", () => {
@@ -38,7 +63,9 @@ describe("the Sun's visual asset", () => {
   });
 
   it("is the only catalogued body with a halo or an emissive sphere", () => {
-    const lit = catalogue.ids().filter((id) => catalogue.get(id).visual.glow !== undefined || catalogue.get(id).visual.emissive === true);
+    const lit = catalogue
+      .ids()
+      .filter((id) => catalogue.get(id).visual.glow !== undefined || catalogue.get(id).visual.emissive === true);
     expect(lit).toEqual(["sun"]);
   });
 });
@@ -50,13 +77,26 @@ describe("the halo settings", () => {
     expect(baseGlowOf([sun])).toEqual(base);
     expect(baseGlowOf([catalogue.get("earth")])).toBeNull();
     expect(glowLookFromSearch("", base)).toEqual(base);
-    expect(glowLookFromSearch("?sunglow=120&sunbrightness=0.5", base)).toEqual({ sizePx: 120, brightness: 0.5, scale: 2.5 });
+    expect(glowLookFromSearch("?sunglow=120&sunbrightness=0.5", base)).toEqual({
+      sizePx: 120,
+      brightness: 0.5,
+      scale: 2.5,
+    });
     expect(glowLookFromSearch("?sunglow=0&sunbrightness=2", base)).toEqual({ sizePx: 0, brightness: 2, scale: 2.5 });
   });
 
   it("keep the default, with a console warning, for an unusable value", () => {
     const warn = vi.spyOn(console, "warn").mockImplementation(() => undefined);
-    for (const search of ["?sunglow=big", "?sunglow=-1", `?sunglow=${GLOW_LIMITS.sizePx.max + 1}`, "?sunglow=", "?sunbrightness=3", "?sunbrightness=NaN", "?sunglowscale=0.5", "?sunglowscale=7"]) {
+    for (const search of [
+      "?sunglow=big",
+      "?sunglow=-1",
+      `?sunglow=${GLOW_LIMITS.sizePx.max + 1}`,
+      "?sunglow=",
+      "?sunbrightness=3",
+      "?sunbrightness=NaN",
+      "?sunglowscale=0.5",
+      "?sunglowscale=7",
+    ]) {
       expect(glowLookFromSearch(search, base)).toEqual(base);
     }
     expect(warn).toHaveBeenCalledTimes(8);

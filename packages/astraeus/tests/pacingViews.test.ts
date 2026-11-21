@@ -3,19 +3,41 @@
 import { describe, expect, it } from "vitest";
 import { Scene, SceneError, earth, type PacingInput } from "astraeus";
 import { SimulationClock } from "../src/core/clock";
-import { PACE_EASE_MS, applyPacing, pacedRate, startPaceEase, zoneInView, zonesInView, type PaceView } from "../src/presentation/pacing";
+import {
+  PACE_EASE_MS,
+  applyPacing,
+  pacedRate,
+  startPaceEase,
+  zoneInView,
+  zonesInView,
+  type PaceView,
+} from "../src/presentation/pacing";
 import { definitionOf } from "../src/api/definitionOf";
 
 const DAY = 86_400_000;
 const T0 = Date.UTC(2030, 0, 1);
 const at = (days: number) => new Date(T0 + days * DAY).toISOString();
-const samples = (x: number) => [0, 1].map((i) => ({ time: T0 + i * 100 * DAY, positionKm: [x + i, 0, 0], velocityKmS: [1, 0, 0] }));
-const scene = (pacing: PacingInput[]) => new Scene().addBody(earth)
-  .addTrajectory({ id: "pa", label: "Probe A", center: "earth", samples: samples(10_000) })
-  .addTrajectory({ id: "pb", label: "Probe B", center: "earth", samples: samples(20_000) })
-  .addEvents([{ id: "ea", label: "A flyby", time: at(20), type: "flyby" }, { id: "eb", label: "B flyby", time: at(50), type: "flyby" }, { id: "es", label: "Shared", time: at(80), type: "flyby" }])
-  .setViews([{ id: "a", label: "A", objects: ["pa"], events: ["ea"] }, { id: "b", label: "B", objects: ["pb"], events: ["eb"] }, { id: "both", label: "Both", objects: ["pa", "pb"], events: ["ea", "eb"] }], { place: "top-bar" })
-  .setTimeline({ start: at(0), end: at(100), rate: 86_400, rates: [60, 86_400], pacing });
+const samples = (x: number) =>
+  [0, 1].map((i) => ({ time: T0 + i * 100 * DAY, positionKm: [x + i, 0, 0], velocityKmS: [1, 0, 0] }));
+const scene = (pacing: PacingInput[]) =>
+  new Scene()
+    .addBody(earth)
+    .addTrajectory({ id: "pa", label: "Probe A", center: "earth", samples: samples(10_000) })
+    .addTrajectory({ id: "pb", label: "Probe B", center: "earth", samples: samples(20_000) })
+    .addEvents([
+      { id: "ea", label: "A flyby", time: at(20), type: "flyby" },
+      { id: "eb", label: "B flyby", time: at(50), type: "flyby" },
+      { id: "es", label: "Shared", time: at(80), type: "flyby" },
+    ])
+    .setViews(
+      [
+        { id: "a", label: "A", objects: ["pa"], events: ["ea"] },
+        { id: "b", label: "B", objects: ["pb"], events: ["eb"] },
+        { id: "both", label: "Both", objects: ["pa", "pb"], events: ["ea", "eb"] },
+      ],
+      { place: "top-bar" },
+    )
+    .setTimeline({ start: at(0), end: at(100), rate: 86_400, rates: [60, 86_400], pacing });
 const FLYBY = [{ near: { type: "flyby", withinSeconds: 86_400 }, rate: 60 }];
 const definition = () => definitionOf(scene(FLYBY));
 const eventsOf = (id: string) => definition().views!.views.find((view) => view.id === id)!.events;
@@ -24,7 +46,12 @@ const rate = (view: string, day: number) => pacedRate(definition().pacing!, T0 +
 describe("pacing zones carry their event", () => {
   it("tags each event rule's zone with the event it came from and leaves spans untagged", () => {
     const zones = definitionOf(scene([...FLYBY, { start: at(60), end: at(70), rate: 1_000 }])).pacing!.zones;
-    expect(zones.filter((zone) => zone.eventId !== undefined).map((zone) => zone.eventId).sort()).toEqual(["ea", "eb", "es"]);
+    expect(
+      zones
+        .filter((zone) => zone.eventId !== undefined)
+        .map((zone) => zone.eventId)
+        .sort(),
+    ).toEqual(["ea", "eb", "es"]);
     expect(zones.filter((zone) => zone.eventId === undefined)).toHaveLength(1);
   });
   it("zoneInView / zonesInView keep spans and the zones of shown events; no set keeps every zone", () => {
@@ -52,7 +79,8 @@ describe("a two-probe scene paces by the showing view", () => {
   });
   it("a span applies in every view", () => {
     const pacing = definitionOf(scene([...FLYBY, { start: at(30), end: at(40), rate: 1_000, rampSeconds: 0 }])).pacing!;
-    for (const view of ["a", "b", "both"]) expect(pacedRate(pacing, T0 + 35 * DAY, eventsOf(view))).toBeCloseTo(1_000, 6);
+    for (const view of ["a", "b", "both"])
+      expect(pacedRate(pacing, T0 + 35 * DAY, eventsOf(view))).toBeCloseTo(1_000, 6);
   });
   it("a scene without views (no event set) gives the 0.7.0 rates: every zone applies", () => {
     const pacing = definition().pacing!;
@@ -62,7 +90,11 @@ describe("a two-probe scene paces by the showing view", () => {
 });
 
 describe("the switch ease", () => {
-  const clockAt = (day: number, from: number) => { const clock = new SimulationClock(T0 + day * DAY); clock.setRate(from); return clock; };
+  const clockAt = (day: number, from: number) => {
+    const clock = new SimulationClock(T0 + day * DAY);
+    clock.setRate(from);
+    return clock;
+  };
   it("blends in log space from the old rate to the paced one over about a second, then clears", () => {
     const pacing = definition().pacing!;
     const view: PaceView = { shown: eventsOf("b") }; // day 20 is not paced in B: target 86 400
@@ -86,9 +118,18 @@ describe("the switch ease", () => {
 describe("loading", () => {
   it("a near rule whose events belong to different views still loads", () => {
     expect(() => definitionOf(scene([{ near: { type: "flyby", withinSeconds: 86_400 }, rate: 60 }]))).not.toThrow();
-    expect(definitionOf(scene([{ near: { type: "flyby", withinSeconds: 86_400 }, rate: 60 }])).pacing!.zones.map((zone) => zone.eventId).sort()).toEqual(["ea", "eb", "es"]);
+    expect(
+      definitionOf(scene([{ near: { type: "flyby", withinSeconds: 86_400 }, rate: 60 }]))
+        .pacing!.zones.map((zone) => zone.eventId)
+        .sort(),
+    ).toEqual(["ea", "eb", "es"]);
   });
   it("a near rule whose type matches no event still throws bad-timeline", () => {
-    try { definitionOf(scene([{ near: { type: "nothing", withinSeconds: 86_400 }, rate: 60 }])); expect.unreachable(); } catch (error) { expect((error as SceneError).code).toBe("bad-timeline"); }
+    try {
+      definitionOf(scene([{ near: { type: "nothing", withinSeconds: 86_400 }, rate: 60 }]));
+      expect.unreachable();
+    } catch (error) {
+      expect((error as SceneError).code).toBe("bad-timeline");
+    }
   });
 });

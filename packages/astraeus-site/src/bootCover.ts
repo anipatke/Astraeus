@@ -14,7 +14,16 @@ export function hideBootLoader(cover: CoverClaim, seconds: number): void {
   boot.style.setProperty("--boot-fade", `${seconds}s`);
   boot.dataset.state = "done";
   window.clearTimeout(removals.get(boot));
-  removals.set(boot, window.setTimeout(() => { removals.delete(boot); if (boot.dataset.state === "done") boot.remove(); }, seconds * 1000 + 100));
+  removals.set(
+    boot,
+    window.setTimeout(
+      () => {
+        removals.delete(boot);
+        if (boot.dataset.state === "done") boot.remove();
+      },
+      seconds * 1000 + 100,
+    ),
+  );
 }
 
 /** The cover's markup as the page first had it, kept so a switch inside the page can bring the cover back after the engine removed it. */
@@ -36,7 +45,11 @@ export function createBootCover(page: Pick<Document, "getElementById" | "body">)
     show() {
       showings += 1;
       const existing = page.getElementById("boot");
-      if (existing !== null) { existing.style.removeProperty("--boot-fade"); existing.dataset.state = "loading"; return; }
+      if (existing !== null) {
+        existing.style.removeProperty("--boot-fade");
+        existing.dataset.state = "loading";
+        return;
+      }
       if (template === null) return;
       const boot = template.cloneNode(true) as HTMLElement;
       boot.dataset.state = "loading";

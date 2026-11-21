@@ -43,12 +43,20 @@ export function focusAbsoluteOf(targets: SceneTargets, focus: FocusId): RenderVe
 }
 
 export function canFocus(targets: SceneTargets, focus: FocusId): boolean {
-  try { focusAbsoluteOf(targets, focus); return true; } catch { return false; }
+  try {
+    focusAbsoluteOf(targets, focus);
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 /** The point group or path an id names, which the camera frames by its extent. */
 export function framedViewOf(targets: SceneTargets, id: string): PointsView | PathView | undefined {
-  return targets.groupViews.find((candidate) => candidate.id === id) ?? targets.sunCentredViews.find((candidate) => candidate.id === id);
+  return (
+    targets.groupViews.find((candidate) => candidate.id === id) ??
+    targets.sunCentredViews.find((candidate) => candidate.id === id)
+  );
 }
 
 /** Where a label or story marker for an id is anchored, or null when that thing is not drawn now. */

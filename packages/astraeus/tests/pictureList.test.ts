@@ -10,9 +10,14 @@ const READMES = ["packages/astraeus-data/README.md", "packages/astraeus/README.m
 const name = (id: string): string => id[0].toUpperCase() + id.slice(1);
 const joined = (names: readonly string[]): string => `${names.slice(0, -1).join(", ")} and ${names[names.length - 1]}`;
 
-const pictured = Object.keys(PICTURES).filter((id) => !NOT_MOONS.has(id)).map(name);
+const pictured = Object.keys(PICTURES)
+  .filter((id) => !NOT_MOONS.has(id))
+  .map(name);
 const MAIN_URANUS = ["Miranda", "Ariel", "Umbriel", "Titania", "Oberon"]; // the five Uranus moons with names a reader knows
-const flat = listedMoons().map((moon) => moon.id).filter((id) => !(id in PICTURES)).map(name);
+const flat = listedMoons()
+  .map((moon) => moon.id)
+  .filter((id) => !(id in PICTURES))
+  .map(name);
 
 describe("the READMEs say which moons have pictures", () => {
   it("has the pictured moons and the flat ones to compare", () => {
@@ -25,7 +30,9 @@ describe("the READMEs say which moons have pictures", () => {
     it(`${path} lists them`, () => {
       const text = readFileSync(new URL(`../../../${path}`, import.meta.url), "utf8");
       expect(text).toContain(`Moons with pictures: ${joined(pictured)}.`);
-      expect(text).toContain(`Every other listed moon, among them Uranus's ${joined(MAIN_URANUS)}, draws flat-coloured`);
+      expect(text).toContain(
+        `Every other listed moon, among them Uranus's ${joined(MAIN_URANUS)}, draws flat-coloured`,
+      );
     });
   }
 });

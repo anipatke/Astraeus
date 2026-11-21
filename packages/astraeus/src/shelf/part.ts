@@ -45,7 +45,16 @@ export interface TilePart {
 export type AnyPart = PanelPart | PanelBlock | TilePart;
 
 /** The control `handle.part` gives for the part `P`. */
-export type ControlFor<P extends AnyPart> = { panel: PanelControl; customBlock: CustomBlockControl; explainer: ExplainerControl; actions: ActionsControl; filterChips: FilterChipsControl; colourKey: ColourKeyControl; chart: ChartControl; readoutTile: ReadoutTileControl }[P["kind"]];
+export type ControlFor<P extends AnyPart> = {
+  panel: PanelControl;
+  customBlock: CustomBlockControl;
+  explainer: ExplainerControl;
+  actions: ActionsControl;
+  filterChips: FilterChipsControl;
+  colourKey: ColourKeyControl;
+  chart: ChartControl;
+  readoutTile: ReadoutTileControl;
+}[P["kind"]];
 
 /** The descriptors the factories made, so a value that only looks like one is refused. A descriptor is frozen and names no viewer, so one may be shared between scenes. */
 const made = new WeakSet<object>();
@@ -63,7 +72,8 @@ export const isMade = (value: unknown): boolean => typeof value === "object" && 
 export const blockOf = (value: PanelBlock): ShelfBlock => value as unknown as ShelfBlock;
 
 /** The internal part shape of a panel or tile descriptor a factory made. */
-export const partOf = <P extends PanelPart | TilePart>(value: P): P extends PanelPart ? ShelfPanel : ShelfTile => value as unknown as P extends PanelPart ? ShelfPanel : ShelfTile;
+export const partOf = <P extends PanelPart | TilePart>(value: P): P extends PanelPart ? ShelfPanel : ShelfTile =>
+  value as unknown as P extends PanelPart ? ShelfPanel : ShelfTile;
 
 /** The `bad-part` error for the call `who`. */
 export const badPart = (who: string, message: string): SceneError => new SceneError("bad-part", `${who}: ${message}`);
@@ -89,7 +99,11 @@ export function checkedText(value: unknown, who: string, field: string): string 
 
 /** A list of non-empty strings (may be empty when `allowEmpty`). */
 export function checkedStrings(value: unknown, who: string, field: string, allowEmpty = true): readonly string[] {
-  if (!Array.isArray(value) || value.some((item) => typeof item !== "string" || item === "") || (!allowEmpty && value.length === 0)) {
+  if (
+    !Array.isArray(value) ||
+    value.some((item) => typeof item !== "string" || item === "") ||
+    (!allowEmpty && value.length === 0)
+  ) {
     throw badPart(who, `${field} must be a${allowEmpty ? "" : " non-empty"} list of non-empty strings`);
   }
   return Object.freeze([...(value as string[])]);
@@ -97,15 +111,29 @@ export function checkedStrings(value: unknown, who: string, field: string, allow
 
 /** A CSS colour text (the forms the look takes). */
 export function checkedColour(value: unknown, who: string, field: string): string {
-  if (!isCssColour(value)) throw badPart(who, `${field} must be a CSS colour text such as "#8fb4ff", rgb(143, 180, 255), hsl(...) with commas, or a colour name`);
+  if (!isCssColour(value))
+    throw badPart(
+      who,
+      `${field} must be a CSS colour text such as "#8fb4ff", rgb(143, 180, 255), hsl(...) with commas, or a colour name`,
+    );
   return (value as string).trim();
 }
 
 /** A list of plain objects, each checked by `item`; the result is frozen. */
-export function checkedItems<T>(value: unknown, who: string, field: string, shape: string, item: (record: Record<string, unknown>, at: string) => T, allowEmpty = false): readonly T[] {
-  if (!Array.isArray(value) || (!allowEmpty && value.length === 0)) throw badPart(who, `${field} must be a${allowEmpty ? "" : " non-empty"} list of ${shape}`);
-  return Object.freeze(value.map((entry, index) => {
-    if (!isPlainObject(entry)) throw badPart(who, `${field}[${index}] must be ${shape}`);
-    return item(entry as Record<string, unknown>, `${field}[${index}]`);
-  }));
+export function checkedItems<T>(
+  value: unknown,
+  who: string,
+  field: string,
+  shape: string,
+  item: (record: Record<string, unknown>, at: string) => T,
+  allowEmpty = false,
+): readonly T[] {
+  if (!Array.isArray(value) || (!allowEmpty && value.length === 0))
+    throw badPart(who, `${field} must be a${allowEmpty ? "" : " non-empty"} list of ${shape}`);
+  return Object.freeze(
+    value.map((entry, index) => {
+      if (!isPlainObject(entry)) throw badPart(who, `${field}[${index}] must be ${shape}`);
+      return item(entry as Record<string, unknown>, `${field}[${index}]`);
+    }),
+  );
 }

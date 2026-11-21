@@ -17,7 +17,12 @@ export const SUN_TEXTURE_LICENCE: AssetLicence = Object.freeze({
   accessed: "2026-10-16",
 });
 
-export const SUN_TEXTURE: TextureRef = Object.freeze({ url: sunTextureUrl, widthPx: 2048, heightPx: 1024, licence: SUN_TEXTURE_LICENCE });
+export const SUN_TEXTURE: TextureRef = Object.freeze({
+  url: sunTextureUrl,
+  widthPx: 2048,
+  heightPx: 1024,
+  licence: SUN_TEXTURE_LICENCE,
+});
 
 /**
  * An emissive (unlit) sphere at the Sun's true radius, 695,700 km (IAU 2015 Resolution B3 nominal solar radius, in the body record), with a soft

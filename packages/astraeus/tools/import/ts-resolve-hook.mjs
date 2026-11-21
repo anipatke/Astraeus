@@ -3,11 +3,11 @@
 // stripping. Read-only use of the donor; nothing is written there.
 export async function resolve(specifier, context, nextResolve) {
   try {
-    return await nextResolve(specifier, context)
+    return await nextResolve(specifier, context);
   } catch (error) {
-    if (error?.code === 'ERR_MODULE_NOT_FOUND' && specifier.startsWith('.')) {
-      return nextResolve(`${specifier}.ts`, context)
+    if (error?.code === "ERR_MODULE_NOT_FOUND" && specifier.startsWith(".")) {
+      return nextResolve(`${specifier}.ts`, context);
     }
-    throw error
+    throw error;
   }
 }

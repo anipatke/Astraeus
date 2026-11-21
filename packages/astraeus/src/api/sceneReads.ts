@@ -81,7 +81,11 @@ export interface SceneActivityRead {
   /** The curve's points, sorted by time. */
   readonly samples: readonly { readonly timeUtcMs: number; readonly value: number }[];
   /** Where each stretch of the curve comes from; absent when none was stated. */
-  readonly provenance?: readonly { readonly stretchStartUtcMs: number; readonly stretchEndUtcMs: number; readonly provenance: Provenance }[];
+  readonly provenance?: readonly {
+    readonly stretchStartUtcMs: number;
+    readonly stretchEndUtcMs: number;
+    readonly provenance: Provenance;
+  }[];
   /** The free word given to `addActivity` (`type`); absent when none was given. */
   readonly type?: string;
 }
@@ -187,8 +191,17 @@ export interface ScenePanelPlaybackRead {
 
 /** One piece of `setTimeline`'s `pacing`, as `Scene.timeline.pacing` reads it: UTC milliseconds, ramps filled in. */
 export type ScenePacingRead =
-  | { readonly spanStartUtcMs: number; readonly spanEndUtcMs: number; readonly rate: number; readonly rampSeconds: number }
-  | { readonly near: { readonly type: string; readonly withinSeconds: number }; readonly rate: number; readonly rampSeconds: number };
+  | {
+      readonly spanStartUtcMs: number;
+      readonly spanEndUtcMs: number;
+      readonly rate: number;
+      readonly rampSeconds: number;
+    }
+  | {
+      readonly near: { readonly type: string; readonly withinSeconds: number };
+      readonly rate: number;
+      readonly rampSeconds: number;
+    };
 
 /** A sky figure the scene holds (`addSkyFigures`), as `Scene.skyFigures` lists it (in the order added) and the viewer handle reads it. */
 export interface SceneSkyFigureRead {

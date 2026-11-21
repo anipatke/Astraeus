@@ -17,13 +17,19 @@ const ALLOWED: Readonly<Record<string, string>> = {
   "app/catalogueItem": "the definition contract: catalogue entries a body layer resolves",
   "app/planetNeeds": "the definition contract: which planet series a definition needs loaded",
   "app/displaySwitches": "the definition contract: display switch ids and places (the viewer's own settings shape)",
-  "app/skyFigures": "the definition contract: the drawable sky figures a definition carries (EQJ directions) and the sky-line switch state",
-  "app/look": "the look table: the one place each look's address parameter and range are written, which setLook checks against",
-  "app/liveLook": "the look reader: `Scene.look` states the looks a fresh viewer opens with through the same resolvers the viewer uses (T-319)",
-  "app/shelfContract": "the shelf contract: the internal shape of a part descriptor (its public fields and the view that draws it) that `Scene.addParts` stores and the definition carries",
+  "app/skyFigures":
+    "the definition contract: the drawable sky figures a definition carries (EQJ directions) and the sky-line switch state",
+  "app/look":
+    "the look table: the one place each look's address parameter and range are written, which setLook checks against",
+  "app/liveLook":
+    "the look reader: `Scene.look` states the looks a fresh viewer opens with through the same resolvers the viewer uses (T-319)",
+  "app/shelfContract":
+    "the shelf contract: the internal shape of a part descriptor (its public fields and the view that draws it) that `Scene.addParts` stores and the definition carries",
   "app/views": "the definition contract: view places and camera rules (the viewer's own settings shape)",
-  "app/sceneFraming": "the viewer limit: the one constant for how many lit bodies the viewer draws, which the build checks the scene against (T-345)",
-  "app/viewHiding": "the definition contract: which objects a view hides, so the opening look-out checks its direction id against the opening view as setCamera checks the showing one (I-169)",
+  "app/sceneFraming":
+    "the viewer limit: the one constant for how many lit bodies the viewer draws, which the build checks the scene against (T-345)",
+  "app/viewHiding":
+    "the definition contract: which objects a view hides, so the opening look-out checks its direction id against the opening view as setCamera checks the showing one (I-169)",
   "shell/metrics": "the definition contract: the Metric and RateMetric types",
   "shell/experience": "the definition contract: ExperienceObject and ExperienceConfig, what the scene hands the shell",
   "app/viewerPort": "the viewer port: the control and state a host link talks to",
@@ -41,7 +47,11 @@ function displayImports(source: string): string[] {
 
 /** The imports in `files` (name to text) that ALLOWED does not list, as `file: module`. */
 function disallowed(files: Readonly<Record<string, string>>): string[] {
-  return Object.entries(files).flatMap(([file, text]) => displayImports(text).filter((module) => !(module in ALLOWED)).map((module) => `${file}: ${module}`));
+  return Object.entries(files).flatMap(([file, text]) =>
+    displayImports(text)
+      .filter((module) => !(module in ALLOWED))
+      .map((module) => `${file}: ${module}`),
+  );
 }
 
 function apiFiles(dir: string): Record<string, string> {
@@ -65,7 +75,8 @@ describe("src/api imports of app/ and shell/", () => {
   });
 
   it("reads type-only, side-effect, export-from and dynamic imports too", () => {
-    const text = 'import type { A } from "../app/x";\nimport "../app/y.css";\nexport { B } from "../shell/z";\nconst c = await import("../app/w");\n';
+    const text =
+      'import type { A } from "../app/x";\nimport "../app/y.css";\nexport { B } from "../shell/z";\nconst c = await import("../app/w");\n';
     expect(displayImports(text)).toEqual(["app/x", "app/y.css", "shell/z", "app/w"]);
   });
 

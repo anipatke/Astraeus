@@ -23,7 +23,13 @@ interface Props {
  * (a tap or a swipe down) and the handle closes it (a tap or a swipe up). The controls stay mounted while it is closed (state survives) but are hidden from sight and focus.
  */
 export function ControlsDrawer({ id, open, phone, onOpenChange, swipeThresholdPx, onItemChosen, children }: Props) {
-  const closing = useDrawerSwipe({ thresholdPx: swipeThresholdPx, onTap: () => onOpenChange(false), onSwipe: (direction) => { if (direction === "up") onOpenChange(false); } });
+  const closing = useDrawerSwipe({
+    thresholdPx: swipeThresholdPx,
+    onTap: () => onOpenChange(false),
+    onSwipe: (direction) => {
+      if (direction === "up") onOpenChange(false);
+    },
+  });
   return (
     <div
       id={id}
@@ -33,11 +39,25 @@ export function ControlsDrawer({ id, open, phone, onOpenChange, swipeThresholdPx
       data-open={open}
       {...{ [POPUP_HOST_ATTRIBUTE]: MENU_HOST }}
       // A dropdown closes the drawer on its change, not on the tap that opens it (owner bug, 2026-10-18: the drawer shut as the picker opened).
-      onClick={(event) => { const closer = (event.target as Element).closest("[data-closes-drawer]"); if (closer !== null && closer.tagName !== "SELECT") onItemChosen(); }}
-      onChange={(event) => { if ((event.target as Element).closest("[data-closes-drawer]") !== null) onItemChosen(); }}
+      onClick={(event) => {
+        const closer = (event.target as Element).closest("[data-closes-drawer]");
+        if (closer !== null && closer.tagName !== "SELECT") onItemChosen();
+      }}
+      onChange={(event) => {
+        if ((event.target as Element).closest("[data-closes-drawer]") !== null) onItemChosen();
+      }}
     >
       {children}
-      {phone && <button type="button" className="drawer-handle drawer-handle-bottom ui-bare" aria-label="Hide controls" {...closing}><span /></button>}
+      {phone && (
+        <button
+          type="button"
+          className="drawer-handle drawer-handle-bottom ui-bare"
+          aria-label="Hide controls"
+          {...closing}
+        >
+          <span />
+        </button>
+      )}
     </div>
   );
 }

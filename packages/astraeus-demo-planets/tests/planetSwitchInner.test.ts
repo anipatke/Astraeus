@@ -25,7 +25,8 @@ const views: Record<string, { file: unknown; system: PlanetSystem }> = {
   mars: { file: marsFile, system: marsSystem },
 };
 const build = (id: string) => buildPlanetScene(parsePlanetSettings(views[id].file), views[id].system, panels);
-const placed = (features: readonly { id: string; latitude?: number; longitude?: number }[]) => features.filter((feature) => feature.latitude !== undefined && feature.longitude !== undefined);
+const placed = (features: readonly { id: string; latitude?: number; longitude?: number }[]) =>
+  features.filter((feature) => feature.latitude !== undefined && feature.longitude !== undefined);
 
 afterEach(() => vi.unstubAllGlobals());
 
@@ -36,19 +37,32 @@ describe("the four inner planets' views", () => {
     expect(build("earth").bodies.map((body) => body.id)).toEqual(["earth", "moon"]);
     expect(build("mars").bodies.map((body) => body.id)).toEqual(["mars", "phobos", "deimos"]);
     expect(build("mars").camera.followChoices).toEqual(["phobos"]);
-    expect(build("mars").bodies.filter((body) => body.orbit).map((body) => body.id)).toEqual(["phobos", "deimos"]);
+    expect(
+      build("mars")
+        .bodies.filter((body) => body.orbit)
+        .map((body) => body.id),
+    ).toEqual(["phobos", "deimos"]);
     expect(build("mercury").camera.followChoices).toEqual([]);
   });
 
   it("carry the tagged places of the existing packages untouched (Earth 20, Moon 30, Mercury 16, Venus 19, Mars 32 with its two moons' orbit entries not placed)", () => {
     expect(marsFeatures.features).toHaveLength(32);
-    expect(marsFeatures.features.filter((feature) => feature.latitude === undefined).map((feature) => feature.id)).toEqual(["phobos", "deimos"]);
+    expect(
+      marsFeatures.features.filter((feature) => feature.latitude === undefined).map((feature) => feature.id),
+    ).toEqual(["phobos", "deimos"]);
     const counts = (id: string) => Object.fromEntries(build(id).places.map((set) => [set.body, set.count]));
     expect(counts("earth")).toEqual({ earth: 20, moon: 30 });
     expect(counts("mercury")).toEqual({ mercury: 16 });
     expect(counts("venus")).toEqual({ venus: 19 });
     expect(counts("mars")).toEqual({ mars: 30 });
-    for (const [source, count] of [[earthFeatures, 20], [moonFeatures, 30], [mercuryFeatures, 16], [venusFeatures, 19], [marsFeatures, 30]] as const) expect(placed(source.features as never)).toHaveLength(count);
+    for (const [source, count] of [
+      [earthFeatures, 20],
+      [moonFeatures, 30],
+      [mercuryFeatures, 16],
+      [venusFeatures, 19],
+      [marsFeatures, 30],
+    ] as const)
+      expect(placed(source.features as never)).toHaveLength(count);
   });
 
   it("gives Mars its moon list and Earth, Mercury and Venus none", () => {
@@ -62,7 +76,10 @@ describe("the four inner planets' views", () => {
 
   it("downloads nothing for Mercury, Venus and Earth, and Mars asks for its own moon-fit files only", async () => {
     const requested: string[] = [];
-    vi.stubGlobal("fetch", async (url: string) => { requested.push(String(url)); throw new Error("stubbed: no network in tests"); });
+    vi.stubGlobal("fetch", async (url: string) => {
+      requested.push(String(url));
+      throw new Error("stubbed: no network in tests");
+    });
     for (const id of ["mercury", "venus", "earth"]) await build(id).load({ data: views[id].system.data });
     expect(requested).toEqual([]);
     expect(Object.keys(MARS_CHUNK_URLS).sort()).toEqual(["deimos/2016.bin", "mars/2016.bin", "phobos/2016.bin"]);
@@ -79,6 +96,8 @@ describe("the four inner planets' views", () => {
   });
 
   it("refuses a Mars file that lists a moon list source without a list", () => {
-    expect(() => buildPlanetScene(parsePlanetSettings(marsFile), { ...marsSystem, moonList: undefined }, panels)).toThrow(/moon list source/);
+    expect(() =>
+      buildPlanetScene(parsePlanetSettings(marsFile), { ...marsSystem, moonList: undefined }, panels),
+    ).toThrow(/moon list source/);
   });
 });

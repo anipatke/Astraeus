@@ -3,15 +3,30 @@ import { PerspectiveCamera, Vector3 } from "three";
 import { createOrbAstronomyAdapter } from "../src/core/astronomyAdapter";
 import { trueScale } from "../src/presentation/scalePolicy";
 import { eccentricAnomalyFromMean, eccentricPathTimesUtcMs, pathTimesUtcMs } from "../src/core/sunCentredSources";
-import { DEFAULT_ECCENTRIC_SAMPLE_COUNT, DEFAULT_PATH_SAMPLE_COUNT, validatePathSpec, type PathLayer } from "../src/app/experienceDefinition";
+import {
+  DEFAULT_ECCENTRIC_SAMPLE_COUNT,
+  DEFAULT_PATH_SAMPLE_COUNT,
+  validatePathSpec,
+  type PathLayer,
+} from "../src/app/experienceDefinition";
 import { FloatingOrigin } from "../src/app/floatingOrigin";
 import { PathView } from "../src/app/PathView";
 import { fitDistance } from "../src/app/sceneFraming";
-import { ECCENTRIC_ELEMENTS, ECCENTRIC_PERIOD_MS, ECCENTRIC_SAMPLING, eccentricSource, syntheticEccentricDefinition, syntheticEccentricPath } from "./synthetic/syntheticEccentricDefinition";
+import {
+  ECCENTRIC_ELEMENTS,
+  ECCENTRIC_PERIOD_MS,
+  ECCENTRIC_SAMPLING,
+  eccentricSource,
+  syntheticEccentricDefinition,
+  syntheticEccentricPath,
+} from "./synthetic/syntheticEccentricDefinition";
 import { placementAbout } from "./scenePlacement";
 
 const AU_KM = 149_597_870.7;
-const SPAN = { startUtcMs: ECCENTRIC_SAMPLING.periapsisUtcMs, endUtcMs: ECCENTRIC_SAMPLING.periapsisUtcMs + Math.round(ECCENTRIC_PERIOD_MS) };
+const SPAN = {
+  startUtcMs: ECCENTRIC_SAMPLING.periapsisUtcMs,
+  endUtcMs: ECCENTRIC_SAMPLING.periapsisUtcMs + Math.round(ECCENTRIC_PERIOD_MS),
+};
 const adapter = createOrbAstronomyAdapter();
 
 /** Longest straight segment between neighbouring samples as a fraction of the orbit radius there (the mean of the segment's two end radii). */
@@ -72,9 +87,17 @@ describe("a made-up e = 0.96 orbit (1 to 51 AU) sampled by eccentric anomaly", (
   });
 
   it("is a time spacing for a circular orbit, and a window of several turns stays increasing", () => {
-    const circle = eccentricPathTimesUtcMs({ startUtcMs: 0, endUtcMs: 1000 }, 11, { eccentricity: 0, periodMs: 1000, periapsisUtcMs: 0 });
+    const circle = eccentricPathTimesUtcMs({ startUtcMs: 0, endUtcMs: 1000 }, 11, {
+      eccentricity: 0,
+      periodMs: 1000,
+      periapsisUtcMs: 0,
+    });
     expect(circle).toEqual(pathTimesUtcMs({ startUtcMs: 0, endUtcMs: 1000 }, 11));
-    const turns = eccentricPathTimesUtcMs({ startUtcMs: -3000, endUtcMs: 5000 }, 200, { eccentricity: 0.9, periodMs: 1000, periapsisUtcMs: 123 });
+    const turns = eccentricPathTimesUtcMs({ startUtcMs: -3000, endUtcMs: 5000 }, 200, {
+      eccentricity: 0.9,
+      periodMs: 1000,
+      periapsisUtcMs: 123,
+    });
     for (let k = 1; k < turns.length; k += 1) expect(turns[k]).toBeGreaterThanOrEqual(turns[k - 1]);
   });
 
@@ -99,9 +122,15 @@ describe("a path with eccentric sampling is declared and drawn like any other", 
 
   it("validates its sampling and refuses it on a rolling window", () => {
     expect(() => validatePathSpec("p", syntheticEccentricPath)).not.toThrow();
-    expect(() => validatePathSpec("p", { ...syntheticEccentricPath, sampling: { ...ECCENTRIC_SAMPLING, eccentricity: 1.2 } })).toThrow(/sampling eccentricity/);
-    expect(() => validatePathSpec("p", { ...syntheticEccentricPath, sampling: { ...ECCENTRIC_SAMPLING, periodMs: -1 } })).toThrow(/periodMs/);
-    expect(() => validatePathSpec("p", { ...syntheticEccentricPath, span: { windowMs: 86_400_000 }, samples: 5 } as PathLayer)).toThrow(/fixed span/);
+    expect(() =>
+      validatePathSpec("p", { ...syntheticEccentricPath, sampling: { ...ECCENTRIC_SAMPLING, eccentricity: 1.2 } }),
+    ).toThrow(/sampling eccentricity/);
+    expect(() =>
+      validatePathSpec("p", { ...syntheticEccentricPath, sampling: { ...ECCENTRIC_SAMPLING, periodMs: -1 } }),
+    ).toThrow(/periodMs/);
+    expect(() =>
+      validatePathSpec("p", { ...syntheticEccentricPath, span: { windowMs: 86_400_000 }, samples: 5 } as PathLayer),
+    ).toThrow(/fixed span/);
   });
 });
 
@@ -132,7 +161,15 @@ describe("the made-up belt with its 51 AU orbit frames the whole orbit at true s
     const vertices = Array.from({ length: view.timesUtcMs.length }, (_v, k) => new Vector3(...view.vertexAbsolute(k)));
     let worst = 0;
     const directions: Vector3[] = [];
-    for (let latitude = -75; latitude <= 75; latitude += 25) for (let longitude = 0; longitude < 360; longitude += 30) directions.push(new Vector3(Math.cos((latitude * Math.PI) / 180) * Math.cos((longitude * Math.PI) / 180), Math.sin((latitude * Math.PI) / 180), Math.cos((latitude * Math.PI) / 180) * Math.sin((longitude * Math.PI) / 180)));
+    for (let latitude = -75; latitude <= 75; latitude += 25)
+      for (let longitude = 0; longitude < 360; longitude += 30)
+        directions.push(
+          new Vector3(
+            Math.cos((latitude * Math.PI) / 180) * Math.cos((longitude * Math.PI) / 180),
+            Math.sin((latitude * Math.PI) / 180),
+            Math.cos((latitude * Math.PI) / 180) * Math.sin((longitude * Math.PI) / 180),
+          ),
+        );
     directions.push(new Vector3(0, 1, 0), new Vector3(0, -1, 0));
     const centreVector = new Vector3(...centre);
     for (const direction of directions) {
@@ -164,7 +201,7 @@ describe("the made-up belt with its 51 AU orbit frames the whole orbit at true s
       if (Math.hypot(...exact) > atAphelion) atAphelion = Math.hypot(...exact);
       worstUnits = Math.max(worstUnits, error);
     }
-    expect(atAphelion * 6371.0084 / AU_KM).toBeGreaterThan(50);
+    expect((atAphelion * 6371.0084) / AU_KM).toBeGreaterThan(50);
     // Float32 spacing between 2^20 and 2^21 units is 0.125, so the nearest representable value is within 0.0625 per axis.
     expect(worstUnits).toBeLessThan(0.11);
     expect(worstUnits * 6371.0084).toBeLessThan(700);

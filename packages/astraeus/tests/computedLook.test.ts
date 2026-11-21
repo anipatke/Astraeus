@@ -13,7 +13,10 @@ import { createRoot, type Root } from "react-dom/client";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("../src/app/AstraeusScene", () => ({ AstraeusScene: () => createElement("div", { "data-testid": "scene" }) }));
-vi.mock("../src/assets/sky", async (orig) => ({ ...(await orig<typeof import("../src/assets/sky")>()), loadStarCatalogue: vi.fn().mockResolvedValue(null) }));
+vi.mock("../src/assets/sky", async (orig) => ({
+  ...(await orig<typeof import("../src/assets/sky")>()),
+  loadStarCatalogue: vi.fn().mockResolvedValue(null),
+}));
 
 import { App } from "../src/app/App";
 import { syntheticDefinition } from "./synthetic/syntheticDefinition";
@@ -26,7 +29,16 @@ import { pretendScreen } from "./domSetup";
 const HERE = dirname(fileURLToPath(import.meta.url));
 const BASELINE = join(HERE, "fixtures", "computed-look.baseline.json");
 const SRC = (file: string) => readFileSync(join(HERE, "..", "src", file), "utf8");
-const REST = ["shell/look/look.css", "shell/areas/areas.css", "shell/parts/timeline/timeline.css", "shell/bar/bar.css", "shell/parts/controls.css", "shell/parts/parts.css", "shell/parts/phone.css", "shell/parts/embedded.css"];
+const REST = [
+  "shell/look/look.css",
+  "shell/areas/areas.css",
+  "shell/parts/timeline/timeline.css",
+  "shell/bar/bar.css",
+  "shell/parts/controls.css",
+  "shell/parts/parts.css",
+  "shell/parts/phone.css",
+  "shell/parts/embedded.css",
+];
 const ORDERS = { site: [...REST, "app/style.css"], mount: ["app/style.css", ...REST] } as const;
 const DEFS = { synthetic: syntheticDefinition, listed: syntheticListedDefinition } as const;
 const LAYOUTS = [
@@ -36,24 +48,89 @@ const LAYOUTS = [
   { name: "embedded-phone", phone: true, embedded: true },
 ];
 const PROPS = [
-  "display", "position", "top", "right", "bottom", "left", "width", "height", "min-height", "max-height", "min-width", "max-width",
-  "margin-top", "margin-right", "margin-bottom", "margin-left", "padding-top", "padding-right", "padding-bottom", "padding-left",
-  "font-family", "font-size", "font-weight", "line-height", "letter-spacing", "text-transform", "text-align", "white-space", "color",
-  "background-color", "background-image", "border-top-width", "border-top-style", "border-top-color", "border-bottom-width", "border-left-width",
-  "border-top-left-radius", "box-shadow", "opacity", "visibility", "z-index", "overflow", "gap", "flex-direction", "flex-wrap", "justify-content",
-  "align-items", "grid-template-columns", "transform", "pointer-events", "cursor", "box-sizing", "inset", "isolation", "color-scheme", "accent-color",
+  "display",
+  "position",
+  "top",
+  "right",
+  "bottom",
+  "left",
+  "width",
+  "height",
+  "min-height",
+  "max-height",
+  "min-width",
+  "max-width",
+  "margin-top",
+  "margin-right",
+  "margin-bottom",
+  "margin-left",
+  "padding-top",
+  "padding-right",
+  "padding-bottom",
+  "padding-left",
+  "font-family",
+  "font-size",
+  "font-weight",
+  "line-height",
+  "letter-spacing",
+  "text-transform",
+  "text-align",
+  "white-space",
+  "color",
+  "background-color",
+  "background-image",
+  "border-top-width",
+  "border-top-style",
+  "border-top-color",
+  "border-bottom-width",
+  "border-left-width",
+  "border-top-left-radius",
+  "box-shadow",
+  "opacity",
+  "visibility",
+  "z-index",
+  "overflow",
+  "gap",
+  "flex-direction",
+  "flex-wrap",
+  "justify-content",
+  "align-items",
+  "grid-template-columns",
+  "transform",
+  "pointer-events",
+  "cursor",
+  "box-sizing",
+  "inset",
+  "isolation",
+  "color-scheme",
+  "accent-color",
 ];
 
 /** `styles` are the distinct style rows, `keysets` the distinct element-key lists; a scenario names a keyset and gives, per element, its index into `styles`. */
-interface Baseline { readonly props: readonly string[]; readonly styles: readonly string[]; readonly keysets: readonly (readonly string[])[]; readonly scenarios: Record<string, { readonly keys: number; readonly rows: readonly number[] }> }
+interface Baseline {
+  readonly props: readonly string[];
+  readonly styles: readonly string[];
+  readonly keysets: readonly (readonly string[])[];
+  readonly scenarios: Record<string, { readonly keys: number; readonly rows: readonly number[] }>;
+}
 
 let root: Root | undefined;
 let host: HTMLElement | undefined;
 let sheet: HTMLStyleElement | undefined;
-afterEach(() => { if (root) act(() => root!.unmount()); host?.remove(); sheet?.remove(); root = undefined; host = undefined; sheet = undefined; });
+afterEach(() => {
+  if (root) act(() => root!.unmount());
+  host?.remove();
+  sheet?.remove();
+  root = undefined;
+  host = undefined;
+  sheet = undefined;
+});
 
 async function settle(): Promise<void> {
-  for (let tries = 0; tries < 100 && (document.querySelector(".developer-loading") !== null || tries < 2); tries += 1) await act(async () => { await new Promise((r) => setTimeout(r, 10)); });
+  for (let tries = 0; tries < 100 && (document.querySelector(".developer-loading") !== null || tries < 2); tries += 1)
+    await act(async () => {
+      await new Promise((r) => setTimeout(r, 10));
+    });
 }
 
 /** Renders the App into <div id="app"> and opens every fold, panel and switch the sheets style. */
@@ -63,21 +140,36 @@ async function render(phone: boolean, embedded: boolean, definition: ExperienceD
   host.id = "app";
   document.body.append(host);
   root = createRoot(host);
-  await act(async () => { root!.render(createElement(App, { definition, address: true, developerTools: true })); });
-  const press = (el: Element | null) => { if (el) act(() => { (el as HTMLElement).click(); }); };
+  await act(async () => {
+    root!.render(createElement(App, { definition, address: true, developerTools: true }));
+  });
+  const press = (el: Element | null) => {
+    if (el)
+      act(() => {
+        (el as HTMLElement).click();
+      });
+  };
   press(host.querySelector('button[aria-label="Developer mode"]'));
   await settle();
-  for (let pass = 0; pass < 3; pass += 1) for (const fold of host.querySelectorAll('.developer-tools button[aria-expanded="false"]')) press(fold);
+  for (let pass = 0; pass < 3; pass += 1)
+    for (const fold of host.querySelectorAll('.developer-tools button[aria-expanded="false"]')) press(fold);
   await settle();
   press(host.querySelector(".object-info-toggle"));
   if (phone) press(host.querySelector("button.bar-menu-button"));
   await settle();
-  for (let pass = 0; pass < 3; pass += 1) { for (const b of host.querySelectorAll('button[aria-expanded="false"]:not(.bar-menu-button):not(.object-info-toggle)')) press(b); await settle(); }
+  for (let pass = 0; pass < 3; pass += 1) {
+    for (const b of host.querySelectorAll(
+      'button[aria-expanded="false"]:not(.bar-menu-button):not(.object-info-toggle)',
+    ))
+      press(b);
+    await settle();
+  }
 }
 
 const describeEl = (el: Element): string => {
   const parts: string[] = [];
-  for (let up: Element | null = el; up && up !== document.body && parts.length < 4; up = up.parentElement) parts.unshift(`${up.tagName.toLowerCase()}${up.classList.length ? `.${[...up.classList].join(".")}` : ""}`);
+  for (let up: Element | null = el; up && up !== document.body && parts.length < 4; up = up.parentElement)
+    parts.unshift(`${up.tagName.toLowerCase()}${up.classList.length ? `.${[...up.classList].join(".")}` : ""}`);
   return parts.join(" > ");
 };
 
@@ -95,7 +187,16 @@ function snapshot(css: string): Map<string, string> {
   return out;
 }
 
-const scenarios = LAYOUTS.flatMap((layout) => (Object.keys(ORDERS) as (keyof typeof ORDERS)[]).flatMap((order) => (Object.keys(DEFS) as (keyof typeof DEFS)[]).map((def) => ({ layout, order, def, id: `${layout.name} / ${order} order / ${def}` }))));
+const scenarios = LAYOUTS.flatMap((layout) =>
+  (Object.keys(ORDERS) as (keyof typeof ORDERS)[]).flatMap((order) =>
+    (Object.keys(DEFS) as (keyof typeof DEFS)[]).map((def) => ({
+      layout,
+      order,
+      def,
+      id: `${layout.name} / ${order} order / ${def}`,
+    })),
+  ),
+);
 const update = process.env.LOOK_UPDATE === "1";
 const captured: Record<string, Map<string, string>> = {};
 
@@ -106,7 +207,10 @@ describe("look lock: every element's computed style matches the checked-in basel
     expect(now.size).toBeGreaterThan(100);
     // The Developer drawer must be open with a nested fold, so the `:not()` subject case (I-140) is in the lock.
     if (def === "synthetic") expect([...now.keys()].some((k) => k.includes("collapsible-nested"))).toBe(true);
-    if (update) { captured[id] = now; return; }
+    if (update) {
+      captured[id] = now;
+      return;
+    }
     const baseline = JSON.parse(readFileSync(BASELINE, "utf8")) as Baseline;
     expect(baseline.props).toEqual(PROPS);
     const locked = baseline.scenarios[id];
@@ -116,9 +220,14 @@ describe("look lock: every element's computed style matches the checked-in basel
     const diffs: string[] = [];
     for (const [key, row] of now) {
       const index = lockedRows.get(key);
-      if (index === undefined) { diffs.push(`${key} | element is new`); continue; }
+      if (index === undefined) {
+        diffs.push(`${key} | element is new`);
+        continue;
+      }
       const was = baseline.styles[index]!.split("\u241f");
-      row.split("\u241f").forEach((value, p) => { if (value !== was[p]) diffs.push(`${key} | ${PROPS[p]}: ${JSON.stringify(was[p])} -> ${JSON.stringify(value)}`); });
+      row.split("\u241f").forEach((value, p) => {
+        if (value !== was[p]) diffs.push(`${key} | ${PROPS[p]}: ${JSON.stringify(was[p])} -> ${JSON.stringify(value)}`);
+      });
     }
     for (const key of keys) if (!now.has(key)) diffs.push(`${key} | element is gone`);
     expect(diffs, "computed look changed; if intended run npm run look:lock and review the baseline diff").toEqual([]);
@@ -132,10 +241,27 @@ describe("look lock: every element's computed style matches the checked-in basel
     for (const { id } of scenarios) {
       const keys = [...captured[id]!.keys()];
       let keysIndex = keysets.findIndex((k) => k.length === keys.length && k.every((key, i) => key === keys[i]));
-      if (keysIndex < 0) { keysIndex = keysets.length; keysets.push(keys); }
-      out[id] = { keys: keysIndex, rows: [...captured[id]!.values()].map((row) => { if (!seen.has(row)) { seen.set(row, styles.length); styles.push(row); } return seen.get(row)!; }) };
+      if (keysIndex < 0) {
+        keysIndex = keysets.length;
+        keysets.push(keys);
+      }
+      out[id] = {
+        keys: keysIndex,
+        rows: [...captured[id]!.values()].map((row) => {
+          if (!seen.has(row)) {
+            seen.set(row, styles.length);
+            styles.push(row);
+          }
+          return seen.get(row)!;
+        }),
+      };
     }
-    const lines = Object.entries(out).map(([id, v]) => `    ${JSON.stringify(id)}: {"keys": ${v.keys}, "rows": ${JSON.stringify(v.rows)}}`);
-    writeFileSync(BASELINE, `{\n  "props": ${JSON.stringify(PROPS)},\n  "styles": [\n${styles.map((s) => `    ${JSON.stringify(s)}`).join(",\n")}\n  ],\n  "keysets": [\n${keysets.map((k) => `    ${JSON.stringify(k)}`).join(",\n")}\n  ],\n  "scenarios": {\n${lines.join(",\n")}\n  }\n}\n`);
+    const lines = Object.entries(out).map(
+      ([id, v]) => `    ${JSON.stringify(id)}: {"keys": ${v.keys}, "rows": ${JSON.stringify(v.rows)}}`,
+    );
+    writeFileSync(
+      BASELINE,
+      `{\n  "props": ${JSON.stringify(PROPS)},\n  "styles": [\n${styles.map((s) => `    ${JSON.stringify(s)}`).join(",\n")}\n  ],\n  "keysets": [\n${keysets.map((k) => `    ${JSON.stringify(k)}`).join(",\n")}\n  ],\n  "scenarios": {\n${lines.join(",\n")}\n  }\n}\n`,
+    );
   });
 });

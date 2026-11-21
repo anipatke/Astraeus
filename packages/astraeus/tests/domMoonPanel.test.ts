@@ -22,15 +22,34 @@ let unmount = () => {};
 
 function Host() {
   const [lit, setLit] = useState<string | null>(null);
-  return createElement(MoonFamilyPanel, { list, highlightedFamily: lit, onHighlight: (id) => { lights.push(id); setLit(id); }, onSelectMoon: (id) => { picked.push(id); } });
+  return createElement(MoonFamilyPanel, {
+    list,
+    highlightedFamily: lit,
+    onHighlight: (id) => {
+      lights.push(id);
+      setLit(id);
+    },
+    onSelectMoon: (id) => {
+      picked.push(id);
+    },
+  });
 }
 function mount() {
   document.body.appendChild(container);
   const root = createRoot(container);
-  act(() => { root.render(createElement(Host)); });
-  unmount = () => { act(() => root.unmount()); container.remove(); };
+  act(() => {
+    root.render(createElement(Host));
+  });
+  unmount = () => {
+    act(() => root.unmount());
+    container.remove();
+  };
 }
-afterEach(() => { unmount(); picked.length = 0; lights.length = 0; });
+afterEach(() => {
+  unmount();
+  picked.length = 0;
+  lights.length = 0;
+});
 const toggle = (fold: string) => $(container, `[data-fold-toggle="${fold}"]`);
 
 describe("the moon panel", () => {
@@ -64,8 +83,13 @@ describe("the moon panel", () => {
     expect(toggle("moons-carme").getAttribute("aria-expanded")).toBe("false");
     press(toggle("moons-carme"));
     expect(toggle("moons-carme").getAttribute("aria-expanded")).toBe("true");
-    expect($(container, '[data-moon-family="carme"] .moon-note').textContent).toBe(data.families.find((f) => f.id === "carme")!.description);
-    const rows = () => [...container.querySelectorAll('[data-moon-family="carme"] [data-moon]')].map((el) => el.getAttribute("data-moon"));
+    expect($(container, '[data-moon-family="carme"] .moon-note').textContent).toBe(
+      data.families.find((f) => f.id === "carme")!.description,
+    );
+    const rows = () =>
+      [...container.querySelectorAll('[data-moon-family="carme"] [data-moon]')].map((el) =>
+        el.getAttribute("data-moon"),
+      );
     expect(rows()).toEqual(named.map((moon) => moon.id));
     expect(toggle("moons-carme-unnamed").textContent).toContain(`+${carme.length - named.length} unnamed`);
     press(toggle("moons-carme-unnamed"));
@@ -96,7 +120,8 @@ describe("the moon panel", () => {
   it("finds a moon by name and by designation as it is typed, and says when nothing matches", () => {
     mount();
     const search = $(container, "input.moon-search-input") as HTMLInputElement;
-    const results = () => [...container.querySelectorAll(".moon-results [data-moon]")].map((el) => el.getAttribute("data-moon"));
+    const results = () =>
+      [...container.querySelectorAll(".moon-results [data-moon]")].map((el) => el.getAttribute("data-moon"));
     change(search, "Himal");
     expect(results()).toContain("himalia");
     change(search, "S/2003 J 19");
@@ -111,17 +136,24 @@ describe("the moon panel", () => {
 
 describe("the moons sheet and the information panel (browser-moon-panel M7)", () => {
   let shell: Mounted | undefined;
-  afterEach(() => { shell?.unmount(); shell = undefined; });
+  afterEach(() => {
+    shell?.unmount();
+    shell = undefined;
+  });
   const sheetOpen = (m: Mounted) => $(m.container, ".moons-sheet").getAttribute("data-open");
 
   it("draws the moon list after its on-demand load when the experience has moon families, and not otherwise (I-089)", async () => {
     shell = mountShell({ experience: experienceWithMoons });
-    await act(async () => { await new Promise((resolve) => setTimeout(resolve, 20)); });
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 20));
+    });
     expect(shell.container.querySelector("[data-moon-summary]")).not.toBeNull();
     expect(shell.container.querySelector('[data-moon-family="galilean"]')).not.toBeNull();
     shell.unmount();
     shell = mountShell({ experience: { ...experienceWithMoons, moonFamilies: undefined } });
-    await act(async () => { await new Promise((resolve) => setTimeout(resolve, 20)); });
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 20));
+    });
     expect(shell.container.querySelector("[data-moon-summary]")).toBeNull();
   });
 

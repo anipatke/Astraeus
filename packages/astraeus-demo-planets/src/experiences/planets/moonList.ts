@@ -57,13 +57,17 @@ const text = (value: unknown, where: string): string => {
 export function parseMoonCatalogue(raw: unknown): MoonCatalogue {
   if (typeof raw !== "object" || raw === null) throw new MoonCatalogueError("moon catalogue must be an object");
   const record = raw as Record<string, unknown>;
-  if (record.format !== MOON_CATALOGUE_FORMAT) throw new MoonCatalogueError(`moon catalogue format must be "${MOON_CATALOGUE_FORMAT}"`);
-  if (!Array.isArray(record.families) || !Array.isArray(record.moons)) throw new MoonCatalogueError("moon catalogue needs families and moons");
-  const families = (record.families as Record<string, unknown>[]).map((family, index): MoonFamily => Object.freeze({
-    id: text(family.id, `families[${index}].id`),
-    label: text(family.label, `families[${index}].label`),
-    description: text(family.description, `families[${index}].description`),
-  }));
+  if (record.format !== MOON_CATALOGUE_FORMAT)
+    throw new MoonCatalogueError(`moon catalogue format must be "${MOON_CATALOGUE_FORMAT}"`);
+  if (!Array.isArray(record.families) || !Array.isArray(record.moons))
+    throw new MoonCatalogueError("moon catalogue needs families and moons");
+  const families = (record.families as Record<string, unknown>[]).map((family, index): MoonFamily =>
+    Object.freeze({
+      id: text(family.id, `families[${index}].id`),
+      label: text(family.label, `families[${index}].label`),
+      description: text(family.description, `families[${index}].description`),
+    }),
+  );
   const familyIds = new Set(families.map((family) => family.id));
   if (familyIds.size !== families.length) throw new MoonCatalogueError("moon catalogue family ids must be unique");
   const moons = (record.moons as Record<string, unknown>[]).map((moon, index): MoonRecord => {
@@ -71,13 +75,22 @@ export function parseMoonCatalogue(raw: unknown): MoonCatalogue {
     const family = text(moon.family, `${where}.family`);
     if (!familyIds.has(family)) throw new MoonCatalogueError(`${where}.family "${family}" is not a listed family`);
     const radius = moon.meanRadiusKm;
-    if (typeof radius !== "number" || !(radius > 0)) throw new MoonCatalogueError(`${where}.meanRadiusKm must be positive`);
+    if (typeof radius !== "number" || !(radius > 0))
+      throw new MoonCatalogueError(`${where}.meanRadiusKm must be positive`);
     const sources = (moon.sources ?? {}) as Record<string, unknown>;
-    const sourceIds = [...new Set([sources.list, sources.family, sources.radius, sources.discovery].filter((id): id is string => typeof id === "string"))];
+    const sourceIds = [
+      ...new Set(
+        [sources.list, sources.family, sources.radius, sources.discovery].filter(
+          (id): id is string => typeof id === "string",
+        ),
+      ),
+    ];
     return Object.freeze({
       named: moon.named !== false,
       ...(typeof moon.discoveryYear === "number" ? { discoveryYear: moon.discoveryYear } : {}),
-      ...(typeof moon.orbitPeriodDays === "number" && moon.orbitPeriodDays > 0 ? { orbitPeriodDays: moon.orbitPeriodDays } : {}),
+      ...(typeof moon.orbitPeriodDays === "number" && moon.orbitPeriodDays > 0
+        ? { orbitPeriodDays: moon.orbitPeriodDays }
+        : {}),
       sourceIds: Object.freeze(sourceIds),
       id: text(moon.id, `${where}.id`),
       name: text(moon.name, `${where}.name`),
@@ -87,11 +100,24 @@ export function parseMoonCatalogue(raw: unknown): MoonCatalogue {
       ...(typeof moon.bodyPackage === "string" ? { bodyPackage: moon.bodyPackage } : {}),
     });
   });
-  if (new Set(moons.map((moon) => moon.id)).size !== moons.length) throw new MoonCatalogueError("moon catalogue moon ids must be unique");
+  if (new Set(moons.map((moon) => moon.id)).size !== moons.length)
+    throw new MoonCatalogueError("moon catalogue moon ids must be unique");
   const sources: Record<string, MoonSource> = {};
-  for (const [id, source] of Object.entries((record.sources ?? {}) as Record<string, Record<string, unknown>>)) sources[id] = Object.freeze({ title: text(source.title, `sources.${id}.title`), url: text(source.url, `sources.${id}.url`) });
-  for (const moon of moons) for (const id of moon.sourceIds) if (sources[id] === undefined) throw new MoonCatalogueError(`moon "${moon.id}" cites unknown source "${id}"`);
-  return Object.freeze({ parent: text(record.parent, "parent"), asOf: text(record.asOf, "asOf"), families: Object.freeze(families), moons: Object.freeze(moons), sources: Object.freeze(sources) });
+  for (const [id, source] of Object.entries((record.sources ?? {}) as Record<string, Record<string, unknown>>))
+    sources[id] = Object.freeze({
+      title: text(source.title, `sources.${id}.title`),
+      url: text(source.url, `sources.${id}.url`),
+    });
+  for (const moon of moons)
+    for (const id of moon.sourceIds)
+      if (sources[id] === undefined) throw new MoonCatalogueError(`moon "${moon.id}" cites unknown source "${id}"`);
+  return Object.freeze({
+    parent: text(record.parent, "parent"),
+    asOf: text(record.asOf, "asOf"),
+    families: Object.freeze(families),
+    moons: Object.freeze(moons),
+    sources: Object.freeze(sources),
+  });
 }
 
 /** The titles of the sources for one moon's family, size and discovery year, for its provenance sources list. */
@@ -100,12 +126,18 @@ export function moonSourceTitles(catalogue: MoonCatalogue, moon: MoonRecord): re
 }
 
 /** The info-panel facts for one moon: its family, size and discovery year. Their sources are listed in the provenance (see `moonSourceTitles`). */
-export function moonFacts(catalogue: MoonCatalogue, moon: MoonRecord): readonly { readonly label: string; readonly value: string }[] {
+export function moonFacts(
+  catalogue: MoonCatalogue,
+  moon: MoonRecord,
+): readonly { readonly label: string; readonly value: string }[] {
   const family = catalogue.families.find((candidate) => candidate.id === moon.family);
   const diameter = Math.round(2 * moon.meanRadiusKm * 10) / 10;
   return [
     { label: "Family", value: family?.label ?? moon.family },
-    { label: "Size", value: `${diameter.toLocaleString("en-GB")} km across${moon.radiusBasis === "estimate" ? " (estimated from brightness)" : ""}` },
+    {
+      label: "Size",
+      value: `${diameter.toLocaleString("en-GB")} km across${moon.radiusBasis === "estimate" ? " (estimated from brightness)" : ""}`,
+    },
     ...(moon.discoveryYear === undefined ? [] : [{ label: "Found", value: String(moon.discoveryYear) }]),
   ];
 }

@@ -16,7 +16,19 @@ export interface ShelfCell<T = unknown> {
 export function makeCell(start: unknown): ShelfCell {
   let value = start;
   const listeners = new Set<() => void>();
-  return { get: () => value, set: (next) => { value = next; for (const listener of [...listeners]) listener(); }, subscribe: (listener) => { listeners.add(listener); return () => { listeners.delete(listener); }; } };
+  return {
+    get: () => value,
+    set: (next) => {
+      value = next;
+      for (const listener of [...listeners]) listener();
+    },
+    subscribe: (listener) => {
+      listeners.add(listener);
+      return () => {
+        listeners.delete(listener);
+      };
+    },
+  };
 }
 
 /** What a block's view is handed. The members after `element` are the viewer's own; a bare runtime (a test of the shell) has none, and a view then keeps its own content and tells no one. */
@@ -86,4 +98,5 @@ export interface ShelfTile extends ShelfBlock {
 export type ShelfPart = ShelfPanel | ShelfTile;
 
 /** The ids of a part and everything inside it (a panel and its blocks; a tile is its own block). */
-export const idsOfPart = (part: ShelfPart): readonly string[] => (part.kind === "panel" ? [part.id, ...part.blocks.map((block) => block.id)] : [part.id]);
+export const idsOfPart = (part: ShelfPart): readonly string[] =>
+  part.kind === "panel" ? [part.id, ...part.blocks.map((block) => block.id)] : [part.id];

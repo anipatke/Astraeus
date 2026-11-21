@@ -9,9 +9,22 @@ import { moonDataFolder } from "./moonData";
 // table as `boundsOf` is, so it never asks the conversion for an instant before the table starts.
 const folder = moonDataFolder("jupiter");
 const set = new ChebyshevEphemeris(parseEphemerisIndex(readJson(`${folder}index.json`)));
-for (const body of ["io", "jupiter"]) for (const year of [1950, 2016]) set.addChunk(body, `${body}/${year}.bin`, readBytes(`${folder}${body}/${year}.bin`));
-const provenance = createProvenance({ sourceType: "illustrative", sources: ["Made up inside the moon loaded-from tests"], accuracy: "None claimed.", notes: "Fixture." });
-const group = createEphemerisGroup({ id: "jupiter-moons", center: "jupiter", ephemeris: () => set, members: ["io"], bounds: set.boundsOf("io"), provenance });
+for (const body of ["io", "jupiter"])
+  for (const year of [1950, 2016]) set.addChunk(body, `${body}/${year}.bin`, readBytes(`${folder}${body}/${year}.bin`));
+const provenance = createProvenance({
+  sourceType: "illustrative",
+  sources: ["Made up inside the moon loaded-from tests"],
+  accuracy: "None claimed.",
+  notes: "Fixture.",
+});
+const group = createEphemerisGroup({
+  id: "jupiter-moons",
+  center: "jupiter",
+  ephemeris: () => set,
+  members: ["io"],
+  bounds: set.boundsOf("io"),
+  provenance,
+});
 const february1950 = Date.UTC(1950, 1, 1);
 
 describe("loadedFromUtcMs in the first year of data", () => {

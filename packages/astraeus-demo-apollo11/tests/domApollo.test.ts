@@ -22,12 +22,15 @@ const valueOf = (metrics: readonly Metric[], id: string): number => {
 };
 
 let m: Mounted | undefined;
-afterEach(() => { m?.unmount(); m = undefined; });
+afterEach(() => {
+  m?.unmount();
+  m = undefined;
+});
 
 describe("the thirty events", () => {
   it("are the mission's thirty, listed on the screen as many rows, and the same list the timeline markers use", () => {
     expect(apollo11Experience.events).toHaveLength(30);
-        m = mountShell({ experience: apollo11Experience });
+    m = mountShell({ experience: apollo11Experience });
     const rows = [...m.container.querySelectorAll<HTMLElement>(".timeline-expanded li button")];
     expect(rows).toHaveLength(30);
     const labels = rows.map((row) => row.querySelector("span")!.textContent!.trim());
@@ -49,7 +52,10 @@ describe("the thirty events", () => {
 describe("one scale", () => {
   it("offers True only, so the shell has no scale control and no explanation button", () => {
     expect(apollo11Definition.scaleChoices).toEqual(["true-scale"]);
-    m = mountShell({ experience: apollo11Experience, scaleChoices: scaleChoicesFor(apollo11Definition.scaleChoices ?? []) });
+    m = mountShell({
+      experience: apollo11Experience,
+      scaleChoices: scaleChoicesFor(apollo11Definition.scaleChoices ?? []),
+    });
     expect(m.container.querySelector(".scale-toggle")).toBeNull();
     expect(findAllByLabel(m.container, "About the scales")).toHaveLength(0);
     expect(m.scale()).toBe("true-scale");
@@ -68,14 +74,23 @@ describe("the six mission phases (browser-spike02)", () => {
     ["return", "1969-07-23 12:00:00", ["columbia"]],
     ["entry", "1969-07-24 16:30:00", ["columbia"]],
   ] as const;
-  it.each(phases)("%s: the vehicle's range, speed, Moon gap and two altitudes read as finite numbers at %s", (_id, when, vehicles) => {
-    for (const vehicle of vehicles) {
-      const metrics = metricsFor(vehicle, utc(when));
-      const ids = [`${vehicle}-range`, `${vehicle}-speed`, `${vehicle}-to-moon`, `${vehicle}-altitude-earth`, `${vehicle}-altitude-moon`];
-      expect(metrics.map((metric) => metric.id)).toEqual(ids);
-      for (const id of ids) expect(Number.isFinite(valueOf(metrics, id))).toBe(true);
-    }
-  });
+  it.each(phases)(
+    "%s: the vehicle's range, speed, Moon gap and two altitudes read as finite numbers at %s",
+    (_id, when, vehicles) => {
+      for (const vehicle of vehicles) {
+        const metrics = metricsFor(vehicle, utc(when));
+        const ids = [
+          `${vehicle}-range`,
+          `${vehicle}-speed`,
+          `${vehicle}-to-moon`,
+          `${vehicle}-altitude-earth`,
+          `${vehicle}-altitude-moon`,
+        ];
+        expect(metrics.map((metric) => metric.id)).toEqual(ids);
+        for (const id of ids) expect(Number.isFinite(valueOf(metrics, id))).toBe(true);
+      }
+    },
+  );
 
   it("read the same whichever camera preset is chosen: the presets are requests to the camera and the readouts are a function of time", () => {
     const when = utc("1969-07-20 20:17:00");
@@ -83,7 +98,19 @@ describe("the six mission phases (browser-spike02)", () => {
     const before = ids.map((id) => metricsFor(id, when));
     m = mountShell({ experience: apollo11Experience });
     const presets = apollo11Experience.cameraPresets.map((preset) => preset.id);
-    expect(presets).toEqual(expect.arrayContaining(["focus-earth", "focus-moon", "focus-columbia", "focus-eagle", "follow-columbia", "follow-eagle", "follow-earth", "follow-moon", "overview"]));
+    expect(presets).toEqual(
+      expect.arrayContaining([
+        "focus-earth",
+        "focus-moon",
+        "focus-columbia",
+        "focus-eagle",
+        "follow-columbia",
+        "follow-eagle",
+        "follow-earth",
+        "follow-moon",
+        "overview",
+      ]),
+    );
     for (const preset of apollo11Experience.cameraPresets) {
       expect(preset.request).toBeDefined();
       expect(ids.map((id) => metricsFor(id, when))).toEqual(before);
@@ -92,20 +119,28 @@ describe("the six mission phases (browser-spike02)", () => {
 });
 
 describe("the speed readout (browser-spike02)", () => {
-  it.each(["1969-07-17 12:00:00", "1969-07-19 12:00:00", "1969-07-23 12:00:00"])("at %s matches the range's rate of change one simulated minute later, within 8 percent, and a wrong expectation is rejected", (when) => {
-    const t = utc(when);
-    const first = metricsFor("columbia", t);
-    const second = metricsFor("columbia", t + 60_000);
-    const speed = valueOf(first, "columbia-speed");
-    const implied = Math.abs(valueOf(second, "columbia-range") - valueOf(first, "columbia-range")) / 60;
-    expect(speed).toBeGreaterThan(0);
-    expect(Math.abs(speed - implied)).toBeLessThanOrEqual(0.08 * implied);
-    expect(Math.abs(speed - implied * 1.5)).toBeGreaterThan(0.08 * implied * 1.5);
-  });
+  it.each(["1969-07-17 12:00:00", "1969-07-19 12:00:00", "1969-07-23 12:00:00"])(
+    "at %s matches the range's rate of change one simulated minute later, within 8 percent, and a wrong expectation is rejected",
+    (when) => {
+      const t = utc(when);
+      const first = metricsFor("columbia", t);
+      const second = metricsFor("columbia", t + 60_000);
+      const speed = valueOf(first, "columbia-speed");
+      const implied = Math.abs(valueOf(second, "columbia-range") - valueOf(first, "columbia-range")) / 60;
+      expect(speed).toBeGreaterThan(0);
+      expect(Math.abs(speed - implied)).toBeLessThanOrEqual(0.08 * implied);
+      expect(Math.abs(speed - implied * 1.5)).toBeGreaterThan(0.08 * implied * 1.5);
+    },
+  );
 });
 
 describe("the Moon's phase at the four USNO dates (browser-spike02)", () => {
-  it.each([["2024-01-04 03:30:00", 50.1], ["2024-01-11 11:57:00", 0.2], ["2024-01-18 03:52:00", 50.1], ["2024-01-25 17:54:00", 99.8]])("%s is %s percent lit within one point", (when, expected) => {
+  it.each([
+    ["2024-01-04 03:30:00", 50.1],
+    ["2024-01-11 11:57:00", 0.2],
+    ["2024-01-18 03:52:00", 50.1],
+    ["2024-01-25 17:54:00", 99.8],
+  ])("%s is %s percent lit within one point", (when, expected) => {
     const phase = bodyMetrics(resolver, ["earth", "moon"])("moon", utc(when)).find((metric) => metric.kind === "phase");
     expect(phase?.kind === "phase" ? phase.fraction : null).not.toBeNull();
     expect(Math.abs((phase as { fraction: number }).fraction * 100 - expected)).toBeLessThanOrEqual(1);

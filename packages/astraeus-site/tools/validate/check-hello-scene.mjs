@@ -20,7 +20,10 @@ await checkScript({ name: "check-hello-scene", viewports: SIZES }, async (page) 
   assert.equal(await ui.pickedBody(page), "probe", "the probe is the picked object");
   // examples/hello-scene (HELLO_STORY=1) opens looking at the probe, not following it; examples/hello-react opens following it.
   const story = process.env.HELLO_STORY === "1";
-  assert.ok(await ui.cameraActive(page, story ? "focus-probe" : "follow-probe"), story ? "the scene opens looking at the probe (Focus)" : "the scene opens already following the probe");
+  assert.ok(
+    await ui.cameraActive(page, story ? "focus-probe" : "follow-probe"),
+    story ? "the scene opens looking at the probe (Focus)" : "the scene opens already following the probe",
+  );
   await page.waitForTimeout(1500);
   const earth = await ui.sceneBody(page, "earth");
   assert.ok(earth && earth.as !== "none" && earth.inView, "Earth is drawn and in view");
@@ -31,13 +34,25 @@ await checkScript({ name: "check-hello-scene", viewports: SIZES }, async (page) 
   // The opening time is the one the example sets, and it can be moved.
   const opened = await ui.clockMs(page);
   const set = Date.parse("2026-01-01T00:00:00Z");
-  assert.ok(opened >= set && opened < set + 600_000, "the scene opens at the time setTime gave (it plays on from there until paused)");
+  assert.ok(
+    opened >= set && opened < set + 600_000,
+    "the scene opens at the time setTime gave (it plays on from there until paused)",
+  );
   const { min, max } = await ui.seekRange(page);
   const target = Math.round((min + max) / 2);
   await ui.seekTo(page, target);
   await ui.waitForClock(page, new Date(target).toISOString());
-  const storyReadouts = story ? { ...(await checkStory(page)), ...(await checkSwitches(page)), ...(await checkGroup(page)) } : {};
-  return { opened, moved: target, ...storyReadouts, earthPx: earth.radiusPx, orbitInView: orbit.inView, moonAs: moon.as };
+  const storyReadouts = story
+    ? { ...(await checkStory(page)), ...(await checkSwitches(page)), ...(await checkGroup(page)) }
+    : {};
+  return {
+    opened,
+    moved: target,
+    ...storyReadouts,
+    earthPx: earth.radiusPx,
+    orbitInView: orbit.inView,
+    moonAs: moon.as,
+  };
 });
 
 // The made-up story of examples/hello-scene: three anchor dots on the probe, two events on the timeline and one story panel that opens from its marker. All read through the driver.
@@ -46,7 +61,10 @@ async function checkStory(page) {
   await ui.openEventList(page);
   assert.equal(await ui.eventRowCount(page), 2, "the timeline lists the two events");
   const rows = await ui.eventRowTexts(page);
-  assert.ok(rows.some((text) => text.includes("Made-up burn")) && rows.some((text) => text.includes("Half a lap")), "the events are the burn and half a lap");
+  assert.ok(
+    rows.some((text) => text.includes("Made-up burn")) && rows.some((text) => text.includes("Half a lap")),
+    "the events are the burn and half a lap",
+  );
   await ui.closeEventList(page);
   assert.equal(await ui.firstStoryMarkerId(page), "half-lap", "the timeline has the story panel's marker");
   await ui.openStoryPanel(page, "half-lap");
@@ -71,11 +89,23 @@ async function checkGroup(page) {
 // Each is read through the scene's own readouts (the Moon's orbit line, the label layer, the sky), and the open panel must sit inside the window and clear of the cog and the timeline.
 async function checkSwitches(page) {
   const places = await ui.displaySwitchPlaces(page);
-  assert.deepEqual(places, { topBar: ["orbitLines"], panel: ["labels"] }, "orbit lines sit on the top bar and labels in the switch panel; the Milky Way is in the Developer drawer only");
+  assert.deepEqual(
+    places,
+    { topBar: ["orbitLines"], panel: ["labels"] },
+    "orbit lines sit on the top bar and labels in the switch panel; the Milky Way is in the Developer drawer only",
+  );
   const fit = await ui.switchPanelFit(page);
-  assert.ok(fit.insideWindow && fit.overlaps.length === 0, `the switch panel is inside the window and clear of the cog and the timeline (overlaps: ${fit.overlaps.join(", ") || "none"})`);
+  assert.ok(
+    fit.insideWindow && fit.overlaps.length === 0,
+    `the switch panel is inside the window and clear of the cog and the timeline (overlaps: ${fit.overlaps.join(", ") || "none"})`,
+  );
   assert.equal(await ui.displaySwitchOn(page, "orbitLines"), true, "orbit lines start on");
-  await toggleAndRead(page, "orbitLines", async () => (await ui.scenePath(page, "moon-orbit"))?.visible === true, "the Moon's orbit line");
+  await toggleAndRead(
+    page,
+    "orbitLines",
+    async () => (await ui.scenePath(page, "moon-orbit"))?.visible === true,
+    "the Moon's orbit line",
+  );
   assert.equal(await ui.displaySwitchOn(page, "labels"), true, "labels start on");
   await toggleAndRead(page, "labels", async () => (await ui.visibleSceneLabelCount(page)) > 0, "the body name labels");
   assert.equal((await ui.sceneSky(page)).picture, false, "the Milky Way picture starts off, as the example asked");

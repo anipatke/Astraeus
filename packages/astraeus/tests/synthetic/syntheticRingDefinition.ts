@@ -37,8 +37,22 @@ const ringInput: OrbitGroupInput = {
   center: "earth",
   plane: "EQJ",
   epochUtcMs: START_UTC_MS,
-  base: { semiMajorAxisKm: 26_000, eccentricity: 0.02, inclinationDeg: 15, raanDeg: 0, argumentOfPeriapsisDeg: 0, trueAnomalyDeg: 0 },
-  spread: { semiMajorAxisKm: 1_500, eccentricity: 0.02, inclinationDeg: 2, raanDeg: 180, argumentOfPeriapsisDeg: 180, trueAnomalyDeg: 180 },
+  base: {
+    semiMajorAxisKm: 26_000,
+    eccentricity: 0.02,
+    inclinationDeg: 15,
+    raanDeg: 0,
+    argumentOfPeriapsisDeg: 0,
+    trueAnomalyDeg: 0,
+  },
+  spread: {
+    semiMajorAxisKm: 1_500,
+    eccentricity: 0.02,
+    inclinationDeg: 2,
+    raanDeg: 180,
+    argumentOfPeriapsisDeg: 180,
+    trueAnomalyDeg: 180,
+  },
   seed: 20300101,
   bounds,
   provenance: ringProvenance,
@@ -50,8 +64,22 @@ const beltInput: OrbitGroupInput = {
   center: "sun",
   plane: "ecliptic-j2000",
   epochUtcMs: START_UTC_MS,
-  base: { semiMajorAxisKm: 2.5 * AU_KM, eccentricity: 0.1, inclinationDeg: 8, raanDeg: 0, argumentOfPeriapsisDeg: 0, trueAnomalyDeg: 0 },
-  spread: { semiMajorAxisKm: 0.3 * AU_KM, eccentricity: 0.08, inclinationDeg: 6, raanDeg: 180, argumentOfPeriapsisDeg: 180, trueAnomalyDeg: 180 },
+  base: {
+    semiMajorAxisKm: 2.5 * AU_KM,
+    eccentricity: 0.1,
+    inclinationDeg: 8,
+    raanDeg: 0,
+    argumentOfPeriapsisDeg: 0,
+    trueAnomalyDeg: 0,
+  },
+  spread: {
+    semiMajorAxisKm: 0.3 * AU_KM,
+    eccentricity: 0.08,
+    inclinationDeg: 6,
+    raanDeg: 180,
+    argumentOfPeriapsisDeg: 180,
+    trueAnomalyDeg: 180,
+  },
   seed: 7,
   bounds,
   provenance: beltProvenance,
@@ -68,7 +96,8 @@ export const syntheticRingLayer: GroupLayer = {
     color: "#7fd1ff",
     labelPriority: 70,
     labelMaxDistance: 500,
-    description: "10,000 invented fragments circling Earth. One item stands for the whole ring; its focus point is the centroid of the members.",
+    description:
+      "10,000 invented fragments circling Earth. One item stands for the whole ring; its focus point is the centroid of the members.",
     knownLimitations: [
       "Made up; not a real population.",
       "Members move on unperturbed two-body orbits about Earth: no drag, no Moon or Sun pull, no collisions.",
@@ -84,11 +113,9 @@ export const syntheticBeltLayer: GroupLayer = {
     id: "dust-belt",
     label: "Dust belt",
     color: "#ffd27f",
-    description: "10,000 invented fragments circling the Sun. One item stands for the whole belt; its focus point is the centroid of the members.",
-    knownLimitations: [
-      "Made up; not a real population.",
-      "Members move on unperturbed two-body orbits about the Sun.",
-    ],
+    description:
+      "10,000 invented fragments circling the Sun. One item stands for the whole belt; its focus point is the centroid of the members.",
+    knownLimitations: ["Made up; not a real population.", "Members move on unperturbed two-body orbits about the Sun."],
   },
 };
 
@@ -101,7 +128,8 @@ export const syntheticSun: SunBody = {
     label: "Sun",
     color: "#fff1b0",
     labelPriority: 95,
-    description: "The Sun, the centre the belt and the paths circle. The marker's size is a drawing choice, not the Sun's real size.",
+    description:
+      "The Sun, the centre the belt and the paths circle. The marker's size is a drawing choice, not the Sun's real size.",
     provenance: createProvenance({
       sourceType: "ephemeris",
       sources: EARTH_EPHEMERIS.provenance.sources,
@@ -130,19 +158,30 @@ export const syntheticEarthPath: PathLayer = {
     provenance: createProvenance({
       sourceType: "ephemeris",
       sources: EARTH_EPHEMERIS.provenance.sources,
-      accuracy: "Sampled from the engine's Earth–Sun geometry at 256 evenly spaced times; Earth sits on the line at the clock time to within the sampling gap.",
+      accuracy:
+        "Sampled from the engine's Earth–Sun geometry at 256 evenly spaced times; Earth sits on the line at the clock time to within the sampling gap.",
       notes: "The line is the year's path; the real path shifts slightly from year to year.",
     }),
     knownLimitations: ["A year's samples joined by straight segments."],
   },
 };
 
-const madeUpPathSource = createTwoBodyTrajectory({
-  body: "far-marker",
-  plane: "ecliptic-j2000",
-  epochUtcMs: START_UTC_MS,
-  elements: { semiMajorAxisKm: 4.5 * AU_KM, eccentricity: 0.2, inclinationDeg: 5, raanDeg: 60, argumentOfPeriapsisDeg: 30, trueAnomalyDeg: 0 },
-}, createOrbTwoBodyAdapter());
+const madeUpPathSource = createTwoBodyTrajectory(
+  {
+    body: "far-marker",
+    plane: "ecliptic-j2000",
+    epochUtcMs: START_UTC_MS,
+    elements: {
+      semiMajorAxisKm: 4.5 * AU_KM,
+      eccentricity: 0.2,
+      inclinationDeg: 5,
+      raanDeg: 60,
+      argumentOfPeriapsisDeg: 30,
+      trueAnomalyDeg: 0,
+    },
+  },
+  createOrbTwoBodyAdapter(),
+);
 
 /** A made-up Sun-centred object's path, from made-up elements; proves a path needs no built-in planet. */
 export const syntheticFarPath: PathLayer = {
@@ -168,8 +207,22 @@ export const syntheticFarPath: PathLayer = {
 
 const experience: ExperienceConfig = {
   objects: [
-    { id: "earth", label: "Earth", color: "#9fd8ff", labelPriority: 100, labelMaxDistance: 500, description: "The planet the ring circles." },
-    { id: "moon", label: "Moon", color: "#ded7cc", labelPriority: 90, labelMaxDistance: 500, description: "Shown for scale only." },
+    {
+      id: "earth",
+      label: "Earth",
+      color: "#9fd8ff",
+      labelPriority: 100,
+      labelMaxDistance: 500,
+      description: "The planet the ring circles.",
+    },
+    {
+      id: "moon",
+      label: "Moon",
+      color: "#ded7cc",
+      labelPriority: 90,
+      labelMaxDistance: 500,
+      description: "Shown for scale only.",
+    },
   ],
   cameraPresets: [
     { id: "overview", label: "Overview", request: { kind: "overview" } },
@@ -197,7 +250,14 @@ export const syntheticRingDefinition: ExperienceDefinition = {
 
 const beltExperience: ExperienceConfig = {
   objects: [
-    { id: "earth", label: "Earth", color: "#9fd8ff", labelPriority: 100, labelMaxDistance: 500, description: "Earth, on its path round the Sun; the belt circles the Sun." },
+    {
+      id: "earth",
+      label: "Earth",
+      color: "#9fd8ff",
+      labelPriority: 100,
+      labelMaxDistance: 500,
+      description: "Earth, on its path round the Sun; the belt circles the Sun.",
+    },
   ],
   cameraPresets: [
     { id: "overview", label: "Overview", request: { kind: "overview" } },

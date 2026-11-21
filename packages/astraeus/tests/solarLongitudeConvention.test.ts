@@ -10,7 +10,12 @@ import { solarLongitudeDeg } from "./helpers/streamFacts";
 const adapter = createOrbAstronomyAdapter();
 const toEqj = createOrbTwoBodyAdapter().eclipticJ2000ToEqjMatrix();
 
-const rows = [...fixture.result.split("$$SOE")[1].split("$$EOE")[0].matchAll(/^(\d+\.\d+) = A\.D\.[^\n]*\n\s*X =\s*(\S+)\s+Y =\s*(\S+)\s+Z =\s*(\S+)/gm)].map((m) => ({
+const rows = [
+  ...fixture.result
+    .split("$$SOE")[1]
+    .split("$$EOE")[0]
+    .matchAll(/^(\d+\.\d+) = A\.D\.[^\n]*\n\s*X =\s*(\S+)\s+Y =\s*(\S+)\s+Z =\s*(\S+)/gm),
+].map((m) => ({
   timeUtcMs: Math.round((Number(m[1]) - 2_440_587.5) * 86_400_000),
   x: Number(m[2]),
   y: Number(m[3]),

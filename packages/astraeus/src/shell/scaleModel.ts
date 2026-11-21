@@ -13,19 +13,22 @@ export const SCALE_CHOICES: readonly ScaleChoice[] = [
   {
     id: "true-scale",
     label: "True",
-    explanation: "Distances and sizes are in real proportion. Bodies look tiny and far apart, and a spacecraft passing behind a body is hidden by it.",
+    explanation:
+      "Distances and sizes are in real proportion. Bodies look tiny and far apart, and a spacecraft passing behind a body is hidden by it.",
   },
   {
     id: "readable-scale",
     label: "Readable",
-    explanation: "Pulls bodies much closer together while keeping their true size, so the whole scene fits on screen. A spacecraft near a body can then fall inside it, so spacecraft are drawn on top.",
+    explanation:
+      "Pulls bodies much closer together while keeping their true size, so the whole scene fits on screen. A spacecraft near a body can then fall inside it, so spacecraft are drawn on top.",
   },
 ];
 
 const SOLAR_SYSTEM_CHOICE: ScaleChoice = {
   id: "solar-system",
   label: "Solar system",
-  explanation: "Distances are true. Bodies are drawn larger than life so they can be seen at all; the info panel states each factor.",
+  explanation:
+    "Distances are true. Bodies are drawn larger than life so they can be seen at all; the info panel states each factor.",
 };
 
 const KNOWN_CHOICES: readonly ScaleChoice[] = [...SCALE_CHOICES, SOLAR_SYSTEM_CHOICE];
@@ -39,7 +42,8 @@ export function scaleChoicesFor(ids: readonly string[]): readonly ScaleChoice[] 
   });
 }
 
-export const SCALE_NOTE = "Only the picture changes. Positions, distances, speeds and times in the readouts are the same under both.";
+export const SCALE_NOTE =
+  "Only the picture changes. Positions, distances, speeds and times in the readouts are the same under both.";
 
 /** The policy a choice selects: one the application supplies, else True or Readable (the default is True). */
 export function scalePolicyFor(id: string, supplied: readonly ScalePolicy[] = []): ScalePolicy {

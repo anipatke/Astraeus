@@ -77,7 +77,8 @@ export interface SolarSystemScalePolicy extends ScalePolicy {
 }
 
 function validateFactor(label: string, factor: number): void {
-  if (!Number.isFinite(factor) || factor < 1) throw new RangeError(`${label} exaggeration must be finite and at least 1`);
+  if (!Number.isFinite(factor) || factor < 1)
+    throw new RangeError(`${label} exaggeration must be finite and at least 1`);
 }
 
 export function createSolarSystemScale(options: SolarSystemScaleOptions): SolarSystemScalePolicy {
@@ -90,7 +91,8 @@ export function createSolarSystemScale(options: SolarSystemScaleOptions): SolarS
   const defaultFactor = options.defaultExaggeration;
   const declared = [...factors].map(([bodyId, factor]) => `${bodyId} \u00d7${factor}`).join(", ");
   const explanation = `Distances are true. Bodies are drawn larger than life so they can be seen: ${declared === "" ? "" : `${declared}; `}any other body \u00d7${defaultFactor}.`;
-  const factorFor = (bodyId?: BodyId): number => (bodyId === undefined ? defaultFactor : factors.get(bodyId) ?? defaultFactor);
+  const factorFor = (bodyId?: BodyId): number =>
+    bodyId === undefined ? defaultFactor : (factors.get(bodyId) ?? defaultFactor);
   return Object.freeze({
     id: "solar-system" as const,
     explanation,
@@ -102,4 +104,7 @@ export function createSolarSystemScale(options: SolarSystemScaleOptions): SolarS
 }
 
 /** The Solar system scale: true distances with bodies enlarged. This one enlarges nothing itself; a viewer builds the working policy from the scene's declared factors, and `Scene.setScale` accepts it for a Sun-centred scene with an enlarged body. */
-export const solarSystemScale: SolarSystemScalePolicy = createSolarSystemScale({ exaggeration: {}, defaultExaggeration: 1 });
+export const solarSystemScale: SolarSystemScalePolicy = createSolarSystemScale({
+  exaggeration: {},
+  defaultExaggeration: 1,
+});

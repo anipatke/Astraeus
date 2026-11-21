@@ -34,18 +34,34 @@ export const TOUCH_TAP_SLOP_PX = 10;
  * The id under `(x, y)`: a candidate's disc (grown to the pointer's tolerance) or its label rectangle. The hit whose centre is nearest wins;
  * null when nothing is hit.
  */
-export function pickTarget(candidates: readonly PickCandidate[], x: number, y: number, pointer: PickPointer): string | null {
+export function pickTarget(
+  candidates: readonly PickCandidate[],
+  x: number,
+  y: number,
+  pointer: PickPointer,
+): string | null {
   const tolerance = pointer === "mouse" ? MOUSE_TOLERANCE_PX : TOUCH_TOLERANCE_PX;
   let best: string | null = null;
   let bestDistance = Number.POSITIVE_INFINITY;
   for (const candidate of candidates) {
-    const toDisc = candidate.labelOnly === true ? Number.POSITIVE_INFINITY : Math.hypot(candidate.x - x, candidate.y - y);
+    const toDisc =
+      candidate.labelOnly === true ? Number.POSITIVE_INFINITY : Math.hypot(candidate.x - x, candidate.y - y);
     let distance = toDisc <= Math.max(candidate.radiusPx, tolerance) ? toDisc : Number.POSITIVE_INFINITY;
     const label = candidate.label;
-    if (label !== undefined && label !== null && x >= label.left && x <= label.right && y >= label.top && y <= label.bottom) {
+    if (
+      label !== undefined &&
+      label !== null &&
+      x >= label.left &&
+      x <= label.right &&
+      y >= label.top &&
+      y <= label.bottom
+    ) {
       distance = Math.min(distance, Math.hypot((label.left + label.right) / 2 - x, (label.top + label.bottom) / 2 - y));
     }
-    if (distance < bestDistance) { best = candidate.id; bestDistance = distance; }
+    if (distance < bestDistance) {
+      best = candidate.id;
+      bestDistance = distance;
+    }
   }
   return best;
 }
@@ -64,17 +80,30 @@ export interface SkyPickFigure {
  * The screen segment `[x1, y1, x2, y2]` (CSS px, ends may lie outside the canvas) of the 3D segment between two camera-space points (the camera looks along -z), or null when none of it is in front of the camera.
  * A segment with one end behind the camera is cut at the camera plane, so its visible part is kept. `tanHalfFov` is the tangent of half the vertical field of view; `aspect` is width over height.
  */
-export function projectSegmentClipped(a: readonly [number, number, number], b: readonly [number, number, number], tanHalfFov: number, aspect: number, widthPx: number, heightPx: number): readonly [number, number, number, number] | null {
+export function projectSegmentClipped(
+  a: readonly [number, number, number],
+  b: readonly [number, number, number],
+  tanHalfFov: number,
+  aspect: number,
+  widthPx: number,
+  heightPx: number,
+): readonly [number, number, number, number] | null {
   const front = 1e-6 * Math.max(1, Math.abs(a[2]), Math.abs(b[2])); // how far in front of the camera a point must be
   const inFront = (p: readonly [number, number, number]) => -p[2] >= front;
   if (!inFront(a) && !inFront(b)) return null;
-  const cut = (kept: readonly [number, number, number], lost: readonly [number, number, number]): readonly [number, number, number] => {
+  const cut = (
+    kept: readonly [number, number, number],
+    lost: readonly [number, number, number],
+  ): readonly [number, number, number] => {
     const share = (-kept[2] - front) / (-kept[2] + lost[2]);
     return [kept[0] + (lost[0] - kept[0]) * share, kept[1] + (lost[1] - kept[1]) * share, -front];
   };
   const from = inFront(a) ? a : cut(b, a);
   const to = inFront(b) ? b : cut(a, b);
-  const screen = (p: readonly [number, number, number]): readonly [number, number] => [(0.5 + (p[0] / -p[2]) / (2 * tanHalfFov * aspect)) * widthPx, (0.5 - (p[1] / -p[2]) / (2 * tanHalfFov)) * heightPx];
+  const screen = (p: readonly [number, number, number]): readonly [number, number] => [
+    (0.5 + p[0] / -p[2] / (2 * tanHalfFov * aspect)) * widthPx,
+    (0.5 - p[1] / -p[2] / (2 * tanHalfFov)) * heightPx,
+  ];
   const [x1, y1] = screen(from);
   const [x2, y2] = screen(to);
   return [x1, y1, x2, y2];
@@ -98,10 +127,22 @@ export function pickSkyFigure(figures: readonly SkyPickFigure[], x: number, y: n
   let bestDistance = Number.POSITIVE_INFINITY;
   for (const figure of figures) {
     const label = figure.label;
-    const named = label !== undefined && label !== null && x >= label.left && x <= label.right && y >= label.top && y <= label.bottom;
-    const toLines = figure.lines.reduce((nearest, [x1, y1, x2, y2]) => Math.min(nearest, distanceToSegment(x, y, x1, y1, x2, y2)), Number.POSITIVE_INFINITY);
+    const named =
+      label !== undefined &&
+      label !== null &&
+      x >= label.left &&
+      x <= label.right &&
+      y >= label.top &&
+      y <= label.bottom;
+    const toLines = figure.lines.reduce(
+      (nearest, [x1, y1, x2, y2]) => Math.min(nearest, distanceToSegment(x, y, x1, y1, x2, y2)),
+      Number.POSITIVE_INFINITY,
+    );
     const distance = named ? 0 : toLines <= SKY_LINE_MARGIN_PX ? toLines : Number.POSITIVE_INFINITY;
-    if (distance < bestDistance) { best = figure.id; bestDistance = distance; }
+    if (distance < bestDistance) {
+      best = figure.id;
+      bestDistance = distance;
+    }
   }
   return best;
 }
@@ -111,11 +152,18 @@ export const HOVER_BRIGHTNESS_DEFAULT = 1.4;
 export const HOVER_BRIGHTNESS_LIMITS = Object.freeze({ min: 1, max: 3 });
 
 export function clampHoverBrightness(value: number): number {
-  return Number.isFinite(value) ? Math.min(HOVER_BRIGHTNESS_LIMITS.max, Math.max(HOVER_BRIGHTNESS_LIMITS.min, value)) : HOVER_BRIGHTNESS_DEFAULT;
+  return Number.isFinite(value)
+    ? Math.min(HOVER_BRIGHTNESS_LIMITS.max, Math.max(HOVER_BRIGHTNESS_LIMITS.min, value))
+    : HOVER_BRIGHTNESS_DEFAULT;
 }
 
 /** The id a hovering pointer is over: the same hit rule as a tap, mouse only (any other pointer type yields no hover). */
-export function hoverTarget(candidates: readonly PickCandidate[], x: number, y: number, pointerType: string): string | null {
+export function hoverTarget(
+  candidates: readonly PickCandidate[],
+  x: number,
+  y: number,
+  pointerType: string,
+): string | null {
   return pointerType === "mouse" ? pickTarget(candidates, x, y, "mouse") : null;
 }
 
@@ -158,7 +206,14 @@ export interface PickFrame {
   /** The catalogued body an object id names, or null (spacecraft, comets, streams and orbit lines are not bodies). */
   readonly bodyIdFor: (id: string) => string | null;
   /** Each drawn body's place as a share of the canvas (0 to 1 from the top left) and its drawn radius. */
-  readonly bodyScreens: readonly { readonly id: string; readonly x: number; readonly y: number; readonly radiusPx: number; readonly inView: boolean; readonly as: string }[];
+  readonly bodyScreens: readonly {
+    readonly id: string;
+    readonly x: number;
+    readonly y: number;
+    readonly radiusPx: number;
+    readonly inView: boolean;
+    readonly as: string;
+  }[];
   readonly widthPx: number;
   readonly heightPx: number;
   /** The page rectangles of the shown names, by object id. */
@@ -166,7 +221,15 @@ export interface PickFrame {
   /** The canvas whose top left the candidates are measured from. */
   readonly canvas: { getBoundingClientRect(): { readonly left: number; readonly top: number } };
   /** Body sets: each member that is on screen is a candidate. */
-  readonly bodySetViews: readonly { readonly layer: { readonly members: readonly { readonly id: string }[] }; readonly screen: readonly { readonly x: number; readonly y: number; readonly radiusPx: number; readonly visible: boolean }[] }[];
+  readonly bodySetViews: readonly {
+    readonly layer: { readonly members: readonly { readonly id: string }[] };
+    readonly screen: readonly {
+      readonly x: number;
+      readonly y: number;
+      readonly radiusPx: number;
+      readonly visible: boolean;
+    }[];
+  }[];
 }
 
 /** The tap targets of one frame: listed objects that are catalogued bodies on screen (with their shown name) and visible body-set members. */
@@ -178,14 +241,36 @@ export function pickCandidatesOf(frame: PickFrame): PickCandidate[] {
     if (body === null) continue;
     const screen = frame.bodyScreens.find((candidate) => candidate.id === body);
     const rect = frame.labelRects?.get(object.id);
-    const label = rect === undefined ? null : { left: rect.left - box.left, top: rect.top - box.top, right: rect.right - box.left, bottom: rect.bottom - box.top };
+    const label =
+      rect === undefined
+        ? null
+        : {
+            left: rect.left - box.left,
+            top: rect.top - box.top,
+            right: rect.right - box.left,
+            bottom: rect.bottom - box.top,
+          };
     const drawn = screen !== undefined && screen.inView && screen.as !== "none";
     // A body not drawn in view can still show its name: the name stays a target.
     if (!drawn) {
-      if (label !== null) out.push({ id: object.id, x: (label.left + label.right) / 2, y: (label.top + label.bottom) / 2, radiusPx: 0, label, labelOnly: true });
+      if (label !== null)
+        out.push({
+          id: object.id,
+          x: (label.left + label.right) / 2,
+          y: (label.top + label.bottom) / 2,
+          radiusPx: 0,
+          label,
+          labelOnly: true,
+        });
       continue;
     }
-    out.push({ id: object.id, x: screen.x * frame.widthPx, y: screen.y * frame.heightPx, radiusPx: screen.radiusPx, label });
+    out.push({
+      id: object.id,
+      x: screen.x * frame.widthPx,
+      y: screen.y * frame.heightPx,
+      radiusPx: screen.radiusPx,
+      label,
+    });
   }
   for (const view of frame.bodySetViews) {
     view.layer.members.forEach((member, index) => {

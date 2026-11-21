@@ -40,20 +40,31 @@ const provenance = createProvenance({ sourceType: "illustrative", sources: ["mad
 const object = (id: string, withProvenance = true) => ({ id, label: id, ...(withProvenance ? { provenance } : {}) });
 
 // A made-up Sun-centred source: nothing here belongs to any real object.
-const madeUpSource = createTwoBodyTrajectory({
-  body: "test-object",
-  plane: "ecliptic-j2000",
-  epochUtcMs: START,
-  elements: { semiMajorAxisKm: 3 * AU_KM, eccentricity: 0.3, inclinationDeg: 12, raanDeg: 40, argumentOfPeriapsisDeg: 70, trueAnomalyDeg: 25 },
-}, twoBody);
-const path = (over: Record<string, unknown> = {}): PathLayer => ({
-  kind: "orbit",
-  object: object("test-path"),
-  color: "#ffffff",
-  source: madeUpSource,
-  span: { startUtcMs: START, endUtcMs: START + 4 * YEAR_MS },
-  ...over,
-}) as PathLayer;
+const madeUpSource = createTwoBodyTrajectory(
+  {
+    body: "test-object",
+    plane: "ecliptic-j2000",
+    epochUtcMs: START,
+    elements: {
+      semiMajorAxisKm: 3 * AU_KM,
+      eccentricity: 0.3,
+      inclinationDeg: 12,
+      raanDeg: 40,
+      argumentOfPeriapsisDeg: 70,
+      trueAnomalyDeg: 25,
+    },
+  },
+  twoBody,
+);
+const path = (over: Record<string, unknown> = {}): PathLayer =>
+  ({
+    kind: "orbit",
+    object: object("test-path"),
+    color: "#ffffff",
+    source: madeUpSource,
+    span: { startUtcMs: START, endUtcMs: START + 4 * YEAR_MS },
+    ...over,
+  }) as PathLayer;
 const sun = (over: Partial<SunBody> = {}): SunBody => ({ object: object("test-sun"), ...over });
 
 describe("the Sun and path declaration", () => {
@@ -62,26 +73,84 @@ describe("the Sun and path declaration", () => {
   });
 
   it.each([
-    ["an empty path id", () => validateSunCentred(undefined, [path({ object: object("") })]), /path id must be non-empty/],
-    ["a repeated id", () => validateSunCentred(sun({ object: object("same") }), [path({ object: object("same") })]), /duplicate id "same"/],
-    ["missing path provenance", () => validateSunCentred(undefined, [path({ object: object("p", false) })]), /path "p" needs provenance/],
-    ["missing Sun provenance", () => validateSunCentred(sun({ object: object("s", false) }), []), /sun "s" needs provenance/],
-    ["a reversed span", () => validateSunCentred(undefined, [path({ span: { startUtcMs: START + 10, endUtcMs: START } })]), /span must end after it starts/],
-    ["a non-finite span", () => validateSunCentred(undefined, [path({ span: { startUtcMs: Number.NaN, endUtcMs: START } })]), /finite start and end/],
-    ["too few samples", () => validateSunCentred(undefined, [path({ samples: 1 })]), /samples must be a whole number of at least 2/],
-    ["a source with no stateAt", () => validateSunCentred(undefined, [path({ source: {} as never })]), /source must be a Trajectory/],
-    ["a source that cannot give a Sun-centred state", () => validateSunCentred(undefined, [path({
-      source: { body: "x", stateAt: () => { throw new RangeError("no such state"); } },
-    })]), /cannot give a state about its centre at the span start: no such state/],
+    [
+      "an empty path id",
+      () => validateSunCentred(undefined, [path({ object: object("") })]),
+      /path id must be non-empty/,
+    ],
+    [
+      "a repeated id",
+      () => validateSunCentred(sun({ object: object("same") }), [path({ object: object("same") })]),
+      /duplicate id "same"/,
+    ],
+    [
+      "missing path provenance",
+      () => validateSunCentred(undefined, [path({ object: object("p", false) })]),
+      /path "p" needs provenance/,
+    ],
+    [
+      "missing Sun provenance",
+      () => validateSunCentred(sun({ object: object("s", false) }), []),
+      /sun "s" needs provenance/,
+    ],
+    [
+      "a reversed span",
+      () => validateSunCentred(undefined, [path({ span: { startUtcMs: START + 10, endUtcMs: START } })]),
+      /span must end after it starts/,
+    ],
+    [
+      "a non-finite span",
+      () => validateSunCentred(undefined, [path({ span: { startUtcMs: Number.NaN, endUtcMs: START } })]),
+      /finite start and end/,
+    ],
+    [
+      "too few samples",
+      () => validateSunCentred(undefined, [path({ samples: 1 })]),
+      /samples must be a whole number of at least 2/,
+    ],
+    [
+      "a source with no stateAt",
+      () => validateSunCentred(undefined, [path({ source: {} as never })]),
+      /source must be a Trajectory/,
+    ],
+    [
+      "a source that cannot give a Sun-centred state",
+      () =>
+        validateSunCentred(undefined, [
+          path({
+            source: {
+              body: "x",
+              stateAt: () => {
+                throw new RangeError("no such state");
+              },
+            },
+          }),
+        ]),
+      /cannot give a state about its centre at the span start: no such state/,
+    ],
   ])("names the problem for %s", (_what, act, message) => {
     expect(act).toThrow(message);
   });
 
   it("rejects a source whose elements are not a bound orbit", () => {
-    expect(() => createTwoBodyTrajectory({
-      body: "bad", plane: "EQJ", epochUtcMs: START,
-      elements: { semiMajorAxisKm: AU_KM, eccentricity: 1.1, inclinationDeg: 0, raanDeg: 0, argumentOfPeriapsisDeg: 0, trueAnomalyDeg: 0 },
-    }, twoBody)).toThrow(/eccentricity/);
+    expect(() =>
+      createTwoBodyTrajectory(
+        {
+          body: "bad",
+          plane: "EQJ",
+          epochUtcMs: START,
+          elements: {
+            semiMajorAxisKm: AU_KM,
+            eccentricity: 1.1,
+            inclinationDeg: 0,
+            raanDeg: 0,
+            argumentOfPeriapsisDeg: 0,
+            trueAnomalyDeg: 0,
+          },
+        },
+        twoBody,
+      ),
+    ).toThrow(/eccentricity/);
   });
 });
 
@@ -99,10 +168,23 @@ describe("a path is a state source sampled over a span", () => {
 
   it("rejects a Sun-centred source asked for another centre, and a span outside the source's bounds", () => {
     expect(() => madeUpSource.stateAt(START, "earth")).toThrow(/Sun-centred/);
-    const bounded = createTwoBodyTrajectory({
-      body: "b", plane: "EQJ", epochUtcMs: START, bounds: { startUtcMs: START, endUtcMs: START + 1000 },
-      elements: { semiMajorAxisKm: AU_KM, eccentricity: 0.1, inclinationDeg: 0, raanDeg: 0, argumentOfPeriapsisDeg: 0, trueAnomalyDeg: 0 },
-    }, twoBody);
+    const bounded = createTwoBodyTrajectory(
+      {
+        body: "b",
+        plane: "EQJ",
+        epochUtcMs: START,
+        bounds: { startUtcMs: START, endUtcMs: START + 1000 },
+        elements: {
+          semiMajorAxisKm: AU_KM,
+          eccentricity: 0.1,
+          inclinationDeg: 0,
+          raanDeg: 0,
+          argumentOfPeriapsisDeg: 0,
+          trueAnomalyDeg: 0,
+        },
+      },
+      twoBody,
+    );
     expect(() => samplePathKm(bounded, { startUtcMs: START, endUtcMs: START + 5000 }, 4)).toThrow();
   });
 
@@ -121,7 +203,10 @@ function distanceToPolyline(vertices: Float64Array, point: ArrayLike<number>): n
     const a = [vertices[i], vertices[i + 1], vertices[i + 2]];
     const ab = [vertices[i + 3] - a[0], vertices[i + 4] - a[1], vertices[i + 5] - a[2]];
     const ap = [point[0] - a[0], point[1] - a[1], point[2] - a[2]];
-    const f = Math.max(0, Math.min(1, (ap[0] * ab[0] + ap[1] * ab[1] + ap[2] * ab[2]) / (ab[0] ** 2 + ab[1] ** 2 + ab[2] ** 2)));
+    const f = Math.max(
+      0,
+      Math.min(1, (ap[0] * ab[0] + ap[1] * ab[1] + ap[2] * ab[2]) / (ab[0] ** 2 + ab[1] ** 2 + ab[2] ** 2)),
+    );
     best = Math.min(best, Math.hypot(ap[0] - f * ab[0], ap[1] - f * ab[1], ap[2] - f * ab[2]));
   }
   return best;
@@ -166,7 +251,10 @@ describe("Earth's path and the Sun are placed through centre composition", () =>
     }
   });
 
-  it.each([["True", trueScale], ["Readable", readableScale]])("places every path vertex at %s scale from the scene centre", (_name, policy) => {
+  it.each([
+    ["True", trueScale],
+    ["Readable", readableScale],
+  ])("places every path vertex at %s scale from the scene centre", (_name, policy) => {
     const t = START + 30 * 86_400_000;
     const sunKm = earthPlacement.resolver.offsetKm("sun", "earth", t);
     const far = new PathView(syntheticFarPath);
@@ -198,7 +286,10 @@ describe("State is untouched and an experience without the declaration is unchan
     const after = new Float64Array(3 * layer.group.count);
     layer.group.fillPositionsKm(t, before);
     const views = createPathViews([syntheticEarthPath, syntheticFarPath]);
-    for (const view of views) { view.sync(t, earthPlacement, trueScale); view.place(new FloatingOrigin()); }
+    for (const view of views) {
+      view.sync(t, earthPlacement, trueScale);
+      view.place(new FloatingOrigin());
+    }
     layer.group.fillPositionsKm(t, after);
     expect(Array.from(after)).toEqual(Array.from(before));
     expect(Array.from(earthStateAt(adapter, t).positionKm)).toEqual(Array.from(adapter.earthPositionFromSunKm(t)));
@@ -211,18 +302,23 @@ describe("State is untouched and an experience without the declaration is unchan
   ] as const)("draws nothing extra for %s", (_name, definition: ExperienceDefinition) => {
     expect(sunCentredOf(definition)).toEqual({ sun: undefined, paths: [] });
     const withGroupsOnly = experienceWithGroups(definition);
-    expect(withGroupsOnly.objects.map((o) => o.id)).toEqual(
-      [...definition.experience.objects.map((o) => o.id), ...groupsOf(definition).map((g) => g.object.id)],
-    );
+    expect(withGroupsOnly.objects.map((o) => o.id)).toEqual([
+      ...definition.experience.objects.map((o) => o.id),
+      ...groupsOf(definition).map((g) => g.object.id),
+    ]);
     expect(definition.camera).toBeUndefined();
   });
 
   it("keeps the belt's own items and reach when the layer is left out, and adds exactly the Sun and two paths when listed", () => {
     const without: ExperienceDefinition = { ...syntheticBeltDefinition, sceneLayers: ["points"] };
     expect(experienceWithGroups(without).objects.map((o) => o.id)).toEqual(["earth", "dust-belt"]);
-    expect(experienceWithGroups(syntheticBeltDefinition).objects.map((o) => o.id)).toEqual(
-      ["earth", "dust-belt", "sun", "earth-path", "far-marker-path"],
-    );
+    expect(experienceWithGroups(syntheticBeltDefinition).objects.map((o) => o.id)).toEqual([
+      "earth",
+      "dust-belt",
+      "sun",
+      "earth-path",
+      "far-marker-path",
+    ]);
     expect(without.camera).toEqual(syntheticBeltDefinition.camera);
   });
 

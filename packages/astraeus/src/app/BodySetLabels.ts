@@ -9,19 +9,31 @@ import type { BodySetLook } from "./bodySet";
 export const PICK_RADIUS_PX = 12;
 
 /** The member nearest `(x, y)` on screen within `radiusPx`, among visible members; null for none. */
-export function pickMember(view: Pick<BodySetView, "screen">, x: number, y: number, radiusPx = PICK_RADIUS_PX): number | null {
+export function pickMember(
+  view: Pick<BodySetView, "screen">,
+  x: number,
+  y: number,
+  radiusPx = PICK_RADIUS_PX,
+): number | null {
   let best: number | null = null;
   let bestDistance = radiusPx;
   view.screen.forEach((screen, index) => {
     if (!screen.visible) return;
     const d = Math.hypot(screen.x - x, screen.y - y);
-    if (d <= bestDistance) { best = index; bestDistance = d; }
+    if (d <= bestDistance) {
+      best = index;
+      bestDistance = d;
+    }
   });
   return best;
 }
 
 /** Members to name this frame: hovered, then the nearest whose ball is at least `labelNearPx` across, up to `labelNearMax`. */
-export function membersToName(view: Pick<BodySetView, "screen">, look: Pick<BodySetLook, "labelNearPx" | "labelNearMax">, hovered: number | null): number[] {
+export function membersToName(
+  view: Pick<BodySetView, "screen">,
+  look: Pick<BodySetLook, "labelNearPx" | "labelNearMax">,
+  hovered: number | null,
+): number[] {
   const named = new Set<number>();
   if (hovered !== null && view.screen[hovered]?.visible) named.add(hovered);
   const near = view.screen
@@ -40,7 +52,11 @@ export class BodySetLabelLayer {
   #hovered: number | null = null;
   readonly #listeners: [string, (event: PointerEvent) => void][];
 
-  constructor(host: HTMLElement, canvas: HTMLCanvasElement, readonly view: BodySetView) {
+  constructor(
+    host: HTMLElement,
+    canvas: HTMLCanvasElement,
+    readonly view: BodySetView,
+  ) {
     this.#canvas = canvas;
     this.#root.className = "scene-labels body-set-labels";
     this.#labels = view.layer.members.map((member) => {
@@ -56,12 +72,20 @@ export class BodySetLabelLayer {
       return { x: event.clientX - box.left, y: event.clientY - box.top };
     };
     this.#listeners = [
-      ["pointermove", (event) => {
-        if (event.pointerType !== "mouse") return;
-        const { x, y } = at(event);
-        this.#hovered = pickMember(view, x, y);
-      }],
-      ["pointerleave", () => { this.#hovered = null; }],
+      [
+        "pointermove",
+        (event) => {
+          if (event.pointerType !== "mouse") return;
+          const { x, y } = at(event);
+          this.#hovered = pickMember(view, x, y);
+        },
+      ],
+      [
+        "pointerleave",
+        () => {
+          this.#hovered = null;
+        },
+      ],
     ];
     for (const [type, listener] of this.#listeners) canvas.addEventListener(type, listener as EventListener);
   }

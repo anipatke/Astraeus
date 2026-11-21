@@ -50,14 +50,24 @@ export function provenanceView(provenance: Provenance, knownLimitations: readonl
  * What the info panel shows for a configured object, event or window, or null when the id is not configured.
  * A window's rate and source depend on `timeUtcMs`, the clock.
  */
-export function infoView(experience: ExperienceConfig, target: InfoTarget, timeUtcMs?: number, timeLook: TimeLook = DEFAULT_TIME_LOOK): InfoView | null {
+export function infoView(
+  experience: ExperienceConfig,
+  target: InfoTarget,
+  timeUtcMs?: number,
+  timeLook: TimeLook = DEFAULT_TIME_LOOK,
+): InfoView | null {
   if (target.kind === "window") return windowInfo(experience, target, timeUtcMs, timeLook);
   if (target.kind === "feature") return featureInfo(experience, target);
   if (target.kind === "object") return objectInfo(experience, target, timeUtcMs);
   return eventInfo(experience, target, timeLook);
 }
 
-function windowInfo(experience: ExperienceConfig, target: InfoTarget, timeUtcMs: number | undefined, timeLook: TimeLook): InfoView | null {
+function windowInfo(
+  experience: ExperienceConfig,
+  target: InfoTarget,
+  timeUtcMs: number | undefined,
+  timeLook: TimeLook,
+): InfoView | null {
   const window = experience.windows?.find((candidate) => candidate.id === target.id);
   if (window === undefined) return null;
   const rate = timeUtcMs === undefined ? null : rateAt(window, timeUtcMs);
@@ -68,7 +78,10 @@ function windowInfo(experience: ExperienceConfig, target: InfoTarget, timeUtcMs:
   ];
   if (window.peakUtcMs !== undefined) facts.push({ label: "Peak", value: formatTime(window.peakUtcMs, timeLook) });
   if (window.rate !== undefined) {
-    facts.push({ label: "Rate now", value: rate === null ? "Not available at this time" : formatWindowRate(rate, window.rate.unit) });
+    facts.push({
+      label: "Rate now",
+      value: rate === null ? "Not available at this time" : formatWindowRate(rate, window.rate.unit),
+    });
   }
   return { target, title: window.label, facts, provenance: source === undefined ? null : provenanceView(source) };
 }
@@ -90,7 +103,10 @@ function featureInfo(experience: ExperienceConfig, target: InfoTarget): InfoView
 function objectInfo(experience: ExperienceConfig, target: InfoTarget, timeUtcMs?: number): InfoView | null {
   const object = experience.objects.find((candidate) => candidate.id === target.id);
   if (object === undefined) return skyFigureInfo(experience, target);
-  const source = (timeUtcMs === undefined || object.provenanceSpans === undefined ? null : spanProvenanceAt(object.provenanceSpans, timeUtcMs)) ?? object.provenance;
+  const source =
+    (timeUtcMs === undefined || object.provenanceSpans === undefined
+      ? null
+      : spanProvenanceAt(object.provenanceSpans, timeUtcMs)) ?? object.provenance;
   return {
     target,
     title: object.label,
@@ -116,5 +132,11 @@ function eventInfo(experience: ExperienceConfig, target: InfoTarget, timeLook: T
 function skyFigureInfo(experience: ExperienceConfig, target: InfoTarget): InfoView | null {
   const figure = skyFigureById(experience, target.id);
   if (figure === undefined) return null;
-  return { target, title: figure.label, ...(figure.description === undefined ? {} : { description: figure.description }), ...(figure.facts === undefined ? {} : { facts: figure.facts }), provenance: provenanceView(figure.provenance) };
+  return {
+    target,
+    title: figure.label,
+    ...(figure.description === undefined ? {} : { description: figure.description }),
+    ...(figure.facts === undefined ? {} : { facts: figure.facts }),
+    provenance: provenanceView(figure.provenance),
+  };
 }

@@ -4,7 +4,13 @@ import { chooseShower, SHOWER_PARAM, SHOWER_SWITCH_LABEL, showerEntryName } from
 
 describe("shower switch (T-171)", () => {
   it("names the address parameter and the label the shower switch carries", () => {
-    const choice = chooseShower([{ name: "b", label: "B", order: 2 }, { name: "a", label: "A", order: 1 }], null)!;
+    const choice = chooseShower(
+      [
+        { name: "b", label: "B", order: 2 },
+        { name: "a", label: "A", order: 1 },
+      ],
+      null,
+    )!;
     expect(choice.name).toBe("a");
     expect(choice.switcher).toMatchObject({ label: SHOWER_SWITCH_LABEL, param: SHOWER_PARAM });
     expect(SHOWER_PARAM).toBe("shower");

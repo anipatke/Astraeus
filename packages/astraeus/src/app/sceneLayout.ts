@@ -50,7 +50,10 @@ export interface PlacedState {
  * The pair the developer readout measures: a mounted body that orbits another mounted body which itself orbits something (so the
  * pair is a satellite and its planet, not a planet and the root). Null when the scene mounts no such pair.
  */
-export function readoutPairOf(bodies: readonly BodyId[], source: BodyCatalogue = catalogue): { readonly parent: BodyId; readonly child: BodyId } | null {
+export function readoutPairOf(
+  bodies: readonly BodyId[],
+  source: BodyCatalogue = catalogue,
+): { readonly parent: BodyId; readonly child: BodyId } | null {
   for (const id of bodies) {
     const parentId = source.get(id).definition.parentId;
     if (parentId === undefined || !bodies.includes(parentId)) continue;
@@ -106,7 +109,10 @@ export function bodyAbsolutes(
 export function trackedAbsolute(state: State, policy: ScalePolicy, placement: ScenePlacement): RenderVector {
   const offset = sceneOffsetKm(placement, state.center, state.timeUtcMs);
   if (offset === null) return bodyAbsolute(state.positionKm, policy);
-  return bodyAbsolute([state.positionKm[0] + offset[0], state.positionKm[1] + offset[1], state.positionKm[2] + offset[2]], policy);
+  return bodyAbsolute(
+    [state.positionKm[0] + offset[0], state.positionKm[1] + offset[1], state.positionKm[2] + offset[2]],
+    policy,
+  );
 }
 
 /** Every drawn body measured from the scene centre, and how far across the drawn bodies reach. */
@@ -121,7 +127,12 @@ export interface PlacedComposition {
 }
 
 /** Resolver -> ScalePolicy -> render axes for each body: the one place a composition's positions are decided. */
-export function placeComposition(bodies: readonly BodyId[], placement: ScenePlacement, policy: ScalePolicy, timeUtcMs: number): PlacedComposition {
+export function placeComposition(
+  bodies: readonly BodyId[],
+  placement: ScenePlacement,
+  policy: ScalePolicy,
+  timeUtcMs: number,
+): PlacedComposition {
   const states = new Map<BodyId, State>();
   const absolutes = new Map<BodyId, RenderVector>();
   for (const id of bodies) {
@@ -129,7 +140,9 @@ export function placeComposition(bodies: readonly BodyId[], placement: ScenePlac
     states.set(id, state);
     absolutes.set(id, bodyAbsolute(state.positionKm, policy));
   }
-  const centre = absolutes.get(placement.center) ?? bodyAbsolute(placement.resolver.stateOf(placement.center, timeUtcMs, placement.center).positionKm, policy);
+  const centre =
+    absolutes.get(placement.center) ??
+    bodyAbsolute(placement.resolver.stateOf(placement.center, timeUtcMs, placement.center).positionKm, policy);
   let widest = 0;
   let others = 0;
   for (const [id, at] of absolutes) {

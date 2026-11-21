@@ -13,7 +13,9 @@ afterEach(() => vi.restoreAllMocks());
 describe("setTimeline rate unit warning", () => {
   it("warns on the T-293 shape (rate DAY_MS over 120 days), naming the unit and the value", () => {
     const warn = warnings();
-    expect(() => new Scene().addBody(earth).setTimeline({ ...window, rates: [DAY_MS, 7 * DAY_MS], rate: DAY_MS })).not.toThrow();
+    expect(() =>
+      new Scene().addBody(earth).setTimeline({ ...window, rates: [DAY_MS, 7 * DAY_MS], rate: DAY_MS }),
+    ).not.toThrow();
     expect(warn).toHaveBeenCalledTimes(1);
     const message = String(warn.mock.calls[0]![0]);
     expect(message).toContain("simulated seconds per real second");

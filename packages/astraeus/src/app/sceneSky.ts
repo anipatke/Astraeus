@@ -10,7 +10,13 @@ export interface SkyLook {
 }
 
 /** Keeps the sky centred on the camera and applies the live sky settings; `probe` also reads the sky back so its invariance can be checked from outside. */
-export function updateSky(sky: SkyView, camera: PerspectiveCamera, canvas: HTMLElement, look: SkyLook, probe: boolean): void {
+export function updateSky(
+  sky: SkyView,
+  camera: PerspectiveCamera,
+  canvas: HTMLElement,
+  look: SkyLook,
+  probe: boolean,
+): void {
   sky.follow(camera);
   sky.setPictureVisible(look.showMilkyWay);
   if (look.showMilkyWay) sky.requestPicture();

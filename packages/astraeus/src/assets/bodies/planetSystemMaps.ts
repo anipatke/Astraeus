@@ -1,5 +1,17 @@
 import { NEPTUNE, PLUTO, SATURN, URANUS } from "../../core/bodies/outerPlanets";
-import { CHARON, DEIMOS, DIONE, ENCELADUS, IAPETUS, MIMAS, PHOBOS, RHEA, TETHYS, TITAN, TRITON } from "../../core/bodies/planetMoons";
+import {
+  CHARON,
+  DEIMOS,
+  DIONE,
+  ENCELADUS,
+  IAPETUS,
+  MIMAS,
+  PHOBOS,
+  RHEA,
+  TETHYS,
+  TITAN,
+  TRITON,
+} from "../../core/bodies/planetMoons";
 import type { AssetLicence, TextureRef } from "../licence";
 import type { BodyVisual } from "../visual";
 import neptuneUrl from "../textures/neptune-2k.jpg";
@@ -20,34 +32,91 @@ import type { RingSystem } from "../rings";
 const accessed = "2026-10-21";
 const LIGHT = Object.freeze({ ambient: 0.08, directional: 1.4 });
 
-const solarSystemScope = (name: string, source: string): AssetLicence => Object.freeze({
-  source,
-  url: "https://www.solarsystemscope.com/textures/",
-  licence: "CC BY 4.0",
-  attribution: `${name} texture: Solar System Scope (solarsystemscope.com/textures), CC BY 4.0, based on NASA imagery`,
-  accessed,
-});
+const solarSystemScope = (name: string, source: string): AssetLicence =>
+  Object.freeze({
+    source,
+    url: "https://www.solarsystemscope.com/textures/",
+    licence: "CC BY 4.0",
+    attribution: `${name} texture: Solar System Scope (solarsystemscope.com/textures), CC BY 4.0, based on NASA imagery`,
+    accessed,
+  });
 
-const sphere = (url: string, widthPx: number, heightPx: number, licence: AssetLicence, color: string, roughness: number, textureYawRad = 0): BodyVisual => Object.freeze({
-  kind: "sphere",
-  texture: Object.freeze<TextureRef>({ url, widthPx, heightPx, licence }),
-  material: Object.freeze({ color, roughness, metalness: 0 }),
-  textureYawRad,
-  light: LIGHT,
-});
+const sphere = (
+  url: string,
+  widthPx: number,
+  heightPx: number,
+  licence: AssetLicence,
+  color: string,
+  roughness: number,
+  textureYawRad = 0,
+): BodyVisual =>
+  Object.freeze({
+    kind: "sphere",
+    texture: Object.freeze<TextureRef>({ url, widthPx, heightPx, licence }),
+    material: Object.freeze({ color, roughness, metalness: 0 }),
+    textureYawRad,
+    light: LIGHT,
+  });
 
 /** A sphere whose picture (and its licence) ships in astraeus-data and is named by the look; without it in the viewer's pictures the sphere is a flat colour. */
 /** A planet drawn with its rings: the ring bands (and their recorded sources) belong to the planet's one catalogue definition. */
 const ringed = (visual: BodyVisual, rings: RingSystem): BodyVisual => Object.freeze({ ...visual, rings });
 
-const pictured = (picture: string, color: string, roughness: number, textureYawRad = 0): BodyVisual => Object.freeze({ kind: "sphere", picture, material: Object.freeze({ color, roughness, metalness: 0 }), textureYawRad, light: LIGHT });
+const pictured = (picture: string, color: string, roughness: number, textureYawRad = 0): BodyVisual =>
+  Object.freeze({
+    kind: "sphere",
+    picture,
+    material: Object.freeze({ color, roughness, metalness: 0 }),
+    textureYawRad,
+    light: LIGHT,
+  });
 
 /** Phobos and Deimos: grey spheres at their mean radius, with no map (the donor draws them as dots; no map of either is shipped). */
-const greyBall = (color: string): BodyVisual => Object.freeze({ kind: "sphere", material: Object.freeze({ color, roughness: 0.97, metalness: 0 }), light: LIGHT });
+const greyBall = (color: string): BodyVisual =>
+  Object.freeze({ kind: "sphere", material: Object.freeze({ color, roughness: 0.97, metalness: 0 }), light: LIGHT });
 
-export const SATURN_VISUAL = ringed(sphere(saturnUrl, 2048, 1024, solarSystemScope("Saturn", "Solar System Scope Saturn texture (donor saturn-2k.jpg, derived locally from its saturn-4k.jpg, which is the 4096x2048 file the Solar System Scope download endpoint gave; donor README: License CC BY 4.0 per the Solar System Scope textures page)"), "#d8c090", 0.85), SATURN_RINGS);
-export const URANUS_VISUAL = ringed(sphere(uranusUrl, 2048, 1024, solarSystemScope("Uranus", "Solar System Scope 2k_uranus.jpg (byte-identical to the donor's uranus-2k.jpg; no donor README entry, source recorded by Astraeus in tools/import/planetary-explorer-map-sources.json)"), "#9fd5df", 0.85), URANUS_RINGS);
-export const NEPTUNE_VISUAL = ringed(sphere(neptuneUrl, 2048, 1024, solarSystemScope("Neptune", "Solar System Scope 2k_neptune.jpg (byte-identical to the donor's neptune-2k.jpg; no donor README entry, source recorded by Astraeus in tools/import/planetary-explorer-map-sources.json)"), "#4a6fd0", 0.85), NEPTUNE_RINGS);
+export const SATURN_VISUAL = ringed(
+  sphere(
+    saturnUrl,
+    2048,
+    1024,
+    solarSystemScope(
+      "Saturn",
+      "Solar System Scope Saturn texture (donor saturn-2k.jpg, derived locally from its saturn-4k.jpg, which is the 4096x2048 file the Solar System Scope download endpoint gave; donor README: License CC BY 4.0 per the Solar System Scope textures page)",
+    ),
+    "#d8c090",
+    0.85,
+  ),
+  SATURN_RINGS,
+);
+export const URANUS_VISUAL = ringed(
+  sphere(
+    uranusUrl,
+    2048,
+    1024,
+    solarSystemScope(
+      "Uranus",
+      "Solar System Scope 2k_uranus.jpg (byte-identical to the donor's uranus-2k.jpg; no donor README entry, source recorded by Astraeus in tools/import/planetary-explorer-map-sources.json)",
+    ),
+    "#9fd5df",
+    0.85,
+  ),
+  URANUS_RINGS,
+);
+export const NEPTUNE_VISUAL = ringed(
+  sphere(
+    neptuneUrl,
+    2048,
+    1024,
+    solarSystemScope(
+      "Neptune",
+      "Solar System Scope 2k_neptune.jpg (byte-identical to the donor's neptune-2k.jpg; no donor README entry, source recorded by Astraeus in tools/import/planetary-explorer-map-sources.json)",
+    ),
+    "#4a6fd0",
+    0.85,
+  ),
+  NEPTUNE_RINGS,
+);
 export const PLUTO_VISUAL = pictured("pluto", "#c4a58a", 0.95, Math.PI);
 
 export const MIMAS_VISUAL = pictured("mimas", "#a8a8a8", 0.95);
@@ -60,20 +129,22 @@ export const IAPETUS_VISUAL = pictured("iapetus", "#8a7a6a", 0.95, Math.PI);
 export const TRITON_VISUAL = pictured("triton", "#c9bfb5", 0.95);
 export const CHARON_VISUAL = pictured("charon", "#8a8486", 0.95);
 
-export const PLANET_SYSTEM_ENTRIES = Object.freeze([
-  { body: SATURN.id, visual: SATURN_VISUAL },
-  { body: URANUS.id, visual: URANUS_VISUAL },
-  { body: NEPTUNE.id, visual: NEPTUNE_VISUAL },
-  { body: PLUTO.id, visual: PLUTO_VISUAL },
-  { body: PHOBOS.id, visual: greyBall("#8a8580") },
-  { body: DEIMOS.id, visual: greyBall("#9a948c") },
-  { body: MIMAS.id, visual: MIMAS_VISUAL },
-  { body: ENCELADUS.id, visual: ENCELADUS_VISUAL },
-  { body: TETHYS.id, visual: TETHYS_VISUAL },
-  { body: DIONE.id, visual: DIONE_VISUAL },
-  { body: RHEA.id, visual: RHEA_VISUAL },
-  { body: TITAN.id, visual: TITAN_VISUAL },
-  { body: IAPETUS.id, visual: IAPETUS_VISUAL },
-  { body: TRITON.id, visual: TRITON_VISUAL },
-  { body: CHARON.id, visual: CHARON_VISUAL },
-].map((entry) => Object.freeze(entry)));
+export const PLANET_SYSTEM_ENTRIES = Object.freeze(
+  [
+    { body: SATURN.id, visual: SATURN_VISUAL },
+    { body: URANUS.id, visual: URANUS_VISUAL },
+    { body: NEPTUNE.id, visual: NEPTUNE_VISUAL },
+    { body: PLUTO.id, visual: PLUTO_VISUAL },
+    { body: PHOBOS.id, visual: greyBall("#8a8580") },
+    { body: DEIMOS.id, visual: greyBall("#9a948c") },
+    { body: MIMAS.id, visual: MIMAS_VISUAL },
+    { body: ENCELADUS.id, visual: ENCELADUS_VISUAL },
+    { body: TETHYS.id, visual: TETHYS_VISUAL },
+    { body: DIONE.id, visual: DIONE_VISUAL },
+    { body: RHEA.id, visual: RHEA_VISUAL },
+    { body: TITAN.id, visual: TITAN_VISUAL },
+    { body: IAPETUS.id, visual: IAPETUS_VISUAL },
+    { body: TRITON.id, visual: TRITON_VISUAL },
+    { body: CHARON.id, visual: CHARON_VISUAL },
+  ].map((entry) => Object.freeze(entry)),
+);

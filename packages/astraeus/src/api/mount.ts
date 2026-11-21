@@ -41,7 +41,8 @@ export interface MountedScene extends ViewerHandle {
  * mounted.unmount();   // removes it again
  */
 export function mount(element: HTMLElement, scene: Scene, options: MountOptions = {}): MountedScene {
-  if (!(element instanceof Object) || typeof element.appendChild !== "function") throw new SceneError("bad-element", "mount: the first argument must be an element of the page");
+  if (!(element instanceof Object) || typeof element.appendChild !== "function")
+    throw new SceneError("bad-element", "mount: the first argument must be an element of the page");
   const { definition, ready: loaded } = prepareScene(scene, options.data);
   // Its own stacking context, so the viewer's z-index values cannot rise above the host page's overlays.
   const isolation = element.style.isolation;
@@ -55,7 +56,15 @@ export function mount(element: HTMLElement, scene: Scene, options: MountOptions 
   // Resolves once the viewer has attached its clock (its effect runs after the render), so every handle call works straight after `await ready`.
   const attached = loaded.then(() => {
     if (!open) throw new SceneError("not-mounted", "mount: unmounted before the viewer was drawn");
-    root.render(createElement(App, { definition, writeTitle: false, address: options.address === true, developerTools: options.developerTools === true, host: link }));
+    root.render(
+      createElement(App, {
+        definition,
+        writeTitle: false,
+        address: options.address === true,
+        developerTools: options.developerTools === true,
+        host: link,
+      }),
+    );
     return link.whenAttached();
   });
   // Only the expected "taken down early" rejection (`not-mounted`) is marked handled, so a host that never awaits `ready` is not sent an unhandled rejection for it;

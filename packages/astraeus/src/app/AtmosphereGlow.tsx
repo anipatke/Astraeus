@@ -36,7 +36,15 @@ const FRAGMENT = /* glsl */ `
   }
 `;
 
-export function AtmosphereGlow({ radius, atmosphere, layer }: { radius: number; atmosphere: AtmosphereConfig; layer: number }) {
+export function AtmosphereGlow({
+  radius,
+  atmosphere,
+  layer,
+}: {
+  radius: number;
+  atmosphere: AtmosphereConfig;
+  layer: number;
+}) {
   const { color, intensity = 0.9, power = 3.5, scale = 1.08 } = atmosphere;
   const uniforms = useMemo(
     () => ({

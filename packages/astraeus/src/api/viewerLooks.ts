@@ -10,13 +10,19 @@ export class ViewerLooks {
   constructor(private readonly access: LinkAccess) {}
 
   /** The looks in force, every one filled in; undefined before the viewer is drawn and after it is gone. */
-  get look(): LookRead | undefined { return this.access.control()?.read().look; }
+  get look(): LookRead | undefined {
+    return this.access.control()?.read().look;
+  }
 
   /** The id of the scale showing; undefined like `look`. */
-  get scale(): ScaleId | undefined { return this.access.control()?.read().scale; }
+  get scale(): ScaleId | undefined {
+    return this.access.control()?.read().scale;
+  }
 
   /** The display switches the scene placed, each on or off (empty when it placed none); undefined like `look`. */
-  get switches(): Readonly<Record<string, boolean>> | undefined { return this.access.control()?.read().switches; }
+  get switches(): Readonly<Record<string, boolean>> | undefined {
+    return this.access.control()?.read().switches;
+  }
 
   /** Sets the whole look, checked as `Scene.setLook` checks it (`bad-look`). */
   setLook(look: LookInput): void {
@@ -27,7 +33,11 @@ export class ViewerLooks {
   /** Switches to one of the scales the viewer offers (`Scene.scales`); any other id throws `bad-scale`. */
   setScale(id: ScaleId): void {
     const control = this.access.open("setScale");
-    if (!control.scales.includes(id)) throw new SceneError("bad-scale", `setScale: "${String(id)}" is not one of the scales this viewer offers (${control.scales.join(", ")})`);
+    if (!control.scales.includes(id))
+      throw new SceneError(
+        "bad-scale",
+        `setScale: "${String(id)}" is not one of the scales this viewer offers (${control.scales.join(", ")})`,
+      );
     control.setScale(id);
   }
 
@@ -40,7 +50,12 @@ export class ViewerLooks {
   /** Changes a group's colour and dot size, the fields left out kept (`bad-group` for a non-group id or a bad value); the dots take it at the next frame. */
   setGroupLook(id: string, look: GroupLookInput): void {
     const control = this.access.open("setGroupLook");
-    const checked = checkedGroupLook(id, look, typeof id === "string" ? control.groupLook?.(id) : undefined, control.groups ?? []);
+    const checked = checkedGroupLook(
+      id,
+      look,
+      typeof id === "string" ? control.groupLook?.(id) : undefined,
+      control.groups ?? [],
+    );
     control.setGroupLook?.(id, checked);
   }
 
@@ -48,8 +63,15 @@ export class ViewerLooks {
   setSwitch(id: string, on: boolean): void {
     const control = this.access.open("setSwitch");
     const placed = Object.keys(control.read().switches);
-    if (!placed.includes(id)) throw new SceneError("bad-switch", placed.length === 0 ? "setSwitch: the scene placed no display switches; place them with setSwitches" : `setSwitch: "${String(id)}" is not a switch the scene placed (${placed.join(", ")})`);
-    if (typeof on !== "boolean") throw new SceneError("bad-switch", `setSwitch: expected true or false, got ${String(on)}`);
+    if (!placed.includes(id))
+      throw new SceneError(
+        "bad-switch",
+        placed.length === 0
+          ? "setSwitch: the scene placed no display switches; place them with setSwitches"
+          : `setSwitch: "${String(id)}" is not a switch the scene placed (${placed.join(", ")})`,
+      );
+    if (typeof on !== "boolean")
+      throw new SceneError("bad-switch", `setSwitch: expected true or false, got ${String(on)}`);
     control.setSwitch(id, on);
   }
 }

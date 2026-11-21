@@ -7,7 +7,11 @@ import { mkdirSync, writeFileSync } from "node:fs";
 import { pw } from "./playwright.mjs";
 
 const chromium = pw.chromium ?? pw.default.chromium;
-export const SOFTWARE_RENDERING_ARGS = ["--use-gl=swiftshader", "--enable-unsafe-swiftshader", "--ignore-gpu-blocklist"];
+export const SOFTWARE_RENDERING_ARGS = [
+  "--use-gl=swiftshader",
+  "--enable-unsafe-swiftshader",
+  "--ignore-gpu-blocklist",
+];
 export const DEFAULT_VIEWPORT = { width: 1280, height: 800 };
 
 /** Chromium with the software-rendering flags every check uses, plus any `extraArgs`. */
@@ -19,7 +23,9 @@ export function launchBrowser(extraArgs = []) {
 export function watchErrors(page, errors, label = "") {
   const prefix = label === "" ? "" : `${label} `;
   page.on("pageerror", (error) => errors.push(`${prefix}pageerror: ${error.message}`));
-  page.on("console", (message) => { if (message.type() === "error") errors.push(`${prefix}console: ${message.text()}`); });
+  page.on("console", (message) => {
+    if (message.type() === "error") errors.push(`${prefix}console: ${message.text()}`);
+  });
 }
 
 /** The app address a script opens: ASTRAEUS_URL (the runner sets it) or the dev server, with the query `params` added. */
@@ -33,7 +39,10 @@ export function appUrl(params = "") {
  * `context = { browser, errors, viewport, name }` and may return a value that is recorded in results. Any thrown assertion or collected error fails the script (exit code 1).
  * Results go to stdout and, when ASTRAEUS_EVIDENCE_DIR (or `outDir`) is set, to results.json there.
  */
-export async function checkScript({ name, viewports = [DEFAULT_VIEWPORT], extraArgs = [], outDir = process.env.ASTRAEUS_EVIDENCE_DIR }, run) {
+export async function checkScript(
+  { name, viewports = [DEFAULT_VIEWPORT], extraArgs = [], outDir = process.env.ASTRAEUS_EVIDENCE_DIR },
+  run,
+) {
   const started = new Date().toISOString();
   const browser = await launchBrowser(extraArgs);
   const errors = [];
@@ -42,9 +51,19 @@ export async function checkScript({ name, viewports = [DEFAULT_VIEWPORT], extraA
   try {
     for (const viewport of viewports) {
       const { name: viewportName = `${viewport.width}x${viewport.height}`, ...pageOptions } = viewport;
-      const page = await browser.newPage({ viewport: { width: viewport.width, height: viewport.height }, ...pageOptions });
+      const page = await browser.newPage({
+        viewport: { width: viewport.width, height: viewport.height },
+        ...pageOptions,
+      });
       watchErrors(page, errors, viewports.length > 1 ? viewportName : "");
-      try { results.push({ viewport: viewportName, result: await run(page, { browser, errors, viewport, name: viewportName }) }); } finally { await page.close(); }
+      try {
+        results.push({
+          viewport: viewportName,
+          result: await run(page, { browser, errors, viewport, name: viewportName }),
+        });
+      } finally {
+        await page.close();
+      }
     }
   } catch (error) {
     failure = error;
@@ -52,9 +71,19 @@ export async function checkScript({ name, viewports = [DEFAULT_VIEWPORT], extraA
     await browser.close();
   }
   const ok = failure === undefined && errors.length === 0;
-  const summary = { name, at: started, ok, results, errors, ...(failure === undefined ? {} : { failure: String(failure?.stack ?? failure) }) };
+  const summary = {
+    name,
+    at: started,
+    ok,
+    results,
+    errors,
+    ...(failure === undefined ? {} : { failure: String(failure?.stack ?? failure) }),
+  };
   console.log(JSON.stringify(summary, null, 2));
-  if (outDir !== undefined) { mkdirSync(outDir, { recursive: true }); writeFileSync(`${outDir}/results.json`, JSON.stringify(summary, null, 2)); }
+  if (outDir !== undefined) {
+    mkdirSync(outDir, { recursive: true });
+    writeFileSync(`${outDir}/results.json`, JSON.stringify(summary, null, 2));
+  }
   if (!ok) process.exitCode = 1;
   return summary;
 }

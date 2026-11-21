@@ -4,7 +4,19 @@ import type { StartView } from "../src/presentation/startView";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { act, createElement } from "react";
 import { createRoot, type Root } from "react-dom/client";
-import { AstraeusScene, Scene, SceneError, earth, moon, mount, readableScale, saturn, titan, trueScale, type DataSource } from "astraeus";
+import {
+  AstraeusScene,
+  Scene,
+  SceneError,
+  earth,
+  moon,
+  mount,
+  readableScale,
+  saturn,
+  titan,
+  trueScale,
+  type DataSource,
+} from "astraeus";
 import { dataSource as pictureData } from "astraeus-data";
 import { catalogue } from "../src/assets/catalogue";
 import { textureOf } from "../src/assets/pictures";
@@ -12,36 +24,73 @@ import { describeBody } from "../src/app/bodyDraw";
 import { installData } from "../src/api/data";
 import { drawn, mountShell } from "./domSetup";
 import { syntheticDefinition } from "./synthetic/syntheticDefinition";
-import { cameraReachOf, mountedBodiesOf, sceneCenterOf, scaleChoiceIdsOf, trackedBodiesOf } from "../src/app/experienceDefinition";
+import {
+  cameraReachOf,
+  mountedBodiesOf,
+  sceneCenterOf,
+  scaleChoiceIdsOf,
+  trackedBodiesOf,
+} from "../src/app/experienceDefinition";
 import { definitionOf, registerDefinition } from "../src/api/definitionOf";
 
 /** Counts how many times the viewer builds the scene's definition (the engine-only route `mount` and `AstraeusScene` share). */
 function countBuilds(scene: Scene): { readonly calls: number } {
   const state = { calls: 0 };
-  const inner = registerDefinition(scene, () => { throw new Error("replaced below"); })!;
-  registerDefinition(scene, (data) => { state.calls += 1; return inner(data); });
+  const inner = registerDefinition(scene, () => {
+    throw new Error("replaced below");
+  })!;
+  registerDefinition(scene, (data) => {
+    state.calls += 1;
+    return inner(data);
+  });
   return state;
 }
 
 (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
 
 const T0 = "1969-07-20T20:17:40Z";
-const samples = [0, 1, 2].map((minute) => ({ time: Date.parse(T0) + minute * 60_000, positionKm: [10_000 + minute * 100, 0, 0], velocityKmS: [1, 0, 0] }));
+const samples = [0, 1, 2].map((minute) => ({
+  time: Date.parse(T0) + minute * 60_000,
+  positionKm: [10_000 + minute * 100, 0, 0],
+  velocityKmS: [1, 0, 0],
+}));
 const apollo = { id: "apollo11", label: "Apollo 11", samples };
-const codeOf = (fn: () => unknown) => { try { fn(); } catch (error) { return error instanceof SceneError ? `${error.code}: ${error.message}` : String(error); } return "no error"; };
+const codeOf = (fn: () => unknown) => {
+  try {
+    fn();
+  } catch (error) {
+    return error instanceof SceneError ? `${error.code}: ${error.message}` : String(error);
+  }
+  return "no error";
+};
 
 describe("Scene", () => {
   it("addBody takes a colour and known limits for the info card, and rejects bad ones with bad-body", () => {
-    const objects = definitionOf(new Scene().addBody(earth, { color: "#9fd8ff" }).addBody(moon, { knownLimitations: ["Made-up limit."] }).addBody("mars")).experience.objects;
+    const objects = definitionOf(
+      new Scene()
+        .addBody(earth, { color: "#9fd8ff" })
+        .addBody(moon, { knownLimitations: ["Made-up limit."] })
+        .addBody("mars"),
+    ).experience.objects;
     expect(objects.map((o) => o.color)[0]).toBe("#9fd8ff");
     expect(objects[1]!.knownLimitations).toEqual(["Made-up limit."]);
     expect(objects[1]!.color).not.toBe("#9fd8ff");
     expect(objects[0]!.knownLimitations).not.toEqual(["Made-up limit."]);
     expect(objects[2]!.color).toBeDefined();
-    for (const bad of [{ color: "red" }, { color: 5 }, { knownLimitations: "x" }, { knownLimitations: [""] }, { knownLimitations: [1] }]) {
-      expect(() => new Scene().addBody(earth, bad as never), JSON.stringify(bad)).toThrowError(expect.objectContaining({ code: "bad-body" }));
+    for (const bad of [
+      { color: "red" },
+      { color: 5 },
+      { knownLimitations: "x" },
+      { knownLimitations: [""] },
+      { knownLimitations: [1] },
+    ]) {
+      expect(() => new Scene().addBody(earth, bad as never), JSON.stringify(bad)).toThrowError(
+        expect.objectContaining({ code: "bad-body" }),
+      );
     }
-    expect(definitionOf(new Scene().addBody(earth, { knownLimitations: [] })).experience.objects[0]!.knownLimitations).toEqual([]);
+    expect(
+      definitionOf(new Scene().addBody(earth, { knownLimitations: [] })).experience.objects[0]!.knownLimitations,
+    ).toEqual([]);
   });
 
   it("builds the definition from addBody, addTrajectory, setTime, setScale and camera.follow", () => {
@@ -56,7 +105,15 @@ describe("Scene", () => {
     expect(scaleChoiceIdsOf(definition)).toEqual(["readable-scale", "true-scale"]);
     expect((definition.startView as StartView | undefined)?.focus).toBe("apollo11");
     expect(definition.experience.startCameraPresetId).toBe("follow-apollo11");
-    expect(definition.experience.cameraPresets.map((preset) => preset.id)).toEqual(["overview", "focus-earth", "follow-earth", "focus-moon", "follow-moon", "focus-apollo11", "follow-apollo11"]);
+    expect(definition.experience.cameraPresets.map((preset) => preset.id)).toEqual([
+      "overview",
+      "focus-earth",
+      "follow-earth",
+      "focus-moon",
+      "follow-moon",
+      "focus-apollo11",
+      "follow-apollo11",
+    ]);
     expect(definition.experience.objects.map((object) => object.id)).toEqual(["earth", "moon", "apollo11"]);
     expect(cameraReachOf(definition)).toEqual({});
   });
@@ -71,9 +128,16 @@ describe("Scene", () => {
 
   it("accepts a provider with stateAt as a trajectory", () => {
     const provider = { stateAt: (timeUtcMs: number) => ({ timeUtcMs }) as never };
-    const definition = definitionOf(new Scene().addBody(earth).addTrajectory({ id: "probe", provider, bounds: { start: T0, end: "1969-07-21T20:17:40Z" } }));
+    const definition = definitionOf(
+      new Scene()
+        .addBody(earth)
+        .addTrajectory({ id: "probe", provider, bounds: { start: T0, end: "1969-07-21T20:17:40Z" } }),
+    );
     const probe = trackedBodiesOf(definition)[0]!;
-    expect(probe.trajectory.bounds).toEqual({ startUtcMs: Date.parse(T0), endUtcMs: Date.parse("1969-07-21T20:17:40Z") });
+    expect(probe.trajectory.bounds).toEqual({
+      startUtcMs: Date.parse(T0),
+      endUtcMs: Date.parse("1969-07-21T20:17:40Z"),
+    });
     expect(probe.pathTimesUtcMs.length).toBeGreaterThan(2);
     expect(probe.trajectory.stateAt(5)).toEqual({ timeUtcMs: 5 });
   });
@@ -83,10 +147,38 @@ describe("Scene", () => {
     ["an uncatalogued body", () => new Scene().addBody("vulcan"), "unknown-body"],
     ["a body added twice", () => new Scene().addBody(earth).addBody("earth"), "duplicate-id"],
     ["a bad time", () => new Scene().setTime("not a date"), "bad-time"],
-    ["a bad sample time", () => new Scene().addTrajectory({ id: "x", samples: [{ time: "later", positionKm: [0, 0, 0] }, { time: 1, positionKm: [0, 0, 0] }] }), "bad-time"],
-    ["one sample only", () => new Scene().addTrajectory({ id: "x", samples: [{ time: 1, positionKm: [0, 0, 0] }] }), "bad-trajectory"],
-    ["a provider without stateAt", () => new Scene().addTrajectory({ id: "x", provider: {} as never, bounds: { start: 0, end: 1 } }), "bad-trajectory"],
-    ["reversed provider bounds", () => new Scene().addTrajectory({ id: "x", provider: { stateAt: () => ({}) as never }, bounds: { start: 5, end: 1 } }), "bad-trajectory"],
+    [
+      "a bad sample time",
+      () =>
+        new Scene().addTrajectory({
+          id: "x",
+          samples: [
+            { time: "later", positionKm: [0, 0, 0] },
+            { time: 1, positionKm: [0, 0, 0] },
+          ],
+        }),
+      "bad-time",
+    ],
+    [
+      "one sample only",
+      () => new Scene().addTrajectory({ id: "x", samples: [{ time: 1, positionKm: [0, 0, 0] }] }),
+      "bad-trajectory",
+    ],
+    [
+      "a provider without stateAt",
+      () => new Scene().addTrajectory({ id: "x", provider: {} as never, bounds: { start: 0, end: 1 } }),
+      "bad-trajectory",
+    ],
+    [
+      "reversed provider bounds",
+      () =>
+        new Scene().addTrajectory({
+          id: "x",
+          provider: { stateAt: () => ({}) as never },
+          bounds: { start: 5, end: 1 },
+        }),
+      "bad-trajectory",
+    ],
     ["a scale that is not offered", () => new Scene().setScale({ id: "huge" } as never), "bad-scale"],
     ["an empty scene", () => definitionOf(new Scene()), "empty-scene"],
   ])("refuses %s with a named error", (_name, call, code) => {
@@ -103,11 +195,19 @@ describe("Scene", () => {
 });
 
 describe("moons and the data packages (O-036 T-161)", () => {
-  const positions = (): DataSource => ({ name: "astraeus-data-saturn", provides: ["titan"], moonPositions: { center: "saturn", loadIndex: async () => ({}), chunkUrls: {} } });
+  const positions = (): DataSource => ({
+    name: "astraeus-data-saturn",
+    provides: ["titan"],
+    moonPositions: { center: "saturn", loadIndex: async () => ({}), chunkUrls: {} },
+  });
 
   it("does not offer a moon without its planet's positions package, by reference or by id", () => {
-    expect(codeOf(() => definitionOf(new Scene().addBody(saturn).addBody(titan)))).toMatch(/^missing-data: .*titan.*astraeus-data-saturn/);
-    expect(codeOf(() => definitionOf(new Scene().addBody("saturn").addBody("titan")))).toMatch(/^missing-data: .*astraeus-data-saturn/);
+    expect(codeOf(() => definitionOf(new Scene().addBody(saturn).addBody(titan)))).toMatch(
+      /^missing-data: .*titan.*astraeus-data-saturn/,
+    );
+    expect(codeOf(() => definitionOf(new Scene().addBody("saturn").addBody("titan")))).toMatch(
+      /^missing-data: .*astraeus-data-saturn/,
+    );
   });
 
   it("is not satisfied by the pictures package alone, and is by the positions package", () => {
@@ -122,7 +222,9 @@ describe("moons and the data packages (O-036 T-161)", () => {
     const without = definitionOf(scene, [positions()]);
     expect(Object.keys(without.pictures ?? {})).toEqual([]);
     expect(describeBody(catalogue.get("titan"), trueScale, false, without.pictures).textureUrl).toBeUndefined();
-    expect(Object.keys(withPictures.pictures ?? {})).toEqual(expect.arrayContaining(["titan", "venus-8k", "milky-way"]));
+    expect(Object.keys(withPictures.pictures ?? {})).toEqual(
+      expect.arrayContaining(["titan", "venus-8k", "milky-way"]),
+    );
     const texture = textureOf(catalogue.get("titan").visual, withPictures.pictures ?? {});
     expect(texture?.url).toBeTruthy();
     expect(texture?.licence?.attribution).toContain("NASA/JPL");
@@ -133,7 +235,11 @@ describe("moons and the data packages (O-036 T-161)", () => {
   });
 
   it("refuses a package's picture that has no licence or local-only declaration", async () => {
-    const bad: DataSource = { name: "bad-pictures", provides: [], pictures: { titan: { url: "x.jpg", widthPx: 1, heightPx: 1 } } };
+    const bad: DataSource = {
+      name: "bad-pictures",
+      provides: [],
+      pictures: { titan: { url: "x.jpg", widthPx: 1, heightPx: 1 } },
+    };
     await expect(installData([bad], [], { startUtcMs: 0, endUtcMs: 1 })).rejects.toMatchObject({ code: "bad-data" });
   });
 });
@@ -141,8 +247,13 @@ describe("moons and the data packages (O-036 T-161)", () => {
 describe("mount", () => {
   let host: HTMLElement | undefined;
   // The viewer fetches the star list; there is no network in the test, so it answers "absent" at once.
-  beforeEach(() => { vi.stubGlobal("fetch", () => Promise.reject(new Error("offline"))); });
-  afterEach(() => { host?.remove(); vi.unstubAllGlobals(); });
+  beforeEach(() => {
+    vi.stubGlobal("fetch", () => Promise.reject(new Error("offline")));
+  });
+  afterEach(() => {
+    host?.remove();
+    vi.unstubAllGlobals();
+  });
 
   it("draws into the element, and unmount removes everything it added", async () => {
     host = document.createElement("div");
@@ -150,7 +261,9 @@ describe("mount", () => {
     const handle = mount(host, new Scene().addBody(earth).addBody(moon).addTrajectory(apollo));
     await drawn(handle);
     expect(host.childElementCount).toBeGreaterThan(0);
-    act(() => { handle.unmount(); });
+    act(() => {
+      handle.unmount();
+    });
     expect(host.querySelector("canvas")).toBeNull();
     expect(host.childElementCount).toBe(0);
     expect(() => handle.unmount()).not.toThrow();
@@ -166,7 +279,11 @@ describe("mount", () => {
 
   it("refuses something that is not an element and a scene with a missing package", () => {
     expect(codeOf(() => mount(null as never, new Scene().addBody(earth)))).toMatch(/^bad-element/);
-    expect(codeOf(() => mount(document.createElement("div"), new Scene().addBody({ id: "io", label: "Io", requires: "astraeus-data" })))).toMatch(/^missing-data: .*astraeus-data/);
+    expect(
+      codeOf(() =>
+        mount(document.createElement("div"), new Scene().addBody({ id: "io", label: "Io", requires: "astraeus-data" })),
+      ),
+    ).toMatch(/^missing-data: .*astraeus-data/);
   });
 });
 
@@ -178,12 +295,23 @@ describe("AstraeusScene", () => {
     host = document.createElement("div");
     document.body.append(host);
   });
-  afterEach(() => { if (root) act(() => root!.unmount()); root = undefined; host.remove(); vi.unstubAllGlobals(); });
+  afterEach(() => {
+    if (root) act(() => root!.unmount());
+    root = undefined;
+    host.remove();
+    vi.unstubAllGlobals();
+  });
   const render = async (props: Parameters<typeof AstraeusScene>[0]) => {
     root ??= createRoot(host);
-    await act(async () => { root!.render(createElement(AstraeusScene, props)); await Promise.resolve(); });
+    await act(async () => {
+      root!.render(createElement(AstraeusScene, props));
+      await Promise.resolve();
+    });
   };
-  const flush = () => act(async () => { await new Promise((done) => setTimeout(done, 0)); });
+  const flush = () =>
+    act(async () => {
+      await new Promise((done) => setTimeout(done, 0));
+    });
   const scene = () => new Scene().addBody(earth).addBody(moon).addTrajectory(apollo);
 
   it("draws the viewer into its wrapper and reports ready once", async () => {
@@ -212,7 +340,8 @@ describe("AstraeusScene", () => {
     const s = scene();
     const definition = definitionOf(s);
     registerDefinition(s, () => ({ ...definition, prepare: () => Promise.reject(new Error("no data")) }));
-    const onError = vi.fn(); const onReady = vi.fn();
+    const onError = vi.fn();
+    const onReady = vi.fn();
     await render({ scene: s, data: [failing], onError, onReady });
     await flush();
     expect(onError.mock.calls[0]![0].message).toBe("no data");
@@ -260,18 +389,33 @@ describe("addBody with an orbit line", () => {
   });
 
   it("refuses an orbit the engine cannot draw, and one whose parent is not in the scene", () => {
-    expect(codeOf(() => new Scene().addBody(earth).addBody("sun", { orbit: true }))).toMatch(/^no-orbit: .*any catalogued moon whose data give a period about its planet and of any body that circles the Sun/);
-    expect(codeOf(() => definitionOf(new Scene().addBody(earth).addBody("mars", { orbit: true })))).toMatch(/^no-orbit: .*about the Sun, which has not been added/);
+    expect(codeOf(() => new Scene().addBody(earth).addBody("sun", { orbit: true }))).toMatch(
+      /^no-orbit: .*any catalogued moon whose data give a period about its planet and of any body that circles the Sun/,
+    );
+    expect(codeOf(() => definitionOf(new Scene().addBody(earth).addBody("mars", { orbit: true })))).toMatch(
+      /^no-orbit: .*about the Sun, which has not been added/,
+    );
     expect(codeOf(() => definitionOf(new Scene().addBody(moon, { orbit: true })))).toMatch(/^no-orbit: .*about earth/);
   });
 });
 
 describe("camera.follow starts already following", () => {
   it("opens the shell with the Follow preset in force, and no preset in force without it", () => {
-    const withFollow = mountShell({ experience: { ...syntheticDefinition.experience, startCameraPresetId: syntheticDefinition.experience.cameraPresets.find((preset) => preset.request.kind === "follow")!.id } });
-    const pressed = [...withFollow.container.querySelectorAll("[data-camera-preset]")].filter((button) => button.getAttribute("aria-pressed") === "true").map((button) => button.getAttribute("data-camera-preset"));
+    const withFollow = mountShell({
+      experience: {
+        ...syntheticDefinition.experience,
+        startCameraPresetId: syntheticDefinition.experience.cameraPresets.find(
+          (preset) => preset.request.kind === "follow",
+        )!.id,
+      },
+    });
+    const pressed = [...withFollow.container.querySelectorAll("[data-camera-preset]")]
+      .filter((button) => button.getAttribute("aria-pressed") === "true")
+      .map((button) => button.getAttribute("data-camera-preset"));
     withFollow.unmount();
-    expect(pressed).toEqual([syntheticDefinition.experience.cameraPresets.find((preset) => preset.request.kind === "follow")!.id]);
+    expect(pressed).toEqual([
+      syntheticDefinition.experience.cameraPresets.find((preset) => preset.request.kind === "follow")!.id,
+    ]);
     const without = mountShell();
     expect([...without.container.querySelectorAll("[data-camera-preset][aria-pressed='true']")]).toHaveLength(0);
     without.unmount();

@@ -45,48 +45,87 @@ function ringGroup(id: string, center: CenterId, fills: { count: number } = { co
     return [20_000 * Math.cos(angle), 20_000 * Math.sin(angle), 3_000 * Math.sin(2 * angle)];
   };
   return {
-    id, count: COUNT, center, frame: "EQJ", bounds: { startUtcMs: START, endUtcMs: END }, provenance,
+    id,
+    count: COUNT,
+    center,
+    frame: "EQJ",
+    bounds: { startUtcMs: START, endUtcMs: END },
+    provenance,
     fillPositionsKm(timeUtcMs, out) {
       fills.count += 1;
       for (let i = 0; i < COUNT; i += 1) out.set(position(i, timeUtcMs), 3 * i);
     },
-    stateAt: (index, timeUtcMs) => memberState({ id, center, bounds: { startUtcMs: START, endUtcMs: END } }, index, timeUtcMs, position(index, timeUtcMs)),
+    stateAt: (index, timeUtcMs) =>
+      memberState(
+        { id, center, bounds: { startUtcMs: START, endUtcMs: END } },
+        index,
+        timeUtcMs,
+        position(index, timeUtcMs),
+      ),
   };
 }
 
-function layerFor(id: string, center: CenterId, fills?: { count: number }, extra: Partial<GroupLayer> = {}): GroupLayer {
+function layerFor(
+  id: string,
+  center: CenterId,
+  fills?: { count: number },
+  extra: Partial<GroupLayer> = {},
+): GroupLayer {
   return {
     group: ringGroup(id, center, fills),
     color: "#88ccff",
     object: {
-      id, label: `Ring ${id}`, description: "Centroid of a made-up ring.", knownLimitations: ["Made up; no physical meaning."],
+      id,
+      label: `Ring ${id}`,
+      description: "Centroid of a made-up ring.",
+      knownLimitations: ["Made up; no physical meaning."],
     },
     ...extra,
   };
 }
 
-function definitionWith(layers: readonly SceneLayerId[], groups: readonly GroupLayer[], withComposition = true): ExperienceDefinition {
+function definitionWith(
+  layers: readonly SceneLayerId[],
+  groups: readonly GroupLayer[],
+  withComposition = true,
+): ExperienceDefinition {
   const { composition: _composition, ...bodiless } = syntheticDefinition;
-  const presets = groups.flatMap((layer) => [
-    { id: `focus-${layer.object.id}`, label: "Focus", request: { kind: "focus", target: layer.object.id } },
-    { id: `follow-${layer.object.id}`, label: "Follow", request: { kind: "follow", target: layer.object.id } },
-  ] as const);
+  const presets = groups.flatMap(
+    (layer) =>
+      [
+        { id: `focus-${layer.object.id}`, label: "Focus", request: { kind: "focus", target: layer.object.id } },
+        { id: `follow-${layer.object.id}`, label: "Follow", request: { kind: "follow", target: layer.object.id } },
+      ] as const,
+  );
   return {
     ...(withComposition ? syntheticDefinition : bodiless),
     sceneLayers: layers,
     groups,
-    experience: { ...syntheticDefinition.experience, cameraPresets: [...syntheticDefinition.experience.cameraPresets, ...presets] },
+    experience: {
+      ...syntheticDefinition.experience,
+      cameraPresets: [...syntheticDefinition.experience.cameraPresets, ...presets],
+    },
   };
 }
 
 const noop = () => undefined;
 function shellMarkup(definition: ExperienceDefinition): string {
-  return renderToStaticMarkup(createElement(AstraeusShell, {
-    experience: experienceWithGroups(definition),
-    snapshot: { timeUtcMs: START, rate: 1, playing: false } as never,
-    developerMode: false, onDeveloperModeChange: noop, onTogglePlayback: noop, onRateChange: noop, onSeek: noop,
-    onCameraRequest: noop, onSelectionChange: noop, scaleId: "true-scale", onScaleChange: noop, children: null,
-  }));
+  return renderToStaticMarkup(
+    createElement(AstraeusShell, {
+      experience: experienceWithGroups(definition),
+      snapshot: { timeUtcMs: START, rate: 1, playing: false } as never,
+      developerMode: false,
+      onDeveloperModeChange: noop,
+      onTogglePlayback: noop,
+      onRateChange: noop,
+      onSeek: noop,
+      onCameraRequest: noop,
+      onSelectionChange: noop,
+      scaleId: "true-scale",
+      onScaleChange: noop,
+      children: null,
+    }),
+  );
 }
 
 describe("points layer: layer matrix through the plug-in helpers", () => {
@@ -120,7 +159,10 @@ describe("points layer: layer matrix through the plug-in helpers", () => {
 
 describe("points layer: one shell item per group", () => {
   it("lists each group once, with the group's provenance, limitations and bounds", () => {
-    const definition = definitionWith(["points"], [layerFor("ring-a", "earth"), layerFor("ring-a", "earth"), layerFor("ring-b", "sun")]);
+    const definition = definitionWith(
+      ["points"],
+      [layerFor("ring-a", "earth"), layerFor("ring-a", "earth"), layerFor("ring-b", "sun")],
+    );
     const objects = experienceWithGroups(definition).objects.filter((object) => object.id.startsWith("ring-"));
     expect(objects.map((object) => object.id)).toEqual(["ring-a", "ring-b"]);
     expect(objects[0].provenance).toBe(provenance);
@@ -277,7 +319,8 @@ describe("points view", () => {
     view.sync(start + 1, earthPlacement, trueScale); // slides the pair so the after-fill is one span on
     view.sync(start, earthPlacement, trueScale);
     view.place(origin);
-    const at = (member: number, t: number) => eqjToRenderVector(trueScale.mapPosition(view.layer.group.stateAt(member, t).positionKm));
+    const at = (member: number, t: number) =>
+      eqjToRenderVector(trueScale.mapPosition(view.layer.group.stateAt(member, t).positionKm));
     for (let i = 0; i < 3; i += 1) expect(view.memberLocalPosition(11)[i]).toBeCloseTo(at(11, start)[i], 4);
     const mid = start + span / 2;
     view.sync(mid, earthPlacement, trueScale);
@@ -317,7 +360,9 @@ describe("points view", () => {
 
   it("rejects a refill interval that is not positive and finite", () => {
     expect(() => new PointsView(layerFor("ring-earth", "earth", undefined, { refillAfterMs: 0 }))).toThrow(RangeError);
-    expect(() => new PointsView(layerFor("ring-earth", "earth", undefined, { refillAfterMs: Number.NaN }))).toThrow(RangeError);
+    expect(() => new PointsView(layerFor("ring-earth", "earth", undefined, { refillAfterMs: Number.NaN }))).toThrow(
+      RangeError,
+    );
   });
 
   it("composes a group centred on the Moon through the resolver, like any catalogued centre", () => {
@@ -327,7 +372,9 @@ describe("points view", () => {
     view.place(new FloatingOrigin());
     const member = view.layer.group.stateAt(7, t);
     const moonFromEarth = earthPlacement.resolver.offsetKm("moon", "earth", t);
-    const expected = eqjToRenderVector(trueScale.mapPosition([0, 1, 2].map((k) => member.positionKm[k] + moonFromEarth[k])));
+    const expected = eqjToRenderVector(
+      trueScale.mapPosition([0, 1, 2].map((k) => member.positionKm[k] + moonFromEarth[k])),
+    );
     const local = view.memberLocalPosition(7);
     for (let i = 0; i < 3; i += 1) expect(local[i]).toBeCloseTo(expected[i], 1);
   });

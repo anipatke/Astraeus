@@ -14,7 +14,12 @@ import { trueScale } from "../../src/presentation/scalePolicy";
 export const VIEWS_START_UTC_MS = Date.parse("2026-01-01T00:00:00Z");
 const HOUR_MS = 3_600_000;
 const SPAN_H = 24;
-const madeUp = { sourceType: "illustrative", sources: ["Made up for the views test; not a real spacecraft"], accuracy: "None claimed.", notes: "A circle about Earth, not a real flight." } as const;
+const madeUp = {
+  sourceType: "illustrative",
+  sources: ["Made up for the views test; not a real spacecraft"],
+  accuracy: "None claimed.",
+  notes: "A circle about Earth, not a real flight.",
+} as const;
 
 /** A circle about Earth in the plane tilted `tiltDeg` about x, one lap in `lapH` hours, a sample every 5 minutes over the whole timeline. */
 function circle(radiusKm: number, lapH: number, tiltDeg: number) {
@@ -22,28 +27,93 @@ function circle(radiusKm: number, lapH: number, tiltDeg: number) {
   return Array.from({ length: SPAN_H * 12 + 1 }, (_, i) => {
     const angle = (2 * Math.PI * i) / (lapH * 12);
     const y = radiusKm * Math.sin(angle);
-    return { time: VIEWS_START_UTC_MS + i * 300_000, positionKm: [radiusKm * Math.cos(angle), y * Math.cos(tilt), y * Math.sin(tilt)] };
+    return {
+      time: VIEWS_START_UTC_MS + i * 300_000,
+      positionKm: [radiusKm * Math.cos(angle), y * Math.cos(tilt), y * Math.sin(tilt)],
+    };
   });
 }
 
-const panel = (id: string, title: string, hour: number) => ({ id, at: { time: VIEWS_START_UTC_MS + hour * HOUR_MS }, title, body: ["A made-up line."], provenance: madeUp });
+const panel = (id: string, title: string, hour: number) => ({
+  id,
+  at: { time: VIEWS_START_UTC_MS + hour * HOUR_MS },
+  title,
+  body: ["A made-up line."],
+  provenance: madeUp,
+});
 
 const scene = new Scene()
   .addBody(earth, { description: "The planet both made-up probes circle; shown in every view." })
-  .addTrajectory({ id: "probe-a", label: "Probe A", samples: circle(40_000, 6, 0), provenance: madeUp, description: "A made-up probe on a flat circle.", knownLimitations: ["Made up; not a real spacecraft."] })
-  .addTrajectory({ id: "probe-b", label: "Probe B", samples: circle(70_000, 9, 35), provenance: madeUp, description: "A made-up probe on a tilted circle.", knownLimitations: ["Made up; not a real spacecraft."] })
-  .addEvents([
-    { id: "event-a", label: "Probe A event", time: VIEWS_START_UTC_MS + 3 * HOUR_MS, type: "flyby", object: "probe-a" },
-    { id: "event-b", label: "Probe B event", time: VIEWS_START_UTC_MS + 9 * HOUR_MS, type: "flyby", object: "probe-b" },
-    { id: "event-shared", label: "Shared event", time: VIEWS_START_UTC_MS + 21 * HOUR_MS },
-  ], { provenance: madeUp })
-  .addStoryPanels([panel("panel-a", "About probe A", 10), panel("panel-b", "About probe B", 15), panel("panel-shared", "About both", 20)])
-  .setViews([
-    { id: "a", label: "Probe A", objects: ["probe-a"], events: ["event-a"], panels: ["panel-a"], camera: "stay" },
-    { id: "b", label: "Probe B", objects: ["probe-b"], events: ["event-b"], panels: ["panel-b"], camera: { follow: "probe-b" } },
-    { id: "both", label: "Both", objects: ["probe-a", "probe-b"], events: ["event-a", "event-b"], panels: ["panel-a", "panel-b"], camera: { focus: "probe-a" } },
-  ], { place: "top-bar" })
-  .setTimeline({ start: VIEWS_START_UTC_MS, end: VIEWS_START_UTC_MS + SPAN_H * HOUR_MS, rates: [60, 600, 3600], rate: 600, pacing: [{ near: { type: "flyby", withinSeconds: 1800 }, rate: 60 }] })
+  .addTrajectory({
+    id: "probe-a",
+    label: "Probe A",
+    samples: circle(40_000, 6, 0),
+    provenance: madeUp,
+    description: "A made-up probe on a flat circle.",
+    knownLimitations: ["Made up; not a real spacecraft."],
+  })
+  .addTrajectory({
+    id: "probe-b",
+    label: "Probe B",
+    samples: circle(70_000, 9, 35),
+    provenance: madeUp,
+    description: "A made-up probe on a tilted circle.",
+    knownLimitations: ["Made up; not a real spacecraft."],
+  })
+  .addEvents(
+    [
+      {
+        id: "event-a",
+        label: "Probe A event",
+        time: VIEWS_START_UTC_MS + 3 * HOUR_MS,
+        type: "flyby",
+        object: "probe-a",
+      },
+      {
+        id: "event-b",
+        label: "Probe B event",
+        time: VIEWS_START_UTC_MS + 9 * HOUR_MS,
+        type: "flyby",
+        object: "probe-b",
+      },
+      { id: "event-shared", label: "Shared event", time: VIEWS_START_UTC_MS + 21 * HOUR_MS },
+    ],
+    { provenance: madeUp },
+  )
+  .addStoryPanels([
+    panel("panel-a", "About probe A", 10),
+    panel("panel-b", "About probe B", 15),
+    panel("panel-shared", "About both", 20),
+  ])
+  .setViews(
+    [
+      { id: "a", label: "Probe A", objects: ["probe-a"], events: ["event-a"], panels: ["panel-a"], camera: "stay" },
+      {
+        id: "b",
+        label: "Probe B",
+        objects: ["probe-b"],
+        events: ["event-b"],
+        panels: ["panel-b"],
+        camera: { follow: "probe-b" },
+      },
+      {
+        id: "both",
+        label: "Both",
+        objects: ["probe-a", "probe-b"],
+        events: ["event-a", "event-b"],
+        panels: ["panel-a", "panel-b"],
+        camera: { focus: "probe-a" },
+      },
+    ],
+    { place: "top-bar" },
+  )
+  .setTimeline({
+    start: VIEWS_START_UTC_MS,
+    end: VIEWS_START_UTC_MS + SPAN_H * HOUR_MS,
+    rates: [60, 600, 3600],
+    rate: 600,
+    pacing: [{ near: { type: "flyby", withinSeconds: 1800 }, rate: 60 }],
+  })
   .setScale(trueScale, { only: true })
   .setTime(VIEWS_START_UTC_MS);
 scene.camera.follow("probe-a", { distance: 14 });

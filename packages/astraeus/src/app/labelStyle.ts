@@ -2,7 +2,10 @@
 // a label that has its own (a sky figure) sets the same variables on itself, so there is one route and no per-label code path (STYLE-07).
 import type { CSSProperties } from "react";
 
-export interface LabelStyle { readonly fontFamily: string; readonly sizePx: number }
+export interface LabelStyle {
+  readonly fontFamily: string;
+  readonly sizePx: number;
+}
 
 /** Today's label look: the page's own font (`inherit`) at 12 px. */
 export const DEFAULT_LABEL_STYLE: Readonly<LabelStyle> = Object.freeze({ fontFamily: "inherit", sizePx: 12 });
@@ -18,5 +21,8 @@ export function labelStyleOf(look: { readonly labels?: Partial<LabelStyle> }): L
 export function labelStyleVars(style: { readonly fontFamily?: string; readonly sizePx?: number } = {}): CSSProperties {
   const font = style.fontFamily !== undefined && style.fontFamily !== DEFAULT_LABEL_STYLE.fontFamily;
   const size = style.sizePx !== undefined && style.sizePx !== DEFAULT_LABEL_STYLE.sizePx;
-  return { ...(font ? { "--label-font": style.fontFamily } : {}), ...(size ? { "--label-size": `${style.sizePx}px` } : {}) } as CSSProperties;
+  return {
+    ...(font ? { "--label-font": style.fontFamily } : {}),
+    ...(size ? { "--label-size": `${style.sizePx}px` } : {}),
+  } as CSSProperties;
 }

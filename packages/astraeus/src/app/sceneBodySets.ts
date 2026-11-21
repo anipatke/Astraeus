@@ -13,7 +13,15 @@ const SAMPLE_SIZE = 6;
 const PUBLISH_EVERY_FRAMES = 10;
 const frames = new WeakMap<HTMLCanvasElement, number>();
 
-export function publishBodySets(canvas: HTMLCanvasElement, views: readonly BodySetView[], orbits: readonly OrbitSetView[], look: BodySetLook, camera: Camera, widthPx: number, heightPx: number): void {
+export function publishBodySets(
+  canvas: HTMLCanvasElement,
+  views: readonly BodySetView[],
+  orbits: readonly OrbitSetView[],
+  look: BodySetLook,
+  camera: Camera,
+  widthPx: number,
+  heightPx: number,
+): void {
   if (views.length === 0) return;
   const frame = (frames.get(canvas) ?? 0) + 1;
   frames.set(canvas, frame);
@@ -28,8 +36,17 @@ export function publishBodySets(canvas: HTMLCanvasElement, views: readonly BodyS
       if (!screen.visible) return;
       const id = view.layer.members[index].id;
       if (widest === null || screen.radiusPx > widest.radiusPx) widest = { id, radiusPx: screen.radiusPx };
-      const crowded = view.screen.some((other, j) => j !== index && other.visible && Math.hypot(other.x - screen.x, other.y - screen.y) < SAMPLE_SEPARATION_PX);
-      if (!crowded && sample.length < SAMPLE_SIZE) sample.push({ id, x: Math.round(screen.x), y: Math.round(screen.y), radiusPx: Number(screen.radiusPx.toFixed(3)) });
+      const crowded = view.screen.some(
+        (other, j) =>
+          j !== index && other.visible && Math.hypot(other.x - screen.x, other.y - screen.y) < SAMPLE_SEPARATION_PX,
+      );
+      if (!crowded && sample.length < SAMPLE_SIZE)
+        sample.push({
+          id,
+          x: Math.round(screen.x),
+          y: Math.round(screen.y),
+          radiusPx: Number(screen.radiusPx.toFixed(3)),
+        });
     });
   }
   data.bodySetSample = JSON.stringify(sample);
@@ -37,10 +54,13 @@ export function publishBodySets(canvas: HTMLCanvasElement, views: readonly BodyS
   data.bodySetDotPx = String(look.dotPx);
   data.bodySetOrbits = String(orbits.reduce((sum, view) => sum + (look.orbitsOn ? view.count : 0), 0));
   const colours: Record<string, string> = {};
-  for (const view of views) for (const family of view.layer.families) colours[family.id] = familyColorOf(view.layer, look, family.id);
+  for (const view of views)
+    for (const family of view.layer.families) colours[family.id] = familyColorOf(view.layer, look, family.id);
   data.bodySetHighlight = look.highlightFamily ?? "";
   data.bodySetLit = String(views.reduce((sum, view) => sum + view.litCount(look), 0));
   data.bodySetFamilyColors = JSON.stringify(colours);
   // Each in-view body's on-screen distance from its own orbit line (the nearest dozen to the camera).
-  data.bodySetOrbitGaps = JSON.stringify(look.orbitsOn ? orbits.flatMap((view) => view.gapReadout(camera, widthPx, heightPx)) : []);
+  data.bodySetOrbitGaps = JSON.stringify(
+    look.orbitsOn ? orbits.flatMap((view) => view.gapReadout(camera, widthPx, heightPx)) : [],
+  );
 }

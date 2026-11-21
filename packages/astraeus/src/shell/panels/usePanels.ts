@@ -27,15 +27,28 @@ export interface Panels {
  * `scope` "standalone" is for a part drawn with no shell around it (a test): it hears the whole page. "off" attaches no listeners (the shell's own rule is in force).
  * `viewer` is any element inside this viewer: a key or press elsewhere on the page that is not in this viewer is not this viewer's.
  */
-export function usePanels(layout: Layout, viewer: RefObject<Element | null>, onEscapeClosed: (occupant: Occupant) => void, scope: "viewer" | "standalone" | "off" = "viewer"): Panels {
-  const [state, dispatch] = useReducer((now: PanelState, action: Parameters<typeof reducePanels>[1]) => reducePanels(now, action, layout), NO_PANELS);
+export function usePanels(
+  layout: Layout,
+  viewer: RefObject<Element | null>,
+  onEscapeClosed: (occupant: Occupant) => void,
+  scope: "viewer" | "standalone" | "off" = "viewer",
+): Panels {
+  const [state, dispatch] = useReducer(
+    (now: PanelState, action: Parameters<typeof reducePanels>[1]) => reducePanels(now, action, layout),
+    NO_PANELS,
+  );
   const latest = useRef({ state, onEscapeClosed, layout });
   latest.current = { state, onEscapeClosed, layout };
 
   useEffect(() => {
     if (scope === "off") return undefined;
     const onKey = (event: KeyboardEvent) => {
-      if (event.defaultPrevented || event.key !== "Escape" || (scope === "viewer" && !keyIsForViewer(event, viewer.current))) return;
+      if (
+        event.defaultPrevented ||
+        event.key !== "Escape" ||
+        (scope === "viewer" && !keyIsForViewer(event, viewer.current))
+      )
+        return;
       const top = topmost(latest.current.state);
       if (top === null) return;
       dispatch({ type: "escape" });
@@ -46,25 +59,53 @@ export function usePanels(layout: Layout, viewer: RefObject<Element | null>, onE
       const open = now.popup ?? (shown === "wide" && now.menu ? MENU_HOST : null);
       if (open === null) return;
       // A press inside the menu (a control nested in it has its own host) is not outside it.
-      const host = event.target instanceof Element ? event.target.closest(open === MENU_HOST ? `[${POPUP_HOST_ATTRIBUTE}="${MENU_HOST}"]` : `[${POPUP_HOST_ATTRIBUTE}]`) : null;
-      const mine = host !== null && (scope === "standalone" || (viewer.current?.closest(`.${VIEWER_ROOT_CLASS}`)?.contains(host) ?? false));
+      const host =
+        event.target instanceof Element
+          ? event.target.closest(
+              open === MENU_HOST ? `[${POPUP_HOST_ATTRIBUTE}="${MENU_HOST}"]` : `[${POPUP_HOST_ATTRIBUTE}]`,
+            )
+          : null;
+      const mine =
+        host !== null &&
+        (scope === "standalone" || (viewer.current?.closest(`.${VIEWER_ROOT_CLASS}`)?.contains(host) ?? false));
       if (mine && host.getAttribute(POPUP_HOST_ATTRIBUTE) === open) return;
       dispatch({ type: "outsidePress" });
     };
     document.addEventListener("keydown", onKey);
     document.addEventListener("pointerdown", onPress);
-    return () => { document.removeEventListener("keydown", onKey); document.removeEventListener("pointerdown", onPress); };
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      document.removeEventListener("pointerdown", onPress);
+    };
   }, [viewer, scope]);
 
   const open = useCallback((occupant: Occupant) => dispatch({ type: "open", occupant }), []);
   const close = useCallback((occupant: Occupant) => dispatch({ type: "close", occupant }), []);
   const openPopup = useCallback((id: string) => dispatch({ type: "openPopup", id }), []);
-  const closePopup = useCallback((id?: string) => dispatch(id === undefined ? { type: "closePopup" } : { type: "closePopup", id }), []);
+  const closePopup = useCallback(
+    (id?: string) => dispatch(id === undefined ? { type: "closePopup" } : { type: "closePopup", id }),
+    [],
+  );
   const chooseInDrawer = useCallback((drawer: "menu" | "timeline") => dispatch({ type: "chooseInDrawer", drawer }), []);
-  const viewSwitch = useCallback((dropsCard: boolean, dropsStory: boolean, dropsShelf = false, dropsTile = false) => dispatch({ type: "viewSwitch", dropsCard, dropsStory, dropsShelf, dropsTile }), []);
-  const toggle = useCallback((occupant: Occupant) => dispatch(latestOpen(latest.current.state, occupant) ? { type: "close", occupant } : { type: "open", occupant }), []);
-  const set = useCallback((occupant: Occupant, wanted: boolean) => dispatch({ type: wanted ? "open" : "close", occupant }), []);
-  const togglePopup = useCallback((id: string) => dispatch(latest.current.state.popup === id ? { type: "closePopup", id } : { type: "openPopup", id }), []);
+  const viewSwitch = useCallback(
+    (dropsCard: boolean, dropsStory: boolean, dropsShelf = false, dropsTile = false) =>
+      dispatch({ type: "viewSwitch", dropsCard, dropsStory, dropsShelf, dropsTile }),
+    [],
+  );
+  const toggle = useCallback(
+    (occupant: Occupant) =>
+      dispatch(latestOpen(latest.current.state, occupant) ? { type: "close", occupant } : { type: "open", occupant }),
+    [],
+  );
+  const set = useCallback(
+    (occupant: Occupant, wanted: boolean) => dispatch({ type: wanted ? "open" : "close", occupant }),
+    [],
+  );
+  const togglePopup = useCallback(
+    (id: string) =>
+      dispatch(latest.current.state.popup === id ? { type: "closePopup", id } : { type: "openPopup", id }),
+    [],
+  );
   return { state, open, close, toggle, set, openPopup, closePopup, togglePopup, chooseInDrawer, viewSwitch };
 }
 
@@ -73,9 +114,11 @@ function latestOpen(state: PanelState, occupant: Occupant): boolean {
     case "story":
     case "developer":
     case "menu":
-    case "timeline": return state[occupant];
+    case "timeline":
+      return state[occupant];
     // The left place's occupants (About, the card, moons, a shelf panel).
-    default: return state.left === occupant;
+    default:
+      return state.left === occupant;
   }
 }
 
@@ -83,7 +126,12 @@ function latestOpen(state: PanelState, occupant: Occupant): boolean {
  * Mirrors the two occupants whose own state lives elsewhere into the rule: the story panel (its timing is useStoryPanels') and the developer panel (its mode is the host's).
  * When the rule closes the developer panel (a phone detail sheet opened over it), the host's mode follows.
  */
-export function useMirroredPanels(panels: Panels, storyOpen: boolean, developerMode: boolean, onDeveloperModeChange: (enabled: boolean) => void): void {
+export function useMirroredPanels(
+  panels: Panels,
+  storyOpen: boolean,
+  developerMode: boolean,
+  onDeveloperModeChange: (enabled: boolean) => void,
+): void {
   const { set } = panels;
   useEffect(() => set("story", storyOpen), [set, storyOpen]);
   useEffect(() => set("developer", developerMode), [set, developerMode]);

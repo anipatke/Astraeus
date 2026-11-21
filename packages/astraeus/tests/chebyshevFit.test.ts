@@ -85,7 +85,11 @@ describe("least-squares fitting (tools/import/chebyshevFit.ts)", () => {
     for (let i = 0; i <= 10; i += 1) {
       const t = start + (i * length) / 10;
       const u = (t - start) / DAY;
-      samples.push({ tdbS: t, positionKm: [u ** 3, 2 - u, 5 * u * u], velocityKmS: [(3 * u * u) / DAY, -1 / DAY, (10 * u) / DAY] });
+      samples.push({
+        tdbS: t,
+        positionKm: [u ** 3, 2 - u, 5 * u * u],
+        velocityKmS: [(3 * u * u) / DAY, -1 / DAY, (10 * u) / DAY],
+      });
     }
     const block = fitSegment(samples, start, length, 5);
     for (const u of [0.137, 0.5, 1.21, 1.9]) {
@@ -104,18 +108,39 @@ describe("synthetic round trip: fit, quantise, encode, decode, evaluate", () => 
   const segments = 6;
   const samples = samplesOn(startS, startS + segments * lengthS, 3_600);
   const blocks = Array.from({ length: segments }, (_, k) =>
-    fitSegment(samples.filter((s) => s.tdbS >= startS + k * lengthS - 1e-6 && s.tdbS <= startS + (k + 1) * lengthS + 1e-6), startS + k * lengthS, lengthS, degree));
+    fitSegment(
+      samples.filter((s) => s.tdbS >= startS + k * lengthS - 1e-6 && s.tdbS <= startS + (k + 1) * lengthS + 1e-6),
+      startS + k * lengthS,
+      lengthS,
+      degree,
+    ),
+  );
   const n = degree + 1;
   const quantumKm = 1e-5;
   const coefficients = new Float64Array(segments * 3 * n);
   blocks.forEach((block, k) => coefficients.set(quantize(block, quantumKm), k * 3 * n));
-  const bytes = encodeChunk({ startTdbS: startS, segmentCount: segments, coefficientCount: n, quantumKm, coefficients });
-  const expectation = { startTdbS: startS, segmentSeconds: lengthS, segmentCount: segments, coefficientCount: n, quantumKm };
+  const bytes = encodeChunk({
+    startTdbS: startS,
+    segmentCount: segments,
+    coefficientCount: n,
+    quantumKm,
+    coefficients,
+  });
+  const expectation = {
+    startTdbS: startS,
+    segmentSeconds: lengthS,
+    segmentCount: segments,
+    coefficientCount: n,
+    quantumKm,
+  };
   const chunk = decodeChunk(bytes, expectation);
 
   it("decodes exactly the quantised coefficients it encoded", () => {
     const mismatch = [...chunk.coefficients].findIndex((value, index) => value !== coefficients[index]);
-    expect(mismatch, `first mismatch at ${mismatch}: ${chunk.coefficients[mismatch]} vs ${coefficients[mismatch]}`).toBe(-1);
+    expect(
+      mismatch,
+      `first mismatch at ${mismatch}: ${chunk.coefficients[mismatch]} vs ${coefficients[mismatch]}`,
+    ).toBe(-1);
     expect(bytes.byteLength).toBeLessThan(20 + coefficients.length * 8);
   });
 
@@ -173,7 +198,23 @@ describe("synthetic round trip: fit, quantise, encode, decode, evaluate", () => 
   });
 
   it("refuses to encode the wrong number of coefficients or one too large to hold exactly", () => {
-    expect(() => encodeChunk({ startTdbS: 0, segmentCount: 1, coefficientCount: 2, quantumKm: 1, coefficients: new Float64Array(5) })).toThrow(/needs 6/);
-    expect(() => encodeChunk({ startTdbS: 0, segmentCount: 1, coefficientCount: 1, quantumKm: 1e-20, coefficients: new Float64Array([1, 1, 1]) })).toThrow(/too large/);
+    expect(() =>
+      encodeChunk({
+        startTdbS: 0,
+        segmentCount: 1,
+        coefficientCount: 2,
+        quantumKm: 1,
+        coefficients: new Float64Array(5),
+      }),
+    ).toThrow(/needs 6/);
+    expect(() =>
+      encodeChunk({
+        startTdbS: 0,
+        segmentCount: 1,
+        coefficientCount: 1,
+        quantumKm: 1e-20,
+        coefficients: new Float64Array([1, 1, 1]),
+      }),
+    ).toThrow(/too large/);
   });
 });

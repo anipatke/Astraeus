@@ -19,6 +19,9 @@ export function danglingLinks(directory) {
 
 if (process.argv[1]?.endsWith("public-addresses.mjs")) {
   const problems = danglingLinks(process.argv[2] ?? "dist");
-  if (problems.length > 0) { console.error(`dangling links:\n${problems.join("\n")}`); process.exit(1); }
+  if (problems.length > 0) {
+    console.error(`dangling links:\n${problems.join("\n")}`);
+    process.exit(1);
+  }
   console.log(`ok: ${DEMO_ADDRESSES.join(", ")} listed; no built page links a retired address`);
 }

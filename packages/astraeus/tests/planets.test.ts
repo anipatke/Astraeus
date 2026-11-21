@@ -15,11 +15,14 @@ const AU_KM = 149_597_870.7;
 
 /** Largest sampled difference from Horizons: separation in arcseconds, range difference in km, vector distance in km. */
 function residuals(planet: (typeof PLANETS)[number]): { arcsec: number; rangeKm: number; distanceKm: number } {
-  let arcsec = 0, rangeKm = 0, distanceKm = 0;
+  let arcsec = 0,
+    rangeKm = 0,
+    distanceKm = 0;
   for (const sample of positionFixture.bodies[planet].samples) {
     const p = adapter.planetPositionFromSunKm(planet, sample.utcMs);
     const h = sample.positionKm;
-    const mp = Math.hypot(p[0], p[1], p[2]), mh = Math.hypot(h[0], h[1], h[2]);
+    const mp = Math.hypot(p[0], p[1], p[2]),
+      mh = Math.hypot(h[0], h[1], h[2]);
     const cosine = (p[0] * h[0] + p[1] * h[1] + p[2] * h[2]) / (mp * mh);
     arcsec = Math.max(arcsec, Math.acos(Math.min(1, cosine)) * (180 / Math.PI) * 3600);
     rangeKm = Math.max(rangeKm, Math.abs(mp - mh));
@@ -52,10 +55,14 @@ describe("planet positions against JPL Horizons (DE441, six dates 1969 to 2030)"
   it("returns EQJ kilometres about the Sun at plausible distances and refuses a planet it has no model for", () => {
     const t = Date.UTC(2026, 3, 1);
     const ranges = PLANETS.map((planet) => Math.hypot(...adapter.planetPositionFromSunKm(planet, t)) / AU_KM);
-    expect(ranges[0]).toBeGreaterThan(0.3); expect(ranges[0]).toBeLessThan(0.48);
-    expect(ranges[1]).toBeGreaterThan(0.71); expect(ranges[1]).toBeLessThan(0.73);
-    expect(ranges[2]).toBeGreaterThan(1.38); expect(ranges[2]).toBeLessThan(1.67);
-    expect(ranges[3]).toBeGreaterThan(4.9); expect(ranges[3]).toBeLessThan(5.5);
+    expect(ranges[0]).toBeGreaterThan(0.3);
+    expect(ranges[0]).toBeLessThan(0.48);
+    expect(ranges[1]).toBeGreaterThan(0.71);
+    expect(ranges[1]).toBeLessThan(0.73);
+    expect(ranges[2]).toBeGreaterThan(1.38);
+    expect(ranges[2]).toBeLessThan(1.67);
+    expect(ranges[3]).toBeGreaterThan(4.9);
+    expect(ranges[3]).toBeLessThan(5.5);
     expect(() => adapter.planetPositionFromSunKm("earth" as never, t)).toThrow(/no model/);
     expect(() => adapter.planetPositionFromSunKm("toString" as never, t)).toThrow(/no model/);
     expect(() => adapter.planetPositionFromSunKm("mars", 1.5)).toThrow(/integer/);
@@ -75,7 +82,34 @@ describe("planets in the catalogue", () => {
       expect(definition.accuracy.validUtc.startUtcMs).toBe(Date.UTC(1969, 6, 21));
       expect(definition.accuracy.validUtc.endUtcMs).toBe(Date.UTC(2030, 5, 1));
     }
-    expect(BUILT_IN_BODIES.map((definition) => definition.id)).toEqual(["sun", "earth", "moon", "mercury", "venus", "mars", "jupiter", "io", "europa", "ganymede", "callisto", "saturn", "uranus", "neptune", "pluto", "phobos", "deimos", "mimas", "enceladus", "tethys", "dione", "rhea", "titan", "iapetus", "triton", "charon"]);
+    expect(BUILT_IN_BODIES.map((definition) => definition.id)).toEqual([
+      "sun",
+      "earth",
+      "moon",
+      "mercury",
+      "venus",
+      "mars",
+      "jupiter",
+      "io",
+      "europa",
+      "ganymede",
+      "callisto",
+      "saturn",
+      "uranus",
+      "neptune",
+      "pluto",
+      "phobos",
+      "deimos",
+      "mimas",
+      "enceladus",
+      "tethys",
+      "dione",
+      "rhea",
+      "titan",
+      "iapetus",
+      "triton",
+      "charon",
+    ]);
   });
 
   it("carry the NASA fact-sheet dimensions, with both radii where flattening is visible", () => {
@@ -105,7 +139,10 @@ describe("planet visuals", () => {
     for (const id of ["mercury", "mars"]) {
       const texture = catalogue.get(id).visual.texture!;
       expect(texture.localOnly).toBeUndefined();
-      expect(texture.licence).toMatchObject({ licence: "CC BY 4.0", url: "https://www.solarsystemscope.com/textures/" });
+      expect(texture.licence).toMatchObject({
+        licence: "CC BY 4.0",
+        url: "https://www.solarsystemscope.com/textures/",
+      });
       expect(texture.licence?.attribution).toMatch(/Solar System Scope/);
       expect([texture.widthPx, texture.heightPx]).toEqual([2048, 1024]);
       expect(textureFiles).toContain(`../src/assets/textures/${id}-2k.jpg`);

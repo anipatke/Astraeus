@@ -4,7 +4,11 @@ import { constellations } from "../src/index.js";
 
 // O-067 T-305: the helper hands back public sky figures that a real scene accepts.
 const reason = async (run: () => Promise<unknown>): Promise<string> => {
-  try { await run(); } catch (error) { return (error as Error).message; }
+  try {
+    await run();
+  } catch (error) {
+    return (error as Error).message;
+  }
   return "";
 };
 
@@ -30,18 +34,32 @@ describe("constellations()", () => {
   it("adds boundary outlines only when asked, Serpens as two, ids predictable, prefix applied", async () => {
     expect(await constellations(["Ori", "Ser"])).toHaveLength(2);
     const withOutlines = await constellations(["Ori", "Ser"], { outlines: true, idPrefix: "c-" });
-    expect(withOutlines.map((f) => f.id)).toEqual(["c-Ori", "c-Ori-boundary", "c-Ser", "c-Ser-boundary-1", "c-Ser-boundary-2"]);
+    expect(withOutlines.map((f) => f.id)).toEqual([
+      "c-Ori",
+      "c-Ori-boundary",
+      "c-Ser",
+      "c-Ser-boundary-1",
+      "c-Ser-boundary-2",
+    ]);
     const [, ori, , caput, cauda] = withOutlines;
     expect(ori).toMatchObject({ kind: "boundary", label: "Orion" });
     expect(ori?.points?.length).toBeGreaterThan(3);
     expect(ori?.segments).toBeUndefined();
     expect([caput?.label, cauda?.label]).toEqual(["Serpens Caput", "Serpens Cauda"]);
-    expect((await constellations("all", { outlines: true }))).toHaveLength(89 + 88);
+    expect(await constellations("all", { outlines: true })).toHaveLength(89 + 88);
   });
 
   it("passes shown, colours and listed to every figure and outline, and leaves them out otherwise", async () => {
-    const set = await constellations(["Ori"], { outlines: true, shown: "whenTraced", color: "red", labelColor: "white", listed: false });
-    expect(set.every((f) => f.shown === "whenTraced" && f.color === "red" && f.labelColor === "white" && f.listed === false)).toBe(true);
+    const set = await constellations(["Ori"], {
+      outlines: true,
+      shown: "whenTraced",
+      color: "red",
+      labelColor: "white",
+      listed: false,
+    });
+    expect(
+      set.every((f) => f.shown === "whenTraced" && f.color === "red" && f.labelColor === "white" && f.listed === false),
+    ).toBe(true);
     const plain = (await constellations(["Ori"]))[0] as unknown as Record<string, unknown>;
     for (const key of ["shown", "color", "labelColor", "listed"]) expect(key in plain).toBe(false);
   });

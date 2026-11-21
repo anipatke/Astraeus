@@ -10,11 +10,20 @@ const here = dirname(fileURLToPath(import.meta.url));
 export const PUBLIC_ENTRY = resolve(here, "..", "..", "..", "astraeus", "src", "api", "index.ts");
 
 const OPTIONS = {
-  target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.ESNext, moduleResolution: ts.ModuleResolutionKind.Bundler, jsx: ts.JsxEmit.ReactJSX,
-  strict: true, skipLibCheck: true, noEmit: true, resolveJsonModule: true, lib: ["lib.es2022.d.ts", "lib.dom.d.ts", "lib.dom.iterable.d.ts"], types: [],
+  target: ts.ScriptTarget.ES2022,
+  module: ts.ModuleKind.ESNext,
+  moduleResolution: ts.ModuleResolutionKind.Bundler,
+  jsx: ts.JsxEmit.ReactJSX,
+  strict: true,
+  skipLibCheck: true,
+  noEmit: true,
+  resolveJsonModule: true,
+  lib: ["lib.es2022.d.ts", "lib.dom.d.ts", "lib.dom.iterable.d.ts"],
+  types: [],
 };
 const FORMAT = ts.TypeFormatFlags.NoTruncation | ts.TypeFormatFlags.UseAliasDefinedOutsideCurrentScope;
-const isOwn = (declaration) => !/node_modules|[\\/]typescript6?[\\/]lib[\\/]/.test(declaration.getSourceFile().fileName);
+const isOwn = (declaration) =>
+  !/node_modules|[\\/]typescript6?[\\/]lib[\\/]/.test(declaration.getSourceFile().fileName);
 
 const text = (parts) => ts.displayPartsToString(parts).trim();
 const privateName = (name) => name.startsWith("#") || name.startsWith("__#");
@@ -23,19 +32,33 @@ const privateName = (name) => name.startsWith("#") || name.startsWith("__#");
 const layoutFree = (text) => text.replace(/\s+/g, " ").replace(/[;,]\s*}/g, " }");
 
 function describeMembers(checker, type, at) {
-  return type.getProperties().filter((property) => !privateName(property.name) && (property.declarations ?? []).some(isOwn) && !(ts.getCombinedModifierFlags(property.declarations[0]) & (ts.ModifierFlags.Private | ts.ModifierFlags.Protected))).map((property) => {
-    const declaration = property.declarations[0];
-    const propertyType = checker.getTypeOfSymbolAtLocation(property, declaration);
-    const calls = propertyType.getCallSignatures();
-    const isMethod = property.flags & ts.SymbolFlags.Method;
-    return {
-      name: property.name,
-      optional: (property.flags & ts.SymbolFlags.Optional) !== 0,
-      signature: isMethod && calls.length > 0 ? calls.map((signature) => checker.signatureToString(signature, at, FORMAT)).join("\n") : checker.typeToString(propertyType, at, FORMAT),
-      method: Boolean(isMethod),
-      doc: text(property.getDocumentationComment(checker)),
-    };
-  });
+  return type
+    .getProperties()
+    .filter(
+      (property) =>
+        !privateName(property.name) &&
+        (property.declarations ?? []).some(isOwn) &&
+        !(
+          ts.getCombinedModifierFlags(property.declarations[0]) &
+          (ts.ModifierFlags.Private | ts.ModifierFlags.Protected)
+        ),
+    )
+    .map((property) => {
+      const declaration = property.declarations[0];
+      const propertyType = checker.getTypeOfSymbolAtLocation(property, declaration);
+      const calls = propertyType.getCallSignatures();
+      const isMethod = property.flags & ts.SymbolFlags.Method;
+      return {
+        name: property.name,
+        optional: (property.flags & ts.SymbolFlags.Optional) !== 0,
+        signature:
+          isMethod && calls.length > 0
+            ? calls.map((signature) => checker.signatureToString(signature, at, FORMAT)).join("\n")
+            : checker.typeToString(propertyType, at, FORMAT),
+        method: Boolean(isMethod),
+        doc: text(property.getDocumentationComment(checker)),
+      };
+    });
 }
 
 function kindOf(target, declaration) {
@@ -61,16 +84,52 @@ export function collectExports(entry = PUBLIC_ENTRY) {
     const declaration = target.declarations?.[0];
     const kind = kindOf(target, declaration);
     const entryNode = declaration ?? source;
-    const out = { name: exported.name, kind, doc: text(target.getDocumentationComment(checker)), examples: target.getJsDocTags(checker).filter((tag) => tag.name === "example").map((tag) => text(tag.text ?? [])), shelf: target.getJsDocTags(checker).some((tag) => tag.name === "shelf"), module: declaration === undefined ? "" : relative(dirname(dirname(entry)), declaration.getSourceFile().fileName).split(sep).join("/"), signature: "", members: [], constructors: [], body: false };
+    const out = {
+      name: exported.name,
+      kind,
+      doc: text(target.getDocumentationComment(checker)),
+      examples: target
+        .getJsDocTags(checker)
+        .filter((tag) => tag.name === "example")
+        .map((tag) => text(tag.text ?? [])),
+      shelf: target.getJsDocTags(checker).some((tag) => tag.name === "shelf"),
+      module:
+        declaration === undefined
+          ? ""
+          : relative(dirname(dirname(entry)), declaration.getSourceFile().fileName)
+              .split(sep)
+              .join("/"),
+      signature: "",
+      members: [],
+      constructors: [],
+      body: false,
+    };
     if (kind === "class" || kind === "interface") {
       const declared = checker.getDeclaredTypeOfSymbol(target);
       out.members = describeMembers(checker, declared, entryNode);
-      if (kind === "class") out.constructors = checker.getTypeOfSymbolAtLocation(target, entryNode).getConstructSignatures().map((signature) => checker.signatureToString(signature, entryNode, FORMAT).replace(/:\s*\w+$/, ""));
-      if (kind === "interface") out.signature = declared.getBaseTypes()?.map((base) => checker.typeToString(base)).join(", ") ?? "";
+      if (kind === "class")
+        out.constructors = checker
+          .getTypeOfSymbolAtLocation(target, entryNode)
+          .getConstructSignatures()
+          .map((signature) => checker.signatureToString(signature, entryNode, FORMAT).replace(/:\s*\w+$/, ""));
+      if (kind === "interface")
+        out.signature =
+          declared
+            .getBaseTypes()
+            ?.map((base) => checker.typeToString(base))
+            .join(", ") ?? "";
     } else if (kind === "type") {
-      out.signature = ts.isTypeAliasDeclaration(declaration) ? layoutFree(declaration.type.getText()).replace(/^\| /, "") : "";
+      out.signature = ts.isTypeAliasDeclaration(declaration)
+        ? layoutFree(declaration.type.getText()).replace(/^\| /, "")
+        : "";
     } else if (kind === "function") {
-      out.signature = layoutFree(checker.getTypeOfSymbolAtLocation(target, entryNode).getCallSignatures().map((signature) => `${exported.name}${checker.signatureToString(signature, entryNode, FORMAT)}`).join("\n"));
+      out.signature = layoutFree(
+        checker
+          .getTypeOfSymbolAtLocation(target, entryNode)
+          .getCallSignatures()
+          .map((signature) => `${exported.name}${checker.signatureToString(signature, entryNode, FORMAT)}`)
+          .join("\n"),
+      );
     } else {
       out.signature = checker.typeToString(checker.getTypeOfSymbolAtLocation(target, entryNode), entryNode, FORMAT);
       out.body = out.signature === "BodyRef";
@@ -80,9 +139,13 @@ export function collectExports(entry = PUBLIC_ENTRY) {
 }
 
 /** The names of the exports of `entry` that have no doc comment. */
-export const undocumentedExports = (entry = PUBLIC_ENTRY) => collectExports(entry).filter((item) => item.doc === "").map((item) => item.name);
+export const undocumentedExports = (entry = PUBLIC_ENTRY) =>
+  collectExports(entry)
+    .filter((item) => item.doc === "")
+    .map((item) => item.name);
 
-const escape = (value) => value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+const escape = (value) =>
+  value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 /** Doc text with `code` spans turned into <code>. */
 const prose = (value) => escape(value).replace(/`([^`]+)`/g, "<code>$1</code>");
 const slug = (name) => name.toLowerCase();
@@ -90,7 +153,12 @@ const code = (value) => `<pre><code>${escape(value)}</code></pre>`;
 
 function renderMembers(members) {
   if (members.length === 0) return "";
-  const rows = members.map((member) => `<tr><td><code>${escape(member.name)}${member.optional ? "?" : ""}</code></td><td><code>${escape(member.signature)}</code></td><td>${prose(member.doc)}</td></tr>`).join("");
+  const rows = members
+    .map(
+      (member) =>
+        `<tr><td><code>${escape(member.name)}${member.optional ? "?" : ""}</code></td><td><code>${escape(member.signature)}</code></td><td>${prose(member.doc)}</td></tr>`,
+    )
+    .join("");
   return `<div class="scroll"><table><thead><tr><th>Name</th><th>Type</th><th>What it does</th></tr></thead><tbody>${rows}</tbody></table></div>`;
 }
 
@@ -99,19 +167,36 @@ function renderMembers(members) {
  * repeated all of `ViewerHandle`). A member counts as the base's when its name, type and text are the same there; one the interface restates differently stays.
  */
 function ownMembers(item, byName) {
-  const bases = item.kind === "interface" && item.signature !== "" ? item.signature.split(", ").map((name) => byName.get(name)).filter((base) => base !== undefined && base !== item) : [];
+  const bases =
+    item.kind === "interface" && item.signature !== ""
+      ? item.signature
+          .split(", ")
+          .map((name) => byName.get(name))
+          .filter((base) => base !== undefined && base !== item)
+      : [];
   if (bases.length === 0) return { bases, members: item.members };
-  const same = (a, b) => a.name === b.name && a.optional === b.optional && a.signature === b.signature && a.doc === b.doc;
-  return { bases, members: item.members.filter((member) => !bases.some((base) => base.members.some((inherited) => same(inherited, member)))) };
+  const same = (a, b) =>
+    a.name === b.name && a.optional === b.optional && a.signature === b.signature && a.doc === b.doc;
+  return {
+    bases,
+    members: item.members.filter(
+      (member) => !bases.some((base) => base.members.some((inherited) => same(inherited, member))),
+    ),
+  };
 }
 
 function renderItem(item, byName = new Map()) {
   const head = `<h3 id="${slug(item.name)}"><code>${escape(item.name)}</code> <small>${item.kind}</small></h3>`;
   const parts = [head, `<p>${prose(item.doc)}</p>`];
   const { bases, members } = ownMembers(item, byName);
-  if (bases.length > 0) parts.push(`<p>Has every member of ${bases.map((base) => `<a href="#${slug(base.name)}"><code>${escape(base.name)}</code></a>`).join(" and ")}${members.length > 0 ? ", and its own:" : "."}</p>`);
-  if (item.constructors.length > 0) parts.push(code(item.constructors.map((signature) => `new ${item.name}${signature}`).join("\n")));
-  if (item.kind === "function" || item.kind === "type") parts.push(code(item.kind === "type" ? `type ${item.name} = ${item.signature}` : item.signature));
+  if (bases.length > 0)
+    parts.push(
+      `<p>Has every member of ${bases.map((base) => `<a href="#${slug(base.name)}"><code>${escape(base.name)}</code></a>`).join(" and ")}${members.length > 0 ? ", and its own:" : "."}</p>`,
+    );
+  if (item.constructors.length > 0)
+    parts.push(code(item.constructors.map((signature) => `new ${item.name}${signature}`).join("\n")));
+  if (item.kind === "function" || item.kind === "type")
+    parts.push(code(item.kind === "type" ? `type ${item.name} = ${item.signature}` : item.signature));
   if (item.kind === "const") parts.push(code(`const ${item.name}: ${item.signature}`));
   parts.push(renderMembers(members));
   for (const example of item.examples) parts.push(`<p class="eg">Example</p>${code(example)}`);
@@ -119,12 +204,69 @@ function renderItem(item, byName = new Map()) {
 }
 
 const SECTIONS = [
-  ["Scene", "Build a scene", (item) => ["Scene", "SceneCamera", "AddBodyOptions", "ElementsBodyRecord", "SwitchesInput", "ViewsOptions", "ViewInput", "ViewCameraInput", "AnchorInput", "ReadoutInput", "TimeInput", "TrajectoryInput", "TrajectorySampleInput", "FollowView"].includes(item.name)],
-  ["Groups", "Groups of dots and activity", (item) => ["GroupInput", "GroupOrbitInput", "GroupClumpInput", "GroupReadoutInput", "ActivityInput", "ActivitySampleInput", "ActivitySourceInput"].includes(item.name)],
-  ["Story", "Story: events, panels and the timeline", (item) => ["EventInput", "AddEventsOptions", "StoryPanelInput", "StoryPanelAt", "StoryPanelPlaybackInput", "TimelineInput"].includes(item.name)],
-  ["Draw it", "Draw it", (item) => ["mount", "MountOptions", "MountedScene", "AstraeusScene", "AstraeusSceneProps"].includes(item.name)],
-  ["Data packages", "Data packages", (item) => ["DataSource", "MoonPositions", "Pictures", "TextureRef", "AssetLicence"].includes(item.name)],
-  ["Scale and state", "Scale and state", (item) => ["trueScale", "readableScale", "solarSystemScale", "ScalePolicy", "State"].includes(item.name)],
+  [
+    "Scene",
+    "Build a scene",
+    (item) =>
+      [
+        "Scene",
+        "SceneCamera",
+        "AddBodyOptions",
+        "ElementsBodyRecord",
+        "SwitchesInput",
+        "ViewsOptions",
+        "ViewInput",
+        "ViewCameraInput",
+        "AnchorInput",
+        "ReadoutInput",
+        "TimeInput",
+        "TrajectoryInput",
+        "TrajectorySampleInput",
+        "FollowView",
+      ].includes(item.name),
+  ],
+  [
+    "Groups",
+    "Groups of dots and activity",
+    (item) =>
+      [
+        "GroupInput",
+        "GroupOrbitInput",
+        "GroupClumpInput",
+        "GroupReadoutInput",
+        "ActivityInput",
+        "ActivitySampleInput",
+        "ActivitySourceInput",
+      ].includes(item.name),
+  ],
+  [
+    "Story",
+    "Story: events, panels and the timeline",
+    (item) =>
+      [
+        "EventInput",
+        "AddEventsOptions",
+        "StoryPanelInput",
+        "StoryPanelAt",
+        "StoryPanelPlaybackInput",
+        "TimelineInput",
+      ].includes(item.name),
+  ],
+  [
+    "Draw it",
+    "Draw it",
+    (item) => ["mount", "MountOptions", "MountedScene", "AstraeusScene", "AstraeusSceneProps"].includes(item.name),
+  ],
+  [
+    "Data packages",
+    "Data packages",
+    (item) => ["DataSource", "MoonPositions", "Pictures", "TextureRef", "AssetLicence"].includes(item.name),
+  ],
+  [
+    "Scale and state",
+    "Scale and state",
+    (item) => ["trueScale", "readableScale", "solarSystemScale", "ScalePolicy", "State"].includes(item.name),
+  ],
   ["Provenance", "Provenance", (item) => ["Provenance", "ProvenanceSourceType"].includes(item.name)],
   ["Errors", "Errors", (item) => ["SceneError", "SceneErrorCode"].includes(item.name)],
 ];
@@ -215,12 +357,24 @@ export function renderApiPage(items) {
   const others = rest.filter((item) => !taken.has(item.name));
   if (others.length > 0) sections.push({ id: "Other", title: "Other exports", items: others });
   const bodyList = `<section class="item"><h3 id="bodies">Ready-made bodies <small>${bodies.length} constants</small></h3><p>Each is a <code>BodyRef</code> for <code>scene.addBody</code>; a moon also names the data package it needs.</p><p class="names">${bodies.map((body) => `<code>${escape(body.name)}</code>`).join(" ")}</p>${renderMembers(items.find((item) => item.name === "BodyRef")?.members ?? [])}</section>`;
-  const nav = [...sections.map((section) => `<a href="#${slug(section.id)}">${escape(section.title)}</a>`), `<a href="#bodies">Bodies</a>`].join("");
-  const body = sections.map((section) => `<h2 id="${slug(section.id)}">${escape(section.title)}</h2>${section.items.map((item) => renderItem(item, byName)).join("")}`).join("");
-  const shelfList = shelf.size === 0 ? "" : `<h2 id="shelf">Shelf parts</h2><section class="item"><p>Ready-made story parts for <code>scene.addParts</code> and their controls from <code>handle.part</code>: ${shelf.size} names, on <a href="shelf.html">their own page</a>. See them run in the <a href="../components.html">parts catalogue</a>.</p><p class="names">${[...shelf].map((item) => `<a href="shelf.html#${slug(item.name)}"><code>${escape(item.name)}</code></a>`).join(" ")}</p></section>`;
+  const nav = [
+    ...sections.map((section) => `<a href="#${slug(section.id)}">${escape(section.title)}</a>`),
+    `<a href="#bodies">Bodies</a>`,
+  ].join("");
+  const body = sections
+    .map(
+      (section) =>
+        `<h2 id="${slug(section.id)}">${escape(section.title)}</h2>${section.items.map((item) => renderItem(item, byName)).join("")}`,
+    )
+    .join("");
+  const shelfList =
+    shelf.size === 0
+      ? ""
+      : `<h2 id="shelf">Shelf parts</h2><section class="item"><p>Ready-made story parts for <code>scene.addParts</code> and their controls from <code>handle.part</code>: ${shelf.size} names, on <a href="shelf.html">their own page</a>. See them run in the <a href="../components.html">parts catalogue</a>.</p><p class="names">${[...shelf].map((item) => `<a href="shelf.html#${slug(item.name)}"><code>${escape(item.name)}</code></a>`).join(" ")}</p></section>`;
   return referencePage({
     title: "Astraeus API reference",
-    description: "Every public call, option and the React component of the astraeus npm package, generated from its types and doc comments.",
+    description:
+      "Every public call, option and the React component of the astraeus npm package, generated from its types and doc comments.",
     canonical: "https://astraeus.anipatke.com/api/",
     home: "../",
     heading: "API reference",
@@ -240,13 +394,19 @@ export function renderShelfApiPage(items) {
   ];
   return referencePage({
     title: "Astraeus shelf parts API",
-    description: "The ready-made story parts of the astraeus npm package: factories, inputs, controls and events, generated from its types and doc comments.",
+    description:
+      "The ready-made story parts of the astraeus npm package: factories, inputs, controls and events, generated from its types and doc comments.",
     canonical: "https://astraeus.anipatke.com/api/shelf.html",
     home: "../",
     heading: "Shelf parts API",
     lead: `The story parts an app adds with <code>scene.addParts</code> and drives with <code>handle.part</code>: ${shelf.length} names, read from the package's types and doc comments when the site is built. <code>Scene</code>, <code>ViewerHandle</code> and the rest are on the <a href="./">API reference</a>; each part runs on the <a href="../components.html">parts catalogue</a>.`,
     nav: sections.map((section) => `<a href="#${section.id}">${escape(section.title)}</a>`).join(""),
-    body: sections.map((section) => `<h2 id="${section.id}">${escape(section.title)}</h2>${section.items.map((item) => renderItem(item, byName)).join("")}`).join(""),
+    body: sections
+      .map(
+        (section) =>
+          `<h2 id="${section.id}">${escape(section.title)}</h2>${section.items.map((item) => renderItem(item, byName)).join("")}`,
+      )
+      .join(""),
   });
 }
 

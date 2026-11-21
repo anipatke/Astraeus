@@ -2,8 +2,26 @@ import vercelText from "../../../vercel.json?raw";
 import { describe, expect, it } from "vitest";
 import { builtInReads } from "./helpers/builtInBodies";
 import { LOCAL_ONLY_TEXTURES, PLANETS_DEMO_ONLY_TEXTURES, publicBuildAliases } from "../vite.config";
-import { proveOnlyPublicPlanets, proveSyntheticCheck, SYNTHETIC_KEYS, proveStarAssetHandling, STAR_ASSET, findLocalOnlySources, proveItFails, proveLicenceHandling, SHIPPABLE_LICENCES as VALIDATOR_LICENCES } from "../tools/validate/public-build-assets.mjs";
-import { BUILD_LIMIT, NON_PUBLIC_PLANET_FILES, PAGES, PUBLIC_PLANETS, proveLoadBudgetFails, proveSameStemChunks, staticImportsOf } from "../tools/validate/load-budget.mjs";
+import {
+  proveOnlyPublicPlanets,
+  proveSyntheticCheck,
+  SYNTHETIC_KEYS,
+  proveStarAssetHandling,
+  STAR_ASSET,
+  findLocalOnlySources,
+  proveItFails,
+  proveLicenceHandling,
+  SHIPPABLE_LICENCES as VALIDATOR_LICENCES,
+} from "../tools/validate/public-build-assets.mjs";
+import {
+  BUILD_LIMIT,
+  NON_PUBLIC_PLANET_FILES,
+  PAGES,
+  PUBLIC_PLANETS,
+  proveLoadBudgetFails,
+  proveSameStemChunks,
+  staticImportsOf,
+} from "../tools/validate/load-budget.mjs";
 import { ENGINE_LIMIT, proveEngineDemoSplit } from "../tools/validate/engine-budget.mjs";
 import { SHIPPABLE_LICENCES as TOOL_LICENCES } from "astraeus-demo-showers/tools/data/fetch-meteoroid-orbits.mjs";
 import { SHIPPABLE_LICENCES } from "astraeus-demo-showers/experiences/showers/measuredOrbits";
@@ -12,11 +30,17 @@ const basename = (url: string) => url.slice(url.lastIndexOf("/") + 1).split("?")
 
 describe("public build texture exclusion (design C.3)", () => {
   // The textures the engine ships for the bodies it provides, read as a host reads them (`Scene.bodies`).
-  const localOnly = builtInReads.flatMap(({ texture }) => (texture?.localOnly === undefined ? [] : [basename(texture.url)]));
+  const localOnly = builtInReads.flatMap(({ texture }) =>
+    texture?.localOnly === undefined ? [] : [basename(texture.url)],
+  );
 
   it("aliases exactly the textures the records declare local-only", () => {
     expect([...LOCAL_ONLY_TEXTURES].sort()).toEqual([...localOnly].sort());
-    expect(findLocalOnlySources().map((source) => source.file).sort()).toEqual([...localOnly].sort());
+    expect(
+      findLocalOnlySources()
+        .map((source) => source.file)
+        .sort(),
+    ).toEqual([...localOnly].sort());
   });
 
   it("matches the import specifiers the body records use, whatever the folder depth, and nothing else", () => {
@@ -58,10 +82,13 @@ describe("shippable measured orbits (T-056)", () => {
   });
 
   it("checks every fetched file that declares no shippable licence (no licence, or a non-commercial one) and passes only a declared CC BY or CC0 file", () => {
-    expect(proveLicenceHandling()).toEqual(["data/local/other-nc.json", "data/local/unlicensed-orbits.json", "data/local/unlicensed-stars.json"]);
+    expect(proveLicenceHandling()).toEqual([
+      "data/local/other-nc.json",
+      "data/local/unlicensed-orbits.json",
+      "data/local/unlicensed-stars.json",
+    ]);
   });
 });
-
 
 describe("shipped HYG star asset (T-060)", () => {
   const proof = proveStarAssetHandling();
@@ -115,7 +142,9 @@ describe("first-load size budget (T-070)", () => {
     expect(proof.missing.ok).toBe(false);
     expect(proof.missing.pages[0].problems.join(" ")).toMatch(/picture\.jpg is not in the build/);
     expect(proof.unlistedImport.ok).toBe(false);
-    expect(proof.unlistedImport.pages[0].problems.join(" ")).toMatch(/imports assets\/extra-AbCdEf12\.js, which the page set does not list/);
+    expect(proof.unlistedImport.pages[0].problems.join(" ")).toMatch(
+      /imports assets\/extra-AbCdEf12\.js, which the page set does not list/,
+    );
     // I-136: a wholly-engine chunk a listed script imports counts as engine share without being listed; a mixed one still has to be listed.
     expect(proof.engineChunk.pages[0]).toMatchObject({ problems: [], files: 4 });
     expect(proof.mixedChunk.pages[0].problems.join(" ")).toMatch(/which the page set does not list/);
@@ -128,9 +157,13 @@ describe("first-load size budget (T-070)", () => {
     expect(proof.base).toMatchObject({ page: { ok: true }, engine: { ok: true } });
     expect(proof.engineGrown.page.ok).toBe(true); // the page's limit is its own share, so the engine's growth does not count
     expect(proof.engineGrown.engine.ok).toBe(false);
-    expect(proof.engineGrown.engine.problems.join(" ")).toMatch(/^engine: the plain example's first download is \d+ bytes raw, over the engine limit of 4000/);
+    expect(proof.engineGrown.engine.problems.join(" ")).toMatch(
+      /^engine: the plain example's first download is \d+ bytes raw, over the engine limit of 4000/,
+    );
     expect(proof.demoGrown.page.ok).toBe(false);
-    expect(proof.demoGrown.page.problems.join(" ")).toMatch(/raw is over the limit of 4000 \(own share: \d+ B in all less 3000 B engine\)/);
+    expect(proof.demoGrown.page.problems.join(" ")).toMatch(
+      /raw is over the limit of 4000 \(own share: \d+ B in all less 3000 B engine\)/,
+    );
     expect(proof.demoGrown.engine.ok).toBe(true);
     expect(ENGINE_LIMIT).toEqual({ rawLimit: 1_836_000, gzipLimit: 527_000 });
   });
@@ -139,14 +172,28 @@ describe("first-load size budget (T-070)", () => {
     const proof = proveSameStemChunks();
     expect(proof.first).toMatchObject({ files: 3, problems: [] });
     expect(proof.chained).toMatchObject({ files: 4, problems: [] });
-    expect(proof.stemLeftOut.problems.join(" ")).toMatch(/imports assets\/panels-AAAAAAAA\.js, which the page set does not list/);
-    expect(proof.notImported.problems.join(" ")).toMatch(/panels\.js names 3 files, none of which a listed script imports/);
+    expect(proof.stemLeftOut.problems.join(" ")).toMatch(
+      /imports assets\/panels-AAAAAAAA\.js, which the page set does not list/,
+    );
+    expect(proof.notImported.problems.join(" ")).toMatch(
+      /panels\.js names 3 files, none of which a listed script imports/,
+    );
   });
 
   it("holds one positive raw and gzip limit for the site pages, each experience and the whole build, once each", () => {
     const ids = PAGES.map((page) => page.id);
     expect(new Set(ids).size).toBe(ids.length);
-    expect(ids).toEqual(["index.html", "assets.html", "components.html", "api/index.html", "api/shelf.html", "app.html (Apollo 11)", ...PUBLIC_PLANETS.map((planet: string) => `app.html?experience=planets&planet=${planet}`), "app.html?experience=showers", "app.html?experience=showers&shower=geminids"]);
+    expect(ids).toEqual([
+      "index.html",
+      "assets.html",
+      "components.html",
+      "api/index.html",
+      "api/shelf.html",
+      "app.html (Apollo 11)",
+      ...PUBLIC_PLANETS.map((planet: string) => `app.html?experience=planets&planet=${planet}`),
+      "app.html?experience=showers",
+      "app.html?experience=showers&shower=geminids",
+    ]);
     for (const limit of [...PAGES, BUILD_LIMIT]) {
       expect(limit.rawLimit).toBeGreaterThan(0);
       expect(limit.gzipLimit).toBeGreaterThan(0);
@@ -155,7 +202,11 @@ describe("first-load size budget (T-070)", () => {
   });
 
   it("reads the scripts a built script imports at load, not the ones it imports on demand", () => {
-    expect(staticImportsOf('import{U as e}from"./app-AbCdEf12.js";import"./eph-AbCdEf12.js";const f=()=>import(`./later-AbCdEf12.js`);')).toEqual(["assets/app-AbCdEf12.js", "assets/eph-AbCdEf12.js"]);
+    expect(
+      staticImportsOf(
+        'import{U as e}from"./app-AbCdEf12.js";import"./eph-AbCdEf12.js";const f=()=>import(`./later-AbCdEf12.js`);',
+      ),
+    ).toEqual(["assets/app-AbCdEf12.js", "assets/eph-AbCdEf12.js"]);
   });
 });
 
@@ -184,7 +235,9 @@ describe("public planets demo offers Jupiter alone (T-136)", () => {
 
   it("offers Jupiter only, and checks the other planets' maps and system chunks", () => {
     expect(PUBLIC_PLANETS).toEqual(["jupiter"]);
-    expect(NON_PUBLIC_PLANET_FILES).toEqual(expect.arrayContaining(["saturn.js", "titan-4k.jpg", "saturn-2k.jpg", "pluto-4k.jpg"]));
+    expect(NON_PUBLIC_PLANET_FILES).toEqual(
+      expect.arrayContaining(["saturn.js", "titan-4k.jpg", "saturn-2k.jpg", "pluto-4k.jpg"]),
+    );
     expect(NON_PUBLIC_PLANET_FILES).not.toContain("jupiter-2k.jpg");
     expect(NON_PUBLIC_PLANET_FILES).not.toContain("jupiter.js");
   });

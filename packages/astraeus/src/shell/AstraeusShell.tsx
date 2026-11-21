@@ -13,7 +13,12 @@ import { useStoryPanels, type PanelCause, type StoryPanelSettings } from "./useS
 import { neighbourStep, type StoryPanel, type StoryStep } from "./storyPanels";
 import { TimelineBar } from "./TimelineBar";
 import type { TimelineGlowLook } from "./timelineGlow";
-import { requestObjectId, type ExperienceCameraPreset, type ExperienceConfig, type ExperienceObject } from "./experience";
+import {
+  requestObjectId,
+  type ExperienceCameraPreset,
+  type ExperienceConfig,
+  type ExperienceObject,
+} from "./experience";
 import { InfoPanel } from "./InfoPanel";
 import { AboutPanel } from "./AboutPanel";
 import { useTitlePlace } from "./useTitlePlace";
@@ -40,7 +45,14 @@ import { barEntries } from "./bar/barEntries";
 import { useBarFit } from "./bar/useBarFit";
 import type { ScaleChoice, ScaleId } from "./scaleModel";
 import { shownAt } from "../app/viewHiding";
-import { availableObjectById, findCameraPreset, firstAvailableObject, focusPresetFor, isObjectAvailable, skyFigureById } from "./objectModel";
+import {
+  availableObjectById,
+  findCameraPreset,
+  firstAvailableObject,
+  focusPresetFor,
+  isObjectAvailable,
+  skyFigureById,
+} from "./objectModel";
 
 /** The object selected when the shell opens: the first one available at the clock time, else the first listed. */
 export function initialObjectId(experience: ExperienceConfig, timeUtcMs: number): string {
@@ -52,7 +64,11 @@ export function initialObjectId(experience: ExperienceConfig, timeUtcMs: number)
 
 /** The story-panel settings the experience carries itself, used when the app gives none live. */
 function ownStorySettings(storySet: ExperienceConfig["storyPanels"]): StoryPanelSettings {
-  return { autoOpen: storySet?.autoOpen ?? false, pauseSeconds: storySet?.pauseSeconds ?? 0, ...(storySet?.closeAfterSeconds === undefined ? {} : { closeAfterSeconds: storySet.closeAfterSeconds }) };
+  return {
+    autoOpen: storySet?.autoOpen ?? false,
+    pauseSeconds: storySet?.pauseSeconds ?? 0,
+    ...(storySet?.closeAfterSeconds === undefined ? {} : { closeAfterSeconds: storySet.closeAfterSeconds }),
+  };
 }
 
 /** The timeline bar, or nothing when the experience says it has no timeline. */
@@ -61,48 +77,134 @@ function ShellTimeline({ hidden, ...bar }: ComponentProps<typeof TimelineBar> & 
 }
 
 /** The menu's place: the drawer (a phone) or drop-down (wide) holding what the fit rule put in the menu; nothing while the menu is empty. */
-function MenuArea({ entries, fit, ...drawer }: { readonly entries: ComponentProps<typeof BarMenu>["entries"]; readonly fit: ComponentProps<typeof BarMenu>["fit"] } & Omit<ComponentProps<typeof ControlsDrawer>, "children">) {
+function MenuArea({
+  entries,
+  fit,
+  ...drawer
+}: {
+  readonly entries: ComponentProps<typeof BarMenu>["entries"];
+  readonly fit: ComponentProps<typeof BarMenu>["fit"];
+} & Omit<ComponentProps<typeof ControlsDrawer>, "children">) {
   return (
     <Area name="menu">
-      {fit.menuButton && <ControlsDrawer {...drawer}><BarMenu entries={entries} fit={fit} /></ControlsDrawer>}
+      {fit.menuButton && (
+        <ControlsDrawer {...drawer}>
+          <BarMenu entries={entries} fit={fit} />
+        </ControlsDrawer>
+      )}
     </Area>
   );
 }
 
 /** The left place: the About panel, a shelf panel, the moons sheet and the card (the panel rule lets one be open). */
-function LeftArea({ tileSheet, shelfPanel, about, aboutOpen, aboutPanelId, onAboutClose, moonPanel, moonsSheetId, moonsOpen, view, metrics, onClose, infoPanelId }: { readonly tileSheet: ReactNode; readonly shelfPanel: ReactNode; readonly about: AboutInput | undefined; readonly aboutOpen: boolean; readonly aboutPanelId: string; readonly onAboutClose: () => void; readonly moonPanel: ReactNode; readonly moonsSheetId: string; readonly moonsOpen: boolean; readonly view: ComponentProps<typeof InfoPanel>["view"] | null; readonly metrics: readonly Metric[]; readonly onClose: () => void; readonly infoPanelId: string }) {
+function LeftArea({
+  tileSheet,
+  shelfPanel,
+  about,
+  aboutOpen,
+  aboutPanelId,
+  onAboutClose,
+  moonPanel,
+  moonsSheetId,
+  moonsOpen,
+  view,
+  metrics,
+  onClose,
+  infoPanelId,
+}: {
+  readonly tileSheet: ReactNode;
+  readonly shelfPanel: ReactNode;
+  readonly about: AboutInput | undefined;
+  readonly aboutOpen: boolean;
+  readonly aboutPanelId: string;
+  readonly onAboutClose: () => void;
+  readonly moonPanel: ReactNode;
+  readonly moonsSheetId: string;
+  readonly moonsOpen: boolean;
+  readonly view: ComponentProps<typeof InfoPanel>["view"] | null;
+  readonly metrics: readonly Metric[];
+  readonly onClose: () => void;
+  readonly infoPanelId: string;
+}) {
   return (
     <Area name="left">
       {about !== undefined && aboutOpen && <AboutPanel about={about} onClose={onAboutClose} id={aboutPanelId} />}
       {tileSheet}
       {shelfPanel}
-      {moonPanel !== null && <MoonsSheet id={moonsSheetId} open={moonsOpen}>{moonPanel}</MoonsSheet>}
+      {moonPanel !== null && (
+        <MoonsSheet id={moonsSheetId} open={moonsOpen}>
+          {moonPanel}
+        </MoonsSheet>
+      )}
       {view !== null && <InfoPanel view={view} metrics={metrics} onClose={onClose} id={infoPanelId} />}
     </Area>
   );
 }
 
 /** The Developer drawer, in the developer place. */
-function DeveloperDrawer({ developerMode, drawerId, children }: { readonly developerMode: boolean; readonly drawerId: string; readonly children: ReactNode }) {
+function DeveloperDrawer({
+  developerMode,
+  drawerId,
+  children,
+}: {
+  readonly developerMode: boolean;
+  readonly drawerId: string;
+  readonly children: ReactNode;
+}) {
   if (children === undefined) return null;
   return (
-    <aside className="developer-tools" id={drawerId} data-developer-panel="" aria-label="Developer diagnostics" hidden={!developerMode}>
+    <aside
+      className="developer-tools"
+      id={drawerId}
+      data-developer-panel=""
+      aria-label="Developer diagnostics"
+      hidden={!developerMode}
+    >
       {developerMode ? children : null}
     </aside>
   );
 }
 
 /** The moons button (in the bar on a wide screen, in the menu on a phone) and the sheet it opens in the left place. */
-function MoonsToggle({ planetLabel, open, sheetId, onToggle }: { readonly planetLabel: string | undefined; readonly open: boolean; readonly sheetId: string; readonly onToggle: () => void }) {
+function MoonsToggle({
+  planetLabel,
+  open,
+  sheetId,
+  onToggle,
+}: {
+  readonly planetLabel: string | undefined;
+  readonly open: boolean;
+  readonly sheetId: string;
+  readonly onToggle: () => void;
+}) {
   return (
-    <button type="button" className="moons-toggle ui-pill" aria-expanded={open} aria-controls={sheetId} data-closes-drawer="" onClick={onToggle}>
+    <button
+      type="button"
+      className="moons-toggle ui-pill"
+      aria-expanded={open}
+      aria-controls={sheetId}
+      data-closes-drawer=""
+      onClick={onToggle}
+    >
       {planetLabel} moons
     </button>
   );
 }
 
-function MoonsSheet({ id, open, children }: { readonly id: string; readonly open: boolean; readonly children: ReactNode }) {
-  return <aside id={id} className="moons-sheet" data-open={open} aria-label="Moons by family">{children}</aside>;
+function MoonsSheet({
+  id,
+  open,
+  children,
+}: {
+  readonly id: string;
+  readonly open: boolean;
+  readonly children: ReactNode;
+}) {
+  return (
+    <aside id={id} className="moons-sheet" data-open={open} aria-label="Moons by family">
+      {children}
+    </aside>
+  );
 }
 
 /** Who moved the selection: the visitor, or a move of time or the view (named by whatever last moved them). */
@@ -174,7 +276,11 @@ interface Props {
   /** Starts or holds playback; the shell uses it to pause while a panel opens by itself. */
   readonly onSetPlaying?: (playing: boolean) => void;
   /** Asks the shell to open a panel (a scene marker was pressed); a new `serial` asks again. */
-  readonly panelRequest?: { readonly id: string; readonly serial: number; /** True: the host's `setPanel` (id "" closes the open panel). */ readonly host?: boolean } | null;
+  readonly panelRequest?: {
+    readonly id: string;
+    readonly serial: number;
+    /** True: the host's `setPanel` (id "" closes the open panel). */ readonly host?: boolean;
+  } | null;
   /** Called when the open panel changes, with who changed it, so the app can mark its scene marker and tell the host. */
   readonly onOpenPanelChange?: (panelId: string | null, cause: PanelCause) => void;
   /** Asks the shell to open a tagged place's information (a place marker was pressed); a new `serial` asks again. */
@@ -190,11 +296,21 @@ interface Props {
 }
 
 /** What the information panel is about: the selected object, or an event, window or place by id; null: closed. */
-type InfoState = { readonly kind: "object" } | { readonly kind: "event"; readonly id: string } | { readonly kind: "window"; readonly id: string } | { readonly kind: "feature"; readonly id: string } | null;
+type InfoState =
+  | { readonly kind: "object" }
+  | { readonly kind: "event"; readonly id: string }
+  | { readonly kind: "window"; readonly id: string }
+  | { readonly kind: "feature"; readonly id: string }
+  | null;
 
 /** The serial of a request that is asked again by sending a new one; absent request: undefined. */
 /** Whether the selection has been lost and a fallback must take its place: the object is gone or not available now, unless the host cleared the selection on purpose. */
-function selectionLost(selected: ExperienceObject | undefined, timeUtcMs: number, clearedByHost: boolean, isFigure: boolean): boolean {
+function selectionLost(
+  selected: ExperienceObject | undefined,
+  timeUtcMs: number,
+  clearedByHost: boolean,
+  isFigure: boolean,
+): boolean {
   // A selected sky figure is never lost: it has no availability and no view hides it.
   return !clearedByHost && !isFigure && (selected === undefined || !isObjectAvailable(selected, timeUtcMs));
 }
@@ -226,7 +342,11 @@ function panelsOf(storySet: ExperienceConfig["storyPanels"]) {
 }
 
 /** Back and Next for the open panel when it is a step: each is absent where there is no neighbour. */
-function stepNavOf(panel: StoryPanel | StoryStep | null, steps: readonly StoryStep[], open: (id: string) => void): StepNav | undefined {
+function stepNavOf(
+  panel: StoryPanel | StoryStep | null,
+  steps: readonly StoryStep[],
+  open: (id: string) => void,
+): StepNav | undefined {
   if (panel === null || !("step" in panel)) return undefined;
   const to = (by: -1 | 1) => {
     const neighbour = neighbourStep(steps, panel, by);
@@ -236,7 +356,10 @@ function stepNavOf(panel: StoryPanel | StoryStep | null, steps: readonly StorySt
 }
 
 /** A request to open a panel (a marker press or the host's `setPanel`; id "" closes the open one), told with who made it. */
-function applyPanelRequest(story: Pick<ReturnType<typeof useStoryPanels>, "open" | "close">, request: { readonly id: string; readonly host?: boolean } | null | undefined): void {
+function applyPanelRequest(
+  story: Pick<ReturnType<typeof useStoryPanels>, "open" | "close">,
+  request: { readonly id: string; readonly host?: boolean } | null | undefined,
+): void {
   if (request === null || request === undefined) return;
   const by = request.host === true ? "host" : "visitor";
   if (request.id === "") story.close(by);
@@ -248,15 +371,37 @@ function stepsOf(storySet: ExperienceConfig["storyPanels"]) {
 }
 
 function objectLabelOr(experience: ExperienceConfig, objectId: string, fallback: string): string {
-  return experience.objects.find((object) => object.id === objectId)?.label ?? skyFigureById(experience, objectId)?.label ?? fallback;
+  return (
+    experience.objects.find((object) => object.id === objectId)?.label ??
+    skyFigureById(experience, objectId)?.label ??
+    fallback
+  );
 }
 
 /** The information panel's content and, for an object, its live measurements. */
-function infoContent(experience: ExperienceConfig, info: InfoState, selectedObjectId: string, timeUtcMs: number, metricsFor: Props["metricsFor"], timeLook: TimeLook | undefined) {
-  const view = info === null
-    ? null
-    : infoView(experience, info.kind === "object" ? { kind: "object", id: selectedObjectId } : info, timeUtcMs, timeLook);
-  const metrics = view?.target.kind === "object" && metricsFor !== undefined && skyFigureById(experience, view.target.id) === undefined ? metricsFor(view.target.id, timeUtcMs) : [];
+function infoContent(
+  experience: ExperienceConfig,
+  info: InfoState,
+  selectedObjectId: string,
+  timeUtcMs: number,
+  metricsFor: Props["metricsFor"],
+  timeLook: TimeLook | undefined,
+) {
+  const view =
+    info === null
+      ? null
+      : infoView(
+          experience,
+          info.kind === "object" ? { kind: "object", id: selectedObjectId } : info,
+          timeUtcMs,
+          timeLook,
+        );
+  const metrics =
+    view?.target.kind === "object" &&
+    metricsFor !== undefined &&
+    skyFigureById(experience, view.target.id) === undefined
+      ? metricsFor(view.target.id, timeUtcMs)
+      : [];
   return { view, metrics };
 }
 
@@ -329,21 +474,39 @@ export function AstraeusShell({
   const storySet = experience.storyPanels;
   const storyPanels = panelsOf(storySet);
   const storySteps = stepsOf(storySet);
-  const story = useStoryPanels(storyPanels, storySteps, storyPanelSettings ?? ownStorySettings(storySet), snapshot, onSetPlaying);
+  const story = useStoryPanels(
+    storyPanels,
+    storySteps,
+    storyPanelSettings ?? ownStorySettings(storySet),
+    snapshot,
+    onSetPlaying,
+  );
   if (storySeekNote !== undefined) storySeekNote.current = story.noteSeek;
-  useEffect(() => () => { if (storySeekNote !== undefined) storySeekNote.current = null; }, [storySeekNote]);
+  useEffect(
+    () => () => {
+      if (storySeekNote !== undefined) storySeekNote.current = null;
+    },
+    [storySeekNote],
+  );
   const openPanelId = story.openPanel?.id ?? null;
   // Every panel's open and close goes through the one rule (panels/panelRule.ts); the story panel's timing and the host's developer mode stay where they are and are mirrored in.
-  const panels = usePanels(phone ? "phone" : "wide", root, (occupant) => { if (occupant === "story") story.close(); });
+  const panels = usePanels(phone ? "phone" : "wide", root, (occupant) => {
+    if (occupant === "story") story.close();
+  });
   useMirroredPanels(panels, openPanelId !== null, developerMode, onDeveloperModeChange);
   const infoOpen = panels.state.left === "card";
   const shownInfo: InfoState = infoOpen ? info : null;
-  const showInfo = (next: NonNullable<InfoState>) => { setInfo(next); panels.open("card"); };
+  const showInfo = (next: NonNullable<InfoState>) => {
+    setInfo(next);
+    panels.open("card");
+  };
   const storyCause = story.cause;
   // Only a change of the open panel is reported; the cause read then is the one that change came with.
   const lastCause = useRef(storyCause);
   lastCause.current = storyCause;
-  useEffect(() => { onOpenPanelChange?.(openPanelId, lastCause.current); }, [onOpenPanelChange, openPanelId]);
+  useEffect(() => {
+    onOpenPanelChange?.(openPanelId, lastCause.current);
+  }, [onOpenPanelChange, openPanelId]);
   const closePanel = () => story.close();
   const stepNav = stepNavOf(story.openPanel, storySteps, story.open);
   const requestedSerial = serialOf(panelRequest);
@@ -359,7 +522,9 @@ export function AstraeusShell({
     // eslint-disable-next-line react-hooks/exhaustive-deps -- only a new request serial opens a place
   }, [requestedFeatureSerial]);
   const openFeatureKey = shownInfo?.kind === "feature" ? shownInfo.id : null;
-  useEffect(() => { onOpenFeatureChange?.(openFeatureKey); }, [onOpenFeatureChange, openFeatureKey]);
+  useEffect(() => {
+    onOpenFeatureChange?.(openFeatureKey);
+  }, [onOpenFeatureChange, openFeatureKey]);
   /** Every time change a person makes goes through here, so a seek is never mistaken for playback crossing a panel. */
   const seek = (timeUtcMs: number) => {
     story.noteSeek(timeUtcMs);
@@ -382,7 +547,14 @@ export function AstraeusShell({
     const switchRule = takeSwitchRule();
     if (selectedObjectId !== "") hostCleared.current = false;
     const selected = experience.objects.find((object) => object.id === selectedObjectId);
-    if (selectionLost(selected, snapshot.timeUtcMs, hostCleared.current && selectedObjectId === "", skyFigureById(experience, selectedObjectId) !== undefined)) {
+    if (
+      selectionLost(
+        selected,
+        snapshot.timeUtcMs,
+        hostCleared.current && selectedObjectId === "",
+        skyFigureById(experience, selectedObjectId) !== undefined,
+      )
+    ) {
       const fallbackId = firstAvailableObject(experience, snapshot.timeUtcMs)?.id ?? "";
       setSelectedObjectId(fallbackId);
       onSelectionChange(fallbackId, "move");
@@ -415,7 +587,9 @@ export function AstraeusShell({
     // As a visitor's menu choice does: the object's card opens (the camera is left alone); a clear closes it.
     // A story panel's select (`quiet`) follows the visitor-tap rule: on a phone it selects without opening the card, which would cover the panel's Back and Next.
     const opens = selectRequest.quiet === true ? pickOpensInfo(phone) : true;
-    if (selectRequest.id === "") { if (shownInfo?.kind === "object") panels.close("card"); } else if (opens) showInfo({ kind: "object" });
+    if (selectRequest.id === "") {
+      if (shownInfo?.kind === "object") panels.close("card");
+    } else if (opens) showInfo({ kind: "object" });
     onSelectRequestApplied?.();
     // Only a new request applies.
     // eslint-disable-next-line react-hooks/exhaustive-deps -- only a new select request serial applies; the other values are read as they are then
@@ -438,9 +612,15 @@ export function AstraeusShell({
   /** The view's camera rule for a followed or focused object the new view does not show: `stay` keeps the pose and stops following; otherwise the rule's framing is requested. */
   const applyViewRule = (rule: ViewCameraRule) => {
     const asked = presetForViewRule(rule, experience);
-    const target = asked === undefined || asked.request.kind === "overview" ? undefined : availableObjectById(experience, requestObjectId(asked.request) ?? "", snapshot.timeUtcMs);
+    const target =
+      asked === undefined || asked.request.kind === "overview"
+        ? undefined
+        : availableObjectById(experience, requestObjectId(asked.request) ?? "", snapshot.timeUtcMs);
     // A framing whose object is not available now falls back to the overview, like any other lost target.
-    const preset = asked !== undefined && asked.request.kind !== "overview" && target === undefined ? findCameraPreset(experience, "overview") : asked;
+    const preset =
+      asked !== undefined && asked.request.kind !== "overview" && target === undefined
+        ? findCameraPreset(experience, "overview")
+        : asked;
     if (target !== undefined) {
       setSelectedObjectId(target.id);
       onSelectionChange(target.id, "move"); // only the move-driven effect applies a view rule
@@ -472,7 +652,8 @@ export function AstraeusShell({
     } else if (object !== undefined) {
       activatePreset(focusPresetFor(experience, object));
       if (pickOpensInfo(phone)) showInfo({ kind: "object" });
-    } else if (!experience.objects.some((candidate) => candidate.id === id)) onCameraRequest({ kind: "focus", target: id });
+    } else if (!experience.objects.some((candidate) => candidate.id === id))
+      onCameraRequest({ kind: "focus", target: id });
   };
   const requestedPickSerial = serialOf(pickRequest);
   useEffect(() => {
@@ -489,7 +670,10 @@ export function AstraeusShell({
   };
 
   const selectObject = (id: string) => {
-    if (skyFigureById(experience, id) !== undefined) { selectFigure(id, true); return; }
+    if (skyFigureById(experience, id) !== undefined) {
+      selectFigure(id, true);
+      return;
+    }
     const object = availableObjectById(experience, id, snapshot.timeUtcMs);
     if (object === undefined) return;
     setSelectedObjectId(id);
@@ -497,8 +681,9 @@ export function AstraeusShell({
     showInfo({ kind: "object" });
     const active = experience.cameraPresets.find((preset) => preset.id === activePresetId);
     if (active?.request.kind === "focus" || active?.request.kind === "follow") {
-      const next = findCameraPreset(experience, active.request.kind, id)
-        ?? (active.request.kind === "follow" ? findCameraPreset(experience, "focus", id) : undefined);
+      const next =
+        findCameraPreset(experience, active.request.kind, id) ??
+        (active.request.kind === "follow" ? findCameraPreset(experience, "focus", id) : undefined);
       if (next !== undefined) {
         setActivePresetId(next.id);
         onCameraRequest(next.request);
@@ -525,7 +710,8 @@ export function AstraeusShell({
   const seekToEvent = (event: TimelineEvent) => {
     seek(event.timeUtcMs);
     // The event's own object, framed as the picker's Focus does (and `camera.focus` opens): the event, never a default body, names it.
-    const object = event.object === undefined ? undefined : availableObjectById(experience, event.object, event.timeUtcMs);
+    const object =
+      event.object === undefined ? undefined : availableObjectById(experience, event.object, event.timeUtcMs);
     if (object !== undefined) activatePreset(focusPresetFor(experience, object), event.timeUtcMs);
     // A sky figure is selected (its card stays as it is) and turned toward only while the camera looks out.
     else if (event.object !== undefined && skyFigureById(experience, event.object) !== undefined) {
@@ -540,52 +726,165 @@ export function AstraeusShell({
     if (shownInfo?.kind === "window") setInfo({ kind: "window", id: window.id });
   };
 
-  const { view, metrics } = infoContent(experience, shownInfo, selectedObjectId, snapshot.timeUtcMs, metricsFor, timeLook);
+  const { view, metrics } = infoContent(
+    experience,
+    shownInfo,
+    selectedObjectId,
+    snapshot.timeUtcMs,
+    metricsFor,
+    timeLook,
+  );
 
-  const { aboutOpen, titleAction } = useTitlePlace({ about, panels, aboutPanelId, infoPanelId, info: shownInfo, cardDrawn: view !== null, showObjectCard: () => showInfo({ kind: "object" }) });
-  const { storyButtons, shelfPanel } = useShelfPanels({ parts: shelfParts, runtime: shelfRuntime, panels, request: shelfRequest, onOpenChange: onOpenShelfChange });
+  const { aboutOpen, titleAction } = useTitlePlace({
+    about,
+    panels,
+    aboutPanelId,
+    infoPanelId,
+    info: shownInfo,
+    cardDrawn: view !== null,
+    showObjectCard: () => showInfo({ kind: "object" }),
+  });
+  const { storyButtons, shelfPanel } = useShelfPanels({
+    parts: shelfParts,
+    runtime: shelfRuntime,
+    panels,
+    request: shelfRequest,
+    onOpenChange: onOpenShelfChange,
+  });
   const { tileArea, tileSheet } = useShelfTile({ parts: shelfParts, runtime: shelfRuntime, panels, phone });
   const moonsOpen = panels.state.left === "moons";
   const toggleMoons = () => panels.toggle("moons");
 
-  const moonPanel = experience.moonFamilies === undefined ? null : (
-    <PanelLoadBoundary message="The moon list could not load. Reload the page to try again.">
-      <Suspense fallback={null}>
-        <MoonFamilyPanel list={experience.moonFamilies} highlightedFamily={highlightedFamily} onHighlight={(id) => onHighlightFamily?.(id)} onSelectMoon={chooseMoon} />
-      </Suspense>
-    </PanelLoadBoundary>
-  );
+  const moonPanel =
+    experience.moonFamilies === undefined ? null : (
+      <PanelLoadBoundary message="The moon list could not load. Reload the page to try again.">
+        <Suspense fallback={null}>
+          <MoonFamilyPanel
+            list={experience.moonFamilies}
+            highlightedFamily={highlightedFamily}
+            onHighlight={(id) => onHighlightFamily?.(id)}
+            onSelectMoon={chooseMoon}
+          />
+        </Suspense>
+      </PanelLoadBoundary>
+    );
 
-  const moonsToggle = moonPanel === null ? null : <MoonsToggle key="moons" planetLabel={experience.moonFamilies?.planetLabel} open={moonsOpen} sheetId={moonsSheetId} onToggle={toggleMoons} />;
+  const moonsToggle =
+    moonPanel === null ? null : (
+      <MoonsToggle
+        key="moons"
+        planetLabel={experience.moonFamilies?.planetLabel}
+        open={moonsOpen}
+        sheetId={moonsSheetId}
+        onToggle={toggleMoons}
+      />
+    );
   // The bar's one item list (bar/): the title place (the About title, or on a phone the selected object's name), the switches, the engine controls and the cog.
   const entries = barEntries({
-    experience, timeUtcMs: snapshot.timeUtcMs, selectedObjectId, activePresetId, onSelectObject: selectObject, onCameraPreset: activatePreset,
-    infoOpen: shownInfo?.kind === "object", onToggleInfo: () => (shownInfo?.kind === "object" ? panels.close("card") : showInfo({ kind: "object" })), infoPanelId,
-    phone, selectedLabel: objectLabelOr(experience, selectedObjectId, "Controls"), about, titleAction,
-    scaleId, onScaleChange, scaleChoices, switcher, displaySwitches, viewChoice, storyButtons,
-    moonsToggle, moonsLabel: experience.moonFamilies?.planetLabel,
-    developerPresent: developerTools !== undefined, developerDrawerId, developerMode, onDeveloperModeChange,
+    experience,
+    timeUtcMs: snapshot.timeUtcMs,
+    selectedObjectId,
+    activePresetId,
+    onSelectObject: selectObject,
+    onCameraPreset: activatePreset,
+    infoOpen: shownInfo?.kind === "object",
+    onToggleInfo: () => (shownInfo?.kind === "object" ? panels.close("card") : showInfo({ kind: "object" })),
+    infoPanelId,
+    phone,
+    selectedLabel: objectLabelOr(experience, selectedObjectId, "Controls"),
+    about,
+    titleAction,
+    scaleId,
+    onScaleChange,
+    scaleChoices,
+    switcher,
+    displaySwitches,
+    viewChoice,
+    storyButtons,
+    moonsToggle,
+    moonsLabel: experience.moonFamilies?.planetLabel,
+    developerPresent: developerTools !== undefined,
+    developerDrawerId,
+    developerMode,
+    onDeveloperModeChange,
   });
   const fitting = useBarFit(entries, phone);
-  const popupPlace = { openId: panels.state.popup, toggle: (id: string) => panels.togglePopup(id), close: (id?: string) => panels.closePopup(id) };
+  const popupPlace = {
+    openId: panels.state.popup,
+    toggle: (id: string) => panels.togglePopup(id),
+    close: (id?: string) => panels.closePopup(id),
+  };
   const timelineLayer = timelineLayerFor(panels.state);
 
   return (
-    <main className="astraeus-shell" ref={root} {...screenAttributes(screen)} data-timeline-hidden={experience.hideTimeline === true} style={{ ...phoneLayoutStyle(phoneLayout), ...interfaceLookVars(interfaceLook, screen.motion === "reduced"), ...labelStyleVars(labelStyle) }}>
+    <main
+      className="astraeus-shell"
+      ref={root}
+      {...screenAttributes(screen)}
+      data-timeline-hidden={experience.hideTimeline === true}
+      style={{
+        ...phoneLayoutStyle(phoneLayout),
+        ...interfaceLookVars(interfaceLook, screen.motion === "reduced"),
+        ...labelStyleVars(labelStyle),
+      }}
+    >
       <div className="shell-canvas">{children}</div>
       <PopupPlaceContext.Provider value={popupPlace}>
         <div className="astraeus-areas">
           <Area name="bar">
-            <Bar entries={entries} fit={fitting.fit} rowRef={fitting.rowRef} ghostsRef={fitting.ghostsRef} phone={phone} menuOpen={panels.state.menu} drawerId={controlsDrawerId} onOpenChange={(open) => panels.set("menu", open)} swipeThresholdPx={phoneLayout.swipeThresholdPx} />
+            <Bar
+              entries={entries}
+              fit={fitting.fit}
+              rowRef={fitting.rowRef}
+              ghostsRef={fitting.ghostsRef}
+              phone={phone}
+              menuOpen={panels.state.menu}
+              drawerId={controlsDrawerId}
+              onOpenChange={(open) => panels.set("menu", open)}
+              swipeThresholdPx={phoneLayout.swipeThresholdPx}
+            />
           </Area>
-          <MenuArea entries={entries} fit={fitting.fit} id={controlsDrawerId} open={panels.state.menu} phone={phone} onOpenChange={(open) => panels.set("menu", open)} onItemChosen={() => panels.chooseInDrawer("menu")} swipeThresholdPx={phoneLayout.swipeThresholdPx} />
+          <MenuArea
+            entries={entries}
+            fit={fitting.fit}
+            id={controlsDrawerId}
+            open={panels.state.menu}
+            phone={phone}
+            onOpenChange={(open) => panels.set("menu", open)}
+            onItemChosen={() => panels.chooseInDrawer("menu")}
+            swipeThresholdPx={phoneLayout.swipeThresholdPx}
+          />
           {tileArea}
-          <LeftArea tileSheet={tileSheet} shelfPanel={shelfPanel} about={about} aboutOpen={aboutOpen} aboutPanelId={aboutPanelId} onAboutClose={() => panels.close("about")} moonPanel={moonPanel} moonsSheetId={moonsSheetId} moonsOpen={moonsOpen} view={view} metrics={metrics} onClose={() => panels.close("card")} infoPanelId={infoPanelId} />
+          <LeftArea
+            tileSheet={tileSheet}
+            shelfPanel={shelfPanel}
+            about={about}
+            aboutOpen={aboutOpen}
+            aboutPanelId={aboutPanelId}
+            onAboutClose={() => panels.close("about")}
+            moonPanel={moonPanel}
+            moonsSheetId={moonsSheetId}
+            moonsOpen={moonsOpen}
+            view={view}
+            metrics={metrics}
+            onClose={() => panels.close("card")}
+            infoPanelId={infoPanelId}
+          />
           <Area name="right">
-            {story.openPanel !== null && <StoryPanelView panel={story.openPanel} holding={story.holding} onClose={closePanel} onContinue={story.continuePlayback} step={stepNav} />}
+            {story.openPanel !== null && (
+              <StoryPanelView
+                panel={story.openPanel}
+                holding={story.holding}
+                onClose={closePanel}
+                onContinue={story.continuePlayback}
+                step={stepNav}
+              />
+            )}
           </Area>
           <Area name="developer">
-            <DeveloperDrawer developerMode={developerMode} drawerId={developerDrawerId}>{developerTools}</DeveloperDrawer>
+            <DeveloperDrawer developerMode={developerMode} drawerId={developerDrawerId}>
+              {developerTools}
+            </DeveloperDrawer>
           </Area>
           <Area name="timeline" layer={timelineLayer}>
             <ShellTimeline
@@ -606,7 +905,16 @@ export function AstraeusShell({
               onWindowInfo={(window) => showInfo({ kind: "window", id: window.id })}
               glowLook={timelineGlow}
               infoPanelId={view !== null ? infoPanelId : undefined}
-              drawer={phone ? { open: panels.state.timeline, onOpenChange: (open) => panels.set("timeline", open), onItemChosen: () => panels.chooseInDrawer("timeline"), swipeThresholdPx: phoneLayout.swipeThresholdPx } : undefined}
+              drawer={
+                phone
+                  ? {
+                      open: panels.state.timeline,
+                      onOpenChange: (open) => panels.set("timeline", open),
+                      onItemChosen: () => panels.chooseInDrawer("timeline"),
+                      swipeThresholdPx: phoneLayout.swipeThresholdPx,
+                    }
+                  : undefined
+              }
             />
           </Area>
         </div>

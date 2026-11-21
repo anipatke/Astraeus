@@ -1,13 +1,36 @@
 import { describe, expect, it, vi } from "vitest";
-import { HYG_STAR_LICENCE, eqjUnit, loadStarCatalogue, parseStarFile, starIdTable, starIdsOf, type StarRow } from "../src/assets/sky";
+import {
+  HYG_STAR_LICENCE,
+  eqjUnit,
+  loadStarCatalogue,
+  parseStarFile,
+  starIdTable,
+  starIdsOf,
+  type StarRow,
+} from "../src/assets/sky";
 import { textureRightsProblem } from "../src/assets/licence";
-import { ATTRIBUTION, HYG_LICENCE, HYG_URL, MAGNITUDE_LIMIT, parseHyg, splitCsvLine, starFile } from "../tools/data/fetch-hyg-stars.mjs";
+import {
+  ATTRIBUTION,
+  HYG_LICENCE,
+  HYG_URL,
+  MAGNITUDE_LIMIT,
+  parseHyg,
+  splitCsvLine,
+  starFile,
+} from "../tools/data/fetch-hyg-stars.mjs";
 
 const ARCSEC = Math.PI / 180 / 3600;
-const angleBetween = (a: ArrayLike<number>, b: ArrayLike<number>) => Math.acos(Math.min(1, a[0] * b[0] + a[1] * b[1] + a[2] * b[2]));
+const angleBetween = (a: ArrayLike<number>, b: ArrayLike<number>) =>
+  Math.acos(Math.min(1, a[0] * b[0] + a[1] * b[1] + a[2] * b[2]));
 const toUnit = (star: StarRow) => eqjUnit(star[0], star[1]);
 
-const hygText = Object.values(import.meta.glob("../src/assets/stars/hyg-v42-naked-eye.json", { query: "?raw", import: "default", eager: true }) as Record<string, string>)[0];
+const hygText = Object.values(
+  import.meta.glob("../src/assets/stars/hyg-v42-naked-eye.json", {
+    query: "?raw",
+    import: "default",
+    eager: true,
+  }) as Record<string, string>,
+)[0];
 const hyg = parseStarFile(JSON.parse(hygText));
 
 // Published J2000 positions (h m s, d m s), written out independently of the code; the same five as tests/sky.test.ts.
@@ -31,7 +54,9 @@ describe("HYG star asset (T-060)", () => {
   it("finds the five named stars within 3 arcsec of the published J2000 positions and within 0.5 mag of their usual V", () => {
     for (const named of NAMED) {
       const target = eqjUnit(named.ra, named.dec);
-      const near = hyg.stars.filter((star) => angleBetween(toUnit(star), target) < 3 * ARCSEC && Math.abs(star[2] - named.v) < 0.5);
+      const near = hyg.stars.filter(
+        (star) => angleBetween(toUnit(star), target) < 3 * ARCSEC && Math.abs(star[2] - named.v) < 0.5,
+      );
       expect(near.length, named.name).toBeGreaterThanOrEqual(1);
     }
   });
@@ -76,7 +101,12 @@ describe("Hipparcos ids (T-294)", () => {
   });
 
   it("resolves a listed made-up id to its direction and an unlisted one to none", () => {
-    const table = starIdTable([[90, 0, 3.5, null, 7], [0, 90, 2, 0.4, 9], [10, 10, 5, null, 0], [20, 20, 5, null]]);
+    const table = starIdTable([
+      [90, 0, 3.5, null, 7],
+      [0, 90, 2, 0.4, 9],
+      [10, 10, 5, null, 0],
+      [20, 20, 5, null],
+    ]);
     expect(table.size).toBe(2);
     expect(table.get(7)?.vMag).toBe(3.5);
     expect(angleBetween(table.get(7)!.direction, [0, 1, 0])).toBeLessThan(1e-9);
@@ -86,7 +116,12 @@ describe("Hipparcos ids (T-294)", () => {
   });
 
   it("keeps the first row on a repeated id; the fetch tool reports the repeat", () => {
-    expect(starIdTable([[0, 0, 1, null, 5], [90, 0, 2, null, 5]]).get(5)?.vMag).toBe(1);
+    expect(
+      starIdTable([
+        [0, 0, 1, null, 5],
+        [90, 0, 2, null, 5],
+      ]).get(5)?.vMag,
+    ).toBe(1);
   });
 
   it("rejects a bad id column", () => {
@@ -96,8 +131,10 @@ describe("Hipparcos ids (T-294)", () => {
 });
 
 describe("HYG fetch tool parsing", () => {
-  const header = '"id","hip","hd","hr","gl","bf","proper","ra","dec","dist","pmra","pmdec","rv","mag","absmag","spect","ci"';
-  const row = (id: string, ra: string, dec: string, mag: string, ci: string, proper = '""') => `${id},1,2,3,"","",${proper},${ra},${dec},10,0,0,0,${mag},1,K0,${ci}`;
+  const header =
+    '"id","hip","hd","hr","gl","bf","proper","ra","dec","dist","pmra","pmdec","rv","mag","absmag","spect","ci"';
+  const row = (id: string, ra: string, dec: string, mag: string, ci: string, proper = '""') =>
+    `${id},1,2,3,"","",${proper},${ra},${dec},10,0,0,0,${mag},1,K0,${ci}`;
 
   it("splits quoted fields, including a comma and a doubled quote inside a name", () => {
     expect(splitCsvLine('1,"a, b","say ""hi""",,x')).toEqual(["1", "a, b", 'say "hi"', "", "x"]);
@@ -117,10 +154,17 @@ describe("HYG fetch tool parsing", () => {
     const parsed = parseHyg(text);
     expect(parsed.records).toBe(7);
     expect(parsed.skipped).toBe(4);
-    expect(parsed.stars).toEqual([[101.25, -16.7, -1.44, 0, 1], [180, 10, 6.5, null, 1]]);
+    expect(parsed.stars).toEqual([
+      [101.25, -16.7, -1.44, 0, 1],
+      [180, 10, 6.5, null, 1],
+    ]);
     expect(parsed.duplicateHip).toEqual([1]);
     expect(parseStarFile(starFile(parsed, "2026-10-16")).stars).toHaveLength(2);
-    expect(starFile(parsed, "2026-10-16").provenance).toMatchObject({ licence: "CC BY-SA 4.0", accessed: "2026-10-16", count: 2 });
+    expect(starFile(parsed, "2026-10-16").provenance).toMatchObject({
+      licence: "CC BY-SA 4.0",
+      accessed: "2026-10-16",
+      count: 2,
+    });
   });
 
   it("rejects a header without the columns it needs", () => {

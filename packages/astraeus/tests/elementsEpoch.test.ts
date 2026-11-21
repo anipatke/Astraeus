@@ -12,15 +12,30 @@ const UNIX_AT_JD_J2000_UTC = 946_728_000_000;
 const centre = { id: SUN.id, gmKm3S2: SUN.gmKm3S2! };
 const norm = (v: ArrayLike<number>) => Math.hypot(v[0], v[1], v[2]);
 
-function record(epoch: ElementsBodyRecord["epoch"], placement: { perihelionJdTdb: number } | { meanAnomalyDeg: number }): ElementsBodyRecord {
+function record(
+  epoch: ElementsBodyRecord["epoch"],
+  placement: { perihelionJdTdb: number } | { meanAnomalyDeg: number },
+): ElementsBodyRecord {
   return {
     id: "probe",
     label: "Probe",
-    elements: { semiMajorAxisAu: 1, eccentricity: 0.2, inclinationDeg: 10, ascendingNodeDeg: 20, argumentOfPerihelionDeg: 30, ...placement },
+    elements: {
+      semiMajorAxisAu: 1,
+      eccentricity: 0.2,
+      inclinationDeg: 10,
+      ascendingNodeDeg: 20,
+      argumentOfPerihelionDeg: 30,
+      ...placement,
+    },
     epoch,
     plane: "ecliptic-j2000",
     source: { name: "test", url: "https://example.test", solution: "probe", accessed: "2026-11-21" },
-    accuracy: { classification: "approximate", statement: "test", valid: { start: "2000-01-01T00:00:00Z", end: "2001-01-01T00:00:00Z" }, limitations: [] },
+    accuracy: {
+      classification: "approximate",
+      statement: "test",
+      valid: { start: "2000-01-01T00:00:00Z", end: "2001-01-01T00:00:00Z" },
+      limitations: [],
+    },
     marker: { color: "#9fe3ff", sizePx: 7 },
   };
 }
@@ -28,11 +43,13 @@ function record(epoch: ElementsBodyRecord["epoch"], placement: { perihelionJdTdb
 const gapMetres = (a: ElementsBodyRecord, b: ElementsBodyRecord, times: readonly number[]) => {
   const first = buildElementsBody(a, centre).create();
   const second = buildElementsBody(b, centre).create();
-  return Math.max(...times.map((t) => {
-    const p = first.stateAt(t).positionKm;
-    const q = second.stateAt(t).positionKm;
-    return norm([p[0] - q[0], p[1] - q[1], p[2] - q[2]]) * 1000;
-  }));
+  return Math.max(
+    ...times.map((t) => {
+      const p = first.stateAt(t).positionKm;
+      const q = second.stateAt(t).positionKm;
+      return norm([p[0] - q[0], p[1] - q[1], p[2] - q[2]]) * 1000;
+    }),
+  );
 };
 
 const TIMES = [0, 10, 100].map((days) => UNIX_AT_JD_J2000_UTC + days * 86_400_000);
@@ -48,7 +65,10 @@ describe("an orbit's epoch is one instant in any time scale (T-342)", () => {
   for (const [label, placement] of cases) {
     it(`UTC and TT epochs of the same instant agree within a metre, with ${label}`, () => {
       const utc = record({ jd: JD_J2000, timeScale: "UTC" }, placement);
-      const tt = record({ jd: JD_J2000 + TT_MINUS_UTC_S / 86_400, timeScale: "TT", ttMinusUtcSeconds: TT_MINUS_UTC_S }, placement);
+      const tt = record(
+        { jd: JD_J2000 + TT_MINUS_UTC_S / 86_400, timeScale: "TT", ttMinusUtcSeconds: TT_MINUS_UTC_S },
+        placement,
+      );
       expect(gapMetres(utc, tt, TIMES)).toBeLessThan(1);
     });
     // The record documents TDB as TT for the clock (their difference is under 2 ms, about 60 m of motion at most; here TDB - TT is 0.1 ms,

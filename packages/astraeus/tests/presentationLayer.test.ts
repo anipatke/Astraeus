@@ -2,8 +2,16 @@ import ts from "typescript6";
 import { describe, expect, it } from "vitest";
 
 // The presentation layer (ARCH-04): story-panel, start-view and look wording. It reads only src/core/ and itself; src/core/ never reads it.
-const presentationSources = import.meta.glob("../src/presentation/**/*.{ts,tsx}", { query: "?raw", import: "default", eager: true }) as Record<string, string>;
-const coreSources = import.meta.glob("../src/core/**/*.{ts,tsx}", { query: "?raw", import: "default", eager: true }) as Record<string, string>;
+const presentationSources = import.meta.glob("../src/presentation/**/*.{ts,tsx}", {
+  query: "?raw",
+  import: "default",
+  eager: true,
+}) as Record<string, string>;
+const coreSources = import.meta.glob("../src/core/**/*.{ts,tsx}", {
+  query: "?raw",
+  import: "default",
+  eager: true,
+}) as Record<string, string>;
 
 /** Module specifiers from the real import, export-from and dynamic-import declarations (the compiler's reader, not a regex). */
 function specifiers(source: string): string[] {
@@ -25,7 +33,8 @@ function layerOf(file: string, specifier: string): string | null {
 function offences(core: Readonly<Record<string, string>>, presentation: Readonly<Record<string, string>>): string[] {
   const found: string[] = [];
   for (const [file, source] of Object.entries(core)) {
-    for (const specifier of specifiers(source)) if (layerOf(file, specifier) === "presentation") found.push(`${file} imports ${specifier}`);
+    for (const specifier of specifiers(source))
+      if (layerOf(file, specifier) === "presentation") found.push(`${file} imports ${specifier}`);
   }
   for (const [file, source] of Object.entries(presentation)) {
     for (const specifier of specifiers(source)) {
@@ -44,13 +53,20 @@ describe("presentation layer rule (ARCH-04)", () => {
   });
 
   it("catches core importing presentation, including from a subfolder", () => {
-    const core = { "../src/core/bodies/x.ts": 'import { a } from "../../presentation/startView";\nexport * from "../../presentation/skyTrace";' };
-    expect(offences(core, {})).toEqual(["../src/core/bodies/x.ts imports ../../presentation/startView", "../src/core/bodies/x.ts imports ../../presentation/skyTrace"]);
+    const core = {
+      "../src/core/bodies/x.ts":
+        'import { a } from "../../presentation/startView";\nexport * from "../../presentation/skyTrace";',
+    };
+    expect(offences(core, {})).toEqual([
+      "../src/core/bodies/x.ts imports ../../presentation/startView",
+      "../src/core/bodies/x.ts imports ../../presentation/skyTrace",
+    ]);
   });
 
   it("catches presentation importing a higher layer or a package", () => {
     const presentation = {
-      "../src/presentation/a.ts": 'import { a } from "../app/look";\nimport { b } from "three";\nconst c = import("../shell/x");\nimport { d } from "../core/state";\nimport { e } from "./b";',
+      "../src/presentation/a.ts":
+        'import { a } from "../app/look";\nimport { b } from "three";\nconst c = import("../shell/x");\nimport { d } from "../core/state";\nimport { e } from "./b";',
     };
     expect(offences({}, presentation)).toEqual([
       "../src/presentation/a.ts imports ../app/look",

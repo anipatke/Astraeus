@@ -49,7 +49,10 @@ function acceleration(r: Vec3, bodies: Bodies): Vec3 {
   const j2 = (1.5 * earth.j2 * earth.muKm3S2 * earth.j2ReferenceRadiusKm ** 2) / rn ** 5;
   const central = -earth.muKm3S2 / rn ** 3;
   const oblate: Vec3 = [j2 * r[0] * (5 * z2 - 1), j2 * r[1] * (5 * z2 - 1), j2 * r[2] * (5 * z2 - 3)];
-  return add(add(add(scale(r, central), oblate), thirdBody(r, bodies.moon, moon.muKm3S2)), thirdBody(r, bodies.sun, sun.muKm3S2));
+  return add(
+    add(add(scale(r, central), oblate), thirdBody(r, bodies.moon, moon.muKm3S2)),
+    thirdBody(r, bodies.sun, sun.muKm3S2),
+  );
 }
 
 function rk4(
@@ -63,7 +66,10 @@ function rk4(
     r: s.v,
     v: add(acceleration(s.r, bodiesAt(t)), constantAcceleration),
   });
-  const advance = (s: EarthState, d: EarthState, h: number): EarthState => ({ r: add(s.r, scale(d.r, h)), v: add(s.v, scale(d.v, h)) });
+  const advance = (s: EarthState, d: EarthState, h: number): EarthState => ({
+    r: add(s.r, scale(d.r, h)),
+    v: add(s.v, scale(d.v, h)),
+  });
   const halfMs = stepS * 500;
   const k1 = derivative(state, timeUtcMs);
   const k2 = derivative(advance(state, k1, stepS / 2), timeUtcMs + halfMs);

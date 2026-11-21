@@ -13,11 +13,20 @@ beforeEach(() => {
   vi.stubGlobal("innerWidth", 1000);
   vi.stubGlobal("innerHeight", 500);
 });
-afterEach(() => { element.remove(); vi.unstubAllGlobals(); });
+afterEach(() => {
+  element.remove();
+  vi.unstubAllGlobals();
+});
 
 function pointer(type: string, init: { id?: number; x: number; y: number; kind?: string; button?: number }): void {
   const event = new Event(type, { bubbles: true, cancelable: true }) as Event & Record<string, unknown>;
-  Object.assign(event, { pointerId: init.id ?? 1, clientX: init.x, clientY: init.y, pointerType: init.kind ?? "mouse", button: init.button ?? 0 });
+  Object.assign(event, {
+    pointerId: init.id ?? 1,
+    clientX: init.x,
+    clientY: init.y,
+    pointerType: init.kind ?? "mouse",
+    button: init.button ?? 0,
+  });
   element.dispatchEvent(event);
 }
 const limits = () => ({ min: 2, max: 100 });
@@ -102,7 +111,10 @@ describe("attachOrbitGestures", () => {
     pointer("pointerup", { x: 40, y: 50, button: 2 });
     pointer("pointerdown", { id: 3, x: 10, y: 10, kind: "touch" });
     pointer("pointerup", { id: 3, x: 10, y: 10, kind: "touch" });
-    expect(taps).toEqual([[41, 50, "mouse"], [10, 10, "touch"]]);
+    expect(taps).toEqual([
+      [41, 50, "mouse"],
+      [10, 10, "touch"],
+    ]);
   });
 
   it("stops listening once detached", () => {
@@ -120,7 +132,11 @@ describe("attachOrbitGestures", () => {
     state.targetElevation = 1;
     state.targetDistance = 99;
     cancelCameraTransition(state);
-    expect([state.targetAzimuth, state.targetElevation, state.targetDistance]).toEqual([state.azimuth, state.elevation, 16]);
+    expect([state.targetAzimuth, state.targetElevation, state.targetDistance]).toEqual([
+      state.azimuth,
+      state.elevation,
+      16,
+    ]);
   });
 });
 
@@ -147,7 +163,11 @@ describe("body-set names", () => {
   });
 
   function layerOf() {
-    const view = { layer: { members: [0, 1, 2, 3].map((i) => ({ id: `m${i}`, label: `Member ${i}` })) }, screen: screens, drawn: true } as unknown as BodySetView;
+    const view = {
+      layer: { members: [0, 1, 2, 3].map((i) => ({ id: `m${i}`, label: `Member ${i}` })) },
+      screen: screens,
+      drawn: true,
+    } as unknown as BodySetView;
     const canvas = document.createElement("canvas");
     const host = document.createElement("div");
     host.appendChild(canvas);

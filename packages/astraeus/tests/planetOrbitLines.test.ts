@@ -15,7 +15,11 @@ const sceneAt = (body: string, iso: string) => {
   scene.camera.fitOrbit(body);
   return scene;
 };
-const PLANETS: Readonly<Record<string, { a: number; e: number }>> = { saturn: { a: 9.537, e: 0.0541 }, uranus: { a: 19.19, e: 0.0472 }, neptune: { a: 30.07, e: 0.0086 } };
+const PLANETS: Readonly<Record<string, { a: number; e: number }>> = {
+  saturn: { a: 9.537, e: 0.0541 },
+  uranus: { a: 19.19, e: 0.0472 },
+  neptune: { a: 30.07, e: 0.0086 },
+};
 
 describe("orbit line and fitOrbit for the outer planets", () => {
   for (const [id, { a, e }] of Object.entries(PLANETS)) {
@@ -41,12 +45,18 @@ describe("orbit line and fitOrbit for the outer planets", () => {
       const t = Date.UTC(year, 0, 1);
       const drawn = layer.source.stateAt(t, "sun").positionKm;
       const real = adapter.planetPositionFromSunKm("neptune", t);
-      expect(Math.hypot(drawn[0]! - real[0]!, drawn[1]! - real[1]!, drawn[2]! - real[2]!) / Math.hypot(real[0]!, real[1]!, real[2]!)).toBeLessThan(0.1);
+      expect(
+        Math.hypot(drawn[0]! - real[0]!, drawn[1]! - real[1]!, drawn[2]! - real[2]!) /
+          Math.hypot(real[0]!, real[1]!, real[2]!),
+      ).toBeLessThan(0.1);
     }
   });
 
   it("a planet whose source covers its turn keeps the full-turn wording (Mars, Saturn from 1980)", () => {
-    for (const id of ["mars", "saturn"]) expect(sunOrbitLayer(catalogue, id, Date.parse("1980-01-01T00:00:00Z"), "")!.object.knownLimitations![0]).toMatch(/samples joined|full turn/);
+    for (const id of ["mars", "saturn"])
+      expect(sunOrbitLayer(catalogue, id, Date.parse("1980-01-01T00:00:00Z"), "")!.object.knownLimitations![0]).toMatch(
+        /samples joined|full turn/,
+      );
   });
 
   it("the farthest distance is worked out once in setup, so a bad framing never repeats per frame", () => {

@@ -17,7 +17,11 @@ import { placementAbout } from "astraeus/tests/scenePlacement";
 const HOUR = 3_600_000;
 const placement = placementAbout("sun", createOrbAstronomyAdapter());
 // T-075: a policy that does not say it only scales keeps the fills-plus-blend path these tests are about (the shader path is in pointsKepler.test.ts).
-const mappedPolicy: ScalePolicy = { id: "true-scale", mapPosition: (p) => trueScale.mapPosition(p), mapRadius: (r) => trueScale.mapRadius(r) };
+const mappedPolicy: ScalePolicy = {
+  id: "true-scale",
+  mapPosition: (p) => trueScale.mapPosition(p),
+  mapRadius: (r) => trueScale.mapRadius(r),
+};
 
 describe.each([
   { name: "Perseids", story: "perseids", iau: 7, file: perseidsFile },
@@ -25,9 +29,17 @@ describe.each([
 ])("$name fill look-ahead", ({ story, iau, file }) => {
   it("draws the same positions as whole fills and makes the later fills ahead of time", () => {
     const settings = parseShowerSettings(file);
-    const base = groupsOf(buildShowerDefinition(settings, { kind: "loaded", orbits: readShippedOrbits(story, iau) }))[0];
+    const base = groupsOf(
+      buildShowerDefinition(settings, { kind: "loaded", orbits: readShippedOrbits(story, iau) }),
+    )[0];
     let whole = 0;
-    const counted = { ...base.group, fillPositionsKm: (t: number, out: Float64Array) => { whole += 1; base.group.fillPositionsKm(t, out); } };
+    const counted = {
+      ...base.group,
+      fillPositionsKm: (t: number, out: Float64Array) => {
+        whole += 1;
+        base.group.fillPositionsKm(t, out);
+      },
+    };
     const layerOf = (extra: object) => ({ ...base, ...extra });
     let now = 0;
     const look = new PointsView(layerOf({ group: counted }), () => (now += 0.25)); // a quarter millisecond a chunk: a fill takes a few frames
@@ -36,9 +48,13 @@ describe.each([
     expect(look.layer.refillSliceMs).toBe(story === "geminids" ? 12 : undefined); // the Geminids file sets its own slice; the Perseids take the default
     const origin = new FloatingOrigin();
     const check = (t: number): void => {
-      for (const view of [look, plain]) { view.sync(t, placement, mappedPolicy); view.place(origin); }
+      for (const view of [look, plain]) {
+        view.sync(t, placement, mappedPolicy);
+        view.place(origin);
+      }
       expect(look.absolute()).toEqual(plain.absolute());
-      for (let i = 0; i < group.count; i += 997) expect(look.memberLocalPosition(i)).toEqual(plain.memberLocalPosition(i));
+      for (let i = 0; i < group.count; i += 997)
+        expect(look.memberLocalPosition(i)).toEqual(plain.memberLocalPosition(i));
     };
     const peak = Date.parse(settings.activity.peakUtc);
     const step = 6 * HOUR;
@@ -52,7 +68,8 @@ describe.each([
 });
 
 describe("the look-ahead setting in a shower file", () => {
-  const withSlice = (value: unknown) => parseShowerSettings({ ...perseidsFile, look: { ...perseidsFile.look, refillSliceMs: value } });
+  const withSlice = (value: unknown) =>
+    parseShowerSettings({ ...perseidsFile, look: { ...perseidsFile.look, refillSliceMs: value } });
   it("is optional, read from look.refillSliceMs and carried to the stream layer", () => {
     expect(parseShowerSettings(perseidsFile).look.refillSliceMs).toBeUndefined();
     const settings = withSlice(5);

@@ -11,13 +11,19 @@ const COLD = "packages/astraeus/tests/cold/**/*.test.ts";
 const jsonFileUrls = {
   name: "json-file-urls",
   enforce: "pre" as const,
-  async resolveId(this: { resolve(id: string, importer?: string, options?: { skipSelf: boolean }): Promise<{ id: string } | null> }, id: string, importer?: string) {
+  async resolveId(
+    this: { resolve(id: string, importer?: string, options?: { skipSelf: boolean }): Promise<{ id: string } | null> },
+    id: string,
+    importer?: string,
+  ) {
     if (!id.endsWith(".json?url")) return null;
     const resolved = await this.resolve(id.slice(0, -"?url".length), importer, { skipSelf: true });
     return resolved === null ? null : `\0json-file-url:${resolved.id}.js`;
   },
   load(id: string) {
-    return id.startsWith("\0json-file-url:") ? `export default ${JSON.stringify(pathToFileURL(id.slice("\0json-file-url:".length, -".js".length)).href)};` : null;
+    return id.startsWith("\0json-file-url:")
+      ? `export default ${JSON.stringify(pathToFileURL(id.slice("\0json-file-url:".length, -".js".length)).href)};`
+      : null;
   },
 };
 
@@ -37,7 +43,16 @@ export default defineConfig({
   test: {
     ...common.test,
     projects: [
-      { ...common, test: { ...common.test, name: "preloaded", include: ["packages/*/tests/**/*.test.ts"], exclude: [COLD, "**/node_modules/**"], setupFiles: ["./packages/astraeus/vitest.setup.ts"] } },
+      {
+        ...common,
+        test: {
+          ...common.test,
+          name: "preloaded",
+          include: ["packages/*/tests/**/*.test.ts"],
+          exclude: [COLD, "**/node_modules/**"],
+          setupFiles: ["./packages/astraeus/vitest.setup.ts"],
+        },
+      },
       { ...common, test: { ...common.test, name: "cold", include: [COLD] } },
     ],
     coverage: {

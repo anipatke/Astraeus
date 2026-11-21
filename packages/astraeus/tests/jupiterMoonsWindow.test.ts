@@ -3,7 +3,12 @@ import { ringExtentKm } from "../src/app/RingView";
 import { JUPITER_RINGS } from "../src/assets/bodies/jupiterRings";
 import { catalogue } from "../src/assets/catalogue";
 import { parseRingSystem, ringBandsWithLook } from "../src/assets/rings";
-import { chunksNeeded, jupiterMoonEphemeris, JUPITER_MOON_FIT_SPAN, osculatingPeriodMs } from "../src/core/bodies/jupiterMoons";
+import {
+  chunksNeeded,
+  jupiterMoonEphemeris,
+  JUPITER_MOON_FIT_SPAN,
+  osculatingPeriodMs,
+} from "../src/core/bodies/jupiterMoons";
 import { jupiterRawList } from "./helpers/jupiterMoonPanel";
 
 // Moved from the planets demo (O-059 T-270; first O-025 T-098): what Jupiter's fits make of the planets demo's window, and Jupiter's rings. The demo keeps what it ships
@@ -26,7 +31,13 @@ describe("Jupiter's fits for the planets demo's window", () => {
     const historyYears = (id: string): string[] => {
       const period = osculatingPeriodMs(jupiterMoonEphemeris(), id, WINDOW.startUtcMs);
       const reach = Math.min(period * 1.05, 3 * 365.25 * 86_400_000);
-      return [...new Set(jupiterMoonEphemeris().chunksFor([id], Math.floor(WINDOW.startUtcMs - reach), WINDOW.startUtcMs).map(({ path }) => /(\d{4})\.bin$/.exec(path)![1]!))];
+      return [
+        ...new Set(
+          jupiterMoonEphemeris()
+            .chunksFor([id], Math.floor(WINDOW.startUtcMs - reach), WINDOW.startUtcMs)
+            .map(({ path }) => /(\d{4})\.bin$/.exec(path)![1]!),
+        ),
+      ];
     };
     for (const id of fast) expect(historyYears(id), id).toEqual(["2016"]);
     expect(IDS.filter((id) => !fast.includes(id) && historyYears(id).includes("2015")).length).toBeGreaterThan(0);
@@ -34,7 +45,13 @@ describe("Jupiter's fits for the planets demo's window", () => {
     const period = osculatingPeriodMs(jupiterMoonEphemeris(), "s2021-j7", WINDOW.startUtcMs);
     expect(period).toBeGreaterThan(300 * 86_400_000);
     expect(historyYears("s2021-j7")).toEqual(expect.arrayContaining(["2015"]));
-    expect(() => chunksNeeded(jupiterMoonEphemeris(), { window: { startUtcMs: Date.UTC(2018, 0, 1), endUtcMs: Date.UTC(2018, 0, 2) }, bodies: ["io"], chunkUrls: { "io/2016.bin": "x" } })).toThrow(/does not ship/);
+    expect(() =>
+      chunksNeeded(jupiterMoonEphemeris(), {
+        window: { startUtcMs: Date.UTC(2018, 0, 1), endUtcMs: Date.UTC(2018, 0, 2) },
+        bodies: ["io"],
+        chunkUrls: { "io/2016.bin": "x" },
+      }),
+    ).toThrow(/does not ship/);
   });
 });
 
@@ -56,7 +73,11 @@ describe("Jupiter's rings", () => {
     const bands = ringBandsWithLook(JUPITER_RINGS, { main: { opacity: 0.5, color: "#ffffff" } });
     expect(bands[1]).toMatchObject({ opacity: 0.5, color: "#ffffff", innerKm: 123_000 });
     expect(bands[0]).toEqual(JUPITER_RINGS.bands[0]);
-    const good = { format: "astraeus.ring-system/1", body: "x", bands: [{ id: "a", label: "A", innerKm: 1, outerKm: 2, color: "#ffffff", opacity: 0.1 }] };
+    const good = {
+      format: "astraeus.ring-system/1",
+      body: "x",
+      bands: [{ id: "a", label: "A", innerKm: 1, outerKm: 2, color: "#ffffff", opacity: 0.1 }],
+    };
     expect(parseRingSystem(good).bands.length).toBe(1);
     expect(() => parseRingSystem({ ...good, bands: [{ ...good.bands[0], outerKm: 1 }] })).toThrow(/innerKm < outerKm/);
     expect(() => parseRingSystem({ ...good, bands: [{ ...good.bands[0], opacity: 2 }] })).toThrow(/opacity/);

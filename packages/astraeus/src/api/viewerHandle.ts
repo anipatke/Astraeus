@@ -123,24 +123,51 @@ export interface ViewerHandle {
   onChange(listener: (change: ViewerChange) => void): () => void;
 }
 
-
 /** The handle a host holds for `link`: one object whose reads and calls go straight to the link, so `mount` and `AstraeusScene` hand out the same thing and cannot drift apart. */
 export function viewerHandleOf(link: ViewerLink): ViewerHandle {
   return {
-    get timeUtcMs() { return link.timeUtcMs; },
-    get rate() { return link.rate; },
-    get playing() { return link.playing; },
-    get view() { return link.view; },
-    get camera() { return link.camera; },
-    get eventZones() { return link.eventZones; },
-    get selected() { return link.selected; },
-    get panel() { return link.panel; },
-    get look() { return link.look; },
-    get scale() { return link.scale; },
-    get switches() { return link.switches; },
-    get skyFigures() { return link.skyFigures; },
-    get pick() { return link.pick; },
-    get about() { return link.about; },
+    get timeUtcMs() {
+      return link.timeUtcMs;
+    },
+    get rate() {
+      return link.rate;
+    },
+    get playing() {
+      return link.playing;
+    },
+    get view() {
+      return link.view;
+    },
+    get camera() {
+      return link.camera;
+    },
+    get eventZones() {
+      return link.eventZones;
+    },
+    get selected() {
+      return link.selected;
+    },
+    get panel() {
+      return link.panel;
+    },
+    get look() {
+      return link.look;
+    },
+    get scale() {
+      return link.scale;
+    },
+    get switches() {
+      return link.switches;
+    },
+    get skyFigures() {
+      return link.skyFigures;
+    },
+    get pick() {
+      return link.pick;
+    },
+    get about() {
+      return link.about;
+    },
     setAbout: (about) => link.setAbout(about),
     part: ((descriptor: AnyPart) => link.part(descriptor)) as ViewerHandle["part"],
     setPick: (value) => link.setPick(value),

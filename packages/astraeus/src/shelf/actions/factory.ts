@@ -39,7 +39,13 @@ export interface ActionsControl {
 }
 
 /** The part's own data: what the view reads. */
-export interface ActionsData { readonly actions: readonly { readonly id: string; readonly label: string; readonly camera: CameraRequest | undefined }[] }
+export interface ActionsData {
+  readonly actions: readonly {
+    readonly id: string;
+    readonly label: string;
+    readonly camera: CameraRequest | undefined;
+  }[];
+}
 
 /**
  * Buttons in a panel, each optionally turning the camera as a story panel's camera does; the host hears presses through `handle.part(block).onAction`.
@@ -56,11 +62,21 @@ export function actions(input: ActionsInput): BlockPart<"actions"> {
     const actionId = checkedText(record.id, who, `${at}.id`);
     if (seen.has(actionId)) throw badPart(who, `${at}.id "${actionId}" is used twice in this block`);
     seen.add(actionId);
-    return Object.freeze({ id: actionId, label: checkedText(record.label, who, `${at}.label`), camera: record.camera === undefined ? undefined : cameraOf(record.camera, who, at) });
+    return Object.freeze({
+      id: actionId,
+      label: checkedText(record.label, who, `${at}.label`),
+      camera: record.camera === undefined ? undefined : cameraOf(record.camera, who, at),
+    });
   });
   const block: ShelfBlock = {
-    kind: "actions", id, view: ActionsView, data: Object.freeze({ actions: list } satisfies ActionsData),
-    control: (link) => ({ onAction: (listener: (change: ActionChange) => void) => link.listen((event) => listener(event as ActionChange)) } satisfies ActionsControl),
+    kind: "actions",
+    id,
+    view: ActionsView,
+    data: Object.freeze({ actions: list } satisfies ActionsData),
+    control: (link) =>
+      ({
+        onAction: (listener: (change: ActionChange) => void) => link.listen((event) => listener(event as ActionChange)),
+      }) satisfies ActionsControl,
   };
   return registered(block) as unknown as BlockPart<"actions">;
 }
@@ -70,6 +86,9 @@ function cameraOf(target: unknown, who: string, at: string): CameraRequest {
   try {
     return cameraRequestOf(target, "camera", undefined, true);
   } catch (error) {
-    throw badPart(who, `${at}.camera is not a camera target (${error instanceof SceneError ? error.message : String(error)})`);
+    throw badPart(
+      who,
+      `${at}.camera is not a camera target (${error instanceof SceneError ? error.message : String(error)})`,
+    );
   }
 }

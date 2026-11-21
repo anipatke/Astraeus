@@ -4,7 +4,11 @@ import type { BodyMaterialConfig, BodyVisual } from "../visual";
 import mercuryTextureUrl from "../textures/mercury-2k.jpg";
 
 /** Donor material. */
-export const MERCURY_MATERIAL: BodyMaterialConfig = Object.freeze({ color: "#d6af84", roughness: 0.84, metalness: 0.16 });
+export const MERCURY_MATERIAL: BodyMaterialConfig = Object.freeze({
+  color: "#d6af84",
+  roughness: 0.84,
+  metalness: 0.16,
+});
 
 /**
  * Recorded in the donor's public/textures/README.md (Mercury section), read 2026-10-12 from the local donor checkout; the Solar System
@@ -14,7 +18,8 @@ export const MERCURY_TEXTURE_LICENCE: AssetLicence = Object.freeze({
   source: "Solar System Scope textures, based on NASA elevation and imagery data",
   url: "https://www.solarsystemscope.com/textures/",
   licence: "CC BY 4.0",
-  attribution: "Mercury texture: Solar System Scope (solarsystemscope.com/textures), CC BY 4.0, based on NASA elevation and imagery data",
+  attribution:
+    "Mercury texture: Solar System Scope (solarsystemscope.com/textures), CC BY 4.0, based on NASA elevation and imagery data",
   accessed: "2026-10-12",
 });
 

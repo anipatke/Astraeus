@@ -21,7 +21,14 @@ export class ViewPlan {
 
   /** The switches `setSwitches` placed, as the public read states them (`on` filled in); an unnamed switch is absent. */
   switchReads(): Readonly<Record<string, SceneSwitchRead>> {
-    return Object.freeze(Object.fromEntries(Object.entries(this.#switches ?? {}).map(([id, { place, on, label }]) => [id, Object.freeze({ place, on: on ?? true, ...(label === undefined ? {} : { label }) })])));
+    return Object.freeze(
+      Object.fromEntries(
+        Object.entries(this.#switches ?? {}).map(([id, { place, on, label }]) => [
+          id,
+          Object.freeze({ place, on: on ?? true, ...(label === undefined ? {} : { label }) }),
+        ]),
+      ),
+    );
   }
 
   /** The views as the public read states them, each with the objects, events and panels it shows (the lists the viewer uses, resolved against the finished scene); absent when none were named. `scope` is asked for only when views were named. */
@@ -30,8 +37,17 @@ export class ViewPlan {
     if (plan === undefined) return undefined;
     const { place, start, views } = resolveViews(plan, scope());
     return Object.freeze({
-      startId: start, place,
-      items: frozenList(views.map(({ id, label, objects, events, panels }) => ({ id, label, objects: Object.freeze([...objects]), events: Object.freeze([...events]), panels: Object.freeze([...panels]) }))),
+      startId: start,
+      place,
+      items: frozenList(
+        views.map(({ id, label, objects, events, panels }) => ({
+          id,
+          label,
+          objects: Object.freeze([...objects]),
+          events: Object.freeze([...events]),
+          panels: Object.freeze([...panels]),
+        })),
+      ),
     });
   }
 
@@ -41,8 +57,18 @@ export class ViewPlan {
   }
 
   /** The `views` entry of the definition: the views resolved against the finished scene once (absent when none was named). */
-  viewsEntry(scene: { readonly objects: readonly string[]; readonly events: readonly string[] }, storyPanels: StoryPanelSet | undefined, partIds: readonly string[] = []): { views?: ViewSettings } {
+  viewsEntry(
+    scene: { readonly objects: readonly string[]; readonly events: readonly string[] },
+    storyPanels: StoryPanelSet | undefined,
+    partIds: readonly string[] = [],
+  ): { views?: ViewSettings } {
     if (this.#views === undefined) return {};
-    return { views: resolveViews(this.#views, { objects: scene.objects, events: scene.events, panels: [...[...(storyPanels?.panels ?? []), ...(storyPanels?.steps ?? [])].map(({ id }) => id), ...partIds] }) };
+    return {
+      views: resolveViews(this.#views, {
+        objects: scene.objects,
+        events: scene.events,
+        panels: [...[...(storyPanels?.panels ?? []), ...(storyPanels?.steps ?? [])].map(({ id }) => id), ...partIds],
+      }),
+    };
   }
 }

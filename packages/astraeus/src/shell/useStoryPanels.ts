@@ -26,7 +26,7 @@ export function useStoryPanels(
   snapshot: ClockSnapshot,
   setPlaying: ((playing: boolean) => void) | undefined,
 ) {
-  const [openId, setOpenId] = useState<string | null>(() => (panels.length === 0 ? steps[0]?.id ?? null : null));
+  const [openId, setOpenId] = useState<string | null>(() => (panels.length === 0 ? (steps[0]?.id ?? null) : null));
   const cause = useRef<PanelCause>("visitor");
   const [holding, setHolding] = useState(false);
   const tracker = useRef(new CrossingTracker(snapshot.timeUtcMs));
@@ -38,10 +38,22 @@ export function useStoryPanels(
   useEffect(() => {
     const { panels: list, settings: now, snapshot: shot, setPlaying: control, openId: shownId } = latest.current;
     const shown = list.find((panel) => panel.id === shownId);
-    const spanPassed = shown !== undefined && armedId.current === shown.id && panelSpanPassed(shown, now.closeAfterSeconds, tracker.current.previousMs, shot.timeUtcMs, shot.playing || tracker.current.wasPlaying);
+    const spanPassed =
+      shown !== undefined &&
+      armedId.current === shown.id &&
+      panelSpanPassed(
+        shown,
+        now.closeAfterSeconds,
+        tracker.current.previousMs,
+        shot.timeUtcMs,
+        shot.playing || tracker.current.wasPlaying,
+      );
     const newest = tracker.current.advance(list, shot.timeUtcMs, shot.playing, now.autoOpen);
     if (newest === null) {
-      if (spanPassed) { cause.current = "playback"; setOpenId(null); }
+      if (spanPassed) {
+        cause.current = "playback";
+        setOpenId(null);
+      }
       return;
     }
     cause.current = "playback";
@@ -77,7 +89,8 @@ export function useStoryPanels(
   const open = useCallback((id: string, by: PanelCause = "visitor") => {
     const { panels: list, settings: now } = latest.current;
     const target = list.find((panel) => panel.id === id);
-    armedId.current = target !== undefined && panelArmedAt(target, now.closeAfterSeconds, tracker.current.timeUtcMs) ? id : null;
+    armedId.current =
+      target !== undefined && panelArmedAt(target, now.closeAfterSeconds, tracker.current.timeUtcMs) ? id : null;
     cause.current = by;
     setOpenId(id);
   }, []);
@@ -92,6 +105,15 @@ export function useStoryPanels(
     latest.current.setPlaying?.(true);
   }, []);
 
-  const openPanel: StoryPanel | StoryStep | null = panels.find((panel) => panel.id === openId) ?? steps.find((step) => step.id === openId) ?? null;
-  return { openPanel, holding, open, close, continuePlayback, noteSeek, cause: openPanel === null && openId !== null ? "move" as const : cause.current };
+  const openPanel: StoryPanel | StoryStep | null =
+    panels.find((panel) => panel.id === openId) ?? steps.find((step) => step.id === openId) ?? null;
+  return {
+    openPanel,
+    holding,
+    open,
+    close,
+    continuePlayback,
+    noteSeek,
+    cause: openPanel === null && openId !== null ? ("move" as const) : cause.current,
+  };
 }

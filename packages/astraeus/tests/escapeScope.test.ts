@@ -30,7 +30,12 @@ const AFTER_ONE_ESCAPE = { drawer: true, story: true, switches: false };
 
 let viewers: Mounted[] = [];
 let hostInput: HTMLInputElement | null = null;
-afterEach(() => { for (const m of viewers) m.unmount(); viewers = []; hostInput?.remove(); hostInput = null; });
+afterEach(() => {
+  for (const m of viewers) m.unmount();
+  viewers = [];
+  hostInput?.remove();
+  hostInput = null;
+});
 
 type Origin = "inside viewer A" | "inside viewer B" | "page body" | "a host input";
 const ORIGINS: readonly { origin: Origin; a: typeof ALL_OPEN; b: typeof ALL_OPEN }[] = [
@@ -50,7 +55,12 @@ describe.each(ORIGINS)("Escape pressed in $origin", ({ origin, a: expectA, b: ex
     document.body.appendChild(hostInput);
     expect(stillOpen(a)).toEqual(ALL_OPEN);
     expect(stillOpen(b)).toEqual(ALL_OPEN);
-    const target = { "inside viewer A": a.container.querySelector("main")!, "inside viewer B": b.container.querySelector("main")!, "page body": document.body, "a host input": hostInput }[origin];
+    const target = {
+      "inside viewer A": a.container.querySelector("main")!,
+      "inside viewer B": b.container.querySelector("main")!,
+      "page body": document.body,
+      "a host input": hostInput,
+    }[origin];
     pressKey(target, "Escape");
     expect(stillOpen(a)[listener]).toBe(expectA[listener]);
     expect(stillOpen(b)[listener]).toBe(expectB[listener]);

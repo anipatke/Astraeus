@@ -4,18 +4,29 @@
 import { createElement } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-const sceneProps = vi.hoisted(() => ({ latest: null as null | { controls: import("../src/app/AstraeusScene").SceneControls } }));
+const sceneProps = vi.hoisted(() => ({
+  latest: null as null | { controls: import("../src/app/AstraeusScene").SceneControls },
+}));
 vi.mock("../src/app/AstraeusScene", () => ({
-  AstraeusScene: (props: NonNullable<typeof sceneProps.latest>) => { sceneProps.latest = props; return createElement("div", { "data-testid": "scene" }); },
+  AstraeusScene: (props: NonNullable<typeof sceneProps.latest>) => {
+    sceneProps.latest = props;
+    return createElement("div", { "data-testid": "scene" });
+  },
 }));
 const prepared = vi.hoisted(() => ({ fail: false, gate: undefined as undefined | Promise<void>, real: false }));
 vi.mock("../src/api/prepared", async () => {
   const { syntheticDefinition } = await import("./synthetic/syntheticDefinition");
   const actual = await vi.importActual<typeof import("../src/api/prepared")>("../src/api/prepared");
   return {
-    prepareScene: (scene: import("../src/api/scene").Scene, data?: readonly import("../src/api/scene").DataSource[]) => {
+    prepareScene: (
+      scene: import("../src/api/scene").Scene,
+      data?: readonly import("../src/api/scene").DataSource[],
+    ) => {
       if (prepared.real) return actual.prepareScene(scene, data);
-      return { definition: { ...syntheticDefinition }, ready: prepared.fail ? Promise.reject(new Error("load failed")) : (prepared.gate ?? Promise.resolve()) };
+      return {
+        definition: { ...syntheticDefinition },
+        ready: prepared.fail ? Promise.reject(new Error("load failed")) : (prepared.gate ?? Promise.resolve()),
+      };
     },
   };
 });
@@ -53,7 +64,12 @@ const tick = (ms = 20) => new Promise<void>((resolve) => setTimeout(resolve, ms)
 async function until(check: () => void, timeoutMs = 2000): Promise<void> {
   const end = Date.now() + timeoutMs;
   for (;;) {
-    try { check(); return; } catch (error) { if (Date.now() > end) throw error; }
+    try {
+      check();
+      return;
+    } catch (error) {
+      if (Date.now() > end) throw error;
+    }
     await tick(10);
   }
 }
@@ -77,9 +93,14 @@ interface Opened {
   /** Waits for the host to hear nothing (`"silent"`) or reports the error code / "ready" it hears. */
   outcome(): Promise<string>;
 }
-interface Driver { readonly name: string; open(scene: Scene): Promise<Opened>; readonly silentOnEarlyUnmount: boolean; }
+interface Driver {
+  readonly name: string;
+  open(scene: Scene): Promise<Opened>;
+  readonly silentOnEarlyUnmount: boolean;
+}
 
-const errorCode = (error: unknown): string => (error instanceof SceneError ? error.code : error instanceof Error ? error.message : String(error));
+const errorCode = (error: unknown): string =>
+  error instanceof SceneError ? error.code : error instanceof Error ? error.message : String(error);
 
 const mountDriver: Driver = {
   name: "mount",
@@ -92,16 +113,41 @@ const mountDriver: Driver = {
     let ready = 0;
     let current: ReturnType<typeof mount> | undefined;
     const build = (shown: Scene = scene): Promise<void> => {
-      try { current = mount(element, shown, { onChange: (c) => changes.push(c) }); } catch (error) { errors.push(error as Error); current = undefined; return Promise.reject(error); }
+      try {
+        current = mount(element, shown, { onChange: (c) => changes.push(c) });
+      } catch (error) {
+        errors.push(error as Error);
+        current = undefined;
+        return Promise.reject(error);
+      }
       opened.handle = current;
-      return current.ready.then(() => { ready += 1; }, (error: Error) => { errors.push(error); throw error; });
+      return current.ready.then(
+        () => {
+          ready += 1;
+        },
+        (error: Error) => {
+          errors.push(error);
+          throw error;
+        },
+      );
     };
     const opened: Opened = {
-      handle: undefined, errors, changes, readyCount: () => ready,
+      handle: undefined,
+      errors,
+      changes,
+      readyCount: () => ready,
       ready: () => settledReady,
       unmount: () => current?.unmount(),
-      rebuild: (next) => { current?.unmount(); settledReady = build(next); return settledReady; },
-      outcome: () => settledReady.then(() => "ready", (error: unknown) => errorCode(error)),
+      rebuild: (next) => {
+        current?.unmount();
+        settledReady = build(next);
+        return settledReady;
+      },
+      outcome: () =>
+        settledReady.then(
+          () => "ready",
+          (error: unknown) => errorCode(error),
+        ),
     };
     let settledReady = build();
     settledReady.catch(() => undefined);
@@ -123,19 +169,44 @@ const reactDriver = (strict: boolean): Driver => ({
     let waiters: Array<{ ok: () => void; fail: (e: Error) => void }> = [];
     const render = (s: Scene): void => {
       const el: ReactElement = h(AstraeusScene, {
-        scene: s, ref, onChange: (c: ViewerChange) => changes.push(c),
-        onReady: () => { ready += 1; waiters.splice(0).forEach((w) => w.ok()); },
-        onError: (e: Error) => { errors.push(e); waiters.splice(0).forEach((w) => w.fail(e)); },
+        scene: s,
+        ref,
+        onChange: (c: ViewerChange) => changes.push(c),
+        onReady: () => {
+          ready += 1;
+          waiters.splice(0).forEach((w) => w.ok());
+        },
+        onError: (e: Error) => {
+          errors.push(e);
+          waiters.splice(0).forEach((w) => w.fail(e));
+        },
       });
       flushSync(() => root.render(strict ? h(StrictMode, null, el) : el));
     };
-    const wait = (): Promise<void> => new Promise<void>((ok, fail) => { waiters.push({ ok, fail }); });
+    const wait = (): Promise<void> =>
+      new Promise<void>((ok, fail) => {
+        waiters.push({ ok, fail });
+      });
     const opened: Opened = {
-      handle: undefined, errors, changes, readyCount: () => ready,
+      handle: undefined,
+      errors,
+      changes,
+      readyCount: () => ready,
       ready: () => (ready > 0 && errors.length === 0 ? Promise.resolve() : wait()),
       unmount: () => root.unmount(),
-      rebuild: (next) => { const heard = wait(); render(next ?? new Scene()); return heard; },
-      outcome: () => Promise.race([wait().then(() => "ready", (error: unknown) => errorCode(error)), tick(60).then(() => "silent")]),
+      rebuild: (next) => {
+        const heard = wait();
+        render(next ?? new Scene());
+        return heard;
+      },
+      outcome: () =>
+        Promise.race([
+          wait().then(
+            () => "ready",
+            (error: unknown) => errorCode(error),
+          ),
+          tick(60).then(() => "silent"),
+        ]),
     };
     render(scene); // flushSync: the commit has happened, so the ref is set
     opened.handle = ref.current ?? undefined;
@@ -144,7 +215,22 @@ const reactDriver = (strict: boolean): Driver => ({
 });
 
 /** The handle's members, read from one table: a new member of `ViewerHandle` must join it (the last test fails otherwise). */
-const READS = ["timeUtcMs", "rate", "playing", "view", "camera", "eventZones", "selected", "panel", "look", "scale", "switches", "pick", "skyFigures", "about"] as const;
+const READS = [
+  "timeUtcMs",
+  "rate",
+  "playing",
+  "view",
+  "camera",
+  "eventZones",
+  "selected",
+  "panel",
+  "look",
+  "scale",
+  "switches",
+  "pick",
+  "skyFigures",
+  "about",
+] as const;
 const CALLS: Record<string, (handle: ViewerHandle) => void> = {
   setTime: (handle) => handle.setTime(MID),
   setRate: (handle) => handle.setRate(RATE),
@@ -168,12 +254,31 @@ const READ_CALLS: Record<string, (handle: ViewerHandle) => unknown> = {
   groupLook: (handle) => handle.groupLook("x"),
 };
 /** Listener registration is allowed at any time (the scene's own `onChange` is registered before `ready`); what is promised is that nothing is called after unmount. */
-const LISTENERS = ["onChange", "onEventZone", "onSelect", "onPanel", "onCameraChange", "onFirstDraw", "onPick"] as const;
-const codeOf = (run: () => void): string | undefined => { try { run(); } catch (error) { return errorCode(error); } return undefined; };
+const LISTENERS = [
+  "onChange",
+  "onEventZone",
+  "onSelect",
+  "onPanel",
+  "onCameraChange",
+  "onFirstDraw",
+  "onPick",
+] as const;
+const codeOf = (run: () => void): string | undefined => {
+  try {
+    run();
+  } catch (error) {
+    return errorCode(error);
+  }
+  return undefined;
+};
 const expectUnusable = (handle: ViewerHandle): void => {
   for (const read of READS) expect(handle[read], read).toBeUndefined();
   for (const [name, read] of Object.entries(READ_CALLS)) expect(read(handle), name).toBeUndefined();
-  for (const [name, call] of Object.entries(CALLS)) expect(codeOf(() => call(handle)), name).toBe("not-mounted");
+  for (const [name, call] of Object.entries(CALLS))
+    expect(
+      codeOf(() => call(handle)),
+      name,
+    ).toBe("not-mounted");
   for (const name of LISTENERS) expect(typeof handle[name](() => undefined), name).toBe("function");
 };
 
@@ -181,16 +286,29 @@ let release: (() => void) | undefined;
 beforeEach(() => {
   vi.stubGlobal("fetch", () => Promise.reject(new Error("offline")));
   vi.useFakeTimers({ toFake: ["setInterval", "clearInterval", "performance"] });
-  prepared.fail = false; prepared.real = false;
-  const gate = new Promise<void>((resolve) => { release = resolve; });
+  prepared.fail = false;
+  prepared.real = false;
+  const gate = new Promise<void>((resolve) => {
+    release = resolve;
+  });
   prepared.gate = gate;
 });
-afterEach(() => { document.body.innerHTML = ""; prepared.fail = false; prepared.real = false; prepared.gate = undefined; vi.unstubAllGlobals(); vi.useRealTimers(); });
-const openNow = () => { prepared.gate = undefined; };
+afterEach(() => {
+  document.body.innerHTML = "";
+  prepared.fail = false;
+  prepared.real = false;
+  prepared.gate = undefined;
+  vi.unstubAllGlobals();
+  vi.useRealTimers();
+});
+const openNow = () => {
+  prepared.gate = undefined;
+};
 
 describe.each([mountDriver, reactDriver(false)])("lifecycle: $name", (driver) => {
   it("build fault: an empty scene reports empty-scene (mount throws, React calls onError) and the handle stays unusable", async () => {
-    prepared.real = true; openNow();
+    prepared.real = true;
+    openNow();
     const opened = await driver.open(new Scene());
     await tick();
     expect(opened.errors.map(errorCode)).toEqual(["empty-scene"]);
@@ -200,7 +318,8 @@ describe.each([mountDriver, reactDriver(false)])("lifecycle: $name", (driver) =>
   });
 
   it("load fault: the host hears the error, never ready, and the handle stays unusable", async () => {
-    prepared.fail = true; openNow();
+    prepared.fail = true;
+    openNow();
     const opened = await driver.open(new Scene());
     await tick();
     expect(opened.errors.map((e) => e.message)).toEqual(["load failed"]);
@@ -222,7 +341,8 @@ describe.each([mountDriver, reactDriver(false)])("lifecycle: $name", (driver) =>
   it("unmount after the load but before the viewer attaches: ready never resolves; mount's rejects not-mounted, React fires neither callback", async () => {
     const opened = await driver.open(new Scene());
     release!();
-    await Promise.resolve(); await Promise.resolve(); // loaded and rendering; the viewer's effect has not run
+    await Promise.resolve();
+    await Promise.resolve(); // loaded and rendering; the viewer's effect has not run
     opened.unmount();
     expect(await opened.outcome()).toBe(driver.silentOnEarlyUnmount ? "silent" : "not-mounted");
     expect(opened.readyCount()).toBe(0);
@@ -259,7 +379,8 @@ describe.each([mountDriver, reactDriver(false)])("lifecycle: $name", (driver) =>
     expect(heard).toContain("change");
     opened.unmount();
     const before = { heard: heard.length, own: opened.changes.length };
-    vi.advanceTimersByTime(2000); await tick();
+    vi.advanceTimersByTime(2000);
+    await tick();
     expect({ heard: heard.length, own: opened.changes.length }).toEqual(before);
   });
 
@@ -283,7 +404,9 @@ describe.each([mountDriver, reactDriver(false)])("lifecycle: $name", (driver) =>
     await opened.ready();
     const boom = new Error("listener boom");
     const heard: string[] = [];
-    opened.handle!.onChange(() => { throw boom; });
+    opened.handle!.onChange(() => {
+      throw boom;
+    });
     opened.handle!.onChange(() => heard.push("second"));
     opened.handle!.setTime(MID);
     expect(heard).toEqual(["second"]);
@@ -297,7 +420,9 @@ describe.each([mountDriver, reactDriver(false)])("lifecycle: $name", (driver) =>
     vi.stubGlobal("reportError", report);
     const opened = await driver.open(new Scene());
     await opened.ready();
-    const stop = opened.handle!.onChange(() => { throw new Error("again"); });
+    const stop = opened.handle!.onChange(() => {
+      throw new Error("again");
+    });
     const heard: number[] = [];
     opened.handle!.onChange((c) => heard.push(c.timeUtcMs));
     opened.handle!.setTime(MID);
@@ -309,7 +434,8 @@ describe.each([mountDriver, reactDriver(false)])("lifecycle: $name", (driver) =>
     opened.unmount();
   });
   it("a mounted scene is frozen: an edit after ready throws scene-mounted, reads still answer, and a failed build leaves the scene editable", async () => {
-    prepared.real = true; openNow();
+    prepared.real = true;
+    openNow();
     const failed = await driver.open(new Scene());
     await tick();
     expect(failed.errors.map(errorCode)).toEqual(["empty-scene"]);
@@ -335,7 +461,10 @@ describe.each([mountDriver, reactDriver(false)])("lifecycle: $name", (driver) =>
     expect(handle.playing).toBe(false);
     handle.setPlaying(true);
     expect(handle.playing).toBe(true);
-    expect(heard).toEqual([{ playing: false, cause: "host" }, { playing: true, cause: "host" }]);
+    expect(heard).toEqual([
+      { playing: false, cause: "host" },
+      { playing: true, cause: "host" },
+    ]);
     expect(codeOf(() => handle.setPlaying("yes" as unknown as boolean))).toBe("bad-timeline");
     opened.unmount();
     expectUnusable(handle);
@@ -358,9 +487,15 @@ describe.each([mountDriver, reactDriver(false)])("lifecycle: $name", (driver) =>
     expect(heard.map((c) => c.stars)).toEqual([1.5, 1, 1]);
     // T-296: sky line colours and the label font and size are looks too (API-02): set live, read back filled in, back to the defaults when the whole look is replaced.
     handle.setLook({ skyLines: { ecliptic: "#112233" }, labels: { sizePx: 16, fontFamily: "Georgia, serif" } });
-    expect(handle.look).toMatchObject({ skyLines: { ecliptic: "#112233", figure: "#8fb4ff" }, labels: { sizePx: 16, fontFamily: "Georgia, serif" } });
+    expect(handle.look).toMatchObject({
+      skyLines: { ecliptic: "#112233", figure: "#8fb4ff" },
+      labels: { sizePx: 16, fontFamily: "Georgia, serif" },
+    });
     handle.setLook({});
-    expect(handle.look).toMatchObject({ skyLines: { ecliptic: "#e0b25a" }, labels: { sizePx: 12, fontFamily: "inherit" } });
+    expect(handle.look).toMatchObject({
+      skyLines: { ecliptic: "#e0b25a" },
+      labels: { sizePx: 12, fontFamily: "inherit" },
+    });
     expect(codeOf(() => handle.setLook({ skyLines: { figure: "not a colour" } }))).toBe("bad-look");
     expect(codeOf(() => handle.setLook({ labels: { sizePx: 99 } }))).toBe("bad-look");
     expect(codeOf(() => handle.setLook({ labels: { fontFamily: " " } }))).toBe("bad-look");
@@ -397,8 +532,33 @@ describe.each([mountDriver, reactDriver(false)])("lifecycle: $name", (driver) =>
     expect(heard.length).toBe(1);
   });
   it("sky figures take part in selection (O-066 T-299): the menu lists them, a visitor's pick and setSelected take their id, onSelect hears each once, and the card shows it", async () => {
-    prepared.real = true; openNow();
-    const scene = new Scene().addBody(earth).addSkyFigures([{ id: "kite", label: "The Kite", segments: [[{ raDeg: 10, decDeg: 20 }, { raDeg: 20, decDeg: 30 }]], description: "A made-up kite.", facts: [{ label: "Stars", value: "2" }] }, { id: "hidden", label: "Hidden Kite", listed: false, segments: [[{ raDeg: 40, decDeg: 20 }, { raDeg: 50, decDeg: 30 }]] }]);
+    prepared.real = true;
+    openNow();
+    const scene = new Scene().addBody(earth).addSkyFigures([
+      {
+        id: "kite",
+        label: "The Kite",
+        segments: [
+          [
+            { raDeg: 10, decDeg: 20 },
+            { raDeg: 20, decDeg: 30 },
+          ],
+        ],
+        description: "A made-up kite.",
+        facts: [{ label: "Stars", value: "2" }],
+      },
+      {
+        id: "hidden",
+        label: "Hidden Kite",
+        listed: false,
+        segments: [
+          [
+            { raDeg: 40, decDeg: 20 },
+            { raDeg: 50, decDeg: 30 },
+          ],
+        ],
+      },
+    ]);
     const opened = await driver.open(scene);
     await opened.ready();
     const handle = opened.handle!;
@@ -420,19 +580,31 @@ describe.each([mountDriver, reactDriver(false)])("lifecycle: $name", (driver) =>
     opened.unmount();
   });
   it("onPick and setPick (O-059 T-269): the picker opens on its value, a visitor's press is heard once and moves nothing, setPick moves the pressed option alone, a throwing listener spares the next, and nothing is heard after unmount", async () => {
-    prepared.real = true; openNow();
-    const scene = new Scene().addBody(earth).setPicker({ id: "world", label: "World", options: [{ value: "a", label: "A" }, { value: "b", label: "B" }], value: "a" });
+    prepared.real = true;
+    openNow();
+    const scene = new Scene().addBody(earth).setPicker({
+      id: "world",
+      label: "World",
+      options: [
+        { value: "a", label: "A" },
+        { value: "b", label: "B" },
+      ],
+      value: "a",
+    });
     const opened = await driver.open(scene);
     await opened.ready();
     const handle = opened.handle!;
     const reported: unknown[] = [];
     vi.stubGlobal("reportError", (error: unknown) => reported.push(error));
-    const pressed = (value: string): string | null => document.querySelector(`[data-switch-value='${value}']`)!.getAttribute("aria-pressed");
+    const pressed = (value: string): string | null =>
+      document.querySelector(`[data-switch-value='${value}']`)!.getAttribute("aria-pressed");
     expect(handle.pick).toBe("a");
     expect(pressed("a")).toBe("true");
     const heard: unknown[] = [];
     const changes: unknown[] = [];
-    handle.onPick(() => { throw new Error("host bug"); });
+    handle.onPick(() => {
+      throw new Error("host bug");
+    });
     handle.onPick((c) => heard.push(c));
     handle.onChange((c) => changes.push(c));
     flushSync(() => document.querySelector<HTMLButtonElement>("[data-switch-value='a']")!.click()); // the pressed one: nothing
@@ -466,8 +638,11 @@ describe.each([mountDriver, reactDriver(false)])("lifecycle: $name", (driver) =>
   });
 
   it("about and setAbout (O-079 T-325): the scene's About opens the viewer, the title opens the panel, a host setAbout replaces it live (an open panel changes), bad shapes throw bad-about, call order holds, a rebuild goes back to the scene's own, and after unmount reads undefined and throws not-mounted", async () => {
-    prepared.real = true; openNow();
-    const scene = new Scene().addBody(earth).setAbout({ title: "Tarn", status: "First status", links: [{ text: "Notes", url: "https://example.org/n" }] });
+    prepared.real = true;
+    openNow();
+    const scene = new Scene()
+      .addBody(earth)
+      .setAbout({ title: "Tarn", status: "First status", links: [{ text: "Notes", url: "https://example.org/n" }] });
     const opened = await driver.open(scene);
     await opened.ready();
     const handle = opened.handle!;
@@ -475,7 +650,11 @@ describe.each([mountDriver, reactDriver(false)])("lifecycle: $name", (driver) =>
     const panel = (): HTMLElement | null => document.querySelector("[data-about]");
     const changes: unknown[] = [];
     handle.onChange((c) => changes.push(c));
-    expect(handle.about).toEqual({ title: "Tarn", status: "First status", links: [{ text: "Notes", url: "https://example.org/n" }] });
+    expect(handle.about).toEqual({
+      title: "Tarn",
+      status: "First status",
+      links: [{ text: "Notes", url: "https://example.org/n" }],
+    });
     expect(title()!.textContent).toContain("Tarn");
     expect(panel()).toBeNull();
     flushSync(() => title()!.click());
@@ -486,7 +665,10 @@ describe.each([mountDriver, reactDriver(false)])("lifecycle: $name", (driver) =>
     expect(panel()!.querySelector("[data-about-links]")).toBeNull();
     expect(title()!.textContent).toContain("Mere");
     // Host calls land in order: the last word wins, and a bad one changes nothing.
-    flushSync(() => { handle.setAbout({ title: "One" }); handle.setAbout({ title: "Two" }); });
+    flushSync(() => {
+      handle.setAbout({ title: "One" });
+      handle.setAbout({ title: "Two" });
+    });
     expect(handle.about).toEqual({ title: "Two" });
     expect(codeOf(() => handle.setAbout({ title: "" }))).toBe("bad-about");
     expect(codeOf(() => handle.setAbout(undefined as never))).toBe("bad-about");
@@ -503,7 +685,8 @@ describe.each([mountDriver, reactDriver(false)])("lifecycle: $name", (driver) =>
   });
 
   it("a scene without an About reads about as undefined, and a host's setAbout gives the bar its title", async () => {
-    prepared.real = true; openNow();
+    prepared.real = true;
+    openNow();
     const opened = await driver.open(new Scene().addBody(earth));
     await opened.ready();
     expect(opened.handle!.about).toBeUndefined();
@@ -514,16 +697,29 @@ describe.each([mountDriver, reactDriver(false)])("lifecycle: $name", (driver) =>
   });
 
   it("shelf parts (O-080 T-333): a panel is a story button and a left panel, handle.part gives a typed control (open, setOpen silent, onOpen visitors only), a custom block's element lives from ready to unmount, bad-part, call order, a rebuild, and not-mounted after unmount", async () => {
-    prepared.real = true; openNow();
+    prepared.real = true;
+    openNow();
     const body = customBlock({ id: "gaps-body" });
-    const gapsPanel = panel({ id: "gaps", button: { label: "Kirkwood gaps", shortLabel: "Gaps" }, title: "The gaps", blocks: [body] });
-    const emptyPanel = panel({ id: "empty", button: { label: "How empty is it?" }, title: "How empty?", blocks: [customBlock({ id: "empty-body" })] });
+    const gapsPanel = panel({
+      id: "gaps",
+      button: { label: "Kirkwood gaps", shortLabel: "Gaps" },
+      title: "The gaps",
+      blocks: [body],
+    });
+    const emptyPanel = panel({
+      id: "empty",
+      button: { label: "How empty is it?" },
+      title: "How empty?",
+      blocks: [customBlock({ id: "empty-body" })],
+    });
     const opened = await driver.open(new Scene().addBody(earth).addParts([gapsPanel, emptyPanel]));
     await opened.ready();
     const handle = opened.handle!;
-    const buttons = (): (string | null)[] => [...document.querySelectorAll("[data-story-button]")].map((b) => b.getAttribute("data-story-button"));
+    const buttons = (): (string | null)[] =>
+      [...document.querySelectorAll("[data-story-button]")].map((b) => b.getAttribute("data-story-button"));
     const button = (id: string): HTMLElement => document.querySelector<HTMLElement>(`[data-story-button="${id}"]`)!;
-    const shown = (): string | null | undefined => document.querySelector("[data-shelf-panel]")?.getAttribute("data-shelf-panel");
+    const shown = (): string | null | undefined =>
+      document.querySelector("[data-shelf-panel]")?.getAttribute("data-shelf-panel");
     const gaps = handle.part(gapsPanel);
     const empty = handle.part(emptyPanel);
     const heard: unknown[] = [];
@@ -542,16 +738,21 @@ describe.each([mountDriver, reactDriver(false)])("lifecycle: $name", (driver) =>
     await until(() => expect([gaps.open, empty.open, shown()]).toEqual([false, true, "empty"])); // wait for the drawn state, not a fixed time
     expect(heard).toEqual([{ part: "gaps", open: true }]);
     // host calls land in order: the last word wins
-    gaps.setOpen(true); empty.setOpen(true);
+    gaps.setOpen(true);
+    empty.setOpen(true);
     await until(() => expect([gaps.open, empty.open, shown()]).toEqual([false, true, "empty"]));
-    empty.setOpen(false); empty.setOpen(false);
+    empty.setOpen(false);
+    empty.setOpen(false);
     await until(() => expect([empty.open, shown()]).toEqual([false, undefined]));
     // Escape is the visitor's
     gaps.setOpen(true);
     await until(() => expect(shown()).toBe("gaps"));
     flushSync(() => document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true })));
     expect([gaps.open, shown()]).toEqual([false, undefined]);
-    expect(heard).toEqual([{ part: "gaps", open: true }, { part: "gaps", open: false }]);
+    expect(heard).toEqual([
+      { part: "gaps", open: true },
+      { part: "gaps", open: false },
+    ]);
     stopGaps();
     flushSync(() => button("gaps").click());
     expect(heard).toHaveLength(2);
@@ -568,7 +769,12 @@ describe.each([mountDriver, reactDriver(false)])("lifecycle: $name", (driver) =>
     await until(() => expect(element.isConnected).toBe(true));
     expect(element.textContent).toBe("host content");
     // bad-part: a part this viewer's scene does not hold, a lookalike, a bad argument
-    const stranger = panel({ id: "stranger", button: { label: "S" }, title: "S", blocks: [customBlock({ id: "stranger-body" })] });
+    const stranger = panel({
+      id: "stranger",
+      button: { label: "S" },
+      title: "S",
+      blocks: [customBlock({ id: "stranger-body" })],
+    });
     expect(codeOf(() => handle.part(stranger))).toBe("bad-part");
     expect(codeOf(() => handle.part({ kind: "panel", id: "gaps" } as never))).toBe("bad-part");
     expect(codeOf(() => handle.part(undefined as never))).toBe("bad-part");
@@ -588,9 +794,21 @@ describe.each([mountDriver, reactDriver(false)])("lifecycle: $name", (driver) =>
   });
 
   it("a host setter undone between the part's draw and its report is silent (I-189): open then close, and close then open from an open panel, from a MutationObserver; chips' setSelected likewise; the host hears nothing and reads its last word throughout", async () => {
-    prepared.real = true; openNow();
-    const chips = filterChips({ id: "pick", choices: [{ value: "a", label: "A" }, { value: "b", label: "B" }] });
-    const gapsPanel = panel({ id: "gaps", button: { label: "Gaps" }, title: "The gaps", blocks: [customBlock({ id: "gaps-body" }), chips] });
+    prepared.real = true;
+    openNow();
+    const chips = filterChips({
+      id: "pick",
+      choices: [
+        { value: "a", label: "A" },
+        { value: "b", label: "B" },
+      ],
+    });
+    const gapsPanel = panel({
+      id: "gaps",
+      button: { label: "Gaps" },
+      title: "The gaps",
+      blocks: [customBlock({ id: "gaps-body" }), chips],
+    });
     const opened = await driver.open(new Scene().addBody(earth).addParts([gapsPanel]));
     await opened.ready();
     const handle = opened.handle!;
@@ -599,34 +817,75 @@ describe.each([mountDriver, reactDriver(false)])("lifecycle: $name", (driver) =>
     const heard: unknown[] = [];
     gaps.onOpen((change) => heard.push(change));
     chipControl.onSelect((selection) => heard.push(selection));
-    const shown = (): string | null => document.querySelector("[data-shelf-panel]")?.getAttribute("data-shelf-panel") ?? null;
-    const lit = (): (string | null)[] => [...document.querySelectorAll('[data-shelf-block="pick"] [aria-pressed="true"]')].map((b) => b.getAttribute("data-shelf-chip"));
+    const shown = (): string | null =>
+      document.querySelector("[data-shelf-panel]")?.getAttribute("data-shelf-panel") ?? null;
+    const lit = (): (string | null)[] =>
+      [...document.querySelectorAll('[data-shelf-block="pick"] [aria-pressed="true"]')].map((b) =>
+        b.getAttribute("data-shelf-chip"),
+      );
     /** Calls `first`, then `second` as soon as `drawn` holds (before the viewer's report effect), and reads the host's view at each step. */
-    async function undo(first: () => void, drawn: () => boolean, second: () => void, read: () => unknown, settled: () => void): Promise<unknown[]> {
+    async function undo(
+      first: () => void,
+      drawn: () => boolean,
+      second: () => void,
+      read: () => unknown,
+      settled: () => void,
+    ): Promise<unknown[]> {
       const reads: unknown[] = [];
       let fired = false;
       const observer = new MutationObserver(() => {
         if (fired || !drawn()) return;
-        fired = true; observer.disconnect(); second(); reads.push(read());
+        fired = true;
+        observer.disconnect();
+        second();
+        reads.push(read());
       });
       observer.observe(document.body, { childList: true, subtree: true, attributes: true });
-      first(); reads.push(read());
+      first();
+      reads.push(read());
       await until(() => expect(fired).toBe(true));
       await until(settled);
-      for (let i = 0; i < 6; i += 1) { reads.push(read()); await tick(10); }
+      for (let i = 0; i < 6; i += 1) {
+        reads.push(read());
+        await tick(10);
+      }
       return reads;
     }
     // closed: open, then close the moment the panel is drawn
-    expect(await undo(() => gaps.setOpen(true), () => shown() === "gaps", () => gaps.setOpen(false), () => gaps.open, () => expect(shown()).toBeNull())).toEqual([true, false, false, false, false, false, false, false]);
+    expect(
+      await undo(
+        () => gaps.setOpen(true),
+        () => shown() === "gaps",
+        () => gaps.setOpen(false),
+        () => gaps.open,
+        () => expect(shown()).toBeNull(),
+      ),
+    ).toEqual([true, false, false, false, false, false, false, false]);
     expect([gaps.open, shown(), heard]).toEqual([false, null, []]);
     // open: close, then open the moment the panel is gone
     gaps.setOpen(true);
     await until(() => expect(shown()).toBe("gaps"));
     await tick(60);
-    expect(await undo(() => gaps.setOpen(false), () => shown() === null, () => gaps.setOpen(true), () => gaps.open, () => expect(shown()).toBe("gaps"))).toEqual([false, true, true, true, true, true, true, true]);
+    expect(
+      await undo(
+        () => gaps.setOpen(false),
+        () => shown() === null,
+        () => gaps.setOpen(true),
+        () => gaps.open,
+        () => expect(shown()).toBe("gaps"),
+      ),
+    ).toEqual([false, true, true, true, true, true, true, true]);
     expect([gaps.open, shown(), heard]).toEqual([true, "gaps", []]);
     // chips: light one, then clear it the moment it is lit
-    expect(await undo(() => chipControl.setSelected(["a"]), () => lit().includes("a"), () => chipControl.setSelected([]), () => chipControl.selected, () => expect(lit()).toEqual([]))).toEqual([["a"], [], [], [], [], [], [], []]);
+    expect(
+      await undo(
+        () => chipControl.setSelected(["a"]),
+        () => lit().includes("a"),
+        () => chipControl.setSelected([]),
+        () => chipControl.selected,
+        () => expect(lit()).toEqual([]),
+      ),
+    ).toEqual([["a"], [], [], [], [], [], [], []]);
     expect(heard, "setters say nothing").toEqual([]);
     // the visitor is still heard after all that
     flushSync(() => document.querySelector<HTMLElement>('[data-story-button="gaps"]')!.click());
@@ -635,20 +894,56 @@ describe.each([mountDriver, reactDriver(false)])("lifecycle: $name", (driver) =>
   });
 
   it("shelf content parts (O-080 T-334): chips light up on a press and the host hears the values (visitor), setSelected and the other setters are silent, an action turns the camera as a story panel's does and is heard, setParagraphs and setEntries change an open panel, and each control is not-mounted after unmount", async () => {
-    prepared.real = true; openNow();
+    prepared.real = true;
+    openNow();
     const intro = explainer({ id: "intro", heading: "Why", paragraphs: ["First."], notes: ["A note."] });
-    const chips = filterChips({ id: "gap", label: "Gap", choices: [{ value: "3:1", label: "3:1", color: "#8fb4ff" }, { value: "5:2", label: "5:2" }, { value: "2:1", label: "2:1" }] });
-    const many = filterChips({ id: "kinds", choices: [{ value: "a", label: "A" }, { value: "b", label: "B" }, { value: "c", label: "C" }], multiple: true, selected: ["b"] });
-    const fly = actions({ id: "fly", actions: [{ id: "to-earth", label: "Fly to Earth", camera: { focus: "earth" } }, { id: "plain", label: "Just tell the host" }] });
-    const key = colourKey({ id: "key", entries: [{ label: "Main belt", color: "#8fb4ff", count: 1200, note: "Between Mars and Jupiter." }] });
-    const hold = panel({ id: "hold", button: { label: "Everything" }, title: "Everything", blocks: [intro, chips, many, fly, key] });
+    const chips = filterChips({
+      id: "gap",
+      label: "Gap",
+      choices: [
+        { value: "3:1", label: "3:1", color: "#8fb4ff" },
+        { value: "5:2", label: "5:2" },
+        { value: "2:1", label: "2:1" },
+      ],
+    });
+    const many = filterChips({
+      id: "kinds",
+      choices: [
+        { value: "a", label: "A" },
+        { value: "b", label: "B" },
+        { value: "c", label: "C" },
+      ],
+      multiple: true,
+      selected: ["b"],
+    });
+    const fly = actions({
+      id: "fly",
+      actions: [
+        { id: "to-earth", label: "Fly to Earth", camera: { focus: "earth" } },
+        { id: "plain", label: "Just tell the host" },
+      ],
+    });
+    const key = colourKey({
+      id: "key",
+      entries: [{ label: "Main belt", color: "#8fb4ff", count: 1200, note: "Between Mars and Jupiter." }],
+    });
+    const hold = panel({
+      id: "hold",
+      button: { label: "Everything" },
+      title: "Everything",
+      blocks: [intro, chips, many, fly, key],
+    });
     const opened = await driver.open(new Scene().addBody(earth).addParts([hold]));
     await opened.ready();
     const handle = opened.handle!;
     const controls = () => sceneProps.latest!.controls;
     flushSync(() => document.querySelector<HTMLElement>('[data-story-button="hold"]')!.click());
-    const chip = (block: string, value: string) => document.querySelector<HTMLElement>(`[data-shelf-block="${block}"] [data-shelf-chip="${value}"]`)!;
-    const lit = (block: string) => [...document.querySelectorAll(`[data-shelf-block="${block}"] [aria-pressed="true"]`)].map((b) => b.getAttribute("data-shelf-chip"));
+    const chip = (block: string, value: string) =>
+      document.querySelector<HTMLElement>(`[data-shelf-block="${block}"] [data-shelf-chip="${value}"]`)!;
+    const lit = (block: string) =>
+      [...document.querySelectorAll(`[data-shelf-block="${block}"] [aria-pressed="true"]`)].map((b) =>
+        b.getAttribute("data-shelf-chip"),
+      );
     const chipControl = handle.part(chips);
     const manyControl = handle.part(many);
     const heard: unknown[] = [];
@@ -666,15 +961,28 @@ describe.each([mountDriver, reactDriver(false)])("lifecycle: $name", (driver) =>
     flushSync(() => chip("kinds", "b").click());
     expect(lit("kinds")).toEqual(["a"]);
     expect(heard).toEqual([
-      { part: "gap", values: ["3:1"], cause: "visitor" }, { part: "gap", values: ["5:2"], cause: "visitor" }, { part: "gap", values: [], cause: "visitor" },
-      { part: "kinds", values: ["a", "b"], cause: "visitor" }, { part: "kinds", values: ["a"], cause: "visitor" },
+      { part: "gap", values: ["3:1"], cause: "visitor" },
+      { part: "gap", values: ["5:2"], cause: "visitor" },
+      { part: "gap", values: [], cause: "visitor" },
+      { part: "kinds", values: ["a", "b"], cause: "visitor" },
+      { part: "kinds", values: ["a"], cause: "visitor" },
     ]);
     // the setters are silent and move the chips; setChoices keeps the values still there
     heard.length = 0;
     flushSync(() => chipControl.setSelected(["2:1"]));
     expect([lit("gap"), chipControl.selected]).toEqual([["2:1"], ["2:1"]]);
-    flushSync(() => chipControl.setChoices([{ value: "2:1", label: "2:1" }, { value: "7:3", label: "7:3" }]));
-    expect([lit("gap"), [...document.querySelectorAll('[data-shelf-block="gap"] [data-shelf-chip]')].map((b) => b.getAttribute("data-shelf-chip"))]).toEqual([["2:1"], ["2:1", "7:3"]]);
+    flushSync(() =>
+      chipControl.setChoices([
+        { value: "2:1", label: "2:1" },
+        { value: "7:3", label: "7:3" },
+      ]),
+    );
+    expect([
+      lit("gap"),
+      [...document.querySelectorAll('[data-shelf-block="gap"] [data-shelf-chip]')].map((b) =>
+        b.getAttribute("data-shelf-chip"),
+      ),
+    ]).toEqual([["2:1"], ["2:1", "7:3"]]);
     flushSync(() => chipControl.setChoices([{ value: "7:3", label: "7:3" }]));
     expect(chipControl.selected).toEqual([]);
     expect(codeOf(() => chipControl.setSelected(["nope"]))).toBe("bad-part");
@@ -696,12 +1004,17 @@ describe.each([mountDriver, reactDriver(false)])("lifecycle: $name", (driver) =>
     controls().cameraRequest = null;
     flushSync(() => document.querySelector<HTMLElement>('[data-shelf-action="plain"]')!.click());
     expect(controls().cameraRequest).toBeNull();
-    expect(pressed).toEqual([{ part: "fly", action: "to-earth" }, { part: "fly", action: "plain" }]);
+    expect(pressed).toEqual([
+      { part: "fly", action: "to-earth" },
+      { part: "fly", action: "plain" },
+    ]);
     expect(document.querySelector('[data-shelf-action="plain"]')!.tagName).toBe("BUTTON");
     // text and key change while the panel is open, silently
     expect(document.querySelector('[data-shelf-block="intro"]')!.textContent).toContain("First.");
     flushSync(() => handle.part(intro).setParagraphs(["Second.", "Third."]));
-    expect([...document.querySelectorAll('[data-shelf-block="intro"] .shelf-explainer-text')].map((p) => p.textContent)).toEqual(["Second.", "Third."]);
+    expect(
+      [...document.querySelectorAll('[data-shelf-block="intro"] .shelf-explainer-text')].map((p) => p.textContent),
+    ).toEqual(["Second.", "Third."]);
     expect(codeOf(() => handle.part(intro).setParagraphs([""]))).toBe("bad-part");
     flushSync(() => handle.part(key).setEntries([{ label: "Trojans", color: "#e8b06a", count: 7 }]));
     expect(document.querySelector('[data-shelf-block="key"]')!.textContent).toContain("Trojans");
@@ -725,8 +1038,21 @@ describe.each([mountDriver, reactDriver(false)])("lifecycle: $name", (driver) =>
   });
 
   it("chart (O-081 T-337): bars draw from the bins, setHighlight dims the bars outside the range and setBins redraws while the panel is open, both silent and checked, kept across close and reopen, summary on the image, not-mounted after unmount", async () => {
-    prepared.real = true; openNow();
-    const sizes = chart({ id: "sizes", axisLabel: "Diameter (km)", bins: [{ low: 0, high: 10, count: 4 }, { low: 10, high: 20, count: 9, color: "#8fb4ff" }, { low: 20, high: 30, count: 1 }], marks: [{ value: 10, label: "Limit" }, { value: 99, label: "Off" }] });
+    prepared.real = true;
+    openNow();
+    const sizes = chart({
+      id: "sizes",
+      axisLabel: "Diameter (km)",
+      bins: [
+        { low: 0, high: 10, count: 4 },
+        { low: 10, high: 20, count: 9, color: "#8fb4ff" },
+        { low: 20, high: 30, count: 1 },
+      ],
+      marks: [
+        { value: 10, label: "Limit" },
+        { value: 99, label: "Off" },
+      ],
+    });
     const hold = panel({ id: "charts", button: { label: "Charts" }, title: "Charts", blocks: [sizes] });
     const opened = await driver.open(new Scene().addBody(earth).addParts([hold]));
     await opened.ready();
@@ -741,13 +1067,20 @@ describe.each([mountDriver, reactDriver(false)])("lifecycle: $name", (driver) =>
     expect(bars()).toHaveLength(3);
     expect(dimmed()).toEqual([false, false, false]);
     expect(root().querySelector("svg")!.getAttribute("role")).toBe("img");
-    expect(root().querySelector("svg")!.getAttribute("aria-label")).toBe("Bar chart of Diameter (km): 3 bars from 0 to 30; the largest, 10 to 20, holds 9.");
+    expect(root().querySelector("svg")!.getAttribute("aria-label")).toBe(
+      "Bar chart of Diameter (km): 3 bars from 0 to 30; the largest, 10 to 20, holds 9.",
+    );
     expect([...root().querySelectorAll("[data-shelf-mark] text")].map((t) => t.textContent)).toEqual(["Limit"]);
     expect(root().textContent).toContain("Diameter (km)");
     flushSync(() => handle.part(sizes).setHighlight({ low: 10, high: 20 }));
     expect(dimmed()).toEqual([true, false, true]);
     expect(root().querySelector("svg")!.getAttribute("aria-label")).toContain("10 to 20 is highlighted (1 bars)");
-    flushSync(() => handle.part(sizes).setBins([{ low: 0, high: 20, count: 5 }, { low: 20, high: 30, count: 2 }]));
+    flushSync(() =>
+      handle.part(sizes).setBins([
+        { low: 0, high: 20, count: 5 },
+        { low: 20, high: 30, count: 2 },
+      ]),
+    );
     expect(bars()).toHaveLength(2);
     expect(dimmed()).toEqual([false, true]);
     flushSync(() => handle.part(sizes).setBins([{ low: 0, high: 5, count: 5 }]));
@@ -774,10 +1107,26 @@ describe.each([mountDriver, reactDriver(false)])("lifecycle: $name", (driver) =>
   });
 
   it("readoutTile (O-081 T-338): the tile draws in its own place, setValue moves the number and the dot, setScaleValue and setFacts redraw, all silent and checked, each view shows its own tile, not-mounted after unmount", async () => {
-    prepared.real = true; openNow();
-    const first = readoutTile({ id: "first", label: "Gap", value: "4 units", scale: { low: 1, high: 100, value: 10, stretch: "log" }, facts: [{ label: "Speed", value: "7" }] });
+    prepared.real = true;
+    openNow();
+    const first = readoutTile({
+      id: "first",
+      label: "Gap",
+      value: "4 units",
+      scale: { low: 1, high: 100, value: 10, stretch: "log" },
+      facts: [{ label: "Speed", value: "7" }],
+    });
     const second = readoutTile({ id: "second", label: "Other", value: "9 units" });
-    const scene = new Scene().addBody(earth).addParts([first, second]).setViews([{ id: "a", label: "A", panels: ["first"] }, { id: "b", label: "B", panels: ["second"] }], { place: "top-bar", start: "a" });
+    const scene = new Scene()
+      .addBody(earth)
+      .addParts([first, second])
+      .setViews(
+        [
+          { id: "a", label: "A", panels: ["first"] },
+          { id: "b", label: "B", panels: ["second"] },
+        ],
+        { place: "top-bar", start: "a" },
+      );
     const opened = await driver.open(scene);
     await opened.ready();
     const handle = opened.handle!;
@@ -788,21 +1137,30 @@ describe.each([mountDriver, reactDriver(false)])("lifecycle: $name", (driver) =>
     await until(() => expect(tile().getAttribute("data-shelf-tile")).toBe("first"));
     expect(tile().querySelector("[data-shelf-tile-value]")!.textContent).toBe("4 units");
     expect(dot().getAttribute("style")).toContain("--shelf-tile-at: 50");
-    expect(tile().querySelector('[role="img"]')!.getAttribute("aria-label")).toBe("Gap on a log scale from 1 to 100: 10");
+    expect(tile().querySelector('[role="img"]')!.getAttribute("aria-label")).toBe(
+      "Gap on a log scale from 1 to 100: 10",
+    );
     heard.length = 0;
     flushSync(() => handle.part(first).setValue("5 units", 100));
     expect(tile().querySelector("[data-shelf-tile-value]")!.textContent).toBe("5 units");
     expect(dot().getAttribute("style")).toContain("--shelf-tile-at: 100");
     flushSync(() => handle.part(first).setScaleValue(1));
     expect(dot().getAttribute("style")).toContain("--shelf-tile-at: 0");
-    flushSync(() => handle.part(first).setFacts([{ label: "A", value: "1" }, { label: "B", value: "2" }]));
+    flushSync(() =>
+      handle.part(first).setFacts([
+        { label: "A", value: "1" },
+        { label: "B", value: "2" },
+      ]),
+    );
     expect(tile().querySelectorAll(".shelf-tile-fact")).toHaveLength(2);
     flushSync(() => handle.part(first).setFacts([]));
     expect(tile().querySelector(".shelf-tile-facts")).toBeNull();
     expect(codeOf(() => handle.part(first).setValue(""))).toBe("bad-part");
     expect(codeOf(() => handle.part(first).setValue("x", 101))).toBe("bad-part");
     expect(codeOf(() => handle.part(first).setScaleValue(Number.NaN))).toBe("bad-part");
-    expect(codeOf(() => handle.part(first).setFacts(Array.from({ length: 5 }, () => ({ label: "A", value: "1" }))))).toBe("bad-part");
+    expect(
+      codeOf(() => handle.part(first).setFacts(Array.from({ length: 5 }, () => ({ label: "A", value: "1" })))),
+    ).toBe("bad-part");
     expect(codeOf(() => handle.part(second).setScaleValue(1))).toBe("bad-part");
     expect(tile().querySelector("[data-shelf-tile-value]")!.textContent).toBe("5 units");
     expect(heard, "setters say nothing").toEqual([]);
@@ -816,26 +1174,50 @@ describe.each([mountDriver, reactDriver(false)])("lifecycle: $name", (driver) =>
   });
 
   it("a part id some view lists shows only in those views: the button is hidden and an open panel closes (silently) on a switch away, whichever path opened it", async () => {
-    prepared.real = true; openNow();
-    const gapsPanel = panel({ id: "gaps", button: { label: "Gaps" }, title: "The gaps", blocks: [customBlock({ id: "gaps-body" })] });
-    const everyPanel = panel({ id: "every", button: { label: "Every" }, title: "Every view", blocks: [customBlock({ id: "every-body" })] });
-    const scene = new Scene().addBody(earth).addParts([gapsPanel, everyPanel]).setViews([{ id: "a", label: "A" }, { id: "b", label: "B", panels: ["gaps"] }], { place: "top-bar", start: "b" });
+    prepared.real = true;
+    openNow();
+    const gapsPanel = panel({
+      id: "gaps",
+      button: { label: "Gaps" },
+      title: "The gaps",
+      blocks: [customBlock({ id: "gaps-body" })],
+    });
+    const everyPanel = panel({
+      id: "every",
+      button: { label: "Every" },
+      title: "Every view",
+      blocks: [customBlock({ id: "every-body" })],
+    });
+    const scene = new Scene()
+      .addBody(earth)
+      .addParts([gapsPanel, everyPanel])
+      .setViews(
+        [
+          { id: "a", label: "A" },
+          { id: "b", label: "B", panels: ["gaps"] },
+        ],
+        { place: "top-bar", start: "b" },
+      );
     const opened = await driver.open(scene);
     await opened.ready();
     const handle = opened.handle!;
-    const buttons = (): (string | null)[] => [...document.querySelectorAll("[data-story-button]")].map((b) => b.getAttribute("data-story-button"));
+    const buttons = (): (string | null)[] =>
+      [...document.querySelectorAll("[data-story-button]")].map((b) => b.getAttribute("data-story-button"));
     const heard: unknown[] = [];
     handle.part(gapsPanel).onOpen((change) => heard.push(change));
     expect(handle.view).toBe("b");
     expect(buttons()).toEqual(["gaps", "every"]);
     handle.part(gapsPanel).setOpen(true);
-    await until(() => expect(document.querySelector("[data-shelf-panel]")?.getAttribute("data-shelf-panel")).toBe("gaps")); // wait for the drawn state, not a fixed time
+    await until(() =>
+      expect(document.querySelector("[data-shelf-panel]")?.getAttribute("data-shelf-panel")).toBe("gaps"),
+    ); // wait for the drawn state, not a fixed time
     flushSync(() => handle.setView("a"));
     await until(() => expect(buttons()).toEqual(["every"]));
     await until(() => expect(document.querySelector("[data-shelf-panel]")).toBeNull());
     expect(handle.part(gapsPanel).open).toBe(false);
     // a panel the showing view does not show stays closed
-    handle.part(gapsPanel).setOpen(true); await tick(60);
+    handle.part(gapsPanel).setOpen(true);
+    await tick(60);
     expect(handle.part(gapsPanel).open).toBe(false);
     expect(document.querySelector("[data-shelf-panel]")).toBeNull();
     flushSync(() => handle.setView("b"));
@@ -845,15 +1227,30 @@ describe.each([mountDriver, reactDriver(false)])("lifecycle: $name", (driver) =>
   });
 
   it("a host keeps the clock across a choice with public calls: it reads time in onPick and sets it on the next scene, whichever path opened it", async () => {
-    prepared.real = true; openNow();
-    const picker = { id: "world", label: "World", options: [{ value: "a", label: "A" }, { value: "b", label: "B" }], value: "a" } as const;
+    prepared.real = true;
+    openNow();
+    const picker = {
+      id: "world",
+      label: "World",
+      options: [
+        { value: "a", label: "A" },
+        { value: "b", label: "B" },
+      ],
+      value: "a",
+    } as const;
     const start = Date.UTC(2026, 5, 1);
-    const sceneFor = (value: "a" | "b"): Scene => new Scene().addBody(earth).setTimeline({ start, end: start + 10 * 86_400_000 }).setPicker({ ...picker, value });
+    const sceneFor = (value: "a" | "b"): Scene =>
+      new Scene()
+        .addBody(earth)
+        .setTimeline({ start, end: start + 10 * 86_400_000 })
+        .setPicker({ ...picker, value });
     const opened = await driver.open(sceneFor("a"));
     await opened.ready();
     opened.handle!.setTime(start + 3 * 86_400_000);
     let kept: number | undefined;
-    opened.handle!.onPick(() => { kept = opened.handle!.timeUtcMs; });
+    opened.handle!.onPick(() => {
+      kept = opened.handle!.timeUtcMs;
+    });
     flushSync(() => document.querySelector<HTMLButtonElement>("[data-switch-value='b']")!.click());
     expect(kept).toBe(start + 3 * 86_400_000);
     // The host builds the next scene however its path does (mount: a new mount; React: a new scene prop) and puts the time back.
@@ -865,12 +1262,20 @@ describe.each([mountDriver, reactDriver(false)])("lifecycle: $name", (driver) =>
   });
 
   it("look out: setCamera stands inside a shown body toward a star-map position or an object, bad input throws bad-camera, and a sky reading is read, heard and put back (made-up Mars, not only Earth)", async () => {
-    prepared.real = true; openNow();
+    prepared.real = true;
+    openNow();
     const opened = await driver.open(new Scene().addBody(earth).addBody(moon).addBody(mars));
     await opened.ready();
     const handle = opened.handle!;
     const controls = () => sceneProps.latest!.controls;
-    const code = (target: unknown): string | undefined => { try { handle.setCamera(target as CameraTarget); } catch (error) { return errorCode(error); } return undefined; };
+    const code = (target: unknown): string | undefined => {
+      try {
+        handle.setCamera(target as CameraTarget);
+      } catch (error) {
+        return errorCode(error);
+      }
+      return undefined;
+    };
     handle.setCamera({ lookOut: "mars", direction: { raDeg: 90, decDeg: 0 }, fovDeg: 30 });
     const request = controls().cameraRequest as { kind: string; body: string; direction: number[]; fovDeg: number };
     expect([request.kind, request.body, request.fovDeg]).toEqual(["lookOut", "mars", 30]);
@@ -879,9 +1284,23 @@ describe.each([mountDriver, reactDriver(false)])("lifecycle: $name", (driver) =>
     expect(controls().hostCameraRequest).toBe(controls().cameraRequest); // the host's slot, so the opening view yields to it
     handle.setCamera({ lookOut: "earth", direction: "moon" });
     expect(controls().cameraRequest).toEqual({ kind: "lookOut", body: "earth", direction: "moon" });
-    for (const bad of [{ lookOut: "" }, { lookOut: "nowhere" }, { lookOut: 3 }, { lookOut: "earth", direction: "nowhere" }, { lookOut: "earth", direction: "earth" }, { lookOut: "earth", direction: { raDeg: 10, decDeg: 91 } },
-      { lookOut: "earth", direction: { raDeg: Number.NaN, decDeg: 0 } }, { lookOut: "earth", direction: { raDeg: 1 } }, { lookOut: "earth", direction: 5 }, { lookOut: "earth", fovDeg: 4 }, { lookOut: "earth", fovDeg: 101 }, { lookOut: "earth", fovDeg: "40" },
-      { lookOut: "earth", extra: 1 }, { lookOut: "earth", direction: "moon", raDeg: 1, decDeg: 1 }, { lookOut: "earth", raDeg: 10 }]) {
+    for (const bad of [
+      { lookOut: "" },
+      { lookOut: "nowhere" },
+      { lookOut: 3 },
+      { lookOut: "earth", direction: "nowhere" },
+      { lookOut: "earth", direction: "earth" },
+      { lookOut: "earth", direction: { raDeg: 10, decDeg: 91 } },
+      { lookOut: "earth", direction: { raDeg: Number.NaN, decDeg: 0 } },
+      { lookOut: "earth", direction: { raDeg: 1 } },
+      { lookOut: "earth", direction: 5 },
+      { lookOut: "earth", fovDeg: 4 },
+      { lookOut: "earth", fovDeg: 101 },
+      { lookOut: "earth", fovDeg: "40" },
+      { lookOut: "earth", extra: 1 },
+      { lookOut: "earth", direction: "moon", raDeg: 1, decDeg: 1 },
+      { lookOut: "earth", raDeg: 10 },
+    ]) {
       expect(code(bad), JSON.stringify(bad)).toBe("bad-camera");
     }
     const heard: CameraPose[] = [];
@@ -900,7 +1319,7 @@ describe.each([mountDriver, reactDriver(false)])("lifecycle: $name", (driver) =>
     expect(back.fovDeg).toBe(45);
     handle.setCamera({ lookOut: "earth", fovDeg: 20 });
     const kept = (controls().cameraRequest as unknown as { direction: number[] }).direction;
-    expect(Math.atan2(kept[1], kept[0]) * 180 / Math.PI + 360).toBeCloseTo(210.5, 6);
+    expect((Math.atan2(kept[1], kept[0]) * 180) / Math.PI + 360).toBeCloseTo(210.5, 6);
     // An orbit reading is still read and put back.
     controls().viewReadout = { focus: "moon", azimuthDeg: 10, elevationDeg: 5, distance: 8 };
     controls().cameraRequest = null;
@@ -910,14 +1329,50 @@ describe.each([mountDriver, reactDriver(false)])("lifecycle: $name", (driver) =>
   });
 
   it("story step actions (O-066 T-301): opening a step turns the camera (toward a sky figure too), selects and traces in that order; leaving clears only the trace; host and visitor opens act alike", async () => {
-    prepared.real = true; openNow();
-    const made = { sourceType: "illustrative", sources: ["Made up"], accuracy: "None claimed.", notes: "Made up." } as const;
-    const scene = new Scene().addBody(earth).addBody(moon)
-      .addSkyFigures([{ id: "kite", label: "The Kite", segments: [[{ raDeg: 90, decDeg: 0 }, { raDeg: 90, decDeg: 0 }]] }])
+    prepared.real = true;
+    openNow();
+    const made = {
+      sourceType: "illustrative",
+      sources: ["Made up"],
+      accuracy: "None claimed.",
+      notes: "Made up.",
+    } as const;
+    const scene = new Scene()
+      .addBody(earth)
+      .addBody(moon)
+      .addSkyFigures([
+        {
+          id: "kite",
+          label: "The Kite",
+          segments: [
+            [
+              { raDeg: 90, decDeg: 0 },
+              { raDeg: 90, decDeg: 0 },
+            ],
+          ],
+        },
+      ])
       .addStoryPanels([
-        { id: "s1", title: "One", body: "Made up.", provenance: made, object: "kite", camera: { lookOut: "earth", direction: "kite", fovDeg: 30 }, select: true, trace: { durationSeconds: 3, after: "fade" } },
+        {
+          id: "s1",
+          title: "One",
+          body: "Made up.",
+          provenance: made,
+          object: "kite",
+          camera: { lookOut: "earth", direction: "kite", fovDeg: 30 },
+          select: true,
+          trace: { durationSeconds: 3, after: "fade" },
+        },
         { id: "s2", title: "Two", body: "Made up.", provenance: made },
-        { id: "s3", title: "Three", body: "Made up.", provenance: made, object: "moon", camera: { focus: "moon" }, select: true },
+        {
+          id: "s3",
+          title: "Three",
+          body: "Made up.",
+          provenance: made,
+          object: "moon",
+          camera: { focus: "moon" },
+          select: true,
+        },
       ]);
     const opened = await driver.open(scene);
     await opened.ready();
@@ -959,16 +1414,39 @@ describe.each([mountDriver, reactDriver(false)])("lifecycle: $name", (driver) =>
     opened.unmount();
   });
   it("an event naming a sky figure turns toward it only while the camera looks out (O-066 T-301)", async () => {
-    prepared.real = true; openNow();
+    prepared.real = true;
+    openNow();
     const T0 = Date.UTC(2026, 5, 1);
-    const scene = new Scene().addBody(earth).addBody(moon)
-      .addSkyFigures([{ id: "kite", label: "The Kite", segments: [[{ raDeg: 90, decDeg: 0 }, { raDeg: 90, decDeg: 0 }]] }])
-      .addEvents([{ id: "rise", label: "Rise", time: T0 + 60_000, object: "kite" }]).setTimeline({ start: T0, end: T0 + 3_600_000 });
+    const scene = new Scene()
+      .addBody(earth)
+      .addBody(moon)
+      .addSkyFigures([
+        {
+          id: "kite",
+          label: "The Kite",
+          segments: [
+            [
+              { raDeg: 90, decDeg: 0 },
+              { raDeg: 90, decDeg: 0 },
+            ],
+          ],
+        },
+      ])
+      .addEvents([{ id: "rise", label: "Rise", time: T0 + 60_000, object: "kite" }])
+      .setTimeline({ start: T0, end: T0 + 3_600_000 });
     const opened = await driver.open(scene);
     await opened.ready();
     const handle = opened.handle!;
     const controls = () => sceneProps.latest!.controls;
-    const goTo = () => flushSync(() => { (document.querySelector<HTMLElement>("[aria-label='Go to Rise']") ?? [...document.querySelectorAll<HTMLElement>(".timeline-expanded li button")].find((b) => b.textContent?.includes("Rise"))!).click(); });
+    const goTo = () =>
+      flushSync(() => {
+        (
+          document.querySelector<HTMLElement>("[aria-label='Go to Rise']") ??
+          [...document.querySelectorAll<HTMLElement>(".timeline-expanded li button")].find((b) =>
+            b.textContent?.includes("Rise"),
+          )!
+        ).click();
+      });
     controls().cameraRequest = undefined as never;
     goTo();
     expect(handle.selected).toBe("kite");
@@ -981,7 +1459,8 @@ describe.each([mountDriver, reactDriver(false)])("lifecycle: $name", (driver) =>
     opened.unmount();
   });
   it("look out: the scene opens looking out (camera.lookOut or a sky start view), and the build refuses a body not added", async () => {
-    prepared.real = true; openNow();
+    prepared.real = true;
+    openNow();
     const scene = new Scene().addBody(earth).addBody(mars);
     scene.camera.lookOut("mars", { direction: { raDeg: 12, decDeg: 34 }, fovDeg: 50 });
     expect(definitionOf(scene).startView).toEqual({ lookOut: "mars", raDeg: 12, decDeg: 34, fovDeg: 50 });
@@ -993,9 +1472,22 @@ describe.each([mountDriver, reactDriver(false)])("lifecycle: $name", (driver) =>
     scene.camera.setStartView({ lookOut: "mars", raDeg: 370, decDeg: 0, fovDeg: 20 });
     expect(definitionOf(scene).startView).toMatchObject({ raDeg: 10 });
     expect(codeOf(() => scene.camera.lookOut("moon"))).toBe("unknown-body");
-    expect(codeOf(() => scene.camera.setStartView({ lookOut: "moon", raDeg: 0, decDeg: 0, fovDeg: 20 }))).toBe("unknown-body");
-    for (const bad of [{ fovDeg: 4 }, { fovDeg: 101 }, { direction: { raDeg: 0, decDeg: 95 } }, { direction: { raDeg: Number.NaN, decDeg: 0 } }]) expect(codeOf(() => scene.camera.lookOut("earth", bad)), JSON.stringify(bad)).toBe("bad-camera");
-    expect(codeOf(() => scene.camera.setStartView({ lookOut: "earth", raDeg: 0, decDeg: 0 } as never))).toBe("bad-camera");
+    expect(codeOf(() => scene.camera.setStartView({ lookOut: "moon", raDeg: 0, decDeg: 0, fovDeg: 20 }))).toBe(
+      "unknown-body",
+    );
+    for (const bad of [
+      { fovDeg: 4 },
+      { fovDeg: 101 },
+      { direction: { raDeg: 0, decDeg: 95 } },
+      { direction: { raDeg: Number.NaN, decDeg: 0 } },
+    ])
+      expect(
+        codeOf(() => scene.camera.lookOut("earth", bad)),
+        JSON.stringify(bad),
+      ).toBe("bad-camera");
+    expect(codeOf(() => scene.camera.setStartView({ lookOut: "earth", raDeg: 0, decDeg: 0 } as never))).toBe(
+      "bad-camera",
+    );
     // Opened through either path: the opening reading is the sky reading, read before the first frame.
     scene.camera.lookOut("mars", { fovDeg: 33 });
     const opened = await driver.open(scene);
@@ -1007,11 +1499,26 @@ describe.each([mountDriver, reactDriver(false)])("lifecycle: $name", (driver) =>
   it("camera.lookOut opening refuses a half, empty, misspelt or extra-key direction and a non-object look as setCamera does (I-162)", () => {
     const scene = new Scene().addBody(earth).addBody(mars);
     const shapes: unknown[] = [
-      { direction: { raDeg: 10 } }, { direction: { decDeg: 10 } }, { direction: {} }, { direction: [] }, { direction: null },
-      { direction: { ra: 83.6, dec: 22 } }, { direction: { raDeg: 1, decDeg: 2, x: 1 } },
-      { fov: 40 }, { fovDeg: null }, { fovDeg: "40" }, "x", null, [], 5,
+      { direction: { raDeg: 10 } },
+      { direction: { decDeg: 10 } },
+      { direction: {} },
+      { direction: [] },
+      { direction: null },
+      { direction: { ra: 83.6, dec: 22 } },
+      { direction: { raDeg: 1, decDeg: 2, x: 1 } },
+      { fov: 40 },
+      { fovDeg: null },
+      { fovDeg: "40" },
+      "x",
+      null,
+      [],
+      5,
     ];
-    for (const bad of shapes) expect(codeOf(() => scene.camera.lookOut("earth", bad as never)), JSON.stringify(bad)).toBe("bad-camera");
+    for (const bad of shapes)
+      expect(
+        codeOf(() => scene.camera.lookOut("earth", bad as never)),
+        JSON.stringify(bad),
+      ).toBe("bad-camera");
     // Omitted look or fields keep the defaults.
     scene.camera.lookOut("earth");
     expect(definitionOf(scene).startView).toEqual({ lookOut: "earth", raDeg: 0, decDeg: 0, fovDeg: 60 });
@@ -1030,13 +1537,17 @@ describe.each([mountDriver, reactDriver(false)])("lifecycle: $name", (driver) =>
     const handle = opened.handle!;
     const heard: CameraPose[] = [];
     const other: CameraPose[] = [];
-    handle.onCameraChange(() => { throw new Error("listener fault"); });
+    handle.onCameraChange(() => {
+      throw new Error("listener fault");
+    });
     handle.onCameraChange((pose) => heard.push(pose));
     const stop = handle.onCameraChange((pose) => other.push(pose));
     const report = vi.fn();
     vi.stubGlobal("reportError", report);
     const opening = handle.camera!;
-    const standAt = (azimuthDeg: number): void => { sceneProps.latest!.controls.viewReadout = { ...opening, azimuthDeg }; };
+    const standAt = (azimuthDeg: number): void => {
+      sceneProps.latest!.controls.viewReadout = { ...opening, azimuthDeg };
+    };
     vi.advanceTimersByTime(100);
     expect(heard).toEqual([]); // the opening pose is read, not reported
     standAt(10);
@@ -1045,15 +1556,20 @@ describe.each([mountDriver, reactDriver(false)])("lifecycle: $name", (driver) =>
     expect(other).toEqual(heard);
     vi.advanceTimersByTime(300); // settled: nothing more
     expect(heard.length).toBe(1);
-    standAt(20); vi.advanceTimersByTime(100); standAt(30); vi.advanceTimersByTime(100); // a pose moving every tick: one report per tick
+    standAt(20);
+    vi.advanceTimersByTime(100);
+    standAt(30);
+    vi.advanceTimersByTime(100); // a pose moving every tick: one report per tick
     expect(heard.map((pose) => (pose as { azimuthDeg: number }).azimuthDeg)).toEqual([10, 20, 30]);
     stop();
-    standAt(40); vi.advanceTimersByTime(100);
+    standAt(40);
+    vi.advanceTimersByTime(100);
     expect(heard.length).toBe(4);
     expect(other.length).toBe(3);
     expect(report).toHaveBeenCalledTimes(4); // the throwing listener is reported to the page after every report, not swallowed
     opened.unmount();
-    standAt(50); vi.advanceTimersByTime(300);
+    standAt(50);
+    vi.advanceTimersByTime(300);
     expect(heard.length).toBe(4);
     expectUnusable(handle);
   });
@@ -1061,14 +1577,35 @@ describe.each([mountDriver, reactDriver(false)])("lifecycle: $name", (driver) =>
 
 describe("AstraeusScene's onPick prop (O-059 T-269, API-02)", () => {
   it("is called with the picker id and value for a visitor's press, not for the pressed option, moves nothing, and a new scene's value is pressed after a rebuild", async () => {
-    prepared.real = true; openNow();
+    prepared.real = true;
+    openNow();
     const heard: unknown[] = [];
     const ref: { current: ViewerHandle | null } = { current: null };
-    const sceneFor = (value: string): Scene => new Scene().addBody(earth).setPicker({ id: "world", label: "World", options: [{ value: "a", label: "A" }, { value: "b", label: "B" }], value });
+    const sceneFor = (value: string): Scene =>
+      new Scene().addBody(earth).setPicker({
+        id: "world",
+        label: "World",
+        options: [
+          { value: "a", label: "A" },
+          { value: "b", label: "B" },
+        ],
+        value,
+      });
     const root = createRoot(document.body.appendChild(document.createElement("div")));
-    const ready = (scene: Scene): Promise<void> => new Promise<void>((ok, fail) => {
-      flushSync(() => root.render(h(AstraeusScene, { scene, ref, onPick: (change) => heard.push(change), onReady: () => ok(), onError: fail })));
-    });
+    const ready = (scene: Scene): Promise<void> =>
+      new Promise<void>((ok, fail) => {
+        flushSync(() =>
+          root.render(
+            h(AstraeusScene, {
+              scene,
+              ref,
+              onPick: (change) => heard.push(change),
+              onReady: () => ok(),
+              onError: fail,
+            }),
+          ),
+        );
+      });
     await ready(sceneFor("a"));
     flushSync(() => document.querySelector<HTMLButtonElement>("[data-switch-value='a']")!.click());
     expect(heard).toEqual([]);
@@ -1097,21 +1634,46 @@ describe("lifecycle: AstraeusScene under StrictMode", () => {
 });
 
 /** Every method that edits a scene or its camera, found by name so a future mutator cannot escape the freeze. */
-const mutators = (proto: object): string[] => Object.getOwnPropertyNames(proto).filter((name) => /^(add|set|follow|focus|lookOut|fitOrbit)/.test(name) && typeof Object.getOwnPropertyDescriptor(proto, name)?.value === "function");
+const mutators = (proto: object): string[] =>
+  Object.getOwnPropertyNames(proto).filter(
+    (name) =>
+      /^(add|set|follow|focus|lookOut|fitOrbit)/.test(name) &&
+      typeof Object.getOwnPropertyDescriptor(proto, name)?.value === "function",
+  );
 
 describe("a mounted scene is frozen", () => {
   it("every add, set, follow, focus, lookOut and fitOrbit method of Scene and SceneCamera throws scene-mounted after mount; reads still answer", () => {
-    prepared.real = true; openNow();
+    prepared.real = true;
+    openNow();
     const scene = new Scene().addBody("earth").addBody("moon");
     const sceneMethods = mutators(Scene.prototype);
     const cameraMethods = mutators(SceneCamera.prototype);
     expect(sceneMethods.length).toBeGreaterThanOrEqual(12);
-    expect(cameraMethods.sort()).toEqual(["fitOrbit", "focus", "follow", "lookOut", "setFocusChoices", "setFollowChoices", "setLookOutChoices", "setOverview", "setReach", "setStartView"]);
+    expect(cameraMethods.sort()).toEqual([
+      "fitOrbit",
+      "focus",
+      "follow",
+      "lookOut",
+      "setFocusChoices",
+      "setFollowChoices",
+      "setLookOutChoices",
+      "setOverview",
+      "setReach",
+      "setStartView",
+    ]);
     const element = document.createElement("div");
     document.body.append(element);
     const viewer = mount(element, scene);
-    for (const name of sceneMethods) expect(codeOf(() => (scene as unknown as Record<string, (...a: unknown[]) => unknown>)[name]()), `scene.${name}`).toBe("scene-mounted");
-    for (const name of cameraMethods) expect(codeOf(() => (scene.camera as unknown as Record<string, (...a: unknown[]) => unknown>)[name]("earth")), `camera.${name}`).toBe("scene-mounted");
+    for (const name of sceneMethods)
+      expect(
+        codeOf(() => (scene as unknown as Record<string, (...a: unknown[]) => unknown>)[name]()),
+        `scene.${name}`,
+      ).toBe("scene-mounted");
+    for (const name of cameraMethods)
+      expect(
+        codeOf(() => (scene.camera as unknown as Record<string, (...a: unknown[]) => unknown>)[name]("earth")),
+        `camera.${name}`,
+      ).toBe("scene-mounted");
     expect(scene.stateOf("earth", MID_2026).positionKm).toHaveLength(3);
     expect(scene.provenanceOf("earth")).toBeDefined();
     expect(missingDataOf(scene)).toEqual(expect.any(Array));
@@ -1130,7 +1692,8 @@ describe("a mounted scene is frozen", () => {
   });
 
   it("the same frozen scene mounts into a second element and both draw", async () => {
-    prepared.real = true; openNow();
+    prepared.real = true;
+    openNow();
     const scene = new Scene().addBody("earth");
     const a = document.createElement("div");
     const b = document.createElement("div");
@@ -1151,14 +1714,18 @@ describe("the handle member table", () => {
   it("lists every member of ViewerHandle, so a new member must join the lifecycle cases", () => {
     const members = new Set<string>();
     for (const key in viewerHandleOf(new ViewerLink())) members.add(key);
-    expect([...members].sort()).toEqual([...READS, ...Object.keys(READ_CALLS), ...Object.keys(CALLS), ...LISTENERS].sort());
+    expect([...members].sort()).toEqual(
+      [...READS, ...Object.keys(READ_CALLS), ...Object.keys(CALLS), ...LISTENERS].sort(),
+    );
   });
 });
 
 describe("mount's ready and unhandled rejections (O-054 T-249, owner 2026-11-01: only the expected taken-down-early case is hidden)", () => {
   let seen: unknown[];
   let saved: Array<(...args: unknown[]) => void>;
-  const listener = (reason: unknown) => { seen.push(reason); };
+  const listener = (reason: unknown) => {
+    seen.push(reason);
+  };
   beforeEach(() => {
     seen = [];
     saved = process.listeners("unhandledRejection") as Array<(...args: unknown[]) => void>; // vitest's own handler would fail the run on the expected one
@@ -1168,14 +1735,17 @@ describe("mount's ready and unhandled rejections (O-054 T-249, owner 2026-11-01:
   afterEach(() => {
     process.off("unhandledRejection", listener);
     for (const fn of saved) process.on("unhandledRejection", fn);
-    prepared.fail = false; prepared.gate = undefined;
+    prepared.fail = false;
+    prepared.gate = undefined;
   });
   const host = () => document.body.appendChild(document.createElement("div"));
   const settle = () => tick(60);
 
   it("an unawaited early unmount raises no unhandled rejection", async () => {
     let release!: () => void;
-    prepared.gate = new Promise<void>((resolve) => { release = resolve; });
+    prepared.gate = new Promise<void>((resolve) => {
+      release = resolve;
+    });
     const handle = mount(host(), new Scene());
     handle.unmount();
     release();
@@ -1196,7 +1766,9 @@ describe("mount's ready and unhandled rejections (O-054 T-249, owner 2026-11-01:
     await expect(failed.ready).rejects.toThrow("load failed");
     prepared.fail = false;
     let release!: () => void;
-    prepared.gate = new Promise<void>((resolve) => { release = resolve; });
+    prepared.gate = new Promise<void>((resolve) => {
+      release = resolve;
+    });
     const early = mount(host(), new Scene());
     early.unmount();
     release();

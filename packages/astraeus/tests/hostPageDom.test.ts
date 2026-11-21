@@ -7,7 +7,9 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 vi.mock("../src/app/AstraeusScene", () => ({ AstraeusScene: () => createElement("div", { "data-testid": "scene" }) }));
 vi.mock("../src/api/prepared", async () => {
   const { syntheticDefinition } = await import("./synthetic/syntheticDefinition");
-  return { prepareScene: () => ({ definition: { ...syntheticDefinition, label: "Made-up survey" }, ready: Promise.resolve() }) };
+  return {
+    prepareScene: () => ({ definition: { ...syntheticDefinition, label: "Made-up survey" }, ready: Promise.resolve() }),
+  };
 });
 
 import { App } from "../src/app/App";
@@ -27,7 +29,12 @@ beforeEach(() => {
   host = document.createElement("div");
   document.body.append(host);
 });
-afterEach(() => { if (root) act(() => root!.unmount()); root = undefined; host.remove(); vi.unstubAllGlobals(); });
+afterEach(() => {
+  if (root) act(() => root!.unmount());
+  root = undefined;
+  host.remove();
+  vi.unstubAllGlobals();
+});
 
 describe("the page title", () => {
   it("is left alone by mount, which isolates its element", async () => {
@@ -36,25 +43,36 @@ describe("the page title", () => {
     expect(host.childElementCount).toBeGreaterThan(0);
     expect(document.title).toBe("Host");
     expect(host.style.isolation).toBe("isolate");
-    act(() => { handle.unmount(); });
+    act(() => {
+      handle.unmount();
+    });
   });
   it("unmount puts back the inline isolation, position and overflow the host element had (O-055 C-144)", async () => {
     host.style.overflow = "auto";
     const handle = mount(host, new Scene());
     await drawn(handle);
     expect([host.style.isolation, host.style.position, host.style.overflow]).toEqual(["isolate", "relative", "auto"]);
-    act(() => { handle.unmount(); });
+    act(() => {
+      handle.unmount();
+    });
     expect([host.style.isolation, host.style.position, host.style.overflow]).toEqual(["", "", "auto"]);
     host.style.position = "fixed";
     const again = mount(host, new Scene());
     await drawn(again);
-    act(() => { again.unmount(); });
+    act(() => {
+      again.unmount();
+    });
     expect([host.style.isolation, host.style.position, host.style.overflow]).toEqual(["", "fixed", "auto"]);
   });
   it("is left alone by AstraeusScene, whose wrapper is isolated", async () => {
     root = createRoot(host);
-    await act(async () => { root!.render(createElement(AstraeusScene, { scene: new Scene() })); await Promise.resolve(); });
-    await act(async () => { await new Promise((done) => setTimeout(done, 0)); });
+    await act(async () => {
+      root!.render(createElement(AstraeusScene, { scene: new Scene() }));
+      await Promise.resolve();
+    });
+    await act(async () => {
+      await new Promise((done) => setTimeout(done, 0));
+    });
     expect(host.firstElementChild!.childElementCount).toBeGreaterThan(0);
     expect(document.title).toBe("Host");
     expect((host.firstElementChild as HTMLElement).style.isolation).toBe("isolate");
@@ -62,16 +80,22 @@ describe("the page title", () => {
   it("is still written by App on its own, and not when writeTitle is false", async () => {
     const definition = { ...syntheticDefinition, label: "Made-up survey" };
     root = createRoot(host);
-    await act(async () => { root!.render(createElement(App, { definition, writeTitle: false })); });
+    await act(async () => {
+      root!.render(createElement(App, { definition, writeTitle: false }));
+    });
     expect(document.title).toBe("Host");
-    await act(async () => { root!.render(createElement(App, { definition })); });
+    await act(async () => {
+      root!.render(createElement(App, { definition }));
+    });
     expect(document.title).toBe("Made-up survey · Astraeus");
   });
 });
 
 describe("an Escape the host already handled", () => {
   let m: Mounted;
-  afterEach(() => { m.unmount(); });
+  afterEach(() => {
+    m.unmount();
+  });
   const hostTakesEscape = () => {
     const take = (event: Event) => event.preventDefault();
     window.addEventListener("keydown", take, true);
@@ -101,7 +125,9 @@ describe("an Escape the host already handled", () => {
     expect(open()).toBe(false);
   });
   it("leaves an open switch panel open, and an unprevented one closes it", () => {
-    m = mountShell({ displaySwitches: [{ id: "labels", label: "Labels", place: "panel", on: true, onToggle: () => undefined }] });
+    m = mountShell({
+      displaySwitches: [{ id: "labels", label: "Labels", place: "panel", on: true, onToggle: () => undefined }],
+    });
     press($(m.container, ".switch-panel-toggle"));
     const hidden = () => $(m.container, ".switch-panel").hasAttribute("hidden");
     const release = hostTakesEscape();

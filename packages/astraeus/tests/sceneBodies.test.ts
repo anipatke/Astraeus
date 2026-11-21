@@ -12,11 +12,29 @@ import { bodyScreenReadouts, placeBodies, swapSmallBodiesToMarkers, type BodyRef
 const earth = catalogue.get("earth");
 const moon = catalogue.get("moon");
 
-function parts(): BodyParts { const sphere = new Group(); const marker = new Group(); marker.visible = false; return { sphere, marker }; }
+function parts(): BodyParts {
+  const sphere = new Group();
+  const marker = new Group();
+  marker.visible = false;
+  return { sphere, marker };
+}
 function refs(withParts: boolean): { refs: BodyRefs; groups: Map<BodyId, Group> } {
-  const groups = new Map<BodyId, Group>([["earth", new Group()], ["moon", new Group()]]);
-  const orients = new Map<BodyId, Group>([["earth", new Group()], ["moon", new Group()]]);
-  const partMap = new Map<BodyId, BodyParts>(withParts ? [["earth", parts()], ["moon", parts()]] : []);
+  const groups = new Map<BodyId, Group>([
+    ["earth", new Group()],
+    ["moon", new Group()],
+  ]);
+  const orients = new Map<BodyId, Group>([
+    ["earth", new Group()],
+    ["moon", new Group()],
+  ]);
+  const partMap = new Map<BodyId, BodyParts>(
+    withParts
+      ? [
+          ["earth", parts()],
+          ["moon", parts()],
+        ]
+      : [],
+  );
   return { refs: { groups, orients, parts: partMap }, groups };
 }
 function camera(): PerspectiveCamera {
@@ -25,14 +43,31 @@ function camera(): PerspectiveCamera {
   cam.updateMatrixWorld();
   return cam;
 }
-const state = (x: number): State => ({ positionKm: [x, 0, 0], velocityKmS: [0, 0, 0], timeUtcMs: 0, plane: "EQJ", center: "earth", orientation: [0, 0, 0, 1] } as unknown as State);
+const state = (x: number): State =>
+  ({
+    positionKm: [x, 0, 0],
+    velocityKmS: [0, 0, 0],
+    timeUtcMs: 0,
+    plane: "EQJ",
+    center: "earth",
+    orientation: [0, 0, 0, 1],
+  }) as unknown as State;
 
 describe("placeBodies", () => {
   it("puts each body at its state minus the floating origin", () => {
     const { refs: r, groups } = refs(false);
     const origin = new FloatingOrigin();
     origin.set([1, 0, 0]);
-    placeBodies([earth, moon], new Map([["earth", state(0)], ["moon", state(384400)]]), r, readableScale, origin);
+    placeBodies(
+      [earth, moon],
+      new Map([
+        ["earth", state(0)],
+        ["moon", state(384400)],
+      ]),
+      r,
+      readableScale,
+      origin,
+    );
     const far = groups.get("moon")!.position.length();
     expect(far).toBeGreaterThan(1);
     expect(groups.get("earth")!.position.length()).toBeCloseTo(1, 6);
@@ -45,11 +80,17 @@ describe("swapSmallBodiesToMarkers", () => {
     groups.get("earth")!.position.set(0, 0, 0);
     groups.get("moon")!.position.set(0, 0, 0);
     const cam = camera();
-    const swapped = swapSmallBodiesToMarkers([earth, moon], r, cam, 45, 600, readableScale, { minSpherePx: 1e6, markerPx: 6 });
+    const swapped = swapSmallBodiesToMarkers([earth, moon], r, cam, 45, 600, readableScale, {
+      minSpherePx: 1e6,
+      markerPx: 6,
+    });
     expect(swapped).toEqual(["earth", "moon"]);
     expect(r.parts.get("earth")!.sphere.visible).toBe(false);
     expect(r.parts.get("earth")!.marker.visible).toBe(true);
-    const none = swapSmallBodiesToMarkers([earth, moon], r, cam, 45, 600, readableScale, { minSpherePx: 0, markerPx: 6 });
+    const none = swapSmallBodiesToMarkers([earth, moon], r, cam, 45, 600, readableScale, {
+      minSpherePx: 0,
+      markerPx: 6,
+    });
     expect(none).toEqual([]);
     expect(r.parts.get("earth")!.sphere.visible).toBe(true);
     expect(r.parts.get("earth")!.marker.visible).toBe(false);
@@ -95,7 +136,11 @@ describe("bodyScreenReadouts", () => {
     const glowing = { ...earth, visual: { ...earth.visual, glow: { sizePx: 100, brightness: 1 } } };
     const base = bodyScreenReadouts([glowing], r, camera(), 45, 600, readableScale)[0].glow;
     expect(base).not.toBeNull();
-    const off = bodyScreenReadouts([glowing], r, camera(), 45, 600, readableScale, { sizePx: 100, brightness: 0, scale: 2.5 })[0].glow;
+    const off = bodyScreenReadouts([glowing], r, camera(), 45, 600, readableScale, {
+      sizePx: 100,
+      brightness: 0,
+      scale: 2.5,
+    })[0].glow;
     expect(off?.sizePx).toBe(0);
     expect(bodyScreenReadouts([earth], r, camera(), 45, 600, readableScale)[0].glow).toBeNull();
   });
@@ -103,7 +148,12 @@ describe("bodyScreenReadouts", () => {
   it("reads the halo as over the stream dots from afar and behind the disc once the disc is big (browser-sun.mjs)", () => {
     const { refs: r } = refs(true);
     const glowing = { ...earth, visual: { ...earth.visual, glow: { sizePx: 100, brightness: 1 } } };
-    const at = (z: number) => { const cam = camera(); cam.position.set(0, 0, z); cam.updateMatrixWorld(); return bodyScreenReadouts([glowing], r, cam, 45, 600, readableScale)[0]; };
+    const at = (z: number) => {
+      const cam = camera();
+      cam.position.set(0, 0, z);
+      cam.updateMatrixWorld();
+      return bodyScreenReadouts([glowing], r, cam, 45, 600, readableScale)[0];
+    };
     expect(at(200).glow?.overDots).toBe(true);
     expect(at(3).glow?.overDots).toBe(false);
     expect(at(3).radiusPx).toBeGreaterThan(at(200).radiusPx);

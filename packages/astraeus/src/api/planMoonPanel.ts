@@ -18,7 +18,9 @@ function dayOf(input: MoonPanelInput): string | undefined {
   try {
     return new Date(toUtcMs(input.listDate, "listDate")).toISOString().slice(0, 10);
   } catch {
-    throw bad(`listDate "${String(input.listDate)}" is not a valid moment; use an ISO day such as "2026-10-18", a Date or Unix milliseconds`);
+    throw bad(
+      `listDate "${String(input.listDate)}" is not a valid moment; use an ISO day such as "2026-10-18", a Date or Unix milliseconds`,
+    );
   }
 }
 
@@ -34,7 +36,8 @@ function checkFamily(family: MoonPanelFamilyInput, families: Set<string>, moons:
     if (!isText(moon?.id)) throw bad(`family "${family.id}": every moon needs a non-empty id`);
     if (moons.has(moon.id)) throw bad(`moon "${moon.id}" appears twice`);
     moons.add(moon.id);
-    if (moon.named !== undefined && typeof moon.named !== "boolean") throw bad(`moon "${moon.id}": named must be true or false`);
+    if (moon.named !== undefined && typeof moon.named !== "boolean")
+      throw bad(`moon "${moon.id}": named must be true or false`);
   }
 }
 
@@ -46,7 +49,8 @@ function checkInput(input: MoonPanelInput): string | undefined {
   const families = new Set<string>();
   const moons = new Set<string>();
   for (const family of input.families) checkFamily(family, families, moons);
-  if (input.featuredFamily !== undefined && !families.has(input.featuredFamily)) throw bad(`featuredFamily "${String(input.featuredFamily)}" is not one of the families`);
+  if (input.featuredFamily !== undefined && !families.has(input.featuredFamily))
+    throw bad(`featuredFamily "${String(input.featuredFamily)}" is not one of the families`);
   if (input.listSource !== undefined && !isText(input.listSource)) throw bad("listSource must be a non-empty text");
   return dayOf(input);
 }
@@ -61,7 +65,9 @@ export class MoonPanelPlan {
     this.#input = frozenCopy(input);
   }
 
-  get input(): MoonPanelInput | undefined { return this.#input; }
+  get input(): MoonPanelInput | undefined {
+    return this.#input;
+  }
 
   /** The moon count and the line "115 moons in the JPL Horizons list of 18 October 2026"; undefined when no panel was set. */
   read(): SceneMoonPanelRead | undefined {
@@ -75,23 +81,40 @@ export class MoonPanelPlan {
    * The shell's list: each moon must be a body or body-set member of the scene (`labels` maps those ids to their labels); a moon that is a body gets the
    * picture the viewer's data brings for it (`pictureOf`), a dot none.
    */
-  list(labels: ReadonlyMap<string, string>, bodies: ReadonlySet<string>, catalogue: BodyCatalogue, pictureOf: (picture: string) => string | undefined): MoonFamilyList | undefined {
+  list(
+    labels: ReadonlyMap<string, string>,
+    bodies: ReadonlySet<string>,
+    catalogue: BodyCatalogue,
+    pictureOf: (picture: string) => string | undefined,
+  ): MoonFamilyList | undefined {
     const input = this.#input;
     if (input === undefined) return undefined;
     return {
       planetLabel: input.label,
       ...(input.featuredFamily === undefined ? {} : { featuredFamilyId: input.featuredFamily }),
-      families: frozenList(input.families.map((family) => ({
-        id: family.id,
-        label: family.label,
-        description: family.description,
-        moons: frozenList(family.moons.map((moon) => {
-          const label = labels.get(moon.id);
-          if (label === undefined) throw bad(`moon "${moon.id}" in family "${family.id}" is not a body or body-set member of the scene`);
-          const picture = bodies.has(moon.id) ? pictureOf(catalogue.has(moon.id) ? catalogue.get(moon.id).visual.picture ?? moon.id : moon.id) : undefined;
-          return { id: moon.id, label, named: moon.named ?? true, ...(picture === undefined ? {} : { pictureUrl: picture }) };
+      families: frozenList(
+        input.families.map((family) => ({
+          id: family.id,
+          label: family.label,
+          description: family.description,
+          moons: frozenList(
+            family.moons.map((moon) => {
+              const label = labels.get(moon.id);
+              if (label === undefined)
+                throw bad(`moon "${moon.id}" in family "${family.id}" is not a body or body-set member of the scene`);
+              const picture = bodies.has(moon.id)
+                ? pictureOf(catalogue.has(moon.id) ? (catalogue.get(moon.id).visual.picture ?? moon.id) : moon.id)
+                : undefined;
+              return {
+                id: moon.id,
+                label,
+                named: moon.named ?? true,
+                ...(picture === undefined ? {} : { pictureUrl: picture }),
+              };
+            }),
+          ),
         })),
-      }))),
+      ),
       ...(input.listSource === undefined ? {} : { listSource: input.listSource }),
       ...(this.#day === undefined ? {} : { listDate: this.#day }),
     };

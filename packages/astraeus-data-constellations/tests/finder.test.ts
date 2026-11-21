@@ -5,7 +5,11 @@ import { constellationFinder, constellations, loadBoundaries, loadNames } from "
 
 // O-076 T-320: which constellation holds a J2000 direction (Zodiac review F-10), and outline labels (F-15).
 const reason = (run: () => unknown): string => {
-  try { run(); } catch (error) { return `${(error as Error).name}: ${(error as Error).message}`; }
+  try {
+    run();
+  } catch (error) {
+    return `${(error as Error).name}: ${(error as Error).message}`;
+  }
   return "";
 };
 
@@ -41,8 +45,19 @@ const known: readonly (readonly [string, number, number, string])[] = [
 // (the IAU boundaries: Cap to Jan 19, Aqr Feb 16-Mar 11, Psc Mar 12-Apr 18, Ari Apr 19-May 13, Tau May 14-Jun 21, Gem Jun 22-Jul 20, Cnc Jul 21-Aug 9, Leo Aug 10-Sep 15,
 // Vir Sep 16-Oct 30, Lib Oct 31-Nov 22, Oph Nov 30-Dec 17, Sgr Dec 18-Jan 18; dates move by a day between years), so each date sits well inside its stretch.
 const sunDates: readonly (readonly [string, string])[] = [
-  ["2026-01-10", "Sgr"], ["2026-01-25", "Cap"], ["2026-03-01", "Aqr"], ["2026-03-25", "Psc"], ["2026-05-01", "Ari"], ["2026-06-05", "Tau"],
-  ["2026-07-10", "Gem"], ["2026-08-01", "Cnc"], ["2026-08-25", "Leo"], ["2026-10-05", "Vir"], ["2026-11-10", "Lib"], ["2026-12-05", "Oph"], ["2026-12-25", "Sgr"],
+  ["2026-01-10", "Sgr"],
+  ["2026-01-25", "Cap"],
+  ["2026-03-01", "Aqr"],
+  ["2026-03-25", "Psc"],
+  ["2026-05-01", "Ari"],
+  ["2026-06-05", "Tau"],
+  ["2026-07-10", "Gem"],
+  ["2026-08-01", "Cnc"],
+  ["2026-08-25", "Leo"],
+  ["2026-10-05", "Vir"],
+  ["2026-11-10", "Lib"],
+  ["2026-12-05", "Oph"],
+  ["2026-12-25", "Sgr"],
 ];
 
 describe("constellationFinder()", () => {
@@ -54,16 +69,24 @@ describe("constellationFinder()", () => {
     await scene.load();
     const sunCases = sunDates.map(([date, abbr]) => {
       const [x, y, z] = [...scene.stateOf("earth", date).positionKm].map((v) => -v) as [number, number, number];
-      return [`Sun on ${date}`, (Math.atan2(y, x) * 180) / Math.PI, (Math.asin(z / Math.hypot(x, y, z)) * 180) / Math.PI, abbr] as const;
+      return [
+        `Sun on ${date}`,
+        (Math.atan2(y, x) * 180) / Math.PI,
+        (Math.asin(z / Math.hypot(x, y, z)) * 180) / Math.PI,
+        abbr,
+      ] as const;
     });
-    for (const [what, raDeg, decDeg, abbr] of [...known, ...sunCases]) expect(which({ raDeg, decDeg }), what).toBe(abbr);
+    for (const [what, raDeg, decDeg, abbr] of [...known, ...sunCases])
+      expect(which({ raDeg, decDeg }), what).toBe(abbr);
     expect(new Set(sunCases.map((row) => row[3])).has("Oph")).toBe(true);
   });
 
   it("loads the outlines once and answers the same function's results on every call", async () => {
     const first = constellationFinder();
     expect(constellationFinder()).toBe(first);
-    expect((await first)({ raDeg: 88.79, decDeg: 7.41 })).toBe((await constellationFinder())({ raDeg: 88.79, decDeg: 7.41 }));
+    expect((await first)({ raDeg: 88.79, decDeg: 7.41 })).toBe(
+      (await constellationFinder())({ raDeg: 88.79, decDeg: 7.41 }),
+    );
   });
 
   it("gives every direction of a whole-sky grid exactly one constellation, and every one of the 88 at least one", async () => {
@@ -77,7 +100,10 @@ describe("constellationFinder()", () => {
       for (let ra = 0.3; ra < 360; ra += step) {
         const inside = enclosing({ raDeg: ra, decDeg: dec });
         const abbrs = new Set(inside);
-        expect(inside.length === 1 || (inside.length === 2 && abbrs.size === 1), `${ra}/${dec} enclosed by ${inside.join(",")}`).toBe(true);
+        expect(
+          inside.length === 1 || (inside.length === 2 && abbrs.size === 1),
+          `${ra}/${dec} enclosed by ${inside.join(",")}`,
+        ).toBe(true);
         const answer = find({ raDeg: ra, decDeg: dec });
         expect(answer, `${ra}/${dec}`).toBe(inside[0]);
         hit.add(answer);
@@ -93,10 +119,12 @@ describe("constellationFinder()", () => {
     const which = await constellationFinder();
     // A vertex held by several constellations' outlines (the corner where they meet): the answer is the alphabetically first of those.
     const owners = new Map<string, Set<string>>();
-    for (const [abbr, loops] of Object.entries(boundaries)) for (const flat of loops) for (let i = 0; i + 1 < flat.length; i += 2) {
-      const key = `${flat[i]},${flat[i + 1]}`;
-      owners.set(key, (owners.get(key) ?? new Set()).add(abbr));
-    }
+    for (const [abbr, loops] of Object.entries(boundaries))
+      for (const flat of loops)
+        for (let i = 0; i + 1 < flat.length; i += 2) {
+          const key = `${flat[i]},${flat[i + 1]}`;
+          owners.set(key, (owners.get(key) ?? new Set()).add(abbr));
+        }
     const corners = [...owners].filter(([, set]) => set.size >= 3).slice(0, 12);
     expect(corners.length).toBeGreaterThan(3);
     for (const [key, set] of corners) {
@@ -131,7 +159,13 @@ describe("constellations() outlineLabel", () => {
   it("renames each outline's label, Serpens parts included, and leaves figures and the other fields alone", async () => {
     const plain = await constellations(["Ori", "Ser"], { outlines: true });
     const named = await constellations(["Ori", "Ser"], { outlines: true, outlineLabel: (name) => `${name} (border)` });
-    expect(named.map((f) => f.label)).toEqual(["Orion", "Orion (border)", "Serpens", "Serpens Caput (border)", "Serpens Cauda (border)"]);
+    expect(named.map((f) => f.label)).toEqual([
+      "Orion",
+      "Orion (border)",
+      "Serpens",
+      "Serpens Caput (border)",
+      "Serpens Cauda (border)",
+    ]);
     expect(named.map((f) => ({ ...f, label: "" }))).toEqual(plain.map((f) => ({ ...f, label: "" })));
     // Without the option the labels are as they were in 0.9.1.
     expect(plain.map((f) => f.label)).toEqual(["Orion", "Orion", "Serpens", "Serpens Caput", "Serpens Cauda"]);
@@ -139,11 +173,20 @@ describe("constellations() outlineLabel", () => {
 
   it("throws a RangeError for a non-function or a function that returns a non-string or empty text", async () => {
     const bad: readonly (readonly [string, unknown])[] = [
-      ["a string", "x"], ["a number", 3], ["null", null], ["empty text", () => ""], ["a number result", () => 7], ["undefined result", () => undefined],
+      ["a string", "x"],
+      ["a number", 3],
+      ["null", null],
+      ["empty text", () => ""],
+      ["a number result", () => 7],
+      ["undefined result", () => undefined],
     ];
     for (const [what, outlineLabel] of bad) {
       let text = "";
-      try { await constellations(["Ori"], { outlines: true, outlineLabel: outlineLabel as never }); } catch (error) { text = `${(error as Error).name}: ${(error as Error).message}`; }
+      try {
+        await constellations(["Ori"], { outlines: true, outlineLabel: outlineLabel as never });
+      } catch (error) {
+        text = `${(error as Error).name}: ${(error as Error).message}`;
+      }
       expect(text, what).toMatch(/^RangeError: .*outlineLabel/);
     }
   });

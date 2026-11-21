@@ -7,12 +7,28 @@ const DAY = 86_400_000;
 
 function sceneWithPaths(seen: number[]): Scene {
   const scene = new Scene().addBody(earth).addBody(moon);
-  scene.addTrajectory({ id: "sampled", center: "earth", samples: [0, 1, 2].map((d) => ({ time: T0 + d * DAY, positionKm: [400_000 + d, 0, 0] })) });
+  scene.addTrajectory({
+    id: "sampled",
+    center: "earth",
+    samples: [0, 1, 2].map((d) => ({ time: T0 + d * DAY, positionKm: [400_000 + d, 0, 0] })),
+  });
   scene.addTrajectory({
     id: "provided",
     center: "earth",
     bounds: { start: T0, end: T0 + 2 * DAY },
-    provider: { stateAt: (timeUtcMs: number, center?: string) => { seen.push(timeUtcMs); return { body: "provided", center: center ?? "earth", timeUtcMs, plane: "EQJ", positionKm: new Float64Array([400_000, 0, 0]), orientation: null } as never; } },
+    provider: {
+      stateAt: (timeUtcMs: number, center?: string) => {
+        seen.push(timeUtcMs);
+        return {
+          body: "provided",
+          center: center ?? "earth",
+          timeUtcMs,
+          plane: "EQJ",
+          positionKm: new Float64Array([400_000, 0, 0]),
+          orientation: null,
+        } as never;
+      },
+    },
   });
   return scene;
 }
@@ -27,7 +43,11 @@ describe("a fractional time (I-177)", () => {
     const scene = sceneWithPaths(seen);
     seen.length = 0;
     let thrown: unknown;
-    try { scene.stateOf(id, T0 + DAY + 0.5); } catch (error) { thrown = error; }
+    try {
+      scene.stateOf(id, T0 + DAY + 0.5);
+    } catch (error) {
+      thrown = error;
+    }
     expect(thrown).toBeInstanceOf(RangeError);
     expect(thrown).toBeInstanceOf(SceneError);
     expect((thrown as SceneError).code).toBe("bad-time");

@@ -11,13 +11,23 @@ export const PLANETS = ["mars", "jupiter", "saturn", "uranus", "neptune", "pluto
 export function renderListedMoons() {
   const seen = new Set();
   const groups = PLANETS.map((planet) => {
-    const list = JSON.parse(readFileSync(new URL(`../astraeus-data-${planet}/data/${planet}-moons/list.json`, root), "utf8"));
+    const list = JSON.parse(
+      readFileSync(new URL(`../astraeus-data-${planet}/data/${planet}-moons/list.json`, root), "utf8"),
+    );
     const moons = list.moons.filter((moon) => moon.ephemeris !== undefined && moon.ephemeris !== null);
     const sets = new Set(moons.map((moon) => moon.ephemeris.set));
     if (sets.size > 1) throw new Error(`${planet}: moons point at more than one fit set`);
     // The years each fit covers come from the shipped index (the package's own span, or a body's own): a moon fitted back before 2010 is "early".
-    const index = JSON.parse(readFileSync(new URL(`../astraeus-data-${planet}/data/${[...sets][0]}/index.json`, root), "utf8"));
-    const from = (id) => Number(((index.bodies.find((body) => body.id === (moons.find((moon) => moon.id === id)).ephemeris.body) ?? {}).span ?? index.span).fromUtc.slice(0, 4));
+    const index = JSON.parse(
+      readFileSync(new URL(`../astraeus-data-${planet}/data/${[...sets][0]}/index.json`, root), "utf8"),
+    );
+    const from = (id) =>
+      Number(
+        (
+          (index.bodies.find((body) => body.id === moons.find((moon) => moon.id === id).ephemeris.body) ?? {}).span ??
+          index.span
+        ).fromUtc.slice(0, 4),
+      );
     const early = moons.filter((moon) => from(moon.id) < 2010).map((moon) => moon.id);
     const rows = moons.map((moon) => {
       if (seen.has(moon.id)) throw new Error(`moon id ${moon.id} is in two lists`);

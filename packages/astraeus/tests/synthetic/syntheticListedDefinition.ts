@@ -33,45 +33,61 @@ function lcg(seed: number): () => number {
 
 const random = lcg(20300101);
 /** Invented orbits: each has its own shape, orientation, record id and record time. */
-export const listedMembers: readonly ListedMember[] = Object.freeze(Array.from({ length: LISTED_MEMBER_COUNT }, (_, k): ListedMember => ({
-  recordId: `made-up-${String(k + 1).padStart(5, "0")}`,
-  epochUtcMs: Date.UTC(2020 + (k % 8), k % 12, 1 + (k % 27)),
-  elements: {
-    semiMajorAxisKm: (2.4 + 1.4 * random()) * AU_KM,
-    eccentricity: 0.45 + 0.2 * random(),
-    inclinationDeg: 20 + 12 * random(),
-    raanDeg: 40 + 14 * random(),
-    argumentOfPeriapsisDeg: 70 + 16 * random(),
-  },
-})));
+export const listedMembers: readonly ListedMember[] = Object.freeze(
+  Array.from({ length: LISTED_MEMBER_COUNT }, (_, k): ListedMember => ({
+    recordId: `made-up-${String(k + 1).padStart(5, "0")}`,
+    epochUtcMs: Date.UTC(2020 + (k % 8), k % 12, 1 + (k % 27)),
+    elements: {
+      semiMajorAxisKm: (2.4 + 1.4 * random()) * AU_KM,
+      eccentricity: 0.45 + 0.2 * random(),
+      inclinationDeg: 20 + 12 * random(),
+      raanDeg: 40 + 14 * random(),
+      argumentOfPeriapsisDeg: 70 + 16 * random(),
+    },
+  })),
+);
 
 const adapter = createOrbTwoBodyAdapter();
 
 /** The made-up reference body whose position the clump is drawn near. */
-const madeUpParent = createTwoBodyTrajectory({
-  body: "listed-parent",
-  plane: "ecliptic-j2000",
-  epochUtcMs: START_UTC_MS,
-  elements: { semiMajorAxisKm: 3.1 * AU_KM, eccentricity: 0.55, inclinationDeg: 25, raanDeg: 47, argumentOfPeriapsisDeg: 78, trueAnomalyDeg: 100 },
-}, adapter);
+const madeUpParent = createTwoBodyTrajectory(
+  {
+    body: "listed-parent",
+    plane: "ecliptic-j2000",
+    epochUtcMs: START_UTC_MS,
+    elements: {
+      semiMajorAxisKm: 3.1 * AU_KM,
+      eccentricity: 0.55,
+      inclinationDeg: 25,
+      raanDeg: 47,
+      argumentOfPeriapsisDeg: 78,
+      trueAnomalyDeg: 100,
+    },
+  },
+  adapter,
+);
 
 const listedProvenance = createProvenance({
   sourceType: "illustrative",
   sources: ["Made up for the listed-orbits capability test; not a real population"],
   accuracy: "None claimed. Invented orbits listed one by one.",
-  notes: "Exists to prove a group can be drawn from a list of per-member orbits through the same contract as any group.",
+  notes:
+    "Exists to prove a group can be drawn from a list of per-member orbits through the same contract as any group.",
 });
 
 export const syntheticListedLayer: GroupLayer = {
-  group: createListedOrbitGroup({
-    id: "listed-orbits",
-    center: "sun",
-    plane: "ecliptic-j2000",
-    members: listedMembers,
-    phase: { referenceUtcMs: START_UTC_MS, seed: 7, concentration: { around: madeUpParent, ...LISTED_CLUMP } },
-    bounds,
-    provenance: listedProvenance,
-  }, adapter),
+  group: createListedOrbitGroup(
+    {
+      id: "listed-orbits",
+      center: "sun",
+      plane: "ecliptic-j2000",
+      members: listedMembers,
+      phase: { referenceUtcMs: START_UTC_MS, seed: 7, concentration: { around: madeUpParent, ...LISTED_CLUMP } },
+      bounds,
+      provenance: listedProvenance,
+    },
+    adapter,
+  ),
   color: LISTED_LOOK.color,
   pointSizePx: LISTED_LOOK.pointSizePx,
   refillAfterMs: LISTED_REFILL_AFTER_MS,
@@ -80,7 +96,8 @@ export const syntheticListedLayer: GroupLayer = {
     label: "Listed orbits",
     color: LISTED_LOOK.color,
     labelPriority: 80,
-    description: "3,000 invented orbits, each listed with its own elements and record id, circling the Sun. One item stands for the whole group; its focus point is the centroid of the dots.",
+    description:
+      "3,000 invented orbits, each listed with its own elements and record id, circling the Sun. One item stands for the whole group; its focus point is the centroid of the dots.",
     knownLimitations: [
       "Made up; not a real population.",
       "The position along each orbit is illustrative: the list gives the orbit's shape and orientation, and the dots are spread evenly along them.",
@@ -114,7 +131,14 @@ const parentPath: PathLayer = {
 
 const experience: ExperienceConfig = {
   objects: [
-    { id: "earth", label: "Earth", color: "#9fd8ff", labelPriority: 100, labelMaxDistance: 500, description: "Earth, on its path round the Sun; the listed orbits circle the Sun." },
+    {
+      id: "earth",
+      label: "Earth",
+      color: "#9fd8ff",
+      labelPriority: 100,
+      labelMaxDistance: 500,
+      description: "Earth, on its path round the Sun; the listed orbits circle the Sun.",
+    },
   ],
   cameraPresets: [
     { id: "overview", label: "Overview", request: { kind: "overview" } },

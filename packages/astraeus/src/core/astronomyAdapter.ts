@@ -8,7 +8,6 @@ import { isPlanetId, planetModels, type PlanetId } from "./planetSeries";
 
 export type { PlanetId };
 
-
 export interface AstronomyAdapter {
   moonPositionKm(timeUtcMs: number): Float64Array;
   earthPositionFromSunKm(timeUtcMs: number): Float64Array;
@@ -40,9 +39,11 @@ export function createOrbAstronomyAdapter(): AstronomyAdapter {
       const instant = instantAt(timeUtcMs);
       const date = new Date(timeUtcMs);
       const ecliptic = moon.xyz(date);
-      if (ecliptic.coordinate_keywords !== "ecliptic rectangular"
-        || ecliptic.center_keywords !== "earth"
-        || ecliptic.unit_keywords !== "km") {
+      if (
+        ecliptic.coordinate_keywords !== "ecliptic rectangular" ||
+        ecliptic.center_keywords !== "earth" ||
+        ecliptic.unit_keywords !== "km"
+      ) {
         throw new TypeError("Orb lunar result changed its documented Earth-centered km contract");
       }
       const state = makeState({
@@ -78,7 +79,9 @@ export function createOrbAstronomyAdapter(): AstronomyAdapter {
       const model = planetModels()[planet];
       const ecliptic = model.xyz(new Date(timeUtcMs));
       if (ecliptic.coordinate_keywords !== "ecliptic rectangular j2000" || ecliptic.unit_keywords !== "au") {
-        throw new TypeError("the planet series result changed its heliocentric ecliptic-J2000 au contract (JPL Horizons fit)");
+        throw new TypeError(
+          "the planet series result changed its heliocentric ecliptic-J2000 au contract (JPL Horizons fit)",
+        );
       }
       const state = makeState({
         t: instant,
@@ -87,13 +90,14 @@ export function createOrbAstronomyAdapter(): AstronomyAdapter {
         r: [ecliptic.x * AU_KM, ecliptic.y * AU_KM, ecliptic.z * AU_KM],
       });
       const eqj = transform(state, { frame: "equatorial-j2000" });
-      if (eqj.center !== "sun") throw new TypeError("Orb ecliptic-to-equatorial transform of the planet series changed its center");
+      if (eqj.center !== "sun")
+        throw new TypeError("Orb ecliptic-to-equatorial transform of the planet series changed its center");
       return finiteVector(eqj.r, `${planet} Horizons planet series`);
     },
 
     daysSinceJ2000Tt(timeUtcMs: number): number {
       const [jd1, jd2] = instantAt(timeUtcMs).jd2parts("tt");
-      const days = (jd1 - JD_J2000) + jd2;
+      const days = jd1 - JD_J2000 + jd2;
       if (!Number.isFinite(days)) throw new TypeError("Orb terrestrial time conversion returned a non-finite value");
       return days;
     },

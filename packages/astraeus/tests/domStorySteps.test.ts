@@ -9,11 +9,29 @@ import type { ExperienceConfig } from "../src/shell/experience";
 import { $, mountShell, press, pressKey, type Mounted } from "./domSetup";
 
 let m: Mounted;
-beforeEach(() => { vi.useFakeTimers(); });
-afterEach(() => { m.unmount(); vi.useRealTimers(); });
+beforeEach(() => {
+  vi.useFakeTimers();
+});
+afterEach(() => {
+  m.unmount();
+  vi.useRealTimers();
+});
 
-const made = { sourceType: "illustrative", sources: ["Made up"], accuracy: "None claimed.", notes: "Made up." } as const;
-const step = (id: string, n: number, objectId?: string) => ({ id, step: n, title: `Step ${id}`, body: ["A made-up line."], details: [], provenance: made, ...(objectId === undefined ? {} : { objectId }) });
+const made = {
+  sourceType: "illustrative",
+  sources: ["Made up"],
+  accuracy: "None claimed.",
+  notes: "Made up.",
+} as const;
+const step = (id: string, n: number, objectId?: string) => ({
+  id,
+  step: n,
+  title: `Step ${id}`,
+  body: ["A made-up line."],
+  details: [],
+  provenance: made,
+  ...(objectId === undefined ? {} : { objectId }),
+});
 const steps = [step("one", 1), step("two", 2), step("three", 3)];
 const base = syntheticDefinition.experience;
 const withSteps = (extra: Partial<ExperienceConfig> = {}, keepMoments = false): ExperienceConfig => ({
@@ -44,7 +62,12 @@ describe("steps with no moment panel", () => {
     expect(next().disabled).toBe(true);
     press(back());
     expect(openId()).toBe("two");
-    expect(m.panelChanges.map(({ id, cause }) => `${id}:${cause}`)).toEqual(["one:visitor", "two:visitor", "three:visitor", "two:visitor"]);
+    expect(m.panelChanges.map(({ id, cause }) => `${id}:${cause}`)).toEqual([
+      "one:visitor",
+      "two:visitor",
+      "three:visitor",
+      "two:visitor",
+    ]);
   });
 
   it("works with no timeline", () => {
@@ -64,7 +87,12 @@ describe("steps with no moment panel", () => {
     m.hostPanel("");
     expect(open()).toBeNull();
     pressKey(document, "Escape");
-    expect(m.panelChanges.map(({ id, cause }) => `${id}:${cause}`)).toEqual(["one:visitor", "null:visitor", "three:host", "null:host"]);
+    expect(m.panelChanges.map(({ id, cause }) => `${id}:${cause}`)).toEqual([
+      "one:visitor",
+      "null:visitor",
+      "three:host",
+      "null:host",
+    ]);
   });
 
   it("the last host call wins when two arrive together", () => {
@@ -97,11 +125,14 @@ describe("steps beside moment panels", () => {
 });
 
 describe("phone layout rules (375x667 and 1280x720)", () => {
-  const css = ["parts/parts", "parts/phone"].map((name) => readFileSync(resolve(process.cwd(), `packages/astraeus/src/shell/${name}.css`), "utf8")).join("\n");
+  const css = ["parts/parts", "parts/phone"]
+    .map((name) => readFileSync(resolve(process.cwd(), `packages/astraeus/src/shell/${name}.css`), "utf8"))
+    .join("\n");
   it("gives Close, Back, Next and Continue 44 px touch targets on every screen", () => {
     const rule = /:where\(([^)]*story-panel-next[^)]*)\)\s*\{([^}]*)\}/.exec(css);
     expect(rule).not.toBeNull();
-    for (const name of ["story-panel-close", "story-panel-back", "story-panel-next", "story-panel-continue"]) expect(rule![1]).toContain(`.${name}`);
+    for (const name of ["story-panel-close", "story-panel-back", "story-panel-next", "story-panel-continue"])
+      expect(rule![1]).toContain(`.${name}`);
     expect(rule![2]).toMatch(/min-width:\s*var\(--astraeus-hit\)/);
     expect(rule![2]).toMatch(/min-height:\s*var\(--astraeus-hit\)/);
   });

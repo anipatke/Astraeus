@@ -25,12 +25,23 @@ export function ProvenanceBadge({ provenance }: { readonly provenance: Provenanc
         {provenance.knownLimitations.length > 0 && (
           <>
             <dt>Known limitations</dt>
-            <dd><ul>{provenance.knownLimitations.map((limitation) => <li key={limitation}>{limitation}</li>)}</ul></dd>
+            <dd>
+              <ul>
+                {provenance.knownLimitations.map((limitation) => (
+                  <li key={limitation}>{limitation}</li>
+                ))}
+              </ul>
+            </dd>
           </>
         )}
         <dt>Accuracy</dt>
         <dd>{provenance.accuracy}</dd>
-        {provenance.notes.length > 0 && <><dt>Notes</dt><dd>{provenance.notes}</dd></>}
+        {provenance.notes.length > 0 && (
+          <>
+            <dt>Notes</dt>
+            <dd>{provenance.notes}</dd>
+          </>
+        )}
       </dl>
       <Sources sources={provenance.sources} />
     </div>

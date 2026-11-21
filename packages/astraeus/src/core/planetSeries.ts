@@ -19,7 +19,16 @@ export class PlanetFitsUncoveredError extends RangeError {
 /** Planets the astronomy adapter has a heliocentric model for (Saturn to Pluto added by O-033 T-114). */
 export type PlanetId = "mercury" | "venus" | "mars" | "jupiter" | "saturn" | "uranus" | "neptune" | "pluto";
 
-export const PLANET_IDS: readonly PlanetId[] = Object.freeze(["mercury", "venus", "mars", "jupiter", "saturn", "uranus", "neptune", "pluto"]);
+export const PLANET_IDS: readonly PlanetId[] = Object.freeze([
+  "mercury",
+  "venus",
+  "mars",
+  "jupiter",
+  "saturn",
+  "uranus",
+  "neptune",
+  "pluto",
+]);
 
 export function isPlanetId(id: string): id is PlanetId {
   return (PLANET_IDS as readonly string[]).includes(id);
@@ -49,7 +58,10 @@ let span: TimeBounds | undefined;
  * downloads them (I-022).
  */
 export function loadPlanetSeries(): Promise<void> {
-  loading ??= import("./planetModels").then((module) => { models = module.createPlanetModels(); span = module.planetSeriesSpan(); });
+  loading ??= import("./planetModels").then((module) => {
+    models = module.createPlanetModels();
+    span = module.planetSeriesSpan();
+  });
   return loading;
 }
 
@@ -60,12 +72,16 @@ export function planetSeriesLoaded(): boolean {
 
 /** The years the loaded planet series cover (UTC); throws before `loadPlanetSeries()` resolved. A date outside it throws rather than extrapolate. */
 export function planetSeriesSpan(): TimeBounds {
-  if (span === undefined) throw new NotLoadedError("the planet series are not loaded: await loadPlanetSeries() before asking their span");
+  if (span === undefined)
+    throw new NotLoadedError("the planet series are not loaded: await loadPlanetSeries() before asking their span");
   return span;
 }
 
 /** The loaded planet models; throws before `loadPlanetSeries()` resolved rather than falling back to the compact tables. */
 export function planetModels(): PlanetModels {
-  if (models === undefined) throw new NotLoadedError("the planet series are not loaded: await loadPlanetSeries() before mounting a composition with a planet");
+  if (models === undefined)
+    throw new NotLoadedError(
+      "the planet series are not loaded: await loadPlanetSeries() before mounting a composition with a planet",
+    );
   return models;
 }

@@ -13,33 +13,65 @@ import { definitionOf } from "../src/api/definitionOf";
 
 const AU_KM = 149_597_870.7;
 const record: ElementsBodyRecord = {
-  id: "rock", label: "Rock",
-  elements: { semiMajorAxisAu: 2.5, eccentricity: 0.3, inclinationDeg: 10, ascendingNodeDeg: 40, argumentOfPerihelionDeg: 70, meanAnomalyDeg: 20 },
+  id: "rock",
+  label: "Rock",
+  elements: {
+    semiMajorAxisAu: 2.5,
+    eccentricity: 0.3,
+    inclinationDeg: 10,
+    ascendingNodeDeg: 40,
+    argumentOfPerihelionDeg: 70,
+    meanAnomalyDeg: 20,
+  },
   epoch: { jd: 2461000.5, timeScale: "TDB", ttMinusUtcSeconds: 69.184 },
   plane: "ecliptic-j2000",
   source: { name: "Made up", url: "https://example.org/rock", solution: "S1", accessed: "2026-10-28" },
-  accuracy: { classification: "indicative", statement: "Made up.", valid: { start: "2020-01-01T00:00:00Z", end: "2030-01-01T00:00:00Z" }, limitations: [] },
+  accuracy: {
+    classification: "indicative",
+    statement: "Made up.",
+    valid: { start: "2020-01-01T00:00:00Z", end: "2030-01-01T00:00:00Z" },
+    limitations: [],
+  },
   marker: { color: "#aabbcc", sizePx: 6 },
 };
 const aphelionUnits = (2.5 * 1.3 * AU_KM) / 6371.0084;
-const code = (fn: () => unknown) => { try { fn(); } catch (error) { return error instanceof SceneError ? error.code : String(error); } return "none"; };
+const code = (fn: () => unknown) => {
+  try {
+    fn();
+  } catch (error) {
+    return error instanceof SceneError ? error.code : String(error);
+  }
+  return "none";
+};
 const make = () => new Scene().addBody(sun).addBodyFromElements(record, { orbit: true });
-const reachAt = (scene: Scene, width: number, height: number) => liveReach(cameraReachOf(definitionOf(scene)), trueScale, width / height);
+const reachAt = (scene: Scene, width: number, height: number) =>
+  liveReach(cameraReachOf(definitionOf(scene)), trueScale, width / height);
 
 describe("camera.fitOrbit", () => {
   it("fits a made-up orbit to the canvas: 1.1 x farthest Sun distance over the sine of the narrower half field of view", () => {
     const scene = make();
     scene.camera.fitOrbit("rock");
     const wide = reachAt(scene, 1280, 800);
-    expect(Math.abs(wide.maxFocusDistance! / ((1.1 * aphelionUnits) / Math.sin((22.5 * Math.PI) / 180)) - 1)).toBeLessThan(1e-5);
+    expect(
+      Math.abs(wide.maxFocusDistance! / ((1.1 * aphelionUnits) / Math.sin((22.5 * Math.PI) / 180)) - 1),
+    ).toBeLessThan(1e-5);
     expect(wide.far).toBeCloseTo(wide.maxFocusDistance! * 2.5, 3);
     const phone = reachAt(scene, 390, 844);
-    expect(Math.abs(phone.maxFocusDistance! / ((1.1 * aphelionUnits) / Math.sin((10.8 * Math.PI) / 180)) - 1)).toBeLessThan(0.01);
+    expect(
+      Math.abs(phone.maxFocusDistance! / ((1.1 * aphelionUnits) / Math.sin((10.8 * Math.PI) / 180)) - 1),
+    ).toBeLessThan(0.01);
     expect(phone.maxFocusDistance!).toBeGreaterThan(wide.maxFocusDistance!);
   });
 
   it("takes a body reference or an id, and a long-period comet added from elements", () => {
-    const comet = new Scene().addBody(sun).addBodyFromElements({ ...record, id: "long-comet", label: "Long comet", elements: { ...record.elements, semiMajorAxisAu: 26, eccentricity: 0.96 } });
+    const comet = new Scene()
+      .addBody(sun)
+      .addBodyFromElements({
+        ...record,
+        id: "long-comet",
+        label: "Long comet",
+        elements: { ...record.elements, semiMajorAxisAu: 26, eccentricity: 0.96 },
+      });
     comet.camera.fitOrbit("long-comet");
     expect(reachAt(comet, 1280, 800).maxFocusDistance!).toBeGreaterThan(1e6);
     const byRef = new Scene().addBody(sun).addBody(earth);
@@ -62,7 +94,8 @@ describe("camera.fitOrbit", () => {
   });
 
   it("keeps labels shown at any distance the fitted camera can take, also when the scene is not Sun-centred", () => {
-    const labelLimit = (scene: Scene) => definitionOf(scene).experience.objects.find((object) => object.id === "earth")!.labelMaxDistance;
+    const labelLimit = (scene: Scene) =>
+      definitionOf(scene).experience.objects.find((object) => object.id === "earth")!.labelMaxDistance;
     const plain = new Scene().addBody(earth).addBody(moon);
     expect(labelLimit(plain)).toBe(500);
     const fitted = new Scene().addBody(earth).addBody(moon);
@@ -82,16 +115,35 @@ describe("camera.fitOrbit", () => {
 });
 
 describe("the viewer re-fits when the canvas changes shape", () => {
-  const positions = new Map<string, RenderVector>([["sun", [0, 0, 0]], ["rock", [10, 0, 0]]]);
+  const positions = new Map<string, RenderVector>([
+    ["sun", [0, 0, 0]],
+    ["rock", [10, 0, 0]],
+  ]);
   const targets: SceneTargets = {
     bodyIdFor: (id) => id,
     placed: positions as SceneTargets["placed"],
     absoluteOf: (id) => positions.get(id) ?? [0, 0, 0],
-    groupViews: [], sunCentredViews: [], trackedViews: [], bodySetViews: [],
-    timeUtcMs: 0, policy: trueScale, placement: {} as SceneTargets["placement"],
+    groupViews: [],
+    sunCentredViews: [],
+    trackedViews: [],
+    bodySetViews: [],
+    timeUtcMs: 0,
+    policy: trueScale,
+    placement: {} as SceneTargets["placement"],
   };
   const stepAt = (scene: Scene, aspect: number, distance: number) => {
-    const input: CameraStepInput = { camState: createOrbitCameraState(distance, "sun"), controls: { cameraRequest: null }, targets, frame: { centre: "sun", span: aphelionUnits }, catalogue: definitionOf(scene).catalogue!, reach: liveReach(cameraReachOf(definitionOf(scene)), trueScale, aspect), fovDeg: 45, viewUp: EQUATORIAL_UP, firstFrame: false, previousUp: null };
+    const input: CameraStepInput = {
+      camState: createOrbitCameraState(distance, "sun"),
+      controls: { cameraRequest: null },
+      targets,
+      frame: { centre: "sun", span: aphelionUnits },
+      catalogue: definitionOf(scene).catalogue!,
+      reach: liveReach(cameraReachOf(definitionOf(scene)), trueScale, aspect),
+      fovDeg: 45,
+      viewUp: EQUATORIAL_UP,
+      firstFrame: false,
+      previousUp: null,
+    };
     stepCameraTarget(input);
     return input.camState.distance;
   };

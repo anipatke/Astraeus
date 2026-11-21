@@ -18,19 +18,30 @@ export {
  * The panels forward playback just passed: those with `previousMs < time <= currentMs`, in time order.
  * A backward step or no movement crosses nothing, so loops and rewinds never open a panel.
  */
-export function panelsCrossed(panels: readonly StoryPanel[], previousMs: number, currentMs: number): readonly StoryPanel[] {
+export function panelsCrossed(
+  panels: readonly StoryPanel[],
+  previousMs: number,
+  currentMs: number,
+): readonly StoryPanel[] {
   if (!(currentMs > previousMs)) return [];
   return panels.filter((panel) => panel.timeUtcMs > previousMs && panel.timeUtcMs <= currentMs);
 }
 
 /** A moment panel's close moment (`timeUtcMs` plus its span: the panel's own `closeAfterSeconds`, else the playback's), or null when it has no span and never closes. */
-export function panelCloseMs(panel: Pick<StoryPanel, "timeUtcMs" | "closeAfterSeconds">, playbackSpan: number | undefined): number | null {
+export function panelCloseMs(
+  panel: Pick<StoryPanel, "timeUtcMs" | "closeAfterSeconds">,
+  playbackSpan: number | undefined,
+): number | null {
   const span = panel.closeAfterSeconds ?? playbackSpan;
   return span === undefined ? null : panel.timeUtcMs + span * 1000;
 }
 
 /** Whether a panel opening with the clock at `atMs` is one the close applies to: the clock is still before its close moment (or it has none). A panel opened at or past its close moment stays open until closed. */
-export function panelArmedAt(panel: Pick<StoryPanel, "timeUtcMs" | "closeAfterSeconds">, playbackSpan: number | undefined, atMs: number): boolean {
+export function panelArmedAt(
+  panel: Pick<StoryPanel, "timeUtcMs" | "closeAfterSeconds">,
+  playbackSpan: number | undefined,
+  atMs: number,
+): boolean {
   const closeMs = panelCloseMs(panel, playbackSpan);
   return closeMs === null || atMs < closeMs;
 }
@@ -40,7 +51,14 @@ export function panelArmedAt(panel: Pick<StoryPanel, "timeUtcMs" | "closeAfterSe
  * and ends at or past the close moment. It is a state test, not a crossing, so a span shorter than one frame still closes on a later tick; the caller never asks on the tick that opened the panel.
  * With no span it never closes; a seek, a rewind, a pause or no movement closes nothing.
  */
-export function panelSpanPassed(panel: Pick<StoryPanel, "timeUtcMs" | "closeAfterSeconds">, playbackSpan: number | undefined, previousMs: number, currentMs: number, moving: boolean, armed = true): boolean {
+export function panelSpanPassed(
+  panel: Pick<StoryPanel, "timeUtcMs" | "closeAfterSeconds">,
+  playbackSpan: number | undefined,
+  previousMs: number,
+  currentMs: number,
+  moving: boolean,
+  armed = true,
+): boolean {
   const closeMs = panelCloseMs(panel, playbackSpan);
   if (closeMs === null || !armed || !moving || !(currentMs > previousMs)) return false;
   return currentMs >= closeMs;
@@ -59,10 +77,16 @@ export class CrossingTracker {
   }
 
   /** Whether the next tick counts as playback (the clock was playing on the last one); with `previousMs`, what `panelSpanPassed` needs before `advance` moves them. */
-  get wasPlaying(): boolean { return this.#wasPlaying; }
-  get previousMs(): number { return this.#previousMs; }
+  get wasPlaying(): boolean {
+    return this.#wasPlaying;
+  }
+  get previousMs(): number {
+    return this.#previousMs;
+  }
   /** The clock as the panel logic knows it: rebased by a seek, moved on by every tick. A panel's arming reads this, so one opened right after a jump counts the clock it jumped to. */
-  get timeUtcMs(): number { return this.#previousMs; }
+  get timeUtcMs(): number {
+    return this.#previousMs;
+  }
 
   rebase(timeUtcMs: number): void {
     this.#previousMs = timeUtcMs;

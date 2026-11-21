@@ -25,27 +25,57 @@ const texts: readonly (readonly [string, string, number | "refused"])[] = [
   ["impossible date", "2026-13-45", "refused"],
 ];
 
-const panel = (time: string) => ({ id: "p", at: { time }, title: "T", body: "B", provenance: { sourceType: "illustrative" as const, sources: ["s"], accuracy: "a", notes: "n" } });
+const panel = (time: string) => ({
+  id: "p",
+  at: { time },
+  title: "T",
+  body: "B",
+  provenance: { sourceType: "illustrative" as const, sources: ["s"], accuracy: "a", notes: "n" },
+});
 const base = () => new Scene().addBody(earth);
 /** Each entry point: the moment it read (a number), or the error it threw. */
 const entries: readonly (readonly [string, (text: string) => number, string])[] = [
   ["toUtcMs", (t) => toUtcMs(t), "bad-time"],
   ["setTime", (t) => base().setTime(t).timeline.openUtcMs, "bad-time"],
-  ["setTimeline start", (t) => base().setTimeline({ start: t, end: "2030-01-01T00:00:00Z" }).timeline.windowStartUtcMs, "bad-time"],
-  ["setTimeline end", (t) => base().setTimeline({ start: "2000-01-01T00:00:00Z", end: t }).timeline.windowEndUtcMs, "bad-time"],
-  ["story panel at.time", (t) => base().setTimeline({ start: "2000-01-01T00:00:00Z", end: "2030-01-01T00:00:00Z" }).addStoryPanels([panel(t)]).panels[0]!.timeUtcMs!, "bad-panels"],
+  [
+    "setTimeline start",
+    (t) => base().setTimeline({ start: t, end: "2030-01-01T00:00:00Z" }).timeline.windowStartUtcMs,
+    "bad-time",
+  ],
+  [
+    "setTimeline end",
+    (t) => base().setTimeline({ start: "2000-01-01T00:00:00Z", end: t }).timeline.windowEndUtcMs,
+    "bad-time",
+  ],
+  [
+    "story panel at.time",
+    (t) =>
+      base()
+        .setTimeline({ start: "2000-01-01T00:00:00Z", end: "2030-01-01T00:00:00Z" })
+        .addStoryPanels([panel(t)]).panels[0]!.timeUtcMs!,
+    "bad-panels",
+  ],
   ["page address t", (t) => timeFromSearch(`?t=${encodeURIComponent(t)}`) ?? Number.NaN, "ignored"],
 ];
 
 const zone = process.env.TZ;
-afterEach(() => { if (zone === undefined) delete process.env.TZ; else process.env.TZ = zone; });
+afterEach(() => {
+  if (zone === undefined) delete process.env.TZ;
+  else process.env.TZ = zone;
+});
 
 describe.each(["UTC", "Australia/Sydney", "America/Los_Angeles"])("time text in process zone %s", (tz) => {
   describe.each(entries)("%s", (_entry, read, code) => {
     it.each(texts)("%s: %s", (_name, text, want) => {
       process.env.TZ = tz;
-      if (want !== "refused") { expect(read(text)).toBe(want); return; }
-      if (code === "ignored") { expect(read(text)).toBeNaN(); return; }
+      if (want !== "refused") {
+        expect(read(text)).toBe(want);
+        return;
+      }
+      if (code === "ignored") {
+        expect(read(text)).toBeNaN();
+        return;
+      }
       expect(() => read(text)).toThrow(expect.objectContaining({ code }));
     });
   });
@@ -54,7 +84,11 @@ describe.each(["UTC", "Australia/Sydney", "America/Los_Angeles"])("time text in 
 describe("the message for zone-less date-time text names the fix", () => {
   it("says to add Z or an offset", () => {
     let failure: unknown;
-    try { toUtcMs("2026-08-12T21:00:00"); } catch (error) { failure = error; }
+    try {
+      toUtcMs("2026-08-12T21:00:00");
+    } catch (error) {
+      failure = error;
+    }
     expect(failure).toBeInstanceOf(SceneError);
     expect((failure as SceneError).message).toMatch(/time zone.*Z.*offset|Z.*offset.*time zone/i);
   });

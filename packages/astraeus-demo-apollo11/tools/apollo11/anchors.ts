@@ -110,7 +110,12 @@ export function nativeState(
       CONSTANTS.earth.inverseFlattening,
     );
     const rotation = Array.from(adapter.earthFixedToEqjMatrix(timeUtcMs)) as unknown as Mat3;
-    const velocity = velocityFromFlightGeometry(axes, inputs.inertialSpeedKmS, inputs.flightPathAngleDeg, inputs.headingDeg);
+    const velocity = velocityFromFlightGeometry(
+      axes,
+      inputs.inertialSpeedKmS,
+      inputs.flightPathAngleDeg,
+      inputs.headingDeg,
+    );
     return { center: "earth", r: mulMatVec(rotation, fixed), v: mulMatVec(rotation, velocity) };
   }
   const fixed = sphericalToFixedKm(
@@ -122,11 +127,11 @@ export function nativeState(
   const velocity = surfaceFixed
     ? surfacePointVelocity(timeUtcMs, fixed, NUMERICS.rotationRateHalfStepMs)
     : velocityFromFlightGeometry(
-      inertialNorthAxes(position),
-      inputs.inertialSpeedKmS,
-      inputs.flightPathAngleDeg,
-      inputs.headingDeg,
-    );
+        inertialNorthAxes(position),
+        inputs.inertialSpeedKmS,
+        inputs.flightPathAngleDeg,
+        inputs.headingDeg,
+      );
   return { center: "moon", r: position, v: velocity };
 }
 
@@ -155,7 +160,10 @@ function printRoundingUncertainty(
       },
       timeUtcMs,
     },
-    { inputs: { ...inputs, flightPathAngleDeg: inputs.flightPathAngleDeg + half(raw.flight_path_angle_printed, 1) }, timeUtcMs },
+    {
+      inputs: { ...inputs, flightPathAngleDeg: inputs.flightPathAngleDeg + half(raw.flight_path_angle_printed, 1) },
+      timeUtcMs,
+    },
     { inputs: { ...inputs, headingDeg: inputs.headingDeg + half(raw.heading_angle_printed, 1) }, timeUtcMs },
     { inputs, timeUtcMs: timeUtcMs + 50 },
   ];
@@ -182,7 +190,8 @@ export function normaliseAnchor(adapter: AstronomyAdapter, raw: RawAnchor): Norm
   if (override !== undefined && printedInputs[override.field] !== override.printedValue) {
     throw new RangeError(`override for ${raw.id} expects printed ${override.field} ${override.printedValue}`);
   }
-  const inputs = override === undefined ? printedInputs : { ...printedInputs, [override.field]: override.reconstructionValue };
+  const inputs =
+    override === undefined ? printedInputs : { ...printedInputs, [override.field]: override.reconstructionValue };
   const native = nativeState(adapter, refBody, surfaceFixed, inputs, timeUtcMs);
   return {
     id: raw.id,

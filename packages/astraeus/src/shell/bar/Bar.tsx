@@ -18,9 +18,25 @@ export interface TitleAction {
 }
 
 /** The title place: the About title, or the selected object's name when the scene has no About. A button that opens its panel; the full name stays for a screen reader whatever is shown ("i" included). */
-export function TitlePlace({ full, shown, action }: { readonly full: string; readonly shown: string; readonly action: TitleAction }) {
+export function TitlePlace({
+  full,
+  shown,
+  action,
+}: {
+  readonly full: string;
+  readonly shown: string;
+  readonly action: TitleAction;
+}) {
   return (
-    <button type="button" className="bar-title" data-bar-title="" title={full} aria-expanded={action.open} aria-controls={action.controls} onClick={action.onPress}>
+    <button
+      type="button"
+      className="bar-title"
+      data-bar-title=""
+      title={full}
+      aria-expanded={action.open}
+      aria-controls={action.controls}
+      onClick={action.onPress}
+    >
       <span aria-hidden="true">{shown}</span>
       <span className="bar-sr">{full}</span>
     </button>
@@ -37,26 +53,59 @@ interface MenuButtonProps {
 
 /** The menu button (a phone's three lines, a wide bar's three dots): a tap toggles the menu, a swipe down opens it. */
 function MenuButton({ phone, open, drawerId, onOpenChange, swipeThresholdPx }: MenuButtonProps) {
-  const gestures = useDrawerSwipe({ thresholdPx: swipeThresholdPx, onTap: () => onOpenChange(!open), onSwipe: (direction) => { if (direction === "down") onOpenChange(true); } });
+  const gestures = useDrawerSwipe({
+    thresholdPx: swipeThresholdPx,
+    onTap: () => onOpenChange(!open),
+    onSwipe: (direction) => {
+      if (direction === "down") onOpenChange(true);
+    },
+  });
   const name = phone ? "Menu" : "More controls";
   return (
-    <button type="button" className="bar-menu-button ui-icon" {...{ [POPUP_HOST_ATTRIBUTE]: MENU_HOST }} aria-label={name} title={name} aria-expanded={open} aria-controls={drawerId} {...gestures}>
+    <button
+      type="button"
+      className="bar-menu-button ui-icon"
+      {...{ [POPUP_HOST_ATTRIBUTE]: MENU_HOST }}
+      aria-label={name}
+      title={name}
+      aria-expanded={open}
+      aria-controls={drawerId}
+      {...gestures}
+    >
       {phone ? <MenuIcon /> : <MoreIcon />}
     </button>
   );
 }
 
-const GHOST_CLASS: Readonly<Record<Ghost["shape"], string>> = { title: "bar-title", text: "bar-ghost bar-ghost-text", icon: "bar-ghost bar-ghost-icon", select: "bar-ghost bar-ghost-select", scale: "bar-ghost bar-ghost-text bar-ghost-scale" };
+const GHOST_CLASS: Readonly<Record<Ghost["shape"], string>> = {
+  title: "bar-title",
+  text: "bar-ghost bar-ghost-text",
+  icon: "bar-ghost bar-ghost-icon",
+  select: "bar-ghost bar-ghost-select",
+  scale: "bar-ghost bar-ghost-text bar-ghost-scale",
+};
 
 /** Draws every item in every form once, out of sight, so the fit rule works from real widths. A ghost is plain spans: no control, no id, no hook a test or host could find. */
-function BarMeasure({ items, ghostsRef }: { readonly items: readonly BarItem[]; readonly ghostsRef: RefObject<HTMLDivElement | null> }) {
+function BarMeasure({
+  items,
+  ghostsRef,
+}: {
+  readonly items: readonly BarItem[];
+  readonly ghostsRef: RefObject<HTMLDivElement | null>;
+}) {
   return (
     <div className="bar-measure" ref={ghostsRef} aria-hidden="true">
-      {items.flatMap((item) => Object.entries(item.forms).map(([form, ghosts]) => (
-        <span key={`${item.id}:${form}`} className="bar-ghost-group" data-ghost-id={item.id} data-ghost-form={form}>
-          {ghosts.map((ghost, index) => <span key={index} className={GHOST_CLASS[ghost.shape]}>{ghost.text}</span>)}
-        </span>
-      )))}
+      {items.flatMap((item) =>
+        Object.entries(item.forms).map(([form, ghosts]) => (
+          <span key={`${item.id}:${form}`} className="bar-ghost-group" data-ghost-id={item.id} data-ghost-form={form}>
+            {ghosts.map((ghost, index) => (
+              <span key={index} className={GHOST_CLASS[ghost.shape]}>
+                {ghost.text}
+              </span>
+            ))}
+          </span>
+        )),
+      )}
     </div>
   );
 }

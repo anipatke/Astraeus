@@ -8,6 +8,11 @@ import type { ShowerSettings } from "../../src/experiences/showers/showerSetting
 export { streamIdOf };
 
 /** A shower's definition: what the engine builds from its scene with the settings' label. Production is off unless a test says so, so an absent file reads as the development message. */
-export function buildShowerDefinition(settings: ShowerSettings, load: MeasuredLoad, panelsFile?: unknown, production = false): ReturnType<typeof definitionOf> & { label: string } {
+export function buildShowerDefinition(
+  settings: ShowerSettings,
+  load: MeasuredLoad,
+  panelsFile?: unknown,
+  production = false,
+): ReturnType<typeof definitionOf> & { label: string } {
   return { ...definitionOf(buildShowerScene(settings, load, panelsFile, production)), label: settings.label };
 }

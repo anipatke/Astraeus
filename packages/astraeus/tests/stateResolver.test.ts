@@ -28,7 +28,34 @@ const accuracy = {
 
 describe("built-in catalogue", () => {
   it("defines each body once with its parent, orientation model and accuracy record", () => {
-    expect(BUILT_IN_BODIES.map((body) => body.id)).toEqual(["sun", "earth", "moon", "mercury", "venus", "mars", "jupiter", "io", "europa", "ganymede", "callisto", "saturn", "uranus", "neptune", "pluto", "phobos", "deimos", "mimas", "enceladus", "tethys", "dione", "rhea", "titan", "iapetus", "triton", "charon"]);
+    expect(BUILT_IN_BODIES.map((body) => body.id)).toEqual([
+      "sun",
+      "earth",
+      "moon",
+      "mercury",
+      "venus",
+      "mars",
+      "jupiter",
+      "io",
+      "europa",
+      "ganymede",
+      "callisto",
+      "saturn",
+      "uranus",
+      "neptune",
+      "pluto",
+      "phobos",
+      "deimos",
+      "mimas",
+      "enceladus",
+      "tethys",
+      "dione",
+      "rhea",
+      "titan",
+      "iapetus",
+      "triton",
+      "charon",
+    ]);
     expect([SUN.parentId, EARTH.parentId, MOON.parentId]).toEqual([undefined, "sun", "earth"]);
     expect([SUN.orientation, EARTH.orientation, MOON.orientation]).toEqual(["none", "ecef", "iau-rotation"]);
     for (const body of BUILT_IN_BODIES) {
@@ -38,7 +65,33 @@ describe("built-in catalogue", () => {
     }
     expect(MOON.accuracy.orientationLimitations.join(" ")).toMatch(/0\.01 km.*254 km/);
     expect(MOON.accuracy.orientationLimitations.join(" ")).toMatch(/libration terms/);
-    expect(BUILT_IN_BINDINGS.map((binding) => binding.body)).toEqual(["earth", "moon", "mercury", "venus", "mars", "jupiter", "saturn", "uranus", "neptune", "pluto", "io", "europa", "ganymede", "callisto", "phobos", "deimos", "mimas", "enceladus", "tethys", "dione", "rhea", "titan", "iapetus", "triton", "charon"]);
+    expect(BUILT_IN_BINDINGS.map((binding) => binding.body)).toEqual([
+      "earth",
+      "moon",
+      "mercury",
+      "venus",
+      "mars",
+      "jupiter",
+      "saturn",
+      "uranus",
+      "neptune",
+      "pluto",
+      "io",
+      "europa",
+      "ganymede",
+      "callisto",
+      "phobos",
+      "deimos",
+      "mimas",
+      "enceladus",
+      "tethys",
+      "dione",
+      "rhea",
+      "titan",
+      "iapetus",
+      "triton",
+      "charon",
+    ]);
   });
 
   it("carries gravitational parameters equal to the library's own table", () => {
@@ -59,7 +112,9 @@ describe("resolver equals today's recentring sites", () => {
       const earthFromSun = earthStateAt(adapter, time);
       expect(viaResolver.center).toBe("sun");
       for (let axis = 0; axis < 3; axis += 1) {
-        expect(Math.abs(viaResolver.positionKm[axis] - (moonFromEarth.positionKm[axis] + earthFromSun.positionKm[axis]))).toBeLessThanOrEqual(1e-9);
+        expect(
+          Math.abs(viaResolver.positionKm[axis] - (moonFromEarth.positionKm[axis] + earthFromSun.positionKm[axis])),
+        ).toBeLessThanOrEqual(1e-9);
       }
       expect(viaResolver.orientation).toEqual(moonFromEarth.orientation);
     }
@@ -92,7 +147,11 @@ describe("resolver equals today's recentring sites", () => {
 
   it("gives the same bytes from separately created resolvers over the same constants", () => {
     const other = createStateResolver(BUILT_IN_BODIES, BUILT_IN_BINDINGS, createOrbAstronomyAdapter());
-    for (const [body, center] of [["moon", "sun"], ["earth", "moon"], ["sun", "moon"]] as const) {
+    for (const [body, center] of [
+      ["moon", "sun"],
+      ["earth", "moon"],
+      ["sun", "moon"],
+    ] as const) {
       expect(other.stateOf(body, T, center)).toEqual(real.stateOf(body, T, center));
     }
   });
@@ -126,17 +185,37 @@ describe("self-centre rule", () => {
 });
 
 // A made-up chain: a and e orbit c via b / directly. a -> b -> c (root), e -> c.
-const fake = (id: string, parentId: string | undefined, orientation: CelestialBodyDefinition["orientation"] = "none"): CelestialBodyDefinition => ({
-  id, label: id, radiusKm: 1, ...(parentId === undefined ? {} : { parentId }), orientation, accuracy,
+const fake = (
+  id: string,
+  parentId: string | undefined,
+  orientation: CelestialBodyDefinition["orientation"] = "none",
+): CelestialBodyDefinition => ({
+  id,
+  label: id,
+  radiusKm: 1,
+  ...(parentId === undefined ? {} : { parentId }),
+  orientation,
+  accuracy,
 });
 const spin: Quaternion = [0, 0, Math.SQRT1_2, Math.SQRT1_2];
-const fakeBinding = (body: string, center: string, position: number[], orientation: Quaternion | null): StateSourceBinding => ({
+const fakeBinding = (
+  body: string,
+  center: string,
+  position: number[],
+  orientation: Quaternion | null,
+): StateSourceBinding => ({
   body,
   create: (): Trajectory => ({
     body,
     stateAt: (timeUtcMs, from = center) => {
       if (from !== center) throw new RangeError(`${body} holds center ${center}`);
-      return createState({ body, center, timeUtcMs, positionKm: position.map((v) => v * (1 + timeUtcMs / 1000)), orientation });
+      return createState({
+        body,
+        center,
+        timeUtcMs,
+        positionKm: position.map((v) => v * (1 + timeUtcMs / 1000)),
+        orientation,
+      });
     },
   }),
 });
@@ -178,25 +257,43 @@ describe("catalogue validation", () => {
   it("rejects duplicate ids, a parented body without a binding, a root with one and unknown references", () => {
     expect(make([...chainDefinitions, fake("a", "c")], chainBindings)).toThrow(/duplicate body id "a"/);
     expect(make(chainDefinitions, chainBindings.slice(1))).toThrow(/"a" has a parent but no state source/);
-    expect(make(chainDefinitions, [...chainBindings, fakeBinding("c", "c", [0, 0, 0], null)])).toThrow(/root body "c" must not have a state source/);
-    expect(make(chainDefinitions, [...chainBindings, fakeBinding("zz", "c", [0, 0, 0], null)])).toThrow(/unknown body "zz"/);
+    expect(make(chainDefinitions, [...chainBindings, fakeBinding("c", "c", [0, 0, 0], null)])).toThrow(
+      /root body "c" must not have a state source/,
+    );
+    expect(make(chainDefinitions, [...chainBindings, fakeBinding("zz", "c", [0, 0, 0], null)])).toThrow(
+      /unknown body "zz"/,
+    );
     expect(make(chainDefinitions, [...chainBindings, chainBindings[0]])).toThrow(/duplicate binding for body "a"/);
-    expect(make([fake("a", "nobody"), fake("c", undefined)], [fakeBinding("a", "nobody", [1, 1, 1], null)])).toThrow(/unknown parent/);
+    expect(make([fake("a", "nobody"), fake("c", undefined)], [fakeBinding("a", "nobody", [1, 1, 1], null)])).toThrow(
+      /unknown parent/,
+    );
     expect(make([fake("a", undefined), fake("b", undefined)], [])).toThrow(/exactly one root/);
   });
 
   it("rejects a provider that answers in the wrong centre", () => {
-    const wrong = createStateResolver([fake("a", "c"), fake("c", undefined)], [{
-      body: "a",
-      create: (): Trajectory => ({ body: "a", stateAt: (timeUtcMs) => createState({ body: "a", center: "x", timeUtcMs, positionKm: [1, 1, 1], orientation: null }) }),
-    }], adapter);
+    const wrong = createStateResolver(
+      [fake("a", "c"), fake("c", undefined)],
+      [
+        {
+          body: "a",
+          create: (): Trajectory => ({
+            body: "a",
+            stateAt: (timeUtcMs) =>
+              createState({ body: "a", center: "x", timeUtcMs, positionKm: [1, 1, 1], orientation: null }),
+          }),
+        },
+      ],
+      adapter,
+    );
     expect(() => wrong.stateOf("a", 0, "c")).toThrow(/not from "c"/);
   });
 
   it("requires a modelled orientation where the definition says one exists", () => {
-    const bad = createStateResolver(chainDefinitions, [
-      fakeBinding("a", "b", [1, 2, 3], null), chainBindings[1], chainBindings[2],
-    ], adapter);
+    const bad = createStateResolver(
+      chainDefinitions,
+      [fakeBinding("a", "b", [1, 2, 3], null), chainBindings[1], chainBindings[2]],
+      adapter,
+    );
     expect(() => bad.stateOf("a", 0, "c")).toThrow(/requires a modeled orientation/);
   });
 });
@@ -224,7 +321,14 @@ describe("one lunar-series call per body and time", () => {
 });
 
 describe("two-body motion about any centre with a gravitational parameter", () => {
-  const elements = { semiMajorAxisKm: 421_800, eccentricity: 0.05, inclinationDeg: 3, raanDeg: 10, argumentOfPeriapsisDeg: 20, trueAnomalyDeg: 30 };
+  const elements = {
+    semiMajorAxisKm: 421_800,
+    eccentricity: 0.05,
+    inclinationDeg: 3,
+    raanDeg: 10,
+    argumentOfPeriapsisDeg: 20,
+    trueAnomalyDeg: 30,
+  };
   const planet = { ...fake("planet", "sun"), gmKm3S2: 1.26686534e8 };
   const input = { body: "satellite", plane: "EQJ" as const, epochUtcMs: T, elements };
 
@@ -236,7 +340,9 @@ describe("two-body motion about any centre with a gravitational parameter", () =
     expect(() => orbit.stateAt(T, "sun")).toThrow(/centred on "planet"/);
     expect(Math.hypot(...state.positionKm)).toBeGreaterThan(300_000);
     expect(() => createTwoBodyTrajectory({ ...input, center: "plain" }, twoBody)).toThrow(/no gravitational parameter/);
-    expect(() => createTwoBodyTrajectory({ ...input, center: "unlisted" }, twoBody)).toThrow(/no gravitational parameter/);
+    expect(() => createTwoBodyTrajectory({ ...input, center: "unlisted" }, twoBody)).toThrow(
+      /no gravitational parameter/,
+    );
   });
 
   it("keeps the Sun default and the library's GM for the built-in centres", () => {
@@ -250,8 +356,12 @@ describe("centred positions of one body from itself", () => {
   const base = { body: "x", center: "x", timeUtcMs: 0 };
   it("accepts exactly zero position and velocity, and rejects anything else", () => {
     expect(createCenteredPosition({ ...base, positionKm: [0, 0, 0] }).center).toBe("x");
-    expect(createCenteredPosition({ ...base, positionKm: [0, 0, 0], velocityKmS: [0, 0, 0] }).velocityKmS).toEqual(Float64Array.of(0, 0, 0));
+    expect(createCenteredPosition({ ...base, positionKm: [0, 0, 0], velocityKmS: [0, 0, 0] }).velocityKmS).toEqual(
+      Float64Array.of(0, 0, 0),
+    );
     expect(() => createCenteredPosition({ ...base, positionKm: [0, 0, 1e-300] })).toThrow(/exactly zero/);
-    expect(() => createCenteredPosition({ ...base, positionKm: [0, 0, 0], velocityKmS: [0, 1e-12, 0] })).toThrow(/exactly zero/);
+    expect(() => createCenteredPosition({ ...base, positionKm: [0, 0, 0], velocityKmS: [0, 1e-12, 0] })).toThrow(
+      /exactly zero/,
+    );
   });
 });

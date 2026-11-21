@@ -35,10 +35,18 @@ export function checkedLook(input: LookInput): LookInput {
 
 function valueProblem(field: LookField, value: unknown): string | null {
   const { spec } = field;
-  if (spec.kind === "range") return typeof value === "number" && Number.isFinite(value) && value >= spec.min && value <= spec.max ? null : `must be a number from ${spec.min} to ${spec.max}`;
-  if (spec.kind === "colour") return isCssColour(value) ? null : "must be a CSS colour such as \"#8fb4ff\" or \"rgb(143, 180, 255)\"";
-  if (spec.kind === "zone") return isTimeZone(value) ? null : "must be \"UTC\", \"local\" or an IANA zone name such as \"Australia/Sydney\"";
-  if (spec.kind === "choice") return typeof value === "string" && spec.values.includes(value) ? null : `must be one of ${spec.values.map((v) => JSON.stringify(v)).join(", ")}`;
+  if (spec.kind === "range")
+    return typeof value === "number" && Number.isFinite(value) && value >= spec.min && value <= spec.max
+      ? null
+      : `must be a number from ${spec.min} to ${spec.max}`;
+  if (spec.kind === "colour")
+    return isCssColour(value) ? null : 'must be a CSS colour such as "#8fb4ff" or "rgb(143, 180, 255)"';
+  if (spec.kind === "zone")
+    return isTimeZone(value) ? null : 'must be "UTC", "local" or an IANA zone name such as "Australia/Sydney"';
+  if (spec.kind === "choice")
+    return typeof value === "string" && spec.values.includes(value)
+      ? null
+      : `must be one of ${spec.values.map((v) => JSON.stringify(v)).join(", ")}`;
   if (spec.kind === "font") return isFontFamily(value) ? null : "must be a non-empty CSS font-family text";
   return typeof value === "boolean" ? null : "must be true or false";
 }

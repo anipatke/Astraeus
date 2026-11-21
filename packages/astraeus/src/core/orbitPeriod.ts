@@ -27,14 +27,23 @@ export function balanceShare(centreGmKm3S2: number, partner: BalancePoint): numb
  * otherwise corrupt the period, I-056). `partnerR` and `partnerV` are the partner's centre-relative state at the same time.
  */
 export function periodAboutBalanceS(
-  r: ArrayLike<number>, v: ArrayLike<number>, centreGmKm3S2: number,
-  balance: BalancePoint | undefined, isPartner: boolean, partnerR: ArrayLike<number>, partnerV: ArrayLike<number>,
+  r: ArrayLike<number>,
+  v: ArrayLike<number>,
+  centreGmKm3S2: number,
+  balance: BalancePoint | undefined,
+  isPartner: boolean,
+  partnerR: ArrayLike<number>,
+  partnerV: ArrayLike<number>,
 ): number {
   if (balance === undefined) return osculatingPeriodS(r, v, centreGmKm3S2);
   const gm = centreGmKm3S2 + balance.gmKm3S2;
   if (isPartner) return osculatingPeriodS(r, v, gm);
   const f = balanceShare(centreGmKm3S2, balance);
-  return osculatingPeriodS([r[0] - f * partnerR[0], r[1] - f * partnerR[1], r[2] - f * partnerR[2]], [v[0] - f * partnerV[0], v[1] - f * partnerV[1], v[2] - f * partnerV[2]], gm);
+  return osculatingPeriodS(
+    [r[0] - f * partnerR[0], r[1] - f * partnerR[1], r[2] - f * partnerR[2]],
+    [v[0] - f * partnerV[0], v[1] - f * partnerV[1], v[2] - f * partnerV[2]],
+    gm,
+  );
 }
 
 /** How many phases of the orbit the mean motion is read at (equal spacing cancels the first and second harmonics of an eccentric orbit's rate). */
@@ -48,7 +57,11 @@ const MEAN_MOTION_ARC = 1 / 256;
  * state, which a perturbed orbit (Pluto's small moons, circling a binary) does not keep for a lap; this is the lap the line must span (I-056).
  * `guessS` (an osculating period) fixes the phase spacing and the arc and is returned when the arc cannot be read (the data does not reach back).
  */
-export function meanPeriodS(positionInto: (timeUtcMs: number, out: Float64Array) => void, timeUtcMs: number, guessS: number): number {
+export function meanPeriodS(
+  positionInto: (timeUtcMs: number, out: Float64Array) => void,
+  timeUtcMs: number,
+  guessS: number,
+): number {
   if (!(guessS > 0) || !Number.isFinite(guessS)) return guessS;
   const arcMs = Math.max(1, Math.round(guessS * 1000 * MEAN_MOTION_ARC));
   const a = new Float64Array(3);

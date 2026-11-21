@@ -9,12 +9,22 @@ import { eqjUnitVector } from "../src/presentation/startView";
 import { $, press, mountShell, type Mounted } from "./domSetup";
 
 const everything: DataSource = { name: "made-up", provides: catalogue.ids() };
-const codeOf = (fn: () => unknown) => { try { fn(); } catch (error) { return error instanceof SceneError ? `${error.code}: ${error.message}` : String(error); } return "no error"; };
+const codeOf = (fn: () => unknown) => {
+  try {
+    fn();
+  } catch (error) {
+    return error instanceof SceneError ? `${error.code}: ${error.message}` : String(error);
+  }
+  return "no error";
+};
 const scene = () => new Scene().addBody(earth).addBody(mars).addBody(moon);
 const presetsOf = (s: Scene) => definitionOf(s, [everything]).experience.cameraPresets;
 
 let m: Mounted | undefined;
-afterEach(() => { m?.unmount(); m = undefined; });
+afterEach(() => {
+  m?.unmount();
+  m = undefined;
+});
 
 describe("SceneCamera.setLookOutChoices", () => {
   it("offers no Look out entry by default; the list given adds one for each listed body, labelled, after its Focus and Follow", () => {
@@ -22,7 +32,10 @@ describe("SceneCamera.setLookOutChoices", () => {
     const some = scene();
     some.camera.setLookOutChoices([earth, "mars"]);
     const entries = presetsOf(some).filter((preset) => preset.request.kind === "lookOut");
-    expect(entries.map((preset) => [preset.id, preset.label])).toEqual([["lookout-earth", "Look out from Earth"], ["lookout-mars", "Look out from Mars"]]);
+    expect(entries.map((preset) => [preset.id, preset.label])).toEqual([
+      ["lookout-earth", "Look out from Earth"],
+      ["lookout-mars", "Look out from Mars"],
+    ]);
     expect(entries[0]!.request).toEqual({ kind: "lookOut", body: "earth", direction: eqjUnitVector(0, 0) });
     const ids = presetsOf(some).map((preset) => preset.id);
     expect(ids.indexOf("lookout-earth")).toBe(ids.indexOf("follow-earth") + 1);
@@ -32,11 +45,19 @@ describe("SceneCamera.setLookOutChoices", () => {
   });
 
   it("checks the list at the call: a body not added is unknown-body, and a later list replaces an earlier one", () => {
-    expect(codeOf(() => scene().camera.setLookOutChoices(["venus"]))).toMatch(/^unknown-body: camera.setLookOutChoices/);
-    expect(codeOf(() => scene().camera.setLookOutChoices("earth" as never))).toMatch(/^bad-camera: camera.setLookOutChoices/);
+    expect(codeOf(() => scene().camera.setLookOutChoices(["venus"]))).toMatch(
+      /^unknown-body: camera.setLookOutChoices/,
+    );
+    expect(codeOf(() => scene().camera.setLookOutChoices("earth" as never))).toMatch(
+      /^bad-camera: camera.setLookOutChoices/,
+    );
     const again = scene();
     again.camera.setLookOutChoices(["earth"]).setLookOutChoices(["mars"]);
-    expect(presetsOf(again).filter((preset) => preset.request.kind === "lookOut").map((preset) => preset.id)).toEqual(["lookout-mars"]);
+    expect(
+      presetsOf(again)
+        .filter((preset) => preset.request.kind === "lookOut")
+        .map((preset) => preset.id),
+    ).toEqual(["lookout-mars"]);
   });
 });
 
@@ -59,7 +80,9 @@ describe("the camera menu with Look out entries", () => {
     pick("earth");
     expect(preset("lookout-earth")).not.toBeNull();
     expect(preset("lookout-earth")!.getAttribute("aria-label")).toBe("Look out from Earth");
-    expect(preset("lookout-earth")!.closest(".object-camera-actions")).toBe(preset("focus-earth")!.closest(".object-camera-actions"));
+    expect(preset("lookout-earth")!.closest(".object-camera-actions")).toBe(
+      preset("focus-earth")!.closest(".object-camera-actions"),
+    );
     press(preset("lookout-earth")!);
     expect(m!.cameraRequests.at(-1)).toEqual({ kind: "lookOut", body: "earth", direction: eqjUnitVector(0, 0) });
     expect(preset("lookout-earth")!.getAttribute("aria-pressed")).toBe("true");
@@ -72,7 +95,11 @@ describe("the camera menu with Look out entries", () => {
   it("leaves the sky view by Focus, Follow or Overview: each asks for its own request and the Look out entry is no longer pressed", () => {
     open();
     pick("mars");
-    for (const [id, request] of [["focus-mars", { kind: "focus", target: "mars" }], ["follow-mars", { kind: "follow", target: "mars" }], ["overview", { kind: "overview" }]] as const) {
+    for (const [id, request] of [
+      ["focus-mars", { kind: "focus", target: "mars" }],
+      ["follow-mars", { kind: "follow", target: "mars" }],
+      ["overview", { kind: "overview" }],
+    ] as const) {
       press(preset("lookout-mars")!);
       expect(preset("lookout-mars")!.getAttribute("aria-pressed")).toBe("true");
       press(preset(id)!);

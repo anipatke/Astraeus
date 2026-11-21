@@ -8,7 +8,10 @@ import { FloatingOrigin } from "../src/app/floatingOrigin";
 import { createSceneResolver, placeBody, type PlacedState, type ScenePlacement } from "../src/app/sceneLayout";
 
 /** A scene placement about `center`, from a resolver over the built-in catalogue. */
-export function placementAbout(center: BodyId, adapter: AstronomyAdapter = createOrbAstronomyAdapter()): ScenePlacement {
+export function placementAbout(
+  center: BodyId,
+  adapter: AstronomyAdapter = createOrbAstronomyAdapter(),
+): ScenePlacement {
   return { resolver: createSceneResolver(adapter), center };
 }
 
@@ -55,11 +58,26 @@ export function placeBodies(
     earthPositionKm[2] + moon.positionKm[2],
   ];
   return {
-    earthAbsolute: placeBody(hierarchy.earthGroup, hierarchy.earthMesh, earth, earthPositionKm, EARTH_TEXTURE_YAW_RAD, policy, origin),
-    moonAbsolute: placeBody(hierarchy.moonGroup, hierarchy.moonMesh, moon, moonKm, MOON_TEXTURE_YAW_RAD, policy, origin),
+    earthAbsolute: placeBody(
+      hierarchy.earthGroup,
+      hierarchy.earthMesh,
+      earth,
+      earthPositionKm,
+      EARTH_TEXTURE_YAW_RAD,
+      policy,
+      origin,
+    ),
+    moonAbsolute: placeBody(
+      hierarchy.moonGroup,
+      hierarchy.moonMesh,
+      moon,
+      moonKm,
+      MOON_TEXTURE_YAW_RAD,
+      policy,
+      origin,
+    ),
   };
 }
-
 
 /** Whether a definition's composition mounts both Earth and the Moon (test helper; the app no longer asks). */
 export function hasEarthMoon(definition: { readonly composition?: { readonly bodies: readonly BodyId[] } }): boolean {

@@ -21,7 +21,14 @@ export function timeGates(gates, limits, log = console.log, cwd = root) {
     const limit = limits.gates[gate.name];
     const passed = run.status === 0;
     if (!passed) log(`${run.stdout ?? ""}${run.stderr ?? ""}`.split("\n").slice(-40).join("\n"));
-    log([gate.name, passed ? "passed" : `FAILED (exit ${run.status})`, `${seconds}s`, limit === undefined ? "no limit" : `limit ${limit}s`].join(" | "));
+    log(
+      [
+        gate.name,
+        passed ? "passed" : `FAILED (exit ${run.status})`,
+        `${seconds}s`,
+        limit === undefined ? "no limit" : `limit ${limit}s`,
+      ].join(" | "),
+    );
     const warning = overrun(gate.name, seconds, limit);
     if (warning) log(warning);
     rows.push({ name: gate.name, passed, seconds, limit, warning });
@@ -37,7 +44,10 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
   const limits = loadLimits();
   const named = process.argv.slice(2);
   const unknown = named.filter((name) => limits.gates[name] === undefined);
-  if (unknown.length > 0) { console.error(`no limit stated for: ${unknown.join(", ")}`); process.exit(2); }
+  if (unknown.length > 0) {
+    console.error(`no limit stated for: ${unknown.join(", ")}`);
+    process.exit(2);
+  }
   const { ok, rows } = timeGates(npmGates(named.length > 0 ? named : Object.keys(limits.gates)), limits);
   const total = Math.round(rows.reduce((sum, row) => sum + row.seconds, 0));
   console.log(`total ${total}s over ${rows.length} gates; ${rows.filter((row) => row.warning).length} over limit`);

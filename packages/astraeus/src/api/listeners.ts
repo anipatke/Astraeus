@@ -2,7 +2,10 @@
 function reportToPage(error: unknown): void {
   const report = (globalThis as { reportError?: (error: unknown) => void }).reportError;
   if (typeof report === "function") report.call(globalThis, error);
-  else setTimeout(() => { throw error; }, 0);
+  else
+    setTimeout(() => {
+      throw error;
+    }, 0);
 }
 
 /**
@@ -12,7 +15,11 @@ function reportToPage(error: unknown): void {
 export function callListeners<T>(listeners: ReadonlySet<(value: T) => void>, value: T): void {
   const failures: unknown[] = [];
   for (const listener of [...listeners]) {
-    try { listener(value); } catch (error) { failures.push(error); }
+    try {
+      listener(value);
+    } catch (error) {
+      failures.push(error);
+    }
   }
   for (const error of failures) reportToPage(error);
 }

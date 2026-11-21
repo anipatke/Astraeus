@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { eccentricAnomalyFromMean as eccentricAnomalyShared, KeplerEccentricityError, trueAnomalyFromMean } from "../src/core/keplerAnomaly";
+import {
+  eccentricAnomalyFromMean as eccentricAnomalyShared,
+  KeplerEccentricityError,
+  trueAnomalyFromMean,
+} from "../src/core/keplerAnomaly";
 import { fillKeplerRangeKm, type KeplerElements } from "../src/core/keplerElements";
 import { eccentricAnomalyRad, trueAnomalyFromMeanRad } from "../src/core/listedOrbitGroup";
 import { eccentricAnomalyFromMean as eccentricAnomalySunCentred } from "../src/core/sunCentredSources";
@@ -10,8 +14,38 @@ import { eccentricAnomalyFromMean as eccentricAnomalySunCentred } from "../src/c
 const TWO_PI = 2 * Math.PI;
 const ECCENTRICITIES = [0, 0.5, 0.9, 0.99, 0.995, 0.999, 0.9999];
 const MEANS = [
-  0, 1e-9, -1e-9, 1e-6, -1e-6, 1e-4, 1e-3, 0.0017782794, -0.0017782794, 0.002, 0.0031622777, 0.004, 0.01, 0.05, 0.1, 0.5, 1, 2, 3, Math.PI - 1e-6, Math.PI, -Math.PI + 1e-6, -Math.PI, -2, -0.3,
-  TWO_PI + 0.001, -TWO_PI - 0.001, 7 * TWO_PI + 1e-5, 12.5, -33.3, 1234.5678, -98_765.4321,
+  0,
+  1e-9,
+  -1e-9,
+  1e-6,
+  -1e-6,
+  1e-4,
+  1e-3,
+  0.0017782794,
+  -0.0017782794,
+  0.002,
+  0.0031622777,
+  0.004,
+  0.01,
+  0.05,
+  0.1,
+  0.5,
+  1,
+  2,
+  3,
+  Math.PI - 1e-6,
+  Math.PI,
+  -Math.PI + 1e-6,
+  -Math.PI,
+  -2,
+  -0.3,
+  TWO_PI + 0.001,
+  -TWO_PI - 0.001,
+  7 * TWO_PI + 1e-5,
+  12.5,
+  -33.3,
+  1234.5678,
+  -98_765.4321,
 ];
 
 /** E in [-pi, pi] by bisection: E - e sin E rises with E, so the root of an odd function sits in [0, pi] for |M| <= pi. */
@@ -29,8 +63,10 @@ function bisectEccentric(meanWrapped: number, e: number): number {
 }
 
 const wrap = (m: number): number => m - TWO_PI * Math.round(m / TWO_PI);
-const trueFromEccentric = (E: number, e: number): number => 2 * Math.atan2(Math.sqrt(1 + e) * Math.sin(E / 2), Math.sqrt(1 - e) * Math.cos(E / 2));
-const eccentricFromTrue = (nu: number, e: number): number => 2 * Math.atan2(Math.sqrt(1 - e) * Math.sin(nu / 2), Math.sqrt(1 + e) * Math.cos(nu / 2));
+const trueFromEccentric = (E: number, e: number): number =>
+  2 * Math.atan2(Math.sqrt(1 + e) * Math.sin(E / 2), Math.sqrt(1 - e) * Math.cos(E / 2));
+const eccentricFromTrue = (nu: number, e: number): number =>
+  2 * Math.atan2(Math.sqrt(1 - e) * Math.sin(nu / 2), Math.sqrt(1 + e) * Math.cos(nu / 2));
 const angleDiff = (a: number, b: number): number => Math.abs(wrap(a - b));
 
 const E_TOLERANCE = 1e-9;
@@ -72,7 +108,8 @@ describe("Kepler solvers against bisection", () => {
           const E = solve(m, e);
           const residual = Math.abs(wrap(E - e * Math.sin(E) - wrapped));
           const error = angleDiff(E, reference);
-          if (!(error <= E_TOLERANCE + residualTolerance(m)) || !(residual <= residualTolerance(m))) failures.push(`e=${e} M=${m}: E=${E} want ${reference} (error ${error}, residual ${residual})`);
+          if (!(error <= E_TOLERANCE + residualTolerance(m)) || !(residual <= residualTolerance(m)))
+            failures.push(`e=${e} M=${m}: E=${E} want ${reference} (error ${error}, residual ${residual})`);
         }
       }
       expect(failures).toEqual([]);

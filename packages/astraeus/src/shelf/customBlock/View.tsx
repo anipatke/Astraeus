@@ -10,7 +10,9 @@ export function CustomBlockView({ block, runtime }: { readonly block: ShelfBlock
     const host = slot.current;
     if (host === null || element === undefined) return undefined;
     host.appendChild(element);
-    return () => { if (element.parentNode === host) host.removeChild(element); };
+    return () => {
+      if (element.parentNode === host) host.removeChild(element);
+    };
   }, [element]);
   return <div className="shelf-custom-block" data-shelf-block={block.id} ref={slot} />;
 }

@@ -1,6 +1,13 @@
 // Purpose: the drawn dots of an orbit group that the graphics chip positions every frame from each member's ellipse (see keplerShader).
 // Uploads the per-member numbers once; each frame only a handful of uniforms change.
-import { BufferAttribute, BufferGeometry, Points, type PointsMaterial, Vector3, type WebGLProgramParametersWithUniforms } from "three";
+import {
+  BufferAttribute,
+  BufferGeometry,
+  Points,
+  type PointsMaterial,
+  Vector3,
+  type WebGLProgramParametersWithUniforms,
+} from "three";
 import { dotMaterial } from "./dotMaterial";
 import type { KeplerElements } from "../core/keplerElements";
 import {
@@ -41,7 +48,14 @@ export class KeplerPoints {
     geometry.setAttribute("keplerQ", new BufferAttribute(this.#attributes.axisQ, 3));
     this.#shape = new BufferAttribute(this.#attributes.shape, 3);
     geometry.setAttribute("keplerShape", this.#shape);
-    this.material = dotMaterial({ color, size: sizePx, sizeAttenuation: false, transparent: true, opacity: 0.9, depthWrite: false });
+    this.material = dotMaterial({
+      color,
+      size: sizePx,
+      sizeAttenuation: false,
+      transparent: true,
+      opacity: 0.9,
+      depthWrite: false,
+    });
     this.material.onBeforeCompile = (shader) => this.#placeInVertexShader(shader);
     this.material.customProgramCacheKey = () => "astraeus-points-kepler";
     this.points = new Points(geometry, this.material);
@@ -69,7 +83,11 @@ export class KeplerPoints {
   /** Member `index`'s position from the floating origin as the shader computes it for the last `update`. */
   localPosition(index: number): [number, number, number] {
     const u = this.#uniforms;
-    return keplerLocalF32(this.#attributes, index, { dt: u.uDt.value, unitsPerKm: u.uUnitsPerKm.value, offset: u.uOffset.value.toArray() });
+    return keplerLocalF32(this.#attributes, index, {
+      dt: u.uDt.value,
+      unitsPerKm: u.uUnitsPerKm.value,
+      offset: u.uOffset.value.toArray(),
+    });
   }
 
   #placeInVertexShader(shader: WebGLProgramParametersWithUniforms): void {

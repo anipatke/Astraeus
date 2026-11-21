@@ -15,14 +15,22 @@ import { describe, expect, it } from "vitest";
 const ENGINE = "astraeus";
 const SITE = "astraeus-site";
 /** Demos that are stories on the public API: their `src/` imports `astraeus` and nothing else outside the package. */
-const PUBLIC_API_DEMOS: ReadonlySet<string> = new Set(["astraeus-demo-apollo11", "astraeus-demo-planets", "astraeus-demo-showers"]);
+const PUBLIC_API_DEMOS: ReadonlySet<string> = new Set([
+  "astraeus-demo-apollo11",
+  "astraeus-demo-planets",
+  "astraeus-demo-showers",
+]);
 const isDemo = (name: string) => name.startsWith("astraeus-demo-");
 const isData = (name: string) => name === "astraeus-data" || name.startsWith("astraeus-data-");
 /** Engine files that are not shipped code: its tests and the test setup. */
-const isEngineTestFile = (where: string) => where.startsWith(`${ENGINE}/tests/`) || where === `${ENGINE}/vitest.setup.ts`;
+const isEngineTestFile = (where: string) =>
+  where.startsWith(`${ENGINE}/tests/`) || where === `${ENGINE}/vitest.setup.ts`;
 
 type Exports = Record<string, string>;
-interface PackageInfo { dir: string; exports: Exports }
+interface PackageInfo {
+  dir: string;
+  exports: Exports;
+}
 
 function loadPackages(packagesDir: string): Map<string, PackageInfo> {
   const found = new Map<string, PackageInfo>();
@@ -48,7 +56,9 @@ function sourceFiles(dir: string): string[] {
 
 /** Module specifiers named by static, dynamic and re-export statements, `require` and test mocks. */
 function specifiers(source: string): string[] {
-  return [...source.matchAll(/(?:\bfrom|\bimport|vi\.mock|vi\.importActual|\brequire)\s*\(?\s*["'`]([^"'`]+)["'`]/g)].map((match) => match[1]);
+  return [
+    ...source.matchAll(/(?:\bfrom|\bimport|vi\.mock|vi\.importActual|\brequire)\s*\(?\s*["'`]([^"'`]+)["'`]/g),
+  ].map((match) => match[1]);
 }
 
 /** The text of a call's argument list, from just after its `(` to the matching `)`, with comments removed. */
@@ -84,13 +94,18 @@ function globPatterns(source: string): { pattern: string; raw: boolean; base?: s
   for (const call of source.matchAll(/import\.meta\.glob\b/g)) {
     let at = call.index + call[0].length;
     let angle = 0;
-    while (at < source.length && !(source[at] === "(" && angle === 0)) { if (source[at] === "<") angle++; else if (source[at] === ">") angle--; at++; }
+    while (at < source.length && !(source[at] === "(" && angle === 0)) {
+      if (source[at] === "<") angle++;
+      else if (source[at] === ">") angle--;
+      at++;
+    }
     const args = callArguments(source, at).trim();
     const list = args.startsWith("[") ? args.slice(0, args.indexOf("]")) : (/^(["'`])[^"'`]*\1/.exec(args)?.[0] ?? "");
     const options = args.slice(list.length);
     const raw = /\bquery\s*:\s*["'`]\?raw["'`]/.test(options);
     const base = /\bbase\s*:\s*(["'`])([^"'`]*)\1/.exec(options)?.[2];
-    for (const text of list.matchAll(/(["'`])([^"'`]*)\1/g)) out.push({ pattern: text[2].replace(/^!/, ""), raw, base });
+    for (const text of list.matchAll(/(["'`])([^"'`]*)\1/g))
+      out.push({ pattern: text[2].replace(/^!/, ""), raw, base });
   }
   return out;
 }
@@ -110,7 +125,10 @@ function expandBraces(pattern: string): string[] {
       for (const c of inner) {
         if (c === "{") level++;
         if (c === "}") level--;
-        if (c === "," && level === 0) { parts.push(current); current = ""; } else current += c;
+        if (c === "," && level === 0) {
+          parts.push(current);
+          current = "";
+        } else current += c;
       }
       parts.push(current);
       return parts.flatMap((part) => expandBraces(pattern.slice(0, open) + part + pattern.slice(at + 1)));
@@ -127,7 +145,10 @@ function pathSegments(path: string): string[] {
   for (const c of path) {
     if (c === "{") depth++;
     if (c === "}") depth--;
-    if (c === "/" && depth === 0) { if (current) out.push(current); current = ""; } else current += c;
+    if (c === "/" && depth === 0) {
+      if (current) out.push(current);
+      current = "";
+    } else current += c;
   }
   if (current) out.push(current);
   return out;
@@ -135,7 +156,11 @@ function pathSegments(path: string): string[] {
 
 /** Whether one glob segment (`*`, `?`, `{a,b}`, `[..]`) can match one literal folder name. */
 function segmentMatches(segment: string, name: string): boolean {
-  const body = segment.replace(/[.+^$()|\\]/g, "\\$&").replace(/\*+/g, "[^/]*").replace(/\?/g, "[^/]").replace(/\{([^}]*)\}/g, (_, list: string) => `(?:${list.split(",").join("|")})`);
+  const body = segment
+    .replace(/[.+^$()|\\]/g, "\\$&")
+    .replace(/\*+/g, "[^/]*")
+    .replace(/\?/g, "[^/]")
+    .replace(/\{([^}]*)\}/g, (_, list: string) => `(?:${list.split(",").join("|")})`);
   return new RegExp(`^${body}$`).test(name);
 }
 
@@ -163,20 +188,46 @@ function exportTarget(exports: Exports, sub: string): string | undefined {
     if (at < 0) continue;
     const head = key.slice(0, at);
     const tail = key.slice(at + 1);
-    if (sub.startsWith(head) && sub.endsWith(tail) && sub.length >= key.length - 1 && (!best || head.length > best.key.indexOf("*"))) best = { key, star: sub.slice(head.length, sub.length - tail.length) };
+    if (
+      sub.startsWith(head) &&
+      sub.endsWith(tail) &&
+      sub.length >= key.length - 1 &&
+      (!best || head.length > best.key.indexOf("*"))
+    )
+      best = { key, star: sub.slice(head.length, sub.length - tail.length) };
   }
   return best ? exports[best.key].replace("*", best.star) : undefined;
 }
 
 /** Offences of the `import.meta.glob` patterns in one file; the named rules below are the only ways a glob may leave its package. */
-function globOffences(packages: Map<string, PackageInfo>, packagesDir: string, from: string, file: string, where: string, text: string): string[] {
+function globOffences(
+  packages: Map<string, PackageInfo>,
+  packagesDir: string,
+  from: string,
+  file: string,
+  where: string,
+  text: string,
+): string[] {
   const offences: string[] = [];
-  const rooted = (path: string) => path.startsWith("/packages/") ? resolve(packagesDir, path.slice("/packages/".length)) : resolve(dirname(packagesDir), path.slice(1));
+  const rooted = (path: string) =>
+    path.startsWith("/packages/")
+      ? resolve(packagesDir, path.slice("/packages/".length))
+      : resolve(dirname(packagesDir), path.slice(1));
   for (const { pattern, raw, base } of globPatterns(text)) {
-    const baseDir = base === undefined ? dirname(file) : base.startsWith("/") ? rooted(base) : resolve(dirname(file), base);
-    const absolutes = expandBraces(pattern).map((one) => one.startsWith("/") ? rooted(one) : one.startsWith(".") || base !== undefined ? resolve(baseDir, one) : undefined);
+    const baseDir =
+      base === undefined ? dirname(file) : base.startsWith("/") ? rooted(base) : resolve(dirname(file), base);
+    const absolutes = expandBraces(pattern).map((one) =>
+      one.startsWith("/") ? rooted(one) : one.startsWith(".") || base !== undefined ? resolve(baseDir, one) : undefined,
+    );
     for (const [name, info] of packages) {
-      const reaches = name === from ? [] : absolutes.flatMap((absolute) => absolute === undefined ? [] : [globReach(absolute.split(sep).join("/"), info.dir.split(sep).join("/"))]).filter((below) => below !== undefined);
+      const reaches =
+        name === from
+          ? []
+          : absolutes
+              .flatMap((absolute) =>
+                absolute === undefined ? [] : [globReach(absolute.split(sep).join("/"), info.dir.split(sep).join("/"))],
+              )
+              .filter((below) => below !== undefined);
       if (reaches.length === 0) continue;
       const below = reaches.find((one) => one[0] !== "data" && !(one[0] === "src" && raw)) ?? reaches[0];
       const dataOfEngine = name === ENGINE;
@@ -186,7 +237,9 @@ function globOffences(packages: Map<string, PackageInfo>, packagesDir: string, f
       const testReadsEngineText = dataOfEngine && raw && where.startsWith(`${from}/tests/`) && below[0] === "src";
       if (testReadsEngineText) continue; // TEST-READS-ENGINE-TEXT
       if (below[0] === "data" && declaresData && (dataOfEngine || dataOfDemo || dataOfDataPackage)) continue; // DATA-OF-ENGINE, DATA-OF-DEMO, DATA-OF-DATA-PACKAGE
-      offences.push(`${where}: glob into ${name} (${pattern}); only a data/* glob into the engine (any package) or into a demo (the site) is allowed, never code`);
+      offences.push(
+        `${where}: glob into ${name} (${pattern}); only a data/* glob into the engine (any package) or into a demo (the site) is allowed, never code`,
+      );
     }
   }
   return offences;
@@ -221,12 +274,15 @@ function boundaryOffences(packagesDir: string, publicApiDemos: ReadonlySet<strin
       const where = relative(packagesDir, file).split(sep).join("/");
       const text = readFileSync(file, "utf8");
       offences.push(...globOffences(packages, packagesDir, from, file, where, text));
-      if (publicApiDemos.has(from) && relative(info.dir, file).split(sep)[0] === "src") offences.push(...publicApiOffences(from, where, text));
+      if (publicApiDemos.has(from) && relative(info.dir, file).split(sep)[0] === "src")
+        offences.push(...publicApiOffences(from, where, text));
       for (const raw of specifiers(text)) {
         const spec = raw.split("?")[0];
         if (spec.startsWith(".")) {
           const target = resolve(dirname(file), spec);
-          for (const [dir, name] of byDir) if (name !== from && (target === dir || target.startsWith(dir + sep))) offences.push(`${where}: relative path into ${name} (${raw}); import its declared entry instead`);
+          for (const [dir, name] of byDir)
+            if (name !== from && (target === dir || target.startsWith(dir + sep)))
+              offences.push(`${where}: relative path into ${name} (${raw}); import its declared entry instead`);
           continue;
         }
         const [first, ...rest] = spec.split("/");
@@ -236,7 +292,8 @@ function boundaryOffences(packagesDir: string, publicApiDemos: ReadonlySet<strin
         if (direction !== null) offences.push(direction);
         const entry = exportTarget(target.exports, rest.length ? `./${rest.join("/")}` : ".");
         if (entry === undefined) offences.push(`${where}: ${spec} is not an entry ${first} declares in exports`);
-        else if (!existsSync(join(target.dir, entry))) offences.push(`${where}: ${spec} points at ${entry}, which does not exist`);
+        else if (!existsSync(join(target.dir, entry)))
+          offences.push(`${where}: ${spec} points at ${entry}, which does not exist`);
       }
     }
   }
@@ -277,8 +334,14 @@ function deepImportOffences(measured: Record<string, number>, recorded: Record<s
   for (const name of new Set([...Object.keys(measured), ...Object.keys(recorded)])) {
     const now = measured[name] ?? 0;
     const was = recorded[name] ?? 0;
-    if (now > was) out.push(`${name}: ${now} deep imports into ${ENGINE}, up from ${was}; import from "${ENGINE}" instead (counts may only go down)`);
-    else if (now < was) out.push(`${name}: ${now} deep imports into ${ENGINE}, down from ${was}; lower DEEP_IMPORT_COUNTS to ${now} in packageBoundaries.test.ts`);
+    if (now > was)
+      out.push(
+        `${name}: ${now} deep imports into ${ENGINE}, up from ${was}; import from "${ENGINE}" instead (counts may only go down)`,
+      );
+    else if (now < was)
+      out.push(
+        `${name}: ${now} deep imports into ${ENGINE}, down from ${was}; lower DEEP_IMPORT_COUNTS to ${now} in packageBoundaries.test.ts`,
+      );
   }
   return out.sort();
 }
@@ -287,8 +350,14 @@ function deepImportOffences(measured: Record<string, number>, recorded: Record<s
 function scratchPackages(files: Record<string, string>): string {
   const dir = mkdtempSync(join(tmpdir(), "astraeus-boundaries-"));
   const manifests: Record<string, object> = {
-    [ENGINE]: { name: ENGINE, exports: { ".": "./src/core/clock.ts", "./core/*": "./src/core/*.ts", "./data/*": "./data/*" } },
-    "astraeus-demo-a": { name: "astraeus-demo-a", exports: { "./things/*": "./src/things/*.ts", "./data/*": "./data/*" } },
+    [ENGINE]: {
+      name: ENGINE,
+      exports: { ".": "./src/core/clock.ts", "./core/*": "./src/core/*.ts", "./data/*": "./data/*" },
+    },
+    "astraeus-demo-a": {
+      name: "astraeus-demo-a",
+      exports: { "./things/*": "./src/things/*.ts", "./data/*": "./data/*" },
+    },
     "astraeus-demo-b": { name: "astraeus-demo-b", exports: {} },
     [SITE]: { name: SITE, exports: {} },
   };
@@ -334,42 +403,67 @@ describe("package boundaries (ARCH-03)", () => {
       const measured = deepImportCounts(dir);
       expect(measured).toEqual({ "astraeus-demo-a": 3, [SITE]: 1 });
       expect(deepImportOffences(measured, { "astraeus-demo-a": 3, [SITE]: 1 })).toEqual([]);
-      expect(deepImportOffences(measured, { "astraeus-demo-a": 2, [SITE]: 1 })).toEqual([expect.stringContaining("astraeus-demo-a: 3 deep imports into astraeus, up from 2")]);
-      expect(deepImportOffences(measured, { "astraeus-demo-a": 3, [SITE]: 2 })).toEqual([expect.stringContaining("astraeus-site: 1 deep imports into astraeus, down from 2; lower")]);
-      expect(deepImportOffences(measured, { "astraeus-demo-a": 3 })).toEqual([expect.stringContaining("astraeus-site: 1 deep imports into astraeus, up from 0")]);
-    } finally { rmSync(dir, { recursive: true }); }
+      expect(deepImportOffences(measured, { "astraeus-demo-a": 2, [SITE]: 1 })).toEqual([
+        expect.stringContaining("astraeus-demo-a: 3 deep imports into astraeus, up from 2"),
+      ]);
+      expect(deepImportOffences(measured, { "astraeus-demo-a": 3, [SITE]: 2 })).toEqual([
+        expect.stringContaining("astraeus-site: 1 deep imports into astraeus, down from 2; lower"),
+      ]);
+      expect(deepImportOffences(measured, { "astraeus-demo-a": 3 })).toEqual([
+        expect.stringContaining("astraeus-site: 1 deep imports into astraeus, up from 0"),
+      ]);
+    } finally {
+      rmSync(dir, { recursive: true });
+    }
   });
 
   it("accepts imports through the package name and a declared entry", () => {
     const dir = scratchPackages({
       "astraeus-demo-a/src/things/use.ts": use("astraeus/core/clock"),
-      [`${SITE}/src.ts`]: use("astraeus/core/clock") + use("astraeus-demo-a/things/thing?raw") + use("../../docs/evidence/x.txt"),
+      [`${SITE}/src.ts`]:
+        use("astraeus/core/clock") + use("astraeus-demo-a/things/thing?raw") + use("../../docs/evidence/x.txt"),
     });
-    try { expect(boundaryOffences(dir)).toEqual([]); } finally { rmSync(dir, { recursive: true }); }
+    try {
+      expect(boundaryOffences(dir)).toEqual([]);
+    } finally {
+      rmSync(dir, { recursive: true });
+    }
   });
 
   it("lets the data packages be imported by tests, demos and the site, and by no engine code", () => {
     const dir = scratchPackages({
-      "astraeus-data-x/package.json": JSON.stringify({ name: "astraeus-data-x", exports: { ".": "./src/index.ts", "./data/*": "./data/*" } }),
+      "astraeus-data-x/package.json": JSON.stringify({
+        name: "astraeus-data-x",
+        exports: { ".": "./src/index.ts", "./data/*": "./data/*" },
+      }),
       "astraeus-data-x/src/index.ts": use("astraeus/core/clock"),
       "astraeus-data-x/data/a.json": "{}",
       [`${ENGINE}/tests/uses.ts`]: use("astraeus-data-x"),
       [`${ENGINE}/vitest.setup.ts`]: use("astraeus-data-x"),
-      "astraeus-demo-a/src/things/uses.ts": use("astraeus-data-x") + `const a = ${GLOB}("../../../astraeus-data-x/data/*.json");\n`,
+      "astraeus-demo-a/src/things/uses.ts":
+        use("astraeus-data-x") + `const a = ${GLOB}("../../../astraeus-data-x/data/*.json");\n`,
       [`${SITE}/src/uses.ts`]: use("astraeus-data-x"),
     });
-    try { expect(boundaryOffences(dir)).toEqual([]); } finally { rmSync(dir, { recursive: true }); }
+    try {
+      expect(boundaryOffences(dir)).toEqual([]);
+    } finally {
+      rmSync(dir, { recursive: true });
+    }
     const bad = scratchPackages({
       "astraeus-data-x/package.json": JSON.stringify({ name: "astraeus-data-x", exports: { ".": "./src/index.ts" } }),
       "astraeus-data-x/src/index.ts": use("astraeus-demo-a/things/thing"),
       [`${ENGINE}/src/core/uses.ts`]: use("astraeus-data-x"),
     });
     try {
-      expect(boundaryOffences(bad)).toEqual([
-        "astraeus-data-x/src/index.ts: data package astraeus-data-x imports astraeus-demo-a",
-        "astraeus/src/core/uses.ts: the engine imports astraeus-data-x",
-      ].sort());
-    } finally { rmSync(bad, { recursive: true }); }
+      expect(boundaryOffences(bad)).toEqual(
+        [
+          "astraeus-data-x/src/index.ts: data package astraeus-data-x imports astraeus-demo-a",
+          "astraeus/src/core/uses.ts: the engine imports astraeus-data-x",
+        ].sort(),
+      );
+    } finally {
+      rmSync(bad, { recursive: true });
+    }
   });
 
   it("holds a demo built on the public API to the `astraeus` entry in its src, proved on a made-up offence", () => {
@@ -383,15 +477,19 @@ describe("package boundaries (ARCH-03)", () => {
     };
     const dir = scratchPackages(files);
     try {
-      expect(boundaryOffences(dir, new Set(["astraeus-demo-a"]))).toEqual([
-        'astraeus-demo-a/src/things/app.ts: astraeus-demo-a is built on the public API and may import only "astraeus", not astraeus/app/App',
-        'astraeus-demo-a/src/things/data.ts: astraeus-demo-a is built on the public API and may import only "astraeus", not astraeus-data-x',
-        'astraeus-demo-a/src/things/deep.ts: astraeus-demo-a is built on the public API and may import only "astraeus", not astraeus/core/clock',
-        "astraeus-demo-a/src/things/app.ts: astraeus/app/App is not an entry astraeus declares in exports",
-      ].sort());
+      expect(boundaryOffences(dir, new Set(["astraeus-demo-a"]))).toEqual(
+        [
+          'astraeus-demo-a/src/things/app.ts: astraeus-demo-a is built on the public API and may import only "astraeus", not astraeus/app/App',
+          'astraeus-demo-a/src/things/data.ts: astraeus-demo-a is built on the public API and may import only "astraeus", not astraeus-data-x',
+          'astraeus-demo-a/src/things/deep.ts: astraeus-demo-a is built on the public API and may import only "astraeus", not astraeus/core/clock',
+          "astraeus-demo-a/src/things/app.ts: astraeus/app/App is not an entry astraeus declares in exports",
+        ].sort(),
+      );
       // The same files are fine for a demo that has not taken the rule on.
       expect(boundaryOffences(dir).some((line) => line.includes("built on the public API"))).toBe(false);
-    } finally { rmSync(dir, { recursive: true }); }
+    } finally {
+      rmSync(dir, { recursive: true });
+    }
   });
 
   it("fails each kind of bad import", () => {
@@ -405,18 +503,22 @@ describe("package boundaries (ARCH-03)", () => {
       [`${SITE}/src/deep.ts`]: use("../../astraeus-demo-a/src/things/thing"),
     });
     try {
-      expect(boundaryOffences(dir)).toEqual([
-        "astraeus-demo-a/src/things/deep.ts: relative path into astraeus (../../../astraeus/src/core/clock); import its declared entry instead",
-        "astraeus-demo-a/src/things/sibling.ts: demo astraeus-demo-a imports astraeus-demo-b",
-        "astraeus-demo-a/src/things/sibling.ts: astraeus-demo-b/anything is not an entry astraeus-demo-b declares in exports",
-        "astraeus-demo-a/src/things/site.ts: demo astraeus-demo-a imports astraeus-site",
-        "astraeus-demo-a/src/things/site.ts: astraeus-site/main is not an entry astraeus-site declares in exports",
-        "astraeus-demo-a/src/things/undeclared.ts: astraeus/src/core/clock is not an entry astraeus declares in exports",
-        "astraeus-demo-b/src/missing.ts: astraeus/core/nothing points at ./src/core/nothing.ts, which does not exist",
-        "astraeus-site/src/deep.ts: relative path into astraeus-demo-a (../../astraeus-demo-a/src/things/thing); import its declared entry instead",
-        "astraeus/src/core/up.ts: the engine imports astraeus-demo-a",
-      ].sort());
-    } finally { rmSync(dir, { recursive: true }); }
+      expect(boundaryOffences(dir)).toEqual(
+        [
+          "astraeus-demo-a/src/things/deep.ts: relative path into astraeus (../../../astraeus/src/core/clock); import its declared entry instead",
+          "astraeus-demo-a/src/things/sibling.ts: demo astraeus-demo-a imports astraeus-demo-b",
+          "astraeus-demo-a/src/things/sibling.ts: astraeus-demo-b/anything is not an entry astraeus-demo-b declares in exports",
+          "astraeus-demo-a/src/things/site.ts: demo astraeus-demo-a imports astraeus-site",
+          "astraeus-demo-a/src/things/site.ts: astraeus-site/main is not an entry astraeus-site declares in exports",
+          "astraeus-demo-a/src/things/undeclared.ts: astraeus/src/core/clock is not an entry astraeus declares in exports",
+          "astraeus-demo-b/src/missing.ts: astraeus/core/nothing points at ./src/core/nothing.ts, which does not exist",
+          "astraeus-site/src/deep.ts: relative path into astraeus-demo-a (../../astraeus-demo-a/src/things/thing); import its declared entry instead",
+          "astraeus/src/core/up.ts: the engine imports astraeus-demo-a",
+        ].sort(),
+      );
+    } finally {
+      rmSync(dir, { recursive: true });
+    }
   });
 
   it("reads import.meta.glob patterns, string and array forms, and allows only the named data rules", () => {
@@ -445,33 +547,46 @@ describe("package boundaries (ARCH-03)", () => {
       [`${SITE}/src/baseOption.ts`]: `const a = ${GLOB}("./things/*.ts", { base: "../../astraeus-demo-a/src" });\n`,
       [`${SITE}/src/own.ts`]: `const a = ${GLOB}("./pages/*.ts");\n`,
     });
-    const message = (where: string, name: string, pattern: string) => `${where}: glob into ${name} (${pattern}); only a data/* glob into the engine (any package) or into a demo (the site) is allowed, never code`;
+    const message = (where: string, name: string, pattern: string) =>
+      `${where}: glob into ${name} (${pattern}); only a data/* glob into the engine (any package) or into a demo (the site) is allowed, never code`;
     try {
-      expect(boundaryOffences(dir)).toEqual([
-        message("astraeus-demo-a/src/things/arrayGlob.ts", "astraeus", "../../../astraeus/tools/**/*.mjs"),
-        message("astraeus-demo-a/src/things/codeGlob.ts", "astraeus", "../../../astraeus/src/core/*.ts"),
-        message("astraeus-demo-a/src/things/demoData.ts", "astraeus-demo-b", "../../../astraeus-demo-b/data/*.json"),
-        message("astraeus-site/src/demoCode.ts", "astraeus-demo-a", "../../astraeus-demo-a/src/things/*.ts"),
-        message("astraeus-site/src/wildName.ts", "astraeus", "../../*/src/**/*.ts"),
-        message("astraeus-site/src/wildName.ts", "astraeus-demo-a", "../../*/src/**/*.ts"),
-        message("astraeus-site/src/wildName.ts", "astraeus-demo-b", "../../*/src/**/*.ts"),
-        message("astraeus-site/src/partialName.ts", "astraeus-demo-a", "../../astraeus-demo-*/src/**/*.ts"),
-        message("astraeus-site/src/partialName.ts", "astraeus-demo-b", "../../astraeus-demo-*/src/**/*.ts"),
-        message("astraeus-site/src/braceName.ts", "astraeus", "../../{astraeus,astraeus-demo-a}/src/**/*.ts"),
-        message("astraeus-site/src/braceName.ts", "astraeus-demo-a", "../../{astraeus,astraeus-demo-a}/src/**/*.ts"),
-        ...["astraeus", "astraeus-demo-a", "astraeus-demo-b"].map((name) => message("astraeus-site/src/deepStar.ts", name, "../../**/src/*.ts")),
-        message("astraeus-site/src/rootStart.ts", "astraeus-demo-a", "/packages/astraeus-demo-a/src/things/*.ts"),
-        ...["astraeus", "astraeus-demo-a", "astraeus-demo-b"].map((name) => message("astraeus-site/src/rootWild.ts", name, "/packages/*/src/things/*.ts")),
-        ...["astraeus-demo-a", "astraeus-demo-b"].map((name) => message("astraeus-site/tests/wildRaw.ts", name, "../../*/src/**/*.ts")),
-        message("astraeus-site/tests/laterComment.ts", "astraeus", "../../astraeus/src/core/*.ts"),
-        message("astraeus-site/src/deep/tests/notTopLevel.ts", "astraeus", "../../../../astraeus/src/core/*.ts"),
-        message("astraeus-site/src/readsTextNotInTests.ts", "astraeus", "../../astraeus/src/core/*.ts"),
-        message("astraeus-site/tests/importsCode.ts", "astraeus", "../../astraeus/src/core/*.ts"),
-        message("astraeus-site/src/ownTests.ts", "astraeus", "../../astraeus/tests/*.ts"),
-        ...["astraeus-demo-a", "astraeus-demo-b"].map((name) => message("astraeus-site/src/braceSlash.ts", name, "../../{astraeus-demo-a/src,astraeus-demo-b/src}/**/*.ts")),
-        message("astraeus-site/src/baseOption.ts", "astraeus-demo-a", "./things/*.ts"),
-        message("astraeus/src/core/engineGlob.ts", "astraeus-demo-a", "../../../astraeus-demo-a/data/*.json"),
-      ].sort());
-    } finally { rmSync(dir, { recursive: true }); }
+      expect(boundaryOffences(dir)).toEqual(
+        [
+          message("astraeus-demo-a/src/things/arrayGlob.ts", "astraeus", "../../../astraeus/tools/**/*.mjs"),
+          message("astraeus-demo-a/src/things/codeGlob.ts", "astraeus", "../../../astraeus/src/core/*.ts"),
+          message("astraeus-demo-a/src/things/demoData.ts", "astraeus-demo-b", "../../../astraeus-demo-b/data/*.json"),
+          message("astraeus-site/src/demoCode.ts", "astraeus-demo-a", "../../astraeus-demo-a/src/things/*.ts"),
+          message("astraeus-site/src/wildName.ts", "astraeus", "../../*/src/**/*.ts"),
+          message("astraeus-site/src/wildName.ts", "astraeus-demo-a", "../../*/src/**/*.ts"),
+          message("astraeus-site/src/wildName.ts", "astraeus-demo-b", "../../*/src/**/*.ts"),
+          message("astraeus-site/src/partialName.ts", "astraeus-demo-a", "../../astraeus-demo-*/src/**/*.ts"),
+          message("astraeus-site/src/partialName.ts", "astraeus-demo-b", "../../astraeus-demo-*/src/**/*.ts"),
+          message("astraeus-site/src/braceName.ts", "astraeus", "../../{astraeus,astraeus-demo-a}/src/**/*.ts"),
+          message("astraeus-site/src/braceName.ts", "astraeus-demo-a", "../../{astraeus,astraeus-demo-a}/src/**/*.ts"),
+          ...["astraeus", "astraeus-demo-a", "astraeus-demo-b"].map((name) =>
+            message("astraeus-site/src/deepStar.ts", name, "../../**/src/*.ts"),
+          ),
+          message("astraeus-site/src/rootStart.ts", "astraeus-demo-a", "/packages/astraeus-demo-a/src/things/*.ts"),
+          ...["astraeus", "astraeus-demo-a", "astraeus-demo-b"].map((name) =>
+            message("astraeus-site/src/rootWild.ts", name, "/packages/*/src/things/*.ts"),
+          ),
+          ...["astraeus-demo-a", "astraeus-demo-b"].map((name) =>
+            message("astraeus-site/tests/wildRaw.ts", name, "../../*/src/**/*.ts"),
+          ),
+          message("astraeus-site/tests/laterComment.ts", "astraeus", "../../astraeus/src/core/*.ts"),
+          message("astraeus-site/src/deep/tests/notTopLevel.ts", "astraeus", "../../../../astraeus/src/core/*.ts"),
+          message("astraeus-site/src/readsTextNotInTests.ts", "astraeus", "../../astraeus/src/core/*.ts"),
+          message("astraeus-site/tests/importsCode.ts", "astraeus", "../../astraeus/src/core/*.ts"),
+          message("astraeus-site/src/ownTests.ts", "astraeus", "../../astraeus/tests/*.ts"),
+          ...["astraeus-demo-a", "astraeus-demo-b"].map((name) =>
+            message("astraeus-site/src/braceSlash.ts", name, "../../{astraeus-demo-a/src,astraeus-demo-b/src}/**/*.ts"),
+          ),
+          message("astraeus-site/src/baseOption.ts", "astraeus-demo-a", "./things/*.ts"),
+          message("astraeus/src/core/engineGlob.ts", "astraeus-demo-a", "../../../astraeus-demo-a/data/*.json"),
+        ].sort(),
+      );
+    } finally {
+      rmSync(dir, { recursive: true });
+    }
   });
 });

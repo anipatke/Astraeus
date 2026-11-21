@@ -21,7 +21,10 @@ export function overlayRows(r: DebugReadout): ReadonlyArray<readonly [string, st
     ["Scale policy", r.policyId],
     [`${parent}–${child} distance`, `${r.moonDistanceKm.toFixed(1)} km (physical)`],
     ["Rendered distance", `${r.renderedDistanceUnits.toFixed(4)} scene units (Earth radii)`],
-    [`${child} position`, `${vec(r.moonPosition.positionKm, 1)} ${r.moonPosition.units}, ${r.moonPosition.frame}, centre ${r.moonPosition.center}`],
+    [
+      `${child} position`,
+      `${vec(r.moonPosition.positionKm, 1)} ${r.moonPosition.units}, ${r.moonPosition.frame}, centre ${r.moonPosition.center}`,
+    ],
     [`${parent} orientation`, quat(r.earthOrientation)],
     [`${child} orientation`, quat(r.moonOrientation)],
     [`Sun direction (from ${parent})`, `${vec(r.earthSunDirection, 5)} EQJ unit`],
@@ -50,7 +53,9 @@ export function DebugOverlay({ readout }: { readonly readout: DebugReadout | nul
   return (
     <div className="scientific-instruments" aria-label="Scene measurements">
       <div className="instrument-grid">
-        {sceneMetrics(readout).map((metric) => <MetricVisual key={metric.id} metric={metric} />)}
+        {sceneMetrics(readout).map((metric) => (
+          <MetricVisual key={metric.id} metric={metric} />
+        ))}
       </div>
       <details className="advanced-readouts">
         <summary>Advanced coordinates and vectors</summary>

@@ -35,7 +35,12 @@ export function toEarthCentred(adapter: AstronomyAdapter, state: CentreState, ti
 }
 
 /** The inverse of toEarthCentred for a chosen centre. */
-export function toCentre(adapter: AstronomyAdapter, earth: CentreState, center: CenterName, timeUtcMs: number): CentreState {
+export function toCentre(
+  adapter: AstronomyAdapter,
+  earth: CentreState,
+  center: CenterName,
+  timeUtcMs: number,
+): CentreState {
   if (center === "earth") return earth;
   const moon = moonFromEarth(adapter, timeUtcMs);
   return {

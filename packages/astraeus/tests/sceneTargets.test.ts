@@ -5,15 +5,30 @@ import type { PointsView } from "../src/app/PointsView";
 import type { BodySetView } from "../src/app/BodySetView";
 import type { TrackedBodyView } from "../src/app/TrackedBodyView";
 import { trueScale } from "../src/presentation/scalePolicy";
-import { bodySetMemberAbsolute, canFocus, focusAbsoluteOf, framedViewOf, labelPositionOf, type SceneTargets } from "../src/app/sceneTargets";
+import {
+  bodySetMemberAbsolute,
+  canFocus,
+  focusAbsoluteOf,
+  framedViewOf,
+  labelPositionOf,
+  type SceneTargets,
+} from "../src/app/sceneTargets";
 import type { RenderVector } from "../src/app/renderCoordinates";
 
 // Made-up views: the module only asks them where they are (ARCH-01).
 const group = { id: "group", drawn: true, absolute: () => [1, 2, 3] } as unknown as PointsView;
 const hiddenGroup = { id: "hidden", drawn: false, absolute: () => [9, 9, 9] } as unknown as PointsView;
 const path = { id: "path", absolute: () => [4, 5, 6], labelAnchor: () => [7, 8, 9] } as unknown as PathView;
-const tracked = { body: { id: "craft", trajectory: { bounds: { startUtcMs: 0, endUtcMs: 100 }, stateAt: () => ({}) } } as unknown as TrackedBody, absolute: () => [0, 1, 0] } as unknown as TrackedBodyView;
-const set = { memberAbsolute: (id: string) => (id === "member" ? ([2, 2, 2] as RenderVector) : null) } as unknown as BodySetView;
+const tracked = {
+  body: {
+    id: "craft",
+    trajectory: { bounds: { startUtcMs: 0, endUtcMs: 100 }, stateAt: () => ({}) },
+  } as unknown as TrackedBody,
+  absolute: () => [0, 1, 0],
+} as unknown as TrackedBodyView;
+const set = {
+  memberAbsolute: (id: string) => (id === "member" ? ([2, 2, 2] as RenderVector) : null),
+} as unknown as BodySetView;
 
 function targets(over: Partial<SceneTargets> = {}): SceneTargets {
   const placed = new Map<string, RenderVector>([["alpha", [10, 0, 0]]]);
@@ -21,8 +36,13 @@ function targets(over: Partial<SceneTargets> = {}): SceneTargets {
     bodyIdFor: (id) => (id === "alpha" || id === "shell-alpha" ? "alpha" : null),
     placed: placed as SceneTargets["placed"],
     absoluteOf: () => [10, 0, 0],
-    groupViews: [group, hiddenGroup], sunCentredViews: [path], trackedViews: [tracked], bodySetViews: [set],
-    timeUtcMs: 50, policy: trueScale, placement: {} as SceneTargets["placement"],
+    groupViews: [group, hiddenGroup],
+    sunCentredViews: [path],
+    trackedViews: [tracked],
+    bodySetViews: [set],
+    timeUtcMs: 50,
+    policy: trueScale,
+    placement: {} as SceneTargets["placement"],
     ...over,
   };
 }

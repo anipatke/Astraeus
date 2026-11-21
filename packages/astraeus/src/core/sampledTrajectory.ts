@@ -80,9 +80,10 @@ export class SampledTrajectory implements Trajectory {
     }
     const upper = this.#upperIndex(timeUtcMs);
     const lower = this.#times[upper] === timeUtcMs ? upper : upper - 1;
-    const { position, velocity } = lower === upper
-      ? { position: this.#positions[lower], velocity: this.#velocities?.[lower] }
-      : this.#interpolate(lower, timeUtcMs);
+    const { position, velocity } =
+      lower === upper
+        ? { position: this.#positions[lower], velocity: this.#velocities?.[lower] }
+        : this.#interpolate(lower, timeUtcMs);
     return createState({
       body: this.body,
       center: this.#center,

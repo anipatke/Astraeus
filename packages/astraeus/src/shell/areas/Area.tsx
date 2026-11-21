@@ -3,12 +3,34 @@
 import type { ReactNode } from "react";
 
 /** The named places, in the note's order. */
-export const AREA_NAMES = ["bar", "menu", "left", "right", "developer", "tile", "sheet", "timeline", "popover"] as const;
+export const AREA_NAMES = [
+  "bar",
+  "menu",
+  "left",
+  "right",
+  "developer",
+  "tile",
+  "sheet",
+  "timeline",
+  "popover",
+] as const;
 export type AreaName = (typeof AREA_NAMES)[number];
 
 /** A raised place sits above its neighbours while it holds a drawer or a pop-up (`areas.css` gives the layer); the panel rule says when. */
 export type AreaLayer = "drawer" | "popup";
 
-export function Area({ name, layer, children }: { readonly name: AreaName; readonly layer?: AreaLayer | undefined; readonly children?: ReactNode }) {
-  return <div className="astraeus-area" data-area={name} data-layer={layer}>{children}</div>;
+export function Area({
+  name,
+  layer,
+  children,
+}: {
+  readonly name: AreaName;
+  readonly layer?: AreaLayer | undefined;
+  readonly children?: ReactNode;
+}) {
+  return (
+    <div className="astraeus-area" data-area={name} data-layer={layer}>
+      {children}
+    </div>
+  );
 }

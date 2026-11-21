@@ -8,7 +8,8 @@ export const VIEWER_ROOT_CLASS = "astraeus-shell";
  */
 export function keyIsForViewer(event: KeyboardEvent, part: Element | null): boolean {
   const target = event.target;
-  if (target === null || target === document || target === document.body || target === document.documentElement) return true;
+  if (target === null || target === document || target === document.body || target === document.documentElement)
+    return true;
   if (!(target instanceof Node)) return false;
   const viewer = part?.closest(`.${VIEWER_ROOT_CLASS}`) ?? null;
   return viewer !== null && viewer.contains(target);

@@ -22,7 +22,16 @@ describe("publish workflow", () => {
   });
 
   it("runs the gates and the pack check before it publishes, in order", () => {
-    const order = ["npm ci", "npm run lint", "npm run typecheck", "npm run build", "npm test", "npm run check:engine-alone", "npm run check:pack", "publish-packages.mjs --tag"].map(at);
+    const order = [
+      "npm ci",
+      "npm run lint",
+      "npm run typecheck",
+      "npm run build",
+      "npm test",
+      "npm run check:engine-alone",
+      "npm run check:pack",
+      "publish-packages.mjs --tag",
+    ].map(at);
     expect(order.every((index) => index > 0)).toBe(true);
     expect([...order].sort((a, b) => a - b)).toEqual(order);
   });
@@ -47,7 +56,13 @@ describe("publish plan", () => {
   });
 
   it("refuses a package that has never been on npm, whose first version goes up by hand (0.9.0)", () => {
-    const plan = planFor({ name: "astraeus-data-new", version: "0.9.0", tag: "v0.9.0", published: false, onNpm: false });
+    const plan = planFor({
+      name: "astraeus-data-new",
+      version: "0.9.0",
+      tag: "v0.9.0",
+      published: false,
+      onNpm: false,
+    });
     expect(plan.action).toBe("refuse");
     expect(plan.reason).toContain("by hand");
   });
@@ -65,7 +80,29 @@ describe("example app", () => {
     expect(main.trim().split("\n").length).toBeLessThanOrEqual(100);
     expect(main).toMatch(/from "astraeus"/);
     expect(main).not.toMatch(/from "(\.|astraeus\/)/);
-    for (const call of ["addBody", "addTrajectory", "setTime", "camera.focus", "mount(", "anchors:", "readouts:", "knownLimitations:", "description:", "addEvents(", "addStoryPanels(", "addGroup(", "setTimeline(", "setViews(", "pacing:", "await viewer.ready", "onEventZone(", "viewer.camera", "setCamera(", "setScale(trueScale, { only: true })"]) expect(main).toContain(call);
+    for (const call of [
+      "addBody",
+      "addTrajectory",
+      "setTime",
+      "camera.focus",
+      "mount(",
+      "anchors:",
+      "readouts:",
+      "knownLimitations:",
+      "description:",
+      "addEvents(",
+      "addStoryPanels(",
+      "addGroup(",
+      "setTimeline(",
+      "setViews(",
+      "pacing:",
+      "await viewer.ready",
+      "onEventZone(",
+      "viewer.camera",
+      "setCamera(",
+      "setScale(trueScale, { only: true })",
+    ])
+      expect(main).toContain(call);
   });
 
   it("installs packed tarballs, not workspace links, and keeps its build output out of git", () => {

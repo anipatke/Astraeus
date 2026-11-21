@@ -9,9 +9,19 @@ import type { Trajectory } from "../src/core/trajectory";
 
 const adapter = createOrbAstronomyAdapter();
 const provenance = createProvenance({ sourceType: "illustrative", sources: ["made up"], accuracy: "none", notes: "" });
-const accuracy = { dimensions: provenance, position: provenance, validUtc: { startUtcMs: 0, endUtcMs: 1e12 }, orientationLimitations: [] };
+const accuracy = {
+  dimensions: provenance,
+  position: provenance,
+  validUtc: { startUtcMs: 0, endUtcMs: 1e12 },
+  orientationLimitations: [],
+};
 const fake = (id: string, parentId?: string): CelestialBodyDefinition => ({
-  id, label: id, radiusKm: 1, ...(parentId === undefined ? {} : { parentId }), orientation: "none", accuracy,
+  id,
+  label: id,
+  radiusKm: 1,
+  ...(parentId === undefined ? {} : { parentId }),
+  orientation: "none",
+  accuracy,
 });
 
 // Each provider's position is a quadratic in seconds, so its true velocity is the derivative (the oracle for the provider's claim).
@@ -26,24 +36,32 @@ function binding(body: string, center: string, base: number[], k: number, withVe
     body,
     create: (): Trajectory => ({
       body,
-      stateAt: (timeUtcMs) => createState({
-        body, center, timeUtcMs, orientation: null,
-        positionKm: motion.position(timeUtcMs / 1000),
-        ...(withVelocity ? { velocityKmS: motion.velocity(timeUtcMs / 1000) } : {}),
-      }),
+      stateAt: (timeUtcMs) =>
+        createState({
+          body,
+          center,
+          timeUtcMs,
+          orientation: null,
+          positionKm: motion.position(timeUtcMs / 1000),
+          ...(withVelocity ? { velocityKmS: motion.velocity(timeUtcMs / 1000) } : {}),
+        }),
     }),
   };
 }
 
 // r (root) <- b <- a ; r <- e ; r <- n (no velocity) <- m (has velocity)
 const definitions = [fake("r"), fake("b", "r"), fake("a", "b"), fake("e", "r"), fake("n", "r"), fake("m", "n")];
-const resolver = createStateResolver(definitions, [
-  binding("b", "r", [10, 20, 30], 0.3, true),
-  binding("a", "b", [1, -2, 3], 0.5, true),
-  binding("e", "r", [100, 200, -300], 0.1, true),
-  binding("n", "r", [7, 8, 9], 0.2, false),
-  binding("m", "n", [4, 5, 6], 0.4, true),
-], adapter);
+const resolver = createStateResolver(
+  definitions,
+  [
+    binding("b", "r", [10, 20, 30], 0.3, true),
+    binding("a", "b", [1, -2, 3], 0.5, true),
+    binding("e", "r", [100, 200, -300], 0.1, true),
+    binding("n", "r", [7, 8, 9], 0.2, false),
+    binding("m", "n", [4, 5, 6], 0.4, true),
+  ],
+  adapter,
+);
 
 const T = 5000;
 /** Central difference of the resolver's own positions: exact for these quadratic motions. */
@@ -67,8 +85,11 @@ describe("velocity composes exactly as the position does", () => {
 
   it("sums through a grandparent", () => {
     expectVelocity("a", "r");
-    const expected = quad([1, -2, 3], 0.5).velocity(5).map((v, i) => v + quad([10, 20, 30], 0.3).velocity(5)[i]);
-    for (let axis = 0; axis < 3; axis += 1) expect(resolver.stateOf("a", T, "r").velocityKmS![axis]).toBeCloseTo(expected[axis], 9);
+    const expected = quad([1, -2, 3], 0.5)
+      .velocity(5)
+      .map((v, i) => v + quad([10, 20, 30], 0.3).velocity(5)[i]);
+    for (let axis = 0; axis < 3; axis += 1)
+      expect(resolver.stateOf("a", T, "r").velocityKmS![axis]).toBeCloseTo(expected[axis], 9);
   });
 
   it("differences through the common ancestor for a sibling centre", () => {
@@ -106,7 +127,7 @@ describe("built-in catalogue", () => {
     expect(speed).toBeGreaterThan(15);
     expect(speed).toBeLessThan(20);
     for (let axis = 0; axis < 3; axis += 1) {
-      expect(io.velocityKmS![axis]).toBeCloseTo((after[axis] - before[axis]) / (2 * h / 1000), 1);
+      expect(io.velocityKmS![axis]).toBeCloseTo((after[axis] - before[axis]) / ((2 * h) / 1000), 1);
     }
     // Io's parent is Jupiter, so the composed answer is the native one; from the Sun it has no velocity (Jupiter's source gives none).
     expect(real.stateOf("io", time, "sun").velocityKmS).toBeUndefined();

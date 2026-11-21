@@ -84,7 +84,15 @@ function openFirstFrame(input: CameraStepInput): boolean {
   const { camState, controls, targets, frame, reach } = input;
   const view = controls.startView;
   // A sky view opens through the same look-out step as a request does.
-  const opening = view === undefined || "kind" in view || !isSkyView(view) ? view : { kind: "lookOut", body: view.lookOut, direction: eqjUnitVector(view.raDeg, view.decDeg), fovDeg: view.fovDeg } as const;
+  const opening =
+    view === undefined || "kind" in view || !isSkyView(view)
+      ? view
+      : ({
+          kind: "lookOut",
+          body: view.lookOut,
+          direction: eqjUnitVector(view.raDeg, view.decDeg),
+          fovDeg: view.fovDeg,
+        } as const);
   if (opening !== undefined && canFocus(targets, "kind" in opening ? opening.body : opening.focus)) {
     if ("kind" in opening) applyLookOut(input, opening);
     else applyStartView(camState, opening);
@@ -92,7 +100,16 @@ function openFirstFrame(input: CameraStepInput): boolean {
     controls.cameraRequest = controls.hostCameraRequest ?? null;
     return false;
   }
-  if (controls.cameraRequest === null && startsInsideFocus(camState.distance, targets.bodyIdFor(camState.focus) ?? camState.focus, frame, targets.policy, reach)) {
+  if (
+    controls.cameraRequest === null &&
+    startsInsideFocus(
+      camState.distance,
+      targets.bodyIdFor(camState.focus) ?? camState.focus,
+      frame,
+      targets.policy,
+      reach,
+    )
+  ) {
     controls.cameraRequest = { kind: "overview" };
     return true;
   }
@@ -117,7 +134,13 @@ function framingDistance(input: CameraStepInput, target: string, targetBody: Bod
 }
 
 /** Starts on the side of the body that faces its parent, so a phase reads as an observer on the parent sees it. */
-function faceParent(camState: OrbitCameraState, targets: SceneTargets, viewUp: RenderVector, body: BodyId, parent: BodyId): void {
+function faceParent(
+  camState: OrbitCameraState,
+  targets: SceneTargets,
+  viewUp: RenderVector,
+  body: BodyId,
+  parent: BodyId,
+): void {
   const at = targets.placed.get(body)!;
   const from = targets.placed.get(parent)!;
   const toParent = [from[0] - at[0], from[1] - at[1], from[2] - at[2]];
@@ -157,7 +180,9 @@ function applyLookOut(input: CameraStepInput, request: LookOutRequest): void {
   camState.focus = request.body;
   camState.fixedPoint = null;
   camState.transition.fill(0);
-  const fovDeg = clampFov(request.fovDeg ?? camState.targetFovDeg ?? camState.lookOut?.fovDeg ?? LOOK_OUT_OPENING_FOV_DEG);
+  const fovDeg = clampFov(
+    request.fovDeg ?? camState.targetFovDeg ?? camState.lookOut?.fovDeg ?? LOOK_OUT_OPENING_FOV_DEG,
+  );
   if (camState.lookOut !== null) {
     // Already looking out: only the targets move, and resolveCamera eases the turn and the zoom (at once under reduced motion).
     if (angles !== null && !keep) {
@@ -192,7 +217,11 @@ function applyCameraRequest(input: CameraStepInput, request: CameraRequest): voi
   if (request.kind === "hold") {
     // The target stops where it is (including any tween still running); angles and distance are untouched. Scene-frame state only: nothing in State changes.
     const now = cameraTargetAbsolute(camState, targets);
-    camState.fixedPoint = [now[0] + camState.transition[0], now[1] + camState.transition[1], now[2] + camState.transition[2]];
+    camState.fixedPoint = [
+      now[0] + camState.transition[0],
+      now[1] + camState.transition[1],
+      now[2] + camState.transition[2],
+    ];
     camState.transition.fill(0);
     return;
   }
@@ -210,7 +239,13 @@ function applyCameraRequest(input: CameraStepInput, request: CameraRequest): voi
   switchFocus(camState, target, focusAbsoluteOf(targets, target));
   if (request.kind !== "follow") camState.targetDistance = framingDistance(input, target, targetBody);
   const parent = targetBody === null ? undefined : catalogue.get(targetBody).definition.parentId;
-  if (request.kind === "focus" && targetBody !== null && targetBody !== frame.centre && parent !== undefined && targets.placed.has(parent)) {
+  if (
+    request.kind === "focus" &&
+    targetBody !== null &&
+    targetBody !== frame.centre &&
+    parent !== undefined &&
+    targets.placed.has(parent)
+  ) {
     faceParent(camState, targets, viewUp, targetBody, parent);
   }
 }

@@ -12,6 +12,10 @@ describe("focus button for any object", () => {
     expect(focusPresetFor(experience, { id: "jupiter", label: "Jupiter" }).label).toBe("Focus Jupiter (own)");
   });
   it("makes a plain focus on the object when there is none", () => {
-    expect(focusPresetFor(experience, { id: "europa", label: "Europa" })).toEqual({ id: "focus-europa", label: "Focus Europa", request: { kind: "focus", target: "europa" } });
+    expect(focusPresetFor(experience, { id: "europa", label: "Europa" })).toEqual({
+      id: "focus-europa",
+      label: "Focus Europa",
+      request: { kind: "focus", target: "europa" },
+    });
   });
 });

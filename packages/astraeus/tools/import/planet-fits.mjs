@@ -36,7 +36,10 @@ const J2000_MS = Date.UTC(2000, 0, 1, 12, 0, 0);
 /** The span: the validated range of the planet definitions (1969-07-21 to 2030-06-01) with margin either side, whole years. */
 const fromArg = process.argv.includes("--from") ? process.argv[process.argv.indexOf("--from") + 1] : "1950-01-01";
 const FROM_MS = Date.parse(`${fromArg}T00:00:00Z`);
-if (!Number.isFinite(FROM_MS) || FROM_MS >= Date.UTC(1971, 0, 1)) throw new Error(`--from must be a date before 1971 (the table's drifting piece runs to the first leap second): ${fromArg}`);
+if (!Number.isFinite(FROM_MS) || FROM_MS >= Date.UTC(1971, 0, 1))
+  throw new Error(
+    `--from must be a date before 1971 (the table's drifting piece runs to the first leap second): ${fromArg}`,
+  );
 const TO_MS = Date.UTC(2045, 0, 1);
 /** Largest fit error allowed against the Horizons barycentre, kilometres, at independent dates. */
 const TARGET_KM = 1;
@@ -45,32 +48,49 @@ const DAY_S = 86_400;
 
 /** Each planet's Horizons body: the planet centre and its system barycentre (no `body` for Mercury and Venus: their barycentre is the planet). */
 const SOURCES = {
-  mercury: { system: "1" }, venus: { system: "2" }, mars: { body: "499", system: "4" }, jupiter: { body: "599", system: "5" },
-  saturn: { body: "699", system: "6" }, uranus: { body: "799", system: "7" }, neptune: { body: "899", system: "8" }, pluto: { body: "999", system: "9" },
+  mercury: { system: "1" },
+  venus: { system: "2" },
+  mars: { body: "499", system: "4" },
+  jupiter: { body: "599", system: "5" },
+  saturn: { body: "699", system: "6" },
+  uranus: { body: "799", system: "7" },
+  neptune: { body: "899", system: "8" },
+  pluto: { body: "999", system: "9" },
 };
 
 // Time. Orb turns the UTC date it is given into TT by adding leap seconds (a step at each one) and, before 1972, a polynomial; a fit of that
 // directly would have to fit every step. So the fitted argument is TT seconds from J2000 (smooth): the series' value at TT, with TT - UTC from
 // the small table stored beside the fits (leap seconds from 1972, a drifting piece before; the table is what the runtime uses to go UTC -> TT).
 // The workspace hoists dependencies, so Orb's source sits in the repository root's node_modules, not the package's.
-const orbTimePath = [join(REPO, "node_modules"), join(REPO, "..", "..", "node_modules")].map((root) => join(root, "@lizard-isana", "orb", "src", "orb-time.js")).find((path) => existsSync(path));
+const orbTimePath = [join(REPO, "node_modules"), join(REPO, "..", "..", "node_modules")]
+  .map((root) => join(root, "@lizard-isana", "orb", "src", "orb-time.js"))
+  .find((path) => existsSync(path));
 const orbText = readFileSync(orbTimePath, "utf8");
-const LEAPS = [...orbText.matchAll(/\[Date\.UTC\((\d+), (\d+), (\d+)\), (\d+)\]/g)].map((m) => [Date.UTC(+m[1], +m[2], +m[3]), +m[4]]);
+const LEAPS = [...orbText.matchAll(/\[Date\.UTC\((\d+), (\d+), (\d+)\), (\d+)\]/g)].map((m) => [
+  Date.UTC(+m[1], +m[2], +m[3]),
+  +m[4],
+]);
 const orbDelta = (ms) => new Time(new Date(ms)).tt_minus_utc();
 const PRE_FROM = FROM_MS;
 // Before the first leap second Orb's TT - UTC is a smooth polynomial; one straight line over 1950 to 1972 is seconds off at its middle (O-047 T-200),
 // so the table holds a piece per month, each joining Orb's values at its two ends (monthly pieces follow the polynomial to a microsecond or so).
 const preEnd = LEAPS[0][0];
 const prePieces = [];
-for (let from = PRE_FROM; from < preEnd; ) {
+for (let from = PRE_FROM; from < preEnd;) {
   const d = new Date(from);
   const next = Math.min(preEnd, Date.UTC(d.getUTCFullYear(), d.getUTCMonth() + 1, 1));
-  prePieces.push({ fromUtcMs: from, ttMinusUtcS: Math.round(orbDelta(from) * 1e6) / 1e6, driftSPerDay: Math.round(((orbDelta(next) - orbDelta(from)) / ((next - from) / 86_400_000)) * 1e9) / 1e9 });
+  prePieces.push({
+    fromUtcMs: from,
+    ttMinusUtcS: Math.round(orbDelta(from) * 1e6) / 1e6,
+    driftSPerDay: Math.round(((orbDelta(next) - orbDelta(from)) / ((next - from) / 86_400_000)) * 1e9) / 1e9,
+  });
   from = next;
 }
 const TIME_TABLE = {
-  pieces: [...prePieces,
-    ...LEAPS.map(([fromUtcMs, tai]) => ({ fromUtcMs, ttMinusUtcS: 32.184 + tai, driftSPerDay: 0 }))],
+  pieces: [
+    ...prePieces,
+    ...LEAPS.map(([fromUtcMs, tai]) => ({ fromUtcMs, ttMinusUtcS: 32.184 + tai, driftSPerDay: 0 })),
+  ],
   validToUtcMs: Date.UTC(2045, 0, 1),
 };
 const ttSecondsOf = (utcMs) => (utcMs - J2000_MS) / 1000 + ttMinusUtcSeconds(TIME_TABLE, utcMs);
@@ -130,7 +150,16 @@ async function horizonsGrid(command, center, firstS, stepS, count) {
   for (let i = 0; i < count; i += perRequest) {
     const rows = Math.min(perRequest, count - i);
     const start = firstS + i * stepS;
-    const text = await horizonsText(vectorParams({ command, center, start: labelOfSeconds(start), stop: labelOfSeconds(start + (rows - 1) * stepS), step: "360m" }), { cacheDir });
+    const text = await horizonsText(
+      vectorParams({
+        command,
+        center,
+        start: labelOfSeconds(start),
+        stop: labelOfSeconds(start + (rows - 1) * stepS),
+        step: "360m",
+      }),
+      { cacheDir },
+    );
     samples.push(...gridSamples(text, start, stepS, rows));
   }
   return samples;
@@ -154,11 +183,15 @@ async function barycentreFromHorizons({ body, system }) {
   else {
     const aboutSun = await horizonsGrid(body, "500@10", firstS, stepS, count);
     const aboutBarycentre = await horizonsGrid(body, `500@${system}`, firstS, stepS, count);
-    samples = aboutSun.map((sample, i) => ({ tdbS: sample.tdbS, positionKm: sample.positionKm.map((v, axis) => v - aboutBarycentre[i].positionKm[axis]) }));
+    samples = aboutSun.map((sample, i) => ({
+      tdbS: sample.tdbS,
+      positionKm: sample.positionKm.map((v, axis) => v - aboutBarycentre[i].positionKm[axis]),
+    }));
   }
   // ICRF (Horizons) -> ecliptic J2000 with Orb's own transform; the frame is fixed, so one state gives the rotation.
   const instant = AstroInstant.fromUnixMs(J2000_MS);
-  const toEcliptic = (r) => transform(makeState({ t: instant, frame: "equatorial-j2000", center: "sun", r }), { frame: "ecliptic-j2000" }).r;
+  const toEcliptic = (r) =>
+    transform(makeState({ t: instant, frame: "equatorial-j2000", center: "sun", r }), { frame: "ecliptic-j2000" }).r;
   const ecliptic = samples.map((sample) => Array.from(toEcliptic(sample.positionKm)));
   const POINTS = 12;
   return {
@@ -170,7 +203,8 @@ async function barycentreFromHorizons({ body, system }) {
       const out = [0, 0, 0];
       for (let j = from; j < from + POINTS; j += 1) {
         let weight = 1;
-        for (let m = from; m < from + POINTS; m += 1) if (m !== j) weight *= (tt - samples[m].tdbS) / (samples[j].tdbS - samples[m].tdbS);
+        for (let m = from; m < from + POINTS; m += 1)
+          if (m !== j) weight *= (tt - samples[m].tdbS) / (samples[j].tdbS - samples[m].tdbS);
         for (let axis = 0; axis < 3; axis += 1) out[axis] += weight * ecliptic[j][axis];
       }
       return out;
@@ -190,7 +224,8 @@ function fitWhole(model, lengthDays, count) {
   const startS = ANCHOR_S - before * lengthS;
   const segments = before + Math.ceil(ANCHOR_SPAN_S / lengthS);
   const coefficients = new Float64Array(segments * 3 * count);
-  for (let i = 0; i < segments; i += 1) coefficients.set(fitSegment(model, startS + i * lengthS, lengthS, count), i * 3 * count);
+  for (let i = 0; i < segments; i += 1)
+    coefficients.set(fitSegment(model, startS + i * lengthS, lengthS, count), i * 3 * count);
   return { lengthS, segments, startS, coefficients: quantise(coefficients) };
 }
 
@@ -206,8 +241,13 @@ function choose(model) {
       for (let p = 0; p < probes; p += 1) {
         const startS = ANCHOR_S + Math.floor(((ANCHOR_SPAN_S - lengthS) / probes) * p);
         const coefficients = quantise(fitSegment(model, startS, lengthS, count));
-        worst = Math.max(worst, worstError(model, coefficients, startS, lengthS, count, testDates(startS, startS + lengthS, lengthS / 40)));
-        bytes += encodeChunk({ startTdbS: 0, segmentCount: 1, coefficientCount: count, quantumKm: QUANTUM_KM, coefficients }).length - 20;
+        worst = Math.max(
+          worst,
+          worstError(model, coefficients, startS, lengthS, count, testDates(startS, startS + lengthS, lengthS / 40)),
+        );
+        bytes +=
+          encodeChunk({ startTdbS: 0, segmentCount: 1, coefficientCount: count, quantumKm: QUANTUM_KM, coefficients })
+            .length - 20;
       }
       if (worst > TARGET_KM * 0.6) continue;
       const perDay = bytes / probes / lengthDays;
@@ -218,8 +258,20 @@ function choose(model) {
   return best;
 }
 
-const report = { span: [new Date(FROM_MS).toISOString(), new Date(TO_MS).toISOString()], targetKm: TARGET_KM, quantumKm: QUANTUM_KM, planets: {} };
-const out = { format: "astraeus.planet-fits/1", frame: "ecliptic J2000, heliocentric", unit: "km", argument: "TT seconds from J2000.0 (2000-01-01T12:00Z UTC-scale origin); TT = UTC + the table", timeScale: TIME_TABLE, planets: {} };
+const report = {
+  span: [new Date(FROM_MS).toISOString(), new Date(TO_MS).toISOString()],
+  targetKm: TARGET_KM,
+  quantumKm: QUANTUM_KM,
+  planets: {},
+};
+const out = {
+  format: "astraeus.planet-fits/1",
+  frame: "ecliptic J2000, heliocentric",
+  unit: "km",
+  argument: "TT seconds from J2000.0 (2000-01-01T12:00Z UTC-scale origin); TT = UTC + the table",
+  timeScale: TIME_TABLE,
+  planets: {},
+};
 let totalBytes = 0;
 let totalGzip = 0;
 const onlyIds = process.argv.includes("--only") ? process.argv[process.argv.indexOf("--only") + 1].split(",") : null;
@@ -233,16 +285,47 @@ for (const [id, source] of Object.entries(SOURCES)) {
   // The whole-span check is independent of the fit nodes; if it exceeds the target, raise the degree.
   for (;;) {
     fit = fitWhole(model, attempt.lengthDays, attempt.count);
-    worst = worstError(model, fit.coefficients, fit.startS, fit.lengthS, attempt.count, testDates(START_S, START_S + SPAN_S, 3.0137 * DAY_S));
+    worst = worstError(
+      model,
+      fit.coefficients,
+      fit.startS,
+      fit.lengthS,
+      attempt.count,
+      testDates(START_S, START_S + SPAN_S, 3.0137 * DAY_S),
+    );
     if (worst <= TARGET_KM) break;
-    if (attempt.count > 60) throw new Error(`${id}: no degree up to 60 reaches ${TARGET_KM} km (segment ${attempt.lengthDays} d, worst ${worst} km)`);
+    if (attempt.count > 60)
+      throw new Error(
+        `${id}: no degree up to 60 reaches ${TARGET_KM} km (segment ${attempt.lengthDays} d, worst ${worst} km)`,
+      );
     attempt = { ...attempt, count: attempt.count + 1 };
   }
-  const bytes = encodeChunk({ startTdbS: fit.startS, segmentCount: fit.segments, coefficientCount: attempt.count, quantumKm: QUANTUM_KM, coefficients: fit.coefficients });
+  const bytes = encodeChunk({
+    startTdbS: fit.startS,
+    segmentCount: fit.segments,
+    coefficientCount: attempt.count,
+    quantumKm: QUANTUM_KM,
+    coefficients: fit.coefficients,
+  });
   totalBytes += bytes.length;
   totalGzip += gzipSync(bytes).length;
-  report.planets[id] = { segmentDays: attempt.lengthDays, coefficientsPerAxis: attempt.count, segments: fit.segments, bytes: bytes.length, base64Bytes: Math.ceil(bytes.length / 3) * 4, worstErrorKm: Number(worst.toFixed(4)) };
-  out.planets[id] = { startS: fit.startS, segmentSeconds: fit.lengthS, segmentCount: fit.segments, coefficientCount: attempt.count, quantumKm: QUANTUM_KM, worstErrorKm: Number(worst.toFixed(3)), data: Buffer.from(bytes).toString("base64") };
+  report.planets[id] = {
+    segmentDays: attempt.lengthDays,
+    coefficientsPerAxis: attempt.count,
+    segments: fit.segments,
+    bytes: bytes.length,
+    base64Bytes: Math.ceil(bytes.length / 3) * 4,
+    worstErrorKm: Number(worst.toFixed(4)),
+  };
+  out.planets[id] = {
+    startS: fit.startS,
+    segmentSeconds: fit.lengthS,
+    segmentCount: fit.segments,
+    coefficientCount: attempt.count,
+    quantumKm: QUANTUM_KM,
+    worstErrorKm: Number(worst.toFixed(3)),
+    data: Buffer.from(bytes).toString("base64"),
+  };
   console.log(id, JSON.stringify(report.planets[id]));
 }
 report.totalBytes = totalBytes;
@@ -250,11 +333,13 @@ report.totalGzipBytes = totalGzip;
 console.log(`total raw ${totalBytes} bytes, gzip ${totalGzip}, as base64 ${Math.ceil(totalBytes / 3) * 4}`);
 
 const args = process.argv.slice(2);
-if (args.includes("--write") && onlyIds !== null) throw new Error("--only is for trials; it cannot be combined with --write (planets.json holds all eight)");
+if (args.includes("--write") && onlyIds !== null)
+  throw new Error("--only is for trials; it cannot be combined with --write (planets.json holds all eight)");
 if (args.includes("--write")) {
   const dir = join(REPO, "data", "ephemerides", "planets");
   mkdirSync(dir, { recursive: true });
   writeFileSync(join(dir, "planets.json"), `${JSON.stringify(out)}\n`);
   console.log("wrote", join(dir, "planets.json"));
 }
-if (args.includes("--report")) writeFileSync(args[args.indexOf("--report") + 1], `${JSON.stringify(report, null, 2)}\n`);
+if (args.includes("--report"))
+  writeFileSync(args[args.indexOf("--report") + 1], `${JSON.stringify(report, null, 2)}\n`);

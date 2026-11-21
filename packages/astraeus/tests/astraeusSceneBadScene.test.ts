@@ -9,12 +9,19 @@ import { AstraeusScene, SceneError, type Scene } from "astraeus";
 (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = false;
 
 describe("<AstraeusScene> given something that is not a Scene", () => {
-  it.each([{ name: "an empty object", value: {} }, { name: "null", value: null }])("$name -> bad-scene through onError", async ({ value }) => {
+  it.each([
+    { name: "an empty object", value: {} },
+    { name: "null", value: null },
+  ])("$name -> bad-scene through onError", async ({ value }) => {
     const errors: unknown[] = [];
     const element = document.createElement("div");
     document.body.append(element);
     const root = createRoot(element);
-    flushSync(() => root.render(h(AstraeusScene, { scene: value as unknown as Scene, onError: (error: Error) => errors.push(error) })));
+    flushSync(() =>
+      root.render(
+        h(AstraeusScene, { scene: value as unknown as Scene, onError: (error: Error) => errors.push(error) }),
+      ),
+    );
     await new Promise<void>((resolve) => setTimeout(resolve, 80));
     root.unmount();
     expect(errors).toHaveLength(1);

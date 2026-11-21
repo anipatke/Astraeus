@@ -31,7 +31,9 @@ export class RingSystemError extends TypeError {
 const HEX = /^#[0-9a-fA-F]{6}$/;
 
 export function parseRingSystem(raw: unknown): RingSystem {
-  const fail = (message: string): never => { throw new RingSystemError(message); };
+  const fail = (message: string): never => {
+    throw new RingSystemError(message);
+  };
   if (typeof raw !== "object" || raw === null) fail("ring system must be an object");
   const record = raw as Record<string, unknown>;
   if (record.format !== RING_SYSTEM_FORMAT) fail(`ring system format must be "${RING_SYSTEM_FORMAT}"`);
@@ -40,13 +42,24 @@ export function parseRingSystem(raw: unknown): RingSystem {
   const bands = (record.bands as Record<string, unknown>[]).map((band, index): RingBand => {
     const where = `bands[${index}]`;
     const { id, label, innerKm, outerKm, color, opacity } = band;
-    if (typeof id !== "string" || id === "" || typeof label !== "string" || label === "") fail(`${where} needs an id and a label`);
-    if (typeof innerKm !== "number" || typeof outerKm !== "number" || !(innerKm > 0) || !(outerKm > innerKm)) fail(`${where} needs 0 < innerKm < outerKm`);
+    if (typeof id !== "string" || id === "" || typeof label !== "string" || label === "")
+      fail(`${where} needs an id and a label`);
+    if (typeof innerKm !== "number" || typeof outerKm !== "number" || !(innerKm > 0) || !(outerKm > innerKm))
+      fail(`${where} needs 0 < innerKm < outerKm`);
     if (typeof color !== "string" || !HEX.test(color)) fail(`${where}.color must be #rrggbb`);
     if (typeof opacity !== "number" || !(opacity >= 0 && opacity <= 1)) fail(`${where}.opacity must be from 0 to 1`);
-    return Object.freeze({ id: id as string, label: label as string, innerKm: innerKm as number, outerKm: outerKm as number, color: color as string, opacity: opacity as number });
+    return Object.freeze({
+      id: id as string,
+      label: label as string,
+      innerKm: innerKm as number,
+      outerKm: outerKm as number,
+      color: color as string,
+      opacity: opacity as number,
+    });
   });
-  const sources = Object.values((record.sources ?? {}) as Record<string, { title?: string; url?: string }>).map((source) => [source.title, source.url].filter(Boolean).join(", "));
+  const sources = Object.values((record.sources ?? {}) as Record<string, { title?: string; url?: string }>).map(
+    (source) => [source.title, source.url].filter(Boolean).join(", "),
+  );
   return Object.freeze({ body: record.body as string, bands: Object.freeze(bands), sources: Object.freeze(sources) });
 }
 

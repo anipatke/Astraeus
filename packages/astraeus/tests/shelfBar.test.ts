@@ -9,13 +9,25 @@ import { NO_PANELS, reducePanels, topmost, type Layout, type PanelState } from "
 import { $, mountShell, press, pressKey, type Mounted } from "./domSetup";
 
 let m: Mounted;
-afterEach(() => { m.unmount(); vi.restoreAllMocks(); });
+afterEach(() => {
+  m.unmount();
+  vi.restoreAllMocks();
+});
 
-const part = (id: string, label: string, shortLabel?: string): ShelfPart => partOf(panel({ id, button: shortLabel === undefined ? { label } : { label, shortLabel }, title: `${label} panel`, blocks: [customBlock({ id: `${id}-body` })] }));
+const part = (id: string, label: string, shortLabel?: string): ShelfPart =>
+  partOf(
+    panel({
+      id,
+      button: shortLabel === undefined ? { label } : { label, shortLabel },
+      title: `${label} panel`,
+      blocks: [customBlock({ id: `${id}-body` })],
+    }),
+  );
 const gaps = part("gaps", "Kirkwood gaps", "Gaps");
 const empty = part("empty", "How empty is it?", "How empty?");
 const row = () => $(m.container, '[data-area="bar"] .top-bar');
-const buttons = (scope: ParentNode) => [...scope.querySelectorAll<HTMLElement>("[data-story-button]")].map((b) => b.getAttribute("data-story-button"));
+const buttons = (scope: ParentNode) =>
+  [...scope.querySelectorAll<HTMLElement>("[data-story-button]")].map((b) => b.getAttribute("data-story-button"));
 const left = () => m.container.querySelector<HTMLElement>('[data-area="left"] [data-shelf-panel]');
 const button = (id: string) => $(m.container, `[data-story-button="${id}"]`);
 const about = { title: "The belt", status: "Now" };
@@ -23,7 +35,11 @@ const about = { title: "The belt", status: "Now" };
 function laidOut(width: number): void {
   vi.spyOn(Element.prototype, "getBoundingClientRect").mockImplementation(function (this: Element) {
     const ghost = this.hasAttribute("data-ghost-id");
-    const w = ghost ? [...this.children].reduce((sum, child) => sum + (child.textContent ?? "").length * 10 + 20, 0) : this.classList.contains("top-bar") ? width : 0;
+    const w = ghost
+      ? [...this.children].reduce((sum, child) => sum + (child.textContent ?? "").length * 10 + 20, 0)
+      : this.classList.contains("top-bar")
+        ? width
+        : 0;
     return { width: w, height: 0, top: 0, left: 0, right: w, bottom: 0, x: 0, y: 0, toJSON: () => ({}) } as DOMRect;
   });
 }
@@ -36,7 +52,9 @@ describe("the story buttons", () => {
     expect(row().querySelector('[data-story-button="gaps"] [aria-hidden]')!.textContent).toBe("Kirkwood gaps");
     expect(m.container.querySelector("button.bar-menu-button")).toBeNull();
     // the title is before them, the engine controls after
-    const order = [...row().children].map((child) => (child.matches("[data-story-button]") ? "story" : child.matches("[data-bar-title]") ? "title" : "other"));
+    const order = [...row().children].map((child) =>
+      child.matches("[data-story-button]") ? "story" : child.matches("[data-bar-title]") ? "title" : "other",
+    );
     expect(order.indexOf("title")).toBeLessThan(order.indexOf("story"));
   });
 
@@ -46,7 +64,7 @@ describe("the story buttons", () => {
     expect(buttons(m.container)).toEqual([]);
   });
 
-  it("phone, tight row: the first button keeps its place with its short label and the second is in the menu under \"This story\"", () => {
+  it('phone, tight row: the first button keeps its place with its short label and the second is in the menu under "This story"', () => {
     // a narrow row: the title is "i", the buttons are short, and the second one does not fit
     laidOut(200);
     m = mountShell({ phone: true, about, shelfParts: [gaps, empty] });
@@ -122,7 +140,11 @@ describe("the panel through the panel rule", () => {
   it("a custom block's element is handed to the panel, and what the host put in it survives closing and reopening", () => {
     laidOut(1244);
     const element = document.createElement("div");
-    m = mountShell({ about, shelfParts: [gaps], shelfRuntime: { element: (id) => (id === "gaps-body" ? element : undefined) } });
+    m = mountShell({
+      about,
+      shelfParts: [gaps],
+      shelfRuntime: { element: (id) => (id === "gaps-body" ? element : undefined) },
+    });
     expect(element.isConnected).toBe(false);
     press(button("gaps"));
     expect(element.isConnected).toBe(true);
@@ -147,16 +169,27 @@ describe("the panel through the panel rule", () => {
 });
 
 describe("the panel rule's shelf rows", () => {
-  const open = (state: PanelState, occupant: Parameters<typeof reducePanels>[1] extends infer A ? (A extends { type: "open"; occupant: infer O } ? O : never) : never, layout: Layout = "wide") => reducePanels(state, { type: "open", occupant }, layout);
+  const open = (
+    state: PanelState,
+    occupant: Parameters<typeof reducePanels>[1] extends infer A
+      ? A extends { type: "open"; occupant: infer O }
+        ? O
+        : never
+      : never,
+    layout: Layout = "wide",
+  ) => reducePanels(state, { type: "open", occupant }, layout);
 
-  it.each(["wide", "phone"] as const)("%s: a shelf panel takes the left place from About, a card and the moons, and any of them takes it back", (layout) => {
-    for (const other of ["about", "card", "moons"] as const) {
-      const shelf = open(open(NO_PANELS, other, layout), "shelf:gaps", layout);
-      expect(shelf.left).toBe("shelf:gaps");
-      expect(open(shelf, other, layout).left).toBe(other);
-    }
-    expect(open(open(NO_PANELS, "shelf:a", layout), "shelf:b", layout).left).toBe("shelf:b");
-  });
+  it.each(["wide", "phone"] as const)(
+    "%s: a shelf panel takes the left place from About, a card and the moons, and any of them takes it back",
+    (layout) => {
+      for (const other of ["about", "card", "moons"] as const) {
+        const shelf = open(open(NO_PANELS, other, layout), "shelf:gaps", layout);
+        expect(shelf.left).toBe("shelf:gaps");
+        expect(open(shelf, other, layout).left).toBe(other);
+      }
+      expect(open(open(NO_PANELS, "shelf:a", layout), "shelf:b", layout).left).toBe("shelf:b");
+    },
+  );
 
   it("opening one keeps the story panel (wide: and the developer column; a phone's detail sheet replaces the developer sheet)", () => {
     const base: PanelState = { ...NO_PANELS, story: true, developer: true };
@@ -170,9 +203,15 @@ describe("the panel rule's shelf rows", () => {
     expect(reducePanels(on, { type: "escape" }, "wide")).toMatchObject({ left: null, story: true });
     expect(reducePanels(on, { type: "close", occupant: "shelf:gaps" }, "wide").left).toBeNull();
     expect(reducePanels(on, { type: "close", occupant: "shelf:other" }, "wide").left).toBe("shelf:gaps");
-    expect(reducePanels(on, { type: "viewSwitch", dropsCard: false, dropsStory: false, dropsShelf: true }, "wide").left).toBeNull();
-    expect(reducePanels(on, { type: "viewSwitch", dropsCard: true, dropsStory: false }, "wide").left).toBe("shelf:gaps");
+    expect(
+      reducePanels(on, { type: "viewSwitch", dropsCard: false, dropsStory: false, dropsShelf: true }, "wide").left,
+    ).toBeNull();
+    expect(reducePanels(on, { type: "viewSwitch", dropsCard: true, dropsStory: false }, "wide").left).toBe(
+      "shelf:gaps",
+    );
     const card = open(NO_PANELS, "card");
-    expect(reducePanels(card, { type: "viewSwitch", dropsCard: false, dropsStory: false, dropsShelf: true }, "wide").left).toBe("card");
+    expect(
+      reducePanels(card, { type: "viewSwitch", dropsCard: false, dropsStory: false, dropsShelf: true }, "wide").left,
+    ).toBe("card");
   });
 });

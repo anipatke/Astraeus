@@ -1,4 +1,12 @@
-import { useEffect, useImperativeHandle, useRef, useState, type CSSProperties, type ReactElement, type Ref } from "react";
+import {
+  useEffect,
+  useImperativeHandle,
+  useRef,
+  useState,
+  type CSSProperties,
+  type ReactElement,
+  type Ref,
+} from "react";
 import "../app/style.css";
 import { App } from "../app/App";
 import type { ExperienceDefinition } from "../app/experienceDefinition";
@@ -50,12 +58,22 @@ export interface AstraeusSceneProps {
 
 const FILL: CSSProperties = { width: "100%", height: "100%" };
 /** Tells the host's `onError` of an error, or the console when the host gave none, so a failure is never silent. */
-const report = (onError: ((error: Error) => void) | undefined, error: Error): void => { if (onError !== undefined) onError(error); else console.error(error); };
+const report = (onError: ((error: Error) => void) | undefined, error: Error): void => {
+  if (onError !== undefined) onError(error);
+  else console.error(error);
+};
 const asError = (cause: unknown): Error => (cause instanceof Error ? cause : new Error(String(cause)));
 
 /** A camera target as text by value: keys in sorted order, so the same pose with its keys in another order is the same key. */
 const cameraValueKey = (camera: CameraTarget): string => {
-  const sorted = (value: unknown): unknown => (typeof value !== "object" || value === null ? value : Object.fromEntries(Object.entries(value).sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0)).map(([key, inner]) => [key, sorted(inner)])));
+  const sorted = (value: unknown): unknown =>
+    typeof value !== "object" || value === null
+      ? value
+      : Object.fromEntries(
+          Object.entries(value)
+            .sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))
+            .map(([key, inner]) => [key, sorted(inner)]),
+        );
   return JSON.stringify(Object.entries(sorted(camera) as object));
 };
 
@@ -67,7 +85,25 @@ const cameraValueKey = (camera: CameraTarget): string => {
  *   return <div style={{ height: "100vh" }}><AstraeusScene scene={scene} onError={console.error} /></div>;
  * }
  */
-export function AstraeusScene({ ref, scene, data, onReady, onError, time, rate, view, camera, onChange, onEventZone, onPick, onFirstDraw, address, developerTools, className, style }: AstraeusSceneProps): ReactElement {
+export function AstraeusScene({
+  ref,
+  scene,
+  data,
+  onReady,
+  onError,
+  time,
+  rate,
+  view,
+  camera,
+  onChange,
+  onEventZone,
+  onPick,
+  onFirstDraw,
+  address,
+  developerTools,
+  className,
+  style,
+}: AstraeusSceneProps): ReactElement {
   const [definition, setDefinition] = useState<ExperienceDefinition | undefined>();
   // The latest data and callbacks, read when the scene is built, so a new array or arrow function each render does not rebuild it.
   const latest = useRef({ data, onReady, onError, onChange, onEventZone, onPick, onFirstDraw });
@@ -81,23 +117,41 @@ export function AstraeusScene({ ref, scene, data, onReady, onError, time, rate, 
     const stopZones = link.onEventZone((change) => latest.current.onEventZone?.(change));
     const stopPick = link.onPick((change) => latest.current.onPick?.(change));
     const stopFrame = link.onFirstDraw(() => latest.current.onFirstDraw?.());
-    return () => { stop(); stopZones(); stopFrame(); stopPick(); link.close(); };
+    return () => {
+      stop();
+      stopZones();
+      stopFrame();
+      stopPick();
+      link.close();
+    };
   }, [link]);
   // A Date made fresh each render must not seek again, so the moment is compared by value.
   const timeKey = time instanceof Date ? time.getTime() : time;
   // After the viewer is drawn (its own effects have attached the clock by now), each prop takes effect on its own: once when drawn,
   // then only when that prop changes, so a host change to one never overrides a visitor's later choice of another control.
   const apply = (set: () => void) => {
-    try { set(); } catch (cause) { report(latest.current.onError, asError(cause)); }
+    try {
+      set();
+    } catch (cause) {
+      report(latest.current.onError, asError(cause));
+    }
   };
   const cameraKey = camera === undefined ? undefined : cameraValueKey(camera);
   const cameraRef = useRef(camera);
   cameraRef.current = camera;
   const drawn = definition !== undefined;
-  useEffect(() => { if (drawn && timeKey !== undefined) apply(() => link.setTime(timeKey)); }, [drawn, link, timeKey]);
-  useEffect(() => { if (drawn && rate !== undefined) apply(() => link.setRate(rate)); }, [drawn, link, rate]);
-  useEffect(() => { if (drawn && view !== undefined) apply(() => link.setView(view)); }, [drawn, link, view]);
-  useEffect(() => { if (drawn && cameraRef.current !== undefined) apply(() => link.setCamera(cameraRef.current!)); }, [drawn, link, cameraKey]);
+  useEffect(() => {
+    if (drawn && timeKey !== undefined) apply(() => link.setTime(timeKey));
+  }, [drawn, link, timeKey]);
+  useEffect(() => {
+    if (drawn && rate !== undefined) apply(() => link.setRate(rate));
+  }, [drawn, link, rate]);
+  useEffect(() => {
+    if (drawn && view !== undefined) apply(() => link.setView(view));
+  }, [drawn, link, view]);
+  useEffect(() => {
+    if (drawn && cameraRef.current !== undefined) apply(() => link.setCamera(cameraRef.current!));
+  }, [drawn, link, cameraKey]);
 
   useEffect(() => {
     let open = true;
@@ -110,18 +164,41 @@ export function AstraeusScene({ ref, scene, data, onReady, onError, time, rate, 
           if (!open) return;
           setDefinition(prepared.definition);
           // The viewer attaches its clock in an effect after this render; onReady waits for it, so the handle's reads and sets work inside it.
-          void link.whenAttached().then(() => { if (open) latest.current.onReady?.(handle); }, () => undefined); // a closed link (unmounted) rejects the wait: onReady does not fire
+          void link.whenAttached().then(
+            () => {
+              if (open) latest.current.onReady?.(handle);
+            },
+            () => undefined,
+          ); // a closed link (unmounted) rejects the wait: onReady does not fire
         },
-        (cause: unknown) => { if (open) report(latest.current.onError, asError(cause)); },
+        (cause: unknown) => {
+          if (open) report(latest.current.onError, asError(cause));
+        },
       );
     } catch (cause) {
       report(latest.current.onError, asError(cause));
     }
-    return () => { open = false; };
+    return () => {
+      open = false;
+    };
   }, [scene, link, handle]);
 
   // The viewer's root fills this wrapper, so it is the containing block (unless the host's own class or style positions it already).
   const wrapper = useRef<HTMLDivElement>(null);
-  useEffect(() => { if (wrapper.current !== null) makeContainingBlock(wrapper.current); }, []);
-  return <div ref={wrapper} className={className} style={{ ...FILL, isolation: "isolate", ...style }}>{definition ? <App definition={definition} writeTitle={false} address={address === true} developerTools={developerTools === true} host={link} /> : null}</div>;
+  useEffect(() => {
+    if (wrapper.current !== null) makeContainingBlock(wrapper.current);
+  }, []);
+  return (
+    <div ref={wrapper} className={className} style={{ ...FILL, isolation: "isolate", ...style }}>
+      {definition ? (
+        <App
+          definition={definition}
+          writeTitle={false}
+          address={address === true}
+          developerTools={developerTools === true}
+          host={link}
+        />
+      ) : null}
+    </div>
+  );
 }

@@ -11,12 +11,33 @@
 //   5. Relative imports and exports get their `.js` (or `/index.js`) written out, because the packages are `"type": "module"` and webpack 5 treats those
 //      as fully specified (I-077). Bare browser modules still cannot load the default build (it imports CSS and pictures); plain Node and Vitest load the `.node.js` copy from step 4b.
 import { spawnSync } from "node:child_process";
-import { copyFileSync, cpSync, existsSync, linkSync, mkdirSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from "node:fs";
+import {
+  copyFileSync,
+  cpSync,
+  existsSync,
+  linkSync,
+  mkdirSync,
+  readFileSync,
+  readdirSync,
+  rmSync,
+  statSync,
+  writeFileSync,
+} from "node:fs";
 import { dirname, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-export const PACKAGES = ["astraeus", "astraeus-data", "astraeus-data-jupiter", "astraeus-data-saturn", "astraeus-data-uranus", "astraeus-data-neptune", "astraeus-data-mars", "astraeus-data-pluto", "astraeus-data-constellations"];
+export const PACKAGES = [
+  "astraeus",
+  "astraeus-data",
+  "astraeus-data-jupiter",
+  "astraeus-data-saturn",
+  "astraeus-data-uranus",
+  "astraeus-data-neptune",
+  "astraeus-data-mars",
+  "astraeus-data-pluto",
+  "astraeus-data-constellations",
+];
 /** The data packages that hold moon positions (a chunk list, `src/chunks.js`); `astraeus-data-constellations` holds plain JSON files instead. */
 export const isPositionPackage = (name) => name.startsWith("astraeus-data-") && name !== "astraeus-data-constellations";
 const ASSET = /\.(?:jpg|jpeg|png|webp)$/;
@@ -40,16 +61,28 @@ const STYLE_IMPORT = /^import "[^"]+\.css";\n/gm;
  */
 function writeNodeCopy(out) {
   const files = [];
-  walk(join(out, "src"), (file) => { if (file.endsWith(".js")) files.push(file); });
+  walk(join(out, "src"), (file) => {
+    if (file.endsWith(".js")) files.push(file);
+  });
   const text = new Map(files.map((file) => [file, readFileSync(file, "utf8")]));
   const twins = new Set(files.filter((file) => new RegExp(STYLE_IMPORT.source, "m").test(text.get(file))));
-  const importsTwin = (file) => [...text.get(file).matchAll(RELATIVE_JS)].some((match) => twins.has(resolve(dirname(file), match[2])));
+  const importsTwin = (file) =>
+    [...text.get(file).matchAll(RELATIVE_JS)].some((match) => twins.has(resolve(dirname(file), match[2])));
   for (let grew = true; grew;) {
     grew = false;
-    for (const file of files) if (!twins.has(file) && importsTwin(file)) { twins.add(file); grew = true; }
+    for (const file of files)
+      if (!twins.has(file) && importsTwin(file)) {
+        twins.add(file);
+        grew = true;
+      }
   }
   for (const file of twins) {
-    const node = text.get(file).replace(STYLE_IMPORT, "").replace(RELATIVE_JS, (whole, lead, spec) => (twins.has(resolve(dirname(file), spec)) ? `${lead}"${spec.replace(/\.js$/, ".node.js")}"` : whole));
+    const node = text
+      .get(file)
+      .replace(STYLE_IMPORT, "")
+      .replace(RELATIVE_JS, (whole, lead, spec) =>
+        twins.has(resolve(dirname(file), spec)) ? `${lead}"${spec.replace(/\.js$/, ".node.js")}"` : whole,
+      );
     writeFileSync(file.replace(/\.js$/, ".node.js"), node);
   }
   if (!twins.has(join(out, "src", "api", "index.js"))) throw new Error("the Node copy has no src/api/index.node.js");
@@ -65,7 +98,11 @@ function linkTree(from, to) {
     const target = join(to, entry.name);
     if (entry.isDirectory()) linkTree(source, target);
     else if (!existsSync(target)) {
-      try { linkSync(source, target); } catch { copyFileSync(source, target); }
+      try {
+        linkSync(source, target);
+      } catch {
+        copyFileSync(source, target);
+      }
     }
   }
 }
@@ -101,7 +138,10 @@ function defaultJsonImports(out) {
     const text = before.replace(/^import \{([^}]+)\} from ("[^"]+\.json");$/gm, (whole, names, spec) => {
       count += 1;
       const holder = `json${count}`;
-      return `import ${holder} from ${spec};\nconst { ${names.split(",").map((one) => one.trim().replace(/\s+as\s+/, ": ")).join(", ")} } = ${holder};`;
+      return `import ${holder} from ${spec};\nconst { ${names
+        .split(",")
+        .map((one) => one.trim().replace(/\s+as\s+/, ": "))
+        .join(", ")} } = ${holder};`;
     });
     if (text !== before) writeFileSync(file, text);
   });
@@ -112,7 +152,8 @@ function fullySpecified(file, spec) {
   if (!spec.startsWith(".") || /\.[a-z]+$/i.test(spec.replace(/^(\.\.?\/)+/, ""))) return spec;
   const target = resolve(dirname(file), spec);
   if (existsSync(`${target}.js`) || existsSync(`${target}.d.ts`)) return `${spec}.js`;
-  if (existsSync(join(target, "index.js")) || existsSync(join(target, "index.d.ts"))) return `${spec.replace(/\/$/, "")}/index.js`;
+  if (existsSync(join(target, "index.js")) || existsSync(join(target, "index.d.ts")))
+    return `${spec.replace(/\/$/, "")}/index.js`;
   throw new Error(`${file}: cannot resolve ${spec}`);
 }
 
@@ -121,7 +162,10 @@ function addExtensions(out) {
   walk(out, (file) => {
     if (!file.endsWith(".js") && !file.endsWith(".d.ts")) return;
     const before = readFileSync(file, "utf8");
-    const text = before.replace(/(\bfrom\s*|\bimport\s*\(?\s*|\bimport\s+)(["'])(\.[^"']*)\2/g, (whole, lead, quote, spec) => `${lead}${quote}${fullySpecified(file, spec)}${quote}`);
+    const text = before.replace(
+      /(\bfrom\s*|\bimport\s*\(?\s*|\bimport\s+)(["'])(\.[^"']*)\2/g,
+      (whole, lead, quote, spec) => `${lead}${quote}${fullySpecified(file, spec)}${quote}`,
+    );
     if (text !== before) writeFileSync(file, text);
   });
 }
@@ -135,7 +179,10 @@ function writeChunkList(pkg, out) {
       const folder = join(pkg, "data", set, moon);
       if (!statSync(folder).isDirectory()) continue;
       for (const file of readdirSync(folder).sort()) {
-        if (file.endsWith(".bin")) lines.push(`  ${JSON.stringify(`${moon}/${file}`)}: new URL(${JSON.stringify(`../data/${set}/${moon}/${file}?no-inline`)}, import.meta.url).href,`);
+        if (file.endsWith(".bin"))
+          lines.push(
+            `  ${JSON.stringify(`${moon}/${file}`)}: new URL(${JSON.stringify(`../data/${set}/${moon}/${file}?no-inline`)}, import.meta.url).href,`,
+          );
       }
     }
   }
@@ -157,15 +204,28 @@ export function buildPackage(name) {
   //    bundler drops comments anyway, so the packed JS carries none (about 300 KB of the engine's pack). `/*!` comments are kept by tsc; the pack
   //    check fails on any other comment in packed JS (commentProblems in tools/check-packs.mjs).
   const config = join(pkg, "tsconfig.build.tmp.json");
-  const paths = name === "astraeus" ? {} : { astraeus: [join(root, "packages", "astraeus", "dist", "src", "api", "index.d.ts")] };
-  const include = [join(pkg, "src"), ...(existsSync(join(pkg, "data")) && name === "astraeus" ? [join(pkg, "data")] : [])];
-  for (const pass of [{ declaration: false, removeComments: true }, { declaration: true, emitDeclarationOnly: true, removeComments: false }]) {
-    writeFileSync(config, JSON.stringify({
-      extends: join(root, "tsconfig.json"),
-      compilerOptions: { noEmit: false, rootDir: pkg, outDir: out, paths, types: ["vite/client"], ...pass },
-      include,
-    }));
-    const tsc = spawnSync(process.execPath, [join(root, "node_modules", "typescript", "bin", "tsc"), "-p", config], { cwd: root, encoding: "utf8" });
+  const paths =
+    name === "astraeus" ? {} : { astraeus: [join(root, "packages", "astraeus", "dist", "src", "api", "index.d.ts")] };
+  const include = [
+    join(pkg, "src"),
+    ...(existsSync(join(pkg, "data")) && name === "astraeus" ? [join(pkg, "data")] : []),
+  ];
+  for (const pass of [
+    { declaration: false, removeComments: true },
+    { declaration: true, emitDeclarationOnly: true, removeComments: false },
+  ]) {
+    writeFileSync(
+      config,
+      JSON.stringify({
+        extends: join(root, "tsconfig.json"),
+        compilerOptions: { noEmit: false, rootDir: pkg, outDir: out, paths, types: ["vite/client"], ...pass },
+        include,
+      }),
+    );
+    const tsc = spawnSync(process.execPath, [join(root, "node_modules", "typescript", "bin", "tsc"), "-p", config], {
+      cwd: root,
+      encoding: "utf8",
+    });
     rmSync(config, { force: true });
     if (tsc.status !== 0) throw new Error(`${name}: tsc failed\n${tsc.stdout}${tsc.stderr}`);
   }
@@ -186,7 +246,8 @@ export function buildPackage(name) {
     copyFileSync(file, dest);
   });
   const chunks = isPositionPackage(name) ? writeChunkList(pkg, out) : 0;
-  for (const file of ["README.md", "CHANGELOG.md", "NOTICE"]) if (existsSync(join(pkg, file))) copyFileSync(join(pkg, file), join(out, file));
+  for (const file of ["README.md", "CHANGELOG.md", "NOTICE"])
+    if (existsSync(join(pkg, file))) copyFileSync(join(pkg, file), join(out, file));
   copyFileSync(join(root, "LICENSE"), join(out, "LICENSE"));
   if (existsSync(join(pkg, "licenses"))) cpSync(join(pkg, "licenses"), join(out, "licenses"), { recursive: true });
   const { "x-publish": _publishBlock, "x-internal-exports": _internal, devDependencies: _dev, ...rest } = manifest;
@@ -201,7 +262,9 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const started = Date.now();
   for (const name of PACKAGES.filter((one) => names.includes(one))) {
     const result = buildPackage(name);
-    console.log(`built ${name}: ${result.assets} pictures rewritten${result.chunks > 0 ? `, ${result.chunks} chunk URLs` : ""}`);
+    console.log(
+      `built ${name}: ${result.assets} pictures rewritten${result.chunks > 0 ? `, ${result.chunks} chunk URLs` : ""}`,
+    );
   }
   console.log(`done in ${((Date.now() - started) / 1000).toFixed(1)} s`);
 }

@@ -82,7 +82,13 @@ export interface ListedOrbitGroup extends PointGroup {
 
 const RADIANS = Math.PI / 180;
 const TWO_PI = 2 * Math.PI;
-const ELEMENT_KEYS = ["semiMajorAxisKm", "eccentricity", "inclinationDeg", "raanDeg", "argumentOfPeriapsisDeg"] as const satisfies readonly (keyof ListedElements)[];
+const ELEMENT_KEYS = [
+  "semiMajorAxisKm",
+  "eccentricity",
+  "inclinationDeg",
+  "raanDeg",
+  "argumentOfPeriapsisDeg",
+] as const satisfies readonly (keyof ListedElements)[];
 /** Step either side of the reference time used to read a reference body's velocity when its State carries none. */
 const VELOCITY_STEP_MS = 1000;
 
@@ -114,18 +120,24 @@ function assertMembers(members: readonly ListedMember[]): boolean {
       if (!Number.isFinite(member.elements[key])) throw new GroupElementsError(`${who}: ${key} must be finite`);
     }
     const e = member.elements;
-    if (!(e.semiMajorAxisKm > 0)) throw new GroupElementsError(`${who}: semiMajorAxisKm must be positive (an unbound orbit has none)`);
+    if (!(e.semiMajorAxisKm > 0))
+      throw new GroupElementsError(`${who}: semiMajorAxisKm must be positive (an unbound orbit has none)`);
     if (!(e.eccentricity >= 0 && e.eccentricity < 1)) {
-      throw new GroupElementsError(`${who}: eccentricity must be at least 0 and below 1 (a bound orbit), got ${e.eccentricity}`);
+      throw new GroupElementsError(
+        `${who}: eccentricity must be at least 0 and below 1 (a bound orbit), got ${e.eccentricity}`,
+      );
     }
     if (!(e.inclinationDeg >= 0 && e.inclinationDeg <= 180)) {
       throw new GroupElementsError(`${who}: inclinationDeg must be from 0 to 180, got ${e.inclinationDeg}`);
     }
     const m = member.meanAnomalyDeg;
-    if (m !== undefined && !(typeof m === "number" && Number.isFinite(m))) throw new GroupElementsError(`${who}: meanAnomalyDeg must be finite, got ${String(m)}`);
+    if (m !== undefined && !(typeof m === "number" && Number.isFinite(m)))
+      throw new GroupElementsError(`${who}: meanAnomalyDeg must be finite, got ${String(m)}`);
     if ((m !== undefined) !== measured) {
       const missing = measured ? who : describe(members[0], 0);
-      throw new GroupElementsError(`${missing} gives no meanAnomalyDeg: give it for every member (measured positions) or for none (illustrative positions)`);
+      throw new GroupElementsError(
+        `${missing} gives no meanAnomalyDeg: give it for every member (measured positions) or for none (illustrative positions)`,
+      );
     }
   });
   return measured;
@@ -133,14 +145,23 @@ function assertMembers(members: readonly ListedMember[]): boolean {
 
 function assertPhase(phase: ListedPhase, measured: boolean): void {
   assertUtcUnixMs(phase.referenceUtcMs);
-  if (measured && phase.seed !== undefined) throw new GroupElementsError("a seed only shuffles illustrative positions; the members give meanAnomalyDeg, so their positions are measured: drop the seed");
-  if (measured && phase.concentration !== undefined) throw new GroupElementsError("a concentration only shapes illustrative positions; the members give meanAnomalyDeg, so their positions are measured: drop the concentration");
+  if (measured && phase.seed !== undefined)
+    throw new GroupElementsError(
+      "a seed only shuffles illustrative positions; the members give meanAnomalyDeg, so their positions are measured: drop the seed",
+    );
+  if (measured && phase.concentration !== undefined)
+    throw new GroupElementsError(
+      "a concentration only shapes illustrative positions; the members give meanAnomalyDeg, so their positions are measured: drop the concentration",
+    );
   const seed = phase.seed ?? 0;
-  if (!Number.isInteger(seed) || seed < 0 || seed > 0xffffffff) throw new GroupElementsError("phase seed must be an unsigned 32-bit integer");
+  if (!Number.isInteger(seed) || seed < 0 || seed > 0xffffffff)
+    throw new GroupElementsError("phase seed must be an unsigned 32-bit integer");
   const c = phase.concentration;
   if (c === undefined) return;
-  if (!(c.fraction >= 0 && c.fraction <= 1)) throw new GroupElementsError(`concentration fraction must be from 0 to 1, got ${c.fraction}`);
-  if (!(c.widthDeg > 0 && c.widthDeg <= 180)) throw new GroupElementsError(`concentration widthDeg must be above 0 and at most 180, got ${c.widthDeg}`);
+  if (!(c.fraction >= 0 && c.fraction <= 1))
+    throw new GroupElementsError(`concentration fraction must be from 0 to 1, got ${c.fraction}`);
+  if (!(c.widthDeg > 0 && c.widthDeg <= 180))
+    throw new GroupElementsError(`concentration widthDeg must be above 0 and at most 180, got ${c.widthDeg}`);
 }
 
 /** Solves Kepler's equation M = E - e sin E for E in [-pi, pi] (the shared bounded solver; bound orbits only). */
@@ -181,13 +202,18 @@ export function meanAnomalyFromStateRad(r: ArrayLike<number>, v: ArrayLike<numbe
   return ((m % TWO_PI) + TWO_PI) % TWO_PI;
 }
 
-function referenceMeanAnomalyRad(around: Trajectory, center: CenterId, timeUtcMs: number, adapter: TwoBodyAdapter): number {
+function referenceMeanAnomalyRad(
+  around: Trajectory,
+  center: CenterId,
+  timeUtcMs: number,
+  adapter: TwoBodyAdapter,
+): number {
   const now: State = around.stateAt(timeUtcMs, center);
   let velocity = now.velocityKmS;
   if (velocity === undefined) {
     const before = around.stateAt(timeUtcMs - VELOCITY_STEP_MS, center).positionKm;
     const after = around.stateAt(timeUtcMs + VELOCITY_STEP_MS, center).positionKm;
-    velocity = Float64Array.from([0, 1, 2].map((k) => (after[k] - before[k]) / (2 * VELOCITY_STEP_MS / 1000)));
+    velocity = Float64Array.from([0, 1, 2].map((k) => (after[k] - before[k]) / ((2 * VELOCITY_STEP_MS) / 1000)));
   }
   return meanAnomalyFromStateRad(now.positionKm, velocity, gravitationalParameterOf(adapter, center));
 }
@@ -204,14 +230,15 @@ function assignMeanAnomaliesDeg(count: number, phase: ListedPhase, referenceDeg:
     const j = Math.floor(random() * (i + 1));
     [order[i], order[j]] = [order[j], order[i]];
   }
-  const clumped = phase.concentration === undefined || referenceDeg === null ? 0 : Math.round(phase.concentration.fraction * count);
+  const clumped =
+    phase.concentration === undefined || referenceDeg === null ? 0 : Math.round(phase.concentration.fraction * count);
   const result = new Float64Array(count);
   const wrap = (deg: number): number => ((deg % 360) + 360) % 360;
   for (let slot = 0; slot < count; slot++) {
     const member = order[slot];
     if (slot < clumped && phase.concentration !== undefined && referenceDeg !== null) {
       const width = phase.concentration.widthDeg;
-      result[member] = wrap(referenceDeg + width * (2 * (slot + 0.5) / clumped - 1));
+      result[member] = wrap(referenceDeg + width * ((2 * (slot + 0.5)) / clumped - 1));
     } else {
       const rest = count - clumped;
       result[member] = (360 * (slot - clumped + 0.5)) / rest;
@@ -237,10 +264,13 @@ function measuredMeanAnomaliesDeg(members: readonly ListedMember[], referenceUtc
   return result;
 }
 
-const PHASE_NOTE = "Each orbit's shape and orientation come from its record, but the records give no position along the orbit: "
-  + "that position is an even spread of mean anomaly at the reference time, a drawing choice (illustrative), advanced by unperturbed two-body motion about the centre.";
-const MEASURED_PHASE_NOTE = "Each dot's position along its orbit comes from its record's mean anomaly at the record's epoch, advanced by unperturbed two-body motion about the centre.";
-const CONCENTRATION_NOTE = "A stated share of the dots is placed near the reference body's position along the orbit: a model, not a measurement. No orbit is added.";
+const PHASE_NOTE =
+  "Each orbit's shape and orientation come from its record, but the records give no position along the orbit: " +
+  "that position is an even spread of mean anomaly at the reference time, a drawing choice (illustrative), advanced by unperturbed two-body motion about the centre.";
+const MEASURED_PHASE_NOTE =
+  "Each dot's position along its orbit comes from its record's mean anomaly at the record's epoch, advanced by unperturbed two-body motion about the centre.";
+const CONCENTRATION_NOTE =
+  "A stated share of the dots is placed near the reference body's position along the orbit: a model, not a measurement. No orbit is added.";
 
 /**
  * The provenance a group's own card carries. Illustrative (the default): `sourceType` "illustrative", since the position along each orbit is a drawing
@@ -259,7 +289,8 @@ export function listedGroupProvenance(source: Provenance, concentrated: boolean,
   return createProvenance({
     sourceType: "illustrative",
     sources: source.sources,
-    accuracy: `${source.accuracy} Orbit elements are as listed (${source.sourceType}); the position along each orbit is illustrative.`.trim(),
+    accuracy:
+      `${source.accuracy} Orbit elements are as listed (${source.sourceType}); the position along each orbit is illustrative.`.trim(),
     notes: `${source.notes} ${PHASE_NOTE}${concentrated ? ` ${CONCENTRATION_NOTE}` : ""}`.trim(),
   });
 }
@@ -281,26 +312,34 @@ export function createListedOrbitGroup(input: ListedOrbitGroupInput, adapter: Tw
   if (measured) {
     anomaliesDeg = measuredMeanAnomaliesDeg(input.members, referenceUtcMs, gravitationalParameterOf(adapter, center));
   } else {
-    const referenceDeg = concentration === undefined
-      ? null
-      : referenceMeanAnomalyRad(concentration.around, center, referenceUtcMs, adapter) / RADIANS;
+    const referenceDeg =
+      concentration === undefined
+        ? null
+        : referenceMeanAnomalyRad(concentration.around, center, referenceUtcMs, adapter) / RADIANS;
     anomaliesDeg = assignMeanAnomaliesDeg(count, input.phase, referenceDeg);
   }
 
-  const states = memberStatesOf(input.members.map(({ elements }, member) => ({
-    semiMajorAxisKm: elements.semiMajorAxisKm,
-    eccentricity: elements.eccentricity,
-    inclinationRad: elements.inclinationDeg * RADIANS,
-    raanRad: elements.raanDeg * RADIANS,
-    argumentOfPeriapsisRad: elements.argumentOfPeriapsisDeg * RADIANS,
-    trueAnomalyRad: trueAnomalyFromMeanRad(anomaliesDeg[member] * RADIANS, elements.eccentricity),
-  })), input.plane, center, adapter);
+  const states = memberStatesOf(
+    input.members.map(({ elements }, member) => ({
+      semiMajorAxisKm: elements.semiMajorAxisKm,
+      eccentricity: elements.eccentricity,
+      inclinationRad: elements.inclinationDeg * RADIANS,
+      raanRad: elements.raanDeg * RADIANS,
+      argumentOfPeriapsisRad: elements.argumentOfPeriapsisDeg * RADIANS,
+      trueAnomalyRad: trueAnomalyFromMeanRad(anomaliesDeg[member] * RADIANS, elements.eccentricity),
+    })),
+    input.plane,
+    center,
+    adapter,
+  );
 
   const recordIds = input.members.map((member) => member.recordId);
   const provenance = listedGroupProvenance(input.provenance, concentration !== undefined, measured);
 
   let kepler: KeplerElements | null = null;
-  const group: ListedOrbitGroup & { fillPositionsRangeKm(timeUtcMs: number, out: Float64Array, start: number, end: number): void } = {
+  const group: ListedOrbitGroup & {
+    fillPositionsRangeKm(timeUtcMs: number, out: Float64Array, start: number, end: number): void;
+  } = {
     id: input.id,
     count,
     center,
@@ -316,7 +355,8 @@ export function createListedOrbitGroup(input: ListedOrbitGroupInput, adapter: Tw
       assertFillBuffer(count, out);
       assertMemberRange(count, start, end);
       const dtSeconds = (timeUtcMs - referenceUtcMs) / 1000;
-      for (let member = start; member < end; member++) adapter.propagateMemberInto(states, member, dtSeconds, center, out);
+      for (let member = start; member < end; member++)
+        adapter.propagateMemberInto(states, member, dtSeconds, center, out);
     },
     keplerElements(): KeplerElements {
       kepler ??= keplerElementsFromStates(states, count, gravitationalParameterOf(adapter, center), referenceUtcMs);
@@ -327,7 +367,14 @@ export function createListedOrbitGroup(input: ListedOrbitGroupInput, adapter: Tw
       assertUtcUnixMs(timeUtcMs);
       assertWithinBounds(bounds, timeUtcMs);
       const position = propagatedPositionOf(states, index, (timeUtcMs - referenceUtcMs) / 1000, center, adapter);
-      return createState({ body: `${input.id}:${recordIds[index]}`, center, timeUtcMs, plane: EQJ, positionKm: position, orientation: null });
+      return createState({
+        body: `${input.id}:${recordIds[index]}`,
+        center,
+        timeUtcMs,
+        plane: EQJ,
+        positionKm: position,
+        orientation: null,
+      });
     },
     recordIdAt(index: number): string {
       assertMemberIndex(count, index);

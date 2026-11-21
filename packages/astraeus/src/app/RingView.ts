@@ -2,7 +2,16 @@
 // disc with a radial canvas texture, each band an annulus with soft edges (6% of its width), transparent, both sides, no depth write.
 // Named deviation (owner, O-025 Decision 7): the donor's band radii are replaced by each band's real radii from the data; the donor drew
 // its disc from 1.6 to 3.2 planet radii. The texture is built at the donor's size (2048 px).
-import { CanvasTexture, DoubleSide, LinearFilter, LinearMipmapLinearFilter, Mesh, MeshBasicMaterial, RingGeometry, SRGBColorSpace } from "three";
+import {
+  CanvasTexture,
+  DoubleSide,
+  LinearFilter,
+  LinearMipmapLinearFilter,
+  Mesh,
+  MeshBasicMaterial,
+  RingGeometry,
+  SRGBColorSpace,
+} from "three";
 import type { RingBand } from "../assets/rings";
 
 const TEX_SIZE = 2048;
@@ -13,7 +22,12 @@ function hexToRgb(hex: string): [number, number, number] {
 }
 
 /** The donor's radial texture: band radii in any one unit, the disc's outer radius in the same unit. */
-export function drawRingTexture(ctx: CanvasRenderingContext2D, bands: readonly RingBand[], outerKm: number, size: number = TEX_SIZE): void {
+export function drawRingTexture(
+  ctx: CanvasRenderingContext2D,
+  bands: readonly RingBand[],
+  outerKm: number,
+  size: number = TEX_SIZE,
+): void {
   const cx = size / 2;
   const cy = size / 2;
   const pxPerKm = cx / outerKm;
@@ -41,7 +55,10 @@ export function drawRingTexture(ctx: CanvasRenderingContext2D, bands: readonly R
 
 /** The disc's extent in km: the innermost band's inner edge to the outermost band's outer edge. */
 export function ringExtentKm(bands: readonly RingBand[]): { readonly innerKm: number; readonly outerKm: number } {
-  return { innerKm: Math.min(...bands.map((band) => band.innerKm)), outerKm: Math.max(...bands.map((band) => band.outerKm)) };
+  return {
+    innerKm: Math.min(...bands.map((band) => band.innerKm)),
+    outerKm: Math.max(...bands.map((band) => band.outerKm)),
+  };
 }
 
 /**
@@ -69,7 +86,13 @@ export class RingView {
     this.#texture.minFilter = LinearMipmapLinearFilter;
     this.#texture.generateMipmaps = true;
     this.#texture.anisotropy = anisotropy;
-    this.#material = new MeshBasicMaterial({ map: this.#texture, transparent: true, side: DoubleSide, depthWrite: false, toneMapped: false });
+    this.#material = new MeshBasicMaterial({
+      map: this.#texture,
+      transparent: true,
+      side: DoubleSide,
+      depthWrite: false,
+      toneMapped: false,
+    });
     this.mesh = new Mesh(new RingGeometry(innerKm * unitsPerKm, outerKm * unitsPerKm, 256, 2), this.#material);
     this.mesh.rotation.x = -Math.PI / 2;
     this.mesh.layers.set(layer);
@@ -90,9 +113,31 @@ export class RingView {
   }
 
   /** What is drawn, for the browser checks: each band's radii (km and scaled units), colour and opacity in force, and whether the disc is shown. */
-  readout(): { readonly shown: boolean; readonly bands: readonly { id: string; innerKm: number; outerKm: number; innerUnits: number; outerUnits: number; color: string; opacity: number }[] } {
+  readout(): {
+    readonly shown: boolean;
+    readonly bands: readonly {
+      id: string;
+      innerKm: number;
+      outerKm: number;
+      innerUnits: number;
+      outerUnits: number;
+      color: string;
+      opacity: number;
+    }[];
+  } {
     const shown = this.mesh.visible && this.mesh.parent !== null;
-    return { shown, bands: this.#bands.map((band) => ({ id: band.id, innerKm: band.innerKm, outerKm: band.outerKm, innerUnits: band.innerKm * this.#unitsPerKm, outerUnits: band.outerKm * this.#unitsPerKm, color: band.color, opacity: band.opacity })) };
+    return {
+      shown,
+      bands: this.#bands.map((band) => ({
+        id: band.id,
+        innerKm: band.innerKm,
+        outerKm: band.outerKm,
+        innerUnits: band.innerKm * this.#unitsPerKm,
+        outerUnits: band.outerKm * this.#unitsPerKm,
+        color: band.color,
+        opacity: band.opacity,
+      })),
+    };
   }
 
   dispose(): void {

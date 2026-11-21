@@ -7,7 +7,15 @@ import { planActivity, rateMetricOf, type ActivityInput, type PlannedActivity } 
 import { SceneError } from "./errors";
 import { frozenCopy } from "./frozenCopy";
 import { frozenList, type SceneActivityRead, type SceneGroupRead } from "./sceneReads";
-import { buildGroupLayer, groupCardProvenance, groupDescription, groupLimitations, planGroup, type GroupInput, type PlannedGroup } from "./group";
+import {
+  buildGroupLayer,
+  groupCardProvenance,
+  groupDescription,
+  groupLimitations,
+  planGroup,
+  type GroupInput,
+  type PlannedGroup,
+} from "./group";
 
 /** Whether a group is built late, in `prepare`: a clump near a body reads its position, so needs the planet series, which are not in yet. */
 export function lateGroups(seriesIn: boolean): (plan: PlannedGroup) => boolean {
@@ -15,8 +23,16 @@ export function lateGroups(seriesIn: boolean): (plan: PlannedGroup) => boolean {
 }
 
 /** The scene's layers: the points layer and the groups only when a group was added. */
-export function groupLayersEntry(layers: readonly GroupLayer[], hasGroups: boolean, sunCentred: boolean): Pick<ExperienceDefinition, "sceneLayers" | "groups"> {
-  const sceneLayers: ExperienceDefinition["sceneLayers"] = ["tracked-bodies", ...(hasGroups ? ["points" as const] : []), ...(sunCentred ? ["sun-centred" as const] : [])];
+export function groupLayersEntry(
+  layers: readonly GroupLayer[],
+  hasGroups: boolean,
+  sunCentred: boolean,
+): Pick<ExperienceDefinition, "sceneLayers" | "groups"> {
+  const sceneLayers: ExperienceDefinition["sceneLayers"] = [
+    "tracked-bodies",
+    ...(hasGroups ? ["points" as const] : []),
+    ...(sunCentred ? ["sun-centred" as const] : []),
+  ];
   return hasGroups ? { sceneLayers, groups: layers } : { sceneLayers };
 }
 
@@ -35,13 +51,18 @@ export class GroupPlan {
 
   addGroup(input: GroupInput): void {
     const plan = planGroup(input, this.#catalogue());
-    if (this.#taken(plan.id)) throw new SceneError("duplicate-id", `addGroup("${plan.id}"): that id is already in the scene`);
+    if (this.#taken(plan.id))
+      throw new SceneError("duplicate-id", `addGroup("${plan.id}"): that id is already in the scene`);
     this.groups.set(plan.id, plan);
   }
 
   addActivity(input: ActivityInput): void {
     const plan = planActivity(input);
-    if (this.activities.has(plan.window.id)) throw new SceneError("duplicate-id", `addActivity("${plan.window.id}"): an activity with that id is already in the scene`);
+    if (this.activities.has(plan.window.id))
+      throw new SceneError(
+        "duplicate-id",
+        `addActivity("${plan.window.id}"): an activity with that id is already in the scene`,
+      );
     this.activities.set(plan.window.id, plan);
   }
 
@@ -50,54 +71,95 @@ export class GroupPlan {
     for (const plan of this.groups.values()) {
       const center = plan.input.center ?? ids[0]!;
       const clump = plan.input.clump;
-      if (!ids.includes(center)) throw new SceneError("bad-group", `addGroup("${plan.id}"): the orbits circle "${center}", which has not been added to the scene`);
-      if (clump !== undefined && !ids.includes(clump.near)) throw new SceneError("bad-group", `addGroup("${plan.id}"): clump.near "${clump.near}" has not been added to the scene`);
-      if (clump !== undefined && clump.near === center) throw new SceneError("bad-group", `addGroup("${plan.id}"): the clump cannot be near the body the orbits circle ("${center}")`);
+      if (!ids.includes(center))
+        throw new SceneError(
+          "bad-group",
+          `addGroup("${plan.id}"): the orbits circle "${center}", which has not been added to the scene`,
+        );
+      if (clump !== undefined && !ids.includes(clump.near))
+        throw new SceneError(
+          "bad-group",
+          `addGroup("${plan.id}"): clump.near "${clump.near}" has not been added to the scene`,
+        );
+      if (clump !== undefined && clump.near === center)
+        throw new SceneError(
+          "bad-group",
+          `addGroup("${plan.id}"): the clump cannot be near the body the orbits circle ("${center}")`,
+        );
     }
   }
 
   /** The draw layers of the groups chosen by `which` (a clump near a planet reads its position, so needs the planet series). */
-  layers(ids: readonly BodyId[], window: TimeBounds, openUtcMs: number, which: (plan: PlannedGroup) => boolean): readonly GroupLayer[] {
-    return [...this.groups.values()].filter(which).map((plan) => buildGroupLayer(plan, this.#catalogue(), plan.input.center ?? ids[0]!, openUtcMs, window));
+  layers(
+    ids: readonly BodyId[],
+    window: TimeBounds,
+    openUtcMs: number,
+    which: (plan: PlannedGroup) => boolean,
+  ): readonly GroupLayer[] {
+    return [...this.groups.values()]
+      .filter(which)
+      .map((plan) => buildGroupLayer(plan, this.#catalogue(), plan.input.center ?? ids[0]!, openUtcMs, window));
   }
 
   /** The activities in the order added, as the public list states them: fresh, frozen, nothing shared with the plan. */
   activityReads(): readonly SceneActivityRead[] {
-    return frozenList([...this.activities.values()].map(({ window, peakValue, peakLabel }): SceneActivityRead => ({
-      id: window.id,
-      label: window.label,
-      unit: window.rate?.unit ?? "",
-      windowStartUtcMs: window.startUtcMs,
-      windowEndUtcMs: window.endUtcMs,
-      peak: Object.freeze({ label: peakLabel, value: peakValue, ...(window.peakUtcMs === undefined ? {} : { timeUtcMs: window.peakUtcMs }) }),
-      samples: frozenCopy((window.rate?.samples ?? []).map(({ timeUtcMs, value }) => ({ timeUtcMs, value }))),
-      ...(window.provenance === undefined ? {} : { provenance: frozenCopy(window.provenance.map(({ startUtcMs, endUtcMs, provenance }) => ({ stretchStartUtcMs: startUtcMs, stretchEndUtcMs: endUtcMs, provenance }))) }),
-      ...(window.type === undefined ? {} : { type: window.type }),
-    })));
+    return frozenList(
+      [...this.activities.values()].map(({ window, peakValue, peakLabel }): SceneActivityRead => ({
+        id: window.id,
+        label: window.label,
+        unit: window.rate?.unit ?? "",
+        windowStartUtcMs: window.startUtcMs,
+        windowEndUtcMs: window.endUtcMs,
+        peak: Object.freeze({
+          label: peakLabel,
+          value: peakValue,
+          ...(window.peakUtcMs === undefined ? {} : { timeUtcMs: window.peakUtcMs }),
+        }),
+        samples: frozenCopy((window.rate?.samples ?? []).map(({ timeUtcMs, value }) => ({ timeUtcMs, value }))),
+        ...(window.provenance === undefined
+          ? {}
+          : {
+              provenance: frozenCopy(
+                window.provenance.map(({ startUtcMs, endUtcMs, provenance }) => ({
+                  stretchStartUtcMs: startUtcMs,
+                  stretchEndUtcMs: endUtcMs,
+                  provenance,
+                })),
+              ),
+            }),
+        ...(window.type === undefined ? {} : { type: window.type }),
+      })),
+    );
   }
 
   /** The groups in the order added, as the public list states them; `first` is the scene's first body (the centre of a group that names none). */
   reads(first: BodyId): readonly SceneGroupRead[] {
-    return frozenList([...this.groups.values()].map(({ id, label, input }): SceneGroupRead => ({
-      id,
-      label,
-      count: input.orbits.length,
-      center: input.center ?? first,
-      plane: input.plane,
-      provenance: groupCardProvenance(input),
-      description: groupDescription(input, input.orbits.length),
-      knownLimitations: Object.freeze(groupLimitations(input, this.#catalogue())),
-    })));
+    return frozenList(
+      [...this.groups.values()].map(({ id, label, input }): SceneGroupRead => ({
+        id,
+        label,
+        count: input.orbits.length,
+        center: input.center ?? first,
+        plane: input.plane,
+        provenance: groupCardProvenance(input),
+        description: groupDescription(input, input.orbits.length),
+        knownLimitations: Object.freeze(groupLimitations(input, this.#catalogue())),
+      })),
+    );
   }
 
   /** The activity windows, when any were added. */
   windowsEntry(): Pick<ExperienceDefinition["experience"], "windows"> {
-    return this.activities.size === 0 ? {} : { windows: [...this.activities.values()].map((activity) => activity.window) };
+    return this.activities.size === 0
+      ? {}
+      : { windows: [...this.activities.values()].map((activity) => activity.window) };
   }
 
   /** The bars of a group's info card at a moment. */
   metrics(id: string, timeUtcMs: number): readonly Metric[] {
-    return (this.groups.get(id)?.input.readouts ?? []).map((spec) => rateMetricOf(id, this.activities.get(spec.activity ?? this.#firstActivity())!, timeUtcMs));
+    return (this.groups.get(id)?.input.readouts ?? []).map((spec) =>
+      rateMetricOf(id, this.activities.get(spec.activity ?? this.#firstActivity())!, timeUtcMs),
+    );
   }
 
   #firstActivity(): string {
@@ -109,7 +171,11 @@ export class GroupPlan {
     for (const { id, input } of this.groups.values()) {
       for (const spec of input.readouts ?? []) {
         const named = spec.activity ?? (this.activities.size > 0 ? this.#firstActivity() : undefined);
-        if (named === undefined || !this.activities.has(named)) throw new SceneError("bad-readout", `addGroup("${id}"): readout rate ${named === undefined ? "needs an activity (addActivity)" : `names activity "${named}", which has not been added to the scene`}`);
+        if (named === undefined || !this.activities.has(named))
+          throw new SceneError(
+            "bad-readout",
+            `addGroup("${id}"): readout rate ${named === undefined ? "needs an activity (addActivity)" : `names activity "${named}", which has not been added to the scene`}`,
+          );
       }
     }
   }

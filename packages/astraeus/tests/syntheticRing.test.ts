@@ -27,12 +27,22 @@ const { startUtcMs, endUtcMs } = syntheticRingDefinition.experience.window;
 const noop = () => undefined;
 
 function shellMarkup(definition: ExperienceDefinition): string {
-  return renderToStaticMarkup(createElement(AstraeusShell, {
-    experience: experienceWithGroups(definition),
-    snapshot: new SimulationClock(definition.clock.startUtcMs).snapshot(),
-    developerMode: false, onDeveloperModeChange: noop, onTogglePlayback: noop, onRateChange: noop, onSeek: noop,
-    onCameraRequest: noop, onSelectionChange: noop, scaleId: "true-scale", onScaleChange: noop, children: null,
-  }));
+  return renderToStaticMarkup(
+    createElement(AstraeusShell, {
+      experience: experienceWithGroups(definition),
+      snapshot: new SimulationClock(definition.clock.startUtcMs).snapshot(),
+      developerMode: false,
+      onDeveloperModeChange: noop,
+      onTogglePlayback: noop,
+      onRateChange: noop,
+      onSeek: noop,
+      onCameraRequest: noop,
+      onSelectionChange: noop,
+      scaleId: "true-scale",
+      onScaleChange: noop,
+      children: null,
+    }),
+  );
 }
 
 // The Sun-centred group goes through the same definition path as the ring.
@@ -132,7 +142,10 @@ describe("the made-up Sun-centred belt through the same definition path", () => 
     const t = startUtcMs + 3_600_000;
     view.sync(t, earthPlacement, trueScale);
     view.place(new FloatingOrigin());
-    const composed = composeCenteredPositions(syntheticBeltLayer.group.stateAt(11, t), sunPositionFromEarthAt(adapter, t));
+    const composed = composeCenteredPositions(
+      syntheticBeltLayer.group.stateAt(11, t),
+      sunPositionFromEarthAt(adapter, t),
+    );
     const expected = eqjToRenderVector(trueScale.mapPosition(composed.positionKm));
     const local = view.memberLocalPosition(11);
     for (let i = 0; i < 3; i += 1) expect(local[i] / expected[i]).toBeCloseTo(1, 4);

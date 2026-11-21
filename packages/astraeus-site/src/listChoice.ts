@@ -18,17 +18,33 @@ export interface SwitchEntry {
 }
 
 /** The entry to open (the requested one when it exists, else `preferred`, else the first by `order`, then name) and the switch listing every entry. Undefined when there are none. */
-export function chooseSwitch<T extends SwitchEntry>(entries: readonly T[], requested: string | null, switchOf: { readonly label: string; readonly param: string; readonly keep?: readonly string[] }, preferred?: string): { readonly name: string; readonly switcher: ListSwitch } | undefined {
+export function chooseSwitch<T extends SwitchEntry>(
+  entries: readonly T[],
+  requested: string | null,
+  switchOf: { readonly label: string; readonly param: string; readonly keep?: readonly string[] },
+  preferred?: string,
+): { readonly name: string; readonly switcher: ListSwitch } | undefined {
   const sorted = [...entries].sort((a, b) => a.order - b.order || a.name.localeCompare(b.name));
-  const chosen = sorted.find((entry) => entry.name === requested) ?? sorted.find((entry) => entry.name === preferred) ?? sorted[0];
+  const chosen =
+    sorted.find((entry) => entry.name === requested) ?? sorted.find((entry) => entry.name === preferred) ?? sorted[0];
   if (chosen === undefined) return undefined;
   return {
     name: chosen.name,
-    switcher: { label: switchOf.label, param: switchOf.param, ...(switchOf.keep === undefined ? {} : { keep: switchOf.keep }), options: sorted.map((entry) => ({ label: entry.label, value: entry.name, active: entry === chosen })) },
+    switcher: {
+      label: switchOf.label,
+      param: switchOf.param,
+      ...(switchOf.keep === undefined ? {} : { keep: switchOf.keep }),
+      options: sorted.map((entry) => ({ label: entry.label, value: entry.name, active: entry === chosen })),
+    },
   };
 }
 
 /** The picker a scene offers, from the switch the entry chose: the options are the entries, the pressed one is the entry opened. */
 export function pickerOf(switcher: ListSwitch): PickerInput {
-  return { id: switcher.param, label: switcher.label, options: switcher.options.map(({ value, label }) => ({ value, label })), value: switcher.options.find((option) => option.active)?.value ?? "" };
+  return {
+    id: switcher.param,
+    label: switcher.label,
+    options: switcher.options.map(({ value, label }) => ({ value, label })),
+    value: switcher.options.find((option) => option.active)?.value ?? "",
+  };
 }

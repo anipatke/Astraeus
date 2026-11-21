@@ -32,7 +32,13 @@ export function groupStoryMarkers(specs: readonly StoryMarkerSpec[]): readonly S
     if (list === undefined) groups.set(spec.objectId, [spec]);
     else list.push(spec);
   }
-  return [...groups].map(([objectId, panels]) => ({ objectId, panels: [...panels.filter((panel) => panel.timeUtcMs !== undefined).sort((a, b) => a.timeUtcMs! - b.timeUtcMs!), ...panels.filter((panel) => panel.timeUtcMs === undefined)] }));
+  return [...groups].map(([objectId, panels]) => ({
+    objectId,
+    panels: [
+      ...panels.filter((panel) => panel.timeUtcMs !== undefined).sort((a, b) => a.timeUtcMs! - b.timeUtcMs!),
+      ...panels.filter((panel) => panel.timeUtcMs === undefined),
+    ],
+  }));
 }
 
 /**
@@ -45,7 +51,9 @@ export function panelForMarkerPress(group: StoryMarkerGroup, timeUtcMs: number, 
   const openIndex = panels.findIndex((panel) => panel.panelId === openPanelId);
   if (openIndex >= 0) return panels[(openIndex + 1) % panels.length]!.panelId;
   let reached = 0;
-  panels.forEach((panel, index) => { if (panel.timeUtcMs !== undefined && panel.timeUtcMs <= timeUtcMs) reached = index; });
+  panels.forEach((panel, index) => {
+    if (panel.timeUtcMs !== undefined && panel.timeUtcMs <= timeUtcMs) reached = index;
+  });
   return panels[reached]!.panelId;
 }
 
@@ -69,11 +77,17 @@ export class StoryMarkerLayer {
       element.type = "button";
       element.className = "story-marker";
       element.dataset.panelIds = group.panels.map((panel) => panel.panelId).join(" ");
-      element.setAttribute("aria-label", titles.length === 1 ? `Open story panel: ${titles[0]}` : `Open story panels: ${titles.join("; ")}`);
+      element.setAttribute(
+        "aria-label",
+        titles.length === 1 ? `Open story panel: ${titles[0]}` : `Open story panels: ${titles.join("; ")}`,
+      );
       element.title = titles.join(" · ");
       element.hidden = true;
       element.addEventListener("pointerdown", (event) => event.stopPropagation());
-      element.addEventListener("click", (event) => { event.stopPropagation(); onOpen(panelForMarkerPress(group, this.#timeUtcMs, this.#openPanelId)); });
+      element.addEventListener("click", (event) => {
+        event.stopPropagation();
+        onOpen(panelForMarkerPress(group, this.#timeUtcMs, this.#openPanelId));
+      });
       this.#root.appendChild(element);
       return { group, element };
     });
@@ -95,8 +109,15 @@ export class StoryMarkerLayer {
     camera.updateMatrixWorld(true);
     for (const { group, element } of this.#entries) {
       // A marker the current view owns no panel of, or on an object the view hides, is not drawn.
-      const absolute = hidden?.objects.has(group.objectId) === true || group.panels.every((panel) => hidden?.panels.has(panel.panelId) === true) ? null : positionFor(group.objectId);
-      const screen = absolute === null ? null : projectToScreen(this.#local.fromArray(origin.toLocal(absolute)), camera, widthPx, heightPx);
+      const absolute =
+        hidden?.objects.has(group.objectId) === true ||
+        group.panels.every((panel) => hidden?.panels.has(panel.panelId) === true)
+          ? null
+          : positionFor(group.objectId);
+      const screen =
+        absolute === null
+          ? null
+          : projectToScreen(this.#local.fromArray(origin.toLocal(absolute)), camera, widthPx, heightPx);
       element.hidden = screen === null;
       if (screen === null) continue;
       element.style.transform = `translate(${screen.x + MARKER_OFFSET_PX}px, ${screen.y - MARKER_OFFSET_PX}px) translate(-50%, -50%)`;

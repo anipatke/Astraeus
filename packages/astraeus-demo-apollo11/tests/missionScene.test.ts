@@ -4,7 +4,12 @@ import { PerspectiveCamera, Vector3 } from "three";
 import { SimulationClock } from "astraeus/core/clock";
 import { readableScale, trueScale } from "astraeus";
 import { FloatingOrigin } from "astraeus/app/floatingOrigin";
-import { cancelCameraTransition, createOrbitCameraState, resolveCamera, switchFocus } from "astraeus/app/CameraController";
+import {
+  cancelCameraTransition,
+  createOrbitCameraState,
+  resolveCamera,
+  switchFocus,
+} from "astraeus/app/CameraController";
 import { projectToScreen } from "astraeus/app/AnchorLabels";
 import {
   anchorLabelsOf,
@@ -33,7 +38,12 @@ const eagleMid = Math.round((eagle.trajectory.bounds.startUtcMs + eagle.trajecto
 function fakeClock(startUtcMs: number) {
   let now = 0;
   const clock = new SimulationClock(startUtcMs, () => now);
-  return { clock, advance: (ms: number) => { now += ms; } };
+  return {
+    clock,
+    advance: (ms: number) => {
+      now += ms;
+    },
+  };
 }
 
 describe("mission module wiring", () => {
@@ -47,8 +57,12 @@ describe("mission module wiring", () => {
   });
 
   it("uses the required wording and never calls the path exact", () => {
-    expect(APOLLO11_STATEMENT).toBe("Apollo 11 educational trajectory reconstruction based on NASA postflight trajectory data");
-    const descriptions = apollo11Experience.objects.filter((object) => mission.bodies.some((body) => body.id === object.id)).map((object) => object.description ?? "");
+    expect(APOLLO11_STATEMENT).toBe(
+      "Apollo 11 educational trajectory reconstruction based on NASA postflight trajectory data",
+    );
+    const descriptions = apollo11Experience.objects
+      .filter((object) => mission.bodies.some((body) => body.id === object.id))
+      .map((object) => object.description ?? "");
     for (const description of descriptions) expect(description).toContain(APOLLO11_STATEMENT);
     const text = [...descriptions, ...mission.events.map((e) => e.label)].join(" ");
     expect(text).not.toMatch(/exact\s+(apollo 11\s+)?flight path/i);
@@ -80,10 +94,12 @@ describe("bounds hiding", () => {
 
   it("holds the nearest bound for camera targeting without throwing", () => {
     const { startUtcMs, endUtcMs } = columbia.trajectory.bounds;
-    expect(Array.from(stateClampedToBounds(columbia, startUtcMs - 1e9).positionKm))
-      .toEqual(Array.from(columbia.trajectory.stateAt(startUtcMs).positionKm));
-    expect(Array.from(stateClampedToBounds(columbia, endUtcMs + 1e9).positionKm))
-      .toEqual(Array.from(columbia.trajectory.stateAt(endUtcMs).positionKm));
+    expect(Array.from(stateClampedToBounds(columbia, startUtcMs - 1e9).positionKm)).toEqual(
+      Array.from(columbia.trajectory.stateAt(startUtcMs).positionKm),
+    );
+    expect(Array.from(stateClampedToBounds(columbia, endUtcMs + 1e9).positionKm)).toEqual(
+      Array.from(columbia.trajectory.stateAt(endUtcMs).positionKm),
+    );
   });
 });
 
@@ -164,7 +180,13 @@ describe("camera presentation independence", () => {
 
 describe("travelled/future path split", () => {
   const times = [10, 20, 30, 40];
-  it.each([[5, 0], [10, 1], [25, 2], [40, 4], [99, 4]])("counts samples at or before %i as travelled (%i)", (t, n) => {
+  it.each([
+    [5, 0],
+    [10, 1],
+    [25, 2],
+    [40, 4],
+    [99, 4],
+  ])("counts samples at or before %i as travelled (%i)", (t, n) => {
     expect(travelledCount(times, t)).toBe(n);
   });
 
@@ -253,8 +275,12 @@ describe("scale and rebasing independence for spacecraft State", () => {
 
   it("maps through the same ScalePolicy and render axes as Earth and the Moon", () => {
     const state = columbia.trajectory.stateAt(mid);
-    expect(trackedAbsolute(state, trueScale, earthPlacement)).toEqual(eqjToRenderVector(trueScale.mapPosition(state.positionKm)));
-    const ratio = Math.hypot(...trackedAbsolute(state, trueScale, earthPlacement)) / Math.hypot(...trackedAbsolute(state, readableScale, earthPlacement));
+    expect(trackedAbsolute(state, trueScale, earthPlacement)).toEqual(
+      eqjToRenderVector(trueScale.mapPosition(state.positionKm)),
+    );
+    const ratio =
+      Math.hypot(...trackedAbsolute(state, trueScale, earthPlacement)) /
+      Math.hypot(...trackedAbsolute(state, readableScale, earthPlacement));
     expect(ratio).toBeCloseTo(10, 9);
   });
 

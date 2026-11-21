@@ -26,7 +26,12 @@ export interface TextureRef {
   readonly widthPx: number;
   readonly heightPx: number;
   /** A larger file for wide viewports, chosen once at load by `textureUrlFor`. Same rights as the base file. */
-  readonly desktop?: { readonly url: string; readonly widthPx: number; readonly heightPx: number; readonly minViewportWidthPx: number };
+  readonly desktop?: {
+    readonly url: string;
+    readonly widthPx: number;
+    readonly heightPx: number;
+    readonly minViewportWidthPx: number;
+  };
   /** Rights for public distribution. Required unless the texture is declared local-only. */
   readonly licence?: AssetLicence;
   readonly localOnly?: LocalOnlyDeclaration;
@@ -38,7 +43,8 @@ export function textureRightsProblem(texture: TextureRef): string | null {
   const hasLocalOnly = texture.localOnly !== undefined;
   if (hasLicence && hasLocalOnly) return "has both a licence and a local-only declaration";
   if (!hasLicence && !hasLocalOnly) return "has neither a licence nor a local-only declaration";
-  if (texture.localOnly !== undefined && texture.localOnly.reason.trim() === "") return "local-only declaration has no reason";
+  if (texture.localOnly !== undefined && texture.localOnly.reason.trim() === "")
+    return "local-only declaration has no reason";
   return null;
 }
 

@@ -15,26 +15,62 @@ const SIZES = [
 const catalogue = JSON.parse(readFileSync(new URL("../../data/shelf-catalogue.json", import.meta.url), "utf8"));
 const PARTS = catalogue.parts.map((part) => part.export);
 /** A word each example's own bar button or panel carries, found in the viewer's text (lower case): the part is really in the viewer. */
-const ITS_WORDS = { panel: "about", customBlock: "own", explainer: "moves", actions: "fly", filterChips: "kinds", colourKey: "key", chart: "chart", readoutTile: "distance" };
+const ITS_WORDS = {
+  panel: "about",
+  customBlock: "own",
+  explainer: "moves",
+  actions: "fly",
+  filterChips: "kinds",
+  colourKey: "key",
+  chart: "chart",
+  readoutTile: "distance",
+};
 
 await checkScript({ name: "journey-catalogue", viewports: SIZES }, async (page, { name }) => {
   await page.goto(new URL("components.html", appUrl()).href);
   const listed = await ui.catalogueParts(page);
-  assert.deepEqual(listed.map((entry) => entry.part), PARTS, "the page has one entry for each part of the catalogue, in its order");
-  assert.ok(listed.every((entry) => entry.state === "idle"), "no example runs when the page opens");
+  assert.deepEqual(
+    listed.map((entry) => entry.part),
+    PARTS,
+    "the page has one entry for each part of the catalogue, in its order",
+  );
+  assert.ok(
+    listed.every((entry) => entry.state === "idle"),
+    "no example runs when the page opens",
+  );
   assert.equal(await ui.catalogueViewerCount(page), 0, "no viewer is drawn when the page opens");
   const basics = await ui.catalogueBasics(page);
-  assert.deepEqual(basics, catalogue.outOfTheBox.map((item) => item.name), "the page lists what comes out of the box");
+  assert.deepEqual(
+    basics,
+    catalogue.outOfTheBox.map((item) => item.name),
+    "the page lists what comes out of the box",
+  );
 
   const minButtonPx = name === "phone" ? 44 : 24;
   for (const part of PARTS) {
     const entry = await ui.catalogueEntry(page, part);
-    assert.equal(entry.name, catalogue.parts.find((item) => item.export === part).name, `${part}: the entry opens with its plain name`);
+    assert.equal(
+      entry.name,
+      catalogue.parts.find((item) => item.export === part).name,
+      `${part}: the entry opens with its plain name`,
+    );
     assert.equal(entry.devOpen, false, `${part}: the For developers fold starts closed`);
-    assert.ok(entry.importLines.includes(`from "astraeus"`) && entry.importLines.includes(part), `${part}: the import line names the part`);
-    assert.ok(entry.addLines.startsWith("scene.addParts(") && entry.addLines.includes(`${part}(`), `${part}: the add line holds the part`);
-    assert.ok(holdsAddLines(entry.code, entry.addLines), `${part}: the shown code is the code that runs (it holds the add lines, each without its leading space)`);
-    assert.ok(entry.runHeightPx >= minButtonPx, `${name}: ${part}'s Run button is big enough to press (${entry.runHeightPx} px, need ${minButtonPx})`);
+    assert.ok(
+      entry.importLines.includes(`from "astraeus"`) && entry.importLines.includes(part),
+      `${part}: the import line names the part`,
+    );
+    assert.ok(
+      entry.addLines.startsWith("scene.addParts(") && entry.addLines.includes(`${part}(`),
+      `${part}: the add line holds the part`,
+    );
+    assert.ok(
+      holdsAddLines(entry.code, entry.addLines),
+      `${part}: the shown code is the code that runs (it holds the add lines, each without its leading space)`,
+    );
+    assert.ok(
+      entry.runHeightPx >= minButtonPx,
+      `${name}: ${part}'s Run button is big enough to press (${entry.runHeightPx} px, need ${minButtonPx})`,
+    );
   }
   const fit = await ui.catalogueFit(page);
   assert.equal(fit.sidewaysScrollPx, 0, `${name}: the page does not scroll sideways (${fit.sidewaysScrollPx} px)`);
@@ -47,13 +83,23 @@ await checkScript({ name: "journey-catalogue", viewports: SIZES }, async (page, 
   await ui.waitForCatalogueState(page, first, "running");
   assert.deepEqual(await ui.catalogueActive(page), [first], "the first example runs alone");
   assert.equal(await ui.catalogueViewerCount(page), 1, "one viewer is drawn");
-  assert.ok((await ui.catalogueEntry(page, first)).stage.toLowerCase().includes(ITS_WORDS[first]), `${first}: the viewer holds the part's own words`);
+  assert.ok(
+    (await ui.catalogueEntry(page, first)).stage.toLowerCase().includes(ITS_WORDS[first]),
+    `${first}: the viewer holds the part's own words`,
+  );
   await ui.pressCatalogueRun(page, second);
   await ui.waitForCatalogueState(page, second, "running");
   assert.deepEqual(await ui.catalogueActive(page), [second], "starting another stops the first");
   assert.equal(await ui.catalogueViewerCount(page), 1, "still one viewer is drawn");
-  assert.equal((await ui.catalogueParts(page)).find((entry) => entry.part === first).state, "idle", "the first entry is idle again");
-  assert.ok((await ui.catalogueEntry(page, second)).stage.toLowerCase().includes(ITS_WORDS[second]), `${second}: the viewer holds the part's own words`);
+  assert.equal(
+    (await ui.catalogueParts(page)).find((entry) => entry.part === first).state,
+    "idle",
+    "the first entry is idle again",
+  );
+  assert.ok(
+    (await ui.catalogueEntry(page, second)).stage.toLowerCase().includes(ITS_WORDS[second]),
+    `${second}: the viewer holds the part's own words`,
+  );
   const running = await ui.catalogueFit(page);
   assert.equal(running.sidewaysScrollPx, 0, `${name}: the page does not scroll sideways while a viewer runs`);
   assert.deepEqual(running.overlaps, [], `${name}: nothing crosses while a viewer runs`);
@@ -65,7 +111,10 @@ await checkScript({ name: "journey-catalogue", viewports: SIZES }, async (page, 
   for (const part of PARTS) {
     await ui.pressCatalogueRun(page, part);
     await ui.waitForCatalogueState(page, part, "running");
-    assert.ok((await ui.catalogueEntry(page, part)).stage.toLowerCase().includes(ITS_WORDS[part]), `${part}: the viewer holds the part's own words`);
+    assert.ok(
+      (await ui.catalogueEntry(page, part)).stage.toLowerCase().includes(ITS_WORDS[part]),
+      `${part}: the viewer holds the part's own words`,
+    );
     assert.equal(await ui.catalogueViewerCount(page), 1, `${part}: one viewer is drawn`);
   }
   // The tile and the chart (O-081): each runs with its own live parts.
@@ -75,7 +124,10 @@ await checkScript({ name: "journey-catalogue", viewports: SIZES }, async (page, 
   await page.waitForSelector(`[data-part="${chart}"] [data-shelf-bar]`, { timeout: 20000 });
   const bars = await ui.catalogueChart(page, chart);
   assert.equal(bars.bars, 3, `${name}: the chart draws its three bars`);
-  assert.ok(bars.dimmed >= 0 && bars.dimmed < bars.bars, `${name}: the chart lights at least one bar (${bars.dimmed} of ${bars.bars} dimmed)`);
+  assert.ok(
+    bars.dimmed >= 0 && bars.dimmed < bars.bars,
+    `${name}: the chart lights at least one bar (${bars.dimmed} of ${bars.bars} dimmed)`,
+  );
   assert.ok(bars.label.toLowerCase().includes("size"), `${name}: the chart's summary names its axis`);
   const tile = "readoutTile";
   await ui.pressCatalogueRun(page, tile);

@@ -30,9 +30,15 @@ function readoutFor(timeUtcMs: number, policy: ScalePolicy, origin = new Floatin
     placed.moonAbsolute[2] - placed.earthAbsolute[2],
   );
   return buildDebugReadout({
-    timeUtcMs, rate, policy, earth, moonFromEarth,
+    timeUtcMs,
+    rate,
+    policy,
+    earth,
+    moonFromEarth,
     sunFromEarth: sunPositionFromEarthAt(adapter, timeUtcMs),
-    placed, renderedDistanceUnits, origin,
+    placed,
+    renderedDistanceUnits,
+    origin,
   });
 }
 
@@ -93,8 +99,20 @@ describe("debug readout", () => {
 
   it("overlay rows list every required item", () => {
     const labels = overlayRows(readoutFor(T, readableScale)).map(([label]) => label);
-    for (const wanted of ["UTC time", "Playback rate", "Scale policy", "Earth–Moon distance", "Rendered distance", "Moon position",
-      "Earth orientation", "Moon orientation", "Sun direction (from Earth)", "Moon lit (geometric)", "Scaled origin", "Moon local"]) {
+    for (const wanted of [
+      "UTC time",
+      "Playback rate",
+      "Scale policy",
+      "Earth–Moon distance",
+      "Rendered distance",
+      "Moon position",
+      "Earth orientation",
+      "Moon orientation",
+      "Sun direction (from Earth)",
+      "Moon lit (geometric)",
+      "Scaled origin",
+      "Moon local",
+    ]) {
       expect(labels).toContain(wanted);
     }
   });
@@ -114,9 +132,14 @@ describe("path refresh after seeking", () => {
 });
 
 describe("scale choices", () => {
-  const render = (ids: readonly string[] | undefined, scaleId: string) => renderToStaticMarkup(createElement(ScaleControl, {
-    scaleId, onScaleChange: () => undefined, choices: ids === undefined ? undefined : scaleChoicesFor(ids),
-  }));
+  const render = (ids: readonly string[] | undefined, scaleId: string) =>
+    renderToStaticMarkup(
+      createElement(ScaleControl, {
+        scaleId,
+        onScaleChange: () => undefined,
+        choices: ids === undefined ? undefined : scaleChoicesFor(ids),
+      }),
+    );
 
   it("yields today's two choices and wording for the two existing ids", () => {
     expect(scaleChoicesFor(["true-scale", "readable-scale"])).toEqual(SCALE_CHOICES);
@@ -165,7 +188,9 @@ describe("scale choices", () => {
 
 describe("Object list", () => {
   const object = (id: string, extra: object = {}) => ({ id, label: id, ...extra });
-  const config = { objects: [object("body"), object("body-orbit", { listed: false, partOf: "body" }), object("other")] } as unknown as ExperienceConfig;
+  const config = {
+    objects: [object("body"), object("body-orbit", { listed: false, partOf: "body" }), object("other")],
+  } as unknown as ExperienceConfig;
 
   it("leaves unlisted objects out, keeps the selected one, and finds an object's related unlisted ones", () => {
     expect(listedObjects(config, "other").map((o) => o.id)).toEqual(["body", "other"]);

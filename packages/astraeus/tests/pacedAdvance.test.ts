@@ -1,7 +1,15 @@
 // Playback steps through every slow-down whatever the frame length (O-069 T-308): made-up six-year journey, ten event zones (ARCH-03, no story names).
 import { describe, expect, it } from "vitest";
 import { SimulationClock } from "../src/core/clock";
-import { activeEventZones, MAX_PACE_STEPS, pacedAdvance, pacedRate, stepPacing, type PaceView, type Pacing } from "../src/presentation/pacing";
+import {
+  activeEventZones,
+  MAX_PACE_STEPS,
+  pacedAdvance,
+  pacedRate,
+  stepPacing,
+  type PaceView,
+  type Pacing,
+} from "../src/presentation/pacing";
 import { frameTime } from "../src/app/sceneFrame";
 import type { SceneRuntime } from "../src/app/AstraeusScene";
 import { ViewerZones } from "../src/api/viewerZones";
@@ -12,11 +20,17 @@ const HOUR = 3_600_000;
 const DAY = 24 * HOUR;
 const START = Date.UTC(2030, 0, 1);
 const END = START + 6 * 365 * DAY;
-const CRUISE = 26 * DAY / 1000; // about 26 days per real second
+const CRUISE = (26 * DAY) / 1000; // about 26 days per real second
 const ZONE_RATE = 1_200;
 const zones = Array.from({ length: 10 }, (_, i) => {
   const centre = START + (i + 1) * 200 * DAY;
-  return { fromUtcMs: centre - 1.5 * HOUR, toUtcMs: centre + 1.5 * HOUR, rate: ZONE_RATE, rampMs: 4 * HOUR, eventId: `z${i}` };
+  return {
+    fromUtcMs: centre - 1.5 * HOUR,
+    toUtcMs: centre + 1.5 * HOUR,
+    rate: ZONE_RATE,
+    rampMs: 4 * HOUR,
+    eventId: `z${i}`,
+  };
 });
 const pacing: Pacing = { baseRate: CRUISE, zones };
 const FRAMES = [16, 33, 100, 250, 1_000];
@@ -30,7 +44,10 @@ function runPass(frameMs: number, advance: (t: number, ms: number) => number) {
   while (t < END && real < 600_000) {
     t = advance(t, frameMs);
     real += frameMs;
-    for (const id of activeEventZones(zones, undefined, t)) { seen.add(id); framesIn.set(id, (framesIn.get(id) ?? 0) + 1); }
+    for (const id of activeEventZones(zones, undefined, t)) {
+      seen.add(id);
+      framesIn.set(id, (framesIn.get(id) ?? 0) + 1);
+    }
   }
   return { real, seen, framesIn };
 }
@@ -51,7 +68,8 @@ describe("pacedAdvance", () => {
     for (const frameMs of FRAMES) {
       const { real, framesIn } = runPass(frameMs, stepped);
       expect(Math.abs(real - reference.real)).toBeLessThanOrEqual(reference.real * 0.01 + frameMs);
-      for (const zone of zones) expect(Math.abs((framesIn.get(zone.eventId) ?? 0) * frameMs - 9_000)).toBeLessThanOrEqual(2 * frameMs);
+      for (const zone of zones)
+        expect(Math.abs((framesIn.get(zone.eventId) ?? 0) * frameMs - 9_000)).toBeLessThanOrEqual(2 * frameMs);
     }
   });
 
@@ -99,10 +117,19 @@ describe("pacedAdvance", () => {
 
   it("is bounded: a frame longer than the step budget drops the rest instead of looping or skipping", () => {
     // Three hundred zones with ramps need far more than MAX_PACE_STEPS sub-steps to cross; ten years of real time is far more than crossing them takes, so an unbounded walk would end past the last zone.
-    const many: Pacing = { baseRate: CRUISE, zones: Array.from({ length: 300 }, (_, i) => {
-      const centre = START + (i + 1) * 2 * DAY;
-      return { fromUtcMs: centre - 1.5 * HOUR, toUtcMs: centre + 1.5 * HOUR, rate: ZONE_RATE, rampMs: 4 * HOUR, eventId: `m${i}` };
-    }) };
+    const many: Pacing = {
+      baseRate: CRUISE,
+      zones: Array.from({ length: 300 }, (_, i) => {
+        const centre = START + (i + 1) * 2 * DAY;
+        return {
+          fromUtcMs: centre - 1.5 * HOUR,
+          toUtcMs: centre + 1.5 * HOUR,
+          rate: ZONE_RATE,
+          rampMs: 4 * HOUR,
+          eventId: `m${i}`,
+        };
+      }),
+    };
     const lastZoneEnd = many.zones[299]!.toUtcMs;
     const to = pacedAdvance(many, START, 10 * 365 * DAY);
     expect(Number.isFinite(to) && to > START).toBe(true);
@@ -112,7 +139,10 @@ describe("pacedAdvance", () => {
 
   it("copes with a pacing without zones and with zero-width ramps", () => {
     expect(pacedAdvance({ baseRate: 10, zones: [] }, 1_000, 100)).toBe(2_000);
-    const hard: Pacing = { baseRate: 1_000, zones: [{ fromUtcMs: 10_000, toUtcMs: 20_000, rate: 10, rampMs: 0, eventId: "h" }] };
+    const hard: Pacing = {
+      baseRate: 1_000,
+      zones: [{ fromUtcMs: 10_000, toUtcMs: 20_000, rate: 10, rampMs: 0, eventId: "h" }],
+    };
     expect(pacedAdvance(hard, 0, 100)).toBe(10_000 + 10 * 90); // 10 s of sim at 1,000x is 10 ms real; the other 90 ms are inside at 10x
     expect(pacedAdvance(hard, 0, 110)).toBe(10_000 + 10 * 100); // 110 ms: 10 ms to the edge, 100 ms inside
   });
@@ -125,7 +155,14 @@ describe("the clock follows the steps (stepPacing, frameTime)", () => {
     const view: PaceView = {};
     clock.setRate(pacedRate(pacing, START));
     clock.play();
-    return { clock, view, tick: (ms: number) => { monotonic += ms; return monotonic; } };
+    return {
+      clock,
+      view,
+      tick: (ms: number) => {
+        monotonic += ms;
+        return monotonic;
+      },
+    };
   }
 
   it("moves a long frame through the slow-down it crosses, and reports each zone enter and leave with cause playback", () => {
@@ -133,14 +170,23 @@ describe("the clock follows the steps (stepPacing, frameTime)", () => {
     const state = { events: zones.map((zone) => ({ id: zone.eventId })) };
     const link = new ViewerZones({ control: () => state } as never);
     const heard: string[] = [];
-    link.onEventZone((change: EventZoneChange) => heard.push(`${change.entered ? "enter" : "leave"} ${change.event} ${change.cause}`));
+    link.onEventZone((change: EventZoneChange) =>
+      heard.push(`${change.entered ? "enter" : "leave"} ${change.event} ${change.cause}`),
+    );
     const runtime = { clock, pacing } as SceneRuntime;
     for (let frame = 0; frame < 120 && clock.now() < zones[2]!.toUtcMs + 6 * HOUR; frame += 1) {
       const nowMs = tick(1_000);
       const t = frameTime(runtime, { paceAuto: true, pace: view }, nowMs);
       link.publish({ timeUtcMs: t, zones: activeEventZones(zones, undefined, t) } as ViewerState, "playback");
     }
-    expect(heard).toEqual(["enter z0 playback", "leave z0 playback", "enter z1 playback", "leave z1 playback", "enter z2 playback", "leave z2 playback"]);
+    expect(heard).toEqual([
+      "enter z0 playback",
+      "leave z0 playback",
+      "enter z1 playback",
+      "leave z1 playback",
+      "enter z2 playback",
+      "leave z2 playback",
+    ]);
   });
 
   it("does not step through a seek, a pause or a changed rate: the move is the visitor's", () => {

@@ -10,7 +10,14 @@ import { chunkCovers, chunkPositionInto, chunkStateInto, decodeChunk, type Serie
 import { createProvenance, type Provenance } from "./provenance";
 import { TrajectoryOutOfRangeError } from "./sampledTrajectory";
 import { assertUtcUnixMs, createState, EQJ, type State } from "./state";
-import { assertTimeScaleTable, tdbMinusTtSeconds, ttMinusUtcSeconds, utcMsToTdbSeconds, type TdbSeconds, type TimeScaleTable } from "./timeScale";
+import {
+  assertTimeScaleTable,
+  tdbMinusTtSeconds,
+  ttMinusUtcSeconds,
+  utcMsToTdbSeconds,
+  type TdbSeconds,
+  type TimeScaleTable,
+} from "./timeScale";
 import type { TimeBounds, Trajectory } from "./trajectory";
 
 export const EPHEMERIS_INDEX_FORMAT = "astraeus.chebyshev-ephemeris/1";
@@ -98,7 +105,8 @@ function parseSpan(raw: unknown, where: string): TimeBounds | undefined {
   const { fromUtc, toUtc } = raw as Record<string, unknown>;
   const startUtcMs = Date.parse(text(fromUtc, `${where}.fromUtc`));
   const endUtcMs = Date.parse(text(toUtc, `${where}.toUtc`));
-  if (!Number.isFinite(startUtcMs) || !Number.isFinite(endUtcMs) || endUtcMs <= startUtcMs) fail(`${where} must run from one valid date to a later one`);
+  if (!Number.isFinite(startUtcMs) || !Number.isFinite(endUtcMs) || endUtcMs <= startUtcMs)
+    fail(`${where} must run from one valid date to a later one`);
   return Object.freeze({ startUtcMs, endUtcMs });
 }
 
@@ -111,7 +119,8 @@ function parseBody(raw: unknown, index: number): EphemerisBodyEntry {
   const segmentSeconds = finiteNumber(fit.segmentSeconds, `${where}.fit.segmentSeconds`);
   const degree = finiteNumber(fit.degree, `${where}.fit.degree`);
   const quantumKm = finiteNumber(fit.quantumKm, `${where}.fit.quantumKm`);
-  if (segmentSeconds <= 0 || quantumKm <= 0 || !Number.isInteger(degree) || degree < 0) fail(`${where}.fit has a non-positive length, quantum or degree`);
+  if (segmentSeconds <= 0 || quantumKm <= 0 || !Number.isInteger(degree) || degree < 0)
+    fail(`${where}.fit has a non-positive length, quantum or degree`);
   if (!Array.isArray(body.chunks) || body.chunks.length === 0) fail(`${where}.chunks must be a non-empty array`);
   const chunks = body.chunks.map((chunk: Record<string, unknown>, chunkIndex: number): EphemerisChunkEntry => {
     const at = `${where}.chunks[${chunkIndex}]`;
@@ -128,7 +137,8 @@ function parseBody(raw: unknown, index: number): EphemerisBodyEntry {
     if (chunkIndex === 0) return;
     const previous = chunks[chunkIndex - 1];
     const previousEnd = previous.startTdbS + previous.segmentCount * segmentSeconds;
-    if (Math.abs(chunk.startTdbS - previousEnd) > 1e-6) fail(`${where}.chunks[${chunkIndex}] does not start where the previous chunk ends`);
+    if (Math.abs(chunk.startTdbS - previousEnd) > 1e-6)
+      fail(`${where}.chunks[${chunkIndex}] does not start where the previous chunk ends`);
   });
   let provenance: Provenance;
   try {
@@ -137,7 +147,14 @@ function parseBody(raw: unknown, index: number): EphemerisBodyEntry {
     fail(`${where}.provenance: ${(error as Error).message}`);
   }
   const span = parseSpan(body.span, `${where}.span`);
-  return { id: text(body.id, `${where}.id`), label: text(body.label, `${where}.label`), fit: { segmentSeconds, degree, quantumKm }, chunks, provenance, ...(span === undefined ? {} : { span }) };
+  return {
+    id: text(body.id, `${where}.id`),
+    label: text(body.label, `${where}.label`),
+    fit: { segmentSeconds, degree, quantumKm },
+    chunks,
+    provenance,
+    ...(span === undefined ? {} : { span }),
+  };
 }
 
 /** Validates an index read from JSON (STYLE-06: external data is checked here, once). */
@@ -152,7 +169,8 @@ export function parseEphemerisIndex(raw: unknown): EphemerisIndex {
   } catch (error) {
     fail(`timeScale: ${(error as Error).message}`);
   }
-  if (!Array.isArray(index.bodies) || index.bodies.length === 0) fail("ephemeris index bodies must be a non-empty array");
+  if (!Array.isArray(index.bodies) || index.bodies.length === 0)
+    fail("ephemeris index bodies must be a non-empty array");
   const bodies = index.bodies.map(parseBody);
   const ids = new Set(bodies.map((body) => body.id));
   if (ids.size !== bodies.length) fail("ephemeris index body ids must be unique");
@@ -161,17 +179,24 @@ export function parseEphemerisIndex(raw: unknown): EphemerisIndex {
   return { format: EPHEMERIS_INDEX_FORMAT, id: text(index.id, "id"), frame: EQJ, centre, timeScale, bodies };
 }
 
-
 /** The UTC millisecond whose TDB is closest to `tdbS` from inside the span (rounded toward the inside). */
 function utcMsForTdb(table: TimeScaleTable, tdbS: number, inward: "up" | "down"): number {
   let guess = J2000_NOON_UNIX_MS + tdbS * 1000;
   for (let pass = 0; pass < 3; pass += 1) {
     // Gemini CQ-02: the series is written for TT but is given TDB here; the two differ by under 2 ms, so the result changes by under 1e-12 s.
     const tt = tdbS - tdbMinusTtSeconds(tdbS);
-    guess = J2000_NOON_UNIX_MS + (tt - ttMinusUtcSeconds(table, Math.min(table.validToUtcMs, Math.max(table.pieces[0].fromUtcMs, Math.round(guess))))) * 1000;
+    guess =
+      J2000_NOON_UNIX_MS +
+      (tt -
+        ttMinusUtcSeconds(
+          table,
+          Math.min(table.validToUtcMs, Math.max(table.pieces[0].fromUtcMs, Math.round(guess))),
+        )) *
+        1000;
   }
   let ms = inward === "up" ? Math.ceil(guess) : Math.floor(guess);
-  while (inward === "up" ? utcMsToTdbSeconds(table, ms) < tdbS : utcMsToTdbSeconds(table, ms) > tdbS) ms += inward === "up" ? 1 : -1;
+  while (inward === "up" ? utcMsToTdbSeconds(table, ms) < tdbS : utcMsToTdbSeconds(table, ms) > tdbS)
+    ms += inward === "up" ? 1 : -1;
   return ms;
 }
 
@@ -196,8 +221,14 @@ export class ChebyshevEphemeris {
       const claimed = entry.span;
       this.#bodies.set(entry.id, {
         entry,
-        startTdbS: claimed === undefined ? entry.chunks[0].startTdbS : Math.max(entry.chunks[0].startTdbS, utcMsToTdbSeconds(index.timeScale, claimed.startUtcMs)),
-        endTdbS: Math.min(last.startTdbS + last.segmentCount * entry.fit.segmentSeconds, claimed === undefined ? Infinity : utcMsToTdbSeconds(index.timeScale, claimed.endUtcMs)),
+        startTdbS:
+          claimed === undefined
+            ? entry.chunks[0].startTdbS
+            : Math.max(entry.chunks[0].startTdbS, utcMsToTdbSeconds(index.timeScale, claimed.startUtcMs)),
+        endTdbS: Math.min(
+          last.startTdbS + last.segmentCount * entry.fit.segmentSeconds,
+          claimed === undefined ? Infinity : utcMsToTdbSeconds(index.timeScale, claimed.endUtcMs),
+        ),
         chunks: entry.chunks.map(() => null),
         last: null,
       });
@@ -343,7 +374,8 @@ export class ChebyshevEphemeris {
    */
   positionsKmInto(timeUtcMs: number, bodies: readonly BodyId[], out: Float64Array): void {
     assertUtcUnixMs(timeUtcMs);
-    if (out.length < bodies.length * 3) throw new RangeError(`output needs ${bodies.length * 3} values, has ${out.length}`);
+    if (out.length < bodies.length * 3)
+      throw new RangeError(`output needs ${bodies.length * 3} values, has ${out.length}`);
     const tdbS = utcMsToTdbSeconds(this.index.timeScale, timeUtcMs);
     const centre = this.#centre;
     const scratch = this.#scratch;
@@ -398,7 +430,15 @@ export class ChebyshevEphemeris {
         velocity[axis] -= centreVelocity[axis];
       }
     }
-    return createState({ body: bodyId, center: this.index.centre, timeUtcMs, plane: EQJ, positionKm: position, velocityKmS: velocity, orientation: null });
+    return createState({
+      body: bodyId,
+      center: this.index.centre,
+      timeUtcMs,
+      plane: EQJ,
+      positionKm: position,
+      velocityKmS: velocity,
+      orientation: null,
+    });
   }
 
   /** The ordinary Trajectory for one body, valid inside `boundsOf(body)`, in the set's one centre. */
@@ -412,7 +452,10 @@ export class ChebyshevEphemeris {
       provenance: body.entry.provenance,
       stateAt: (timeUtcMs: number, center: CenterId = centre): State => {
         assertCenterId(center);
-        if (center !== centre) throw new RangeError(`ephemeris set holds centre "${centre}", not "${center}"; the state resolver recentres it`);
+        if (center !== centre)
+          throw new RangeError(
+            `ephemeris set holds centre "${centre}", not "${center}"; the state resolver recentres it`,
+          );
         return this.stateOf(bodyId, timeUtcMs);
       },
     });

@@ -35,7 +35,10 @@ export interface BodyFeatureSet {
 export const featureKey = (bodyId: string, featureId: string): string => `${bodyId}:${featureId}`;
 
 /** The set and place a key names, or null. */
-export function findFeature(sets: readonly BodyFeatureSet[] | undefined, key: string): { readonly set: BodyFeatureSet; readonly feature: BodyFeature } | null {
+export function findFeature(
+  sets: readonly BodyFeatureSet[] | undefined,
+  key: string,
+): { readonly set: BodyFeatureSet; readonly feature: BodyFeature } | null {
   for (const set of sets ?? []) {
     const feature = set.features.find((candidate) => featureKey(set.bodyId, candidate.id) === key);
     if (feature !== undefined) return { set, feature };
@@ -44,7 +47,8 @@ export function findFeature(sets: readonly BodyFeatureSet[] | undefined, key: st
 }
 
 /** The colour of a place's category, white when its category is unknown (the donor's fallback). */
-export const featureColor = (set: BodyFeatureSet, feature: BodyFeature): string => set.categories.find((category) => category.key === feature.category)?.color ?? "#ffffff";
+export const featureColor = (set: BodyFeatureSet, feature: BodyFeature): string =>
+  set.categories.find((category) => category.key === feature.category)?.color ?? "#ffffff";
 
 /** The tagged places of a body package, taken as stored: latitude and longitude are never rounded, converted or corrected. */
 export function bodyFeatureSet(input: {

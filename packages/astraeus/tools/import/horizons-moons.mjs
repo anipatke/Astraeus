@@ -22,26 +22,41 @@
 //          [--cache tools/import/.horizons-cache] [--out ../astraeus-data-<system>/data/<system>-moons] [--report <dir>] [--recalibrate]
 // Needs Node with built-in TypeScript type stripping (22.18+ or 24) to load the shared fitting and provider code.
 
-import { existsSync, mkdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs'
-import { register } from 'node:module'
-import { dirname, join, relative, resolve } from 'node:path'
-import { fileURLToPath } from 'node:url'
-import { gridSamples, headerOf, horizonsText, labelOfSeconds, MAX_ROWS, requestsMade, rowsOf, secondsOfDate, vectorParams } from './horizons-client.mjs'
+import { existsSync, mkdirSync, readFileSync, rmSync, statSync, writeFileSync } from "node:fs";
+import { register } from "node:module";
+import { dirname, join, relative, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
+import {
+  gridSamples,
+  headerOf,
+  horizonsText,
+  labelOfSeconds,
+  MAX_ROWS,
+  requestsMade,
+  rowsOf,
+  secondsOfDate,
+  vectorParams,
+} from "./horizons-client.mjs";
 
 // The shared fitting and provider code is TypeScript with extensionless imports: register the resolve hook before loading it.
-register('./ts-resolve-hook.mjs', import.meta.url)
+register("./ts-resolve-hook.mjs", import.meta.url);
 const {
-  CALIBRATION_STEPS_MIN: CALIBRATION_STEPS, calibrationStepMinutes, choosePolicy, detectGrid, firstBoundaryAtOrAfter, fitSeries,
-} = await import('./horizons-moons-policy.mjs')
-const { encodeChunk, quantize } = await import('./chebyshevFit.ts')
-const { decodeChunk, chunkPositionInto } = await import('../../src/core/chebyshevSeries.ts')
-const { tdbMinusTtSeconds } = await import('../../src/core/timeScale.ts')
-const { ChebyshevEphemeris, parseEphemerisIndex } = await import('../../src/core/chebyshevEphemeris.ts')
+  CALIBRATION_STEPS_MIN: CALIBRATION_STEPS,
+  calibrationStepMinutes,
+  choosePolicy,
+  detectGrid,
+  firstBoundaryAtOrAfter,
+  fitSeries,
+} = await import("./horizons-moons-policy.mjs");
+const { encodeChunk, quantize } = await import("./chebyshevFit.ts");
+const { decodeChunk, chunkPositionInto } = await import("../../src/core/chebyshevSeries.ts");
+const { tdbMinusTtSeconds } = await import("../../src/core/timeScale.ts");
+const { ChebyshevEphemeris, parseEphemerisIndex } = await import("../../src/core/chebyshevEphemeris.ts");
 
-const HERE = dirname(fileURLToPath(import.meta.url))
-const REPO = resolve(HERE, '..', '..')
-const DAY_S = 86_400
-const J2000_NOON_UNIX_MS = 946_728_000_000
+const HERE = dirname(fileURLToPath(import.meta.url));
+const REPO = resolve(HERE, "..", "..");
+const DAY_S = 86_400;
+const J2000_NOON_UNIX_MS = 946_728_000_000;
 /**
  * The systems this importer can build. barycentre: NAIF id of the system barycentre; centre: the planet's NAIF id and slug;
  * gm: the planet's GM (km^3/s^2, Horizons physical data), only used to guess a period from a distance; centrePeriodDays:
@@ -49,204 +64,291 @@ const J2000_NOON_UNIX_MS = 946_728_000_000
  * Jupiter's entry reproduces the O-025 T-096 data byte for byte (`provisional` keeps that index's wording of the designation range).
  */
 export const SYSTEMS = {
-  jupiter: { name: 'Jupiter', provisional: '555xx', barycentre: 5, centre: '599', gm: 126686531.9, centrePeriodDays: 1.769 },
-  mars: { name: 'Mars', barycentre: 4, centre: '499', gm: 42828.375, centrePeriodDays: 0.319 },
-  saturn: { name: 'Saturn', barycentre: 6, centre: '699', gm: 37931207.8, centrePeriodDays: 0.942 },
-  uranus: { name: 'Uranus', barycentre: 7, centre: '799', gm: 5793951.3, centrePeriodDays: 1.413 },
-  neptune: { name: 'Neptune', barycentre: 8, centre: '899', gm: 6835099.97, centrePeriodDays: 5.877 },
-  pluto: { name: 'Pluto', barycentre: 9, centre: '999', gm: 869.6, centrePeriodDays: 6.387 },
-}
+  jupiter: {
+    name: "Jupiter",
+    provisional: "555xx",
+    barycentre: 5,
+    centre: "599",
+    gm: 126686531.9,
+    centrePeriodDays: 1.769,
+  },
+  mars: { name: "Mars", barycentre: 4, centre: "499", gm: 42828.375, centrePeriodDays: 0.319 },
+  saturn: { name: "Saturn", barycentre: 6, centre: "699", gm: 37931207.8, centrePeriodDays: 0.942 },
+  uranus: { name: "Uranus", barycentre: 7, centre: "799", gm: 5793951.3, centrePeriodDays: 1.413 },
+  neptune: { name: "Neptune", barycentre: 8, centre: "899", gm: 6835099.97, centrePeriodDays: 5.877 },
+  pluto: { name: "Pluto", barycentre: 9, centre: "999", gm: 869.6, centrePeriodDays: 6.387 },
+};
 /** The demo window (O-025 Decision 4: 4 Nov 2016 for a year) with a month either side; calibration and the dense check use it. */
-const CALIBRATION_WINDOW = ['2016-10-01', '2017-12-01']
+const CALIBRATION_WINDOW = ["2016-10-01", "2017-12-01"];
 /** Fit target, km: metre level for every body (one metre is under a pixel even at the closest view of a one-kilometre moon). */
-const TARGET_KM = 0.001
+const TARGET_KM = 0.001;
 /** Jupiter's own series enters every moon's Jupiter-centred position, so it is held ten times tighter. */
-const CENTRE_TARGET_KM = TARGET_KM / 10
+const CENTRE_TARGET_KM = TARGET_KM / 10;
 /** Coefficients are stored as whole multiples of a quantum: one hundredth of the body's target. */
-const QUANTUM_PER_TARGET = 1 / 100
-const LICENCE = 'JPL Horizons output is produced by NASA/JPL (a US Government-funded facility); used as US Government work with credit to NASA/JPL-Caltech Solar System Dynamics.'
+const QUANTUM_PER_TARGET = 1 / 100;
+const LICENCE =
+  "JPL Horizons output is produced by NASA/JPL (a US Government-funded facility); used as US Government work with credit to NASA/JPL-Caltech Solar System Dynamics.";
 
 function parseArgs(argv) {
   const opts = {
-    system: 'jupiter', from: '2010-01-01', to: '2030-01-01', only: null, offline: false, recalibrate: false,
-    cache: join(HERE, '.horizons-cache'), out: null, report: null,
-  }
+    system: "jupiter",
+    from: "2010-01-01",
+    to: "2030-01-01",
+    only: null,
+    offline: false,
+    recalibrate: false,
+    cache: join(HERE, ".horizons-cache"),
+    out: null,
+    report: null,
+  };
   for (let i = 0; i < argv.length; i += 1) {
-    const arg = argv[i]
-    if (arg === '--system') opts.system = argv[++i]
-    else if (arg === '--from') opts.from = argv[++i]
-    else if (arg === '--to') opts.to = argv[++i]
-    else if (arg === '--only') opts.only = new Set(argv[++i].split(','))
-    else if (arg === '--offline') opts.offline = true
-    else if (arg === '--recalibrate') opts.recalibrate = true
-    else if (arg === '--cache') opts.cache = resolve(argv[++i])
-    else if (arg === '--out') opts.out = resolve(argv[++i])
-    else if (arg === '--report') opts.report = resolve(argv[++i])
-    else throw new Error(`Unknown argument: ${arg}`)
+    const arg = argv[i];
+    if (arg === "--system") opts.system = argv[++i];
+    else if (arg === "--from") opts.from = argv[++i];
+    else if (arg === "--to") opts.to = argv[++i];
+    else if (arg === "--only") opts.only = new Set(argv[++i].split(","));
+    else if (arg === "--offline") opts.offline = true;
+    else if (arg === "--recalibrate") opts.recalibrate = true;
+    else if (arg === "--cache") opts.cache = resolve(argv[++i]);
+    else if (arg === "--out") opts.out = resolve(argv[++i]);
+    else if (arg === "--report") opts.report = resolve(argv[++i]);
+    else throw new Error(`Unknown argument: ${arg}`);
   }
-  if (!(opts.system in SYSTEMS)) throw new Error(`Unknown system ${opts.system}; one of ${Object.keys(SYSTEMS).join(', ')}`)
-  opts.out ??= join(REPO, '..', `astraeus-data-${opts.system}`, 'data', `${opts.system}-moons`)
-  return opts
+  if (!(opts.system in SYSTEMS))
+    throw new Error(`Unknown system ${opts.system}; one of ${Object.keys(SYSTEMS).join(", ")}`);
+  opts.out ??= join(REPO, "..", `astraeus-data-${opts.system}`, "data", `${opts.system}-moons`);
+  return opts;
 }
 
-const log = (message) => process.stdout.write(`${message}\n`)
-const slug = (text) => text.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
-const readJson = (path) => JSON.parse(readFileSync(path, 'utf8'))
+const log = (message) => process.stdout.write(`${message}\n`);
+const slug = (text) =>
+  text
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
+const readJson = (path) => JSON.parse(readFileSync(path, "utf8"));
 
 // ---------- 1. list ----------
 
 /** The system's moons from the Horizons major-body list, by its fixed-width columns. */
 async function listMoons(opts) {
-  const params = { COMMAND: "'MB'" }
-  const text = await horizonsText(params, { cacheDir: opts.cache, offline: opts.offline })
-  const lines = text.split('\n')
-  const ruler = lines.findIndex((line) => /^\s*-{5,}\s+-{5,}/.test(line))
-  if (ruler < 0) throw new Error('major-body list has no column ruler')
-  const columns = [...lines[ruler].matchAll(/-+/g)].map((match) => [match.index, match.index + match[0].length])
-  const cell = (line, index) => line.slice(columns[index][0], index + 1 < columns.length ? columns[index + 1][0] : undefined).trim()
-  const moons = []
+  const params = { COMMAND: "'MB'" };
+  const text = await horizonsText(params, { cacheDir: opts.cache, offline: opts.offline });
+  const lines = text.split("\n");
+  const ruler = lines.findIndex((line) => /^\s*-{5,}\s+-{5,}/.test(line));
+  if (ruler < 0) throw new Error("major-body list has no column ruler");
+  const columns = [...lines[ruler].matchAll(/-+/g)].map((match) => [match.index, match.index + match[0].length]);
+  const cell = (line, index) =>
+    line.slice(columns[index][0], index + 1 < columns.length ? columns[index + 1][0] : undefined).trim();
+  const moons = [];
   for (const line of lines.slice(ruler + 1)) {
-    const id = cell(line, 0)
-    if (!MOON_ID.test(id) || id === SYSTEM.centre) continue
-    moons.push({ naifId: Number(id), name: cell(line, 1) || null, designation: cell(line, 2) || null, aliases: cell(line, 3) || null })
+    const id = cell(line, 0);
+    if (!MOON_ID.test(id) || id === SYSTEM.centre) continue;
+    moons.push({
+      naifId: Number(id),
+      name: cell(line, 1) || null,
+      designation: cell(line, 2) || null,
+      aliases: cell(line, 3) || null,
+    });
   }
-  const version = text.match(/API VERSION:\s*(\S+)/)?.[1] ?? null
-  const cacheFile = (await import('node:fs')).readdirSync(opts.cache).find((name) => name.startsWith('MB-'))
-  const fetchedUtc = statSync(join(opts.cache, cacheFile)).mtime.toISOString()
-  return { moons, version, fetchedUtc }
+  const version = text.match(/API VERSION:\s*(\S+)/)?.[1] ?? null;
+  const cacheFile = (await import("node:fs")).readdirSync(opts.cache).find((name) => name.startsWith("MB-"));
+  const fetchedUtc = statSync(join(opts.cache, cacheFile)).mtime.toISOString();
+  return { moons, version, fetchedUtc };
 }
 
 // ---------- 2. timescale ----------
 
 /** TT - UTC pieces from Horizons' TDB - UT (VEC_DELTA_T) sampled monthly: leap-second steps from 1972; before 1972 sampled daily, a straight line per month and per step. */
 async function timeScale(opts, fromS, toS) {
-  const params = vectorParams({ command: CENTRE_COMMAND, center: ORIGIN, start: '1950-01-01', stop: '2050-01-01', step: '1 MONTHS', timeType: 'UT', table: '1', deltaT: true })
-  const text = await horizonsText(params, { cacheDir: opts.cache, offline: opts.offline })
+  const params = vectorParams({
+    command: CENTRE_COMMAND,
+    center: ORIGIN,
+    start: "1950-01-01",
+    stop: "2050-01-01",
+    step: "1 MONTHS",
+    timeType: "UT",
+    table: "1",
+    deltaT: true,
+  });
+  const text = await horizonsText(params, { cacheDir: opts.cache, offline: opts.offline });
   const samples = rowsOf(text).map((row) => {
-    const utcMs = Math.round((row[0] - 2440587.5) * DAY_S * 1000)
-    const tt = (utcMs - J2000_NOON_UNIX_MS) / 1000 + row[1]
-    return { utcMs, ttMinusUtc: row[1] - tdbMinusTtSeconds(tt), tdbMinusUt: row[1] }
-  })
-  const leapEra = Date.UTC(1972, 0, 1)
-  const pieces = []
-  let worstResidual = 0
+    const utcMs = Math.round((row[0] - 2440587.5) * DAY_S * 1000);
+    const tt = (utcMs - J2000_NOON_UNIX_MS) / 1000 + row[1];
+    return { utcMs, ttMinusUtc: row[1] - tdbMinusTtSeconds(tt), tdbMinusUt: row[1] };
+  });
+  const leapEra = Date.UTC(1972, 0, 1);
+  const pieces = [];
+  let worstResidual = 0;
   // Before 1972 UTC ran at a rate set for the year ("rubber seconds") and was stepped by 0.05 to 0.4 s, mostly on the first of a month
   // but once (January 1962) mid-month. Monthly samples smear a step into the month that holds it: a straight line through it is up to
   // 0.2 s off (a kilometre or more for Io), so the years before 1972 are sampled daily, a piece starts at each month and at each step
   // day, and a piece that ends in a step takes its rate from the last sample before it (O-047 T-200).
-  const dailyText = await horizonsText(vectorParams({ command: CENTRE_COMMAND, center: ORIGIN, start: '1950-01-01', stop: '1972-01-01', step: '1 DAYS', timeType: 'UT', table: '1', deltaT: true }), { cacheDir: opts.cache, offline: opts.offline })
+  const dailyText = await horizonsText(
+    vectorParams({
+      command: CENTRE_COMMAND,
+      center: ORIGIN,
+      start: "1950-01-01",
+      stop: "1972-01-01",
+      step: "1 DAYS",
+      timeType: "UT",
+      table: "1",
+      deltaT: true,
+    }),
+    { cacheDir: opts.cache, offline: opts.offline },
+  );
   const daily = rowsOf(dailyText).map((row) => {
-    const utcMs = Math.round((row[0] - 2440587.5) * DAY_S * 1000)
-    const tt = (utcMs - J2000_NOON_UNIX_MS) / 1000 + row[1]
-    return { utcMs, ttMinusUtc: row[1] - tdbMinusTtSeconds(tt) }
-  })
-  const STEP_S = 0.02
-  const LINE_TOLERANCE_S = 1e-5
-  const isStep = (i) => i > 0 && Math.abs(daily[i].ttMinusUtc - daily[i - 1].ttMinusUtc) > STEP_S
+    const utcMs = Math.round((row[0] - 2440587.5) * DAY_S * 1000);
+    const tt = (utcMs - J2000_NOON_UNIX_MS) / 1000 + row[1];
+    return { utcMs, ttMinusUtc: row[1] - tdbMinusTtSeconds(tt) };
+  });
+  const STEP_S = 0.02;
+  const LINE_TOLERANCE_S = 1e-5;
+  const isStep = (i) => i > 0 && Math.abs(daily[i].ttMinusUtc - daily[i - 1].ttMinusUtc) > STEP_S;
   // Runs between steps; in each run, pieces as long as one straight line keeps within LINE_TOLERANCE_S (10 us, 0.2 m for Io) of the daily values.
-  const runEnds = daily.map((_, i) => i).filter((i) => i === daily.length - 1 || isStep(i + 1))
-  let runStart = 0
+  const runEnds = daily.map((_, i) => i).filter((i) => i === daily.length - 1 || isStep(i + 1));
+  let runStart = 0;
   for (const runEnd of runEnds) {
-    let k = runStart
+    let k = runStart;
     while (k <= runEnd && daily[k].utcMs < leapEra) {
-      const lineTo = (j) => (daily[j].ttMinusUtc - daily[k].ttMinusUtc) / (j - k)
-      let j = Math.min(k + 1, runEnd)
+      const lineTo = (j) => (daily[j].ttMinusUtc - daily[k].ttMinusUtc) / (j - k);
+      let j = Math.min(k + 1, runEnd);
       while (j < runEnd) {
-        const rate = lineTo(j + 1)
-        let within = true
-        for (let m = k + 1; m <= j && within; m += 1) within = Math.abs(daily[m].ttMinusUtc - daily[k].ttMinusUtc - rate * (m - k)) <= LINE_TOLERANCE_S
-        if (!within) break
-        j += 1
+        const rate = lineTo(j + 1);
+        let within = true;
+        for (let m = k + 1; m <= j && within; m += 1)
+          within = Math.abs(daily[m].ttMinusUtc - daily[k].ttMinusUtc - rate * (m - k)) <= LINE_TOLERANCE_S;
+        if (!within) break;
+        j += 1;
       }
-      const rate = j > k ? lineTo(j) : pieces.at(-1)?.driftSPerDay ?? 0
-      pieces.push({ fromUtcMs: daily[k].utcMs, ttMinusUtcS: Number(daily[k].ttMinusUtc.toFixed(6)), driftSPerDay: Number(Number(rate).toExponential(9)) })
-      if (j >= runEnd) break
-      k = j
+      const rate = j > k ? lineTo(j) : (pieces.at(-1)?.driftSPerDay ?? 0);
+      pieces.push({
+        fromUtcMs: daily[k].utcMs,
+        ttMinusUtcS: Number(daily[k].ttMinusUtc.toFixed(6)),
+        driftSPerDay: Number(Number(rate).toExponential(9)),
+      });
+      if (j >= runEnd) break;
+      k = j;
     }
-    runStart = runEnd + 1
+    runStart = runEnd + 1;
   }
   samples.forEach((sample) => {
-    if (sample.utcMs < leapEra) return
-    const stepped = 32.184 + Math.round(sample.ttMinusUtc - 32.184)
-    worstResidual = Math.max(worstResidual, Math.abs(sample.ttMinusUtc - stepped))
-    if (pieces.length === 0 || pieces.at(-1).ttMinusUtcS !== stepped || pieces.at(-1).driftSPerDay !== 0) pieces.push({ fromUtcMs: sample.utcMs, ttMinusUtcS: stepped, driftSPerDay: 0 })
-  })
+    if (sample.utcMs < leapEra) return;
+    const stepped = 32.184 + Math.round(sample.ttMinusUtc - 32.184);
+    worstResidual = Math.max(worstResidual, Math.abs(sample.ttMinusUtc - stepped));
+    if (pieces.length === 0 || pieces.at(-1).ttMinusUtcS !== stepped || pieces.at(-1).driftSPerDay !== 0)
+      pieces.push({ fromUtcMs: sample.utcMs, ttMinusUtcS: stepped, driftSPerDay: 0 });
+  });
   // Keep only what the span needs (one piece before it, so its start is covered).
-  const fromMs = J2000_NOON_UNIX_MS + fromS * 1000 - 2 * DAY_S * 1000
-  const toMs = J2000_NOON_UNIX_MS + toS * 1000 + 2 * DAY_S * 1000
-  const firstNeeded = Math.max(0, pieces.findLastIndex((piece) => piece.fromUtcMs <= fromMs))
-  const kept = pieces.slice(firstNeeded).filter((piece, index) => index === 0 || piece.fromUtcMs <= toMs)
+  const fromMs = J2000_NOON_UNIX_MS + fromS * 1000 - 2 * DAY_S * 1000;
+  const toMs = J2000_NOON_UNIX_MS + toS * 1000 + 2 * DAY_S * 1000;
+  const firstNeeded = Math.max(
+    0,
+    pieces.findLastIndex((piece) => piece.fromUtcMs <= fromMs),
+  );
+  const kept = pieces.slice(firstNeeded).filter((piece, index) => index === 0 || piece.fromUtcMs <= toMs);
   return {
     table: { pieces: kept, validToUtcMs: Math.min(samples.at(-1).utcMs, Math.max(toMs, kept[0].fromUtcMs + 1)) },
-    check: { samples: samples.length, worstResidualAfter1972S: worstResidual, note: 'Horizons TDB - UT less the SOFA dtdb series, against 32.184 s plus whole leap seconds, monthly 1972-2050' },
-    source: `JPL Horizons API, COMMAND=${CENTRE_COMMAND} CENTER=${ORIGIN} VECTORS with VEC_DELTA_T=YES, TIME_TYPE=UT, monthly 1950-01-01 to 2050-01-01, daily before 1972 (${headerOf(text).generated ?? 'time not printed'})`,
-  }
+    check: {
+      samples: samples.length,
+      worstResidualAfter1972S: worstResidual,
+      note: "Horizons TDB - UT less the SOFA dtdb series, against 32.184 s plus whole leap seconds, monthly 1972-2050",
+    },
+    source: `JPL Horizons API, COMMAND=${CENTRE_COMMAND} CENTER=${ORIGIN} VECTORS with VEC_DELTA_T=YES, TIME_TYPE=UT, monthly 1950-01-01 to 2050-01-01, daily before 1972 (${headerOf(text).generated ?? "time not printed"})`,
+  };
 }
 
 // ---------- 3. calibrate ----------
 
 function periodDaysOf(header, firstRow, command) {
-  if (command === CENTRE_COMMAND) return SYSTEM.centrePeriodDays
-  const stated = header.notes.join(' ').match(/Orbital period\s*[=~]\s*([\d.]+)\s*d/)
-  if (stated) return Number(stated[1])
-  const r = Math.hypot(firstRow.positionKm[0], firstRow.positionKm[1], firstRow.positionKm[2])
-  return (2 * Math.PI * Math.sqrt((r ** 3) / SYSTEM.gm)) / DAY_S
+  if (command === CENTRE_COMMAND) return SYSTEM.centrePeriodDays;
+  const stated = header.notes.join(" ").match(/Orbital period\s*[=~]\s*([\d.]+)\s*d/);
+  if (stated) return Number(stated[1]);
+  const r = Math.hypot(firstRow.positionKm[0], firstRow.positionKm[1], firstRow.positionKm[2]);
+  return (2 * Math.PI * Math.sqrt(r ** 3 / SYSTEM.gm)) / DAY_S;
 }
 
 async function calibrationData(opts, command) {
-  const [from, to] = CALIBRATION_WINDOW.map(secondsOfDate)
+  const [from, to] = CALIBRATION_WINDOW.map(secondsOfDate);
   // One request when the table fits Horizons' row limit (the Jupiter cache's keys), else pieces that share their end rows.
   const fetchGrid = async (startS, stepMin, count) => {
-    const samples = []
+    const samples = [];
     for (let done = 0; done < count; done += MAX_ROWS - 1) {
-      const rows = Math.min(MAX_ROWS, count - done)
-      const start = startS + done * stepMin * 60
+      const rows = Math.min(MAX_ROWS, count - done);
+      const start = startS + done * stepMin * 60;
       const piece = gridSamples(
-        await horizonsText(vectorParams({ command, center: ORIGIN, start: labelOfSeconds(start), stop: labelOfSeconds(start + (rows - 1) * stepMin * 60), step: `${stepMin}m` }), { cacheDir: opts.cache, offline: opts.offline }),
-        start, stepMin * 60, rows,
-      )
-      samples.push(...(samples.length > 0 ? piece.slice(1) : piece))
-      if (done + rows >= count) break
+        await horizonsText(
+          vectorParams({
+            command,
+            center: ORIGIN,
+            start: labelOfSeconds(start),
+            stop: labelOfSeconds(start + (rows - 1) * stepMin * 60),
+            step: `${stepMin}m`,
+          }),
+          { cacheDir: opts.cache, offline: opts.offline },
+        ),
+        start,
+        stepMin * 60,
+        rows,
+      );
+      samples.push(...(samples.length > 0 ? piece.slice(1) : piece));
+      if (done + rows >= count) break;
     }
-    return samples
-  }
+    return samples;
+  };
   // A first look at the body (one day) gives its header and a period estimate.
-  const peekText = await horizonsText(vectorParams({ command, center: ORIGIN, start: labelOfSeconds(from), stop: labelOfSeconds(from + DAY_S), step: '1d' }), { cacheDir: opts.cache, offline: opts.offline })
-  const header = headerOf(peekText)
-  const periodDays = periodDaysOf(header, gridSamples(peekText, from, DAY_S, 2)[0], command)
+  const peekText = await horizonsText(
+    vectorParams({
+      command,
+      center: ORIGIN,
+      start: labelOfSeconds(from),
+      stop: labelOfSeconds(from + DAY_S),
+      step: "1d",
+    }),
+    { cacheDir: opts.cache, offline: opts.offline },
+  );
+  const header = headerOf(peekText);
+  const periodDays = periodDaysOf(header, gridSamples(peekText, from, DAY_S, 2)[0], command);
   // A dense stretch from the window start finds the source's record grid: a kink in its higher derivatives only stands out
   // in sixth differences when the step is a small fraction of the period (period / 400, from 1 to 180 minutes).
-  const probeStepMin = [1, ...CALIBRATION_STEPS].filter((step) => step <= (periodDays * 1440) / 400).at(-1) ?? 1
-  const probe = await fetchGrid(from, probeStepMin, Math.min(20_000, Math.floor((120 * DAY_S) / (probeStepMin * 60))) + 1)
-  const grid = detectGrid(probe, probeStepMin * 60)
+  const probeStepMin = [1, ...CALIBRATION_STEPS].filter((step) => step <= (periodDays * 1440) / 400).at(-1) ?? 1;
+  const probe = await fetchGrid(
+    from,
+    probeStepMin,
+    Math.min(20_000, Math.floor((120 * DAY_S) / (probeStepMin * 60))) + 1,
+  );
+  const grid = detectGrid(probe, probeStepMin * 60);
   // The calibration year: at most period / 40, and at most a 24th of the record grid so a record can take a high degree.
-  const gridLimitMin = grid === null ? Infinity : grid.lengthS / 60 / 24
+  const gridLimitMin = grid === null ? Infinity : grid.lengthS / 60 / 24;
   // The step divides the record grid so samples land on its boundaries; the listed steps divide a multiple of 9 hours, and a
   // grid of another length (Titan: 73 h) takes the largest whole-minute divisor of the grid instead.
-  const limitMin = Math.min(calibrationStepMinutes(periodDays), gridLimitMin)
-  const gridMin = grid === null ? null : grid.lengthS / 60
-  const dividesGrid = (step) => gridMin === null || Math.abs(gridMin / step - Math.round(gridMin / step)) < 1e-9
-  let stepMin = CALIBRATION_STEPS.filter((step) => step <= limitMin && dividesGrid(step)).at(-1)
+  const limitMin = Math.min(calibrationStepMinutes(periodDays), gridLimitMin);
+  const gridMin = grid === null ? null : grid.lengthS / 60;
+  const dividesGrid = (step) => gridMin === null || Math.abs(gridMin / step - Math.round(gridMin / step)) < 1e-9;
+  let stepMin = CALIBRATION_STEPS.filter((step) => step <= limitMin && dividesGrid(step)).at(-1);
   if (stepMin === undefined) {
-    for (let step = Math.floor(limitMin); step >= 1 && stepMin === undefined; step -= 1) if (Number.isInteger(gridMin) && gridMin % step === 0) stepMin = step
-    stepMin ??= CALIBRATION_STEPS[0]
+    for (let step = Math.floor(limitMin); step >= 1 && stepMin === undefined; step -= 1)
+      if (Number.isInteger(gridMin) && gridMin % step === 0) stepMin = step;
+    stepMin ??= CALIBRATION_STEPS[0];
   }
-  const stepS = stepMin * 60
+  const stepS = stepMin * 60;
   // ... and the calibration window starts on a sample point that is on the grid (the window start itself when it already is).
-  const alignedFrom = grid === null ? from : grid.phaseS + Math.ceil((from - grid.phaseS) / stepS - 1e-9) * stepS
-  const count = Math.floor((to - alignedFrom) / stepS) + 1
-  const samples = await fetchGrid(alignedFrom, stepMin, count)
-  const tests = await fetchGrid(alignedFrom + stepS / 2, stepMin, count - 1)
-  return { header, periodDays, stepS, samples, tests, grid, probeStepS: probeStepMin * 60 }
+  const alignedFrom = grid === null ? from : grid.phaseS + Math.ceil((from - grid.phaseS) / stepS - 1e-9) * stepS;
+  const count = Math.floor((to - alignedFrom) / stepS) + 1;
+  const samples = await fetchGrid(alignedFrom, stepMin, count);
+  const tests = await fetchGrid(alignedFrom + stepS / 2, stepMin, count - 1);
+  return { header, periodDays, stepS, samples, tests, grid, probeStepS: probeStepMin * 60 };
 }
 
 async function calibrate(opts, command, targetKm) {
-  const { header, periodDays, stepS, samples, tests, grid, probeStepS } = await calibrationData(opts, command)
-  let policy
+  const { header, periodDays, stepS, samples, tests, grid, probeStepS } = await calibrationData(opts, command);
+  let policy;
   try {
-    policy = choosePolicy({ samples, tests, stepS, grid, periodDays, targetKm })
+    policy = choosePolicy({ samples, tests, stepS, grid, periodDays, targetKm });
   } catch (error) {
-    throw new Error(`${command}: ${error.message} (period ${periodDays.toFixed(4)} d, calibration step ${stepS / 60} min, probe step ${probeStepS / 60} min, record grid ${grid === null ? 'not found' : `${grid.lengthS / 86_400} d`})`)
+    throw new Error(
+      `${command}: ${error.message} (period ${periodDays.toFixed(4)} d, calibration step ${stepS / 60} min, probe step ${probeStepS / 60} min, record grid ${grid === null ? "not found" : `${grid.lengthS / 86_400} d`})`,
+    );
   }
   return {
     periodDays: Number(periodDays.toPrecision(6)),
@@ -262,263 +364,365 @@ async function calibrate(opts, command, targetKm) {
     calibrationRmsM: Number((policy.calibrationRmsKm * 1000).toFixed(4)),
     calibrationTests: policy.calibrationTests,
     header,
-  }
+  };
 }
 
 // ---------- 4. build ----------
 
 async function productionSamples(opts, command, policy, stepS, fromS, toS) {
-  const lengthS = policy.segmentSeconds
-  let first = firstBoundaryAtOrAfter(policy.phaseS, lengthS, fromS)
-  if (first > fromS) first -= lengthS
-  const segmentCount = Math.ceil((toS - first) / lengthS - 1e-9)
-  const stepMin = stepS / 60
-  const perSegment = Math.round(lengthS / stepS)
-  const segmentsPerPiece = Math.max(1, Math.floor((MAX_ROWS - 1) / perSegment))
-  const samples = []
+  const lengthS = policy.segmentSeconds;
+  let first = firstBoundaryAtOrAfter(policy.phaseS, lengthS, fromS);
+  if (first > fromS) first -= lengthS;
+  const segmentCount = Math.ceil((toS - first) / lengthS - 1e-9);
+  const stepMin = stepS / 60;
+  const perSegment = Math.round(lengthS / stepS);
+  const segmentsPerPiece = Math.max(1, Math.floor((MAX_ROWS - 1) / perSegment));
+  const samples = [];
   for (let k = 0; k < segmentCount; k += segmentsPerPiece) {
-    const segments = Math.min(segmentsPerPiece, segmentCount - k)
-    const start = first + k * lengthS
-    const rows = segments * perSegment + 1
-    const text = await horizonsText(vectorParams({ command, center: ORIGIN, start: labelOfSeconds(start), stop: labelOfSeconds(start + (rows - 1) * stepS), step: `${stepMin}m` }), { cacheDir: opts.cache, offline: opts.offline })
-    const piece = gridSamples(text, start, stepS, rows)
-    samples.push(...(samples.length > 0 ? piece.slice(1) : piece))
+    const segments = Math.min(segmentsPerPiece, segmentCount - k);
+    const start = first + k * lengthS;
+    const rows = segments * perSegment + 1;
+    const text = await horizonsText(
+      vectorParams({
+        command,
+        center: ORIGIN,
+        start: labelOfSeconds(start),
+        stop: labelOfSeconds(start + (rows - 1) * stepS),
+        step: `${stepMin}m`,
+      }),
+      { cacheDir: opts.cache, offline: opts.offline },
+    );
+    const piece = gridSamples(text, start, stepS, rows);
+    samples.push(...(samples.length > 0 ? piece.slice(1) : piece));
   }
-  return { firstS: first, segmentCount, stepS, samples }
+  return { firstS: first, segmentCount, stepS, samples };
 }
 
 function yearOf(seconds) {
-  return new Date(J2000_NOON_UNIX_MS + seconds * 1000).getUTCFullYear()
+  return new Date(J2000_NOON_UNIX_MS + seconds * 1000).getUTCFullYear();
 }
 
 /** The chunk files for one body (one per calendar year), encoded and read back as the provider will read them. */
 function buildChunks(bodyId, lengthS, degree, quantumKm, firstS, blocks, fromYear, toYear) {
-  const n = degree + 1
-  const byYear = new Map()
+  const n = degree + 1;
+  const byYear = new Map();
   blocks.forEach((block, k) => {
-    const year = Math.min(toYear - 1, Math.max(fromYear, yearOf(firstS + k * lengthS)))
-    if (!byYear.has(year)) byYear.set(year, [])
-    byYear.get(year).push(k)
-  })
-  const chunks = []
-  const decoded = []
-  const files = []
+    const year = Math.min(toYear - 1, Math.max(fromYear, yearOf(firstS + k * lengthS)));
+    if (!byYear.has(year)) byYear.set(year, []);
+    byYear.get(year).push(k);
+  });
+  const chunks = [];
+  const decoded = [];
+  const files = [];
   for (const [year, indices] of [...byYear.entries()].sort((a, b) => a[0] - b[0])) {
-    const coefficients = new Float64Array(indices.length * 3 * n)
-    indices.forEach((k, i) => coefficients.set(quantize(blocks[k], quantumKm), i * 3 * n))
-    const startTdbS = firstS + indices[0] * lengthS
-    const bytes = encodeChunk({ startTdbS, segmentCount: indices.length, coefficientCount: n, quantumKm, coefficients })
-    const path = `${bodyId}/${year}.bin`
-    files.push({ path, bytes })
-    chunks.push({ path, startTdbS, segmentCount: indices.length, bytes: bytes.byteLength })
-    decoded.push(decodeChunk(bytes, { startTdbS, segmentSeconds: lengthS, segmentCount: indices.length, coefficientCount: n, quantumKm }))
+    const coefficients = new Float64Array(indices.length * 3 * n);
+    indices.forEach((k, i) => coefficients.set(quantize(blocks[k], quantumKm), i * 3 * n));
+    const startTdbS = firstS + indices[0] * lengthS;
+    const bytes = encodeChunk({
+      startTdbS,
+      segmentCount: indices.length,
+      coefficientCount: n,
+      quantumKm,
+      coefficients,
+    });
+    const path = `${bodyId}/${year}.bin`;
+    files.push({ path, bytes });
+    chunks.push({ path, startTdbS, segmentCount: indices.length, bytes: bytes.byteLength });
+    decoded.push(
+      decodeChunk(bytes, {
+        startTdbS,
+        segmentSeconds: lengthS,
+        segmentCount: indices.length,
+        coefficientCount: n,
+        quantumKm,
+      }),
+    );
   }
-  return { chunks, decoded, files }
+  return { chunks, decoded, files };
 }
 
 function writeChunkFiles(opts, bodyId, files) {
-  const directory = join(opts.out, bodyId)
-  rmSync(directory, { recursive: true, force: true })
-  mkdirSync(directory, { recursive: true })
-  for (const file of files) writeFileSync(join(opts.out, file.path), file.bytes)
+  const directory = join(opts.out, bodyId);
+  rmSync(directory, { recursive: true, force: true });
+  mkdirSync(directory, { recursive: true });
+  for (const file of files) writeFileSync(join(opts.out, file.path), file.bytes);
 }
 
 /** The largest whole-minute divisor of the segment at most `maxStepS` leaving at least degree + 2 samples per segment. */
 function stepFor(lengthS, maxStepS, degree) {
-  const lengthMin = Math.round(lengthS / 60)
+  const lengthMin = Math.round(lengthS / 60);
   for (let pieces = degree + 1; pieces <= lengthMin; pieces += 1) {
-    if (lengthMin % pieces === 0 && (lengthMin / pieces) * 60 <= maxStepS) return (lengthMin / pieces) * 60
+    if (lengthMin % pieces === 0 && (lengthMin / pieces) * 60 <= maxStepS) return (lengthMin / pieces) * 60;
   }
-  return 60
+  return 60;
 }
 
 /** The next denser sample step: the largest whole-minute divisor of the segment below `stepS` leaving at least degree + 2 samples. */
 function denserStep(lengthS, stepS, degree) {
-  const lengthMin = Math.round(lengthS / 60)
+  const lengthMin = Math.round(lengthS / 60);
   for (let pieces = Math.max(degree + 1, Math.round(lengthS / stepS) + 1); pieces <= lengthMin; pieces += 1) {
-    if (lengthMin % pieces === 0) return (lengthMin / pieces) * 60
+    if (lengthMin % pieces === 0) return (lengthMin / pieces) * 60;
   }
-  return 60
+  return 60;
 }
 
 // ---------- 5. verify ----------
 
 /** Error (km) of the shipped (decoded, quantised) chunks against samples, skipping any sample within a second of a fit node. */
 function chunkError(decoded, samples, nodeStartS, nodeStepS) {
-  const out = new Float64Array(3)
-  let worst = 0
-  let worstAt = null
-  let sumSquares = 0
-  let count = 0
+  const out = new Float64Array(3);
+  let worst = 0;
+  let worstAt = null;
+  let sumSquares = 0;
+  let count = 0;
   for (const sample of samples) {
-    const phase = ((sample.tdbS - nodeStartS) % nodeStepS + nodeStepS) % nodeStepS
-    if (phase < 1 || nodeStepS - phase < 1) continue
-    const chunk = decoded.find((c) => sample.tdbS >= c.startTdbS && sample.tdbS <= c.startTdbS + c.segmentCount * c.segmentSeconds)
-    if (chunk === undefined) continue
-    chunkPositionInto(chunk, sample.tdbS, out, 0)
-    const error = Math.hypot(out[0] - sample.positionKm[0], out[1] - sample.positionKm[1], out[2] - sample.positionKm[2])
+    const phase = (((sample.tdbS - nodeStartS) % nodeStepS) + nodeStepS) % nodeStepS;
+    if (phase < 1 || nodeStepS - phase < 1) continue;
+    const chunk = decoded.find(
+      (c) => sample.tdbS >= c.startTdbS && sample.tdbS <= c.startTdbS + c.segmentCount * c.segmentSeconds,
+    );
+    if (chunk === undefined) continue;
+    chunkPositionInto(chunk, sample.tdbS, out, 0);
+    const error = Math.hypot(
+      out[0] - sample.positionKm[0],
+      out[1] - sample.positionKm[1],
+      out[2] - sample.positionKm[2],
+    );
     if (error > worst) {
-      worst = error
-      worstAt = sample.tdbS
+      worst = error;
+      worstAt = sample.tdbS;
     }
-    sumSquares += error * error
-    count += 1
+    sumSquares += error * error;
+    count += 1;
   }
-  return { worstM: Number((worst * 1000).toFixed(4)), worstAt: worstAt === null ? null : labelOfSeconds(worstAt) + ' TDB', rmsM: Number((Math.sqrt(sumSquares / Math.max(1, count)) * 1000).toFixed(4)), count }
+  return {
+    worstM: Number((worst * 1000).toFixed(4)),
+    worstAt: worstAt === null ? null : labelOfSeconds(worstAt) + " TDB",
+    rmsM: Number((Math.sqrt(sumSquares / Math.max(1, count)) * 1000).toFixed(4)),
+    count,
+  };
 }
 
 /** Independent barycentric samples across the span: an odd step (1,051 min) from 17 min after the start. */
 async function spanTests(opts, command, fromS, toS) {
-  const stepMin = 1051
-  const start = fromS + 17 * 60
-  const count = Math.floor((toS - start) / (stepMin * 60)) + 1
-  const text = await horizonsText(vectorParams({ command, center: ORIGIN, start: labelOfSeconds(start), stop: labelOfSeconds(start + (count - 1) * stepMin * 60), step: `${stepMin}m` }), { cacheDir: opts.cache, offline: opts.offline })
-  return gridSamples(text, start, stepMin * 60, count)
+  const stepMin = 1051;
+  const start = fromS + 17 * 60;
+  const count = Math.floor((toS - start) / (stepMin * 60)) + 1;
+  const text = await horizonsText(
+    vectorParams({
+      command,
+      center: ORIGIN,
+      start: labelOfSeconds(start),
+      stop: labelOfSeconds(start + (count - 1) * stepMin * 60),
+      step: `${stepMin}m`,
+    }),
+    { cacheDir: opts.cache, offline: opts.offline },
+  );
+  return gridSamples(text, start, stepMin * 60, count);
 }
 
 /** Jupiter-centred UT samples (Horizons' own centre subtraction and time scale) about every 7.3 days across the span. */
 async function endToEndSamples(opts, command, fromS, toS) {
-  const stepMin = 10_513
-  const startMs = J2000_NOON_UNIX_MS + fromS * 1000 + 3 * 3600 * 1000
-  const count = Math.floor(((toS - fromS) * 1000 - 3 * 3600 * 1000) / (stepMin * 60_000)) + 1
-  const label = (ms) => new Date(ms).toISOString().replace('T', ' ').replace('Z', '')
-  const text = await horizonsText(vectorParams({ command, center: `500@${CENTRE_COMMAND}`, start: label(startMs), stop: label(startMs + (count - 1) * stepMin * 60_000), step: `${stepMin}m`, timeType: 'UT' }), { cacheDir: opts.cache, offline: opts.offline })
-  const rows = rowsOf(text)
-  if (rows.length !== count) throw new Error(`end-to-end: expected ${count} rows, got ${rows.length}`)
-  return rows.map((row, index) => ({ utcMs: startMs + index * stepMin * 60_000, positionKm: [row[1], row[2], row[3]] }))
+  const stepMin = 10_513;
+  const startMs = J2000_NOON_UNIX_MS + fromS * 1000 + 3 * 3600 * 1000;
+  const count = Math.floor(((toS - fromS) * 1000 - 3 * 3600 * 1000) / (stepMin * 60_000)) + 1;
+  const label = (ms) => new Date(ms).toISOString().replace("T", " ").replace("Z", "");
+  const text = await horizonsText(
+    vectorParams({
+      command,
+      center: `500@${CENTRE_COMMAND}`,
+      start: label(startMs),
+      stop: label(startMs + (count - 1) * stepMin * 60_000),
+      step: `${stepMin}m`,
+      timeType: "UT",
+    }),
+    { cacheDir: opts.cache, offline: opts.offline },
+  );
+  const rows = rowsOf(text);
+  if (rows.length !== count) throw new Error(`end-to-end: expected ${count} rows, got ${rows.length}`);
+  return rows.map((row, index) => ({
+    utcMs: startMs + index * stepMin * 60_000,
+    positionKm: [row[1], row[2], row[3]],
+  }));
 }
 
 /** The index as JSON with one body per line: compact, yet a rebuild's diff still shows which bodies changed. */
 function indexText(index) {
-  const { bodies: list, ...rest } = index
-  const head = JSON.stringify(rest, null, 1)
-  return `${head.slice(0, -2)},\n "bodies": [\n${list.map((body) => `  ${JSON.stringify(body)}`).join(',\n')}\n ]\n}\n`
+  const { bodies: list, ...rest } = index;
+  const head = JSON.stringify(rest, null, 1);
+  return `${head.slice(0, -2)},\n "bodies": [\n${list.map((body) => `  ${JSON.stringify(body)}`).join(",\n")}\n ]\n}\n`;
 }
 
 // ---------- main ----------
 
-const opts = parseArgs(process.argv.slice(2))
-const SYSTEM = SYSTEMS[opts.system]
-const ORIGIN = `500@${SYSTEM.barycentre}`
-const CENTRE_COMMAND = SYSTEM.centre
-const CENTRE_ID = opts.system
-const CENTRE_NAME = SYSTEM.name
-const MOON_ID = new RegExp(`^(${SYSTEM.barycentre}\\d\\d|${SYSTEM.barycentre}5\\d{3})$`)
-const policyPath = join(HERE, 'horizons-moons-fit.json')
-const policies = existsSync(policyPath) && !opts.recalibrate ? readJson(policyPath) : {}
+const opts = parseArgs(process.argv.slice(2));
+const SYSTEM = SYSTEMS[opts.system];
+const ORIGIN = `500@${SYSTEM.barycentre}`;
+const CENTRE_COMMAND = SYSTEM.centre;
+const CENTRE_ID = opts.system;
+const CENTRE_NAME = SYSTEM.name;
+const MOON_ID = new RegExp(`^(${SYSTEM.barycentre}\\d\\d|${SYSTEM.barycentre}5\\d{3})$`);
+const policyPath = join(HERE, "horizons-moons-fit.json");
+const policies = existsSync(policyPath) && !opts.recalibrate ? readJson(policyPath) : {};
 
-const previousIndexPath = join(opts.out, 'index.json')
-const previous = existsSync(previousIndexPath) ? readJson(previousIndexPath) : null
+const previousIndexPath = join(opts.out, "index.json");
+const previous = existsSync(previousIndexPath) ? readJson(previousIndexPath) : null;
 // A merge (--only into an existing index) keeps what the other bodies hold: the set's span, the time scale and the centre cover the union.
-const merging = opts.only !== null && previous !== null
-const unionFrom = merging && previous.span.fromUtc < opts.from ? previous.span.fromUtc : opts.from
-const unionTo = merging && previous.span.toUtc > opts.to ? previous.span.toUtc : opts.to
-const unionFromS = secondsOfDate(unionFrom)
-const unionToS = secondsOfDate(unionTo)
-const J2000_MS = Date.UTC(2000, 0, 1, 12)
-const isoOfSeconds = (seconds) => new Date(J2000_MS + seconds * 1000).toISOString().slice(0, 10)
+const merging = opts.only !== null && previous !== null;
+const unionFrom = merging && previous.span.fromUtc < opts.from ? previous.span.fromUtc : opts.from;
+const unionTo = merging && previous.span.toUtc > opts.to ? previous.span.toUtc : opts.to;
+const unionFromS = secondsOfDate(unionFrom);
+const unionToS = secondsOfDate(unionTo);
+const J2000_MS = Date.UTC(2000, 0, 1, 12);
+const isoOfSeconds = (seconds) => new Date(J2000_MS + seconds * 1000).toISOString().slice(0, 10);
 
-log(`Horizons moons importer: span ${opts.from} to ${opts.to}, cache ${relative(REPO, opts.cache)}`)
-const list = await listMoons(opts)
-log(`  ${list.moons.length} moons listed for ${CENTRE_NAME} (major-body list fetched ${list.fetchedUtc})`)
-const scale = await timeScale(opts, unionFromS, unionToS)
-log(`  time scale: ${scale.table.pieces.length} pieces; after 1972 Horizons agrees with leap seconds + SOFA dtdb to ${(scale.check.worstResidualAfter1972S * 1e6).toFixed(1)} us`)
+log(`Horizons moons importer: span ${opts.from} to ${opts.to}, cache ${relative(REPO, opts.cache)}`);
+const list = await listMoons(opts);
+log(`  ${list.moons.length} moons listed for ${CENTRE_NAME} (major-body list fetched ${list.fetchedUtc})`);
+const scale = await timeScale(opts, unionFromS, unionToS);
+log(
+  `  time scale: ${scale.table.pieces.length} pieces; after 1972 Horizons agrees with leap seconds + SOFA dtdb to ${(scale.check.worstResidualAfter1972S * 1e6).toFixed(1)} us`,
+);
 
 const targets = [
-  { command: CENTRE_COMMAND, id: CENTRE_ID, label: CENTRE_NAME, naifId: Number(CENTRE_COMMAND), designation: null, aliases: null, role: 'centre' },
-  ...list.moons.map((moon) => ({ command: String(moon.naifId), id: slug(moon.name ?? moon.designation), label: moon.name ?? moon.designation, naifId: moon.naifId, designation: moon.designation, aliases: moon.aliases, role: 'moon' })),
-]
-const ids = new Set()
+  {
+    command: CENTRE_COMMAND,
+    id: CENTRE_ID,
+    label: CENTRE_NAME,
+    naifId: Number(CENTRE_COMMAND),
+    designation: null,
+    aliases: null,
+    role: "centre",
+  },
+  ...list.moons.map((moon) => ({
+    command: String(moon.naifId),
+    id: slug(moon.name ?? moon.designation),
+    label: moon.name ?? moon.designation,
+    naifId: moon.naifId,
+    designation: moon.designation,
+    aliases: moon.aliases,
+    role: "moon",
+  })),
+];
+const ids = new Set();
 for (const target of targets) {
-  if (ids.has(target.id)) throw new Error(`two bodies would share the id "${target.id}"`)
-  ids.add(target.id)
+  if (ids.has(target.id)) throw new Error(`two bodies would share the id "${target.id}"`);
+  ids.add(target.id);
 }
 
-const bodies = []
-const report = []
-const unavailable = []
-const NO_EPHEMERIS = /No ephemeris for target/
-const MONTHS = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC']
+const bodies = [];
+const report = [];
+const unavailable = [];
+const NO_EPHEMERIS = /No ephemeris for target/;
+const MONTHS = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
 /** The limit of a body's Horizons coverage from the refusal text ("No ephemeris for target ... after A.D. 2018-JAN-17 00:00:00.0000 TDB"), or null. */
 function coverageLimit(message) {
-  const match = message.match(/No ephemeris for target.*?(after|prior to) A\.D\. (\d{4})-([A-Z]{3})-(\d\d) (\d\d:\d\d:\d\d)/)
-  if (match === null) return null
-  const iso = `${match[2]}-${String(MONTHS.indexOf(match[3]) + 1).padStart(2, '0')}-${match[4]}T${match[5]}Z`
-  return { after: match[1] === 'after', seconds: secondsOfDate(iso) }
+  const match = message.match(
+    /No ephemeris for target.*?(after|prior to) A\.D\. (\d{4})-([A-Z]{3})-(\d\d) (\d\d:\d\d:\d\d)/,
+  );
+  if (match === null) return null;
+  const iso = `${match[2]}-${String(MONTHS.indexOf(match[3]) + 1).padStart(2, "0")}-${match[4]}T${match[5]}Z`;
+  return { after: match[1] === "after", seconds: secondsOfDate(iso) };
 }
 for (const target of targets) {
-  if (opts.only !== null && !opts.only.has(target.command) && target.role !== 'centre') {
-    const kept = previous?.bodies.find((body) => body.id === target.id)
-    if (kept) bodies.push({ ...kept, span: kept.span ?? { fromUtc: previous.span.fromUtc, toUtc: previous.span.toUtc } })
-    continue
+  if (opts.only !== null && !opts.only.has(target.command) && target.role !== "centre") {
+    const kept = previous?.bodies.find((body) => body.id === target.id);
+    if (kept)
+      bodies.push({ ...kept, span: kept.span ?? { fromUtc: previous.span.fromUtc, toUtc: previous.span.toUtc } });
+    continue;
   }
-  const started = Date.now()
-  const targetKm = target.role === 'centre' ? CENTRE_TARGET_KM : TARGET_KM
+  const started = Date.now();
+  const targetKm = target.role === "centre" ? CENTRE_TARGET_KM : TARGET_KM;
   if (!policies[target.command]) {
     try {
-      policies[target.command] = await calibrate(opts, target.command, targetKm)
+      policies[target.command] = await calibrate(opts, target.command, targetKm);
     } catch (error) {
-      if (!NO_EPHEMERIS.test(error.message)) throw error
-      unavailable.push({ id: target.id, naifId: target.naifId, reason: error.message.replace(/^.*?No ephemeris/, 'No ephemeris') })
-      log(`  ${target.id.padEnd(14)} not built: ${unavailable.at(-1).reason}`)
-      continue
+      if (!NO_EPHEMERIS.test(error.message)) throw error;
+      unavailable.push({
+        id: target.id,
+        naifId: target.naifId,
+        reason: error.message.replace(/^.*?No ephemeris/, "No ephemeris"),
+      });
+      log(`  ${target.id.padEnd(14)} not built: ${unavailable.at(-1).reason}`);
+      continue;
     }
-    writeFileSync(policyPath, `${JSON.stringify(policies, null, 1)}\n`)
+    writeFileSync(policyPath, `${JSON.stringify(policies, null, 1)}\n`);
   }
-  const policy = policies[target.command]
+  const policy = policies[target.command];
   // Fit the span; if the independent span check misses the target (the calibration year cannot show every orbit's sharpest
   // turn), first raise the degree twice, then halve the segment (rounded down to whole source records) at the calibrated degree.
   // Horizons may hold a small moon's ephemeris for only part of the span (Cassini-era moons end in 2018): the series then covers what
   // Horizons has, less one segment so no sample is asked for outside it, and the body's span says so.
   // The centre's series enters every moon's centre-relative position, so it covers the union of every body's span.
-  const requestedFrom = target.role === 'centre' ? unionFrom : opts.from
-  const requestedTo = target.role === 'centre' ? unionTo : opts.to
-  let bodyFromS = secondsOfDate(requestedFrom)
-  let bodyToS = secondsOfDate(requestedTo)
-  let tests
-  let truncated = null
+  const requestedFrom = target.role === "centre" ? unionFrom : opts.from;
+  const requestedTo = target.role === "centre" ? unionTo : opts.to;
+  let bodyFromS = secondsOfDate(requestedFrom);
+  let bodyToS = secondsOfDate(requestedTo);
+  let tests;
+  let truncated = null;
   for (let tries = 0; tests === undefined; tries += 1) {
     try {
-      tests = await spanTests(opts, target.command, bodyFromS, bodyToS)
+      tests = await spanTests(opts, target.command, bodyFromS, bodyToS);
     } catch (error) {
-      const limit = coverageLimit(error.message)
-      if (limit === null || tries >= 2) throw error
-      truncated = error.message.replace(/^.*?No ephemeris/, 'No ephemeris')
-      if (limit.after) bodyToS = Math.min(bodyToS, limit.seconds - 2 * policy.segmentSeconds)
-      else bodyFromS = Math.max(bodyFromS, limit.seconds + 2 * policy.segmentSeconds)
+      const limit = coverageLimit(error.message);
+      if (limit === null || tries >= 2) throw error;
+      truncated = error.message.replace(/^.*?No ephemeris/, "No ephemeris");
+      if (limit.after) bodyToS = Math.min(bodyToS, limit.seconds - 2 * policy.segmentSeconds);
+      else bodyFromS = Math.max(bodyFromS, limit.seconds + 2 * policy.segmentSeconds);
     }
   }
-  let lengthS = policy.segmentSeconds
-  let degree = policy.degree
-  let stepS = policy.sampleStepS
-  let production
-  let built
-  let span
+  let lengthS = policy.segmentSeconds;
+  let degree = policy.degree;
+  let stepS = policy.sampleStepS;
+  let production;
+  let built;
+  let span;
   for (let attempt = 0, raised = 0; ; attempt += 1) {
-    production = await productionSamples(opts, target.command, { ...policy, segmentSeconds: lengthS }, stepS, bodyFromS, bodyToS)
-    const blocks = fitSeries(production.samples, production.firstS, lengthS, degree, production.segmentCount)
-    built = buildChunks(target.id, lengthS, degree, targetKm * QUANTUM_PER_TARGET, production.firstS, blocks, Number(requestedFrom.slice(0, 4)), Number(requestedTo.slice(0, 4)))
-    span = chunkError(built.decoded, tests, production.firstS, production.stepS)
-    if (span.worstM <= targetKm * 1000 || attempt >= 16) break
-    const grid = policy.sourceGrid?.lengthS ?? DAY_S
-    const shorter = Math.max(grid, Math.floor(lengthS / 2 / grid) * grid)
+    production = await productionSamples(
+      opts,
+      target.command,
+      { ...policy, segmentSeconds: lengthS },
+      stepS,
+      bodyFromS,
+      bodyToS,
+    );
+    const blocks = fitSeries(production.samples, production.firstS, lengthS, degree, production.segmentCount);
+    built = buildChunks(
+      target.id,
+      lengthS,
+      degree,
+      targetKm * QUANTUM_PER_TARGET,
+      production.firstS,
+      blocks,
+      Number(requestedFrom.slice(0, 4)),
+      Number(requestedTo.slice(0, 4)),
+    );
+    span = chunkError(built.decoded, tests, production.firstS, production.stepS);
+    if (span.worstM <= targetKm * 1000 || attempt >= 16) break;
+    const grid = policy.sourceGrid?.lengthS ?? DAY_S;
+    const shorter = Math.max(grid, Math.floor(lengthS / 2 / grid) * grid);
     if (raised < 2 || shorter >= lengthS) {
-      raised += 1
-      degree += 1
-      if (lengthS / stepS < degree + 1) stepS = denserStep(lengthS, stepS, degree)
+      raised += 1;
+      degree += 1;
+      if (lengthS / stepS < degree + 1) stepS = denserStep(lengthS, stepS, degree);
     } else {
-      lengthS = shorter
-      degree = policy.degree
-      raised = 0
-      stepS = stepFor(lengthS, stepS, degree)
+      lengthS = shorter;
+      degree = policy.degree;
+      raised = 0;
+      stepS = stepFor(lengthS, stepS, degree);
     }
   }
-  writeChunkFiles(opts, target.id, built.files)
-  const { chunks, decoded } = built
-  const demo = chunkError(decoded, (await calibrationData(opts, target.command)).tests, production.firstS, production.stepS)
-  const bytes = chunks.reduce((sum, chunk) => sum + chunk.bytes, 0)
-  const header = policy.header
-  const recent = header.notes.some((note) => /recently discovered/i.test(note))
+  writeChunkFiles(opts, target.id, built.files);
+  const { chunks, decoded } = built;
+  const demo = chunkError(
+    decoded,
+    (await calibrationData(opts, target.command)).tests,
+    production.firstS,
+    production.stepS,
+  );
+  const bytes = chunks.reduce((sum, chunk) => sum + chunk.bytes, 0);
+  const header = policy.header;
+  const recent = header.notes.some((note) => /recently discovered/i.test(note));
   bodies.push({
     id: target.id,
     label: target.label,
@@ -542,66 +746,101 @@ for (const target of targets) {
     span: { fromUtc: isoOfSeconds(bodyFromS), toUtc: isoOfSeconds(bodyToS) },
     accuracy: { targetM: targetKm * 1000, span, demoWindow: demo },
     provenance: {
-      sourceType: 'ephemeris',
+      sourceType: "ephemeris",
       sources: [
-        `JPL Horizons API ${list.version ?? ''} (https://ssd.jpl.nasa.gov/api/horizons.api), COMMAND=${target.command} CENTER=${ORIGIN}, VECTORS geometric ICRF km km/s TDB; ephemeris ${header.targetSource}; fetched ${header.generated ?? 'see cache'}`.replace(/\s+/g, ' '),
+        `JPL Horizons API ${list.version ?? ""} (https://ssd.jpl.nasa.gov/api/horizons.api), COMMAND=${target.command} CENTER=${ORIGIN}, VECTORS geometric ICRF km km/s TDB; ephemeris ${header.targetSource}; fetched ${header.generated ?? "see cache"}`.replace(
+          /\s+/g,
+          " ",
+        ),
         LICENCE,
       ],
       accuracy: `Piecewise Chebyshev fit of Horizons states: worst ${span.worstM} m, typical (rms) ${span.rmsM} m at ${span.count} independent dates ${requestedFrom} to ${requestedTo}; worst ${demo.worstM} m at ${demo.count} dates in the demo window. Horizons' own ephemeris uncertainty is not part of this figure and is not stated in its output.`,
-      notes: `${truncated === null ? '' : `Horizons has this body's ephemeris for only part of ${requestedFrom} to ${requestedTo}, so the series covers ${labelOfSeconds(bodyFromS)} to ${labelOfSeconds(bodyToS)} TDB (${truncated}). `}${recent ? 'Horizons calls this a recently discovered satellite: its orbit rests on few observations, so its true position can differ from Horizons by far more than this fit does. ' : ''}Horizons header: ${header.notes.join(' / ')}`,
+      notes: `${truncated === null ? "" : `Horizons has this body's ephemeris for only part of ${requestedFrom} to ${requestedTo}, so the series covers ${labelOfSeconds(bodyFromS)} to ${labelOfSeconds(bodyToS)} TDB (${truncated}). `}${recent ? "Horizons calls this a recently discovered satellite: its orbit rests on few observations, so its true position can differ from Horizons by far more than this fit does. " : ""}Horizons header: ${header.notes.join(" / ")}`,
     },
-  })
-  report.push({ bodyFromS, bodyToS, id: target.id, naifId: target.naifId, ephemeris: header.targetSource, periodDays: policy.periodDays, segmentDays: lengthS / DAY_S, calibratedSegmentDays: policy.segmentSeconds / DAY_S, degree, calibratedDegree: policy.degree, sourceGridDays: policy.sourceGrid ? policy.sourceGrid.lengthS / DAY_S : null, sampleStepMinutes: production.stepS / 60, samples: production.samples.length, chunkBytes: bytes, span, demo })
-  log(`  ${target.id.padEnd(14)} seg ${(lengthS / DAY_S).toFixed(4)} d deg ${String(degree).padStart(2)} step ${production.stepS / 60} min | span worst ${span.worstM} m rms ${span.rmsM} m | demo worst ${demo.worstM} m | ${bytes} B | ${((Date.now() - started) / 1000).toFixed(0)} s`)
+  });
+  report.push({
+    bodyFromS,
+    bodyToS,
+    id: target.id,
+    naifId: target.naifId,
+    ephemeris: header.targetSource,
+    periodDays: policy.periodDays,
+    segmentDays: lengthS / DAY_S,
+    calibratedSegmentDays: policy.segmentSeconds / DAY_S,
+    degree,
+    calibratedDegree: policy.degree,
+    sourceGridDays: policy.sourceGrid ? policy.sourceGrid.lengthS / DAY_S : null,
+    sampleStepMinutes: production.stepS / 60,
+    samples: production.samples.length,
+    chunkBytes: bytes,
+    span,
+    demo,
+  });
+  log(
+    `  ${target.id.padEnd(14)} seg ${(lengthS / DAY_S).toFixed(4)} d deg ${String(degree).padStart(2)} step ${production.stepS / 60} min | span worst ${span.worstM} m rms ${span.rmsM} m | demo worst ${demo.worstM} m | ${bytes} B | ${((Date.now() - started) / 1000).toFixed(0)} s`,
+  );
 }
 
 const index = {
-  format: 'astraeus.chebyshev-ephemeris/1',
+  format: "astraeus.chebyshev-ephemeris/1",
   id: `${opts.system}-moons`,
   label: `${CENTRE_NAME}'s moons (JPL Horizons, piecewise Chebyshev fits)`,
-  frame: 'EQJ',
-  units: { position: 'km', velocity: 'km/s', time: 'TDB seconds from J2000 (2000-01-01 12:00 TDB)' },
-  origin: { naifId: SYSTEM.barycentre, label: `${CENTRE_NAME} system barycentre`, note: 'Every series is relative to the barycentre; centre-relative states subtract the centre series.' },
+  frame: "EQJ",
+  units: { position: "km", velocity: "km/s", time: "TDB seconds from J2000 (2000-01-01 12:00 TDB)" },
+  origin: {
+    naifId: SYSTEM.barycentre,
+    label: `${CENTRE_NAME} system barycentre`,
+    note: "Every series is relative to the barycentre; centre-relative states subtract the centre series.",
+  },
   centre: CENTRE_ID,
-  span: { fromUtc: unionFrom, toUtc: unionTo, chunk: 'one file per body per calendar year (TDB), <body>/<year>.bin' },
+  span: { fromUtc: unionFrom, toUtc: unionTo, chunk: "one file per body per calendar year (TDB), <body>/<year>.bin" },
   source: {
-    title: 'JPL Horizons On-Line Ephemeris System, API',
-    url: 'https://ssd.jpl.nasa.gov/api/horizons.api',
+    title: "JPL Horizons On-Line Ephemeris System, API",
+    url: "https://ssd.jpl.nasa.gov/api/horizons.api",
     apiVersion: list.version,
     bodyList: `Horizons major-body list (COMMAND=MB), fetched ${list.fetchedUtc}: ${list.moons.length} moons of ${CENTRE_NAME} (NAIF ${SYSTEM.barycentre}01-${SYSTEM.barycentre}xx and provisional ${SYSTEM.provisional ?? `${SYSTEM.barycentre}5xxx`})`,
     moonCount: list.moons.length,
     ...(unavailable.length > 0 ? { unavailable } : {}),
     licence: LICENCE,
-    importer: 'tools/import/horizons-moons.mjs',
+    importer: "tools/import/horizons-moons.mjs",
   },
   timeScale: { ...scale.table, source: scale.source, check: scale.check },
   bodies,
-}
-const parsed = parseEphemerisIndex(index)
-mkdirSync(opts.out, { recursive: true })
-writeFileSync(previousIndexPath, indexText(index))
+};
+const parsed = parseEphemerisIndex(index);
+mkdirSync(opts.out, { recursive: true });
+writeFileSync(previousIndexPath, indexText(index));
 
 // End-to-end through the provider: Jupiter-centred UT states against Horizons' own Jupiter-centred UT vectors.
-const ephemeris = new ChebyshevEphemeris(parsed)
-for (const body of parsed.bodies) for (const chunk of body.chunks) ephemeris.addChunk(body.id, chunk.path, new Uint8Array(readFileSync(join(opts.out, chunk.path))))
+const ephemeris = new ChebyshevEphemeris(parsed);
+for (const body of parsed.bodies)
+  for (const chunk of body.chunks)
+    ephemeris.addChunk(body.id, chunk.path, new Uint8Array(readFileSync(join(opts.out, chunk.path))));
 for (const entry of report) {
-  if (entry.id === CENTRE_ID) continue
-  const samples = await endToEndSamples(opts, String(entry.naifId), entry.bodyFromS, entry.bodyToS)
-  let worst = 0
-  let sumSquares = 0
+  if (entry.id === CENTRE_ID) continue;
+  const samples = await endToEndSamples(opts, String(entry.naifId), entry.bodyFromS, entry.bodyToS);
+  let worst = 0;
+  let sumSquares = 0;
   for (const sample of samples) {
-    const state = ephemeris.stateOf(entry.id, sample.utcMs)
-    const error = Math.hypot(...[0, 1, 2].map((axis) => state.positionKm[axis] - sample.positionKm[axis]))
-    worst = Math.max(worst, error)
-    sumSquares += error * error
+    const state = ephemeris.stateOf(entry.id, sample.utcMs);
+    const error = Math.hypot(...[0, 1, 2].map((axis) => state.positionKm[axis] - sample.positionKm[axis]));
+    worst = Math.max(worst, error);
+    sumSquares += error * error;
   }
-  entry.endToEnd = { worstM: Number((worst * 1000).toFixed(4)), rmsM: Number((Math.sqrt(sumSquares / samples.length) * 1000).toFixed(4)), count: samples.length }
-  const body = index.bodies.find((candidate) => candidate.id === entry.id)
-  body.accuracy[`${CENTRE_ID}CentredUtc`] = entry.endToEnd
+  entry.endToEnd = {
+    worstM: Number((worst * 1000).toFixed(4)),
+    rmsM: Number((Math.sqrt(sumSquares / samples.length) * 1000).toFixed(4)),
+    count: samples.length,
+  };
+  const body = index.bodies.find((candidate) => candidate.id === entry.id);
+  body.accuracy[`${CENTRE_ID}CentredUtc`] = entry.endToEnd;
 }
-writeFileSync(previousIndexPath, indexText(index))
+writeFileSync(previousIndexPath, indexText(index));
 if (opts.report !== null) {
-  mkdirSync(opts.report, { recursive: true })
-  writeFileSync(join(opts.report, 'importer-report.json'), `${JSON.stringify({ span: [opts.from, opts.to], moonCount: list.moons.length, listFetched: list.fetchedUtc, requests: requestsMade(), timeScaleCheck: scale.check, bodies: report }, null, 1)}\n`)
+  mkdirSync(opts.report, { recursive: true });
+  writeFileSync(
+    join(opts.report, "importer-report.json"),
+    `${JSON.stringify({ span: [opts.from, opts.to], moonCount: list.moons.length, listFetched: list.fetchedUtc, requests: requestsMade(), timeScaleCheck: scale.check, bodies: report }, null, 1)}\n`,
+  );
 }
-log(`Done: ${bodies.length} bodies, ${requestsMade()} Horizons requests this run.`)
+log(`Done: ${bodies.length} bodies, ${requestsMade()} Horizons requests this run.`);

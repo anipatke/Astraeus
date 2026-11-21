@@ -26,35 +26,71 @@ import { buildSyntheticProbeScene } from "../src/synthetic/syntheticProbeScene";
 import { buildSyntheticViewsScene } from "../src/synthetic/syntheticViewsScene";
 import { buildSyntheticLookOutScene, loadLookOutPlanets } from "../src/synthetic/syntheticLookOutScene";
 
-const PLANET_FILES = import.meta.glob<unknown>("../../astraeus-demo-planets/data/planets/*.json", { eager: true, import: "default" });
-const SHOWER_FILES = import.meta.glob<unknown>("../../astraeus-demo-showers/data/showers/*.json", { eager: true, import: "default" });
+const PLANET_FILES = import.meta.glob<unknown>("../../astraeus-demo-planets/data/planets/*.json", {
+  eager: true,
+  import: "default",
+});
+const SHOWER_FILES = import.meta.glob<unknown>("../../astraeus-demo-showers/data/showers/*.json", {
+  eager: true,
+  import: "default",
+});
 const MAIN = readFileSync(new URL("../src/main.tsx", import.meta.url), "utf8");
 
 async function demos(): Promise<[string, DemoAboutSource][]> {
-  const found: [string, DemoAboutSource][] = [["Apollo 11", { scene: buildApollo11Scene(), data: [pictureData], label: APOLLO11_LABEL, credits: apolloCredits }]];
+  const found: [string, DemoAboutSource][] = [
+    ["Apollo 11", { scene: buildApollo11Scene(), data: [pictureData], label: APOLLO11_LABEL, credits: apolloCredits }],
+  ];
   for (const file of Object.values(PLANET_FILES)) {
     const settings = parsePlanetSettings(file);
     const system = (await PLANET_SYSTEMS[settings.system]!())[`${settings.system}System`]!;
-    found.push([settings.label, { scene: buildPlanetScene(settings, system, noPanels), data: [pictureData, ...system.data], label: settings.experienceLabel, shortLabel: settings.label, credits: planetsCredits }]);
+    found.push([
+      settings.label,
+      {
+        scene: buildPlanetScene(settings, system, noPanels),
+        data: [pictureData, ...system.data],
+        label: settings.experienceLabel,
+        shortLabel: settings.label,
+        credits: planetsCredits,
+      },
+    ]);
   }
   for (const file of Object.values(SHOWER_FILES)) {
     const settings = parseShowerSettings(file);
-    found.push([settings.label, { scene: buildShowerScene(settings, { kind: "loaded", orbits: madeUpOrbits(4, 20) }), data: [pictureData], label: settings.label, credits: showersCredits }]);
+    found.push([
+      settings.label,
+      {
+        scene: buildShowerScene(settings, { kind: "loaded", orbits: madeUpOrbits(4, 20) }),
+        data: [pictureData],
+        label: settings.label,
+        credits: showersCredits,
+      },
+    ]);
   }
   await loadLookOutPlanets();
-  const madeUp: [string, () => Scene][] = [["synthetic", buildSyntheticScene], ["synthetic-ring", buildSyntheticRingScene], ["synthetic-belt", buildSyntheticBeltScene], ["synthetic-listed", buildSyntheticListedScene],
-    ["synthetic-eccentric", buildSyntheticEccentricScene], ["synthetic-probe", buildSyntheticProbeScene], ["synthetic-views", buildSyntheticViewsScene], ["synthetic-lookout", buildSyntheticLookOutScene]];
+  const madeUp: [string, () => Scene][] = [
+    ["synthetic", buildSyntheticScene],
+    ["synthetic-ring", buildSyntheticRingScene],
+    ["synthetic-belt", buildSyntheticBeltScene],
+    ["synthetic-listed", buildSyntheticListedScene],
+    ["synthetic-eccentric", buildSyntheticEccentricScene],
+    ["synthetic-probe", buildSyntheticProbeScene],
+    ["synthetic-views", buildSyntheticViewsScene],
+    ["synthetic-lookout", buildSyntheticLookOutScene],
+  ];
   for (const [name, build] of madeUp) found.push([name, { scene: build(), data: [pictureData] }]);
   return found;
 }
 
 describe("every demo's About (O-079 T-327)", () => {
   let all: [string, DemoAboutSource][] = [];
-  beforeAll(async () => { all = await demos(); }, 60_000);
+  beforeAll(async () => {
+    all = await demos();
+  }, 60_000);
 
   it("is set by the site's entry on every scene it mounts, from the scene's own record", () => {
     expect(MAIN).toContain("built.scene.setAbout(demoAbout(built));");
-    for (const name of ["astraeus-demo-apollo11", "astraeus-demo-planets", "astraeus-demo-showers"]) expect(MAIN).toContain(`import("${name}/credits/CREDITS.md?raw")`);
+    for (const name of ["astraeus-demo-apollo11", "astraeus-demo-planets", "astraeus-demo-showers"])
+      expect(MAIN).toContain(`import("${name}/credits/CREDITS.md?raw")`);
     expect(MAIN.match(/credits: credits\.default/g)).toHaveLength(3);
   });
 
@@ -64,7 +100,8 @@ describe("every demo's About (O-079 T-327)", () => {
       const about = demoAbout(source);
       expect(about.title, name).toBe(source.label ?? "Astraeus");
       expect(about.credits?.length, name).toBeGreaterThan(0);
-      for (const credit of about.credits ?? []) if (credit.url !== undefined) expect(credit.url, name).toMatch(/^https?:\/\//);
+      for (const credit of about.credits ?? [])
+        if (credit.url !== undefined) expect(credit.url, name).toMatch(/^https?:\/\//);
       const read: AboutInput | undefined = source.scene.setAbout(about).about;
       expect(read?.credits, name).toEqual(about.credits);
     }
@@ -81,12 +118,16 @@ describe("every demo's About (O-079 T-327)", () => {
     const lines = creditLines(apolloCredits);
     expect(lines.length).toBeGreaterThan(0);
     expect(apollo.credits?.slice(0, lines.length)).toEqual(lines);
-    for (const file of [apolloCredits, planetsCredits, showersCredits]) for (const line of creditLines(file)) expect(line.url, line.text).toMatch(/^https:\/\//);
+    for (const file of [apolloCredits, planetsCredits, showersCredits])
+      for (const line of creditLines(file)) expect(line.url, line.text).toMatch(/^https:\/\//);
   });
 
   it("credits every picture the viewer draws with the credit line its licence record asks for, linking to its source", () => {
     const apollo = all[0]![1];
     const earth = apollo.scene.bodies.find((body) => body.id === "earth")!.texture!.licence!;
-    expect(demoAbout(apollo).credits).toContainEqual({ text: earth.attribution ?? `${earth.source}, ${earth.licence}`, url: earth.url });
+    expect(demoAbout(apollo).credits).toContainEqual({
+      text: earth.attribution ?? `${earth.source}, ${earth.licence}`,
+      url: earth.url,
+    });
   });
 });

@@ -17,13 +17,20 @@ export function lineAgainstAt(lineFixedTo: TrackedBody["lineFixedTo"], timeUtcMs
   if (lineFixedTo === undefined) return fallback;
   if (typeof lineFixedTo === "string") return lineFixedTo;
   const last = lineFixedTo[lineFixedTo.length - 1];
-  return lineFixedTo.find((stretch) => timeUtcMs >= stretch.startUtcMs && timeUtcMs < stretch.endUtcMs)?.body ?? (last !== undefined && timeUtcMs === last.endUtcMs ? last.body : fallback);
+  return (
+    lineFixedTo.find((stretch) => timeUtcMs >= stretch.startUtcMs && timeUtcMs < stretch.endUtcMs)?.body ??
+    (last !== undefined && timeUtcMs === last.endUtcMs ? last.body : fallback)
+  );
 }
 
 /** Every body a path's line is drawn against, in order, with the `lineFixedTo` index of each (a plain id is index null). */
-export function lineBodies(lineFixedTo: TrackedBody["lineFixedTo"]): readonly { readonly index: number | null; readonly body: string }[] {
+export function lineBodies(
+  lineFixedTo: TrackedBody["lineFixedTo"],
+): readonly { readonly index: number | null; readonly body: string }[] {
   if (lineFixedTo === undefined) return [];
-  return typeof lineFixedTo === "string" ? [{ index: null, body: lineFixedTo }] : lineFixedTo.map((stretch, index) => ({ index, body: stretch.body }));
+  return typeof lineFixedTo === "string"
+    ? [{ index: null, body: lineFixedTo }]
+    : lineFixedTo.map((stretch, index) => ({ index, body: stretch.body }));
 }
 
 /** A bounded trajectory the scene can draw. Nothing here names a mission. */
@@ -68,7 +75,9 @@ export function discrepancyAt(body: TrackedBody, timeUtcMs: number): PositionDis
 export function anchorLabelsOf(body: TrackedBody): readonly string[] | null {
   if (body.anchorLabels === undefined) return null;
   if (body.anchorLabels.length !== body.anchorTimesUtcMs.length) {
-    throw new RangeError(`${body.id}: ${body.anchorLabels.length} anchor labels for ${body.anchorTimesUtcMs.length} anchors`);
+    throw new RangeError(
+      `${body.id}: ${body.anchorLabels.length} anchor labels for ${body.anchorTimesUtcMs.length} anchors`,
+    );
   }
   return body.anchorLabels;
 }
@@ -86,10 +95,7 @@ export function stateClampedToBounds(body: TrackedBody, timeUtcMs: number): Stat
 }
 
 /** Physical positions through the trajectory's own stateAt at the given times. */
-export function sampleTrackedPositions(
-  trajectory: Trajectory,
-  timesUtcMs: readonly number[],
-): PathSamples {
+export function sampleTrackedPositions(trajectory: Trajectory, timesUtcMs: readonly number[]): PathSamples {
   const positionsKm = new Float64Array(timesUtcMs.length * 3);
   timesUtcMs.forEach((time, index) => positionsKm.set(trajectory.stateAt(time).positionKm, index * 3));
   return { timesUtcMs, positionsKm };

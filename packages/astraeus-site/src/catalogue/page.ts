@@ -4,12 +4,16 @@ import type { MountedScene, Scene } from "astraeus";
 import { addPartsStatement, importLines } from "./sourceLines";
 
 /** An example builds its scene; one that needs something done once the viewer is drawn (a value that follows the time) also gives `live`, which returns the function that stops it. */
-interface Example { buildScene(): Scene; live?(viewer: MountedScene): () => void }
+interface Example {
+  buildScene(): Scene;
+  live?(viewer: MountedScene): () => void;
+}
 
 const sources = import.meta.glob<string>("./examples/*.ts", { query: "?raw", import: "default", eager: true });
 const loaders = import.meta.glob<Example>("./examples/*.ts");
 const nameOf = (path: string): string => /\/([^/]+)\.ts$/.exec(path)![1]!;
-const byName = <T>(table: Record<string, T>): Map<string, T> => new Map(Object.entries(table).map(([path, value]) => [nameOf(path), value]));
+const byName = <T>(table: Record<string, T>): Map<string, T> =>
+  new Map(Object.entries(table).map(([path, value]) => [nameOf(path), value]));
 const sourceOf = byName(sources);
 const loaderOf = byName(loaders);
 
@@ -74,5 +78,10 @@ for (const article of document.querySelectorAll<HTMLElement>("article[data-part]
     part(article, "data-part-add").textContent = addPartsStatement(source);
     part(article, "data-part-code").textContent = source;
   }
-  part(article, "data-part-run").addEventListener("click", () => { if (running?.article === article) { ticket++; stopRunning(); } else void start(article); });
+  part(article, "data-part-run").addEventListener("click", () => {
+    if (running?.article === article) {
+      ticket++;
+      stopRunning();
+    } else void start(article);
+  });
 }

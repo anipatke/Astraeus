@@ -1,6 +1,15 @@
 // The sky as the app uses it: render-frame directions and buffers, the shell item that cites the sources, the settings check.
 import { createProvenance, type Provenance } from "../core/provenance";
-import { colourFromTemperature, galacticToEqj, eqjUnit, SKY_SOURCES, starAppearance, temperatureFromBV, type SkySettings, type StarRow } from "../assets/sky";
+import {
+  colourFromTemperature,
+  galacticToEqj,
+  eqjUnit,
+  SKY_SOURCES,
+  starAppearance,
+  temperatureFromBV,
+  type SkySettings,
+  type StarRow,
+} from "../assets/sky";
 import type { ExperienceConfig, ExperienceObject } from "../shell/experience";
 import { eqjToRenderVector, type RenderVector } from "./renderCoordinates";
 
@@ -35,21 +44,24 @@ export function buildStarBuffers(stars: readonly StarRow[]): StarBuffers {
 }
 
 /** Whether the star file was found: still loading, absent, or loaded with a count. */
-export type StarStatus = { readonly kind: "loading" } | { readonly kind: "absent" } | { readonly kind: "loaded"; readonly count: number };
+export type StarStatus =
+  { readonly kind: "loading" } | { readonly kind: "absent" } | { readonly kind: "loaded"; readonly count: number };
 
 export const SKY_OBJECT_ID = "sky";
 
 /** The sky's one shell item: it cites both sources and states what is and is not drawn. */
 export function skyObject(status: StarStatus): ExperienceObject {
-  const starLine = status.kind === "loaded"
-    ? `${status.count} stars of magnitude 6.5 or brighter are drawn from the HYG star catalogue (CC BY-SA 4.0).`
-    : status.kind === "loading"
-      ? "Loading the star catalogue."
-      : "Stars are not drawn: the star file could not be loaded. The Milky Way picture, when switched on, is drawn without them.";
+  const starLine =
+    status.kind === "loaded"
+      ? `${status.count} stars of magnitude 6.5 or brighter are drawn from the HYG star catalogue (CC BY-SA 4.0).`
+      : status.kind === "loading"
+        ? "Loading the star catalogue."
+        : "Stars are not drawn: the star file could not be loaded. The Milky Way picture, when switched on, is drawn without them.";
   const provenance: Provenance = createProvenance({
     sourceType: "observed",
     sources: SKY_SOURCES,
-    accuracy: "Star directions are the catalogue's J2000 positions to about an arcsecond. The Milky Way picture is a Gaia EDR3 render with the foreground stars removed, placed by its galactic coordinates (the Magellanic Clouds land within half a degree).",
+    accuracy:
+      "Star directions are the catalogue's J2000 positions to about an arcsecond. The Milky Way picture is a Gaia EDR3 render with the foreground stars removed, placed by its galactic coordinates (the Magellanic Clouds land within half a degree).",
     notes: starLine,
   });
   return {
@@ -57,7 +69,8 @@ export function skyObject(status: StarStatus): ExperienceObject {
     label: "Sky",
     // Drawn and still an object, but not offered in the object drop-downs (owner, 2026-10-24); its credits stay in NOTICE and on the home page.
     listed: false,
-    description: "Stars and the Milky Way, drawn at infinity behind the scene. The sky turns only with the camera; the scene centre, scale and followed object do not move it.",
+    description:
+      "Stars and the Milky Way, drawn at infinity behind the scene. The sky turns only with the camera; the scene centre, scale and followed object do not move it.",
     provenance,
     knownLimitations: [
       "Fixed to the J2000 frame: no precession and no star proper motion, so it does not change with the clock.",
@@ -73,9 +86,15 @@ export function withSkyObject(config: ExperienceConfig, visible: boolean, status
 }
 
 /** The validated, complete settings. */
-export function resolveSkySettings(settings: SkySettings | undefined): { readonly visible: boolean; readonly starBrightness: number; readonly milkyWayBrightness: number; readonly milkyWay: boolean } {
+export function resolveSkySettings(settings: SkySettings | undefined): {
+  readonly visible: boolean;
+  readonly starBrightness: number;
+  readonly milkyWayBrightness: number;
+  readonly milkyWay: boolean;
+} {
   const check = (name: string, value: number): number => {
-    if (!Number.isFinite(value) || value < 0 || value > 2) throw new RangeError(`sky.${name} must be between 0 and 2, got ${value}`);
+    if (!Number.isFinite(value) || value < 0 || value > 2)
+      throw new RangeError(`sky.${name} must be between 0 and 2, got ${value}`);
     return value;
   };
   return {
@@ -108,12 +127,26 @@ export interface TileSection {
  * rotation) and carries its own tile's 0..1 picture coordinates.
  * The legacy `{ index, count }` section is a strip of a galactic picture, left to right.
  */
-export function buildPictureMesh(columns = 128, rows = 64, section: TileSection | { readonly index: number; readonly count: number } = { index: 0, count: 1 }): PictureMesh {
-  const tile: TileSection = "count" in section ? { column: section.index, row: 0, columns: section.count, rows: 1 } : section;
+export function buildPictureMesh(
+  columns = 128,
+  rows = 64,
+  section: TileSection | { readonly index: number; readonly count: number } = { index: 0, count: 1 },
+): PictureMesh {
+  const tile: TileSection =
+    "count" in section ? { column: section.index, row: 0, columns: section.count, rows: 1 } : section;
   const across = columns / tile.columns;
   const down = rows / tile.rows;
-  if (!Number.isInteger(across) || !Number.isInteger(down) || tile.column < 0 || tile.column >= tile.columns || tile.row < 0 || tile.row >= tile.rows) {
-    throw new RangeError(`picture tile ${tile.column},${tile.row} of ${tile.columns}x${tile.rows} needs columns (${columns}) and rows (${rows}) divisible by the grid`);
+  if (
+    !Number.isInteger(across) ||
+    !Number.isInteger(down) ||
+    tile.column < 0 ||
+    tile.column >= tile.columns ||
+    tile.row < 0 ||
+    tile.row >= tile.rows
+  ) {
+    throw new RangeError(
+      `picture tile ${tile.column},${tile.row} of ${tile.columns}x${tile.rows} needs columns (${columns}) and rows (${rows}) divisible by the grid`,
+    );
   }
   const vertexCount = (across + 1) * (down + 1);
   const positions = new Float32Array(vertexCount * 3);

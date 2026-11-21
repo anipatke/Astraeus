@@ -41,11 +41,17 @@ export function checkDataSources(data: readonly DataSource[]): void {
   for (const source of data) {
     const problem = source.pictures === undefined ? null : picturesProblem(source.pictures);
     if (problem !== null) throw new SceneError("bad-data", `${source.name}: ${problem}`);
-    for (const [name, texture] of Object.entries(source.pictures ?? {})) rejectRenamed("TextureRefDesktop", (texture as { desktop?: unknown }).desktop, `${source.name}: pictures.${name}.desktop`);
+    for (const [name, texture] of Object.entries(source.pictures ?? {}))
+      rejectRenamed(
+        "TextureRefDesktop",
+        (texture as { desktop?: unknown }).desktop,
+        `${source.name}: pictures.${name}.desktop`,
+      );
     const positions = source.moonPositions;
     if (positions === undefined) continue;
     rejectRenamed("MoonPositions", positions, `${source.name}: moonPositions`);
-    if (MOON_SYSTEMS[positions.center] === undefined) throw new SceneError("bad-data", `${source.name}: no moon system for "${positions.center}"`);
+    if (MOON_SYSTEMS[positions.center] === undefined)
+      throw new SceneError("bad-data", `${source.name}: no moon system for "${positions.center}"`);
   }
 }
 
@@ -53,16 +59,33 @@ export function checkDataSources(data: readonly DataSource[]): void {
  * Checks the rights of the packages' pictures (the viewer draws them from its definition, `assembleScene` carries them there), hands the moon positions to the engine and loads the chunks the scene's window needs for the moons it holds.
  * Nothing is looked up behind the caller's back: a package that was not passed in contributes nothing.
  */
-export async function installData(data: readonly DataSource[], sceneBodies: readonly BodyId[], window: TimeBounds, catalogue: BodyCatalogue = builtInCatalogue, sets?: BodySetLoad): Promise<void> {
+export async function installData(
+  data: readonly DataSource[],
+  sceneBodies: readonly BodyId[],
+  window: TimeBounds,
+  catalogue: BodyCatalogue = builtInCatalogue,
+  sets?: BodySetLoad,
+): Promise<void> {
   checkDataSources(data);
   for (const source of data) {
     const positions = source.moonPositions;
     if (positions === undefined) continue;
     const system = catalogue.moonData?.system(positions.center) ?? MOON_SYSTEMS[positions.center]!;
     system.provideIndex(positions.loadIndex);
-    const moons = [...sceneBodies.filter((id) => catalogue.has(id) && catalogue.get(id).definition.parentId === positions.center), ...(sets?.moons ?? []).filter((moon) => moon.parent === positions.center).map(({ id }) => id)];
+    const moons = [
+      ...sceneBodies.filter((id) => catalogue.has(id) && catalogue.get(id).definition.parentId === positions.center),
+      ...(sets?.moons ?? []).filter((moon) => moon.parent === positions.center).map(({ id }) => id),
+    ];
     const maxMs = sets?.historyMs.get(positions.center) ?? 0;
-    if (moons.length > 0) await system.load({ window, bodies: moons, chunkUrls: positions.chunkUrls, ...(maxMs > 0 ? { history: { bodies: moons, maxMs } } : {}) }).catch(moonLoadFailure(source.name));
+    if (moons.length > 0)
+      await system
+        .load({
+          window,
+          bodies: moons,
+          chunkUrls: positions.chunkUrls,
+          ...(maxMs > 0 ? { history: { bodies: moons, maxMs } } : {}),
+        })
+        .catch(moonLoadFailure(source.name));
   }
   for (const source of data) await source.prepare?.();
 }
@@ -70,8 +93,15 @@ export async function installData(data: readonly DataSource[], sceneBodies: read
 /** Turns a moon load's failure into the public error, naming the package that holds the positions (once: the load promise is shared): a span refusal is `out-of-span`, a `SceneError` passes, and bytes that cannot be read or parsed are `bad-data`. */
 function moonLoadFailure(packageName: string): (error: unknown) => never {
   return (error) => {
-    if (error instanceof MoonOutOfSpanError) throw new SceneError("out-of-span", `${error.body} is outside the years ${packageName} covers: ${error.message}; set the timeline inside that span, or refit the data for the longer years`);
+    if (error instanceof MoonOutOfSpanError)
+      throw new SceneError(
+        "out-of-span",
+        `${error.body} is outside the years ${packageName} covers: ${error.message}; set the timeline inside that span, or refit the data for the longer years`,
+      );
     if (error instanceof SceneError) throw error;
-    throw new SceneError("bad-data", `${packageName}: its moon positions could not be read or parsed: ${error instanceof Error ? error.message : String(error)}`);
+    throw new SceneError(
+      "bad-data",
+      `${packageName}: its moon positions could not be read or parsed: ${error instanceof Error ? error.message : String(error)}`,
+    );
   };
 }

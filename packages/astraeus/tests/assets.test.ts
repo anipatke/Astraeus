@@ -13,16 +13,58 @@ import { MOON_MATERIAL } from "../src/assets/bodies/moon";
 import type { BodyVisual } from "../src/assets/visual";
 
 const provenance = createProvenance({ sourceType: "illustrative", sources: ["made up"], accuracy: "none", notes: "" });
-const accuracy = { dimensions: provenance, position: provenance, validUtc: { startUtcMs: 0, endUtcMs: 1e12 }, orientationLimitations: [] };
+const accuracy = {
+  dimensions: provenance,
+  position: provenance,
+  validUtc: { startUtcMs: 0, endUtcMs: 1e12 },
+  orientationLimitations: [],
+};
 const fake = (id: string, extra: Partial<CelestialBodyDefinition> = {}): CelestialBodyDefinition => ({
-  id, label: id, radiusKm: 1000, orientation: "none", accuracy, ...extra,
+  id,
+  label: id,
+  radiusKm: 1000,
+  orientation: "none",
+  accuracy,
+  ...extra,
 });
 const flat: BodyVisual = { kind: "sphere", material: { color: "#808080", roughness: 1, metalness: 0 } };
-const binding = (body: string): StateSourceBinding => ({ body, create: () => { throw new Error("not built"); } });
+const binding = (body: string): StateSourceBinding => ({
+  body,
+  create: () => {
+    throw new Error("not built");
+  },
+});
 
 describe("body catalogue", () => {
   it("builds from the built-in records and hands the resolver exactly its inputs", () => {
-    expect(catalogue.ids()).toEqual(["sun", "earth", "moon", "mercury", "venus", "mars", "jupiter", "io", "europa", "ganymede", "callisto", "saturn", "uranus", "neptune", "pluto", "phobos", "deimos", "mimas", "enceladus", "tethys", "dione", "rhea", "titan", "iapetus", "triton", "charon"]);
+    expect(catalogue.ids()).toEqual([
+      "sun",
+      "earth",
+      "moon",
+      "mercury",
+      "venus",
+      "mars",
+      "jupiter",
+      "io",
+      "europa",
+      "ganymede",
+      "callisto",
+      "saturn",
+      "uranus",
+      "neptune",
+      "pluto",
+      "phobos",
+      "deimos",
+      "mimas",
+      "enceladus",
+      "tethys",
+      "dione",
+      "rhea",
+      "titan",
+      "iapetus",
+      "triton",
+      "charon",
+    ]);
     expect(catalogue.definitions()).toEqual(BUILT_IN_BODIES);
     expect(catalogue.sources()).toEqual(BUILT_IN_BINDINGS);
     expect(catalogue.get("sun").source).toBeUndefined();
@@ -36,11 +78,16 @@ describe("body catalogue", () => {
   it("throws on a duplicate id, a parented body without a source, a root with one, or a visual without a definition", () => {
     const root = fake("r");
     const child = fake("c", { parentId: "r" });
-    const entries: VisualEntry[] = [{ body: "r", visual: flat }, { body: "c", visual: flat }];
+    const entries: VisualEntry[] = [
+      { body: "r", visual: flat },
+      { body: "c", visual: flat },
+    ];
     expect(() => createCatalogue([root, child], [binding("c")], entries)).not.toThrow();
     expect(() => createCatalogue([root, root], [], [{ body: "r", visual: flat }])).toThrow(/duplicate body id/);
     expect(() => createCatalogue([root, child], [], entries)).toThrow(/parent but no state source/);
-    expect(() => createCatalogue([root, child], [binding("r"), binding("c")], entries)).toThrow(/must not have a state source/);
+    expect(() => createCatalogue([root, child], [binding("r"), binding("c")], entries)).toThrow(
+      /must not have a state source/,
+    );
     expect(() => createCatalogue([root], [], [...entries])).toThrow(/has no definition/);
     expect(() => createCatalogue([root, child], [binding("c")], [entries[0]])).toThrow(/has no visual/);
     expect(() => createCatalogue([root, child], [binding("c"), binding("x")], entries)).toThrow(/has no definition/);
@@ -54,8 +101,19 @@ describe("visual records", () => {
     const sun = catalogue.get("sun").visual;
     expect(sun.kind).toBe("marker");
     expect(sun.marker?.sizePx).toBe(9);
-    expect(earth).toMatchObject({ kind: "sphere", material: EARTH_MATERIAL, atmosphere: EARTH_ATMOSPHERE, textureYawRad: 0, light: { ambient: 0.18, directional: 1.8 } });
-    expect(moon).toMatchObject({ kind: "sphere", material: MOON_MATERIAL, textureYawRad: 0, light: { ambient: 0.08, directional: 1.4 } });
+    expect(earth).toMatchObject({
+      kind: "sphere",
+      material: EARTH_MATERIAL,
+      atmosphere: EARTH_ATMOSPHERE,
+      textureYawRad: 0,
+      light: { ambient: 0.18, directional: 1.8 },
+    });
+    expect(moon).toMatchObject({
+      kind: "sphere",
+      material: MOON_MATERIAL,
+      textureYawRad: 0,
+      light: { ambient: 0.08, directional: 1.4 },
+    });
     expect(moon.atmosphere).toBeUndefined();
     expect(earth.material).toEqual({ color: "#e8e8e8", roughness: 0.82, metalness: 0.05 });
     expect(moon.material).toEqual({ color: "#f3ede4", roughness: 0.98, metalness: 0.02 });
@@ -92,7 +150,10 @@ describe("BodyView plan", () => {
       const plan = describeBody(asset(jupiterLike, flat), policy);
       expect(plan.radii.equatorial * plan.poleScale).toBeCloseTo(radii.polar, 12);
     }
-    expect(drawnRadii(fake("one-radius", { equatorialRadiusKm: 5 }), trueScale)).toEqual({ equatorial: trueScale.mapRadius(1000), polar: trueScale.mapRadius(1000) });
+    expect(drawnRadii(fake("one-radius", { equatorialRadiusKm: 5 }), trueScale)).toEqual({
+      equatorial: trueScale.mapRadius(1000),
+      polar: trueScale.mapRadius(1000),
+    });
   });
 
   it("draws a marker from the record, unless the experience names its own colour and size", () => {
@@ -105,7 +166,14 @@ describe("BodyView plan", () => {
     const points = group.children[0] as Points;
     expect(points.layers.mask).toBe(1 << 3);
     expect(position.count).toBe(1);
-    const madeUp = createMarker(asset(fake("beacon"), { kind: "marker", material: { color: "#00ff00", roughness: 1, metalness: 0 }, marker: { sizePx: 5 } }), 3);
+    const madeUp = createMarker(
+      asset(fake("beacon"), {
+        kind: "marker",
+        material: { color: "#00ff00", roughness: 1, metalness: 0 },
+        marker: { sizePx: 5 },
+      }),
+      3,
+    );
     expect((madeUp.group.children[0] as Points).material).toMatchObject({ size: 5 });
     expect(describeBody(sun, trueScale).kind).toBe("marker");
   });
@@ -129,7 +197,8 @@ describe("the catalogue holds only the Sun, planets, dwarf planets and moons (O-
     }
     return PLANETS_AND_DWARFS.includes(definition.parentId) && definition.orientation !== "none" ? "moon" : null;
   }
-  const intruders = (definitions: readonly CelestialBodyDefinition[]) => definitions.filter((definition) => kindOf(definition) === null).map((definition) => definition.id);
+  const intruders = (definitions: readonly CelestialBodyDefinition[]) =>
+    definitions.filter((definition) => kindOf(definition) === null).map((definition) => definition.id);
 
   it("has no body that is not the Sun, a planet, a dwarf planet or a moon", () => {
     expect(intruders(catalogue.definitions())).toEqual([]);

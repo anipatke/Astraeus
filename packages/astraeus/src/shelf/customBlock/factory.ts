@@ -27,6 +27,16 @@ export interface CustomBlockControl {
 export function customBlock(input: CustomBlockInput): CustomBlockPart {
   const who = "customBlock";
   const fields = checkedInput(input, who, "a { id } object");
-  const block: ShelfBlock = { kind: "customBlock", id: checkedId(fields, who), view: CustomBlockView, control: (link) => ({ get element() { return link.element(); } } satisfies CustomBlockControl) };
+  const block: ShelfBlock = {
+    kind: "customBlock",
+    id: checkedId(fields, who),
+    view: CustomBlockView,
+    control: (link) =>
+      ({
+        get element() {
+          return link.element();
+        },
+      }) satisfies CustomBlockControl,
+  };
   return registered(block) as unknown as CustomBlockPart;
 }

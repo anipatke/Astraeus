@@ -14,18 +14,44 @@ export function FilterChipsView({ block, runtime }: { readonly block: ShelfBlock
   const press = (value: string) => {
     const lit = selected.includes(value);
     const next = multiple
-      ? choices.map((choice) => choice.value).filter((candidate) => (candidate === value ? !lit : selected.includes(candidate)))
-      : lit ? [] : [value];
+      ? choices
+          .map((choice) => choice.value)
+          .filter((candidate) => (candidate === value ? !lit : selected.includes(candidate)))
+      : lit
+        ? []
+        : [value];
     cell.set({ choices, selected: next } satisfies FilterChipsState);
     runtime.report?.(block.id, { part: block.id, values: next, cause: "visitor" } satisfies ChipSelection);
   };
   return (
-    <div className="shelf-chips" data-shelf-block={block.id} role="group" aria-labelledby={label === undefined ? undefined : labelId}>
-      {label === undefined ? null : <span id={labelId} className="shelf-chips-label">{label}</span>}
+    <div
+      className="shelf-chips"
+      data-shelf-block={block.id}
+      role="group"
+      aria-labelledby={label === undefined ? undefined : labelId}
+    >
+      {label === undefined ? null : (
+        <span id={labelId} className="shelf-chips-label">
+          {label}
+        </span>
+      )}
       <div className="shelf-chip-row">
         {choices.map((choice) => (
-          <button key={choice.value} type="button" className="shelf-chip ui-pill" aria-pressed={selected.includes(choice.value)} data-shelf-chip={choice.value} onClick={() => press(choice.value)}>
-            {choice.color === undefined ? null : <span className="shelf-chip-dot" style={{ "--shelf-colour": choice.color } as CSSProperties} aria-hidden="true" />}
+          <button
+            key={choice.value}
+            type="button"
+            className="shelf-chip ui-pill"
+            aria-pressed={selected.includes(choice.value)}
+            data-shelf-chip={choice.value}
+            onClick={() => press(choice.value)}
+          >
+            {choice.color === undefined ? null : (
+              <span
+                className="shelf-chip-dot"
+                style={{ "--shelf-colour": choice.color } as CSSProperties}
+                aria-hidden="true"
+              />
+            )}
             {choice.label}
           </button>
         ))}

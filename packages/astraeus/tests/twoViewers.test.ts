@@ -8,9 +8,24 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 const controlsOf = vi.hoisted(() => new WeakMap<Element, import("../src/app/AstraeusScene").SceneControls>());
 const runtimeOf = vi.hoisted(() => new WeakMap<Element, import("../src/app/AstraeusScene").SceneRuntime>());
 vi.mock("../src/app/AstraeusScene", () => ({
-  AstraeusScene: (props: { controls: import("../src/app/AstraeusScene").SceneControls; runtime: import("../src/app/AstraeusScene").SceneRuntime}) => createElement("div", { "data-testid": "scene", ref: (el: HTMLDivElement | null) => { if (el) { controlsOf.set(el, props.controls); runtimeOf.set(el, props.runtime); } } }),
+  AstraeusScene: (props: {
+    controls: import("../src/app/AstraeusScene").SceneControls;
+    runtime: import("../src/app/AstraeusScene").SceneRuntime;
+  }) =>
+    createElement("div", {
+      "data-testid": "scene",
+      ref: (el: HTMLDivElement | null) => {
+        if (el) {
+          controlsOf.set(el, props.controls);
+          runtimeOf.set(el, props.runtime);
+        }
+      },
+    }),
 }));
-vi.mock("../src/assets/sky", async (importOriginal) => ({ ...(await importOriginal<typeof import("../src/assets/sky")>()), loadStarCatalogue: vi.fn().mockResolvedValue(null) }));
+vi.mock("../src/assets/sky", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("../src/assets/sky")>()),
+  loadStarCatalogue: vi.fn().mockResolvedValue(null),
+}));
 
 import { createElement as h, type ReactElement } from "react";
 import { flushSync } from "react-dom";
@@ -45,18 +60,59 @@ import { trueScale } from "../src/presentation/scalePolicy";
 const T0 = Date.parse("2026-03-01T00:00:00Z");
 const MIN = 60_000;
 const DAY = 86_400_000;
-const path = (x: number) => [0, 1, 2, 3].map((i) => ({ time: T0 + i * 10 * MIN, positionKm: [x + i * 1_000, 0, 0], velocityKmS: [1, 0, 0] }));
-const MADE = { sourceType: "illustrative", sources: ["Made up"], accuracy: "None claimed.", notes: "Made up." } as const;
+const path = (x: number) =>
+  [0, 1, 2, 3].map((i) => ({ time: T0 + i * 10 * MIN, positionKm: [x + i * 1_000, 0, 0], velocityKmS: [1, 0, 0] }));
+const MADE = {
+  sourceType: "illustrative",
+  sources: ["Made up"],
+  accuracy: "None claimed.",
+  notes: "Made up.",
+} as const;
 /** Views a (probe A) and b (probe B); the Moon and Earth are in every view. Built fresh for each viewer. */
-const makeScene = () => new Scene().addBody(earth).addBody(moon)
-  .addTrajectory({ id: "pa", label: "Probe A", center: "earth", samples: path(10_000) })
-  .addTrajectory({ id: "pb", label: "Probe B", center: "earth", samples: path(20_000) })
-  .addGroup({ id: "dust", label: "Dust", center: "earth", plane: "ecliptic-j2000", orbits: [{ id: "d1", semiMajorAxisKm: 9e4, eccentricity: 0.1, inclinationDeg: 5, raanDeg: 40, argumentOfPeriapsisDeg: 70 }] }) // for setGroupLook
-  .setViews([{ id: "a", label: "View A", objects: ["pa"] }, { id: "b", label: "View B", objects: ["pb"] }], { place: "top-bar" })
-  .setSwitches({ labels: { place: "top-bar" } })
-  .setPicker({ id: "world", label: "World", options: [{ value: "one", label: "One" }, { value: "two", label: "Two" }], value: "one" })
-  .addStoryPanels([{ id: "s1", title: "Step one", body: "A made-up line.", provenance: MADE }, { id: "s2", title: "Step two", body: "Another made-up line.", provenance: MADE }])
-  .setTimeline({ start: T0, end: T0 + 100 * DAY, rate: 60, rates: [60, 3600] });
+const makeScene = () =>
+  new Scene()
+    .addBody(earth)
+    .addBody(moon)
+    .addTrajectory({ id: "pa", label: "Probe A", center: "earth", samples: path(10_000) })
+    .addTrajectory({ id: "pb", label: "Probe B", center: "earth", samples: path(20_000) })
+    .addGroup({
+      id: "dust",
+      label: "Dust",
+      center: "earth",
+      plane: "ecliptic-j2000",
+      orbits: [
+        {
+          id: "d1",
+          semiMajorAxisKm: 9e4,
+          eccentricity: 0.1,
+          inclinationDeg: 5,
+          raanDeg: 40,
+          argumentOfPeriapsisDeg: 70,
+        },
+      ],
+    }) // for setGroupLook
+    .setViews(
+      [
+        { id: "a", label: "View A", objects: ["pa"] },
+        { id: "b", label: "View B", objects: ["pb"] },
+      ],
+      { place: "top-bar" },
+    )
+    .setSwitches({ labels: { place: "top-bar" } })
+    .setPicker({
+      id: "world",
+      label: "World",
+      options: [
+        { value: "one", label: "One" },
+        { value: "two", label: "Two" },
+      ],
+      value: "one",
+    })
+    .addStoryPanels([
+      { id: "s1", title: "Step one", body: "A made-up line.", provenance: MADE },
+      { id: "s2", title: "Step two", body: "Another made-up line.", provenance: MADE },
+    ])
+    .setTimeline({ start: T0, end: T0 + 100 * DAY, rate: 60, rates: [60, 3600] });
 
 /** One opened viewer, the same shape through either path. */
 interface Viewer {
@@ -65,7 +121,11 @@ interface Viewer {
   unmount(): void;
 }
 /** A viewer opens with the made-up scene unless it is given another (and the data packages that scene needs). */
-interface OpenWith { readonly scene?: Scene; readonly data?: readonly DataSource[]; readonly developerTools?: boolean; }
+interface OpenWith {
+  readonly scene?: Scene;
+  readonly data?: readonly DataSource[];
+  readonly developerTools?: boolean;
+}
 interface Adapter {
   readonly name: string;
   open(options?: OpenWith): Promise<Viewer>;
@@ -73,13 +133,20 @@ interface Adapter {
   replace(viewer: Viewer, options: OpenWith): Promise<Viewer>;
 }
 
-const newElement = (): HTMLElement => { const element = document.createElement("div"); document.body.append(element); return element; };
+const newElement = (): HTMLElement => {
+  const element = document.createElement("div");
+  document.body.append(element);
+  return element;
+};
 
 const mountAdapter: Adapter = {
   name: "mount",
   async open(options = {}) {
     const element = newElement();
-    const mounted = mount(element, options.scene ?? makeScene(), { ...(options.data === undefined ? {} : { data: options.data }), ...(options.developerTools === undefined ? {} : { developerTools: options.developerTools }) });
+    const mounted = mount(element, options.scene ?? makeScene(), {
+      ...(options.data === undefined ? {} : { data: options.data }),
+      ...(options.developerTools === undefined ? {} : { developerTools: options.developerTools }),
+    });
     await mounted.ready;
     return { handle: mounted, element, unmount: () => mounted.unmount() };
   },
@@ -96,7 +163,12 @@ const sceneAdapter: Adapter = {
     const root = createRoot(element);
     const ref: { current: ViewerHandle | null } = { current: null };
     const opened = await renderScene(root, ref, options);
-    return { handle: ref.current!, element, unmount: () => flushSync(() => root.unmount()), ...(opened ? { root, ref } : {}) } as Viewer;
+    return {
+      handle: ref.current!,
+      element,
+      unmount: () => flushSync(() => root.unmount()),
+      ...(opened ? { root, ref } : {}),
+    } as Viewer;
   },
   async replace(viewer, options) {
     const { root, ref } = viewer as Viewer & { root: Root; ref: { current: ViewerHandle | null } };
@@ -108,12 +180,23 @@ const sceneAdapter: Adapter = {
 /** Renders (or re-renders) `<AstraeusScene>` in a root and resolves when that scene's `onReady` fires. */
 function renderScene(root: Root, ref: { current: ViewerHandle | null }, options: OpenWith): Promise<boolean> {
   return new Promise<boolean>((resolve, reject) => {
-    const el: ReactElement = h(AstraeusScene, { scene: options.scene ?? makeScene(), ref, ...(options.data === undefined ? {} : { data: options.data }), ...(options.developerTools === undefined ? {} : { developerTools: options.developerTools }), onReady: () => resolve(true), onError: reject });
+    const el: ReactElement = h(AstraeusScene, {
+      scene: options.scene ?? makeScene(),
+      ref,
+      ...(options.data === undefined ? {} : { data: options.data }),
+      ...(options.developerTools === undefined ? {} : { developerTools: options.developerTools }),
+      onReady: () => resolve(true),
+      onError: reject,
+    });
     flushSync(() => root.render(el));
   });
 }
 
-interface Pairing { readonly name: string; readonly first: Adapter; readonly second: Adapter; }
+interface Pairing {
+  readonly name: string;
+  readonly first: Adapter;
+  readonly second: Adapter;
+}
 const PAIRINGS: readonly Pairing[] = [
   { name: "mount + mount", first: mountAdapter, second: mountAdapter },
   { name: "AstraeusScene + AstraeusScene", first: sceneAdapter, second: sceneAdapter },
@@ -121,7 +204,12 @@ const PAIRINGS: readonly Pairing[] = [
 ];
 
 /** What a viewer's own listeners heard. */
-interface Heard { readonly changes: ViewerChange[]; readonly selects: SelectionChange[]; readonly panels: PanelChange[]; readonly cameras: CameraPose[]; }
+interface Heard {
+  readonly changes: ViewerChange[];
+  readonly selects: SelectionChange[];
+  readonly panels: PanelChange[];
+  readonly cameras: CameraPose[];
+}
 function listen(handle: ViewerHandle): Heard {
   const heard: Heard = { changes: [], selects: [], panels: [], cameras: [] };
   handle.onChange((c) => heard.changes.push(c));
@@ -130,21 +218,40 @@ function listen(handle: ViewerHandle): Heard {
   handle.onCameraChange((c) => heard.cameras.push(c));
   return heard;
 }
-const total = (heard: Heard): number => heard.changes.length + heard.selects.length + heard.panels.length + heard.cameras.length;
+const total = (heard: Heard): number =>
+  heard.changes.length + heard.selects.length + heard.panels.length + heard.cameras.length;
 
 /** Every read of the handle at one moment, as a plain value. */
 const snapshot = (handle: ViewerHandle) => ({
-  time: handle.timeUtcMs, rate: handle.rate, playing: handle.playing, view: handle.view, camera: handle.camera, eventZones: handle.eventZones, selected: handle.selected, panel: handle.panel, look: handle.look, scale: handle.scale, switches: handle.switches, pick: handle.pick,
+  time: handle.timeUtcMs,
+  rate: handle.rate,
+  playing: handle.playing,
+  view: handle.view,
+  camera: handle.camera,
+  eventZones: handle.eventZones,
+  selected: handle.selected,
+  panel: handle.panel,
+  look: handle.look,
+  scale: handle.scale,
+  switches: handle.switches,
+  pick: handle.pick,
 });
 
 /** The scene's stand-in for a camera standing here (the real scene writes it every frame). */
 const standAt = (viewer: Viewer, pose: CameraPose): void => {
   controlsOf.get(viewer.element.querySelector("[data-testid=scene]")!)!.viewReadout = pose;
 };
-const cameraRequest = (viewer: Viewer) => controlsOf.get(viewer.element.querySelector("[data-testid=scene]")!)!.cameraRequest;
+const cameraRequest = (viewer: Viewer) =>
+  controlsOf.get(viewer.element.querySelector("[data-testid=scene]")!)!.cameraRequest;
 
 type Setter = {
-  [K in keyof ViewerHandle as ViewerHandle[K] extends (...args: never[]) => void ? (K extends `set${string}` ? K : never) : never]: true;
+  [
+    K in keyof ViewerHandle as ViewerHandle[K] extends (...args: never[]) => void
+      ? K extends `set${string}`
+        ? K
+        : never
+      : never
+  ]: true;
 };
 interface Row {
   /** Makes the call on one viewer. */
@@ -159,21 +266,55 @@ interface Row {
 const CAMERA_POSE: CameraPose = { focus: "moon", azimuthDeg: 10, elevationDeg: 20, distance: 30 };
 /** One row per setter on the handle: a new setter must join this table (the type fails otherwise). */
 const SETTERS: Record<keyof Setter, Row> = {
-  setTime: { call: (v) => v.handle.setTime(T0 + DAY), reads: (hd) => expect(hd.timeUtcMs).toBe(T0 + DAY), hears: "changes" },
+  setTime: {
+    call: (v) => v.handle.setTime(T0 + DAY),
+    reads: (hd) => expect(hd.timeUtcMs).toBe(T0 + DAY),
+    hears: "changes",
+  },
   setRate: { call: (v) => v.handle.setRate(3600), reads: (hd) => expect(hd.rate).toBe(3600), hears: "changes" },
-  setPlaying: { call: (v) => v.handle.setPlaying(true), reads: (hd) => expect(hd.playing).toBe(true), hears: "changes" },
+  setPlaying: {
+    call: (v) => v.handle.setPlaying(true),
+    reads: (hd) => expect(hd.playing).toBe(true),
+    hears: "changes",
+  },
   setView: { call: (v) => v.handle.setView("b"), reads: (hd) => expect(hd.view).toBe("b"), hears: "changes" },
-  setLook: { call: (v) => v.handle.setLook({ starBrightness: 1.5 }), reads: (hd) => expect(hd.look?.starBrightness).toBe(1.5), hears: "changes" },
-  setScale: { call: (v) => v.handle.setScale("readable-scale"), reads: (hd) => expect(hd.scale).toBe("readable-scale"), hears: "changes" },
-  setSwitch: { call: (v) => v.handle.setSwitch("labels", false), reads: (hd) => expect(hd.switches).toEqual({ labels: false }), hears: "changes" },
-  setSelected: { call: (v) => v.handle.setSelected("pa"), reads: (hd) => expect(hd.selected).toBe("pa"), hears: "selects" },
+  setLook: {
+    call: (v) => v.handle.setLook({ starBrightness: 1.5 }),
+    reads: (hd) => expect(hd.look?.starBrightness).toBe(1.5),
+    hears: "changes",
+  },
+  setScale: {
+    call: (v) => v.handle.setScale("readable-scale"),
+    reads: (hd) => expect(hd.scale).toBe("readable-scale"),
+    hears: "changes",
+  },
+  setSwitch: {
+    call: (v) => v.handle.setSwitch("labels", false),
+    reads: (hd) => expect(hd.switches).toEqual({ labels: false }),
+    hears: "changes",
+  },
+  setSelected: {
+    call: (v) => v.handle.setSelected("pa"),
+    reads: (hd) => expect(hd.selected).toBe("pa"),
+    hears: "selects",
+  },
   setPanel: { call: (v) => v.handle.setPanel("s2"), reads: (hd) => expect(hd.panel).toBe("s2"), hears: "panels" },
   setPick: { call: (v) => v.handle.setPick("two"), reads: (hd) => expect(hd.pick).toBe("two") }, // moves the pressed option and tells no listener
-  setAbout: { call: (v) => v.handle.setAbout({ title: "Changed" }), reads: (hd) => expect(hd.about?.title).toBe("Changed") }, // presentation only: tells no listener
-  setGroupLook: { call: (v) => v.handle.setGroupLook("dust", { color: "#123456" }), reads: (hd) => expect(hd.groupLook("dust")).toEqual({ color: "#123456", dotSizePx: 2.5 }) }, // presentation only: tells no listener
+  setAbout: {
+    call: (v) => v.handle.setAbout({ title: "Changed" }),
+    reads: (hd) => expect(hd.about?.title).toBe("Changed"),
+  }, // presentation only: tells no listener
+  setGroupLook: {
+    call: (v) => v.handle.setGroupLook("dust", { color: "#123456" }),
+    reads: (hd) => expect(hd.groupLook("dust")).toEqual({ color: "#123456", dotSizePx: 2.5 }),
+  }, // presentation only: tells no listener
   setCamera: {
     call: (v) => v.handle.setCamera({ focus: "moon" }),
-    settle: (v) => { expect(cameraRequest(v)).toEqual({ kind: "focus", target: "moon" }); standAt(v, CAMERA_POSE); vi.advanceTimersByTime(300); },
+    settle: (v) => {
+      expect(cameraRequest(v)).toEqual({ kind: "focus", target: "moon" });
+      standAt(v, CAMERA_POSE);
+      vi.advanceTimersByTime(300);
+    },
     reads: (hd) => expect(hd.camera).toEqual(CAMERA_POSE),
     hears: "cameras",
   },
@@ -187,8 +328,10 @@ async function openPair(pairing: Pairing): Promise<[Viewer, Viewer]> {
   open.push(first);
   const second = await pairing.second.open();
   open.push(second);
-  first.handle.setPlaying(false); second.handle.setPlaying(false); // a scene opens playing; both are held still so a clock moving is a leak, not playback
-  standAt(first, OPENING_POSE); standAt(second, OPENING_POSE);
+  first.handle.setPlaying(false);
+  second.handle.setPlaying(false); // a scene opens playing; both are held still so a clock moving is a leak, not playback
+  standAt(first, OPENING_POSE);
+  standAt(second, OPENING_POSE);
   vi.advanceTimersByTime(300); // each viewer takes the opening pose as its own before any listener is added
   return [first, second];
 }
@@ -207,20 +350,35 @@ afterEach(() => {
 });
 
 /** A planet's moon data from the committed fits, behind a counting fetch (the real `prepareScene` reaches `installData`; only the network is stubbed). */
-const ioIn = (viewer: Viewer, year: string) => runtimeOf.get(viewer.element.querySelector("[data-testid=scene]")!)!.resolver.stateOf("io", Date.parse(`${year}-03-15T00:00:00Z`), "jupiter");
+const ioIn = (viewer: Viewer, year: string) =>
+  runtimeOf
+    .get(viewer.element.querySelector("[data-testid=scene]")!)!
+    .resolver.stateOf("io", Date.parse(`${year}-03-15T00:00:00Z`), "jupiter");
 function stubMoonData() {
   const folder = moonDataFolder("jupiter");
   const index = readJson(`${folder}index.json`) as { bodies: { chunks: { path: string }[] }[] };
-  const chunkUrls: Record<string, string> = Object.fromEntries(index.bodies.flatMap((body) => body.chunks.map(({ path }) => [path, `${folder}${path}`])));
+  const chunkUrls: Record<string, string> = Object.fromEntries(
+    index.bodies.flatMap((body) => body.chunks.map(({ path }) => [path, `${folder}${path}`])),
+  );
   const fetched: string[] = [];
   JUPITER_MOON_SYSTEM.install(null);
   vi.stubGlobal("fetch", async (url: string) => {
     if (!url.startsWith(folder)) throw new Error("offline");
     fetched.push(url);
     const bytes = readBytes(url) as Uint8Array;
-    return { ok: true, status: 200, arrayBuffer: async () => bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength) };
+    return {
+      ok: true,
+      status: 200,
+      arrayBuffer: async () => bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength),
+    };
   });
-  const data: DataSource[] = [{ name: "astraeus-data-jupiter", provides: ["io"], moonPositions: { center: "jupiter", loadIndex: async () => index, chunkUrls } }];
+  const data: DataSource[] = [
+    {
+      name: "astraeus-data-jupiter",
+      provides: ["io"],
+      moonPositions: { center: "jupiter", loadIndex: async () => index, chunkUrls },
+    },
+  ];
   return {
     data,
     fetched,
@@ -231,8 +389,11 @@ function stubMoonData() {
     },
   };
 }
-const jupiterScene = (year: number) => new Scene().addBody(jupiter).addBody(io)
-  .setTimeline({ start: Date.UTC(year, 2, 1), end: Date.UTC(year, 2, 20), rate: 60, rates: [60, 3600] });
+const jupiterScene = (year: number) =>
+  new Scene()
+    .addBody(jupiter)
+    .addBody(io)
+    .setTimeline({ start: Date.UTC(year, 2, 1), end: Date.UTC(year, 2, 20), rate: 60, rates: [60, 3600] });
 
 describe.each([mountAdapter, sceneAdapter])("one viewer given a new scene: $name", (adapter) => {
   it("T-251: the new scene's moons load though an earlier scene of the same planet loaded first", async () => {
@@ -266,7 +427,9 @@ describe.each(PAIRINGS)("two viewers on one page: $name", (pairing) => {
 
   it("the setter table has a row for every setter the handle has", () => {
     const names = Object.keys(SETTERS).sort();
-    const fromHandle = Object.keys(viewerHandleOf(new ViewerLink())).filter((key) => key.startsWith("set")).sort();
+    const fromHandle = Object.keys(viewerHandleOf(new ViewerLink()))
+      .filter((key) => key.startsWith("set"))
+      .sort();
     expect(names).toEqual(fromHandle);
   });
 
@@ -295,7 +458,9 @@ describe.each(PAIRINGS)("two viewers on one page: $name", (pairing) => {
     expect(heardB).toEqual([]);
     expect(a.handle.pick).toBe("one");
     a.handle.setPick("two");
-    await vi.waitFor(() => expect(a.element.querySelector('[data-switch-value="two"]')!.getAttribute("aria-pressed")).toBe("true"));
+    await vi.waitFor(() =>
+      expect(a.element.querySelector('[data-switch-value="two"]')!.getAttribute("aria-pressed")).toBe("true"),
+    );
     expect(b.element.querySelector('[data-switch-value="one"]')!.getAttribute("aria-pressed")).toBe("true");
     expect(b.handle.pick).toBe("one");
   });
@@ -313,7 +478,10 @@ describe.each(PAIRINGS)("two viewers on one page: $name", (pairing) => {
     expect(b.handle.about!.title).toBe("Viewer B");
     title(a).click();
     title(b).click();
-    await vi.waitFor(() => { expect(panelOf(a)).not.toBeNull(); expect(panelOf(b)).not.toBeNull(); });
+    await vi.waitFor(() => {
+      expect(panelOf(a)).not.toBeNull();
+      expect(panelOf(b)).not.toBeNull();
+    });
     expect(panelOf(a)!.querySelector("[data-about-status]")!.textContent).toBe("A status");
     expect(panelOf(b)!.querySelector("[data-about-status]")!.textContent).toBe("B status");
     a.handle.setAbout({ title: "Viewer A", status: "A changed" });
@@ -357,12 +525,21 @@ describe.each(PAIRINGS)("two viewers on one page: $name", (pairing) => {
     button(a).dispatchEvent(new window.KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
     await vi.waitFor(() => expect(panelOf(a)).toBeNull());
     expect(panelOf(b)).not.toBeNull();
-    expect(heardA).toEqual([{ part: "notes", open: true }, { part: "notes", open: false }]);
+    expect(heardA).toEqual([
+      { part: "notes", open: true },
+      { part: "notes", open: false },
+    ]);
     expect(heardB).toEqual([]);
   });
 
   it("API-03: chips, text and a key shared by two viewers keep each viewer's own lit values, paragraphs and listeners: A's press, setSelected and setParagraphs touch A only", async () => {
-    const chips = filterChips({ id: "gap", choices: [{ value: "3:1", label: "3:1" }, { value: "5:2", label: "5:2" }] });
+    const chips = filterChips({
+      id: "gap",
+      choices: [
+        { value: "3:1", label: "3:1" },
+        { value: "5:2", label: "5:2" },
+      ],
+    });
     const text = explainer({ id: "why", paragraphs: ["Same."] });
     const holder = panel({ id: "holder", button: { label: "Holder" }, title: "Holder", blocks: [text, chips] });
     const a = await pairing.first.open({ scene: makeScene().addParts([holder]) });
@@ -376,28 +553,50 @@ describe.each(PAIRINGS)("two viewers on one page: $name", (pairing) => {
     const heardB: unknown[] = [];
     a.handle.part(chips).onSelect((selection) => heardA.push(selection));
     b.handle.part(chips).onSelect((selection) => heardB.push(selection));
-    const litIn = (v: Viewer) => [...v.element.querySelectorAll('[data-shelf-block="gap"] [aria-pressed="true"]')].map((el) => el.getAttribute("data-shelf-chip"));
+    const litIn = (v: Viewer) =>
+      [...v.element.querySelectorAll('[data-shelf-block="gap"] [aria-pressed="true"]')].map((el) =>
+        el.getAttribute("data-shelf-chip"),
+      );
     a.element.querySelector<HTMLElement>('[data-shelf-chip="3:1"]')!.click();
     await vi.waitFor(() => expect(litIn(a)).toEqual(["3:1"]));
     expect([litIn(b), heardA.length, heardB.length]).toEqual([[], 1, 0]);
     b.handle.part(chips).setSelected(["5:2"]);
     await vi.waitFor(() => expect(litIn(b)).toEqual(["5:2"]));
-    expect([litIn(a), a.handle.part(chips).selected, b.handle.part(chips).selected, heardA.length, heardB.length]).toEqual([["3:1"], ["3:1"], ["5:2"], 1, 0]);
+    expect([
+      litIn(a),
+      a.handle.part(chips).selected,
+      b.handle.part(chips).selected,
+      heardA.length,
+      heardB.length,
+    ]).toEqual([["3:1"], ["3:1"], ["5:2"], 1, 0]);
     a.handle.part(text).setParagraphs(["Only A."]);
-    await vi.waitFor(() => expect(a.element.querySelector('[data-shelf-block="why"]')!.textContent).toContain("Only A."));
+    await vi.waitFor(() =>
+      expect(a.element.querySelector('[data-shelf-block="why"]')!.textContent).toContain("Only A."),
+    );
     expect(b.element.querySelector('[data-shelf-block="why"]')!.textContent).toContain("Same.");
   });
 
   it("API-03 (O-081 T-337): a chart shared by two viewers keeps each viewer's own bars and highlight: A's setHighlight and setBins touch A only", async () => {
-    const sizes = chart({ id: "sizes", axisLabel: "Size", bins: [{ low: 0, high: 1, count: 3 }, { low: 1, high: 2, count: 5 }] });
+    const sizes = chart({
+      id: "sizes",
+      axisLabel: "Size",
+      bins: [
+        { low: 0, high: 1, count: 3 },
+        { low: 1, high: 2, count: 5 },
+      ],
+    });
     const holder = panel({ id: "charts", button: { label: "Charts" }, title: "Charts", blocks: [sizes] });
     const a = await pairing.first.open({ scene: makeScene().addParts([holder]) });
     open.push(a);
     const b = await pairing.second.open({ scene: makeScene().addParts([holder]) });
     open.push(b);
     for (const v of [a, b]) v.element.querySelector<HTMLElement>('[data-story-button="charts"]')!.click();
-    for (const v of [a, b]) await vi.waitFor(() => expect(v.element.querySelector('[data-shelf-block="sizes"]')).not.toBeNull());
-    const bars = (v: Viewer) => [...v.element.querySelectorAll('[data-shelf-block="sizes"] .shelf-chart-bar')].map((el) => el.classList.contains("is-dim"));
+    for (const v of [a, b])
+      await vi.waitFor(() => expect(v.element.querySelector('[data-shelf-block="sizes"]')).not.toBeNull());
+    const bars = (v: Viewer) =>
+      [...v.element.querySelectorAll('[data-shelf-block="sizes"] .shelf-chart-bar')].map((el) =>
+        el.classList.contains("is-dim"),
+      );
     a.handle.part(sizes).setHighlight({ low: 0, high: 1 });
     await vi.waitFor(() => expect(bars(a)).toEqual([false, true]));
     expect(bars(b)).toEqual([false, false]);
@@ -407,13 +606,20 @@ describe.each(PAIRINGS)("two viewers on one page: $name", (pairing) => {
   });
 
   it("API-03 (O-081 T-338): a tile shared by two viewers keeps each viewer's own value and dot: A's setValue touches A only", async () => {
-    const gap = readoutTile({ id: "gap", label: "Gap", value: "1 unit", scale: { low: 0, high: 10, value: 2 }, facts: [{ label: "Speed", value: "7" }] });
+    const gap = readoutTile({
+      id: "gap",
+      label: "Gap",
+      value: "1 unit",
+      scale: { low: 0, high: 10, value: 2 },
+      facts: [{ label: "Speed", value: "7" }],
+    });
     const a = await pairing.first.open({ scene: makeScene().addParts([gap]) });
     open.push(a);
     const b = await pairing.second.open({ scene: makeScene().addParts([gap]) });
     open.push(b);
     const value = (v: Viewer) => v.element.querySelector('[data-area="tile"] [data-shelf-tile-value]')?.textContent;
-    const at = (v: Viewer) => v.element.querySelector('[data-area="tile"] [data-shelf-tile-dot]')?.getAttribute("style");
+    const at = (v: Viewer) =>
+      v.element.querySelector('[data-area="tile"] [data-shelf-tile-dot]')?.getAttribute("style");
     for (const v of [a, b]) await vi.waitFor(() => expect(value(v)).toBe("1 unit"));
     a.handle.part(gap).setValue("5 units", 8);
     await vi.waitFor(() => expect(value(a)).toBe("5 units"));
@@ -469,7 +675,11 @@ describe.each(PAIRINGS)("two viewers on one page: $name", (pairing) => {
       viewer.element.querySelector<HTMLButtonElement>(".object-info-toggle")!.click();
       await vi.waitFor(() => expect(viewer.element.querySelector(".developer-heading")).not.toBeNull());
       await vi.waitFor(() => expect(viewer.element.querySelector(".info-panel")).not.toBeNull());
-      for (let pass = 0; pass < 3; pass += 1) for (const fold of viewer.element.querySelectorAll<HTMLButtonElement>('.developer-tools button[aria-expanded="false"]')) fold.click();
+      for (let pass = 0; pass < 3; pass += 1)
+        for (const fold of viewer.element.querySelectorAll<HTMLButtonElement>(
+          '.developer-tools button[aria-expanded="false"]',
+        ))
+          fold.click();
     }
     expect(document.body.querySelectorAll(".info-panel")).toHaveLength(2);
     expect(repeatedIds()).toEqual([]);
@@ -485,34 +695,68 @@ describe.each(PAIRINGS)("two viewers on one page: $name", (pairing) => {
   });
 
   // T-252: the pictures a viewer draws are those of the packages passed to it. Viewer A gets astraeus-data's pictures, B gets none; each pairing runs in both load orders.
-  it.each([["A loads first", true], ["B loads first", false]])("T-252: a viewer given the pictures draws them and one given none draws none (%s)", async (_order, picturedFirst) => {
-    const pictured: OpenWith = { data: [{ name: "astraeus-data", provides: [], pictures: PICTURES }] };
-    const plain: OpenWith = {};
-    const a = picturedFirst ? await pairing.first.open(pictured) : undefined;
-    if (a) open.push(a);
-    const b = await (picturedFirst ? pairing.second : pairing.first).open(plain);
-    open.push(b);
-    const a2 = a ?? await pairing.second.open(pictured);
-    if (!a) open.push(a2);
-    const drawn = (viewer: Viewer) => {
-      const runtime = runtimeOf.get(viewer.element.querySelector("[data-testid=scene]")!)!;
-      return {
-        titan: describeBody(catalogue.get("titan"), trueScale, false, runtime.pictures).textureUrl,
-        venus: describeBody(catalogue.get("venus"), trueScale, true, runtime.pictures).textureUrl,
-        tiles: milkyWayPicture(runtime.pictures ?? {}).tiles.length,
+  it.each([
+    ["A loads first", true],
+    ["B loads first", false],
+  ])(
+    "T-252: a viewer given the pictures draws them and one given none draws none (%s)",
+    async (_order, picturedFirst) => {
+      const pictured: OpenWith = { data: [{ name: "astraeus-data", provides: [], pictures: PICTURES }] };
+      const plain: OpenWith = {};
+      const a = picturedFirst ? await pairing.first.open(pictured) : undefined;
+      if (a) open.push(a);
+      const b = await (picturedFirst ? pairing.second : pairing.first).open(plain);
+      open.push(b);
+      const a2 = a ?? (await pairing.second.open(pictured));
+      if (!a) open.push(a2);
+      const drawn = (viewer: Viewer) => {
+        const runtime = runtimeOf.get(viewer.element.querySelector("[data-testid=scene]")!)!;
+        return {
+          titan: describeBody(catalogue.get("titan"), trueScale, false, runtime.pictures).textureUrl,
+          venus: describeBody(catalogue.get("venus"), trueScale, true, runtime.pictures).textureUrl,
+          tiles: milkyWayPicture(runtime.pictures ?? {}).tiles.length,
+        };
       };
-    };
-    expect(drawn(a2)).toEqual({ titan: PICTURES.titan!.url, venus: PICTURES["venus-8k"]!.url, tiles: 1 });
-    expect(drawn(b)).toEqual({ titan: undefined, venus: catalogue.get("venus").visual.texture!.url, tiles: 0 });
-  });
+      expect(drawn(a2)).toEqual({ titan: PICTURES.titan!.url, venus: PICTURES["venus-8k"]!.url, tiles: 1 });
+      expect(drawn(b)).toEqual({ titan: undefined, venus: catalogue.get("venus").visual.texture!.url, tiles: 0 });
+    },
+  );
 
   // O-059 T-267: a body set belongs to the viewer whose scene added it, through either path; the members load through `data` for the viewer that names them.
   it("T-267: each viewer draws its own body set, and a set of listed moons loads its members' chunks", async () => {
     const fits = stubMoonData();
-    const member = (id: string, k: number) => ({ id, label: id, radiusKm: 5, family: "f", elements: { semiMajorAxisKm: 30_000 + 1_000 * k, eccentricity: 0.1, inclinationDeg: 4, raanDeg: 10, argumentOfPeriapsisDeg: 20, trueAnomalyDeg: 30 * k } });
+    const member = (id: string, k: number) => ({
+      id,
+      label: id,
+      radiusKm: 5,
+      family: "f",
+      elements: {
+        semiMajorAxisKm: 30_000 + 1_000 * k,
+        eccentricity: 0.1,
+        inclinationDeg: 4,
+        raanDeg: 10,
+        argumentOfPeriapsisDeg: 20,
+        trueAnomalyDeg: 30 * k,
+      },
+    });
     const provenance = { sourceType: "illustrative", sources: ["Made up"], accuracy: "Not real.", notes: "" } as const;
-    const madeUp = (setId: string, ids: string[]) => makeScene().addBodySet({ id: setId, families: [{ id: "f", label: "F" }], members: ids.map((id, k) => member(id, k)), provenance, centerGmKm3S2: 4e5 });
-    const listed = new Scene().addBody(jupiter).addBody(io).addBodySet({ id: "small", families: [{ id: "f", label: "F" }], members: [{ id: "amalthea", family: "f" }], provenance })
+    const madeUp = (setId: string, ids: string[]) =>
+      makeScene().addBodySet({
+        id: setId,
+        families: [{ id: "f", label: "F" }],
+        members: ids.map((id, k) => member(id, k)),
+        provenance,
+        centerGmKm3S2: 4e5,
+      });
+    const listed = new Scene()
+      .addBody(jupiter)
+      .addBody(io)
+      .addBodySet({
+        id: "small",
+        families: [{ id: "f", label: "F" }],
+        members: [{ id: "amalthea", family: "f" }],
+        provenance,
+      })
       .setTimeline({ start: Date.UTC(2020, 2, 1), end: Date.UTC(2020, 2, 20), rate: 60, rates: [60, 3600] });
     const a = await pairing.first.open({ scene: madeUp("set-a", ["a-1", "a-2"]) });
     open.push(a);
@@ -529,13 +773,28 @@ describe.each(PAIRINGS)("two viewers on one page: $name", (pairing) => {
   it("T-268: a scene with a moon panel and places opens on both paths, and a bad panel or places is refused with its code", async () => {
     const provenance = { sourceType: "illustrative", sources: ["Made up"], accuracy: "Not real.", notes: "" } as const;
     const place = { id: "p", name: "P", kind: "Pit", category: "c", latitudeDeg: 1, longitudeDeg: 2, description: "D" };
-    const good = () => makeScene().setMoonPanel({ label: "Tarn", families: [{ id: "f", label: "F", description: "F.", moons: [{ id: "moon" }] }] }).addPlaces("moon", { categories: [{ key: "c", label: "C", color: "#ffffff" }], places: [place], provenance });
+    const good = () =>
+      makeScene()
+        .setMoonPanel({
+          label: "Tarn",
+          families: [{ id: "f", label: "F", description: "F.", moons: [{ id: "moon" }] }],
+        })
+        .addPlaces("moon", { categories: [{ key: "c", label: "C", color: "#ffffff" }], places: [place], provenance });
     const a = await pairing.first.open({ scene: good() });
     open.push(a);
     const b = await pairing.second.open({ scene: good() });
     open.push(b);
-    await expect(pairing.first.open({ scene: makeScene().setMoonPanel({ label: "Tarn", families: [{ id: "f", label: "F", description: "F.", moons: [{ id: "ghost" }] }] }) })).rejects.toMatchObject({ code: "bad-moon-panel" });
-    await expect(pairing.second.open({ scene: makeScene().addPlaces("ghost", { categories: [], places: [place], provenance }) })).rejects.toMatchObject({ code: "bad-places" });
+    await expect(
+      pairing.first.open({
+        scene: makeScene().setMoonPanel({
+          label: "Tarn",
+          families: [{ id: "f", label: "F", description: "F.", moons: [{ id: "ghost" }] }],
+        }),
+      }),
+    ).rejects.toMatchObject({ code: "bad-moon-panel" });
+    await expect(
+      pairing.second.open({ scene: makeScene().addPlaces("ghost", { categories: [], places: [place], provenance }) }),
+    ).rejects.toMatchObject({ code: "bad-places" });
   });
 
   // T-253: one viewer with the Developer tools on and one off; only the first has the cog and the drawer, and opening it opens nothing in the other.
@@ -544,7 +803,8 @@ describe.each(PAIRINGS)("two viewers on one page: $name", (pairing) => {
     open.push(withTools);
     const without = await pairing.second.open({ developerTools: false });
     open.push(without);
-    const cog = (viewer: Viewer) => viewer.element.querySelector<HTMLButtonElement>('button[aria-label="Developer mode"]');
+    const cog = (viewer: Viewer) =>
+      viewer.element.querySelector<HTMLButtonElement>('button[aria-label="Developer mode"]');
     const drawer = (viewer: Viewer) => viewer.element.querySelector(".developer-tools");
     expect(cog(withTools)).not.toBeNull();
     expect(cog(without)).toBeNull();
@@ -562,8 +822,16 @@ describe.each(PAIRINGS)("two viewers on one page: $name", (pairing) => {
     pretendScreen({ phone: true });
     const [a, b] = await openPair(pairing);
     const drawerOpen = (v: Viewer) => v.element.querySelector(".controls-drawer")!.getAttribute("data-open") === "true";
-    const openBoth = () => { for (const v of [a, b]) { if (!drawerOpen(v)) flushSync(() => v.element.querySelector<HTMLButtonElement>("button.bar-menu-button")!.click()); } };
-    const escape = (target: Element) => flushSync(() => { target.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true, cancelable: true })); });
+    const openBoth = () => {
+      for (const v of [a, b]) {
+        if (!drawerOpen(v))
+          flushSync(() => v.element.querySelector<HTMLButtonElement>("button.bar-menu-button")!.click());
+      }
+    };
+    const escape = (target: Element) =>
+      flushSync(() => {
+        target.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true, cancelable: true }));
+      });
     const input = document.createElement("input");
     document.body.append(input);
     openBoth();

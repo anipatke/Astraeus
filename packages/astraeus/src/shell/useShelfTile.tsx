@@ -18,7 +18,17 @@ interface Input {
 }
 
 /** The expanded tile on a phone: a detail sheet with a Close button, swipe to dismiss as the other sheets have. */
-function TileSheet({ tile, runtime, id, onClose }: { readonly tile: ShelfTile; readonly runtime: ShelfRuntime; readonly id: string; readonly onClose: () => void }) {
+function TileSheet({
+  tile,
+  runtime,
+  id,
+  onClose,
+}: {
+  readonly tile: ShelfTile;
+  readonly runtime: ShelfRuntime;
+  readonly id: string;
+  readonly onClose: () => void;
+}) {
   const sheet = useRef<HTMLElement | null>(null);
   useSwipeToDismiss(sheet, onClose);
   return (
@@ -26,7 +36,9 @@ function TileSheet({ tile, runtime, id, onClose }: { readonly tile: ShelfTile; r
       <div className="sheet-handle" aria-hidden="true" />
       <header className="info-panel-header">
         <span />
-        <button type="button" className="info-panel-close ui-pill" aria-label={`Close ${tile.label}`} onClick={onClose}>Close</button>
+        <button type="button" className="info-panel-close ui-pill" aria-label={`Close ${tile.label}`} onClick={onClose}>
+          Close
+        </button>
       </header>
       <tile.view block={tile} runtime={runtime} />
     </aside>
@@ -34,24 +46,47 @@ function TileSheet({ tile, runtime, id, onClose }: { readonly tile: ShelfTile; r
 }
 
 /** The `tile` area (nothing when the showing view has no tile) and the phone's sheet (nothing unless the rule has the tile expanded). */
-export function useShelfTile({ parts = NO_PARTS, runtime = NO_RUNTIME, panels, phone }: Input): { readonly tileArea: ReactNode; readonly tileSheet: ReactNode } {
+export function useShelfTile({ parts = NO_PARTS, runtime = NO_RUNTIME, panels, phone }: Input): {
+  readonly tileArea: ReactNode;
+  readonly tileSheet: ReactNode;
+} {
   const sheetId = `${useId()}-tile-sheet`;
   const tile = parts.find((part): part is ShelfTile => part.kind === "readoutTile");
   const tileId = tile?.id;
   const expanded = panels.state.left === "tile";
   const { close, viewSwitch } = panels;
   // A wide viewer, or a view with no tile, has no sheet to show; a view switch to another view's tile closes the sheet (the new tile starts as a strip).
-  useEffect(() => { if (expanded && (!phone || tileId === undefined)) close("tile"); }, [expanded, phone, tileId, close]);
+  useEffect(() => {
+    if (expanded && (!phone || tileId === undefined)) close("tile");
+  }, [expanded, phone, tileId, close]);
   const last = useRef(tileId);
-  useEffect(() => { if (last.current !== tileId) { last.current = tileId; viewSwitch(false, false, false, true); } }, [tileId, viewSwitch]);
+  useEffect(() => {
+    if (last.current !== tileId) {
+      last.current = tileId;
+      viewSwitch(false, false, false, true);
+    }
+  }, [tileId, viewSwitch]);
   if (tile === undefined) return { tileArea: null, tileSheet: null };
   const tileArea = (
     <Area name="tile">
-      {phone
-        ? <button type="button" className="tile-strip-button" aria-expanded={expanded} aria-controls={expanded ? sheetId : undefined} onClick={() => panels.toggle("tile")}><tile.strip block={tile} runtime={runtime} /></button>
-        : <section className="info-panel tile-card" aria-label={tile.label}><tile.view block={tile} runtime={runtime} /></section>}
+      {phone ? (
+        <button
+          type="button"
+          className="tile-strip-button"
+          aria-expanded={expanded}
+          aria-controls={expanded ? sheetId : undefined}
+          onClick={() => panels.toggle("tile")}
+        >
+          <tile.strip block={tile} runtime={runtime} />
+        </button>
+      ) : (
+        <section className="info-panel tile-card" aria-label={tile.label}>
+          <tile.view block={tile} runtime={runtime} />
+        </section>
+      )}
     </Area>
   );
-  const tileSheet = phone && expanded ? <TileSheet tile={tile} runtime={runtime} id={sheetId} onClose={() => close("tile")} /> : null;
+  const tileSheet =
+    phone && expanded ? <TileSheet tile={tile} runtime={runtime} id={sheetId} onClose={() => close("tile")} /> : null;
   return { tileArea, tileSheet };
 }

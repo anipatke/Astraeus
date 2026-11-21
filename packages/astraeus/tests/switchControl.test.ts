@@ -5,14 +5,23 @@ import { $, mountShell, press, type Mounted } from "./domSetup";
 import type { ExperienceSwitch } from "../src/shell/SwitchControl";
 
 let m: Mounted;
-afterEach(() => { m.unmount(); });
+afterEach(() => {
+  m.unmount();
+});
 
 describe("switch control", () => {
   it("hands the pressed option's value to the callback, and a press of the pressed option nothing", () => {
     const chosen: string[] = [];
     const switcher: ExperienceSwitch = {
-      label: "Made-up choice", param: "pick", choose: (value) => { chosen.push(value); },
-      options: [{ label: "One", value: "one", active: true }, { label: "Two", value: "two", active: false }],
+      label: "Made-up choice",
+      param: "pick",
+      choose: (value) => {
+        chosen.push(value);
+      },
+      options: [
+        { label: "One", value: "one", active: true },
+        { label: "Two", value: "two", active: false },
+      ],
     };
     const before = window.location.href;
     m = mountShell({ switcher });

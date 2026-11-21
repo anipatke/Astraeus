@@ -1,9 +1,27 @@
 import { DAY_MS } from "../core/constants";
 import type { BodyId } from "../core/body";
-import { readableScale, solarSystemScale, trueScale, type ScaleId, type ScalePolicy } from "../presentation/scalePolicy";
-import { catalogue as builtInCatalogue, bindCatalogue, extendCatalogue, extendCatalogueWithMoons, rootBodyId, type BodyCatalogue } from "../assets/catalogue";
+import {
+  readableScale,
+  solarSystemScale,
+  trueScale,
+  type ScaleId,
+  type ScalePolicy,
+} from "../presentation/scalePolicy";
+import {
+  catalogue as builtInCatalogue,
+  bindCatalogue,
+  extendCatalogue,
+  extendCatalogueWithMoons,
+  rootBodyId,
+  type BodyCatalogue,
+} from "../assets/catalogue";
 import { createSceneMoonData } from "../core/moonData";
-import { buildElementsBody, ElementsBodyError, parseElementsBodyRecord, type ElementsBodyRecord } from "../core/elementsBody";
+import {
+  buildElementsBody,
+  ElementsBodyError,
+  parseElementsBodyRecord,
+  type ElementsBodyRecord,
+} from "../core/elementsBody";
 import type { CompositionPath } from "../assets/compositions";
 import type { ExperienceDefinition, PathLayer, VisualOverride } from "../app/experienceDefinition";
 import type { ExperienceObject, ShownSpan } from "../shell/experience";
@@ -23,14 +41,17 @@ import { frozenCopy } from "./frozenCopy";
 import { readoutsOf } from "./planPaths";
 import { frozenList, type SceneBodyRead } from "./sceneReads";
 
-
 type Shape = Pick<AddBodyOptions, "enlarge" | "showLabel">;
 
 /**
  * The orbit line of a catalogued moon, by one rule: one lap of the period its catalogue definition carries (`orbitPeriodDays`, read once from the record or mean
  * elements), drawn about its parent. Undefined where the definition gives no period. A moon closes its loop (Io's look) unless its definition says its line fades (the Moon's, as before).
  */
-function moonOrbitPath(catalogue: BodyCatalogue, id: BodyId, lap?: OrbitLapInput): Omit<CompositionPath, "body"> | undefined {
+function moonOrbitPath(
+  catalogue: BodyCatalogue,
+  id: BodyId,
+  lap?: OrbitLapInput,
+): Omit<CompositionPath, "body"> | undefined {
   if (!catalogue.has(id)) return undefined;
   const { orbitPeriodDays, orbitLineFades, parentId } = catalogue.get(id).definition;
   const days = lap?.lapDays ?? orbitPeriodDays;
@@ -46,17 +67,34 @@ function checkBodyCard(id: string, options: AddBodyOptions): void {
   const bad = (message: string) => new SceneError("bad-body", `addBody("${id}"): ${message}`);
   if (options.listed !== undefined && typeof options.listed !== "boolean") throw bad("listed must be true or false");
   const { facts, sources, labelPriority, orbit } = options;
-  if (facts !== undefined && !(Array.isArray(facts) && facts.every((fact: CardFactInput) => typeof fact?.label === "string" && fact.label !== "" && typeof fact.value === "string" && fact.value !== ""))) throw bad("facts must be a list of { label, value } with both texts non-empty");
-  if (sources !== undefined && !(Array.isArray(sources) && sources.every((source) => typeof source === "string" && source !== ""))) throw bad("sources must be a list of non-empty texts");
-  if (labelPriority !== undefined && !(typeof labelPriority === "number" && Number.isFinite(labelPriority))) throw bad(`labelPriority ${String(labelPriority)} must be a finite number`);
+  if (
+    facts !== undefined &&
+    !(
+      Array.isArray(facts) &&
+      facts.every(
+        (fact: CardFactInput) =>
+          typeof fact?.label === "string" && fact.label !== "" && typeof fact.value === "string" && fact.value !== "",
+      )
+    )
+  )
+    throw bad("facts must be a list of { label, value } with both texts non-empty");
+  if (
+    sources !== undefined &&
+    !(Array.isArray(sources) && sources.every((source) => typeof source === "string" && source !== ""))
+  )
+    throw bad("sources must be a list of non-empty texts");
+  if (labelPriority !== undefined && !(typeof labelPriority === "number" && Number.isFinite(labelPriority)))
+    throw bad(`labelPriority ${String(labelPriority)} must be a finite number`);
   checkOrbitOption(bad, orbit);
 }
 
 /** Checks the `orbit` option: true, false or the lap form. */
 function checkOrbitOption(bad: (message: string) => SceneError, orbit: AddBodyOptions["orbit"]): void {
-  if (orbit !== undefined && typeof orbit !== "boolean" && !isLap(orbit)) throw bad("orbit must be true, false or { lapDays, fades? }");
+  if (orbit !== undefined && typeof orbit !== "boolean" && !isLap(orbit))
+    throw bad("orbit must be true, false or { lapDays, fades? }");
   if (isLap(orbit)) {
-    if (!(typeof orbit.lapDays === "number" && Number.isFinite(orbit.lapDays) && orbit.lapDays > 0)) throw bad(`orbit.lapDays ${String(orbit.lapDays)} must be a positive finite number of days`);
+    if (!(typeof orbit.lapDays === "number" && Number.isFinite(orbit.lapDays) && orbit.lapDays > 0))
+      throw bad(`orbit.lapDays ${String(orbit.lapDays)} must be a positive finite number of days`);
     if (orbit.fades !== undefined && typeof orbit.fades !== "boolean") throw bad("orbit.fades must be true or false");
   }
 }
@@ -80,16 +118,43 @@ function parseRecord(record: ElementsBodyRecord): ElementsBodyRecord {
 
 /** Checks the colour, known limits and label reach given to `addBody`. */
 function checkBodyLook(id: string, options: AddBodyOptions): void {
-  if (options.labelReachEarthRadii !== undefined) checkLabelReach(options.labelReachEarthRadii, new SceneError("bad-body", `addBody("${id}"): labelReachEarthRadii ${String(options.labelReachEarthRadii)} must be a positive finite number`));
-  if (options.enlarge !== undefined && !(typeof options.enlarge === "number" && Number.isFinite(options.enlarge) && options.enlarge >= 1)) throw new SceneError("bad-body", `addBody("${id}"): enlarge ${String(options.enlarge)} must be a number of at least 1`);
-  if (options.showLabel !== undefined && typeof options.showLabel !== "boolean") throw new SceneError("bad-body", `addBody("${id}"): showLabel must be true or false`);
-  if (options.color !== undefined && !(typeof options.color === "string" && /^#[0-9a-fA-F]{3}([0-9a-fA-F]{3})?$/.test(options.color))) throw new SceneError("bad-body", `addBody("${id}"): color "${String(options.color)}" is not a hex colour such as "#9fd8ff"`);
+  if (options.labelReachEarthRadii !== undefined)
+    checkLabelReach(
+      options.labelReachEarthRadii,
+      new SceneError(
+        "bad-body",
+        `addBody("${id}"): labelReachEarthRadii ${String(options.labelReachEarthRadii)} must be a positive finite number`,
+      ),
+    );
+  if (
+    options.enlarge !== undefined &&
+    !(typeof options.enlarge === "number" && Number.isFinite(options.enlarge) && options.enlarge >= 1)
+  )
+    throw new SceneError(
+      "bad-body",
+      `addBody("${id}"): enlarge ${String(options.enlarge)} must be a number of at least 1`,
+    );
+  if (options.showLabel !== undefined && typeof options.showLabel !== "boolean")
+    throw new SceneError("bad-body", `addBody("${id}"): showLabel must be true or false`);
+  if (
+    options.color !== undefined &&
+    !(typeof options.color === "string" && /^#[0-9a-fA-F]{3}([0-9a-fA-F]{3})?$/.test(options.color))
+  )
+    throw new SceneError(
+      "bad-body",
+      `addBody("${id}"): color "${String(options.color)}" is not a hex colour such as "#9fd8ff"`,
+    );
   const limits = options.knownLimitations;
-  if (limits !== undefined && !(Array.isArray(limits) && limits.every((line) => typeof line === "string" && line !== ""))) throw new SceneError("bad-body", `addBody("${id}"): knownLimitations must be a list of non-empty texts`);
+  if (
+    limits !== undefined &&
+    !(Array.isArray(limits) && limits.every((line) => typeof line === "string" && line !== ""))
+  )
+    throw new SceneError("bad-body", `addBody("${id}"): knownLimitations must be a list of non-empty texts`);
 }
 
 /** A provenance with more sources after its own. */
-const withSources = (provenance: Provenance, sources: readonly string[]): Provenance => createProvenance({ ...provenance, sources: [...provenance.sources, ...sources] });
+const withSources = (provenance: Provenance, sources: readonly string[]): Provenance =>
+  createProvenance({ ...provenance, sources: [...provenance.sources, ...sources] });
 
 /** The camera facts the label rule reads. */
 export interface LabelCamera {
@@ -126,7 +191,14 @@ export class BodyPlan {
     const before = this.catalogue;
     this.#addListedMoon(id);
     try {
-      this.#register("addBody", id, typeof body === "string" ? readyMade(id) ?? { id, label: this.catalogue.has(id) ? this.catalogue.get(id).definition.label : id } : body, options);
+      this.#register(
+        "addBody",
+        id,
+        typeof body === "string"
+          ? (readyMade(id) ?? { id, label: this.catalogue.has(id) ? this.catalogue.get(id).definition.label : id })
+          : body,
+        options,
+      );
     } catch (error) {
       this.catalogue = before;
       throw error;
@@ -136,11 +208,19 @@ export class BodyPlan {
   addFromElements(input: ElementsBodyRecord, inputOptions: AddBodyOptions): void {
     const record = frozenCopy(input);
     const options = frozenCopy(inputOptions);
-    if (record?.id === "auto") throw new SceneError("bad-element", `addBodyFromElements("auto"): "auto" is reserved (it is lineFixedTo's automatic choice) and cannot be a body id`);
+    if (record?.id === "auto")
+      throw new SceneError(
+        "bad-element",
+        `addBodyFromElements("auto"): "auto" is reserved (it is lineFixedTo's automatic choice) and cannot be a body id`,
+      );
     rejectRenamed("ElementsBodyRecord", record, "addBodyFromElements");
     rejectRenamed("ElementsAccuracy", record?.accuracy, "addBodyFromElements: accuracy");
     const parsed = parseRecord(record);
-    if (this.#taken(parsed.id) || this.catalogue.has(parsed.id)) throw new SceneError("duplicate-id", `addBodyFromElements("${parsed.id}"): that id is already in the scene or the catalogue`);
+    if (this.#taken(parsed.id) || this.catalogue.has(parsed.id))
+      throw new SceneError(
+        "duplicate-id",
+        `addBodyFromElements("${parsed.id}"): that id is already in the scene or the catalogue`,
+      );
     const root = builtInCatalogue.get(rootBodyId()).definition;
     const before = this.catalogue;
     this.catalogue = extendCatalogue(before, [parsed]);
@@ -157,14 +237,27 @@ export class BodyPlan {
   #addListedMoon(id: BodyId): void {
     if (this.catalogue.has(id)) return;
     const moon = listedMoonBodyOf(id);
-    if (moon !== undefined && this.catalogue.has(moon.definition.parentId!)) this.catalogue = extendCatalogueWithMoons(this.catalogue, [moon]);
+    if (moon !== undefined && this.catalogue.has(moon.definition.parentId!))
+      this.catalogue = extendCatalogueWithMoons(this.catalogue, [moon]);
   }
 
   /** Refuses an `orbit` the engine cannot draw: `true` needs a period about a parent or a Sun orbit; the lap form needs a parent that is not the Sun. */
   #checkOrbit(call: string, id: BodyId, options: AddBodyOptions): void {
-    if (options.orbit === true && moonOrbitPath(this.catalogue, id) === undefined && !(circlesTheSun(this.catalogue, id))) throw new SceneError("no-orbit", `${call}("${id}", { orbit: true }): the engine draws the orbit line of any catalogued moon whose data give a period about its planet and of any body that circles the Sun (every planet: its own source over a full turn where the source covers one, else the two-body ellipse osculating at the opening time)`);
+    if (options.orbit === true && moonOrbitPath(this.catalogue, id) === undefined && !circlesTheSun(this.catalogue, id))
+      throw new SceneError(
+        "no-orbit",
+        `${call}("${id}", { orbit: true }): the engine draws the orbit line of any catalogued moon whose data give a period about its planet and of any body that circles the Sun (every planet: its own source over a full turn where the source covers one, else the two-body ellipse osculating at the opening time)`,
+      );
     const lap = isLap(options.orbit) ? options.orbit : undefined;
-    if (lap !== undefined && this.catalogue.has(id) && (this.catalogue.get(id).definition.parentId === undefined || circlesTheSun(this.catalogue, id))) throw new SceneError("no-orbit", `${call}("${id}", { orbit: { lapDays } }): the lap form draws a moon's line about its parent; "${id}" has no parent in the catalogue or circles the Sun (use orbit: true)`);
+    if (
+      lap !== undefined &&
+      this.catalogue.has(id) &&
+      (this.catalogue.get(id).definition.parentId === undefined || circlesTheSun(this.catalogue, id))
+    )
+      throw new SceneError(
+        "no-orbit",
+        `${call}("${id}", { orbit: { lapDays } }): the lap form draws a moon's line about its parent; "${id}" has no parent in the catalogue or circles the Sun (use orbit: true)`,
+      );
   }
 
   /** Keeps what `addBody` asked for, option by option. */
@@ -173,15 +266,37 @@ export class BodyPlan {
     if (options.labelReachEarthRadii !== undefined) this.labelReaches.set(id, options.labelReachEarthRadii);
     const lap = isLap(options.orbit) ? options.orbit : undefined;
     if (options.orbit === true || lap !== undefined) this.orbits.add(id);
-    if (lap !== undefined) this.laps.set(id, { lapDays: lap.lapDays, ...(lap.fades === undefined ? {} : { fades: lap.fades }) });
+    if (lap !== undefined)
+      this.laps.set(id, { lapDays: lap.lapDays, ...(lap.fades === undefined ? {} : { fades: lap.fades }) });
     this.#rememberCard(id, options);
   }
 
   /** Keeps the card, look, shape and words of one body. */
   #rememberCard(id: BodyId, options: AddBodyOptions): void {
-    if (options.listed !== undefined || options.facts !== undefined || options.sources !== undefined || options.labelPriority !== undefined) this.cards.set(id, { ...(options.listed === undefined ? {} : { listed: options.listed }), ...(options.facts === undefined ? {} : { facts: options.facts.map(({ label, value }) => Object.freeze({ label, value })) }), ...(options.sources === undefined ? {} : { sources: [...options.sources] }), ...(options.labelPriority === undefined ? {} : { labelPriority: options.labelPriority }) });
-    if (options.color !== undefined || options.knownLimitations !== undefined) this.looks.set(id, { ...(options.color === undefined ? {} : { color: options.color }), ...(options.knownLimitations === undefined ? {} : { knownLimitations: options.knownLimitations }) });
-    if (options.enlarge !== undefined || options.showLabel !== undefined) this.shape.set(id, { ...(options.enlarge === undefined ? {} : { enlarge: options.enlarge }), ...(options.showLabel === undefined ? {} : { showLabel: options.showLabel }) });
+    if (
+      options.listed !== undefined ||
+      options.facts !== undefined ||
+      options.sources !== undefined ||
+      options.labelPriority !== undefined
+    )
+      this.cards.set(id, {
+        ...(options.listed === undefined ? {} : { listed: options.listed }),
+        ...(options.facts === undefined
+          ? {}
+          : { facts: options.facts.map(({ label, value }) => Object.freeze({ label, value })) }),
+        ...(options.sources === undefined ? {} : { sources: [...options.sources] }),
+        ...(options.labelPriority === undefined ? {} : { labelPriority: options.labelPriority }),
+      });
+    if (options.color !== undefined || options.knownLimitations !== undefined)
+      this.looks.set(id, {
+        ...(options.color === undefined ? {} : { color: options.color }),
+        ...(options.knownLimitations === undefined ? {} : { knownLimitations: options.knownLimitations }),
+      });
+    if (options.enlarge !== undefined || options.showLabel !== undefined)
+      this.shape.set(id, {
+        ...(options.enlarge === undefined ? {} : { enlarge: options.enlarge }),
+        ...(options.showLabel === undefined ? {} : { showLabel: options.showLabel }),
+      });
     if (options.description !== undefined) this.notes.set(id, options.description);
   }
 
@@ -189,7 +304,11 @@ export class BodyPlan {
     rejectRenamed("AddBodyOptions", options, `${call}("${id}")`);
     checkBodyCard(id, options);
     this.#checkOrbit(call, id, options);
-    if (!this.catalogue.has(id)) throw new SceneError("unknown-body", `${call}("${id}"): not a catalogued body (known: ${builtInCatalogue.ids().join(", ")}; any moon in the moon lists is added by its id, and \`listedMoons(planet)\` names them with the data package each needs)`);
+    if (!this.catalogue.has(id))
+      throw new SceneError(
+        "unknown-body",
+        `${call}("${id}"): not a catalogued body (known: ${builtInCatalogue.ids().join(", ")}; any moon in the moon lists is added by its id, and \`listedMoons(planet)\` names them with the data package each needs)`,
+      );
     if (this.#taken(id)) throw new SceneError("duplicate-id", `${call}("${id}"): already in the scene`);
     checkBodyLook(id, options);
     const shown = planShownDuring(call, id, "bad-body", options.shownDuring);
@@ -210,40 +329,71 @@ export class BodyPlan {
   missingData(data: readonly DataSource[]): readonly string[] {
     const have = new Set(data.flatMap((source) => source.provides));
     const named = new Set(data.map((source) => source.name));
-    return [...new Set([...this.bodies.values()].filter((body) => body.requires !== undefined && !have.has(body.id) && !named.has(body.requires)).map((body) => body.requires!))];
+    return [
+      ...new Set(
+        [...this.bodies.values()]
+          .filter((body) => body.requires !== undefined && !have.has(body.id) && !named.has(body.requires))
+          .map((body) => body.requires!),
+      ),
+    ];
   }
 
   /** Throws `missing-data` naming the bodies whose data package was not passed. */
   checkData(data: readonly DataSource[]): void {
     const missing = this.missingData(data);
     if (missing.length === 0) return;
-    const names = [...this.bodies.values()].filter((body) => body.requires !== undefined && missing.includes(body.requires)).map((body) => body.id);
-    throw new SceneError("missing-data", `${names.join(", ")} needs the ${missing.join(", ")} package: install it and pass it as mount(element, scene, { data: [...] })`);
+    const names = [...this.bodies.values()]
+      .filter((body) => body.requires !== undefined && missing.includes(body.requires))
+      .map((body) => body.id);
+    throw new SceneError(
+      "missing-data",
+      `${names.join(", ")} needs the ${missing.join(", ")} package: install it and pass it as mount(element, scene, { data: [...] })`,
+    );
   }
 
   /** The engine's own orbit loops (the Moon's and Io's) the scene asked for. */
   moonPaths(): readonly CompositionPath[] {
-    return [...this.orbits].filter((id) => moonOrbitPath(this.catalogue, id, this.laps.get(id)) !== undefined).map((id): CompositionPath => {
-      const orbit = moonOrbitPath(this.catalogue, id, this.laps.get(id))!;
-      const parent = this.catalogue.get(id).definition.parentId;
-      if (parent === undefined || !this.bodies.has(parent)) throw new SceneError("no-orbit", `addBody("${id}", { orbit: true }): the orbit is drawn about ${parent}, which has not been added to the scene`);
-      return { body: id, ...orbit };
-    });
+    return [...this.orbits]
+      .filter((id) => moonOrbitPath(this.catalogue, id, this.laps.get(id)) !== undefined)
+      .map((id): CompositionPath => {
+        const orbit = moonOrbitPath(this.catalogue, id, this.laps.get(id))!;
+        const parent = this.catalogue.get(id).definition.parentId;
+        if (parent === undefined || !this.bodies.has(parent))
+          throw new SceneError(
+            "no-orbit",
+            `addBody("${id}", { orbit: true }): the orbit is drawn about ${parent}, which has not been added to the scene`,
+          );
+        return { body: id, ...orbit };
+      });
   }
 
   /** The bodies that asked for a Sun-orbit line, checked: the Sun must be in the scene and the line's id free. */
   sunOrbitIds(ids: readonly BodyId[]): readonly BodyId[] {
-    return [...this.orbits].filter((id) => moonOrbitPath(this.catalogue, id, this.laps.get(id)) === undefined).map((id) => {
-      if (!ids.includes(rootBodyId(this.catalogue))) throw new SceneError("no-orbit", `addBody("${id}", { orbit: true }): the orbit is drawn about the Sun, which has not been added to the scene`);
-      if (this.#taken(sunOrbitIdOf(id))) throw new SceneError("duplicate-id", `addBody("${id}", { orbit: true }): the orbit line's id "${sunOrbitIdOf(id)}" is already in the scene`);
-      return id;
-    });
+    return [...this.orbits]
+      .filter((id) => moonOrbitPath(this.catalogue, id, this.laps.get(id)) === undefined)
+      .map((id) => {
+        if (!ids.includes(rootBodyId(this.catalogue)))
+          throw new SceneError(
+            "no-orbit",
+            `addBody("${id}", { orbit: true }): the orbit is drawn about the Sun, which has not been added to the scene`,
+          );
+        if (this.#taken(sunOrbitIdOf(id)))
+          throw new SceneError(
+            "duplicate-id",
+            `addBody("${id}", { orbit: true }): the orbit line's id "${sunOrbitIdOf(id)}" is already in the scene`,
+          );
+        return id;
+      });
   }
 
   /** One Sun-orbit line: one full turn from the opening time (an own body from its periapsis). Reads planet positions, so the planet series must be loaded. */
   sunPath(id: BodyId, openUtcMs: number): PathLayer {
     const layer = sunOrbitLayer(this.catalogue, id, openUtcMs, this.looks.get(id)?.color ?? "", this.own.get(id));
-    if (layer === undefined) throw new SceneError("no-orbit", `addBody("${id}", { orbit: true }): "${id}" completes no turn within thirty years and its position and the Sun's gravity do not give a bound ellipse; add it with addBodyFromElements to draw its whole orbit`);
+    if (layer === undefined)
+      throw new SceneError(
+        "no-orbit",
+        `addBody("${id}", { orbit: true }): "${id}" completes no turn within thirty years and its position and the Sun's gravity do not give a bound ellipse; add it with addBodyFromElements to draw its whole orbit`,
+      );
     return layer;
   }
 
@@ -258,7 +408,11 @@ export class BodyPlan {
   }
 
   checkSolarSystemScale(scale: ScalePolicy, sunCentred: boolean): void {
-    if (scale.id === solarSystemScale.id && !this.enlargedInSun(sunCentred)) throw new SceneError("bad-scale", "setScale: the Solar system scale needs a Sun-centred scene with an enlarged body (addBody(x, { enlarge }))");
+    if (scale.id === solarSystemScale.id && !this.enlargedInSun(sunCentred))
+      throw new SceneError(
+        "bad-scale",
+        "setScale: the Solar system scale needs a Sun-centred scene with an enlarged body (addBody(x, { enlarge }))",
+      );
   }
 
   /** Whether a Sun-centred scene enlarges a body, which the viewer's solar-system scale draws. */
@@ -268,14 +422,29 @@ export class BodyPlan {
 
   /** The bodies in the order added, as the public list states them. */
   reads(): readonly SceneBodyRead[] {
-    return frozenList([...this.bodies.values()].map(({ id, label }): SceneBodyRead => {
-      const parent = this.catalogue.has(id) ? this.catalogue.get(id).definition.parentId : undefined;
-      const limits = this.catalogue.has(id) ? catalogueItem(id, { ...this.looks.get(id) }, this.catalogue).knownLimitations : undefined;
-      const description = this.notes.get(id);
-      const card = this.cards.get(id);
-      const texture = this.catalogue.has(id) ? this.catalogue.get(id).visual.texture : undefined;
-      return { id, label, listed: card?.listed ?? true, ...(card?.facts === undefined ? {} : { facts: card.facts }), ...(texture === undefined ? {} : { texture }), ...(parent === undefined ? {} : { parent }), orbit: this.orbits.has(id), enlarge: this.shape.get(id)?.enlarge ?? 1, ...(description === undefined ? {} : { description }), knownLimitations: Object.freeze([...(limits ?? [])]) };
-    }));
+    return frozenList(
+      [...this.bodies.values()].map(({ id, label }): SceneBodyRead => {
+        const parent = this.catalogue.has(id) ? this.catalogue.get(id).definition.parentId : undefined;
+        const limits = this.catalogue.has(id)
+          ? catalogueItem(id, { ...this.looks.get(id) }, this.catalogue).knownLimitations
+          : undefined;
+        const description = this.notes.get(id);
+        const card = this.cards.get(id);
+        const texture = this.catalogue.has(id) ? this.catalogue.get(id).visual.texture : undefined;
+        return {
+          id,
+          label,
+          listed: card?.listed ?? true,
+          ...(card?.facts === undefined ? {} : { facts: card.facts }),
+          ...(texture === undefined ? {} : { texture }),
+          ...(parent === undefined ? {} : { parent }),
+          orbit: this.orbits.has(id),
+          enlarge: this.shape.get(id)?.enlarge ?? 1,
+          ...(description === undefined ? {} : { description }),
+          knownLimitations: Object.freeze([...(limits ?? [])]),
+        };
+      }),
+    );
   }
 
   /**
@@ -283,7 +452,10 @@ export class BodyPlan {
    * offers `solarSystemScale` (true distances, the named bodies enlarged) in place of the readable scale it would offer second, since the readable scale does not enlarge.
    */
   scaleChoices(scale: ScalePolicy, only: boolean): readonly ScaleId[] {
-    const offered = [trueScale, this.enlargedInSun(this.checkSunCentred([...this.bodies.keys()])) ? solarSystemScale : readableScale];
+    const offered = [
+      trueScale,
+      this.enlargedInSun(this.checkSunCentred([...this.bodies.keys()])) ? solarSystemScale : readableScale,
+    ];
     const second = scale.id === readableScale.id ? [trueScale] : offered.filter((other) => other.id !== scale.id);
     return only ? [scale.id] : [scale.id, ...second.map((other) => other.id)];
   }
@@ -296,7 +468,9 @@ export class BodyPlan {
   labelReach(id: string, sunCentred: boolean, camera: LabelCamera): { readonly labelMaxDistance?: number } {
     const own = this.labelReaches.get(id);
     if (own !== undefined) return { labelMaxDistance: own };
-    return sunCentred || camera.fitted !== undefined ? {} : { labelMaxDistance: Math.max(500, camera.reachEarthRadii ?? 0) };
+    return sunCentred || camera.fitted !== undefined
+      ? {}
+      : { labelMaxDistance: Math.max(500, camera.reachEarthRadii ?? 0) };
   }
 
   /** The shell item of a body: from the catalogue, with the scene's own words, look and label setting. Label reach is `labelReachEarthRadii`. */
@@ -304,7 +478,17 @@ export class BodyPlan {
     const card = this.cards.get(body.id);
     const sources = card?.sources;
     const base = this.catalogue.get(body.id).definition.accuracy.position;
-    const own = { labelPriority: card?.labelPriority ?? 100 - ids.indexOf(body.id), ...(card?.listed === undefined ? {} : { listed: card.listed }), ...(card?.facts === undefined ? {} : { facts: card.facts }), ...(sources === undefined ? {} : { provenance: withSources(base, sources) }), ...this.labelReach(body.id, sunCentred, camera), ...(this.shape.get(body.id)?.showLabel === undefined ? {} : { showLabel: this.shape.get(body.id)!.showLabel }), ...(this.notes.has(body.id) ? { description: this.notes.get(body.id) } : {}), ...(this.shown.has(body.id) ? { shownDuring: this.shown.get(body.id) } : {}), ...this.looks.get(body.id) };
+    const own = {
+      labelPriority: card?.labelPriority ?? 100 - ids.indexOf(body.id),
+      ...(card?.listed === undefined ? {} : { listed: card.listed }),
+      ...(card?.facts === undefined ? {} : { facts: card.facts }),
+      ...(sources === undefined ? {} : { provenance: withSources(base, sources) }),
+      ...this.labelReach(body.id, sunCentred, camera),
+      ...(this.shape.get(body.id)?.showLabel === undefined ? {} : { showLabel: this.shape.get(body.id)!.showLabel }),
+      ...(this.notes.has(body.id) ? { description: this.notes.get(body.id) } : {}),
+      ...(this.shown.has(body.id) ? { shownDuring: this.shown.get(body.id) } : {}),
+      ...this.looks.get(body.id),
+    };
     return { ...catalogueItem(body.id, own, this.catalogue), label: body.label };
   }
 }

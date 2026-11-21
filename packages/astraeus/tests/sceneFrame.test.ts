@@ -6,7 +6,27 @@ import { readableScale, trueScale } from "../src/presentation/scalePolicy";
 import type { BodyId } from "../src/core/body";
 import { createOrbitCameraState } from "../src/app/CameraController";
 import type { SceneControls, SceneRuntime } from "../src/app/AstraeusScene";
-import { applyViewVisibility, hiddenOf, bodiesMounted, cameraSettled, createFrameState, decideDraw, IDLE_GRACE_FRAMES, shouldDrawFrame, frameTime, placeLightsAndReadout, placeScene, placeSkyFigures, placeViews, publishCanvasReadouts, stepAndPoseCamera, syncViews, updateOverlays, viewUpOf, type FrameContext } from "../src/app/sceneFrame";
+import {
+  applyViewVisibility,
+  hiddenOf,
+  bodiesMounted,
+  cameraSettled,
+  createFrameState,
+  decideDraw,
+  IDLE_GRACE_FRAMES,
+  shouldDrawFrame,
+  frameTime,
+  placeLightsAndReadout,
+  placeScene,
+  placeSkyFigures,
+  placeViews,
+  publishCanvasReadouts,
+  stepAndPoseCamera,
+  syncViews,
+  updateOverlays,
+  viewUpOf,
+  type FrameContext,
+} from "../src/app/sceneFrame";
 import { DEFAULT_BODY_SET_LOOK } from "../src/app/bodySet";
 import { SkyFiguresView } from "../src/app/SkyFiguresView";
 import { EQUATORIAL_UP } from "../src/app/viewUp";
@@ -87,7 +107,10 @@ describe("placeScene", () => {
 
 describe("stepAndPoseCamera", () => {
   it("tells the host on the first frame only, in an animation frame, and uses the start view then", () => {
-    const raf = vi.fn((fn: FrameRequestCallback) => { fn(0); return 1; });
+    const raf = vi.fn((fn: FrameRequestCallback) => {
+      fn(0);
+      return 1;
+    });
     vi.stubGlobal("requestAnimationFrame", raf);
     const startView = { focus: "moon", azimuthDeg: 30, elevationDeg: 10, distance: 5 };
     const made = makeContext({ controls: { startView } });
@@ -219,17 +242,54 @@ describe("placeLightsAndReadout", () => {
 });
 
 function fakePath(id: string, defaultLook: object | null = null) {
-  return { id, defaultLook, setLook: vi.fn(), setColor: vi.fn(), sync: vi.fn(), place: vi.fn(), arcHeadAbsolute: () => null, screenReadout: () => ({ id, visible: true, vertices: 0, inView: 0, maxX: 0, minX: 0, maxY: 0, minY: 0, lineMinX: 1, lineMaxX: 0, lineMinY: 1, lineMaxY: 0, axisDeg: 0, aspect: 1, look: null }) };
+  return {
+    id,
+    defaultLook,
+    setLook: vi.fn(),
+    setColor: vi.fn(),
+    sync: vi.fn(),
+    place: vi.fn(),
+    arcHeadAbsolute: () => null,
+    screenReadout: () => ({
+      id,
+      visible: true,
+      vertices: 0,
+      inView: 0,
+      maxX: 0,
+      minX: 0,
+      maxY: 0,
+      minY: 0,
+      lineMinX: 1,
+      lineMaxX: 0,
+      lineMinY: 1,
+      lineMaxY: 0,
+      axisDeg: 0,
+      aspect: 1,
+      look: null,
+    }),
+  };
 }
 
 describe("syncViews", () => {
   it("gives an owned orbit path its family colour and every path the live look, then syncs all views at the frame time", () => {
-    const { ctx } = makeContext({ controls: { orbitLook: { lineWidth: 3 } as never, bodySetLook: { ...DEFAULT_BODY_SET_LOOK, highlightFamily: "moons", highlightColor: "#123456" } } });
+    const { ctx } = makeContext({
+      controls: {
+        orbitLook: { lineWidth: 3 } as never,
+        bodySetLook: { ...DEFAULT_BODY_SET_LOOK, highlightFamily: "moons", highlightColor: "#123456" },
+      },
+    });
     const owned = fakePath("moon-orbit", { lineWidth: 1 });
     const other = fakePath("earth-orbit");
     const group = { sync: vi.fn() };
-    const views = { ...ctx.views, compositionPaths: [owned, other], groupViews: [group] } as unknown as FrameContext["views"];
-    const look = syncViews({ ...ctx, views, bodyFamilies: [{ layer: {} as never, body: "moon", family: "moons" }] }, T0);
+    const views = {
+      ...ctx.views,
+      compositionPaths: [owned, other],
+      groupViews: [group],
+    } as unknown as FrameContext["views"];
+    const look = syncViews(
+      { ...ctx, views, bodyFamilies: [{ layer: {} as never, body: "moon", family: "moons" }] },
+      T0,
+    );
     expect(look.highlightColor).toBe("#123456");
     expect(owned.setColor).toHaveBeenCalledWith("#123456");
     expect(owned.setLook).toHaveBeenCalledWith({ lineWidth: 3 });
@@ -248,7 +308,15 @@ describe("syncViews", () => {
 
 describe("publishCanvasReadouts", () => {
   function fakeSky() {
-    return { follow: vi.fn(), setPictureVisible: vi.fn(), requestPicture: vi.fn(), setStarBrightness: vi.fn(), setMilkyWayBrightness: vi.fn(), pictureVisible: false, probe: vi.fn(() => ({ ok: true })) };
+    return {
+      follow: vi.fn(),
+      setPictureVisible: vi.fn(),
+      requestPicture: vi.fn(),
+      setStarBrightness: vi.fn(),
+      setMilkyWayBrightness: vi.fn(),
+      pictureVisible: false,
+      probe: vi.fn(() => ({ ok: true })),
+    };
   }
 
   it("updates the sky only when the scene has a sky view, and reads it back only in developer mode", () => {
@@ -270,9 +338,19 @@ describe("publishCanvasReadouts", () => {
   it("reports the Milky Way picture and the live brightness settings on the canvas, the picture only when it is switched on (browser-sky.mjs)", () => {
     const { ctx } = makeContext({ controls: { showMilkyWay: false, starBrightness: 1.5, milkyWayBrightness: 0.5 } });
     const sky = fakeSky();
-    const frame = (showMilkyWay: boolean) => ({ ...ctx, views: { ...ctx.views, skyView: sky }, controls: { ...ctx.controls, showMilkyWay } }) as unknown as FrameContext;
+    const frame = (showMilkyWay: boolean) =>
+      ({
+        ...ctx,
+        views: { ...ctx.views, skyView: sky },
+        controls: { ...ctx.controls, showMilkyWay },
+      }) as unknown as FrameContext;
     publishCanvasReadouts(frame(false));
-    expect(ctx.canvas.dataset).toMatchObject({ skyPicture: "off", skyStarBrightness: "1.5", skyMilkyWayBrightness: "0.5", skyPictureShown: "false" });
+    expect(ctx.canvas.dataset).toMatchObject({
+      skyPicture: "off",
+      skyStarBrightness: "1.5",
+      skyMilkyWayBrightness: "0.5",
+      skyPictureShown: "false",
+    });
     expect(sky.requestPicture).not.toHaveBeenCalled();
     expect(sky.setStarBrightness).toHaveBeenCalledWith(1.5);
     sky.pictureVisible = true;
@@ -286,10 +364,23 @@ describe("publishCanvasReadouts", () => {
 });
 
 describe("placeSkyFigures (stage 4b, O-065)", () => {
-  const layer = { id: "kite", label: "The Kite", kind: "figure", segments: [[[1, 0, 0], [0, 1, 0]]], labelAt: [0.7, 0.7, 0] } as never;
+  const layer = {
+    id: "kite",
+    label: "The Kite",
+    kind: "figure",
+    segments: [
+      [
+        [1, 0, 0],
+        [0, 1, 0],
+      ],
+    ],
+    labelAt: [0.7, 0.7, 0],
+  } as never;
 
   it("stands the sky figures on the camera and shows the kinds the switches say, and publishes what is shown", () => {
-    const { ctx } = makeContext({ controls: { skyLines: { figures: true, boundaries: false, ecliptic: true, celestialEquator: false } } });
+    const { ctx } = makeContext({
+      controls: { skyLines: { figures: true, boundaries: false, ecliptic: true, celestialEquator: false } },
+    });
     const views = { ...ctx.views, skyFiguresView: new SkyFiguresView([layer]) };
     const framed = { ...ctx, views } as FrameContext;
     ctx.camera.position.set(3, 4, 5);
@@ -325,14 +416,23 @@ describe("placeViews", () => {
     const label = { update: vi.fn() };
     const { ctx } = makeContext({ controls: { hoverBrightness: 99 } });
     const placedPath = fakePath("moon-orbit");
-    const withViews = { ...ctx, views: { ...ctx.views, compositionPaths: [placedPath] }, layers: { ...ctx.layers, bodySetLabels: { current: [label] } } } as unknown as FrameContext;
+    const withViews = {
+      ...ctx,
+      views: { ...ctx.views, compositionPaths: [placedPath] },
+      layers: { ...ctx.layers, bodySetLabels: { current: [label] } },
+    } as unknown as FrameContext;
     const placed = placeScene(withViews, T0);
     const gain = placeViews(withViews, T0, placed, DEFAULT_BODY_SET_LOOK);
     expect(gain).toBeLessThanOrEqual(3);
     expect(gain).toBeGreaterThan(1);
     expect(label.update).toHaveBeenCalledWith(DEFAULT_BODY_SET_LOOK, gain);
     expect(placedPath.place).toHaveBeenCalledWith(ctx.origin, { fovDeg: ctx.camera.fov, viewportHeightPx: 600 });
-    const defaultGain = placeViews({ ...withViews, controls: { ...ctx.controls, hoverBrightness: undefined } }, T0, placed, DEFAULT_BODY_SET_LOOK);
+    const defaultGain = placeViews(
+      { ...withViews, controls: { ...ctx.controls, hoverBrightness: undefined } },
+      T0,
+      placed,
+      DEFAULT_BODY_SET_LOOK,
+    );
     expect(defaultGain).toBeGreaterThanOrEqual(1);
   });
 });
@@ -386,7 +486,10 @@ describe("draw this frame? (stage 8)", () => {
     const { ctx } = makeContext({ clock });
     settle(ctx);
     clock.play();
-    for (let i = 0; i < 100; i += 1) { monotonic += 16; expect(decideDraw(ctx, clock.now())).toBe(true); }
+    for (let i = 0; i < 100; i += 1) {
+      monotonic += 16;
+      expect(decideDraw(ctx, clock.now())).toBe(true);
+    }
     clock.pause();
     expect(settle(ctx)).toBeGreaterThan(0);
   });
@@ -435,7 +538,10 @@ describe("draw this frame? (stage 8)", () => {
     ctx.state.wakes += 1;
     expect(decideDraw(ctx, ctx.runtime.clock.now())).toBe(true);
     settle(ctx);
-    (ctx.bodyRefs.parts as Map<BodyId, { sphere: Group; marker: Group }>).set("earth", { sphere: new Group(), marker: new Group() });
+    (ctx.bodyRefs.parts as Map<BodyId, { sphere: Group; marker: Group }>).set("earth", {
+      sphere: new Group(),
+      marker: new Group(),
+    });
     expect(decideDraw(ctx, ctx.runtime.clock.now())).toBe(true);
   });
 

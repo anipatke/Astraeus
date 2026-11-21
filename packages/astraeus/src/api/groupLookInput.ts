@@ -19,21 +19,33 @@ export interface GroupLookRead {
 }
 
 const FIELDS = ["color", "dotSizePx"];
-const bad = (id: unknown, message: string): SceneError => new SceneError("bad-group", `setGroupLook("${String(id)}"): ${message}`);
+const bad = (id: unknown, message: string): SceneError =>
+  new SceneError("bad-group", `setGroupLook("${String(id)}"): ${message}`);
 
 /**
  * Checks a `setGroupLook` call and fills the fields left out from `current` (the look in force); throws `bad-group` naming the id when it is not a group
  * (`current` undefined), or naming the field when a value is wrong.
  */
-export function checkedGroupLook(id: unknown, look: unknown, current: GroupLookRead | undefined, groups: readonly string[]): GroupLookRead {
+export function checkedGroupLook(
+  id: unknown,
+  look: unknown,
+  current: GroupLookRead | undefined,
+  groups: readonly string[],
+): GroupLookRead {
   if (typeof id !== "string" || current === undefined) {
-    throw bad(id, `"${String(id)}" is not a group this viewer draws (${groups.length === 0 ? "the scene added none; add them with addGroup" : groups.join(", ")})`);
+    throw bad(
+      id,
+      `"${String(id)}" is not a group this viewer draws (${groups.length === 0 ? "the scene added none; add them with addGroup" : groups.join(", ")})`,
+    );
   }
   if (!isPlainObject(look)) throw bad(id, `expected { color?, dotSizePx? }, got ${String(look)}`);
   const given = look;
-  for (const key of Object.keys(given)) if (!FIELDS.includes(key)) throw bad(id, `"${key}" is not a group look field (${FIELDS.join(", ")})`);
+  for (const key of Object.keys(given))
+    if (!FIELDS.includes(key)) throw bad(id, `"${key}" is not a group look field (${FIELDS.join(", ")})`);
   const { color = current.color, dotSizePx = current.dotSizePx } = given;
-  if (typeof color !== "string" || !HEX.test(color)) throw bad(id, `color "${String(color)}" is not a hex colour such as "#9de3a8"`);
-  if (typeof dotSizePx !== "number" || !Number.isFinite(dotSizePx) || dotSizePx <= 0) throw bad(id, `dotSizePx must be a finite number above 0, got ${String(dotSizePx)}`);
+  if (typeof color !== "string" || !HEX.test(color))
+    throw bad(id, `color "${String(color)}" is not a hex colour such as "#9de3a8"`);
+  if (typeof dotSizePx !== "number" || !Number.isFinite(dotSizePx) || dotSizePx <= 0)
+    throw bad(id, `dotSizePx must be a finite number above 0, got ${String(dotSizePx)}`);
   return { color, dotSizePx };
 }

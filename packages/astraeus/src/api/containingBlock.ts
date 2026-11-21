@@ -10,5 +10,8 @@ export function makeContainingBlock(element: HTMLElement): () => void {
   if (style.position === "static" || style.position === "") element.style.position = "relative";
   if (style.overflow === "visible" || style.overflow === "") element.style.overflow = "hidden";
   // Puts back the inline values the host had, so unmounting leaves the element as it was handed over (O-055 C-144).
-  return () => { element.style.position = position; element.style.overflow = overflow; };
+  return () => {
+    element.style.position = position;
+    element.style.overflow = overflow;
+  };
 }

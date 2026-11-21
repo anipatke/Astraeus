@@ -15,36 +15,85 @@ export const FAR_MARKER: ElementsBodyRecord = madeUpOrbitRecord({
   color: "#c79bff",
   sizePx: 7,
   what: "path capability",
-  elements: { semiMajorAxisAu: 4.5, eccentricity: 0.2, inclinationDeg: 5, ascendingNodeDeg: 60, argumentOfPerihelionDeg: 30, perihelionJdTdb: julianDateOf(BELT_START_UTC_MS) },
+  elements: {
+    semiMajorAxisAu: 4.5,
+    eccentricity: 0.2,
+    inclinationDeg: 5,
+    ascendingNodeDeg: 60,
+    argumentOfPerihelionDeg: 30,
+    perihelionJdTdb: julianDateOf(BELT_START_UTC_MS),
+  },
 });
 
 /** The Sun, Earth on its orbit and the belt group; the scene every Sun-centred made-up scene starts from. */
 export function startSunScene(earthEnlarge?: number): Scene {
   return new Scene()
-    .addBody(sun, { labelPriority: 95, description: "The Sun, the centre the belt and the paths circle. The marker's size is a drawing choice, not the Sun's real size." })
-    .addBody(earth, { color: "#9fd8ff", orbit: true, ...(earthEnlarge === undefined ? {} : { enlarge: earthEnlarge }), labelPriority: 100, labelReachEarthRadii: 500, description: "Earth, on its path round the Sun; the belt circles the Sun." })
+    .addBody(sun, {
+      labelPriority: 95,
+      description:
+        "The Sun, the centre the belt and the paths circle. The marker's size is a drawing choice, not the Sun's real size.",
+    })
+    .addBody(earth, {
+      color: "#9fd8ff",
+      orbit: true,
+      ...(earthEnlarge === undefined ? {} : { enlarge: earthEnlarge }),
+      labelPriority: 100,
+      labelReachEarthRadii: 500,
+      description: "Earth, on its path round the Sun; the belt circles the Sun.",
+    })
     .addGroup({
       id: "dust-belt",
       label: "Dust belt",
       center: "sun",
       plane: "ecliptic-j2000",
-      orbits: spreadOrbits("belt", BELT_MEMBER_COUNT, 7,
+      orbits: spreadOrbits(
+        "belt",
+        BELT_MEMBER_COUNT,
+        7,
         { semiMajorAxisKm: 2.5 * AU_KM, eccentricity: 0.1, inclinationDeg: 8, raanDeg: 0, argumentOfPeriapsisDeg: 0 },
-        { semiMajorAxisKm: 0.3 * AU_KM, eccentricity: 0.08, inclinationDeg: 6, raanDeg: 180, argumentOfPeriapsisDeg: 180 }),
+        {
+          semiMajorAxisKm: 0.3 * AU_KM,
+          eccentricity: 0.08,
+          inclinationDeg: 6,
+          raanDeg: 180,
+          argumentOfPeriapsisDeg: 180,
+        },
+      ),
       color: "#ffd27f",
       seed: 7,
-      provenance: { sourceType: "illustrative", sources: ["Made up for the group capability test; not a real population"], accuracy: "None claimed. A scattered belt of invented members on Sun-centred two-body orbits.", notes: "Exists to prove a Sun-centred group is placed through centre composition." },
-      description: "10,000 invented fragments circling the Sun. One item stands for the whole belt; its focus point is the centroid of the members.",
-      knownLimitations: ["Made up; not a real population.", "Members move on unperturbed two-body orbits about the Sun."],
+      provenance: {
+        sourceType: "illustrative",
+        sources: ["Made up for the group capability test; not a real population"],
+        accuracy: "None claimed. A scattered belt of invented members on Sun-centred two-body orbits.",
+        notes: "Exists to prove a Sun-centred group is placed through centre composition.",
+      },
+      description:
+        "10,000 invented fragments circling the Sun. One item stands for the whole belt; its focus point is the centroid of the members.",
+      knownLimitations: [
+        "Made up; not a real population.",
+        "Members move on unperturbed two-body orbits about the Sun.",
+      ],
     })
-    .addEvents([{ id: "belt-start", label: "Belt begins", time: BELT_START_UTC_MS }, { id: "belt-half", label: "Belt half a day on", time: BELT_START_UTC_MS + 12 * HOUR_MS }])
-    .setTimeline({ start: BELT_START_UTC_MS, end: BELT_START_UTC_MS + 24 * HOUR_MS, rates: [60, 600, 3_600], rate: 600 })
+    .addEvents([
+      { id: "belt-start", label: "Belt begins", time: BELT_START_UTC_MS },
+      { id: "belt-half", label: "Belt half a day on", time: BELT_START_UTC_MS + 12 * HOUR_MS },
+    ])
+    .setTimeline({
+      start: BELT_START_UTC_MS,
+      end: BELT_START_UTC_MS + 24 * HOUR_MS,
+      rates: [60, 600, 3_600],
+      rate: 600,
+    })
     .setTime(BELT_START_UTC_MS);
 }
 
 /** A made-up Sun-centred scene, about 2.5 AU across, with a camera reach that frames the whole belt (Earth radii: 1 AU is about 23,500). */
 export function buildSyntheticBeltScene(): Scene {
-  const scene = startSunScene().addBodyFromElements(FAR_MARKER, { orbit: true, labelPriority: 55, description: "An invented object about 4.5 AU from the Sun, drawn from invented orbital elements." });
+  const scene = startSunScene().addBodyFromElements(FAR_MARKER, {
+    orbit: true,
+    labelPriority: 55,
+    description: "An invented object about 4.5 AU from the Sun, drawn from invented orbital elements.",
+  });
   scene.camera.setReach(400_000).setFollowChoices(["dust-belt"]);
   return scene;
 }

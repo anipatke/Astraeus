@@ -16,7 +16,11 @@ const at = (hours: number) => ({ timeUtcMs: START + 400 * 24 * HOUR + hours * HO
 
 describe("groupMarkers", () => {
   it("leaves well-separated markers alone", () => {
-    const groups = groupMarkers([{ timeUtcMs: START + 10 * 24 * HOUR }, { timeUtcMs: START + 500 * 24 * HOUR }], bounds, 1000);
+    const groups = groupMarkers(
+      [{ timeUtcMs: START + 10 * 24 * HOUR }, { timeUtcMs: START + 500 * 24 * HOUR }],
+      bounds,
+      1000,
+    );
     expect(groups.map((g) => g.members.length)).toEqual([1, 1]);
   });
   it("gathers five markers within 5 hours at phone and desktop widths, in time order, at their mean position", () => {
@@ -25,7 +29,10 @@ describe("groupMarkers", () => {
       const groups = groupMarkers(items, bounds, width);
       expect(groups).toHaveLength(1);
       expect(groups[0]!.members.map((m) => m.timeUtcMs)).toEqual([0, 1, 2, 4, 5].map((h) => at(h).timeUtcMs));
-      expect(groups[0]!.positionPercent).toBeCloseTo(((at(2.4).timeUtcMs - START) / (bounds.endUtcMs - START)) * 100, 6);
+      expect(groups[0]!.positionPercent).toBeCloseTo(
+        ((at(2.4).timeUtcMs - START) / (bounds.endUtcMs - START)) * 100,
+        6,
+      );
     }
   });
   it("splits when the gap reaches the minimum spacing and keeps every member exactly once", () => {
@@ -47,28 +54,55 @@ describe("groupMarkers", () => {
 
 describe("TimelineBar marker groups", () => {
   const events = [0, 1, 2, 3, 4].map((h) => ({ id: `e${h}`, label: `Event ${h}`, timeUtcMs: at(h).timeUtcMs }));
-  const experience = { objects: [], cameraPresets: [], events: [...events, { id: "far", label: "Far event", timeUtcMs: START + 900 * 24 * HOUR }], window: bounds, rates: [1] } as unknown as ExperienceConfig;
+  const experience = {
+    objects: [],
+    cameraPresets: [],
+    events: [...events, { id: "far", label: "Far event", timeUtcMs: START + 900 * 24 * HOUR }],
+    window: bounds,
+    rates: [1],
+  } as unknown as ExperienceConfig;
   let root: ReturnType<typeof createRoot>;
   let host: HTMLElement;
   const originalRect = Element.prototype.getBoundingClientRect;
-  afterEach(() => { act(() => root.unmount()); host.remove(); Element.prototype.getBoundingClientRect = originalRect; });
+  afterEach(() => {
+    act(() => root.unmount());
+    host.remove();
+    Element.prototype.getBoundingClientRect = originalRect;
+  });
 
   const mount = () => {
-    Element.prototype.getBoundingClientRect = function () { return this.classList.contains("timeline-markers") ? { width: 300, height: 22, top: 0, left: 0, right: 300, bottom: 22, x: 0, y: 0, toJSON: () => ({}) } : originalRect.call(this); };
+    Element.prototype.getBoundingClientRect = function () {
+      return this.classList.contains("timeline-markers")
+        ? { width: 300, height: 22, top: 0, left: 0, right: 300, bottom: 22, x: 0, y: 0, toJSON: () => ({}) }
+        : originalRect.call(this);
+    };
     const seeks: string[] = [];
     const infos: string[] = [];
     host = document.createElement("div");
     document.body.append(host);
     root = createRoot(host);
     act(() => {
-      root.render(createElement(TimelineBar, {
-        experience, snapshot: { timeUtcMs: START, playing: false, rate: 1 }, onTogglePlayback: () => undefined, onRateChange: () => undefined, onSeek: () => undefined,
-        onEventSeek: (e) => seeks.push(e.id), onEventInfo: (e) => infos.push(e.id), onWindowSeek: () => undefined, onWindowInfo: () => undefined, infoPanelId: "info",
-      }));
+      root.render(
+        createElement(TimelineBar, {
+          experience,
+          snapshot: { timeUtcMs: START, playing: false, rate: 1 },
+          onTogglePlayback: () => undefined,
+          onRateChange: () => undefined,
+          onSeek: () => undefined,
+          onEventSeek: (e) => seeks.push(e.id),
+          onEventInfo: (e) => infos.push(e.id),
+          onWindowSeek: () => undefined,
+          onWindowInfo: () => undefined,
+          infoPanelId: "info",
+        }),
+      );
     });
     return { seeks, infos };
   };
-  const click = (el: Element) => act(() => { (el as HTMLElement).click(); });
+  const click = (el: Element) =>
+    act(() => {
+      (el as HTMLElement).click();
+    });
 
   it("shows one group mark for the five close events and leaves the isolated event as it was", () => {
     mount();
@@ -93,7 +127,11 @@ describe("TimelineBar marker groups", () => {
   it("closes the list on Escape", () => {
     mount();
     click(host.querySelector(".timeline-group-toggle")!);
-    act(() => { host.querySelector(".timeline-group-list")!.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true })); });
+    act(() => {
+      host
+        .querySelector(".timeline-group-list")!
+        .dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
+    });
     expect(host.querySelector(".timeline-group-list")).toBeNull();
   });
 });

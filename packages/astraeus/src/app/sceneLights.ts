@@ -14,13 +14,28 @@ export interface LightViewpoint {
 }
 
 /** Each lit body is lit along its own physical Sun direction (before any readable compression), or from the camera's side when illuminate-all is on. */
-export function placeBodyLights(assets: readonly BodyAsset[], lights: ReadonlyMap<BodyId, DirectionalLight>, resolver: StateResolver, timeUtcMs: number, view: LightViewpoint): void {
-  const directions = bodyLightDirections(assets.filter((asset) => lights.has(asset.definition.id)).map((asset) => asset.definition.id), resolver, timeUtcMs);
+export function placeBodyLights(
+  assets: readonly BodyAsset[],
+  lights: ReadonlyMap<BodyId, DirectionalLight>,
+  resolver: StateResolver,
+  timeUtcMs: number,
+  view: LightViewpoint,
+): void {
+  const directions = bodyLightDirections(
+    assets.filter((asset) => lights.has(asset.definition.id)).map((asset) => asset.definition.id),
+    resolver,
+    timeUtcMs,
+  );
   for (const asset of assets) {
     const light = lights.get(asset.definition.id);
     const toSun = directions.get(asset.definition.id);
     if (light === undefined || toSun === undefined) continue;
-    const [x, y, z] = chooseLightDirection(toSun, view.illuminateAll ? view.bodyLocalOf(asset.definition.id) : toSun, view.cameraLocal, view.illuminateAll);
+    const [x, y, z] = chooseLightDirection(
+      toSun,
+      view.illuminateAll ? view.bodyLocalOf(asset.definition.id) : toSun,
+      view.cameraLocal,
+      view.illuminateAll,
+    );
     light.position.set(x, y, z);
   }
 }

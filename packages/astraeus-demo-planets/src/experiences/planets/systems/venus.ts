@@ -3,7 +3,10 @@ import type { PlanetSystem } from "../planetScene";
 import { packagesOf } from "../planetSystemParts";
 
 /** The tagged places of Venus: its body package's features and categories, read as they are stored. */
-const PACKAGES = import.meta.glob("../../../../../astraeus-data/data/bodies/venus/{features,categories}.json", { eager: true, import: "default" }) as Record<string, unknown>;
+const PACKAGES = import.meta.glob("../../../../../astraeus-data/data/bodies/venus/{features,categories}.json", {
+  eager: true,
+  import: "default",
+}) as Record<string, unknown>;
 
 export const venusSystem: PlanetSystem = {
   bodies: [{ id: "venus" }],

@@ -6,9 +6,11 @@ import { scaleFraction, type ReadoutTileData, type ReadoutTileState } from "./fa
 import { useCell } from "../useCell";
 
 const number = (value: number): string => value.toLocaleString("en-US", { maximumFractionDigits: 3 });
-const percent = (fraction: number): CSSProperties => ({ "--shelf-tile-at": Math.round(fraction * 10000) / 100 } as CSSProperties);
+const percent = (fraction: number): CSSProperties =>
+  ({ "--shelf-tile-at": Math.round(fraction * 10000) / 100 }) as CSSProperties;
 /** Marks near an end hang inward so their text stays inside the tile. */
-const edge = (fraction: number): "start" | "end" | "middle" => (fraction < 0.12 ? "start" : fraction > 0.88 ? "end" : "middle");
+const edge = (fraction: number): "start" | "end" | "middle" =>
+  fraction < 0.12 ? "start" : fraction > 0.88 ? "end" : "middle";
 
 /** The short text a screen reader gets for the line. */
 export function lineSummary(label: string, data: NonNullable<ReadoutTileData["scale"]>, at: number): string {
@@ -23,13 +25,30 @@ export function ReadoutTileView({ block, runtime }: { readonly block: ShelfBlock
   return (
     <div className="shelf-tile" data-shelf-tile={block.id}>
       <p className="shelf-tile-label">{label}</p>
-      <p className="shelf-tile-value" data-shelf-tile-value="">{state.value}</p>
+      <p className="shelf-tile-value" data-shelf-tile-value="">
+        {state.value}
+      </p>
       {scale === undefined || state.scaleValue === undefined ? null : (
-        <div className="shelf-tile-line" role="img" aria-label={lineSummary(label, scale, state.scaleValue)} data-shelf-tile-line="">
+        <div
+          className="shelf-tile-line"
+          role="img"
+          aria-label={lineSummary(label, scale, state.scaleValue)}
+          data-shelf-tile-line=""
+        >
           <span className="shelf-tile-track" />
-          <span className="shelf-tile-dot" data-shelf-tile-dot="" style={percent(scaleFraction(scale, state.scaleValue))} />
+          <span
+            className="shelf-tile-dot"
+            data-shelf-tile-dot=""
+            style={percent(scaleFraction(scale, state.scaleValue))}
+          />
           {scale.marks.map((mark, index) => (
-            <span key={index} className="shelf-tile-mark" data-shelf-tile-mark={index} data-edge={edge(scaleFraction(scale, mark.value))} style={percent(scaleFraction(scale, mark.value))}>
+            <span
+              key={index}
+              className="shelf-tile-mark"
+              data-shelf-tile-mark={index}
+              data-edge={edge(scaleFraction(scale, mark.value))}
+              style={percent(scaleFraction(scale, mark.value))}
+            >
               <span className="shelf-tile-tick" />
               <span className="shelf-tile-mark-label">{mark.label}</span>
             </span>
@@ -39,7 +58,10 @@ export function ReadoutTileView({ block, runtime }: { readonly block: ShelfBlock
       {state.facts.length === 0 ? null : (
         <dl className="shelf-tile-facts">
           {state.facts.map((fact, index) => (
-            <div key={index} className="shelf-tile-fact"><dt>{fact.label}</dt><dd>{fact.value}</dd></div>
+            <div key={index} className="shelf-tile-fact">
+              <dt>{fact.label}</dt>
+              <dd>{fact.value}</dd>
+            </div>
           ))}
         </dl>
       )}

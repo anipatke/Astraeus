@@ -23,7 +23,17 @@ export const BodyMesh = forwardRef<Mesh, BodyMeshProps>(function BodyMesh(
   return (
     <mesh ref={ref} layers={layer}>
       <sphereGeometry args={[radius, 64, 64]} />
-      {unlit === true ? (textureUrl === undefined ? <meshBasicMaterial color={material.color} /> : <UnlitTexturedMaterial url={textureUrl} />) : textureUrl === undefined ? <FlatMaterial material={material} /> : <TexturedMaterial url={textureUrl} material={material} />}
+      {unlit === true ? (
+        textureUrl === undefined ? (
+          <meshBasicMaterial color={material.color} />
+        ) : (
+          <UnlitTexturedMaterial url={textureUrl} />
+        )
+      ) : textureUrl === undefined ? (
+        <FlatMaterial material={material} />
+      ) : (
+        <TexturedMaterial url={textureUrl} material={material} />
+      )}
       {children}
     </mesh>
   );
@@ -47,7 +57,9 @@ function TexturedMaterial({ url, material }: { readonly url: string; readonly ma
       color={texture ? "#ffffff" : material.color}
       roughness={material.roughness}
       metalness={material.metalness}
-      {...(material.emissive === undefined ? {} : { emissive: material.emissive, emissiveIntensity: material.emissiveIntensity ?? 1 })}
+      {...(material.emissive === undefined
+        ? {}
+        : { emissive: material.emissive, emissiveIntensity: material.emissiveIntensity ?? 1 })}
     />
   );
 }

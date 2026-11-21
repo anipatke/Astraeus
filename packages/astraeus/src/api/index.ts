@@ -1,6 +1,56 @@
 // The engine's public API: everything not exported here is internal.
-export { Scene, type SceneCamera, type AddBodyOptions, type CardFactInput, type OrbitLapInput, type BodyReadoutKind, type AnchorInput, type ReadoutInput, type DataSource, type SceneLoadOptions, type SceneBodyRead, type SceneActivityRead, type ScenePathRead, type SceneGroupRead, type SceneBodySetRead, type SceneMoonPanelRead, type ScenePlacesRead, type SceneSkyFigureRead, type SceneEventRead, type ScenePanelRead, type SceneViewRead, type SceneViewsRead, type SceneTimelineRead, type ScenePacingRead, type ScenePanelPlaybackRead, type SceneSwitchRead, type MoonPositions, type MoonIndex, type FollowView, type GroupInput, type GroupOrbitInput, type GroupClumpInput, type GroupReadoutInput, type ActivityInput, type ActivitySampleInput, type ActivitySourceInput, type ShownDuringInput, type ElementsBodyRecord, type TimeInput, type TrajectoryInput, type TrajectorySampleInput, type TrajectoryBase } from "./scene";
-export type { MoonPanelInput, MoonPanelFamilyInput, MoonPanelMoonInput, PlacesInput, PlaceInput, PlaceCategoryInput } from "./moonPanelInput";
+export {
+  Scene,
+  type SceneCamera,
+  type AddBodyOptions,
+  type CardFactInput,
+  type OrbitLapInput,
+  type BodyReadoutKind,
+  type AnchorInput,
+  type ReadoutInput,
+  type DataSource,
+  type SceneLoadOptions,
+  type SceneBodyRead,
+  type SceneActivityRead,
+  type ScenePathRead,
+  type SceneGroupRead,
+  type SceneBodySetRead,
+  type SceneMoonPanelRead,
+  type ScenePlacesRead,
+  type SceneSkyFigureRead,
+  type SceneEventRead,
+  type ScenePanelRead,
+  type SceneViewRead,
+  type SceneViewsRead,
+  type SceneTimelineRead,
+  type ScenePacingRead,
+  type ScenePanelPlaybackRead,
+  type SceneSwitchRead,
+  type MoonPositions,
+  type MoonIndex,
+  type FollowView,
+  type GroupInput,
+  type GroupOrbitInput,
+  type GroupClumpInput,
+  type GroupReadoutInput,
+  type ActivityInput,
+  type ActivitySampleInput,
+  type ActivitySourceInput,
+  type ShownDuringInput,
+  type ElementsBodyRecord,
+  type TimeInput,
+  type TrajectoryInput,
+  type TrajectorySampleInput,
+  type TrajectoryBase,
+} from "./scene";
+export type {
+  MoonPanelInput,
+  MoonPanelFamilyInput,
+  MoonPanelMoonInput,
+  PlacesInput,
+  PlaceInput,
+  PlaceCategoryInput,
+} from "./moonPanelInput";
 export type { SkyFigureInput, SkyFigureEnd } from "./skyFigureInput";
 export type { SkyClearOptions, SkyTraceOptions } from "./skyTraceInput";
 export type { GroupLookInput, GroupLookRead } from "./groupLookInput";
@@ -8,32 +58,133 @@ export type { AboutInput } from "./aboutInput";
 export { panel, type PanelInput, type PanelControl, type PanelOpenChange } from "../shelf/panel/factory";
 export { customBlock, type CustomBlockInput, type CustomBlockControl } from "../shelf/customBlock/factory";
 export { explainer, type ExplainerInput, type ExplainerControl } from "../shelf/explainer/factory";
-export { actions, type ActionsInput, type ActionInput, type ActionChange, type ActionsControl } from "../shelf/actions/factory";
-export { filterChips, type FilterChipsInput, type ChipChoice, type ChipSelection, type FilterChipsControl } from "../shelf/filterChips/factory";
+export {
+  actions,
+  type ActionsInput,
+  type ActionInput,
+  type ActionChange,
+  type ActionsControl,
+} from "../shelf/actions/factory";
+export {
+  filterChips,
+  type FilterChipsInput,
+  type ChipChoice,
+  type ChipSelection,
+  type FilterChipsControl,
+} from "../shelf/filterChips/factory";
 export { colourKey, type ColourKeyInput, type ColourKeyEntry, type ColourKeyControl } from "../shelf/colourKey/factory";
-export { readoutTile, type ReadoutTileInput, type ReadoutScale, type ReadoutMark, type ReadoutFact, type ReadoutTileControl } from "../shelf/readoutTile/factory";
-export { chart, type ChartInput, type ChartBin, type ChartMark, type ChartRange, type ChartControl } from "../shelf/chart/factory";
+export {
+  readoutTile,
+  type ReadoutTileInput,
+  type ReadoutScale,
+  type ReadoutMark,
+  type ReadoutFact,
+  type ReadoutTileControl,
+} from "../shelf/readoutTile/factory";
+export {
+  chart,
+  type ChartInput,
+  type ChartBin,
+  type ChartMark,
+  type ChartRange,
+  type ChartControl,
+} from "../shelf/chart/factory";
 export type { PanelPart, CustomBlockPart, BlockPart, PanelBlock, TilePart, AnyPart, ControlFor } from "../shelf/part";
 export type { PickerInput, PickerOptionInput, PickChange } from "./pickerInput";
-export type { BodySetInput, BodySetFamilyInput, BodySetMemberInput, BodySetElementsInput, BodySetBodyInput, BodySetBalanceInput } from "./bodySetInput";
-export { type EventInput, type AddEventsOptions, type TimelineInput, type PacingInput, type StoryPanelAt, type StoryPanelInput, type StoryPanelPlaybackInput } from "./story";
+export type {
+  BodySetInput,
+  BodySetFamilyInput,
+  BodySetMemberInput,
+  BodySetElementsInput,
+  BodySetBodyInput,
+  BodySetBalanceInput,
+} from "./bodySetInput";
+export {
+  type EventInput,
+  type AddEventsOptions,
+  type TimelineInput,
+  type PacingInput,
+  type StoryPanelAt,
+  type StoryPanelInput,
+  type StoryPanelPlaybackInput,
+} from "./story";
 export { type SwitchesInput } from "./switches";
-export { type LookInput, type LookRead, type SunGlowLook, type SkyLinesLook, type LabelsLook, type TimeLook, type InterfaceLook } from "./look";
+export {
+  type LookInput,
+  type LookRead,
+  type SunGlowLook,
+  type SkyLinesLook,
+  type LabelsLook,
+  type TimeLook,
+  type InterfaceLook,
+} from "./look";
 export { type ViewsOptions, type ViewInput, type ViewCameraInput } from "./views";
 export { mount, type MountOptions, type MountedScene } from "./mount";
 export { type ViewerHandle } from "./viewerHandle";
 export { AstraeusScene, type AstraeusSceneProps } from "./AstraeusScene";
 export { type SelectionChange } from "./viewerSelection";
 export { type PanelChange } from "./viewerPanels";
-export { type ViewerChange, type EventZoneChange, type CameraPose, type OrbitPose, type SkyPose, type SkyDirection, type LookOutTarget, type CameraTarget } from "./viewerLink";
+export {
+  type ViewerChange,
+  type EventZoneChange,
+  type CameraPose,
+  type OrbitPose,
+  type SkyPose,
+  type SkyDirection,
+  type LookOutTarget,
+  type CameraTarget,
+} from "./viewerLink";
 export { SceneError, type SceneErrorCode } from "./errors";
-export { sun, mercury, venus, earth, moon, mars, jupiter, saturn, uranus, neptune, pluto, io, europa, ganymede, callisto, mimas, enceladus, tethys, dione, rhea, titan, iapetus, triton, charon, phobos, deimos, listedMoons, type BodyRef } from "./bodies";
-export { trueScale, readableScale, solarSystemScale, type ScaleId, type ScalePolicy, type SolarSystemScalePolicy } from "../presentation/scalePolicy";
+export {
+  sun,
+  mercury,
+  venus,
+  earth,
+  moon,
+  mars,
+  jupiter,
+  saturn,
+  uranus,
+  neptune,
+  pluto,
+  io,
+  europa,
+  ganymede,
+  callisto,
+  mimas,
+  enceladus,
+  tethys,
+  dione,
+  rhea,
+  titan,
+  iapetus,
+  triton,
+  charon,
+  phobos,
+  deimos,
+  listedMoons,
+  type BodyRef,
+} from "./bodies";
+export {
+  trueScale,
+  readableScale,
+  solarSystemScale,
+  type ScaleId,
+  type ScalePolicy,
+  type SolarSystemScalePolicy,
+} from "../presentation/scalePolicy";
 export type { State, CenteredPosition, FrameId, Quaternion } from "../core/state";
 export type { Provenance, ProvenanceSourceType } from "../core/provenance";
 export type { Pictures } from "../assets/pictures";
 export type { AssetLicence, TextureRef, LocalOnlyDeclaration, PublicReplacement } from "../assets/licence";
-export { APPROXIMATE_LIMIT_FRACTION, INDICATIVE_LIMIT_FRACTION, classifyPositionError, type AccuracyClassification, type ElementsSource, type ElementsTimeScale } from "../core/elementsBody";
+export {
+  APPROXIMATE_LIMIT_FRACTION,
+  INDICATIVE_LIMIT_FRACTION,
+  classifyPositionError,
+  type AccuracyClassification,
+  type ElementsSource,
+  type ElementsTimeScale,
+} from "../core/elementsBody";
 export { parseElementsBodyRecord } from "./elementsRecord";
 export type { BodyId, CenterId } from "../core/body";
 export type { DisplaySwitchId, DisplaySwitchPlace } from "../app/displaySwitches";

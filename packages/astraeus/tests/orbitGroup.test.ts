@@ -3,12 +3,7 @@ import { elementsToState, propagateKepler, GM } from "@lizard-isana/orb/kepler";
 import { makeState, transform } from "@lizard-isana/orb/frames";
 import { AstroInstant } from "@lizard-isana/orb/time";
 import { createOrbitGroup, type OrbitGroupInput } from "../src/core/orbitGroup";
-import {
-  GroupBoundsError,
-  GroupBufferError,
-  GroupCountError,
-  GroupElementsError,
-} from "../src/core/pointGroup";
+import { GroupBoundsError, GroupBufferError, GroupCountError, GroupElementsError } from "../src/core/pointGroup";
 import { createProvenance } from "../src/core/provenance";
 import { createOrbTwoBodyAdapter } from "../src/core/twoBodyAdapter";
 
@@ -33,7 +28,14 @@ const ring: OrbitGroupInput = {
   center: "earth",
   plane: "EQJ",
   epochUtcMs: EPOCH,
-  base: { semiMajorAxisKm: 7000, eccentricity: 0.01, inclinationDeg: 30, raanDeg: 40, argumentOfPeriapsisDeg: 0, trueAnomalyDeg: 0 },
+  base: {
+    semiMajorAxisKm: 7000,
+    eccentricity: 0.01,
+    inclinationDeg: 30,
+    raanDeg: 40,
+    argumentOfPeriapsisDeg: 0,
+    trueAnomalyDeg: 0,
+  },
   spread: { semiMajorAxisKm: 100, eccentricity: 0.005, inclinationDeg: 2, raanDeg: 3, trueAnomalyDeg: 180 },
   seed: 7,
   provenance,
@@ -45,7 +47,14 @@ const belt: OrbitGroupInput = {
   id: "test-belt",
   center: "sun",
   plane: "ecliptic-j2000",
-  base: { semiMajorAxisKm: 3.7e8, eccentricity: 0.1, inclinationDeg: 5, raanDeg: 80, argumentOfPeriapsisDeg: 20, trueAnomalyDeg: 0 },
+  base: {
+    semiMajorAxisKm: 3.7e8,
+    eccentricity: 0.1,
+    inclinationDeg: 5,
+    raanDeg: 80,
+    argumentOfPeriapsisDeg: 20,
+    trueAnomalyDeg: 0,
+  },
   spread: { semiMajorAxisKm: 2e7, eccentricity: 0.05, inclinationDeg: 3, raanDeg: 10, trueAnomalyDeg: 180 },
 };
 
@@ -66,7 +75,13 @@ describe("point group contract", () => {
 
     const t = EPOCH + 3 * HOUR;
     const state = group.stateAt(17, t);
-    expect(state).toMatchObject({ body: "test-ring:17", center: "earth", plane: "EQJ", timeUtcMs: t, orientation: null });
+    expect(state).toMatchObject({
+      body: "test-ring:17",
+      center: "earth",
+      plane: "EQJ",
+      timeUtcMs: t,
+      orientation: null,
+    });
     expect(Object.isFrozen(state)).toBe(true);
   });
 
@@ -117,7 +132,10 @@ describe("orbit-based group determinism", () => {
   });
 
   it("works Earth-centred and Sun-centred, with finite EQJ output at the right distance", () => {
-    for (const [input, nominalKm] of [[ring, 7000], [belt, 3.7e8]] as const) {
+    for (const [input, nominalKm] of [
+      [ring, 7000],
+      [belt, 3.7e8],
+    ] as const) {
       const out = fill(input, EPOCH + 30 * HOUR);
       expect(out.every(Number.isFinite)).toBe(true);
       const radius = Math.hypot(out[0], out[1], out[2]);
@@ -128,15 +146,23 @@ describe("orbit-based group determinism", () => {
 
   it("outputs EQJ whether elements are given in the ecliptic or in EQJ", () => {
     // A flat orbit in the named plane: members stay in that plane, so the ecliptic one is tilted in EQJ.
-    const flat = { ...ring, count: 50, spread: { trueAnomalyDeg: 180 }, base: { ...ring.base, inclinationDeg: 0, raanDeg: 0, eccentricity: 0.01 } };
+    const flat = {
+      ...ring,
+      count: 50,
+      spread: { trueAnomalyDeg: 180 },
+      base: { ...ring.base, inclinationDeg: 0, raanDeg: 0, eccentricity: 0.01 },
+    };
     const t = EPOCH + 2 * HOUR;
     const eqjOut = fill({ ...flat, plane: "EQJ" }, t);
     const eclipticOut = fill({ ...flat, plane: "ecliptic-j2000" }, t);
-    const obliquity = 84381.406 / 3600 * RADIANS;
+    const obliquity = (84381.406 / 3600) * RADIANS;
     const eclipticNormal = [0, -Math.sin(obliquity), Math.cos(obliquity)];
     for (let i = 0; i < 50; i++) {
       expect(Math.abs(eqjOut[3 * i + 2])).toBeLessThan(1e-6);
-      const along = eclipticOut[3 * i] * eclipticNormal[0] + eclipticOut[3 * i + 1] * eclipticNormal[1] + eclipticOut[3 * i + 2] * eclipticNormal[2];
+      const along =
+        eclipticOut[3 * i] * eclipticNormal[0] +
+        eclipticOut[3 * i + 1] * eclipticNormal[1] +
+        eclipticOut[3 * i + 2] * eclipticNormal[2];
       expect(Math.abs(along)).toBeLessThan(1e-6);
     }
   });
@@ -156,14 +182,17 @@ describe("propagation agrees with the library", () => {
     for (const center of ["earth", "sun"] as const) {
       const out = fill(zeroSpread(center, "EQJ"), t);
       const e = ring.base;
-      const state = elementsToState({
-        semiMajorAxis: e.semiMajorAxisKm,
-        eccentricity: e.eccentricity,
-        inclination: e.inclinationDeg * RADIANS,
-        raan: e.raanDeg * RADIANS,
-        argumentOfPeriapsis: e.argumentOfPeriapsisDeg * RADIANS,
-        trueAnomaly: e.trueAnomalyDeg * RADIANS,
-      }, GM[center]);
+      const state = elementsToState(
+        {
+          semiMajorAxis: e.semiMajorAxisKm,
+          eccentricity: e.eccentricity,
+          inclination: e.inclinationDeg * RADIANS,
+          raan: e.raanDeg * RADIANS,
+          argumentOfPeriapsis: e.argumentOfPeriapsisDeg * RADIANS,
+          trueAnomaly: e.trueAnomalyDeg * RADIANS,
+        },
+        GM[center],
+      );
       const direct = propagateKepler(state.r, state.v, 40 * 3600, GM[center]);
       for (let member = 0; member < 3; member++) {
         for (let axis = 0; axis < 3; axis++) {
@@ -177,16 +206,20 @@ describe("propagation agrees with the library", () => {
     const t = EPOCH + 12 * HOUR;
     const out = fill(zeroSpread("sun", "ecliptic-j2000"), t);
     const e = ring.base;
-    const state = elementsToState({
-      semiMajorAxis: e.semiMajorAxisKm,
-      eccentricity: e.eccentricity,
-      inclination: e.inclinationDeg * RADIANS,
-      raan: e.raanDeg * RADIANS,
-      argumentOfPeriapsis: e.argumentOfPeriapsisDeg * RADIANS,
-      trueAnomaly: e.trueAnomalyDeg * RADIANS,
-    }, GM.sun);
+    const state = elementsToState(
+      {
+        semiMajorAxis: e.semiMajorAxisKm,
+        eccentricity: e.eccentricity,
+        inclination: e.inclinationDeg * RADIANS,
+        raan: e.raanDeg * RADIANS,
+        argumentOfPeriapsis: e.argumentOfPeriapsisDeg * RADIANS,
+        trueAnomaly: e.trueAnomalyDeg * RADIANS,
+      },
+      GM.sun,
+    );
     const instant = AstroInstant.fromUnixMs(EPOCH);
-    const toEqj = (r: Float64Array) => transform(makeState({ t: instant, frame: "ecliptic-j2000", center: "sun", r }), { frame: "equatorial-j2000" });
+    const toEqj = (r: Float64Array) =>
+      transform(makeState({ t: instant, frame: "ecliptic-j2000", center: "sun", r }), { frame: "equatorial-j2000" });
     const direct = propagateKepler(toEqj(state.r).r, toEqj(state.v).r, 12 * 3600, GM.sun);
     for (let axis = 0; axis < 3; axis++) {
       expect(Math.abs(out[axis] - direct.r[axis])).toBeLessThan(LIBRARY_TOLERANCE_KM);
@@ -217,10 +250,16 @@ describe("named errors", () => {
   });
 
   it("rejects non-finite elements, spreads and seeds", () => {
-    expect(() => createOrbitGroup({ ...ring, base: { ...ring.base, eccentricity: Number.NaN } }, adapter)).toThrow(GroupElementsError);
-    expect(() => createOrbitGroup({ ...ring, base: { ...ring.base, semiMajorAxisKm: Infinity } }, adapter)).toThrow(GroupElementsError);
+    expect(() => createOrbitGroup({ ...ring, base: { ...ring.base, eccentricity: Number.NaN } }, adapter)).toThrow(
+      GroupElementsError,
+    );
+    expect(() => createOrbitGroup({ ...ring, base: { ...ring.base, semiMajorAxisKm: Infinity } }, adapter)).toThrow(
+      GroupElementsError,
+    );
     expect(() => createOrbitGroup({ ...ring, spread: { inclinationDeg: -1 } }, adapter)).toThrow(GroupElementsError);
-    expect(() => createOrbitGroup({ ...ring, spread: { inclinationDeg: Number.NaN } }, adapter)).toThrow(GroupElementsError);
+    expect(() => createOrbitGroup({ ...ring, spread: { inclinationDeg: Number.NaN } }, adapter)).toThrow(
+      GroupElementsError,
+    );
     expect(() => createOrbitGroup({ ...ring, seed: 1.5 }, adapter)).toThrow(GroupElementsError);
     expect(() => createOrbitGroup({ ...ring, seed: -1 }, adapter)).toThrow(GroupElementsError);
   });
@@ -228,7 +267,9 @@ describe("named errors", () => {
   it("rejects a spread that leaves a bound orbit", () => {
     expect(() => createOrbitGroup({ ...ring, spread: { eccentricity: 5 } }, adapter)).toThrow(GroupElementsError);
     expect(() => createOrbitGroup({ ...ring, spread: { semiMajorAxisKm: 1e6 } }, adapter)).toThrow(GroupElementsError);
-    expect(() => createOrbitGroup({ ...ring, base: { ...ring.base, inclinationDeg: 1 }, spread: { inclinationDeg: 20 } }, adapter)).toThrow(GroupElementsError);
+    expect(() =>
+      createOrbitGroup({ ...ring, base: { ...ring.base, inclinationDeg: 1 }, spread: { inclinationDeg: 20 } }, adapter),
+    ).toThrow(GroupElementsError);
   });
 
   it("rejects an invalid epoch and an invalid fill time", () => {

@@ -7,8 +7,13 @@ import { syntheticDefinition } from "./synthetic/syntheticDefinition";
 import { $, change, mountShell, press, pressKey, type Mounted } from "./domSetup";
 
 let m: Mounted;
-beforeEach(() => { vi.useFakeTimers(); });
-afterEach(() => { m.unmount(); vi.useRealTimers(); });
+beforeEach(() => {
+  vi.useFakeTimers();
+});
+afterEach(() => {
+  m.unmount();
+  vi.useRealTimers();
+});
 const panels = syntheticDefinition.experience.storyPanels!.panels;
 const panelEl = () => m.container.querySelector<HTMLElement>(".story-panel");
 const markers = () => [...m.container.querySelectorAll<HTMLElement>(".timeline-panel-marker")];
@@ -127,9 +132,13 @@ describe("details and sources", () => {
     expect($(m.container, ".story-panel .story-badge").textContent).toBe("Illustrative");
     const section = $(m.container, ".story-panel .sources-section");
     expect([...section.querySelectorAll("dt")].map((term) => term.textContent)).toEqual(["Accuracy", "Notes"]);
-    expect([...section.querySelectorAll("dd")].map((entry) => entry.textContent)).toEqual([panels[0].provenance.accuracy, panels[0].provenance.notes]);
+    expect([...section.querySelectorAll("dd")].map((entry) => entry.textContent)).toEqual([
+      panels[0].provenance.accuracy,
+      panels[0].provenance.notes,
+    ]);
     expect([...section.querySelectorAll("li")].map((line) => line.textContent)).toEqual(panels[0].provenance.sources);
-    const after = (first: Element, second: Element) => (first.compareDocumentPosition(second) & Node.DOCUMENT_POSITION_FOLLOWING) !== 0;
+    const after = (first: Element, second: Element) =>
+      (first.compareDocumentPosition(second) & Node.DOCUMENT_POSITION_FOLLOWING) !== 0;
     expect(after($(section, ".sources-details"), $(section, "dl"))).toBe(true);
     expect(after($(section, "dl"), $(section, "ul"))).toBe(true);
   });
@@ -176,7 +185,12 @@ describe("zoom through a phone sheet", () => {
   };
   const touches = (type: string, spread: number) => {
     const event = new Event(type, { bubbles: true, cancelable: true });
-    Object.assign(event, { touches: [{ clientX: 0, clientY: 0 }, { clientX: spread, clientY: 0 }] });
+    Object.assign(event, {
+      touches: [
+        { clientX: 0, clientY: 0 },
+        { clientX: spread, clientY: 0 },
+      ],
+    });
     return event;
   };
   it("forwards a wheel over the open phone sheet to the scene and keeps the sheet open", () => {

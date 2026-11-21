@@ -11,7 +11,10 @@ interface Measured {
 }
 
 const NOTHING: Measured = { width: 0, gap: 0, widths: {} };
-const px = (value: string): number => { const n = Number.parseFloat(value); return Number.isFinite(n) ? n : 0; };
+const px = (value: string): number => {
+  const n = Number.parseFloat(value);
+  return Number.isFinite(n) ? n : 0;
+};
 
 /** The measuring row's ghosts (`data-ghost-id`, `data-ghost-form`), the row's content width and its gap, as numbers. Widths round up so a fit never overflows by a fraction. */
 function measureBar(row: HTMLElement | null, ghosts: HTMLElement | null): Measured {
@@ -22,7 +25,17 @@ function measureBar(row: HTMLElement | null, ghosts: HTMLElement | null): Measur
     const id = element.dataset.ghostId!;
     (widths[id] ??= {})[element.dataset.ghostForm as BarForm] = Math.ceil(element.getBoundingClientRect().width);
   }
-  return { width: Math.floor(row.getBoundingClientRect().width - px(style.paddingLeft) - px(style.paddingRight) - px(style.borderLeftWidth) - px(style.borderRightWidth)), gap: px(style.columnGap), widths };
+  return {
+    width: Math.floor(
+      row.getBoundingClientRect().width -
+        px(style.paddingLeft) -
+        px(style.paddingRight) -
+        px(style.borderLeftWidth) -
+        px(style.borderRightWidth),
+    ),
+    gap: px(style.columnGap),
+    widths,
+  };
 }
 
 export interface BarFitting {

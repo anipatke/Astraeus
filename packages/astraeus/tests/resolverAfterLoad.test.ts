@@ -24,7 +24,10 @@ const load = (moonData: ReturnType<typeof createSceneMoonData>, chunk = "2016.bi
   return system.load({
     window: { startUtcMs: Date.UTC(2016, 1, 10), endUtcMs: Date.UTC(2016, 11, 30) },
     bodies: ["io"],
-    chunkUrls: new Proxy({}, { get: (_target, path: string) => (path.endsWith(`/${chunk}`) ? `${root}${path}` : undefined) }) as Record<string, string>,
+    chunkUrls: new Proxy(
+      {},
+      { get: (_target, path: string) => (path.endsWith(`/${chunk}`) ? `${root}${path}` : undefined) },
+    ) as Record<string, string>,
     fetchBytes: async (path) => readBytes(path),
   });
 };
@@ -54,10 +57,23 @@ describe("a scene resolver after its moon data loads", () => {
   const counted = (body: string, data?: ReturnType<typeof createSceneMoonData>) => {
     const calls = { n: 0 };
     const bound = data === undefined ? builtIn : bindCatalogue(builtIn, data);
-    const sources = bound.sources().map((b) => b.body !== body ? b : {
-      body: b.body,
-      create: (a: typeof adapter, m?: Parameters<typeof b.create>[1]) => { const p = b.create(a, m); return { ...p, stateAt: (t: number, c?: never) => { calls.n += 1; return p.stateAt(t, c); } }; },
-    });
+    const sources = bound.sources().map((b) =>
+      b.body !== body
+        ? b
+        : {
+            body: b.body,
+            create: (a: typeof adapter, m?: Parameters<typeof b.create>[1]) => {
+              const p = b.create(a, m);
+              return {
+                ...p,
+                stateAt: (t: number, c?: never) => {
+                  calls.n += 1;
+                  return p.stateAt(t, c);
+                },
+              };
+            },
+          },
+    );
     return { calls, resolver: createStateResolver(bound.definitions(), sources, adapter, bound.moonData) };
   };
 

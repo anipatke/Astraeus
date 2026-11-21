@@ -103,7 +103,11 @@ function moment(parent: Raw, key: string, path: string): string {
     return value;
   }
   const ms = value instanceof Date ? value.getTime() : value;
-  if (typeof ms !== "number" || !Number.isFinite(ms)) fail(`${path}.${key}`, `is required and must be an ISO-8601 UTC time like 2030-01-01T00:00:00Z, a Date or Unix milliseconds, got ${String(value)}`);
+  if (typeof ms !== "number" || !Number.isFinite(ms))
+    fail(
+      `${path}.${key}`,
+      `is required and must be an ISO-8601 UTC time like 2030-01-01T00:00:00Z, a Date or Unix milliseconds, got ${String(value)}`,
+    );
   return new Date(ms).toISOString();
 }
 
@@ -112,37 +116,56 @@ function parseOrbitElements(raw: Raw, here: string): ElementsBodyRecord["element
   const semiMajorAxisAu = finite(raw, "semiMajorAxisAu", here);
   if (!(semiMajorAxisAu > 0)) fail(`${here}.semiMajorAxisAu`, `must be positive, got ${semiMajorAxisAu}`);
   const eccentricity = finite(raw, "eccentricity", here);
-  if (eccentricity < 0 || eccentricity >= 1) fail(`${here}.eccentricity`, `must be at least 0 and below 1 (a bound orbit), got ${eccentricity}`);
+  if (eccentricity < 0 || eccentricity >= 1)
+    fail(`${here}.eccentricity`, `must be at least 0 and below 1 (a bound orbit), got ${eccentricity}`);
   const inclinationDeg = finite(raw, "inclinationDeg", here);
-  if (inclinationDeg < 0 || inclinationDeg > 180) fail(`${here}.inclinationDeg`, `must be from 0 to 180, got ${inclinationDeg}`);
+  if (inclinationDeg < 0 || inclinationDeg > 180)
+    fail(`${here}.inclinationDeg`, `must be from 0 to 180, got ${inclinationDeg}`);
   const ascendingNodeDeg = finite(raw, "ascendingNodeDeg", here);
   const argumentOfPerihelionDeg = finite(raw, "argumentOfPerihelionDeg", here);
-  for (const [key, value] of [["ascendingNodeDeg", ascendingNodeDeg], ["argumentOfPerihelionDeg", argumentOfPerihelionDeg]] as const) {
+  for (const [key, value] of [
+    ["ascendingNodeDeg", ascendingNodeDeg],
+    ["argumentOfPerihelionDeg", argumentOfPerihelionDeg],
+  ] as const) {
     if (value < 0 || value >= 360) fail(`${here}.${key}`, `must be at least 0 and below 360, got ${value}`);
   }
   const hasMean = raw.meanAnomalyDeg !== undefined;
   const hasPerihelion = raw.perihelionJdTdb !== undefined;
   if (hasMean === hasPerihelion) fail(here, "must give exactly one of meanAnomalyDeg and perihelionJdTdb");
-  const placement = hasMean ? { meanAnomalyDeg: finite(raw, "meanAnomalyDeg", here) } : { perihelionJdTdb: finite(raw, "perihelionJdTdb", here) };
-  if (hasMean && (placement.meanAnomalyDeg! < 0 || placement.meanAnomalyDeg! >= 360)) fail(`${here}.meanAnomalyDeg`, `must be at least 0 and below 360, got ${placement.meanAnomalyDeg}`);
+  const placement = hasMean
+    ? { meanAnomalyDeg: finite(raw, "meanAnomalyDeg", here) }
+    : { perihelionJdTdb: finite(raw, "perihelionJdTdb", here) };
+  if (hasMean && (placement.meanAnomalyDeg! < 0 || placement.meanAnomalyDeg! >= 360))
+    fail(`${here}.meanAnomalyDeg`, `must be at least 0 and below 360, got ${placement.meanAnomalyDeg}`);
   return { semiMajorAxisAu, eccentricity, inclinationDeg, ascendingNodeDeg, argumentOfPerihelionDeg, ...placement };
 }
 
 function parseEpoch(raw: Raw, here: string): ElementsBodyRecord["epoch"] {
   const jd = finite(raw, "jd", here);
   const timeScale = raw.timeScale;
-  if (timeScale !== "TDB" && timeScale !== "TT" && timeScale !== "UTC") fail(`${here}.timeScale`, `must be "TDB", "TT" or "UTC", got ${String(timeScale)}`);
+  if (timeScale !== "TDB" && timeScale !== "TT" && timeScale !== "UTC")
+    fail(`${here}.timeScale`, `must be "TDB", "TT" or "UTC", got ${String(timeScale)}`);
   if (timeScale === "UTC") {
-    if (raw.ttMinusUtcSeconds !== undefined) fail(`${here}.ttMinusUtcSeconds`, "must be absent when the epoch is already UTC");
+    if (raw.ttMinusUtcSeconds !== undefined)
+      fail(`${here}.ttMinusUtcSeconds`, "must be absent when the epoch is already UTC");
     return { jd, timeScale };
   }
   const ttMinusUtcSeconds = finite(raw, "ttMinusUtcSeconds", here);
-  if (ttMinusUtcSeconds < 32 || ttMinusUtcSeconds > 120) fail(`${here}.ttMinusUtcSeconds`, `must be from 32 to 120 seconds (32.184 plus the leap seconds), got ${ttMinusUtcSeconds}`);
+  if (ttMinusUtcSeconds < 32 || ttMinusUtcSeconds > 120)
+    fail(
+      `${here}.ttMinusUtcSeconds`,
+      `must be from 32 to 120 seconds (32.184 plus the leap seconds), got ${ttMinusUtcSeconds}`,
+    );
   return { jd, timeScale, ttMinusUtcSeconds };
 }
 
 function parseSource(raw: Raw, here: string): ElementsSource {
-  return { name: text(raw, "name", here), url: text(raw, "url", here), solution: text(raw, "solution", here), accessed: text(raw, "accessed", here) };
+  return {
+    name: text(raw, "name", here),
+    url: text(raw, "url", here),
+    solution: text(raw, "solution", here),
+    accessed: text(raw, "accessed", here),
+  };
 }
 
 function parseRadius(raw: Raw, here: string): NonNullable<ElementsBodyRecord["radius"]> {
@@ -153,17 +176,28 @@ function parseRadius(raw: Raw, here: string): NonNullable<ElementsBodyRecord["ra
 
 function parseAccuracy(raw: Raw, here: string): ElementsBodyRecord["accuracy"] {
   const classification = raw.classification;
-  if (classification !== "approximate" && classification !== "indicative") fail(`${here}.classification`, `must be "approximate" or "indicative", got ${String(classification)}`);
-  for (const [old, use] of [["validFromUtc", "valid.start"], ["validToUtc", "valid.end"]] as const) {
-    if (Object.hasOwn(raw, old)) fail(`${here}.${old}`, `is now \`${use}\` inside \`valid: { start, end }\` (the old name is not accepted)`);
+  if (classification !== "approximate" && classification !== "indicative")
+    fail(`${here}.classification`, `must be "approximate" or "indicative", got ${String(classification)}`);
+  for (const [old, use] of [
+    ["validFromUtc", "valid.start"],
+    ["validToUtc", "valid.end"],
+  ] as const) {
+    if (Object.hasOwn(raw, old))
+      fail(`${here}.${old}`, `is now \`${use}\` inside \`valid: { start, end }\` (the old name is not accepted)`);
   }
   const valid = record(raw.valid, `${here}.valid`);
   const start = moment(valid, "start", `${here}.valid`);
   const end = moment(valid, "end", `${here}.valid`);
   if (Date.parse(end) <= Date.parse(start)) fail(`${here}.valid.end`, "must be after accuracy.valid.start");
   const limitations = raw.limitations ?? [];
-  if (!Array.isArray(limitations) || limitations.some((item) => typeof item !== "string" || item.trim().length === 0)) fail(`${here}.limitations`, "must be a list of non-empty text");
-  return { classification, statement: text(raw, "statement", here), valid: { start, end }, limitations: [...limitations] };
+  if (!Array.isArray(limitations) || limitations.some((item) => typeof item !== "string" || item.trim().length === 0))
+    fail(`${here}.limitations`, "must be a list of non-empty text");
+  return {
+    classification,
+    statement: text(raw, "statement", here),
+    valid: { start, end },
+    limitations: [...limitations],
+  };
 }
 
 function parseMarker(raw: Raw, here: string): ElementsBodyRecord["marker"] {
@@ -178,17 +212,29 @@ function parseMarker(raw: Raw, here: string): ElementsBodyRecord["marker"] {
 export function parseElementsBodyRecord(input: unknown, path = "body"): ElementsBodyRecord {
   const root = record(input, path);
   const id = text(root, "id", path);
-  if (!/^[a-z0-9]+(-[a-z0-9]+)*$/.test(id)) fail(`${path}.id`, `must be lower-case words joined by hyphens, got "${id}"`);
+  if (!/^[a-z0-9]+(-[a-z0-9]+)*$/.test(id))
+    fail(`${path}.id`, `must be lower-case words joined by hyphens, got "${id}"`);
   const label = text(root, "label", path);
   const elements = parseOrbitElements(record(root.elements, `${path}.elements`), `${path}.elements`);
   const epoch = parseEpoch(record(root.epoch, `${path}.epoch`), `${path}.epoch`);
   if (Object.hasOwn(root, "frame")) fail(`${path}.frame`, "is now `plane` (the old name is not accepted)");
   if (root.plane !== "ecliptic-j2000") fail(`${path}.plane`, `must be "ecliptic-j2000", got ${String(root.plane)}`);
   const source = parseSource(record(root.source, `${path}.source`), `${path}.source`);
-  const radius = root.radius === undefined ? undefined : parseRadius(record(root.radius, `${path}.radius`), `${path}.radius`);
+  const radius =
+    root.radius === undefined ? undefined : parseRadius(record(root.radius, `${path}.radius`), `${path}.radius`);
   const accuracy = parseAccuracy(record(root.accuracy, `${path}.accuracy`), `${path}.accuracy`);
   const marker = parseMarker(root.marker === undefined ? {} : record(root.marker, `${path}.marker`), `${path}.marker`);
-  return { id, label, elements, epoch, plane: "ecliptic-j2000", source, ...(radius === undefined ? {} : { radius }), accuracy, marker };
+  return {
+    id,
+    label,
+    elements,
+    epoch,
+    plane: "ecliptic-j2000",
+    source,
+    ...(radius === undefined ? {} : { radius }),
+    accuracy,
+    marker,
+  };
 }
 
 /** The body a record's elements orbit: its id and gravitational parameter, from the catalogue's root. */
@@ -243,9 +289,10 @@ export function buildElementsBody(input: ElementsBodyRecord, centre: ElementsCen
   const meanMotionRadPerS = Math.sqrt(gm / semiMajorAxisKm ** 3);
   const instant = epochInstant(body.epoch);
   const epochUtcMs = instant.utcMs;
-  const meanAnomalyRad = elements.meanAnomalyDeg !== undefined
-    ? elements.meanAnomalyDeg * DEGREES
-    : meanMotionRadPerS * (instant.tdbS - (elements.perihelionJdTdb! - JD_J2000) * DAY_S);
+  const meanAnomalyRad =
+    elements.meanAnomalyDeg !== undefined
+      ? elements.meanAnomalyDeg * DEGREES
+      : meanMotionRadPerS * (instant.tdbS - (elements.perihelionJdTdb! - JD_J2000) * DAY_S);
   const reducedRad = meanAnomalyRad - 2 * Math.PI * Math.floor(meanAnomalyRad / (2 * Math.PI));
   const periodMs = ((2 * Math.PI) / meanMotionRadPerS) * 1000;
   const sampling: EccentricSampling = Object.freeze({
@@ -253,20 +300,24 @@ export function buildElementsBody(input: ElementsBodyRecord, centre: ElementsCen
     periodMs,
     periapsisUtcMs: Math.round(epochUtcMs - (meanAnomalyRad / meanMotionRadPerS) * 1000),
   });
-  const create = (): Trajectory => createTwoBodyTrajectory({
-    body: body.id,
-    center: centre.id,
-    plane: body.plane,
-    epochUtcMs,
-    elements: {
-      semiMajorAxisKm,
-      eccentricity: elements.eccentricity,
-      inclinationDeg: elements.inclinationDeg,
-      raanDeg: elements.ascendingNodeDeg,
-      argumentOfPeriapsisDeg: elements.argumentOfPerihelionDeg,
-      trueAnomalyDeg: trueAnomalyFromMean(reducedRad, elements.eccentricity) / DEGREES,
-    },
-  }, createOrbTwoBodyAdapter([{ id: centre.id, gmKm3S2: gm }]));
+  const create = (): Trajectory =>
+    createTwoBodyTrajectory(
+      {
+        body: body.id,
+        center: centre.id,
+        plane: body.plane,
+        epochUtcMs,
+        elements: {
+          semiMajorAxisKm,
+          eccentricity: elements.eccentricity,
+          inclinationDeg: elements.inclinationDeg,
+          raanDeg: elements.ascendingNodeDeg,
+          argumentOfPeriapsisDeg: elements.argumentOfPerihelionDeg,
+          trueAnomalyDeg: trueAnomalyFromMean(reducedRad, elements.eccentricity) / DEGREES,
+        },
+      },
+      createOrbTwoBodyAdapter([{ id: centre.id, gmKm3S2: gm }]),
+    );
   const citation = `${body.source.name}, ${body.source.solution} (${body.source.url}), epoch JD ${body.epoch.jd} ${body.epoch.timeScale}, read ${body.source.accessed}`;
   const radiusKm = body.radius?.km ?? 0.001;
   const definition: CelestialBodyDefinition = Object.freeze({
@@ -279,9 +330,10 @@ export function buildElementsBody(input: ElementsBodyRecord, centre: ElementsCen
       dimensions: createProvenance({
         sourceType: body.radius === undefined ? "illustrative" : "observed",
         sources: [body.radius?.source ?? "No radius published in the record"],
-        accuracy: body.radius === undefined
-          ? "No radius is claimed; the body is drawn as a marker at its position, and its size is a placeholder that is never drawn."
-          : `Radius of ${body.radius.km} km as the source states it. A body this small is far under a pixel at any scale where its orbit is visible.`,
+        accuracy:
+          body.radius === undefined
+            ? "No radius is claimed; the body is drawn as a marker at its position, and its size is a placeholder that is never drawn."
+            : `Radius of ${body.radius.km} km as the source states it. A body this small is far under a pixel at any scale where its orbit is visible.`,
         notes: "Drawn as a marker, a drawing aid at the body's real position, not its size.",
       }),
       position: createProvenance({
@@ -290,9 +342,13 @@ export function buildElementsBody(input: ElementsBodyRecord, centre: ElementsCen
         accuracy: `${body.accuracy.classification}: ${body.accuracy.statement}`,
         notes: "Geometric position about the Sun's centre; no light-time. Elements are osculating at the epoch.",
         accuracyClass: body.accuracy.classification,
-        maxErrorFraction: body.accuracy.classification === "approximate" ? APPROXIMATE_LIMIT_FRACTION : INDICATIVE_LIMIT_FRACTION,
+        maxErrorFraction:
+          body.accuracy.classification === "approximate" ? APPROXIMATE_LIMIT_FRACTION : INDICATIVE_LIMIT_FRACTION,
       }),
-      validUtc: Object.freeze({ startUtcMs: Date.parse(body.accuracy.valid.start as string), endUtcMs: Date.parse(body.accuracy.valid.end as string) }),
+      validUtc: Object.freeze({
+        startUtcMs: Date.parse(body.accuracy.valid.start as string),
+        endUtcMs: Date.parse(body.accuracy.valid.end as string),
+      }),
       orientationLimitations: Object.freeze([
         `Unperturbed two-body motion about the Sun from osculating elements at JD ${body.epoch.jd} ${body.epoch.timeScale}: no planetary perturbations and no non-gravitational forces.`,
         ...body.accuracy.limitations,

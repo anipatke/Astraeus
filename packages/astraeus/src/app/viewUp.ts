@@ -17,12 +17,18 @@ export function viewUpVector(up: ViewUp | undefined): RenderVector {
 }
 
 /** The azimuth and elevation that put the camera at `offset` (from its target) when the orbit is about `up`: what keeps a camera in place when the up direction changes. */
-export function orbitAnglesFor(offset: RenderVector, up: RenderVector): { readonly azimuth: number; readonly elevation: number } | null {
+export function orbitAnglesFor(
+  offset: RenderVector,
+  up: RenderVector,
+): { readonly azimuth: number; readonly elevation: number } | null {
   const d = Math.hypot(offset[0], offset[1], offset[2]);
   if (!(d > 0)) return null;
   const { east, south } = orbitBasis(up);
   const along = (axis: RenderVector): number => offset[0] * axis[0] + offset[1] * axis[1] + offset[2] * axis[2];
-  return { elevation: Math.asin(Math.max(-1, Math.min(1, along(up) / d))), azimuth: Math.atan2(along(east), along(south)) };
+  return {
+    elevation: Math.asin(Math.max(-1, Math.min(1, along(up) / d))),
+    azimuth: Math.atan2(along(east), along(south)),
+  };
 }
 
 /** `?up=ecliptic` or `?up=equatorial` overrides the experience's own setting. */
@@ -37,6 +43,10 @@ export function viewUpFromSearch(search: string, fallback: ViewUp): ViewUp {
  */
 export function orbitBasis(up: RenderVector): { readonly east: RenderVector; readonly south: RenderVector } {
   const east: RenderVector = [1, 0, 0];
-  const south: RenderVector = [east[1] * up[2] - east[2] * up[1], east[2] * up[0] - east[0] * up[2], east[0] * up[1] - east[1] * up[0]];
+  const south: RenderVector = [
+    east[1] * up[2] - east[2] * up[1],
+    east[2] * up[0] - east[0] * up[2],
+    east[0] * up[1] - east[1] * up[0],
+  ];
   return { east, south };
 }

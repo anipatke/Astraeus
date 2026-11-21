@@ -13,7 +13,8 @@ const ZERO: ArrayLike<number> = Object.freeze([0, 0, 0]);
 /** Maps physical positions (km, 3 per vertex) through the scale policy. */
 export function mapPathKm(positionsKm: Float64Array, policy: ScalePolicy): Float64Array {
   const mapped = new Float64Array(positionsKm.length);
-  for (let index = 0; index < positionsKm.length; index += 3) mapped.set(policy.mapPosition(positionsKm.subarray(index, index + 3)), index);
+  for (let index = 0; index < positionsKm.length; index += 3)
+    mapped.set(policy.mapPosition(positionsKm.subarray(index, index + 3)), index);
   return mapped;
 }
 
@@ -27,7 +28,12 @@ export function mapPathKm(positionsKm: Float64Array, policy: ScalePolicy): Float
  */
 
 /** Orbit: the samples (about `center`) plus the one vector from the scene centre to `center` at the clock time. Returns the input when that vector is zero. */
-export function orbitKm(samplesKm: Float64Array, center: CenterId, placement: ScenePlacement, clockUtcMs: number): Float64Array {
+export function orbitKm(
+  samplesKm: Float64Array,
+  center: CenterId,
+  placement: ScenePlacement,
+  clockUtcMs: number,
+): Float64Array {
   const offset = sceneOffsetKm(placement, center, clockUtcMs);
   return offset === null ? samplesKm : shiftedBy(samplesKm, offset);
 }
@@ -37,7 +43,12 @@ export function orbitKm(samplesKm: Float64Array, center: CenterId, placement: Sc
  * centre: what an observer riding the centre saw). Returns the input when `native` is `against`. Fixing the line to another body leaves it
  * about that body; `sceneOffsetKm(placement, against, displayUtcMs)` then carries it to the scene centre at the display time.
  */
-export function relativeTrailKm(samples: PathSamples, native: CenterId, placement: ScenePlacement, against: CenterId = placement.center): Float64Array {
+export function relativeTrailKm(
+  samples: PathSamples,
+  native: CenterId,
+  placement: ScenePlacement,
+  against: CenterId = placement.center,
+): Float64Array {
   if (samples.timesUtcMs.length === 0 || native === against) return samples.positionsKm;
   const out = Float64Array.from(samples.positionsKm);
   samples.timesUtcMs.forEach((time, index) => {

@@ -3,15 +3,34 @@
 // switch and the Developer drawer's own buttons staying in step, and the top bar and phone drawer showing them.
 import { afterEach, describe, expect, it } from "vitest";
 import { Scene, SceneError, earth, moon } from "astraeus";
-import { displaySwitchItems, labelsOn, orbitLinesOn, orbitStart, skyLineStart, type SwitchBindings } from "../src/app/displaySwitches";
+import {
+  displaySwitchItems,
+  labelsOn,
+  orbitLinesOn,
+  orbitStart,
+  skyLineStart,
+  type SwitchBindings,
+} from "../src/app/displaySwitches";
 import { DEFAULT_SKY_LINES, type SkyLineSwitches } from "../src/app/skyFigures";
 import { hiddenLabelsFrom } from "../src/app/App";
 import type { DisplaySwitchItem } from "../src/shell/DisplaySwitches";
 import { $, byLabel, mountShell, press, pressKey, type Mounted } from "./domSetup";
 import { definitionOf } from "../src/api/definitionOf";
 
-const codeOf = (fn: () => unknown) => { try { fn(); } catch (error) { return error instanceof SceneError ? error.code : String(error); } return "no error"; };
-const noSkyLines: SwitchBindings["skyLines"] = { figures: false, boundaries: false, on: DEFAULT_SKY_LINES, set: () => undefined };
+const codeOf = (fn: () => unknown) => {
+  try {
+    fn();
+  } catch (error) {
+    return error instanceof SceneError ? error.code : String(error);
+  }
+  return "no error";
+};
+const noSkyLines: SwitchBindings["skyLines"] = {
+  figures: false,
+  boundaries: false,
+  on: DEFAULT_SKY_LINES,
+  set: () => undefined,
+};
 const base = () => new Scene().addBody(earth).addBody(moon, { orbit: true });
 
 describe("Scene.setSwitches", () => {
@@ -19,13 +38,22 @@ describe("Scene.setSwitches", () => {
     expect(definitionOf(base()).displaySwitches).toBeUndefined();
   });
   it.each(["top-bar", "panel", "developer"] as const)("accepts the place %s", (place) => {
-    expect(definitionOf(base().setSwitches({ orbitLines: { place } })).displaySwitches).toEqual({ orbitLines: { place } });
+    expect(definitionOf(base().setSwitches({ orbitLines: { place } })).displaySwitches).toEqual({
+      orbitLines: { place },
+    });
   });
   it.each([true, false])("keeps a starting state of %s", (on) => {
-    expect(definitionOf(base().setSwitches({ milkyWay: { place: "panel", on } })).displaySwitches?.milkyWay).toEqual({ place: "panel", on });
+    expect(definitionOf(base().setSwitches({ milkyWay: { place: "panel", on } })).displaySwitches?.milkyWay).toEqual({
+      place: "panel",
+      on,
+    });
   });
   it("lays later calls over earlier ones, switch by switch", () => {
-    const placed = definitionOf(base().setSwitches({ orbitLines: { place: "top-bar" }, labels: { place: "panel" } }).setSwitches({ labels: { place: "developer", on: false } })).displaySwitches;
+    const placed = definitionOf(
+      base()
+        .setSwitches({ orbitLines: { place: "top-bar" }, labels: { place: "panel" } })
+        .setSwitches({ labels: { place: "developer", on: false } }),
+    ).displaySwitches;
     expect(placed).toEqual({ orbitLines: { place: "top-bar" }, labels: { place: "developer", on: false } });
   });
   it.each([
@@ -33,31 +61,88 @@ describe("Scene.setSwitches", () => {
     ["a place that does not exist", () => base().setSwitches({ labels: { place: "sidebar" } } as never)],
     ["no place", () => base().setSwitches({ labels: {} } as never)],
     ["a switch that is not an object", () => base().setSwitches({ labels: "top-bar" } as never)],
-    ["a starting state that is not true or false", () => base().setSwitches({ labels: { place: "panel", on: "yes" } } as never)],
+    [
+      "a starting state that is not true or false",
+      () => base().setSwitches({ labels: { place: "panel", on: "yes" } } as never),
+    ],
     ["no object at all", () => base().setSwitches(undefined as never)],
-  ])("refuses %s with bad-switch", (_name, call) => { expect(codeOf(call)).toBe("bad-switch"); });
+  ])("refuses %s with bad-switch", (_name, call) => {
+    expect(codeOf(call)).toBe("bad-switch");
+  });
   it("names the offending switch in the message", () => {
-    expect(() => base().setSwitches({ labels: { place: "sidebar" } } as never)).toThrow(/labels\.place must be one of top-bar, panel, developer/);
+    expect(() => base().setSwitches({ labels: { place: "sidebar" } } as never)).toThrow(
+      /labels\.place must be one of top-bar, panel, developer/,
+    );
   });
 });
 
 describe("switches and the Developer drawer share one state", () => {
-  const make = (over: { orbit?: { baseOn: boolean; arcOn: boolean }; moons?: boolean; sky?: boolean; hidden?: string[]; anchors?: boolean } = {}) => {
-    const state = { orbit: over.orbit ?? { baseOn: true, arcOn: true }, moons: over.moons ?? true, sky: over.sky ?? true, hidden: new Set(over.hidden ?? []), anchors: over.anchors ?? false };
+  const make = (
+    over: {
+      orbit?: { baseOn: boolean; arcOn: boolean };
+      moons?: boolean;
+      sky?: boolean;
+      hidden?: string[];
+      anchors?: boolean;
+    } = {},
+  ) => {
+    const state = {
+      orbit: over.orbit ?? { baseOn: true, arcOn: true },
+      moons: over.moons ?? true,
+      sky: over.sky ?? true,
+      hidden: new Set(over.hidden ?? []),
+      anchors: over.anchors ?? false,
+    };
     const bindings = (): SwitchBindings => ({
       settings: { orbitLines: { place: "top-bar" }, labels: { place: "panel" }, milkyWay: { place: "developer" } },
       skyLines: noSkyLines,
-      orbit: { present: true, look: state.orbit, set: (change) => { state.orbit = { ...state.orbit, ...change }; } },
-      moons: { present: true, look: { orbitsOn: state.moons }, set: (change) => { state.moons = change.orbitsOn ?? state.moons; } },
-      sky: { present: true, on: state.sky, set: (on) => { state.sky = on; } },
-      labels: { objectIds: ["earth", "moon"], hidden: state.hidden, setHidden: (hidden) => { state.hidden = new Set(hidden); }, anchorsPresent: true, anchors: state.anchors, setAnchors: (on) => { state.anchors = on; } },
+      orbit: {
+        present: true,
+        look: state.orbit,
+        set: (change) => {
+          state.orbit = { ...state.orbit, ...change };
+        },
+      },
+      moons: {
+        present: true,
+        look: { orbitsOn: state.moons },
+        set: (change) => {
+          state.moons = change.orbitsOn ?? state.moons;
+        },
+      },
+      sky: {
+        present: true,
+        on: state.sky,
+        set: (on) => {
+          state.sky = on;
+        },
+      },
+      labels: {
+        objectIds: ["earth", "moon"],
+        hidden: state.hidden,
+        setHidden: (hidden) => {
+          state.hidden = new Set(hidden);
+        },
+        anchorsPresent: true,
+        anchors: state.anchors,
+        setAnchors: (on) => {
+          state.anchors = on;
+        },
+      },
     });
     return { state, items: () => displaySwitchItems(bindings()) };
   };
   const item = (items: readonly DisplaySwitchItem[], id: string) => items.find((candidate) => candidate.id === id)!;
 
   it("shows only the top-bar and panel switches, in a fixed order", () => {
-    expect(make().items().map(({ id, place }) => [id, place])).toEqual([["orbitLines", "top-bar"], ["labels", "panel"]]);
+    expect(
+      make()
+        .items()
+        .map(({ id, place }) => [id, place]),
+    ).toEqual([
+      ["orbitLines", "top-bar"],
+      ["labels", "panel"],
+    ]);
   });
   it("turns the orbit ring, trailing arc and moon orbits off and on together", () => {
     const { state, items } = make();
@@ -88,7 +173,21 @@ describe("switches and the Developer drawer share one state", () => {
   });
   it("leaves out a switch the scene has nothing for", () => {
     const bindings = make().items;
-    const none = displaySwitchItems({ settings: { orbitLines: { place: "top-bar" }, milkyWay: { place: "panel" } }, orbit: { present: false, look: { baseOn: true, arcOn: true }, set: () => undefined }, moons: { present: false, look: { orbitsOn: true }, set: () => undefined }, sky: { present: false, on: true, set: () => undefined }, skyLines: noSkyLines, labels: { objectIds: [], hidden: new Set(), setHidden: () => undefined, anchorsPresent: false, anchors: false, setAnchors: () => undefined } });
+    const none = displaySwitchItems({
+      settings: { orbitLines: { place: "top-bar" }, milkyWay: { place: "panel" } },
+      orbit: { present: false, look: { baseOn: true, arcOn: true }, set: () => undefined },
+      moons: { present: false, look: { orbitsOn: true }, set: () => undefined },
+      sky: { present: false, on: true, set: () => undefined },
+      skyLines: noSkyLines,
+      labels: {
+        objectIds: [],
+        hidden: new Set(),
+        setHidden: () => undefined,
+        anchorsPresent: false,
+        anchors: false,
+        setAnchors: () => undefined,
+      },
+    });
     expect(bindings().length).toBe(2);
     expect(none).toEqual([]);
   });
@@ -96,7 +195,10 @@ describe("switches and the Developer drawer share one state", () => {
     expect(orbitStart({ place: "panel", on: false })?.look).toEqual({ baseOn: false, arcOn: false });
     expect(orbitStart({ place: "panel", on: true })).toBeUndefined();
     expect(orbitStart(undefined)).toBeUndefined();
-    const objects = [{ id: "earth", showLabel: false }, { id: "moon", showLabel: false }];
+    const objects = [
+      { id: "earth", showLabel: false },
+      { id: "moon", showLabel: false },
+    ];
     expect([...hiddenLabelsFrom("", objects)].sort()).toEqual(["earth", "moon"]);
     expect([...hiddenLabelsFrom("?labels=moon:on", objects)]).toEqual(["earth"]);
   });
@@ -104,12 +206,38 @@ describe("switches and the Developer drawer share one state", () => {
 
 describe("the top bar and the switch panel", () => {
   let m: Mounted;
-  afterEach(() => { m.unmount(); });
+  afterEach(() => {
+    m.unmount();
+  });
   const calls: string[] = [];
   const items = (): DisplaySwitchItem[] => [
-    { id: "orbitLines", label: "Orbit lines", place: "top-bar", on: true, onToggle: () => { calls.push("orbitLines"); } },
-    { id: "labels", label: "Labels", place: "panel", on: false, onToggle: () => { calls.push("labels"); } },
-    { id: "milkyWay", label: "Milky Way", place: "panel", on: true, onToggle: () => { calls.push("milkyWay"); } },
+    {
+      id: "orbitLines",
+      label: "Orbit lines",
+      place: "top-bar",
+      on: true,
+      onToggle: () => {
+        calls.push("orbitLines");
+      },
+    },
+    {
+      id: "labels",
+      label: "Labels",
+      place: "panel",
+      on: false,
+      onToggle: () => {
+        calls.push("labels");
+      },
+    },
+    {
+      id: "milkyWay",
+      label: "Milky Way",
+      place: "panel",
+      on: true,
+      onToggle: () => {
+        calls.push("milkyWay");
+      },
+    },
   ];
 
   it("draws nothing extra when no switch is placed", () => {
@@ -138,7 +266,10 @@ describe("the top bar and the switch panel", () => {
     expect(toggle.getAttribute("aria-expanded")).toBe("true");
     expect(panel.hasAttribute("hidden")).toBe(false);
     const rows = [...panel.querySelectorAll("button")];
-    expect(rows.map((row) => [row.textContent, row.getAttribute("aria-pressed")])).toEqual([["Labels", "false"], ["Milky Way", "true"]]);
+    expect(rows.map((row) => [row.textContent, row.getAttribute("aria-pressed")])).toEqual([
+      ["Labels", "false"],
+      ["Milky Way", "true"],
+    ]);
     press(rows[0]!);
     expect(calls).toEqual(["labels"]);
     expect($(m.container, ".switch-panel button").getAttribute("aria-pressed")).toBe("true");
@@ -167,31 +298,82 @@ describe("the four sky-line switches (O-065 T-295)", () => {
   const sky = (figures: boolean, boundaries: boolean, on: SkyLineSwitches = { ...DEFAULT_SKY_LINES }) => {
     const state = { on };
     const bindings = (): SwitchBindings => ({
-      settings: { skyFigures: { place: "top-bar" }, skyBoundaries: { place: "panel" }, ecliptic: { place: "panel" }, celestialEquator: { place: "top-bar" } },
-      orbit: { present: false, look: { baseOn: true, arcOn: true }, set: () => undefined }, moons: { present: false, look: { orbitsOn: true }, set: () => undefined }, sky: { present: false, on: true, set: () => undefined },
-      skyLines: { figures, boundaries, on: state.on, set: (key, value) => { state.on = { ...state.on, [key]: value }; } },
-      labels: { objectIds: [], hidden: new Set(), setHidden: () => undefined, anchorsPresent: false, anchors: false, setAnchors: () => undefined },
+      settings: {
+        skyFigures: { place: "top-bar" },
+        skyBoundaries: { place: "panel" },
+        ecliptic: { place: "panel" },
+        celestialEquator: { place: "top-bar" },
+      },
+      orbit: { present: false, look: { baseOn: true, arcOn: true }, set: () => undefined },
+      moons: { present: false, look: { orbitsOn: true }, set: () => undefined },
+      sky: { present: false, on: true, set: () => undefined },
+      skyLines: {
+        figures,
+        boundaries,
+        on: state.on,
+        set: (key, value) => {
+          state.on = { ...state.on, [key]: value };
+        },
+      },
+      labels: {
+        objectIds: [],
+        hidden: new Set(),
+        setHidden: () => undefined,
+        anchorsPresent: false,
+        anchors: false,
+        setAnchors: () => undefined,
+      },
     });
     return { state, items: () => displaySwitchItems(bindings()) };
   };
   it("offers figures and outlines only when the scene has that kind, and the two circles always, in a fixed order", () => {
-    expect(sky(true, true).items().map(({ id }) => id)).toEqual(["skyFigures", "skyBoundaries", "ecliptic", "celestialEquator"]);
-    expect(sky(true, false).items().map(({ id }) => id)).toEqual(["skyFigures", "ecliptic", "celestialEquator"]);
-    expect(sky(false, false).items().map(({ id }) => id)).toEqual(["ecliptic", "celestialEquator"]);
+    expect(
+      sky(true, true)
+        .items()
+        .map(({ id }) => id),
+    ).toEqual(["skyFigures", "skyBoundaries", "ecliptic", "celestialEquator"]);
+    expect(
+      sky(true, false)
+        .items()
+        .map(({ id }) => id),
+    ).toEqual(["skyFigures", "ecliptic", "celestialEquator"]);
+    expect(
+      sky(false, false)
+        .items()
+        .map(({ id }) => id),
+    ).toEqual(["ecliptic", "celestialEquator"]);
   });
   it("starts with the figures on and the other three off, and each toggles its own state", () => {
     const { state, items } = sky(true, true);
-    expect(items().map(({ id, on }) => [id, on])).toEqual([["skyFigures", true], ["skyBoundaries", false], ["ecliptic", false], ["celestialEquator", false]]);
-    items().find(({ id }) => id === "ecliptic")!.onToggle();
-    items().find(({ id }) => id === "skyFigures")!.onToggle();
+    expect(items().map(({ id, on }) => [id, on])).toEqual([
+      ["skyFigures", true],
+      ["skyBoundaries", false],
+      ["ecliptic", false],
+      ["celestialEquator", false],
+    ]);
+    items()
+      .find(({ id }) => id === "ecliptic")!
+      .onToggle();
+    items()
+      .find(({ id }) => id === "skyFigures")!
+      .onToggle();
     expect(state.on).toEqual({ figures: false, boundaries: false, ecliptic: true, celestialEquator: false });
   });
   it("takes a story's starting state over the defaults, switch by switch", () => {
     expect(skyLineStart(undefined, DEFAULT_SKY_LINES)).toEqual(DEFAULT_SKY_LINES);
-    expect(skyLineStart({ skyFigures: { place: "panel", on: false }, ecliptic: { place: "panel", on: true } }, DEFAULT_SKY_LINES)).toEqual({ figures: false, boundaries: false, ecliptic: true, celestialEquator: false });
+    expect(
+      skyLineStart(
+        { skyFigures: { place: "panel", on: false }, ecliptic: { place: "panel", on: true } },
+        DEFAULT_SKY_LINES,
+      ),
+    ).toEqual({ figures: false, boundaries: false, ecliptic: true, celestialEquator: false });
   });
   it("is placed through setSwitches like the others and refuses a name it does not know", () => {
-    expect(definitionOf(base().setSwitches({ ecliptic: { place: "panel", on: true }, celestialEquator: { place: "developer" } })).displaySwitches).toEqual({ ecliptic: { place: "panel", on: true }, celestialEquator: { place: "developer" } });
+    expect(
+      definitionOf(
+        base().setSwitches({ ecliptic: { place: "panel", on: true }, celestialEquator: { place: "developer" } }),
+      ).displaySwitches,
+    ).toEqual({ ecliptic: { place: "panel", on: true }, celestialEquator: { place: "developer" } });
     expect(codeOf(() => base().setSwitches({ skyOutlines: { place: "panel" } } as never))).toBe("bad-switch");
   });
 });

@@ -8,11 +8,19 @@ import { exists, readBytes, readJson } from "../tools/import/test-io.mjs";
 const DATA = moonDataFolder("jupiter");
 const FIXTURE = new URL("./fixtures/jupiter-moons-horizons.json", import.meta.url).pathname;
 
-interface FixtureRow { utc: string; positionKm: [number, number, number] }
+interface FixtureRow {
+  utc: string;
+  positionKm: [number, number, number];
+}
 const raw = readJson(`${DATA}index.json`) as {
   source: { moonCount: number };
   span: { fromUtc: string; toUtc: string };
-  bodies: { id: string; role: string; span?: { fromUtc: string; toUtc: string }; accuracy: { targetM: number; span: { worstM: number; count: number }; demoWindow: { worstM: number } } }[];
+  bodies: {
+    id: string;
+    role: string;
+    span?: { fromUtc: string; toUtc: string };
+    accuracy: { targetM: number; span: { worstM: number; count: number }; demoWindow: { worstM: number } };
+  }[];
 };
 const index = parseEphemerisIndex(raw);
 const fixture = readJson(FIXTURE) as { bodies: Record<string, { rows: FixtureRow[] }> };
@@ -23,7 +31,8 @@ describe("Jupiter's moons as core curve-fit data", () => {
     expect(moons.length).toBe(raw.source.moonCount);
     expect(moons.length).toBeGreaterThanOrEqual(95);
     expect(index.centre).toBe("jupiter");
-    for (const id of ["io", "europa", "ganymede", "callisto", "metis", "adrastea", "amalthea", "thebe", "himalia"]) expect(index.bodies.some((body) => body.id === id)).toBe(true);
+    for (const id of ["io", "europa", "ganymede", "callisto", "metis", "adrastea", "amalthea", "thebe", "himalia"])
+      expect(index.bodies.some((body) => body.id === id)).toBe(true);
   });
 
   it("has every chunk file the index names, at the stated size", () => {
@@ -48,7 +57,9 @@ describe("Jupiter's moons as core curve-fit data", () => {
     const ephemeris = new ChebyshevEphemeris(index);
     const to = Date.parse(`${raw.span.toUtc}T00:00:00Z`);
     for (const body of index.bodies) {
-      const from = Date.parse(`${raw.bodies.find((entry) => entry.id === body.id)?.span?.fromUtc ?? raw.span.fromUtc}T00:00:00Z`);
+      const from = Date.parse(
+        `${raw.bodies.find((entry) => entry.id === body.id)?.span?.fromUtc ?? raw.span.fromUtc}T00:00:00Z`,
+      );
       const bounds = ephemeris.boundsOf(body.id);
       expect(bounds.startUtcMs, body.id).toBeLessThanOrEqual(from + 60_000);
       expect(bounds.endUtcMs, body.id).toBeGreaterThanOrEqual(to);

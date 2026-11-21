@@ -13,30 +13,54 @@ const scratch = mkdtempSync(join(tmpdir(), "astraeus-engine-alone-"));
 const started = Date.now();
 
 // Git-ignored files (caches such as tools/import/.horizons-cache, about 2.5 GB) are not copied: a fresh clone would not have them either.
-const listed = spawnSync("git", ["ls-files", "--others", "--ignored", "--exclude-standard", "--directory", "--", "packages/astraeus/"], { cwd: root, encoding: "utf8", maxBuffer: 1 << 28 });
+const listed = spawnSync(
+  "git",
+  ["ls-files", "--others", "--ignored", "--exclude-standard", "--directory", "--", "packages/astraeus/"],
+  { cwd: root, encoding: "utf8", maxBuffer: 1 << 28 },
+);
 if (listed.error || listed.status !== 0) {
   rmSync(scratch, { recursive: true, force: true });
-  console.error(`engine alone: cannot list git-ignored files (${listed.error ? listed.error.message : `git exited ${listed.status}`}); git is required`);
+  console.error(
+    `engine alone: cannot list git-ignored files (${listed.error ? listed.error.message : `git exited ${listed.status}`}); git is required`,
+  );
   process.exit(1);
 }
-const ignoredFiles = new Set(listed.stdout.split("\n").filter(Boolean).map((p) => resolve(root, p.replace(/\/$/, ""))));
+const ignoredFiles = new Set(
+  listed.stdout
+    .split("\n")
+    .filter(Boolean)
+    .map((p) => resolve(root, p.replace(/\/$/, ""))),
+);
 const ignored = (src) => ignoredFiles.has(resolve(src));
 
 function copy(from, to) {
   cpSync(join(root, from), join(scratch, to ?? from), {
     recursive: true,
-    filter: (src) => !/[\\/](node_modules|coverage)([\\/]|$)/.test(src) && !/[\\/]data[\\/]local([\\/]|$)/.test(src) && !ignored(src),
+    filter: (src) =>
+      !/[\\/](node_modules|coverage)([\\/]|$)/.test(src) && !/[\\/]data[\\/]local([\\/]|$)/.test(src) && !ignored(src),
   });
 }
 
-const dataPackages = readdirSync(join(root, "packages")).filter((name) => name === "astraeus-data" || name.startsWith("astraeus-data-"));
+const dataPackages = readdirSync(join(root, "packages")).filter(
+  (name) => name === "astraeus-data" || name.startsWith("astraeus-data-"),
+);
 copy("packages/astraeus");
 for (const name of dataPackages) copy(`packages/${name}`);
 for (const file of ["tsconfig.json", "vitest.config.ts", "eslint.config.js"]) copy(file);
 copy("tools/lint");
-writeFileSync(join(scratch, "package.json"), JSON.stringify({
-  name: "engine-alone", private: true, type: "module", workspaces: ["packages/*"],
-}, null, 2));
+writeFileSync(
+  join(scratch, "package.json"),
+  JSON.stringify(
+    {
+      name: "engine-alone",
+      private: true,
+      type: "module",
+      workspaces: ["packages/*"],
+    },
+    null,
+    2,
+  ),
+);
 
 // Link each installed dependency one by one; the workspace links (astraeus*) are not copied, so no path can
 // lead back into the real checkout. The engine's own name points at the copy.
@@ -45,7 +69,8 @@ for (const name of readdirSync(join(root, "node_modules"))) {
   if (name === "astraeus" || name.startsWith("astraeus-")) continue;
   symlinkSync(join(root, "node_modules", name), join(scratch, "node_modules", name));
 }
-for (const name of ["astraeus", ...dataPackages]) symlinkSync(join(scratch, "packages", name), join(scratch, "node_modules", name));
+for (const name of ["astraeus", ...dataPackages])
+  symlinkSync(join(scratch, "packages", name), join(scratch, "node_modules", name));
 
 const steps = [
   ["typecheck", ["node_modules/typescript/bin/tsc", "--noEmit"]],
@@ -58,8 +83,13 @@ for (const [name, args] of steps) {
   console.log(`\n== engine alone: ${name}`);
   const r = spawnSync(process.execPath, args, { cwd: scratch, stdio: "inherit", env: { ...process.env, CI: "1" } });
   console.log(`== ${name}: ${r.status === 0 ? "pass" : "FAIL"} (${((Date.now() - t) / 1000).toFixed(1)} s)`);
-  if (r.status !== 0) { failed = name; break; }
+  if (r.status !== 0) {
+    failed = name;
+    break;
+  }
 }
 rmSync(scratch, { recursive: true, force: true });
-console.log(`\nengine alone: ${failed ? `FAILED at ${failed}` : "pass"} in ${((Date.now() - started) / 1000).toFixed(1)} s`);
+console.log(
+  `\nengine alone: ${failed ? `FAILED at ${failed}` : "pass"} in ${((Date.now() - started) / 1000).toFixed(1)} s`,
+);
 process.exit(failed ? 1 : 0);

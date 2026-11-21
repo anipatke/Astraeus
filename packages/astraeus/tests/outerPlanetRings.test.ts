@@ -21,12 +21,20 @@ describe("the outer planets' rings", () => {
 
   it("Saturn draws its ring bands at the fact sheet's radii, the catalogue being the one source", () => {
     const rings = catalogue.get("saturn").visual.rings!;
-    const source = readJson(`${ROOT}data/rings/saturn.json`) as { bands: { id: string; innerKm: number; outerKm: number }[] };
+    const source = readJson(`${ROOT}data/rings/saturn.json`) as {
+      bands: { id: string; innerKm: number; outerKm: number }[];
+    };
     expect(rings.bands.map((band) => band.id)).toEqual(source.bands.map((band) => band.id));
-    for (const band of rings.bands) expect([band.innerKm, band.outerKm]).toEqual([source.bands.find((entry) => entry.id === band.id)!.innerKm, source.bands.find((entry) => entry.id === band.id)!.outerKm]);
+    for (const band of rings.bands)
+      expect([band.innerKm, band.outerKm]).toEqual([
+        source.bands.find((entry) => entry.id === band.id)!.innerKm,
+        source.bands.find((entry) => entry.id === band.id)!.outerKm,
+      ]);
   });
 
   it("Uranus draws its ring bands from the data file", () => {
-    expect(catalogue.get("uranus").visual.rings!.bands).toHaveLength((readJson(`${ROOT}data/rings/uranus.json`) as { bands: unknown[] }).bands.length);
+    expect(catalogue.get("uranus").visual.rings!.bands).toHaveLength(
+      (readJson(`${ROOT}data/rings/uranus.json`) as { bands: unknown[] }).bands.length,
+    );
   });
 });

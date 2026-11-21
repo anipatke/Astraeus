@@ -19,14 +19,20 @@ export class ViewerCamera {
   constructor(private readonly access: LinkAccess) {}
 
   /** The viewer attached (the opening pose is read, not reported) or detached (nothing is known). */
-  reset(): void { this.#last = this.access.control()?.readCamera(); }
+  reset(): void {
+    this.#last = this.access.control()?.readCamera();
+  }
 
-  clearListeners(): void { this.#listeners.clear(); }
+  clearListeners(): void {
+    this.#listeners.clear();
+  }
 
   /** Calls `listener` with the new pose when the camera's object, angles or distance change (at most about ten times a second); returns the function that stops it. */
   onCameraChange(listener: (camera: CameraPose) => void): () => void {
     this.#listeners.add(listener);
-    return () => { this.#listeners.delete(listener); };
+    return () => {
+      this.#listeners.delete(listener);
+    };
   }
 
   /** A viewer publish (its tick, or a host or visitor action): reports the pose when it differs from the last one. */
@@ -36,7 +42,10 @@ export class ViewerCamera {
     const pose = control.readCamera();
     if (pose === undefined) return;
     const last = this.#last;
-    if (last === undefined) { this.#last = pose; return; } // the first frame's pose is the opening one
+    if (last === undefined) {
+      this.#last = pose;
+      return;
+    } // the first frame's pose is the opening one
     if (samePose(pose, last)) return;
     const now = performance.now();
     if (now - this.#reportedAt < MIN_GAP_MS) return; // the next tick reports it
@@ -46,7 +55,9 @@ export class ViewerCamera {
   }
 
   /** The camera pose, or undefined before the viewer is drawn and after it is gone; before its first frame it is the opening camera, or undefined when the opening look-out turns toward an id (resolved on that frame). */
-  get camera(): CameraPose | undefined { return this.access.control()?.readCamera(); }
+  get camera(): CameraPose | undefined {
+    return this.access.control()?.readCamera();
+  }
 
   /**
    * Points the camera: `{ follow: id }` keeps the distance, `{ focus: id }` frames the object, `{ lookOut: id, direction?, fovDeg? }` stands inside a body looking out,
@@ -57,7 +68,12 @@ export class ViewerCamera {
   setCamera(target: CameraTarget): void {
     const control = this.access.open("setCamera");
     const request = cameraRequestOf(target, "setCamera", this.camera);
-    checkCameraIds(request, "setCamera", control.cameraTargets(), (control.skyFigures ?? []).map(({ id }) => id));
+    checkCameraIds(
+      request,
+      "setCamera",
+      control.cameraTargets(),
+      (control.skyFigures ?? []).map(({ id }) => id),
+    );
     control.setCamera(request);
   }
 }

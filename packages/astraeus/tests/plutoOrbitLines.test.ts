@@ -18,7 +18,13 @@ const T_JULY = Date.UTC(2016, 6, 1);
 const provenance = createProvenance({ sourceType: "ephemeris", sources: ["test"], accuracy: "none", notes: "" });
 
 /** The true sidereal periods (days) of Pluto's moons (JPL SSD satellite mean elements). */
-const TRUE_DAYS: Record<string, number> = { charon: 6.3872, styx: 20.16155, nix: 24.85463, kerberos: 32.16756, hydra: 38.20177 };
+const TRUE_DAYS: Record<string, number> = {
+  charon: 6.3872,
+  styx: 20.16155,
+  nix: 24.85463,
+  kerberos: 32.16756,
+  hydra: 38.20177,
+};
 
 /** Pluto's system with all five moons' 2016 fits (the test setup loads only the mapped Charon). */
 let loaded: ReturnType<typeof createMoonSystem> | undefined;
@@ -26,7 +32,10 @@ async function plutoSystem(window: { startUtcMs: number; endUtcMs: number }) {
   if (loaded !== undefined) return loaded;
   loaded = createMoonSystem({ ...PLUTO_MOON_SYSTEM.config, loadIndex: async () => plutoIndex });
   const root = moonDataFolder("pluto");
-  const chunkUrls = new Proxy({}, { get: (_target, path: string) => (path.endsWith("/2016.bin") ? `${root}${path}` : undefined) }) as Record<string, string>;
+  const chunkUrls = new Proxy(
+    {},
+    { get: (_target, path: string) => (path.endsWith("/2016.bin") ? `${root}${path}` : undefined) },
+  ) as Record<string, string>;
   await loaded.load({ window, bodies: Object.keys(TRUE_DAYS), chunkUrls, fetchBytes: async (url) => readBytes(url) });
   return loaded;
 }
@@ -35,7 +44,8 @@ async function plutoLayer(balance: boolean): Promise<BodySetLayer> {
   const window = { startUtcMs: Date.UTC(2016, 5, 1), endUtcMs: Date.UTC(2016, 8, 1) };
   const system = await plutoSystem(window);
   const small = ["styx", "nix", "kerberos", "hydra"];
-  const group = (id: string, members: string[]) => createEphemerisGroup({ id, center: "pluto", ephemeris: system.ephemeris, members, bounds: window, provenance });
+  const group = (id: string, members: string[]) =>
+    createEphemerisGroup({ id, center: "pluto", ephemeris: system.ephemeris, members, bounds: window, provenance });
   return validateBodySet({
     id: "pluto-small-moons",
     group: group("pluto-small", small),
@@ -52,12 +62,22 @@ type Point = [number, number, number];
 
 const sub = (a: Point, b: Point): Point => [a[0] - b[0], a[1] - b[1], a[2] - b[2]];
 const dot = (a: Point, b: Point): number => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
-const cross = (a: Point, b: Point): Point => [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];
-const unit = (a: Point): Point => { const n = Math.hypot(...a); return [a[0] / n, a[1] / n, a[2] / n]; };
+const cross = (a: Point, b: Point): Point => [
+  a[1] * b[2] - a[2] * b[1],
+  a[2] * b[0] - a[0] * b[2],
+  a[0] * b[1] - a[1] * b[0],
+];
+const unit = (a: Point): Point => {
+  const n = Math.hypot(...a);
+  return [a[0] / n, a[1] / n, a[2] / n];
+};
 
 /** Solves the 3x3 system `m x = y` by Cramer's rule. */
 function solve3(m: number[][], y: number[]): number[] {
-  const det = (q: number[][]) => q[0][0] * (q[1][1] * q[2][2] - q[1][2] * q[2][1]) - q[0][1] * (q[1][0] * q[2][2] - q[1][2] * q[2][0]) + q[0][2] * (q[1][0] * q[2][1] - q[1][1] * q[2][0]);
+  const det = (q: number[][]) =>
+    q[0][0] * (q[1][1] * q[2][2] - q[1][2] * q[2][1]) -
+    q[0][1] * (q[1][0] * q[2][2] - q[1][2] * q[2][0]) +
+    q[0][2] * (q[1][0] * q[2][1] - q[1][1] * q[2][0]);
   const d = det(m);
   return [0, 1, 2].map((k) => det(m.map((row, i) => row.map((v, j) => (j === k ? y[i] : v)))) / d);
 }
@@ -77,9 +97,23 @@ function roundnessOf(points: readonly Point[]): number {
   const sums = { x: 0, y: 0, xx: 0, yy: 0, xy: 0, xz: 0, yz: 0, z: 0 };
   for (const [x, y] of flat) {
     const z = x * x + y * y;
-    sums.x += x; sums.y += y; sums.xx += x * x; sums.yy += y * y; sums.xy += x * y; sums.xz += x * z; sums.yz += y * z; sums.z += z;
+    sums.x += x;
+    sums.y += y;
+    sums.xx += x * x;
+    sums.yy += y * y;
+    sums.xy += x * y;
+    sums.xz += x * z;
+    sums.yz += y * z;
+    sums.z += z;
   }
-  const [a, b, c] = solve3([[2 * sums.xx, 2 * sums.xy, sums.x], [2 * sums.xy, 2 * sums.yy, sums.y], [2 * sums.x, 2 * sums.y, flat.length]], [sums.xz, sums.yz, sums.z]);
+  const [a, b, c] = solve3(
+    [
+      [2 * sums.xx, 2 * sums.xy, sums.x],
+      [2 * sums.xy, 2 * sums.yy, sums.y],
+      [2 * sums.x, 2 * sums.y, flat.length],
+    ],
+    [sums.xz, sums.yz, sums.z],
+  );
   const radius = Math.sqrt(c + a * a + b * b);
   const centre: Point = [c0[0] + a * u[0] + b * v[0], c0[1] + a * u[1] + b * v[1], c0[2] + a * u[2] + b * v[2]];
   return Math.max(...points.map((p) => Math.abs(Math.hypot(...sub(p, centre)) - radius))) / radius;
@@ -103,7 +137,8 @@ describe("Pluto's moon orbit lines (I-056)", () => {
   it("draws the four small moons about the balance point, under 1% from round, Charon's line round about Pluto", async () => {
     const orbits = new OrbitSetView(await plutoLayer(true));
     orbits.sync(T_JULY, placementAbout("pluto"), trueScale, true);
-    for (let index = 0; index < 5; index += 1) expect(roundnessOf(pathOf(orbits, index)), `line ${index}`).toBeLessThan(0.01);
+    for (let index = 0; index < 5; index += 1)
+      expect(roundnessOf(pathOf(orbits, index)), `line ${index}`).toBeLessThan(0.01);
     // Without the balance point the same lines are not round (the reflex wiggle the owner saw): this is what the data change fixes.
     return plutoLayer(false).then((plain) => {
       const old = new OrbitSetView(plain);
@@ -129,7 +164,10 @@ describe("Pluto's moon orbit lines (I-056)", () => {
         const out = new Float64Array(3);
         group.memberPositionKmInto(index < 4 ? index : 0, t, out, 0);
         const head = orbits.headKm(index);
-        expect(Math.hypot(head[0] - out[0], head[1] - out[1], head[2] - out[2]), `${id} head at +${days} d`).toBeLessThan(1e-6);
+        expect(
+          Math.hypot(head[0] - out[0], head[1] - out[1], head[2] - out[2]),
+          `${id} head at +${days} d`,
+        ).toBeLessThan(1e-6);
         // The line the body is on: its sampled points and its head, one round loop, the body among them.
         const line = [...pathOf(orbits, index), ...orbits.headPointsKm(index)];
         expect(roundnessOf(line), `${id} +${days} d`).toBeLessThan(0.012);
@@ -141,7 +179,14 @@ describe("Pluto's moon orbit lines (I-056)", () => {
     const window = { startUtcMs: Date.UTC(2016, 5, 1), endUtcMs: Date.UTC(2016, 8, 1) };
     const layer = validateBodySet({
       id: "mars-test",
-      group: createEphemerisGroup({ id: "mars-test", center: "mars", ephemeris: MARS_MOON_SYSTEM.ephemeris, members: ["phobos"], bounds: window, provenance }),
+      group: createEphemerisGroup({
+        id: "mars-test",
+        center: "mars",
+        ephemeris: MARS_MOON_SYSTEM.ephemeris,
+        members: ["phobos"],
+        bounds: window,
+        provenance,
+      }),
       members: [{ id: "phobos", label: "Phobos", radiusKm: 11, family: "moons" }],
       families: familiesWithPalette([{ id: "moons", label: "Moons" }]),
       centreGmKm3S2: MARS_MOON_SYSTEM.config.centreGmKm3S2,

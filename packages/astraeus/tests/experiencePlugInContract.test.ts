@@ -15,7 +15,12 @@ import type { RateMetric } from "../src/shell/metrics";
 // Moved from the site's tests (O-059 T-272): the experience plug-in contract is the engine's, held on the made-up definition. The Apollo and Perseids rows are held on those demos' scenes in the site (tests/demoScenes.test.ts).
 
 const sources = import.meta.glob<string>(
-  ["../src/core/**/*.{ts,tsx}", "../src/assets/**/*.{ts,tsx}", "../src/shell/**/*.{ts,tsx,css}", "../src/app/*.{ts,tsx,css}"],
+  [
+    "../src/core/**/*.{ts,tsx}",
+    "../src/assets/**/*.{ts,tsx}",
+    "../src/shell/**/*.{ts,tsx,css}",
+    "../src/app/*.{ts,tsx,css}",
+  ],
   { query: "?raw", import: "default", eager: true },
 );
 
@@ -23,41 +28,52 @@ const noop = () => undefined;
 
 function shellMarkup(definition: ExperienceDefinition): string {
   const clock = new SimulationClock(definition.clock.startUtcMs);
-  return renderToStaticMarkup(createElement(AstraeusShell, {
-    experience: definition.experience,
-    snapshot: clock.snapshot(),
-    developerMode: false,
-    onDeveloperModeChange: noop,
-    onTogglePlayback: noop,
-    onRateChange: noop,
-    onSeek: noop,
-    onCameraRequest: noop,
-    onSelectionChange: noop,
-    scaleId: "true-scale",
-    onScaleChange: noop,
-    children: null,
-  }));
+  return renderToStaticMarkup(
+    createElement(AstraeusShell, {
+      experience: definition.experience,
+      snapshot: clock.snapshot(),
+      developerMode: false,
+      onDeveloperModeChange: noop,
+      onTogglePlayback: noop,
+      onRateChange: noop,
+      onSeek: noop,
+      onCameraRequest: noop,
+      onSelectionChange: noop,
+      scaleId: "true-scale",
+      onScaleChange: noop,
+      children: null,
+    }),
+  );
 }
 
-describe.each([
-  ["the synthetic experience", syntheticDefinition, "Survey marker"],
-] as const)("%s through the plug-in contract", (_name, definition, ownLabel) => {
-  it("hands the shell its own objects", () => {
-    expect(shellMarkup(definition)).toContain(ownLabel);
-  });
+describe.each([["the synthetic experience", syntheticDefinition, "Survey marker"]] as const)(
+  "%s through the plug-in contract",
+  (_name, definition, ownLabel) => {
+    it("hands the shell its own objects", () => {
+      expect(shellMarkup(definition)).toContain(ownLabel);
+    });
 
-  it("draws exactly the tracked bodies it lists", () => {
-    expect(trackedBodiesOf(definition).map((body) => body.id)).toEqual(definition.trackedBodies.map((body) => body.id));
-    expect(definition.experience.objects.map((object) => object.id)).toEqual(expect.arrayContaining(definition.trackedBodies.map((body) => body.id)));
-  });
+    it("draws exactly the tracked bodies it lists", () => {
+      expect(trackedBodiesOf(definition).map((body) => body.id)).toEqual(
+        definition.trackedBodies.map((body) => body.id),
+      );
+      expect(definition.experience.objects.map((object) => object.id)).toEqual(
+        expect.arrayContaining(definition.trackedBodies.map((body) => body.id)),
+      );
+    });
 
-  it("builds metrics for its own bodies through the generic factory", () => {
-    const clock = new SimulationClock(definition.clock.startUtcMs);
-    const metrics = definition.createMetrics({ clock, resolver: createSceneResolver(createOrbAstronomyAdapter()), catalogue });
-    const body = definition.trackedBodies[0];
-    expect(metrics(body.id, body.trajectory.bounds.startUtcMs).length).toBeGreaterThan(0);
-  });
-});
+    it("builds metrics for its own bodies through the generic factory", () => {
+      const clock = new SimulationClock(definition.clock.startUtcMs);
+      const metrics = definition.createMetrics({
+        clock,
+        resolver: createSceneResolver(createOrbAstronomyAdapter()),
+        catalogue,
+      });
+      const body = definition.trackedBodies[0];
+      expect(metrics(body.id, body.trajectory.bounds.startUtcMs).length).toBeGreaterThan(0);
+    });
+  },
+);
 
 describe("the synthetic experience", () => {
   it("shows none of Apollo's objects and carries illustrative provenance", () => {
@@ -85,7 +101,11 @@ describe("the synthetic window", () => {
   const minutes = (value: number) => contact.startUtcMs + value * 60_000;
   const metricsAt = (timeUtcMs: number) => {
     const clock = new SimulationClock(syntheticDefinition.clock.startUtcMs);
-    return syntheticDefinition.createMetrics({ clock, resolver: createSceneResolver(createOrbAstronomyAdapter()), catalogue })("survey-marker", timeUtcMs);
+    return syntheticDefinition.createMetrics({
+      clock,
+      resolver: createSceneResolver(createOrbAstronomyAdapter()),
+      catalogue,
+    })("survey-marker", timeUtcMs);
   };
 
   it("mounts one window through ExperienceConfig.windows, inside the timeline", () => {

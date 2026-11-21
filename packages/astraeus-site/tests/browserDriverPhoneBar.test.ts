@@ -3,19 +3,37 @@
 // fit rule's compact native <select>, so the switch read and choice must handle it beside the buttons (markup as SwitchControl.tsx draws it). (2) On a phone the Developer cog sits in the
 // closed menu drawer (hidden, so a role lookup finds nothing): the driver reveals it before reading or pressing it and leaves the menu as it was.
 import { afterEach, describe, expect, it } from "vitest";
-import { chooseSwitchOption, developerOpen, displaySwitchOn, displaySwitchPlaces, experienceSwitchState, FREE_POINT_PROBES, freeCanvasPoint, readSwitchGroup, switchPanelFit, switchShowsActive, toggleDeveloper, toggleDisplaySwitch } from "../tools/validate/driver.mjs";
+import {
+  chooseSwitchOption,
+  developerOpen,
+  displaySwitchOn,
+  displaySwitchPlaces,
+  experienceSwitchState,
+  FREE_POINT_PROBES,
+  freeCanvasPoint,
+  readSwitchGroup,
+  switchPanelFit,
+  switchShowsActive,
+  toggleDeveloper,
+  toggleDisplaySwitch,
+} from "../tools/validate/driver.mjs";
 
 type SwitchForm = "full" | "compact";
-const OPTIONS = ["mercury", "venus", "earth", "jupiter"].map((value) => ({ value, label: value[0]!.toUpperCase() + value.slice(1), active: value === "mercury" }));
+const OPTIONS = ["mercury", "venus", "earth", "jupiter"].map((value) => ({
+  value,
+  label: value[0]!.toUpperCase() + value.slice(1),
+  active: value === "mercury",
+}));
 
 /**
  * Draws the switch in the form given, as `SwitchControl.tsx` renders it (the site may not import the engine's source, ARCH-03): the buttons are a group carrying
  * `data-switch-param` with one `data-switch-value` button per option (pressed = active); the compact form is one `<select data-switch-param>` with plain options.
  */
 function drawSwitch(form: SwitchForm): HTMLElement {
-  document.body.innerHTML = form === "compact"
-    ? `<select class="switch-compact" aria-label="Planet" data-closes-drawer="" data-switch-param="planet">${OPTIONS.map((o) => `<option value="${o.value}"${o.active ? " selected" : ""}>${o.label}</option>`).join("")}</select>`
-    : `<section class="switch-control" role="group" aria-label="Planet" data-switch-param="planet">${OPTIONS.map((o) => `<button type="button" aria-pressed="${o.active}" data-switch-value="${o.value}"><span>${o.label}</span></button>`).join("")}</section>`;
+  document.body.innerHTML =
+    form === "compact"
+      ? `<select class="switch-compact" aria-label="Planet" data-closes-drawer="" data-switch-param="planet">${OPTIONS.map((o) => `<option value="${o.value}"${o.active ? " selected" : ""}>${o.label}</option>`).join("")}</select>`
+      : `<section class="switch-control" role="group" aria-label="Planet" data-switch-param="planet">${OPTIONS.map((o) => `<button type="button" aria-pressed="${o.active}" data-switch-value="${o.value}"><span>${o.label}</span></button>`).join("")}</section>`;
   return document.querySelector("[data-switch-param]") as HTMLElement;
 }
 
@@ -24,7 +42,12 @@ function switchPage(group: HTMLElement) {
   const made: string[] = [];
   const press = (value: string) => {
     if (group.tagName === "SELECT") (group as HTMLSelectElement).value = value;
-    else group.querySelectorAll("[data-switch-value]").forEach((button) => button.setAttribute("aria-pressed", String(button.getAttribute("data-switch-value") === value)));
+    else
+      group
+        .querySelectorAll("[data-switch-value]")
+        .forEach((button) =>
+          button.setAttribute("aria-pressed", String(button.getAttribute("data-switch-value") === value)),
+        );
   };
   const groupLocator = {
     count: async () => 1,
@@ -32,12 +55,25 @@ function switchPage(group: HTMLElement) {
     isVisible: async () => true,
     getAttribute: async (name: string) => group.getAttribute(name),
     evaluate: async <T>(fn: (element: HTMLElement) => T) => fn(group),
-    selectOption: async (value: string) => { made.push(`select:${value}`); press(value); },
-    locator: (selector: string) => ({ first: () => ({ click: async () => { const value = /data-switch-value="([^"]+)"/.exec(selector)![1]; made.push(`button:${value}`); press(value); } }) }),
+    selectOption: async (value: string) => {
+      made.push(`select:${value}`);
+      press(value);
+    },
+    locator: (selector: string) => ({
+      first: () => ({
+        click: async () => {
+          const value = /data-switch-value="([^"]+)"/.exec(selector)![1];
+          made.push(`button:${value}`);
+          press(value);
+        },
+      }),
+    }),
   };
   const page = {
     locator: (selector: string) => (selector === "[data-switch-param]" ? groupLocator : { count: async () => 0 }),
-    waitForFunction: async (fn: (arg: unknown) => boolean, arg: unknown) => { if (!fn(arg)) throw new Error("waitForFunction: never true"); },
+    waitForFunction: async (fn: (arg: unknown) => boolean, arg: unknown) => {
+      if (!fn(arg)) throw new Error("waitForFunction: never true");
+    },
     waitForURL: async () => undefined,
     waitForSelector: async () => undefined,
     getByRole: () => ({ waitFor: async () => undefined }),
@@ -45,19 +81,29 @@ function switchPage(group: HTMLElement) {
   return { page, made };
 }
 
-afterEach(() => { document.body.innerHTML = ""; });
+afterEach(() => {
+  document.body.innerHTML = "";
+});
 
 describe("driver: the switch in both forms (I-184 case 1)", () => {
   it.each<SwitchForm>(["full", "compact"])("reads the options and the active one from the %s form", async (form) => {
     const group = drawSwitch(form);
-    expect(readSwitchGroup(group).options.map((option: { value: string }) => option.value)).toEqual(["mercury", "venus", "earth", "jupiter"]);
+    expect(readSwitchGroup(group).options.map((option: { value: string }) => option.value)).toEqual([
+      "mercury",
+      "venus",
+      "earth",
+      "jupiter",
+    ]);
     const { page } = switchPage(group);
     const state = (await experienceSwitchState(page))!;
     expect(state.param).toBe("planet");
     expect(state.compact).toBe(form === "compact");
     expect(state.options.find((option: { active: boolean }) => option.active)?.value).toBe("mercury");
   });
-  it.each<[SwitchForm, string]>([["full", "button:jupiter"], ["compact", "select:jupiter"]])("chooses an option in the %s form the way that form takes it", async (form, how) => {
+  it.each<[SwitchForm, string]>([
+    ["full", "button:jupiter"],
+    ["compact", "select:jupiter"],
+  ])("chooses an option in the %s form the way that form takes it", async (form, how) => {
     const group = drawSwitch(form);
     const { page, made } = switchPage(group);
     await chooseSwitchOption(page, "jupiter");
@@ -70,24 +116,46 @@ describe("driver: the switch in both forms (I-184 case 1)", () => {
 /** A stand-in phone page: the cog is reachable (visible, found by role) only while the menu drawer is open, and pressing it closes the drawer (`data-closes-drawer`). */
 function phonePage() {
   const state = { menu: false, developer: false, menuOpenings: 0 };
-  const hidden = () => { throw new Error("getByRole('button', { name: 'Developer mode' }): Timeout 30000ms exceeded (hidden in the closed menu)"); };
+  const hidden = () => {
+    throw new Error(
+      "getByRole('button', { name: 'Developer mode' }): Timeout 30000ms exceeded (hidden in the closed menu)",
+    );
+  };
   const cog = {
     count: async () => 1,
     first: () => cog,
     isVisible: async () => state.menu,
-    getAttribute: async (name: string) => (state.menu ? (name === "aria-pressed" ? String(state.developer) : null) : hidden()),
-    click: async () => { if (!state.menu) hidden(); state.developer = !state.developer; state.menu = false; },
+    getAttribute: async (name: string) =>
+      state.menu ? (name === "aria-pressed" ? String(state.developer) : null) : hidden(),
+    click: async () => {
+      if (!state.menu) hidden();
+      state.developer = !state.developer;
+      state.menu = false;
+    },
   };
   const menuButton = {
     count: async () => 1,
     getAttribute: async () => String(state.menu),
-    click: async () => { state.menu = !state.menu; if (state.menu) state.menuOpenings += 1; },
+    click: async () => {
+      state.menu = !state.menu;
+      if (state.menu) state.menuOpenings += 1;
+    },
   };
-  const anything = { count: async () => 0, first: () => anything, waitFor: async () => undefined, getAttribute: async () => null };
+  const anything = {
+    count: async () => 0,
+    first: () => anything,
+    waitFor: async () => undefined,
+    getAttribute: async () => null,
+  };
   const page = {
     locator: (selector: string) => {
       if (selector === "button.bar-menu-button") return menuButton;
-      if (selector === "button.drawer-handle-bottom") return { click: async () => { state.menu = false; } };
+      if (selector === "button.drawer-handle-bottom")
+        return {
+          click: async () => {
+            state.menu = false;
+          },
+        };
       if (selector === ".astraeus-shell") return { first: () => ({ getAttribute: async () => "true" }) };
       return anything;
     },
@@ -130,7 +198,8 @@ describe("driver: the Developer cog inside the phone menu (I-184 case 2)", () =>
 describe("driver: a free scene point beside a capped phone sheet (I-185)", () => {
   const phoneWithCard = (cardTop: number, cardBottom: number) => ({
     getByTestId: () => ({ boundingBox: async () => ({ x: 0, y: 0, width: 390, height: 844 }) }),
-    evaluate: async (_fn: unknown, point: { x: number; y: number }) => point.y > 66 && !(point.y >= cardTop && point.y <= cardBottom),
+    evaluate: async (_fn: unknown, point: { x: number; y: number }) =>
+      point.y > 66 && !(point.y >= cardTop && point.y <= cardBottom),
   });
   it("finds a point in the band above a card at its cap", async () => {
     const point = await freeCanvasPoint(phoneWithCard(246, 668));
@@ -150,13 +219,19 @@ describe("driver: a free scene point beside a capped phone sheet (I-185)", () =>
  */
 function switchPanelPage() {
   const state = { menu: false, panel: false, ecliptic: false };
-  const hidden = (what: string) => { throw new Error(`${what}: hidden (Timeout 30000ms exceeded)`); };
+  const hidden = (what: string) => {
+    throw new Error(`${what}: hidden (Timeout 30000ms exceeded)`);
+  };
   const row = {
     count: async () => 1,
     first: () => row,
     isVisible: async () => state.panel,
-    getAttribute: async (name: string) => (state.panel ? (name === "aria-pressed" ? String(state.ecliptic) : null) : hidden("ecliptic row")),
-    click: async () => { if (!state.panel) hidden("ecliptic row"); state.ecliptic = !state.ecliptic; },
+    getAttribute: async (name: string) =>
+      state.panel ? (name === "aria-pressed" ? String(state.ecliptic) : null) : hidden("ecliptic row"),
+    click: async () => {
+      if (!state.panel) hidden("ecliptic row");
+      state.ecliptic = !state.ecliptic;
+    },
     evaluateAll: async () => (state.panel ? ["ecliptic"] : hidden("panel rows")),
   };
   const toggle = {
@@ -164,16 +239,46 @@ function switchPanelPage() {
     first: () => toggle,
     isVisible: async () => state.menu,
     getAttribute: async (name: string) => (name === "aria-expanded" ? String(state.panel) : null),
-    click: async () => { if (!state.menu) hidden("switch panel toggle"); state.panel = !state.panel; },
+    click: async () => {
+      if (!state.menu) hidden("switch panel toggle");
+      state.panel = !state.panel;
+    },
   };
-  const barButtons = { count: async () => 1, first: () => barButtons, isVisible: async () => true, evaluateAll: async () => ["skyFigures"] };
-  const panel = { locator: () => ({ count: async () => 1 }), waitFor: async ({ state: wanted }: { state: string }) => { if ((wanted === "visible") !== state.panel) throw new Error(`panel not ${wanted}`); } };
-  const menuButton = { count: async () => 1, getAttribute: async () => String(state.menu), click: async () => { state.menu = !state.menu; } };
-  const anything = { count: async () => 0, first: () => anything, waitFor: async () => undefined, getAttribute: async () => null };
+  const barButtons = {
+    count: async () => 1,
+    first: () => barButtons,
+    isVisible: async () => true,
+    evaluateAll: async () => ["skyFigures"],
+  };
+  const panel = {
+    locator: () => ({ count: async () => 1 }),
+    waitFor: async ({ state: wanted }: { state: string }) => {
+      if ((wanted === "visible") !== state.panel) throw new Error(`panel not ${wanted}`);
+    },
+  };
+  const menuButton = {
+    count: async () => 1,
+    getAttribute: async () => String(state.menu),
+    click: async () => {
+      state.menu = !state.menu;
+    },
+  };
+  const anything = {
+    count: async () => 0,
+    first: () => anything,
+    waitFor: async () => undefined,
+    getAttribute: async () => null,
+  };
   const page = {
     locator: (selector: string) => {
       if (selector === "button.bar-menu-button") return menuButton;
-      if (selector === "button.drawer-handle-bottom") return { click: async () => { state.menu = false; state.panel = false; } };
+      if (selector === "button.drawer-handle-bottom")
+        return {
+          click: async () => {
+            state.menu = false;
+            state.panel = false;
+          },
+        };
       if (selector === ".astraeus-shell") return { first: () => ({ getAttribute: async () => "true" }) };
       if (selector === "button.switch-panel-toggle") return toggle;
       if (selector === ".switch-panel") return panel;

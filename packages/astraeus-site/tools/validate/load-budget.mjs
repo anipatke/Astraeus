@@ -3,7 +3,16 @@
 // public-build-assets.mjs runs the same check on every public build. The page sets below are the files a browser fetched in headless Chromium on the
 // public build (docs/evidence/o017-t070-*/first-load-*.json); the check keeps them honest: a listed file that is not in the build, or a static import of a
 // listed script that is not listed, fails, so an eager new chunk cannot slip past the limit. Pictures an experience draws are listed with it.
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from "node:fs";
+import {
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  readdirSync,
+  rmSync,
+  statSync,
+  writeFileSync,
+} from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -13,20 +22,83 @@ import { gzipSync } from "node:zlib";
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..", "..", "..");
 
 /** The app page, its script and style, and what every experience loads: the sky stars. Each entry is `<stem>.<ext>` of a hashed file in assets/, or a page at the top. */
-const APP_SHARED = ["app.html", "app.js", "app.css", "preload-helper.js", "hyg-v42-naked-eye.json", "elementsBody.js", "timeScale.js", "licence.js", "api.js", "api.css", "frameStats.js"];
+const APP_SHARED = [
+  "app.html",
+  "app.js",
+  "app.css",
+  "preload-helper.js",
+  "hyg-v42-naked-eye.json",
+  "elementsBody.js",
+  "timeScale.js",
+  "licence.js",
+  "api.js",
+  "api.css",
+  "frameStats.js",
+];
 /** Shared chunks the dev-free production build splits out but the public build folds into their importers; listed when present, not required (2026-10-20). */
-const SPLIT_CHUNKS = new Set(["preload-helper.js", "ephemerisProvenance.js", "elementsBody.js", "timeScale.js", "bodyMetrics.js", "events.js", "trackedMetrics.js", "listedOrbitGroup.js", "orbitGroup.js", "settingsFields.js", "licence.js", "moonFamilies.js", "planetSystemParts.js",
+const SPLIT_CHUNKS = new Set([
+  "preload-helper.js",
+  "ephemerisProvenance.js",
+  "elementsBody.js",
+  "timeScale.js",
+  "bodyMetrics.js",
+  "events.js",
+  "trackedMetrics.js",
+  "listedOrbitGroup.js",
+  "orbitGroup.js",
+  "settingsFields.js",
+  "licence.js",
+  "moonFamilies.js",
+  "planetSystemParts.js",
   // O-080 T-335: the catalogue page imports the engine too, so the bundler moves the engine (with React and three) out of app.js into the chunk `api.js` (and its style, and `frameStats.js`) that both pages share; app.css and scene.js are then folded into them. Optional, like the chunks above: a build without the catalogue page keeps them in app.js.
-  "api.js", "api.css", "frameStats.js", "app.css", "scene.js"]);
-const VIEW_LIMITS = JSON.parse(readFileSync(join(root, "packages", "astraeus-demo-planets", "src", "experiences", "planets", "viewLimits.json"), "utf8"));
+  "api.js",
+  "api.css",
+  "frameStats.js",
+  "app.css",
+  "scene.js",
+]);
+const VIEW_LIMITS = JSON.parse(
+  readFileSync(
+    join(root, "packages", "astraeus-demo-planets", "src", "experiences", "planets", "viewLimits.json"),
+    "utf8",
+  ),
+);
 const PLANET_TEXTURES = ["earth-bmng-july-4k.jpg", "jupiter-2k.jpg"];
-const SHOWER_COMMON = ["showerScene.js", "scene.js", "bodyMetrics.js", "events.js", "listedOrbitGroup.js", "orbitGroup.js", "showerSettings.js", "measuredOrbits.js", "ephemerisProvenance.js", "planetModels.js", "mars-2k.jpg", "mercury-2k.jpg", "venus-2k-balanced.jpg", "sun-2k.jpg", ...PLANET_TEXTURES];
+const SHOWER_COMMON = [
+  "showerScene.js",
+  "scene.js",
+  "bodyMetrics.js",
+  "events.js",
+  "listedOrbitGroup.js",
+  "orbitGroup.js",
+  "showerSettings.js",
+  "measuredOrbits.js",
+  "ephemerisProvenance.js",
+  "planetModels.js",
+  "mars-2k.jpg",
+  "mercury-2k.jpg",
+  "venus-2k-balanced.jpg",
+  "sun-2k.jpg",
+  ...PLANET_TEXTURES,
+];
 
 /** One planet's view of the planets experience (T-121): the shared page, the planet's own settings/system scripts, its moon index when it has moons, and its pictures. The fit chunks (.bin) the system script names by URL count too. */
 const planetView = (name, textures, { moons = true, ...limits }) => ({
   planet: name,
   id: `app.html?experience=planets&planet=${name}`,
-  files: [...APP_SHARED, "planetSettings.js", "planetScene.js", "moonFamilies.js", "events.js", "moonList.js", "planetModels.js", "planetSystemParts.js", `${name}.js`, ...(moons ? [`${name}-moons.js`] : []), ...textures],
+  files: [
+    ...APP_SHARED,
+    "planetSettings.js",
+    "planetScene.js",
+    "moonFamilies.js",
+    "events.js",
+    "moonList.js",
+    "planetModels.js",
+    "planetSystemParts.js",
+    `${name}.js`,
+    ...(moons ? [`${name}-moons.js`] : []),
+    ...textures,
+  ],
   namedBy: [`${name}.js`],
   ...(VIEW_LIMITS[name] ? { indexLimit: VIEW_LIMITS[name].indexRawBytes } : {}),
   ...limits,
@@ -42,31 +114,98 @@ export const ALL_PAGES = [
   { id: "assets.html", files: [], htmlPage: "assets.html", rawLimit: 670_000, gzipLimit: 520_000 },
   // O-080 T-335: the component catalogue. A visitor downloads the page and its script; pressing Run loads the engine chunk (api.js, with its style and the shared frame stats chunk) and that part's example. The page set lists those files (an html page's
   // own listing would follow the engine's lazy references to every body picture), and every example is listed, the most one visitor can reach by pressing each Run in turn. The engine's share is subtracted as for the other app pages. Limits: own share measured 2026-11-21 on the public build (1,308,490 B raw, 363,637 B gzip: React, three and the page) plus 5%, rounded up to the next 10,000 bytes.
-  { id: "components.html", files: ["components.html", "components.js", "preload-helper.js", "api.js", "api.css", "frameStats.js", "madeUpScene.js", "panel.js", "customBlock.js", "explainer.js", "actions.js", "filterChips.js", "colourKey.js"], rawLimit: 1_380_000, gzipLimit: 390_000 },
+  {
+    id: "components.html",
+    files: [
+      "components.html",
+      "components.js",
+      "preload-helper.js",
+      "api.js",
+      "api.css",
+      "frameStats.js",
+      "madeUpScene.js",
+      "panel.js",
+      "customBlock.js",
+      "explainer.js",
+      "actions.js",
+      "filterChips.js",
+      "colourKey.js",
+    ],
+    rawLimit: 1_380_000,
+    gzipLimit: 390_000,
+  },
   // I-142: the API reference text grows with the documented API (118,927 B raw, 26,894 B gzip after O-056), and the compressed size is what a visitor downloads, so the raw limit was raised and the gzip limit kept (owner decision, 2026-11-03); raw raised again to 200,000 B for the O-059 public forms (owner, 2026-11-07). tests/apiReference.test.ts holds the generated page to these limits.
   { id: "api/index.html", files: [], htmlPage: "api/index.html", rawLimit: 230_000, gzipLimit: 46_000 }, // gzip 45,000 -> 46,000: owner 2026-11-20 ("Raise cap to 46,000"), O-077 T-323 (page measured at 45,167 B with GroupOrbitInput.meanAnomalyDeg documented; 44,977 B before). gzip 44,500 -> 45,000: owner 2026-11-15 ("Raise to 45,000 bytes"), O-075 T-318 (page measured at 44,569 B with the camera choices and switch labels; covers T-319). raw 200,000 -> 230,000: owner 2026-11-10 ("Raise to 230 KB, restore"), O-066 T-301 (page measured at 200,586 B with the new panel fields and original doc wording restored).
   // O-080 T-336 (owner chose "shelf parts on their own API page"): measured 22,260 B raw / 5,022 B gzip with the six O-080 parts; limits leave room for O-081's two parts (about 1 KB gzip more).
   { id: "api/shelf.html", files: [], htmlPage: "api/shelf.html", rawLimit: 35_000, gzipLimit: 8_000 },
   // gzip 44,000 -> 44,500: owner 2026-11-15 ("Raise to 44,500 bytes"), O-074 T-316 (page measured at 44,225 B with the time look)
   // gzip 40,000 -> 44,000: owner 2026-11-10 ("Raise to 44 KB"), room for the rest of 0.9.0 (O-065 T-296)
-  { id: "app.html (Apollo 11)", files: [...APP_SHARED, "panels.js", "apollo11Scene.js", "scene.js", "bodyMetrics.js", "events.js", "trackedMetrics.js", "ephemerisProvenance.js", "moon-lroc-2k.jpg", "earth-bmng-july-4k.jpg"], rawLimit: 4_240_000, gzipLimit: 2_850_000 },
+  {
+    id: "app.html (Apollo 11)",
+    files: [
+      ...APP_SHARED,
+      "panels.js",
+      "apollo11Scene.js",
+      "scene.js",
+      "bodyMetrics.js",
+      "events.js",
+      "trackedMetrics.js",
+      "ephemerisProvenance.js",
+      "moon-lroc-2k.jpg",
+      "earth-bmng-july-4k.jpg",
+    ],
+    rawLimit: 4_240_000,
+    gzipLimit: 2_850_000,
+  },
   // T-098: Jupiter's moons. The other three mapped moons' pictures, the curve-fit index (jupiter-moons.js) and the window's year of fit chunks
   // (2016.bin: the larger files; the smaller ones are inlined in jupiterIo.js), and the 2014 and 2015 chunks of the slow moons whose orbit lines reach back that far.
   // O-033 T-121: the planets experience, one page set per planet view (the old jupiter-io address opens Jupiter's).
   // Each outer planet's moon index chunk is also held to the stated limit in `src/experiences/planets/viewLimits.json`, the file tests/planetSystems.test.ts takes its fit-chunk and index limits from.
-  planetView("jupiter", ["jupiter-2k.jpg", "io-2k.jpg", "europa-2k.jpg", "ganymede-2k.jpg", "callisto-2k.jpg"], { rawLimit: 6_570_000, gzipLimit: 4_560_000 }),
-  planetView("saturn", ["saturn-2k.jpg", "mimas-4k.jpg", "enceladus-4k.jpg", "tethys-4k.jpg", "dione-4k.jpg", "rhea-4k.jpg", "titan-4k.jpg", "iapetus-4k.jpg"], { rawLimit: 23_510_000, gzipLimit: 20_570_000 }),
+  planetView("jupiter", ["jupiter-2k.jpg", "io-2k.jpg", "europa-2k.jpg", "ganymede-2k.jpg", "callisto-2k.jpg"], {
+    rawLimit: 6_570_000,
+    gzipLimit: 4_560_000,
+  }),
+  planetView(
+    "saturn",
+    [
+      "saturn-2k.jpg",
+      "mimas-4k.jpg",
+      "enceladus-4k.jpg",
+      "tethys-4k.jpg",
+      "dione-4k.jpg",
+      "rhea-4k.jpg",
+      "titan-4k.jpg",
+      "iapetus-4k.jpg",
+    ],
+    { rawLimit: 23_510_000, gzipLimit: 20_570_000 },
+  ),
   planetView("uranus", ["uranus-2k.jpg"], { rawLimit: 3_510_000, gzipLimit: 2_030_000 }),
   planetView("neptune", ["neptune-2k.jpg", "triton-4k.jpg"], { rawLimit: 4_000_000, gzipLimit: 2_630_000 }),
   planetView("pluto", ["pluto-4k.jpg", "charon-2k.jpg"], { rawLimit: 3_350_000, gzipLimit: 2_100_000 }),
   planetView("mercury", ["mercury-2k.jpg"], { moons: false, rawLimit: 2_580_000, gzipLimit: 1_420_000 }),
   // T-141 (O-039, I-068): the Venus view is the one page that opts in to desktop texture variants (`desktopTextures`), so a desktop window fetches `venus-8k-balanced.jpg` (14,474,577 B) instead of the 2k file (1,090,552 B); the set lists the 8k file, the heavier case.
   planetView("venus", ["venus-8k-balanced.jpg"], { moons: false, rawLimit: 16_860_000, gzipLimit: 15_650_000 }),
-  planetView("earth", ["earth-bmng-july-4k.jpg", "moon-lroc-2k.jpg"], { moons: false, rawLimit: 3_890_000, gzipLimit: 2_730_000 }),
+  planetView("earth", ["earth-bmng-july-4k.jpg", "moon-lroc-2k.jpg"], {
+    moons: false,
+    rawLimit: 3_890_000,
+    gzipLimit: 2_730_000,
+  }),
   planetView("mars", ["mars-2k.jpg"], { rawLimit: 2_420_000, gzipLimit: 1_230_000 }),
   // The showers pages list only the chosen shower's panels chunk (`storyPanels`), not every story's (T-152).
-  { id: "app.html?experience=showers", files: [...APP_SHARED, ...SHOWER_COMMON, "gmn-iau-7.json"], storyPanels: "perseids", rawLimit: 8_970_000, gzipLimit: 6_760_000 },
-  { id: "app.html?experience=showers&shower=geminids", files: [...APP_SHARED, ...SHOWER_COMMON, "gmn-iau-4.json"], storyPanels: "geminids", rawLimit: 10_630_000, gzipLimit: 7_340_000 },
+  {
+    id: "app.html?experience=showers",
+    files: [...APP_SHARED, ...SHOWER_COMMON, "gmn-iau-7.json"],
+    storyPanels: "perseids",
+    rawLimit: 8_970_000,
+    gzipLimit: 6_760_000,
+  },
+  {
+    id: "app.html?experience=showers&shower=geminids",
+    files: [...APP_SHARED, ...SHOWER_COMMON, "gmn-iau-4.json"],
+    storyPanels: "geminids",
+    rawLimit: 10_630_000,
+    gzipLimit: 7_340_000,
+  },
 ];
 /**
  * The planets a public build offers: Jupiter alone (owner, 2026-10-22; T-136). The other eight planet views exist only in a local build, so their page sets
@@ -75,10 +214,21 @@ export const ALL_PAGES = [
 export const PUBLIC_PLANETS = ["jupiter"];
 /** The files only a local build's other planet views list (their maps and system chunks), by stem as the page sets name them; a public build must hold none (T-136). */
 export const NON_PUBLIC_PLANET_FILES = (() => {
-  const wanted = new Set(ALL_PAGES.filter((page) => page.planet !== undefined && !PUBLIC_PLANETS.includes(page.planet)).flatMap((page) => page.files));
-  for (const page of ALL_PAGES) if (page.planet === undefined || PUBLIC_PLANETS.includes(page.planet)) for (const file of page.files) wanted.delete(file);
+  const wanted = new Set(
+    ALL_PAGES.filter((page) => page.planet !== undefined && !PUBLIC_PLANETS.includes(page.planet)).flatMap(
+      (page) => page.files,
+    ),
+  );
+  for (const page of ALL_PAGES)
+    if (page.planet === undefined || PUBLIC_PLANETS.includes(page.planet))
+      for (const file of page.files) wanted.delete(file);
   // Left out of the list on purpose: the `<planet>-moons.js` indexes (core body records lazy-load them, so they stay in the build but are never fetched) and the inner planets' maps (the catalogue keeps those bodies).
-  return [...wanted].filter((file) => /\.(jpg|js|bin)$/.test(file) && !/-moons\.js$/.test(file) && !["mars-2k.jpg", "mercury-2k.jpg", "venus-2k.jpg"].includes(file));
+  return [...wanted].filter(
+    (file) =>
+      /\.(jpg|js|bin)$/.test(file) &&
+      !/-moons\.js$/.test(file) &&
+      !["mars-2k.jpg", "mercury-2k.jpg", "venus-2k.jpg"].includes(file),
+  );
 })();
 export const PAGES = ALL_PAGES.filter((page) => page.planet === undefined || PUBLIC_PLANETS.includes(page.planet));
 /** Every file of the build together (also the net for a file no page set lists). */
@@ -92,7 +242,11 @@ function* walk(directory) {
     else yield path;
   }
 }
-const relativeTo = (distDir, path) => path.slice(distDir.length + 1).split("\\").join("/");
+const relativeTo = (distDir, path) =>
+  path
+    .slice(distDir.length + 1)
+    .split("\\")
+    .join("/");
 
 /** The sidecar the browser check's public build writes (`ASTRAEUS_ENGINE_SHARE=1`, vite.config.ts): per script chunk, the rendered bytes from the engine package and in all. Not part of any page. */
 export const ENGINE_SHARE_FILE = "engine-share.json";
@@ -125,7 +279,9 @@ function engineShareOf(distDir, files, shares) {
 function findFiles(names, entry) {
   if (entry.endsWith(".html")) return names.includes(entry) ? [entry] : [];
   const dot = entry.lastIndexOf(".");
-  const pattern = new RegExp(`^assets/${entry.slice(0, dot).replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}-[A-Za-z0-9_-]{8}\\.${entry.slice(dot + 1)}$`);
+  const pattern = new RegExp(
+    `^assets/${entry.slice(0, dot).replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}-[A-Za-z0-9_-]{8}\\.${entry.slice(dot + 1)}$`,
+  );
   return names.filter((name) => pattern.test(name));
 }
 
@@ -146,7 +302,8 @@ function siteFiles(distDir, names, page) {
 }
 
 /** The scripts a built script imports at load (not the dynamic `import(...)`): the names of their files. */
-export const staticImportsOf = (text) => [...text.matchAll(/(?:\bfrom|\bimport)\s*["']\.\/([A-Za-z0-9_.-]+\.js)["']/g)].map((match) => `assets/${match[1]}`);
+export const staticImportsOf = (text) =>
+  [...text.matchAll(/(?:\bfrom|\bimport)\s*["']\.\/([A-Za-z0-9_.-]+\.js)["']/g)].map((match) => `assets/${match[1]}`);
 
 const sizesOf = (distDir, files) => {
   let raw = 0;
@@ -172,7 +329,10 @@ function followSplitChunks(distDir, files, several) {
     const next = [];
     for (const file of queue) {
       for (const imported of staticImportsOf(readFileSync(join(distDir, file), "latin1"))) {
-        if (several.has(imported) && !files.includes(imported)) { files.push(imported); next.push(imported); }
+        if (several.has(imported) && !files.includes(imported)) {
+          files.push(imported);
+          next.push(imported);
+        }
       }
     }
     queue = next;
@@ -203,10 +363,17 @@ function addNamedFiles(distDir, names, page, files) {
 function addStoryPanels(distDir, names, page, files, problems) {
   if (page.storyPanels === undefined) return;
   for (const app of findFiles(names, "app.js")) {
-    const match = readFileSync(join(distDir, app), "latin1").match(new RegExp(`stories/${page.storyPanels}/panels\\.json":\\(\\)=>[^\`]*\`\\./(panels-[A-Za-z0-9_-]{8}\\.js)\``));
-    if (match !== null && !files.includes(`assets/${match[1]}`)) { files.push(`assets/${match[1]}`); return; }
+    const match = readFileSync(join(distDir, app), "latin1").match(
+      new RegExp(`stories/${page.storyPanels}/panels\\.json":\\(\\)=>[^\`]*\`\\./(panels-[A-Za-z0-9_-]{8}\\.js)\``),
+    );
+    if (match !== null && !files.includes(`assets/${match[1]}`)) {
+      files.push(`assets/${match[1]}`);
+      return;
+    }
   }
-  problems.push(`the app script names no panels chunk for the story "${page.storyPanels}" (the page set is out of date)`);
+  problems.push(
+    `the app script names no panels chunk for the story "${page.storyPanels}" (the page set is out of date)`,
+  );
 }
 
 /**
@@ -221,7 +388,16 @@ function followEngineChunks(distDir, files, shares) {
     for (const file of queue) {
       for (const imported of staticImportsOf(readFileSync(join(distDir, file), "latin1"))) {
         const entry = shares[imported];
-        if (!files.includes(imported) && existsSync(join(distDir, imported)) && entry !== undefined && entry.total > 0 && entry.engine === entry.total) { files.push(imported); next.push(imported); }
+        if (
+          !files.includes(imported) &&
+          existsSync(join(distDir, imported)) &&
+          entry !== undefined &&
+          entry.total > 0 &&
+          entry.engine === entry.total
+        ) {
+          files.push(imported);
+          next.push(imported);
+        }
       }
     }
     queue = next;
@@ -250,16 +426,23 @@ function stemPageFiles(distDir, names, page, problems, shares) {
   const severalEntries = [];
   for (const entry of page.files) {
     const found = findFiles(names, entry);
-    if (found.length === 0) { if (!SPLIT_CHUNKS.has(entry)) problems.push(`${entry} is not in the build (the page set is out of date)`); }
-    else if (found.length === 1) files.push(found[0]);
-    else { severalEntries.push([entry, found]); for (const name of found) several.add(name); }
+    if (found.length === 0) {
+      if (!SPLIT_CHUNKS.has(entry)) problems.push(`${entry} is not in the build (the page set is out of date)`);
+    } else if (found.length === 1) files.push(found[0]);
+    else {
+      severalEntries.push([entry, found]);
+      for (const name of found) several.add(name);
+    }
   }
   followSplitChunks(distDir, files, several);
   addFetchedFiles(names, page, files, problems);
   addNamedFiles(distDir, names, page, files);
   addStoryPanels(distDir, names, page, files, problems);
   for (const [entry, found] of severalEntries) {
-    if (!found.some((name) => files.includes(name))) problems.push(`${entry} names ${found.length} files, none of which a listed script imports (the page set is out of date)`);
+    if (!found.some((name) => files.includes(name)))
+      problems.push(
+        `${entry} names ${found.length} files, none of which a listed script imports (the page set is out of date)`,
+      );
   }
   files = [...new Set(files)];
   followEngineChunks(distDir, files, shares);
@@ -270,9 +453,12 @@ function stemPageFiles(distDir, names, page, problems, shares) {
 /** The moon index is one chunk of the build (its JSON as a script), so the stated index limit holds it too. The fit chunks' stated limit is held by tests/planetSystems.test.ts, which measures them as served (the build inlines the small ones as text, which is bigger). */
 function moonIndexProblems(distDir, names, page, files) {
   const problems = [];
-  for (const file of files.filter((name) => (page.namedBy ?? []).some((entry) => findFiles(names, entry.replace(/\.js$/, "-moons.js")).includes(name)))) {
+  for (const file of files.filter((name) =>
+    (page.namedBy ?? []).some((entry) => findFiles(names, entry.replace(/\.js$/, "-moons.js")).includes(name)),
+  )) {
     const bytes = statSync(join(distDir, file)).size;
-    if (bytes > page.indexLimit) problems.push(`the moon index chunk is ${bytes} bytes, over the view's stated limit of ${page.indexLimit}`);
+    if (bytes > page.indexLimit)
+      problems.push(`the moon index chunk is ${bytes} bytes, over the view's stated limit of ${page.indexLimit}`);
   }
   return problems;
 }
@@ -280,31 +466,66 @@ function moonIndexProblems(distDir, names, page, files) {
 /** The problems of one page set and its measured sizes. */
 function checkPage(distDir, names, page, shares) {
   const problems = [];
-  const files = page.htmlPage !== undefined ? htmlPageFiles(distDir, names, page, problems) : stemPageFiles(distDir, names, page, problems, shares);
+  const files =
+    page.htmlPage !== undefined
+      ? htmlPageFiles(distDir, names, page, problems)
+      : stemPageFiles(distDir, names, page, problems, shares);
   const sizes = sizesOf(distDir, files);
   // A page's limit holds what the page adds beyond the engine: its first load less the engine's share of it (the engine has its own limit, engine-budget.mjs).
   const engine = engineShareOf(distDir, files, shares);
   const own = { raw: sizes.raw - engine.raw, gzip: sizes.gzip - engine.gzip };
   const note = `(own share: ${sizes.raw} B in all less ${engine.raw} B engine)`;
   if (own.raw > page.rawLimit) problems.push(`${own.raw} bytes raw is over the limit of ${page.rawLimit} ${note}`);
-  if (own.gzip > page.gzipLimit) problems.push(`${own.gzip} bytes gzipped is over the limit of ${page.gzipLimit} (own share: ${sizes.gzip} B in all less ${engine.gzip} B engine)`);
+  if (own.gzip > page.gzipLimit)
+    problems.push(
+      `${own.gzip} bytes gzipped is over the limit of ${page.gzipLimit} (own share: ${sizes.gzip} B in all less ${engine.gzip} B engine)`,
+    );
   if (page.indexLimit !== undefined) problems.push(...moonIndexProblems(distDir, names, page, files));
-  return { id: page.id, ...sizes, engineRaw: engine.raw, engineGzip: engine.gzip, ownRaw: own.raw, ownGzip: own.gzip, rawLimit: page.rawLimit, gzipLimit: page.gzipLimit, problems };
+  return {
+    id: page.id,
+    ...sizes,
+    engineRaw: engine.raw,
+    engineGzip: engine.gzip,
+    ownRaw: own.raw,
+    ownGzip: own.gzip,
+    rawLimit: page.rawLimit,
+    gzipLimit: page.gzipLimit,
+    problems,
+  };
 }
 
 /**
  * Measures every page set of a build and compares it with its limit. Returns { ok, pages: [{ id, files, raw, gzip, rawLimit, gzipLimit, problems }], problems }.
  * `pages` and `buildLimit` default to the real table; tests pass their own.
  */
-export function checkLoadBudget({ distDir, pages = PAGES, buildLimit = BUILD_LIMIT, shares = readEngineShares(distDir), requireShares = true }) {
-  const names = [...walk(distDir)].map((path) => relativeTo(distDir, path)).filter((name) => name !== ENGINE_SHARE_FILE);
+export function checkLoadBudget({
+  distDir,
+  pages = PAGES,
+  buildLimit = BUILD_LIMIT,
+  shares = readEngineShares(distDir),
+  requireShares = true,
+}) {
+  const names = [...walk(distDir)]
+    .map((path) => relativeTo(distDir, path))
+    .filter((name) => name !== ENGINE_SHARE_FILE);
   const results = pages.map((page) => checkPage(distDir, names, page, shares));
   const whole = sizesOf(distDir, names);
   const wholeProblems = [];
-  if (whole.raw > buildLimit.rawLimit) wholeProblems.push(`${whole.raw} bytes raw is over the limit of ${buildLimit.rawLimit}`);
-  if (whole.gzip > buildLimit.gzipLimit) wholeProblems.push(`${whole.gzip} bytes gzipped is over the limit of ${buildLimit.gzipLimit}`);
-  if (requireShares && shares === undefined) wholeProblems.push(`${ENGINE_SHARE_FILE} is not in the build, so the engine's share of each page is unknown (build with ASTRAEUS_ENGINE_SHARE=1, as the browser check does)`);
-  results.push({ id: buildLimit.id, ...whole, rawLimit: buildLimit.rawLimit, gzipLimit: buildLimit.gzipLimit, problems: wholeProblems });
+  if (whole.raw > buildLimit.rawLimit)
+    wholeProblems.push(`${whole.raw} bytes raw is over the limit of ${buildLimit.rawLimit}`);
+  if (whole.gzip > buildLimit.gzipLimit)
+    wholeProblems.push(`${whole.gzip} bytes gzipped is over the limit of ${buildLimit.gzipLimit}`);
+  if (requireShares && shares === undefined)
+    wholeProblems.push(
+      `${ENGINE_SHARE_FILE} is not in the build, so the engine's share of each page is unknown (build with ASTRAEUS_ENGINE_SHARE=1, as the browser check does)`,
+    );
+  results.push({
+    id: buildLimit.id,
+    ...whole,
+    rawLimit: buildLimit.rawLimit,
+    gzipLimit: buildLimit.gzipLimit,
+    problems: wholeProblems,
+  });
   return { ok: results.every((result) => result.problems.length === 0), pages: results };
 }
 
@@ -316,7 +537,7 @@ export function proveLoadBudgetFails() {
   const temp = mkdtempSync(join(tmpdir(), "astraeus-load-budget-"));
   try {
     // Noise does not gzip away, so the made-up sizes are what the limits see.
-    const noise = (length) => Buffer.from(Array.from({ length }, (_, k) => (k * 2654435761 >>> 7) & 255));
+    const noise = (length) => Buffer.from(Array.from({ length }, (_, k) => ((k * 2654435761) >>> 7) & 255));
     const pages = [{ id: "app", files: ["app.html", "app.js", "picture.jpg"], rawLimit: 6_000, gzipLimit: 6_000 }];
     const buildLimit = { id: "whole build", rawLimit: 9_000, gzipLimit: 9_000 };
     const make = (name, change = () => {}, shares = undefined) => {
@@ -336,15 +557,25 @@ export function proveLoadBudgetFails() {
         writeFileSync(join(dir, "assets", "app-AbCdEf12.js"), 'import"./extra-AbCdEf12.js";');
         writeFileSync(join(dir, "assets", "extra-AbCdEf12.js"), "export const b = 2;");
       }),
-      engineChunk: make("engine-chunk", (dir) => {
-        writeFileSync(join(dir, "assets", "app-AbCdEf12.js"), 'import"./extra-AbCdEf12.js";');
-        writeFileSync(join(dir, "assets", "extra-AbCdEf12.js"), "export const b = 2;");
-      }, { "assets/extra-AbCdEf12.js": { engine: 20, total: 20 } }),
-      mixedChunk: make("mixed-chunk", (dir) => {
-        writeFileSync(join(dir, "assets", "app-AbCdEf12.js"), 'import"./extra-AbCdEf12.js";');
-        writeFileSync(join(dir, "assets", "extra-AbCdEf12.js"), "export const b = 2;");
-      }, { "assets/extra-AbCdEf12.js": { engine: 10, total: 20 } }),
-      unlistedFile: make("unlisted-file", (dir) => writeFileSync(join(dir, "assets", "extra-AbCdEf12.jpg"), noise(7_000))),
+      engineChunk: make(
+        "engine-chunk",
+        (dir) => {
+          writeFileSync(join(dir, "assets", "app-AbCdEf12.js"), 'import"./extra-AbCdEf12.js";');
+          writeFileSync(join(dir, "assets", "extra-AbCdEf12.js"), "export const b = 2;");
+        },
+        { "assets/extra-AbCdEf12.js": { engine: 20, total: 20 } },
+      ),
+      mixedChunk: make(
+        "mixed-chunk",
+        (dir) => {
+          writeFileSync(join(dir, "assets", "app-AbCdEf12.js"), 'import"./extra-AbCdEf12.js";');
+          writeFileSync(join(dir, "assets", "extra-AbCdEf12.js"), "export const b = 2;");
+        },
+        { "assets/extra-AbCdEf12.js": { engine: 10, total: 20 } },
+      ),
+      unlistedFile: make("unlisted-file", (dir) =>
+        writeFileSync(join(dir, "assets", "extra-AbCdEf12.jpg"), noise(7_000)),
+      ),
     };
   } finally {
     rmSync(temp, { recursive: true, force: true });
@@ -367,7 +598,13 @@ export function proveSameStemChunks() {
     writeFileSync(join(dir, "assets", "panels-CCCCCCCC.js"), "export const c = 3;");
     writeFileSync(join(dir, "assets", "stray-AbCdEf12.js"), "export const d = 4;");
     const limits = { rawLimit: 100_000, gzipLimit: 100_000 };
-    const check = (files) => checkLoadBudget({ distDir: dir, pages: [{ id: "page", files, ...limits }], buildLimit: { id: "whole build", ...limits }, requireShares: false }).pages[0];
+    const check = (files) =>
+      checkLoadBudget({
+        distDir: dir,
+        pages: [{ id: "page", files, ...limits }],
+        buildLimit: { id: "whole build", ...limits },
+        requireShares: false,
+      }).pages[0];
     return {
       first: check(["app.html", "first.js", "panels.js"]),
       chained: check(["app.html", "second.js", "panels.js"]),
@@ -386,6 +623,9 @@ if (process.argv[1] !== undefined && resolve(process.argv[1]) === fileURLToPath(
     process.exit(1);
   }
   const result = checkLoadBudget({ distDir });
-  for (const page of result.pages) console.log(`${page.problems.length === 0 ? "ok  " : "FAIL"} ${page.id}: ${page.files} files, ${page.raw} B raw / ${page.gzip} B gzip in all, ${page.engineRaw ?? 0} / ${page.engineGzip ?? 0} from the engine, own ${page.ownRaw ?? page.raw} B raw (limit ${page.rawLimit}), ${page.ownGzip ?? page.gzip} B gzip (limit ${page.gzipLimit})${page.problems.map((problem) => `\n       ${problem}`).join("")}`);
+  for (const page of result.pages)
+    console.log(
+      `${page.problems.length === 0 ? "ok  " : "FAIL"} ${page.id}: ${page.files} files, ${page.raw} B raw / ${page.gzip} B gzip in all, ${page.engineRaw ?? 0} / ${page.engineGzip ?? 0} from the engine, own ${page.ownRaw ?? page.raw} B raw (limit ${page.rawLimit}), ${page.ownGzip ?? page.gzip} B gzip (limit ${page.gzipLimit})${page.problems.map((problem) => `\n       ${problem}`).join("")}`,
+    );
   if (!result.ok) process.exit(1);
 }

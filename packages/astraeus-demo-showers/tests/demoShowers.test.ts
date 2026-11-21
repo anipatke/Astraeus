@@ -3,7 +3,14 @@
 // tests/showers.test.ts; the measured file's counts by tests/showersMeasured.test.ts; the comparison with the pre-rebuild definitions by tests/rebuildComparison.test.ts;
 // the switch by astraeus-site/tests/showerSwitch.test.ts. The stream's dots, the glow's gradient and the camera flights are the smoke check.
 import { describe, expect, it } from "vitest";
-import { experienceWithGroups, groupsOf, mountedBodiesOf, scaleChoiceIdsOf, sceneCenterOf, sunCentredOf } from "astraeus/app/experienceDefinition";
+import {
+  experienceWithGroups,
+  groupsOf,
+  mountedBodiesOf,
+  scaleChoiceIdsOf,
+  sceneCenterOf,
+  sunCentredOf,
+} from "astraeus/app/experienceDefinition";
 import { catalogue } from "astraeus/assets/catalogue";
 import { createSceneResolver } from "astraeus/app/sceneLayout";
 import { createOrbAstronomyAdapter } from "astraeus/core/astronomyAdapter";
@@ -19,18 +26,27 @@ import { buildShowerDefinition } from "./helpers/showerDefinition";
 
 const resolver = createSceneResolver(createOrbAstronomyAdapter());
 const PLANETS = ["mercury", "venus", "mars", "jupiter"];
-const SHOWERS = [["perseids", perseidsFile, "perseids"], ["geminids", geminidsFile, "geminids"]] as const;
+const SHOWERS = [
+  ["perseids", perseidsFile, "perseids"],
+  ["geminids", geminidsFile, "geminids"],
+] as const;
 const escape = (text: string) => text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
 describe.each(SHOWERS)("the %s shower", (_name, file, story) => {
   const settings: ShowerSettings = parseShowerSettings(file);
   const kept = readShippedFile(story, settings.stream.iauCode).provenance.counts.kept as number;
-  const definition = buildShowerDefinition(settings, { kind: "loaded", orbits: madeUpOrbits(settings.stream.iauCode, 50) });
+  const definition = buildShowerDefinition(settings, {
+    kind: "loaded",
+    orbits: madeUpOrbits(settings.stream.iauCode, 50),
+  });
   const experience = experienceWithGroups(definition);
   const streamId = streamIdOf(settings);
   const parentId = settings.parentBodyId;
   const view = (id: string) => infoView(experience, { kind: "object", id })!;
-  const detail = (id: string) => { const p = view(id).provenance!; return [p.accuracy, p.notes, ...p.sources, ...(p.knownLimitations ?? [])].join(" ").replace(/\s+/g, " "); };
+  const detail = (id: string) => {
+    const p = view(id).provenance!;
+    return [p.accuracy, p.notes, ...p.sources, ...(p.knownLimitations ?? [])].join(" ").replace(/\s+/g, " ");
+  };
 
   it("is a Sun-centred scene of the Sun, Earth, the four planets and its own parent, with six orbit lines and no other shower's parent", () => {
     expect(sceneCenterOf(definition)).toBe("sun");
@@ -63,8 +79,11 @@ describe.each(SHOWERS)("the %s shower", (_name, file, story) => {
   it("builds the camera menu itself: Overview, then Focus and Follow for the Sun, Earth, the planets, the parent and the stream", () => {
     const ids = experience.cameraPresets.map((preset) => preset.id);
     expect(ids[0]).toBe("overview");
-    for (const id of ["sun", "earth", ...PLANETS, parentId, streamId]) expect(ids).toEqual(expect.arrayContaining([`focus-${id}`, `follow-${id}`]));
-    expect(experience.cameraPresets.find((p) => p.id === `focus-${parentId}`)!.label).toBe(`Focus ${view(parentId).title}`);
+    for (const id of ["sun", "earth", ...PLANETS, parentId, streamId])
+      expect(ids).toEqual(expect.arrayContaining([`focus-${id}`, `follow-${id}`]));
+    expect(experience.cameraPresets.find((p) => p.id === `focus-${parentId}`)!.label).toBe(
+      `Focus ${view(parentId).title}`,
+    );
     expect(ids).not.toContain("whole-orbit");
     const sun = experience.objects.find((object) => object.id === "sun")!;
     expect(settings.labels).toEqual({ sun: false });
@@ -99,7 +118,11 @@ describe.each(SHOWERS)("the %s shower", (_name, file, story) => {
     const peak = Date.parse(settings.activity.peakUtc);
     const metrics = definition.createMetrics({ clock: new SimulationClock(peak), resolver, catalogue })(streamId, peak);
     const rate = metrics.find((metric) => metric.kind === "rate");
-    expect(rate).toMatchObject({ value: settings.activity.peakRate, unit: settings.activity.rateUnit, peak: { label: "Published peak", value: settings.activity.peakRate } });
+    expect(rate).toMatchObject({
+      value: settings.activity.peakRate,
+      unit: settings.activity.rateUnit,
+      peak: { label: "Published peak", value: settings.activity.peakRate },
+    });
     expect(metrics.some((metric) => metric.kind === "coordinates")).toBe(false);
   });
 
@@ -111,8 +134,14 @@ describe.each(SHOWERS)("the %s shower", (_name, file, story) => {
     expect(text).not.toMatch(/invented|Modelled spread/);
     const clump = settings.stream.concentration;
     if (clump.fraction > 0) {
-      expect(text).toMatch(new RegExp(`${Math.round(clump.fraction * 100)}% of the dots are drawn near .* position along its orbit. That clump is a model`));
-      expect(text).toMatch(new RegExp(`band at ${escape(settings.parentBody)}'s phase, not a blob on ${escape(settings.parentBody)}`, "i"));
+      expect(text).toMatch(
+        new RegExp(
+          `${Math.round(clump.fraction * 100)}% of the dots are drawn near .* position along its orbit. That clump is a model`,
+        ),
+      );
+      expect(text).toMatch(
+        new RegExp(`band at ${escape(settings.parentBody)}'s phase, not a blob on ${escape(settings.parentBody)}`, "i"),
+      );
     } else {
       expect(text).not.toMatch(/clump is a model/);
     }
@@ -120,10 +149,21 @@ describe.each(SHOWERS)("the %s shower", (_name, file, story) => {
 
   it("cites the Global Meteor Network with licence, months, both papers and counts, names no CAMS source, offers no orbit-set switch, and counts the shipped orbits it draws", () => {
     const gmn = settings.stream.sources.gmn;
-    const shipped = experienceWithGroups(buildShowerDefinition(settings, { kind: "loaded", orbits: readShippedOrbits(story, settings.stream.iauCode) }));
+    const shipped = experienceWithGroups(
+      buildShowerDefinition(settings, { kind: "loaded", orbits: readShippedOrbits(story, settings.stream.iauCode) }),
+    );
     const p = infoView(shipped, { kind: "object", id: streamId })!;
     const text = [p.description, ...p.provenance!.sources, p.provenance!.notes].join(" ");
-    for (const needed of ["Global Meteor Network", gmn.licence, "Vida", "506(4)", "491(2)", ...gmn.months, `${kept} bound orbits in the file`]) expect(text).toContain(needed);
+    for (const needed of [
+      "Global Meteor Network",
+      gmn.licence,
+      "Vida",
+      "506(4)",
+      "491(2)",
+      ...gmn.months,
+      `${kept} bound orbits in the file`,
+    ])
+      expect(text).toContain(needed);
     expect(text).not.toMatch(/CAMS Meteoroid Orbit Database|cams\.seti|Jenniskens et al\. 2018/);
     expect(p.description).toContain(`${kept} measured meteoroid orbits`);
   });
@@ -133,9 +173,14 @@ describe.each(SHOWERS)("the %s shower", (_name, file, story) => {
     expect(groupsOf(absent)).toHaveLength(0);
     const sun = infoView(experienceWithGroups(absent), { kind: "object", id: "sun" })!;
     expect(sun.description).toMatch(/not fetched on this machine/i);
-    expect(sun.description).toContain(`node packages/astraeus-demo-showers/tools/data/fetch-meteoroid-orbits.mjs ${settings.stream.iauCode} --months ${settings.stream.sources.gmn.months.join(",")}`);
+    expect(sun.description).toContain(
+      `node packages/astraeus-demo-showers/tools/data/fetch-meteoroid-orbits.mjs ${settings.stream.iauCode} --months ${settings.stream.sources.gmn.months.join(",")}`,
+    );
     expect(mountedBodiesOf(absent)).toEqual(mountedBodiesOf(definition));
-    const shipped = infoView(experienceWithGroups(buildShowerDefinition(settings, { kind: "absent" }, undefined, true)), { kind: "object", id: "sun" })!;
+    const shipped = infoView(
+      experienceWithGroups(buildShowerDefinition(settings, { kind: "absent" }, undefined, true)),
+      { kind: "object", id: "sun" },
+    )!;
     expect(shipped.description).toMatch(/This build does not include measured orbits/);
     expect(shipped.description).not.toMatch(/fetch-meteoroid-orbits/);
   });

@@ -32,7 +32,14 @@ function circling(native: CenterId): Trajectory {
     stateAt(timeUtcMs, center = native) {
       if (center !== native) throw new RangeError(`made-up source is measured from ${native}`);
       const angle = ((timeUtcMs - T0) / (10 * DAY)) * 2 * Math.PI;
-      return createState({ body: "made-up", center: native, timeUtcMs, plane: EQJ, positionKm: [5e5 * Math.cos(angle), 5e5 * Math.sin(angle), 1e5], orientation: null });
+      return createState({
+        body: "made-up",
+        center: native,
+        timeUtcMs,
+        plane: EQJ,
+        positionKm: [5e5 * Math.cos(angle), 5e5 * Math.sin(angle), 1e5],
+        orientation: null,
+      });
     },
   };
 }
@@ -41,18 +48,20 @@ function circling(native: CenterId): Trajectory {
 const STILL_KM = [3e8, -1e8, 2e7];
 const stationary: Trajectory = {
   body: "still",
-  stateAt: (timeUtcMs) => createState({ body: "still", center: "sun", timeUtcMs, plane: EQJ, positionKm: STILL_KM, orientation: null }),
+  stateAt: (timeUtcMs) =>
+    createState({ body: "still", center: "sun", timeUtcMs, plane: EQJ, positionKm: STILL_KM, orientation: null }),
 };
 
-const layer = (rule: Partial<PathLayer>, source: Trajectory, samples = 21): PathLayer => ({
-  kind: "orbit",
-  color: "#ffffff",
-  source,
-  span: SPAN,
-  samples,
-  object: objectOf("p"),
-  ...rule,
-} as PathLayer);
+const layer = (rule: Partial<PathLayer>, source: Trajectory, samples = 21): PathLayer =>
+  ({
+    kind: "orbit",
+    color: "#ffffff",
+    source,
+    span: SPAN,
+    samples,
+    object: objectOf("p"),
+    ...rule,
+  }) as PathLayer;
 
 const expectClose = (actual: ArrayLike<number>, expected: ArrayLike<number>, tolKm = 1e-6) => {
   expect(actual.length).toBe(expected.length);
@@ -73,7 +82,11 @@ describe("a path declaration names its rule", () => {
     ["no kind", { kind: undefined }, /path "p" kind must be "orbit" or "trail"/],
     ["an unknown kind", { kind: "loop" }, /kind must be "orbit" or "trail", got loop/],
     ["a trail without a frame", { kind: "trail" }, /frame must be "relative" or "inertial"/],
-    ["a trail with a bad frame", { kind: "trail", frame: "sidereal" }, /frame must be "relative" or "inertial", got sidereal/],
+    [
+      "a trail with a bad frame",
+      { kind: "trail", frame: "sidereal" },
+      /frame must be "relative" or "inertial", got sidereal/,
+    ],
     ["an uncatalogued centre", { kind: "orbit", center: "vulcan" }, /center "vulcan" is not a catalogued body/],
     ["a bad window", { span: { windowMs: 0 } }, /windowMs must be positive/],
     ["an even sample count on a window", { span: { windowMs: DAY }, samples: 4 }, /odd whole number/],
@@ -92,9 +105,13 @@ describe("an orbit is the same shape wherever the scene centre is", () => {
     const inEarth = orbitKm(km, "earth", placementAbout("earth", adapter), t);
     const inMoon = orbitKm(km, "earth", placementAbout("moon", adapter), t);
     const inSun = orbitKm(km, "earth", placementAbout("sun", adapter), t);
-    for (const [a, b] of [[inEarth, inMoon], [inEarth, inSun]] as const) {
+    for (const [a, b] of [
+      [inEarth, inMoon],
+      [inEarth, inSun],
+    ] as const) {
       const first = [0, 1, 2].map((k) => b[k] - a[k]);
-      for (let i = 0; i < a.length; i += 3) expectClose([b[i] - a[i], b[i + 1] - a[i + 1], b[i + 2] - a[i + 2]], first, 1e-4);
+      for (let i = 0; i < a.length; i += 3)
+        expectClose([b[i] - a[i], b[i + 1] - a[i + 1], b[i + 2] - a[i + 2]], first, 1e-4);
     }
     // The translation is the centre's place from the scene centre at the clock time.
     const earthFromMoon = placementAbout("moon", adapter).resolver.offsetKm("earth", "moon", t);
@@ -112,7 +129,9 @@ describe("an orbit is the same shape wherever the scene centre is", () => {
       view.sync(clock, placement, trueScale);
       const shift = placement.resolver.offsetKm("earth", "moon", clock);
       for (const k of [0, 10, 20]) {
-        const expected = eqjToRenderVector(trueScale.mapPosition([0, 1, 2].map((c) => view.samplesKm[3 * k + c] + shift[c])));
+        const expected = eqjToRenderVector(
+          trueScale.mapPosition([0, 1, 2].map((c) => view.samplesKm[3 * k + c] + shift[c])),
+        );
         expectClose(view.vertexAbsolute(k), expected, 1e-9);
       }
       expect(view.frame).toBe("earth");
@@ -153,17 +172,24 @@ describe("a path reports itself to the browser checks (I-040)", () => {
 
 describe("a relative trail is each sample from the scene centre at the sample's own time", () => {
   const source = circling("earth");
-  const times = Array.from({ length: 21 }, (_v, k) => Math.round(SPAN.startUtcMs + ((SPAN.endUtcMs - SPAN.startUtcMs) * k) / 20));
+  const times = Array.from({ length: 21 }, (_v, k) =>
+    Math.round(SPAN.startUtcMs + ((SPAN.endUtcMs - SPAN.startUtcMs) * k) / 20),
+  );
   const km = samplePathKm(source, SPAN, 21);
 
-  it.each(["earth", "moon", "sun"] as const)("equals sample + the scene centre's offset at each sample time (centre %s)", (centre) => {
-    const placement = placementAbout(centre, adapter);
-    const drawn = relativeTrailKm({ timesUtcMs: times, positionsKm: km }, "earth", placement);
-    times.forEach((time, i) => {
-      const expected = [0, 1, 2].map((c) => km[3 * i + c] + placement.resolver.stateOf("earth", time, centre).positionKm[c]);
-      expectClose(drawn.subarray(3 * i, 3 * i + 3), expected);
-    });
-  });
+  it.each(["earth", "moon", "sun"] as const)(
+    "equals sample + the scene centre's offset at each sample time (centre %s)",
+    (centre) => {
+      const placement = placementAbout(centre, adapter);
+      const drawn = relativeTrailKm({ timesUtcMs: times, positionsKm: km }, "earth", placement);
+      times.forEach((time, i) => {
+        const expected = [0, 1, 2].map(
+          (c) => km[3 * i + c] + placement.resolver.stateOf("earth", time, centre).positionKm[c],
+        );
+        expectClose(drawn.subarray(3 * i, 3 * i + 3), expected);
+      });
+    },
+  );
 
   it("is the same view output as the rule, and is not recomputed per frame", () => {
     const placement = placementAbout("moon", adapter);
@@ -177,21 +203,26 @@ describe("a relative trail is each sample from the scene centre at the sample's 
 
 describe("an inertial trail is root-frame samples offset by the scene centre at the display time", () => {
   const source = circling("earth");
-  const times = Array.from({ length: 21 }, (_v, k) => Math.round(SPAN.startUtcMs + ((SPAN.endUtcMs - SPAN.startUtcMs) * k) / 20));
+  const times = Array.from({ length: 21 }, (_v, k) =>
+    Math.round(SPAN.startUtcMs + ((SPAN.endUtcMs - SPAN.startUtcMs) * k) / 20),
+  );
   const km = samplePathKm(source, SPAN, 21);
   const display = T0 + 12 * DAY;
 
-  it.each(["earth", "moon", "sun"] as const)("equals sample + native-from-Sun at the sample time - centre-from-Sun at the display time (centre %s)", (centre) => {
-    const placement = placementAbout(centre, adapter);
-    const samples = { timesUtcMs: times, positionsKm: km };
-    const drawn = inertialTrailKm(rootFrameKm(samples, "earth", placement), placement, display);
-    const centreFromSun = placement.resolver.stateOf(centre, display, "sun").positionKm;
-    times.forEach((time, i) => {
-      const earthFromSun = placement.resolver.stateOf("earth", time, "sun").positionKm;
-      const expected = [0, 1, 2].map((c) => km[3 * i + c] + earthFromSun[c] - centreFromSun[c]);
-      expectClose(drawn.subarray(3 * i, 3 * i + 3), expected, 1e-3);
-    });
-  });
+  it.each(["earth", "moon", "sun"] as const)(
+    "equals sample + native-from-Sun at the sample time - centre-from-Sun at the display time (centre %s)",
+    (centre) => {
+      const placement = placementAbout(centre, adapter);
+      const samples = { timesUtcMs: times, positionsKm: km };
+      const drawn = inertialTrailKm(rootFrameKm(samples, "earth", placement), placement, display);
+      const centreFromSun = placement.resolver.stateOf(centre, display, "sun").positionKm;
+      times.forEach((time, i) => {
+        const earthFromSun = placement.resolver.stateOf("earth", time, "sun").positionKm;
+        const expected = [0, 1, 2].map((c) => km[3 * i + c] + earthFromSun[c] - centreFromSun[c]);
+        expectClose(drawn.subarray(3 * i, 3 * i + 3), expected, 1e-3);
+      });
+    },
+  );
 
   it("recomputes only the centre's offset when the clock moves", () => {
     const placement = placementAbout("moon", adapter);
@@ -214,7 +245,11 @@ describe("a moving scene centre with an object stationary in the root frame", ()
     const drawn = inertialTrailKm(rootFrameKm(samples, "sun", placement), placement, T0 + 20 * DAY);
     const earthFromSun = placement.resolver.stateOf("earth", T0 + 20 * DAY, "sun").positionKm;
     for (let i = 0; i < times.length; i += 1) {
-      expectClose(drawn.subarray(3 * i, 3 * i + 3), [0, 1, 2].map((c) => STILL_KM[c] - earthFromSun[c]), 1e-3);
+      expectClose(
+        drawn.subarray(3 * i, 3 * i + 3),
+        [0, 1, 2].map((c) => STILL_KM[c] - earthFromSun[c]),
+        1e-3,
+      );
       expectClose(drawn.subarray(3 * i, 3 * i + 3), drawn.subarray(0, 3), 1e-6);
     }
   });
@@ -226,7 +261,11 @@ describe("a moving scene centre with an object stationary in the root frame", ()
     times.forEach((time, i) => {
       const earthFromSun = placement.resolver.stateOf("earth", time, "sun").positionKm;
       // sample - centre-from-Sun at the sample time: the centre's motion, negated.
-      expectClose(drawn.subarray(3 * i, 3 * i + 3), [0, 1, 2].map((c) => STILL_KM[c] - earthFromSun[c]), 1e-3);
+      expectClose(
+        drawn.subarray(3 * i, 3 * i + 3),
+        [0, 1, 2].map((c) => STILL_KM[c] - earthFromSun[c]),
+        1e-3,
+      );
     });
   });
 
@@ -248,7 +287,8 @@ describe("the Moon's monthly path is the Earth-Moon composition's declared orbit
     const timesUtcMs: number[] = [];
     const positionsKm = new Float64Array(sampleCount * 3);
     for (let index = 0; index < sampleCount; index += 1) {
-      const timeUtcMs = index === half ? centerUtcMs : Math.round(centerUtcMs + ((index - half) / half) * (windowMs / 2));
+      const timeUtcMs =
+        index === half ? centerUtcMs : Math.round(centerUtcMs + ((index - half) / half) * (windowMs / 2));
       timesUtcMs.push(timeUtcMs);
       positionsKm.set(trajectory.stateAt(timeUtcMs, "earth").positionKm, index * 3);
     }
@@ -266,17 +306,22 @@ describe("the Moon's monthly path is the Earth-Moon composition's declared orbit
     expect(spec.object.showLabel).toBe(false); // orbit labels off by default in every demo (owner, 2026-10-18)
   });
 
-  it.each(dates.map((d) => [new Date(d).toISOString(), d] as const))("has today's vertices and times at %s", (_label, date) => {
-    const view = new PathView(compositionPathLayer(declared, placement.resolver), COMPOSITION_PATH_STYLE);
-    view.sync(date, placement, readableScale, 0);
-    const reference = legacySampleOrbitPath(moon, date, SIDEREAL_MONTH_MS, DEFAULT_WINDOW_SAMPLE_COUNT);
-    expect(Array.from(view.timesUtcMs)).toEqual(reference.timesUtcMs);
-    expect(Array.from(view.samplesKm)).toEqual(Array.from(reference.positionsKm));
-    // And as drawn: scaled absolute positions are the samples through the policy and render axes (Earth-centred: nothing added).
-    for (const k of [0, 45, 90, 135, 180]) {
-      expect(Array.from(view.vertexAbsolute(k))).toEqual(Array.from(eqjToRenderVector(readableScale.mapPosition(reference.positionsKm.subarray(3 * k, 3 * k + 3)))));
-    }
-  });
+  it.each(dates.map((d) => [new Date(d).toISOString(), d] as const))(
+    "has today's vertices and times at %s",
+    (_label, date) => {
+      const view = new PathView(compositionPathLayer(declared, placement.resolver), COMPOSITION_PATH_STYLE);
+      view.sync(date, placement, readableScale, 0);
+      const reference = legacySampleOrbitPath(moon, date, SIDEREAL_MONTH_MS, DEFAULT_WINDOW_SAMPLE_COUNT);
+      expect(Array.from(view.timesUtcMs)).toEqual(reference.timesUtcMs);
+      expect(Array.from(view.samplesKm)).toEqual(Array.from(reference.positionsKm));
+      // And as drawn: scaled absolute positions are the samples through the policy and render axes (Earth-centred: nothing added).
+      for (const k of [0, 45, 90, 135, 180]) {
+        expect(Array.from(view.vertexAbsolute(k))).toEqual(
+          Array.from(eqjToRenderVector(readableScale.mapPosition(reference.positionsKm.subarray(3 * k, 3 * k + 3)))),
+        );
+      }
+    },
+  );
 
   it("keeps its refresh policy: a seek rebuilds, a small move or a fast drift does not", () => {
     const view = new PathView(compositionPathLayer(declared, placement.resolver), COMPOSITION_PATH_STYLE);
@@ -307,37 +352,48 @@ describe("the Moon's monthly path is the Earth-Moon composition's declared orbit
 describe("a tracked body's path is a relative trail", () => {
   const columbia = apollo11Mission.bodies[0];
   const { startUtcMs, endUtcMs } = columbia.trajectory.bounds;
-  const times3 = [startUtcMs + 0.2 * (endUtcMs - startUtcMs), startUtcMs + 0.5 * (endUtcMs - startUtcMs), startUtcMs + 0.8 * (endUtcMs - startUtcMs)];
+  const times3 = [
+    startUtcMs + 0.2 * (endUtcMs - startUtcMs),
+    startUtcMs + 0.5 * (endUtcMs - startUtcMs),
+    startUtcMs + 0.8 * (endUtcMs - startUtcMs),
+  ];
 
   it("declares its rule", () => {
     expect(TrackedBodyView.pathRule).toEqual({ kind: "trail", frame: "relative" });
   });
 
-  it.each(["earth", "moon", "sun"] as const)("draws the same vertices as the formula it replaced (centre %s, three times)", (centre) => {
-    const placement = placementAbout(centre, adapter);
-    const camera = new PerspectiveCamera();
-    for (const time of times3) {
-      const view = new TrackedBodyView(columbia);
-      const origin = new FloatingOrigin();
-      view.update(time, readableScale, origin, camera, placement);
-      const [travelled, future] = view.group.children.slice(0, 2) as Line[];
-      const split = travelledCount(columbia.pathTimesUtcMs, time);
-      const expectedAt = (i: number) => {
-        const t = columbia.pathTimesUtcMs[i];
-        const p = columbia.trajectory.stateAt(t).positionKm;
-        const o = centre === "earth" ? [0, 0, 0] : placement.resolver.offsetKm("earth", centre, t);
-        return eqjToRenderVector(readableScale.mapPosition([0, 1, 2].map((c) => p[c] + o[c])));
-      };
-      for (const i of [0, Math.floor(split / 2), split - 1]) {
-        const position = travelled.geometry.getAttribute("position");
-        const got = [position.getX(i), position.getY(i), position.getZ(i)];
-        expectClose(got, expectedAt(i), 1e-4 + 1e-6 * Math.hypot(...expectedAt(i)));
+  it.each(["earth", "moon", "sun"] as const)(
+    "draws the same vertices as the formula it replaced (centre %s, three times)",
+    (centre) => {
+      const placement = placementAbout(centre, adapter);
+      const camera = new PerspectiveCamera();
+      for (const time of times3) {
+        const view = new TrackedBodyView(columbia);
+        const origin = new FloatingOrigin();
+        view.update(time, readableScale, origin, camera, placement);
+        const [travelled, future] = view.group.children.slice(0, 2) as Line[];
+        const split = travelledCount(columbia.pathTimesUtcMs, time);
+        const expectedAt = (i: number) => {
+          const t = columbia.pathTimesUtcMs[i];
+          const p = columbia.trajectory.stateAt(t).positionKm;
+          const o = centre === "earth" ? [0, 0, 0] : placement.resolver.offsetKm("earth", centre, t);
+          return eqjToRenderVector(readableScale.mapPosition([0, 1, 2].map((c) => p[c] + o[c])));
+        };
+        for (const i of [0, Math.floor(split / 2), split - 1]) {
+          const position = travelled.geometry.getAttribute("position");
+          const got = [position.getX(i), position.getY(i), position.getZ(i)];
+          expectClose(got, expectedAt(i), 1e-4 + 1e-6 * Math.hypot(...expectedAt(i)));
+        }
+        const fp = future.geometry.getAttribute("position");
+        const last = columbia.pathTimesUtcMs.length - 1;
+        expectClose(
+          [fp.getX(last - split + 1), fp.getY(last - split + 1), fp.getZ(last - split + 1)],
+          expectedAt(last),
+          1e-4 + 1e-6 * Math.hypot(...expectedAt(last)),
+        );
       }
-      const fp = future.geometry.getAttribute("position");
-      const last = columbia.pathTimesUtcMs.length - 1;
-      expectClose([fp.getX(last - split + 1), fp.getY(last - split + 1), fp.getZ(last - split + 1)], expectedAt(last), 1e-4 + 1e-6 * Math.hypot(...expectedAt(last)));
-    }
-  });
+    },
+  );
 
   it("is a Columbia inertial trail in a Sun-centred scene: sample + Earth-from-Sun at the sample time, minus the centre at display time", () => {
     const placement = placementAbout("sun", adapter);
@@ -349,7 +405,9 @@ describe("a tracked body's path is a relative trail", () => {
       const sample = columbia.trajectory.stateAt(time).positionKm;
       const earthFromSun = placement.resolver.stateOf("earth", time, "sun").positionKm;
       const centreFromSun = placement.resolver.stateOf("sun", display, "sun").positionKm;
-      const expected = eqjToRenderVector(trueScale.mapPosition([0, 1, 2].map((c) => sample[c] + earthFromSun[c] - centreFromSun[c])));
+      const expected = eqjToRenderVector(
+        trueScale.mapPosition([0, 1, 2].map((c) => sample[c] + earthFromSun[c] - centreFromSun[c])),
+      );
       expectClose(view.vertexAbsolute(i), expected, 1e-6);
     });
     expect(view.frame).toBe("earth");

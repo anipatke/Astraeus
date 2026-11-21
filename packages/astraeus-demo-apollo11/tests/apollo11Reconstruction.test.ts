@@ -11,7 +11,13 @@ import { createOrbAstronomyAdapter } from "astraeus/core/astronomyAdapter";
 import { createEvents } from "astraeus/core/events";
 import { createProvenance } from "astraeus/core/provenance";
 import { SampledTrajectory } from "astraeus/core/sampledTrajectory";
-import { CONSTANTS, getToUtcMs, parseLatitudeDeg, parseLongitudeDeg, parsePrintedNumber } from "../tools/apollo11/conventions";
+import {
+  CONSTANTS,
+  getToUtcMs,
+  parseLatitudeDeg,
+  parseLongitudeDeg,
+  parsePrintedNumber,
+} from "../tools/apollo11/conventions";
 import {
   fixedToGeodetic,
   geodeticToFixedKm,
@@ -29,9 +35,24 @@ import { cross, dot, norm, sub, type Vec3 } from "../tools/apollo11/vec";
 
 const MU_EARTH = CONSTANTS.earth.muKm3S2;
 const SPECIAL_SEGMENT_BASELINES = [
-  { id: "A-20>A-LND", method: "powered-descent-two-anchor", count: 1, sha256: "f61905af7c238234cb8cf6baa9bd1a2c8c3f000456d0c6f94132d6f79349916f" },
-  { id: "A-LND>A-LIFTOFF", method: "surface-hold", count: 22, sha256: "6e8e4910c1d285179cd0ed5f8edd2d9b57dced1ae23a61dfa5a2d86c3afeb22d" },
-  { id: "A-LIFTOFF>A-21", method: "powered-ascent-two-anchor", count: 1, sha256: "d6fcb512c720ea7eaece9084374da0bf0bf46eb91da24e890637cef31d9f1d12" },
+  {
+    id: "A-20>A-LND",
+    method: "powered-descent-two-anchor",
+    count: 1,
+    sha256: "f61905af7c238234cb8cf6baa9bd1a2c8c3f000456d0c6f94132d6f79349916f",
+  },
+  {
+    id: "A-LND>A-LIFTOFF",
+    method: "surface-hold",
+    count: 22,
+    sha256: "6e8e4910c1d285179cd0ed5f8edd2d9b57dced1ae23a61dfa5a2d86c3afeb22d",
+  },
+  {
+    id: "A-LIFTOFF>A-21",
+    method: "powered-ascent-two-anchor",
+    count: 1,
+    sha256: "d6fcb512c720ea7eaece9084374da0bf0bf46eb91da24e890637cef31d9f1d12",
+  },
 ] as const;
 
 async function sha256(value: string): Promise<string> {
@@ -153,7 +174,13 @@ describe("two-body propagation and Hermite arcs", () => {
   });
 
   it("interpolates a cubic exactly with Hermite", () => {
-    const ends = { p0: [0, 0, 0] as Vec3, v0: [0, 0, 0] as Vec3, p1: [1, 0, 0] as Vec3, v1: [0, 0, 0] as Vec3, spanS: 10 };
+    const ends = {
+      p0: [0, 0, 0] as Vec3,
+      v0: [0, 0, 0] as Vec3,
+      p1: [1, 0, 0] as Vec3,
+      v1: [0, 0, 0] as Vec3,
+      spanS: 10,
+    };
     expect(hermiteAt(ends, 0.5).p[0]).toBeCloseTo(0.5, 12);
     expect(hermiteAt(ends, 1).v[0]).toBeCloseTo(0, 12);
   });
@@ -178,7 +205,11 @@ function sameWithin(actual: unknown, expected: unknown, path: string): string | 
     const keys = Object.keys(actual);
     if (keys.join() !== Object.keys(expected).join()) return `${path}: keys differ`;
     for (const key of keys) {
-      const diff = sameWithin((actual as Record<string, unknown>)[key], (expected as Record<string, unknown>)[key], `${path}.${key}`);
+      const diff = sameWithin(
+        (actual as Record<string, unknown>)[key],
+        (expected as Record<string, unknown>)[key],
+        `${path}.${key}`,
+      );
       if (diff !== null) return diff;
     }
     return null;
@@ -231,7 +262,9 @@ describe("Apollo 11 reconstruction pipeline", () => {
     for (const burn of cutoffs) {
       expect(burn.cutoffPositionResidualKm, burn.id).toBeGreaterThanOrEqual(0);
       expect(burn.cutoffVelocityResidualMs, burn.id).toBeLessThan(1e-4);
-      const residual = validation.anchorResiduals.find((row) => row.vehicle === burn.vehicle && row.anchorId === burn.endAnchorId)!;
+      const residual = validation.anchorResiduals.find(
+        (row) => row.vehicle === burn.vehicle && row.anchorId === burn.endAnchorId,
+      )!;
       expect(residual.positionKm).toBeCloseTo(burn.cutoffPositionResidualKm!, 5);
       expect(residual.velocityMs).toBeCloseTo(burn.cutoffVelocityResidualMs!, 4);
     }
@@ -286,11 +319,15 @@ describe("Apollo 11 reconstruction pipeline", () => {
       expect(s.rawMissKm, s.id).toBeGreaterThanOrEqual(0);
       expect(s.maxCorrectionKm, s.id).toBeGreaterThanOrEqual(s.rawMissKm! - 1e-3);
     }
-    for (const [file, vehicle] of [[columbiaText, "columbia"], [eagleText, "eagle"]] as const) {
+    for (const [file, vehicle] of [
+      [columbiaText, "columbia"],
+      [eagleText, "eagle"],
+    ] as const) {
       const data = JSON.parse(file);
       expect(data.discontinuities).toEqual([]);
-      expect(data.segments.filter((s: { rawMissKm?: number }) => s.rawMissKm !== undefined).length)
-        .toBe(coasts.filter((s) => s.vehicle === vehicle).length);
+      expect(data.segments.filter((s: { rawMissKm?: number }) => s.rawMissKm !== undefined).length).toBe(
+        coasts.filter((s) => s.vehicle === vehicle).length,
+      );
     }
     expect(JSON.parse(columbiaText).provenance.accuracy).toMatch(/spread smoothly/);
   });
@@ -316,8 +353,27 @@ describe("Apollo 11 reconstruction pipeline", () => {
   });
 
   it("puts the Moon-referenced lunar-orbit anchors in one orbit plane (heading convention)", () => {
-    const anchors = JSON.parse(anchorsText).anchors as { id: string; native: { positionKm: Vec3; velocityKmS: Vec3 } }[];
-    const ids = ["A-12", "A-13", "A-14", "A-16", "A-17", "A-18", "A-19", "A-20", "A-21", "A-22", "A-23", "A-24", "A-25", "A-26", "A-28"];
+    const anchors = JSON.parse(anchorsText).anchors as {
+      id: string;
+      native: { positionKm: Vec3; velocityKmS: Vec3 };
+    }[];
+    const ids = [
+      "A-12",
+      "A-13",
+      "A-14",
+      "A-16",
+      "A-17",
+      "A-18",
+      "A-19",
+      "A-20",
+      "A-21",
+      "A-22",
+      "A-23",
+      "A-24",
+      "A-25",
+      "A-26",
+      "A-28",
+    ];
     const normals = ids.map((id) => {
       const a = anchors.find((x) => x.id === id)!;
       const n = cross(a.native.positionKm, a.native.velocityKmS);

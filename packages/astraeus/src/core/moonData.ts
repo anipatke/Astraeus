@@ -23,7 +23,9 @@ export function createSceneMoonData(): MoonDataSelection {
       if (held !== undefined) return held;
       const shared = MOON_SYSTEMS[centre];
       if (shared === undefined) return undefined;
-      const made = createMoonSystem(shared.config, () => { revision += 1; });
+      const made = createMoonSystem(shared.config, () => {
+        revision += 1;
+      });
       systems.set(centre, made);
       return made;
     },

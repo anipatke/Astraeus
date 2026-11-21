@@ -11,8 +11,13 @@ import { pretendScreen } from "./domSetup";
 
 describe("layoutFor (pure)", () => {
   it.each([
-    [700, 900, false, "phone"], [701, 900, false, "wide"], [375, 667, false, "phone"],
-    [900, 500, true, "phone"], [900, 500, false, "wide"], [900, 501, true, "wide"], [1280, 720, true, "wide"],
+    [700, 900, false, "phone"],
+    [701, 900, false, "wide"],
+    [375, 667, false, "phone"],
+    [900, 500, true, "phone"],
+    [900, 500, false, "wide"],
+    [900, 501, true, "wide"],
+    [1280, 720, true, "wide"],
   ] as const)("%ipx by %ipx, coarse %s is %s", (width, height, coarse, layout) => {
     expect(layoutFor(width, height, coarse)).toBe(layout);
   });
@@ -44,18 +49,33 @@ describe("readScreen", () => {
     expect(PHONE_QUERY).toContain("pointer: coarse");
   });
   it("writes the four root attributes", () => {
-    expect(screenAttributes({ layout: "phone", pointer: "coarse", embedded: false, motion: "reduced" })).toEqual({ "data-phone": true, "data-pointer": "coarse", "data-embedded": false, "data-motion": "reduced" });
+    expect(screenAttributes({ layout: "phone", pointer: "coarse", embedded: false, motion: "reduced" })).toEqual({
+      "data-phone": true,
+      "data-pointer": "coarse",
+      "data-embedded": false,
+      "data-motion": "reduced",
+    });
   });
 });
 
 describe("useScreen follows the viewer's own size", () => {
   let observed: ResizeObserverCallback | undefined;
   const original = globalThis.ResizeObserver;
-  afterEach(() => { globalThis.ResizeObserver = original; observed = undefined; });
+  afterEach(() => {
+    globalThis.ResizeObserver = original;
+    observed = undefined;
+  });
 
   it("changes layout when the viewer resizes, with no window change", () => {
     pretendScreen({ phone: false });
-    globalThis.ResizeObserver = class { constructor(callback: ResizeObserverCallback) { observed = callback; } observe(): void {} unobserve(): void {} disconnect(): void {} } as unknown as typeof ResizeObserver;
+    globalThis.ResizeObserver = class {
+      constructor(callback: ResizeObserverCallback) {
+        observed = callback;
+      }
+      observe(): void {}
+      unobserve(): void {}
+      disconnect(): void {}
+    } as unknown as typeof ResizeObserver;
     let width = 1000;
     let layout = "";
     function Probe() {
@@ -66,20 +86,28 @@ describe("useScreen follows the viewer's own size", () => {
     const host = document.createElement("div");
     document.body.append(host);
     const root = createRoot(host);
-    const box = () => ({ width, height: 800, top: 0, left: 0, right: width, bottom: 800, x: 0, y: 0, toJSON: () => ({}) }) as DOMRect;
+    const box = () =>
+      ({ width, height: 800, top: 0, left: 0, right: width, bottom: 800, x: 0, y: 0, toJSON: () => ({}) }) as DOMRect;
     const nativeRect = Object.getOwnPropertyDescriptor(HTMLElement.prototype, "getBoundingClientRect");
     Object.defineProperty(HTMLElement.prototype, "getBoundingClientRect", { configurable: true, value: box });
-    act(() => { root.render(createElement(Probe)); });
+    act(() => {
+      root.render(createElement(Probe));
+    });
     expect(layout).toBe("wide");
     width = 320;
-    act(() => { observed?.([], {} as ResizeObserver); });
+    act(() => {
+      observed?.([], {} as ResizeObserver);
+    });
     expect(layout).toBe("phone");
     width = 1000;
-    act(() => { observed?.([], {} as ResizeObserver); });
+    act(() => {
+      observed?.([], {} as ResizeObserver);
+    });
     expect(layout).toBe("wide");
     act(() => root.unmount());
     host.remove();
-    if (nativeRect === undefined) delete (HTMLElement.prototype as { getBoundingClientRect?: unknown }).getBoundingClientRect;
+    if (nativeRect === undefined)
+      delete (HTMLElement.prototype as { getBoundingClientRect?: unknown }).getBoundingClientRect;
     else Object.defineProperty(HTMLElement.prototype, "getBoundingClientRect", nativeRect);
   });
 });

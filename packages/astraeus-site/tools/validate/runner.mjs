@@ -20,14 +20,22 @@ const EXAMPLE_PORT = process.env.EXAMPLE_PORT ?? "5481";
 /** The example apps a step can open (`example: "<folder>"`); each previews on its own port, counting up from EXAMPLE_PORT. */
 const EXAMPLE_NAMES = ["hello-scene", "hello-react", "hello-planets", "hello-sky"];
 const examplePort = (name) => Number(EXAMPLE_PORT) + EXAMPLE_NAMES.indexOf(name);
-const stamp = () => new Date().toISOString().replace(/[-:]/g, "").replace(/\.\d+Z$/, "Z");
+const stamp = () =>
+  new Date()
+    .toISOString()
+    .replace(/[-:]/g, "")
+    .replace(/\.\d+Z$/, "Z");
 const ERROR_LINE = /console error|pageerror|page error/i;
 const ZERO_ERRORS = /zero console errors/i;
 const clock = (ms) => new Date(ms).toISOString().slice(11, 19);
 
 async function waitFor(url) {
   for (let i = 0; i < 120; i++) {
-    try { if ((await fetch(url)).ok) return; } catch { /* not up yet */ }
+    try {
+      if ((await fetch(url)).ok) return;
+    } catch {
+      /* not up yet */
+    }
     await new Promise((r) => setTimeout(r, 500));
   }
   throw new Error(`no answer from ${url}`);
@@ -46,7 +54,9 @@ function runStep(step, ctx) {
   if (step.public && step.noBrowser) args.push(ctx.publicDir);
   const started = Date.now();
   const run = spawnSync(process.execPath, args, {
-    cwd: root, encoding: "utf8", maxBuffer: 2 ** 28,
+    cwd: root,
+    encoding: "utf8",
+    maxBuffer: 2 ** 28,
     env: { ...process.env, ASTRAEUS_URL: url, ASTRAEUS_EVIDENCE_DIR: dir, ASTRAEUS_OUT: dir, ...step.env },
   });
   const log = String(run.stdout) + String(run.stderr);
@@ -55,7 +65,15 @@ function runStep(step, ctx) {
   const seconds = Math.round((Date.now() - started) / 1000);
   const sceneText = step.scene ?? (step.noBrowser ? "none (files only)" : "?");
   const limit = ctx.limits.browser.steps[step.name];
-  const line = [step.name, `scene=${sceneText}`, `exit=${run.status}`, `${clock(started)}-${clock(Date.now())}`, `${seconds}s`, limit === undefined ? "no limit" : `limit ${limit}s`, `error-lines=${errors}`].join(" | ");
+  const line = [
+    step.name,
+    `scene=${sceneText}`,
+    `exit=${run.status}`,
+    `${clock(started)}-${clock(Date.now())}`,
+    `${seconds}s`,
+    limit === undefined ? "no limit" : `limit ${limit}s`,
+    `error-lines=${errors}`,
+  ].join(" | ");
   report(ctx, line);
   const warning = overrun(`step ${step.name}`, seconds, limit);
   if (warning) report(ctx, warning);
@@ -68,17 +86,42 @@ async function startServers(steps, ctx) {
   const needsPreview = steps.some((s) => s.public && !s.noBrowser);
   if (needsDev) ctx.serve("dev-server.log", ["vite", "packages/astraeus-site", "--port", DEV_PORT, "--strictPort"]);
   if (steps.some((s) => s.public)) {
-    const build = spawnSync("npx", ["vite", "build", "packages/astraeus-site", "--outDir", ctx.publicDir, "--emptyOutDir"], { cwd: root, encoding: "utf8", env: { ...process.env, ASTRAEUS_PUBLIC_BUILD: "1", ASTRAEUS_ENGINE_SHARE: "1" } });
+    const build = spawnSync(
+      "npx",
+      ["vite", "build", "packages/astraeus-site", "--outDir", ctx.publicDir, "--emptyOutDir"],
+      { cwd: root, encoding: "utf8", env: { ...process.env, ASTRAEUS_PUBLIC_BUILD: "1", ASTRAEUS_ENGINE_SHARE: "1" } },
+    );
     ctx.writeLog("public-build.log", `${build.stdout}${build.stderr}`);
     if (build.status !== 0) throw new Error("public build failed (see public-build.log)");
   }
-  if (needsPreview) ctx.serve("preview-server.log", ["vite", "preview", "packages/astraeus-site", "--outDir", ctx.publicDir, "--port", PUBLIC_PORT, "--strictPort", "--host", "localhost"]);
+  if (needsPreview)
+    ctx.serve("preview-server.log", [
+      "vite",
+      "preview",
+      "packages/astraeus-site",
+      "--outDir",
+      ctx.publicDir,
+      "--port",
+      PUBLIC_PORT,
+      "--strictPort",
+      "--host",
+      "localhost",
+    ]);
   if (steps.some((s) => s.example)) {
     const build = spawnSync(process.execPath, ["tools/build-example.mjs"], { cwd: root, encoding: "utf8" });
     ctx.writeLog("example-build.log", `${build.stdout}${build.stderr}`);
     if (build.status !== 0) throw new Error("example build failed (see example-build.log)");
     for (const name of [...new Set(steps.filter((s) => s.example).map((s) => s.example))]) {
-      ctx.serve(`${name}-server.log`, ["vite", "preview", `examples/${name}`, "--port", String(examplePort(name)), "--strictPort", "--host", "localhost"]);
+      ctx.serve(`${name}-server.log`, [
+        "vite",
+        "preview",
+        `examples/${name}`,
+        "--port",
+        String(examplePort(name)),
+        "--strictPort",
+        "--host",
+        "localhost",
+      ]);
       await waitFor(ctx.exampleUrls[name]);
     }
   }
@@ -101,19 +144,38 @@ function makeContext(setName, limits) {
     children.push(child);
   };
   // npx starts the server as a grandchild, so stop each child's whole process group.
-  const stop = () => { for (const c of children) try { process.kill(-c.pid); } catch { /* already gone */ } rmSync(scratch, { recursive: true, force: true }); };
+  const stop = () => {
+    for (const c of children)
+      try {
+        process.kill(-c.pid);
+      } catch {
+        /* already gone */
+      }
+    rmSync(scratch, { recursive: true, force: true });
+  };
   appendFileSync(join(evidence, "summary.txt"), `logs: ${logs}\n`);
   console.log(`logs: ${logs}`);
   return {
-    evidence, logs, limits, publicDir: join(scratch, "public"), serve, stop, writeLog,
-    devUrl: `http://localhost:${DEV_PORT}/app.html`, publicUrl: `http://localhost:${PUBLIC_PORT}/app.html`, exampleUrls: Object.fromEntries(EXAMPLE_NAMES.map((name) => [name, `http://localhost:${examplePort(name)}/`])),
+    evidence,
+    logs,
+    limits,
+    publicDir: join(scratch, "public"),
+    serve,
+    stop,
+    writeLog,
+    devUrl: `http://localhost:${DEV_PORT}/app.html`,
+    publicUrl: `http://localhost:${PUBLIC_PORT}/app.html`,
+    exampleUrls: Object.fromEntries(EXAMPLE_NAMES.map((name) => [name, `http://localhost:${examplePort(name)}/`])),
   };
 }
 
 /** Run `steps` (see above) as the set `setName`; resolves to the process exit code. `limits` (default tools/gate-limits.json) only decide the warnings: a run over a limit warns and never fails for time. */
 export async function runSet(setName, steps, limits = loadLimits()) {
   const ctx = makeContext(setName, limits);
-  process.on("SIGINT", () => { ctx.stop(); process.exit(130); });
+  process.on("SIGINT", () => {
+    ctx.stop();
+    process.exit(130);
+  });
   const start = Date.now();
   let ok = true;
   try {

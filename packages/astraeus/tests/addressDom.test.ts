@@ -5,13 +5,25 @@ import { createElement, act } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { createRoot, type Root } from "react-dom/client";
 
-const sceneProps = vi.hoisted(() => ({ latest: null as null | { controls: import("../src/app/AstraeusScene").SceneControls } }));
-vi.mock("../src/app/AstraeusScene", () => ({
-  AstraeusScene: (props: NonNullable<typeof sceneProps.latest>) => { sceneProps.latest = props; return createElement("div", { "data-testid": "scene" }); },
+const sceneProps = vi.hoisted(() => ({
+  latest: null as null | { controls: import("../src/app/AstraeusScene").SceneControls },
 }));
-vi.mock("../src/assets/sky", async (importOriginal) => ({ ...(await importOriginal<typeof import("../src/assets/sky")>()), loadStarCatalogue: vi.fn().mockResolvedValue(null) }));
-const prepared = vi.hoisted(() => ({ definition: null as null | import("../src/app/experienceDefinition").ExperienceDefinition }));
-vi.mock("../src/api/prepared", () => ({ prepareScene: () => ({ definition: prepared.definition, ready: Promise.resolve() }) }));
+vi.mock("../src/app/AstraeusScene", () => ({
+  AstraeusScene: (props: NonNullable<typeof sceneProps.latest>) => {
+    sceneProps.latest = props;
+    return createElement("div", { "data-testid": "scene" });
+  },
+}));
+vi.mock("../src/assets/sky", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("../src/assets/sky")>()),
+  loadStarCatalogue: vi.fn().mockResolvedValue(null),
+}));
+const prepared = vi.hoisted(() => ({
+  definition: null as null | import("../src/app/experienceDefinition").ExperienceDefinition,
+}));
+vi.mock("../src/api/prepared", () => ({
+  prepareScene: () => ({ definition: prepared.definition, ready: Promise.resolve() }),
+}));
 
 import { Scene, earth, moon } from "astraeus";
 import { App } from "../src/app/App";
@@ -25,24 +37,53 @@ import { definitionOf } from "../src/api/definitionOf";
 const T0 = Date.parse("2026-03-01T00:00:00Z");
 const LINKED_T = "2026-03-01T00:20:00.000Z";
 const MIN = 60_000;
-const samples = (x: number) => [0, 1, 2, 3].map((i) => ({ time: T0 + i * 10 * MIN, positionKm: [x + i * 1_000, 0, 0], velocityKmS: [1, 0, 0] }));
-const sceneWithViews = () => new Scene().addBody(earth).addBody(moon)
-  .addTrajectory({ id: "pa", label: "Probe A", center: "earth", samples: samples(10_000) })
-  .addTrajectory({ id: "pb", label: "Probe B", center: "earth", samples: samples(20_000) })
-  .setViews([{ id: "a", label: "View A", objects: ["pa"] }, { id: "b", label: "View B", objects: ["pb"] }], { place: "top-bar" });
+const samples = (x: number) =>
+  [0, 1, 2, 3].map((i) => ({ time: T0 + i * 10 * MIN, positionKm: [x + i * 1_000, 0, 0], velocityKmS: [1, 0, 0] }));
+const sceneWithViews = () =>
+  new Scene()
+    .addBody(earth)
+    .addBody(moon)
+    .addTrajectory({ id: "pa", label: "Probe A", center: "earth", samples: samples(10_000) })
+    .addTrajectory({ id: "pb", label: "Probe B", center: "earth", samples: samples(20_000) })
+    .setViews(
+      [
+        { id: "a", label: "View A", objects: ["pa"] },
+        { id: "b", label: "View B", objects: ["pb"] },
+      ],
+      { place: "top-bar" },
+    );
 const definition = definitionOf(sceneWithViews());
 
 let container: HTMLElement;
 let root: Root;
 const controls = () => sceneProps.latest!.controls;
 const visit = (search: string) => window.history.replaceState(null, "", `/page.html${search}`);
-const open = async (address?: boolean) => { await act(async () => { root.render(createElement(App, { definition, developerTools: true, ...(address === undefined ? {} : { address }) })); }); };
-const pressed = () => [...container.querySelectorAll<HTMLElement>("[data-view-id]")].filter((b) => b.getAttribute("aria-pressed") === "true").map((b) => b.dataset.viewId);
+const open = async (address?: boolean) => {
+  await act(async () => {
+    root.render(
+      createElement(App, { definition, developerTools: true, ...(address === undefined ? {} : { address }) }),
+    );
+  });
+};
+const pressed = () =>
+  [...container.querySelectorAll<HTMLElement>("[data-view-id]")]
+    .filter((b) => b.getAttribute("aria-pressed") === "true")
+    .map((b) => b.dataset.viewId);
 const openDeveloper = async () => {
   press(byLabel(container, "Developer mode"));
-  for (let tries = 0; tries < 100 && (container.querySelector(".developer-loading") !== null || tries === 0); tries += 1) await act(async () => { await new Promise((done) => setTimeout(done, 20)); });
+  for (
+    let tries = 0;
+    tries < 100 && (container.querySelector(".developer-loading") !== null || tries === 0);
+    tries += 1
+  )
+    await act(async () => {
+      await new Promise((done) => setTimeout(done, 20));
+    });
 };
-const LINK = "?view=earth,40,20,5&t=" + LINKED_T + "&scale=readable-scale&up=ecliptic&show=b&stars=3&milkyway=off&sky=off&labels=earth:off&loop=on&markerpx=9&featurepx=7&loadfade=2.5";
+const LINK =
+  "?view=earth,40,20,5&t=" +
+  LINKED_T +
+  "&scale=readable-scale&up=ecliptic&show=b&stars=3&milkyway=off&sky=off&labels=earth:off&loop=on&markerpx=9&featurepx=7&loadfade=2.5";
 
 beforeEach(() => {
   pretendScreen({});
@@ -52,7 +93,12 @@ beforeEach(() => {
   document.body.appendChild(container);
   root = createRoot(container);
 });
-afterEach(() => { act(() => root.unmount()); container.remove(); vi.restoreAllMocks(); visit(""); });
+afterEach(() => {
+  act(() => root.unmount());
+  container.remove();
+  vi.restoreAllMocks();
+  visit("");
+});
 
 describe("a viewer on a host page's address", () => {
   it("by default ignores every parameter, leaves the address unchanged, never writes it and offers no copy-link button", async () => {
@@ -104,12 +150,21 @@ describe("a viewer on a host page's address", () => {
 
   it("writes show=<view id> into the copied link, and opening it reads the view back", async () => {
     visit("");
-    Object.defineProperty(navigator, "clipboard", { value: { writeText: () => Promise.resolve() }, configurable: true });
+    Object.defineProperty(navigator, "clipboard", {
+      value: { writeText: () => Promise.resolve() },
+      configurable: true,
+    });
     await open(true);
-    await act(async () => { press([...container.querySelectorAll<HTMLElement>("[data-view-id]")].find((b) => b.dataset.viewId === "b")!); });
+    await act(async () => {
+      press([...container.querySelectorAll<HTMLElement>("[data-view-id]")].find((b) => b.dataset.viewId === "b")!);
+    });
     await openDeveloper();
     controls().viewReadout = { focus: "earth", azimuthDeg: 12, elevationDeg: 3, distance: 9 };
-    await act(async () => { [...container.querySelectorAll("button")].find((b) => b.textContent === "Copy view link")!.click(); await Promise.resolve(); await Promise.resolve(); });
+    await act(async () => {
+      [...container.querySelectorAll("button")].find((b) => b.textContent === "Copy view link")!.click();
+      await Promise.resolve();
+      await Promise.resolve();
+    });
     const link = new URL(window.location.href);
     expect(link.searchParams.get("show")).toBe("b");
     act(() => root.unmount());
@@ -146,21 +201,33 @@ describe("the address option through mount and AstraeusScene", () => {
     await drawn(off);
     expect(controls().startView).toBeUndefined();
     expect(off.view).toBe("a");
-    act(() => { off.unmount(); });
+    act(() => {
+      off.unmount();
+    });
     const on = mount(host, new Scene(), { address: true });
     await drawn(on);
     expect(controls().startView).toMatchObject({ focus: "earth" });
     expect(on.view).toBe("b");
-    act(() => { on.unmount(); });
+    act(() => {
+      on.unmount();
+    });
     host.remove();
   });
 
   it("AstraeusScene: off by default, on when asked", async () => {
     visit(LINK);
     const scene = new Scene();
-    for (const [address, expected] of [[undefined, "a"], [true, "b"]] as const) {
-      await act(async () => { root.render(createElement(HostScene, { scene, ...(address === undefined ? {} : { address }) })); await Promise.resolve(); });
-      await act(async () => { await new Promise((done) => setTimeout(done, 0)); });
+    for (const [address, expected] of [
+      [undefined, "a"],
+      [true, "b"],
+    ] as const) {
+      await act(async () => {
+        root.render(createElement(HostScene, { scene, ...(address === undefined ? {} : { address }) }));
+        await Promise.resolve();
+      });
+      await act(async () => {
+        await new Promise((done) => setTimeout(done, 0));
+      });
       expect(pressed()).toEqual([expected]);
       act(() => root.unmount());
       root = createRoot(container);

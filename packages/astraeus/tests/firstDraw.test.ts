@@ -8,9 +8,15 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 const canvas = vi.hoisted(() => ({ states: [] as { current: import("../src/app/sceneFrame").FrameState }[] }));
 vi.mock("@react-three/fiber", async (orig) => ({
   ...(await orig<typeof import("@react-three/fiber")>()),
-  Canvas: ({ children }: { children: { props?: { frameState?: (typeof canvas.states)[number] } }[] }) => { for (const child of children) if (child.props?.frameState) canvas.states.push(child.props.frameState); return null; },
+  Canvas: ({ children }: { children: { props?: { frameState?: (typeof canvas.states)[number] } }[] }) => {
+    for (const child of children) if (child.props?.frameState) canvas.states.push(child.props.frameState);
+    return null;
+  },
 }));
-vi.mock("../src/assets/sky", async (orig) => ({ ...(await orig<typeof import("../src/assets/sky")>()), loadStarCatalogue: vi.fn().mockResolvedValue(null) }));
+vi.mock("../src/assets/sky", async (orig) => ({
+  ...(await orig<typeof import("../src/assets/sky")>()),
+  loadStarCatalogue: vi.fn().mockResolvedValue(null),
+}));
 vi.mock("../src/api/prepared", async () => {
   const { syntheticDefinition } = await import("./synthetic/syntheticDefinition");
   return { prepareScene: () => ({ definition: { ...syntheticDefinition }, ready: Promise.resolve() }) };
@@ -27,21 +33,39 @@ import { makeContext, T0 } from "./helpers/frameContext";
 
 let root: Root | undefined;
 let host: HTMLElement | undefined;
-afterEach(() => { if (root) act(() => root!.unmount()); host?.remove(); root = undefined; host = undefined; canvas.states.length = 0; document.body.innerHTML = ""; vi.unstubAllGlobals(); });
+afterEach(() => {
+  if (root) act(() => root!.unmount());
+  host?.remove();
+  root = undefined;
+  host = undefined;
+  canvas.states.length = 0;
+  document.body.innerHTML = "";
+  vi.unstubAllGlobals();
+});
 
 /** Runs the first frame of the newest scene on the state that scene created, as the scene's frame loop would. */
 function drawFirstFrame(): void {
-  vi.stubGlobal("requestAnimationFrame", (fn: FrameRequestCallback) => { fn(0); return 1; });
+  vi.stubGlobal("requestAnimationFrame", (fn: FrameRequestCallback) => {
+    fn(0);
+    return 1;
+  });
   const { ctx } = makeContext();
   const first = { ...ctx, state: canvas.states[canvas.states.length - 1]!.current };
   stepAndPoseCamera(first, T0, placeScene(first, T0));
 }
 /** Lets the pending loads and renders finish until the stubbed canvas has been handed `count` frame states. */
 async function drawn(count: number): Promise<void> {
-  for (let tries = 0; tries < 100 && canvas.states.length < count; tries += 1) await act(async () => { await new Promise((done) => setTimeout(done, 10)); });
+  for (let tries = 0; tries < 100 && canvas.states.length < count; tries += 1)
+    await act(async () => {
+      await new Promise((done) => setTimeout(done, 10));
+    });
   expect(canvas.states.length, "the scene never reached its canvas").toBeGreaterThanOrEqual(count);
 }
-const element = () => { host = document.createElement("div"); document.body.append(host); return host; };
+const element = () => {
+  host = document.createElement("div");
+  document.body.append(host);
+  return host;
+};
 
 describe("onFirstDraw through mount", () => {
   it("is called once when the first frame is drawn, not at ready; a listener added later is called at once; stop and unmount end it", async () => {
@@ -68,12 +92,16 @@ describe("onFirstDraw through AstraeusScene", () => {
   it("calls the prop once for the first frame, and again after a rebuild with a new scene", async () => {
     const heard = vi.fn();
     root = createRoot(element());
-    await act(async () => { root!.render(createElement(HostScene, { scene: new Scene().addBody(earth), onFirstDraw: heard })); });
+    await act(async () => {
+      root!.render(createElement(HostScene, { scene: new Scene().addBody(earth), onFirstDraw: heard }));
+    });
     await drawn(1);
     expect(heard).not.toHaveBeenCalled();
     drawFirstFrame();
     expect(heard).toHaveBeenCalledTimes(1);
-    await act(async () => { root!.render(createElement(HostScene, { scene: new Scene().addBody(earth), onFirstDraw: heard })); });
+    await act(async () => {
+      root!.render(createElement(HostScene, { scene: new Scene().addBody(earth), onFirstDraw: heard }));
+    });
     await drawn(2);
     drawFirstFrame();
     expect(heard).toHaveBeenCalledTimes(2);
@@ -86,7 +114,10 @@ describe("the link under both", () => {
     const reported: unknown[] = [];
     vi.stubGlobal("reportError", (error: unknown) => reported.push(error));
     const order: string[] = [];
-    link.onFirstDraw(() => { order.push("a"); throw new Error("host bug"); });
+    link.onFirstDraw(() => {
+      order.push("a");
+      throw new Error("host bug");
+    });
     link.onFirstDraw(() => order.push("b"));
     link.firstDraw();
     link.firstDraw();

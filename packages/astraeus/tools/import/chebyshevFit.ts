@@ -29,7 +29,12 @@ function basis(x: number, count: number): { value: Float64Array; slope: Float64A
  * Householder QR least squares for one design matrix (rows x columns, row-major) and several right-hand sides.
  * Returns one solution per right-hand side. Throws when the matrix is rank deficient.
  */
-export function leastSquares(matrix: Float64Array, rows: number, columns: number, rightHandSides: Float64Array[]): Float64Array[] {
+export function leastSquares(
+  matrix: Float64Array,
+  rows: number,
+  columns: number,
+  rightHandSides: Float64Array[],
+): Float64Array[] {
   if (rows < columns) throw new RangeError(`least squares needs at least ${columns} equations, got ${rows}`);
   const a = Float64Array.from(matrix);
   const sides = rightHandSides.map((side) => Float64Array.from(side));
@@ -72,7 +77,12 @@ export function leastSquares(matrix: Float64Array, rows: number, columns: number
  * Fits one segment [startS, startS + lengthS] of degree `degree` to the samples inside it (ends included), matching each
  * sample's position and its velocity (velocity rows scaled by the half-length so both are in km). Returns x, y, z blocks.
  */
-export function fitSegment(samples: readonly StateSample[], startS: number, lengthS: number, degree: number): Float64Array {
+export function fitSegment(
+  samples: readonly StateSample[],
+  startS: number,
+  lengthS: number,
+  degree: number,
+): Float64Array {
   const count = degree + 1;
   const half = lengthS / 2;
   const inside = samples.filter((sample) => sample.tdbS >= startS - 1e-6 && sample.tdbS <= startS + lengthS + 1e-6);
@@ -124,7 +134,8 @@ export interface ChunkInput {
 /** The chunk file bytes (format in src/core/chebyshevSeries.ts). */
 export function encodeChunk(input: ChunkInput): Uint8Array {
   const expected = input.segmentCount * 3 * input.coefficientCount;
-  if (input.coefficients.length !== expected) throw new RangeError(`chunk needs ${expected} coefficients, got ${input.coefficients.length}`);
+  if (input.coefficients.length !== expected)
+    throw new RangeError(`chunk needs ${expected} coefficients, got ${input.coefficients.length}`);
   const body: number[] = [];
   for (const value of input.coefficients) pushVarint(body, Math.round(value / input.quantumKm));
   const bytes = new Uint8Array(CHUNK_HEADER_BYTES + body.length);

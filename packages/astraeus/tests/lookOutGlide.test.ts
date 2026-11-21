@@ -11,19 +11,48 @@ import { FloatingOrigin } from "../src/app/floatingOrigin";
 import { EQUATORIAL_UP } from "../src/app/viewUp";
 import { attachScenePointer, type PointerState } from "../src/app/scenePointer";
 
-const positions = new Map<string, RenderVector>([["earth", [0, 0, 0]], ["moon", [60, 0, 0]]]);
+const positions = new Map<string, RenderVector>([
+  ["earth", [0, 0, 0]],
+  ["moon", [60, 0, 0]],
+]);
 const targets: SceneTargets = {
   bodyIdFor: (id) => (catalogue.has(id) ? id : null),
   placed: positions as SceneTargets["placed"],
   absoluteOf: (id) => positions.get(id) ?? [0, 0, 0],
-  groupViews: [], sunCentredViews: [], trackedViews: [], bodySetViews: [],
-  timeUtcMs: 0, policy: readableScale, placement: {} as SceneTargets["placement"],
+  groupViews: [],
+  sunCentredViews: [],
+  trackedViews: [],
+  bodySetViews: [],
+  timeUtcMs: 0,
+  policy: readableScale,
+  placement: {} as SceneTargets["placement"],
 };
 const frame = { centre: "earth", span: 60, bodies: catalogue } as const;
-const step = (camState: CameraStepInput["camState"], cameraRequest: CameraStepInput["controls"]["cameraRequest"]): CameraStepInput =>
-  ({ camState, controls: { cameraRequest }, targets, frame, catalogue, reach: {}, fovDeg: 45, viewUp: EQUATORIAL_UP, firstFrame: false, previousUp: null });
+const step = (
+  camState: CameraStepInput["camState"],
+  cameraRequest: CameraStepInput["controls"]["cameraRequest"],
+): CameraStepInput => ({
+  camState,
+  controls: { cameraRequest },
+  targets,
+  frame,
+  catalogue,
+  reach: {},
+  fovDeg: 45,
+  viewUp: EQUATORIAL_UP,
+  firstFrame: false,
+  previousUp: null,
+});
 const tick = (camState: CameraStepInput["camState"], reduced: boolean) =>
-  resolveCamera(camState, cameraTargetAbsolute(camState, targets), new FloatingOrigin(), 0.016, 1e12, EQUATORIAL_UP, reduced);
+  resolveCamera(
+    camState,
+    cameraTargetAbsolute(camState, targets),
+    new FloatingOrigin(),
+    0.016,
+    1e12,
+    EQUATORIAL_UP,
+    reduced,
+  );
 
 /** The ways a host or panel asks for a look-out turn: a direction as RA/Dec vector, toward an object, and a zoom alone. */
 const turns = [
@@ -51,7 +80,10 @@ describe("look-out turns while already looking out", () => {
       // Not a jump: one frame leaves the field of view and the direction short of their targets.
       expect(camState.lookOut?.fovDeg).toBeGreaterThan(20);
       expect(camState.lookOut?.fovDeg).toBeLessThan(60);
-      if (moved) expect(Math.abs(camState.azimuth - camState.targetAzimuth) + Math.abs(camState.elevation - camState.targetElevation)).toBeGreaterThan(1e-4);
+      if (moved)
+        expect(
+          Math.abs(camState.azimuth - camState.targetAzimuth) + Math.abs(camState.elevation - camState.targetElevation),
+        ).toBeGreaterThan(1e-4);
       for (let i = 0; i < 600; i += 1) tick(camState, false);
       expect(camState.lookOut?.fovDeg).toBe(20);
       expect(camState.targetFovDeg).toBeNull();
@@ -72,10 +104,23 @@ describe("a tap in a look-out camera", () => {
   beforeEach(() => {
     canvas = document.createElement("canvas");
     Object.assign(canvas, { setPointerCapture: vi.fn() });
-    vi.spyOn(canvas, "getBoundingClientRect").mockReturnValue({ left: 0, top: 0, right: 800, bottom: 600, width: 800, height: 600, x: 0, y: 0, toJSON: () => ({}) } as DOMRect);
+    vi.spyOn(canvas, "getBoundingClientRect").mockReturnValue({
+      left: 0,
+      top: 0,
+      right: 800,
+      bottom: 600,
+      width: 800,
+      height: 600,
+      x: 0,
+      y: 0,
+      toJSON: () => ({}),
+    } as DOMRect);
     document.body.appendChild(canvas);
   });
-  afterEach(() => { canvas.remove(); vi.restoreAllMocks(); });
+  afterEach(() => {
+    canvas.remove();
+    vi.restoreAllMocks();
+  });
   const tap = (x: number, y: number): void => {
     for (const type of ["pointerdown", "pointerup"]) {
       const event = new Event(type, { bubbles: true, cancelable: true });
@@ -83,21 +128,32 @@ describe("a tap in a look-out camera", () => {
       canvas.dispatchEvent(event);
     }
   };
-  const state = (): PointerState => ({ pickables: [{ id: "sun", x: 200, y: 150, radiusPx: 12 }], hoverPoint: null, skyFigures: () => [{ id: "leo", lines: [[150, 150, 400, 150]], label: { left: 190, right: 260, top: 140, bottom: 160 } }] });
-
-  it.each([
-    ["figure over body", 200, 150, "leo", true],
-  ])("%s: looking out the figure wins and the pick says keep the sky", (_name, x, y, id, keepSky) => {
-    const picked = vi.fn();
-    const orbit = createOrbitCameraState(16, "earth");
-    orbit.lookOut = { fovDeg: 60 };
-    attachScenePointer(canvas, orbit, state(), () => ({ min: 1, max: 100 }), picked);
-    tap(x, y);
-    expect(picked).toHaveBeenCalledExactlyOnceWith(id, keepSky ? { keepSky: true } : undefined);
+  const state = (): PointerState => ({
+    pickables: [{ id: "sun", x: 200, y: 150, radiusPx: 12 }],
+    hoverPoint: null,
+    skyFigures: () => [
+      { id: "leo", lines: [[150, 150, 400, 150]], label: { left: 190, right: 260, top: 140, bottom: 160 } },
+    ],
   });
 
+  it.each([["figure over body", 200, 150, "leo", true]])(
+    "%s: looking out the figure wins and the pick says keep the sky",
+    (_name, x, y, id, keepSky) => {
+      const picked = vi.fn();
+      const orbit = createOrbitCameraState(16, "earth");
+      orbit.lookOut = { fovDeg: 60 };
+      attachScenePointer(canvas, orbit, state(), () => ({ min: 1, max: 100 }), picked);
+      tap(x, y);
+      expect(picked).toHaveBeenCalledExactlyOnceWith(id, keepSky ? { keepSky: true } : undefined);
+    },
+  );
+
   it("looking out, a body outside any figure is picked with keepSky; orbiting, the body wins and the call is unchanged", () => {
-    const bodyOnly: PointerState = { pickables: [{ id: "sun", x: 200, y: 400, radiusPx: 12 }], hoverPoint: null, skyFigures: () => [] };
+    const bodyOnly: PointerState = {
+      pickables: [{ id: "sun", x: 200, y: 400, radiusPx: 12 }],
+      hoverPoint: null,
+      skyFigures: () => [],
+    };
     const pickedOut = vi.fn();
     const looking = createOrbitCameraState(16, "earth");
     looking.lookOut = { fovDeg: 60 };

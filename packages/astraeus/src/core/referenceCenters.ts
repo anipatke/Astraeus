@@ -9,7 +9,11 @@ function sameEpochAndFrame(a: CenteredPosition, b: CenteredPosition): void {
 }
 
 /** Component-wise `a + sign * b`, or undefined when either velocity is missing (a leg without velocity breaks the chain). */
-function combineVelocity(a: Float64Array | undefined, b: Float64Array | undefined, sign: 1 | -1): Float64Array | undefined {
+function combineVelocity(
+  a: Float64Array | undefined,
+  b: Float64Array | undefined,
+  sign: 1 | -1,
+): Float64Array | undefined {
   if (a === undefined || b === undefined) return undefined;
   return Float64Array.of(a[0] + sign * b[0], a[1] + sign * b[1], a[2] + sign * b[2]);
 }
@@ -49,7 +53,10 @@ export function inverseCenteredPosition(position: CenteredPosition): CenteredPos
     timeUtcMs: position.timeUtcMs,
     plane: position.plane,
     positionKm: [-position.positionKm[0], -position.positionKm[1], -position.positionKm[2]],
-    ...velocityField(position.velocityKmS && Float64Array.of(-position.velocityKmS[0], -position.velocityKmS[1], -position.velocityKmS[2])),
+    ...velocityField(
+      position.velocityKmS &&
+        Float64Array.of(-position.velocityKmS[0], -position.velocityKmS[1], -position.velocityKmS[2]),
+    ),
   });
 }
 

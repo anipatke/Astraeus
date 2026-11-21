@@ -68,10 +68,18 @@ export interface MountOptions {
 }
 
 /** Tells the page whether it is a phone, framed or asked for reduced motion: the three things the shell reads from its window. */
-export function pretendScreen({ phone = false, embedded = false, reducedMotion = false }: Pick<MountOptions, "phone" | "embedded" | "reducedMotion">): void {
+export function pretendScreen({
+  phone = false,
+  embedded = false,
+  reducedMotion = false,
+}: Pick<MountOptions, "phone" | "embedded" | "reducedMotion">): void {
   window.matchMedia = ((query: string) => ({
     media: query,
-    matches: query.includes("max-width: 700px") ? phone : query.includes("prefers-reduced-motion") ? reducedMotion : false,
+    matches: query.includes("max-width: 700px")
+      ? phone
+      : query.includes("prefers-reduced-motion")
+        ? reducedMotion
+        : false,
     addEventListener: () => undefined,
     removeEventListener: () => undefined,
     addListener: () => undefined,
@@ -99,7 +107,9 @@ export function change(element: HTMLSelectElement | HTMLInputElement, value: str
   act(() => {
     const prototype = Object.getPrototypeOf(element) as object;
     Object.getOwnPropertyDescriptor(prototype, "value")?.set?.call(element, value);
-    element.dispatchEvent(new window.Event(element instanceof HTMLSelectElement ? "change" : "input", { bubbles: true }));
+    element.dispatchEvent(
+      new window.Event(element instanceof HTMLSelectElement ? "change" : "input", { bubbles: true }),
+    );
     element.dispatchEvent(new window.Event("change", { bubbles: true }));
   });
 }
@@ -123,9 +133,26 @@ export function $(container: ParentNode, selector: string): HTMLElement {
   return found;
 }
 
-interface Probe { shelfChanges: (string | null)[]; showParts: (parts: readonly ShelfPart[]) => void; selected: string; holds: number; scale: string; refresh: () => void; requestPanel: (id: string, host?: boolean) => void; panelChanges: Mounted["panelChanges"] }
+interface Probe {
+  shelfChanges: (string | null)[];
+  showParts: (parts: readonly ShelfPart[]) => void;
+  selected: string;
+  holds: number;
+  scale: string;
+  refresh: () => void;
+  requestPanel: (id: string, host?: boolean) => void;
+  panelChanges: Mounted["panelChanges"];
+}
 
-function Host({ options, clock, probe }: { readonly options: MountOptions; readonly clock: SimulationClock; readonly probe: Mounted["cameraRequests"] & Probe }) {
+function Host({
+  options,
+  clock,
+  probe,
+}: {
+  readonly options: MountOptions;
+  readonly clock: SimulationClock;
+  readonly probe: Mounted["cameraRequests"] & Probe;
+}) {
   const [panelRequest, setPanelRequest] = useState<{ id: string; serial: number; host?: boolean } | null>(null);
   const [snapshot, setSnapshot] = useState<ClockSnapshot>(() => clock.snapshot());
   const [developer, setDeveloper] = useState(false);
@@ -133,11 +160,19 @@ function Host({ options, clock, probe }: { readonly options: MountOptions; reado
   const selected = useRef("");
   const refresh = () => setSnapshot(clock.snapshot());
   probe.refresh = refresh;
-  probe.requestPanel = (id, host) => setPanelRequest((previous) => ({ id, serial: (previous?.serial ?? 0) + 1, ...(host === true ? { host } : {}) }));
+  probe.requestPanel = (id, host) =>
+    setPanelRequest((previous) => ({ id, serial: (previous?.serial ?? 0) + 1, ...(host === true ? { host } : {}) }));
   const [shelfParts, setShelfParts] = useState<readonly ShelfPart[] | undefined>(options.shelfParts);
   probe.showParts = setShelfParts;
   const [flipped, setFlipped] = useState<ReadonlySet<string>>(new Set());
-  const displaySwitches = options.displaySwitches?.map((item) => ({ ...item, on: item.on !== flipped.has(item.id), onToggle: () => { item.onToggle(); setFlipped((was) => new Set(was.has(item.id) ? [...was].filter((id) => id !== item.id) : [...was, item.id])); } }));
+  const displaySwitches = options.displaySwitches?.map((item) => ({
+    ...item,
+    on: item.on !== flipped.has(item.id),
+    onToggle: () => {
+      item.onToggle();
+      setFlipped((was) => new Set(was.has(item.id) ? [...was].filter((id) => id !== item.id) : [...was, item.id]));
+    },
+  }));
   const experience = options.experience ?? syntheticDefinition.experience;
   const resolver = useRef(createSceneResolver(createOrbAstronomyAdapter()));
   const metrics = useRef(syntheticDefinition.createMetrics({ clock, resolver: resolver.current, catalogue }));
@@ -147,16 +182,39 @@ function Host({ options, clock, probe }: { readonly options: MountOptions; reado
     snapshot,
     developerMode: developer,
     onDeveloperModeChange: setDeveloper,
-    onTogglePlayback: () => { if (clock.playing) clock.pause(); else clock.play(); refresh(); },
-    onRateChange: (rate: number | "auto") => { if (rate !== "auto") clock.setRate(rate); refresh(); },
-    onSeek: (timeUtcMs: number) => { clock.seek(timeUtcMs); refresh(); },
-    onCameraRequest: (request: ExperienceCameraPreset["request"]) => { probe.push(request); },
-    onCameraHold: () => { probe.holds += 1; },
-    onSelectionChange: (id: string) => { selected.current = id; probe.selected = id; },
-    onSetPlaying: (playing: boolean) => { if (playing) clock.play(); else clock.pause(); refresh(); },
+    onTogglePlayback: () => {
+      if (clock.playing) clock.pause();
+      else clock.play();
+      refresh();
+    },
+    onRateChange: (rate: number | "auto") => {
+      if (rate !== "auto") clock.setRate(rate);
+      refresh();
+    },
+    onSeek: (timeUtcMs: number) => {
+      clock.seek(timeUtcMs);
+      refresh();
+    },
+    onCameraRequest: (request: ExperienceCameraPreset["request"]) => {
+      probe.push(request);
+    },
+    onCameraHold: () => {
+      probe.holds += 1;
+    },
+    onSelectionChange: (id: string) => {
+      selected.current = id;
+      probe.selected = id;
+    },
+    onSetPlaying: (playing: boolean) => {
+      if (playing) clock.play();
+      else clock.pause();
+      refresh();
+    },
     panelRequest,
     selectRequest: options.selectRequest,
-    onOpenPanelChange: (id: string | null, cause: string) => { if (probe.panelChanges.at(-1)?.id !== id) probe.panelChanges.push({ id, cause }); },
+    onOpenPanelChange: (id: string | null, cause: string) => {
+      if (probe.panelChanges.at(-1)?.id !== id) probe.panelChanges.push({ id, cause });
+    },
     scaleId,
     onScaleChange: setScaleId,
     scaleChoices: options.scaleChoices,
@@ -169,7 +227,9 @@ function Host({ options, clock, probe }: { readonly options: MountOptions; reado
     about: options.about,
     shelfParts,
     shelfRuntime: options.shelfRuntime,
-    onOpenShelfChange: (id: string | null) => { probe.shelfChanges.push(id); },
+    onOpenShelfChange: (id: string | null) => {
+      probe.shelfChanges.push(id);
+    },
     displaySwitches,
     children: null,
   });
@@ -189,21 +249,35 @@ export function mountShell(options: MountOptions = {}): Mounted {
   probe.panelChanges = [];
   probe.shelfChanges = [];
   probe.holds = 0;
-  act(() => { root.render(createElement(Host, { options, clock, probe })); });
+  act(() => {
+    root.render(createElement(Host, { options, clock, probe }));
+  });
   return {
     container,
     cameraRequests: probe,
     clock,
     selected: () => probe.selected,
     holds: () => probe.holds,
-    advance: (ms) => { monotonicMs += ms; act(() => probe.refresh()); },
-    requestPanel: (id) => { act(() => probe.requestPanel(id)); },
+    advance: (ms) => {
+      monotonicMs += ms;
+      act(() => probe.refresh());
+    },
+    requestPanel: (id) => {
+      act(() => probe.requestPanel(id));
+    },
     panelChanges: probe.panelChanges,
-    hostPanel: (id) => { act(() => probe.requestPanel(id, true)); },
+    hostPanel: (id) => {
+      act(() => probe.requestPanel(id, true));
+    },
     scale: () => probe.scale,
-    showParts: (parts) => { act(() => probe.showParts(parts)); },
+    showParts: (parts) => {
+      act(() => probe.showParts(parts));
+    },
     shelfChanges: probe.shelfChanges,
-    unmount: () => { act(() => root.unmount()); container.remove(); },
+    unmount: () => {
+      act(() => root.unmount());
+      container.remove();
+    },
   };
 }
 
@@ -226,7 +300,11 @@ export function touchDrag(element: Element, dy: number): void {
     event.changedTouches = touch(y);
     element.dispatchEvent(event);
   };
-  act(() => { fire("touchstart", 100); fire("touchmove", 100 + dy); fire("touchend", 100 + dy); });
+  act(() => {
+    fire("touchstart", 100);
+    fire("touchmove", 100 + dy);
+    fire("touchend", 100 + dy);
+  });
 }
 
 export function selectObject(container: ParentNode, id: string): void {
@@ -241,6 +319,8 @@ export function selectObject(container: ParentNode, id: string): void {
 // Let the render be queued inside `act`, which flushes it and its effects on exit, then await `ready`. Bare-`await ready` behaviour is covered in viewerHostReady.test.ts.
 export const drawn = async (handle: { readonly ready: Promise<void> }): Promise<void> => {
   const ready = handle.ready;
-  await act(async () => { for (let i = 0; i < 5; i++) await Promise.resolve(); });
+  await act(async () => {
+    for (let i = 0; i < 5; i++) await Promise.resolve();
+  });
   await ready;
 };

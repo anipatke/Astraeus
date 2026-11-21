@@ -8,7 +8,10 @@ import noPanels from "../data/stories/no-panels/panels.json";
 // O-057 T-274 (owner, 2026-11-07: "Retire it, keep public parts"): each of the nine planets is built as its settings and system files say, read only through the scene's public reads and
 // `scene.camera` getters. The whole-definition compare with the old builder's recorded output is retired: the rest of it (info card rows, camera presets, label ranking...) has no public read.
 const FILES = import.meta.glob("../data/planets/*.json", { eager: true, import: "default" }) as Record<string, unknown>;
-const SYSTEMS = import.meta.glob("../src/experiences/planets/systems/*.ts", { eager: true }) as Record<string, Record<string, PlanetSystem>>;
+const SYSTEMS = import.meta.glob("../src/experiences/planets/systems/*.ts", { eager: true }) as Record<
+  string,
+  Record<string, PlanetSystem>
+>;
 
 const views = Object.values(FILES).map((file) => {
   const settings = parsePlanetSettings(file);
@@ -20,7 +23,17 @@ type View = (typeof views)[number];
 
 describe("the nine planets are built as their settings say (public reads only)", () => {
   it("covers all nine planets", () => {
-    expect(views.map((view) => view.settings.id).sort()).toEqual(["earth", "jupiter", "mars", "mercury", "neptune", "pluto", "saturn", "uranus", "venus"]);
+    expect(views.map((view) => view.settings.id).sort()).toEqual([
+      "earth",
+      "jupiter",
+      "mars",
+      "mercury",
+      "neptune",
+      "pluto",
+      "saturn",
+      "uranus",
+      "venus",
+    ]);
   });
 
   describe.each(views)("$settings.id", (view: View) => {
@@ -42,12 +55,17 @@ describe("the nine planets are built as their settings say (public reads only)",
     });
 
     it("draws an orbit line for exactly the bodies the system says have one", () => {
-      expect(scene.bodies.slice(0, system.bodies.length).map((body) => [body.id, body.orbit])).toEqual(system.bodies.map((body) => [body.id, body.orbit !== undefined && body.orbit !== false]));
+      expect(scene.bodies.slice(0, system.bodies.length).map((body) => [body.id, body.orbit])).toEqual(
+        system.bodies.map((body) => [body.id, body.orbit !== undefined && body.orbit !== false]),
+      );
     });
 
     it("keeps the centre's and every mapped moon's words and known limits as the settings give them", () => {
       const centre = scene.bodies[0]!;
-      expect([centre.description, centre.knownLimitations]).toEqual([settings.centre.description, settings.centre.knownLimitations]);
+      expect([centre.description, centre.knownLimitations]).toEqual([
+        settings.centre.description,
+        settings.centre.knownLimitations,
+      ]);
       for (const moon of mapped) {
         const read = scene.bodies.find((body) => body.id === moon.id)!;
         expect(read.description, moon.id).toBe(moon.description);
@@ -59,12 +77,16 @@ describe("the nine planets are built as their settings say (public reads only)",
     it("shows the moon panel and small-moon sets exactly when the system has a moon list", () => {
       const list = system.moonList;
       expect(scene.moonPanel === undefined).toBe(list === undefined);
-      expect(scene.bodySets.length > 0).toBe(list !== undefined && list.moons.some((moon) => !mapped.some((one) => one.id === moon.id)));
+      expect(scene.bodySets.length > 0).toBe(
+        list !== undefined && list.moons.some((moon) => !mapped.some((one) => one.id === moon.id)),
+      );
       if (scene.moonPanel !== undefined) {
         expect(scene.moonPanel.count).toBe(list!.moons.length);
         const [year, month, day] = list!.asOf.split("-").map(Number);
         const date = `${day} ${["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"][month! - 1]} ${year}`;
-        expect(scene.moonPanel.summary).toBe(`${list!.moons.length} moons in the ${settings.moons!.listSource} list of ${date}`);
+        expect(scene.moonPanel.summary).toBe(
+          `${list!.moons.length} moons in the ${settings.moons!.listSource} list of ${date}`,
+        );
         expect(scene.bodies[0]!.facts).toEqual([{ label: "Known moons", value: scene.moonPanel.summary }]);
       } else expect(scene.bodies[0]!.facts).toBeUndefined();
       for (const set of scene.bodySets) {
@@ -76,7 +98,9 @@ describe("the nine planets are built as their settings say (public reads only)",
 
     it("states provenance for every body the scene holds and every small moon, in the engine's words and the list's", () => {
       const list = system.moonList;
-      const dotIds = (list?.moons ?? []).filter((moon) => !mapped.some((one) => one.id === moon.id) && moon.id !== settings.centre.id).map((moon) => moon.id);
+      const dotIds = (list?.moons ?? [])
+        .filter((moon) => !mapped.some((one) => one.id === moon.id) && moon.id !== settings.centre.id)
+        .map((moon) => moon.id);
       for (const id of [...scene.bodies.map((body) => body.id), ...dotIds]) {
         const provenance = scene.provenanceOf(id);
         expect(provenance.sources.length, id).toBeGreaterThan(0);
@@ -89,7 +113,9 @@ describe("the nine planets are built as their settings say (public reads only)",
         const listed = [...scene.bodies.map((body) => body.id), ...dotIds].includes(moon.id);
         if (!listed) continue;
         // a moon taken from the list cites the list's own source for its family, size and discovery
-        expect(scene.provenanceOf(moon.id).sources, moon.id).toEqual(expect.arrayContaining(moon.sourceIds.map((sourceId) => list!.sources[sourceId]!.title)));
+        expect(scene.provenanceOf(moon.id).sources, moon.id).toEqual(
+          expect.arrayContaining(moon.sourceIds.map((sourceId) => list!.sources[sourceId]!.title)),
+        );
       }
       for (const id of dotIds) expect(scene.provenanceOf(id).sources, id).toContain(settings.moons!.fitSource);
     });
@@ -100,7 +126,13 @@ describe("the nine planets are built as their settings say (public reads only)",
     });
 
     it("opens on the settings' window, speeds and the true scale alone", () => {
-      expect(scene.timeline).toMatchObject({ windowStartUtcMs: settings.window.startUtcMs, windowEndUtcMs: settings.window.endUtcMs, openUtcMs: settings.window.startUtcMs, rates: settings.rates, rate: settings.clockRate });
+      expect(scene.timeline).toMatchObject({
+        windowStartUtcMs: settings.window.startUtcMs,
+        windowEndUtcMs: settings.window.endUtcMs,
+        openUtcMs: settings.window.startUtcMs,
+        rates: settings.rates,
+        rate: settings.clockRate,
+      });
       expect(scene.scales).toEqual(["true-scale"]);
     });
 
@@ -113,7 +145,11 @@ describe("the nine planets are built as their settings say (public reads only)",
     });
 
     it("carries the story panels: Jupiter's three, none elsewhere", () => {
-      expect(scene.panels.map((panel) => panel.id).sort()).toEqual(settings.id === "jupiter" ? (jupiterPanels as { panels: { id: string }[] }).panels.map((panel) => panel.id).sort() : []);
+      expect(scene.panels.map((panel) => panel.id).sort()).toEqual(
+        settings.id === "jupiter"
+          ? (jupiterPanels as { panels: { id: string }[] }).panels.map((panel) => panel.id).sort()
+          : [],
+      );
     });
   });
 });

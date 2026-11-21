@@ -8,7 +8,8 @@ export interface BodyRef {
   readonly requires?: string;
 }
 
-const ref = (id: BodyId, label: string, requires?: string): BodyRef => Object.freeze({ id, label, ...(requires === undefined ? {} : { requires }) });
+const ref = (id: BodyId, label: string, requires?: string): BodyRef =>
+  Object.freeze({ id, label, ...(requires === undefined ? {} : { requires }) });
 
 /** Ready-made bodies for `addBody`; the Sun, Earth, Moon and planets have their positions and pictures in the engine. */
 export const sun = ref("sun", "Sun");
@@ -69,7 +70,34 @@ export const phobos = ref("phobos", "Phobos", "astraeus-data-mars");
 /** Deimos (needs `astraeus-data-mars`). */
 export const deimos = ref("deimos", "Deimos", "astraeus-data-mars");
 
-const READY_MADE: readonly BodyRef[] = [sun, mercury, venus, earth, moon, mars, jupiter, saturn, uranus, neptune, pluto, io, europa, ganymede, callisto, mimas, enceladus, tethys, dione, rhea, titan, iapetus, triton, charon, phobos, deimos];
+const READY_MADE: readonly BodyRef[] = [
+  sun,
+  mercury,
+  venus,
+  earth,
+  moon,
+  mars,
+  jupiter,
+  saturn,
+  uranus,
+  neptune,
+  pluto,
+  io,
+  europa,
+  ganymede,
+  callisto,
+  mimas,
+  enceladus,
+  tethys,
+  dione,
+  rhea,
+  titan,
+  iapetus,
+  triton,
+  charon,
+  phobos,
+  deimos,
+];
 
 /** The reference for a listed moon: its label and the data package (`astraeus-data-<planet>`) that holds its positions. */
 const moonRef = (id: BodyId): BodyRef | undefined => {
@@ -85,5 +113,7 @@ export const readyMade = (id: BodyId): BodyRef | undefined => READY_MADE.find((b
  * in list order by planet. Pass a planet id to list only its moons. Adding one costs nothing until a scene does.
  */
 export function listedMoons(planet?: BodyId): readonly BodyRef[] {
-  return table().filter((moon) => planet === undefined || moon.parent === planet).map((moon) => readyMade(moon.id)!);
+  return table()
+    .filter((moon) => planet === undefined || moon.parent === planet)
+    .map((moon) => readyMade(moon.id)!);
 }

@@ -1,10 +1,24 @@
 import { describe, expect, it } from "vitest";
 import { apollo11Experience } from "./support";
 import {
-  eventContextAt, eventNavigationTargets, eventPositionPercent, formatWindowRate, speedsOf, navigationStops,
-  windowContextAt, windowPeakRateText,
+  eventContextAt,
+  eventNavigationTargets,
+  eventPositionPercent,
+  formatWindowRate,
+  speedsOf,
+  navigationStops,
+  windowContextAt,
+  windowPeakRateText,
 } from "astraeus/shell/timelineModel";
-import { DEFAULT_TIMELINE_GLOW, activityAt, glowBrightness, glowDescription, glowGradient, glowProfile, glowTooltip } from "astraeus/shell/timelineGlow";
+import {
+  DEFAULT_TIMELINE_GLOW,
+  activityAt,
+  glowBrightness,
+  glowDescription,
+  glowGradient,
+  glowProfile,
+  glowTooltip,
+} from "astraeus/shell/timelineGlow";
 import { createWindows } from "astraeus/core/timeWindow";
 import type { TimelineEvent } from "astraeus/core/events";
 
@@ -42,7 +56,7 @@ describe("timeline event context", () => {
   });
 
   it("positions markers within the configured window", () => {
-        expect(eventPositionPercent(sampleEvents[0], bounds)).toBe(0);
+    expect(eventPositionPercent(sampleEvents[0], bounds)).toBe(0);
     expect(eventPositionPercent(sampleEvents[1], bounds)).toBe(50);
     expect(eventPositionPercent(sampleEvents[2], bounds)).toBe(100);
   });
@@ -63,15 +77,27 @@ describe("experience timeline data", () => {
   });
 
   it("offers exactly the experience rates", () => {
-    expect(speedsOf(apollo11Experience.rates).map((speed) => speed.rate))
-      .toEqual([1, 100, 1_000, 3_600, 10_000, 86_400, 604_800]);
+    expect(speedsOf(apollo11Experience.rates).map((speed) => speed.rate)).toEqual([
+      1, 100, 1_000, 3_600, 10_000, 86_400, 604_800,
+    ]);
   });
 });
 
 const windows = createWindows([
   {
-    id: "wide", label: "Wide period", startUtcMs: 12, endUtcMs: 28, peakUtcMs: 20,
-    rate: { unit: "things per hour", samples: [{ timeUtcMs: 12, value: 0 }, { timeUtcMs: 20, value: 40 }, { timeUtcMs: 28, value: 10 }] },
+    id: "wide",
+    label: "Wide period",
+    startUtcMs: 12,
+    endUtcMs: 28,
+    peakUtcMs: 20,
+    rate: {
+      unit: "things per hour",
+      samples: [
+        { timeUtcMs: 12, value: 0 },
+        { timeUtcMs: 20, value: 40 },
+        { timeUtcMs: 28, value: 10 },
+      ],
+    },
   },
   { id: "plain", label: "Plain period", startUtcMs: 22, endUtcMs: 26 },
 ]);
@@ -86,7 +112,10 @@ describe("timeline windows", () => {
   it("reports the windows the clock is inside, with their rate, boundaries included", () => {
     expect(windowContextAt(windows, 11)).toEqual([]);
     expect(windowContextAt(windows, 12)).toEqual([{ window: windows[0], rate: 0 }]);
-    expect(windowContextAt(windows, 24).map((c) => [c.window.id, c.rate])).toEqual([["wide", 25], ["plain", null]]);
+    expect(windowContextAt(windows, 24).map((c) => [c.window.id, c.rate])).toEqual([
+      ["wide", 25],
+      ["plain", null],
+    ]);
     expect(windowContextAt(windows, 28)).toEqual([{ window: windows[0], rate: 10 }]);
     expect(windowContextAt(windows, 29)).toEqual([]);
     expect(formatWindowRate(25.04, "things per hour")).toBe("25 things per hour");
@@ -102,8 +131,13 @@ describe("timeline windows", () => {
       time = next.timeUtcMs;
     }
     expect(visited).toEqual([
-      "10 First event", "12 Wide period opens", "20 Middle event", "22 Plain period opens",
-      "26 Plain period closes", "28 Wide period closes", "30 Last event",
+      "10 First event",
+      "12 Wide period opens",
+      "20 Middle event",
+      "22 Plain period opens",
+      "26 Plain period closes",
+      "28 Wide period closes",
+      "30 Last event",
     ]);
     expect(navigationStops(sampleEvents, windows, 21).previous?.label).toBe("Middle event");
     expect(navigationStops(sampleEvents, windows, 12).previous?.label).toBe("First event");
@@ -132,7 +166,9 @@ describe("timeline windows", () => {
 
 describe("generic shell boundary", () => {
   it("contains no experience-specific names", () => {
-    const source = Object.values(import.meta.glob("../../astraeus/src/shell/**/*.{ts,tsx,css}", { eager: true, query: "?raw", import: "default" })).join("\n");
+    const source = Object.values(
+      import.meta.glob("../../astraeus/src/shell/**/*.{ts,tsx,css}", { eager: true, query: "?raw", import: "default" }),
+    ).join("\n");
     expect(source).not.toMatch(/apollo|columbia|eagle/i);
     expect(source).not.toMatch(/meteor|shower|perseid/i);
   });
@@ -161,7 +197,13 @@ describe("timeline activity glow (T-084)", () => {
 
   it("draws a smooth gradient in the look's colours; the played one keeps its floor", () => {
     const profile = glowProfile(windows, span)!;
-    const look = { ...DEFAULT_TIMELINE_GLOW, color: "#102030", playedColor: "#ff0000", minBrightness: 0.2, playedFloor: 0.5 };
+    const look = {
+      ...DEFAULT_TIMELINE_GLOW,
+      color: "#102030",
+      playedColor: "#ff0000",
+      minBrightness: 0.2,
+      playedFloor: 0.5,
+    };
     const ahead = glowGradient(profile, look, "ahead");
     expect(ahead.startsWith("linear-gradient(to right, rgba(16, 32, 48, 0.200) 0.000%")).toBe(true);
     expect(ahead).toContain("rgba(16, 32, 48, 1.000) 50.000%");
@@ -181,8 +223,12 @@ describe("timeline activity glow (T-084)", () => {
     const look = { ...DEFAULT_TIMELINE_GLOW, steadyBrightness: 0.37 };
     const ahead = glowGradient(null, look, "ahead");
     // I-186: the default glow names no colour; each part reads its look token at the same opacity (0.37 ahead, the played floor lifting it to 0.622).
-    expect(ahead).toBe("linear-gradient(to right, color-mix(in srgb, var(--astraeus-glow) 37.0%, transparent) 0.000%, color-mix(in srgb, var(--astraeus-glow) 37.0%, transparent) 100.000%)");
-    expect(glowGradient(null, look, "played")).toContain("color-mix(in srgb, var(--astraeus-accent) 62.2%, transparent) 0.000%");
+    expect(ahead).toBe(
+      "linear-gradient(to right, color-mix(in srgb, var(--astraeus-glow) 37.0%, transparent) 0.000%, color-mix(in srgb, var(--astraeus-glow) 37.0%, transparent) 100.000%)",
+    );
+    expect(glowGradient(null, look, "played")).toContain(
+      "color-mix(in srgb, var(--astraeus-accent) 62.2%, transparent) 0.000%",
+    );
     expect(glowTooltip([windows[1]], 5)).toBe("");
   });
 });

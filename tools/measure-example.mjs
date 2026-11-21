@@ -32,14 +32,18 @@ function staticImports(source) {
 export function measureBuild(dir) {
   const html = readFileSync(join(dir, "index.html"), "utf8");
   const firstOpen = new Set();
-  const queue = pageFiles(html).filter((file) => !/^[a-z]+:/i.test(file)).map((file) => ({ file, from: "index.html" }));
+  const queue = pageFiles(html)
+    .filter((file) => !/^[a-z]+:/i.test(file))
+    .map((file) => ({ file, from: "index.html" }));
   while (queue.length > 0) {
     const { file, from } = queue.shift();
     if (firstOpen.has(file)) continue;
     // A missing first-open file would make the total too small, so the measure fails rather than skipping it (C-116 O2).
     if (!existsSync(join(dir, file))) throw new Error(`measure-example: ${from} loads ${file}, which is not in ${dir}`);
     firstOpen.add(file);
-    if (file.endsWith(".js")) for (const spec of staticImports(readFileSync(join(dir, file), "utf8"))) queue.push({ file: posix.normalize(posix.join(posix.dirname(file), spec)), from: file });
+    if (file.endsWith(".js"))
+      for (const spec of staticImports(readFileSync(join(dir, file), "utf8")))
+        queue.push({ file: posix.normalize(posix.join(posix.dirname(file), spec)), from: file });
   }
   const all = [];
   const walk = (sub) => {
@@ -52,10 +56,19 @@ export function measureBuild(dir) {
   walk("");
   const rows = all.sort().map((file) => {
     const bytes = readFileSync(join(dir, file));
-    return { file, raw: bytes.length, gzip: gzipSync(bytes).length, when: firstOpen.has(file) ? "first-open" : "on-demand" };
+    return {
+      file,
+      raw: bytes.length,
+      gzip: gzipSync(bytes).length,
+      when: firstOpen.has(file) ? "first-open" : "on-demand",
+    };
   });
   const totals = { raw: 0, gzip: 0 };
-  for (const row of rows) if (row.when === "first-open") { totals.raw += row.raw; totals.gzip += row.gzip; }
+  for (const row of rows)
+    if (row.when === "first-open") {
+      totals.raw += row.raw;
+      totals.gzip += row.gzip;
+    }
   return { rows, totals };
 }
 
@@ -70,7 +83,10 @@ export function formatMeasure({ rows, totals }) {
 export const ALLOWED_PICTURES = { "hello-sky": ["milky-way"] };
 
 /** The names (no extension) of every picture in astraeus-data, from its textures folder. */
-export const dataPictureNames = () => readdirSync(join(root, "packages", "astraeus-data", "src", "textures")).filter((file) => /\.jpe?g$/i.test(file)).map((file) => file.replace(/\.jpe?g$/i, ""));
+export const dataPictureNames = () =>
+  readdirSync(join(root, "packages", "astraeus-data", "src", "textures"))
+    .filter((file) => /\.jpe?g$/i.test(file))
+    .map((file) => file.replace(/\.jpe?g$/i, ""));
 
 /** The `.jpg` files in a build folder that are one of `dataPictures` but not in `allowed` (an emitted name is the picture's name and a hash: `titan-4k-9d8e7f.jpg` is `titan-4k`). */
 export function unexpectedPictures(dir, allowed, dataPictures = dataPictureNames()) {
@@ -78,10 +94,15 @@ export function unexpectedPictures(dir, allowed, dataPictures = dataPictureNames
   const walk = (sub) => {
     for (const entry of readdirSync(join(dir, sub), { withFileTypes: true })) {
       const path = sub ? `${sub}/${entry.name}` : entry.name;
-      if (entry.isDirectory()) { walk(path); continue; }
+      if (entry.isDirectory()) {
+        walk(path);
+        continue;
+      }
       const name = /^(.+?)(?:-[A-Za-z0-9_-]{6,8})?\.jpe?g$/i.exec(entry.name);
       if (!name) continue;
-      const picture = dataPictures.find((candidate) => entry.name.startsWith(`${candidate}-`) || entry.name === `${candidate}.jpg`);
+      const picture = dataPictures.find(
+        (candidate) => entry.name.startsWith(`${candidate}-`) || entry.name === `${candidate}.jpg`,
+      );
       if (picture !== undefined && !allowed.includes(picture)) found.push(path);
     }
   };
@@ -97,7 +118,8 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const allowed = ALLOWED_PICTURES[name];
   if (allowed) {
     const extra = unexpectedPictures(dir, allowed);
-    if (extra.length > 0) throw new Error(`measure-example: ${name} emitted pictures it should not: ${extra.join(", ")}`);
+    if (extra.length > 0)
+      throw new Error(`measure-example: ${name} emitted pictures it should not: ${extra.join(", ")}`);
     console.log(`pictures: only ${allowed.join(", ")} emitted`);
   }
 }

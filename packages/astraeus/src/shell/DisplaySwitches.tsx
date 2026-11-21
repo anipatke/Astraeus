@@ -18,7 +18,12 @@ export interface DisplaySwitchItem {
 /** The views a scene names, as the bar shows them: one option each, exactly one active. Choosing never rebuilds the scene or touches the clock. */
 export interface ViewChoice {
   readonly place: "top-bar" | "panel";
-  readonly options: readonly { readonly id: string; readonly label: string; readonly shortLabel?: string; readonly active: boolean }[];
+  readonly options: readonly {
+    readonly id: string;
+    readonly label: string;
+    readonly shortLabel?: string;
+    readonly active: boolean;
+  }[];
   readonly onSelect: (id: string) => void;
 }
 
@@ -26,13 +31,30 @@ export interface ViewChoice {
 export function ViewButtons({ choice, form = "full" }: { readonly choice: ViewChoice; readonly form?: SwitchForm }) {
   if (choice.place !== "top-bar" || choice.options.length < 2) return null;
   if (form === "compact") {
-    return <CompactSwitch label="View" active={choice.options.find((option) => option.active)?.id ?? ""} options={choice.options.map((option) => ({ value: option.id, label: option.label }))} choose={choice.onSelect} attributes={{ "data-view-choice": "" }} />;
+    return (
+      <CompactSwitch
+        label="View"
+        active={choice.options.find((option) => option.active)?.id ?? ""}
+        options={choice.options.map((option) => ({ value: option.id, label: option.label }))}
+        choose={choice.onSelect}
+        attributes={{ "data-view-choice": "" }}
+      />
+    );
   }
   return (
     <section className="switch-control view-choice" role="group" aria-label="View" data-view-choice="">
       {choice.options.map((option) => (
-        <button key={option.id} type="button" className={`switch-option top-bar-button ${option.active ? "ui-accent" : ""}`} aria-pressed={option.active} data-view-id={option.id} onClick={() => { if (!option.active) choice.onSelect(option.id); }}>
-          <span>{form === "short" ? option.shortLabel ?? option.label : option.label}</span>
+        <button
+          key={option.id}
+          type="button"
+          className={`switch-option top-bar-button ${option.active ? "ui-accent" : ""}`}
+          aria-pressed={option.active}
+          data-view-id={option.id}
+          onClick={() => {
+            if (!option.active) choice.onSelect(option.id);
+          }}
+        >
+          <span>{form === "short" ? (option.shortLabel ?? option.label) : option.label}</span>
         </button>
       ))}
     </section>
@@ -48,7 +70,13 @@ export function viewChoiceInPanel(choice: ViewChoice | undefined): choice is Vie
  * The switches a story placed. Top-bar ones are buttons in the bar (and in the phone drawer's grid); panel ones sit in one small panel opened by a "Display" button
  * beside them. Nothing placed: nothing drawn, so the bar is exactly as it was. The panel is a pop-up: the panel rule closes it on an outside press or Escape.
  */
-export function DisplaySwitches({ switches, viewChoice }: { readonly switches: readonly DisplaySwitchItem[]; readonly viewChoice?: ViewChoice }) {
+export function DisplaySwitches({
+  switches,
+  viewChoice,
+}: {
+  readonly switches: readonly DisplaySwitchItem[];
+  readonly viewChoice?: ViewChoice;
+}) {
   const barSwitches = switches.filter((item) => item.place === "top-bar");
   const panelSwitches = switches.filter((item) => item.place === "panel");
   const viewsInPanel = viewChoiceInPanel(viewChoice) ? viewChoice : undefined;
@@ -56,32 +84,78 @@ export function DisplaySwitches({ switches, viewChoice }: { readonly switches: r
   return (
     <section className="display-switches" role="group" aria-label="Display switches">
       {barSwitches.map((item) => (
-        <button key={item.id} type="button" className="display-switch top-bar-button ui-icon" aria-label={item.label} title={item.label} aria-pressed={item.on} data-display-switch={item.id} data-closes-drawer="" onClick={item.onToggle}>
+        <button
+          key={item.id}
+          type="button"
+          className="display-switch top-bar-button ui-icon"
+          aria-label={item.label}
+          title={item.label}
+          aria-pressed={item.on}
+          data-display-switch={item.id}
+          data-closes-drawer=""
+          onClick={item.onToggle}
+        >
           {item.id === "orbitLines" ? <OrbitIcon /> : <SwitchesIcon />}
           <ButtonText>{item.label}</ButtonText>
         </button>
       ))}
-      {(panelSwitches.length > 0 || viewsInPanel !== undefined) && <SwitchPanel switches={panelSwitches} viewChoice={viewsInPanel} />}
+      {(panelSwitches.length > 0 || viewsInPanel !== undefined) && (
+        <SwitchPanel switches={panelSwitches} viewChoice={viewsInPanel} />
+      )}
     </section>
   );
 }
 
-function SwitchPanel({ switches, viewChoice }: { readonly switches: readonly DisplaySwitchItem[]; readonly viewChoice?: ViewChoice }) {
+function SwitchPanel({
+  switches,
+  viewChoice,
+}: {
+  readonly switches: readonly DisplaySwitchItem[];
+  readonly viewChoice?: ViewChoice;
+}) {
   const popup = usePopup("display");
   const open = popup.open;
   const panelId = useId();
   return (
     <div className="switch-panel-host" {...popup.hostProps}>
-      <button type="button" className="switch-panel-toggle top-bar-button ui-icon" aria-label="Switch panel" title="Switch panel" aria-expanded={open} aria-controls={panelId} onClick={popup.toggle}>
+      <button
+        type="button"
+        className="switch-panel-toggle top-bar-button ui-icon"
+        aria-label="Switch panel"
+        title="Switch panel"
+        aria-expanded={open}
+        aria-controls={panelId}
+        onClick={popup.toggle}
+      >
         <SwitchesIcon />
         <ButtonText>Display</ButtonText>
       </button>
       <div id={panelId} className="switch-panel" role="group" aria-label="Switches in the panel" hidden={!open}>
         {viewChoice?.options.map((option) => (
-          <button key={`view-${option.id}`} type="button" className="switch-panel-row ui-row" aria-pressed={option.active} data-view-id={option.id} onClick={() => { if (!option.active) viewChoice.onSelect(option.id); }}>{option.label}</button>
+          <button
+            key={`view-${option.id}`}
+            type="button"
+            className="switch-panel-row ui-row"
+            aria-pressed={option.active}
+            data-view-id={option.id}
+            onClick={() => {
+              if (!option.active) viewChoice.onSelect(option.id);
+            }}
+          >
+            {option.label}
+          </button>
         ))}
         {switches.map((item) => (
-          <button key={item.id} type="button" className="switch-panel-row ui-row" aria-pressed={item.on} data-display-switch={item.id} onClick={item.onToggle}>{item.label}</button>
+          <button
+            key={item.id}
+            type="button"
+            className="switch-panel-row ui-row"
+            aria-pressed={item.on}
+            data-display-switch={item.id}
+            onClick={item.onToggle}
+          >
+            {item.label}
+          </button>
         ))}
       </div>
     </div>

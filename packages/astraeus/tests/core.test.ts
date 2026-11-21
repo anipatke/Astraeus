@@ -152,10 +152,19 @@ describe("provider trajectories and scale policies", () => {
     let moonWorstKm = 0;
     let sunWorstKm = 0;
     for (const sample of moonFixture.samples) {
-      moonWorstKm = Math.max(moonWorstKm, vectorDifferenceKm(moon.stateAt(Date.parse(sample.utc) + slipMs).positionKm, sample.positionKm));
+      moonWorstKm = Math.max(
+        moonWorstKm,
+        vectorDifferenceKm(moon.stateAt(Date.parse(sample.utc) + slipMs).positionKm, sample.positionKm),
+      );
     }
     for (const sample of sunFixture.samples) {
-      sunWorstKm = Math.max(sunWorstKm, vectorDifferenceKm(sunPositionFromEarthAt(adapter, Date.parse(sample.utc) + slipMs).positionKm, sample.positionKm));
+      sunWorstKm = Math.max(
+        sunWorstKm,
+        vectorDifferenceKm(
+          sunPositionFromEarthAt(adapter, Date.parse(sample.utc) + slipMs).positionKm,
+          sample.positionKm,
+        ),
+      );
     }
     expect(moonWorstKm).toBeGreaterThan(MOON_MAX_VECTOR_KM);
     expect(sunWorstKm).toBeGreaterThan(SUN_MAX_VECTOR_KM);
@@ -207,8 +216,9 @@ describe("provider trajectories and scale policies", () => {
     const inverse = inverseCenteredPosition(moonSun);
     expect(inverse.body).toBe("sun");
     expect(inverse.center).toBe("moon");
-    expect(Array.from(inverse.positionKm, (component, index) => component + moonSun.positionKm[index]))
-      .toEqual([0, 0, 0]);
+    expect(Array.from(inverse.positionKm, (component, index) => component + moonSun.positionKm[index])).toEqual([
+      0, 0, 0,
+    ]);
     const inverseEarthSun = inverseCenteredPosition(earthSun);
     expect(inverseEarthSun.body).toBe("sun");
     expect(inverseEarthSun.center).toBe("earth");
@@ -247,8 +257,10 @@ describe("provider trajectories and scale policies", () => {
     expect(readablePosition[0] / truePosition[0]).toBeCloseTo(0.1, 12);
     expect(Array.from(state.positionKm)).toEqual(before);
     expect(state.orientation).toEqual([0, 0, 0, 1]);
-    expect(trueScale.mapRadius(MOON.radiusKm) / trueScale.mapRadius(EARTH.radiusKm))
-      .toBeCloseTo(MOON.radiusKm / EARTH.radiusKm, 12);
+    expect(trueScale.mapRadius(MOON.radiusKm) / trueScale.mapRadius(EARTH.radiusKm)).toBeCloseTo(
+      MOON.radiusKm / EARTH.radiusKm,
+      12,
+    );
     expect(readableScale.mapRadius(MOON.radiusKm)).toBe(trueScale.mapRadius(MOON.radiusKm));
     expect(readableScale.mapRadius(EARTH.radiusKm)).toBe(trueScale.mapRadius(EARTH.radiusKm));
     expect(magnitude(trueScale.mapPosition([EARTH.radiusKm, 0, 0]))).toBeCloseTo(1, 12);
@@ -256,18 +268,42 @@ describe("provider trajectories and scale policies", () => {
   });
 
   it("rejects malformed states and scale inputs at their boundaries", () => {
-    expect(() => createState({
-      body: "moon", center: "earth", timeUtcMs: Number.NaN, positionKm: [1, 2, 3], orientation: [0, 0, 0, 1],
-    })).toThrow(RangeError);
-    expect(() => createState({
-      body: "moon", center: "earth", timeUtcMs: 0, positionKm: [1, 2], orientation: [0, 0, 0, 1],
-    })).toThrow(TypeError);
-    expect(() => createState({
-      body: "moon", center: "earth", timeUtcMs: 0, positionKm: [1, 2, 3], orientation: [0, 0, 0, 0],
-    })).toThrow(RangeError);
-    expect(() => createCenteredPosition({
-      body: "moon", center: "earth", timeUtcMs: 0, plane: "ECL" as "EQJ", positionKm: [1, 2, 3],
-    })).toThrow("EQJ frame only");
+    expect(() =>
+      createState({
+        body: "moon",
+        center: "earth",
+        timeUtcMs: Number.NaN,
+        positionKm: [1, 2, 3],
+        orientation: [0, 0, 0, 1],
+      }),
+    ).toThrow(RangeError);
+    expect(() =>
+      createState({
+        body: "moon",
+        center: "earth",
+        timeUtcMs: 0,
+        positionKm: [1, 2],
+        orientation: [0, 0, 0, 1],
+      }),
+    ).toThrow(TypeError);
+    expect(() =>
+      createState({
+        body: "moon",
+        center: "earth",
+        timeUtcMs: 0,
+        positionKm: [1, 2, 3],
+        orientation: [0, 0, 0, 0],
+      }),
+    ).toThrow(RangeError);
+    expect(() =>
+      createCenteredPosition({
+        body: "moon",
+        center: "earth",
+        timeUtcMs: 0,
+        plane: "ECL" as "EQJ",
+        positionKm: [1, 2, 3],
+      }),
+    ).toThrow("EQJ frame only");
     expect(() => trueScale.mapPosition([0, Number.NaN, 0])).toThrow(TypeError);
     expect(() => readableScale.mapRadius(-1)).toThrow(RangeError);
     expect(() => adapter.moonPositionKm(Number.NaN)).toThrow(RangeError);
@@ -278,7 +314,11 @@ describe("solar-system scale policy", () => {
   const policy = createSolarSystemScale({ exaggeration: { earth: 50, moon: 20 }, defaultExaggeration: 5 });
 
   it("maps positions exactly as True scale does", () => {
-    for (const v of [[0, 0, 0], [1.5e8, -2e7, 3e5], [EARTH.radiusKm, 0, 0]]) {
+    for (const v of [
+      [0, 0, 0],
+      [1.5e8, -2e7, 3e5],
+      [EARTH.radiusKm, 0, 0],
+    ]) {
       expect(Array.from(policy.mapPosition(v))).toEqual(Array.from(trueScale.mapPosition(v)));
     }
     expect(() => policy.mapPosition([0, Number.NaN, 0])).toThrow(TypeError);
@@ -295,9 +335,13 @@ describe("solar-system scale policy", () => {
   it("rejects factors that are not finite or are below 1", () => {
     for (const bad of [0.5, 0, -2, Number.NaN, Number.POSITIVE_INFINITY]) {
       expect(() => createSolarSystemScale({ exaggeration: {}, defaultExaggeration: bad })).toThrow(RangeError);
-      expect(() => createSolarSystemScale({ exaggeration: { earth: bad }, defaultExaggeration: 1 })).toThrow(RangeError);
+      expect(() => createSolarSystemScale({ exaggeration: { earth: bad }, defaultExaggeration: 1 })).toThrow(
+        RangeError,
+      );
     }
-    expect(createSolarSystemScale({ exaggeration: {}, defaultExaggeration: 1 }).mapRadius(1000, "x")).toBe(trueScale.mapRadius(1000));
+    expect(createSolarSystemScale({ exaggeration: {}, defaultExaggeration: 1 }).mapRadius(1000, "x")).toBe(
+      trueScale.mapRadius(1000),
+    );
   });
 
   it("states every factor in its explanation", () => {

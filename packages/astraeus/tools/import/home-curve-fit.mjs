@@ -16,7 +16,9 @@ const { chebyshevValue } = await import("../../src/core/chebyshev.ts");
 const REPO = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const DATA = join(REPO, "..", "astraeus-data-jupiter", "data", "jupiter-moons");
 const index = JSON.parse(readFileSync(join(DATA, "index.json"), "utf8"));
-const measure = JSON.parse(readFileSync(join(REPO, "docs", "evidence", "o025-t096-20261018T043531Z", "measure.json"), "utf8"));
+const measure = JSON.parse(
+  readFileSync(join(REPO, "docs", "evidence", "o025-t096-20261018T043531Z", "measure.json"), "utf8"),
+);
 const J2000_MS = Date.UTC(2000, 0, 1, 12);
 const WINDOW_UTC_MS = Date.UTC(2016, 10, 4);
 const tdbOfUtc = (ms) => (ms - J2000_MS) / 1000 + 69.184; // within a millisecond-scale of the full conversion; only picks a window
@@ -25,7 +27,13 @@ function chunkOf(id) {
   const entry = index.bodies.find((body) => body.id === id);
   const chunk = entry.chunks.find((c) => c.path === `${id}/2016.bin`);
   const bytes = new Uint8Array(readFileSync(join(DATA, chunk.path)));
-  return decodeChunk(bytes, { startTdbS: chunk.startTdbS, segmentSeconds: entry.fit.segmentSeconds, segmentCount: chunk.segmentCount, coefficientCount: entry.fit.degree + 1, quantumKm: entry.fit.quantumKm });
+  return decodeChunk(bytes, {
+    startTdbS: chunk.startTdbS,
+    segmentSeconds: entry.fit.segmentSeconds,
+    segmentCount: chunk.segmentCount,
+    coefficientCount: entry.fit.degree + 1,
+    quantumKm: entry.fit.quantumKm,
+  });
 }
 const ioChunk = chunkOf("io");
 const jupChunk = chunkOf("jupiter");
@@ -33,10 +41,15 @@ const wanted = tdbOfUtc(WINDOW_UTC_MS);
 const jupIndex = Math.floor((wanted - jupChunk.startTdbS) / jupChunk.segmentSeconds);
 const startTdbS = jupChunk.startTdbS + jupIndex * jupChunk.segmentSeconds;
 const ioFirst = Math.round((startTdbS - ioChunk.startTdbS) / ioChunk.segmentSeconds);
-if (Math.abs(ioChunk.startTdbS + ioFirst * ioChunk.segmentSeconds - startTdbS) > 1e-6 || ioChunk.segmentSeconds * 2 !== jupChunk.segmentSeconds) throw new Error("Io and Jupiter pieces do not line up");
+if (
+  Math.abs(ioChunk.startTdbS + ioFirst * ioChunk.segmentSeconds - startTdbS) > 1e-6 ||
+  ioChunk.segmentSeconds * 2 !== jupChunk.segmentSeconds
+)
+  throw new Error("Io and Jupiter pieces do not line up");
 
 const n = ioChunk.coefficientCount;
-const slice = (chunk, first, count) => Array.from(chunk.coefficients.subarray(first * 3 * n, (first + count) * 3 * n), (v) => Math.round(v / 1e-5) / 1e5);
+const slice = (chunk, first, count) =>
+  Array.from(chunk.coefficients.subarray(first * 3 * n, (first + count) * 3 * n), (v) => Math.round(v / 1e-5) / 1e5);
 const io = slice(ioChunk, ioFirst, 2);
 const jup = slice(jupChunk, jupIndex, 1);
 
@@ -52,7 +65,10 @@ const at = (tS) => {
 };
 const a = at(startTdbS + 1);
 const b = at(startTdbS + 0.25 * 1.769 * 86400);
-const norm = (v) => { const l = Math.hypot(...v); return v.map((c) => c / l); };
+const norm = (v) => {
+  const l = Math.hypot(...v);
+  return v.map((c) => c / l);
+};
 const cross = (u, v) => [u[1] * v[2] - u[2] * v[1], u[2] * v[0] - u[0] * v[2], u[0] * v[1] - u[1] * v[0]];
 const e1 = norm(a);
 const normal = norm(cross(a, b));
@@ -64,15 +80,28 @@ const row = measure.rawTables.find((r) => r.id === "io");
 const totalTable = measure.rawTables.reduce((sum, r) => sum + r.float64Bytes, 0);
 const totalFits = measure.sizes.totalRaw - measure.sizes.index.raw;
 const args = process.argv.slice(2);
-const planets = args.includes("--planets") ? JSON.parse(readFileSync(args[args.indexOf("--planets") + 1], "utf8")) : undefined;
+const planets = args.includes("--planets")
+  ? JSON.parse(readFileSync(args[args.indexOf("--planets") + 1], "utf8"))
+  : undefined;
 const data = {
   source: "data/ephemerides/jupiter-moons/ (JPL Horizons, fitted in O-025 T-096); NASA/JPL-Caltech SSD",
-  startTdbS, pieceSeconds: ioChunk.segmentSeconds, jupiterPieceSeconds: jupChunk.segmentSeconds, coefficients: n,
-  io, jupiter: jup, plane: { e1: round(e1), e2: round(e2) },
-  tableStepMinutes: row.stepMinutes, ioPeriodDays: ioEntry.fit.periodDays,
+  startTdbS,
+  pieceSeconds: ioChunk.segmentSeconds,
+  jupiterPieceSeconds: jupChunk.segmentSeconds,
+  coefficients: n,
+  io,
+  jupiter: jup,
+  plane: { e1: round(e1), e2: round(e2) },
+  tableStepMinutes: row.stepMinutes,
+  ioPeriodDays: ioEntry.fit.periodDays,
   figures: {
-    ioTableBytes: row.float64Bytes, ioFitBytes: row.fittedBytes, ioWorstM: ioEntry.accuracy.span.worstM,
-    setTableBytes: totalTable, setFitBytes: totalFits, bodies: index.bodies.length, span: [index.span.fromUtc, index.span.toUtc],
+    ioTableBytes: row.float64Bytes,
+    ioFitBytes: row.fittedBytes,
+    ioWorstM: ioEntry.accuracy.span.worstM,
+    setTableBytes: totalTable,
+    setFitBytes: totalFits,
+    bodies: index.bodies.length,
+    span: [index.span.fromUtc, index.span.toUtc],
     worstOfAllM: Math.max(...index.bodies.map((body) => body.accuracy.span.worstM)),
     ...(planets === undefined ? {} : { planets: planets.figures }),
   },
@@ -83,4 +112,6 @@ const block = `<!-- fit-data:start -->\n<script type="application/json" id="fit-
 const next = html.replace(/<!-- fit-data:start -->[\s\S]*<!-- fit-data:end -->/, () => block);
 if (next === html && !html.includes("fit-data:start")) throw new Error("index.html has no fit-data markers");
 writeFileSync(path, next);
-console.log(`fit data: ${JSON.stringify(data).length} bytes; Io ${row.fittedBytes} vs table ${row.float64Bytes} (${row.ratioFloat64}x); set ${totalFits} vs ${totalTable}`);
+console.log(
+  `fit data: ${JSON.stringify(data).length} bytes; Io ${row.fittedBytes} vs table ${row.float64Bytes} (${row.ratioFloat64}x); set ${totalFits} vs ${totalTable}`,
+);

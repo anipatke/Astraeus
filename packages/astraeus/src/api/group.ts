@@ -99,26 +99,44 @@ export interface PlannedGroup {
 const GROUP_COLOR = "#9de3a8";
 /** A hex colour as `addGroup` (and `setGroupLook`) takes it: `#rgb` or `#rrggbb`. */
 export const HEX = /^#[0-9a-fA-F]{3}([0-9a-fA-F]{3})?$/;
-const bad = (id: unknown, message: string): SceneError => new SceneError("bad-group", `addGroup("${String(id)}"): ${message}`);
+const bad = (id: unknown, message: string): SceneError =>
+  new SceneError("bad-group", `addGroup("${String(id)}"): ${message}`);
 
 /** Checks what can be checked before the scene is complete; the centre, the clump body and the id clash with other things are checked at build. */
 export function planGroup(input: GroupInput, catalogue: BodyCatalogue = builtInCatalogue): PlannedGroup {
   const id = input?.id;
   if (typeof id !== "string" || id === "") throw bad(id, "the group needs a non-empty id");
-  if (input.plane !== "ecliptic-j2000" && input.plane !== "EQJ") throw bad(id, `plane must be "ecliptic-j2000" or "EQJ", got ${input.plane === undefined ? "nothing" : JSON.stringify(input.plane)}; say which plane the elements are given in`);
+  if (input.plane !== "ecliptic-j2000" && input.plane !== "EQJ")
+    throw bad(
+      id,
+      `plane must be "ecliptic-j2000" or "EQJ", got ${input.plane === undefined ? "nothing" : JSON.stringify(input.plane)}; say which plane the elements are given in`,
+    );
   const measured = checkOrbits(id, input.orbits);
-  if (measured && input.seed !== undefined) throw bad(id, "seed only shuffles illustrative positions; every orbit gives meanAnomalyDeg, so the positions are measured: drop seed");
-  if (measured && input.clump !== undefined) throw bad(id, "clump only shapes illustrative positions; every orbit gives meanAnomalyDeg, so the positions are measured: drop clump");
+  if (measured && input.seed !== undefined)
+    throw bad(
+      id,
+      "seed only shuffles illustrative positions; every orbit gives meanAnomalyDeg, so the positions are measured: drop seed",
+    );
+  if (measured && input.clump !== undefined)
+    throw bad(
+      id,
+      "clump only shapes illustrative positions; every orbit gives meanAnomalyDeg, so the positions are measured: drop clump",
+    );
   checkLook(id, input);
   if (input.clump !== undefined) checkClump(id, input.clump, catalogue);
   checkReadouts(id, input.readouts);
-  if (input.center !== undefined && !catalogue.has(input.center)) throw new SceneError("unknown-body", `addGroup("${id}"): centre "${String(input.center)}" is not a catalogued body`);
+  if (input.center !== undefined && !catalogue.has(input.center))
+    throw new SceneError(
+      "unknown-body",
+      `addGroup("${id}"): centre "${String(input.center)}" is not a catalogued body`,
+    );
   return { id, label: input.label ?? id, input };
 }
 
 /** Checks ids and the all-or-none mean anomaly rule; returns whether the group has measured positions. */
 function checkOrbits(id: string, orbits: readonly GroupOrbitInput[]): boolean {
-  if (!Array.isArray(orbits) || orbits.length === 0) throw bad(id, "the group needs at least one orbit; the list is empty");
+  if (!Array.isArray(orbits) || orbits.length === 0)
+    throw bad(id, "the group needs at least one orbit; the list is empty");
   const measured = orbits.some((orbit) => orbit?.meanAnomalyDeg !== undefined);
   const seen = new Set<string>();
   for (const orbit of orbits) {
@@ -127,7 +145,11 @@ function checkOrbits(id: string, orbits: readonly GroupOrbitInput[]): boolean {
     seen.add(orbit.id);
     const m = orbit.meanAnomalyDeg;
     if (m === undefined) {
-      if (measured) throw bad(id, `orbit "${orbit.id}" gives no meanAnomalyDeg while others do; give it for every orbit (measured positions) or for none (illustrative positions)`);
+      if (measured)
+        throw bad(
+          id,
+          `orbit "${orbit.id}" gives no meanAnomalyDeg while others do; give it for every orbit (measured positions) or for none (illustrative positions)`,
+        );
     } else if (!(typeof m === "number" && Number.isFinite(m))) {
       throw bad(id, `orbit "${orbit.id}" meanAnomalyDeg must be a finite number of degrees, got ${String(m)}`);
     }
@@ -143,35 +165,57 @@ function isMeasured(input: GroupInput): boolean {
 const positive = (value: number | undefined): boolean => value === undefined || (Number.isFinite(value) && value > 0);
 
 function checkLook(id: string, input: GroupInput): void {
-  if (input.color !== undefined && !(typeof input.color === "string" && HEX.test(input.color))) throw bad(id, `color "${String(input.color)}" is not a hex colour such as "#9de3a8"`);
+  if (input.color !== undefined && !(typeof input.color === "string" && HEX.test(input.color)))
+    throw bad(id, `color "${String(input.color)}" is not a hex colour such as "#9de3a8"`);
   if (!positive(input.dotSizePx)) throw bad(id, "dotSizePx must be above 0");
   if (!positive(input.refillAfterMs)) throw bad(id, "refillAfterMs must be above 0");
-  if (input.refillSliceMs !== undefined && !(Number.isFinite(input.refillSliceMs) && input.refillSliceMs >= 0)) throw bad(id, "refillSliceMs must be 0 or above");
+  if (input.refillSliceMs !== undefined && !(Number.isFinite(input.refillSliceMs) && input.refillSliceMs >= 0))
+    throw bad(id, "refillSliceMs must be 0 or above");
   const limits = input.knownLimitations;
-  if (limits !== undefined && !(Array.isArray(limits) && limits.every((line) => typeof line === "string" && line !== ""))) throw bad(id, "knownLimitations must be a list of non-empty texts");
+  if (
+    limits !== undefined &&
+    !(Array.isArray(limits) && limits.every((line) => typeof line === "string" && line !== ""))
+  )
+    throw bad(id, "knownLimitations must be a list of non-empty texts");
 }
 
 function checkReadouts(id: string, readouts: readonly GroupReadoutInput[] | undefined): void {
   if (readouts === undefined) return;
   if (!Array.isArray(readouts)) throw new SceneError("bad-readout", `addGroup("${id}"): readouts must be a list`);
   for (const spec of readouts) {
-    if (spec?.kind !== "rate") throw new SceneError("bad-readout", `addGroup("${id}"): readout kind "${String(spec?.kind)}" is not one of rate`);
-    if (spec.activity !== undefined && (typeof spec.activity !== "string" || spec.activity === "")) throw new SceneError("bad-readout", `addGroup("${id}"): readout rate needs \`activity\` to be the id of an activity`);
+    if (spec?.kind !== "rate")
+      throw new SceneError("bad-readout", `addGroup("${id}"): readout kind "${String(spec?.kind)}" is not one of rate`);
+    if (spec.activity !== undefined && (typeof spec.activity !== "string" || spec.activity === ""))
+      throw new SceneError(
+        "bad-readout",
+        `addGroup("${id}"): readout rate needs \`activity\` to be the id of an activity`,
+      );
   }
 }
 
 function checkClump(id: string, clump: GroupClumpInput, catalogue: BodyCatalogue): void {
-  if (typeof clump.near !== "string" || !catalogue.has(clump.near) || catalogue.get(clump.near).source === undefined) throw bad(id, `clump.near "${String(clump?.near)}" is not a catalogued body with a position`);
-  if (!(clump.fraction >= 0 && clump.fraction <= 1)) throw bad(id, `clump.fraction must be from 0 to 1, got ${String(clump.fraction)}`);
-  if (!(clump.widthDeg > 0 && clump.widthDeg <= 180)) throw bad(id, `clump.widthDeg must be above 0 and at most 180, got ${String(clump.widthDeg)}`);
+  if (typeof clump.near !== "string" || !catalogue.has(clump.near) || catalogue.get(clump.near).source === undefined)
+    throw bad(id, `clump.near "${String(clump?.near)}" is not a catalogued body with a position`);
+  if (!(clump.fraction >= 0 && clump.fraction <= 1))
+    throw bad(id, `clump.fraction must be from 0 to 1, got ${String(clump.fraction)}`);
+  if (!(clump.widthDeg > 0 && clump.widthDeg <= 180))
+    throw bad(id, `clump.widthDeg must be above 0 and at most 180, got ${String(clump.widthDeg)}`);
 }
 
-const MEASURED_PLACEMENT_LIMIT = "Each dot's position comes from its record's mean anomaly by unperturbed two-body motion from the record's epoch; perturbations are ignored, so a dot drifts from the true position the further the time is from that epoch.";
-const PLACEMENT_LIMIT = "The position of each dot along its orbit is illustrative: the list gives the orbit's shape and orientation, and the dots are spread evenly along them.";
+const MEASURED_PLACEMENT_LIMIT =
+  "Each dot's position comes from its record's mean anomaly by unperturbed two-body motion from the record's epoch; perturbations are ignored, so a dot drifts from the true position the further the time is from that epoch.";
+const PLACEMENT_LIMIT =
+  "The position of each dot along its orbit is illustrative: the list gives the orbit's shape and orientation, and the dots are spread evenly along them.";
 const MOTION_LIMIT = "Motion is unperturbed two-body motion about the centre.";
-const CLUMP_LIMIT = (catalogue: BodyCatalogue, near: BodyId, fraction: number): string => `${Math.round(fraction * 100)}% of the dots are drawn near ${catalogue.get(near).definition.label}'s position along its orbit. That clump is a model, not a measurement.`;
+const CLUMP_LIMIT = (catalogue: BodyCatalogue, near: BodyId, fraction: number): string =>
+  `${Math.round(fraction * 100)}% of the dots are drawn near ${catalogue.get(near).definition.label}'s position along its orbit. That clump is a model, not a measurement.`;
 
-const AS_SUPPLIED = createProvenance({ sourceType: "illustrative", sources: ["Supplied by the caller"], accuracy: "As supplied; the engine makes no claim.", notes: "The orbits were passed to addGroup." });
+const AS_SUPPLIED = createProvenance({
+  sourceType: "illustrative",
+  sources: ["Supplied by the caller"],
+  accuracy: "As supplied; the engine makes no claim.",
+  notes: "The orbits were passed to addGroup.",
+});
 
 /** The provenance the caller gave a group, else the "as supplied" notice. */
 function groupSource(input: GroupInput): Provenance {
@@ -185,40 +229,73 @@ export function groupCardProvenance(input: GroupInput): Provenance {
 
 /** The words on a group's card: the caller's, else a sentence stating the count. */
 export function groupDescription(input: GroupInput, count: number): string {
-  return input.description ?? `${count} listed orbit${count === 1 ? "" : "s"}, each drawn as one dot. One item stands for the whole group; its focus point is the centroid of the dots.`;
+  return (
+    input.description ??
+    `${count} listed orbit${count === 1 ? "" : "s"}, each drawn as one dot. One item stands for the whole group; its focus point is the centroid of the dots.`
+  );
 }
 
 /** The known limits on a group's card: the caller's, then the engine's own about placement (measured or illustrative), the clump and motion. */
 export function groupLimitations(input: GroupInput, catalogue: BodyCatalogue): readonly string[] {
   const clump = input.clump;
-  return [...(input.knownLimitations ?? []), isMeasured(input) ? MEASURED_PLACEMENT_LIMIT : PLACEMENT_LIMIT, ...(clump === undefined ? [] : [CLUMP_LIMIT(catalogue, clump.near, clump.fraction)]), MOTION_LIMIT];
+  return [
+    ...(input.knownLimitations ?? []),
+    isMeasured(input) ? MEASURED_PLACEMENT_LIMIT : PLACEMENT_LIMIT,
+    ...(clump === undefined ? [] : [CLUMP_LIMIT(catalogue, clump.near, clump.fraction)]),
+    MOTION_LIMIT,
+  ];
 }
 
 /** Builds the draw layer: the listed-orbit group and its one shell item. `center` and `openUtcMs` come from the finished scene; a group error from the engine is renamed `bad-group`. */
-export function buildGroupLayer(plan: PlannedGroup, catalogue: BodyCatalogue, center: BodyId, openUtcMs: number, window: TimeBounds): GroupLayer {
+export function buildGroupLayer(
+  plan: PlannedGroup,
+  catalogue: BodyCatalogue,
+  center: BodyId,
+  openUtcMs: number,
+  window: TimeBounds,
+): GroupLayer {
   const { id, input } = plan;
-  const referenceUtcMs = input.referenceTime === undefined ? openUtcMs : toUtcMs(input.referenceTime, `addGroup("${id}") referenceTime`);
+  const referenceUtcMs =
+    input.referenceTime === undefined ? openUtcMs : toUtcMs(input.referenceTime, `addGroup("${id}") referenceTime`);
   const members = input.orbits.map((orbit): ListedMember => ({
     recordId: orbit.id,
-    epochUtcMs: orbit.time === undefined ? referenceUtcMs : toUtcMs(orbit.time, `addGroup("${id}") orbit "${orbit.id}" time`),
-    elements: { semiMajorAxisKm: orbit.semiMajorAxisKm, eccentricity: orbit.eccentricity, inclinationDeg: orbit.inclinationDeg, raanDeg: orbit.raanDeg, argumentOfPeriapsisDeg: orbit.argumentOfPeriapsisDeg },
+    epochUtcMs:
+      orbit.time === undefined ? referenceUtcMs : toUtcMs(orbit.time, `addGroup("${id}") orbit "${orbit.id}" time`),
+    elements: {
+      semiMajorAxisKm: orbit.semiMajorAxisKm,
+      eccentricity: orbit.eccentricity,
+      inclinationDeg: orbit.inclinationDeg,
+      raanDeg: orbit.raanDeg,
+      argumentOfPeriapsisDeg: orbit.argumentOfPeriapsisDeg,
+    },
     ...(orbit.meanAnomalyDeg === undefined ? {} : { meanAnomalyDeg: orbit.meanAnomalyDeg }),
   }));
   const clump = input.clump;
   try {
-    const group = createListedOrbitGroup({
-      id,
-      center,
-      plane: input.plane,
-      members,
-      phase: {
-        referenceUtcMs,
-        ...(input.seed === undefined ? {} : { seed: input.seed }),
-        ...(clump === undefined ? {} : { concentration: { around: catalogue.get(clump.near).source!.create(createOrbAstronomyAdapter()), fraction: clump.fraction, widthDeg: clump.widthDeg } }),
+    const group = createListedOrbitGroup(
+      {
+        id,
+        center,
+        plane: input.plane,
+        members,
+        phase: {
+          referenceUtcMs,
+          ...(input.seed === undefined ? {} : { seed: input.seed }),
+          ...(clump === undefined
+            ? {}
+            : {
+                concentration: {
+                  around: catalogue.get(clump.near).source!.create(createOrbAstronomyAdapter()),
+                  fraction: clump.fraction,
+                  widthDeg: clump.widthDeg,
+                },
+              }),
+        },
+        bounds: window,
+        provenance: groupSource(input),
       },
-      bounds: window,
-      provenance: groupSource(input),
-    }, createOrbTwoBodyAdapter());
+      createOrbTwoBodyAdapter(),
+    );
     const color = input.color ?? GROUP_COLOR;
     return {
       group,

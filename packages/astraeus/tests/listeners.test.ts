@@ -8,7 +8,10 @@ import type { ViewerControl, ViewerState } from "../src/app/viewerPort";
 import { FAKE_PRESENTATION, FAKE_PRESENTATION_CONTROL } from "./helpers/viewerPresentation";
 
 const START = Date.UTC(2020, 0, 1);
-afterEach(() => { vi.unstubAllGlobals(); vi.useRealTimers(); });
+afterEach(() => {
+  vi.unstubAllGlobals();
+  vi.useRealTimers();
+});
 
 describe("callListeners", () => {
   it("runs every listener with the value, reports each throw with reportError afterwards, and does not throw", () => {
@@ -16,7 +19,18 @@ describe("callListeners", () => {
     vi.stubGlobal("reportError", report);
     const boom = new Error("boom");
     const heard: number[] = [];
-    callListeners(new Set([() => { throw boom; }, (v: number) => heard.push(v), () => { throw boom; }]), 7);
+    callListeners(
+      new Set([
+        () => {
+          throw boom;
+        },
+        (v: number) => heard.push(v),
+        () => {
+          throw boom;
+        },
+      ]),
+      7,
+    );
     expect(heard).toEqual([7]);
     expect(report).toHaveBeenCalledTimes(2);
     expect(report).toHaveBeenCalledWith(boom);
@@ -27,7 +41,15 @@ describe("callListeners", () => {
     vi.stubGlobal("reportError", undefined);
     const boom = new Error("late");
     const heard: number[] = [];
-    callListeners(new Set([() => { throw boom; }, (v: number) => heard.push(v)]), 1);
+    callListeners(
+      new Set([
+        () => {
+          throw boom;
+        },
+        (v: number) => heard.push(v),
+      ]),
+      1,
+    );
     expect(heard).toEqual([1]);
     expect(() => vi.runAllTimers()).toThrow("late");
   });
@@ -36,8 +58,14 @@ describe("callListeners", () => {
     vi.stubGlobal("reportError", vi.fn());
     const set = new Set<(v: number) => void>();
     const heard: string[] = [];
-    const added = (): void => { heard.push("added"); };
-    const self = (): void => { heard.push("self"); set.delete(self); set.add(added); };
+    const added = (): void => {
+      heard.push("added");
+    };
+    const self = (): void => {
+      heard.push("self");
+      set.delete(self);
+      set.add(added);
+    };
     set.add(self);
     set.add(() => heard.push("other"));
     callListeners(set, 0);
@@ -48,10 +76,30 @@ describe("callListeners", () => {
 });
 
 function fakeControl(): { control: ViewerControl; state: ViewerState } {
-  const state: ViewerState = { timeUtcMs: START + 10, rate: 1, playing: false, auto: true, zones: [], ...FAKE_PRESENTATION };
+  const state: ViewerState = {
+    timeUtcMs: START + 10,
+    rate: 1,
+    playing: false,
+    auto: true,
+    zones: [],
+    ...FAKE_PRESENTATION,
+  };
   const control = {
-    window: { startUtcMs: START, endUtcMs: START + 1e6 }, events: [{ id: "e1", type: "flyby", object: "moon" }], rates: [1], paced: true, playable: true, setPlaying: () => undefined,
-    read: () => state, seek: () => undefined, setRate: () => undefined, views: [], setView: () => undefined, cameraTargets: () => [], readCamera: () => ({}), setCamera: () => undefined, ...FAKE_PRESENTATION_CONTROL,
+    window: { startUtcMs: START, endUtcMs: START + 1e6 },
+    events: [{ id: "e1", type: "flyby", object: "moon" }],
+    rates: [1],
+    paced: true,
+    playable: true,
+    setPlaying: () => undefined,
+    read: () => state,
+    seek: () => undefined,
+    setRate: () => undefined,
+    views: [],
+    setView: () => undefined,
+    cameraTargets: () => [],
+    readCamera: () => ({}),
+    setCamera: () => undefined,
+    ...FAKE_PRESENTATION_CONTROL,
   } as unknown as ViewerControl;
   return { control, state };
 }
@@ -64,7 +112,9 @@ describe("ViewerLink listeners", () => {
     const { control, state } = fakeControl();
     const heard: ViewerChange[] = [];
     const boom = new Error("change boom");
-    link.onChange(() => { throw boom; });
+    link.onChange(() => {
+      throw boom;
+    });
     link.onChange((c) => heard.push(c));
     link.attach(control);
     link.publish({ ...state, timeUtcMs: START + 20 }, "playback");
@@ -79,7 +129,9 @@ describe("ViewerLink listeners", () => {
     const { control, state } = fakeControl();
     const heard: EventZoneChange[] = [];
     const boom = new Error("zone boom");
-    link.onEventZone(() => { throw boom; });
+    link.onEventZone(() => {
+      throw boom;
+    });
     link.onEventZone((z) => heard.push(z));
     link.attach(control);
     link.publish({ ...state, zones: ["e1"] }, "playback");
@@ -98,7 +150,9 @@ describe("ViewerLink selection listeners (I-138)", () => {
     const { control, state } = fakeControl();
     const heard: SelectionChange[] = [];
     const boom = new Error("select boom");
-    link.onSelect(() => { throw boom; });
+    link.onSelect(() => {
+      throw boom;
+    });
     link.onSelect((c) => heard.push(c));
     link.attach(control);
     const moved = { ...state, timeUtcMs: START + 20 };
@@ -107,18 +161,28 @@ describe("ViewerLink selection listeners (I-138)", () => {
     link.publishSelection({ ...moved, selected: "earth" }, false); // a visitor's own choice
     link.publish({ ...moved, timeUtcMs: START + 30, selected: "earth" }, "playback");
     link.publishSelection({ ...moved, timeUtcMs: START + 30, selected: "sun" }, true);
-    expect(heard.map((c) => [c.object, c.cause])).toEqual([["moon", "host"], ["earth", "visitor"], ["sun", "playback"]]);
+    expect(heard.map((c) => [c.object, c.cause])).toEqual([
+      ["moon", "host"],
+      ["earth", "visitor"],
+      ["sun", "playback"],
+    ]);
     expect(report).toHaveBeenCalledTimes(3);
     expect(report).toHaveBeenCalledWith(boom);
   });
 });
 
 /** Every file under `src/api` that holds a listener set: a new host-link part is covered the day it is added. */
-const listenerParts = readdirSync(new URL("../src/api/", import.meta.url)).filter((f) => f.endsWith(".ts") && /#listeners|Listeners\b/.test(readFileSync(new URL(`../src/api/${f}`, import.meta.url), "utf8")) && f !== "listeners.ts");
+const listenerParts = readdirSync(new URL("../src/api/", import.meta.url)).filter(
+  (f) =>
+    f.endsWith(".ts") &&
+    /#listeners|Listeners\b/.test(readFileSync(new URL(`../src/api/${f}`, import.meta.url), "utf8")) &&
+    f !== "listeners.ts",
+);
 
 describe("listener scan", () => {
   it("covers the known host-link parts (so the rule cannot go empty)", () => {
-    for (const part of ["viewerClock.ts", "viewerZones.ts", "viewerSelection.ts", "viewerCamera.ts"]) expect(listenerParts).toContain(part);
+    for (const part of ["viewerClock.ts", "viewerZones.ts", "viewerSelection.ts", "viewerCamera.ts"])
+      expect(listenerParts).toContain(part);
   });
 
   it("no part that holds listeners loops over them itself, and each calls callListeners", () => {
@@ -126,7 +190,8 @@ describe("listener scan", () => {
       const source = readFileSync(new URL(`../src/api/${file}`, import.meta.url), "utf8");
       expect(source, file).not.toMatch(/for \(const \w+ of \[?\.{0,3}\s*(this\.)?#?listeners/i);
       expect(source, file).not.toMatch(/#listeners\.forEach/);
-      if (/#listeners\b/.test(source) && /\.add\(listener\)/.test(source)) expect(source, file).toContain("callListeners(");
+      if (/#listeners\b/.test(source) && /\.add\(listener\)/.test(source))
+        expect(source, file).toContain("callListeners(");
     }
   });
 });

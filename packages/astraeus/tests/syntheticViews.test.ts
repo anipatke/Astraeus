@@ -12,7 +12,11 @@ describe("syntheticViewsDefinition", () => {
   });
 
   it("gives each view a different camera rule and shares Earth", () => {
-    expect(views.views.map((view) => view.camera)).toEqual([{ rule: "stay" }, { rule: "start", framing: { follow: "probe-b" } }, { rule: "start", framing: { focus: "probe-a" } }]);
+    expect(views.views.map((view) => view.camera)).toEqual([
+      { rule: "stay" },
+      { rule: "start", framing: { follow: "probe-b" } },
+      { rule: "start", framing: { focus: "probe-a" } },
+    ]);
     for (const view of views.views) expect(view.objects.has("earth")).toBe(true);
   });
 

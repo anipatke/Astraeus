@@ -32,7 +32,12 @@ export interface SkyLineSwitches {
 }
 
 /** The starting state of the four switches: the figures show, the rest wait for the app to ask. */
-export const DEFAULT_SKY_LINES: Readonly<SkyLineSwitches> = Object.freeze({ figures: true, boundaries: false, ecliptic: false, celestialEquator: false });
+export const DEFAULT_SKY_LINES: Readonly<SkyLineSwitches> = Object.freeze({
+  figures: true,
+  boundaries: false,
+  ecliptic: false,
+  celestialEquator: false,
+});
 
 /** The colours of the sky lines and their labels, and of the lines a trace draws (T-297): every one a CSS colour text. The look `skyLines` sets them; `DEFAULT_SKY_COLOURS` is the one place the defaults are stated. */
 export interface SkyColours {
@@ -47,7 +52,16 @@ export interface SkyColours {
   readonly selected: string;
 }
 
-export const DEFAULT_SKY_COLOURS: Readonly<SkyColours> = Object.freeze({ figure: "#8fb4ff", label: "#cfe0ff", boundary: "#5f7a9c", ecliptic: "#e0b25a", equator: "#7fd1b9", traced: "#ffd166", faded: "#44546d", selected: "#ffffff" });
+export const DEFAULT_SKY_COLOURS: Readonly<SkyColours> = Object.freeze({
+  figure: "#8fb4ff",
+  label: "#cfe0ff",
+  boundary: "#5f7a9c",
+  ecliptic: "#e0b25a",
+  equator: "#7fd1b9",
+  traced: "#ffd166",
+  faded: "#44546d",
+  selected: "#ffffff",
+});
 
 /** A trace the host asked for (checked): the figure, how long, what follows, and whether the person asked for less motion when it was asked. */
 export interface SkyTraceRequest {
@@ -66,7 +80,9 @@ export interface SkyClearRequest {
 
 /** True when the person asked the system for less motion (`prefers-reduced-motion: reduce`); false where the browser cannot say. */
 export function prefersReducedMotion(): boolean {
-  return typeof globalThis.matchMedia === "function" && globalThis.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  return (
+    typeof globalThis.matchMedia === "function" && globalThis.matchMedia("(prefers-reduced-motion: reduce)").matches
+  );
 }
 
 /** The sky colours in force: the look's `skyLines`, every one not named at its default. */
@@ -84,7 +100,10 @@ const CIRCLE_SEGMENTS = 180;
 
 /** The mean of the unit directions, normalised; the first when they cancel out. */
 export function meanDirection(directions: readonly EqjDirection[]): EqjDirection {
-  const sum = directions.reduce<[number, number, number]>((acc, d) => [acc[0] + d[0], acc[1] + d[1], acc[2] + d[2]], [0, 0, 0]);
+  const sum = directions.reduce<[number, number, number]>(
+    (acc, d) => [acc[0] + d[0], acc[1] + d[1], acc[2] + d[2]],
+    [0, 0, 0],
+  );
   const length = Math.hypot(sum[0], sum[1], sum[2]);
   return length > 1e-9 ? [sum[0] / length, sum[1] / length, sum[2] / length] : directions[0]!;
 }
@@ -110,7 +129,10 @@ export function eclipticSegments(): readonly (readonly [EqjDirection, EqjDirecti
 }
 
 /** A camera request with a look-out direction that names a sky figure turned into that figure's label point (the one place a figure id becomes a direction); any other request is returned as it is. */
-export function aimAtFigure<T extends CameraRequest>(request: T, figures: readonly Pick<SkyFigureLayer, "id" | "labelAt">[]): T {
+export function aimAtFigure<T extends CameraRequest>(
+  request: T,
+  figures: readonly Pick<SkyFigureLayer, "id" | "labelAt">[],
+): T {
   if (request.kind !== "lookOut" || typeof request.direction !== "string") return request;
   const figure = figures.find(({ id }) => id === request.direction);
   return figure === undefined ? request : { ...request, direction: figure.labelAt };

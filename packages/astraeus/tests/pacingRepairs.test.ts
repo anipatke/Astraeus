@@ -6,7 +6,16 @@ import type { SceneRuntime } from "../src/app/AstraeusScene";
 import { ViewerZones } from "../src/api/viewerZones";
 import type { EventZoneChange } from "../src/api/viewerLink";
 import type { ViewerState } from "../src/app/viewerPort";
-import { PACE_EASE_MS, activeEventZones, pacedAdvance, pacedRate, stepPacing, type PaceView, type PaceZone, type Pacing } from "../src/presentation/pacing";
+import {
+  PACE_EASE_MS,
+  activeEventZones,
+  pacedAdvance,
+  pacedRate,
+  stepPacing,
+  type PaceView,
+  type PaceZone,
+  type Pacing,
+} from "../src/presentation/pacing";
 
 const HOUR = 3_600_000;
 const DAY = 24 * HOUR;
@@ -14,16 +23,39 @@ const T0 = Date.UTC(2030, 0, 1);
 
 describe("I-170: spans set the cruise, an event rule eases down from it", () => {
   const span: PaceZone = { fromUtcMs: T0, toUtcMs: T0 + 100 * DAY, rate: 2_592_000, rampMs: 10 * DAY };
-  const rule: PaceZone = { fromUtcMs: T0 + 50 * DAY - 1.5 * HOUR, toUtcMs: T0 + 50 * DAY + 1.5 * HOUR, rate: 1_200, rampMs: 4 * HOUR, eventId: "e" };
-  const touching: PaceZone = { fromUtcMs: T0 + 90 * DAY, toUtcMs: T0 + 90 * DAY + HOUR, rate: 500, rampMs: 4 * HOUR, eventId: "t" }; // its ramp starts inside the span's body, its far side in the span's ramp
-  const slowOnly: PaceZone = { fromUtcMs: T0 + 300 * DAY, toUtcMs: T0 + 301 * DAY, rate: 10, rampMs: 2 * HOUR, eventId: "s" };
+  const rule: PaceZone = {
+    fromUtcMs: T0 + 50 * DAY - 1.5 * HOUR,
+    toUtcMs: T0 + 50 * DAY + 1.5 * HOUR,
+    rate: 1_200,
+    rampMs: 4 * HOUR,
+    eventId: "e",
+  };
+  const touching: PaceZone = {
+    fromUtcMs: T0 + 90 * DAY,
+    toUtcMs: T0 + 90 * DAY + HOUR,
+    rate: 500,
+    rampMs: 4 * HOUR,
+    eventId: "t",
+  }; // its ramp starts inside the span's body, its far side in the span's ramp
+  const slowOnly: PaceZone = {
+    fromUtcMs: T0 + 300 * DAY,
+    toUtcMs: T0 + 301 * DAY,
+    rate: 10,
+    rampMs: 2 * HOUR,
+    eventId: "s",
+  };
   const pacing = (zones: PaceZone[]): Pacing => ({ baseRate: 86_400, zones });
 
   it("is continuous across every ramp edge: a small time step moves the log rate only a little", () => {
     const p = pacing([span, rule, touching]);
     let worst = 0;
     // fine steps over the rule (its ramps and edges), the touching rule, and the span's two ramps
-    for (const [from, to, step] of [[T0 + 50 * DAY - 6 * HOUR, T0 + 50 * DAY + 6 * HOUR, 1_000], [T0 + 90 * DAY - 6 * HOUR, T0 + 90 * DAY + 6 * HOUR, 1_000], [T0 - 11 * DAY, T0 + 1 * DAY, 60_000], [T0 + 99 * DAY, T0 + 111 * DAY, 60_000]] as const) {
+    for (const [from, to, step] of [
+      [T0 + 50 * DAY - 6 * HOUR, T0 + 50 * DAY + 6 * HOUR, 1_000],
+      [T0 + 90 * DAY - 6 * HOUR, T0 + 90 * DAY + 6 * HOUR, 1_000],
+      [T0 - 11 * DAY, T0 + 1 * DAY, 60_000],
+      [T0 + 99 * DAY, T0 + 111 * DAY, 60_000],
+    ] as const) {
       let previous = pacedRate(p, from);
       for (let t = from + step; t <= to; t += step) {
         const rate = pacedRate(p, t);
@@ -43,7 +75,8 @@ describe("I-170: spans set the cruise, an event rule eases down from it", () => 
     const zones = [span, rule, touching, slowOnly];
     const reversed = pacing([...zones].reverse());
     const forward = pacing(zones);
-    for (let t = T0 - 12 * DAY; t < T0 + 320 * DAY; t += 7 * HOUR + 123) expect(pacedRate(reversed, t)).toBe(pacedRate(forward, t));
+    for (let t = T0 - 12 * DAY; t < T0 + 320 * DAY; t += 7 * HOUR + 123)
+      expect(pacedRate(reversed, t)).toBe(pacedRate(forward, t));
   });
 
   it("is still the slower of two event rules where their ramps meet (no span)", () => {
@@ -59,15 +92,28 @@ describe("I-170: spans set the cruise, an event rule eases down from it", () => 
     const p = pacing([span, rule]);
     expect(pacedRate(p, T0 + 200 * DAY)).toBe(86_400);
     expect(pacedRate(p, T0 - 20 * DAY)).toBe(86_400);
-    const fast: PaceZone = { fromUtcMs: T0 + 20 * DAY, toUtcMs: T0 + 21 * DAY, rate: 99_999_999, rampMs: DAY, eventId: "f" };
-    for (let t = T0 + 18 * DAY; t < T0 + 23 * DAY; t += 3 * HOUR) expect(pacedRate(pacing([span, fast]), t)).toBe(pacedRate(pacing([span]), t));
+    const fast: PaceZone = {
+      fromUtcMs: T0 + 20 * DAY,
+      toUtcMs: T0 + 21 * DAY,
+      rate: 99_999_999,
+      rampMs: DAY,
+      eventId: "f",
+    };
+    for (let t = T0 + 18 * DAY; t < T0 + 23 * DAY; t += 3 * HOUR)
+      expect(pacedRate(pacing([span, fast]), t)).toBe(pacedRate(pacing([span]), t));
   });
 });
 
 describe("I-171: a view-switch ease still steps through every zone", () => {
-  const CRUISE = 26 * DAY / 1000;
+  const CRUISE = (26 * DAY) / 1000;
   const centre = T0 + 3 * DAY;
-  const zone: PaceZone = { fromUtcMs: centre - 1.5 * HOUR, toUtcMs: centre + 1.5 * HOUR, rate: 1_200, rampMs: 4 * HOUR, eventId: "z" };
+  const zone: PaceZone = {
+    fromUtcMs: centre - 1.5 * HOUR,
+    toUtcMs: centre + 1.5 * HOUR,
+    rate: 1_200,
+    rampMs: 4 * HOUR,
+    eventId: "z",
+  };
   const pacing: Pacing = { baseRate: CRUISE, zones: [zone] };
 
   function run(frameMs: number, offsetHours: number, easeFrom: number | undefined) {
@@ -92,7 +138,8 @@ describe("I-171: a view-switch ease still steps through every zone", () => {
     for (const frameMs of [16, 100, 250, 1_000]) {
       for (let offset = 12; offset <= 40; offset += 4) {
         expect(run(frameMs, offset, undefined), `no ease ${frameMs} ms +${offset} h`).toBe(true);
-        for (const from of [5, 1_000, CRUISE, CRUISE / 2, CRUISE / 4, CRUISE * 1.01, CRUISE * 4]) if (!run(frameMs, offset, from)) bad.push(`${frameMs}/${offset}/${from}`);
+        for (const from of [5, 1_000, CRUISE, CRUISE / 2, CRUISE / 4, CRUISE * 1.01, CRUISE * 4])
+          if (!run(frameMs, offset, from)) bad.push(`${frameMs}/${offset}/${from}`);
       }
     }
     expect(bad).toEqual([]);
@@ -101,10 +148,16 @@ describe("I-171: a view-switch ease still steps through every zone", () => {
   it("integrates the eased rate: the advance over the ease is the area under the log-space blend", () => {
     const from = 5; // the paced rate away from zones is CRUISE
     const t0 = zone.fromUtcMs - 40 * DAY;
-    const eased = (ms: number) => Math.exp(Math.log(from) + (Math.log(CRUISE) - Math.log(from)) * ((ms / PACE_EASE_MS) ** 2 * (3 - 2 * (ms / PACE_EASE_MS))));
+    const eased = (ms: number) =>
+      Math.exp(
+        Math.log(from) +
+          (Math.log(CRUISE) - Math.log(from)) * ((ms / PACE_EASE_MS) ** 2 * (3 - 2 * (ms / PACE_EASE_MS))),
+      );
     let expected = 0;
     for (let ms = 0; ms < PACE_EASE_MS; ms += 0.05) expected += eased(ms + 0.025) * 0.05;
-    const moved = pacedAdvance(pacing, t0, PACE_EASE_MS, undefined, 1, { k0: Math.log(from) - Math.log(CRUISE), elapsedMs: 0 }) - t0;
+    const moved =
+      pacedAdvance(pacing, t0, PACE_EASE_MS, undefined, 1, { k0: Math.log(from) - Math.log(CRUISE), elapsedMs: 0 }) -
+      t0;
     expect(Math.abs(moved - expected)).toBeLessThan(expected * 0.01);
     // one rate per frame (the old fallback) would have been far off for a frame this long
     expect(Math.abs(moved - from * PACE_EASE_MS)).toBeGreaterThan(expected * 0.2);
@@ -121,7 +174,9 @@ describe("I-171: a view-switch ease still steps through every zone", () => {
       view.ease = { fromRate: CRUISE * 1.01, startMs: monotonic };
       const link = new ViewerZones({ control: () => ({ events: [{ id: "z" }] }) } as never);
       const heard: string[] = [];
-      link.onEventZone((change: EventZoneChange) => heard.push(`${change.entered ? "enter" : "leave"} ${change.event} ${change.cause}`));
+      link.onEventZone((change: EventZoneChange) =>
+        heard.push(`${change.entered ? "enter" : "leave"} ${change.event} ${change.cause}`),
+      );
       const runtime = { clock, pacing } as SceneRuntime;
       for (let frame = 0; frame < 2_000 && clock.now() < zone.toUtcMs + HOUR; frame += 1) {
         monotonic += frameMs;

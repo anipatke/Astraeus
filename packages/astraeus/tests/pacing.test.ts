@@ -8,12 +8,30 @@ import { definitionOf } from "../src/api/definitionOf";
 const DAY = 86_400_000;
 const T0 = Date.UTC(2030, 0, 1);
 const at = (days: number) => new Date(T0 + days * DAY).toISOString();
-const codeOf = (run: () => unknown): string | undefined => { try { run(); } catch (error) { return error instanceof SceneError ? `${error.code}: ${error.message}` : String(error); } return undefined; };
+const codeOf = (run: () => unknown): string | undefined => {
+  try {
+    run();
+  } catch (error) {
+    return error instanceof SceneError ? `${error.code}: ${error.message}` : String(error);
+  }
+  return undefined;
+};
 
 // A made-up journey: 100 days at 1 day/s cruise, a flyby on day 40 and another on day 80 (made-up type "flyby"), each slowed to 60x within 2 days, easing over 2 days.
-const journey = () => new Scene().addBody(earth)
-  .addEvents([{ id: "a", label: "First flyby", time: at(40), type: "flyby" }, { id: "b", label: "Second flyby", time: at(80), type: "flyby" }])
-  .setTimeline({ start: at(0), end: at(100), rate: 86_400, rates: [60, 3_600, 86_400], pacing: [{ near: { type: "flyby", withinSeconds: 2 * 86_400 }, rate: 60 }] });
+const journey = () =>
+  new Scene()
+    .addBody(earth)
+    .addEvents([
+      { id: "a", label: "First flyby", time: at(40), type: "flyby" },
+      { id: "b", label: "Second flyby", time: at(80), type: "flyby" },
+    ])
+    .setTimeline({
+      start: at(0),
+      end: at(100),
+      rate: 86_400,
+      rates: [60, 3_600, 86_400],
+      pacing: [{ near: { type: "flyby", withinSeconds: 2 * 86_400 }, rate: 60 }],
+    });
 const pacingOf = () => definitionOf(journey()).pacing!;
 
 describe("the paced rate", () => {
@@ -47,8 +65,21 @@ describe("the paced rate", () => {
   });
 
   it("lays spans over the base speed, the slower speed winning where an event rule meets a span", () => {
-    const definition = definitionOf(new Scene().addBody(earth).addEvents([{ id: "a", label: "Flyby", time: at(10), type: "flyby" }])
-      .setTimeline({ start: at(0), end: at(100), rate: 1_000, pacing: [{ start: at(50), end: at(70), rate: 10_000, rampSeconds: 0 }, { near: { type: "flyby", withinSeconds: 86.4 }, rate: 5 }, { start: at(9), end: at(11), rate: 200_000 }] }));
+    const definition = definitionOf(
+      new Scene()
+        .addBody(earth)
+        .addEvents([{ id: "a", label: "Flyby", time: at(10), type: "flyby" }])
+        .setTimeline({
+          start: at(0),
+          end: at(100),
+          rate: 1_000,
+          pacing: [
+            { start: at(50), end: at(70), rate: 10_000, rampSeconds: 0 },
+            { near: { type: "flyby", withinSeconds: 86.4 }, rate: 5 },
+            { start: at(9), end: at(11), rate: 200_000 },
+          ],
+        }),
+    );
     const pacing = definition.pacing!;
     expect(pacedRate(pacing, T0 + 5 * DAY)).toBeCloseTo(1_000, 6);
     expect(pacedRate(pacing, T0 + 60 * DAY)).toBeCloseTo(10_000, 6);
@@ -58,8 +89,12 @@ describe("the paced rate", () => {
   });
 
   const slowestWins = (pacing: object[], eventDay: number) => {
-    const definition = definitionOf(new Scene().addBody(earth).addEvents([{ id: "a", label: "Flyby", time: at(eventDay), type: "flyby" }])
-      .setTimeline({ start: at(0), end: at(100), rate: 86_400, pacing: pacing as never }));
+    const definition = definitionOf(
+      new Scene()
+        .addBody(earth)
+        .addEvents([{ id: "a", label: "Flyby", time: at(eventDay), type: "flyby" }])
+        .setTimeline({ start: at(0), end: at(100), rate: 86_400, pacing: pacing as never }),
+    );
     return definition.pacing!;
   };
 
@@ -91,9 +126,16 @@ describe("the paced rate", () => {
 
 describe("overlapping ramps take the slower speed (O-069 T-307, F-15)", () => {
   const HOUR = 3_600_000;
-  const zone = (fromUtcMs: number, toUtcMs: number, rate: number, rampMs: number, eventId?: string) => ({ fromUtcMs, toUtcMs, rate, rampMs, eventId });
+  const zone = (fromUtcMs: number, toUtcMs: number, rate: number, rampMs: number, eventId?: string) => ({
+    fromUtcMs,
+    toUtcMs,
+    rate,
+    rampMs,
+    eventId,
+  });
   const base = 86_400 * 30;
-  const solo = (z: ReturnType<typeof zone>, t: number, shown?: ReadonlySet<string>) => pacedRate({ baseRate: base, zones: [z] }, t, shown);
+  const solo = (z: ReturnType<typeof zone>, t: number, shown?: ReadonlySet<string>) =>
+    pacedRate({ baseRate: base, zones: [z] }, t, shown);
 
   it("two pieces at 1,200x with 4 h and 1 h ramps give the slower of the two alone, not the product of eases (F-15)", () => {
     const a = zone(T0, T0 + HOUR, 1_200, 4 * HOUR);
@@ -161,20 +203,48 @@ describe("overlapping ramps take the slower speed (O-069 T-307, F-15)", () => {
 });
 
 describe("pacing checks (bad-timeline names the field)", () => {
-  const timeline = (pacing: unknown) => () => definitionOf(new Scene().addBody(earth).addEvents([{ id: "a", label: "A", time: at(1), type: "flyby" }]).setTimeline({ start: at(0), end: at(10), pacing } as never));
+  const timeline = (pacing: unknown) => () =>
+    definitionOf(
+      new Scene()
+        .addBody(earth)
+        .addEvents([{ id: "a", label: "A", time: at(1), type: "flyby" }])
+        .setTimeline({ start: at(0), end: at(10), pacing } as never),
+    );
   it("refuses a bad rate, ramp, within, span or shape", () => {
     expect(codeOf(timeline([{ start: at(1), end: at(2), rate: 0 }]))).toMatch(/^bad-timeline: .*pacing\[0\]\.rate/);
-    expect(codeOf(timeline([{ start: at(1), end: at(2), rate: 5, rampSeconds: -1 }]))).toMatch(/^bad-timeline: .*pacing\[0\]\.rampSeconds/);
-    expect(codeOf(timeline([{ near: { type: "flyby", withinSeconds: 0 }, rate: 5 }]))).toMatch(/^bad-timeline: .*pacing\[0\]\.near\.withinSeconds/);
-    expect(codeOf(timeline([{ near: { type: "", withinSeconds: 5 }, rate: 5 }]))).toMatch(/^bad-timeline: .*pacing\[0\]\.near\.type/);
+    expect(codeOf(timeline([{ start: at(1), end: at(2), rate: 5, rampSeconds: -1 }]))).toMatch(
+      /^bad-timeline: .*pacing\[0\]\.rampSeconds/,
+    );
+    expect(codeOf(timeline([{ near: { type: "flyby", withinSeconds: 0 }, rate: 5 }]))).toMatch(
+      /^bad-timeline: .*pacing\[0\]\.near\.withinSeconds/,
+    );
+    expect(codeOf(timeline([{ near: { type: "", withinSeconds: 5 }, rate: 5 }]))).toMatch(
+      /^bad-timeline: .*pacing\[0\]\.near\.type/,
+    );
     expect(codeOf(timeline([{ start: at(3), end: at(2), rate: 5 }]))).toMatch(/^bad-timeline: .*pacing\[0\]\.end/);
     expect(codeOf(timeline([{ rate: 5 }]))).toMatch(/^bad-timeline: .*pacing\[0\]/);
     expect(codeOf(timeline("fast"))).toMatch(/^bad-timeline: setTimeline: pacing must be a list/);
   });
   it("refuses overlapping spans (touching is fine) and an event type with no events", () => {
-    expect(codeOf(timeline([{ start: at(1), end: at(4), rate: 5 }, { start: at(3), end: at(6), rate: 9 }]))).toMatch(/^bad-timeline: .*pacing\[1\] overlaps pacing\[0\]/);
-    expect(codeOf(timeline([{ start: at(1), end: at(3), rate: 5 }, { start: at(3), end: at(6), rate: 9 }]))).toBeUndefined();
-    expect(codeOf(timeline([{ near: { type: "landing", withinSeconds: 5 }, rate: 5 }]))).toMatch(/^bad-timeline: .*pacing\[0\]\.near\.type "landing" matches no event/);
+    expect(
+      codeOf(
+        timeline([
+          { start: at(1), end: at(4), rate: 5 },
+          { start: at(3), end: at(6), rate: 9 },
+        ]),
+      ),
+    ).toMatch(/^bad-timeline: .*pacing\[1\] overlaps pacing\[0\]/);
+    expect(
+      codeOf(
+        timeline([
+          { start: at(1), end: at(3), rate: 5 },
+          { start: at(3), end: at(6), rate: 9 },
+        ]),
+      ),
+    ).toBeUndefined();
+    expect(codeOf(timeline([{ near: { type: "landing", withinSeconds: 5 }, rate: 5 }]))).toMatch(
+      /^bad-timeline: .*pacing\[0\]\.near\.type "landing" matches no event/,
+    );
   });
 });
 
@@ -186,7 +256,11 @@ describe("the clock following the paced rate", () => {
     clock.setRate(pacedRate(pacing, clock.now()));
     clock.play();
     const seen: number[] = [];
-    for (let i = 0; i < 400; i += 1) { now += 100; applyPacing(clock, pacing); seen.push(clock.rate); }
+    for (let i = 0; i < 400; i += 1) {
+      now += 100;
+      applyPacing(clock, pacing);
+      seen.push(clock.rate);
+    }
     expect(seen[0]).toBeCloseTo(86_400, 0);
     expect(Math.min(...seen)).toBeLessThan(5_000); // slowed on the way into the first flyby
     expect(seen.every((rate) => rate >= 60 - 1e-9 && rate <= 86_400 + 1e-9)).toBe(true);
@@ -215,7 +289,16 @@ describe("the event zones active at a time (O-052 T-226)", () => {
     expect(activeEventZones(withSpan, undefined, T0 + 10 * DAY)).toEqual([]);
   });
   it("lists overlapping zones each once, and an event with two rules once", () => {
-    const near = (eventId: string, from: number, to: number) => ({ fromUtcMs: T0 + from * DAY, toUtcMs: T0 + to * DAY, rate: 60, rampMs: 0, eventId });
-    expect(activeEventZones([near("a", 0, 10), near("b", 5, 15), near("a", 2, 8)], undefined, T0 + 6 * DAY)).toEqual(["a", "b"]);
+    const near = (eventId: string, from: number, to: number) => ({
+      fromUtcMs: T0 + from * DAY,
+      toUtcMs: T0 + to * DAY,
+      rate: 60,
+      rampMs: 0,
+      eventId,
+    });
+    expect(activeEventZones([near("a", 0, 10), near("b", 5, 15), near("a", 2, 8)], undefined, T0 + 6 * DAY)).toEqual([
+      "a",
+      "b",
+    ]);
   });
 });

@@ -7,11 +7,19 @@ import { act, createElement } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-const sceneProps = vi.hoisted(() => ({ latest: null as null | { controls: import("../src/app/AstraeusScene").SceneControls } }));
-vi.mock("../src/app/AstraeusScene", () => ({
-  AstraeusScene: (props: NonNullable<typeof sceneProps.latest>) => { sceneProps.latest = props; return createElement("div", { "data-testid": "scene" }); },
+const sceneProps = vi.hoisted(() => ({
+  latest: null as null | { controls: import("../src/app/AstraeusScene").SceneControls },
 }));
-vi.mock("../src/assets/sky", async (importOriginal) => ({ ...(await importOriginal<typeof import("../src/assets/sky")>()), loadStarCatalogue: vi.fn().mockResolvedValue(null) }));
+vi.mock("../src/app/AstraeusScene", () => ({
+  AstraeusScene: (props: NonNullable<typeof sceneProps.latest>) => {
+    sceneProps.latest = props;
+    return createElement("div", { "data-testid": "scene" });
+  },
+}));
+vi.mock("../src/assets/sky", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("../src/assets/sky")>()),
+  loadStarCatalogue: vi.fn().mockResolvedValue(null),
+}));
 
 import { AstraeusScene } from "../src/api/AstraeusScene";
 import { mount } from "../src/api/mount";
@@ -32,13 +40,28 @@ import { $, drawn, pretendScreen } from "./domSetup";
 
 const T0 = Date.parse("2026-03-01T00:00:00Z");
 const MIN = 60_000;
-const samples = (x: number) => [0, 1, 2, 3].map((i) => ({ time: T0 + i * 10 * MIN, positionKm: [x + i * 1_000, 0, 0], velocityKmS: [1, 0, 0] }));
-const made = { sourceType: "observed", sources: ["A made-up source"], accuracy: "None claimed.", notes: "Made up." } as const;
+const samples = (x: number) =>
+  [0, 1, 2, 3].map((i) => ({ time: T0 + i * 10 * MIN, positionKm: [x + i * 1_000, 0, 0], velocityKmS: [1, 0, 0] }));
+const made = {
+  sourceType: "observed",
+  sources: ["A made-up source"],
+  accuracy: "None claimed.",
+  notes: "Made up.",
+} as const;
 /** Views a (probe A) and b (probe B); Earth and the Moon are in every view. `rule` is view b's camera rule. */
-const makeScene = (rule: unknown = "stay") => new Scene().addBody(earth).addBody(moon)
-  .addTrajectory({ id: "pa", label: "Probe A", center: "earth", samples: samples(10_000) })
-  .addTrajectory({ id: "pb", label: "Probe B", center: "earth", samples: samples(20_000) })
-  .setViews([{ id: "a", label: "View A", objects: ["pa"] }, { id: "b", label: "View B", objects: ["pb"], camera: rule as never }], { place: "top-bar" });
+const makeScene = (rule: unknown = "stay") =>
+  new Scene()
+    .addBody(earth)
+    .addBody(moon)
+    .addTrajectory({ id: "pa", label: "Probe A", center: "earth", samples: samples(10_000) })
+    .addTrajectory({ id: "pb", label: "Probe B", center: "earth", samples: samples(20_000) })
+    .setViews(
+      [
+        { id: "a", label: "View A", objects: ["pa"] },
+        { id: "b", label: "View B", objects: ["pb"], camera: rule as never },
+      ],
+      { place: "top-bar" },
+    );
 
 let host: HTMLElement;
 let root: Root | undefined;
@@ -49,37 +72,101 @@ beforeEach(() => {
   host = document.createElement("div");
   document.body.append(host);
 });
-afterEach(() => { if (root) act(() => root!.unmount()); root = undefined; host.remove(); sceneProps.latest = null; vi.unstubAllGlobals(); vi.useRealTimers(); });
+afterEach(() => {
+  if (root) act(() => root!.unmount());
+  root = undefined;
+  host.remove();
+  sceneProps.latest = null;
+  vi.unstubAllGlobals();
+  vi.useRealTimers();
+});
 
 const controls = () => sceneProps.latest!.controls;
-const settle = () => act(async () => { for (let i = 0; i < 5; i++) await Promise.resolve(); });
+const settle = () =>
+  act(async () => {
+    for (let i = 0; i < 5; i++) await Promise.resolve();
+  });
 
 /** Runs the scene's real first-frame camera step on the controls the page handed it, as the 3D scene does on its first frame; returns where the camera ends up. */
 function firstFrame(): string {
-  const positions = new Map<string, RenderVector>([["earth", [0, 0, 0]], ["moon", [60, 0, 0]]]);
-  const targets = { bodyIdFor: (id: string) => (catalogue.has(id) ? id : null), placed: positions, absoluteOf: (id: string) => positions.get(id) ?? [0, 0, 0], groupViews: [], sunCentredViews: [], trackedViews: [], bodySetViews: [], timeUtcMs: 0, policy: readableScale, placement: {} } as unknown as SceneTargets;
+  const positions = new Map<string, RenderVector>([
+    ["earth", [0, 0, 0]],
+    ["moon", [60, 0, 0]],
+  ]);
+  const targets = {
+    bodyIdFor: (id: string) => (catalogue.has(id) ? id : null),
+    placed: positions,
+    absoluteOf: (id: string) => positions.get(id) ?? [0, 0, 0],
+    groupViews: [],
+    sunCentredViews: [],
+    trackedViews: [],
+    bodySetViews: [],
+    timeUtcMs: 0,
+    policy: readableScale,
+    placement: {},
+  } as unknown as SceneTargets;
   const camState = createOrbitCameraState(16, "earth");
-  return stepCameraTarget({ camState, controls: controls(), targets, frame: { centre: "earth", span: 60, bodies: catalogue }, catalogue, reach: {}, fovDeg: 45, viewUp: EQUATORIAL_UP, firstFrame: true, previousUp: null } as never);
+  return stepCameraTarget({
+    camState,
+    controls: controls(),
+    targets,
+    frame: { centre: "earth", span: 60, bodies: catalogue },
+    catalogue,
+    reach: {},
+    fovDeg: 45,
+    viewUp: EQUATORIAL_UP,
+    firstFrame: true,
+    previousUp: null,
+  } as never);
 }
 
 /** How each embedding path hands the page its handle once `ready` has resolved: `mount` returns it, `AstraeusScene` gives it to `onReady` (and `ref`). */
-interface Path { readonly name: string; readonly start: (scene: Scene, onReady: (handle: ViewerHandle) => void) => Promise<ViewerHandle> }
+interface Path {
+  readonly name: string;
+  readonly start: (scene: Scene, onReady: (handle: ViewerHandle) => void) => Promise<ViewerHandle>;
+}
 const paths: readonly Path[] = [
-  { name: "mount", start: async (scene, onReady) => { const handle = mount(host, scene); await drawn(handle); await handle.ready.then(() => onReady(handle)); return handle; } },
-  { name: "AstraeusScene", start: async (scene, onReady) => {
-    const ref: { current: ViewerHandle | null } = { current: null };
-    root = createRoot(host);
-    await act(async () => { root!.render(createElement(AstraeusScene, { scene, ref, onReady, onError: (e: Error) => { throw e; } })); });
-    await settle();
-    return ref.current!;
-  } },
+  {
+    name: "mount",
+    start: async (scene, onReady) => {
+      const handle = mount(host, scene);
+      await drawn(handle);
+      await handle.ready.then(() => onReady(handle));
+      return handle;
+    },
+  },
+  {
+    name: "AstraeusScene",
+    start: async (scene, onReady) => {
+      const ref: { current: ViewerHandle | null } = { current: null };
+      root = createRoot(host);
+      await act(async () => {
+        root!.render(
+          createElement(AstraeusScene, {
+            scene,
+            ref,
+            onReady,
+            onError: (e: Error) => {
+              throw e;
+            },
+          }),
+        );
+      });
+      await settle();
+      return ref.current!;
+    },
+  },
 ];
 
 describe.each(paths)("host calls straight after ready, before the first frame ($name)", ({ start }) => {
   // The call runs in the ready callback: no frame has been drawn yet (the stand-in scene never draws one; `firstFrame()` plays it).
   it("setTime and setView take effect", async () => {
     let seen: Array<string | number | undefined> = [];
-    const handle = await start(makeScene(), (h) => { h.setTime(T0 + 20 * MIN); h.setView("b"); seen = [h.timeUtcMs, h.view]; });
+    const handle = await start(makeScene(), (h) => {
+      h.setTime(T0 + 20 * MIN);
+      h.setView("b");
+      seen = [h.timeUtcMs, h.view];
+    });
     expect(seen).toEqual([T0 + 20 * MIN, "b"]);
     expect(handle.timeUtcMs).toBe(T0 + 20 * MIN);
     expect(handle.view).toBe("b");
@@ -111,9 +198,13 @@ describe.each(paths)("host calls from inside an onChange that reports a view swi
     scene.camera.follow("pa");
     const handle = await start(scene, () => undefined);
     let reported = 0;
-    handle.onChange((change) => { if (change.view === "b" && reported++ === 0) answer(handle, change); });
+    handle.onChange((change) => {
+      if (change.view === "b" && reported++ === 0) answer(handle, change);
+    });
     controls().cameraRequest = null; // the opening framing was consumed by the first frame
-    act(() => { $(host, '[data-view-id="b"]').dispatchEvent(new window.MouseEvent("click", { bubbles: true, cancelable: true })); });
+    act(() => {
+      $(host, '[data-view-id="b"]').dispatchEvent(new window.MouseEvent("click", { bubbles: true, cancelable: true }));
+    });
     await settle();
     expect(reported).toBeGreaterThan(0);
     return handle;
@@ -163,7 +254,10 @@ describe.each(paths)("a view's follow rule on a planet another view also shows (
     const scene = makeScene({ follow: "moon", always: true });
     const handle = await start(scene, () => undefined);
     controls().cameraRequest = null;
-    act(() => { handle.setView("b"); handle.setCamera({ focus: "earth" }); });
+    act(() => {
+      handle.setView("b");
+      handle.setCamera({ focus: "earth" });
+    });
     await settle();
     expect(controls().cameraRequest).toEqual({ kind: "focus", target: "earth" });
   });
@@ -180,9 +274,14 @@ describe.each(paths)("a view's follow rule on a planet another view also shows (
 });
 
 describe.each(paths)("a host setTime against a visitor seek for story panels ($name)", ({ start }) => {
-  const withPanel = () => new Scene().addBody(earth).addBody(moon)
-    .addTrajectory({ id: "pa", label: "Probe A", center: "earth", samples: samples(10_000) })
-    .addStoryPanels([{ id: "p1", at: { time: T0 + 10 * MIN }, title: "Title p1", body: ["A line."], provenance: made } as never]);
+  const withPanel = () =>
+    new Scene()
+      .addBody(earth)
+      .addBody(moon)
+      .addTrajectory({ id: "pa", label: "Probe A", center: "earth", samples: samples(10_000) })
+      .addStoryPanels([
+        { id: "p1", at: { time: T0 + 10 * MIN }, title: "Title p1", body: ["A line."], provenance: made } as never,
+      ]);
   const panelOpen = () => host.querySelector(".story-panel") !== null;
 
   it("a visitor seek across a panel while playing opens nothing (the baseline)", async () => {

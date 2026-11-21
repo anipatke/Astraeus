@@ -9,7 +9,10 @@ vi.mock("../src/api/prepared", async () => {
   const { syntheticDefinition } = await import("./synthetic/syntheticDefinition");
   const actual = await vi.importActual<typeof import("../src/api/prepared")>("../src/api/prepared");
   return {
-    prepareScene: (scene: import("../src/api/scene").Scene, data?: readonly import("../src/api/scene").DataSource[]) => {
+    prepareScene: (
+      scene: import("../src/api/scene").Scene,
+      data?: readonly import("../src/api/scene").DataSource[],
+    ) => {
       if (prepared.real) return actual.prepareScene(scene, data);
       return { definition: { ...syntheticDefinition }, ready: Promise.resolve() };
     },
@@ -38,24 +41,44 @@ const render = (props: AstraeusSceneProps): void => {
 const { startUtcMs } = syntheticDefinition.experience.window;
 const CASES: ReadonlyArray<{ name: string; code: string; props: () => AstraeusSceneProps; real: boolean }> = [
   { name: "a build fault", code: "empty-scene", props: () => ({ scene: new Scene() }), real: true },
-  { name: "a load fault", code: "missing-data", props: () => ({ scene: new Scene().addBody("saturn").addBody("titan") }), real: true },
-  { name: "a bad time prop", code: "bad-time", props: () => ({ scene: new Scene(), time: startUtcMs - 1e12 }), real: false },
+  {
+    name: "a load fault",
+    code: "missing-data",
+    props: () => ({ scene: new Scene().addBody("saturn").addBody("titan") }),
+    real: true,
+  },
+  {
+    name: "a bad time prop",
+    code: "bad-time",
+    props: () => ({ scene: new Scene(), time: startUtcMs - 1e12 }),
+    real: false,
+  },
 ];
 
 let consoleError: ReturnType<typeof vi.spyOn>;
-beforeEach(() => { consoleError = vi.spyOn(console, "error").mockImplementation(() => undefined); });
-afterEach(() => { roots.splice(0).forEach((root) => root.unmount()); document.body.innerHTML = ""; prepared.real = false; vi.restoreAllMocks(); });
+beforeEach(() => {
+  consoleError = vi.spyOn(console, "error").mockImplementation(() => undefined);
+});
+afterEach(() => {
+  roots.splice(0).forEach((root) => root.unmount());
+  document.body.innerHTML = "";
+  prepared.real = false;
+  vi.restoreAllMocks();
+});
 
 describe("<AstraeusScene> error reporting", () => {
-  it.each(CASES)("without onError, $name goes to console.error once as a $code SceneError", async ({ code, props, real }) => {
-    prepared.real = real;
-    render(props());
-    await tick();
-    expect(consoleError).toHaveBeenCalledTimes(1);
-    const reported = consoleError.mock.calls[0][0];
-    expect(reported).toBeInstanceOf(SceneError);
-    expect((reported as SceneError).code).toBe(code);
-  });
+  it.each(CASES)(
+    "without onError, $name goes to console.error once as a $code SceneError",
+    async ({ code, props, real }) => {
+      prepared.real = real;
+      render(props());
+      await tick();
+      expect(consoleError).toHaveBeenCalledTimes(1);
+      const reported = consoleError.mock.calls[0][0];
+      expect(reported).toBeInstanceOf(SceneError);
+      expect((reported as SceneError).code).toBe(code);
+    },
+  );
 
   it.each(CASES)("with onError, $name calls onError once and logs nothing", async ({ code, props, real }) => {
     prepared.real = real;

@@ -1,4 +1,14 @@
-import { Suspense, useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore, type ComponentProps, type ReactNode } from "react";
+import {
+  Suspense,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  useSyncExternalStore,
+  type ComponentProps,
+  type ReactNode,
+} from "react";
 import { createOrbAstronomyAdapter } from "../core/astronomyAdapter";
 import type { GlowLook } from "./bodyDraw";
 import { viewUpFromSearch, viewUpVector, type ViewUp } from "./viewUp";
@@ -12,20 +22,50 @@ import { useShelf } from "./useShelf";
 import { createSolarSystemScale, type ScalePolicy } from "../presentation/scalePolicy";
 import type { CameraRequest } from "./CameraController";
 import type { DebugReadout } from "./debugReadout";
-import { bodySetsOf, cameraReachOf, catalogueOf, compositionOf, experienceWithGroups, groupsOf, initialObjectIdOf, mountedBodiesOf, pageTitleOf, scaleChoiceIdsOf, sceneCenterOf, sunCentredOf, trackedBodiesOf, visualOverridesOf, type ExperienceDefinition } from "./experienceDefinition";
+import {
+  bodySetsOf,
+  cameraReachOf,
+  catalogueOf,
+  compositionOf,
+  experienceWithGroups,
+  groupsOf,
+  initialObjectIdOf,
+  mountedBodiesOf,
+  pageTitleOf,
+  scaleChoiceIdsOf,
+  sceneCenterOf,
+  sunCentredOf,
+  trackedBodiesOf,
+  visualOverridesOf,
+  type ExperienceDefinition,
+} from "./experienceDefinition";
 import { AstraeusShell, type SelectionOrigin } from "../shell/AstraeusShell";
 import type { ViewChoice } from "../shell/DisplaySwitches";
 import type { PanelCause } from "../shell/useStoryPanels";
 import type { ExperienceCameraRequest, ExperienceConfig } from "../shell/experience";
 import { SCALE_CHOICES, scaleChoicesFor, scalePolicyFor, startScaleFor, type ScaleId } from "../shell/scaleModel";
-import { scaleFromSearch, showFromSearch, timeFromSearch, viewFromAngles, viewFromSearch, type CameraView } from "./viewLink";
+import {
+  scaleFromSearch,
+  showFromSearch,
+  timeFromSearch,
+  viewFromAngles,
+  viewFromSearch,
+  type CameraView,
+} from "./viewLink";
 import { createOrbitCameraState } from "./CameraController";
 import { START_CAMERA_DISTANCE } from "./sceneFraming";
 import { addressSearch, shareViewLink } from "./address";
 import { Collapsible } from "../shell/Collapsible";
 import { PanelLoadBoundary } from "./PanelLoadBoundary";
 import { BOOT_FADE_LIMITS, bootFadeSeconds, saveBootFadeSeconds } from "../shell/bootLoader";
-import { LabelSettings, UnderTheHoodSettings, ViewLinkReadout, MoonsAndRingsSettings, SkyAndSunSettings, StoryPanelSettings } from "./developerPanels";
+import {
+  LabelSettings,
+  UnderTheHoodSettings,
+  ViewLinkReadout,
+  MoonsAndRingsSettings,
+  SkyAndSunSettings,
+  StoryPanelSettings,
+} from "./developerPanels";
 import { DEFAULT_ILLUMINATE_ALL } from "./lighting";
 import { SettingButtons, SettingColor, SettingGroup, SettingSlider } from "./SettingControls";
 import { DEFAULT_TIMELINE_GLOW, type TimelineGlowLook } from "../shell/timelineGlow";
@@ -52,7 +92,14 @@ import { cameraIdsOf } from "../presentation/storyPanels";
 import type { RingLook } from "../assets/rings";
 import { baseGlowOf, glowLookOf, markerSettingsOf } from "./bodyDraw";
 import { resolveLook } from "./look";
-import { applyLook, desktopPicturesOf, lookReadOf, presentationOf, skySettingsOf, type LivePresentation } from "./liveLook";
+import {
+  applyLook,
+  desktopPicturesOf,
+  lookReadOf,
+  presentationOf,
+  skySettingsOf,
+  type LivePresentation,
+} from "./liveLook";
 import type { LookInput } from "../api/look";
 import { DEFAULT_POINT_SIZE_PX, type GroupDotLook } from "./PointsView";
 
@@ -60,7 +107,10 @@ import { DEFAULT_POINT_SIZE_PX, type GroupDotLook } from "./PointsView";
 const FPS_HISTORY = 60;
 
 /** The labels switched off at the start: objects that set `showLabel: false`, then `?labels=<id>:on|off,...` over them. */
-export function hiddenLabelsFrom(search: string, objects: readonly { readonly id: string; readonly showLabel?: boolean }[]): Set<string> {
+export function hiddenLabelsFrom(
+  search: string,
+  objects: readonly { readonly id: string; readonly showLabel?: boolean }[],
+): Set<string> {
   const hidden = new Set(objects.filter((object) => object.showLabel === false).map((object) => object.id));
   for (const part of (new URLSearchParams(search).get("labels") ?? "").split(",")) {
     const [id, state] = part.split(":");
@@ -78,24 +128,44 @@ export function loopFromSearch(search: string, fallback: boolean): boolean {
 }
 
 /** The scene view showing at the start: `?show=<id>` when it names one of the scene's views, else the scene's own `start` (an unknown id is not an error). */
-const NO_CARD_PROVENANCE = createProvenance({ sourceType: "illustrative", sources: ["Supplied by the caller"], accuracy: "As supplied; the engine makes no claim.", notes: "" });
+const NO_CARD_PROVENANCE = createProvenance({
+  sourceType: "illustrative",
+  sources: ["Supplied by the caller"],
+  accuracy: "As supplied; the engine makes no claim.",
+  notes: "",
+});
 
 /** The sky figures as the host link reads them: each drawn figure with its card words (`experience.skyFigures`). */
-function skyFigureReads(layers: readonly { readonly id: string; readonly label: string; readonly kind: "figure" | "boundary" }[], cards: ExperienceConfig["skyFigures"]): NonNullable<ViewerControl["skyFigures"]> {
+function skyFigureReads(
+  layers: readonly { readonly id: string; readonly label: string; readonly kind: "figure" | "boundary" }[],
+  cards: ExperienceConfig["skyFigures"],
+): NonNullable<ViewerControl["skyFigures"]> {
   return layers.map(({ id, label, kind }) => {
     const card = cards?.find((candidate) => candidate.id === id); // a hand-written definition may draw a figure with no card: it then reads as listed, with the default provenance
-    return Object.freeze({ id, label, kind, listed: card?.listed ?? true, provenance: card?.provenance ?? NO_CARD_PROVENANCE, ...(card?.description === undefined ? {} : { description: card.description }), ...(card?.facts === undefined ? {} : { facts: card.facts }) });
+    return Object.freeze({
+      id,
+      label,
+      kind,
+      listed: card?.listed ?? true,
+      provenance: card?.provenance ?? NO_CARD_PROVENANCE,
+      ...(card?.description === undefined ? {} : { description: card.description }),
+      ...(card?.facts === undefined ? {} : { facts: card.facts }),
+    });
   });
 }
 
 function startViewId(definition: ExperienceDefinition, search: string): string {
   const asked = showFromSearch(search);
   const known = asked !== undefined && definition.views?.views.some((view) => view.id === asked) === true;
-  return known ? asked : definition.views?.start ?? "";
+  return known ? asked : (definition.views?.start ?? "");
 }
 
 /** The "Copy view link" button and its readout: offered only when the host turned the address option on (nothing else writes the address). */
-function ViewLinkGroup({ offered, onCopy, ...readout }: { readonly offered: boolean; readonly onCopy: () => void } & ComponentProps<typeof ViewLinkReadout>) {
+function ViewLinkGroup({
+  offered,
+  onCopy,
+  ...readout
+}: { readonly offered: boolean; readonly onCopy: () => void } & ComponentProps<typeof ViewLinkReadout>) {
   if (!offered) return null;
   return (
     <div className="view-link" role="group" aria-label="Camera view">
@@ -115,7 +185,9 @@ function labelStart(definition: ExperienceDefinition): boolean | undefined {
 /** The orbit lines a story starts off: the ring and arc, and the moon orbits. */
 function startOrbitControls(definition: ExperienceDefinition): Pick<SceneControls, "orbitLook" | "bodySetLook"> {
   const start = orbitStart(definition.displaySwitches?.orbitLines);
-  return start === undefined ? {} : { orbitLook: start.look, bodySetLook: { ...DEFAULT_BODY_SET_LOOK, orbitsOn: false } };
+  return start === undefined
+    ? {}
+    : { orbitLook: start.look, bodySetLook: { ...DEFAULT_BODY_SET_LOOK, orbitsOn: false } };
 }
 
 function copyOfGlow(look: GlowLook | undefined): GlowLook | null {
@@ -136,57 +208,84 @@ function storyStartOf(storySet: ExperienceDefinition["experience"]["storyPanels"
 }
 
 /** The story-panel settings in force: the two the Developer drawer changes live, and the close span the scene set. */
-function liveStorySettings(storySet: ExperienceDefinition["experience"]["storyPanels"], autoOpen: boolean, pauseSeconds: number) {
-  return { autoOpen, pauseSeconds, ...(storySet?.closeAfterSeconds === undefined ? {} : { closeAfterSeconds: storySet.closeAfterSeconds }) };
+function liveStorySettings(
+  storySet: ExperienceDefinition["experience"]["storyPanels"],
+  autoOpen: boolean,
+  pauseSeconds: number,
+) {
+  return {
+    autoOpen,
+    pauseSeconds,
+    ...(storySet?.closeAfterSeconds === undefined ? {} : { closeAfterSeconds: storySet.closeAfterSeconds }),
+  };
 }
 
 /** Everything one mounted experience shares: clock, resolver, catalogue and the settings read from its definition and the address. */
 function buildRuntime(definition: ExperienceDefinition, search: string) {
-    const adapter = createOrbAstronomyAdapter();
-    // The looks in force: the scene's, with the address over them; the one source every look reader below uses.
-    const look = resolveLook(definition.look, search);
-    // A copied view link carries the time it was copied at.
-    const clock = openClock(definition, timeFromSearch(search), shownEventsOf(definition, startViewId(definition, search)));
-    // One resolver per mount: every position in the scene comes from it, whatever the scene centre.
-    const resolver = createSceneResolver(adapter, catalogueOf(definition));
-    return {
-      clock,
-      adapter,
-      resolver,
-      catalogue: catalogueOf(definition),
-      bodies: mountedBodiesOf(definition),
-      composition: compositionOf(definition),
-      overrides: visualOverridesOf(definition),
-      desktopTextures: desktopPicturesOf(definition, look),
-      ...(definition.pictures === undefined ? {} : { pictures: definition.pictures }),
-      sceneCenter: sceneCenterOf(definition),
-      trackedBodies: trackedBodiesOf(definition),
-      groups: groupsOf(definition),
-      bodySets: bodySetsOf(definition),
-      skyFigures: definition.skyFigures ?? [],
-      ...sunCentredOf(definition),
-      cameraReach: cameraReachOf(definition),
-      look,
-      sky: skySettingsOf(definition, look),
-      loopWindow: definition.experience.window,
-      ...(definition.experience.hideTimeline === true ? {} : { stopAtWindow: true }),
-      ...(definition.pacing === undefined ? {} : { pacing: definition.pacing }),
-      ...(definition.eventZones === undefined ? {} : { eventZones: definition.eventZones }),
-      up: viewUpVector(startViewUp(definition, search)),
-    };
+  const adapter = createOrbAstronomyAdapter();
+  // The looks in force: the scene's, with the address over them; the one source every look reader below uses.
+  const look = resolveLook(definition.look, search);
+  // A copied view link carries the time it was copied at.
+  const clock = openClock(
+    definition,
+    timeFromSearch(search),
+    shownEventsOf(definition, startViewId(definition, search)),
+  );
+  // One resolver per mount: every position in the scene comes from it, whatever the scene centre.
+  const resolver = createSceneResolver(adapter, catalogueOf(definition));
+  return {
+    clock,
+    adapter,
+    resolver,
+    catalogue: catalogueOf(definition),
+    bodies: mountedBodiesOf(definition),
+    composition: compositionOf(definition),
+    overrides: visualOverridesOf(definition),
+    desktopTextures: desktopPicturesOf(definition, look),
+    ...(definition.pictures === undefined ? {} : { pictures: definition.pictures }),
+    sceneCenter: sceneCenterOf(definition),
+    trackedBodies: trackedBodiesOf(definition),
+    groups: groupsOf(definition),
+    bodySets: bodySetsOf(definition),
+    skyFigures: definition.skyFigures ?? [],
+    ...sunCentredOf(definition),
+    cameraReach: cameraReachOf(definition),
+    look,
+    sky: skySettingsOf(definition, look),
+    loopWindow: definition.experience.window,
+    ...(definition.experience.hideTimeline === true ? {} : { stopAtWindow: true }),
+    ...(definition.pacing === undefined ? {} : { pacing: definition.pacing }),
+    ...(definition.eventZones === undefined ? {} : { eventZones: definition.eventZones }),
+    up: viewUpVector(startViewUp(definition, search)),
+  };
 }
 
 type Runtime = ReturnType<typeof buildRuntime>;
 
 /** The event ids the view shows, which choose the pacing zones that apply; undefined for a scene without views (every zone applies). */
-function shownEventsOf(definition: Pick<ExperienceDefinition, "views">, viewId: string): ReadonlySet<string> | undefined {
+function shownEventsOf(
+  definition: Pick<ExperienceDefinition, "views">,
+  viewId: string,
+): ReadonlySet<string> | undefined {
   return viewById(definition.views, viewId)?.events;
 }
 
 /** Whether the experience has anything the Display controls (markers, labels, timeline, phone layout) act on. */
-function showsDisplayControls(definition: ExperienceDefinition, runtime: Runtime, skyVisible: boolean, orbitPathCount: number, storyMarkerCount: number): boolean {
-  return orbitPathCount > 0 || runtime.trackedBodies.length > 0 || skyVisible || storyMarkerCount > 0 || (definition.experience.storyPanels?.panels.length ?? 0) > 0
-    || runtime.bodies.some((id) => runtime.catalogue.get(id).visual.kind === "sphere");
+function showsDisplayControls(
+  definition: ExperienceDefinition,
+  runtime: Runtime,
+  skyVisible: boolean,
+  orbitPathCount: number,
+  storyMarkerCount: number,
+): boolean {
+  return (
+    orbitPathCount > 0 ||
+    runtime.trackedBodies.length > 0 ||
+    skyVisible ||
+    storyMarkerCount > 0 ||
+    (definition.experience.storyPanels?.panels.length ?? 0) > 0 ||
+    runtime.bodies.some((id) => runtime.catalogue.get(id).visual.kind === "sphere")
+  );
 }
 
 /**
@@ -213,13 +312,20 @@ function initialSceneControls(
 ): SceneControls {
   // A look-out toward an id is aimed as a `setCamera` one is: a sky figure becomes its label point here, an object is turned toward on the first frame.
   const opening = definition.startView;
-  const startView = viewFromSearch(search) ?? (opening !== undefined && "kind" in opening ? aimAtFigure(opening, runtime.skyFigures) : opening);
+  const startView =
+    viewFromSearch(search) ??
+    (opening !== undefined && "kind" in opening ? aimAtFigure(opening, runtime.skyFigures) : opening);
   return {
     policy: scalePolicyFor(startScale, suppliedPolicies),
     cameraRequest: null,
     showAnchorLabels: labelStart(definition) === true && runtime.trackedBodies.length > 0,
     loop: loopFromSearch(search, definition.loop === true),
-    ...(definition.pacing === undefined ? {} : { paceAuto: true, pace: { shown: shownEventsOf(definition, startViewId(definition, search)) } satisfies PaceView }),
+    ...(definition.pacing === undefined
+      ? {}
+      : {
+          paceAuto: true,
+          pace: { shown: shownEventsOf(definition, startViewId(definition, search)) } satisfies PaceView,
+        }),
     up: viewUpVector(startViewUp(definition, search)),
     showMilkyWay: runtime.sky.milkyWay,
     skyLines: skyLineStart(definition.displaySwitches, DEFAULT_SKY_LINES),
@@ -236,7 +342,12 @@ function initialSceneControls(
     starBrightness: runtime.sky.starBrightness,
     milkyWayBrightness: runtime.sky.milkyWayBrightness,
     illuminateAll: DEFAULT_ILLUMINATE_ALL,
-    hiddenLabels: hiddenLabelsFrom(search, labelStart(definition) === undefined ? experience.objects : experience.objects.map(({ id }) => ({ id, showLabel: labelStart(definition) }))),
+    hiddenLabels: hiddenLabelsFrom(
+      search,
+      labelStart(definition) === undefined
+        ? experience.objects
+        : experience.objects.map(({ id }) => ({ id, showLabel: labelStart(definition) })),
+    ),
     ...startOrbitControls(definition),
     labelObjects: experience.objects,
     viewHidden: hiddenByView(definition.views, viewById(definition.views, startViewId(definition, search)), experience),
@@ -272,7 +383,19 @@ function glowColoursShown(glow: TimelineGlowLook, accent: string): { readonly ah
  * `address`: whether the viewer reads the page address (`view`, `t`, `scale`, `up`, `show`, `stars`, `milkyway`, `labels` and the other parameters in the README) and offers a copy-link button that writes it (default false: a host page's address is its own; the demo site passes true).
  * `host`: the link a host page reads and sets the one clock through (time, speed) and hears its changes from; every change goes through the same handlers as the timeline's own controls.
  */
-export function App({ definition, writeTitle = true, address, developerTools, host }: { readonly definition: ExperienceDefinition; readonly writeTitle?: boolean; readonly address?: boolean; readonly developerTools?: boolean; readonly host?: ViewerPort }) {
+export function App({
+  definition,
+  writeTitle = true,
+  address,
+  developerTools,
+  host,
+}: {
+  readonly definition: ExperienceDefinition;
+  readonly writeTitle?: boolean;
+  readonly address?: boolean;
+  readonly developerTools?: boolean;
+  readonly host?: ViewerPort;
+}) {
   // The page heading names the experience once it is open; app.html says only "Astraeus" until then.
   useEffect(() => {
     if (writeTitle) document.title = pageTitleOf(definition);
@@ -293,10 +416,14 @@ export function App({ definition, writeTitle = true, address, developerTools, ho
   );
   // The choices offered, in the experience's order; the solar-system policy enlarges only the bodies the experience names.
   const scaleChoiceIds = useMemo(() => scaleChoiceIdsOf(definition), [definition]);
-  const scaleChoices = useMemo(() => (scaleChoiceIds === undefined ? undefined : scaleChoicesFor(scaleChoiceIds)), [scaleChoiceIds]);
+  const scaleChoices = useMemo(
+    () => (scaleChoiceIds === undefined ? undefined : scaleChoicesFor(scaleChoiceIds)),
+    [scaleChoiceIds],
+  );
   const suppliedPolicies = useMemo<readonly ScalePolicy[]>(() => {
     const exaggeration: Record<string, number> = {};
-    for (const [id, override] of runtime.overrides) if (override.exaggeration !== undefined) exaggeration[id] = override.exaggeration;
+    for (const [id, override] of runtime.overrides)
+      if (override.exaggeration !== undefined) exaggeration[id] = override.exaggeration;
     return [createSolarSystemScale({ exaggeration, defaultExaggeration: 1 })];
   }, [runtime]);
   const linkedScale = scaleFromSearch(search);
@@ -307,9 +434,12 @@ export function App({ definition, writeTitle = true, address, developerTools, ho
   useEffect(() => {
     let cancelled = false;
     void loadStarCatalogue().then((loaded) => {
-      if (!cancelled) setStarStatus(loaded === null ? { kind: "absent" } : { kind: "loaded", count: loaded.stars.length });
+      if (!cancelled)
+        setStarStatus(loaded === null ? { kind: "absent" } : { kind: "loaded", count: loaded.stars.length });
     });
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, []);
   // The current view (App state, like the display switches). The shell's lists read one experience, filtered here once; the scene hides the same ids from `controls.viewHidden`.
   const [viewId, setViewId] = useState(() => startViewId(definition, search));
@@ -318,18 +448,47 @@ export function App({ definition, writeTitle = true, address, developerTools, ho
   const shelfCamera = useRef<(request: CameraRequest) => void>(() => undefined);
   const moveShelfCamera = useCallback((request: CameraRequest) => shelfCamera.current(request), []);
   const shelf = useShelf(definition.parts, currentView, host, moveShelfCamera);
-  const viewExperience = useMemo(() => experienceInView(experience, definition.views, currentView), [experience, definition.views, currentView]);
+  const viewExperience = useMemo(
+    () => experienceInView(experience, definition.views, currentView),
+    [experience, definition.views, currentView],
+  );
   // Whether the sky is drawn: the look's `skyVisible`, live (a host's `setLook` changes it).
   const [skyVisible, setSkyVisible] = useState(runtime.sky.visible);
-  const shellExperience = useMemo(() => withSkyObject(viewExperience, skyVisible, starStatus), [viewExperience, skyVisible, starStatus]);
+  const shellExperience = useMemo(
+    () => withSkyObject(viewExperience, skyVisible, starStatus),
+    [viewExperience, skyVisible, starStatus],
+  );
   const metricsFor = useMemo(() => definition.createMetrics(experienceRuntime), [definition, experienceRuntime]);
   const glowBase = useMemo(() => baseGlowOf(runtime.bodies.map((id) => runtime.catalogue.get(id))), [runtime]);
   const storySet = definition.experience.storyPanels;
   const storyMarkerSpecs = useMemo<readonly StoryMarkerSpec[]>(
-    () => [...(storySet?.panels ?? []), ...(storySet?.steps ?? [])].flatMap((panel) => (panel.objectId === undefined ? [] : [{ panelId: panel.id, objectId: panel.objectId, title: panel.title, ..."timeUtcMs" in panel ? { timeUtcMs: panel.timeUtcMs } : {} }])),
+    () =>
+      [...(storySet?.panels ?? []), ...(storySet?.steps ?? [])].flatMap((panel) =>
+        panel.objectId === undefined
+          ? []
+          : [
+              {
+                panelId: panel.id,
+                objectId: panel.objectId,
+                title: panel.title,
+                ...("timeUtcMs" in panel ? { timeUtcMs: panel.timeUtcMs } : {}),
+              },
+            ],
+      ),
     [storySet],
   );
-  const controls = useRef<SceneControls>(initialSceneControls(definition, runtime, experience, startScale, glowBase, storyMarkerSpecs, suppliedPolicies, search));
+  const controls = useRef<SceneControls>(
+    initialSceneControls(
+      definition,
+      runtime,
+      experience,
+      startScale,
+      glowBase,
+      storyMarkerSpecs,
+      suppliedPolicies,
+      search,
+    ),
+  );
   const readout = useRef<DebugReadout | null>(null);
   const [clockSnapshot, setClockSnapshot] = useState(() => runtime.clock.snapshot());
   const [scale, setScale] = useState<ScaleId>(startScale);
@@ -339,7 +498,11 @@ export function App({ definition, writeTitle = true, address, developerTools, ho
   // The sheet cap is a look: the live controls hold it, so `setLook`, the handle's `look` and the Developer slider are one value (STYLE-07).
   const [sheetShown, setSheetShown] = useState(controls.current.sheetMaxPercent);
   const [interfaceShown, setInterfaceShown] = useState(controls.current.interfaceLook);
-  const phoneLayout: PhoneLayoutSettings = { ...phoneLayoutOwn, sheetMaxPercent: sheetShown, animationMs: interfaceShown.motionMs };
+  const phoneLayout: PhoneLayoutSettings = {
+    ...phoneLayoutOwn,
+    sheetMaxPercent: sheetShown,
+    animationMs: interfaceShown.motionMs,
+  };
   const [anchorLabels, setAnchorLabels] = useState(controls.current.showAnchorLabels);
   const [skyLinesShown, setSkyLinesShown] = useState(controls.current.skyLines);
   const [skyColoursShown, setSkyColoursShown] = useState(controls.current.skyColours);
@@ -353,7 +516,10 @@ export function App({ definition, writeTitle = true, address, developerTools, ho
     controls.current.orbitLook = { ...controls.current.orbitLook, ...change };
     setOrbitShown({ ...orbitDefault, ...controls.current.orbitLook });
   };
-  const resetOrbit = () => { delete controls.current.orbitLook; setOrbitShown(orbitDefault); };
+  const resetOrbit = () => {
+    delete controls.current.orbitLook;
+    setOrbitShown(orbitDefault);
+  };
   const bodySets = runtime.bodySets;
   const [setLook, setSetLook] = useState<BodySetLook>(controls.current.bodySetLook ?? DEFAULT_BODY_SET_LOOK);
   const changeSetLook = (change: Partial<BodySetLook>) => {
@@ -362,14 +528,24 @@ export function App({ definition, writeTitle = true, address, developerTools, ho
     setSetLook(next);
   };
   const highlightFamily = (family: string | null) => changeSetLook({ highlightFamily: family });
-  const ringSystems = useMemo(() => runtime.bodies.flatMap((id) => { const rings = runtime.overrides.get(id)?.rings ?? runtime.catalogue.get(id).visual.rings; return rings === undefined ? [] : [rings]; }), [runtime]);
+  const ringSystems = useMemo(
+    () =>
+      runtime.bodies.flatMap((id) => {
+        const rings = runtime.overrides.get(id)?.rings ?? runtime.catalogue.get(id).visual.rings;
+        return rings === undefined ? [] : [rings];
+      }),
+    [runtime],
+  );
   const [ringLook, setRingLook] = useState<RingLook>({});
   const changeRing = (band: string, change: { color?: string; opacity?: number }) => {
     const next = { ...ringLook, [band]: { ...ringLook[band], ...change } };
     controls.current.ringLook = next;
     setRingLook(next);
   };
-  const labelToggles = useMemo(() => experience.objects.filter((object) => object.showLabel !== undefined), [experience]);
+  const labelToggles = useMemo(
+    () => experience.objects.filter((object) => object.showLabel !== undefined),
+    [experience],
+  );
   const [hiddenLabels, setHiddenLabels] = useState<ReadonlySet<string>>(() => new Set(controls.current.hiddenLabels));
   const [loopOn, setLoopOn] = useState(controls.current.loop === true);
   const [upChoice, setUpChoice] = useState<ViewUp>(startViewUp(definition, search));
@@ -382,8 +558,16 @@ export function App({ definition, writeTitle = true, address, developerTools, ho
   const [markerPx, setMarkerPx] = useState(() => controls.current.bodyMarker.minSpherePx);
   const [storyAutoOpen, setStoryAutoOpen] = useState(storyStartOf(storySet).autoOpen);
   const [storyPauseSeconds, setStoryPauseSeconds] = useState(storyStartOf(storySet).pauseSeconds);
-  const [panelRequest, setPanelRequest] = useState<{ readonly id: string; readonly serial: number; readonly host?: boolean } | null>(null);
-  const [pickRequest, setPickRequest] = useState<{ readonly id: string; readonly serial: number; readonly keepSky?: boolean } | null>(null);
+  const [panelRequest, setPanelRequest] = useState<{
+    readonly id: string;
+    readonly serial: number;
+    readonly host?: boolean;
+  } | null>(null);
+  const [pickRequest, setPickRequest] = useState<{
+    readonly id: string;
+    readonly serial: number;
+    readonly keepSky?: boolean;
+  } | null>(null);
   const [featureRequest, setFeatureRequest] = useState<{ readonly key: string; readonly serial: number } | null>(null);
   const [hud, setHud] = useState<DebugReadout | null>(null);
   const [frames, setFrames] = useState<FrameSnapshot | null>(null);
@@ -393,52 +577,94 @@ export function App({ definition, writeTitle = true, address, developerTools, ho
   const [fills, setFills] = useState<readonly GroupFill[]>([]);
   /** The ids the camera's last request named (a preset, a host `setCamera`, a story panel's camera): the one rule below holds the camera when one of them stops being shown. */
   const cameraNamed = useRef<readonly string[]>([]);
-  const noteCameraIds = (request: CameraRequest) => { const { bodies, toward } = cameraIdsOf(request); cameraNamed.current = toward === undefined ? bodies : [...bodies, toward]; };
-  const updateCameraRequest = useCallback((request: ExperienceCameraRequest) => {
-    noteCameraIds(request as CameraRequest);
-    controls.current.cameraRequest = aimAtFigure(request as CameraRequest, runtime.skyFigures);
-  }, [runtime]);
-  const turnToFigure = useCallback((id: string) => {
-    const now = controls.current.viewReadout;
-    if (now !== undefined && "lookOut" in now) updateCameraRequest({ kind: "lookOut", body: now.lookOut, direction: id });
-  }, [updateCameraRequest]);
-  const holdCamera = useCallback(() => { cameraNamed.current = []; controls.current.cameraRequest = { kind: "hold" }; }, []);
+  const noteCameraIds = (request: CameraRequest) => {
+    const { bodies, toward } = cameraIdsOf(request);
+    cameraNamed.current = toward === undefined ? bodies : [...bodies, toward];
+  };
+  const updateCameraRequest = useCallback(
+    (request: ExperienceCameraRequest) => {
+      noteCameraIds(request as CameraRequest);
+      controls.current.cameraRequest = aimAtFigure(request as CameraRequest, runtime.skyFigures);
+    },
+    [runtime],
+  );
+  const turnToFigure = useCallback(
+    (id: string) => {
+      const now = controls.current.viewReadout;
+      if (now !== undefined && "lookOut" in now)
+        updateCameraRequest({ kind: "lookOut", body: now.lookOut, direction: id });
+    },
+    [updateCameraRequest],
+  );
+  const holdCamera = useCallback(() => {
+    cameraNamed.current = [];
+    controls.current.cameraRequest = { kind: "hold" };
+  }, []);
   /** O-071 (I-175): whatever named the camera's target, once that object is not shown at `timeUtcMs` the camera keeps its pose and stops following (`shownAt`, via `hiddenWithShownSpans`). */
-  const holdCameraOffShown = useCallback((timeUtcMs: number) => {
-    if (cameraNamed.current.length === 0) return;
-    const out = hiddenWithShownSpans(undefined, experience.objects, timeUtcMs)?.objects;
-    if (out !== undefined && cameraNamed.current.some((id) => out.has(id))) holdCamera();
-  }, [experience, holdCamera]);
-  const requestPanel = useCallback((id: string) => setPanelRequest((previous) => ({ id, serial: (previous?.serial ?? 0) + 1 })), []);
-  const requestPick = useCallback((id: string, options?: { readonly keepSky?: boolean }) => setPickRequest((previous) => ({ id, serial: (previous?.serial ?? 0) + 1, ...(options?.keepSky === true ? { keepSky: true } : {}) })), []);
-  const requestFeature = useCallback((key: string) => setFeatureRequest((previous) => ({ key, serial: (previous?.serial ?? 0) + 1 })), []);
-  const markOpenFeature = useCallback((key: string | null) => { controls.current.openFeatureKey = key; }, []);
-  const setPlaying = useCallback((playing: boolean) => {
-    if (playing) runtime.clock.play();
-    else runtime.clock.pause();
-    setClockSnapshot(runtime.clock.snapshot());
-  }, [runtime]);
+  const holdCameraOffShown = useCallback(
+    (timeUtcMs: number) => {
+      if (cameraNamed.current.length === 0) return;
+      const out = hiddenWithShownSpans(undefined, experience.objects, timeUtcMs)?.objects;
+      if (out !== undefined && cameraNamed.current.some((id) => out.has(id))) holdCamera();
+    },
+    [experience, holdCamera],
+  );
+  const requestPanel = useCallback(
+    (id: string) => setPanelRequest((previous) => ({ id, serial: (previous?.serial ?? 0) + 1 })),
+    [],
+  );
+  const requestPick = useCallback(
+    (id: string, options?: { readonly keepSky?: boolean }) =>
+      setPickRequest((previous) => ({
+        id,
+        serial: (previous?.serial ?? 0) + 1,
+        ...(options?.keepSky === true ? { keepSky: true } : {}),
+      })),
+    [],
+  );
+  const requestFeature = useCallback(
+    (key: string) => setFeatureRequest((previous) => ({ key, serial: (previous?.serial ?? 0) + 1 })),
+    [],
+  );
+  const markOpenFeature = useCallback((key: string | null) => {
+    controls.current.openFeatureKey = key;
+  }, []);
+  const setPlaying = useCallback(
+    (playing: boolean) => {
+      if (playing) runtime.clock.play();
+      else runtime.clock.pause();
+      setClockSnapshot(runtime.clock.snapshot());
+    },
+    [runtime],
+  );
   controls.current.onStoryMarker = requestPanel;
   controls.current.onFeatureMarker = requestFeature;
   controls.current.onPickObject = requestPick;
-  const updateScale = useCallback((id: ScaleId) => {
-    controls.current.policy = scalePolicyFor(id, suppliedPolicies);
-    setScale(id);
-  }, [suppliedPolicies]);
+  const updateScale = useCallback(
+    (id: ScaleId) => {
+      controls.current.policy = scalePolicyFor(id, suppliedPolicies);
+      setScale(id);
+    },
+    [suppliedPolicies],
+  );
 
   // The view showing is read from a ref set at the switch, so a publish right after a switch already names the new view.
   const viewRef = useRef(viewId);
-  const chooseView = useCallback((id: string) => {
-    viewRef.current = id;
-    controls.current.hostCameraRequest = null; // a host camera call counts from this switch on
-    controls.current.viewHidden = hiddenByView(definition.views, viewById(definition.views, id), experience);
-    // The showing view's events choose the pacing zones; a paced rate that changes with them eases in rather than jumping.
-    if (controls.current.pace !== undefined) {
-      controls.current.pace.shown = shownEventsOf(definition, id);
-      if (controls.current.paceAuto === true) startPaceEase(controls.current.pace, runtime.clock.rate, performance.now());
-    }
-    setViewId(id);
-  }, [definition, experience, runtime]);
+  const chooseView = useCallback(
+    (id: string) => {
+      viewRef.current = id;
+      controls.current.hostCameraRequest = null; // a host camera call counts from this switch on
+      controls.current.viewHidden = hiddenByView(definition.views, viewById(definition.views, id), experience);
+      // The showing view's events choose the pacing zones; a paced rate that changes with them eases in rather than jumping.
+      if (controls.current.pace !== undefined) {
+        controls.current.pace.shown = shownEventsOf(definition, id);
+        if (controls.current.paceAuto === true)
+          startPaceEase(controls.current.pace, runtime.clock.rate, performance.now());
+      }
+      setViewId(id);
+    },
+    [definition, experience, runtime],
+  );
   const viewIds = useMemo(() => definition.views?.views.map((view) => view.id) ?? [], [definition]);
   // The presentation a host reads and sets (looks, switches, scale), rebuilt every render over the live controls; the stable callbacks below call through it.
   const live = useRef<LivePresentation | null>(null);
@@ -450,7 +676,11 @@ export function App({ definition, writeTitle = true, address, developerTools, ho
       look: lookReadOf(controls.current),
       switches: live.current?.switches() ?? {},
       ...(runtime.pacing === undefined ? {} : { auto: controls.current.paceAuto === true }),
-      ...(runtime.eventZones === undefined ? {} : { zones: activeEventZones(runtime.eventZones, shownEventsOf(definition, viewRef.current), snapshot.timeUtcMs) }),
+      ...(runtime.eventZones === undefined
+        ? {}
+        : {
+            zones: activeEventZones(runtime.eventZones, shownEventsOf(definition, viewRef.current), snapshot.timeUtcMs),
+          }),
       ...(definition.views === undefined ? {} : { view: viewRef.current }),
       ...(controls.current.selectedObjectId === "" ? {} : { selected: controls.current.selectedObjectId }),
       ...(controls.current.openStoryPanelId == null ? {} : { panel: controls.current.openStoryPanelId }),
@@ -463,15 +693,25 @@ export function App({ definition, writeTitle = true, address, developerTools, ho
   // `origin` "move": time or the view moved and the selection followed (a drop or a view rule's framing target); the link names whatever last moved them (a host call, the visitor or playback).
   // The host's `setSelected` not yet applied by the shell (id "" clears); the shell applies it after its own view-switch choices, so the host call is the last word.
   const hostSelect = useRef<string | null>(null);
-  const [selectRequest, setSelectRequest] = useState<{ readonly id: string; readonly serial: number; readonly quiet?: boolean } | null>(null);
+  const [selectRequest, setSelectRequest] = useState<{
+    readonly id: string;
+    readonly serial: number;
+    readonly quiet?: boolean;
+  } | null>(null);
   /** `quiet`: a story panel's select, which follows the visitor-tap rule for the card (the shell decides: wide screens open it, phones do not); a host call opens it always. */
   const selectWith = useCallback((id: string | undefined, quiet: boolean) => {
     hostSelect.current = id ?? "";
     controls.current.selectedObjectId = id ?? ""; // `read()` shows it at once
-    setSelectRequest((previous) => ({ id: id ?? "", serial: (previous?.serial ?? 0) + 1, ...(quiet ? { quiet } : {}) }));
+    setSelectRequest((previous) => ({
+      id: id ?? "",
+      serial: (previous?.serial ?? 0) + 1,
+      ...(quiet ? { quiet } : {}),
+    }));
   }, []);
   const hostSetSelected = useCallback((id: string | undefined) => selectWith(id, false), [selectWith]);
-  const hostSelectApplied = useCallback(() => { hostSelect.current = null; }, []);
+  const hostSelectApplied = useCallback(() => {
+    hostSelect.current = null;
+  }, []);
   const hostSetPanel = useCallback((id: string | undefined) => {
     controls.current.openStoryPanelId = id ?? null; // `read()` shows it at once
     setPanelRequest((previous) => ({ id: id ?? "", serial: (previous?.serial ?? 0) + 1, host: true }));
@@ -479,14 +719,19 @@ export function App({ definition, writeTitle = true, address, developerTools, ho
   const panelIds = useCallback((): readonly string[] => {
     const set = definition.experience.storyPanels;
     const hidden = controls.current.viewHidden?.panels;
-    return [...(set?.panels ?? []), ...(set?.steps ?? [])].map(({ id }) => id).filter((id) => hidden === undefined || !hidden.has(id));
+    return [...(set?.panels ?? []), ...(set?.steps ?? [])]
+      .map(({ id }) => id)
+      .filter((id) => hidden === undefined || !hidden.has(id));
   }, [definition]);
-  const updateSelectedObject = useCallback((objectId: string, origin: SelectionOrigin) => {
-    if (hostSelect.current !== null) return; // a host `setSelected` is waiting for the shell: the shell's older choice must not undo it (the host-call order rule)
-    const changed = controls.current.selectedObjectId !== objectId;
-    controls.current.selectedObjectId = objectId;
-    if (changed && hostAttached.current) host?.publishSelection(stateNow(), origin === "move");
-  }, [host, stateNow]);
+  const updateSelectedObject = useCallback(
+    (objectId: string, origin: SelectionOrigin) => {
+      if (hostSelect.current !== null) return; // a host `setSelected` is waiting for the shell: the shell's older choice must not undo it (the host-call order rule)
+      const changed = controls.current.selectedObjectId !== objectId;
+      controls.current.selectedObjectId = objectId;
+      if (changed && hostAttached.current) host?.publishSelection(stateNow(), origin === "move");
+    },
+    [host, stateNow],
+  );
   useEffect(() => {
     const id = window.setInterval(() => {
       // The readout wraps, stops and paces with the scene, so the shown time never rests past the end while looping and a host's playback reports follow the slow-downs.
@@ -497,38 +742,52 @@ export function App({ definition, writeTitle = true, address, developerTools, ho
     return () => window.clearInterval(id);
   }, [runtime, host, stateNow]);
   // The host reaches the one clock through the same seek and rate handlers a visitor's timeline uses.
-  const seekTo = useCallback((timeUtcMs: number) => {
-    runtime.clock.seek(timeUtcMs);
-    if (controls.current.pace !== undefined) delete controls.current.pace.last; // the paced step starts again from the new time
-    // A seek lands on the paced rate for the new time at once, not through a view-switch ease.
-    if (controls.current.pace !== undefined) {
-      delete controls.current.pace.ease;
-      if (controls.current.paceAuto === true && runtime.pacing !== undefined) applyPacing(runtime.clock, runtime.pacing, controls.current.pace);
-    }
-    setClockSnapshot(runtime.clock.snapshot());
-  }, [runtime]);
+  const seekTo = useCallback(
+    (timeUtcMs: number) => {
+      runtime.clock.seek(timeUtcMs);
+      if (controls.current.pace !== undefined) delete controls.current.pace.last; // the paced step starts again from the new time
+      // A seek lands on the paced rate for the new time at once, not through a view-switch ease.
+      if (controls.current.pace !== undefined) {
+        delete controls.current.pace.ease;
+        if (controls.current.paceAuto === true && runtime.pacing !== undefined)
+          applyPacing(runtime.clock, runtime.pacing, controls.current.pace);
+      }
+      setClockSnapshot(runtime.clock.snapshot());
+    },
+    [runtime],
+  );
   // A host's time jump is a seek for story panels, as a visitor's is: the shell's note re-bases the crossing check first.
   const storySeekNote = useRef<((timeUtcMs: number) => void) | null>(null);
-  const hostSeekTo = useCallback((timeUtcMs: number) => {
-    storySeekNote.current?.(timeUtcMs);
-    seekTo(timeUtcMs);
-  }, [seekTo]);
+  const hostSeekTo = useCallback(
+    (timeUtcMs: number) => {
+      storySeekNote.current?.(timeUtcMs);
+      seekTo(timeUtcMs);
+    },
+    [seekTo],
+  );
   // A speed picked by the visitor or the host takes over from pacing; "auto" gives the rate back to it.
   const [paceAuto, setPaceAuto] = useState(controls.current.paceAuto === true);
-  const changeRate = useCallback((rate: number | "auto") => {
-    if (rate === "auto") {
-      if (controls.current.pace !== undefined) delete controls.current.pace.ease;
-      if (runtime.pacing !== undefined) applyPacing(runtime.clock, runtime.pacing, controls.current.pace);
-    } else runtime.clock.setRate(rate);
-    controls.current.paceAuto = rate === "auto";
-    setPaceAuto(rate === "auto");
-    setClockSnapshot(runtime.clock.snapshot());
-  }, [runtime]);
+  const changeRate = useCallback(
+    (rate: number | "auto") => {
+      if (rate === "auto") {
+        if (controls.current.pace !== undefined) delete controls.current.pace.ease;
+        if (runtime.pacing !== undefined) applyPacing(runtime.clock, runtime.pacing, controls.current.pace);
+      } else runtime.clock.setRate(rate);
+      controls.current.paceAuto = rate === "auto";
+      setPaceAuto(rate === "auto");
+      setClockSnapshot(runtime.clock.snapshot());
+    },
+    [runtime],
+  );
   // The same play handler the visitor's button reaches, so a host and a visitor share one clock.
   const hostSetPlaying = setPlaying;
   // The objects a host may point the camera at: those the showing view shows and that are shown at the clock time (read live, so a view switch or a time move is already counted).
   const cameraTargets = useCallback((): readonly string[] => {
-    const hidden = hiddenWithShownSpans(controls.current.viewHidden, experience.objects, runtime.clock.snapshot().timeUtcMs)?.objects;
+    const hidden = hiddenWithShownSpans(
+      controls.current.viewHidden,
+      experience.objects,
+      runtime.clock.snapshot().timeUtcMs,
+    )?.objects;
     return experience.objects.map(({ id }) => id).filter((id) => hidden === undefined || !hidden.has(id));
   }, [experience, runtime]);
   const opening = useMemo(() => openingCamera(definition, runtime, search), []); // eslint-disable-line react-hooks/exhaustive-deps -- opening is read once at mount, on purpose: later scene or address changes must not move the camera
@@ -537,64 +796,165 @@ export function App({ definition, writeTitle = true, address, developerTools, ho
     return view === undefined ? undefined : { ...view };
   }, [opening]);
   // A host camera call is the last word: it is also kept in `hostCameraRequest`, so the opening view (first frame) and a view's own camera rule (shell) yield to it.
-  const setCamera = useCallback((request: CameraRequest) => { noteCameraIds(request); controls.current.cameraRequest = controls.current.hostCameraRequest = aimAtFigure(request, runtime.skyFigures); }, [runtime]);
+  const setCamera = useCallback(
+    (request: CameraRequest) => {
+      noteCameraIds(request);
+      controls.current.cameraRequest = controls.current.hostCameraRequest = aimAtFigure(request, runtime.skyFigures);
+    },
+    [runtime],
+  );
   const hostCameraSet = useCallback(() => controls.current.hostCameraRequest != null, []);
   const hostScales = useMemo(() => scaleChoiceIds ?? SCALE_CHOICES.map((choice) => choice.id), [scaleChoiceIds]);
   const hostSetLook = useCallback((look: LookInput) => live.current?.setLook(look), []);
   const hostSetScale = useCallback((id: ScaleId) => live.current?.setScale(id), []);
-  const hostClearSkyTrace = useCallback((id: string, seconds: number) => { controls.current.skyTraces.push({ id, seconds, reduced: prefersReducedMotion() }); }, []);
-  const hostTraceSkyFigure = useCallback((id: string, seconds: number, after: SkyTraceAfter) => { controls.current.skyTraces.push({ id, seconds, after, reduced: prefersReducedMotion() }); }, []);
+  const hostClearSkyTrace = useCallback((id: string, seconds: number) => {
+    controls.current.skyTraces.push({ id, seconds, reduced: prefersReducedMotion() });
+  }, []);
+  const hostTraceSkyFigure = useCallback((id: string, seconds: number, after: SkyTraceAfter) => {
+    controls.current.skyTraces.push({ id, seconds, after, reduced: prefersReducedMotion() });
+  }, []);
   const hostSetSwitch = useCallback((id: string, on: boolean) => live.current?.setSwitch(id, on), []);
   // The host's group looks belong to this scene's groups: a viewer rebuilt with a new scene starts from that scene's own colours and sizes.
   // eslint-disable-next-line react-hooks/exhaustive-deps -- runtime is the reset key: a new scene starts a fresh map
   const groupLooks = useMemo(() => new Map<string, GroupDotLook>(), [runtime]);
   const groupIds = useMemo(() => runtime.groups.map((layer) => layer.object.id), [runtime]);
-  const hostGroupLook = useCallback((id: string): GroupDotLook | undefined => {
-    const layer = runtime.groups.find((candidate) => candidate.object.id === id);
-    return layer === undefined ? undefined : groupLooks.get(id) ?? { color: layer.color, dotSizePx: layer.pointSizePx ?? DEFAULT_POINT_SIZE_PX };
-  }, [runtime, groupLooks]);
-  const hostSetGroupLook = useCallback((id: string, look: GroupDotLook) => { groupLooks.set(id, { color: look.color, dotSizePx: look.dotSizePx }); }, [groupLooks]);
+  const hostGroupLook = useCallback(
+    (id: string): GroupDotLook | undefined => {
+      const layer = runtime.groups.find((candidate) => candidate.object.id === id);
+      return layer === undefined
+        ? undefined
+        : (groupLooks.get(id) ?? { color: layer.color, dotSizePx: layer.pointSizePx ?? DEFAULT_POINT_SIZE_PX });
+    },
+    [runtime, groupLooks],
+  );
+  const hostSetGroupLook = useCallback(
+    (id: string, look: GroupDotLook) => {
+      groupLooks.set(id, { color: look.color, dotSizePx: look.dotSizePx });
+    },
+    [groupLooks],
+  );
   /** The figure the open story panel traced when it opened; it is cleared (default fade) when the panel is left. */
   const panelTrace = useRef<string | null>(null);
   /** The panel whose actions were last applied (a host `setPanel` shows its panel at once, so `openStoryPanelId` cannot say whether the shell has opened it yet). */
   const actedPanel = useRef<string | null>(null);
   /** Whether the objects a story panel's camera names are shown at the clock time; a request toward one outside its `shownDuring` span is refused as `setCamera` refuses it. */
-  const shownAtClock = useCallback((request: CameraRequest): boolean => {
-    const out = hiddenWithShownSpans(undefined, experience.objects, runtime.clock.snapshot().timeUtcMs)?.objects;
-    const { bodies, toward } = cameraIdsOf(request);
-    return out === undefined || ![...bodies, ...(toward === undefined ? [] : [toward])].some((id) => out.has(id));
-  }, [experience, runtime]);
-  shelfCamera.current = (request) => { if (shownAtClock(request)) setCamera(request); };
+  const shownAtClock = useCallback(
+    (request: CameraRequest): boolean => {
+      const out = hiddenWithShownSpans(undefined, experience.objects, runtime.clock.snapshot().timeUtcMs)?.objects;
+      const { bodies, toward } = cameraIdsOf(request);
+      return out === undefined || ![...bodies, ...(toward === undefined ? [] : [toward])].some((id) => out.has(id));
+    },
+    [experience, runtime],
+  );
+  shelfCamera.current = (request) => {
+    if (shownAtClock(request)) setCamera(request);
+  };
   /** The shell's open panel changed (a visitor, a host call already shown, playback crossing a panel, or a view switch dropping it); a change is told to the host, the opening panel is read at attach. */
-  const markOpenPanel = useCallback((id: string | null, cause: PanelCause) => {
-    const changed = (controls.current.openStoryPanelId ?? null) !== id;
-    controls.current.openStoryPanelId = id;
-    if (changed && hostAttached.current) host?.publishPanel(stateNow(), cause);
-    if (actedPanel.current === id) return;
-    actedPanel.current = id;
-    // Leaving a panel clears the trace it started; what a host or visitor did since is left as it is.
-    if (panelTrace.current !== null) hostClearSkyTrace(panelTrace.current, TRACE_FADE_SECONDS);
-    panelTrace.current = null;
-    const set = definition.experience.storyPanels;
-    const panel = id === null ? undefined : [...(set?.panels ?? []), ...(set?.steps ?? [])].find((candidate) => candidate.id === id);
-    if (panel === undefined) return;
-    // The panel's actions go through the host calls, in this order: camera, select, trace.
-    if (panel.camera !== undefined && shownAtClock(panel.camera as CameraRequest)) setCamera(panel.camera as CameraRequest);
-    if (panel.select === true && panel.objectId !== undefined) selectWith(panel.objectId, true);
-    if (panel.trace !== undefined && panel.objectId !== undefined) {
-      hostTraceSkyFigure(panel.objectId, panel.trace.seconds, panel.trace.after);
-      panelTrace.current = panel.objectId;
-    }
-  }, [host, stateNow, definition, setCamera, shownAtClock, selectWith, hostTraceSkyFigure, hostClearSkyTrace]);
+  const markOpenPanel = useCallback(
+    (id: string | null, cause: PanelCause) => {
+      const changed = (controls.current.openStoryPanelId ?? null) !== id;
+      controls.current.openStoryPanelId = id;
+      if (changed && hostAttached.current) host?.publishPanel(stateNow(), cause);
+      if (actedPanel.current === id) return;
+      actedPanel.current = id;
+      // Leaving a panel clears the trace it started; what a host or visitor did since is left as it is.
+      if (panelTrace.current !== null) hostClearSkyTrace(panelTrace.current, TRACE_FADE_SECONDS);
+      panelTrace.current = null;
+      const set = definition.experience.storyPanels;
+      const panel =
+        id === null
+          ? undefined
+          : [...(set?.panels ?? []), ...(set?.steps ?? [])].find((candidate) => candidate.id === id);
+      if (panel === undefined) return;
+      // The panel's actions go through the host calls, in this order: camera, select, trace.
+      if (panel.camera !== undefined && shownAtClock(panel.camera as CameraRequest))
+        setCamera(panel.camera as CameraRequest);
+      if (panel.select === true && panel.objectId !== undefined) selectWith(panel.objectId, true);
+      if (panel.trace !== undefined && panel.objectId !== undefined) {
+        hostTraceSkyFigure(panel.objectId, panel.trace.seconds, panel.trace.after);
+        panelTrace.current = panel.objectId;
+      }
+    },
+    [host, stateNow, definition, setCamera, shownAtClock, selectWith, hostTraceSkyFigure, hostClearSkyTrace],
+  );
   useEffect(() => {
     if (host === undefined) return undefined;
     hostAttached.current = true;
     shownKey.current = null; // the presentation is read afresh after each attach
     controls.current.groupLooks = groupLooks;
-    host.attach({ about: definition.about, ...(shelf.control === undefined ? {} : { parts: shelf.control }), ...(definition.picker === undefined ? {} : { picker: { id: definition.picker.id, values: definition.picker.options.map((option) => option.value), start: definition.picker.value } }), window: runtime.loopWindow, skyFigures: skyFigureReads(runtime.skyFigures, experience.skyFigures), events: experience.events, rates: definition.experience.rates, paced: runtime.pacing !== undefined, read: stateNow, seek: hostSeekTo, setRate: changeRate, playable: definition.experience.hideTimeline !== true, setPlaying: hostSetPlaying, views: viewIds, setView: chooseView, cameraTargets, readCamera, setCamera, setSelected: hostSetSelected, panels: panelIds, setPanel: hostSetPanel, scales: hostScales, setScale: hostSetScale, setLook: hostSetLook, setSwitch: hostSetSwitch, traceSkyFigure: hostTraceSkyFigure, clearSkyTrace: hostClearSkyTrace, groups: groupIds, groupLook: hostGroupLook, setGroupLook: hostSetGroupLook });
-    return () => { hostAttached.current = false; host.detach(); };
+    host.attach({
+      about: definition.about,
+      ...(shelf.control === undefined ? {} : { parts: shelf.control }),
+      ...(definition.picker === undefined
+        ? {}
+        : {
+            picker: {
+              id: definition.picker.id,
+              values: definition.picker.options.map((option) => option.value),
+              start: definition.picker.value,
+            },
+          }),
+      window: runtime.loopWindow,
+      skyFigures: skyFigureReads(runtime.skyFigures, experience.skyFigures),
+      events: experience.events,
+      rates: definition.experience.rates,
+      paced: runtime.pacing !== undefined,
+      read: stateNow,
+      seek: hostSeekTo,
+      setRate: changeRate,
+      playable: definition.experience.hideTimeline !== true,
+      setPlaying: hostSetPlaying,
+      views: viewIds,
+      setView: chooseView,
+      cameraTargets,
+      readCamera,
+      setCamera,
+      setSelected: hostSetSelected,
+      panels: panelIds,
+      setPanel: hostSetPanel,
+      scales: hostScales,
+      setScale: hostSetScale,
+      setLook: hostSetLook,
+      setSwitch: hostSetSwitch,
+      traceSkyFigure: hostTraceSkyFigure,
+      clearSkyTrace: hostClearSkyTrace,
+      groups: groupIds,
+      groupLook: hostGroupLook,
+      setGroupLook: hostSetGroupLook,
+    });
+    return () => {
+      hostAttached.current = false;
+      host.detach();
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps -- stateNow is read through host.read; adding it would re-attach the host whenever it changes
-  }, [host, runtime, definition, hostSeekTo, changeRate, viewIds, chooseView, cameraTargets, readCamera, setCamera, hostSetSelected, panelIds, hostSetPanel, experience, hostSetPlaying, hostScales, hostSetScale, hostSetLook, hostSetSwitch, hostTraceSkyFigure, hostClearSkyTrace, groupLooks, groupIds, hostGroupLook, hostSetGroupLook, shelf.control]);
+  }, [
+    host,
+    runtime,
+    definition,
+    hostSeekTo,
+    changeRate,
+    viewIds,
+    chooseView,
+    cameraTargets,
+    readCamera,
+    setCamera,
+    hostSetSelected,
+    panelIds,
+    hostSetPanel,
+    experience,
+    hostSetPlaying,
+    hostScales,
+    hostSetScale,
+    hostSetLook,
+    hostSetSwitch,
+    hostTraceSkyFigure,
+    hostClearSkyTrace,
+    groupLooks,
+    groupIds,
+    hostGroupLook,
+    hostSetGroupLook,
+    shelf.control,
+  ]);
 
   useEffect(() => {
     if (!developerMode) return undefined;
@@ -621,39 +981,88 @@ export function App({ definition, writeTitle = true, address, developerTools, ho
   const copyViewLink = async () => {
     const view = controls.current.viewReadout;
     if (view === undefined) return;
-    setViewLink(await shareViewLink({ view, scaleId: scale, up: upChoice, timeUtcMs: runtime.clock.snapshot().timeUtcMs, ...(definition.views === undefined ? {} : { show: viewRef.current }) }));
+    setViewLink(
+      await shareViewLink({
+        view,
+        scaleId: scale,
+        up: upChoice,
+        timeUtcMs: runtime.clock.snapshot().timeUtcMs,
+        ...(definition.views === undefined ? {} : { show: viewRef.current }),
+      }),
+    );
   };
-  const viewChoice: ViewChoice | undefined = definition.views === undefined ? undefined : {
-    place: definition.views.place,
-    options: definition.views.views.map((view) => ({ id: view.id, label: view.label, ...(view.shortLabel === undefined ? {} : { shortLabel: view.shortLabel }), active: view.id === currentView?.id })),
-    onSelect: (id) => {
-      chooseView(id);
-      host?.publish(stateNow(), "visitor");
-    },
-  };
+  const viewChoice: ViewChoice | undefined =
+    definition.views === undefined
+      ? undefined
+      : {
+          place: definition.views.place,
+          options: definition.views.views.map((view) => ({
+            id: view.id,
+            label: view.label,
+            ...(view.shortLabel === undefined ? {} : { shortLabel: view.shortLabel }),
+            active: view.id === currentView?.id,
+          })),
+          onSelect: (id) => {
+            chooseView(id);
+            host?.publish(stateNow(), "visitor");
+          },
+        };
   const bindingsNow = (): SwitchBindings => ({
     settings: definition.displaySwitches,
     orbit: { present: orbitPaths.length > 0, look: { ...orbitDefault, ...controls.current.orbitLook }, set: setOrbit },
-    moons: { present: bodySets.length > 0, look: controls.current.bodySetLook ?? DEFAULT_BODY_SET_LOOK, set: changeSetLook },
-    skyLines: {
-      figures: runtime.skyFigures.some(({ kind }) => kind === "figure"), boundaries: runtime.skyFigures.some(({ kind }) => kind === "boundary"), on: controls.current.skyLines,
-      set: (key, on) => { controls.current.skyLines = { ...controls.current.skyLines, [key]: on }; setSkyLinesShown(controls.current.skyLines); },
+    moons: {
+      present: bodySets.length > 0,
+      look: controls.current.bodySetLook ?? DEFAULT_BODY_SET_LOOK,
+      set: changeSetLook,
     },
-    sky: { present: controls.current.skyVisible !== false, on: controls.current.showMilkyWay, set: (on) => { controls.current.showMilkyWay = on; setMilkyWayOn(on); } },
+    skyLines: {
+      figures: runtime.skyFigures.some(({ kind }) => kind === "figure"),
+      boundaries: runtime.skyFigures.some(({ kind }) => kind === "boundary"),
+      on: controls.current.skyLines,
+      set: (key, on) => {
+        controls.current.skyLines = { ...controls.current.skyLines, [key]: on };
+        setSkyLinesShown(controls.current.skyLines);
+      },
+    },
+    sky: {
+      present: controls.current.skyVisible !== false,
+      on: controls.current.showMilkyWay,
+      set: (on) => {
+        controls.current.showMilkyWay = on;
+        setMilkyWayOn(on);
+      },
+    },
     labels: {
-      objectIds: experience.objects.map((object) => object.id), hidden: controls.current.hiddenLabels ?? hiddenLabels,
-      setHidden: (hidden) => { controls.current.hiddenLabels = new Set(hidden); setHiddenLabels(new Set(hidden)); },
-      anchorsPresent: runtime.trackedBodies.length > 0, anchors: controls.current.showAnchorLabels, setAnchors: (on) => { controls.current.showAnchorLabels = on; setAnchorLabels(on); },
+      objectIds: experience.objects.map((object) => object.id),
+      hidden: controls.current.hiddenLabels ?? hiddenLabels,
+      setHidden: (hidden) => {
+        controls.current.hiddenLabels = new Set(hidden);
+        setHiddenLabels(new Set(hidden));
+      },
+      anchorsPresent: runtime.trackedBodies.length > 0,
+      anchors: controls.current.showAnchorLabels,
+      setAnchors: (on) => {
+        controls.current.showAnchorLabels = on;
+        setAnchorLabels(on);
+      },
     },
   });
   const displaySwitches = displaySwitchItems(bindingsNow());
   live.current = presentationOf({
     setLook: (look) => {
       const read = applyLook(controls.current, definition, glowBase, look);
-      setStarBrightness(read.starBrightness); setMilkyWayBrightness(read.milkyWayBrightness); setMilkyWayOn(read.milkyWay); setSkyVisible(read.skyVisible);
+      setStarBrightness(read.starBrightness);
+      setMilkyWayBrightness(read.milkyWayBrightness);
+      setMilkyWayOn(read.milkyWay);
+      setSkyVisible(read.skyVisible);
       if (read.sunGlow !== undefined) setGlowShown({ ...controls.current.glowLook! });
-      setMarkerPx(read.markerSwapRadiusPx); setLoadFade(read.loadFadeSeconds);
-      setSkyColoursShown(controls.current.skyColours); setLabelStyleShown(controls.current.labelStyle); setTimeLookShown(controls.current.timeLook); setSheetShown(read.sheetMaxPercent); setInterfaceShown(controls.current.interfaceLook);
+      setMarkerPx(read.markerSwapRadiusPx);
+      setLoadFade(read.loadFadeSeconds);
+      setSkyColoursShown(controls.current.skyColours);
+      setLabelStyleShown(controls.current.labelStyle);
+      setTimeLookShown(controls.current.timeLook);
+      setSheetShown(read.sheetMaxPercent);
+      setInterfaceShown(controls.current.interfaceLook);
     },
     setScale: updateScale,
     items: () => displaySwitchItems({ ...bindingsNow(), settings: hostReachable(definition.displaySwitches) }),
@@ -666,7 +1075,28 @@ export function App({ definition, writeTitle = true, address, developerTools, ho
     const changed = shownKey.current !== null && shownKey.current !== key;
     shownKey.current = key;
     if (changed) host?.publish(state, "visitor");
-  }, [host, stateNow, scale, skyVisible, starBrightness, milkyWayBrightness, milkyWayOn, glowShown, markerPx, loadFade, orbitShown, setLook, hiddenLabels, anchorLabels, skyLinesShown, skyColoursShown, labelStyleShown, timeLookShown, sheetShown, interfaceShown]);
+  }, [
+    host,
+    stateNow,
+    scale,
+    skyVisible,
+    starBrightness,
+    milkyWayBrightness,
+    milkyWayOn,
+    glowShown,
+    markerPx,
+    loadFade,
+    orbitShown,
+    setLook,
+    hiddenLabels,
+    anchorLabels,
+    skyLinesShown,
+    skyColoursShown,
+    labelStyleShown,
+    timeLookShown,
+    sheetShown,
+    interfaceShown,
+  ]);
   const hasStoryPanels = (storySet?.panels.length ?? 0) > 0;
   const showDisplay = showsDisplayControls(definition, runtime, skyVisible, orbitPaths.length, storyMarkerSpecs.length);
   // Orbit-line sliders: the first four stay in view, the rest sit in a nested "Fine-tune" fold (T-090).
@@ -686,144 +1116,374 @@ export function App({ definition, writeTitle = true, address, developerTools, ho
       ["zoomBoostArc", "Zoom boost (arc)", "orbit-zoom-boost-arc", 0.01],
     ],
   } as const;
-  const orbitSlider = ([key, label, testId, step]: readonly [Exclude<keyof typeof orbitShown, "baseOn" | "endFadeOn" | "arcOn" | "zoomOn">, string, string, number]) => (
-    <SettingSlider key={key} label={label} ariaLabel={label} testId={`${testId}-value`} display={orbitShown[key].toFixed(step === 1 ? 0 : step === 0.5 ? 1 : step < 0.01 ? 4 : 2)} min={ORBIT_LOOK_LIMITS[key].min} max={ORBIT_LOOK_LIMITS[key].max} step={step} value={orbitShown[key]}
-      onChange={(value) => setOrbit({ [key]: value })} />
+  const orbitSlider = ([key, label, testId, step]: readonly [
+    Exclude<keyof typeof orbitShown, "baseOn" | "endFadeOn" | "arcOn" | "zoomOn">,
+    string,
+    string,
+    number,
+  ]) => (
+    <SettingSlider
+      key={key}
+      label={label}
+      ariaLabel={label}
+      testId={`${testId}-value`}
+      display={orbitShown[key].toFixed(step === 1 ? 0 : step === 0.5 ? 1 : step < 0.01 ? 4 : 2)}
+      min={ORBIT_LOOK_LIMITS[key].min}
+      max={ORBIT_LOOK_LIMITS[key].max}
+      step={step}
+      value={orbitShown[key]}
+      onChange={(value) => setOrbit({ [key]: value })}
+    />
   );
   // The panel's folds, in order; the first one present opens by default and the rest start closed (T-090).
-  const groups: ReadonlyArray<{ readonly id: string; readonly title: string; readonly className?: string; readonly body: ReactNode } | null> = [
-    !showDisplay ? null : {
-      id: "camera", title: "Camera and view",
-      body: (
-        <>
-        <SettingButtons label="Up direction">
-          {([["ecliptic", "Planets' plane (ecliptic)"], ["equatorial", "Earth's pole (equatorial)"]] as const).map(([choice, text]) => (
-            <button key={choice} aria-pressed={upChoice === choice} onClick={() => { controls.current.up = viewUpVector(choice); setUpChoice(choice); }}>{text}</button>
-          ))}
-        </SettingButtons>
-        <SettingSlider label="Marker threshold (px)" ariaLabel="Body marker threshold" testId="body-marker-value" display={markerPx.toFixed(1)} min={0} max={20} step={0.5} value={markerPx}
-          onChange={(value) => { controls.current.bodyMarker = { ...controls.current.bodyMarker, minSpherePx: value }; setMarkerPx(value); }} />
-        <SettingSlider label="Loading fade (s, next load)" ariaLabel="Loading fade" testId="load-fade-value" display={loadFade.toFixed(1)} min={BOOT_FADE_LIMITS.min} max={BOOT_FADE_LIMITS.max} step={0.1} value={loadFade}
-          onChange={(value) => { saveBootFadeSeconds(value); controls.current.loadFadeSeconds = value; setLoadFade(value); }} />
-        <ViewLinkGroup offered={address === true} onCopy={() => void copyViewLink()} viewNow={viewNow} viewLink={viewLink} scale={scale} upChoice={upChoice} />
-        <SettingButtons>
-          <button aria-pressed={loopOn} onClick={() => { controls.current.loop = !loopOn; setLoopOn(!loopOn); }}>Loop playback</button>
-        </SettingButtons>
-      
-        </>
-      ),
-    },
-    !showDisplay ? null : {
-      id: "timeline", title: "Timeline and stories",
-      body: (
-        <>
-          <SettingGroup name="timeline-glow" title="Timeline glow">
-            <SettingColor label="Glow colour" ariaLabel="Timeline glow colour" testId="glow-color-value" value={glowColoursShown(timelineGlow, interfaceShown.accent).ahead} onChange={(color) => setTimelineGlow({ ...timelineGlow, color })} />
-            <SettingColor label="Played colour" ariaLabel="Timeline played colour" testId="glow-played-value" value={glowColoursShown(timelineGlow, interfaceShown.accent).played} onChange={(playedColor) => setTimelineGlow({ ...timelineGlow, playedColor })} />
-            {([
-              ["minBrightness", "Quiet brightness", "Timeline quiet brightness", "glow-min-value", 0, 1, 0.01],
-              ["steadyBrightness", "Steady brightness (no rate)", "Timeline steady brightness", "glow-steady-value", 0, 1, 0.01],
-              ["curve", "Curve (rate to brightness)", "Timeline glow curve", "glow-curve-value", 0.2, 3, 0.05],
-              ["playedFloor", "Played brightness floor", "Timeline played floor", "glow-floor-value", 0, 1, 0.01],
-              ["thicknessPx", "Thickness (px)", "Timeline glow thickness", "glow-thickness-value", 2, 14, 0.5],
-              ["haloPx", "Halo blur (px)", "Timeline glow halo", "glow-halo-value", 0, 20, 0.5],
-            ] as const).map(([key, label, ariaLabel, testId, min, max, step]) => (
-              <SettingSlider key={key} label={label} ariaLabel={ariaLabel} testId={testId} display={timelineGlow[key].toFixed(step < 0.1 ? 2 : step < 1 ? 1 : 0)} min={min} max={max} step={step} value={timelineGlow[key]}
-                onChange={(value) => setTimelineGlow({ ...timelineGlow, [key]: value })} />
-            ))}
-            <SettingButtons>
-              <button onClick={() => setTimelineGlow(DEFAULT_TIMELINE_GLOW)}>Reset glow</button>
-            </SettingButtons>
-          </SettingGroup>
-          {hasStoryPanels && <StoryPanelSettings storyAutoOpen={storyAutoOpen} setStoryAutoOpen={setStoryAutoOpen} storyPauseSeconds={storyPauseSeconds} setStoryPauseSeconds={setStoryPauseSeconds} />}
-        </>
-      ),
-    },
-    orbitPaths.length === 0 ? null : {
-      id: "orbit-lines", title: "Orbit lines",
-      body: (
-        <>
-          <SettingButtons>
-            <button aria-pressed={orbitShown.baseOn} onClick={() => setOrbit({ baseOn: !orbitShown.baseOn })}>Orbit ring</button>
-            <button aria-pressed={orbitShown.endFadeOn} onClick={() => setOrbit({ endFadeOn: !orbitShown.endFadeOn })}>Fade ring ends</button>
-            <button aria-pressed={orbitShown.arcOn} onClick={() => setOrbit({ arcOn: !orbitShown.arcOn })}>Trailing arc</button>
-            <button aria-pressed={orbitShown.zoomOn} onClick={() => setOrbit({ zoomOn: !orbitShown.zoomOn })}>Brighten when zoomed out</button>
-          </SettingButtons>
-          {orbitSliders.main.map(orbitSlider)}
-          <Collapsible fold="orbit-fine-tune" title="Fine-tune" level={4} nested>
-            {orbitSliders.fine.map(orbitSlider)}
-          </Collapsible>
-          <SettingButtons>
-            <button onClick={resetOrbit}>Reset orbit lines</button>
-          </SettingButtons>
-        </>
-      ),
-    },
-    bodySets.length === 0 && ringSystems.length === 0 ? null : {
-      id: "moons-rings", title: "Moons and rings",
-      body: (
-        <MoonsAndRingsSettings bodySets={bodySets} ringSystems={ringSystems} setLook={setLook} changeSetLook={changeSetLook} ringLook={ringLook} changeRing={changeRing} controls={controls} setSetLook={setSetLook} setRingLook={setRingLook} />
-      ),
-    },
-    !(skyVisible || glowShown !== null) ? null : {
-      id: "sky-sun", title: "Sky and Sun",
-      body: (
-        <SkyAndSunSettings illuminateAll={illuminateAll} setIlluminateAll={setIlluminateAll} visible={skyVisible} glowShown={glowShown} setGlowShown={setGlowShown} controls={controls} milkyWayOn={milkyWayOn} setMilkyWayOn={setMilkyWayOn} starBrightness={starBrightness} setStarBrightness={setStarBrightness} milkyWayBrightness={milkyWayBrightness} setMilkyWayBrightness={setMilkyWayBrightness} />
-      ),
-    },
+  const groups: ReadonlyArray<{
+    readonly id: string;
+    readonly title: string;
+    readonly className?: string;
+    readonly body: ReactNode;
+  } | null> = [
+    !showDisplay
+      ? null
+      : {
+          id: "camera",
+          title: "Camera and view",
+          body: (
+            <>
+              <SettingButtons label="Up direction">
+                {(
+                  [
+                    ["ecliptic", "Planets' plane (ecliptic)"],
+                    ["equatorial", "Earth's pole (equatorial)"],
+                  ] as const
+                ).map(([choice, text]) => (
+                  <button
+                    key={choice}
+                    aria-pressed={upChoice === choice}
+                    onClick={() => {
+                      controls.current.up = viewUpVector(choice);
+                      setUpChoice(choice);
+                    }}
+                  >
+                    {text}
+                  </button>
+                ))}
+              </SettingButtons>
+              <SettingSlider
+                label="Marker threshold (px)"
+                ariaLabel="Body marker threshold"
+                testId="body-marker-value"
+                display={markerPx.toFixed(1)}
+                min={0}
+                max={20}
+                step={0.5}
+                value={markerPx}
+                onChange={(value) => {
+                  controls.current.bodyMarker = { ...controls.current.bodyMarker, minSpherePx: value };
+                  setMarkerPx(value);
+                }}
+              />
+              <SettingSlider
+                label="Loading fade (s, next load)"
+                ariaLabel="Loading fade"
+                testId="load-fade-value"
+                display={loadFade.toFixed(1)}
+                min={BOOT_FADE_LIMITS.min}
+                max={BOOT_FADE_LIMITS.max}
+                step={0.1}
+                value={loadFade}
+                onChange={(value) => {
+                  saveBootFadeSeconds(value);
+                  controls.current.loadFadeSeconds = value;
+                  setLoadFade(value);
+                }}
+              />
+              <ViewLinkGroup
+                offered={address === true}
+                onCopy={() => void copyViewLink()}
+                viewNow={viewNow}
+                viewLink={viewLink}
+                scale={scale}
+                upChoice={upChoice}
+              />
+              <SettingButtons>
+                <button
+                  aria-pressed={loopOn}
+                  onClick={() => {
+                    controls.current.loop = !loopOn;
+                    setLoopOn(!loopOn);
+                  }}
+                >
+                  Loop playback
+                </button>
+              </SettingButtons>
+            </>
+          ),
+        },
+    !showDisplay
+      ? null
+      : {
+          id: "timeline",
+          title: "Timeline and stories",
+          body: (
+            <>
+              <SettingGroup name="timeline-glow" title="Timeline glow">
+                <SettingColor
+                  label="Glow colour"
+                  ariaLabel="Timeline glow colour"
+                  testId="glow-color-value"
+                  value={glowColoursShown(timelineGlow, interfaceShown.accent).ahead}
+                  onChange={(color) => setTimelineGlow({ ...timelineGlow, color })}
+                />
+                <SettingColor
+                  label="Played colour"
+                  ariaLabel="Timeline played colour"
+                  testId="glow-played-value"
+                  value={glowColoursShown(timelineGlow, interfaceShown.accent).played}
+                  onChange={(playedColor) => setTimelineGlow({ ...timelineGlow, playedColor })}
+                />
+                {(
+                  [
+                    ["minBrightness", "Quiet brightness", "Timeline quiet brightness", "glow-min-value", 0, 1, 0.01],
+                    [
+                      "steadyBrightness",
+                      "Steady brightness (no rate)",
+                      "Timeline steady brightness",
+                      "glow-steady-value",
+                      0,
+                      1,
+                      0.01,
+                    ],
+                    ["curve", "Curve (rate to brightness)", "Timeline glow curve", "glow-curve-value", 0.2, 3, 0.05],
+                    ["playedFloor", "Played brightness floor", "Timeline played floor", "glow-floor-value", 0, 1, 0.01],
+                    ["thicknessPx", "Thickness (px)", "Timeline glow thickness", "glow-thickness-value", 2, 14, 0.5],
+                    ["haloPx", "Halo blur (px)", "Timeline glow halo", "glow-halo-value", 0, 20, 0.5],
+                  ] as const
+                ).map(([key, label, ariaLabel, testId, min, max, step]) => (
+                  <SettingSlider
+                    key={key}
+                    label={label}
+                    ariaLabel={ariaLabel}
+                    testId={testId}
+                    display={timelineGlow[key].toFixed(step < 0.1 ? 2 : step < 1 ? 1 : 0)}
+                    min={min}
+                    max={max}
+                    step={step}
+                    value={timelineGlow[key]}
+                    onChange={(value) => setTimelineGlow({ ...timelineGlow, [key]: value })}
+                  />
+                ))}
+                <SettingButtons>
+                  <button onClick={() => setTimelineGlow(DEFAULT_TIMELINE_GLOW)}>Reset glow</button>
+                </SettingButtons>
+              </SettingGroup>
+              {hasStoryPanels && (
+                <StoryPanelSettings
+                  storyAutoOpen={storyAutoOpen}
+                  setStoryAutoOpen={setStoryAutoOpen}
+                  storyPauseSeconds={storyPauseSeconds}
+                  setStoryPauseSeconds={setStoryPauseSeconds}
+                />
+              )}
+            </>
+          ),
+        },
+    orbitPaths.length === 0
+      ? null
+      : {
+          id: "orbit-lines",
+          title: "Orbit lines",
+          body: (
+            <>
+              <SettingButtons>
+                <button aria-pressed={orbitShown.baseOn} onClick={() => setOrbit({ baseOn: !orbitShown.baseOn })}>
+                  Orbit ring
+                </button>
+                <button
+                  aria-pressed={orbitShown.endFadeOn}
+                  onClick={() => setOrbit({ endFadeOn: !orbitShown.endFadeOn })}
+                >
+                  Fade ring ends
+                </button>
+                <button aria-pressed={orbitShown.arcOn} onClick={() => setOrbit({ arcOn: !orbitShown.arcOn })}>
+                  Trailing arc
+                </button>
+                <button aria-pressed={orbitShown.zoomOn} onClick={() => setOrbit({ zoomOn: !orbitShown.zoomOn })}>
+                  Brighten when zoomed out
+                </button>
+              </SettingButtons>
+              {orbitSliders.main.map(orbitSlider)}
+              <Collapsible fold="orbit-fine-tune" title="Fine-tune" level={4} nested>
+                {orbitSliders.fine.map(orbitSlider)}
+              </Collapsible>
+              <SettingButtons>
+                <button onClick={resetOrbit}>Reset orbit lines</button>
+              </SettingButtons>
+            </>
+          ),
+        },
+    bodySets.length === 0 && ringSystems.length === 0
+      ? null
+      : {
+          id: "moons-rings",
+          title: "Moons and rings",
+          body: (
+            <MoonsAndRingsSettings
+              bodySets={bodySets}
+              ringSystems={ringSystems}
+              setLook={setLook}
+              changeSetLook={changeSetLook}
+              ringLook={ringLook}
+              changeRing={changeRing}
+              controls={controls}
+              setSetLook={setSetLook}
+              setRingLook={setRingLook}
+            />
+          ),
+        },
+    !(skyVisible || glowShown !== null)
+      ? null
+      : {
+          id: "sky-sun",
+          title: "Sky and Sun",
+          body: (
+            <SkyAndSunSettings
+              illuminateAll={illuminateAll}
+              setIlluminateAll={setIlluminateAll}
+              visible={skyVisible}
+              glowShown={glowShown}
+              setGlowShown={setGlowShown}
+              controls={controls}
+              milkyWayOn={milkyWayOn}
+              setMilkyWayOn={setMilkyWayOn}
+              starBrightness={starBrightness}
+              setStarBrightness={setStarBrightness}
+              milkyWayBrightness={milkyWayBrightness}
+              setMilkyWayBrightness={setMilkyWayBrightness}
+            />
+          ),
+        },
     {
-      id: "labels", title: "Labels",
+      id: "labels",
+      title: "Labels",
       body: (
-        <LabelSettings controls={controls} hoverBrightness={hoverBrightness} setHoverBrightness={setHoverBrightness} labelToggles={labelToggles} trackedCount={runtime.trackedBodies.length} anchorLabels={anchorLabels} setAnchorLabels={setAnchorLabels} hiddenLabels={hiddenLabels} setHiddenLabels={setHiddenLabels}
-          labelStyle={labelStyleShown} setLabelStyle={setLabelStyleShown} skyColours={skyColoursShown} setSkyColours={setSkyColoursShown} hasSky={skyVisible} />
+        <LabelSettings
+          controls={controls}
+          hoverBrightness={hoverBrightness}
+          setHoverBrightness={setHoverBrightness}
+          labelToggles={labelToggles}
+          trackedCount={runtime.trackedBodies.length}
+          anchorLabels={anchorLabels}
+          setAnchorLabels={setAnchorLabels}
+          hiddenLabels={hiddenLabels}
+          setHiddenLabels={setHiddenLabels}
+          labelStyle={labelStyleShown}
+          setLabelStyle={setLabelStyleShown}
+          skyColours={skyColoursShown}
+          setSkyColours={setSkyColoursShown}
+          hasSky={skyVisible}
+        />
       ),
     },
-    !showDisplay ? null : {
-      id: "phone-layout", title: "Phone layout",
-      body: (
-        <>
-        {([
-          ["animationMs", "Drawer animation (ms)", "Phone drawer animation", "phone-animation-value"],
-          ["controlsDrawerMaxPercent", "Top drawer height (% of screen)", "Phone top drawer height", "phone-controls-height-value"],
-          ["timelineDrawerMaxPercent", "Timeline drawer height (% of screen)", "Phone timeline drawer height", "phone-timeline-height-value"],
-          ["sheetMaxPercent", "Sheet height (% of screen)", "Phone sheet height", "phone-sheet-height-value"],
-          ["swipeThresholdPx", "Swipe distance (px)", "Phone swipe distance", "phone-swipe-value"],
-        ] as const).map(([key, label, ariaLabel, testId]) => (
-          <SettingSlider key={key} label={label} ariaLabel={ariaLabel} testId={testId} display={String(phoneLayout[key])} min={PHONE_LAYOUT_LIMITS[key].min} max={PHONE_LAYOUT_LIMITS[key].max} step={PHONE_LAYOUT_LIMITS[key].step} value={phoneLayout[key]}
-            onChange={(value) => {
-              if (key === "sheetMaxPercent") { controls.current.sheetMaxPercent = value; setSheetShown(value); } else if (key === "animationMs") { controls.current.interfaceLook = { ...controls.current.interfaceLook, motionMs: value }; setInterfaceShown(controls.current.interfaceLook); } else setPhoneLayout({ ...phoneLayoutOwn, [key]: value });
-            }} />
-        ))}
-        <SettingButtons>
-          <button onClick={() => { setPhoneLayout(DEFAULT_PHONE_LAYOUT); controls.current.sheetMaxPercent = DEFAULT_PHONE_LAYOUT.sheetMaxPercent; setSheetShown(DEFAULT_PHONE_LAYOUT.sheetMaxPercent); controls.current.interfaceLook = { ...controls.current.interfaceLook, motionMs: DEFAULT_PHONE_LAYOUT.animationMs }; setInterfaceShown(controls.current.interfaceLook); }}>Reset phone layout</button>
-        </SettingButtons>
-      
-        </>
-      ),
-    },
+    !showDisplay
+      ? null
+      : {
+          id: "phone-layout",
+          title: "Phone layout",
+          body: (
+            <>
+              {(
+                [
+                  ["animationMs", "Drawer animation (ms)", "Phone drawer animation", "phone-animation-value"],
+                  [
+                    "controlsDrawerMaxPercent",
+                    "Top drawer height (% of screen)",
+                    "Phone top drawer height",
+                    "phone-controls-height-value",
+                  ],
+                  [
+                    "timelineDrawerMaxPercent",
+                    "Timeline drawer height (% of screen)",
+                    "Phone timeline drawer height",
+                    "phone-timeline-height-value",
+                  ],
+                  ["sheetMaxPercent", "Sheet height (% of screen)", "Phone sheet height", "phone-sheet-height-value"],
+                  ["swipeThresholdPx", "Swipe distance (px)", "Phone swipe distance", "phone-swipe-value"],
+                ] as const
+              ).map(([key, label, ariaLabel, testId]) => (
+                <SettingSlider
+                  key={key}
+                  label={label}
+                  ariaLabel={ariaLabel}
+                  testId={testId}
+                  display={String(phoneLayout[key])}
+                  min={PHONE_LAYOUT_LIMITS[key].min}
+                  max={PHONE_LAYOUT_LIMITS[key].max}
+                  step={PHONE_LAYOUT_LIMITS[key].step}
+                  value={phoneLayout[key]}
+                  onChange={(value) => {
+                    if (key === "sheetMaxPercent") {
+                      controls.current.sheetMaxPercent = value;
+                      setSheetShown(value);
+                    } else if (key === "animationMs") {
+                      controls.current.interfaceLook = { ...controls.current.interfaceLook, motionMs: value };
+                      setInterfaceShown(controls.current.interfaceLook);
+                    } else setPhoneLayout({ ...phoneLayoutOwn, [key]: value });
+                  }}
+                />
+              ))}
+              <SettingButtons>
+                <button
+                  onClick={() => {
+                    setPhoneLayout(DEFAULT_PHONE_LAYOUT);
+                    controls.current.sheetMaxPercent = DEFAULT_PHONE_LAYOUT.sheetMaxPercent;
+                    setSheetShown(DEFAULT_PHONE_LAYOUT.sheetMaxPercent);
+                    controls.current.interfaceLook = {
+                      ...controls.current.interfaceLook,
+                      motionMs: DEFAULT_PHONE_LAYOUT.animationMs,
+                    };
+                    setInterfaceShown(controls.current.interfaceLook);
+                  }}
+                >
+                  Reset phone layout
+                </button>
+              </SettingButtons>
+            </>
+          ),
+        },
     {
-      id: "under-the-hood", title: "Under the hood",
-      body: (
-        <UnderTheHoodSettings hud={hud} frames={frames} fills={fills} fpsHistory={fpsHistory} />
-      ),
+      id: "under-the-hood",
+      title: "Under the hood",
+      body: <UnderTheHoodSettings hud={hud} frames={frames} fills={fills} fpsHistory={fpsHistory} />,
     },
   ];
   const presentGroups = groups.filter((group) => group !== null);
   const drawer = (
     <PanelLoadBoundary>
-    <Suspense fallback={<p className="developer-loading" role="status">Loading developer tools...</p>}>
-    <div className="hud">
-      <header className="developer-heading">
-        <h2>Developer tools</h2>
-        <p>Live readouts, controls and diagnostics for this scene.</p>
-      </header>
-      {presentGroups.map((group, index) => (
-        <Collapsible key={group.id} fold={group.id} title={group.title} defaultOpen={index === 0} className={`dev-group${group.className === undefined ? "" : ` ${group.className}`}`}>
-          {group.body}
-        </Collapsible>
-      ))}
-    </div>
-    </Suspense>
+      <Suspense
+        fallback={
+          <p className="developer-loading" role="status">
+            Loading developer tools...
+          </p>
+        }
+      >
+        <div className="hud">
+          <header className="developer-heading">
+            <h2>Developer tools</h2>
+            <p>Live readouts, controls and diagnostics for this scene.</p>
+          </header>
+          {presentGroups.map((group, index) => (
+            <Collapsible
+              key={group.id}
+              fold={group.id}
+              title={group.title}
+              defaultOpen={index === 0}
+              className={`dev-group${group.className === undefined ? "" : ` ${group.className}`}`}
+            >
+              {group.body}
+            </Collapsible>
+          ))}
+        </div>
+      </Suspense>
     </PanelLoadBoundary>
   );
 
@@ -861,7 +1521,11 @@ export function App({ definition, writeTitle = true, address, developerTools, ho
       scaleId={scale}
       onScaleChange={updateScale}
       scaleChoices={scaleChoices}
-      switcher={definition.picker === undefined ? undefined : pickerSwitch(definition.picker, hostPick ?? definition.picker.value, choosePick)}
+      switcher={
+        definition.picker === undefined
+          ? undefined
+          : pickerSwitch(definition.picker, hostPick ?? definition.picker.value, choosePick)
+      }
       about={about}
       shelfParts={shelf.shown}
       shelfRuntime={shelf.runtime}
@@ -887,7 +1551,13 @@ export function App({ definition, writeTitle = true, address, developerTools, ho
       onOpenFeatureChange={markOpenFeature}
     >
       <div className="canvas-host">
-        <AstraeusScene runtime={runtime} controls={controls.current} readout={readout} scaleId={scale} onFirstDraw={host === undefined ? undefined : told} />
+        <AstraeusScene
+          runtime={runtime}
+          controls={controls.current}
+          readout={readout}
+          scaleId={scale}
+          onFirstDraw={host === undefined ? undefined : told}
+        />
       </div>
     </AstraeusShell>
   );

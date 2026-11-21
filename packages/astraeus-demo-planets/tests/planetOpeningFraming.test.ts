@@ -35,10 +35,15 @@ describe("outer planet opening views keep their subjects in view (I-053)", () =>
   });
 
   // Outermost ring or planet edge: Saturn A ring 136,775 km (F ring 140,180), Uranus epsilon 51,149 km, Neptune Adams 62,933 km.
-  const planets = [["saturn", saturn, 140_180], ["uranus", uranus, 51_149], ["neptune", neptune, 62_933]] as const;
+  const planets = [
+    ["saturn", saturn, 140_180],
+    ["uranus", uranus, 51_149],
+    ["neptune", neptune, 62_933],
+  ] as const;
   for (const [name, file, extentKm] of planets) {
     it(`${name} opens with its whole planet and rings in view at phone and desktop aspect`, () => {
-      for (const aspect of [PHONE, DESKTOP]) expect(worstHalfWidthShare(file.startView.distance, 0, extentKm, aspect)).toBeLessThan(1);
+      for (const aspect of [PHONE, DESKTOP])
+        expect(worstHalfWidthShare(file.startView.distance, 0, extentKm, aspect)).toBeLessThan(1);
     });
   }
 });

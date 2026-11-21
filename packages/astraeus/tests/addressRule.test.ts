@@ -6,7 +6,8 @@ import { describe, expect, it } from "vitest";
 
 const SRC = join(__dirname, "..", "src");
 const ALLOWED = new Set(["app/address.ts", "app/DeveloperSettings.tsx"]);
-const ADDRESS_USE = /\b(window|document|globalThis|self)\.location\b|(?<![\w.])location\.(search|href|hash|pathname|assign|replace|origin)\b|\bhistory\.(replaceState|pushState|back|forward|go)\b/;
+const ADDRESS_USE =
+  /\b(window|document|globalThis|self)\.location\b|(?<![\w.])location\.(search|href|hash|pathname|assign|replace|origin)\b|\bhistory\.(replaceState|pushState|back|forward|go)\b/;
 
 function sources(dir: string): string[] {
   return readdirSync(dir).flatMap((name) => {
@@ -19,7 +20,11 @@ describe("page address rule", () => {
   it("no source outside the address door reads or writes the page address", () => {
     const offenders = sources(SRC)
       .filter((file) => !ALLOWED.has(relative(SRC, file).split("\\").join("/")))
-      .filter((file) => readFileSync(file, "utf8").split("\n").some((line) => !line.trim().startsWith("*") && !line.trim().startsWith("//") && ADDRESS_USE.test(line)))
+      .filter((file) =>
+        readFileSync(file, "utf8")
+          .split("\n")
+          .some((line) => !line.trim().startsWith("*") && !line.trim().startsWith("//") && ADDRESS_USE.test(line)),
+      )
       .map((file) => relative(SRC, file));
     expect(offenders).toEqual([]);
   });

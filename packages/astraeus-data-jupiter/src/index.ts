@@ -3,7 +3,9 @@ import { chunkUrls } from "./chunks.js";
 
 /** Reads Jupiter's index (the moons, their fits and the measured errors). A dynamic import, so a bundler keeps it as its own file. */
 export const loadIndex = async (): Promise<MoonIndex> => {
-  const loaded = (await import("../data/jupiter-moons/index.json", { with: { type: "json" } })) as { default?: MoonIndex };
+  const loaded = (await import("../data/jupiter-moons/index.json", { with: { type: "json" } })) as {
+    default?: MoonIndex;
+  };
   return loaded.default ?? (loaded as MoonIndex); // Parcel hands back the JSON itself, Vite and webpack a module with a default
 };
 

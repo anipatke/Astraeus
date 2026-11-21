@@ -8,8 +8,17 @@ import { definitionOf } from "../src/api/definitionOf";
 
 const T0 = Date.UTC(2026, 3, 1);
 const MIN = 60_000;
-const samples = [0, 1, 2, 3].map((minute) => ({ time: T0 + minute * MIN, positionKm: [8_000 + minute * 1_000, 0, 0], velocityKmS: [2 + minute, 0, 0] }));
-const base = () => new Scene().addBody(sun).addBody(earth).addBody(mars).addTrajectory({ id: "probe", label: "Probe", samples, lineFixedTo: "sun" });
+const samples = [0, 1, 2, 3].map((minute) => ({
+  time: T0 + minute * MIN,
+  positionKm: [8_000 + minute * 1_000, 0, 0],
+  velocityKmS: [2 + minute, 0, 0],
+}));
+const base = () =>
+  new Scene()
+    .addBody(sun)
+    .addBody(earth)
+    .addBody(mars)
+    .addTrajectory({ id: "probe", label: "Probe", samples, lineFixedTo: "sun" });
 
 describe("the object a scene opens selected", () => {
   it.each([
@@ -30,7 +39,9 @@ describe("the object a scene opens selected", () => {
 
 describe("a path that is not yet available at the opening moment", () => {
   it("is still the opening target by the derivation; the shell's availability fallback is the documented behaviour for an unavailable object", () => {
-    const scene = base().setTimeline({ start: T0 - 60 * MIN, end: T0 + 10 * MIN }).setTime(T0 - 30 * MIN);
+    const scene = base()
+      .setTimeline({ start: T0 - 60 * MIN, end: T0 + 10 * MIN })
+      .setTime(T0 - 30 * MIN);
     scene.camera.focus("probe");
     const definition = definitionOf(scene);
     expect(initialObjectIdOf(definition)).toBe("probe");

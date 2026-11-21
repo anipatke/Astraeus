@@ -5,7 +5,11 @@ import type { ShowerSettings } from "../../src/experiences/showers/showerSetting
 
 // A story's panels file lives in the package of the demo that owns the story (packages/<package>/data/stories/<story>/panels.json); the settings name it by the path under that package.
 const PACKAGES = ["astraeus-demo-showers", "astraeus-demo-planets", "astraeus-demo-apollo11"];
-const panelsPath = (path: string): string => PACKAGES.map((name) => resolve(process.cwd(), "packages", name, path)).find((candidate) => existsSync(candidate)) ?? resolve(process.cwd(), path);
+const panelsPath = (path: string): string =>
+  PACKAGES.map((name) => resolve(process.cwd(), "packages", name, path)).find((candidate) => existsSync(candidate)) ??
+  resolve(process.cwd(), path);
 
 export const shippedPanelsOf = (settings: ShowerSettings): unknown =>
-  typeof settings.story?.panels === "string" ? JSON.parse(readFileSync(panelsPath(settings.story.panels), "utf8")) : undefined;
+  typeof settings.story?.panels === "string"
+    ? JSON.parse(readFileSync(panelsPath(settings.story.panels), "utf8"))
+    : undefined;

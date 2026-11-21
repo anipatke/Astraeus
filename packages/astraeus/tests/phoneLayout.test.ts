@@ -3,7 +3,13 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 import { formatRateCompact } from "../src/shell/timelineModel";
 import { Sources } from "../src/shell/Sources";
-import { DEFAULT_PHONE_LAYOUT, PHONE_LAYOUT_LIMITS, PHONE_QUERY, phoneLayoutStyle, type PhoneLayoutSettings } from "../src/shell/phoneLayout";
+import {
+  DEFAULT_PHONE_LAYOUT,
+  PHONE_LAYOUT_LIMITS,
+  PHONE_QUERY,
+  phoneLayoutStyle,
+  type PhoneLayoutSettings,
+} from "../src/shell/phoneLayout";
 
 describe("phone layout settings (T-081 Done When 5)", () => {
   it("keeps every default inside the range its live control offers", () => {
@@ -15,7 +21,13 @@ describe("phone layout settings (T-081 Done When 5)", () => {
   });
 
   it("hands the numbers to the stylesheet as custom properties", () => {
-    const style = phoneLayoutStyle({ animationMs: 100, timelineDrawerMaxPercent: 40, controlsDrawerMaxPercent: 50, sheetMaxPercent: 70, swipeThresholdPx: 25 }) as Record<string, string>;
+    const style = phoneLayoutStyle({
+      animationMs: 100,
+      timelineDrawerMaxPercent: 40,
+      controlsDrawerMaxPercent: 50,
+      sheetMaxPercent: 70,
+      swipeThresholdPx: 25,
+    }) as Record<string, string>;
     expect(style["--astraeus-motion"]).toBe("100ms");
     expect(style["--timeline-drawer-max"]).toBe("40cqh");
     expect(style["--controls-drawer-max"]).toBe("50cqh");
@@ -43,7 +55,16 @@ describe("Sources section (T-081 Done When 3, O-020 Decision 4)", () => {
 
 describe("compact playback rate for the phone's picker", () => {
   it("names simulated time per real second in the largest whole unit", () => {
-    expect([1, 60, 3_600, 43_200, 86_400, 259_200, 604_800, 1_209_600].map(formatRateCompact)).toEqual(["1 s/s", "1 min/s", "1 h/s", "12 h/s", "1 d/s", "3 d/s", "1 wk/s", "2 wk/s"]);
+    expect([1, 60, 3_600, 43_200, 86_400, 259_200, 604_800, 1_209_600].map(formatRateCompact)).toEqual([
+      "1 s/s",
+      "1 min/s",
+      "1 h/s",
+      "12 h/s",
+      "1 d/s",
+      "3 d/s",
+      "1 wk/s",
+      "2 wk/s",
+    ]);
   });
 
   it("falls back to the plain rate when no whole unit fits", () => {

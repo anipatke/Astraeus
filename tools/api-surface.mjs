@@ -25,7 +25,7 @@ export function publishedExports(packagesDir = PACKAGES_DIR, which = "published"
     if (!entry.isDirectory() || !existsSync(manifest)) continue;
     const json = JSON.parse(readFileSync(manifest, "utf8"));
     if (json.private === true) continue;
-    out[json.name] = (which === "source" ? json.exports : json["x-publish"]?.exports ?? json.exports) ?? {};
+    out[json.name] = (which === "source" ? json.exports : (json["x-publish"]?.exports ?? json.exports)) ?? {};
   }
   return out;
 }
@@ -34,9 +34,22 @@ export function publishedExports(packagesDir = PACKAGES_DIR, which = "published"
 export function currentSurface(entry = PUBLIC_ENTRY, packagesDir = PACKAGES_DIR) {
   const root = {};
   for (const item of collectExports(entry)) {
-    root[item.name] = { kind: item.kind, signature: item.signature, constructors: item.constructors, members: item.members.map((member) => ({ name: member.name, optional: member.optional === true, signature: member.signature })) };
+    root[item.name] = {
+      kind: item.kind,
+      signature: item.signature,
+      constructors: item.constructors,
+      members: item.members.map((member) => ({
+        name: member.name,
+        optional: member.optional === true,
+        signature: member.signature,
+      })),
+    };
   }
-  return { root, packageExports: publishedExports(packagesDir), sourceExports: publishedExports(packagesDir, "source") };
+  return {
+    root,
+    packageExports: publishedExports(packagesDir),
+    sourceExports: publishedExports(packagesDir, "source"),
+  };
 }
 
 export const writeLock = (path = LOCK_PATH) => writeFileSync(path, `${JSON.stringify(currentSurface(), null, 2)}\n`);
@@ -49,7 +62,8 @@ export function surfaceDifferences(lock, now) {
     for (const name of Object.keys(b)) if (!(name in a)) lines.push(`added ${label} ${name}`);
     for (const name of Object.keys(a)) {
       if (!(name in b)) lines.push(`removed ${label} ${name}`);
-      else if (JSON.stringify(a[name]) !== JSON.stringify(b[name])) lines.push(`changed ${label} ${name}: ${JSON.stringify(a[name])} -> ${JSON.stringify(b[name])}`);
+      else if (JSON.stringify(a[name]) !== JSON.stringify(b[name]))
+        lines.push(`changed ${label} ${name}: ${JSON.stringify(a[name])} -> ${JSON.stringify(b[name])}`);
     }
   };
   compare("root export", lock.root, now.root);
@@ -59,8 +73,16 @@ export function surfaceDifferences(lock, now) {
 }
 
 export const OPTIONS = {
-  target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.ESNext, moduleResolution: ts.ModuleResolutionKind.Bundler, jsx: ts.JsxEmit.ReactJSX,
-  strict: true, skipLibCheck: true, noEmit: true, resolveJsonModule: true, lib: ["lib.es2022.d.ts", "lib.dom.d.ts", "lib.dom.iterable.d.ts"], types: [],
+  target: ts.ScriptTarget.ES2022,
+  module: ts.ModuleKind.ESNext,
+  moduleResolution: ts.ModuleResolutionKind.Bundler,
+  jsx: ts.JsxEmit.ReactJSX,
+  strict: true,
+  skipLibCheck: true,
+  noEmit: true,
+  resolveJsonModule: true,
+  lib: ["lib.es2022.d.ts", "lib.dom.d.ts", "lib.dom.iterable.d.ts"],
+  types: [],
 };
 export const isOwnFile = (file) => !/node_modules|[\\/]typescript6?[\\/]lib[\\/]/.test(file);
 export const privateName = (name) => name.startsWith("#") || name.startsWith("__#");
@@ -79,7 +101,8 @@ export function outsideApiTypes(entry = PUBLIC_ENTRY, apiDir = dirname(entry), r
   const apiTypes = new Set();
   const seen = new Set();
   const inApi = (file) => resolve(file).startsWith(apiDir + "/") || resolve(file).startsWith(apiDir + "\\");
-  const resolved = (exported) => (exported.flags & ts.SymbolFlags.Alias ? checker.getAliasedSymbol(exported) : exported);
+  const resolved = (exported) =>
+    exported.flags & ts.SymbolFlags.Alias ? checker.getAliasedSymbol(exported) : exported;
   // A type the root names is public wherever it is declared (ARCH-04 keeps core/ and assets/ declarations where they are); only a reachable type the root does not name is a finding.
   const rootNames = new Set(checker.getExportsOfModule(checker.getSymbolAtLocation(source)).map(resolved));
   const note = (symbol) => {
@@ -88,11 +111,18 @@ export function outsideApiTypes(entry = PUBLIC_ENTRY, apiDir = dirname(entry), r
     const file = declaration.getSourceFile().fileName;
     if (!isOwnFile(file)) return false;
     if (inApi(file)) {
-      if (symbol.flags & (ts.SymbolFlags.Class | ts.SymbolFlags.Interface | ts.SymbolFlags.TypeAlias | ts.SymbolFlags.Enum)) apiTypes.add(symbol);
+      if (
+        symbol.flags &
+        (ts.SymbolFlags.Class | ts.SymbolFlags.Interface | ts.SymbolFlags.TypeAlias | ts.SymbolFlags.Enum)
+      )
+        apiTypes.add(symbol);
       scanSymbol(symbol);
       return true;
     }
-    if (rootNames.has(symbol)) { scanSymbol(symbol); return true; }
+    if (rootNames.has(symbol)) {
+      scanSymbol(symbol);
+      return true;
+    }
     found.add(`${symbol.name} (${relative(repoRoot, file).split("\\").join("/")})`);
     return false;
   };
@@ -108,8 +138,14 @@ export function outsideApiTypes(entry = PUBLIC_ENTRY, apiDir = dirname(entry), r
     }
     ts.forEachChild(node, scanType);
   };
-  const isHidden = (member) => (member.name !== undefined && ts.isPrivateIdentifier(member.name)) || (ts.getCombinedModifierFlags(member) & (ts.ModifierFlags.Private | ts.ModifierFlags.Protected)) !== 0;
-  const scanSignature = (node) => { node.typeParameters?.forEach(scanType); node.parameters?.forEach((parameter) => scanType(parameter.type)); scanType(node.type); };
+  const isHidden = (member) =>
+    (member.name !== undefined && ts.isPrivateIdentifier(member.name)) ||
+    (ts.getCombinedModifierFlags(member) & (ts.ModifierFlags.Private | ts.ModifierFlags.Protected)) !== 0;
+  const scanSignature = (node) => {
+    node.typeParameters?.forEach(scanType);
+    node.parameters?.forEach((parameter) => scanType(parameter.type));
+    scanType(node.type);
+  };
   function scanSymbol(symbol) {
     if (scanned.has(symbol)) return;
     scanned.add(symbol);
@@ -117,21 +153,38 @@ export function outsideApiTypes(entry = PUBLIC_ENTRY, apiDir = dirname(entry), r
       if (ts.isClassDeclaration(node) || ts.isInterfaceDeclaration(node)) {
         node.typeParameters?.forEach(scanType);
         node.heritageClauses?.forEach(scanType);
-        for (const member of node.members) if (!isHidden(member)) { scanSignature(member); if (ts.isPropertyDeclaration(member) || ts.isPropertySignature(member)) scanType(member.type); }
-      } else if (ts.isTypeAliasDeclaration(node)) { node.typeParameters?.forEach(scanType); scanType(node.type); }
-      else if (ts.isFunctionDeclaration(node)) scanSignature(node);
+        for (const member of node.members)
+          if (!isHidden(member)) {
+            scanSignature(member);
+            if (ts.isPropertyDeclaration(member) || ts.isPropertySignature(member)) scanType(member.type);
+          }
+      } else if (ts.isTypeAliasDeclaration(node)) {
+        node.typeParameters?.forEach(scanType);
+        scanType(node.type);
+      } else if (ts.isFunctionDeclaration(node)) scanSignature(node);
       else if (ts.isVariableDeclaration(node)) scanType(node.type);
     }
   }
-  const isAnonymous = (symbol) => symbol === undefined || symbol.name === "__type" || symbol.name === "__object" || (symbol.flags & (ts.SymbolFlags.TypeLiteral | ts.SymbolFlags.Method | ts.SymbolFlags.Function)) !== 0;
-  const visitArguments = (type) => { if (type.objectFlags & ts.ObjectFlags.Reference) checker.getTypeArguments(type).forEach(visit); };
+  const isAnonymous = (symbol) =>
+    symbol === undefined ||
+    symbol.name === "__type" ||
+    symbol.name === "__object" ||
+    (symbol.flags & (ts.SymbolFlags.TypeLiteral | ts.SymbolFlags.Method | ts.SymbolFlags.Function)) !== 0;
+  const visitArguments = (type) => {
+    if (type.objectFlags & ts.ObjectFlags.Reference) checker.getTypeArguments(type).forEach(visit);
+  };
   const visitProperty = (property) => {
     const declaration = property.declarations?.[0];
-    const hidden = declaration === undefined || privateName(property.name) || (ts.getCombinedModifierFlags(declaration) & (ts.ModifierFlags.Private | ts.ModifierFlags.Protected)) !== 0;
-    if (!hidden && isOwnFile(declaration.getSourceFile().fileName)) visit(checker.getTypeOfSymbolAtLocation(property, declaration));
+    const hidden =
+      declaration === undefined ||
+      privateName(property.name) ||
+      (ts.getCombinedModifierFlags(declaration) & (ts.ModifierFlags.Private | ts.ModifierFlags.Protected)) !== 0;
+    if (!hidden && isOwnFile(declaration.getSourceFile().fileName))
+      visit(checker.getTypeOfSymbolAtLocation(property, declaration));
   };
   const visitSignature = (signature) => {
-    for (const parameter of signature.getParameters()) visit(checker.getTypeOfSymbolAtLocation(parameter, parameter.valueDeclaration ?? source));
+    for (const parameter of signature.getParameters())
+      visit(checker.getTypeOfSymbolAtLocation(parameter, parameter.valueDeclaration ?? source));
     visit(signature.getReturnType());
   };
   function visit(type) {
@@ -139,7 +192,10 @@ export function outsideApiTypes(entry = PUBLIC_ENTRY, apiDir = dirname(entry), r
     seen.add(type);
     if (type.aliasSymbol !== undefined && !note(type.aliasSymbol)) return;
     type.aliasTypeArguments?.forEach(visit);
-    if (type.isUnionOrIntersection()) { type.types.forEach(visit); return; }
+    if (type.isUnionOrIntersection()) {
+      type.types.forEach(visit);
+      return;
+    }
     if (!(type.flags & ts.TypeFlags.Object)) return;
     visitArguments(type);
     if (!isAnonymous(type.symbol) && !note(type.symbol)) return;
@@ -151,20 +207,31 @@ export function outsideApiTypes(entry = PUBLIC_ENTRY, apiDir = dirname(entry), r
   for (const exported of checker.getExportsOfModule(module)) {
     const target = exported.flags & ts.SymbolFlags.Alias ? checker.getAliasedSymbol(exported) : exported;
     note(target);
-    if (target.flags & (ts.SymbolFlags.Class | ts.SymbolFlags.Interface | ts.SymbolFlags.TypeAlias | ts.SymbolFlags.Enum)) {
+    if (
+      target.flags &
+      (ts.SymbolFlags.Class | ts.SymbolFlags.Interface | ts.SymbolFlags.TypeAlias | ts.SymbolFlags.Enum)
+    ) {
       const declared = checker.getDeclaredTypeOfSymbol(target);
       if (inApi(target.declarations?.[0]?.getSourceFile().fileName ?? "")) visit(declared);
     }
-    if (target.flags & (ts.SymbolFlags.Value)) {
+    if (target.flags & ts.SymbolFlags.Value) {
       const declaration = target.valueDeclaration ?? target.declarations?.[0];
-      if (declaration !== undefined && inApi(declaration.getSourceFile().fileName)) visit(checker.getTypeOfSymbolAtLocation(target, declaration));
+      if (declaration !== undefined && inApi(declaration.getSourceFile().fileName))
+        visit(checker.getTypeOfSymbolAtLocation(target, declaration));
     }
   }
-  for (const symbol of apiTypes) if (!rootNames.has(symbol)) found.add(`${symbol.name} (${relative(repoRoot, symbol.declarations[0].getSourceFile().fileName).split("\\").join("/")}) unexported`);
+  for (const symbol of apiTypes)
+    if (!rootNames.has(symbol))
+      found.add(
+        `${symbol.name} (${relative(repoRoot, symbol.declarations[0].getSourceFile().fileName).split("\\").join("/")}) unexported`,
+      );
   return [...found].sort();
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   if (process.argv[2] === "--types") console.log(outsideApiTypes().join("\n"));
-  else { writeLock(); console.log(`wrote ${relative(REPO_ROOT, LOCK_PATH)}`); }
+  else {
+    writeLock();
+    console.log(`wrote ${relative(REPO_ROOT, LOCK_PATH)}`);
+  }
 }

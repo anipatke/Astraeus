@@ -41,8 +41,11 @@ export function eccentricAnomalyFromMean(meanRad: number, eccentricity: number):
 /** Solves Kepler's equation for the true anomaly (radians) from the mean anomaly (radians). */
 export function trueAnomalyFromMean(meanRad: number, eccentricity: number): number {
   const eccentric = eccentricAnomalyFromMean(meanRad, eccentricity);
-  return 2 * Math.atan2(
-    Math.sqrt(1 + eccentricity) * Math.sin(eccentric / 2),
-    Math.sqrt(1 - eccentricity) * Math.cos(eccentric / 2),
+  return (
+    2 *
+    Math.atan2(
+      Math.sqrt(1 + eccentricity) * Math.sin(eccentric / 2),
+      Math.sqrt(1 - eccentricity) * Math.cos(eccentric / 2),
+    )
   );
 }

@@ -28,6 +28,6 @@ export function siderealPeriodDaysFor(record: PeriodRecord, rule: PeriodRule): n
   return 1 / (1 / periodDays - 1 / (apsisPeriodYears * DAYS_PER_YEAR));
 }
 
-
 /** The record's sidereal period, days, by the rule the record itself names (`model.periodRule`). */
-export const recordPeriodDays = (record: PeriodRecord & { readonly model: { readonly periodRule: string } }): number => siderealPeriodDaysFor(record, record.model.periodRule as PeriodRule);
+export const recordPeriodDays = (record: PeriodRecord & { readonly model: { readonly periodRule: string } }): number =>
+  siderealPeriodDaysFor(record, record.model.periodRule as PeriodRule);

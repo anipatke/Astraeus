@@ -4,7 +4,13 @@ import type { BodyMaterialConfig, BodyVisual } from "../visual";
 import venus2kUrl from "../textures/venus-2k-balanced.jpg";
 
 /** Donor material (planetary-explorer src/entities/venus.ts, commit 84f8d3ee). */
-export const VENUS_MATERIAL: BodyMaterialConfig = Object.freeze({ color: "#f6e1b9", emissive: "#4f2e16", emissiveIntensity: 0.04, roughness: 0.9, metalness: 0.04 });
+export const VENUS_MATERIAL: BodyMaterialConfig = Object.freeze({
+  color: "#f6e1b9",
+  emissive: "#4f2e16",
+  emissiveIntensity: 0.04,
+  roughness: 0.9,
+  metalness: 0.04,
+});
 
 /** Donor lighting, same file. */
 export const VENUS_LIGHT = Object.freeze({ ambient: 0.24, directional: 1.18 });

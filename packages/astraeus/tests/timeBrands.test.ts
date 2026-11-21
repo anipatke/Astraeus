@@ -4,13 +4,22 @@ import { utcMsToTdbSeconds, utcMsToTtSeconds, type TimeScaleTable } from "../src
 import { encodeChunk } from "../tools/import/chebyshevFit";
 
 // A fit's seconds are typed by their time scale (O-093 T-372). The slips below are compile-time checks (the typecheck gate), plus one runtime row.
-const TABLE: TimeScaleTable = { pieces: [{ fromUtcMs: Date.UTC(1972, 0, 1), ttMinusUtcS: 42.184, driftSPerDay: 0 }], validToUtcMs: Date.UTC(2100, 0, 1) };
+const TABLE: TimeScaleTable = {
+  pieces: [{ fromUtcMs: Date.UTC(1972, 0, 1), ttMinusUtcS: 42.184, driftSPerDay: 0 }],
+  validToUtcMs: Date.UTC(2100, 0, 1),
+};
 const timeUtcMs = Date.UTC(2016, 0, 1);
 const START_S = utcMsToTdbSeconds(TABLE, timeUtcMs);
 const SEGMENT_S = 86_400;
 const coefficients = Float64Array.from([1000, 0, 0, 0, 0, 0, 0, 0, 0]);
 const bytes = encodeChunk({ startTdbS: START_S, segmentCount: 1, coefficientCount: 3, quantumKm: 1e-3, coefficients });
-const chunk = decodeChunk<"tdb">(bytes, { startTdbS: START_S, segmentSeconds: SEGMENT_S, segmentCount: 1, coefficientCount: 3, quantumKm: 1e-3 });
+const chunk = decodeChunk<"tdb">(bytes, {
+  startTdbS: START_S,
+  segmentSeconds: SEGMENT_S,
+  segmentCount: 1,
+  coefficientCount: 3,
+  quantumKm: 1e-3,
+});
 const out = new Float64Array(3);
 
 describe("a fit is evaluated only at seconds in its own time scale", () => {

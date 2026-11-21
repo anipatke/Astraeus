@@ -4,8 +4,20 @@ import { PICTURES } from "astraeus-data";
 import { describe, expect, it } from "vitest";
 import { createOrbAstronomyAdapter } from "../src/core/astronomyAdapter";
 import { catalogue } from "../src/assets/catalogue";
-import { chunksNeeded, createMoonSystem, HISTORICAL_MOON_FIT_SPAN, MOON_FIT_SPAN, moonFitSource } from "../src/core/bodies/moonSystem";
-import { MARS_MOON_SYSTEM, PHOBOS, PLANET_MOON_DEFINITIONS, PLUTO_MOON_SYSTEM, SATURN_MOON_SYSTEM } from "../src/core/bodies/planetMoons";
+import {
+  chunksNeeded,
+  createMoonSystem,
+  HISTORICAL_MOON_FIT_SPAN,
+  MOON_FIT_SPAN,
+  moonFitSource,
+} from "../src/core/bodies/moonSystem";
+import {
+  MARS_MOON_SYSTEM,
+  PHOBOS,
+  PLANET_MOON_DEFINITIONS,
+  PLUTO_MOON_SYSTEM,
+  SATURN_MOON_SYSTEM,
+} from "../src/core/bodies/planetMoons";
 import { PLUTO } from "../src/core/bodies/outerPlanets";
 import { MARS } from "../src/core/bodies/mars";
 import outerFixture from "./fixtures/outer-planets-horizons.json";
@@ -19,7 +31,18 @@ import { readBytes } from "../tools/import/test-io.mjs";
 // angles measured below (IAU linear prime meridian against the fitted direction to the planet), rounded up; the report's periodic libration terms
 // are left out of the orientation (ROTATION_LIMITATION), so they are the size of those terms.
 const adapter = createOrbAstronomyAdapter();
-const angleDeg = (a: ArrayLike<number>, b: ArrayLike<number>) => Math.acos(Math.max(-1, Math.min(1, (a[0] * b[0] + a[1] * b[1] + a[2] * b[2]) / (Math.hypot(a[0], a[1], a[2]) * Math.hypot(b[0], b[1], b[2]))))) * 180 / Math.PI;
+const angleDeg = (a: ArrayLike<number>, b: ArrayLike<number>) =>
+  (Math.acos(
+    Math.max(
+      -1,
+      Math.min(
+        1,
+        (a[0] * b[0] + a[1] * b[1] + a[2] * b[2]) / (Math.hypot(a[0], a[1], a[2]) * Math.hypot(b[0], b[1], b[2])),
+      ),
+    ),
+  ) *
+    180) /
+  Math.PI;
 
 /** The angle between the body's prime-meridian axis (body +X) and the direction to its planet, over the window the setup loaded (2016-02-10 to 2016-12-30). */
 function facingAngles(id: string): number[] {
@@ -29,7 +52,12 @@ function facingAngles(id: string): number[] {
     const state = trajectory.stateAt(Date.UTC(2016, 1, 10) + day * 86_400_000);
     const [x, y, z, w] = state.orientation!;
     const axis = [1 - 2 * (y * y + z * z), 2 * (x * y + z * w), 2 * (x * z - y * w)];
-    angles.push(angleDeg(axis, state.positionKm.map((c) => -c)));
+    angles.push(
+      angleDeg(
+        axis,
+        state.positionKm.map((c) => -c),
+      ),
+    );
   }
   return angles;
 }
@@ -53,23 +81,45 @@ describe("the sub-planet point of a synchronous moon sits at its record's prime 
 describe("the mapped moons of the other planets", () => {
   const indexes = { mars: marsIndex, saturn: saturnIndex, neptune: neptuneIndex, pluto: plutoIndex } as const;
   it("are defined once with their planet as parent, tidal lock, and the fit span of their own data as validity (1950-2030 for the main moons fitted back, 2010-2030 otherwise)", () => {
-    expect(PLANET_MOON_DEFINITIONS.map((moon) => moon.id)).toEqual(["phobos", "deimos", "mimas", "enceladus", "tethys", "dione", "rhea", "titan", "iapetus", "triton", "charon"]);
+    expect(PLANET_MOON_DEFINITIONS.map((moon) => moon.id)).toEqual([
+      "phobos",
+      "deimos",
+      "mimas",
+      "enceladus",
+      "tethys",
+      "dione",
+      "rhea",
+      "titan",
+      "iapetus",
+      "triton",
+      "charon",
+    ]);
     for (const moon of PLANET_MOON_DEFINITIONS) {
       expect(moon.orientation, moon.id).toBe(["phobos", "deimos"].includes(moon.id) ? "tidal-lock" : "iau-rotation");
-      expect(moon.accuracy.validUtc, moon.id).toBe(["phobos", "deimos", "charon"].includes(moon.id) ? MOON_FIT_SPAN : HISTORICAL_MOON_FIT_SPAN);
+      expect(moon.accuracy.validUtc, moon.id).toBe(
+        ["phobos", "deimos", "charon"].includes(moon.id) ? MOON_FIT_SPAN : HISTORICAL_MOON_FIT_SPAN,
+      );
       expect(catalogue.get(moon.id).source?.body, moon.id).toBe(moon.id);
-      expect(moon.accuracy.position.sources[0], moon.id).toBe(moonFitSource(moon.parentId![0].toUpperCase() + moon.parentId!.slice(1)));
+      expect(moon.accuracy.position.sources[0], moon.id).toBe(
+        moonFitSource(moon.parentId![0].toUpperCase() + moon.parentId!.slice(1)),
+      );
     }
     for (const [name, index] of Object.entries(indexes)) {
       const historical = name === "saturn" || name === "neptune";
-      expect([index.span.fromUtc, index.span.toUtc], name).toEqual([historical ? "1950-01-01" : "2010-01-01", "2030-01-01"]);
+      expect([index.span.fromUtc, index.span.toUtc], name).toEqual([
+        historical ? "1950-01-01" : "2010-01-01",
+        "2030-01-01",
+      ]);
     }
   });
 
   it("carry the worst figure and the radius and GM their own index recorded (no number typed that the data does not hold)", () => {
     for (const moon of PLANET_MOON_DEFINITIONS) {
       const index = indexes[moon.parentId as keyof typeof indexes];
-      const entry = index.bodies.find((body) => body.id === moon.id)! as unknown as { accuracy: Record<string, { worstM: number }>; horizons?: { headerNotes: string[] } };
+      const entry = index.bodies.find((body) => body.id === moon.id)! as unknown as {
+        accuracy: Record<string, { worstM: number }>;
+        horizons?: { headerNotes: string[] };
+      };
       const centred = Object.entries(entry.accuracy).find(([key]) => key.endsWith("CentredUtc"))![1].worstM;
       expect(moon.accuracy.position.accuracy, moon.id).toContain(`within ${centred} m`);
       if (entry.horizons !== undefined && moon.parentId !== "mars") {
@@ -102,33 +152,71 @@ describe("the generic loader", () => {
     const fresh = createMoonSystem({ ...MARS_MOON_SYSTEM.config, loadIndex: async () => marsIndex });
     const requested: string[] = [];
     const root = moonDataFolder("mars");
-    const chunkUrls = new Proxy({}, { get: (_target, path: string) => (path.endsWith("/2018.bin") ? `${root}${path}` : undefined) }) as Record<string, string>;
+    const chunkUrls = new Proxy(
+      {},
+      { get: (_target, path: string) => (path.endsWith("/2018.bin") ? `${root}${path}` : undefined) },
+    ) as Record<string, string>;
     const window = { startUtcMs: Date.UTC(2018, 2, 1), endUtcMs: Date.UTC(2018, 2, 8) };
-    const set = await fresh.load({ window, bodies: ["phobos"], chunkUrls, fetchBytes: async (url) => { requested.push(url); return readBytes(url); } });
+    const set = await fresh.load({
+      window,
+      bodies: ["phobos"],
+      chunkUrls,
+      fetchBytes: async (url) => {
+        requested.push(url);
+        return readBytes(url);
+      },
+    });
     expect(requested.sort()).toEqual(["mars/2018.bin", "phobos/2018.bin"].map((path) => `${root}${path}`).sort());
     expect(fresh.ephemeris()).toBe(set);
     expect(Math.hypot(...set.stateOf("phobos", Date.UTC(2018, 2, 4)).positionKm)).toBeGreaterThan(9000);
-    expect(() => chunksNeeded(set, { window: { startUtcMs: Date.UTC(2019, 0, 2), endUtcMs: Date.UTC(2019, 0, 3) }, bodies: ["deimos"], chunkUrls })).toThrow(/does not ship/);
+    expect(() =>
+      chunksNeeded(set, {
+        window: { startUtcMs: Date.UTC(2019, 0, 2), endUtcMs: Date.UTC(2019, 0, 3) },
+        bodies: ["deimos"],
+        chunkUrls,
+      }),
+    ).toThrow(/does not ship/);
     expect(() => createMoonSystem(MARS_MOON_SYSTEM.config).ephemeris()).toThrow(/not loaded/);
   });
 
   it("also loads the year after the window where the build ships it, so a moon's orbit ring at the window's end has its data (O-047)", async () => {
     const fresh = createMoonSystem({ ...MARS_MOON_SYSTEM.config, loadIndex: async () => marsIndex });
     const root = moonDataFolder("mars");
-    const chunkUrls = new Proxy({}, { get: (_target, path: string) => (/\/(2018|2019)\.bin$/.test(path) ? `${root}${path}` : undefined) }) as Record<string, string>;
+    const chunkUrls = new Proxy(
+      {},
+      { get: (_target, path: string) => (/\/(2018|2019)\.bin$/.test(path) ? `${root}${path}` : undefined) },
+    ) as Record<string, string>;
     const requested: string[] = [];
     const window = { startUtcMs: Date.UTC(2018, 11, 20), endUtcMs: Date.UTC(2019, 0, 1) };
-    const set = await fresh.load({ window, bodies: ["phobos"], chunkUrls, fetchBytes: async (url) => { requested.push(url); return readBytes(url); } });
-    expect(requested.sort()).toEqual(["mars/2018.bin", "mars/2019.bin", "phobos/2018.bin", "phobos/2019.bin"].map((path) => `${root}${path}`).sort());
+    const set = await fresh.load({
+      window,
+      bodies: ["phobos"],
+      chunkUrls,
+      fetchBytes: async (url) => {
+        requested.push(url);
+        return readBytes(url);
+      },
+    });
+    expect(requested.sort()).toEqual(
+      ["mars/2018.bin", "mars/2019.bin", "phobos/2018.bin", "phobos/2019.bin"].map((path) => `${root}${path}`).sort(),
+    );
     expect(Math.hypot(...set.stateOf("phobos", Date.UTC(2019, 0, 1, 6)).positionKm)).toBeGreaterThan(9000);
   });
 
   it("serves Saturn's mapped moons about Saturn from the committed fits", () => {
-    const state = catalogue.get("titan").source!.create(adapter).stateAt(Date.UTC(2016, 5, 1));
+    const state = catalogue
+      .get("titan")
+      .source!.create(adapter)
+      .stateAt(Date.UTC(2016, 5, 1));
     expect(state.center).toBe("saturn");
     expect(Math.hypot(...state.positionKm)).toBeGreaterThan(1.1e6);
     expect(Math.hypot(...state.positionKm)).toBeLessThan(1.3e6);
-    expect(() => catalogue.get("titan").source!.create(adapter).stateAt(Date.UTC(2016, 5, 1), "sun")).toThrow(/Saturn-centred/);
+    expect(() =>
+      catalogue
+        .get("titan")
+        .source!.create(adapter)
+        .stateAt(Date.UTC(2016, 5, 1), "sun"),
+    ).toThrow(/Saturn-centred/);
     expect(SATURN_MOON_SYSTEM.config.centreGmKm3S2).toBe(37_931_206.234);
   });
 });
@@ -140,7 +228,8 @@ describe("Pluto: the system barycentre from the planet fits plus its own offset 
   it("is within a kilometre of Horizons' Pluto where its system's chunks are loaded", async () => {
     const root = moonDataFolder("pluto");
     const ephemeris = PLUTO_MOON_SYSTEM.ephemeris();
-    for (const year of [2010, 2023, 2024]) ephemeris.addChunk("pluto", `pluto/${year}.bin`, readBytes(`${root}pluto/${year}.bin`));
+    for (const year of [2010, 2023, 2024])
+      ephemeris.addChunk("pluto", `pluto/${year}.bin`, readBytes(`${root}pluto/${year}.bin`));
     const checked: number[] = [];
     for (const sample of samples) {
       if (sample.utcMs < MOON_FIT_SPAN.startUtcMs || sample.utcMs > MOON_FIT_SPAN.endUtcMs) continue;

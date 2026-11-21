@@ -1,7 +1,12 @@
 // Only the part of the driver that unit tests import; browser scripts are plain .mjs and are not type-checked.
 export function assertScaleInUse(page: unknown, scaleId: string): Promise<void>;
 /** The switch read (I-184): either form, buttons or the compact select. */
-export interface SwitchRead { readonly name: string | null; readonly param: string | null; readonly compact: boolean; readonly options: readonly { readonly value: string; readonly label: string; readonly active: boolean }[] }
+export interface SwitchRead {
+  readonly name: string | null;
+  readonly param: string | null;
+  readonly compact: boolean;
+  readonly options: readonly { readonly value: string; readonly label: string; readonly active: boolean }[];
+}
 export function readSwitchGroup(group: Element): SwitchRead;
 export function switchShowsActive(value: string): boolean;
 export function experienceSwitchState(page: unknown): Promise<SwitchRead | null>;

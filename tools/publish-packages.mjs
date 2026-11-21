@@ -17,8 +17,14 @@ const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 
 /** What to do for one package: "publish" or "skip" (already on npm), or a refusal when the tag and the version disagree or the package has never been on npm (`onNpm` false). */
 export function planFor({ name, version, tag, published, onNpm = true }) {
-  if (!onNpm) return { name, action: "refuse", reason: `${name} has never been published: publish its first version by hand and link its trusted publisher (docs/RELEASING.md, "Adding a package")` };
-  if (tag !== undefined && tag.replace(/^v/, "") !== version) return { name, action: "refuse", reason: `release tag ${tag} does not match ${name} version ${version}` };
+  if (!onNpm)
+    return {
+      name,
+      action: "refuse",
+      reason: `${name} has never been published: publish its first version by hand and link its trusted publisher (docs/RELEASING.md, "Adding a package")`,
+    };
+  if (tag !== undefined && tag.replace(/^v/, "") !== version)
+    return { name, action: "refuse", reason: `release tag ${tag} does not match ${name} version ${version}` };
   if (published) return { name, action: "skip", reason: `${name}@${version} is already on npm` };
   return { name, action: "publish", reason: `${name}@${version} is not on npm yet` };
 }
@@ -39,9 +45,13 @@ function onRegistry(spec) {
 export function publishAll({ dryRun = false, tag } = {}) {
   const plans = PACKAGES.map((name) => {
     const dir = join(root, "packages", name, "dist");
-    if (!existsSync(join(dir, "package.json"))) throw new Error(`${name}: ${dir} has no package.json; run npm run build:packages first`);
+    if (!existsSync(join(dir, "package.json")))
+      throw new Error(`${name}: ${dir} has no package.json; run npm run build:packages first`);
     const { version } = JSON.parse(readFileSync(join(dir, "package.json"), "utf8"));
-    return { dir, ...planFor({ name, version, tag, published: onRegistry(`${name}@${version}`), onNpm: onRegistry(name) }) };
+    return {
+      dir,
+      ...planFor({ name, version, tag, published: onRegistry(`${name}@${version}`), onNpm: onRegistry(name) }),
+    };
   });
   for (const plan of plans) console.log(`${plan.action.padEnd(7)} ${plan.reason}`);
   if (plans.some((plan) => plan.action === "refuse")) throw new Error("nothing was published: see the refusals above");

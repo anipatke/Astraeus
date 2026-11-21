@@ -28,53 +28,71 @@ function worldDirection(object: import("three").Object3D, local: [number, number
 
 function angleDeg(a: ArrayLike<number>, b: ArrayLike<number>): number {
   const dot = a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
-  return (Math.acos(Math.max(-1, Math.min(1, dot / (Math.hypot(a[0], a[1], a[2]) * Math.hypot(b[0], b[1], b[2]))))) * 180) / Math.PI;
+  return (
+    (Math.acos(Math.max(-1, Math.min(1, dot / (Math.hypot(a[0], a[1], a[2]) * Math.hypot(b[0], b[1], b[2]))))) * 180) /
+    Math.PI
+  );
 }
 
 describe("fixed render-axis conversion", () => {
   it("preserves handedness and rotates vectors and quaternions consistently", () => {
     const [x, y, z] = [eqjToRenderVector([1, 0, 0]), eqjToRenderVector([0, 1, 0]), eqjToRenderVector([0, 0, 1])];
-    new Vector3(...x).cross(new Vector3(...y)).toArray().forEach((v, i) => expect(v).toBeCloseTo(z[i], 12));
+    new Vector3(...x)
+      .cross(new Vector3(...y))
+      .toArray()
+      .forEach((v, i) => expect(v).toBeCloseTo(z[i], 12));
     const q = earthStateAt(adapter, T).orientation!;
     const vector = [0.3, -0.5, 0.8];
     const eqjRotated = rotateVectorByQuaternion(q, vector);
-    const renderRotated = new Vector3(...eqjToRenderVector(vector)).applyQuaternion(new ThreeQuaternion(...eqjToRenderQuaternion(q)));
+    const renderRotated = new Vector3(...eqjToRenderVector(vector)).applyQuaternion(
+      new ThreeQuaternion(...eqjToRenderQuaternion(q)),
+    );
     const expected = eqjToRenderVector(eqjRotated);
     renderRotated.toArray().forEach((value, i) => expect(value).toBeCloseTo(expected[i], 12));
   });
 });
 
 describe("Three.js hierarchy independence", () => {
-  it.each(policies)("keeps scientific state and relative geometry after rotating camera and Earth mesh (%o)", (policy) => {
-    const h = createSceneHierarchy();
-    const origin = new FloatingOrigin();
-    const earth = earthStateAt(adapter, T);
-    const moon = trajectory.stateAt(T, "earth");
-    const before = { position: Array.from(moon.positionKm), orientation: [...moon.orientation!], earthQ: [...earth.orientation!], time: moon.timeUtcMs };
+  it.each(policies)(
+    "keeps scientific state and relative geometry after rotating camera and Earth mesh (%o)",
+    (policy) => {
+      const h = createSceneHierarchy();
+      const origin = new FloatingOrigin();
+      const earth = earthStateAt(adapter, T);
+      const moon = trajectory.stateAt(T, "earth");
+      const before = {
+        position: Array.from(moon.positionKm),
+        orientation: [...moon.orientation!],
+        earthQ: [...earth.orientation!],
+        time: moon.timeUtcMs,
+      };
 
-    placeBodies(h, earth, moon, policy, origin);
-    expect(h.moonGroup.parent).toBe(h.root);
-    expect(h.earthGroup.parent).toBe(h.root);
-    h.root.updateMatrixWorld(true);
-    const moonWorld = h.moonGroup.getWorldPosition(new Vector3());
-    const separation = moonWorld.distanceTo(h.earthGroup.getWorldPosition(new Vector3()));
+      placeBodies(h, earth, moon, policy, origin);
+      expect(h.moonGroup.parent).toBe(h.root);
+      expect(h.earthGroup.parent).toBe(h.root);
+      h.root.updateMatrixWorld(true);
+      const moonWorld = h.moonGroup.getWorldPosition(new Vector3());
+      const separation = moonWorld.distanceTo(h.earthGroup.getWorldPosition(new Vector3()));
 
-    const camera = new PerspectiveCamera(45, 1.5, 0.1, 5000);
-    camera.position.set(3, 2, 8);
-    camera.lookAt(0, 0, 0);
-    camera.position.set(-9, 4, 1);
-    camera.lookAt(moonWorld);
-    h.earthMesh.rotateY(1.7);
-    h.earthMesh.rotateX(0.4);
-    h.root.updateMatrixWorld(true);
+      const camera = new PerspectiveCamera(45, 1.5, 0.1, 5000);
+      camera.position.set(3, 2, 8);
+      camera.lookAt(0, 0, 0);
+      camera.position.set(-9, 4, 1);
+      camera.lookAt(moonWorld);
+      h.earthMesh.rotateY(1.7);
+      h.earthMesh.rotateX(0.4);
+      h.root.updateMatrixWorld(true);
 
-    expect(h.moonGroup.getWorldPosition(new Vector3()).toArray()).toEqual(moonWorld.toArray());
-    expect(h.moonGroup.getWorldPosition(new Vector3()).distanceTo(h.earthGroup.getWorldPosition(new Vector3()))).toBe(separation);
-    expect(Array.from(moon.positionKm)).toEqual(before.position);
-    expect([...moon.orientation!]).toEqual(before.orientation);
-    expect([...earth.orientation!]).toEqual(before.earthQ);
-    expect(moon.timeUtcMs).toBe(before.time);
-  });
+      expect(h.moonGroup.getWorldPosition(new Vector3()).toArray()).toEqual(moonWorld.toArray());
+      expect(h.moonGroup.getWorldPosition(new Vector3()).distanceTo(h.earthGroup.getWorldPosition(new Vector3()))).toBe(
+        separation,
+      );
+      expect(Array.from(moon.positionKm)).toEqual(before.position);
+      expect([...moon.orientation!]).toEqual(before.orientation);
+      expect([...earth.orientation!]).toEqual(before.earthQ);
+      expect(moon.timeUtcMs).toBe(before.time);
+    },
+  );
 
   it("draws both policies from the same state with the physical radius ratio and distance ratio", () => {
     const earth = earthStateAt(adapter, T);
@@ -83,7 +101,10 @@ describe("Three.js hierarchy independence", () => {
       const h = createSceneHierarchy();
       placeBodies(h, earth, moon, policy, new FloatingOrigin());
       h.root.updateMatrixWorld(true);
-      expect(policy.mapRadius(MOON.radiusKm) / policy.mapRadius(EARTH.radiusKm)).toBeCloseTo(MOON.radiusKm / EARTH.radiusKm, 12);
+      expect(policy.mapRadius(MOON.radiusKm) / policy.mapRadius(EARTH.radiusKm)).toBeCloseTo(
+        MOON.radiusKm / EARTH.radiusKm,
+        12,
+      );
       return { d: h.moonGroup.position.length(), dir: h.moonGroup.position.clone().normalize() };
     });
     expect(distances[1].d / distances[0].d).toBeCloseTo(10, 5);
@@ -101,13 +122,25 @@ describe("scientific orientation conversion and texture axes", () => {
     const lon0 = worldDirection(h.earthMesh, [1, 0, 0]);
     const east = worldDirection(h.earthMesh, [0, 0, -1]);
     const q = earth.orientation!;
-    eqjToRenderVector(rotateVectorByQuaternion(q, [0, 0, 1])).forEach((v, i) => expect(pole.getComponent(i)).toBeCloseTo(v, 12));
-    eqjToRenderVector(rotateVectorByQuaternion(q, [1, 0, 0])).forEach((v, i) => expect(lon0.getComponent(i)).toBeCloseTo(v, 12));
-    eqjToRenderVector(rotateVectorByQuaternion(q, [0, 1, 0])).forEach((v, i) => expect(east.getComponent(i)).toBeCloseTo(v, 12));
+    eqjToRenderVector(rotateVectorByQuaternion(q, [0, 0, 1])).forEach((v, i) =>
+      expect(pole.getComponent(i)).toBeCloseTo(v, 12),
+    );
+    eqjToRenderVector(rotateVectorByQuaternion(q, [1, 0, 0])).forEach((v, i) =>
+      expect(lon0.getComponent(i)).toBeCloseTo(v, 12),
+    );
+    eqjToRenderVector(rotateVectorByQuaternion(q, [0, 1, 0])).forEach((v, i) =>
+      expect(east.getComponent(i)).toBeCloseTo(v, 12),
+    );
   });
 
   it("keeps the Moon's near-side axis toward Earth across dates, to within libration (I-091)", () => {
-    for (const date of [Date.UTC(2020, 0, 5), Date.UTC(2023, 6, 20), T, Date.UTC(2026, 3, 17, 11, 52), Date.UTC(2031, 10, 2)]) {
+    for (const date of [
+      Date.UTC(2020, 0, 5),
+      Date.UTC(2023, 6, 20),
+      T,
+      Date.UTC(2026, 3, 17, 11, 52),
+      Date.UTC(2031, 10, 2),
+    ]) {
       const h = createSceneHierarchy();
       const moon = trajectory.stateAt(date, "earth");
       placeBodies(h, earthStateAt(adapter, date), moon, trueScale, new FloatingOrigin());
@@ -129,34 +162,41 @@ describe("floating origin", () => {
     return new Vector3(...point).project(camera);
   }
 
-  it.each([0, AU_SCALED])("keeps distances and projections invariant under origin changes (common offset %f)", (offset) => {
-    for (const policy of policies) {
-      const moon = trajectory.stateAt(T, "earth");
-      const earthKm = [offset * EARTH.radiusKm * 1.0, 0, 0];
-      const abs = (km: number[]) => eqjToRenderVector(policy.mapPosition(km));
-      const earthAbs = abs(earthKm);
-      const moonAbs = abs([earthKm[0] + moon.positionKm[0], moon.positionKm[1], moon.positionKm[2]]);
-      const cameraAbs = [moonAbs[0] + 0.6, moonAbs[1] + 0.3, moonAbs[2] + 0.5];
-      const results = [earthAbs, moonAbs, cameraAbs].map(() => [] as number[][]);
-      const ndc: Vector3[] = [];
-      const separations: number[] = [];
-      for (const originAbs of [moonAbs, earthAbs, [earthAbs[0] + 5, earthAbs[1] - 3, earthAbs[2] + 1]]) {
-        const origin = new FloatingOrigin();
-        origin.set(originAbs);
-        const [e, m, c] = [earthAbs, moonAbs, cameraAbs].map((p, i) => { const l = origin.toLocal(p); results[i].push(l); return new Vector3(...l); });
-        separations.push(e.distanceTo(m));
-        const camera = new PerspectiveCamera(45, 1.5, 0.01, 5000);
-        camera.position.copy(c);
-        camera.lookAt(m);
-        ndc.push(project(camera, [m.x + 0.2727, m.y, m.z]));
+  it.each([0, AU_SCALED])(
+    "keeps distances and projections invariant under origin changes (common offset %f)",
+    (offset) => {
+      for (const policy of policies) {
+        const moon = trajectory.stateAt(T, "earth");
+        const earthKm = [offset * EARTH.radiusKm * 1.0, 0, 0];
+        const abs = (km: number[]) => eqjToRenderVector(policy.mapPosition(km));
+        const earthAbs = abs(earthKm);
+        const moonAbs = abs([earthKm[0] + moon.positionKm[0], moon.positionKm[1], moon.positionKm[2]]);
+        const cameraAbs = [moonAbs[0] + 0.6, moonAbs[1] + 0.3, moonAbs[2] + 0.5];
+        const results = [earthAbs, moonAbs, cameraAbs].map(() => [] as number[][]);
+        const ndc: Vector3[] = [];
+        const separations: number[] = [];
+        for (const originAbs of [moonAbs, earthAbs, [earthAbs[0] + 5, earthAbs[1] - 3, earthAbs[2] + 1]]) {
+          const origin = new FloatingOrigin();
+          origin.set(originAbs);
+          const [e, m, c] = [earthAbs, moonAbs, cameraAbs].map((p, i) => {
+            const l = origin.toLocal(p);
+            results[i].push(l);
+            return new Vector3(...l);
+          });
+          separations.push(e.distanceTo(m));
+          const camera = new PerspectiveCamera(45, 1.5, 0.01, 5000);
+          camera.position.copy(c);
+          camera.lookAt(m);
+          ndc.push(project(camera, [m.x + 0.2727, m.y, m.z]));
+        }
+        separations.forEach((s) => expect(s / separations[0]).toBeCloseTo(1, 6));
+        ndc.forEach((p) => {
+          expect(p.x).toBeCloseTo(ndc[0].x, 4);
+          expect(p.y).toBeCloseTo(ndc[0].y, 4);
+        });
       }
-      separations.forEach((s) => expect(s / separations[0]).toBeCloseTo(1, 6));
-      ndc.forEach((p) => {
-        expect(p.x).toBeCloseTo(ndc[0].x, 4);
-        expect(p.y).toBeCloseTo(ndc[0].y, 4);
-      });
-    }
-  });
+    },
+  );
 
   it("subtracts in Float64: close Moon focus is exact near one AU where naive Float32 is not", () => {
     const origin = new FloatingOrigin();
@@ -188,10 +228,20 @@ describe("position precision far from the Sun (Float32 in, Float64 projection)",
   const STEP = 0.0035; // radians of camera turn per frame: about one mouse pixel of orbit drag
 
   /** Pixel position of a point, given exactly or after the Float32 narrowing, for a camera at `distance` from the focus looking at it, turned by `azimuth`. */
-  function pixels(focus: number[], point: number[], distance: number, azimuth: number, narrow: boolean): { x: number; y: number } {
+  function pixels(
+    focus: number[],
+    point: number[],
+    distance: number,
+    azimuth: number,
+    narrow: boolean,
+  ): { x: number; y: number } {
     const origin = new FloatingOrigin();
     origin.set(focus);
-    const camAbs = [focus[0] + distance * Math.sin(azimuth), focus[1] + distance * 0.4, focus[2] + distance * Math.cos(azimuth)];
+    const camAbs = [
+      focus[0] + distance * Math.sin(azimuth),
+      focus[1] + distance * 0.4,
+      focus[2] + distance * Math.cos(azimuth),
+    ];
     const local = (p: number[]) => origin.toLocal(p).map((v) => (narrow ? Math.fround(v) : v));
     const camera = new PerspectiveCamera(45, WIDTH / HEIGHT, 0.05, distance * 4);
     camera.position.set(...(local(camAbs) as [number, number, number]));
@@ -212,7 +262,10 @@ describe("position precision far from the Sun (Float32 in, Float64 projection)",
     // Nothing changing for 60 frames: the same input gives the same pixels.
     const first = pixels(focus, point, distance, 0, true);
     let still = 0;
-    for (let i = 1; i < FRAMES; i += 1) { const again = pixels(focus, point, distance, 0, true); still = Math.max(still, Math.hypot(again.x - first.x, again.y - first.y)); }
+    for (let i = 1; i < FRAMES; i += 1) {
+      const again = pixels(focus, point, distance, 0, true);
+      still = Math.max(still, Math.hypot(again.x - first.x, again.y - first.y));
+    }
     return { still, sweep };
   }
 
@@ -274,10 +327,14 @@ describe("sampled orbit path", () => {
     for (const policy of policies) {
       const mapped = mapPathKm(samples.positionsKm, policy);
       const centre = (n - 1) / 2;
-      expect(Array.from(mapped.subarray(centre * 3, centre * 3 + 3))).toEqual(Array.from(policy.mapPosition(trajectory.stateAt(T, "earth").positionKm)));
+      expect(Array.from(mapped.subarray(centre * 3, centre * 3 + 3))).toEqual(
+        Array.from(policy.mapPosition(trajectory.stateAt(T, "earth").positionKm)),
+      );
     }
-    expect(Math.hypot(...Array.from(mapPathKm(samples.positionsKm, trueScale).subarray(0, 3))) /
-      Math.hypot(...Array.from(mapPathKm(samples.positionsKm, readableScale).subarray(0, 3)))).toBeCloseTo(10, 6);
+    expect(
+      Math.hypot(...Array.from(mapPathKm(samples.positionsKm, trueScale).subarray(0, 3))) /
+        Math.hypot(...Array.from(mapPathKm(samples.positionsKm, readableScale).subarray(0, 3))),
+    ).toBeCloseTo(10, 6);
     expect(trueScale.mapRadius(MOON.radiusKm)).toBe(readableScale.mapRadius(MOON.radiusKm));
   });
 
@@ -347,14 +404,18 @@ describe("Earth and Moon placement is unchanged by the visual records", () => {
       placeBodies(h, earthStateAt(adapter, date), trajectory.stateAt(date, "earth"), policy, new FloatingOrigin());
       // JSON stores -0 as 0, so signed zeros are normalised; every other digit is compared exactly.
       const plain = (values: number[]) => values.map((value) => value + 0);
-      const recorded = (before as Record<string, { earthPos: number[]; moonPos: number[]; earthQ: number[]; moonQ: number[] }>)[`${date}/${policy.id}`];
+      const recorded = (
+        before as Record<string, { earthPos: number[]; moonPos: number[]; earthQ: number[]; moonQ: number[] }>
+      )[`${date}/${policy.id}`];
       expect(recorded).toBeDefined();
       expect(plain(h.earthGroup.position.toArray())).toEqual(recorded.earthPos);
       expect(plain(h.moonGroup.position.toArray())).toEqual(recorded.moonPos);
       expect(plain(h.earthMesh.quaternion.toArray())).toEqual(recorded.earthQ);
       // I-091: the Moon's orientation is now the IAU model with libration, so the recorded tidal-lock quaternion is matched only to within libration.
       const q = h.moonMesh.quaternion.toArray();
-      const cosHalf = Math.abs(q[0] * recorded.moonQ[0] + q[1] * recorded.moonQ[1] + q[2] * recorded.moonQ[2] + q[3] * recorded.moonQ[3]);
+      const cosHalf = Math.abs(
+        q[0] * recorded.moonQ[0] + q[1] * recorded.moonQ[1] + q[2] * recorded.moonQ[2] + q[3] * recorded.moonQ[3],
+      );
       expect((2 * Math.acos(Math.min(1, cosHalf)) * 180) / Math.PI).toBeLessThan(10);
     }
   });

@@ -8,11 +8,16 @@ import { runSet } from "../tools/validate/runner.mjs";
 // O-060 T-283: every gate has a stated time limit in tools/gate-limits.json. A run over its limit warns; time alone never changes an exit code.
 const root = join(import.meta.dirname, "..", "..", "..");
 const limits = loadLimits();
-const sleeper = (ms: number, exit = 0) => ({ name: "sleeper", command: process.execPath, args: ["-e", `setTimeout(() => process.exit(${exit}), ${ms})`] });
+const sleeper = (ms: number, exit = 0) => ({
+  name: "sleeper",
+  command: process.execPath,
+  args: ["-e", `setTimeout(() => process.exit(${exit}), ${ms})`],
+});
 
 describe("the one limits file", () => {
   it("states a positive limit for every gate and every browser step", () => {
-    for (const value of [...Object.values(limits.gates), limits.browser.total, ...Object.values(limits.browser.steps)]) expect(value).toBeGreaterThan(0);
+    for (const value of [...Object.values(limits.gates), limits.browser.total, ...Object.values(limits.browser.steps)])
+      expect(value).toBeGreaterThan(0);
   });
 
   it("covers every npm gate the timed command runs and every step in run-browser.mjs", () => {
@@ -30,8 +35,16 @@ describe("the one limits file", () => {
 });
 
 describe("docs state the same limits as the file", () => {
-  const cells = (line: string) => line.split("|").map((cell) => cell.trim()).filter((cell) => cell !== "");
-  const rows = (file: string) => readFileSync(join(root, file), "utf8").split("\n").filter((line) => line.startsWith("|")).map(cells);
+  const cells = (line: string) =>
+    line
+      .split("|")
+      .map((cell) => cell.trim())
+      .filter((cell) => cell !== "");
+  const rows = (file: string) =>
+    readFileSync(join(root, file), "utf8")
+      .split("\n")
+      .filter((line) => line.startsWith("|"))
+      .map(cells);
 
   it("docs/agents/build.md has a row per gate ending in its limit", () => {
     const table = rows("docs/agents/build.md");
@@ -84,11 +97,18 @@ describe("a limit warns and never fails a run", () => {
   it("the timed command exits 0 over a planted limit through the real command line", async () => {
     const { spawnSync } = await import("node:child_process");
     {
-      const run = spawnSync(process.execPath, ["-e", `
+      const run = spawnSync(
+        process.execPath,
+        [
+          "-e",
+          `
         import("${join(root, "tools", "time-gates.mjs").replace(/\\/g, "/")}").then(({ timeGates }) => {
           const { ok } = timeGates([{ name: "slow", command: process.execPath, args: ["-e", "setTimeout(() => {}, 1100)"] }], { gates: { slow: 1 } });
           process.exit(ok ? 0 : 1);
-        });`], { encoding: "utf8" });
+        });`,
+        ],
+        { encoding: "utf8" },
+      );
       expect(run.status).toBe(0);
       expect(run.stdout).toMatch(/WARNING: slow took/);
     }
@@ -96,7 +116,9 @@ describe("a limit warns and never fails a run", () => {
 
   it("the browser runner summary warns past a planted total and exits 0; within it, no warning", async () => {
     const out: string[] = [];
-    const spy = vi.spyOn(console, "log").mockImplementation((text: unknown) => { out.push(String(text)); });
+    const spy = vi.spyOn(console, "log").mockImplementation((text: unknown) => {
+      out.push(String(text));
+    });
     const evidence: string[] = [];
     try {
       const planted = await runSet("gate-limit-test", [], { gates: {}, browser: { total: -1, steps: {} } });

@@ -13,8 +13,24 @@ import { definitionOf } from "../src/api/definitionOf";
 
 (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
 
-const codeOf = (fn: () => unknown) => { try { fn(); } catch (error) { return error instanceof SceneError ? `${error.code}: ${error.message}` : String(error); } return "no error"; };
-const picker: PickerInput = { id: "world", label: "World", options: [{ value: "tarn", label: "Tarn" }, { value: "mere", label: "Mere" }, { value: "fen", label: "Fen" }], value: "mere" };
+const codeOf = (fn: () => unknown) => {
+  try {
+    fn();
+  } catch (error) {
+    return error instanceof SceneError ? `${error.code}: ${error.message}` : String(error);
+  }
+  return "no error";
+};
+const picker: PickerInput = {
+  id: "world",
+  label: "World",
+  options: [
+    { value: "tarn", label: "Tarn" },
+    { value: "mere", label: "Mere" },
+    { value: "fen", label: "Fen" },
+  ],
+  value: "mere",
+};
 const base = () => new Scene().addBody(earth);
 
 describe("Scene.setPicker", () => {
@@ -28,7 +44,10 @@ describe("Scene.setPicker", () => {
     expect(definitionOf(scene, [{ name: "made-up", provides: ["earth"] }]).picker).toEqual(picker);
   });
   it("replaces the whole picker, and does not keep the caller's object", () => {
-    const options = [{ value: "a", label: "A" }, { value: "b", label: "B" }];
+    const options = [
+      { value: "a", label: "A" },
+      { value: "b", label: "B" },
+    ];
     const scene = base().setPicker(picker).setPicker({ id: "other", label: "Other", options, value: "b" });
     expect(scene.picker!.id).toBe("other");
     expect(scene.picker!.options).toHaveLength(2);
@@ -36,13 +55,18 @@ describe("Scene.setPicker", () => {
     expect(scene.picker!.options[0]!.value).toBe("a");
   });
   it("refuses each malformed input alone with bad-picker (one input changed, the rest as in the good picker)", () => {
-    const bad = (change: Record<string, unknown>) => codeOf(() => base().setPicker({ ...picker, ...change } as PickerInput));
+    const bad = (change: Record<string, unknown>) =>
+      codeOf(() => base().setPicker({ ...picker, ...change } as PickerInput));
     expect(bad({ id: "" })).toMatch(/^bad-picker: setPicker: the picker needs a non-empty id/);
     expect(bad({ label: "" })).toMatch(/^bad-picker: .*needs a label/);
     expect(bad({ options: "x" })).toMatch(/^bad-picker: .*options must be a list/);
     expect(bad({ options: [{ value: "", label: "A" }, picker.options[1]] })).toMatch(/^bad-picker: .*non-empty value/);
-    expect(bad({ options: [{ value: "tarn", label: "" }, picker.options[1]] })).toMatch(/^bad-picker: .*option "tarn" needs a label/);
-    expect(bad({ options: [picker.options[0], picker.options[0]] })).toMatch(/^bad-picker: .*option "tarn" appears twice/);
+    expect(bad({ options: [{ value: "tarn", label: "" }, picker.options[1]] })).toMatch(
+      /^bad-picker: .*option "tarn" needs a label/,
+    );
+    expect(bad({ options: [picker.options[0], picker.options[0]] })).toMatch(
+      /^bad-picker: .*option "tarn" appears twice/,
+    );
     expect(bad({ value: "nope" })).toMatch(/^bad-picker: .*value "nope" is not one of the options/);
     expect(codeOf(() => base().setPicker(undefined as never))).toMatch(/^bad-picker/);
   });
@@ -50,7 +74,10 @@ describe("Scene.setPicker", () => {
 
 describe("the picker control (the top bar and the phone drawer draw this one control; the lifecycle and two-viewer suites find it in the real viewer)", () => {
   let host: HTMLElement | undefined;
-  afterEach(() => { host?.remove(); host = undefined; });
+  afterEach(() => {
+    host?.remove();
+    host = undefined;
+  });
   const draw = (choice: ReturnType<typeof pickerSwitch>): HTMLElement => {
     host = document.createElement("div");
     document.body.append(host);
@@ -64,7 +91,16 @@ describe("the picker control (the top bar and the phone drawer draw this one con
     const group = element.querySelector("[role=group]")!;
     expect(group.getAttribute("aria-label")).toBe("World");
     expect(group.getAttribute("data-switch-param")).toBe("world");
-    expect([...element.querySelectorAll("button[data-switch-value]")].map((button) => [button.getAttribute("data-switch-value"), button.getAttribute("aria-pressed")])).toEqual([["tarn", "false"], ["mere", "true"], ["fen", "false"]]);
+    expect(
+      [...element.querySelectorAll("button[data-switch-value]")].map((button) => [
+        button.getAttribute("data-switch-value"),
+        button.getAttribute("aria-pressed"),
+      ]),
+    ).toEqual([
+      ["tarn", "false"],
+      ["mere", "true"],
+      ["fen", "false"],
+    ]);
     element.querySelector<HTMLButtonElement>("[data-switch-value=mere]")!.click();
     expect(choose).not.toHaveBeenCalled();
     element.querySelector<HTMLButtonElement>("[data-switch-value=fen]")!.click();
@@ -72,13 +108,16 @@ describe("the picker control (the top bar and the phone drawer draw this one con
     expect(navigate).not.toHaveBeenCalled();
   });
   it("draws no control with fewer than two options", () => {
-    const element = draw(pickerSwitch({ id: "one", label: "One", options: [{ value: "a", label: "A" }] }, "a", vi.fn()));
+    const element = draw(
+      pickerSwitch({ id: "one", label: "One", options: [{ value: "a", label: "A" }] }, "a", vi.fn()),
+    );
     expect(element.querySelector("[data-switch-param]")).toBeNull();
   });
 });
 
 describe("the picker on the link", () => {
-  const control = (picker?: { id: string; values: string[]; start: string }) => ({ ...(picker === undefined ? {} : { picker }), read: () => ({}), readCamera: () => undefined }) as never;
+  const control = (picker?: { id: string; values: string[]; start: string }) =>
+    ({ ...(picker === undefined ? {} : { picker }), read: () => ({}), readCamera: () => undefined }) as never;
   it("a press is told with the picker id and the value, the pressed option stays, and setPick moves it with no signal", () => {
     const link = new ViewerLink();
     link.attach(control({ id: "world", values: ["a", "b"], start: "a" }));
@@ -96,7 +135,9 @@ describe("the picker on the link", () => {
     expect(link.pick).toBe("b");
     expect(watched).toHaveBeenCalledTimes(1);
     expect(heard).toHaveLength(1);
-    expect(codeOf(() => link.setPick("c"))).toMatch(/^bad-picker: setPick: "c" is not one of the picker's options \(a, b\)/);
+    expect(codeOf(() => link.setPick("c"))).toMatch(
+      /^bad-picker: setPick: "c" is not one of the picker's options \(a, b\)/,
+    );
   });
   it("without a picker pick is undefined and setPick throws bad-picker; before attach setPick throws not-mounted; a rebuild starts again from the new scene's value", () => {
     const link = new ViewerLink();
@@ -118,7 +159,9 @@ describe("the picker on the link", () => {
     vi.stubGlobal("reportError", (error: unknown) => reported.push(error));
     link.attach(control({ id: "world", values: ["a", "b"], start: "a" }));
     const heard: string[] = [];
-    link.onPick(() => { throw new Error("host bug"); });
+    link.onPick(() => {
+      throw new Error("host bug");
+    });
     link.onPick((change) => heard.push(change.value));
     link.picked("b");
     expect(heard).toEqual(["b"]);

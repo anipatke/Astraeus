@@ -29,7 +29,7 @@ export const DEFAULT_INTERFACE_LOOK: Readonly<InterfaceLookRead> = Object.freeze
   accent: "#e8b06a",
   border: "rgba(240, 230, 218, .18)",
   data: "#b1a1df",
-  fontFamily: "system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
+  fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
   textSizePx: 14,
   radiusPx: 12,
   motionMs: 240,
@@ -39,10 +39,21 @@ export const DEFAULT_INTERFACE_LOOK: Readonly<InterfaceLookRead> = Object.freeze
 export const INTERNAL_LOOK_COLOURS: Readonly<{ readonly glow: string }> = Object.freeze({ glow: "#cfe0ff" });
 
 /** The range each number setting accepts. */
-export const INTERFACE_LOOK_LIMITS = Object.freeze({ textSizePx: { min: 11, max: 18 }, radiusPx: { min: 0, max: 20 }, motionMs: { min: 0, max: 800 } });
+export const INTERFACE_LOOK_LIMITS = Object.freeze({
+  textSizePx: { min: 11, max: 18 },
+  radiusPx: { min: 0, max: 20 },
+  motionMs: { min: 0, max: 800 },
+});
 
 /** The colour settings, each the custom property it sets. */
-const COLOUR_PROPERTIES = { panel: "--astraeus-panel", text: "--astraeus-text", muted: "--astraeus-muted", accent: "--astraeus-accent", border: "--astraeus-border", data: "--astraeus-data" } as const;
+const COLOUR_PROPERTIES = {
+  panel: "--astraeus-panel",
+  text: "--astraeus-text",
+  muted: "--astraeus-muted",
+  accent: "--astraeus-accent",
+  border: "--astraeus-border",
+  data: "--astraeus-data",
+} as const;
 
 /** The settings in force: `look` with every field not named at its default. */
 export function interfaceLookOf(look: { readonly interface?: InterfaceLookSettings }): InterfaceLookRead {
@@ -60,10 +71,14 @@ export function interfaceLookVars(settings: InterfaceLookSettings | undefined, r
     const value = set[key];
     if (value !== undefined && value !== DEFAULT_INTERFACE_LOOK[key]) vars[property] = value;
   }
-  if (set.fontFamily !== undefined && set.fontFamily !== DEFAULT_INTERFACE_LOOK.fontFamily) vars["--astraeus-font"] = set.fontFamily;
-  if (set.textSizePx !== undefined && set.textSizePx !== DEFAULT_INTERFACE_LOOK.textSizePx) vars["--astraeus-text-size"] = `${set.textSizePx}px`;
-  if (set.radiusPx !== undefined && set.radiusPx !== DEFAULT_INTERFACE_LOOK.radiusPx) vars["--astraeus-radius"] = `${set.radiusPx}px`;
+  if (set.fontFamily !== undefined && set.fontFamily !== DEFAULT_INTERFACE_LOOK.fontFamily)
+    vars["--astraeus-font"] = set.fontFamily;
+  if (set.textSizePx !== undefined && set.textSizePx !== DEFAULT_INTERFACE_LOOK.textSizePx)
+    vars["--astraeus-text-size"] = `${set.textSizePx}px`;
+  if (set.radiusPx !== undefined && set.radiusPx !== DEFAULT_INTERFACE_LOOK.radiusPx)
+    vars["--astraeus-radius"] = `${set.radiusPx}px`;
   if (reducedMotion) vars["--astraeus-motion"] = "0ms";
-  else if (set.motionMs !== undefined && set.motionMs !== DEFAULT_INTERFACE_LOOK.motionMs) vars["--astraeus-motion"] = `${set.motionMs}ms`;
+  else if (set.motionMs !== undefined && set.motionMs !== DEFAULT_INTERFACE_LOOK.motionMs)
+    vars["--astraeus-motion"] = `${set.motionMs}ms`;
   return vars as CSSProperties;
 }

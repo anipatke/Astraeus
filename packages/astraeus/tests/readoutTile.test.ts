@@ -9,21 +9,53 @@ import { $, mountShell, press, pressKey, type Mounted } from "./domSetup";
 
 const made = [{ name: "made-up", provides: ["earth"] }] as const;
 const base = () => new Scene().addBody(earth);
-const codeOf = (fn: () => unknown) => { try { fn(); } catch (error) { return error instanceof SceneError ? `${error.code}: ${error.message}` : String(error); } return "no error"; };
+const codeOf = (fn: () => unknown) => {
+  try {
+    fn();
+  } catch (error) {
+    return error instanceof SceneError ? `${error.code}: ${error.message}` : String(error);
+  }
+  return "no error";
+};
 const scale = { low: 1, high: 100, value: 10, stretch: "log", marks: [{ value: 50, label: "Half" }] } as const;
-const make = (change: Record<string, unknown> = {}) => readoutTile({ id: "t", label: "Gap", value: "4 units", scale, facts: [{ label: "Speed", value: "7" }], ...change } as never);
+const make = (change: Record<string, unknown> = {}) =>
+  readoutTile({
+    id: "t",
+    label: "Gap",
+    value: "4 units",
+    scale,
+    facts: [{ label: "Speed", value: "7" }],
+    ...change,
+  } as never);
 
 describe("readoutTile checks its input at the call (bad-part)", () => {
   it.each([
-    [{ id: "" }, /id must be a non-empty string/], [{ label: "" }, /label must be a non-empty string/], [{ label: 3 }, /label must be a non-empty string/], [{ value: "" }, /value must be a non-empty string/],
-    [{ scale: "x" }, /give scale as/], [{ scale: { ...scale, low: Number.NaN } }, /scale\.low and scale\.high must be finite/], [{ scale: { ...scale, high: Number.POSITIVE_INFINITY } }, /finite numbers/],
-    [{ scale: { ...scale, low: 100, high: 1 } }, /scale\.low must be less than scale\.high/], [{ scale: { ...scale, high: 1 } }, /scale\.low must be less than scale\.high/],
-    [{ scale: { ...scale, value: 101 } }, /scale\.value must be a finite number from/], [{ scale: { ...scale, value: Number.NaN } }, /scale\.value must be a finite number/],
-    [{ scale: { ...scale, stretch: "sqrt" } }, /stretch must be "linear" or "log"/], [{ scale: { ...scale, low: 0, value: 1 } }, /a log scale needs scale\.low above 0/], [{ scale: { ...scale, low: -1, value: 1 } }, /a log scale needs/],
-    [{ scale: { ...scale, marks: "x" } }, /scale\.marks must be a list/], [{ scale: { ...scale, marks: ["x"] } }, /scale\.marks\[0\] must be/],
-    [{ scale: { ...scale, marks: [{ value: 500, label: "Far" }] } }, /scale\.marks\[0\]\.value must be a finite number from/], [{ scale: { ...scale, marks: [{ value: Number.NaN, label: "A" }] } }, /marks\[0\]\.value/],
+    [{ id: "" }, /id must be a non-empty string/],
+    [{ label: "" }, /label must be a non-empty string/],
+    [{ label: 3 }, /label must be a non-empty string/],
+    [{ value: "" }, /value must be a non-empty string/],
+    [{ scale: "x" }, /give scale as/],
+    [{ scale: { ...scale, low: Number.NaN } }, /scale\.low and scale\.high must be finite/],
+    [{ scale: { ...scale, high: Number.POSITIVE_INFINITY } }, /finite numbers/],
+    [{ scale: { ...scale, low: 100, high: 1 } }, /scale\.low must be less than scale\.high/],
+    [{ scale: { ...scale, high: 1 } }, /scale\.low must be less than scale\.high/],
+    [{ scale: { ...scale, value: 101 } }, /scale\.value must be a finite number from/],
+    [{ scale: { ...scale, value: Number.NaN } }, /scale\.value must be a finite number/],
+    [{ scale: { ...scale, stretch: "sqrt" } }, /stretch must be "linear" or "log"/],
+    [{ scale: { ...scale, low: 0, value: 1 } }, /a log scale needs scale\.low above 0/],
+    [{ scale: { ...scale, low: -1, value: 1 } }, /a log scale needs/],
+    [{ scale: { ...scale, marks: "x" } }, /scale\.marks must be a list/],
+    [{ scale: { ...scale, marks: ["x"] } }, /scale\.marks\[0\] must be/],
+    [
+      { scale: { ...scale, marks: [{ value: 500, label: "Far" }] } },
+      /scale\.marks\[0\]\.value must be a finite number from/,
+    ],
+    [{ scale: { ...scale, marks: [{ value: Number.NaN, label: "A" }] } }, /marks\[0\]\.value/],
     [{ scale: { ...scale, marks: [{ value: 5, label: "" }] } }, /scale\.marks\[0\]\.label must be a non-empty string/],
-    [{ facts: "x" }, /facts must be a list/], [{ facts: ["x"] }, /facts\[0\] must be/], [{ facts: [{ label: "", value: "1" }] }, /facts\[0\]\.label must be a non-empty string/], [{ facts: [{ label: "A", value: "" }] }, /facts\[0\]\.value/],
+    [{ facts: "x" }, /facts must be a list/],
+    [{ facts: ["x"] }, /facts\[0\] must be/],
+    [{ facts: [{ label: "", value: "1" }] }, /facts\[0\]\.label must be a non-empty string/],
+    [{ facts: [{ label: "A", value: "" }] }, /facts\[0\]\.value/],
     [{ facts: Array.from({ length: 5 }, (_, i) => ({ label: `L${i}`, value: "1" })) }, /facts holds at most 4/],
   ] as const)("refuses %j", (change, message) => {
     const text = codeOf(() => make(change as Record<string, unknown>));
@@ -39,7 +71,8 @@ describe("readoutTile checks its input at the call (bad-part)", () => {
   it("makes a frozen descriptor that copies its input and needs neither scale nor facts", () => {
     const marks = [{ value: 50, label: "Half" }];
     const part = readoutTile({ id: "t", label: "Gap", value: "4", scale: { low: 1, high: 100, value: 10, marks } });
-    marks[0]!.label = "changed"; marks.push({ value: 60, label: "late" });
+    marks[0]!.label = "changed";
+    marks.push({ value: 60, label: "late" });
     expect(Object.isFrozen(part)).toBe(true);
     const inner = blockOf(part as never).data as { scale: { stretch: string; marks: { label: string }[] } };
     expect([inner.scale.stretch, inner.scale.marks.map((mark) => mark.label)]).toEqual(["linear", ["Half"]]);
@@ -52,27 +85,87 @@ describe("readoutTile checks its input at the call (bad-part)", () => {
 describe("addParts takes a tile", () => {
   it("accepts a tile beside a panel, keeps the order, and shares the descriptor between scenes", () => {
     const tile = make();
-    const hold = panel({ id: "notes", button: { label: "Notes" }, title: "Notes", blocks: [customBlock({ id: "body" })] });
+    const hold = panel({
+      id: "notes",
+      button: { label: "Notes" },
+      title: "Notes",
+      blocks: [customBlock({ id: "body" })],
+    });
     const one = base().addParts([hold, tile]);
     expect(definitionOf(one, [...made]).parts!.map((part) => part.id)).toEqual(["notes", "t"]);
-    expect(definitionOf(base().addParts([tile]), [...made]).parts![0]).toBe(definitionOf(base().addParts([tile]), [...made]).parts![0]);
+    expect(definitionOf(base().addParts([tile]), [...made]).parts![0]).toBe(
+      definitionOf(base().addParts([tile]), [...made]).parts![0],
+    );
   });
   it("refuses an id used by a part or a block (duplicate-id) and a tile inside a panel (bad-part)", () => {
     expect(codeOf(() => base().addParts([make(), make()]))).toMatch(/^duplicate-id: addParts: "t"/);
-    const hold = panel({ id: "p", button: { label: "P" }, title: "P", blocks: [explainer({ id: "t", paragraphs: ["x"] })] });
+    const hold = panel({
+      id: "p",
+      button: { label: "P" },
+      title: "P",
+      blocks: [explainer({ id: "t", paragraphs: ["x"] })],
+    });
     expect(codeOf(() => base().addParts([hold, make()]))).toMatch(/^duplicate-id/);
-    expect(codeOf(() => panel({ id: "p", button: { label: "P" }, title: "P", blocks: [make() as never] }))).toMatch(/^bad-part: panel: a panel cannot hold a readoutTile/);
-    expect(codeOf(() => base().addParts([{ kind: "readoutTile", id: "x", label: "X" } as never]))).toMatch(/^bad-part: addParts: parts\[0\]/);
+    expect(codeOf(() => panel({ id: "p", button: { label: "P" }, title: "P", blocks: [make() as never] }))).toMatch(
+      /^bad-part: panel: a panel cannot hold a readoutTile/,
+    );
+    expect(codeOf(() => base().addParts([{ kind: "readoutTile", id: "x", label: "X" } as never]))).toMatch(
+      /^bad-part: addParts: parts\[0\]/,
+    );
   });
   it("one tile per view: two tiles that would show in one view are refused naming both; each in its own view is fine", () => {
-    const a = make({ id: "a" }), b = make({ id: "b" });
-    expect(codeOf(() => definitionOf(base().addParts([a, b]), [...made]))).toMatch(/^bad-part: addParts: the readoutTiles "a" and "b" would show in the same view/);
-    const views = (panels: [string[], string[]]) => base().addParts([a, b]).setViews([{ id: "v1", label: "One", panels: panels[0] }, { id: "v2", label: "Two", panels: panels[1] }], { place: "top-bar", start: "v1" });
+    const a = make({ id: "a" }),
+      b = make({ id: "b" });
+    expect(codeOf(() => definitionOf(base().addParts([a, b]), [...made]))).toMatch(
+      /^bad-part: addParts: the readoutTiles "a" and "b" would show in the same view/,
+    );
+    const views = (panels: [string[], string[]]) =>
+      base()
+        .addParts([a, b])
+        .setViews(
+          [
+            { id: "v1", label: "One", panels: panels[0] },
+            { id: "v2", label: "Two", panels: panels[1] },
+          ],
+          { place: "top-bar", start: "v1" },
+        );
     expect(codeOf(() => definitionOf(views([["a"], ["b"]]), [...made]))).toBe("no error");
-    expect(codeOf(() => definitionOf(views([["a", "b"], []]), [...made]))).toMatch(/^bad-part: addParts: the readoutTiles "a" and "b"/);
+    expect(codeOf(() => definitionOf(views([["a", "b"], []]), [...made]))).toMatch(
+      /^bad-part: addParts: the readoutTiles "a" and "b"/,
+    );
     // a tile no view lists shows in every view, so it meets the other tile there
-    expect(codeOf(() => definitionOf(base().addParts([a, b]).setViews([{ id: "v1", label: "One", panels: ["a"] }, { id: "v2", label: "Two", panels: [] }], { place: "top-bar", start: "v1" }), [...made]))).toMatch(/^bad-part: addParts: the readoutTiles "a" and "b"/);
-    expect(codeOf(() => definitionOf(base().addParts([a, make({ id: "c" })]).setViews([{ id: "v1", label: "One" }, { id: "v2", label: "Two" }], { place: "top-bar", start: "v1" }), [...made]))).toMatch(/^bad-part/);
+    expect(
+      codeOf(() =>
+        definitionOf(
+          base()
+            .addParts([a, b])
+            .setViews(
+              [
+                { id: "v1", label: "One", panels: ["a"] },
+                { id: "v2", label: "Two", panels: [] },
+              ],
+              { place: "top-bar", start: "v1" },
+            ),
+          [...made],
+        ),
+      ),
+    ).toMatch(/^bad-part: addParts: the readoutTiles "a" and "b"/);
+    expect(
+      codeOf(() =>
+        definitionOf(
+          base()
+            .addParts([a, make({ id: "c" })])
+            .setViews(
+              [
+                { id: "v1", label: "One" },
+                { id: "v2", label: "Two" },
+              ],
+              { place: "top-bar", start: "v1" },
+            ),
+          [...made],
+        ),
+      ),
+    ).toMatch(/^bad-part/);
   });
 });
 
@@ -81,7 +174,9 @@ describe("the shell draws the tile in its own place", () => {
   afterEach(() => m.unmount());
   const one = partOf(make({ id: "one", label: "Gap one", value: "4 units" }));
   const two = partOf(make({ id: "two", label: "Gap two", value: "9 units", scale: undefined, facts: [] }));
-  const hold = partOf(panel({ id: "notes", button: { label: "Notes" }, title: "Notes", blocks: [customBlock({ id: "body" })] }));
+  const hold = partOf(
+    panel({ id: "notes", button: { label: "Notes" }, title: "Notes", blocks: [customBlock({ id: "body" })] }),
+  );
   const about = { title: "The belt" };
   const area = () => m.container.querySelector<HTMLElement>('[data-area="tile"]');
 

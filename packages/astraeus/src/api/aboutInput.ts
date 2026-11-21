@@ -15,7 +15,6 @@ export interface AboutInput {
   readonly links?: readonly { readonly text: string; readonly url: string }[];
 }
 
-
 const isText = (value: unknown): value is string => typeof value === "string" && value !== "";
 const isWebAddress = (value: unknown): value is string => typeof value === "string" && /^https?:\/\/\S+$/i.test(value);
 
@@ -24,14 +23,16 @@ export function checkedAbout(input: AboutInput, who: string): AboutInput {
   const bad = (message: string): SceneError => new SceneError("bad-about", `${who}: ${message}`);
   if (!isPlainObject(input)) throw bad("give an { title, shortTitle?, status?, credits?, links? } object");
   if (!isText(input.title)) throw bad("title must be a non-empty string");
-  if (input.shortTitle !== undefined && !isText(input.shortTitle)) throw bad("shortTitle must be a non-empty string when given");
+  if (input.shortTitle !== undefined && !isText(input.shortTitle))
+    throw bad("shortTitle must be a non-empty string when given");
   if (input.status !== undefined && typeof input.status !== "string") throw bad("status must be a string when given");
   if (input.credits !== undefined && !Array.isArray(input.credits)) throw bad("credits must be a list when given");
   if (input.links !== undefined && !Array.isArray(input.links)) throw bad("links must be a list when given");
   const credits = (input.credits ?? []).map((credit, index) => {
     if (!isPlainObject(credit)) throw bad(`credits[${index}] must be a { text, url? } object`);
     if (!isText(credit.text)) throw bad(`credits[${index}].text must be a non-empty string`);
-    if (credit.url !== undefined && !isWebAddress(credit.url)) throw bad(`credits[${index}].url must be an http or https address when given`);
+    if (credit.url !== undefined && !isWebAddress(credit.url))
+      throw bad(`credits[${index}].url must be an http or https address when given`);
     return Object.freeze({ text: credit.text, ...(credit.url === undefined ? {} : { url: credit.url }) });
   });
   const links = (input.links ?? []).map((link, index) => {

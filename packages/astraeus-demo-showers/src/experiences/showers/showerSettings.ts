@@ -110,7 +110,11 @@ export interface ShowerSettings {
    * inside it, Earth makes one full turn and crosses the stream once. The year starts at `yearStartUtc` when the file gives one (the activity
    * window must then lie inside that year), else it is centred on the peak.
    */
-  readonly timeline: { readonly span: TimelineSpan; readonly rateSecondsPerSecond: number; readonly yearStartUtc?: string };
+  readonly timeline: {
+    readonly span: TimelineSpan;
+    readonly rateSecondsPerSecond: number;
+    readonly yearStartUtc?: string;
+  };
   /** Objects whose label the scene may hide: id (a catalogued body or the stream) to whether it is shown at the start. Anything not listed is always shown. */
   readonly labels: Readonly<Record<string, boolean>>;
   readonly look: ShowerLook;
@@ -159,25 +163,29 @@ function fail(path: string, problem: string): never {
 const ISO_UTC_INSTANT = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/;
 
 function record(value: unknown, path: string): Raw {
-  if (typeof value !== "object" || value === null || Array.isArray(value)) fail(path, "is required and must be an object");
+  if (typeof value !== "object" || value === null || Array.isArray(value))
+    fail(path, "is required and must be an object");
   return value as Raw;
 }
 
 function text(parent: Raw, key: string, path: string): string {
   const value = parent[key];
-  if (typeof value !== "string" || value.trim().length === 0) fail(`${path}.${key}`, "is required and must be non-empty text");
+  if (typeof value !== "string" || value.trim().length === 0)
+    fail(`${path}.${key}`, "is required and must be non-empty text");
   return value;
 }
 
 function finite(parent: Raw, key: string, path: string): number {
   const value = parent[key];
-  if (typeof value !== "number" || !Number.isFinite(value)) fail(`${path}.${key}`, "is required and must be a finite number");
+  if (typeof value !== "number" || !Number.isFinite(value))
+    fail(`${path}.${key}`, "is required and must be a finite number");
   return value;
 }
 
 function instant(parent: Raw, key: string, path: string): string {
   const value = text(parent, key, path);
-  if (!ISO_UTC_INSTANT.test(value) || !Number.isFinite(Date.parse(value))) fail(`${path}.${key}`, `must be an ISO-8601 UTC time like 2030-01-01T00:00:00Z, got "${value}"`);
+  if (!ISO_UTC_INSTANT.test(value) || !Number.isFinite(Date.parse(value)))
+    fail(`${path}.${key}`, `must be an ISO-8601 UTC time like 2030-01-01T00:00:00Z, got "${value}"`);
   return value;
 }
 
@@ -196,19 +204,44 @@ function nonNegative(parent: Raw, key: string, path: string): number {
 function source(parent: Raw, key: string, path: string): ShowerSource {
   const raw = record(parent[key], `${path}.${key}`);
   const here = `${path}.${key}`;
-  return { name: text(raw, "name", here), url: text(raw, "url", here), accessed: text(raw, "accessed", here), ...(raw.note === undefined ? {} : { note: text(raw, "note", here) }) };
+  return {
+    name: text(raw, "name", here),
+    url: text(raw, "url", here),
+    accessed: text(raw, "accessed", here),
+    ...(raw.note === undefined ? {} : { note: text(raw, "note", here) }),
+  };
 }
 
 function orbitSources(stream: Raw): ShowerSettings["stream"]["sources"] {
-  if (stream.source !== undefined) fail("stream.source", `is no longer a setting: the Global Meteor Network is the only orbit source, so remove it (got ${JSON.stringify(stream.source)})`);
+  if (stream.source !== undefined)
+    fail(
+      "stream.source",
+      `is no longer a setting: the Global Meteor Network is the only orbit source, so remove it (got ${JSON.stringify(stream.source)})`,
+    );
   const raw = record(stream.sources, "stream.sources");
-  if (raw.cams !== undefined) fail("stream.sources.cams", "is no longer supported: the CAMS source was removed, so remove it and keep stream.sources.gmn");
+  if (raw.cams !== undefined)
+    fail(
+      "stream.sources.cams",
+      "is no longer supported: the CAMS source was removed, so remove it and keep stream.sources.gmn",
+    );
   const g = record(raw.gmn, "stream.sources.gmn");
   const path = "stream.sources.gmn";
-  if (!Array.isArray(g.months) || g.months.length === 0 || !g.months.every((m) => typeof m === "string" && /^\d{4}(0[1-9]|1[0-2])$/.test(m))) {
+  if (
+    !Array.isArray(g.months) ||
+    g.months.length === 0 ||
+    !g.months.every((m) => typeof m === "string" && /^\d{4}(0[1-9]|1[0-2])$/.test(m))
+  ) {
     fail(`${path}.months`, `must be a non-empty list of YYYYMM months, got ${JSON.stringify(g.months)}`);
   }
-  return { gmn: { source: source(g, "source", path), months: g.months as string[], licence: text(g, "licence", path), licenceUrl: text(g, "licenceUrl", path), ruleNote: text(g, "ruleNote", path) } };
+  return {
+    gmn: {
+      source: source(g, "source", path),
+      months: g.months as string[],
+      licence: text(g, "licence", path),
+      licenceUrl: text(g, "licenceUrl", path),
+      ruleNote: text(g, "ruleNote", path),
+    },
+  };
 }
 
 /** The cited source (name, url, access date) of the orbit catalogue. */
@@ -220,7 +253,8 @@ function orbitElements(raw: Raw, path: string): ShowerOrbitElements {
   const semiMajorAxisAu = finite(raw, "semiMajorAxisAu", path);
   const eccentricity = finite(raw, "eccentricity", path);
   if (semiMajorAxisAu <= 0) fail(`${path}.semiMajorAxisAu`, `must be positive, got ${semiMajorAxisAu}`);
-  if (eccentricity < 0 || eccentricity >= 1) fail(`${path}.eccentricity`, `must be at least 0 and below 1 (a bound orbit), got ${eccentricity}`);
+  if (eccentricity < 0 || eccentricity >= 1)
+    fail(`${path}.eccentricity`, `must be at least 0 and below 1 (a bound orbit), got ${eccentricity}`);
   return { semiMajorAxisAu, eccentricity };
 }
 
@@ -243,7 +277,11 @@ function orbitElementsOf(orbit: Raw, parent: ElementsBodyRecord | undefined): Sh
   const elements = orbitElements(record(orbit.elements, "orbit.elements"), "orbit.elements");
   if (parent !== undefined) {
     for (const key of ["semiMajorAxisAu", "eccentricity"] as const) {
-      if (elements[key] !== parent.elements[key]) fail(`orbit.elements.${key}`, `must equal parentElements.elements.${key} (${parent.elements[key]}), got ${elements[key]}`);
+      if (elements[key] !== parent.elements[key])
+        fail(
+          `orbit.elements.${key}`,
+          `must equal parentElements.elements.${key} (${parent.elements[key]}), got ${elements[key]}`,
+        );
     }
   }
   return elements;
@@ -257,7 +295,8 @@ function colour(parent: Raw, key: string, path: string): string {
 
 function viewUp(raw: Raw): "equatorial" | "ecliptic" {
   if (raw.viewUp === undefined) return "equatorial";
-  if (raw.viewUp !== "equatorial" && raw.viewUp !== "ecliptic") fail("look.viewUp", `must be "equatorial" or "ecliptic", got ${String(raw.viewUp)}`);
+  if (raw.viewUp !== "equatorial" && raw.viewUp !== "ecliptic")
+    fail("look.viewUp", `must be "equatorial" or "ecliptic", got ${String(raw.viewUp)}`);
   return raw.viewUp;
 }
 
@@ -276,19 +315,27 @@ function timeline(input: unknown): ShowerSettings["timeline"] {
   if (input === undefined) return { span: "activity", rateSecondsPerSecond: 86_400 };
   const raw = record(input, "timeline");
   const span = raw.span ?? "activity";
-  if (span !== "activity" && span !== "year") fail("timeline.span", `must be "activity" or "year", got ${String(span)}`);
+  if (span !== "activity" && span !== "year")
+    fail("timeline.span", `must be "activity" or "year", got ${String(span)}`);
   const rate = raw.rateSecondsPerSecond === undefined ? 86_400 : positive(raw, "rateSecondsPerSecond", "timeline");
-  return { span, rateSecondsPerSecond: rate, ...(raw.yearStartUtc === undefined ? {} : { yearStartUtc: instant(raw, "yearStartUtc", "timeline") }) };
+  return {
+    span,
+    rateSecondsPerSecond: rate,
+    ...(raw.yearStartUtc === undefined ? {} : { yearStartUtc: instant(raw, "yearStartUtc", "timeline") }),
+  };
 }
 
 function startViewOf(value: unknown): StartView {
   const where = "look.startView";
   const raw = record(value, where);
-  for (const key of Object.keys(raw)) if (!["focus", "azimuthDeg", "elevationDeg", "distance"].includes(key)) fail(where, `is not a valid view: ${where}.${key} is not a view field`);
+  for (const key of Object.keys(raw))
+    if (!["focus", "azimuthDeg", "elevationDeg", "distance"].includes(key))
+      fail(where, `is not a valid view: ${where}.${key} is not a view field`);
   const focus = text(raw, "focus", where);
   const azimuthDeg = finite(raw, "azimuthDeg", where);
   const elevationDeg = finite(raw, "elevationDeg", where);
-  if (Math.abs(elevationDeg) > 89) fail(where, `is not a valid view: ${where}.elevationDeg must be within ±89, got ${elevationDeg}`);
+  if (Math.abs(elevationDeg) > 89)
+    fail(where, `is not a valid view: ${where}.elevationDeg must be within ±89, got ${elevationDeg}`);
   const distance = finite(raw, "distance", where);
   if (!(distance > 0)) fail(where, `is not a valid view: ${where}.distance must be positive, got ${distance}`);
   return { focus, azimuthDeg: ((azimuthDeg % 360) + 360) % 360, elevationDeg, distance };
@@ -297,10 +344,12 @@ function startViewOf(value: unknown): StartView {
 function look(raw: Raw): ShowerLook {
   const cameraMaxFocusDistance = positive(raw, "cameraMaxFocusDistance", "look");
   const cameraFar = positive(raw, "cameraFar", "look");
-  if (cameraFar <= cameraMaxFocusDistance) fail("look.cameraFar", `must exceed look.cameraMaxFocusDistance (${cameraMaxFocusDistance}), got ${cameraFar}`);
+  if (cameraFar <= cameraMaxFocusDistance)
+    fail("look.cameraFar", `must exceed look.cameraMaxFocusDistance (${cameraMaxFocusDistance}), got ${cameraFar}`);
   const planetExaggeration = finite(raw, "planetExaggeration", "look");
   if (planetExaggeration < 1) fail("look.planetExaggeration", `must be at least 1, got ${planetExaggeration}`);
-  if (raw.loop !== undefined && typeof raw.loop !== "boolean") fail("look.loop", `must be true or false, got ${String(raw.loop)}`);
+  if (raw.loop !== undefined && typeof raw.loop !== "boolean")
+    fail("look.loop", `must be true or false, got ${String(raw.loop)}`);
   return {
     loop: raw.loop === true,
     viewUp: viewUp(raw),
@@ -321,10 +370,19 @@ function quality(input: unknown): ShowerSettings["stream"]["quality"] {
   const raw = record(input, "stream.quality");
   const rule = record(raw.rule, "stream.quality.rule");
   const fraction = finite(rule, "maxVelocityErrorFraction", "stream.quality.rule");
-  if (!(fraction > 0 && fraction <= 1)) fail("stream.quality.rule.maxVelocityErrorFraction", `must be above 0 and at most 1, got ${fraction}`);
+  if (!(fraction > 0 && fraction <= 1))
+    fail("stream.quality.rule.maxVelocityErrorFraction", `must be above 0 and at most 1, got ${fraction}`);
   const angle = finite(rule, "minConvergenceAngleDeg", "stream.quality.rule");
-  if (!(angle >= 0 && angle <= 90)) fail("stream.quality.rule.minConvergenceAngleDeg", `must be from 0 to 90, got ${angle}`);
-  return { rule: { minConvergenceAngleDeg: angle, maxVelocityErrorFraction: fraction, quote: text(rule, "quote", "stream.quality.rule"), source: source(rule, "source", "stream.quality.rule") } };
+  if (!(angle >= 0 && angle <= 90))
+    fail("stream.quality.rule.minConvergenceAngleDeg", `must be from 0 to 90, got ${angle}`);
+  return {
+    rule: {
+      minConvergenceAngleDeg: angle,
+      maxVelocityErrorFraction: fraction,
+      quote: text(rule, "quote", "stream.quality.rule"),
+      source: source(rule, "source", "stream.quality.rule"),
+    },
+  };
 }
 
 function concentration(raw: Raw): ShowerSettings["stream"]["concentration"] {
@@ -334,8 +392,10 @@ function concentration(raw: Raw): ShowerSettings["stream"]["concentration"] {
   const widthDeg = finite(raw, "widthDeg", path);
   if (!(widthDeg > 0 && widthDeg <= 180)) fail(`${path}.widthDeg`, `must be above 0 and at most 180, got ${widthDeg}`);
   const status = raw.status;
-  if (status !== "illustrative" && status !== "cited") fail(`${path}.status`, `must be "illustrative" or "cited", got ${String(status)}`);
-  if (status === "cited") return { fraction, widthDeg, status, basis: text(raw, "basis", path), source: source(raw, "source", path) };
+  if (status !== "illustrative" && status !== "cited")
+    fail(`${path}.status`, `must be "illustrative" or "cited", got ${String(status)}`);
+  if (status === "cited")
+    return { fraction, widthDeg, status, basis: text(raw, "basis", path), source: source(raw, "source", path) };
   return { fraction, widthDeg, status, basis: text(raw, "basis", path) };
 }
 
@@ -347,7 +407,11 @@ function story(input: unknown): ShowerSettings["story"] {
   const raw = record(input, "story");
   const panels = raw.panels;
   if (typeof panels === "string") {
-    if (!PANELS_PATH.test(panels)) fail("story.panels", `must be a path like data/stories/<story>/panels.json or the panels object, got "${panels}"`);
+    if (!PANELS_PATH.test(panels))
+      fail(
+        "story.panels",
+        `must be a path like data/stories/<story>/panels.json or the panels object, got "${panels}"`,
+      );
     return { panels };
   }
   const inline = record(panels, "story.panels");
@@ -355,16 +419,23 @@ function story(input: unknown): ShowerSettings["story"] {
   return { panels: inline };
 }
 
-type Parent = Pick<ShowerSettings, "id" | "label" | "parentBody" | "parentBodyId" | "orbit"> & { readonly parentElements?: ElementsBodyRecord };
+type Parent = Pick<ShowerSettings, "id" | "label" | "parentBody" | "parentBodyId" | "orbit"> & {
+  readonly parentElements?: ElementsBodyRecord;
+};
 
 /** The shower's id, its parent body (catalogued or defined in the file) and that parent's orbit. */
 function parseParent(root: Raw): Parent {
   const id = text(root, "id", "settings");
-  if (!/^[a-z0-9]+(-[a-z0-9]+)*$/.test(id)) fail("settings.id", `must be lower-case words joined by hyphens, got "${id}"`);
+  if (!/^[a-z0-9]+(-[a-z0-9]+)*$/.test(id))
+    fail("settings.id", `must be lower-case words joined by hyphens, got "${id}"`);
 
   const hasId = root.parentBodyId !== undefined;
   const hasElements = root.parentElements !== undefined;
-  if (hasId === hasElements) fail("parentBodyId", "and parentElements: exactly one must be given (a catalogued parent id, or the parent's published elements)");
+  if (hasId === hasElements)
+    fail(
+      "parentBodyId",
+      "and parentElements: exactly one must be given (a catalogued parent id, or the parent's published elements)",
+    );
   const parentElements = hasElements ? parentRecord(root.parentElements) : undefined;
   const parentBodyId = parentElements === undefined ? text(root, "parentBodyId", "settings") : parentElements.id;
 
@@ -383,10 +454,18 @@ function parseParent(root: Raw): Parent {
 function parseStream(root: Raw): ShowerSettings["stream"] {
   const stream = record(root.stream, "stream");
   const iauCode = finite(stream, "iauCode", "stream");
-  if (!Number.isSafeInteger(iauCode) || iauCode <= 0) fail("stream.iauCode", `must be a positive whole number (the IAU shower number), got ${iauCode}`);
+  if (!Number.isSafeInteger(iauCode) || iauCode <= 0)
+    fail("stream.iauCode", `must be a positive whole number (the IAU shower number), got ${iauCode}`);
   const seed = finite(stream, "seed", "stream");
-  if (!Number.isInteger(seed) || seed < 0 || seed > 0xffffffff) fail("stream.seed", `must be an unsigned 32-bit whole number, got ${seed}`);
-  return { iauCode, sources: orbitSources(stream), seed, quality: quality(stream.quality), concentration: concentration(record(stream.concentration, "stream.concentration")) };
+  if (!Number.isInteger(seed) || seed < 0 || seed > 0xffffffff)
+    fail("stream.seed", `must be an unsigned 32-bit whole number, got ${seed}`);
+  return {
+    iauCode,
+    sources: orbitSources(stream),
+    seed,
+    quality: quality(stream.quality),
+    concentration: concentration(record(stream.concentration, "stream.concentration")),
+  };
 }
 
 /** The activity window, its peak and rate; the timeline year, when given, must hold the whole window. */
@@ -400,7 +479,11 @@ function parseActivity(root: Raw, timelineSettings: ShowerSettings["timeline"]):
   if (peakMs < startMs || peakMs > endMs) fail("activity.peakUtc", "must lie inside the activity window");
   if (timelineSettings.yearStartUtc !== undefined) {
     const yearStartMs = Date.parse(timelineSettings.yearStartUtc);
-    if (startMs < yearStartMs || endMs > yearStartMs + Math.round(YEAR_DAYS * 86_400_000)) fail("timeline.yearStartUtc", `must start a year (${YEAR_DAYS} days) that holds the whole activity window, got ${timelineSettings.yearStartUtc}`);
+    if (startMs < yearStartMs || endMs > yearStartMs + Math.round(YEAR_DAYS * 86_400_000))
+      fail(
+        "timeline.yearStartUtc",
+        `must start a year (${YEAR_DAYS} days) that holds the whole activity window, got ${timelineSettings.yearStartUtc}`,
+      );
   }
   const peakRate = nonNegative(activity, "peakRate", "activity");
   if (peakRate === 0) fail("activity.peakRate", "must be above zero");
@@ -425,8 +508,15 @@ function parseRadiant(root: Raw): ShowerSettings["radiant"] {
   if (decDeg < -90 || decDeg > 90) fail("radiant.decDeg", `must be between -90 and 90, got ${decDeg}`);
 
   const peakSolarLongitudeDeg = finite(radiant, "peakSolarLongitudeDeg", "radiant");
-  if (peakSolarLongitudeDeg < 0 || peakSolarLongitudeDeg >= 360) fail("radiant.peakSolarLongitudeDeg", `must be at least 0 and below 360, got ${peakSolarLongitudeDeg}`);
-  return { raDeg, decDeg, equinox: text(radiant, "equinox", "radiant"), peakSolarLongitudeDeg, source: source(radiant, "source", "radiant") };
+  if (peakSolarLongitudeDeg < 0 || peakSolarLongitudeDeg >= 360)
+    fail("radiant.peakSolarLongitudeDeg", `must be at least 0 and below 360, got ${peakSolarLongitudeDeg}`);
+  return {
+    raDeg,
+    decDeg,
+    equinox: text(radiant, "equinox", "radiant"),
+    peakSolarLongitudeDeg,
+    source: source(radiant, "source", "radiant"),
+  };
 }
 
 /** Checks a settings object field by field and returns it typed. Every error names the field. */

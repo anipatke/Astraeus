@@ -3,23 +3,94 @@
 import type { ReactNode } from "react";
 
 /** The top bar's icons (stroke icons from the approved mock-up); each is decoration, the button carries the name. */
-function Icon({ size = 18, strokeWidth = 1.8, children }: { readonly size?: number; readonly strokeWidth?: number; readonly children: ReactNode }) {
+function Icon({
+  size = 18,
+  strokeWidth = 1.8,
+  children,
+}: {
+  readonly size?: number;
+  readonly strokeWidth?: number;
+  readonly children: ReactNode;
+}) {
   return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth} aria-hidden="true" focusable="false">
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={strokeWidth}
+      aria-hidden="true"
+      focusable="false"
+    >
       {children}
     </svg>
   );
 }
 
-export const InfoIcon = () => <Icon><circle cx="12" cy="12" r="9" /><path d="M12 11v6" /><circle cx="12" cy="7.5" r="0.6" fill="currentColor" /></Icon>;
-export const FocusIcon = () => <Icon><circle cx="10.5" cy="10.5" r="6.5" /><path d="M15.5 15.5 21 21" /></Icon>;
-export const OverviewIcon = () => <Icon><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5" /></Icon>;
-export const FollowIcon = () => <Icon><circle cx="12" cy="12" r="4" /><path d="M12 3v4M12 17v4M3 12h4M17 12h4" /></Icon>;
-export const LookOutIcon = () => <Icon><path d="M3 17h18" /><path d="M12 14V5M8.5 8.5 12 5l3.5 3.5" /></Icon>;
-export const OrbitIcon = () => <Icon><ellipse cx="12" cy="12" rx="9" ry="5" transform="rotate(-20 12 12)" /><circle cx="12" cy="12" r="1.4" fill="currentColor" /></Icon>;
-export const SwitchesIcon = () => <Icon><path d="M4 8h10M18 8h2M4 16h2M10 16h10" /><circle cx="16" cy="8" r="2" /><circle cx="8" cy="16" r="2" /></Icon>;
-export const ScaleIcon = () => <Icon size={16}><circle cx="7" cy="12" r="2.5" /><circle cx="16" cy="12" r="5.5" /></Icon>;
-export const ChevronIcon = () => <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true" focusable="false"><path d="M2 4l4 4 4-4" /></svg>;
+export const InfoIcon = () => (
+  <Icon>
+    <circle cx="12" cy="12" r="9" />
+    <path d="M12 11v6" />
+    <circle cx="12" cy="7.5" r="0.6" fill="currentColor" />
+  </Icon>
+);
+export const FocusIcon = () => (
+  <Icon>
+    <circle cx="10.5" cy="10.5" r="6.5" />
+    <path d="M15.5 15.5 21 21" />
+  </Icon>
+);
+export const OverviewIcon = () => (
+  <Icon>
+    <path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5" />
+  </Icon>
+);
+export const FollowIcon = () => (
+  <Icon>
+    <circle cx="12" cy="12" r="4" />
+    <path d="M12 3v4M12 17v4M3 12h4M17 12h4" />
+  </Icon>
+);
+export const LookOutIcon = () => (
+  <Icon>
+    <path d="M3 17h18" />
+    <path d="M12 14V5M8.5 8.5 12 5l3.5 3.5" />
+  </Icon>
+);
+export const OrbitIcon = () => (
+  <Icon>
+    <ellipse cx="12" cy="12" rx="9" ry="5" transform="rotate(-20 12 12)" />
+    <circle cx="12" cy="12" r="1.4" fill="currentColor" />
+  </Icon>
+);
+export const SwitchesIcon = () => (
+  <Icon>
+    <path d="M4 8h10M18 8h2M4 16h2M10 16h10" />
+    <circle cx="16" cy="8" r="2" />
+    <circle cx="8" cy="16" r="2" />
+  </Icon>
+);
+export const ScaleIcon = () => (
+  <Icon size={16}>
+    <circle cx="7" cy="12" r="2.5" />
+    <circle cx="16" cy="12" r="5.5" />
+  </Icon>
+);
+export const ChevronIcon = () => (
+  <svg
+    width="12"
+    height="12"
+    viewBox="0 0 12 12"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="1.6"
+    aria-hidden="true"
+    focusable="false"
+  >
+    <path d="M2 4l4 4 4-4" />
+  </svg>
+);
 export const CogIcon = () => (
   <Icon size={19} strokeWidth={1.7}>
     <circle cx="12" cy="12" r="3" />
@@ -28,7 +99,21 @@ export const CogIcon = () => (
 );
 
 /** A short word under an icon, shown only where the drawer lays the buttons out as a grid; the button's accessible name stays its aria-label. */
-export const ButtonText = ({ children }: { readonly children: ReactNode }) => <span className="top-bar-button-text" aria-hidden="true">{children}</span>;
+export const ButtonText = ({ children }: { readonly children: ReactNode }) => (
+  <span className="top-bar-button-text" aria-hidden="true">
+    {children}
+  </span>
+);
 /** The menu button's icons: three lines on a phone, three dots on a wide bar. */
-export const MenuIcon = () => <Icon><path d="M4 7h16M4 12h16M4 17h16" /></Icon>;
-export const MoreIcon = () => <Icon><circle cx="5" cy="12" r="1.4" fill="currentColor" /><circle cx="12" cy="12" r="1.4" fill="currentColor" /><circle cx="19" cy="12" r="1.4" fill="currentColor" /></Icon>;
+export const MenuIcon = () => (
+  <Icon>
+    <path d="M4 7h16M4 12h16M4 17h16" />
+  </Icon>
+);
+export const MoreIcon = () => (
+  <Icon>
+    <circle cx="5" cy="12" r="1.4" fill="currentColor" />
+    <circle cx="12" cy="12" r="1.4" fill="currentColor" />
+    <circle cx="19" cy="12" r="1.4" fill="currentColor" />
+  </Icon>
+);

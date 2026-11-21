@@ -13,7 +13,13 @@ export function formatRate(rate: number): string {
   return `${rate.toLocaleString("en-US")}×`;
 }
 
-const COMPACT_RATE_UNITS = [["wk", 604_800], ["d", 86_400], ["h", 3_600], ["min", 60], ["s", 1]] as const;
+const COMPACT_RATE_UNITS = [
+  ["wk", 604_800],
+  ["d", 86_400],
+  ["h", 3_600],
+  ["min", 60],
+  ["s", 1],
+] as const;
 
 /** A rate in a few characters for a narrow picker: simulated time per real second ("1 h/s"), or the plain rate when no whole unit fits. */
 export function formatRateCompact(rate: number): string {
@@ -24,13 +30,20 @@ export function formatRateCompact(rate: number): string {
   return formatRate(rate);
 }
 
-const SHORT_RATE_UNITS = [["wk", 604_800], ["day", 86_400], ["hr", 3_600], ["min", 60], ["sec", 1]] as const;
+const SHORT_RATE_UNITS = [
+  ["wk", 604_800],
+  ["day", 86_400],
+  ["hr", 3_600],
+  ["min", 60],
+  ["sec", 1],
+] as const;
 
 /** A rate for the desktop speed menu: the multiplier and the simulated time per real second in one short phrase ("3,600× – 1 hr/sec"; owner, 2026-11-21: the long wording ran too wide). The largest unit that reaches 1 is used, rounded to one decimal under 10 and to a whole number above ("1,000× – 17 min/sec"); the full wording stays in `describePlaybackRate`. */
 export function formatRateShort(rate: number): string {
   if (rate === 1) return `${formatRate(rate)} – real time`;
   if (!Number.isFinite(rate) || rate <= 0) return describePlaybackRate(rate);
-  const [unit, size] = SHORT_RATE_UNITS.find(([, unitSize]) => rate / unitSize >= 1) ?? SHORT_RATE_UNITS[SHORT_RATE_UNITS.length - 1];
+  const [unit, size] =
+    SHORT_RATE_UNITS.find(([, unitSize]) => rate / unitSize >= 1) ?? SHORT_RATE_UNITS[SHORT_RATE_UNITS.length - 1];
   const raw = rate / size;
   const count = raw < 10 ? Math.round(raw * 10) / 10 : Math.round(raw);
   const plural = count !== 1 && (unit === "day" || unit === "wk") ? "s" : "";
@@ -43,7 +56,12 @@ function formatSimulatedDuration(seconds: number): string {
 
   let remaining = seconds;
   const parts: string[] = [];
-  for (const [unit, size] of [["day", 86_400], ["hour", 3_600], ["min", 60], ["sec", 1]] as const) {
+  for (const [unit, size] of [
+    ["day", 86_400],
+    ["hour", 3_600],
+    ["min", 60],
+    ["sec", 1],
+  ] as const) {
     const count = Math.floor(remaining / size);
     if (count > 0) {
       parts.push(`${count} ${unit}${count === 1 ? "" : unit === "min" || unit === "sec" ? "" : "s"}`);
@@ -130,7 +148,10 @@ export function formatUtcTimestamp(timeUtcMs: number): string {
 }
 
 /** How the viewer's times read (the look `time`): a zone (`"UTC"`, `"local"` or an IANA name) and a precision. */
-export interface TimeLook { readonly zone: string; readonly precision: "day" | "minute" | "second" }
+export interface TimeLook {
+  readonly zone: string;
+  readonly precision: "day" | "minute" | "second";
+}
 
 /** Today's time look: ISO text in UTC to the second. */
 export const DEFAULT_TIME_LOOK: Readonly<TimeLook> = Object.freeze({ zone: "UTC", precision: "second" });
@@ -147,8 +168,20 @@ function zoneFormat(look: TimeLook): Intl.DateTimeFormat {
   let format = zoneFormats.get(key);
   if (format === undefined) {
     const date: Intl.DateTimeFormatOptions = { day: "numeric", month: "short", year: "numeric" };
-    const clock: Intl.DateTimeFormatOptions = look.precision === "day" ? {} : { hour: "numeric", minute: "2-digit", ...(look.precision === "second" ? { second: "2-digit" } : {}), timeZoneName: "short" };
-    format = new Intl.DateTimeFormat(undefined, { ...date, ...clock, ...(look.zone === "local" ? {} : { timeZone: look.zone }) });
+    const clock: Intl.DateTimeFormatOptions =
+      look.precision === "day"
+        ? {}
+        : {
+            hour: "numeric",
+            minute: "2-digit",
+            ...(look.precision === "second" ? { second: "2-digit" } : {}),
+            timeZoneName: "short",
+          };
+    format = new Intl.DateTimeFormat(undefined, {
+      ...date,
+      ...clock,
+      ...(look.zone === "local" ? {} : { timeZone: look.zone }),
+    });
     zoneFormats.set(key, format);
   }
   return format;
@@ -209,7 +242,11 @@ export interface NavigationStop {
 const POINT_VERB: Readonly<Record<WindowPoint, string>> = { start: "opens", peak: "peaks", end: "closes" };
 
 export function windowStops(window: TimelineWindow): readonly NavigationStop[] {
-  const points: [WindowPoint, number | undefined][] = [["start", window.startUtcMs], ["peak", window.peakUtcMs], ["end", window.endUtcMs]];
+  const points: [WindowPoint, number | undefined][] = [
+    ["start", window.startUtcMs],
+    ["peak", window.peakUtcMs],
+    ["end", window.endUtcMs],
+  ];
   const stops: NavigationStop[] = [];
   for (const [point, timeUtcMs] of points) {
     if (timeUtcMs === undefined || stops.some((stop) => stop.timeUtcMs === timeUtcMs)) continue;
@@ -222,7 +259,11 @@ export function windowStops(window: TimelineWindow): readonly NavigationStop[] {
  * Previous/next stops: events as before, plus each window's start, peak and end. Strictly before/after the
  * clock; where an event and a window point share a time, the event is the stop.
  */
-export function navigationStops(events: readonly TimelineEvent[], windows: readonly TimelineWindow[], timeUtcMs: number): { readonly previous: NavigationStop | null; readonly next: NavigationStop | null } {
+export function navigationStops(
+  events: readonly TimelineEvent[],
+  windows: readonly TimelineWindow[],
+  timeUtcMs: number,
+): { readonly previous: NavigationStop | null; readonly next: NavigationStop | null } {
   const targets = eventNavigationTargets(events, timeUtcMs);
   const asStop = (event: TimelineEvent | null): NavigationStop | null =>
     event === null ? null : { timeUtcMs: event.timeUtcMs, label: event.label, event };
@@ -247,9 +288,17 @@ export interface MarkerGroup<T> {
 }
 
 /** Gathers markers whose pixel gaps on a track of this width are under the minimum spacing (chained: each member is close to the one before). Markers keep their true times; a group lists them all. */
-export function groupMarkers<T extends { readonly timeUtcMs: number }>(items: readonly T[], bounds: TimeBounds, trackWidthPx: number, minSpacingPx: number = MARKER_MIN_SPACING_PX): readonly MarkerGroup<T>[] {
+export function groupMarkers<T extends { readonly timeUtcMs: number }>(
+  items: readonly T[],
+  bounds: TimeBounds,
+  trackWidthPx: number,
+  minSpacingPx: number = MARKER_MIN_SPACING_PX,
+): readonly MarkerGroup<T>[] {
   // An unmeasured track (no layout yet, or a page without one) gathers nothing: every marker stays its own.
-  if (!(trackWidthPx > 0)) return [...items].sort((a, b) => a.timeUtcMs - b.timeUtcMs).map((item) => ({ members: [item], positionPercent: timePositionPercent(item.timeUtcMs, bounds) }));
+  if (!(trackWidthPx > 0))
+    return [...items]
+      .sort((a, b) => a.timeUtcMs - b.timeUtcMs)
+      .map((item) => ({ members: [item], positionPercent: timePositionPercent(item.timeUtcMs, bounds) }));
   const sorted = [...items].sort((a, b) => a.timeUtcMs - b.timeUtcMs);
   const px = (item: T) => (timePositionPercent(item.timeUtcMs, bounds) / 100) * trackWidthPx;
   const groups: T[][] = [];
@@ -263,6 +312,7 @@ export function groupMarkers<T extends { readonly timeUtcMs: number }>(items: re
   }
   return groups.map((members) => ({
     members,
-    positionPercent: members.reduce((sum, item) => sum + timePositionPercent(item.timeUtcMs, bounds), 0) / members.length,
+    positionPercent:
+      members.reduce((sum, item) => sum + timePositionPercent(item.timeUtcMs, bounds), 0) / members.length,
   }));
 }

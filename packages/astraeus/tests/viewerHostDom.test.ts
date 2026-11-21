@@ -6,17 +6,40 @@ import { createRoot, type Root } from "react-dom/client";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("../src/app/AstraeusScene", () => ({ AstraeusScene: () => createElement("div", { "data-testid": "scene" }) }));
-const prepared = vi.hoisted(() => ({ views: undefined as undefined | import("../src/app/views").ViewSettings, noTimeline: false, markerUntil: undefined as undefined | number, skyFigures: undefined as undefined | readonly object[] }));
+const prepared = vi.hoisted(() => ({
+  views: undefined as undefined | import("../src/app/views").ViewSettings,
+  noTimeline: false,
+  markerUntil: undefined as undefined | number,
+  skyFigures: undefined as undefined | readonly object[],
+}));
 vi.mock("../src/api/prepared", async () => {
   const { syntheticDefinition } = await import("./synthetic/syntheticDefinition");
-  return { prepareScene: () => {
-    const base = prepared.noTimeline ? { ...syntheticDefinition, experience: { ...syntheticDefinition.experience, hideTimeline: true } } : syntheticDefinition;
-    const withFigures = prepared.skyFigures === undefined ? base : { ...base, skyFigures: prepared.skyFigures };
-    const withViews = prepared.views === undefined ? withFigures : { ...withFigures, views: prepared.views };
-    // A path whose samples end before the timeline does: its marker is unavailable after `markerUntil`.
-    const until = prepared.markerUntil;
-    const definition = until === undefined ? withViews : { ...withViews, experience: { ...withViews.experience, objects: withViews.experience.objects.map((o) => o.id === "survey-marker" ? { ...o, availability: { startUtcMs: o.availability?.startUtcMs ?? 0, endUtcMs: until } } : o) } };
-    return { definition, ready: Promise.resolve() }; } };
+  return {
+    prepareScene: () => {
+      const base = prepared.noTimeline
+        ? { ...syntheticDefinition, experience: { ...syntheticDefinition.experience, hideTimeline: true } }
+        : syntheticDefinition;
+      const withFigures = prepared.skyFigures === undefined ? base : { ...base, skyFigures: prepared.skyFigures };
+      const withViews = prepared.views === undefined ? withFigures : { ...withFigures, views: prepared.views };
+      // A path whose samples end before the timeline does: its marker is unavailable after `markerUntil`.
+      const until = prepared.markerUntil;
+      const definition =
+        until === undefined
+          ? withViews
+          : {
+              ...withViews,
+              experience: {
+                ...withViews.experience,
+                objects: withViews.experience.objects.map((o) =>
+                  o.id === "survey-marker"
+                    ? { ...o, availability: { startUtcMs: o.availability?.startUtcMs ?? 0, endUtcMs: until } }
+                    : o,
+                ),
+              },
+            };
+      return { definition, ready: Promise.resolve() };
+    },
+  };
 });
 
 import { AstraeusScene } from "../src/api/AstraeusScene";
@@ -45,14 +68,33 @@ beforeEach(() => {
   host = document.createElement("div");
   document.body.append(host);
 });
-afterEach(() => { prepared.skyFigures = undefined; prepared.views = undefined; prepared.noTimeline = false; prepared.markerUntil = undefined; if (root) act(() => root!.unmount()); root = undefined; host.remove(); vi.unstubAllGlobals(); vi.useRealTimers(); });
+afterEach(() => {
+  prepared.skyFigures = undefined;
+  prepared.views = undefined;
+  prepared.noTimeline = false;
+  prepared.markerUntil = undefined;
+  if (root) act(() => root!.unmount());
+  root = undefined;
+  host.remove();
+  vi.unstubAllGlobals();
+  vi.useRealTimers();
+});
 
-const codeOf = (run: () => void): string | undefined => { try { run(); } catch (error) { return error instanceof SceneError ? error.code : String(error); } return undefined; };
+const codeOf = (run: () => void): string | undefined => {
+  try {
+    run();
+  } catch (error) {
+    return error instanceof SceneError ? error.code : String(error);
+  }
+  return undefined;
+};
 
 describe("presentation through the host (O-056 T-262)", () => {
   it("a visitor's scale choice is read back by handle.scale and heard once with cause visitor; the host's own is heard with cause host", async () => {
     const heard: Array<{ scale: string; cause: string }> = [];
-    const handle = mount(host, new Scene(), { onChange: (c: ViewerChange) => heard.push({ scale: c.scale, cause: c.cause }) });
+    const handle = mount(host, new Scene(), {
+      onChange: (c: ViewerChange) => heard.push({ scale: c.scale, cause: c.cause }),
+    });
     await drawn(handle);
     const before = handle.scale;
     press($(host, ".scale-toggle"));
@@ -134,7 +176,9 @@ describe("the mount handle", () => {
     act(() => press($(host, ".timeline-play")));
     expect(seen.length).toBeGreaterThan(before);
     expect(seen.at(-1)).toMatchObject({ playing: true, cause: "visitor" });
-    act(() => { vi.advanceTimersByTime(500); });
+    act(() => {
+      vi.advanceTimersByTime(500);
+    });
     expect(seen.at(-1)).toMatchObject({ cause: "playback" });
     expect(seen.at(-1)!.timeUtcMs).toBeGreaterThan(MID);
 
@@ -150,7 +194,6 @@ describe("the mount handle", () => {
     expect(seen.length).toBe(count);
     expect(later.length).toBe(count);
   });
-
 });
 
 describe("AstraeusScene", () => {
@@ -159,9 +202,22 @@ describe("AstraeusScene", () => {
     const errors: Error[] = [];
     const scene = new Scene();
     root = createRoot(host);
-    const draw = (time: Date | number) => act(async () => { root!.render(createElement(AstraeusScene, { scene, time, rate: RATES[1], onChange: (c) => seen.push(c), onError: (e) => errors.push(e) })); });
+    const draw = (time: Date | number) =>
+      act(async () => {
+        root!.render(
+          createElement(AstraeusScene, {
+            scene,
+            time,
+            rate: RATES[1],
+            onChange: (c) => seen.push(c),
+            onError: (e) => errors.push(e),
+          }),
+        );
+      });
     await draw(new Date(MID));
-    await act(async () => { await Promise.resolve(); });
+    await act(async () => {
+      await Promise.resolve();
+    });
     expect(seen.some((c) => c.timeUtcMs === MID && c.rate === RATES[1])).toBe(true);
     const count = seen.length;
     await draw(new Date(MID)); // a fresh Date for the same moment does not seek again
@@ -172,14 +228,19 @@ describe("AstraeusScene", () => {
 });
 
 describe("AstraeusScene hands React apps the handle (O-054 T-242)", () => {
-  const render = (props: Record<string, unknown>) => act(async () => { root!.render(createElement(AstraeusScene, props as never)); });
+  const render = (props: Record<string, unknown>) =>
+    act(async () => {
+      root!.render(createElement(AstraeusScene, props as never));
+    });
 
   it("a React app reads camera and time, sets camera and time and listens through the ref after onReady", async () => {
     const ref: { current: ViewerHandle | null } = { current: null };
     const ready: ViewerHandle[] = [];
     root = createRoot(host);
     await render({ scene: new Scene(), ref, onReady: (h: ViewerHandle) => ready.push(h) });
-    await act(async () => { await Promise.resolve(); });
+    await act(async () => {
+      await Promise.resolve();
+    });
     expect(ready).toHaveLength(1);
     expect(ready[0]).toBe(ref.current);
     const handle = ref.current!;
@@ -202,11 +263,15 @@ describe("AstraeusScene hands React apps the handle (O-054 T-242)", () => {
     await render({ scene: new Scene(), ref, onReady });
     const handle = ref.current!;
     expect(handle).not.toBeNull();
-    await act(async () => { await Promise.resolve(); });
+    await act(async () => {
+      await Promise.resolve();
+    });
     expect(ready).toEqual([handle]);
     expect(handle.timeUtcMs).toBeDefined();
     await render({ scene: new Scene(), ref, onReady }); // a rebuild
-    await act(async () => { await Promise.resolve(); });
+    await act(async () => {
+      await Promise.resolve();
+    });
     expect(ready).toHaveLength(2);
     expect(ready[1]).toBe(handle);
     expect(ref.current).toBe(handle);
@@ -219,8 +284,26 @@ describe("AstraeusScene hands React apps the handle (O-054 T-242)", () => {
   });
 
   it("skyFigures reads the figures the viewer draws (id, label, kind) the same through mount and AstraeusScene, and is undefined before ready and after unmount (O-065 T-295, API-02)", async () => {
-    prepared.skyFigures = [{ id: "kite", label: "The Kite", kind: "figure", segments: [], labelAt: [1, 0, 0] }, { id: "ring", label: "The Ring", kind: "boundary", segments: [], labelAt: [0, 1, 0] }];
-    const expected = [{ id: "kite", label: "The Kite", kind: "figure", listed: true, provenance: expect.objectContaining({ sourceType: "illustrative" }) }, { id: "ring", label: "The Ring", kind: "boundary", listed: true, provenance: expect.objectContaining({ sourceType: "illustrative" }) }];
+    prepared.skyFigures = [
+      { id: "kite", label: "The Kite", kind: "figure", segments: [], labelAt: [1, 0, 0] },
+      { id: "ring", label: "The Ring", kind: "boundary", segments: [], labelAt: [0, 1, 0] },
+    ];
+    const expected = [
+      {
+        id: "kite",
+        label: "The Kite",
+        kind: "figure",
+        listed: true,
+        provenance: expect.objectContaining({ sourceType: "illustrative" }),
+      },
+      {
+        id: "ring",
+        label: "The Ring",
+        kind: "boundary",
+        listed: true,
+        provenance: expect.objectContaining({ sourceType: "illustrative" }),
+      },
+    ];
     const mounted = mount(host, new Scene());
     expect(mounted.skyFigures).toBeUndefined();
     await drawn(mounted);
@@ -231,8 +314,12 @@ describe("AstraeusScene hands React apps the handle (O-054 T-242)", () => {
     const other = document.createElement("div");
     document.body.append(other);
     root = createRoot(other);
-    await act(async () => { root!.render(createElement(AstraeusScene, { scene: new Scene(), ref })); });
-    await act(async () => { await vi.advanceTimersByTimeAsync(50); });
+    await act(async () => {
+      root!.render(createElement(AstraeusScene, { scene: new Scene(), ref }));
+    });
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(50);
+    });
     expect(ref.current!.skyFigures).toEqual(expected);
     other.remove();
   });
@@ -263,8 +350,12 @@ describe("AstraeusScene hands React apps the handle (O-054 T-242)", () => {
     const other = document.createElement("div");
     document.body.append(other);
     root = createRoot(other);
-    await act(async () => { root!.render(createElement(AstraeusScene, { scene: new Scene(), ref })); });
-    await act(async () => { await vi.advanceTimersByTimeAsync(50); });
+    await act(async () => {
+      root!.render(createElement(AstraeusScene, { scene: new Scene(), ref }));
+    });
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(50);
+    });
     check(ref.current!);
     other.remove();
   });
@@ -279,7 +370,9 @@ describe("AstraeusScene hands React apps the handle (O-054 T-242)", () => {
   it("is not-mounted before the first draw", () => {
     const ref: { current: ViewerHandle | null } = { current: null };
     root = createRoot(host);
-    act(() => { root!.render(createElement(AstraeusScene, { scene: new Scene(), ref })); });
+    act(() => {
+      root!.render(createElement(AstraeusScene, { scene: new Scene(), ref }));
+    });
     expect(ref.current!.timeUtcMs).toBeUndefined();
     expect(codeOf(() => ref.current!.setTime(MID))).toBe("not-mounted");
   });
@@ -291,7 +384,9 @@ describe("AstraeusScene hands React apps the handle (O-054 T-242)", () => {
     const pose = { focus: "nope", azimuthDeg: 10, elevationDeg: 20, distance: 5 };
     const draw = (camera: unknown) => render({ scene, camera, onError: (e: Error) => errors.push(e) });
     await draw(pose);
-    await act(async () => { await Promise.resolve(); });
+    await act(async () => {
+      await Promise.resolve();
+    });
     expect(errors).toHaveLength(1); // each application of a bad pose reports once
     await draw({ distance: 5, elevationDeg: 20, azimuthDeg: 10, focus: "nope" });
     expect(errors).toHaveLength(1);
@@ -366,7 +461,27 @@ describe("the rate source (ready for pacing)", () => {
   it("is the scene's until a visitor or the host chooses a speed, and the scene's again on a new attach", async () => {
     const { ViewerLink } = await import("../src/api/viewerLink");
     let state = { timeUtcMs: MID, rate: RATES[0], playing: false, ...FAKE_PRESENTATION };
-    const control = { window: { startUtcMs, endUtcMs }, events: [], rates: RATES, paced: false, playable: true, setPlaying: () => undefined, read: () => state, seek: (t: number) => { state = { ...state, timeUtcMs: t }; }, setRate: (r: number) => { state = { ...state, rate: r }; }, views: [], setView: () => undefined, cameraTargets: () => [], readCamera: () => undefined, setCamera: () => undefined, ...FAKE_PRESENTATION_CONTROL };
+    const control = {
+      window: { startUtcMs, endUtcMs },
+      events: [],
+      rates: RATES,
+      paced: false,
+      playable: true,
+      setPlaying: () => undefined,
+      read: () => state,
+      seek: (t: number) => {
+        state = { ...state, timeUtcMs: t };
+      },
+      setRate: (r: number) => {
+        state = { ...state, rate: r };
+      },
+      views: [],
+      setView: () => undefined,
+      cameraTargets: () => [],
+      readCamera: () => undefined,
+      setCamera: () => undefined,
+      ...FAKE_PRESENTATION_CONTROL,
+    };
     const link = new ViewerLink();
     link.attach(control);
     expect(link.rateSource).toBe("scene");
@@ -382,8 +497,17 @@ describe("the rate source (ready for pacing)", () => {
 });
 
 describe("views through the host (O-051 T-220)", () => {
-  const view = (id: string) => ({ id, label: id.toUpperCase(), camera: { rule: "stay" } as const, objects: new Set<string>(), events: new Set<string>(), panels: new Set<string>() });
-  const withViews = () => { prepared.views = { place: "top-bar", start: "a", views: [view("a"), view("b")] }; };
+  const view = (id: string) => ({
+    id,
+    label: id.toUpperCase(),
+    camera: { rule: "stay" } as const,
+    objects: new Set<string>(),
+    events: new Set<string>(),
+    panels: new Set<string>(),
+  });
+  const withViews = () => {
+    prepared.views = { place: "top-bar", start: "a", views: [view("a"), view("b")] };
+  };
   const viewButton = (id: string) => $(host, `[data-view-id="${id}"]`);
 
   it("a scene without views: view is undefined, setView throws bad-view, onChange payloads carry no view", async () => {
@@ -439,9 +563,21 @@ describe("views through the host (O-051 T-220)", () => {
     const errors: Error[] = [];
     const scene = new Scene();
     root = createRoot(host);
-    const draw = (viewId: string) => act(async () => { root!.render(createElement(AstraeusScene, { scene, view: viewId, onChange: (c) => seen.push(c), onError: (e) => errors.push(e) })); });
+    const draw = (viewId: string) =>
+      act(async () => {
+        root!.render(
+          createElement(AstraeusScene, {
+            scene,
+            view: viewId,
+            onChange: (c) => seen.push(c),
+            onError: (e) => errors.push(e),
+          }),
+        );
+      });
     await draw("b");
-    await act(async () => { await Promise.resolve(); });
+    await act(async () => {
+      await Promise.resolve();
+    });
     expect(seen.at(-1)).toMatchObject({ view: "b", cause: "host" });
     await draw("a");
     expect(seen.at(-1)).toMatchObject({ view: "a", cause: "host" });
@@ -456,9 +592,15 @@ describe("views through the host (O-051 T-220)", () => {
       root = createRoot(host);
       const scene = new Scene();
       const props = { time: MID, rate: RATES[0], view: "a" } as { time: number; rate: number; view: string };
-      const draw = (next: Partial<typeof props>) => act(async () => { Object.assign(props, next); root!.render(createElement(AstraeusScene, { scene, ...props, onChange: (c) => seen.push(c) })); });
+      const draw = (next: Partial<typeof props>) =>
+        act(async () => {
+          Object.assign(props, next);
+          root!.render(createElement(AstraeusScene, { scene, ...props, onChange: (c) => seen.push(c) }));
+        });
       await draw({});
-      await act(async () => { await Promise.resolve(); });
+      await act(async () => {
+        await Promise.resolve();
+      });
       return { seen, draw };
     };
 
@@ -493,9 +635,18 @@ describe("views through the host (O-051 T-220)", () => {
 });
 
 describe("the selected object through the host (O-054 T-247)", () => {
-  const view = (id: string, objects: string[]) => ({ id, label: id.toUpperCase(), camera: { rule: "stay" } as const, objects: new Set(objects), events: new Set<string>(), panels: new Set<string>() });
+  const view = (id: string, objects: string[]) => ({
+    id,
+    label: id.toUpperCase(),
+    camera: { rule: "stay" } as const,
+    objects: new Set(objects),
+    events: new Set<string>(),
+    panels: new Set<string>(),
+  });
   const ALL = ["earth", "moon", "survey-marker"];
-  const withViews = () => { prepared.views = { place: "top-bar", start: "a", views: [view("a", ALL), view("b", ["earth"])] }; };
+  const withViews = () => {
+    prepared.views = { place: "top-bar", start: "a", views: [view("a", ALL), view("b", ["earth"])] };
+  };
   const pick = (id: string) => change(byLabel(host, "Select object") as HTMLSelectElement, id);
 
   it("reads the opening selection without reporting it, and reads undefined before ready and after unmount", async () => {
@@ -505,7 +656,9 @@ describe("the selected object through the host (O-054 T-247)", () => {
     expect(handle.selected).toBeUndefined();
     await drawn(handle);
     expect(handle.selected).toBe("earth");
-    act(() => { vi.advanceTimersByTime(500); });
+    act(() => {
+      vi.advanceTimersByTime(500);
+    });
     expect(heard).toEqual([]);
     handle.unmount();
     expect(handle.selected).toBeUndefined();
@@ -519,7 +672,9 @@ describe("the selected object through the host (O-054 T-247)", () => {
     pick("moon");
     expect(handle.selected).toBe("moon");
     expect(heard).toEqual([{ object: "moon", timeUtcMs: handle.timeUtcMs, cause: "visitor" }]);
-    act(() => { vi.advanceTimersByTime(500); }); // the tick finds nothing new
+    act(() => {
+      vi.advanceTimersByTime(500);
+    }); // the tick finds nothing new
     expect(heard.length).toBe(1);
     handle.unmount();
   });
@@ -532,7 +687,9 @@ describe("the selected object through the host (O-054 T-247)", () => {
     pick("moon");
     pick("moon");
     act(() => handle.setTime(MID));
-    act(() => { vi.advanceTimersByTime(500); });
+    act(() => {
+      vi.advanceTimersByTime(500);
+    });
     expect(heard.map((c) => c.object)).toEqual(["moon"]);
     handle.unmount();
   });
@@ -564,7 +721,10 @@ describe("the selected object through the host (O-054 T-247)", () => {
       const handle = mount(host, new Scene());
       handle.onSelect((c) => heard.push(c));
       await drawn(handle);
-      act(() => { handle.setPlaying(false); handle.setTime(END - 60_000); });
+      act(() => {
+        handle.setPlaying(false);
+        handle.setTime(END - 60_000);
+      });
       pick("survey-marker");
       return { heard, handle };
     };
@@ -572,9 +732,14 @@ describe("the selected object through the host (O-054 T-247)", () => {
     it("a host setTime past the path's end reports host", async () => {
       const { heard, handle } = await setup();
       act(() => handle.setTime(MID));
-      expect(heard.map((c) => [c.object, c.cause])).toEqual([["survey-marker", "visitor"], ["earth", "host"]]);
+      expect(heard.map((c) => [c.object, c.cause])).toEqual([
+        ["survey-marker", "visitor"],
+        ["earth", "host"],
+      ]);
       expect(heard.at(-1)?.timeUtcMs).toBe(MID);
-      act(() => { vi.advanceTimersByTime(500); });
+      act(() => {
+        vi.advanceTimersByTime(500);
+      });
       expect(heard.length).toBe(2);
       handle.unmount();
     });
@@ -583,8 +748,14 @@ describe("the selected object through the host (O-054 T-247)", () => {
       const { heard, handle } = await setup();
       act(() => handle.setPlaying(true));
       expect(heard.length).toBe(1);
-      for (let i = 0; i < 100 && heard.length < 2; i++) act(() => { vi.advanceTimersByTime(100); });
-      expect(heard.map((c) => [c.object, c.cause])).toEqual([["survey-marker", "visitor"], ["earth", "playback"]]);
+      for (let i = 0; i < 100 && heard.length < 2; i++)
+        act(() => {
+          vi.advanceTimersByTime(100);
+        });
+      expect(heard.map((c) => [c.object, c.cause])).toEqual([
+        ["survey-marker", "visitor"],
+        ["earth", "playback"],
+      ]);
       handle.unmount();
     });
 
@@ -594,7 +765,10 @@ describe("the selected object through the host (O-054 T-247)", () => {
       expect(heard.length).toBe(1);
       const scrub = byLabel(host, "Seek timeline") as HTMLInputElement;
       act(() => change(scrub, scrub.max));
-      expect(heard.map((c) => [c.object, c.cause])).toEqual([["survey-marker", "visitor"], ["earth", "visitor"]]);
+      expect(heard.map((c) => [c.object, c.cause])).toEqual([
+        ["survey-marker", "visitor"],
+        ["earth", "visitor"],
+      ]);
       handle.unmount();
     });
   });

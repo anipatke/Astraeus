@@ -14,14 +14,27 @@ export const LOCAL_ONLY_TEXTURES: readonly string[] = [];
  * for the placeholder and their bytes stay out of the bundle; a local build keeps them. Not rights-restricted, so tests/publicBuild.test.ts keeps them apart from LOCAL_ONLY_TEXTURES.
  */
 export const PLANETS_DEMO_ONLY_TEXTURES: readonly string[] = [
-  "charon-2k.jpg", "dione-4k.jpg", "enceladus-4k.jpg", "iapetus-4k.jpg", "mimas-4k.jpg", "neptune-2k.jpg", "pluto-4k.jpg",
-  "rhea-4k.jpg", "saturn-2k.jpg", "tethys-4k.jpg", "titan-4k.jpg", "triton-4k.jpg", "uranus-2k.jpg",
+  "charon-2k.jpg",
+  "dione-4k.jpg",
+  "enceladus-4k.jpg",
+  "iapetus-4k.jpg",
+  "mimas-4k.jpg",
+  "neptune-2k.jpg",
+  "pluto-4k.jpg",
+  "rhea-4k.jpg",
+  "saturn-2k.jpg",
+  "tethys-4k.jpg",
+  "titan-4k.jpg",
+  "triton-4k.jpg",
+  "uranus-2k.jpg",
   // Only the planets demo opts in to desktop variants (T-141), and the public planets demo is Jupiter only (owner, 2026-10-22).
   "venus-8k-balanced.jpg",
 ];
 
 /** A 1x1 white image: under the material colour it draws the body in its flat colour. */
-const PLACEHOLDER = decodeURIComponent(new URL("../astraeus/src/assets/textures/public-placeholder.png", import.meta.url).pathname);
+const PLACEHOLDER = decodeURIComponent(
+  new URL("../astraeus/src/assets/textures/public-placeholder.png", import.meta.url).pathname,
+);
 
 /**
  * Vite aliases that replace each local-only texture module with the placeholder at the import, so the original bytes never
@@ -29,7 +42,10 @@ const PLACEHOLDER = decodeURIComponent(new URL("../astraeus/src/assets/textures/
  * licence (the Earth and Moon maps are public-domain NASA products, I-029).
  */
 export function publicBuildAliases(): readonly { readonly find: RegExp; readonly replacement: string }[] {
-  return [...LOCAL_ONLY_TEXTURES, ...PLANETS_DEMO_ONLY_TEXTURES].map((file) => ({ find: new RegExp(`^.*/textures/${file.replace(/[.]/g, "\\.")}$`), replacement: PLACEHOLDER }));
+  return [...LOCAL_ONLY_TEXTURES, ...PLANETS_DEMO_ONLY_TEXTURES].map((file) => ({
+    find: new RegExp(`^.*/textures/${file.replace(/[.]/g, "\\.")}$`),
+    replacement: PLACEHOLDER,
+  }));
 }
 
 /**
@@ -37,7 +53,8 @@ export function publicBuildAliases(): readonly { readonly find: RegExp; readonly
  * api/index.html and, for the shelf parts' own exports, api/shelf.html (O-080 T-336), and served by the dev server at /api and /api/shelf.html. Static pages with no script, so they add no chunk.
  */
 function apiReference(): Plugin {
-  const pages = async (): Promise<{ index: string; shelf: string }> => (await import("./tools/site/api-reference.mjs")).buildApiPages();
+  const pages = async (): Promise<{ index: string; shelf: string }> =>
+    (await import("./tools/site/api-reference.mjs")).buildApiPages();
   return {
     name: "astraeus-api-reference",
     async generateBundle() {
@@ -48,7 +65,11 @@ function apiReference(): Plugin {
     configureServer(server) {
       server.middlewares.use(async (request, response, next) => {
         const url = request.url ?? "";
-        const which = /^\/api\/?(\?.*)?$/.test(url) ? "index" : /^\/api\/shelf\.html(\?.*)?$/.test(url) ? "shelf" : undefined;
+        const which = /^\/api\/?(\?.*)?$/.test(url)
+          ? "index"
+          : /^\/api\/shelf\.html(\?.*)?$/.test(url)
+            ? "shelf"
+            : undefined;
         if (which === undefined) return next();
         response.setHeader("Content-Type", "text/html; charset=utf-8");
         response.end((await pages())[which]);
@@ -66,7 +87,10 @@ function shelfCatalogue(): Plugin {
     name: "astraeus-shelf-catalogue",
     async transformIndexHtml(html, context) {
       if (!context.filename.endsWith("components.html")) return html;
-      return html.replace("<!--shelf-catalogue-->", (await import("./tools/site/shelf-catalogue.mjs")).renderCatalogueMain());
+      return html.replace(
+        "<!--shelf-catalogue-->",
+        (await import("./tools/site/shelf-catalogue.mjs")).renderCatalogueMain(),
+      );
     },
   };
 }

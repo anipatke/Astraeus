@@ -80,11 +80,11 @@ export function createCenteredPosition(input: Omit<StateInput, "orientation">): 
   assertUtcUnixMs(input.timeUtcMs);
   assertCenterId(input.center);
   const positionKm = copyVector(input.positionKm, "positionKm");
-  const velocityKmS = input.velocityKmS === undefined
-    ? undefined
-    : copyVector(input.velocityKmS, "velocityKmS");
-  if (input.body === input.center
-    && (positionKm.some((component) => component !== 0) || velocityKmS?.some((component) => component !== 0))) {
+  const velocityKmS = input.velocityKmS === undefined ? undefined : copyVector(input.velocityKmS, "velocityKmS");
+  if (
+    input.body === input.center &&
+    (positionKm.some((component) => component !== 0) || velocityKmS?.some((component) => component !== 0))
+  ) {
     throw new RangeError("a body can be positioned relative to itself only at exactly zero");
   }
   const plane = input.plane ?? EQJ;

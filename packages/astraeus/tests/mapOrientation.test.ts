@@ -5,7 +5,14 @@ import { applyOrientation } from "../src/app/sceneLayout";
 import { latLonToXYZ } from "../src/app/FeatureMarkers";
 import { eqjToRenderVector } from "../src/app/renderCoordinates";
 import { catalogue } from "../src/assets/catalogue";
-import { DIONE_VISUAL, IAPETUS_VISUAL, PLUTO_VISUAL, RHEA_VISUAL, TETHYS_VISUAL, TITAN_VISUAL } from "../src/assets/bodies/planetSystemMaps";
+import {
+  DIONE_VISUAL,
+  IAPETUS_VISUAL,
+  PLUTO_VISUAL,
+  RHEA_VISUAL,
+  TETHYS_VISUAL,
+  TITAN_VISUAL,
+} from "../src/assets/bodies/planetSystemMaps";
 import { CALLISTO_VISUAL, EUROPA_VISUAL, GANYMEDE_VISUAL } from "../src/assets/bodies/galileanMoons";
 import type { BodyVisual } from "../src/assets/visual";
 import europaMap from "astraeus-data/bodies/europa/map.json";
@@ -37,11 +44,16 @@ function renderedDirection(yaw: number, latDeg: number, markerLonDeg: number): V
 function orbitVelocityRender(): Vector3 {
   const before = resolver.stateOf("iapetus", T - 60_000, "saturn").positionKm;
   const after = resolver.stateOf("iapetus", T + 60_000, "saturn").positionKm;
-  return new Vector3(...eqjToRenderVector([after[0] - before[0], after[1] - before[1], after[2] - before[2]])).normalize();
+  return new Vector3(
+    ...eqjToRenderVector([after[0] - before[0], after[1] - before[1], after[2] - before[2]]),
+  ).normalize();
 }
 
 /** Looked up 2026-10-22 from the USGS Gazetteer of Planetary Nomenclature (planetarynames.wr.usgs.gov, target 76_Iapetus): planetographic, +West, 0-360. */
-const GAZETTEER_WEST = { "Cassini Regio": { id: 1047, lat: -28.1, west: 92.6 }, Engelier: { id: 14463, lat: -40.5, west: 264.7 } } as const;
+const GAZETTEER_WEST = {
+  "Cassini Regio": { id: 1047, lat: -28.1, west: 92.6 },
+  Engelier: { id: 14463, lat: -40.5, west: 264.7 },
+} as const;
 
 describe("Iapetus map orientation", () => {
   it("uses yaw PI for Iapetus", () => {
@@ -60,7 +72,7 @@ describe("Iapetus map orientation", () => {
   it("puts two gazetteer features on the map column the marker frame expects", () => {
     const yaw = IAPETUS_VISUAL.textureYawRad ?? 0;
     const width = PICTURES[IAPETUS_VISUAL.picture!]!.widthPx;
-    const column = (markerLonDeg: number): number => (((0.5 + markerLonDeg / 360) % 1) + 1) % 1 * width;
+    const column = (markerLonDeg: number): number => ((((0.5 + markerLonDeg / 360) % 1) + 1) % 1) * width;
     const stored = (name: string): number => features.features.find((f) => f.name === name)!.longitude;
     for (const [name, { west }] of Object.entries(GAZETTEER_WEST)) {
       // True east longitude is -west; the drawn pixel that lands there is the yaw undone: marker longitude = east - yaw.
@@ -68,7 +80,7 @@ describe("Iapetus map orientation", () => {
       const expected = column(pixelMarkerLon);
       const actual = column(stored(name));
       const diff = Math.min(Math.abs(expected - actual), width - Math.abs(expected - actual));
-      expect(diff, name).toBeLessThan(width * 3 / 360);
+      expect(diff, name).toBeLessThan((width * 3) / 360);
     }
   });
 });
@@ -77,16 +89,33 @@ describe("Iapetus map orientation", () => {
 // found each by locating known features). Every longitude below was looked up on 2026-10-22 from the USGS Gazetteer of Planetary Nomenclature
 // (planetarynames.wr.usgs.gov, search results per target, feature id in brackets), planetographic +West 0-360 unless noted. The drawn picture's pixel for a
 // true east longitude E sits at marker longitude E - yaw; the stored marker longitude must name that same column.
-interface Place { readonly name: string; readonly west: number; readonly id: string }
-const STORED_FEATURES = (body: string): Map<string, number> => new Map(
-  (readJson(new URL(`../../astraeus-data/data/bodies/${body}/features.json`, import.meta.url).pathname) as { features: { name: string; longitude?: number }[] }).features.filter((f) => f.longitude !== undefined).map((f) => [f.name, f.longitude!]),
-);
+interface Place {
+  readonly name: string;
+  readonly west: number;
+  readonly id: string;
+}
+const STORED_FEATURES = (body: string): Map<string, number> =>
+  new Map(
+    (
+      readJson(new URL(`../../astraeus-data/data/bodies/${body}/features.json`, import.meta.url).pathname) as {
+        features: { name: string; longitude?: number }[];
+      }
+    ).features
+      .filter((f) => f.longitude !== undefined)
+      .map((f) => [f.name, f.longitude!]),
+  );
 
 function columnOf(markerLonDeg: number, width: number): number {
   return ((((0.5 + markerLonDeg / 360) % 1) + 1) % 1) * width;
 }
 
-function expectPlacesOnTheirTerrain(visual: BodyVisual, shownLon: (name: string, stored: number) => number, body: string, places: readonly Place[], toleranceDeg: number): void {
+function expectPlacesOnTheirTerrain(
+  visual: BodyVisual,
+  shownLon: (name: string, stored: number) => number,
+  body: string,
+  places: readonly Place[],
+  toleranceDeg: number,
+): void {
   const yaw = visual.textureYawRad ?? 0;
   const width = PICTURES[visual.picture!]!.widthPx;
   const stored = STORED_FEATURES(body);
@@ -101,8 +130,13 @@ const asStored = (_name: string, stored: number): number => stored;
 
 describe("T-131: moon maps centred on 180 E turn half a revolution", () => {
   it.each([
-    ["Europa", EUROPA_VISUAL], ["Callisto", CALLISTO_VISUAL], ["Pluto", PLUTO_VISUAL], ["Tethys", TETHYS_VISUAL],
-    ["Dione", DIONE_VISUAL], ["Rhea", RHEA_VISUAL], ["Titan", TITAN_VISUAL],
+    ["Europa", EUROPA_VISUAL],
+    ["Callisto", CALLISTO_VISUAL],
+    ["Pluto", PLUTO_VISUAL],
+    ["Tethys", TETHYS_VISUAL],
+    ["Dione", DIONE_VISUAL],
+    ["Rhea", RHEA_VISUAL],
+    ["Titan", TITAN_VISUAL],
   ] as const)("%s uses yaw PI", (_name, visual) => {
     expect(visual.textureYawRad).toBe(Math.PI);
   });
@@ -112,29 +146,71 @@ describe("T-131: moon maps centred on 180 E turn half a revolution", () => {
     expect(IAPETUS_VISUAL.textureYawRad).toBe(Math.PI);
   });
 
-
   it("Callisto: Valhalla [6284] 56.0 W", () => {
     expectPlacesOnTheirTerrain(CALLISTO_VISUAL, asStored, "callisto", [{ name: "Valhalla", west: 56, id: "6284" }], 3);
   });
 
   it("Ganymede (yaw 0): Tros 27.26 W, Osiris 166.31 W", () => {
-    expectPlacesOnTheirTerrain(GANYMEDE_VISUAL, asStored, "ganymede", [{ name: "Tros", west: 27.26, id: "-" }, { name: "Osiris", west: 166.31, id: "-" }], 3);
+    expectPlacesOnTheirTerrain(
+      GANYMEDE_VISUAL,
+      asStored,
+      "ganymede",
+      [
+        { name: "Tros", west: 27.26, id: "-" },
+        { name: "Osiris", west: 166.31, id: "-" },
+      ],
+      3,
+    );
   });
 
   it("Pluto: Sputnik Planitia [15669] 178.69 E (the gazetteer gives Pluto +East; as west 181.31)", () => {
-    expectPlacesOnTheirTerrain(PLUTO_VISUAL, asStored, "pluto", [{ name: "Sputnik Planitia", west: -178.69, id: "15669" }], 6);
+    expectPlacesOnTheirTerrain(
+      PLUTO_VISUAL,
+      asStored,
+      "pluto",
+      [{ name: "Sputnik Planitia", west: -178.69, id: "15669" }],
+      6,
+    );
   });
 
   it("Tethys: Odysseus [4406] 128.89 W, Penelope 249.22 W", () => {
-    expectPlacesOnTheirTerrain(TETHYS_VISUAL, asStored, "tethys", [{ name: "Odysseus", west: 128.89, id: "4406" }, { name: "Penelope", west: 249.22, id: "-" }], 3);
+    expectPlacesOnTheirTerrain(
+      TETHYS_VISUAL,
+      asStored,
+      "tethys",
+      [
+        { name: "Odysseus", west: 128.89, id: "4406" },
+        { name: "Penelope", west: 249.22, id: "-" },
+      ],
+      3,
+    );
   });
 
   it("Dione: Amata [215] 279.81 W, Dido 18.82 W, Creusa 76.32 W", () => {
-    expectPlacesOnTheirTerrain(DIONE_VISUAL, asStored, "dione", [{ name: "Amata", west: 279.81, id: "215" }, { name: "Dido", west: 18.82, id: "-" }, { name: "Creusa", west: 76.32, id: "-" }], 3);
+    expectPlacesOnTheirTerrain(
+      DIONE_VISUAL,
+      asStored,
+      "dione",
+      [
+        { name: "Amata", west: 279.81, id: "215" },
+        { name: "Dido", west: 18.82, id: "-" },
+        { name: "Creusa", west: 76.32, id: "-" },
+      ],
+      3,
+    );
   });
 
   it("Rhea: Tirawa [6026] 151.7 W, Inktomi 112.1 W", () => {
-    expectPlacesOnTheirTerrain(RHEA_VISUAL, asStored, "rhea", [{ name: "Tirawa", west: 151.7, id: "6026" }, { name: "Inktomi", west: 112.1, id: "-" }], 3);
+    expectPlacesOnTheirTerrain(
+      RHEA_VISUAL,
+      asStored,
+      "rhea",
+      [
+        { name: "Tirawa", west: 151.7, id: "6026" },
+        { name: "Inktomi", west: 112.1, id: "-" },
+      ],
+      3,
+    );
   });
 });
 
@@ -145,9 +221,17 @@ describe("T-131: Titan's places are converted from west longitudes as they load"
   it("Xanadu [6958] 100.0 W, Ontario Lacus [7003] 183.0 W and the Huygens landing site 192.335 W land on their terrain", () => {
     // Xanadu and Ontario Lacus: USGS Gazetteer, Titan, planetographic +West. The Huygens landing site is no IAU-named feature (not in the gazetteer);
     // its position is the one on Wikipedia's Huygens (spacecraft) page, 10.573 S 192.335 W, read 2026-10-22; the stored 192.3 is that west value.
-    expectPlacesOnTheirTerrain(TITAN_VISUAL, shown, "titan", [
-      { name: "Xanadu", west: 100, id: "6958" }, { name: "Ontario Lacus", west: 183, id: "7003" }, { name: "Huygens Landing Site", west: 192.335, id: "-" },
-    ], 3);
+    expectPlacesOnTheirTerrain(
+      TITAN_VISUAL,
+      shown,
+      "titan",
+      [
+        { name: "Xanadu", west: 100, id: "6958" },
+        { name: "Ontario Lacus", west: 183, id: "7003" },
+        { name: "Huygens Landing Site", west: 192.335, id: "-" },
+      ],
+      3,
+    );
   });
 
   it("states Titan's and Europa's records as west longitudes, so the places are shown at 180 - west", () => {
@@ -160,7 +244,9 @@ describe("T-131: Titan's places are converted from west longitudes as they load"
   it("without the conversion Xanadu is 20 degrees off its terrain (the audit's finding) and the data file is untouched", () => {
     const xanadu = titanFeatures.features.find((f) => f.id === "xanadu")!;
     expect(xanadu.longitude).toBe(100);
-    expect(() => expectPlacesOnTheirTerrain(TITAN_VISUAL, asStored, "titan", [{ name: "Xanadu", west: 100, id: "6958" }], 3)).toThrow();
+    expect(() =>
+      expectPlacesOnTheirTerrain(TITAN_VISUAL, asStored, "titan", [{ name: "Xanadu", west: 100, id: "6958" }], 3),
+    ).toThrow();
   });
 });
 
@@ -169,16 +255,26 @@ describe("T-139: Europa's places are converted from west longitudes as they load
 
   it("Tyre [6170] 146.6 W, Pwyll [4878] 271.4 W, Conamara Chaos [1282] 272.7 W and Thera Macula [5967] 181.2 W land on their terrain", () => {
     // USGS Gazetteer of Planetary Nomenclature (planetarynames.wr.usgs.gov, target Europa, planetographic +West, looked up 2026-10-22).
-    expectPlacesOnTheirTerrain(EUROPA_VISUAL, shown, "europa", [
-      { name: "Tyre", west: 146.6, id: "6170" }, { name: "Pwyll", west: 271.4, id: "4878" },
-      { name: "Conamara Chaos", west: 272.7, id: "1282" }, { name: "Thera Macula", west: 181.2, id: "5967" },
-    ], 8);
+    expectPlacesOnTheirTerrain(
+      EUROPA_VISUAL,
+      shown,
+      "europa",
+      [
+        { name: "Tyre", west: 146.6, id: "6170" },
+        { name: "Pwyll", west: 271.4, id: "4878" },
+        { name: "Conamara Chaos", west: 272.7, id: "1282" },
+        { name: "Thera Macula", west: 181.2, id: "5967" },
+      ],
+      8,
+    );
   });
 
   it("without the conversion Tyre is about 114 degrees off its terrain and the data file is untouched", () => {
     const tyre = europaFeatures.features.find((f) => f.id === "tyre")!;
     expect(tyre.longitude).toBe(147);
     expect(shown("Tyre", 147)).toBe(33);
-    expect(() => expectPlacesOnTheirTerrain(EUROPA_VISUAL, asStored, "europa", [{ name: "Tyre", west: 146.6, id: "6170" }], 8)).toThrow();
+    expect(() =>
+      expectPlacesOnTheirTerrain(EUROPA_VISUAL, asStored, "europa", [{ name: "Tyre", west: 146.6, id: "6170" }], 8),
+    ).toThrow();
   });
 });

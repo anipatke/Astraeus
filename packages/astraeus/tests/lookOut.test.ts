@@ -4,7 +4,14 @@ import { catalogue } from "../src/assets/catalogue";
 import { readableScale } from "../src/presentation/scalePolicy";
 import { createOrbitCameraState, poseCamera, resolveCamera, type CameraRequest } from "../src/app/CameraController";
 import { FloatingOrigin } from "../src/app/floatingOrigin";
-import { clampFov, LOOK_OUT_FOV_RANGE_DEG, LOOK_OUT_NEAR, panLookOut, skyViewOf, zoomLookOut } from "../src/app/lookOut";
+import {
+  clampFov,
+  LOOK_OUT_FOV_RANGE_DEG,
+  LOOK_OUT_NEAR,
+  panLookOut,
+  skyViewOf,
+  zoomLookOut,
+} from "../src/app/lookOut";
 import { eqjUnitVector } from "../src/presentation/startView";
 import { eqjToRenderVector, type RenderVector } from "../src/app/renderCoordinates";
 import { stepCameraTarget, type CameraStepInput } from "../src/app/sceneCamera";
@@ -12,22 +19,51 @@ import type { SceneTargets } from "../src/app/sceneTargets";
 import { EQUATORIAL_UP, viewUpVector } from "../src/app/viewUp";
 import { hiddenWithLookOut } from "../src/app/viewHiding";
 
-const positions = new Map<string, RenderVector>([["earth", [0, 0, 0]], ["moon", [60, 0, 0]], ["mars", [1000, 200, -3000]], ["sun", [0, 0, 20000]]]);
+const positions = new Map<string, RenderVector>([
+  ["earth", [0, 0, 0]],
+  ["moon", [60, 0, 0]],
+  ["mars", [1000, 200, -3000]],
+  ["sun", [0, 0, 20000]],
+]);
 const targets: SceneTargets = {
   bodyIdFor: (id) => (catalogue.has(id) ? id : null),
   placed: positions as SceneTargets["placed"],
   absoluteOf: (id) => positions.get(id) ?? [0, 0, 0],
-  groupViews: [], sunCentredViews: [], trackedViews: [], bodySetViews: [],
-  timeUtcMs: 0, policy: readableScale, placement: {} as SceneTargets["placement"],
+  groupViews: [],
+  sunCentredViews: [],
+  trackedViews: [],
+  bodySetViews: [],
+  timeUtcMs: 0,
+  policy: readableScale,
+  placement: {} as SceneTargets["placement"],
 };
 const frame = { centre: "earth", span: 60, bodies: catalogue } as const;
 const EQJ_X: [number, number, number] = [1, 0, 0];
 
 function run(request: CameraRequest, over: Partial<CameraStepInput> = {}) {
-  const step: CameraStepInput = { camState: createOrbitCameraState(16, "earth"), controls: { cameraRequest: request }, targets, frame, catalogue, reach: {}, fovDeg: 45, viewUp: EQUATORIAL_UP, firstFrame: false, previousUp: null, ...over };
+  const step: CameraStepInput = {
+    camState: createOrbitCameraState(16, "earth"),
+    controls: { cameraRequest: request },
+    targets,
+    frame,
+    catalogue,
+    reach: {},
+    fovDeg: 45,
+    viewUp: EQUATORIAL_UP,
+    firstFrame: false,
+    previousUp: null,
+    ...over,
+  };
   const origin = new FloatingOrigin();
   stepCameraTarget(step);
-  resolveCamera(step.camState, step.camState.fixedPoint ?? (positions.get(step.camState.focus) as RenderVector), origin, 0.016, 1, step.viewUp);
+  resolveCamera(
+    step.camState,
+    step.camState.fixedPoint ?? (positions.get(step.camState.focus) as RenderVector),
+    origin,
+    0.016,
+    1,
+    step.viewUp,
+  );
   const camera = new PerspectiveCamera(45, 1, 0.05, 1000);
   poseCamera(camera, step.camState, 1, origin, 5000, step.viewUp);
   camera.updateMatrixWorld();
@@ -41,17 +77,24 @@ function ndcOf(camera: PerspectiveCamera, direction: RenderVector): Vector3 {
 }
 
 describe("look out from a body", () => {
-  it.each([["earth"], ["mars"]])("puts the camera at the centre of %s with the requested direction on screen centre", (body) => {
-    const direction: [number, number, number] = [0.3, -0.5, 0.2];
-    const { step, camera, origin } = run({ kind: "lookOut", body, direction });
-    expect(step.camState.lookOut?.fovDeg).toBe(60);
-    expect(step.camState.cameraAbsolute).toEqual(positions.get(body));
-    expect(origin.toLocal(step.camState.cameraAbsolute)).toEqual([camera.position.x, camera.position.y, camera.position.z]);
-    const ndc = ndcOf(camera, eqjToRenderVector(direction));
-    expect(ndc.x).toBeCloseTo(0, 6);
-    expect(ndc.y).toBeCloseTo(0, 6);
-    expect(camera.fov).toBe(60);
-  });
+  it.each([["earth"], ["mars"]])(
+    "puts the camera at the centre of %s with the requested direction on screen centre",
+    (body) => {
+      const direction: [number, number, number] = [0.3, -0.5, 0.2];
+      const { step, camera, origin } = run({ kind: "lookOut", body, direction });
+      expect(step.camState.lookOut?.fovDeg).toBe(60);
+      expect(step.camState.cameraAbsolute).toEqual(positions.get(body));
+      expect(origin.toLocal(step.camState.cameraAbsolute)).toEqual([
+        camera.position.x,
+        camera.position.y,
+        camera.position.z,
+      ]);
+      const ndc = ndcOf(camera, eqjToRenderVector(direction));
+      expect(ndc.x).toBeCloseTo(0, 6);
+      expect(ndc.y).toBeCloseTo(0, 6);
+      expect(camera.fov).toBe(60);
+    },
+  );
 
   it("looks in the ecliptic up too, and turns toward an object id", () => {
     const up = viewUpVector("ecliptic");
@@ -74,7 +117,8 @@ describe("look out from a body", () => {
       { kind: "lookOut", body: "earth", direction: [0, 0, 0] },
       { kind: "lookOut", body: "earth", direction: "nowhere" },
       { kind: "lookOut", body: "earth", direction: "earth" },
-    ] as CameraRequest[]) expect(run(request).step.camState.lookOut).toBeNull();
+    ] as CameraRequest[])
+      expect(run(request).step.camState.lookOut).toBeNull();
   });
 
   it("keeps the near plane positive and keeps the camera on a moving body across a rebase", () => {
@@ -86,14 +130,21 @@ describe("look out from a body", () => {
     const after = new PerspectiveCamera(45, 1, 0.05, 1000);
     poseCamera(after, step.camState, 1, origin, 5000, EQUATORIAL_UP);
     expect(step.camState.cameraAbsolute).toEqual([5000, 0, 0]);
-    expect(origin.toLocal(step.camState.cameraAbsolute)).toEqual([after.position.x, after.position.y, after.position.z]);
+    expect(origin.toLocal(step.camState.cameraAbsolute)).toEqual([
+      after.position.x,
+      after.position.y,
+      after.position.z,
+    ]);
     positions.set("mars", [1000, 200, -3000]);
   });
 
   it("keeps the look direction when the up direction changes", () => {
     const first = run({ kind: "lookOut", body: "earth", direction: [0.3, -0.5, 0.2] });
     const up = viewUpVector("ecliptic");
-    const second = run({ kind: "lookOut", body: "earth", direction: [0.3, -0.5, 0.2] }, { camState: first.step.camState, viewUp: up, previousUp: EQUATORIAL_UP, controls: { cameraRequest: null } });
+    const second = run(
+      { kind: "lookOut", body: "earth", direction: [0.3, -0.5, 0.2] },
+      { camState: first.step.camState, viewUp: up, previousUp: EQUATORIAL_UP, controls: { cameraRequest: null } },
+    );
     const ndc = ndcOf(second.camera, eqjToRenderVector([0.3, -0.5, 0.2]));
     expect(ndc.x).toBeCloseTo(0, 6);
     expect(ndc.y).toBeCloseTo(0, 6);
@@ -110,7 +161,9 @@ describe("look out from a body", () => {
     expect(back.step.camState.lookOut).toBeNull();
     expect(back.camera.fov).toBe(45);
     expect(back.camera.near).toBeGreaterThan(LOOK_OUT_NEAR);
-    expect(back.camera.position.distanceTo(new Vector3(...back.origin.toLocal(back.step.camState.targetAbsolute)))).toBeGreaterThan(0);
+    expect(
+      back.camera.position.distanceTo(new Vector3(...back.origin.toLocal(back.step.camState.targetAbsolute))),
+    ).toBeGreaterThan(0);
   });
 
   it("a hold is ignored while looking out", () => {
@@ -168,14 +221,31 @@ describe("hiddenWithLookOut", () => {
 describe("the sky reading", () => {
   it("reads back the direction a look-out request set, for either up, to the rounding of a link (made-up directions, not one catalogue star)", () => {
     for (const up of ["equatorial", "ecliptic"] as const) {
-      for (const [ra, dec] of [[0, 0], [83.63, 22.01], [210.5, -12.25], [359.99, 89], [120, -89]] as const) {
-        const { step } = run({ kind: "lookOut", body: "mars", direction: eqjUnitVector(ra, dec), fovDeg: 33.333 }, { viewUp: viewUpVector(up) });
+      for (const [ra, dec] of [
+        [0, 0],
+        [83.63, 22.01],
+        [210.5, -12.25],
+        [359.99, 89],
+        [120, -89],
+      ] as const) {
+        const { step } = run(
+          { kind: "lookOut", body: "mars", direction: eqjUnitVector(ra, dec), fovDeg: 33.333 },
+          { viewUp: viewUpVector(up) },
+        );
         const { lookOut } = step.camState;
-        const sky = skyViewOf("mars", step.camState.azimuth, step.camState.elevation, viewUpVector(up), lookOut!.fovDeg);
+        const sky = skyViewOf(
+          "mars",
+          step.camState.azimuth,
+          step.camState.elevation,
+          viewUpVector(up),
+          lookOut!.fovDeg,
+        );
         expect(sky.lookOut).toBe("mars");
         expect(sky.fovDeg).toBe(33.33);
         expect(sky.decDeg).toBeCloseTo(dec, 1);
-        expect(Math.abs(((sky.raDeg - ra + 540) % 360) - 180)).toBeLessThan(0.02 / Math.max(0.05, Math.cos((dec * Math.PI) / 180)));
+        expect(Math.abs(((sky.raDeg - ra + 540) % 360) - 180)).toBeLessThan(
+          0.02 / Math.max(0.05, Math.cos((dec * Math.PI) / 180)),
+        );
       }
     }
   });

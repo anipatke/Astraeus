@@ -50,11 +50,21 @@ vec3 keplerKm(vec3 pa, vec3 qb, vec3 shape, float dt) {
 }
 
 /** Declarations and the replacement for three's `begin_vertex`, which together make the stock point shader place a dot by its ellipse. */
-export const KEPLER_ATTRIBUTES_GLSL = "attribute vec3 keplerQ;\nattribute vec3 keplerShape;\nuniform float uDt;\nuniform float uUnitsPerKm;\nuniform vec3 uOffset;\n";
-export const KEPLER_BEGIN_VERTEX_GLSL = "vec3 transformed = uUnitsPerKm * keplerKm(position, keplerQ, keplerShape, uDt) + uOffset;";
+export const KEPLER_ATTRIBUTES_GLSL =
+  "attribute vec3 keplerQ;\nattribute vec3 keplerShape;\nuniform float uDt;\nuniform float uUnitsPerKm;\nuniform vec3 uOffset;\n";
+export const KEPLER_BEGIN_VERTEX_GLSL =
+  "vec3 transformed = uUnitsPerKm * keplerKm(position, keplerQ, keplerShape, uDt) + uOffset;";
 
 /** The shader's arithmetic in 32-bit floats, one rounding per GLSL operation. `trace` collects the transcendental calls in order. */
-export function keplerKmF32(pa: ArrayLike<number>, qb: ArrayLike<number>, e: number, m0: number, n: number, dt: number, trace?: string[]): [number, number, number] {
+export function keplerKmF32(
+  pa: ArrayLike<number>,
+  qb: ArrayLike<number>,
+  e: number,
+  m0: number,
+  n: number,
+  dt: number,
+  trace?: string[],
+): [number, number, number] {
   let m = f(m0 + f(n * dt));
   trace?.push("floor");
   m = f(m - f(TWO_PI * Math.floor(f(f(m + PI) / TWO_PI))));
@@ -136,7 +146,11 @@ export function epochWindowSeconds(elements: KeplerElements, radians: number): n
 }
 
 /** Member `index`, as the shader draws it, from the scene's origin: the twin of `keplerBeginVertex`. */
-export function keplerLocalF32(attributes: KeplerAttributes, index: number, uniforms: KeplerUniforms): [number, number, number] {
+export function keplerLocalF32(
+  attributes: KeplerAttributes,
+  index: number,
+  uniforms: KeplerUniforms,
+): [number, number, number] {
   const o = 3 * index;
   const km = keplerKmF32(
     attributes.axisP.subarray(o, o + 3),

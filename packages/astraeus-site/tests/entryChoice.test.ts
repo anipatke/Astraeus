@@ -16,7 +16,11 @@ const LISTS: EntryLists = {
 
 const summary = (search: string, lists: EntryLists = LISTS): string => {
   const entry = chooseEntry(search, lists);
-  return entry.kind === "planets" || entry.kind === "showers" ? `${entry.kind}:${entry.choice.name}` : entry.kind === "synthetic" ? `synthetic:${entry.name}` : entry.kind;
+  return entry.kind === "planets" || entry.kind === "showers"
+    ? `${entry.kind}:${entry.choice.name}`
+    : entry.kind === "synthetic"
+      ? `synthetic:${entry.name}`
+      : entry.kind;
 };
 
 describe("the page entry's address forms", () => {

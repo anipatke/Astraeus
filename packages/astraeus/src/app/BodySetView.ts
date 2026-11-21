@@ -151,7 +151,9 @@ export class BodySetView {
       this.absolutes[3 * i + 2] = mapped[2];
     }
     if (policy.id !== this.#policyId) {
-      members.forEach((entry, index) => { this.#radiiUnits[index] = policy.mapRadius(entry.radiusKm, entry.id); });
+      members.forEach((entry, index) => {
+        this.#radiiUnits[index] = policy.mapRadius(entry.radiusKm, entry.id);
+      });
       this.#policyId = policy.id;
     }
     const toSun = bodyLightDirections([group.center], resolver, timeUtcMs).get(group.center)!;
@@ -163,7 +165,14 @@ export class BodySetView {
    * Camera-relative positions for the dots and balls (subtracted in Float64, so a close-up of a 1 km moon is exact), the live look, and
    * each member's place on screen for names and picking.
    */
-  place(origin: FloatingOrigin, camera: PerspectiveCamera, widthPx: number, heightPx: number, look: BodySetLook, trueScale: boolean): void {
+  place(
+    origin: FloatingOrigin,
+    camera: PerspectiveCamera,
+    widthPx: number,
+    heightPx: number,
+    look: BodySetLook,
+    trueScale: boolean,
+  ): void {
     this.#points.visible = this.#drawn;
     this.#balls.visible = this.#drawn;
     if (!this.#drawn) {
@@ -188,7 +197,11 @@ export class BodySetView {
       this.#balls.setMatrixAt(i, this.#matrix);
       const distance = Math.hypot(x - camera0.x, y - camera0.y, z - camera0.z);
       this.#projected.set(x, y, z).project(camera);
-      const visible = this.#projected.z > -1 && this.#projected.z < 1 && Math.abs(this.#projected.x) <= 1 && Math.abs(this.#projected.y) <= 1;
+      const visible =
+        this.#projected.z > -1 &&
+        this.#projected.z < 1 &&
+        Math.abs(this.#projected.x) <= 1 &&
+        Math.abs(this.#projected.y) <= 1;
       const screen = this.screen[i];
       screen.x = ((this.#projected.x + 1) / 2) * widthPx;
       screen.y = ((1 - this.#projected.y) / 2) * heightPx;
@@ -205,7 +218,9 @@ export class BodySetView {
     const ballColours = this.#balls.instanceColor!;
     this.layer.members.forEach((member, i) => {
       const colour = look.highlightFamily === member.family ? this.#litColour : this.#dotColour;
-      colours[3 * i] = colour.r; colours[3 * i + 1] = colour.g; colours[3 * i + 2] = colour.b;
+      colours[3 * i] = colour.r;
+      colours[3 * i + 1] = colour.g;
+      colours[3 * i + 2] = colour.b;
       ballColours.setXYZ(i, colour.r, colour.g, colour.b);
     });
     this.#colours.needsUpdate = true;
@@ -216,19 +231,34 @@ export class BodySetView {
 
   /** How many members of the lit family are drawn (the dot readout the browser check reads); 0 when none is lit. */
   litCount(look: BodySetLook): number {
-    return this.#drawn && look.highlightFamily !== null ? this.layer.members.filter((member) => member.family === look.highlightFamily).length : 0;
+    return this.#drawn && look.highlightFamily !== null
+      ? this.layer.members.filter((member) => member.family === look.highlightFamily).length
+      : 0;
   }
 
   /** The dots as the scene's point readout reports a point group (`data-points`): drawn, members, members in view and the box they cover (shares of the view). */
   screenReadout(): PointsScreenReadout {
-    const out: PointsScreenReadout = { id: this.id, drawn: this.#drawn, members: this.count, sampled: this.count, inView: 0, minX: 1, maxX: 0, minY: 1, maxY: 0 };
+    const out: PointsScreenReadout = {
+      id: this.id,
+      drawn: this.#drawn,
+      members: this.count,
+      sampled: this.count,
+      inView: 0,
+      minX: 1,
+      maxX: 0,
+      minY: 1,
+      maxY: 0,
+    };
     if (!this.#drawn) return out;
     for (const screen of this.screen) {
       if (!screen.visible) continue;
       const sx = screen.x / this.#widthPx;
       const sy = screen.y / this.#heightPx;
       out.inView += 1;
-      out.minX = Math.min(out.minX, sx); out.maxX = Math.max(out.maxX, sx); out.minY = Math.min(out.minY, sy); out.maxY = Math.max(out.maxY, sy);
+      out.minX = Math.min(out.minX, sx);
+      out.maxX = Math.max(out.maxX, sx);
+      out.minY = Math.min(out.minY, sy);
+      out.maxY = Math.max(out.maxY, sy);
     }
     return out;
   }

@@ -30,7 +30,8 @@ const rowsFor = (samples: readonly Sample[], stateAt: (t: number) => ArrayLike<n
     const range = Math.hypot(...s.positionKm);
     return { label: s.label, errorKm, fraction: errorKm / range, rangeAu: range / AU_KM };
   });
-const worst = <T extends { errorKm: number }>(rows: readonly T[]) => rows.reduce((a, b) => (b.errorKm > a.errorKm ? b : a));
+const worst = <T extends { errorKm: number }>(rows: readonly T[]) =>
+  rows.reduce((a, b) => (b.errorKm > a.errorKm ? b : a));
 
 describe("the Showers year against JPL Horizons (O-024 T-092)", () => {
   const record = parseElementsBodyRecord((geminids as { parentElements: unknown }).parentElements, "parentElements");

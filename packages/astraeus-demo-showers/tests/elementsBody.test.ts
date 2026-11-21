@@ -21,8 +21,17 @@ const CENTRE = { id: "sun", gmKm3S2: catalogue.get("sun").definition.gmKm3S2! };
 const distance = (a: ArrayLike<number>, b: ArrayLike<number>) => Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]);
 
 /** The accuracy block every record needs; the values here are for the tests' own bodies only. */
-const ACCURACY = { classification: "approximate", statement: "A test body.", valid: { start: "1990-01-01T00:00:00Z", end: "2030-01-01T00:00:00Z" } } as const;
-const SOURCE = { name: "Test source", url: "https://example.org/orbit", solution: "S1", accessed: "2026-10-16" } as const;
+const ACCURACY = {
+  classification: "approximate",
+  statement: "A test body.",
+  valid: { start: "1990-01-01T00:00:00Z", end: "2030-01-01T00:00:00Z" },
+} as const;
+const SOURCE = {
+  name: "Test source",
+  url: "https://example.org/orbit",
+  solution: "S1",
+  accessed: "2026-10-16",
+} as const;
 
 /** The Perseids file's comet elements, written as a record under another id: the validation cases below mutate copies of it. */
 function recordFromBuiltIn(): unknown {
@@ -30,7 +39,14 @@ function recordFromBuiltIn(): unknown {
   return {
     id: "equivalent",
     label: "Equivalent",
-    elements: { semiMajorAxisAu: e.semiMajorAxisAu, eccentricity: e.eccentricity, inclinationDeg: e.inclinationDeg, ascendingNodeDeg: e.ascendingNodeDeg, argumentOfPerihelionDeg: e.argumentOfPerihelionDeg, meanAnomalyDeg: e.meanAnomalyDeg },
+    elements: {
+      semiMajorAxisAu: e.semiMajorAxisAu,
+      eccentricity: e.eccentricity,
+      inclinationDeg: e.inclinationDeg,
+      ascendingNodeDeg: e.ascendingNodeDeg,
+      argumentOfPerihelionDeg: e.argumentOfPerihelionDeg,
+      meanAnomalyDeg: e.meanAnomalyDeg,
+    },
     epoch: { jd: 2450000.5, timeScale: "TDB", ttMinusUtcSeconds: 61.184 },
     plane: "ecliptic-j2000",
     source: SOURCE,
@@ -53,44 +69,241 @@ describe("a body record is validated field by field", () => {
   });
 
   it("reads the validity span as ISO text, a Date or milliseconds, and keeps text as written", () => {
-    const text = parseElementsBodyRecord(with_((c) => { c.accuracy.valid = { start: "1990-01-01T00:00:00Z", end: "2030-01-01T00:00:00Z" }; }));
+    const text = parseElementsBodyRecord(
+      with_((c) => {
+        c.accuracy.valid = { start: "1990-01-01T00:00:00Z", end: "2030-01-01T00:00:00Z" };
+      }),
+    );
     expect(text.accuracy.valid).toEqual({ start: "1990-01-01T00:00:00Z", end: "2030-01-01T00:00:00Z" });
-    const mixed = parseElementsBodyRecord(with_((c) => { c.accuracy.valid = { start: new Date(Date.UTC(1990, 0, 1)), end: Date.UTC(2030, 0, 1) }; }));
+    const mixed = parseElementsBodyRecord(
+      with_((c) => {
+        c.accuracy.valid = { start: new Date(Date.UTC(1990, 0, 1)), end: Date.UTC(2030, 0, 1) };
+      }),
+    );
     expect(mixed.accuracy.valid).toEqual({ start: "1990-01-01T00:00:00.000Z", end: "2030-01-01T00:00:00.000Z" });
   });
 
   it.each([
-    ["id", (c: any) => { c.id = "Not An Id"; }, /body\.id must be lower-case words/],
-    ["label", (c: any) => { delete c.label; }, /body\.label is required/],
-    ["elements.semiMajorAxisAu", (c: any) => { c.elements.semiMajorAxisAu = -1; }, /body\.elements\.semiMajorAxisAu must be positive/],
-    ["elements.eccentricity", (c: any) => { c.elements.eccentricity = 1; }, /body\.elements\.eccentricity must be at least 0 and below 1/],
-    ["elements.inclinationDeg", (c: any) => { c.elements.inclinationDeg = 200; }, /body\.elements\.inclinationDeg must be from 0 to 180/],
-    ["elements.ascendingNodeDeg", (c: any) => { c.elements.ascendingNodeDeg = 360; }, /body\.elements\.ascendingNodeDeg must be at least 0 and below 360/],
-    ["elements.argumentOfPerihelionDeg", (c: any) => { c.elements.argumentOfPerihelionDeg = "x"; }, /body\.elements\.argumentOfPerihelionDeg is required and must be a finite number/],
-    ["neither anomaly", (c: any) => { delete c.elements.meanAnomalyDeg; }, /body\.elements must give exactly one of meanAnomalyDeg and perihelionJdTdb/],
-    ["both anomalies", (c: any) => { c.elements.perihelionJdTdb = 2448968.5; }, /body\.elements must give exactly one of meanAnomalyDeg and perihelionJdTdb/],
-    ["elements.meanAnomalyDeg", (c: any) => { c.elements.meanAnomalyDeg = 400; }, /body\.elements\.meanAnomalyDeg must be at least 0 and below 360/],
-    ["epoch.jd", (c: any) => { c.epoch.jd = Number.NaN; }, /body\.epoch\.jd is required and must be a finite number/],
-    ["epoch.timeScale", (c: any) => { c.epoch.timeScale = "GPS"; }, /body\.epoch\.timeScale must be "TDB", "TT" or "UTC"/],
-    ["epoch.ttMinusUtcSeconds missing", (c: any) => { delete c.epoch.ttMinusUtcSeconds; }, /body\.epoch\.ttMinusUtcSeconds is required/],
-    ["epoch.ttMinusUtcSeconds range", (c: any) => { c.epoch.ttMinusUtcSeconds = 5; }, /body\.epoch\.ttMinusUtcSeconds must be from 32 to 120/],
-    ["epoch.ttMinusUtcSeconds on UTC", (c: any) => { c.epoch.timeScale = "UTC"; }, /body\.epoch\.ttMinusUtcSeconds must be absent/],
-    ["plane", (c: any) => { c.plane = "equatorial"; }, /body\.plane must be "ecliptic-j2000"/],
-    ["frame (old name alone)", (c: any) => { c.frame = c.plane; delete c.plane; }, /body\.frame is now `plane`/],
-    ["source.url", (c: any) => { delete c.source.url; }, /body\.source\.url is required/],
-    ["source.solution", (c: any) => { c.source.solution = ""; }, /body\.source\.solution is required/],
-    ["radius.km", (c: any) => { c.radius = { km: 0, source: "s" }; }, /body\.radius\.km must be positive/],
-    ["radius.source", (c: any) => { c.radius = { km: 1 }; }, /body\.radius\.source is required/],
-    ["accuracy.classification", (c: any) => { c.accuracy.classification = "exact"; }, /body\.accuracy\.classification must be "approximate" or "indicative"/],
-    ["accuracy.statement", (c: any) => { delete c.accuracy.statement; }, /body\.accuracy\.statement is required/],
-    ["accuracy.valid.start", (c: any) => { c.accuracy.valid.start = "1990"; }, /body\.accuracy\.valid\.start must be an ISO-8601 UTC time/],
-    ["accuracy.valid.end order", (c: any) => { c.accuracy.valid.end = "1980-01-01T00:00:00Z"; }, /body\.accuracy\.valid\.end must be after accuracy\.valid\.start/],
-    ["accuracy.valid missing", (c: any) => { delete c.accuracy.valid; }, /body\.accuracy\.valid is required/],
-    ["accuracy.validFromUtc (old name alone)", (c: any) => { c.accuracy.validFromUtc = c.accuracy.valid.start; delete c.accuracy.valid.start; }, /body\.accuracy\.validFromUtc is now `valid\.start`/],
-    ["accuracy.validToUtc (old name alone)", (c: any) => { c.accuracy.validToUtc = c.accuracy.valid.end; delete c.accuracy.valid.end; }, /body\.accuracy\.validToUtc is now `valid\.end`/],
-    ["accuracy.limitations", (c: any) => { c.accuracy.limitations = [1]; }, /body\.accuracy\.limitations must be a list of non-empty text/],
-    ["marker.color", (c: any) => { c.marker = { color: "red" }; }, /body\.marker\.color must be a colour like #9fe3ff/],
-    ["marker.sizePx", (c: any) => { c.marker = { sizePx: 0 }; }, /body\.marker\.sizePx must be above zero/],
+    [
+      "id",
+      (c: any) => {
+        c.id = "Not An Id";
+      },
+      /body\.id must be lower-case words/,
+    ],
+    [
+      "label",
+      (c: any) => {
+        delete c.label;
+      },
+      /body\.label is required/,
+    ],
+    [
+      "elements.semiMajorAxisAu",
+      (c: any) => {
+        c.elements.semiMajorAxisAu = -1;
+      },
+      /body\.elements\.semiMajorAxisAu must be positive/,
+    ],
+    [
+      "elements.eccentricity",
+      (c: any) => {
+        c.elements.eccentricity = 1;
+      },
+      /body\.elements\.eccentricity must be at least 0 and below 1/,
+    ],
+    [
+      "elements.inclinationDeg",
+      (c: any) => {
+        c.elements.inclinationDeg = 200;
+      },
+      /body\.elements\.inclinationDeg must be from 0 to 180/,
+    ],
+    [
+      "elements.ascendingNodeDeg",
+      (c: any) => {
+        c.elements.ascendingNodeDeg = 360;
+      },
+      /body\.elements\.ascendingNodeDeg must be at least 0 and below 360/,
+    ],
+    [
+      "elements.argumentOfPerihelionDeg",
+      (c: any) => {
+        c.elements.argumentOfPerihelionDeg = "x";
+      },
+      /body\.elements\.argumentOfPerihelionDeg is required and must be a finite number/,
+    ],
+    [
+      "neither anomaly",
+      (c: any) => {
+        delete c.elements.meanAnomalyDeg;
+      },
+      /body\.elements must give exactly one of meanAnomalyDeg and perihelionJdTdb/,
+    ],
+    [
+      "both anomalies",
+      (c: any) => {
+        c.elements.perihelionJdTdb = 2448968.5;
+      },
+      /body\.elements must give exactly one of meanAnomalyDeg and perihelionJdTdb/,
+    ],
+    [
+      "elements.meanAnomalyDeg",
+      (c: any) => {
+        c.elements.meanAnomalyDeg = 400;
+      },
+      /body\.elements\.meanAnomalyDeg must be at least 0 and below 360/,
+    ],
+    [
+      "epoch.jd",
+      (c: any) => {
+        c.epoch.jd = Number.NaN;
+      },
+      /body\.epoch\.jd is required and must be a finite number/,
+    ],
+    [
+      "epoch.timeScale",
+      (c: any) => {
+        c.epoch.timeScale = "GPS";
+      },
+      /body\.epoch\.timeScale must be "TDB", "TT" or "UTC"/,
+    ],
+    [
+      "epoch.ttMinusUtcSeconds missing",
+      (c: any) => {
+        delete c.epoch.ttMinusUtcSeconds;
+      },
+      /body\.epoch\.ttMinusUtcSeconds is required/,
+    ],
+    [
+      "epoch.ttMinusUtcSeconds range",
+      (c: any) => {
+        c.epoch.ttMinusUtcSeconds = 5;
+      },
+      /body\.epoch\.ttMinusUtcSeconds must be from 32 to 120/,
+    ],
+    [
+      "epoch.ttMinusUtcSeconds on UTC",
+      (c: any) => {
+        c.epoch.timeScale = "UTC";
+      },
+      /body\.epoch\.ttMinusUtcSeconds must be absent/,
+    ],
+    [
+      "plane",
+      (c: any) => {
+        c.plane = "equatorial";
+      },
+      /body\.plane must be "ecliptic-j2000"/,
+    ],
+    [
+      "frame (old name alone)",
+      (c: any) => {
+        c.frame = c.plane;
+        delete c.plane;
+      },
+      /body\.frame is now `plane`/,
+    ],
+    [
+      "source.url",
+      (c: any) => {
+        delete c.source.url;
+      },
+      /body\.source\.url is required/,
+    ],
+    [
+      "source.solution",
+      (c: any) => {
+        c.source.solution = "";
+      },
+      /body\.source\.solution is required/,
+    ],
+    [
+      "radius.km",
+      (c: any) => {
+        c.radius = { km: 0, source: "s" };
+      },
+      /body\.radius\.km must be positive/,
+    ],
+    [
+      "radius.source",
+      (c: any) => {
+        c.radius = { km: 1 };
+      },
+      /body\.radius\.source is required/,
+    ],
+    [
+      "accuracy.classification",
+      (c: any) => {
+        c.accuracy.classification = "exact";
+      },
+      /body\.accuracy\.classification must be "approximate" or "indicative"/,
+    ],
+    [
+      "accuracy.statement",
+      (c: any) => {
+        delete c.accuracy.statement;
+      },
+      /body\.accuracy\.statement is required/,
+    ],
+    [
+      "accuracy.valid.start",
+      (c: any) => {
+        c.accuracy.valid.start = "1990";
+      },
+      /body\.accuracy\.valid\.start must be an ISO-8601 UTC time/,
+    ],
+    [
+      "accuracy.valid.end order",
+      (c: any) => {
+        c.accuracy.valid.end = "1980-01-01T00:00:00Z";
+      },
+      /body\.accuracy\.valid\.end must be after accuracy\.valid\.start/,
+    ],
+    [
+      "accuracy.valid missing",
+      (c: any) => {
+        delete c.accuracy.valid;
+      },
+      /body\.accuracy\.valid is required/,
+    ],
+    [
+      "accuracy.validFromUtc (old name alone)",
+      (c: any) => {
+        c.accuracy.validFromUtc = c.accuracy.valid.start;
+        delete c.accuracy.valid.start;
+      },
+      /body\.accuracy\.validFromUtc is now `valid\.start`/,
+    ],
+    [
+      "accuracy.validToUtc (old name alone)",
+      (c: any) => {
+        c.accuracy.validToUtc = c.accuracy.valid.end;
+        delete c.accuracy.valid.end;
+      },
+      /body\.accuracy\.validToUtc is now `valid\.end`/,
+    ],
+    [
+      "accuracy.limitations",
+      (c: any) => {
+        c.accuracy.limitations = [1];
+      },
+      /body\.accuracy\.limitations must be a list of non-empty text/,
+    ],
+    [
+      "marker.color",
+      (c: any) => {
+        c.marker = { color: "red" };
+      },
+      /body\.marker\.color must be a colour like #9fe3ff/,
+    ],
+    [
+      "marker.sizePx",
+      (c: any) => {
+        c.marker = { sizePx: 0 };
+      },
+      /body\.marker\.sizePx must be above zero/,
+    ],
   ])("names %s when it is wrong", (_field, change, message) => {
     const bad = with_(change);
     expect(() => parseElementsBodyRecord(bad)).toThrow(ElementsBodyError);
@@ -100,7 +313,11 @@ describe("a body record is validated field by field", () => {
 
 describe("a record placed by perihelion time reaches the place the mean anomaly gives", () => {
   const written = createSwiftTuttleTrajectory();
-  const sbdbTp = Number(JSON.parse(swiftTuttleSource.split(/^==== QUERY .*====\n/m)[1]!).orbit.elements.find((element: { name: string }) => element.name === "tp").value);
+  const sbdbTp = Number(
+    JSON.parse(swiftTuttleSource.split(/^==== QUERY .*====\n/m)[1]!).orbit.elements.find(
+      (element: { name: string }) => element.name === "tp",
+    ).value,
+  );
 
   it("takes a perihelion time in place of the mean anomaly and reaches the same place", () => {
     const base = recordFromBuiltIn() as Record<string, any>;
@@ -122,15 +339,25 @@ describe("the parent a settings file defines, against JPL Horizons", () => {
   const rows = fixture.samples.map((sample) => {
     const model = trajectory.stateAt(sample.utcMs, "sun").positionKm;
     const range = Math.hypot(...sample.positionKm);
-    return { label: sample.label, utcMs: sample.utcMs, errorKm: distance(model, sample.positionKm), fraction: distance(model, sample.positionKm) / range, rangeAu: range / AU_KM };
+    return {
+      label: sample.label,
+      utcMs: sample.utcMs,
+      errorKm: distance(model, sample.positionKm),
+      fraction: distance(model, sample.positionKm) / range,
+      rangeAu: range / AU_KM,
+    };
   });
   const worstKm = rows.reduce((a, b) => (b.errorKm > a.errorKm ? b : a));
   const worstFraction = rows.reduce((a, b) => (b.fraction > a.fraction ? b : a));
 
   it("archives the raw responses beside the fixture and names the solution", () => {
     const [, sbdbText, horizonsText] = source.split(/^==== QUERY .*====\n/m);
-    const sbdb = JSON.parse(sbdbText) as { object: { fullname: string }; orbit: { epoch: string; sb_used: string; elements: { name: string; value: string }[] } };
-    const element = (name: string): number => Number(sbdb.orbit.elements.find((candidate) => candidate.name === name)!.value);
+    const sbdb = JSON.parse(sbdbText) as {
+      object: { fullname: string };
+      orbit: { epoch: string; sb_used: string; elements: { name: string; value: string }[] };
+    };
+    const element = (name: string): number =>
+      Number(sbdb.orbit.elements.find((candidate) => candidate.name === name)!.value);
     expect(sbdb.orbit.sb_used).toBe("SB441-N16");
     expect(record.source.solution).toContain("SB441-N16");
     expect(Number(sbdb.orbit.epoch)).toBe(record.epoch.jd);
@@ -194,11 +421,17 @@ describe("the parent a settings file defines, against JPL Horizons", () => {
   });
 
   it("reaches the published perihelion and aphelion distances", () => {
-    const sbdb = JSON.parse(source.split(/^==== QUERY .*====\n/m)[1]) as { orbit: { elements: { name: string; value: string }[] } };
-    const element = (name: string): number => Number(sbdb.orbit.elements.find((candidate) => candidate.name === name)!.value);
+    const sbdb = JSON.parse(source.split(/^==== QUERY .*====\n/m)[1]) as {
+      orbit: { elements: { name: string; value: string }[] };
+    };
+    const element = (name: string): number =>
+      Number(sbdb.orbit.elements.find((candidate) => candidate.name === name)!.value);
     const perihelion = trajectory.stateAt(body.sampling.periapsisUtcMs, "sun").positionKm;
     expect(Math.hypot(...perihelion) / AU_KM).toBeCloseTo(element("q"), 5);
-    const aphelion = trajectory.stateAt(Math.round(body.sampling.periapsisUtcMs + body.sampling.periodMs / 2), "sun").positionKm;
+    const aphelion = trajectory.stateAt(
+      Math.round(body.sampling.periapsisUtcMs + body.sampling.periodMs / 2),
+      "sun",
+    ).positionKm;
     expect(Math.hypot(...aphelion) / AU_KM).toBeCloseTo(element("ad"), 4);
   });
 });
@@ -242,7 +475,9 @@ describe("the name check", () => {
   } as Record<string, string>;
 
   it("finds the asteroid's name nowhere in src: it exists only in its settings file", () => {
-    const named = Object.entries(files).filter(([, text]) => /phaethon|geminid/i.test(text)).map(([path]) => path);
+    const named = Object.entries(files)
+      .filter(([, text]) => /phaethon|geminid/i.test(text))
+      .map(([path]) => path);
     expect(named).toEqual([]);
   });
 

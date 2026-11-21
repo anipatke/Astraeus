@@ -23,9 +23,14 @@ export interface ExplainerControl {
 }
 
 /** The part's own data: what the view reads. */
-export interface ExplainerData { readonly heading: string | undefined; readonly notes: readonly string[] }
+export interface ExplainerData {
+  readonly heading: string | undefined;
+  readonly notes: readonly string[];
+}
 /** The paragraphs one viewer shows. */
-export interface ExplainerState { readonly paragraphs: readonly string[] }
+export interface ExplainerState {
+  readonly paragraphs: readonly string[];
+}
 
 /**
  * Text for a panel: a heading, paragraphs and notes in the story's own words; `handle.part(block).setParagraphs` changes the paragraphs.
@@ -40,16 +45,21 @@ export function explainer(input: ExplainerInput): BlockPart<"explainer"> {
   const heading = fields.heading === undefined ? undefined : checkedText(fields.heading, who, "heading");
   const paragraphs = checkedStrings(fields.paragraphs, who, "paragraphs");
   const notes = fields.notes === undefined ? [] : checkedStrings(fields.notes, who, "notes");
-  if (paragraphs.length === 0 && heading === undefined && notes.length === 0) throw badPart(who, "give a heading, paragraphs or notes: an empty explainer shows nothing");
+  if (paragraphs.length === 0 && heading === undefined && notes.length === 0)
+    throw badPart(who, "give a heading, paragraphs or notes: an empty explainer shows nothing");
   const block: ShelfBlock = {
-    kind: "explainer", id, view: ExplainerView,
-    data: Object.freeze({ heading, notes } satisfies ExplainerData), initial: Object.freeze({ paragraphs } satisfies ExplainerState),
-    control: (link) => ({
-      setParagraphs: (next: readonly string[]) => {
-        const checked = checkedStrings(next, "ExplainerControl.setParagraphs", "paragraphs");
-        link.cell("ExplainerControl.setParagraphs").set({ paragraphs: checked } satisfies ExplainerState);
-      },
-    } satisfies ExplainerControl),
+    kind: "explainer",
+    id,
+    view: ExplainerView,
+    data: Object.freeze({ heading, notes } satisfies ExplainerData),
+    initial: Object.freeze({ paragraphs } satisfies ExplainerState),
+    control: (link) =>
+      ({
+        setParagraphs: (next: readonly string[]) => {
+          const checked = checkedStrings(next, "ExplainerControl.setParagraphs", "paragraphs");
+          link.cell("ExplainerControl.setParagraphs").set({ paragraphs: checked } satisfies ExplainerState);
+        },
+      }) satisfies ExplainerControl,
   };
   return registered(block) as unknown as BlockPart<"explainer">;
 }

@@ -12,19 +12,22 @@ const ISO_UTC_INSTANT = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/;
  */
 export function fieldReaders(fail: FieldFailure) {
   function record(value: unknown, path: string): Raw {
-    if (typeof value !== "object" || value === null || Array.isArray(value)) fail(path, "is required and must be an object");
+    if (typeof value !== "object" || value === null || Array.isArray(value))
+      fail(path, "is required and must be an object");
     return value as Raw;
   }
 
   function text(parent: Raw, key: string, path: string): string {
     const value = parent[key];
-    if (typeof value !== "string" || value.trim().length === 0) fail(`${path}.${key}`, "is required and must be non-empty text");
+    if (typeof value !== "string" || value.trim().length === 0)
+      fail(`${path}.${key}`, "is required and must be non-empty text");
     return value;
   }
 
   function finite(parent: Raw, key: string, path: string): number {
     const value = parent[key];
-    if (typeof value !== "number" || !Number.isFinite(value)) fail(`${path}.${key}`, "is required and must be a finite number");
+    if (typeof value !== "number" || !Number.isFinite(value))
+      fail(`${path}.${key}`, "is required and must be a finite number");
     return value;
   }
 

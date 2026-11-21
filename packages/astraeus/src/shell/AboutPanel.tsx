@@ -14,7 +14,11 @@ interface Props {
 
 /** An external link: it opens in a new tab and gives the page no handle on this one. */
 function Link({ url, children }: { readonly url: string; readonly children: string }) {
-  return <a href={url} target="_blank" rel="noopener noreferrer">{children}</a>;
+  return (
+    <a href={url} target="_blank" rel="noopener noreferrer">
+      {children}
+    </a>
+  );
 }
 
 /**
@@ -32,19 +36,43 @@ export function AboutPanel({ about, onClose, id }: Props) {
       <div className="sheet-handle" aria-hidden="true" />
       <header className="info-panel-header">
         <h2 id={titleId}>{about.title}</h2>
-        <button type="button" className="info-panel-close ui-pill" aria-label="Close About" onClick={onClose}>Close</button>
+        <button type="button" className="info-panel-close ui-pill" aria-label="Close About" onClick={onClose}>
+          Close
+        </button>
       </header>
-      {about.status !== undefined && about.status !== "" && <p className="about-status" data-about-status="">{about.status}</p>}
+      {about.status !== undefined && about.status !== "" && (
+        <p className="about-status" data-about-status="">
+          {about.status}
+        </p>
+      )}
       {credits.length > 0 && (
         <section className="about-section" aria-label="Credits">
           <h3>Credits</h3>
-          <ul data-about-credits="">{credits.map((credit, index) => <li key={index}>{credit.text}{credit.url !== undefined && <> (<Link url={credit.url}>Source</Link>)</>}</li>)}</ul>
+          <ul data-about-credits="">
+            {credits.map((credit, index) => (
+              <li key={index}>
+                {credit.text}
+                {credit.url !== undefined && (
+                  <>
+                    {" "}
+                    (<Link url={credit.url}>Source</Link>)
+                  </>
+                )}
+              </li>
+            ))}
+          </ul>
         </section>
       )}
       {links.length > 0 && (
         <section className="about-section" aria-label="Links">
           <h3>Links</h3>
-          <ul data-about-links="">{links.map((link, index) => <li key={index}><Link url={link.url}>{link.text}</Link></li>)}</ul>
+          <ul data-about-links="">
+            {links.map((link, index) => (
+              <li key={index}>
+                <Link url={link.url}>{link.text}</Link>
+              </li>
+            ))}
+          </ul>
         </section>
       )}
       <p className="about-built-with" data-about-built-with="">

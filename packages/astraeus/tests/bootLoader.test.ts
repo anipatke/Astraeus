@@ -4,8 +4,12 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { resolveLook } from "../src/app/look";
 import { BOOT_FADE_DEFAULT_SECONDS, bootFadeSeconds, saveBootFadeSeconds } from "../src/shell/bootLoader";
 
-beforeEach(() => { window.localStorage.clear(); });
-afterEach(() => { document.body.innerHTML = ""; });
+beforeEach(() => {
+  window.localStorage.clear();
+});
+afterEach(() => {
+  document.body.innerHTML = "";
+});
 
 describe("loading fade time", () => {
   it("fades for the default time, a saved time, or the address's time, kept in range", () => {

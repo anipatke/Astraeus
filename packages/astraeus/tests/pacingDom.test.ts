@@ -10,8 +10,16 @@ vi.mock("../src/api/prepared", async () => {
   const { startUtcMs, endUtcMs } = syntheticDefinition.experience.window;
   const mid = startUtcMs + Math.floor((endUtcMs - startUtcMs) / 2);
   // Cruise at the third offered speed; a stretch from the middle to the end at a made-up in-between speed 7, eased over a minute.
-  const pacing = { baseRate: syntheticDefinition.experience.rates[2]!, zones: [{ fromUtcMs: mid, toUtcMs: endUtcMs, rate: 7, rampMs: 60_000 }] };
-  return { prepareScene: () => ({ definition: { ...syntheticDefinition, clock: { ...syntheticDefinition.clock, rate: 60 }, pacing }, ready: Promise.resolve() }) };
+  const pacing = {
+    baseRate: syntheticDefinition.experience.rates[2]!,
+    zones: [{ fromUtcMs: mid, toUtcMs: endUtcMs, rate: 7, rampMs: 60_000 }],
+  };
+  return {
+    prepareScene: () => ({
+      definition: { ...syntheticDefinition, clock: { ...syntheticDefinition.clock, rate: 60 }, pacing },
+      ready: Promise.resolve(),
+    }),
+  };
 });
 
 import { SceneError } from "../src/api/errors";
@@ -33,9 +41,20 @@ beforeEach(() => {
   host = document.createElement("div");
   document.body.append(host);
 });
-afterEach(() => { host.remove(); vi.unstubAllGlobals(); vi.useRealTimers(); });
+afterEach(() => {
+  host.remove();
+  vi.unstubAllGlobals();
+  vi.useRealTimers();
+});
 
-const codeOf = (run: () => void): string | undefined => { try { run(); } catch (error) { return error instanceof SceneError ? error.code : String(error); } return undefined; };
+const codeOf = (run: () => void): string | undefined => {
+  try {
+    run();
+  } catch (error) {
+    return error instanceof SceneError ? error.code : String(error);
+  }
+  return undefined;
+};
 const menu = () => byLabel(host, "Playback speed") as HTMLSelectElement;
 
 describe("paced playback in the viewer", () => {
@@ -47,12 +66,16 @@ describe("paced playback in the viewer", () => {
     expect(menu().value).toBe("auto");
     expect([...menu().options].map((o) => o.value)).toEqual(["auto", ...[...RATES].sort((a, b) => a - b).map(String)]);
     act(() => handle.setTime(MID + 120_000)); // well inside the slow stretch, past its ramp
-    act(() => { vi.advanceTimersByTime(100); });
+    act(() => {
+      vi.advanceTimersByTime(100);
+    });
     expect(handle.rate).toBeCloseTo(7, 6);
     expect(seen.at(-1)).toMatchObject({ cause: "playback" });
     expect(seen.at(-1)!.rate).toBeCloseTo(7, 6);
     act(() => handle.setTime(startUtcMs + 1000));
-    act(() => { vi.advanceTimersByTime(100); });
+    act(() => {
+      vi.advanceTimersByTime(100);
+    });
     expect(handle.rate).toBeCloseTo(RATES[2]!, 6);
     handle.unmount();
   });
@@ -63,15 +86,21 @@ describe("paced playback in the viewer", () => {
     act(() => change(menu(), String(RATES[0])));
     expect(menu().value).toBe(String(RATES[0]));
     act(() => handle.setTime(MID + 120_000));
-    act(() => { vi.advanceTimersByTime(300); });
+    act(() => {
+      vi.advanceTimersByTime(300);
+    });
     expect(handle.rate).toBe(RATES[0]); // pacing would say 7
     act(() => change(menu(), "auto"));
-    act(() => { vi.advanceTimersByTime(100); });
+    act(() => {
+      vi.advanceTimersByTime(100);
+    });
     expect(handle.rate).toBeCloseTo(7, 6);
     expect(menu().value).toBe("auto");
 
     act(() => handle.setRate(RATES[1]!));
-    act(() => { vi.advanceTimersByTime(300); });
+    act(() => {
+      vi.advanceTimersByTime(300);
+    });
     expect(handle.rate).toBe(RATES[1]);
     expect(codeOf(() => handle.setRate(7))).toBe("bad-timeline"); // in-between speeds are pacing's, never set by hand
     act(() => handle.setRate("auto"));

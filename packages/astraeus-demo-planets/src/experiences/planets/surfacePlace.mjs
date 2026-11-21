@@ -3,7 +3,12 @@
 
 /** True for a package entry with a surface position and no ring-plane fields: rings, ring gaps and inner or small moons carry `ringRadius` / `moonRadius` and sit at 0/0, so they are not places. */
 export function isSurfacePlace(feature) {
-  return feature.latitude !== undefined && feature.longitude !== undefined && feature.ringRadius === undefined && feature.moonRadius === undefined;
+  return (
+    feature.latitude !== undefined &&
+    feature.longitude !== undefined &&
+    feature.ringRadius === undefined &&
+    feature.moonRadius === undefined
+  );
 }
 
 /**
@@ -15,6 +20,7 @@ export function isSurfacePlace(feature) {
  */
 export function shownLongitude(stored, coordinates) {
   const marker = coordinates?.markerLongitudeFromSource;
-  const storedAsWest = /positive-west/.test(coordinates?.sourceLongitude ?? "") && marker?.scale === 1 && marker.offsetDeg === 0;
+  const storedAsWest =
+    /positive-west/.test(coordinates?.sourceLongitude ?? "") && marker?.scale === 1 && marker.offsetDeg === 0;
   return storedAsWest ? 180 - stored : stored;
 }

@@ -7,9 +7,20 @@ import { createOrbitCameraState } from "../src/app/CameraController";
 import { FeatureMarkerLayer, latLonToXYZ, type FeatureHost, type FeatureMarkerSpec } from "../src/app/FeatureMarkers";
 import { attachScenePointer, type PointerState } from "../src/app/scenePointer";
 
-function fire(target: HTMLElement, type: string, init: { x: number; y: number; id?: number; kind?: string; buttons?: number }): void {
+function fire(
+  target: HTMLElement,
+  type: string,
+  init: { x: number; y: number; id?: number; kind?: string; buttons?: number },
+): void {
   const event = new Event(type, { bubbles: true, cancelable: true });
-  Object.assign(event, { clientX: init.x, clientY: init.y, pointerId: init.id ?? 1, pointerType: init.kind ?? "mouse", button: 0, buttons: init.buttons ?? 0 });
+  Object.assign(event, {
+    clientX: init.x,
+    clientY: init.y,
+    pointerId: init.id ?? 1,
+    pointerType: init.kind ?? "mouse",
+    button: 0,
+    buttons: init.buttons ?? 0,
+  });
   target.dispatchEvent(event);
 }
 
@@ -18,12 +29,28 @@ describe("attachScenePointer", () => {
   beforeEach(() => {
     canvas = document.createElement("canvas");
     Object.assign(canvas, { setPointerCapture: vi.fn() });
-    vi.spyOn(canvas, "getBoundingClientRect").mockReturnValue({ left: 100, top: 50, right: 900, bottom: 650, width: 800, height: 600, x: 100, y: 50, toJSON: () => ({}) } as DOMRect);
+    vi.spyOn(canvas, "getBoundingClientRect").mockReturnValue({
+      left: 100,
+      top: 50,
+      right: 900,
+      bottom: 650,
+      width: 800,
+      height: 600,
+      x: 100,
+      y: 50,
+      toJSON: () => ({}),
+    } as DOMRect);
     document.body.appendChild(canvas);
   });
-  afterEach(() => { canvas.remove(); vi.restoreAllMocks(); });
+  afterEach(() => {
+    canvas.remove();
+    vi.restoreAllMocks();
+  });
   const limits = () => ({ min: 1, max: 100 });
-  const stateWith = (): PointerState => ({ pickables: [{ id: "mars", x: 200, y: 150, radiusPx: 12 }], hoverPoint: null });
+  const stateWith = (): PointerState => ({
+    pickables: [{ id: "mars", x: 200, y: 150, radiusPx: 12 }],
+    hoverPoint: null,
+  });
 
   it("tracks a mouse's hover point relative to the canvas, and drops it while a button is down, for touch, and on leave", () => {
     const state = stateWith();
@@ -96,7 +123,17 @@ function panelOver(viewer: HTMLElement, className: string): HTMLElement {
   const panel = document.createElement("div");
   panel.className = className;
   viewer.appendChild(panel);
-  vi.spyOn(panel, "getBoundingClientRect").mockReturnValue({ left: 0, top: 0, right: 800, bottom: 800, width: 800, height: 800, x: 0, y: 0, toJSON: () => ({}) } as DOMRect);
+  vi.spyOn(panel, "getBoundingClientRect").mockReturnValue({
+    left: 0,
+    top: 0,
+    right: 800,
+    bottom: 800,
+    width: 800,
+    height: 800,
+    x: 0,
+    y: 0,
+    toJSON: () => ({}),
+  } as DOMRect);
   return panel;
 }
 
@@ -114,13 +151,26 @@ describe("FeatureMarkerLayer", () => {
   let host: HTMLElement;
   let shell: HTMLElement;
   // The layer sits inside its viewer's root, as in the real shell; the layer measures only that root's panels.
-  beforeEach(() => { shell = document.createElement("main"); shell.className = "astraeus-shell"; host = document.createElement("div"); shell.appendChild(host); document.body.appendChild(shell); });
-  afterEach(() => { shell.remove(); vi.restoreAllMocks(); });
+  beforeEach(() => {
+    shell = document.createElement("main");
+    shell.className = "astraeus-shell";
+    host = document.createElement("div");
+    shell.appendChild(host);
+    document.body.appendChild(shell);
+  });
+  afterEach(() => {
+    shell.remove();
+    vi.restoreAllMocks();
+  });
   const button = (key: string) => host.querySelector<HTMLButtonElement>(`[data-feature-key="${key}"]`)!;
 
   it("builds one named, hidden button per place and shows only the near-side place of a drawn body, at its screen spot", () => {
     const layer = new FeatureMarkerLayer(host, specs, vi.fn());
-    expect([...host.querySelectorAll("button")].map((b) => b.getAttribute("aria-label"))).toEqual(["Near Crater", "Far Crater", "Moon Spot"]);
+    expect([...host.querySelectorAll("button")].map((b) => b.getAttribute("aria-label"))).toEqual([
+      "Near Crater",
+      "Far Crater",
+      "Moon Spot",
+    ]);
     expect(host.querySelectorAll("button[hidden]")).toHaveLength(3);
     const readout = layer.update(hostOf, camera, 45, 800, 800, null, 1)!;
     expect(button("io:near").hidden).toBe(false);
@@ -180,7 +230,9 @@ describe("FeatureMarkerLayer", () => {
     vi.spyOn(performance, "now").mockReturnValue(2e9);
     layer.update(hostOf, camera, 45, 800, 800, null, 1);
     expect(button("io:near").hidden).toBe(true);
-    stranger.remove(); own.remove(); other.remove();
+    stranger.remove();
+    own.remove();
+    other.remove();
   });
 
   it("tells the caller which place was pressed without letting the press reach the camera, and removes itself on dispose", () => {

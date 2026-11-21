@@ -6,7 +6,9 @@ export const BOOT_FADE_LIMITS = { min: 0, max: 3 } as const;
 const STORAGE_KEY = "astraeus.loadFade";
 
 function clampFade(seconds: number): number {
-  return Number.isFinite(seconds) ? Math.min(BOOT_FADE_LIMITS.max, Math.max(BOOT_FADE_LIMITS.min, seconds)) : BOOT_FADE_DEFAULT_SECONDS;
+  return Number.isFinite(seconds)
+    ? Math.min(BOOT_FADE_LIMITS.max, Math.max(BOOT_FADE_LIMITS.min, seconds))
+    : BOOT_FADE_DEFAULT_SECONDS;
 }
 
 /** The fade time in force: the look's `loadFadeSeconds` (the scene's, or the address's over it), else the saved setting, else the default. */
@@ -15,11 +17,17 @@ export function bootFadeSeconds(look: { readonly loadFadeSeconds?: number } = {}
   try {
     const saved = window.localStorage.getItem(STORAGE_KEY);
     if (saved !== null) return clampFade(Number(saved));
-  } catch { /* storage unavailable: the default stands */ }
+  } catch {
+    /* storage unavailable: the default stands */
+  }
   return BOOT_FADE_DEFAULT_SECONDS;
 }
 
 /** Saves the fade time for the next load. */
 export function saveBootFadeSeconds(seconds: number): void {
-  try { window.localStorage.setItem(STORAGE_KEY, String(clampFade(seconds))); } catch { /* not saved */ }
+  try {
+    window.localStorage.setItem(STORAGE_KEY, String(clampFade(seconds)));
+  } catch {
+    /* not saved */
+  }
 }

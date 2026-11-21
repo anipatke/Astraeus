@@ -16,5 +16,10 @@ export interface PlanetEntry extends SwitchEntry {
 
 /** The planet to open (the requested one when it exists, else the one that is the default, else the first) and the switch listing every planet. Undefined when there are none. */
 export function choosePlanet(entries: readonly PlanetEntry[], requested: string | null) {
-  return chooseSwitch(entries, requested, { label: PLANET_SWITCH_LABEL, param: PLANET_PARAM, keep: PLANET_SWITCH_KEEPS }, entries.find((entry) => entry.isDefault)?.name);
+  return chooseSwitch(
+    entries,
+    requested,
+    { label: PLANET_SWITCH_LABEL, param: PLANET_PARAM, keep: PLANET_SWITCH_KEEPS },
+    entries.find((entry) => entry.isDefault)?.name,
+  );
 }

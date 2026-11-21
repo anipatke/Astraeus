@@ -5,7 +5,14 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { Scene } from "astraeus";
-import { EXAMPLES_DIR, exampleNames, firstSentence, readCatalogue, renderCatalogueMain, shelfExports } from "../tools/site/shelf-catalogue.mjs";
+import {
+  EXAMPLES_DIR,
+  exampleNames,
+  firstSentence,
+  readCatalogue,
+  renderCatalogueMain,
+  shelfExports,
+} from "../tools/site/shelf-catalogue.mjs";
 import { addPartsStatement, importLines } from "../src/catalogue/sourceLines";
 import { holdsAddLines } from "../tools/validate/catalogue-lines.mjs";
 
@@ -17,17 +24,38 @@ const exampleSource = (name: string): string => readFileSync(join(EXAMPLES_DIR, 
 
 describe("the catalogue holds every shelf export and nothing else", () => {
   it("finds every shelf part as an @shelf export", () => {
-    expect(shelfNames).toEqual(["actions", "chart", "colourKey", "customBlock", "explainer", "filterChips", "panel", "readoutTile"]);
+    expect(shelfNames).toEqual([
+      "actions",
+      "chart",
+      "colourKey",
+      "customBlock",
+      "explainer",
+      "filterChips",
+      "panel",
+      "readoutTile",
+    ]);
   });
   it("has an entry for each @shelf export", () => {
-    expect(shelfNames.filter((name) => !entryNames.includes(name)), "exports with no entry in data/shelf-catalogue.json").toEqual([]);
+    expect(
+      shelfNames.filter((name) => !entryNames.includes(name)),
+      "exports with no entry in data/shelf-catalogue.json",
+    ).toEqual([]);
   });
   it("has an example for each @shelf export", () => {
-    expect(shelfNames.filter((name) => !exampleNames().includes(name)), "exports with no example in src/catalogue/examples").toEqual([]);
+    expect(
+      shelfNames.filter((name) => !exampleNames().includes(name)),
+      "exports with no example in src/catalogue/examples",
+    ).toEqual([]);
   });
   it("names no entry or example that is not a @shelf export", () => {
-    expect(entryNames.filter((name) => !shelfNames.includes(name)), "entries naming no such export").toEqual([]);
-    expect(exampleNames().filter((name) => !shelfNames.includes(name)), "examples naming no such export").toEqual([]);
+    expect(
+      entryNames.filter((name) => !shelfNames.includes(name)),
+      "entries naming no such export",
+    ).toEqual([]);
+    expect(
+      exampleNames().filter((name) => !shelfNames.includes(name)),
+      "examples naming no such export",
+    ).toEqual([]);
   });
   it("lists no export twice, and gives every entry a use for a known story job", () => {
     expect(new Set(entryNames).size).toBe(entryNames.length);
@@ -40,13 +68,17 @@ describe("the catalogue holds every shelf export and nothing else", () => {
     }
   });
   it("covers the four story jobs between its uses", () => {
-    expect(new Set(catalogue.parts.flatMap((part) => part.uses.map((use) => use.job)))).toEqual(new Set(["switch", "filter", "readout", "explainer"]));
+    expect(new Set(catalogue.parts.flatMap((part) => part.uses.map((use) => use.job)))).toEqual(
+      new Set(["switch", "filter", "readout", "explainer"]),
+    );
   });
   it("gives every entry its plain words: a name, a purpose and an example, and a plain label for each story job", () => {
     for (const part of catalogue.parts) {
-      for (const field of ["name", "purpose", "example"] as const) expect(typeof part[field] === "string" && part[field].trim() !== "", `${part.export}: ${field}`).toBe(true);
+      for (const field of ["name", "purpose", "example"] as const)
+        expect(typeof part[field] === "string" && part[field].trim() !== "", `${part.export}: ${field}`).toBe(true);
     }
-    for (const job of Object.keys(catalogue.jobs)) expect(catalogue.jobLabels[job]?.trim(), `job label for ${job}`).toBeTruthy();
+    for (const job of Object.keys(catalogue.jobs))
+      expect(catalogue.jobLabels[job]?.trim(), `job label for ${job}`).toBeTruthy();
   });
   it("has an out-of-the-box section", () => {
     expect(catalogue.outOfTheBox.length).toBeGreaterThan(3);
@@ -71,7 +103,11 @@ describe.each(shelfNames)("the example for %s", (name) => {
     expect(holdsAddLines(source, add)).toBe(true);
     // the journey's first assertion compared the left-aligned lines with the indented code as they stand, and failed for every example
     // (a statement the layout keeps on one line is a substring of its indented line, so the point is made for statements of several lines)
-    if (add.includes("\n")) expect(source.includes(add), "the example's addParts statement is indented, so a plain substring test cannot be the check").toBe(false);
+    if (add.includes("\n"))
+      expect(
+        source.includes(add),
+        "the example's addParts statement is indented, so a plain substring test cannot be the check",
+      ).toBe(false);
   });
   it("uses the part it is for", () => {
     const body = addPartsStatement(exampleSource(name));
@@ -89,14 +125,22 @@ describe.each(shelfNames)("the example for %s", (name) => {
 describe("the page text", () => {
   const main = renderCatalogueMain();
   it("has an entry, a run button and the code places for each part, in the catalogue's order", () => {
-    const found = [...main.matchAll(/<article class="part" id="part-([^"]+)" data-part="([^"]+)"/g)].map((match) => match[2]);
+    const found = [...main.matchAll(/<article class="part" id="part-([^"]+)" data-part="([^"]+)"/g)].map(
+      (match) => match[2],
+    );
     expect(found).toEqual(catalogue.parts.map((part) => part.export));
     expect(main.match(/data-part-run/g)?.length).toBe(shelfNames.length);
-    for (const hook of ["data-part-stage", "data-part-import", "data-part-add", "data-part-code"]) expect(main.match(new RegExp(hook, "g"))?.length, hook).toBe(shelfNames.length);
+    for (const hook of ["data-part-stage", "data-part-import", "data-part-add", "data-part-code"])
+      expect(main.match(new RegExp(hook, "g"))?.length, hook).toBe(shelfNames.length);
   });
   it("gives each part the first sentence of its doc comment (in the developers fold)", () => {
     for (const { name, doc } of shelf) {
-      const sentence = firstSentence(doc).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/`([^`]+)`/g, "<code>$1</code>");
+      const sentence = firstSentence(doc)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/`([^`]+)`/g, "<code>$1</code>");
       expect(main, name).toContain(`<p class="what">${sentence}</p>`);
     }
   });
@@ -128,12 +172,13 @@ describe("the page text", () => {
 });
 
 describe("holdsAddLines (the catalogue journey's shown-code check, I-188)", () => {
-  const code = "export function buildScene() {\n  const scene = makeScene();\n  scene.addParts([\n    panel({ id: \"a\" }),\n  ]);\n  return scene;\n}";
+  const code =
+    'export function buildScene() {\n  const scene = makeScene();\n  scene.addParts([\n    panel({ id: "a" }),\n  ]);\n  return scene;\n}';
   it("finds left-aligned add lines in indented code, line by line", () => {
-    expect(holdsAddLines(code, "scene.addParts([\n  panel({ id: \"a\" }),\n]);")).toBe(true);
+    expect(holdsAddLines(code, 'scene.addParts([\n  panel({ id: "a" }),\n]);')).toBe(true);
   });
   it("refuses add lines the code does not hold as written, out of order, split from each other or empty", () => {
-    expect(holdsAddLines(code, "scene.addParts([\n  panel({ id: \"b\" }),\n]);")).toBe(false);
+    expect(holdsAddLines(code, 'scene.addParts([\n  panel({ id: "b" }),\n]);')).toBe(false);
     expect(holdsAddLines(code, "]);\nscene.addParts([")).toBe(false);
     expect(holdsAddLines(code, "scene.addParts([\n]);")).toBe(false);
     expect(holdsAddLines(code, "addParts([")).toBe(false);

@@ -8,7 +8,9 @@ import { moonDataFolder } from "./moonData";
 // O-084 T-356 (AH-03): systems made from one configuration and one reader share the decoded chunks of that source; each still answers only for what its own requests asked for.
 const folder = moonDataFolder("jupiter");
 const index = readJson(`${folder}index.json`) as { bodies: { id: string; chunks: { path: string }[] }[] };
-const chunkUrls: Record<string, string> = Object.fromEntries(index.bodies.flatMap((body) => body.chunks.map(({ path }) => [path, `${folder}${path}`])));
+const chunkUrls: Record<string, string> = Object.fromEntries(
+  index.bodies.flatMap((body) => body.chunks.map(({ path }) => [path, `${folder}${path}`])),
+);
 const at = (iso: string) => Date.parse(iso);
 const reader = () => async () => index;
 
@@ -16,10 +18,18 @@ let fetched: string[] = [];
 let failOnce: string | null = null;
 const fetchBytes = async (url: string): Promise<Uint8Array> => {
   fetched.push(url.slice(folder.length));
-  if (failOnce !== null && url.endsWith(failOnce)) { failOnce = null; throw new Error("network down"); }
+  if (failOnce !== null && url.endsWith(failOnce)) {
+    failOnce = null;
+    throw new Error("network down");
+  }
   return readBytes(url);
 };
-const request = (start: string, end: string, bodies: string[] = ["io"]): MoonSystemLoad => ({ window: { startUtcMs: at(start), endUtcMs: at(end) }, bodies, chunkUrls, fetchBytes });
+const request = (start: string, end: string, bodies: string[] = ["io"]): MoonSystemLoad => ({
+  window: { startUtcMs: at(start), endUtcMs: at(end) },
+  bodies,
+  chunkUrls,
+  fetchBytes,
+});
 const make = (source: () => Promise<unknown>) => {
   const system = createMoonSystem(JUPITER_MOON_SYSTEM.config);
   system.provideIndex(source);
@@ -30,7 +40,10 @@ const Y2016 = ["2016-03-01T00:00:00Z", "2016-04-01T00:00:00Z"] as const;
 const Y2020 = ["2020-03-01T00:00:00Z", "2020-04-01T00:00:00Z"] as const;
 const duplicates = (paths: string[]) => paths.filter((path, i) => paths.indexOf(path) !== i);
 
-beforeEach(() => { fetched = []; failOnce = null; });
+beforeEach(() => {
+  fetched = [];
+  failOnce = null;
+});
 
 describe("moon chunk cache", () => {
   it("(1) two systems of one reader fetch each chunk once and both answer", async () => {

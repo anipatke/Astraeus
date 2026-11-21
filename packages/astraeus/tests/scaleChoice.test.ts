@@ -1,5 +1,14 @@
 import { expectTypeOf, describe, expect, it } from "vitest";
-import { Scene, earth, readableScale, trueScale, type ScaleId, type ScalePolicy, type ViewerChange, type ViewerHandle } from "astraeus";
+import {
+  Scene,
+  earth,
+  readableScale,
+  trueScale,
+  type ScaleId,
+  type ScalePolicy,
+  type ViewerChange,
+  type ViewerHandle,
+} from "astraeus";
 
 // The scale is a closed choice of three ids; these are compile-time checks (the typecheck gate), plus one runtime row.
 describe("the scale setting is the three built-in choices", () => {
@@ -30,6 +39,8 @@ describe("the scale setting is the three built-in choices", () => {
   });
 
   it("a JavaScript caller passing another id still gets bad-scale", () => {
-    expect(() => new Scene().addBody(earth).setScale({ id: "huge" } as never)).toThrowError(expect.objectContaining({ code: "bad-scale" }));
+    expect(() => new Scene().addBody(earth).setScale({ id: "huge" } as never)).toThrowError(
+      expect.objectContaining({ code: "bad-scale" }),
+    );
   });
 });

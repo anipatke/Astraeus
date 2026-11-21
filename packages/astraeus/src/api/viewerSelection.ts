@@ -28,10 +28,14 @@ export class ViewerSelection {
     this.#last = first?.selected;
   }
 
-  clearListeners(): void { this.#listeners.clear(); }
+  clearListeners(): void {
+    this.#listeners.clear();
+  }
 
   /** The id of the selected object; undefined before the viewer is drawn, after it is gone and when nothing is selected. */
-  get selected(): string | undefined { return this.access.control()?.read().selected; }
+  get selected(): string | undefined {
+    return this.access.control()?.read().selected;
+  }
 
   /**
    * Selects an object the showing view shows, or a sky figure (`handle.skyFigures`), or clears the selection with `undefined`; the caller then publishes it as a host change (`onSelect` with `cause: "host"`; nothing is reported when the selection is already that).
@@ -42,7 +46,10 @@ export class ViewerSelection {
     if (id !== undefined) {
       const shown = [...control.cameraTargets(), ...(control.skyFigures ?? []).map((figure) => figure.id)];
       if (typeof id !== "string" || !shown.includes(id)) {
-        throw new SceneError("bad-selection", `setSelected: ${typeof id === "string" ? `"${id}"` : String(id)} is not an object the showing view shows, or a sky figure (${shown.join(", ")}); give one of them, or undefined to clear`);
+        throw new SceneError(
+          "bad-selection",
+          `setSelected: ${typeof id === "string" ? `"${id}"` : String(id)} is not an object the showing view shows, or a sky figure (${shown.join(", ")}); give one of them, or undefined to clear`,
+        );
       }
     }
     control.setSelected(id);
@@ -51,12 +58,18 @@ export class ViewerSelection {
   /** Calls `listener` when the selected object changes; returns the function that stops it. */
   onSelect(listener: (change: SelectionChange) => void): () => void {
     this.#listeners.add(listener);
-    return () => { this.#listeners.delete(listener); };
+    return () => {
+      this.#listeners.delete(listener);
+    };
   }
 
   publish(state: ViewerState, cause: ViewerChangeCause): void {
     if (!this.#known || state.selected === this.#last) return;
     this.#last = state.selected;
-    callListeners(this.#listeners, { ...(state.selected === undefined ? {} : { object: state.selected }), timeUtcMs: state.timeUtcMs, cause });
+    callListeners(this.#listeners, {
+      ...(state.selected === undefined ? {} : { object: state.selected }),
+      timeUtcMs: state.timeUtcMs,
+      cause,
+    });
   }
 }

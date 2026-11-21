@@ -53,14 +53,21 @@ export function glowProfile(windows: readonly TimelineWindow[], bounds: TimeBoun
   for (let i = 0; i <= GRID; i += 1) times.add(Math.round(bounds.startUtcMs + (span * i) / GRID));
   for (const window of windows) {
     if (window.rate === undefined) continue;
-    for (const time of [window.startUtcMs, window.endUtcMs, window.peakUtcMs, ...window.rate.samples.map((sample) => sample.timeUtcMs)]) {
+    for (const time of [
+      window.startUtcMs,
+      window.endUtcMs,
+      window.peakUtcMs,
+      ...window.rate.samples.map((sample) => sample.timeUtcMs),
+    ]) {
       if (time !== undefined && time >= bounds.startUtcMs && time <= bounds.endUtcMs) times.add(time);
     }
   }
-  return [...times].sort((a, b) => a - b).map((time) => ({
-    percent: timePositionPercent(time, bounds),
-    value: Math.max(0, ...windows.map((window) => (rateAt(window, time) ?? 0) / top)),
-  }));
+  return [...times]
+    .sort((a, b) => a - b)
+    .map((time) => ({
+      percent: timePositionPercent(time, bounds),
+      value: Math.max(0, ...windows.map((window) => (rateAt(window, time) ?? 0) / top)),
+    }));
 }
 
 /** Brightness 0-1 for an activity value under a look. */
@@ -81,14 +88,25 @@ const PART_TOKEN = { ahead: "var(--astraeus-glow)", played: "var(--astraeus-acce
 
 /** One stop's colour: the set colour at that opacity, or the part's token mixed to that opacity (resolved by the browser, so it follows the viewer's look). */
 function paint(set: string | undefined, part: "ahead" | "played", alpha: number): string {
-  return set === undefined ? `color-mix(in srgb, ${PART_TOKEN[part]} ${(alpha * 100).toFixed(1)}%, transparent)` : `rgba(${rgb(set)}, ${alpha.toFixed(3)})`;
+  return set === undefined
+    ? `color-mix(in srgb, ${PART_TOKEN[part]} ${(alpha * 100).toFixed(1)}%, transparent)`
+    : `rgba(${rgb(set)}, ${alpha.toFixed(3)})`;
 }
 
 /** A CSS gradient along the track (a null profile is the even glow) for the unplayed ("ahead") or played colour. */
-export function glowGradient(profile: readonly GlowStop[] | null, look: TimelineGlowLook, part: "ahead" | "played"): string {
+export function glowGradient(
+  profile: readonly GlowStop[] | null,
+  look: TimelineGlowLook,
+  part: "ahead" | "played",
+): string {
   const set = part === "ahead" ? look.color : look.playedColor;
   // No rate to follow: two stops, the same brightness end to end.
-  const stops = (profile ?? [{ percent: 0, value: 0 }, { percent: 100, value: 0 }]).map((stop) => {
+  const stops = (
+    profile ?? [
+      { percent: 0, value: 0 },
+      { percent: 100, value: 0 },
+    ]
+  ).map((stop) => {
     const b = profile === null ? Math.max(0, Math.min(1, look.steadyBrightness)) : glowBrightness(stop.value, look);
     const alpha = part === "ahead" ? b : look.playedFloor + (1 - look.playedFloor) * b;
     return `${paint(set, part, alpha)} ${stop.percent.toFixed(3)}%`;
@@ -97,7 +115,10 @@ export function glowGradient(profile: readonly GlowStop[] | null, look: Timeline
 }
 
 /** The window the time is inside that has a rate there, with the rate; null otherwise. */
-export function activityAt(windows: readonly TimelineWindow[], timeUtcMs: number): { readonly window: TimelineWindow; readonly rate: number } | null {
+export function activityAt(
+  windows: readonly TimelineWindow[],
+  timeUtcMs: number,
+): { readonly window: TimelineWindow; readonly rate: number } | null {
   for (const window of windows) {
     const rate = rateAt(window, timeUtcMs);
     if (rate !== null && window.rate !== undefined) return { window, rate };
@@ -117,7 +138,8 @@ export function glowDescription(windows: readonly TimelineWindow[]): string {
 /** The tooltip for a point on the track: the rate there, or the peak when nothing is happening. */
 export function glowTooltip(windows: readonly TimelineWindow[], timeUtcMs: number): string {
   const at = activityAt(windows, timeUtcMs);
-  if (at !== null && at.window.rate !== undefined) return `${at.window.label}: ${formatWindowRate(at.rate, at.window.rate.unit)}`;
+  if (at !== null && at.window.rate !== undefined)
+    return `${at.window.label}: ${formatWindowRate(at.rate, at.window.rate.unit)}`;
   const peaks = glowDescription(windows);
   return peaks === "" ? "" : `No activity here. ${peaks}`;
 }

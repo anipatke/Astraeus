@@ -64,7 +64,10 @@ async function fetched(source, cache) {
   }
   const bytes = readFileSync(path);
   const sha = createHash("sha256").update(bytes).digest("hex");
-  if (sha !== source.sha256) throw new Error(`${path}: SHA-256 ${sha} is not the pinned ${source.sha256} (delete the cached file to fetch again, or update the pin on purpose)`);
+  if (sha !== source.sha256)
+    throw new Error(
+      `${path}: SHA-256 ${sha} is not the pinned ${source.sha256} (delete the cached file to fetch again, or update the pin on purpose)`,
+    );
   return bytes;
 }
 
@@ -76,10 +79,20 @@ export function precessionB1875ToJ2000() {
   const T = (startJd - 2451545.0) / 36525;
   const t = -T;
   const arcsec = rad / 3600;
-  const zeta = ((2306.2181 + 1.39656 * T - 0.000139 * T * T) * t + (0.30188 - 0.000344 * T) * t * t + 0.017998 * t ** 3) * arcsec;
-  const z = ((2306.2181 + 1.39656 * T - 0.000139 * T * T) * t + (1.09468 + 0.000067 * T) * t * t + 0.018203 * t ** 3) * arcsec;
-  const theta = ((2004.3109 - 0.8533 * T - 0.000217 * T * T) * t - (0.42665 + 0.000217 * T) * t * t - 0.041833 * t ** 3) * arcsec;
-  const [cz, sz, cth, sth, cze, sze] = [Math.cos(z), Math.sin(z), Math.cos(theta), Math.sin(theta), Math.cos(zeta), Math.sin(zeta)];
+  const zeta =
+    ((2306.2181 + 1.39656 * T - 0.000139 * T * T) * t + (0.30188 - 0.000344 * T) * t * t + 0.017998 * t ** 3) * arcsec;
+  const z =
+    ((2306.2181 + 1.39656 * T - 0.000139 * T * T) * t + (1.09468 + 0.000067 * T) * t * t + 0.018203 * t ** 3) * arcsec;
+  const theta =
+    ((2004.3109 - 0.8533 * T - 0.000217 * T * T) * t - (0.42665 + 0.000217 * T) * t * t - 0.041833 * t ** 3) * arcsec;
+  const [cz, sz, cth, sth, cze, sze] = [
+    Math.cos(z),
+    Math.sin(z),
+    Math.cos(theta),
+    Math.sin(theta),
+    Math.cos(zeta),
+    Math.sin(zeta),
+  ];
   return [
     [cz * cth * cze - sz * sze, -cz * cth * sze - sz * cze, -cz * sth],
     [sz * cth * cze + cz * sze, -sz * cth * sze + cz * cze, -sz * sth],
@@ -87,12 +100,16 @@ export function precessionB1875ToJ2000() {
   ];
 }
 
-export const unit = (raDeg, decDeg) => [Math.cos(decDeg * rad) * Math.cos(raDeg * rad), Math.cos(decDeg * rad) * Math.sin(raDeg * rad), Math.sin(decDeg * rad)];
+export const unit = (raDeg, decDeg) => [
+  Math.cos(decDeg * rad) * Math.cos(raDeg * rad),
+  Math.cos(decDeg * rad) * Math.sin(raDeg * rad),
+  Math.sin(decDeg * rad),
+];
 const apply = (m, v) => m.map((row) => row[0] * v[0] + row[1] * v[1] + row[2] * v[2]);
 const dot = (a, b) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
 const cross = (a, b) => [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];
 const angleDeg = (a, b) => Math.acos(Math.max(-1, Math.min(1, dot(a, b)))) / rad;
-const toRaDec = (v) => [((Math.atan2(v[1], v[0]) / rad) + 360) % 360, Math.asin(Math.max(-1, Math.min(1, v[2]))) / rad];
+const toRaDec = (v) => [(Math.atan2(v[1], v[0]) / rad + 360) % 360, Math.asin(Math.max(-1, Math.min(1, v[2]))) / rad];
 
 /** Angular distance in degrees from unit vector `p` to the great-circle segment `a`-`b` (short, under 90 degrees). */
 export function distanceToSegmentDeg(p, a, b) {
@@ -100,7 +117,8 @@ export function distanceToSegmentDeg(p, a, b) {
   const length = Math.hypot(...n);
   if (length < 1e-12) return angleDeg(p, a);
   const nn = n.map((x) => x / length);
-  if (dot(cross(a, p), nn) >= 0 && dot(cross(p, b), nn) >= 0) return Math.abs(Math.asin(Math.max(-1, Math.min(1, dot(p, nn))))) / rad;
+  if (dot(cross(a, p), nn) >= 0 && dot(cross(p, b), nn) >= 0)
+    return Math.abs(Math.asin(Math.max(-1, Math.min(1, dot(p, nn))))) / rad;
   return Math.min(angleDeg(p, a), angleDeg(p, b));
 }
 
@@ -135,8 +153,11 @@ export function chainRings(edges) {
   const rings = new Map();
   for (const [code, list] of byCode) {
     const at = new Map();
-    for (const edge of list) for (const corner of [edge.a.id, edge.b.id]) at.set(corner, [...(at.get(corner) ?? []), edge]);
-    for (const [corner, touching] of at) if (touching.length !== 2) throw new Error(`${code}: corner ${corner} has ${touching.length} edges, a closed outline needs 2`);
+    for (const edge of list)
+      for (const corner of [edge.a.id, edge.b.id]) at.set(corner, [...(at.get(corner) ?? []), edge]);
+    for (const [corner, touching] of at)
+      if (touching.length !== 2)
+        throw new Error(`${code}: corner ${corner} has ${touching.length} edges, a closed outline needs 2`);
     const walk = [];
     const used = new Set();
     let edge = list[0];
@@ -163,7 +184,10 @@ export function edgePoints(edge, stepDeg) {
   const dDec = b.dec - a.dec;
   const length = kind === "M" ? Math.abs(dDec) : Math.abs(dRa) * Math.cos(a.dec * rad);
   // A parallel is not a great circle: a straight chord of length L bows off it by about L^2 tan(dec) / 8, so near a pole the step shrinks to keep the bow under about 0.005 degree.
-  const step = kind === "P" ? Math.min(stepDeg, CHORD_STEP_DEG / Math.sqrt(Math.max(1, Math.tan(Math.abs(a.dec) * rad)))) : stepDeg;
+  const step =
+    kind === "P"
+      ? Math.min(stepDeg, CHORD_STEP_DEG / Math.sqrt(Math.max(1, Math.tan(Math.abs(a.dec) * rad))))
+      : stepDeg;
   const n = Math.max(1, Math.ceil(length / step - 1e-9));
   return Array.from({ length: n }, (_, k) => [(a.ra + (dRa * k) / n + 360) % 360, a.dec + (dDec * k) / n]);
 }
@@ -182,9 +206,15 @@ export function figureSteps(lines) {
     for (let i = 0; i + 1 < line.length; i += 1) {
       counts.steps += 1;
       const [p, q] = [line[i], line[i + 1]];
-      if (p === q) { counts.zeroLength += 1; continue; }
+      if (p === q) {
+        counts.zeroLength += 1;
+        continue;
+      }
       const key = p < q ? `${p}-${q}` : `${q}-${p}`;
-      if (seen.has(key)) { counts.repeated += 1; continue; }
+      if (seen.has(key)) {
+        counts.repeated += 1;
+        continue;
+      }
       seen.add(key);
       pairs.push([p, q]);
     }
@@ -194,8 +224,22 @@ export function figureSteps(lines) {
 
 // ---- Names (IAU table) ----
 
-const entities = { "&amp;": "&", "&nbsp;": " ", "&#8217;": "'", "&rsquo;": "'", "&lt;": "<", "&gt;": ">", "&quot;": "\"" };
-const plain = (html) => html.replace(/<em>.*?<\/em>/gs, "").replace(/<[^>]*>/g, " ").replace(/&[#\w]+;/g, (e) => entities[e] ?? e).replace(/\s+/g, " ").trim();
+const entities = {
+  "&amp;": "&",
+  "&nbsp;": " ",
+  "&#8217;": "'",
+  "&rsquo;": "'",
+  "&lt;": "<",
+  "&gt;": ">",
+  "&quot;": '"',
+};
+const plain = (html) =>
+  html
+    .replace(/<em>.*?<\/em>/gs, "")
+    .replace(/<[^>]*>/g, " ")
+    .replace(/&[#\w]+;/g, (e) => entities[e] ?? e)
+    .replace(/\s+/g, " ")
+    .trim();
 
 /** The IAU page's table: `{ Abbr: { name, english, genitive } }` for the 88 constellations. */
 export function parseNames(html) {
@@ -204,7 +248,12 @@ export function parseNames(html) {
     const cells = [...row.matchAll(/<td[^>]*>(.*?)<\/td>/gs)].map((one) => one[1]);
     if (cells.length < 4) continue;
     // The pronunciation follows the name's anchor (name cell) or a line break or paragraph (genitive cell); only the name and the genitive are kept.
-    const [name, abbr, english, genitive] = [plain(cells[0].split(/<a name=/)[0]), plain(cells[1]), plain(cells[2]), plain(cells[3].replace(/^\s*<p>/, "").split(/<br\s*\/?>|<\/p>/)[0])];
+    const [name, abbr, english, genitive] = [
+      plain(cells[0].split(/<a name=/)[0]),
+      plain(cells[1]),
+      plain(cells[2]),
+      plain(cells[3].replace(/^\s*<p>/, "").split(/<br\s*\/?>|<\/p>/)[0]),
+    ];
     if (!/^[A-Z][A-Za-z]{2}$/.test(abbr)) continue;
     names[abbr] = { name, english, genitive };
   }
@@ -215,10 +264,13 @@ export function parseNames(html) {
 
 /** Parses `bound_20.dat` rows (`raDeg decDeg CODE flag`; flag `O` for an original corner, `I` for an interpolated point). */
 export function parseVizier(text) {
-  return text.split("\n").filter((line) => line.trim() !== "").map((line) => {
-    const [ra, dec, code, flag] = line.trim().split(/\s+/);
-    return { ra: Number(ra), dec: Number(dec), code, flag };
-  });
+  return text
+    .split("\n")
+    .filter((line) => line.trim() !== "")
+    .map((line) => {
+      const [ra, dec, code, flag] = line.trim().split(/\s+/);
+      return { ra: Number(ra), dec: Number(dec), code, flag };
+    });
 }
 
 /**
@@ -256,7 +308,13 @@ export function crossCheck(vizier, ringsByCode, corners) {
       if (nearest > ours.deg) ours = { deg: nearest, code };
     }
   }
-  return { outline, corner, ours, vizierOriginals: [...originals.values()].reduce((x, y) => x + y, 0), ourCorners: [...corners.values()].reduce((x, y) => x + y.length, 0) };
+  return {
+    outline,
+    corner,
+    ours,
+    vizierOriginals: [...originals.values()].reduce((x, y) => x + y, 0),
+    ourCorners: [...corners.values()].reduce((x, y) => x + y.length, 0),
+  };
 }
 
 /** The largest distance in degrees between a shipped outline's chords and the same edges drawn finely: what drawing straight lines between the stored points costs. */
@@ -282,13 +340,16 @@ function resolveEnds(figures, hips, starRows) {
   const positions = {};
   const out = {};
   for (const [abbr, pairs] of Object.entries(figures)) {
-    out[abbr] = pairs.map((pair) => pair.map((hip) => {
-      if (hips.has(hip)) return hip;
-      const known = POSITION_ENDS[hip];
-      if (known === undefined || !starRows.some((row) => row[0] === known.raDeg && row[1] === known.decDeg)) throw new Error(`${abbr}: HIP ${hip} is not in the engine star list and has no recorded position`);
-      positions[hip] = known.name;
-      return [known.raDeg, known.decDeg].map((x) => round(x, STAR_DECIMALS));
-    }));
+    out[abbr] = pairs.map((pair) =>
+      pair.map((hip) => {
+        if (hips.has(hip)) return hip;
+        const known = POSITION_ENDS[hip];
+        if (known === undefined || !starRows.some((row) => row[0] === known.raDeg && row[1] === known.decDeg))
+          throw new Error(`${abbr}: HIP ${hip} is not in the engine star list and has no recorded position`);
+        positions[hip] = known.name;
+        return [known.raDeg, known.decDeg].map((x) => round(x, STAR_DECIMALS));
+      }),
+    );
   }
   return { out, positions };
 }
@@ -306,7 +367,9 @@ export async function run({ cache, out }) {
   const names = parseNames(iauHtml);
   const abbrs = Object.keys(names).sort();
   if (abbrs.length !== 88) throw new Error(`the IAU table has ${abbrs.length} constellations, not 88`);
-  const nameMismatch = stellarium.constellations.filter((c) => names[c.id.split(" ").at(-1)]?.name !== c.common_name?.native).map((c) => c.id);
+  const nameMismatch = stellarium.constellations
+    .filter((c) => names[c.id.split(" ").at(-1)]?.name !== c.common_name?.native)
+    .map((c) => c.id);
 
   const stepsOf = {};
   const totals = { steps: 0, zeroLength: 0, repeated: 0 };
@@ -317,7 +380,8 @@ export async function run({ cache, out }) {
     stepsOf[abbr] = pairs;
     for (const key of Object.keys(totals)) totals[key] += counts[key];
   }
-  if (Object.keys(stepsOf).sort().join() !== abbrs.join()) throw new Error("Stellarium's figures and the IAU table name different constellations");
+  if (Object.keys(stepsOf).sort().join() !== abbrs.join())
+    throw new Error("Stellarium's figures and the IAU table name different constellations");
   const { out: figures, positions } = resolveEnds(stepsOf, hips, starRows);
 
   const matrix = precessionB1875ToJ2000();
@@ -334,18 +398,42 @@ export async function run({ cache, out }) {
     const ring = ringJ2000(walk, STEP_DEG, matrix);
     pointCount += ring.length;
     boundaries[key] = [...(boundaries[key] ?? []), flat(ring)];
-    fineByCode.set(code, ringJ2000(walk, 0.05, matrix).map((p) => unit(...p)));
-    cornersByCode.set(code, walk.map((edge) => unit(...toRaDec(apply(matrix, unit(edge.a.ra, edge.a.dec))))));
+    fineByCode.set(
+      code,
+      ringJ2000(walk, 0.05, matrix).map((p) => unit(...p)),
+    );
+    cornersByCode.set(
+      code,
+      walk.map((edge) => unit(...toRaDec(apply(matrix, unit(edge.a.ra, edge.a.dec))))),
+    );
     drift = Math.max(drift, chordDrift(walk, matrix));
   }
-  if (Object.keys(boundaries).length !== 88) throw new Error(`${Object.keys(boundaries).length} boundary groups, not 88`);
+  if (Object.keys(boundaries).length !== 88)
+    throw new Error(`${Object.keys(boundaries).length} boundary groups, not 88`);
 
-  if (drift > CHORD_LIMIT_DEG) throw new Error(`a shipped outline's chords lie ${drift.toFixed(4)} degrees from its edge, above ${CHORD_LIMIT_DEG}`);
+  if (drift > CHORD_LIMIT_DEG)
+    throw new Error(
+      `a shipped outline's chords lie ${drift.toFixed(4)} degrees from its edge, above ${CHORD_LIMIT_DEG}`,
+    );
   const check = crossCheck(vizier, fineByCode, cornersByCode);
   const maxDifference = Math.max(check.outline.deg, check.corner.deg, check.ours.deg);
-  if (maxDifference > TOLERANCE_DEG) throw new Error(`boundary cross-check failed: ${maxDifference.toFixed(5)} degrees is above ${TOLERANCE_DEG} (outline ${check.outline.code}, corner ${check.corner.code})`);
+  if (maxDifference > TOLERANCE_DEG)
+    throw new Error(
+      `boundary cross-check failed: ${maxDifference.toFixed(5)} degrees is above ${TOLERANCE_DEG} (outline ${check.outline.code}, corner ${check.corner.code})`,
+    );
 
-  const provenance = buildProvenance({ totals, figures, positions, boundaries, pointCount, check, drift, nameMismatch, walks, stellarium });
+  const provenance = buildProvenance({
+    totals,
+    figures,
+    positions,
+    boundaries,
+    pointCount,
+    check,
+    drift,
+    nameMismatch,
+    walks,
+    stellarium,
+  });
   mkdirSync(out, { recursive: true });
   writeFileSync(join(out, "figures.json"), json(figures));
   writeFileSync(join(out, "boundaries.json"), json(boundaries));
@@ -354,13 +442,25 @@ export async function run({ cache, out }) {
   return provenance;
 }
 
-function buildProvenance({ totals, figures, positions, boundaries, pointCount, check, drift, nameMismatch, walks, stellarium }) {
+function buildProvenance({
+  totals,
+  figures,
+  positions,
+  boundaries,
+  pointCount,
+  check,
+  drift,
+  nameMismatch,
+  walks,
+  stellarium,
+}) {
   const lines = Object.values(figures).reduce((sum, pairs) => sum + pairs.length, 0);
   const ends = Object.values(figures).flat(2);
   const hipEnds = ends.filter((end) => typeof end === "number").length;
   return {
     package: "astraeus-data-constellations",
-    generator: "tools/import/constellations.mjs (rerun it to rebuild every file here; the pins below are checked by SHA-256)",
+    generator:
+      "tools/import/constellations.mjs (rerun it to rebuild every file here; the pins below are checked by SHA-256)",
     sources: {
       figures: {
         what: "IAU constellation stick figures (drawn for the IAU by Sky & Telescope, Alan MacRobert; Roger Sinnott and Rick Fienberg), as Hipparcos-number lists typed in by the Stellarium team",
@@ -375,7 +475,8 @@ function buildProvenance({ totals, figures, positions, boundaries, pointCount, c
         from: `Stellarium skycultures/modern_iau/index.json at commit ${STELLARIUM_COMMIT} (edges, edges_source ${stellarium.edges_source})`,
         licence: "CC BY-SA 4.0",
         licenceUrl: "https://creativecommons.org/licenses/by-sa/4.0/",
-        reference: "Delporte, E. 1930, Delimitation scientifique des constellations (Cambridge University Press); Davenhall and Leggett 1989, CDS catalogue VI/49",
+        reference:
+          "Delporte, E. 1930, Delimitation scientifique des constellations (Cambridge University Press); Davenhall and Leggett 1989, CDS catalogue VI/49",
       },
       names: {
         what: "IAU constellation names, abbreviations, English names and genitives",
@@ -423,9 +524,11 @@ function buildProvenance({ totals, figures, positions, boundaries, pointCount, c
       ourCorners: check.ourCorners,
       maxOurCornerToVizierPointDegrees: round(check.ours.deg, 4),
       maxShippedChordDriftDegrees: round(drift, 5),
-      method: "Every VI/49 J2000 point (original and interpolated) is compared with our outline of the same code drawn at 0.05 degree spacing (distance to the nearest great-circle segment); every original VI/49 corner is compared with the nearest corner of ours. In the other direction, every corner of ours is compared with the nearest VI/49 point of the same code (of either kind: the two polar constellations' corners are flagged interpolated there, which is why 29 more corners are ours than original VI/49 corners). The chord drift is how far the shipped outline's straight lines lie from the same edges drawn at 0.02 degrees.",
+      method:
+        "Every VI/49 J2000 point (original and interpolated) is compared with our outline of the same code drawn at 0.05 degree spacing (distance to the nearest great-circle segment); every original VI/49 corner is compared with the nearest corner of ours. In the other direction, every corner of ours is compared with the nearest VI/49 point of the same code (of either kind: the two polar constellations' corners are flagged interpolated there, which is why 29 more corners are ours than original VI/49 corners). The chord drift is how far the shipped outline's straight lines lie from the same edges drawn at 0.02 degrees.",
     },
-    precession: "IAU 1976 (Lieske) precession angles from B1875.0 (JD 2405889.25855) to J2000.0; no FK4 to FK5 equinox correction (about 0.07 arcseconds).",
+    precession:
+      "IAU 1976 (Lieske) precession angles from B1875.0 (JD 2405889.25855) to J2000.0; no FK4 to FK5 equinox correction (about 0.07 arcseconds).",
   };
 }
 
@@ -434,6 +537,9 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     const at = process.argv.indexOf(name);
     return at >= 0 ? resolve(process.argv[at + 1]) : fallback;
   };
-  const provenance = await run({ cache: arg("--cache", join(tmpdir(), "astraeus-constellations-cache")), out: arg("--out", join(packageDir, "data")) });
+  const provenance = await run({
+    cache: arg("--cache", join(tmpdir(), "astraeus-constellations-cache")),
+    out: arg("--out", join(packageDir, "data")),
+  });
   console.log(JSON.stringify({ counts: provenance.counts, crossCheck: provenance.crossCheck }, null, 2));
 }

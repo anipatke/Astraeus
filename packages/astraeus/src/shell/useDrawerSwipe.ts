@@ -33,9 +33,14 @@ export function useDrawerSwipe({ onTap, onSwipe, thresholdPx }: Options) {
       swiped.current = true;
       onSwipe(dy < 0 ? "up" : "down");
     },
-    onPointerCancel: () => { start.current = null; },
+    onPointerCancel: () => {
+      start.current = null;
+    },
     onClick: () => {
-      if (swiped.current) { swiped.current = false; return; }
+      if (swiped.current) {
+        swiped.current = false;
+        return;
+      }
       onTap();
     },
   };

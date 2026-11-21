@@ -10,13 +10,27 @@ export const PROBE_FLYBY_UTC_MS = PROBE_START_UTC_MS + 200 * DAY_MS;
 
 /** The equator-frame image of each ecliptic axis, read from the engine by giving a path in the ecliptic plane three unit vectors and asking where they land (STYLE-07: no second obliquity constant, nothing from the engine's inside). */
 function eclipticAxes(): readonly (readonly number[])[] {
-  const axes = new Scene().addBody(earth).addTrajectory({ id: "axes", center: "earth", plane: "ecliptic-j2000", samples: [[1, 0, 0], [0, 1, 0], [0, 0, 1]].map((positionKm, i) => ({ time: PROBE_START_UTC_MS + i * 60_000, positionKm })) });
+  const axes = new Scene().addBody(earth).addTrajectory({
+    id: "axes",
+    center: "earth",
+    plane: "ecliptic-j2000",
+    samples: [
+      [1, 0, 0],
+      [0, 1, 0],
+      [0, 0, 1],
+    ].map((positionKm, i) => ({ time: PROBE_START_UTC_MS + i * 60_000, positionKm })),
+  });
   return [0, 1, 2].map((i) => [...axes.stateOf("axes", PROBE_START_UTC_MS + i * 60_000).positionKm]);
 }
 
 /** The made-up probe scene. */
 export function buildSyntheticProbeScene(): Scene {
-  const scene = new Scene().addBody(sun).addBody(venus, { enlarge: 60, orbit: true }).addBody(earth, { enlarge: 60, orbit: true }).addBody(mars, { enlarge: 60, orbit: true }).setTime(PROBE_START_UTC_MS);
+  const scene = new Scene()
+    .addBody(sun)
+    .addBody(venus, { enlarge: 60, orbit: true })
+    .addBody(earth, { enlarge: 60, orbit: true })
+    .addBody(mars, { enlarge: 60, orbit: true })
+    .setTime(PROBE_START_UTC_MS);
   const axes = eclipticAxes();
   /** A planet's place from the Sun at `timeUtcMs`, turned from the equator frame the scene answers in to the ecliptic frame the path is given in (km). */
   const eclipticPlace = (id: string, timeUtcMs: number): number[] => {
@@ -26,7 +40,10 @@ export function buildSyntheticProbeScene(): Scene {
   // A straight leg from a point 0.6 of the way from the Sun to Earth's place at the start, to Earth's place at the flyby, ten samples, then on along the same line for five more.
   const from = eclipticPlace("earth", PROBE_START_UTC_MS).map((v) => v * 0.6);
   const to = eclipticPlace("earth", PROBE_FLYBY_UTC_MS);
-  const samples = Array.from({ length: 16 }, (_, i) => ({ time: PROBE_START_UTC_MS + i * 20 * DAY_MS, positionKm: from.map((v, k) => v + ((to[k]! - v) * i) / 10) }));
+  const samples = Array.from({ length: 16 }, (_, i) => ({
+    time: PROBE_START_UTC_MS + i * 20 * DAY_MS,
+    positionKm: from.map((v, k) => v + ((to[k]! - v) * i) / 10),
+  }));
   scene.addTrajectory({
     id: "probe",
     label: "Made-up probe",
@@ -34,12 +51,24 @@ export function buildSyntheticProbeScene(): Scene {
     center: "sun",
     plane: "ecliptic-j2000",
     lineFixedTo: "sun",
-    provenance: { sourceType: "illustrative", sources: ["Made up for the Sun-centred path test; not a real spacecraft"], accuracy: "None claimed. A straight line ending at Earth's place on day 200.", notes: "Exists to prove a recorded path can be drawn fixed to the Sun beside enlarged planets." },
+    provenance: {
+      sourceType: "illustrative",
+      sources: ["Made up for the Sun-centred path test; not a real spacecraft"],
+      accuracy: "None claimed. A straight line ending at Earth's place on day 200.",
+      notes: "Exists to prove a recorded path can be drawn fixed to the Sun beside enlarged planets.",
+    },
     description: "An invented probe that starts inside Earth's orbit and is at Earth on day 200.",
     knownLimitations: ["Made up; not a real spacecraft.", "A straight line: it ignores the Sun's gravity."],
     anchors: [{ id: "probe-flyby", time: PROBE_FLYBY_UTC_MS }],
   });
-  scene.addEvents([{ id: "probe-flyby", label: "Made-up flyby of Earth", time: PROBE_FLYBY_UTC_MS }], { provenance: { sourceType: "illustrative", sources: ["Made up"], accuracy: "None claimed.", notes: "Not a real flyby." } });
+  scene.addEvents([{ id: "probe-flyby", label: "Made-up flyby of Earth", time: PROBE_FLYBY_UTC_MS }], {
+    provenance: {
+      sourceType: "illustrative",
+      sources: ["Made up"],
+      accuracy: "None claimed.",
+      notes: "Not a real flyby.",
+    },
+  });
   scene.setScale(solarSystemScale);
   scene.camera.follow("probe", { distance: 70_000 });
   scene.camera.fitOrbit(mars);

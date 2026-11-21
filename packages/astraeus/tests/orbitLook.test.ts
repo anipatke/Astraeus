@@ -43,14 +43,22 @@ describe("orbit look alpha, from time", () => {
   });
   it("keeps the ring continuous in the clock: a small step moves every vertex's alpha a little", () => {
     const step = P / 100_000;
-    for (let t = now - P; t <= now + P; t += P / 997) expect(Math.abs(ringAlpha(now, t, P, 0.1) - ringAlpha(now + step, t, P, 0.1))).toBeLessThan(2e-3);
+    for (let t = now - P; t <= now + P; t += P / 997)
+      expect(Math.abs(ringAlpha(now, t, P, 0.1) - ringAlpha(now + step, t, P, 0.1))).toBeLessThan(2e-3);
   });
 });
 
 describe("a composition path's orbit look", () => {
   it("takes Planetary Explorer's values by default, and Io drops only the ring's end fade", () => {
     expect(resolveOrbitLook(undefined)).toEqual(DEFAULT_ORBIT_LOOK);
-    expect(DEFAULT_ORBIT_LOOK).toMatchObject({ baseOpacity: 0.18, arcFraction: 0.2, arcPeak: 0.65, arcExponent: 2, zoomBoostBase: 0.45, zoomBoostArc: 0.3 });
+    expect(DEFAULT_ORBIT_LOOK).toMatchObject({
+      baseOpacity: 0.18,
+      arcFraction: 0.2,
+      arcPeak: 0.65,
+      arcExponent: 2,
+      zoomBoostBase: 0.45,
+      zoomBoostArc: 0.3,
+    });
     expect(resolveOrbitLook(jupiterIoSystem.paths![0].look)).toEqual({ ...DEFAULT_ORBIT_LOOK, endFadeOn: false });
     expect(moonPath.spanMs).toBe(SIDEREAL_MONTH_MS);
   });
@@ -58,7 +66,14 @@ describe("a composition path's orbit look", () => {
     expect(() => resolveOrbitLook({ endFade: 0.6 })).toThrow(/endFade/);
     expect(() => resolveOrbitLook({ arcFraction: -0.1 })).toThrow(/arcFraction/);
     expect(() => resolveOrbitLook({ arcPeak: Number.NaN })).toThrow(/arcPeak/);
-    expect(() => createComposition(catalogue, { id: "x", bodies: ["earth", "moon"], defaultCenter: "earth", paths: [{ body: "moon", spanMs: 1, look: { baseOpacity: 2 } }] })).toThrow(/baseOpacity/);
+    expect(() =>
+      createComposition(catalogue, {
+        id: "x",
+        bodies: ["earth", "moon"],
+        defaultCenter: "earth",
+        paths: [{ body: "moon", spanMs: 1, look: { baseOpacity: 2 } }],
+      }),
+    ).toThrow(/baseOpacity/);
     expect(() => resolveOrbitLook({ endFade: 0.5, arcFraction: 0.5 })).not.toThrow();
   });
 
@@ -183,7 +198,12 @@ describe("a composition path's orbit look", () => {
     const view = compositionPathView(moonPath, placement.resolver);
     view.sync(date, placement, readableScale, 0);
     expectArcOnTruePath(view, date);
-    for (const [jump, real] of [[3 * DAY, 1], [-9 * DAY, 2], [40 * DAY, 3], [0.5 * DAY, 4]] as const) {
+    for (const [jump, real] of [
+      [3 * DAY, 1],
+      [-9 * DAY, 2],
+      [40 * DAY, 3],
+      [0.5 * DAY, 4],
+    ] as const) {
       const now = date + jump;
       view.sync(now, placement, readableScale, real);
       const times = view.timesUtcMs;
@@ -266,7 +286,11 @@ describe("a composition path's orbit look", () => {
     const camera = new PerspectiveCamera(45, 1.6, 0.01, 1e6);
     camera.position.set(0, 0, 60);
     publishPathData(canvas, [view], camera);
-    return (JSON.parse(canvas.dataset.paths!) as { look: { ring: boolean; arc: boolean; endFade: boolean; zoomBrighten: boolean; ringOpacity: number } }[])[0].look;
+    return (
+      JSON.parse(canvas.dataset.paths!) as {
+        look: { ring: boolean; arc: boolean; endFade: boolean; zoomBrighten: boolean; ringOpacity: number };
+      }[]
+    )[0].look;
   };
 
   it("reports each layer and the ring's opacity in the scene's path readout as the controls change them, and reset restores them", () => {
@@ -275,7 +299,12 @@ describe("a composition path's orbit look", () => {
     const start = lookReadout(view);
     expect([start.ring, start.arc, start.endFade, start.zoomBrighten]).toEqual([true, true, true, true]);
     const look = view.defaultLook!;
-    const flags: [string, Partial<typeof look>, "ring" | "arc" | "endFade" | "zoomBrighten"][] = [["Orbit ring", { baseOn: false }, "ring"], ["Trailing arc", { arcOn: false }, "arc"], ["Fade ring ends", { endFadeOn: false }, "endFade"], ["Brighten when zoomed out", { zoomOn: false }, "zoomBrighten"]];
+    const flags: [string, Partial<typeof look>, "ring" | "arc" | "endFade" | "zoomBrighten"][] = [
+      ["Orbit ring", { baseOn: false }, "ring"],
+      ["Trailing arc", { arcOn: false }, "arc"],
+      ["Fade ring ends", { endFadeOn: false }, "endFade"],
+      ["Brighten when zoomed out", { zoomOn: false }, "zoomBrighten"],
+    ];
     for (const [, off, key] of flags) {
       view.setLook({ ...look, ...off });
       expect(lookReadout(view)[key]).toBe(false);
@@ -304,6 +333,9 @@ describe("a composition path's orbit look", () => {
     frame(date);
     for (const fraction of [0.6, 0.2, 0.4]) frame(date + fraction * 30 * DAY); // seeks
     let t = date;
-    for (let i = 0; i < 60; i += 1) { t += 12 * 60 * 60_000; frame(t); } // 60 frames at four times the fastest rate (3 h a frame): the same 30 days, the moon's whole orbit, with bigger steps
+    for (let i = 0; i < 60; i += 1) {
+      t += 12 * 60 * 60_000;
+      frame(t);
+    } // 60 frames at four times the fastest rate (3 h a frame): the same 30 days, the moon's whole orbit, with bigger steps
   });
 });

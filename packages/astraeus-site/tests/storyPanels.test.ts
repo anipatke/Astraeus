@@ -10,12 +10,26 @@ describe("the demo wiring (T-059 Done When 5)", () => {
   it("gives the first demo story seven sourced panels, in mission order, that sit on its own anchors and objects", () => {
     const scene = buildApollo11Scene();
     const panels = scene.panels;
-    const objects = [...scene.bodies.map(({ id }) => id), ...scene.paths.map(({ id }) => id), ...scene.groups.map(({ id }) => id)];
+    const objects = [
+      ...scene.bodies.map(({ id }) => id),
+      ...scene.paths.map(({ id }) => id),
+      ...scene.groups.map(({ id }) => id),
+    ];
     const { windowStartUtcMs, windowEndUtcMs } = scene.timeline;
-    expect(panels.map((panel) => panel.id)).toEqual(["tli-cutoff", "loi", "powered-descent", "touchdown", "ascent-docking", "tei", "splashdown"]);
+    expect(panels.map((panel) => panel.id)).toEqual([
+      "tli-cutoff",
+      "loi",
+      "powered-descent",
+      "touchdown",
+      "ascent-docking",
+      "tei",
+      "splashdown",
+    ]);
     for (const panel of panels) {
       expect(panel.provenance.sources.length).toBeGreaterThan(0);
-      expect(panel.provenance.sources.some((line) => /Mission Report \(MSC-00171\), Table \d-[IVX]+, p\. \d-\d+/.test(line))).toBe(true);
+      expect(
+        panel.provenance.sources.some((line) => /Mission Report \(MSC-00171\), Table \d-[IVX]+, p\. \d-\d+/.test(line)),
+      ).toBe(true);
       expect(panel.provenance.sourceType).toBe("observed");
       expect(panel.body.length).toBeGreaterThanOrEqual(1);
       if (panel.object !== undefined) expect(objects).toContain(panel.object);
@@ -24,12 +38,20 @@ describe("the demo wiring (T-059 Done When 5)", () => {
     }
     expect(panels[0]!.timeUtcMs).toBe(-14542676800);
     expect(panels[3]!.timeUtcMs).toBe(-14182940100);
-    expect(panels.map((panel) => panel.timeUtcMs)).toEqual([...panels.map((panel) => panel.timeUtcMs)].sort((a, b) => (a ?? 0) - (b ?? 0)));
+    expect(panels.map((panel) => panel.timeUtcMs)).toEqual(
+      [...panels.map((panel) => panel.timeUtcMs)].sort((a, b) => (a ?? 0) - (b ?? 0)),
+    );
   });
 });
 
 describe("warm, plain words with every figure kept in details (T-088 Done When 2-4)", () => {
-  type RawPanel = { readonly id: string; readonly title: string; readonly body: readonly string[]; readonly details?: readonly string[]; readonly provenance: { readonly sourceType: string; readonly sources: readonly string[] } };
+  type RawPanel = {
+    readonly id: string;
+    readonly title: string;
+    readonly body: readonly string[];
+    readonly details?: readonly string[];
+    readonly provenance: { readonly sourceType: string; readonly sources: readonly string[] };
+  };
   const stories: Readonly<Record<string, readonly RawPanel[]>> = {
     apollo11: (apolloPanelsFile as unknown as { panels: RawPanel[] }).panels,
     perseids: (perseidsPanelsFile as unknown as { panels: RawPanel[] }).panels,
@@ -45,40 +67,63 @@ describe("warm, plain words with every figure kept in details (T-088 Done When 2
     "At the far end of its orbit the comet is about 51 AU from the Sun, well beyond Neptune.":
       "At the far end of its orbit the comet is about 51 AU from the Sun (51 times Earth's distance from the Sun), well beyond Neptune.",
   };
-  const sentences = (paragraphs: readonly string[]): string[] => paragraphs.flatMap((paragraph) => paragraph.split(/(?<=[.!?])\s+(?=[A-Z])/)).map((sentence) => sentence.trim()).filter(Boolean);
+  const sentences = (paragraphs: readonly string[]): string[] =>
+    paragraphs
+      .flatMap((paragraph) => paragraph.split(/(?<=[.!?])\s+(?=[A-Z])/))
+      .map((sentence) => sentence.trim())
+      .filter(Boolean);
   const numbers = (text: string): string[] => text.match(/\d[\d,.:]*\d|\d/g) ?? [];
   const panels = Object.entries(stories).flatMap(([story, list]) => list.map((panel) => ({ story, panel })));
 
-  it.each(panels.map(({ story, panel }) => [`${story}/${panel.id}`, story, panel] as const))("%s: no fact lost from the old body", (_name, story, panel) => {
-    const old = before[story]?.[panel.id];
-    expect(old, "a frozen old body for every panel").toBeDefined();
-    const details = (panel.details ?? []).join(" ");
-    for (const figure of numbers(old!.join(" "))) expect(details, `figure ${figure}`).toContain(figure);
-    for (const sentence of sentences(old!)) expect(details, `old sentence: ${sentence}`).toContain(madeMorePrecise[sentence] ?? sentence);
-  });
+  it.each(panels.map(({ story, panel }) => [`${story}/${panel.id}`, story, panel] as const))(
+    "%s: no fact lost from the old body",
+    (_name, story, panel) => {
+      const old = before[story]?.[panel.id];
+      expect(old, "a frozen old body for every panel").toBeDefined();
+      const details = (panel.details ?? []).join(" ");
+      for (const figure of numbers(old!.join(" "))) expect(details, `figure ${figure}`).toContain(figure);
+      for (const sentence of sentences(old!))
+        expect(details, `old sentence: ${sentence}`).toContain(madeMorePrecise[sentence] ?? sentence);
+    },
+  );
 
-  it.each(panels.map(({ story, panel }) => [`${story}/${panel.id}`, panel] as const))("%s: the body reads like a museum label", (_name, panel) => {
-    const body = panel.body.join(" ");
-    const count = sentences(panel.body).length;
-    expect(count, "two to four short sentences").toBeGreaterThanOrEqual(2);
-    expect(count).toBeLessThanOrEqual(4);
-    for (const sentence of sentences(panel.body)) expect(sentence.split(/\s+/).length, `short sentence: ${sentence}`).toBeLessThanOrEqual(26);
-    expect(body, "no acronyms").not.toMatch(/\b[A-Z]{2,}\b|S-IVB/);
-    expect(body, "no jargon").not.toMatch(/\b(anchor|interpolation|ground elapsed|radiant|perihelion|aphelion|zenithal)\b/i);
-    expect(body, "no decimals").not.toMatch(/\d\.\d/);
-    expect(body, "no coordinates").not.toMatch(/°/);
-    expect(body, "no timestamps").not.toMatch(/\d:\d\d/);
-    expect(numbers(body).length, "at most one everyday number").toBeLessThanOrEqual(1);
-    for (const figure of numbers(body)) expect((panel.details ?? []).join(" "), `the working for ${figure} is in details`).toContain(figure);
-    expect(panel.title, "a plain title").not.toMatch(/\d|\b[A-Z]{2,}\b/);
-    expect(panel.title.split(/\s+/).length).toBeLessThanOrEqual(6);
-  });
+  it.each(panels.map(({ story, panel }) => [`${story}/${panel.id}`, panel] as const))(
+    "%s: the body reads like a museum label",
+    (_name, panel) => {
+      const body = panel.body.join(" ");
+      const count = sentences(panel.body).length;
+      expect(count, "two to four short sentences").toBeGreaterThanOrEqual(2);
+      expect(count).toBeLessThanOrEqual(4);
+      for (const sentence of sentences(panel.body))
+        expect(sentence.split(/\s+/).length, `short sentence: ${sentence}`).toBeLessThanOrEqual(26);
+      expect(body, "no acronyms").not.toMatch(/\b[A-Z]{2,}\b|S-IVB/);
+      expect(body, "no jargon").not.toMatch(
+        /\b(anchor|interpolation|ground elapsed|radiant|perihelion|aphelion|zenithal)\b/i,
+      );
+      expect(body, "no decimals").not.toMatch(/\d\.\d/);
+      expect(body, "no coordinates").not.toMatch(/°/);
+      expect(body, "no timestamps").not.toMatch(/\d:\d\d/);
+      expect(numbers(body).length, "at most one everyday number").toBeLessThanOrEqual(1);
+      for (const figure of numbers(body))
+        expect((panel.details ?? []).join(" "), `the working for ${figure} is in details`).toContain(figure);
+      expect(panel.title, "a plain title").not.toMatch(/\d|\b[A-Z]{2,}\b/);
+      expect(panel.title.split(/\s+/).length).toBeLessThanOrEqual(6);
+    },
+  );
 
   it("keeps every panel's badge, with at least one source line", () => {
     const badges = Object.fromEntries(panels.map(({ panel }) => [panel.id, panel.provenance.sourceType]));
     expect(badges).toEqual({
-      "tli-cutoff": "observed", loi: "observed", "powered-descent": "observed", touchdown: "observed", "ascent-docking": "observed", tei: "observed", splashdown: "observed",
-      "stream-shape": "illustrative", "earth-crossing": "observed", "swift-tuttle": "modelled",
+      "tli-cutoff": "observed",
+      loi: "observed",
+      "powered-descent": "observed",
+      touchdown: "observed",
+      "ascent-docking": "observed",
+      tei: "observed",
+      splashdown: "observed",
+      "stream-shape": "illustrative",
+      "earth-crossing": "observed",
+      "swift-tuttle": "modelled",
     });
     for (const { panel } of panels) expect(panel.provenance.sources.length).toBeGreaterThanOrEqual(1);
   });

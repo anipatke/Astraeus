@@ -17,12 +17,14 @@ export class ViewerZones {
     this.#active = [];
   }
 
-  clearListeners(): void { this.#listeners.clear(); }
+  clearListeners(): void {
+    this.#listeners.clear();
+  }
 
   /** The ids of the events whose zone holds the time now (empty without event zones); undefined before the viewer is drawn and after it is gone. */
   get eventZones(): readonly string[] | undefined {
     const control = this.access.control();
-    return control === undefined ? undefined : control.read().zones ?? [];
+    return control === undefined ? undefined : (control.read().zones ?? []);
   }
 
   /**
@@ -32,7 +34,9 @@ export class ViewerZones {
    */
   onEventZone(listener: (change: EventZoneChange) => void): () => void {
     this.#listeners.add(listener);
-    return () => { this.#listeners.delete(listener); };
+    return () => {
+      this.#listeners.delete(listener);
+    };
   }
 
   publish(state: ViewerState, cause: ViewerChangeCause): void {
@@ -42,10 +46,21 @@ export class ViewerZones {
     this.#view = { view: state.view };
     if (now.length === before.length && now.every((id, index) => id === before[index])) return;
     this.#active = now;
-    const reports: [string, boolean][] = [...before.filter((id) => !now.includes(id)).map((id): [string, boolean] => [id, false]), ...now.filter((id) => !before.includes(id)).map((id): [string, boolean] => [id, true])];
+    const reports: [string, boolean][] = [
+      ...before.filter((id) => !now.includes(id)).map((id): [string, boolean] => [id, false]),
+      ...now.filter((id) => !before.includes(id)).map((id): [string, boolean] => [id, true]),
+    ];
     for (const [id, entered] of reports) {
       const event = this.access.control()?.events.find((candidate) => candidate.id === id);
-      const change: EventZoneChange = { event: id, ...(event?.type === undefined ? {} : { type: event.type }), ...(event?.object === undefined ? {} : { object: event.object }), entered, timeUtcMs: state.timeUtcMs, cause, via };
+      const change: EventZoneChange = {
+        event: id,
+        ...(event?.type === undefined ? {} : { type: event.type }),
+        ...(event?.object === undefined ? {} : { object: event.object }),
+        entered,
+        timeUtcMs: state.timeUtcMs,
+        cause,
+        via,
+      };
       callListeners(this.#listeners, change);
     }
   }

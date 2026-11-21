@@ -2,12 +2,47 @@
 // Must not: set a position, layer, raw colour or raw size (areas/ places it, look.css holds the values), or open or close another part; its pop-ups (events, a marker group) open through the pop-up intent, and the glow's colours are look tokens unless the Developer drawer sets one.
 import { usePopupPlace, openGroupKey, EVENTS_POPUP, GROUP_POPUP } from "./panels/PopupContext";
 import { POPUP_HOST_ATTRIBUTE } from "./panels/usePanels";
-import { useEffect, useId, useMemo, useRef, useState, type CSSProperties, type PointerEvent as ReactPointerEvent } from "react";
+import {
+  useEffect,
+  useId,
+  useMemo,
+  useRef,
+  useState,
+  type CSSProperties,
+  type PointerEvent as ReactPointerEvent,
+} from "react";
 import type { ClockSnapshot } from "../core/clock";
 import type { TimelineEvent } from "../core/events";
 import type { TimelineWindow } from "../core/timeWindow";
-import { DEFAULT_TIME_LOOK, withDefaultTime, eventContextAt, formatTime, formatUtcTimestamp, formatWindowRate, navigationStops, windowContextAt, timePositionPercent, type NavigationStop, speedsOf, TIMELINE_STEP_MS, clampToBounds, formatRateCompact, formatRateShort, formatRate, groupMarkers, type TimeLook } from "./timelineModel";
-import { activityAt, DEFAULT_TIMELINE_GLOW, glowDescription, glowGradient, glowProfile, glowTooltip, type TimelineGlowLook } from "./timelineGlow";
+import {
+  DEFAULT_TIME_LOOK,
+  withDefaultTime,
+  eventContextAt,
+  formatTime,
+  formatUtcTimestamp,
+  formatWindowRate,
+  navigationStops,
+  windowContextAt,
+  timePositionPercent,
+  type NavigationStop,
+  speedsOf,
+  TIMELINE_STEP_MS,
+  clampToBounds,
+  formatRateCompact,
+  formatRateShort,
+  formatRate,
+  groupMarkers,
+  type TimeLook,
+} from "./timelineModel";
+import {
+  activityAt,
+  DEFAULT_TIMELINE_GLOW,
+  glowDescription,
+  glowGradient,
+  glowProfile,
+  glowTooltip,
+  type TimelineGlowLook,
+} from "./timelineGlow";
 import type { ExperienceConfig } from "./experience";
 import { Label } from "./Label";
 import type { StoryPanel } from "./storyPanels";
@@ -38,7 +73,12 @@ interface Props {
   /** The zone and precision every time reads in (the look `time`). Default UTC to the second. */
   readonly timeLook?: TimeLook;
   /** On a phone the timeline has a drawer (speed slider, events) under its two lines; absent: the larger-screen bar. */
-  readonly drawer?: { readonly open: boolean; readonly onOpenChange: (open: boolean) => void; /** An item inside the drawer was chosen: the panel rule closes it. */ readonly onItemChosen: () => void; readonly swipeThresholdPx: number };
+  readonly drawer?: {
+    readonly open: boolean;
+    readonly onOpenChange: (open: boolean) => void;
+    /** An item inside the drawer was chosen: the panel rule closes it. */ readonly onItemChosen: () => void;
+    readonly swipeThresholdPx: number;
+  };
   /** The id of the information panel the event buttons open, made once per viewer by the shell; undefined while that panel is not drawn, so no button names a missing element. */
   readonly infoPanelId?: string;
 }
@@ -49,13 +89,34 @@ function autoLabel(showRate: boolean, rate: number): string {
 }
 
 /** The speed menu: the scene's speeds, preceded by Auto in a scene with pacing (selected while pacing sets the speed). On a phone it shows each rate in a few characters; the speed slider in the drawer says it in words. */
-function SpeedMenu({ speeds, rate, paceAuto, compact, onRateChange }: { readonly speeds: ReturnType<typeof speedsOf>; readonly rate: number; readonly paceAuto: boolean | undefined; readonly compact: boolean; readonly onRateChange: Props["onRateChange"] }) {
+function SpeedMenu({
+  speeds,
+  rate,
+  paceAuto,
+  compact,
+  onRateChange,
+}: {
+  readonly speeds: ReturnType<typeof speedsOf>;
+  readonly rate: number;
+  readonly paceAuto: boolean | undefined;
+  readonly compact: boolean;
+  readonly onRateChange: Props["onRateChange"];
+}) {
   return (
     <label className="timeline-speed">
       <span>Playback rate</span>
-      <select aria-label="Playback speed" title="Playback speed" value={paceAuto === true ? "auto" : rate} onChange={(event) => onRateChange(event.target.value === "auto" ? "auto" : Number(event.target.value))}>
+      <select
+        aria-label="Playback speed"
+        title="Playback speed"
+        value={paceAuto === true ? "auto" : rate}
+        onChange={(event) => onRateChange(event.target.value === "auto" ? "auto" : Number(event.target.value))}
+      >
         {paceAuto !== undefined && <option value="auto">{autoLabel(paceAuto && !compact, rate)}</option>}
-        {speeds.map((speed) => <option key={speed.rate} value={speed.rate}>{compact ? formatRateCompact(speed.rate) : formatRateShort(speed.rate)}</option>)}
+        {speeds.map((speed) => (
+          <option key={speed.rate} value={speed.rate}>
+            {compact ? formatRateCompact(speed.rate) : formatRateShort(speed.rate)}
+          </option>
+        ))}
       </select>
     </label>
   );
@@ -82,12 +143,33 @@ interface TrackMarker {
   readonly activate: () => void;
 }
 
-export function TimelineBar({ experience, snapshot, onTogglePlayback, onRateChange, paceAuto, onSeek, panels = [], openPanelId = null, onPanelOpen, onEventSeek, onEventInfo, onWindowSeek, onWindowInfo, glowLook = DEFAULT_TIMELINE_GLOW, timeLook: timeLookProp, drawer, infoPanelId }: Props) {
+export function TimelineBar({
+  experience,
+  snapshot,
+  onTogglePlayback,
+  onRateChange,
+  paceAuto,
+  onSeek,
+  panels = [],
+  openPanelId = null,
+  onPanelOpen,
+  onEventSeek,
+  onEventInfo,
+  onWindowSeek,
+  onWindowInfo,
+  glowLook = DEFAULT_TIMELINE_GLOW,
+  timeLook: timeLookProp,
+  drawer,
+  infoPanelId,
+}: Props) {
   const timeLook = withDefaultTime(timeLookProp);
   const drawerId = `${useId()}-timeline-drawer`;
   const windows = useMemo(() => experience.windows ?? [], [experience.windows]);
   const profile = useMemo(() => glowProfile(windows, experience.window), [windows, experience.window]);
-  const gradients = useMemo(() => ({ ahead: glowGradient(profile, glowLook, "ahead"), played: glowGradient(profile, glowLook, "played") }), [profile, glowLook]);
+  const gradients = useMemo(
+    () => ({ ahead: glowGradient(profile, glowLook, "ahead"), played: glowGradient(profile, glowLook, "played") }),
+    [profile, glowLook],
+  );
   const description = glowDescription(windows);
   const [hoverTitle, setHoverTitle] = useState<string | null>(null);
   const playedPercent = timePositionPercent(clampToBounds(snapshot.timeUtcMs, experience.window), experience.window);
@@ -97,7 +179,10 @@ export function TimelineBar({ experience, snapshot, onTogglePlayback, onRateChan
     if (profile === null) return;
     const box = event.currentTarget.getBoundingClientRect();
     const fraction = box.width > 16 ? Math.max(0, Math.min(1, (event.clientX - box.left - 8) / (box.width - 16))) : 0;
-    const text = glowTooltip(windows, experience.window.startUtcMs + (experience.window.endUtcMs - experience.window.startUtcMs) * fraction);
+    const text = glowTooltip(
+      windows,
+      experience.window.startUtcMs + (experience.window.endUtcMs - experience.window.startUtcMs) * fraction,
+    );
     setHoverTitle((previous) => (previous === text ? previous : text));
   };
   const navigation = navigationStops(experience.events, windows, snapshot.timeUtcMs);
@@ -114,7 +199,10 @@ export function TimelineBar({ experience, snapshot, onTogglePlayback, onRateChan
     onTap: () => drawer?.onOpenChange(!drawer.open),
     onSwipe: (direction) => drawer?.onOpenChange(direction === "up"),
   });
-  const speedIndex = Math.max(0, speeds.findIndex((speed) => speed.rate === snapshot.rate));
+  const speedIndex = Math.max(
+    0,
+    speeds.findIndex((speed) => speed.rate === snapshot.rate),
+  );
   const speedText = paceAuto === true ? autoLabel(true, snapshot.rate) : speeds[speedIndex]?.label;
 
   const markersRef = useRef<HTMLDivElement>(null);
@@ -126,7 +214,10 @@ export function TimelineBar({ experience, snapshot, onTogglePlayback, onRateChan
   useEffect(() => {
     const node = markersRef.current;
     if (node === null) return undefined;
-    const measure = () => { const width = node.getBoundingClientRect().width; if (width > 0) setTrackWidth(width); };
+    const measure = () => {
+      const width = node.getBoundingClientRect().width;
+      if (width > 0) setTrackWidth(width);
+    };
     measure();
     if (typeof ResizeObserver === "undefined") return undefined;
     const observer = new ResizeObserver(measure);
@@ -134,93 +225,202 @@ export function TimelineBar({ experience, snapshot, onTogglePlayback, onRateChan
     return () => observer.disconnect();
   }, [drawer?.open]);
   const markers: readonly TrackMarker[] = [
-    ...experience.events.map((event): TrackMarker => ({ kind: "event", key: event.id, timeUtcMs: event.timeUtcMs, text: event.label, ariaLabel: `Go to ${event.label}`, activate: () => { onEventSeek(event); onEventInfo(event); } })),
-    ...panels.map((panel): TrackMarker => ({ kind: "panel", key: panel.id, timeUtcMs: panel.timeUtcMs, text: panel.title, ariaLabel: `Open story panel: ${panel.title}`, activate: () => onPanelOpen?.(panel) })),
-    ...windows.flatMap((window): TrackMarker[] => window.peakUtcMs === undefined ? [] : [{ kind: "peak", key: `peak-${window.id}`, timeUtcMs: window.peakUtcMs, text: `${window.label} peak`, ariaLabel: `Go to peak of ${window.label}`, activate: () => { onWindowSeek(window, window.peakUtcMs ?? 0); onWindowInfo(window); } }]),
+    ...experience.events.map((event): TrackMarker => ({
+      kind: "event",
+      key: event.id,
+      timeUtcMs: event.timeUtcMs,
+      text: event.label,
+      ariaLabel: `Go to ${event.label}`,
+      activate: () => {
+        onEventSeek(event);
+        onEventInfo(event);
+      },
+    })),
+    ...panels.map((panel): TrackMarker => ({
+      kind: "panel",
+      key: panel.id,
+      timeUtcMs: panel.timeUtcMs,
+      text: panel.title,
+      ariaLabel: `Open story panel: ${panel.title}`,
+      activate: () => onPanelOpen?.(panel),
+    })),
+    ...windows.flatMap((window): TrackMarker[] =>
+      window.peakUtcMs === undefined
+        ? []
+        : [
+            {
+              kind: "peak",
+              key: `peak-${window.id}`,
+              timeUtcMs: window.peakUtcMs,
+              text: `${window.label} peak`,
+              ariaLabel: `Go to peak of ${window.label}`,
+              activate: () => {
+                onWindowSeek(window, window.peakUtcMs ?? 0);
+                onWindowInfo(window);
+              },
+            },
+          ],
+    ),
   ];
   const groups = groupMarkers(markers, experience.window, trackWidth);
-  const renderMarker = (marker: TrackMarker, percent: number) => marker.kind === "event" ? (
-    <button key={marker.key} className="timeline-marker" type="button" aria-label={marker.ariaLabel} title={marker.text} style={{ left: `${percent}%` }} onClick={marker.activate}>
-      <Label text={marker.text} className="timeline-marker-label" />
-    </button>
-  ) : marker.kind === "panel" ? (
-    <button key={marker.key} className="timeline-marker timeline-panel-marker" type="button" data-panel-id={marker.key} aria-pressed={openPanelId === marker.key} aria-label={marker.ariaLabel} title={marker.text} style={{ left: `${percent}%` }} onClick={marker.activate}>
-      <Label text={marker.text} className="timeline-marker-label" />
-    </button>
-  ) : (
-    <button key={marker.key} type="button" className="timeline-marker timeline-window-peak" aria-label={marker.ariaLabel} title={marker.text} data-time-utc-ms={marker.timeUtcMs} style={{ left: `${percent}%` }} onClick={marker.activate} />
-  );
+  const renderMarker = (marker: TrackMarker, percent: number) =>
+    marker.kind === "event" ? (
+      <button
+        key={marker.key}
+        className="timeline-marker"
+        type="button"
+        aria-label={marker.ariaLabel}
+        title={marker.text}
+        style={{ left: `${percent}%` }}
+        onClick={marker.activate}
+      >
+        <Label text={marker.text} className="timeline-marker-label" />
+      </button>
+    ) : marker.kind === "panel" ? (
+      <button
+        key={marker.key}
+        className="timeline-marker timeline-panel-marker"
+        type="button"
+        data-panel-id={marker.key}
+        aria-pressed={openPanelId === marker.key}
+        aria-label={marker.ariaLabel}
+        title={marker.text}
+        style={{ left: `${percent}%` }}
+        onClick={marker.activate}
+      >
+        <Label text={marker.text} className="timeline-marker-label" />
+      </button>
+    ) : (
+      <button
+        key={marker.key}
+        type="button"
+        className="timeline-marker timeline-window-peak"
+        aria-label={marker.ariaLabel}
+        title={marker.text}
+        data-time-utc-ms={marker.timeUtcMs}
+        style={{ left: `${percent}%` }}
+        onClick={marker.activate}
+      />
+    );
 
   const scrubber = (
-  <div className="timeline-scrubber">
-    <div className="timeline-track" title={profile === null ? undefined : hoverTitle ?? description} onPointerMove={moveOnTrack} onPointerLeave={() => setHoverTitle(null)}>
+    <div className="timeline-scrubber">
       <div
-        className="timeline-glow"
-        {...(description === "" ? { "aria-hidden": true } : { role: "img", "aria-label": description })}
-        style={{
-          "--glow-ahead": gradients.ahead,
-          "--glow-played": gradients.played,
-          "--glow-played-edge": `${(100 - playedPercent).toFixed(3)}%`,
-          "--glow-thickness": `${glowLook.thicknessPx}px`,
-          "--glow-halo": `${glowLook.haloPx}px`,
-        } as CSSProperties}
+        className="timeline-track"
+        title={profile === null ? undefined : (hoverTitle ?? description)}
+        onPointerMove={moveOnTrack}
+        onPointerLeave={() => setHoverTitle(null)}
       >
-        <span className="timeline-glow-ahead" />
-        <span className="timeline-glow-played"><span className="timeline-glow-line" /></span>
-      </div>
-      <div className="timeline-markers" ref={markersRef} aria-label="Timeline event markers">
-        {groups.map((group) => group.members.length === 1
-          ? renderMarker(group.members[0]!, group.positionPercent)
-          : (
-            <div key={`group-${group.members[0]!.key}`} className="timeline-marker-group" data-align={group.positionPercent < 25 ? "start" : group.positionPercent > 75 ? "end" : "middle"} style={{ left: `${group.positionPercent}%` }} {...{ [POPUP_HOST_ATTRIBUTE]: `${GROUP_POPUP}${group.members[0]!.key}` }}>
-              <button
-                type="button"
-                className="timeline-marker timeline-group-toggle"
-                aria-expanded={openGroup === group.members[0]!.key}
-                aria-label={`${group.members.length} markers close together: show list`}
-                title={`${group.members.length} markers`}
-                onClick={() => toggleGroup(group.members[0]!.key)}
+        <div
+          className="timeline-glow"
+          {...(description === "" ? { "aria-hidden": true } : { role: "img", "aria-label": description })}
+          style={
+            {
+              "--glow-ahead": gradients.ahead,
+              "--glow-played": gradients.played,
+              "--glow-played-edge": `${(100 - playedPercent).toFixed(3)}%`,
+              "--glow-thickness": `${glowLook.thicknessPx}px`,
+              "--glow-halo": `${glowLook.haloPx}px`,
+            } as CSSProperties
+          }
+        >
+          <span className="timeline-glow-ahead" />
+          <span className="timeline-glow-played">
+            <span className="timeline-glow-line" />
+          </span>
+        </div>
+        <div className="timeline-markers" ref={markersRef} aria-label="Timeline event markers">
+          {groups.map((group) =>
+            group.members.length === 1 ? (
+              renderMarker(group.members[0]!, group.positionPercent)
+            ) : (
+              <div
+                key={`group-${group.members[0]!.key}`}
+                className="timeline-marker-group"
+                data-align={group.positionPercent < 25 ? "start" : group.positionPercent > 75 ? "end" : "middle"}
+                style={{ left: `${group.positionPercent}%` }}
+                {...{ [POPUP_HOST_ATTRIBUTE]: `${GROUP_POPUP}${group.members[0]!.key}` }}
               >
-                <span className="timeline-group-count">{group.members.length}</span>
-              </button>
-              {openGroup === group.members[0]!.key && (
-                <ul className="timeline-group-list" aria-label="Markers close together">
-                  {group.members.map((member) => (
-                    <li key={member.key}>
-                      <button type="button" className="timeline-group-item" aria-label={member.ariaLabel} data-time-utc-ms={member.timeUtcMs} data-panel-id={member.kind === "panel" ? member.key : undefined} onClick={() => { member.activate(); place.close(); }}>{member.text}</button>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
-          ))}
+                <button
+                  type="button"
+                  className="timeline-marker timeline-group-toggle"
+                  aria-expanded={openGroup === group.members[0]!.key}
+                  aria-label={`${group.members.length} markers close together: show list`}
+                  title={`${group.members.length} markers`}
+                  onClick={() => toggleGroup(group.members[0]!.key)}
+                >
+                  <span className="timeline-group-count">{group.members.length}</span>
+                </button>
+                {openGroup === group.members[0]!.key && (
+                  <ul className="timeline-group-list" aria-label="Markers close together">
+                    {group.members.map((member) => (
+                      <li key={member.key}>
+                        <button
+                          type="button"
+                          className="timeline-group-item"
+                          aria-label={member.ariaLabel}
+                          data-time-utc-ms={member.timeUtcMs}
+                          data-panel-id={member.kind === "panel" ? member.key : undefined}
+                          onClick={() => {
+                            member.activate();
+                            place.close();
+                          }}
+                        >
+                          {member.text}
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            ),
+          )}
+        </div>
+        <input
+          type="range"
+          aria-label="Seek timeline"
+          aria-valuetext={valueText}
+          min={experience.window.startUtcMs}
+          max={experience.window.endUtcMs}
+          step={TIMELINE_STEP_MS}
+          value={clampToBounds(snapshot.timeUtcMs, experience.window)}
+          onChange={(event) => onSeek(Number(event.target.value))}
+        />
       </div>
-      <input
-        type="range"
-        aria-label="Seek timeline"
-        aria-valuetext={valueText}
-        min={experience.window.startUtcMs}
-        max={experience.window.endUtcMs}
-        step={TIMELINE_STEP_MS}
-        value={clampToBounds(snapshot.timeUtcMs, experience.window)}
-        onChange={(event) => onSeek(Number(event.target.value))}
-      />
+      <div className="timeline-bounds" aria-hidden="true">
+        <time dateTime={formatUtcTimestamp(experience.window.startUtcMs)}>
+          {formatTime(experience.window.startUtcMs, { ...timeLook, precision: "day" })}
+        </time>
+        <time dateTime={formatUtcTimestamp(experience.window.endUtcMs)}>
+          {formatTime(experience.window.endUtcMs, { ...timeLook, precision: "day" })}
+        </time>
+      </div>
     </div>
-    <div className="timeline-bounds" aria-hidden="true">
-      <time dateTime={formatUtcTimestamp(experience.window.startUtcMs)}>{formatTime(experience.window.startUtcMs, { ...timeLook, precision: "day" })}</time>
-      <time dateTime={formatUtcTimestamp(experience.window.endUtcMs)}>{formatTime(experience.window.endUtcMs, { ...timeLook, precision: "day" })}</time>
-    </div>
-  </div>
   );
 
   return (
     <section className="timeline-bar" aria-label="Timeline controls" data-drawer-open={drawer?.open}>
       {drawer !== undefined && (
-        <button type="button" className="drawer-handle drawer-handle-top ui-bare" aria-label="Timeline drawer" aria-expanded={drawer.open} aria-controls={drawerId} {...handle}><span /></button>
+        <button
+          type="button"
+          className="drawer-handle drawer-handle-top ui-bare"
+          aria-label="Timeline drawer"
+          aria-expanded={drawer.open}
+          aria-controls={drawerId}
+          {...handle}
+        >
+          <span />
+        </button>
       )}
       <div className="timeline-main-row">
         <div className="timeline-transport">
-          <button type="button" className="timeline-play ui-icon ui-accent" title={snapshot.playing ? "Pause" : "Play"} onClick={onTogglePlayback} aria-label={snapshot.playing ? "Pause playback" : "Play playback"}>
+          <button
+            type="button"
+            className="timeline-play ui-icon ui-accent"
+            title={snapshot.playing ? "Pause" : "Play"}
+            onClick={onTogglePlayback}
+            aria-label={snapshot.playing ? "Pause playback" : "Play playback"}
+          >
             {snapshot.playing ? <Symbol path="M7 5h3.5v14H7zM13.5 5H17v14h-3.5z" /> : <Symbol path="M7 5v14l12-7z" />}
           </button>
           <button
@@ -229,7 +429,9 @@ export function TimelineBar({ experience, snapshot, onTogglePlayback, onRateChan
             aria-label={stopLabel("Previous", navigation.previous)}
             title={stopLabel("Previous", navigation.previous)}
             disabled={navigation.previous === null}
-            onClick={() => { if (navigation.previous !== null) goToStop(navigation.previous); }}
+            onClick={() => {
+              if (navigation.previous !== null) goToStop(navigation.previous);
+            }}
           >
             <Symbol path="M6 5h2v14H6zM19 5v14L9 12z" />
           </button>
@@ -239,7 +441,9 @@ export function TimelineBar({ experience, snapshot, onTogglePlayback, onRateChan
             aria-label={stopLabel("Next", navigation.next)}
             title={stopLabel("Next", navigation.next)}
             disabled={navigation.next === null}
-            onClick={() => { if (navigation.next !== null) goToStop(navigation.next); }}
+            onClick={() => {
+              if (navigation.next !== null) goToStop(navigation.next);
+            }}
           >
             <Symbol path="M16 5h2v14h-2zM5 5v14l10-7z" />
           </button>
@@ -247,17 +451,46 @@ export function TimelineBar({ experience, snapshot, onTogglePlayback, onRateChan
 
         <time className="timeline-time" dateTime={formatUtcTimestamp(snapshot.timeUtcMs)} aria-label={timestamp}>
           <span className="timeline-time-full">{timestamp}</span>
-          <span className="timeline-time-short" aria-hidden="true">{shortTimestamp(timestamp, timeLook)}</span>
+          <span className="timeline-time-short" aria-hidden="true">
+            {shortTimestamp(timestamp, timeLook)}
+          </span>
         </time>
 
-        <SpeedMenu speeds={speeds} rate={snapshot.rate} paceAuto={paceAuto} compact={drawer !== undefined} onRateChange={onRateChange} />
+        <SpeedMenu
+          speeds={speeds}
+          rate={snapshot.rate}
+          paceAuto={paceAuto}
+          compact={drawer !== undefined}
+          onRateChange={onRateChange}
+        />
 
         {scrubber}
 
         {drawer === undefined && (
-          <details className="timeline-event-list" open={place.openId === EVENTS_POPUP} {...{ [POPUP_HOST_ATTRIBUTE]: EVENTS_POPUP }}>
-            <summary className="ui-button" onClick={(event) => { event.preventDefault(); place.toggle(EVENTS_POPUP); }} title="Events: what just happened, what is next, and the full list">Events <span>({experience.events.length})</span></summary>
-            <TimelineExpanded experience={experience} snapshot={snapshot} timeLook={timeLook} onEventSeek={onEventSeek} onEventInfo={onEventInfo} onWindowInfo={onWindowInfo} infoPanelId={infoPanelId} />
+          <details
+            className="timeline-event-list"
+            open={place.openId === EVENTS_POPUP}
+            {...{ [POPUP_HOST_ATTRIBUTE]: EVENTS_POPUP }}
+          >
+            <summary
+              className="ui-button"
+              onClick={(event) => {
+                event.preventDefault();
+                place.toggle(EVENTS_POPUP);
+              }}
+              title="Events: what just happened, what is next, and the full list"
+            >
+              Events <span>({experience.events.length})</span>
+            </summary>
+            <TimelineExpanded
+              experience={experience}
+              snapshot={snapshot}
+              timeLook={timeLook}
+              onEventSeek={onEventSeek}
+              onEventInfo={onEventInfo}
+              onWindowInfo={onWindowInfo}
+              infoPanelId={infoPanelId}
+            />
           </details>
         )}
       </div>
@@ -268,7 +501,10 @@ export function TimelineBar({ experience, snapshot, onTogglePlayback, onRateChan
           role="region"
           aria-label="Timeline details"
           data-open={drawer.open}
-          onClick={(event) => { const closer = (event.target as Element).closest("[data-closes-drawer]"); if (closer !== null && closer.tagName !== "SELECT") drawer.onItemChosen(); }}
+          onClick={(event) => {
+            const closer = (event.target as Element).closest("[data-closes-drawer]");
+            if (closer !== null && closer.tagName !== "SELECT") drawer.onItemChosen();
+          }}
         >
           <div className="timeline-drawer-body">
             <div className="timeline-speed-slider">
@@ -281,11 +517,22 @@ export function TimelineBar({ experience, snapshot, onTogglePlayback, onRateChan
                 max={speeds.length - 1}
                 step={1}
                 value={speedIndex}
-                onChange={(event) => { const next = speeds[Number(event.target.value)]; if (next !== undefined) onRateChange(next.rate); }}
+                onChange={(event) => {
+                  const next = speeds[Number(event.target.value)];
+                  if (next !== undefined) onRateChange(next.rate);
+                }}
               />
               <output>{speedText}</output>
             </div>
-            <TimelineExpanded experience={experience} snapshot={snapshot} timeLook={timeLook} onEventSeek={onEventSeek} onEventInfo={onEventInfo} onWindowInfo={onWindowInfo} infoPanelId={infoPanelId} />
+            <TimelineExpanded
+              experience={experience}
+              snapshot={snapshot}
+              timeLook={timeLook}
+              onEventSeek={onEventSeek}
+              onEventInfo={onEventInfo}
+              onWindowInfo={onWindowInfo}
+              infoPanelId={infoPanelId}
+            />
           </div>
         </div>
       )}
@@ -295,7 +542,11 @@ export function TimelineBar({ experience, snapshot, onTogglePlayback, onRateChan
 
 /** A 24x24 filled symbol; the button around it carries the accessible name and tooltip. */
 function Symbol({ path }: { readonly path: string }) {
-  return <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d={path} /></svg>;
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <path d={path} />
+    </svg>
+  );
 }
 
 interface ExpandedProps {
@@ -312,27 +563,41 @@ interface ExpandedProps {
  * The timeline's expanded content: "Just happened / Up next / Inside" and the full event list.
  * On larger screens it opens from the Events button; the phone drawer shows the same content when expanded.
  */
-export function TimelineExpanded({ experience, snapshot, timeLook = DEFAULT_TIME_LOOK, onEventSeek, onEventInfo, onWindowInfo, infoPanelId }: ExpandedProps) {
+export function TimelineExpanded({
+  experience,
+  snapshot,
+  timeLook = DEFAULT_TIME_LOOK,
+  onEventSeek,
+  onEventInfo,
+  onWindowInfo,
+  infoPanelId,
+}: ExpandedProps) {
   const context = eventContextAt(experience.events, snapshot.timeUtcMs);
   const inside = windowContextAt(experience.windows ?? [], snapshot.timeUtcMs);
   return (
     <div className="timeline-expanded">
       <div className="timeline-event-context" aria-label="Event context">
-        {context.current === null
-          ? <span><strong>Just happened:</strong> No event yet</span>
-          : (
-            <button
-              type="button"
-              className="timeline-event-current ui-row"
-              data-closes-drawer=""
-              aria-label={`Information about ${context.current.label}`}
-              aria-controls={infoPanelId}
-              onClick={() => { if (context.current !== null) onEventInfo(context.current); }}
-            >
-              <strong>Just happened:</strong> {context.current.label} <span aria-hidden="true">ⓘ</span>
-            </button>
-          )}
-        <span><strong>Up next:</strong> {context.next?.label ?? "No upcoming event"}</span>
+        {context.current === null ? (
+          <span>
+            <strong>Just happened:</strong> No event yet
+          </span>
+        ) : (
+          <button
+            type="button"
+            className="timeline-event-current ui-row"
+            data-closes-drawer=""
+            aria-label={`Information about ${context.current.label}`}
+            aria-controls={infoPanelId}
+            onClick={() => {
+              if (context.current !== null) onEventInfo(context.current);
+            }}
+          >
+            <strong>Just happened:</strong> {context.current.label} <span aria-hidden="true">ⓘ</span>
+          </button>
+        )}
+        <span>
+          <strong>Up next:</strong> {context.next?.label ?? "No upcoming event"}
+        </span>
         {inside.map(({ window, rate }) => (
           <button
             key={window.id}
@@ -344,7 +609,8 @@ export function TimelineExpanded({ experience, snapshot, timeLook = DEFAULT_TIME
             onClick={() => onWindowInfo(window)}
           >
             <strong>Inside:</strong> {window.label}
-            {rate !== null && window.rate !== undefined && <> — {formatWindowRate(rate, window.rate.unit)}</>} <span aria-hidden="true">ⓘ</span>
+            {rate !== null && window.rate !== undefined && <> — {formatWindowRate(rate, window.rate.unit)}</>}{" "}
+            <span aria-hidden="true">ⓘ</span>
           </button>
         ))}
       </div>
@@ -356,7 +622,10 @@ export function TimelineExpanded({ experience, snapshot, timeLook = DEFAULT_TIME
               className="ui-row"
               data-closes-drawer=""
               aria-current={context.current?.id === event.id ? "time" : undefined}
-              onClick={() => { onEventSeek(event); onEventInfo(event); }}
+              onClick={() => {
+                onEventSeek(event);
+                onEventInfo(event);
+              }}
             >
               <time dateTime={formatUtcTimestamp(event.timeUtcMs)}>{formatTime(event.timeUtcMs, timeLook)}</time>
               <span>{event.label}</span>

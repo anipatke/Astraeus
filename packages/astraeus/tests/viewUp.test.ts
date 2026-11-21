@@ -12,7 +12,11 @@ const sinE = -matrix[5];
 const cosE = matrix[8];
 const dot = (a: ArrayLike<number>, b: ArrayLike<number>): number => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
 
-function pose(up: RenderVector, elevation: number, azimuth = 0.7): { camera: PerspectiveCamera; state: ReturnType<typeof createOrbitCameraState> } {
+function pose(
+  up: RenderVector,
+  elevation: number,
+  azimuth = 0.7,
+): { camera: PerspectiveCamera; state: ReturnType<typeof createOrbitCameraState> } {
   const state = createOrbitCameraState(10, "sun");
   state.distance = state.targetDistance = 10;
   state.azimuth = state.targetAzimuth = azimuth;
@@ -32,7 +36,7 @@ describe("ecliptic-up view", () => {
     expect(up[1]).toBeCloseTo(cosE, 9);
     expect(up[2]).toBeCloseTo(sinE, 9);
     expect(Math.hypot(...up)).toBeCloseTo(1, 12);
-    expect(Math.abs(Math.asin(sinE) * 180 / Math.PI - 23.439)).toBeLessThan(0.01);
+    expect(Math.abs((Math.asin(sinE) * 180) / Math.PI - 23.439)).toBeLessThan(0.01);
     expect(viewUpVector("equatorial")).toEqual([0, 1, 0]);
     expect(viewUpVector(undefined)).toEqual(EQUATORIAL_UP);
   });
@@ -78,7 +82,7 @@ describe("ecliptic-up view", () => {
     // Under the default (celestial north) view the same normal is tilted by the obliquity from screen-up.
     const { camera } = pose(EQUATORIAL_UP, 0);
     const screenUp = new Vector3(0, 1, 0).applyQuaternion(camera.quaternion);
-    expect(Math.acos(Math.abs(screenUp.dot(normal))) * 180 / Math.PI).toBeGreaterThan(23);
+    expect((Math.acos(Math.abs(screenUp.dot(normal))) * 180) / Math.PI).toBeGreaterThan(23);
   });
 
   it("re-poses in place: the angles for the same offset under the other up direction rebuild exactly that offset", () => {

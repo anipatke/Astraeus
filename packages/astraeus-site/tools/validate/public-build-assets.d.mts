@@ -16,7 +16,10 @@ export interface PublicBuildResult {
 }
 export function findLocalOnlySources(rootDir?: string): readonly LocalOnlySource[];
 export function findLocalDataSources(rootDir?: string): readonly LocalOnlySource[];
-export function checkPublicBuild(input: { readonly distDir: string; readonly sources: readonly LocalOnlySource[] }): PublicBuildResult;
+export function checkPublicBuild(input: {
+  readonly distDir: string;
+  readonly sources: readonly LocalOnlySource[];
+}): PublicBuildResult;
 export function proveItFails(): {
   readonly clean: PublicBuildResult;
   readonly copied: PublicBuildResult;
@@ -41,8 +44,16 @@ export interface StarAssetResult {
   readonly bytes: number;
 }
 /** The committed star asset must declare a shippable licence and be present, byte for byte, in the build. */
-export function checkStarAsset(input: { readonly distDir: string; readonly rootDir?: string; readonly starPath?: string }): StarAssetResult;
-export function proveStarAssetHandling(): { readonly good: StarAssetResult; readonly empty: StarAssetResult; readonly badLicence: StarAssetResult };
+export function checkStarAsset(input: {
+  readonly distDir: string;
+  readonly rootDir?: string;
+  readonly starPath?: string;
+}): StarAssetResult;
+export function proveStarAssetHandling(): {
+  readonly good: StarAssetResult;
+  readonly empty: StarAssetResult;
+  readonly badLicence: StarAssetResult;
+};
 export const SYNTHETIC_KEYS: readonly string[];
 export interface SyntheticResult {
   readonly ok: boolean;
@@ -50,13 +61,29 @@ export interface SyntheticResult {
   readonly matches: readonly { readonly path: string; readonly how: string }[];
 }
 /** A public build holds no made-up (synthetic) experience: no chunk named for one and no entry key. */
-export function checkNoSyntheticExperiences(input: { readonly distDir: string; readonly rootDir?: string }): SyntheticResult;
-export function proveSyntheticCheck(): { readonly clean: SyntheticResult; readonly chunk: SyntheticResult; readonly key: SyntheticResult };
+export function checkNoSyntheticExperiences(input: {
+  readonly distDir: string;
+  readonly rootDir?: string;
+}): SyntheticResult;
+export function proveSyntheticCheck(): {
+  readonly clean: SyntheticResult;
+  readonly chunk: SyntheticResult;
+  readonly key: SyntheticResult;
+};
 export interface PublicPlanetsResult {
   readonly ok: boolean;
   readonly others: readonly string[];
   readonly matches: readonly { readonly path: string; readonly how: string }[];
 }
 /** A public build offers Jupiter alone: no other planet's map or system chunk, and no other planet's settings (T-136). */
-export function checkOnlyPublicPlanets(input: { readonly distDir: string; readonly rootDir?: string; readonly publicPlanets?: readonly string[]; readonly nonPublicFiles?: readonly string[] }): PublicPlanetsResult;
-export function proveOnlyPublicPlanets(): { readonly clean: PublicPlanetsResult; readonly map: PublicPlanetsResult; readonly settings: PublicPlanetsResult };
+export function checkOnlyPublicPlanets(input: {
+  readonly distDir: string;
+  readonly rootDir?: string;
+  readonly publicPlanets?: readonly string[];
+  readonly nonPublicFiles?: readonly string[];
+}): PublicPlanetsResult;
+export function proveOnlyPublicPlanets(): {
+  readonly clean: PublicPlanetsResult;
+  readonly map: PublicPlanetsResult;
+  readonly settings: PublicPlanetsResult;
+};

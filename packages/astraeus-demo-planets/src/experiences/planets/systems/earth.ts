@@ -4,7 +4,10 @@ import type { PlanetSystem } from "../planetScene";
 import { packagesOf } from "../planetSystemParts";
 
 /** The tagged places of Earth and the Moon: each body package's features and categories, read as they are stored. */
-const PACKAGES = import.meta.glob("../../../../../astraeus-data/data/bodies/{earth,moon}/{features,categories}.json", { eager: true, import: "default" }) as Record<string, unknown>;
+const PACKAGES = import.meta.glob("../../../../../astraeus-data/data/bodies/{earth,moon}/{features,categories}.json", {
+  eager: true,
+  import: "default",
+}) as Record<string, unknown>;
 
 export const earthSystem: PlanetSystem = {
   bodies: [{ id: "earth" }, { id: "moon", orbit: true }],

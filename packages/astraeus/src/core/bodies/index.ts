@@ -9,8 +9,25 @@ import { CALLISTO, EUROPA, GANYMEDE, JUPITER_MOON_SYSTEM, MAPPED_MOON_BINDINGS }
 import { JUPITER, JUPITER_ROTATION } from "./jupiter";
 import { MARS, MARS_ROTATION } from "./mars";
 import { MERCURY, MERCURY_ROTATION } from "./mercury";
-import { NEPTUNE, NEPTUNE_ROTATION, PLUTO, PLUTO_ROTATION, SATURN, SATURN_ROTATION, URANUS, URANUS_ROTATION } from "./outerPlanets";
-import { MARS_MOON_SYSTEM, NEPTUNE_MOON_SYSTEM, PLANET_MOON_BINDINGS, PLANET_MOON_DEFINITIONS, PLUTO_MOON_SYSTEM, SATURN_MOON_SYSTEM, URANUS_MOON_SYSTEM } from "./planetMoons";
+import {
+  NEPTUNE,
+  NEPTUNE_ROTATION,
+  PLUTO,
+  PLUTO_ROTATION,
+  SATURN,
+  SATURN_ROTATION,
+  URANUS,
+  URANUS_ROTATION,
+} from "./outerPlanets";
+import {
+  MARS_MOON_SYSTEM,
+  NEPTUNE_MOON_SYSTEM,
+  PLANET_MOON_BINDINGS,
+  PLANET_MOON_DEFINITIONS,
+  PLUTO_MOON_SYSTEM,
+  SATURN_MOON_SYSTEM,
+  URANUS_MOON_SYSTEM,
+} from "./planetMoons";
 import { SUN } from "./sun";
 import { VENUS, VENUS_ROTATION } from "./venus";
 
@@ -26,7 +43,24 @@ export { NEPTUNE, PLUTO, SATURN, URANUS } from "./outerPlanets";
 export { VENUS, VENUS_EPHEMERIS, VENUS_ROTATION } from "./venus";
 
 /** Every body the engine knows, defined once. */
-export const BUILT_IN_BODIES: readonly CelestialBodyDefinition[] = Object.freeze([SUN, EARTH, MOON, MERCURY, VENUS, MARS, JUPITER, IO, EUROPA, GANYMEDE, CALLISTO, SATURN, URANUS, NEPTUNE, PLUTO, ...PLANET_MOON_DEFINITIONS]);
+export const BUILT_IN_BODIES: readonly CelestialBodyDefinition[] = Object.freeze([
+  SUN,
+  EARTH,
+  MOON,
+  MERCURY,
+  VENUS,
+  MARS,
+  JUPITER,
+  IO,
+  EUROPA,
+  GANYMEDE,
+  CALLISTO,
+  SATURN,
+  URANUS,
+  NEPTUNE,
+  PLUTO,
+  ...PLANET_MOON_DEFINITIONS,
+]);
 
 /** One state source per non-root body; the Sun is the root and has none. */
 export const BUILT_IN_BINDINGS: readonly StateSourceBinding[] = Object.freeze([

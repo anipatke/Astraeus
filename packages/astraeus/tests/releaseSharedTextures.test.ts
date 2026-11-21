@@ -8,7 +8,9 @@ describe("releasing what scenes share", () => {
   it("disposes the shared anchor picture and makes a new one next time", () => {
     const first = anchorSpriteTexture();
     let disposed = 0;
-    first.addEventListener("dispose", () => { disposed += 1; });
+    first.addEventListener("dispose", () => {
+      disposed += 1;
+    });
     releaseAnchorSprite();
     expect(disposed).toBe(1);
     expect(anchorSpriteTexture()).not.toBe(first);
@@ -18,7 +20,9 @@ describe("releasing what scenes share", () => {
   it("disposes the one geometry every sprite shares", () => {
     const geometry = new Sprite().geometry;
     let disposed = 0;
-    geometry.addEventListener("dispose", () => { disposed += 1; });
+    geometry.addEventListener("dispose", () => {
+      disposed += 1;
+    });
     releaseGlowTexture();
     expect(disposed).toBe(1);
   });

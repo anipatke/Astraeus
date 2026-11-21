@@ -18,7 +18,11 @@ import { placementAbout } from "./scenePlacement";
 const NON_SYMMETRIC = [0.3, -0.5, 0.8];
 
 describe("the render-axis conversion", () => {
-  const basis = [[1, 0, 0], [0, 1, 0], [0, 0, 1]].map((unit) => eqjToRenderVector(unit));
+  const basis = [
+    [1, 0, 0],
+    [0, 1, 0],
+    [0, 0, 1],
+  ].map((unit) => eqjToRenderVector(unit));
 
   it("has determinant +1 and is orthonormal", () => {
     const [[a, b, c], [d, e, f], [g, h, i]] = basis;
@@ -59,8 +63,16 @@ const INCLINATION = 0.6;
 const at = (timeUtcMs: number) => {
   const angle = Math.sqrt(GM / R ** 3) * ((timeUtcMs - T0) / 1000);
   const speed = Math.sqrt(GM / R);
-  const p = [R * Math.cos(angle), R * Math.sin(angle) * Math.cos(INCLINATION), R * Math.sin(angle) * Math.sin(INCLINATION)];
-  const v = [-speed * Math.sin(angle), speed * Math.cos(angle) * Math.cos(INCLINATION), speed * Math.cos(angle) * Math.sin(INCLINATION)];
+  const p = [
+    R * Math.cos(angle),
+    R * Math.sin(angle) * Math.cos(INCLINATION),
+    R * Math.sin(angle) * Math.sin(INCLINATION),
+  ];
+  const v = [
+    -speed * Math.sin(angle),
+    speed * Math.cos(angle) * Math.cos(INCLINATION),
+    speed * Math.cos(angle) * Math.sin(INCLINATION),
+  ];
   return { p, v };
 };
 const fake = {
@@ -70,13 +82,28 @@ const fake = {
   loadedFromUtcMs: () => T0 - 5 * 86_400_000,
   stateOf(id: string, timeUtcMs: number) {
     const { p, v } = at(timeUtcMs);
-    return createState({ body: id, center: "jupiter", timeUtcMs, plane: EQJ, positionKm: p, velocityKmS: v, orientation: null });
+    return createState({
+      body: id,
+      center: "jupiter",
+      timeUtcMs,
+      plane: EQJ,
+      positionKm: p,
+      velocityKmS: v,
+      orientation: null,
+    });
   },
 } as unknown as ChebyshevEphemeris;
 const provenance = createProvenance({ sourceType: "illustrative", sources: ["made up"], accuracy: "none", notes: "" });
 const layer: BodySetLayer = validateBodySet({
   id: "inclined",
-  group: createEphemerisGroup({ id: "inclined", center: "jupiter", ephemeris: () => fake, members: ["alpha"], bounds: { startUtcMs: T0, endUtcMs: T0 + 14 * 86_400_000 }, provenance }),
+  group: createEphemerisGroup({
+    id: "inclined",
+    center: "jupiter",
+    ephemeris: () => fake,
+    members: ["alpha"],
+    bounds: { startUtcMs: T0, endUtcMs: T0 + 14 * 86_400_000 },
+    provenance,
+  }),
   members: [{ id: "alpha", label: "Alpha", radiusKm: 1, family: "near" }],
   families: familiesWithPalette([{ id: "near", label: "Near" }]),
   bodyFamilies: {},
@@ -84,13 +111,19 @@ const layer: BodySetLayer = validateBodySet({
 });
 
 /** The same scaling with no `linearUnitsPerKm`, so the view takes its general path (which calls eqjToRenderVector). */
-const generalTrueScale: ScalePolicy = { id: trueScale.id, mapPosition: (km) => trueScale.mapPosition(km), mapRadius: (km) => trueScale.mapRadius(km) };
+const generalTrueScale: ScalePolicy = {
+  id: trueScale.id,
+  mapPosition: (km) => trueScale.mapPosition(km),
+  mapRadius: (km) => trueScale.mapRadius(km),
+};
 
 function drawn(policy: ScalePolicy): Float32Array[] {
   const orbits = new OrbitSetView(layer, 16);
   orbits.sync(T0, placementAbout("jupiter"), policy, true);
   orbits.place(new FloatingOrigin(), DEFAULT_BODY_SET_LOOK, true);
-  return orbits.group.children.filter((child): child is LineSegments => child instanceof LineSegments).map((lines) => (lines.geometry.getAttribute("position") as BufferAttribute).array as Float32Array);
+  return orbits.group.children
+    .filter((child): child is LineSegments => child instanceof LineSegments)
+    .map((lines) => (lines.geometry.getAttribute("position") as BufferAttribute).array as Float32Array);
 }
 
 describe("hand-written copies of the conversion", () => {

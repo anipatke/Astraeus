@@ -30,7 +30,11 @@ function declaredLicence(path) {
 /** Every package folder under `<rootDir>/packages`, in name order. */
 export function packageNames(rootDir = defaultRoot) {
   const packages = join(rootDir, "packages");
-  return existsSync(packages) ? readdirSync(packages).filter((name) => existsSync(join(packages, name, "package.json"))).sort() : [];
+  return existsSync(packages)
+    ? readdirSync(packages)
+        .filter((name) => existsSync(join(packages, name, "package.json")))
+        .sort()
+    : [];
 }
 
 /** The records of each package: [{ package, licenceFiles: [relative path], dataLicences: [{ file, licence }] }], packages with no record left out. */
@@ -40,7 +44,8 @@ export function gatherPackageCredits(rootDir = defaultRoot) {
     const base = join(rootDir, "packages", name);
     const licenceFiles = [];
     for (const folder of RECORD_FOLDERS) {
-      if (existsSync(join(base, folder))) for (const path of walk(join(base, folder))) licenceFiles.push(path.slice(base.length + 1));
+      if (existsSync(join(base, folder)))
+        for (const path of walk(join(base, folder))) licenceFiles.push(path.slice(base.length + 1));
     }
     const dataLicences = [];
     if (existsSync(join(base, "data"))) {

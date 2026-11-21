@@ -2,7 +2,14 @@ import { describe, expect, it } from "vitest";
 import { PerspectiveCamera } from "three";
 import { BodySetView } from "../src/app/BodySetView";
 import { membersToName, pickMember } from "../src/app/BodySetLabels";
-import { DEFAULT_BODY_SET_LOOK, DEFAULT_FAMILY_PALETTE, familiesWithPalette, familyColorOf, validateBodySet, type BodySetLayer } from "../src/app/bodySet";
+import {
+  DEFAULT_BODY_SET_LOOK,
+  DEFAULT_FAMILY_PALETTE,
+  familiesWithPalette,
+  familyColorOf,
+  validateBodySet,
+  type BodySetLayer,
+} from "../src/app/bodySet";
 import { osculatingPeriodS } from "../src/core/orbitPeriod";
 import { FloatingOrigin } from "../src/app/floatingOrigin";
 import { OrbitSetView, ORBIT_HEAD_SUBSTEPS, ORBIT_SET_SAMPLES } from "../src/app/OrbitSetView";
@@ -25,7 +32,10 @@ const circular = (id: "alpha" | "beta", timeUtcMs: number) => {
   const r = RADII_KM[id];
   const angle = omega(r) * ((timeUtcMs - T0) / 1000);
   const speed = Math.sqrt(GM / r);
-  return { p: [r * Math.cos(angle), r * Math.sin(angle), 0], v: [-speed * Math.sin(angle), speed * Math.cos(angle), 0] };
+  return {
+    p: [r * Math.cos(angle), r * Math.sin(angle), 0],
+    v: [-speed * Math.sin(angle), speed * Math.cos(angle), 0],
+  };
 };
 let reads = 0;
 const fake = {
@@ -37,17 +47,38 @@ const fake = {
   loadedFromUtcMs: () => T0 - 5 * 86_400_000,
   stateOf(id: string, timeUtcMs: number) {
     const { p, v } = circular(id as "alpha" | "beta", timeUtcMs);
-    return createState({ body: id, center: "jupiter", timeUtcMs, plane: EQJ, positionKm: p, velocityKmS: v, orientation: null });
+    return createState({
+      body: id,
+      center: "jupiter",
+      timeUtcMs,
+      plane: EQJ,
+      positionKm: p,
+      velocityKmS: v,
+      orientation: null,
+    });
   },
 } as unknown as ChebyshevEphemeris;
 const provenance = createProvenance({ sourceType: "illustrative", sources: ["made up"], accuracy: "none", notes: "" });
 const bounds = { startUtcMs: T0, endUtcMs: T0 + 14 * 86_400_000 };
-const group = createEphemerisGroup({ id: "made-up-set", center: "jupiter", ephemeris: () => fake, members: ["alpha", "beta"], bounds, provenance });
+const group = createEphemerisGroup({
+  id: "made-up-set",
+  center: "jupiter",
+  ephemeris: () => fake,
+  members: ["alpha", "beta"],
+  bounds,
+  provenance,
+});
 const layer: BodySetLayer = validateBodySet({
   id: "made-up-set",
   group,
-  members: [{ id: "alpha", label: "Alpha", radiusKm: 1, family: "near" }, { id: "beta", label: "Beta", radiusKm: 300, family: "far" }],
-  families: familiesWithPalette([{ id: "near", label: "Near" }, { id: "far", label: "Far" }]),
+  members: [
+    { id: "alpha", label: "Alpha", radiusKm: 1, family: "near" },
+    { id: "beta", label: "Beta", radiusKm: 300, family: "far" },
+  ],
+  families: familiesWithPalette([
+    { id: "near", label: "Near" },
+    { id: "far", label: "Far" },
+  ]),
   bodyFamilies: { io: "near" },
   centreGmKm3S2: GM,
 });
@@ -67,12 +98,25 @@ describe("a curve-fit set as a point group", () => {
   it("refuses times outside its bounds, a wrong buffer, and repeated or missing members", () => {
     expect(() => group.fillPositionsKm(T0 - 1, new Float64Array(6))).toThrow(/bounds/);
     expect(() => group.fillPositionsKm(T0, new Float64Array(5))).toThrow(/6 values/);
-    expect(() => createEphemerisGroup({ id: "x", center: "c", ephemeris: () => fake, members: ["a", "a"], bounds, provenance })).toThrow(/twice/);
-    expect(() => createEphemerisGroup({ id: "x", center: "c", ephemeris: () => fake, members: [], bounds, provenance })).toThrow(/no members/);
+    expect(() =>
+      createEphemerisGroup({ id: "x", center: "c", ephemeris: () => fake, members: ["a", "a"], bounds, provenance }),
+    ).toThrow(/twice/);
+    expect(() =>
+      createEphemerisGroup({ id: "x", center: "c", ephemeris: () => fake, members: [], bounds, provenance }),
+    ).toThrow(/no members/);
   });
 
   it("reads the set only when asked, so it can be declared before the chunks load", () => {
-    const late = createEphemerisGroup({ id: "late", center: "c", ephemeris: () => { throw new Error("not loaded"); }, members: ["a"], bounds, provenance });
+    const late = createEphemerisGroup({
+      id: "late",
+      center: "c",
+      ephemeris: () => {
+        throw new Error("not loaded");
+      },
+      members: ["a"],
+      bounds,
+      provenance,
+    });
     expect(late.count).toBe(1);
     expect(() => late.fillPositionsKm(T0, new Float64Array(3))).toThrow(/not loaded/);
   });
@@ -87,7 +131,9 @@ describe("body set checks and colours", () => {
   });
 
   it("refuses a member in no family, a member list unlike the group's, an unknown body family and a non-positive GM", () => {
-    expect(() => validateBodySet({ ...layer, members: [layer.members[0], { ...layer.members[1], family: "nowhere" }] })).toThrow(/unknown family/);
+    expect(() =>
+      validateBodySet({ ...layer, members: [layer.members[0], { ...layer.members[1], family: "nowhere" }] }),
+    ).toThrow(/unknown family/);
     expect(() => validateBodySet({ ...layer, members: [layer.members[1], layer.members[0]] })).toThrow(/group's/);
     expect(() => validateBodySet({ ...layer, bodyFamilies: { io: "nowhere" } })).toThrow(/unknown family/);
     expect(() => validateBodySet({ ...layer, centreGmKm3S2: 0 })).toThrow(/GM/);
@@ -97,7 +143,10 @@ describe("body set checks and colours", () => {
 describe("osculating period", () => {
   it("is the Kepler period for a bound state and Infinity for an unbound one", () => {
     const r = 100_000;
-    expect(osculatingPeriodS([r, 0, 0], [0, Math.sqrt(GM / r), 0], GM)).toBeCloseTo(2 * Math.PI * Math.sqrt(r ** 3 / GM), 3);
+    expect(osculatingPeriodS([r, 0, 0], [0, Math.sqrt(GM / r), 0], GM)).toBeCloseTo(
+      2 * Math.PI * Math.sqrt(r ** 3 / GM),
+      3,
+    );
     expect(osculatingPeriodS([r, 0, 0], [0, 10, 0], GM)).toBe(Number.POSITIVE_INFINITY);
   });
 });
@@ -115,7 +164,12 @@ describe("body set dots and balls", () => {
     const view = new BodySetView(layer);
     view.sync(T0, placement, trueScale, placement.resolver);
     const expected = eqjToRenderVector(trueScale.mapPosition(circular("beta", T0).p));
-    expect(view.memberAbsolute("beta")!.map((v, k) => v - expected[k]).every((d) => Math.abs(d) < 1e-9)).toBe(true);
+    expect(
+      view
+        .memberAbsolute("beta")!
+        .map((v, k) => v - expected[k])
+        .every((d) => Math.abs(d) < 1e-9),
+    ).toBe(true);
     expect(view.memberRadiusUnits("beta")).toBeCloseTo(trueScale.mapRadius(300), 12);
     expect(bodySetMemberAbsolute({ bodySetViews: [view] }, "alpha")).toEqual(view.memberAbsolute("alpha"));
     expect(bodySetMemberAbsolute({ bodySetViews: [view] }, "io")).toBeNull();
@@ -159,8 +213,12 @@ describe("body set orbit lines", () => {
     // Beta's data begin 5 days back: its path starts there and ends a whole step before the step the clock is in.
     expect(orbits.spanMs(1)).toBeLessThanOrEqual(5 * 86_400_000);
     expect(orbits.spanMs(1)).toBeGreaterThan(5 * 86_400_000 - 2 * orbits.stepMs(1));
-    const near = (a: readonly number[], b: readonly number[], tolerance: number): boolean => a.every((v, k) => Math.abs(v - b[k]) < tolerance);
-    for (const [m, id] of [[0, "alpha"], [1, "beta"]] as const) {
+    const near = (a: readonly number[], b: readonly number[], tolerance: number): boolean =>
+      a.every((v, k) => Math.abs(v - b[k]) < tolerance);
+    for (const [m, id] of [
+      [0, "alpha"],
+      [1, "beta"],
+    ] as const) {
       // The path's last sample is a whole multiple of the step; the head runs on from it through fine points to the body now.
       const lastMs = Math.round((Math.floor(T0 / orbits.stepMs(m)) - 1) * orbits.stepMs(m));
       expect(near(orbits.pointKm(m, 31), circular(id, lastMs).p, 1e-6)).toBe(true);
@@ -202,14 +260,25 @@ describe("body set orbit lines", () => {
   });
 
   it("adds the orbit lines of bodies drawn elsewhere to the same batch, with their families", () => {
-    const extraGroup = createEphemerisGroup({ id: "extra", center: "jupiter", ephemeris: () => fake, members: ["beta"], bounds, provenance });
+    const extraGroup = createEphemerisGroup({
+      id: "extra",
+      center: "jupiter",
+      ephemeris: () => fake,
+      members: ["beta"],
+      bounds,
+      provenance,
+    });
     const withExtra = validateBodySet({ ...layer, extraOrbits: { group: extraGroup, families: ["near"] } });
     const orbits = new OrbitSetView(withExtra, 16);
     expect(orbits.count).toBe(3);
     orbits.sync(T0, placement, trueScale, true);
     expect(orbits.pointKm(2, 15)).toEqual(orbits.pointKm(1, 15));
-    expect(() => validateBodySet({ ...layer, extraOrbits: { group: extraGroup, families: ["nowhere"] } })).toThrow(/unknown family/);
-    expect(() => validateBodySet({ ...layer, extraOrbits: { group: extraGroup, families: [] } })).toThrow(/one family per body/);
+    expect(() => validateBodySet({ ...layer, extraOrbits: { group: extraGroup, families: ["nowhere"] } })).toThrow(
+      /unknown family/,
+    );
+    expect(() => validateBodySet({ ...layer, extraOrbits: { group: extraGroup, families: [] } })).toThrow(
+      /one family per body/,
+    );
   });
 
   it("is hidden when switched off", () => {
@@ -221,7 +290,11 @@ describe("body set orbit lines", () => {
 
 describe("framing a body-set member", () => {
   it("lets the camera come close to a member's ball but never inside it or the near clipping distance", () => {
-    const frame = { centre: "jupiter", span: 100, memberRadius: (id: string) => (id === "beta" ? 0.05 : id === "alpha" ? 1e-4 : null) };
+    const frame = {
+      centre: "jupiter",
+      span: 100,
+      memberRadius: (id: string) => (id === "beta" ? 0.05 : id === "alpha" ? 1e-4 : null),
+    };
     expect(focusLimits("beta", frame, trueScale, {}).min).toBeCloseTo(0.08, 9);
     expect(focusLimits("alpha", frame, trueScale, {}).min).toBe(MEMBER_MIN_DISTANCE);
     expect(defaultDistance("beta", frame, trueScale)).toBeCloseTo(0.2, 9);

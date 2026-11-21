@@ -196,7 +196,11 @@ export function rateScale(metric: RateMetric): LinearScale | null {
   if (value === null) return null;
   if (range !== undefined && range.max > range.min) {
     const at = (v: number) => clamp01((v - range.min) / (range.max - range.min));
-    return { span: range.max - range.min, valueFraction: at(value), markers: peak === undefined ? [] : [{ ...peak, fraction: at(peak.value) }] };
+    return {
+      span: range.max - range.min,
+      valueFraction: at(value),
+      markers: peak === undefined ? [] : [{ ...peak, fraction: at(peak.value) }],
+    };
   }
   if (peak === undefined || value < 0 || peak.value < 0) return null;
   const span = Math.max(value, peak.value);
@@ -266,7 +270,10 @@ export function planViews(metric: CoordinatesMetric): PlanViews | null {
   const all = [object, ...config.references.map((r) => r.xyz)];
   const halfSpan = Math.max(...all.flatMap((xyz) => [Math.hypot(xyz[0], xyz[1]), Math.abs(xyz[2])]));
   if (!(halfSpan > 0)) return null;
-  const project = (xyz: readonly number[], second: 1 | 2): [number, number] => [xyz[0] / halfSpan, xyz[second] / halfSpan];
+  const project = (xyz: readonly number[], second: 1 | 2): [number, number] => [
+    xyz[0] / halfSpan,
+    xyz[second] / halfSpan,
+  ];
   const view = (name: "top" | "side", second: 1 | 2): PlanView => ({
     name,
     axes: ["x", second === 1 ? "y" : "z"],
@@ -306,25 +313,45 @@ export interface MetricReading {
   readonly unit: string;
 }
 
-const unavailableReading = (metric: MetricCommon): MetricReading => ({ value: "—", unit: metric.unavailable ?? "unavailable" });
+const unavailableReading = (metric: MetricCommon): MetricReading => ({
+  value: "—",
+  unit: metric.unavailable ?? "unavailable",
+});
 
 /** The headline number and its unit, as shown first. Coordinates read as one row per component. */
 export function metricReadings(metric: Metric): readonly MetricReading[] {
   switch (metric.kind) {
     case "phase":
-      return [metric.fraction === null ? unavailableReading(metric) : { value: formatMetricNumber(metric.fraction * 100, 1), unit: "%" }];
+      return [
+        metric.fraction === null
+          ? unavailableReading(metric)
+          : { value: formatMetricNumber(metric.fraction * 100, 1), unit: "%" },
+      ];
     case "progress":
-      return [metric.value === null || !(metric.total > 0)
-        ? unavailableReading(metric)
-        : { value: formatMetricNumber(clamp01(metric.value / metric.total) * 100, 1), unit: "%" }];
+      return [
+        metric.value === null || !(metric.total > 0)
+          ? unavailableReading(metric)
+          : { value: formatMetricNumber(clamp01(metric.value / metric.total) * 100, 1), unit: "%" },
+      ];
     case "uncertainty":
-      return [metric.value === null ? unavailableReading(metric) : { value: `±${formatMetricNumber(metric.value, metric.digits)}`, unit: metric.unit }];
+      return [
+        metric.value === null
+          ? unavailableReading(metric)
+          : { value: `±${formatMetricNumber(metric.value, metric.digits)}`, unit: metric.unit },
+      ];
     case "coordinates":
       return metric.components === null
         ? [unavailableReading(metric)]
-        : metric.components.map((c) => ({ value: `${c.label} ${formatMetricNumber(c.value, c.digits)}`, unit: c.unit }));
+        : metric.components.map((c) => ({
+            value: `${c.label} ${formatMetricNumber(c.value, c.digits)}`,
+            unit: c.unit,
+          }));
     default:
-      return [metric.value === null ? unavailableReading(metric) : { value: formatMetricNumber(metric.value, metric.digits), unit: metric.unit }];
+      return [
+        metric.value === null
+          ? unavailableReading(metric)
+          : { value: formatMetricNumber(metric.value, metric.digits), unit: metric.unit },
+      ];
   }
 }
 
@@ -335,15 +362,25 @@ function speedNotes(metric: MetricOf<"speed">): readonly string[] {
   const gauge = speedGauge(metric);
   if (gauge === null || metric.range === undefined) return [];
   const { min, max, basis, digits = metric.digits } = metric.range;
-  return [`${note(min, digits)}–${note(max, digits)} ${metric.unit}${gauge.outside ? " · value outside this range" : ""}`, basis];
+  return [
+    `${note(min, digits)}–${note(max, digits)} ${metric.unit}${gauge.outside ? " · value outside this range" : ""}`,
+    basis,
+  ];
 }
 
 function rateNotes(metric: MetricOf<"rate">): readonly string[] {
   const { range, value } = metric;
-  const limits = range === undefined || value === null || !(range.max > range.min)
-    ? []
-    : [`${note(range.min, range.digits ?? metric.digits)}–${note(range.max, range.digits ?? metric.digits)} ${metric.unit}${value < range.min || value > range.max ? " · value outside this range" : ""}`, range.basis];
-  const peak = metric.peak === undefined || value === null ? [] : [`${metric.peak.label} ${note(metric.peak.value, metric.digits)} ${metric.unit}`];
+  const limits =
+    range === undefined || value === null || !(range.max > range.min)
+      ? []
+      : [
+          `${note(range.min, range.digits ?? metric.digits)}–${note(range.max, range.digits ?? metric.digits)} ${metric.unit}${value < range.min || value > range.max ? " · value outside this range" : ""}`,
+          range.basis,
+        ];
+  const peak =
+    metric.peak === undefined || value === null
+      ? []
+      : [`${metric.peak.label} ${note(metric.peak.value, metric.digits)} ${metric.unit}`];
   return [...limits, ...peak];
 }
 
@@ -369,7 +406,10 @@ function altitudeNotes(metric: MetricOf<"altitude">): readonly string[] {
 
 function progressNotes(metric: MetricOf<"progress">): readonly string[] {
   if (metric.value === null) return [];
-  const ends = metric.startLabel !== undefined && metric.endLabel !== undefined ? ` · ${metric.startLabel} → ${metric.endLabel}` : "";
+  const ends =
+    metric.startLabel !== undefined && metric.endLabel !== undefined
+      ? ` · ${metric.startLabel} → ${metric.endLabel}`
+      : "";
   return [`${note(metric.value, metric.digits)} of ${note(metric.total, metric.digits)} ${metric.unit}${ends}`];
 }
 
@@ -392,21 +432,37 @@ function coordinatesNotes(metric: MetricOf<"coordinates">): readonly string[] {
 /** Caption lines naming the reference the visual is drawn against, in the order they are shown. */
 export function metricNotes(metric: Metric): readonly string[] {
   switch (metric.kind) {
-    case "speed": return speedNotes(metric);
-    case "rate": return rateNotes(metric);
-    case "distance": return distanceNotes(metric);
-    case "relative-distance": return relativeDistanceNotes(metric);
-    case "altitude": return altitudeNotes(metric);
-    case "progress": return progressNotes(metric);
-    case "uncertainty": return uncertaintyNotes(metric);
+    case "speed":
+      return speedNotes(metric);
+    case "rate":
+      return rateNotes(metric);
+    case "distance":
+      return distanceNotes(metric);
+    case "relative-distance":
+      return relativeDistanceNotes(metric);
+    case "altitude":
+      return altitudeNotes(metric);
+    case "progress":
+      return progressNotes(metric);
+    case "uncertainty":
+      return uncertaintyNotes(metric);
     case "phase":
       return metric.fraction !== null && metric.litLimb !== undefined ? [`lit on the ${metric.litLimb}`] : [];
-    case "coordinates": return coordinatesNotes(metric);
+    case "coordinates":
+      return coordinatesNotes(metric);
   }
 }
 
 /** A sentence carrying the value and what the visual shows, so nothing depends on seeing the shape. */
 export function describeMetric(metric: Metric): string {
-  const reading = metricReadings(metric).map((r) => `${r.value} ${r.unit}`).join(", ");
-  return [`${metric.label}: ${reading}`, ...(metric.context === undefined ? [] : [metric.context]), ...metricNotes(metric)].join("; ") + ".";
+  const reading = metricReadings(metric)
+    .map((r) => `${r.value} ${r.unit}`)
+    .join(", ");
+  return (
+    [
+      `${metric.label}: ${reading}`,
+      ...(metric.context === undefined ? [] : [metric.context]),
+      ...metricNotes(metric),
+    ].join("; ") + "."
+  );
 }

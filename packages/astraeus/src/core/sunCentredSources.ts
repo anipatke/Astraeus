@@ -11,7 +11,10 @@ import type { TwoBodyAdapter } from "./twoBodyAdapter";
 const RADIANS = Math.PI / 180;
 
 function assertCentre(native: CenterId, center: CenterId): void {
-  if (center !== native) throw new RangeError(`this Trajectory is ${native === "sun" ? "Sun-centred" : `centred on "${native}"`}; centre "${center}" is not offered`);
+  if (center !== native)
+    throw new RangeError(
+      `this Trajectory is ${native === "sun" ? "Sun-centred" : `centred on "${native}"`}; centre "${center}" is not offered`,
+    );
 }
 
 export interface TwoBodyTrajectoryInput {
@@ -41,21 +44,28 @@ export function createTwoBodyTrajectory(input: TwoBodyTrajectoryInput, adapter: 
   if (!(elements.eccentricity >= 0 && elements.eccentricity < 1)) {
     throw new GroupElementsError(`${input.body}: eccentricity must be at least 0 and below 1 (a bound orbit)`);
   }
-  const initial = adapter.elementsToState({
-    semiMajorAxisKm: elements.semiMajorAxisKm,
-    eccentricity: elements.eccentricity,
-    inclinationRad: elements.inclinationDeg * RADIANS,
-    raanRad: elements.raanDeg * RADIANS,
-    argumentOfPeriapsisRad: elements.argumentOfPeriapsisDeg * RADIANS,
-    trueAnomalyRad: elements.trueAnomalyDeg * RADIANS,
-  }, native);
+  const initial = adapter.elementsToState(
+    {
+      semiMajorAxisKm: elements.semiMajorAxisKm,
+      eccentricity: elements.eccentricity,
+      inclinationRad: elements.inclinationDeg * RADIANS,
+      raanRad: elements.raanDeg * RADIANS,
+      argumentOfPeriapsisRad: elements.argumentOfPeriapsisDeg * RADIANS,
+      trueAnomalyRad: elements.trueAnomalyDeg * RADIANS,
+    },
+    native,
+  );
   const rotation = input.plane === "ecliptic-j2000" ? adapter.eclipticJ2000ToEqjMatrix() : null;
   const states = new Float64Array(6);
-  for (const [offset, vector] of [[0, initial.position], [3, initial.velocity]] as const) {
+  for (const [offset, vector] of [
+    [0, initial.position],
+    [3, initial.velocity],
+  ] as const) {
     for (let row = 0; row < 3; row += 1) {
-      states[offset + row] = rotation === null
-        ? vector[row]
-        : rotation[3 * row] * vector[0] + rotation[3 * row + 1] * vector[1] + rotation[3 * row + 2] * vector[2];
+      states[offset + row] =
+        rotation === null
+          ? vector[row]
+          : rotation[3 * row] * vector[0] + rotation[3 * row + 1] * vector[1] + rotation[3 * row + 2] * vector[2];
     }
   }
   const { body, epochUtcMs, bounds } = input;
@@ -96,7 +106,8 @@ function assertPathSpan(span: TimeBounds, count: number): void {
 export function pathTimesUtcMs(span: TimeBounds, count: number): number[] {
   assertPathSpan(span, count);
   const times: number[] = [];
-  for (let k = 0; k < count; k += 1) times.push(Math.round(span.startUtcMs + ((span.endUtcMs - span.startUtcMs) * k) / (count - 1)));
+  for (let k = 0; k < count; k += 1)
+    times.push(Math.round(span.startUtcMs + ((span.endUtcMs - span.startUtcMs) * k) / (count - 1)));
   return times;
 }
 
@@ -125,9 +136,12 @@ export function eccentricAnomalyFromMean(meanRad: number, eccentricity: number):
 export function eccentricPathTimesUtcMs(span: TimeBounds, count: number, orbit: EccentricSampling): number[] {
   assertPathSpan(span, count);
   const { eccentricity, periodMs, periapsisUtcMs } = orbit;
-  if (!(eccentricity >= 0 && eccentricity < 1)) throw new RangeError("sampling by eccentric anomaly needs an eccentricity of at least 0 and below 1");
-  if (!(periodMs > 0) || !Number.isFinite(periodMs)) throw new RangeError("sampling by eccentric anomaly needs a positive finite period");
-  if (!Number.isFinite(periapsisUtcMs)) throw new RangeError("sampling by eccentric anomaly needs a finite periapsis time");
+  if (!(eccentricity >= 0 && eccentricity < 1))
+    throw new RangeError("sampling by eccentric anomaly needs an eccentricity of at least 0 and below 1");
+  if (!(periodMs > 0) || !Number.isFinite(periodMs))
+    throw new RangeError("sampling by eccentric anomaly needs a positive finite period");
+  if (!Number.isFinite(periapsisUtcMs))
+    throw new RangeError("sampling by eccentric anomaly needs a finite periapsis time");
   const meanOf = (timeUtcMs: number): number => (2 * Math.PI * (timeUtcMs - periapsisUtcMs)) / periodMs;
   const first = eccentricAnomalyFromMean(meanOf(span.startUtcMs), eccentricity);
   const last = eccentricAnomalyFromMean(meanOf(span.endUtcMs), eccentricity);
@@ -137,7 +151,9 @@ export function eccentricPathTimesUtcMs(span: TimeBounds, count: number, orbit: 
     else if (k === count - 1) times.push(span.endUtcMs);
     else {
       const anomaly = first + ((last - first) * k) / (count - 1);
-      times.push(Math.round(periapsisUtcMs + (periodMs * (anomaly - eccentricity * Math.sin(anomaly))) / (2 * Math.PI)));
+      times.push(
+        Math.round(periapsisUtcMs + (periodMs * (anomaly - eccentricity * Math.sin(anomaly))) / (2 * Math.PI)),
+      );
     }
   }
   return times;
@@ -149,7 +165,8 @@ export function eccentricPathTimesUtcMs(span: TimeBounds, count: number, orbit: 
  */
 export function windowTimesUtcMs(centerUtcMs: number, windowMs: number, count: number): number[] {
   assertUtcUnixMs(centerUtcMs);
-  if (!Number.isInteger(count) || count < 3 || count % 2 === 0) throw new RangeError("a window needs an odd sample count of at least 3 so the centre is a sample");
+  if (!Number.isInteger(count) || count < 3 || count % 2 === 0)
+    throw new RangeError("a window needs an odd sample count of at least 3 so the centre is a sample");
   if (!(windowMs > 0) || !Number.isFinite(windowMs)) throw new RangeError("a window needs a positive finite width");
   const half = (count - 1) / 2;
   const times: number[] = [];
@@ -187,14 +204,22 @@ export class NoFullTurnError extends RangeError {
  * adding the angle between successive positions, and interpolating inside the step that completes the turn. For a path that should
  * show one whole orbit of a body whose period the source does not state. Throws when no full turn is made within `maxSteps` steps.
  */
-export function fullTurnSpanMs(source: Trajectory, startUtcMs: number, stepMs: number, maxSteps: number, center?: CenterId): number {
+export function fullTurnSpanMs(
+  source: Trajectory,
+  startUtcMs: number,
+  stepMs: number,
+  maxSteps: number,
+  center?: CenterId,
+): number {
   assertUtcUnixMs(startUtcMs);
   if (!(stepMs > 0) || !Number.isFinite(stepMs)) throw new RangeError("a turn search needs a positive finite step");
   let previous = source.stateAt(startUtcMs, center).positionKm;
   let swept = 0;
   for (let step = 1; step <= maxSteps; step += 1) {
     const next = source.stateAt(startUtcMs + step * stepMs, center).positionKm;
-    const cosine = (previous[0] * next[0] + previous[1] * next[1] + previous[2] * next[2]) / (Math.hypot(previous[0], previous[1], previous[2]) * Math.hypot(next[0], next[1], next[2]));
+    const cosine =
+      (previous[0] * next[0] + previous[1] * next[1] + previous[2] * next[2]) /
+      (Math.hypot(previous[0], previous[1], previous[2]) * Math.hypot(next[0], next[1], next[2]));
     const angle = Math.acos(Math.max(-1, Math.min(1, cosine)));
     if (swept + angle >= 2 * Math.PI) return Math.round((step - 1 + (2 * Math.PI - swept) / angle) * stepMs);
     swept += angle;

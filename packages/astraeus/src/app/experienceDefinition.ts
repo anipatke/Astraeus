@@ -155,7 +155,11 @@ export interface ExperienceDefinition {
   /** The experience's name, shown in the page heading once it opens ("<label> · Astraeus"). Absent: the heading stays "Astraeus". */
   readonly label?: string;
   readonly experience: ExperienceConfig;
-  readonly clock: { readonly startUtcMs: number; readonly rate: number; /** False leaves the clock paused at `startUtcMs` when the scene opens (default true: it plays). */ readonly playing?: boolean };
+  readonly clock: {
+    readonly startUtcMs: number;
+    readonly rate: number;
+    /** False leaves the clock paused at `startUtcMs` when the scene opens (default true: it plays). */ readonly playing?: boolean;
+  };
   /** Playback that slows for encounters and speeds up for cruise (see `pacedRate`). Absent: the clock runs at the rate it opens with or the visitor picks. */
   readonly pacing?: Pacing;
   /** Every event zone a host hears (an event's own `withinSeconds`, or a pacing rule's zone): present when any exists, with or without `pacing`. */
@@ -227,7 +231,8 @@ export interface ExperienceDefinition {
 /** The body sets the scene draws, validated; empty when the experience declares none. */
 export function bodySetsOf(definition: ExperienceDefinition): readonly BodySetLayer[] {
   const layers = definition.bodySets ?? [];
-  if (new Set(layers.map((layer) => layer.id)).size !== layers.length) throw new RangeError("body set ids must be unique");
+  if (new Set(layers.map((layer) => layer.id)).size !== layers.length)
+    throw new RangeError("body set ids must be unique");
   return layers.map(validateBodySet);
 }
 
@@ -236,7 +241,9 @@ export const PAGE_TITLE = "Astraeus";
 
 /** The page heading for an open experience: its own label before the product name; the product name alone when it declares none. */
 export function pageTitleOf(definition: Pick<ExperienceDefinition, "label">): string {
-  return definition.label === undefined || definition.label.trim() === "" ? PAGE_TITLE : `${definition.label} · ${PAGE_TITLE}`;
+  return definition.label === undefined || definition.label.trim() === ""
+    ? PAGE_TITLE
+    : `${definition.label} · ${PAGE_TITLE}`;
 }
 
 /** Checks a declared camera reach, naming the offending field. Returns it unchanged. */
@@ -284,7 +291,8 @@ export function visualOverridesOf(definition: ExperienceDefinition): ReadonlyMap
   for (const [id, override] of Object.entries(definition.visualOverrides ?? {})) {
     if (!catalogue.has(id)) throw new RangeError(`visualOverrides names "${id}", which the catalogue lacks`);
     const factor = override.exaggeration;
-    if (factor !== undefined && !(Number.isFinite(factor) && factor >= 1)) throw new RangeError(`visualOverrides.${id}.exaggeration must be finite and at least 1, got ${factor}`);
+    if (factor !== undefined && !(Number.isFinite(factor) && factor >= 1))
+      throw new RangeError(`visualOverrides.${id}.exaggeration must be finite and at least 1, got ${factor}`);
     overrides.set(id, override);
   }
   return overrides;
@@ -298,7 +306,9 @@ export function assetWithOverride(asset: BodyAsset, override: VisualOverride | u
     ...asset.visual,
     ...rest,
     material: { ...asset.visual.material, ...material },
-    ...(marker === undefined && asset.visual.marker === undefined ? {} : { marker: { ...asset.visual.marker, ...marker } as { sizePx: number } }),
+    ...(marker === undefined && asset.visual.marker === undefined
+      ? {}
+      : { marker: { ...asset.visual.marker, ...marker } as { sizePx: number } }),
   };
   return { ...asset, visual };
 }
@@ -314,7 +324,9 @@ export function sceneCenterOf(definition: ExperienceDefinition): BodyId {
   if (centre === undefined) throw new RangeError("an experience with no composition must declare its sceneCenter");
   if (!catalogueOf(definition).has(centre)) throw new RangeError(`sceneCenter "${centre}" is not in the catalogue`);
   if (composition !== undefined && !composition.bodies.includes(centre)) {
-    throw new RangeError(`sceneCenter "${centre}" is not one of composition "${composition.id}" bodies (${composition.bodies.join(", ")})`);
+    throw new RangeError(
+      `sceneCenter "${centre}" is not one of composition "${composition.id}" bodies (${composition.bodies.join(", ")})`,
+    );
   }
   return centre;
 }
@@ -339,7 +351,7 @@ export function initialObjectIdOf(definition: ExperienceDefinition): string {
   const startId = start === undefined ? undefined : requestObjectId(start);
   if (startId !== undefined && objects.some((object) => object.id === startId)) return startId;
   const centre = sceneCenterOf(definition);
-  return objects.some((object) => object.id === centre) ? centre : objects[0]?.id ?? centre;
+  return objects.some((object) => object.id === centre) ? centre : (objects[0]?.id ?? centre);
 }
 
 /** The tracked bodies the scene should draw: none unless the layer is listed. */
@@ -376,17 +388,39 @@ const isPositiveFinite = (value: number): boolean => value > 0 && Number.isFinit
 
 function checkPathRule(id: string, path: PathSpec, catalogue: BodyCatalogue): void {
   const rule = path as { kind?: unknown; frame?: unknown; center?: unknown };
-  must(rule.kind === "orbit" || rule.kind === "trail", TypeError, `path "${id}" kind must be "orbit" or "trail", got ${String(rule.kind)}`);
-  must(rule.kind !== "trail" || rule.frame === "relative" || rule.frame === "inertial", TypeError, `path "${id}" frame must be "relative" or "inertial", got ${String(rule.frame)}`);
-  must(rule.kind !== "orbit" || rule.center === undefined || (typeof rule.center === "string" && catalogue.has(rule.center)), RangeError, `path "${id}" center "${String(rule.center)}" is not a catalogued body`);
+  must(
+    rule.kind === "orbit" || rule.kind === "trail",
+    TypeError,
+    `path "${id}" kind must be "orbit" or "trail", got ${String(rule.kind)}`,
+  );
+  must(
+    rule.kind !== "trail" || rule.frame === "relative" || rule.frame === "inertial",
+    TypeError,
+    `path "${id}" frame must be "relative" or "inertial", got ${String(rule.frame)}`,
+  );
+  must(
+    rule.kind !== "orbit" ||
+      rule.center === undefined ||
+      (typeof rule.center === "string" && catalogue.has(rule.center)),
+    RangeError,
+    `path "${id}" center "${String(rule.center)}" is not a catalogued body`,
+  );
   must(typeof path.source?.stateAt === "function", TypeError, `path "${id}" source must be a Trajectory with stateAt`);
 }
 
 function checkRollingSpan(id: string, path: PathSpec, span: RollingSpan): void {
   must(isPositiveFinite(span.windowMs), RangeError, `path "${id}" span windowMs must be positive and finite`);
   const samples = path.samples ?? DEFAULT_WINDOW_SAMPLE_COUNT;
-  must(Number.isInteger(samples) && samples >= 3 && samples % 2 === 1, RangeError, `path "${id}" samples must be an odd whole number of at least 3 for a rolling span, got ${samples}`);
-  must(path.sampling === undefined, RangeError, `path "${id}" sampling by eccentric anomaly needs a fixed span, not a rolling window`);
+  must(
+    Number.isInteger(samples) && samples >= 3 && samples % 2 === 1,
+    RangeError,
+    `path "${id}" samples must be an odd whole number of at least 3 for a rolling span, got ${samples}`,
+  );
+  must(
+    path.sampling === undefined,
+    RangeError,
+    `path "${id}" sampling by eccentric anomaly needs a fixed span, not a rolling window`,
+  );
 }
 
 /** Checks a fixed span and its sampling, and returns the span start the source is probed at. */
@@ -394,14 +428,27 @@ function checkFixedSpan(id: string, path: PathSpec, span: TimeBounds | undefined
   const { startUtcMs, endUtcMs } = span ?? ({} as TimeBounds); // a missing span fails the finite check below
   if (path.sampling !== undefined) {
     const { eccentricity, periodMs, periapsisUtcMs } = path.sampling;
-    must(eccentricity >= 0 && eccentricity < 1, RangeError, `path "${id}" sampling eccentricity must be at least 0 and below 1, got ${eccentricity}`);
+    must(
+      eccentricity >= 0 && eccentricity < 1,
+      RangeError,
+      `path "${id}" sampling eccentricity must be at least 0 and below 1, got ${eccentricity}`,
+    );
     must(isPositiveFinite(periodMs), RangeError, `path "${id}" sampling periodMs must be positive and finite`);
     must(Number.isFinite(periapsisUtcMs), RangeError, `path "${id}" sampling periapsisUtcMs must be finite`);
   }
-  must(Number.isFinite(startUtcMs) && Number.isFinite(endUtcMs), RangeError, `path "${id}" span needs finite start and end times`);
+  must(
+    Number.isFinite(startUtcMs) && Number.isFinite(endUtcMs),
+    RangeError,
+    `path "${id}" span needs finite start and end times`,
+  );
   must(endUtcMs > startUtcMs, RangeError, `path "${id}" span must end after it starts`);
-  const samples = path.samples ?? (path.sampling === undefined ? DEFAULT_PATH_SAMPLE_COUNT : DEFAULT_ECCENTRIC_SAMPLE_COUNT);
-  must(Number.isInteger(samples) && samples >= 2, RangeError, `path "${id}" samples must be a whole number of at least 2, got ${samples}`);
+  const samples =
+    path.samples ?? (path.sampling === undefined ? DEFAULT_PATH_SAMPLE_COUNT : DEFAULT_ECCENTRIC_SAMPLE_COUNT);
+  must(
+    Number.isInteger(samples) && samples >= 2,
+    RangeError,
+    `path "${id}" samples must be a whole number of at least 2, got ${samples}`,
+  );
   return startUtcMs;
 }
 
@@ -420,7 +467,9 @@ export function validatePathSpec(id: string, path: PathSpec, catalogue: BodyCata
   try {
     path.source.stateAt(first, center);
   } catch (error) {
-    throw new TypeError(`path "${id}" source cannot give a state about its centre${center === undefined ? "" : ` "${center}"`} at the span start: ${error instanceof Error ? error.message : String(error)}`);
+    throw new TypeError(
+      `path "${id}" source cannot give a state about its centre${center === undefined ? "" : ` "${center}"`} at the span start: ${error instanceof Error ? error.message : String(error)}`,
+    );
   }
 }
 
@@ -428,7 +477,11 @@ export function validatePathSpec(id: string, path: PathSpec, catalogue: BodyCata
  * Checks the Sun and path declarations and returns them, naming the offending item and field (see `validatePathSpec`),
  * an empty or repeated id or missing provenance.
  */
-export function validateSunCentred(sun: SunBody | undefined, paths: readonly PathLayer[], catalogue: BodyCatalogue = builtInCatalogue): { readonly sun: SunBody | undefined; readonly paths: readonly PathLayer[] } {
+export function validateSunCentred(
+  sun: SunBody | undefined,
+  paths: readonly PathLayer[],
+  catalogue: BodyCatalogue = builtInCatalogue,
+): { readonly sun: SunBody | undefined; readonly paths: readonly PathLayer[] } {
   const seen = new Set<string>();
   const claim = (id: unknown, what: string): string => {
     if (typeof id !== "string" || id.length === 0) throw new TypeError(`${what} id must be non-empty`);
@@ -449,7 +502,10 @@ export function validateSunCentred(sun: SunBody | undefined, paths: readonly Pat
 }
 
 /** The Sun and paths the scene should draw: none unless the layer is listed; validated. */
-export function sunCentredOf(definition: ExperienceDefinition): { readonly sun: SunBody | undefined; readonly paths: readonly PathLayer[] } {
+export function sunCentredOf(definition: ExperienceDefinition): {
+  readonly sun: SunBody | undefined;
+  readonly paths: readonly PathLayer[];
+} {
   if (!definition.sceneLayers.includes("sun-centred")) return { sun: undefined, paths: [] };
   return validateSunCentred(definition.sun, definition.paths ?? [], catalogueOf(definition));
 }
@@ -472,7 +528,9 @@ export function experienceWithGroups(definition: ExperienceDefinition): Experien
   // offers it. An orbit with no home, and any trail, stays listed so nothing is left unreachable.
   const drawn = [
     ...(sun === undefined ? [] : [sun.object]),
-    ...paths.map((path): ExperienceObject => (path.kind === "orbit" && path.object.partOf !== undefined ? { ...path.object, listed: false } : path.object)),
+    ...paths.map((path): ExperienceObject =>
+      path.kind === "orbit" && path.object.partOf !== undefined ? { ...path.object, listed: false } : path.object,
+    ),
   ];
   const addedSunCentred = drawn.filter((object) => !known.has(object.id));
   return { ...definition.experience, objects: [...definition.experience.objects, ...addedGroups, ...addedSunCentred] };

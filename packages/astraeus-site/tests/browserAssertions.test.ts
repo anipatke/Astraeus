@@ -1,7 +1,12 @@
 import { execFileSync } from "node:child_process";
 import { describe, expect, it } from "vitest";
 import baseline from "./fixtures/browserAssertionsBaseline.json";
-import { assertionsAt, currentAssertions, extractAssertions, listAssertions } from "../tools/validate/assertion-list.mjs";
+import {
+  assertionsAt,
+  currentAssertions,
+  extractAssertions,
+  listAssertions,
+} from "../tools/validate/assertion-list.mjs";
 
 // O-060 T-281, I-149: the list holds each raise site of the listed forms (see assertion-list.mjs) that the browser scripts had at baseline commit 6aad8e6a, with the text of the guard that
 // decides it. A script that loses one of those sites, or changes the text of its guard, fails here. It proves text for those forms only. It does not see: an edit to a helper a guard
@@ -24,7 +29,8 @@ const REVIEWED: Reviewed[] = [
     script: "browser-smoke.mjs",
     was: "load(browser, view, size)",
     now: ["if (view.journey) => load(browser, view, size)", "if !(view.journey) => load(browser, view, size)"],
-    reason: "T-281 split the one call of load in two: `if (view.journey)` calls it for both sizes at once and the else branch one size after another; both halves must be present, so load, which holds the assertions, still runs for every view and size.",
+    reason:
+      "T-281 split the one call of load in two: `if (view.journey)` calls it for both sizes at once and the else branch one size after another; both halves must be present, so load, which holds the assertions, still runs for every view and size.",
   },
 ];
 
@@ -42,7 +48,8 @@ function missing(before: List, now: List, reviewed: Reviewed[] = REVIEWED): stri
       const swap = reviewed.find((entry) => entry.script === script && entry.was === item)?.now;
       const parts = swap === undefined ? [] : Array.isArray(swap) ? swap : [swap];
       const places = parts.map((part) => left.indexOf(part));
-      if (parts.length === 0 || places.some((place) => place < 0) || new Set(parts).size !== parts.length) lost.push(`${script}: ${item}`);
+      if (parts.length === 0 || places.some((place) => place < 0) || new Set(parts).size !== parts.length)
+        lost.push(`${script}: ${item}`);
       else for (const part of parts) left.splice(left.indexOf(part), 1);
     }
   }
@@ -86,19 +93,45 @@ describe("the browser check keeps every assertion it had at 6aad8e6a", () => {
     expect(missing(before, before)).toEqual([]);
     expect(missing(before, listOf(script.replace("> 20", "> 2")))).toHaveLength(1);
     expect(missing(before, listOf(script.replace("if (depthMode", "if (false && depthMode")))).toHaveLength(1);
-    expect(missing(before, listOf(script.replace("if (whole.raw > limit.raw) wholeProblems.push(`raw ${whole.raw}`);\n", "")))).toHaveLength(1);
-    expect(missing(before, listOf(script.replace('assert.equal(await ui.shownView(page), "a", "the scene opens on its first view");\n', "")))).toHaveLength(1);
+    expect(
+      missing(
+        before,
+        listOf(script.replace("if (whole.raw > limit.raw) wholeProblems.push(`raw ${whole.raw}`);\n", "")),
+      ),
+    ).toHaveLength(1);
+    expect(
+      missing(
+        before,
+        listOf(
+          script.replace('assert.equal(await ui.shownView(page), "a", "the scene opens on its first view");\n', ""),
+        ),
+      ),
+    ).toHaveLength(1);
     expect(missing(before, {})).toHaveLength(5);
     // a differently named failure list is found by shape, not by name
-    expect(extractAssertions("const oddities = [];\nif (x) oddities.push(1);\nreturn { problems: oddities };")).toEqual(["if (x) => oddities.push(1)"]);
-    expect(extractAssertions('// assert.ok(1)\nconst s = "assert.ok(2)"; const files = []; files.push(1);')).toEqual([]);
+    expect(extractAssertions("const oddities = [];\nif (x) oddities.push(1);\nreturn { problems: oddities };")).toEqual(
+      ["if (x) => oddities.push(1)"],
+    );
+    expect(extractAssertions('// assert.ok(1)\nconst s = "assert.ok(2)"; const files = []; files.push(1);')).toEqual(
+      [],
+    );
     // a reviewed exception forgives only its exact new text
-    const exception: Reviewed = { script: "journey-views.mjs", was: "if (a > 20) => throw new Error(\"x\");", now: "if (a > 21) => throw new Error(\"x\");", reason: "planted" };
+    const exception: Reviewed = {
+      script: "journey-views.mjs",
+      was: 'if (a > 20) => throw new Error("x");',
+      now: 'if (a > 21) => throw new Error("x");',
+      reason: "planted",
+    };
     const was = { "journey-views.mjs": [exception.was] };
     expect(missing(was, { "journey-views.mjs": [exception.now as string] }, [exception])).toEqual([]);
-    expect(missing(was, { "journey-views.mjs": ["if (a > 2) => throw new Error(\"x\");"] }, [exception])).toHaveLength(1);
+    expect(missing(was, { "journey-views.mjs": ['if (a > 2) => throw new Error("x");'] }, [exception])).toHaveLength(1);
     // a site that became two holds only while both halves are present
-    const split: Reviewed = { script: "journey-views.mjs", was: "load(a)", now: ["if (j) => load(a)", "if !(j) => load(a)"], reason: "planted split" };
+    const split: Reviewed = {
+      script: "journey-views.mjs",
+      was: "load(a)",
+      now: ["if (j) => load(a)", "if !(j) => load(a)"],
+      reason: "planted split",
+    };
     const whole = { "journey-views.mjs": ["load(a)"] };
     expect(missing(whole, { "journey-views.mjs": split.now as string[] }, [split])).toEqual([]);
     expect(missing(whole, { "journey-views.mjs": ["if !(j) => load(a)"] }, [split])).toHaveLength(1);

@@ -28,7 +28,16 @@ export interface BarItem {
 }
 
 /** The engine items' priorities (note section 4): object picker and Info 1, scale and its help 2, camera presets 3, display switches and moons 4, related objects 5, the developer cog 6. */
-export const ENGINE_PRIORITY = { picker: 1, info: 1, scale: 2, camera: 3, display: 4, moons: 4, related: 5, developer: 6 } as const;
+export const ENGINE_PRIORITY = {
+  picker: 1,
+  info: 1,
+  scale: 2,
+  camera: 3,
+  display: 4,
+  moons: 4,
+  related: 5,
+  developer: 6,
+} as const;
 
 export const MENU_ITEM_ID = "menu";
 
@@ -37,15 +46,29 @@ const titleGhost = (value: string): Ghost => ({ shape: "title", text: value });
 
 /** The title place: the About title (or the selected object's name until About lands). Forms: full, short title (when given), "i". */
 export function titleItem(id: string, full: string, short?: string): BarItem {
-  return { id, kind: "title", priority: 0, forms: { full: [titleGhost(full)], ...(short === undefined ? {} : { short: [titleGhost(short)] }), i: [titleGhost("i")] } };
+  return {
+    id,
+    kind: "title",
+    priority: 0,
+    forms: {
+      full: [titleGhost(full)],
+      ...(short === undefined ? {} : { short: [titleGhost(short)] }),
+      i: [titleGhost("i")],
+    },
+  };
 }
 
 /** A switch (the host's picker, or the views): tabs with their labels, short labels when any option has one, and a compact drop-down. */
-export function switchItem(id: string, options: readonly { readonly label: string; readonly shortLabel?: string; readonly active?: boolean }[]): BarItem {
+export function switchItem(
+  id: string,
+  options: readonly { readonly label: string; readonly shortLabel?: string; readonly active?: boolean }[],
+): BarItem {
   const shorts = options.some((option) => option.shortLabel !== undefined);
   const current = options.find((option) => option.active === true) ?? options[0];
   return {
-    id, kind: "switch", priority: 0,
+    id,
+    kind: "switch",
+    priority: 0,
     forms: {
       full: options.map((option) => text(option.label)),
       ...(shorts ? { short: options.map((option) => text(option.shortLabel ?? option.label)) } : {}),
@@ -56,7 +79,12 @@ export function switchItem(id: string, options: readonly { readonly label: strin
 
 /** A story button (O-080): full label, short label when given. `order` is its place in the story's order. */
 export function storyItem(id: string, order: number, label: string, shortLabel?: string): BarItem {
-  return { id, kind: "story", priority: order, forms: { full: [text(label)], ...(shortLabel === undefined ? {} : { short: [text(shortLabel)] }) } };
+  return {
+    id,
+    kind: "story",
+    priority: order,
+    forms: { full: [text(label)], ...(shortLabel === undefined ? {} : { short: [text(shortLabel)] }) },
+  };
 }
 
 /** An engine control: icon, text button, drop-down or the scale pair. It has one form. */
@@ -80,5 +108,11 @@ export interface BarParts {
 
 /** The one ordered list: title, switches, story buttons, engine items, then the menu button. */
 export function buildBarItems(parts: BarParts): readonly BarItem[] {
-  return [...(parts.title === undefined ? [] : [parts.title]), ...parts.switches, ...parts.story, ...parts.engine, menuItem()];
+  return [
+    ...(parts.title === undefined ? [] : [parts.title]),
+    ...parts.switches,
+    ...parts.story,
+    ...parts.engine,
+    menuItem(),
+  ];
 }

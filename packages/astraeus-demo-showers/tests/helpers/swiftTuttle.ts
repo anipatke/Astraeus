@@ -3,7 +3,10 @@ import perseids from "../../data/showers/perseids.json";
 import { buildElementsBody, parseElementsBodyRecord, APPROXIMATE_LIMIT_FRACTION } from "astraeus/core/elementsBody";
 import { catalogue } from "astraeus/assets/catalogue";
 
-export const SWIFT_TUTTLE_RECORD = parseElementsBodyRecord((perseids as { parentElements: unknown }).parentElements, "parentElements");
+export const SWIFT_TUTTLE_RECORD = parseElementsBodyRecord(
+  (perseids as { parentElements: unknown }).parentElements,
+  "parentElements",
+);
 const centre = { id: "sun", gmKm3S2: catalogue.get("sun").definition.gmKm3S2! };
 export const SWIFT_TUTTLE_BODY = buildElementsBody(SWIFT_TUTTLE_RECORD, centre);
 export const SWIFT_TUTTLE = SWIFT_TUTTLE_BODY.definition;
