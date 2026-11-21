@@ -67,6 +67,9 @@ describe("closeAfterSeconds checks", () => {
 
   it("accepts a good span on a panel and on the playback", () => {
     expect(() => new Scene().addStoryPanels([{ ...panel, closeAfterSeconds: 30 }]).setStoryPanelPlayback({ closeAfterSeconds: 45 })).not.toThrow();
+    const built = new Scene().addBody(earth).setTimeline({ start: "2099-12-31T00:00:00Z", end: "2100-01-02T00:00:00Z", rate: 60 }).addStoryPanels([{ ...panel, closeAfterSeconds: 30 }]).setStoryPanelPlayback({ closeAfterSeconds: 45 });
+    expect(definitionOf(built).experience.storyPanels!.panels[0]!.closeAfterSeconds).toBe(30);
+    expect(built.panelPlayback.closeAfterSeconds).toBe(45);
   });
 });
 

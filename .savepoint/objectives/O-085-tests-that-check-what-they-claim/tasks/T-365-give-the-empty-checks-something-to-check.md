@@ -2,7 +2,7 @@
 id: T-365
 title: Give the empty checks something to check
 objective: O-085
-status: planned
+status: done
 depends_on: []
 check_waiver: {task: T-365, reason: 'Owner said "work through this list of objectives one by one. Orchestrate each objective to completion" (G-024 decision 7): standing orchestration rules waive the optional step checks; the mandatory Full Objective Check covers the whole diff.', actor: {role: owner, session: orchestrate-g024-20261121}, recorded_at: '2026-11-21T12:50:31Z'}
 owner_validation: {required: false}
@@ -70,8 +70,23 @@ Focused: `npx vitest run packages/astraeus-site/tests/loadingCoverChain.test.ts 
 
 ## Technical Evidence
 
-Pending execution.
+Done When -> evidence (before -> after; each plant one temporary edit, reverted):
+
+| Done When | Change | Plant that failed it |
+|---|---|---|
+| loadingCoverChain failing-address leg | No failing address is reachable in this harness: I tried `?experience=showers&shower=geminids` and `?experience=planets&planet=mars` with every fetch rejecting; both load their orbit files with a fallback, mount, and the cover stays `loading` (state still "loading" after 6 s). Title cut to "back and forward open the address now in the location without pushing a new one" (the existing steps are unchanged). The failure cover is proven by `tests/bootCover.test.ts` "fail: the cover shows its failure message, and a cover that is gone stays gone" and `tests/addressNavigation.test.ts` "a failed rebuild is reported". | n/a (title only) |
+| planetViews ~31 | `check(...)` returns void: added `expect(check(...)).toBeUndefined()` and `scene.bodies` ids contain `settings.centre.id`. A check without the planet's data does not throw, so no refusal assertion was possible. | expected id "nope": 9 cases failed |
+| pacingViews ~88 | added zones' event ids equal `["ea","eb","es"]` | expected `["ea","eb"]`: failed |
+| sceneFrame ~256 | the case did not assert the first (no-sky) call wrote nothing: added `ctx.canvas.dataset.skyPicture` undefined | expected "off": failed |
+| sceneViews ~108 | added view `a` objects contain "moon" | expected "sun": failed |
+| storyPanelClose ~69 | added the panel's `closeAfterSeconds` is 30 (definition `experience.storyPanels.panels[0]`) and `scene.panelPlayback.closeAfterSeconds` is 45; the case needed a timeline (`setTimeline` 2099-12-31..2100-01-02) in the new line only | 31 and 46: each failed |
+
+Commands: focused run of the six files (green); flock-wrapped `npm run lint`, `typecheck`, `build` clean; `npm test`: 302 files passed, 5034 tests passed, 2 skipped. Extra reads: none beyond Context Files (plus `src/api/scene.ts` check/panelPlayback docs, `src/api/planStory.ts`, `src/main.tsx`, `src/addressNavigation.ts` to find the failing path).
+Files changed: the five test files above plus loadingCoverChain.test.ts (title only).
+Limitations: the failure-cover leg is not exercised through `main.tsx`.
 
 ## Drift Notes
 
-None expected.
+None.
+
+Coordinator (orchestrate-g024-20261121): gates green (lint, typecheck, build; `npm test` 302 files, 5034 passed). Accepted deviations: the `loadingCoverChain` title narrowed (the planned fallback when no failing address is reachable; the failure cover stays proven in `bootCover` and `addressNavigation`); `storyPanelClose` gained a `setTimeline` inside the case so the new assertion is reachable (the Task's subject is that case; its original call still runs). `status: done` set by the coordinator under the standing orchestration rule ("I mark them as they pass", O-038) and G-024 decision 7.
