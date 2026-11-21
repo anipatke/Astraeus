@@ -2,7 +2,7 @@
 id: T-404
 title: Retire the browser assertion text baseline
 objective: O-088
-status: planned
+status: done
 depends_on: [{task: T-402, requires: clear}, {task: T-403, requires: clear}]
 owner_validation: {required: false}
 check_waiver: {task: T-404, reason: 'Owner said "work through this list of objectives one by one. Orchestrate each objective to completion" (G-024 decision 7) and "I am remote now, add park the check and move on" (2026-11-22): standing orchestration rules waive the optional step checks; the mandatory Full Objective Check covers the whole diff.', actor: {role: owner, session: orchestrate-g024-20261122}, recorded_at: '2026-11-21T22:56:58Z'}
@@ -63,8 +63,21 @@ Focused: `npx vitest run packages/astraeus-site/tests/browserExitPath.test.ts pa
 
 ## Technical Evidence
 
-Pending execution.
+| Done When | Evidence |
+|---|---|
+| Four files deleted; search clean | Deleted browserAssertions.test.ts, assertion-list.mjs, assertion-list.d.mts, fixtures/browserAssertionsBaseline.json. Search for `assertion-list`, `browserAssertions`, `6aad8e6a` (excluding docs/evidence, audits, .savepoint checks/issues/objectives/health, research, reconciliation-history.md): only `.savepoint/Design.md` lines 126 and 279 remain (Drift Notes). Also removed one stale `RETIRED in tests/browserAssertions.test.ts` mention in the BROWSER_CHECKS.md map row for views/catalogue |
+| Controls green and planted breaks re-confirmed before deleting | Focused run, 4 files, 17 passed. Under flock: harness.mjs line 83 without `&& errors.length === 0` -> browserExitPath console-error case red; run-browser.mjs without `process.exitCode =` -> exit-code case red; stream-check.mjs `!(dots > 0)` -> `dots < 0` -> browserDrawnControl and streamCheck I-071 cases red. All three restored (git diff empty on harness and run-browser; stream-check identical to backup) |
+| browserExitPath header comment | line 9 no longer names the assertion list; comment-only |
+| BROWSER_CHECKS.md | the two assertion-list paragraphs and the rebuild-from-git paragraph replaced by one "Outcome controls" paragraph naming the three test files and the unseen route (deleted or loosened assertion in a passing step) |
+| Review note | bullet added under "Browser regression maintenance" in browser-policy.md, same rule in the Outcome controls paragraph |
+| Gates (flock) | lint pass, typecheck pass, build pass, npm test: 324 files passed, 1 failed (scenePin.test.ts, known T-409 red, not mine); 5319 passed, 1 failed, 2 skipped |
+
+Extra reads: none beyond Context Files. Limitations: no check:browser run (no browser script change).
 
 ## Drift Notes
 
-Expected: `.savepoint/Design.md` mentions of the assertion list (if any) for the planner to reconcile before the Full Check.
+`.savepoint/Design.md` line 126 (browser tiers paragraph) and line 279 (gate times and limits) still mention the assertion list or baseline; planner to reconcile before the Full Check.
+
+## Coordinator (gates)
+
+Set done by the orchestrating session after the combined handoff gates passed with T-402..T-404 and T-406..T-412 together (owner: "I mark them as they pass", O-038; G-024 decision 7 "Orchestrate each objective to completion"; owner 2026-11-22 "I am remote now, add park the check and move on"): lint and Prettier clean, typecheck clean, `npm test` 324 files, 5319 passed, 2 skipped; `npm run check:pack` pass, engine 1,836,372 B raw (cap 1,838,000), 525,692 B gzip (cap 527,000).
