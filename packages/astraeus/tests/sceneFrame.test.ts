@@ -23,6 +23,7 @@ import {
   publishCanvasReadouts,
   stepAndPoseCamera,
   syncViews,
+  runFrame,
   updateOverlays,
   viewUpOf,
   type FrameContext,
@@ -561,6 +562,18 @@ describe("draw this frame? (stage 8)", () => {
     expect(decideDraw(ctx, ctx.runtime.clock.now())).toBe(false);
     ctx.controls.viewReadout = { focus: "earth", azimuthDeg: 1, elevationDeg: 2, distance: 3 };
     expect(decideDraw(ctx, ctx.runtime.clock.now())).toBe(false);
+  });
+});
+
+describe("the frame's one layout read (O-087 T-396)", () => {
+  it("runFrame reads the canvas box exactly once and hands it to the pick targets", () => {
+    vi.stubGlobal("requestAnimationFrame", vi.fn());
+    const { ctx } = makeContext();
+    const read = vi.fn(() => ({ left: 7, top: 9 }));
+    (ctx.canvas as unknown as { getBoundingClientRect: typeof read }).getBoundingClientRect = read;
+    runFrame(ctx);
+    expect(read).toHaveBeenCalledTimes(1);
+    expect(ctx.state.canvasBox).toEqual({ left: 7, top: 9 });
   });
 });
 

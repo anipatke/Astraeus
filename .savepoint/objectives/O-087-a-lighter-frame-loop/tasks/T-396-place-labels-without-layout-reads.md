@@ -2,7 +2,7 @@
 id: T-396
 title: Place labels without layout reads
 objective: O-087
-status: planned
+status: done
 depends_on: [{task: T-395, requires: clear}]
 owner_validation: {required: false}
 check_waiver: {task: T-396, reason: 'Owner said "work through this list of objectives one by one. Orchestrate each objective to completion" (G-024 decision 7) and "carry on orchestrating G-024" (2026-11-22): standing orchestration rules waive the optional step checks; the mandatory Full Objective Check covers the whole diff.', actor: {role: owner, session: orchestrate-g024-20261122}, recorded_at: '2026-11-21T22:11:52Z'}
@@ -72,8 +72,18 @@ Focused: `npx vitest run packages/astraeus/tests/sceneLabelsLayout.test.ts packa
 
 ## Technical Evidence
 
-Pending execution.
+Stopped at stage build, not complete (two blockers for the coordinator):
+1. Engine size: check:pack raw 1,836,117 B vs limit 1,836,000 (117 B over; baseline 1,835,598; growth +519 B), gzip 525,563 (limit 527,000, fine). Tightened the code three times; no limit raised.
+2. tests/skyFigures.test.ts "keeps a body's name over a sky name when they collide (no overlap)" fails: its getBoundingClientRect mock ignores translate(-100%), so the old read-based left try overlapped; arithmetic correctly finds the left try clear. Fixing needs a change to an existing test's setup (rule 5), so not done.
+Done so far: SceneLabels.ts (size cache, ResizeObserver, arithmetic rects, one transform write, change-only hover), sceneFrame.ts (canvasBox read once in runFrame, change-only cursor), new tests/sceneLabelsLayout.test.ts (8 tests, red-first shown: 3 fail with the cache removed), sceneFrame.test.ts case. Focused tests pass except the skyFigures one above. Lint/typecheck/build pass; full test run: 1 failure (the skyFigures one).
 
 ## Drift Notes
 
 Design note for draft 07: label sizes are cached (ResizeObserver); the frame reads the canvas box once, before its first write.
+
+## Coordinator
+
+The builder stopped at build on two blockers; both were settled by the owner on 2026-11-22 and applied by the orchestrating session:
+1. Engine size 117 B over (1,836,117 raw vs 1,836,000). Owner chose "Raise cap by 2,000 B": `ENGINE_LIMIT.rawLimit` 1,838,000 (engine-budget.mjs comment, `publicBuild.test.ts` pin, docs/BROWSER_CHECKS.md and Design `Size budgets` updated); gzip unchanged.
+2. `skyFigures.test.ts` "keeps a body's name over a sky name when they collide (no overlap)": its rect mock ignores `translate(-100%)`, so the old read-based left try always overlapped; arithmetic places the kite on the free left side. Owner chose "Update the test": the assertion now keeps Earth shown and, if the kite shows, requires it on the opposite side (setup unchanged).
+Set done after the gates passed (owner: "I mark them as they pass", O-038; G-024 decision 7): lint and Prettier clean, typecheck clean, `npm test` 322 files, 5156 passed, 3 skipped; `npm run check:pack` pass, engine 1,836,117 B raw (limit 1,838,000), 525,563 B gzip (limit 527,000).

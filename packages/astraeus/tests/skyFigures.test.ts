@@ -426,7 +426,9 @@ describe("sky labels join the one name layout", () => {
       distance: 500,
     });
     expect(hiddenOf("earth")).toBe(false);
-    expect(hiddenOf("kite")).toBe(true);
+    // O-087 T-396 (owner "Update the test"): labels are placed by arithmetic, so the kite may take the free left try; it never shares Earth's side (no overlap).
+    const at = (id: string) => host.querySelector<HTMLElement>(`[data-label-id="${id}"]`)!.style.transform;
+    if (!hiddenOf("kite")) expect(at("kite").includes("-100%")).not.toBe(at("earth").includes("-100%"));
     layer.dispose();
   });
   it("draws no sky label when nobody passes the sky frame", () => {

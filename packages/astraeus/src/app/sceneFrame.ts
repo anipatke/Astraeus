@@ -79,6 +79,8 @@ export interface FrameState {
   readonly drawn: DrawnMemo;
   /** Whether the page asked for the browser-check readouts (`diagnosticsRequested`, read once at creation). */
   readonly diagnostics: boolean;
+  /** The canvas's page top left, read once at the start of each frame (before any DOM write) for the names and the pick targets. */
+  canvasBox: { readonly left: number; readonly top: number };
 }
 
 /** What `decideDraw` remembers from frame to frame. */
@@ -109,6 +111,7 @@ export function createFrameState(policyId: ScalePolicy["id"], onFirstDraw?: () =
     wakes: 0,
     drawn: { timeUtcMs: Number.NaN, pose: [], size: "", controls: new Map(), wakes: 0, mounted: -1, quietFrames: 0 },
     diagnostics: diagnosticsRequested(),
+    canvasBox: { left: 0, top: 0 },
   };
 }
 
@@ -483,6 +486,7 @@ export function updateOverlays(ctx: FrameContext, t: number, step: CameraStep, h
       opacity: (id) => ctx.views.skyFiguresView.labelOpacity(id),
       distance: 0.5 * (camera.near + camera.far),
     },
+    state.canvasBox,
   );
   state.pickables = pickCandidatesOf({
     objects: shown.objects,
@@ -491,7 +495,7 @@ export function updateOverlays(ctx: FrameContext, t: number, step: CameraStep, h
     widthPx: size.width,
     heightPx: size.height,
     labelRects: layers.sceneLabels.current?.shownRects,
-    canvas,
+    canvas: { getBoundingClientRect: () => state.canvasBox },
     bodySetViews: shown.bodySetViews,
   });
   // Sky figures are projected only when a tap asks, from this frame's camera and shown names (no per-frame work).
@@ -506,7 +510,8 @@ export function updateOverlays(ctx: FrameContext, t: number, step: CameraStep, h
     );
   const hover =
     state.hoverPoint === null ? null : hoverTarget(state.pickables, state.hoverPoint.x, state.hoverPoint.y, "mouse");
-  canvas.style.cursor = hover === null ? "" : "pointer";
+  const cursor = hover === null ? "" : "pointer";
+  if (canvas.style.cursor !== cursor) canvas.style.cursor = cursor;
   setDatum(canvas, "pickHover", hover ?? "");
   layers.sceneLabels.current?.setHover(hover, hoverGain);
   layers.storyMarkers.current?.update(
@@ -661,6 +666,7 @@ export function decideDraw(ctx: FrameContext, t: number): boolean {
 
 /** One frame, in order. The caller has checked `bodiesMounted`. */
 export function runFrame(ctx: FrameContext): void {
+  ctx.state.canvasBox = ctx.canvas.getBoundingClientRect(); // the frame's one layout read, before its first write
   const t = frameTime(ctx.runtime, ctx.controls);
   const setLook = syncViews(ctx, t);
   const placed = placeScene(ctx, t);

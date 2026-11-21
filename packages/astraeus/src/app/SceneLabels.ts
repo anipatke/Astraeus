@@ -64,6 +64,9 @@ export class SceneLabelLayer {
   readonly #sky: ReadonlyMap<string, SkyLabelSpec>;
   /** The colour last set on each sky label (by id), so a change of look or selection repaints only what changed. */
   readonly #skyColours = new Map<string, string>();
+  /** Each label's size, from a ResizeObserver or one measure; a size change re-measures only that label. */
+  readonly #sizes = new Map<HTMLElement, DOMRectReadOnly>();
+  readonly #observer: ResizeObserver | undefined;
 
   constructor(host: HTMLElement, objects: readonly ExperienceObject[], skyLabels: readonly SkyLabelSpec[] = []) {
     this.#root.className = "scene-labels";
@@ -77,6 +80,11 @@ export class SceneLabelLayer {
         labelPriority: SKY_LABEL_PRIORITY[spec.kind],
       })),
     ];
+    this.#observer = globalThis.ResizeObserver
+      ? new ResizeObserver((changes) => {
+          for (const c of changes) if (c.contentRect.width) this.#sizes.set(c.target as HTMLElement, c.contentRect); // a hidden label reports 0: keep its size
+        })
+      : undefined;
     this.#sky = new Map(skyLabels.map((spec) => [spec.id, spec]));
     this.#entries = asObjects.map((object) => {
       const element = createLabelElement(object.label, object.color, "scene-object-label");
@@ -87,6 +95,7 @@ export class SceneLabelLayer {
       if (own?.sizePx !== undefined) element.style.setProperty("--label-size", `${own.sizePx}px`);
       element.hidden = true; // not shown until the first layout places it (I-108: unplaced labels all showed for a moment, so a reader could see a label the settled layout then hides)
       this.#root.appendChild(element);
+      this.#observer?.observe(element);
       return { object, element };
     });
     this.#byId = new Map(this.#entries.map((entry) => [entry.object.id, entry]));
@@ -108,8 +117,10 @@ export class SceneLabelLayer {
 
   /** Brightens the name of the hovered object by `gain` (1 leaves it alone); null clears it. */
   setHover(id: string | null, gain: number): void {
-    for (const entry of this.#entries)
-      entry.element.style.filter = entry.object.id === id && gain !== 1 ? `brightness(${gain})` : "";
+    for (const { element, object } of this.#entries) {
+      const filter = object.id === id && gain !== 1 ? `brightness(${gain})` : "";
+      if (element.style.filter !== filter) element.style.filter = filter;
+    }
   }
 
   update(
@@ -121,6 +132,7 @@ export class SceneLabelLayer {
     selectedObjectId: string,
     hiddenIds?: ReadonlySet<string>,
     sky?: SkyLabelFrame,
+    page: { readonly left: number; readonly top: number } = { left: 0, top: 0 },
   ): void {
     camera.updateMatrixWorld(true);
     if (sky !== undefined) {
@@ -179,17 +191,24 @@ export class SceneLabelLayer {
     for (const candidate of candidates) {
       candidate.element.hidden = false;
       let placed: Rect | null = null;
+      let at = "";
       const padding = LABEL_PADDING_PX + (previous.get(candidate.object.id) === false ? LABEL_REAPPEAR_MARGIN_PX : 0);
+      let size = this.#sizes.get(candidate.element);
+      if (size === undefined) this.#sizes.set(candidate.element, (size = candidate.element.getBoundingClientRect()));
       for (const [dx, dy] of [
         [8, 0],
         [-8, 0],
         [0, -20],
       ] as const) {
-        candidate.element.style.transform = `translate(${candidate.screen.x + dx}px, ${candidate.screen.y + dy}px) translate(${dx < 0 ? "-100%" : "0"}, -50%)`;
-        const bounds = candidate.element.getBoundingClientRect();
-        const rect = { left: bounds.left, top: bounds.top, right: bounds.right, bottom: bounds.bottom };
+        const x = candidate.screen.x + dx;
+        const y = candidate.screen.y + dy;
+        const back = dx < 0;
+        const left = page.left + x - (back ? size.width : 0);
+        const top = page.top + y - size.height / 2;
+        const rect = { left, top, right: left + size.width, bottom: top + size.height };
         if (occupied.every((other) => !overlapsWithPadding(rect, other, padding))) {
           placed = rect;
+          at = `translate(${x}px, ${y}px) translate(${back ? "-100%" : "0"}, -50%)`;
           break;
         }
       }
@@ -197,6 +216,7 @@ export class SceneLabelLayer {
       if (placed === null) {
         candidate.element.hidden = true;
       } else {
+        candidate.element.style.transform = at;
         occupied.push(placed);
         this.#shown.set(candidate.object.id, placed);
       }
@@ -204,6 +224,7 @@ export class SceneLabelLayer {
   }
 
   dispose(): void {
+    this.#observer?.disconnect();
     this.#root.remove();
   }
 }
