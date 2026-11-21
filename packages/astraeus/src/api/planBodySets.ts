@@ -157,7 +157,7 @@ export class BodySetPlan {
     });
     const balance = this.#balanceOf(set, center, ctx);
     const group = set.kind === "listed"
-      ? createEphemerisGroup({ id: input.id, center, ephemeris: MOON_SYSTEMS[center]!.ephemeris, members: members.map(({ id }) => id), bounds: ctx.window, provenance: input.provenance })
+      ? createEphemerisGroup({ id: input.id, center, ephemeris: (ctx.catalogue.moonData?.system(center) ?? MOON_SYSTEMS[center]!).ephemeris, members: members.map(({ id }) => id), bounds: ctx.window, provenance: input.provenance })
       : this.#elementsGroup(set, center, gm, ctx, input.id, input.provenance, input.members);
     return {
       id: input.id,
@@ -166,7 +166,7 @@ export class BodySetPlan {
       families,
       bodyFamilies: Object.fromEntries(bodies.map(({ id, family }) => [id, family])),
       ...(extra.length === 0 ? {} : { extraOrbits: {
-        group: createEphemerisGroup({ id: `${input.id}-orbits`, center, ephemeris: MOON_SYSTEMS[center]!.ephemeris, members: extra.map(({ id }) => id), bounds: ctx.window, provenance: createProvenance({ sourceType: "ephemeris", sources: input.provenance.sources, ...EXTRA_ORBITS_PROVENANCE }) }),
+        group: createEphemerisGroup({ id: `${input.id}-orbits`, center, ephemeris: (ctx.catalogue.moonData?.system(center) ?? MOON_SYSTEMS[center]!).ephemeris, members: extra.map(({ id }) => id), bounds: ctx.window, provenance: createProvenance({ sourceType: "ephemeris", sources: input.provenance.sources, ...EXTRA_ORBITS_PROVENANCE }) }),
         families: extra.map(({ family }) => family),
       } }),
       centreGmKm3S2: gm,

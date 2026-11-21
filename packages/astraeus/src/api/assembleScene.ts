@@ -3,7 +3,6 @@ import type { ScalePolicy } from "../core/scalePolicy";
 import type { TimeBounds } from "../core/trajectory";
 import { isPlanetId, loadPlanetSeries, planetSeriesLoaded, planetSeriesSpan } from "../core/planetSeries";
 import { TimeScaleOutOfRangeError } from "../core/timeScale";
-import { catalogue as builtInCatalogue } from "../assets/catalogue";
 import { createComposition } from "../assets/compositions";
 import { mergePictures } from "../assets/pictures";
 import { MAX_LIT_BODIES, litBodiesOf } from "../app/sceneFraming";
@@ -184,7 +183,7 @@ export function assembleScene(parts: ScenePlanners, data: readonly DataSource[])
     ...(sunOrbitIds.length === 0 ? {} : { paths: sunPaths }),
     ...(setLayers.length === 0 ? {} : { bodySets: setLayers }),
     ...figures.entry,
-    ...(plan.catalogue === builtInCatalogue ? {} : { catalogue: plan.catalogue }),
+    catalogue: plan.catalogue,
     ...plan.visualOverrides(),
     // The viewer draws only the pictures of the packages passed to it (T-252); nothing is shared between viewers.
     ...picturesEntry(data),

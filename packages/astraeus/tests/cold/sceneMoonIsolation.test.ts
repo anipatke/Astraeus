@@ -1,5 +1,5 @@
 // O-084 T-354: one scene's moon data must not change another scene's answers (audit AH-03, Codex F01). Cold project, public API only, no viewer.
-// "Its own answer" is what the same scene gives built and loaded alone in a fresh module graph. Rows that fail on today's code are `it.fails`, each naming the Task that fixes them.
+// "Its own answer" is what the same scene gives built and loaded alone in a fresh module graph. Every row passes since T-358 gave each scene its own moon data.
 import { createRequire } from "node:module";
 import { dirname } from "node:path";
 import { readFileSync } from "node:fs";
@@ -62,7 +62,7 @@ const buildA1: Build = (api) => sunJupiter(api, W2016);
 const buildB1: Build = (api) => jupiterIo(api, W2016);
 
 describe("one scene's moon data against another's", () => {
-  it.fails(`A then B: A's Jupiter does not move when B loads ${FIX}`, async () => {
+  it(`A then B: A's Jupiter does not move when B loads ${FIX}`, async () => {
     const [own] = await baseline(buildA1, [], ["jupiter", T2016]);
     const api = await import("astraeus");
     const a = buildA1(api);
@@ -75,7 +75,7 @@ describe("one scene's moon data against another's", () => {
     expect(after).toEqual(own);
   });
 
-  it.fails(`B then A: each scene matches its own answer ${FIX}`, async () => {
+  it(`B then A: each scene matches its own answer ${FIX}`, async () => {
     const [ownA] = await baseline(buildA1, [], ["jupiter", T2016]);
     const [ownB] = await baseline(buildB1, [A_SRC], ["jupiter", T2016]);
     const api = await import("astraeus");
@@ -87,7 +87,7 @@ describe("one scene's moon data against another's", () => {
     expect(a.stateOf("jupiter", T2016)).toEqual(ownA);
   });
 
-  it.fails(`concurrent loads from different sources: A's Jupiter outside its chunks matches its own answer ${FIX}`, async () => {
+  it(`concurrent loads from different sources: A's Jupiter outside its chunks matches its own answer ${FIX}`, async () => {
     const buildA: Build = (api) => new api.Scene().addBody(api.sun).addBody(api.jupiter).addBody(api.io).setTimeline(W2016);
     const buildB: Build = (api) => jupiterIo(api, W2020);
     const [own] = await baseline(buildA, [A_SRC], ["jupiter", T2020]).catch((error: unknown) => [error]);
@@ -104,7 +104,7 @@ describe("one scene's moon data against another's", () => {
     if (!(own instanceof Error)) expect(read).toEqual(own);
   });
 
-  it.fails(`same source, different windows: A's Io outside its window fails the same way before and after B loads ${FIX}`, async () => {
+  it(`same source, different windows: A's Io outside its window fails the same way before and after B loads ${FIX}`, async () => {
     const api = await import("astraeus");
     const a = ioOnly(api, W2016);
     await a.load({ data: [A_SRC] });

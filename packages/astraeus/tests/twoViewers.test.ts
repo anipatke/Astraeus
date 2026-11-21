@@ -207,6 +207,7 @@ afterEach(() => {
 });
 
 /** A planet's moon data from the committed fits, behind a counting fetch (the real `prepareScene` reaches `installData`; only the network is stubbed). */
+const ioIn = (viewer: Viewer, year: string) => runtimeOf.get(viewer.element.querySelector("[data-testid=scene]")!)!.resolver.stateOf("io", Date.parse(`${year}-03-15T00:00:00Z`), "jupiter");
 function stubMoonData() {
   const folder = moonDataFolder("jupiter");
   const index = readJson(`${folder}index.json`) as { bodies: { chunks: { path: string }[] }[] };
@@ -223,11 +224,9 @@ function stubMoonData() {
   return {
     data,
     fetched,
-    /** Io answers in both years, and no chunk file was fetched twice. */
-    expectBoth: () => {
-      const set = JUPITER_MOON_SYSTEM.ephemeris();
-      expect(() => set.stateOf("io", Date.parse("2020-03-15T00:00:00Z"))).not.toThrow();
-      expect(() => set.stateOf("io", Date.parse("2023-03-15T00:00:00Z"))).not.toThrow();
+    /** Each viewer's own resolver answers Io in its scene's year (`[viewer, year]`), and no chunk file was fetched twice. */
+    expectBoth: (...answers: [Viewer, string][]) => {
+      for (const [viewer, year] of answers) expect(() => ioIn(viewer, year)).not.toThrow();
       expect(new Set(fetched).size).toBe(fetched.length);
     },
   };
@@ -240,10 +239,10 @@ describe.each([mountAdapter, sceneAdapter])("one viewer given a new scene: $name
     const moons = stubMoonData();
     const viewer = await adapter.open({ scene: jupiterScene(2020), data: moons.data });
     open.push(viewer);
-    expect(() => JUPITER_MOON_SYSTEM.ephemeris().stateOf("io", Date.parse("2023-03-15T00:00:00Z"))).toThrow();
+    expect(() => ioIn(viewer, "2023")).toThrow();
     const next = await adapter.replace(viewer, { scene: jupiterScene(2023), data: moons.data });
     open[open.indexOf(viewer)] = next;
-    moons.expectBoth();
+    moons.expectBoth([next, "2023"]);
   });
 });
 
@@ -482,7 +481,7 @@ describe.each(PAIRINGS)("two viewers on one page: $name", (pairing) => {
     open.push(first);
     const second = await pairing.second.open({ scene: jupiterScene(2023), data: moons.data });
     open.push(second);
-    moons.expectBoth();
+    moons.expectBoth([first, "2020"], [second, "2023"]);
   });
 
   // T-252: the pictures a viewer draws are those of the packages passed to it. Viewer A gets astraeus-data's pictures, B gets none; each pairing runs in both load orders.
@@ -523,7 +522,7 @@ describe.each(PAIRINGS)("two viewers on one page: $name", (pairing) => {
     expect(runtime(a).bodySets!.map((layer) => [layer.id, layer.group.members])).toEqual([["set-a", ["a-1", "a-2"]]]);
     expect(runtime(b).bodySets!.map((layer) => [layer.id, layer.group.members])).toEqual([["small", ["amalthea"]]]);
     expect(fits.fetched.some((url) => url.endsWith("amalthea/2020.bin"))).toBe(true);
-    expect(() => JUPITER_MOON_SYSTEM.ephemeris().stateOf("amalthea", Date.parse("2020-03-05T00:00:00Z"))).not.toThrow();
+    expect(() => runtime(b).bodySets![0]!.group.memberStateAt(0, Date.parse("2020-03-05T00:00:00Z"))).not.toThrow();
   });
 
   // O-059 T-268: the moon panel and the places belong to the scene that set them, through either path; a bad one arrives as the same typed error.

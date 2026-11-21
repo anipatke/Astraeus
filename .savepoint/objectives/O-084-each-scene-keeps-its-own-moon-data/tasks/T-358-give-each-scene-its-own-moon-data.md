@@ -2,7 +2,7 @@
 id: T-358
 title: Give each scene its own moon data
 objective: O-084
-status: planned
+status: done
 depends_on: [{task: T-357, requires: clear}]
 check_waiver: {task: T-358, reason: 'Owner said "work through this list of objectives one by one. Orchestrate each objective to completion" (G-024 decision 7): standing orchestration rules waive the optional step checks; the mandatory Full Objective Check covers the whole diff.', actor: {role: owner, session: orchestrate-g024-20261121}, recorded_at: '2026-11-21T12:08:49Z'}
 owner_validation: {required: false}
@@ -82,7 +82,25 @@ Focused: `npx vitest run packages/astraeus/tests/sceneMoonScope.test.ts packages
 
 ## Technical Evidence
 
-Pending execution.
+Code: planBodies binds the plan catalogue; assembleScene always passes it; installData and planBodySets read the bound catalogue's moon data. cold/sceneMoonIsolation: it.fails -> it, header comment updated (cold 15/15). New tests/sceneMoonScope.test.ts (5 rows; rows 1-4 red with the plan binding reverted, green after).
+Existing-assertion changes (all read a scene's own data instead of the shared install):
+- twoViewers.test.ts: expectBoth(...[viewer, year]) reads that viewer's runtime.resolver.stateOf("io", t, "jupiter") via ioIn (was JUPITER_MOON_SYSTEM.ephemeris().stateOf for both years); T-251 line ~243 now ioIn(viewer,"2023") toThrow (was shared-install read); its two expectBoth() calls pass the viewers; T-267 line ~526 now runtime(b).bodySets[0].group.memberStateAt(0,t) (was JUPITER_MOON_SYSTEM.ephemeris().stateOf("amalthea",...)). stubMoonData setup unchanged.
+- sceneBodySets.test.ts "scene.load loads the members' chunks...": expected value was JUPITER_MOON_SYSTEM.ephemeris().stateOf(id,T1); now a separate createMoonSystem(JUPITER_MOON_SYSTEM.config) loaded from the same source (index + chunkUrls, same window and bodies). Setup unchanged.
+scenePin.json regenerated; every changed entry accounted for by a structural walk of old vs new JSON (158 non-catalogue changes + 57 catalogue keys):
+(a) 57 definitions gain a `catalogue` key (assembleScene always passes the scene's catalogue).
+(b) Scenes whose data never loads moon positions (the made-up journey scene; "jupiter moons with their data package", whose DATA entries are stubs with no moonPositions) no longer borrow the preload:
+  - made-up journey, metrics: EphemerisChunkMissingError -> NotLoadedError (name + message), 2 times each for callisto, dione, enceladus, europa, ganymede, iapetus, io, mimas, rhea, saturn, tethys, titan, jupiter (26 names, 26 messages).
+  - made-up journey, stateOf: error code bad-time -> missing-data (+message), 2 times each for iapetus, callisto, ganymede, io, mimas, tethys, rhea, dione, europa, titan, enceladus (22 codes, 22 messages).
+  - "jupiter moons with their data package": metrics europa, callisto, jupiter, io (x2 each) answer -> NotLoadedError; stateOf europa, callisto, io (x2 each) state removed -> SceneError missing-data; jupiter position x2 times 3 coordinates moved by the offset of the preloaded moons (e.g. x -809893963.85 -> -809894100.455, about 136 km): the barycentre without borrowed moon data.
+(c) Nothing else. No numeric change in any scene that loads its own moon data; seriesNotLoaded and error sections unchanged.
+
+Gates: lint clean, typecheck clean, build ok. Full `npx vitest run`: 5045 pass, 4 fail (jupiterMoonsEphemeris chunk-size row failed once under load and passed on rerun). Real red: packagePacks engine cap (known; 1833697 B raw vs limit 1833000, +697 B; gzip not printed because the raw check fails first); and three existing tests that rely on the process-wide install or on a scene carrying no catalogue, NOT edited, stopped for the coordinator: listedMoonBodies.test.ts:65 (definitionOf(scene).catalogue toBeUndefined, now always present), listedMoonBodies.test.ts:84-88 (MOON_SYSTEMS.uranus.install(set) then Scene.stateOf miranda, now not loaded), astraeus-demo-planets/tests/jupiterMoonsScene.test.ts:38 (jupiterIoScene.stateOf of small moons from the preload, now not loaded).
+
+Coordinator decision 2026-11-21 (three migrations, before -> after):
+- listedMoonBodies.test.ts:65 "an unused moon costs nothing": `expect(definitionOf(scene sun+uranus).catalogue).toBeUndefined()` -> `own = definitionOf(...).catalogue!; expect(own.ids()).toEqual(catalogue.ids()); expect(own.moonData).toBeDefined()` (built-in bodies only, bound to its own moon data).
+- listedMoonBodies.test.ts:84 Miranda 1986: `MOON_SYSTEMS.uranus!.install(set)` before the scene -> the same set installed into the scene's own system (`definitionOf(s, [uranusData]).catalogue!.moonData!.system("uranus")!.install(set)`), then `await s.load({ data: [uranusData] })`; test made async; the stateOf/provenance assertions are unchanged.
+- astraeus-demo-planets jupiterMoonsScene.test.ts "places every small moon": the scene loaded nothing and read the preload -> `await jupiterIoScene.load({ data: jupiterIoData })` with fetch stubbed to read the chunk files (REPO/afterEach added); assertions unchanged.
+Final gates: lint clean, typecheck clean, build ok (earlier), full vitest 5049 pass, 1 fail (known packagePacks engine cap: 1833697 B raw vs limit 1833000, +697 B; gzip not printed as raw fails first), 2 skipped. jupiterMoonsEphemeris chunk-size flake: rerun 5/5 green (passed on first rerun, failed once under full-suite load earlier; not reproduced this full run).
 
 ## Drift Notes
 
@@ -90,3 +108,5 @@ Record for Design reconciliation:
 - `One handle, one lifecycle` and `Every listed moon addable`: each `Scene` owns one moon data binding, and its catalogue is bound to it from the start. `installData` loads into it, and body-set groups read it.
 - `Planet positions from Horizons`: a planet takes its barycentre offset only from its own scene's moon package.
 - The Design.md text "`assembleScene` passes `catalogue` whenever it differs from the built-in one" is now "always".
+
+Coordinator (orchestrate-g024-20261121): build rerun ok by the coordinator after the final migrations; lint, typecheck green; `npm test` 306 files, 5049 passed with the one known red (`packagePacks` engine cap, 1,833,697 B raw, +697 B), carried to the Full Objective Check under G-024 decision 7. Existing-test changes are the ones the coordinator authorised (twoViewers, sceneBodySets, listedMoonBodies x2, demo jupiterMoonsScene; scenePin categorised as (a)/(b) only). `status: done` set by the coordinator under the standing orchestration rule ("I mark them as they pass", O-038) and decision 7.

@@ -1,6 +1,7 @@
 import type { BodyId } from "../core/body";
 import { readableScale, solarSystemScale, trueScale, type ScaleId, type ScalePolicy } from "../core/scalePolicy";
-import { catalogue as builtInCatalogue, extendCatalogue, extendCatalogueWithMoons, rootBodyId, type BodyCatalogue } from "../assets/catalogue";
+import { catalogue as builtInCatalogue, bindCatalogue, extendCatalogue, extendCatalogueWithMoons, rootBodyId, type BodyCatalogue } from "../assets/catalogue";
+import { createSceneMoonData } from "../core/moonData";
 import { buildElementsBody, ElementsBodyError, parseElementsBodyRecord, type ElementsBodyRecord } from "../core/elementsBody";
 import type { CompositionPath } from "../assets/compositions";
 import type { ExperienceDefinition, PathLayer, VisualOverride } from "../app/experienceDefinition";
@@ -108,7 +109,7 @@ export class BodyPlan {
   readonly cards = new Map<BodyId, Pick<AddBodyOptions, "listed" | "facts" | "sources" | "labelPriority">>();
   readonly looks = new Map<BodyId, Pick<AddBodyOptions, "color" | "knownLimitations">>();
   readonly shown = new Map<BodyId, ShownSpan>();
-  catalogue: BodyCatalogue = builtInCatalogue;
+  catalogue: BodyCatalogue = bindCatalogue(builtInCatalogue, createSceneMoonData());
   readonly #taken: (id: string) => boolean;
   readonly #firstBody: (id: BodyId) => void;
 
