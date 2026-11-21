@@ -10,8 +10,8 @@ import { createMarker, DEFAULT_BODY_MARKER, drawnRadii, drawsAsMarker, markerOf,
 import { resolveLook } from "../src/app/look";
 import { TRACK_LAYER } from "../src/app/TrackedBodyView";
 import { assignBodyLayers } from "../src/app/sceneFraming";
-import { syntheticSun } from "../src/synthetic/syntheticRingDefinition";
-import { syntheticEccentricDefinition } from "../src/synthetic/syntheticEccentricDefinition";
+import { syntheticSun } from "./synthetic/syntheticRingDefinition";
+import { syntheticEccentricDefinition } from "./synthetic/syntheticEccentricDefinition";
 import { assetWithOverride, mountedBodiesOf, visualOverridesOf } from "../src/app/experienceDefinition";
 
 const FOV = 45;

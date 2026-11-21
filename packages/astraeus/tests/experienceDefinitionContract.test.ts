@@ -12,8 +12,8 @@ import {
   validateCameraReach,
   type ExperienceDefinition,
 } from "../src/app/experienceDefinition";
-import { syntheticBeltDefinition } from "../src/synthetic/syntheticRingDefinition";
-import { syntheticBareDefinition, syntheticDefinition } from "../src/synthetic/syntheticDefinition";
+import { syntheticBeltDefinition } from "./synthetic/syntheticRingDefinition";
+import { syntheticBareDefinition, syntheticDefinition } from "./synthetic/syntheticDefinition";
 
 // Moved from the site's tests (O-059 T-272): the experience contract is the engine's, held on made-up definitions. The page heading and app.html stay with the site (tests/pageTitle.test.ts).
 // The rows that used Apollo 11's definition are held on the made-up one.

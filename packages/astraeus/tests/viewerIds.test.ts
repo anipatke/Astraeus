@@ -16,7 +16,7 @@ import { earth, moon } from "../src/api/bodies";
 import { mount } from "../src/api/mount";
 import { Scene } from "../src/api/scene";
 import type { MoonFamilyList } from "../src/shell/moonFamilies";
-import { syntheticDefinition } from "../src/synthetic/syntheticDefinition";
+import { syntheticDefinition } from "./synthetic/syntheticDefinition";
 import { mountShell, pretendScreen } from "./domSetup";
 
 const REFERENCES = ["aria-controls", "aria-labelledby", "aria-describedby"] as const;

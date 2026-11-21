@@ -17,8 +17,8 @@ import { catalogue } from "../src/assets/catalogue";
 import { createComposition, earthMoonSystem, sunEarthSystem } from "../src/assets/compositions";
 import { createOrbAstronomyAdapter } from "../src/core/astronomyAdapter";
 import { scaleChoicesFor } from "../src/shell/scaleModel";
-import { syntheticBareDefinition, syntheticDefinition } from "../src/synthetic/syntheticDefinition";
-import { syntheticBeltDefinition, syntheticRingDefinition } from "../src/synthetic/syntheticRingDefinition";
+import { syntheticBareDefinition, syntheticDefinition } from "./synthetic/syntheticDefinition";
+import { syntheticBeltDefinition, syntheticRingDefinition } from "./synthetic/syntheticRingDefinition";
 
 // Moved from the site's tests (O-059 T-272): the compositions, readouts, overrides and selection rules are the engine's, held on the made-up definitions. The rows that used Apollo 11's and the Perseids' definitions
 // are held on those demos' scenes, as far as a host can read them, in the site (tests/demoScenes.test.ts).

@@ -4,7 +4,7 @@
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { syntheticDefinition } from "../src/synthetic/syntheticDefinition";
+import { syntheticDefinition } from "./synthetic/syntheticDefinition";
 import type { ExperienceConfig } from "../src/shell/experience";
 import { $, mountShell, press, pressKey, type Mounted } from "./domSetup";
 

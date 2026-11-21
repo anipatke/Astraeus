@@ -1,6 +1,6 @@
 // The made-up views scene the browser check opens (O-051 T-221): its three views, their camera rules and the opening camera, on the definition the dev page mounts.
 import { describe, expect, it } from "vitest";
-import { syntheticViewsDefinition } from "../src/synthetic/syntheticViewsDefinition";
+import { syntheticViewsDefinition } from "./synthetic/syntheticViewsDefinition";
 
 describe("syntheticViewsDefinition", () => {
   const views = syntheticViewsDefinition.views!;

@@ -3,10 +3,10 @@
 // Uranus adds its five main moons (listed moons, one rule, orbit lines on; T-212). The giant planets draw their rings by default (catalogue data, O-048 T-205), Europa, Ganymede and Titan draw their orbit lines (T-206) and each pass names its planet as the event's object (T-207).
 // In one scene it proves: moons at historical dates (the data packages are handed to `mount`), Saturn's orbit line, paced playback, provenance that changes along the path,
 // the opening selection and a camera that zooms out to the whole path (I-114). The planets' places come from the planet series, so the series must be loaded before this builds (the site does).
-import { Scene } from "../api/scene";
-import { callisto, dione, earth, enceladus, europa, ganymede, iapetus, io, jupiter, mimas, rhea, saturn, sun, tethys, titan, uranus } from "../api/bodies";
-import type { Provenance } from "../core/provenance";
-import { solarSystemScale } from "../core/scalePolicy";
+import { Scene } from "../../src/api/scene";
+import { callisto, dione, earth, enceladus, europa, ganymede, iapetus, io, jupiter, mimas, rhea, saturn, sun, tethys, titan, uranus } from "../../src/api/bodies";
+import type { Provenance } from "../../src/core/provenance";
+import { solarSystemScale } from "../../src/core/scalePolicy";
 
 const HOUR_MS = 3_600_000;
 const DAY_MS = 86_400_000;

@@ -6,7 +6,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("../src/app/AstraeusScene", () => ({ AstraeusScene: () => createElement("div", { "data-testid": "scene" }) }));
 vi.mock("../src/api/prepared", async () => {
-  const { syntheticDefinition } = await import("../src/synthetic/syntheticDefinition");
+  const { syntheticDefinition } = await import("./synthetic/syntheticDefinition");
   const { startUtcMs, endUtcMs } = syntheticDefinition.experience.window;
   const mid = startUtcMs + Math.floor((endUtcMs - startUtcMs) / 2);
   // Cruise at the third offered speed; a stretch from the middle to the end at a made-up in-between speed 7, eased over a minute.
@@ -18,7 +18,7 @@ import { SceneError } from "../src/api/errors";
 import { mount } from "../src/api/mount";
 import { Scene } from "../src/api/scene";
 import type { ViewerChange } from "../src/api/viewerLink";
-import { syntheticDefinition } from "../src/synthetic/syntheticDefinition";
+import { syntheticDefinition } from "./synthetic/syntheticDefinition";
 import { byLabel, change, drawn } from "./domSetup";
 
 (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;

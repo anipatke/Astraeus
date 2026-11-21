@@ -1,15 +1,15 @@
-import { bodyMetrics } from "../app/bodyMetrics";
-import { createReadoutMetrics } from "../app/trackedMetrics";
-import type { ExperienceDefinition } from "../app/experienceDefinition";
-import type { TrackedBody } from "../app/mission";
-import { earthMoonSystem } from "../assets/compositions";
-import { createEvents } from "../core/events";
-import { createProvenance } from "../core/provenance";
-import { SampledTrajectory } from "../core/sampledTrajectory";
-import { createWindows, rateAt } from "../core/timeWindow";
-import type { Metric, RateMetric } from "../shell/metrics";
-import type { ExperienceConfig } from "../shell/experience";
-import { checkStoryPanel, resolveStoryPanels } from "../shell/storyPanels";
+import { bodyMetrics } from "../../src/app/bodyMetrics";
+import { createReadoutMetrics } from "../../src/app/trackedMetrics";
+import type { ExperienceDefinition } from "../../src/app/experienceDefinition";
+import type { TrackedBody } from "../../src/app/mission";
+import { earthMoonSystem } from "../../src/assets/compositions";
+import { createEvents } from "../../src/core/events";
+import { createProvenance } from "../../src/core/provenance";
+import { SampledTrajectory } from "../../src/core/sampledTrajectory";
+import { createWindows, rateAt } from "../../src/core/timeWindow";
+import type { Metric, RateMetric } from "../../src/shell/metrics";
+import type { ExperienceConfig } from "../../src/shell/experience";
+import { checkStoryPanel, resolveStoryPanels } from "../../src/shell/storyPanels";
 
 const START_UTC_MS = Date.UTC(2030, 0, 1, 0, 0, 0);
 const MINUTE_MS = 60_000;

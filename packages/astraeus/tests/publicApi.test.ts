@@ -11,7 +11,7 @@ import { textureOf } from "../src/assets/pictures";
 import { describeBody } from "../src/app/bodyDraw";
 import { installData } from "../src/api/data";
 import { drawn, mountShell } from "./domSetup";
-import { syntheticDefinition } from "../src/synthetic/syntheticDefinition";
+import { syntheticDefinition } from "./synthetic/syntheticDefinition";
 import { cameraReachOf, mountedBodiesOf, sceneCenterOf, scaleChoiceIdsOf, trackedBodiesOf } from "../src/app/experienceDefinition";
 import { definitionOf, registerDefinition } from "../src/api/definitionOf";
 

@@ -9,7 +9,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("../src/app/AstraeusScene", () => ({ AstraeusScene: () => createElement("div", { "data-testid": "scene" }) }));
 vi.mock("../src/api/prepared", async () => {
-  const { syntheticDefinition } = await import("../src/synthetic/syntheticDefinition");
+  const { syntheticDefinition } = await import("./synthetic/syntheticDefinition");
   return { prepareScene: () => ({ definition: { ...syntheticDefinition, label: "Made-up survey" }, ready: Promise.resolve() }) };
 });
 

@@ -6,7 +6,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("../src/app/AstraeusScene", () => ({ AstraeusScene: () => createElement("div", { "data-testid": "scene" }) }));
 vi.mock("../src/api/prepared", async () => {
-  const { syntheticDefinition } = await import("../src/synthetic/syntheticDefinition");
+  const { syntheticDefinition } = await import("./synthetic/syntheticDefinition");
   return { prepareScene: () => ({ definition: { ...syntheticDefinition, label: "Made-up survey" }, ready: Promise.resolve() }) };
 });
 
@@ -14,7 +14,7 @@ import { App } from "../src/app/App";
 import { AstraeusScene } from "../src/api/AstraeusScene";
 import { mount } from "../src/api/mount";
 import { Scene } from "../src/api/scene";
-import { syntheticDefinition } from "../src/synthetic/syntheticDefinition";
+import { syntheticDefinition } from "./synthetic/syntheticDefinition";
 import { $, drawn, mountShell, press, pressKey, type Mounted } from "./domSetup";
 
 (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;

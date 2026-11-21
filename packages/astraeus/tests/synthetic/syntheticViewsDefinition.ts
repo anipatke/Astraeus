@@ -5,11 +5,11 @@
 // O-052 T-227: events a and b are "flyby" events with a pacing rule (60x within 30 minutes), which slows playback only in the views that have them; the shared event has no type, so it never paces.
 // A new scene rather than the synthetic journey gaining views: the journey is a historical probe through the real planets, and views need two simple paths, a shared body and distinct events and panels that
 // no other check depends on (the journey's checks and its Object list stay exactly as they were).
-import type { ExperienceDefinition } from "../app/experienceDefinition";
-import { Scene } from "../api/scene";
-import { definitionOf } from "../api/definitionOf";
-import { earth } from "../api/bodies";
-import { trueScale } from "../core/scalePolicy";
+import type { ExperienceDefinition } from "../../src/app/experienceDefinition";
+import { Scene } from "../../src/api/scene";
+import { definitionOf } from "../../src/api/definitionOf";
+import { earth } from "../../src/api/bodies";
+import { trueScale } from "../../src/core/scalePolicy";
 
 export const VIEWS_START_UTC_MS = Date.parse("2026-01-01T00:00:00Z");
 const HOUR_MS = 3_600_000;

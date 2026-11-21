@@ -10,7 +10,7 @@ import { createOrbAstronomyAdapter } from "../src/core/astronomyAdapter";
 import { trueScale } from "../src/core/scalePolicy";
 import { AstraeusShell } from "../src/shell/AstraeusShell";
 import { findCameraPreset } from "../src/shell/objectModel";
-import { LISTED_LOOK, LISTED_MEMBER_COUNT, syntheticListedDefinition, syntheticListedLayer } from "../src/synthetic/syntheticListedDefinition";
+import { LISTED_LOOK, LISTED_MEMBER_COUNT, syntheticListedDefinition, syntheticListedLayer } from "./synthetic/syntheticListedDefinition";
 import { placementAbout } from "./scenePlacement";
 import { FRAME_BUDGET_MS, FrameStats } from "../src/app/frameStats";
 import { createListedOrbitGroup, type ListedMember, type ListedOrbitGroupInput } from "../src/core/listedOrbitGroup";

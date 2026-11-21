@@ -1,12 +1,12 @@
 // O-046 T-193: a made-up probe crossing the solar system, built only through the public Scene API (ARCH-01: no real mission, name or data).
 // It starts inside Earth's orbit on 1 January 2026, meets Earth on day 200 (a planet whose place needs no loaded series, so this module builds at import) and flies on. The path is given in the ecliptic plane (`plane: "ecliptic-j2000"`),
 // measured from the Sun (`center: "sun"`), its line is fixed to the Sun, Earth, Venus and Mars are enlarged with their orbit lines on and the scene opens on the Solar system scale.
-import type { ExperienceDefinition } from "../app/experienceDefinition";
-import { earth, mars, sun, venus } from "../api/bodies";
-import { Scene } from "../api/scene";
-import { definitionOf } from "../api/definitionOf";
-import { solarSystemScale } from "../core/scalePolicy";
-import { createOrbTwoBodyAdapter } from "../core/twoBodyAdapter";
+import type { ExperienceDefinition } from "../../src/app/experienceDefinition";
+import { earth, mars, sun, venus } from "../../src/api/bodies";
+import { Scene } from "../../src/api/scene";
+import { definitionOf } from "../../src/api/definitionOf";
+import { solarSystemScale } from "../../src/core/scalePolicy";
+import { createOrbTwoBodyAdapter } from "../../src/core/twoBodyAdapter";
 
 export const PROBE_START_UTC_MS = Date.parse("2026-01-01T00:00:00Z");
 const DAY_MS = 86_400_000;

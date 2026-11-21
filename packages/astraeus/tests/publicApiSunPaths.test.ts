@@ -151,7 +151,7 @@ describe("a path given in the ecliptic plane", () => {
 
 describe("the made-up probe experience (O-046 T-193)", () => {
   it("builds on the public API: Sun first, enlarged planets, the Solar system scale first, the path fixed to the Sun", async () => {
-    const { syntheticProbeDefinition } = await import("../src/synthetic/syntheticProbeDefinition");
+    const { syntheticProbeDefinition } = await import("./synthetic/syntheticProbeDefinition");
     expect(syntheticProbeDefinition.scaleChoices?.[0]).toBe("solar-system");
     const body = trackedBodiesOf(syntheticProbeDefinition)[0]!;
     expect(body.id).toBe("probe");
@@ -161,7 +161,7 @@ describe("the made-up probe experience (O-046 T-193)", () => {
   });
 
   it("the fixture's probe meets Earth at the flyby (its one ecliptic rotation is the engine's)", async () => {
-    const { syntheticProbeDefinition, PROBE_FLYBY_UTC_MS } = await import("../src/synthetic/syntheticProbeDefinition");
+    const { syntheticProbeDefinition, PROBE_FLYBY_UTC_MS } = await import("./synthetic/syntheticProbeDefinition");
     const body = trackedBodiesOf(syntheticProbeDefinition)[0]!;
     const view = new TrackedBodyView(body);
     view.update(PROBE_FLYBY_UTC_MS, trueScale, new FloatingOrigin(), new PerspectiveCamera(), placementAbout("sun"));

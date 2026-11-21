@@ -14,7 +14,7 @@ const stars = vi.hoisted(() => ({ load: vi.fn() }));
 vi.mock("../src/assets/sky", async (importOriginal) => ({ ...(await importOriginal<typeof import("../src/assets/sky")>()), loadStarCatalogue: stars.load }));
 
 import { App, hiddenLabelsFrom, loopFromSearch } from "../src/app/App";
-import { syntheticBareDefinition, syntheticDefinition } from "../src/synthetic/syntheticDefinition";
+import { syntheticBareDefinition, syntheticDefinition } from "./synthetic/syntheticDefinition";
 import { viewUpVector } from "../src/app/viewUp";
 import type { ExperienceDefinition } from "../src/app/experienceDefinition";
 import { $, byLabel, change as changeInput, press, pretendScreen } from "./domSetup";

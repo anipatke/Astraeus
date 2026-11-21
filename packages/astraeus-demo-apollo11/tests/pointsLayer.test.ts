@@ -22,8 +22,8 @@ import { readableScale, trueScale } from "astraeus/core/scalePolicy";
 import { AstraeusShell } from "astraeus/shell/AstraeusShell";
 import { findCameraPreset } from "astraeus/shell/objectModel";
 import { apollo11Definition } from "./apollo11Definition";
-import { syntheticDefinition } from "astraeus/synthetic/syntheticDefinition";
-import { syntheticRingLayer } from "astraeus/synthetic/syntheticRingDefinition";
+import { syntheticDefinition } from "astraeus/tests/synthetic/syntheticDefinition";
+import { syntheticRingLayer } from "astraeus/tests/synthetic/syntheticRingDefinition";
 
 const adapter = createOrbAstronomyAdapter();
 const earthPlacement = placementAbout("earth", adapter);

@@ -6,7 +6,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 vi.mock("../src/app/AstraeusScene", () => ({ AstraeusScene: () => createElement("div", { "data-testid": "scene" }) }));
 const prepared = vi.hoisted(() => ({ real: false }));
 vi.mock("../src/api/prepared", async () => {
-  const { syntheticDefinition } = await import("../src/synthetic/syntheticDefinition");
+  const { syntheticDefinition } = await import("./synthetic/syntheticDefinition");
   const actual = await vi.importActual<typeof import("../src/api/prepared")>("../src/api/prepared");
   return {
     prepareScene: (scene: import("../src/api/scene").Scene, data?: readonly import("../src/api/scene").DataSource[]) => {
@@ -21,7 +21,7 @@ import { createRoot } from "react-dom/client";
 import { AstraeusScene, type AstraeusSceneProps } from "../src/api/AstraeusScene";
 import { SceneError } from "../src/api/errors";
 import { Scene } from "../src/api/scene";
-import { syntheticDefinition } from "../src/synthetic/syntheticDefinition";
+import { syntheticDefinition } from "./synthetic/syntheticDefinition";
 
 (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = false;
 

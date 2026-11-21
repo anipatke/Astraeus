@@ -3,7 +3,7 @@
 // reaches a panel, holding and resuming, the timeline markers, closing, the folded details and the two settings. What each demo's own panels say is data, checked by
 // tests/storyStoriesAllDemos.test.ts; the scene marker's drawing is the smoke check.
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { syntheticDefinition } from "../src/synthetic/syntheticDefinition";
+import { syntheticDefinition } from "./synthetic/syntheticDefinition";
 import { $, change, mountShell, press, pressKey, type Mounted } from "./domSetup";
 
 let m: Mounted;

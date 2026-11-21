@@ -12,7 +12,7 @@ vi.mock("@react-three/fiber", async (orig) => ({
 }));
 vi.mock("../src/assets/sky", async (orig) => ({ ...(await orig<typeof import("../src/assets/sky")>()), loadStarCatalogue: vi.fn().mockResolvedValue(null) }));
 vi.mock("../src/api/prepared", async () => {
-  const { syntheticDefinition } = await import("../src/synthetic/syntheticDefinition");
+  const { syntheticDefinition } = await import("./synthetic/syntheticDefinition");
   return { prepareScene: () => ({ definition: { ...syntheticDefinition }, ready: Promise.resolve() }) };
 });
 

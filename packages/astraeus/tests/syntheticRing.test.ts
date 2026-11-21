@@ -19,7 +19,7 @@ import {
   syntheticBeltLayer,
   syntheticRingDefinition,
   syntheticRingLayer,
-} from "../src/synthetic/syntheticRingDefinition";
+} from "./synthetic/syntheticRingDefinition";
 
 const adapter = createOrbAstronomyAdapter();
 const earthPlacement = placementAbout("earth", adapter);

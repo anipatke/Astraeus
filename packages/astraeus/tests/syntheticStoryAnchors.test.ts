@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { anchorLabelsOf } from "../src/app/mission";
-import { syntheticBareDefinition, syntheticDefinition } from "../src/synthetic/syntheticDefinition";
+import { syntheticBareDefinition, syntheticDefinition } from "./synthetic/syntheticDefinition";
 
 // The made-up scene's story panels and anchors exist only so the engine browser checks run without a demo (O-034 T-111); ARCH-01: nothing here names a real mission or dataset.
 describe("the made-up scene's story panels", () => {

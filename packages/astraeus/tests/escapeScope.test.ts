@@ -4,7 +4,7 @@
 // listener x each place the key can be pressed. One press closes the viewer's topmost thing only (AFTER_ONE_ESCAPE: what one press leaves). A key pressed in the other viewer or in a host's own control reaches none of this viewer's panels.
 import { afterEach, describe, expect, it } from "vitest";
 import { $, mountShell, press, pressKey, type Mounted } from "./domSetup";
-import { syntheticDefinition } from "./../src/synthetic/syntheticDefinition";
+import { syntheticDefinition } from "./synthetic/syntheticDefinition";
 
 const PANEL_ID = syntheticDefinition.experience.storyPanels!.panels[0]!.id;
 const SWITCHES = [{ id: "labels", label: "Labels", place: "panel" as const, on: true, onToggle: () => undefined }];

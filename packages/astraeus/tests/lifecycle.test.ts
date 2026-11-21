@@ -10,7 +10,7 @@ vi.mock("../src/app/AstraeusScene", () => ({
 }));
 const prepared = vi.hoisted(() => ({ fail: false, gate: undefined as undefined | Promise<void>, real: false }));
 vi.mock("../src/api/prepared", async () => {
-  const { syntheticDefinition } = await import("../src/synthetic/syntheticDefinition");
+  const { syntheticDefinition } = await import("./synthetic/syntheticDefinition");
   const actual = await vi.importActual<typeof import("../src/api/prepared")>("../src/api/prepared");
   return {
     prepareScene: (scene: import("../src/api/scene").Scene, data?: readonly import("../src/api/scene").DataSource[]) => {
@@ -39,7 +39,7 @@ import { SceneCamera } from "../src/api/planCamera";
 import { earth, mars, moon } from "../src/api/bodies";
 import { viewerHandleOf, type ViewerHandle } from "../src/api/viewerHandle";
 import { ViewerLink, type CameraPose, type CameraTarget, type ViewerChange } from "../src/api/viewerLink";
-import { syntheticDefinition } from "../src/synthetic/syntheticDefinition";
+import { syntheticDefinition } from "./synthetic/syntheticDefinition";
 import { definitionOf, missingDataOf } from "../src/api/definitionOf";
 
 (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = false;

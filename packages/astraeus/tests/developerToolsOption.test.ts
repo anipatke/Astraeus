@@ -23,7 +23,7 @@ const aside = () => host.querySelector(".developer-tools");
 async function modules() {
   const [{ createElement: h }, { createRoot }, { flushSync }, { Scene }, bodies, api, scene, app, synthetic] = await Promise.all([
     import("react"), import("react-dom/client"), import("react-dom"), import("../src/api/scene"), import("../src/api/bodies"), import("../src/api/mount"),
-    import("../src/api/AstraeusScene"), import("../src/app/App"), import("../src/synthetic/syntheticDefinition"),
+    import("../src/api/AstraeusScene"), import("../src/app/App"), import("./synthetic/syntheticDefinition"),
   ]);
   return { h, createRoot, flushSync, Scene, bodies, mount: api.mount, AstraeusScene: scene.AstraeusScene, App: app.App, synthetic };
 }

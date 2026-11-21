@@ -9,7 +9,7 @@ import { catalogue } from "../src/assets/catalogue";
 import { createSceneResolver } from "../src/app/sceneLayout";
 import { AstraeusShell } from "../src/shell/AstraeusShell";
 import type { ExperienceCameraPreset, ExperienceConfig } from "../src/shell/experience";
-import { syntheticDefinition } from "../src/synthetic/syntheticDefinition";
+import { syntheticDefinition } from "./synthetic/syntheticDefinition";
 import type { PhoneLayoutSettings } from "../src/shell/phoneLayout";
 import type { InterfaceLookSettings } from "../src/shell/look/interfaceLook";
 import type { StoryPanelSettings } from "../src/shell/useStoryPanels";

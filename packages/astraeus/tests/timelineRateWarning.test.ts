@@ -1,7 +1,7 @@
 // A rate that crosses the whole timeline in under a real second warns, naming the unit (I-163; T-293's `rate: DAY_MS` over a 120-day window). It never throws.
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { Scene, earth } from "astraeus";
-import { buildSyntheticJourneyScene } from "../src/synthetic/syntheticJourneyScene";
+import { buildSyntheticJourneyScene } from "./synthetic/syntheticJourneyScene";
 
 const DAY_MS = 86_400_000;
 const T0 = Date.UTC(2030, 0, 1);

@@ -1,8 +1,8 @@
-import type { ExperienceDefinition, PathLayer } from "../app/experienceDefinition";
-import { SUN } from "../core/bodies/sun";
-import { createProvenance } from "../core/provenance";
-import { createTwoBodyTrajectory, type EccentricSampling } from "../core/sunCentredSources";
-import { createOrbTwoBodyAdapter } from "../core/twoBodyAdapter";
+import type { ExperienceDefinition, PathLayer } from "../../src/app/experienceDefinition";
+import { SUN } from "../../src/core/bodies/sun";
+import { createProvenance } from "../../src/core/provenance";
+import { createTwoBodyTrajectory, type EccentricSampling } from "../../src/core/sunCentredSources";
+import { createOrbTwoBodyAdapter } from "../../src/core/twoBodyAdapter";
 import { syntheticBeltDefinition, syntheticEarthPath } from "./syntheticRingDefinition";
 
 const AU_KM = 149_597_870.7;

@@ -7,7 +7,7 @@ import { DEFAULT_ECCENTRIC_SAMPLE_COUNT, DEFAULT_PATH_SAMPLE_COUNT, validatePath
 import { FloatingOrigin } from "../src/app/floatingOrigin";
 import { PathView } from "../src/app/PathView";
 import { fitDistance } from "../src/app/sceneFraming";
-import { ECCENTRIC_ELEMENTS, ECCENTRIC_PERIOD_MS, ECCENTRIC_SAMPLING, eccentricSource, syntheticEccentricDefinition, syntheticEccentricPath } from "../src/synthetic/syntheticEccentricDefinition";
+import { ECCENTRIC_ELEMENTS, ECCENTRIC_PERIOD_MS, ECCENTRIC_SAMPLING, eccentricSource, syntheticEccentricDefinition, syntheticEccentricPath } from "./synthetic/syntheticEccentricDefinition";
 import { placementAbout } from "./scenePlacement";
 
 const AU_KM = 149_597_870.7;

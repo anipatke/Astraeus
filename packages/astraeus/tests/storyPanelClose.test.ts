@@ -7,7 +7,7 @@ import { earth } from "../src/api/bodies";
 import { definitionOf } from "../src/api/definitionOf";
 import { applyLook, lookReadOf } from "../src/app/liveLook";
 import type { SceneControls } from "../src/app/AstraeusScene";
-import { syntheticDefinition } from "../src/synthetic/syntheticDefinition";
+import { syntheticDefinition } from "./synthetic/syntheticDefinition";
 import { CrossingTracker, panelArmedAt, panelSpanPassed } from "../src/shell/storyPanels";
 import { $, press, type Mounted, mountShell } from "./domSetup";
 

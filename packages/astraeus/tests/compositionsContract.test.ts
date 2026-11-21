@@ -30,8 +30,8 @@ import {
 } from "../src/app/sceneLayout";
 import { assignBodyLayers, BARE_SCENE_SPAN, defaultDistance, focusLimits, focusRadius } from "../src/app/sceneFraming";
 import { TRACK_LAYER, TrackedBodyView } from "../src/app/TrackedBodyView";
-import { syntheticBareDefinition, syntheticDefinition } from "../src/synthetic/syntheticDefinition";
-import { syntheticBeltDefinition, syntheticRingDefinition, syntheticRingLayer } from "../src/synthetic/syntheticRingDefinition";
+import { syntheticBareDefinition, syntheticDefinition } from "./synthetic/syntheticDefinition";
+import { syntheticBeltDefinition, syntheticRingDefinition, syntheticRingLayer } from "./synthetic/syntheticRingDefinition";
 import { PerspectiveCamera } from "three";
 import { createSceneHierarchy, hasEarthMoon, placeBodies, placementAbout } from "./scenePlacement";
 

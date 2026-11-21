@@ -1,13 +1,13 @@
-import { EARTH_EPHEMERIS } from "../app/ephemerisProvenance";
-import type { ExperienceDefinition, GroupLayer, PathLayer, SunBody } from "../app/experienceDefinition";
-import { createOrbAstronomyAdapter } from "../core/astronomyAdapter";
-import { createEarthSunTrajectory, createTwoBodyTrajectory } from "../core/sunCentredSources";
-import { createOrbTwoBodyAdapter } from "../core/twoBodyAdapter";
-import { createEvents } from "../core/events";
-import { createOrbitGroup, type OrbitGroupInput } from "../core/orbitGroup";
-import { createProvenance } from "../core/provenance";
-import { earthMoonSystem, sunEarthSystem } from "../assets/compositions";
-import type { ExperienceConfig } from "../shell/experience";
+import { EARTH_EPHEMERIS } from "../../src/app/ephemerisProvenance";
+import type { ExperienceDefinition, GroupLayer, PathLayer, SunBody } from "../../src/app/experienceDefinition";
+import { createOrbAstronomyAdapter } from "../../src/core/astronomyAdapter";
+import { createEarthSunTrajectory, createTwoBodyTrajectory } from "../../src/core/sunCentredSources";
+import { createOrbTwoBodyAdapter } from "../../src/core/twoBodyAdapter";
+import { createEvents } from "../../src/core/events";
+import { createOrbitGroup, type OrbitGroupInput } from "../../src/core/orbitGroup";
+import { createProvenance } from "../../src/core/provenance";
+import { earthMoonSystem, sunEarthSystem } from "../../src/assets/compositions";
+import type { ExperienceConfig } from "../../src/shell/experience";
 
 const START_UTC_MS = Date.UTC(2030, 0, 1, 0, 0, 0);
 const HOUR_MS = 3_600_000;

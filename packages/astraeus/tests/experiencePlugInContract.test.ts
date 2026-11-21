@@ -7,7 +7,7 @@ import { catalogue } from "../src/assets/catalogue";
 import { createSceneResolver } from "../src/app/sceneLayout";
 import { trackedBodiesOf, type ExperienceDefinition } from "../src/app/experienceDefinition";
 import { AstraeusShell } from "../src/shell/AstraeusShell";
-import { syntheticDefinition } from "../src/synthetic/syntheticDefinition";
+import { syntheticDefinition } from "./synthetic/syntheticDefinition";
 import { provenanceAt, rateAt } from "../src/core/timeWindow";
 import { infoView } from "../src/shell/infoModel";
 import type { RateMetric } from "../src/shell/metrics";

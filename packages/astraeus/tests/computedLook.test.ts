@@ -16,8 +16,8 @@ vi.mock("../src/app/AstraeusScene", () => ({ AstraeusScene: () => createElement(
 vi.mock("../src/assets/sky", async (orig) => ({ ...(await orig<typeof import("../src/assets/sky")>()), loadStarCatalogue: vi.fn().mockResolvedValue(null) }));
 
 import { App } from "../src/app/App";
-import { syntheticDefinition } from "../src/synthetic/syntheticDefinition";
-import { syntheticListedDefinition } from "../src/synthetic/syntheticListedDefinition";
+import { syntheticDefinition } from "./synthetic/syntheticDefinition";
+import { syntheticListedDefinition } from "./synthetic/syntheticListedDefinition";
 import type { ExperienceDefinition } from "../src/app/experienceDefinition";
 import { pretendScreen } from "./domSetup";
 

@@ -142,9 +142,9 @@ async function loadGraph(): Promise<Graph> {
       return { resolver: createStateResolver(own.definitions(), own.sources(), createOrbAstronomyAdapter()), catalogue: own, clock: undefined as never };
     },
     synthetic: {
-      probe: async () => (await import("../src/synthetic/syntheticProbeDefinition")).syntheticProbeDefinition,
-      views: async () => (await import("../src/synthetic/syntheticViewsDefinition")).syntheticViewsDefinition,
-      journey: async () => (await import("../src/synthetic/syntheticJourneyScene")).buildSyntheticJourneyScene(),
+      probe: async () => (await import("./synthetic/syntheticProbeDefinition")).syntheticProbeDefinition,
+      views: async () => (await import("./synthetic/syntheticViewsDefinition")).syntheticViewsDefinition,
+      journey: async () => (await import("./synthetic/syntheticJourneyScene")).buildSyntheticJourneyScene(),
     },
   };
 }

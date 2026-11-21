@@ -5,7 +5,7 @@ import { createElement, useState } from "react";
 import { act } from "react";
 import { createRoot } from "react-dom/client";
 import { afterEach, describe, expect, it } from "vitest";
-import { syntheticDefinition } from "../src/synthetic/syntheticDefinition";
+import { syntheticDefinition } from "./synthetic/syntheticDefinition";
 import { jupiterMoonPanel, jupiterRawList } from "./helpers/jupiterMoonPanel";
 import { MoonFamilyPanel } from "../src/shell/MoonFamilyPanel";
 import { moonFamilyListSummary, moonListDateText, splitNamed } from "../src/shell/moonFamilies";

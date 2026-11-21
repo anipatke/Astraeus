@@ -7,7 +7,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 vi.mock("../src/app/AstraeusScene", () => ({ AstraeusScene: () => createElement("div", { "data-testid": "scene" }) }));
 const prepared = vi.hoisted(() => ({ views: undefined as undefined | import("../src/app/views").ViewSettings, fail: false }));
 vi.mock("../src/api/prepared", async () => {
-  const { syntheticDefinition } = await import("../src/synthetic/syntheticDefinition");
+  const { syntheticDefinition } = await import("./synthetic/syntheticDefinition");
   return {
     prepareScene: () => ({
       definition: prepared.views === undefined ? syntheticDefinition : { ...syntheticDefinition, views: prepared.views },
@@ -24,7 +24,7 @@ import { mount } from "../src/api/mount";
 import { Scene } from "../src/api/scene";
 import type { ViewerHandle } from "../src/api/viewerHandle";
 import { ViewerLink, type ViewerChange } from "../src/api/viewerLink";
-import { syntheticDefinition } from "../src/synthetic/syntheticDefinition";
+import { syntheticDefinition } from "./synthetic/syntheticDefinition";
 import { FAKE_PRESENTATION, FAKE_PRESENTATION_CONTROL } from "./helpers/viewerPresentation";
 
 // A real host is outside act: React schedules and flushes by itself.

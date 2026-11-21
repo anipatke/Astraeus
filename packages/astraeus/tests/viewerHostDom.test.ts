@@ -8,7 +8,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 vi.mock("../src/app/AstraeusScene", () => ({ AstraeusScene: () => createElement("div", { "data-testid": "scene" }) }));
 const prepared = vi.hoisted(() => ({ views: undefined as undefined | import("../src/app/views").ViewSettings, noTimeline: false, markerUntil: undefined as undefined | number, skyFigures: undefined as undefined | readonly object[] }));
 vi.mock("../src/api/prepared", async () => {
-  const { syntheticDefinition } = await import("../src/synthetic/syntheticDefinition");
+  const { syntheticDefinition } = await import("./synthetic/syntheticDefinition");
   return { prepareScene: () => {
     const base = prepared.noTimeline ? { ...syntheticDefinition, experience: { ...syntheticDefinition.experience, hideTimeline: true } } : syntheticDefinition;
     const withFigures = prepared.skyFigures === undefined ? base : { ...base, skyFigures: prepared.skyFigures };
@@ -26,7 +26,7 @@ import { Scene } from "../src/api/scene";
 import type { ViewerHandle } from "../src/api/viewerHandle";
 import type { ViewerChange } from "../src/api/viewerLink";
 import type { SelectionChange } from "../src/api/viewerSelection";
-import { syntheticDefinition } from "../src/synthetic/syntheticDefinition";
+import { syntheticDefinition } from "./synthetic/syntheticDefinition";
 import { speedsOf } from "../src/shell/timelineModel";
 import { $, byLabel, change, drawn, press } from "./domSetup";
 import { FAKE_PRESENTATION, FAKE_PRESENTATION_CONTROL } from "./helpers/viewerPresentation";

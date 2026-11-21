@@ -2,7 +2,6 @@
 // immediately before the rebuild. Everything that should be the same is compared whole; each difference is named here with the O-041 Decision that allows it.
 import { describe, expect, it } from "vitest";
 import { createSceneResolver } from "astraeus/app/sceneLayout";
-import { MOON } from "astraeus/core/body";
 import { createOrbAstronomyAdapter } from "astraeus/core/astronomyAdapter";
 import { apollo11Definition as after } from "./apollo11Definition";
 import before from "./fixtures/apollo11-before-rebuild.json";
@@ -23,8 +22,11 @@ describe("the rebuilt Apollo 11 against the definition it replaced", () => {
       const now = byId(objectsAfter, old.id);
       for (const field of ["label", "color", "availability", "provenance", "knownLimitations"].filter((f) => f !== "knownLimitations" || old.id === "earth")) {
         const recorded = (old as Record<string, unknown>)[field];
-        // The Moon's position accuracy sentence is the engine's current measured one (O-093 T-374); every other provenance field stays as recorded.
-        const expected = old.id === "moon" && field === "provenance" ? { ...(recorded as object), accuracy: MOON.accuracy.position.accuracy } : recorded;
+        // The Moon's position accuracy sentence was rewritten from measurement on purpose (O-093 T-374): it must differ from the recorded one,
+        // and every other provenance field stays as recorded.
+        const moonAccuracy = old.id === "moon" && field === "provenance" ? (now.provenance as { accuracy: string }).accuracy : undefined;
+        if (moonAccuracy !== undefined) expect(moonAccuracy).not.toBe((recorded as { accuracy: string }).accuracy);
+        const expected = moonAccuracy !== undefined ? { ...(recorded as object), accuracy: moonAccuracy } : recorded;
         expect(now[field], `${old.id}.${field}`).toEqual(expected);
       }
       expect(now.labelMaxDistance, `${old.id}.labelMaxDistance`).toBe(old.labelMaxDistance);

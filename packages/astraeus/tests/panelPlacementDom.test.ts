@@ -3,7 +3,7 @@
 // says, through the real shell. The pure table is tests/panelRule.test.ts. Two viewers keep separate state (API-03).
 import { act, createElement } from "react";
 import { afterEach, describe, expect, it } from "vitest";
-import { syntheticDefinition } from "../src/synthetic/syntheticDefinition";
+import { syntheticDefinition } from "./synthetic/syntheticDefinition";
 import { scaleChoicesFor } from "../src/shell/scaleModel";
 import { jupiterMoonPanel } from "./helpers/jupiterMoonPanel";
 import { $, mountShell, press, pressKey, type Mounted } from "./domSetup";

@@ -15,7 +15,7 @@ import { mount } from "../src/api/mount";
 import { Scene } from "../src/api/scene";
 import type { ViewerHandle } from "../src/api/viewerHandle";
 import type { SelectionChange } from "../src/api/viewerSelection";
-import { syntheticDefinition } from "../src/synthetic/syntheticDefinition";
+import { syntheticDefinition } from "./synthetic/syntheticDefinition";
 import { $, byLabel, change, drawn, mountShell, pretendScreen } from "./domSetup";
 
 (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;

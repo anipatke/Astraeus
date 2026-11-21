@@ -19,14 +19,14 @@ import { readableScale, trueScale } from "astraeus/core/scalePolicy";
 import { createEarthSunTrajectory, createTwoBodyTrajectory, samplePathKm } from "astraeus/core/sunCentredSources";
 import { createOrbTwoBodyAdapter } from "astraeus/core/twoBodyAdapter";
 import { apollo11Definition } from "./apollo11Definition";
-import { syntheticDefinition } from "astraeus/synthetic/syntheticDefinition";
+import { syntheticDefinition } from "astraeus/tests/synthetic/syntheticDefinition";
 import {
   syntheticBeltDefinition,
   syntheticEarthPath,
   syntheticFarPath,
   syntheticRingDefinition,
   syntheticSun,
-} from "astraeus/synthetic/syntheticRingDefinition";
+} from "astraeus/tests/synthetic/syntheticRingDefinition";
 
 const adapter = createOrbAstronomyAdapter();
 const earthPlacement = placementAbout("earth", adapter);

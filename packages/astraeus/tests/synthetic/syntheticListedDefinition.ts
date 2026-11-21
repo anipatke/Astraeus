@@ -1,11 +1,11 @@
-import type { ExperienceDefinition, GroupLayer, PathLayer } from "../app/experienceDefinition";
-import { createListedOrbitGroup, type ListedMember } from "../core/listedOrbitGroup";
-import { createProvenance } from "../core/provenance";
-import { createTwoBodyTrajectory } from "../core/sunCentredSources";
-import { createOrbTwoBodyAdapter } from "../core/twoBodyAdapter";
-import { createEvents } from "../core/events";
-import { sunEarthSystem } from "../assets/compositions";
-import type { ExperienceConfig } from "../shell/experience";
+import type { ExperienceDefinition, GroupLayer, PathLayer } from "../../src/app/experienceDefinition";
+import { createListedOrbitGroup, type ListedMember } from "../../src/core/listedOrbitGroup";
+import { createProvenance } from "../../src/core/provenance";
+import { createTwoBodyTrajectory } from "../../src/core/sunCentredSources";
+import { createOrbTwoBodyAdapter } from "../../src/core/twoBodyAdapter";
+import { createEvents } from "../../src/core/events";
+import { sunEarthSystem } from "../../src/assets/compositions";
+import type { ExperienceConfig } from "../../src/shell/experience";
 import { syntheticEarthPath, syntheticSun } from "./syntheticRingDefinition";
 
 const START_UTC_MS = Date.UTC(2030, 0, 1, 0, 0, 0);
