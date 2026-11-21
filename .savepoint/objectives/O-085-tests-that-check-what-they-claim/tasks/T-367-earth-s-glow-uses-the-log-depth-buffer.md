@@ -2,7 +2,8 @@
 id: T-367
 title: Earth's glow uses the log depth buffer
 objective: O-085
-status: planned
+status: in_progress
+stage: audit
 depends_on: []
 check_waiver: {task: T-367, reason: 'Owner said "work through this list of objectives one by one. Orchestrate each objective to completion" (G-024 decision 7): standing orchestration rules waive the optional step checks; the mandatory Full Objective Check covers the whole diff.', actor: {role: owner, session: orchestrate-g024-20261121}, recorded_at: '2026-11-21T12:50:31Z'}
 owner_validation: {required: true}
@@ -72,8 +73,31 @@ Focused: `npx vitest run packages/astraeus/tests/logDepth.test.ts packages/astra
 
 ## Technical Evidence
 
-Pending execution.
+Extra reads: none beyond Context Files (CHANGELOG top section only).
+
+Red first: with the widened guard and the unfixed `AtmosphereGlow.tsx`, the guard case failed with exactly five offences: `AtmosphereGlow.tsx: missing common`, `missing logdepthbuf_pars_vertex`, `missing logdepthbuf_vertex`, `missing logdepthbuf_pars_fragment`, `missing logdepthbuf_fragment`.
+
+| Done When | Evidence |
+|---|---|
+| Guard counts JSX `<shaderMaterial`/`<rawShaderMaterial`, globs `../src/**/*.{ts,tsx}`, accepts `depthTest={false}`, chunk list has `common`; failed on HEAD with the five offences | `tests/logDepth.test.ts` edited (4 lines); red run above |
+| Shader gains `<common>`, the pars/vertex/fragment chunks, one-line comment; nothing else changes | `src/app/AtmosphereGlow.tsx` diff: only added include lines and the comment |
+| Guard passes; SkyView allowlist unchanged | `npx vitest run logDepth.test.ts bodyViewDom.test.ts`: 12 passed |
+| Other logDepth cases unchanged | untouched; all 4 pass |
+| CHANGELOG line | one `- Fixed:` line in `## 0.10.0 (proposed)` |
+| Owner look | PENDING (owner offline), see below |
+| Gates | lint, typecheck, build clean; `npm test`: 301 files, 5031 passed, 2 skipped |
+
+Files changed: `packages/astraeus/src/app/AtmosphereGlow.tsx`, `packages/astraeus/tests/logDepth.test.ts`, `packages/astraeus/CHANGELOG.md`.
+
+What the owner should look at on `localhost:5490` (restart the preview so it serves this branch; Earth is the only body with an atmosphere):
+1. `app.html?experience=planets&planet=earth`: the thin blue rim at the disc edge should have the same colour, width and softness as on `main`, with no glow across the lit face. Zoom in close and back out: the rim should stay steady, not flicker, vanish or show through the planet.
+2. `app.html` (Apollo 11): near Earth the rim looks as before. The Moon, the spacecraft or an orbit line passing in front of Earth's edge hides the glow; something passing behind the edge now stays under the glow (before, it could cut a gap).
+Fail if the rim is gone, thicker, banded, or drawn over nearer objects.
+
+Limitations: no browser run by the builder; GPU compile of the shader is unverified until the owner look (the Full Check's `check:browser` also covers it).
 
 ## Drift Notes
 
 Record for Design reconciliation: the log-depth guard reads JSX materials and all of `src/`.
+
+Coordinator (orchestrate-g024-20261121): gates green for this Task (lint, typecheck, build; `npm test` 301 files, 5031 passed). Left at `stage: audit`: `owner_validation` is required and the owner is offline (G-024 decision 7, "Park it, move to the next"); the owner's look on localhost:5490 is described above.

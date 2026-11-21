@@ -10,7 +10,7 @@ import { focusRadius, liveReach, scaleLength } from "../src/app/sceneFraming";
 import { solarSystemPolicyForTest } from "./scalePolicies";
 import { definitionOf } from "../src/api/definitionOf";
 
-const sources = import.meta.glob("../src/app/*.{ts,tsx}", { query: "?raw", import: "default", eager: true }) as Record<string, string>;
+const sources = import.meta.glob("../src/**/*.{ts,tsx}", { query: "?raw", import: "default", eager: true }) as Record<string, string>;
 const code = (source: string) => source.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/.*/g, "$1");
 const AU_KM = 149_597_870.7;
 
@@ -28,15 +28,15 @@ describe("logarithmic depth buffer", () => {
     const offenders: string[] = [];
     for (const [path, source] of Object.entries(sources)) {
       const text = code(source);
-      const count = (text.match(/new\s+(Raw)?ShaderMaterial\s*\(/g) ?? []).length;
+      const count = (text.match(/(new\s+(Raw)?ShaderMaterial\s*\(|<(raw)?shaderMaterial\b)/gi) ?? []).length;
       if (count === 0) continue;
       const file = path.split("/").pop()!;
       if (file in ALLOWED) {
         // Every material in an allowlisted file must really be drawn without a depth test.
-        if ((text.match(/depthTest:\s*false/g) ?? []).length < count) offenders.push(`${file}: allowlisted but a material tests depth`);
+        if ((text.match(/depthTest(:\s*|=\{)false/g) ?? []).length < count) offenders.push(`${file}: allowlisted but a material tests depth`);
         continue;
       }
-      for (const chunk of ["logdepthbuf_pars_vertex", "logdepthbuf_vertex", "logdepthbuf_pars_fragment", "logdepthbuf_fragment"]) {
+      for (const chunk of ["common", "logdepthbuf_pars_vertex", "logdepthbuf_vertex", "logdepthbuf_pars_fragment", "logdepthbuf_fragment"]) {
         if (!new RegExp(`#include <${chunk}>`).test(text)) offenders.push(`${file}: missing ${chunk}`);
       }
       if (/\bRawShaderMaterial\b/.test(text)) offenders.push(`${file}: RawShaderMaterial does not get the chunks`);

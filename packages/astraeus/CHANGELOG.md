@@ -18,6 +18,7 @@ Engineering health repairs (G-024). Behaviour may change where it was wrong (own
 - Added: a body definition's `accuracy.positionLimitations` holds the position limits its ephemeris record states (planets, the Moon); a card lists them, then the orientation limits, and a host's own `knownLimitations` still replaces both. Earth's polar-motion sentence stays an orientation limit.
 - Fixed: a state composed from several legs keeps its velocity where every leg has one (the sum, or the negation, of the legs' velocities) and has none where any leg lacks it; it was dropped whenever a state was measured from another body.
 - Fixed: reverse playback with pacing. Pacing now works on the magnitude of the rate and keeps its sign, so `setTimeline({ rate: -3600, pacing })` no longer turns the rate into `NaN` (which threw `RangeError` on a view switch), and a backward step through a zone slows as a forward one does. A visitor cannot reach it through the rate picker (`rates` must be positive); only a negative opening `rate` with `pacing` does.
+- Fixed: Earth's atmosphere glow now uses the logarithmic depth buffer, so bodies and lines behind the rim no longer cut into it.
 
 ### Breaking changes in 0.10.0
 
