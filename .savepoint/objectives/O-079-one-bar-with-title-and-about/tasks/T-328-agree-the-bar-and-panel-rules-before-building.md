@@ -2,8 +2,7 @@
 id: T-328
 title: Agree the bar and panel rules before building
 objective: O-079
-status: in_progress
-stage: audit
+status: done
 depends_on: []
 check_waiver: {task: T-328, reason: 'Owner said "orchestrate 79": standing orchestration rules waive the optional step checks; the mandatory Full Objective Check covers the whole diff.', actor: {role: owner, session: orchestrate-o079-20261121}, recorded_at: '2026-11-21T00:35:01Z'}
 owner_validation: {required: true}
@@ -153,3 +152,5 @@ Limitations: the design board could not be opened; its values came from the coor
 ### Owner confirmation (2026-11-21T00:58:03Z, session orchestrate-o079-20261121)
 
 Presented as artifacts: summary page https://claude.ai/artifact/3staLLQkLnGJdsMftV7DK8 and the design board's catalogue and prototypes (https://claude.ai/artifact/8ETT4wvvUHZxKYRW5X7jsk, artboards Catalogue, ResetDesktop, ResetPhone). Owner choices: fit order "Title shrinks first (Recommended)"; chips "Light up straight away (Recommended)"; layout "Viewer's own size (Recommended)". Owner: "confirmed, start building". Build order change accepted with the confirmation (the summary page listed it): T-330 → T-329 → T-326 → T-331 → T-325 → T-327. owner_validation stays open until the Full Objective Check gives a Check id to record against.
+
+Coordinator marked done (owner: "confirmed, start building"); owner_validation acceptance is recorded against the Full Objective Check id when it exists.
