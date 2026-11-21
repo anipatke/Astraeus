@@ -306,7 +306,14 @@ export function assembleScene(parts: ScenePlanners, data: readonly DataSource[])
       checkPlanetSpan(ids, window);
       auto.settle((read) => planetRead(ids, window, read));
       if (groupPlan.groups.size > layers.length)
-        layers.push(...planetRead(ids, window, () => groupPlan.layers(ids, window, startUtcMs, late)));
+        layers.splice(
+          0,
+          layers.length,
+          ...inDeclaredOrder(groupPlan.groups.keys(), [
+            ...layers,
+            ...planetRead(ids, window, () => groupPlan.layers(ids, window, startUtcMs, late)),
+          ]),
+        );
       if (sunPaths.length < sunOrbitIds.length)
         sunPaths.push(...planetRead(ids, window, () => sunOrbitIds.map((id) => plan.sunPath(id, startUtcMs))));
       if (fit !== undefined) planetRead(ids, window, () => fit.settle());
@@ -316,6 +323,12 @@ export function assembleScene(parts: ScenePlanners, data: readonly DataSource[])
   };
   checkOpeningLook(camera, definition, groupPlan.groups.keys(), skyFigures.figures.keys());
   return definition;
+}
+
+/** The group layers in the order their groups were added, whether each was built early or late in `prepare` (I-193). */
+function inDeclaredOrder(declared: Iterable<string>, built: readonly GroupLayer[]): GroupLayer[] {
+  const byId = new Map(built.map((layer) => [layer.object.id, layer]));
+  return [...declared].flatMap((id) => byId.get(id) ?? []);
 }
 
 /** The viewer's own pictures (those of the packages passed to it); absent when no package brings any. */
