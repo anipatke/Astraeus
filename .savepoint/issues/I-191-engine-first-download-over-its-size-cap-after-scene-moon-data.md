@@ -2,16 +2,22 @@
 id: I-191
 title: The engine's first download is 801 bytes over its raw size cap after each scene got its own moon data
 type: verification
-status: in_progress
+status: resolved
 source:
   kind: check
   check: C-198
   actor: {role: checker, session: check-o084-orchestrator-20261121}
   at: '2026-11-21T12:49:15Z'
 tasks: [T-357, T-358, T-359]
-checks: [C-198]
+checks: [C-198, C-200]
 guardrail_ids: []
 severity: medium
+resolution:
+  disposition: verified
+  check: C-200
+  actor: {role: checker, session: recheck-o084-orchestrator-20261122}
+  at: '2026-11-21T19:19:17Z'
+  reason: Raw cap raised per the owner's choice; budget gates green in C-200.
 history:
   - at: '2026-11-21T12:49:15Z'
     actor: {role: checker, session: check-o084-orchestrator-20261121}
@@ -25,6 +31,10 @@ history:
     actor: {role: executor, session: orchestrate-g024-20261121}
     kind: repair_attempted
     note: 'ENGINE_LIMIT.rawLimit 1,836,000 in engine-budget.mjs (comment names the decision), publicBuild.test.ts pin, docs/BROWSER_CHECKS.md and Design Size budgets updated; publicBuild + packagePacks 44 passed.'
+  - at: '2026-11-21T19:19:17Z'
+    actor: {role: checker, session: recheck-o084-orchestrator-20261122}
+    kind: rechecked
+    note: 'C-200: packagePacks and public-build-assets pass at 1,833,801 / 1,836,000 B raw.'
 ---
 
 # The engine's first download is 801 bytes over its raw size cap
