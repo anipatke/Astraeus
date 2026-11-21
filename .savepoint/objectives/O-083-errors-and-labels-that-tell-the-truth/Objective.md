@@ -6,6 +6,7 @@ depends_on: []
 release: G-024
 priority: high
 rank: 2
+lanes: [{key: contract, title: Coded errors and scale type}, {key: react, title: React error default}, {key: time, title: Zoned time text}, {key: provenance, title: Labels and limits}, {key: science, title: Composed velocity}, {key: pacing, title: Reverse pacing}, {key: docs, title: Docs and changelog}]
 ---
 
 # O-083: Errors and labels that tell the truth
@@ -40,3 +41,21 @@ Public contract changes are breaking by owner decision 6 (0.10.0). API-01..API-0
 
 **Out of scope:**
 - Custom scale policies (decision 5); single-pass lighting; moon-data isolation (O-084).
+
+## Decisions
+
+- Owner 2026-11-21 (G-024 decision 7): design confirmed by "work through this list of objectives one by one. Orchestrate each objective to completion"; step checks waived on every Task.
+- Planner (orchestrate-g024-20261121), settled from evidence (details and file:line in each Task):
+  1. A moon asked outside the window the scene loaded gives `bad-time` (as the body-set read does, `api/planBodySets.ts`); outside the package's own years, and a planet outside its series years, give `out-of-span`.
+  2. New code `bad-scene` for a non-`Scene` passed to `mount`, `AstraeusScene` or `load` (today a raw `TypeError` in `api/definitionOf.ts`); one code, one cause (API-05).
+  3. New code `too-many-bodies` for more than the 30 lit bodies, thrown at `check`/`mount` (today a raw `RangeError` in `app/sceneFraming.ts` during render); the limit is one shared constant.
+  4. An unreadable or unparsable data package gives `bad-data` (its doc widened to "malformed or cannot be read"); `missing-data` keeps meaning "not passed".
+  5. `parseElementsBodyRecord` gets a thin `src/api` wrapper mapping `ElementsBodyError` to `bad-element`; the API-05 scan covers functions re-exported from outside `src/api`.
+  6. Scale: a new `ScaleId = "true-scale" | "readable-scale" | "solar-system"` used by `ScalePolicy.id` and every public scale id; the three exported policy objects keep working; the runtime `bad-scale` check stays for JavaScript callers.
+  7. Accepted time text: `YYYY-MM-DD` (midnight UTC, unchanged) or `YYYY-MM-DDTHH:MM[:SS[.fff]]` with `Z` or `±HH:MM`; everything else is `bad-time`, the page address `t` included.
+  8. `AstraeusScene` without `onError` calls `console.error(error)` through one function; no error boundary added.
+  9. Orientation labels come from the same rotation facts as the binding; the planets demo's wrong Io sentence goes; two existing assertions that pin the wrong label change (assertion lines only, recorded).
+  10. Planet position limits are a new optional `accuracy.positionLimitations`, required in practice for built-in bodies by a catalogue-wide test.
+  11. Composed states carry velocity when every leg has it; `body === centre` stays without one.
+  12. Reverse-rate pacing: probed first (T-352), then fixed or guarded by a test.
+- New error codes and the closed scale type are breaking changes under decision 6 and are listed as such in the CHANGELOG (T-353).
