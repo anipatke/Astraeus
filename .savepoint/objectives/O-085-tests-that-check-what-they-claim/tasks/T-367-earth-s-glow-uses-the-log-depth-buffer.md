@@ -2,11 +2,10 @@
 id: T-367
 title: Earth's glow uses the log depth buffer
 objective: O-085
-status: in_progress
-stage: audit
+status: done
 depends_on: []
 check_waiver: {task: T-367, reason: 'Owner said "work through this list of objectives one by one. Orchestrate each objective to completion" (G-024 decision 7): standing orchestration rules waive the optional step checks; the mandatory Full Objective Check covers the whole diff.', actor: {role: owner, session: orchestrate-g024-20261121}, recorded_at: '2026-11-21T12:50:31Z'}
-owner_validation: {required: true}
+owner_validation: {required: true, accepted_check: C-199, accepted_by: {role: owner, session: orchestrate-g024-20261121}}
 planned_by: {role: planner, session: orchestrate-g024-20261121}
 lane: atmosphere
 planned_reads: [packages/astraeus/src/app/OrbitSetView.ts, packages/astraeus/src/app/SkyView.ts, packages/astraeus/src/app/BodyView.tsx, packages/astraeus/src/assets/bodies/earth.ts]
@@ -101,3 +100,5 @@ Limitations: no browser run by the builder; GPU compile of the shader is unverif
 Record for Design reconciliation: the log-depth guard reads JSX materials and all of `src/`.
 
 Coordinator (orchestrate-g024-20261121): gates green for this Task (lint, typecheck, build; `npm test` 301 files, 5031 passed). Left at `stage: audit`: `owner_validation` is required and the owner is offline (G-024 decision 7, "Park it, move to the next"); the owner's look on localhost:5490 is described above.
+
+Owner validation (2026-11-21T20:09:53Z): owner "earth glow looks right, accept T-367" after the look on localhost:5490; accepted against C-199. `status: done` on that instruction.
