@@ -2,7 +2,7 @@
 id: T-359
 title: Stop the viewer reusing positions worked out before its moon data arrived
 objective: O-084
-status: planned
+status: done
 depends_on: [{task: T-358, requires: clear}]
 check_waiver: {task: T-359, reason: 'Owner said "work through this list of objectives one by one. Orchestrate each objective to completion" (G-024 decision 7): standing orchestration rules waive the optional step checks; the mandatory Full Objective Check covers the whole diff.', actor: {role: owner, session: orchestrate-g024-20261121}, recorded_at: '2026-11-21T12:08:49Z'}
 owner_validation: {required: false}
@@ -71,8 +71,21 @@ Focused: `npx vitest run packages/astraeus/tests/resolverAfterLoad.test.ts packa
 
 ## Technical Evidence
 
-Pending execution.
+Files changed: core/moonData.ts (revision raised by the system's onChange, no longer on system creation), core/bodies/moonSystem.ts (`createMoonSystem(config, onChange?)`, called on `install` and after a successful `load`; a failed load and `provideIndex` do not call it), core/stateResolver.ts (memo cleared when `moonData.revision()` moved; no moonData = one `undefined` compare), app/sceneLayout.ts (`createSceneResolver` passes `source.moonData`), new tests/resolverAfterLoad.test.ts.
+
+| Done When | Evidence |
+|---|---|
+| revision up on install/load, not on failure | resolverAfterLoad rows 1-3 (row 3: failed load, provider evaluated once) |
+| resolver clears memo on revision change; unbound unchanged | stateResolver.ts native(); row 4 (unbound, provider once); stateResolver.test.ts green |
+| createSceneResolver passes moonData | sceneLayout.ts; sceneTransforms, twoViewers, sceneMoonScope, sceneMoonBinding green |
+| resolverAfterLoad rows 1-4 | tests/resolverAfterLoad.test.ts 4/4 pass; row 1 failed before the change (after != fresh); row 2 passes before the change too (a throw is never remembered, so only the answer-after-load half is guarded) |
+| existing tests unchanged | focused run 162 pass |
+| gates | lint, typecheck, build pass; npm test 5053 pass, 1 fail: packagePacks engine cap (known red): 1833801 B raw vs 1833000 (+801 B; was +697, this Task adds ~104 B) |
+
+Limitation: provideIndex (source change) deliberately does not bump the revision, so a failed load leaves memo intact.
 
 ## Drift Notes
 
 Record for Design reconciliation (`One handle, one lifecycle`): the viewer's resolver drops remembered states when its scene's moon data changes.
+
+Coordinator (orchestrate-g024-20261121): lint, typecheck, build green; `npm test` 5053 passed with the one known red (`packagePacks` engine cap, 1,833,801 B raw, +801 B), carried to the Full Objective Check under G-024 decision 7. `status: done` set by the coordinator under the standing orchestration rule ("I mark them as they pass", O-038) and decision 7.

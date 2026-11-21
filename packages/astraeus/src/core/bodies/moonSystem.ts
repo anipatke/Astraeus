@@ -169,7 +169,7 @@ function sceneEphemeris(config: MoonSystemConfig, moonData: MoonDataSelection): 
   return system.ephemeris();
 }
 
-export function createMoonSystem(config: MoonSystemConfig): MoonSystem {
+export function createMoonSystem(config: MoonSystemConfig, onChange?: () => void): MoonSystem {
   let installed: ChebyshevEphemeris | null = null;
   let loadIndex = config.loadIndex;
   /** The set built from the index, shared by every request (the index is read once); `held` is true when a set was handed in whole by `install`. */
@@ -270,6 +270,7 @@ export function createMoonSystem(config: MoonSystemConfig): MoonSystem {
     if (request.history !== undefined) await ensureChunks(set, historyChunks(set, request, request.history), request);
     await ensureChunks(set, afterChunks(set, request), request);
     if (!held) installed = set;
+    onChange?.();
     return set;
   };
 
@@ -318,6 +319,7 @@ export function createMoonSystem(config: MoonSystemConfig): MoonSystem {
       installed = set;
       held = set !== null;
       reset();
+      onChange?.();
     },
     load: (request: MoonSystemLoad): Promise<ChebyshevEphemeris> => loadRequest(request),
     osculatingPeriodMs,

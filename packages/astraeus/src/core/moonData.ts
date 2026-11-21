@@ -7,7 +7,7 @@ import { MOON_SYSTEMS } from "./bodies/listedMoonBodies";
 import { createMoonSystem, type MoonSystem } from "./bodies/moonSystem";
 import type { BodyId } from "./body";
 
-/** What a binding reads moon data through: the scene's system for a centre (undefined for a centre with no moon system), and a count that changes when one loads. */
+/** What a binding reads moon data through: the scene's system for a centre (undefined for a centre with no moon system), and a count that changes when one installs or loads. */
 export interface MoonDataSelection {
   system(centre: BodyId): MoonSystem | undefined;
   revision(): number;
@@ -23,9 +23,8 @@ export function createSceneMoonData(): MoonDataSelection {
       if (held !== undefined) return held;
       const shared = MOON_SYSTEMS[centre];
       if (shared === undefined) return undefined;
-      const made = createMoonSystem(shared.config);
+      const made = createMoonSystem(shared.config, () => { revision += 1; });
       systems.set(centre, made);
-      revision += 1;
       return made;
     },
     revision: (): number => revision,

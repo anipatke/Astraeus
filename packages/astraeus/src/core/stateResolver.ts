@@ -86,8 +86,13 @@ export function createStateResolver(
     return definition !== undefined && definition.orientation !== "none";
   };
   const memo = new Map<string, State>();
+  let memoRevision = moonData?.revision();
 
   function native(body: BodyId, timeUtcMs: number): State {
+    if (moonData !== undefined && moonData.revision() !== memoRevision) {
+      memo.clear();
+      memoRevision = moonData.revision();
+    }
     const key = `${body}@${timeUtcMs}`;
     const known = memo.get(key);
     if (known !== undefined) return known;
