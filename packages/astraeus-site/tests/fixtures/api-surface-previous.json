@@ -1,0 +1,4908 @@
+{
+  "version": "0.9.5",
+  "root": {
+    "Scene": {
+      "kind": "class",
+      "signature": "",
+      "constructors": [
+        "()"
+      ],
+      "members": [
+        {
+          "name": "camera",
+          "optional": false,
+          "signature": "SceneCamera"
+        },
+        {
+          "name": "bodies",
+          "optional": false,
+          "signature": "readonly SceneBodyRead[]"
+        },
+        {
+          "name": "paths",
+          "optional": false,
+          "signature": "readonly ScenePathRead[]"
+        },
+        {
+          "name": "groups",
+          "optional": false,
+          "signature": "readonly SceneGroupRead[]"
+        },
+        {
+          "name": "bodySets",
+          "optional": false,
+          "signature": "readonly SceneBodySetRead[]"
+        },
+        {
+          "name": "picker",
+          "optional": false,
+          "signature": "PickerInput | undefined"
+        },
+        {
+          "name": "about",
+          "optional": false,
+          "signature": "AboutInput | undefined"
+        },
+        {
+          "name": "moonPanel",
+          "optional": false,
+          "signature": "SceneMoonPanelRead | undefined"
+        },
+        {
+          "name": "places",
+          "optional": false,
+          "signature": "readonly ScenePlacesRead[]"
+        },
+        {
+          "name": "skyFigures",
+          "optional": false,
+          "signature": "readonly SceneSkyFigureRead[]"
+        },
+        {
+          "name": "events",
+          "optional": false,
+          "signature": "readonly SceneEventRead[]"
+        },
+        {
+          "name": "panels",
+          "optional": false,
+          "signature": "readonly ScenePanelRead[]"
+        },
+        {
+          "name": "views",
+          "optional": false,
+          "signature": "SceneViewsRead | undefined"
+        },
+        {
+          "name": "scales",
+          "optional": false,
+          "signature": "readonly string[]"
+        },
+        {
+          "name": "activities",
+          "optional": false,
+          "signature": "readonly SceneActivityRead[]"
+        },
+        {
+          "name": "timeline",
+          "optional": false,
+          "signature": "SceneTimelineRead"
+        },
+        {
+          "name": "look",
+          "optional": false,
+          "signature": "LookRead"
+        },
+        {
+          "name": "switches",
+          "optional": false,
+          "signature": "Readonly<Record<string, SceneSwitchRead>>"
+        },
+        {
+          "name": "panelPlayback",
+          "optional": false,
+          "signature": "ScenePanelPlaybackRead"
+        },
+        {
+          "name": "addBody",
+          "optional": false,
+          "signature": "(body: BodyRef | BodyId, options?: AddBodyOptions): Scene"
+        },
+        {
+          "name": "addBodyFromElements",
+          "optional": false,
+          "signature": "(record: ElementsBodyRecord, options?: AddBodyOptions): Scene"
+        },
+        {
+          "name": "addTrajectory",
+          "optional": false,
+          "signature": "(input: TrajectoryInput): Scene"
+        },
+        {
+          "name": "addGroup",
+          "optional": false,
+          "signature": "(input: GroupInput): Scene"
+        },
+        {
+          "name": "addBodySet",
+          "optional": false,
+          "signature": "(input: BodySetInput): Scene"
+        },
+        {
+          "name": "setMoonPanel",
+          "optional": false,
+          "signature": "(input: MoonPanelInput): Scene"
+        },
+        {
+          "name": "setAbout",
+          "optional": false,
+          "signature": "(input: AboutInput): Scene"
+        },
+        {
+          "name": "addParts",
+          "optional": false,
+          "signature": "(parts: readonly (PanelPart | TilePart)[]): Scene"
+        },
+        {
+          "name": "setPicker",
+          "optional": false,
+          "signature": "(input: PickerInput): Scene"
+        },
+        {
+          "name": "addSkyFigures",
+          "optional": false,
+          "signature": "(figures: readonly SkyFigureInput[]): Scene"
+        },
+        {
+          "name": "addPlaces",
+          "optional": false,
+          "signature": "(body: BodyRef | BodyId, input: PlacesInput): Scene"
+        },
+        {
+          "name": "addActivity",
+          "optional": false,
+          "signature": "(input: ActivityInput): Scene"
+        },
+        {
+          "name": "setTime",
+          "optional": false,
+          "signature": "(time: TimeInput): Scene"
+        },
+        {
+          "name": "setScale",
+          "optional": false,
+          "signature": "(scale: ScalePolicy, options?: { readonly only?: boolean; }): Scene"
+        },
+        {
+          "name": "setLook",
+          "optional": false,
+          "signature": "(look: LookInput): Scene"
+        },
+        {
+          "name": "setBodyReadouts",
+          "optional": false,
+          "signature": "(kinds: readonly BodyReadoutKind[]): Scene"
+        },
+        {
+          "name": "addEvents",
+          "optional": false,
+          "signature": "(events: readonly EventInput[], options?: AddEventsOptions): Scene"
+        },
+        {
+          "name": "addStoryPanels",
+          "optional": false,
+          "signature": "(panels: readonly StoryPanelInput[]): Scene"
+        },
+        {
+          "name": "setStoryPanelPlayback",
+          "optional": false,
+          "signature": "(playback: StoryPanelPlaybackInput): Scene"
+        },
+        {
+          "name": "setTimeline",
+          "optional": false,
+          "signature": "(timeline: TimelineInput): Scene"
+        },
+        {
+          "name": "setSwitches",
+          "optional": false,
+          "signature": "(switches: SwitchesInput): Scene"
+        },
+        {
+          "name": "setViews",
+          "optional": false,
+          "signature": "(views: readonly ViewInput[], options: ViewsOptions): Scene"
+        },
+        {
+          "name": "stateOf",
+          "optional": false,
+          "signature": "(id: string, time: TimeInput): State"
+        },
+        {
+          "name": "provenanceOf",
+          "optional": false,
+          "signature": "(id: string): Provenance"
+        },
+        {
+          "name": "load",
+          "optional": false,
+          "signature": "(options?: SceneLoadOptions): Promise<void>"
+        },
+        {
+          "name": "check",
+          "optional": false,
+          "signature": "(options?: SceneLoadOptions): void"
+        }
+      ]
+    },
+    "SceneCamera": {
+      "kind": "class",
+      "signature": "",
+      "constructors": [
+        "(has: (id: string) => boolean, circlesSun: (id: string) => boolean, editable: () => void)"
+      ],
+      "members": [
+        {
+          "name": "follow",
+          "optional": false,
+          "signature": "(id: string, view?: FollowView): SceneCamera"
+        },
+        {
+          "name": "focus",
+          "optional": false,
+          "signature": "(id: string, view?: FollowView): SceneCamera"
+        },
+        {
+          "name": "lookOut",
+          "optional": false,
+          "signature": "(body: BodyRef | BodyId, look?: { readonly direction?: SkyDirection | string; readonly fovDeg?: number; }): SceneCamera"
+        },
+        {
+          "name": "setStartView",
+          "optional": false,
+          "signature": "(pose: CameraPose): SceneCamera"
+        },
+        {
+          "name": "setFollowChoices",
+          "optional": false,
+          "signature": "(ids: readonly (BodyRef | BodyId)[]): SceneCamera"
+        },
+        {
+          "name": "setFocusChoices",
+          "optional": false,
+          "signature": "(ids: readonly (BodyRef | BodyId)[]): SceneCamera"
+        },
+        {
+          "name": "setOverview",
+          "optional": false,
+          "signature": "(on: boolean): SceneCamera"
+        },
+        {
+          "name": "setLookOutChoices",
+          "optional": false,
+          "signature": "(ids: readonly (BodyRef | BodyId)[]): SceneCamera"
+        },
+        {
+          "name": "setReach",
+          "optional": false,
+          "signature": "(distance: number, options?: { readonly farEarthRadii?: number; }): SceneCamera"
+        },
+        {
+          "name": "fitOrbit",
+          "optional": false,
+          "signature": "(body: BodyRef | BodyId): SceneCamera"
+        },
+        {
+          "name": "fitted",
+          "optional": false,
+          "signature": "string | undefined"
+        },
+        {
+          "name": "reachEarthRadii",
+          "optional": false,
+          "signature": "number | undefined"
+        },
+        {
+          "name": "farEarthRadii",
+          "optional": false,
+          "signature": "number | undefined"
+        },
+        {
+          "name": "pose",
+          "optional": false,
+          "signature": "CameraPose | undefined"
+        },
+        {
+          "name": "followChoices",
+          "optional": false,
+          "signature": "readonly string[] | undefined"
+        },
+        {
+          "name": "lookOutChoices",
+          "optional": false,
+          "signature": "readonly string[]"
+        },
+        {
+          "name": "target",
+          "optional": false,
+          "signature": "string | undefined"
+        },
+        {
+          "name": "following",
+          "optional": false,
+          "signature": "boolean"
+        },
+        {
+          "name": "view",
+          "optional": false,
+          "signature": "FollowView"
+        }
+      ]
+    },
+    "AddBodyOptions": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "orbit",
+          "optional": true,
+          "signature": "boolean | OrbitLapInput | undefined"
+        },
+        {
+          "name": "enlarge",
+          "optional": true,
+          "signature": "number | undefined"
+        },
+        {
+          "name": "showLabel",
+          "optional": true,
+          "signature": "boolean | undefined"
+        },
+        {
+          "name": "labelReachEarthRadii",
+          "optional": true,
+          "signature": "number | undefined"
+        },
+        {
+          "name": "shownDuring",
+          "optional": true,
+          "signature": "ShownDuringInput | undefined"
+        },
+        {
+          "name": "description",
+          "optional": true,
+          "signature": "string | undefined"
+        },
+        {
+          "name": "color",
+          "optional": true,
+          "signature": "string | undefined"
+        },
+        {
+          "name": "knownLimitations",
+          "optional": true,
+          "signature": "readonly string[] | undefined"
+        },
+        {
+          "name": "readouts",
+          "optional": true,
+          "signature": "readonly ReadoutInput[] | undefined"
+        },
+        {
+          "name": "listed",
+          "optional": true,
+          "signature": "boolean | undefined"
+        },
+        {
+          "name": "facts",
+          "optional": true,
+          "signature": "readonly CardFactInput[] | undefined"
+        },
+        {
+          "name": "sources",
+          "optional": true,
+          "signature": "readonly string[] | undefined"
+        },
+        {
+          "name": "labelPriority",
+          "optional": true,
+          "signature": "number | undefined"
+        }
+      ]
+    },
+    "CardFactInput": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "label",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "value",
+          "optional": false,
+          "signature": "string"
+        }
+      ]
+    },
+    "OrbitLapInput": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "lapDays",
+          "optional": false,
+          "signature": "number"
+        },
+        {
+          "name": "fades",
+          "optional": true,
+          "signature": "boolean | undefined"
+        }
+      ]
+    },
+    "BodyReadoutKind": {
+      "kind": "type",
+      "signature": "\"distance\" | \"phase\" | \"coordinates\"",
+      "constructors": [],
+      "members": []
+    },
+    "AnchorInput": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "id",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "time",
+          "optional": false,
+          "signature": "TimeInput"
+        }
+      ]
+    },
+    "ReadoutInput": {
+      "kind": "type",
+      "signature": "| { readonly kind: \"range\"; readonly marker?: BodyId } | { readonly kind: \"speed\" } | { readonly kind: \"distance\"; readonly to: BodyId } | { readonly kind: \"altitude\"; readonly above: BodyId }",
+      "constructors": [],
+      "members": []
+    },
+    "DataSource": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "name",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "provides",
+          "optional": false,
+          "signature": "readonly string[]"
+        },
+        {
+          "name": "pictures",
+          "optional": true,
+          "signature": "Readonly<Record<string, TextureRef>> | undefined"
+        },
+        {
+          "name": "moonPositions",
+          "optional": true,
+          "signature": "MoonPositions | undefined"
+        },
+        {
+          "name": "prepare",
+          "optional": true,
+          "signature": "(() => Promise<void>) | undefined"
+        }
+      ]
+    },
+    "SceneLoadOptions": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "data",
+          "optional": true,
+          "signature": "readonly DataSource[] | undefined"
+        }
+      ]
+    },
+    "SceneBodyRead": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "id",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "label",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "parent",
+          "optional": true,
+          "signature": "string | undefined"
+        },
+        {
+          "name": "orbit",
+          "optional": false,
+          "signature": "boolean"
+        },
+        {
+          "name": "enlarge",
+          "optional": false,
+          "signature": "number"
+        },
+        {
+          "name": "description",
+          "optional": true,
+          "signature": "string | undefined"
+        },
+        {
+          "name": "knownLimitations",
+          "optional": false,
+          "signature": "readonly string[]"
+        },
+        {
+          "name": "listed",
+          "optional": false,
+          "signature": "boolean"
+        },
+        {
+          "name": "facts",
+          "optional": true,
+          "signature": "readonly { readonly label: string; readonly value: string; }[] | undefined"
+        },
+        {
+          "name": "texture",
+          "optional": true,
+          "signature": "TextureRef | undefined"
+        }
+      ]
+    },
+    "SceneActivityRead": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "id",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "label",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "unit",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "windowStartUtcMs",
+          "optional": false,
+          "signature": "number"
+        },
+        {
+          "name": "windowEndUtcMs",
+          "optional": false,
+          "signature": "number"
+        },
+        {
+          "name": "peak",
+          "optional": false,
+          "signature": "{ readonly label: string; readonly value: number; readonly timeUtcMs?: number; }"
+        },
+        {
+          "name": "samples",
+          "optional": false,
+          "signature": "readonly { readonly timeUtcMs: number; readonly value: number; }[]"
+        },
+        {
+          "name": "provenance",
+          "optional": true,
+          "signature": "readonly { readonly stretchStartUtcMs: number; readonly stretchEndUtcMs: number; readonly provenance: Provenance; }[] | undefined"
+        },
+        {
+          "name": "type",
+          "optional": true,
+          "signature": "string | undefined"
+        }
+      ]
+    },
+    "ScenePathRead": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "id",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "label",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "center",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "provenance",
+          "optional": false,
+          "signature": "Provenance"
+        },
+        {
+          "name": "description",
+          "optional": true,
+          "signature": "string | undefined"
+        },
+        {
+          "name": "knownLimitations",
+          "optional": false,
+          "signature": "readonly string[]"
+        }
+      ]
+    },
+    "SceneGroupRead": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "id",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "label",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "count",
+          "optional": false,
+          "signature": "number"
+        },
+        {
+          "name": "center",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "plane",
+          "optional": false,
+          "signature": "\"ecliptic-j2000\" | \"EQJ\""
+        },
+        {
+          "name": "provenance",
+          "optional": false,
+          "signature": "Provenance"
+        },
+        {
+          "name": "description",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "knownLimitations",
+          "optional": false,
+          "signature": "readonly string[]"
+        }
+      ]
+    },
+    "SceneBodySetRead": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "id",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "center",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "count",
+          "optional": false,
+          "signature": "number"
+        },
+        {
+          "name": "families",
+          "optional": false,
+          "signature": "readonly string[]"
+        }
+      ]
+    },
+    "SceneMoonPanelRead": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "count",
+          "optional": false,
+          "signature": "number"
+        },
+        {
+          "name": "summary",
+          "optional": false,
+          "signature": "string"
+        }
+      ]
+    },
+    "ScenePlacesRead": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "body",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "count",
+          "optional": false,
+          "signature": "number"
+        }
+      ]
+    },
+    "SceneSkyFigureRead": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "id",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "label",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "kind",
+          "optional": false,
+          "signature": "\"figure\" | \"boundary\""
+        },
+        {
+          "name": "description",
+          "optional": true,
+          "signature": "string | undefined"
+        },
+        {
+          "name": "facts",
+          "optional": true,
+          "signature": "readonly { readonly label: string; readonly value: string; }[] | undefined"
+        },
+        {
+          "name": "listed",
+          "optional": false,
+          "signature": "boolean"
+        },
+        {
+          "name": "provenance",
+          "optional": false,
+          "signature": "Provenance"
+        }
+      ]
+    },
+    "SceneEventRead": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "id",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "label",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "timeUtcMs",
+          "optional": false,
+          "signature": "number"
+        },
+        {
+          "name": "type",
+          "optional": true,
+          "signature": "string | undefined"
+        },
+        {
+          "name": "object",
+          "optional": true,
+          "signature": "string | undefined"
+        },
+        {
+          "name": "withinSeconds",
+          "optional": true,
+          "signature": "number | undefined"
+        },
+        {
+          "name": "provenance",
+          "optional": true,
+          "signature": "Provenance | undefined"
+        }
+      ]
+    },
+    "ScenePanelRead": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "id",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "timeUtcMs",
+          "optional": true,
+          "signature": "number | undefined"
+        },
+        {
+          "name": "title",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "body",
+          "optional": false,
+          "signature": "readonly string[]"
+        },
+        {
+          "name": "details",
+          "optional": false,
+          "signature": "readonly string[]"
+        },
+        {
+          "name": "provenance",
+          "optional": false,
+          "signature": "Provenance"
+        },
+        {
+          "name": "object",
+          "optional": true,
+          "signature": "string | undefined"
+        }
+      ]
+    },
+    "SceneViewRead": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "id",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "label",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "objects",
+          "optional": false,
+          "signature": "readonly string[]"
+        },
+        {
+          "name": "events",
+          "optional": false,
+          "signature": "readonly string[]"
+        },
+        {
+          "name": "panels",
+          "optional": false,
+          "signature": "readonly string[]"
+        }
+      ]
+    },
+    "SceneViewsRead": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "startId",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "place",
+          "optional": false,
+          "signature": "\"top-bar\" | \"panel\""
+        },
+        {
+          "name": "items",
+          "optional": false,
+          "signature": "readonly SceneViewRead[]"
+        }
+      ]
+    },
+    "SceneTimelineRead": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "windowStartUtcMs",
+          "optional": false,
+          "signature": "number"
+        },
+        {
+          "name": "windowEndUtcMs",
+          "optional": false,
+          "signature": "number"
+        },
+        {
+          "name": "openUtcMs",
+          "optional": false,
+          "signature": "number"
+        },
+        {
+          "name": "rates",
+          "optional": false,
+          "signature": "readonly number[]"
+        },
+        {
+          "name": "rate",
+          "optional": false,
+          "signature": "number"
+        },
+        {
+          "name": "loop",
+          "optional": false,
+          "signature": "boolean"
+        },
+        {
+          "name": "playing",
+          "optional": false,
+          "signature": "boolean"
+        },
+        {
+          "name": "pacing",
+          "optional": true,
+          "signature": "readonly ScenePacingRead[] | undefined"
+        }
+      ]
+    },
+    "ScenePacingRead": {
+      "kind": "type",
+      "signature": "| { readonly spanStartUtcMs: number; readonly spanEndUtcMs: number; readonly rate: number; readonly rampSeconds: number } | { readonly near: { readonly type: string; readonly withinSeconds: number }; readonly rate: number; readonly rampSeconds: number }",
+      "constructors": [],
+      "members": []
+    },
+    "ScenePanelPlaybackRead": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "pauseSeconds",
+          "optional": false,
+          "signature": "number"
+        },
+        {
+          "name": "autoOpen",
+          "optional": false,
+          "signature": "boolean"
+        },
+        {
+          "name": "closeAfterSeconds",
+          "optional": true,
+          "signature": "number | undefined"
+        }
+      ]
+    },
+    "SceneSwitchRead": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "place",
+          "optional": false,
+          "signature": "\"top-bar\" | \"panel\" | \"developer\""
+        },
+        {
+          "name": "on",
+          "optional": false,
+          "signature": "boolean"
+        },
+        {
+          "name": "label",
+          "optional": true,
+          "signature": "string | undefined"
+        }
+      ]
+    },
+    "MoonPositions": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "center",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "loadIndex",
+          "optional": false,
+          "signature": "() => Promise<MoonIndex>"
+        },
+        {
+          "name": "chunkUrls",
+          "optional": false,
+          "signature": "Readonly<Record<string, string>>"
+        }
+      ]
+    },
+    "MoonIndex": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "format",
+          "optional": true,
+          "signature": "string | undefined"
+        },
+        {
+          "name": "id",
+          "optional": true,
+          "signature": "string | undefined"
+        },
+        {
+          "name": "bodies",
+          "optional": true,
+          "signature": "readonly object[] | undefined"
+        }
+      ]
+    },
+    "FollowView": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "azimuthDeg",
+          "optional": true,
+          "signature": "number | undefined"
+        },
+        {
+          "name": "elevationDeg",
+          "optional": true,
+          "signature": "number | undefined"
+        },
+        {
+          "name": "distance",
+          "optional": true,
+          "signature": "number | undefined"
+        },
+        {
+          "name": "up",
+          "optional": true,
+          "signature": "\"ecliptic\" | \"equatorial\" | undefined"
+        }
+      ]
+    },
+    "GroupInput": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "id",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "orbits",
+          "optional": false,
+          "signature": "readonly GroupOrbitInput[]"
+        },
+        {
+          "name": "label",
+          "optional": true,
+          "signature": "string | undefined"
+        },
+        {
+          "name": "center",
+          "optional": true,
+          "signature": "string | undefined"
+        },
+        {
+          "name": "plane",
+          "optional": false,
+          "signature": "\"ecliptic-j2000\" | \"EQJ\""
+        },
+        {
+          "name": "color",
+          "optional": true,
+          "signature": "string | undefined"
+        },
+        {
+          "name": "dotSizePx",
+          "optional": true,
+          "signature": "number | undefined"
+        },
+        {
+          "name": "referenceTime",
+          "optional": true,
+          "signature": "TimeInput | undefined"
+        },
+        {
+          "name": "seed",
+          "optional": true,
+          "signature": "number | undefined"
+        },
+        {
+          "name": "clump",
+          "optional": true,
+          "signature": "GroupClumpInput | undefined"
+        },
+        {
+          "name": "refillAfterMs",
+          "optional": true,
+          "signature": "number | undefined"
+        },
+        {
+          "name": "refillSliceMs",
+          "optional": true,
+          "signature": "number | undefined"
+        },
+        {
+          "name": "provenance",
+          "optional": true,
+          "signature": "Provenance | undefined"
+        },
+        {
+          "name": "description",
+          "optional": true,
+          "signature": "string | undefined"
+        },
+        {
+          "name": "knownLimitations",
+          "optional": true,
+          "signature": "readonly string[] | undefined"
+        },
+        {
+          "name": "readouts",
+          "optional": true,
+          "signature": "readonly GroupReadoutInput[] | undefined"
+        }
+      ]
+    },
+    "GroupOrbitInput": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "id",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "semiMajorAxisKm",
+          "optional": false,
+          "signature": "number"
+        },
+        {
+          "name": "eccentricity",
+          "optional": false,
+          "signature": "number"
+        },
+        {
+          "name": "inclinationDeg",
+          "optional": false,
+          "signature": "number"
+        },
+        {
+          "name": "raanDeg",
+          "optional": false,
+          "signature": "number"
+        },
+        {
+          "name": "argumentOfPeriapsisDeg",
+          "optional": false,
+          "signature": "number"
+        },
+        {
+          "name": "time",
+          "optional": true,
+          "signature": "TimeInput | undefined"
+        },
+        {
+          "name": "meanAnomalyDeg",
+          "optional": true,
+          "signature": "number | undefined"
+        }
+      ]
+    },
+    "GroupClumpInput": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "near",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "fraction",
+          "optional": false,
+          "signature": "number"
+        },
+        {
+          "name": "widthDeg",
+          "optional": false,
+          "signature": "number"
+        }
+      ]
+    },
+    "GroupReadoutInput": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "kind",
+          "optional": false,
+          "signature": "\"rate\""
+        },
+        {
+          "name": "activity",
+          "optional": true,
+          "signature": "string | undefined"
+        }
+      ]
+    },
+    "ActivityInput": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "id",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "label",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "unit",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "start",
+          "optional": false,
+          "signature": "TimeInput"
+        },
+        {
+          "name": "end",
+          "optional": false,
+          "signature": "TimeInput"
+        },
+        {
+          "name": "peak",
+          "optional": true,
+          "signature": "TimeInput | undefined"
+        },
+        {
+          "name": "samples",
+          "optional": false,
+          "signature": "readonly ActivitySampleInput[]"
+        },
+        {
+          "name": "provenance",
+          "optional": true,
+          "signature": "readonly ActivitySourceInput[] | undefined"
+        },
+        {
+          "name": "type",
+          "optional": true,
+          "signature": "string | undefined"
+        },
+        {
+          "name": "peakLabel",
+          "optional": true,
+          "signature": "string | undefined"
+        }
+      ]
+    },
+    "ActivitySampleInput": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "time",
+          "optional": false,
+          "signature": "TimeInput"
+        },
+        {
+          "name": "value",
+          "optional": false,
+          "signature": "number"
+        }
+      ]
+    },
+    "ActivitySourceInput": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "start",
+          "optional": false,
+          "signature": "TimeInput"
+        },
+        {
+          "name": "end",
+          "optional": false,
+          "signature": "TimeInput"
+        },
+        {
+          "name": "provenance",
+          "optional": false,
+          "signature": "Provenance"
+        }
+      ]
+    },
+    "ShownDuringInput": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "start",
+          "optional": true,
+          "signature": "TimeInput | undefined"
+        },
+        {
+          "name": "end",
+          "optional": true,
+          "signature": "TimeInput | undefined"
+        }
+      ]
+    },
+    "ElementsBodyRecord": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "id",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "label",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "elements",
+          "optional": false,
+          "signature": "{ readonly semiMajorAxisAu: number; readonly eccentricity: number; readonly inclinationDeg: number; readonly ascendingNodeDeg: number; readonly argumentOfPerihelionDeg: number; readonly meanAnomalyDeg?: number; readonly perihelionJdTdb?: number; }"
+        },
+        {
+          "name": "epoch",
+          "optional": false,
+          "signature": "{ readonly jd: number; readonly timeScale: ElementsTimeScale; readonly ttMinusUtcSeconds?: number; }"
+        },
+        {
+          "name": "plane",
+          "optional": false,
+          "signature": "\"ecliptic-j2000\""
+        },
+        {
+          "name": "source",
+          "optional": false,
+          "signature": "ElementsSource"
+        },
+        {
+          "name": "radius",
+          "optional": true,
+          "signature": "{ readonly km: number; readonly source: string; } | undefined"
+        },
+        {
+          "name": "accuracy",
+          "optional": false,
+          "signature": "{ readonly classification: AccuracyClassification; readonly statement: string; readonly valid: { readonly start: TimeInput; readonly end: TimeInput; }; readonly limitations: readonly string[]; }"
+        },
+        {
+          "name": "marker",
+          "optional": false,
+          "signature": "{ readonly color: string; readonly sizePx: number; }"
+        }
+      ]
+    },
+    "TimeInput": {
+      "kind": "type",
+      "signature": "string | number | Date",
+      "constructors": [],
+      "members": []
+    },
+    "TrajectoryInput": {
+      "kind": "type",
+      "signature": "| (TrajectoryBase & { readonly samples: readonly TrajectorySampleInput[] }) | (TrajectoryBase & { readonly provider: { stateAt(timeUtcMs: number, center?: BodyId): State }; readonly bounds: { readonly start: TimeInput; readonly end: TimeInput } })",
+      "constructors": [],
+      "members": []
+    },
+    "TrajectorySampleInput": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "time",
+          "optional": false,
+          "signature": "TimeInput"
+        },
+        {
+          "name": "positionKm",
+          "optional": false,
+          "signature": "ArrayLike<number>"
+        },
+        {
+          "name": "velocityKmS",
+          "optional": true,
+          "signature": "ArrayLike<number> | undefined"
+        }
+      ]
+    },
+    "TrajectoryBase": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "id",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "label",
+          "optional": true,
+          "signature": "string | undefined"
+        },
+        {
+          "name": "color",
+          "optional": true,
+          "signature": "string | undefined"
+        },
+        {
+          "name": "center",
+          "optional": true,
+          "signature": "string | undefined"
+        },
+        {
+          "name": "lineFixedTo",
+          "optional": true,
+          "signature": "string | readonly LineStretchInput[] | undefined"
+        },
+        {
+          "name": "plane",
+          "optional": true,
+          "signature": "\"ecliptic-j2000\" | \"EQJ\" | undefined"
+        },
+        {
+          "name": "labelReachEarthRadii",
+          "optional": true,
+          "signature": "number | undefined"
+        },
+        {
+          "name": "provenance",
+          "optional": true,
+          "signature": "Provenance | undefined"
+        },
+        {
+          "name": "provenanceSpans",
+          "optional": true,
+          "signature": "readonly ActivitySourceInput[] | undefined"
+        },
+        {
+          "name": "shownDuring",
+          "optional": true,
+          "signature": "ShownDuringInput | undefined"
+        },
+        {
+          "name": "description",
+          "optional": true,
+          "signature": "string | undefined"
+        },
+        {
+          "name": "knownLimitations",
+          "optional": true,
+          "signature": "readonly string[] | undefined"
+        },
+        {
+          "name": "anchors",
+          "optional": true,
+          "signature": "readonly AnchorInput[] | undefined"
+        },
+        {
+          "name": "readouts",
+          "optional": true,
+          "signature": "readonly ReadoutInput[] | undefined"
+        }
+      ]
+    },
+    "MoonPanelInput": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "label",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "families",
+          "optional": false,
+          "signature": "readonly MoonPanelFamilyInput[]"
+        },
+        {
+          "name": "featuredFamily",
+          "optional": true,
+          "signature": "string | undefined"
+        },
+        {
+          "name": "listSource",
+          "optional": true,
+          "signature": "string | undefined"
+        },
+        {
+          "name": "listDate",
+          "optional": true,
+          "signature": "TimeInput | undefined"
+        }
+      ]
+    },
+    "MoonPanelFamilyInput": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "id",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "label",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "description",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "moons",
+          "optional": false,
+          "signature": "readonly MoonPanelMoonInput[]"
+        }
+      ]
+    },
+    "MoonPanelMoonInput": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "id",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "named",
+          "optional": true,
+          "signature": "boolean | undefined"
+        }
+      ]
+    },
+    "PlacesInput": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "categories",
+          "optional": false,
+          "signature": "readonly PlaceCategoryInput[]"
+        },
+        {
+          "name": "places",
+          "optional": false,
+          "signature": "readonly PlaceInput[]"
+        },
+        {
+          "name": "provenance",
+          "optional": false,
+          "signature": "Provenance"
+        },
+        {
+          "name": "knownLimitations",
+          "optional": true,
+          "signature": "readonly string[] | undefined"
+        }
+      ]
+    },
+    "PlaceInput": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "id",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "name",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "kind",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "category",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "latitudeDeg",
+          "optional": false,
+          "signature": "number"
+        },
+        {
+          "name": "longitudeDeg",
+          "optional": false,
+          "signature": "number"
+        },
+        {
+          "name": "description",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "details",
+          "optional": true,
+          "signature": "readonly CardFactInput[] | undefined"
+        }
+      ]
+    },
+    "PlaceCategoryInput": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "key",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "label",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "color",
+          "optional": false,
+          "signature": "string"
+        }
+      ]
+    },
+    "SkyFigureInput": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "id",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "label",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "kind",
+          "optional": true,
+          "signature": "\"figure\" | \"boundary\" | undefined"
+        },
+        {
+          "name": "segments",
+          "optional": true,
+          "signature": "readonly (readonly [SkyFigureEnd, SkyFigureEnd])[] | undefined"
+        },
+        {
+          "name": "points",
+          "optional": true,
+          "signature": "readonly SkyDirection[] | undefined"
+        },
+        {
+          "name": "labelAt",
+          "optional": true,
+          "signature": "SkyDirection | undefined"
+        },
+        {
+          "name": "shown",
+          "optional": true,
+          "signature": "\"always\" | \"whenTraced\" | undefined"
+        },
+        {
+          "name": "color",
+          "optional": true,
+          "signature": "string | undefined"
+        },
+        {
+          "name": "labelColor",
+          "optional": true,
+          "signature": "string | undefined"
+        },
+        {
+          "name": "labelFont",
+          "optional": true,
+          "signature": "string | undefined"
+        },
+        {
+          "name": "labelSizePx",
+          "optional": true,
+          "signature": "number | undefined"
+        },
+        {
+          "name": "description",
+          "optional": true,
+          "signature": "string | undefined"
+        },
+        {
+          "name": "facts",
+          "optional": true,
+          "signature": "readonly CardFactInput[] | undefined"
+        },
+        {
+          "name": "sources",
+          "optional": true,
+          "signature": "readonly string[] | undefined"
+        },
+        {
+          "name": "provenance",
+          "optional": true,
+          "signature": "Provenance | undefined"
+        },
+        {
+          "name": "listed",
+          "optional": true,
+          "signature": "boolean | undefined"
+        }
+      ]
+    },
+    "SkyFigureEnd": {
+      "kind": "type",
+      "signature": "{ readonly star: number } | SkyDirection",
+      "constructors": [],
+      "members": []
+    },
+    "SkyClearOptions": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "durationSeconds",
+          "optional": true,
+          "signature": "number | undefined"
+        }
+      ]
+    },
+    "SkyTraceOptions": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "durationSeconds",
+          "optional": true,
+          "signature": "number | undefined"
+        },
+        {
+          "name": "after",
+          "optional": true,
+          "signature": "\"stay\" | \"fade\" | undefined"
+        }
+      ]
+    },
+    "GroupLookInput": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "color",
+          "optional": true,
+          "signature": "string | undefined"
+        },
+        {
+          "name": "dotSizePx",
+          "optional": true,
+          "signature": "number | undefined"
+        }
+      ]
+    },
+    "GroupLookRead": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "color",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "dotSizePx",
+          "optional": false,
+          "signature": "number"
+        }
+      ]
+    },
+    "AboutInput": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "title",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "shortTitle",
+          "optional": true,
+          "signature": "string | undefined"
+        },
+        {
+          "name": "status",
+          "optional": true,
+          "signature": "string | undefined"
+        },
+        {
+          "name": "credits",
+          "optional": true,
+          "signature": "readonly { readonly text: string; readonly url?: string; }[] | undefined"
+        },
+        {
+          "name": "links",
+          "optional": true,
+          "signature": "readonly { readonly text: string; readonly url: string; }[] | undefined"
+        }
+      ]
+    },
+    "panel": {
+      "kind": "function",
+      "signature": "panel(input: PanelInput): PanelPart",
+      "constructors": [],
+      "members": []
+    },
+    "PanelInput": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "id",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "button",
+          "optional": false,
+          "signature": "{ readonly label: string; readonly shortLabel?: string; }"
+        },
+        {
+          "name": "title",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "blocks",
+          "optional": false,
+          "signature": "readonly PanelBlock[]"
+        }
+      ]
+    },
+    "PanelControl": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "open",
+          "optional": false,
+          "signature": "boolean"
+        },
+        {
+          "name": "setOpen",
+          "optional": false,
+          "signature": "(open: boolean): void"
+        },
+        {
+          "name": "onOpen",
+          "optional": false,
+          "signature": "(listener: (change: PanelOpenChange) => void): () => void"
+        }
+      ]
+    },
+    "PanelOpenChange": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "part",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "open",
+          "optional": false,
+          "signature": "boolean"
+        }
+      ]
+    },
+    "customBlock": {
+      "kind": "function",
+      "signature": "customBlock(input: CustomBlockInput): CustomBlockPart",
+      "constructors": [],
+      "members": []
+    },
+    "CustomBlockInput": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "id",
+          "optional": false,
+          "signature": "string"
+        }
+      ]
+    },
+    "CustomBlockControl": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "element",
+          "optional": false,
+          "signature": "HTMLElement | undefined"
+        }
+      ]
+    },
+    "explainer": {
+      "kind": "function",
+      "signature": "explainer(input: ExplainerInput): BlockPart<\"explainer\">",
+      "constructors": [],
+      "members": []
+    },
+    "ExplainerInput": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "id",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "heading",
+          "optional": true,
+          "signature": "string | undefined"
+        },
+        {
+          "name": "paragraphs",
+          "optional": false,
+          "signature": "readonly string[]"
+        },
+        {
+          "name": "notes",
+          "optional": true,
+          "signature": "readonly string[] | undefined"
+        }
+      ]
+    },
+    "ExplainerControl": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "setParagraphs",
+          "optional": false,
+          "signature": "(paragraphs: readonly string[]): void"
+        }
+      ]
+    },
+    "actions": {
+      "kind": "function",
+      "signature": "actions(input: ActionsInput): BlockPart<\"actions\">",
+      "constructors": [],
+      "members": []
+    },
+    "ActionsInput": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "id",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "actions",
+          "optional": false,
+          "signature": "readonly ActionInput[]"
+        }
+      ]
+    },
+    "ActionInput": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "id",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "label",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "camera",
+          "optional": true,
+          "signature": "CameraTarget | undefined"
+        }
+      ]
+    },
+    "ActionChange": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "part",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "action",
+          "optional": false,
+          "signature": "string"
+        }
+      ]
+    },
+    "ActionsControl": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "onAction",
+          "optional": false,
+          "signature": "(listener: (change: ActionChange) => void): () => void"
+        }
+      ]
+    },
+    "filterChips": {
+      "kind": "function",
+      "signature": "filterChips(input: FilterChipsInput): BlockPart<\"filterChips\">",
+      "constructors": [],
+      "members": []
+    },
+    "FilterChipsInput": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "id",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "choices",
+          "optional": false,
+          "signature": "readonly ChipChoice[]"
+        },
+        {
+          "name": "multiple",
+          "optional": true,
+          "signature": "boolean | undefined"
+        },
+        {
+          "name": "selected",
+          "optional": true,
+          "signature": "readonly string[] | undefined"
+        },
+        {
+          "name": "label",
+          "optional": true,
+          "signature": "string | undefined"
+        }
+      ]
+    },
+    "ChipChoice": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "value",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "label",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "color",
+          "optional": true,
+          "signature": "string | undefined"
+        }
+      ]
+    },
+    "ChipSelection": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "part",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "values",
+          "optional": false,
+          "signature": "readonly string[]"
+        },
+        {
+          "name": "cause",
+          "optional": false,
+          "signature": "\"visitor\""
+        }
+      ]
+    },
+    "FilterChipsControl": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "selected",
+          "optional": false,
+          "signature": "readonly string[]"
+        },
+        {
+          "name": "setSelected",
+          "optional": false,
+          "signature": "(values: readonly string[]): void"
+        },
+        {
+          "name": "setChoices",
+          "optional": false,
+          "signature": "(choices: readonly ChipChoice[]): void"
+        },
+        {
+          "name": "onSelect",
+          "optional": false,
+          "signature": "(listener: (selection: ChipSelection) => void): () => void"
+        }
+      ]
+    },
+    "colourKey": {
+      "kind": "function",
+      "signature": "colourKey(input: ColourKeyInput): BlockPart<\"colourKey\">",
+      "constructors": [],
+      "members": []
+    },
+    "ColourKeyInput": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "id",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "entries",
+          "optional": false,
+          "signature": "readonly ColourKeyEntry[]"
+        }
+      ]
+    },
+    "ColourKeyEntry": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "label",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "color",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "count",
+          "optional": true,
+          "signature": "number | undefined"
+        },
+        {
+          "name": "note",
+          "optional": true,
+          "signature": "string | undefined"
+        }
+      ]
+    },
+    "ColourKeyControl": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "setEntries",
+          "optional": false,
+          "signature": "(entries: readonly ColourKeyEntry[]): void"
+        }
+      ]
+    },
+    "readoutTile": {
+      "kind": "function",
+      "signature": "readoutTile(input: ReadoutTileInput): TilePart",
+      "constructors": [],
+      "members": []
+    },
+    "ReadoutTileInput": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "id",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "label",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "value",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "scale",
+          "optional": true,
+          "signature": "ReadoutScale | undefined"
+        },
+        {
+          "name": "facts",
+          "optional": true,
+          "signature": "readonly ReadoutFact[] | undefined"
+        }
+      ]
+    },
+    "ReadoutScale": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "low",
+          "optional": false,
+          "signature": "number"
+        },
+        {
+          "name": "high",
+          "optional": false,
+          "signature": "number"
+        },
+        {
+          "name": "value",
+          "optional": false,
+          "signature": "number"
+        },
+        {
+          "name": "stretch",
+          "optional": true,
+          "signature": "\"linear\" | \"log\" | undefined"
+        },
+        {
+          "name": "marks",
+          "optional": true,
+          "signature": "readonly ReadoutMark[] | undefined"
+        }
+      ]
+    },
+    "ReadoutMark": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "value",
+          "optional": false,
+          "signature": "number"
+        },
+        {
+          "name": "label",
+          "optional": false,
+          "signature": "string"
+        }
+      ]
+    },
+    "ReadoutFact": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "label",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "value",
+          "optional": false,
+          "signature": "string"
+        }
+      ]
+    },
+    "ReadoutTileControl": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "setValue",
+          "optional": false,
+          "signature": "(value: string, scaleValue?: number): void"
+        },
+        {
+          "name": "setScaleValue",
+          "optional": false,
+          "signature": "(value: number): void"
+        },
+        {
+          "name": "setFacts",
+          "optional": false,
+          "signature": "(facts: readonly ReadoutFact[]): void"
+        }
+      ]
+    },
+    "chart": {
+      "kind": "function",
+      "signature": "chart(input: ChartInput): BlockPart<\"chart\">",
+      "constructors": [],
+      "members": []
+    },
+    "ChartInput": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "id",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "bins",
+          "optional": false,
+          "signature": "readonly ChartBin[]"
+        },
+        {
+          "name": "axisLabel",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "marks",
+          "optional": true,
+          "signature": "readonly ChartMark[] | undefined"
+        },
+        {
+          "name": "highlight",
+          "optional": true,
+          "signature": "ChartRange | undefined"
+        }
+      ]
+    },
+    "ChartBin": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "low",
+          "optional": false,
+          "signature": "number"
+        },
+        {
+          "name": "high",
+          "optional": false,
+          "signature": "number"
+        },
+        {
+          "name": "count",
+          "optional": false,
+          "signature": "number"
+        },
+        {
+          "name": "color",
+          "optional": true,
+          "signature": "string | undefined"
+        }
+      ]
+    },
+    "ChartMark": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "value",
+          "optional": false,
+          "signature": "number"
+        },
+        {
+          "name": "label",
+          "optional": false,
+          "signature": "string"
+        }
+      ]
+    },
+    "ChartRange": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "low",
+          "optional": false,
+          "signature": "number"
+        },
+        {
+          "name": "high",
+          "optional": false,
+          "signature": "number"
+        }
+      ]
+    },
+    "ChartControl": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "setBins",
+          "optional": false,
+          "signature": "(bins: readonly ChartBin[]): void"
+        },
+        {
+          "name": "setHighlight",
+          "optional": false,
+          "signature": "(range: ChartRange | undefined): void"
+        }
+      ]
+    },
+    "PanelPart": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "kind",
+          "optional": false,
+          "signature": "\"panel\""
+        },
+        {
+          "name": "id",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "button",
+          "optional": false,
+          "signature": "{ readonly label: string; readonly shortLabel?: string; }"
+        },
+        {
+          "name": "title",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "blocks",
+          "optional": false,
+          "signature": "readonly PanelBlock[]"
+        }
+      ]
+    },
+    "CustomBlockPart": {
+      "kind": "type",
+      "signature": "BlockPart<\"customBlock\">",
+      "constructors": [],
+      "members": []
+    },
+    "BlockPart": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "kind",
+          "optional": false,
+          "signature": "K"
+        },
+        {
+          "name": "id",
+          "optional": false,
+          "signature": "string"
+        }
+      ]
+    },
+    "PanelBlock": {
+      "kind": "type",
+      "signature": "CustomBlockPart | BlockPart<\"explainer\" | \"actions\" | \"filterChips\" | \"colourKey\" | \"chart\">",
+      "constructors": [],
+      "members": []
+    },
+    "TilePart": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "kind",
+          "optional": false,
+          "signature": "\"readoutTile\""
+        },
+        {
+          "name": "id",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "label",
+          "optional": false,
+          "signature": "string"
+        }
+      ]
+    },
+    "AnyPart": {
+      "kind": "type",
+      "signature": "PanelPart | PanelBlock | TilePart",
+      "constructors": [],
+      "members": []
+    },
+    "ControlFor": {
+      "kind": "type",
+      "signature": "{ panel: PanelControl; customBlock: CustomBlockControl; explainer: ExplainerControl; actions: ActionsControl; filterChips: FilterChipsControl; colourKey: ColourKeyControl; chart: ChartControl; readoutTile: ReadoutTileControl }[P[\"kind\"]]",
+      "constructors": [],
+      "members": []
+    },
+    "PickerInput": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "id",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "label",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "options",
+          "optional": false,
+          "signature": "readonly PickerOptionInput[]"
+        },
+        {
+          "name": "value",
+          "optional": false,
+          "signature": "string"
+        }
+      ]
+    },
+    "PickerOptionInput": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "value",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "label",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "shortLabel",
+          "optional": true,
+          "signature": "string | undefined"
+        }
+      ]
+    },
+    "PickChange": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "picker",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "value",
+          "optional": false,
+          "signature": "string"
+        }
+      ]
+    },
+    "BodySetInput": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "id",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "center",
+          "optional": true,
+          "signature": "string | BodyRef | undefined"
+        },
+        {
+          "name": "families",
+          "optional": false,
+          "signature": "readonly BodySetFamilyInput[]"
+        },
+        {
+          "name": "members",
+          "optional": false,
+          "signature": "readonly BodySetMemberInput[]"
+        },
+        {
+          "name": "bodies",
+          "optional": true,
+          "signature": "readonly BodySetBodyInput[] | undefined"
+        },
+        {
+          "name": "provenance",
+          "optional": false,
+          "signature": "Provenance"
+        },
+        {
+          "name": "centerGmKm3S2",
+          "optional": true,
+          "signature": "number | undefined"
+        },
+        {
+          "name": "balancePoint",
+          "optional": true,
+          "signature": "BodySetBalanceInput | undefined"
+        },
+        {
+          "name": "orbitHistoryMs",
+          "optional": true,
+          "signature": "number | undefined"
+        }
+      ]
+    },
+    "BodySetFamilyInput": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "id",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "label",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "color",
+          "optional": true,
+          "signature": "string | undefined"
+        },
+        {
+          "name": "brightness",
+          "optional": true,
+          "signature": "number | undefined"
+        }
+      ]
+    },
+    "BodySetMemberInput": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "id",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "family",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "label",
+          "optional": true,
+          "signature": "string | undefined"
+        },
+        {
+          "name": "radiusKm",
+          "optional": true,
+          "signature": "number | undefined"
+        },
+        {
+          "name": "elements",
+          "optional": true,
+          "signature": "BodySetElementsInput | undefined"
+        },
+        {
+          "name": "description",
+          "optional": true,
+          "signature": "string | undefined"
+        },
+        {
+          "name": "facts",
+          "optional": true,
+          "signature": "readonly CardFactInput[] | undefined"
+        },
+        {
+          "name": "provenance",
+          "optional": true,
+          "signature": "Provenance | undefined"
+        },
+        {
+          "name": "knownLimitations",
+          "optional": true,
+          "signature": "readonly string[] | undefined"
+        },
+        {
+          "name": "listed",
+          "optional": true,
+          "signature": "boolean | undefined"
+        }
+      ]
+    },
+    "BodySetElementsInput": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "semiMajorAxisKm",
+          "optional": false,
+          "signature": "number"
+        },
+        {
+          "name": "eccentricity",
+          "optional": false,
+          "signature": "number"
+        },
+        {
+          "name": "inclinationDeg",
+          "optional": false,
+          "signature": "number"
+        },
+        {
+          "name": "raanDeg",
+          "optional": false,
+          "signature": "number"
+        },
+        {
+          "name": "argumentOfPeriapsisDeg",
+          "optional": false,
+          "signature": "number"
+        },
+        {
+          "name": "trueAnomalyDeg",
+          "optional": false,
+          "signature": "number"
+        },
+        {
+          "name": "time",
+          "optional": true,
+          "signature": "TimeInput | undefined"
+        },
+        {
+          "name": "plane",
+          "optional": true,
+          "signature": "\"ecliptic-j2000\" | \"EQJ\" | undefined"
+        }
+      ]
+    },
+    "BodySetBodyInput": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "id",
+          "optional": false,
+          "signature": "string | BodyRef"
+        },
+        {
+          "name": "family",
+          "optional": false,
+          "signature": "string"
+        }
+      ]
+    },
+    "BodySetBalanceInput": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "body",
+          "optional": false,
+          "signature": "string | BodyRef"
+        },
+        {
+          "name": "gmKm3S2",
+          "optional": false,
+          "signature": "number"
+        }
+      ]
+    },
+    "EventInput": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "id",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "label",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "time",
+          "optional": false,
+          "signature": "TimeInput"
+        },
+        {
+          "name": "type",
+          "optional": true,
+          "signature": "string | undefined"
+        },
+        {
+          "name": "provenance",
+          "optional": true,
+          "signature": "Provenance | undefined"
+        },
+        {
+          "name": "object",
+          "optional": true,
+          "signature": "string | undefined"
+        },
+        {
+          "name": "withinSeconds",
+          "optional": true,
+          "signature": "number | undefined"
+        }
+      ]
+    },
+    "AddEventsOptions": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "provenance",
+          "optional": true,
+          "signature": "Provenance | undefined"
+        }
+      ]
+    },
+    "TimelineInput": {
+      "kind": "type",
+      "signature": "| { readonly start: TimeInput; readonly end: TimeInput; readonly rates?: readonly number[]; readonly rate?: number; /** Playback that slows for encounters and speeds up for cruise: see `PacingInput`. */ readonly pacing?: readonly PacingInput[]; /** True: while playing, reaching the end wraps to the start and plays on. Default false. Not available with `none: true`, where it is ignored. */ readonly loop?: boolean; readonly playing?: boolean; readonly none?: undefined } | { readonly none: true; readonly at?: TimeInput; readonly rate?: number }",
+      "constructors": [],
+      "members": []
+    },
+    "PacingInput": {
+      "kind": "type",
+      "signature": "| { readonly start: TimeInput; readonly end: TimeInput; readonly rate: number; readonly rampSeconds?: number } | { readonly near: { readonly type: string; readonly withinSeconds: number }; readonly rate: number; readonly rampSeconds?: number }",
+      "constructors": [],
+      "members": []
+    },
+    "StoryPanelAt": {
+      "kind": "type",
+      "signature": "{ readonly time: TimeInput } | { readonly event: string } | { readonly anchor: string }",
+      "constructors": [],
+      "members": []
+    },
+    "StoryPanelInput": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "id",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "at",
+          "optional": true,
+          "signature": "StoryPanelAt | undefined"
+        },
+        {
+          "name": "title",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "body",
+          "optional": false,
+          "signature": "string | readonly string[]"
+        },
+        {
+          "name": "details",
+          "optional": true,
+          "signature": "string | readonly string[] | undefined"
+        },
+        {
+          "name": "provenance",
+          "optional": false,
+          "signature": "Provenance"
+        },
+        {
+          "name": "object",
+          "optional": true,
+          "signature": "string | undefined"
+        },
+        {
+          "name": "camera",
+          "optional": true,
+          "signature": "CameraTarget | undefined"
+        },
+        {
+          "name": "select",
+          "optional": true,
+          "signature": "boolean | undefined"
+        },
+        {
+          "name": "trace",
+          "optional": true,
+          "signature": "true | SkyTraceOptions | undefined"
+        },
+        {
+          "name": "closeAfterSeconds",
+          "optional": true,
+          "signature": "number | undefined"
+        }
+      ]
+    },
+    "StoryPanelPlaybackInput": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "pauseSeconds",
+          "optional": true,
+          "signature": "number | undefined"
+        },
+        {
+          "name": "autoOpen",
+          "optional": true,
+          "signature": "boolean | undefined"
+        },
+        {
+          "name": "closeAfterSeconds",
+          "optional": true,
+          "signature": "number | undefined"
+        }
+      ]
+    },
+    "SwitchesInput": {
+      "kind": "type",
+      "signature": "{ readonly [id in DisplaySwitchId]?: { readonly place: DisplaySwitchPlace; readonly on?: boolean; readonly label?: string } }",
+      "constructors": [],
+      "members": []
+    },
+    "LookInput": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "starBrightness",
+          "optional": true,
+          "signature": "number | undefined"
+        },
+        {
+          "name": "milkyWay",
+          "optional": true,
+          "signature": "boolean | undefined"
+        },
+        {
+          "name": "milkyWayBrightness",
+          "optional": true,
+          "signature": "number | undefined"
+        },
+        {
+          "name": "skyVisible",
+          "optional": true,
+          "signature": "boolean | undefined"
+        },
+        {
+          "name": "sunGlow",
+          "optional": true,
+          "signature": "SunGlowLook | undefined"
+        },
+        {
+          "name": "markerSwapRadiusPx",
+          "optional": true,
+          "signature": "number | undefined"
+        },
+        {
+          "name": "featureMinBodyPx",
+          "optional": true,
+          "signature": "number | undefined"
+        },
+        {
+          "name": "loadFadeSeconds",
+          "optional": true,
+          "signature": "number | undefined"
+        },
+        {
+          "name": "skyFadeInSeconds",
+          "optional": true,
+          "signature": "number | undefined"
+        },
+        {
+          "name": "desktopPictures",
+          "optional": true,
+          "signature": "boolean | undefined"
+        },
+        {
+          "name": "skyLines",
+          "optional": true,
+          "signature": "SkyLinesLook | undefined"
+        },
+        {
+          "name": "labels",
+          "optional": true,
+          "signature": "LabelsLook | undefined"
+        },
+        {
+          "name": "time",
+          "optional": true,
+          "signature": "TimeLook | undefined"
+        },
+        {
+          "name": "sheetMaxPercent",
+          "optional": true,
+          "signature": "number | undefined"
+        },
+        {
+          "name": "interface",
+          "optional": true,
+          "signature": "InterfaceLook | undefined"
+        }
+      ]
+    },
+    "LookRead": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "starBrightness",
+          "optional": false,
+          "signature": "number"
+        },
+        {
+          "name": "milkyWay",
+          "optional": false,
+          "signature": "boolean"
+        },
+        {
+          "name": "milkyWayBrightness",
+          "optional": false,
+          "signature": "number"
+        },
+        {
+          "name": "skyVisible",
+          "optional": false,
+          "signature": "boolean"
+        },
+        {
+          "name": "sunGlow",
+          "optional": true,
+          "signature": "{ readonly sizePx: number; readonly brightness: number; readonly scale: number; } | undefined"
+        },
+        {
+          "name": "markerSwapRadiusPx",
+          "optional": false,
+          "signature": "number"
+        },
+        {
+          "name": "featureMinBodyPx",
+          "optional": false,
+          "signature": "number"
+        },
+        {
+          "name": "loadFadeSeconds",
+          "optional": false,
+          "signature": "number"
+        },
+        {
+          "name": "skyFadeInSeconds",
+          "optional": false,
+          "signature": "number"
+        },
+        {
+          "name": "desktopPictures",
+          "optional": false,
+          "signature": "boolean"
+        },
+        {
+          "name": "skyLines",
+          "optional": false,
+          "signature": "{ readonly figure: string; readonly label: string; readonly boundary: string; readonly ecliptic: string; readonly equator: string; readonly traced: string; readonly faded: string; readonly selected: string; }"
+        },
+        {
+          "name": "labels",
+          "optional": false,
+          "signature": "{ readonly fontFamily: string; readonly sizePx: number; }"
+        },
+        {
+          "name": "time",
+          "optional": false,
+          "signature": "Required<TimeLook>"
+        },
+        {
+          "name": "sheetMaxPercent",
+          "optional": false,
+          "signature": "number"
+        },
+        {
+          "name": "interface",
+          "optional": false,
+          "signature": "Required<InterfaceLook>"
+        }
+      ]
+    },
+    "SunGlowLook": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "sizePx",
+          "optional": true,
+          "signature": "number | undefined"
+        },
+        {
+          "name": "brightness",
+          "optional": true,
+          "signature": "number | undefined"
+        },
+        {
+          "name": "scale",
+          "optional": true,
+          "signature": "number | undefined"
+        }
+      ]
+    },
+    "SkyLinesLook": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "figure",
+          "optional": true,
+          "signature": "string | undefined"
+        },
+        {
+          "name": "label",
+          "optional": true,
+          "signature": "string | undefined"
+        },
+        {
+          "name": "boundary",
+          "optional": true,
+          "signature": "string | undefined"
+        },
+        {
+          "name": "ecliptic",
+          "optional": true,
+          "signature": "string | undefined"
+        },
+        {
+          "name": "equator",
+          "optional": true,
+          "signature": "string | undefined"
+        },
+        {
+          "name": "traced",
+          "optional": true,
+          "signature": "string | undefined"
+        },
+        {
+          "name": "faded",
+          "optional": true,
+          "signature": "string | undefined"
+        },
+        {
+          "name": "selected",
+          "optional": true,
+          "signature": "string | undefined"
+        }
+      ]
+    },
+    "LabelsLook": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "fontFamily",
+          "optional": true,
+          "signature": "string | undefined"
+        },
+        {
+          "name": "sizePx",
+          "optional": true,
+          "signature": "number | undefined"
+        }
+      ]
+    },
+    "TimeLook": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "zone",
+          "optional": true,
+          "signature": "string | undefined"
+        },
+        {
+          "name": "precision",
+          "optional": true,
+          "signature": "\"day\" | \"minute\" | \"second\" | undefined"
+        }
+      ]
+    },
+    "InterfaceLook": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "panel",
+          "optional": true,
+          "signature": "string | undefined"
+        },
+        {
+          "name": "text",
+          "optional": true,
+          "signature": "string | undefined"
+        },
+        {
+          "name": "muted",
+          "optional": true,
+          "signature": "string | undefined"
+        },
+        {
+          "name": "accent",
+          "optional": true,
+          "signature": "string | undefined"
+        },
+        {
+          "name": "border",
+          "optional": true,
+          "signature": "string | undefined"
+        },
+        {
+          "name": "data",
+          "optional": true,
+          "signature": "string | undefined"
+        },
+        {
+          "name": "fontFamily",
+          "optional": true,
+          "signature": "string | undefined"
+        },
+        {
+          "name": "textSizePx",
+          "optional": true,
+          "signature": "number | undefined"
+        },
+        {
+          "name": "radiusPx",
+          "optional": true,
+          "signature": "number | undefined"
+        },
+        {
+          "name": "motionMs",
+          "optional": true,
+          "signature": "number | undefined"
+        }
+      ]
+    },
+    "ViewsOptions": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "place",
+          "optional": false,
+          "signature": "\"top-bar\" | \"panel\""
+        },
+        {
+          "name": "start",
+          "optional": true,
+          "signature": "string | undefined"
+        }
+      ]
+    },
+    "ViewInput": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "id",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "label",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "shortLabel",
+          "optional": true,
+          "signature": "string | undefined"
+        },
+        {
+          "name": "objects",
+          "optional": true,
+          "signature": "readonly string[] | undefined"
+        },
+        {
+          "name": "events",
+          "optional": true,
+          "signature": "readonly string[] | undefined"
+        },
+        {
+          "name": "panels",
+          "optional": true,
+          "signature": "readonly string[] | undefined"
+        },
+        {
+          "name": "camera",
+          "optional": true,
+          "signature": "ViewCameraInput | undefined"
+        }
+      ]
+    },
+    "ViewCameraInput": {
+      "kind": "type",
+      "signature": "\"stay\" | \"start\" | { readonly follow: string; readonly always?: true } | { readonly focus: string; readonly always?: true }",
+      "constructors": [],
+      "members": []
+    },
+    "mount": {
+      "kind": "function",
+      "signature": "mount(element: HTMLElement, scene: Scene, options?: MountOptions): MountedScene",
+      "constructors": [],
+      "members": []
+    },
+    "MountOptions": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "data",
+          "optional": true,
+          "signature": "readonly DataSource[] | undefined"
+        },
+        {
+          "name": "onChange",
+          "optional": true,
+          "signature": "((change: ViewerChange) => void) | undefined"
+        },
+        {
+          "name": "address",
+          "optional": true,
+          "signature": "boolean | undefined"
+        },
+        {
+          "name": "developerTools",
+          "optional": true,
+          "signature": "boolean | undefined"
+        }
+      ]
+    },
+    "MountedScene": {
+      "kind": "interface",
+      "signature": "ViewerHandle",
+      "constructors": [],
+      "members": [
+        {
+          "name": "ready",
+          "optional": false,
+          "signature": "Promise<void>"
+        },
+        {
+          "name": "unmount",
+          "optional": false,
+          "signature": "(): void"
+        },
+        {
+          "name": "timeUtcMs",
+          "optional": false,
+          "signature": "number | undefined"
+        },
+        {
+          "name": "rate",
+          "optional": false,
+          "signature": "number | undefined"
+        },
+        {
+          "name": "playing",
+          "optional": false,
+          "signature": "boolean | undefined"
+        },
+        {
+          "name": "setPlaying",
+          "optional": false,
+          "signature": "(playing: boolean): void"
+        },
+        {
+          "name": "view",
+          "optional": false,
+          "signature": "string | undefined"
+        },
+        {
+          "name": "setTime",
+          "optional": false,
+          "signature": "(time: TimeInput): void"
+        },
+        {
+          "name": "setRate",
+          "optional": false,
+          "signature": "(rate: number | \"auto\"): void"
+        },
+        {
+          "name": "setView",
+          "optional": false,
+          "signature": "(id: string): void"
+        },
+        {
+          "name": "camera",
+          "optional": false,
+          "signature": "CameraPose | undefined"
+        },
+        {
+          "name": "setCamera",
+          "optional": false,
+          "signature": "(target: CameraTarget): void"
+        },
+        {
+          "name": "eventZones",
+          "optional": false,
+          "signature": "readonly string[] | undefined"
+        },
+        {
+          "name": "onEventZone",
+          "optional": false,
+          "signature": "(listener: (change: EventZoneChange) => void): () => void"
+        },
+        {
+          "name": "selected",
+          "optional": false,
+          "signature": "string | undefined"
+        },
+        {
+          "name": "setSelected",
+          "optional": false,
+          "signature": "(id: string | undefined): void"
+        },
+        {
+          "name": "onSelect",
+          "optional": false,
+          "signature": "(listener: (change: SelectionChange) => void): () => void"
+        },
+        {
+          "name": "panel",
+          "optional": false,
+          "signature": "string | undefined"
+        },
+        {
+          "name": "setPanel",
+          "optional": false,
+          "signature": "(id: string | undefined): void"
+        },
+        {
+          "name": "onPanel",
+          "optional": false,
+          "signature": "(listener: (change: PanelChange) => void): () => void"
+        },
+        {
+          "name": "onCameraChange",
+          "optional": false,
+          "signature": "(listener: (camera: CameraPose) => void): () => void"
+        },
+        {
+          "name": "look",
+          "optional": false,
+          "signature": "LookRead | undefined"
+        },
+        {
+          "name": "setLook",
+          "optional": false,
+          "signature": "(look: LookInput): void"
+        },
+        {
+          "name": "groupLook",
+          "optional": false,
+          "signature": "(id: string): GroupLookRead | undefined"
+        },
+        {
+          "name": "setGroupLook",
+          "optional": false,
+          "signature": "(id: string, look: GroupLookInput): void"
+        },
+        {
+          "name": "scale",
+          "optional": false,
+          "signature": "string | undefined"
+        },
+        {
+          "name": "setScale",
+          "optional": false,
+          "signature": "(id: string): void"
+        },
+        {
+          "name": "skyFigures",
+          "optional": false,
+          "signature": "readonly SceneSkyFigureRead[] | undefined"
+        },
+        {
+          "name": "traceSkyFigure",
+          "optional": false,
+          "signature": "(id: string, options?: SkyTraceOptions): void"
+        },
+        {
+          "name": "clearSkyTrace",
+          "optional": false,
+          "signature": "(id: string, options?: SkyClearOptions): void"
+        },
+        {
+          "name": "switches",
+          "optional": false,
+          "signature": "Readonly<Record<string, boolean>> | undefined"
+        },
+        {
+          "name": "setSwitch",
+          "optional": false,
+          "signature": "(id: string, on: boolean): void"
+        },
+        {
+          "name": "onFirstDraw",
+          "optional": false,
+          "signature": "(listener: () => void): () => void"
+        },
+        {
+          "name": "pick",
+          "optional": false,
+          "signature": "string | undefined"
+        },
+        {
+          "name": "setPick",
+          "optional": false,
+          "signature": "(value: string): void"
+        },
+        {
+          "name": "onPick",
+          "optional": false,
+          "signature": "(listener: (change: PickChange) => void): () => void"
+        },
+        {
+          "name": "about",
+          "optional": false,
+          "signature": "AboutInput | undefined"
+        },
+        {
+          "name": "setAbout",
+          "optional": false,
+          "signature": "(about: AboutInput): void"
+        },
+        {
+          "name": "part",
+          "optional": false,
+          "signature": "<P extends AnyPart>(part: P): ControlFor<P>"
+        },
+        {
+          "name": "onChange",
+          "optional": false,
+          "signature": "(listener: (change: ViewerChange) => void): () => void"
+        }
+      ]
+    },
+    "ViewerHandle": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "timeUtcMs",
+          "optional": false,
+          "signature": "number | undefined"
+        },
+        {
+          "name": "rate",
+          "optional": false,
+          "signature": "number | undefined"
+        },
+        {
+          "name": "playing",
+          "optional": false,
+          "signature": "boolean | undefined"
+        },
+        {
+          "name": "setPlaying",
+          "optional": false,
+          "signature": "(playing: boolean): void"
+        },
+        {
+          "name": "view",
+          "optional": false,
+          "signature": "string | undefined"
+        },
+        {
+          "name": "setTime",
+          "optional": false,
+          "signature": "(time: TimeInput): void"
+        },
+        {
+          "name": "setRate",
+          "optional": false,
+          "signature": "(rate: number | \"auto\"): void"
+        },
+        {
+          "name": "setView",
+          "optional": false,
+          "signature": "(id: string): void"
+        },
+        {
+          "name": "camera",
+          "optional": false,
+          "signature": "CameraPose | undefined"
+        },
+        {
+          "name": "setCamera",
+          "optional": false,
+          "signature": "(target: CameraTarget): void"
+        },
+        {
+          "name": "eventZones",
+          "optional": false,
+          "signature": "readonly string[] | undefined"
+        },
+        {
+          "name": "onEventZone",
+          "optional": false,
+          "signature": "(listener: (change: EventZoneChange) => void): () => void"
+        },
+        {
+          "name": "selected",
+          "optional": false,
+          "signature": "string | undefined"
+        },
+        {
+          "name": "setSelected",
+          "optional": false,
+          "signature": "(id: string | undefined): void"
+        },
+        {
+          "name": "onSelect",
+          "optional": false,
+          "signature": "(listener: (change: SelectionChange) => void): () => void"
+        },
+        {
+          "name": "panel",
+          "optional": false,
+          "signature": "string | undefined"
+        },
+        {
+          "name": "setPanel",
+          "optional": false,
+          "signature": "(id: string | undefined): void"
+        },
+        {
+          "name": "onPanel",
+          "optional": false,
+          "signature": "(listener: (change: PanelChange) => void): () => void"
+        },
+        {
+          "name": "onCameraChange",
+          "optional": false,
+          "signature": "(listener: (camera: CameraPose) => void): () => void"
+        },
+        {
+          "name": "look",
+          "optional": false,
+          "signature": "LookRead | undefined"
+        },
+        {
+          "name": "setLook",
+          "optional": false,
+          "signature": "(look: LookInput): void"
+        },
+        {
+          "name": "groupLook",
+          "optional": false,
+          "signature": "(id: string): GroupLookRead | undefined"
+        },
+        {
+          "name": "setGroupLook",
+          "optional": false,
+          "signature": "(id: string, look: GroupLookInput): void"
+        },
+        {
+          "name": "scale",
+          "optional": false,
+          "signature": "string | undefined"
+        },
+        {
+          "name": "setScale",
+          "optional": false,
+          "signature": "(id: string): void"
+        },
+        {
+          "name": "skyFigures",
+          "optional": false,
+          "signature": "readonly SceneSkyFigureRead[] | undefined"
+        },
+        {
+          "name": "traceSkyFigure",
+          "optional": false,
+          "signature": "(id: string, options?: SkyTraceOptions): void"
+        },
+        {
+          "name": "clearSkyTrace",
+          "optional": false,
+          "signature": "(id: string, options?: SkyClearOptions): void"
+        },
+        {
+          "name": "switches",
+          "optional": false,
+          "signature": "Readonly<Record<string, boolean>> | undefined"
+        },
+        {
+          "name": "setSwitch",
+          "optional": false,
+          "signature": "(id: string, on: boolean): void"
+        },
+        {
+          "name": "onFirstDraw",
+          "optional": false,
+          "signature": "(listener: () => void): () => void"
+        },
+        {
+          "name": "pick",
+          "optional": false,
+          "signature": "string | undefined"
+        },
+        {
+          "name": "setPick",
+          "optional": false,
+          "signature": "(value: string): void"
+        },
+        {
+          "name": "onPick",
+          "optional": false,
+          "signature": "(listener: (change: PickChange) => void): () => void"
+        },
+        {
+          "name": "about",
+          "optional": false,
+          "signature": "AboutInput | undefined"
+        },
+        {
+          "name": "setAbout",
+          "optional": false,
+          "signature": "(about: AboutInput): void"
+        },
+        {
+          "name": "part",
+          "optional": false,
+          "signature": "<P extends AnyPart>(part: P): ControlFor<P>"
+        },
+        {
+          "name": "onChange",
+          "optional": false,
+          "signature": "(listener: (change: ViewerChange) => void): () => void"
+        }
+      ]
+    },
+    "AstraeusScene": {
+      "kind": "function",
+      "signature": "AstraeusScene({ ref, scene, data, onReady, onError, time, rate, view, camera, onChange, onEventZone, onPick, onFirstDraw, address, developerTools, className, style }: AstraeusSceneProps): ReactElement",
+      "constructors": [],
+      "members": []
+    },
+    "AstraeusSceneProps": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "scene",
+          "optional": false,
+          "signature": "Scene"
+        },
+        {
+          "name": "data",
+          "optional": true,
+          "signature": "readonly DataSource[] | undefined"
+        },
+        {
+          "name": "ref",
+          "optional": true,
+          "signature": "Ref<ViewerHandle> | undefined"
+        },
+        {
+          "name": "onReady",
+          "optional": true,
+          "signature": "((handle: ViewerHandle) => void) | undefined"
+        },
+        {
+          "name": "onError",
+          "optional": true,
+          "signature": "((error: Error) => void) | undefined"
+        },
+        {
+          "name": "time",
+          "optional": true,
+          "signature": "TimeInput | undefined"
+        },
+        {
+          "name": "rate",
+          "optional": true,
+          "signature": "number | \"auto\" | undefined"
+        },
+        {
+          "name": "view",
+          "optional": true,
+          "signature": "string | undefined"
+        },
+        {
+          "name": "camera",
+          "optional": true,
+          "signature": "CameraTarget | undefined"
+        },
+        {
+          "name": "onChange",
+          "optional": true,
+          "signature": "((change: ViewerChange) => void) | undefined"
+        },
+        {
+          "name": "onEventZone",
+          "optional": true,
+          "signature": "((change: EventZoneChange) => void) | undefined"
+        },
+        {
+          "name": "onPick",
+          "optional": true,
+          "signature": "((change: PickChange) => void) | undefined"
+        },
+        {
+          "name": "onFirstDraw",
+          "optional": true,
+          "signature": "(() => void) | undefined"
+        },
+        {
+          "name": "address",
+          "optional": true,
+          "signature": "boolean | undefined"
+        },
+        {
+          "name": "developerTools",
+          "optional": true,
+          "signature": "boolean | undefined"
+        },
+        {
+          "name": "className",
+          "optional": true,
+          "signature": "string | undefined"
+        },
+        {
+          "name": "style",
+          "optional": true,
+          "signature": "CSSProperties | undefined"
+        }
+      ]
+    },
+    "SelectionChange": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "object",
+          "optional": true,
+          "signature": "string | undefined"
+        },
+        {
+          "name": "timeUtcMs",
+          "optional": false,
+          "signature": "number"
+        },
+        {
+          "name": "cause",
+          "optional": false,
+          "signature": "ViewerChangeCause"
+        }
+      ]
+    },
+    "PanelChange": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "panel",
+          "optional": true,
+          "signature": "string | undefined"
+        },
+        {
+          "name": "timeUtcMs",
+          "optional": false,
+          "signature": "number"
+        },
+        {
+          "name": "cause",
+          "optional": false,
+          "signature": "ViewerChangeCause"
+        }
+      ]
+    },
+    "ViewerChange": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "timeUtcMs",
+          "optional": false,
+          "signature": "number"
+        },
+        {
+          "name": "rate",
+          "optional": false,
+          "signature": "number"
+        },
+        {
+          "name": "playing",
+          "optional": false,
+          "signature": "boolean"
+        },
+        {
+          "name": "view",
+          "optional": true,
+          "signature": "string | undefined"
+        },
+        {
+          "name": "scale",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "look",
+          "optional": false,
+          "signature": "LookRead"
+        },
+        {
+          "name": "switches",
+          "optional": true,
+          "signature": "Readonly<Record<string, boolean>> | undefined"
+        },
+        {
+          "name": "cause",
+          "optional": false,
+          "signature": "ViewerChangeCause"
+        }
+      ]
+    },
+    "EventZoneChange": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "event",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "type",
+          "optional": true,
+          "signature": "string | undefined"
+        },
+        {
+          "name": "object",
+          "optional": true,
+          "signature": "string | undefined"
+        },
+        {
+          "name": "entered",
+          "optional": false,
+          "signature": "boolean"
+        },
+        {
+          "name": "timeUtcMs",
+          "optional": false,
+          "signature": "number"
+        },
+        {
+          "name": "cause",
+          "optional": false,
+          "signature": "ViewerChangeCause"
+        },
+        {
+          "name": "via",
+          "optional": false,
+          "signature": "\"time\" | \"view\""
+        }
+      ]
+    },
+    "CameraPose": {
+      "kind": "type",
+      "signature": "OrbitPose | SkyPose",
+      "constructors": [],
+      "members": []
+    },
+    "OrbitPose": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "focus",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "azimuthDeg",
+          "optional": false,
+          "signature": "number"
+        },
+        {
+          "name": "elevationDeg",
+          "optional": false,
+          "signature": "number"
+        },
+        {
+          "name": "distance",
+          "optional": false,
+          "signature": "number"
+        }
+      ]
+    },
+    "SkyPose": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "lookOut",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "raDeg",
+          "optional": false,
+          "signature": "number"
+        },
+        {
+          "name": "decDeg",
+          "optional": false,
+          "signature": "number"
+        },
+        {
+          "name": "fovDeg",
+          "optional": false,
+          "signature": "number"
+        }
+      ]
+    },
+    "SkyDirection": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "raDeg",
+          "optional": false,
+          "signature": "number"
+        },
+        {
+          "name": "decDeg",
+          "optional": false,
+          "signature": "number"
+        }
+      ]
+    },
+    "LookOutTarget": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "lookOut",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "direction",
+          "optional": true,
+          "signature": "string | SkyDirection | undefined"
+        },
+        {
+          "name": "fovDeg",
+          "optional": true,
+          "signature": "number | undefined"
+        }
+      ]
+    },
+    "CameraTarget": {
+      "kind": "type",
+      "signature": "{ readonly follow: string } | { readonly focus: string } | LookOutTarget | CameraPose",
+      "constructors": [],
+      "members": []
+    },
+    "SceneError": {
+      "kind": "class",
+      "signature": "",
+      "constructors": [
+        "(code: SceneErrorCode, message: string)"
+      ],
+      "members": [
+        {
+          "name": "code",
+          "optional": false,
+          "signature": "SceneErrorCode"
+        }
+      ]
+    },
+    "SceneErrorCode": {
+      "kind": "type",
+      "signature": "| \"unknown-body\" /** An id is already used in the scene, so the new body, path, group, orbit line, activity, event or story panel cannot take it. */ | \"duplicate-id\" /** A moment is not a valid or whole time, or lies outside the span it must fall in. */ | \"bad-time\" /** A path (`addTrajectory`) is malformed: its id, provider, bounds, plane, spans or line stretches. */ | \"bad-trajectory\" /** A data package passed to the viewer is malformed, for example moon positions that name a planet without a moon system. */ | \"bad-data\" /** The scale is not one of the engine's scales, or does not suit this scene. */ | \"bad-scale\" /** Position data a body needs was not given to the viewer: pass its data package. */ | \"missing-data\" /** The viewer is not drawn yet, or has been unmounted: a handle call before `ready` or after `unmount`. */ | \"not-mounted\" /** The timeline reaches outside the years a body's data package covers. */ | \"out-of-span\" /** The scene was edited after a viewer took it; build a new scene instead. */ | \"scene-mounted\" /** The scene has no bodies to show. */ | \"empty-scene\" /** An orbital-elements record, or the element to mount into, is malformed. */ | \"bad-element\" /** An orbit line was asked for a body whose data give no closed orbit, or about a body not in the scene. */ | \"no-orbit\" /** A path anchor is malformed, repeated or outside the path. */ | \"bad-anchor\" /** A readout is of an unknown kind, or lacks or misnames the body or activity it measures. */ | \"bad-readout\" /** An event is malformed or names an object that is not in the scene. */ | \"bad-event\" /** The story panels are malformed. */ | \"bad-panels\" /** The timeline, its pacing or its speeds are malformed, or a call needs pacing the scene lacks. */ | \"bad-timeline\" /** A display switch is unknown or malformed. */ | \"bad-switch\" /** An option of `addBody` is malformed. */ | \"bad-body\" /** A point group is malformed or refers to a body that is not in the scene. */ | \"bad-group\" /** A body set (`addBodySet`) is malformed, or names a centre, moon, body or balance point the scene cannot draw it with. */ | \"bad-body-set\" /** The moon panel (`setMoonPanel`) is malformed, or names a moon the scene does not hold. */ | \"bad-moon-panel\" /** The picker (`setPicker`, `setPick`) is malformed, or a pick names an option it does not have. */ | \"bad-picker\" /** A body's places (`addPlaces`) are malformed, or name a body the scene does not hold. */ | \"bad-places\" /** A sky figure (`addSkyFigures`) is malformed: its id, label, kind, segments, points or label position. */ | \"bad-sky-figure\" /** `traceSkyFigure` or `clearSkyTrace` was given a figure id the viewer does not draw (see `handle.skyFigures`). */ | \"unknown-sky-figure\" /** `traceSkyFigure` was given options that are not `{ durationSeconds?, after? }`, a `durationSeconds` outside 0.1 to 60, or an `after` other than `stay` or `fade`; or `clearSkyTrace` was given options that are not `{ durationSeconds? }` or a `durationSeconds` outside 0 to 60. */ | \"bad-sky-trace\" /** A sky figure names a star whose Hipparcos number is not in the engine's star list (stars of magnitude 6.5 or brighter). Found when the scene is built, as the star list loads then. */ | \"unknown-star\" /** An activity curve is malformed. */ | \"bad-activity\" /** A camera call or pose is malformed, or names an object the view cannot show. */ | \"bad-camera\" /** A scene view is malformed, repeated, or not one of the scene's views. */ | \"bad-view\" /** `setSelected` was given something other than an id of an object the showing view shows, a sky figure, or `undefined`. */ | \"bad-selection\" /** A look (`setLook`) is unknown or out of its range. */ | \"bad-look\" /** The About (`setAbout`) is malformed; the message names the field. */ | \"bad-about\" /** A shelf part is malformed: a shelf factory (`panel`, `customBlock`, `explainer`, `actions`, `filterChips`, `colourKey`, `chart`, `readoutTile`) or a part control's setter given a bad value, `addParts` given a value no factory made, an action's camera naming what the scene lacks (at build), or `handle.part` given a part this viewer's scene does not hold. The message names the field. */ | \"bad-part\" /** An input field was given under a name it no longer has; the message names the old field and its replacement. */ | \"renamed\"",
+      "constructors": [],
+      "members": []
+    },
+    "sun": {
+      "kind": "const",
+      "signature": "BodyRef",
+      "constructors": [],
+      "members": []
+    },
+    "mercury": {
+      "kind": "const",
+      "signature": "BodyRef",
+      "constructors": [],
+      "members": []
+    },
+    "venus": {
+      "kind": "const",
+      "signature": "BodyRef",
+      "constructors": [],
+      "members": []
+    },
+    "earth": {
+      "kind": "const",
+      "signature": "BodyRef",
+      "constructors": [],
+      "members": []
+    },
+    "moon": {
+      "kind": "const",
+      "signature": "BodyRef",
+      "constructors": [],
+      "members": []
+    },
+    "mars": {
+      "kind": "const",
+      "signature": "BodyRef",
+      "constructors": [],
+      "members": []
+    },
+    "jupiter": {
+      "kind": "const",
+      "signature": "BodyRef",
+      "constructors": [],
+      "members": []
+    },
+    "saturn": {
+      "kind": "const",
+      "signature": "BodyRef",
+      "constructors": [],
+      "members": []
+    },
+    "uranus": {
+      "kind": "const",
+      "signature": "BodyRef",
+      "constructors": [],
+      "members": []
+    },
+    "neptune": {
+      "kind": "const",
+      "signature": "BodyRef",
+      "constructors": [],
+      "members": []
+    },
+    "pluto": {
+      "kind": "const",
+      "signature": "BodyRef",
+      "constructors": [],
+      "members": []
+    },
+    "io": {
+      "kind": "const",
+      "signature": "BodyRef",
+      "constructors": [],
+      "members": []
+    },
+    "europa": {
+      "kind": "const",
+      "signature": "BodyRef",
+      "constructors": [],
+      "members": []
+    },
+    "ganymede": {
+      "kind": "const",
+      "signature": "BodyRef",
+      "constructors": [],
+      "members": []
+    },
+    "callisto": {
+      "kind": "const",
+      "signature": "BodyRef",
+      "constructors": [],
+      "members": []
+    },
+    "mimas": {
+      "kind": "const",
+      "signature": "BodyRef",
+      "constructors": [],
+      "members": []
+    },
+    "enceladus": {
+      "kind": "const",
+      "signature": "BodyRef",
+      "constructors": [],
+      "members": []
+    },
+    "tethys": {
+      "kind": "const",
+      "signature": "BodyRef",
+      "constructors": [],
+      "members": []
+    },
+    "dione": {
+      "kind": "const",
+      "signature": "BodyRef",
+      "constructors": [],
+      "members": []
+    },
+    "rhea": {
+      "kind": "const",
+      "signature": "BodyRef",
+      "constructors": [],
+      "members": []
+    },
+    "titan": {
+      "kind": "const",
+      "signature": "BodyRef",
+      "constructors": [],
+      "members": []
+    },
+    "iapetus": {
+      "kind": "const",
+      "signature": "BodyRef",
+      "constructors": [],
+      "members": []
+    },
+    "triton": {
+      "kind": "const",
+      "signature": "BodyRef",
+      "constructors": [],
+      "members": []
+    },
+    "charon": {
+      "kind": "const",
+      "signature": "BodyRef",
+      "constructors": [],
+      "members": []
+    },
+    "phobos": {
+      "kind": "const",
+      "signature": "BodyRef",
+      "constructors": [],
+      "members": []
+    },
+    "deimos": {
+      "kind": "const",
+      "signature": "BodyRef",
+      "constructors": [],
+      "members": []
+    },
+    "listedMoons": {
+      "kind": "function",
+      "signature": "listedMoons(planet?: BodyId): readonly BodyRef[]",
+      "constructors": [],
+      "members": []
+    },
+    "BodyRef": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "id",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "label",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "requires",
+          "optional": true,
+          "signature": "string | undefined"
+        }
+      ]
+    },
+    "trueScale": {
+      "kind": "const",
+      "signature": "ScalePolicy",
+      "constructors": [],
+      "members": []
+    },
+    "readableScale": {
+      "kind": "const",
+      "signature": "ScalePolicy",
+      "constructors": [],
+      "members": []
+    },
+    "solarSystemScale": {
+      "kind": "const",
+      "signature": "SolarSystemScalePolicy",
+      "constructors": [],
+      "members": []
+    },
+    "ScalePolicy": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "id",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "mapPosition",
+          "optional": false,
+          "signature": "(positionKm: ArrayLike<number>): Float64Array"
+        },
+        {
+          "name": "linearUnitsPerKm",
+          "optional": true,
+          "signature": "number | undefined"
+        },
+        {
+          "name": "mapRadius",
+          "optional": false,
+          "signature": "(radiusKm: number, bodyId?: BodyId): number"
+        }
+      ]
+    },
+    "SolarSystemScalePolicy": {
+      "kind": "interface",
+      "signature": "ScalePolicy",
+      "constructors": [],
+      "members": [
+        {
+          "name": "id",
+          "optional": false,
+          "signature": "\"solar-system\""
+        },
+        {
+          "name": "factorFor",
+          "optional": false,
+          "signature": "(bodyId?: BodyId): number"
+        },
+        {
+          "name": "explanation",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "mapPosition",
+          "optional": false,
+          "signature": "(positionKm: ArrayLike<number>): Float64Array"
+        },
+        {
+          "name": "linearUnitsPerKm",
+          "optional": true,
+          "signature": "number | undefined"
+        },
+        {
+          "name": "mapRadius",
+          "optional": false,
+          "signature": "(radiusKm: number, bodyId?: BodyId): number"
+        }
+      ]
+    },
+    "State": {
+      "kind": "interface",
+      "signature": "CenteredPosition",
+      "constructors": [],
+      "members": [
+        {
+          "name": "orientation",
+          "optional": false,
+          "signature": "Quaternion | null"
+        },
+        {
+          "name": "body",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "center",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "timeUtcMs",
+          "optional": false,
+          "signature": "number"
+        },
+        {
+          "name": "plane",
+          "optional": false,
+          "signature": "\"EQJ\""
+        },
+        {
+          "name": "positionKm",
+          "optional": false,
+          "signature": "Float64Array<ArrayBufferLike>"
+        },
+        {
+          "name": "velocityKmS",
+          "optional": true,
+          "signature": "Float64Array<ArrayBufferLike> | undefined"
+        }
+      ]
+    },
+    "CenteredPosition": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "body",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "center",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "timeUtcMs",
+          "optional": false,
+          "signature": "number"
+        },
+        {
+          "name": "plane",
+          "optional": false,
+          "signature": "\"EQJ\""
+        },
+        {
+          "name": "positionKm",
+          "optional": false,
+          "signature": "Float64Array<ArrayBufferLike>"
+        },
+        {
+          "name": "velocityKmS",
+          "optional": true,
+          "signature": "Float64Array<ArrayBufferLike> | undefined"
+        }
+      ]
+    },
+    "FrameId": {
+      "kind": "type",
+      "signature": "typeof EQJ",
+      "constructors": [],
+      "members": []
+    },
+    "Quaternion": {
+      "kind": "type",
+      "signature": "readonly [x: number, y: number, z: number, w: number]",
+      "constructors": [],
+      "members": []
+    },
+    "Provenance": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "sourceType",
+          "optional": false,
+          "signature": "ProvenanceSourceType"
+        },
+        {
+          "name": "sources",
+          "optional": false,
+          "signature": "readonly string[]"
+        },
+        {
+          "name": "accuracy",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "notes",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "accuracyClass",
+          "optional": true,
+          "signature": "\"approximate\" | \"indicative\" | undefined"
+        },
+        {
+          "name": "maxErrorFraction",
+          "optional": true,
+          "signature": "number | undefined"
+        }
+      ]
+    },
+    "ProvenanceSourceType": {
+      "kind": "type",
+      "signature": "\"ephemeris\" | \"observed\" | \"reconstructed\" | \"modelled\" | \"illustrative\"",
+      "constructors": [],
+      "members": []
+    },
+    "Pictures": {
+      "kind": "type",
+      "signature": "Readonly<Record<string, TextureRef>>",
+      "constructors": [],
+      "members": []
+    },
+    "AssetLicence": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "source",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "url",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "licence",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "attribution",
+          "optional": true,
+          "signature": "string | undefined"
+        },
+        {
+          "name": "accessed",
+          "optional": false,
+          "signature": "string"
+        }
+      ]
+    },
+    "TextureRef": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "url",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "widthPx",
+          "optional": false,
+          "signature": "number"
+        },
+        {
+          "name": "heightPx",
+          "optional": false,
+          "signature": "number"
+        },
+        {
+          "name": "desktop",
+          "optional": true,
+          "signature": "{ readonly url: string; readonly widthPx: number; readonly heightPx: number; readonly minViewportWidthPx: number; } | undefined"
+        },
+        {
+          "name": "licence",
+          "optional": true,
+          "signature": "AssetLicence | undefined"
+        },
+        {
+          "name": "localOnly",
+          "optional": true,
+          "signature": "LocalOnlyDeclaration | undefined"
+        }
+      ]
+    },
+    "LocalOnlyDeclaration": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "reason",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "publicReplacement",
+          "optional": false,
+          "signature": "PublicReplacement"
+        }
+      ]
+    },
+    "PublicReplacement": {
+      "kind": "type",
+      "signature": "\"material-colour\" | { readonly url: string; readonly licence: AssetLicence }",
+      "constructors": [],
+      "members": []
+    },
+    "APPROXIMATE_LIMIT_FRACTION": {
+      "kind": "const",
+      "signature": "0.01",
+      "constructors": [],
+      "members": []
+    },
+    "INDICATIVE_LIMIT_FRACTION": {
+      "kind": "const",
+      "signature": "0.05",
+      "constructors": [],
+      "members": []
+    },
+    "classifyPositionError": {
+      "kind": "function",
+      "signature": "classifyPositionError(maxFraction: number): AccuracyClassification | null",
+      "constructors": [],
+      "members": []
+    },
+    "parseElementsBodyRecord": {
+      "kind": "function",
+      "signature": "parseElementsBodyRecord(input: unknown, path?: string): ElementsBodyRecord",
+      "constructors": [],
+      "members": []
+    },
+    "AccuracyClassification": {
+      "kind": "type",
+      "signature": "\"approximate\" | \"indicative\"",
+      "constructors": [],
+      "members": []
+    },
+    "ElementsSource": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "name",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "url",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "solution",
+          "optional": false,
+          "signature": "string"
+        },
+        {
+          "name": "accessed",
+          "optional": false,
+          "signature": "string"
+        }
+      ]
+    },
+    "ElementsTimeScale": {
+      "kind": "type",
+      "signature": "\"TDB\" | \"TT\" | \"UTC\"",
+      "constructors": [],
+      "members": []
+    },
+    "BodyId": {
+      "kind": "type",
+      "signature": "string",
+      "constructors": [],
+      "members": []
+    },
+    "CenterId": {
+      "kind": "type",
+      "signature": "BodyId",
+      "constructors": [],
+      "members": []
+    },
+    "DisplaySwitchId": {
+      "kind": "type",
+      "signature": "(typeof DISPLAY_SWITCH_IDS)[number]",
+      "constructors": [],
+      "members": []
+    },
+    "DisplaySwitchPlace": {
+      "kind": "type",
+      "signature": "(typeof DISPLAY_SWITCH_PLACES)[number]",
+      "constructors": [],
+      "members": []
+    },
+    "ViewPlace": {
+      "kind": "type",
+      "signature": "(typeof VIEW_PLACES)[number]",
+      "constructors": [],
+      "members": []
+    },
+    "ViewerChangeCause": {
+      "kind": "type",
+      "signature": "\"playback\" | \"visitor\" | \"host\"",
+      "constructors": [],
+      "members": []
+    },
+    "LineStretchInput": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "start",
+          "optional": false,
+          "signature": "TimeInput"
+        },
+        {
+          "name": "end",
+          "optional": false,
+          "signature": "TimeInput"
+        },
+        {
+          "name": "body",
+          "optional": false,
+          "signature": "string"
+        }
+      ]
+    }
+  }
+}

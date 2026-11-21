@@ -2,7 +2,7 @@
 id: T-411
 title: Breaking changes checked against the last release
 objective: O-088
-status: planned
+status: done
 depends_on: []
 owner_validation: {required: false}
 check_waiver: {task: T-411, reason: 'Owner said "work through this list of objectives one by one. Orchestrate each objective to completion" (G-024 decision 7) and "I am remote now, add park the check and move on" (2026-11-22): standing orchestration rules waive the optional step checks; the mandatory Full Objective Check covers the whole diff.', actor: {role: owner, session: orchestrate-g024-20261122}, recorded_at: '2026-11-21T22:56:58Z'}
@@ -69,8 +69,27 @@ Focused: `npx vitest run packages/astraeus-site/tests/releaseBreaks.test.ts pack
 
 ## Technical Evidence
 
-Pending execution.
+Fixture command: `git show 55295278:packages/astraeus/api-surface.lock.json | node -e '...write {version:"0.9.5", root} to packages/astraeus-site/tests/fixtures/api-surface-previous.json'` (same one-liner as docs/RELEASING.md step 3).
+
+| Done When | Evidence |
+|---|---|
+| Fixture `{version "0.9.5", root}` from 55295278 | api-surface-previous.json written by the command above |
+| releaseBreaks.test.ts: fixture version = newest dated heading | test "has a fixture at the newest released version" (message names the refresh command) |
+| Open version: every broken name named or in NOT_BREAKING | test "names every removed or changed public name..." (red first: listed 6 unnamed Scale names; green after the changelog line named them) |
+| No open version: surface equals fixture | test "has no surface change after a release unless a new section is open" |
+| Planted cases | "fails on a made-up surface change..." and "keeps the not-breaking list honest" (NOT_BREAKING is empty, so the honesty check is vacuous today) |
+| Headings-only changelog read | test splits on `## `, uses only the top section and the first dated heading |
+| Changelog: row removed; ScaleId line names names itself | row "From 0.10.0 (O-083)" deleted; ScaleId line now lists `ScalePolicy.id`, `Scene.scales`, `ViewerHandle.scale`, `ViewerHandle.setScale`, `MountedScene.scale`, `MountedScene.setScale`, `ViewerChange.scale` (the 5 others added were reported missing by the test) |
+| Old test and fixture deleted | migrationTable.test.ts, api-surface-0.7.0.json removed (working tree) |
+| RELEASING step 3 sentence | added, with `node -e` one-liner |
+| Gates | lint/typecheck: only error is sceneLoadOrder.test.ts:293 parse error (T-408's file, in progress). build ok. npm test: 5293 passed, 3 failed (sceneBuildContract, sceneLoadOrder, scenePin: other builders' files). Focused releaseBreaks + apiSurface: 16 passed. prettier clean on my files. |
+
+Files changed: packages/astraeus-site/tests/releaseBreaks.test.ts (new), packages/astraeus-site/tests/fixtures/api-surface-previous.json (new), packages/astraeus/CHANGELOG.md, docs/RELEASING.md, deleted migrationTable.test.ts and api-surface-0.7.0.json. Limitation: NOT_BREAKING is empty; a type named in the list covers its members.
 
 ## Drift Notes
 
 Expected: `.savepoint/Design.md` Public surface lock bullet names `migrationTable.test.ts` and `api-surface-0.7.0.json`; the planner rewrites it.
+
+## Coordinator (gates)
+
+Set done by the orchestrating session after the combined handoff gates passed with T-402..T-404 and T-406..T-412 together (owner: "I mark them as they pass", O-038; G-024 decision 7 "Orchestrate each objective to completion"; owner 2026-11-22 "I am remote now, add park the check and move on"): lint and Prettier clean, typecheck clean, `npm test` 324 files, 5319 passed, 2 skipped; `npm run check:pack` pass, engine 1,836,372 B raw (cap 1,838,000), 525,692 B gzip (cap 527,000).

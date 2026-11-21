@@ -35,7 +35,7 @@ Each line is a change a host written for 0.9.5 can notice, with the one-line mig
 - `scene.stateOf` throws `out-of-span` (and `bad-time` outside a loaded window) where it threw a raw error. Branch on `error.code`, not on the error class.
 - New codes `bad-scene` and `too-many-bodies`, and `bad-data` now also covers a data package that cannot be read. A `switch` over `SceneErrorCode` needs the new cases; a scene with more than 30 lit bodies now fails at `check`/`mount`, so draw the extras as markers or drop them.
 - `bad-view`, `bad-trajectory` and `bad-element` now cover inputs that used to throw a raw `TypeError` or other error. Catch `SceneError` and branch on `code`.
-- `ScaleId` closes the scale types (see the migration table, `ScalePolicy.id`). Pass one of the three ids; a `string` variable needs a check or a cast.
+- `ScaleId` closes the scale types: `ScalePolicy.id`, `Scene.scales`, `ViewerHandle.scale`, `ViewerHandle.setScale`, `MountedScene.scale`, `MountedScene.setScale` and `ViewerChange.scale` were `string` and are now `ScaleId`. Pass one of the three ids (`"true-scale"`, `"readable-scale"`, `"solar-system"`); a `string` variable needs a check or a cast.
 - `AstraeusScene` without `onError` logs errors to `console.error`. Pass `onError` to handle or silence them.
 - The orientation label of 13 moons changes from `tidal-lock` to `iau-rotation`, and the card's limits change for them and for the planets and the Moon (position limits first). Do not match on the old sentences; read `orientation` and `knownLimitations`.
 - A composed state may now carry `velocityKmS` where it carried none. Check it before use, as before.
@@ -279,7 +279,6 @@ This one table lists every change an app built on 0.7.0 must act on, from O-053 
 | behaviour | A pacing `near` rule slowed every view | It slows only at the showing view's events | Add the events to each view that should slow. A scene without views is unchanged. |
 | behaviour | A throwing listener stopped the rest | The rest run; the error goes to `reportError` | Remove any `try`/`catch` kept only to protect other listeners. |
 | behaviour | `astraeus-data*` peers took any `0.x` engine | Each peers on the engine's own minor | Install every `astraeus-data*` package at the engine's version. |
-| changed | `ScalePolicy.id` (`string`) | `ScalePolicy.id` (`ScaleId`) | From 0.10.0 (O-083): a custom scale policy typed with another id no longer compiles; use one of `"true-scale"`, `"readable-scale"` or `"solar-system"`. `setScale` already refused any other id with `bad-scale`. |
 
 `EventZoneChange` is new since 0.7.0 and carries `timeUtcMs` from the start, as do `SelectionChange` and the reads; the step entries list everything else that is new, none of which needs action.
 
