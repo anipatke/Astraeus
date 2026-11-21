@@ -21,7 +21,7 @@ import { drawn } from "./domSetup";
 (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
 
 const SRC = join(process.cwd(), "packages", "astraeus", "src");
-const SHEETS = ["shell/look/look.css", "shell/areas/areas.css", "app/style.css", "shell/controls.css", "shell/style.css", "shell/phone.css", "shell/embedded.css", "shell/TopBar.css", "shell/TimelineBar.css"];
+const SHEETS = ["shell/look/look.css", "shell/areas/areas.css", "app/style.css", "shell/parts/controls.css", "shell/parts/parts.css", "shell/parts/phone.css", "shell/parts/embedded.css", "shell/bar/bar.css", "shell/parts/timeline/timeline.css"];
 const HOST_CSS = "body { font-family: Georgia, serif; color: rgb(10, 20, 30); } button { border: 3px dotted rgb(1, 2, 3); padding: 7px; }";
 const PROPS = ["font-family", "color", "background-color", "margin-top", "position", "overflow", "height", "color-scheme", "border-top-width", "padding-top", "font-size"];
 

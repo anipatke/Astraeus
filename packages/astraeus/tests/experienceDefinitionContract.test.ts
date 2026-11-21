@@ -30,10 +30,10 @@ const genericWindowFiles = [
   "../src/shell/metrics.ts",
   "../src/shell/experience.ts",
   "../src/shell/AstraeusShell.tsx",
-  "../src/shell/style.css",
+  "../src/shell/parts/parts.css",
 ];
 const windowSources = import.meta.glob<string>(
-  ["../src/core/timeWindow.ts", "../src/shell/*.{ts,tsx,css}"],
+  ["../src/core/timeWindow.ts", "../src/shell/*.{ts,tsx,css}", "../src/shell/parts/parts.css"],
   { query: "?raw", import: "default", eager: true },
 );
 

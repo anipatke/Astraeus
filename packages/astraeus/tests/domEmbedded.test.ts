@@ -73,19 +73,19 @@ describe("the sizes the stylesheets promise (browser-controls, browser-embedded,
   });
 
   it("gives the drawer handles and the speed slider a 44 px touch height", () => {
-    const phone = css("phone.css");
+    const phone = css("parts/phone.css");
     expect(phone).toMatch(/\.drawer-handle\)? \{[^}]*height: var\(--astraeus-hit\)/);
     expect(phone).toMatch(/\.timeline-speed-slider\)? input \{[^}]*min-height: var\(--astraeus-hit\)/);
   });
 
   it("draws every control from the one shared size and font, not its own", () => {
-    const controls = css("controls.css");
+    const controls = css("parts/controls.css");
     expect(controls).toMatch(/min-height: var\(--astraeus-control-height\)/);
     expect(controls).toMatch(/\.astraeus-shell \.ui-icon \{ width: var\(--astraeus-control-height\)/);
     expect(controls).toMatch(/font-size: var\(--astraeus-control-text\)/);
   });
 
   it("shows a visible keyboard focus ring (2 px) on selects and summaries", () => {
-    expect(css("controls.css")).toMatch(/select:focus-visible,[\s\S]*?summary\.ui-button:focus-visible \{ outline: var\(--astraeus-space-1\) solid/);
+    expect(css("parts/controls.css")).toMatch(/select:focus-visible,[\s\S]*?summary\.ui-button:focus-visible \{ outline: var\(--astraeus-space-1\) solid/);
   });
 });

@@ -64,18 +64,6 @@ export function discrepancyAt(body: TrackedBody, timeUtcMs: number): PositionDis
   return last !== undefined && timeUtcMs === last.endUtcMs ? last : null;
 }
 
-export interface MissionConfig {
-  readonly title: string;
-  readonly notes: readonly string[];
-  readonly bodies: readonly TrackedBody[];
-  readonly events: readonly TimelineEvent[];
-  /** Timeline preset: the span the scrubber covers when the mission is selected. */
-  readonly window: TimeBounds;
-  readonly rates: readonly number[];
-  /** Names for the first and last events on the journey progress line. */
-  readonly journey?: { readonly start: string; readonly end: string };
-}
-
 /** The body's anchor labels, or null when it has none; a count mismatch is a wiring error. */
 export function anchorLabelsOf(body: TrackedBody): readonly string[] | null {
   if (body.anchorLabels === undefined) return null;

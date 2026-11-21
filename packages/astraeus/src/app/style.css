@@ -1,3 +1,19 @@
+/*
+ * The viewer's stylesheet, and the one place its sheets are loaded (O-079 T-332): the entry files (api/mount.ts, api/AstraeusScene.tsx) import this file and nothing
+ * else, and it pulls in the interface sheets in cascade order: values, areas, then the parts, the phone and framed layouts last. No component imports a stylesheet
+ * (tests/interfaceLeftovers.test.ts), so the build writes a Node copy of the entry files only. The published `astraeus/style.css` is this file, so it is the whole look.
+ */
+@import "../shell/look/look.css";
+@import "../shell/areas/areas.css";
+@import "../shell/parts/timeline/timeline.css";
+@import "../shell/bar/bar.css";
+@import "../shell/parts/controls.css";
+@import "../shell/parts/parts.css";
+@import "../shell/parts/phone.css";
+@import "../shell/parts/embedded.css";
+/* An empty rule on purpose: the test page (happy-dom) drops the first rule after an `@import` when a test injects this text, and it must not drop a real one. A browser and a bundler read it as nothing. */
+.astraeus-shell {}
+
 .astraeus-shell .canvas-host { position: absolute; inset: 0; touch-action: none; }
 
 .astraeus-shell .hud {
@@ -9,8 +25,7 @@
 }
 
 .astraeus-shell .hud > * { break-inside: avoid; margin: 0 0 var(--astraeus-space-5); }
-.astraeus-shell .developer-heading,
-.astraeus-shell .hud-section-clock { column-span: all; }
+.astraeus-shell .developer-heading { column-span: all; }
 .astraeus-shell .developer-heading h2 { margin: 0; font-size: var(--astraeus-text-l); line-height: 1.25; }
 .astraeus-shell .developer-heading p { margin: var(--astraeus-space-2) 0 0; color: var(--astraeus-muted); font-size: var(--astraeus-text-m); }
 
@@ -38,7 +53,7 @@
 .astraeus-shell .hud-section-frame .frame-body { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr); align-items: start; gap: var(--astraeus-space-2) var(--astraeus-size-1); }
 .astraeus-shell .hud-section-frame .frame-readouts { margin-top: 0; }
 .astraeus-shell .hud .frame-body > p { grid-column: 1 / -1; }
-/* The panel's folds (T-090): a full-width heading button over the body; the first group's cards flow in two columns as they did. */
+/* The panel's folds (T-090): a full-width heading button over the body. */
 .astraeus-shell .hud > .dev-group { column-span: all; padding: var(--astraeus-space-2) var(--astraeus-space-5) var(--astraeus-space-3); border: 1px solid var(--astraeus-border); border-radius: var(--astraeus-radius-s); background: color-mix(in srgb, var(--astraeus-text) 4%, transparent); }
 .astraeus-shell .collapsible-heading { margin: 0; font-size: var(--astraeus-text-m); }
 .astraeus-shell .hud .collapsible-toggle { width: 100%; min-height: var(--astraeus-control-height); font-weight: 650; }
@@ -46,9 +61,6 @@
 .astraeus-shell .hud .collapsible-toggle[aria-expanded="true"] svg { transform: rotate(180deg); }
 .astraeus-shell .collapsible-body { padding: var(--astraeus-space-2) var(--astraeus-space-1) var(--astraeus-space-3); }
 .astraeus-shell .collapsible-body[hidden] { display: none; }
-.astraeus-shell .dev-group-cards > .collapsible-body { column-count: 2; column-gap: var(--astraeus-space-5); }
-.astraeus-shell .dev-group-cards > .collapsible-body > * { break-inside: avoid; margin: 0 0 var(--astraeus-space-5); }
-.astraeus-shell .dev-group-cards .hud-section-clock { column-span: all; }
 .astraeus-shell .collapsible-nested { margin: var(--astraeus-space-2) 0 var(--astraeus-space-4); border-left: var(--astraeus-space-1) solid var(--astraeus-border); padding-left: var(--astraeus-space-4); }
 .astraeus-shell .hud .collapsible-nested .collapsible-toggle { font-weight: 500; }
 /* The colour sits at (0,2,0) on purpose: on main this rule (0,3,0) lost to controls.css `button[aria-expanded="true"]:not(.ui-bare)` (0,3,1), so an open nested fold stays accent (I-140). */
@@ -63,7 +75,6 @@
 .astraeus-shell .hud .setting-buttons { display: flex; flex-wrap: wrap; align-items: center; gap: var(--astraeus-space-3); min-width: 0; margin: 0 0 var(--astraeus-space-3); }
 .astraeus-shell .hud .setting-buttons.has-label { display: grid; grid-template-columns: minmax(calc(var(--astraeus-text-size) * 9.5), 0.8fr) minmax(0, 2.2fr); }
 .astraeus-shell .hud .setting-buttons.has-label > div { display: flex; flex-wrap: wrap; gap: var(--astraeus-space-3); min-width: 0; }
-.astraeus-shell .hud .row { display: flex; flex-wrap: wrap; align-items: center; gap: var(--astraeus-space-3); min-width: 0; }
 .astraeus-shell :where(.hud) button,
 .astraeus-shell :where(.hud) input,
 .astraeus-shell :where(.hud) select {
@@ -80,37 +91,13 @@
 .astraeus-shell :where(.hud) button:hover:not(:disabled),
 .astraeus-shell :where(.hud) select:hover { border-color: color-mix(in srgb, var(--astraeus-text) 45%, transparent); }
 .astraeus-shell :where(.hud) button[aria-pressed="true"] { border-color: var(--astraeus-accent); color: var(--astraeus-accent); }
-.astraeus-shell .hud .readout { color: var(--astraeus-muted); font-variant-numeric: tabular-nums; }
-.astraeus-shell .hud .controls { display: flex; flex-direction: column; gap: var(--astraeus-space-4); }
-.astraeus-shell .hud .controls .row:first-child { align-items: center; }
-.astraeus-shell .hud .controls .row:last-child input[type="range"] { flex: 1 1 var(--astraeus-size-13); width: min(var(--astraeus-panel-width), 70cqw); padding: 0; }
-.astraeus-shell .hud .rate-help,
-.astraeus-shell .hud .scale-help { margin: var(--astraeus-space-4) 0 0; color: var(--astraeus-muted); font-size: var(--astraeus-text-s); line-height: 1.4; }
-.astraeus-shell .hud .error { color: var(--astraeus-bad); }
 
-.astraeus-shell .hud .mission-summary { display: flex; flex-direction: column; gap: var(--astraeus-space-4); min-width: 0; }
-.astraeus-shell .hud .mission-summary > p { margin: 0; color: var(--astraeus-muted); line-height: 1.4; }
-.astraeus-shell .hud .mission-summary details { min-width: 0; }
-.astraeus-shell :where(.hud) .mission-summary summary,
 .astraeus-shell :where(.advanced-readouts) summary { width: fit-content; color: var(--astraeus-data); cursor: pointer; }
-.astraeus-shell .hud .mission-summary details > strong { display: block; margin-top: var(--astraeus-space-4); color: var(--astraeus-text); font-size: var(--astraeus-text-m); line-height: 1.4; }
-.astraeus-shell .hud .mission-summary ul { display: grid; gap: var(--astraeus-space-3); margin: var(--astraeus-space-3) 0 0; padding-left: var(--astraeus-size-1); color: var(--astraeus-muted); line-height: 1.4; }
-.astraeus-shell .hud .spacecraft-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--astraeus-space-4); min-width: 0; }
-.astraeus-shell .spacecraft-card { min-width: 0; padding: var(--astraeus-space-4); border: 1px solid var(--astraeus-border); border-radius: var(--astraeus-radius-s); background: color-mix(in srgb, var(--astraeus-scene) 22%, transparent); }
-.astraeus-shell .spacecraft-card-header { display: flex; align-items: center; justify-content: space-between; gap: var(--astraeus-space-4); }
-.astraeus-shell .spacecraft-card-header h4 { min-width: 0; margin: 0; color: var(--astraeus-text); font-size: var(--astraeus-text-m); line-height: 1.3; }
-.astraeus-shell .telemetry-state { display: inline-flex; flex: 0 0 auto; align-items: center; gap: var(--astraeus-space-3); color: var(--astraeus-good); font-size: var(--astraeus-text-xs); }
-.astraeus-shell .telemetry-state > span { width: var(--astraeus-space-4); height: var(--astraeus-space-4); border-radius: 50%; background: var(--astraeus-good); box-shadow: 0 0 var(--astraeus-space-4) color-mix(in srgb, var(--astraeus-good) 50%, transparent); }
-.astraeus-shell .spacecraft-metrics { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--astraeus-space-4); margin-top: var(--astraeus-space-4); }
-.astraeus-shell .hud .mission-empty { margin: 0; color: var(--astraeus-muted); font-size: var(--astraeus-text-m); line-height: 1.4; }
-.astraeus-shell .scale-controls { align-items: center; }
-.astraeus-shell .scale-controls .scale-help { flex-basis: 100%; }
 
 .astraeus-shell .scientific-instruments { display: flex; flex-direction: column; gap: var(--astraeus-space-4); min-width: 0; }
 .astraeus-shell .instrument-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--astraeus-space-4); }
 .astraeus-shell .instrument-grid .metric-phase,
 .astraeus-shell .instrument-grid .metric-coordinates { grid-column: 1 / -1; }
-.astraeus-shell .hud-section-clock .metric-progress { margin-top: var(--astraeus-space-4); }
 .astraeus-shell .advanced-readouts { min-width: 0; }
 .astraeus-shell .hud .advanced-readouts .overlay { margin-top: var(--astraeus-space-4); }
 
@@ -158,7 +145,6 @@
 /* Developer panel on a phone: one column, label above control, labels never squeezed to a few letters. */
 @container astraeus-developer (max-width: 700px) {
   .astraeus-shell .hud { column-count: 1; }
-  .astraeus-shell .dev-group-cards > .collapsible-body { column-count: 1; }
   .astraeus-shell .hud-section-frame .frame-body { display: block; }
   .astraeus-shell .hud .setting { grid-template-columns: minmax(0, 1fr) calc(var(--astraeus-text-size) * 3.4); }
   .astraeus-shell .hud .setting-label { grid-column: 1 / -1; }

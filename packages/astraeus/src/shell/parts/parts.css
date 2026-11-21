@@ -29,7 +29,7 @@
   background: var(--astraeus-panel);
   box-shadow: var(--astraeus-shadow);
   box-sizing: border-box;
-  backdrop-filter: blur(var(--astraeus-space-5));
+  backdrop-filter: blur(var(--astraeus-blur));
 }
 .astraeus-shell .about-panel .about-status { margin: 0; color: var(--astraeus-muted); }
 .astraeus-shell .about-panel .about-section h3 { margin: 0 0 var(--astraeus-space-2); color: var(--astraeus-muted); font-size: var(--astraeus-text-xs); letter-spacing: calc(var(--astraeus-text-size) * .14); text-transform: uppercase; }
@@ -105,7 +105,7 @@
     var(--astraeus-panel);
   box-shadow: var(--astraeus-shadow);
   box-sizing: border-box;
-  backdrop-filter: blur(var(--astraeus-space-5));
+  backdrop-filter: blur(var(--astraeus-blur));
 }
 
 .astraeus-shell .developer-tools[hidden] { display: none !important; }
@@ -191,7 +191,7 @@
   background: var(--astraeus-panel);
   box-shadow: var(--astraeus-shadow), 0 0 0 1px color-mix(in srgb, var(--astraeus-accent) 14%, transparent);
   box-sizing: border-box;
-  backdrop-filter: blur(var(--astraeus-space-5));
+  backdrop-filter: blur(var(--astraeus-blur));
   animation: story-panel-in var(--astraeus-motion) ease-out;
 }
 .astraeus-shell .sheet-handle { display: none; }
@@ -333,7 +333,7 @@
   background: var(--astraeus-panel);
   box-shadow: var(--astraeus-shadow);
   box-sizing: border-box;
-  backdrop-filter: blur(var(--astraeus-space-5));
+  backdrop-filter: blur(var(--astraeus-blur));
 }
 .astraeus-shell .moons-sheet[data-open="true"] { display: flex; animation: moons-sheet-in var(--astraeus-motion) ease; }
 @keyframes moons-sheet-in { from { transform: translateX(calc(var(--astraeus-size-2) * -1)); opacity: 0; } to { transform: none; opacity: 1; } }

@@ -9,7 +9,7 @@
   background: var(--astraeus-panel);
   box-shadow: var(--astraeus-shadow-s);
   font-size: var(--astraeus-text-size);
-  backdrop-filter: blur(var(--astraeus-space-5));
+  backdrop-filter: blur(var(--astraeus-blur));
 }
 /* The timeline's layer over the panels (an open drawer, events list or marker group) is the area's: Area layer in AstraeusShell, areas.css. */
 

@@ -13,11 +13,11 @@ export function pickOpensInfo(phone: boolean): boolean {
 export interface PhoneLayoutSettings {
   /** How long a drawer or sheet takes to slide, in milliseconds; 0 for none. */
   readonly animationMs: number;
-  /** The most the timeline drawer grows to, as a percent of the screen height. */
+  /** The most the timeline drawer grows to, as a percent of the viewer's own height. */
   readonly timelineDrawerMaxPercent: number;
-  /** The most the top drawer grows to, as a percent of the screen height. */
+  /** The most the top drawer grows to, as a percent of the viewer's own height. */
   readonly controlsDrawerMaxPercent: number;
-  /** The most an information or story sheet grows to, as a percent of the screen height. */
+  /** The most an information or story sheet grows to, as a percent of the viewer's own height. */
   readonly sheetMaxPercent: number;
   /** How far (px) a drag on a handle must travel to count as a swipe rather than a tap. */
   readonly swipeThresholdPx: number;
@@ -40,12 +40,12 @@ export const PHONE_LAYOUT_LIMITS: Readonly<Record<keyof PhoneLayoutSettings, { r
   swipeThresholdPx: { min: 10, max: 120, step: 5 },
 };
 
-/** The settings as the custom properties the stylesheet reads (`animationMs` is the interface look's `motionMs`: one value, `--astraeus-motion`). */
+/** The settings as the custom properties the stylesheet reads (`animationMs` is the interface look's `motionMs`: one value, `--astraeus-motion`). The height limits are in `cqh`, a share of the viewer's own height (the root is the `astraeus-viewer` container), not the window's. */
 export function phoneLayoutStyle(settings: PhoneLayoutSettings): CSSProperties {
   return {
     "--astraeus-motion": `${settings.animationMs}ms`,
-    "--timeline-drawer-max": `${settings.timelineDrawerMaxPercent}dvh`,
-    "--controls-drawer-max": `${settings.controlsDrawerMaxPercent}dvh`,
-    "--sheet-max": `${settings.sheetMaxPercent}dvh`,
+    "--timeline-drawer-max": `${settings.timelineDrawerMaxPercent}cqh`,
+    "--controls-drawer-max": `${settings.controlsDrawerMaxPercent}cqh`,
+    "--sheet-max": `${settings.sheetMaxPercent}cqh`,
   } as CSSProperties;
 }

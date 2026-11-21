@@ -187,7 +187,7 @@ describe("the phone settings and reduced motion (browser-phone: settings, reduce
     expect(drawers().controls).toBe(true);
   });
   it("removes the drawer animation under reduced motion (stylesheet) and respects the safe-area insets", () => {
-    const css = readFileSync(resolve(process.cwd(), "packages/astraeus/src/shell/phone.css"), "utf8");
+    const css = readFileSync(resolve(process.cwd(), "packages/astraeus/src/shell/parts/phone.css"), "utf8");
     const look = readFileSync(resolve(process.cwd(), "packages/astraeus/src/shell/look/look.css"), "utf8");
     // Reduced motion is one token now (areas/screen.ts sets data-motion): the drawers' transitions are written in it, and it is 0 under reduced motion.
     expect(look).toMatch(/\[data-motion="reduced"\]\s*\{[^}]*--astraeus-motion: 0ms/);

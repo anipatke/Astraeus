@@ -36,12 +36,6 @@ import { useBarFit } from "./bar/useBarFit";
 import type { ScaleChoice, ScaleId } from "./scaleModel";
 import { shownAt } from "../app/viewHiding";
 import { availableObjectById, findCameraPreset, firstAvailableObject, focusPresetFor, isObjectAvailable, skyFigureById } from "./objectModel";
-import "./look/look.css";
-import "./areas/areas.css";
-import "./controls.css";
-import "./style.css";
-import "./phone.css";
-import "./embedded.css";
 
 /** The object selected when the shell opens: the first one available at the clock time, else the first listed. */
 export function initialObjectId(experience: ExperienceConfig, timeUtcMs: number): string {

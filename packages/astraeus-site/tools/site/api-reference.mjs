@@ -91,13 +91,26 @@ function renderMembers(members) {
   return `<div class="scroll"><table><thead><tr><th>Name</th><th>Type</th><th>What it does</th></tr></thead><tbody>${rows}</tbody></table></div>`;
 }
 
-function renderItem(item) {
+/**
+ * An interface that extends others on the page lists only its own members, under a link to each base, so a member is written once (O-079 T-332: `MountedScene`
+ * repeated all of `ViewerHandle`). A member counts as the base's when its name, type and text are the same there; one the interface restates differently stays.
+ */
+function ownMembers(item, byName) {
+  const bases = item.kind === "interface" && item.signature !== "" ? item.signature.split(", ").map((name) => byName.get(name)).filter((base) => base !== undefined && base !== item) : [];
+  if (bases.length === 0) return { bases, members: item.members };
+  const same = (a, b) => a.name === b.name && a.optional === b.optional && a.signature === b.signature && a.doc === b.doc;
+  return { bases, members: item.members.filter((member) => !bases.some((base) => base.members.some((inherited) => same(inherited, member)))) };
+}
+
+function renderItem(item, byName = new Map()) {
   const head = `<h3 id="${slug(item.name)}"><code>${escape(item.name)}</code> <small>${item.kind}</small></h3>`;
   const parts = [head, `<p>${prose(item.doc)}</p>`];
+  const { bases, members } = ownMembers(item, byName);
+  if (bases.length > 0) parts.push(`<p>Has every member of ${bases.map((base) => `<a href="#${slug(base.name)}"><code>${escape(base.name)}</code></a>`).join(" and ")}${members.length > 0 ? ", and its own:" : "."}</p>`);
   if (item.constructors.length > 0) parts.push(code(item.constructors.map((signature) => `new ${item.name}${signature}`).join("\n")));
   if (item.kind === "function" || item.kind === "type") parts.push(code(item.kind === "type" ? `type ${item.name} = ${item.signature}` : item.signature));
   if (item.kind === "const") parts.push(code(`const ${item.name}: ${item.signature}`));
-  parts.push(renderMembers(item.members));
+  parts.push(renderMembers(members));
   for (const example of item.examples) parts.push(`<p class="eg">Example</p>${code(example)}`);
   return `<section class="item">${parts.join("")}</section>`;
 }
@@ -115,6 +128,7 @@ const SECTIONS = [
 
 /** The reference page for `items` (from `collectExports`): one built page with the site's look, inline styles, no script. */
 export function renderApiPage(items) {
+  const byName = new Map(items.map((item) => [item.name, item]));
   const bodies = items.filter((item) => item.body);
   const rest = items.filter((item) => !item.body);
   const taken = new Set();
@@ -127,7 +141,7 @@ export function renderApiPage(items) {
   if (others.length > 0) sections.push({ id: "Other", title: "Other exports", items: others });
   const bodyList = `<section class="item"><h3 id="bodies">Ready-made bodies <small>${bodies.length} constants</small></h3><p>Each is a <code>BodyRef</code> for <code>scene.addBody</code>; a moon also names the data package it needs.</p><p class="names">${bodies.map((body) => `<code>${escape(body.name)}</code>`).join(" ")}</p>${renderMembers(items.find((item) => item.name === "BodyRef")?.members ?? [])}</section>`;
   const nav = [...sections.map((section) => `<a href="#${slug(section.id)}">${escape(section.title)}</a>`), `<a href="#bodies">Bodies</a>`].join("");
-  const body = sections.map((section) => `<h2 id="${slug(section.id)}">${escape(section.title)}</h2>${section.items.map(renderItem).join("")}`).join("");
+  const body = sections.map((section) => `<h2 id="${slug(section.id)}">${escape(section.title)}</h2>${section.items.map((item) => renderItem(item, byName)).join("")}`).join("");
   return `<!doctype html>
 <html lang="en">
 <head>

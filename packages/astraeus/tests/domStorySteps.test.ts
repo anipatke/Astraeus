@@ -97,7 +97,7 @@ describe("steps beside moment panels", () => {
 });
 
 describe("phone layout rules (375x667 and 1280x720)", () => {
-  const css = ["style", "phone"].map((name) => readFileSync(resolve(process.cwd(), `packages/astraeus/src/shell/${name}.css`), "utf8")).join("\n");
+  const css = ["parts/parts", "parts/phone"].map((name) => readFileSync(resolve(process.cwd(), `packages/astraeus/src/shell/${name}.css`), "utf8")).join("\n");
   it("gives Close, Back, Next and Continue 44 px touch targets on every screen", () => {
     const rule = /:where\(([^)]*story-panel-next[^)]*)\)\s*\{([^}]*)\}/.exec(css);
     expect(rule).not.toBeNull();

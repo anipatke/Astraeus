@@ -10,7 +10,6 @@ import type { ExperienceConfig } from "./experience";
 import { Label } from "./Label";
 import type { StoryPanel } from "./storyPanels";
 import { useDrawerSwipe } from "./useDrawerSwipe";
-import "./TimelineBar.css";
 
 interface Props {
   readonly experience: ExperienceConfig;

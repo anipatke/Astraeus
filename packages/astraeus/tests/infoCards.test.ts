@@ -32,7 +32,7 @@ describe("info cards", () => {
 
   it("sets no monospace font on any info-panel rule and uses tabular figures", async () => {
     const { readFileSync } = await (import(/* @vite-ignore */ `node:${"fs"}`) as Promise<any>);
-    const css = ["style", "phone"].map((name) => readFileSync(new URL(`../src/shell/${name}.css`, import.meta.url), "utf8") as string).join("\n");
+    const css = ["parts/parts", "parts/phone"].map((name) => readFileSync(new URL(`../src/shell/${name}.css`, import.meta.url), "utf8") as string).join("\n");
     const rules = css.split("}").filter((rule: string) => /\.info-panel/.test(rule.split("{")[0]));
     expect(rules.length).toBeGreaterThan(0);
     for (const rule of rules) expect(rule, rule).not.toMatch(/monospace/);

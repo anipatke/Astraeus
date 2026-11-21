@@ -1,33 +1,7 @@
-import type { TimelineEvent } from "../core/events";
-import type { CoordinatesMetric, DistanceMetric, Metric, PhaseMetric, ProgressMetric } from "../shell/metrics";
+import type { CoordinatesMetric, DistanceMetric, Metric, PhaseMetric } from "../shell/metrics";
 import { EARTH_MOON_LABELS, type DebugReadout } from "./debugReadout";
 
-const HOUR_MS = 3_600_000;
-
 const centreName = (center: string) => `${center.charAt(0).toUpperCase()}${center.slice(1)} centre`;
-
-/** Elapsed time from the first to the last event, with every event as a milestone. */
-export function journeyProgressMetric(
-  events: readonly TimelineEvent[],
-  timeUtcMs: number,
-  labels: { readonly start: string; readonly end: string },
-): ProgressMetric {
-  const start = events[0]?.timeUtcMs ?? timeUtcMs;
-  const end = events[events.length - 1]?.timeUtcMs ?? timeUtcMs;
-  const hours = (ms: number) => (ms - start) / HOUR_MS;
-  return {
-    kind: "progress",
-    id: "journey-progress",
-    label: "Journey",
-    value: Math.min(Math.max(hours(timeUtcMs), 0), hours(end)),
-    total: hours(end),
-    unit: "h",
-    digits: 1,
-    startLabel: labels.start,
-    endLabel: labels.end,
-    markers: events.map((event) => ({ label: event.label, value: hours(event.timeUtcMs) })),
-  };
-}
 
 /** Scene measurements. Earth–Moon distance has no meaningful reference here, so it stays numeric-only. */
 export function sceneMetrics(readout: DebugReadout): readonly Metric[] {

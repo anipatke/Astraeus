@@ -1,5 +1,5 @@
 // The bar: the one row the desktop bar and the phone draw. Job: render the items the fit rule placed in the row (in their forms), the menu button, and the hidden
-// measuring row. It decides no place or form (`fitBar.ts`) and holds no look (`TopBar.css` reads the tokens). The items that did not fit are `BarMenu`'s.
+// measuring row. It decides no place or form (`fitBar.ts`) and holds no look (`bar.css` reads the tokens). The items that did not fit are `BarMenu`'s.
 import { Fragment, type ReactNode, type RefObject } from "react";
 import { MenuIcon, MoreIcon } from "../topBarIcons";
 import { MENU_HOST, POPUP_HOST_ATTRIBUTE } from "../panels/usePanels";
