@@ -81,9 +81,11 @@
 .astraeus-shell .hud .setting-buttons { display: flex; flex-wrap: wrap; align-items: center; gap: var(--astraeus-space-3); min-width: 0; margin: 0 0 var(--astraeus-space-3); }
 .astraeus-shell .hud .setting-buttons.has-label { display: grid; grid-template-columns: minmax(calc(var(--astraeus-text-size) * 9.5), 0.8fr) minmax(0, 2.2fr); }
 .astraeus-shell .hud .setting-buttons.has-label > div { display: flex; flex-wrap: wrap; gap: var(--astraeus-space-3); min-width: 0; }
-.astraeus-shell :where(.hud) button,
-.astraeus-shell :where(.hud) input,
-.astraeus-shell :where(.hud) select {
+/* Control density in the drawer. `:is(button)` adds one type selector, so these (0,1,2) win over the generic `.astraeus-shell button|input|select` rules (0,1,1) in either bundle order (I-194)
+   and still lose to the class variants (.ui-icon, .ui-bare, ...; 0,2,0), as in the site order. */
+.astraeus-shell :where(.hud) button:is(button),
+.astraeus-shell :where(.hud) input:is(input),
+.astraeus-shell :where(.hud) select:is(select) {
   min-height: var(--astraeus-size-5);
   padding: var(--astraeus-space-3) var(--astraeus-space-4);
   border: 1px solid var(--astraeus-border);

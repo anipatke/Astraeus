@@ -1,11 +1,10 @@
 // @vitest-environment happy-dom
-// The look lock (O-055 repair of I-140). The real App is rendered per layout, bundle order and definition with every fold and panel open, and every element's
-// computed style (the properties in PROPS) is compared with the checked-in baseline `tests/fixtures/computed-look.baseline.json`. A stylesheet change that flips any
-// cascade winner (a specificity shift, a source-order shift, a `:not()` subject a static model would miss) fails here with the element and property named.
-// When a look change is intended, regenerate the baseline and review its diff:  npm run look:lock   (= LOOK_UPDATE=1 vitest run packages/astraeus/tests/computedLook.test.ts)
+// The look rules (O-055 repair of I-140; O-088 T-410 replaced the 302 KB baseline). The real App is rendered per layout and definition with every fold and panel open.
+// (1) The two bundle orders give the same look: every element's computed style (PROPS) under the "site" order equals the "mount" order, keyed by ancestry path (I-194).
+// (2) Named parts take the look tokens declared in look.css, including the nested fold heading (accent open, muted closed: the I-140 flip).
 // Limits: happy-dom's cascade, not a browser's; no :hover/:focus states; media queries follow the window width the test pretends (matchMedia stub).
 // Bundle orders: "site" is the built site's order (the shell sheets, then app/style.css); "mount" is the engine entry's (app/style.css first), see mount.ts / AstraeusScene.tsx.
-import { readFileSync, writeFileSync } from "node:fs";
+import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { act, createElement } from "react";
@@ -27,7 +26,6 @@ import { pretendScreen } from "./domSetup";
 (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
 
 const HERE = dirname(fileURLToPath(import.meta.url));
-const BASELINE = join(HERE, "fixtures", "computed-look.baseline.json");
 const SRC = (file: string) => readFileSync(join(HERE, "..", "src", file), "utf8");
 const REST = [
   "shell/look/look.css",
@@ -106,14 +104,6 @@ const PROPS = [
   "accent-color",
 ];
 
-/** `styles` are the distinct style rows, `keysets` the distinct element-key lists; a scenario names a keyset and gives, per element, its index into `styles`. */
-interface Baseline {
-  readonly props: readonly string[];
-  readonly styles: readonly string[];
-  readonly keysets: readonly (readonly string[])[];
-  readonly scenarios: Record<string, { readonly keys: number; readonly rows: readonly number[] }>;
-}
-
 let root: Root | undefined;
 let host: HTMLElement | undefined;
 let sheet: HTMLStyleElement | undefined;
@@ -166,102 +156,94 @@ async function render(phone: boolean, embedded: boolean, definition: ExperienceD
   }
 }
 
-const describeEl = (el: Element): string => {
-  const parts: string[] = [];
-  for (let up: Element | null = el; up && up !== document.body && parts.length < 4; up = up.parentElement)
-    parts.unshift(`${up.tagName.toLowerCase()}${up.classList.length ? `.${[...up.classList].join(".")}` : ""}`);
-  return parts.join(" > ");
+/** An element's key: its ancestry path with each step's position among its siblings, so a new element shifts only its own siblings' keys. */
+const pathKey = (el: Element): string => {
+  const steps: string[] = [];
+  for (let up: Element | null = el; up && up !== document.documentElement; up = up.parentElement)
+    steps.unshift(
+      `${up.tagName.toLowerCase()}${up.classList.length ? `.${[...up.classList].join(".")}` : ""}[${up.parentElement ? [...up.parentElement.children].indexOf(up) : 0}]`,
+    );
+  return steps.join(">") || "html";
 };
-
-/** Every element's computed style under the given sheets, keyed by position and ancestry, each row the PROPS values joined by a separator no value contains. */
-function snapshot(css: string): Map<string, string> {
-  sheet?.remove();
-  sheet = document.createElement("style");
-  sheet.textContent = css;
-  document.head.append(sheet);
-  const out = new Map<string, string>();
-  [document.documentElement, document.body, ...host!.querySelectorAll("*")].forEach((el, index) => {
-    const style = getComputedStyle(el);
-    out.set(`${index} ${describeEl(el)}`, PROPS.map((p) => style.getPropertyValue(p)).join("␟"));
-  });
+const LOOK_CSS = SRC("shell/look/look.css");
+/** A look token's declared value in look.css, read from the stylesheet. */
+const token = (name: string): string => {
+  const match = new RegExp(`--astraeus-${name}:\\s*([^;]+);`).exec(LOOK_CSS);
+  if (!match) throw new Error(`look.css declares no --astraeus-${name}`);
+  return match[1]!.trim();
+};
+/** What a colour or size value computes to, by setting it on a probe element inside the viewer. */
+function computed(property: "color" | "background-color" | "font-size", value: string): string {
+  const probe = document.createElement("div");
+  probe.style.setProperty(property, value);
+  host!.querySelector(".astraeus-shell")!.append(probe);
+  const out = getComputedStyle(probe).getPropertyValue(property);
+  probe.remove();
   return out;
 }
 
-const scenarios = LAYOUTS.flatMap((layout) =>
-  (Object.keys(ORDERS) as (keyof typeof ORDERS)[]).flatMap((order) =>
-    (Object.keys(DEFS) as (keyof typeof DEFS)[]).map((def) => ({
-      layout,
-      order,
-      def,
-      id: `${layout.name} / ${order} order / ${def}`,
-    })),
-  ),
-);
-const update = process.env.LOOK_UPDATE === "1";
-const captured: Record<string, Map<string, string>> = {};
-
-describe("look lock: every element's computed style matches the checked-in baseline", () => {
-  it.each(scenarios)("$id", { timeout: 30_000 }, async ({ layout, order, def, id }) => {
+describe("look rules: the two bundle orders give the same look", () => {
+  it.each(
+    LAYOUTS.flatMap((layout) =>
+      (Object.keys(DEFS) as (keyof typeof DEFS)[]).map((def) => ({ layout, def, id: `${layout.name} / ${def}` })),
+    ),
+  )("$id", { timeout: 30_000 }, async ({ layout, def }) => {
     await render(layout.phone, layout.embedded, DEFS[def]);
-    const now = snapshot(ORDERS[order].map(SRC).join("\n"));
-    expect(now.size).toBeGreaterThan(100);
-    // The Developer drawer must be open with a nested fold, so the `:not()` subject case (I-140) is in the lock.
-    if (def === "synthetic") expect([...now.keys()].some((k) => k.includes("collapsible-nested"))).toBe(true);
-    if (update) {
-      captured[id] = now;
-      return;
-    }
-    const baseline = JSON.parse(readFileSync(BASELINE, "utf8")) as Baseline;
-    expect(baseline.props).toEqual(PROPS);
-    const locked = baseline.scenarios[id];
-    expect(locked, `no baseline for ${id}; run npm run look:lock`).toBeDefined();
-    const keys = baseline.keysets[locked!.keys]!;
-    const lockedRows = new Map(keys.map((key, i) => [key, locked!.rows[i]!] as const));
-    const diffs: string[] = [];
-    for (const [key, row] of now) {
-      const index = lockedRows.get(key);
-      if (index === undefined) {
-        diffs.push(`${key} | element is new`);
-        continue;
+    const site = (() => {
+      const m = new Map<string, string>();
+      const css = ORDERS.site.map(SRC).join("\n");
+      sheet?.remove();
+      sheet = document.createElement("style");
+      sheet.textContent = css;
+      document.head.append(sheet);
+      for (const el of [document.documentElement, document.body, ...host!.querySelectorAll("*")]) {
+        const style = getComputedStyle(el);
+        m.set(pathKey(el), PROPS.map((p) => style.getPropertyValue(p)).join("\u241f"));
       }
-      const was = baseline.styles[index]!.split("\u241f");
-      row.split("\u241f").forEach((value, p) => {
-        if (value !== was[p]) diffs.push(`${key} | ${PROPS[p]}: ${JSON.stringify(was[p])} -> ${JSON.stringify(value)}`);
+      return m;
+    })();
+    sheet!.textContent = ORDERS.mount.map(SRC).join("\n");
+    expect(site.size).toBeGreaterThan(100);
+    const diffs: string[] = [];
+    for (const el of [document.documentElement, document.body, ...host!.querySelectorAll("*")]) {
+      const style = getComputedStyle(el);
+      const key = pathKey(el);
+      const was = site.get(key)!.split("\u241f");
+      PROPS.forEach((p, i) => {
+        const value = style.getPropertyValue(p);
+        if (value !== was[i])
+          diffs.push(`${key} | ${p}: site ${JSON.stringify(was[i])} / mount ${JSON.stringify(value)}`);
       });
     }
-    for (const key of keys) if (!now.has(key)) diffs.push(`${key} | element is gone`);
-    expect(diffs, "computed look changed; if intended run npm run look:lock and review the baseline diff").toEqual([]);
+    expect(diffs, "the bundle orders disagree: a rule wins only by source order").toEqual([]);
+    // The Developer drawer is open with a nested fold, so the `:not()` subject case (I-140) is rendered.
+    if (def === "synthetic") expect([...site.keys()].some((k) => k.includes("collapsible-nested"))).toBe(true);
   });
+});
 
-  it.runIf(update)("writes the baseline", () => {
-    const styles: string[] = [];
-    const seen = new Map<string, number>();
-    const keysets: string[][] = [];
-    const out: Record<string, { keys: number; rows: number[] }> = {};
-    for (const { id } of scenarios) {
-      const keys = [...captured[id]!.keys()];
-      let keysIndex = keysets.findIndex((k) => k.length === keys.length && k.every((key, i) => key === keys[i]));
-      if (keysIndex < 0) {
-        keysIndex = keysets.length;
-        keysets.push(keys);
-      }
-      out[id] = {
-        keys: keysIndex,
-        rows: [...captured[id]!.values()].map((row) => {
-          if (!seen.has(row)) {
-            seen.set(row, styles.length);
-            styles.push(row);
-          }
-          return seen.get(row)!;
-        }),
-      };
-    }
-    const lines = Object.entries(out).map(
-      ([id, v]) => `    ${JSON.stringify(id)}: {"keys": ${v.keys}, "rows": ${JSON.stringify(v.rows)}}`,
-    );
-    writeFileSync(
-      BASELINE,
-      `{\n  "props": ${JSON.stringify(PROPS)},\n  "styles": [\n${styles.map((s) => `    ${JSON.stringify(s)}`).join(",\n")}\n  ],\n  "keysets": [\n${keysets.map((k) => `    ${JSON.stringify(k)}`).join(",\n")}\n  ],\n  "scenarios": {\n${lines.join(",\n")}\n  }\n}\n`,
-    );
-  });
+describe("look rules: named parts take their look tokens", () => {
+  it(
+    "nested fold heading is accent when open and muted when closed (I-140); controls and panels follow the tokens",
+    { timeout: 30_000 },
+    async () => {
+      await render(false, false, syntheticDefinition);
+      sheet = document.createElement("style");
+      sheet.textContent = ORDERS.site.map(SRC).join("\n");
+      document.head.append(sheet);
+      const nested = [...host!.querySelectorAll<HTMLElement>(".collapsible-nested .collapsible-toggle")];
+      expect(nested.length).toBeGreaterThan(0);
+      const toggle = nested[0]!;
+      expect(toggle.getAttribute("aria-expanded")).toBe("true");
+      expect(getComputedStyle(toggle).color).toBe(computed("color", token("accent")));
+      act(() => toggle.click());
+      expect(toggle.getAttribute("aria-expanded")).toBe("false");
+      expect(getComputedStyle(toggle).color).toBe(computed("color", token("muted")));
+      const barButton = host!.querySelector<HTMLElement>(".bar-ghost-text, .bar-ghost-icon");
+      expect(barButton, "a plain top-bar button").not.toBeNull();
+      expect(getComputedStyle(barButton!).color).toBe(computed("color", token("text")));
+      const info = host!.querySelector<HTMLElement>(".object-info-toggle");
+      expect(info, "the information toggle").not.toBeNull();
+      expect(getComputedStyle(info!).color).toBe(computed("color", token("accent")));
+    },
+  );
 });
