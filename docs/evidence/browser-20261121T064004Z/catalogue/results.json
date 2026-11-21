@@ -1,0 +1,8 @@
+{
+  "name": "journey-catalogue",
+  "at": "2026-11-21T06:45:43.084Z",
+  "ok": false,
+  "results": [],
+  "errors": [],
+  "failure": "AssertionError [ERR_ASSERTION]: panel: the shown code is the code that runs (it holds the add line as written)\n    at file:///home/user/code/Astraeus/packages/astraeus-site/tools/validate/journey-catalogue.mjs:35:12\n    at async checkScript (file:///home/user/code/Astraeus/packages/astraeus-site/tools/validate/harness.mjs:47:60)\n    at async file:///home/user/code/Astraeus/packages/astraeus-site/tools/validate/journey-catalogue.mjs:19:1"
+}
