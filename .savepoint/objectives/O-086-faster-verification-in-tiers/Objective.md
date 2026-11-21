@@ -1,11 +1,12 @@
 ---
 id: O-086
 title: Faster verification in tiers
-status: planned
+status: done
 depends_on: [O-085]
 release: G-024
 priority: high
 rank: 5
+last_check: C-204
 lanes: [{key: packing, title: Pack rules on small inputs}, {key: apollo, title: Apollo rerun on change}, {key: preload, title: Scoped moon preload}, {key: finder, title: Finder bands}, {key: guidance, title: Gate guidance}, {key: vitest-moves, title: Checks moved to Vitest}, {key: browser, title: Browser tiers and steps}]
 ---
 
@@ -56,3 +57,4 @@ Browser work follows `docs/agents/browser-policy.md`; one browser job at a time.
   11. AH-49 (finder) included: cited in the Objective's Why.
   12. Limits that rise are named with their cause; nothing is raised to hide a slow step.
   13. Catalogue in the full tier only; public showers at desktop size only.
+- O-086 set done by the orchestrating session after re-check C-204 CLEAR (G-024 decision 7, "Orchestrate each objective to completion"; "CLEAR: fast-forward merge to main and push"; owner "carry on").
