@@ -1,11 +1,12 @@
 ---
 id: O-082
 title: Orbit maths that converge and agree on time
-status: planned
+status: done
 depends_on: []
 release: G-024
 priority: critical
 rank: 1
+last_check: C-196
 lanes: [{key: solver, title: One Kepler solver}, {key: epoch, title: Epoch time scale}]
 ---
 
@@ -43,3 +44,4 @@ Science core only (`src/core/`); ARCH-04. No public API change. Scientific toler
 - Owner 2026-11-21 (plan-g024-20261121): design confirmed, "Confirm, write the tasks".
 - Planner, from targeted evidence: the shared solver keeps the name and file `core/keplerAnomaly.ts` (callers `elementsBody`, `satelliteMeanElements`, `bodies/io` keep their import) and gains an exported eccentric-anomaly solve used by `listedOrbitGroup` and `sunCentredSources`; `eccentricAnomalyRad` stays exported from `listedOrbitGroup` as a re-export because `astraeus-demo-showers/tests/keplerShader.test.ts` imports it there. The per-member fill loop in `keplerElements.fillKeplerRangeKm` (already convergence-tested, Danby-style start) may call the shared solve only if a measured fill of 110,000 members is not slower by more than 5%; otherwise it stays inline and the bisection table test covers it too.
 - Planner, 2026-11-21 (orchestrate-g024-20261121), on T-342's reported deviation: a TDB-written epoch keeps the record's documented "TDB taken as TT" convention for the clock (`epochUtcMs`), while the mean anomaly is now measured in true TDB. The remaining difference against the same instant written in UTC is TDB−TT (≤ ~1.7 ms; 0.1 ms ≈ 3 m at J2000), which is the same order as the engine's whole-millisecond epoch resolution; removing it would change six existing tests that pin TDB epochs at the exact millisecond under that convention. T-342's TDB equivalence is therefore held to 5 m (UTC vs TT stays at 1 m). Flagged to the owner; tightening it is a separate owner choice.
+- Owner, 2026-11-21 (G-024 decision 7, "work through this list of objectives one by one. Orchestrate each objective to completion"; "CLEAR: fast-forward merge to main and push"): O-082 set done by the orchestrating session after Full Objective Check C-196 returned CLEAR with no Issues.
