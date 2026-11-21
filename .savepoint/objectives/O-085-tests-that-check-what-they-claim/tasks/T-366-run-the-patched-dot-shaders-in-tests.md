@@ -2,7 +2,7 @@
 id: T-366
 title: Run the patched dot shaders in tests
 objective: O-085
-status: planned
+status: done
 depends_on: []
 check_waiver: {task: T-366, reason: 'Owner said "work through this list of objectives one by one. Orchestrate each objective to completion" (G-024 decision 7): standing orchestration rules waive the optional step checks; the mandatory Full Objective Check covers the whole diff.', actor: {role: owner, session: orchestrate-g024-20261121}, recorded_at: '2026-11-21T12:50:31Z'}
 owner_validation: {required: false}
@@ -68,8 +68,21 @@ Focused: `npx vitest run packages/astraeus/tests/patchedShaders.test.ts packages
 
 ## Technical Evidence
 
-Pending execution.
+New `packages/astraeus/tests/patchedShaders.test.ts` (only file changed). Grep `onBeforeCompile packages/*/src`: exactly two assignments (PointsView.ts:185, KeplerPoints.ts:45), both rows.
+
+| Done When | Evidence |
+|---|---|
+| One table, two rows, real views, three's own `ShaderLib.points` source, replacements landed, uniforms present, kept chunks present | `it.each(ROWS)` in patchedShaders.test.ts; green (3 tests) |
+| Includes resolve through `ShaderChunk` | same test, `names` loop |
+| Deliberate break | `#include <begin_vertexX>` in PointsView: blend row failed ("begin_vertex replaced"); same in KeplerPoints: Kepler row failed; `void mainX() {` in KeplerPoints: Kepler row failed; all reverted, `git diff --stat packages/astraeus/src` empty |
+| Row list = grep | two assignments, two rows |
+| Existing tests unchanged | none edited |
+| Gates | lint, typecheck, build clean; npm test 5032 passed, 2 failed, both in packages/astraeus-site/tests/loadingCoverChain.test.ts (T-365's in-progress file), not mine |
+
+Limitation: no GPU compile; text-level only.
 
 ## Drift Notes
 
 None expected.
+
+Coordinator (orchestrate-g024-20261121): lint, typecheck, build green; `npm test` 5032 passed, the two failures in T-365's in-flight `loadingCoverChain.test.ts` (passed alone, rechecked at the Full Check). `status: done` set by the coordinator under the standing orchestration rule ("I mark them as they pass", O-038) and G-024 decision 7.
