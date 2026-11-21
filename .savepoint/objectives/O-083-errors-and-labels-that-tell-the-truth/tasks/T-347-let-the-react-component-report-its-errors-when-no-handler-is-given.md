@@ -2,7 +2,7 @@
 id: T-347
 title: Let the React component report its errors when no handler is given
 objective: O-083
-status: planned
+status: done
 depends_on: []
 check_waiver: {task: T-347, reason: 'Owner said "work through this list of objectives one by one. Orchestrate each objective to completion" (G-024 decision 7): standing orchestration rules waive the optional step checks; the mandatory Full Objective Check covers the whole diff.', actor: {role: owner, session: orchestrate-g024-20261121}, recorded_at: '2026-11-21T11:22:41Z'}
 owner_validation: {required: false}
@@ -61,8 +61,20 @@ Focused: `npx vitest run packages/astraeus/tests/astraeusSceneConsole.test.ts pa
 
 ## Technical Evidence
 
-Pending execution.
+| Done When | Evidence |
+|---|---|
+| Three sites go through one function (`report`): host onError else console.error | `src/api/AstraeusScene.tsx` `report`, used in `apply`, the `ready` rejection and the sync catch; tests below |
+| Doc comment says what happens without onError | onError prop comment in `AstraeusScene.tsx` |
+| New console test (a) empty-scene (b) missing-data (saturn+titan, no data) (c) bad-time, with and without onError | `tests/astraeusSceneConsole.test.ts`, 6 cases; 3 without-onError cases failed first, then passed |
+| Existing tests unchanged and green | `lifecycle` + new file: 79 passed; full run: only 2 failures, both from T-343 in-flight (see below) |
+| Gates | lint, typecheck, build passed; `npm test` 4944 passed, 2 failed |
+
+Failures (T-343 in flight, not fixed): `apiSurface` lock (SceneErrorCode doc comment changed) and `apiRules` API-05 allowlist (new `throw` in scene.ts). Reran apiSurface once: same.
+
+Extra reads: none. Limitation: the bad-time case runs with the viewer mocked (the real viewer is not drawn), so the error comes from the link before attach.
 
 ## Drift Notes
 
-None expected; record if the reporting default needs a Design line under `One handle, one lifecycle`.
+None expected; optionally a Design line under `One handle, one lifecycle`: without `onError` the component reports to `console.error`.
+
+Coordinator (orchestrate-g024-20261121): hand-off gates green for this Task's files (lint, typecheck, build; the two `npm test` failures are T-343's in-flight lock and API-05 changes, rechecked once it lands); `status: done` set by the coordinator under the standing orchestration rule ("I mark them as they pass", O-038) and G-024 decision 7.

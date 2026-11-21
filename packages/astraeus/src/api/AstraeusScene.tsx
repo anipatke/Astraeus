@@ -20,7 +20,7 @@ export interface AstraeusSceneProps {
   readonly ref?: Ref<ViewerHandle>;
   /** Called with the handle once the scene's data has loaded, it is drawn and the viewer's clock is attached, so a host can read and set from here (again, with the same handle, after each rebuild). */
   readonly onReady?: (handle: ViewerHandle) => void;
-  /** Called when the scene cannot be built (a `SceneError`) or its data fails to load. */
+  /** Called when the scene cannot be built (a `SceneError`) or its data fails to load, and with the errors the `time`, `rate`, `view` and `camera` props report. Without it each error goes to `console.error`, so a failure is never silent. */
   readonly onError?: (error: Error) => void;
   /** Moves the viewer to this moment (ISO text, a `Date` or Unix milliseconds) once it is drawn, and again whenever the moment changes. Outside the timeline reports `bad-time` to `onError`. Not a controlled value: the viewer keeps running from there, so the current time arrives through `onChange`. */
   readonly time?: TimeInput;
@@ -49,6 +49,8 @@ export interface AstraeusSceneProps {
 }
 
 const FILL: CSSProperties = { width: "100%", height: "100%" };
+/** Tells the host's `onError` of an error, or the console when the host gave none, so a failure is never silent. */
+const report = (onError: ((error: Error) => void) | undefined, error: Error): void => { if (onError !== undefined) onError(error); else console.error(error); };
 const asError = (cause: unknown): Error => (cause instanceof Error ? cause : new Error(String(cause)));
 
 /** A camera target as text by value: keys in sorted order, so the same pose with its keys in another order is the same key. */
@@ -86,7 +88,7 @@ export function AstraeusScene({ ref, scene, data, onReady, onError, time, rate, 
   // After the viewer is drawn (its own effects have attached the clock by now), each prop takes effect on its own: once when drawn,
   // then only when that prop changes, so a host change to one never overrides a visitor's later choice of another control.
   const apply = (set: () => void) => {
-    try { set(); } catch (cause) { latest.current.onError?.(asError(cause)); }
+    try { set(); } catch (cause) { report(latest.current.onError, asError(cause)); }
   };
   const cameraKey = camera === undefined ? undefined : cameraValueKey(camera);
   const cameraRef = useRef(camera);
@@ -110,10 +112,10 @@ export function AstraeusScene({ ref, scene, data, onReady, onError, time, rate, 
           // The viewer attaches its clock in an effect after this render; onReady waits for it, so the handle's reads and sets work inside it.
           void link.whenAttached().then(() => { if (open) latest.current.onReady?.(handle); }, () => undefined); // a closed link (unmounted) rejects the wait: onReady does not fire
         },
-        (cause: unknown) => { if (open) latest.current.onError?.(asError(cause)); },
+        (cause: unknown) => { if (open) report(latest.current.onError, asError(cause)); },
       );
     } catch (cause) {
-      latest.current.onError?.(asError(cause));
+      report(latest.current.onError, asError(cause));
     }
     return () => { open = false; };
   }, [scene, link, handle]);
