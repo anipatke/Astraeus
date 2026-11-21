@@ -64,6 +64,8 @@ export const MOON: CelestialBodyDefinition = Object.freeze({
       notes: "Gravitational parameter matches the @lizard-isana/orb 3.1.1 table (a test asserts it).",
     }),
     position: MOON_EPHEMERIS.provenance,
+    // The record repeats the rotation sentence that orientationLimitations holds; it is shown once, there.
+    positionLimitations: Object.freeze(MOON_EPHEMERIS.knownLimitations.filter((sentence) => sentence !== ROTATION_LIMITATION)),
     // The sampled Horizons comparison range (tests/fixtures/moon-horizons.json); the truncated series states no validity range of its own.
     validUtc: Object.freeze({ startUtcMs: Date.UTC(2022, 5, 1), endUtcMs: Date.UTC(2025, 5, 1) }),
     orientationLimitations: Object.freeze([ROTATION_LIMITATION, LANDING_SITE_OFFSET]),

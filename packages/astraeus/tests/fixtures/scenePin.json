@@ -638,6 +638,9 @@
        "color": "#d4a97a",
        "id": "jupiter",
        "knownLimitations": [
+        "No velocity is modelled for planets, so they have no speed readout.",
+        "Until the Jupiter moon package is loaded for the date Jupiter sits at its system barycentre, up to 216 km from its centre (measured 1972 to 2044).",
+        "Before 1972 a date is read on the engine's smooth TT - UTC, while Horizons labels times in UT1 (to 1962) and in UTC's rubber seconds (to 1972): the same label can be up to 0.7 s apart, so a planet can sit up to that much travel away from Horizons' position for that label (measured 1950 to 1971: Mercury 34.5 km, Venus 24.3, Mars 16.8, Jupiter 8.5, Saturn 6.2, Uranus 4.7, Neptune 3.5).",
         "Orientation is the IAU pole direction (linear in time) and prime meridian (linear in time) only; the report's periodic nutation and libration terms are left out, and TT stands in for TDB.",
         "Jupiter's cloud bands rotate at different rates, so any prime meridian is approximate: the texture's orientation is a visual stand-in, not a measured longitude.",
         "Constants: Archinal et al., Report of the IAU Working Group on Cartographic Coordinates and Rotational Elements: 2015, Celestial Mechanics and Dynamical Astronomy 130, article 22 (2018), as transcribed in NAIF pck00011.tpc (2022-12-27)."
@@ -725,6 +728,9 @@
        "color": "#d8c090",
        "id": "saturn",
        "knownLimitations": [
+        "No velocity is modelled for planets, so they have no speed readout.",
+        "Until the Saturn moon package is loaded for the date Saturn sits at its system barycentre, up to 304 km from its centre (measured 1972 to 2044).",
+        "Before 1972 a date is read on the engine's smooth TT - UTC, while Horizons labels times in UT1 (to 1962) and in UTC's rubber seconds (to 1972): the same label can be up to 0.7 s apart, so a planet can sit up to that much travel away from Horizons' position for that label (measured 1950 to 1971: Mercury 34.5 km, Venus 24.3, Mars 16.8, Jupiter 8.5, Saturn 6.2, Uranus 4.7, Neptune 3.5).",
         "Orientation is the IAU pole direction (linear in time) and prime meridian (linear in time) only; the report's periodic nutation and libration terms are left out, and TT stands in for TDB.",
         "Saturn's cloud bands rotate at different rates, so any prime meridian is approximate: the texture's orientation is a visual stand-in, not a measured longitude.",
         "Constants: Archinal et al., Report of the IAU Working Group on Cartographic Coordinates and Rotational Elements: 2015, Celestial Mechanics and Dynamical Astronomy 130, article 22 (2018), as transcribed in NAIF pck00011.tpc (2022-12-27)."
@@ -863,6 +869,9 @@
        "color": "#9fd5df",
        "id": "uranus",
        "knownLimitations": [
+        "No velocity is modelled for planets, so they have no speed readout.",
+        "Until the Uranus moon package is loaded for the date Uranus sits at its system barycentre, up to 45 km from its centre (measured 1972 to 2044).",
+        "Before 1972 a date is read on the engine's smooth TT - UTC, while Horizons labels times in UT1 (to 1962) and in UTC's rubber seconds (to 1972): the same label can be up to 0.7 s apart, so a planet can sit up to that much travel away from Horizons' position for that label (measured 1950 to 1971: Mercury 34.5 km, Venus 24.3, Mars 16.8, Jupiter 8.5, Saturn 6.2, Uranus 4.7, Neptune 3.5).",
         "Orientation is the IAU pole direction (linear in time) and prime meridian (linear in time) only; the report's periodic nutation and libration terms are left out, and TT stands in for TDB.",
         "Uranus's cloud bands rotate at different rates, so any prime meridian is approximate: the texture's orientation is a visual stand-in, not a measured longitude.",
         "Constants: Archinal et al., Report of the IAU Working Group on Cartographic Coordinates and Rotational Elements: 2015, Celestial Mechanics and Dynamical Astronomy 130, article 22 (2018), as transcribed in NAIF pck00011.tpc (2022-12-27)."
@@ -2491,6 +2500,8 @@
        "color": "#f6e1b9",
        "id": "venus",
        "knownLimitations": [
+        "No velocity is modelled for planets, so they have no speed readout.",
+        "Before 1972 a date is read on the engine's smooth TT - UTC, while Horizons labels times in UT1 (to 1962) and in UTC's rubber seconds (to 1972): the same label can be up to 0.7 s apart, so a planet can sit up to that much travel away from Horizons' position for that label (measured 1950 to 1971: Mercury 34.5 km, Venus 24.3, Mars 16.8, Jupiter 8.5, Saturn 6.2, Uranus 4.7, Neptune 3.5).",
         "Orientation is the IAU pole direction (linear in time) and prime meridian (linear in time) only; the report's periodic nutation and libration terms are left out, and TT stands in for TDB.",
         "Constants: Archinal et al., Report of the IAU Working Group on Cartographic Coordinates and Rotational Elements: 2015, Celestial Mechanics and Dynamical Astronomy 130, article 22 (2018), as transcribed in NAIF pck00011.tpc (2022-12-27)."
        ],
@@ -2530,6 +2541,9 @@
        "color": "#e3b28c",
        "id": "mars",
        "knownLimitations": [
+        "No velocity is modelled for planets, so they have no speed readout.",
+        "Until the Mars moon package is loaded (it covers 2010 to 2029) Mars sits at its system barycentre, under a metre from its centre.",
+        "Before 1972 a date is read on the engine's smooth TT - UTC, while Horizons labels times in UT1 (to 1962) and in UTC's rubber seconds (to 1972): the same label can be up to 0.7 s apart, so a planet can sit up to that much travel away from Horizons' position for that label (measured 1950 to 1971: Mercury 34.5 km, Venus 24.3, Mars 16.8, Jupiter 8.5, Saturn 6.2, Uranus 4.7, Neptune 3.5).",
         "Orientation is the IAU pole direction (linear in time) and prime meridian (linear in time) only; the report's periodic nutation and libration terms are left out, and TT stands in for TDB.",
         "Constants: Archinal et al., Report of the IAU Working Group on Cartographic Coordinates and Rotational Elements: 2015, Celestial Mechanics and Dynamical Astronomy 130, article 22 (2018), as transcribed in NAIF pck00011.tpc (2022-12-27)."
        ],
@@ -2548,6 +2562,9 @@
        "color": "#d4a97a",
        "id": "jupiter",
        "knownLimitations": [
+        "No velocity is modelled for planets, so they have no speed readout.",
+        "Until the Jupiter moon package is loaded for the date Jupiter sits at its system barycentre, up to 216 km from its centre (measured 1972 to 2044).",
+        "Before 1972 a date is read on the engine's smooth TT - UTC, while Horizons labels times in UT1 (to 1962) and in UTC's rubber seconds (to 1972): the same label can be up to 0.7 s apart, so a planet can sit up to that much travel away from Horizons' position for that label (measured 1950 to 1971: Mercury 34.5 km, Venus 24.3, Mars 16.8, Jupiter 8.5, Saturn 6.2, Uranus 4.7, Neptune 3.5).",
         "Orientation is the IAU pole direction (linear in time) and prime meridian (linear in time) only; the report's periodic nutation and libration terms are left out, and TT stands in for TDB.",
         "Jupiter's cloud bands rotate at different rates, so any prime meridian is approximate: the texture's orientation is a visual stand-in, not a measured longitude.",
         "Constants: Archinal et al., Report of the IAU Working Group on Cartographic Coordinates and Rotational Elements: 2015, Celestial Mechanics and Dynamical Astronomy 130, article 22 (2018), as transcribed in NAIF pck00011.tpc (2022-12-27)."
@@ -3185,6 +3202,7 @@
        "color": "#f3ede4",
        "id": "moon",
        "knownLimitations": [
+        "No velocity is modelled for the Moon, so it has no speed readout.",
         "The Moon's orientation is the IAU mean-Earth rotation model with its libration terms, so the Moon shows libration in longitude and latitude. It is a published series, not the JPL lunar ephemeris: its sub-Earth point and pole differ from Horizons' by at most 0.01 degrees (about 0.3 km on the surface) at the seven dates from 1969 to 2050 that were checked, and its accuracy elsewhere is not stated by the source.",
         "A landing site placed by the IAU model (a mission reconstruction's, measured at the Sea of Tranquility) sits 0.01 km (under 0.001 degrees) from the same selenographic coordinates on this Moon at touchdown, because the reconstruction and the drawn Moon use the same IAU model (docs/ASTRAEUS_SPIKE_02.md measured 254 km, 8.4 degrees, under the earlier tidal lock)."
        ],
@@ -3456,6 +3474,7 @@
        "color": "#f3ede4",
        "id": "moon",
        "knownLimitations": [
+        "No velocity is modelled for the Moon, so it has no speed readout.",
         "The Moon's orientation is the IAU mean-Earth rotation model with its libration terms, so the Moon shows libration in longitude and latitude. It is a published series, not the JPL lunar ephemeris: its sub-Earth point and pole differ from Horizons' by at most 0.01 degrees (about 0.3 km on the surface) at the seven dates from 1969 to 2050 that were checked, and its accuracy elsewhere is not stated by the source.",
         "A landing site placed by the IAU model (a mission reconstruction's, measured at the Sea of Tranquility) sits 0.01 km (under 0.001 degrees) from the same selenographic coordinates on this Moon at touchdown, because the reconstruction and the drawn Moon use the same IAU model (docs/ASTRAEUS_SPIKE_02.md measured 254 km, 8.4 degrees, under the earlier tidal lock)."
        ],
@@ -3752,6 +3771,9 @@
        "color": "#d4a97a",
        "id": "jupiter",
        "knownLimitations": [
+        "No velocity is modelled for planets, so they have no speed readout.",
+        "Until the Jupiter moon package is loaded for the date Jupiter sits at its system barycentre, up to 216 km from its centre (measured 1972 to 2044).",
+        "Before 1972 a date is read on the engine's smooth TT - UTC, while Horizons labels times in UT1 (to 1962) and in UTC's rubber seconds (to 1972): the same label can be up to 0.7 s apart, so a planet can sit up to that much travel away from Horizons' position for that label (measured 1950 to 1971: Mercury 34.5 km, Venus 24.3, Mars 16.8, Jupiter 8.5, Saturn 6.2, Uranus 4.7, Neptune 3.5).",
         "Orientation is the IAU pole direction (linear in time) and prime meridian (linear in time) only; the report's periodic nutation and libration terms are left out, and TT stands in for TDB.",
         "Jupiter's cloud bands rotate at different rates, so any prime meridian is approximate: the texture's orientation is a visual stand-in, not a measured longitude.",
         "Constants: Archinal et al., Report of the IAU Working Group on Cartographic Coordinates and Rotational Elements: 2015, Celestial Mechanics and Dynamical Astronomy 130, article 22 (2018), as transcribed in NAIF pck00011.tpc (2022-12-27)."
@@ -4302,6 +4324,9 @@
        "color": "#9fd5df",
        "id": "uranus",
        "knownLimitations": [
+        "No velocity is modelled for planets, so they have no speed readout.",
+        "Until the Uranus moon package is loaded for the date Uranus sits at its system barycentre, up to 45 km from its centre (measured 1972 to 2044).",
+        "Before 1972 a date is read on the engine's smooth TT - UTC, while Horizons labels times in UT1 (to 1962) and in UTC's rubber seconds (to 1972): the same label can be up to 0.7 s apart, so a planet can sit up to that much travel away from Horizons' position for that label (measured 1950 to 1971: Mercury 34.5 km, Venus 24.3, Mars 16.8, Jupiter 8.5, Saturn 6.2, Uranus 4.7, Neptune 3.5).",
         "Orientation is the IAU pole direction (linear in time) and prime meridian (linear in time) only; the report's periodic nutation and libration terms are left out, and TT stands in for TDB.",
         "Uranus's cloud bands rotate at different rates, so any prime meridian is approximate: the texture's orientation is a visual stand-in, not a measured longitude.",
         "Constants: Archinal et al., Report of the IAU Working Group on Cartographic Coordinates and Rotational Elements: 2015, Celestial Mechanics and Dynamical Astronomy 130, article 22 (2018), as transcribed in NAIF pck00011.tpc (2022-12-27)."
@@ -5473,6 +5498,7 @@
        "color": "#f3ede4",
        "id": "moon",
        "knownLimitations": [
+        "No velocity is modelled for the Moon, so it has no speed readout.",
         "The Moon's orientation is the IAU mean-Earth rotation model with its libration terms, so the Moon shows libration in longitude and latitude. It is a published series, not the JPL lunar ephemeris: its sub-Earth point and pole differ from Horizons' by at most 0.01 degrees (about 0.3 km on the surface) at the seven dates from 1969 to 2050 that were checked, and its accuracy elsewhere is not stated by the source.",
         "A landing site placed by the IAU model (a mission reconstruction's, measured at the Sea of Tranquility) sits 0.01 km (under 0.001 degrees) from the same selenographic coordinates on this Moon at touchdown, because the reconstruction and the drawn Moon use the same IAU model (docs/ASTRAEUS_SPIKE_02.md measured 254 km, 8.4 degrees, under the earlier tidal lock)."
        ],
@@ -6779,6 +6805,7 @@
        "color": "#f3ede4",
        "id": "moon",
        "knownLimitations": [
+        "No velocity is modelled for the Moon, so it has no speed readout.",
         "The Moon's orientation is the IAU mean-Earth rotation model with its libration terms, so the Moon shows libration in longitude and latitude. It is a published series, not the JPL lunar ephemeris: its sub-Earth point and pole differ from Horizons' by at most 0.01 degrees (about 0.3 km on the surface) at the seven dates from 1969 to 2050 that were checked, and its accuracy elsewhere is not stated by the source.",
         "A landing site placed by the IAU model (a mission reconstruction's, measured at the Sea of Tranquility) sits 0.01 km (under 0.001 degrees) from the same selenographic coordinates on this Moon at touchdown, because the reconstruction and the drawn Moon use the same IAU model (docs/ASTRAEUS_SPIKE_02.md measured 254 km, 8.4 degrees, under the earlier tidal lock)."
        ],
@@ -7329,6 +7356,9 @@
        "color": "#d4a97a",
        "id": "jupiter",
        "knownLimitations": [
+        "No velocity is modelled for planets, so they have no speed readout.",
+        "Until the Jupiter moon package is loaded for the date Jupiter sits at its system barycentre, up to 216 km from its centre (measured 1972 to 2044).",
+        "Before 1972 a date is read on the engine's smooth TT - UTC, while Horizons labels times in UT1 (to 1962) and in UTC's rubber seconds (to 1972): the same label can be up to 0.7 s apart, so a planet can sit up to that much travel away from Horizons' position for that label (measured 1950 to 1971: Mercury 34.5 km, Venus 24.3, Mars 16.8, Jupiter 8.5, Saturn 6.2, Uranus 4.7, Neptune 3.5).",
         "Orientation is the IAU pole direction (linear in time) and prime meridian (linear in time) only; the report's periodic nutation and libration terms are left out, and TT stands in for TDB.",
         "Jupiter's cloud bands rotate at different rates, so any prime meridian is approximate: the texture's orientation is a visual stand-in, not a measured longitude.",
         "Constants: Archinal et al., Report of the IAU Working Group on Cartographic Coordinates and Rotational Elements: 2015, Celestial Mechanics and Dynamical Astronomy 130, article 22 (2018), as transcribed in NAIF pck00011.tpc (2022-12-27)."
@@ -8374,6 +8404,9 @@
        "color": "#d4a97a",
        "id": "jupiter",
        "knownLimitations": [
+        "No velocity is modelled for planets, so they have no speed readout.",
+        "Until the Jupiter moon package is loaded for the date Jupiter sits at its system barycentre, up to 216 km from its centre (measured 1972 to 2044).",
+        "Before 1972 a date is read on the engine's smooth TT - UTC, while Horizons labels times in UT1 (to 1962) and in UTC's rubber seconds (to 1972): the same label can be up to 0.7 s apart, so a planet can sit up to that much travel away from Horizons' position for that label (measured 1950 to 1971: Mercury 34.5 km, Venus 24.3, Mars 16.8, Jupiter 8.5, Saturn 6.2, Uranus 4.7, Neptune 3.5).",
         "Orientation is the IAU pole direction (linear in time) and prime meridian (linear in time) only; the report's periodic nutation and libration terms are left out, and TT stands in for TDB.",
         "Jupiter's cloud bands rotate at different rates, so any prime meridian is approximate: the texture's orientation is a visual stand-in, not a measured longitude.",
         "Constants: Archinal et al., Report of the IAU Working Group on Cartographic Coordinates and Rotational Elements: 2015, Celestial Mechanics and Dynamical Astronomy 130, article 22 (2018), as transcribed in NAIF pck00011.tpc (2022-12-27)."
@@ -9008,6 +9041,7 @@
        "color": "#f3ede4",
        "id": "moon",
        "knownLimitations": [
+        "No velocity is modelled for the Moon, so it has no speed readout.",
         "The Moon's orientation is the IAU mean-Earth rotation model with its libration terms, so the Moon shows libration in longitude and latitude. It is a published series, not the JPL lunar ephemeris: its sub-Earth point and pole differ from Horizons' by at most 0.01 degrees (about 0.3 km on the surface) at the seven dates from 1969 to 2050 that were checked, and its accuracy elsewhere is not stated by the source.",
         "A landing site placed by the IAU model (a mission reconstruction's, measured at the Sea of Tranquility) sits 0.01 km (under 0.001 degrees) from the same selenographic coordinates on this Moon at touchdown, because the reconstruction and the drawn Moon use the same IAU model (docs/ASTRAEUS_SPIKE_02.md measured 254 km, 8.4 degrees, under the earlier tidal lock)."
        ],
@@ -9709,6 +9743,7 @@
        "color": "#f3ede4",
        "id": "moon",
        "knownLimitations": [
+        "No velocity is modelled for the Moon, so it has no speed readout.",
         "The Moon's orientation is the IAU mean-Earth rotation model with its libration terms, so the Moon shows libration in longitude and latitude. It is a published series, not the JPL lunar ephemeris: its sub-Earth point and pole differ from Horizons' by at most 0.01 degrees (about 0.3 km on the surface) at the seven dates from 1969 to 2050 that were checked, and its accuracy elsewhere is not stated by the source.",
         "A landing site placed by the IAU model (a mission reconstruction's, measured at the Sea of Tranquility) sits 0.01 km (under 0.001 degrees) from the same selenographic coordinates on this Moon at touchdown, because the reconstruction and the drawn Moon use the same IAU model (docs/ASTRAEUS_SPIKE_02.md measured 254 km, 8.4 degrees, under the earlier tidal lock)."
        ],
@@ -10240,6 +10275,7 @@
        "color": "#f3ede4",
        "id": "moon",
        "knownLimitations": [
+        "No velocity is modelled for the Moon, so it has no speed readout.",
         "The Moon's orientation is the IAU mean-Earth rotation model with its libration terms, so the Moon shows libration in longitude and latitude. It is a published series, not the JPL lunar ephemeris: its sub-Earth point and pole differ from Horizons' by at most 0.01 degrees (about 0.3 km on the surface) at the seven dates from 1969 to 2050 that were checked, and its accuracy elsewhere is not stated by the source.",
         "A landing site placed by the IAU model (a mission reconstruction's, measured at the Sea of Tranquility) sits 0.01 km (under 0.001 degrees) from the same selenographic coordinates on this Moon at touchdown, because the reconstruction and the drawn Moon use the same IAU model (docs/ASTRAEUS_SPIKE_02.md measured 254 km, 8.4 degrees, under the earlier tidal lock)."
        ],
@@ -10857,6 +10893,7 @@
        "color": "#f3ede4",
        "id": "moon",
        "knownLimitations": [
+        "No velocity is modelled for the Moon, so it has no speed readout.",
         "The Moon's orientation is the IAU mean-Earth rotation model with its libration terms, so the Moon shows libration in longitude and latitude. It is a published series, not the JPL lunar ephemeris: its sub-Earth point and pole differ from Horizons' by at most 0.01 degrees (about 0.3 km on the surface) at the seven dates from 1969 to 2050 that were checked, and its accuracy elsewhere is not stated by the source.",
         "A landing site placed by the IAU model (a mission reconstruction's, measured at the Sea of Tranquility) sits 0.01 km (under 0.001 degrees) from the same selenographic coordinates on this Moon at touchdown, because the reconstruction and the drawn Moon use the same IAU model (docs/ASTRAEUS_SPIKE_02.md measured 254 km, 8.4 degrees, under the earlier tidal lock)."
        ],
@@ -11460,6 +11497,7 @@
        "color": "#f3ede4",
        "id": "moon",
        "knownLimitations": [
+        "No velocity is modelled for the Moon, so it has no speed readout.",
         "The Moon's orientation is the IAU mean-Earth rotation model with its libration terms, so the Moon shows libration in longitude and latitude. It is a published series, not the JPL lunar ephemeris: its sub-Earth point and pole differ from Horizons' by at most 0.01 degrees (about 0.3 km on the surface) at the seven dates from 1969 to 2050 that were checked, and its accuracy elsewhere is not stated by the source.",
         "A landing site placed by the IAU model (a mission reconstruction's, measured at the Sea of Tranquility) sits 0.01 km (under 0.001 degrees) from the same selenographic coordinates on this Moon at touchdown, because the reconstruction and the drawn Moon use the same IAU model (docs/ASTRAEUS_SPIKE_02.md measured 254 km, 8.4 degrees, under the earlier tidal lock)."
        ],
@@ -11775,6 +11813,7 @@
        "color": "#f3ede4",
        "id": "moon",
        "knownLimitations": [
+        "No velocity is modelled for the Moon, so it has no speed readout.",
         "The Moon's orientation is the IAU mean-Earth rotation model with its libration terms, so the Moon shows libration in longitude and latitude. It is a published series, not the JPL lunar ephemeris: its sub-Earth point and pole differ from Horizons' by at most 0.01 degrees (about 0.3 km on the surface) at the seven dates from 1969 to 2050 that were checked, and its accuracy elsewhere is not stated by the source.",
         "A landing site placed by the IAU model (a mission reconstruction's, measured at the Sea of Tranquility) sits 0.01 km (under 0.001 degrees) from the same selenographic coordinates on this Moon at touchdown, because the reconstruction and the drawn Moon use the same IAU model (docs/ASTRAEUS_SPIKE_02.md measured 254 km, 8.4 degrees, under the earlier tidal lock)."
        ],
@@ -12544,6 +12583,9 @@
        "color": "#e3b28c",
        "id": "mars",
        "knownLimitations": [
+        "No velocity is modelled for planets, so they have no speed readout.",
+        "Until the Mars moon package is loaded (it covers 2010 to 2029) Mars sits at its system barycentre, under a metre from its centre.",
+        "Before 1972 a date is read on the engine's smooth TT - UTC, while Horizons labels times in UT1 (to 1962) and in UTC's rubber seconds (to 1972): the same label can be up to 0.7 s apart, so a planet can sit up to that much travel away from Horizons' position for that label (measured 1950 to 1971: Mercury 34.5 km, Venus 24.3, Mars 16.8, Jupiter 8.5, Saturn 6.2, Uranus 4.7, Neptune 3.5).",
         "Orientation is the IAU pole direction (linear in time) and prime meridian (linear in time) only; the report's periodic nutation and libration terms are left out, and TT stands in for TDB.",
         "Constants: Archinal et al., Report of the IAU Working Group on Cartographic Coordinates and Rotational Elements: 2015, Celestial Mechanics and Dynamical Astronomy 130, article 22 (2018), as transcribed in NAIF pck00011.tpc (2022-12-27)."
        ],
@@ -12903,6 +12945,7 @@
        "color": "#f3ede4",
        "id": "moon",
        "knownLimitations": [
+        "No velocity is modelled for the Moon, so it has no speed readout.",
         "The Moon's orientation is the IAU mean-Earth rotation model with its libration terms, so the Moon shows libration in longitude and latitude. It is a published series, not the JPL lunar ephemeris: its sub-Earth point and pole differ from Horizons' by at most 0.01 degrees (about 0.3 km on the surface) at the seven dates from 1969 to 2050 that were checked, and its accuracy elsewhere is not stated by the source.",
         "A landing site placed by the IAU model (a mission reconstruction's, measured at the Sea of Tranquility) sits 0.01 km (under 0.001 degrees) from the same selenographic coordinates on this Moon at touchdown, because the reconstruction and the drawn Moon use the same IAU model (docs/ASTRAEUS_SPIKE_02.md measured 254 km, 8.4 degrees, under the earlier tidal lock)."
        ],
@@ -13249,6 +13292,8 @@
        "color": "#f6e1b9",
        "id": "venus",
        "knownLimitations": [
+        "No velocity is modelled for planets, so they have no speed readout.",
+        "Before 1972 a date is read on the engine's smooth TT - UTC, while Horizons labels times in UT1 (to 1962) and in UTC's rubber seconds (to 1972): the same label can be up to 0.7 s apart, so a planet can sit up to that much travel away from Horizons' position for that label (measured 1950 to 1971: Mercury 34.5 km, Venus 24.3, Mars 16.8, Jupiter 8.5, Saturn 6.2, Uranus 4.7, Neptune 3.5).",
         "Orientation is the IAU pole direction (linear in time) and prime meridian (linear in time) only; the report's periodic nutation and libration terms are left out, and TT stands in for TDB.",
         "Constants: Archinal et al., Report of the IAU Working Group on Cartographic Coordinates and Rotational Elements: 2015, Celestial Mechanics and Dynamical Astronomy 130, article 22 (2018), as transcribed in NAIF pck00011.tpc (2022-12-27)."
        ],
@@ -13285,6 +13330,9 @@
        "color": "#e3b28c",
        "id": "mars",
        "knownLimitations": [
+        "No velocity is modelled for planets, so they have no speed readout.",
+        "Until the Mars moon package is loaded (it covers 2010 to 2029) Mars sits at its system barycentre, under a metre from its centre.",
+        "Before 1972 a date is read on the engine's smooth TT - UTC, while Horizons labels times in UT1 (to 1962) and in UTC's rubber seconds (to 1972): the same label can be up to 0.7 s apart, so a planet can sit up to that much travel away from Horizons' position for that label (measured 1950 to 1971: Mercury 34.5 km, Venus 24.3, Mars 16.8, Jupiter 8.5, Saturn 6.2, Uranus 4.7, Neptune 3.5).",
         "Orientation is the IAU pole direction (linear in time) and prime meridian (linear in time) only; the report's periodic nutation and libration terms are left out, and TT stands in for TDB.",
         "Constants: Archinal et al., Report of the IAU Working Group on Cartographic Coordinates and Rotational Elements: 2015, Celestial Mechanics and Dynamical Astronomy 130, article 22 (2018), as transcribed in NAIF pck00011.tpc (2022-12-27)."
        ],
@@ -14325,6 +14373,7 @@
        "color": "#f3ede4",
        "id": "moon",
        "knownLimitations": [
+        "No velocity is modelled for the Moon, so it has no speed readout.",
         "The Moon's orientation is the IAU mean-Earth rotation model with its libration terms, so the Moon shows libration in longitude and latitude. It is a published series, not the JPL lunar ephemeris: its sub-Earth point and pole differ from Horizons' by at most 0.01 degrees (about 0.3 km on the surface) at the seven dates from 1969 to 2050 that were checked, and its accuracy elsewhere is not stated by the source.",
         "A landing site placed by the IAU model (a mission reconstruction's, measured at the Sea of Tranquility) sits 0.01 km (under 0.001 degrees) from the same selenographic coordinates on this Moon at touchdown, because the reconstruction and the drawn Moon use the same IAU model (docs/ASTRAEUS_SPIKE_02.md measured 254 km, 8.4 degrees, under the earlier tidal lock)."
        ],
@@ -16698,6 +16747,8 @@
        "color": "#f6e1b9",
        "id": "venus",
        "knownLimitations": [
+        "No velocity is modelled for planets, so they have no speed readout.",
+        "Before 1972 a date is read on the engine's smooth TT - UTC, while Horizons labels times in UT1 (to 1962) and in UTC's rubber seconds (to 1972): the same label can be up to 0.7 s apart, so a planet can sit up to that much travel away from Horizons' position for that label (measured 1950 to 1971: Mercury 34.5 km, Venus 24.3, Mars 16.8, Jupiter 8.5, Saturn 6.2, Uranus 4.7, Neptune 3.5).",
         "Orientation is the IAU pole direction (linear in time) and prime meridian (linear in time) only; the report's periodic nutation and libration terms are left out, and TT stands in for TDB.",
         "Constants: Archinal et al., Report of the IAU Working Group on Cartographic Coordinates and Rotational Elements: 2015, Celestial Mechanics and Dynamical Astronomy 130, article 22 (2018), as transcribed in NAIF pck00011.tpc (2022-12-27)."
        ],
@@ -16737,6 +16788,9 @@
        "color": "#e3b28c",
        "id": "mars",
        "knownLimitations": [
+        "No velocity is modelled for planets, so they have no speed readout.",
+        "Until the Mars moon package is loaded (it covers 2010 to 2029) Mars sits at its system barycentre, under a metre from its centre.",
+        "Before 1972 a date is read on the engine's smooth TT - UTC, while Horizons labels times in UT1 (to 1962) and in UTC's rubber seconds (to 1972): the same label can be up to 0.7 s apart, so a planet can sit up to that much travel away from Horizons' position for that label (measured 1950 to 1971: Mercury 34.5 km, Venus 24.3, Mars 16.8, Jupiter 8.5, Saturn 6.2, Uranus 4.7, Neptune 3.5).",
         "Orientation is the IAU pole direction (linear in time) and prime meridian (linear in time) only; the report's periodic nutation and libration terms are left out, and TT stands in for TDB.",
         "Constants: Archinal et al., Report of the IAU Working Group on Cartographic Coordinates and Rotational Elements: 2015, Celestial Mechanics and Dynamical Astronomy 130, article 22 (2018), as transcribed in NAIF pck00011.tpc (2022-12-27)."
        ],
@@ -16755,6 +16809,9 @@
        "color": "#d4a97a",
        "id": "jupiter",
        "knownLimitations": [
+        "No velocity is modelled for planets, so they have no speed readout.",
+        "Until the Jupiter moon package is loaded for the date Jupiter sits at its system barycentre, up to 216 km from its centre (measured 1972 to 2044).",
+        "Before 1972 a date is read on the engine's smooth TT - UTC, while Horizons labels times in UT1 (to 1962) and in UTC's rubber seconds (to 1972): the same label can be up to 0.7 s apart, so a planet can sit up to that much travel away from Horizons' position for that label (measured 1950 to 1971: Mercury 34.5 km, Venus 24.3, Mars 16.8, Jupiter 8.5, Saturn 6.2, Uranus 4.7, Neptune 3.5).",
         "Orientation is the IAU pole direction (linear in time) and prime meridian (linear in time) only; the report's periodic nutation and libration terms are left out, and TT stands in for TDB.",
         "Jupiter's cloud bands rotate at different rates, so any prime meridian is approximate: the texture's orientation is a visual stand-in, not a measured longitude.",
         "Constants: Archinal et al., Report of the IAU Working Group on Cartographic Coordinates and Rotational Elements: 2015, Celestial Mechanics and Dynamical Astronomy 130, article 22 (2018), as transcribed in NAIF pck00011.tpc (2022-12-27)."
@@ -16932,6 +16989,8 @@
        "color": "#f6e1b9",
        "id": "venus",
        "knownLimitations": [
+        "No velocity is modelled for planets, so they have no speed readout.",
+        "Before 1972 a date is read on the engine's smooth TT - UTC, while Horizons labels times in UT1 (to 1962) and in UTC's rubber seconds (to 1972): the same label can be up to 0.7 s apart, so a planet can sit up to that much travel away from Horizons' position for that label (measured 1950 to 1971: Mercury 34.5 km, Venus 24.3, Mars 16.8, Jupiter 8.5, Saturn 6.2, Uranus 4.7, Neptune 3.5).",
         "Orientation is the IAU pole direction (linear in time) and prime meridian (linear in time) only; the report's periodic nutation and libration terms are left out, and TT stands in for TDB.",
         "Constants: Archinal et al., Report of the IAU Working Group on Cartographic Coordinates and Rotational Elements: 2015, Celestial Mechanics and Dynamical Astronomy 130, article 22 (2018), as transcribed in NAIF pck00011.tpc (2022-12-27)."
        ],
@@ -16971,6 +17030,9 @@
        "color": "#e3b28c",
        "id": "mars",
        "knownLimitations": [
+        "No velocity is modelled for planets, so they have no speed readout.",
+        "Until the Mars moon package is loaded (it covers 2010 to 2029) Mars sits at its system barycentre, under a metre from its centre.",
+        "Before 1972 a date is read on the engine's smooth TT - UTC, while Horizons labels times in UT1 (to 1962) and in UTC's rubber seconds (to 1972): the same label can be up to 0.7 s apart, so a planet can sit up to that much travel away from Horizons' position for that label (measured 1950 to 1971: Mercury 34.5 km, Venus 24.3, Mars 16.8, Jupiter 8.5, Saturn 6.2, Uranus 4.7, Neptune 3.5).",
         "Orientation is the IAU pole direction (linear in time) and prime meridian (linear in time) only; the report's periodic nutation and libration terms are left out, and TT stands in for TDB.",
         "Constants: Archinal et al., Report of the IAU Working Group on Cartographic Coordinates and Rotational Elements: 2015, Celestial Mechanics and Dynamical Astronomy 130, article 22 (2018), as transcribed in NAIF pck00011.tpc (2022-12-27)."
        ],
@@ -16989,6 +17051,9 @@
        "color": "#d4a97a",
        "id": "jupiter",
        "knownLimitations": [
+        "No velocity is modelled for planets, so they have no speed readout.",
+        "Until the Jupiter moon package is loaded for the date Jupiter sits at its system barycentre, up to 216 km from its centre (measured 1972 to 2044).",
+        "Before 1972 a date is read on the engine's smooth TT - UTC, while Horizons labels times in UT1 (to 1962) and in UTC's rubber seconds (to 1972): the same label can be up to 0.7 s apart, so a planet can sit up to that much travel away from Horizons' position for that label (measured 1950 to 1971: Mercury 34.5 km, Venus 24.3, Mars 16.8, Jupiter 8.5, Saturn 6.2, Uranus 4.7, Neptune 3.5).",
         "Orientation is the IAU pole direction (linear in time) and prime meridian (linear in time) only; the report's periodic nutation and libration terms are left out, and TT stands in for TDB.",
         "Jupiter's cloud bands rotate at different rates, so any prime meridian is approximate: the texture's orientation is a visual stand-in, not a measured longitude.",
         "Constants: Archinal et al., Report of the IAU Working Group on Cartographic Coordinates and Rotational Elements: 2015, Celestial Mechanics and Dynamical Astronomy 130, article 22 (2018), as transcribed in NAIF pck00011.tpc (2022-12-27)."
@@ -17624,6 +17689,7 @@
        "color": "#f3ede4",
        "id": "moon",
        "knownLimitations": [
+        "No velocity is modelled for the Moon, so it has no speed readout.",
         "The Moon's orientation is the IAU mean-Earth rotation model with its libration terms, so the Moon shows libration in longitude and latitude. It is a published series, not the JPL lunar ephemeris: its sub-Earth point and pole differ from Horizons' by at most 0.01 degrees (about 0.3 km on the surface) at the seven dates from 1969 to 2050 that were checked, and its accuracy elsewhere is not stated by the source.",
         "A landing site placed by the IAU model (a mission reconstruction's, measured at the Sea of Tranquility) sits 0.01 km (under 0.001 degrees) from the same selenographic coordinates on this Moon at touchdown, because the reconstruction and the drawn Moon use the same IAU model (docs/ASTRAEUS_SPIKE_02.md measured 254 km, 8.4 degrees, under the earlier tidal lock)."
        ],
@@ -17895,6 +17961,7 @@
        "color": "#f3ede4",
        "id": "moon",
        "knownLimitations": [
+        "No velocity is modelled for the Moon, so it has no speed readout.",
         "The Moon's orientation is the IAU mean-Earth rotation model with its libration terms, so the Moon shows libration in longitude and latitude. It is a published series, not the JPL lunar ephemeris: its sub-Earth point and pole differ from Horizons' by at most 0.01 degrees (about 0.3 km on the surface) at the seven dates from 1969 to 2050 that were checked, and its accuracy elsewhere is not stated by the source.",
         "A landing site placed by the IAU model (a mission reconstruction's, measured at the Sea of Tranquility) sits 0.01 km (under 0.001 degrees) from the same selenographic coordinates on this Moon at touchdown, because the reconstruction and the drawn Moon use the same IAU model (docs/ASTRAEUS_SPIKE_02.md measured 254 km, 8.4 degrees, under the earlier tidal lock)."
        ],
@@ -18191,6 +18258,9 @@
        "color": "#d4a97a",
        "id": "jupiter",
        "knownLimitations": [
+        "No velocity is modelled for planets, so they have no speed readout.",
+        "Until the Jupiter moon package is loaded for the date Jupiter sits at its system barycentre, up to 216 km from its centre (measured 1972 to 2044).",
+        "Before 1972 a date is read on the engine's smooth TT - UTC, while Horizons labels times in UT1 (to 1962) and in UTC's rubber seconds (to 1972): the same label can be up to 0.7 s apart, so a planet can sit up to that much travel away from Horizons' position for that label (measured 1950 to 1971: Mercury 34.5 km, Venus 24.3, Mars 16.8, Jupiter 8.5, Saturn 6.2, Uranus 4.7, Neptune 3.5).",
         "Orientation is the IAU pole direction (linear in time) and prime meridian (linear in time) only; the report's periodic nutation and libration terms are left out, and TT stands in for TDB.",
         "Jupiter's cloud bands rotate at different rates, so any prime meridian is approximate: the texture's orientation is a visual stand-in, not a measured longitude.",
         "Constants: Archinal et al., Report of the IAU Working Group on Cartographic Coordinates and Rotational Elements: 2015, Celestial Mechanics and Dynamical Astronomy 130, article 22 (2018), as transcribed in NAIF pck00011.tpc (2022-12-27)."
@@ -18575,6 +18645,9 @@
        "color": "#9fd5df",
        "id": "uranus",
        "knownLimitations": [
+        "No velocity is modelled for planets, so they have no speed readout.",
+        "Until the Uranus moon package is loaded for the date Uranus sits at its system barycentre, up to 45 km from its centre (measured 1972 to 2044).",
+        "Before 1972 a date is read on the engine's smooth TT - UTC, while Horizons labels times in UT1 (to 1962) and in UTC's rubber seconds (to 1972): the same label can be up to 0.7 s apart, so a planet can sit up to that much travel away from Horizons' position for that label (measured 1950 to 1971: Mercury 34.5 km, Venus 24.3, Mars 16.8, Jupiter 8.5, Saturn 6.2, Uranus 4.7, Neptune 3.5).",
         "Orientation is the IAU pole direction (linear in time) and prime meridian (linear in time) only; the report's periodic nutation and libration terms are left out, and TT stands in for TDB.",
         "Uranus's cloud bands rotate at different rates, so any prime meridian is approximate: the texture's orientation is a visual stand-in, not a measured longitude.",
         "Constants: Archinal et al., Report of the IAU Working Group on Cartographic Coordinates and Rotational Elements: 2015, Celestial Mechanics and Dynamical Astronomy 130, article 22 (2018), as transcribed in NAIF pck00011.tpc (2022-12-27)."
@@ -19945,6 +20018,7 @@
        "color": "#f3ede4",
        "id": "moon",
        "knownLimitations": [
+        "No velocity is modelled for the Moon, so it has no speed readout.",
         "The Moon's orientation is the IAU mean-Earth rotation model with its libration terms, so the Moon shows libration in longitude and latitude. It is a published series, not the JPL lunar ephemeris: its sub-Earth point and pole differ from Horizons' by at most 0.01 degrees (about 0.3 km on the surface) at the seven dates from 1969 to 2050 that were checked, and its accuracy elsewhere is not stated by the source.",
         "A landing site placed by the IAU model (a mission reconstruction's, measured at the Sea of Tranquility) sits 0.01 km (under 0.001 degrees) from the same selenographic coordinates on this Moon at touchdown, because the reconstruction and the drawn Moon use the same IAU model (docs/ASTRAEUS_SPIKE_02.md measured 254 km, 8.4 degrees, under the earlier tidal lock)."
        ],
@@ -21251,6 +21325,7 @@
        "color": "#f3ede4",
        "id": "moon",
        "knownLimitations": [
+        "No velocity is modelled for the Moon, so it has no speed readout.",
         "The Moon's orientation is the IAU mean-Earth rotation model with its libration terms, so the Moon shows libration in longitude and latitude. It is a published series, not the JPL lunar ephemeris: its sub-Earth point and pole differ from Horizons' by at most 0.01 degrees (about 0.3 km on the surface) at the seven dates from 1969 to 2050 that were checked, and its accuracy elsewhere is not stated by the source.",
         "A landing site placed by the IAU model (a mission reconstruction's, measured at the Sea of Tranquility) sits 0.01 km (under 0.001 degrees) from the same selenographic coordinates on this Moon at touchdown, because the reconstruction and the drawn Moon use the same IAU model (docs/ASTRAEUS_SPIKE_02.md measured 254 km, 8.4 degrees, under the earlier tidal lock)."
        ],
@@ -21801,6 +21876,9 @@
        "color": "#d4a97a",
        "id": "jupiter",
        "knownLimitations": [
+        "No velocity is modelled for planets, so they have no speed readout.",
+        "Until the Jupiter moon package is loaded for the date Jupiter sits at its system barycentre, up to 216 km from its centre (measured 1972 to 2044).",
+        "Before 1972 a date is read on the engine's smooth TT - UTC, while Horizons labels times in UT1 (to 1962) and in UTC's rubber seconds (to 1972): the same label can be up to 0.7 s apart, so a planet can sit up to that much travel away from Horizons' position for that label (measured 1950 to 1971: Mercury 34.5 km, Venus 24.3, Mars 16.8, Jupiter 8.5, Saturn 6.2, Uranus 4.7, Neptune 3.5).",
         "Orientation is the IAU pole direction (linear in time) and prime meridian (linear in time) only; the report's periodic nutation and libration terms are left out, and TT stands in for TDB.",
         "Jupiter's cloud bands rotate at different rates, so any prime meridian is approximate: the texture's orientation is a visual stand-in, not a measured longitude.",
         "Constants: Archinal et al., Report of the IAU Working Group on Cartographic Coordinates and Rotational Elements: 2015, Celestial Mechanics and Dynamical Astronomy 130, article 22 (2018), as transcribed in NAIF pck00011.tpc (2022-12-27)."
@@ -22085,6 +22163,9 @@
        "color": "#d4a97a",
        "id": "jupiter",
        "knownLimitations": [
+        "No velocity is modelled for planets, so they have no speed readout.",
+        "Until the Jupiter moon package is loaded for the date Jupiter sits at its system barycentre, up to 216 km from its centre (measured 1972 to 2044).",
+        "Before 1972 a date is read on the engine's smooth TT - UTC, while Horizons labels times in UT1 (to 1962) and in UTC's rubber seconds (to 1972): the same label can be up to 0.7 s apart, so a planet can sit up to that much travel away from Horizons' position for that label (measured 1950 to 1971: Mercury 34.5 km, Venus 24.3, Mars 16.8, Jupiter 8.5, Saturn 6.2, Uranus 4.7, Neptune 3.5).",
         "Orientation is the IAU pole direction (linear in time) and prime meridian (linear in time) only; the report's periodic nutation and libration terms are left out, and TT stands in for TDB.",
         "Jupiter's cloud bands rotate at different rates, so any prime meridian is approximate: the texture's orientation is a visual stand-in, not a measured longitude.",
         "Constants: Archinal et al., Report of the IAU Working Group on Cartographic Coordinates and Rotational Elements: 2015, Celestial Mechanics and Dynamical Astronomy 130, article 22 (2018), as transcribed in NAIF pck00011.tpc (2022-12-27)."
@@ -23128,6 +23209,9 @@
        "color": "#d4a97a",
        "id": "jupiter",
        "knownLimitations": [
+        "No velocity is modelled for planets, so they have no speed readout.",
+        "Until the Jupiter moon package is loaded for the date Jupiter sits at its system barycentre, up to 216 km from its centre (measured 1972 to 2044).",
+        "Before 1972 a date is read on the engine's smooth TT - UTC, while Horizons labels times in UT1 (to 1962) and in UTC's rubber seconds (to 1972): the same label can be up to 0.7 s apart, so a planet can sit up to that much travel away from Horizons' position for that label (measured 1950 to 1971: Mercury 34.5 km, Venus 24.3, Mars 16.8, Jupiter 8.5, Saturn 6.2, Uranus 4.7, Neptune 3.5).",
         "Orientation is the IAU pole direction (linear in time) and prime meridian (linear in time) only; the report's periodic nutation and libration terms are left out, and TT stands in for TDB.",
         "Jupiter's cloud bands rotate at different rates, so any prime meridian is approximate: the texture's orientation is a visual stand-in, not a measured longitude.",
         "Constants: Archinal et al., Report of the IAU Working Group on Cartographic Coordinates and Rotational Elements: 2015, Celestial Mechanics and Dynamical Astronomy 130, article 22 (2018), as transcribed in NAIF pck00011.tpc (2022-12-27)."
@@ -23458,6 +23542,9 @@
        "color": "#d4a97a",
        "id": "jupiter",
        "knownLimitations": [
+        "No velocity is modelled for planets, so they have no speed readout.",
+        "Until the Jupiter moon package is loaded for the date Jupiter sits at its system barycentre, up to 216 km from its centre (measured 1972 to 2044).",
+        "Before 1972 a date is read on the engine's smooth TT - UTC, while Horizons labels times in UT1 (to 1962) and in UTC's rubber seconds (to 1972): the same label can be up to 0.7 s apart, so a planet can sit up to that much travel away from Horizons' position for that label (measured 1950 to 1971: Mercury 34.5 km, Venus 24.3, Mars 16.8, Jupiter 8.5, Saturn 6.2, Uranus 4.7, Neptune 3.5).",
         "Orientation is the IAU pole direction (linear in time) and prime meridian (linear in time) only; the report's periodic nutation and libration terms are left out, and TT stands in for TDB.",
         "Jupiter's cloud bands rotate at different rates, so any prime meridian is approximate: the texture's orientation is a visual stand-in, not a measured longitude.",
         "Constants: Archinal et al., Report of the IAU Working Group on Cartographic Coordinates and Rotational Elements: 2015, Celestial Mechanics and Dynamical Astronomy 130, article 22 (2018), as transcribed in NAIF pck00011.tpc (2022-12-27)."
@@ -24090,6 +24177,7 @@
        "color": "#f3ede4",
        "id": "moon",
        "knownLimitations": [
+        "No velocity is modelled for the Moon, so it has no speed readout.",
         "The Moon's orientation is the IAU mean-Earth rotation model with its libration terms, so the Moon shows libration in longitude and latitude. It is a published series, not the JPL lunar ephemeris: its sub-Earth point and pole differ from Horizons' by at most 0.01 degrees (about 0.3 km on the surface) at the seven dates from 1969 to 2050 that were checked, and its accuracy elsewhere is not stated by the source.",
         "A landing site placed by the IAU model (a mission reconstruction's, measured at the Sea of Tranquility) sits 0.01 km (under 0.001 degrees) from the same selenographic coordinates on this Moon at touchdown, because the reconstruction and the drawn Moon use the same IAU model (docs/ASTRAEUS_SPIKE_02.md measured 254 km, 8.4 degrees, under the earlier tidal lock)."
        ],
@@ -24791,6 +24879,7 @@
        "color": "#f3ede4",
        "id": "moon",
        "knownLimitations": [
+        "No velocity is modelled for the Moon, so it has no speed readout.",
         "The Moon's orientation is the IAU mean-Earth rotation model with its libration terms, so the Moon shows libration in longitude and latitude. It is a published series, not the JPL lunar ephemeris: its sub-Earth point and pole differ from Horizons' by at most 0.01 degrees (about 0.3 km on the surface) at the seven dates from 1969 to 2050 that were checked, and its accuracy elsewhere is not stated by the source.",
         "A landing site placed by the IAU model (a mission reconstruction's, measured at the Sea of Tranquility) sits 0.01 km (under 0.001 degrees) from the same selenographic coordinates on this Moon at touchdown, because the reconstruction and the drawn Moon use the same IAU model (docs/ASTRAEUS_SPIKE_02.md measured 254 km, 8.4 degrees, under the earlier tidal lock)."
        ],
@@ -25322,6 +25411,7 @@
        "color": "#f3ede4",
        "id": "moon",
        "knownLimitations": [
+        "No velocity is modelled for the Moon, so it has no speed readout.",
         "The Moon's orientation is the IAU mean-Earth rotation model with its libration terms, so the Moon shows libration in longitude and latitude. It is a published series, not the JPL lunar ephemeris: its sub-Earth point and pole differ from Horizons' by at most 0.01 degrees (about 0.3 km on the surface) at the seven dates from 1969 to 2050 that were checked, and its accuracy elsewhere is not stated by the source.",
         "A landing site placed by the IAU model (a mission reconstruction's, measured at the Sea of Tranquility) sits 0.01 km (under 0.001 degrees) from the same selenographic coordinates on this Moon at touchdown, because the reconstruction and the drawn Moon use the same IAU model (docs/ASTRAEUS_SPIKE_02.md measured 254 km, 8.4 degrees, under the earlier tidal lock)."
        ],
@@ -25939,6 +26029,7 @@
        "color": "#f3ede4",
        "id": "moon",
        "knownLimitations": [
+        "No velocity is modelled for the Moon, so it has no speed readout.",
         "The Moon's orientation is the IAU mean-Earth rotation model with its libration terms, so the Moon shows libration in longitude and latitude. It is a published series, not the JPL lunar ephemeris: its sub-Earth point and pole differ from Horizons' by at most 0.01 degrees (about 0.3 km on the surface) at the seven dates from 1969 to 2050 that were checked, and its accuracy elsewhere is not stated by the source.",
         "A landing site placed by the IAU model (a mission reconstruction's, measured at the Sea of Tranquility) sits 0.01 km (under 0.001 degrees) from the same selenographic coordinates on this Moon at touchdown, because the reconstruction and the drawn Moon use the same IAU model (docs/ASTRAEUS_SPIKE_02.md measured 254 km, 8.4 degrees, under the earlier tidal lock)."
        ],
@@ -26542,6 +26633,7 @@
        "color": "#f3ede4",
        "id": "moon",
        "knownLimitations": [
+        "No velocity is modelled for the Moon, so it has no speed readout.",
         "The Moon's orientation is the IAU mean-Earth rotation model with its libration terms, so the Moon shows libration in longitude and latitude. It is a published series, not the JPL lunar ephemeris: its sub-Earth point and pole differ from Horizons' by at most 0.01 degrees (about 0.3 km on the surface) at the seven dates from 1969 to 2050 that were checked, and its accuracy elsewhere is not stated by the source.",
         "A landing site placed by the IAU model (a mission reconstruction's, measured at the Sea of Tranquility) sits 0.01 km (under 0.001 degrees) from the same selenographic coordinates on this Moon at touchdown, because the reconstruction and the drawn Moon use the same IAU model (docs/ASTRAEUS_SPIKE_02.md measured 254 km, 8.4 degrees, under the earlier tidal lock)."
        ],
@@ -26857,6 +26949,7 @@
        "color": "#f3ede4",
        "id": "moon",
        "knownLimitations": [
+        "No velocity is modelled for the Moon, so it has no speed readout.",
         "The Moon's orientation is the IAU mean-Earth rotation model with its libration terms, so the Moon shows libration in longitude and latitude. It is a published series, not the JPL lunar ephemeris: its sub-Earth point and pole differ from Horizons' by at most 0.01 degrees (about 0.3 km on the surface) at the seven dates from 1969 to 2050 that were checked, and its accuracy elsewhere is not stated by the source.",
         "A landing site placed by the IAU model (a mission reconstruction's, measured at the Sea of Tranquility) sits 0.01 km (under 0.001 degrees) from the same selenographic coordinates on this Moon at touchdown, because the reconstruction and the drawn Moon use the same IAU model (docs/ASTRAEUS_SPIKE_02.md measured 254 km, 8.4 degrees, under the earlier tidal lock)."
        ],
@@ -27631,6 +27724,9 @@
        "color": "#e3b28c",
        "id": "mars",
        "knownLimitations": [
+        "No velocity is modelled for planets, so they have no speed readout.",
+        "Until the Mars moon package is loaded (it covers 2010 to 2029) Mars sits at its system barycentre, under a metre from its centre.",
+        "Before 1972 a date is read on the engine's smooth TT - UTC, while Horizons labels times in UT1 (to 1962) and in UTC's rubber seconds (to 1972): the same label can be up to 0.7 s apart, so a planet can sit up to that much travel away from Horizons' position for that label (measured 1950 to 1971: Mercury 34.5 km, Venus 24.3, Mars 16.8, Jupiter 8.5, Saturn 6.2, Uranus 4.7, Neptune 3.5).",
         "Orientation is the IAU pole direction (linear in time) and prime meridian (linear in time) only; the report's periodic nutation and libration terms are left out, and TT stands in for TDB.",
         "Constants: Archinal et al., Report of the IAU Working Group on Cartographic Coordinates and Rotational Elements: 2015, Celestial Mechanics and Dynamical Astronomy 130, article 22 (2018), as transcribed in NAIF pck00011.tpc (2022-12-27)."
        ],
@@ -27794,6 +27890,9 @@
        "color": "#e3b28c",
        "id": "mars",
        "knownLimitations": [
+        "No velocity is modelled for planets, so they have no speed readout.",
+        "Until the Mars moon package is loaded (it covers 2010 to 2029) Mars sits at its system barycentre, under a metre from its centre.",
+        "Before 1972 a date is read on the engine's smooth TT - UTC, while Horizons labels times in UT1 (to 1962) and in UTC's rubber seconds (to 1972): the same label can be up to 0.7 s apart, so a planet can sit up to that much travel away from Horizons' position for that label (measured 1950 to 1971: Mercury 34.5 km, Venus 24.3, Mars 16.8, Jupiter 8.5, Saturn 6.2, Uranus 4.7, Neptune 3.5).",
         "Orientation is the IAU pole direction (linear in time) and prime meridian (linear in time) only; the report's periodic nutation and libration terms are left out, and TT stands in for TDB.",
         "Constants: Archinal et al., Report of the IAU Working Group on Cartographic Coordinates and Rotational Elements: 2015, Celestial Mechanics and Dynamical Astronomy 130, article 22 (2018), as transcribed in NAIF pck00011.tpc (2022-12-27)."
        ],
@@ -28151,6 +28250,7 @@
        "color": "#f3ede4",
        "id": "moon",
        "knownLimitations": [
+        "No velocity is modelled for the Moon, so it has no speed readout.",
         "The Moon's orientation is the IAU mean-Earth rotation model with its libration terms, so the Moon shows libration in longitude and latitude. It is a published series, not the JPL lunar ephemeris: its sub-Earth point and pole differ from Horizons' by at most 0.01 degrees (about 0.3 km on the surface) at the seven dates from 1969 to 2050 that were checked, and its accuracy elsewhere is not stated by the source.",
         "A landing site placed by the IAU model (a mission reconstruction's, measured at the Sea of Tranquility) sits 0.01 km (under 0.001 degrees) from the same selenographic coordinates on this Moon at touchdown, because the reconstruction and the drawn Moon use the same IAU model (docs/ASTRAEUS_SPIKE_02.md measured 254 km, 8.4 degrees, under the earlier tidal lock)."
        ],
@@ -28502,6 +28602,8 @@
        "color": "#f6e1b9",
        "id": "venus",
        "knownLimitations": [
+        "No velocity is modelled for planets, so they have no speed readout.",
+        "Before 1972 a date is read on the engine's smooth TT - UTC, while Horizons labels times in UT1 (to 1962) and in UTC's rubber seconds (to 1972): the same label can be up to 0.7 s apart, so a planet can sit up to that much travel away from Horizons' position for that label (measured 1950 to 1971: Mercury 34.5 km, Venus 24.3, Mars 16.8, Jupiter 8.5, Saturn 6.2, Uranus 4.7, Neptune 3.5).",
         "Orientation is the IAU pole direction (linear in time) and prime meridian (linear in time) only; the report's periodic nutation and libration terms are left out, and TT stands in for TDB.",
         "Constants: Archinal et al., Report of the IAU Working Group on Cartographic Coordinates and Rotational Elements: 2015, Celestial Mechanics and Dynamical Astronomy 130, article 22 (2018), as transcribed in NAIF pck00011.tpc (2022-12-27)."
        ],
@@ -28538,6 +28640,9 @@
        "color": "#e3b28c",
        "id": "mars",
        "knownLimitations": [
+        "No velocity is modelled for planets, so they have no speed readout.",
+        "Until the Mars moon package is loaded (it covers 2010 to 2029) Mars sits at its system barycentre, under a metre from its centre.",
+        "Before 1972 a date is read on the engine's smooth TT - UTC, while Horizons labels times in UT1 (to 1962) and in UTC's rubber seconds (to 1972): the same label can be up to 0.7 s apart, so a planet can sit up to that much travel away from Horizons' position for that label (measured 1950 to 1971: Mercury 34.5 km, Venus 24.3, Mars 16.8, Jupiter 8.5, Saturn 6.2, Uranus 4.7, Neptune 3.5).",
         "Orientation is the IAU pole direction (linear in time) and prime meridian (linear in time) only; the report's periodic nutation and libration terms are left out, and TT stands in for TDB.",
         "Constants: Archinal et al., Report of the IAU Working Group on Cartographic Coordinates and Rotational Elements: 2015, Celestial Mechanics and Dynamical Astronomy 130, article 22 (2018), as transcribed in NAIF pck00011.tpc (2022-12-27)."
        ],
@@ -28850,6 +28955,8 @@
        "color": "#f6e1b9",
        "id": "venus",
        "knownLimitations": [
+        "No velocity is modelled for planets, so they have no speed readout.",
+        "Before 1972 a date is read on the engine's smooth TT - UTC, while Horizons labels times in UT1 (to 1962) and in UTC's rubber seconds (to 1972): the same label can be up to 0.7 s apart, so a planet can sit up to that much travel away from Horizons' position for that label (measured 1950 to 1971: Mercury 34.5 km, Venus 24.3, Mars 16.8, Jupiter 8.5, Saturn 6.2, Uranus 4.7, Neptune 3.5).",
         "Orientation is the IAU pole direction (linear in time) and prime meridian (linear in time) only; the report's periodic nutation and libration terms are left out, and TT stands in for TDB.",
         "Constants: Archinal et al., Report of the IAU Working Group on Cartographic Coordinates and Rotational Elements: 2015, Celestial Mechanics and Dynamical Astronomy 130, article 22 (2018), as transcribed in NAIF pck00011.tpc (2022-12-27)."
        ],
@@ -28886,6 +28993,9 @@
        "color": "#e3b28c",
        "id": "mars",
        "knownLimitations": [
+        "No velocity is modelled for planets, so they have no speed readout.",
+        "Until the Mars moon package is loaded (it covers 2010 to 2029) Mars sits at its system barycentre, under a metre from its centre.",
+        "Before 1972 a date is read on the engine's smooth TT - UTC, while Horizons labels times in UT1 (to 1962) and in UTC's rubber seconds (to 1972): the same label can be up to 0.7 s apart, so a planet can sit up to that much travel away from Horizons' position for that label (measured 1950 to 1971: Mercury 34.5 km, Venus 24.3, Mars 16.8, Jupiter 8.5, Saturn 6.2, Uranus 4.7, Neptune 3.5).",
         "Orientation is the IAU pole direction (linear in time) and prime meridian (linear in time) only; the report's periodic nutation and libration terms are left out, and TT stands in for TDB.",
         "Constants: Archinal et al., Report of the IAU Working Group on Cartographic Coordinates and Rotational Elements: 2015, Celestial Mechanics and Dynamical Astronomy 130, article 22 (2018), as transcribed in NAIF pck00011.tpc (2022-12-27)."
        ],
@@ -29924,6 +30034,7 @@
        "color": "#f3ede4",
        "id": "moon",
        "knownLimitations": [
+        "No velocity is modelled for the Moon, so it has no speed readout.",
         "The Moon's orientation is the IAU mean-Earth rotation model with its libration terms, so the Moon shows libration in longitude and latitude. It is a published series, not the JPL lunar ephemeris: its sub-Earth point and pole differ from Horizons' by at most 0.01 degrees (about 0.3 km on the surface) at the seven dates from 1969 to 2050 that were checked, and its accuracy elsewhere is not stated by the source.",
         "A landing site placed by the IAU model (a mission reconstruction's, measured at the Sea of Tranquility) sits 0.01 km (under 0.001 degrees) from the same selenographic coordinates on this Moon at touchdown, because the reconstruction and the drawn Moon use the same IAU model (docs/ASTRAEUS_SPIKE_02.md measured 254 km, 8.4 degrees, under the earlier tidal lock)."
        ],

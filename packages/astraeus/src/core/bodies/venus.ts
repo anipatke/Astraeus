@@ -33,6 +33,7 @@ export const VENUS: CelestialBodyDefinition = Object.freeze({
       notes: "Gravitational parameter in km^3/s^2 from the Horizons physical-data header.",
     }),
     position: VENUS_EPHEMERIS.provenance,
+    positionLimitations: VENUS_EPHEMERIS.knownLimitations,
     validUtc: PLANET_VALIDATED_UTC,
     orientationLimitations: Object.freeze([ROTATION_LIMITATION, `Constants: ${IAU_REPORT}.`]),
   }),

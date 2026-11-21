@@ -45,6 +45,8 @@ export interface CelestialBodyDefinition {
     readonly position: Provenance;
     readonly validUtc: TimeBounds;
     readonly orientationLimitations: readonly string[];
+    /** What is known to be off in the body's position (its ephemeris record's sentences); the card lists them before the orientation limits. Optional for bodies whose position is a fitted package or elements (their provenance says so). */
+    readonly positionLimitations?: readonly string[];
   };
 }
 

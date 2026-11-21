@@ -36,6 +36,8 @@ export const EARTH: CelestialBodyDefinition = Object.freeze({
     position: EARTH_EPHEMERIS.provenance,
     // The EPV00 model's stated validity.
     validUtc: Object.freeze({ startUtcMs: Date.UTC(1900, 0, 1), endUtcMs: Date.UTC(2100, 0, 1) }),
+    // The record's one sentence is about orientation, so it is listed there only; Earth's record holds no position sentence.
+    positionLimitations: Object.freeze([]),
     orientationLimitations: EARTH_EPHEMERIS.knownLimitations,
   }),
 });

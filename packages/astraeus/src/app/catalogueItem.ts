@@ -14,7 +14,7 @@ export function catalogueItem(id: BodyId, own: Partial<Omit<ExperienceObject, "i
     label: definition.label,
     color: visual.material.color,
     provenance: definition.accuracy.position,
-    knownLimitations: definition.accuracy.orientationLimitations,
+    knownLimitations: [...new Set([...(definition.accuracy.positionLimitations ?? []), ...definition.accuracy.orientationLimitations])],
     ...own,
   };
 }

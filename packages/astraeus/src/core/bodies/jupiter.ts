@@ -37,6 +37,7 @@ export const JUPITER: CelestialBodyDefinition = Object.freeze({
       notes: "Gravitational parameter in km^3/s^2 from the Horizons physical-data header.",
     }),
     position: JUPITER_EPHEMERIS.provenance,
+    positionLimitations: JUPITER_EPHEMERIS.knownLimitations,
     validUtc: PLANET_VALIDATED_UTC,
     orientationLimitations: Object.freeze([
       ROTATION_LIMITATION,

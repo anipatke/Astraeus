@@ -33,6 +33,7 @@ function giantPlanet(
     accuracy: Object.freeze({
       dimensions: planetDimensions(label, texts.radius, texts.gm),
       position: ephemeris.provenance,
+      positionLimitations: ephemeris.knownLimitations,
       validUtc: PLANET_VALIDATED_UTC,
       orientationLimitations: Object.freeze([ROTATION_LIMITATION, ...extraLimitations, `Constants: ${IAU_REPORT}.`]),
     }),
@@ -75,6 +76,7 @@ export const PLUTO: CelestialBodyDefinition = Object.freeze({
       notes: "Gravitational parameter in km^3/s^2 from the same header.",
     }),
     position: PLUTO_EPHEMERIS.provenance,
+    positionLimitations: PLUTO_EPHEMERIS.knownLimitations,
     validUtc: PLANET_VALIDATED_UTC,
     orientationLimitations: Object.freeze([ROTATION_LIMITATION, `Constants: ${IAU_REPORT}.`]),
   }),

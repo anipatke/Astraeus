@@ -84,7 +84,9 @@ describe.each([["perseids", perseidsFile, "swift-tuttle"], ["geminids", geminids
   it("keeps the catalogue's own known limits; the 'N times larger than life' sentence moved from the planets' known limits into their descriptions (FLAG: owner to judge the wording)", () => {
     for (const was of old.objects.filter((o: Rec) => ["earth", "mercury", "venus", "mars", "jupiter"].includes(o.id))) {
       const now = byId(objects, was.id);
-      expect(now.knownLimitations, was.id).toEqual(was.knownLimitations.slice(0, -1));
+      // The card lists the body's position limits first (O-083 T-350), then the fixture's orientation list, as catalogueItem orders them.
+      const position = catalogue.get(was.id).definition.accuracy.positionLimitations ?? [];
+      expect(now.knownLimitations, was.id).toEqual([...new Set([...position, ...was.knownLimitations.slice(0, -1)])]);
       expect(was.knownLimitations.at(-1)).toMatch(/times larger than life/);
       expect(now.description, was.id).toContain(`${settings.look.planetExaggeration} times larger than life so it can be seen; distances stay true.`);
       expect(now.description, was.id).toContain(was.description);

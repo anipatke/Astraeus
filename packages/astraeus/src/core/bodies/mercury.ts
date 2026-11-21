@@ -31,6 +31,7 @@ export const MERCURY: CelestialBodyDefinition = Object.freeze({
       notes: "Gravitational parameter in km^3/s^2 from the Horizons physical-data header.",
     }),
     position: MERCURY_EPHEMERIS.provenance,
+    positionLimitations: MERCURY_EPHEMERIS.knownLimitations,
     validUtc: PLANET_VALIDATED_UTC,
     orientationLimitations: Object.freeze([ROTATION_LIMITATION, `Constants: ${IAU_REPORT}.`]),
   }),
