@@ -2,7 +2,7 @@
 id: T-414
 title: Release workflow runs the Node consumer and the packed examples before publishing
 objective: O-091
-status: planned
+status: done
 depends_on: []
 owner_validation: {required: false}
 check_waiver: {task: T-414, reason: 'Owner said "work through this list of objectives one by one. Orchestrate each objective to completion" (G-024 decision 7) and "I am remote now, add park the check and move on" (2026-11-22): standing orchestration rules waive the optional step checks; the mandatory Full Objective Check covers the whole diff.', actor: {role: owner, session: orchestrate-g024-20261122}, recorded_at: '2026-11-21T23:30:07Z'}
@@ -65,8 +65,28 @@ Fresh-clone run of every workflow command in order with the publish step's dry-r
 
 ## Technical Evidence
 
-Pending execution.
+Files changed: `.github/workflows/publish.yml` only (plus this Task file).
+
+SHAs (git ls-remote, lightweight tags, so the listed commit is the tag target): actions/checkout v7.0.1 = 3d3c42e5aac5ba805825da76410c181273ba90b1 (the `v7` tag points at the same commit); actions/setup-node v7.1.0 = 949feb2413d6458794dcd2491c4babbbce0c15c1 (`v7` tag same). T-413 had not recorded SHAs when I looked, so these are the newest v7.x.y lookups; T-413 must use the same.
+
+| Done When | Evidence |
+|---|---|
+| Steps in order, new node-consumer, Chromium install, four example steps, publish step unchanged | `publish.yml` diff; the React step moved after the node-consumer step (text unchanged); publish step untouched |
+| Permissions: workflow `contents: read`; `id-token: write` on `jobs.publish.permissions` with comment | `publish.yml` lines 10-20; YAML parses (python yaml.safe_load) |
+| Actions SHA-pinned with `# vX.Y.Z` | see SHAs above |
+| Header comment lists the checks | line 4 added |
+| No full browser tier | only `--step` x4 |
+| Local proof | Fresh clone of branch (Node 24.16.0, npm 12.2.1) with the edited publish.yml copied in, every `run:` line in order under flock: npm ci 5s, lint 12s, typecheck 11s, build 3s, test 32s, check:engine-alone 26s, check:pack 25s, check:node-consumer 6s (limit 15), check:react-consumer 6s, `npx playwright-core install --dry-run chromium` (run inside the clone after npm ci, so it used the locked 1.59.1: names Chrome for Testing 147.0.7727.15, chromium v1217, `~/.cache/ms-playwright/chromium-1217`, which is installed), check:browser four steps exit 0: hello-scene 16s/25, hello-react 2s/10, hello-planets 3s/15, hello-sky 18s/35, total 66s, error-lines 0; `node tools/publish-packages.mjs --dry-run` rc=0 (all packages "already on npm", skipped; nothing published). All within `tools/gate-limits.json`. |
+| YAML parses / actionlint | yaml ok; actionlint not installed |
+| Gates | Run in the fresh clone (HEAD + this publish.yml), all passed as above. Not rerun in the main checkout because T-413/T-415 edit it concurrently. |
+
+Extra reads: none beyond planned. Limitations: the `--with-deps` install itself was not run (dry-run only; apt on GitHub runner untested here); on GitHub the browser steps run on ubuntu-latest, not verified until T-417. The clone is at /tmp/claude-1000/t414.
+
 
 ## Drift Notes
 
-None yet.
+None (workflow-only change; check:three-newest still to be added by T-415/T-416 per the Task Boundaries).
+
+## Coordinator (gates)
+
+Set done by the orchestrating session after the combined handoff gates passed with T-413, T-414 and T-415 together (owner: "I mark them as they pass", O-038; G-024 decision 7; owner 2026-11-22 "I am remote now, add park the check and move on"): lint and Prettier clean, typecheck clean, `npm test` 324 files, 5319 passed, 2 skipped; `npm run check:pack` pass, engine 1,836,378 B raw (cap 1,838,000).

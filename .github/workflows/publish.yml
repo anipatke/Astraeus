@@ -1,6 +1,7 @@
 # Publishes the Astraeus packages to npm (O-036 T-162). Runs when you publish a GitHub release; docs/RELEASING.md is the owner's step-by-step.
 # npm trusted publishing: no token is stored; the runner signs in to npm with its OIDC identity (id-token: write) and npm adds a provenance statement.
 # A manual run (Actions tab, "Run workflow") is a DRY RUN: it does every step except sending anything to npm.
+# Before publishing it checks: lint, typecheck, build, tests, the engine alone, the packed packages, a Node test importing the packed engine, the React consumer, and the four packed examples in a browser.
 name: publish
 
 on:
@@ -10,15 +11,17 @@ on:
 
 permissions:
   contents: read
-  id-token: write
 
 jobs:
   publish:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write # trusted publishing needs the OIDC token; only this job gets it
     timeout-minutes: 60
     steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-node@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: 24
           registry-url: https://registry.npmjs.org
@@ -35,8 +38,14 @@ jobs:
       - run: npm run check:engine-alone
       - name: Build the packages and check what they pack
         run: npm run check:pack
+      - name: Check a Node test can import the packed engine
+        run: npm run check:node-consumer
       - name: Check the packed engine with the latest React 19.x
         run: npm run check:react-consumer
+      - name: Install the Chromium the browser checks launch
+        run: npx playwright-core install --with-deps chromium
+      - name: Check the four packed examples in a browser
+        run: npm run check:browser -- --step hello-scene --step hello-react --step hello-planets --step hello-sky
       - name: Publish (release) or dry-run (manual run)
         env:
           EVENT: ${{ github.event_name }}
