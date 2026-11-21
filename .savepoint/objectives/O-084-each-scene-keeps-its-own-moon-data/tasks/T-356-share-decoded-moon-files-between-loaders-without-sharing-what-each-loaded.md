@@ -2,7 +2,7 @@
 id: T-356
 title: Share decoded moon files between loaders without sharing what each loaded
 objective: O-084
-status: planned
+status: done
 depends_on: [{task: T-354, requires: clear}, {task: T-355, requires: clear}]
 check_waiver: {task: T-356, reason: 'Owner said "work through this list of objectives one by one. Orchestrate each objective to completion" (G-024 decision 7): standing orchestration rules waive the optional step checks; the mandatory Full Objective Check covers the whole diff.', actor: {role: owner, session: orchestrate-g024-20261121}, recorded_at: '2026-11-21T12:08:49Z'}
 owner_validation: {required: false}
@@ -73,8 +73,26 @@ Focused: `npx vitest run packages/astraeus/tests/moonChunkCache.test.ts packages
 
 ## Technical Evidence
 
-Pending execution.
+Done When -> evidence:
+
+| Done When | Evidence |
+|---|---|
+| moonChunkCache.ts store (WeakMap on reader; index once, chunk per URL, in-flight shared, failures dropped) | `src/core/moonChunkCache.ts` (`sharedIndex`, `sharedDecoder`, `sharedChunk`); rows 1, 4, 5 |
+| `ChebyshevEphemeris` adopts decoded chunks | `decodeChunkFor`, `adoptChunk`, `addChunk` = both; `loadedChunk` accessor added for the identity test; row 6 |
+| `createMoonSystem` reads index and chunks via the store, keeps its own `added`/`fetching`/set; missing chunk still throws; `install` never clears the store | `moonSystem.ts` `indexSet`, `ensureChunks`; row 2 |
+| New tests rows 1-6 | `tests/moonChunkCache.test.ts` 6/6 pass |
+| Rows 1, 2, 6 failing first | Against HEAD `moonSystem.ts`: rows 1, 4, 6 failed (3 failed, 3 passed). Row 2 passed before too: today's per-system sets already answer only what each asked for, so it is a guard that the shared store does not leak selection, not a red-first row. |
+| Existing tests unchanged and green | full suite: moonLoadTwice, twoViewers, planetChunksWindow, dataSpans pass; cold sceneMoonIsolation it.fails rows still pending (4 expected fail) |
+| Gates | lint, typecheck, build pass; `npm test`: 304 files, 5037 passed, 4 expected fail, 2 skipped. One earlier full run had a single twoViewers shelf-panel failure (assertion on heardA, unrelated UI event timing); passes alone and in the rerun, so treated as load flake. |
+
+Extra reads: none beyond Context Files and Task planned_reads (vitest.setup.ts, moonData.ts for test folder helper).
+
+Files changed: `src/core/moonChunkCache.ts` (new), `src/core/bodies/moonSystem.ts`, `src/core/chebyshevEphemeris.ts`, `tests/moonChunkCache.test.ts` (new).
+
+Limitations: source identity is the reader function; a reader re-provided as the same function shares its entry. Time-sliced decode yield stays per batch.
 
 ## Drift Notes
 
 Record for Design reconciliation (`Every listed moon addable`): decoded moon chunks are shared in one store keyed by source and URL (`core/moonChunkCache.ts`), and each moon-system loader keeps its own selection.
+
+Coordinator (orchestrate-g024-20261121): hand-off gates green on rerun (lint, typecheck, build; `npm test` 304 files, 5037 passed, 4 expected-fail); one first-run `twoViewers` shelf-panel failure passed alone and on the full rerun, watched at the Full Check. `status: done` set by the coordinator under the standing orchestration rule ("I mark them as they pass", O-038) and G-024 decision 7.

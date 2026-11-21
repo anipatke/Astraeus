@@ -10,6 +10,7 @@ import { ChebyshevEphemeris, parseEphemerisIndex } from "../chebyshevEphemeris";
 import { type IauRotationElements, iauOrientation } from "../iauRotation";
 import { type BalancePoint, periodAboutBalanceS } from "../orbitPeriod";
 import { NotLoadedError } from "../planetSeries";
+import { sharedChunk, sharedDecoder, sharedIndex } from "../moonChunkCache";
 import { fetchBytesOf } from "../readBytes";
 import { createProvenance } from "../provenance";
 import { assertUtcUnixMs, createState, type State } from "../state";
@@ -177,32 +178,24 @@ export function createMoonSystem(config: MoonSystemConfig): MoonSystem {
     return installed;
   };
 
-  const decodeInto = async (target: ChebyshevEphemeris, items: readonly { body: BodyId; path: string }[], bytes: readonly Uint8Array[]): Promise<void> => {
-    let sliceStarted = performance.now();
-    for (let i = 0; i < items.length; i += 1) {
-      target.addChunk(items[i].body, items[i].path, bytes[i]);
-      if (performance.now() - sliceStarted > DECODE_SLICE_MS) {
-        await new Promise((resolve) => setTimeout(resolve, 0));
-        sliceStarted = performance.now();
-      }
-    }
-  };
-
   const reset = (): void => { building = null; added = new Set(); fetching = new Map(); };
 
   const indexSet = (): Promise<ChebyshevEphemeris> => {
     building ??= (async () => {
-      if (loadIndex === undefined) throw new Error(`${config.centreLabel}'s moon positions are not provided: pass the astraeus-data-${config.centre} package to mount (data: [...]), or call provideIndex`);
-      return new ChebyshevEphemeris(parseEphemerisIndex(await loadIndex()));
+      const reader = loadIndex;
+      if (reader === undefined) throw new Error(`${config.centreLabel}'s moon positions are not provided: pass the astraeus-data-${config.centre} package to mount (data: [...]), or call provideIndex`);
+      // The parsed index is shared by every system of this source; the set (what this system has loaded) is its own.
+      return new ChebyshevEphemeris(await sharedIndex(reader, async () => parseEphemerisIndex(await reader())));
     })();
     const own = building;
     own.catch(() => { if (building === own) building = null; });
     return own;
   };
 
-  /** Fetches and decodes the chunks of `items` the set does not hold and no request is already fetching; resolves when all of them are in. */
+  /** Fetches and decodes the chunks of `items` the set does not hold and no request is already fetching; resolves when all of them are in. The decoded bytes come from the source's shared store. */
   const ensureChunks = async (set: ChebyshevEphemeris, items: readonly { body: BodyId; path: string }[], request: MoonSystemLoad): Promise<void> => {
     const fetchBytes = request.fetchBytes ?? fetchBytesOf;
+    const source = loadIndex!;
     const waiting: Promise<void>[] = [];
     const mine: { body: BodyId; path: string }[] = [];
     for (const item of items) {
@@ -211,9 +204,19 @@ export function createMoonSystem(config: MoonSystemConfig): MoonSystem {
       else if (!added.has(item.path) && !mine.some(({ path }) => path === item.path)) mine.push(item);
     }
     if (mine.length > 0) {
+      const decoder = sharedDecoder(source, () => new ChebyshevEphemeris(set.index));
+      let sliceStarted = performance.now();
       const batch = (async () => {
-        await decodeInto(set, mine, await Promise.all(mine.map(({ path }) => fetchBytes(request.chunkUrls[path]!))));
-        for (const { path } of mine) added.add(path);
+        const chunks = await Promise.all(mine.map(({ body, path }) => sharedChunk(source, request.chunkUrls[path]!, async () => {
+          const bytes = await fetchBytes(request.chunkUrls[path]!);
+          const chunk = decoder.decodeChunkFor(body, path, bytes);
+          if (performance.now() - sliceStarted > DECODE_SLICE_MS) {
+            await new Promise((resolve) => setTimeout(resolve, 0));
+            sliceStarted = performance.now();
+          }
+          return chunk;
+        })));
+        mine.forEach(({ body, path }, i) => { set.adoptChunk(body, path, chunks[i]); added.add(path); });
       })();
       for (const { path } of mine) fetching.set(path, batch);
       const done = (): void => { for (const { path } of mine) if (fetching.get(path) === batch) fetching.delete(path); };

@@ -234,19 +234,40 @@ export class ChebyshevEphemeris {
     return result;
   }
 
-  /** Hands in one chunk file's bytes; checked against the index entry. */
-  addChunk(bodyId: BodyId, path: string, bytes: Uint8Array): void {
+  /** Decodes one chunk file's bytes against the index entry without installing it (so sets built from one index can share the result). */
+  decodeChunkFor(bodyId: BodyId, path: string, bytes: Uint8Array): SeriesChunk {
     const body = this.#body(bodyId);
-    const slot = body.entry.chunks.findIndex((chunk) => chunk.path === path);
-    if (slot < 0) throw new RangeError(`"${bodyId}" has no chunk "${path}"`);
-    const chunk = body.entry.chunks[slot];
-    body.chunks[slot] = decodeChunk(bytes, {
+    const chunk = body.entry.chunks[this.#slotOf(body, path, bodyId)];
+    return decodeChunk(bytes, {
       startTdbS: chunk.startTdbS,
       segmentSeconds: body.entry.fit.segmentSeconds,
       segmentCount: chunk.segmentCount,
       coefficientCount: body.entry.fit.degree + 1,
       quantumKm: body.entry.fit.quantumKm,
     });
+  }
+
+  /** Installs an already-decoded chunk (from `decodeChunkFor` on a set of the same index). */
+  adoptChunk(bodyId: BodyId, path: string, chunk: SeriesChunk): void {
+    const body = this.#body(bodyId);
+    body.chunks[this.#slotOf(body, path, bodyId)] = chunk;
+  }
+
+  /** The decoded chunk installed for `path`, or null when it is not loaded. */
+  loadedChunk(bodyId: BodyId, path: string): SeriesChunk | null {
+    const body = this.#body(bodyId);
+    return body.chunks[this.#slotOf(body, path, bodyId)];
+  }
+
+  /** Hands in one chunk file's bytes; checked against the index entry. */
+  addChunk(bodyId: BodyId, path: string, bytes: Uint8Array): void {
+    this.adoptChunk(bodyId, path, this.decodeChunkFor(bodyId, path, bytes));
+  }
+
+  #slotOf(body: LoadedBody, path: string, bodyId: BodyId): number {
+    const slot = body.entry.chunks.findIndex((chunk) => chunk.path === path);
+    if (slot < 0) throw new RangeError(`"${bodyId}" has no chunk "${path}"`);
+    return slot;
   }
 
   /** The span this body can be asked for, in UTC: its chunks (and its own `span`, when it has one), the centre's, and the time-scale table's. */
