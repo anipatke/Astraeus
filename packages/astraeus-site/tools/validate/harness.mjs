@@ -14,6 +14,15 @@ export const SOFTWARE_RENDERING_ARGS = [
 ];
 export const DEFAULT_VIEWPORT = { width: 1280, height: 800 };
 
+/** Sets the opt-in flag the viewer reads before it mounts, so the canvas carries the readouts the scripts read; `ASTRAEUS_DIAGNOSTICS=0` leaves it unset. `target` is a page or a context (an init script reaches every frame, iframes included). */
+async function enableDiagnostics(target) {
+  if (process.env.ASTRAEUS_DIAGNOSTICS === "0") return target;
+  await target.addInitScript(() => {
+    globalThis.__ASTRAEUS_DIAGNOSTICS__ = true;
+  });
+  return target;
+}
+
 /** Chromium with the software-rendering flags every check uses, plus any `extraArgs`. */
 export function launchBrowser(extraArgs = []) {
   return chromium.launch({ args: [...SOFTWARE_RENDERING_ARGS, ...extraArgs] });
@@ -55,6 +64,7 @@ export async function checkScript(
         viewport: { width: viewport.width, height: viewport.height },
         ...pageOptions,
       });
+      await enableDiagnostics(page);
       watchErrors(page, errors, viewports.length > 1 ? viewportName : "");
       try {
         results.push({
@@ -89,13 +99,17 @@ export async function checkScript(
 }
 
 /** A page on `browser` with a script's own page options (viewport, touch, scale factor); the one place a script's page is opened. */
-export function openPage(browser, options) {
-  return browser.newPage(options);
+export async function openPage(browser, options) {
+  const page = await browser.newPage(options);
+  await enableDiagnostics(page);
+  return page;
 }
 
 /** A browser context with a script's own options (viewport, touch, permissions, reduced motion). */
-export function openContext(browser, options) {
-  return browser.newContext(options);
+export async function openContext(browser, options) {
+  const context = await browser.newContext(options);
+  await enableDiagnostics(context);
+  return context;
 }
 
 /** A page inside a context made by `openContext`. */

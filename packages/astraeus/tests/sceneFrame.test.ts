@@ -563,3 +563,57 @@ describe("draw this frame? (stage 8)", () => {
     expect(decideDraw(ctx, ctx.runtime.clock.now())).toBe(false);
   });
 });
+
+describe("the diagnostic readouts follow the frame state's flag (O-087 T-395)", () => {
+  const asking = (ctx: FrameContext): FrameContext => ({ ...ctx, state: { ...ctx.state, diagnostics: true } });
+
+  it("publishCanvasReadouts writes the marker and camera-up readouts only when asked", () => {
+    const { ctx } = makeContext();
+    publishCanvasReadouts(ctx);
+    expect(ctx.canvas.dataset).not.toHaveProperty("markerBodies");
+    expect(ctx.canvas.dataset).not.toHaveProperty("cameraUp");
+    const asked = asking(ctx);
+    publishCanvasReadouts(asked);
+    expect(asked.canvas.dataset).toHaveProperty("markerBodies");
+    expect(asked.canvas.dataset).toHaveProperty("cameraUp");
+  });
+
+  it("placeViews writes the path, point and orbit-gap readouts only when asked", () => {
+    const { ctx } = makeContext();
+    const placed = placeScene(ctx, T0);
+    placeViews(ctx, T0, placed, DEFAULT_BODY_SET_LOOK);
+    for (const key of ["paths", "points", "orbitHeadGap", "orbitArcSegment"])
+      expect(ctx.canvas.dataset).not.toHaveProperty(key);
+    const asked = asking(ctx);
+    placeViews(asked, T0, placed, DEFAULT_BODY_SET_LOOK);
+    expect(asked.canvas.dataset).toMatchObject({ paths: "[]", points: "[]" });
+  });
+
+  it("updateOverlays writes the body readout only when asked, and the pick target either way", () => {
+    vi.stubGlobal("requestAnimationFrame", vi.fn());
+    const { ctx } = makeContext();
+    const placed = placeScene(ctx, T0);
+    const step = stepAndPoseCamera(ctx, T0, placed);
+    ctx.camera.updateMatrixWorld();
+    updateOverlays(ctx, T0, step, 1);
+    expect(ctx.canvas.dataset).not.toHaveProperty("bodyScreen");
+    expect(ctx.canvas.dataset.pickHover).toBe("");
+    const asked = asking(ctx);
+    updateOverlays(asked, T0, step, 1);
+    expect(asked.canvas.dataset).toHaveProperty("bodyScreen");
+  });
+
+  it("placeSkyFigures writes the line list once and leaves it while it does not change", () => {
+    const { ctx } = makeContext();
+    const writes: string[] = [];
+    (ctx.canvas as { dataset: DOMStringMap }).dataset = new Proxy(ctx.canvas.dataset, {
+      set(target, key, value) {
+        writes.push(String(key));
+        return Reflect.set(target, key, value);
+      },
+    });
+    placeSkyFigures(ctx);
+    placeSkyFigures(ctx);
+    expect(writes).toEqual(["skyLines"]);
+  });
+});

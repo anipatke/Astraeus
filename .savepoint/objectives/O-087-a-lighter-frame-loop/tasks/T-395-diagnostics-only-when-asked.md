@@ -2,7 +2,7 @@
 id: T-395
 title: Diagnostics only when asked
 objective: O-087
-status: planned
+status: done
 depends_on: []
 owner_validation: {required: false}
 check_waiver: {task: T-395, reason: 'Owner said "work through this list of objectives one by one. Orchestrate each objective to completion" (G-024 decision 7) and "carry on orchestrating G-024" (2026-11-22): standing orchestration rules waive the optional step checks; the mandatory Full Objective Check covers the whole diff.', actor: {role: owner, session: orchestrate-g024-20261122}, recorded_at: '2026-11-21T22:11:52Z'}
@@ -71,8 +71,26 @@ Focused: `npx vitest run packages/astraeus/tests/frameDiagnostics.test.ts packag
 
 ## Technical Evidence
 
-Pending execution.
+Extra reads: `packages/astraeus/src/app/sceneBodySets.ts` (publishBodySets, to build the flag-true test fake); `tools/check-packs.mjs`, `engine-budget.mjs` (size check, O-086 moved it to `check:pack`); `docs/BROWSER_CHECKS.md` (heading "What it runs", doc line).
+
+| Done When | Evidence |
+|---|---|
+| `diagnosticsRequested()` one reader; `FrameState.diagnostics` read once | `diagnosticsFlag.ts`; `createFrameState`; `frameDiagnostics.test.ts` "reads the flag once" |
+| Gated call sites (orbit gap, body sets, paths, points, body data, scene data, feature readout) | `sceneFrame.ts` guards; `frameDiagnostics.test.ts` default case (flag absent and false): no readout keys, 0 `screenReadout` calls, feature `update` gets `readout=false`; red-first: forcing `diagnostics: true` failed 3 of 4 cases, reverted |
+| Cheap attributes change-only (`pickHover`, `skyLines`, `bodySetHover`, `bodySetNamed`) | `setDatum` in sceneFrame.ts and BodySetLabels.ts; default case: 0 canvas writes over frames 2-10 (a Proxy on `dataset` counts writes, since the frame-context canvas is a plain object, not a DOM node); sceneFrame.test.ts "placeSkyFigures writes the line list once" |
+| flag true writes equal publisher output | `frameDiagnostics.test.ts` "writes the readouts when the page asks" |
+| sceneFrame.test.ts one case per stage | 4 new cases in "the diagnostic readouts follow the frame state's flag"; no existing case touched |
+| harness sets flag on page, `openPage`, `openContext`; `ASTRAEUS_DIAGNOSTICS=0` leaves unset | `harness.mjs` `enableDiagnostics`; smoke step passed with it (exit 0, 43 s, 0 error lines; evidence docs/evidence/browser-steps-20261121T222732Z) |
+| BROWSER_CHECKS.md line | added above "What it runs" |
+| Engine size <= ~400 B | Built in an isolated worktree of HEAD, before vs with only this Task's four src files: raw 1,834,339 -> 1,834,531 (+192 B), gzip 524,878 -> 524,990 (+112 B); limit 1,836,000 / 527,000 (headroom 1,469 B raw). The shared checkout's example at the end of the run (with sibling builders' edits too) measured 1,835,598 raw / 525,328 gzip, within limit. |
+| Gates | typecheck clean; `npm test`: 321 files, 5147 passed, 3 skipped; build ok. `npm run lint` last run: only `pausedRenders.test.ts` prettier warning (T-397's file); an earlier run flagged `OrbitSetView.ts` complexity (T-398's file), both not mine. Focused run (frameDiagnostics, sceneFrame, orbitLook, cameraAndNamesDom, scenePicking, browserDriverGuard): 100 passed. |
+
+Limitations: the real `FeatureMarkerLayer.update(readout=false)` is not exercised by a test (the frame test uses a fake that mimics it; the DOM layer tests are an existing file); `FeatureMarkerLayer.update`'s `readout` parameter defaults to true so existing callers and tests are unchanged. Full browser run not done (draft 07's).
 
 ## Drift Notes
 
 Design note for draft 07: the browser-check readouts are opt-in (`__ASTRAEUS_DIAGNOSTICS__`, read once per viewer at frame-state creation).
+
+## Coordinator
+
+Set done by the orchestrating session after the combined handoff gates passed with T-395, T-397, T-398, T-399 together (owner: "I mark them as they pass", O-038; G-024 decision 7 "Orchestrate each objective to completion"; "carry on orchestrating G-024", 2026-11-22): lint and Prettier clean, typecheck clean, build ok, `npm test` 321 files, 5147 passed, 3 skipped; `npm run check:pack` engine budget 1,835,598 B raw (limit 1,836,000), 525,328 B gzip (limit 527,000).

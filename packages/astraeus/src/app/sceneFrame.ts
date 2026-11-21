@@ -23,10 +23,12 @@ import {
   publishPathData,
   publishPointsData,
   publishSceneData,
+  setDatum,
   recordFrameStats,
 } from "./sceneDebug";
 import { CAMERA_FOV_DEG, focusRadius, liveReach, lookOutFar, type SceneFrame } from "./sceneFraming";
 import { bodyScreenReadouts, placeBodies, swapSmallBodiesToMarkers, type BodyRefs } from "./sceneBodies";
+import { diagnosticsRequested } from "./diagnosticsFlag";
 import { publishBodySets } from "./sceneBodySets";
 import type { useSceneViews } from "./sceneHooks";
 import { bodyAbsolute, placeComposition, type PlacedComposition, type ScenePlacement } from "./sceneLayout";
@@ -75,6 +77,8 @@ export interface FrameState {
   wakes: number;
   /** What the last drawn frame looked like, for `decideDraw`. */
   readonly drawn: DrawnMemo;
+  /** Whether the page asked for the browser-check readouts (`diagnosticsRequested`, read once at creation). */
+  readonly diagnostics: boolean;
 }
 
 /** What `decideDraw` remembers from frame to frame. */
@@ -104,6 +108,7 @@ export function createFrameState(policyId: ScalePolicy["id"], onFirstDraw?: () =
     framesDrawn: 0,
     wakes: 0,
     drawn: { timeUtcMs: Number.NaN, pose: [], size: "", controls: new Map(), wakes: 0, mounted: -1, quietFrames: 0 },
+    diagnostics: diagnosticsRequested(),
   };
 }
 
@@ -323,7 +328,12 @@ export function publishCanvasReadouts(ctx: FrameContext): void {
     controls.policy,
     controls.bodyMarker,
   );
-  publishSceneData(canvas, { markerBodies, viewUp: viewUpOf(ctx), markerMinSpherePx: controls.bodyMarker.minSpherePx });
+  if (ctx.state.diagnostics)
+    publishSceneData(canvas, {
+      markerBodies,
+      viewUp: viewUpOf(ctx),
+      markerMinSpherePx: controls.bodyMarker.minSpherePx,
+    });
   if (views.skyView !== null) {
     if (controls.skyVisible !== undefined) views.skyView.group.visible = controls.skyVisible;
     if (controls.skyVisible !== false) updateSky(views.skyView, camera, canvas, controls, controls.frameStats !== null);
@@ -334,7 +344,7 @@ export function publishCanvasReadouts(ctx: FrameContext): void {
 export function placeSkyFigures(ctx: FrameContext): void {
   const { controls, camera, canvas, views } = ctx;
   views.skyFiguresView.place(camera, controls.skyLines, controls.skyColours, controls.selectedObjectId);
-  canvas.dataset.skyLines = views.skyFiguresView.shown.join(",");
+  setDatum(canvas, "skyLines", views.skyFiguresView.shown.join(","));
 }
 
 /** Stage 4c: starts the traces and removes the ones the host asked for since the last frame (in call order) and moves every trace on by this frame's real time; a moving trace wakes the draw rule. Wall time only (CODE-02, ARCH-02). */
@@ -373,15 +383,17 @@ export function placeViews(ctx: FrameContext, t: number, placed: PlacedScene, se
   for (const view of views.groupViews) view.place(origin);
   for (const view of views.sunCentredViews) view.place(origin);
   for (const view of views.compositionPaths) view.place(origin, { fovDeg: camera.fov, viewportHeightPx: size.height });
-  publishOrbitHeadGap(canvas, views.compositionPaths, placed.absoluteOf, policy);
+  if (ctx.state.diagnostics) publishOrbitHeadGap(canvas, views.compositionPaths, placed.absoluteOf, policy);
   const trueScale = policy.id === "true-scale";
   for (const view of views.bodySetViews) view.place(origin, camera, size.width, size.height, setLook, trueScale);
   for (const view of views.orbitSetViews) view.place(origin, setLook, trueScale);
   const hoverGain = clampHoverBrightness(controls.hoverBrightness ?? HOVER_BRIGHTNESS_DEFAULT);
   for (const layer of ctx.layers.bodySetLabels.current) layer.update(setLook, hoverGain);
-  publishBodySets(canvas, views.bodySetViews, views.orbitSetViews, setLook, camera, size.width, size.height);
-  publishPathData(canvas, [...views.sunCentredViews, ...views.compositionPaths, ...views.trackedViews], camera);
-  publishPointsData(canvas, views.groupViews, camera, views.bodySetViews);
+  if (ctx.state.diagnostics) {
+    publishBodySets(canvas, views.bodySetViews, views.orbitSetViews, setLook, camera, size.width, size.height);
+    publishPathData(canvas, [...views.sunCentredViews, ...views.compositionPaths, ...views.trackedViews], camera);
+    publishPointsData(canvas, views.groupViews, camera, views.bodySetViews);
+  }
   return hoverGain;
 }
 
@@ -452,7 +464,7 @@ export function updateOverlays(ctx: FrameContext, t: number, step: CameraStep, h
     controls.policy,
     controls.glowLook,
   );
-  publishBodyData(canvas, bodyScreens);
+  if (state.diagnostics) publishBodyData(canvas, bodyScreens);
   layers.anchorLabels.current?.update(controls.showAnchorLabels, camera, size.width, size.height);
   const positionFor = (id: string): RenderVector | null => labelPositionOf(step.targets, id);
   const shown = shownUnderView(ctx, t);
@@ -495,7 +507,7 @@ export function updateOverlays(ctx: FrameContext, t: number, step: CameraStep, h
   const hover =
     state.hoverPoint === null ? null : hoverTarget(state.pickables, state.hoverPoint.x, state.hoverPoint.y, "mouse");
   canvas.style.cursor = hover === null ? "" : "pointer";
-  canvas.dataset.pickHover = hover ?? "";
+  setDatum(canvas, "pickHover", hover ?? "");
   layers.sceneLabels.current?.setHover(hover, hoverGain);
   layers.storyMarkers.current?.update(
     positionFor,
@@ -515,6 +527,7 @@ export function updateOverlays(ctx: FrameContext, t: number, step: CameraStep, h
     size.height,
     controls.openFeatureKey ?? null,
     controls.featureMinBodyPx ?? DEFAULT_FEATURE_MIN_BODY_PX,
+    state.diagnostics,
   );
   if (featureReadout !== null && featureReadout !== undefined)
     canvas.dataset.featureMarkers = JSON.stringify(featureReadout);

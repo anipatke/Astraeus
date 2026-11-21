@@ -4,6 +4,7 @@
 import { createLabelElement } from "../shell/Label";
 import type { BodySetView } from "./BodySetView";
 import type { BodySetLook } from "./bodySet";
+import { setDatum } from "./sceneDebug";
 
 /** A dot answers the pointer within this many CSS px. */
 export const PICK_RADIUS_PX = 12;
@@ -107,8 +108,8 @@ export class BodySetLabelLayer {
         element.style.transform = `translate(${screen.x + Math.max(6, screen.radiusPx + 4)}px, ${screen.y}px) translate(0, -50%)`;
       }
     });
-    this.#canvas.dataset.bodySetHover = this.hovered ?? "";
-    this.#canvas.dataset.bodySetNamed = String(named.size);
+    setDatum(this.#canvas, "bodySetHover", this.hovered ?? "");
+    setDatum(this.#canvas, "bodySetNamed", String(named.size));
   }
 
   dispose(): void {

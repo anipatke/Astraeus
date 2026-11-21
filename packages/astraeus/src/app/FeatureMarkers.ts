@@ -220,7 +220,7 @@ export class FeatureMarkerLayer {
     host.appendChild(this.#root);
   }
 
-  /** Moves every marker for this frame; `hostOf` names a body's drawn sphere (null when it is not drawn as one). Returns the readout when it changed. */
+  /** Moves every marker for this frame; `hostOf` names a body's drawn sphere (null when it is not drawn as one). Returns the readout when it changed (null when `readout` is false: no browser check reads it). */
   update(
     hostOf: (bodyId: string) => FeatureHost | null,
     camera: Camera,
@@ -229,6 +229,7 @@ export class FeatureMarkerLayer {
     heightPx: number,
     selectedKey: string | null,
     minBodyPx: number,
+    readout = true,
   ): FeatureMarkerReadout | null {
     camera.updateMatrixWorld(true);
     this.#measureOccluders();
@@ -268,11 +269,12 @@ export class FeatureMarkerLayer {
       for (const entries of this.#byBody.values())
         for (const { spec, element } of entries) element.setAttribute("aria-pressed", String(spec.key === selectedKey));
     }
-    const readout: FeatureMarkerReadout = { total: this.#total, shown };
-    const text = JSON.stringify(readout);
+    if (!readout) return null;
+    const reading: FeatureMarkerReadout = { total: this.#total, shown };
+    const text = JSON.stringify(reading);
     if (text === this.#lastReadout) return null;
     this.#lastReadout = text;
-    return readout;
+    return reading;
   }
 
   /** Re-measures the shell panels' areas, in this layer's own coordinates, a few times a second. */
