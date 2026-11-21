@@ -2,7 +2,7 @@
 id: T-381
 title: Reformat the code with Prettier in one mechanical commit
 objective: O-093
-status: planned
+status: done
 depends_on: [{task: T-379, requires: clear}, {task: T-380, requires: clear}]
 check_waiver: {task: T-381, reason: 'Owner said "work through this list of objectives one by one. Orchestrate each objective to completion" (G-024 decision 7) and "carry on" (2026-11-22): standing orchestration rules waive the optional step checks; the mandatory Full Objective Check covers the whole diff.', actor: {role: owner, session: orchestrate-g024-20261121}, recorded_at: '2026-11-21T19:19:52Z'}
 owner_validation: {required: false}
@@ -63,8 +63,28 @@ The four proofs above; `quality_gates`; `npm run check:engine-alone`; `npm run c
 
 ## Technical Evidence
 
-Pending execution.
+Builder run (2026-11-22). Unmerged branches (`git branch --no-merged main`): only the current branch o093-units-constants-tooling; O-085 is merged, no parked branch needs the format pass.
+
+Ran `npm run format` on the clean tree (only docs/research untracked): 728 files reformatted (the same count `prettier --list-different .` gave before), no hand edits. Not staged or committed.
+
+| Done When item | Evidence |
+|---|---|
+| (a) no logic change | Scratch script (not committed) parses all 728 files at HEAD and after with typescript6 and compares ASTs: identical for all 728, 0 parse diagnostics. Plain `createPrinter()` text was not usable as the comparison because the printer reuses source text for literals and parentheses, so every file differed; the AST comparison ignores only what Prettier legitimately changes: redundant parentheses (expression and type), quote style of property names (`"a":` to `a:`), JSX text whitespace layout and `{" "}` spacing markers. |
+| (b) check passes | `npm run format:check`: All matched files use Prettier code style. A second `npm run format` produced a byte-identical diff (idempotent). |
+| (c) tests | `npm test` before: 313 files, 5085 passed, 2 skipped. After: 313 files, 5085 passed, 2 skipped. |
+| (d) byte-identical | sha256 of packages/astraeus/tests/fixtures/scenePin.json and packages/astraeus/api-surface.lock.json equal before and after; `npm run api:lock` and `npm run api:errors` leave no git diff; README error table unchanged. |
+| gates | lint, typecheck, build, `npm test` (reporter junit), `look:lock` (7.6 s, pass), `check:pack` pass, `check:engine-alone` pass (36.0 s), `build:example` pass, all on the formatted tree. |
+
+Files changed: 728 code files (list: scratchpad list.txt, equals `git diff --name-only` minus this Task file). Proof wording: the printer comparison is an AST comparison (typescript6 parse, before at HEAD vs after), which leniently ignores JSX text whitespace layout and `{" "}` markers, redundant parentheses and property-name quote style.
+
+Commit 2 (format commit is 3a1c4078b99a17e142afbc6f5ddaeda160cf00f1): `package.json` lint now ends `&& prettier --check --cache .`; `.git-blame-ignore-revs` (new) holds that hash with a one-line comment; `docs/agents/build.md` formatting bullet notes the lint check and `git config blame.ignoreRevsFile .git-blame-ignore-revs`.
+Lint wall time with the format check, three runs: 7.98 s, 9.77 s, 6.85 s. Slowest 9.77 s is under the 15 s limit, so `tools/gate-limits.json` and the build table are unchanged; gateLimits.test.ts passes (11 tests).
+Planted slip: appended `export const   plantedSlip = {a:1,b:2};` to packages/astraeus/src/core/constants.ts; `npm run lint` failed (exit 1) with `[warn] packages/astraeus/src/core/constants.ts` / Code style issues found. Reverted (file clean in git status); lint passes again.
+Gates after commit-2 edits: lint pass, typecheck pass, build pass, npm test 313 files, 5085 passed, 2 skipped.
+Limitations: browser tier not run.
 
 ## Drift Notes
 
-For Design reconciliation (`tools/` row): Prettier enforced through `npm run lint`; blame-ignore file.
+For Design reconciliation (`tools/` row): Prettier enforced through `npm run lint`; blame-ignore file. Process note: a text-printer comparison is unusable for the no-logic-change proof; use the AST comparison.
+
+Coordinator (orchestrate-g024-20261121): commit 1 `3a1c4078` holds Prettier output only (728 files, ASTs identical); commit 2 adds the lint format check and `.git-blame-ignore-revs`. Gates green (lint 6.9–9.8 s, typecheck, build; `npm test` 313 files, 5085 passed). `status: done` set by the coordinator under the standing orchestration rule ("I mark them as they pass", O-038) and G-024 decision 7.
