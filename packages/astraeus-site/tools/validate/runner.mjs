@@ -130,8 +130,9 @@ async function startServers(steps, ctx) {
 }
 
 /** The run's context: its fresh evidence folder, scratch folders, URLs, and `serve`/`stop` for the server processes it starts. */
-function makeContext(setName, limits) {
-  const evidence = join(root, "docs", "evidence", `${setName}-${stamp()}`);
+function makeContext(setName, limits, tier) {
+  const folder = tier === "full" ? setName : `${setName}-${tier}`;
+  const evidence = join(root, "docs", "evidence", `${folder}-${stamp()}`);
   mkdirSync(evidence, { recursive: true });
   const scratch = mkdtempSync(join(tmpdir(), "astraeus-check-"));
   const logs = mkdtempSync(join(tmpdir(), "astraeus-check-logs-"));
@@ -153,7 +154,8 @@ function makeContext(setName, limits) {
       }
     rmSync(scratch, { recursive: true, force: true });
   };
-  appendFileSync(join(evidence, "summary.txt"), `logs: ${logs}\n`);
+  appendFileSync(join(evidence, "summary.txt"), `tier: ${tier}\nlogs: ${logs}\n`);
+  console.log(`tier: ${tier}`);
   console.log(`logs: ${logs}`);
   return {
     evidence,
@@ -169,9 +171,13 @@ function makeContext(setName, limits) {
   };
 }
 
-/** Run `steps` (see above) as the set `setName`; resolves to the process exit code. `limits` (default tools/gate-limits.json) only decide the warnings: a run over a limit warns and never fails for time. */
-export async function runSet(setName, steps, limits = loadLimits()) {
-  const ctx = makeContext(setName, limits);
+/**
+ * Run `steps` (see above) as the set `setName`; resolves to the process exit code. `limits` (default tools/gate-limits.json) only decide the warnings: a run over a limit warns and never fails for time.
+ * `tier` is "full" (default; total compared with `browser.total`), "quick" (`browser.quickTotal`) or "steps" (a `--step` run: no total limit); the summary's first line names it and a non-full tier has its own evidence folder name.
+ */
+export async function runSet(setName, steps, limits = loadLimits(), tier = "full") {
+  const ctx = makeContext(setName, limits, tier);
+  const totalLimit = tier === "full" ? limits.browser.total : tier === "quick" ? limits.browser.quickTotal : undefined;
   process.on("SIGINT", () => {
     ctx.stop();
     process.exit(130);
@@ -188,8 +194,11 @@ export async function runSet(setName, steps, limits = loadLimits()) {
     ctx.stop();
   }
   const seconds = Math.round((Date.now() - start) / 1000);
-  report(ctx, `total ${seconds}s (servers and public build included) | limit ${limits.browser.total}s`);
-  const warning = overrun("the browser check", seconds, limits.browser.total);
+  report(
+    ctx,
+    `total ${seconds}s (servers and public build included) | ${totalLimit === undefined ? "no limit" : `limit ${totalLimit}s`}`,
+  );
+  const warning = overrun("the browser check", seconds, totalLimit);
   if (warning) report(ctx, warning);
   console.log(`evidence: ${ctx.evidence}`);
   if (!ok) console.error("FAILED: a step exited non-zero or logged a console error (see summary above)");

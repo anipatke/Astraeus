@@ -6,7 +6,7 @@
 // Shower views (id starting "showers") must also draw the meteor stream: dots in view, not just any body (I-071). ASTRAEUS_VIEWS=showers limits the run to those views
 // (the step against the scratch public build uses it, so the shipped stream copy is what loads).
 // Run alone: ASTRAEUS_URL=<app.html url> ASTRAEUS_EVIDENCE_DIR=<new dir> node tools/validate/browser-smoke.mjs
-import { mkdirSync, readdirSync, writeFileSync } from "node:fs";
+import { mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import * as ui from "./driver.mjs";
 import { assertStreamDrawn } from "./stream-check.mjs";
 import { launchBrowser, openContext, pageIn, watchErrors } from "./harness.mjs";
@@ -36,7 +36,9 @@ function discoverViews() {
     .sort();
   const views = [{ id: "apollo11", url: appUrl, scene: true }];
   for (const name of ["planets", "showers"]) views.push({ id: name, url: `${appUrl}?experience=${name}`, scene: true });
-  for (const name of showers)
+  // O-086 T-388: `showers` opens the shower with the lowest `order` (the rule of src/entryChoice.ts), so that shower's named view loads the same file and is left out.
+  const defaultShower = defaultShowerName(showers);
+  for (const name of showers.filter((n) => n !== defaultShower))
     views.push({ id: `showers-${name}`, url: `${appUrl}?experience=showers&shower=${name}`, scene: true });
   // O-046 T-193: the made-up Sun-centred probe path (dev server only; the public build leaves it out) gets the extra checks in `sunPathChecks`.
   views.push({ id: "synthetic-probe", url: `${appUrl}?experience=synthetic-probe`, scene: true, sunPath: true });
@@ -45,7 +47,28 @@ function discoverViews() {
   for (const page of ["index", "assets", "components"])
     views.push({ id: `${page}-page`, url: new URL(`${page}.html`, appUrl).href, scene: false });
   const only = process.env.ASTRAEUS_VIEWS;
-  return only === undefined || only === "" ? views : views.filter((view) => view.id.startsWith(only));
+  const skip = (process.env.ASTRAEUS_SKIP_VIEWS ?? "").split(",").filter((id) => id !== "");
+  const wanted = only === undefined || only === "" ? views : views.filter((view) => view.id.startsWith(only));
+  return wanted.filter((view) => !skip.includes(view.id));
+}
+
+/** The shower `?experience=showers` opens: the lowest `order` in data/showers (ties by name), as chooseShower does. */
+function defaultShowerName(names) {
+  const orderOf = (name) =>
+    JSON.parse(readFileSync(new URL(`../astraeus-demo-showers/data/showers/${name}.json`, root), "utf8")).order ?? 0;
+  return [...names].sort((a, b) => orderOf(a) - orderOf(b) || a.localeCompare(b))[0];
+}
+
+/** The sizes to load at: ASTRAEUS_SIZES (comma list of desktop/phone), default both. */
+function selectedSizes() {
+  const asked = (process.env.ASTRAEUS_SIZES ?? "").split(",").filter((name) => name !== "");
+  if (asked.length === 0) return VIEWPORTS;
+  const unknown = asked.find((name) => !VIEWPORTS.some((size) => size.name === name));
+  if (unknown !== undefined) {
+    console.error(`unknown size "${unknown}" in ASTRAEUS_SIZES (desktop, phone)`);
+    process.exit(2);
+  }
+  return VIEWPORTS.filter((size) => asked.includes(size.name));
 }
 
 async function drawsSomething(page, view) {
@@ -381,14 +404,15 @@ async function load(browser, view, size) {
 }
 
 const views = discoverViews();
+const sizes = selectedSizes();
 const browser = await launchBrowser();
 const results = [];
 try {
-  console.log(`smoke: ${views.length} views (${views.map((view) => view.id).join(", ")}), ${VIEWPORTS.length} sizes`);
+  console.log(`smoke: ${views.length} views (${views.map((view) => view.id).join(", ")}), ${sizes.length} sizes`);
   for (const view of views) {
     // O-060 T-281: the made-up journey is the long load (a minute at each size), so its two sizes run side by side in two contexts of this one browser; every other load runs alone, in turn.
-    if (view.journey) results.push(...(await Promise.all(VIEWPORTS.map((size) => load(browser, view, size)))));
-    else for (const size of VIEWPORTS) results.push(await load(browser, view, size));
+    if (view.journey) results.push(...(await Promise.all(sizes.map((size) => load(browser, view, size)))));
+    else for (const size of sizes) results.push(await load(browser, view, size));
   }
 } finally {
   await browser.close();

@@ -1,0 +1,4 @@
+tier: steps
+logs: /tmp/astraeus-check-logs-CLzKNu
+synthetic-journey | scene=the made-up 1977-to-170-AU journey, desktop and phone side by side: moons, Saturn's orbit line, the phone near-Saturn sequence | exit=0 | 20:54:42-20:56:01 | 79s | limit 90s | error-lines=0
+total 80s (servers and public build included) | no limit

@@ -106,6 +106,6 @@ console.log("RESULT " + result);`;
 
   it("run-browser.mjs hands the runner's result to the process exit code", () => {
     const text = readFileSync(join(site, "tools", "validate", "run-browser.mjs"), "utf8");
-    expect(text).toMatch(/^process\.exitCode = await runSet\("browser", STEPS\);$/m);
+    expect(text).toMatch(/^\s*process\.exitCode = await runSet\("browser", steps, undefined, [^;]+\);$/m);
   });
 });

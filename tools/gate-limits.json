@@ -14,8 +14,9 @@
   "browser": {
     "total": 320,
     "steps": {
-      "smoke": 170,
-      "smoke-public-showers": 30,
+      "smoke": 65,
+      "synthetic-journey": 110,
+      "smoke-public-showers": 12,
       "planets-phone": 25,
       "meteor-shower": 40,
       "views": 40,
@@ -27,6 +28,7 @@
       "hello-sky": 15,
       "public-build-assets": 8,
       "public-addresses": 5
-    }
+    },
+    "quickTotal": 200
   }
 }

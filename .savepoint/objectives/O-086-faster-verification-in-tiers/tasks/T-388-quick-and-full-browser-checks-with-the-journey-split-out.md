@@ -73,8 +73,20 @@ Focused: `npx vitest run packages/astraeus-site/tests/gateLimits.test.ts package
 
 ## Technical Evidence
 
-Pending execution.
+Done When -> evidence:
+- browser-steps.mjs STEPS/selectSteps, flags --tier/--step/--list, exit 2 on unknown: gateLimits.test.ts new cases (green); `run-browser.mjs --list --tier quick` printed smoke, smoke-public-showers, planets-phone, hello-scene, hello-react, hello-planets, hello-sky, public-build-assets, public-addresses (all quick); `--list` (full) adds synthetic-journey (after smoke), meteor-shower, views, look-out, catalogue (full); `--tier x` exits 2 naming it.
+- Tiers: same list/tests. synthetic-journey step and smoke skip filter: browser runs below.
+- browser-smoke filters and de-duplication: default shower derived from JSON `order` (perseids; showers-perseids left out); quick smoke ran green, smoke-public-showers desktop only.
+- runSet tier/folders/total: quick run summary starts `tier: quick`, folder browser-quick-*, total vs quickTotal; --step run folder browser-steps-*, "no limit".
+- gate-limits.json: quickTotal 200; synthetic-journey 110; smoke 65 (46 x 1.4); smoke-public-showers 12 (5 x 1.4 -> 7, set 12 for small-step headroom); total unchanged 320.
+- docs/BROWSER_CHECKS.md: Running it, What it runs, table row (docs test green).
+- Browser runs (flock, one each): `check:browser -- --tier quick` green, docs/evidence/browser-quick-20261121T205040Z, total 142 s (limit 200): smoke 46, smoke-public-showers 5, planets-phone 12, hello-scene 17, hello-react 4, hello-planets 10, hello-sky 21 (WARNING over its 15 s limit, unchanged), public-build-assets 2, public-addresses 0. `-- --step synthetic-journey` green, docs/evidence/browser-steps-20261121T205441Z, 79 s (total 80 s).
+- Gates: focused 4 test files green after updating browserExitPath.test.ts's one assertion (the pinned `runSet("browser", STEPS)` line). Full gates: build ok; test 5110 passed, 1 failed (not in my files, a rnd/seed test); lint prettier warnings and typecheck errors only in other builders' files (packagePacks.test.ts/check-packs.mjs, driver.mjs, astraeus tests).
+Extra file edited outside planned_writes: packages/astraeus-site/tests/browserExitPath.test.ts (assertion on run-browser.mjs's last line updated for the new call).
+
 
 ## Drift Notes
 
 None expected.
+
+Coordinator (orchestrate-g024-20261121): its files pass lint (prettier) and its focused tests; quick tier 142 s green and journey step 79 s green (evidence cited). The remaining lint/typecheck/test failures were in other builders' in-flight files and are rechecked at the Full Check. The one `browserExitPath` assertion change is accepted (it pinned the old last line). `status: done` set by the coordinator under the standing orchestration rule ("I mark them as they pass", O-038) and G-024 decision 7.

@@ -3,6 +3,7 @@ import { join } from "node:path";
 import { describe, expect, it, vi } from "vitest";
 import { loadLimits, overrun } from "../../../tools/gate-limits.mjs";
 import { timeGates } from "../../../tools/time-gates.mjs";
+import { STEPS, selectSteps } from "../tools/validate/browser-steps.mjs";
 import { runSet } from "../tools/validate/runner.mjs";
 
 // O-060 T-283: every gate has a stated time limit in tools/gate-limits.json. A run over its limit warns; time alone never changes an exit code.
@@ -20,17 +21,42 @@ describe("the one limits file", () => {
       expect(value).toBeGreaterThan(0);
   });
 
-  it("covers every npm gate the timed command runs and every step in run-browser.mjs", () => {
+  it("covers every npm gate the timed command runs and every step in browser-steps.mjs", () => {
     const scripts = JSON.parse(readFileSync(join(root, "package.json"), "utf8")).scripts as Record<string, string>;
     for (const name of Object.keys(limits.gates)) expect(scripts[name], name).toBeDefined();
-    const source = readFileSync(join(root, "packages/astraeus-site/tools/validate/run-browser.mjs"), "utf8");
-    const steps = [...source.matchAll(/\{\s*name: "([^"]+)"/g)].map((m) => m[1]);
+    const steps = STEPS.map((step) => step.name);
     expect(steps.length).toBeGreaterThan(5);
     expect(Object.keys(limits.browser.steps).sort()).toEqual([...steps].sort());
   });
 
   it("the total limit is above every step limit", () => {
     expect(limits.browser.total).toBeGreaterThan(Math.max(...Object.values(limits.browser.steps)));
+  });
+
+  it("every step has a tier, and the quick tier holds the smoke, the phone journey and the four hello examples (O-086 decision 1)", () => {
+    for (const step of STEPS) expect(["quick", "full"], step.name).toContain(step.tier);
+    const quick = selectSteps({ tier: "quick" }).map((step) => step.name);
+    for (const name of ["smoke", "planets-phone", "hello-scene", "hello-react", "hello-planets", "hello-sky"])
+      expect(quick, name).toContain(name);
+    expect(quick).not.toContain("synthetic-journey");
+    expect(selectSteps({ tier: "full" })).toHaveLength(STEPS.length);
+  });
+
+  it("quickTotal is above every quick step's limit and below the full total", () => {
+    const quickTotal = (limits.browser as { quickTotal?: number }).quickTotal;
+    expect(quickTotal).toBeGreaterThan(0);
+    for (const step of selectSteps({ tier: "quick" }))
+      expect(quickTotal, step.name).toBeGreaterThan(limits.browser.steps[step.name] ?? 0);
+    expect(quickTotal).toBeLessThan(limits.browser.total);
+  });
+
+  it("selectSteps rejects an unknown tier or step by name, and --step runs a named step whatever its tier", () => {
+    expect(() => selectSteps({ tier: "slow" })).toThrow(/unknown tier "slow"/);
+    expect(() => selectSteps({ steps: ["nope"] })).toThrow(/unknown step "nope"/);
+    expect(selectSteps({ tier: "quick", steps: ["synthetic-journey", "smoke"] }).map((s) => s.name)).toEqual([
+      "smoke",
+      "synthetic-journey",
+    ]);
   });
 });
 
