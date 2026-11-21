@@ -68,4 +68,11 @@ describe("API reference", () => {
     expect(page).toContain('href="../components.html"');
     expect(page).not.toContain("<script");
   });
+
+  it("lists the chart and the readout tile, with their inputs, controls and the tile's part type, on api/shelf.html (O-081 T-339)", () => {
+    const page = renderShelfApiPage(items);
+    for (const name of ["chart", "readoutTile", "ChartInput", "ChartControl", "ReadoutTileInput", "ReadoutTileControl", "ReadoutScale", "TilePart"]) expect(page, name).toContain(`id="${name.toLowerCase()}"`);
+    expect(page).toContain("setHighlight");
+    expect(page).toContain("setScaleValue");
+  });
 });

@@ -143,24 +143,28 @@
     {
       "export": "chart",
       "name": "Bar chart",
-      "purpose": "A bar chart of counts the app gives, with marks on its axis and a range to light.",
-      "example": "bars of how many objects fall in each size band, a mark at the limit, and the bars outside the chosen band dimmed.",
+      "purpose": "A bar chart of how many things fall in each band, with marks along the bottom and a range you can light up.",
+      "example": "a chart of how many asteroids fall in each size band, a mark at the size limit, and the bands outside the chosen range dimmed.",
       "uses": [
         {
-          "job": "readout",
-          "text": "Show how many things fall in each band, and dim the bars outside the range the visitor chose."
+          "job": "explainer",
+          "text": "Show the shape of the data behind the story, such as how many things are small and how many are large."
+        },
+        {
+          "job": "filter",
+          "text": "Dim the bars outside the range the visitor picked, so the chart agrees with what the scene lights."
         }
       ]
     },
     {
       "export": "readoutTile",
       "name": "Readout tile",
-      "purpose": "A live label and value with its own place on screen, an optional line with a dot at the value, and a few small facts.",
-      "example": "a closest-approach tile with its number, a line with the Moon marked and a dot at the value, and a fact or two.",
+      "purpose": "A live number that stays in view while the visitor explores, with an optional line showing where it sits and a few small facts.",
+      "example": "a tile that keeps a comet's distance from Earth on screen as time runs, a line marking where the Moon is, and its speed.",
       "uses": [
         {
           "job": "readout",
-          "text": "Keep one live number in view while the visitor explores, without opening a panel."
+          "text": "Keep one live number in view without opening a panel: on a phone it is a one-line strip that opens the full tile when tapped."
         }
       ]
     }

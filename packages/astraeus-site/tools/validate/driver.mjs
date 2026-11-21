@@ -2080,3 +2080,55 @@ export async function catalogueFit(page) {
     return { sidewaysScrollPx: Math.max(0, root.scrollWidth - innerWidth), overlaps, outside };
   });
 }
+
+// ---- The tile and the chart on the catalogue page (O-081 T-339). The shell's own classes are read here, never in a script. ----
+/** What an entry's viewer shows of the readout tile: the full card (a wide viewer), the one-line strip (a phone) and the open sheet, with the strip's text and whether the card or the strip sits in the left half of the box. */
+export async function catalogueTile(page, part) {
+  return page.evaluate((name) => {
+    const stage = document.querySelector(`[data-part="${name}"] [data-part-stage]`);
+    const area = stage.querySelector('[data-area="tile"]');
+    const strip = stage.querySelector(".tile-strip-button");
+    const card = stage.querySelector(".tile-card");
+    const sheet = stage.querySelector(".tile-sheet");
+    const stageBox = stage.getBoundingClientRect();
+    const shown = (card ?? strip)?.getBoundingClientRect();
+    return {
+      area: area !== null,
+      card: card !== null,
+      strip: strip !== null,
+      sheet: sheet !== null,
+      expanded: strip?.getAttribute("aria-expanded") === "true",
+      text: (card ?? strip)?.textContent ?? "",
+      leftHalf: shown !== undefined && shown.left >= stageBox.left - 0.5 && shown.left + shown.width / 2 < stageBox.left + stageBox.width / 2,
+      inside: shown !== undefined && shown.left >= stageBox.left - 0.5 && shown.right <= stageBox.right + 0.5,
+    };
+  }, part);
+}
+/** Presses the tile's strip on an entry's viewer (a phone opens the sheet). */
+export async function pressCatalogueTileStrip(page, part) {
+  await page.locator(`[data-part="${part}"] [data-part-stage] .tile-strip-button`).click();
+}
+/** Waits until the tile's sheet is (or is not) open in an entry's viewer. */
+export async function waitForCatalogueTileSheet(page, part, open) {
+  await page.waitForSelector(`[data-part="${part}"] [data-part-stage] .tile-sheet`, { state: open ? "attached" : "detached", timeout: 10000 });
+}
+/** The text of the entry's tile (card or strip) after waiting up to `ms` for it to differ from `before`; the last text read. */
+export async function waitForCatalogueTileChange(page, part, before, ms = 20000) {
+  try {
+    await page.waitForFunction(({ name, text }) => {
+      const stage = document.querySelector(`[data-part="${name}"] [data-part-stage]`);
+      const shown = stage?.querySelector(".tile-card") ?? stage?.querySelector(".tile-strip-button");
+      return shown !== null && shown !== undefined && shown.textContent !== text;
+    }, { name: part, text: before }, { timeout: ms });
+  } catch { /* a value that did not move is reported by the caller from the text it gets back */ }
+  return (await catalogueTile(page, part)).text;
+}
+/** What the chart shows in an entry's viewer: its bars and how many are dimmed (the panel must be open to draw it). */
+export async function catalogueChart(page, part) {
+  return page.evaluate((name) => {
+    const stage = document.querySelector(`[data-part="${name}"] [data-part-stage]`);
+    const chart = stage.querySelector(".shelf-chart");
+    if (chart === null) return { drawn: false, bars: 0, dimmed: 0, label: "" };
+    return { drawn: true, bars: chart.querySelectorAll("[data-shelf-bar]").length, dimmed: chart.querySelectorAll("[data-shelf-bar].is-dim").length, label: chart.querySelector("svg")?.getAttribute("aria-label") ?? chart.textContent ?? "" };
+  }, part);
+}

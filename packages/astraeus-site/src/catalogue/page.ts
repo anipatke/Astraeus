@@ -3,7 +3,8 @@
 import type { MountedScene, Scene } from "astraeus";
 import { addPartsStatement, importLines } from "./sourceLines";
 
-interface Example { buildScene(): Scene }
+/** An example builds its scene; one that needs something done once the viewer is drawn (a value that follows the time) also gives `live`, which returns the function that stops it. */
+interface Example { buildScene(): Scene; live?(viewer: MountedScene): () => void }
 
 const sources = import.meta.glob<string>("./examples/*.ts", { query: "?raw", import: "default", eager: true });
 const loaders = import.meta.glob<Example>("./examples/*.ts");
@@ -13,7 +14,7 @@ const sourceOf = byName(sources);
 const loaderOf = byName(loaders);
 
 const IDLE_NOTE = "The example runs when you press the button; one viewer at a time.";
-let running: { article: HTMLElement; viewer: MountedScene | undefined } | undefined;
+let running: { article: HTMLElement; viewer: MountedScene | undefined; stopLive?: () => void } | undefined;
 let ticket = 0;
 
 const part = (article: HTMLElement, hook: string): HTMLElement => article.querySelector<HTMLElement>(`[${hook}]`)!;
@@ -32,8 +33,9 @@ function setIdle(article: HTMLElement, note = IDLE_NOTE): void {
 /** Stops whichever viewer is running, whatever entry it is in. */
 function stopRunning(): void {
   if (running === undefined) return;
-  const { article, viewer } = running;
+  const { article, viewer, stopLive } = running;
   running = undefined;
+  stopLive?.();
   viewer?.unmount();
   setIdle(article);
 }
@@ -51,9 +53,12 @@ async function start(article: HTMLElement): Promise<void> {
     const [{ mount }, example] = await Promise.all([import("astraeus"), loaderOf.get(name)!()]);
     if (mine !== ticket) return;
     const viewer = mount(stage, example.buildScene());
-    running = { article, viewer };
+    const entry: NonNullable<typeof running> = { article, viewer };
+    running = entry;
     await viewer.ready;
-    if (mine === ticket) article.dataset.state = "running";
+    if (mine !== ticket) return;
+    entry.stopLive = example.live?.(viewer);
+    article.dataset.state = "running";
   } catch (error) {
     if (mine !== ticket) return;
     running = undefined;

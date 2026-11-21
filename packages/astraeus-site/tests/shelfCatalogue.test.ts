@@ -60,7 +60,9 @@ describe.each(shelfNames)("the example for %s", (name) => {
     const imports = [...source.matchAll(/^import .* from "([^"]+)";/gm)].map((match) => match[1]);
     expect(imports.filter((from) => from !== "astraeus" && from !== "../madeUpScene")).toEqual([]);
     expect(importLines(source)).toContain(name);
-    expect(addPartsStatement(source)).toMatch(/^scene\.addParts\(\[\n\s+panel\(/);
+    // the first thing added is a call to a shelf part (a panel, or a tile that stands alone); a block added alone is refused by `addParts` when the scene builds (the build test below)
+    const first = /^scene\.addParts\(\[\n\s+(\w+)\(/.exec(addPartsStatement(source))?.[1];
+    expect(shelfNames, "the first thing added is a call to a shelf part").toContain(first);
     expect(addPartsStatement(source).endsWith("]);")).toBe(true);
   });
   it("the journey's shown-code check holds for the lines the page prints (I-188: the Add box is left-aligned, the whole example is not)", () => {
