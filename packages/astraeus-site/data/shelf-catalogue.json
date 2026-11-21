@@ -151,6 +151,18 @@
           "text": "Show how many things fall in each band, and dim the bars outside the range the visitor chose."
         }
       ]
+    },
+    {
+      "export": "readoutTile",
+      "name": "Readout tile",
+      "purpose": "A live label and value with its own place on screen, an optional line with a dot at the value, and a few small facts.",
+      "example": "a closest-approach tile with its number, a line with the Moon marked and a dot at the value, and a fact or two.",
+      "uses": [
+        {
+          "job": "readout",
+          "text": "Keep one live number in view while the visitor explores, without opening a panel."
+        }
+      ]
     }
   ],
   "jobLabels": {

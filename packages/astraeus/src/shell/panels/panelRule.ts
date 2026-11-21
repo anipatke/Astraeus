@@ -4,8 +4,8 @@
 /** Wide: a left column, a right column and a developer column. Phone: left, right and developer all map onto one sheet place (detail over story). */
 export type Layout = "wide" | "phone";
 
-/** What can hold a place. `about` is the About panel; `card` is the object, event, window or place card; `popup` is any small pop-up (named by id, one at a time). */
-export type Occupant = "about" | "card" | "moons" | ShelfOccupant | "story" | "developer" | "menu" | "timeline";
+/** What can hold a place. `about` is the About panel; `card` is the object, event, window or place card; `popup` is any small pop-up (named by id, one at a time). `tile` is the readout tile expanded (O-081): only a phone opens it (a detail sheet); a wide viewer's tile is always shown in its own place, so opening it there changes nothing. */
+export type Occupant = "about" | "card" | "moons" | "tile" | ShelfOccupant | "story" | "developer" | "menu" | "timeline";
 
 /** A shelf panel (a story part, O-080) takes the left place under the name `shelf:` plus its id; the rule knows no more of it than that. */
 export type ShelfOccupant = `shelf:${string}`;
@@ -13,7 +13,7 @@ const isShelf = (occupant: Occupant): occupant is ShelfOccupant => occupant.star
 
 /** Which occupants are open. `left` is the shared left place; `popup` is the id of the one open pop-up. */
 export interface PanelState {
-  readonly left: "about" | "card" | "moons" | ShelfOccupant | null;
+  readonly left: "about" | "card" | "moons" | "tile" | ShelfOccupant | null;
   readonly story: boolean;
   readonly developer: boolean;
   /** The menu drawer (a phone's controls drawer; the bar's menu later). */
@@ -32,8 +32,8 @@ export type PanelAction =
   | { readonly type: "closePopup"; readonly id?: string }
   /** An item chosen inside the menu (or the timeline drawer): the drawer it was chosen in closes. */
   | { readonly type: "chooseInDrawer"; readonly drawer: "menu" | "timeline" }
-  /** A view switch dropped a card's object, a story panel the view does not show, or a shelf panel it does not show (`dropsShelf`). */
-  | { readonly type: "viewSwitch"; readonly dropsCard: boolean; readonly dropsStory: boolean; readonly dropsShelf?: boolean }
+  /** A view switch dropped a card's object, a story panel the view does not show, a shelf panel it does not show (`dropsShelf`), or the tile the sheet shows (`dropsTile`). */
+  | { readonly type: "viewSwitch"; readonly dropsCard: boolean; readonly dropsStory: boolean; readonly dropsShelf?: boolean; readonly dropsTile?: boolean }
   | { readonly type: "escape" }
   | { readonly type: "outsidePress" };
 
@@ -53,6 +53,7 @@ function closeOccupant(state: PanelState, occupant: Occupant): PanelState {
     case "about": return state.left === "about" ? { ...state, left: null } : state;
     case "card": return state.left === "card" ? { ...state, left: null } : state;
     case "moons": return state.left === "moons" ? { ...state, left: null } : state;
+    case "tile": return state.left === "tile" ? { ...state, left: null } : state;
     case "story": return { ...state, story: false };
     case "developer": return { ...state, developer: false };
     case "menu": return { ...state, menu: false };
@@ -68,6 +69,8 @@ function openOccupant(state: PanelState, occupant: Occupant, layout: Layout): Pa
     case "about":
     case "card":
     case "moons": return { ...state, left: occupant, developer: phone ? false : state.developer };
+    // The tile is always shown on a wide viewer; only a phone expands it, as a detail sheet like the others.
+    case "tile": return phone ? { ...state, left: "tile", developer: false } : state;
     // Newest story panel wins (there is only one place); the detail sheet stays over it.
     case "story": return { ...state, story: true };
     // Wide: the developer column steps aside of the right place and closes nothing. Phone: it is a detail sheet and replaces the other one.
@@ -77,11 +80,12 @@ function openOccupant(state: PanelState, occupant: Occupant, layout: Layout): Pa
   }
 }
 
-/** A view switch closes what the view no longer shows: a card, the story panel, a shelf panel. */
+/** A view switch closes what the view no longer shows: a card, the story panel, a shelf panel, the tile's sheet. */
 function viewSwitched(state: PanelState, action: Extract<PanelAction, { type: "viewSwitch" }>): PanelState {
   const card = action.dropsCard ? closeOccupant(state, "card") : state;
   const story = action.dropsStory ? closeOccupant(card, "story") : card;
-  return action.dropsShelf === true && story.left !== null && isShelf(story.left) ? closeOccupant(story, story.left) : story;
+  const shelf = action.dropsShelf === true && story.left !== null && isShelf(story.left) ? closeOccupant(story, story.left) : story;
+  return action.dropsTile === true ? closeOccupant(shelf, "tile") : shelf;
 }
 
 /** The rule. Every row of the close table is one case in `panelRule.test.ts`. */

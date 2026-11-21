@@ -14,6 +14,7 @@
 @import "../shelf/filterChips/part.css";
 @import "../shelf/colourKey/part.css";
 @import "../shelf/chart/part.css";
+@import "../shelf/readoutTile/part.css";
 @import "../shell/parts/phone.css";
 @import "../shell/parts/embedded.css";
 /* An empty rule on purpose: the test page (happy-dom) drops the first rule after an `@import` when a test injects this text, and it must not drop a real one. A browser and a bundler read it as nothing. */

@@ -39,7 +39,12 @@
 /* On a wide screen the developer panel steps left of an occupied right place instead of covering it. */
 .astraeus-shell:not([data-phone="true"]) .astraeus-areas:has([data-area="right"] > *) [data-area="developer"] { right: calc(var(--astraeus-panel-width) + var(--astraeus-space-6)); }
 .astraeus-shell:not([data-phone="true"]) .astraeus-areas:has([data-area="right"] > *) .developer-tools { width: min(var(--astraeus-size-17), calc(100cqw - var(--astraeus-panel-width) - var(--astraeus-size-2))); }
-.astraeus-shell [data-area="tile"] { grid-area: left; align-self: start; }
+/* The tile (O-081): wide, the top of the left column (a row of its own, only while a tile shows, so a viewer with none keeps today's grid); phone, a one-line strip above the timeline (see the phone block). */
+.astraeus-shell [data-area="tile"] { grid-area: tile; align-self: start; justify-self: start; z-index: var(--astraeus-layer-bar); }
+.astraeus-shell:not([data-phone="true"]) .astraeus-areas:has([data-area="tile"]) {
+  grid-template-rows: auto auto minmax(0, 1fr) auto;
+  grid-template-areas: "bar bar bar" "tile . right" "left . right" "timeline timeline timeline";
+}
 
 /* Phone: one column; left, right and developer map onto the sheet above the timeline, detail over story. */
 .astraeus-shell[data-phone="true"] .astraeus-areas {
@@ -48,6 +53,11 @@
   grid-template-rows: auto minmax(0, 1fr) auto;
   padding: calc(var(--astraeus-space-4) + var(--safe-top, 0px)) calc(var(--astraeus-space-4) + var(--safe-right, 0px)) 0 calc(var(--astraeus-space-4) + var(--safe-left, 0px));
 }
+.astraeus-shell[data-phone="true"] .astraeus-areas:has([data-area="tile"]) {
+  grid-template-areas: "bar" "sheet" "tile" "timeline";
+  grid-template-rows: auto minmax(0, 1fr) auto auto;
+}
+.astraeus-shell[data-phone="true"] [data-area="tile"] { justify-self: stretch; }
 .astraeus-shell[data-phone="true"] [data-area="left"],
 .astraeus-shell[data-phone="true"] [data-area="right"],
 .astraeus-shell[data-phone="true"] [data-area="developer"],

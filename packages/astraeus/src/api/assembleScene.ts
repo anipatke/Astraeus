@@ -131,6 +131,12 @@ export function assembleScene(parts: ScenePlanners, data: readonly DataSource[])
   const storyPanels = story.panels(window, trackedMap.values(), objectIds, [...skyFigures.figures.keys()]);
   parts.parts.checkAgainst(storyPanels);
   parts.parts.checkCameras(objectIds, [...skyFigures.figures.keys()]);
+  // The views are resolved where the definition is built (the order of the scene's errors is pinned); the tiles are checked against them there.
+  const viewsEntry = () => {
+    const entry = viewPlan.viewsEntry({ objects: [...trackedMap.keys(), ...ids, ...groupPlan.groups.keys()], events: story.events.map(({ id }) => id) }, storyPanels, parts.parts.ids);
+    parts.parts.checkTiles(entry.views?.views);
+    return entry;
+  };
   groupPlan.check(ids);
   bodySets.check({ ids, catalogue: plan.catalogue, orbits: plan.orbits });
   // A clump near a body reads its position; with the planet series not loaded yet, those groups are built in `prepare` (the viewer draws only after it resolves).
@@ -186,7 +192,7 @@ export function assembleScene(parts: ScenePlanners, data: readonly DataSource[])
     ...parts.about.entry(),
     ...parts.parts.entry(),
     ...(parts.look === undefined ? {} : { look: parts.look }),
-    ...viewPlan.viewsEntry({ objects: [...trackedMap.keys(), ...ids, ...groupPlan.groups.keys()], events: story.events.map(({ id }) => id) }, storyPanels, parts.parts.ids),
+    ...viewsEntry(),
     ...viewEntries(timeline, camera, fit?.read, pathCover(trackedMap.values(), sunCentred, ids[0]!)),
     ...startViewEntry(camera),
     trackedBodies: tracked,

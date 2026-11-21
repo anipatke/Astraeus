@@ -9,8 +9,9 @@ import type { ActionsControl } from "./actions/factory";
 import type { FilterChipsControl } from "./filterChips/factory";
 import type { ColourKeyControl } from "./colourKey/factory";
 import type { ChartControl } from "./chart/factory";
+import type { ReadoutTileControl } from "./readoutTile/factory";
 import { isCssColour } from "../core/lookValues";
-import type { ShelfBlock, ShelfPart } from "../app/shelfContract";
+import type { ShelfBlock, ShelfPanel, ShelfTile } from "../app/shelfContract";
 
 /** A panel: a story button in the bar and the panel it opens. Made with `panel`. */
 export interface PanelPart {
@@ -33,11 +34,18 @@ export interface BlockPart<K extends string = string> {
 /** The blocks a panel holds. */
 export type PanelBlock = CustomBlockPart | BlockPart<"explainer" | "actions" | "filterChips" | "colourKey" | "chart">;
 
+/** A readout tile: a label and a live value with its own place on screen (not in a panel). Made with `readoutTile`; add it with `scene.addParts`. */
+export interface TilePart {
+  readonly kind: "readoutTile";
+  readonly id: string;
+  readonly label: string;
+}
+
 /** Any part a factory makes. */
-export type AnyPart = PanelPart | PanelBlock;
+export type AnyPart = PanelPart | PanelBlock | TilePart;
 
 /** The control `handle.part` gives for the part `P`. */
-export type ControlFor<P extends AnyPart> = { panel: PanelControl; customBlock: CustomBlockControl; explainer: ExplainerControl; actions: ActionsControl; filterChips: FilterChipsControl; colourKey: ColourKeyControl; chart: ChartControl }[P["kind"]];
+export type ControlFor<P extends AnyPart> = { panel: PanelControl; customBlock: CustomBlockControl; explainer: ExplainerControl; actions: ActionsControl; filterChips: FilterChipsControl; colourKey: ColourKeyControl; chart: ChartControl; readoutTile: ReadoutTileControl }[P["kind"]];
 
 /** The descriptors the factories made, so a value that only looks like one is refused. A descriptor is frozen and names no viewer, so one may be shared between scenes. */
 const made = new WeakSet<object>();
@@ -54,8 +62,8 @@ export const isMade = (value: unknown): boolean => typeof value === "object" && 
 /** The internal block shape of a block descriptor a factory made. */
 export const blockOf = (value: PanelBlock): ShelfBlock => value as unknown as ShelfBlock;
 
-/** The internal part shape of a panel descriptor a factory made. */
-export const partOf = (value: PanelPart): ShelfPart => value as unknown as ShelfPart;
+/** The internal part shape of a panel or tile descriptor a factory made. */
+export const partOf = <P extends PanelPart | TilePart>(value: P): P extends PanelPart ? ShelfPanel : ShelfTile => value as unknown as P extends PanelPart ? ShelfPanel : ShelfTile;
 
 /** The `bad-part` error for the call `who`. */
 export const badPart = (who: string, message: string): SceneError => new SceneError("bad-part", `${who}: ${message}`);

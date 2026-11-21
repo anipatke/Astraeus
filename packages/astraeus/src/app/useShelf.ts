@@ -30,9 +30,9 @@ export function shownParts(parts: readonly ShelfPart[], view: ResolvedView | und
 export function useShelf(parts: readonly ShelfPart[] | undefined, view: ResolvedView | undefined, host: ViewerPort | undefined, moveCamera: (request: CameraRequest) => void): ShelfState {
   const all = parts ?? NONE;
   // One element per custom block, per viewer: made here, so two viewers (or a rebuilt one) never share one.
-  const elements = useMemo(() => new Map(typeof document === "undefined" ? [] : all.flatMap((part) => part.blocks.filter((block) => block.kind === "customBlock").map((block) => [block.id, document.createElement("div")] as const))), [all]);
+  const elements = useMemo(() => new Map(typeof document === "undefined" ? [] : all.flatMap((part) => (part.kind === "panel" ? part.blocks : []).filter((block) => block.kind === "customBlock").map((block) => [block.id, document.createElement("div")] as const))), [all]);
   // One cell per block, per viewer, made on first use from the block's starting content; a rebuilt scene starts over.
-  const blocks = useMemo(() => new Map<string, ShelfBlock>(all.flatMap((part) => part.blocks.map((block) => [block.id, block] as const))), [all]);
+  const blocks = useMemo(() => new Map<string, ShelfBlock>(all.flatMap((part) => (part.kind === "panel" ? part.blocks : [part]).map((block) => [block.id, block] as const))), [all]);
   const cells = useMemo(() => new Map<string, ShelfCell>(), [blocks]);
   const cellOf = useCallback((id: string): ShelfCell | undefined => {
     const block = blocks.get(id);
@@ -57,7 +57,7 @@ export function useShelf(parts: readonly ShelfPart[] | undefined, view: Resolved
   const seen = useRef<number | undefined>(undefined);
   const control = useMemo<ShelfControl | undefined>(() => {
     if (all.length === 0) return undefined;
-    const kinds = new Map(all.flatMap((part) => [[part.id, "panel"] as const, ...part.blocks.map((block) => [block.id, block.kind] as const)]));
+    const kinds = new Map(all.flatMap((part) => [[part.id, part.kind] as const, ...(part.kind === "panel" ? part.blocks : []).map((block) => [block.id, block.kind] as const)]));
     return {
       kinds, elements, blocks, cell: cellOf,
       isOpen: (id) => open.current === id,

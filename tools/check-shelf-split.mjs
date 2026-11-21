@@ -14,7 +14,7 @@ const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 
 /** The class each part's view and stylesheet draw with: present in a build only when that part's module tree was bundled. */
 export const MARKERS = {
-  panel: "shelf-panel", customBlock: "shelf-custom-block", explainer: "shelf-explainer", actions: "shelf-actions", filterChips: "shelf-chips", colourKey: "shelf-colour-key", chart: "shelf-chart",
+  panel: "shelf-panel", customBlock: "shelf-custom-block", explainer: "shelf-explainer", actions: "shelf-actions", filterChips: "shelf-chips", colourKey: "shelf-colour-key", chart: "shelf-chart", readoutTile: "shelf-tile",
 };
 
 /** Every .js and .css file under `dir`, as paths relative to it. */
@@ -56,7 +56,7 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const page = join(example, ".split-check");
   rmSync(page, { recursive: true, force: true });
   mkdirSync(page, { recursive: true });
-  const calls = { filterChips: 'filterChips({ id: "f", choices: [{ value: "a", label: "A" }] })', explainer: 'explainer({ id: "e", paragraphs: ["x"] })', actions: 'actions({ id: "a", actions: [{ id: "go", label: "Go" }] })', colourKey: 'colourKey({ id: "k", entries: [] })',  chart: 'chart({ id: "c", axisLabel: "x", bins: [{ from: 0, to: 1, count: 1 }] })', panel: 'panel({ id: "p", button: { label: "P" }, title: "P", blocks: [customBlock({ id: "b" })] })', customBlock: 'customBlock({ id: "b" })' };
+  const calls = { filterChips: 'filterChips({ id: "f", choices: [{ value: "a", label: "A" }] })', explainer: 'explainer({ id: "e", paragraphs: ["x"] })', actions: 'actions({ id: "a", actions: [{ id: "go", label: "Go" }] })', colourKey: 'colourKey({ id: "k", entries: [] })',  chart: 'chart({ id: "c", axisLabel: "x", bins: [{ low: 0, high: 1, count: 1 }] })', readoutTile: 'readoutTile({ id: "t", label: "x", value: "1" })', panel: 'panel({ id: "p", button: { label: "P" }, title: "P", blocks: [customBlock({ id: "b" })] })', customBlock: 'customBlock({ id: "b" })' };
   writeFileSync(join(page, "index.html"), '<!doctype html><html><body><div id="app"></div><script type="module" src="./main.js"></script></body></html>\n');
   writeFileSync(join(page, "main.js"), `import { mount, Scene, earth, ${used.join(", ")} } from "astraeus";\nconst parts = [${used.map((part) => calls[part]).join(", ")}];\nconst scene = new Scene().addBody(earth)${imports.includes("panel") ? ".addParts([parts[0]])" : ""};\nmount(document.getElementById("app"), scene);\nconsole.log(parts.length);\n`);
   try {

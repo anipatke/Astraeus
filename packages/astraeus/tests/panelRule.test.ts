@@ -107,3 +107,31 @@ describe("the wide drop-down closes on an outside press (note section 6, change 
     expect(apply(first, { type: "outsidePress" }, "wide")).toEqual(state({}));
   });
 });
+
+// O-081 T-338: the readout tile expanded is a phone detail sheet; a wide viewer's tile is always shown, so the rule leaves it alone there.
+describe("the tile expanded (O-081), named close rules", () => {
+  it("wide: opening the tile changes nothing (it is always shown in its own place)", () => {
+    expect(apply(state({ left: "about" }), { type: "open", occupant: "tile" }, "wide")).toEqual(state({ left: "about" }));
+    expect(apply(NO_PANELS, { type: "open", occupant: "tile" }, "wide")).toEqual(NO_PANELS);
+  });
+  it("phone: the tile opens as a detail sheet and closes the other detail sheet and the developer sheet, and covers the story sheet", () => {
+    expect(apply(state({ left: "card", developer: true, story: true }), { type: "open", occupant: "tile" }, "phone")).toEqual(state({ left: "tile", story: true }));
+    expect(apply(state({ left: "shelf:gaps" }), { type: "open", occupant: "tile" }, "phone").left).toBe("tile");
+  });
+  it.each(["wide", "phone"] as const)("%s: another left occupant (About, a card, moons, a shelf panel) replaces an expanded tile", (layout) => {
+    for (const occupant of ["about", "card", "moons", "shelf:gaps"] as const) expect(apply(state({ left: "tile" }), { type: "open", occupant }, layout).left).toBe(occupant);
+  });
+  it("phone: Escape closes the expanded tile as the topmost detail, a pop-up first", () => {
+    expect(topmost(state({ left: "tile" }))).toEqual({ occupant: "tile" });
+    expect(apply(state({ left: "tile", story: true }), { type: "escape" }, "phone")).toEqual(state({ story: true }));
+    expect(apply(state({ left: "tile", popup: "scale-menu" }), { type: "escape" }, "phone")).toEqual(state({ left: "tile" }));
+  });
+  it("a close of the tile closes only the tile", () => {
+    expect(apply(state({ left: "tile" }), { type: "close", occupant: "tile" }, "phone")).toEqual(NO_PANELS);
+    expect(apply(state({ left: "about" }), { type: "close", occupant: "tile" }, "phone")).toEqual(state({ left: "about" }));
+  });
+  it("a view switch closes the expanded tile only when told its tile changed", () => {
+    expect(apply(state({ left: "tile" }), { type: "viewSwitch", dropsCard: true, dropsStory: true, dropsShelf: true }, "phone").left).toBe("tile");
+    expect(apply(state({ left: "tile" }), { type: "viewSwitch", dropsCard: false, dropsStory: false, dropsTile: true }, "phone").left).toBeNull();
+  });
+});

@@ -17,7 +17,7 @@ const exampleSource = (name: string): string => readFileSync(join(EXAMPLES_DIR, 
 
 describe("the catalogue holds every shelf export and nothing else", () => {
   it("finds every shelf part as an @shelf export", () => {
-    expect(shelfNames).toEqual(["actions", "chart", "colourKey", "customBlock", "explainer", "filterChips", "panel"]);
+    expect(shelfNames).toEqual(["actions", "chart", "colourKey", "customBlock", "explainer", "filterChips", "panel", "readoutTile"]);
   });
   it("has an entry for each @shelf export", () => {
     expect(shelfNames.filter((name) => !entryNames.includes(name)), "exports with no entry in data/shelf-catalogue.json").toEqual([]);

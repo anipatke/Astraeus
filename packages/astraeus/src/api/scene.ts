@@ -29,7 +29,7 @@ import { PickerPlan } from "./planPicker";
 import type { PickerInput } from "./pickerInput";
 import { AboutPlan } from "./planAbout";
 import { PartPlan } from "./planParts";
-import type { PanelPart } from "../shelf/part";
+import type { PanelPart, TilePart } from "../shelf/part";
 import type { AboutInput } from "./aboutInput";
 import { PlacesPlan } from "./planPlaces";
 import { SkyFigurePlan } from "./planSkyFigures";
@@ -416,12 +416,13 @@ export class Scene {
   }
 
   /**
-   * Adds shelf panels (each holds blocks such as `explainer`, `filterChips`); a panel puts a button in the bar's story group, in the order added, and opens in the left place. Appends; an id already used by a part or block throws `duplicate-id`,
-   * and a value no shelf factory made throws `bad-part`. A part id listed in some `ViewInput.panels` shows only in those views. Hear and set a part through `handle.part`.
+   * Adds shelf panels (each holds blocks such as `explainer`, `filterChips`) and readout tiles (`readoutTile`). A panel puts a button in the bar's story group, in the order added, and opens in the left place; a tile has its own place
+   * (top of the left column on a wide viewer, a one-line strip above the timeline on a phone). Appends; an id already used by a part or block throws `duplicate-id`, and a value no shelf factory made throws `bad-part`.
+   * A part id listed in some `ViewInput.panels` shows only in those views; at most one tile shows in a view (two that would throw `bad-part` when the scene is built). Hear and set a part through `handle.part`.
    * @example
    * scene.addParts([panel({ id: "notes", button: { label: "Notes" }, title: "Notes", blocks: [customBlock({ id: "notes-body" })] })]);
    */
-  addParts(parts: readonly PanelPart[]): this {
+  addParts(parts: readonly (PanelPart | TilePart)[]): this {
     this.#editable();
     this.#parts.add(parts);
     return this;

@@ -28,6 +28,7 @@ import { panel } from "../src/shelf/panel/factory";
 import { explainer } from "../src/shelf/explainer/factory";
 import { filterChips } from "../src/shelf/filterChips/factory";
 import { chart } from "../src/shelf/chart/factory";
+import { readoutTile } from "../src/shelf/readoutTile/factory";
 import { viewerHandleOf, type ViewerHandle } from "../src/api/viewerHandle";
 import { ViewerLink, type ViewerChange, type CameraPose } from "../src/api/viewerLink";
 import type { SelectionChange } from "../src/api/viewerSelection";
@@ -404,6 +405,25 @@ describe.each(PAIRINGS)("two viewers on one page: $name", (pairing) => {
     b.handle.part(sizes).setBins([{ low: 0, high: 1, count: 1 }]);
     await vi.waitFor(() => expect(bars(b)).toEqual([false]));
     expect(bars(a)).toEqual([false, true]);
+  });
+
+  it("API-03 (O-081 T-338): a tile shared by two viewers keeps each viewer's own value and dot: A's setValue touches A only", async () => {
+    const gap = readoutTile({ id: "gap", label: "Gap", value: "1 unit", scale: { low: 0, high: 10, value: 2 }, facts: [{ label: "Speed", value: "7" }] });
+    const a = await pairing.first.open({ scene: makeScene().addParts([gap]) });
+    open.push(a);
+    const b = await pairing.second.open({ scene: makeScene().addParts([gap]) });
+    open.push(b);
+    const value = (v: Viewer) => v.element.querySelector('[data-area="tile"] [data-shelf-tile-value]')?.textContent;
+    const at = (v: Viewer) => v.element.querySelector('[data-area="tile"] [data-shelf-tile-dot]')?.getAttribute("style");
+    for (const v of [a, b]) await vi.waitFor(() => expect(value(v)).toBe("1 unit"));
+    a.handle.part(gap).setValue("5 units", 8);
+    await vi.waitFor(() => expect(value(a)).toBe("5 units"));
+    expect(at(a)).toContain("--shelf-tile-at: 80");
+    expect(value(b)).toBe("1 unit");
+    expect(at(b)).toContain("--shelf-tile-at: 20");
+    b.handle.part(gap).setFacts([]);
+    await vi.waitFor(() => expect(b.element.querySelector(".shelf-tile-fact")).toBeNull());
+    expect(a.element.querySelector(".shelf-tile-fact")).not.toBeNull();
   });
 
   it("unmounting A leaves B's handle working and B's page in place", async () => {

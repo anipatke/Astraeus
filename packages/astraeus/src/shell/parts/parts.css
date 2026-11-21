@@ -36,6 +36,9 @@
 .astraeus-shell .about-panel .about-section ul { margin: 0; padding-left: var(--astraeus-space-6); }
 .astraeus-shell .about-panel a { color: var(--astraeus-accent); }
 .astraeus-shell .about-panel .about-built-with { margin: 0; color: var(--astraeus-muted); font-size: var(--astraeus-text-s); }
+/* The readout tile's card (wide, in the tile area) and strip button (phone); the tile's own content is its part's (shelf/readoutTile). */
+.astraeus-shell .tile-card { overflow: visible; }
+.astraeus-shell .tile-strip-button { display: block; width: 100%; box-sizing: border-box; min-height: var(--astraeus-hit); padding: var(--astraeus-space-3) var(--astraeus-space-5); border: 1px solid var(--astraeus-border); border-radius: var(--astraeus-radius); background: var(--astraeus-panel); color: inherit; font: inherit; text-align: left; box-shadow: var(--astraeus-shadow-s); backdrop-filter: blur(var(--astraeus-blur)); cursor: pointer; }
 .astraeus-shell .info-panel-header { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--astraeus-space-4); }
 .astraeus-shell .info-panel-header h2 { margin: var(--astraeus-space-3) 0 0; font-size: var(--astraeus-text-l); line-height: 1.3; }
 /* Fact cards ported from Planetary Explorer's FeatureDetails (badge, then one small box per detail), in the shell's one UI font (O-039 T-134, I-058). */

@@ -71,8 +71,19 @@ export interface ShelfPanel {
   readonly view: ComponentType<ShelfPanelViewProps>;
 }
 
-/** A part a scene adds with `addParts`: today the panel; later parts with their own place (the readout tile) join this union. */
-export type ShelfPart = ShelfPanel;
+/**
+ * A part with its own place on screen (the readout tile, O-081): a block (its content is a per-viewer cell, its control is built as a block's) that no panel holds. `view` draws the full tile
+ * (the wide tile area, and the phone sheet it expands into); `strip` draws the phone's one-line strip. The shell wraps the strip's tap; the part knows no place.
+ */
+export interface ShelfTile extends ShelfBlock {
+  readonly kind: "readoutTile";
+  /** The tile's label, which names the phone sheet and the strip's button. */
+  readonly label: string;
+  readonly strip: ComponentType<{ readonly block: ShelfBlock; readonly runtime: ShelfRuntime }>;
+}
 
-/** The ids of a part and everything inside it (a panel and its blocks). */
-export const idsOfPart = (part: ShelfPart): readonly string[] => [part.id, ...part.blocks.map((block) => block.id)];
+/** A part a scene adds with `addParts`: a panel (a button and a panel in the left place) or a tile (its own place). */
+export type ShelfPart = ShelfPanel | ShelfTile;
+
+/** The ids of a part and everything inside it (a panel and its blocks; a tile is its own block). */
+export const idsOfPart = (part: ShelfPart): readonly string[] => (part.kind === "panel" ? [part.id, ...part.blocks.map((block) => block.id)] : [part.id]);

@@ -1,0 +1,18 @@
+/* The readout tile part's look: the shared tokens only (look.css); loaded by app/style.css with the other sheets, since the Node copy of the entry files cannot import a stylesheet from a view. The card and the sheet around it are the shell's. */
+.astraeus-shell .shelf-tile { display: grid; gap: var(--astraeus-space-3); min-width: 0; }
+.astraeus-shell .shelf-tile-label { margin: 0; color: var(--astraeus-muted); font-size: var(--astraeus-text-xs); letter-spacing: calc(var(--astraeus-text-size) * .14); text-transform: uppercase; overflow-wrap: anywhere; }
+.astraeus-shell .shelf-tile-value { margin: 0; color: var(--astraeus-text); font-size: var(--astraeus-text-xl); line-height: 1.2; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.astraeus-shell .shelf-tile-line { position: relative; height: var(--astraeus-size-5); margin: var(--astraeus-space-2) var(--astraeus-space-3) 0; }
+.astraeus-shell .shelf-tile-track { position: absolute; left: 0; right: 0; top: var(--astraeus-space-3); height: 1px; background: var(--astraeus-border); }
+.astraeus-shell .shelf-tile-dot { position: absolute; top: var(--astraeus-space-3); left: calc(var(--shelf-tile-at) * 1%); width: var(--astraeus-space-5); height: var(--astraeus-space-5); border-radius: var(--astraeus-radius-pill); background: var(--astraeus-accent); transform: translate(-50%, -50%); transition: left var(--astraeus-motion) var(--astraeus-ease); }
+.astraeus-shell .shelf-tile-mark { position: absolute; top: 0; left: calc(var(--shelf-tile-at) * 1%); display: flex; flex-direction: column; align-items: center; transform: translateX(-50%); color: var(--astraeus-muted); font-size: var(--astraeus-text-xs); white-space: nowrap; }
+.astraeus-shell .shelf-tile-mark[data-edge="start"] { transform: none; align-items: flex-start; }
+.astraeus-shell .shelf-tile-mark[data-edge="end"] { transform: translateX(-100%); align-items: flex-end; }
+.astraeus-shell .shelf-tile-tick { width: 1px; height: var(--astraeus-space-5); background: var(--astraeus-muted); }
+.astraeus-shell .shelf-tile-facts { display: grid; gap: var(--astraeus-space-2); margin: 0; }
+.astraeus-shell .shelf-tile-fact { display: flex; justify-content: space-between; gap: var(--astraeus-space-4); min-width: 0; }
+.astraeus-shell .shelf-tile-fact dt { color: var(--astraeus-muted); font-size: var(--astraeus-text-s); }
+.astraeus-shell .shelf-tile-fact dd { margin: 0; color: var(--astraeus-text); font-size: var(--astraeus-text-s); font-variant-numeric: tabular-nums; text-align: right; overflow-wrap: anywhere; }
+.astraeus-shell .shelf-tile-strip { display: flex; align-items: baseline; justify-content: space-between; gap: var(--astraeus-space-4); min-width: 0; }
+.astraeus-shell .shelf-tile-strip-label { color: var(--astraeus-muted); font-size: var(--astraeus-text-s); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.astraeus-shell .shelf-tile-strip-value { color: var(--astraeus-text); font-size: var(--astraeus-text-m); font-variant-numeric: tabular-nums; white-space: nowrap; }

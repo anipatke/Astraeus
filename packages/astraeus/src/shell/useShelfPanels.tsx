@@ -1,12 +1,13 @@
 // The shelf panels of one viewer (viewer-interface note, section 11): the story buttons for the bar and the open panel's view for the left place. Job: turn the scene's parts, the panel rule
 // and the host's open/close calls into those two things. It must not decide a place or what an open closes (the panel rule does) and never imports a shelf module: a part draws itself through `part.view`.
 import { useEffect, useId, useState, type ReactNode } from "react";
-import type { ShelfPart, ShelfRuntime } from "../app/shelfContract";
+import type { ShelfPanel, ShelfPart, ShelfRuntime } from "../app/shelfContract";
 import type { StoryButtonSpec } from "./StoryButton";
 import type { Occupant } from "./panels/panelRule";
 import type { Panels } from "./panels/usePanels";
 
 const NO_PARTS: readonly ShelfPart[] = [];
+const panelsOf = (parts: readonly ShelfPart[]): readonly ShelfPanel[] => parts.filter((part): part is ShelfPanel => part.kind === "panel");
 const NO_RUNTIME: ShelfRuntime = { element: () => undefined };
 
 const occupantOf = (id: string): Occupant => `shelf:${id}`;
@@ -22,8 +23,9 @@ interface Input {
 }
 
 /** The bar's story buttons (in the scene's order) and the open shelf panel; a panel the showing view does not show closes, and a host request or a visitor's press opens one through the rule. */
-export function useShelfPanels({ parts = NO_PARTS, runtime = NO_RUNTIME, panels, request, onOpenChange }: Input): { readonly storyButtons: readonly StoryButtonSpec[]; readonly shelfPanel: ReactNode } {
+export function useShelfPanels({ parts: showing = NO_PARTS, runtime = NO_RUNTIME, panels, request, onOpenChange }: Input): { readonly storyButtons: readonly StoryButtonSpec[]; readonly shelfPanel: ReactNode } {
   const base = useId();
+  const parts = panelsOf(showing);
   const left = panels.state.left;
   const openId = left !== null && left.startsWith("shelf:") ? left.slice("shelf:".length) : null;
   const shown = parts.some((part) => part.id === openId);

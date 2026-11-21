@@ -34,6 +34,7 @@ import { actions } from "../src/shelf/actions/factory";
 import { filterChips } from "../src/shelf/filterChips/factory";
 import { colourKey } from "../src/shelf/colourKey/factory";
 import { chart } from "../src/shelf/chart/factory";
+import { readoutTile } from "../src/shelf/readoutTile/factory";
 import { SceneCamera } from "../src/api/planCamera";
 import { earth, mars, moon } from "../src/api/bodies";
 import { viewerHandleOf, type ViewerHandle } from "../src/api/viewerHandle";
@@ -770,6 +771,48 @@ describe.each([mountDriver, reactDriver(false)])("lifecycle: $name", (driver) =>
     expect(heard).toEqual([]);
     opened.unmount();
     expect(codeOf(() => handle.part(sizes))).toBe("not-mounted");
+  });
+
+  it("readoutTile (O-081 T-338): the tile draws in its own place, setValue moves the number and the dot, setScaleValue and setFacts redraw, all silent and checked, each view shows its own tile, not-mounted after unmount", async () => {
+    prepared.real = true; openNow();
+    const first = readoutTile({ id: "first", label: "Gap", value: "4 units", scale: { low: 1, high: 100, value: 10, stretch: "log" }, facts: [{ label: "Speed", value: "7" }] });
+    const second = readoutTile({ id: "second", label: "Other", value: "9 units" });
+    const scene = new Scene().addBody(earth).addParts([first, second]).setViews([{ id: "a", label: "A", panels: ["first"] }, { id: "b", label: "B", panels: ["second"] }], { place: "top-bar", start: "a" });
+    const opened = await driver.open(scene);
+    await opened.ready();
+    const handle = opened.handle!;
+    const heard: unknown[] = [];
+    handle.onChange((change) => heard.push(change));
+    const tile = () => document.querySelector('[data-area="tile"] [data-shelf-tile]')!;
+    const dot = () => tile().querySelector<HTMLElement>("[data-shelf-tile-dot]")!;
+    await until(() => expect(tile().getAttribute("data-shelf-tile")).toBe("first"));
+    expect(tile().querySelector("[data-shelf-tile-value]")!.textContent).toBe("4 units");
+    expect(dot().getAttribute("style")).toContain("--shelf-tile-at: 50");
+    expect(tile().querySelector('[role="img"]')!.getAttribute("aria-label")).toBe("Gap on a log scale from 1 to 100: 10");
+    heard.length = 0;
+    flushSync(() => handle.part(first).setValue("5 units", 100));
+    expect(tile().querySelector("[data-shelf-tile-value]")!.textContent).toBe("5 units");
+    expect(dot().getAttribute("style")).toContain("--shelf-tile-at: 100");
+    flushSync(() => handle.part(first).setScaleValue(1));
+    expect(dot().getAttribute("style")).toContain("--shelf-tile-at: 0");
+    flushSync(() => handle.part(first).setFacts([{ label: "A", value: "1" }, { label: "B", value: "2" }]));
+    expect(tile().querySelectorAll(".shelf-tile-fact")).toHaveLength(2);
+    flushSync(() => handle.part(first).setFacts([]));
+    expect(tile().querySelector(".shelf-tile-facts")).toBeNull();
+    expect(codeOf(() => handle.part(first).setValue(""))).toBe("bad-part");
+    expect(codeOf(() => handle.part(first).setValue("x", 101))).toBe("bad-part");
+    expect(codeOf(() => handle.part(first).setScaleValue(Number.NaN))).toBe("bad-part");
+    expect(codeOf(() => handle.part(first).setFacts(Array.from({ length: 5 }, () => ({ label: "A", value: "1" }))))).toBe("bad-part");
+    expect(codeOf(() => handle.part(second).setScaleValue(1))).toBe("bad-part");
+    expect(tile().querySelector("[data-shelf-tile-value]")!.textContent).toBe("5 units");
+    expect(heard, "setters say nothing").toEqual([]);
+    flushSync(() => handle.setView("b"));
+    await until(() => expect(tile().getAttribute("data-shelf-tile")).toBe("second"));
+    expect(tile().querySelector("[data-shelf-tile-value]")!.textContent).toBe("9 units");
+    flushSync(() => handle.part(second).setValue("10 units"));
+    expect(tile().querySelector("[data-shelf-tile-value]")!.textContent).toBe("10 units");
+    opened.unmount();
+    expect(codeOf(() => handle.part(first))).toBe("not-mounted");
   });
 
   it("a part id some view lists shows only in those views: the button is hidden and an open panel closes (silently) on a switch away, whichever path opened it", async () => {

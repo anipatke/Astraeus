@@ -48,6 +48,7 @@ export function panel(input: PanelInput): PanelPart {
   if (!Array.isArray(blocks) || blocks.length === 0) throw badPart(who, "blocks must be a non-empty list of blocks, such as [explainer({ id, paragraphs })]");
   blocks.forEach((block, index) => { if (!isMade(block)) throw badPart(who, `blocks[${index}] is not a block made by a shelf factory such as explainer or customBlock`); });
   if (blocks.some((block) => (block as { kind: string }).kind === "panel")) throw badPart(who, "a panel cannot hold a panel; add panels with scene.addParts");
+  if (blocks.some((block) => (block as { kind: string }).kind === "readoutTile")) throw badPart(who, "a panel cannot hold a readoutTile; it has its own place, add it with scene.addParts");
   const shelf: ShelfPanel = {
     kind: "panel", id, button: Object.freeze({ label, ...(shortLabel === undefined ? {} : { shortLabel }) }), title,
     blocks: Object.freeze((blocks as readonly PanelBlock[]).map(blockOf)), view: PanelView,

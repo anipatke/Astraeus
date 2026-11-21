@@ -70,7 +70,7 @@ export type SceneErrorCode =
   | "bad-look"
   /** The About (`setAbout`) is malformed; the message names the field. */
   | "bad-about"
-  /** A shelf part is malformed: a shelf factory (`panel`, `customBlock`, `explainer`, `actions`, `filterChips`, `colourKey`, `chart`) or a part control's setter given a bad value, `addParts` given a value no factory made, an action's camera naming what the scene lacks (at build), or `handle.part` given a part this viewer's scene does not hold. The message names the field. */
+  /** A shelf part is malformed: a shelf factory (`panel`, `customBlock`, `explainer`, `actions`, `filterChips`, `colourKey`, `chart`, `readoutTile`) or a part control's setter given a bad value, `addParts` given a value no factory made, an action's camera naming what the scene lacks (at build), or `handle.part` given a part this viewer's scene does not hold. The message names the field. */
   | "bad-part"
   /** An input field was given under a name it no longer has; the message names the old field and its replacement. */
   | "renamed";
