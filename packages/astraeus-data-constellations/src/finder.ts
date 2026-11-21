@@ -19,6 +19,9 @@ interface Loop {
   readonly normals: readonly Vec[];
   /** True when the loop encloses the north celestial pole (the south one otherwise, for a loop that circles a pole). */
   readonly pole: "north" | "south" | "none";
+  /** Bounds of sin(declination) over the outline's region: its vertices, each edge's highest and lowest point, and a pole's own value (+1 or -1) for a loop that encloses it. */
+  readonly minZ: number;
+  readonly maxZ: number;
 }
 
 const unit = (raDeg: number, decDeg: number): Vec => {
@@ -55,8 +58,29 @@ const buildLoop = (abbr: string, flat: readonly number[]): Loop => {
   }
   const circles = Math.abs(wind) > 180;
   const normals = points.map((a, i) => normalize(cross(a, points[(i + 1) % points.length] as Vec)));
-  return { abbr, points, normals, pole: !circles ? "none" : decSum > 0 ? "north" : "south" };
+  const pole = !circles ? "none" : decSum > 0 ? "north" : "south";
+  let minZ = pole === "south" ? -1 : Infinity;
+  let maxZ = pole === "north" ? 1 : -Infinity;
+  points.forEach((a, i) => {
+    const b = points[(i + 1) % points.length] as Vec;
+    const normal = normals[i] as Vec;
+    minZ = Math.min(minZ, a[2]);
+    maxZ = Math.max(maxZ, a[2]);
+    // The great circle's highest point is the projection of the north pole onto its plane; the lowest is its opposite. Either counts when the edge's arc runs through it.
+    const top = normalize([-normal[2] * normal[0], -normal[2] * normal[1], 1 - normal[2] * normal[2]]);
+    if (top[2] === 0 && top[0] === 0 && top[1] === 0) return;
+    for (const extreme of [top, [-top[0], -top[1], -top[2]] as Vec]) {
+      if (dot(cross(a, extreme), normal) >= 0 && dot(cross(extreme, b), normal) >= 0) {
+        minZ = Math.min(minZ, extreme[2]);
+        maxZ = Math.max(maxZ, extreme[2]);
+      }
+    }
+  });
+  return { abbr, points, normals, pole, minZ, maxZ };
 };
+
+/** Could the direction (its z = sin(declination)) lie in or on the loop? False only when z is outside the loop's band widened by the edge tolerance (twice it, for rounding). */
+const inBand = (loop: Loop, z: number): boolean => z >= loop.minZ - 2 * EDGE_EPS && z <= loop.maxZ + 2 * EDGE_EPS;
 
 /** Does the loop enclose the direction? Ray casting along the direction's meridian up to the north pole, edges as great-circle arcs; crossings are counted half-open so a vertex on the ray counts once. */
 const contains = (loop: Loop, p: Vec, raDeg: number): boolean => {
@@ -140,6 +164,7 @@ export const buildMatcher = (boundaries: ConstellationBoundaries): Matcher => {
     // 3. Else (rounding left it in no loop): the constellation of the nearest edge, the first on a tie.
     let inside: string | undefined;
     for (const loop of loops) {
+      if (!inBand(loop, p[2])) continue;
       if (edgeDistance(loop, p) <= EDGE_EPS) return loop.abbr;
       if (inside === undefined && contains(loop, p, raDeg)) inside = loop.abbr;
     }
@@ -157,7 +182,7 @@ export const buildMatcher = (boundaries: ConstellationBoundaries): Matcher => {
   };
   const enclosing = (direction: SkyDirection): readonly string[] => {
     const { p, raDeg } = prepare(direction);
-    return loops.filter((loop) => contains(loop, p, raDeg)).map((loop) => loop.abbr);
+    return loops.filter((loop) => inBand(loop, p[2]) && contains(loop, p, raDeg)).map((loop) => loop.abbr);
   };
   return { find, enclosing };
 };

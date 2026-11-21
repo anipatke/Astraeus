@@ -2,7 +2,7 @@
 id: T-385
 title: Constellation finder skips outlines far from the point
 objective: O-086
-status: planned
+status: done
 depends_on: []
 check_waiver: {task: T-385, reason: 'Owner said "work through this list of objectives one by one. Orchestrate each objective to completion" (G-024 decision 7) and "carry on" (2026-11-22): standing orchestration rules waive the optional step checks; the mandatory Full Objective Check covers the whole diff.', actor: {role: owner, session: orchestrate-g024-20261121}, recorded_at: '2026-11-21T20:47:35Z'}
 owner_validation: {required: false}
@@ -62,8 +62,20 @@ Focused: `npx vitest run packages/astraeus-data-constellations/tests`. Handoff: 
 
 ## Technical Evidence
 
-Pending execution.
+| Done When | Evidence |
+|---|---|
+| Band per loop (vertices, arc extremes, pole +-1) | `buildLoop` in `finder.ts` stores `minZ`/`maxZ` (z = sin dec); arc extreme = projection of the pole onto the edge's plane, counted when the arc runs through it (same within-test as `edgeDistance`). |
+| `find`/`enclosing` skip out-of-band loops; rule 3 scans all | `inBand(loop, z)` (band widened by 2*EDGE_EPS) guards the rule-1/2 loop and `enclosing`; the nearest-edge loop is untouched. |
+| Same answers, proved | Scratch test (deleted, uncommitted) dumped find + enclosing for 38,188 points (whole-sky 1.5 deg grid + every outline vertex + every edge midpoint) to before.txt with the old finder, and after.txt with the new: `cmp` byte-identical. |
+| Bulge case, fails with vertex-only band | New test "finds a direction under the bulge of an edge ..." passes (8/8). With the arc-extreme `minZ`/`maxZ` updates removed (local edit, reverted, file diffed equal): fails "expected [] to deeply equal ['Zzz']". |
+| No existing case changes | Only an `it` added in `finder.test.ts`. |
+| Timing | finder.test.ts file duration 5.66 s before, 2.22 s after (this machine, under shared load); 10,000 random `find` lookups 1433 ms before, 278 ms after. |
+| Gates / check:pack | lint, typecheck, build ran; check:pack: pass; engine budget 1834360 B raw (limit 1836000), unchanged by this Task (no engine change). Full `npm test`: 5109 passed, 1 failed (`packages/astraeus-site/tests/gateLimits.test.ts`, row check:public-build: another builder's in-flight T-389 work, not touched). `npm run lint` fails only prettier --check on 9 files outside this Task (others' in-flight); my two files are Prettier-clean. |
+
+Files changed: packages/astraeus-data-constellations/src/finder.ts, packages/astraeus-data-constellations/tests/finder.test.ts, this Task file.
 
 ## Drift Notes
 
-None expected. The working tree's `finder.ts` was reformatted by O-093's Prettier commit; build on the merged branch head.
+None. The working tree's `finder.ts` was reformatted by O-093's Prettier commit; build on the merged branch head.
+
+Coordinator (orchestrate-g024-20261121): answers byte-identical on 38,188 points; the new bulge case fails without the arc extremes; its files pass prettier; `check:pack` passes. The one suite failure (`gateLimits` row for `check:public-build`) is T-389's in-flight work; full gates at the Full Check. `status: done` set by the coordinator under the standing orchestration rule ("I mark them as they pass", O-038) and G-024 decision 7.

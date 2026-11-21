@@ -134,6 +134,18 @@ describe("constellationFinder()", () => {
     }
   });
 
+  it("finds a direction under the bulge of an edge: the declination band holds the great-circle arc's highest point, not only its vertices", () => {
+    // The shared edge runs from (RA 0, dec 60) to (RA 120, dec 60) as a great circle, which rises to dec 73.9 at RA 60. "Zzz" lies below it (vertices no higher than dec 60), "Aaa" above;
+    // (RA 60, dec 70) is under the bulge, above every vertex of "Zzz", and a tie to the nearest-edge rule would go to "Aaa", so only the band can keep it in "Zzz".
+    const { find, enclosing } = buildMatcher({
+      Zzz: [[0, 60, 120, 60, 120, 20, 0, 20]],
+      Aaa: [[0, 60, 0, 85, 120, 85, 120, 60]],
+    });
+    expect(enclosing({ raDeg: 60, decDeg: 70 })).toEqual(["Zzz"]);
+    expect(find({ raDeg: 60, decDeg: 70 })).toBe("Zzz");
+    expect(enclosing({ raDeg: 60, decDeg: 78 })).toEqual(["Aaa"]);
+  });
+
   it("throws a RangeError naming the field for a bad direction", async () => {
     const which = await constellationFinder();
     const bad: readonly (readonly [string, unknown, string])[] = [
