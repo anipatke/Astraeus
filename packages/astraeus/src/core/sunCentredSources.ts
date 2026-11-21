@@ -1,6 +1,7 @@
 import type { AstronomyAdapter } from "./astronomyAdapter";
 import type { BodyId, CenterId } from "./body";
 import type { ElementPlane, OrbitElements } from "./orbitGroup";
+import { eccentricAnomalyFromMean as sharedEccentricAnomaly } from "./keplerAnomaly";
 import { assertWithinBounds, GroupElementsError } from "./pointGroup";
 import { earthStateAt } from "./referenceCenters";
 import { assertUtcUnixMs, createState, EQJ, type State } from "./state";
@@ -111,15 +112,8 @@ export interface EccentricSampling {
 
 /** The eccentric anomaly E (radians, unwrapped) whose mean anomaly M = E - e sin E equals `meanRad`. */
 export function eccentricAnomalyFromMean(meanRad: number, eccentricity: number): number {
-  const turns = Math.round(meanRad / (2 * Math.PI));
-  const reduced = meanRad - turns * 2 * Math.PI;
-  let anomaly = eccentricity < 0.8 ? reduced : Math.PI * Math.sign(reduced || 1);
-  for (let step = 0; step < 60; step += 1) {
-    const change = (anomaly - eccentricity * Math.sin(anomaly) - reduced) / (1 - eccentricity * Math.cos(anomaly));
-    anomaly -= change;
-    if (Math.abs(change) < 1e-14) break;
-  }
-  return anomaly + turns * 2 * Math.PI;
+  const turns = Math.ceil((meanRad - Math.PI) / (2 * Math.PI));
+  return sharedEccentricAnomaly(meanRad - turns * 2 * Math.PI, eccentricity) + turns * 2 * Math.PI;
 }
 
 /**

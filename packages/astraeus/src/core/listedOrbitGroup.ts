@@ -1,4 +1,5 @@
 import type { CenterId } from "./body";
+import { eccentricAnomalyFromMean, trueAnomalyFromMean } from "./keplerAnomaly";
 import { gravitationalParameterOf, keplerElementsFromStates, type KeplerElements } from "./keplerElements";
 import { memberStatesOf, propagatedPositionOf, seededRandom, type ElementPlane } from "./orbitGroup";
 import {
@@ -142,21 +143,11 @@ function assertPhase(phase: ListedPhase, measured: boolean): void {
   if (!(c.widthDeg > 0 && c.widthDeg <= 180)) throw new GroupElementsError(`concentration widthDeg must be above 0 and at most 180, got ${c.widthDeg}`);
 }
 
-/** Solves Kepler's equation M = E - e sin E for E (Newton; bound orbits only). */
-export function eccentricAnomalyRad(meanAnomalyRad: number, e: number): number {
-  const m = Math.atan2(Math.sin(meanAnomalyRad), Math.cos(meanAnomalyRad));
-  let E = e < 0.8 ? m : Math.PI * Math.sign(m || 1);
-  for (let step = 0; step < 60; step++) {
-    const delta = (E - e * Math.sin(E) - m) / (1 - e * Math.cos(E));
-    E -= delta;
-    if (Math.abs(delta) < 1e-15) break;
-  }
-  return E;
-}
+/** Solves Kepler's equation M = E - e sin E for E in [-pi, pi] (the shared bounded solver; bound orbits only). */
+export const eccentricAnomalyRad = eccentricAnomalyFromMean;
 
 export function trueAnomalyFromMeanRad(meanAnomalyRad: number, e: number): number {
-  const E = eccentricAnomalyRad(meanAnomalyRad, e);
-  return 2 * Math.atan2(Math.sqrt(1 + e) * Math.sin(E / 2), Math.sqrt(1 - e) * Math.cos(E / 2));
+  return trueAnomalyFromMean(meanAnomalyRad, e);
 }
 
 const cross = (a: ArrayLike<number>, b: ArrayLike<number>): number[] => [
