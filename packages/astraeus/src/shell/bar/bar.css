@@ -24,6 +24,8 @@
 /* Free space sits between the left group (title, switch, story) and the right one (engine controls, menu); the negative margins cancel the two gaps around it, so the fit rule's one gap per item holds. */
 .astraeus-shell .bar-spacer { flex: 1 1 0; min-width: 0; margin: 0 calc(var(--astraeus-space-3) * -1); }
 .astraeus-shell .bar-title { display: inline-flex; border: 0; background: transparent; font-family: inherit; cursor: pointer; align-items: center; min-height: var(--astraeus-control-height); padding: 0 var(--astraeus-space-3); color: var(--astraeus-text); font-size: var(--astraeus-text-l); font-weight: 600; white-space: nowrap; }
+/* Centre the title on its capital letters, not its line box: with large-ascent fonts (Segoe UI) the line-box centre leaves the capitals low (owner, 2026-11-21). Browsers without text-box keep the line-box centre. */
+.astraeus-shell .bar-title > span[aria-hidden="true"] { text-box: trim-both cap alphabetic; }
 .astraeus-shell .bar-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 .astraeus-shell .bar-menu-button { touch-action: none; }
 .astraeus-shell .switch-compact { max-width: var(--astraeus-size-9); }

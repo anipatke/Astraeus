@@ -2,8 +2,7 @@
 id: T-327
 title: Show the new bar in the site's demos
 objective: O-079
-status: in_progress
-stage: audit
+status: done
 depends_on: [{task: T-332, requires: clear}]
 check_waiver: {task: T-327, reason: 'Owner said "orchestrate 79": standing orchestration rules waive the optional step checks; the mandatory Full Objective Check covers the whole diff.', actor: {role: owner, session: orchestrate-o079-20261121}, recorded_at: '2026-11-21T00:35:01Z'}
 owner_validation: {required: true}
@@ -189,3 +188,9 @@ Old code gone (grep over `packages/astraeus/src`, no hits): `TopBar.css`, `shell
 ## Drift Notes
 
 This Task is the deferred Design reconciliation point for T-330, T-326, T-329, T-331, T-325 and T-332 (AGENTS.md project rule).
+
+### Owner look on localhost:5490 (2026-11-21T04:04:44Z, session orchestrate-o079-20261121)
+
+Owner: "looks OK, stress test will be on belt. One minor thing, in the speed drop down, it always runs too long. can we have it so is 3600x - 1hr/sec on desktop. Mobileis OK. Also small petty thing, the text isnt centred correctly on the top bar." and "Apollo 11, is closer to the bottom of the bar than the top". The owner's "looks OK" also covers the demo packages' new `./credits/*` export and per-line source links.
+
+Coordinator fixes: (1) `formatRateShort` in `shell/timelineModel.ts` gives the desktop speed menu one short phrase per rate ("3,600× – 1 hr/sec", rounded under a whole unit: "1,000× – 17 min/sec"); the phone keeps `formatRateCompact`; new `tests/rateLabelShort.test.ts` (15 cases). (2) Measured in headless Chromium 147 (positions only, no screenshot): the title's line box was centred but its capitals sit low with large-ascent fonts; `bar/bar.css` trims the title span to its capitals (`text-box: trim-both cap alphabetic`), after which the capital box centre equals the button centre (37 px / 37 px). CHANGELOG line added. Gates: lint, typecheck, build 0; npm test 4346 passed; check:pack pass. owner_validation acceptance is recorded against the Full Objective Check id. Coordinator marked done (owner: "orchestrate 79").

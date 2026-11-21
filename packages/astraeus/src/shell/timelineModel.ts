@@ -24,6 +24,19 @@ export function formatRateCompact(rate: number): string {
   return formatRate(rate);
 }
 
+const SHORT_RATE_UNITS = [["wk", 604_800], ["day", 86_400], ["hr", 3_600], ["min", 60], ["sec", 1]] as const;
+
+/** A rate for the desktop speed menu: the multiplier and the simulated time per real second in one short phrase ("3,600× – 1 hr/sec"; owner, 2026-11-21: the long wording ran too wide). The largest unit that reaches 1 is used, rounded to one decimal under 10 and to a whole number above ("1,000× – 17 min/sec"); the full wording stays in `describePlaybackRate`. */
+export function formatRateShort(rate: number): string {
+  if (rate === 1) return `${formatRate(rate)} – real time`;
+  if (!Number.isFinite(rate) || rate <= 0) return describePlaybackRate(rate);
+  const [unit, size] = SHORT_RATE_UNITS.find(([, unitSize]) => rate / unitSize >= 1) ?? SHORT_RATE_UNITS[SHORT_RATE_UNITS.length - 1];
+  const raw = rate / size;
+  const count = raw < 10 ? Math.round(raw * 10) / 10 : Math.round(raw);
+  const plural = count !== 1 && (unit === "day" || unit === "wk") ? "s" : "";
+  return `${formatRate(rate)} – ${count.toLocaleString("en-US")} ${unit}${plural}/sec`;
+}
+
 function formatSimulatedDuration(seconds: number): string {
   if (!Number.isFinite(seconds) || seconds <= 0) return `${seconds} simulated seconds`;
   if (!Number.isInteger(seconds)) return `${Number(seconds.toPrecision(3))} simulated seconds`;

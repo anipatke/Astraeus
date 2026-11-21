@@ -4,7 +4,7 @@ import { useEffect, useId, useMemo, useRef, useState, type CSSProperties, type P
 import type { ClockSnapshot } from "../core/clock";
 import type { TimelineEvent } from "../core/events";
 import type { TimelineWindow } from "../core/timeWindow";
-import { DEFAULT_TIME_LOOK, withDefaultTime, eventContextAt, formatTime, formatUtcTimestamp, formatWindowRate, navigationStops, windowContextAt, timePositionPercent, type NavigationStop, speedsOf, TIMELINE_STEP_MS, clampToBounds, formatRateCompact, formatRate, groupMarkers, type TimeLook } from "./timelineModel";
+import { DEFAULT_TIME_LOOK, withDefaultTime, eventContextAt, formatTime, formatUtcTimestamp, formatWindowRate, navigationStops, windowContextAt, timePositionPercent, type NavigationStop, speedsOf, TIMELINE_STEP_MS, clampToBounds, formatRateCompact, formatRateShort, formatRate, groupMarkers, type TimeLook } from "./timelineModel";
 import { activityAt, DEFAULT_TIMELINE_GLOW, glowDescription, glowGradient, glowProfile, glowTooltip, type TimelineGlowLook } from "./timelineGlow";
 import type { ExperienceConfig } from "./experience";
 import { Label } from "./Label";
@@ -53,7 +53,7 @@ function SpeedMenu({ speeds, rate, paceAuto, compact, onRateChange }: { readonly
       <span>Playback rate</span>
       <select aria-label="Playback speed" title="Playback speed" value={paceAuto === true ? "auto" : rate} onChange={(event) => onRateChange(event.target.value === "auto" ? "auto" : Number(event.target.value))}>
         {paceAuto !== undefined && <option value="auto">{autoLabel(paceAuto && !compact, rate)}</option>}
-        {speeds.map((speed) => <option key={speed.rate} value={speed.rate}>{compact ? formatRateCompact(speed.rate) : speed.label}</option>)}
+        {speeds.map((speed) => <option key={speed.rate} value={speed.rate}>{compact ? formatRateCompact(speed.rate) : formatRateShort(speed.rate)}</option>)}
       </select>
     </label>
   );
