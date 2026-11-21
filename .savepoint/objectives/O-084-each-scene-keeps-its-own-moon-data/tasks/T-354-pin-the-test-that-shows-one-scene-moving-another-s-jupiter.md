@@ -2,7 +2,7 @@
 id: T-354
 title: Pin the test that shows one scene moving another's Jupiter
 objective: O-084
-status: planned
+status: done
 depends_on: []
 check_waiver: {task: T-354, reason: 'Owner said "work through this list of objectives one by one. Orchestrate each objective to completion" (G-024 decision 7): standing orchestration rules waive the optional step checks; the mandatory Full Objective Check covers the whole diff.', actor: {role: owner, session: orchestrate-g024-20261121}, recorded_at: '2026-11-21T12:08:49Z'}
 owner_validation: {required: false}
@@ -71,8 +71,26 @@ Focused: `npx vitest run --project cold packages/astraeus/tests/cold/sceneMoonIs
 
 ## Technical Evidence
 
-Pending execution.
+Done When -> evidence (all in `packages/astraeus/tests/cold/sceneMoonIsolation.test.ts`, cold project; focused run: `npx vitest run --project cold <file>`):
+
+| Done When | Evidence |
+|---|---|
+| New cold test, public API only, counting fetch over two hosts | file uses `import("astraeus")`, `source(host)` (a.test/b.test) and a counting `fetch` stub serving the installed astraeus-data-jupiter files |
+| Row 1 A then B | `it.fails` (fails today): A's Jupiter at 2016-06-01 moved **143.2 km** after B loads (matches Codex ~143 km) |
+| Row 2 B then A | `it.fails` (fails today): A differs from its own answer |
+| Row 3 concurrent, different sources | `it.fails` (fails today): A's Jupiter at 2020-03-15 differs from its own answer (about 38 m in y) |
+| Row 4 same source, different windows | `it.fails` (fails today): A.stateOf("io", 2020-03-15) throws before B loads, answers after (`no error`); asserts `code` `bad-time`, never message |
+| Row 5 missing package | passes today, plain `it` with comment (guard for the fix) |
+| Row 6 old scene read back | passes today, plain `it` with comment (guard) |
+| Row 7 shared bytes | passes today, plain `it` (guard) |
+| No src change, existing tests green | only the new test file changed; full gate below |
+
+Failure output was shown with `it.fails` temporarily plain: rows 1-4 failed with the diffs above; rows 5-6 passed so they stay plain.
+Gates (under flock): lint, typecheck (one TS2345 fixed in the test's `km` helper), build, test: 303 files passed, 5031 tests passed, 4 expected fail, 2 skipped.
+Limitations: rows 5 and 6 do not reproduce a leak today (Jupiter reads in 2016 are unaffected by those later loads); they guard the fix only. No extra reads beyond the Context Files.
 
 ## Drift Notes
 
-None expected.
+None.
+
+Coordinator (orchestrate-g024-20261121): hand-off gates green (lint, typecheck, build; `npm test` 303 files, 5031 passed, 4 expected-fail, 2 skipped). `status: done` set by the coordinator under the standing orchestration rule ("I mark them as they pass", O-038) and G-024 decision 7.
