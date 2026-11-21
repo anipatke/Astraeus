@@ -6,6 +6,7 @@ depends_on: []
 release: G-024
 priority: high
 rank: 4
+lanes: [{key: timing, title: Timing warnings}, {key: numbers, title: Rate tolerance}, {key: timeout, title: One timeout}, {key: views, title: Views playing state}, {key: assertions, title: Empty checks}, {key: shaders, title: Patched shaders}, {key: atmosphere, title: Atmosphere log depth}, {key: handedness, title: Render handedness}, {key: layers, title: Core whitelist}]
 ---
 
 # O-085: Tests that check what they claim
@@ -38,3 +39,18 @@ TEST guardrails; the owner's no-screenshot browser rule stands. Shader work touc
 
 **Out of scope:**
 - Removing duplicated gate work (O-086); retiring text pins (O-088); disposal tests (O-092).
+
+## Decisions
+
+- Owner 2026-11-21 (G-024 decision 7): design confirmed by "work through this list of objectives one by one. Orchestrate each objective to completion"; step checks waived on every Task. Overnight: the owner's atmosphere look is needed, so O-085 finishes everything else and is parked unmerged until the look.
+- Planner (orchestrate-g024-20261121), settled from evidence (details and file:line in each Task):
+  1. The three wall-clock assertions (`showersMeasured`, `frameStats`, `pacedAdvance`) become warnings or boundedness checks; no timing allowlist.
+  2. One test timeout, 30 s, locally and on CI (`vitest.config.ts`); a hang takes 30 s to fail instead of 5 s.
+  3. The shower rate series in `rebuildComparison` is compared at one named relative tolerance set from the measured Node 22 differences; times, ids, units and labels stay exact; the fixture is never re-recorded.
+  4. "Other empty assertions" means the Vitest cases (`loadingCoverChain` and the five lone `not.toThrow()` cases); browser-script steps without assertions are left to O-086.
+  5. The core layer whitelist reads real imports with `typescript6`'s `preProcessFile`, not a regex over text.
+  6. The atmosphere log-depth fix and the guard extended to JSX materials are one Task (T-367), the only one needing the owner's look; nothing depends on it.
+  7. Earth is the only atmosphere, so the look covers Earth on the planets page and Apollo 11.
+  8. The shader tests compile against three's own `ShaderLib.points` source for the two `onBeforeCompile` sites.
+  9. Handedness: reproduce Gemini's probe first (it may already be caught at `sceneTransforms.test.ts`); check the two hand-copied axis changes against `eqjToRenderVector`.
+- Planner, task numbering: O-084's T-354..T-360 were allocated on its parked branch, so main's `task-ids.yml` was brought to 360 before these Tasks were created (T-361..T-369); later Checks and Issues on this branch continue after C-198 and I-191.
