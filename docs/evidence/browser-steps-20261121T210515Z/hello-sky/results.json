@@ -1,0 +1,54 @@
+{
+  "name": "check-hello-sky",
+  "at": "2026-11-21T21:07:20.748Z",
+  "ok": true,
+  "results": [
+    {
+      "viewport": "desktop",
+      "result": {
+        "start": {
+          "lookOut": "earth",
+          "raDeg": 83.7,
+          "decDeg": 0,
+          "fovDeg": 90
+        },
+        "belt": {
+          "lookOut": "earth",
+          "raDeg": 83.96,
+          "decDeg": -2.63,
+          "fovDeg": 90
+        },
+        "whole": {
+          "lookOut": "earth",
+          "raDeg": 83.74,
+          "decDeg": -0.37,
+          "fovDeg": 90
+        }
+      }
+    },
+    {
+      "viewport": "phone",
+      "result": {
+        "start": {
+          "lookOut": "earth",
+          "raDeg": 83.7,
+          "decDeg": 0,
+          "fovDeg": 90
+        },
+        "belt": {
+          "lookOut": "earth",
+          "raDeg": 83.96,
+          "decDeg": -2.59,
+          "fovDeg": 90
+        },
+        "whole": {
+          "lookOut": "earth",
+          "raDeg": 83.74,
+          "decDeg": -0.41,
+          "fovDeg": 90
+        }
+      }
+    }
+  ],
+  "errors": []
+}

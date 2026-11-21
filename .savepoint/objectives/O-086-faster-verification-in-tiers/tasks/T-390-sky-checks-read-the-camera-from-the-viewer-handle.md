@@ -2,7 +2,7 @@
 id: T-390
 title: Sky checks read the camera from the viewer handle
 objective: O-086
-status: planned
+status: done
 depends_on: [{task: T-388, requires: clear}]
 check_waiver: {task: T-390, reason: 'Owner said "work through this list of objectives one by one. Orchestrate each objective to completion" (G-024 decision 7) and "carry on" (2026-11-22): standing orchestration rules waive the optional step checks; the mandatory Full Objective Check covers the whole diff.', actor: {role: owner, session: orchestrate-g024-20261121}, recorded_at: '2026-11-21T20:47:35Z'}
 owner_validation: {required: false}
@@ -66,8 +66,23 @@ Focused: `npx vitest run packages/astraeus-site/tests/browserDriverGuard.test.ts
 
 ## Technical Evidence
 
-Pending execution.
+| Done When | Evidence |
+|---|---|
+| cameraReading / waitForCameraReading read `window.astraeusHost.camera`, same shape, no drawer, 100 ms poll; drawer reader and DRAWER_REFRESH_MS removed | driver.mjs edited; grep showed no other user; `look-out` step green after (68 s) |
+| One rounding helper (`roundedPose`: ra/dec 2 dp, fov 1 dp, doc states 0.05 deg tolerance) for handle and example readings | `exampleCamera` and `cameraReading` both use it; `hello-sky` green after |
+| Scripts untouched, assertion baseline unchanged | browserAssertions.test.ts passes (3 files, 24 tests) |
+| Handle values match the drawer's | no script assertion changed; look-out green with unchanged assertions (handle gives degrees, same frame) |
+| Before/after browser runs | before: look-out 108 s, hello-sky 24 s; after: look-out 68 s (limit 75), hello-sky 21 s (limit 15, missed) |
+| Drawer still works elsewhere | openDeveloper/closeDeveloper untouched |
+| Gates | typecheck clean; focused tests pass; lint: prettier --check warns on 8 other builders' files only (not driver.mjs) |
+
+Extra finding: the handle reports the opening camera before the first frame is drawn, so the first look-out run failed at "the Sun is drawn and in view on opening" (sceneBody empty). Added `firstFrameDrawn` (waits up to 3 s for canvas `data-body-screen`) inside `cameraReading`. Second run green. Browser runs: look-out/hello-sky twice after (1 failed, 1 green), once before.
+hello-sky miss cause: the step's time is the example build/pack and its own waits (exampleCamera polls at 200 ms), not camera readings; not fixed. Full build/test gates not run by me (shared checkout; coordinator runs the handoff gates). driver.d.mts needed no change (these functions are not declared there).
+
+Files changed: packages/astraeus-site/tools/validate/driver.mjs; this Task file.
 
 ## Drift Notes
 
 `docs/BROWSER_CHECKS.md`'s look-out bullet says the readout is the Developer drawer's view line; draft 12 updates it.
+
+Coordinator (orchestrate-g024-20261121): look-out 108 s -> 68 s and hello-sky green (evidence folders cited); typecheck and focused driver tests green; `driver.mjs` passes prettier (the eight unformatted files were fixed in a separate format-only commit 6832274e). The `firstFrameDrawn` wait is accepted (the handle reports the camera before the first frame; the drawer used to wait for one). hello-sky's 21 s against 15 s is left to T-393 (limits with causes). `status: done` set by the coordinator under the standing orchestration rule ("I mark them as they pass", O-038) and G-024 decision 7.

@@ -1,0 +1,8 @@
+{
+  "name": "journey-look-out",
+  "at": "2026-11-21T21:10:47.596Z",
+  "ok": false,
+  "results": [],
+  "errors": [],
+  "failure": "AssertionError [ERR_ASSERTION]: desktop: the Sun is drawn and in view on opening (undefined)\n    at file:///home/user/code/Astraeus/packages/astraeus-site/tools/validate/journey-look-out.mjs:359:10\n    at async checkScript (file:///home/user/code/Astraeus/packages/astraeus-site/tools/validate/harness.mjs:62:19)\n    at async file:///home/user/code/Astraeus/packages/astraeus-site/tools/validate/journey-look-out.mjs:341:1"
+}

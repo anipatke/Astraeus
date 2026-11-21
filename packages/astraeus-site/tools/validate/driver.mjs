@@ -327,12 +327,10 @@ export const windowPeak = (page) => page.locator(HOOK.windowPeak);
 export const glowCount = (page) => page.locator(HOOK.glow).count();
 export const glowText = (page) => page.locator(HOOK.glow).getAttribute("aria-label");
 export const glowGradients = (page) =>
-  page
-    .locator(HOOK.glow)
-    .evaluate((element) => ({
-      ahead: element.style.getPropertyValue("--glow-ahead"),
-      played: element.style.getPropertyValue("--glow-played"),
-    }));
+  page.locator(HOOK.glow).evaluate((element) => ({
+    ahead: element.style.getPropertyValue("--glow-ahead"),
+    played: element.style.getPropertyValue("--glow-played"),
+  }));
 /** The track's tooltip text, after the pointer has moved to a fraction (0-1) of the track's width. */
 export async function glowTooltipAt(page, fraction) {
   const box = await page.locator(HOOK.track).boundingBox();
@@ -2188,14 +2186,12 @@ export const chooseMoon = (page, id) => moonPanel(page).locator(`[data-moon="${i
 export const searchMoons = (page, text) => page.getByRole("searchbox", { name: "Find a moon" }).fill(text);
 /** The moons the search lists now: id and the family each is listed with. */
 export const moonSearchResults = (page) =>
-  page
-    .locator(".moon-results [data-moon]")
-    .evaluateAll((elements) =>
-      elements.map((element) => ({
-        id: element.getAttribute("data-moon"),
-        text: element.textContent.replace(/\s+/g, " ").trim(),
-      })),
-    );
+  page.locator(".moon-results [data-moon]").evaluateAll((elements) =>
+    elements.map((element) => ({
+      id: element.getAttribute("data-moon"),
+      text: element.textContent.replace(/\s+/g, " ").trim(),
+    })),
+  );
 /** Whether the camera is on a body: its Focus button is the pressed camera choice. */
 // Read in place, not revealed: on a phone revealing opens the controls drawer, which closes the information sheet the caller is about to read.
 export const focusedOn = async (page, id) =>
@@ -2784,7 +2780,7 @@ export async function waitForBodyMoved(page, id, from, { minDelta = 0.01, timeou
 }
 /** The dev page's host link for the views scene (the same one `mount` gives a host page): the view it reports, then `setView`, and the changes it has heard (`watchHostChanges` first). */
 /** The camera pose the viewer handle of an example reports (`window.viewer.camera`, set by examples/hello-sky): a sky view `{ lookOut, raDeg, decDeg, fovDeg }`, or an orbit pose. */
-export const exampleCamera = (page) => page.evaluate(() => window.viewer?.camera);
+export const exampleCamera = async (page) => roundedPose(await page.evaluate(() => window.viewer?.camera));
 /** Polls `exampleCamera` until `done(pose)` is true or `timeout` passes; returns the last pose. */
 export const waitForExampleCamera = async (page, done, timeout = 6000) => {
   const deadline = Date.now() + timeout;
@@ -2858,44 +2854,38 @@ export const hostControlsFit = (page) =>
 // The sky view (O-064 T-293): the camera reading in the Developer drawer's view line, and the camera menu's "Look out from" entry.
 // ---------------------------------------------------------------------------------------------------------------------------------------------
 
-/** The camera reading in the drawer's view line as it stands now (the drawer must be open): a sky view `{ sky: true, body, raDeg, decDeg, fovDeg }` while the camera looks out (the line's values end in `sky`), else `{ sky: false, text }`. */
-async function drawerCameraReading(page) {
-  const text = await viewValuesText(page);
-  const values = /^View: (\S+)/.exec(text)?.[1]?.split(",") ?? [];
-  if (values.length === 5 && values[4] === "sky")
-    return {
-      sky: true,
-      body: values[0],
-      raDeg: Number(values[1]),
-      decDeg: Number(values[2]),
-      fovDeg: Number(values[3]),
-    };
-  return { sky: false, text };
-}
-/** The drawer refreshes its view line every 250 ms and keeps the last line while shut, so a reading waits out one refresh after opening it. */
-const DRAWER_REFRESH_MS = 400;
 /**
- * The camera reading from the Developer drawer's view line (opens the drawer, waits one refresh, reads it, closes it): a sky view `{ sky: true, body, raDeg, decDeg, fovDeg }` while the camera looks out
- * (the line's values end in `sky`), else `{ sky: false, text }` for an orbit view.
+ * Rounds a sky pose the way the view line and view links do (`viewLink.ts` `round`): right ascension and declination to 2 decimals, field of view to 1 decimal. A field of view that is still gliding
+ * toward its target is therefore compared to a 0.05 degree tolerance (planner decision 8) rather than waited out to exact equality. Anything that is not a sky pose passes through unchanged.
  */
+const roundedPose = (pose) => {
+  if (pose === null || typeof pose !== "object" || typeof pose.fovDeg !== "number") return pose;
+  const to = (value, places) => Math.round(value * 10 ** places) / 10 ** places;
+  return { ...pose, raDeg: to(pose.raDeg, 2), decDeg: to(pose.decDeg, 2), fovDeg: to(pose.fovDeg, 1) };
+};
+/** The handle reports the opening camera before the first frame is drawn, whereas the drawer it replaces only showed a line after one; a reading therefore waits (up to 3 s) for the canvas's per-frame body readout, so a script that reads the scene next sees a drawn frame. */
+const firstFrameDrawn = (page) =>
+  page
+    .waitForFunction(() => document.querySelector("canvas")?.hasAttribute("data-body-screen"), undefined, {
+      timeout: 3000,
+    })
+    .catch(() => undefined);
+/** The camera as the dev page's viewer handle (`window.astraeusHost.camera`) reports it now: a sky view `{ sky: true, body, raDeg, decDeg, fovDeg }` while the camera looks out, else `{ sky: false, text }` (the orbit pose as JSON). Opens no drawer. */
 export async function cameraReading(page) {
-  await openDeveloper(page);
-  await page.waitForTimeout(DRAWER_REFRESH_MS);
-  const reading = await drawerCameraReading(page);
-  await closeDeveloper(page);
-  return reading;
+  await firstFrameDrawn(page);
+  const pose = roundedPose(await page.evaluate(() => window.astraeusHost?.camera));
+  if (pose && typeof pose.lookOut === "string")
+    return { sky: true, body: pose.lookOut, raDeg: pose.raDeg, decDeg: pose.decDeg, fovDeg: pose.fovDeg };
+  return { sky: false, text: JSON.stringify(pose ?? null) };
 }
-/** Polls the camera reading (drawer open throughout) until `done(reading)` is true or `timeout` passes; returns the last reading. The caller asserts on what comes back. */
+/** Polls the camera reading about every 100 ms until `done(reading)` is true or `timeout` passes; returns the last reading. The caller asserts on what comes back. */
 export async function waitForCameraReading(page, done, { timeout = 6000 } = {}) {
-  await openDeveloper(page);
   const deadline = Date.now() + timeout;
-  await page.waitForTimeout(DRAWER_REFRESH_MS);
-  let reading = await drawerCameraReading(page);
+  let reading = await cameraReading(page);
   while (Date.now() < deadline && !done(reading)) {
-    await page.waitForTimeout(DRAWER_REFRESH_MS);
-    reading = await drawerCameraReading(page);
+    await page.waitForTimeout(100);
+    reading = await cameraReading(page);
   }
-  await closeDeveloper(page);
   return reading;
 }
 /** One camera menu entry against the rest of the screen: inside the window and which neighbours (the controls in the same row, the cog, the timeline and the menu button) it overlaps, and its smaller side in pixels. */

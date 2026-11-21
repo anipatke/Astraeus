@@ -1,0 +1,6 @@
+tier: steps
+logs: /tmp/astraeus-check-logs-SZhzEC
+look-out | scene=synthetic-lookout (made-up, Sun, Earth and Mars): opens looking out from Earth, the menu offers Look out from Earth and Mars clear of the controls, Focus returns; two made-up sky figures, an outline and four switches, the site trace control (Stay, Fade and Stay-then-Hide, each waiting for the `sky-trace:<id>` line set in `data-sky-lines` to appear and go), labels do not overlap; desktop and phone size | exit=1 | 21:10:47-21:10:49 | 2s | limit 75s | error-lines=0
+hello-sky | scene=examples/hello-sky from the packed engine and constellations tarballs: looks out from Earth toward Orion, three story steps (turn, select, trace Orion, the trace cleared on leaving), Orion hidden until traced, its card, the ecliptic switch, no overlap, desktop and phone | exit=0 | 21:10:49-21:11:10 | 21s | limit 15s | error-lines=0
+WARNING: step hello-sky took 21s, over its limit of 15s (slow growth; the run is not failed for time)
+total 41s (servers and public build included) | no limit
