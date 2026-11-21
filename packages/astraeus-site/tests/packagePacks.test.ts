@@ -4,66 +4,72 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { PICTURES } from "astraeus-data";
 import {
-  checkPacks,
+  codeProblems,
   enginePeerRange,
   extensionlessImports,
+  fileListProblems,
   LIMITS,
   packedComments,
   pastTheEntry,
+  peerProblems,
+  REACT_PEER_RANGE,
   ringFactProblems,
   strayFiles,
+  strayProblems,
 } from "../../../tools/check-packs.mjs";
 import { PACKAGES } from "../../../tools/build-packages.mjs";
-import { buildExample } from "../../../tools/build-example.mjs";
-import { checkEngineBudget, ENGINE_LIMIT } from "../tools/validate/engine-budget.mjs";
+import { checkEngineBudget } from "../tools/validate/engine-budget.mjs";
 
-// O-036 T-161: the publishable packages build and pack within the decided contents and sizes (the same check as `npm run check:pack`).
-// Slow part first: one build and eight `npm pack --dry-run` runs, about 12 s.
+// O-036 T-161, O-086 T-382: every packaging rule is proved here on small made-up inputs (a path list, a manifest, a scratch folder). Nothing here builds or packs a package or reads a packages/*/dist;
+// the real build, the real pack, the engine's size and the self-proof of the stray-file and import rules run in `npm run check:pack`.
+const scratch = (): string => mkdtempSync(join(tmpdir(), "pack-rules-"));
+const write = (dir: string, file: string, text: string): void => {
+  mkdirSync(join(dir, ...file.split("/").slice(0, -1)), { recursive: true });
+  writeFileSync(join(dir, file), text);
+};
+
 describe("publishable packages", () => {
-  it("every package builds, packs only allowed files and stays under its limits", () => {
-    const result = checkPacks();
-    expect(result.problems).toEqual([]);
-    expect(result.rows.map((row) => row.name)).toEqual([...PACKAGES]);
+  it("has a limit for every package", () => {
     expect(Object.keys(LIMITS).sort()).toEqual([...PACKAGES].sort());
-  }, 120_000);
+  });
 
-  // I-164: the engine's first download is held to ENGINE_LIMIT in the ordinary test run, so growth fails at the change that causes it. It lives in this file, straight after the build above, so ONE test file owns the
-  // packages' dist (two files building it in parallel clashed). It packs the engine from that dist into examples/hello-scene and measures it the way the browser check's public-build-assets step does.
-  it("keeps the plain example's first download within ENGINE_LIMIT, and fails when the limit is set one byte below it", () => {
-    buildExample("hello-scene", { buildPackages: false });
-    const result = checkEngineBudget();
-    expect(result.problems).toEqual([]);
-    expect(result.raw).toBeLessThanOrEqual(ENGINE_LIMIT.rawLimit);
-    expect(result.gzip).toBeLessThanOrEqual(ENGINE_LIMIT.gzipLimit);
-    const tight = checkEngineBudget({ limit: { rawLimit: result.raw - 1, gzipLimit: result.gzip - 1 } });
-    expect(tight.ok).toBe(false);
-    expect(tight.problems).toHaveLength(2);
-  }, 120_000);
-
-  it("fails on a test file, a source file and a cache folder in a package", () => {
-    const dist = join(__dirname, "..", "..", "astraeus-data-pluto", "dist");
-    mkdirSync(join(dist, "src", "tests"), { recursive: true });
-    writeFileSync(join(dist, "src", "x.test.js"), "");
-    writeFileSync(join(dist, "src", "stray.ts"), "");
-    writeFileSync(join(dist, "src", "notes.txt"), "");
+  // I-164, T-382: the engine's first download is held to ENGINE_LIMIT by `npm run check:pack`; here the rule is proved on a made-up example build.
+  it("fails the engine budget over its limit and passes one byte below it, on a made-up example build", () => {
+    const dir = scratch();
     try {
-      const result = checkPacks({ build: false, only: ["astraeus-data-pluto"] });
-      expect(result.ok).toBe(false);
-      expect(result.problems).toEqual(
-        expect.arrayContaining([
-          "astraeus-data-pluto: forbidden file src/x.test.js",
-          "astraeus-data-pluto: forbidden file src/stray.ts",
-          "astraeus-data-pluto: unexpected file src/notes.txt",
-        ]),
-      );
+      write(dir, "index.html", '<script type="module" src="/assets/engine.js"></script>');
+      write(dir, "assets/engine.js", "x".repeat(2_000));
+      const measured = checkEngineBudget({ exampleDir: dir, limit: { rawLimit: 1e9, gzipLimit: 1e9 } });
+      expect(measured.problems).toEqual([]);
+      const exact = checkEngineBudget({ exampleDir: dir, limit: { rawLimit: measured.raw, gzipLimit: measured.gzip } });
+      expect(exact.ok).toBe(true);
+      const tight = checkEngineBudget({
+        exampleDir: dir,
+        limit: { rawLimit: measured.raw - 1, gzipLimit: measured.gzip - 1 },
+      });
+      expect(tight.ok).toBe(false);
+      expect(tight.problems).toHaveLength(2);
+      expect(checkEngineBudget({ exampleDir: join(dir, "missing") }).ok).toBe(false);
     } finally {
-      rmSync(join(dist, "src", "tests"), { recursive: true, force: true });
-      rmSync(join(dist, "src", "x.test.js"), { force: true });
-      rmSync(join(dist, "src", "stray.ts"), { force: true });
-      rmSync(join(dist, "src", "notes.txt"), { force: true });
+      rmSync(dir, { recursive: true, force: true });
     }
-  }, 60_000);
+  });
 
+  it("fails on a test file, a source file and an unlisted file in a package", () => {
+    expect(
+      fileListProblems("astraeus-data-pluto", [
+        "package.json",
+        "src/index.js",
+        "src/x.test.js",
+        "src/stray.ts",
+        "src/notes.txt",
+      ]),
+    ).toEqual([
+      "astraeus-data-pluto: forbidden file src/x.test.js",
+      "astraeus-data-pluto: forbidden file src/stray.ts",
+      "astraeus-data-pluto: unexpected file src/notes.txt",
+    ]);
+  });
   it("passes a new module and names a stray file in astraeus (O-051 T-218)", () => {
     const source = join(__dirname, "..", "..", "astraeus");
     const listed = ["src", "data", "README.md", "licenses"];
@@ -106,17 +112,12 @@ describe("publishable packages", () => {
     ]);
   });
 
-  it("fails the pack check on a planted stray file in the astraeus build", () => {
-    const dist = join(__dirname, "..", "..", "astraeus", "dist");
-    writeFileSync(join(dist, "src", "api", "planted.js"), "export {};\n");
-    try {
-      expect(checkPacks({ build: false, only: ["astraeus"] }).problems).toContain(
-        "astraeus: stray file src/api/planted.js (no source module or listed file behind it)",
-      );
-    } finally {
-      rmSync(join(dist, "src", "api", "planted.js"), { force: true });
-    }
-  }, 60_000);
+  it("names a planted stray file in the astraeus pack list", () => {
+    expect(strayProblems("astraeus", ["package.json", "src/api/planted.js"])).toEqual([
+      "astraeus: stray file src/api/planted.js (no source module or listed file behind it)",
+    ]);
+    expect(strayProblems("astraeus-data-pluto", ["src/api/planted.js"])).toEqual([]);
+  });
 
   it("states the engine's current minor as every data package's astraeus peer, and all of React 19 as the engine's React peers (O-053 T-230, API-07)", () => {
     expect(enginePeerRange("0.7.0")).toBe(">=0.7.0 <0.8.0");
@@ -136,46 +137,40 @@ describe("publishable packages", () => {
     }
   });
 
-  it("fails the pack check when a data package's astraeus peer floor is not the engine's minor, and when the engine's React peer stops short of 19.x", () => {
-    const manifestOf = (name: string): string => join(__dirname, "..", "..", name, "dist", "package.json");
-    const data = manifestOf("astraeus-data-pluto");
-    const engine = manifestOf("astraeus");
-    const dataOriginal = readFileSync(data, "utf8");
-    const engineOriginal = readFileSync(engine, "utf8");
-    const wanted = enginePeerRange((JSON.parse(engineOriginal) as { version: string }).version); // the engine's own minor, so a version bump needs no edit here
-    try {
-      for (const stale of [">=0.1.0 <1.0.0", ">=0.6.0 <0.7.0", ">=0.7.0 <1.0.0"]) {
-        writeFileSync(data, dataOriginal.replace(/"astraeus": "[^"]*"/, `"astraeus": "${stale}"`));
-        expect(checkPacks({ build: false, only: ["astraeus-data-pluto"] }).problems).toContain(
-          `astraeus-data-pluto: astraeus peer is ${stale}, the engine's current minor is ${wanted}`,
-        );
-      }
-      writeFileSync(engine, engineOriginal.replace('"react": ">=19 <20"', '"react": ">=19 <19.4"'));
-      expect(checkPacks({ build: false, only: ["astraeus"] }).problems).toContain(
-        "astraeus: react peer is >=19 <19.4, it must cover all of React 19 (>=19 <20)",
+  it("fails when a data package's astraeus peer floor is not the engine's minor, and when the engine's React peer stops short of 19.x", () => {
+    const engine = JSON.parse(readFileSync(join(__dirname, "..", "..", "astraeus", "package.json"), "utf8")) as {
+      version: string;
+    };
+    const wanted = enginePeerRange(engine.version); // the engine's own minor, so a version bump needs no edit here
+    expect(peerProblems("astraeus-data-pluto", { peerDependencies: { astraeus: wanted } })).toEqual([]);
+    for (const stale of [">=0.1.0 <1.0.0", ">=0.6.0 <0.7.0", ">=0.7.0 <1.0.0"]) {
+      expect(peerProblems("astraeus-data-pluto", { peerDependencies: { astraeus: stale } })).toContain(
+        `astraeus-data-pluto: astraeus peer is ${stale}, the engine's current minor is ${wanted}`,
       );
-    } finally {
-      writeFileSync(data, dataOriginal);
-      writeFileSync(engine, engineOriginal);
     }
-    expect(checkPacks({ build: false, only: ["astraeus-data-pluto", "astraeus"] }).problems).toEqual([]);
-  }, 60_000);
+    const peers = { react: REACT_PEER_RANGE, "react-dom": REACT_PEER_RANGE, "@react-three/fiber": "*", three: "*" };
+    expect(peerProblems("astraeus", { peerDependencies: peers })).toEqual([]);
+    expect(peerProblems("astraeus", { peerDependencies: { ...peers, react: ">=19 <19.4" } })).toContain(
+      "astraeus: react peer is >=19 <19.4, it must cover all of React 19 (>=19 <20)",
+    );
+  });
 
   it("fails on a compiled file with an extensionless relative import (webpack 5, I-077)", () => {
-    const dist = join(__dirname, "..", "..", "astraeus-data-pluto", "dist");
-    writeFileSync(
-      join(dist, "src", "bad.js"),
-      'export { a } from "./chunks";\nconst b = await import("../x/y");\nexport * from "./chunks.js";\n',
-    );
+    const dir = scratch();
     try {
-      expect(extensionlessImports(dist)).toEqual(["src/bad.js: ./chunks", "src/bad.js: ../x/y"]);
-      expect(checkPacks({ build: false, only: ["astraeus-data-pluto"] }).problems).toContain(
-        "astraeus-data-pluto: extensionless relative import in src/bad.js: ./chunks",
+      write(
+        dir,
+        "src/bad.js",
+        'export { a } from "./chunks";\nconst b = await import("../x/y");\nexport * from "./chunks.js";\n',
+      );
+      expect(extensionlessImports(dir)).toEqual(["src/bad.js: ./chunks", "src/bad.js: ../x/y"]);
+      expect(codeProblems("astraeus-data-constellations", dir)).toContain(
+        "astraeus-data-constellations: extensionless relative import in src/bad.js: ./chunks",
       );
     } finally {
-      rmSync(join(dist, "src", "bad.js"), { force: true });
+      rmSync(dir, { recursive: true, force: true });
     }
-  }, 60_000);
+  });
 
   it("fails on a comment left in packed JS, but not on a kept banner or a // inside a string, template or regular expression (O-080 T-336)", () => {
     expect(
@@ -186,39 +181,39 @@ describe("publishable packages", () => {
         '/*! kept banner */\n/* @license MIT */\nconst url = "https://x.org/a"; const t = `//${url}`; const re = /\\/\\//g;\nexport { url, t, re };\n',
       ),
     ).toEqual([]);
-    const dist = join(__dirname, "..", "..", "astraeus-data-pluto", "dist");
-    writeFileSync(join(dist, "src", "commented.js"), "// left behind\nexport const a = 1;\n");
+    const dir = scratch();
     try {
-      expect(checkPacks({ build: false, only: ["astraeus-data-pluto"] }).problems).toContain(
-        "astraeus-data-pluto: packed JS keeps a comment in src/commented.js: line 1: // left behind",
+      write(dir, "src/commented.js", "// left behind\nexport const a = 1;\n");
+      expect(codeProblems("astraeus-data-constellations", dir)).toContain(
+        "astraeus-data-constellations: packed JS keeps a comment in src/commented.js: line 1: // left behind",
       );
     } finally {
-      rmSync(join(dist, "src", "commented.js"), { force: true });
+      rmSync(dir, { recursive: true, force: true });
     }
-  }, 60_000);
+  });
 
   it("fails on a chunk URL a bundler could inline, and on a missing chunk list type (I-078)", () => {
-    const dist = join(__dirname, "..", "..", "astraeus-data-pluto", "dist");
-    const list = join(dist, "src", "chunks.js");
-    const types = join(dist, "src", "chunks.d.ts");
-    const original = readFileSync(list, "utf8");
-    const declaration = readFileSync(types, "utf8");
+    const dir = scratch();
+    const list =
+      'export const chunkUrls = Object.freeze({\n  "a/2010.bin": new URL("../data/a-moons/a/2010.bin?no-inline", import.meta.url).href,\n});\n';
     const problem = "astraeus-data-pluto: a chunk URL in src/chunks.js lacks ?no-inline (Vite would inline it)";
     try {
-      for (const broken of [original.replace("?no-inline", ""), original.replace("?no-inline", "?no-inline=0")]) {
-        writeFileSync(list, broken);
-        expect(checkPacks({ build: false, only: ["astraeus-data-pluto"] }).problems).toContain(problem);
+      write(dir, "src/chunks.js", list);
+      write(dir, "src/chunks.d.ts", "export declare const chunkUrls: Readonly<Record<string, string>>;\n");
+      expect(codeProblems("astraeus-data-pluto", dir)).toEqual([]);
+      for (const broken of [list.replace("?no-inline", ""), list.replace("?no-inline", "?no-inline=0")]) {
+        write(dir, "src/chunks.js", broken);
+        expect(codeProblems("astraeus-data-pluto", dir)).toContain(problem);
       }
-      writeFileSync(list, original);
-      rmSync(types);
-      expect(checkPacks({ build: false, only: ["astraeus-data-pluto"] }).problems).toContain(
+      write(dir, "src/chunks.js", list);
+      rmSync(join(dir, "src", "chunks.d.ts"));
+      expect(codeProblems("astraeus-data-pluto", dir)).toContain(
         "astraeus-data-pluto: src/chunks.d.ts is missing (chunkUrls would be untyped)",
       );
     } finally {
-      writeFileSync(list, original);
-      writeFileSync(types, declaration);
+      rmSync(dir, { recursive: true, force: true });
     }
-  }, 60_000);
+  });
 });
 
 describe("astraeus-data credits (PROV-02)", () => {
@@ -276,10 +271,7 @@ describe("astraeus-data credits (PROV-02)", () => {
       ).toEqual([]);
     });
 
-    it("the packed engine holds the ring facts: Saturn has bands, Mars none (named case, on the packed build)", () => {
-      expect(ringFactProblems(join(__dirname, "..", "..", "astraeus", "dist"))).toEqual([]);
-    });
-
+    // The packed-build half of this case runs in `npm run check:pack` (problemsOf calls ringFactProblems on the engine's real pack).
     it("planted: a catalogue with no Saturn bands, and one with Mars rings, are named (in a scratch folder, not a package build)", () => {
       const dir = mkdtempSync(join(tmpdir(), "ring-facts-"));
       const file = join(dir, "src", "assets", "catalogue.js");

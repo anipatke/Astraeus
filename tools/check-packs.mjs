@@ -3,11 +3,14 @@
 // count above the limit (the engine has no file count: a stray file fails, see strayFiles). Nothing is published. Limits come from docs/NPM_PACKAGING.md ("Size limits for the pack check"); the engine's are re-measured at
 // about 10% above its pack of 2026-10-23 (7.0 MB packed, 8.6 MB unpacked, 405 files) now that the moon and Milky Way pictures live in astraeus-data.
 import { spawnSync } from "node:child_process";
-import { existsSync, readdirSync, readFileSync } from "node:fs";
+import { cpSync, existsSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync, mkdirSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { createRequire } from "node:module";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { buildPackage, isPositionPackage, PACKAGES } from "./build-packages.mjs";
+import { buildExample } from "./build-example.mjs";
+import { checkEngineBudget } from "../packages/astraeus-site/tools/validate/engine-budget.mjs";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const MB = 1_000_000;
@@ -175,7 +178,7 @@ function commentProblems(name, dir) {
 }
 
 /** Compiled-code problems: extensionless relative imports (I-077), comments left in packed JS (O-080 T-336) and, in a position package, a chunk URL that Vite could inline (I-078). */
-function codeProblems(name, dir) {
+export function codeProblems(name, dir) {
   const problems = extensionlessImports(dir).map((one) => `${name}: extensionless relative import in ${one}`);
   problems.push(...commentProblems(name, dir));
   if (isPositionPackage(name)) {
@@ -199,7 +202,7 @@ export function enginePeerRange(version) {
 export const REACT_PEER_RANGE = ">=19 <20";
 
 /** The problems with the peer libraries of a manifest: `astraeus` must list them as peerDependencies and not as dependencies, and a data package's `astraeus` peer is the engine's current minor. */
-function peerProblems(name, manifest) {
+export function peerProblems(name, manifest) {
   const problems = [];
   if (manifest.devDependencies !== undefined) problems.push(`${name}: package.json still lists devDependencies`);
   if (name.startsWith("astraeus-data")) {
@@ -246,7 +249,7 @@ export function strayFiles(paths, sourceDir, publishFiles) {
 }
 
 /** The stray-file problems of the engine's pack (none for the other packages). */
-function strayProblems(name, paths) {
+export function strayProblems(name, paths) {
   if (name !== "astraeus") return [];
   const source = join(root, "packages", name);
   const publish = JSON.parse(readFileSync(join(source, "package.json"), "utf8"))["x-publish"]?.files ?? [];
@@ -313,15 +316,22 @@ export function pastTheEntry(source) {
   return found;
 }
 
-/** The problems with one packed package: files outside the allow-list, a thin manifest, missing exports targets, notices, and sizes over the limits. */
-function problemsOf(name, dir, pack) {
+/** Packed paths that are forbidden or outside the package's allow-list (T-382: its own function, so a test proves it on a made-up list). */
+export function fileListProblems(name, paths) {
   const problems = [];
-  const paths = pack.files.map((file) => file.path);
   const allowed = new RegExp(`^(?:${(ALLOWED[name] ?? ALLOWED.position).join("|")})$`);
   for (const path of paths) {
     if (FORBIDDEN.test(path)) problems.push(`${name}: forbidden file ${path}`);
     else if (!allowed.test(path)) problems.push(`${name}: unexpected file ${path}`);
   }
+  return problems;
+}
+
+/** The problems with one packed package: files outside the allow-list, a thin manifest, missing exports targets, notices, and sizes over the limits. */
+function problemsOf(name, dir, pack) {
+  const problems = [];
+  const paths = pack.files.map((file) => file.path);
+  problems.push(...fileListProblems(name, paths));
   problems.push(...strayProblems(name, paths));
   const manifest = JSON.parse(readFileSync(join(dir, "package.json"), "utf8"));
   if (manifest.name !== name) problems.push(`${name}: package.json names ${manifest.name}`);
@@ -365,6 +375,34 @@ export function checkPacks({ build = true, only = PACKAGES } = {}) {
   return { ok: problems.length === 0, rows, problems };
 }
 
+/** The packed files under `dir`, as relative paths. */
+function listFiles(dir) {
+  return readdirSync(dir, { recursive: true, withFileTypes: true })
+    .filter((entry) => entry.isFile())
+    .map((entry) => join(entry.parentPath, entry.name).slice(dir.length + 1));
+}
+
+/**
+ * The self-proof (T-382): copies one built package's dist to a scratch folder, plants a stray `src/api/planted.js` and a `src/bad.js` with an extensionless import, and returns
+ * the problems the rule functions report, so the command can fail unless both are named. The real dist is never modified.
+ */
+export function selfProof() {
+  const temp = mkdtempSync(join(tmpdir(), "check-packs-proof-"));
+  try {
+    const copy = join(temp, "dist");
+    cpSync(join(root, "packages", "astraeus-data-pluto", "dist"), copy, { recursive: true });
+    mkdirSync(join(copy, "src", "api"), { recursive: true });
+    writeFileSync(join(copy, "src", "api", "planted.js"), "export {};\n");
+    writeFileSync(join(copy, "src", "bad.js"), 'export { a } from "./chunks";\n');
+    return {
+      stray: strayProblems("astraeus", listFiles(copy)),
+      extensionless: extensionlessImports(copy),
+    };
+  } finally {
+    rmSync(temp, { recursive: true, force: true });
+  }
+}
+
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const started = Date.now();
   const result = checkPacks();
@@ -373,11 +411,26 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
       `${row.name.padEnd(24)} packed ${row.packedMB.toFixed(2).padStart(6)} MB (limit ${(row.limit.packed / MB).toFixed(1)})  unpacked ${row.unpackedMB.toFixed(2).padStart(6)} MB (limit ${(row.limit.unpacked / MB).toFixed(1)})  ${String(row.files).padStart(5)} files (${row.limit.files === undefined ? "no count limit; stray-file check" : `limit ${row.limit.files}`})`,
     );
   }
+  // The engine's first download (I-164): the plain example built from the dist just built, held to ENGINE_LIMIT.
+  buildExample("hello-scene", { buildPackages: false });
+  const engine = checkEngineBudget();
+  console.log(
+    `engine budget: ${engine.raw} B raw (limit ${engine.rawLimit}), ${engine.gzip} B gzip (limit ${engine.gzipLimit})`,
+  );
+  result.problems.push(...engine.problems);
+  // The rules still fail what they should: a planted stray file and a planted extensionless import must be named.
+  const proof = selfProof();
+  if (proof.stray.some((one) => one.includes("src/api/planted.js")))
+    console.log("self-proof: a planted stray file is named");
+  else result.problems.push("self-proof: a planted stray file src/api/planted.js was not named");
+  if (proof.extensionless.includes("src/bad.js: ./chunks"))
+    console.log("self-proof: a planted extensionless import is named");
+  else result.problems.push("self-proof: a planted extensionless import in src/bad.js was not named");
   for (const problem of result.problems) console.error(`FAIL ${problem}`);
   console.log(
-    result.ok
+    result.problems.length === 0
       ? `pack check: pass (${((Date.now() - started) / 1000).toFixed(1)} s)`
       : `pack check: FAIL (${result.problems.length} problems)`,
   );
-  process.exit(result.ok ? 0 : 1);
+  process.exit(result.problems.length === 0 ? 0 : 1);
 }

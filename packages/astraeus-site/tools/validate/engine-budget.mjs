@@ -1,5 +1,5 @@
 // The engine's own size budget (O-051 T-221, owner decision "split engine and demo limits"): the plain example's first download, what `node tools/measure-example.mjs` measures
-// (`examples/hello-scene`, built from the packed `astraeus` tarball: the engine's code and styles on first open, nothing else). One limit, raw and gzipped, enforced by `public-build-assets.mjs`,
+// (`examples/hello-scene`, built from the packed `astraeus` tarball: the engine's code and styles on first open, nothing else). One limit, raw and gzipped, held by `npm run check:pack` (tools/check-packs.mjs) and still enforced by `public-build-assets.mjs`,
 // which runs after the example is built in the same browser check; a demo page's limit (`load-budget.mjs`) holds only what the page adds beyond the engine, so engine growth trips only this limit.
 import { existsSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -15,7 +15,7 @@ export const ENGINE_EXAMPLE_DIR = join(root, "examples", "hello-scene", "dist");
  * Measured 1,652,588 B raw / 472,895 B gzip on 2026-11-01 (after O-051 T-218 to T-220), plus 5%, rounded up to the next 1,000 bytes (owner decision, 2026-11-01).
  * Reset 2026-11-10 (owner decision "Reset limit, add fast test", I-164, after O-065): measured 1,745,198 B raw / 501,483 B gzip, plus 5%, rounded up to the next 1,000 bytes.
  * Raised 2026-11-22 to 1,836,000 B raw (owner decision "size option a": a small raise of 3,000 B, I-191, after O-084 gave each scene its own moon data, measured 1,833,801 B raw / 524,620 B gzip); gzip unchanged.
- * `packages/astraeus-site/tests/packagePacks.test.ts` (right after the package build it owns) builds the example and holds it to this limit in `npm test`.
+ * `npm run check:pack` (tools/check-packs.mjs) builds the example from the dist it just built and holds it to this limit; `npm test` no longer builds it (T-382).
  */
 export const ENGINE_LIMIT = { rawLimit: 1_836_000, gzipLimit: 527_000 };
 

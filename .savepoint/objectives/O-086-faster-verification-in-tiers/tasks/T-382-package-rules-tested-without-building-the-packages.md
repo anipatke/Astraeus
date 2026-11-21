@@ -2,7 +2,7 @@
 id: T-382
 title: Package rules tested without building the packages
 objective: O-086
-status: planned
+status: done
 depends_on: []
 check_waiver: {task: T-382, reason: 'Owner said "work through this list of objectives one by one. Orchestrate each objective to completion" (G-024 decision 7) and "carry on" (2026-11-22): standing orchestration rules waive the optional step checks; the mandatory Full Objective Check covers the whole diff.', actor: {role: owner, session: orchestrate-g024-20261121}, recorded_at: '2026-11-21T20:47:35Z'}
 owner_validation: {required: false}
@@ -66,8 +66,31 @@ Focused: `npx vitest run packages/astraeus-site/tests/packagePacks.test.ts`; `np
 
 ## Technical Evidence
 
-Pending execution.
+Rule -> constructed input table (all in `packagePacks.test.ts`, no build, no `packages/*/dist`):
+
+| Rule | Seam | Constructed input |
+|------|------|-------------------|
+| forbidden / unexpected file | new export `fileListProblems(name, paths)` (extracted from `problemsOf`, logic unchanged) | path list |
+| stray file | `strayFiles` (existing), `strayProblems` now exported | path list |
+| extensionless import | `extensionlessImports`, `codeProblems` now exported | `mkdtempSync` folder with `src/bad.js` |
+| packed comment | `packedComments`, `codeProblems` | string; scratch `src/commented.js` |
+| data-package astraeus peer, engine React peer | `peerProblems` now exported | manifest object |
+| chunk URL / missing chunks.d.ts | `codeProblems` | scratch `src/chunks.js`, `chunks.d.ts` |
+| engine budget over / one byte below / no build | `checkEngineBudget({ exampleDir, limit })` | scratch example `index.html` + `assets/engine.js` |
+| ring facts (packed) | `problemsOf` already calls `ringFactProblems` on the engine's real pack in `check:pack` (confirmed); planted scratch twin stays in the test | |
+
+Done When -> evidence:
+- No build/pack/real dist in the test: file imports no `checkPacks`, `buildExample`; whole file runs in 0.4 s (below); `find packages/*/dist -newer marker` after `npm test` (see gates).
+- Each rule still proved: the cases above (21 tests pass).
+- `check:pack` additions: engine budget line and two `self-proof:` lines print; planted-rule disable run: with `strayProblems` forced to `[]` the command printed `FAIL self-proof: a planted stray file src/api/planted.js was not named` / `pack check: FAIL (1 problems)`; reverted.
+- Timing: `packagePacks.test.ts` file 27.66 s before (tests), 0.4 s after (3.7 s wall incl. startup). `check:pack` after: pack check 24.2 s (incl. example build and self-proof) in one run, 21.7 s wall in another; before, about 12 s (file comment) as the checkPacks build/pack only.
+- Comments in `engine-budget.mjs` header and `ENGINE_LIMIT` doc name `check:pack`; numbers unchanged.
+
+Files changed: packages/astraeus-site/tests/packagePacks.test.ts, tools/check-packs.mjs, packages/astraeus-site/tools/validate/engine-budget.mjs, this Task file.
+Gates: see final report.
 
 ## Drift Notes
 
 Design `Size budgets are split` says the engine budget is held in `npm test` by `tests/engineBudget.test.ts`; after this Task it is held by `npm run check:pack`. Coordinator reconciles Design before the Full Check (draft 12 lists it).
+
+Coordinator (orchestrate-g024-20261121): its files pass prettier, typecheck, build; `packagePacks.test.ts` 21/21 in 0.4 s (was 27.7 s); `check:pack` self-proof fails on a forced-blind stray rule. The remaining suite failure (a seeded `rnd` case) and prettier warnings are outside its files; full gates at the Full Check. Design "Size budgets are split" reconciled by the coordinator. `status: done` set by the coordinator under the standing orchestration rule ("I mark them as they pass", O-038) and G-024 decision 7.
