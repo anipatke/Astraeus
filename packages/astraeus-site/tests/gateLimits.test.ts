@@ -81,6 +81,9 @@ describe("docs state the same limits as the file", () => {
     }
     const browser = table.find((r) => r[0] === "`check:browser`");
     expect(browser?.at(-1)).toBe(`${limits.browser.total} s`);
+    const quick = table.find((r) => r[0] === "`check:browser -- --tier quick`");
+    expect(quick, "quick tier row").toBeDefined();
+    expect(quick?.at(-1)).toBe(`${(limits.browser as { quickTotal?: number }).quickTotal} s`);
   });
 
   it("docs/BROWSER_CHECKS.md has a row per step ending in its limit", () => {

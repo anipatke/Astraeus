@@ -1,6 +1,6 @@
 // The engine's own size budget (O-051 T-221, owner decision "split engine and demo limits"): the plain example's first download, what `node tools/measure-example.mjs` measures
-// (`examples/hello-scene`, built from the packed `astraeus` tarball: the engine's code and styles on first open, nothing else). One limit, raw and gzipped, held by `npm run check:pack` (tools/check-packs.mjs) and still enforced by `public-build-assets.mjs`,
-// which runs after the example is built in the same browser check; a demo page's limit (`load-budget.mjs`) holds only what the page adds beyond the engine, so engine growth trips only this limit.
+// (`examples/hello-scene`, built from the packed `astraeus` tarball: the engine's code and styles on first open, nothing else). One limit, raw and gzipped, held by `npm run check:pack` (tools/check-packs.mjs) alone (`public-build-assets.mjs`, now run by `npm run check:public-build`, only proves the engine/demo split with `proveEngineDemoSplit`);
+// a demo page's limit (`load-budget.mjs`) holds only what the page adds beyond the engine, so engine growth trips only this limit.
 import { existsSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";

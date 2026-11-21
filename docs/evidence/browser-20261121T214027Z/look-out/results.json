@@ -1,0 +1,66 @@
+{
+  "name": "journey-look-out",
+  "at": "2026-11-21T21:44:53.562Z",
+  "ok": false,
+  "results": [
+    {
+      "viewport": "desktop",
+      "result": {
+        "opened": {
+          "sky": true,
+          "body": "earth",
+          "raDeg": 281.6,
+          "decDeg": -23,
+          "fovDeg": 60
+        },
+        "taps": {
+          "insideTap": {
+            "x": 575.2014206310198,
+            "y": 350.47343127870244
+          },
+          "lineTap": {
+            "x": 545.8875073051911,
+            "y": 374.0314873632391
+          }
+        },
+        "story": {
+          "start": {
+            "sky": true,
+            "body": "earth",
+            "raDeg": 281.6,
+            "decDeg": -23,
+            "fovDeg": 60
+          },
+          "lantern": {
+            "sky": true,
+            "body": "earth",
+            "raDeg": 288.5,
+            "decDeg": -18,
+            "fovDeg": 40
+          },
+          "kettle": {
+            "sky": true,
+            "body": "earth",
+            "raDeg": 281.71,
+            "decDeg": -24.45,
+            "fovDeg": 40
+          }
+        },
+        "lineSets": [
+          "sky-boundaries"
+        ],
+        "atMars": {
+          "sky": true,
+          "body": "mars",
+          "raDeg": 0,
+          "decDeg": 0,
+          "fovDeg": 60
+        },
+        "zoomedFovDeg": 29.2,
+        "entryPx": 36
+      }
+    }
+  ],
+  "errors": [],
+  "failure": "AssertionError [ERR_ASSERTION]: phone: step 3 turns west to Kettle ({\"sky\":true,\"body\":\"earth\",\"raDeg\":287.32,\"decDeg\":-19.12,\"fovDeg\":40})\n    at checkSkyStory (file:///home/user/code/Astraeus/packages/astraeus-site/tools/validate/journey-look-out.mjs:302:10)\n    at async checkFiguresAndStory (file:///home/user/code/Astraeus/packages/astraeus-site/tools/validate/journey-look-out.mjs:336:17)\n    at async file:///home/user/code/Astraeus/packages/astraeus-site/tools/validate/journey-look-out.mjs:374:27\n    at async checkScript (file:///home/user/code/Astraeus/packages/astraeus-site/tools/validate/harness.mjs:62:19)\n    at async file:///home/user/code/Astraeus/packages/astraeus-site/tools/validate/journey-look-out.mjs:342:1"
+}

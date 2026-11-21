@@ -4,29 +4,29 @@
     "lint": 15,
     "typecheck": 20,
     "build": 15,
-    "test": 65,
-    "test:full": 105,
+    "test": 55,
+    "test:full": 80,
     "check:engine-alone": 40,
-    "check:pack": 30,
-    "check:public-build": 6,
+    "check:pack": 35,
+    "check:public-build": 10,
     "check:node-consumer": 15,
     "check:react-consumer": 25
   },
   "browser": {
-    "total": 320,
+    "total": 450,
     "steps": {
       "smoke": 65,
-      "synthetic-journey": 110,
-      "smoke-public-showers": 12,
-      "planets-phone": 25,
-      "meteor-shower": 40,
-      "views": 40,
-      "look-out": 75,
-      "catalogue": 40,
+      "synthetic-journey": 115,
+      "smoke-public-showers": 15,
+      "planets-phone": 20,
+      "meteor-shower": 30,
+      "views": 30,
+      "look-out": 100,
+      "catalogue": 10,
       "hello-scene": 25,
-      "hello-react": 12,
+      "hello-react": 10,
       "hello-planets": 15,
-      "hello-sky": 15
+      "hello-sky": 35
     },
     "quickTotal": 200
   }

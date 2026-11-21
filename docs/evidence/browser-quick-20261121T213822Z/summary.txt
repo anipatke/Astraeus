@@ -1,0 +1,11 @@
+tier: quick
+logs: /tmp/astraeus-check-logs-jTdTU7
+smoke | scene=every public page and demo view except the made-up journey, desktop and phone | exit=0 | 21:38:46-21:39:30 | 44s | limit 65s | error-lines=0
+smoke-public-showers | scene=showers views on the scratch public build, desktop size: stream dots drawn for each shipped stream file | exit=0 | 21:39:30-21:39:35 | 5s | limit 12s | error-lines=0
+planets-phone | scene=planets on a phone: switch planet, focus Io, open a place card | exit=0 | 21:39:35-21:39:44 | 9s | limit 25s | error-lines=0
+hello-scene | scene=examples/hello-scene from the packed tarballs: the made-up story (anchors, events, one panel, looking at the probe), Earth and Moon drawn, time set, desktop and phone | exit=0 | 21:39:44-21:40:00 | 16s | limit 25s | error-lines=0
+hello-react | scene=examples/hello-react (AstraeusScene) from the packed tarballs: Earth, Moon and the followed path drawn, time set, desktop and phone | exit=0 | 21:40:00-21:40:03 | 3s | limit 12s | error-lines=0
+hello-planets | scene=examples/hello-planets from the packed tarballs: the Sun to Mars drawn, the page's own sliders and scale button drive the viewer, Earth's distance from the Sun, no overlap, desktop and phone | exit=0 | 21:40:03-21:40:06 | 4s | limit 15s | error-lines=0
+hello-sky | scene=examples/hello-sky from the packed engine and constellations tarballs: looks out from Earth toward Orion, three story steps (turn, select, trace Orion, the trace cleared on leaving), Orion hidden until traced, its card, the ecliptic switch, no overlap, desktop and phone | exit=0 | 21:40:06-21:40:25 | 18s | limit 15s | error-lines=0
+WARNING: step hello-sky took 18s, over its limit of 15s (slow growth; the run is not failed for time)
+total 122s (servers and public build included) | limit 200s

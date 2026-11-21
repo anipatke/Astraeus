@@ -41,7 +41,7 @@ export const STEPS = [
     tier: "full",
     script: "journey-views.mjs",
     scene:
-      "synthetic-views (made-up, two probes, three views): a visitor switch and a host setView at desktop and phone size, the stay rule holds the camera still",
+      "synthetic-views (made-up, two probes, three views) at desktop and phone size: the view buttons fit and clear their neighbours, a visitor switch and a host setView move each probe's drawn line, and the camera rules (follow moves Earth on screen, stay holds it still)",
   },
   {
     name: "look-out",
@@ -55,7 +55,7 @@ export const STEPS = [
     tier: "full",
     script: "journey-catalogue.mjs",
     scene:
-      "components.html (the component catalogue) at desktop and phone size: one entry per shelf part with its import and add lines, the page fits its window, an example starts one viewer holding the part's words, starting another stops the first, stopping leaves none",
+      "components.html (the component catalogue) at desktop and phone size: Run buttons big enough, the page fits its window, one viewer at a time holds the part's words, and each part's live chart and tile readouts",
   },
   {
     name: "hello-scene",
