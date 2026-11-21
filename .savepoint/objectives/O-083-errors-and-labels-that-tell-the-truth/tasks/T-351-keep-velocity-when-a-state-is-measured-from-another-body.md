@@ -2,7 +2,7 @@
 id: T-351
 title: Keep velocity when a state is measured from another body
 objective: O-083
-status: planned
+status: done
 depends_on: []
 check_waiver: {task: T-351, reason: 'Owner said "work through this list of objectives one by one. Orchestrate each objective to completion" (G-024 decision 7): standing orchestration rules waive the optional step checks; the mandatory Full Objective Check covers the whole diff.', actor: {role: owner, session: orchestrate-g024-20261121}, recorded_at: '2026-11-21T11:22:41Z'}
 owner_validation: {required: false}
@@ -61,8 +61,20 @@ Focused: `npx vitest run packages/astraeus/tests/composedVelocity.test.ts packag
 
 ## Technical Evidence
 
-Pending execution.
+| Done When | Evidence |
+|---|---|
+| Composition helpers carry velocity (sum, negate, absent if either lacks) | `referenceCenters.ts`: `combineVelocity`, `velocityField`; `composedVelocity.test.ts` sum, sibling, negation and missing-leg cases |
+| `stateOf` passes composed velocity; `body === center` unchanged | `stateResolver.ts` createState call; test "none for a body about itself" |
+| New synthetic-catalogue test, oracle = central finite difference of the resolver's own positions (quadratic motions, so exact) plus analytic provider derivative; Io about Jupiter row | `tests/composedVelocity.test.ts` (6 tests); Io checked against finite difference of positions and 15-20 km/s speed band; Io from the Sun has none. Shown failing first: all 6 failed before the change (stateOf dropped velocity entirely), all pass after |
+| Existing tests unchanged and green | focused run: composedVelocity + stateResolver + sceneTransforms, 54 passed |
+| Gates | lint, typecheck, build clean. Full `npm test`: 4937 passed, 3 failed, all in T-343's files (scenePin.test.ts, apiRules.test.ts errors rule, apiSurface.test.ts lock); rerun gave the same 3. Not related to this change. |
+
+Files changed: `src/core/referenceCenters.ts`, `src/core/stateResolver.ts`, `tests/composedVelocity.test.ts`.
+Limitations: planets/Earth/Moon/elements bodies stay position-only, so most composed states from the Sun still have no velocity.
+No extra reads.
 
 ## Drift Notes
 
-Record for Design reconciliation: the resolver composes velocity when every leg has it.
+Record for Design reconciliation: the resolver composes velocity when every leg has it (implemented; nothing further).
+
+Coordinator (orchestrate-g024-20261121): hand-off gates green for this Task's files (lint, typecheck, build; `npm test` failures only in T-343's in-flight files); `status: done` set by the coordinator under the standing orchestration rule ("I mark them as they pass", O-038) and G-024 decision 7.

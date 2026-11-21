@@ -130,7 +130,7 @@ export function createStateResolver(
       : centreFromAncestor === undefined
         ? bodyFromAncestor
         : composeCenteredPositions(bodyFromAncestor, inverseCenteredPosition(centreFromAncestor));
-    return createState({ ...input, positionKm: placed.positionKm, orientation }, requiresOrientation);
+    return createState({ ...input, positionKm: placed.positionKm, ...(placed.velocityKmS === undefined ? {} : { velocityKmS: placed.velocityKmS }), orientation }, requiresOrientation);
   }
 
   return Object.freeze({
