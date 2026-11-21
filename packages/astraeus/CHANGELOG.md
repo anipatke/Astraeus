@@ -2,6 +2,13 @@
 
 Versions follow [semantic versioning](https://semver.org). While the version starts with `0.`, the public API (the names exported from `astraeus`) may still change between minor versions; each change is listed here.
 
+## 0.10.0 (proposed)
+
+Engineering health repairs (G-024). Behaviour may change where it was wrong (owner decision 2026-11-21: 0.10.0, breaking allowed).
+
+- Fixed: every CPU Kepler solve in the engine goes through one solver that always converges, so a body from orbit elements, a group member or a long orbit path is placed correctly for every eccentricity from 0 up to (not including) 1; near-parabolic orbits (e ≈ 0.999) could land far off or on the wrong side of the orbit before. Eccentricity outside 0 ≤ e < 1 is refused with a named error instead of giving a wrong position.
+- Fixed: `scene.addBodyFromElements` converts the record's epoch to TDB before measuring from `perihelionJdTdb`, so the same instant written in UTC or TT gives the same position (they were about 2,000 km apart); a TDB-written epoch keeps the documented "TDB taken as TT" clock convention (within about 2 ms). Its two-body motion uses the centre's own mass.
+
 ## 0.9.5 (2026-11-21)
 
 First download of the packed example (`npm run measure:example`): 1,828,138 bytes raw, 522,471 bytes gzip (code and styles loaded on first open), against 1,777,827 raw and 511,436 gzip at 0.9.4 (+50,311 raw, +11,035 gzip). Every `astraeus-data*` package still peers on `>=0.9.0 <0.10.0`.
