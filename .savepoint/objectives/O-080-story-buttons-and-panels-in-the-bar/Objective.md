@@ -1,7 +1,8 @@
 ---
 id: O-080
 title: Story components off the shelf, first set
-status: planned
+status: done
+last_check: C-194
 depends_on: [O-079]
 release: G-023
 priority: high
@@ -53,3 +54,4 @@ Every component follows the one shelf contract; buttons are items in the bar rul
 - Owner 2026-11-21: plan reviewed as https://claude.ai/artifact/Bc8Fuknyja8ZgtFme1786d, "Confirmed, set them up (Recommended)": four sequential Tasks (groundwork and custom panel; the ready-made parts and split proof; the catalogue page; measure, reconcile Design and owner look). The site's existing demos are not changed; the catalogue examples are the proof (improvements only).
 - Owner 2026-11-21, on T-336's measurements (engine unpacked 9,565,101 B, 65,101 B over 9.5 MB; API page 45,974 B gzip, 26 B under 46,000), reviewed on https://claude.ai/artifact/UD5tnCmNvkmvNNin6CuMSo: (1) "Remove shipped code comments (Recommended)": the build strips comments from the packed JS and keeps them in the `.d.ts`, with a pack-check rule; the 9.5 MB limit stays. (2) "Separate page for story components (Recommended)": the API reference puts the `@shelf` exports on their own page; the 46,000 B cap stays. Both done in T-336 before the Full Objective Check.
 - Owner 2026-11-21, on the catalogue page preview: "I dont understand the http://localhost:5490/components.html page and its purpose", then "Plain words first, code tucked away (Recommended)": each part opens with a plain name, one plain sentence on what it is for, a when-to-use example and its live demo; the import/add lines, the doc-comment sentence and the whole example sit in a "For developers" fold; the intro says plainly who the page is for. Done in T-336 before the Full Objective Check.
+- Owner 2026-11-21, after C-194 CLEAR and the merge: "80 is done, accept T-336 against C-194".

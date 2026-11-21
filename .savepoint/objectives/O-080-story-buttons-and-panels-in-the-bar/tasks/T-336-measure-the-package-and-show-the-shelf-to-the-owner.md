@@ -5,7 +5,7 @@ title: Measure the package and show the shelf to the owner
 status: done
 depends_on: [{task: T-335, requires: clear}]
 check_waiver: {task: T-336, reason: 'Owner said "Orchestrate 080": standing orchestration rules waive the optional step checks; the mandatory Full Objective Check covers the whole diff.', actor: {role: owner, session: orchestrate-o080-20261121}, recorded_at: '2026-11-21T05:15:22Z'}
-owner_validation: {required: true}
+owner_validation: {required: true, accepted_check: C-194, accepted_by: {role: owner, session: orchestrate-o080-20261121}}
 planned_by: {role: planner, session: plan-o080-20261121}
 ---
 
