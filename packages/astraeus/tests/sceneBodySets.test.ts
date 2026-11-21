@@ -5,6 +5,7 @@ import { Scene, SceneError, sun, earth, io, jupiter, moon, pluto, charon, type B
 import { familiesWithPalette } from "../src/app/bodySet";
 import { bodySetsOf } from "../src/app/experienceDefinition";
 import { createEphemerisGroup } from "../src/core/ephemerisGroup";
+import { createMoonSystem } from "../src/core/bodies/moonSystem";
 import { JUPITER_MOON_SYSTEM } from "../src/core/bodies/jupiterMoons";
 import { PLUTO_MOON_SYSTEM } from "../src/core/bodies/planetMoons";
 import { prepareScene } from "../src/api/prepared";
@@ -315,8 +316,13 @@ describe("addBodySet with listed moons (positions through data)", () => {
     expect(codeOf(() => scene.stateOf("amalthea", T1))).toBe("missing-data");
     await scene.load({ data });
     for (const id of ["io", "amalthea", "thebe", "himalia"]) expect(fetched.some((url) => url.endsWith(`${id}/2020.bin`))).toBe(true);
+    // The scene holds its own moon data now; the fit it must answer like is a separate system loaded from the same source.
+    const positions = data[0]!.moonPositions!;
+    const fit = createMoonSystem(JUPITER_MOON_SYSTEM.config);
+    fit.provideIndex(positions.loadIndex);
+    await fit.load({ window: { startUtcMs: Date.UTC(2020, 2, 1), endUtcMs: Date.UTC(2020, 2, 20) }, bodies: ["amalthea", "himalia"], chunkUrls: positions.chunkUrls });
     for (const id of ["amalthea", "himalia"]) {
-      expect(Array.from(scene.stateOf(id, T1).positionKm)).toEqual(Array.from(JUPITER_MOON_SYSTEM.ephemeris().stateOf(id, T1).positionKm));
+      expect(Array.from(scene.stateOf(id, T1).positionKm)).toEqual(Array.from(fit.ephemeris().stateOf(id, T1).positionKm));
     }
     expect(scene.provenanceOf("thebe")).toEqual(PROVENANCE);
   });

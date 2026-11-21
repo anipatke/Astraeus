@@ -1460,182 +1460,182 @@
     "jupiter": [
      {
       "error": {
-       "name": "EphemerisChunkMissingError",
-       "message": "chunk \"io/1977.bin\" of \"io\" is needed for time 242265600000 but has not been loaded"
+       "name": "NotLoadedError",
+       "message": "Jupiter's moon fits are not loaded: await the system's load before mounting a scene with its moons"
       }
      },
      {
       "error": {
-       "name": "EphemerisChunkMissingError",
-       "message": "chunk \"io/2013.bin\" of \"io\" is needed for time 1385985600000 but has not been loaded"
+       "name": "NotLoadedError",
+       "message": "Jupiter's moon fits are not loaded: await the system's load before mounting a scene with its moons"
       }
      }
     ],
     "io": [
      {
       "error": {
-       "name": "EphemerisChunkMissingError",
-       "message": "chunk \"io/1977.bin\" of \"io\" is needed for time 242265600000 but has not been loaded"
+       "name": "NotLoadedError",
+       "message": "Jupiter's moon fits are not loaded: await the system's load before mounting a scene with its moons"
       }
      },
      {
       "error": {
-       "name": "EphemerisChunkMissingError",
-       "message": "chunk \"io/2013.bin\" of \"io\" is needed for time 1385985600000 but has not been loaded"
+       "name": "NotLoadedError",
+       "message": "Jupiter's moon fits are not loaded: await the system's load before mounting a scene with its moons"
       }
      }
     ],
     "europa": [
      {
       "error": {
-       "name": "EphemerisChunkMissingError",
-       "message": "chunk \"europa/1977.bin\" of \"europa\" is needed for time 242265600000 but has not been loaded"
+       "name": "NotLoadedError",
+       "message": "Jupiter's moon fits are not loaded: await the system's load before mounting a scene with its moons"
       }
      },
      {
       "error": {
-       "name": "EphemerisChunkMissingError",
-       "message": "chunk \"europa/2013.bin\" of \"europa\" is needed for time 1385985600000 but has not been loaded"
+       "name": "NotLoadedError",
+       "message": "Jupiter's moon fits are not loaded: await the system's load before mounting a scene with its moons"
       }
      }
     ],
     "ganymede": [
      {
       "error": {
-       "name": "EphemerisChunkMissingError",
-       "message": "chunk \"ganymede/1977.bin\" of \"ganymede\" is needed for time 242265600000 but has not been loaded"
+       "name": "NotLoadedError",
+       "message": "Jupiter's moon fits are not loaded: await the system's load before mounting a scene with its moons"
       }
      },
      {
       "error": {
-       "name": "EphemerisChunkMissingError",
-       "message": "chunk \"ganymede/2013.bin\" of \"ganymede\" is needed for time 1385985600000 but has not been loaded"
+       "name": "NotLoadedError",
+       "message": "Jupiter's moon fits are not loaded: await the system's load before mounting a scene with its moons"
       }
      }
     ],
     "callisto": [
      {
       "error": {
-       "name": "EphemerisChunkMissingError",
-       "message": "chunk \"callisto/1977.bin\" of \"callisto\" is needed for time 242265600000 but has not been loaded"
+       "name": "NotLoadedError",
+       "message": "Jupiter's moon fits are not loaded: await the system's load before mounting a scene with its moons"
       }
      },
      {
       "error": {
-       "name": "EphemerisChunkMissingError",
-       "message": "chunk \"callisto/2013.bin\" of \"callisto\" is needed for time 1385985600000 but has not been loaded"
+       "name": "NotLoadedError",
+       "message": "Jupiter's moon fits are not loaded: await the system's load before mounting a scene with its moons"
       }
      }
     ],
     "saturn": [
      {
       "error": {
-       "name": "EphemerisChunkMissingError",
-       "message": "chunk \"mimas/1977.bin\" of \"mimas\" is needed for time 242265600000 but has not been loaded"
+       "name": "NotLoadedError",
+       "message": "Saturn's moon fits are not loaded: await the system's load before mounting a scene with its moons"
       }
      },
      {
       "error": {
-       "name": "EphemerisChunkMissingError",
-       "message": "chunk \"mimas/2013.bin\" of \"mimas\" is needed for time 1385985600000 but has not been loaded"
+       "name": "NotLoadedError",
+       "message": "Saturn's moon fits are not loaded: await the system's load before mounting a scene with its moons"
       }
      }
     ],
     "mimas": [
      {
       "error": {
-       "name": "EphemerisChunkMissingError",
-       "message": "chunk \"mimas/1977.bin\" of \"mimas\" is needed for time 242265600000 but has not been loaded"
+       "name": "NotLoadedError",
+       "message": "Saturn's moon fits are not loaded: await the system's load before mounting a scene with its moons"
       }
      },
      {
       "error": {
-       "name": "EphemerisChunkMissingError",
-       "message": "chunk \"mimas/2013.bin\" of \"mimas\" is needed for time 1385985600000 but has not been loaded"
+       "name": "NotLoadedError",
+       "message": "Saturn's moon fits are not loaded: await the system's load before mounting a scene with its moons"
       }
      }
     ],
     "enceladus": [
      {
       "error": {
-       "name": "EphemerisChunkMissingError",
-       "message": "chunk \"enceladus/1977.bin\" of \"enceladus\" is needed for time 242265600000 but has not been loaded"
+       "name": "NotLoadedError",
+       "message": "Saturn's moon fits are not loaded: await the system's load before mounting a scene with its moons"
       }
      },
      {
       "error": {
-       "name": "EphemerisChunkMissingError",
-       "message": "chunk \"enceladus/2013.bin\" of \"enceladus\" is needed for time 1385985600000 but has not been loaded"
+       "name": "NotLoadedError",
+       "message": "Saturn's moon fits are not loaded: await the system's load before mounting a scene with its moons"
       }
      }
     ],
     "tethys": [
      {
       "error": {
-       "name": "EphemerisChunkMissingError",
-       "message": "chunk \"tethys/1977.bin\" of \"tethys\" is needed for time 242265600000 but has not been loaded"
+       "name": "NotLoadedError",
+       "message": "Saturn's moon fits are not loaded: await the system's load before mounting a scene with its moons"
       }
      },
      {
       "error": {
-       "name": "EphemerisChunkMissingError",
-       "message": "chunk \"tethys/2013.bin\" of \"tethys\" is needed for time 1385985600000 but has not been loaded"
+       "name": "NotLoadedError",
+       "message": "Saturn's moon fits are not loaded: await the system's load before mounting a scene with its moons"
       }
      }
     ],
     "dione": [
      {
       "error": {
-       "name": "EphemerisChunkMissingError",
-       "message": "chunk \"dione/1977.bin\" of \"dione\" is needed for time 242265600000 but has not been loaded"
+       "name": "NotLoadedError",
+       "message": "Saturn's moon fits are not loaded: await the system's load before mounting a scene with its moons"
       }
      },
      {
       "error": {
-       "name": "EphemerisChunkMissingError",
-       "message": "chunk \"dione/2013.bin\" of \"dione\" is needed for time 1385985600000 but has not been loaded"
+       "name": "NotLoadedError",
+       "message": "Saturn's moon fits are not loaded: await the system's load before mounting a scene with its moons"
       }
      }
     ],
     "rhea": [
      {
       "error": {
-       "name": "EphemerisChunkMissingError",
-       "message": "chunk \"rhea/1977.bin\" of \"rhea\" is needed for time 242265600000 but has not been loaded"
+       "name": "NotLoadedError",
+       "message": "Saturn's moon fits are not loaded: await the system's load before mounting a scene with its moons"
       }
      },
      {
       "error": {
-       "name": "EphemerisChunkMissingError",
-       "message": "chunk \"rhea/2013.bin\" of \"rhea\" is needed for time 1385985600000 but has not been loaded"
+       "name": "NotLoadedError",
+       "message": "Saturn's moon fits are not loaded: await the system's load before mounting a scene with its moons"
       }
      }
     ],
     "titan": [
      {
       "error": {
-       "name": "EphemerisChunkMissingError",
-       "message": "chunk \"titan/1977.bin\" of \"titan\" is needed for time 242265600000 but has not been loaded"
+       "name": "NotLoadedError",
+       "message": "Saturn's moon fits are not loaded: await the system's load before mounting a scene with its moons"
       }
      },
      {
       "error": {
-       "name": "EphemerisChunkMissingError",
-       "message": "chunk \"titan/2013.bin\" of \"titan\" is needed for time 1385985600000 but has not been loaded"
+       "name": "NotLoadedError",
+       "message": "Saturn's moon fits are not loaded: await the system's load before mounting a scene with its moons"
       }
      }
     ],
     "iapetus": [
      {
       "error": {
-       "name": "EphemerisChunkMissingError",
-       "message": "chunk \"iapetus/1977.bin\" of \"iapetus\" is needed for time 242265600000 but has not been loaded"
+       "name": "NotLoadedError",
+       "message": "Saturn's moon fits are not loaded: await the system's load before mounting a scene with its moons"
       }
      },
      {
       "error": {
-       "name": "EphemerisChunkMissingError",
-       "message": "chunk \"iapetus/2013.bin\" of \"iapetus\" is needed for time 1385985600000 but has not been loaded"
+       "name": "NotLoadedError",
+       "message": "Saturn's moon fits are not loaded: await the system's load before mounting a scene with its moons"
       }
      }
     ],
@@ -1831,15 +1831,15 @@
      {
       "error": {
        "name": "SceneError",
-       "code": "bad-time",
-       "message": "stateOf(\"io\"): 1977-09-05T00:00:00.000Z is not in the data the scene loaded, which is for 1977-09-05T00:00:00.000Z to 2026-01-01T00:00:00.000Z; set the timeline to include it and load again"
+       "code": "missing-data",
+       "message": "stateOf(\"io\"): its data is not loaded yet; await scene.load({ data }) first (or mount the scene and await ready)"
       }
      },
      {
       "error": {
        "name": "SceneError",
-       "code": "bad-time",
-       "message": "stateOf(\"io\"): 2013-12-02T12:00:00.000Z is not in the data the scene loaded, which is for 1977-09-05T00:00:00.000Z to 2026-01-01T00:00:00.000Z; set the timeline to include it and load again"
+       "code": "missing-data",
+       "message": "stateOf(\"io\"): its data is not loaded yet; await scene.load({ data }) first (or mount the scene and await ready)"
       }
      }
     ],
@@ -1847,15 +1847,15 @@
      {
       "error": {
        "name": "SceneError",
-       "code": "bad-time",
-       "message": "stateOf(\"europa\"): 1977-09-05T00:00:00.000Z is not in the data the scene loaded, which is for 1977-09-05T00:00:00.000Z to 2026-01-01T00:00:00.000Z; set the timeline to include it and load again"
+       "code": "missing-data",
+       "message": "stateOf(\"europa\"): its data is not loaded yet; await scene.load({ data }) first (or mount the scene and await ready)"
       }
      },
      {
       "error": {
        "name": "SceneError",
-       "code": "bad-time",
-       "message": "stateOf(\"europa\"): 2013-12-02T12:00:00.000Z is not in the data the scene loaded, which is for 1977-09-05T00:00:00.000Z to 2026-01-01T00:00:00.000Z; set the timeline to include it and load again"
+       "code": "missing-data",
+       "message": "stateOf(\"europa\"): its data is not loaded yet; await scene.load({ data }) first (or mount the scene and await ready)"
       }
      }
     ],
@@ -1863,15 +1863,15 @@
      {
       "error": {
        "name": "SceneError",
-       "code": "bad-time",
-       "message": "stateOf(\"ganymede\"): 1977-09-05T00:00:00.000Z is not in the data the scene loaded, which is for 1977-09-05T00:00:00.000Z to 2026-01-01T00:00:00.000Z; set the timeline to include it and load again"
+       "code": "missing-data",
+       "message": "stateOf(\"ganymede\"): its data is not loaded yet; await scene.load({ data }) first (or mount the scene and await ready)"
       }
      },
      {
       "error": {
        "name": "SceneError",
-       "code": "bad-time",
-       "message": "stateOf(\"ganymede\"): 2013-12-02T12:00:00.000Z is not in the data the scene loaded, which is for 1977-09-05T00:00:00.000Z to 2026-01-01T00:00:00.000Z; set the timeline to include it and load again"
+       "code": "missing-data",
+       "message": "stateOf(\"ganymede\"): its data is not loaded yet; await scene.load({ data }) first (or mount the scene and await ready)"
       }
      }
     ],
@@ -1879,15 +1879,15 @@
      {
       "error": {
        "name": "SceneError",
-       "code": "bad-time",
-       "message": "stateOf(\"callisto\"): 1977-09-05T00:00:00.000Z is not in the data the scene loaded, which is for 1977-09-05T00:00:00.000Z to 2026-01-01T00:00:00.000Z; set the timeline to include it and load again"
+       "code": "missing-data",
+       "message": "stateOf(\"callisto\"): its data is not loaded yet; await scene.load({ data }) first (or mount the scene and await ready)"
       }
      },
      {
       "error": {
        "name": "SceneError",
-       "code": "bad-time",
-       "message": "stateOf(\"callisto\"): 2013-12-02T12:00:00.000Z is not in the data the scene loaded, which is for 1977-09-05T00:00:00.000Z to 2026-01-01T00:00:00.000Z; set the timeline to include it and load again"
+       "code": "missing-data",
+       "message": "stateOf(\"callisto\"): its data is not loaded yet; await scene.load({ data }) first (or mount the scene and await ready)"
       }
      }
     ],
@@ -1931,15 +1931,15 @@
      {
       "error": {
        "name": "SceneError",
-       "code": "bad-time",
-       "message": "stateOf(\"mimas\"): 1977-09-05T00:00:00.000Z is not in the data the scene loaded, which is for 1977-09-05T00:00:00.000Z to 2026-01-01T00:00:00.000Z; set the timeline to include it and load again"
+       "code": "missing-data",
+       "message": "stateOf(\"mimas\"): its data is not loaded yet; await scene.load({ data }) first (or mount the scene and await ready)"
       }
      },
      {
       "error": {
        "name": "SceneError",
-       "code": "bad-time",
-       "message": "stateOf(\"mimas\"): 2013-12-02T12:00:00.000Z is not in the data the scene loaded, which is for 1977-09-05T00:00:00.000Z to 2026-01-01T00:00:00.000Z; set the timeline to include it and load again"
+       "code": "missing-data",
+       "message": "stateOf(\"mimas\"): its data is not loaded yet; await scene.load({ data }) first (or mount the scene and await ready)"
       }
      }
     ],
@@ -1947,15 +1947,15 @@
      {
       "error": {
        "name": "SceneError",
-       "code": "bad-time",
-       "message": "stateOf(\"enceladus\"): 1977-09-05T00:00:00.000Z is not in the data the scene loaded, which is for 1977-09-05T00:00:00.000Z to 2026-01-01T00:00:00.000Z; set the timeline to include it and load again"
+       "code": "missing-data",
+       "message": "stateOf(\"enceladus\"): its data is not loaded yet; await scene.load({ data }) first (or mount the scene and await ready)"
       }
      },
      {
       "error": {
        "name": "SceneError",
-       "code": "bad-time",
-       "message": "stateOf(\"enceladus\"): 2013-12-02T12:00:00.000Z is not in the data the scene loaded, which is for 1977-09-05T00:00:00.000Z to 2026-01-01T00:00:00.000Z; set the timeline to include it and load again"
+       "code": "missing-data",
+       "message": "stateOf(\"enceladus\"): its data is not loaded yet; await scene.load({ data }) first (or mount the scene and await ready)"
       }
      }
     ],
@@ -1963,15 +1963,15 @@
      {
       "error": {
        "name": "SceneError",
-       "code": "bad-time",
-       "message": "stateOf(\"tethys\"): 1977-09-05T00:00:00.000Z is not in the data the scene loaded, which is for 1977-09-05T00:00:00.000Z to 2026-01-01T00:00:00.000Z; set the timeline to include it and load again"
+       "code": "missing-data",
+       "message": "stateOf(\"tethys\"): its data is not loaded yet; await scene.load({ data }) first (or mount the scene and await ready)"
       }
      },
      {
       "error": {
        "name": "SceneError",
-       "code": "bad-time",
-       "message": "stateOf(\"tethys\"): 2013-12-02T12:00:00.000Z is not in the data the scene loaded, which is for 1977-09-05T00:00:00.000Z to 2026-01-01T00:00:00.000Z; set the timeline to include it and load again"
+       "code": "missing-data",
+       "message": "stateOf(\"tethys\"): its data is not loaded yet; await scene.load({ data }) first (or mount the scene and await ready)"
       }
      }
     ],
@@ -1979,15 +1979,15 @@
      {
       "error": {
        "name": "SceneError",
-       "code": "bad-time",
-       "message": "stateOf(\"dione\"): 1977-09-05T00:00:00.000Z is not in the data the scene loaded, which is for 1977-09-05T00:00:00.000Z to 2026-01-01T00:00:00.000Z; set the timeline to include it and load again"
+       "code": "missing-data",
+       "message": "stateOf(\"dione\"): its data is not loaded yet; await scene.load({ data }) first (or mount the scene and await ready)"
       }
      },
      {
       "error": {
        "name": "SceneError",
-       "code": "bad-time",
-       "message": "stateOf(\"dione\"): 2013-12-02T12:00:00.000Z is not in the data the scene loaded, which is for 1977-09-05T00:00:00.000Z to 2026-01-01T00:00:00.000Z; set the timeline to include it and load again"
+       "code": "missing-data",
+       "message": "stateOf(\"dione\"): its data is not loaded yet; await scene.load({ data }) first (or mount the scene and await ready)"
       }
      }
     ],
@@ -1995,15 +1995,15 @@
      {
       "error": {
        "name": "SceneError",
-       "code": "bad-time",
-       "message": "stateOf(\"rhea\"): 1977-09-05T00:00:00.000Z is not in the data the scene loaded, which is for 1977-09-05T00:00:00.000Z to 2026-01-01T00:00:00.000Z; set the timeline to include it and load again"
+       "code": "missing-data",
+       "message": "stateOf(\"rhea\"): its data is not loaded yet; await scene.load({ data }) first (or mount the scene and await ready)"
       }
      },
      {
       "error": {
        "name": "SceneError",
-       "code": "bad-time",
-       "message": "stateOf(\"rhea\"): 2013-12-02T12:00:00.000Z is not in the data the scene loaded, which is for 1977-09-05T00:00:00.000Z to 2026-01-01T00:00:00.000Z; set the timeline to include it and load again"
+       "code": "missing-data",
+       "message": "stateOf(\"rhea\"): its data is not loaded yet; await scene.load({ data }) first (or mount the scene and await ready)"
       }
      }
     ],
@@ -2011,15 +2011,15 @@
      {
       "error": {
        "name": "SceneError",
-       "code": "bad-time",
-       "message": "stateOf(\"titan\"): 1977-09-05T00:00:00.000Z is not in the data the scene loaded, which is for 1977-09-05T00:00:00.000Z to 2026-01-01T00:00:00.000Z; set the timeline to include it and load again"
+       "code": "missing-data",
+       "message": "stateOf(\"titan\"): its data is not loaded yet; await scene.load({ data }) first (or mount the scene and await ready)"
       }
      },
      {
       "error": {
        "name": "SceneError",
-       "code": "bad-time",
-       "message": "stateOf(\"titan\"): 2013-12-02T12:00:00.000Z is not in the data the scene loaded, which is for 1977-09-05T00:00:00.000Z to 2026-01-01T00:00:00.000Z; set the timeline to include it and load again"
+       "code": "missing-data",
+       "message": "stateOf(\"titan\"): its data is not loaded yet; await scene.load({ data }) first (or mount the scene and await ready)"
       }
      }
     ],
@@ -2027,15 +2027,15 @@
      {
       "error": {
        "name": "SceneError",
-       "code": "bad-time",
-       "message": "stateOf(\"iapetus\"): 1977-09-05T00:00:00.000Z is not in the data the scene loaded, which is for 1977-09-05T00:00:00.000Z to 2026-01-01T00:00:00.000Z; set the timeline to include it and load again"
+       "code": "missing-data",
+       "message": "stateOf(\"iapetus\"): its data is not loaded yet; await scene.load({ data }) first (or mount the scene and await ready)"
       }
      },
      {
       "error": {
        "name": "SceneError",
-       "code": "bad-time",
-       "message": "stateOf(\"iapetus\"): 2013-12-02T12:00:00.000Z is not in the data the scene loaded, which is for 1977-09-05T00:00:00.000Z to 2026-01-01T00:00:00.000Z; set the timeline to include it and load again"
+       "code": "missing-data",
+       "message": "stateOf(\"iapetus\"): its data is not loaded yet; await scene.load({ data }) first (or mount the scene and await ready)"
       }
      }
     ],
@@ -2371,6 +2371,36 @@
   "sun scene: planets with each addBody option, orbit lines and the solar-system scale": {
    "seriesLoadedAtBuild": true,
    "definitionBeforePrepare": {
+    "catalogue": {
+     "[catalogue]": [
+      "sun",
+      "earth",
+      "moon",
+      "mercury",
+      "venus",
+      "mars",
+      "jupiter",
+      "io",
+      "europa",
+      "ganymede",
+      "callisto",
+      "saturn",
+      "uranus",
+      "neptune",
+      "pluto",
+      "phobos",
+      "deimos",
+      "mimas",
+      "enceladus",
+      "tethys",
+      "dione",
+      "rhea",
+      "titan",
+      "iapetus",
+      "triton",
+      "charon"
+     ]
+    },
     "clock": {
      "rate": 60,
      "startUtcMs": 1767225600000
@@ -3116,6 +3146,36 @@
   "earth and moon, readable scale offered alone, moon orbit line": {
    "seriesLoadedAtBuild": true,
    "definitionBeforePrepare": {
+    "catalogue": {
+     "[catalogue]": [
+      "sun",
+      "earth",
+      "moon",
+      "mercury",
+      "venus",
+      "mars",
+      "jupiter",
+      "io",
+      "europa",
+      "ganymede",
+      "callisto",
+      "saturn",
+      "uranus",
+      "neptune",
+      "pluto",
+      "phobos",
+      "deimos",
+      "mimas",
+      "enceladus",
+      "tethys",
+      "dione",
+      "rhea",
+      "titan",
+      "iapetus",
+      "triton",
+      "charon"
+     ]
+    },
     "clock": {
      "rate": 60,
      "startUtcMs": 1767225600000
@@ -3394,6 +3454,36 @@
   "true scale, then switched": {
    "seriesLoadedAtBuild": true,
    "definitionBeforePrepare": {
+    "catalogue": {
+     "[catalogue]": [
+      "sun",
+      "earth",
+      "moon",
+      "mercury",
+      "venus",
+      "mars",
+      "jupiter",
+      "io",
+      "europa",
+      "ganymede",
+      "callisto",
+      "saturn",
+      "uranus",
+      "neptune",
+      "pluto",
+      "phobos",
+      "deimos",
+      "mimas",
+      "enceladus",
+      "tethys",
+      "dione",
+      "rhea",
+      "titan",
+      "iapetus",
+      "triton",
+      "charon"
+     ]
+    },
     "clock": {
      "rate": 60,
      "startUtcMs": 1767225600000
@@ -3667,6 +3757,36 @@
   "jupiter moons with their data package": {
    "seriesLoadedAtBuild": true,
    "definitionBeforePrepare": {
+    "catalogue": {
+     "[catalogue]": [
+      "sun",
+      "earth",
+      "moon",
+      "mercury",
+      "venus",
+      "mars",
+      "jupiter",
+      "io",
+      "europa",
+      "ganymede",
+      "callisto",
+      "saturn",
+      "uranus",
+      "neptune",
+      "pluto",
+      "phobos",
+      "deimos",
+      "mimas",
+      "enceladus",
+      "tethys",
+      "dione",
+      "rhea",
+      "titan",
+      "iapetus",
+      "triton",
+      "charon"
+     ]
+    },
     "clock": {
      "rate": 60,
      "startUtcMs": 1464739200000
@@ -3873,136 +3993,60 @@
    ],
    "metrics": {
     "jupiter": [
-     [
-      {
-       "context": "centre to centre · EQJ",
-       "digits": 0,
-       "id": "jupiter-to-io",
-       "kind": "distance",
-       "label": "Distance to Io",
-       "unit": "km",
-       "value": 420965.4905
-      },
-      {
-       "context": "centre to centre · EQJ",
-       "digits": 0,
-       "id": "jupiter-to-europa",
-       "kind": "distance",
-       "label": "Distance to Europa",
-       "unit": "km",
-       "value": 676141.166415
-      },
-      {
-       "context": "centre to centre · EQJ",
-       "digits": 0,
-       "id": "jupiter-to-callisto",
-       "kind": "distance",
-       "label": "Distance to Callisto",
-       "unit": "km",
-       "value": 1896111.40113
+     {
+      "error": {
+       "name": "NotLoadedError",
+       "message": "Jupiter's moon fits are not loaded: await the system's load before mounting a scene with its moons"
       }
-     ],
-     [
-      {
-       "context": "centre to centre · EQJ",
-       "digits": 0,
-       "id": "jupiter-to-io",
-       "kind": "distance",
-       "label": "Distance to Io",
-       "unit": "km",
-       "value": 423350.815999
-      },
-      {
-       "context": "centre to centre · EQJ",
-       "digits": 0,
-       "id": "jupiter-to-europa",
-       "kind": "distance",
-       "label": "Distance to Europa",
-       "unit": "km",
-       "value": 672185.959439
-      },
-      {
-       "context": "centre to centre · EQJ",
-       "digits": 0,
-       "id": "jupiter-to-callisto",
-       "kind": "distance",
-       "label": "Distance to Callisto",
-       "unit": "km",
-       "value": 1871194.26177
+     },
+     {
+      "error": {
+       "name": "NotLoadedError",
+       "message": "Jupiter's moon fits are not loaded: await the system's load before mounting a scene with its moons"
       }
-     ]
+     }
     ],
     "io": [
-     [
-      {
-       "context": "centre to centre · EQJ",
-       "digits": 0,
-       "id": "io-range",
-       "kind": "distance",
-       "label": "Distance from Jupiter",
-       "unit": "km",
-       "value": 420965.4905
+     {
+      "error": {
+       "name": "NotLoadedError",
+       "message": "Jupiter's moon fits are not loaded: await the system's load before mounting a scene with its moons"
       }
-     ],
-     [
-      {
-       "context": "centre to centre · EQJ",
-       "digits": 0,
-       "id": "io-range",
-       "kind": "distance",
-       "label": "Distance from Jupiter",
-       "unit": "km",
-       "value": 423350.815999
+     },
+     {
+      "error": {
+       "name": "NotLoadedError",
+       "message": "Jupiter's moon fits are not loaded: await the system's load before mounting a scene with its moons"
       }
-     ]
+     }
     ],
     "europa": [
-     [
-      {
-       "context": "centre to centre · EQJ",
-       "digits": 0,
-       "id": "europa-range",
-       "kind": "distance",
-       "label": "Distance from Jupiter",
-       "unit": "km",
-       "value": 676141.166415
+     {
+      "error": {
+       "name": "NotLoadedError",
+       "message": "Jupiter's moon fits are not loaded: await the system's load before mounting a scene with its moons"
       }
-     ],
-     [
-      {
-       "context": "centre to centre · EQJ",
-       "digits": 0,
-       "id": "europa-range",
-       "kind": "distance",
-       "label": "Distance from Jupiter",
-       "unit": "km",
-       "value": 672185.959439
+     },
+     {
+      "error": {
+       "name": "NotLoadedError",
+       "message": "Jupiter's moon fits are not loaded: await the system's load before mounting a scene with its moons"
       }
-     ]
+     }
     ],
     "callisto": [
-     [
-      {
-       "context": "centre to centre · EQJ",
-       "digits": 0,
-       "id": "callisto-range",
-       "kind": "distance",
-       "label": "Distance from Jupiter",
-       "unit": "km",
-       "value": 1896111.40113
+     {
+      "error": {
+       "name": "NotLoadedError",
+       "message": "Jupiter's moon fits are not loaded: await the system's load before mounting a scene with its moons"
       }
-     ],
-     [
-      {
-       "context": "centre to centre · EQJ",
-       "digits": 0,
-       "id": "callisto-range",
-       "kind": "distance",
-       "label": "Distance from Jupiter",
-       "unit": "km",
-       "value": 1871194.26177
+     },
+     {
+      "error": {
+       "name": "NotLoadedError",
+       "message": "Jupiter's moon fits are not loaded: await the system's load before mounting a scene with its moons"
       }
-     ]
+     }
     ]
    },
    "stateOf": {
@@ -4018,9 +4062,9 @@
       ],
       "plane": "EQJ",
       "positionKm": [
-       -809893963.85,
-       64338884.1227,
-       47294282.7235
+       -809894100.455,
+       64338846.3711,
+       47294262.4909
       ],
       "timeUtcMs": 1464739200000
      },
@@ -4035,149 +4079,59 @@
       ],
       "plane": "EQJ",
       "positionKm": [
-       -810764250.179,
-       56941839.8437,
-       44144881.5416
+       -810764185.197,
+       56941747.6288,
+       44144838.6958
       ],
       "timeUtcMs": 1465387200000
      }
     ],
     "io": [
      {
-      "body": "io",
-      "center": "jupiter",
-      "orientation": [
-       -0.00102575805149,
-       -0.220442187221,
-       0.97497553835,
-       0.028755686953
-      ],
-      "plane": "EQJ",
-      "positionKm": [
-       420267.669349,
-       -23804.0533468,
-       -4516.34102781
-      ],
-      "timeUtcMs": 1464739200000,
-      "velocityKmS": [
-       1.0315668039,
-       15.6483346292,
-       7.46887627056
-      ]
+      "error": {
+       "name": "SceneError",
+       "code": "missing-data",
+       "message": "stateOf(\"io\"): its data is not loaded yet; await scene.load({ data }) first (or mount the scene and await ready)"
+      }
      },
      {
-      "body": "io",
-      "center": "jupiter",
-      "orientation": [
-       0.151321298119,
-       0.160304916187,
-       -0.731722449649,
-       0.644970119666
-      ],
-      "plane": "EQJ",
-      "positionKm": [
-       53381.603622,
-       378834.407358,
-       181275.507455
-      ],
-      "timeUtcMs": 1465387200000,
-      "velocityKmS": [
-       -17.128232182,
-       2.10205288797,
-       0.723310270303
-      ]
+      "error": {
+       "name": "SceneError",
+       "code": "missing-data",
+       "message": "stateOf(\"io\"): its data is not loaded yet; await scene.load({ data }) first (or mount the scene and await ready)"
+      }
      }
     ],
     "europa": [
      {
-      "body": "europa",
-      "center": "jupiter",
-      "orientation": [
-       0.0570861397617,
-       -0.217365883958,
-       0.932623281998,
-       0.282324386148
-      ],
-      "plane": "EQJ",
-      "positionKm": [
-       549933.917642,
-       -357490.787772,
-       -164133.7863
-      ],
-      "timeUtcMs": 1464739200000,
-      "velocityKmS": [
-       7.87499003929,
-       9.95601155478,
-       4.98912424824
-      ]
+      "error": {
+       "name": "SceneError",
+       "code": "missing-data",
+       "message": "stateOf(\"europa\"): its data is not loaded yet; await scene.load({ data }) first (or mount the scene and await ready)"
+      }
      },
      {
-      "body": "europa",
-      "center": "jupiter",
-      "orientation": [
-       -0.0213227463419,
-       -0.223719964025,
-       0.97279183347,
-       -0.0563095633043
-      ],
-      "plane": "EQJ",
-      "positionKm": [
-       670201.060389,
-       40602.0720357,
-       31874.3543653
-      ],
-      "timeUtcMs": 1465387200000,
-      "velocityKmS": [
-       -1.15277696801,
-       12.2998557197,
-       5.96739299754
-      ]
+      "error": {
+       "name": "SceneError",
+       "code": "missing-data",
+       "message": "stateOf(\"europa\"): its data is not loaded yet; await scene.load({ data }) first (or mount the scene and await ready)"
+      }
      }
     ],
     "callisto": [
      {
-      "body": "callisto",
-      "center": "jupiter",
-      "orientation": [
-       0.218098191697,
-       0.0168350764174,
-       -0.105776360542,
-       0.970031504917
-      ],
-      "plane": "EQJ",
-      "positionKm": [
-       -1859829.86812,
-       343713.36805,
-       134656.703421
-      ],
-      "timeUtcMs": 1464739200000,
-      "velocityKmS": [
-       -1.59612205686,
-       -7.21474984377,
-       -3.42795957658
-      ]
+      "error": {
+       "name": "SceneError",
+       "code": "missing-data",
+       "message": "stateOf(\"callisto\"): its data is not loaded yet; await scene.load({ data }) first (or mount the scene and await ready)"
+      }
      },
      {
-      "body": "callisto",
-      "center": "jupiter",
-      "orientation": [
-       0.0511490908707,
-       -0.212681983612,
-       0.941055160729,
-       0.258002575209
-      ],
-      "plane": "EQJ",
-      "positionKm": [
-       1618777.34442,
-       -857847.094914,
-       -380823.103587
-      ],
-      "timeUtcMs": 1465387200000,
-      "velocityKmS": [
-       4.10983881988,
-       6.45051630332,
-       3.10454389893
-      ]
+      "error": {
+       "name": "SceneError",
+       "code": "missing-data",
+       "message": "stateOf(\"callisto\"): its data is not loaded yet; await scene.load({ data }) first (or mount the scene and await ready)"
+      }
      }
     ]
    },
@@ -5370,6 +5324,36 @@
   "paths about the Earth: samples, provider, plane, anchors, readouts, stretches, spans": {
    "seriesLoadedAtBuild": true,
    "definitionBeforePrepare": {
+    "catalogue": {
+     "[catalogue]": [
+      "sun",
+      "earth",
+      "moon",
+      "mercury",
+      "venus",
+      "mars",
+      "jupiter",
+      "io",
+      "europa",
+      "ganymede",
+      "callisto",
+      "saturn",
+      "uranus",
+      "neptune",
+      "pluto",
+      "phobos",
+      "deimos",
+      "mimas",
+      "enceladus",
+      "tethys",
+      "dione",
+      "rhea",
+      "titan",
+      "iapetus",
+      "triton",
+      "charon"
+     ]
+    },
     "clock": {
      "rate": 60,
      "startUtcMs": 1767312000000
@@ -6252,6 +6236,36 @@
       "farthestKm": 448998.886413
      }
     },
+    "catalogue": {
+     "[catalogue]": [
+      "sun",
+      "earth",
+      "moon",
+      "mercury",
+      "venus",
+      "mars",
+      "jupiter",
+      "io",
+      "europa",
+      "ganymede",
+      "callisto",
+      "saturn",
+      "uranus",
+      "neptune",
+      "pluto",
+      "phobos",
+      "deimos",
+      "mimas",
+      "enceladus",
+      "tethys",
+      "dione",
+      "rhea",
+      "titan",
+      "iapetus",
+      "triton",
+      "charon"
+     ]
+    },
     "clock": {
      "rate": 60,
      "startUtcMs": 1767225600000
@@ -6676,6 +6690,36 @@
   "path added before any body keeps an own centre": {
    "seriesLoadedAtBuild": true,
    "definitionBeforePrepare": {
+    "catalogue": {
+     "[catalogue]": [
+      "sun",
+      "earth",
+      "moon",
+      "mercury",
+      "venus",
+      "mars",
+      "jupiter",
+      "io",
+      "europa",
+      "ganymede",
+      "callisto",
+      "saturn",
+      "uranus",
+      "neptune",
+      "pluto",
+      "phobos",
+      "deimos",
+      "mimas",
+      "enceladus",
+      "tethys",
+      "dione",
+      "rhea",
+      "titan",
+      "iapetus",
+      "triton",
+      "charon"
+     ]
+    },
     "clock": {
      "rate": 60,
      "startUtcMs": 1767225600000
@@ -7226,6 +7270,36 @@
      "cover": {
       "farthestKm": 1368095025.94
      }
+    },
+    "catalogue": {
+     "[catalogue]": [
+      "sun",
+      "earth",
+      "moon",
+      "mercury",
+      "venus",
+      "mars",
+      "jupiter",
+      "io",
+      "europa",
+      "ganymede",
+      "callisto",
+      "saturn",
+      "uranus",
+      "neptune",
+      "pluto",
+      "phobos",
+      "deimos",
+      "mimas",
+      "enceladus",
+      "tethys",
+      "dione",
+      "rhea",
+      "titan",
+      "iapetus",
+      "triton",
+      "charon"
+     ]
     },
     "clock": {
      "rate": 60,
@@ -7846,6 +7920,36 @@
      "far": 12500,
      "maxFocusDistance": 5000
     },
+    "catalogue": {
+     "[catalogue]": [
+      "sun",
+      "earth",
+      "moon",
+      "mercury",
+      "venus",
+      "mars",
+      "jupiter",
+      "io",
+      "europa",
+      "ganymede",
+      "callisto",
+      "saturn",
+      "uranus",
+      "neptune",
+      "pluto",
+      "phobos",
+      "deimos",
+      "mimas",
+      "enceladus",
+      "tethys",
+      "dione",
+      "rhea",
+      "titan",
+      "iapetus",
+      "triton",
+      "charon"
+     ]
+    },
     "clock": {
      "rate": 60,
      "startUtcMs": 1767225600000
@@ -8251,6 +8355,36 @@
   "groups: with and without a clump, a rate readout, an activity, an event, a panel": {
    "seriesLoadedAtBuild": true,
    "definitionBeforePrepare": {
+    "catalogue": {
+     "[catalogue]": [
+      "sun",
+      "earth",
+      "moon",
+      "mercury",
+      "venus",
+      "mars",
+      "jupiter",
+      "io",
+      "europa",
+      "ganymede",
+      "callisto",
+      "saturn",
+      "uranus",
+      "neptune",
+      "pluto",
+      "phobos",
+      "deimos",
+      "mimas",
+      "enceladus",
+      "tethys",
+      "dione",
+      "rhea",
+      "titan",
+      "iapetus",
+      "triton",
+      "charon"
+     ]
+    },
     "clock": {
      "rate": 60,
      "startUtcMs": 1767657600000
@@ -8945,6 +9079,36 @@
   "groups added before the planet series are needed (no clump)": {
    "seriesLoadedAtBuild": true,
    "definitionBeforePrepare": {
+    "catalogue": {
+     "[catalogue]": [
+      "sun",
+      "earth",
+      "moon",
+      "mercury",
+      "venus",
+      "mars",
+      "jupiter",
+      "io",
+      "europa",
+      "ganymede",
+      "callisto",
+      "saturn",
+      "uranus",
+      "neptune",
+      "pluto",
+      "phobos",
+      "deimos",
+      "mimas",
+      "enceladus",
+      "tethys",
+      "dione",
+      "rhea",
+      "titan",
+      "iapetus",
+      "triton",
+      "charon"
+     ]
+    },
     "clock": {
      "rate": 60,
      "startUtcMs": 1767225600000
@@ -9389,6 +9553,36 @@
   "activities set the window, and a timeline span overrides it": {
    "seriesLoadedAtBuild": true,
    "definitionBeforePrepare": {
+    "catalogue": {
+     "[catalogue]": [
+      "sun",
+      "earth",
+      "moon",
+      "mercury",
+      "venus",
+      "mars",
+      "jupiter",
+      "io",
+      "europa",
+      "ganymede",
+      "callisto",
+      "saturn",
+      "uranus",
+      "neptune",
+      "pluto",
+      "phobos",
+      "deimos",
+      "mimas",
+      "enceladus",
+      "tethys",
+      "dione",
+      "rhea",
+      "titan",
+      "iapetus",
+      "triton",
+      "charon"
+     ]
+    },
     "clock": {
      "rate": 60,
      "startUtcMs": 1767744000000
@@ -9609,6 +9803,36 @@
   "events with batch and own provenance, panels by utc, event and anchor": {
    "seriesLoadedAtBuild": true,
    "definitionBeforePrepare": {
+    "catalogue": {
+     "[catalogue]": [
+      "sun",
+      "earth",
+      "moon",
+      "mercury",
+      "venus",
+      "mars",
+      "jupiter",
+      "io",
+      "europa",
+      "ganymede",
+      "callisto",
+      "saturn",
+      "uranus",
+      "neptune",
+      "pluto",
+      "phobos",
+      "deimos",
+      "mimas",
+      "enceladus",
+      "tethys",
+      "dione",
+      "rhea",
+      "titan",
+      "iapetus",
+      "triton",
+      "charon"
+     ]
+    },
     "clock": {
      "rate": 60,
      "startUtcMs": 1767225600000
@@ -10152,6 +10376,36 @@
   "timeline: span, rates, opening rate, pacing spans and event rules, loop": {
    "seriesLoadedAtBuild": true,
    "definitionBeforePrepare": {
+    "catalogue": {
+     "[catalogue]": [
+      "sun",
+      "earth",
+      "moon",
+      "mercury",
+      "venus",
+      "mars",
+      "jupiter",
+      "io",
+      "europa",
+      "ganymede",
+      "callisto",
+      "saturn",
+      "uranus",
+      "neptune",
+      "pluto",
+      "phobos",
+      "deimos",
+      "mimas",
+      "enceladus",
+      "tethys",
+      "dione",
+      "rhea",
+      "titan",
+      "iapetus",
+      "triton",
+      "charon"
+     ]
+    },
     "clock": {
      "rate": 100,
      "startUtcMs": 1767312000000
@@ -10514,6 +10768,36 @@
   "timeline: none, frozen at a moment": {
    "seriesLoadedAtBuild": true,
    "definitionBeforePrepare": {
+    "catalogue": {
+     "[catalogue]": [
+      "sun",
+      "earth",
+      "moon",
+      "mercury",
+      "venus",
+      "mars",
+      "jupiter",
+      "io",
+      "europa",
+      "ganymede",
+      "callisto",
+      "saturn",
+      "uranus",
+      "neptune",
+      "pluto",
+      "phobos",
+      "deimos",
+      "mimas",
+      "enceladus",
+      "tethys",
+      "dione",
+      "rhea",
+      "titan",
+      "iapetus",
+      "triton",
+      "charon"
+     ]
+    },
     "clock": {
      "playing": false,
      "rate": 60,
@@ -10664,6 +10948,36 @@
   "timeline: none, running at a rate": {
    "seriesLoadedAtBuild": true,
    "definitionBeforePrepare": {
+    "catalogue": {
+     "[catalogue]": [
+      "sun",
+      "earth",
+      "moon",
+      "mercury",
+      "venus",
+      "mars",
+      "jupiter",
+      "io",
+      "europa",
+      "ganymede",
+      "callisto",
+      "saturn",
+      "uranus",
+      "neptune",
+      "pluto",
+      "phobos",
+      "deimos",
+      "mimas",
+      "enceladus",
+      "tethys",
+      "dione",
+      "rhea",
+      "titan",
+      "iapetus",
+      "triton",
+      "charon"
+     ]
+    },
     "clock": {
      "rate": 3600,
      "startUtcMs": 1767225600000
@@ -10813,6 +11127,36 @@
   "no time set: the opening time is now (fake clock)": {
    "seriesLoadedAtBuild": true,
    "definitionBeforePrepare": {
+    "catalogue": {
+     "[catalogue]": [
+      "sun",
+      "earth",
+      "moon",
+      "mercury",
+      "venus",
+      "mars",
+      "jupiter",
+      "io",
+      "europa",
+      "ganymede",
+      "callisto",
+      "saturn",
+      "uranus",
+      "neptune",
+      "pluto",
+      "phobos",
+      "deimos",
+      "mimas",
+      "enceladus",
+      "tethys",
+      "dione",
+      "rhea",
+      "titan",
+      "iapetus",
+      "triton",
+      "charon"
+     ]
+    },
     "clock": {
      "rate": 60,
      "startUtcMs": 1781524800000
@@ -11086,6 +11430,36 @@
   "no time set with a path: opens at the path start": {
    "seriesLoadedAtBuild": true,
    "definitionBeforePrepare": {
+    "catalogue": {
+     "[catalogue]": [
+      "sun",
+      "earth",
+      "moon",
+      "mercury",
+      "venus",
+      "mars",
+      "jupiter",
+      "io",
+      "europa",
+      "ganymede",
+      "callisto",
+      "saturn",
+      "uranus",
+      "neptune",
+      "pluto",
+      "phobos",
+      "deimos",
+      "mimas",
+      "enceladus",
+      "tethys",
+      "dione",
+      "rhea",
+      "titan",
+      "iapetus",
+      "triton",
+      "charon"
+     ]
+    },
     "clock": {
      "rate": 60,
      "startUtcMs": 1767225600000
@@ -11399,6 +11773,36 @@
   "display switches, called twice": {
    "seriesLoadedAtBuild": true,
    "definitionBeforePrepare": {
+    "catalogue": {
+     "[catalogue]": [
+      "sun",
+      "earth",
+      "moon",
+      "mercury",
+      "venus",
+      "mars",
+      "jupiter",
+      "io",
+      "europa",
+      "ganymede",
+      "callisto",
+      "saturn",
+      "uranus",
+      "neptune",
+      "pluto",
+      "phobos",
+      "deimos",
+      "mimas",
+      "enceladus",
+      "tethys",
+      "dione",
+      "rhea",
+      "titan",
+      "iapetus",
+      "triton",
+      "charon"
+     ]
+    },
     "clock": {
      "rate": 60,
      "startUtcMs": 1767225600000
@@ -11690,6 +12094,36 @@
   "views with each camera rule": {
    "seriesLoadedAtBuild": true,
    "definitionBeforePrepare": {
+    "catalogue": {
+     "[catalogue]": [
+      "sun",
+      "earth",
+      "moon",
+      "mercury",
+      "venus",
+      "mars",
+      "jupiter",
+      "io",
+      "europa",
+      "ganymede",
+      "callisto",
+      "saturn",
+      "uranus",
+      "neptune",
+      "pluto",
+      "phobos",
+      "deimos",
+      "mimas",
+      "enceladus",
+      "tethys",
+      "dione",
+      "rhea",
+      "titan",
+      "iapetus",
+      "triton",
+      "charon"
+     ]
+    },
     "clock": {
      "rate": 60,
      "startUtcMs": 1767225600000
@@ -12470,6 +12904,36 @@
       "farthestKm": 249244978.489
      }
     },
+    "catalogue": {
+     "[catalogue]": [
+      "sun",
+      "earth",
+      "moon",
+      "mercury",
+      "venus",
+      "mars",
+      "jupiter",
+      "io",
+      "europa",
+      "ganymede",
+      "callisto",
+      "saturn",
+      "uranus",
+      "neptune",
+      "pluto",
+      "phobos",
+      "deimos",
+      "mimas",
+      "enceladus",
+      "tethys",
+      "dione",
+      "rhea",
+      "titan",
+      "iapetus",
+      "triton",
+      "charon"
+     ]
+    },
     "clock": {
      "rate": 60,
      "startUtcMs": 1767225600000
@@ -12865,6 +13329,36 @@
      "far": 1000,
      "maxFocusDistance": 400
     },
+    "catalogue": {
+     "[catalogue]": [
+      "sun",
+      "earth",
+      "moon",
+      "mercury",
+      "venus",
+      "mars",
+      "jupiter",
+      "io",
+      "europa",
+      "ganymede",
+      "callisto",
+      "saturn",
+      "uranus",
+      "neptune",
+      "pluto",
+      "phobos",
+      "deimos",
+      "mimas",
+      "enceladus",
+      "tethys",
+      "dione",
+      "rhea",
+      "titan",
+      "iapetus",
+      "triton",
+      "charon"
+     ]
+    },
     "clock": {
      "rate": 60,
      "startUtcMs": 1767225600000
@@ -13149,6 +13643,36 @@
      "fitOrbit": {
       "farthestKm": 249244978.489
      }
+    },
+    "catalogue": {
+     "[catalogue]": [
+      "sun",
+      "earth",
+      "moon",
+      "mercury",
+      "venus",
+      "mars",
+      "jupiter",
+      "io",
+      "europa",
+      "ganymede",
+      "callisto",
+      "saturn",
+      "uranus",
+      "neptune",
+      "pluto",
+      "phobos",
+      "deimos",
+      "mimas",
+      "enceladus",
+      "tethys",
+      "dione",
+      "rhea",
+      "titan",
+      "iapetus",
+      "triton",
+      "charon"
+     ]
     },
     "clock": {
      "rate": 60,
@@ -13745,6 +14269,36 @@
   "the made-up views definition (synthetic)": {
    "seriesLoadedAtBuild": true,
    "definitionBeforePrepare": {
+    "catalogue": {
+     "[catalogue]": [
+      "sun",
+      "earth",
+      "moon",
+      "mercury",
+      "venus",
+      "mars",
+      "jupiter",
+      "io",
+      "europa",
+      "ganymede",
+      "callisto",
+      "saturn",
+      "uranus",
+      "neptune",
+      "pluto",
+      "phobos",
+      "deimos",
+      "mimas",
+      "enceladus",
+      "tethys",
+      "dione",
+      "rhea",
+      "titan",
+      "iapetus",
+      "triton",
+      "charon"
+     ]
+    },
     "clock": {
      "rate": 600,
      "startUtcMs": 1767225600000
@@ -14293,6 +14847,36 @@
   "timeline: pacing with no rate set (the base rate default)": {
    "seriesLoadedAtBuild": true,
    "definitionBeforePrepare": {
+    "catalogue": {
+     "[catalogue]": [
+      "sun",
+      "earth",
+      "moon",
+      "mercury",
+      "venus",
+      "mars",
+      "jupiter",
+      "io",
+      "europa",
+      "ganymede",
+      "callisto",
+      "saturn",
+      "uranus",
+      "neptune",
+      "pluto",
+      "phobos",
+      "deimos",
+      "mimas",
+      "enceladus",
+      "tethys",
+      "dione",
+      "rhea",
+      "titan",
+      "iapetus",
+      "triton",
+      "charon"
+     ]
+    },
     "clock": {
      "rate": 60,
      "startUtcMs": 1767312000000
@@ -14581,6 +15165,36 @@
      "cover": {
       "farthestKm": 8272685136.3
      }
+    },
+    "catalogue": {
+     "[catalogue]": [
+      "sun",
+      "earth",
+      "moon",
+      "mercury",
+      "venus",
+      "mars",
+      "jupiter",
+      "io",
+      "europa",
+      "ganymede",
+      "callisto",
+      "saturn",
+      "uranus",
+      "neptune",
+      "pluto",
+      "phobos",
+      "deimos",
+      "mimas",
+      "enceladus",
+      "tethys",
+      "dione",
+      "rhea",
+      "titan",
+      "iapetus",
+      "triton",
+      "charon"
+     ]
     },
     "clock": {
      "rate": 60,
@@ -16618,6 +17232,36 @@
   "sun scene: planets with each addBody option, orbit lines and the solar-system scale": {
    "seriesLoadedAtBuild": false,
    "definitionBeforePrepare": {
+    "catalogue": {
+     "[catalogue]": [
+      "sun",
+      "earth",
+      "moon",
+      "mercury",
+      "venus",
+      "mars",
+      "jupiter",
+      "io",
+      "europa",
+      "ganymede",
+      "callisto",
+      "saturn",
+      "uranus",
+      "neptune",
+      "pluto",
+      "phobos",
+      "deimos",
+      "mimas",
+      "enceladus",
+      "tethys",
+      "dione",
+      "rhea",
+      "titan",
+      "iapetus",
+      "triton",
+      "charon"
+     ]
+    },
     "clock": {
      "rate": 60,
      "startUtcMs": 1767225600000
@@ -16860,6 +17504,36 @@
    },
    "prepare": "resolved",
    "definitionAfterPrepare": {
+    "catalogue": {
+     "[catalogue]": [
+      "sun",
+      "earth",
+      "moon",
+      "mercury",
+      "venus",
+      "mars",
+      "jupiter",
+      "io",
+      "europa",
+      "ganymede",
+      "callisto",
+      "saturn",
+      "uranus",
+      "neptune",
+      "pluto",
+      "phobos",
+      "deimos",
+      "mimas",
+      "enceladus",
+      "tethys",
+      "dione",
+      "rhea",
+      "titan",
+      "iapetus",
+      "triton",
+      "charon"
+     ]
+    },
     "clock": {
      "rate": 60,
      "startUtcMs": 1767225600000
@@ -17603,6 +18277,36 @@
   "earth and moon, readable scale offered alone, moon orbit line": {
    "seriesLoadedAtBuild": false,
    "definitionBeforePrepare": {
+    "catalogue": {
+     "[catalogue]": [
+      "sun",
+      "earth",
+      "moon",
+      "mercury",
+      "venus",
+      "mars",
+      "jupiter",
+      "io",
+      "europa",
+      "ganymede",
+      "callisto",
+      "saturn",
+      "uranus",
+      "neptune",
+      "pluto",
+      "phobos",
+      "deimos",
+      "mimas",
+      "enceladus",
+      "tethys",
+      "dione",
+      "rhea",
+      "titan",
+      "iapetus",
+      "triton",
+      "charon"
+     ]
+    },
     "clock": {
      "rate": 60,
      "startUtcMs": 1767225600000
@@ -17881,6 +18585,36 @@
   "true scale, then switched": {
    "seriesLoadedAtBuild": false,
    "definitionBeforePrepare": {
+    "catalogue": {
+     "[catalogue]": [
+      "sun",
+      "earth",
+      "moon",
+      "mercury",
+      "venus",
+      "mars",
+      "jupiter",
+      "io",
+      "europa",
+      "ganymede",
+      "callisto",
+      "saturn",
+      "uranus",
+      "neptune",
+      "pluto",
+      "phobos",
+      "deimos",
+      "mimas",
+      "enceladus",
+      "tethys",
+      "dione",
+      "rhea",
+      "titan",
+      "iapetus",
+      "triton",
+      "charon"
+     ]
+    },
     "clock": {
      "rate": 60,
      "startUtcMs": 1767225600000
@@ -18154,6 +18888,36 @@
   "jupiter moons with their data package": {
    "seriesLoadedAtBuild": false,
    "definitionBeforePrepare": {
+    "catalogue": {
+     "[catalogue]": [
+      "sun",
+      "earth",
+      "moon",
+      "mercury",
+      "venus",
+      "mars",
+      "jupiter",
+      "io",
+      "europa",
+      "ganymede",
+      "callisto",
+      "saturn",
+      "uranus",
+      "neptune",
+      "pluto",
+      "phobos",
+      "deimos",
+      "mimas",
+      "enceladus",
+      "tethys",
+      "dione",
+      "rhea",
+      "titan",
+      "iapetus",
+      "triton",
+      "charon"
+     ]
+    },
     "clock": {
      "rate": 60,
      "startUtcMs": 1464739200000
@@ -19890,6 +20654,36 @@
   "paths about the Earth: samples, provider, plane, anchors, readouts, stretches, spans": {
    "seriesLoadedAtBuild": false,
    "definitionBeforePrepare": {
+    "catalogue": {
+     "[catalogue]": [
+      "sun",
+      "earth",
+      "moon",
+      "mercury",
+      "venus",
+      "mars",
+      "jupiter",
+      "io",
+      "europa",
+      "ganymede",
+      "callisto",
+      "saturn",
+      "uranus",
+      "neptune",
+      "pluto",
+      "phobos",
+      "deimos",
+      "mimas",
+      "enceladus",
+      "tethys",
+      "dione",
+      "rhea",
+      "titan",
+      "iapetus",
+      "triton",
+      "charon"
+     ]
+    },
     "clock": {
      "rate": 60,
      "startUtcMs": 1767312000000
@@ -20772,6 +21566,36 @@
       "farthestKm": 448998.886413
      }
     },
+    "catalogue": {
+     "[catalogue]": [
+      "sun",
+      "earth",
+      "moon",
+      "mercury",
+      "venus",
+      "mars",
+      "jupiter",
+      "io",
+      "europa",
+      "ganymede",
+      "callisto",
+      "saturn",
+      "uranus",
+      "neptune",
+      "pluto",
+      "phobos",
+      "deimos",
+      "mimas",
+      "enceladus",
+      "tethys",
+      "dione",
+      "rhea",
+      "titan",
+      "iapetus",
+      "triton",
+      "charon"
+     ]
+    },
     "clock": {
      "rate": 60,
      "startUtcMs": 1767225600000
@@ -21196,6 +22020,36 @@
   "path added before any body keeps an own centre": {
    "seriesLoadedAtBuild": false,
    "definitionBeforePrepare": {
+    "catalogue": {
+     "[catalogue]": [
+      "sun",
+      "earth",
+      "moon",
+      "mercury",
+      "venus",
+      "mars",
+      "jupiter",
+      "io",
+      "europa",
+      "ganymede",
+      "callisto",
+      "saturn",
+      "uranus",
+      "neptune",
+      "pluto",
+      "phobos",
+      "deimos",
+      "mimas",
+      "enceladus",
+      "tethys",
+      "dione",
+      "rhea",
+      "titan",
+      "iapetus",
+      "triton",
+      "charon"
+     ]
+    },
     "clock": {
      "rate": 60,
      "startUtcMs": 1767225600000
@@ -21747,6 +22601,36 @@
       "farthestKm": 1368095025.94
      }
     },
+    "catalogue": {
+     "[catalogue]": [
+      "sun",
+      "earth",
+      "moon",
+      "mercury",
+      "venus",
+      "mars",
+      "jupiter",
+      "io",
+      "europa",
+      "ganymede",
+      "callisto",
+      "saturn",
+      "uranus",
+      "neptune",
+      "pluto",
+      "phobos",
+      "deimos",
+      "mimas",
+      "enceladus",
+      "tethys",
+      "dione",
+      "rhea",
+      "titan",
+      "iapetus",
+      "triton",
+      "charon"
+     ]
+    },
     "clock": {
      "rate": 60,
      "startUtcMs": 1767398400000
@@ -22033,6 +22917,36 @@
      "cover": {
       "farthestKm": 1368095025.94
      }
+    },
+    "catalogue": {
+     "[catalogue]": [
+      "sun",
+      "earth",
+      "moon",
+      "mercury",
+      "venus",
+      "mars",
+      "jupiter",
+      "io",
+      "europa",
+      "ganymede",
+      "callisto",
+      "saturn",
+      "uranus",
+      "neptune",
+      "pluto",
+      "phobos",
+      "deimos",
+      "mimas",
+      "enceladus",
+      "tethys",
+      "dione",
+      "rhea",
+      "titan",
+      "iapetus",
+      "triton",
+      "charon"
+     ]
     },
     "clock": {
      "rate": 60,
@@ -22651,6 +23565,36 @@
      "far": 12500,
      "maxFocusDistance": 5000
     },
+    "catalogue": {
+     "[catalogue]": [
+      "sun",
+      "earth",
+      "moon",
+      "mercury",
+      "venus",
+      "mars",
+      "jupiter",
+      "io",
+      "europa",
+      "ganymede",
+      "callisto",
+      "saturn",
+      "uranus",
+      "neptune",
+      "pluto",
+      "phobos",
+      "deimos",
+      "mimas",
+      "enceladus",
+      "tethys",
+      "dione",
+      "rhea",
+      "titan",
+      "iapetus",
+      "triton",
+      "charon"
+     ]
+    },
     "clock": {
      "rate": 60,
      "startUtcMs": 1767225600000
@@ -23056,6 +24000,36 @@
   "groups: with and without a clump, a rate readout, an activity, an event, a panel": {
    "seriesLoadedAtBuild": false,
    "definitionBeforePrepare": {
+    "catalogue": {
+     "[catalogue]": [
+      "sun",
+      "earth",
+      "moon",
+      "mercury",
+      "venus",
+      "mars",
+      "jupiter",
+      "io",
+      "europa",
+      "ganymede",
+      "callisto",
+      "saturn",
+      "uranus",
+      "neptune",
+      "pluto",
+      "phobos",
+      "deimos",
+      "mimas",
+      "enceladus",
+      "tethys",
+      "dione",
+      "rhea",
+      "titan",
+      "iapetus",
+      "triton",
+      "charon"
+     ]
+    },
     "clock": {
      "rate": 60,
      "startUtcMs": 1767657600000
@@ -23389,6 +24363,36 @@
    },
    "prepare": "resolved",
    "definitionAfterPrepare": {
+    "catalogue": {
+     "[catalogue]": [
+      "sun",
+      "earth",
+      "moon",
+      "mercury",
+      "venus",
+      "mars",
+      "jupiter",
+      "io",
+      "europa",
+      "ganymede",
+      "callisto",
+      "saturn",
+      "uranus",
+      "neptune",
+      "pluto",
+      "phobos",
+      "deimos",
+      "mimas",
+      "enceladus",
+      "tethys",
+      "dione",
+      "rhea",
+      "titan",
+      "iapetus",
+      "triton",
+      "charon"
+     ]
+    },
     "clock": {
      "rate": 60,
      "startUtcMs": 1767657600000
@@ -24081,6 +25085,36 @@
   "groups added before the planet series are needed (no clump)": {
    "seriesLoadedAtBuild": false,
    "definitionBeforePrepare": {
+    "catalogue": {
+     "[catalogue]": [
+      "sun",
+      "earth",
+      "moon",
+      "mercury",
+      "venus",
+      "mars",
+      "jupiter",
+      "io",
+      "europa",
+      "ganymede",
+      "callisto",
+      "saturn",
+      "uranus",
+      "neptune",
+      "pluto",
+      "phobos",
+      "deimos",
+      "mimas",
+      "enceladus",
+      "tethys",
+      "dione",
+      "rhea",
+      "titan",
+      "iapetus",
+      "triton",
+      "charon"
+     ]
+    },
     "clock": {
      "rate": 60,
      "startUtcMs": 1767225600000
@@ -24525,6 +25559,36 @@
   "activities set the window, and a timeline span overrides it": {
    "seriesLoadedAtBuild": false,
    "definitionBeforePrepare": {
+    "catalogue": {
+     "[catalogue]": [
+      "sun",
+      "earth",
+      "moon",
+      "mercury",
+      "venus",
+      "mars",
+      "jupiter",
+      "io",
+      "europa",
+      "ganymede",
+      "callisto",
+      "saturn",
+      "uranus",
+      "neptune",
+      "pluto",
+      "phobos",
+      "deimos",
+      "mimas",
+      "enceladus",
+      "tethys",
+      "dione",
+      "rhea",
+      "titan",
+      "iapetus",
+      "triton",
+      "charon"
+     ]
+    },
     "clock": {
      "rate": 60,
      "startUtcMs": 1767744000000
@@ -24745,6 +25809,36 @@
   "events with batch and own provenance, panels by utc, event and anchor": {
    "seriesLoadedAtBuild": false,
    "definitionBeforePrepare": {
+    "catalogue": {
+     "[catalogue]": [
+      "sun",
+      "earth",
+      "moon",
+      "mercury",
+      "venus",
+      "mars",
+      "jupiter",
+      "io",
+      "europa",
+      "ganymede",
+      "callisto",
+      "saturn",
+      "uranus",
+      "neptune",
+      "pluto",
+      "phobos",
+      "deimos",
+      "mimas",
+      "enceladus",
+      "tethys",
+      "dione",
+      "rhea",
+      "titan",
+      "iapetus",
+      "triton",
+      "charon"
+     ]
+    },
     "clock": {
      "rate": 60,
      "startUtcMs": 1767225600000
@@ -25288,6 +26382,36 @@
   "timeline: span, rates, opening rate, pacing spans and event rules, loop": {
    "seriesLoadedAtBuild": false,
    "definitionBeforePrepare": {
+    "catalogue": {
+     "[catalogue]": [
+      "sun",
+      "earth",
+      "moon",
+      "mercury",
+      "venus",
+      "mars",
+      "jupiter",
+      "io",
+      "europa",
+      "ganymede",
+      "callisto",
+      "saturn",
+      "uranus",
+      "neptune",
+      "pluto",
+      "phobos",
+      "deimos",
+      "mimas",
+      "enceladus",
+      "tethys",
+      "dione",
+      "rhea",
+      "titan",
+      "iapetus",
+      "triton",
+      "charon"
+     ]
+    },
     "clock": {
      "rate": 100,
      "startUtcMs": 1767312000000
@@ -25650,6 +26774,36 @@
   "timeline: none, frozen at a moment": {
    "seriesLoadedAtBuild": false,
    "definitionBeforePrepare": {
+    "catalogue": {
+     "[catalogue]": [
+      "sun",
+      "earth",
+      "moon",
+      "mercury",
+      "venus",
+      "mars",
+      "jupiter",
+      "io",
+      "europa",
+      "ganymede",
+      "callisto",
+      "saturn",
+      "uranus",
+      "neptune",
+      "pluto",
+      "phobos",
+      "deimos",
+      "mimas",
+      "enceladus",
+      "tethys",
+      "dione",
+      "rhea",
+      "titan",
+      "iapetus",
+      "triton",
+      "charon"
+     ]
+    },
     "clock": {
      "playing": false,
      "rate": 60,
@@ -25800,6 +26954,36 @@
   "timeline: none, running at a rate": {
    "seriesLoadedAtBuild": false,
    "definitionBeforePrepare": {
+    "catalogue": {
+     "[catalogue]": [
+      "sun",
+      "earth",
+      "moon",
+      "mercury",
+      "venus",
+      "mars",
+      "jupiter",
+      "io",
+      "europa",
+      "ganymede",
+      "callisto",
+      "saturn",
+      "uranus",
+      "neptune",
+      "pluto",
+      "phobos",
+      "deimos",
+      "mimas",
+      "enceladus",
+      "tethys",
+      "dione",
+      "rhea",
+      "titan",
+      "iapetus",
+      "triton",
+      "charon"
+     ]
+    },
     "clock": {
      "rate": 3600,
      "startUtcMs": 1767225600000
@@ -25949,6 +27133,36 @@
   "no time set: the opening time is now (fake clock)": {
    "seriesLoadedAtBuild": false,
    "definitionBeforePrepare": {
+    "catalogue": {
+     "[catalogue]": [
+      "sun",
+      "earth",
+      "moon",
+      "mercury",
+      "venus",
+      "mars",
+      "jupiter",
+      "io",
+      "europa",
+      "ganymede",
+      "callisto",
+      "saturn",
+      "uranus",
+      "neptune",
+      "pluto",
+      "phobos",
+      "deimos",
+      "mimas",
+      "enceladus",
+      "tethys",
+      "dione",
+      "rhea",
+      "titan",
+      "iapetus",
+      "triton",
+      "charon"
+     ]
+    },
     "clock": {
      "rate": 60,
      "startUtcMs": 1781524800000
@@ -26222,6 +27436,36 @@
   "no time set with a path: opens at the path start": {
    "seriesLoadedAtBuild": false,
    "definitionBeforePrepare": {
+    "catalogue": {
+     "[catalogue]": [
+      "sun",
+      "earth",
+      "moon",
+      "mercury",
+      "venus",
+      "mars",
+      "jupiter",
+      "io",
+      "europa",
+      "ganymede",
+      "callisto",
+      "saturn",
+      "uranus",
+      "neptune",
+      "pluto",
+      "phobos",
+      "deimos",
+      "mimas",
+      "enceladus",
+      "tethys",
+      "dione",
+      "rhea",
+      "titan",
+      "iapetus",
+      "triton",
+      "charon"
+     ]
+    },
     "clock": {
      "rate": 60,
      "startUtcMs": 1767225600000
@@ -26535,6 +27779,36 @@
   "display switches, called twice": {
    "seriesLoadedAtBuild": false,
    "definitionBeforePrepare": {
+    "catalogue": {
+     "[catalogue]": [
+      "sun",
+      "earth",
+      "moon",
+      "mercury",
+      "venus",
+      "mars",
+      "jupiter",
+      "io",
+      "europa",
+      "ganymede",
+      "callisto",
+      "saturn",
+      "uranus",
+      "neptune",
+      "pluto",
+      "phobos",
+      "deimos",
+      "mimas",
+      "enceladus",
+      "tethys",
+      "dione",
+      "rhea",
+      "titan",
+      "iapetus",
+      "triton",
+      "charon"
+     ]
+    },
     "clock": {
      "rate": 60,
      "startUtcMs": 1767225600000
@@ -26826,6 +28100,36 @@
   "views with each camera rule": {
    "seriesLoadedAtBuild": false,
    "definitionBeforePrepare": {
+    "catalogue": {
+     "[catalogue]": [
+      "sun",
+      "earth",
+      "moon",
+      "mercury",
+      "venus",
+      "mars",
+      "jupiter",
+      "io",
+      "europa",
+      "ganymede",
+      "callisto",
+      "saturn",
+      "uranus",
+      "neptune",
+      "pluto",
+      "phobos",
+      "deimos",
+      "mimas",
+      "enceladus",
+      "tethys",
+      "dione",
+      "rhea",
+      "titan",
+      "iapetus",
+      "triton",
+      "charon"
+     ]
+    },
     "clock": {
      "rate": 60,
      "startUtcMs": 1767225600000
@@ -27611,6 +28915,36 @@
       }
      }
     },
+    "catalogue": {
+     "[catalogue]": [
+      "sun",
+      "earth",
+      "moon",
+      "mercury",
+      "venus",
+      "mars",
+      "jupiter",
+      "io",
+      "europa",
+      "ganymede",
+      "callisto",
+      "saturn",
+      "uranus",
+      "neptune",
+      "pluto",
+      "phobos",
+      "deimos",
+      "mimas",
+      "enceladus",
+      "tethys",
+      "dione",
+      "rhea",
+      "titan",
+      "iapetus",
+      "triton",
+      "charon"
+     ]
+    },
     "clock": {
      "rate": 60,
      "startUtcMs": 1767225600000
@@ -27776,6 +29110,36 @@
      "fitOrbit": {
       "farthestKm": 249244978.489
      }
+    },
+    "catalogue": {
+     "[catalogue]": [
+      "sun",
+      "earth",
+      "moon",
+      "mercury",
+      "venus",
+      "mars",
+      "jupiter",
+      "io",
+      "europa",
+      "ganymede",
+      "callisto",
+      "saturn",
+      "uranus",
+      "neptune",
+      "pluto",
+      "phobos",
+      "deimos",
+      "mimas",
+      "enceladus",
+      "tethys",
+      "dione",
+      "rhea",
+      "titan",
+      "iapetus",
+      "triton",
+      "charon"
+     ]
     },
     "clock": {
      "rate": 60,
@@ -28170,6 +29534,36 @@
      "far": 1000,
      "maxFocusDistance": 400
     },
+    "catalogue": {
+     "[catalogue]": [
+      "sun",
+      "earth",
+      "moon",
+      "mercury",
+      "venus",
+      "mars",
+      "jupiter",
+      "io",
+      "europa",
+      "ganymede",
+      "callisto",
+      "saturn",
+      "uranus",
+      "neptune",
+      "pluto",
+      "phobos",
+      "deimos",
+      "mimas",
+      "enceladus",
+      "tethys",
+      "dione",
+      "rhea",
+      "titan",
+      "iapetus",
+      "triton",
+      "charon"
+     ]
+    },
     "clock": {
      "rate": 60,
      "startUtcMs": 1767225600000
@@ -28459,6 +29853,36 @@
        }
       }
      }
+    },
+    "catalogue": {
+     "[catalogue]": [
+      "sun",
+      "earth",
+      "moon",
+      "mercury",
+      "venus",
+      "mars",
+      "jupiter",
+      "io",
+      "europa",
+      "ganymede",
+      "callisto",
+      "saturn",
+      "uranus",
+      "neptune",
+      "pluto",
+      "phobos",
+      "deimos",
+      "mimas",
+      "enceladus",
+      "tethys",
+      "dione",
+      "rhea",
+      "titan",
+      "iapetus",
+      "triton",
+      "charon"
+     ]
     },
     "clock": {
      "rate": 60,
@@ -28812,6 +30236,36 @@
      "fitOrbit": {
       "farthestKm": 249244978.489
      }
+    },
+    "catalogue": {
+     "[catalogue]": [
+      "sun",
+      "earth",
+      "moon",
+      "mercury",
+      "venus",
+      "mars",
+      "jupiter",
+      "io",
+      "europa",
+      "ganymede",
+      "callisto",
+      "saturn",
+      "uranus",
+      "neptune",
+      "pluto",
+      "phobos",
+      "deimos",
+      "mimas",
+      "enceladus",
+      "tethys",
+      "dione",
+      "rhea",
+      "titan",
+      "iapetus",
+      "triton",
+      "charon"
+     ]
     },
     "clock": {
      "rate": 60,
@@ -29406,6 +30860,36 @@
   "the made-up views definition (synthetic)": {
    "seriesLoadedAtBuild": false,
    "definitionBeforePrepare": {
+    "catalogue": {
+     "[catalogue]": [
+      "sun",
+      "earth",
+      "moon",
+      "mercury",
+      "venus",
+      "mars",
+      "jupiter",
+      "io",
+      "europa",
+      "ganymede",
+      "callisto",
+      "saturn",
+      "uranus",
+      "neptune",
+      "pluto",
+      "phobos",
+      "deimos",
+      "mimas",
+      "enceladus",
+      "tethys",
+      "dione",
+      "rhea",
+      "titan",
+      "iapetus",
+      "triton",
+      "charon"
+     ]
+    },
     "clock": {
      "rate": 600,
      "startUtcMs": 1767225600000
@@ -29954,6 +31438,36 @@
   "timeline: pacing with no rate set (the base rate default)": {
    "seriesLoadedAtBuild": false,
    "definitionBeforePrepare": {
+    "catalogue": {
+     "[catalogue]": [
+      "sun",
+      "earth",
+      "moon",
+      "mercury",
+      "venus",
+      "mars",
+      "jupiter",
+      "io",
+      "europa",
+      "ganymede",
+      "callisto",
+      "saturn",
+      "uranus",
+      "neptune",
+      "pluto",
+      "phobos",
+      "deimos",
+      "mimas",
+      "enceladus",
+      "tethys",
+      "dione",
+      "rhea",
+      "titan",
+      "iapetus",
+      "triton",
+      "charon"
+     ]
+    },
     "clock": {
      "rate": 60,
      "startUtcMs": 1767312000000
@@ -30242,6 +31756,36 @@
      "cover": {
       "farthestKm": 8272685136.3
      }
+    },
+    "catalogue": {
+     "[catalogue]": [
+      "sun",
+      "earth",
+      "moon",
+      "mercury",
+      "venus",
+      "mars",
+      "jupiter",
+      "io",
+      "europa",
+      "ganymede",
+      "callisto",
+      "saturn",
+      "uranus",
+      "neptune",
+      "pluto",
+      "phobos",
+      "deimos",
+      "mimas",
+      "enceladus",
+      "tethys",
+      "dione",
+      "rhea",
+      "titan",
+      "iapetus",
+      "triton",
+      "charon"
+     ]
     },
     "clock": {
      "rate": 60,

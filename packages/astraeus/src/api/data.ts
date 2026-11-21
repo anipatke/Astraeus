@@ -58,7 +58,7 @@ export async function installData(data: readonly DataSource[], sceneBodies: read
   for (const source of data) {
     const positions = source.moonPositions;
     if (positions === undefined) continue;
-    const system = MOON_SYSTEMS[positions.center]!;
+    const system = catalogue.moonData?.system(positions.center) ?? MOON_SYSTEMS[positions.center]!;
     system.provideIndex(positions.loadIndex);
     const moons = [...sceneBodies.filter((id) => catalogue.has(id) && catalogue.get(id).definition.parentId === positions.center), ...(sets?.moons ?? []).filter((moon) => moon.parent === positions.center).map(({ id }) => id)];
     const maxMs = sets?.historyMs.get(positions.center) ?? 0;

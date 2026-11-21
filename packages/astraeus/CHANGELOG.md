@@ -18,6 +18,9 @@ Engineering health repairs (G-024). Behaviour may change where it was wrong (own
 - Added: a body definition's `accuracy.positionLimitations` holds the position limits its ephemeris record states (planets, the Moon); a card lists them, then the orientation limits, and a host's own `knownLimitations` still replaces both. Earth's polar-motion sentence stays an orientation limit.
 - Fixed: a state composed from several legs keeps its velocity where every leg has one (the sum, or the negation, of the legs' velocities) and has none where any leg lacks it; it was dropped whenever a state was measured from another body.
 - Fixed: reverse playback with pacing. Pacing now works on the magnitude of the rate and keeps its sign, so `setTimeline({ rate: -3600, pacing })` no longer turns the rate into `NaN` (which threw `RangeError` on a view switch), and a backward step through a zone slows as a forward one does. A visitor cannot reach it through the rate picker (`rates` must be positive); only a negative opening `rate` with `pacing` does.
+- Fixed: each scene keeps its own moon data. Loading a moon package for one scene no longer moves a planet in another scene (Jupiter moved about 143 km at the same instant); decoded files are still fetched once per data package.
+- Fixed: a moon's orbit line in the first weeks of 1950 no longer throws.
+- Fixed: a viewer that was paused when its moon data finished loading now shows the planet's centre straight away, instead of a position worked out before the load.
 - Fixed: Earth's atmosphere glow now uses the logarithmic depth buffer, so bodies and lines behind the rim no longer cut into it.
 
 ### Breaking changes in 0.10.0
@@ -33,6 +36,7 @@ Each line is a change a host written for 0.9.5 can notice, with the one-line mig
 - The orientation label of 13 moons changes from `tidal-lock` to `iau-rotation`, and the card's limits change for them and for the planets and the Moon (position limits first). Do not match on the old sentences; read `orientation` and `knownLimitations`.
 - A composed state may now carry `velocityKmS` where it carried none. Check it before use, as before.
 - Reverse pacing: a negative opening `rate` with `pacing` now paces (it threw or went `NaN`). Remove any guard that avoided it.
+- A scene no longer sees moon data that another scene or the process loaded. A scene that relied on another scene's moon package now places that planet at its system's barycentre and refuses its moons with `missing-data`. Pass the package to each scene (`scene.load({ data })` or `mount`).
 
 ## 0.9.5 (2026-11-21)
 

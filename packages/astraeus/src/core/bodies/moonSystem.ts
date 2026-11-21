@@ -4,12 +4,14 @@
  * the definition of a mapped one. Jupiter is one configuration (`jupiterMoons.ts`), unchanged by test. Core data: any experience may load it; which
  * bodies it shows is the experience's choice (O-025 Decision 8).
  */
+import type { MoonDataSelection } from "../moonData";
 import type { BodyId, CelestialBodyDefinition, CenterId, OrientationModel, StateSourceBinding } from "../body";
 import { moonOrientationFromOrbit } from "../bodyOrientation";
 import { ChebyshevEphemeris, parseEphemerisIndex } from "../chebyshevEphemeris";
 import { type IauRotationElements, iauOrientation } from "../iauRotation";
 import { type BalancePoint, periodAboutBalanceS } from "../orbitPeriod";
 import { NotLoadedError } from "../planetSeries";
+import { sharedChunk, sharedDecoder, sharedIndex } from "../moonChunkCache";
 import { fetchBytesOf } from "../readBytes";
 import { createProvenance } from "../provenance";
 import { assertUtcUnixMs, createState, type State } from "../state";
@@ -121,7 +123,8 @@ export interface MoonSystem {
    * towards the centre, on average); without it the near side is held towards the centre from the fitted velocity, so it needs no chunk
    * outside the window.
    */
-  trajectory(body: BodyId, adapter: { daysSinceJ2000Tt(timeUtcMs: number): number }, rotation?: IauRotationElements): Trajectory;
+  trajectory(body: BodyId, adapter: { daysSinceJ2000Tt(timeUtcMs: number): number }, rotation?: IauRotationElements, moonData?: MoonDataSelection): Trajectory;
+  /** The state source of a fitted moon: with a scene's `moonData` it reads that scene's system for this centre, else this one. */
   binding(body: BodyId, rotation?: IauRotationElements): StateSourceBinding;
   /** What a mapped moon's record says about its position, with its own worst figure from the fit check. */
   position(label: string, worstM?: number, span?: TimeBounds): ReturnType<typeof createProvenance>;
@@ -159,7 +162,14 @@ export interface MappedMoonFacts {
   readonly dimensionsNote?: string;
 }
 
-export function createMoonSystem(config: MoonSystemConfig): MoonSystem {
+/** The set of the scene's own system for this centre; throws `NotLoadedError` while that has not loaded (a scene never falls back to the process-wide system). */
+function sceneEphemeris(config: MoonSystemConfig, moonData: MoonDataSelection): ChebyshevEphemeris {
+  const system = moonData.system(config.centre);
+  if (system === undefined) throw new NotLoadedError(`${config.centreLabel}'s moon fits are not loaded in this scene`);
+  return system.ephemeris();
+}
+
+export function createMoonSystem(config: MoonSystemConfig, onChange?: () => void): MoonSystem {
   let installed: ChebyshevEphemeris | null = null;
   let loadIndex = config.loadIndex;
   /** The set built from the index, shared by every request (the index is read once); `held` is true when a set was handed in whole by `install`. */
@@ -177,32 +187,24 @@ export function createMoonSystem(config: MoonSystemConfig): MoonSystem {
     return installed;
   };
 
-  const decodeInto = async (target: ChebyshevEphemeris, items: readonly { body: BodyId; path: string }[], bytes: readonly Uint8Array[]): Promise<void> => {
-    let sliceStarted = performance.now();
-    for (let i = 0; i < items.length; i += 1) {
-      target.addChunk(items[i].body, items[i].path, bytes[i]);
-      if (performance.now() - sliceStarted > DECODE_SLICE_MS) {
-        await new Promise((resolve) => setTimeout(resolve, 0));
-        sliceStarted = performance.now();
-      }
-    }
-  };
-
   const reset = (): void => { building = null; added = new Set(); fetching = new Map(); };
 
   const indexSet = (): Promise<ChebyshevEphemeris> => {
     building ??= (async () => {
-      if (loadIndex === undefined) throw new Error(`${config.centreLabel}'s moon positions are not provided: pass the astraeus-data-${config.centre} package to mount (data: [...]), or call provideIndex`);
-      return new ChebyshevEphemeris(parseEphemerisIndex(await loadIndex()));
+      const reader = loadIndex;
+      if (reader === undefined) throw new Error(`${config.centreLabel}'s moon positions are not provided: pass the astraeus-data-${config.centre} package to mount (data: [...]), or call provideIndex`);
+      // The parsed index is shared by every system of this source; the set (what this system has loaded) is its own.
+      return new ChebyshevEphemeris(await sharedIndex(reader, async () => parseEphemerisIndex(await reader())));
     })();
     const own = building;
     own.catch(() => { if (building === own) building = null; });
     return own;
   };
 
-  /** Fetches and decodes the chunks of `items` the set does not hold and no request is already fetching; resolves when all of them are in. */
+  /** Fetches and decodes the chunks of `items` the set does not hold and no request is already fetching; resolves when all of them are in. The decoded bytes come from the source's shared store. */
   const ensureChunks = async (set: ChebyshevEphemeris, items: readonly { body: BodyId; path: string }[], request: MoonSystemLoad): Promise<void> => {
     const fetchBytes = request.fetchBytes ?? fetchBytesOf;
+    const source = loadIndex!;
     const waiting: Promise<void>[] = [];
     const mine: { body: BodyId; path: string }[] = [];
     for (const item of items) {
@@ -211,9 +213,19 @@ export function createMoonSystem(config: MoonSystemConfig): MoonSystem {
       else if (!added.has(item.path) && !mine.some(({ path }) => path === item.path)) mine.push(item);
     }
     if (mine.length > 0) {
+      const decoder = sharedDecoder(source, () => new ChebyshevEphemeris(set.index));
+      let sliceStarted = performance.now();
       const batch = (async () => {
-        await decodeInto(set, mine, await Promise.all(mine.map(({ path }) => fetchBytes(request.chunkUrls[path]!))));
-        for (const { path } of mine) added.add(path);
+        const chunks = await Promise.all(mine.map(({ body, path }) => sharedChunk(source, request.chunkUrls[path]!, async () => {
+          const bytes = await fetchBytes(request.chunkUrls[path]!);
+          const chunk = decoder.decodeChunkFor(body, path, bytes);
+          if (performance.now() - sliceStarted > DECODE_SLICE_MS) {
+            await new Promise((resolve) => setTimeout(resolve, 0));
+            sliceStarted = performance.now();
+          }
+          return chunk;
+        })));
+        mine.forEach(({ body, path }, i) => { set.adoptChunk(body, path, chunks[i]); added.add(path); });
       })();
       for (const { path } of mine) fetching.set(path, batch);
       const done = (): void => { for (const { path } of mine) if (fetching.get(path) === batch) fetching.delete(path); };
@@ -258,6 +270,7 @@ export function createMoonSystem(config: MoonSystemConfig): MoonSystem {
     if (request.history !== undefined) await ensureChunks(set, historyChunks(set, request, request.history), request);
     await ensureChunks(set, afterChunks(set, request), request);
     if (!held) installed = set;
+    onChange?.();
     return set;
   };
 
@@ -267,12 +280,12 @@ export function createMoonSystem(config: MoonSystemConfig): MoonSystem {
     return 1000 * periodAboutBalanceS(state.positionKm, state.velocityKmS!, config.centreGmKm3S2, config.balancePoint, body === config.balancePoint?.body, partner.positionKm, partner.velocityKmS!);
   };
 
-  const trajectory = (body: BodyId, adapter: { daysSinceJ2000Tt(timeUtcMs: number): number }, rotation?: IauRotationElements): Trajectory => Object.freeze({
+  const trajectory = (body: BodyId, adapter: { daysSinceJ2000Tt(timeUtcMs: number): number }, rotation?: IauRotationElements, moonData?: MoonDataSelection): Trajectory => Object.freeze({
     body,
     stateAt(timeUtcMs: number, center: CenterId = config.centre): State {
       assertUtcUnixMs(timeUtcMs);
       if (center !== config.centre) throw new RangeError(`${body} is ${config.centreLabel}-centred; centre "${center}" is not offered, the state resolver recentres it`);
-      const fitted = ephemeris().stateOf(body, timeUtcMs);
+      const fitted = (moonData === undefined ? ephemeris() : sceneEphemeris(config, moonData)).stateOf(body, timeUtcMs);
       const p = fitted.positionKm;
       const v = fitted.velocityKmS!;
       let orientation;
@@ -286,7 +299,7 @@ export function createMoonSystem(config: MoonSystemConfig): MoonSystem {
     },
   });
 
-  const binding = (body: BodyId, rotation?: IauRotationElements): StateSourceBinding => Object.freeze<StateSourceBinding>({ body, create: (adapter) => trajectory(body, adapter, rotation) });
+  const binding = (body: BodyId, rotation?: IauRotationElements): StateSourceBinding => Object.freeze<StateSourceBinding>({ body, create: (adapter, moonData) => trajectory(body, adapter, rotation, moonData) });
 
   const position = (label: string, worstM: number | undefined, span: TimeBounds = MOON_FIT_SPAN) => createProvenance({
     sourceType: "ephemeris",
@@ -306,6 +319,7 @@ export function createMoonSystem(config: MoonSystemConfig): MoonSystem {
       installed = set;
       held = set !== null;
       reset();
+      onChange?.();
     },
     load: (request: MoonSystemLoad): Promise<ChebyshevEphemeris> => loadRequest(request),
     osculatingPeriodMs,

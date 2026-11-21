@@ -62,7 +62,9 @@ describe("addBody takes any listed moon", () => {
 
   it("an unused moon costs nothing: the built-in catalogue holds none of the others, and a scene without one does not carry a catalogue", () => {
     expect(catalogue.has("miranda")).toBe(false);
-    expect(definitionOf(new Scene().addBody("sun").addBody("uranus")).catalogue).toBeUndefined();
+    const own = definitionOf(new Scene().addBody("sun").addBody("uranus")).catalogue!;
+    expect(own.ids()).toEqual(catalogue.ids());
+    expect(own.moonData).toBeDefined();
     scene("sun", "uranus", "miranda");
     expect(catalogue.has("miranda")).toBe(false);
   });
@@ -79,12 +81,13 @@ describe("addBody takes any listed moon", () => {
     }
   });
 
-  it("places Miranda about Uranus from the committed fits during the Voyager 2 flyby (1986)", () => {
+  it("places Miranda about Uranus from the committed fits during the Voyager 2 flyby (1986)", async () => {
     const index = parseEphemerisIndex(readJson(`${moonDataFolder("uranus")}index.json`));
     const set = new ChebyshevEphemeris(index);
     for (const body of ["uranus", "miranda"]) set.addChunk(body, `${body}/1986.bin`, readBytes(`${moonDataFolder("uranus")}${body}/1986.bin`));
-    MOON_SYSTEMS.uranus!.install(set);
     const s = new Scene().addBody("sun").addBody("uranus").addBody("miranda");
+    definitionOf(s, [uranusData]).catalogue!.moonData!.system("uranus")!.install(set); // the scene's own moon data; the process-wide install no longer reaches a scene
+    await s.load({ data: [uranusData] });
     const state = s.stateOf("miranda", "1986-01-24T17:00:00Z");
     expect(Math.hypot(...state.positionKm)).toBeGreaterThan(1.2e5);
     expect(Math.hypot(...state.positionKm)).toBeLessThan(1.4e5);

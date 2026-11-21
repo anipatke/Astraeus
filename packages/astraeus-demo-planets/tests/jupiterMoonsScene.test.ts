@@ -1,11 +1,12 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { PICTURES } from "astraeus-data";
-import { JUPITER_CHUNK_URLS, JUPITER_MOON_IDS, JUPITER_WINDOW, jupiterIoScene } from "../src/experiences/jupiter-io/jupiterIo";
+import { JUPITER_CHUNK_URLS, JUPITER_MOON_IDS, JUPITER_WINDOW, jupiterIoData, jupiterIoScene } from "../src/experiences/jupiter-io/jupiterIo";
 import { readBytes } from "./helpers/testIo.mjs";
 
 // O-025 T-098: the Jupiter scene draws every catalogued moon, ships and fetches only its window's fit chunks. Read through the public `Scene` reads (O-059 T-270);
 // what Jupiter's fits make of the window is the engine's tests/jupiterMoonsWindow.test.ts, and the rings are its tests too.
 const FOLDER = new URL("../../astraeus-data-jupiter/data/jupiter-moons/", import.meta.url).pathname;
+const REPO = new URL("../../../../", `file://${FOLDER}`).pathname;
 const MAPPED = ["io", "europa", "ganymede", "callisto"];
 
 describe("Jupiter's moons in the Jupiter scene", () => {
@@ -34,7 +35,15 @@ describe("Jupiter's moons in the Jupiter scene", () => {
     expect(shipped).toEqual(expect.arrayContaining(["s2021-j7/2016.bin", "s2021-j7/2015.bin"]));
   });
 
-  it("places every small moon from the fits inside the window", () => {
+  afterEach(() => { vi.unstubAllGlobals(); });
+
+  it("places every small moon from the fits inside the window", async () => {
+    // The scene reads only its own moon data, so it loads the package's chunks first (the file behind each chunk address stands in for the network).
+    vi.stubGlobal("fetch", async (url: string) => {
+      const bytes = readBytes(`${REPO}${url.split("?")[0]!.replace(/^\//, "")}`);
+      return { ok: true, status: 200, arrayBuffer: async () => bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength) };
+    });
+    await jupiterIoScene.load({ data: jupiterIoData });
     const distances = JUPITER_MOON_IDS.filter((id) => !MAPPED.includes(id)).map((id) => Math.hypot(...jupiterIoScene.stateOf(id, JUPITER_WINDOW.startUtcMs).positionKm));
     expect(distances).toHaveLength(111);
     // Metis about 128,000 km from Jupiter; the farthest irregular moons beyond 25 million km.

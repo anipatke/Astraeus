@@ -1,4 +1,5 @@
 import type { AstronomyAdapter } from "./astronomyAdapter";
+import type { MoonDataSelection } from "./moonData";
 import type { Provenance } from "./provenance";
 import type { TimeBounds, Trajectory } from "./trajectory";
 
@@ -53,7 +54,8 @@ export interface CelestialBodyDefinition {
 /** Binds a definition to the Trajectory that computes it in its parent's centre. */
 export interface StateSourceBinding {
   readonly body: BodyId;
-  create(adapter: AstronomyAdapter): Trajectory;
+  /** `moonData`, when given, is the one scene's moon data the source reads; without it a moon source reads the process-wide systems. */
+  create(adapter: AstronomyAdapter, moonData?: MoonDataSelection): Trajectory;
 }
 
 // Existing imports of the Earth and Moon constants keep working; the definitions are the one source.

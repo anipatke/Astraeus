@@ -14,9 +14,10 @@ export const ENGINE_EXAMPLE_DIR = join(root, "examples", "hello-scene", "dist");
 /**
  * Measured 1,652,588 B raw / 472,895 B gzip on 2026-11-01 (after O-051 T-218 to T-220), plus 5%, rounded up to the next 1,000 bytes (owner decision, 2026-11-01).
  * Reset 2026-11-10 (owner decision "Reset limit, add fast test", I-164, after O-065): measured 1,745,198 B raw / 501,483 B gzip, plus 5%, rounded up to the next 1,000 bytes.
+ * Raised 2026-11-22 to 1,836,000 B raw (owner decision "size option a": a small raise of 3,000 B, I-191, after O-084 gave each scene its own moon data, measured 1,833,801 B raw / 524,620 B gzip); gzip unchanged.
  * `packages/astraeus-site/tests/packagePacks.test.ts` (right after the package build it owns) builds the example and holds it to this limit in `npm test`.
  */
-export const ENGINE_LIMIT = { rawLimit: 1_833_000, gzipLimit: 527_000 };
+export const ENGINE_LIMIT = { rawLimit: 1_836_000, gzipLimit: 527_000 };
 
 /** The plain example's first download against the engine limit. Returns { ok, raw, gzip, rawLimit, gzipLimit, problems }. */
 export function checkEngineBudget({ exampleDir = ENGINE_EXAMPLE_DIR, limit = ENGINE_LIMIT } = {}) {

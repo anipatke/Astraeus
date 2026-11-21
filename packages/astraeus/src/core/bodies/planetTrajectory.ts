@@ -64,5 +64,15 @@ export function barycentreOffsetKm(system: BarycentreOffsetSource): (timeUtcMs: 
  */
 export function planetBinding(planet: PlanetId, rotation: IauRotationElements, system?: BarycentreOffsetSource): StateSourceBinding {
   const offsetKm = system === undefined ? undefined : barycentreOffsetKm(system);
-  return Object.freeze<StateSourceBinding>({ body: planet, create: (adapter) => createPlanetSunTrajectory(planet, rotation, adapter, offsetKm) });
+  return Object.freeze<StateSourceBinding>({
+    body: planet,
+    create: (adapter, moonData) => {
+      if (moonData === undefined) return createPlanetSunTrajectory(planet, rotation, adapter, offsetKm);
+      // A scene's planet reads only its own scene's system (the planet's id is its moon system's centre); none loaded there leaves it at the barycentre.
+      return createPlanetSunTrajectory(planet, rotation, adapter, (timeUtcMs) => {
+        const own = moonData.system(planet);
+        return own === undefined ? null : barycentreOffsetKm(own)(timeUtcMs);
+      });
+    },
+  });
 }
