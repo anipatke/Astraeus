@@ -23,6 +23,8 @@ import { moonDataFolder } from "./moonData";
 import { AstraeusScene } from "../src/api/AstraeusScene";
 import { mount } from "../src/api/mount";
 import { Scene } from "../src/api/scene";
+import { customBlock } from "../src/shelf/customBlock/factory";
+import { panel } from "../src/shelf/panel/factory";
 import { viewerHandleOf, type ViewerHandle } from "../src/api/viewerHandle";
 import { ViewerLink, type ViewerChange, type CameraPose } from "../src/api/viewerLink";
 import type { SelectionChange } from "../src/api/viewerSelection";
@@ -319,6 +321,41 @@ describe.each(PAIRINGS)("two viewers on one page: $name", (pairing) => {
     title(a).dispatchEvent(new window.KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
     await vi.waitFor(() => expect(panelOf(a)).toBeNull());
     expect(panelOf(b)).not.toBeNull();
+  });
+
+  it("API-03: one shelf panel descriptor shared by two viewers gives each its own button, panel, control and custom element: A's open, setOpen, onOpen and element touch A only", async () => {
+    const body = customBlock({ id: "notes-body" });
+    const notes = panel({ id: "notes", button: { label: "Notes" }, title: "Notes", blocks: [body] });
+    const a = await pairing.first.open({ scene: makeScene().addParts([notes]) });
+    open.push(a);
+    const b = await pairing.second.open({ scene: makeScene().addParts([notes]) });
+    open.push(b);
+    const button = (v: Viewer) => v.element.querySelector<HTMLElement>('[data-story-button="notes"]')!;
+    const panelOf = (v: Viewer) => v.element.querySelector<HTMLElement>("[data-shelf-panel]");
+    const heardA: unknown[] = [];
+    const heardB: unknown[] = [];
+    a.handle.part(notes).onOpen((change) => heardA.push(change));
+    b.handle.part(notes).onOpen((change) => heardB.push(change));
+    expect(a.handle.part(body).element).toBeInstanceOf(HTMLElement);
+    expect(a.handle.part(body).element).not.toBe(b.handle.part(body).element);
+    button(a).click();
+    await vi.waitFor(() => expect(panelOf(a)).not.toBeNull());
+    expect(panelOf(b)).toBeNull();
+    expect([a.handle.part(notes).open, b.handle.part(notes).open]).toEqual([true, false]);
+    expect([heardA, heardB]).toEqual([[{ part: "notes", open: true }], []]);
+    expect(a.element.contains(a.handle.part(body).element!)).toBe(true);
+    expect(b.element.contains(a.handle.part(body).element!)).toBe(false);
+    b.handle.part(notes).setOpen(true);
+    await vi.waitFor(() => expect(panelOf(b)).not.toBeNull());
+    expect(panelOf(a)).not.toBeNull();
+    expect([heardA.length, heardB.length]).toEqual([1, 0]);
+    expect(panelOf(a)!.id).not.toBe(panelOf(b)!.id);
+    // Escape pressed inside A closes A's panel only
+    button(a).dispatchEvent(new window.KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
+    await vi.waitFor(() => expect(panelOf(a)).toBeNull());
+    expect(panelOf(b)).not.toBeNull();
+    expect(heardA).toEqual([{ part: "notes", open: true }, { part: "notes", open: false }]);
+    expect(heardB).toEqual([]);
   });
 
   it("unmounting A leaves B's handle working and B's page in place", async () => {

@@ -19,7 +19,7 @@ export interface Panels {
   readonly closePopup: (id?: string) => void;
   readonly togglePopup: (id: string) => void;
   readonly chooseInDrawer: (drawer: "menu" | "timeline") => void;
-  readonly viewSwitch: (dropsCard: boolean, dropsStory: boolean) => void;
+  readonly viewSwitch: (dropsCard: boolean, dropsStory: boolean, dropsShelf?: boolean) => void;
 }
 
 /**
@@ -61,7 +61,7 @@ export function usePanels(layout: Layout, viewer: RefObject<Element | null>, onE
   const openPopup = useCallback((id: string) => dispatch({ type: "openPopup", id }), []);
   const closePopup = useCallback((id?: string) => dispatch(id === undefined ? { type: "closePopup" } : { type: "closePopup", id }), []);
   const chooseInDrawer = useCallback((drawer: "menu" | "timeline") => dispatch({ type: "chooseInDrawer", drawer }), []);
-  const viewSwitch = useCallback((dropsCard: boolean, dropsStory: boolean) => dispatch({ type: "viewSwitch", dropsCard, dropsStory }), []);
+  const viewSwitch = useCallback((dropsCard: boolean, dropsStory: boolean, dropsShelf = false) => dispatch({ type: "viewSwitch", dropsCard, dropsStory, dropsShelf }), []);
   const toggle = useCallback((occupant: Occupant) => dispatch(latestOpen(latest.current.state, occupant) ? { type: "close", occupant } : { type: "open", occupant }), []);
   const set = useCallback((occupant: Occupant, wanted: boolean) => dispatch({ type: wanted ? "open" : "close", occupant }), []);
   const togglePopup = useCallback((id: string) => dispatch(latest.current.state.popup === id ? { type: "closePopup", id } : { type: "openPopup", id }), []);
@@ -69,7 +69,14 @@ export function usePanels(layout: Layout, viewer: RefObject<Element | null>, onE
 }
 
 function latestOpen(state: PanelState, occupant: Occupant): boolean {
-  return occupant === "about" || occupant === "card" || occupant === "moons" ? state.left === occupant : state[occupant];
+  switch (occupant) {
+    case "story":
+    case "developer":
+    case "menu":
+    case "timeline": return state[occupant];
+    // The left place's occupants (About, the card, moons, a shelf panel).
+    default: return state.left === occupant;
+  }
 }
 
 /**

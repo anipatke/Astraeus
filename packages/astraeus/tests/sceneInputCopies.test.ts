@@ -1,7 +1,7 @@
 // O-059 repair of I-143 (API-04): every `Scene` call that takes an object keeps its own copy of it. One row per call, each input alone, on made-up data (ARCH-03):
 // editing the caller's object after the call changes nothing the scene reads, checks or builds, and one object given to two scenes keeps them apart.
 import { describe, expect, it } from "vitest";
-import { Scene, earth, moon, solarSystemScale, sun } from "astraeus";
+import { Scene, customBlock as shelfBlock, earth, moon, panel as shelfPanel, solarSystemScale, sun } from "astraeus";
 import { catalogue } from "../src/assets/catalogue";
 import { createOrbAstronomyAdapter } from "../src/core/astronomyAdapter";
 import { createStateResolver } from "../src/core/stateResolver";
@@ -60,6 +60,7 @@ const ROWS: readonly Row[] = [
   { name: "addEvents (events, options)", scene: () => base(), input: () => ({ events: [{ id: "e1", label: "E1", time: T0 + 5 * MIN, type: "burn", object: "probe" }], options: { provenance: prov() } }), apply: (s, i: { events: never; options: never }) => s.addEvents(i.events, i.options) },
   { name: "addStoryPanels", scene: () => base(), input: () => [panel("by-event", { event: "ev" }), panel("by-anchor", { anchor: "fix-a" }), panel("by-time", { time: new Date(T0 + 5 * MIN) })], apply: (s, i) => s.addStoryPanels(i) },
   { name: "setStoryPanelPlayback", scene: () => base().addStoryPanels([panel("by-event", { event: "ev" }) as never]), input: () => ({ pauseSeconds: 3, autoOpen: false }), apply: (s, i) => s.setStoryPanelPlayback(i) },
+  { name: "addParts", scene: () => base(), input: () => ({ id: "notes", label: "Notes", shortLabel: "N", title: "Notes panel", block: "notes-body" }), apply: (s, i: { id: string; label: string; shortLabel: string; title: string; block: string }) => s.addParts([shelfPanel({ id: i.id, button: { label: i.label, shortLabel: i.shortLabel }, title: i.title, blocks: [shelfBlock({ id: i.block })] })]) },
   { name: "setTimeline", scene: () => base(), input: () => ({ start: T0, end: T0 + 60 * MIN, rates: [10, 100], rate: 100, loop: true }), apply: (s, i) => s.setTimeline(i) },
   { name: "setSwitches", scene: () => base(), input: () => ({ orbitLines: { place: "top-bar" }, labels: { place: "panel", on: false } }), apply: (s, i) => s.setSwitches(i) },
   { name: "setViews (views, options)", scene: () => base(), input: () => ({ views: [{ id: "a", label: "A", objects: ["probe"] }, { id: "all", label: "All" }], options: { place: "panel", start: "all" } }), apply: (s, i: { views: never; options: never }) => s.setViews(i.views, i.options) },

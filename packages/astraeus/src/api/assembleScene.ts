@@ -21,6 +21,7 @@ import type { BodySetPlan } from "./planBodySets";
 import type { MoonPanelPlan } from "./planMoonPanel";
 import type { PickerPlan } from "./planPicker";
 import type { AboutPlan } from "./planAbout";
+import type { PartPlan } from "./planParts";
 import type { PlacesPlan } from "./planPlaces";
 import { groupLayersEntry, lateGroups, type GroupPlan } from "./planGroups";
 import { autoPaths, checkNamedReadouts, checkReadouts, pathCover, type Tracked } from "./planPaths";
@@ -40,6 +41,7 @@ export interface ScenePlanners {
   readonly moonPanel: MoonPanelPlan;
   readonly picker: PickerPlan;
   readonly about: AboutPlan;
+  readonly parts: PartPlan;
   readonly places: PlacesPlan;
   readonly story: StoryPlan;
   readonly timeline: TimelinePlan;
@@ -126,6 +128,7 @@ export function assembleScene(parts: ScenePlanners, data: readonly DataSource[])
   // The lines read planet positions; when the planet series are not loaded yet (a consumer's mount), they are drawn in `prepare`, once the series are in. The viewer draws only after `prepare` resolves.
   const sunPaths: PathLayer[] = deferredRead<PathLayer[]>(ids, window, fault, [], () => plan.earlySunPaths(sunOrbitIds, startUtcMs, planetSeriesLoaded()));
   const storyPanels = story.panels(window, trackedMap.values(), [...plan.bodies.keys(), ...trackedMap.keys(), ...groupPlan.groups.keys(), ...bodySets.memberIds()], [...skyFigures.figures.keys()]);
+  parts.parts.checkAgainst(storyPanels);
   groupPlan.check(ids);
   bodySets.check({ ids, catalogue: plan.catalogue, orbits: plan.orbits });
   // A clump near a body reads its position; with the planet series not loaded yet, those groups are built in `prepare` (the viewer draws only after it resolves).
@@ -179,8 +182,9 @@ export function assembleScene(parts: ScenePlanners, data: readonly DataSource[])
     ...viewPlan.switchesEntry(),
     ...parts.picker.entry(),
     ...parts.about.entry(),
+    ...parts.parts.entry(),
     ...(parts.look === undefined ? {} : { look: parts.look }),
-    ...viewPlan.viewsEntry({ objects: [...trackedMap.keys(), ...ids, ...groupPlan.groups.keys()], events: story.events.map(({ id }) => id) }, storyPanels),
+    ...viewPlan.viewsEntry({ objects: [...trackedMap.keys(), ...ids, ...groupPlan.groups.keys()], events: story.events.map(({ id }) => id) }, storyPanels, parts.parts.ids),
     ...viewEntries(timeline, camera, fit?.read, pathCover(trackedMap.values(), sunCentred, ids[0]!)),
     ...startViewEntry(camera),
     trackedBodies: tracked,

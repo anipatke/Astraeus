@@ -8,7 +8,8 @@ import { ScaleControl } from "../ScaleControl";
 import { SwitchControl, type ExperienceSwitch } from "../SwitchControl";
 import type { ScaleChoice, ScaleId } from "../scaleModel";
 import { SCALE_CHOICES } from "../scaleModel";
-import { buildBarItems, engineItem, ENGINE_PRIORITY, switchItem, titleItem, type BarForm, type BarItem, type Ghost } from "./barItems";
+import { StoryButton, type StoryButtonSpec } from "../StoryButton";
+import { buildBarItems, engineItem, ENGINE_PRIORITY, storyItem, switchItem, titleItem, type BarForm, type BarItem, type Ghost } from "./barItems";
 import { TitlePlace, type BarEntry, type TitleAction } from "./Bar";
 
 type ObjectInput = Parameters<typeof objectControlParts>[0];
@@ -27,6 +28,8 @@ export interface BarEntriesInput extends ObjectInput {
   readonly switcher?: ExperienceSwitch | undefined;
   readonly displaySwitches?: readonly DisplaySwitchItem[] | undefined;
   readonly viewChoice?: ViewChoice | undefined;
+  /** The story's own buttons (shelf panels the showing view shows), in the story's order. */
+  readonly storyButtons?: readonly StoryButtonSpec[] | undefined;
   /** The moons button as the shell draws it (null: no moons list) and the planet's name for measuring it. */
   readonly moonsToggle: ReactNode;
   readonly moonsLabel: string | undefined;
@@ -53,6 +56,11 @@ function leadEntries(input: BarEntriesInput): readonly BarEntry[] {
   if (switcher !== undefined && switcher.options.length > 1) entries.push(entry(switchItem("picker-switch", switcher.options), (form) => <SwitchControl key="picker-switch" choice={switcher} form={withForm(form)} />));
   if (views !== undefined && views.place === "top-bar" && views.options.length > 1) entries.push(entry(switchItem("views", views.options), (form) => <ViewButtons key="views" choice={views} form={withForm(form)} />));
   return entries;
+}
+
+/** The story's buttons, in the order the scene added its parts; each leaves the row from the end of that order (fit rule step 5). */
+function storyEntries(input: BarEntriesInput): readonly BarEntry[] {
+  return (input.storyButtons ?? []).map((spec, index) => entry(storyItem(`story-${spec.id}`, index + 1, spec.label, spec.shortLabel), (form) => <StoryButton key={`story-${spec.id}`} spec={spec} form={form} />));
 }
 
 /** The engine controls in row order: object picker, Info, camera buttons, related objects, scale, display switches. */
@@ -86,7 +94,7 @@ function trailingEntries(input: BarEntriesInput): readonly BarEntry[] {
 
 /** The ordered bar entries: title, the host's picker, the views, then the engine controls by their row order, then the menu button. */
 export function barEntries(input: BarEntriesInput): readonly BarEntry[] {
-  const parts = [...leadEntries(input), ...controlEntries(input), ...trailingEntries(input)];
+  const parts = [...leadEntries(input), ...storyEntries(input), ...controlEntries(input), ...trailingEntries(input)];
   const items = buildBarItems({
     title: parts.find((part) => part.kind === "title"),
     switches: parts.filter((part) => part.kind === "switch"),

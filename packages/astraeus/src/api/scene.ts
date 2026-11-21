@@ -28,6 +28,8 @@ import { MoonPanelPlan } from "./planMoonPanel";
 import { PickerPlan } from "./planPicker";
 import type { PickerInput } from "./pickerInput";
 import { AboutPlan } from "./planAbout";
+import { PartPlan } from "./planParts";
+import type { PanelPart } from "../shelf/part";
 import type { AboutInput } from "./aboutInput";
 import { PlacesPlan } from "./planPlaces";
 import { SkyFigurePlan } from "./planSkyFigures";
@@ -224,6 +226,7 @@ export class Scene {
   readonly #skyFigures = new SkyFigurePlan((id) => this.#taken(id));
   readonly #picker = new PickerPlan();
   readonly #about = new AboutPlan();
+  readonly #parts = new PartPlan();
   readonly #story = new StoryPlan();
   readonly #timeline = new TimelinePlan();
   readonly #viewPlan = new ViewPlan();
@@ -282,7 +285,7 @@ export class Scene {
 
   /** The views the scene names (`setViews`): the id of the opening view (`startId`), where the choice shows and each view's id, label and the `objects`, `events` and `panels` it shows (ids, as the viewer resolves them: what the view names plus whatever no view names); undefined when none were named. Checks the ids as `mount` does, so a bad one throws `bad-view`. A fresh frozen object on every read. */
   get views(): SceneViewsRead | undefined {
-    return this.#viewPlan.read(() => ({ objects: [...this.#tracked.keys(), ...this.#plan.bodies.keys(), ...this.#groupPlan.groups.keys()], events: this.events.map(({ id }) => id), panels: this.panels.map(({ id }) => id) }));
+    return this.#viewPlan.read(() => ({ objects: [...this.#tracked.keys(), ...this.#plan.bodies.keys(), ...this.#groupPlan.groups.keys()], events: this.events.map(({ id }) => id), panels: [...this.panels.map(({ id }) => id), ...this.#parts.ids] }));
   }
 
   /** The scale choices the viewer will offer, in order, as ids ("true-scale", "readable-scale", "solar-system"); the first is the opening scale and `setScale(.., { only: true })` leaves just that one. */
@@ -409,6 +412,18 @@ export class Scene {
   setAbout(input: AboutInput): this {
     this.#editable();
     this.#about.set(input);
+    return this;
+  }
+
+  /**
+   * Adds story parts from the shelf (today the `panel`); each panel puts a button in the bar's story group, in the order added, and opens its panel in the left place. Appends; an id (a panel's or a block's) already used by a part or block of this scene throws `duplicate-id`,
+   * and a value no shelf factory made throws `bad-part`. A part id listed in some `ViewInput.panels` shows only in those views. Hear and set a part through `handle.part(descriptor)`.
+   * @example
+   * scene.addParts([panel({ id: "notes", button: { label: "Notes" }, title: "Notes", blocks: [customBlock({ id: "notes-body" })] })]);
+   */
+  addParts(parts: readonly PanelPart[]): this {
+    this.#editable();
+    this.#parts.add(parts);
     return this;
   }
 
@@ -649,6 +664,6 @@ export class Scene {
 
   /** The app's plug-in contract for this scene (`assembleScene.ts`), reached through `definitionOf`. Throws if the scene is empty or a body needs a data package not passed in `data`. */
   #definition(data: readonly DataSource[]): ExperienceDefinition {
-    return assembleScene({ plan: this.#plan, tracked: this.#tracked, groupPlan: this.#groupPlan, bodySets: this.#bodySets, moonPanel: this.#moonPanel, picker: this.#picker, about: this.#about, places: this.#places, story: this.#story, timeline: this.#timeline, viewPlan: this.#viewPlan, skyFigures: this.#skyFigures, camera: this.camera, scale: this.#scale, scaleOnly: this.#scaleOnly, look: this.#look, bodyReadouts: this.#bodyReadouts }, data);
+    return assembleScene({ plan: this.#plan, tracked: this.#tracked, groupPlan: this.#groupPlan, bodySets: this.#bodySets, moonPanel: this.#moonPanel, picker: this.#picker, about: this.#about, parts: this.#parts, places: this.#places, story: this.#story, timeline: this.#timeline, viewPlan: this.#viewPlan, skyFigures: this.#skyFigures, camera: this.camera, scale: this.#scale, scaleOnly: this.#scaleOnly, look: this.#look, bodyReadouts: this.#bodyReadouts }, data);
   }
 }

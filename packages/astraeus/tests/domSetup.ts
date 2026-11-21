@@ -17,6 +17,7 @@ import type { DisplaySwitchItem } from "../src/shell/DisplaySwitches";
 import type { ExperienceSwitch } from "../src/shell/SwitchControl";
 import type { ScaleChoice } from "../src/shell/scaleModel";
 import type { AboutInput } from "../src/api/aboutInput";
+import type { ShelfPart, ShelfRuntime } from "../src/app/shelfContract";
 
 (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
 
@@ -36,6 +37,10 @@ export interface Mounted {
   /** Asks the shell to open a story panel, as a scene marker press does. */
   readonly requestPanel: (id: string) => void;
   readonly scale: () => string;
+  /** Shows these shelf parts from now on, as a view switch would (the parts the showing view shows). */
+  readonly showParts: (parts: readonly ShelfPart[]) => void;
+  /** What the shell reported as the open shelf panel, in order (null: none). */
+  readonly shelfChanges: (string | null)[];
   readonly unmount: () => void;
 }
 
@@ -55,6 +60,9 @@ export interface MountOptions {
   readonly switcher?: ExperienceSwitch;
   /** Made-up display switches (their `on` is the start; pressing one flips it, as the app would). */
   readonly displaySwitches?: readonly DisplaySwitchItem[];
+  /** Made-up shelf parts (`Scene.addParts`): story buttons in the bar and panels in the left place, and what their views are handed. */
+  readonly shelfParts?: readonly ShelfPart[];
+  readonly shelfRuntime?: ShelfRuntime;
   /** A select request as `App` makes it (`quiet`: a story panel's select), applied once at the start. */
   readonly selectRequest?: { readonly id: string; readonly serial: number; readonly quiet?: boolean };
 }
@@ -115,7 +123,7 @@ export function $(container: ParentNode, selector: string): HTMLElement {
   return found;
 }
 
-interface Probe { selected: string; holds: number; scale: string; refresh: () => void; requestPanel: (id: string, host?: boolean) => void; panelChanges: Mounted["panelChanges"] }
+interface Probe { shelfChanges: (string | null)[]; showParts: (parts: readonly ShelfPart[]) => void; selected: string; holds: number; scale: string; refresh: () => void; requestPanel: (id: string, host?: boolean) => void; panelChanges: Mounted["panelChanges"] }
 
 function Host({ options, clock, probe }: { readonly options: MountOptions; readonly clock: SimulationClock; readonly probe: Mounted["cameraRequests"] & Probe }) {
   const [panelRequest, setPanelRequest] = useState<{ id: string; serial: number; host?: boolean } | null>(null);
@@ -126,6 +134,8 @@ function Host({ options, clock, probe }: { readonly options: MountOptions; reado
   const refresh = () => setSnapshot(clock.snapshot());
   probe.refresh = refresh;
   probe.requestPanel = (id, host) => setPanelRequest((previous) => ({ id, serial: (previous?.serial ?? 0) + 1, ...(host === true ? { host } : {}) }));
+  const [shelfParts, setShelfParts] = useState<readonly ShelfPart[] | undefined>(options.shelfParts);
+  probe.showParts = setShelfParts;
   const [flipped, setFlipped] = useState<ReadonlySet<string>>(new Set());
   const displaySwitches = options.displaySwitches?.map((item) => ({ ...item, on: item.on !== flipped.has(item.id), onToggle: () => { item.onToggle(); setFlipped((was) => new Set(was.has(item.id) ? [...was].filter((id) => id !== item.id) : [...was, item.id])); } }));
   const experience = options.experience ?? syntheticDefinition.experience;
@@ -157,6 +167,9 @@ function Host({ options, clock, probe }: { readonly options: MountOptions; reado
     storyPanelSettings: options.storyPanelSettings,
     switcher: options.switcher,
     about: options.about,
+    shelfParts,
+    shelfRuntime: options.shelfRuntime,
+    onOpenShelfChange: (id: string | null) => { probe.shelfChanges.push(id); },
     displaySwitches,
     children: null,
   });
@@ -174,6 +187,7 @@ export function mountShell(options: MountOptions = {}): Mounted {
   clock.setRate(experience.rates?.[0] ?? syntheticDefinition.clock.rate);
   const probe = [] as unknown as Mounted["cameraRequests"] & Probe;
   probe.panelChanges = [];
+  probe.shelfChanges = [];
   probe.holds = 0;
   act(() => { root.render(createElement(Host, { options, clock, probe })); });
   return {
@@ -187,6 +201,8 @@ export function mountShell(options: MountOptions = {}): Mounted {
     panelChanges: probe.panelChanges,
     hostPanel: (id) => { act(() => probe.requestPanel(id, true)); },
     scale: () => probe.scale,
+    showParts: (parts) => { act(() => probe.showParts(parts)); },
+    shelfChanges: probe.shelfChanges,
     unmount: () => { act(() => root.unmount()); container.remove(); },
   };
 }

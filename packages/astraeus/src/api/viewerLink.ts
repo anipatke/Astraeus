@@ -11,6 +11,10 @@ import { ViewerPanels, type PanelChange } from "./viewerPanels";
 import { ViewerFirstDraw } from "./viewerFirstDraw";
 import { ViewerPicker } from "./viewerPicker";
 import { ViewerAbout } from "./viewerAbout";
+import { ViewerParts } from "./viewerParts";
+import type { CustomBlockPart, PanelPart } from "../shelf/part";
+import type { CustomBlockControl } from "../shelf/customBlock/factory";
+import type { PanelControl } from "../shelf/panel/factory";
 import type { AboutInput } from "./aboutInput";
 import type { PickChange } from "./pickerInput";
 import { ViewerViews } from "./viewerViews";
@@ -150,6 +154,7 @@ export class ViewerLink implements ViewerPort {
   readonly #frame = new ViewerFirstDraw();
   readonly #picker = new ViewerPicker(this.#access);
   readonly #about = new ViewerAbout(this.#access);
+  readonly #parts = new ViewerParts(this.#access);
   #wait = newWait();
   /** What last moved the clock or the view, as published; a selection dropped by time or the view names it. */
   #mover: ViewerChangeCause = "playback";
@@ -166,6 +171,7 @@ export class ViewerLink implements ViewerPort {
     this.#camera.reset();
     this.#picker.reset(control);
     this.#about.reset(control);
+    this.#parts.reset(control);
     this.#zones.reset(); // nothing is known to be active yet: the first publish reports every zone the time is already inside
     this.#wait.done = true;
     this.#wait.resolve();
@@ -180,6 +186,7 @@ export class ViewerLink implements ViewerPort {
     this.#camera.reset();
     this.#picker.reset(undefined);
     this.#about.reset(undefined);
+    this.#parts.reset(undefined);
     this.#frame.reset();
     if (this.#wait.done && !this.#closed) this.#wait = newWait();
   }
@@ -203,6 +210,7 @@ export class ViewerLink implements ViewerPort {
     this.#camera.clearListeners();
     this.#frame.clearListeners();
     this.#picker.clearListeners();
+    this.#parts.clearListeners();
   }
 
   /**
@@ -265,6 +273,11 @@ export class ViewerLink implements ViewerPort {
   pickNow(): string | undefined { return this.#picker.pick; }
   watchPick(watcher: () => void): () => void { return this.#picker.watch(watcher); }
   picked(value: string): void { this.#picker.press(value); }
+
+  part(descriptor: PanelPart): PanelControl;
+  part(descriptor: CustomBlockPart): CustomBlockControl;
+  part(descriptor: PanelPart | CustomBlockPart): PanelControl | CustomBlockControl { return this.#parts.part(descriptor as PanelPart); }
+  partOpened(id: string, open: boolean): void { this.#parts.press(id, open); }
 
   setAbout(input: AboutInput): void { this.#about.setAbout(input); }
   aboutNow(): AboutInput | undefined { return this.#about.about; }

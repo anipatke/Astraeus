@@ -70,6 +70,8 @@ export type SceneErrorCode =
   | "bad-look"
   /** The About (`setAbout`) is malformed; the message names the field. */
   | "bad-about"
+  /** A shelf part is malformed: `panel` or `customBlock` given a bad shape, `addParts` given a value no shelf factory made, or `handle.part` given a part this viewer's scene does not hold. The message names the field. */
+  | "bad-part"
   /** An input field was given under a name it no longer has; the message names the old field and its replacement. */
   | "renamed";
 

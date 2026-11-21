@@ -78,6 +78,8 @@ export interface ViewerControl {
   readonly picker?: { readonly id: string; readonly values: readonly string[]; readonly start: string };
   /** The scene's About (`Scene.setAbout`) when the viewer attaches; absent without one. The link then holds the live About (the host's `setAbout`). */
   readonly about?: import("../api/aboutInput").AboutInput | undefined;
+  /** The shelf parts of this viewer: the ids of its panels and blocks, the elements made for its custom blocks, and whether a panel is open; absent without parts. */
+  readonly parts?: ShelfControl;
   /** The ids of the objects the showing view shows, which a host may point the camera at. */
   cameraTargets(): readonly string[];
   /** The camera as the viewer's view link writes it (an orbit view, or a sky view while looking out); undefined until the scene has drawn its first frame. */
@@ -90,6 +92,18 @@ export interface ViewerControl {
   setPanel(id: string | undefined): void;
   /** Asks the scene camera for a follow, focus or pose through its own request path (the same one a view's camera rule uses). */
   setCamera(request: CameraRequest): void;
+}
+
+/** What a viewer hands its link about the scene's shelf parts (`Scene.addParts`). */
+export interface ShelfControl {
+  /** The id of every panel and block, with its kind. */
+  readonly kinds: ReadonlyMap<string, "panel" | "customBlock">;
+  /** The element the viewer made for each custom block: alive from attach to detach. */
+  readonly elements: ReadonlyMap<string, HTMLElement>;
+  /** Whether the panel `id` is open now. */
+  isOpen(id: string): boolean;
+  /** Opens or closes the panel `id` (an id from `kinds`), as its button does; `isOpen` reads it at once and `partOpened` is not called for it. */
+  setOpen(id: string, open: boolean): void;
 }
 
 /** The viewer's side of the host link; the public API supplies the implementation (`ViewerLink`). */
@@ -114,6 +128,8 @@ export interface ViewerPort {
   aboutNow(): import("../api/aboutInput").AboutInput | undefined;
   /** Calls `watcher` when the About changes (the host's `setAbout`, or an attach or detach); returns the function that stops it. */
   watchAbout(watcher: () => void): () => void;
+  /** A visitor opened or closed the shelf panel `id` (or something that shares its place did); the link tells the host's `PanelControl.onOpen` listeners. */
+  partOpened(id: string, open: boolean): void;
   /** The scene has drawn its first frame; the link tells the host's `onFirstDraw` listeners. */
   firstDraw(): void;
 }

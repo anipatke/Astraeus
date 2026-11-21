@@ -17,6 +17,8 @@ import { requestObjectId, type ExperienceCameraPreset, type ExperienceConfig, ty
 import { InfoPanel } from "./InfoPanel";
 import { AboutPanel } from "./AboutPanel";
 import { useTitlePlace } from "./useTitlePlace";
+import { useShelfPanels } from "./useShelfPanels";
+import type { ShelfPart, ShelfRuntime } from "../app/shelfContract";
 import type { AboutInput } from "../api/aboutInput";
 import { infoView } from "./infoModel";
 import type { TimeLook } from "./timelineModel";
@@ -66,11 +68,12 @@ function MenuArea({ entries, fit, ...drawer }: { readonly entries: ComponentProp
   );
 }
 
-/** The left place: the About panel, the moons sheet and the card (the panel rule lets one be open). */
-function LeftArea({ about, aboutOpen, aboutPanelId, onAboutClose, moonPanel, moonsSheetId, moonsOpen, view, metrics, onClose, infoPanelId }: { readonly about: AboutInput | undefined; readonly aboutOpen: boolean; readonly aboutPanelId: string; readonly onAboutClose: () => void; readonly moonPanel: ReactNode; readonly moonsSheetId: string; readonly moonsOpen: boolean; readonly view: ComponentProps<typeof InfoPanel>["view"] | null; readonly metrics: readonly Metric[]; readonly onClose: () => void; readonly infoPanelId: string }) {
+/** The left place: the About panel, a shelf panel, the moons sheet and the card (the panel rule lets one be open). */
+function LeftArea({ shelfPanel, about, aboutOpen, aboutPanelId, onAboutClose, moonPanel, moonsSheetId, moonsOpen, view, metrics, onClose, infoPanelId }: { readonly shelfPanel: ReactNode; readonly about: AboutInput | undefined; readonly aboutOpen: boolean; readonly aboutPanelId: string; readonly onAboutClose: () => void; readonly moonPanel: ReactNode; readonly moonsSheetId: string; readonly moonsOpen: boolean; readonly view: ComponentProps<typeof InfoPanel>["view"] | null; readonly metrics: readonly Metric[]; readonly onClose: () => void; readonly infoPanelId: string }) {
   return (
     <Area name="left">
       {about !== undefined && aboutOpen && <AboutPanel about={about} onClose={onAboutClose} id={aboutPanelId} />}
+      {shelfPanel}
       {moonPanel !== null && <MoonsSheet id={moonsSheetId} open={moonsOpen}>{moonPanel}</MoonsSheet>}
       {view !== null && <InfoPanel view={view} metrics={metrics} onClose={onClose} id={infoPanelId} />}
     </Area>
@@ -126,6 +129,14 @@ interface Props {
   readonly storySeekNote?: { current: ((timeUtcMs: number) => void) | null };
   /** `origin` is required so a new selection path must say who chose: "visitor" (a menu choice, pick, preset or marker) or "move" (time or the view moved and the selection followed). */
   readonly onSelectionChange: (objectId: string, origin: SelectionOrigin) => void;
+  /** The shelf parts (`Scene.addParts`) the showing view shows, in the scene's order: each panel is a story button in the bar and a panel in the left place, drawn by the part's own view. */
+  readonly shelfParts?: readonly ShelfPart[] | undefined;
+  /** What the parts' views are handed (the elements made for custom blocks). */
+  readonly shelfRuntime?: ShelfRuntime | undefined;
+  /** A host call to open or close a shelf panel, applied once per `serial`. */
+  readonly shelfRequest?: { readonly id: string; readonly open: boolean; readonly serial: number } | null | undefined;
+  /** The open shelf panel changed (its id; null: none open). */
+  readonly onOpenShelfChange?: (id: string | null) => void;
   readonly scaleId: ScaleId;
   readonly onScaleChange: (id: ScaleId) => void;
   readonly scaleChoices?: readonly ScaleChoice[];
@@ -271,6 +282,10 @@ export function AstraeusShell({
   onScaleChange,
   scaleChoices,
   about,
+  shelfParts,
+  shelfRuntime,
+  shelfRequest,
+  onOpenShelfChange,
   switcher,
   displaySwitches,
   viewChoice,
@@ -526,6 +541,7 @@ export function AstraeusShell({
   const { view, metrics } = infoContent(experience, shownInfo, selectedObjectId, snapshot.timeUtcMs, metricsFor, timeLook);
 
   const { aboutOpen, titleAction } = useTitlePlace({ about, panels, aboutPanelId, infoPanelId, info: shownInfo, cardDrawn: view !== null, showObjectCard: () => showInfo({ kind: "object" }) });
+  const { storyButtons, shelfPanel } = useShelfPanels({ parts: shelfParts, runtime: shelfRuntime, panels, request: shelfRequest, onOpenChange: onOpenShelfChange });
   const moonsOpen = panels.state.left === "moons";
   const toggleMoons = () => panels.toggle("moons");
 
@@ -543,7 +559,7 @@ export function AstraeusShell({
     experience, timeUtcMs: snapshot.timeUtcMs, selectedObjectId, activePresetId, onSelectObject: selectObject, onCameraPreset: activatePreset,
     infoOpen: shownInfo?.kind === "object", onToggleInfo: () => (shownInfo?.kind === "object" ? panels.close("card") : showInfo({ kind: "object" })), infoPanelId,
     phone, selectedLabel: objectLabelOr(experience, selectedObjectId, "Controls"), about, titleAction,
-    scaleId, onScaleChange, scaleChoices, switcher, displaySwitches, viewChoice,
+    scaleId, onScaleChange, scaleChoices, switcher, displaySwitches, viewChoice, storyButtons,
     moonsToggle, moonsLabel: experience.moonFamilies?.planetLabel,
     developerPresent: developerTools !== undefined, developerDrawerId, developerMode, onDeveloperModeChange,
   });
@@ -560,7 +576,7 @@ export function AstraeusShell({
             <Bar entries={entries} fit={fitting.fit} rowRef={fitting.rowRef} ghostsRef={fitting.ghostsRef} phone={phone} menuOpen={panels.state.menu} drawerId={controlsDrawerId} onOpenChange={(open) => panels.set("menu", open)} swipeThresholdPx={phoneLayout.swipeThresholdPx} />
           </Area>
           <MenuArea entries={entries} fit={fitting.fit} id={controlsDrawerId} open={panels.state.menu} phone={phone} onOpenChange={(open) => panels.set("menu", open)} onItemChosen={() => panels.chooseInDrawer("menu")} swipeThresholdPx={phoneLayout.swipeThresholdPx} />
-          <LeftArea about={about} aboutOpen={aboutOpen} aboutPanelId={aboutPanelId} onAboutClose={() => panels.close("about")} moonPanel={moonPanel} moonsSheetId={moonsSheetId} moonsOpen={moonsOpen} view={view} metrics={metrics} onClose={() => panels.close("card")} infoPanelId={infoPanelId} />
+          <LeftArea shelfPanel={shelfPanel} about={about} aboutOpen={aboutOpen} aboutPanelId={aboutPanelId} onAboutClose={() => panels.close("about")} moonPanel={moonPanel} moonsSheetId={moonsSheetId} moonsOpen={moonsOpen} view={view} metrics={metrics} onClose={() => panels.close("card")} infoPanelId={infoPanelId} />
           <Area name="right">
             {story.openPanel !== null && <StoryPanelView panel={story.openPanel} holding={story.holding} onClose={closePanel} onContinue={story.continuePlayback} step={stepNav} />}
           </Area>

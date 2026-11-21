@@ -8,6 +8,7 @@ import { openClock } from "./openClock";
 import { createProvenance } from "../core/provenance";
 import type { ViewerControl, ViewerPort, ViewerState } from "./viewerPort";
 import { pickerSwitch } from "./listSwitch";
+import { useShelf } from "./useShelf";
 import { createSolarSystemScale, type ScalePolicy } from "../core/scalePolicy";
 import type { CameraRequest } from "./CameraController";
 import type { DebugReadout } from "./debugReadout";
@@ -313,6 +314,7 @@ export function App({ definition, writeTitle = true, address, developerTools, ho
   // The current view (App state, like the display switches). The shell's lists read one experience, filtered here once; the scene hides the same ids from `controls.viewHidden`.
   const [viewId, setViewId] = useState(() => startViewId(definition, search));
   const currentView = useMemo(() => viewById(definition.views, viewId), [definition.views, viewId]);
+  const shelf = useShelf(definition.parts, currentView, host);
   const viewExperience = useMemo(() => experienceInView(experience, definition.views, currentView), [experience, definition.views, currentView]);
   // Whether the sky is drawn: the look's `skyVisible`, live (a host's `setLook` changes it).
   const [skyVisible, setSkyVisible] = useState(runtime.sky.visible);
@@ -584,9 +586,9 @@ export function App({ definition, writeTitle = true, address, developerTools, ho
     hostAttached.current = true;
     shownKey.current = null; // the presentation is read afresh after each attach
     controls.current.groupLooks = groupLooks;
-    host.attach({ about: definition.about, ...(definition.picker === undefined ? {} : { picker: { id: definition.picker.id, values: definition.picker.options.map((option) => option.value), start: definition.picker.value } }), window: runtime.loopWindow, skyFigures: skyFigureReads(runtime.skyFigures, experience.skyFigures), events: experience.events, rates: definition.experience.rates, paced: runtime.pacing !== undefined, read: stateNow, seek: hostSeekTo, setRate: changeRate, playable: definition.experience.hideTimeline !== true, setPlaying: hostSetPlaying, views: viewIds, setView: chooseView, cameraTargets, readCamera, setCamera, setSelected: hostSetSelected, panels: panelIds, setPanel: hostSetPanel, scales: hostScales, setScale: hostSetScale, setLook: hostSetLook, setSwitch: hostSetSwitch, traceSkyFigure: hostTraceSkyFigure, clearSkyTrace: hostClearSkyTrace, groups: groupIds, groupLook: hostGroupLook, setGroupLook: hostSetGroupLook });
+    host.attach({ about: definition.about, ...(shelf.control === undefined ? {} : { parts: shelf.control }), ...(definition.picker === undefined ? {} : { picker: { id: definition.picker.id, values: definition.picker.options.map((option) => option.value), start: definition.picker.value } }), window: runtime.loopWindow, skyFigures: skyFigureReads(runtime.skyFigures, experience.skyFigures), events: experience.events, rates: definition.experience.rates, paced: runtime.pacing !== undefined, read: stateNow, seek: hostSeekTo, setRate: changeRate, playable: definition.experience.hideTimeline !== true, setPlaying: hostSetPlaying, views: viewIds, setView: chooseView, cameraTargets, readCamera, setCamera, setSelected: hostSetSelected, panels: panelIds, setPanel: hostSetPanel, scales: hostScales, setScale: hostSetScale, setLook: hostSetLook, setSwitch: hostSetSwitch, traceSkyFigure: hostTraceSkyFigure, clearSkyTrace: hostClearSkyTrace, groups: groupIds, groupLook: hostGroupLook, setGroupLook: hostSetGroupLook });
     return () => { hostAttached.current = false; host.detach(); };
-  }, [host, runtime, definition, hostSeekTo, changeRate, viewIds, chooseView, cameraTargets, readCamera, setCamera, hostSetSelected, panelIds, hostSetPanel, experience, hostSetPlaying, hostScales, hostSetScale, hostSetLook, hostSetSwitch, hostTraceSkyFigure, hostClearSkyTrace, groupLooks, groupIds, hostGroupLook, hostSetGroupLook]);
+  }, [host, runtime, definition, hostSeekTo, changeRate, viewIds, chooseView, cameraTargets, readCamera, setCamera, hostSetSelected, panelIds, hostSetPanel, experience, hostSetPlaying, hostScales, hostSetScale, hostSetLook, hostSetSwitch, hostTraceSkyFigure, hostClearSkyTrace, groupLooks, groupIds, hostGroupLook, hostSetGroupLook, shelf.control]);
 
   useEffect(() => {
     if (!developerMode) return undefined;
@@ -854,6 +856,10 @@ export function App({ definition, writeTitle = true, address, developerTools, ho
       scaleChoices={scaleChoices}
       switcher={definition.picker === undefined ? undefined : pickerSwitch(definition.picker, hostPick ?? definition.picker.value, choosePick)}
       about={about}
+      shelfParts={shelf.shown}
+      shelfRuntime={shelf.runtime}
+      shelfRequest={shelf.request}
+      onOpenShelfChange={shelf.onOpenChange}
       displaySwitches={displaySwitches}
       viewChoice={viewChoice}
       viewCamera={currentView === undefined ? undefined : { id: currentView.id, rule: currentView.camera }}

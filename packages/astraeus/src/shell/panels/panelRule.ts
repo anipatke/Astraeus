@@ -5,11 +5,15 @@
 export type Layout = "wide" | "phone";
 
 /** What can hold a place. `about` is the About panel; `card` is the object, event, window or place card; `popup` is any small pop-up (named by id, one at a time). */
-export type Occupant = "about" | "card" | "moons" | "story" | "developer" | "menu" | "timeline";
+export type Occupant = "about" | "card" | "moons" | ShelfOccupant | "story" | "developer" | "menu" | "timeline";
+
+/** A shelf panel (a story part, O-080) takes the left place under the name `shelf:` plus its id; the rule knows no more of it than that. */
+export type ShelfOccupant = `shelf:${string}`;
+const isShelf = (occupant: Occupant): occupant is ShelfOccupant => occupant.startsWith("shelf:");
 
 /** Which occupants are open. `left` is the shared left place; `popup` is the id of the one open pop-up. */
 export interface PanelState {
-  readonly left: "about" | "card" | "moons" | null;
+  readonly left: "about" | "card" | "moons" | ShelfOccupant | null;
   readonly story: boolean;
   readonly developer: boolean;
   /** The menu drawer (a phone's controls drawer; the bar's menu later). */
@@ -28,8 +32,8 @@ export type PanelAction =
   | { readonly type: "closePopup"; readonly id?: string }
   /** An item chosen inside the menu (or the timeline drawer): the drawer it was chosen in closes. */
   | { readonly type: "chooseInDrawer"; readonly drawer: "menu" | "timeline" }
-  /** A view switch dropped a card's object, or a story panel the view does not show. */
-  | { readonly type: "viewSwitch"; readonly dropsCard: boolean; readonly dropsStory: boolean }
+  /** A view switch dropped a card's object, a story panel the view does not show, or a shelf panel it does not show (`dropsShelf`). */
+  | { readonly type: "viewSwitch"; readonly dropsCard: boolean; readonly dropsStory: boolean; readonly dropsShelf?: boolean }
   | { readonly type: "escape" }
   | { readonly type: "outsidePress" };
 
@@ -44,6 +48,7 @@ export function topmost(state: PanelState): { readonly occupant: Occupant | "pop
 }
 
 function closeOccupant(state: PanelState, occupant: Occupant): PanelState {
+  if (isShelf(occupant)) return state.left === occupant ? { ...state, left: null } : state;
   switch (occupant) {
     case "about": return state.left === "about" ? { ...state, left: null } : state;
     case "card": return state.left === "card" ? { ...state, left: null } : state;
@@ -57,6 +62,7 @@ function closeOccupant(state: PanelState, occupant: Occupant): PanelState {
 
 function openOccupant(state: PanelState, occupant: Occupant, layout: Layout): PanelState {
   const phone = layout === "phone";
+  if (isShelf(occupant)) return { ...state, left: occupant, developer: phone ? false : state.developer };
   switch (occupant) {
     // Any occupant of the left place replaces the other one; on a phone it is a detail sheet, which also replaces the developer sheet. The story sheet stays under it.
     case "about":
@@ -71,6 +77,13 @@ function openOccupant(state: PanelState, occupant: Occupant, layout: Layout): Pa
   }
 }
 
+/** A view switch closes what the view no longer shows: a card, the story panel, a shelf panel. */
+function viewSwitched(state: PanelState, action: Extract<PanelAction, { type: "viewSwitch" }>): PanelState {
+  const card = action.dropsCard ? closeOccupant(state, "card") : state;
+  const story = action.dropsStory ? closeOccupant(card, "story") : card;
+  return action.dropsShelf === true && story.left !== null && isShelf(story.left) ? closeOccupant(story, story.left) : story;
+}
+
 /** The rule. Every row of the close table is one case in `panelRule.test.ts`. */
 export function reducePanels(state: PanelState, action: PanelAction, layout: Layout): PanelState {
   switch (action.type) {
@@ -79,10 +92,7 @@ export function reducePanels(state: PanelState, action: PanelAction, layout: Lay
     case "openPopup": return { ...state, popup: action.id };
     case "closePopup": return action.id === undefined || state.popup === action.id ? { ...state, popup: null } : state;
     case "chooseInDrawer": return closeOccupant(state, action.drawer);
-    case "viewSwitch": {
-      const card = action.dropsCard ? closeOccupant(state, "card") : state;
-      return action.dropsStory ? closeOccupant(card, "story") : card;
-    }
+    case "viewSwitch": return viewSwitched(state, action);
     case "escape": {
       const top = topmost(state);
       if (top === null) return state;

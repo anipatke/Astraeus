@@ -27,6 +27,8 @@ import { AstraeusScene } from "../src/api/AstraeusScene";
 import { SceneError } from "../src/api/errors";
 import { mount } from "../src/api/mount";
 import { Scene } from "../src/api/scene";
+import { customBlock } from "../src/shelf/customBlock/factory";
+import { panel } from "../src/shelf/panel/factory";
 import { SceneCamera } from "../src/api/planCamera";
 import { earth, mars, moon } from "../src/api/bodies";
 import { viewerHandleOf, type ViewerHandle } from "../src/api/viewerHandle";
@@ -142,6 +144,7 @@ const CALLS: Record<string, (handle: ViewerHandle) => void> = {
   setSwitch: (handle) => handle.setSwitch("labels", false),
   setPick: (handle) => handle.setPick("b"),
   setAbout: (handle) => handle.setAbout({ title: "A tarn" }),
+  part: (handle) => handle.part(customBlock({ id: "x" })),
   traceSkyFigure: (handle) => handle.traceSkyFigure("kite"),
   clearSkyTrace: (handle) => handle.clearSkyTrace("kite"),
   setGroupLook: (handle) => handle.setGroupLook("x", { color: "#123456" }),
@@ -493,6 +496,108 @@ describe.each([mountDriver, reactDriver(false)])("lifecycle: $name", (driver) =>
     expect(document.querySelector("[data-bar-title]")).toBeNull();
     flushSync(() => opened.handle!.setAbout({ title: "Fen" }));
     expect(document.querySelector("[data-bar-title]")!.textContent).toContain("Fen");
+    opened.unmount();
+  });
+
+  it("shelf parts (O-080 T-333): a panel is a story button and a left panel, handle.part gives a typed control (open, setOpen silent, onOpen visitors only), a custom block's element lives from ready to unmount, bad-part, call order, a rebuild, and not-mounted after unmount", async () => {
+    prepared.real = true; openNow();
+    const body = customBlock({ id: "gaps-body" });
+    const gapsPanel = panel({ id: "gaps", button: { label: "Kirkwood gaps", shortLabel: "Gaps" }, title: "The gaps", blocks: [body] });
+    const emptyPanel = panel({ id: "empty", button: { label: "How empty is it?" }, title: "How empty?", blocks: [customBlock({ id: "empty-body" })] });
+    const opened = await driver.open(new Scene().addBody(earth).addParts([gapsPanel, emptyPanel]));
+    await opened.ready();
+    const handle = opened.handle!;
+    const buttons = (): (string | null)[] => [...document.querySelectorAll("[data-story-button]")].map((b) => b.getAttribute("data-story-button"));
+    const button = (id: string): HTMLElement => document.querySelector<HTMLElement>(`[data-story-button="${id}"]`)!;
+    const shown = (): string | null | undefined => document.querySelector("[data-shelf-panel]")?.getAttribute("data-shelf-panel");
+    const gaps = handle.part(gapsPanel);
+    const empty = handle.part(emptyPanel);
+    const heard: unknown[] = [];
+    const stopGaps = gaps.onOpen((change) => heard.push(change));
+    empty.onOpen((change) => heard.push(change));
+    const changes: unknown[] = [];
+    handle.onChange((c) => changes.push(c));
+    expect(buttons()).toEqual(["gaps", "empty"]);
+    expect([gaps.open, empty.open, shown()]).toEqual([false, false, undefined]);
+    // a visitor's press opens it at the left, and only the visitor is heard
+    flushSync(() => button("gaps").click());
+    expect([gaps.open, shown()]).toEqual([true, "gaps"]);
+    expect(heard).toEqual([{ part: "gaps", open: true }]);
+    // the host's setOpen replaces it and says nothing, to either panel's listener
+    empty.setOpen(true); await tick(60);
+    expect([gaps.open, empty.open, shown()]).toEqual([false, true, "empty"]);
+    expect(heard).toEqual([{ part: "gaps", open: true }]);
+    // host calls land in order: the last word wins
+    gaps.setOpen(true); empty.setOpen(true); await tick(60);
+    expect([gaps.open, empty.open, shown()]).toEqual([false, true, "empty"]);
+    empty.setOpen(false); empty.setOpen(false); await tick(60);
+    expect([empty.open, shown()]).toEqual([false, undefined]);
+    // Escape is the visitor's
+    gaps.setOpen(true); await tick(60);
+    flushSync(() => document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true })));
+    expect([gaps.open, shown()]).toEqual([false, undefined]);
+    expect(heard).toEqual([{ part: "gaps", open: true }, { part: "gaps", open: false }]);
+    stopGaps();
+    flushSync(() => button("gaps").click());
+    expect(heard).toHaveLength(2);
+    expect(changes, "no clock signal").toEqual([]);
+    // the custom block: one element per viewer, alive while its panel is closed, in the panel while it is open
+    const element = handle.part(body).element!;
+    expect(element).toBeInstanceOf(HTMLElement);
+    expect(handle.part(body).element).toBe(element);
+    expect(element.isConnected).toBe(true);
+    element.append("host content");
+    gaps.setOpen(false); await tick(60);
+    expect(element.isConnected).toBe(false);
+    gaps.setOpen(true); await tick(60);
+    expect(element.isConnected).toBe(true);
+    expect(element.textContent).toBe("host content");
+    // bad-part: a part this viewer's scene does not hold, a lookalike, a bad argument
+    const stranger = panel({ id: "stranger", button: { label: "S" }, title: "S", blocks: [customBlock({ id: "stranger-body" })] });
+    expect(codeOf(() => handle.part(stranger))).toBe("bad-part");
+    expect(codeOf(() => handle.part({ kind: "panel", id: "gaps" } as never))).toBe("bad-part");
+    expect(codeOf(() => handle.part(undefined as never))).toBe("bad-part");
+    expect(codeOf(() => gaps.setOpen("yes" as never))).toBe("bad-part");
+    // a rebuild: the new scene's own parts, a new element
+    await opened.rebuild(new Scene().addBody(earth).addParts([gapsPanel]));
+    expect(buttons()).toEqual(["gaps"]);
+    expect(codeOf(() => opened.handle!.part(emptyPanel))).toBe("bad-part");
+    expect(opened.handle!.part(body).element).not.toBe(element);
+    const last = opened.handle!;
+    const lastGaps = last.part(gapsPanel);
+    opened.unmount();
+    expect(codeOf(() => last.part(gapsPanel))).toBe("not-mounted");
+    expect(codeOf(() => lastGaps.setOpen(true))).toBe("not-mounted");
+    expect(codeOf(() => lastGaps.open)).toBe("not-mounted");
+    expect(lastGaps.onOpen(() => undefined)).toBeTypeOf("function");
+  });
+
+  it("a part id some view lists shows only in those views: the button is hidden and an open panel closes (silently) on a switch away, whichever path opened it", async () => {
+    prepared.real = true; openNow();
+    const gapsPanel = panel({ id: "gaps", button: { label: "Gaps" }, title: "The gaps", blocks: [customBlock({ id: "gaps-body" })] });
+    const everyPanel = panel({ id: "every", button: { label: "Every" }, title: "Every view", blocks: [customBlock({ id: "every-body" })] });
+    const scene = new Scene().addBody(earth).addParts([gapsPanel, everyPanel]).setViews([{ id: "a", label: "A" }, { id: "b", label: "B", panels: ["gaps"] }], { place: "top-bar", start: "b" });
+    const opened = await driver.open(scene);
+    await opened.ready();
+    const handle = opened.handle!;
+    const buttons = (): (string | null)[] => [...document.querySelectorAll("[data-story-button]")].map((b) => b.getAttribute("data-story-button"));
+    const heard: unknown[] = [];
+    handle.part(gapsPanel).onOpen((change) => heard.push(change));
+    expect(handle.view).toBe("b");
+    expect(buttons()).toEqual(["gaps", "every"]);
+    handle.part(gapsPanel).setOpen(true); await tick(60);
+    expect(document.querySelector("[data-shelf-panel]")!.getAttribute("data-shelf-panel")).toBe("gaps");
+    flushSync(() => handle.setView("a")); await tick(60);
+    expect(buttons()).toEqual(["every"]);
+    expect(document.querySelector("[data-shelf-panel]")).toBeNull();
+    expect(handle.part(gapsPanel).open).toBe(false);
+    // a panel the showing view does not show stays closed
+    handle.part(gapsPanel).setOpen(true); await tick(60);
+    expect(handle.part(gapsPanel).open).toBe(false);
+    expect(document.querySelector("[data-shelf-panel]")).toBeNull();
+    flushSync(() => handle.setView("b")); await tick(60);
+    expect(buttons()).toEqual(["gaps", "every"]);
+    expect(heard).toEqual([]);
     opened.unmount();
   });
 

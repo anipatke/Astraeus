@@ -20,6 +20,7 @@ const ALLOWED: Readonly<Record<string, string>> = {
   "app/skyFigures": "the definition contract: the drawable sky figures a definition carries (EQJ directions) and the sky-line switch state",
   "app/look": "the look table: the one place each look's address parameter and range are written, which setLook checks against",
   "app/liveLook": "the look reader: `Scene.look` states the looks a fresh viewer opens with through the same resolvers the viewer uses (T-319)",
+  "app/shelfContract": "the shelf contract: the internal shape of a part descriptor (its public fields and the view that draws it) that `Scene.addParts` stores and the definition carries",
   "app/views": "the definition contract: view places and camera rules (the viewer's own settings shape)",
   "app/viewHiding": "the definition contract: which objects a view hides, so the opening look-out checks its direction id against the opening view as setCamera checks the showing one (I-169)",
   "shell/metrics": "the definition contract: the Metric and RateMetric types",
