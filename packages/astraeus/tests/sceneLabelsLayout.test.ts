@@ -94,6 +94,41 @@ describe("label placement without layout reads", () => {
     expect(shownIds(layer)).toEqual(["o0"]);
     layer.dispose();
   });
+  it("sizes a label by its border box (padding and border included), the box the page lays out", () => {
+    let report: ResizeObserverCallback = () => {};
+    const boxes: (ResizeObserverOptions | undefined)[] = [];
+    vi.stubGlobal(
+      "ResizeObserver",
+      class {
+        constructor(callback: ResizeObserverCallback) {
+          report = callback;
+        }
+        observe(_: Element, options?: ResizeObserverOptions) {
+          boxes.push(options);
+        }
+        disconnect() {}
+      },
+    );
+    const layer = new SceneLabelLayer(host, make(1));
+    expect(boxes.every((o) => o?.box === "border-box")).toBe(true);
+    // A padded label: 100 x 20 of text inside 15 px of padding and border a side, 130 x 50 on the page.
+    report(
+      [
+        {
+          target: labelOf("o0"),
+          contentRect: { width: 100, height: 20 },
+          borderBoxSize: [{ inlineSize: 130, blockSize: 50 }],
+        } as unknown as ResizeObserverEntry,
+      ],
+      {} as ResizeObserver,
+    );
+    reads.length = 0;
+    run(layer, { o0: 0 });
+    const r = layer.shownRects.get("o0")!;
+    expect([r.right - r.left, r.bottom - r.top]).toEqual([130, 50]);
+    expect(reads).toHaveLength(0);
+    layer.dispose();
+  });
 });
 
 describe("matches the read-based layout", () => {

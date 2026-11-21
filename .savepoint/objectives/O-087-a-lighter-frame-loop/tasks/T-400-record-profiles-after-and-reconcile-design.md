@@ -85,3 +85,7 @@ Limitation: the look-out failure is probably the T-396 arithmetic label placemen
 ## Drift Notes
 
 Design reconciliation for T-395..T-399 done in Design.md `A lighter frame loop (O-087)`.
+
+## Coordinator
+
+The full run's only red step (look-out, label overlap [kettle, lantern-field]) was repaired in T-396's lane: the size cache now observes the border box (root cause: `contentRect` left out label padding and border). After the repair: `npm test` 5157 passed, 3 skipped; `check:pack` pass, engine 1,836,199 B raw (cap 1,838,000); `check:browser -- --step look-out` pass (docs/evidence/browser-steps-20261121T225420Z). The full tier has not been rerun since the repair; the Full Objective Check runs it (labels changed size everywhere). Left at stage build until that run is green. Parked 2026-11-22: owner "I am remote now, add park the check and move on".

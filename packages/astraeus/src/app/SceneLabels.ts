@@ -64,8 +64,8 @@ export class SceneLabelLayer {
   readonly #sky: ReadonlyMap<string, SkyLabelSpec>;
   /** The colour last set on each sky label (by id), so a change of look or selection repaints only what changed. */
   readonly #skyColours = new Map<string, string>();
-  /** Each label's size, from a ResizeObserver or one measure; a size change re-measures only that label. */
-  readonly #sizes = new Map<HTMLElement, DOMRectReadOnly>();
+  /** Each label's border-box size (padding and border in, as laid out), from a ResizeObserver or one measure; a size change re-measures only that label. */
+  readonly #sizes = new Map<HTMLElement, { readonly width: number; readonly height: number }>();
   readonly #observer: ResizeObserver | undefined;
 
   constructor(host: HTMLElement, objects: readonly ExperienceObject[], skyLabels: readonly SkyLabelSpec[] = []) {
@@ -82,7 +82,12 @@ export class SceneLabelLayer {
     ];
     this.#observer = globalThis.ResizeObserver
       ? new ResizeObserver((changes) => {
-          for (const c of changes) if (c.contentRect.width) this.#sizes.set(c.target as HTMLElement, c.contentRect); // a hidden label reports 0: keep its size
+          for (const c of changes) {
+            // The border box, as the -50%/-100% translate and the page use it; contentRect leaves out padding and border (only where borderBoxSize is missing).
+            const b = c.borderBoxSize?.[0];
+            const size = b ? { width: b.inlineSize, height: b.blockSize } : c.contentRect;
+            if (size.width) this.#sizes.set(c.target as HTMLElement, size); // a hidden label reports 0: keep its size
+          }
         })
       : undefined;
     this.#sky = new Map(skyLabels.map((spec) => [spec.id, spec]));
@@ -95,7 +100,7 @@ export class SceneLabelLayer {
       if (own?.sizePx !== undefined) element.style.setProperty("--label-size", `${own.sizePx}px`);
       element.hidden = true; // not shown until the first layout places it (I-108: unplaced labels all showed for a moment, so a reader could see a label the settled layout then hides)
       this.#root.appendChild(element);
-      this.#observer?.observe(element);
+      this.#observer?.observe(element, { box: "border-box" });
       return { object, element };
     });
     this.#byId = new Map(this.#entries.map((entry) => [entry.object.id, entry]));
