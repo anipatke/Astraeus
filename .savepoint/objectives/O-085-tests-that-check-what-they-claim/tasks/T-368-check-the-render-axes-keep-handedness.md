@@ -2,7 +2,7 @@
 id: T-368
 title: Check the render axes keep handedness
 objective: O-085
-status: planned
+status: done
 depends_on: []
 check_waiver: {task: T-368, reason: 'Owner said "work through this list of objectives one by one. Orchestrate each objective to completion" (G-024 decision 7): standing orchestration rules waive the optional step checks; the mandatory Full Objective Check covers the whole diff.', actor: {role: owner, session: orchestrate-g024-20261121}, recorded_at: '2026-11-21T12:50:31Z'}
 owner_validation: {required: false}
@@ -68,8 +68,26 @@ Focused: `npx vitest run packages/astraeus/tests/renderHandedness.test.ts packag
 
 ## Technical Evidence
 
-Pending execution.
+| Done When | Evidence |
+|---|---|
+| Probe D reproduced | Flipping `-vector[1]` to `vector[1]` in `eqjToRenderVector` and running `sceneTransforms.test.ts`: 9 of 27 fail, including "preserves handedness and rotates vectors and quaternions consistently". Probe D IS caught by the existing check (reverted). |
+| Determinant +1 and orthonormal | `renderHandedness.test.ts` "has determinant +1 and is orthonormal" (exact `toBe(1)`, MtM = I). Fails under Probe D (`expected -1 to be 1`). |
+| Quaternion unit length, rotate-then-convert equals convert-then-rotate | "keeps a quaternion unit length and rotates consistently with the vector": seeded LCG quaternion, no ephemeris, vector [0.3,-0.5,0.8]. Fails under Probe D. |
+| OrbitSetView fast path (~388) | No existing test caught it: flipping the sign at the fast path left `bodySet.test.ts` and `plutoOrbitLines.test.ts` at 18/18 passing. New row "the orbit lines' scale-only fast path draws what the general path draws": inclined made-up orbit, same view on `trueScale` vs the same scaling without `linearUnitsPerKm` (general path), compares drawn path and head vertices. Fails on the flip (`expected -4.35 to be close to 4.35`). |
+| keplerShader (~111) | Covered by existing `astraeus-demo-showers/tests/keplerShader.test.ts` cases "matches a made-up group with eccentricities up to 0.99 across two years" and both shipped sets "matches every member across the timeline" (3 fail on the flip). No new row; noted in a comment in the new file. |
+| Breaks reverted | `git diff packages/astraeus/src` empty after each break. |
+| Existing tests unchanged | Only the new test file was added. |
+
+Commands: focused `npx vitest run packages/astraeus/tests/renderHandedness.test.ts` (3 pass; breaks as above). Gates under flock: lint clean, typecheck clean, build ok, `npm test`: 303 files, 5037 passed, 2 skipped.
+
+Files changed: `packages/astraeus/tests/renderHandedness.test.ts` (new). No extra reads beyond Context Files plus `OrbitSetView.ts` sync/place/mapPath, `scalePolicy.ts` (linearUnitsPerKm), `bodySet.test.ts` and `plutoOrbitLines.test.ts` (to find existing coverage and build a layer).
+
+Limitations: the fast-path row compares to the general path (itself eqjToRenderVector), at float32 tolerance 1e-5 (units are scene units, magnitudes ~4).
 
 ## Drift Notes
 
 If Probe D did not reproduce (the existing case catches the flip), say so here; the review's AH entry is then partly stale and the coordinator notes it at the Full Check.
+
+None for Design. Probe D did reproduce (the existing case catches it), so the review's AH entry is partly stale: the `eqjToRenderVector` flip was already caught; the unguarded copy was the OrbitSetView fast path, now covered.
+
+Coordinator (orchestrate-g024-20261121): gates green (lint, typecheck, build; `npm test` 303 files, 5037 passed). `status: done` set by the coordinator under the standing orchestration rule ("I mark them as they pass", O-038) and G-024 decision 7.
