@@ -1,7 +1,7 @@
 ---
 id: G-023
 title: One bar for story apps, for 0.9.5
-status: planned
+status: done
 ---
 
 ## Outcome
@@ -23,3 +23,7 @@ Every member Objective is done.
 **In scope:** the `astraeus` engine package (scene inputs, handle, shell bar, phone row, panels, tile), the site's demos showing the new bar, the public component catalogue page, README, CHANGELOG, API lock and tests.
 
 **Out of scope:** changes to the Belt, Meteor Showers or any other outside app (they stay on their pinned versions; Belt adopts the bar as its own work in its own project after the story-buttons Objective, through a local engine build); the floating layout; the version bump and publishing (the owner's release steps).
+
+## Workflow Review
+
+No change, because the one trap in this Goal (O-081's planned `from`/`to`/`at` names breaking API-04) was caught by the public-type lint before any commit, which is the mechanised check working as intended; the owner chose the names and the Checks (C-193 repaired once, C-194 and C-195 CLEAR) converged.
