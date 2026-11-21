@@ -2,7 +2,7 @@
 id: T-352
 title: Find out whether reverse playback can break paced speed changes
 objective: O-083
-status: planned
+status: done
 depends_on: []
 check_waiver: {task: T-352, reason: 'Owner said "work through this list of objectives one by one. Orchestrate each objective to completion" (G-024 decision 7): standing orchestration rules waive the optional step checks; the mandatory Full Objective Check covers the whole diff.', actor: {role: owner, session: orchestrate-g024-20261121}, recorded_at: '2026-11-21T11:22:41Z'}
 owner_validation: {required: false}
@@ -63,8 +63,21 @@ Focused: `npx vitest run packages/astraeus/tests/reversePacing.test.ts packages/
 
 ## Technical Evidence
 
-Pending execution.
+Trace (reachable): `api/story.ts:168` accepts any finite non-zero `rate` (negative allowed); `api/planTimeline.ts:75` passes `timeline.rate ?? 60` as pacing `baseRate`, so `setTimeline({ rate: -3600, pacing })` gives a negative base. `rates` must be positive (`story.ts:174`) and `handle.setRate` takes only offered rates or "auto" (`viewerClock.ts` setRate), so a visitor/host cannot reach it that way; but a negative opening rate with pacing starts `paceAuto: true` (`App.tsx:222`), `frameTime` (`sceneFrame.ts:148-155`) then calls `stepPacing`/`applyPacing`, and a view switch calls `startPaceEase(…, runtime.clock.rate, …)` (`App.tsx:438`). In `pacedRate`/`easeShift`/`applyPacing`, `Math.log` of a negative gave NaN; `applyPacing` then called `clock.setRate(NaN)`, which throws RangeError; `stepPacing` hard-coded direction 1.
+Probe result (before the fix, same test file): the view-switch ease test failed (`easeShift` not finite) and the backward-step test threw RangeError from `clock.seek`. Reachable: AH-07 confirmed.
+Fix in `core/pacing.ts`: `pacedRate` works on `|baseRate|` and returns it with its sign; `easeShift`, `applyPacing`, `advanceRate` use magnitudes; `stepPacing` passes direction -1 when `clock.rate < 0` and slack uses `|last.rate|`. Forward behaviour unchanged (existing tests green).
+
+| Done When | Evidence |
+|---|---|
+| Trace + probe first | trace above; `tests/reversePacing.test.ts` first rows (opening base rate -3600 reaches pacing; applyPacing/ease at negative rate) |
+| Reachable: sign kept; ease never throws, stays backward; backward step slows like forward | `reversePacing.test.ts` "view-switch ease at a negative rate…", "a backward step through a zone slows as the forward step does" (mirror 47 d forward vs 53 d backward around a flyby) |
+| Existing tests unchanged and green | vitest of sceneFrame, pacing, pacingOverlaps, pacingRepairs, pacingViews, pacingDom, pacingViewsDom: 87 passed |
+| Gates | lint, typecheck, build clean; full test: 4937 passed, 3 failed (apiSurface lock, scenePin, apiRules API-05), rerun once, same: all in files owned by concurrent T-343/T-348 (api/scene.ts, errors.ts, time.ts); none touch pacing |
+
+Files changed: `packages/astraeus/src/core/pacing.ts`, `packages/astraeus/tests/reversePacing.test.ts` (new). Limitation: a visitor cannot reach it through the rate picker; only a negative opening `rate` with `pacing` does. No browser run.
 
 ## Drift Notes
 
-Record the reachability finding for the Full Check and for AH-07's closure.
+AH-07 reachable via `setTimeline({ rate < 0, pacing })` and fixed in `core/pacing.ts` (sign carried separately from magnitude). Non-architectural; Design.md needs at most a note that pacing works on rate magnitude and keeps its sign.
+
+Coordinator (orchestrate-g024-20261121): hand-off gates green for this Task's files (lint, typecheck, build; the three `npm test` failures are in T-343/T-348's in-flight `api/` files and are rechecked once those land); `status: done` set by the coordinator under the standing orchestration rule ("I mark them as they pass", O-038) and G-024 decision 7.

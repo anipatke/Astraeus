@@ -97,17 +97,18 @@ function zoneWeight(zone: PaceZone, timeUtcMs: number): number {
  */
 export function pacedRate(pacing: Pacing, timeUtcMs: number, shown?: ShownEvents): number {
   const { spans, rules } = layersOf(pacing.zones);
-  const logBase = Math.log(pacing.baseRate);
+  const base = Math.abs(pacing.baseRate); // zone rates are positive; a negative base (reverse playback) keeps its sign and paces by its magnitude
+  const logBase = Math.log(base);
   let touched = false;
   let logCruise = logBase;
   for (const zone of spans) {
-    if (zone.rate <= pacing.baseRate) continue;
+    if (zone.rate <= base) continue;
     const weight = zoneWeight(zone, timeUtcMs);
     if (weight > 0) { touched = true; logCruise = Math.max(logCruise, logBase + (Math.log(zone.rate) - logBase) * weight); }
   }
   let logRate = logCruise;
   for (const zone of spans) {
-    if (zone.rate > pacing.baseRate) continue;
+    if (zone.rate > base) continue;
     const weight = zoneWeight(zone, timeUtcMs);
     if (weight > 0) { touched = true; logRate = Math.min(logRate, logCruise + (Math.log(zone.rate) - logCruise) * weight); }
   }
@@ -116,7 +117,7 @@ export function pacedRate(pacing: Pacing, timeUtcMs: number, shown?: ShownEvents
     const weight = zoneWeight(zone, timeUtcMs);
     if (weight > 0) { touched = true; logRate = Math.min(logRate, logCruise + (Math.log(zone.rate) - logCruise) * weight); }
   }
-  return touched ? Math.exp(logRate) : pacing.baseRate; // untouched: exactly the base, not its log round trip
+  return touched ? Math.sign(pacing.baseRate) * Math.exp(logRate) : pacing.baseRate; // untouched: exactly the base, not its log round trip
 }
 
 /** How long, in real milliseconds, a change of the paced rate that comes from a view switch takes to ease in. */
@@ -138,7 +139,7 @@ export function startPaceEase(view: PaceView, fromRate: number, nowMs: number): 
 /** The ease's own change, fixed once at the switch (the first time it is read, at the switch's time): log(start rate) minus log(the new view's paced rate there). */
 export function easeShift(view: PaceView, timeUtcMs: number, pacing: Pacing): number {
   const ease = view.ease!;
-  ease.k0 ??= Math.log(ease.fromRate) - Math.log(pacedRate(pacing, timeUtcMs, view.shown));
+  ease.k0 ??= Math.log(Math.abs(ease.fromRate)) - Math.log(Math.abs(pacedRate(pacing, timeUtcMs, view.shown)));
   return ease.k0;
 }
 
@@ -149,7 +150,7 @@ export function applyPacing(clock: SimulationClock, pacing: Pacing, view?: PaceV
   if (ease !== undefined) {
     const progress = (nowMs - ease.startMs) / PACE_EASE_MS;
     if (progress >= 1) delete view!.ease;
-    else if (progress >= 0) rate = Math.exp(Math.log(rate) + easeShift(view!, clock.now(), pacing) * (1 - smooth(progress)));
+    else if (progress >= 0) rate = Math.sign(rate) * Math.exp(Math.log(Math.abs(rate)) + easeShift(view!, clock.now(), pacing) * (1 - smooth(progress)));
   }
   if (rate !== clock.rate) clock.setRate(rate);
 }
@@ -186,7 +187,7 @@ const EASE_STEP_MS = PACE_EASE_MS / 32;
 
 /** The rate the clock runs at: the paced rate at `t`, with the ease's decaying change laid over its shape while the ease runs (as `applyPacing` does), `usedMs` of real time into the advance. */
 function advanceRate(pacing: Pacing, t: number, shown: ShownEvents, ease: AdvanceEase | undefined, usedMs: number): number {
-  const rate = pacedRate(pacing, t, shown);
+  const rate = Math.abs(pacedRate(pacing, t, shown)); // the magnitude: the direction is `pacedAdvance`'s own
   if (ease === undefined) return rate;
   const progress = (ease.elapsedMs + usedMs) / PACE_EASE_MS;
   if (progress >= 1 || progress < 0) return rate;
@@ -229,10 +230,10 @@ export function stepPacing(clock: SimulationClock, pacing: Pacing, view: PaceVie
   const last = view.last;
   const realMs = last === undefined ? 0 : nowMs - last.nowMs;
   const clockMs = last === undefined ? 0 : (clock.now() - last.timeUtcMs) / last.rate;
-  const continuous = last !== undefined && clock.playing && clock.rate === last.rate && realMs > 0 && Math.abs(clockMs - realMs) <= STEP_SLACK_MS + 2 / last.rate;
+  const continuous = last !== undefined && clock.playing && clock.rate === last.rate && realMs > 0 && Math.abs(clockMs - realMs) <= STEP_SLACK_MS + 2 / Math.abs(last.rate);
   if (continuous) {
     const ease = view.ease === undefined ? undefined : { k0: easeShift(view, last.timeUtcMs, pacing), elapsedMs: last.nowMs - view.ease.startMs };
-    const to = pacedAdvance(pacing, last.timeUtcMs, realMs, view.shown, 1, ease);
+    const to = pacedAdvance(pacing, last.timeUtcMs, realMs, view.shown, clock.rate < 0 ? -1 : 1, ease);
     if (to !== clock.now()) clock.seek(to);
   }
   applyPacing(clock, pacing, view, nowMs);
