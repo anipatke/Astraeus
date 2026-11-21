@@ -3,7 +3,7 @@
 import { describe, expect, it } from "vitest";
 import { Scene, SceneError, earth, type PacingInput } from "astraeus";
 import { SimulationClock } from "../src/core/clock";
-import { PACE_EASE_MS, applyPacing, pacedRate, startPaceEase, zoneInView, zonesInView, type PaceView } from "../src/core/pacing";
+import { PACE_EASE_MS, applyPacing, pacedRate, startPaceEase, zoneInView, zonesInView, type PaceView } from "../src/presentation/pacing";
 import { definitionOf } from "../src/api/definitionOf";
 
 const DAY = 86_400_000;

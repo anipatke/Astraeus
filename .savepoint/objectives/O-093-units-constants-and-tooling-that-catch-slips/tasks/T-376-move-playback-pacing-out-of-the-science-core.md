@@ -2,7 +2,7 @@
 id: T-376
 title: Move playback pacing out of the science core
 objective: O-093
-status: planned
+status: done
 depends_on: [{task: T-375, requires: clear}]
 check_waiver: {task: T-376, reason: 'Owner said "work through this list of objectives one by one. Orchestrate each objective to completion" (G-024 decision 7) and "carry on" (2026-11-22): standing orchestration rules waive the optional step checks; the mandatory Full Objective Check covers the whole diff.', actor: {role: owner, session: orchestrate-g024-20261121}, recorded_at: '2026-11-21T19:19:52Z'}
 owner_validation: {required: false}
@@ -58,8 +58,18 @@ Focused: `npx vitest run packages/astraeus/tests/pacing.test.ts packages/astraeu
 
 ## Technical Evidence
 
-Pending execution.
+| Done When | Evidence |
+|---|---|
+| Move + own imports | core/pacing.ts moved by plain mv to src/presentation/pacing.ts; imports now ../core/clock, ../core/events. Importers (re-grepped): app/AstraeusScene.tsx, openClock.ts, experienceDefinition.ts, App.tsx, sceneFrame.ts, api/story.ts, api/planTimeline.ts; import lines only. tests/syntheticJourney.test.ts also imports it (import line only). |
+| presentationLayer.test passes unedited | full suite green (311 files, 5071 passed, 2 skipped) |
+| api:lock diff | `npm run api:lock` ran; `git diff` of api-surface.lock.json empty |
+| Pacing tests green, import lines only | pacing, pacingOverlaps, pacingRepairs, reversePacing, pacedAdvance, pacingViews pass in full run; scenePin.json md5 c6d2308f... unchanged |
+| Gates | lint, typecheck, build, test all pass (flock wrapper) |
+
+Limitations: none. Browser not run. pacingDom.test.ts needed no change.
 
 ## Drift Notes
 
 For Design reconciliation (`Time windows and rates (O-010)`): pacing lives in `src/presentation/`.
+
+Coordinator (orchestrate-g024-20261121): gates green (lint, typecheck, build; `npm test` 311 files, 5071 passed); lock and scene pin unchanged. `status: done` set by the coordinator under the standing orchestration rule ("I mark them as they pass", O-038) and G-024 decision 7.

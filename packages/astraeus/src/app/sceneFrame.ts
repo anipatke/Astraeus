@@ -8,7 +8,7 @@ import type { BodyParts } from "./BodyView";
 import { drawnRadii } from "./bodyDraw";
 import type { BodySetLabelLayer } from "./BodySetLabels";
 import { DEFAULT_BODY_SET_LOOK, familyColorOf, type BodySetLayer, type BodySetLook } from "./bodySet";
-import { applyPacing, stepPacing } from "../core/pacing";
+import { applyPacing, stepPacing } from "../presentation/pacing";
 import { poseCamera, resolveCamera, type OrbitCameraState } from "./CameraController";
 import { DEFAULT_CAMERA_FAR } from "./experienceDefinition";
 import { DEFAULT_FEATURE_MIN_BODY_PX, type FeatureHost, type FeatureMarkerLayer } from "./FeatureMarkers";

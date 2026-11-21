@@ -5,7 +5,7 @@ import type { ExperienceDefinition } from "../app/experienceDefinition";
 import { SceneError } from "./errors";
 import { toUtcMs, type TimeInput } from "./time";
 import { frozenList, type SceneTimelineRead, type ScenePacingRead } from "./sceneReads";
-import { eventZonesOf } from "../core/pacing";
+import { eventZonesOf } from "../presentation/pacing";
 import { pacingFor, timelineOf, type PacingPiece, type TimelineInput, type TimelineSetting } from "./story";
 
 

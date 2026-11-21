@@ -10,7 +10,7 @@ import { FAR_PER_REACH, fitReach, liveReach, scaleLength } from "../src/app/scen
 import { EQUATORIAL_UP } from "../src/app/viewUp";
 import type { SceneTargets } from "../src/app/sceneTargets";
 import type { RenderVector } from "../src/app/renderCoordinates";
-import { pacedRate } from "../src/core/pacing";
+import { pacedRate } from "../src/presentation/pacing";
 import { infoView } from "../src/shell/infoModel";
 import { buildSyntheticJourneyScene, JOURNEY_END_AU, JOURNEY_END_UTC_MS, JOURNEY_JUPITER_UTC_MS, JOURNEY_LAUNCH_UTC_MS, JOURNEY_SATURN_UTC_MS, JOURNEY_URANUS_UTC_MS } from "./synthetic/syntheticJourneyScene";
 import { solarSystemPolicyForTest } from "./scalePolicies";

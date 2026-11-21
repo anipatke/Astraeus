@@ -1,5 +1,5 @@
 import { createEvents, type TimelineEvent } from "../core/events";
-import { zoneAround, type PaceZone, type Pacing } from "../core/pacing";
+import { zoneAround, type PaceZone, type Pacing } from "../presentation/pacing";
 import { createProvenance, type Provenance } from "../core/provenance";
 import type { TimeBounds } from "../core/trajectory";
 import { checkPanelPlayback, checkStoryPanel, resolveStoryPanels, StoryPanelError, type CheckedPanel, type PanelActions, type PanelCameraRequest, type PanelLookup, type PanelPlayback, type StoryPanelSet } from "../presentation/storyPanels";

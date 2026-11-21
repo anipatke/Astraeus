@@ -2,7 +2,7 @@ import { Suspense, useCallback, useEffect, useMemo, useRef, useState, useSyncExt
 import { createOrbAstronomyAdapter } from "../core/astronomyAdapter";
 import type { GlowLook } from "./bodyDraw";
 import { viewUpFromSearch, viewUpVector, type ViewUp } from "./viewUp";
-import { activeEventZones, applyPacing, startPaceEase, type PaceView } from "../core/pacing";
+import { activeEventZones, applyPacing, startPaceEase, type PaceView } from "../presentation/pacing";
 import { frameTime } from "./sceneFrame";
 import { openClock } from "./openClock";
 import { createProvenance } from "../core/provenance";

@@ -4,7 +4,7 @@
 import { describe, expect, it } from "vitest";
 import { Scene, earth } from "astraeus";
 import { SimulationClock } from "../src/core/clock";
-import { applyPacing, easeShift, pacedRate, startPaceEase, stepPacing, type PaceView } from "../src/core/pacing";
+import { applyPacing, easeShift, pacedRate, startPaceEase, stepPacing, type PaceView } from "../src/presentation/pacing";
 import { definitionOf } from "../src/api/definitionOf";
 
 const DAY = 86_400_000;

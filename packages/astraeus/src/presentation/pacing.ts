@@ -1,5 +1,5 @@
-import type { SimulationClock } from "./clock";
-import type { TimelineEvent } from "./events";
+import type { SimulationClock } from "../core/clock";
+import type { TimelineEvent } from "../core/events";
 
 /**
  * One stretch of the timeline with its own playback rate: full `rate` from `fromUtcMs` to `toUtcMs`, easing back to the surrounding rate over

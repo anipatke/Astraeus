@@ -5,7 +5,7 @@ import { useMemo, useRef } from "react";
 import { Canvas, useThree } from "@react-three/fiber";
 import type { DirectionalLight, Group } from "three";
 import type { SimulationClock } from "../core/clock";
-import type { PaceView, Pacing } from "../core/pacing";
+import type { PaceView, Pacing } from "../presentation/pacing";
 import type { BodyId } from "../core/body";
 import type { ScalePolicy } from "../core/scalePolicy";
 import type { StateResolver } from "../core/stateResolver";

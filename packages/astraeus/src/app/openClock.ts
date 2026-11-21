@@ -1,5 +1,5 @@
 import { SimulationClock } from "../core/clock";
-import { pacedRate, type ShownEvents } from "../core/pacing";
+import { pacedRate, type ShownEvents } from "../presentation/pacing";
 import type { ExperienceDefinition } from "./experienceDefinition";
 
 /**

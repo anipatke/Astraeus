@@ -1,7 +1,7 @@
 // Playback steps through every slow-down whatever the frame length (O-069 T-308): made-up six-year journey, ten event zones (ARCH-03, no story names).
 import { describe, expect, it } from "vitest";
 import { SimulationClock } from "../src/core/clock";
-import { activeEventZones, MAX_PACE_STEPS, pacedAdvance, pacedRate, stepPacing, type PaceView, type Pacing } from "../src/core/pacing";
+import { activeEventZones, MAX_PACE_STEPS, pacedAdvance, pacedRate, stepPacing, type PaceView, type Pacing } from "../src/presentation/pacing";
 import { frameTime } from "../src/app/sceneFrame";
 import type { SceneRuntime } from "../src/app/AstraeusScene";
 import { ViewerZones } from "../src/api/viewerZones";

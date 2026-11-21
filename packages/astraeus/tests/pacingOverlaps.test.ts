@@ -1,6 +1,6 @@
 // O-069 I-172: how pieces combine in `pacedRate`. Faster spans set the cruise (the faster wins where they meet); slower spans and event rules ease down from it (the slowest wins where they meet). Made-up zones (ARCH-03).
 import { describe, expect, it } from "vitest";
-import { pacedRate, type PaceZone } from "../src/core/pacing";
+import { pacedRate, type PaceZone } from "../src/presentation/pacing";
 
 const HOUR = 3_600_000;
 const DAY = 24 * HOUR;

@@ -1,5 +1,5 @@
 import type { SimulationClock } from "../core/clock";
-import type { EventZone, Pacing } from "../core/pacing";
+import type { EventZone, Pacing } from "../presentation/pacing";
 import type { StateResolver } from "../core/stateResolver";
 import type { PointGroup } from "../core/pointGroup";
 import type { TimeBounds, Trajectory } from "../core/trajectory";

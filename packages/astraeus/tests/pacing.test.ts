@@ -2,7 +2,7 @@
 import { describe, expect, it } from "vitest";
 import { Scene, SceneError, earth } from "astraeus";
 import { SimulationClock } from "../src/core/clock";
-import { activeEventZones, applyPacing, pacedRate } from "../src/core/pacing";
+import { activeEventZones, applyPacing, pacedRate } from "../src/presentation/pacing";
 import { definitionOf } from "../src/api/definitionOf";
 
 const DAY = 86_400_000;

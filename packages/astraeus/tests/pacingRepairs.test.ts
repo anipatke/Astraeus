@@ -6,7 +6,7 @@ import type { SceneRuntime } from "../src/app/AstraeusScene";
 import { ViewerZones } from "../src/api/viewerZones";
 import type { EventZoneChange } from "../src/api/viewerLink";
 import type { ViewerState } from "../src/app/viewerPort";
-import { PACE_EASE_MS, activeEventZones, pacedAdvance, pacedRate, stepPacing, type PaceView, type PaceZone, type Pacing } from "../src/core/pacing";
+import { PACE_EASE_MS, activeEventZones, pacedAdvance, pacedRate, stepPacing, type PaceView, type PaceZone, type Pacing } from "../src/presentation/pacing";
 
 const HOUR = 3_600_000;
 const DAY = 24 * HOUR;
