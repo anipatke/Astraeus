@@ -2,7 +2,8 @@
 id: T-400
 title: Record profiles after and reconcile Design
 objective: O-087
-status: planned
+status: in_progress
+stage: build
 depends_on: [{task: T-394, requires: clear}, {task: T-395, requires: clear}, {task: T-396, requires: clear}, {task: T-397, requires: clear}, {task: T-398, requires: clear}, {task: T-399, requires: clear}]
 owner_validation: {required: false}
 check_waiver: {task: T-400, reason: 'Owner said "work through this list of objectives one by one. Orchestrate each objective to completion" (G-024 decision 7) and "carry on orchestrating G-024" (2026-11-22): standing orchestration rules waive the optional step checks; the mandatory Full Objective Check covers the whole diff.', actor: {role: owner, session: orchestrate-g024-20261122}, recorded_at: '2026-11-21T22:11:52Z'}
@@ -63,8 +64,24 @@ Two browser jobs, strictly one after the other: the profile run, then the full b
 
 ## Technical Evidence
 
-Pending execution.
+Status: NOT READY FOR AUDIT. The profile and docs are done; the full browser run FAILED at the `look-out` step (report to coordinator; stage left at build).
+
+Extra reads logged: `.savepoint/Design.md` headings `Units, constants and layers (O-093)`, `Verification in tiers (O-086)`, `Size budgets are split` (format and context); `packages/astraeus/CHANGELOG.md` top section; T-395..T-399 Drift Notes and Outcome sections.
+
+| Done When | Evidence |
+|---|---|
+| Profile run, after.json with commit, cores, Chromium, command, per-case table | `ASTRAEUS_PROFILE_OUT=docs/evidence/o087-frame-profile/after.json node packages/astraeus-site/tools/validate/run-profile.mjs` exit 0 (348 s); run folder `docs/evidence/profile-steps-20261121T224039Z`; `after.json` holds `comparison` (8 cases, before/after medians) and a note |
+| Expected direction stated | Script time/s fell in all 8 cases (Apollo paused 0.16 -> 0.03, playing 0.17 -> 0.12; Saturn ~0.09 -> 0.02); style recalcs/s fell in all (Apollo playing 127-141 -> 66; Saturn ~120 -> 50-65); layout count flat within noise (Apollo paused off 0.70 -> 0.90, noise). Saturn frames drawn is 0 before and after, no signal. No case worse beyond noise |
+| Full browser suite passes once | FAILED: `docs/evidence/browser-20261121T224645Z` (tier full): smoke, synthetic-journey, smoke-public-showers, planets-phone, meteor-shower, views, catalogue, hello-scene, hello-react, hello-planets, hello-sky pass; `look-out` exit=1: "desktop: no labels overlap with kettle shown" actual overlap [kettle, lantern-field] (journey-look-out.mjs:111 checkSkyTrace). Not rerun, per brief |
+| Design.md `### A lighter frame loop (O-087)` with each drift note accounted | Added before `### Verification in tiers (O-086)`; T-395, T-396 reflected; T-397/T-398/T-399 (None) reflected as architectural early-outs |
+| CHANGELOG 0.10.0 entry | One `Changed:` line added at the end of the 0.10.0 list, before `### Breaking changes in 0.10.0` |
+| Engine raw size | No code change in T-400; last measured (T-396 gates) 1,836,117 B raw against limit 1,838,000 (1,836,000 was the earlier limit; now over it, within the raised cap), 525,563 B gzip |
+| Gates | Not run: only docs/evidence changed (no code); coordinator to run at handoff |
+
+Files changed: docs/evidence/o087-frame-profile/after.json, .savepoint/Design.md, packages/astraeus/CHANGELOG.md, this Task file. Unstaged run folders: profile-steps-20261121T224039Z, browser-20261121T224645Z.
+
+Limitation: the look-out failure is probably the T-396 arithmetic label placement (labels placed from cached sizes) overlapping on the synthetic look-out scene; not investigated or fixed (Boundaries).
 
 ## Drift Notes
 
-None expected.
+Design reconciliation for T-395..T-399 done in Design.md `A lighter frame loop (O-087)`.

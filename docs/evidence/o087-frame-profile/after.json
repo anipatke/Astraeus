@@ -1,0 +1,558 @@
+{
+  "note": "Per-second deltas over a 10 s window after a 2 s settle, 1280x800; durations are seconds of work per second. Before O-087 draft 02 the diagnostics flag does nothing, so the off rows equal the on rows (expected baseline). AFTER (O-087 T-400): same command, machine (16 cores) and Chromium 147.0.7727.15 as before; run on branch o087-lighter-frame-loop at HEAD plus uncommitted T-400 doc edits. Saturn planets page reads 0 frames drawn per second in both runs (even while playing), so its frames column is no signal; compare script, layout and style-recalc rows. Result: script time per second fell in every case (Apollo paused 0.16 -> 0.03, playing 0.17 -> 0.12, Saturn about 0.09 -> 0.02); style recalcs fell in every case (Apollo playing 127-141 -> 66, Saturn 120 -> 50-65); layout count is flat (Apollo paused on 0.90 -> 0.80, paused off 0.70 -> 0.90, within the per-run spread seen in before.json, max 4.6). No case got worse beyond noise; paused-off layout count 0.70 -> 0.90 is one layout per run-second noise, not a regression. Frames drawn/s is a rate, not a cost: Apollo paused/playing stays 6-7 and 35. The before off rows equal on rows because the flag did nothing then.",
+  "viewport": "1280x800",
+  "windowMs": 10000,
+  "version": "147.0.7727.15",
+  "cases": [
+    {
+      "scene": "apollo-11",
+      "address": "t=1969-07-20T20:00:00Z",
+      "clock": "paused",
+      "diagnostics": true,
+      "runs": 3,
+      "ScriptDuration": {
+        "median": 0.03194202898550724,
+        "min": 0.026935568400770712,
+        "max": 0.03869080390983443
+      },
+      "TaskDuration": {
+        "median": 0.11972943528235883,
+        "min": 0.09531560693641618,
+        "max": 0.14398972671055257
+      },
+      "LayoutCount": {
+        "median": 0.7996001999000499,
+        "min": 0.7707129094412332,
+        "max": 1.097147416716537
+      },
+      "LayoutDuration": {
+        "median": 0.0001330334832583708,
+        "min": 0.00011460500963391138,
+        "max": 0.00017125473768202673
+      },
+      "RecalcStyleCount": {
+        "median": 61.06946526736631,
+        "min": 47.39884393063584,
+        "max": 61.44025533612607
+      },
+      "RecalcStyleDuration": {
+        "median": 0.004812993503248376,
+        "min": 0.003876223506743738,
+        "max": 0.005134250947536405
+      },
+      "JSHeapUsedSizeChange": {
+        "median": 1688960,
+        "min": 812076,
+        "max": 9738240
+      },
+      "framesDrawnPerSecond": {
+        "median": 6.3968015992003995,
+        "min": 5.780346820809249,
+        "max": 7.879513265509675
+      }
+    },
+    {
+      "scene": "apollo-11",
+      "address": "t=1969-07-20T20:00:00Z",
+      "clock": "paused",
+      "diagnostics": false,
+      "runs": 3,
+      "ScriptDuration": {
+        "median": 0.02947471011595362,
+        "min": 0.027706217512994805,
+        "max": 0.02991892161757364
+      },
+      "TaskDuration": {
+        "median": 0.11828577134298553,
+        "min": 0.10470911635345864,
+        "max": 0.12278938424630147
+      },
+      "LayoutCount": {
+        "median": 0.8996401439424231,
+        "min": 0.8986520219670494,
+        "max": 0.8996401439424231
+      },
+      "LayoutDuration": {
+        "median": 0.0001344982526210684,
+        "min": 0.00013144742103158736,
+        "max": 0.00013454618152738905
+      },
+      "RecalcStyleCount": {
+        "median": 61.37544982007197,
+        "min": 61.27548980407837,
+        "max": 61.407888167748375
+      },
+      "RecalcStyleDuration": {
+        "median": 0.0050238904438224714,
+        "min": 0.004984623065401897,
+        "max": 0.005041983206717313
+      },
+      "JSHeapUsedSizeChange": {
+        "median": 7218976,
+        "min": 5663424,
+        "max": 10714440
+      },
+      "framesDrawnPerSecond": {
+        "median": 7.297081167532987,
+        "min": 6.397441023590564,
+        "max": 7.488766849725412
+      }
+    },
+    {
+      "scene": "apollo-11",
+      "address": "t=1969-07-20T20:00:00Z",
+      "clock": "playing",
+      "diagnostics": true,
+      "runs": 3,
+      "ScriptDuration": {
+        "median": 0.12064437781109444,
+        "min": 0.09603224064789818,
+        "max": 0.12427614101667833
+      },
+      "TaskDuration": {
+        "median": 0.5079241379310345,
+        "min": 0.40701434631700734,
+        "max": 0.5344432238090483
+      },
+      "LayoutCount": {
+        "median": 5.897051474262868,
+        "min": 4.627844195912071,
+        "max": 5.992210126835114
+      },
+      "LayoutDuration": {
+        "median": 0.0008475762118940529,
+        "min": 0.00069841881989973,
+        "max": 0.0008670728053530411
+      },
+      "RecalcStyleCount": {
+        "median": 65.7145710576251,
+        "min": 50.90628615503278,
+        "max": 66.06696651674163
+      },
+      "RecalcStyleDuration": {
+        "median": 0.009859870064967515,
+        "min": 0.007910374084072502,
+        "max": 0.010514930590232698
+      },
+      "JSHeapUsedSizeChange": {
+        "median": 11042432,
+        "min": 6624500,
+        "max": 11245296
+      },
+      "framesDrawnPerSecond": {
+        "median": 35.05442924198542,
+        "min": 27.535672965676824,
+        "max": 35.38230884557721
+      }
+    },
+    {
+      "scene": "apollo-11",
+      "address": "t=1969-07-20T20:00:00Z",
+      "clock": "playing",
+      "diagnostics": false,
+      "runs": 3,
+      "ScriptDuration": {
+        "median": 0.11686776859504132,
+        "min": 0.08968278947774436,
+        "max": 0.11868610223642173
+      },
+      "TaskDuration": {
+        "median": 0.511372803514377,
+        "min": 0.407416801666281,
+        "max": 0.5168736433336653
+      },
+      "LayoutCount": {
+        "median": 5.974310465000499,
+        "min": 4.551415567384093,
+        "max": 5.9904153354632586
+      },
+      "LayoutDuration": {
+        "median": 0.0008167931309904154,
+        "min": 0.0006611895394584588,
+        "max": 0.0009336851538384945
+      },
+      "RecalcStyleCount": {
+        "median": 65.81698695608883,
+        "min": 50.836997608578265,
+        "max": 65.9944089456869
+      },
+      "RecalcStyleDuration": {
+        "median": 0.010066314846161507,
+        "min": 0.007621152510992827,
+        "max": 0.010194688498402556
+      },
+      "JSHeapUsedSizeChange": {
+        "median": 16282260,
+        "min": 12994996,
+        "max": 30874040
+      },
+      "framesDrawnPerSecond": {
+        "median": 35.44329073482428,
+        "min": 27.07706549409859,
+        "max": 35.646719107836304
+      }
+    },
+    {
+      "scene": "planets-saturn",
+      "address": "experience=planets&planet=saturn&t=2026-06-01T00:00:00Z",
+      "clock": "paused",
+      "diagnostics": true,
+      "runs": 3,
+      "ScriptDuration": {
+        "median": 0.020288238925760146,
+        "min": 0.020103828933148063,
+        "max": 0.026724137931034477
+      },
+      "TaskDuration": {
+        "median": 0.09364300046303442,
+        "min": 0.09327342905666203,
+        "max": 0.12361649175412293
+      },
+      "LayoutCount": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "LayoutDuration": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "RecalcStyleCount": {
+        "median": 50.10035510267099,
+        "min": 50.00771724031486,
+        "max": 64.86756621689155
+      },
+      "RecalcStyleDuration": {
+        "median": 0.0662921105450054,
+        "min": 0.06622951072696404,
+        "max": 0.0876847576211894
+      },
+      "JSHeapUsedSizeChange": {
+        "median": -3039712,
+        "min": -4708292,
+        "max": 2544132
+      },
+      "framesDrawnPerSecond": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      }
+    },
+    {
+      "scene": "planets-saturn",
+      "address": "experience=planets&planet=saturn&t=2026-06-01T00:00:00Z",
+      "clock": "paused",
+      "diagnostics": false,
+      "runs": 3,
+      "ScriptDuration": {
+        "median": 0.020063736263736264,
+        "min": 0.015835815137720855,
+        "max": 0.020369667299430513
+      },
+      "TaskDuration": {
+        "median": 0.11457802197802198,
+        "min": 0.08923323817606664,
+        "max": 0.11477680087920873
+      },
+      "LayoutCount": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "LayoutDuration": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "RecalcStyleCount": {
+        "median": 64.83516483516483,
+        "min": 50.07329681351747,
+        "max": 64.84164252173044
+      },
+      "RecalcStyleDuration": {
+        "median": 0.0859783195124388,
+        "min": 0.0667061183550652,
+        "max": 0.08647862137862138
+      },
+      "JSHeapUsedSizeChange": {
+        "median": 112796,
+        "min": -4094904,
+        "max": 853124
+      },
+      "framesDrawnPerSecond": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      }
+    },
+    {
+      "scene": "planets-saturn",
+      "address": "experience=planets&planet=saturn&t=2026-06-01T00:00:00Z",
+      "clock": "playing",
+      "diagnostics": true,
+      "runs": 3,
+      "ScriptDuration": {
+        "median": 0.026461184933559794,
+        "min": 0.020574072645947405,
+        "max": 0.02655535571542766
+      },
+      "TaskDuration": {
+        "median": 0.12210620441602558,
+        "min": 0.09459574304002467,
+        "max": 0.1221767585931255
+      },
+      "LayoutCount": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "LayoutDuration": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "RecalcStyleCount": {
+        "median": 64.74173244080328,
+        "min": 50.05012724608622,
+        "max": 64.84812150279777
+      },
+      "RecalcStyleDuration": {
+        "median": 0.08692826456189429,
+        "min": 0.0671681961903293,
+        "max": 0.08702288169464428
+      },
+      "JSHeapUsedSizeChange": {
+        "median": -726360,
+        "min": -951972,
+        "max": 19236
+      },
+      "framesDrawnPerSecond": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      }
+    },
+    {
+      "scene": "planets-saturn",
+      "address": "experience=planets&planet=saturn&t=2026-06-01T00:00:00Z",
+      "clock": "playing",
+      "diagnostics": false,
+      "runs": 3,
+      "ScriptDuration": {
+        "median": 0.021028568574567977,
+        "min": 0.020982415825756818,
+        "max": 0.021410730342691576
+      },
+      "TaskDuration": {
+        "median": 0.11639954041362771,
+        "min": 0.11554480071920889,
+        "max": 0.11722409831151961
+      },
+      "LayoutCount": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "LayoutDuration": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "RecalcStyleCount": {
+        "median": 64.84164252173044,
+        "min": 64.72879832184597,
+        "max": 64.94155260265761
+      },
+      "RecalcStyleDuration": {
+        "median": 0.08759716255370166,
+        "min": 0.08684197382878835,
+        "max": 0.08762623638725148
+      },
+      "JSHeapUsedSizeChange": {
+        "median": -2395252,
+        "min": -3708928,
+        "max": 1980124
+      },
+      "framesDrawnPerSecond": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      }
+    }
+  ],
+  "commit": "f5aa9fd429d7ba77ac074894190fccd3984e1170",
+  "cores": 16,
+  "chromium": "147.0.7727.15",
+  "command": "node packages/astraeus-site/tools/validate/run-profile.mjs (ASTRAEUS_PROFILE_OUT set)",
+  "comparison": [
+    {
+      "scene": "apollo-11",
+      "clock": "paused",
+      "diagnostics": true,
+      "ScriptDuration": {
+        "before": 0.1619,
+        "after": 0.0319
+      },
+      "LayoutCount": {
+        "before": 0.8986,
+        "after": 0.7996
+      },
+      "RecalcStyleCount": {
+        "before": 71.1648,
+        "after": 61.0695
+      },
+      "framesDrawnPerSecond": {
+        "before": 7.7852,
+        "after": 6.3968
+      }
+    },
+    {
+      "scene": "apollo-11",
+      "clock": "paused",
+      "diagnostics": false,
+      "ScriptDuration": {
+        "before": 0.1668,
+        "after": 0.0295
+      },
+      "LayoutCount": {
+        "before": 0.6978,
+        "after": 0.8996
+      },
+      "RecalcStyleCount": {
+        "before": 66.8926,
+        "after": 61.3754
+      },
+      "framesDrawnPerSecond": {
+        "before": 6.2805,
+        "after": 7.2971
+      }
+    },
+    {
+      "scene": "apollo-11",
+      "clock": "playing",
+      "diagnostics": true,
+      "ScriptDuration": {
+        "before": 0.1734,
+        "after": 0.1206
+      },
+      "LayoutCount": {
+        "before": 5.887,
+        "after": 5.8971
+      },
+      "RecalcStyleCount": {
+        "before": 126.9588,
+        "after": 65.7146
+      },
+      "framesDrawnPerSecond": {
+        "before": 30.2425,
+        "after": 35.0544
+      }
+    },
+    {
+      "scene": "apollo-11",
+      "clock": "playing",
+      "diagnostics": false,
+      "ScriptDuration": {
+        "before": 0.1764,
+        "after": 0.1169
+      },
+      "LayoutCount": {
+        "before": 5.8929,
+        "after": 5.9743
+      },
+      "RecalcStyleCount": {
+        "before": 141.2294,
+        "after": 65.817
+      },
+      "framesDrawnPerSecond": {
+        "before": 34.7826,
+        "after": 35.4433
+      }
+    },
+    {
+      "scene": "planets-saturn",
+      "clock": "paused",
+      "diagnostics": true,
+      "ScriptDuration": {
+        "before": 0.0895,
+        "after": 0.0203
+      },
+      "LayoutCount": {
+        "before": 0,
+        "after": 0
+      },
+      "RecalcStyleCount": {
+        "before": 119.928,
+        "after": 50.1004
+      },
+      "framesDrawnPerSecond": {
+        "before": 0,
+        "after": 0
+      }
+    },
+    {
+      "scene": "planets-saturn",
+      "clock": "paused",
+      "diagnostics": false,
+      "ScriptDuration": {
+        "before": 0.0711,
+        "after": 0.0201
+      },
+      "LayoutCount": {
+        "before": 0,
+        "after": 0
+      },
+      "RecalcStyleCount": {
+        "before": 92.6555,
+        "after": 64.8352
+      },
+      "framesDrawnPerSecond": {
+        "before": 0,
+        "after": 0
+      }
+    },
+    {
+      "scene": "planets-saturn",
+      "clock": "playing",
+      "diagnostics": true,
+      "ScriptDuration": {
+        "before": 0.0926,
+        "after": 0.0265
+      },
+      "LayoutCount": {
+        "before": 0,
+        "after": 0
+      },
+      "RecalcStyleCount": {
+        "before": 119.8921,
+        "after": 64.7417
+      },
+      "framesDrawnPerSecond": {
+        "before": 0,
+        "after": 0
+      }
+    },
+    {
+      "scene": "planets-saturn",
+      "clock": "playing",
+      "diagnostics": false,
+      "ScriptDuration": {
+        "before": 0.0911,
+        "after": 0.021
+      },
+      "LayoutCount": {
+        "before": 0,
+        "after": 0
+      },
+      "RecalcStyleCount": {
+        "before": 119.9041,
+        "after": 64.8416
+      },
+      "framesDrawnPerSecond": {
+        "before": 0,
+        "after": 0
+      }
+    }
+  ]
+}
