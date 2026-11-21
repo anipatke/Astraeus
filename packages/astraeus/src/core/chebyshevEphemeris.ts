@@ -4,6 +4,7 @@
  * names the bodies, their fit parameters, chunks and provenance; the caller fetches only the chunks a window needs and hands
  * the bytes in. Answers `stateAt(time)` through the ordinary Trajectory contract, in EQJ km with velocity in km/s.
  */
+import { J2000_NOON_UNIX_MS } from "./constants";
 import { assertCenterId, type BodyId, type CenterId } from "./body";
 import { chunkCovers, chunkPositionInto, chunkStateInto, decodeChunk, type SeriesChunk } from "./chebyshevSeries";
 import { createProvenance, type Provenance } from "./provenance";
@@ -160,7 +161,6 @@ export function parseEphemerisIndex(raw: unknown): EphemerisIndex {
   return { format: EPHEMERIS_INDEX_FORMAT, id: text(index.id, "id"), frame: EQJ, centre, timeScale, bodies };
 }
 
-const J2000_NOON_UNIX_MS = 946_728_000_000;
 
 /** The UTC millisecond whose TDB is closest to `tdbS` from inside the span (rounded toward the inside). */
 function utcMsForTdb(table: TimeScaleTable, tdbS: number, inward: "up" | "down"): number {

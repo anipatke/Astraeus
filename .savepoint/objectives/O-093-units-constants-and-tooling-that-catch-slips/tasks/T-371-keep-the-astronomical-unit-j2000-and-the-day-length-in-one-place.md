@@ -2,7 +2,7 @@
 id: T-371
 title: Keep the astronomical unit, J2000 and the day length in one place
 objective: O-093
-status: planned
+status: done
 depends_on: []
 check_waiver: {task: T-371, reason: 'Owner said "work through this list of objectives one by one. Orchestrate each objective to completion" (G-024 decision 7) and "carry on" (2026-11-22): standing orchestration rules waive the optional step checks; the mandatory Full Objective Check covers the whole diff.', actor: {role: owner, session: orchestrate-g024-20261121}, recorded_at: '2026-11-21T19:19:52Z'}
 owner_validation: {required: false}
@@ -71,8 +71,21 @@ Focused: `npx vitest run packages/astraeus/tests/constants.test.ts packages/astr
 
 ## Technical Evidence
 
-Pending execution.
+| Done When | Evidence |
+|---|---|
+| `core/constants.ts` exports the six constants, each with a source comment, nothing else | file written; `tests/constants.test.ts` |
+| Copies replaced by imports in all listed modules | `grep -rnE "149_?597_?870|946_?728_?000_?000|2_?451_?545|2_?440_?587|86_?400" packages/astraeus/src` prints only constants.ts, one comment in astronomyAdapter.ts, and shell/timelineModel.ts display tables (left as planned) |
+| Arithmetic unchanged | only names substituted, no reordering; `Date.UTC(2000,0,1,12[,0,0])` in planetModels and bodies/io.ts (extra, same value) replaced by `J2000_NOON_UNIX_MS`; `365_250 * 86_400` became `365_250 * DAY_S` |
+| New constants test, bit-identical table | `tests/constants.test.ts`, 9 cases using `Object.is` against independent statements (green) |
+| Lint rule + planted slip | `eslint.config.js` block (`Literal[value=...]` for the five values, src except constants.ts). Planted `const AU = 149_597_870.7;` in core/timeScale.ts failed lint ("149597870.7 is a shared constant ..."), then removed. Lint wall time: 4.5 s before, 5.1 s after (limit 15 s) |
+| Values unchanged | `scenePin.json` md5 c6d2308f... before and after; planetAccuracyFlybys, elementsEpoch etc. green in the full suite, unedited |
+| Existing tests unchanged | none edited by T-371 |
+| Gates | lint, typecheck, build pass; `npm test`: 308 files pass, 1 fails (5065 pass, 1 fail, 2 skipped) |
+
+Limitation: the one failing test is `packages/astraeus-site/tests/packageBoundaries.test.ts` "counts deep imports": astraeus-demo-apollo11 130 deep imports, up from 129. It comes from T-370's concurrent import-line edits in the Apollo demo tests, not from T-371 (no demo file touched here); left for T-370.
 
 ## Drift Notes
 
 For Design reconciliation (`Core layers and demos`): `core/constants.ts` is the one home of AU, J2000, the Unix-epoch JD and the day length; lint enforces it in engine source.
+
+Coordinator (orchestrate-g024-20261121): lint (5.1 s), typecheck, build green; `npm test` 5065 passed; the one `packageBoundaries` failure was fixed by the coordinator in T-370's commit (not this Task). `status: done` set by the coordinator under the standing orchestration rule ("I mark them as they pass", O-038) and G-024 decision 7.

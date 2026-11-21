@@ -1,3 +1,4 @@
+import { DAY_MS } from "../core/constants";
 import type { BodyId } from "../core/body";
 import { IO_PERIOD_DAYS } from "../core/bodies/io";
 import { MOON_SIDEREAL_PERIOD_DAYS } from "../core/bodies/moon";
@@ -5,7 +6,7 @@ import { catalogue, type BodyCatalogue } from "./catalogue";
 import { resolveOrbitLook, type OrbitLook } from "./orbitLook";
 
 /** One sidereal month, the span the Moon's orbit path covers. */
-export const SIDEREAL_MONTH_MS = MOON_SIDEREAL_PERIOD_DAYS * 86_400_000;
+export const SIDEREAL_MONTH_MS = MOON_SIDEREAL_PERIOD_DAYS * DAY_MS;
 
 /** A path the composition draws by default: the declared body's positions about its own parent, carried with that parent. */
 export interface CompositionPath {
@@ -82,7 +83,7 @@ export const jupiterIoSystem: SystemComposition = createComposition(catalogue, {
   bodies: ["jupiter", "io"],
   defaultCenter: "jupiter",
   // Io's orbit is Keplerian and closes exactly (a gap of 0 km), so its ring needs no end fade; the arc and zoom brightening stay.
-  paths: [{ body: "io", spanMs: IO_PERIOD_DAYS * 86_400_000, look: { endFadeOn: false } }],
+  paths: [{ body: "io", spanMs: IO_PERIOD_DAYS * DAY_MS, look: { endFadeOn: false } }],
 });
 
 /**
@@ -93,7 +94,7 @@ export const jupiterMoonsSystem: SystemComposition = createComposition(catalogue
   id: "jupiter-moons",
   bodies: ["jupiter", "io", "europa", "ganymede", "callisto"],
   defaultCenter: "jupiter",
-  paths: [{ body: "io", spanMs: IO_PERIOD_DAYS * 86_400_000, look: { endFadeOn: false } }],
+  paths: [{ body: "io", spanMs: IO_PERIOD_DAYS * DAY_MS, look: { endFadeOn: false } }],
 });
 
 /**

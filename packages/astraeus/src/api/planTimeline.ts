@@ -1,3 +1,4 @@
+import { DAY_MS } from "../core/constants";
 import type { TimelineEvent } from "../core/events";
 import type { TimeBounds } from "../core/trajectory";
 import type { ExperienceDefinition } from "../app/experienceDefinition";
@@ -7,7 +8,6 @@ import { frozenList, type SceneTimelineRead, type ScenePacingRead } from "./scen
 import { eventZonesOf } from "../core/pacing";
 import { pacingFor, timelineOf, type PacingPiece, type TimelineInput, type TimelineSetting } from "./story";
 
-const DAY_MS = 86_400_000;
 
 /** A checked pacing piece as the public read states it (seconds and UTC milliseconds). */
 function pacingReadOf(piece: PacingPiece): ScenePacingRead {

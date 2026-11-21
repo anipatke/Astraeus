@@ -1,3 +1,4 @@
+import { AU_KM, J2000_NOON_UNIX_MS } from "./constants";
 import fits from "../../data/ephemerides/planets/planets.json" with { type: "json" };
 import { chunkCovers, chunkPositionInto, decodeChunk, type SeriesChunk } from "./chebyshevSeries";
 import { PLANET_IDS, PlanetFitsUncoveredError, type PlanetId, type PlanetModel, type PlanetModels } from "./planetSeries";
@@ -5,8 +6,6 @@ import type { TimeBounds } from "./trajectory";
 import { assertTimeScaleTable, ttMinusUtcSeconds, type TimeScaleTable } from "./timeScale";
 
 /** The astronomical unit in km that the astronomy adapter multiplies the model's au by; the fits are stored in km with the same value. */
-const AU_KM = 149_597_870.7;
-const J2000_UNIX_MS = Date.UTC(2000, 0, 1, 12);
 
 interface StoredPlanet {
   readonly startS: number;
@@ -29,7 +28,7 @@ function planetModel(chunk: SeriesChunk, table: TimeScaleTable): PlanetModel {
   return {
     xyz(date: Date) {
       const utcMs = date.getTime();
-      const tt = (utcMs - J2000_UNIX_MS) / 1000 + ttMinusUtcSeconds(table, utcMs);
+      const tt = (utcMs - J2000_NOON_UNIX_MS) / 1000 + ttMinusUtcSeconds(table, utcMs);
       if (!chunkCovers(chunk, tt)) throw new PlanetFitsUncoveredError(date);
       chunkPositionInto(chunk, tt, km, 0);
       return { x: km[0] / AU_KM, y: km[1] / AU_KM, z: km[2] / AU_KM, coordinate_keywords: "ecliptic rectangular j2000", unit_keywords: "au" };

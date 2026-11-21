@@ -1,3 +1,4 @@
+import { AU_KM, JD_J2000 } from "./constants";
 import { Luna } from "@lizard-isana/orb/src/orb-luna.js";
 import { transformationMatrix, transform, makeState } from "@lizard-isana/orb/frames";
 import { AstroInstant } from "@lizard-isana/orb/time";
@@ -7,8 +8,6 @@ import { isPlanetId, planetModels, type PlanetId } from "./planetSeries";
 
 export type { PlanetId };
 
-const AU_KM = 149_597_870.7;
-const J2000_TT_JD = 2_451_545.0;
 
 export interface AstronomyAdapter {
   moonPositionKm(timeUtcMs: number): Float64Array;
@@ -94,7 +93,7 @@ export function createOrbAstronomyAdapter(): AstronomyAdapter {
 
     daysSinceJ2000Tt(timeUtcMs: number): number {
       const [jd1, jd2] = instantAt(timeUtcMs).jd2parts("tt");
-      const days = (jd1 - J2000_TT_JD) + jd2;
+      const days = (jd1 - JD_J2000) + jd2;
       if (!Number.isFinite(days)) throw new TypeError("Orb terrestrial time conversion returned a non-finite value");
       return days;
     },

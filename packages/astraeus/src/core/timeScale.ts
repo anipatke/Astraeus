@@ -5,6 +5,8 @@
  * Dependency-free on purpose: the browser speed probe loads it on its own.
  */
 
+import { J2000_NOON_UNIX_MS, DAY_S, DAY_MS } from "./constants";
+
 /** One piece of TT - UTC: from `fromUtcMs` on, `ttMinusUtcS + driftSPerDay * days since fromUtcMs`, until the next piece starts. */
 export interface TtMinusUtcPiece {
   readonly fromUtcMs: number;
@@ -26,9 +28,7 @@ export class TimeScaleOutOfRangeError extends RangeError {
 }
 
 /** 2000-01-01T12:00:00Z as Unix milliseconds; J2000 TDB is this instant less TT - UTC then (64.184 s) and TDB - TT. */
-const J2000_NOON_UNIX_MS = 946_728_000_000;
-const DAY_MS = 86_400_000;
-const JULIAN_MILLENNIUM_S = 365_250 * 86_400;
+const JULIAN_MILLENNIUM_S = 365_250 * DAY_S;
 
 /** [amplitude in microseconds, frequency in radians per Julian millennium, phase in radians]: SOFA dtdb, the largest terms. */
 const TDB_TT_TERMS: readonly (readonly [number, number, number])[] = [

@@ -1,3 +1,4 @@
+import { DAY_MS } from "../core/constants";
 import type { BodyId } from "../core/body";
 import { createOrbAstronomyAdapter } from "../core/astronomyAdapter";
 import { EARTH_EPHEMERIS } from "../core/bodies";
@@ -11,7 +12,6 @@ import { rootBodyId, type BodyCatalogue } from "../assets/catalogue";
 import { SceneError } from "./errors";
 import type { PathLayer } from "../app/experienceDefinition";
 
-const DAY_MS = 86_400_000;
 /** The turn search walks in two-day steps; a full turn is looked for up to about thirty years (Saturn's). */
 const TURN_STEP_MS = 2 * DAY_MS;
 const TURN_MAX_STEPS = 6_000;

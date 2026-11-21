@@ -4,6 +4,7 @@
  * the definition of a mapped one. Jupiter is one configuration (`jupiterMoons.ts`), unchanged by test. Core data: any experience may load it; which
  * bodies it shows is the experience's choice (O-025 Decision 8).
  */
+import { DAY_MS } from "../constants";
 import type { MoonDataSelection } from "../moonData";
 import type { BodyId, CelestialBodyDefinition, CenterId, OrientationModel, StateSourceBinding } from "../body";
 import { moonOrientationFromOrbit } from "../bodyOrientation";
@@ -95,7 +96,7 @@ function assertWithinSpan(set: ChebyshevEphemeris, request: Pick<MoonSystemLoad,
 }
 
 /** How far past the window's end the loader also looks for shipped chunks (one chunk year; chunks the build does not ship are skipped). */
-const AFTER_WINDOW_MS = 366 * 86_400_000;
+const AFTER_WINDOW_MS = 366 * DAY_MS;
 /** The fraction of one period of history loaded beyond the period itself (so a line of one period always has its samples). */
 const HISTORY_MARGIN = 1.05;
 /** A slice of decoding at most this long runs before the loader yields, so the page keeps painting (the boot loader animates). */

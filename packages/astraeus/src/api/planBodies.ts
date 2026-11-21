@@ -1,3 +1,4 @@
+import { DAY_MS } from "../core/constants";
 import type { BodyId } from "../core/body";
 import { readableScale, solarSystemScale, trueScale, type ScaleId, type ScalePolicy } from "../core/scalePolicy";
 import { catalogue as builtInCatalogue, bindCatalogue, extendCatalogue, extendCatalogueWithMoons, rootBodyId, type BodyCatalogue } from "../assets/catalogue";
@@ -34,7 +35,7 @@ function moonOrbitPath(catalogue: BodyCatalogue, id: BodyId, lap?: OrbitLapInput
   const { orbitPeriodDays, orbitLineFades, parentId } = catalogue.get(id).definition;
   const days = lap?.lapDays ?? orbitPeriodDays;
   if (days === undefined || parentId === undefined) return undefined;
-  return { spanMs: days * 86_400_000, ...((lap?.fades ?? orbitLineFades) === true ? {} : { look: { endFadeOn: false } }) };
+  return { spanMs: days * DAY_MS, ...((lap?.fades ?? orbitLineFades) === true ? {} : { look: { endFadeOn: false } }) };
 }
 
 /** Whether `orbit` is the lap form `{ lapDays, fades? }`. */

@@ -1,3 +1,4 @@
+import { J2000_NOON_UNIX_MS, DAY_S } from "../constants";
 import type { CelestialBodyDefinition, StateSourceBinding } from "../body";
 import { moonOrientationFromOrbit } from "../bodyOrientation";
 import { createProvenance } from "../provenance";
@@ -40,7 +41,7 @@ export const IO_MEAN_ELEMENTS = Object.freeze({
 });
 
 /** J2000 (2000-01-01 12:00 TDB) in UTC: TDB is taken as TT, and TT - UTC was 64.184 s then. A 64 s error would move Io about 1100 km. */
-export const IO_EPOCH_UTC_MS = Date.UTC(2000, 0, 1, 12, 0, 0) - 64_184;
+export const IO_EPOCH_UTC_MS = J2000_NOON_UNIX_MS - 64_184;
 
 /** Io's period about Jupiter, days: the sidereal period the mean elements give (about 1.769). */
 export const IO_PERIOD_DAYS = siderealPeriodDays(IO_MEAN_ELEMENTS.periodDays, IO_MEAN_ELEMENTS.apsisPeriodYears);
@@ -57,7 +58,7 @@ export function siderealPeriodDays(anomalisticDays: number, apsisPeriodYears: nu
 
 /** The semi-major axis whose two-body period about Jupiter's GM equals `periodDays`. */
 export function periodConsistentSemiMajorAxisKm(gmKm3S2: number, periodDays: number): number {
-  const meanMotion = (2 * Math.PI) / (periodDays * 86_400);
+  const meanMotion = (2 * Math.PI) / (periodDays * DAY_S);
   return Math.cbrt(gmKm3S2 / (meanMotion * meanMotion));
 }
 

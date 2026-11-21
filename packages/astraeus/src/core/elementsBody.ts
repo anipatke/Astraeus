@@ -1,3 +1,4 @@
+import { AU_KM, JD_J2000, JD_UNIX_EPOCH, DAY_S, DAY_MS } from "./constants";
 import type { BodyId, CelestialBodyDefinition, StateSourceBinding } from "./body";
 import { ttMinusUtc } from "@lizard-isana/orb/time";
 import { tdbMinusTtSeconds } from "./timeScale";
@@ -9,11 +10,7 @@ import { createTwoBodyTrajectory, type EccentricSampling } from "./sunCentredSou
 import type { Trajectory } from "./trajectory";
 import { createOrbTwoBodyAdapter } from "./twoBodyAdapter";
 
-const AU_KM = 149_597_870.7;
 const DEGREES = Math.PI / 180;
-const JD_UNIX_EPOCH = 2_440_587.5;
-const DAY_MS = 86_400_000;
-const JD_J2000 = 2_451_545;
 
 /** Default look of the marker that stands for a body on a published orbit; a record's own `marker` replaces either value. */
 export const DEFAULT_ELEMENTS_MARKER_COLOUR = "#9fe3ff";
@@ -213,7 +210,7 @@ export interface ElementsBody {
 /** An epoch as one instant: UTC milliseconds (whole, as the engine needs) and TDB seconds from J2000, the scale `perihelionJdTdb` is written in. */
 function epochInstant(epoch: ElementsBodyRecord["epoch"]): { readonly utcMs: number; readonly tdbS: number } {
   const labelMs = (epoch.jd - JD_UNIX_EPOCH) * DAY_MS;
-  const labelS = (epoch.jd - JD_J2000) * 86_400;
+  const labelS = (epoch.jd - JD_J2000) * DAY_S;
   if (epoch.timeScale === "UTC") {
     const utcMs = Math.round(labelMs);
     const ttS = (utcMs - (JD_J2000 - JD_UNIX_EPOCH) * DAY_MS) / 1000 + ttMinusUtc(utcMs);
@@ -248,7 +245,7 @@ export function buildElementsBody(input: ElementsBodyRecord, centre: ElementsCen
   const epochUtcMs = instant.utcMs;
   const meanAnomalyRad = elements.meanAnomalyDeg !== undefined
     ? elements.meanAnomalyDeg * DEGREES
-    : meanMotionRadPerS * (instant.tdbS - (elements.perihelionJdTdb! - JD_J2000) * 86_400);
+    : meanMotionRadPerS * (instant.tdbS - (elements.perihelionJdTdb! - JD_J2000) * DAY_S);
   const reducedRad = meanAnomalyRad - 2 * Math.PI * Math.floor(meanAnomalyRad / (2 * Math.PI));
   const periodMs = ((2 * Math.PI) / meanMotionRadPerS) * 1000;
   const sampling: EccentricSampling = Object.freeze({

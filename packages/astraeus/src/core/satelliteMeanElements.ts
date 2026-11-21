@@ -1,3 +1,4 @@
+import { JD_UNIX_EPOCH, DAY_S, DAY_MS } from "./constants";
 import type { CenterId } from "./body";
 import { trueAnomalyFromMean } from "./keplerAnomaly";
 import { assertUtcUnixMs } from "./state";
@@ -6,8 +7,6 @@ import type { Trajectory } from "./trajectory";
 import { createOrbTwoBodyAdapter } from "./twoBodyAdapter";
 
 const DEGREES = Math.PI / 180;
-const DAY_MS = 86_400_000;
-const UNIX_EPOCH_JD = 2440587.5;
 
 /** The shape of a `data/orbits/*.json` record this module reads (only the fields it uses; the files carry more, such as citations and rotation). */
 export interface MeanElementRecord {
@@ -39,7 +38,7 @@ export { siderealPeriodDaysFor, type PeriodRule };
 
 /** The instant the elements hold, UTC milliseconds: JD(TDB) taken as TT, less TT minus UTC. */
 export function epochUtcMsOf(record: MeanElementRecord): number {
-  return Math.round((record.epoch.jdTdb - UNIX_EPOCH_JD) * DAY_MS - record.epoch.ttMinusUtcSeconds * 1000);
+  return Math.round((record.epoch.jdTdb - JD_UNIX_EPOCH) * DAY_MS - record.epoch.ttMinusUtcSeconds * 1000);
 }
 
 type Matrix = readonly [readonly number[], readonly number[], readonly number[]];
@@ -68,7 +67,7 @@ export function elementsInPoleFrame(
 
 /** The semi-major axis whose two-body period about `gmKm3S2` equals `periodDays`. */
 function semiMajorAxisForPeriod(gmKm3S2: number, periodDays: number): number {
-  const meanMotion = (2 * Math.PI) / (periodDays * 86_400);
+  const meanMotion = (2 * Math.PI) / (periodDays * DAY_S);
   return Math.cbrt(gmKm3S2 / (meanMotion * meanMotion));
 }
 
