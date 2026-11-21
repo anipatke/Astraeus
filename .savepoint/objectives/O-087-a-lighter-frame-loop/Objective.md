@@ -38,3 +38,17 @@ AH-09 (all three): `sceneFrame.ts` projects paths, samples up to 512 points per 
 
 **Out of scope:**
 - Lighting passes; resource disposal (O-092); coordinator restructuring (O-089).
+
+## Decisions
+
+- Owner 2026-11-21 (G-024 decision 7): "work through this list of objectives one by one. Orchestrate each objective to completion"; owner 2026-11-22 "carry on orchestrating G-024". Step checks waived on every Task; T-401 is the owner look on localhost:5490 before the Full Objective Check.
+- Planner (orchestrate-g024-20261121), settled from evidence; conservative defaults taken on the planner's open questions (flagged to the owner):
+  1. Profiles via CDP `Performance.getMetrics` plus the frames-drawn readout, median of 3, one Chromium, production preview; the profile script is not a `check:browser` step. Before T-395 the flag does nothing, so the "before, off" rows equal "before, on" (stated in `before.json`).
+  2. Diagnostics switch: page global `globalThis.__ASTRAEUS_DIAGNOSTICS__`, read once per viewer, set by the browser harness for every page; no public API, README or lock change.
+  3. Costly readouts are gated; cheap state attributes (`data-pick-hover`, `data-sky-lines`, `data-body-set-hover`/`-named`, `data-frames-drawn`) stay on, written only on change. Gating is at call sites so existing test fixtures stay.
+  4. Labels: a size cache (ResizeObserver) plus arithmetic, one canvas-box read at frame start; `shownRects` keep page coordinates.
+  5. Paused re-render: functional set with an equality bail-out on the clock snapshot (playing still re-renders at 10 Hz; O-089 owns that).
+  6. Orbit sets: one dirty span, flushed in `place` only while visible. Paths: the look compared by value.
+  7. Labels are layout, so T-400 runs the full browser tier once; the Full Check reuses it.
+  8. Engine size: about 1.6 KB headroom; per-Task allowances 02 ≤400 B, 03 ≤600 B, 04 ≤200 B, 05 ≤400 B, 06 ≤300 B. A red size check parks the Objective with measured options for the owner (G-024 decision 7).
+- Waves: T-394 first (its baseline is recorded before any other Task merges), then T-395, T-397, T-398, T-399; T-396 after T-395; then T-400 and T-401.
