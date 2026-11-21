@@ -2,7 +2,7 @@
 id: T-397
 title: No re-render while paused
 objective: O-087
-status: planned
+status: done
 depends_on: []
 owner_validation: {required: false}
 check_waiver: {task: T-397, reason: 'Owner said "work through this list of objectives one by one. Orchestrate each objective to completion" (G-024 decision 7) and "carry on orchestrating G-024" (2026-11-22): standing orchestration rules waive the optional step checks; the mandatory Full Objective Check covers the whole diff.', actor: {role: owner, session: orchestrate-g024-20261122}, recorded_at: '2026-11-21T22:11:52Z'}
@@ -63,8 +63,20 @@ Focused: `npx vitest run packages/astraeus/tests/pausedRenders.test.ts packages/
 
 ## Technical Evidence
 
-Pending execution.
+| Done When | Evidence |
+|---|---|
+| Interval uses functional update with `sameClock` | `App.tsx`: `sameClock(a, b)` helper (time, playing, rate) and `setClockSnapshot((prev) => ...)` in the 100 ms interval; `host?.publish` untouched; other `setClockSnapshot` calls left as they are |
+| New table test, both paths, paused / playing / paused seek | `packages/astraeus/tests/pausedRenders.test.ts`, 6 cases pass (mount and AstraeusScene x 3); render counter on the stubbed scene plus a MutationObserver on `.timeline-time` |
+| Paused case fails with old unconditional set | Local edit (`return { ...next }`): 4 of 6 fail (paused and paused-seek on both paths); reverted, 6 pass |
+| Engine size <= ~200 B | Not measured (no `check:size` script found); source growth is about 11 lines; coordinator measures |
+| Gates | Focused (pausedRenders, hostCallOrder, lifecycle, domShell): 118 pass. lint: one error `Method 'sync' complexity 21` (OrbitSetView, T-398 file, not mine). typecheck: errors in `tests/orbitSetSync.test.ts` (T-398, not mine). build ok. Full test: 4 failures, all in other builders' files (frameDiagnostics.test.ts x2, orbitSetSync.test.ts x2); none in mine |
+
+Notes: the test advances the clock in 100 ms `act` steps because one `act` around a whole span batches the polls into one render. Limitations: no browser run.
 
 ## Drift Notes
 
-None expected.
+None.
+
+## Coordinator
+
+Set done by the orchestrating session after the combined handoff gates passed with T-395, T-397, T-398, T-399 together (owner: "I mark them as they pass", O-038; G-024 decision 7 "Orchestrate each objective to completion"; "carry on orchestrating G-024", 2026-11-22): lint and Prettier clean, typecheck clean, build ok, `npm test` 321 files, 5147 passed, 3 skipped; `npm run check:pack` engine budget 1,835,598 B raw (limit 1,836,000), 525,328 B gzip (limit 527,000).

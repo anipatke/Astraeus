@@ -22,6 +22,7 @@ import { useShelf } from "./useShelf";
 import { createSolarSystemScale, type ScalePolicy } from "../presentation/scalePolicy";
 import type { CameraRequest } from "./CameraController";
 import type { DebugReadout } from "./debugReadout";
+import type { ClockSnapshot } from "../core/clock";
 import {
   bodySetsOf,
   cameraReachOf,
@@ -152,6 +153,11 @@ function skyFigureReads(
       ...(card?.facts === undefined ? {} : { facts: card.facts }),
     });
   });
+}
+
+/** Whether two clock snapshots show the same time, playing state and rate (so a poll can keep the old one and skip a render). */
+function sameClock(a: ClockSnapshot, b: ClockSnapshot): boolean {
+  return a.timeUtcMs === b.timeUtcMs && a.playing === b.playing && a.rate === b.rate;
 }
 
 function startViewId(definition: ExperienceDefinition, search: string): string {
@@ -736,7 +742,11 @@ export function App({
     const id = window.setInterval(() => {
       // The readout wraps, stops and paces with the scene, so the shown time never rests past the end while looping and a host's playback reports follow the slow-downs.
       frameTime(runtime, controls.current);
-      setClockSnapshot(runtime.clock.snapshot());
+      // An unchanged clock keeps the same snapshot, so a paused viewer does not re-render ten times a second.
+      setClockSnapshot((prev) => {
+        const next = runtime.clock.snapshot();
+        return sameClock(prev, next) ? prev : next;
+      });
       host?.publish(stateNow(), "playback");
     }, 100);
     return () => window.clearInterval(id);
