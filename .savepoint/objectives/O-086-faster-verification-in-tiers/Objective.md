@@ -6,6 +6,7 @@ depends_on: [O-085]
 release: G-024
 priority: high
 rank: 5
+lanes: [{key: packing, title: Pack rules on small inputs}, {key: apollo, title: Apollo rerun on change}, {key: preload, title: Scoped moon preload}, {key: finder, title: Finder bands}, {key: guidance, title: Gate guidance}, {key: vitest-moves, title: Checks moved to Vitest}, {key: browser, title: Browser tiers and steps}]
 ---
 
 # O-086: Faster verification in tiers
@@ -37,3 +38,21 @@ Browser work follows `docs/agents/browser-policy.md`; one browser job at a time.
 
 **Out of scope:**
 - Retiring the assertion-text baseline and dead driver code (O-088); CI workflows (O-091).
+
+## Decisions
+
+- Owner 2026-11-21 (G-024 decisions 1 and 7): design confirmed ("work through this list of objectives one by one. Orchestrate each objective to completion"); tier policy "Quick set, full when relevant"; owner 2026-11-22 "carry on" and "this is going a bit slow". Step checks waived on every Task.
+- Planner (orchestrate-g024-20261121), settled from evidence (details in each Task; defaults taken, flagged to the owner):
+  1. Before/after timings back to back at the end (T-393), from a scratch worktree at the base commit.
+  2. The second Apollo reconstruction runs only when a content hash of its tools and raw inputs changes.
+  3. Tiers: quick = smoke (all pages and views, both sizes, journey removed), public showers, planets phone, the four packed examples; full adds the journey, meteor shower, views, look-out, catalogue. `npm run check:browser` with no flag stays the full tier.
+  4. The journey split keeps one script (`ASTRAEUS_VIEWS=synthetic-journey`).
+  5. The engine size limit moves from `npm test` to `check:pack` (this Objective's own condition "real build and pack only in check:pack"; it replaces the I-164 placement, flagged to the owner); `check:pack` runs at every Full Check and release.
+  6. `time-gates.mjs` keeps timing both suites; only the guidance changes.
+  7. No automatic tier choice; the policy lists the paths that need the full tier and says "when unsure, run full".
+  8. Sky readings rounded in the driver to the view-link precision.
+  9. Moon preload scoped by a third Vitest project with an explicit file list (no test file edits).
+  10. Removed browser assertions are named in a `RETIRED` list that requires the Vitest replacement to exist.
+  11. AH-49 (finder) included: cited in the Objective's Why.
+  12. Limits that rise are named with their cause; nothing is raised to hide a slow step.
+  13. Catalogue in the full tier only; public showers at desktop size only.
