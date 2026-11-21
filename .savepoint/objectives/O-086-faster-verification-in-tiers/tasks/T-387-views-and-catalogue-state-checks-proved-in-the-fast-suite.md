@@ -2,7 +2,7 @@
 id: T-387
 title: Views and catalogue state checks proved in the fast suite
 objective: O-086
-status: planned
+status: done
 depends_on: []
 check_waiver: {task: T-387, reason: 'Owner said "work through this list of objectives one by one. Orchestrate each objective to completion" (G-024 decision 7) and "carry on" (2026-11-22): standing orchestration rules waive the optional step checks; the mandatory Full Objective Check covers the whole diff.', actor: {role: owner, session: orchestrate-g024-20261121}, recorded_at: '2026-11-21T20:47:35Z'}
 owner_validation: {required: false}
@@ -68,8 +68,66 @@ Focused: `npx vitest run packages/astraeus/tests/viewsJourneyState.test.ts packa
 
 ## Technical Evidence
 
-Pending execution.
+### Mapping table (every `assert*` in the two scripts)
+
+journey-views.mjs
+| Assert | Verdict | Proved by |
+|---|---|---|
+| view options ids, order, labels | moves | viewsJourneyState.test.ts "offers the three views in order, labelled, and opens on the first" |
+| scene opens on first view (shownView) | moves | same case; "opens on view a with ..." |
+| hostView reports the view showing | moves | viewerHostDom.test.ts "publishes the view..." (handle.view after setView) and hostCallOrder.test.ts "setTime and setView take effect" |
+| view choice inside window, no overlaps | stays | layout needs a real browser |
+| view button size in px | stays | real pixel size |
+| expectView: Object list holds / leaves out bodies | moves | viewsJourneyState.test.ts "switching to %s ..." (a, b, both) and the opening-view case |
+| expectView: timeline event rows | moves | same cases |
+| expectView: story panel marker ids | moves | same cases |
+| expectView: probe path line drawn / hidden | stays | scene readout of the drawn path |
+| visitor switch: button shown as chosen | moves | viewsJourneyState.test.ts "switching to %s" |
+| visitor switch leaves clock and speed | moves | viewsJourneyState.test.ts "switching to %s" (clock snapshot time, rate, playing equal); also viewsDom.test.ts "keeps time, speed and playing state across a switch" |
+| host hears visitor switch (view b, cause visitor) | moves | viewerHostDom.test.ts "publishes the view: cause host for setView, visitor for the view choice, ..." |
+| camera: Earth moves while following probe b | stays | camera readout |
+| camera: Earth holds still in the stay view | stays | camera readout |
+| clock ran on while views were switched | stays | real running clock in the browser |
+| host setView: hostView, buttons follow | moves | viewerHostDom.test.ts (same case; buttons: "AstraeusScene applies the view prop ..." area line 535) |
+| host setView leaves clock | moves | viewerHostDom.test.ts "publishes the view ..." (time and rate equal) |
+| host hears its own switch as host | moves | viewerHostDom.test.ts "publishes the view ..." |
+
+journey-catalogue.mjs
+| Assert | Verdict | Proved by |
+|---|---|---|
+| one entry per part, in order | moves | catalogueEntries.test.ts "has one entry for each part ..."; also shelfCatalogue.test.ts "has an entry, a run button ..." |
+| no example runs at open (all idle) | moves | catalogueEntries.test.ts same case |
+| no viewer drawn at open | moves | catalogueEntries.test.ts same case (no canvas in the page text) |
+| out-of-the-box list (exact, ordered) | moves | catalogueEntries.test.ts "lists what comes out of the box, in the catalogue's order" |
+| entry opens with its plain name | moves | catalogueEntries.test.ts "%s: opens with its plain name ..." ; shelfCatalogue.test.ts "opens each entry ..." |
+| For developers fold starts closed | moves | catalogueEntries.test.ts same case |
+| import line names the part | moves | catalogueEntries.test.ts "%s: the import line names the part ..." |
+| add line holds the part | moves | same case |
+| shown code holds the add lines (holdsAddLines) | moves | same case; shelfCatalogue.test.ts "the journey's shown-code check holds ..." |
+| Run button size in px | stays | real pixel size |
+| fit: no sideways scroll, no overlaps, viewer box inside | stays | layout |
+| first example runs alone, one viewer, part's own words | stays | real viewer mounts |
+| starting another stops the first; stop leaves none | stays | one viewer at a time on real mounts |
+| every example starts, one viewer | stays | real mounts |
+| chart bars and label | stays | live chart |
+| tile area, inside box, text, value changes, strip/sheet/card/leftHalf | stays | live tile and layout |
+
+Planner's expectation confirmed, with one correction: the host-change rows and the host `view` rows are proved by existing viewerHostDom.test.ts cases (exact), so no new case was written for them; draft 11 may remove them from the browser step.
+
+### Done When -> evidence
+- Mapping table: above.
+- Existing exact covers named, no duplicate case: host rows (viewerHostDom.test.ts), clock/speed under a paused switch also in viewsDom.test.ts.
+- Two new files only, no existing test edited: packages/astraeus/tests/viewsJourneyState.test.ts (engine-only imports), packages/astraeus-site/tests/catalogueEntries.test.ts. `npx vitest run` on both: 23 passed.
+- Planted faults (local edit, run, revert; both files restored, git shows them unmodified):
+  - views: view a's objects leaked probe-b into its list -> 2 cases failed (switching to a; opens on view a).
+  - catalogue: panel example's `panel(` renamed -> "panel: the import line names the part, the add line holds it, ..." failed (1 of 18).
+- No browser script changed.
+- Gates: `npm run lint` over the two new files (prettier --check) clean; the repo-wide lint shows prettier warnings only in other files (badTime, fitOrbit, publicApi*, renamedInputs, shownDuring, stateOfBodies tests; not mine, not touched). `npm run typecheck`: no error in my files (errors seen in packagePacks.test.ts belong to T-382 in flight). `npm run check:engine-alone`: first run failed at test on another builder's in-flight packagePacks file; rerun passed with no failure lines. `npm run build` and the full `npm test` were not run by this builder (queue behind other builders; no source changed).
+- Extra reads: viewerHostDom.test.ts (cases near 535-620), hostCallOrder.test.ts (setup), src/catalogue/page.ts and sourceLines.ts, tools/site/shelf-catalogue.mjs (renderCatalogueMain), driver.mjs helper bodies; reason: find existing exact covers and the DOM hooks.
+- Limitations: the catalogue test cuts import/add lines with the same `importLines`/`addPartsStatement` the page script uses, not by running the page script in a DOM.
 
 ## Drift Notes
 
-None expected. The mapping table is the input of draft 11.
+None. The mapping table is the input of draft 11.
+
+Coordinator (orchestrate-g024-20261121): its two files pass prettier, typecheck and their 23 cases (planted faults fail); build and the full suite run at the Full Check (no source changed). The repo-wide prettier warnings it saw are a Prettier second-pass instability in files untouched since the reformat, fixed by a separate format-only commit. `status: done` set by the coordinator under the standing orchestration rule ("I mark them as they pass", O-038) and G-024 decision 7.
