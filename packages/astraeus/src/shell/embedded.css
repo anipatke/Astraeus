@@ -7,10 +7,7 @@
 
 /* Top bar: one tight row, close to the corner. */
 .astraeus-shell[data-embedded="true"]:where([data-phone="false"]) .astraeus-areas { padding: var(--astraeus-space-3); }
-.astraeus-shell[data-embedded="true"]:where([data-phone="false"]) .shell-top { max-width: calc(100cqw - var(--astraeus-size-9)); }
 .astraeus-shell[data-embedded="true"][data-phone="false"] .top-bar { gap: var(--astraeus-space-2); padding: var(--astraeus-space-2); border-radius: var(--astraeus-radius-s); box-shadow: var(--astraeus-shadow-s); }
-.astraeus-shell[data-embedded="true"][data-phone="false"] .top-bar-divider { height: var(--astraeus-space-6); margin: 0 var(--astraeus-space-1); }
-.astraeus-shell[data-embedded="true"][data-phone="false"] .developer-mode-toggle { top: var(--astraeus-space-4); right: var(--astraeus-space-4); }
 .astraeus-shell[data-embedded="true"][data-phone="false"] .scale-menu,
 .astraeus-shell[data-embedded="true"][data-phone="false"] .scale-explanation-panel { top: calc(100% + var(--astraeus-space-2)); }
 
@@ -26,7 +23,5 @@
 
 .astraeus-shell[data-embedded="true"][data-phone="false"] .timeline-bar .timeline-expanded { bottom: calc(100% + var(--astraeus-space-3)); }
 
-/* A phone-sized frame keeps its pill, drawers and 44 px targets; only the margins and the timeline's padding tighten. */
-.astraeus-shell[data-embedded="true"][data-phone="true"] .controls-pill { top: calc(var(--astraeus-space-2) + var(--safe-top)); left: calc(var(--astraeus-space-2) + var(--safe-left)); }
-.astraeus-shell[data-embedded="true"][data-phone="true"] .developer-mode-toggle { top: calc(var(--astraeus-space-2) + var(--safe-top)); right: calc(var(--astraeus-space-2) + var(--safe-right)); }
+/* A phone-sized frame keeps its one row, drawers and 44 px targets; only the margins and the timeline's padding tighten. */
 .astraeus-shell[data-embedded="true"][data-phone="true"] .timeline-bar { right: calc(var(--astraeus-space-2) + var(--safe-right)); bottom: calc(var(--astraeus-space-2) + var(--safe-bottom)); left: calc(var(--astraeus-space-2) + var(--safe-left)); padding: var(--astraeus-space-6) var(--astraeus-space-4) 1px; }

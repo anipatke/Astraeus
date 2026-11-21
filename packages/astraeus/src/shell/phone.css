@@ -1,6 +1,6 @@
 /*
- * The phone layout (T-081, O-020): the scene fills the screen; a name pill and the cog sit at the top, the two-line timeline at the bottom.
- * The pill opens the top drawer (the full controls); the timeline's handle opens its drawer (speed slider, events). Information and story
+ * The phone layout (T-081, O-020): the scene fills the screen; one bar row (title place, switch, menu button) sits at the top, the two-line timeline at the bottom.
+ * The menu button opens the top drawer (what the fit rule put in the menu); the timeline's handle opens its drawer (speed slider, events). Information and story
  * panels are bottom sheets. The shell sets data-phone from areas/screen.ts (a narrow viewer, or a short touch screen turned sideways), so the
  * breakpoint is written once. The numbers (--astraeus-motion, --*-max) are live settings. How a control looks is controls.css's job, not this file's.
  */
@@ -11,21 +11,6 @@
   --safe-right: env(safe-area-inset-right, 0px);
 }
 
-/* ---- Top: the pill and the cog ---- */
-.astraeus-shell[data-phone="true"] .controls-pill {
-  position: absolute;
-  z-index: var(--astraeus-layer-bar);
-  top: calc(var(--astraeus-space-4) + var(--safe-top));
-  left: calc(var(--astraeus-space-4) + var(--safe-left));
-  max-width: calc(100% - var(--astraeus-size-7) - var(--safe-left) - var(--safe-right));
-  gap: var(--astraeus-space-4);
-  /* A vertical swipe on the pill is ours (it opens the drawer), not a page pan. */
-  touch-action: none;
-}
-.astraeus-shell[data-phone="true"] .controls-pill-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.astraeus-shell[data-phone="true"] .controls-pill[aria-expanded="true"] { visibility: hidden; }
-.astraeus-shell[data-phone="true"] .developer-mode-toggle { z-index: var(--astraeus-layer-top); top: calc(var(--astraeus-space-4) + var(--safe-top)); right: calc(var(--astraeus-space-4) + var(--safe-right)); }
-
 /* ---- The drawers ---- */
 .astraeus-shell :where(.drawer-handle) { position: absolute; left: 50%; display: flex; width: var(--astraeus-size-9); height: var(--astraeus-hit); transform: translateX(-50%); touch-action: none; }
 .astraeus-shell .drawer-handle span { display: block; width: var(--astraeus-size-5); height: var(--astraeus-space-2); border-radius: var(--astraeus-space-1); background: color-mix(in srgb, var(--astraeus-text) 28%, transparent); }
@@ -34,58 +19,60 @@
 .astraeus-shell :where(.drawer-handle-top) { top: calc(var(--astraeus-size-3) * -1); align-items: flex-end; justify-content: center; padding-bottom: var(--astraeus-space-5); }
 .astraeus-shell :where(.drawer-handle-bottom) { bottom: calc(var(--astraeus-size-1) * -1); align-items: flex-start; justify-content: center; padding-top: var(--astraeus-space-5); }
 
-.astraeus-shell[data-phone="true"] .controls-drawer {
+/* The menu (the `menu` area): on a phone a drawer dropping from under the bar's row, on a wide screen a drop-down under the bar's right end. Both hold the bar menu list. */
+.astraeus-shell .controls-drawer {
   position: absolute;
-  z-index: var(--astraeus-layer-drawer);
   top: 0;
   right: 0;
-  left: 0;
   box-sizing: border-box;
   max-height: var(--controls-drawer-max, 60cqh);
   overflow: visible;
-  /* The right edge reserves the Developer button's column (8 px gap + 44 px target + 8 px gap) so the button never sits over the controls (I-044). */
-  padding: calc(var(--astraeus-space-4) + var(--safe-top)) calc(var(--astraeus-size-6) + var(--safe-right)) var(--astraeus-size-3) calc(var(--astraeus-space-5) + var(--safe-left));
-  border-bottom: 1px solid var(--astraeus-border);
-  border-radius: 0 0 var(--astraeus-radius-l) var(--astraeus-radius-l);
+  padding: var(--astraeus-space-5);
+  border: 1px solid var(--astraeus-border);
+  border-radius: var(--astraeus-radius);
   background: var(--astraeus-panel);
+  box-shadow: var(--astraeus-shadow-s);
   backdrop-filter: blur(var(--astraeus-space-5));
-  transform: translateY(-100%);
   visibility: hidden;
+  transition: visibility 0s linear var(--astraeus-motion);
+}
+.astraeus-shell:not([data-phone="true"]) .controls-drawer { width: min(var(--astraeus-size-14), calc(100cqw - var(--astraeus-size-2))); }
+.astraeus-shell .controls-drawer[data-open="true"] { visibility: visible; transition: visibility 0s; }
+.astraeus-shell[data-phone="true"] .controls-drawer {
+  left: 0;
+  padding-bottom: var(--astraeus-size-3);
+  border-width: 0 0 1px;
+  border-radius: 0 0 var(--astraeus-radius-l) var(--astraeus-radius-l);
+  transform: translateY(calc(-100% - var(--astraeus-size-6)));
   transition: transform var(--astraeus-motion) var(--astraeus-ease), visibility 0s linear var(--astraeus-motion);
 }
 .astraeus-shell[data-phone="true"] .controls-drawer[data-open="true"] {
   transform: none;
-  visibility: visible;
   transition: transform var(--astraeus-motion) var(--astraeus-ease), visibility 0s;
 }
-.astraeus-shell[data-phone="true"] .controls-drawer .shell-toolbar { max-width: none; }
-.astraeus-shell[data-phone="true"] .controls-drawer .top-bar {
+.astraeus-shell .bar-menu-list {
+  position: relative;
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(var(--astraeus-size-7), 1fr));
   gap: var(--astraeus-space-4);
-  padding: 0;
-  border: 0;
-  background: none;
-  box-shadow: none;
-  backdrop-filter: none;
 }
-.astraeus-shell[data-phone="true"] .controls-drawer .object-camera-actions { display: contents; }
-.astraeus-shell[data-phone="true"] .controls-drawer .top-bar-divider { display: none; }
-/* The object list takes the first row, leaving room for the cog at the right. */
-.astraeus-shell[data-phone="true"] .controls-drawer .object-picker { grid-column: 1 / -1; width: calc(100% - var(--astraeus-size-6)); max-width: none; }
+.astraeus-shell .bar-menu-item,
+.astraeus-shell .bar-menu-list .object-controls,
+.astraeus-shell .bar-menu-list .scale-control,
+.astraeus-shell .bar-menu-list .display-switches,
+.astraeus-shell .bar-menu-list .switch-panel-host,
+.astraeus-shell .bar-menu-list .scale-explanation { display: contents; }
+.astraeus-shell .bar-menu-story { display: contents; }
+/* The object list takes the first row. */
+.astraeus-shell .bar-menu-list .object-picker { grid-column: 1 / -1; width: 100%; max-width: none; }
 /* Each button: icon over a short word. */
-.astraeus-shell[data-phone="true"] .controls-drawer .display-switches { display: contents; }
-.astraeus-shell[data-phone="true"] .controls-drawer .top-bar-button { width: auto; flex-direction: column; gap: var(--astraeus-space-1); padding: 0 var(--astraeus-space-2); }
-.astraeus-shell[data-phone="true"] .controls-drawer .top-bar-button-text { display: block; max-width: 100%; overflow: hidden; font-size: var(--astraeus-text-xs); text-overflow: ellipsis; white-space: nowrap; }
-.astraeus-shell[data-phone="true"] .controls-drawer .switch-control { display: grid; grid-column: 1 / -1; grid-template-columns: repeat(auto-fit, minmax(var(--astraeus-size-7), 1fr)); gap: var(--astraeus-space-4); }
-.astraeus-shell[data-phone="true"] .controls-drawer .scale-toggle { padding: 0 var(--astraeus-space-2); }
-.astraeus-shell[data-phone="true"] .controls-drawer .scale-toggle > span { font-size: var(--astraeus-text-xs); }
-.astraeus-shell[data-phone="true"] .controls-drawer .scale-menu,
-.astraeus-shell[data-phone="true"] .controls-drawer .scale-explanation-panel { top: calc(100% + var(--astraeus-space-3)); right: auto; left: 0; width: min(var(--astraeus-size-14), calc(100cqw - var(--astraeus-size-4))); }
-/* The switch panel stays clear of the cog's column (60 px at the right) and the drawer's edge. */
-.astraeus-shell[data-phone="true"] .controls-drawer .switch-panel { top: calc(100% + var(--astraeus-space-3)); right: auto; left: 0; width: min(var(--astraeus-size-13), calc(100cqw - var(--astraeus-size-8))); min-width: 0; }
-.astraeus-shell[data-phone="true"] .controls-drawer .top-bar { position: relative; }
-.astraeus-shell[data-phone="true"] .controls-drawer .scale-control { position: static; }
+.astraeus-shell .bar-menu-list .top-bar-button { width: auto; flex-direction: column; gap: var(--astraeus-space-1); padding: 0 var(--astraeus-space-2); }
+.astraeus-shell .bar-menu-list .top-bar-button-text { display: block; max-width: 100%; overflow: hidden; font-size: var(--astraeus-text-xs); text-overflow: ellipsis; white-space: nowrap; }
+.astraeus-shell .bar-menu-list .scale-toggle { padding: 0 var(--astraeus-space-2); }
+.astraeus-shell .bar-menu-list .scale-toggle > span { font-size: var(--astraeus-text-xs); }
+.astraeus-shell .bar-menu-list .scale-menu,
+.astraeus-shell .bar-menu-list .scale-explanation-panel { top: calc(100% + var(--astraeus-space-3)); right: auto; left: 0; width: min(var(--astraeus-size-14), calc(100cqw - var(--astraeus-size-2))); }
+.astraeus-shell .bar-menu-list .switch-panel { top: calc(100% + var(--astraeus-space-3)); right: auto; left: 0; width: min(var(--astraeus-size-14), calc(100cqw - var(--astraeus-size-2))); min-width: 0; }
 
 /* ---- Bottom: the two-line timeline and its drawer ---- */
 .astraeus-shell[data-phone="true"] .timeline-bar {

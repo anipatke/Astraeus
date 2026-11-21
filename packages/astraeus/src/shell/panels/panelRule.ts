@@ -86,7 +86,10 @@ export function reducePanels(state: PanelState, action: PanelAction, layout: Lay
       if (top === null) return state;
       return top.occupant === "popup" ? { ...state, popup: null } : closeOccupant(state, top.occupant);
     }
-    case "outsidePress": return state.popup === null ? state : { ...state, popup: null };
+    // An outside press closes the open pop-up and nothing else; with none open, it closes a wide screen's ⋯ drop-down (a phone's drawer stays: it has its own handle).
+    case "outsidePress":
+      if (state.popup !== null) return { ...state, popup: null };
+      return layout === "wide" && state.menu ? { ...state, menu: false } : state;
   }
 }
 

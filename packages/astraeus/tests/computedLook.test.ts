@@ -70,9 +70,9 @@ async function render(phone: boolean, embedded: boolean, definition: ExperienceD
   for (let pass = 0; pass < 3; pass += 1) for (const fold of host.querySelectorAll('.developer-tools button[aria-expanded="false"]')) press(fold);
   await settle();
   press(host.querySelector(".object-info-toggle"));
-  if (phone) press(host.querySelector("button.controls-pill"));
+  if (phone) press(host.querySelector("button.bar-menu-button"));
   await settle();
-  for (let pass = 0; pass < 3; pass += 1) { for (const b of host.querySelectorAll('button[aria-expanded="false"]:not(.controls-pill):not(.object-info-toggle)')) press(b); await settle(); }
+  for (let pass = 0; pass < 3; pass += 1) { for (const b of host.querySelectorAll('button[aria-expanded="false"]:not(.bar-menu-button):not(.object-info-toggle)')) press(b); await settle(); }
 }
 
 const describeEl = (el: Element): string => {

@@ -16,7 +16,7 @@ const drawers = () => ({
   controls: $(m.container, ".controls-drawer").getAttribute("data-open") === "true",
   timeline: $(m.container, ".timeline-drawer").getAttribute("data-open") === "true",
 });
-const pill = () => $(m.container, "button.controls-pill");
+const pill = () => $(m.container, "button.bar-menu-button");
 const controlsHandle = () => $(m.container, "button.drawer-handle-bottom");
 const timelineHandle = () => $(m.container, "button.drawer-handle-top");
 const phone = (options = {}) => { m = mountShell({ phone: true, ...options }); };
@@ -25,14 +25,14 @@ describe("the phone shows only its small chrome (browser-phone: layout)", () => 
   it("shows the name pill with the picked object, the cog, and both drawers closed", () => {
     phone({ developerTools: "Advanced readouts" });
     expect(m.container.querySelector("main")!.getAttribute("data-phone")).toBe("true");
-    expect(pill().textContent).toContain("Earth");
+    expect($(m.container, "[data-bar-title]").textContent).toContain("Earth");
     expect(byLabel(m.container, "Developer mode")).toBeTruthy();
     expect(drawers()).toEqual({ controls: false, timeline: false });
   });
   it("follows a pick with the pill's name", () => {
     phone();
     selectObject(m.container, "survey-marker");
-    expect(pill().textContent).toContain("Survey marker");
+    expect($(m.container, "[data-bar-title]").textContent).toContain("Survey marker");
   });
 });
 

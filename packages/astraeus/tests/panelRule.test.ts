@@ -93,3 +93,17 @@ describe("the developer place", () => {
     expect(topmost(state({ developer: true }))).toBeNull();
   });
 });
+
+describe("the wide drop-down closes on an outside press (note section 6, change 9)", () => {
+  it("wide: with no pop-up open, an outside press closes the menu and nothing else", () => {
+    expect(apply(state({ menu: true, left: "card", story: true }), { type: "outsidePress" }, "wide")).toEqual(state({ left: "card", story: true }));
+  });
+  it("phone: the drawer stays open on an outside press (it has its own handle)", () => {
+    expect(apply(state({ menu: true }), { type: "outsidePress" }, "phone")).toEqual(state({ menu: true }));
+  });
+  it("wide: with a pop-up open, the first outside press closes only the pop-up, the second the menu", () => {
+    const first = apply(state({ menu: true, popup: "scale-help" }), { type: "outsidePress" }, "wide");
+    expect(first).toEqual(state({ menu: true }));
+    expect(apply(first, { type: "outsidePress" }, "wide")).toEqual(state({}));
+  });
+});

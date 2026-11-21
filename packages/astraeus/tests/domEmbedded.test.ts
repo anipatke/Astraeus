@@ -39,7 +39,7 @@ describe("framed or alone (browser-embedded)", () => {
     const fastest = [...speed.options].at(-1)!.value;
     change(speed, fastest);
     expect(String(m.clock.rate)).toBe(fastest);
-    if (phone) press($(m.container, "button.controls-pill"));
+    if (phone) press($(m.container, "button.bar-menu-button"));
     const picker = $(m.container, "select.object-picker") as HTMLSelectElement;
     change(picker, "moon");
     expect(m.selected()).toBe("moon");

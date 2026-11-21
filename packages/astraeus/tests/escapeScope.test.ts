@@ -13,7 +13,7 @@ const SWITCHES = [{ id: "labels", label: "Labels", place: "panel" as const, on: 
 function openEverything(): Mounted {
   const m = mountShell({ phone: true, displaySwitches: SWITCHES });
   m.requestPanel(PANEL_ID);
-  press($(m.container, "button.controls-pill"));
+  press($(m.container, "button.bar-menu-button"));
   press($(m.container, ".switch-panel-toggle"));
   return m;
 }

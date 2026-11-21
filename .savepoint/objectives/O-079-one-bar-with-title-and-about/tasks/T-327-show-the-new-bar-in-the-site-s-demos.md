@@ -3,7 +3,7 @@ id: T-327
 title: Show the new bar in the site's demos
 objective: O-079
 status: planned
-depends_on: [{task: T-325, requires: clear}]
+depends_on: [{task: T-332, requires: clear}]
 check_waiver: {task: T-327, reason: 'Owner said "orchestrate 79": standing orchestration rules waive the optional step checks; the mandatory Full Objective Check covers the whole diff.', actor: {role: owner, session: orchestrate-o079-20261121}, recorded_at: '2026-11-21T00:35:01Z'}
 owner_validation: {required: true}
 planned_by: {role: planner, session: plan-g023-20261121}
@@ -54,7 +54,7 @@ ARCH-01, PROV-01, API-01, TEST-01, TEST-03, STYLE-07, STYLE-09.
 2. Call `setAbout` on every demo scene in `main.tsx`; add short titles where the full name would crowd the phone row.
 3. Site test: every demo scene has an About with at least one credit.
 4. Run the browser journeys at 1280×720 and 375×667, one browser job at a time.
-5. Reconcile Design.md (bar, About, phone row, short labels, any embedded finding) and the decision note from the drift notes of T-330, T-326, T-329, T-331 and T-325, and confirm the old stylesheets and placement code are gone and the contributor guide matches the code.
+5. Reconcile Design.md (bar, About, phone row, short labels, any embedded finding) and the decision note from the drift notes of T-330, T-326, T-329, T-331, T-325 and T-332, and confirm the old stylesheets and placement code are gone and the contributor guide matches the code.
 6. Ask the owner to judge the demos on localhost:5490 and record the result.
 
 ## Boundaries
@@ -71,4 +71,4 @@ Pending execution.
 
 ## Drift Notes
 
-This Task is the deferred Design reconciliation point for T-330, T-326, T-329, T-331 and T-325 (AGENTS.md project rule).
+This Task is the deferred Design reconciliation point for T-330, T-326, T-329, T-331, T-325 and T-332 (AGENTS.md project rule).

@@ -1,9 +1,12 @@
-/* The top bar: one compact row of icon buttons at the top left, and the Developer cog on its own at the top right. */
+/* The bar: one full-width row (the desktop bar and the phone draw the same one, from the fit rule in bar/): title place, switch, then the engine controls and the menu button at the right. */
 
 .astraeus-shell .shell-toolbar { position: relative; z-index: var(--astraeus-layer-labels); max-width: 100%; }
 
 .astraeus-shell .top-bar {
+  box-sizing: border-box;
   display: flex;
+  width: 100%;
+  min-width: 0;
   align-items: center;
   gap: var(--astraeus-space-3);
   padding: var(--astraeus-space-3);
@@ -17,7 +20,24 @@
 .astraeus-shell .top-bar .scale-control,
 .astraeus-shell .top-bar .switch-control { display: contents; }
 .astraeus-shell .object-camera-actions { display: flex; align-items: center; gap: var(--astraeus-space-3); }
-.astraeus-shell .top-bar-divider { flex: 0 0 auto; width: 1px; height: var(--astraeus-size-2); margin: 0 var(--astraeus-space-2); background: var(--astraeus-border); }
+.astraeus-shell .top-bar > * { flex: 0 0 auto; }
+/* Free space sits between the left group (title, switch, story) and the right one (engine controls, menu); the negative margins cancel the two gaps around it, so the fit rule's one gap per item holds. */
+.astraeus-shell .bar-spacer { flex: 1 1 0; min-width: 0; margin: 0 calc(var(--astraeus-space-3) * -1); }
+.astraeus-shell .bar-title { display: inline-flex; align-items: center; min-height: var(--astraeus-control-height); padding: 0 var(--astraeus-space-3); color: var(--astraeus-text); font-size: var(--astraeus-text-l); font-weight: 600; white-space: nowrap; }
+.astraeus-shell .bar-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.astraeus-shell .bar-menu-button { touch-action: none; }
+.astraeus-shell .switch-compact { max-width: var(--astraeus-size-9); }
+
+/* The measuring row: every item in every form, out of sight, so the fit rule reads real widths. Same classes and tokens as the real controls. */
+.astraeus-shell .bar-measure { position: absolute; top: 0; right: 0; left: 0; height: 0; overflow: hidden; visibility: hidden; pointer-events: none; white-space: nowrap; }
+.astraeus-shell .bar-ghost-group { display: inline-flex; align-items: center; gap: var(--astraeus-space-3); }
+.astraeus-shell .bar-ghost { box-sizing: border-box; display: inline-flex; align-items: center; min-height: var(--astraeus-control-height); border: 1px solid transparent; font-size: var(--astraeus-control-text); font-weight: 500; line-height: 1.2; }
+.astraeus-shell .bar-ghost-text { padding: 0 var(--astraeus-space-5); }
+.astraeus-shell .bar-ghost-icon { width: var(--astraeus-control-height); }
+.astraeus-shell .bar-ghost-select { padding: 0 var(--astraeus-size-3) 0 var(--astraeus-space-5); }
+.astraeus-shell .bar-ghost-scale { gap: var(--astraeus-space-4); }
+.astraeus-shell .bar-ghost-scale::before,
+.astraeus-shell .bar-ghost-scale::after { content: ""; width: var(--astraeus-space-6); }
 
 .astraeus-shell .object-picker { min-width: 0; max-width: var(--astraeus-size-12); }
 .astraeus-shell .top-bar-button-text { display: none; }
@@ -59,14 +79,6 @@
 .astraeus-shell .scale-explanation-panel[hidden] { display: none !important; }
 .astraeus-shell .scale-explanation-panel p { margin: 0 0 var(--astraeus-space-4); }
 .astraeus-shell .scale-explanation-panel .scale-explanation-note { margin: 0; opacity: .75; }
-
-.astraeus-shell .developer-mode-toggle {
-  position: absolute;
-  z-index: var(--astraeus-layer-bar);
-  /* Level with the row of controls in the bar beside it (the bar's 12 px offset, its border and its padding). */
-  top: var(--astraeus-size-1);
-  right: var(--astraeus-space-5);
-}
 
 /* Display switches a story placed: buttons in the bar, and one small panel opened from a Display button (same look as the scale menu). */
 .astraeus-shell .top-bar .display-switches,

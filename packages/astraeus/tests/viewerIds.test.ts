@@ -32,7 +32,7 @@ const APP_PAIRS: readonly Pair[] = [
   { name: "setting group is named by its title", from: ".developer-tools .setting-group", attribute: "aria-labelledby", to: ".developer-tools h4", need: ["wide", "phone"] },
   { name: "fold toggle opens its body", from: ".developer-tools .collapsible-toggle", attribute: "aria-controls", to: ".developer-tools .collapsible-body", need: ["wide", "phone"] },
   { name: "story panel is named by its title", from: ".story-panel", attribute: "aria-labelledby", to: ".story-panel h2", need: ["wide", "phone"] },
-  { name: "controls pill opens the controls drawer", from: ".controls-pill", attribute: "aria-controls", to: ".controls-drawer", need: ["phone"] },
+  { name: "controls pill opens the controls drawer", from: ".bar-menu-button", attribute: "aria-controls", to: ".controls-drawer", need: ["phone"] },
   { name: "timeline handle opens the timeline drawer", from: ".drawer-handle-top", attribute: "aria-controls", to: ".timeline-drawer", need: ["phone"] },
 ];
 const MOON_PAIRS: readonly Pair[] = [
@@ -121,7 +121,7 @@ describe("every reference to an element id stays inside its viewer", () => {
       await opened.ready;
       await vi.waitFor(() => expect(host.querySelector(".astraeus-shell")).not.toBeNull());
       const shell = host.querySelector(".astraeus-shell")!;
-      if (context === "phone") shell.querySelector<HTMLButtonElement>(".controls-pill")!.click();
+      if (context === "phone") shell.querySelector<HTMLButtonElement>(".bar-menu-button")!.click();
       shell.querySelector<HTMLButtonElement>(".developer-mode-toggle")!.click();
       await vi.waitFor(() => expect(shell.querySelector(".developer-heading")).not.toBeNull());
       if (context === "phone") {

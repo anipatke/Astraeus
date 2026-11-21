@@ -1,5 +1,6 @@
 import { useId } from "react";
 import { usePopup } from "./panels/PopupContext";
+import { CompactSwitch, type SwitchForm } from "./SwitchControl";
 import { ButtonText, OrbitIcon, SwitchesIcon } from "./topBarIcons";
 
 /** One display switch a story placed: where it shows, and whether it is on now. */
@@ -15,18 +16,21 @@ export interface DisplaySwitchItem {
 /** The views a scene names, as the bar shows them: one option each, exactly one active. Choosing never rebuilds the scene or touches the clock. */
 export interface ViewChoice {
   readonly place: "top-bar" | "panel";
-  readonly options: readonly { readonly id: string; readonly label: string; readonly active: boolean }[];
+  readonly options: readonly { readonly id: string; readonly label: string; readonly shortLabel?: string; readonly active: boolean }[];
   readonly onSelect: (id: string) => void;
 }
 
 /** The view choice as a button group in the bar (and the phone drawer's grid), with the look of the experience switch's options. Fewer than two views: nothing to choose. */
-export function ViewButtons({ choice }: { readonly choice: ViewChoice }) {
+export function ViewButtons({ choice, form = "full" }: { readonly choice: ViewChoice; readonly form?: SwitchForm }) {
   if (choice.place !== "top-bar" || choice.options.length < 2) return null;
+  if (form === "compact") {
+    return <CompactSwitch label="View" active={choice.options.find((option) => option.active)?.id ?? ""} options={choice.options.map((option) => ({ value: option.id, label: option.label }))} choose={choice.onSelect} attributes={{ "data-view-choice": "" }} />;
+  }
   return (
     <section className="switch-control view-choice" role="group" aria-label="View" data-view-choice="">
       {choice.options.map((option) => (
         <button key={option.id} type="button" className={`switch-option top-bar-button ${option.active ? "ui-accent" : ""}`} aria-pressed={option.active} data-view-id={option.id} onClick={() => { if (!option.active) choice.onSelect(option.id); }}>
-          <span>{option.label}</span>
+          <span>{form === "short" ? option.shortLabel ?? option.label : option.label}</span>
         </button>
       ))}
     </section>

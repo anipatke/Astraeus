@@ -14,14 +14,6 @@
 
 .astraeus-shell .shell-canvas { position: absolute; inset: 0; }
 
-/* The bar's content: toolbar, then the moons button. Where it sits is the bar area's (areas.css); the cog has the width it reserves on the right. */
-.astraeus-shell .shell-top {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: var(--astraeus-space-4);
-  max-width: calc(100cqw - var(--astraeus-size-10));
-}
 .astraeus-shell .provenance-detail[hidden] { display: none !important; }
 
 .astraeus-shell .info-panel {

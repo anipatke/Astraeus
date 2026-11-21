@@ -604,7 +604,7 @@ export function App({ definition, writeTitle = true, address, developerTools, ho
   };
   const viewChoice: ViewChoice | undefined = definition.views === undefined ? undefined : {
     place: definition.views.place,
-    options: definition.views.views.map((view) => ({ id: view.id, label: view.label, active: view.id === currentView?.id })),
+    options: definition.views.views.map((view) => ({ id: view.id, label: view.label, ...(view.shortLabel === undefined ? {} : { shortLabel: view.shortLabel }), active: view.id === currentView?.id })),
     onSelect: (id) => {
       chooseView(id);
       host?.publish(stateNow(), "visitor");

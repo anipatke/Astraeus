@@ -27,3 +27,6 @@ export const CogIcon = () => (
 
 /** A short word under an icon, shown only where the drawer lays the buttons out as a grid; the button's accessible name stays its aria-label. */
 export const ButtonText = ({ children }: { readonly children: ReactNode }) => <span className="top-bar-button-text" aria-hidden="true">{children}</span>;
+/** The menu button's icons: three lines on a phone, three dots on a wide bar. */
+export const MenuIcon = () => <Icon><path d="M4 7h16M4 12h16M4 17h16" /></Icon>;
+export const MoreIcon = () => <Icon><circle cx="5" cy="12" r="1.4" fill="currentColor" /><circle cx="12" cy="12" r="1.4" fill="currentColor" /><circle cx="19" cy="12" r="1.4" fill="currentColor" /></Icon>;

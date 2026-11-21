@@ -60,7 +60,7 @@ export function featureMinBodyPxOf(look: LookInput): number {
  * competes with the information panel, the moons sheet and its button, the timeline, the top bar, story panels or the phone drawers.
  * (Presentation only; the selectors are the shell's layout classes, not any experience's.)
  */
-export const FEATURE_OCCLUDER_SELECTOR = [".info-panel", ".moons-sheet", ".moons-toggle", ".timeline-bar", ".shell-toolbar", ".story-panel", ".controls-drawer", ".controls-pill", ".drawer-handle", ".developer-tools", ".developer-mode-toggle", ".timeline-drawer"].join(", ");
+export const FEATURE_OCCLUDER_SELECTOR = [".info-panel", ".moons-sheet", ".moons-toggle", ".timeline-bar", ".shell-toolbar", ".story-panel", ".controls-drawer", ".drawer-handle", ".developer-tools", ".developer-mode-toggle", ".timeline-drawer"].join(", ");
 /** How often the panels' areas are re-measured, ms (panels slide and resize; a frame-by-frame measure would cost layout every frame). */
 const OCCLUDER_REFRESH_MS = 200;
 /** Half the marker's tap target: a marker this close to a panel's edge is hidden too, so its tap target never reaches under the panel. */

@@ -6,6 +6,8 @@ import { NO_PANELS, reducePanels, topmost, type Layout, type Occupant, type Pane
 
 /** Marks the element holding a pop-up and its button; a press inside the open pop-up's host is not an outside press. */
 export const POPUP_HOST_ATTRIBUTE = "data-popup-host";
+/** The host name of the menu (its button and drop-down): a press on either is not outside it. */
+export const MENU_HOST = "menu";
 
 export interface Panels {
   readonly state: PanelState;
@@ -27,8 +29,8 @@ export interface Panels {
  */
 export function usePanels(layout: Layout, viewer: RefObject<Element | null>, onEscapeClosed: (occupant: Occupant) => void, scope: "viewer" | "standalone" | "off" = "viewer"): Panels {
   const [state, dispatch] = useReducer((now: PanelState, action: Parameters<typeof reducePanels>[1]) => reducePanels(now, action, layout), NO_PANELS);
-  const latest = useRef({ state, onEscapeClosed });
-  latest.current = { state, onEscapeClosed };
+  const latest = useRef({ state, onEscapeClosed, layout });
+  latest.current = { state, onEscapeClosed, layout };
 
   useEffect(() => {
     if (scope === "off") return undefined;
@@ -40,9 +42,11 @@ export function usePanels(layout: Layout, viewer: RefObject<Element | null>, onE
       if (top.occupant !== "popup") latest.current.onEscapeClosed(top.occupant);
     };
     const onPress = (event: PointerEvent) => {
-      const open = latest.current.state.popup;
+      const { state: now, layout: shown } = latest.current;
+      const open = now.popup ?? (shown === "wide" && now.menu ? MENU_HOST : null);
       if (open === null) return;
-      const host = event.target instanceof Element ? event.target.closest(`[${POPUP_HOST_ATTRIBUTE}]`) : null;
+      // A press inside the menu (a control nested in it has its own host) is not outside it.
+      const host = event.target instanceof Element ? event.target.closest(open === MENU_HOST ? `[${POPUP_HOST_ATTRIBUTE}="${MENU_HOST}"]` : `[${POPUP_HOST_ATTRIBUTE}]`) : null;
       const mine = host !== null && (scope === "standalone" || (viewer.current?.closest(`.${VIEWER_ROOT_CLASS}`)?.contains(host) ?? false));
       if (mine && host.getAttribute(POPUP_HOST_ATTRIBUTE) === open) return;
       dispatch({ type: "outsidePress" });

@@ -169,7 +169,7 @@ const HOST_WRAPPERS: ReadonlyArray<{ readonly name: string; readonly attributes:
   { name: "data-embedded=true data-phone=true (embedded phone rules)", attributes: { "data-embedded": "true", "data-phone": "true" } },
   { name: "data-timeline-hidden=true", attributes: { "data-timeline-hidden": "true" } },
 ];
-const HOST_PARTS = ["timeline-bar", "timeline-main-row", "timeline-time", "timeline-track", "timeline-marker", "timeline-group-item", "timeline-drawer", "top-bar", "top-bar-divider", "shell-toolbar", "shell-top", "scale-menu", "switch-panel", "controls-pill", "controls-drawer", "drawer-handle", "sheet-handle", "developer-mode-toggle", "story-panel", "info-panel"];
+const HOST_PARTS = ["timeline-bar", "timeline-main-row", "timeline-time", "timeline-track", "timeline-marker", "timeline-group-item", "timeline-drawer", "top-bar", "shell-toolbar", "scale-menu", "switch-panel", "controls-drawer", "drawer-handle", "sheet-handle", "developer-mode-toggle", "story-panel", "info-panel"];
 const BAR_PROPS = ["position", "z-index", "display", "padding-top", "bottom", "top", "right", "left", "width", "height", "min-height", "font-size", "border-top-width", "border-radius", "background-color", "gap", "max-width", "--shell-timeline-space", "--timeline-space"];
 
 describe.each(HOST_WRAPPERS)("a host element with $name outside any viewer", ({ attributes }) => {

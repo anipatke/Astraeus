@@ -31,8 +31,8 @@
 .astraeus-shell [data-area="right"] { display: flex; flex-direction: column; gap: var(--astraeus-space-4); min-height: 0; }
 .astraeus-shell [data-area="left"] { align-items: flex-start; }
 .astraeus-shell [data-area="right"] { align-items: flex-end; }
-/* Anchored places: the menu over the whole viewer (the drawer drops from its top edge), the popover at its button, the developer panel right under the bar. */
-.astraeus-shell [data-area="menu"] { position: absolute; z-index: var(--astraeus-layer-drawer); inset: 0; }
+/* Anchored places: the menu in the row under the bar, across the viewer (the drawer or drop-down opens from its top edge, so it sits just under the bar), the popover at its button, the developer panel right under the bar. */
+.astraeus-shell [data-area="menu"] { position: relative; z-index: var(--astraeus-layer-drawer); grid-row: 2; grid-column: 1 / -1; }
 .astraeus-shell [data-area="popover"],
 .astraeus-shell [data-area="developer"] { position: absolute; z-index: var(--astraeus-layer-popover); }
 .astraeus-shell [data-area="developer"] { top: var(--astraeus-size-7); right: var(--astraeus-space-5); }
@@ -46,7 +46,7 @@
   grid-template-columns: minmax(0, 1fr);
   grid-template-areas: "bar" "." "sheet" "timeline";
   grid-template-rows: auto minmax(0, 1fr) auto var(--timeline-space, var(--astraeus-size-10));
-  padding: var(--astraeus-space-4) var(--astraeus-space-4) 0;
+  padding: calc(var(--astraeus-space-4) + var(--safe-top, 0px)) calc(var(--astraeus-space-4) + var(--safe-right, 0px)) 0 calc(var(--astraeus-space-4) + var(--safe-left, 0px));
 }
 .astraeus-shell[data-phone="true"] [data-area="left"],
 .astraeus-shell[data-phone="true"] [data-area="right"],

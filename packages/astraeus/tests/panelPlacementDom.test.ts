@@ -59,7 +59,7 @@ describe("what opening a panel closes (the close table through the shell)", () =
   it("phone, change 7: the moons list is a sheet opened from the menu; opening the menu closes no panel; choosing the moons button closes the menu", () => {
     const m = mount({ phone: true, experience: MOON_EXPERIENCE });
     m.requestPanel(PANEL_ID);
-    press($(m.container, "button.controls-pill"));
+    press($(m.container, "button.bar-menu-button"));
     expect(menuOpen(m)).toBe(true);
     expect(m.container.querySelector(".story-panel")).not.toBeNull();
     expect(inArea(m, "left", ".moon-panel") || inArea(m, "left", ".moons-sheet")).toBe(true);
@@ -73,7 +73,7 @@ describe("what opening a panel closes (the close table through the shell)", () =
   it("phone: a detail sheet (the card) covers the story sheet and keeps it open", () => {
     const m = mount({ phone: true });
     m.requestPanel(PANEL_ID);
-    press($(m.container, "button.controls-pill"));
+    press($(m.container, "button.bar-menu-button"));
     press($(m.container, ".object-info-toggle"));
     expect(card(m)).toBe(true);
     expect(m.container.querySelector(".story-panel")).not.toBeNull();
@@ -116,7 +116,7 @@ describe("what opening a panel closes (the close table through the shell)", () =
     const drawerOpen = () => $(m.container, ".timeline-drawer").getAttribute("data-open") === "true";
     press($(m.container, "button.drawer-handle-top"));
     expect(drawerOpen()).toBe(true);
-    press($(m.container, "button.controls-pill"));
+    press($(m.container, "button.bar-menu-button"));
     expect(menuOpen(m)).toBe(true);
     expect(drawerOpen()).toBe(false);
     press($(m.container, "button.drawer-handle-top"));
@@ -126,13 +126,13 @@ describe("what opening a panel closes (the close table through the shell)", () =
 
   it("phone, change 11: the developer panel is a detail sheet: opening it closes the card, and the card closes it", () => {
     const m = mount({ phone: true, developerTools: createElement("p", null, "tools") });
-    press($(m.container, "button.controls-pill"));
+    press($(m.container, "button.bar-menu-button"));
     press($(m.container, ".object-info-toggle"));
     expect(card(m)).toBe(true);
     press($(m.container, ".developer-mode-toggle"));
     expect(card(m)).toBe(false);
     expect($(m.container, ".developer-mode-toggle").getAttribute("aria-pressed")).toBe("true");
-    press($(m.container, "button.controls-pill"));
+    press($(m.container, "button.bar-menu-button"));
     press($(m.container, ".object-info-toggle"));
     expect(card(m)).toBe(true);
     expect($(m.container, ".developer-mode-toggle").getAttribute("aria-pressed")).toBe("false");

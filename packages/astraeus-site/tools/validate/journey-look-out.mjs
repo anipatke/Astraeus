@@ -179,7 +179,7 @@ async function checkSkyStory(page, name) {
   await ui.chooseCamera(page, "focus-earth");
   await ui.waitForCameraReading(page, (reading) => !reading.sky);
   await ui.closeInfo(page); // a menu pick opens the card, which covers the story's buttons on a phone
-  if (name === "phone") { await ui.closeControlsDrawer(page); await ui.closeTimelineDrawer(page); } // the camera entry opened the drawers too
+  if (name === "phone") { await ui.closeMenu(page); await ui.closeTimelineDrawer(page); } // the camera entry opened the drawers too
   await pressStep(page, "next");
   await waitForStep(page, "step-lantern");
   const lantern = await ui.waitForCameraReading(page, (reading) => reading.sky && reading.fovDeg === 40);

@@ -1,53 +1,41 @@
-import { useId, type ReactNode } from "react";
-import { ChevronIcon } from "./topBarIcons";
+import type { ReactNode } from "react";
+import { MENU_HOST, POPUP_HOST_ATTRIBUTE } from "./panels/usePanels";
 import { useDrawerSwipe } from "./useDrawerSwipe";
 
 interface Props {
-  /** The picked object's name, shown on the pill. */
-  readonly label: string;
+  /** The id the bar's menu button names in `aria-controls`; made once per viewer by the shell. */
+  readonly id: string;
   readonly open: boolean;
+  /** A phone's drawer closes by a swipe up or a tap on its handle; a wide drop-down has no handle. */
+  readonly phone: boolean;
   readonly onOpenChange: (open: boolean) => void;
   readonly swipeThresholdPx: number;
-  /** An item inside the drawer was chosen (anything marked `data-closes-drawer`): the panel rule closes the drawer. */
+  /** An item inside the menu was chosen (anything marked `data-closes-drawer`): the panel rule closes it. */
   readonly onItemChosen: () => void;
-  /** The full controls (the same top bar the larger screens show in a row). */
+  /** What the fit rule put in the menu (`BarMenu`). */
   readonly children: ReactNode;
 }
 
 /**
- * The phone's top drawer. Closed, the scene shows only a small name pill; the pill opens the drawer by a tap or a swipe down, and the handle
- * under it closes it by a tap or a swipe up. The controls stay mounted while it is closed (state survives) but are hidden from sight and focus.
+ * The menu's panel, in the `menu` area: a drawer dropping from the bar on a phone, a drop-down under the bar's right end on a wide screen. The bar's menu button opens it
+ * (a tap or a swipe down) and the handle closes it (a tap or a swipe up). The controls stay mounted while it is closed (state survives) but are hidden from sight and focus.
  */
-export function ControlsDrawer({ label, open, onOpenChange, swipeThresholdPx, onItemChosen, children }: Props) {
-  const drawerId = `${useId()}-controls-drawer`;
-  const opening = useDrawerSwipe({ thresholdPx: swipeThresholdPx, onTap: () => onOpenChange(true), onSwipe: (direction) => { if (direction === "down") onOpenChange(true); } });
+export function ControlsDrawer({ id, open, phone, onOpenChange, swipeThresholdPx, onItemChosen, children }: Props) {
   const closing = useDrawerSwipe({ thresholdPx: swipeThresholdPx, onTap: () => onOpenChange(false), onSwipe: (direction) => { if (direction === "up") onOpenChange(false); } });
   return (
-    <>
-      <button
-        type="button"
-        className="controls-pill ui-pill"
-        aria-label={`Show controls: ${label}`}
-        aria-expanded={open}
-        aria-controls={drawerId}
-        {...opening}
-      >
-        <span className="controls-pill-name">{label}</span>
-        <ChevronIcon />
-      </button>
-      <div
-        id={drawerId}
-        className="controls-drawer"
-        role="region"
-        aria-label="Controls"
-        data-open={open}
-        // A dropdown closes the drawer on its change, not on the tap that opens it (owner bug, 2026-10-18: the drawer shut as the picker opened).
-        onClick={(event) => { const closer = (event.target as Element).closest("[data-closes-drawer]"); if (closer !== null && closer.tagName !== "SELECT") onItemChosen(); }}
-        onChange={(event) => { if ((event.target as Element).closest("[data-closes-drawer]") !== null) onItemChosen(); }}
-      >
-        {children}
-        <button type="button" className="drawer-handle drawer-handle-bottom ui-bare" aria-label="Hide controls" {...closing}><span /></button>
-      </div>
-    </>
+    <div
+      id={id}
+      className="controls-drawer"
+      role="region"
+      aria-label="Controls"
+      data-open={open}
+      {...{ [POPUP_HOST_ATTRIBUTE]: MENU_HOST }}
+      // A dropdown closes the drawer on its change, not on the tap that opens it (owner bug, 2026-10-18: the drawer shut as the picker opened).
+      onClick={(event) => { const closer = (event.target as Element).closest("[data-closes-drawer]"); if (closer !== null && closer.tagName !== "SELECT") onItemChosen(); }}
+      onChange={(event) => { if ((event.target as Element).closest("[data-closes-drawer]") !== null) onItemChosen(); }}
+    >
+      {children}
+      {phone && <button type="button" className="drawer-handle drawer-handle-bottom ui-bare" aria-label="Hide controls" {...closing}><span /></button>}
+    </div>
   );
 }

@@ -1,4 +1,4 @@
-// Journey "Planets on a phone" (O-038 T-145), a step of `npm run check:browser`: on a 375x667 touch screen, open the planets demo on Mercury, switch to Jupiter,
+// Journey "Planets on a phone" (O-038 T-145, O-079 T-326: the switch is on the one bar row), a step of `npm run check:browser`: on a 375x667 touch screen, open the planets demo on Mercury, switch to Jupiter,
 // focus Io, then open one of Io's place cards. Everything goes through driver.mjs and the scene's own readouts; no screenshot is taken.
 // Alone: ASTRAEUS_URL=<app.html url> ASTRAEUS_EVIDENCE_DIR=<new dir> node tools/validate/journey-planets-phone.mjs
 import assert from "node:assert/strict";
@@ -11,6 +11,8 @@ await checkScript({ name: "journey-planets-phone", viewports: [PHONE] }, async (
   await ui.loadAddress(page, appUrl("experience=planets&planet=mercury&sky=off"));
   await ui.waitForShell(page);
   await ui.ensurePaused(page);
+  assert.ok(await ui.switchInBarRow(page), "the planet switch is on the phone's one bar row, with no menu opened");
+  assert.ok((await ui.barTitleName(page)) !== null, "the bar row has a title place");
   assert.equal((await ui.experienceSwitchState(page)).options.find((option) => option.active)?.value, "mercury", "Mercury is the open planet");
 
   await ui.chooseSwitchOption(page, "jupiter");

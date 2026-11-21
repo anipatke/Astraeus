@@ -1922,6 +1922,11 @@
           "name": "label",
           "optional": false,
           "signature": "string"
+        },
+        {
+          "name": "shortLabel",
+          "optional": true,
+          "signature": "string | undefined"
         }
       ]
     },
@@ -2676,6 +2681,11 @@
           "name": "label",
           "optional": false,
           "signature": "string"
+        },
+        {
+          "name": "shortLabel",
+          "optional": true,
+          "signature": "string | undefined"
         },
         {
           "name": "objects",

@@ -4,6 +4,8 @@ export interface PickerOptionInput {
   readonly value: string;
   /** The words on the button. */
   readonly label: string;
+  /** Label for a narrow bar. */
+  readonly shortLabel?: string;
 }
 
 /** A choice an app offers in the viewer's top bar and phone drawer (`Scene.setPicker`). The viewer only reports a press; it never navigates, reads or writes the page address, or keeps a time. */

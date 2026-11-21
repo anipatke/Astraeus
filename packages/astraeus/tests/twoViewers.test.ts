@@ -431,7 +431,7 @@ describe.each(PAIRINGS)("two viewers on one page: $name", (pairing) => {
     pretendScreen({ phone: true });
     const [a, b] = await openPair(pairing);
     const drawerOpen = (v: Viewer) => v.element.querySelector(".controls-drawer")!.getAttribute("data-open") === "true";
-    const openBoth = () => { for (const v of [a, b]) { if (!drawerOpen(v)) flushSync(() => v.element.querySelector<HTMLButtonElement>("button.controls-pill")!.click()); } };
+    const openBoth = () => { for (const v of [a, b]) { if (!drawerOpen(v)) flushSync(() => v.element.querySelector<HTMLButtonElement>("button.bar-menu-button")!.click()); } };
     const escape = (target: Element) => flushSync(() => { target.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true, cancelable: true })); });
     const input = document.createElement("input");
     document.body.append(input);

@@ -12,6 +12,8 @@ export type ViewCameraRule =
 export interface ResolvedView {
   readonly id: string;
   readonly label: string;
+  /** Fewer words for a narrow bar; absent: the label. */
+  readonly shortLabel?: string;
   readonly camera: ViewCameraRule;
   /** Bodies, paths and groups: the ids the menu lists and the scene draws. */
   readonly objects: ReadonlySet<string>;

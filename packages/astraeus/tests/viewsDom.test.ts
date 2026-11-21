@@ -72,8 +72,8 @@ describe("the view choice", () => {
   it("shows the choice in the phone drawer too", async () => {
     pretendScreen({ phone: true });
     await open();
-    expect(container.querySelector(".controls-drawer [data-view-choice]")).not.toBeNull();
-    expect(container.querySelectorAll(".controls-drawer [data-view-id]")).toHaveLength(3);
+    expect(container.querySelector(".top-bar [data-view-choice]")).not.toBeNull();
+    expect(container.querySelectorAll(".top-bar [data-view-id]")).toHaveLength(3);
   });
 
   it("hands the scene one hidden set per view, with shared bodies never hidden", async () => {

@@ -20,7 +20,7 @@ const HOOK = {
   provenanceBadge: ".provenance-badge",
   provenanceDetail: ".provenance",
   sourcesSection: ".sources-section",
-  controlsPill: "button.controls-pill",
+  menu: "button.bar-menu-button",
   controlsDrawer: ".controls-drawer",
   timelineHandle: "button.drawer-handle-top",
   timelineDrawer: ".timeline-drawer",
@@ -52,17 +52,20 @@ const squash = (text) => text.replace(/\s+/g, " ");
 // control inside one call `reveal` first, which opens the drawer that holds it; on a larger screen there are no drawers and `reveal` does nothing.
 // ---------------------------------------------------------------------------------------------------------------------------------------------
 
-/** Whether the page is in the phone layout (it has the controls pill). */
-export const isPhoneLayout = async (page) => (await page.locator(HOOK.controlsPill).count()) > 0;
-/** Opens the top drawer when the layout has one and it is closed. */
-export async function openControlsDrawer(page) {
-  const pill = page.locator(HOOK.controlsPill);
-  if ((await pill.count()) > 0 && (await pill.getAttribute("aria-expanded")) !== "true") { await pill.click(); await page.locator(`${HOOK.controlsDrawer}[data-open="true"]`).waitFor(); }
+/** Whether the page is in the phone layout (the viewer root says so: one decision, areas/screen.ts). */
+export const isPhoneLayout = async (page) => (await page.locator(".astraeus-shell").first().getAttribute("data-phone")) === "true";
+/** Opens the menu (a phone's drawer, a wide bar's ⋯ drop-down) when the bar has a menu button and the menu is closed. */
+export async function openMenu(page) {
+  const button = page.locator(HOOK.menu);
+  if ((await button.count()) > 0 && (await button.getAttribute("aria-expanded")) !== "true") { await button.click(); await page.locator(`${HOOK.controlsDrawer}[data-open="true"]`).waitFor(); }
 }
-/** Closes the top drawer by its handle when it is open. */
-export async function closeControlsDrawer(page) {
-  const pill = page.locator(HOOK.controlsPill);
-  if ((await pill.count()) > 0 && (await pill.getAttribute("aria-expanded")) === "true") { await page.locator(HOOK.controlsHandle).click(); await page.locator(`${HOOK.controlsDrawer}[data-open="false"]`).waitFor({ state: "attached" }); }
+/** Closes the menu when it is open: by its handle on a phone, by the menu button on a wide bar. */
+export async function closeMenu(page) {
+  const button = page.locator(HOOK.menu);
+  if ((await button.count()) > 0 && (await button.getAttribute("aria-expanded")) === "true") {
+    await ((await isPhoneLayout(page)) ? page.locator(HOOK.controlsHandle) : button).click();
+    await page.locator(`${HOOK.controlsDrawer}[data-open="false"]`).waitFor({ state: "attached" });
+  }
 }
 /** Opens the timeline drawer when the layout has one and it is closed. */
 export async function openTimelineDrawer(page) {
@@ -76,13 +79,13 @@ export async function closeTimelineDrawer(page) {
 }
 /** Waits until no drawer or sheet is still sliding (a control that is about to be hidden still counts as showing while it moves). */
 const drawersSettled = (page) => page.waitForFunction((hooks) => [...document.querySelectorAll(hooks)].every((element) => element.getAnimations().every((animation) => animation.playState !== "running")), `${HOOK.controlsDrawer}, ${HOOK.timelineDrawer}, .info-panel, ${HOOK.storyPanel}`);
-/** Makes the control a locator names reachable: opens the top drawer, then the timeline drawer, until it shows. Returns the locator. */
+/** Makes the control a locator names reachable: opens the menu (the bar puts what does not fit there, on a wide screen too), then the timeline drawer, until it shows. Returns the locator. */
 async function reveal(page, locator) {
-  if (await isPhoneLayout(page)) await drawersSettled(page);
-  if (!(await isPhoneLayout(page)) || (await locator.first().isVisible())) return locator;
+  await drawersSettled(page);
+  if (await locator.first().isVisible()) return locator;
   // Wait for each drawer to finish sliding after opening it, so a size or position read afterwards is the settled one (a busy machine
   // used to measure the scale ⓘ mid-slide, smaller than 44 px).
-  await openControlsDrawer(page);
+  await openMenu(page);
   await drawersSettled(page);
   if (await locator.first().isVisible()) return locator;
   await openTimelineDrawer(page);
@@ -978,13 +981,14 @@ export const shellBounds = async (page) => { await drawersSettled(page); return 
 /** Every primary control that is showing, with its height: `{selector, label, height}` each (for the touch-target rule). */
 export const primaryControlTargets = async (page) => {
   const wasOpen = (await drawerStates(page)).controls;
-  await openControlsDrawer(page);
+  await openMenu(page);
   await drawersSettled(page);
   const targets = await page.evaluate(() => {
   const selectors = [
-    ".object-controls button",
-    ".object-controls select",
-    ".scale-control button",
+    ".top-bar button",
+    ".top-bar select",
+    ".bar-menu-list button",
+    ".bar-menu-list select",
     ".info-panel button",
     ".timeline-transport button",
     ".timeline-speed select",
@@ -999,7 +1003,7 @@ export const primaryControlTargets = async (page) => {
     })
     .map((element) => ({ selector, label: element.getAttribute("aria-label") ?? element.textContent.trim(), height: element.getBoundingClientRect().height })));
   });
-  if (!wasOpen) await closeControlsDrawer(page);
+  if (!wasOpen) await closeMenu(page);
   return targets;
 };
 
@@ -1019,21 +1023,23 @@ export const homeBrokenPictures = (page) => page.locator("a.demo img").evaluateA
 export const tapObjectPicker = async (page) => { await bodyPicker(page).click(); await page.keyboard.press("Escape"); };
 export async function drawerStates(page) {
   const open = async (hook) => (await page.locator(hook).count()) > 0 && (await page.locator(hook).getAttribute("aria-expanded")) === "true";
-  return { controls: await open(HOOK.controlsPill), timeline: await open(HOOK.timelineHandle) };
+  return { controls: await open(HOOK.menu), timeline: await open(HOOK.timelineHandle) };
 }
-/** The name on the pill (the picked object's name), or null on a larger screen. */
-export async function controlsPillName(page) {
-  const pill = page.locator(HOOK.controlsPill);
-  return (await pill.count()) > 0 ? (await pill.innerText()).trim() : null;
+/** The name in the bar's title place (the picked object's name until About lands), or null when the bar has no title place (a wide screen). */
+export async function barTitleName(page) {
+  const title = page.locator("[data-bar-title] .bar-sr");
+  return (await title.count()) > 0 ? (await title.innerText()).trim() : null;
 }
-/** Boxes of the parts of the phone layout, for reading: pill, top drawer, timeline bar, timeline handle, play button. */
-export const phoneBoxes = async (page) => { await drawersSettled(page); return page.evaluate(({ pill, drawer, handle, controlsHandle }) => {
+/** Whether the host picker's switch shows on the bar's row itself (no menu opened): the phone's one row holds the switch as tabs. */
+export const switchInBarRow = (page) => page.locator(".top-bar [data-switch-param]").first().isVisible();
+/** Boxes of the parts of the phone layout, for reading: menu button, top drawer, timeline bar, timeline handle, play button. */
+export const phoneBoxes = async (page) => { await drawersSettled(page); return page.evaluate(({ menu, drawer, handle, controlsHandle }) => {
   const box = (selector) => { const element = document.querySelector(selector); if (element === null) return null; const r = element.getBoundingClientRect(); return { left: r.left, top: r.top, right: r.right, bottom: r.bottom, width: r.width, height: r.height }; };
-  return { pill: box(pill), drawer: box(drawer), bar: box(".timeline-bar"), handle: box(handle), controlsHandle: box(controlsHandle), play: box(".timeline-play"), cog: box(".developer-mode-toggle"), sheet: box(".info-panel"), story: box(".story-panel") };
-}, { pill: HOOK.controlsPill, drawer: HOOK.controlsDrawer, handle: HOOK.timelineHandle, controlsHandle: HOOK.controlsHandle }); };
+  return { menu: box(menu), bar: box(".top-bar"), drawer: box(drawer), timelineBar: box(".timeline-bar"), handle: box(handle), controlsHandle: box(controlsHandle), play: box(".timeline-play"), cog: box(".developer-mode-toggle"), sheet: box(".info-panel"), story: box(".story-panel") };
+}, { menu: HOOK.menu, drawer: HOOK.controlsDrawer, handle: HOOK.timelineHandle, controlsHandle: HOOK.controlsHandle }); };
 
-/** Presses the pill and the handles (a tap). */
-export const tapPill = (page) => page.locator(HOOK.controlsPill).click();
+/** Presses the menu button and the handles (a tap). */
+export const tapMenu = (page) => page.locator(HOOK.menu).click();
 export const tapControlsHandle = (page) => page.locator(HOOK.controlsHandle).click();
 export const tapTimelineHandle = (page) => page.locator(HOOK.timelineHandle).click();
 /** Waits until a drawer has finished moving to the open or closed state. */
@@ -1054,12 +1060,12 @@ async function touchDrag(page, from, to, steps = 8) {
   await client.detach();
 }
 const centreOf = async (locator) => { const box = await locator.boundingBox(); return { x: box.x + box.width / 2, y: box.y + box.height / 2 }; };
-/** Swipes from a drawer's handle (or the pill) by `dy` pixels (negative: up). */
+/** Swipes from a drawer's handle (or the menu button) by `dy` pixels (negative: up). */
 async function swipeFrom(page, locator, dy) {
   const from = await centreOf(locator);
   await touchDrag(page, from, { x: from.x, y: from.y + dy });
 }
-export const swipePillDown = (page, dy = 120) => swipeFrom(page, page.locator(HOOK.controlsPill), dy);
+export const swipeMenuDown = (page, dy = 120) => swipeFrom(page, page.locator(HOOK.menu), dy);
 export const swipeControlsHandleUp = (page, dy = 120) => swipeFrom(page, page.locator(HOOK.controlsHandle), -dy);
 export const swipeTimelineHandleUp = (page, dy = 120) => swipeFrom(page, page.locator(HOOK.timelineHandle), -dy);
 export const swipeTimelineHandleDown = (page, dy = 120) => swipeFrom(page, page.locator(HOOK.timelineHandle), dy);
@@ -1471,24 +1477,22 @@ const MOON_SHEET = ".moons-sheet";
 const moonFamily = (page, id) => page.locator(`[data-moon-family="${id}"]`);
 /** The panel itself (a labelled region). */
 export const moonPanel = (page) => page.getByRole("region", { name: /'s moons$/ });
-/** Opens the moon panel: the toggle button on a wide screen, the top drawer on a phone. */
+/** Opens the moon panel: the moons button (in the bar, or in the menu when it did not fit) opens the sheet in the left place; choosing it closes the menu. */
 export async function openMoonPanel(page) {
-  if (await isPhoneLayout(page)) { await openControlsDrawer(page); await drawersSettled(page); return; }
-  const toggle = page.locator('button.moons-toggle');
+  const toggle = await reveal(page, page.locator("button.moons-toggle"));
   if ((await toggle.getAttribute("aria-expanded")) !== "true") await toggle.click();
   await page.locator(`${MOON_SHEET}[data-open="true"]`).waitFor();
   await page.waitForFunction((hook) => document.querySelector(hook).getAnimations().every((animation) => animation.playState !== "running"), MOON_SHEET);
 }
-/** Closes the moon panel (its toggle on a wide screen; the drawer's handle on a phone). */
+/** Closes the moon panel with its moons button (opening the menu first when the button sits there). */
 export async function closeMoonPanel(page) {
-  if (await isPhoneLayout(page)) { await closeControlsDrawer(page); return; }
-  const toggle = page.locator('button.moons-toggle');
+  const toggle = await reveal(page, page.locator("button.moons-toggle"));
   if ((await toggle.getAttribute("aria-expanded")) === "true") await toggle.click();
   await page.locator(`${MOON_SHEET}[data-open="false"]`).waitFor({ state: "attached" });
 }
 /**
  * The shell panels on screen and their boxes, for the overlap check (O-025 T-099 collision repair): `[{name, left, top, right, bottom}]` for the moons
- * button and sheet, the information panel, story panel, timeline bar and drawer, top bar, controls drawer and its pill and handles; only those showing.
+ * button and sheet, the information panel, story panel, timeline bar and drawer, top bar, controls drawer and its menu button and handles; only those showing.
  */
 export const shellPanelBoxes = (page) => page.evaluate(() => {
   const named = { "moons-toggle": ".moons-toggle", "moons-sheet": ".moons-sheet", "info-panel": ".info-panel", "story-panel": ".story-panel", "timeline-bar": ".timeline-bar", "timeline-drawer": ".timeline-drawer", "top-bar": ".shell-toolbar", "controls-drawer": ".controls-drawer", "controls-pill": ".controls-pill", "developer-mode-toggle": ".developer-mode-toggle" };
@@ -1578,7 +1582,7 @@ export const embeddedLook = (page) => page.evaluate(() => {
   const shell = document.querySelector(".astraeus-shell");
   const box = (selector) => { const element = document.querySelector(selector); if (element === null) return null; const r = element.getBoundingClientRect(); return { top: r.top, bottom: r.bottom, left: r.left, right: r.right, height: r.height }; };
   const timeline = box(".timeline-bar");
-  const bar = box(".controls-pill") ?? box(".top-bar");
+  const bar = box(".top-bar");
   const button = document.querySelector(".timeline-play");
   return {
     embedded: shell?.getAttribute("data-embedded") ?? null,
@@ -1632,7 +1636,7 @@ export async function featureCollisions(page) {
   return found;
 }
 const featureCollisionsNow = (page) => page.evaluate(() => {
-  const panels = [...document.querySelectorAll(".info-panel, .moons-sheet, .moons-toggle, .timeline-bar, .shell-toolbar, .story-panel, .controls-drawer, .controls-pill, .timeline-drawer, .developer-mode-toggle")]
+  const panels = [...document.querySelectorAll(".info-panel, .moons-sheet, .moons-toggle, .timeline-bar, .shell-toolbar, .story-panel, .controls-drawer, .timeline-drawer, .developer-mode-toggle")]
     .map((element) => ({ name: element.className.toString().split(" ")[0], box: element.getBoundingClientRect() })).filter(({ box }) => box.width > 0 && box.height > 0);
   return [...document.querySelectorAll("[data-feature-key]")].filter((marker) => !marker.hidden).flatMap((marker) => {
     const box = marker.getBoundingClientRect();
@@ -1743,7 +1747,7 @@ export async function switchPanelFit(page) {
     const box = (element) => { const r = element.getBoundingClientRect(); return { left: r.left, right: r.right, top: r.top, bottom: r.bottom }; };
     const panel = box(document.querySelector(panelHook));
     const crosses = (other) => other.left < panel.right - 0.5 && panel.left < other.right - 0.5 && other.top < panel.bottom - 0.5 && panel.top < other.bottom - 0.5;
-    const others = { cog: ".developer-mode-toggle", timeline: ".timeline-bar", info: ".info-panel", story: ".story-panel", pill: "button.controls-pill" };
+    const others = { cog: ".developer-mode-toggle", timeline: ".timeline-bar", info: ".info-panel", story: ".story-panel", menu: "button.bar-menu-button" };
     const overlaps = Object.entries(others).filter(([, selector]) => { const element = document.querySelector(selector); return element !== null && getComputedStyle(element).visibility !== "hidden" && crosses(box(element)); }).map(([name]) => name);
     return { insideWindow: panel.left >= 0 && panel.top >= 0 && panel.right <= innerWidth && panel.bottom <= innerHeight, overlaps };
   }, [HOOK.switchPanel]);
@@ -1791,7 +1795,7 @@ export const skyTraceFit = (page) => page.evaluate(() => {
   const box = (element) => { const r = element.getBoundingClientRect(); return { left: r.left, right: r.right, top: r.top, bottom: r.bottom }; };
   const mine = box(document.querySelector("[data-site-sky-trace]"));
   const crosses = (other) => other.left < mine.right - 0.5 && mine.left < other.right - 0.5 && other.top < mine.bottom - 0.5 && mine.top < other.bottom - 0.5;
-  const others = { cog: ".developer-mode-toggle", timeline: ".timeline-bar", toolbar: ".shell-toolbar", info: ".info-panel", story: ".story-panel", pill: "button.controls-pill", switches: ".switch-panel" };
+  const others = { cog: ".developer-mode-toggle", timeline: ".timeline-bar", toolbar: ".shell-toolbar", info: ".info-panel", story: ".story-panel", menu: "button.bar-menu-button", switches: ".switch-panel" };
   const overlaps = Object.entries(others).filter(([, selector]) => { const element = document.querySelector(selector); return element !== null && getComputedStyle(element).visibility !== "hidden" && crosses(box(element)); }).map(([name]) => name);
   const sides = [...document.querySelectorAll("[data-site-sky-trace] button, [data-site-sky-trace] select")].filter((control) => control.getBoundingClientRect().width > 0).map((control) => Math.min(control.getBoundingClientRect().width, control.getBoundingClientRect().height));
   return { insideWindow: mine.left >= 0 && mine.top >= 0 && mine.right <= innerWidth && mine.bottom <= innerHeight, smallestPx: Math.min(...sides), overlaps };
@@ -1825,7 +1829,7 @@ export async function shownView(page) {
 export async function chooseView(page, id) {
   await (await reveal(page, page.locator(`[data-view-choice] button[data-view-id="${id}"]`))).click();
 }
-/** The view choice against the rest of the screen: inside the window, and which of its neighbours (the controls in the same bar or drawer), the cog, the timeline and the pill it overlaps. */
+/** The view choice against the rest of the screen: inside the window, and which of its neighbours (the controls in the same bar or drawer), the cog, the timeline and the menu button it overlaps. */
 export async function viewChoiceFit(page) {
   await reveal(page, viewButtons(page));
   await drawersSettled(page);
@@ -1835,7 +1839,7 @@ export async function viewChoiceFit(page) {
     const mine = box(group);
     const crosses = (other) => other.left < mine.right - 0.5 && mine.left < other.right - 0.5 && other.top < mine.bottom - 0.5 && mine.top < other.bottom - 0.5;
     const rows = [...group.parentElement.children].filter((element) => element !== group && getComputedStyle(element).display !== "none" && element.getBoundingClientRect().width > 0);
-    const named = [...rows.map((element, index) => [`neighbour-${index}`, element]), ...[["cog", ".developer-mode-toggle"], ["timeline", ".timeline-bar"], ["pill", "button.controls-pill"]].map(([name, selector]) => [name, document.querySelector(selector)])];
+    const named = [...rows.map((element, index) => [`neighbour-${index}`, element]), ...[["cog", ".developer-mode-toggle"], ["timeline", ".timeline-bar"], ["menu", "button.bar-menu-button"]].map(([name, selector]) => [name, document.querySelector(selector)])];
     const overlaps = named.filter(([, element]) => element !== null && getComputedStyle(element).visibility !== "hidden" && crosses(box(element))).map(([name]) => name);
     const buttons = [...group.querySelectorAll("button")].map(box);
     const smallest = Math.min(...buttons.map((b) => Math.min(b.right - b.left, b.bottom - b.top)));
@@ -1940,7 +1944,7 @@ export async function waitForCameraReading(page, done, { timeout = 6000 } = {}) 
   await closeDeveloper(page);
   return reading;
 }
-/** One camera menu entry against the rest of the screen: inside the window and which neighbours (the controls in the same row, the cog, the timeline and the pill) it overlaps, and its smaller side in pixels. */
+/** One camera menu entry against the rest of the screen: inside the window and which neighbours (the controls in the same row, the cog, the timeline and the menu button) it overlaps, and its smaller side in pixels. */
 export async function cameraEntryFit(page, presetId) {
   await reveal(page, page.locator(`[data-camera-preset="${presetId}"]`));
   await drawersSettled(page);
@@ -1950,7 +1954,7 @@ export async function cameraEntryFit(page, presetId) {
     const mine = box(entry);
     const crosses = (other) => other.left < mine.right - 0.5 && mine.left < other.right - 0.5 && other.top < mine.bottom - 0.5 && mine.top < other.bottom - 0.5;
     const rows = [...entry.parentElement.children].filter((element) => element !== entry && getComputedStyle(element).display !== "none" && element.getBoundingClientRect().width > 0);
-    const named = [...rows.map((element, index) => [`neighbour-${index}`, element]), ...[["cog", ".developer-mode-toggle"], ["timeline", ".timeline-bar"], ["pill", "button.controls-pill"]].map(([name, selector]) => [name, document.querySelector(selector)])];
+    const named = [...rows.map((element, index) => [`neighbour-${index}`, element]), ...[["cog", ".developer-mode-toggle"], ["timeline", ".timeline-bar"], ["menu", "button.bar-menu-button"]].map(([name, selector]) => [name, document.querySelector(selector)])];
     const overlaps = named.filter(([, element]) => element !== null && getComputedStyle(element).visibility !== "hidden" && crosses(box(element))).map(([name]) => name);
     return { insideWindow: mine.left >= 0 && mine.top >= 0 && mine.right <= innerWidth && mine.bottom <= innerHeight, overlaps, smallestPx: Math.round(Math.min(mine.right - mine.left, mine.bottom - mine.top)) };
   }, presetId);

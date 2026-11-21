@@ -9,6 +9,8 @@ export type ViewCameraInput = "stay" | "start" | { readonly follow: string; read
 export interface ViewInput {
   readonly id: string;
   readonly label: string;
+  /** Label for a narrow bar. */
+  readonly shortLabel?: string;
   readonly objects?: readonly string[];
   readonly events?: readonly string[];
   readonly panels?: readonly string[];
@@ -53,6 +55,7 @@ export function viewsOf(input: readonly ViewInput[], options: ViewsOptions): Vie
     if (typeof view.id !== "string" || view.id === "") throw bad(`${where} needs a non-empty id`);
     if (typeof view.label !== "string" || view.label === "") throw bad(`view "${view.id}" needs a non-empty label`);
     if (seen.has(view.id)) throw bad(`view "${view.id}" appears twice`);
+    if (view.shortLabel !== undefined && (typeof view.shortLabel !== "string" || view.shortLabel === "")) throw bad(`view "${view.id}" shortLabel must be a non-empty string when given`);
     seen.add(view.id);
     rejectRenamed("ViewInput", view, `setViews: view "${view.id}"`);
     for (const kind of KINDS) {
@@ -105,7 +108,7 @@ export function resolveViews(plan: ViewsPlan, scope: ViewScope): ViewSettings {
       const target = "follow" in camera.framing ? camera.framing.follow : camera.framing.focus;
       if (!objects.has(target)) throw bad(`view "${view.id}" camera: "${target}" is not shown in that view (a body or path of the scene it names, or one no view hides from it)`);
     }
-    return { id: view.id, label: view.label, camera, objects, events: new Set(scope.events.filter((id) => shows(view, "events", id))), panels: new Set(scope.panels.filter((id) => shows(view, "panels", id))) };
+    return { id: view.id, label: view.label, ...(view.shortLabel === undefined ? {} : { shortLabel: view.shortLabel }), camera, objects, events: new Set(scope.events.filter((id) => shows(view, "events", id))), panels: new Set(scope.panels.filter((id) => shows(view, "panels", id))) };
   });
   return { place: plan.place, start: plan.start, views };
 }
