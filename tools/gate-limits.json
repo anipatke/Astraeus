@@ -8,6 +8,7 @@
     "test:full": 105,
     "check:engine-alone": 40,
     "check:pack": 30,
+    "check:public-build": 6,
     "check:node-consumer": 15,
     "check:react-consumer": 25
   },
@@ -25,9 +26,7 @@
       "hello-scene": 25,
       "hello-react": 12,
       "hello-planets": 15,
-      "hello-sky": 15,
-      "public-build-assets": 8,
-      "public-addresses": 5
+      "hello-sky": 15
     },
     "quickTotal": 200
   }

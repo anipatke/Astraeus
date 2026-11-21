@@ -1,6 +1,7 @@
 // Public-build output gate (design C.3). Hashes every file under dist/ and fails if any matches a local-only source texture,
 // byte for byte or embedded in a text asset as base64.
 //   ASTRAEUS_PUBLIC_BUILD=1 npm run build && node tools/validate/public-build-assets.mjs [distDir] [resultsFile]
+// The engine size limit is not checked here: `npm run check:pack` holds it (O-086). Run by `npm run check:public-build` (tools/check-public-build.mjs).
 // It also fails a build that holds any made-up (synthetic) experience (T-068), and a build whose page loads outgrow their limits (tools/validate/load-budget.mjs, T-070).
 // Local-only sources are the images a body record imports and declares `localOnly` (src/assets/bodies/*.ts), plus every file under the
 // git-ignored data/local/ (fetched data and similar; except a file whose own provenance declares a shippable licence, the GMN's CC BY 4.0, which a story may ship from data/stories/): none of that content, and no path under data/local/, may be in the build.
@@ -20,7 +21,7 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { checkEngineLicences, gatherPackageCredits } from "../site/package-credits.mjs";
 import { checkLoadBudget, NON_PUBLIC_PLANET_FILES, proveLoadBudgetFails, PUBLIC_PLANETS } from "./load-budget.mjs";
-import { checkEngineBudget, proveEngineDemoSplit } from "./engine-budget.mjs";
+import { proveEngineDemoSplit } from "./engine-budget.mjs";
 
 /** The site pages a public build must contain: the pitch page, its assets and components sub-pages, the app and the API reference. */
 export const REQUIRED_PAGES = [
@@ -417,7 +418,6 @@ if (process.argv[1] !== undefined && resolve(process.argv[1]) === fileURLToPath(
     !budgetProof.unlistedFile.ok &&
     budgetProof.engineChunk.ok &&
     !budgetProof.mixedChunk.ok;
-  const engineBudget = checkEngineBudget();
   const split = proveEngineDemoSplit();
   const engineSplitProof =
     split.base.page.ok &&
@@ -436,7 +436,6 @@ if (process.argv[1] !== undefined && resolve(process.argv[1]) === fileURLToPath(
     engineLicences,
     loadBudget,
     budgetSelfProof,
-    engineBudget,
     engineSplitProof,
     localDataFilesChecked: localData.length,
     requiredPages: REQUIRED_PAGES,
@@ -453,7 +452,6 @@ if (process.argv[1] !== undefined && resolve(process.argv[1]) === fileURLToPath(
       syntheticSelfProof &&
       budgetSelfProof &&
       engineSplitProof &&
-      engineBudget.ok &&
       engineLicences.ok &&
       loadBudget.ok &&
       checked.ok &&

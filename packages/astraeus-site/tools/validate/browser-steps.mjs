@@ -90,8 +90,6 @@ export const STEPS = [
     scene:
       "examples/hello-sky from the packed engine and constellations tarballs: looks out from Earth toward Orion, three story steps (turn, select, trace Orion, the trace cleared on leaving), Orion hidden until traced, its card, the ecliptic switch, no overlap, desktop and phone",
   },
-  { name: "public-build-assets", tier: "quick", script: "public-build-assets.mjs", public: true, noBrowser: true },
-  { name: "public-addresses", tier: "quick", script: "public-addresses.mjs", public: true, noBrowser: true },
 ];
 
 export const TIERS = ["quick", "full"];

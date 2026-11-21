@@ -80,17 +80,22 @@ function runStep(step, ctx) {
   return run.status === 0 && errors === 0;
 }
 
+/** Build the public site (ASTRAEUS_PUBLIC_BUILD=1 with the engine-share sidecar) into `outDir`; shared with tools/check-public-build.mjs. Returns the spawnSync result. */
+export function buildPublicSite(outDir) {
+  return spawnSync("npx", ["vite", "build", "packages/astraeus-site", "--outDir", outDir, "--emptyOutDir"], {
+    cwd: root,
+    encoding: "utf8",
+    env: { ...process.env, ASTRAEUS_PUBLIC_BUILD: "1", ASTRAEUS_ENGINE_SHARE: "1" },
+  });
+}
+
 /** Start the dev server, the scratch public build and its preview, as far as `steps` need them, and wait until each answers. */
 async function startServers(steps, ctx) {
   const needsDev = steps.some((s) => !s.example && (!s.public || !s.noBrowser));
   const needsPreview = steps.some((s) => s.public && !s.noBrowser);
   if (needsDev) ctx.serve("dev-server.log", ["vite", "packages/astraeus-site", "--port", DEV_PORT, "--strictPort"]);
   if (steps.some((s) => s.public)) {
-    const build = spawnSync(
-      "npx",
-      ["vite", "build", "packages/astraeus-site", "--outDir", ctx.publicDir, "--emptyOutDir"],
-      { cwd: root, encoding: "utf8", env: { ...process.env, ASTRAEUS_PUBLIC_BUILD: "1", ASTRAEUS_ENGINE_SHARE: "1" } },
-    );
+    const build = buildPublicSite(ctx.publicDir);
     ctx.writeLog("public-build.log", `${build.stdout}${build.stderr}`);
     if (build.status !== 0) throw new Error("public build failed (see public-build.log)");
   }

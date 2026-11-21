@@ -2,7 +2,7 @@
 id: T-389
 title: Public build file checks run without the browser
 objective: O-086
-status: planned
+status: done
 depends_on: [{task: T-382, requires: clear}, {task: T-386, requires: clear}, {task: T-388, requires: clear}]
 check_waiver: {task: T-389, reason: 'Owner said "work through this list of objectives one by one. Orchestrate each objective to completion" (G-024 decision 7) and "carry on" (2026-11-22): standing orchestration rules waive the optional step checks; the mandatory Full Objective Check covers the whole diff.', actor: {role: owner, session: orchestrate-g024-20261121}, recorded_at: '2026-11-21T20:47:35Z'}
 owner_validation: {required: false}
@@ -68,8 +68,18 @@ Focused: `npx vitest run packages/astraeus-site/tests/checkPublicBuild.test.ts p
 
 ## Technical Evidence
 
-Pending execution.
+| Done When | Evidence |
+|---|---|
+| tools/check-public-build.mjs + script `check:public-build`; builds like runner (shared: `buildPublicSite` exported from runner.mjs), runs both checks, summary + logs + results in fresh docs/evidence/public-build-<stamp>/, removes scratch, non-zero on failure | three runs passed, 4.1/4.1/4.3 s wall (checks 1.6 s + 0 s); checkPublicBuild.test.ts (5 tests: failing check, real public-addresses on a planted retired link, evidence kept and scratch removed, failed build) |
+| public-build-assets no longer calls checkEngineBudget; header names check:pack | edit; publicBuild.test.ts passes |
+| browser-steps drops both steps; public build only for smoke-public-showers | `check:browser -- --list` shows 12 steps (7 quick, 5 full), none of the two; gateLimits.test.ts passes |
+| gate-limits: step limits removed, gate `check:public-build` 6 s (4.3 s x 1.4); build.md row + line 12; time-gates picks it up from the file | gateLimits.test.ts (table and scripts match); time-gates.mjs reads Object.keys(limits.gates), no code change |
+| BROWSER_CHECKS.md note and rows moved | edit |
+
+Gates: lint (only the known prettier warning in untouched packages/astraeus/tests/badTime.test.ts), typecheck, build pass; npm test 316 files / 5115 passed, 3 skipped. No browser run. Evidence folders from the timed runs deleted. Limitation: engine-budget.mjs header still says public-build-assets enforces the engine limit (not in planned_writes; Design reconciliation, draft 12).
 
 ## Drift Notes
 
-Design `Size budgets are split` says `public-build-assets.mjs` enforces the engine limit in the browser check; after drafts 01 and 08 it is `check:pack`. Reconciled before the Full Check (draft 12 lists it).
+Design `Size budgets are split` says `public-build-assets.mjs` enforces the engine limit in the browser check; after drafts 01 and 08 it is `check:pack`. Reconciled before the Full Check (draft 12 lists it). Also stale: the engine-budget.mjs header comment.
+
+Coordinator (orchestrate-g024-20261121): gates green (lint only the then-unformatted file, since fixed; typecheck, build; `npm test` 316 files, 5115 passed). The 6 s limit for `check:public-build` is reviewed in T-393 with the other limits. `status: done` set by the coordinator under the standing orchestration rule ("I mark them as they pass", O-038) and G-024 decision 7.
