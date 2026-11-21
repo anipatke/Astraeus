@@ -3,7 +3,7 @@ id: T-326
 title: Put the phone's controls in one bar row
 objective: O-079
 status: planned
-depends_on: [{task: T-330, requires: clear}]
+depends_on: [{task: T-329, requires: clear}]
 check_waiver: {task: T-326, reason: 'Owner said "orchestrate 79": standing orchestration rules waive the optional step checks; the mandatory Full Objective Check covers the whole diff.', actor: {role: owner, session: orchestrate-o079-20261121}, recorded_at: '2026-11-21T00:35:01Z'}
 owner_validation: {required: false}
 planned_by: {role: planner, session: plan-g023-20261121}
@@ -70,7 +70,7 @@ ARCH-01, ARCH-03, API-01, API-03, API-04, TEST-01, TEST-02, TEST-03, STYLE-01, S
 
 ## Boundaries
 
-No panel placement changes (next Task), no About content (T-325), no story buttons (O-080), no version bump.
+Uses the panel rule from T-329 for the menu drawer, ⋯ and pop-ups; no About content (T-325), no story buttons (O-080), no version bump.
 
 ## Technical Verification
 

@@ -3,7 +3,7 @@ id: T-331
 title: Rebuild the timeline on the new layout
 objective: O-079
 status: planned
-depends_on: [{task: T-329, requires: clear}]
+depends_on: [{task: T-326, requires: clear}]
 check_waiver: {task: T-331, reason: 'Owner said "orchestrate 79": standing orchestration rules waive the optional step checks; the mandatory Full Objective Check covers the whole diff.', actor: {role: owner, session: orchestrate-o079-20261121}, recorded_at: '2026-11-21T00:35:01Z'}
 owner_validation: {required: false}
 planned_by: {role: planner, session: plan-g023-20261121}

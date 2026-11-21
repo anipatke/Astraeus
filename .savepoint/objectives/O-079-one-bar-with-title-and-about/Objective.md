@@ -1,7 +1,7 @@
 ---
 id: O-079
 title: Reset the viewer interface, with About first
-status: planned
+status: in_progress
 depends_on: []
 release: G-023
 priority: high
@@ -60,6 +60,7 @@ G-023: story apps add their own bars because the viewer has no place for a title
 - Owner 2026-11-21: "if we need to rip and reset the UI now is the time", then "Whole interface reset (Recommended)": layout areas, one look, the timeline, cards and drawers rebuilt too; old stylesheets removed. Supersedes the bar-and-panels-only plan.
 - Owner 2026-11-21: "I want clean re-usable modular packaged code thats easy for anyone to pick up and re-use as an out the box interface", then "Ready-made viewer + shared look (Recommended)": the complete viewer works with no setup; the look settings are public so hosts restyle it and match their own panels; the interface parts stay internal but cleanly modular and documented, offered later only when a real app needs one (Design D1).
 - Owner 2026-11-21: "anyone should be able to pick up the package and have the basic components of the UI work out the box and then be able to pick story specific components off the shelf and add based on the story"; "Shelf + custom space (Recommended)"; "Inside the engine, pick by import (Recommended)". This Objective builds the basic interface and designs the shelf contract; O-080 and O-081 build shelf components.
+- Owner 2026-11-21, on T-328's note `docs/architecture/viewer-interface.md` (reviewed as artifacts: summary page, catalogue, desktop and phone prototypes): "Title shrinks first", "Light up straight away" (filter chips), "Viewer's own size" (layout from the viewer's size, not the window's), then "confirmed, start building". Build order: T-330, T-329, T-326, T-331, T-325, T-327. The note is the design source for the build Tasks and for O-080 and O-081.
 - Owner 2026-11-21 (design board): status sentence in About when it is not a live number; credits and the built-with mark in About; title shrinks to "i" when the phone row is tight; optional short labels.
 
 ## Boundaries

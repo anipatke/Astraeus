@@ -2,7 +2,8 @@
 id: T-328
 title: Agree the bar and panel rules before building
 objective: O-079
-status: planned
+status: in_progress
+stage: audit
 depends_on: []
 check_waiver: {task: T-328, reason: 'Owner said "orchestrate 79": standing orchestration rules waive the optional step checks; the mandatory Full Objective Check covers the whole diff.', actor: {role: owner, session: orchestrate-o079-20261121}, recorded_at: '2026-11-21T00:35:01Z'}
 owner_validation: {required: true}
@@ -112,8 +113,43 @@ Reviewed by the planner before the build Tasks start; owner confirmation recorde
 
 ## Technical Evidence
 
-Pending execution.
+Extra reads (logged before reading; builder session t328-builder-20261121):
+
+- `.savepoint/objectives/O-079-*/tasks/T-325,T-326,T-327,T-329,T-330,T-331` Outcome and Done When only: to confirm the build order (Done When 8).
+- `packages/astraeus/src/shell/{Collapsible,topBarIcons,useDrawerSwipe,useSwipeToDismiss,useZoomThrough,viewerKeys}.tsx/ts` and `shell/TimelineBar.tsx` grep only: inventory of parts the listed files import (Done When 1).
+- `packages/astraeus/src/api/switches.ts` header lines: switch places (Done When 4, 7).
+- `packages/astraeus/package.json` `exports` and `sideEffects`; `tools/build-example.mjs`, `tools/measure-example.mjs`, `tools/look-lock.mjs` headers: pick-by-import packaging and its bundle test (Done When 11), computed-look baseline (Done When 8).
+- `packages/astraeus-site/index.html` nav line and `assets.html` head: where the catalogue page sits (Done When 11).
+- `packages/astraeus-site/tools/validate/driver.mjs` exported function names and HOOK lines; `grep -l` of tests naming shell classes: migration list (Done When 8).
+- Outside repos, read only (coordinator brief, worked examples for Done When 11): `/home/user/code/belt/src/site/page.ts`, `src/site/influencePanel.ts`, `src/site/emptinessPanel.ts`, `data/influence.json`, `data/emptiness.json`, `data/site.json`; `/home/user/code/showers/src/site/page.ts`, `src/site/showerPicker.ts`.
+- Also read for line evidence (same reason, Done When 1-3): `packages/astraeus/src/app/App.tsx` line 790 (grep for `role=`), `src/api/story.ts` lines 79-120, `.savepoint/config.yml` quality_gates, `docs/agents/verification.md`.
+
+Files changed: `docs/architecture/viewer-interface.md` (new, the decision note); this Task (lifecycle, evidence); `O-079/Objective.md` (`planned` -> `in_progress`). No production code, test, baseline or outside-repo file changed (`git status --short`: only these plus the pre-existing untracked `docs/research/`).
+
+Per-criterion outcome (Done When; sections of the note):
+
+1. Inventory and verdicts: section 1, 33 parts with file:line, desktop/phone placement, keep or rebuild. Met.
+2. Screen areas: section 2, nine named areas, the one phone description (`areas/screen.ts`, viewer-size based), the 17 rules it replaces (16 `@media` plus `PHONE_QUERY`), and embedded viewers. Met.
+3. Look: section 3, tokens with values from the design board (panel .88, text #f0e6da, accent #e8b06a, pills, segmented tabs) and today's shared settings (`style.css:16-26`); all 60 distinct colour literals mapped by value; sizes mapped to scales; public set is in section 10; drift check is in section 9. Met. Limitation: sizes are mapped by scale rule, not as a per-occurrence table.
+4. Bar: section 4, item kinds, priorities, labels and allowed places; the fit rule as a 7-step pure ladder; worked cases at 360, 390, 430 (phone) and 768, 1280 (wide) on Belt's real labels; wide overflow menu. Met. Limitation: widths are estimates (7 / 7.4 px per character); the build measures real widths.
+5. Panels: section 5, place model, close-rule table (11 rows), and the inventory of 12 replaced rules. Met.
+6. Behaviour changes: summary list (11 items) plus section 6 mapping each to code. Met.
+7. Public interface: section 7, `setAbout`/`about`/`handle.setAbout`, `shortLabel`, `LookInput.interface`, shelf factories, `scene.addParts`, `handle.part(x)` typed controls, errors `bad-about`/`bad-part`, verb grammar, React parity; host-content options (a)/(b)/(c) compared, recommending data for shelf blocks plus element handover for `customBlock`. Met.
+8. Build order and migration: section 8, with a correction: swap T-326 and T-329 (the panel rule before the bar). Not REPLAN: the split stands, only the order changes. Tests, baseline and driver helpers are listed by name. Met, pending the planner's acceptance of the order change.
+9. Module structure and contributor guide: section 9. Met.
+10. Shared look: section 10, public fields with defaults and ranges (API-06, no address parameter), documented `--astraeus-*` properties, basic parts internal. Met.
+11. Shelf: section 11, eight parts by Objective; data, events and placement; one contract; custom panel; pick-by-import with `tools/check-shelf-split.mjs` proof and a CSS fallback; Belt and Meteor Showers worked examples; catalogue page `components.html` with the entry format, one-source text, and the `shelfCatalogue.test.ts` completeness test; an out-of-the-box section. Met.
+12. Owner confirmation recorded: **pending**. The builder could not ask the owner; the coordinator relays the summary.
+
+Commands run: `savepoint resume` (after the start edits, and after these). Configured gates not run: the change is a Markdown note and Savepoint records only, with no code, test or build input touched.
+
+Limitations: the design board could not be opened; its values came from the coordinator brief. The owner choices listed at the end of the note are open. Line citations were checked by grep for the cited values; any remaining line drift is cosmetic.
 
 ## Drift Notes
 
-None expected; the note becomes the source the build Tasks cite.
+- Build order: the note recommends T-330 -> T-329 -> T-326 -> T-331 -> T-325 -> T-327 (T-326 and T-329 swapped in `depends_on`). Planner to apply or reject; deferred to T-327's Design reconciliation if accepted.
+- New public names for Design.md ("Public API shape" and a new viewer-interface section): `setAbout`, `addParts`, `handle.part`, `LookInput.interface`, `bad-about`, `bad-part`. Reconciled in T-327.
+
+### Owner confirmation (2026-11-21T00:58:03Z, session orchestrate-o079-20261121)
+
+Presented as artifacts: summary page https://claude.ai/artifact/3staLLQkLnGJdsMftV7DK8 and the design board's catalogue and prototypes (https://claude.ai/artifact/8ETT4wvvUHZxKYRW5X7jsk, artboards Catalogue, ResetDesktop, ResetPhone). Owner choices: fit order "Title shrinks first (Recommended)"; chips "Light up straight away (Recommended)"; layout "Viewer's own size (Recommended)". Owner: "confirmed, start building". Build order change accepted with the confirmation (the summary page listed it): T-330 → T-329 → T-326 → T-331 → T-325 → T-327. owner_validation stays open until the Full Objective Check gives a Check id to record against.
