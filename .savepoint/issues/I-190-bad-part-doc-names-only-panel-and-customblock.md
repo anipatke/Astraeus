@@ -18,6 +18,10 @@ history:
     kind: observed
     note: 'C-193: SceneErrorCode bad-part doc (errors.ts:73) and the generated README error row (README.md:454) still read as T-333 wrote them.'
     check: C-193
+  - at: '2026-11-21T06:56:24Z'
+    actor: {role: executor, session: repair-o080-c193-20261121}
+    kind: repair_attempted
+    note: 'Repair (executor): errors.ts bad-part doc now reads: a shelf factory (panel, customBlock, explainer, actions, filterChips, colourKey) or a part control''s setter given a bad value, addParts given a value no factory made, an action''s camera naming what the scene lacks (at build), or handle.part given a part this viewer''s scene does not hold. npm run api:errors rewrote README.md:454 to match; npm run api:lock rewrote api-surface.lock.json. After npm run build: dist/api/index.html 199,695 B raw (limit 230,000), 43,454 B gzip at Node default level (was 43,388; limit 46,000). Gates as I-188''s entry.'
 ---
 
 # I-190: The bad-part doc comment and README row name only panel and customBlock shape errors

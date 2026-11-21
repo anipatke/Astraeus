@@ -135,8 +135,8 @@ interface Props {
   readonly shelfRuntime?: ShelfRuntime | undefined;
   /** A host call to open or close a shelf panel, applied once per `serial`. */
   readonly shelfRequest?: { readonly id: string; readonly open: boolean; readonly serial: number } | null | undefined;
-  /** The open shelf panel changed (its id; null: none open). */
-  readonly onOpenShelfChange?: (id: string | null) => void;
+  /** The open shelf panel changed (its id; null: none open), with the serial of the last `shelfRequest` applied when it was drawn. */
+  readonly onOpenShelfChange?: (id: string | null, applied: number | undefined) => void;
   readonly scaleId: ScaleId;
   readonly onScaleChange: (id: ScaleId) => void;
   readonly scaleChoices?: readonly ScaleChoice[];

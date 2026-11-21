@@ -271,6 +271,10 @@ The owner chose P1 and A1 (Objective Decisions, last bullet; relayed by the coor
 
 Owner: "Plain words first, code tucked away". Changed `data/shelf-catalogue.json` (new `name`, `purpose`, `example`, `jobLabels`, basics `code`), `tools/site/shelf-catalogue.mjs` (entry layout; code name, doc sentence, import/add lines and whole example in a closed "For developers" fold; basics section in plain words), `components.html` (intro, styles), `tests/shelfCatalogue.test.ts` (missing plain fields fail; fold and order checked; nothing existing changed), `tools/validate/driver.mjs` and `journey-catalogue.mjs` (name and fold-closed readouts; not run, no browser), `docs/architecture/viewer-interface.md` section 11. Gates: lint clean, `tsc --noEmit` clean, `npm test` 288 files / 4532 passed, 2 skipped (shelfCatalogue 36). Browser journey and `load-budget.mjs` not run.
 
+### Repair after C-193 (I-188, I-189, I-190; 2026-11-21)
+
+Executor repair of the three C-193 Issues; evidence detail in each Issue's `repair_attempted` history entry. I-189: `useShelf.ts` no longer guesses which reports to silence (the `hostWants` flag is gone); `useShelfPanels.tsx` reports the serial of the last host request it applied with each open-panel report, so a host call's change is known at its source, and a new deterministic lifecycle case (both paths, MutationObserver) failed before and passes now. This replaces the second-pass Limitation "one host case is still not silenced". I-188: the journey's shown-code assertion uses `tools/validate/catalogue-lines.mjs` `holdsAddLines`, proven fast in `tests/shelfCatalogue.test.ts`; `check:browser` not run (recheck). I-190: `bad-part` doc and README row cover every factory, the setters and the build-time action camera check; API page 43,454 B gzip. Gates after the last edit: lint, typecheck, build exit 0; `npm test` 288 files, 4542 passed, 2 skipped. Interface note: the shell's `onOpenShelfChange` now takes `(id, applied)`; an internal prop, not public API.
+
 ## Drift Notes
 
 None expected; this Task reconciles the others.

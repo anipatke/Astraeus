@@ -7,6 +7,7 @@ import { describe, expect, it } from "vitest";
 import { Scene } from "astraeus";
 import { EXAMPLES_DIR, exampleNames, firstSentence, readCatalogue, renderCatalogueMain, shelfExports } from "../tools/site/shelf-catalogue.mjs";
 import { addPartsStatement, importLines } from "../src/catalogue/sourceLines";
+import { holdsAddLines } from "../tools/validate/catalogue-lines.mjs";
 
 const shelf = shelfExports();
 const shelfNames = shelf.map(({ name }) => name).sort();
@@ -62,6 +63,13 @@ describe.each(shelfNames)("the example for %s", (name) => {
     expect(addPartsStatement(source)).toMatch(/^scene\.addParts\(\[\n\s+panel\(/);
     expect(addPartsStatement(source).endsWith("]);")).toBe(true);
   });
+  it("the journey's shown-code check holds for the lines the page prints (I-188: the Add box is left-aligned, the whole example is not)", () => {
+    const source = exampleSource(name);
+    const add = addPartsStatement(source);
+    expect(holdsAddLines(source, add)).toBe(true);
+    // the journey's first assertion compared the left-aligned lines with the indented code as they stand, and failed for every example
+    expect(source.includes(add), "the example's addParts statement is indented, so a plain substring test cannot be the check").toBe(false);
+  });
   it("uses the part it is for", () => {
     const body = addPartsStatement(exampleSource(name));
     expect(body, `${name}( is in the addParts statement`).toContain(`${name}(`);
@@ -113,6 +121,20 @@ describe("the page text", () => {
     const without = catalogue.parts.filter((part) => part.export !== "colourKey").map((part) => part.export);
     expect(shelfNames.filter((name) => !without.includes(name))).toEqual(["colourKey"]);
     expect([...without, "ghost"].filter((name) => !shelfNames.includes(name))).toEqual(["ghost"]);
+  });
+});
+
+describe("holdsAddLines (the catalogue journey's shown-code check, I-188)", () => {
+  const code = "export function buildScene() {\n  const scene = makeScene();\n  scene.addParts([\n    panel({ id: \"a\" }),\n  ]);\n  return scene;\n}";
+  it("finds left-aligned add lines in indented code, line by line", () => {
+    expect(holdsAddLines(code, "scene.addParts([\n  panel({ id: \"a\" }),\n]);")).toBe(true);
+  });
+  it("refuses add lines the code does not hold as written, out of order, split from each other or empty", () => {
+    expect(holdsAddLines(code, "scene.addParts([\n  panel({ id: \"b\" }),\n]);")).toBe(false);
+    expect(holdsAddLines(code, "]);\nscene.addParts([")).toBe(false);
+    expect(holdsAddLines(code, "scene.addParts([\n]);")).toBe(false);
+    expect(holdsAddLines(code, "addParts([")).toBe(false);
+    expect(holdsAddLines(code, "")).toBe(false);
   });
 });
 

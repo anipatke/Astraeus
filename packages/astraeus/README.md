@@ -451,7 +451,7 @@ Every call that refuses its input throws a `SceneError`, a `RangeError` with a s
 | `bad-selection` | `setSelected` was given something other than an id of an object the showing view shows, a sky figure, or `undefined`. |
 | `bad-look` | A look (`setLook`) is unknown or out of its range. |
 | `bad-about` | The About (`setAbout`) is malformed; the message names the field. |
-| `bad-part` | A shelf part is malformed: `panel` or `customBlock` given a bad shape, `addParts` given a value no shelf factory made, or `handle.part` given a part this viewer's scene does not hold. The message names the field. |
+| `bad-part` | A shelf part is malformed: a shelf factory (`panel`, `customBlock`, `explainer`, `actions`, `filterChips`, `colourKey`) or a part control's setter given a bad value, `addParts` given a value no factory made, an action's camera naming what the scene lacks (at build), or `handle.part` given a part this viewer's scene does not hold. The message names the field. |
 | `renamed` | An input field was given under a name it no longer has; the message names the old field and its replacement. |
 <!-- error-table:end -->
 

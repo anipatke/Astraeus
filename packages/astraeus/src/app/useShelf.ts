@@ -16,8 +16,8 @@ export interface ShelfState {
   readonly shown: readonly ShelfPart[];
   readonly runtime: ShelfRuntime;
   readonly request: ShelfRequest | null;
-  /** The shell's report of the open panel (null: none). */
-  readonly onOpenChange: (id: string | null) => void;
+  /** The shell's report of the open panel (null: none), with the serial of the last host request it had applied. */
+  readonly onOpenChange: (id: string | null, applied: number | undefined) => void;
   /** What the viewer hands its link; absent when the scene has no parts. */
   readonly control: ShelfControl | undefined;
 }
@@ -49,11 +49,12 @@ export function useShelf(parts: readonly ShelfPart[] | undefined, view: Resolved
   const open = useRef<string | null>(null);
   const reported = useRef<string | null>(null);
   /**
-   * The open panel the host's last call asked for, until the shell reports it (O-080 T-336). Every report before that one is the host's own change, a step on the
-   * way included, so it is not told to the host (setters are silent) and leaves the host's read alone. A single "next report is silent" flag was consumed by the
-   * report of an earlier host call when a second call came before that report, and the host then heard its own call.
+   * The serial of the host's last call, and of the last call the shell had applied at its last report (O-080 I-189). The shell says at the source which change is the
+   * host's: a report drawn with a newly applied call is that call's change, so it is never told to the host (setters are silent). While a later call is still to be
+   * applied, the host's read stays its last word. Guessing afterwards which reports to silence (T-336's flag) let a call undone before its report be heard.
    */
-  const hostWants = useRef<string | null | undefined>(undefined);
+  const asked = useRef<number | undefined>(undefined);
+  const seen = useRef<number | undefined>(undefined);
   const control = useMemo<ShelfControl | undefined>(() => {
     if (all.length === 0) return undefined;
     const kinds = new Map(all.flatMap((part) => [[part.id, "panel"] as const, ...part.blocks.map((block) => [block.id, block.kind] as const)]));
@@ -64,24 +65,20 @@ export function useShelf(parts: readonly ShelfPart[] | undefined, view: Resolved
         // A panel the showing view does not show cannot open; asking to close a closed one changes nothing.
         if ((wanted && !shownRef.current.some((part) => part.id === id)) || (open.current === id) === wanted) return;
         open.current = wanted ? id : null;
-        // When the shell already shows what the host now wants, no report will follow, so nothing is waited for.
-        hostWants.current = open.current === reported.current ? undefined : open.current;
-        setRequest((previous) => ({ id, open: wanted, serial: (previous?.serial ?? 0) + 1 }));
+        // Counted here, not in a state updater: React may run an updater only at the next render, after a report this call must already outweigh.
+        asked.current = (asked.current ?? 0) + 1;
+        setRequest({ id, open: wanted, serial: asked.current });
       },
     };
   }, [all, elements, blocks, cellOf]);
-  const onOpenChange = useCallback((id: string | null) => {
+  const onOpenChange = useCallback((id: string | null, applied: number | undefined) => {
     const before = reported.current;
     reported.current = id;
-    // A host call's own change is silent, up to the report of what it asked for.
-    if (hostWants.current !== undefined) {
-      // Done when the shell shows it, or closed when the showing view no longer shows the panel the host asked for (it cannot open now).
-      const wanted = hostWants.current;
-      if (id === wanted || (id === null && !shownRef.current.some((part) => part.id === wanted))) hostWants.current = undefined;
-      return;
-    }
-    open.current = id;
-    if (before === id) return;
+    const byHost = applied !== seen.current;
+    seen.current = applied;
+    // The host's read follows the shell once every host call is applied (a visitor, a view switch or another occupant may have changed it).
+    if (applied === asked.current) open.current = id;
+    if (byHost || before === id) return;
     // A panel the showing view dropped is silent too (the view switch is what the host hears, `onChange`).
     const dropped = before !== null && id === null && !shownRef.current.some((part) => part.id === before);
     if (dropped) return;

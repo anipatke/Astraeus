@@ -585,6 +585,53 @@ describe.each([mountDriver, reactDriver(false)])("lifecycle: $name", (driver) =>
     expect(lastGaps.onOpen(() => undefined)).toBeTypeOf("function");
   });
 
+  it("a host setter undone between the part's draw and its report is silent (I-189): open then close, and close then open from an open panel, from a MutationObserver; chips' setSelected likewise; the host hears nothing and reads its last word throughout", async () => {
+    prepared.real = true; openNow();
+    const chips = filterChips({ id: "pick", choices: [{ value: "a", label: "A" }, { value: "b", label: "B" }] });
+    const gapsPanel = panel({ id: "gaps", button: { label: "Gaps" }, title: "The gaps", blocks: [customBlock({ id: "gaps-body" }), chips] });
+    const opened = await driver.open(new Scene().addBody(earth).addParts([gapsPanel]));
+    await opened.ready();
+    const handle = opened.handle!;
+    const gaps = handle.part(gapsPanel);
+    const chipControl = handle.part(chips);
+    const heard: unknown[] = [];
+    gaps.onOpen((change) => heard.push(change));
+    chipControl.onSelect((selection) => heard.push(selection));
+    const shown = (): string | null => document.querySelector("[data-shelf-panel]")?.getAttribute("data-shelf-panel") ?? null;
+    const lit = (): (string | null)[] => [...document.querySelectorAll('[data-shelf-block="pick"] [aria-pressed="true"]')].map((b) => b.getAttribute("data-shelf-chip"));
+    /** Calls `first`, then `second` as soon as `drawn` holds (before the viewer's report effect), and reads the host's view at each step. */
+    async function undo(first: () => void, drawn: () => boolean, second: () => void, read: () => unknown, settled: () => void): Promise<unknown[]> {
+      const reads: unknown[] = [];
+      let fired = false;
+      const observer = new MutationObserver(() => {
+        if (fired || !drawn()) return;
+        fired = true; observer.disconnect(); second(); reads.push(read());
+      });
+      observer.observe(document.body, { childList: true, subtree: true, attributes: true });
+      first(); reads.push(read());
+      await until(() => expect(fired).toBe(true));
+      await until(settled);
+      for (let i = 0; i < 6; i += 1) { reads.push(read()); await tick(10); }
+      return reads;
+    }
+    // closed: open, then close the moment the panel is drawn
+    expect(await undo(() => gaps.setOpen(true), () => shown() === "gaps", () => gaps.setOpen(false), () => gaps.open, () => expect(shown()).toBeNull())).toEqual([true, false, false, false, false, false, false, false]);
+    expect([gaps.open, shown(), heard]).toEqual([false, null, []]);
+    // open: close, then open the moment the panel is gone
+    gaps.setOpen(true);
+    await until(() => expect(shown()).toBe("gaps"));
+    await tick(60);
+    expect(await undo(() => gaps.setOpen(false), () => shown() === null, () => gaps.setOpen(true), () => gaps.open, () => expect(shown()).toBe("gaps"))).toEqual([false, true, true, true, true, true, true, true]);
+    expect([gaps.open, shown(), heard]).toEqual([true, "gaps", []]);
+    // chips: light one, then clear it the moment it is lit
+    expect(await undo(() => chipControl.setSelected(["a"]), () => lit().includes("a"), () => chipControl.setSelected([]), () => chipControl.selected, () => expect(lit()).toEqual([]))).toEqual([["a"], [], [], [], [], [], [], []]);
+    expect(heard, "setters say nothing").toEqual([]);
+    // the visitor is still heard after all that
+    flushSync(() => document.querySelector<HTMLElement>('[data-story-button="gaps"]')!.click());
+    await until(() => expect(heard).toEqual([{ part: "gaps", open: false }]));
+    opened.unmount();
+  });
+
   it("shelf content parts (O-080 T-334): chips light up on a press and the host hears the values (visitor), setSelected and the other setters are silent, an action turns the camera as a story panel's does and is heard, setParagraphs and setEntries change an open panel, and each control is not-mounted after unmount", async () => {
     prepared.real = true; openNow();
     const intro = explainer({ id: "intro", heading: "Why", paragraphs: ["First."], notes: ["A note."] });

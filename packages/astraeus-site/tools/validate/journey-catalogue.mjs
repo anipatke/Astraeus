@@ -4,6 +4,7 @@
 // Alone: ASTRAEUS_URL=<app.html url> ASTRAEUS_EVIDENCE_DIR=<new dir> node tools/validate/journey-catalogue.mjs
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
+import { holdsAddLines } from "./catalogue-lines.mjs";
 import * as ui from "./driver.mjs";
 import { appUrl, checkScript } from "./harness.mjs";
 
@@ -32,7 +33,7 @@ await checkScript({ name: "journey-catalogue", viewports: SIZES }, async (page, 
     assert.equal(entry.devOpen, false, `${part}: the For developers fold starts closed`);
     assert.ok(entry.importLines.includes(`from "astraeus"`) && entry.importLines.includes(part), `${part}: the import line names the part`);
     assert.ok(entry.addLines.startsWith("scene.addParts(") && entry.addLines.includes(`${part}(`), `${part}: the add line holds the part`);
-    assert.ok(entry.code.includes(entry.addLines), `${part}: the shown code is the code that runs (it holds the add line as written)`);
+    assert.ok(holdsAddLines(entry.code, entry.addLines), `${part}: the shown code is the code that runs (it holds the add lines, each without its leading space)`);
     assert.ok(entry.runHeightPx >= minButtonPx, `${name}: ${part}'s Run button is big enough to press (${entry.runHeightPx} px, need ${minButtonPx})`);
   }
   const fit = await ui.catalogueFit(page);
