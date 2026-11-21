@@ -127,7 +127,7 @@ describe("renamed inputs", () => {
 
   it("is read by a call for every scope in the table (a row nothing reads would be ignored silently)", () => {
     const api = join(dirname(fileURLToPath(import.meta.url)), "..", "src", "api");
-    const readers = readdirSync(api).filter((name) => name.endsWith(".ts") && name !== "renamedInputs.ts").flatMap((name) => readFileSync(join(api, name), "utf8").split("\n")).filter((line) => line.includes("rejectRenamed("));
+    const readers = readdirSync(api).filter((name) => name.endsWith(".ts") && name !== "renamedInputs.ts").flatMap((name) => readFileSync(join(api, name), "utf8").split("rejectRenamed(").slice(1).map((rest) => rest.split(";")[0]!)); // each call's text up to its `;`, however the call is laid out
     for (const scope of new Set(RENAMED_INPUTS.map((row) => row.scope))) expect(readers.some((line) => line.includes(`"${scope}"`)), scope).toBe(true);
   });
 

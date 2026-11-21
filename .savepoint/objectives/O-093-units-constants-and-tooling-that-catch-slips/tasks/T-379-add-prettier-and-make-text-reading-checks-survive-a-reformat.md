@@ -2,14 +2,14 @@
 id: T-379
 title: Add Prettier and make text-reading checks survive a reformat
 objective: O-093
-status: planned
+status: done
 depends_on: [{task: T-370, requires: clear}, {task: T-371, requires: clear}, {task: T-372, requires: clear}, {task: T-373, requires: clear}, {task: T-374, requires: clear}, {task: T-375, requires: clear}, {task: T-376, requires: clear}, {task: T-377, requires: clear}, {task: T-378, requires: clear}]
 check_waiver: {task: T-379, reason: 'Owner said "work through this list of objectives one by one. Orchestrate each objective to completion" (G-024 decision 7) and "carry on" (2026-11-22): standing orchestration rules waive the optional step checks; the mandatory Full Objective Check covers the whole diff.', actor: {role: owner, session: orchestrate-g024-20261121}, recorded_at: '2026-11-21T19:19:52Z'}
 owner_validation: {required: false}
 planned_by: {role: planner, session: orchestrate-g024-20261121}
 lane: tooling
 planned_reads: [tools/build-packages.mjs, tools/check-engine-alone.mjs, packages/astraeus-site/tools/validate/catalogue-lines.mjs, packages/astraeus-site/src/catalogue/page.ts, packages/astraeus/tests/layerRule.test.ts, packages/astraeus/tests/nameCheck.test.ts, tools/api-rules.mjs]
-planned_writes: [package.json, package-lock.json, .prettierrc.json, .prettierignore]
+planned_writes: [package.json, package-lock.json, .prettierrc.json, .prettierignore, packages/astraeus-site/src/catalogue/sourceLines.ts, packages/astraeus-site/tools/site/api-reference.mjs, packages/astraeus-site/tools/validate/assertion-list.mjs, packages/astraeus-site/tests/gateLimits.test.ts, packages/astraeus-site/tests/migrationTable.test.ts, packages/astraeus-site/tests/shelfCatalogue.test.ts, packages/astraeus/tests/interfaceLeftovers.test.ts, packages/astraeus/tests/renamedInputs.test.ts, packages/astraeus/api-surface.lock.json]
 ---
 
 # Add Prettier and make text-reading checks survive a reformat
@@ -65,8 +65,35 @@ Focused: the dry-run command list above, then `quality_gates`. Record each check
 
 ## Technical Evidence
 
-Pending execution.
+Prettier pinned at 3.9.10 (exact). 3.10.1 is the latest but is 10 days old and 3.10.0 is 11 days old, so 3.9.10 (2026-10-10) is the newest release at least two weeks old. `.prettierrc.json`: `{"printWidth": 120}` only (defaults otherwise). Scripts `format` and `format:check` added; `lint` unchanged.
+
+Extra reads: `packages/astraeus-site/tools/site/api-reference.mjs`, `packages/astraeus-site/tools/validate/assertion-list.mjs`, `packages/astraeus/tests/*` and `packages/astraeus-site/tests/*` for each failing check (reason: dry-run failures, listed below); `examples/hello-scene/src/main.js` via publishWorkflow.test.ts.
+
+Deviations from the planned ignore list (flagged to the owner): `*.css` (the reformat rewrote values such as `.88` to `0.88`, which broke the look lock, 16 computed-look cases and five stylesheet tests: CSS is the look and keeps its own writer), `examples` (they are documentation shown to readers and have a 100-line budget the reformat breaks: 148 lines), `.claude` (Savepoint-managed hooks), and `packages/astraeus/src/core/bodies/listedMoons.ts` (generated; a test compares it with its generator's output). 
+
+File list after ignores: `npx prettier --list-different . | wc -l` = 726 on the unformatted main tree. By package: astraeus 525, astraeus-site 96, astraeus-demo-apollo11 25, astraeus-demo-planets 24, astraeus-demo-showers 22, astraeus-data-constellations 6, astraeus-data 2, tools 19 (the `tools/` scripts and `.d.mts`), vitest.config.ts 1, other 6 (packages/astraeus-data-* single files).
+
+Dry run (scratch worktree of HEAD plus these changes, `npm run format`; removed afterwards). First pass with the planned ignore list: 37 failures in 14 files. After ignoring CSS/generated: 12 failures in 7 files. Causes and fixes (all in the main checkout, test setup unchanged, only how text is read):
+- `astraeus-site/tests/apiSurface.test.ts`: signatures read from source text keep `;`/`,` before `}` and a leading `|` as written. Fix: `layoutFree()` in `tools/site/api-reference.mjs` (whitespace runs, `;`/`,` before `}`, leading `| `). Consequence: `api-surface.lock.json` regenerated once; six type signatures lose their leading `| ` (no meaning change; `npm run api:lock` then shows no diff on both trees). `migrationTable.test.ts` `canonical()` also strips a leading `| ` so the 0.7.0 baseline still compares.
+- `browserAssertions.test.ts`: the guard text printed from the AST kept a trailing comma. Fix: `squash` in `tools/validate/assertion-list.mjs` drops a comma before `}`/`)`/`]`. Baseline fixture unchanged and still matched.
+- `gateLimits.test.ts`: regex `{ name: "` across a line break. Fix: `/\{\s*name: "/`.
+- `shelfCatalogue.test.ts` (6 failures) and the page's own cutter: `addPartsStatement` found the closing `]);` by indent. Fix: `src/catalogue/sourceLines.ts` matches brackets (strings and comments skipped); the test's first-part regex takes `\s*`; the "indented, so substring cannot be the check" assertion applies when the statement spans lines. New test proves one-line and many-line forms and a bracket in a string.
+- `interfaceLeftovers.test.ts` (`has no class selector the interface never renders`): carriers counted only literals on the carrier's own line; `GHOST_CLASS` table became multi-line. Fix: `carrierSpans()` extends a carrier to its call or `const` statement. New planted test.
+- `renamedInputs.test.ts`: `rejectRenamed(` and the scope literal on one line. Fix: split on `rejectRenamed(` and take each call's text to `;`.
+- Failed only through CSS/generated/examples (so fixed by ignoring): computedLook (16), domEmbedded (2), domPhone, interfaceLook (2), viewerStyles (2), lookDrift, listedMoons, publishWorkflow.
+
+Repeated dry run after the fixes (fresh worktree): lint, typecheck, build exit 0; `npm test` 311 files / 5073 passed (2 skipped); `api:lock` and `api:errors` no diff; `look:lock` no diff; `check:pack`, `check:engine-alone`, `check:node-consumer`, `check:react-consumer`, `build:example` exit 0. Wall time on the formatted copy (s): lint 6, typecheck 7, build 4, test 57, look:lock 8, check:pack 20, check:engine-alone 33, node-consumer 7, react-consumer 6, build:example 24. (Unformatted main: tests ~55 s; no difference beyond noise; the other steps were not timed separately on main.) The scratch worktree was removed.
+
+Gates on the unformatted main tree: `npm run lint`, `typecheck`, `build` exit 0; `npm test` 311 files, 5073 passed, 2 skipped (one run timed out `planetChunksWindow` saturn under load, 5 s; passed alone and on rerun). Browser checks not run. `format:check` lists 726 files (expected to fail until T-381).
+
+Planted cases: the existing planted tests of each check still pass (assertion-list, interfaceLeftovers, migrationTable, gateLimits step list vs limits file); new cases added in shelfCatalogue.test.ts and interfaceLeftovers.test.ts.
+
+Files changed: package.json, package-lock.json, .prettierrc.json, .prettierignore, packages/astraeus-site/src/catalogue/sourceLines.ts, packages/astraeus-site/tools/site/api-reference.mjs, packages/astraeus-site/tools/validate/assertion-list.mjs, packages/astraeus-site/tests/{gateLimits,migrationTable,shelfCatalogue}.test.ts, packages/astraeus/tests/{interfaceLeftovers,renamedInputs}.test.ts, packages/astraeus/api-surface.lock.json, this Task file.
+
+Limitations: the catalogue page's source-line view was fixed and unit-tested, not browser-confirmed (left to the Full Check). The API reference page text shows six unions without a leading `|`.
 
 ## Drift Notes
 
-For Design reconciliation (`tools/` row): Prettier config and scope; list of checks made layout-independent.
+For Design reconciliation (`tools/` row): Prettier 3.9.10, `printWidth: 120`; ignore list adds `*.css`, `examples`, `.claude` and the generated `listedMoons.ts` to the planned list. Checks made layout-independent: api-reference signatures (+ migrationTable canonical, api lock), assertion-list guard text, gateLimits step regex, catalogue `addPartsStatement`, interfaceLeftovers carrier spans, renamedInputs reader.
+
+Coordinator (orchestrate-g024-20261121): accepted the ignore-list deviations (CSS: the look lock pins its exact text; `examples`: the hello-scene line budget; `.claude` and the generated `listedMoons.ts`), each with its reason. Gates green on the unformatted tree (lint, typecheck, build; `npm test` 311 files, 5073 passed) and the scratch formatted copy green. `status: done` set by the coordinator under the standing orchestration rule ("I mark them as they pass", O-038) and G-024 decision 7.

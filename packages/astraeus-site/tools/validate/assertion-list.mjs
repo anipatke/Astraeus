@@ -23,7 +23,7 @@ const FAILURE_LIST = /problem|failure|error|fail|violation/i;
 const printer = ts.createPrinter({ removeComments: true });
 
 const nameOf = (node) => (ts.isIdentifier(node) ? node.text : ts.isPropertyAccessExpression(node) ? node.name.text : undefined);
-const squash = (text) => text.replace(/\s+/g, " ").trim();
+const squash = (text) => text.replace(/\s+/g, " ").replace(/,\s*}/g, " }").replace(/,\s*([)\]])/g, "$1").trim(); // a trailing comma is layout too
 
 /** The arrays a script hands on as failures: `problems: list`, `{ problems }`. */
 function handedOnLists(root) {

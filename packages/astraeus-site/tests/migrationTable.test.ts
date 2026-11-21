@@ -53,7 +53,10 @@ function holds(root: Root, name: string): boolean {
 
 /** Every removed or changed public name between two surfaces, as `Type` or `Type.member`. */
 /** A signature with its top-level union members in a fixed order: the compiler lists a union's members by when it first met each one, so an unrelated new literal elsewhere can reorder `"a" | "b"` without changing what is accepted. */
-const canonical = (signature: string): string => (signature.includes("(") || signature.includes("<") ? signature : signature.split(" | ").sort().join(" | "));
+const canonical = (written: string): string => {
+  const signature = written.replace(/^\| /, ""); // a multi-line union is written with a leading `|`, which says nothing about what is accepted
+  return signature.includes("(") || signature.includes("<") ? signature : signature.split(" | ").sort().join(" | ");
+};
 
 function brokenNames(before: Root, after: Root): string[] {
   const names: string[] = [];

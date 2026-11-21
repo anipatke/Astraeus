@@ -19,6 +19,9 @@ const isOwn = (declaration) => !/node_modules|[\\/]typescript6?[\\/]lib[\\/]/.te
 const text = (parts) => ts.displayPartsToString(parts).trim();
 const privateName = (name) => name.startsWith("#") || name.startsWith("__#");
 
+/** A signature as the compiler reads it, whatever the source layout: whitespace runs are one space, a separator or trailing comma before a closing brace is dropped, and a leading `|` of a multi-line union is dropped. */
+const layoutFree = (text) => text.replace(/\s+/g, " ").replace(/[;,]\s*}/g, " }");
+
 function describeMembers(checker, type, at) {
   return type.getProperties().filter((property) => !privateName(property.name) && (property.declarations ?? []).some(isOwn) && !(ts.getCombinedModifierFlags(property.declarations[0]) & (ts.ModifierFlags.Private | ts.ModifierFlags.Protected))).map((property) => {
     const declaration = property.declarations[0];
@@ -65,9 +68,9 @@ export function collectExports(entry = PUBLIC_ENTRY) {
       if (kind === "class") out.constructors = checker.getTypeOfSymbolAtLocation(target, entryNode).getConstructSignatures().map((signature) => checker.signatureToString(signature, entryNode, FORMAT).replace(/:\s*\w+$/, ""));
       if (kind === "interface") out.signature = declared.getBaseTypes()?.map((base) => checker.typeToString(base)).join(", ") ?? "";
     } else if (kind === "type") {
-      out.signature = ts.isTypeAliasDeclaration(declaration) ? declaration.type.getText().replace(/\s+/g, " ") : "";
+      out.signature = ts.isTypeAliasDeclaration(declaration) ? layoutFree(declaration.type.getText()).replace(/^\| /, "") : "";
     } else if (kind === "function") {
-      out.signature = checker.getTypeOfSymbolAtLocation(target, entryNode).getCallSignatures().map((signature) => `${exported.name}${checker.signatureToString(signature, entryNode, FORMAT)}`).join("\n");
+      out.signature = layoutFree(checker.getTypeOfSymbolAtLocation(target, entryNode).getCallSignatures().map((signature) => `${exported.name}${checker.signatureToString(signature, entryNode, FORMAT)}`).join("\n"));
     } else {
       out.signature = checker.typeToString(checker.getTypeOfSymbolAtLocation(target, entryNode), entryNode, FORMAT);
       out.body = out.signature === "BodyRef";

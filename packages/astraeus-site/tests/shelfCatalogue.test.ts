@@ -61,7 +61,7 @@ describe.each(shelfNames)("the example for %s", (name) => {
     expect(imports.filter((from) => from !== "astraeus" && from !== "../madeUpScene")).toEqual([]);
     expect(importLines(source)).toContain(name);
     // the first thing added is a call to a shelf part (a panel, or a tile that stands alone); a block added alone is refused by `addParts` when the scene builds (the build test below)
-    const first = /^scene\.addParts\(\[\n\s+(\w+)\(/.exec(addPartsStatement(source))?.[1];
+    const first = /^scene\.addParts\(\[\s*(\w+)\(/.exec(addPartsStatement(source))?.[1];
     expect(shelfNames, "the first thing added is a call to a shelf part").toContain(first);
     expect(addPartsStatement(source).endsWith("]);")).toBe(true);
   });
@@ -70,7 +70,8 @@ describe.each(shelfNames)("the example for %s", (name) => {
     const add = addPartsStatement(source);
     expect(holdsAddLines(source, add)).toBe(true);
     // the journey's first assertion compared the left-aligned lines with the indented code as they stand, and failed for every example
-    expect(source.includes(add), "the example's addParts statement is indented, so a plain substring test cannot be the check").toBe(false);
+    // (a statement the layout keeps on one line is a substring of its indented line, so the point is made for statements of several lines)
+    if (add.includes("\n")) expect(source.includes(add), "the example's addParts statement is indented, so a plain substring test cannot be the check").toBe(false);
   });
   it("uses the part it is for", () => {
     const body = addPartsStatement(exampleSource(name));
@@ -147,4 +148,15 @@ describe("firstSentence", () => {
     ["A (b.c) d; e. Then f", "A (b.c) d; e."],
     ["Line one\nline two. After", "Line one line two."],
   ])("%j gives %j", (doc, sentence) => expect(firstSentence(doc)).toBe(sentence));
+});
+
+describe("addPartsStatement reads brackets, not lines (a reformat must not change what the page shows)", () => {
+  it("cuts the same statement whether the call is on one line or several, and ignores brackets in strings", () => {
+    const one = '  const scene = makeScene();\n  scene.addParts([panel({ id: "a)" })]);\n  return scene;';
+    const many = '  const scene = makeScene();\n  scene.addParts([\n    panel({ id: "a)" }),\n  ]);\n  return scene;';
+    expect(addPartsStatement(one)).toBe('scene.addParts([panel({ id: "a)" })]);');
+    expect(addPartsStatement(many)).toBe('scene.addParts([\n  panel({ id: "a)" }),\n]);');
+    expect(addPartsStatement("const scene = makeScene();")).toBe("");
+    expect(addPartsStatement("scene.addParts([panel(")).toBe("");
+  });
 });

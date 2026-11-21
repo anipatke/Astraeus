@@ -37,12 +37,42 @@ export interface Literal { readonly text: string; readonly isClass: boolean }
 const CLASS_LEAD = /(?:\bclassName|\.className|\bclass)\s*[=:]\s*$|\bclassList\.(?:add|remove|toggle)\(\s*$/;
 
 /**
+ * The stretches of `source` a carrier covers beyond its own line, so the layout of the code does not decide what counts: a carrier ending in `(` covers its call, to the matching `)`; a
+ * carrier declared with `const` or `let` covers its statement, to the `;` that ends it. (Quoted text is skipped when matching brackets.)
+ */
+function carrierSpans(source: string, carriers: readonly string[]): [number, number][] {
+  const spans: [number, number][] = [];
+  const reach = (from: number, endsAtSemicolon: boolean): number => {
+    let depth = 0;
+    for (let i = from; i < source.length; i += 1) {
+      const ch = source[i]!;
+      if (ch === '"' || ch === "'" || ch === "`") {
+        for (i += 1; i < source.length && source[i] !== ch && source[i] !== "\n"; i += 1) if (source[i] === "\\") i += 1;
+      } else if ("([{".includes(ch)) depth += 1;
+      else if (")]}".includes(ch)) {
+        depth -= 1;
+        if (depth < 0 || (depth === 0 && !endsAtSemicolon && ch === ")")) return i;
+      } else if (ch === ";" && depth === 0 && endsAtSemicolon) return i;
+    }
+    return source.length;
+  };
+  for (const carrier of carriers) {
+    for (let at = source.indexOf(carrier); at >= 0; at = source.indexOf(carrier, at + 1)) {
+      if (carrier.endsWith("(")) spans.push([at, reach(at + carrier.length - 1, false)]);
+      else if (/\b(?:const|let)\s+$/.test(source.slice(Math.max(0, at - 8), at))) spans.push([at, reach(at, true)]);
+    }
+  }
+  return spans;
+}
+
+/**
  * The string and template literals of TypeScript source, comments left out; the literals inside a template's hole are returned too. A literal sets a class when it is the
  * value of `className` (JSX attribute, with everything inside its braces; a property; a default; an assignment), an argument of `classList.add/remove/toggle`, or on a
  * line naming one of `carriers`. `closed` is false when the text ends inside a template.
  */
 export function literalsOf(source: string, carriers: readonly string[] = CARRIERS): { readonly literals: Literal[]; readonly closed: boolean } {
   const literals: Literal[] = [];
+  const spans = carrierSpans(source, carriers);
   let closed = true;
   let at = 0;
   let classDepth = 0;
@@ -50,7 +80,7 @@ export function literalsOf(source: string, carriers: readonly string[] = CARRIER
     const lineStart = source.lastIndexOf("\n", start) + 1;
     const lineEnd = source.indexOf("\n", start);
     const line = source.slice(lineStart, lineEnd < 0 ? source.length : lineEnd);
-    literals.push({ text, isClass: classDepth > 0 || CLASS_LEAD.test(source.slice(Math.max(0, start - 40), start)) || carriers.some((carrier) => line.includes(carrier)) });
+    literals.push({ text, isClass: classDepth > 0 || CLASS_LEAD.test(source.slice(Math.max(0, start - 40), start)) || carriers.some((carrier) => line.includes(carrier)) || spans.some(([from, to]) => start >= from && start < to) });
   };
   const quoted = (quote: string): void => {
     let text = "";
@@ -277,5 +307,21 @@ describe("the leftover rules see what they must (planted cases)", () => {
   it("an unterminated template is reported by the reader", () => {
     expect(literalsOf("const a = `open ${b} never closed;").closed).toBe(false);
     expect(literalsOf("const a = `shut ${b ? `in` : \"x\"}`; // `").closed).toBe(true);
+  });
+});
+
+describe("a carrier's literals count however the code is laid out", () => {
+  it("counts a declared carrier's whole statement and a carrier call's whole argument list, and nothing after them", () => {
+    const table = 'const GHOST_CLASS = {\n  a: "ghost-a",\n  b: "ghost-b",\n};\nconst other = "not-a-class";';
+    expect(literalsOf(table, ["GHOST_CLASS"]).literals).toEqual([
+      { text: "ghost-a", isClass: true },
+      { text: "ghost-b", isClass: true },
+      { text: "not-a-class", isClass: false },
+    ]);
+    const call = 'make(\n  label,\n  "planted-part",\n);\nconst x = "plain";';
+    expect(literalsOf(call, ["make("]).literals).toEqual([
+      { text: "planted-part", isClass: true },
+      { text: "plain", isClass: false },
+    ]);
   });
 });

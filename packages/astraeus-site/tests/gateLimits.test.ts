@@ -19,7 +19,7 @@ describe("the one limits file", () => {
     const scripts = JSON.parse(readFileSync(join(root, "package.json"), "utf8")).scripts as Record<string, string>;
     for (const name of Object.keys(limits.gates)) expect(scripts[name], name).toBeDefined();
     const source = readFileSync(join(root, "packages/astraeus-site/tools/validate/run-browser.mjs"), "utf8");
-    const steps = [...source.matchAll(/\{ name: "([^"]+)"/g)].map((m) => m[1]);
+    const steps = [...source.matchAll(/\{\s*name: "([^"]+)"/g)].map((m) => m[1]);
     expect(steps.length).toBeGreaterThan(5);
     expect(Object.keys(limits.browser.steps).sort()).toEqual([...steps].sort());
   });
