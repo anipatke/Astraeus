@@ -282,7 +282,7 @@ async function checkSkyStory(page, name) {
   } // the camera entry opened the drawers too
   await pressStep(page, "next");
   await waitForStep(page, "step-lantern");
-  const lantern = await ui.waitForCameraReading(page, (reading) => reading.sky && reading.fovDeg === 40);
+  const lantern = await ui.waitForSettledCamera(page, (reading) => reading.sky && reading.fovDeg === 40);
   assert.ok(
     lantern.sky && lantern.body === "earth" && sameDirection(lantern, { raDeg: 288.5, decDeg: -18 }),
     `${name}: step 2 turns from the orbit view to look out at Lantern (${JSON.stringify(lantern)})`,
@@ -298,7 +298,7 @@ async function checkSkyStory(page, name) {
 
   await pressStep(page, "next");
   await waitForStep(page, "step-kettle");
-  const kettle = await ui.waitForCameraReading(page, (reading) => reading.sky && !sameDirection(reading, lantern));
+  const kettle = await ui.waitForSettledCamera(page, (reading) => reading.sky && !sameDirection(reading, lantern));
   assert.ok(
     kettle.fovDeg === 40 && kettle.raDeg < lantern.raDeg - 3,
     `${name}: step 3 turns west to Kettle (${JSON.stringify(kettle)})`,
@@ -314,13 +314,13 @@ async function checkSkyStory(page, name) {
 
   await pressStep(page, "back");
   await waitForStep(page, "step-lantern");
-  const again = await ui.waitForCameraReading(page, (reading) => reading.sky && sameDirection(reading, lantern));
+  const again = await ui.waitForSettledCamera(page, (reading) => reading.sky && sameDirection(reading, lantern));
   assert.ok(again.sky, `${name}: Back returns the camera to Lantern`);
   await ui.waitForPicked(page, "lantern");
   await ui.waitForSkyLines(page, { present: ["sky-trace:lantern"], absent: ["sky-trace:kettle"] }); // leaving step 3 cleared Kettle's trace; step 2 traces Lantern again
   await pressStep(page, "back");
   await waitForStep(page, "step-start");
-  const home = await ui.waitForCameraReading(
+  const home = await ui.waitForSettledCamera(
     page,
     (reading) => reading.sky && sameDirection(reading, start) && reading.fovDeg === 60,
   );
@@ -397,7 +397,7 @@ await checkScript({ name: "journey-look-out", viewports: SIZES }, async (page, {
   // The Mars entry stands inside Mars (Earth is drawn again), the field of view zooms with the wheel, and Focus on Earth returns to the orbit camera and draws Earth again.
   await ui.pickBody(page, "mars");
   await ui.chooseCamera(page, "lookout-mars");
-  const atMars = await ui.waitForCameraReading(page, (reading) => reading.sky && reading.body === "mars");
+  const atMars = await ui.waitForSettledCamera(page, (reading) => reading.sky && reading.body === "mars");
   assert.ok(
     atMars.sky && atMars.body === "mars",
     `${name}: Look out from Mars stands in Mars (reading ${JSON.stringify(atMars)})`,
@@ -411,7 +411,7 @@ await checkScript({ name: "journey-look-out", viewports: SIZES }, async (page, {
   let zoomed = null;
   if (name === "desktop") {
     assert.ok(await ui.wheelOverCanvas(page, -600), "the canvas has a free point for the wheel");
-    zoomed = await ui.waitForCameraReading(page, (reading) => reading.sky && reading.fovDeg < atMars.fovDeg);
+    zoomed = await ui.waitForSettledCamera(page, (reading) => reading.sky && reading.fovDeg < atMars.fovDeg);
     assert.ok(
       zoomed.sky && zoomed.fovDeg < atMars.fovDeg,
       `desktop: a wheel turn narrows the field of view (${atMars.fovDeg} -> ${zoomed.fovDeg})`,

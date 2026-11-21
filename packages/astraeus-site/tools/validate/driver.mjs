@@ -2903,6 +2903,29 @@ export async function waitForCameraReading(page, done, { timeout = 6000 } = {}) 
   }
   return reading;
 }
+/**
+ * Waits until the camera reading satisfies `done` (default: any) and its rounded pose has been the same on `polls` reads in a row, about 100 ms apart, then returns it (I-192). The viewer handle
+ * reports the pose every frame, so the first reading that differs from the old view is mid-glide; a step-direction assertion reads the settled pose instead. Throws after `timeout` ms naming `what`
+ * it waited for and the last reading, so a camera that never settles (or never reaches the target) fails clearly.
+ */
+export async function waitForSettledCamera(
+  page,
+  done = () => true,
+  { timeout = 6000, polls = 3, what = "the camera to settle" } = {},
+) {
+  const deadline = Date.now() + timeout;
+  let reading = await cameraReading(page);
+  let same = 1;
+  while (!(done(reading) && same >= polls)) {
+    if (Date.now() >= deadline)
+      throw new Error(`${what} never happened in ${timeout} ms (last reading: ${JSON.stringify(reading)})`);
+    await page.waitForTimeout(100);
+    const next = await cameraReading(page);
+    same = JSON.stringify(next) === JSON.stringify(reading) ? same + 1 : 1;
+    reading = next;
+  }
+  return reading;
+}
 /** One camera menu entry against the rest of the screen: inside the window and which neighbours (the controls in the same row, the cog, the timeline and the menu button) it overlaps, and its smaller side in pixels. */
 export async function cameraEntryFit(page, presetId) {
   await reveal(page, page.locator(`[data-camera-preset="${presetId}"]`));

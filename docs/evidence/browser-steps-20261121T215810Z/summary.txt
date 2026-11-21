@@ -1,0 +1,4 @@
+tier: steps
+logs: /tmp/astraeus-check-logs-DKGU4N
+look-out | scene=synthetic-lookout (made-up, Sun, Earth and Mars): opens looking out from Earth, the menu offers Look out from Earth and Mars clear of the controls, Focus returns; two made-up sky figures, an outline and four switches, the site trace control (Stay, Fade and Stay-then-Hide, each waiting for the `sky-trace:<id>` line set in `data-sky-lines` to appear and go), labels do not overlap; desktop and phone size | exit=0 | 21:58:11-21:59:22 | 71s | limit 100s | error-lines=0
+total 72s (servers and public build included) | no limit

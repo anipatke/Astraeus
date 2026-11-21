@@ -17,6 +17,10 @@ history:
     actor: {role: checker, session: check-o086-orchestrator-20261122}
     kind: observed
     note: 'C-203: full tier, look-out fails "phone: step 3 turns west to Kettle" ({"sky":true,"raDeg":287.33,"decDeg":-19.11,"fovDeg":40}); third failure at the same assertion (T-391 run, T-393 run, C-203). journey-look-out.mjs:301 takes the first handle reading that differs from Lantern; the handle reports every frame, so that reading is mid-glide; the drawer it replaced (T-390) refreshed on a timer, which hid the glide.'
+  - at: '2026-11-21T22:06:08Z'
+    actor: {role: executor, session: repair-o086-c203-20261122}
+    kind: repair_attempted
+    note: 'Added driver.waitForSettledCamera(page, done, {timeout, polls, what}) (polls the rounded pose until done(reading) holds and the pose is unchanged on 3 reads in a row; throws naming what it waited for and the last reading). journey-look-out.mjs now uses it for the Lantern, Kettle, Back-to-Lantern, home, Mars and wheel-zoom reads; assertion text unchanged. New fast test packages/astraeus-site/tests/browserDriverSettledCamera.test.ts (settles before returning; times out naming what). check:browser --step look-out green twice (docs/evidence/browser-steps-20261121T215810Z, browser-steps-20261121T215927Z); full tier green once (docs/evidence/browser-20261121T220041Z, 319 s).'
 ---
 
 # The look-out step reads the sky camera mid-glide

@@ -26,3 +26,9 @@ export function waitUntil<T>(
   done: (value: T) => boolean,
   options?: { readonly timeout?: number; readonly what?: string },
 ): Promise<T>;
+/** Waits for a camera reading satisfying `done` whose pose has stopped changing (I-192); throws naming `what` on timeout. */
+export function waitForSettledCamera(
+  page: unknown,
+  done?: (reading: { sky: boolean; [key: string]: unknown }) => boolean,
+  options?: { timeout?: number; polls?: number; what?: string },
+): Promise<Record<string, unknown>>;
