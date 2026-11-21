@@ -4,7 +4,7 @@
  * the definition of a mapped one. Jupiter is one configuration (`jupiterMoons.ts`), unchanged by test. Core data: any experience may load it; which
  * bodies it shows is the experience's choice (O-025 Decision 8).
  */
-import type { BodyId, CelestialBodyDefinition, CenterId, StateSourceBinding } from "../body";
+import type { BodyId, CelestialBodyDefinition, CenterId, OrientationModel, StateSourceBinding } from "../body";
 import { moonOrientationFromOrbit } from "../bodyOrientation";
 import { ChebyshevEphemeris, parseEphemerisIndex } from "../chebyshevEphemeris";
 import { type IauRotationElements, iauOrientation } from "../iauRotation";
@@ -125,10 +125,18 @@ export interface MoonSystem {
   binding(body: BodyId, rotation?: IauRotationElements): StateSourceBinding;
   /** What a mapped moon's record says about its position, with its own worst figure from the fit check. */
   position(label: string, worstM?: number, span?: TimeBounds): ReturnType<typeof createProvenance>;
-  /** The note said of every mapped moon whose face is held towards the centre. */
-  readonly tidalLockNote: string;
-  /** A mapped moon: sphere, tidal lock, valid for the fit span. */
-  mappedMoon(moon: MappedMoonFacts): CelestialBodyDefinition;
+  /**
+   * The orientation label and card sentence of a moon of this system, from the one fact that decides the model: whether an IAU rotation record
+   * turns it (`iau-rotation`) or its orbit does (`tidal-lock`). `binding` and `mappedMoon` take the same record, so label and model cannot drift.
+   */
+  orientationFacts(rotation?: IauRotationElements): { readonly orientation: OrientationModel; readonly orientationLimitations: readonly string[] };
+  /** A mapped moon: sphere, valid for the fit span; its definition and state-source binding come from the one record of facts (`rotation` included). */
+  mappedMoon(moon: MappedMoonFacts): MappedMoon;
+}
+
+export interface MappedMoon {
+  readonly definition: CelestialBodyDefinition;
+  readonly binding: StateSourceBinding;
 }
 
 export interface MappedMoonFacts {
@@ -143,6 +151,8 @@ export interface MappedMoonFacts {
   readonly orbitPeriodDays?: number;
   /** The years this moon's committed fits cover; absent means `MOON_FIT_SPAN`. */
   readonly span?: TimeBounds;
+  /** The moon's IAU rotation record as elements; absent when its orbit turns it (near side held towards the centre). */
+  readonly rotation?: IauRotationElements;
   /** The physical-properties lines of the Horizons header the numbers are read from. */
   readonly header: string;
   /** Overrides the default dimensions sentence (a moon drawn at its mean radius that is not printed as one). */
@@ -158,7 +168,9 @@ export function createMoonSystem(config: MoonSystemConfig): MoonSystem {
   /** Chunk paths already decoded into the set, and those being fetched now (shared by every request, so a path is fetched once). */
   let added = new Set<string>();
   let fetching = new Map<string, Promise<void>>();
-  const tidalLockNote = `The orientation is an approximate tidal lock keeping the near side towards ${config.centreLabel}, with no libration.`;
+  const orientationFacts = (rotation?: IauRotationElements): { orientation: OrientationModel; orientationLimitations: readonly string[] } => rotation === undefined
+    ? { orientation: "tidal-lock", orientationLimitations: Object.freeze([`The orientation is an approximate tidal lock keeping the near side towards ${config.centreLabel}, with no libration.`]) }
+    : { orientation: "iau-rotation", orientationLimitations: Object.freeze([`The orientation is the IAU rotation model (pole and prime meridian from the working group's report, with its periodic terms where the report gives them), not held to the direction of ${config.centreLabel}: the near side faces ${config.centreLabel} on average, and its libration is only as exact as that model.`]) };
 
   const ephemeris = (): ChebyshevEphemeris => {
     if (installed === null) throw new NotLoadedError(`${config.centreLabel}'s moon fits are not loaded: await the system's load before mounting a scene with its moons`);
@@ -274,6 +286,8 @@ export function createMoonSystem(config: MoonSystemConfig): MoonSystem {
     },
   });
 
+  const binding = (body: BodyId, rotation?: IauRotationElements): StateSourceBinding => Object.freeze<StateSourceBinding>({ body, create: (adapter) => trajectory(body, adapter, rotation) });
+
   const position = (label: string, worstM: number | undefined, span: TimeBounds = MOON_FIT_SPAN) => createProvenance({
     sourceType: "ephemeris",
     sources: [config.fitSource],
@@ -296,18 +310,19 @@ export function createMoonSystem(config: MoonSystemConfig): MoonSystem {
     load: (request: MoonSystemLoad): Promise<ChebyshevEphemeris> => loadRequest(request),
     osculatingPeriodMs,
     trajectory,
-    binding: (body: BodyId, rotation?: IauRotationElements): StateSourceBinding => Object.freeze<StateSourceBinding>({ body, create: (adapter) => trajectory(body, adapter, rotation) }),
+    binding,
     position,
-    tidalLockNote,
-    mappedMoon(moon: MappedMoonFacts): CelestialBodyDefinition {
-      return Object.freeze({
+    orientationFacts,
+    mappedMoon(moon: MappedMoonFacts): MappedMoon {
+      const { orientation, orientationLimitations } = orientationFacts(moon.rotation);
+      const definition: CelestialBodyDefinition = Object.freeze({
         id: moon.id,
         label: moon.label,
         radiusKm: moon.radiusKm,
         ...(moon.gmKm3S2 === undefined ? {} : { gmKm3S2: moon.gmKm3S2 }),
         parentId: config.centre,
         ...(moon.orbitPeriodDays === undefined ? {} : { orbitPeriodDays: moon.orbitPeriodDays }),
-        orientation: "tidal-lock",
+        orientation,
         accuracy: Object.freeze({
           dimensions: createProvenance({
             sourceType: "observed",
@@ -317,9 +332,10 @@ export function createMoonSystem(config: MoonSystemConfig): MoonSystem {
           }),
           position: position(moon.label, moon.worstM, moon.span),
           validUtc: moon.span ?? MOON_FIT_SPAN,
-          orientationLimitations: Object.freeze([tidalLockNote]),
+          orientationLimitations,
         }),
       });
+      return Object.freeze({ definition, binding: binding(moon.id, moon.rotation) });
     },
   });
 }

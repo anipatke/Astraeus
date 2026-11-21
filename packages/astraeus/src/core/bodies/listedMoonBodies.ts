@@ -31,7 +31,7 @@ const PERIOD_SOURCE = "JPL SSD satellite mean elements (https://ssd.jpl.nasa.gov
 export function listedMoonBody(moon: ListedMoon): ListedMoonBody {
   const system = MOON_SYSTEMS[moon.parent];
   if (system === undefined) throw new RangeError(`${moon.id}: no moon system for "${moon.parent}"`);
-  const definition = system.mappedMoon({
+  return system.mappedMoon({
     id: moon.id,
     label: moon.label,
     radiusKm: moon.meanRadiusKm,
@@ -40,7 +40,6 @@ export function listedMoonBody(moon: ListedMoon): ListedMoonBody {
     header: `${RADIUS_SOURCE}${moon.orbitPeriodDays === null ? "" : `; ${PERIOD_SOURCE}`}`,
     dimensionsNote: `Mean radius ${moon.meanRadiusKm} km (${RADIUS_SOURCE}); ${moon.label} is drawn as a sphere at that radius. No gravitational parameter is held, and its rotation is not modelled: the sphere is turned to keep one face to ${system.config.centreLabel}.`,
   });
-  return Object.freeze({ definition, binding: system.binding(moon.id) });
 }
 
 /** The body for a moon id, or undefined when the table does not list it. */

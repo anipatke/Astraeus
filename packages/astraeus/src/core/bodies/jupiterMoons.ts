@@ -37,22 +37,20 @@ export const installJupiterMoonEphemeris = JUPITER_MOON_SYSTEM.install;
 export const loadJupiterMoons = JUPITER_MOON_SYSTEM.load;
 export const osculatingPeriodMs = JUPITER_MOON_SYSTEM.osculatingPeriodMs;
 
-export const FITTED_MOON_TIDAL_LOCK = JUPITER_MOON_SYSTEM.tidalLockNote;
 /** What every mapped Jupiter moon's record says about its position, with its own worst figure from T-096. */
 export const fittedMoonPosition = JUPITER_MOON_SYSTEM.position;
 
 /** The Galilean moons turn synchronously: their prime meridians are the IAU records saved with their orbits (`data/orbits/`), the one source. */
 export const IO_ROTATION = iauElementsFromRecord(ioOrbit.rotation);
-const jupiterMoon = (id: BodyId, label: string, radiusKm: number, gmKm3S2: number, worstM: number, header: string, orbit: Parameters<typeof recordPeriodDays>[0]) => JUPITER_MOON_SYSTEM.mappedMoon({ id, label, radiusKm, gmKm3S2, worstM, header, orbitPeriodDays: recordPeriodDays(orbit), span: HISTORICAL_MOON_FIT_SPAN });
+const jupiterMoon = (id: BodyId, label: string, radiusKm: number, gmKm3S2: number, worstM: number, header: string, orbit: Parameters<typeof recordPeriodDays>[0] & { rotation: Parameters<typeof iauElementsFromRecord>[0] }) => JUPITER_MOON_SYSTEM.mappedMoon({ id, label, radiusKm, gmKm3S2, worstM, header, orbitPeriodDays: recordPeriodDays(orbit), span: HISTORICAL_MOON_FIT_SPAN, rotation: iauElementsFromRecord(orbit.rotation) });
 
-export const EUROPA = jupiterMoon("europa", "Europa", 1560.8, 3202.7121, 0.163, "Mean radius (km) = 1560.8 +- 0.3, GM (km^3/s^2) = 3202.7121 +- 0.0054", europaOrbit);
-export const GANYMEDE = jupiterMoon("ganymede", "Ganymede", 2631.2, 9887.8328, 0.1206, "Mean radius (km) = 2631.2 +- 1.7, GM (km^3/s^2) = 9887.8328 +- 0.0074", ganymedeOrbit);
-export const CALLISTO = jupiterMoon("callisto", "Callisto", 2410.3, 7179.2834, 0.0947, "Mean radius (km) = 2410.3 +- 1.5, GM (km^3/s^2) = 7179.2834 +- 0.0097", callistoOrbit);
+const EUROPA_MOON = jupiterMoon("europa", "Europa", 1560.8, 3202.7121, 0.163, "Mean radius (km) = 1560.8 +- 0.3, GM (km^3/s^2) = 3202.7121 +- 0.0054", europaOrbit);
+const GANYMEDE_MOON = jupiterMoon("ganymede", "Ganymede", 2631.2, 9887.8328, 0.1206, "Mean radius (km) = 2631.2 +- 1.7, GM (km^3/s^2) = 9887.8328 +- 0.0074", ganymedeOrbit);
+const CALLISTO_MOON = jupiterMoon("callisto", "Callisto", 2410.3, 7179.2834, 0.0947, "Mean radius (km) = 2410.3 +- 1.5, GM (km^3/s^2) = 7179.2834 +- 0.0097", callistoOrbit);
 
-/** Io's binding is in `io.ts` with its definition; the three below are the same pattern. */
-export const IO_FITTED_BINDING: StateSourceBinding = JUPITER_MOON_SYSTEM.binding("io", IO_ROTATION);
-export const MAPPED_MOON_BINDINGS: readonly StateSourceBinding[] = Object.freeze([
-  JUPITER_MOON_SYSTEM.binding(EUROPA.id, iauElementsFromRecord(europaOrbit.rotation)),
-  JUPITER_MOON_SYSTEM.binding(GANYMEDE.id, iauElementsFromRecord(ganymedeOrbit.rotation)),
-  JUPITER_MOON_SYSTEM.binding(CALLISTO.id, iauElementsFromRecord(callistoOrbit.rotation)),
-]);
+export const EUROPA = EUROPA_MOON.definition;
+export const GANYMEDE = GANYMEDE_MOON.definition;
+export const CALLISTO = CALLISTO_MOON.definition;
+
+/** Io's definition and binding are in `io.ts` (both from `IO_ROTATION`); each of the three below is one record of facts giving both. */
+export const MAPPED_MOON_BINDINGS: readonly StateSourceBinding[] = Object.freeze([EUROPA_MOON.binding, GANYMEDE_MOON.binding, CALLISTO_MOON.binding]);

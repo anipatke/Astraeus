@@ -8,7 +8,7 @@ import type { Trajectory } from "../trajectory";
 import { createOrbTwoBodyAdapter } from "../twoBodyAdapter";
 import { JUPITER } from "./jupiter";
 import { trueAnomalyFromMean } from "../keplerAnomaly";
-import { fittedMoonPosition, IO_FITTED_BINDING, JUPITER_MOON_FIT_SPAN } from "./jupiterMoons";
+import { fittedMoonPosition, IO_ROTATION, JUPITER_MOON_FIT_SPAN, JUPITER_MOON_SYSTEM } from "./jupiterMoons";
 import ioRecord from "../../../data/orbits/io.json" with { type: "json" };
 
 export { trueAnomalyFromMean };
@@ -61,7 +61,7 @@ export function periodConsistentSemiMajorAxisKm(gmKm3S2: number, periodDays: num
   return Math.cbrt(gmKm3S2 / (meanMotion * meanMotion));
 }
 
-/** Io about Jupiter from the mean elements by unperturbed two-body motion, tidally locked (near side towards Jupiter). */
+/** Io about Jupiter from the mean elements by unperturbed two-body motion, tidally locked (near side towards Jupiter). Not bound in the catalogue (the fits are); only tests compare against it. */
 export function createIoTrajectory(): Trajectory {
   const elements = IO_MEAN_ELEMENTS;
   const gm = JUPITER.gmKm3S2!;
@@ -114,7 +114,8 @@ export const IO_EPHEMERIS_LIMITATIONS: readonly string[] = Object.freeze([
   "No velocity is modelled for Io, so it has no speed readout.",
 ]);
 
-export const IO_TIDAL_LOCK_LIMITATION = "Io's orientation is an approximate tidal lock keeping its near side towards Jupiter, with no libration.";
+/** Io's label and its binding both come from `IO_ROTATION` (the catalogue binds the fitted source, not the mean-element trajectory above). */
+const IO_ORIENTATION = JUPITER_MOON_SYSTEM.orientationFacts(IO_ROTATION);
 
 export const IO: CelestialBodyDefinition = Object.freeze({
   id: "io",
@@ -123,7 +124,7 @@ export const IO: CelestialBodyDefinition = Object.freeze({
   gmKm3S2: 5959.9155,
   parentId: "jupiter",
   orbitPeriodDays: IO_PERIOD_DAYS,
-  orientation: "tidal-lock",
+  orientation: IO_ORIENTATION.orientation,
   accuracy: Object.freeze({
     dimensions: createProvenance({
       sourceType: "observed",
@@ -133,9 +134,9 @@ export const IO: CelestialBodyDefinition = Object.freeze({
     }),
     position: fittedMoonPosition("Io", 0.1924, JUPITER_MOON_FIT_SPAN),
     validUtc: JUPITER_MOON_FIT_SPAN,
-    orientationLimitations: Object.freeze([IO_TIDAL_LOCK_LIMITATION]),
+    orientationLimitations: IO_ORIENTATION.orientationLimitations,
   }),
 });
 
 /** Io's position comes from the core curve fits (JPL Horizons, O-025 Decision 3); the mean-element model above is kept as the record T-078 measured. */
-export const IO_BINDING: StateSourceBinding = IO_FITTED_BINDING;
+export const IO_BINDING: StateSourceBinding = JUPITER_MOON_SYSTEM.binding("io", IO_ROTATION);

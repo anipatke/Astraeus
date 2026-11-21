@@ -29,8 +29,7 @@
         "id": "io",
         "labelPriority": 90,
         "labelMaxDistance": 3000,
-        "description": "The innermost large moon of Jupiter, always turning the same face towards it.",
-        "knownLimitations": ["The orientation is an approximate tidal lock keeping the near side towards Jupiter, with no libration."]
+        "description": "The innermost large moon of Jupiter, always turning the same face towards it."
       },
       { "id": "europa", "labelPriority": 80, "labelMaxDistance": 3000, "description": "The second large moon, an ice shell over a hidden ocean." },
       { "id": "ganymede", "labelPriority": 80, "labelMaxDistance": 3000, "description": "The largest moon in the solar system, bigger than Mercury." },

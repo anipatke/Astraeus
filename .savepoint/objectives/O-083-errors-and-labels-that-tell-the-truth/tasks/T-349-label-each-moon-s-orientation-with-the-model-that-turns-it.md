@@ -2,7 +2,7 @@
 id: T-349
 title: Label each moon's orientation with the model that turns it
 objective: O-083
-status: planned
+status: done
 depends_on: [{task: T-344, requires: clear}]
 check_waiver: {task: T-349, reason: 'Owner said "work through this list of objectives one by one. Orchestrate each objective to completion" (G-024 decision 7): standing orchestration rules waive the optional step checks; the mandatory Full Objective Check covers the whole diff.', actor: {role: owner, session: orchestrate-g024-20261121}, recorded_at: '2026-11-21T11:22:41Z'}
 owner_validation: {required: false}
@@ -70,8 +70,27 @@ Focused: `npx vitest run packages/astraeus/tests/orientationLabels.test.ts packa
 
 ## Technical Evidence
 
-Pending execution.
+### Done When -> evidence
+
+| Done When | Evidence |
+|---|---|
+| `mappedMoon` takes the rotation record, returns definition + binding together | `moonSystem.ts`: `MappedMoonFacts.rotation?`, `mappedMoon` returns `MappedMoon {definition, binding}`; `orientation`/`orientationLimitations` come from `orientationFacts(rotation)`, the binding from `binding(id, rotation)`. `jupiterMoons.ts`, `planetMoons.ts`, `listedMoonBodies.ts` take both from the result; no caller passes a rotation separately to `binding` for a mapped moon. `orientationLabels.test.ts` (33 tests) green. |
+| One IAU sentence per model, written from the code | `orientationFacts` is the only source of both sentences. `iauOrientation`/`iauAnglesAt` apply the record's periodic terms when the record has them (`iauElementsFromRecord` carries `periodicTerms`); records of Io, Europa, Ganymede, Callisto, Mimas, Tethys, Rhea, Titan, Triton have them, Enceladus, Dione, Iapetus, Charon do not (checked `data/orbits/*.json`), so the sentence says "with its periodic terms where the report gives them". |
+| Io: definition and binding from the same facts; record which source is bound | `io.ts`: `IO_ORIENTATION = JUPITER_MOON_SYSTEM.orientationFacts(IO_ROTATION)` and `IO_BINDING = JUPITER_MOON_SYSTEM.binding("io", IO_ROTATION)`. Finding: the catalogue binds the fitted source (`IO_BINDING`); the mean-element `createIoTrajectory` is reachable only from tests (`moonOrbits`, `jupiterIo`), not bound. `IO_FITTED_BINDING` and `IO_TIDAL_LOCK_LIMITATION` removed (no other users). |
+| Demo drops its Io tidal-lock override | `astraeus-demo-planets/data/planets/jupiter.json`: `knownLimitations` removed from the Io entry; demo tests unchanged and green in the full run. |
+| New `orientationLabels.test.ts`, fails on today's catalogue | 33 tests: per moon the label is checked against the observed state (IAU: quaternion within 1e-9 of `iauOrientation` at two 2016 dates; tidal-lock: body +X within 1e-3 deg of the planet direction) and the card sentence equals the model's sentence. Run against HEAD versions of the five source files (copied back after): 29 failed, including the label+state test for all 13 IAU moons (io, europa, ganymede, callisto, mimas, enceladus, tethys, dione, rhea, titan, iapetus, triton, charon). |
+| Two wrong assertions corrected | `jupiterIo.test.ts:31` before `expect(IO.orientation).toBe("tidal-lock");` after `toBe("iau-rotation");` (Io has an IAU record and its binding uses it). `planetMoonSystems.test.ts:58` before `toBe("tidal-lock")` after `toBe(["phobos","deimos"].includes(moon.id) ? "tidal-lock" : "iau-rotation")` (only Phobos and Deimos lack a record). Setups untouched. |
+| scenePin regenerated, diff only orientation sentences | `scenePin.test.ts -u`: 17 lines changed in `tests/fixtures/scenePin.json`, all `knownLimitations` sentences (Jupiter, Saturn moons to IAU; Io's own sentence to IAU). |
+| Other tests unchanged and green | Full run below. |
+| Gates | lint, typecheck, build clean; `npm test`: 299 files passed, 4997 tests passed, 2 skipped. |
+
+Files changed: `core/bodies/moonSystem.ts`, `jupiterMoons.ts`, `planetMoons.ts`, `io.ts`, `listedMoonBodies.ts`; `astraeus-demo-planets/data/planets/jupiter.json`; `tests/orientationLabels.test.ts` (new), `tests/jupiterIo.test.ts`, `tests/planetMoonSystems.test.ts`, `tests/fixtures/scenePin.json`. Exports removed: `FITTED_MOON_TIDAL_LOCK`, `IO_FITTED_BINDING`, `IO_TIDAL_LOCK_LIMITATION`, `MoonSystem.tidalLockNote`; `PHOBOS` etc. are still exported as definitions.
+Extra reads: `packages/astraeus/src/core/iauRotation.ts` (iauAnglesAt, periodic terms), `data/orbits/*.json` (which records have periodicTerms), `packages/astraeus/src/app/catalogueItem.ts` (card route), `vitest.config.ts` (preloaded project) for the test setup. Browser grep of `packages/astraeus-site/tools/validate/` for tidal/libration/orientation wording: none, no driver migration, no browser run.
+Limitations: the IAU sentence is generic across the 13 moons (periodic terms "where the report gives them"); Titan's real optical libration is not in the model, the sentence says libration is only as exact as the model.
+
 
 ## Drift Notes
 
-Record for Design reconciliation: mapped moons pair definition and binding from one record.
+Mapped moons pair definition and binding from one record of facts (`mappedMoon` returns both; `orientationFacts` owns label and sentence per model). Design.md `Every listed moon addable` / `Core layers and demos` should say so; the Io mean-element trajectory is test-only, not a bound source.
+
+Coordinator (orchestrate-g024-20261121): hand-off gates green (lint, typecheck, build; `npm test` 299 files, 4997 passed, 2 skipped); the two changed assertion lines are the ones the Task names (Objective decision 9). `status: done` set by the coordinator under the standing orchestration rule ("I mark them as they pass", O-038) and G-024 decision 7.

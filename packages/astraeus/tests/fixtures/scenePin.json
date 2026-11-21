@@ -657,7 +657,7 @@
        "color": "#d4b840",
        "id": "io",
        "knownLimitations": [
-        "Io's orientation is an approximate tidal lock keeping its near side towards Jupiter, with no libration."
+        "The orientation is the IAU rotation model (pole and prime meridian from the working group's report, with its periodic terms where the report gives them), not held to the direction of Jupiter: the near side faces Jupiter on average, and its libration is only as exact as that model."
        ],
        "label": "Io",
        "labelPriority": 97,
@@ -674,7 +674,7 @@
        "color": "#c8b898",
        "id": "europa",
        "knownLimitations": [
-        "The orientation is an approximate tidal lock keeping the near side towards Jupiter, with no libration."
+        "The orientation is the IAU rotation model (pole and prime meridian from the working group's report, with its periodic terms where the report gives them), not held to the direction of Jupiter: the near side faces Jupiter on average, and its libration is only as exact as that model."
        ],
        "label": "Europa",
        "labelPriority": 96,
@@ -691,7 +691,7 @@
        "color": "#887868",
        "id": "ganymede",
        "knownLimitations": [
-        "The orientation is an approximate tidal lock keeping the near side towards Jupiter, with no libration."
+        "The orientation is the IAU rotation model (pole and prime meridian from the working group's report, with its periodic terms where the report gives them), not held to the direction of Jupiter: the near side faces Jupiter on average, and its libration is only as exact as that model."
        ],
        "label": "Ganymede",
        "labelPriority": 95,
@@ -708,7 +708,7 @@
        "color": "#606070",
        "id": "callisto",
        "knownLimitations": [
-        "The orientation is an approximate tidal lock keeping the near side towards Jupiter, with no libration."
+        "The orientation is the IAU rotation model (pole and prime meridian from the working group's report, with its periodic terms where the report gives them), not held to the direction of Jupiter: the near side faces Jupiter on average, and its libration is only as exact as that model."
        ],
        "label": "Callisto",
        "labelPriority": 94,
@@ -744,7 +744,7 @@
        "color": "#a8a8a8",
        "id": "mimas",
        "knownLimitations": [
-        "The orientation is an approximate tidal lock keeping the near side towards Saturn, with no libration."
+        "The orientation is the IAU rotation model (pole and prime meridian from the working group's report, with its periodic terms where the report gives them), not held to the direction of Saturn: the near side faces Saturn on average, and its libration is only as exact as that model."
        ],
        "label": "Mimas",
        "labelPriority": 92,
@@ -761,7 +761,7 @@
        "color": "#e8eef0",
        "id": "enceladus",
        "knownLimitations": [
-        "The orientation is an approximate tidal lock keeping the near side towards Saturn, with no libration."
+        "The orientation is the IAU rotation model (pole and prime meridian from the working group's report, with its periodic terms where the report gives them), not held to the direction of Saturn: the near side faces Saturn on average, and its libration is only as exact as that model."
        ],
        "label": "Enceladus",
        "labelPriority": 91,
@@ -778,7 +778,7 @@
        "color": "#c8c8c8",
        "id": "tethys",
        "knownLimitations": [
-        "The orientation is an approximate tidal lock keeping the near side towards Saturn, with no libration."
+        "The orientation is the IAU rotation model (pole and prime meridian from the working group's report, with its periodic terms where the report gives them), not held to the direction of Saturn: the near side faces Saturn on average, and its libration is only as exact as that model."
        ],
        "label": "Tethys",
        "labelPriority": 90,
@@ -795,7 +795,7 @@
        "color": "#b8b8b8",
        "id": "dione",
        "knownLimitations": [
-        "The orientation is an approximate tidal lock keeping the near side towards Saturn, with no libration."
+        "The orientation is the IAU rotation model (pole and prime meridian from the working group's report, with its periodic terms where the report gives them), not held to the direction of Saturn: the near side faces Saturn on average, and its libration is only as exact as that model."
        ],
        "label": "Dione",
        "labelPriority": 89,
@@ -812,7 +812,7 @@
        "color": "#b4b0aa",
        "id": "rhea",
        "knownLimitations": [
-        "The orientation is an approximate tidal lock keeping the near side towards Saturn, with no libration."
+        "The orientation is the IAU rotation model (pole and prime meridian from the working group's report, with its periodic terms where the report gives them), not held to the direction of Saturn: the near side faces Saturn on average, and its libration is only as exact as that model."
        ],
        "label": "Rhea",
        "labelPriority": 88,
@@ -829,7 +829,7 @@
        "color": "#c8943c",
        "id": "titan",
        "knownLimitations": [
-        "The orientation is an approximate tidal lock keeping the near side towards Saturn, with no libration."
+        "The orientation is the IAU rotation model (pole and prime meridian from the working group's report, with its periodic terms where the report gives them), not held to the direction of Saturn: the near side faces Saturn on average, and its libration is only as exact as that model."
        ],
        "label": "Titan",
        "labelPriority": 87,
@@ -846,7 +846,7 @@
        "color": "#8a7a6a",
        "id": "iapetus",
        "knownLimitations": [
-        "The orientation is an approximate tidal lock keeping the near side towards Saturn, with no libration."
+        "The orientation is the IAU rotation model (pole and prime meridian from the working group's report, with its periodic terms where the report gives them), not held to the direction of Saturn: the near side faces Saturn on average, and its libration is only as exact as that model."
        ],
        "label": "Iapetus",
        "labelPriority": 86,
@@ -3772,7 +3772,7 @@
        "color": "#d4b840",
        "id": "io",
        "knownLimitations": [
-        "Io's orientation is an approximate tidal lock keeping its near side towards Jupiter, with no libration."
+        "The orientation is the IAU rotation model (pole and prime meridian from the working group's report, with its periodic terms where the report gives them), not held to the direction of Jupiter: the near side faces Jupiter on average, and its libration is only as exact as that model."
        ],
        "label": "Io",
        "labelMaxDistance": 500,
@@ -3790,7 +3790,7 @@
        "color": "#c8b898",
        "id": "europa",
        "knownLimitations": [
-        "The orientation is an approximate tidal lock keeping the near side towards Jupiter, with no libration."
+        "The orientation is the IAU rotation model (pole and prime meridian from the working group's report, with its periodic terms where the report gives them), not held to the direction of Jupiter: the near side faces Jupiter on average, and its libration is only as exact as that model."
        ],
        "label": "Europa",
        "labelMaxDistance": 500,
@@ -3808,7 +3808,7 @@
        "color": "#606070",
        "id": "callisto",
        "knownLimitations": [
-        "The orientation is an approximate tidal lock keeping the near side towards Jupiter, with no libration."
+        "The orientation is the IAU rotation model (pole and prime meridian from the working group's report, with its periodic terms where the report gives them), not held to the direction of Jupiter: the near side faces Jupiter on average, and its libration is only as exact as that model."
        ],
        "label": "Callisto",
        "labelMaxDistance": 500,
@@ -18211,7 +18211,7 @@
        "color": "#d4b840",
        "id": "io",
        "knownLimitations": [
-        "Io's orientation is an approximate tidal lock keeping its near side towards Jupiter, with no libration."
+        "The orientation is the IAU rotation model (pole and prime meridian from the working group's report, with its periodic terms where the report gives them), not held to the direction of Jupiter: the near side faces Jupiter on average, and its libration is only as exact as that model."
        ],
        "label": "Io",
        "labelMaxDistance": 500,
@@ -18229,7 +18229,7 @@
        "color": "#c8b898",
        "id": "europa",
        "knownLimitations": [
-        "The orientation is an approximate tidal lock keeping the near side towards Jupiter, with no libration."
+        "The orientation is the IAU rotation model (pole and prime meridian from the working group's report, with its periodic terms where the report gives them), not held to the direction of Jupiter: the near side faces Jupiter on average, and its libration is only as exact as that model."
        ],
        "label": "Europa",
        "labelMaxDistance": 500,
@@ -18247,7 +18247,7 @@
        "color": "#606070",
        "id": "callisto",
        "knownLimitations": [
-        "The orientation is an approximate tidal lock keeping the near side towards Jupiter, with no libration."
+        "The orientation is the IAU rotation model (pole and prime meridian from the working group's report, with its periodic terms where the report gives them), not held to the direction of Jupiter: the near side faces Jupiter on average, and its libration is only as exact as that model."
        ],
        "label": "Callisto",
        "labelMaxDistance": 500,

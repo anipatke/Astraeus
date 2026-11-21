@@ -55,7 +55,7 @@ describe("the mapped moons of the other planets", () => {
   it("are defined once with their planet as parent, tidal lock, and the fit span of their own data as validity (1950-2030 for the main moons fitted back, 2010-2030 otherwise)", () => {
     expect(PLANET_MOON_DEFINITIONS.map((moon) => moon.id)).toEqual(["phobos", "deimos", "mimas", "enceladus", "tethys", "dione", "rhea", "titan", "iapetus", "triton", "charon"]);
     for (const moon of PLANET_MOON_DEFINITIONS) {
-      expect(moon.orientation, moon.id).toBe("tidal-lock");
+      expect(moon.orientation, moon.id).toBe(["phobos", "deimos"].includes(moon.id) ? "tidal-lock" : "iau-rotation");
       expect(moon.accuracy.validUtc, moon.id).toBe(["phobos", "deimos", "charon"].includes(moon.id) ? MOON_FIT_SPAN : HISTORICAL_MOON_FIT_SPAN);
       expect(catalogue.get(moon.id).source?.body, moon.id).toBe(moon.id);
       expect(moon.accuracy.position.sources[0], moon.id).toBe(moonFitSource(moon.parentId![0].toUpperCase() + moon.parentId!.slice(1)));

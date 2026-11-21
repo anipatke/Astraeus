@@ -28,7 +28,7 @@ const angleDeg = (a: ArrayLike<number>, b: ArrayLike<number>) => Math.acos(Math.
 describe("Io about Jupiter", () => {
   it("is defined once: Jupiter-parented, tidally locked, with the Horizons radius and GM", () => {
     expect(IO.parentId).toBe("jupiter");
-    expect(IO.orientation).toBe("tidal-lock");
+    expect(IO.orientation).toBe("iau-rotation");
     expect(IO.radiusKm).toBe(ioFixture.bodies.io.meanRadiusKm);
     expect(IO.gmKm3S2).toBe(ioFixture.bodies.io.gmKm3S2);
     expect(IO.radiusKm * 2).toBeCloseTo(IO_DIAMETER_KM, 1);
