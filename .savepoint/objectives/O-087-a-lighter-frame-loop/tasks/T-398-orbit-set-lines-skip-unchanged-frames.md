@@ -2,7 +2,7 @@
 id: T-398
 title: Orbit-set lines skip unchanged frames
 objective: O-087
-status: planned
+status: done
 depends_on: []
 owner_validation: {required: false}
 check_waiver: {task: T-398, reason: 'Owner said "work through this list of objectives one by one. Orchestrate each objective to completion" (G-024 decision 7) and "carry on orchestrating G-024" (2026-11-22): standing orchestration rules waive the optional step checks; the mandatory Full Objective Check covers the whole diff.', actor: {role: owner, session: orchestrate-g024-20261122}, recorded_at: '2026-11-21T22:11:52Z'}
@@ -67,8 +67,25 @@ Focused: `npx vitest run packages/astraeus/tests/orbitSetSync.test.ts packages/a
 
 ## Technical Evidence
 
-Pending execution.
+Done When -> evidence (all in `packages/astraeus/tests/orbitSetSync.test.ts`, each run for a balance-point set and a plain set; made-up bodies, ARCH-03):
+
+| Done When | Evidence |
+|---|---|
+| `sync` early-out on same time, policy id, enabled, placement | "does not resample when nothing changed": 0 ephemeris reads on identical inputs; time, policy, enabled, placement each > 0 (`sync` keeps `#lastTime/#lastPlacement/#lastPolicyId` via `#sameAsLast`; a not-drawn sync clears the placement key) |
+| One dirty span per buffer, flushed in `place` when drawn and group visible | "keeps one dirty range per buffer, covering every changed path": 100 frames, <= 1 range on positions and sizes, covering the changed floats |
+| No range while hidden; one on showing | "marks no range while hidden...": 0 ranges for 100 hidden frames; 1 range on showing covering every change; drawn positions equal a twin that ran the same frames visible (a fresh view is not equal by design: incremental sampling is budgeted) |
+| `place` skips head rewrite when nothing changed | `#headsStale` / `#headsLocal` in `place`; covered by the existing pluto/bodySet/sceneBodySets tests still passing (no dedicated new case) |
+| Each case fails on old code | HEAD's OrbitSetView.ts swapped in: all 6 cases fail; restored |
+| plutoOrbitLines, bodySet pass unchanged | focused run: 4 files, 70 tests pass (incl. sceneBodySets) |
+| Engine size | NOT measured (no cheap size command found); source diff +56/-6 lines in one file, minified growth expected well under 400 B is unverified |
+| Gates | typecheck pass; build pass; full `npm test` 321 files / 5147 passed (run before a no-behaviour refactor extracting `#sameAsLast` to fix a lint complexity error; focused tests rerun after: pass); lint: OrbitSetView complexity error fixed; remaining lint item is prettier on `packages/astraeus/tests/pausedRenders.test.ts` (another builder's file, not touched) |
+
+Files changed: `packages/astraeus/src/app/OrbitSetView.ts`, `packages/astraeus/tests/orbitSetSync.test.ts` (new), this Task file. No extra reads beyond Context Files.
 
 ## Drift Notes
 
-None expected.
+None.
+
+## Coordinator
+
+Set done by the orchestrating session after the combined handoff gates passed with T-395, T-397, T-398, T-399 together (owner: "I mark them as they pass", O-038; G-024 decision 7 "Orchestrate each objective to completion"; "carry on orchestrating G-024", 2026-11-22): lint and Prettier clean, typecheck clean, build ok, `npm test` 321 files, 5147 passed, 3 skipped; `npm run check:pack` engine budget 1,835,598 B raw (limit 1,836,000), 525,328 B gzip (limit 527,000).

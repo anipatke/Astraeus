@@ -101,6 +101,12 @@ export interface OrbitGap {
   readonly lineSpanPx: number;
 }
 
+/** Widens a dirty float span to cover [from, to). */
+function widen(span: [number, number], from: number, to: number): void {
+  span[0] = Math.min(span[0], from);
+  span[1] = Math.max(span[1], to);
+}
+
 export class OrbitSetView {
   readonly group = new Group();
   /** Orbit lines in the batch: the set's members, then any extra bodies'. */
@@ -136,6 +142,16 @@ export class OrbitSetView {
   #centre: RenderVector = [0, 0, 0];
   #centreKm: [number, number, number] = [0, 0, 0];
   #drawn = false;
+  /** The inputs of the last full sync (time, scale policy id, placement), so an unchanged frame does nothing. */
+  #lastTime = Number.NaN;
+  #lastPlacement: ScenePlacement | null = null;
+  #lastPolicyId = "";
+  /** Float spans (start, end) of the path buffers changed since they were last flagged for upload; [Infinity, 0] when none. */
+  #dirtyPositions: [number, number] = [Infinity, 0];
+  #dirtySizes: [number, number] = [Infinity, 0];
+  /** Whether a sync ran since the heads were written, and the origin-local centre they were written for. */
+  #headsStale = true;
+  #headsLocal: [number, number, number] | null = null;
   #unitsPerKm: number | undefined;
   /** Paths sampled so far; tests and diagnostics read it. */
   computed = 0;
@@ -322,7 +338,11 @@ export class OrbitSetView {
     const { group } = this.layer;
     const bounds = group.bounds!;
     this.#drawn = enabled && timeUtcMs >= bounds.startUtcMs && timeUtcMs <= bounds.endUtcMs;
-    if (!this.#drawn) return;
+    if (!this.#drawn) {
+      this.#lastPlacement = null;
+      return;
+    }
+    if (this.#sameAsLast(timeUtcMs, placement, policy)) return;
     const offset = sceneOffsetKm(placement, group.center, timeUtcMs);
     this.#centreKm = [offset?.[0] ?? 0, offset?.[1] ?? 0, offset?.[2] ?? 0];
     this.#centre = eqjToRenderVector(policy.mapPosition(this.#centreKm));
@@ -353,6 +373,17 @@ export class OrbitSetView {
       // A line about a balance point is moved with the clock so it keeps ending at its body.
       if (this.#sources[m].moveInto !== undefined) this.#mapPath(m, policy);
     }
+  }
+
+  /** Whether a sync's inputs equal the last full sync's; when not, records them and marks the heads stale. */
+  #sameAsLast(timeUtcMs: number, placement: ScenePlacement, policy: ScalePolicy): boolean {
+    if (timeUtcMs === this.#lastTime && placement === this.#lastPlacement && policy.id === this.#lastPolicyId)
+      return true;
+    this.#lastTime = timeUtcMs;
+    this.#lastPlacement = placement;
+    this.#lastPolicyId = policy.id;
+    this.#headsStale = true;
+    return false;
   }
 
   /** Path `m`'s fixed sample step (ms), worked out from the body's period the first time it is asked for. */
@@ -470,10 +501,23 @@ export class OrbitSetView {
       sizes[v] = size;
       sizes[v + 1] = size;
     }
-    this.#pathPositions.addUpdateRange(3 * 2 * m * segments, 3 * 2 * segments);
-    this.#pathPositions.needsUpdate = true;
-    this.#pathSizes.addUpdateRange(2 * m * segments, 2 * segments);
-    this.#pathSizes.needsUpdate = true;
+    widen(this.#dirtyPositions, 3 * 2 * m * segments, 3 * 2 * (m + 1) * segments);
+    widen(this.#dirtySizes, 2 * m * segments, 2 * (m + 1) * segments);
+  }
+
+  /** Flags each path buffer's changed span (one update range) for upload; only a drawn, visible set does, so a hidden one keeps its span. */
+  #flushPaths(): void {
+    for (const [attribute, span] of [
+      [this.#pathPositions, this.#dirtyPositions],
+      [this.#pathSizes, this.#dirtySizes],
+    ] as const) {
+      if (span[0] > span[1]) continue;
+      attribute.clearUpdateRanges();
+      attribute.addUpdateRange(span[0], span[1] - span[0]);
+      attribute.needsUpdate = true;
+      span[0] = Infinity;
+      span[1] = 0;
+    }
   }
 
   /** Writes every head about the floating origin: the scaled position (Float64) plus the centre's local place, then rounded to Float32. */
@@ -519,7 +563,13 @@ export class OrbitSetView {
     const local = origin.toLocal(this.#centre);
     this.#paths.position.set(local[0], local[1], local[2]);
     this.#heads.position.set(0, 0, 0);
-    this.#writeHeads(this.#policy, local);
+    if (this.group.visible) this.#flushPaths();
+    const last = this.#headsLocal;
+    if (this.#headsStale || last === null || last[0] !== local[0] || last[1] !== local[1] || last[2] !== local[2]) {
+      this.#writeHeads(this.#policy, local);
+      this.#headsStale = false;
+      this.#headsLocal = [local[0], local[1], local[2]];
+    }
     const uniforms = this.#material.uniforms;
     (uniforms.uCentre.value as Vector3).set(local[0], local[1], local[2]);
     uniforms.uBase.value = look.orbitOpacity;
