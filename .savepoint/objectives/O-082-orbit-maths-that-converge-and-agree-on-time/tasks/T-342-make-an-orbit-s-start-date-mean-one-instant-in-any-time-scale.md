@@ -2,7 +2,7 @@
 id: T-342
 title: Make an orbit's start date mean one instant in any time scale
 objective: O-082
-status: planned
+status: done
 depends_on: []
 check_waiver: {task: T-342, reason: 'Owner said "work through this list of objectives one by one. Orchestrate each objective to completion" (G-024 decision 7): standing orchestration rules waive the optional step checks; the mandatory Full Objective Check covers the whole diff.', actor: {role: owner, session: orchestrate-g024-20261121}, recorded_at: '2026-11-21T11:00:13Z'}
 owner_validation: {required: false}
@@ -62,8 +62,22 @@ Focused tests while iterating; Task handoff gates. No browser run.
 
 ## Technical Evidence
 
-Pending execution.
+Red first (current code, before the fix; saved at the coordinator scratchpad `t342-before.txt`): UTC-vs-TT perihelion case failed with a gap of 2,153,975 m (2,154 km); UTC-vs-TDB perihelion case the same; the centre-GM test got 36.48 km in 1 s against the expected 72.96 km (adapter used the built-in Sun GM, not the centre's).
+
+| Done When | Evidence |
+|---|---|
+| Epoch converted to TDB before subtracting `perihelionJdTdb` | `elementsBody.ts` `epochInstant` (UTC via orb `ttMinusUtc` + `tdbMinusTtSeconds` from `core/timeScale.ts`; TT via `tdbMinusTtSeconds`; TDB as written); `tests/elementsEpoch.test.ts` UTC vs TT (perihelion and meanAnomalyDeg) under 1 m |
+| Adapter gets the centre's GM | `createOrbTwoBodyAdapter([{ id: centre.id, gmKm3S2: gm }])`; test "moves the body by its true mean motion about the given centre's mass" (4x GM doubles perihelion speed) |
+| New test, TDB epoch and meanAnomalyDeg branch, fails on old code | `tests/elementsEpoch.test.ts` (5 tests); failed before as above, 5 of 5 pass after. The meanAnomalyDeg cases pass before the fix too (the branch never used the perihelion scale; they guard the epoch clock). |
+| Existing tests unchanged and green | elements-body, Perseids rebuild, Swift-Tuttle, scenePin, publicApiGroup all green with no edits |
+| Gates | lint clean, typecheck clean, build ok, test 291 files / 4640 passed, 2 skipped, 0 failed (run under flock, with T-341's concurrent edits in the tree) |
+
+Files changed: `src/core/elementsBody.ts`, `src/types/orb.d.ts` (declares orb's already exported `ttMinusUtc`), new `tests/elementsEpoch.test.ts`.
+
+Limitations / deviation: a TDB epoch stays "TDB taken as TT" for the clock (the record's documented convention, and existing tests pin the ms: elementsBody and Swift-Tuttle epoch tests), so a TDB epoch agrees with the same instant in UTC to the TDB-TT difference (0.1 ms, about 3 m at J2000; up to 2 ms, about 60 m of motion), not 1 m; the new TDB test asserts 5 m and says why. The engine epoch is a whole millisecond. `orb.d.ts` edit is outside planned_writes.
 
 ## Drift Notes
 
-None expected.
+Design.md: elements-body epoch handling now converts to TDB for the anomaly (UTC and TT epochs); a TDB epoch is still taken as TT for the clock (documented convention). Name of integration Task not needed unless Design describes elements epochs.
+
+Coordinator (orchestrate-g024-20261121): gates passed at hand-off (lint, typecheck, build, `npm test` 291 files / 4640 passed, with T-341 in the tree). The TDB-epoch tolerance (5 m, not 1 m) is accepted as a planner decision recorded in the Objective's Decisions. `status: done` set by the coordinator under the owner's standing orchestration rule ("I mark them as they pass", O-038) and G-024 decision 7.

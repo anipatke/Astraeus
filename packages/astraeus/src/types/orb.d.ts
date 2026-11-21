@@ -42,6 +42,8 @@ declare module "@lizard-isana/orb/time" {
     static fromUnixMs(milliseconds: number): AstroInstant;
     jd2parts(scale?: "utc" | "ut1" | "tt"): [number, number];
   }
+  /** TT minus UTC in seconds at a UTC Unix instant (32.184 s plus the leap seconds then). */
+  export function ttMinusUtc(utcMs: number): number;
 }
 
 declare module "@lizard-isana/orb/frames" {

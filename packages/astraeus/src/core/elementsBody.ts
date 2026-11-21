@@ -1,4 +1,6 @@
 import type { BodyId, CelestialBodyDefinition, StateSourceBinding } from "./body";
+import { ttMinusUtc } from "@lizard-isana/orb/time";
+import { tdbMinusTtSeconds } from "./timeScale";
 import { trueAnomalyFromMean } from "./keplerAnomaly";
 import { fieldReaders, type Raw } from "./fieldReaders";
 import { createProvenance } from "./provenance";
@@ -11,6 +13,7 @@ const AU_KM = 149_597_870.7;
 const DEGREES = Math.PI / 180;
 const JD_UNIX_EPOCH = 2_440_587.5;
 const DAY_MS = 86_400_000;
+const JD_J2000 = 2_451_545;
 
 /** Default look of the marker that stands for a body on a published orbit; a record's own `marker` replaces either value. */
 export const DEFAULT_ELEMENTS_MARKER_COLOUR = "#9fe3ff";
@@ -207,9 +210,27 @@ export interface ElementsBody {
   create(): Trajectory;
 }
 
-/** The epoch of a record in UTC milliseconds. */
+/** An epoch as one instant: UTC milliseconds (whole, as the engine needs) and TDB seconds from J2000, the scale `perihelionJdTdb` is written in. */
+function epochInstant(epoch: ElementsBodyRecord["epoch"]): { readonly utcMs: number; readonly tdbS: number } {
+  const labelMs = (epoch.jd - JD_UNIX_EPOCH) * DAY_MS;
+  const labelS = (epoch.jd - JD_J2000) * 86_400;
+  if (epoch.timeScale === "UTC") {
+    const utcMs = Math.round(labelMs);
+    const ttS = (utcMs - (JD_J2000 - JD_UNIX_EPOCH) * DAY_MS) / 1000 + ttMinusUtc(utcMs);
+    return { utcMs, tdbS: ttS + tdbMinusTtSeconds(ttS) };
+  }
+  const offsetS = epoch.ttMinusUtcSeconds ?? 0;
+  if (epoch.timeScale === "TT") {
+    return { utcMs: Math.round(labelMs) - Math.round(offsetS * 1000), tdbS: labelS + tdbMinusTtSeconds(labelS) };
+  }
+  // TDB: the record's documented convention takes TDB as TT for the clock (they differ by under 2 ms), so the UTC instant is the TT one;
+  // the anomaly is then measured in the written TDB itself, which is the scale `perihelionJdTdb` is in.
+  return { utcMs: Math.round(labelMs) - Math.round(offsetS * 1000), tdbS: labelS };
+}
+
+/** The epoch of a record in UTC milliseconds, whichever time scale it is written in. */
 export function epochUtcMsOf(epoch: ElementsBodyRecord["epoch"]): number {
-  return Math.round((epoch.jd - JD_UNIX_EPOCH) * DAY_MS) - Math.round((epoch.ttMinusUtcSeconds ?? 0) * 1000);
+  return epochInstant(epoch).utcMs;
 }
 
 /**
@@ -223,10 +244,11 @@ export function buildElementsBody(input: ElementsBodyRecord, centre: ElementsCen
   const { elements } = body;
   const semiMajorAxisKm = elements.semiMajorAxisAu * AU_KM;
   const meanMotionRadPerS = Math.sqrt(gm / semiMajorAxisKm ** 3);
-  const epochUtcMs = epochUtcMsOf(body.epoch);
+  const instant = epochInstant(body.epoch);
+  const epochUtcMs = instant.utcMs;
   const meanAnomalyRad = elements.meanAnomalyDeg !== undefined
     ? elements.meanAnomalyDeg * DEGREES
-    : meanMotionRadPerS * (body.epoch.jd - elements.perihelionJdTdb!) * (DAY_MS / 1000);
+    : meanMotionRadPerS * (instant.tdbS - (elements.perihelionJdTdb! - JD_J2000) * 86_400);
   const reducedRad = meanAnomalyRad - 2 * Math.PI * Math.floor(meanAnomalyRad / (2 * Math.PI));
   const periodMs = ((2 * Math.PI) / meanMotionRadPerS) * 1000;
   const sampling: EccentricSampling = Object.freeze({
@@ -247,7 +269,7 @@ export function buildElementsBody(input: ElementsBodyRecord, centre: ElementsCen
       argumentOfPeriapsisDeg: elements.argumentOfPerihelionDeg,
       trueAnomalyDeg: trueAnomalyFromMean(reducedRad, elements.eccentricity) / DEGREES,
     },
-  }, createOrbTwoBodyAdapter());
+  }, createOrbTwoBodyAdapter([{ id: centre.id, gmKm3S2: gm }]));
   const citation = `${body.source.name}, ${body.source.solution} (${body.source.url}), epoch JD ${body.epoch.jd} ${body.epoch.timeScale}, read ${body.source.accessed}`;
   const radiusKm = body.radius?.km ?? 0.001;
   const definition: CelestialBodyDefinition = Object.freeze({
