@@ -2,7 +2,7 @@
 id: T-402
 title: A failed step or a console error fails the run
 objective: O-088
-status: planned
+status: done
 depends_on: []
 owner_validation: {required: false}
 check_waiver: {task: T-402, reason: 'Owner said "work through this list of objectives one by one. Orchestrate each objective to completion" (G-024 decision 7) and "I am remote now, add park the check and move on" (2026-11-22): standing orchestration rules waive the optional step checks; the mandatory Full Objective Check covers the whole diff.', actor: {role: owner, session: orchestrate-g024-20261122}, recorded_at: '2026-11-21T22:56:58Z'}
@@ -75,8 +75,22 @@ Focused: `npx vitest run packages/astraeus-site/tests/browserExitPath.test.ts`. 
 
 ## Technical Evidence
 
-Pending execution.
+| Done When | Evidence |
+|---|---|
+| Harness console error | `console-error-through-harness.mjs` + case "harness: a console error ..." (status 1, `"ok": false`, text in output, no `failure`); skipIf browser missing |
+| Runner console error line | `exits-zero-logs-console-error.mjs` + case "runner: a step that exits 0 but logged a console error..." (summary `exit=0 ... error-lines>=1`, stderr FAILED, RESULT 1) |
+| run-browser.mjs exit code | regex case replaced; real run-browser.mjs under `--import stub-runner-hook.mjs` (hook registered from a data: URL, sends `./runner.mjs` to `stub-runner.mjs`); result 1 -> status 1, 0 -> 0, for no args and `--tier quick`; `--tier bogus` -> 2. O-086 had not replaced the regex, so nothing skipped |
+| Planted breaks | harness.mjs dropped `&& errors.length === 0` -> harness console-error case red (`expected +0 to be 1`); runner.mjs `return run.status === 0` -> runner case red (stderr lacked FAILED); run-browser.mjs `await runSet` without `process.exitCode =` -> exit-code case red (`expected +0 to be 1`). Each under flock, restored; `git diff` on each file empty |
+| Existing cases unchanged | only the regex case removed and the header comment sentence updated |
+| Gates | see below |
+
+Commands: `npx vitest run packages/astraeus-site/tests/browserExitPath.test.ts` -> 5 passed. Gates (flock): typecheck pass; build pass; lint: eslint pass, prettier warns only on other builders' files (computedLook.test.ts, sceneBuildContract.test.ts), my files clean; `npm test`: failures only in other builders' files (sceneLoadOrder.test.ts T-408, computedLook.test.ts T-410, 9 failed in total), none in browserExitPath. Not rerun (concurrent edits in flight).
+Files changed: tests/browserExitPath.test.ts; new fixtures console-error-through-harness.mjs, exits-zero-logs-console-error.mjs, stub-runner.mjs, stub-runner-hook.mjs (all under packages/astraeus-site/tests). Extra reads: packages/astraeus-site/tools/validate/browser-steps.mjs (O-086 step list, to confirm run-browser args). Limitations: no check:browser run.
 
 ## Drift Notes
 
-None expected. If the hook approach cannot load under the repo's Node versions, record why and the alternative used (for example running `run-browser.mjs` in a child with a copied directory where `runner.mjs` is the stub), without adding a hook to production code.
+None. (Hook approach worked on Node 24; plan's expectation of Node 22+ `module.register` holds.) Original note: If the hook approach cannot load under the repo's Node versions, record why and the alternative used (for example running `run-browser.mjs` in a child with a copied directory where `runner.mjs` is the stub), without adding a hook to production code.
+
+## Coordinator (gates)
+
+Set done by the orchestrating session after the combined handoff gates passed with T-402..T-404 and T-406..T-412 together (owner: "I mark them as they pass", O-038; G-024 decision 7 "Orchestrate each objective to completion"; owner 2026-11-22 "I am remote now, add park the check and move on"): lint and Prettier clean, typecheck clean, `npm test` 324 files, 5319 passed, 2 skipped; `npm run check:pack` pass, engine 1,836,372 B raw (cap 1,838,000), 525,692 B gzip (cap 527,000).

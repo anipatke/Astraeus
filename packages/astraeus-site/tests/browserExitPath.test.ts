@@ -6,9 +6,9 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { afterAll, describe, expect, it } from "vitest";
 
-// O-060 T-281, I-149: the assertion list proves the raise forms it names. This file proves the other half directly: a failing browser step fails the run. It goes through the real
+// O-060 T-281, I-149: a failing browser step fails the run. It goes through the real
 // tools/validate/harness.mjs (a step that throws exits non-zero) and the real tools/validate/runner.mjs (a non-zero step is reported as failed and the run's result is 1), with tiny
-// fixture steps in tests/fixtures/browser-exit and no app page. run-browser.mjs's own exit-code line is checked by its text, because its step list is fixed.
+// fixture steps in tests/fixtures/browser-exit and no app page. run-browser.mjs's exit code is checked by running it with its runner replaced by a stub (a module hook in tests/fixtures/browser-exit).
 const here = dirname(fileURLToPath(import.meta.url));
 const site = resolve(here, "..");
 const root = resolve(site, "..", "..");
@@ -54,6 +54,18 @@ describe("a failing browser step fails the run", () => {
       expect(fail.stdout).toContain('"ok": false');
       expect(fail.stdout).toContain("planted assertion failure");
       expect(fail.status).toBe(1);
+    },
+    150_000,
+  );
+
+  it.skipIf(browserMissing)(
+    "harness: a console error on the page fails the step with nothing thrown (skipped where no browser is installed)",
+    () => {
+      const fail = runNode([join(fixtures, "console-error-through-harness.mjs")]);
+      expect(fail.status).toBe(1);
+      expect(fail.stdout).toContain('"ok": false');
+      expect(fail.stdout).toContain("planted console error");
+      expect(fail.stdout).not.toContain('"failure"');
     },
     150_000,
   );
@@ -104,8 +116,26 @@ console.log("RESULT " + result);`;
     expect(bad.stdout).toContain("RESULT 1");
   }, 150_000);
 
-  it("run-browser.mjs hands the runner's result to the process exit code", () => {
-    const text = readFileSync(join(site, "tools", "validate", "run-browser.mjs"), "utf8");
-    expect(text).toMatch(/^\s*process\.exitCode = await runSet\("browser", steps, undefined, [^;]+\);$/m);
+  it("runner: a step that exits 0 but logged a console error still fails the run", async () => {
+    const bad = await runSetWith([step("noisy", "exits-zero-logs-console-error.mjs")]);
+    expect(bad.summary).toMatch(/noisy \| scene=fixture \| exit=0 \|.*error-lines=[1-9]/);
+    expect(bad.stderr).toContain("FAILED");
+    expect(bad.stdout).toContain("RESULT 1");
+  }, 150_000);
+
+  // The real run-browser.mjs, its "./runner.mjs" import swapped for a stub whose runSet returns STUB_RUNSET_RESULT, so only the hand-off to the exit code is under test.
+  function runBrowserWithStub(result: number, args: string[] = []) {
+    return runNode(
+      ["--import", join(fixtures, "stub-runner-hook.mjs"), join(site, "tools", "validate", "run-browser.mjs"), ...args],
+      { STUB_RUNSET_RESULT: String(result) },
+    );
+  }
+
+  it("run-browser.mjs hands the runner's result to the process exit code, and an unknown tier exits 2", () => {
+    for (const args of [[], ["--tier", "quick"]]) {
+      expect(runBrowserWithStub(1, args).status).toBe(1);
+      expect(runBrowserWithStub(0, args).status).toBe(0);
+    }
+    expect(runBrowserWithStub(0, ["--tier", "bogus"]).status).toBe(2);
   });
 });
