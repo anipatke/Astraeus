@@ -1,12 +1,12 @@
 ---
 id: O-084
 title: Each scene keeps its own moon data
-status: in_progress
+status: done
 depends_on: []
 release: G-024
 priority: high
 rank: 3
-last_check: C-198
+last_check: C-200
 lanes: [{key: binding, title: Scene moon binding}, {key: clamp, title: 1950 clamp}, {key: docs, title: Docs and changelog}]
 ---
 
@@ -58,3 +58,4 @@ Touches the data-source boundary (`api/data.ts`), the moon systems and planet tr
 ## Parked (2026-11-21, orchestrate-g024-20261121)
 
 All seven Tasks are done and every Success Condition is proven, but Full Objective Check C-198 is NEEDS WORK on one gate: the engine's first download is 801 bytes over its raw size cap (I-191; gzip within). Under G-024 decision 7 ("a size budget goes red": park it, continue others) O-084 is left unmerged on branch `o084-scene-moon-data`. Owner choice needed (options in I-191): raise the raw cap a little, reset it by the earlier "measured + 5%" rule, or trim ~1 KB of engine code first. After the choice: apply it, re-run the Full Check, merge.
+- Owner, 2026-11-22: "carry on size option a" (I-191: raw cap +3,000 B). O-084 set done by the orchestrating session after re-check C-200 CLEAR (G-024 decision 7, "Orchestrate each objective to completion"; "CLEAR: fast-forward merge to main and push").
