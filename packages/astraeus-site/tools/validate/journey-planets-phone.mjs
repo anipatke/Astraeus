@@ -36,8 +36,10 @@ await checkScript({ name: "journey-planets-phone", viewports: [PHONE] }, async (
   await ui.chooseMoon(page, "io");
   assert.ok(await ui.focusedOn(page, "io"), "the camera is focused on Io");
   await ui.closeInfoStrict(page);
-  await page.waitForTimeout(1500);
-  const shown = (await ui.sceneFeatures(page)).shown.filter((marker) => marker.key.startsWith("io:"));
+  // The markers must be on screen and the camera still: a marker pressed while the view eases to Io moves out from under the tap.
+  const ioMarkers = async () => (await ui.sceneFeatures(page)).shown.filter((marker) => marker.key.startsWith("io:"));
+  await ui.waitUntil(page, ioMarkers, (markers) => markers.length > 0, { what: "Io's place markers being shown" });
+  const shown = await ui.waitUntilStable(page, ioMarkers);
   assert.ok(shown.length > 0, "Io's view shows at least one place marker");
 
   const key = shown[0].key;

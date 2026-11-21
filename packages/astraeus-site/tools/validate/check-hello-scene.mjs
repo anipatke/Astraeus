@@ -24,7 +24,22 @@ await checkScript({ name: "check-hello-scene", viewports: SIZES }, async (page) 
     await ui.cameraActive(page, story ? "focus-probe" : "follow-probe"),
     story ? "the scene opens looking at the probe (Focus)" : "the scene opens already following the probe",
   );
-  await page.waitForTimeout(1500);
+  await ui.waitUntil(
+    page,
+    async () => [
+      await ui.sceneBody(page, "earth"),
+      await ui.sceneBody(page, "moon"),
+      await ui.scenePath(page, "moon-orbit"),
+    ],
+    ([earth, moon, orbit]) =>
+      earth?.as !== "none" &&
+      earth?.inView &&
+      moon?.as !== "none" &&
+      moon?.inView &&
+      orbit?.visible &&
+      orbit.inView > 0,
+    { what: "Earth, the Moon and the Moon's orbit line being drawn and in view" },
+  );
   const earth = await ui.sceneBody(page, "earth");
   assert.ok(earth && earth.as !== "none" && earth.inView, "Earth is drawn and in view");
   const moon = await ui.sceneBody(page, "moon");
@@ -116,10 +131,10 @@ async function checkSwitches(page) {
 async function toggleAndRead(page, id, drawn, what) {
   const before = await drawn();
   await ui.toggleDisplaySwitch(page, id);
-  await page.waitForTimeout(500);
+  await ui.waitUntil(page, drawn, (now) => now !== before, { what: `${what} changing after the ${id} switch` });
   assert.notEqual(await drawn(), before, `${what} changes when the ${id} switch is pressed`);
   assert.equal(await ui.displaySwitchOn(page, id), !before, `the ${id} switch shows its new state`);
   await ui.toggleDisplaySwitch(page, id);
-  await page.waitForTimeout(500);
+  await ui.waitUntil(page, drawn, (now) => now === before, { what: `${what} returning after the ${id} switch` });
   assert.equal(await drawn(), before, `${what} returns when the ${id} switch is pressed again`);
 }

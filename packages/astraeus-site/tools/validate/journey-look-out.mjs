@@ -169,8 +169,9 @@ async function checkFigureTaps(page, name) {
   const before = await ui.selectedObjectValue(page);
   const inside = projectSky(reading, box, 288, -22);
   assert.ok(inside, `${name}: a point inside the outline is in front of the camera`);
+  const framesBefore = await ui.framesDrawn(page);
   await ui.tapScenePoint(page, inside.x, inside.y);
-  await page.waitForTimeout(400);
+  await ui.waitForMoreFrames(page, framesBefore, 2); // a tap wakes the resting scene, so frames drawn show the tap was handled; nothing is selected to wait for
   assert.equal(
     await ui.selectedObjectValue(page),
     before,

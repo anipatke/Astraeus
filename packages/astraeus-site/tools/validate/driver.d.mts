@@ -20,3 +20,9 @@ export function displaySwitchOn(page: unknown, id: string): Promise<boolean>;
 export function toggleDisplaySwitch(page: unknown, id: string): Promise<void>;
 export function displaySwitchPlaces(page: unknown): Promise<{ topBar: string[]; panel: string[] }>;
 export function switchPanelFit(page: unknown): Promise<{ insideWindow: boolean; overlaps: string[] }>;
+export function waitUntil<T>(
+  page: unknown,
+  read: () => Promise<T> | T,
+  done: (value: T) => boolean,
+  options?: { readonly timeout?: number; readonly what?: string },
+): Promise<T>;

@@ -14,7 +14,12 @@ await checkScript({ name: "check-hello-planets", viewports: SIZES }, async (page
   await ui.loadAddress(page, appUrl());
   await ui.waitForShell(page);
   await ui.ensurePaused(page);
-  await page.waitForTimeout(1500);
+  await ui.waitUntil(
+    page,
+    async () => Promise.all(["sun", "mercury", "venus", "earth", "mars"].map((id) => ui.sceneBody(page, id))),
+    (bodies) => bodies.every((body) => body && body.as !== "none"),
+    { what: "the Sun to Mars being drawn" },
+  );
   for (const id of ["sun", "mercury", "venus", "earth", "mars"]) {
     const body = await ui.sceneBody(page, id);
     assert.ok(body && body.as !== "none", `${id} is drawn`);
@@ -28,7 +33,14 @@ await checkScript({ name: "check-hello-planets", viewports: SIZES }, async (page
   );
   // A slider moves the viewer's look: the sky reports the star brightness it now draws.
   await ui.setHostSlider(page, "stars", 0.4);
-  await page.waitForTimeout(500);
+  await ui.waitUntil(
+    page,
+    async () => (await ui.sceneSky(page)).starBrightness,
+    (value) => value === 0.4,
+    {
+      what: "the sky reporting the new star brightness",
+    },
+  );
   assert.equal(
     (await ui.sceneSky(page)).starBrightness,
     0.4,
@@ -39,8 +51,14 @@ await checkScript({ name: "check-hello-planets", viewports: SIZES }, async (page
   // The scale button changes the scale in force, and the viewer's own control reports it.
   const before = await ui.currentScale(page);
   await ui.pressHostButton(page, "scale");
-  await page.waitForTimeout(500);
-  const after = await ui.currentScale(page);
+  const after = await ui.waitUntil(
+    page,
+    () => ui.currentScale(page),
+    (now) => now !== before,
+    {
+      what: "the scale in force changing after the scale button",
+    },
+  );
   assert.notEqual(after, before, "the host scale button changes the scale");
   // Earth's card shows its distance from the Sun.
   await ui.pickBody(page, "earth");

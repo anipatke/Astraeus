@@ -1160,6 +1160,21 @@ export async function waitForMoreFrames(page, before, count = 3, timeout = 5000)
   );
 }
 /**
+ * Polls `read()` about every 100 ms until `done(value)` is true and returns that value; throws after `timeout` ms naming `what` never became true and the last value read (O-086 T-391).
+ * This replaces a fixed sleep before an assertion: the step moves on as soon as the page shows what the assertion reads, and fails clearly when it never does.
+ */
+export async function waitUntil(page, read, done, { timeout = 10000, what = "the condition" } = {}) {
+  const deadline = Date.now() + timeout;
+  let value = await read();
+  while (!done(value)) {
+    if (Date.now() >= deadline)
+      throw new Error(`${what} never became true in ${timeout} ms (last read: ${JSON.stringify(value)})`);
+    await page.waitForTimeout(100);
+    value = await read();
+  }
+  return value;
+}
+/**
  * Waits until `read()` gives the same value (compared as JSON) on `reads` polls in a row, `every` ms apart, and returns it (O-060 T-281). This stands in for a fixed sleep that waited for the scene to
  * stop moving: a camera easing to a body, or the clock catching up after a jump. It never fails by itself: when the value is still changing at `timeout` it returns the last one, and the caller's own
  * assertion on that value decides, exactly as it did after the fixed sleep.

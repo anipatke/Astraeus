@@ -26,14 +26,24 @@ await checkScript({ name: "journey-meteor-shower", viewports: [LAPTOP] }, async 
   await ui.ensurePlaying(page);
   await ui.waitUntilPlaying(page, 10000);
   const beforePlay = await ui.framesDrawn(page);
-  await page.waitForTimeout(1500);
+  await ui.waitUntil(
+    page,
+    async () => ({ frames: (await ui.framesDrawn(page)) - beforePlay, clock: await ui.clockMs(page) }),
+    (now) => now.frames >= 10 && now.clock > start,
+    { what: "playing drawing 10 frames and moving the clock on" },
+  );
   assert.ok((await ui.clockMs(page)) > start, "playing moves the clock on");
   const whilePlaying = (await ui.framesDrawn(page)) - beforePlay;
   assert.ok(whilePlaying >= 10, `playing draws every frame (${whilePlaying} frames in 1.5 s)`);
   await ui.ensurePaused(page);
 
   await ui.seekToFraction(page, 0.5);
-  await page.waitForTimeout(500);
+  await ui.waitUntil(
+    page,
+    async () => ({ clock: await ui.clockMs(page), drawn: await ui.sceneDrawsSomething(page) }),
+    (now) => now.clock > start && now.drawn.bodies + now.drawn.paths > 0 && now.drawn.dots > 0,
+    { what: "the clock moving on after the seek and the stream being drawn" },
+  );
   const middle = await ui.clockMs(page);
   assert.ok(middle > start, "seeking to the middle of the timeline moves the clock later");
   const drawn = await ui.sceneDrawsSomething(page);
@@ -50,8 +60,12 @@ await checkScript({ name: "journey-meteor-shower", viewports: [LAPTOP] }, async 
   await ui.chooseSwitchOption(page, "geminids");
   assert.ok(await ui.pageWasKept(page), "the switch did not reload the page");
   await ui.waitForShell(page);
-  await page.waitForTimeout(800);
-  const geminids = await ui.sceneDrawsSomething(page);
+  const geminids = await ui.waitUntil(
+    page,
+    () => ui.sceneDrawsSomething(page),
+    (drawn) => drawn.dots > 0,
+    { what: "the Geminids stream being drawn after the switch" },
+  );
   assertStreamDrawn(geminids.dots, "the Geminids after the switch");
   return {
     switched: "geminids",

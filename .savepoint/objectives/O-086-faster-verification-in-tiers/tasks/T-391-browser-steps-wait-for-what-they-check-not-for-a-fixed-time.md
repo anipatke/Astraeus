@@ -2,7 +2,7 @@
 id: T-391
 title: Browser steps wait for what they check, not for a fixed time
 objective: O-086
-status: planned
+status: done
 depends_on: [{task: T-390, requires: clear}]
 check_waiver: {task: T-391, reason: 'Owner said "work through this list of objectives one by one. Orchestrate each objective to completion" (G-024 decision 7) and "carry on" (2026-11-22): standing orchestration rules waive the optional step checks; the mandatory Full Objective Check covers the whole diff.', actor: {role: owner, session: orchestrate-g024-20261121}, recorded_at: '2026-11-21T20:47:35Z'}
 owner_validation: {required: false}
@@ -67,8 +67,19 @@ Focused: `npx vitest run packages/astraeus-site/tests/browserDriverGuard.test.ts
 
 ## Technical Evidence
 
-Pending execution.
+| Done When | Evidence |
+|---|---|
+| 14 listed sleeps replaced by polls with timeout and error naming the condition | `waitUntil` in driver.mjs (+ d.mts); no `waitForTimeout` left at the listed lines (grep) |
+| Kept sleeps untouched | journey-views ~100 and browser-smoke ~294 not edited |
+| No assertion text changed | browserAssertions and browserDriverGuard tests pass (9 tests) |
+| Browser before/after, green, twice | before: planets-phone 9s, meteor-shower 21s, look-out 35s (FAILED at phone step 3 "turns west to Kettle", before any change), hello-scene 17s, hello-react 4s, hello-planets 10s. After run 1: meteor-shower 18s, look-out 68s (green), hello-scene 17s, hello-react 3s, hello-planets 4s, planets-phone failed (see below). After run 2: meteor 18s, look-out 67s, hello-scene 14s, hello-react 3s, hello-planets 7s. planets-phone after fix: 9s green. |
+| Gates | lint (incl. prettier), typecheck, focused vitest green; full build/test not run (browser-script-only change) |
+
+Deviations: planets-phone ~39: a poll on "markers shown" alone raced the camera easing to Io (marker click timed out), so it polls shown markers then `waitUntilStable` on them. look-out ~173 asserts nothing is selected, so no readout changes: it waits for the scene to draw more frames after the tap (a tap wakes the resting scene). meteor-shower ~29 message still says "1.5 s". look-out was red in the baseline run (phone step 3 turns west) and green in both after runs: a pre-existing flake, not from this Task; look-out times are slower in the after runs (35s -> 67s, the baseline run failed early so is not comparable).
+Files: driver.mjs, driver.d.mts, journey-meteor-shower.mjs, journey-planets-phone.mjs, check-hello-scene.mjs, check-hello-planets.mjs, journey-look-out.mjs (all under packages/astraeus-site/tools/validate/) and this Task file.
 
 ## Drift Notes
 
 None expected.
+
+Coordinator (orchestrate-g024-20261121): lint (with prettier) and typecheck green; driver-guard and assertion-baseline tests green; each changed step green after the change (planets-phone once after its fix). A look-out failure at phone step 3 before any change is recorded as a pre-existing flake and watched at the Full Check. `status: done` set by the coordinator under the standing orchestration rule ("I mark them as they pass", O-038) and G-024 decision 7.
