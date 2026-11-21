@@ -528,10 +528,9 @@ Inside the repository the engine is used as TypeScript source (the demos and the
 | `src/assets/` | Body catalogue, compositions, visuals, rings and sky. |
 | `src/app/` | The scene and app adapter (floating origin, camera, paths, labels, `App`). |
 | `src/shell/` | The generic UI: shell, bar (`bar/`), timeline, drawers, info panel, story panels. Its look is `shell/look/look.css` (every colour and size, as `--astraeus-*` properties) and its screen places and layout rules are `shell/areas/`; `tests/lookDrift.test.ts` fails on a typed colour or size anywhere else. Adding an interface part: see "Interface modules" below. |
-| `src/experiences/` | Shared helpers a demo builds on (settings reader, metrics, switch chooser). |
-| `src/synthetic/` | Made-up experiences that prove the plug-in contract. |
+| `src/presentation/` | Wording and presentation rules shared by the viewer and the demos (scale policies, playback pacing, start view, sky trace, look values, story panels, moon list and body-set text). Imports core only. |
 | `data/`, `licenses/` | Core data (bodies, ephemerides, orbits) and the notices for the libraries it uses. |
-| `tests/` | The engine's tests, plus helpers its demos' tests reuse. |
+| `tests/` | The engine's tests, plus helpers its demos' tests reuse. `tests/synthetic/` holds the made-up scenes the tests use; they are not packed. |
 
 ## Interface modules
 
@@ -543,7 +542,7 @@ The bar (`shell/bar/`) is one row for the desktop and the phone. On a phone it s
 
 A demo is a package that depends on `astraeus`, builds an `ExperienceDefinition` (type in `src/app/experienceDefinition.ts`) from its own data, and is listed by the site. It imports the engine only through the package entries in `package.json` `exports` (for example `astraeus/app/experienceDefinition`), never by a relative path into this folder.
 
-A complete small example with no real data is `src/synthetic/syntheticDefinition.ts`: a made-up object on a tilted loop with marks, events and story panels. Read it first; the site lists it as the `synthetic` experience (`packages/astraeus-site/src/main.tsx`).
+A complete small example with no real data is `tests/synthetic/syntheticDefinition.ts`: a made-up object on a tilted loop with marks, events and story panels. Read it first; it is a test fixture, not part of the packed package (the dev site's own `?experience=synthetic` scenes live in `packages/astraeus-site/src/synthetic/`).
 
 The source `exports` list is broad (one pattern per folder) for the demos and the site; the published package exports only `.` (the public API), `./style.css` and `./package.json`, written into `dist/package.json` from the `x-publish` block of this manifest.
 

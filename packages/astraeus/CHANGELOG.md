@@ -22,6 +22,9 @@ Engineering health repairs (G-024). Behaviour may change where it was wrong (own
 - Fixed: a moon's orbit line in the first weeks of 1950 no longer throws.
 - Fixed: a viewer that was paused when its moon data finished loading now shows the planet's centre straight away, instead of a position worked out before the load.
 - Fixed: Earth's atmosphere glow now uses the logarithmic depth buffer, so bodies and lines behind the rim no longer cut into it.
+- Changed: the packed engine no longer ships the made-up test scenes (seven definitions under `src/synthetic/`, now `tests/synthetic/`) or an unused settings-field helper: 663 files, was 679; 7.24 MB packed, was 7.25 MB; 9.29 MB unpacked, was 9.33 MB.
+- Changed: the internal subpaths `astraeus/synthetic/*` and `astraeus/experiences/*` are gone, and `astraeus/presentation/*` is new (scale policies, playback pacing, start view, sky trace, look values, story panels, moon list and body-set wording moved there). They are internal subpaths outside the public API; the package's `x-internal-exports` note says they may change without notice.
+- Fixed: the Moon's info card states its time-scale limitation: the series uses its own approximation of the TT-UTC difference and steps by small amounts at month boundaries, so the Moon's path is not exactly continuous, and its accuracy is stated over the 2022 to 2025 comparison samples only.
 
 ### Breaking changes in 0.10.0
 
@@ -37,6 +40,7 @@ Each line is a change a host written for 0.9.5 can notice, with the one-line mig
 - A composed state may now carry `velocityKmS` where it carried none. Check it before use, as before.
 - Reverse pacing: a negative opening `rate` with `pacing` now paces (it threw or went `NaN`). Remove any guard that avoided it.
 - A scene no longer sees moon data that another scene or the process loaded. A scene that relied on another scene's moon package now places that planet at its system's barycentre and refuses its moons with `missing-data`. Pass the package to each scene (`scene.load({ data })` or `mount`).
+- The internal subpaths `astraeus/synthetic/*` and `astraeus/experiences/*` no longer resolve (`astraeus/presentation/*` is new). Only a host that deep-imported them is affected, and `x-internal-exports` already marks them as changeable: import from `astraeus` instead, or copy what you need.
 
 ## 0.9.5 (2026-11-21)
 

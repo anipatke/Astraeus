@@ -2,7 +2,7 @@
 id: T-380
 title: Note the internal moves and new checks in the changelog
 objective: O-093
-status: planned
+status: done
 depends_on: [{task: T-370, requires: clear}, {task: T-374, requires: clear}, {task: T-377, requires: clear}, {task: T-378, requires: clear}, {task: T-379, requires: clear}]
 check_waiver: {task: T-380, reason: 'Owner said "work through this list of objectives one by one. Orchestrate each objective to completion" (G-024 decision 7) and "carry on" (2026-11-22): standing orchestration rules waive the optional step checks; the mandatory Full Objective Check covers the whole diff.', actor: {role: owner, session: orchestrate-g024-20261121}, recorded_at: '2026-11-21T19:19:52Z'}
 owner_validation: {required: false}
@@ -59,8 +59,19 @@ No version bump. No edits to older changelog sections. The gate-limit table chan
 
 ## Technical Evidence
 
-Pending execution.
+Extra reads: `packages/astraeus/README.md` ("What it holds", "How a demo plugs in", reason: T-370 drift, named by the brief); `eslint.config.js`, `.prettierignore`, `.prettierrc`, root `package.json` scripts, `core/constants.ts`, `core/bodies/moon.ts` (to check each doc claim); T-370/T-374 evidence (numbers). Parked-branch recipe omitted per the brief (O-085 merged); one general sentence kept.
+
+| Done When | Evidence |
+|---|---|
+| Changelog lines (packed size, internal subpaths, Moon limitation; nothing for internal types/constants) | Three lines added to `## 0.10.0 (proposed)`; numbers from T-370 (679 to 663 files, 7.25 to 7.24 MB packed, 9.33 to 9.29 MB unpacked); Moon wording matches `moon.ts` knownLimitations |
+| Breaking-changes line with migration | One line added to `### Breaking changes in 0.10.0` |
+| build.md lint bullet and formatting bullet | Rules match `eslint.config.js`; scripts match root `package.json`; scope matches `.prettierignore`; one general sentence instead of the parked-branch recipe |
+| Gates | `gateLimits.test.ts` 11 passed; lint, typecheck, build clean; `npm test` 313 files, 5085 passed, 2 skipped |
+
+Also fixed README "What it holds" rows (removed `src/experiences/`, `src/synthetic/`; added `src/presentation/`, `tests/synthetic/`) and the "How a demo plugs in" example path. Files changed: packages/astraeus/CHANGELOG.md, packages/astraeus/README.md, docs/agents/build.md, this Task file. Limitation: the Moon changelog line says accuracy is stated over the 2022 to 2025 samples (validUtc in moon.ts).
 
 ## Drift Notes
 
-None expected.
+None. (T-370's README drift is fixed here.)
+
+Coordinator (orchestrate-g024-20261121): gates green (lint, typecheck, build; `npm test` 313 files, 5085 passed). O-085 merged before this Task, so the parked-branch recipe was replaced by one general sentence (coordinator brief). `status: done` set by the coordinator under the standing orchestration rule ("I mark them as they pass", O-038) and G-024 decision 7.
