@@ -8,7 +8,7 @@ import { rotateVectorByQuaternion } from "../src/core/bodyOrientation";
 import type { ChebyshevEphemeris } from "../src/core/chebyshevEphemeris";
 import { createEphemerisGroup } from "../src/core/ephemerisGroup";
 import { createProvenance } from "../src/core/provenance";
-import { trueScale, type ScalePolicy } from "../src/core/scalePolicy";
+import { trueScale, type ScalePolicy } from "../src/presentation/scalePolicy";
 import { createState, EQJ } from "../src/core/state";
 import { placementAbout } from "./scenePlacement";
 
