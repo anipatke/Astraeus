@@ -1,3 +1,5 @@
+import { usePopupPlace, openGroupKey, EVENTS_POPUP, GROUP_POPUP } from "./panels/PopupContext";
+import { POPUP_HOST_ATTRIBUTE } from "./panels/usePanels";
 import { useEffect, useId, useMemo, useRef, useState, type CSSProperties, type PointerEvent as ReactPointerEvent } from "react";
 import type { ClockSnapshot } from "../core/clock";
 import type { TimelineEvent } from "../core/events";
@@ -35,9 +37,9 @@ interface Props {
   /** The zone and precision every time reads in (the look `time`). Default UTC to the second. */
   readonly timeLook?: TimeLook;
   /** On a phone the timeline has a drawer (speed slider, events) under its two lines; absent: the larger-screen bar. */
-  readonly drawer?: { readonly open: boolean; readonly onOpenChange: (open: boolean) => void; readonly swipeThresholdPx: number };
-  /** The id of the information panel the event buttons open, made once per viewer by the shell. */
-  readonly infoPanelId: string;
+  readonly drawer?: { readonly open: boolean; readonly onOpenChange: (open: boolean) => void; /** An item inside the drawer was chosen: the panel rule closes it. */ readonly onItemChosen: () => void; readonly swipeThresholdPx: number };
+  /** The id of the information panel the event buttons open, made once per viewer by the shell; undefined while that panel is not drawn, so no button names a missing element. */
+  readonly infoPanelId?: string;
 }
 
 /** The Auto choice of the speed menu: just "Auto", or with the speed pacing is running at now. */
@@ -116,7 +118,10 @@ export function TimelineBar({ experience, snapshot, onTogglePlayback, onRateChan
 
   const markersRef = useRef<HTMLDivElement>(null);
   const [trackWidth, setTrackWidth] = useState(0);
-  const [openGroup, setOpenGroup] = useState<string | null>(null);
+  // The events list and a marker group are pop-ups: the panel rule holds which one is open.
+  const place = usePopupPlace();
+  const openGroup = openGroupKey(place.openId);
+  const toggleGroup = (key: string) => place.toggle(`${GROUP_POPUP}${key}`);
   useEffect(() => {
     const node = markersRef.current;
     if (node === null) return undefined;
@@ -166,14 +171,14 @@ export function TimelineBar({ experience, snapshot, onTogglePlayback, onRateChan
         {groups.map((group) => group.members.length === 1
           ? renderMarker(group.members[0]!, group.positionPercent)
           : (
-            <div key={`group-${group.members[0]!.key}`} className="timeline-marker-group" data-align={group.positionPercent < 25 ? "start" : group.positionPercent > 75 ? "end" : "middle"} style={{ left: `${group.positionPercent}%` }} onKeyDown={(event) => { if (event.key === "Escape") setOpenGroup(null); }}>
+            <div key={`group-${group.members[0]!.key}`} className="timeline-marker-group" data-align={group.positionPercent < 25 ? "start" : group.positionPercent > 75 ? "end" : "middle"} style={{ left: `${group.positionPercent}%` }} {...{ [POPUP_HOST_ATTRIBUTE]: `${GROUP_POPUP}${group.members[0]!.key}` }}>
               <button
                 type="button"
                 className="timeline-marker timeline-group-toggle"
                 aria-expanded={openGroup === group.members[0]!.key}
                 aria-label={`${group.members.length} markers close together: show list`}
                 title={`${group.members.length} markers`}
-                onClick={() => setOpenGroup((open) => (open === group.members[0]!.key ? null : group.members[0]!.key))}
+                onClick={() => toggleGroup(group.members[0]!.key)}
               >
                 <span className="timeline-group-count">{group.members.length}</span>
               </button>
@@ -181,7 +186,7 @@ export function TimelineBar({ experience, snapshot, onTogglePlayback, onRateChan
                 <ul className="timeline-group-list" aria-label="Markers close together">
                   {group.members.map((member) => (
                     <li key={member.key}>
-                      <button type="button" className="timeline-group-item" aria-label={member.ariaLabel} data-time-utc-ms={member.timeUtcMs} data-panel-id={member.kind === "panel" ? member.key : undefined} onClick={() => { member.activate(); setOpenGroup(null); }}>{member.text}</button>
+                      <button type="button" className="timeline-group-item" aria-label={member.ariaLabel} data-time-utc-ms={member.timeUtcMs} data-panel-id={member.kind === "panel" ? member.key : undefined} onClick={() => { member.activate(); place.close(); }}>{member.text}</button>
                     </li>
                   ))}
                 </ul>
@@ -249,8 +254,8 @@ export function TimelineBar({ experience, snapshot, onTogglePlayback, onRateChan
         {scrubber}
 
         {drawer === undefined && (
-          <details className="timeline-event-list">
-            <summary className="ui-button" title="Events: what just happened, what is next, and the full list">Events <span>({experience.events.length})</span></summary>
+          <details className="timeline-event-list" open={place.openId === EVENTS_POPUP} {...{ [POPUP_HOST_ATTRIBUTE]: EVENTS_POPUP }}>
+            <summary className="ui-button" onClick={(event) => { event.preventDefault(); place.toggle(EVENTS_POPUP); }} title="Events: what just happened, what is next, and the full list">Events <span>({experience.events.length})</span></summary>
             <TimelineExpanded experience={experience} snapshot={snapshot} timeLook={timeLook} onEventSeek={onEventSeek} onEventInfo={onEventInfo} onWindowInfo={onWindowInfo} infoPanelId={infoPanelId} />
           </details>
         )}
@@ -262,7 +267,7 @@ export function TimelineBar({ experience, snapshot, onTogglePlayback, onRateChan
           role="region"
           aria-label="Timeline details"
           data-open={drawer.open}
-          onClick={(event) => { const closer = (event.target as Element).closest("[data-closes-drawer]"); if (closer !== null && closer.tagName !== "SELECT") drawer.onOpenChange(false); }}
+          onClick={(event) => { const closer = (event.target as Element).closest("[data-closes-drawer]"); if (closer !== null && closer.tagName !== "SELECT") drawer.onItemChosen(); }}
         >
           <div className="timeline-drawer-body">
             <div className="timeline-speed-slider">
@@ -299,7 +304,7 @@ interface ExpandedProps {
   readonly onEventSeek: (event: TimelineEvent) => void;
   readonly onEventInfo: (event: TimelineEvent) => void;
   readonly onWindowInfo: (window: TimelineWindow) => void;
-  readonly infoPanelId: string;
+  readonly infoPanelId?: string;
 }
 
 /**

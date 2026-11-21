@@ -3,7 +3,10 @@ import type { ClockSnapshot } from "../core/clock";
 import type { TimelineEvent } from "../core/events";
 import type { TimelineWindow } from "../core/timeWindow";
 import { StoryPanelView, type StepNav } from "./StoryPanelView";
-import { useDrawers } from "./useDrawers";
+import { useMirroredPanels, usePanels } from "./panels/usePanels";
+import { PopupPlaceContext } from "./panels/PopupContext";
+import { timelineLayerFor } from "./panels/panelRule";
+import { Area } from "./areas/Area";
 import { useStoryPanels, type PanelCause, type StoryPanelSettings } from "./useStoryPanels";
 import { neighbourStep, type StoryPanel, type StoryStep } from "./storyPanels";
 import { TimelineBar } from "./TimelineBar";
@@ -67,33 +70,52 @@ function ShellTimeline({ hidden, ...bar }: ComponentProps<typeof TimelineBar> & 
   return hidden ? null : <TimelineBar {...bar} />;
 }
 
-/** The Developer cog and its drawer; drawn only when the host gave the drawer's content (absent: neither, so an outside page never sees a developer cog). */
-function DeveloperDrawer({ developerMode, onDeveloperModeChange, children }: { readonly developerMode: boolean; readonly onDeveloperModeChange: (enabled: boolean) => void; readonly children: ReactNode }) {
-  const drawerId = `${useId()}-developer-tools`;
-  if (children === undefined) return null;
+/** The bar's place: the toolbar and the moons button on a wide screen (a phone's are in the menu), and the Developer cog. */
+function BarArea({ phone, topBar, moonsToggle, children }: { readonly phone: boolean; readonly topBar: ReactNode; readonly moonsToggle: ReactNode; readonly children: ReactNode }) {
   return (
-    <>
-      <DeveloperToggle developerMode={developerMode} onDeveloperModeChange={onDeveloperModeChange} drawerId={drawerId} />
-      <aside className="developer-tools" id={drawerId} data-developer-panel="" aria-label="Developer diagnostics" hidden={!developerMode}>
-        {developerMode ? children : null}
-      </aside>
-    </>
+    <Area name="bar">
+      <div className="shell-top">{phone ? null : topBar}{phone ? null : moonsToggle}</div>
+      {children}
+    </Area>
   );
 }
 
-/** The wide-screen moons toggle and the sheet it opens under the toolbar. */
-function MoonsSheet({ planetLabel, open, onToggle, onClose, children }: { readonly planetLabel: string | undefined; readonly open: boolean; readonly onToggle: () => void; readonly onClose: () => void; readonly children: ReactNode }) {
-  const sheetId = `${useId()}-moons-panel`;
+/** The left place: the moons sheet and the card (the panel rule lets one be open). */
+function LeftArea({ moonPanel, moonsSheetId, moonsOpen, view, metrics, onClose, infoPanelId }: { readonly moonPanel: ReactNode; readonly moonsSheetId: string; readonly moonsOpen: boolean; readonly view: ComponentProps<typeof InfoPanel>["view"] | null; readonly metrics: readonly Metric[]; readonly onClose: () => void; readonly infoPanelId: string }) {
   return (
-    <>
-      <button type="button" className="moons-toggle ui-pill" aria-expanded={open} aria-controls={sheetId} onClick={onToggle}>
-        {planetLabel} moons
-      </button>
-      <aside id={sheetId} className="moons-sheet" data-open={open} aria-label="Moons by family" onKeyDown={(event) => { if (event.key === "Escape") onClose(); }}>
-        {children}
-      </aside>
-    </>
+    <Area name="left">
+      {moonPanel !== null && <MoonsSheet id={moonsSheetId} open={moonsOpen}>{moonPanel}</MoonsSheet>}
+      {view !== null && <InfoPanel view={view} metrics={metrics} onClose={onClose} id={infoPanelId} />}
+    </Area>
   );
+}
+
+/** The Developer cog (in the bar's place); drawn only when the host gave the drawer's content (absent: neither, so an outside page never sees a developer cog). */
+function DeveloperCog({ developerMode, onDeveloperModeChange, drawerId, present }: { readonly developerMode: boolean; readonly onDeveloperModeChange: (enabled: boolean) => void; readonly drawerId: string; readonly present: boolean }) {
+  return present ? <DeveloperToggle developerMode={developerMode} onDeveloperModeChange={onDeveloperModeChange} drawerId={drawerId} /> : null;
+}
+
+/** The Developer drawer, in the developer place. */
+function DeveloperDrawer({ developerMode, drawerId, children }: { readonly developerMode: boolean; readonly drawerId: string; readonly children: ReactNode }) {
+  if (children === undefined) return null;
+  return (
+    <aside className="developer-tools" id={drawerId} data-developer-panel="" aria-label="Developer diagnostics" hidden={!developerMode}>
+      {developerMode ? children : null}
+    </aside>
+  );
+}
+
+/** The moons button (in the bar on a wide screen, in the menu on a phone) and the sheet it opens in the left place. */
+function MoonsToggle({ planetLabel, open, sheetId, onToggle }: { readonly planetLabel: string | undefined; readonly open: boolean; readonly sheetId: string; readonly onToggle: () => void }) {
+  return (
+    <button type="button" className="moons-toggle ui-pill" aria-expanded={open} aria-controls={sheetId} data-closes-drawer="" onClick={onToggle}>
+      {planetLabel} moons
+    </button>
+  );
+}
+
+function MoonsSheet({ id, open, children }: { readonly id: string; readonly open: boolean; readonly children: ReactNode }) {
+  return <aside id={id} className="moons-sheet" data-open={open} aria-label="Moons by family">{children}</aside>;
 }
 
 /** Who moved the selection: the visitor, or a move of time or the view (named by whatever last moved them). */
@@ -289,18 +311,16 @@ export function AstraeusShell({
   children,
 }: Props) {
   const infoPanelId = `${useId()}-info-panel`;
+  const moonsSheetId = `${useId()}-moons-panel`;
+  const developerDrawerId = `${useId()}-developer-tools`;
   const [selectedObjectId, setSelectedObjectId] = useState(() => initialObjectId(experience, snapshot.timeUtcMs));
   const root = useRef<HTMLElement | null>(null);
   /** The viewer's own screen (areas/screen.ts): its layout follows this viewer's size, not the window's. */
   const screen = useScreen(root);
   const phone = screen.layout === "phone";
-  // The drawer (with the moons in it) and the bottom sheets want the same screen: the drawer, being the one just asked for, takes it.
-  const { controlsOpen, timelineOpen, openControls, openTimeline } = useDrawers(phone, root, () => {
-    if (experience.moonFamilies !== undefined) { setInfo(null); story.close(); }
-  });
   useTimelineSpace(root, phone);
   const [activePresetId, setActivePresetId] = useState<string | null>(experience.startCameraPresetId ?? null);
-  /** The object panel follows the selected object; an event panel names its event. */
+  /** What the card is about; whether it is open is the panel rule's (`panels.state.left`). The object card follows the selected object; an event card names its event. */
   const [info, setInfo] = useState<InfoState>(null);
 
   const storySet = experience.storyPanels;
@@ -310,6 +330,12 @@ export function AstraeusShell({
   if (storySeekNote !== undefined) storySeekNote.current = story.noteSeek;
   useEffect(() => () => { if (storySeekNote !== undefined) storySeekNote.current = null; }, [storySeekNote]);
   const openPanelId = story.openPanel?.id ?? null;
+  // Every panel's open and close goes through the one rule (panels/panelRule.ts); the story panel's timing and the host's developer mode stay where they are and are mirrored in.
+  const panels = usePanels(phone ? "phone" : "wide", root, (occupant) => { if (occupant === "story") story.close(); });
+  useMirroredPanels(panels, openPanelId !== null, developerMode, onDeveloperModeChange);
+  const infoOpen = panels.state.left === "card";
+  const shownInfo: InfoState = infoOpen ? info : null;
+  const showInfo = (next: NonNullable<InfoState>) => { setInfo(next); panels.open("card"); };
   const storyCause = story.cause;
   // Only a change of the open panel is reported; the cause read then is the one that change came with.
   const lastCause = useRef(storyCause);
@@ -325,11 +351,11 @@ export function AstraeusShell({
   }, [requestedSerial]);
   const requestedFeatureSerial = serialOf(featureRequest);
   useEffect(() => {
-    if (featureRequest !== null && featureRequest !== undefined) setInfo({ kind: "feature", id: featureRequest.key });
+    if (featureRequest !== null && featureRequest !== undefined) showInfo({ kind: "feature", id: featureRequest.key });
     // Only a new request opens a place.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [requestedFeatureSerial]);
-  const openFeatureKey = info?.kind === "feature" ? info.id : null;
+  const openFeatureKey = shownInfo?.kind === "feature" ? shownInfo.id : null;
   useEffect(() => { onOpenFeatureChange?.(openFeatureKey); }, [onOpenFeatureChange, openFeatureKey]);
   /** Every time change a person makes goes through here, so a seek is never mistaken for playback crossing a panel. */
   const seek = (timeUtcMs: number) => {
@@ -358,7 +384,7 @@ export function AstraeusShell({
       setSelectedObjectId(fallbackId);
       onSelectionChange(fallbackId, "move");
       // The card of an object the view took away closes with it.
-      if (switchRule !== undefined && selected === undefined) setInfo((now) => (now?.kind === "object" ? null : now));
+      if (switchRule !== undefined && selected === undefined) panels.viewSwitch(shownInfo?.kind === "object", false);
     }
 
     onTimeShown?.(snapshot.timeUtcMs);
@@ -386,7 +412,7 @@ export function AstraeusShell({
     // As a visitor's menu choice does: the object's card opens (the camera is left alone); a clear closes it.
     // A story panel's select (`quiet`) follows the visitor-tap rule: on a phone it selects without opening the card, which would cover the panel's Back and Next.
     const opens = selectRequest.quiet === true ? pickOpensInfo(phone) : true;
-    setInfo((now) => (selectRequest.id === "" ? (now?.kind === "object" ? null : now) : opens ? { kind: "object" } : now));
+    if (selectRequest.id === "") { if (shownInfo?.kind === "object") panels.close("card"); } else if (opens) showInfo({ kind: "object" });
     onSelectRequestApplied?.();
     // Only a new request applies.
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -422,13 +448,12 @@ export function AstraeusShell({
     else onCameraHold?.();
   };
 
-  const [moonsOpen, setMoonsOpen] = useState(false);
   /** A moon chosen in the moon panel: flies to it (the same focus as the object picker) and opens its information. */
   const chooseMoon = (id: string) => {
     const object = availableObjectById(experience, id, snapshot.timeUtcMs);
     if (object === undefined) return;
     activatePreset(focusPresetFor(experience, object));
-    setInfo({ kind: "object" });
+    showInfo({ kind: "object" });
   };
 
   /** An object tapped or clicked in the scene: the picker's focus; on a wide screen it also opens the card, on a phone it does not (T-138). A tapped body-set member that is no listed object just flies there. */
@@ -440,10 +465,10 @@ export function AstraeusShell({
       // A tap from a look-out camera: select it and stay in the sky (owner, 2026-11-15); the menu's Focus and Follow still fly there.
       setSelectedObjectId(object.id);
       onSelectionChange(object.id, "visitor");
-      if (pickOpensInfo(phone)) setInfo({ kind: "object" });
+      if (pickOpensInfo(phone)) showInfo({ kind: "object" });
     } else if (object !== undefined) {
       activatePreset(focusPresetFor(experience, object));
-      if (pickOpensInfo(phone)) setInfo({ kind: "object" });
+      if (pickOpensInfo(phone)) showInfo({ kind: "object" });
     } else if (!experience.objects.some((candidate) => candidate.id === id)) onCameraRequest({ kind: "focus", target: id });
   };
   const requestedPickSerial = serialOf(pickRequest);
@@ -457,7 +482,7 @@ export function AstraeusShell({
   const selectFigure = (id: string, open: boolean) => {
     setSelectedObjectId(id);
     onSelectionChange(id, "visitor");
-    if (open) setInfo({ kind: "object" });
+    if (open) showInfo({ kind: "object" });
   };
 
   const selectObject = (id: string) => {
@@ -466,7 +491,7 @@ export function AstraeusShell({
     if (object === undefined) return;
     setSelectedObjectId(id);
     onSelectionChange(id, "visitor");
-    setInfo({ kind: "object" });
+    showInfo({ kind: "object" });
     const active = experience.cameraPresets.find((preset) => preset.id === activePresetId);
     if (active?.request.kind === "focus" || active?.request.kind === "follow") {
       const next = findCameraPreset(experience, active.request.kind, id)
@@ -504,22 +529,18 @@ export function AstraeusShell({
       selectFigure(event.object, false);
       onTurnToFigure?.(event.object);
     }
-    if (info?.kind === "event") setInfo({ kind: "event", id: event.id });
+    if (shownInfo?.kind === "event") setInfo({ kind: "event", id: event.id });
   };
 
   const seekToWindow = (window: TimelineWindow, timeUtcMs: number) => {
     seek(timeUtcMs);
-    if (info?.kind === "window") setInfo({ kind: "window", id: window.id });
+    if (shownInfo?.kind === "window") setInfo({ kind: "window", id: window.id });
   };
 
-  const { view, metrics } = infoContent(experience, info, selectedObjectId, snapshot.timeUtcMs, metricsFor, timeLook);
+  const { view, metrics } = infoContent(experience, shownInfo, selectedObjectId, snapshot.timeUtcMs, metricsFor, timeLook);
 
-  // On a wide screen the moons sheet and the information panel share the left column under the toolbar: opening one closes the other.
-  const toggleMoons = () => {
-    if (!moonsOpen) setInfo(null);
-    setMoonsOpen(!moonsOpen);
-  };
-  useEffect(() => { if (info !== null) setMoonsOpen(false); }, [info]);
+  const moonsOpen = panels.state.left === "moons";
+  const toggleMoons = () => panels.toggle("moons");
 
   const selectedLabel = objectLabelOr(experience, selectedObjectId, "Controls");
   const topBar = (
@@ -530,8 +551,8 @@ export function AstraeusShell({
       activePresetId={activePresetId}
       onSelectObject={selectObject}
       onCameraPreset={activatePreset}
-      infoOpen={info?.kind === "object"}
-      onToggleInfo={() => setInfo(info?.kind === "object" ? null : { kind: "object" })}
+      infoOpen={shownInfo?.kind === "object"}
+      onToggleInfo={() => (shownInfo?.kind === "object" ? panels.close("card") : showInfo({ kind: "object" }))}
       infoPanelId={infoPanelId}
       scaleId={scaleId}
       onScaleChange={onScaleChange}
@@ -550,45 +571,52 @@ export function AstraeusShell({
     </PanelLoadBoundary>
   );
 
+  const moonsToggle = moonPanel === null ? null : <MoonsToggle planetLabel={experience.moonFamilies?.planetLabel} open={moonsOpen} sheetId={moonsSheetId} onToggle={toggleMoons} />;
+  const popupPlace = { openId: panels.state.popup, toggle: (id: string) => panels.togglePopup(id), close: (id?: string) => panels.closePopup(id) };
+  const timelineLayer = timelineLayerFor(panels.state);
+
   return (
     <main className="astraeus-shell" ref={root} {...screenAttributes(screen)} data-timeline-hidden={experience.hideTimeline === true} style={{ ...phoneLayoutStyle(phoneLayout), ...interfaceLookVars(interfaceLook, screen.motion === "reduced"), ...labelStyleVars(labelStyle) }}>
       <div className="shell-canvas">{children}</div>
-      {phone && <ControlsDrawer label={selectedLabel} open={controlsOpen} onOpenChange={openControls} swipeThresholdPx={phoneLayout.swipeThresholdPx}>{topBar}{moonPanel}</ControlsDrawer>}
-      <div className="shell-top">
-        {!phone && topBar}
-        {!phone && moonPanel !== null && <MoonsSheet planetLabel={experience.moonFamilies?.planetLabel} open={moonsOpen} onToggle={toggleMoons} onClose={() => setMoonsOpen(false)}>{moonPanel}</MoonsSheet>}
-        {view !== null && <InfoPanel view={view} metrics={metrics} onClose={() => setInfo(null)} id={infoPanelId} />}
-      </div>
-      {story.openPanel !== null && (
-        <StoryPanelView
-          panel={story.openPanel}
-          holding={story.holding}
-          onClose={closePanel}
-          onContinue={story.continuePlayback}
-          step={stepNav}
-        />
-      )}
-      <DeveloperDrawer developerMode={developerMode} onDeveloperModeChange={onDeveloperModeChange}>{developerTools}</DeveloperDrawer>
-      <ShellTimeline
-        hidden={experience.hideTimeline === true}
-        experience={experience}
-        snapshot={snapshot}
-        timeLook={timeLook}
-        onTogglePlayback={onTogglePlayback}
-        onRateChange={onRateChange}
-        paceAuto={paceAuto}
-        onSeek={seek}
-        panels={storyPanels}
-        openPanelId={openPanelId}
-        onPanelOpen={openPanelFromTimeline}
-        onEventSeek={seekToEvent}
-        onEventInfo={(event) => setInfo({ kind: "event", id: event.id })}
-        onWindowSeek={seekToWindow}
-        onWindowInfo={(window) => setInfo({ kind: "window", id: window.id })}
-        glowLook={timelineGlow}
-        infoPanelId={infoPanelId}
-        drawer={phone ? { open: timelineOpen, onOpenChange: openTimeline, swipeThresholdPx: phoneLayout.swipeThresholdPx } : undefined}
-      />
+      <PopupPlaceContext.Provider value={popupPlace}>
+        <div className="astraeus-areas">
+          <BarArea phone={phone} topBar={topBar} moonsToggle={moonsToggle}>
+            <DeveloperCog developerMode={developerMode} onDeveloperModeChange={onDeveloperModeChange} drawerId={developerDrawerId} present={developerTools !== undefined} />
+          </BarArea>
+          <Area name="menu">
+            {phone && <ControlsDrawer label={selectedLabel} open={panels.state.menu} onOpenChange={(open) => panels.set("menu", open)} onItemChosen={() => panels.chooseInDrawer("menu")} swipeThresholdPx={phoneLayout.swipeThresholdPx}>{topBar}{moonsToggle}</ControlsDrawer>}
+          </Area>
+          <LeftArea moonPanel={moonPanel} moonsSheetId={moonsSheetId} moonsOpen={moonsOpen} view={view} metrics={metrics} onClose={() => panels.close("card")} infoPanelId={infoPanelId} />
+          <Area name="right">
+            {story.openPanel !== null && <StoryPanelView panel={story.openPanel} holding={story.holding} onClose={closePanel} onContinue={story.continuePlayback} step={stepNav} />}
+          </Area>
+          <Area name="developer">
+            <DeveloperDrawer developerMode={developerMode} drawerId={developerDrawerId}>{developerTools}</DeveloperDrawer>
+          </Area>
+          <Area name="timeline" layer={timelineLayer}>
+            <ShellTimeline
+              hidden={experience.hideTimeline === true}
+              experience={experience}
+              snapshot={snapshot}
+              timeLook={timeLook}
+              onTogglePlayback={onTogglePlayback}
+              onRateChange={onRateChange}
+              paceAuto={paceAuto}
+              onSeek={seek}
+              panels={storyPanels}
+              openPanelId={openPanelId}
+              onPanelOpen={openPanelFromTimeline}
+              onEventSeek={seekToEvent}
+              onEventInfo={(event) => showInfo({ kind: "event", id: event.id })}
+              onWindowSeek={seekToWindow}
+              onWindowInfo={(window) => showInfo({ kind: "window", id: window.id })}
+              glowLook={timelineGlow}
+              infoPanelId={view !== null ? infoPanelId : undefined}
+              drawer={phone ? { open: panels.state.timeline, onOpenChange: (open) => panels.set("timeline", open), onItemChosen: () => panels.chooseInDrawer("timeline"), swipeThresholdPx: phoneLayout.swipeThresholdPx } : undefined}
+            />
+          </Area>
+        </div>
+      </PopupPlaceContext.Provider>
     </main>
   );
 }

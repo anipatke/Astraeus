@@ -8,6 +8,7 @@ The viewer's interface is being reset (G-023, O-079): one map of screen areas, o
 
 - Added: `LookInput.interface` and `LookRead.interface`, the public look settings of the interface (panel, text, muted, accent, border, data, fontFamily, textSizePx, radiusPx, motionMs), with defaults and ranges; a host restyles the viewer with them and can match its own content to the same `--astraeus-*` custom properties under `.astraeus-shell`.
 - Changed: every interface style reads from one set of look tokens; the accent is amber `#e8b06a` (was orange `#fc6323`); buttons are pills; text sizes use one scale; the layout follows the viewer's own size, not the window's; control height follows the pointer kind (finger or mouse), not a window-width band.
+- Changed: one panel rule decides which panel holds which screen area and what opening one closes (cards and the moons sheet share the left place, story panels the right, the developer panel steps left of an occupied right place; a phone has one sheet place, detail over story). Escape closes only the topmost thing (pop-up, then drawer, then card or moons, then story); only one small pop-up (scale menu, scale explanation, Display panel, Events list, marker group) is open at a time and an outside press closes it; the Events list now closes on Escape and on an outside press; on a phone the moons list is a sheet opened from the menu, opening the menu no longer closes the card or story panel, and the developer panel is a detail sheet that replaces an open card (and the card replaces it).
 
 ## 0.9.4 (2026-11-21)
 

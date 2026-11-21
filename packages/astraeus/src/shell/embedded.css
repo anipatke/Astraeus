@@ -6,7 +6,8 @@
  */
 
 /* Top bar: one tight row, close to the corner. */
-.astraeus-shell[data-embedded="true"]:where([data-phone="false"]) .shell-top { top: var(--astraeus-space-3); left: var(--astraeus-space-3); max-width: calc(100cqw - var(--astraeus-size-9)); --shell-timeline-space: var(--astraeus-size-6); }
+.astraeus-shell[data-embedded="true"]:where([data-phone="false"]) .astraeus-areas { padding: var(--astraeus-space-3); }
+.astraeus-shell[data-embedded="true"]:where([data-phone="false"]) .shell-top { max-width: calc(100cqw - var(--astraeus-size-9)); }
 .astraeus-shell[data-embedded="true"][data-phone="false"] .top-bar { gap: var(--astraeus-space-2); padding: var(--astraeus-space-2); border-radius: var(--astraeus-radius-s); box-shadow: var(--astraeus-shadow-s); }
 .astraeus-shell[data-embedded="true"][data-phone="false"] .top-bar-divider { height: var(--astraeus-space-6); margin: 0 var(--astraeus-space-1); }
 .astraeus-shell[data-embedded="true"][data-phone="false"] .developer-mode-toggle { top: var(--astraeus-space-4); right: var(--astraeus-space-4); }

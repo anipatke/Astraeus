@@ -8,6 +8,8 @@ interface Props {
   readonly open: boolean;
   readonly onOpenChange: (open: boolean) => void;
   readonly swipeThresholdPx: number;
+  /** An item inside the drawer was chosen (anything marked `data-closes-drawer`): the panel rule closes the drawer. */
+  readonly onItemChosen: () => void;
   /** The full controls (the same top bar the larger screens show in a row). */
   readonly children: ReactNode;
 }
@@ -16,7 +18,7 @@ interface Props {
  * The phone's top drawer. Closed, the scene shows only a small name pill; the pill opens the drawer by a tap or a swipe down, and the handle
  * under it closes it by a tap or a swipe up. The controls stay mounted while it is closed (state survives) but are hidden from sight and focus.
  */
-export function ControlsDrawer({ label, open, onOpenChange, swipeThresholdPx, children }: Props) {
+export function ControlsDrawer({ label, open, onOpenChange, swipeThresholdPx, onItemChosen, children }: Props) {
   const drawerId = `${useId()}-controls-drawer`;
   const opening = useDrawerSwipe({ thresholdPx: swipeThresholdPx, onTap: () => onOpenChange(true), onSwipe: (direction) => { if (direction === "down") onOpenChange(true); } });
   const closing = useDrawerSwipe({ thresholdPx: swipeThresholdPx, onTap: () => onOpenChange(false), onSwipe: (direction) => { if (direction === "up") onOpenChange(false); } });
@@ -40,8 +42,8 @@ export function ControlsDrawer({ label, open, onOpenChange, swipeThresholdPx, ch
         aria-label="Controls"
         data-open={open}
         // A dropdown closes the drawer on its change, not on the tap that opens it (owner bug, 2026-10-18: the drawer shut as the picker opened).
-        onClick={(event) => { const closer = (event.target as Element).closest("[data-closes-drawer]"); if (closer !== null && closer.tagName !== "SELECT") onOpenChange(false); }}
-        onChange={(event) => { if ((event.target as Element).closest("[data-closes-drawer]") !== null) onOpenChange(false); }}
+        onClick={(event) => { const closer = (event.target as Element).closest("[data-closes-drawer]"); if (closer !== null && closer.tagName !== "SELECT") onItemChosen(); }}
+        onChange={(event) => { if ((event.target as Element).closest("[data-closes-drawer]") !== null) onItemChosen(); }}
       >
         {children}
         <button type="button" className="drawer-handle drawer-handle-bottom ui-bare" aria-label="Hide controls" {...closing}><span /></button>

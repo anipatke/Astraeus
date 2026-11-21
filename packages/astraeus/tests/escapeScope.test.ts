@@ -1,7 +1,7 @@
 // @vitest-environment happy-dom
 // O-055 T-255 (API-03): every document-level Escape listener of the viewer acts only when the key was pressed inside its own viewer or on the bare page.
 // Two real shells on one page, each with all three listeners live (a phone drawer open, a story panel open, the switch panel open). One table: each
-// listener x each place the key can be pressed. A key pressed in the other viewer or in a host's own control reaches none of this viewer's panels.
+// listener x each place the key can be pressed. One press closes the viewer's topmost thing only (AFTER_ONE_ESCAPE: what one press leaves). A key pressed in the other viewer or in a host's own control reaches none of this viewer's panels.
 import { afterEach, describe, expect, it } from "vitest";
 import { $, mountShell, press, pressKey, type Mounted } from "./domSetup";
 import { syntheticDefinition } from "./../src/synthetic/syntheticDefinition";
@@ -25,7 +25,8 @@ const stillOpen = (m: Mounted) => ({
   switches: !$(m.container, ".switch-panel").hasAttribute("hidden"),
 });
 const ALL_OPEN = { drawer: true, story: true, switches: true };
-const ALL_CLOSED = { drawer: false, story: false, switches: false };
+// Escape closes the topmost thing only (viewer-interface note, section 6, change 8; T-329): of the drawer, the story panel and the switch panel (a pop-up) that is the pop-up, once per press.
+const AFTER_ONE_ESCAPE = { drawer: true, story: true, switches: false };
 
 let viewers: Mounted[] = [];
 let hostInput: HTMLInputElement | null = null;
@@ -33,9 +34,9 @@ afterEach(() => { for (const m of viewers) m.unmount(); viewers = []; hostInput?
 
 type Origin = "inside viewer A" | "inside viewer B" | "page body" | "a host input";
 const ORIGINS: readonly { origin: Origin; a: typeof ALL_OPEN; b: typeof ALL_OPEN }[] = [
-  { origin: "inside viewer A", a: ALL_CLOSED, b: ALL_OPEN },
-  { origin: "inside viewer B", a: ALL_OPEN, b: ALL_CLOSED },
-  { origin: "page body", a: ALL_CLOSED, b: ALL_CLOSED },
+  { origin: "inside viewer A", a: AFTER_ONE_ESCAPE, b: ALL_OPEN },
+  { origin: "inside viewer B", a: ALL_OPEN, b: AFTER_ONE_ESCAPE },
+  { origin: "page body", a: AFTER_ONE_ESCAPE, b: AFTER_ONE_ESCAPE },
   { origin: "a host input", a: ALL_OPEN, b: ALL_OPEN },
 ];
 const LISTENERS = ["drawer", "story", "switches"] as const;
@@ -61,13 +62,13 @@ describe("Escape pressed on the page itself (the document)", () => {
     const only = openEverything();
     viewers = [only];
     pressKey(document, "Escape");
-    expect(stillOpen(only)).toEqual(ALL_CLOSED);
+    expect(stillOpen(only)).toEqual(AFTER_ONE_ESCAPE);
   });
   it("reaches every viewer", () => {
     const a = openEverything();
     const b = openEverything();
     viewers = [a, b];
     pressKey(document, "Escape");
-    expect([stillOpen(a), stillOpen(b)]).toEqual([ALL_CLOSED, ALL_CLOSED]);
+    expect([stillOpen(a), stillOpen(b)]).toEqual([AFTER_ONE_ESCAPE, AFTER_ONE_ESCAPE]);
   });
 });

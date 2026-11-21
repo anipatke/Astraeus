@@ -14,7 +14,7 @@ interface Props {
 }
 
 /**
- * On-demand detail for one object or event; on a phone a bottom sheet with swipe to dismiss. Non-modal: the canvas and controls stay usable around it, and
+ * On-demand detail for one object or event, in the left place (a detail sheet on a phone, with swipe to dismiss). Escape is the panel rule's (panels/usePanels.ts). Non-modal: the canvas and controls stay usable around it, and
  * focus stays where the viewer is (choosing in the object picker must not jump into the panel).
  */
 export function InfoPanel({ view, metrics, onClose, id }: Props) {
@@ -31,11 +31,6 @@ export function InfoPanel({ view, metrics, onClose, id }: Props) {
       aria-labelledby={titleId}
       data-info-kind={view.target.kind}
       data-info-id={view.target.id}
-      onKeyDown={(event) => {
-        if (event.key !== "Escape") return;
-        event.stopPropagation();
-        onClose();
-      }}
     >
       <div className="sheet-handle" aria-hidden="true" />
       <header className="info-panel-header">

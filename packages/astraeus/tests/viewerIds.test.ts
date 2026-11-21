@@ -124,6 +124,21 @@ describe("every reference to an element id stays inside its viewer", () => {
       if (context === "phone") shell.querySelector<HTMLButtonElement>(".controls-pill")!.click();
       shell.querySelector<HTMLButtonElement>(".developer-mode-toggle")!.click();
       await vi.waitFor(() => expect(shell.querySelector(".developer-heading")).not.toBeNull());
+      if (context === "phone") {
+        // On a phone the Developer drawer and the object card share the sheet place (owner-approved change 11, O-079): check the
+        // Developer pairs while it is open, then open the card and story panel and check the rest (owner: "Check in two steps").
+        for (let pass = 0; pass < 3; pass += 1) for (const fold of shell.querySelectorAll<HTMLButtonElement>('.developer-tools button[aria-expanded="false"]')) fold.click();
+        await vi.waitFor(() => expect(shell.querySelector(".developer-tools .setting-group")).not.toBeNull());
+        expectPairs(shell, APP_PAIRS.filter((pair) => pair.from.includes(".developer-")), context);
+        expectEveryReference(shell);
+        shell.querySelector<HTMLButtonElement>(".object-info-toggle")!.click();
+        await vi.waitFor(() => expect(shell.querySelector(".info-panel")).not.toBeNull());
+        shell.querySelector<HTMLButtonElement>(".timeline-panel-marker")?.click();
+        await vi.waitFor(() => expect(shell.querySelector(".story-panel")).not.toBeNull());
+        expectPairs(shell, APP_PAIRS.filter((pair) => !pair.from.includes(".developer-")), context);
+        expectEveryReference(shell);
+        return;
+      }
       shell.querySelector<HTMLButtonElement>(".object-info-toggle")!.click();
       await vi.waitFor(() => expect(shell.querySelector(".info-panel")).not.toBeNull());
       shell.querySelector<HTMLButtonElement>(".timeline-panel-marker")?.click();

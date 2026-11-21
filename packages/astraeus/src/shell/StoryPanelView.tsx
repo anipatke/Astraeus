@@ -1,5 +1,4 @@
-import { useEffect, useId, useRef } from "react";
-import { keyIsForViewer } from "./viewerKeys";
+import { useId, useRef } from "react";
 import { Sources } from "./Sources";
 import { PROVENANCE_STATUS } from "./infoModel";
 import type { ProvenanceSourceType } from "../core/provenance";
@@ -31,19 +30,14 @@ interface Props {
 }
 
 /**
- * One story panel: a side panel beside the scene on a wide screen, a bottom sheet with a grab handle on a phone
- * (the stylesheet chooses). Closing, Escape and a swipe down all dismiss it.
+ * One story panel: in the right place on a wide screen, a bottom sheet with a grab handle on a phone
+ * (the area decides). Its button and a swipe down dismiss it; Escape is the panel rule's.
  */
 export function StoryPanelView({ panel, step, holding, onClose, onContinue }: Props) {
   const titleId = `${useId()}-title`;
   const sheet = useRef<HTMLElement | null>(null);
   useSwipeToDismiss(sheet, onClose);
   useZoomThrough(sheet);
-  useEffect(() => {
-    const onKey = (event: KeyboardEvent) => { if (!event.defaultPrevented && event.key === "Escape" && keyIsForViewer(event, sheet.current)) onClose(); };
-    document.addEventListener("keydown", onKey);
-    return () => document.removeEventListener("keydown", onKey);
-  }, [onClose]);
   return (
     <aside className="story-panel" ref={sheet} role="dialog" aria-modal="false" aria-labelledby={titleId} data-panel-id={panel.id}>
       <div className="sheet-handle" aria-hidden="true" />

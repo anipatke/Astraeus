@@ -14,21 +14,14 @@
 
 .astraeus-shell .shell-canvas { position: absolute; inset: 0; }
 
-/* Top-left column: toolbar, then the info panel, bounded above the timeline. */
+/* The bar's content: toolbar, then the moons button. Where it sits is the bar area's (areas.css); the cog has the width it reserves on the right. */
 .astraeus-shell .shell-top {
-  position: absolute;
-  z-index: var(--astraeus-layer-bar);
-  top: var(--astraeus-space-5);
-  left: var(--astraeus-space-5);
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   gap: var(--astraeus-space-4);
   max-width: calc(100cqw - var(--astraeus-size-10));
-  max-height: calc(100% - var(--astraeus-space-5) - var(--shell-timeline-space, var(--astraeus-size-10)));
-  pointer-events: none;
 }
-.astraeus-shell .shell-top > * { pointer-events: auto; }
 .astraeus-shell .provenance-detail[hidden] { display: none !important; }
 
 .astraeus-shell .info-panel {
@@ -97,11 +90,6 @@
 
 .astraeus-shell .developer-tools {
   container: astraeus-developer / inline-size;
-  position: absolute;
-  /* Diagnostics must receive input above the toolbar and its information sheet. */
-  z-index: var(--astraeus-layer-popover);
-  top: var(--astraeus-size-7);
-  right: var(--astraeus-space-5);
   width: min(var(--astraeus-size-17), calc(100cqw - var(--astraeus-size-2)));
   max-height: min(calc(100cqh - var(--astraeus-size-7) - var(--astraeus-size-11)), var(--astraeus-size-16));
   overflow-y: auto;
@@ -194,15 +182,11 @@
 
 /* Story panels: a side panel beside the scene on a wide screen, a bottom sheet on a phone. Look after Planetary Explorer's SidePanel and BottomSheet. */
 .astraeus-shell .story-panel {
-  position: absolute;
-  z-index: var(--astraeus-layer-panel);
-  top: var(--astraeus-size-6);
-  right: var(--astraeus-space-5);
   display: flex;
   flex-direction: column;
   gap: var(--astraeus-space-4);
   width: min(var(--astraeus-panel-width), calc(100cqw - var(--astraeus-size-2)));
-  max-height: calc(100% - var(--astraeus-size-6) - var(--astraeus-size-12));
+  max-height: 100%;
   overflow-y: auto;
   padding: var(--astraeus-space-5) var(--astraeus-space-6) var(--astraeus-space-6);
   border: 1px solid var(--astraeus-border);
@@ -334,14 +318,10 @@
 .astraeus-shell .feature-marker:hover::after, .astraeus-shell .feature-marker:focus-visible::after { opacity: 1; }
 .astraeus-shell .feature-marker[hidden] { display: none !important; }
 
-/* On a wide screen the diagnostics step left of an open story panel instead of covering it. */
-.astraeus-shell:not([data-phone="true"]):has(.story-panel) .developer-tools { right: calc(var(--astraeus-panel-width) + var(--astraeus-space-6)); width: min(var(--astraeus-size-17), calc(100cqw - var(--astraeus-panel-width) - var(--astraeus-size-2))); }
-
 @keyframes story-panel-in { from { opacity: 0; transform: translateX(var(--astraeus-size-2)); } to { opacity: 1; transform: none; } }
 @keyframes story-sheet-in { from { transform: translateY(100%); } to { transform: none; } }
 
-/* ---- The moon panel (O-025 T-099): a planet's moons by family. Wide screens: a button and a sheet in the shell-top column (under the toolbar, in the information panel's
-   area, so the two never overlap and opening one closes the other); phones: a section of the top drawer. ---- */
+/* ---- The moon panel (O-025 T-099): a planet's moons by family. Wide screens: a button in the bar and a sheet in the left place (shared with the card, so the panel rule lets only one be open); phones: the button is in the menu and the sheet is a detail sheet. ---- */
 .astraeus-shell :where(.moons-toggle) { flex: 0 0 auto; min-height: var(--astraeus-hit); }
 .astraeus-shell .moons-sheet {
   display: none;
@@ -374,4 +354,3 @@
 .astraeus-shell .moon-disc { width: var(--astraeus-hit); height: var(--astraeus-hit); border-radius: 50%; background-color: var(--astraeus-panel); background-repeat: no-repeat; background-size: 300% 100%; background-position: 50% 50%; }
 .astraeus-shell .moon-family[data-lit="true"], .astraeus-shell .moon-featured[data-lit="true"] { border-radius: var(--astraeus-radius-s); box-shadow: inset var(--astraeus-space-2) 0 0 var(--astraeus-accent); }
 .astraeus-shell .moon-panel .collapsible-body { padding-left: var(--astraeus-space-2); }
-.astraeus-shell[data-phone="true"] .moon-panel { max-height: max(var(--astraeus-size-9), calc(var(--controls-drawer-max, 60cqh) - var(--astraeus-size-13))); overflow-y: auto; overscroll-behavior: contain; margin-top: var(--astraeus-space-4); }

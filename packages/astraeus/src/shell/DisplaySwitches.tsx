@@ -1,5 +1,5 @@
-import { useEffect, useId, useRef, useState } from "react";
-import { keyIsForViewer } from "./viewerKeys";
+import { useId } from "react";
+import { usePopup } from "./panels/PopupContext";
 import { ButtonText, OrbitIcon, SwitchesIcon } from "./topBarIcons";
 
 /** One display switch a story placed: where it shows, and whether it is on now. */
@@ -40,7 +40,7 @@ export function viewChoiceInPanel(choice: ViewChoice | undefined): choice is Vie
 
 /**
  * The switches a story placed. Top-bar ones are buttons in the bar (and in the phone drawer's grid); panel ones sit in one small panel opened by a "Display" button
- * beside them. Nothing placed: nothing drawn, so the bar is exactly as it was. The panel closes on an outside press or Escape.
+ * beside them. Nothing placed: nothing drawn, so the bar is exactly as it was. The panel is a pop-up: the panel rule closes it on an outside press or Escape.
  */
 export function DisplaySwitches({ switches, viewChoice }: { readonly switches: readonly DisplaySwitchItem[]; readonly viewChoice?: ViewChoice }) {
   const barSwitches = switches.filter((item) => item.place === "top-bar");
@@ -61,20 +61,12 @@ export function DisplaySwitches({ switches, viewChoice }: { readonly switches: r
 }
 
 function SwitchPanel({ switches, viewChoice }: { readonly switches: readonly DisplaySwitchItem[]; readonly viewChoice?: ViewChoice }) {
-  const [open, setOpen] = useState(false);
+  const popup = usePopup("display");
+  const open = popup.open;
   const panelId = useId();
-  const root = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    if (!open) return undefined;
-    const outside = (event: PointerEvent) => { if (!root.current?.contains(event.target as Node)) setOpen(false); };
-    const escape = (event: KeyboardEvent) => { if (!event.defaultPrevented && event.key === "Escape" && keyIsForViewer(event, root.current)) setOpen(false); };
-    document.addEventListener("pointerdown", outside);
-    document.addEventListener("keydown", escape);
-    return () => { document.removeEventListener("pointerdown", outside); document.removeEventListener("keydown", escape); };
-  }, [open]);
   return (
-    <div className="switch-panel-host" ref={root}>
-      <button type="button" className="switch-panel-toggle top-bar-button ui-icon" aria-label="Switch panel" title="Switch panel" aria-expanded={open} aria-controls={panelId} onClick={() => setOpen(!open)}>
+    <div className="switch-panel-host" {...popup.hostProps}>
+      <button type="button" className="switch-panel-toggle top-bar-button ui-icon" aria-label="Switch panel" title="Switch panel" aria-expanded={open} aria-controls={panelId} onClick={popup.toggle}>
         <SwitchesIcon />
         <ButtonText>Display</ButtonText>
       </button>

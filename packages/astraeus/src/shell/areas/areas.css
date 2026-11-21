@@ -12,31 +12,43 @@
   inset: 0;
   display: grid;
   grid-template-columns: var(--astraeus-panel-width) minmax(0, 1fr) var(--astraeus-panel-width);
-  grid-template-rows: auto minmax(0, 1fr) auto;
+  /* The last row is the timeline's own height (the shell measures it into --timeline-space; none when the experience has no timeline). */
+  grid-template-rows: auto minmax(0, 1fr) var(--timeline-space, var(--astraeus-size-10));
   grid-template-areas: "bar bar bar" "left . right" "timeline timeline timeline";
   gap: var(--astraeus-space-4);
-  padding: var(--astraeus-space-5);
+  padding: var(--astraeus-space-5) var(--astraeus-space-5) 0;
   pointer-events: none;
 }
 .astraeus-shell .astraeus-areas > [data-area] > * { pointer-events: auto; }
-.astraeus-shell [data-area="bar"] { grid-area: bar; }
-.astraeus-shell [data-area="left"] { grid-area: left; min-height: 0; }
-.astraeus-shell [data-area="right"] { grid-area: right; min-height: 0; }
-.astraeus-shell [data-area="timeline"] { grid-area: timeline; }
-/* Anchored places: the menu under the bar's right end, the popover at its button, the developer panel right under the bar. */
-.astraeus-shell [data-area="menu"],
+/* Each place's layer is its own; a part never sets one. Detail (left, developer) lies over story (right); a drawer lies over detail; a pop-up over all. */
+.astraeus-shell [data-area="bar"] { grid-area: bar; z-index: var(--astraeus-layer-top); }
+.astraeus-shell [data-area="left"] { grid-area: left; z-index: var(--astraeus-layer-bar); }
+.astraeus-shell [data-area="right"] { grid-area: right; z-index: var(--astraeus-layer-panel); }
+.astraeus-shell [data-area="timeline"] { grid-area: timeline; z-index: var(--astraeus-layer-areas); }
+.astraeus-shell [data-area="timeline"][data-layer="drawer"] { z-index: var(--astraeus-layer-drawer); }
+.astraeus-shell [data-area="timeline"][data-layer="popup"] { z-index: var(--astraeus-layer-top); }
+.astraeus-shell [data-area="left"],
+.astraeus-shell [data-area="right"] { display: flex; flex-direction: column; gap: var(--astraeus-space-4); min-height: 0; }
+.astraeus-shell [data-area="left"] { align-items: flex-start; }
+.astraeus-shell [data-area="right"] { align-items: flex-end; }
+/* Anchored places: the menu over the whole viewer (the drawer drops from its top edge), the popover at its button, the developer panel right under the bar. */
+.astraeus-shell [data-area="menu"] { position: absolute; z-index: var(--astraeus-layer-drawer); inset: 0; }
 .astraeus-shell [data-area="popover"],
 .astraeus-shell [data-area="developer"] { position: absolute; z-index: var(--astraeus-layer-popover); }
+.astraeus-shell [data-area="developer"] { top: var(--astraeus-size-7); right: var(--astraeus-space-5); }
+/* On a wide screen the developer panel steps left of an occupied right place instead of covering it. */
+.astraeus-shell:not([data-phone="true"]) .astraeus-areas:has([data-area="right"] > *) [data-area="developer"] { right: calc(var(--astraeus-panel-width) + var(--astraeus-space-6)); }
+.astraeus-shell:not([data-phone="true"]) .astraeus-areas:has([data-area="right"] > *) .developer-tools { width: min(var(--astraeus-size-17), calc(100cqw - var(--astraeus-panel-width) - var(--astraeus-size-2))); }
 .astraeus-shell [data-area="tile"] { grid-area: left; align-self: start; }
 
-/* Phone: one column; left, right and developer map onto the sheet above the timeline. */
+/* Phone: one column; left, right and developer map onto the sheet above the timeline, detail over story. */
 .astraeus-shell[data-phone="true"] .astraeus-areas {
   grid-template-columns: minmax(0, 1fr);
   grid-template-areas: "bar" "." "sheet" "timeline";
-  grid-template-rows: auto minmax(0, 1fr) auto auto;
-  padding: var(--astraeus-space-4);
+  grid-template-rows: auto minmax(0, 1fr) auto var(--timeline-space, var(--astraeus-size-10));
+  padding: var(--astraeus-space-4) var(--astraeus-space-4) 0;
 }
 .astraeus-shell[data-phone="true"] [data-area="left"],
 .astraeus-shell[data-phone="true"] [data-area="right"],
 .astraeus-shell[data-phone="true"] [data-area="developer"],
-.astraeus-shell[data-phone="true"] [data-area="sheet"] { grid-area: sheet; position: static; }
+.astraeus-shell[data-phone="true"] [data-area="sheet"] { grid-area: sheet; position: static; align-self: end; align-items: stretch; }

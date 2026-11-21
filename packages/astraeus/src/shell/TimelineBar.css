@@ -13,11 +13,7 @@
   font-size: var(--astraeus-text-size);
   backdrop-filter: blur(var(--astraeus-space-5));
 }
-/* The open Events list rises over the panel rather than hiding behind it. */
-.astraeus-shell .timeline-bar:has(.timeline-event-list[open]) { z-index: var(--astraeus-layer-bar); }
-/* An open marker group lists above the bar; the bar rises over the phone information sheet (z-index 8) so each item stays reachable (O-050 T-217). */
-.astraeus-shell .timeline-bar:has(.timeline-group-list),
-.astraeus-shell[data-phone="true"] .timeline-bar:has(.timeline-group-list) { z-index: var(--astraeus-layer-top); }
+/* The timeline's layer over the panels (an open drawer, events list or marker group) is the area's: Area layer in AstraeusShell, areas.css. */
 
 .astraeus-shell .timeline-main-row { display: flex; align-items: center; gap: var(--astraeus-space-6); min-width: 0; }
 .astraeus-shell .timeline-transport { display: flex; flex: 0 0 auto; gap: var(--astraeus-space-2); }
@@ -102,7 +98,6 @@
 .astraeus-shell .timeline-bounds { display: none; justify-content: space-between; color: var(--astraeus-subtle); font-family: var(--astraeus-mono); font-size: var(--astraeus-text-s); font-weight: normal; line-height: normal; font-variant-numeric: tabular-nums; }
 .astraeus-shell .timeline-panel-marker::after { width: var(--astraeus-space-4) !important; height: var(--astraeus-space-4) !important; border: var(--astraeus-space-1) solid var(--astraeus-accent); border-radius: 50% !important; background: color-mix(in srgb, var(--astraeus-scene) 55%, transparent) !important; }
 .astraeus-shell .timeline-panel-marker[aria-pressed="true"]::after { background: var(--astraeus-accent) !important; }
-.astraeus-shell:has(.timeline-bar) .shell-top { --shell-timeline-space: var(--astraeus-size-8); }
 
 /* Tablets and phones: two lines. Transport, time and speed above; scrubber and Events below. Sizes of the controls come from controls.css. */
 @container astraeus-viewer (max-width: 900px) {
@@ -116,12 +111,10 @@
   .astraeus-shell .timeline-event-list { order: 5; }
   .astraeus-shell .timeline-track { height: var(--astraeus-hit); }
   .astraeus-shell .timeline-track input[type="range"] { height: var(--astraeus-hit); }
-  .astraeus-shell:has(.timeline-bar) .shell-top { --shell-timeline-space: var(--astraeus-size-10); }
 }
 
 /* No timeline (experience.hideTimeline): nothing sits at the bottom, so nothing is reserved for it on a wide or a phone screen. */
 .astraeus-shell:is(main)[data-timeline-hidden="true"] { --timeline-space: 0px; }
-.astraeus-shell:is(main)[data-timeline-hidden="true"] .shell-top { --shell-timeline-space: 0px; }
 
 /* Markers that sit closer than the minimum spacing gather under one numbered mark; pressing it lists them, each a full-size button. The list opens above the track, aligned to the screen side the mark is near so it stays on a phone. */
 .astraeus-shell .timeline-marker-group { position: absolute; top: 0; height: 100%; width: var(--astraeus-size-1); transform: translateX(-50%); pointer-events: none; }

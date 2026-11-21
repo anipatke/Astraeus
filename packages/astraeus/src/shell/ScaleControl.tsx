@@ -1,6 +1,7 @@
-import { useEffect, useId, useRef, useState, type KeyboardEvent } from "react";
+import { useEffect, useId, useRef, type KeyboardEvent } from "react";
 import { SCALE_CHOICES, SCALE_NOTE, type ScaleChoice, type ScaleId } from "./scaleModel";
 import { ChevronIcon, InfoIcon, ScaleIcon } from "./topBarIcons";
+import { usePopup } from "./panels/PopupContext";
 
 interface Props {
   readonly scaleId: ScaleId;
@@ -53,33 +54,31 @@ interface MenuProps extends Omit<Props, "scaleId"> {
 }
 
 function ScaleMenu({ choices, current, onScaleChange, ...attributes }: MenuProps) {
-  const [open, setOpen] = useState(false);
+  const popup = usePopup("scale-menu");
+  const open = popup.open;
   const menuId = useId();
   const root = useRef<HTMLElement>(null);
   const trigger = useRef<HTMLButtonElement>(null);
   const items = useRef<(HTMLButtonElement | null)[]>([]);
   const focusItem = (index: number) => items.current[(index + choices.length) % choices.length]?.focus();
 
-  useEffect(() => {
-    if (!open) return undefined;
-    const outside = (event: PointerEvent) => { if (!root.current?.contains(event.target as Node)) setOpen(false); };
-    document.addEventListener("pointerdown", outside);
-    return () => document.removeEventListener("pointerdown", outside);
-  }, [open]);
-
+  const wasOpen = useRef(false);
   useEffect(() => {
     if (open) focusItem(choices.findIndex((choice) => choice.id === current.id));
-    // Focus moves once, when the menu opens.
+    // Escape closes it (the panel rule): focus goes back to the button when it was inside the menu.
+    else if (wasOpen.current && root.current?.contains(document.activeElement) === true) trigger.current?.focus();
+    wasOpen.current = open;
+    // Focus moves once, when the menu opens or closes.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
 
   const close = (returnFocus: boolean) => {
-    setOpen(false);
+    popup.close();
     if (returnFocus) trigger.current?.focus();
   };
 
   const onTriggerKey = (event: KeyboardEvent) => {
-    if (event.key === "ArrowDown" || event.key === "ArrowUp") { event.preventDefault(); setOpen(true); }
+    if (event.key === "ArrowDown" || event.key === "ArrowUp") { event.preventDefault(); if (!open) popup.toggle(); }
   };
 
   const onMenuKey = (event: KeyboardEvent) => {
@@ -88,14 +87,13 @@ function ScaleMenu({ choices, current, onScaleChange, ...attributes }: MenuProps
     else if (event.key === "ArrowUp") focusItem(index - 1);
     else if (event.key === "Home") focusItem(0);
     else if (event.key === "End") focusItem(choices.length - 1);
-    else if (event.key === "Escape") { event.stopPropagation(); close(true); }
     else if (event.key === "Tab") close(false);
     else return;
     if (event.key !== "Tab") event.preventDefault();
   };
 
   return (
-    <section ref={root} {...attributes}>
+    <section ref={root} {...attributes} {...popup.hostProps}>
       <button
         ref={trigger}
         type="button"
@@ -107,7 +105,7 @@ function ScaleMenu({ choices, current, onScaleChange, ...attributes }: MenuProps
         aria-controls={menuId}
         data-scale={current.id}
         data-scale-label={current.label}
-        onClick={() => setOpen(!open)}
+        onClick={popup.toggle}
         onKeyDown={onTriggerKey}
       >
         <ScaleIcon />
@@ -137,32 +135,22 @@ function ScaleMenu({ choices, current, onScaleChange, ...attributes }: MenuProps
   );
 }
 
-/** The ⓘ beside the scale control: one tap opens what each scale means; a second tap, Escape or a press elsewhere closes it. */
+/** The ⓘ beside the scale control: one tap opens what each scale means; a second tap, Escape or a press elsewhere closes it (the panel rule). */
 function ScaleExplanation({ choices }: { readonly choices: readonly ScaleChoice[] }) {
-  const [open, setOpen] = useState(false);
+  const popup = usePopup("scale-help");
+  const open = popup.open;
   const panelId = useId();
-  const root = useRef<HTMLSpanElement>(null);
-  const trigger = useRef<HTMLButtonElement>(null);
-
-  useEffect(() => {
-    if (!open) return undefined;
-    const outside = (event: PointerEvent) => { if (!root.current?.contains(event.target as Node)) setOpen(false); };
-    document.addEventListener("pointerdown", outside);
-    return () => document.removeEventListener("pointerdown", outside);
-  }, [open]);
 
   return (
-    <span ref={root} className="scale-explanation">
+    <span className="scale-explanation" {...popup.hostProps}>
       <button
-        ref={trigger}
         type="button"
         className="scale-info top-bar-button ui-icon"
         aria-label="About the scales"
         title="What the scales mean"
         aria-expanded={open}
         aria-controls={panelId}
-        onClick={() => setOpen(!open)}
-        onKeyDown={(event) => { if (event.key === "Escape" && open) { event.stopPropagation(); setOpen(false); trigger.current?.focus(); } }}
+        onClick={popup.toggle}
       >
         <InfoIcon />
       </button>
