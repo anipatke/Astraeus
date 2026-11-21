@@ -1,9 +1,8 @@
-// The phone layout's live numbers and the one place that decides "this is a phone" (T-081, O-020). The shell sets `data-phone` from this and the
-// stylesheet keys on that attribute, so the breakpoint is written once. Every number is a setting with a live control in Developer > Display settings.
-import { useEffect, useState, type CSSProperties } from "react";
+// The phone layout's live numbers (T-081, O-020). What counts as a phone is decided once, in `areas/screen.ts` (viewer-interface note, section 2); this file keeps
+// the numbers and the pick rule. Every number is a setting with a live control in Developer > Display settings.
+import type { CSSProperties } from "react";
 
-/** Phone: a narrow screen, or a short touch screen (a phone turned sideways, which is wider than 700 px). */
-export const PHONE_QUERY = "(max-width: 700px), (max-height: 500px) and (pointer: coarse)";
+export { PHONE_QUERY } from "./areas/screen";
 
 /** A body tapped or clicked in the scene opens its information card on a wide screen (T-138); on a phone the tap only flies there, so the card does not cover the view. */
 export function pickOpensInfo(phone: boolean): boolean {
@@ -41,28 +40,12 @@ export const PHONE_LAYOUT_LIMITS: Readonly<Record<keyof PhoneLayoutSettings, { r
   swipeThresholdPx: { min: 10, max: 120, step: 5 },
 };
 
-/** The settings as the custom properties the stylesheet reads. */
+/** The settings as the custom properties the stylesheet reads (`animationMs` is the interface look's `motionMs`: one value, `--astraeus-motion`). */
 export function phoneLayoutStyle(settings: PhoneLayoutSettings): CSSProperties {
   return {
-    "--drawer-ms": `${settings.animationMs}ms`,
+    "--astraeus-motion": `${settings.animationMs}ms`,
     "--timeline-drawer-max": `${settings.timelineDrawerMaxPercent}dvh`,
     "--controls-drawer-max": `${settings.controlsDrawerMaxPercent}dvh`,
     "--sheet-max": `${settings.sheetMaxPercent}dvh`,
   } as CSSProperties;
-}
-
-const query = (): MediaQueryList | null => (typeof window === "undefined" || typeof window.matchMedia !== "function" ? null : window.matchMedia(PHONE_QUERY));
-
-/** Whether the screen is a phone right now; follows a resize or a turn. */
-export function usePhone(): boolean {
-  const [phone, setPhone] = useState(() => query()?.matches ?? false);
-  useEffect(() => {
-    const list = query();
-    if (list === null) return undefined;
-    const update = () => setPhone(list.matches);
-    update();
-    list.addEventListener("change", update);
-    return () => list.removeEventListener("change", update);
-  }, []);
-  return phone;
 }

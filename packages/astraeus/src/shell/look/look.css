@@ -1,0 +1,99 @@
+/*
+ * The look: holds values and nothing else (viewer-interface note, section 3). Every raw colour, size, shadow and layer of the viewer's interface is
+ * written here, as custom properties on the viewer's root class, and nowhere else; every other stylesheet reads them with var(--astraeus-*).
+ * tests/lookDrift.test.ts fails on a typed colour or length (and a z-index or @media) in any other interface stylesheet.
+ * Public (the `interface` look, set per viewer as inline style on the root, so two viewers keep separate looks): panel, text, muted, accent, border, data,
+ * font, text-size, radius, motion. Internal: everything else. Host content in a custom block inherits the public ones.
+ */
+.astraeus-shell {
+  /* Colour */
+  --astraeus-panel: rgba(13, 13, 13, .88);
+  --astraeus-text: #f0e6da;
+  --astraeus-muted: #c7bdb3;
+  --astraeus-accent: #e8b06a;
+  --astraeus-border: rgba(240, 230, 218, .18);
+  --astraeus-data: #b1a1df;
+  --astraeus-good: #6fcf8f;
+  --astraeus-warn: #f0b84a;
+  --astraeus-bad: #ff6b5e;
+  --astraeus-scene: #000;
+  --astraeus-subtle: color-mix(in srgb, var(--astraeus-text) 60%, transparent);
+  --astraeus-font: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --astraeus-mono: ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  /* Text: a base size and a scale that follows it (11, 12, 13, 14, 17, 22 at the default 14). */
+  --astraeus-text-size: 14px;
+  --astraeus-text-xs: calc(var(--astraeus-text-size) * 11 / 14);
+  --astraeus-text-s: calc(var(--astraeus-text-size) * 12 / 14);
+  --astraeus-text-m: calc(var(--astraeus-text-size) * 13 / 14);
+  --astraeus-text-l: calc(var(--astraeus-text-size) * 17 / 14);
+  --astraeus-text-xl: calc(var(--astraeus-text-size) * 22 / 14);
+
+  /* Space, radius and the size scale for graphics, widths and offsets that are not a gap. */
+  --astraeus-space-1: 2px;
+  --astraeus-space-2: 4px;
+  --astraeus-space-3: 6px;
+  --astraeus-space-4: 8px;
+  --astraeus-space-5: 12px;
+  --astraeus-space-6: 16px;
+  --astraeus-radius: 12px;
+  --astraeus-radius-s: calc(var(--astraeus-radius) / 2);
+  --astraeus-radius-l: calc(var(--astraeus-radius) * 1.5);
+  --astraeus-radius-pill: 999px;
+  --astraeus-size-1: 20px;
+  --astraeus-size-2: 24px;
+  --astraeus-size-3: 28px;
+  --astraeus-size-4: 32px;
+  --astraeus-size-5: 36px;
+  --astraeus-size-6: 56px;
+  --astraeus-size-7: 72px;
+  --astraeus-size-8: 96px;
+  --astraeus-size-9: 128px;
+  --astraeus-size-10: 160px;
+  --astraeus-size-11: 190px;
+  --astraeus-size-12: 220px;
+  --astraeus-size-13: 260px;
+  --astraeus-size-14: 320px;
+  --astraeus-size-15: 480px;
+  --astraeus-size-16: 640px;
+  --astraeus-size-17: 860px;
+  --astraeus-hit: 44px;
+  --astraeus-control-height: 36px;
+  --astraeus-control-text: var(--astraeus-text-m);
+  --astraeus-panel-width: 360px;
+  --astraeus-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12' fill='none' stroke='%23c7bdb3' stroke-width='1.6'%3E%3Cpath d='M2 4l4 4 4-4'/%3E%3C/svg%3E");
+
+  /* Depth */
+  --astraeus-shadow: 0 var(--astraeus-space-5) var(--astraeus-size-4) rgba(0, 0, 0, .42);
+  --astraeus-shadow-s: 0 var(--astraeus-space-4) var(--astraeus-size-2) rgba(0, 0, 0, .24);
+  --astraeus-blur: 12px;
+
+  /* Motion: reduced motion sets the time to 0 (data-motion, from areas/screen.ts). */
+  --astraeus-motion: 240ms;
+  --astraeus-ease: cubic-bezier(.32, .72, 0, 1);
+
+  /* Layers, back to front. */
+  --astraeus-layer-scene: 0;
+  --astraeus-layer-labels: 1;
+  --astraeus-layer-markers: 2;
+  --astraeus-layer-areas: 3;
+  --astraeus-layer-panel: 4;
+  --astraeus-layer-bar: 5;
+  --astraeus-layer-popover: 6;
+  --astraeus-layer-drawer: 7;
+  --astraeus-layer-sheet: 8;
+  --astraeus-layer-top: 9;
+
+  color: var(--astraeus-text);
+  font-family: var(--astraeus-font);
+  font-size: var(--astraeus-text-size);
+}
+
+/* Control height: 36 px, 44 px on a touch screen or in the phone layout, 30 px in a frame on a wide layout (a framed phone keeps 44). embedded.css still sets the frame's own margins. */
+.astraeus-shell[data-embedded="true"][data-phone="false"] { --astraeus-control-height: 30px; --astraeus-control-text: var(--astraeus-text-s); }
+.astraeus-shell[data-pointer="coarse"],
+.astraeus-shell[data-phone="true"],
+.astraeus-shell[data-embedded="true"][data-phone="false"][data-pointer="coarse"] { --astraeus-control-height: var(--astraeus-hit); }
+.astraeus-shell[data-embedded="true"][data-phone="false"][data-pointer="coarse"] { --astraeus-control-text: var(--astraeus-text-m); }
+.astraeus-shell[data-phone="true"] { --astraeus-control-text: var(--astraeus-text-size); }
+.astraeus-shell[data-motion="reduced"] { --astraeus-motion: 0ms; }

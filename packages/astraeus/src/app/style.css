@@ -3,134 +3,133 @@
 .astraeus-shell .hud {
   /* Cards flow down two columns and take only the height of their content, so no card is stretched to its neighbour. */
   column-count: 2;
-  column-gap: 10px;
+  column-gap: var(--astraeus-space-5);
   max-width: 100%;
-  font-size: 13px;
+  font-size: var(--astraeus-text-m);
 }
 
-.astraeus-shell .hud > * { break-inside: avoid; margin: 0 0 10px; }
+.astraeus-shell .hud > * { break-inside: avoid; margin: 0 0 var(--astraeus-space-5); }
 .astraeus-shell .developer-heading,
 .astraeus-shell .hud-section-clock { column-span: all; }
-.astraeus-shell .developer-heading h2 { margin: 0; font-size: 16px; line-height: 1.25; }
-.astraeus-shell .developer-heading p { margin: 3px 0 0; color: var(--ui-muted); font-size: 13px; }
+.astraeus-shell .developer-heading h2 { margin: 0; font-size: var(--astraeus-text-l); line-height: 1.25; }
+.astraeus-shell .developer-heading p { margin: var(--astraeus-space-2) 0 0; color: var(--astraeus-muted); font-size: var(--astraeus-text-m); }
 
 .astraeus-shell .hud-section {
   display: block;
   min-width: 0;
-  padding: 10px;
-  border: 1px solid var(--ui-border);
-  border-radius: 9px;
-  background: rgba(255, 255, 255, .035);
+  padding: var(--astraeus-space-5);
+  border: 1px solid var(--astraeus-border);
+  border-radius: var(--astraeus-radius-s);
+  background: color-mix(in srgb, var(--astraeus-text) 4%, transparent);
 }
 
 .astraeus-shell .hud-section h3,
 .astraeus-shell .hud-section h4 {
-  margin: 0 0 8px;
-  color: var(--ui-muted);
-  font-size: 12px;
+  margin: 0 0 var(--astraeus-space-4);
+  color: var(--astraeus-muted);
+  font-size: var(--astraeus-text-s);
   font-weight: 650;
-  letter-spacing: .045em;
+  letter-spacing: calc(var(--astraeus-text-size) * .045);
   line-height: 1.35;
   text-transform: uppercase;
 }
 
 /* Frame rate has a whole row to itself in "Under the hood": readouts beside the graph. */
-.astraeus-shell .hud-section-frame .frame-body { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr); align-items: start; gap: 4px 20px; }
+.astraeus-shell .hud-section-frame .frame-body { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr); align-items: start; gap: var(--astraeus-space-2) var(--astraeus-size-1); }
 .astraeus-shell .hud-section-frame .frame-readouts { margin-top: 0; }
 .astraeus-shell .hud .frame-body > p { grid-column: 1 / -1; }
 /* The panel's folds (T-090): a full-width heading button over the body; the first group's cards flow in two columns as they did. */
-.astraeus-shell .hud > .dev-group { column-span: all; padding: 4px 10px 6px; border: 1px solid var(--ui-border); border-radius: 9px; background: rgba(255, 255, 255, .035); }
-.astraeus-shell .collapsible-heading { margin: 0; font-size: 13px; }
-.astraeus-shell .hud .collapsible-toggle { width: 100%; min-height: var(--control-height, 36px); font-weight: 650; }
-.astraeus-shell .hud .collapsible-toggle svg { transition: transform .15s; }
+.astraeus-shell .hud > .dev-group { column-span: all; padding: var(--astraeus-space-2) var(--astraeus-space-5) var(--astraeus-space-3); border: 1px solid var(--astraeus-border); border-radius: var(--astraeus-radius-s); background: color-mix(in srgb, var(--astraeus-text) 4%, transparent); }
+.astraeus-shell .collapsible-heading { margin: 0; font-size: var(--astraeus-text-m); }
+.astraeus-shell .hud .collapsible-toggle { width: 100%; min-height: var(--astraeus-control-height); font-weight: 650; }
+.astraeus-shell .hud .collapsible-toggle svg { transition: transform var(--astraeus-motion); }
 .astraeus-shell .hud .collapsible-toggle[aria-expanded="true"] svg { transform: rotate(180deg); }
-.astraeus-shell .collapsible-body { padding: 4px 2px 6px; }
+.astraeus-shell .collapsible-body { padding: var(--astraeus-space-2) var(--astraeus-space-1) var(--astraeus-space-3); }
 .astraeus-shell .collapsible-body[hidden] { display: none; }
-.astraeus-shell .dev-group-cards > .collapsible-body { column-count: 2; column-gap: 10px; }
-.astraeus-shell .dev-group-cards > .collapsible-body > * { break-inside: avoid; margin: 0 0 10px; }
+.astraeus-shell .dev-group-cards > .collapsible-body { column-count: 2; column-gap: var(--astraeus-space-5); }
+.astraeus-shell .dev-group-cards > .collapsible-body > * { break-inside: avoid; margin: 0 0 var(--astraeus-space-5); }
 .astraeus-shell .dev-group-cards .hud-section-clock { column-span: all; }
-.astraeus-shell .collapsible-nested { margin: 4px 0 8px; border-left: 2px solid var(--ui-border); padding-left: 8px; }
+.astraeus-shell .collapsible-nested { margin: var(--astraeus-space-2) 0 var(--astraeus-space-4); border-left: var(--astraeus-space-1) solid var(--astraeus-border); padding-left: var(--astraeus-space-4); }
 .astraeus-shell .hud .collapsible-nested .collapsible-toggle { font-weight: 500; }
 /* The colour sits at (0,2,0) on purpose: on main this rule (0,3,0) lost to controls.css `button[aria-expanded="true"]:not(.ui-bare)` (0,3,1), so an open nested fold stays accent (I-140). */
-.astraeus-shell :where(.hud .collapsible-nested) .collapsible-toggle { color: var(--ui-muted); }
-@media (prefers-reduced-motion: reduce) { .astraeus-shell .hud .collapsible-toggle svg { transition: none; } }
-.astraeus-shell .setting-group { margin: 0 0 12px; padding: 0; border: 0; min-width: 0; }
+.astraeus-shell :where(.hud .collapsible-nested) .collapsible-toggle { color: var(--astraeus-muted); }
+.astraeus-shell .setting-group { margin: 0 0 var(--astraeus-space-5); padding: 0; border: 0; min-width: 0; }
 .astraeus-shell .setting-group:last-child { margin-bottom: 0; }
-.astraeus-shell .setting-group > h4 { margin: 0 0 6px; padding-bottom: 3px; border-bottom: 1px solid var(--ui-border); color: var(--ui-data); font-size: 12px; font-weight: 650; letter-spacing: .03em; }
-.astraeus-shell .hud .setting { display: grid; grid-template-columns: minmax(9.5em, 0.8fr) minmax(0, 1.4fr) 3.6em; align-items: center; gap: 4px 10px; margin: 0 0 6px; min-width: 0; }
-.astraeus-shell .hud .setting-label { min-width: 0; color: var(--ui-color); }
+.astraeus-shell .setting-group > h4 { margin: 0 0 var(--astraeus-space-3); padding-bottom: var(--astraeus-space-2); border-bottom: 1px solid var(--astraeus-border); color: var(--astraeus-data); font-size: var(--astraeus-text-s); font-weight: 650; letter-spacing: calc(var(--astraeus-text-size) * .03); }
+.astraeus-shell .hud .setting { display: grid; grid-template-columns: minmax(calc(var(--astraeus-text-size) * 9.5), 0.8fr) minmax(0, 1.4fr) calc(var(--astraeus-text-size) * 3.6); align-items: center; gap: var(--astraeus-space-2) var(--astraeus-space-5); margin: 0 0 var(--astraeus-space-3); min-width: 0; }
+.astraeus-shell .hud .setting-label { min-width: 0; color: var(--astraeus-text); }
 .astraeus-shell .hud .setting input[type="range"] { width: 100%; min-width: 0; padding: 0; }
-.astraeus-shell .hud .setting output { color: var(--ui-muted); font-variant-numeric: tabular-nums; text-align: right; }
-.astraeus-shell .hud .setting-buttons { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; min-width: 0; margin: 0 0 6px; }
-.astraeus-shell .hud .setting-buttons.has-label { display: grid; grid-template-columns: minmax(9.5em, 0.8fr) minmax(0, 2.2fr); }
-.astraeus-shell .hud .setting-buttons.has-label > div { display: flex; flex-wrap: wrap; gap: 6px; min-width: 0; }
-.astraeus-shell .hud .row { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; min-width: 0; }
+.astraeus-shell .hud .setting output { color: var(--astraeus-muted); font-variant-numeric: tabular-nums; text-align: right; }
+.astraeus-shell .hud .setting-buttons { display: flex; flex-wrap: wrap; align-items: center; gap: var(--astraeus-space-3); min-width: 0; margin: 0 0 var(--astraeus-space-3); }
+.astraeus-shell .hud .setting-buttons.has-label { display: grid; grid-template-columns: minmax(calc(var(--astraeus-text-size) * 9.5), 0.8fr) minmax(0, 2.2fr); }
+.astraeus-shell .hud .setting-buttons.has-label > div { display: flex; flex-wrap: wrap; gap: var(--astraeus-space-3); min-width: 0; }
+.astraeus-shell .hud .row { display: flex; flex-wrap: wrap; align-items: center; gap: var(--astraeus-space-3); min-width: 0; }
 .astraeus-shell :where(.hud) button,
 .astraeus-shell :where(.hud) input,
 .astraeus-shell :where(.hud) select {
-  min-height: 34px;
-  padding: 5px 9px;
-  border: 1px solid #45413d;
-  border-radius: 6px;
-  background: rgba(13, 13, 13, .88);
-  color: var(--ui-color);
+  min-height: var(--astraeus-size-5);
+  padding: var(--astraeus-space-3) var(--astraeus-space-4);
+  border: 1px solid var(--astraeus-border);
+  border-radius: var(--astraeus-radius-s);
+  background: var(--astraeus-panel);
+  color: var(--astraeus-text);
   font: inherit;
 }
 
 .astraeus-shell .hud button { cursor: pointer; }
 .astraeus-shell :where(.hud) button:hover:not(:disabled),
-.astraeus-shell :where(.hud) select:hover { border-color: #888078; }
-.astraeus-shell :where(.hud) button[aria-pressed="true"] { border-color: var(--ui-accent); color: var(--ui-accent); }
-.astraeus-shell .hud .readout { color: var(--ui-muted); font-variant-numeric: tabular-nums; }
-.astraeus-shell .hud .controls { display: flex; flex-direction: column; gap: 8px; }
+.astraeus-shell :where(.hud) select:hover { border-color: color-mix(in srgb, var(--astraeus-text) 45%, transparent); }
+.astraeus-shell :where(.hud) button[aria-pressed="true"] { border-color: var(--astraeus-accent); color: var(--astraeus-accent); }
+.astraeus-shell .hud .readout { color: var(--astraeus-muted); font-variant-numeric: tabular-nums; }
+.astraeus-shell .hud .controls { display: flex; flex-direction: column; gap: var(--astraeus-space-4); }
 .astraeus-shell .hud .controls .row:first-child { align-items: center; }
-.astraeus-shell .hud .controls .row:last-child input[type="range"] { flex: 1 1 250px; width: min(360px, 70vw); padding: 0; }
+.astraeus-shell .hud .controls .row:last-child input[type="range"] { flex: 1 1 var(--astraeus-size-13); width: min(var(--astraeus-panel-width), 70cqw); padding: 0; }
 .astraeus-shell .hud .rate-help,
-.astraeus-shell .hud .scale-help { margin: 7px 0 0; color: var(--ui-muted); font-size: 12px; line-height: 1.4; }
-.astraeus-shell .hud .error { color: #ff8174; }
+.astraeus-shell .hud .scale-help { margin: var(--astraeus-space-4) 0 0; color: var(--astraeus-muted); font-size: var(--astraeus-text-s); line-height: 1.4; }
+.astraeus-shell .hud .error { color: var(--astraeus-bad); }
 
-.astraeus-shell .hud .mission-summary { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
-.astraeus-shell .hud .mission-summary > p { margin: 0; color: var(--ui-muted); line-height: 1.4; }
+.astraeus-shell .hud .mission-summary { display: flex; flex-direction: column; gap: var(--astraeus-space-4); min-width: 0; }
+.astraeus-shell .hud .mission-summary > p { margin: 0; color: var(--astraeus-muted); line-height: 1.4; }
 .astraeus-shell .hud .mission-summary details { min-width: 0; }
 .astraeus-shell :where(.hud) .mission-summary summary,
-.astraeus-shell :where(.advanced-readouts) summary { width: fit-content; color: var(--ui-data); cursor: pointer; }
-.astraeus-shell .hud .mission-summary details > strong { display: block; margin-top: 8px; color: var(--ui-color); font-size: 13px; line-height: 1.4; }
-.astraeus-shell .hud .mission-summary ul { display: grid; gap: 6px; margin: 6px 0 0; padding-left: 18px; color: var(--ui-muted); line-height: 1.4; }
-.astraeus-shell .hud .spacecraft-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 7px; min-width: 0; }
-.astraeus-shell .spacecraft-card { min-width: 0; padding: 8px; border: 1px solid rgba(240, 230, 218, .12); border-radius: 7px; background: rgba(0, 0, 0, .22); }
-.astraeus-shell .spacecraft-card-header { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
-.astraeus-shell .spacecraft-card-header h4 { min-width: 0; margin: 0; color: var(--ui-color); font-size: 13px; line-height: 1.3; }
-.astraeus-shell .telemetry-state { display: inline-flex; flex: 0 0 auto; align-items: center; gap: 5px; color: #b9d7bd; font-size: 11px; }
-.astraeus-shell .telemetry-state > span { width: 7px; height: 7px; border-radius: 50%; background: #77c58b; box-shadow: 0 0 7px rgba(119, 197, 139, .5); }
-.astraeus-shell .spacecraft-metrics { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-top: 8px; }
-.astraeus-shell .hud .mission-empty { margin: 0; color: var(--ui-muted); font-size: 13px; line-height: 1.4; }
+.astraeus-shell :where(.advanced-readouts) summary { width: fit-content; color: var(--astraeus-data); cursor: pointer; }
+.astraeus-shell .hud .mission-summary details > strong { display: block; margin-top: var(--astraeus-space-4); color: var(--astraeus-text); font-size: var(--astraeus-text-m); line-height: 1.4; }
+.astraeus-shell .hud .mission-summary ul { display: grid; gap: var(--astraeus-space-3); margin: var(--astraeus-space-3) 0 0; padding-left: var(--astraeus-size-1); color: var(--astraeus-muted); line-height: 1.4; }
+.astraeus-shell .hud .spacecraft-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--astraeus-space-4); min-width: 0; }
+.astraeus-shell .spacecraft-card { min-width: 0; padding: var(--astraeus-space-4); border: 1px solid var(--astraeus-border); border-radius: var(--astraeus-radius-s); background: color-mix(in srgb, var(--astraeus-scene) 22%, transparent); }
+.astraeus-shell .spacecraft-card-header { display: flex; align-items: center; justify-content: space-between; gap: var(--astraeus-space-4); }
+.astraeus-shell .spacecraft-card-header h4 { min-width: 0; margin: 0; color: var(--astraeus-text); font-size: var(--astraeus-text-m); line-height: 1.3; }
+.astraeus-shell .telemetry-state { display: inline-flex; flex: 0 0 auto; align-items: center; gap: var(--astraeus-space-3); color: var(--astraeus-good); font-size: var(--astraeus-text-xs); }
+.astraeus-shell .telemetry-state > span { width: var(--astraeus-space-4); height: var(--astraeus-space-4); border-radius: 50%; background: var(--astraeus-good); box-shadow: 0 0 var(--astraeus-space-4) color-mix(in srgb, var(--astraeus-good) 50%, transparent); }
+.astraeus-shell .spacecraft-metrics { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--astraeus-space-4); margin-top: var(--astraeus-space-4); }
+.astraeus-shell .hud .mission-empty { margin: 0; color: var(--astraeus-muted); font-size: var(--astraeus-text-m); line-height: 1.4; }
 .astraeus-shell .scale-controls { align-items: center; }
 .astraeus-shell .scale-controls .scale-help { flex-basis: 100%; }
 
-.astraeus-shell .scientific-instruments { display: flex; flex-direction: column; gap: 9px; min-width: 0; }
-.astraeus-shell .instrument-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 7px; }
+.astraeus-shell .scientific-instruments { display: flex; flex-direction: column; gap: var(--astraeus-space-4); min-width: 0; }
+.astraeus-shell .instrument-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--astraeus-space-4); }
 .astraeus-shell .instrument-grid .metric-phase,
 .astraeus-shell .instrument-grid .metric-coordinates { grid-column: 1 / -1; }
-.astraeus-shell .hud-section-clock .metric-progress { margin-top: 8px; }
+.astraeus-shell .hud-section-clock .metric-progress { margin-top: var(--astraeus-space-4); }
 .astraeus-shell .advanced-readouts { min-width: 0; }
-.astraeus-shell .hud .advanced-readouts .overlay { margin-top: 8px; }
+.astraeus-shell .hud .advanced-readouts .overlay { margin-top: var(--astraeus-space-4); }
 
 .astraeus-shell .hud .overlay,
 .astraeus-shell .hud .frame-readouts {
   display: grid;
-  grid-template-columns: minmax(9.5em, .36fr) minmax(0, 1fr);
-  gap: 4px 10px;
+  grid-template-columns: minmax(calc(var(--astraeus-text-size) * 9.5), .36fr) minmax(0, 1fr);
+  gap: var(--astraeus-space-2) var(--astraeus-space-5);
   max-width: 100%;
-  margin: 10px 0 0;
-  color: var(--ui-muted);
-  font-size: 12px;
+  margin: var(--astraeus-space-5) 0 0;
+  color: var(--astraeus-muted);
+  font-size: var(--astraeus-text-s);
   font-variant-numeric: tabular-nums;
 }
 
 .astraeus-shell .hud .overlay div,
 .astraeus-shell .hud .frame-readouts div { display: contents; }
 .astraeus-shell .hud .overlay dt,
-.astraeus-shell .hud .frame-readouts dt { color: var(--ui-data); }
+.astraeus-shell .hud .frame-readouts dt { color: var(--astraeus-data); }
 .astraeus-shell .hud .overlay dd,
 .astraeus-shell .hud .frame-readouts dd { min-width: 0; margin: 0; overflow-wrap: anywhere; }
 
@@ -139,44 +138,36 @@
   position: absolute;
   top: 0;
   left: 0;
-  margin: -14px 0 0 6px;
+  margin: calc(var(--astraeus-space-6) * -1) 0 0 var(--astraeus-space-3);
   font-family: var(--label-font, inherit);
-  font-size: var(--label-size, 12px);
+  font-size: var(--label-size, var(--astraeus-text-s));
   line-height: 1.2;
   white-space: nowrap;
-  text-shadow: 0 0 2px #000, 0 0 3px #000;
+  text-shadow: 0 0 var(--astraeus-space-1) var(--astraeus-scene), 0 0 var(--astraeus-space-2) var(--astraeus-scene);
   font-variant-numeric: tabular-nums;
 }
 
-@media (max-width: 680px) {
-  .astraeus-shell .hud { grid-template-columns: minmax(0, 1fr); }
-  .astraeus-shell .developer-heading,
-  .astraeus-shell .hud-section-clock { grid-column: 1; }
-  .astraeus-shell .hud .overlay,
-  .astraeus-shell .hud .frame-readouts { grid-template-columns: minmax(110px, .42fr) minmax(0, 1fr); }
-}
-
-.astraeus-shell .hud .fps-graph { display: block; width: 100%; height: auto; margin-top: 10px; color: var(--ui-data); }
-.astraeus-shell .hud .tone-good { color: var(--perf-good); fill: var(--perf-good); }
-.astraeus-shell .hud .tone-warn { color: var(--perf-warn); fill: var(--perf-warn); }
-.astraeus-shell .hud .tone-bad { color: var(--perf-bad); fill: var(--perf-bad); }
+.astraeus-shell .hud .fps-graph { display: block; width: 100%; height: auto; margin-top: var(--astraeus-space-5); color: var(--astraeus-data); }
+.astraeus-shell .hud .tone-good { color: var(--astraeus-good); fill: var(--astraeus-good); }
+.astraeus-shell .hud .tone-warn { color: var(--astraeus-warn); fill: var(--astraeus-warn); }
+.astraeus-shell .hud .tone-bad { color: var(--astraeus-bad); fill: var(--astraeus-bad); }
 .astraeus-shell .hud .fps-graph line.tone-good, .astraeus-shell .hud .fps-graph line.tone-warn, .astraeus-shell .hud .fps-graph line.tone-bad { stroke: currentColor; }
 .astraeus-shell .hud .frame-readouts dd[class^="tone-"] { font-weight: 600; }
-.astraeus-shell .hud .fps-graph-key { display: flex; gap: 12px; margin: 4px 0 0; font-size: 11px; color: var(--ui-muted); }
+.astraeus-shell .hud .fps-graph-key { display: flex; gap: var(--astraeus-space-5); margin: var(--astraeus-space-2) 0 0; font-size: var(--astraeus-text-xs); color: var(--astraeus-muted); }
 
 /* Developer panel on a phone: one column, label above control, labels never squeezed to a few letters. */
-@media (max-width: 700px) {
+@container astraeus-developer (max-width: 700px) {
   .astraeus-shell .hud { column-count: 1; }
   .astraeus-shell .dev-group-cards > .collapsible-body { column-count: 1; }
   .astraeus-shell .hud-section-frame .frame-body { display: block; }
-  .astraeus-shell .hud .setting { grid-template-columns: minmax(0, 1fr) 3.4em; }
+  .astraeus-shell .hud .setting { grid-template-columns: minmax(0, 1fr) calc(var(--astraeus-text-size) * 3.4); }
   .astraeus-shell .hud .setting-label { grid-column: 1 / -1; }
   .astraeus-shell .hud .setting input[type="range"] { grid-column: 1; }
   .astraeus-shell .hud .setting-buttons.has-label { grid-template-columns: minmax(0, 1fr); }
-  .astraeus-shell .hud .overlay, .astraeus-shell .hud .frame-readouts { grid-template-columns: minmax(8.5em, .5fr) minmax(0, 1fr); }
+  .astraeus-shell .hud .overlay, .astraeus-shell .hud .frame-readouts { grid-template-columns: minmax(calc(var(--astraeus-text-size) * 8.5), .5fr) minmax(0, 1fr); }
 }
 
-.astraeus-shell .hud .view-link { margin: 0 0 6px; }
-.astraeus-shell .hud .view-link-values { margin: 2px 0 6px; color: var(--ui-muted); font-size: 12px; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
-.astraeus-shell .hud .view-link-field { display: flex; flex-direction: column; gap: 4px; margin: 0 0 6px; color: var(--ui-muted); font-size: 12px; }
+.astraeus-shell .hud .view-link { margin: 0 0 var(--astraeus-space-3); }
+.astraeus-shell .hud .view-link-values { margin: var(--astraeus-space-1) 0 var(--astraeus-space-3); color: var(--astraeus-muted); font-size: var(--astraeus-text-s); font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.astraeus-shell .hud .view-link-field { display: flex; flex-direction: column; gap: var(--astraeus-space-2); margin: 0 0 var(--astraeus-space-3); color: var(--astraeus-muted); font-size: var(--astraeus-text-s); }
 .astraeus-shell :where(.hud) .view-link-field input { width: 100%; min-width: 0; box-sizing: border-box; }

@@ -15,9 +15,10 @@ import type { TimeLook } from "./timelineModel";
 import type { Metric } from "./metrics";
 import { PanelLoadBoundary } from "../app/PanelLoadBoundary";
 import { ControlsDrawer } from "./ControlsDrawer";
-import { isEmbedded } from "./embedded";
+import { screenAttributes, useScreen } from "./areas/screen";
+import { interfaceLookVars, type InterfaceLookSettings } from "./look/interfaceLook";
 import { labelStyleVars } from "../app/labelStyle";
-import { DEFAULT_PHONE_LAYOUT, phoneLayoutStyle, pickOpensInfo, usePhone, type PhoneLayoutSettings } from "./phoneLayout";
+import { DEFAULT_PHONE_LAYOUT, phoneLayoutStyle, pickOpensInfo, type PhoneLayoutSettings } from "./phoneLayout";
 import type { DisplaySwitchItem, ViewChoice } from "./DisplaySwitches";
 import type { ViewCameraRule } from "../app/views";
 import { presetForViewRule } from "./viewCamera";
@@ -26,6 +27,8 @@ import { DeveloperToggle, TopBar } from "./TopBar";
 import type { ScaleChoice, ScaleId } from "./scaleModel";
 import { shownAt } from "../app/viewHiding";
 import { availableObjectById, findCameraPreset, firstAvailableObject, focusPresetFor, isObjectAvailable, skyFigureById } from "./objectModel";
+import "./look/look.css";
+import "./areas/areas.css";
 import "./controls.css";
 import "./style.css";
 import "./phone.css";
@@ -143,6 +146,8 @@ interface Props {
   /** The font and size of every label (the look `labels`), carried to them as CSS variables on the root; absent: the stylesheet's own. */
   readonly labelStyle?: { readonly fontFamily: string; readonly sizePx: number };
   /** The zone and precision of every visitor-facing time (the look `time`); absent: UTC to the second. */
+  /** The public interface look (colours, font, text size, radius, motion); absent: the defaults in look/look.css. */
+  readonly interfaceLook?: InterfaceLookSettings;
   readonly timeLook?: TimeLook;
   /** The family of moons lit up in the scene now (the moon panel's choice), or null; the app draws it. */
   readonly highlightedFamily?: string | null;
@@ -269,6 +274,7 @@ export function AstraeusShell({
   timelineGlow,
   phoneLayout = DEFAULT_PHONE_LAYOUT,
   labelStyle,
+  interfaceLook,
   timeLook,
   highlightedFamily = null,
   onHighlightFamily,
@@ -284,10 +290,10 @@ export function AstraeusShell({
 }: Props) {
   const infoPanelId = `${useId()}-info-panel`;
   const [selectedObjectId, setSelectedObjectId] = useState(() => initialObjectId(experience, snapshot.timeUtcMs));
-  const phone = usePhone();
-  /** Fixed for the page: a frame does not appear or vanish while the app runs. */
-  const [embedded] = useState(isEmbedded);
   const root = useRef<HTMLElement | null>(null);
+  /** The viewer's own screen (areas/screen.ts): its layout follows this viewer's size, not the window's. */
+  const screen = useScreen(root);
+  const phone = screen.layout === "phone";
   // The drawer (with the moons in it) and the bottom sheets want the same screen: the drawer, being the one just asked for, takes it.
   const { controlsOpen, timelineOpen, openControls, openTimeline } = useDrawers(phone, root, () => {
     if (experience.moonFamilies !== undefined) { setInfo(null); story.close(); }
@@ -545,7 +551,7 @@ export function AstraeusShell({
   );
 
   return (
-    <main className="astraeus-shell" ref={root} data-phone={phone} data-timeline-hidden={experience.hideTimeline === true} data-embedded={embedded} style={{ ...phoneLayoutStyle(phoneLayout), ...labelStyleVars(labelStyle) }}>
+    <main className="astraeus-shell" ref={root} {...screenAttributes(screen)} data-timeline-hidden={experience.hideTimeline === true} style={{ ...phoneLayoutStyle(phoneLayout), ...interfaceLookVars(interfaceLook, screen.motion === "reduced"), ...labelStyleVars(labelStyle) }}>
       <div className="shell-canvas">{children}</div>
       {phone && <ControlsDrawer label={selectedLabel} open={controlsOpen} onOpenChange={openControls} swipeThresholdPx={phoneLayout.swipeThresholdPx}>{topBar}{moonPanel}</ControlsDrawer>}
       <div className="shell-top">

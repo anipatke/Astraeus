@@ -1,125 +1,122 @@
 /* The timeline bar: one slim line on larger screens, two lines on phones and tablets (T-080, O-020). Its rules live here, beside TimelineBar.tsx. */
 .astraeus-shell .timeline-bar {
   position: absolute;
-  z-index: 3;
-  right: 12px;
-  bottom: calc(12px + env(safe-area-inset-bottom, 0px));
-  left: 12px;
-  padding: 7px 12px;
-  border: 1px solid var(--ui-border, rgba(240, 230, 218, .18));
-  border-radius: 14px;
-  background: rgba(13, 13, 13, .9);
-  box-shadow: 0 8px 30px rgba(0, 0, 0, .28);
-  font-size: 14px;
-  backdrop-filter: blur(10px);
+  z-index: var(--astraeus-layer-areas);
+  right: var(--astraeus-space-5);
+  bottom: calc(var(--astraeus-space-5) + env(safe-area-inset-bottom, 0px));
+  left: var(--astraeus-space-5);
+  padding: var(--astraeus-space-4) var(--astraeus-space-5);
+  border: 1px solid var(--astraeus-border);
+  border-radius: var(--astraeus-radius);
+  background: var(--astraeus-panel);
+  box-shadow: var(--astraeus-shadow-s);
+  font-size: var(--astraeus-text-size);
+  backdrop-filter: blur(var(--astraeus-space-5));
 }
 /* The open Events list rises over the panel rather than hiding behind it. */
-.astraeus-shell .timeline-bar:has(.timeline-event-list[open]) { z-index: 5; }
+.astraeus-shell .timeline-bar:has(.timeline-event-list[open]) { z-index: var(--astraeus-layer-bar); }
 /* An open marker group lists above the bar; the bar rises over the phone information sheet (z-index 8) so each item stays reachable (O-050 T-217). */
 .astraeus-shell .timeline-bar:has(.timeline-group-list),
-.astraeus-shell[data-phone="true"] .timeline-bar:has(.timeline-group-list) { z-index: 9; }
+.astraeus-shell[data-phone="true"] .timeline-bar:has(.timeline-group-list) { z-index: var(--astraeus-layer-top); }
 
-.astraeus-shell .timeline-main-row { display: flex; align-items: center; gap: 14px; min-width: 0; }
-.astraeus-shell .timeline-transport { display: flex; flex: 0 0 auto; gap: 4px; }
+.astraeus-shell .timeline-main-row { display: flex; align-items: center; gap: var(--astraeus-space-6); min-width: 0; }
+.astraeus-shell .timeline-transport { display: flex; flex: 0 0 auto; gap: var(--astraeus-space-2); }
 .astraeus-shell .timeline-time {
   /* A fixed width: the stamp changes length as it plays (milliseconds appear and vanish) and must not shift the scrubber beside it. */
-  flex: 0 0 24ch;
-  width: 24ch;
-  font: 13px ui-monospace, SFMono-Regular, Menlo, monospace;
+  flex: 0 0 var(--astraeus-size-11);
+  width: var(--astraeus-size-11);
+  font-family: var(--astraeus-mono); font-size: var(--astraeus-text-m); font-weight: normal; line-height: normal;
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
 }
 .astraeus-shell .timeline-time-short { display: none; }
-.astraeus-shell .timeline-speed { display: flex; flex: 0 0 auto; align-items: center; color: var(--ui-muted, #c7bdb3); }
+.astraeus-shell .timeline-speed { display: flex; flex: 0 0 auto; align-items: center; color: var(--astraeus-muted); }
 .astraeus-shell .timeline-speed > span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
-.astraeus-shell .timeline-bar .timeline-speed select { width: 210px; max-width: 30vw; }
+.astraeus-shell .timeline-bar .timeline-speed select { width: var(--astraeus-size-12); max-width: 30cqw; }
 .astraeus-shell .timeline-scrubber { display: flex; flex: 1 1 0; flex-direction: column; gap: 1px; min-width: 0; }
 
 /* Events: a button on the line; what just happened, what is next and the full list open above it. */
 .astraeus-shell .timeline-event-list { position: relative; flex: 0 0 auto; }
-.astraeus-shell .timeline-event-list summary span { color: var(--ui-data, #b1a1df); }
+.astraeus-shell .timeline-event-list summary span { color: var(--astraeus-data); }
 .astraeus-shell .timeline-expanded {
   position: absolute;
-  z-index: 6;
+  z-index: var(--astraeus-layer-popover);
   right: 0;
-  bottom: calc(100% + 10px);
+  bottom: calc(100% + var(--astraeus-space-5));
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  width: min(480px, calc(100vw - 32px));
-  max-height: min(56vh, 430px);
+  gap: var(--astraeus-space-3);
+  width: min(var(--astraeus-size-15), calc(100cqw - var(--astraeus-size-4)));
+  max-height: min(56cqh, var(--astraeus-size-15));
   overflow: auto;
-  padding: 6px;
-  border: 1px solid #45413d;
-  border-radius: 10px;
-  background: rgba(13, 13, 13, .97);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, .42);
+  padding: var(--astraeus-space-3);
+  border: 1px solid var(--astraeus-border);
+  border-radius: var(--astraeus-radius-s);
+  background: var(--astraeus-panel);
+  box-shadow: var(--astraeus-shadow-s);
 }
-.astraeus-shell .timeline-expanded ol { display: flex; flex-direction: column; gap: 2px; margin: 0; padding: 0; list-style: none; }
+.astraeus-shell .timeline-expanded ol { display: flex; flex-direction: column; gap: var(--astraeus-space-1); margin: 0; padding: 0; list-style: none; }
 .astraeus-shell .timeline-expanded li { margin: 0; padding: 0; }
-.astraeus-shell :where(.timeline-expanded) li button { justify-content: flex-start; align-items: baseline; gap: 10px; }
-.astraeus-shell .timeline-expanded li time { flex: 0 0 auto; color: var(--ui-data, #b1a1df); font: 12px ui-monospace, SFMono-Regular, Menlo, monospace; }
+.astraeus-shell :where(.timeline-expanded) li button { justify-content: flex-start; align-items: baseline; gap: var(--astraeus-space-5); }
+.astraeus-shell .timeline-expanded li time { flex: 0 0 auto; color: var(--astraeus-data); font-family: var(--astraeus-mono); font-size: var(--astraeus-text-s); font-weight: normal; line-height: normal; }
 .astraeus-shell .timeline-expanded li span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.astraeus-shell .timeline-event-context { display: flex; flex-direction: column; gap: 2px; min-width: 0; padding: 2px 4px 6px; border-bottom: 1px solid #2b2927; color: var(--ui-muted, #c7bdb3); }
-.astraeus-shell .timeline-event-context > span { padding: 2px 8px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.astraeus-shell .timeline-event-context { display: flex; flex-direction: column; gap: var(--astraeus-space-1); min-width: 0; padding: var(--astraeus-space-1) var(--astraeus-space-2) var(--astraeus-space-3); border-bottom: 1px solid var(--astraeus-border); color: var(--astraeus-muted); }
+.astraeus-shell .timeline-event-context > span { padding: var(--astraeus-space-1) var(--astraeus-space-4); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .astraeus-shell .timeline-event-current { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.astraeus-shell .timeline-event-current span { color: var(--ui-data, #b1a1df); }
-.astraeus-shell .timeline-event-context strong { color: var(--ui-color, #f0e6da); font-weight: 600; }
+.astraeus-shell .timeline-event-current span { color: var(--astraeus-data); }
+.astraeus-shell .timeline-event-context strong { color: var(--astraeus-text); font-weight: 600; }
 
 /* The scrubber, its event marks and the activity glow. */
-.astraeus-shell .timeline-track { position: relative; display: flex; align-items: center; height: 22px; }
-.astraeus-shell :where(.timeline-track) input[type="range"] { position: relative; z-index: 1; width: 100%; height: 22px; margin: 0; accent-color: var(--ui-accent, #fc6323); background: transparent; cursor: pointer; }
-.astraeus-shell .timeline-markers { position: absolute; z-index: 2; inset: 0 8px; pointer-events: none; }
-.astraeus-shell .timeline-marker { position: absolute; top: calc(50% - 10px); width: 18px; min-height: 20px !important; height: 20px; padding: 0 !important; border: 0 !important; border-radius: 3px !important; background: transparent !important; opacity: .9; transform: translateX(-50%); pointer-events: auto; }
-.astraeus-shell .timeline-marker::after { display: block; width: 2px; height: 14px; margin: auto; border-radius: 2px; background: var(--ui-data, #b1a1df); content: ""; }
+.astraeus-shell .timeline-track { position: relative; display: flex; align-items: center; height: var(--astraeus-size-2); }
+.astraeus-shell :where(.timeline-track) input[type="range"] { position: relative; z-index: var(--astraeus-layer-labels); width: 100%; height: var(--astraeus-size-2); margin: 0; accent-color: var(--astraeus-accent); background: transparent; cursor: pointer; }
+.astraeus-shell .timeline-markers { position: absolute; z-index: var(--astraeus-layer-markers); inset: 0 var(--astraeus-space-4); pointer-events: none; }
+.astraeus-shell .timeline-marker { position: absolute; top: calc(50% - var(--astraeus-space-5)); width: var(--astraeus-size-1); min-height: var(--astraeus-size-1) !important; height: var(--astraeus-size-1); padding: 0 !important; border: 0 !important; border-radius: var(--astraeus-space-2) !important; background: transparent !important; opacity: .9; transform: translateX(-50%); pointer-events: auto; }
+.astraeus-shell .timeline-marker::after { display: block; width: var(--astraeus-space-1); height: var(--astraeus-space-6); margin: auto; border-radius: var(--astraeus-space-1); background: var(--astraeus-data); content: ""; }
 .astraeus-shell .timeline-marker:hover::after,
-.astraeus-shell .timeline-marker:focus-visible::after { background: var(--ui-accent, #fc6323); }
+.astraeus-shell .timeline-marker:focus-visible::after { background: var(--astraeus-accent); }
 /* T-084: the activity is a glow inside the track. The input's own track turns transparent; the glow (brightness follows the rate) sits behind it, the played part keeps the accent colour, and the thumb stays a clear disc. */
-.astraeus-shell .timeline-glow { position: absolute; z-index: 0; top: 50%; right: 8px; left: 8px; height: var(--glow-thickness, 6px); transform: translateY(-50%); border-radius: 999px; pointer-events: none; }
+.astraeus-shell .timeline-glow { position: absolute; z-index: var(--astraeus-layer-scene); top: 50%; right: var(--astraeus-space-4); left: var(--astraeus-space-4); height: var(--glow-thickness, var(--astraeus-space-3)); transform: translateY(-50%); border-radius: var(--astraeus-radius-pill); pointer-events: none; }
 .astraeus-shell .timeline-glow-ahead,
 .astraeus-shell .timeline-glow-line { position: absolute; inset: 0; border-radius: inherit; background: var(--glow-ahead); }
 .astraeus-shell .timeline-glow-ahead::after,
-.astraeus-shell .timeline-glow-line::after { position: absolute; inset: 0; border-radius: inherit; background: inherit; filter: blur(var(--glow-halo, 7px)); content: ""; }
+.astraeus-shell .timeline-glow-line::after { position: absolute; inset: 0; border-radius: inherit; background: inherit; filter: blur(var(--glow-halo, var(--astraeus-space-4))); content: ""; }
 /* The played part is the same shape in the accent colour, clipped at the playhead (the clip leaves room above and below for the halo). */
-.astraeus-shell .timeline-glow-played { position: absolute; inset: 0; clip-path: inset(-24px var(--glow-played-edge, 100%) -24px -24px); }
+.astraeus-shell .timeline-glow-played { position: absolute; inset: 0; clip-path: inset(calc(var(--astraeus-size-2) * -1) var(--glow-played-edge, 100%) calc(var(--astraeus-size-2) * -1) calc(var(--astraeus-size-2) * -1)); }
 .astraeus-shell .timeline-glow-line { background: var(--glow-played); }
 /* The peak mark rides above the line (diamond and a short stem), so an event or story-panel mark that falls on the peak stays pressable at the line itself. */
-.astraeus-shell .timeline-marker.timeline-window-peak { top: calc(50% - 18px); width: 16px; min-height: 12px !important; height: 12px; }
-.astraeus-shell .timeline-window-peak::before { position: absolute; top: 7px; left: 50%; height: 9px; border-left: 1px solid var(--ui-accent, #fc6323); content: ""; }
-.astraeus-shell .timeline-window-peak::after { width: 9px !important; height: 9px !important; margin-top: 1.5px !important; border-radius: 1px !important; background: var(--ui-accent, #fc6323) !important; box-shadow: 0 0 0 2px rgba(13, 13, 13, .8); transform: rotate(45deg); }
-.astraeus-shell .timeline-track .timeline-marker::after { background: var(--ui-color, #f0e6da); box-shadow: 0 0 0 1px rgba(13, 13, 13, .6); }
+.astraeus-shell .timeline-marker.timeline-window-peak { top: calc(50% - var(--astraeus-size-1)); width: var(--astraeus-space-6); min-height: var(--astraeus-space-5) !important; height: var(--astraeus-space-5); }
+.astraeus-shell .timeline-window-peak::before { position: absolute; top: var(--astraeus-space-4); left: 50%; height: var(--astraeus-space-4); border-left: 1px solid var(--astraeus-accent); content: ""; }
+.astraeus-shell .timeline-window-peak::after { width: var(--astraeus-space-4) !important; height: var(--astraeus-space-4) !important; margin-top: var(--astraeus-space-1) !important; border-radius: 1px !important; background: var(--astraeus-accent) !important; box-shadow: 0 0 0 var(--astraeus-space-1) var(--astraeus-panel); transform: rotate(45deg); }
+.astraeus-shell .timeline-track .timeline-marker::after { background: var(--astraeus-text); box-shadow: 0 0 0 1px var(--astraeus-panel); }
 .astraeus-shell .timeline-track .timeline-marker:hover::after,
-.astraeus-shell .timeline-track .timeline-marker:focus-visible::after { background: var(--ui-accent, #fc6323); }
+.astraeus-shell .timeline-track .timeline-marker:focus-visible::after { background: var(--astraeus-accent); }
 .astraeus-shell .timeline-track input[type="range"] { -webkit-appearance: none; appearance: none; }
-.astraeus-shell .timeline-track input[type="range"]::-webkit-slider-runnable-track { height: 22px; background: transparent; border: 0; }
-.astraeus-shell .timeline-track input[type="range"]::-moz-range-track { height: 22px; background: transparent; border: 0; }
-.astraeus-shell .timeline-track input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 16px; height: 16px; margin-top: 3px; border: 2px solid var(--ui-accent, #fc6323); border-radius: 50%; background: var(--ui-color, #f0e6da); box-shadow: 0 0 0 2px rgba(13, 13, 13, .85), 0 1px 6px rgba(0, 0, 0, .6); }
-.astraeus-shell .timeline-track input[type="range"]::-moz-range-thumb { box-sizing: border-box; width: 16px; height: 16px; border: 2px solid var(--ui-accent, #fc6323); border-radius: 50%; background: var(--ui-color, #f0e6da); box-shadow: 0 0 0 2px rgba(13, 13, 13, .85), 0 1px 6px rgba(0, 0, 0, .6); }
-.astraeus-shell :where(.timeline-track) input[type="range"]:focus-visible { outline: 2px solid var(--ui-accent, #fc6323); outline-offset: 2px; border-radius: 8px; }
-.astraeus-shell .timeline-bar .timeline-marker-label { display: none; bottom: calc(100% + 6px); left: 50%; max-width: min(300px, 65vw); color: var(--ui-color, #f0e6da); transform: translateX(-50%); }
+.astraeus-shell .timeline-track input[type="range"]::-webkit-slider-runnable-track { height: var(--astraeus-size-2); background: transparent; border: 0; }
+.astraeus-shell .timeline-track input[type="range"]::-moz-range-track { height: var(--astraeus-size-2); background: transparent; border: 0; }
+.astraeus-shell .timeline-track input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: var(--astraeus-space-6); height: var(--astraeus-space-6); margin-top: var(--astraeus-space-2); border: var(--astraeus-space-1) solid var(--astraeus-accent); border-radius: 50%; background: var(--astraeus-text); box-shadow: 0 0 0 var(--astraeus-space-1) var(--astraeus-panel), 0 1px var(--astraeus-space-3) color-mix(in srgb, var(--astraeus-scene) 60%, transparent); }
+.astraeus-shell .timeline-track input[type="range"]::-moz-range-thumb { box-sizing: border-box; width: var(--astraeus-space-6); height: var(--astraeus-space-6); border: var(--astraeus-space-1) solid var(--astraeus-accent); border-radius: 50%; background: var(--astraeus-text); box-shadow: 0 0 0 var(--astraeus-space-1) var(--astraeus-panel), 0 1px var(--astraeus-space-3) color-mix(in srgb, var(--astraeus-scene) 60%, transparent); }
+.astraeus-shell :where(.timeline-track) input[type="range"]:focus-visible { outline: var(--astraeus-space-1) solid var(--astraeus-accent); outline-offset: var(--astraeus-space-1); border-radius: var(--astraeus-radius-s); }
+.astraeus-shell .timeline-bar .timeline-marker-label { display: none; bottom: calc(100% + var(--astraeus-space-3)); left: 50%; max-width: min(var(--astraeus-size-14), 65cqw); color: var(--astraeus-text); transform: translateX(-50%); }
 .astraeus-shell .timeline-bar .timeline-marker:hover .timeline-marker-label,
 .astraeus-shell .timeline-bar .timeline-marker:focus .timeline-marker-label { display: block; }
-.astraeus-shell .timeline-bounds { display: none; justify-content: space-between; color: var(--ui-subtle, #a99e94); font: 12px ui-monospace, SFMono-Regular, Menlo, monospace; font-variant-numeric: tabular-nums; }
-.astraeus-shell .timeline-panel-marker::after { width: 8px !important; height: 8px !important; border: 1.5px solid var(--ui-accent, #fc6323); border-radius: 50% !important; background: rgba(0, 0, 0, .55) !important; }
-.astraeus-shell .timeline-panel-marker[aria-pressed="true"]::after { background: var(--ui-accent, #fc6323) !important; }
-.astraeus-shell:has(.timeline-bar) .shell-top { --shell-timeline-space: 84px; }
+.astraeus-shell .timeline-bounds { display: none; justify-content: space-between; color: var(--astraeus-subtle); font-family: var(--astraeus-mono); font-size: var(--astraeus-text-s); font-weight: normal; line-height: normal; font-variant-numeric: tabular-nums; }
+.astraeus-shell .timeline-panel-marker::after { width: var(--astraeus-space-4) !important; height: var(--astraeus-space-4) !important; border: var(--astraeus-space-1) solid var(--astraeus-accent); border-radius: 50% !important; background: color-mix(in srgb, var(--astraeus-scene) 55%, transparent) !important; }
+.astraeus-shell .timeline-panel-marker[aria-pressed="true"]::after { background: var(--astraeus-accent) !important; }
+.astraeus-shell:has(.timeline-bar) .shell-top { --shell-timeline-space: var(--astraeus-size-8); }
 
 /* Tablets and phones: two lines. Transport, time and speed above; scrubber and Events below. Sizes of the controls come from controls.css. */
-@media (max-width: 900px) {
-  .astraeus-shell .timeline-bar { right: 8px; bottom: calc(8px + env(safe-area-inset-bottom, 0px)); left: 8px; padding: 8px; }
-  .astraeus-shell .timeline-main-row { flex-wrap: wrap; gap: 4px 6px; }
+@container astraeus-viewer (max-width: 900px) {
+  .astraeus-shell .timeline-bar { right: var(--astraeus-space-4); bottom: calc(var(--astraeus-space-4) + env(safe-area-inset-bottom, 0px)); left: var(--astraeus-space-4); padding: var(--astraeus-space-4); }
+  .astraeus-shell .timeline-main-row { flex-wrap: wrap; gap: var(--astraeus-space-2) var(--astraeus-space-3); }
   .astraeus-shell .timeline-transport { gap: 0; }
-  .astraeus-shell .timeline-time { margin-left: auto; font-size: 12px; }
-  .astraeus-shell .timeline-bar .timeline-speed select { width: 180px; }
+  .astraeus-shell .timeline-time { margin-left: auto; font-size: var(--astraeus-text-s); }
+  .astraeus-shell .timeline-bar .timeline-speed select { width: var(--astraeus-size-11); }
   /* Line two (scrubber, Events) starts on its own row: the scrubber is too wide to share line one. */
-  .astraeus-shell .timeline-scrubber { order: 4; flex: 1 1 calc(100% - 128px); }
+  .astraeus-shell .timeline-scrubber { order: 4; flex: 1 1 calc(100% - var(--astraeus-size-9)); }
   .astraeus-shell .timeline-event-list { order: 5; }
-  .astraeus-shell .timeline-track { height: 44px; }
-  .astraeus-shell .timeline-track input[type="range"] { height: 44px; }
-  .astraeus-shell:has(.timeline-bar) .shell-top { --shell-timeline-space: 150px; }
-}
-@media (prefers-reduced-motion: reduce) {
-  .astraeus-shell .timeline-bar { scroll-behavior: auto; transition: none !important; }
+  .astraeus-shell .timeline-track { height: var(--astraeus-hit); }
+  .astraeus-shell .timeline-track input[type="range"] { height: var(--astraeus-hit); }
+  .astraeus-shell:has(.timeline-bar) .shell-top { --shell-timeline-space: var(--astraeus-size-10); }
 }
 
 /* No timeline (experience.hideTimeline): nothing sits at the bottom, so nothing is reserved for it on a wide or a phone screen. */
@@ -127,16 +124,16 @@
 .astraeus-shell:is(main)[data-timeline-hidden="true"] .shell-top { --shell-timeline-space: 0px; }
 
 /* Markers that sit closer than the minimum spacing gather under one numbered mark; pressing it lists them, each a full-size button. The list opens above the track, aligned to the screen side the mark is near so it stays on a phone. */
-.astraeus-shell .timeline-marker-group { position: absolute; top: 0; height: 100%; width: 18px; transform: translateX(-50%); pointer-events: none; }
+.astraeus-shell .timeline-marker-group { position: absolute; top: 0; height: 100%; width: var(--astraeus-size-1); transform: translateX(-50%); pointer-events: none; }
 .astraeus-shell .timeline-marker-group .timeline-group-toggle { left: 0; width: 100%; pointer-events: auto; }
 .astraeus-shell .timeline-marker-group .timeline-group-toggle::after { display: none; }
-.astraeus-shell .timeline-group-count { display: block; width: 18px; height: 18px; border: 1.5px solid var(--ui-accent, #fc6323); border-radius: 50%; background: rgba(13, 13, 13, .85); color: var(--ui-color, #f0e6da); font: 600 11px/15px ui-monospace, SFMono-Regular, Menlo, monospace; text-align: center; }
+.astraeus-shell .timeline-group-count { display: block; width: var(--astraeus-size-1); height: var(--astraeus-size-1); border: var(--astraeus-space-1) solid var(--astraeus-accent); border-radius: 50%; background: var(--astraeus-panel); color: var(--astraeus-text); font-family: var(--astraeus-mono); font-size: var(--astraeus-text-xs); font-weight: 600; line-height: var(--astraeus-text-l); text-align: center; }
 .astraeus-shell .timeline-group-toggle:hover .timeline-group-count,
 .astraeus-shell .timeline-group-toggle:focus-visible .timeline-group-count,
-.astraeus-shell .timeline-group-toggle[aria-expanded="true"] .timeline-group-count { background: var(--ui-accent, #fc6323); color: #0d0d0d; }
-.astraeus-shell .timeline-group-list { position: absolute; z-index: 3; bottom: calc(100% + 6px); left: 50%; display: flex; flex-direction: column; gap: 2px; width: max-content; max-width: min(300px, calc(100vw - 32px)); max-height: 40vh; margin: 0; padding: 4px; overflow-y: auto; border: 1px solid #2b2927; border-radius: 6px; background: rgba(13, 13, 13, .95); list-style: none; transform: translateX(-50%); pointer-events: auto; }
+.astraeus-shell .timeline-group-toggle[aria-expanded="true"] .timeline-group-count { background: var(--astraeus-accent); color: var(--astraeus-panel); }
+.astraeus-shell .timeline-group-list { position: absolute; z-index: var(--astraeus-layer-areas); bottom: calc(100% + var(--astraeus-space-3)); left: 50%; display: flex; flex-direction: column; gap: var(--astraeus-space-1); width: max-content; max-width: min(var(--astraeus-size-14), calc(100cqw - var(--astraeus-size-4))); max-height: 40cqh; margin: 0; padding: var(--astraeus-space-2); overflow-y: auto; border: 1px solid var(--astraeus-border); border-radius: var(--astraeus-radius-s); background: var(--astraeus-panel); list-style: none; transform: translateX(-50%); pointer-events: auto; }
 .astraeus-shell .timeline-marker-group[data-align="start"] .timeline-group-list { left: 0; transform: none; }
 .astraeus-shell .timeline-marker-group[data-align="end"] .timeline-group-list { right: 0; left: auto; transform: none; }
-.astraeus-shell :where(.timeline-group-item) { display: block; width: 100%; min-height: 36px; padding: 6px 10px; border: 0; border-radius: 4px; background: transparent; color: var(--ui-color, #f0e6da); font: inherit; text-align: left; white-space: normal; cursor: pointer; }
+.astraeus-shell :where(.timeline-group-item) { display: block; width: 100%; min-height: var(--astraeus-size-5); padding: var(--astraeus-space-3) var(--astraeus-space-5); border: 0; border-radius: var(--astraeus-space-2); background: transparent; color: var(--astraeus-text); font: inherit; text-align: left; white-space: normal; cursor: pointer; }
 .astraeus-shell .timeline-group-item:hover,
-.astraeus-shell .timeline-group-item:focus-visible { background: #2b2927; }
+.astraeus-shell .timeline-group-item:focus-visible { background: var(--astraeus-border); }

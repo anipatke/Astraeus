@@ -26,7 +26,7 @@ import { pretendScreen } from "./domSetup";
 const HERE = dirname(fileURLToPath(import.meta.url));
 const BASELINE = join(HERE, "fixtures", "computed-look.baseline.json");
 const SRC = (file: string) => readFileSync(join(HERE, "..", "src", file), "utf8");
-const REST = ["shell/TimelineBar.css", "shell/TopBar.css", "shell/controls.css", "shell/style.css", "shell/phone.css", "shell/embedded.css"];
+const REST = ["shell/look/look.css", "shell/areas/areas.css", "shell/TimelineBar.css", "shell/TopBar.css", "shell/controls.css", "shell/style.css", "shell/phone.css", "shell/embedded.css"];
 const ORDERS = { site: [...REST, "app/style.css"], mount: ["app/style.css", ...REST] } as const;
 const DEFS = { synthetic: syntheticDefinition, listed: syntheticListedDefinition } as const;
 const LAYOUTS = [

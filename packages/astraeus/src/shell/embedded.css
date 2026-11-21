@@ -4,33 +4,28 @@
  * attribute and keeps the full layout. Only sizes change here; how a control looks stays controls.css's job. Imported last, so it wins on equal weight.
  * Touch screens keep their 44 px targets (the coarse-pointer rule), so a phone inside the portfolio is still easy to press.
  */
-.astraeus-shell[data-embedded="true"][data-phone="false"] { --control-height: 30px; --control-pad-x: 10px; --control-font-size: 12px; --control-radius: 8px; }
-@media (pointer: coarse) {
-  .astraeus-shell[data-embedded="true"][data-phone="false"] { --control-height: 44px; --control-font-size: 13px; }
-}
 
 /* Top bar: one tight row, close to the corner. */
-.astraeus-shell[data-embedded="true"]:where([data-phone="false"]) .shell-top { top: 6px; left: 6px; max-width: calc(100vw - 120px); --shell-timeline-space: 60px; }
-.astraeus-shell[data-embedded="true"][data-phone="false"] .top-bar { gap: 4px; padding: 3px; border-radius: 10px; box-shadow: 0 4px 14px rgba(0, 0, 0, .24); }
-.astraeus-shell[data-embedded="true"][data-phone="false"] .top-bar-divider { height: 16px; margin: 0 2px; }
-.astraeus-shell[data-embedded="true"][data-phone="false"] .developer-mode-toggle { top: 9px; right: 8px; }
+.astraeus-shell[data-embedded="true"]:where([data-phone="false"]) .shell-top { top: var(--astraeus-space-3); left: var(--astraeus-space-3); max-width: calc(100cqw - var(--astraeus-size-9)); --shell-timeline-space: var(--astraeus-size-6); }
+.astraeus-shell[data-embedded="true"][data-phone="false"] .top-bar { gap: var(--astraeus-space-2); padding: var(--astraeus-space-2); border-radius: var(--astraeus-radius-s); box-shadow: var(--astraeus-shadow-s); }
+.astraeus-shell[data-embedded="true"][data-phone="false"] .top-bar-divider { height: var(--astraeus-space-6); margin: 0 var(--astraeus-space-1); }
+.astraeus-shell[data-embedded="true"][data-phone="false"] .developer-mode-toggle { top: var(--astraeus-space-4); right: var(--astraeus-space-4); }
 .astraeus-shell[data-embedded="true"][data-phone="false"] .scale-menu,
-.astraeus-shell[data-embedded="true"][data-phone="false"] .scale-explanation-panel { top: calc(100% + 4px); }
+.astraeus-shell[data-embedded="true"][data-phone="false"] .scale-explanation-panel { top: calc(100% + var(--astraeus-space-2)); }
 
 /* Timeline: one slim line, a thinner scrubber. */
-.astraeus-shell[data-embedded="true"][data-phone="false"] .timeline-bar { right: 6px; bottom: 6px; left: 6px; padding: 3px 8px; border-radius: 10px; font-size: 12px; }
-.astraeus-shell[data-embedded="true"][data-phone="false"] .timeline-main-row { gap: 8px; }
-.astraeus-shell[data-embedded="true"][data-phone="false"] .timeline-time { font-size: 12px; }
-.astraeus-shell[data-embedded="true"][data-phone="false"] .timeline-bar .timeline-speed select { width: 150px; }
-@media (pointer: fine) {
-  .astraeus-shell[data-embedded="true"][data-phone="false"] .timeline-track,
-  .astraeus-shell[data-embedded="true"][data-phone="false"] .timeline-track input[type="range"],
-  .astraeus-shell[data-embedded="true"][data-phone="false"] .timeline-track input[type="range"]::-webkit-slider-runnable-track { height: 20px; }
-  .astraeus-shell[data-embedded="true"][data-phone="false"] .timeline-track input[type="range"]::-webkit-slider-thumb { margin-top: 1px; }
-}
-.astraeus-shell[data-embedded="true"][data-phone="false"] .timeline-bar .timeline-expanded { bottom: calc(100% + 6px); }
+.astraeus-shell[data-embedded="true"][data-phone="false"] .timeline-bar { right: var(--astraeus-space-3); bottom: var(--astraeus-space-3); left: var(--astraeus-space-3); padding: var(--astraeus-space-2) var(--astraeus-space-4); border-radius: var(--astraeus-radius-s); font-size: var(--astraeus-text-s); }
+.astraeus-shell[data-embedded="true"][data-phone="false"] .timeline-main-row { gap: var(--astraeus-space-4); }
+.astraeus-shell[data-embedded="true"][data-phone="false"] .timeline-time { font-size: var(--astraeus-text-s); }
+.astraeus-shell[data-embedded="true"][data-phone="false"] .timeline-bar .timeline-speed select { width: var(--astraeus-size-10); }
+.astraeus-shell[data-embedded="true"][data-phone="false"][data-pointer="fine"] .timeline-track,
+.astraeus-shell[data-embedded="true"][data-phone="false"][data-pointer="fine"] .timeline-track input[type="range"],
+.astraeus-shell[data-embedded="true"][data-phone="false"][data-pointer="fine"] .timeline-track input[type="range"]::-webkit-slider-runnable-track { height: var(--astraeus-size-1); }
+.astraeus-shell[data-embedded="true"][data-phone="false"][data-pointer="fine"] .timeline-track input[type="range"]::-webkit-slider-thumb { margin-top: 1px; }
+
+.astraeus-shell[data-embedded="true"][data-phone="false"] .timeline-bar .timeline-expanded { bottom: calc(100% + var(--astraeus-space-3)); }
 
 /* A phone-sized frame keeps its pill, drawers and 44 px targets; only the margins and the timeline's padding tighten. */
-.astraeus-shell[data-embedded="true"][data-phone="true"] .controls-pill { top: calc(4px + var(--safe-top)); left: calc(4px + var(--safe-left)); }
-.astraeus-shell[data-embedded="true"][data-phone="true"] .developer-mode-toggle { top: calc(4px + var(--safe-top)); right: calc(4px + var(--safe-right)); }
-.astraeus-shell[data-embedded="true"][data-phone="true"] .timeline-bar { right: calc(4px + var(--safe-right)); bottom: calc(4px + var(--safe-bottom)); left: calc(4px + var(--safe-left)); padding: 14px 8px 1px; }
+.astraeus-shell[data-embedded="true"][data-phone="true"] .controls-pill { top: calc(var(--astraeus-space-2) + var(--safe-top)); left: calc(var(--astraeus-space-2) + var(--safe-left)); }
+.astraeus-shell[data-embedded="true"][data-phone="true"] .developer-mode-toggle { top: calc(var(--astraeus-space-2) + var(--safe-top)); right: calc(var(--astraeus-space-2) + var(--safe-right)); }
+.astraeus-shell[data-embedded="true"][data-phone="true"] .timeline-bar { right: calc(var(--astraeus-space-2) + var(--safe-right)); bottom: calc(var(--astraeus-space-2) + var(--safe-bottom)); left: calc(var(--astraeus-space-2) + var(--safe-left)); padding: var(--astraeus-space-6) var(--astraeus-space-4) 1px; }

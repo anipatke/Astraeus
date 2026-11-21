@@ -1,7 +1,7 @@
 /*
  * The one stylesheet that owns how a control looks (T-081 Done When 7, O-020): buttons, icon buttons, dropdowns, the Events summary and list rows.
  * Height, padding, radius, font, colour, background, border, the dropdown arrow and the hover, focus, selected and disabled states are set here and
- * nowhere else; desktop and phone sizes are the three custom properties below. Components set only layout (width, position, order), never the look.
+ * nowhere else, from the look tokens (look/look.css: control height 36, 44 on a touch screen, 30 in a frame). Components set only layout (width, position, order), never the look.
  * A control that differs on purpose says so with a class from the list below, and the browser check (`controlStyles` in the shared driver)
  * compares controls of the same kind and class: dropdowns with dropdowns, icon buttons with icon buttons.
  *
@@ -9,100 +9,80 @@
  *   .ui-ghost    no chrome until hovered      .ui-accent   accent colour, tinted      .ui-row     a list row, left aligned
  *   .ui-bare     no chrome at all (a drawer handle)
  */
-.astraeus-shell {
-  --control-height: 36px;
-  --control-pad-x: 12px;
-  --control-radius: 10px;
-  --control-font-size: 13px;
-  --control-font-weight: 500;
-  --control-color: var(--ui-color, #f0e6da);
-  --control-muted: var(--ui-muted, #c7bdb3);
-  --control-bg: rgba(13, 13, 13, .92);
-  --control-border: #45413d;
-  --control-border-hover: #888078;
-  --control-accent: var(--ui-accent, #fc6323);
-  --control-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12' fill='none' stroke='%23c7bdb3' stroke-width='1.6'%3E%3Cpath d='M2 4l4 4 4-4'/%3E%3C/svg%3E");
-}
-/* Phone sizes: 44 px touch targets (a phone, and the 701-900 px tablet band). */
-.astraeus-shell[data-phone="true"] { --control-height: 44px; --control-font-size: 14px; }
-@media (min-width: 701px) and (max-width: 900px) {
-  .astraeus-shell { --control-height: 44px; }
-}
-
 .astraeus-shell button,
 .astraeus-shell select,
 .astraeus-shell summary.ui-button {
   box-sizing: border-box;
-  min-height: var(--control-height);
-  padding: 0 var(--control-pad-x);
-  border: 1px solid var(--control-border);
-  border-radius: var(--control-radius);
-  background: var(--control-bg);
-  color: var(--control-color);
+  min-height: var(--astraeus-control-height);
+  padding: 0 var(--astraeus-space-5);
+  border: 1px solid var(--astraeus-border);
+  border-radius: var(--astraeus-radius-s);
+  background: var(--astraeus-panel);
+  color: var(--astraeus-text);
   font-family: inherit;
-  font-size: var(--control-font-size);
-  font-weight: var(--control-font-weight);
+  font-size: var(--astraeus-control-text);
+  font-weight: 500;
   line-height: 1.2;
   cursor: pointer;
 }
 .astraeus-shell button,
-.astraeus-shell summary.ui-button { display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
+.astraeus-shell summary.ui-button { display: inline-flex; align-items: center; justify-content: center; gap: var(--astraeus-space-4); }
 .astraeus-shell summary.ui-button { list-style: none; }
 .astraeus-shell summary.ui-button::-webkit-details-marker { display: none; }
 
 /* The dropdown: native list, one drawn arrow. */
 .astraeus-shell select {
   appearance: none;
-  padding-right: 28px;
-  background: var(--control-bg) var(--control-arrow) no-repeat right 10px center / 12px 12px;
+  padding-right: var(--astraeus-size-3);
+  background: var(--astraeus-panel) var(--astraeus-arrow) no-repeat right var(--astraeus-space-5) center / var(--astraeus-space-5) var(--astraeus-space-5);
   text-overflow: ellipsis;
 }
-.astraeus-shell select option { background: #15151b; color: var(--control-color); }
+.astraeus-shell select option { background: var(--astraeus-panel); color: var(--astraeus-text); }
 
 /* Variants. */
-.astraeus-shell .ui-icon { width: var(--control-height); padding: 0; }
-.astraeus-shell .ui-pill { border-radius: 999px; }
-.astraeus-shell .ui-ghost { border-color: transparent; background: transparent; color: var(--control-muted); }
-.astraeus-shell .ui-accent { border-color: var(--control-accent); background: color-mix(in srgb, var(--control-accent) 12%, transparent); color: var(--control-accent); }
+.astraeus-shell .ui-icon { width: var(--astraeus-control-height); padding: 0; }
+.astraeus-shell button,
+.astraeus-shell summary.ui-button { border-radius: var(--astraeus-radius-pill); }
+.astraeus-shell .ui-pill { border-radius: var(--astraeus-radius-pill); }
+.astraeus-shell .ui-ghost { border-color: transparent; background: transparent; color: var(--astraeus-muted); }
+.astraeus-shell .ui-accent { border-color: var(--astraeus-accent); background: color-mix(in srgb, var(--astraeus-accent) 12%, transparent); color: var(--astraeus-accent); }
 .astraeus-shell .ui-row,
 .astraeus-shell summary.ui-row { justify-content: space-between; width: 100%; border-color: transparent; background: transparent; text-align: left; }
 .astraeus-shell .ui-bare { min-height: 0; padding: 0; border: 0; background: transparent; }
+.astraeus-shell .ui-row,
+.astraeus-shell summary.ui-row { border-radius: var(--astraeus-radius-s); }
 .astraeus-shell summary.ui-row { display: flex; align-items: center; }
 
 /* States. */
 .astraeus-shell button:hover:not(:disabled),
 .astraeus-shell select:hover,
-.astraeus-shell summary.ui-button:hover { border-color: var(--control-border-hover); }
-.astraeus-shell .ui-ghost:hover:not(:disabled) { border-color: transparent; color: var(--control-color); }
+.astraeus-shell summary.ui-button:hover { border-color: color-mix(in srgb, var(--astraeus-text) 45%, transparent); }
+.astraeus-shell .ui-ghost:hover:not(:disabled) { border-color: transparent; color: var(--astraeus-text); }
 .astraeus-shell .ui-row:hover:not(:disabled),
-.astraeus-shell summary.ui-row:hover { border-color: transparent; background: rgba(240, 230, 218, .08); }
+.astraeus-shell summary.ui-row:hover { border-color: transparent; background: color-mix(in srgb, var(--astraeus-text) 8%, transparent); }
 .astraeus-shell .ui-bare:hover:not(:disabled) { border-color: transparent; }
 .astraeus-shell button[aria-pressed="true"],
 .astraeus-shell button[aria-expanded="true"]:not(.ui-bare),
 .astraeus-shell button[aria-checked="true"],
-.astraeus-shell button[aria-current="time"] { border-color: var(--control-accent); color: var(--control-accent); }
-.astraeus-shell .ui-row[aria-checked="true"] { border-color: transparent; background: color-mix(in srgb, var(--control-accent) 14%, transparent); }
+.astraeus-shell button[aria-current="time"] { border-color: var(--astraeus-accent); color: var(--astraeus-accent); }
+.astraeus-shell .ui-row[aria-checked="true"] { border-color: transparent; background: color-mix(in srgb, var(--astraeus-accent) 14%, transparent); }
 .astraeus-shell button:focus-visible,
 .astraeus-shell select:focus-visible,
-.astraeus-shell summary.ui-button:focus-visible { outline: 2px solid var(--control-accent); outline-offset: 2px; }
+.astraeus-shell summary.ui-button:focus-visible { outline: var(--astraeus-space-1) solid var(--astraeus-accent); outline-offset: var(--astraeus-space-1); }
 .astraeus-shell button:disabled { opacity: .45; cursor: not-allowed; }
-@media (prefers-reduced-motion: reduce) {
-  .astraeus-shell button,
-  .astraeus-shell select { transition: none !important; }
-}
 
 /* Text and search inputs share one look with the buttons (T-099). */
 .astraeus-shell input[type="search"],
 .astraeus-shell input[type="text"] {
   box-sizing: border-box;
   width: 100%;
-  min-height: var(--control-height);
-  padding: 0 var(--control-pad-x);
-  border: 1px solid var(--control-border);
-  border-radius: var(--control-radius);
-  background: var(--control-bg);
-  color: var(--control-color);
-  font-size: var(--control-font-size);
+  min-height: var(--astraeus-control-height);
+  padding: 0 var(--astraeus-space-5);
+  border: 1px solid var(--astraeus-border);
+  border-radius: var(--astraeus-radius-s);
+  background: var(--astraeus-panel);
+  color: var(--astraeus-text);
+  font-size: var(--astraeus-control-text);
 }
 .astraeus-shell input[type="search"]:hover,
-.astraeus-shell input[type="text"]:hover { border-color: var(--control-border-hover); }
+.astraeus-shell input[type="text"]:hover { border-color: color-mix(in srgb, var(--astraeus-text) 45%, transparent); }

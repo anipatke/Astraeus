@@ -2395,6 +2395,11 @@
           "name": "sheetMaxPercent",
           "optional": true,
           "signature": "number | undefined"
+        },
+        {
+          "name": "interface",
+          "optional": true,
+          "signature": "InterfaceLook | undefined"
         }
       ]
     },
@@ -2472,6 +2477,11 @@
           "name": "sheetMaxPercent",
           "optional": false,
           "signature": "number"
+        },
+        {
+          "name": "interface",
+          "optional": false,
+          "signature": "Required<InterfaceLook>"
         }
       ]
     },
@@ -2575,6 +2585,63 @@
           "name": "precision",
           "optional": true,
           "signature": "\"day\" | \"minute\" | \"second\" | undefined"
+        }
+      ]
+    },
+    "InterfaceLook": {
+      "kind": "interface",
+      "signature": "",
+      "constructors": [],
+      "members": [
+        {
+          "name": "panel",
+          "optional": true,
+          "signature": "string | undefined"
+        },
+        {
+          "name": "text",
+          "optional": true,
+          "signature": "string | undefined"
+        },
+        {
+          "name": "muted",
+          "optional": true,
+          "signature": "string | undefined"
+        },
+        {
+          "name": "accent",
+          "optional": true,
+          "signature": "string | undefined"
+        },
+        {
+          "name": "border",
+          "optional": true,
+          "signature": "string | undefined"
+        },
+        {
+          "name": "data",
+          "optional": true,
+          "signature": "string | undefined"
+        },
+        {
+          "name": "fontFamily",
+          "optional": true,
+          "signature": "string | undefined"
+        },
+        {
+          "name": "textSizePx",
+          "optional": true,
+          "signature": "number | undefined"
+        },
+        {
+          "name": "radiusPx",
+          "optional": true,
+          "signature": "number | undefined"
+        },
+        {
+          "name": "motionMs",
+          "optional": true,
+          "signature": "number | undefined"
         }
       ]
     },

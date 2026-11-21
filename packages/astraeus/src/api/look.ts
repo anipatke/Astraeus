@@ -36,6 +36,30 @@ export interface LabelsLook {
   readonly sizePx?: number;
 }
 
+/** The look of one viewer's own interface (bar, panels, cards, controls). Every field is optional and keeps its default. Colours are CSS colour texts. */
+export interface InterfaceLook {
+  /** Bar and panel background. Default `"rgba(13, 13, 13, .88)"`. */
+  readonly panel?: string;
+  /** Main text. Default `"#f0e6da"`. */
+  readonly text?: string;
+  /** Quieter text. Default `"#c7bdb3"`. */
+  readonly muted?: string;
+  /** Highlights: a pressed control, focus, the played timeline. Default `"#e8b06a"`. */
+  readonly accent?: string;
+  /** Lines round panels and controls. Default `"rgba(240, 230, 218, .18)"`. */
+  readonly border?: string;
+  /** Measured values and markers. Default `"#b1a1df"`. */
+  readonly data?: string;
+  /** A CSS font-family text; not empty. Default the system font stack. */
+  readonly fontFamily?: string;
+  /** Base text size in pixels, 11 to 18. Default 14. */
+  readonly textSizePx?: number;
+  /** Panel corner radius in pixels, 0 to 20. Default 12. */
+  readonly radiusPx?: number;
+  /** How long slides and fades take, in ms, 0 to 800; reduced motion forces 0. Default 240. */
+  readonly motionMs?: number;
+}
+
 /** The zone and precision of the viewer's times. */
 export interface TimeLook {
   /** `"UTC"` (default, ISO text), `"local"` (the visitor's zone) or an IANA name such as `"Australia/Sydney"`; else `bad-look`. */
@@ -74,6 +98,8 @@ export interface LookInput {
   readonly time?: TimeLook;
   /** The tallest a phone's information or story sheet grows, as a percent of the screen height, 30 to 85. Default 50. Has no page address parameter; the Developer drawer's "Sheet height" slider is this same value. */
   readonly sheetMaxPercent?: number;
+  /** The look of the viewer's own interface. Default: see `InterfaceLook`. No page address parameter. */
+  readonly interface?: InterfaceLook;
 }
 
 /** The looks a running viewer shows, every one filled in (`ViewerHandle.look`): the scene's `setLook`, the page address and the Developer drawer laid over the defaults. `sunGlow` is absent in a scene without the Sun. */
@@ -96,4 +122,6 @@ export interface LookRead {
   readonly time: Required<TimeLook>;
   /** The phone sheet's height cap in force, a percent of the screen height (30 to 85). */
   readonly sheetMaxPercent: number;
+  /** The interface look in force, every one filled in. */
+  readonly interface: Required<InterfaceLook>;
 }

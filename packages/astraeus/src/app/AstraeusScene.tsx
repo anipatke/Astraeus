@@ -38,6 +38,7 @@ import { TRACK_LAYER } from "./TrackedBodyView";
 import { type BodySetLayer, type BodySetLook } from "./bodySet";
 import type { LabelStyle } from "./labelStyle";
 import type { TimeLook } from "./timeLook";
+import type { InterfaceLookRead } from "../shell/look/interfaceLook";
 import type { GroupDotLook } from "./PointsView";
 import type { SkyColours, SkyClearRequest, SkyFigureLayer, SkyLineSwitches, SkyTraceRequest } from "./skyFigures";
 import type { RingLook } from "../assets/rings";
@@ -113,6 +114,8 @@ export interface SceneControls {
   labelStyle: LabelStyle;
   /** Presentation only: the zone and precision of every visitor-facing time (the look `time`; live). */
   timeLook: TimeLook;
+  /** Presentation only: the interface look (the look `interface`: colours, font, text size, radius, motion; live). The shell carries it to its root as custom properties. */
+  interfaceLook: InterfaceLookRead;
   /** Presentation only: the phone sheet's height cap, percent of the screen (the look `sheetMaxPercent`; live). The Developer drawer's slider and the look are this one value. */
   sheetMaxPercent: number;
   /** Presentation only: when a sphere is too small to see it is drawn as a marker (see `drawsAsMarker`). */

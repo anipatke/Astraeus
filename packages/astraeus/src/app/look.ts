@@ -6,6 +6,7 @@
 import type { LookInput } from "../api/look";
 import { PHONE_LAYOUT_LIMITS } from "../shell/phoneLayout";
 import { LABEL_SIZE_LIMITS, TIME_PRECISIONS } from "../core/lookValues";
+import { INTERFACE_LOOK_LIMITS } from "../shell/look/interfaceLook";
 export type { LookInput } from "../api/look";
 
 /** The address parameters that set a look. */
@@ -26,6 +27,7 @@ export interface LookField { readonly path: readonly [string] | readonly [string
 
 const range = (path: LookField["path"], param: LookParam | null, min: number, max: number): LookField => ({ path, param, spec: { kind: "range", min, max } });
 const colour = (name: string): LookField => ({ path: ["skyLines", name], param: null, spec: { kind: "colour" } });
+const interfaceColour = (name: string): LookField => ({ path: ["interface", name], param: null, spec: { kind: "colour" } });
 
 /** Every look. The one table; the order is the order of `LookInput`. */
 export const LOOK_FIELDS: readonly LookField[] = [
@@ -50,6 +52,12 @@ export const LOOK_FIELDS: readonly LookField[] = [
   { path: ["time", "precision"], param: null, spec: { kind: "choice", values: TIME_PRECISIONS } },
   // The tallest a phone's information or story sheet grows (O-075 T-317, review F-18): no address parameter; the Developer drawer's "Sheet height" slider is this same value.
   range(["sheetMaxPercent"], null, PHONE_LAYOUT_LIMITS.sheetMaxPercent.min, PHONE_LAYOUT_LIMITS.sheetMaxPercent.max),
+  // The viewer's own interface look (O-079 T-330, API-06): per viewer, no address parameter (like `labels` and `time`), so the mapping test holds with `param: null`.
+  interfaceColour("panel"), interfaceColour("text"), interfaceColour("muted"), interfaceColour("accent"), interfaceColour("border"), interfaceColour("data"),
+  { path: ["interface", "fontFamily"], param: null, spec: { kind: "font" } },
+  range(["interface", "textSizePx"], null, INTERFACE_LOOK_LIMITS.textSizePx.min, INTERFACE_LOOK_LIMITS.textSizePx.max),
+  range(["interface", "radiusPx"], null, INTERFACE_LOOK_LIMITS.radiusPx.min, INTERFACE_LOOK_LIMITS.radiusPx.max),
+  range(["interface", "motionMs"], null, INTERFACE_LOOK_LIMITS.motionMs.min, INTERFACE_LOOK_LIMITS.motionMs.max),
 ];
 
 /** The name a look is called in a message: `sunGlow.sizePx`. */

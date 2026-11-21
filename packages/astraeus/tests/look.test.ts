@@ -13,6 +13,7 @@ import { DEFAULT_PHONE_LAYOUT } from "../src/shell/phoneLayout";
 import { desktopPicturesOf } from "../src/app/liveLook";
 import { BOOT_FADE_DEFAULT_SECONDS, bootFadeSeconds } from "../src/shell/bootLoader";
 import { definitionOf } from "../src/api/definitionOf";
+import { DEFAULT_INTERFACE_LOOK, interfaceLookOf } from "../src/shell/look/interfaceLook";
 
 const base = { sizePx: 72, brightness: 1, scale: 2.5 };
 
@@ -38,6 +39,12 @@ const CASES: readonly { readonly key: string; readonly set: number | boolean | s
   { key: "time.precision", set: "day", param: null, asked: "minute", askedValue: "day", read: (l) => timeLookOf(l).precision, defaultRead: "second" },
   // The phone sheet's height cap (O-075 T-317): no address parameter; the same value the Developer drawer's "Sheet height" slider holds.
   { key: "sheetMaxPercent", set: 70, param: null, asked: "80", askedValue: 70, read: (l) => l.sheetMaxPercent ?? DEFAULT_PHONE_LAYOUT.sheetMaxPercent, defaultRead: 50 },
+  // The viewer's own interface look (O-079 T-330, API-06): per viewer, no address parameter, the same table and the same checks as every look above.
+  ...(["panel", "text", "muted", "accent", "border", "data"] as const).map((name) => ({ key: `interface.${name}`, set: "#123456", param: null, asked: "#abcdef", askedValue: "#123456", read: (l: LookInput) => interfaceLookOf(l)[name], defaultRead: DEFAULT_INTERFACE_LOOK[name] })),
+  { key: "interface.fontFamily", set: "Georgia, serif", param: null, asked: "x", askedValue: "Georgia, serif", read: (l) => interfaceLookOf(l).fontFamily, defaultRead: DEFAULT_INTERFACE_LOOK.fontFamily },
+  { key: "interface.textSizePx", set: 16, param: null, asked: "12", askedValue: 16, read: (l) => interfaceLookOf(l).textSizePx, defaultRead: 14 },
+  { key: "interface.radiusPx", set: 8, param: null, asked: "4", askedValue: 8, read: (l) => interfaceLookOf(l).radiusPx, defaultRead: 12 },
+  { key: "interface.motionMs", set: 100, param: null, asked: "0", askedValue: 100, read: (l) => interfaceLookOf(l).motionMs, defaultRead: 240 },
 ];
 
 describe("looks are public settings", () => {

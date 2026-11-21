@@ -16,7 +16,7 @@ describe("phone layout settings (T-081 Done When 5)", () => {
 
   it("hands the numbers to the stylesheet as custom properties", () => {
     const style = phoneLayoutStyle({ animationMs: 100, timelineDrawerMaxPercent: 40, controlsDrawerMaxPercent: 50, sheetMaxPercent: 70, swipeThresholdPx: 25 }) as Record<string, string>;
-    expect(style["--drawer-ms"]).toBe("100ms");
+    expect(style["--astraeus-motion"]).toBe("100ms");
     expect(style["--timeline-drawer-max"]).toBe("40dvh");
     expect(style["--controls-drawer-max"]).toBe("50dvh");
     expect(style["--sheet-max"]).toBe("70dvh");

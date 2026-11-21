@@ -1,25 +1,25 @@
 /* The top bar: one compact row of icon buttons at the top left, and the Developer cog on its own at the top right. */
 
-.astraeus-shell .shell-toolbar { position: relative; z-index: 1; max-width: 100%; }
+.astraeus-shell .shell-toolbar { position: relative; z-index: var(--astraeus-layer-labels); max-width: 100%; }
 
 .astraeus-shell .top-bar {
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 6px;
-  border: 1px solid var(--ui-border, rgba(240, 230, 218, .18));
-  border-radius: 14px;
-  background: rgba(13, 13, 13, .88);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, .24);
-  backdrop-filter: blur(8px);
+  gap: var(--astraeus-space-3);
+  padding: var(--astraeus-space-3);
+  border: 1px solid var(--astraeus-border);
+  border-radius: var(--astraeus-radius);
+  background: var(--astraeus-panel);
+  box-shadow: var(--astraeus-shadow-s);
+  backdrop-filter: blur(var(--astraeus-space-4));
 }
 .astraeus-shell .top-bar .object-controls,
 .astraeus-shell .top-bar .scale-control,
 .astraeus-shell .top-bar .switch-control { display: contents; }
-.astraeus-shell .object-camera-actions { display: flex; align-items: center; gap: 6px; }
-.astraeus-shell .top-bar-divider { flex: 0 0 auto; width: 1px; height: 22px; margin: 0 4px; background: var(--ui-border, rgba(240, 230, 218, .18)); }
+.astraeus-shell .object-camera-actions { display: flex; align-items: center; gap: var(--astraeus-space-3); }
+.astraeus-shell .top-bar-divider { flex: 0 0 auto; width: 1px; height: var(--astraeus-size-2); margin: 0 var(--astraeus-space-2); background: var(--astraeus-border); }
 
-.astraeus-shell .object-picker { min-width: 0; max-width: 220px; }
+.astraeus-shell .object-picker { min-width: 0; max-width: var(--astraeus-size-12); }
 .astraeus-shell .top-bar-button-text { display: none; }
 
 .astraeus-shell .scale-control { position: relative; }
@@ -27,50 +27,45 @@
 
 .astraeus-shell .scale-menu {
   position: absolute;
-  z-index: 6;
-  top: calc(100% + 8px);
+  z-index: var(--astraeus-layer-popover);
+  top: calc(100% + var(--astraeus-space-4));
   right: 0;
   display: flex;
   flex-direction: column;
-  min-width: 190px;
-  padding: 6px;
-  border: 1px solid var(--ui-border, rgba(240, 230, 218, .18));
-  border-radius: 12px;
-  background: rgba(13, 13, 13, .97);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, .42);
+  min-width: var(--astraeus-size-11);
+  padding: var(--astraeus-space-3);
+  border: 1px solid var(--astraeus-border);
+  border-radius: var(--astraeus-radius);
+  background: var(--astraeus-panel);
+  box-shadow: var(--astraeus-shadow-s);
 }
 .astraeus-shell .scale-menu[hidden] { display: none !important; }
 
 .astraeus-shell .top-bar .scale-explanation { display: contents; }
 .astraeus-shell .scale-explanation-panel {
   position: absolute;
-  z-index: 6;
-  top: calc(100% + 8px);
+  z-index: var(--astraeus-layer-popover);
+  top: calc(100% + var(--astraeus-space-4));
   right: 0;
-  width: min(320px, calc(100vw - 32px));
-  padding: 10px 14px;
-  border: 1px solid var(--ui-border, rgba(240, 230, 218, .18));
-  border-radius: 12px;
-  background: rgba(13, 13, 13, .97);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, .42);
-  font-size: 13px;
+  width: min(var(--astraeus-size-14), calc(100cqw - var(--astraeus-size-4)));
+  padding: var(--astraeus-space-5) var(--astraeus-space-6);
+  border: 1px solid var(--astraeus-border);
+  border-radius: var(--astraeus-radius);
+  background: var(--astraeus-panel);
+  box-shadow: var(--astraeus-shadow-s);
+  font-size: var(--astraeus-text-m);
   line-height: 1.45;
 }
 .astraeus-shell .scale-explanation-panel[hidden] { display: none !important; }
-.astraeus-shell .scale-explanation-panel p { margin: 0 0 8px; }
+.astraeus-shell .scale-explanation-panel p { margin: 0 0 var(--astraeus-space-4); }
 .astraeus-shell .scale-explanation-panel .scale-explanation-note { margin: 0; opacity: .75; }
 
 .astraeus-shell .developer-mode-toggle {
   position: absolute;
-  z-index: 5;
+  z-index: var(--astraeus-layer-bar);
   /* Level with the row of controls in the bar beside it (the bar's 12 px offset, its border and its padding). */
-  top: 19px;
-  right: 12px;
-}
-
-/* The tablet band keeps the row; its 44 px targets come from the shared control stylesheet. */
-@media (min-width: 701px) and (max-width: 900px) {
-  .astraeus-shell .shell-toolbar { max-width: calc(100vw - 72px); }
+  top: var(--astraeus-size-1);
+  right: var(--astraeus-space-5);
 }
 
 /* Display switches a story placed: buttons in the bar, and one small panel opened from a Display button (same look as the scale menu). */
@@ -78,17 +73,17 @@
 .astraeus-shell .top-bar .switch-panel-host { display: contents; }
 .astraeus-shell .switch-panel {
   position: absolute;
-  z-index: 6;
-  top: calc(100% + 8px);
+  z-index: var(--astraeus-layer-popover);
+  top: calc(100% + var(--astraeus-space-4));
   right: 0;
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  min-width: 190px;
-  padding: 6px;
-  border: 1px solid var(--ui-border, rgba(240, 230, 218, .18));
-  border-radius: 12px;
-  background: rgba(13, 13, 13, .97);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, .42);
+  gap: var(--astraeus-space-2);
+  min-width: var(--astraeus-size-11);
+  padding: var(--astraeus-space-3);
+  border: 1px solid var(--astraeus-border);
+  border-radius: var(--astraeus-radius);
+  background: var(--astraeus-panel);
+  box-shadow: var(--astraeus-shadow-s);
 }
 .astraeus-shell .switch-panel[hidden] { display: none !important; }

@@ -21,7 +21,7 @@ import { drawn } from "./domSetup";
 (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
 
 const SRC = join(process.cwd(), "packages", "astraeus", "src");
-const SHEETS = ["app/style.css", "shell/controls.css", "shell/style.css", "shell/phone.css", "shell/embedded.css", "shell/TopBar.css", "shell/TimelineBar.css"];
+const SHEETS = ["shell/look/look.css", "shell/areas/areas.css", "app/style.css", "shell/controls.css", "shell/style.css", "shell/phone.css", "shell/embedded.css", "shell/TopBar.css", "shell/TimelineBar.css"];
 const HOST_CSS = "body { font-family: Georgia, serif; color: rgb(10, 20, 30); } button { border: 3px dotted rgb(1, 2, 3); padding: 7px; }";
 const PROPS = ["font-family", "color", "background-color", "margin-top", "position", "overflow", "height", "color-scheme", "border-top-width", "padding-top", "font-size"];
 
@@ -113,12 +113,12 @@ describe.each(ENTRIES)("a viewer started by $name", ({ start }) => {
     injectViewerSheets();
     const started = await start(page);
     const rootStyle = getComputedStyle(page.querySelector(".astraeus-shell")!);
-    expect(rootStyle.getPropertyValue("--ui-accent").trim()).toBe("#fc6323");
-    expect(rootStyle.getPropertyValue("--ui-panel").trim()).toBe("rgba(13, 13, 13, .94)");
-    expect(rootStyle.getPropertyValue("--perf-good").trim()).toBe("#6fcf8f");
-    expect(rootStyle.fontSize).toBe("14px");
+    expect(rootStyle.getPropertyValue("--astraeus-accent").trim()).toBe("#e8b06a");
+    expect(rootStyle.getPropertyValue("--astraeus-panel").trim()).toBe("rgba(13, 13, 13, .88)");
+    expect(rootStyle.getPropertyValue("--astraeus-good").trim()).toBe("#6fcf8f");
+    expect(rootStyle.getPropertyValue("--astraeus-text-size").trim()).toBe("14px");
     expect(rootStyle.colorScheme).toBe("dark");
-    expect(getComputedStyle(document.documentElement).getPropertyValue("--ui-accent")).toBe("");
+    expect(getComputedStyle(document.documentElement).getPropertyValue("--astraeus-accent")).toBe("");
     started.stop();
   });
 

@@ -45,6 +45,7 @@ import { TRACE_FADE_SECONDS, type SkyTraceAfter } from "../core/skyTrace";
 import { aimAtFigure, DEFAULT_SKY_LINES, prefersReducedMotion, skyColoursOf, skyFadeInSecondsOf } from "./skyFigures";
 import { labelStyleOf } from "./labelStyle";
 import { timeLookOf } from "./timeLook";
+import { interfaceLookOf } from "../shell/look/interfaceLook";
 import { experienceInView, hiddenByView, hiddenWithShownSpans, viewById } from "./viewHiding";
 import { cameraIdsOf } from "../core/storyPanels";
 import type { RingLook } from "../assets/rings";
@@ -227,6 +228,7 @@ function initialSceneControls(
     labelStyle: labelStyleOf(runtime.look),
     timeLook: timeLookOf(runtime.look),
     sheetMaxPercent: runtime.look.sheetMaxPercent ?? DEFAULT_PHONE_LAYOUT.sheetMaxPercent,
+    interfaceLook: interfaceLookOf(runtime.look),
     skyVisible: runtime.sky.visible,
     bodyMarker: markerSettingsOf(runtime.look),
     ...(glowBase === null ? {} : { glowLook: glowLookOf(runtime.look, glowBase) }),
@@ -319,7 +321,8 @@ export function App({ definition, writeTitle = true, address, developerTools, ho
   const [phoneLayoutOwn, setPhoneLayout] = useState<PhoneLayoutSettings>(DEFAULT_PHONE_LAYOUT);
   // The sheet cap is a look: the live controls hold it, so `setLook`, the handle's `look` and the Developer slider are one value (STYLE-07).
   const [sheetShown, setSheetShown] = useState(controls.current.sheetMaxPercent);
-  const phoneLayout: PhoneLayoutSettings = { ...phoneLayoutOwn, sheetMaxPercent: sheetShown };
+  const [interfaceShown, setInterfaceShown] = useState(controls.current.interfaceLook);
+  const phoneLayout: PhoneLayoutSettings = { ...phoneLayoutOwn, sheetMaxPercent: sheetShown, animationMs: interfaceShown.motionMs };
   const [anchorLabels, setAnchorLabels] = useState(controls.current.showAnchorLabels);
   const [skyLinesShown, setSkyLinesShown] = useState(controls.current.skyLines);
   const [skyColoursShown, setSkyColoursShown] = useState(controls.current.skyColours);
@@ -629,7 +632,7 @@ export function App({ definition, writeTitle = true, address, developerTools, ho
       setStarBrightness(read.starBrightness); setMilkyWayBrightness(read.milkyWayBrightness); setMilkyWayOn(read.milkyWay); setSkyVisible(read.skyVisible);
       if (read.sunGlow !== undefined) setGlowShown({ ...controls.current.glowLook! });
       setMarkerPx(read.markerSwapRadiusPx); setLoadFade(read.loadFadeSeconds);
-      setSkyColoursShown(controls.current.skyColours); setLabelStyleShown(controls.current.labelStyle); setTimeLookShown(controls.current.timeLook); setSheetShown(read.sheetMaxPercent);
+      setSkyColoursShown(controls.current.skyColours); setLabelStyleShown(controls.current.labelStyle); setTimeLookShown(controls.current.timeLook); setSheetShown(read.sheetMaxPercent); setInterfaceShown(controls.current.interfaceLook);
     },
     setScale: updateScale,
     items: () => displaySwitchItems({ ...bindingsNow(), settings: hostReachable(definition.displaySwitches) }),
@@ -642,7 +645,7 @@ export function App({ definition, writeTitle = true, address, developerTools, ho
     const changed = shownKey.current !== null && shownKey.current !== key;
     shownKey.current = key;
     if (changed) host?.publish(state, "visitor");
-  }, [host, stateNow, scale, skyVisible, starBrightness, milkyWayBrightness, milkyWayOn, glowShown, markerPx, loadFade, orbitShown, setLook, hiddenLabels, anchorLabels, skyLinesShown, skyColoursShown, labelStyleShown, timeLookShown, sheetShown]);
+  }, [host, stateNow, scale, skyVisible, starBrightness, milkyWayBrightness, milkyWayOn, glowShown, markerPx, loadFade, orbitShown, setLook, hiddenLabels, anchorLabels, skyLinesShown, skyColoursShown, labelStyleShown, timeLookShown, sheetShown, interfaceShown]);
   const hasStoryPanels = (storySet?.panels.length ?? 0) > 0;
   const showDisplay = showsDisplayControls(definition, runtime, skyVisible, orbitPaths.length, storyMarkerSpecs.length);
   // Orbit-line sliders: the first four stay in view, the rest sit in a nested "Fine-tune" fold (T-090).
@@ -767,11 +770,11 @@ export function App({ definition, writeTitle = true, address, developerTools, ho
         ] as const).map(([key, label, ariaLabel, testId]) => (
           <SettingSlider key={key} label={label} ariaLabel={ariaLabel} testId={testId} display={String(phoneLayout[key])} min={PHONE_LAYOUT_LIMITS[key].min} max={PHONE_LAYOUT_LIMITS[key].max} step={PHONE_LAYOUT_LIMITS[key].step} value={phoneLayout[key]}
             onChange={(value) => {
-              if (key === "sheetMaxPercent") { controls.current.sheetMaxPercent = value; setSheetShown(value); } else setPhoneLayout({ ...phoneLayoutOwn, [key]: value });
+              if (key === "sheetMaxPercent") { controls.current.sheetMaxPercent = value; setSheetShown(value); } else if (key === "animationMs") { controls.current.interfaceLook = { ...controls.current.interfaceLook, motionMs: value }; setInterfaceShown(controls.current.interfaceLook); } else setPhoneLayout({ ...phoneLayoutOwn, [key]: value });
             }} />
         ))}
         <SettingButtons>
-          <button onClick={() => { setPhoneLayout(DEFAULT_PHONE_LAYOUT); controls.current.sheetMaxPercent = DEFAULT_PHONE_LAYOUT.sheetMaxPercent; setSheetShown(DEFAULT_PHONE_LAYOUT.sheetMaxPercent); }}>Reset phone layout</button>
+          <button onClick={() => { setPhoneLayout(DEFAULT_PHONE_LAYOUT); controls.current.sheetMaxPercent = DEFAULT_PHONE_LAYOUT.sheetMaxPercent; setSheetShown(DEFAULT_PHONE_LAYOUT.sheetMaxPercent); controls.current.interfaceLook = { ...controls.current.interfaceLook, motionMs: DEFAULT_PHONE_LAYOUT.animationMs }; setInterfaceShown(controls.current.interfaceLook); }}>Reset phone layout</button>
         </SettingButtons>
       
         </>
@@ -810,6 +813,7 @@ export function App({ definition, writeTitle = true, address, developerTools, ho
       paceAuto={runtime.pacing === undefined ? undefined : paceAuto}
       developerMode={developerMode}
       labelStyle={labelStyleShown}
+      interfaceLook={interfaceShown}
       timeLook={timeLookShown}
       onDeveloperModeChange={setDeveloperMode}
       onTogglePlayback={() => {

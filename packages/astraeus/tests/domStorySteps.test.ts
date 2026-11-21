@@ -102,8 +102,8 @@ describe("phone layout rules (375x667 and 1280x720)", () => {
     const rule = /:where\(([^)]*story-panel-next[^)]*)\)\s*\{([^}]*)\}/.exec(css);
     expect(rule).not.toBeNull();
     for (const name of ["story-panel-close", "story-panel-back", "story-panel-next", "story-panel-continue"]) expect(rule![1]).toContain(`.${name}`);
-    expect(rule![2]).toMatch(/min-width:\s*44px/);
-    expect(rule![2]).toMatch(/min-height:\s*44px/);
+    expect(rule![2]).toMatch(/min-width:\s*var\(--astraeus-hit\)/);
+    expect(rule![2]).toMatch(/min-height:\s*var\(--astraeus-hit\)/);
   });
   it("keeps Back, count and Next in one row that cannot overlap: the count shrinks, the buttons do not", () => {
     expect(/\.story-panel-steps\s*\{[^}]*display:\s*flex[^}]*\}/.exec(css)).not.toBeNull();

@@ -15,6 +15,7 @@ import type { DisplaySwitchItem } from "../shell/DisplaySwitches";
 import { resolveSkySettings } from "./skyModel";
 import { labelStyleOf } from "./labelStyle";
 import { timeLookOf } from "./timeLook";
+import { interfaceLookOf } from "../shell/look/interfaceLook";
 import { skyColoursOf, skyFadeInSecondsOf } from "./skyFigures";
 
 /** The sky settings in force: the experience's own, then the look (the scene's `setLook`, with the address over it). The Milky Way switch's start sits between the two. */
@@ -52,6 +53,7 @@ export function lookReadOf(controls: SceneControls): LookRead {
     labels: { ...controls.labelStyle },
     time: { ...controls.timeLook },
     sheetMaxPercent: controls.sheetMaxPercent,
+    interface: { ...controls.interfaceLook },
   };
 }
 
@@ -75,6 +77,7 @@ export function lookReadFrom(look: LookInput, definition: Pick<ExperienceDefinit
     labels: { ...labelStyleOf(look) },
     time: { ...timeLookOf(look) },
     sheetMaxPercent: look.sheetMaxPercent ?? DEFAULT_PHONE_LAYOUT.sheetMaxPercent,
+    interface: interfaceLookOf(look),
   };
 }
 
@@ -98,6 +101,7 @@ export function applyLook(controls: SceneControls, definition: ExperienceDefinit
   controls.labelStyle = labelStyleOf(look);
   controls.timeLook = timeLookOf(look);
   controls.sheetMaxPercent = look.sheetMaxPercent ?? DEFAULT_PHONE_LAYOUT.sheetMaxPercent;
+  controls.interfaceLook = interfaceLookOf(look);
   return lookReadOf(controls);
 }
 

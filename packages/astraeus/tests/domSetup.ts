@@ -11,6 +11,7 @@ import { AstraeusShell } from "../src/shell/AstraeusShell";
 import type { ExperienceCameraPreset, ExperienceConfig } from "../src/shell/experience";
 import { syntheticDefinition } from "../src/synthetic/syntheticDefinition";
 import type { PhoneLayoutSettings } from "../src/shell/phoneLayout";
+import type { InterfaceLookSettings } from "../src/shell/look/interfaceLook";
 import type { StoryPanelSettings } from "../src/shell/useStoryPanels";
 import type { DisplaySwitchItem } from "../src/shell/DisplaySwitches";
 import type { ExperienceSwitch } from "../src/shell/SwitchControl";
@@ -45,6 +46,7 @@ export interface MountOptions {
   readonly developerTools?: ReactNode;
   readonly scaleChoices?: readonly ScaleChoice[];
   readonly phoneLayout?: PhoneLayoutSettings;
+  readonly interfaceLook?: InterfaceLookSettings;
   readonly storyPanelSettings?: StoryPanelSettings;
   /** A made-up choice between versions, shown first in the top bar. */
   readonly switcher?: ExperienceSwitch;
@@ -148,6 +150,7 @@ function Host({ options, clock, probe }: { readonly options: MountOptions; reado
     metricsFor: metrics.current,
     developerTools: options.developerTools,
     phoneLayout: options.phoneLayout,
+    interfaceLook: options.interfaceLook,
     storyPanelSettings: options.storyPanelSettings,
     switcher: options.switcher,
     displaySwitches,

@@ -59,32 +59,33 @@ describe("framed or alone (browser-embedded)", () => {
 
 describe("the sizes the stylesheets promise (browser-controls, browser-embedded, browser-phone: touch targets)", () => {
   it("gives controls 36 px on a larger screen and 44 px on a phone", () => {
-    const controls = css("controls.css");
-    expect(controls).toMatch(/--control-height: 36px/);
-    expect(controls).toMatch(/\.astraeus-shell\[data-phone="true"\]\s*\{[^}]*--control-height: 44px/);
+    const look = css("look/look.css");
+    expect(look).toMatch(/--astraeus-control-height: 36px/);
+    expect(look).toMatch(/--astraeus-hit: 44px/);
+    expect(look).toMatch(/\.astraeus-shell\[data-phone="true"\][^{]*\{[^}]*--astraeus-control-height: var\(--astraeus-hit\)/);
   });
 
   it("slims a framed laptop (30 px controls) and leaves a framed phone at 44 px", () => {
-    const embedded = css("embedded.css");
-    expect(embedded).toMatch(/\[data-embedded="true"\]\[data-phone="false"\]\s*\{[^}]*--control-height: 30px/);
-    expect(embedded).toMatch(/\[data-embedded="true"\]\[data-phone="false"\]\s*\{[^}]*--control-height: 44px/);
-    expect(embedded).not.toMatch(/\[data-phone="true"\][^{]*\{[^}]*--control-height: (?!44)/);
+    const look = css("look/look.css");
+    expect(look).toMatch(/\[data-embedded="true"\]\[data-phone="false"\]\s*\{[^}]*--astraeus-control-height: 30px/);
+    expect(look).toMatch(/\[data-embedded="true"\]\[data-phone="false"\]\[data-pointer="coarse"\]\s*\{[^}]*--astraeus-control-height: var\(--astraeus-hit\)/);
+    expect(look).not.toMatch(/\[data-phone="true"\][^{]*\{[^}]*--astraeus-control-height: (?!var\(--astraeus-hit\))/);
   });
 
   it("gives the drawer handles and the speed slider a 44 px touch height", () => {
     const phone = css("phone.css");
-    expect(phone).toMatch(/\.drawer-handle\)? \{[^}]*height: 44px/);
-    expect(phone).toMatch(/\.timeline-speed-slider\)? input \{[^}]*min-height: 44px/);
+    expect(phone).toMatch(/\.drawer-handle\)? \{[^}]*height: var\(--astraeus-hit\)/);
+    expect(phone).toMatch(/\.timeline-speed-slider\)? input \{[^}]*min-height: var\(--astraeus-hit\)/);
   });
 
   it("draws every control from the one shared size and font, not its own", () => {
     const controls = css("controls.css");
-    expect(controls).toMatch(/min-height: var\(--control-height\)/);
-    expect(controls).toMatch(/\.astraeus-shell \.ui-icon \{ width: var\(--control-height\)/);
-    expect(controls).toMatch(/font-size: var\(--control-font-size\)/);
+    expect(controls).toMatch(/min-height: var\(--astraeus-control-height\)/);
+    expect(controls).toMatch(/\.astraeus-shell \.ui-icon \{ width: var\(--astraeus-control-height\)/);
+    expect(controls).toMatch(/font-size: var\(--astraeus-control-text\)/);
   });
 
   it("shows a visible keyboard focus ring (2 px) on selects and summaries", () => {
-    expect(css("controls.css")).toMatch(/select:focus-visible,[\s\S]*?summary\.ui-button:focus-visible \{ outline: 2px solid/);
+    expect(css("controls.css")).toMatch(/select:focus-visible,[\s\S]*?summary\.ui-button:focus-visible \{ outline: var\(--astraeus-space-1\) solid/);
   });
 });

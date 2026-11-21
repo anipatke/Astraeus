@@ -176,7 +176,7 @@ describe("a story panel on a phone (browser-phone: story panel; browser-story-pa
 describe("the phone settings and reduced motion (browser-phone: settings, reduced motion)", () => {
   it("hands the animation setting to the drawers as a stylesheet number", () => {
     phone({ phoneLayout: { animationMs: 0, timelineDrawerMaxPercent: 55, controlsDrawerMaxPercent: 60, sheetMaxPercent: 50, swipeThresholdPx: 30 } });
-    expect(($(m.container, "main") as HTMLElement).style.getPropertyValue("--drawer-ms")).toBe("0ms");
+    expect(($(m.container, "main") as HTMLElement).style.getPropertyValue("--astraeus-motion")).toBe("0ms");
   });
   it("uses the swipe distance setting: a swipe shorter than it is a tap", () => {
     phone({ phoneLayout: { animationMs: 0, timelineDrawerMaxPercent: 55, controlsDrawerMaxPercent: 60, sheetMaxPercent: 50, swipeThresholdPx: 100 } });
@@ -188,7 +188,11 @@ describe("the phone settings and reduced motion (browser-phone: settings, reduce
   });
   it("removes the drawer animation under reduced motion (stylesheet) and respects the safe-area insets", () => {
     const css = readFileSync(resolve(process.cwd(), "packages/astraeus/src/shell/phone.css"), "utf8");
-    expect(css).toMatch(/@media \(prefers-reduced-motion: reduce\)\s*\{[^}]*\.controls-drawer[^}]*\.timeline-drawer[^}]*transition: none/);
+    const look = readFileSync(resolve(process.cwd(), "packages/astraeus/src/shell/look/look.css"), "utf8");
+    // Reduced motion is one token now (areas/screen.ts sets data-motion): the drawers' transitions are written in it, and it is 0 under reduced motion.
+    expect(look).toMatch(/\[data-motion="reduced"\]\s*\{[^}]*--astraeus-motion: 0ms/);
+    expect(css).toMatch(/\.controls-drawer\s*\{[^}]*transition: transform var\(--astraeus-motion\)/);
+    expect(css).toMatch(/\.timeline-drawer\s*\{[^}]*transition: grid-template-rows var\(--astraeus-motion\)/);
     for (const edge of ["top", "bottom", "left", "right"]) expect(css, edge).toContain(`env(safe-area-inset-${edge}`);
   });
   it("mounts and opens a drawer with reduced motion asked for", () => {

@@ -2,6 +2,13 @@
 
 Versions follow [semantic versioning](https://semver.org). While the version starts with `0.`, the public API (the names exported from `astraeus`) may still change between minor versions; each change is listed here.
 
+## 0.9.5 (proposed)
+
+The viewer's interface is being reset (G-023, O-079): one map of screen areas, one look, one bar rule and one panel rule. No backwards compatibility (owner decision 2026-11-21): apps built on 0.9.4 stay on it until they move.
+
+- Added: `LookInput.interface` and `LookRead.interface`, the public look settings of the interface (panel, text, muted, accent, border, data, fontFamily, textSizePx, radiusPx, motionMs), with defaults and ranges; a host restyles the viewer with them and can match its own content to the same `--astraeus-*` custom properties under `.astraeus-shell`.
+- Changed: every interface style reads from one set of look tokens; the accent is amber `#e8b06a` (was orange `#fc6323`); buttons are pills; text sizes use one scale; the layout follows the viewer's own size, not the window's; control height follows the pointer kind (finger or mouse), not a window-width band.
+
 ## 0.9.4 (2026-11-21)
 
 First download of the packed example (`npm run measure:example`): 1,777,827 bytes raw, 511,436 bytes gzip (code and styles loaded on first open), against 1,775,354 raw and 510,719 gzip at 0.9.3 (+2,473 raw, +717 gzip). Additions and one input fix (G-022); every `astraeus-data*` package still peers on `>=0.9.0 <0.10.0`.

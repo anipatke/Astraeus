@@ -1,0 +1,42 @@
+/*
+ * The areas: positions and layers, and knows no part (viewer-interface note, section 2). One CSS grid laid over the canvas; `pointer-events: none` except on
+ * what sits in it. This is the only stylesheet that may hold an `@media` (tests/lookDrift.test.ts); the screen-size rules the interface used to scatter are
+ * decided once, in areas/screen.ts, as the root attributes data-phone, data-pointer, data-embedded and data-motion, and parts key on those.
+ * A part may wrap its own content with an `@container` rule: the viewer root is the container (`astraeus-viewer`).
+ */
+.astraeus-shell { container: astraeus-viewer / size; }
+
+.astraeus-shell .astraeus-areas {
+  position: absolute;
+  z-index: var(--astraeus-layer-areas);
+  inset: 0;
+  display: grid;
+  grid-template-columns: var(--astraeus-panel-width) minmax(0, 1fr) var(--astraeus-panel-width);
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  grid-template-areas: "bar bar bar" "left . right" "timeline timeline timeline";
+  gap: var(--astraeus-space-4);
+  padding: var(--astraeus-space-5);
+  pointer-events: none;
+}
+.astraeus-shell .astraeus-areas > [data-area] > * { pointer-events: auto; }
+.astraeus-shell [data-area="bar"] { grid-area: bar; }
+.astraeus-shell [data-area="left"] { grid-area: left; min-height: 0; }
+.astraeus-shell [data-area="right"] { grid-area: right; min-height: 0; }
+.astraeus-shell [data-area="timeline"] { grid-area: timeline; }
+/* Anchored places: the menu under the bar's right end, the popover at its button, the developer panel right under the bar. */
+.astraeus-shell [data-area="menu"],
+.astraeus-shell [data-area="popover"],
+.astraeus-shell [data-area="developer"] { position: absolute; z-index: var(--astraeus-layer-popover); }
+.astraeus-shell [data-area="tile"] { grid-area: left; align-self: start; }
+
+/* Phone: one column; left, right and developer map onto the sheet above the timeline. */
+.astraeus-shell[data-phone="true"] .astraeus-areas {
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas: "bar" "." "sheet" "timeline";
+  grid-template-rows: auto minmax(0, 1fr) auto auto;
+  padding: var(--astraeus-space-4);
+}
+.astraeus-shell[data-phone="true"] [data-area="left"],
+.astraeus-shell[data-phone="true"] [data-area="right"],
+.astraeus-shell[data-phone="true"] [data-area="developer"],
+.astraeus-shell[data-phone="true"] [data-area="sheet"] { grid-area: sheet; position: static; }
