@@ -350,13 +350,13 @@ export function AstraeusShell({
   useEffect(() => {
     applyPanelRequest(story, panelRequest);
     // Only a new request opens a panel; the open function is stable.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- only a new request serial opens a panel; the open function is stable
   }, [requestedSerial]);
   const requestedFeatureSerial = serialOf(featureRequest);
   useEffect(() => {
     if (featureRequest !== null && featureRequest !== undefined) showInfo({ kind: "feature", id: featureRequest.key });
     // Only a new request opens a place.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- only a new request serial opens a place
   }, [requestedFeatureSerial]);
   const openFeatureKey = shownInfo?.kind === "feature" ? shownInfo.id : null;
   useEffect(() => { onOpenFeatureChange?.(openFeatureKey); }, [onOpenFeatureChange, openFeatureKey]);
@@ -403,7 +403,7 @@ export function AstraeusShell({
         loseCameraTarget(cameraTargetLoss(target, snapshot.timeUtcMs));
       }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- re-runs only on these keys; panels and the info panel state are read as they are then, adding them would re-run the selection fallback on every panel change
   }, [activePresetId, experience, onCameraRequest, onSelectionChange, selectedObjectId, snapshot.timeUtcMs, viewId]);
 
   // A host `setSelected`: runs after the view-switch effect above in the same commit, so it wins over that effect's fallback or view rule.
@@ -418,7 +418,7 @@ export function AstraeusShell({
     if (selectRequest.id === "") { if (shownInfo?.kind === "object") panels.close("card"); } else if (opens) showInfo({ kind: "object" });
     onSelectRequestApplied?.();
     // Only a new request applies.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- only a new select request serial applies; the other values are read as they are then
   }, [requestedSelectSerial]);
 
   /** The camera's object is gone or not shown: "hold" keeps the pose and stops following (its shown time ended or has not begun, no jump); "overview" frames the overview. */
@@ -478,7 +478,7 @@ export function AstraeusShell({
   useEffect(() => {
     if (pickRequest !== null && pickRequest !== undefined) pickObject(pickRequest.id, pickRequest.keepSky === true);
     // Only a new request flies; the handler reads the current time and experience.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- only a new pick request serial flies; the handler reads the current time and experience
   }, [requestedPickSerial]);
 
   /** A sky figure chosen in the object menu or tapped in the scene: it becomes the selection (the one selection path) and its card opens when `open`; the camera is left alone. */

@@ -27,7 +27,7 @@ export function useHostLayer<L extends { dispose(): void }>(canvas: HTMLCanvasEl
       layer.dispose();
       ref.current = null;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- the caller's deps array is the contract; create and ref are read as they are then
   }, deps);
 }
 

@@ -94,10 +94,10 @@ export function AstraeusScene({ ref, scene, data, onReady, onError, time, rate, 
   const cameraRef = useRef(camera);
   cameraRef.current = camera;
   const drawn = definition !== undefined;
-  useEffect(() => { if (drawn && timeKey !== undefined) apply(() => link.setTime(timeKey)); }, [drawn, link, timeKey]); // eslint-disable-line react-hooks/exhaustive-deps
-  useEffect(() => { if (drawn && rate !== undefined) apply(() => link.setRate(rate)); }, [drawn, link, rate]); // eslint-disable-line react-hooks/exhaustive-deps
-  useEffect(() => { if (drawn && view !== undefined) apply(() => link.setView(view)); }, [drawn, link, view]); // eslint-disable-line react-hooks/exhaustive-deps
-  useEffect(() => { if (drawn && cameraRef.current !== undefined) apply(() => link.setCamera(cameraRef.current!)); }, [drawn, link, cameraKey]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => { if (drawn && timeKey !== undefined) apply(() => link.setTime(timeKey)); }, [drawn, link, timeKey]);
+  useEffect(() => { if (drawn && rate !== undefined) apply(() => link.setRate(rate)); }, [drawn, link, rate]);
+  useEffect(() => { if (drawn && view !== undefined) apply(() => link.setView(view)); }, [drawn, link, view]);
+  useEffect(() => { if (drawn && cameraRef.current !== undefined) apply(() => link.setCamera(cameraRef.current!)); }, [drawn, link, cameraKey]);
 
   useEffect(() => {
     let open = true;

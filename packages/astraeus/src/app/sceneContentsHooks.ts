@@ -90,7 +90,7 @@ export function useScenePointer(canvas: HTMLCanvasElement, runtime: SceneRuntime
   useEffect(() => {
     const limits = () => focusLimits(bodyIdOf(runtime, catalogue, orbit.current.focus) ?? orbit.current.focus, { centre: runtime.sceneCenter, span: state.current.spanScaled, bodies: catalogue }, controls.policy, liveReach(runtime.cameraReach, controls.policy, canvas.clientHeight > 0 ? canvas.clientWidth / canvas.clientHeight : 1));
     return attachScenePointer(canvas, orbit.current, state.current, limits, (id, options) => (options === undefined ? controls.onPickObject?.(id) : controls.onPickObject?.(id, options)));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- the pointer handlers attach once per canvas or controls; runtime, catalogue, orbit and state are read through refs/current at call time
   }, [canvas, controls]);
 }
 

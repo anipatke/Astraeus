@@ -15,15 +15,15 @@ export default [
     ],
   },
   {
-    linterOptions: { reportUnusedDisableDirectives: "off" },
+    linterOptions: { reportUnusedDisableDirectives: "error" },
     files: ["**/*.ts", "**/*.tsx", "**/*.mjs", "**/*.mts"],
     languageOptions: { parser: tseslint.parser },
-    // The plugin is registered only so the repo's existing exhaustive-deps disable
-    // comments name a known rule; the rule stays off (T-127 recorded choice).
+    // Only the two classic hooks rules (T-378); the plugin's React Compiler rules stay off.
     plugins: { "react-hooks": reactHooks },
     rules: {
       complexity: ["error", 20],
-      "react-hooks/exhaustive-deps": "off",
+      "react-hooks/rules-of-hooks": "error",
+      "react-hooks/exhaustive-deps": "error",
     },
   },
   {

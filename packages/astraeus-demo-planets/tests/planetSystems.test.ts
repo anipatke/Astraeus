@@ -60,7 +60,6 @@ describe("the outer planets in the planet switch (T-118)", () => {
         expect(shipped).toHaveLength(LOADED[view.name]!.reduce((total, count) => total + count, 0));
         const bytes = shipped.reduce((total, path) => total + readBytes(`${DATA}astraeus-data-${view.name}/data/${view.name}-moons/${path}`).byteLength, 0);
         expect(bytes).toBeLessThanOrEqual(LIMITS[view.name]!.chunkBytes);
-        // eslint-disable-next-line no-console
         console.info(`${view.name}: ${shipped.length} chunks, ${bytes} bytes`);
       });
 

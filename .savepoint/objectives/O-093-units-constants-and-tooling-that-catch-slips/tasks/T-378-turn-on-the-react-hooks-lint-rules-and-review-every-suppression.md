@@ -2,7 +2,7 @@
 id: T-378
 title: Turn on the React hooks lint rules and review every suppression
 objective: O-093
-status: planned
+status: done
 depends_on: [{task: T-371, requires: clear}, {task: T-377, requires: clear}]
 check_waiver: {task: T-378, reason: 'Owner said "work through this list of objectives one by one. Orchestrate each objective to completion" (G-024 decision 7) and "carry on" (2026-11-22): standing orchestration rules waive the optional step checks; the mandatory Full Objective Check covers the whole diff.', actor: {role: owner, session: orchestrate-g024-20261121}, recorded_at: '2026-11-21T19:19:52Z'}
 owner_validation: {required: false}
@@ -63,8 +63,28 @@ Focused: `npm run lint`; `npx vitest run packages/astraeus/tests/astraeusSceneCo
 
 ## Technical Evidence
 
-Pending execution.
+### Done When -> evidence
+| Done When | Evidence |
+|---|---|
+| Config: two rules error, unused directives error, comment replaced | `eslint.config.js` diff; `npm run lint` clean |
+| Every suppression reviewed (16 + new reports) | table below |
+| planetSystems no-console directive removed | comment line deleted; lint clean |
+| Planted slips | temp `Plant.tsx`: missing dep `n` -> exhaustive-deps error; hook in `if` -> rules-of-hooks error; stale disable -> "Unused eslint-disable directive" error; file deleted, lint clean again |
+| Lint time | before ~4.9 s wall, after ~4.4 s (limit 15 s) |
+| DOM tests unedited and green | full `npm test`: 311 files, 5071 passed, 2 skipped; no test file edited except the comment deletion |
+| Gates | lint, typecheck, build, test all pass |
+
+### Suppressions
+Kept, `-- reason` added on the directive line: ScaleControl:74, usePanels:96, useShelfPanels:45, AstraeusShell:353,359,406,421,481, App:281 (definition/address reset key), App:534 (read once at mount), sceneHooks:30 (caller deps contract), sceneContentsHooks:93 (read at call time via refs). Each would change when an effect runs if its dependency were added, so none was added.
+Removed: AstraeusScene:97-100 (four directives; rule reported nothing, so they were unused).
+New reports once the rule was on, handled: App `groupLooks` useMemo [runtime] (suppressed, reset key); App host-attach effect missing `stateNow` (suppressed, adding it would re-attach the host); App dev-stats cleanup `controls.current` (suppressed, stable ref, cleanup must clear the current stats); `useShelf.ts` `cells` useMemo [blocks] (suppressed, reset key); `TimelineBar.tsx` `windows` wrapped in `useMemo(() => experience.windows ?? [], [experience.windows])` (behaviour-neutral: same value, only stable identity when windows is undefined; the memos below recompute less often, never differently).
+
+### Deviations
+`useShelf.ts` and `TimelineBar.tsx` are not in planned_writes; the new rule reported them, so they were edited (one comment line and one line).
+
 
 ## Drift Notes
 
 For Design reconciliation (`Current Technical State`): lint now runs complexity, the two React hooks rules, the constants rule (draft 02) and unused-directive reporting.
+
+Coordinator (orchestrate-g024-20261121): gates green (lint 4.4 s, typecheck, build; `npm test` 311 files, 5071 passed). Accepted: the `TimelineBar.tsx` memo (same values, stable identity when `windows` is absent) and the `useShelf.ts` reasoned suppression, outside the planned writes because the new rule reported them. `status: done` set by the coordinator under the standing orchestration rule ("I mark them as they pass", O-038) and G-024 decision 7.

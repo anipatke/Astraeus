@@ -85,7 +85,7 @@ interface TrackMarker {
 export function TimelineBar({ experience, snapshot, onTogglePlayback, onRateChange, paceAuto, onSeek, panels = [], openPanelId = null, onPanelOpen, onEventSeek, onEventInfo, onWindowSeek, onWindowInfo, glowLook = DEFAULT_TIMELINE_GLOW, timeLook: timeLookProp, drawer, infoPanelId }: Props) {
   const timeLook = withDefaultTime(timeLookProp);
   const drawerId = `${useId()}-timeline-drawer`;
-  const windows = experience.windows ?? [];
+  const windows = useMemo(() => experience.windows ?? [], [experience.windows]);
   const profile = useMemo(() => glowProfile(windows, experience.window), [windows, experience.window]);
   const gradients = useMemo(() => ({ ahead: glowGradient(profile, glowLook, "ahead"), played: glowGradient(profile, glowLook, "played") }), [profile, glowLook]);
   const description = glowDescription(windows);

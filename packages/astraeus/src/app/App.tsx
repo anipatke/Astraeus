@@ -278,7 +278,7 @@ export function App({ definition, writeTitle = true, address, developerTools, ho
     if (writeTitle) document.title = pageTitleOf(definition);
   }, [definition, writeTitle]);
   // The address text every reader below uses: the page's when the host turned the option on, else empty. Read once per scene, as before.
-  const search = useMemo(() => addressSearch(address), [definition, address]); // eslint-disable-line react-hooks/exhaustive-deps
+  const search = useMemo(() => addressSearch(address), [definition, address]); // eslint-disable-line react-hooks/exhaustive-deps -- definition and address are the scene's reset key: read once per scene, as before
   const runtime = useMemo(() => buildRuntime(definition, search), [definition, search]);
   // The host link hears the scene's first drawn frame (`onFirstDraw`).
   const told = useCallback(() => host?.firstDraw(), [host]);
@@ -531,7 +531,7 @@ export function App({ definition, writeTitle = true, address, developerTools, ho
     const hidden = hiddenWithShownSpans(controls.current.viewHidden, experience.objects, runtime.clock.snapshot().timeUtcMs)?.objects;
     return experience.objects.map(({ id }) => id).filter((id) => hidden === undefined || !hidden.has(id));
   }, [experience, runtime]);
-  const opening = useMemo(() => openingCamera(definition, runtime, search), []); // eslint-disable-line react-hooks/exhaustive-deps
+  const opening = useMemo(() => openingCamera(definition, runtime, search), []); // eslint-disable-line react-hooks/exhaustive-deps -- opening is read once at mount, on purpose: later scene or address changes must not move the camera
   const readCamera = useCallback((): CameraView | undefined => {
     const view = controls.current.viewReadout ?? opening;
     return view === undefined ? undefined : { ...view };
@@ -546,6 +546,7 @@ export function App({ definition, writeTitle = true, address, developerTools, ho
   const hostTraceSkyFigure = useCallback((id: string, seconds: number, after: SkyTraceAfter) => { controls.current.skyTraces.push({ id, seconds, after, reduced: prefersReducedMotion() }); }, []);
   const hostSetSwitch = useCallback((id: string, on: boolean) => live.current?.setSwitch(id, on), []);
   // The host's group looks belong to this scene's groups: a viewer rebuilt with a new scene starts from that scene's own colours and sizes.
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- runtime is the reset key: a new scene starts a fresh map
   const groupLooks = useMemo(() => new Map<string, GroupDotLook>(), [runtime]);
   const groupIds = useMemo(() => runtime.groups.map((layer) => layer.object.id), [runtime]);
   const hostGroupLook = useCallback((id: string): GroupDotLook | undefined => {
@@ -592,6 +593,7 @@ export function App({ definition, writeTitle = true, address, developerTools, ho
     controls.current.groupLooks = groupLooks;
     host.attach({ about: definition.about, ...(shelf.control === undefined ? {} : { parts: shelf.control }), ...(definition.picker === undefined ? {} : { picker: { id: definition.picker.id, values: definition.picker.options.map((option) => option.value), start: definition.picker.value } }), window: runtime.loopWindow, skyFigures: skyFigureReads(runtime.skyFigures, experience.skyFigures), events: experience.events, rates: definition.experience.rates, paced: runtime.pacing !== undefined, read: stateNow, seek: hostSeekTo, setRate: changeRate, playable: definition.experience.hideTimeline !== true, setPlaying: hostSetPlaying, views: viewIds, setView: chooseView, cameraTargets, readCamera, setCamera, setSelected: hostSetSelected, panels: panelIds, setPanel: hostSetPanel, scales: hostScales, setScale: hostSetScale, setLook: hostSetLook, setSwitch: hostSetSwitch, traceSkyFigure: hostTraceSkyFigure, clearSkyTrace: hostClearSkyTrace, groups: groupIds, groupLook: hostGroupLook, setGroupLook: hostSetGroupLook });
     return () => { hostAttached.current = false; host.detach(); };
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- stateNow is read through host.read; adding it would re-attach the host whenever it changes
   }, [host, runtime, definition, hostSeekTo, changeRate, viewIds, chooseView, cameraTargets, readCamera, setCamera, hostSetSelected, panelIds, hostSetPanel, experience, hostSetPlaying, hostScales, hostSetScale, hostSetLook, hostSetSwitch, hostTraceSkyFigure, hostClearSkyTrace, groupLooks, groupIds, hostGroupLook, hostSetGroupLook, shelf.control]);
 
   useEffect(() => {
@@ -608,6 +610,7 @@ export function App({ definition, writeTitle = true, address, developerTools, ho
     }, 250);
     return () => {
       window.clearInterval(id);
+      // eslint-disable-next-line react-hooks/exhaustive-deps -- controls is a stable ref; the cleanup must clear the current stats, not a copy taken at start
       controls.current.frameStats = null;
       setFrames(null);
       setFpsHistory([]);

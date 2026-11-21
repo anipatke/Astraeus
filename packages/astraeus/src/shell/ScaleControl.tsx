@@ -71,7 +71,7 @@ function ScaleMenu({ choices, current, onScaleChange, ...attributes }: MenuProps
     else if (wasOpen.current && root.current?.contains(document.activeElement) === true) trigger.current?.focus();
     wasOpen.current = open;
     // Focus moves once, when the menu opens or closes.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- focus moves only on open or close; focusItem and choices are read as they are then
   }, [open]);
 
   const close = (returnFocus: boolean) => {

@@ -33,6 +33,7 @@ export function useShelf(parts: readonly ShelfPart[] | undefined, view: Resolved
   const elements = useMemo(() => new Map(typeof document === "undefined" ? [] : all.flatMap((part) => (part.kind === "panel" ? part.blocks : []).filter((block) => block.kind === "customBlock").map((block) => [block.id, document.createElement("div")] as const))), [all]);
   // One cell per block, per viewer, made on first use from the block's starting content; a rebuilt scene starts over.
   const blocks = useMemo(() => new Map<string, ShelfBlock>(all.flatMap((part) => (part.kind === "panel" ? part.blocks : [part]).map((block) => [block.id, block] as const))), [all]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- blocks is the reset key: a rebuilt scene starts over
   const cells = useMemo(() => new Map<string, ShelfCell>(), [blocks]);
   const cellOf = useCallback((id: string): ShelfCell | undefined => {
     const block = blocks.get(id);

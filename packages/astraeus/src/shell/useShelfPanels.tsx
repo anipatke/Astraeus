@@ -42,7 +42,7 @@ export function useShelfPanels({ parts: showing = NO_PARTS, runtime = NO_RUNTIME
     else if (parts.some((part) => part.id === request.id)) open(occupantOf(request.id));
     setApplied(request.serial);
     // Only a new request applies.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- only a new request serial applies; the other values are read as they are then
   }, [serial]);
   useEffect(() => { onOpenChange?.(shown ? openId : null, applied); }, [onOpenChange, openId, shown, applied]);
   const domId = (id: string) => `${base}-shelf-${id}`;

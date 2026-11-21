@@ -93,6 +93,6 @@ export function useMirroredPanels(panels: Panels, storyOpen: boolean, developerM
     if (wasOpen.current && !developerOpen && developerMode) onDeveloperModeChange(false);
     wasOpen.current = developerOpen;
     // Only the rule's change of the developer panel is followed; the mode and its setter are read as they are then.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- only the developer panel's open state is followed; developerMode and its setter are read as they are then
   }, [developerOpen]);
 }
