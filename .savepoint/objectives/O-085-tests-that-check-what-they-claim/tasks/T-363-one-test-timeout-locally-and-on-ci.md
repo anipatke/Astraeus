@@ -2,7 +2,7 @@
 id: T-363
 title: One test timeout locally and on CI
 objective: O-085
-status: planned
+status: done
 depends_on: [{task: T-361, requires: clear}, {task: T-362, requires: clear}]
 check_waiver: {task: T-363, reason: 'Owner said "work through this list of objectives one by one. Orchestrate each objective to completion" (G-024 decision 7): standing orchestration rules waive the optional step checks; the mandatory Full Objective Check covers the whole diff.', actor: {role: owner, session: orchestrate-g024-20261121}, recorded_at: '2026-11-21T12:50:31Z'}
 owner_validation: {required: false}
@@ -60,8 +60,19 @@ Focused: `npx vitest run packages/astraeus/tests/pointsLookAhead.test.ts package
 
 ## Technical Evidence
 
-Pending execution.
+| Done When | Evidence |
+|---|---|
+| One constant 30 000 ms, comment says why | `vitest.config.ts` `common.test.testTimeout: 30_000` with new comment (per-test timeouts stay as they are) |
+| `process.env.CI` branch removed; `process` declaration kept | `process` still used by `__PUBLIC_BUILD__` (ASTRAEUS_PUBLIC_BUILD) |
+| Per-test timeouts unchanged | No test file touched |
+| test:full on Node 22 and 24 | Node v24.16.0: 303 files passed, 5037 passed / 2 skipped, vitest Duration 72.15 s. Node v22.23.5: 303 passed, 5037 passed / 2 skipped, Duration 74.25 s. Both under the 105 s limit (wall times include flock waits, so Duration is the figure). |
+| Environment failures | None on either version. |
+| Gates | lint, typecheck, build clean; `npm test` 303 files, 5037 passed / 2 skipped (Node 24), run under flock. |
+
+publish.yml runs `npm test` (line 34); no explicit CI var, GitHub sets it, now irrelevant. Files changed: vitest.config.ts. No extra reads.
 
 ## Drift Notes
 
-Record for Design reconciliation (`Current Technical State`): Vitest's default timeout is 30 s locally and on CI.
+Record for Design reconciliation (`Current Technical State`): Vitest's default timeout is 30 s locally and on CI. (Unchanged plan note; nothing else.)
+
+Coordinator (orchestrate-g024-20261121): gates green (lint, typecheck, build; `npm test` 303 files, 5037 passed); `test:full` green on Node 24 (72 s) and Node 22 (74 s). `status: done` set by the coordinator under the standing orchestration rule ("I mark them as they pass", O-038) and G-024 decision 7.
