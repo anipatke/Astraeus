@@ -1,0 +1,8 @@
+{
+  "name": "journey-planets-phone",
+  "at": "2026-11-21T04:11:45.892Z",
+  "ok": false,
+  "results": [],
+  "errors": [],
+  "failure": "AssertionError [ERR_ASSERTION]: Mercury is the open planet\n+ actual - expected\n\n+ undefined\n- 'mercury'\n\n    at file:///home/user/code/Astraeus/packages/astraeus-site/tools/validate/journey-planets-phone.mjs:16:10\n    at async checkScript (file:///home/user/code/Astraeus/packages/astraeus-site/tools/validate/harness.mjs:47:60)\n    at async file:///home/user/code/Astraeus/packages/astraeus-site/tools/validate/journey-planets-phone.mjs:10:1"
+}
