@@ -1,4 +1,5 @@
 import type { AstronomyAdapter } from "./astronomyAdapter";
+import type { MoonDataSelection } from "./moonData";
 import type { BodyId, CelestialBodyDefinition, CenterId, StateSourceBinding } from "./body";
 import { composeCenteredPositions, inverseCenteredPosition } from "./referenceCenters";
 import { assertUtcUnixMs, createState, type CenteredPosition, type Quaternion, type State } from "./state";
@@ -49,6 +50,7 @@ function createProviders(
   byId: ReadonlyMap<BodyId, CelestialBodyDefinition>,
   bindings: readonly StateSourceBinding[],
   adapter: AstronomyAdapter,
+  moonData?: MoonDataSelection,
 ): Map<BodyId, Trajectory> {
   const providers = new Map<BodyId, Trajectory>();
   for (const binding of bindings) {
@@ -56,7 +58,7 @@ function createProviders(
     if (definition === undefined) throw new CatalogueError(`binding names unknown body "${binding.body}"`);
     if (providers.has(binding.body)) throw new CatalogueError(`duplicate binding for body "${binding.body}"`);
     if (definition.parentId === undefined) throw new CatalogueError(`root body "${binding.body}" must not have a state source`);
-    const provider = binding.create(adapter);
+    const provider = binding.create(adapter, moonData);
     if (provider.body !== binding.body) {
       throw new CatalogueError(`the state source for "${binding.body}" computes "${provider.body}"`);
     }
@@ -74,9 +76,10 @@ export function createStateResolver(
   definitions: readonly CelestialBodyDefinition[],
   bindings: readonly StateSourceBinding[],
   adapter: AstronomyAdapter,
+  moonData?: MoonDataSelection,
 ): StateResolver {
   const byId = indexDefinitions(definitions);
-  const providers = createProviders(byId, bindings, adapter);
+  const providers = createProviders(byId, bindings, adapter, moonData);
   const root = definitions.find((definition) => definition.parentId === undefined)!;
   const requiresOrientation = (body: BodyId): boolean => {
     const definition = byId.get(body);

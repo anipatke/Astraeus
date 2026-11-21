@@ -1,6 +1,8 @@
+import type { AstronomyAdapter } from "../core/astronomyAdapter";
 import type { BodyId, CelestialBodyDefinition, StateSourceBinding } from "../core/body";
 import { BUILT_IN_BINDINGS, BUILT_IN_BODIES } from "../core/bodies";
 import type { ListedMoonBody } from "../core/bodies/listedMoonBodies";
+import type { MoonDataSelection } from "../core/moonData";
 import { buildElementsBody, type ElementsBodyRecord } from "../core/elementsBody";
 import { EARTH_ENTRY } from "./bodies/earth";
 import { GALILEAN_ENTRIES } from "./bodies/galileanMoons";
@@ -37,6 +39,8 @@ export interface BodyCatalogue {
   /** The core inputs a state resolver needs, without the visuals. */
   definitions(): readonly CelestialBodyDefinition[];
   sources(): readonly StateSourceBinding[];
+  /** Present on a catalogue bound to one scene's moon data (`bindCatalogue`): its sources read only that data. */
+  readonly moonData?: MoonDataSelection;
 }
 
 export class AssetCatalogueError extends RangeError {}
@@ -96,6 +100,24 @@ export function createCatalogue(
 }
 
 /**
+ * `base` with every state source reading `moonData` (one scene's own moon systems) instead of the process-wide ones; definitions and visuals are
+ * the same. A source that reads no moon data is unchanged. Bodies added afterwards by `extendCatalogue` or `extendCatalogueWithMoons` are bound too.
+ */
+export function bindCatalogue(base: BodyCatalogue, moonData: MoonDataSelection): BodyCatalogue {
+  const bound = createCatalogue(
+    base.definitions(),
+    base.sources().map((binding): StateSourceBinding => Object.freeze({ body: binding.body, create: (adapter: AstronomyAdapter) => binding.create(adapter, moonData) })),
+    base.ids().map((id) => ({ body: id, visual: base.get(id).visual })),
+  );
+  return Object.freeze({ ...bound, moonData });
+}
+
+/** An extended catalogue keeps the scene binding of its base. */
+function keepBinding(base: BodyCatalogue, extended: BodyCatalogue): BodyCatalogue {
+  return base.moonData === undefined ? extended : bindCatalogue(extended, base.moonData);
+}
+
+/**
  * A catalogue that holds everything `base` holds plus one body per record, each a Sun-centred two-body source with a marker visual (the
  * record's colour and size). `base` is not changed: the extension belongs to the experience that asks for it. Rejects an id the base
  * already holds, like any other duplicate.
@@ -116,18 +138,18 @@ export function extendCatalogue(base: BodyCatalogue, records: readonly ElementsB
       }),
     });
   }
-  return createCatalogue(
+  return keepBinding(base, createCatalogue(
     [...base.definitions(), ...built.map(({ body }) => body.definition)],
     [...base.sources(), ...built.map(({ body }) => body.binding)],
     visuals,
-  );
+  ));
 }
 
 /** A catalogue that holds everything `base` holds plus the listed moons given (each added to a scene on request; `base` is not changed). */
 export function extendCatalogueWithMoons(base: BodyCatalogue, moons: readonly ListedMoonBody[]): BodyCatalogue {
   if (moons.length === 0) return base;
   const visuals: VisualEntry[] = [...base.ids().map((id) => ({ body: id, visual: base.get(id).visual })), ...moons.map(listedMoonEntry)];
-  return createCatalogue([...base.definitions(), ...moons.map(({ definition }) => definition)], [...base.sources(), ...moons.map(({ binding }) => binding)], visuals);
+  return keepBinding(base, createCatalogue([...base.definitions(), ...moons.map(({ definition }) => definition)], [...base.sources(), ...moons.map(({ binding }) => binding)], visuals));
 }
 
 /** The id of the catalogue's one root body (the one with no parent), the origin every chain ends at. */

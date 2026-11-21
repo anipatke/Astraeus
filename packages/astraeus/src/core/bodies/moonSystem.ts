@@ -4,6 +4,7 @@
  * the definition of a mapped one. Jupiter is one configuration (`jupiterMoons.ts`), unchanged by test. Core data: any experience may load it; which
  * bodies it shows is the experience's choice (O-025 Decision 8).
  */
+import type { MoonDataSelection } from "../moonData";
 import type { BodyId, CelestialBodyDefinition, CenterId, OrientationModel, StateSourceBinding } from "../body";
 import { moonOrientationFromOrbit } from "../bodyOrientation";
 import { ChebyshevEphemeris, parseEphemerisIndex } from "../chebyshevEphemeris";
@@ -122,7 +123,8 @@ export interface MoonSystem {
    * towards the centre, on average); without it the near side is held towards the centre from the fitted velocity, so it needs no chunk
    * outside the window.
    */
-  trajectory(body: BodyId, adapter: { daysSinceJ2000Tt(timeUtcMs: number): number }, rotation?: IauRotationElements): Trajectory;
+  trajectory(body: BodyId, adapter: { daysSinceJ2000Tt(timeUtcMs: number): number }, rotation?: IauRotationElements, moonData?: MoonDataSelection): Trajectory;
+  /** The state source of a fitted moon: with a scene's `moonData` it reads that scene's system for this centre, else this one. */
   binding(body: BodyId, rotation?: IauRotationElements): StateSourceBinding;
   /** What a mapped moon's record says about its position, with its own worst figure from the fit check. */
   position(label: string, worstM?: number, span?: TimeBounds): ReturnType<typeof createProvenance>;
@@ -158,6 +160,13 @@ export interface MappedMoonFacts {
   readonly header: string;
   /** Overrides the default dimensions sentence (a moon drawn at its mean radius that is not printed as one). */
   readonly dimensionsNote?: string;
+}
+
+/** The set of the scene's own system for this centre; throws `NotLoadedError` while that has not loaded (a scene never falls back to the process-wide system). */
+function sceneEphemeris(config: MoonSystemConfig, moonData: MoonDataSelection): ChebyshevEphemeris {
+  const system = moonData.system(config.centre);
+  if (system === undefined) throw new NotLoadedError(`${config.centreLabel}'s moon fits are not loaded in this scene`);
+  return system.ephemeris();
 }
 
 export function createMoonSystem(config: MoonSystemConfig): MoonSystem {
@@ -270,12 +279,12 @@ export function createMoonSystem(config: MoonSystemConfig): MoonSystem {
     return 1000 * periodAboutBalanceS(state.positionKm, state.velocityKmS!, config.centreGmKm3S2, config.balancePoint, body === config.balancePoint?.body, partner.positionKm, partner.velocityKmS!);
   };
 
-  const trajectory = (body: BodyId, adapter: { daysSinceJ2000Tt(timeUtcMs: number): number }, rotation?: IauRotationElements): Trajectory => Object.freeze({
+  const trajectory = (body: BodyId, adapter: { daysSinceJ2000Tt(timeUtcMs: number): number }, rotation?: IauRotationElements, moonData?: MoonDataSelection): Trajectory => Object.freeze({
     body,
     stateAt(timeUtcMs: number, center: CenterId = config.centre): State {
       assertUtcUnixMs(timeUtcMs);
       if (center !== config.centre) throw new RangeError(`${body} is ${config.centreLabel}-centred; centre "${center}" is not offered, the state resolver recentres it`);
-      const fitted = ephemeris().stateOf(body, timeUtcMs);
+      const fitted = (moonData === undefined ? ephemeris() : sceneEphemeris(config, moonData)).stateOf(body, timeUtcMs);
       const p = fitted.positionKm;
       const v = fitted.velocityKmS!;
       let orientation;
@@ -289,7 +298,7 @@ export function createMoonSystem(config: MoonSystemConfig): MoonSystem {
     },
   });
 
-  const binding = (body: BodyId, rotation?: IauRotationElements): StateSourceBinding => Object.freeze<StateSourceBinding>({ body, create: (adapter) => trajectory(body, adapter, rotation) });
+  const binding = (body: BodyId, rotation?: IauRotationElements): StateSourceBinding => Object.freeze<StateSourceBinding>({ body, create: (adapter, moonData) => trajectory(body, adapter, rotation, moonData) });
 
   const position = (label: string, worstM: number | undefined, span: TimeBounds = MOON_FIT_SPAN) => createProvenance({
     sourceType: "ephemeris",
