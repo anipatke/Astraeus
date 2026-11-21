@@ -20,7 +20,10 @@ export type { ActivityInput, ActivitySampleInput, ActivitySourceInput } from "./
 export type { DataSource, MoonPositions, MoonIndex } from "./data";
 import { SceneError } from "./errors";
 import { frozenCopy } from "./frozenCopy";
-import { NotLoadedError } from "../core/planetSeries";
+import { NotLoadedError, PlanetFitsUncoveredError, isPlanetId, planetSeriesSpan } from "../core/planetSeries";
+import { EphemerisChunkMissingError } from "../core/chebyshevEphemeris";
+import { TrajectoryOutOfRangeError } from "../core/sampledTrajectory";
+import { TimeScaleOutOfRangeError } from "../core/timeScale";
 import { BodyPlan } from "./planBodies";
 import { GroupPlan } from "./planGroups";
 import { BodySetPlan, type BodySetContext } from "./planBodySets";
@@ -588,8 +591,8 @@ export class Scene {
   /**
    * The state of a body in the scene at a moment (position in km always; velocity in km/s only where the body's source provides it), the same State the viewer draws: for a path added with `addTrajectory`, about its centre body;
    * for a ready-made body or one from `addBodyFromElements`, about its parent (a planet about the Sun, a moon about its planet). Figures a story quotes, such as a distance from the Sun, come from here. `velocityKmS` is set only for a path whose
-   * samples or provider carry velocities and for a moon from fitted data (Io); planets, Earth, the Sun and elements bodies give position only, so check it before use. An id the scene does not hold throws `unknown-body`. Ready-made and elements bodies answer at any date (they have no data cut-off); only a moment outside an
-   * `addTrajectory` path throws `bad-time`. A planet or fitted moon before its data has loaded (`await scene.load({ data })`, or mount the scene and await `ready`) throws `missing-data`.
+   * samples or provider carry velocities and for a moon from fitted data (Io); planets, Earth, the Sun and elements bodies give position only, so check it before use. An id the scene does not hold throws `unknown-body`. A planet answers over the years the planet series cover and a moon over the years its data covers; a moment outside them throws `out-of-span` (naming the body and the span), and a moon's moment inside its package's years but outside the window the scene loaded throws `bad-time`, as does a moment outside an
+   * `addTrajectory` path. Elements bodies have no data cut-off. A planet or fitted moon before its data has loaded (`await scene.load({ data })`, or mount the scene and await `ready`) throws `missing-data`.
    * @example
    * const sunDistanceKm = Math.hypot(...scene.stateOf("earth", "2026-08-12T00:00:00Z").positionKm);
    */
@@ -605,9 +608,29 @@ export class Scene {
     try {
       return trajectory.stateAt(timeUtcMs, entry?.center ?? this.#plan.catalogue.get(id).definition.parentId);
     } catch (error) {
-      if (error instanceof NotLoadedError) throw new SceneError("missing-data", `stateOf("${id}"): its data is not loaded yet; await scene.load({ data }) first (or mount the scene and await ready)`);
+      const refusal = entry === undefined ? this.#catalogueRefusal(id, timeUtcMs, error) : undefined;
+      if (refusal !== undefined) throw refusal;
       throw error;
     }
+  }
+
+  /** A catalogue body's raw read failure as the public error: `missing-data` before load, `out-of-span` outside the years its data covers, `bad-time` outside the window the scene loaded; any other error gives none (the caller rethrows it). */
+  #catalogueRefusal(id: BodyId, timeUtcMs: number, error: unknown): SceneError | undefined {
+    if (error instanceof NotLoadedError) return new SceneError("missing-data", `stateOf("${id}"): its data is not loaded yet; await scene.load({ data }) first (or mount the scene and await ready)`);
+    const iso = (ms: number): string => new Date(ms).toISOString();
+    const years = (bounds: TimeBounds): string => `${iso(bounds.startUtcMs).slice(0, 10)} to ${iso(bounds.endUtcMs).slice(0, 10)}`;
+    if (error instanceof EphemerisChunkMissingError) {
+      const { window } = this.#timelineSpan();
+      return new SceneError("bad-time", `stateOf("${id}"): ${iso(timeUtcMs)} is not in the data the scene loaded, which is for ${iso(window.startUtcMs)} to ${iso(window.endUtcMs)}; set the timeline to include it and load again`);
+    }
+    if (isPlanetId(id) && (error instanceof TimeScaleOutOfRangeError || error instanceof PlanetFitsUncoveredError)) {
+      return new SceneError("out-of-span", `stateOf("${id}"): ${iso(timeUtcMs)} is outside the years the built-in planet series covers (${years(planetSeriesSpan())})`);
+    }
+    if (error instanceof TrajectoryOutOfRangeError || error instanceof TimeScaleOutOfRangeError || error instanceof PlanetFitsUncoveredError) {
+      const bounds = this.#catalogueSource(id)?.bounds ?? planetSeriesSpan();
+      return new SceneError("out-of-span", `stateOf("${id}"): ${iso(timeUtcMs)} is outside the years the body's data covers (${years(bounds)})`);
+    }
+    return undefined;
   }
 
   /** The Provenance of a body's position, as its info card shows it: for a ready-made or elements body the catalogue's position record, for a path the one passed to `addTrajectory`. Carries `accuracyClass` and `maxErrorFraction` where a comparison with an independent ephemeris exists. An id the scene does not hold throws `unknown-body`. */

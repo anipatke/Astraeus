@@ -1821,56 +1821,64 @@
     "io": [
      {
       "error": {
-       "name": "EphemerisChunkMissingError",
-       "message": "chunk \"io/1977.bin\" of \"io\" is needed for time 242265600000 but has not been loaded"
+       "name": "SceneError",
+       "code": "bad-time",
+       "message": "stateOf(\"io\"): 1977-09-05T00:00:00.000Z is not in the data the scene loaded, which is for 1977-09-05T00:00:00.000Z to 2026-01-01T00:00:00.000Z; set the timeline to include it and load again"
       }
      },
      {
       "error": {
-       "name": "EphemerisChunkMissingError",
-       "message": "chunk \"io/2013.bin\" of \"io\" is needed for time 1385985600000 but has not been loaded"
+       "name": "SceneError",
+       "code": "bad-time",
+       "message": "stateOf(\"io\"): 2013-12-02T12:00:00.000Z is not in the data the scene loaded, which is for 1977-09-05T00:00:00.000Z to 2026-01-01T00:00:00.000Z; set the timeline to include it and load again"
       }
      }
     ],
     "europa": [
      {
       "error": {
-       "name": "EphemerisChunkMissingError",
-       "message": "chunk \"europa/1977.bin\" of \"europa\" is needed for time 242265600000 but has not been loaded"
+       "name": "SceneError",
+       "code": "bad-time",
+       "message": "stateOf(\"europa\"): 1977-09-05T00:00:00.000Z is not in the data the scene loaded, which is for 1977-09-05T00:00:00.000Z to 2026-01-01T00:00:00.000Z; set the timeline to include it and load again"
       }
      },
      {
       "error": {
-       "name": "EphemerisChunkMissingError",
-       "message": "chunk \"europa/2013.bin\" of \"europa\" is needed for time 1385985600000 but has not been loaded"
+       "name": "SceneError",
+       "code": "bad-time",
+       "message": "stateOf(\"europa\"): 2013-12-02T12:00:00.000Z is not in the data the scene loaded, which is for 1977-09-05T00:00:00.000Z to 2026-01-01T00:00:00.000Z; set the timeline to include it and load again"
       }
      }
     ],
     "ganymede": [
      {
       "error": {
-       "name": "EphemerisChunkMissingError",
-       "message": "chunk \"ganymede/1977.bin\" of \"ganymede\" is needed for time 242265600000 but has not been loaded"
+       "name": "SceneError",
+       "code": "bad-time",
+       "message": "stateOf(\"ganymede\"): 1977-09-05T00:00:00.000Z is not in the data the scene loaded, which is for 1977-09-05T00:00:00.000Z to 2026-01-01T00:00:00.000Z; set the timeline to include it and load again"
       }
      },
      {
       "error": {
-       "name": "EphemerisChunkMissingError",
-       "message": "chunk \"ganymede/2013.bin\" of \"ganymede\" is needed for time 1385985600000 but has not been loaded"
+       "name": "SceneError",
+       "code": "bad-time",
+       "message": "stateOf(\"ganymede\"): 2013-12-02T12:00:00.000Z is not in the data the scene loaded, which is for 1977-09-05T00:00:00.000Z to 2026-01-01T00:00:00.000Z; set the timeline to include it and load again"
       }
      }
     ],
     "callisto": [
      {
       "error": {
-       "name": "EphemerisChunkMissingError",
-       "message": "chunk \"callisto/1977.bin\" of \"callisto\" is needed for time 242265600000 but has not been loaded"
+       "name": "SceneError",
+       "code": "bad-time",
+       "message": "stateOf(\"callisto\"): 1977-09-05T00:00:00.000Z is not in the data the scene loaded, which is for 1977-09-05T00:00:00.000Z to 2026-01-01T00:00:00.000Z; set the timeline to include it and load again"
       }
      },
      {
       "error": {
-       "name": "EphemerisChunkMissingError",
-       "message": "chunk \"callisto/2013.bin\" of \"callisto\" is needed for time 1385985600000 but has not been loaded"
+       "name": "SceneError",
+       "code": "bad-time",
+       "message": "stateOf(\"callisto\"): 2013-12-02T12:00:00.000Z is not in the data the scene loaded, which is for 1977-09-05T00:00:00.000Z to 2026-01-01T00:00:00.000Z; set the timeline to include it and load again"
       }
      }
     ],
@@ -1913,98 +1921,112 @@
     "mimas": [
      {
       "error": {
-       "name": "EphemerisChunkMissingError",
-       "message": "chunk \"mimas/1977.bin\" of \"mimas\" is needed for time 242265600000 but has not been loaded"
+       "name": "SceneError",
+       "code": "bad-time",
+       "message": "stateOf(\"mimas\"): 1977-09-05T00:00:00.000Z is not in the data the scene loaded, which is for 1977-09-05T00:00:00.000Z to 2026-01-01T00:00:00.000Z; set the timeline to include it and load again"
       }
      },
      {
       "error": {
-       "name": "EphemerisChunkMissingError",
-       "message": "chunk \"mimas/2013.bin\" of \"mimas\" is needed for time 1385985600000 but has not been loaded"
+       "name": "SceneError",
+       "code": "bad-time",
+       "message": "stateOf(\"mimas\"): 2013-12-02T12:00:00.000Z is not in the data the scene loaded, which is for 1977-09-05T00:00:00.000Z to 2026-01-01T00:00:00.000Z; set the timeline to include it and load again"
       }
      }
     ],
     "enceladus": [
      {
       "error": {
-       "name": "EphemerisChunkMissingError",
-       "message": "chunk \"enceladus/1977.bin\" of \"enceladus\" is needed for time 242265600000 but has not been loaded"
+       "name": "SceneError",
+       "code": "bad-time",
+       "message": "stateOf(\"enceladus\"): 1977-09-05T00:00:00.000Z is not in the data the scene loaded, which is for 1977-09-05T00:00:00.000Z to 2026-01-01T00:00:00.000Z; set the timeline to include it and load again"
       }
      },
      {
       "error": {
-       "name": "EphemerisChunkMissingError",
-       "message": "chunk \"enceladus/2013.bin\" of \"enceladus\" is needed for time 1385985600000 but has not been loaded"
+       "name": "SceneError",
+       "code": "bad-time",
+       "message": "stateOf(\"enceladus\"): 2013-12-02T12:00:00.000Z is not in the data the scene loaded, which is for 1977-09-05T00:00:00.000Z to 2026-01-01T00:00:00.000Z; set the timeline to include it and load again"
       }
      }
     ],
     "tethys": [
      {
       "error": {
-       "name": "EphemerisChunkMissingError",
-       "message": "chunk \"tethys/1977.bin\" of \"tethys\" is needed for time 242265600000 but has not been loaded"
+       "name": "SceneError",
+       "code": "bad-time",
+       "message": "stateOf(\"tethys\"): 1977-09-05T00:00:00.000Z is not in the data the scene loaded, which is for 1977-09-05T00:00:00.000Z to 2026-01-01T00:00:00.000Z; set the timeline to include it and load again"
       }
      },
      {
       "error": {
-       "name": "EphemerisChunkMissingError",
-       "message": "chunk \"tethys/2013.bin\" of \"tethys\" is needed for time 1385985600000 but has not been loaded"
+       "name": "SceneError",
+       "code": "bad-time",
+       "message": "stateOf(\"tethys\"): 2013-12-02T12:00:00.000Z is not in the data the scene loaded, which is for 1977-09-05T00:00:00.000Z to 2026-01-01T00:00:00.000Z; set the timeline to include it and load again"
       }
      }
     ],
     "dione": [
      {
       "error": {
-       "name": "EphemerisChunkMissingError",
-       "message": "chunk \"dione/1977.bin\" of \"dione\" is needed for time 242265600000 but has not been loaded"
+       "name": "SceneError",
+       "code": "bad-time",
+       "message": "stateOf(\"dione\"): 1977-09-05T00:00:00.000Z is not in the data the scene loaded, which is for 1977-09-05T00:00:00.000Z to 2026-01-01T00:00:00.000Z; set the timeline to include it and load again"
       }
      },
      {
       "error": {
-       "name": "EphemerisChunkMissingError",
-       "message": "chunk \"dione/2013.bin\" of \"dione\" is needed for time 1385985600000 but has not been loaded"
+       "name": "SceneError",
+       "code": "bad-time",
+       "message": "stateOf(\"dione\"): 2013-12-02T12:00:00.000Z is not in the data the scene loaded, which is for 1977-09-05T00:00:00.000Z to 2026-01-01T00:00:00.000Z; set the timeline to include it and load again"
       }
      }
     ],
     "rhea": [
      {
       "error": {
-       "name": "EphemerisChunkMissingError",
-       "message": "chunk \"rhea/1977.bin\" of \"rhea\" is needed for time 242265600000 but has not been loaded"
+       "name": "SceneError",
+       "code": "bad-time",
+       "message": "stateOf(\"rhea\"): 1977-09-05T00:00:00.000Z is not in the data the scene loaded, which is for 1977-09-05T00:00:00.000Z to 2026-01-01T00:00:00.000Z; set the timeline to include it and load again"
       }
      },
      {
       "error": {
-       "name": "EphemerisChunkMissingError",
-       "message": "chunk \"rhea/2013.bin\" of \"rhea\" is needed for time 1385985600000 but has not been loaded"
+       "name": "SceneError",
+       "code": "bad-time",
+       "message": "stateOf(\"rhea\"): 2013-12-02T12:00:00.000Z is not in the data the scene loaded, which is for 1977-09-05T00:00:00.000Z to 2026-01-01T00:00:00.000Z; set the timeline to include it and load again"
       }
      }
     ],
     "titan": [
      {
       "error": {
-       "name": "EphemerisChunkMissingError",
-       "message": "chunk \"titan/1977.bin\" of \"titan\" is needed for time 242265600000 but has not been loaded"
+       "name": "SceneError",
+       "code": "bad-time",
+       "message": "stateOf(\"titan\"): 1977-09-05T00:00:00.000Z is not in the data the scene loaded, which is for 1977-09-05T00:00:00.000Z to 2026-01-01T00:00:00.000Z; set the timeline to include it and load again"
       }
      },
      {
       "error": {
-       "name": "EphemerisChunkMissingError",
-       "message": "chunk \"titan/2013.bin\" of \"titan\" is needed for time 1385985600000 but has not been loaded"
+       "name": "SceneError",
+       "code": "bad-time",
+       "message": "stateOf(\"titan\"): 2013-12-02T12:00:00.000Z is not in the data the scene loaded, which is for 1977-09-05T00:00:00.000Z to 2026-01-01T00:00:00.000Z; set the timeline to include it and load again"
       }
      }
     ],
     "iapetus": [
      {
       "error": {
-       "name": "EphemerisChunkMissingError",
-       "message": "chunk \"iapetus/1977.bin\" of \"iapetus\" is needed for time 242265600000 but has not been loaded"
+       "name": "SceneError",
+       "code": "bad-time",
+       "message": "stateOf(\"iapetus\"): 1977-09-05T00:00:00.000Z is not in the data the scene loaded, which is for 1977-09-05T00:00:00.000Z to 2026-01-01T00:00:00.000Z; set the timeline to include it and load again"
       }
      },
      {
       "error": {
-       "name": "EphemerisChunkMissingError",
-       "message": "chunk \"iapetus/2013.bin\" of \"iapetus\" is needed for time 1385985600000 but has not been loaded"
+       "name": "SceneError",
+       "code": "bad-time",
+       "message": "stateOf(\"iapetus\"): 2013-12-02T12:00:00.000Z is not in the data the scene loaded, which is for 1977-09-05T00:00:00.000Z to 2026-01-01T00:00:00.000Z; set the timeline to include it and load again"
       }
      }
     ],

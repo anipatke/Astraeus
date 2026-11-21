@@ -16,7 +16,7 @@ export type SceneErrorCode =
   | "missing-data"
   /** The viewer is not drawn yet, or has been unmounted: a handle call before `ready` or after `unmount`. */
   | "not-mounted"
-  /** The timeline reaches outside the years a body's data package covers. */
+  /** The timeline, or a moment asked of `stateOf`, reaches outside the years a body's data covers (a planet's series or a moon's data package). */
   | "out-of-span"
   /** The scene was edited after a viewer took it; build a new scene instead. */
   | "scene-mounted"

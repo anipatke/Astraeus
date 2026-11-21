@@ -424,7 +424,7 @@ Every call that refuses its input throws a `SceneError`, a `RangeError` with a s
 | `bad-scale` | The scale is not one of the engine's scales, or does not suit this scene. |
 | `missing-data` | Position data a body needs was not given to the viewer: pass its data package. |
 | `not-mounted` | The viewer is not drawn yet, or has been unmounted: a handle call before `ready` or after `unmount`. |
-| `out-of-span` | The timeline reaches outside the years a body's data package covers. |
+| `out-of-span` | The timeline, or a moment asked of `stateOf`, reaches outside the years a body's data covers (a planet's series or a moon's data package). |
 | `scene-mounted` | The scene was edited after a viewer took it; build a new scene instead. |
 | `empty-scene` | The scene has no bodies to show. |
 | `bad-element` | An orbital-elements record, or the element to mount into, is malformed. |

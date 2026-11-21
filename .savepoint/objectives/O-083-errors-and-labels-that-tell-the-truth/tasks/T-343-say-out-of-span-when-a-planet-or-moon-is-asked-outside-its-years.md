@@ -2,7 +2,7 @@
 id: T-343
 title: Say out-of-span when a planet or moon is asked outside its years
 objective: O-083
-status: planned
+status: done
 depends_on: []
 check_waiver: {task: T-343, reason: 'Owner said "work through this list of objectives one by one. Orchestrate each objective to completion" (G-024 decision 7): standing orchestration rules waive the optional step checks; the mandatory Full Objective Check covers the whole diff.', actor: {role: owner, session: orchestrate-g024-20261121}, recorded_at: '2026-11-21T11:22:41Z'}
 owner_validation: {required: false}
@@ -69,8 +69,18 @@ Focused: `npx vitest run packages/astraeus/tests/publicErrorContract.test.ts pac
 
 ## Technical Evidence
 
-Pending execution.
+Done When -> evidence:
+- stateOf mapping (planet -> out-of-span via planetSeriesSpan; moon TrajectoryOutOfRange/TimeScaleOutOfRange -> out-of-span with the body's bounds (else the series span); EphemerisChunkMissingError -> bad-time naming the loaded window; NotLoaded -> missing-data; others rethrown): `Scene.#catalogueRefusal` in api/scene.ts; rows in tests/publicErrorContract.test.ts (7 planets x 2 dates, Io before data, Io outside loaded window). Before the change 16 of 17 rows failed with raw TimeScaleOutOfRangeError; after, 17/17 pass.
+- Doc comment: stateOf comment rewritten (planets over series years, moons over data years, out-of-span and bad-time named).
+- errors.ts out-of-span comment widened; README table regenerated with `npm run api:errors` (one row changed).
+- Earth and the Sun at 1949-01-01: they ANSWER (no cut-off); recorded as a test row asserting no throw.
+- Existing tests unchanged. scenePin.json regenerated (`npx vitest run packages/astraeus/tests/scenePin.test.ts -u`): the stateOf section pinned raw EphemerisChunkMissingError for moons at not-loaded chunks; diff (66+/44-) holds only those entries, now SceneError bad-time (checked: no other changed lines).
+- apiRules API-05 scan: first run flagged `throw cond ? mapped : error`; restructured to a SceneError-returning helper plus a plain rethrow; green.
+Note: the planet-series span for the eight planets is tested with seven non-Earth planets plus Earth separately (Earth is not a planet-series body); the task text said "eight non-Earth planets" but there are seven non-Earth planets in the catalogue's PLANETS set used (mercury, venus, mars, jupiter, saturn, uranus, neptune).
+Gates (flock): lint clean, typecheck clean, build ok, full test run: 4939 pass / 7 fail; remaining after my fixes: apiSurface lock (needs `npm run api:lock` + CHANGELOG line for the widened out-of-span comment; lock file not in my planned writes, left for the coordinator) and astraeusSceneConsole.test.ts (4 tests, another Task's React default, not mine). Files changed: api/scene.ts, api/errors.ts, README.md, tests/publicErrorContract.test.ts (new). Extra reads: none beyond Context Files.
 
 ## Drift Notes
 
-Record for Design reconciliation (`Answers for sites`): `stateOf` refusals by cause (out-of-span for data years, bad-time for the loaded window).
+`stateOf` refusals by cause: out-of-span for data years (planet series; moon data), bad-time for a moon's moment outside the loaded window; Earth and Sun have no cut-off. Reflect in Design `Answers for sites`.
+
+Coordinator (orchestrate-g024-20261121): with T-343, T-347, T-348, T-351 and T-352 all in the tree and no builder running, the coordinator ran `npm run api:lock` (one-line lock change: the widened `out-of-span` comment) and the hand-off gates: lint, typecheck, build ok; `npm test` 296 files, 4946 passed, 2 skipped, 0 failed. `status: done` set by the coordinator under the standing orchestration rule ("I mark them as they pass", O-038) and G-024 decision 7.
