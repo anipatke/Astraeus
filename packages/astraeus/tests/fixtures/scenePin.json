@@ -3263,6 +3263,7 @@
        "id": "moon",
        "knownLimitations": [
         "No velocity is modelled for the Moon, so it has no speed readout.",
+        "The series uses its own approximation of the TT-UTC difference and steps by small amounts at month boundaries, so the Moon's path is not exactly continuous, and it has no stated validity range beyond the 2022 to 2025 comparison samples.",
         "The Moon's orientation is the IAU mean-Earth rotation model with its libration terms, so the Moon shows libration in longitude and latitude. It is a published series, not the JPL lunar ephemeris: its sub-Earth point and pole differ from Horizons' by at most 0.01 degrees (about 0.3 km on the surface) at the seven dates from 1969 to 2050 that were checked, and its accuracy elsewhere is not stated by the source.",
         "A landing site placed by the IAU model (a mission reconstruction's, measured at the Sea of Tranquility) sits 0.01 km (under 0.001 degrees) from the same selenographic coordinates on this Moon at touchdown, because the reconstruction and the drawn Moon use the same IAU model (docs/ASTRAEUS_SPIKE_02.md measured 254 km, 8.4 degrees, under the earlier tidal lock)."
        ],
@@ -3270,7 +3271,7 @@
        "labelMaxDistance": 500,
        "labelPriority": 99,
        "provenance": {
-        "accuracy": "Position checked against JPL Horizons (DE441) samples within the project's acceptance targets, which are not a guaranteed bound for every date.",
+        "accuracy": "Measured against eight JPL Horizons (DE441) geometric vectors from 2022-06 to 2025-06 (2026-11-22): at most 4.3 arcseconds, 6.4 km in distance and 8.0 km in vector difference. Not a guaranteed bound outside those samples.",
         "notes": "Body size is the volumetric mean radius (NASA NSSDC fact sheet).",
         "sourceType": "ephemeris",
         "sources": [
@@ -3439,7 +3440,7 @@
      ]
     },
     "moon": {
-     "accuracy": "Position checked against JPL Horizons (DE441) samples within the project's acceptance targets, which are not a guaranteed bound for every date.",
+     "accuracy": "Measured against eight JPL Horizons (DE441) geometric vectors from 2022-06 to 2025-06 (2026-11-22): at most 4.3 arcseconds, 6.4 km in distance and 8.0 km in vector difference. Not a guaranteed bound outside those samples.",
      "notes": "Body size is the volumetric mean radius (NASA NSSDC fact sheet).",
      "sourceType": "ephemeris",
      "sources": [
@@ -3565,6 +3566,7 @@
        "id": "moon",
        "knownLimitations": [
         "No velocity is modelled for the Moon, so it has no speed readout.",
+        "The series uses its own approximation of the TT-UTC difference and steps by small amounts at month boundaries, so the Moon's path is not exactly continuous, and it has no stated validity range beyond the 2022 to 2025 comparison samples.",
         "The Moon's orientation is the IAU mean-Earth rotation model with its libration terms, so the Moon shows libration in longitude and latitude. It is a published series, not the JPL lunar ephemeris: its sub-Earth point and pole differ from Horizons' by at most 0.01 degrees (about 0.3 km on the surface) at the seven dates from 1969 to 2050 that were checked, and its accuracy elsewhere is not stated by the source.",
         "A landing site placed by the IAU model (a mission reconstruction's, measured at the Sea of Tranquility) sits 0.01 km (under 0.001 degrees) from the same selenographic coordinates on this Moon at touchdown, because the reconstruction and the drawn Moon use the same IAU model (docs/ASTRAEUS_SPIKE_02.md measured 254 km, 8.4 degrees, under the earlier tidal lock)."
        ],
@@ -3572,7 +3574,7 @@
        "labelMaxDistance": 500,
        "labelPriority": 99,
        "provenance": {
-        "accuracy": "Position checked against JPL Horizons (DE441) samples within the project's acceptance targets, which are not a guaranteed bound for every date.",
+        "accuracy": "Measured against eight JPL Horizons (DE441) geometric vectors from 2022-06 to 2025-06 (2026-11-22): at most 4.3 arcseconds, 6.4 km in distance and 8.0 km in vector difference. Not a guaranteed bound outside those samples.",
         "notes": "Body size is the volumetric mean radius (NASA NSSDC fact sheet).",
         "sourceType": "ephemeris",
         "sources": [
@@ -3742,7 +3744,7 @@
      ]
     },
     "moon": {
-     "accuracy": "Position checked against JPL Horizons (DE441) samples within the project's acceptance targets, which are not a guaranteed bound for every date.",
+     "accuracy": "Measured against eight JPL Horizons (DE441) geometric vectors from 2022-06 to 2025-06 (2026-11-22): at most 4.3 arcseconds, 6.4 km in distance and 8.0 km in vector difference. Not a guaranteed bound outside those samples.",
      "notes": "Body size is the volumetric mean radius (NASA NSSDC fact sheet).",
      "sourceType": "ephemeris",
      "sources": [
@@ -5483,6 +5485,7 @@
        "id": "moon",
        "knownLimitations": [
         "No velocity is modelled for the Moon, so it has no speed readout.",
+        "The series uses its own approximation of the TT-UTC difference and steps by small amounts at month boundaries, so the Moon's path is not exactly continuous, and it has no stated validity range beyond the 2022 to 2025 comparison samples.",
         "The Moon's orientation is the IAU mean-Earth rotation model with its libration terms, so the Moon shows libration in longitude and latitude. It is a published series, not the JPL lunar ephemeris: its sub-Earth point and pole differ from Horizons' by at most 0.01 degrees (about 0.3 km on the surface) at the seven dates from 1969 to 2050 that were checked, and its accuracy elsewhere is not stated by the source.",
         "A landing site placed by the IAU model (a mission reconstruction's, measured at the Sea of Tranquility) sits 0.01 km (under 0.001 degrees) from the same selenographic coordinates on this Moon at touchdown, because the reconstruction and the drawn Moon use the same IAU model (docs/ASTRAEUS_SPIKE_02.md measured 254 km, 8.4 degrees, under the earlier tidal lock)."
        ],
@@ -5490,7 +5493,7 @@
        "labelMaxDistance": 500,
        "labelPriority": 99,
        "provenance": {
-        "accuracy": "Position checked against JPL Horizons (DE441) samples within the project's acceptance targets, which are not a guaranteed bound for every date.",
+        "accuracy": "Measured against eight JPL Horizons (DE441) geometric vectors from 2022-06 to 2025-06 (2026-11-22): at most 4.3 arcseconds, 6.4 km in distance and 8.0 km in vector difference. Not a guaranteed bound outside those samples.",
         "notes": "Body size is the volumetric mean radius (NASA NSSDC fact sheet).",
         "sourceType": "ephemeris",
         "sources": [
@@ -6192,7 +6195,7 @@
      ]
     },
     "moon": {
-     "accuracy": "Position checked against JPL Horizons (DE441) samples within the project's acceptance targets, which are not a guaranteed bound for every date.",
+     "accuracy": "Measured against eight JPL Horizons (DE441) geometric vectors from 2022-06 to 2025-06 (2026-11-22): at most 4.3 arcseconds, 6.4 km in distance and 8.0 km in vector difference. Not a guaranteed bound outside those samples.",
      "notes": "Body size is the volumetric mean radius (NASA NSSDC fact sheet).",
      "sourceType": "ephemeris",
      "sources": [
@@ -6850,13 +6853,14 @@
        "id": "moon",
        "knownLimitations": [
         "No velocity is modelled for the Moon, so it has no speed readout.",
+        "The series uses its own approximation of the TT-UTC difference and steps by small amounts at month boundaries, so the Moon's path is not exactly continuous, and it has no stated validity range beyond the 2022 to 2025 comparison samples.",
         "The Moon's orientation is the IAU mean-Earth rotation model with its libration terms, so the Moon shows libration in longitude and latitude. It is a published series, not the JPL lunar ephemeris: its sub-Earth point and pole differ from Horizons' by at most 0.01 degrees (about 0.3 km on the surface) at the seven dates from 1969 to 2050 that were checked, and its accuracy elsewhere is not stated by the source.",
         "A landing site placed by the IAU model (a mission reconstruction's, measured at the Sea of Tranquility) sits 0.01 km (under 0.001 degrees) from the same selenographic coordinates on this Moon at touchdown, because the reconstruction and the drawn Moon use the same IAU model (docs/ASTRAEUS_SPIKE_02.md measured 254 km, 8.4 degrees, under the earlier tidal lock)."
        ],
        "label": "Moon",
        "labelPriority": 98,
        "provenance": {
-        "accuracy": "Position checked against JPL Horizons (DE441) samples within the project's acceptance targets, which are not a guaranteed bound for every date.",
+        "accuracy": "Measured against eight JPL Horizons (DE441) geometric vectors from 2022-06 to 2025-06 (2026-11-22): at most 4.3 arcseconds, 6.4 km in distance and 8.0 km in vector difference. Not a guaranteed bound outside those samples.",
         "notes": "Body size is the volumetric mean radius (NASA NSSDC fact sheet).",
         "sourceType": "ephemeris",
         "sources": [
@@ -7243,7 +7247,7 @@
      ]
     },
     "moon": {
-     "accuracy": "Position checked against JPL Horizons (DE441) samples within the project's acceptance targets, which are not a guaranteed bound for every date.",
+     "accuracy": "Measured against eight JPL Horizons (DE441) geometric vectors from 2022-06 to 2025-06 (2026-11-22): at most 4.3 arcseconds, 6.4 km in distance and 8.0 km in vector difference. Not a guaranteed bound outside those samples.",
      "notes": "Body size is the volumetric mean radius (NASA NSSDC fact sheet).",
      "sourceType": "ephemeris",
      "sources": [
@@ -9206,6 +9210,7 @@
        "id": "moon",
        "knownLimitations": [
         "No velocity is modelled for the Moon, so it has no speed readout.",
+        "The series uses its own approximation of the TT-UTC difference and steps by small amounts at month boundaries, so the Moon's path is not exactly continuous, and it has no stated validity range beyond the 2022 to 2025 comparison samples.",
         "The Moon's orientation is the IAU mean-Earth rotation model with its libration terms, so the Moon shows libration in longitude and latitude. It is a published series, not the JPL lunar ephemeris: its sub-Earth point and pole differ from Horizons' by at most 0.01 degrees (about 0.3 km on the surface) at the seven dates from 1969 to 2050 that were checked, and its accuracy elsewhere is not stated by the source.",
         "A landing site placed by the IAU model (a mission reconstruction's, measured at the Sea of Tranquility) sits 0.01 km (under 0.001 degrees) from the same selenographic coordinates on this Moon at touchdown, because the reconstruction and the drawn Moon use the same IAU model (docs/ASTRAEUS_SPIKE_02.md measured 254 km, 8.4 degrees, under the earlier tidal lock)."
        ],
@@ -9213,7 +9218,7 @@
        "labelMaxDistance": 500,
        "labelPriority": 99,
        "provenance": {
-        "accuracy": "Position checked against JPL Horizons (DE441) samples within the project's acceptance targets, which are not a guaranteed bound for every date.",
+        "accuracy": "Measured against eight JPL Horizons (DE441) geometric vectors from 2022-06 to 2025-06 (2026-11-22): at most 4.3 arcseconds, 6.4 km in distance and 8.0 km in vector difference. Not a guaranteed bound outside those samples.",
         "notes": "Body size is the volumetric mean radius (NASA NSSDC fact sheet).",
         "sourceType": "ephemeris",
         "sources": [
@@ -9531,7 +9536,7 @@
      ]
     },
     "moon": {
-     "accuracy": "Position checked against JPL Horizons (DE441) samples within the project's acceptance targets, which are not a guaranteed bound for every date.",
+     "accuracy": "Measured against eight JPL Horizons (DE441) geometric vectors from 2022-06 to 2025-06 (2026-11-22): at most 4.3 arcseconds, 6.4 km in distance and 8.0 km in vector difference. Not a guaranteed bound outside those samples.",
      "notes": "Body size is the volumetric mean radius (NASA NSSDC fact sheet).",
      "sourceType": "ephemeris",
      "sources": [
@@ -9968,6 +9973,7 @@
        "id": "moon",
        "knownLimitations": [
         "No velocity is modelled for the Moon, so it has no speed readout.",
+        "The series uses its own approximation of the TT-UTC difference and steps by small amounts at month boundaries, so the Moon's path is not exactly continuous, and it has no stated validity range beyond the 2022 to 2025 comparison samples.",
         "The Moon's orientation is the IAU mean-Earth rotation model with its libration terms, so the Moon shows libration in longitude and latitude. It is a published series, not the JPL lunar ephemeris: its sub-Earth point and pole differ from Horizons' by at most 0.01 degrees (about 0.3 km on the surface) at the seven dates from 1969 to 2050 that were checked, and its accuracy elsewhere is not stated by the source.",
         "A landing site placed by the IAU model (a mission reconstruction's, measured at the Sea of Tranquility) sits 0.01 km (under 0.001 degrees) from the same selenographic coordinates on this Moon at touchdown, because the reconstruction and the drawn Moon use the same IAU model (docs/ASTRAEUS_SPIKE_02.md measured 254 km, 8.4 degrees, under the earlier tidal lock)."
        ],
@@ -9975,7 +9981,7 @@
        "labelMaxDistance": 500,
        "labelPriority": 99,
        "provenance": {
-        "accuracy": "Position checked against JPL Horizons (DE441) samples within the project's acceptance targets, which are not a guaranteed bound for every date.",
+        "accuracy": "Measured against eight JPL Horizons (DE441) geometric vectors from 2022-06 to 2025-06 (2026-11-22): at most 4.3 arcseconds, 6.4 km in distance and 8.0 km in vector difference. Not a guaranteed bound outside those samples.",
         "notes": "Body size is the volumetric mean radius (NASA NSSDC fact sheet).",
         "sourceType": "ephemeris",
         "sources": [
@@ -10353,7 +10359,7 @@
      ]
     },
     "moon": {
-     "accuracy": "Position checked against JPL Horizons (DE441) samples within the project's acceptance targets, which are not a guaranteed bound for every date.",
+     "accuracy": "Measured against eight JPL Horizons (DE441) geometric vectors from 2022-06 to 2025-06 (2026-11-22): at most 4.3 arcseconds, 6.4 km in distance and 8.0 km in vector difference. Not a guaranteed bound outside those samples.",
      "notes": "Body size is the volumetric mean radius (NASA NSSDC fact sheet).",
      "sourceType": "ephemeris",
      "sources": [
@@ -10530,6 +10536,7 @@
        "id": "moon",
        "knownLimitations": [
         "No velocity is modelled for the Moon, so it has no speed readout.",
+        "The series uses its own approximation of the TT-UTC difference and steps by small amounts at month boundaries, so the Moon's path is not exactly continuous, and it has no stated validity range beyond the 2022 to 2025 comparison samples.",
         "The Moon's orientation is the IAU mean-Earth rotation model with its libration terms, so the Moon shows libration in longitude and latitude. It is a published series, not the JPL lunar ephemeris: its sub-Earth point and pole differ from Horizons' by at most 0.01 degrees (about 0.3 km on the surface) at the seven dates from 1969 to 2050 that were checked, and its accuracy elsewhere is not stated by the source.",
         "A landing site placed by the IAU model (a mission reconstruction's, measured at the Sea of Tranquility) sits 0.01 km (under 0.001 degrees) from the same selenographic coordinates on this Moon at touchdown, because the reconstruction and the drawn Moon use the same IAU model (docs/ASTRAEUS_SPIKE_02.md measured 254 km, 8.4 degrees, under the earlier tidal lock)."
        ],
@@ -10537,7 +10544,7 @@
        "labelMaxDistance": 500,
        "labelPriority": 99,
        "provenance": {
-        "accuracy": "Position checked against JPL Horizons (DE441) samples within the project's acceptance targets, which are not a guaranteed bound for every date.",
+        "accuracy": "Measured against eight JPL Horizons (DE441) geometric vectors from 2022-06 to 2025-06 (2026-11-22): at most 4.3 arcseconds, 6.4 km in distance and 8.0 km in vector difference. Not a guaranteed bound outside those samples.",
         "notes": "Body size is the volumetric mean radius (NASA NSSDC fact sheet).",
         "sourceType": "ephemeris",
         "sources": [
@@ -10753,7 +10760,7 @@
      ]
     },
     "moon": {
-     "accuracy": "Position checked against JPL Horizons (DE441) samples within the project's acceptance targets, which are not a guaranteed bound for every date.",
+     "accuracy": "Measured against eight JPL Horizons (DE441) geometric vectors from 2022-06 to 2025-06 (2026-11-22): at most 4.3 arcseconds, 6.4 km in distance and 8.0 km in vector difference. Not a guaranteed bound outside those samples.",
      "notes": "Body size is the volumetric mean radius (NASA NSSDC fact sheet).",
      "sourceType": "ephemeris",
      "sources": [
@@ -11238,6 +11245,7 @@
        "id": "moon",
        "knownLimitations": [
         "No velocity is modelled for the Moon, so it has no speed readout.",
+        "The series uses its own approximation of the TT-UTC difference and steps by small amounts at month boundaries, so the Moon's path is not exactly continuous, and it has no stated validity range beyond the 2022 to 2025 comparison samples.",
         "The Moon's orientation is the IAU mean-Earth rotation model with its libration terms, so the Moon shows libration in longitude and latitude. It is a published series, not the JPL lunar ephemeris: its sub-Earth point and pole differ from Horizons' by at most 0.01 degrees (about 0.3 km on the surface) at the seven dates from 1969 to 2050 that were checked, and its accuracy elsewhere is not stated by the source.",
         "A landing site placed by the IAU model (a mission reconstruction's, measured at the Sea of Tranquility) sits 0.01 km (under 0.001 degrees) from the same selenographic coordinates on this Moon at touchdown, because the reconstruction and the drawn Moon use the same IAU model (docs/ASTRAEUS_SPIKE_02.md measured 254 km, 8.4 degrees, under the earlier tidal lock)."
        ],
@@ -11245,7 +11253,7 @@
        "labelMaxDistance": 500,
        "labelPriority": 99,
        "provenance": {
-        "accuracy": "Position checked against JPL Horizons (DE441) samples within the project's acceptance targets, which are not a guaranteed bound for every date.",
+        "accuracy": "Measured against eight JPL Horizons (DE441) geometric vectors from 2022-06 to 2025-06 (2026-11-22): at most 4.3 arcseconds, 6.4 km in distance and 8.0 km in vector difference. Not a guaranteed bound outside those samples.",
         "notes": "Body size is the volumetric mean radius (NASA NSSDC fact sheet).",
         "sourceType": "ephemeris",
         "sources": [
@@ -11415,7 +11423,7 @@
      ]
     },
     "moon": {
-     "accuracy": "Position checked against JPL Horizons (DE441) samples within the project's acceptance targets, which are not a guaranteed bound for every date.",
+     "accuracy": "Measured against eight JPL Horizons (DE441) geometric vectors from 2022-06 to 2025-06 (2026-11-22): at most 4.3 arcseconds, 6.4 km in distance and 8.0 km in vector difference. Not a guaranteed bound outside those samples.",
      "notes": "Body size is the volumetric mean radius (NASA NSSDC fact sheet).",
      "sourceType": "ephemeris",
      "sources": [
@@ -11902,6 +11910,7 @@
        "id": "moon",
        "knownLimitations": [
         "No velocity is modelled for the Moon, so it has no speed readout.",
+        "The series uses its own approximation of the TT-UTC difference and steps by small amounts at month boundaries, so the Moon's path is not exactly continuous, and it has no stated validity range beyond the 2022 to 2025 comparison samples.",
         "The Moon's orientation is the IAU mean-Earth rotation model with its libration terms, so the Moon shows libration in longitude and latitude. It is a published series, not the JPL lunar ephemeris: its sub-Earth point and pole differ from Horizons' by at most 0.01 degrees (about 0.3 km on the surface) at the seven dates from 1969 to 2050 that were checked, and its accuracy elsewhere is not stated by the source.",
         "A landing site placed by the IAU model (a mission reconstruction's, measured at the Sea of Tranquility) sits 0.01 km (under 0.001 degrees) from the same selenographic coordinates on this Moon at touchdown, because the reconstruction and the drawn Moon use the same IAU model (docs/ASTRAEUS_SPIKE_02.md measured 254 km, 8.4 degrees, under the earlier tidal lock)."
        ],
@@ -11909,7 +11918,7 @@
        "labelMaxDistance": 500,
        "labelPriority": 99,
        "provenance": {
-        "accuracy": "Position checked against JPL Horizons (DE441) samples within the project's acceptance targets, which are not a guaranteed bound for every date.",
+        "accuracy": "Measured against eight JPL Horizons (DE441) geometric vectors from 2022-06 to 2025-06 (2026-11-22): at most 4.3 arcseconds, 6.4 km in distance and 8.0 km in vector difference. Not a guaranteed bound outside those samples.",
         "notes": "Body size is the volumetric mean radius (NASA NSSDC fact sheet).",
         "sourceType": "ephemeris",
         "sources": [
@@ -12079,7 +12088,7 @@
      ]
     },
     "moon": {
-     "accuracy": "Position checked against JPL Horizons (DE441) samples within the project's acceptance targets, which are not a guaranteed bound for every date.",
+     "accuracy": "Measured against eight JPL Horizons (DE441) geometric vectors from 2022-06 to 2025-06 (2026-11-22): at most 4.3 arcseconds, 6.4 km in distance and 8.0 km in vector difference. Not a guaranteed bound outside those samples.",
      "notes": "Body size is the volumetric mean radius (NASA NSSDC fact sheet).",
      "sourceType": "ephemeris",
      "sources": [
@@ -12248,6 +12257,7 @@
        "id": "moon",
        "knownLimitations": [
         "No velocity is modelled for the Moon, so it has no speed readout.",
+        "The series uses its own approximation of the TT-UTC difference and steps by small amounts at month boundaries, so the Moon's path is not exactly continuous, and it has no stated validity range beyond the 2022 to 2025 comparison samples.",
         "The Moon's orientation is the IAU mean-Earth rotation model with its libration terms, so the Moon shows libration in longitude and latitude. It is a published series, not the JPL lunar ephemeris: its sub-Earth point and pole differ from Horizons' by at most 0.01 degrees (about 0.3 km on the surface) at the seven dates from 1969 to 2050 that were checked, and its accuracy elsewhere is not stated by the source.",
         "A landing site placed by the IAU model (a mission reconstruction's, measured at the Sea of Tranquility) sits 0.01 km (under 0.001 degrees) from the same selenographic coordinates on this Moon at touchdown, because the reconstruction and the drawn Moon use the same IAU model (docs/ASTRAEUS_SPIKE_02.md measured 254 km, 8.4 degrees, under the earlier tidal lock)."
        ],
@@ -12255,7 +12265,7 @@
        "labelMaxDistance": 500,
        "labelPriority": 99,
        "provenance": {
-        "accuracy": "Position checked against JPL Horizons (DE441) samples within the project's acceptance targets, which are not a guaranteed bound for every date.",
+        "accuracy": "Measured against eight JPL Horizons (DE441) geometric vectors from 2022-06 to 2025-06 (2026-11-22): at most 4.3 arcseconds, 6.4 km in distance and 8.0 km in vector difference. Not a guaranteed bound outside those samples.",
         "notes": "Body size is the volumetric mean radius (NASA NSSDC fact sheet).",
         "sourceType": "ephemeris",
         "sources": [
@@ -12868,7 +12878,7 @@
      ]
     },
     "moon": {
-     "accuracy": "Position checked against JPL Horizons (DE441) samples within the project's acceptance targets, which are not a guaranteed bound for every date.",
+     "accuracy": "Measured against eight JPL Horizons (DE441) geometric vectors from 2022-06 to 2025-06 (2026-11-22): at most 4.3 arcseconds, 6.4 km in distance and 8.0 km in vector difference. Not a guaranteed bound outside those samples.",
      "notes": "Body size is the volumetric mean radius (NASA NSSDC fact sheet).",
      "sourceType": "ephemeris",
      "sources": [
@@ -13440,6 +13450,7 @@
        "id": "moon",
        "knownLimitations": [
         "No velocity is modelled for the Moon, so it has no speed readout.",
+        "The series uses its own approximation of the TT-UTC difference and steps by small amounts at month boundaries, so the Moon's path is not exactly continuous, and it has no stated validity range beyond the 2022 to 2025 comparison samples.",
         "The Moon's orientation is the IAU mean-Earth rotation model with its libration terms, so the Moon shows libration in longitude and latitude. It is a published series, not the JPL lunar ephemeris: its sub-Earth point and pole differ from Horizons' by at most 0.01 degrees (about 0.3 km on the surface) at the seven dates from 1969 to 2050 that were checked, and its accuracy elsewhere is not stated by the source.",
         "A landing site placed by the IAU model (a mission reconstruction's, measured at the Sea of Tranquility) sits 0.01 km (under 0.001 degrees) from the same selenographic coordinates on this Moon at touchdown, because the reconstruction and the drawn Moon use the same IAU model (docs/ASTRAEUS_SPIKE_02.md measured 254 km, 8.4 degrees, under the earlier tidal lock)."
        ],
@@ -13447,7 +13458,7 @@
        "labelMaxDistance": 500,
        "labelPriority": 99,
        "provenance": {
-        "accuracy": "Position checked against JPL Horizons (DE441) samples within the project's acceptance targets, which are not a guaranteed bound for every date.",
+        "accuracy": "Measured against eight JPL Horizons (DE441) geometric vectors from 2022-06 to 2025-06 (2026-11-22): at most 4.3 arcseconds, 6.4 km in distance and 8.0 km in vector difference. Not a guaranteed bound outside those samples.",
         "notes": "Body size is the volumetric mean radius (NASA NSSDC fact sheet).",
         "sourceType": "ephemeris",
         "sources": [
@@ -13624,7 +13635,7 @@
      ]
     },
     "moon": {
-     "accuracy": "Position checked against JPL Horizons (DE441) samples within the project's acceptance targets, which are not a guaranteed bound for every date.",
+     "accuracy": "Measured against eight JPL Horizons (DE441) geometric vectors from 2022-06 to 2025-06 (2026-11-22): at most 4.3 arcseconds, 6.4 km in distance and 8.0 km in vector difference. Not a guaranteed bound outside those samples.",
      "notes": "Body size is the volumetric mean radius (NASA NSSDC fact sheet).",
      "sourceType": "ephemeris",
      "sources": [
@@ -14958,6 +14969,7 @@
        "id": "moon",
        "knownLimitations": [
         "No velocity is modelled for the Moon, so it has no speed readout.",
+        "The series uses its own approximation of the TT-UTC difference and steps by small amounts at month boundaries, so the Moon's path is not exactly continuous, and it has no stated validity range beyond the 2022 to 2025 comparison samples.",
         "The Moon's orientation is the IAU mean-Earth rotation model with its libration terms, so the Moon shows libration in longitude and latitude. It is a published series, not the JPL lunar ephemeris: its sub-Earth point and pole differ from Horizons' by at most 0.01 degrees (about 0.3 km on the surface) at the seven dates from 1969 to 2050 that were checked, and its accuracy elsewhere is not stated by the source.",
         "A landing site placed by the IAU model (a mission reconstruction's, measured at the Sea of Tranquility) sits 0.01 km (under 0.001 degrees) from the same selenographic coordinates on this Moon at touchdown, because the reconstruction and the drawn Moon use the same IAU model (docs/ASTRAEUS_SPIKE_02.md measured 254 km, 8.4 degrees, under the earlier tidal lock)."
        ],
@@ -14965,7 +14977,7 @@
        "labelMaxDistance": 500,
        "labelPriority": 99,
        "provenance": {
-        "accuracy": "Position checked against JPL Horizons (DE441) samples within the project's acceptance targets, which are not a guaranteed bound for every date.",
+        "accuracy": "Measured against eight JPL Horizons (DE441) geometric vectors from 2022-06 to 2025-06 (2026-11-22): at most 4.3 arcseconds, 6.4 km in distance and 8.0 km in vector difference. Not a guaranteed bound outside those samples.",
         "notes": "Body size is the volumetric mean radius (NASA NSSDC fact sheet).",
         "sourceType": "ephemeris",
         "sources": [
@@ -15146,7 +15158,7 @@
      ]
     },
     "moon": {
-     "accuracy": "Position checked against JPL Horizons (DE441) samples within the project's acceptance targets, which are not a guaranteed bound for every date.",
+     "accuracy": "Measured against eight JPL Horizons (DE441) geometric vectors from 2022-06 to 2025-06 (2026-11-22): at most 4.3 arcseconds, 6.4 km in distance and 8.0 km in vector difference. Not a guaranteed bound outside those samples.",
      "notes": "Body size is the volumetric mean radius (NASA NSSDC fact sheet).",
      "sourceType": "ephemeris",
      "sources": [
@@ -18394,6 +18406,7 @@
        "id": "moon",
        "knownLimitations": [
         "No velocity is modelled for the Moon, so it has no speed readout.",
+        "The series uses its own approximation of the TT-UTC difference and steps by small amounts at month boundaries, so the Moon's path is not exactly continuous, and it has no stated validity range beyond the 2022 to 2025 comparison samples.",
         "The Moon's orientation is the IAU mean-Earth rotation model with its libration terms, so the Moon shows libration in longitude and latitude. It is a published series, not the JPL lunar ephemeris: its sub-Earth point and pole differ from Horizons' by at most 0.01 degrees (about 0.3 km on the surface) at the seven dates from 1969 to 2050 that were checked, and its accuracy elsewhere is not stated by the source.",
         "A landing site placed by the IAU model (a mission reconstruction's, measured at the Sea of Tranquility) sits 0.01 km (under 0.001 degrees) from the same selenographic coordinates on this Moon at touchdown, because the reconstruction and the drawn Moon use the same IAU model (docs/ASTRAEUS_SPIKE_02.md measured 254 km, 8.4 degrees, under the earlier tidal lock)."
        ],
@@ -18401,7 +18414,7 @@
        "labelMaxDistance": 500,
        "labelPriority": 99,
        "provenance": {
-        "accuracy": "Position checked against JPL Horizons (DE441) samples within the project's acceptance targets, which are not a guaranteed bound for every date.",
+        "accuracy": "Measured against eight JPL Horizons (DE441) geometric vectors from 2022-06 to 2025-06 (2026-11-22): at most 4.3 arcseconds, 6.4 km in distance and 8.0 km in vector difference. Not a guaranteed bound outside those samples.",
         "notes": "Body size is the volumetric mean radius (NASA NSSDC fact sheet).",
         "sourceType": "ephemeris",
         "sources": [
@@ -18570,7 +18583,7 @@
      ]
     },
     "moon": {
-     "accuracy": "Position checked against JPL Horizons (DE441) samples within the project's acceptance targets, which are not a guaranteed bound for every date.",
+     "accuracy": "Measured against eight JPL Horizons (DE441) geometric vectors from 2022-06 to 2025-06 (2026-11-22): at most 4.3 arcseconds, 6.4 km in distance and 8.0 km in vector difference. Not a guaranteed bound outside those samples.",
      "notes": "Body size is the volumetric mean radius (NASA NSSDC fact sheet).",
      "sourceType": "ephemeris",
      "sources": [
@@ -18696,6 +18709,7 @@
        "id": "moon",
        "knownLimitations": [
         "No velocity is modelled for the Moon, so it has no speed readout.",
+        "The series uses its own approximation of the TT-UTC difference and steps by small amounts at month boundaries, so the Moon's path is not exactly continuous, and it has no stated validity range beyond the 2022 to 2025 comparison samples.",
         "The Moon's orientation is the IAU mean-Earth rotation model with its libration terms, so the Moon shows libration in longitude and latitude. It is a published series, not the JPL lunar ephemeris: its sub-Earth point and pole differ from Horizons' by at most 0.01 degrees (about 0.3 km on the surface) at the seven dates from 1969 to 2050 that were checked, and its accuracy elsewhere is not stated by the source.",
         "A landing site placed by the IAU model (a mission reconstruction's, measured at the Sea of Tranquility) sits 0.01 km (under 0.001 degrees) from the same selenographic coordinates on this Moon at touchdown, because the reconstruction and the drawn Moon use the same IAU model (docs/ASTRAEUS_SPIKE_02.md measured 254 km, 8.4 degrees, under the earlier tidal lock)."
        ],
@@ -18703,7 +18717,7 @@
        "labelMaxDistance": 500,
        "labelPriority": 99,
        "provenance": {
-        "accuracy": "Position checked against JPL Horizons (DE441) samples within the project's acceptance targets, which are not a guaranteed bound for every date.",
+        "accuracy": "Measured against eight JPL Horizons (DE441) geometric vectors from 2022-06 to 2025-06 (2026-11-22): at most 4.3 arcseconds, 6.4 km in distance and 8.0 km in vector difference. Not a guaranteed bound outside those samples.",
         "notes": "Body size is the volumetric mean radius (NASA NSSDC fact sheet).",
         "sourceType": "ephemeris",
         "sources": [
@@ -18873,7 +18887,7 @@
      ]
     },
     "moon": {
-     "accuracy": "Position checked against JPL Horizons (DE441) samples within the project's acceptance targets, which are not a guaranteed bound for every date.",
+     "accuracy": "Measured against eight JPL Horizons (DE441) geometric vectors from 2022-06 to 2025-06 (2026-11-22): at most 4.3 arcseconds, 6.4 km in distance and 8.0 km in vector difference. Not a guaranteed bound outside those samples.",
      "notes": "Body size is the volumetric mean radius (NASA NSSDC fact sheet).",
      "sourceType": "ephemeris",
      "sources": [
@@ -20813,6 +20827,7 @@
        "id": "moon",
        "knownLimitations": [
         "No velocity is modelled for the Moon, so it has no speed readout.",
+        "The series uses its own approximation of the TT-UTC difference and steps by small amounts at month boundaries, so the Moon's path is not exactly continuous, and it has no stated validity range beyond the 2022 to 2025 comparison samples.",
         "The Moon's orientation is the IAU mean-Earth rotation model with its libration terms, so the Moon shows libration in longitude and latitude. It is a published series, not the JPL lunar ephemeris: its sub-Earth point and pole differ from Horizons' by at most 0.01 degrees (about 0.3 km on the surface) at the seven dates from 1969 to 2050 that were checked, and its accuracy elsewhere is not stated by the source.",
         "A landing site placed by the IAU model (a mission reconstruction's, measured at the Sea of Tranquility) sits 0.01 km (under 0.001 degrees) from the same selenographic coordinates on this Moon at touchdown, because the reconstruction and the drawn Moon use the same IAU model (docs/ASTRAEUS_SPIKE_02.md measured 254 km, 8.4 degrees, under the earlier tidal lock)."
        ],
@@ -20820,7 +20835,7 @@
        "labelMaxDistance": 500,
        "labelPriority": 99,
        "provenance": {
-        "accuracy": "Position checked against JPL Horizons (DE441) samples within the project's acceptance targets, which are not a guaranteed bound for every date.",
+        "accuracy": "Measured against eight JPL Horizons (DE441) geometric vectors from 2022-06 to 2025-06 (2026-11-22): at most 4.3 arcseconds, 6.4 km in distance and 8.0 km in vector difference. Not a guaranteed bound outside those samples.",
         "notes": "Body size is the volumetric mean radius (NASA NSSDC fact sheet).",
         "sourceType": "ephemeris",
         "sources": [
@@ -21522,7 +21537,7 @@
      ]
     },
     "moon": {
-     "accuracy": "Position checked against JPL Horizons (DE441) samples within the project's acceptance targets, which are not a guaranteed bound for every date.",
+     "accuracy": "Measured against eight JPL Horizons (DE441) geometric vectors from 2022-06 to 2025-06 (2026-11-22): at most 4.3 arcseconds, 6.4 km in distance and 8.0 km in vector difference. Not a guaranteed bound outside those samples.",
      "notes": "Body size is the volumetric mean radius (NASA NSSDC fact sheet).",
      "sourceType": "ephemeris",
      "sources": [
@@ -22180,13 +22195,14 @@
        "id": "moon",
        "knownLimitations": [
         "No velocity is modelled for the Moon, so it has no speed readout.",
+        "The series uses its own approximation of the TT-UTC difference and steps by small amounts at month boundaries, so the Moon's path is not exactly continuous, and it has no stated validity range beyond the 2022 to 2025 comparison samples.",
         "The Moon's orientation is the IAU mean-Earth rotation model with its libration terms, so the Moon shows libration in longitude and latitude. It is a published series, not the JPL lunar ephemeris: its sub-Earth point and pole differ from Horizons' by at most 0.01 degrees (about 0.3 km on the surface) at the seven dates from 1969 to 2050 that were checked, and its accuracy elsewhere is not stated by the source.",
         "A landing site placed by the IAU model (a mission reconstruction's, measured at the Sea of Tranquility) sits 0.01 km (under 0.001 degrees) from the same selenographic coordinates on this Moon at touchdown, because the reconstruction and the drawn Moon use the same IAU model (docs/ASTRAEUS_SPIKE_02.md measured 254 km, 8.4 degrees, under the earlier tidal lock)."
        ],
        "label": "Moon",
        "labelPriority": 98,
        "provenance": {
-        "accuracy": "Position checked against JPL Horizons (DE441) samples within the project's acceptance targets, which are not a guaranteed bound for every date.",
+        "accuracy": "Measured against eight JPL Horizons (DE441) geometric vectors from 2022-06 to 2025-06 (2026-11-22): at most 4.3 arcseconds, 6.4 km in distance and 8.0 km in vector difference. Not a guaranteed bound outside those samples.",
         "notes": "Body size is the volumetric mean radius (NASA NSSDC fact sheet).",
         "sourceType": "ephemeris",
         "sources": [
@@ -22573,7 +22589,7 @@
      ]
     },
     "moon": {
-     "accuracy": "Position checked against JPL Horizons (DE441) samples within the project's acceptance targets, which are not a guaranteed bound for every date.",
+     "accuracy": "Measured against eight JPL Horizons (DE441) geometric vectors from 2022-06 to 2025-06 (2026-11-22): at most 4.3 arcseconds, 6.4 km in distance and 8.0 km in vector difference. Not a guaranteed bound outside those samples.",
      "notes": "Body size is the volumetric mean radius (NASA NSSDC fact sheet).",
      "sourceType": "ephemeris",
      "sources": [
@@ -25212,6 +25228,7 @@
        "id": "moon",
        "knownLimitations": [
         "No velocity is modelled for the Moon, so it has no speed readout.",
+        "The series uses its own approximation of the TT-UTC difference and steps by small amounts at month boundaries, so the Moon's path is not exactly continuous, and it has no stated validity range beyond the 2022 to 2025 comparison samples.",
         "The Moon's orientation is the IAU mean-Earth rotation model with its libration terms, so the Moon shows libration in longitude and latitude. It is a published series, not the JPL lunar ephemeris: its sub-Earth point and pole differ from Horizons' by at most 0.01 degrees (about 0.3 km on the surface) at the seven dates from 1969 to 2050 that were checked, and its accuracy elsewhere is not stated by the source.",
         "A landing site placed by the IAU model (a mission reconstruction's, measured at the Sea of Tranquility) sits 0.01 km (under 0.001 degrees) from the same selenographic coordinates on this Moon at touchdown, because the reconstruction and the drawn Moon use the same IAU model (docs/ASTRAEUS_SPIKE_02.md measured 254 km, 8.4 degrees, under the earlier tidal lock)."
        ],
@@ -25219,7 +25236,7 @@
        "labelMaxDistance": 500,
        "labelPriority": 99,
        "provenance": {
-        "accuracy": "Position checked against JPL Horizons (DE441) samples within the project's acceptance targets, which are not a guaranteed bound for every date.",
+        "accuracy": "Measured against eight JPL Horizons (DE441) geometric vectors from 2022-06 to 2025-06 (2026-11-22): at most 4.3 arcseconds, 6.4 km in distance and 8.0 km in vector difference. Not a guaranteed bound outside those samples.",
         "notes": "Body size is the volumetric mean radius (NASA NSSDC fact sheet).",
         "sourceType": "ephemeris",
         "sources": [
@@ -25537,7 +25554,7 @@
      ]
     },
     "moon": {
-     "accuracy": "Position checked against JPL Horizons (DE441) samples within the project's acceptance targets, which are not a guaranteed bound for every date.",
+     "accuracy": "Measured against eight JPL Horizons (DE441) geometric vectors from 2022-06 to 2025-06 (2026-11-22): at most 4.3 arcseconds, 6.4 km in distance and 8.0 km in vector difference. Not a guaranteed bound outside those samples.",
      "notes": "Body size is the volumetric mean radius (NASA NSSDC fact sheet).",
      "sourceType": "ephemeris",
      "sources": [
@@ -25974,6 +25991,7 @@
        "id": "moon",
        "knownLimitations": [
         "No velocity is modelled for the Moon, so it has no speed readout.",
+        "The series uses its own approximation of the TT-UTC difference and steps by small amounts at month boundaries, so the Moon's path is not exactly continuous, and it has no stated validity range beyond the 2022 to 2025 comparison samples.",
         "The Moon's orientation is the IAU mean-Earth rotation model with its libration terms, so the Moon shows libration in longitude and latitude. It is a published series, not the JPL lunar ephemeris: its sub-Earth point and pole differ from Horizons' by at most 0.01 degrees (about 0.3 km on the surface) at the seven dates from 1969 to 2050 that were checked, and its accuracy elsewhere is not stated by the source.",
         "A landing site placed by the IAU model (a mission reconstruction's, measured at the Sea of Tranquility) sits 0.01 km (under 0.001 degrees) from the same selenographic coordinates on this Moon at touchdown, because the reconstruction and the drawn Moon use the same IAU model (docs/ASTRAEUS_SPIKE_02.md measured 254 km, 8.4 degrees, under the earlier tidal lock)."
        ],
@@ -25981,7 +25999,7 @@
        "labelMaxDistance": 500,
        "labelPriority": 99,
        "provenance": {
-        "accuracy": "Position checked against JPL Horizons (DE441) samples within the project's acceptance targets, which are not a guaranteed bound for every date.",
+        "accuracy": "Measured against eight JPL Horizons (DE441) geometric vectors from 2022-06 to 2025-06 (2026-11-22): at most 4.3 arcseconds, 6.4 km in distance and 8.0 km in vector difference. Not a guaranteed bound outside those samples.",
         "notes": "Body size is the volumetric mean radius (NASA NSSDC fact sheet).",
         "sourceType": "ephemeris",
         "sources": [
@@ -26359,7 +26377,7 @@
      ]
     },
     "moon": {
-     "accuracy": "Position checked against JPL Horizons (DE441) samples within the project's acceptance targets, which are not a guaranteed bound for every date.",
+     "accuracy": "Measured against eight JPL Horizons (DE441) geometric vectors from 2022-06 to 2025-06 (2026-11-22): at most 4.3 arcseconds, 6.4 km in distance and 8.0 km in vector difference. Not a guaranteed bound outside those samples.",
      "notes": "Body size is the volumetric mean radius (NASA NSSDC fact sheet).",
      "sourceType": "ephemeris",
      "sources": [
@@ -26536,6 +26554,7 @@
        "id": "moon",
        "knownLimitations": [
         "No velocity is modelled for the Moon, so it has no speed readout.",
+        "The series uses its own approximation of the TT-UTC difference and steps by small amounts at month boundaries, so the Moon's path is not exactly continuous, and it has no stated validity range beyond the 2022 to 2025 comparison samples.",
         "The Moon's orientation is the IAU mean-Earth rotation model with its libration terms, so the Moon shows libration in longitude and latitude. It is a published series, not the JPL lunar ephemeris: its sub-Earth point and pole differ from Horizons' by at most 0.01 degrees (about 0.3 km on the surface) at the seven dates from 1969 to 2050 that were checked, and its accuracy elsewhere is not stated by the source.",
         "A landing site placed by the IAU model (a mission reconstruction's, measured at the Sea of Tranquility) sits 0.01 km (under 0.001 degrees) from the same selenographic coordinates on this Moon at touchdown, because the reconstruction and the drawn Moon use the same IAU model (docs/ASTRAEUS_SPIKE_02.md measured 254 km, 8.4 degrees, under the earlier tidal lock)."
        ],
@@ -26543,7 +26562,7 @@
        "labelMaxDistance": 500,
        "labelPriority": 99,
        "provenance": {
-        "accuracy": "Position checked against JPL Horizons (DE441) samples within the project's acceptance targets, which are not a guaranteed bound for every date.",
+        "accuracy": "Measured against eight JPL Horizons (DE441) geometric vectors from 2022-06 to 2025-06 (2026-11-22): at most 4.3 arcseconds, 6.4 km in distance and 8.0 km in vector difference. Not a guaranteed bound outside those samples.",
         "notes": "Body size is the volumetric mean radius (NASA NSSDC fact sheet).",
         "sourceType": "ephemeris",
         "sources": [
@@ -26759,7 +26778,7 @@
      ]
     },
     "moon": {
-     "accuracy": "Position checked against JPL Horizons (DE441) samples within the project's acceptance targets, which are not a guaranteed bound for every date.",
+     "accuracy": "Measured against eight JPL Horizons (DE441) geometric vectors from 2022-06 to 2025-06 (2026-11-22): at most 4.3 arcseconds, 6.4 km in distance and 8.0 km in vector difference. Not a guaranteed bound outside those samples.",
      "notes": "Body size is the volumetric mean radius (NASA NSSDC fact sheet).",
      "sourceType": "ephemeris",
      "sources": [
@@ -27244,6 +27263,7 @@
        "id": "moon",
        "knownLimitations": [
         "No velocity is modelled for the Moon, so it has no speed readout.",
+        "The series uses its own approximation of the TT-UTC difference and steps by small amounts at month boundaries, so the Moon's path is not exactly continuous, and it has no stated validity range beyond the 2022 to 2025 comparison samples.",
         "The Moon's orientation is the IAU mean-Earth rotation model with its libration terms, so the Moon shows libration in longitude and latitude. It is a published series, not the JPL lunar ephemeris: its sub-Earth point and pole differ from Horizons' by at most 0.01 degrees (about 0.3 km on the surface) at the seven dates from 1969 to 2050 that were checked, and its accuracy elsewhere is not stated by the source.",
         "A landing site placed by the IAU model (a mission reconstruction's, measured at the Sea of Tranquility) sits 0.01 km (under 0.001 degrees) from the same selenographic coordinates on this Moon at touchdown, because the reconstruction and the drawn Moon use the same IAU model (docs/ASTRAEUS_SPIKE_02.md measured 254 km, 8.4 degrees, under the earlier tidal lock)."
        ],
@@ -27251,7 +27271,7 @@
        "labelMaxDistance": 500,
        "labelPriority": 99,
        "provenance": {
-        "accuracy": "Position checked against JPL Horizons (DE441) samples within the project's acceptance targets, which are not a guaranteed bound for every date.",
+        "accuracy": "Measured against eight JPL Horizons (DE441) geometric vectors from 2022-06 to 2025-06 (2026-11-22): at most 4.3 arcseconds, 6.4 km in distance and 8.0 km in vector difference. Not a guaranteed bound outside those samples.",
         "notes": "Body size is the volumetric mean radius (NASA NSSDC fact sheet).",
         "sourceType": "ephemeris",
         "sources": [
@@ -27421,7 +27441,7 @@
      ]
     },
     "moon": {
-     "accuracy": "Position checked against JPL Horizons (DE441) samples within the project's acceptance targets, which are not a guaranteed bound for every date.",
+     "accuracy": "Measured against eight JPL Horizons (DE441) geometric vectors from 2022-06 to 2025-06 (2026-11-22): at most 4.3 arcseconds, 6.4 km in distance and 8.0 km in vector difference. Not a guaranteed bound outside those samples.",
      "notes": "Body size is the volumetric mean radius (NASA NSSDC fact sheet).",
      "sourceType": "ephemeris",
      "sources": [
@@ -27908,6 +27928,7 @@
        "id": "moon",
        "knownLimitations": [
         "No velocity is modelled for the Moon, so it has no speed readout.",
+        "The series uses its own approximation of the TT-UTC difference and steps by small amounts at month boundaries, so the Moon's path is not exactly continuous, and it has no stated validity range beyond the 2022 to 2025 comparison samples.",
         "The Moon's orientation is the IAU mean-Earth rotation model with its libration terms, so the Moon shows libration in longitude and latitude. It is a published series, not the JPL lunar ephemeris: its sub-Earth point and pole differ from Horizons' by at most 0.01 degrees (about 0.3 km on the surface) at the seven dates from 1969 to 2050 that were checked, and its accuracy elsewhere is not stated by the source.",
         "A landing site placed by the IAU model (a mission reconstruction's, measured at the Sea of Tranquility) sits 0.01 km (under 0.001 degrees) from the same selenographic coordinates on this Moon at touchdown, because the reconstruction and the drawn Moon use the same IAU model (docs/ASTRAEUS_SPIKE_02.md measured 254 km, 8.4 degrees, under the earlier tidal lock)."
        ],
@@ -27915,7 +27936,7 @@
        "labelMaxDistance": 500,
        "labelPriority": 99,
        "provenance": {
-        "accuracy": "Position checked against JPL Horizons (DE441) samples within the project's acceptance targets, which are not a guaranteed bound for every date.",
+        "accuracy": "Measured against eight JPL Horizons (DE441) geometric vectors from 2022-06 to 2025-06 (2026-11-22): at most 4.3 arcseconds, 6.4 km in distance and 8.0 km in vector difference. Not a guaranteed bound outside those samples.",
         "notes": "Body size is the volumetric mean radius (NASA NSSDC fact sheet).",
         "sourceType": "ephemeris",
         "sources": [
@@ -28085,7 +28106,7 @@
      ]
     },
     "moon": {
-     "accuracy": "Position checked against JPL Horizons (DE441) samples within the project's acceptance targets, which are not a guaranteed bound for every date.",
+     "accuracy": "Measured against eight JPL Horizons (DE441) geometric vectors from 2022-06 to 2025-06 (2026-11-22): at most 4.3 arcseconds, 6.4 km in distance and 8.0 km in vector difference. Not a guaranteed bound outside those samples.",
      "notes": "Body size is the volumetric mean radius (NASA NSSDC fact sheet).",
      "sourceType": "ephemeris",
      "sources": [
@@ -28254,6 +28275,7 @@
        "id": "moon",
        "knownLimitations": [
         "No velocity is modelled for the Moon, so it has no speed readout.",
+        "The series uses its own approximation of the TT-UTC difference and steps by small amounts at month boundaries, so the Moon's path is not exactly continuous, and it has no stated validity range beyond the 2022 to 2025 comparison samples.",
         "The Moon's orientation is the IAU mean-Earth rotation model with its libration terms, so the Moon shows libration in longitude and latitude. It is a published series, not the JPL lunar ephemeris: its sub-Earth point and pole differ from Horizons' by at most 0.01 degrees (about 0.3 km on the surface) at the seven dates from 1969 to 2050 that were checked, and its accuracy elsewhere is not stated by the source.",
         "A landing site placed by the IAU model (a mission reconstruction's, measured at the Sea of Tranquility) sits 0.01 km (under 0.001 degrees) from the same selenographic coordinates on this Moon at touchdown, because the reconstruction and the drawn Moon use the same IAU model (docs/ASTRAEUS_SPIKE_02.md measured 254 km, 8.4 degrees, under the earlier tidal lock)."
        ],
@@ -28261,7 +28283,7 @@
        "labelMaxDistance": 500,
        "labelPriority": 99,
        "provenance": {
-        "accuracy": "Position checked against JPL Horizons (DE441) samples within the project's acceptance targets, which are not a guaranteed bound for every date.",
+        "accuracy": "Measured against eight JPL Horizons (DE441) geometric vectors from 2022-06 to 2025-06 (2026-11-22): at most 4.3 arcseconds, 6.4 km in distance and 8.0 km in vector difference. Not a guaranteed bound outside those samples.",
         "notes": "Body size is the volumetric mean radius (NASA NSSDC fact sheet).",
         "sourceType": "ephemeris",
         "sources": [
@@ -28874,7 +28896,7 @@
      ]
     },
     "moon": {
-     "accuracy": "Position checked against JPL Horizons (DE441) samples within the project's acceptance targets, which are not a guaranteed bound for every date.",
+     "accuracy": "Measured against eight JPL Horizons (DE441) geometric vectors from 2022-06 to 2025-06 (2026-11-22): at most 4.3 arcseconds, 6.4 km in distance and 8.0 km in vector difference. Not a guaranteed bound outside those samples.",
      "notes": "Body size is the volumetric mean radius (NASA NSSDC fact sheet).",
      "sourceType": "ephemeris",
      "sources": [
@@ -29645,6 +29667,7 @@
        "id": "moon",
        "knownLimitations": [
         "No velocity is modelled for the Moon, so it has no speed readout.",
+        "The series uses its own approximation of the TT-UTC difference and steps by small amounts at month boundaries, so the Moon's path is not exactly continuous, and it has no stated validity range beyond the 2022 to 2025 comparison samples.",
         "The Moon's orientation is the IAU mean-Earth rotation model with its libration terms, so the Moon shows libration in longitude and latitude. It is a published series, not the JPL lunar ephemeris: its sub-Earth point and pole differ from Horizons' by at most 0.01 degrees (about 0.3 km on the surface) at the seven dates from 1969 to 2050 that were checked, and its accuracy elsewhere is not stated by the source.",
         "A landing site placed by the IAU model (a mission reconstruction's, measured at the Sea of Tranquility) sits 0.01 km (under 0.001 degrees) from the same selenographic coordinates on this Moon at touchdown, because the reconstruction and the drawn Moon use the same IAU model (docs/ASTRAEUS_SPIKE_02.md measured 254 km, 8.4 degrees, under the earlier tidal lock)."
        ],
@@ -29652,7 +29675,7 @@
        "labelMaxDistance": 500,
        "labelPriority": 99,
        "provenance": {
-        "accuracy": "Position checked against JPL Horizons (DE441) samples within the project's acceptance targets, which are not a guaranteed bound for every date.",
+        "accuracy": "Measured against eight JPL Horizons (DE441) geometric vectors from 2022-06 to 2025-06 (2026-11-22): at most 4.3 arcseconds, 6.4 km in distance and 8.0 km in vector difference. Not a guaranteed bound outside those samples.",
         "notes": "Body size is the volumetric mean radius (NASA NSSDC fact sheet).",
         "sourceType": "ephemeris",
         "sources": [
@@ -29829,7 +29852,7 @@
      ]
     },
     "moon": {
-     "accuracy": "Position checked against JPL Horizons (DE441) samples within the project's acceptance targets, which are not a guaranteed bound for every date.",
+     "accuracy": "Measured against eight JPL Horizons (DE441) geometric vectors from 2022-06 to 2025-06 (2026-11-22): at most 4.3 arcseconds, 6.4 km in distance and 8.0 km in vector difference. Not a guaranteed bound outside those samples.",
      "notes": "Body size is the volumetric mean radius (NASA NSSDC fact sheet).",
      "sourceType": "ephemeris",
      "sources": [
@@ -31549,6 +31572,7 @@
        "id": "moon",
        "knownLimitations": [
         "No velocity is modelled for the Moon, so it has no speed readout.",
+        "The series uses its own approximation of the TT-UTC difference and steps by small amounts at month boundaries, so the Moon's path is not exactly continuous, and it has no stated validity range beyond the 2022 to 2025 comparison samples.",
         "The Moon's orientation is the IAU mean-Earth rotation model with its libration terms, so the Moon shows libration in longitude and latitude. It is a published series, not the JPL lunar ephemeris: its sub-Earth point and pole differ from Horizons' by at most 0.01 degrees (about 0.3 km on the surface) at the seven dates from 1969 to 2050 that were checked, and its accuracy elsewhere is not stated by the source.",
         "A landing site placed by the IAU model (a mission reconstruction's, measured at the Sea of Tranquility) sits 0.01 km (under 0.001 degrees) from the same selenographic coordinates on this Moon at touchdown, because the reconstruction and the drawn Moon use the same IAU model (docs/ASTRAEUS_SPIKE_02.md measured 254 km, 8.4 degrees, under the earlier tidal lock)."
        ],
@@ -31556,7 +31580,7 @@
        "labelMaxDistance": 500,
        "labelPriority": 99,
        "provenance": {
-        "accuracy": "Position checked against JPL Horizons (DE441) samples within the project's acceptance targets, which are not a guaranteed bound for every date.",
+        "accuracy": "Measured against eight JPL Horizons (DE441) geometric vectors from 2022-06 to 2025-06 (2026-11-22): at most 4.3 arcseconds, 6.4 km in distance and 8.0 km in vector difference. Not a guaranteed bound outside those samples.",
         "notes": "Body size is the volumetric mean radius (NASA NSSDC fact sheet).",
         "sourceType": "ephemeris",
         "sources": [
@@ -31737,7 +31761,7 @@
      ]
     },
     "moon": {
-     "accuracy": "Position checked against JPL Horizons (DE441) samples within the project's acceptance targets, which are not a guaranteed bound for every date.",
+     "accuracy": "Measured against eight JPL Horizons (DE441) geometric vectors from 2022-06 to 2025-06 (2026-11-22): at most 4.3 arcseconds, 6.4 km in distance and 8.0 km in vector difference. Not a guaranteed bound outside those samples.",
      "notes": "Body size is the volumetric mean radius (NASA NSSDC fact sheet).",
      "sourceType": "ephemeris",
      "sources": [

@@ -81,13 +81,27 @@ describe("absolute-time clock", () => {
   });
 });
 
+// Bounds are twice the maximum measured on the eight-sample fixtures on 2026-11-22 (T-374), rounded up.
+// Moon measured: angle 4.25 arcsec, radial 6.39 km, vector 8.04 km. Sun from Earth measured: angle 0.0075 arcsec, radial 1.37 km, vector 5.57 km.
+const MOON_MAX_ANGLE_ARCSEC = 9;
+const MOON_MAX_RADIAL_KM = 13;
+const MOON_MAX_VECTOR_KM = 17;
+const SUN_MAX_ANGLE_ARCSEC = 0.02;
+const SUN_MAX_RADIAL_KM = 3;
+const SUN_MAX_VECTOR_KM = 12;
+
+function vectorDifferenceKm(a: ArrayLike<number>, b: ArrayLike<number>): number {
+  return Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]);
+}
+
 describe("provider trajectories and scale policies", () => {
   const adapter = createOrbAstronomyAdapter();
   const moon = new MoonTrajectory(adapter);
 
-  it("matches offline geometric JPL Moon vectors within the unchanged targets", () => {
+  it("matches offline geometric JPL Moon vectors within the measured error", () => {
     expect(moonFixture.samples).toHaveLength(8);
     let maximumAngleArcminutes = 0;
+    let maximumVectorErrorKm = 0;
     let maximumDistanceErrorKm = 0;
     for (const sample of moonFixture.samples) {
       const state = moon.stateAt(Date.parse(sample.utc));
@@ -102,14 +116,17 @@ describe("provider trajectories and scale policies", () => {
         maximumDistanceErrorKm,
         Math.abs(magnitude(state.positionKm) - magnitude(sample.positionKm)),
       );
+      maximumVectorErrorKm = Math.max(maximumVectorErrorKm, vectorDifferenceKm(state.positionKm, sample.positionKm));
     }
-    expect(maximumAngleArcminutes).toBeLessThanOrEqual(2);
-    expect(maximumDistanceErrorKm).toBeLessThanOrEqual(100);
+    expect(maximumAngleArcminutes * 60).toBeLessThanOrEqual(MOON_MAX_ANGLE_ARCSEC);
+    expect(maximumDistanceErrorKm).toBeLessThanOrEqual(MOON_MAX_RADIAL_KM);
+    expect(maximumVectorErrorKm).toBeLessThanOrEqual(MOON_MAX_VECTOR_KM);
   });
 
   it("matches offline geometric JPL Sun vectors", () => {
     expect(sunFixture.samples).toHaveLength(8);
     let maximumAngleArcminutes = 0;
+    let maximumVectorErrorKm = 0;
     let maximumDistanceErrorKm = 0;
     for (const sample of sunFixture.samples) {
       const state = sunPositionFromEarthAt(adapter, Date.parse(sample.utc));
@@ -122,9 +139,26 @@ describe("provider trajectories and scale policies", () => {
         maximumDistanceErrorKm,
         Math.abs(magnitude(state.positionKm) - magnitude(sample.positionKm)),
       );
+      maximumVectorErrorKm = Math.max(maximumVectorErrorKm, vectorDifferenceKm(state.positionKm, sample.positionKm));
     }
-    expect(maximumAngleArcminutes).toBeLessThanOrEqual(1);
-    expect(maximumDistanceErrorKm).toBeLessThanOrEqual(100);
+    expect(maximumAngleArcminutes * 60).toBeLessThanOrEqual(SUN_MAX_ANGLE_ARCSEC);
+    expect(maximumDistanceErrorKm).toBeLessThanOrEqual(SUN_MAX_RADIAL_KM);
+    expect(maximumVectorErrorKm).toBeLessThanOrEqual(SUN_MAX_VECTOR_KM);
+  });
+
+  it("fails the Moon and Sun bounds when the time is slipped by 69 s", () => {
+    // 69 s is about the TT-UTC offset (the time-scale slip the audit says the old 100 km bounds let through): measured vector error 77.5 km (Moon), 2090 km (Sun).
+    const slipMs = 69_000;
+    let moonWorstKm = 0;
+    let sunWorstKm = 0;
+    for (const sample of moonFixture.samples) {
+      moonWorstKm = Math.max(moonWorstKm, vectorDifferenceKm(moon.stateAt(Date.parse(sample.utc) + slipMs).positionKm, sample.positionKm));
+    }
+    for (const sample of sunFixture.samples) {
+      sunWorstKm = Math.max(sunWorstKm, vectorDifferenceKm(sunPositionFromEarthAt(adapter, Date.parse(sample.utc) + slipMs).positionKm, sample.positionKm));
+    }
+    expect(moonWorstKm).toBeGreaterThan(MOON_MAX_VECTOR_KM);
+    expect(sunWorstKm).toBeGreaterThan(SUN_MAX_VECTOR_KM);
   });
 
   it("has changing lunar distance, a plausible monthly mean, and approximate sidereal recurrence", () => {

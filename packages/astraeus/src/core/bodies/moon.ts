@@ -34,12 +34,13 @@ export const MOON_EPHEMERIS: EphemerisRecord = {
   provenance: createProvenance({
     sourceType: "ephemeris",
     sources: ["@lizard-isana/orb 3.1.1 Luna: truncated Meeus-style lunar series, converted to Earth-centred J2000 equatorial"],
-    accuracy: "Position checked against JPL Horizons (DE441) samples within the project's acceptance targets, which are not a guaranteed bound for every date.",
+    accuracy: "Measured against eight JPL Horizons (DE441) geometric vectors from 2022-06 to 2025-06 (2026-11-22): at most 4.3 arcseconds, 6.4 km in distance and 8.0 km in vector difference. Not a guaranteed bound outside those samples.",
     notes: "Body size is the volumetric mean radius (NASA NSSDC fact sheet).",
   }),
   knownLimitations: [
     ROTATION_LIMITATION,
     "No velocity is modelled for the Moon, so it has no speed readout.",
+    "The series uses its own approximation of the TT-UTC difference and steps by small amounts at month boundaries, so the Moon's path is not exactly continuous, and it has no stated validity range beyond the 2022 to 2025 comparison samples.",
   ],
 };
 
