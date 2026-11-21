@@ -1,11 +1,12 @@
 ---
 id: O-084
 title: Each scene keeps its own moon data
-status: planned
+status: in_progress
 depends_on: []
 release: G-024
 priority: high
 rank: 3
+last_check: C-198
 lanes: [{key: binding, title: Scene moon binding}, {key: clamp, title: 1950 clamp}, {key: docs, title: Docs and changelog}]
 ---
 
@@ -53,3 +54,7 @@ Touches the data-source boundary (`api/data.ts`), the moon systems and planet tr
   7. The 1950 clamp mirrors `boundsOf` for `loadedFromUtcMs`; the resolver memo drops on a revision counter of the scene's moon data.
   8. One scene loaded twice with different sources for one planet: the last load wins for that scene only, no new code.
   9. No public type change; the behaviour change (a scene no longer borrows another's moon package) is breaking under decision 6 and is named in the CHANGELOG (T-360).
+
+## Parked (2026-11-21, orchestrate-g024-20261121)
+
+All seven Tasks are done and every Success Condition is proven, but Full Objective Check C-198 is NEEDS WORK on one gate: the engine's first download is 801 bytes over its raw size cap (I-191; gzip within). Under G-024 decision 7 ("a size budget goes red": park it, continue others) O-084 is left unmerged on branch `o084-scene-moon-data`. Owner choice needed (options in I-191): raise the raw cap a little, reset it by the earlier "measured + 5%" rule, or trim ~1 KB of engine code first. After the choice: apply it, re-run the Full Check, merge.
