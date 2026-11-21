@@ -1,11 +1,12 @@
 ---
 id: O-083
 title: Errors and labels that tell the truth
-status: planned
+status: done
 depends_on: []
 release: G-024
 priority: high
 rank: 2
+last_check: C-197
 lanes: [{key: contract, title: Coded errors and scale type}, {key: react, title: React error default}, {key: time, title: Zoned time text}, {key: provenance, title: Labels and limits}, {key: science, title: Composed velocity}, {key: pacing, title: Reverse pacing}, {key: docs, title: Docs and changelog}]
 ---
 
@@ -59,3 +60,4 @@ Public contract changes are breaking by owner decision 6 (0.10.0). API-01..API-0
   11. Composed states carry velocity when every leg has it; `body === centre` stays without one.
   12. Reverse-rate pacing: probed first (T-352), then fixed or guarded by a test.
 - New error codes and the closed scale type are breaking changes under decision 6 and are listed as such in the CHANGELOG (T-353).
+- Owner, 2026-11-21 (G-024 decision 7, "Orchestrate each objective to completion"; "CLEAR: fast-forward merge to main and push"): O-083 set done by the orchestrating session after Full Objective Check C-197 returned CLEAR with no Issues.
