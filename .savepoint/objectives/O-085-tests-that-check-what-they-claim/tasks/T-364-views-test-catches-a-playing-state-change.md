@@ -2,7 +2,7 @@
 id: T-364
 title: Views test catches a playing-state change
 objective: O-085
-status: planned
+status: done
 depends_on: []
 check_waiver: {task: T-364, reason: 'Owner said "work through this list of objectives one by one. Orchestrate each objective to completion" (G-024 decision 7): standing orchestration rules waive the optional step checks; the mandatory Full Objective Check covers the whole diff.', actor: {role: owner, session: orchestrate-g024-20261121}, recorded_at: '2026-11-21T12:50:31Z'}
 owner_validation: {required: false}
@@ -63,8 +63,32 @@ Focused: `npx vitest run packages/astraeus/tests/viewsDom.test.ts`, with and wit
 
 ## Technical Evidence
 
-Pending execution.
+Files changed: `packages/astraeus/tests/viewsDom.test.ts` only (the one case; `App.tsx` and `TimelineBar.tsx` untouched, `git diff packages/astraeus/src/app/App.tsx` empty after every break).
+
+| Done When | Evidence |
+|---|---|
+| Query is the button itself, reading its aria-label | `container.querySelector(".timeline-play")?.getAttribute("aria-label")` in `playLabel()` |
+| Label defined and matches `/^(Play\|Pause) playback$/` before the switch | `expect(playing).toMatch(...)` plus an exact check of "Pause playback" (playing row) / "Play playback" (paused row) |
+| Both starting states | `it.each([["playing", true], ["paused", false]])`. The viewer opens already playing, so the playing row uses `open()` as is and the paused row presses `.timeline-play` once (the plan had these the other way round; confirmed by running) |
+| clockText kept | Compared in the paused row only: while playing, real time moves the readout between the reads (seen: 00:00:02.457Z vs 02.852Z under a play break). The label assertion runs in both rows |
+| Deliberate break shown failing, reverted | see below |
+| Setup and other cases unchanged | only the one `it` was replaced by the `it.each` |
+
+Deliberate breaks (inserted at the top of `chooseView`, reverted from a saved copy):
+- A bare `runtime.clock.pause()` does NOT fail either the old or new test: the label reads the `clockSnapshot` state, which the stubbed scene never refreshes. A pause that refreshes the snapshot (as the real pause path does), `runtime.clock.pause(); setClockSnapshot(runtime.clock.snapshot());`: playing row FAILS (`Expected: "Pause playback"  Received: "Play playback"`), 1 failed / 8 passed.
+- `runtime.clock.play(); setClockSnapshot(...)`: paused row FAILS (`Expected: "Play playback"  Received: "Pause playback"`), 1 failed / 8 passed.
+- Without the break: 9 passed. The old HEAD case under the snapshot-refreshing pause break failed only because of the clock text moving, not the playing state (its query matched nothing).
+- `git diff packages/astraeus/src/app/App.tsx` is empty.
+
+Follow-up (coordinator): the case also asserts the clock's own `playing` (read from the `runtime.clock` the page passes the stand-in scene as a prop, no setup change) before and after the switch, in both rows. Bare breaks now fail: `runtime.clock.pause();` fails the playing row, bare `runtime.clock.play();` fails the paused row (1 failed / 8 passed each); App.tsx restored, diff empty.
+
+Gates (rerun after the follow-up, under the flock): lint clean, typecheck clean, build ok, tests 303 files / 5037 passed, 2 skipped. (Earlier run below.)
+Gates (earlier): lint clean, typecheck clean, build ok, tests 302 files / 5034 passed, 2 skipped (final run). An earlier gate run showed a lint complexity error and one failing test in other builders' in-progress files (a debug line in someone else's test); both cleared on rerun, not mine.
+
+Limitations: a break that changes the clock without refreshing the shell's snapshot is invisible to this DOM test (the shell would be stale in the real app too until the next frame).
 
 ## Drift Notes
 
-None expected.
+None.
+
+Coordinator (orchestrate-g024-20261121): after the follow-up (the clock's own playing state asserted in both rows; bare pause()/play() breaks now fail), gates green (lint, typecheck, build; `npm test` 303 files, 5037 passed). `status: done` set by the coordinator under the standing orchestration rule ("I mark them as they pass", O-038) and G-024 decision 7.
