@@ -8,7 +8,7 @@
 // Run alone: ASTRAEUS_URL=<app.html url> ASTRAEUS_EVIDENCE_DIR=<new dir> node tools/validate/browser-smoke.mjs
 import { mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import * as ui from "./driver.mjs";
-import { assertStreamDrawn } from "./stream-check.mjs";
+import { assertSceneDrawn, assertStreamDrawn } from "./stream-check.mjs";
 import { launchBrowser, openContext, pageIn, watchErrors } from "./harness.mjs";
 
 const root = new URL("../../", import.meta.url);
@@ -79,7 +79,7 @@ async function drawsSomething(page, view) {
     await page.waitForTimeout(250);
     drawn = await ui.sceneDrawsSomething(page);
   }
-  if (content(drawn) === 0) throw new Error(`the scene shows no body, dot or path in view (${JSON.stringify(drawn)})`);
+  assertSceneDrawn(drawn, view.id);
   if (view.id.startsWith("showers")) {
     while (drawn.dots === 0 && Date.now() < deadline) {
       await page.waitForTimeout(250);

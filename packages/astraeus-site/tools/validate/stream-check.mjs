@@ -4,3 +4,11 @@ export function assertStreamDrawn(dots, label) {
   if (!(dots > 0)) throw new Error(`${label}: the meteor stream is not drawn (${dots} dots in view)`);
   return dots;
 }
+
+// The scene must draw something of its own (O-088 T-403, AH-33): the experience's bodies, dots and paths in view; the sky's stars alone do not count.
+// `drawn` is the driver's `ui.sceneDrawsSomething` readout. Throws, naming the view, when all three are zero.
+export function assertSceneDrawn(drawn, label) {
+  if (drawn.bodies + drawn.dots + drawn.paths === 0)
+    throw new Error(`${label}: the scene shows no body, dot or path in view (${JSON.stringify(drawn)})`);
+  return drawn;
+}

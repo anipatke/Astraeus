@@ -2,7 +2,7 @@
 id: T-403
 title: A scene with nothing drawn fails the run
 objective: O-088
-status: planned
+status: done
 depends_on: [{task: T-402, requires: clear}]
 owner_validation: {required: false}
 check_waiver: {task: T-403, reason: 'Owner said "work through this list of objectives one by one. Orchestrate each objective to completion" (G-024 decision 7) and "I am remote now, add park the check and move on" (2026-11-22): standing orchestration rules waive the optional step checks; the mandatory Full Objective Check covers the whole diff.', actor: {role: owner, session: orchestrate-g024-20261122}, recorded_at: '2026-11-21T22:56:58Z'}
@@ -68,8 +68,25 @@ Focused: `npx vitest run packages/astraeus-site/tests/browserDrawnControl.test.t
 
 ## Technical Evidence
 
-Pending execution.
+Extra reads (beyond Context Files): harness.mjs `checkScript` (pattern, O-087 diagnostics flag: the fixture writes `data-points`, `data-body-screen` and `data-paths` itself, so it is unaffected); `assertion-list` behaviour via `browserAssertions.test.ts` `missing`/`provesIt`.
+
+| Done When | Evidence |
+|---|---|
+| `assertSceneDrawn` in stream-check.mjs, smoke calls it, d.mts declares it | `stream-check.mjs`, `stream-check.d.mts`, `browser-smoke.mjs` (`drawsSomething` calls `assertSceneDrawn(drawn, view.id)`; polling unchanged) |
+| browserAssertions entry for the moved site | A plain call is not a listed raise form, so a REVIEWED `now` cannot be present; recorded as a RETIRED entry (movedTo the `streamCheck.test.ts` describe) instead, as the Task allows; `browserAssertions.test.ts` green |
+| streamCheck table cases | `streamCheck.test.ts` `it.each`: all zero and stars only fail; one body / dot / path pass |
+| Three-run control | `browserDrawnControl.test.ts` runs `fixtures/browser-exit/draws-through-harness.mjs` (DRAWN_CASE zero-dots: exit 1 naming the stream; nothing: exit 1 naming the scene; drawn: exit 0); runs with the real browser here |
+| Planted breaks | `!(dots > 0)` to `dots < 0`: browserDrawnControl and the I-071 streamCheck case went red. `sceneDotsInView` summing `group.count`: browserDrawnControl red. Both restored (git diff on driver.mjs empty, stream-check diffed identical to the pre-break copy) |
+| Readouts opt-in flag | Fixture sets the attributes directly; unaffected |
+| Gates | see handoff below |
+
+Commands: focused vitest (4 files, 18 passed), planted breaks under flock, lint/typecheck/build/test under flock.
+Driver readout names are retyped in the fixture (the driver does not export the attribute names); limitation.
 
 ## Drift Notes
 
-None expected.
+None.
+
+## Coordinator (gates)
+
+Set done by the orchestrating session after the combined handoff gates passed with T-402..T-404 and T-406..T-412 together (owner: "I mark them as they pass", O-038; G-024 decision 7 "Orchestrate each objective to completion"; owner 2026-11-22 "I am remote now, add park the check and move on"): lint and Prettier clean, typecheck clean, `npm test` 324 files, 5319 passed, 2 skipped; `npm run check:pack` pass, engine 1,836,372 B raw (cap 1,838,000), 525,692 B gzip (cap 527,000).
