@@ -1,7 +1,8 @@
 ---
 id: O-081
 title: Story components off the shelf, readout tile and chart
-status: planned
+status: done
+last_check: C-195
 depends_on: [O-080]
 release: G-023
 priority: medium
@@ -51,3 +52,4 @@ Same shelf contract, bar and panel rules and shared look as O-080; the tile is o
 
 - Owner 2026-11-21, on T-337's API-04 type-lint breaks (`from`/`to`/`at` read as times and as an unwritten span): "low / high / value for both (Recommended)": a chart bin and highlight are `{low, high}`, a chart mark and the tile scale's dot sit at `value`; the tile scale is `{low, high, value, stretch?, marks?}`. `low` and `high` join the API-04 `unitless` list (a position on the app's own axis, whose unit the app names); no new exceptions.
 - Owner 2026-11-21, on T-340: sizes all green (engine 9.30 of 9.5 MB unpacked; api/index.html 43,693 of 46,000 B gzip; api/shelf.html 6,701 of 8,000 B gzip), so no size decision. Owner look on localhost:5490 (tile and chart, desktop and phone): "Looks right, run the final check (Recommended)".
+- Owner 2026-11-21, after C-195 CLEAR and the merge: "81 is done, accept T-340 against C-195".

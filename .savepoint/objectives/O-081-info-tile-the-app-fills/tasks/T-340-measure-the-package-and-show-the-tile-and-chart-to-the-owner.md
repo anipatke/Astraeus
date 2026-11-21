@@ -5,7 +5,7 @@ objective: O-081
 status: done
 depends_on: [{task: T-339, requires: clear}]
 check_waiver: {task: T-340, reason: 'Owner said "Orchestrate this obj" (O-081): standing orchestration rules waive the optional step checks; the mandatory Full Objective Check covers the whole diff.', actor: {role: owner, session: orchestrate-o081-20261121}, recorded_at: '2026-11-21T07:23:30Z'}
-owner_validation: {required: true}
+owner_validation: {required: true, accepted_check: C-195, accepted_by: {role: owner, session: orchestrate-o081-20261121}}
 planned_by: {role: planner, session: plan-o081-20261121}
 ---
 
