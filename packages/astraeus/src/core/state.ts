@@ -9,6 +9,13 @@ export type FrameId = typeof EQJ;
 /** A rotation as a unit quaternion `[x, y, z, w]`. */
 export type Quaternion = readonly [x: number, y: number, z: number, w: number];
 
+/** Type-only frame tag (never exists at runtime): render-axis values carry `"render"`, so they cannot pass as EQJ inputs. */
+export declare const frameTag: unique symbol;
+/** An EQJ vector input: any array of numbers except one tagged as a drawing-space (render) vector. */
+export type EqjVectorInput = ArrayLike<number> & { readonly [frameTag]?: "eqj" };
+/** An EQJ quaternion input: a `Quaternion` except one tagged as a drawing-space (render) quaternion. */
+export type EqjQuaternionInput = Quaternion & { readonly [frameTag]?: "eqj" };
+
 /** Where a body is, in km relative to a centre, with the velocity when known (a `State` without its orientation). */
 export interface CenteredPosition {
   readonly body: BodyId;
