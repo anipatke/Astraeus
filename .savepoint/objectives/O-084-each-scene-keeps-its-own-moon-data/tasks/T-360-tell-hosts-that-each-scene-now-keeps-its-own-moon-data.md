@@ -2,7 +2,7 @@
 id: T-360
 title: Tell hosts that each scene now keeps its own moon data
 objective: O-084
-status: planned
+status: done
 depends_on: [{task: T-355, requires: clear}, {task: T-358, requires: clear}, {task: T-359, requires: clear}]
 check_waiver: {task: T-360, reason: 'Owner said "work through this list of objectives one by one. Orchestrate each objective to completion" (G-024 decision 7): standing orchestration rules waive the optional step checks; the mandatory Full Objective Check covers the whole diff.', actor: {role: owner, session: orchestrate-g024-20261121}, recorded_at: '2026-11-21T12:08:49Z'}
 owner_validation: {required: false}
@@ -66,8 +66,18 @@ Handoff: `quality_gates` (includes the README API checks). No browser run.
 
 ## Technical Evidence
 
-Pending execution.
+| Done When | Evidence |
+|---|---|
+| README Several viewers sentence precise | edited in place; claims checked against T-358 evidence and sceneMoonIsolation.test.ts (barycentre row, missing-data row, shared-bytes row) |
+| scene.load row clause | added "What it loads belongs to this scene alone; no other scene sees it." (existing "a later mount re-uses" kept) |
+| CHANGELOG three Fixed lines + breaking entry | added to 0.10.0 (proposed); 143 km matches T-354 evidence (143.2 km); breaking entry in Breaking changes list with migration |
+| README checks | apiRules and README table tests inside npm test: pass |
+| Gates | lint, typecheck, build pass; test: 306 files passed, 1 failed (packagePacks engine cap, known red), 5053 passed, 2 skipped |
+
+Files: packages/astraeus/README.md, packages/astraeus/CHANGELOG.md. Limitation: the third Fixed line (paused viewer) and 1950 line are taken from the Task text, not re-verified.
 
 ## Drift Notes
 
-None expected.
+None.
+
+Coordinator (orchestrate-g024-20261121): lint, typecheck, build green; `npm test` 5053 passed with the one known red (`packagePacks` engine cap), carried to the Full Objective Check. `status: done` set by the coordinator under the standing orchestration rule ("I mark them as they pass", O-038) and G-024 decision 7.
