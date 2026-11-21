@@ -1,11 +1,12 @@
 ---
 id: O-093
 title: Units, constants and tooling that catch slips
-status: planned
+status: done
 depends_on: [O-082, O-084]
 release: G-024
 priority: low
 rank: 12
+last_check: C-202
 lanes: [{key: layout, title: Moves out of core and src}, {key: units, title: Constants and fit seconds}, {key: frames, title: Render vectors}, {key: accuracy, title: Earth and Moon tolerances}, {key: tooling, title: Hooks rules and Prettier setup}, {key: docs, title: Changelog}, {key: format, title: One reformat commit}]
 ---
 
@@ -52,3 +53,4 @@ ARCH-02, ARCH-04, STYLE rules. Horizons fits at 1 km unchanged.
   7. Earth/Moon tolerances set to 2× the measured maximum on the existing fixtures, with a 69 s time-slip case that must fail; the Moon model's limit noted in provenance.
   8. React hooks: `rules-of-hooks` and `exhaustive-deps` as errors plus unused-directive errors; the React Compiler rules stay off (O-089 reshapes `App.tsx`); all 16 suppressions reviewed.
 - Planner, numbering: O-085's T-361..T-369 and C-199 sit on its parked branch, so main's `task-ids.yml` was brought to 369 first (T-370..T-381); Checks here continue from C-201, Issues from I-192.
+- Owner "carry on" (2026-11-22). O-093 set done by the orchestrating session after Full Objective Check C-202 CLEAR (G-024 decision 7, "Orchestrate each objective to completion"; "CLEAR: fast-forward merge to main and push"). Numbering note: C-201 went to the O-085 re-check, so this Check is C-202.
