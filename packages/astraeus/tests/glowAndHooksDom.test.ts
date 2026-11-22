@@ -33,7 +33,8 @@ beforeEach(() => {
     set fillStyle(_v: unknown) {
       /* recorded by nothing */
     },
-  } as unknown as CanvasRenderingContext2D);
+    // `never`: the spy types its return from getContext's last overload, which newer @types/three widen to GPUCanvasContext (I-195); type-only.
+  } as never);
 });
 afterEach(() => {
   vi.restoreAllMocks();
