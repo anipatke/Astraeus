@@ -8,7 +8,7 @@ source:
   actor: {role: executor, session: orchestrate-g024-20261122}
   at: '2026-11-22T07:40:00Z'
 tasks: [T-440]
-checks: []
+checks: [C-213]
 guardrail_ids: [ARCH-06]
 severity: low
 history:
@@ -16,6 +16,10 @@ history:
     actor: {role: executor, session: orchestrate-g024-20261122}
     kind: observed
     note: 'O-090 T-440: a throwaway script checked 167 relative links across the O-090-edited Markdown; 12 fixture links in docs/ASTRONOMY_VALIDATION.md (`../tests/fixtures/…`) were broken on main and were repaired by hand. No test would have caught them. Also seen: the title of packages/astraeus/tests/planetMoonSystems.test.ts:228 says "within a kilometre" while it asserts under 1.5 km (docs follow the assertion).'
+  - at: '2026-11-22T06:50:00Z'
+    actor: {role: executor, session: orchestrate-g024-20261122}
+    kind: observed
+    note: 'C-213 observation: Design "Host calls land in order" cites an engine README section "Host calls" that does not exist (the rule is the "Order rule" paragraph under "The handle: lifecycle, time and events"); pre-existing on main. The doc-link test could also check quoted section names.'
 ---
 
 # No test checks that doc links resolve
@@ -26,4 +30,4 @@ Relative links and `#anchor` links in the root README, `docs/`, `.savepoint/Desi
 
 ## Proof Needed
 
-A fast test (unit tier) that walks the current guides (root README, `docs/*.md`, `docs/agents/*.md`, `docs/architecture/*.md`, `.savepoint/Design.md`, `packages/*/README.md`) and fails on a relative link whose file or heading anchor does not exist; red on a planted broken link, green on the repo. The `planetMoonSystems.test.ts:228` title states the bound it asserts.
+A fast test (unit tier) that walks the current guides (root README, `docs/*.md`, `docs/agents/*.md`, `docs/architecture/*.md`, `.savepoint/Design.md`, `packages/*/README.md`) and fails on a relative link whose file or heading anchor does not exist; red on a planted broken link, green on the repo. The `planetMoonSystems.test.ts:228` title states the bound it asserts. Design's "Host calls land in order" names the real engine README section.
