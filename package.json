@@ -9,6 +9,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite packages/astraeus-site",
+    "preview:owner": "node tools/owner-preview.mjs",
     "build": "vite build packages/astraeus-site",
     "typecheck": "tsc --noEmit",
     "check:browser": "node packages/astraeus-site/tools/validate/run-browser.mjs",
