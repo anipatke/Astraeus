@@ -6,6 +6,7 @@ depends_on: [O-086, O-087, O-088, O-089, O-091, O-092]
 release: G-024
 priority: medium
 rank: 13
+lanes: [{key: docs, title: Documentation, one Task at a time}]
 ---
 
 # O-090: Docs that match the code
@@ -50,3 +51,4 @@ Read-by-section rule for Design.md and the engine README.
   Out of scope (kept at their paths): historical audit reports, Savepoint records, scientific provenance, licence notices, raw evidence.
   Order: browser guidance first, public entry points second, architecture trimming third. Strongest acceptance criterion: a future change to a browser tier, package version or public API has an obvious place to update, and readers reach the right answer from where they start.
 
+- Planning 2026-11-22 (orchestrate-g024): seven Tasks T-434..T-440 follow the owner's five steps in order, one at a time on branch `o090-docs-that-match-the-code` (they share files, so no parallel lanes): T-434 fact-owner map (`docs/README.md`) and contradictions list; T-435 check guidance; T-436 root README; T-437 engine README and API page lead; T-438 Design trim; T-439 packaging, release and science guides; T-440 recheck, fresh read-through, word-count report. Step checks waived under the standing rules; one mandatory Full Objective Check. Builders on the larger model (owner prefers Fable/Opus for cleanup work).
