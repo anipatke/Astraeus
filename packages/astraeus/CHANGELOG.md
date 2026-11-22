@@ -27,6 +27,9 @@ Engineering health repairs (G-024). Behaviour may change where it was wrong (own
 - Changed: the internal subpaths `astraeus/synthetic/*` and `astraeus/experiences/*` are gone, and `astraeus/presentation/*` is new (scale policies, playback pacing, start view, sky trace, look values, story panels, moon list and body-set wording moved there). They are internal subpaths outside the public API; the package's `x-internal-exports` note says they may change without notice.
 - Fixed: the Moon's info card states its time-scale limitation: the series uses its own approximation of the TT-UTC difference and steps by small amounts at month boundaries, so the Moon's path is not exactly continuous, and its accuracy is stated over the 2022 to 2025 comparison samples only.
 - Changed: a lighter frame loop. A paused viewer no longer re-renders its React tree ten times a second; label sizes are cached and labels placed by arithmetic, with one canvas-box read per frame; orbit-set, path and orbit lines skip sampling, remapping and buffer uploads in a frame where nothing they depend on changed (one dirty range per buffer, none while hidden). The costly canvas readouts (`data-paths`, `data-points`, `data-body-screen` and similar) now need `globalThis.__ASTRAEUS_DIAGNOSTICS__` set before the viewer mounts; cheap state attributes such as `data-frames-drawn` and `data-pick-hover` stay on. None of them were ever public API.
+- Fixed: two viewers on one page no longer affect each other when one is removed; each viewer draws with its own pictures and the other keeps drawing.
+- Fixed: graphics memory is freed when a viewer is removed.
+- Fixed: a failed planet, star or body-picture load is tried again on the next load or mount; it stayed failed for the page's life before.
 
 ### Breaking changes in 0.10.0
 

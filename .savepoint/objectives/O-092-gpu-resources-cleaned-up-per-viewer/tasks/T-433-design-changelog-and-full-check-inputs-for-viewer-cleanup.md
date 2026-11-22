@@ -2,7 +2,7 @@
 id: T-433
 title: Design, changelog and Full Check inputs for viewer cleanup
 objective: O-092
-status: planned
+status: done
 depends_on: [{task: T-427, requires: clear}, {task: T-428, requires: clear}, {task: T-429, requires: clear}, {task: T-430, requires: clear}, {task: T-431, requires: clear}, {task: T-432, requires: clear}]
 owner_validation: {required: false}
 check_waiver: {task: T-433, reason: 'Owner said "work through this list of objectives one by one. Orchestrate each objective to completion" (G-024 decision 7) and "Carry on" (2026-11-22): standing orchestration rules waive the optional step checks; the mandatory Full Objective Check covers the whole diff.', actor: {role: owner, session: orchestrate-g024-20261122}, recorded_at: '2026-11-22T04:52:00Z'}
@@ -64,8 +64,40 @@ Docs only. No README edits (report only). No browser run: the Full Check runs it
 
 ## Technical Evidence
 
-Pending execution.
+Extra reads: Objective.md Decisions and Success Conditions; Technical Evidence, Drift Notes and Coordinator of T-427..T-432; `packages/astraeus/CHANGELOG.md` lines 1-46 (0.10.0 section); `.savepoint/Design.md` Good guest. README check: `rg -n -i 'dispose|unmount|context'` hits only handle/`mount` API rows (unmount, `ready` rejecting with `not-mounted`); a second `rg` for shared pictures/textures and context loss found nothing, so no README statement is false.
+
+| Done When | Evidence |
+|---|---|
+| Design item (7) under Good guest | `.savepoint/Design.md` Good guest item (7) |
+| Changelog lines above Breaking changes | three `- Fixed:` lines in `packages/astraeus/CHANGELOG.md` 0.10.0 section; no API line |
+| README checked | above; nothing to report |
+| Engine size | `npm run check:pack` on this head: 1,827,398 B raw (limit 1,838,000; C-211 start 1,826,428: +970 B, planned allowance 900 B, exceeded by 70 B, cap not near), 523,686 B gzip (limit 527,000); pass |
+| Success-condition table | below |
+| Full Check commands | below |
+
+Drift note accounting (each reflected in Design item (7) unless marked):
+- T-428 no shared GPU picture: reflected. T-429 every view has dispose / viewDisposal: reflected. T-430 loadingWakes hook: reflected. T-432 context loss by three's renderer / contextLoss.test.ts: reflected.
+- T-431 retry of planet-series, star loads: reflected (T-428 body-picture retry also).
+- T-427 two-viewer page and `two-viewers` step, plus the allowed stale-delete warnings in the last scenario: reflected. 200 ms wait before restore and `SYNTHETIC_KEYS` entry: not architectural (browser tooling).
+- I-204 10 s waitFor default and I-203 drawer wait helper: reflected as test support in item (7).
+
+Success conditions -> evidence:
+| Condition | Evidence |
+|---|---|
+| Harm confirmed on a real two-viewer page today | T-427 before-fix runs (second unmount left WebGL delete warnings, or a canvas still present); `journey-two-viewers.mjs` |
+| dispose table test; two viewers, unmount one, other keeps drawing | `tests/viewDisposal.test.ts` (11 rows, two-view row, scan), `sceneViewsDisposalDom.test.ts`, `bodyViewDisposalDom.test.ts`; browser `two-viewers` scenario 2 |
+| Textures per viewer (owner "Own copies" replaces ref counts); loading-manager hooks per viewer | `tests/ownedPictures.test.ts` (3 cases), `bodyTextureOwnedDom.test.ts` (2), `loadingWakes.test.ts` (4 + either-order case) |
+| Context loss restore can fire | `tests/contextLoss.test.ts` (2 cases), `glowAndHooksDom.test.ts` restore-wake case; browser `two-viewers` scenario 3 |
+| Failed loads cleared, retry tests | `tests/planetSeriesRetry.test.ts` (3), `starCatalogueRetry.test.ts` (2), `bodyTextureOwnedDom.test.ts` failed-URL case |
+
+Full Check commands (O-094 rules): `quality_gates` with `npm test` (not `test:full`); `npm run check:pack`; `npm run check:three-newest` (three usage changed: clones, disposal, renderer-source pin); `npm run check:browser -- --tier quick --step look-out --step two-viewers --skip-examples` (look-out: dotMaterial/PointsView/KeplerPoints Shaders paths, assets/sky.ts Sky path; two-viewers by its policy row; examples skipped: no packaging, `examples/` or public API change, to be re-checked against `api-surface.lock.json` and `git diff --stat` from the O-092 base); `check:engine-alone` not run (no engine import, package.json or build config change; the Check re-checks the diff).
+
+Gates: `npx prettier --check .savepoint/Design.md packages/astraeus/CHANGELOG.md` clean; `npm run check:pack` pass. No tests changed, so no vitest or eslint run. Files changed: `.savepoint/Design.md`, `packages/astraeus/CHANGELOG.md`, this Task file.
 
 ## Drift Notes
 
 None.
+
+## Coordinator (gates)
+
+Docs-only Task: Prettier clean on Design.md and CHANGELOG.md; `check:pack` pass (1,827,398 B raw / 523,686 B gzip). The code gate ran at the last wave (npm test 337 files, 5481 passed). Set done by the orchestrating session (owner: "I mark them as they pass", O-038; G-024 decision 7; owner 2026-11-22 "Carry on").
