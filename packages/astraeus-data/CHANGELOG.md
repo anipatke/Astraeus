@@ -2,6 +2,10 @@
 
 Versions follow [semantic versioning](https://semver.org). It is released together with `astraeus`, with the same version number.
 
+## 0.10.0 (2026-11-22)
+
+No changes to the pictures or data. The code is reformatted only (Prettier, no behaviour change). Released with `astraeus` 0.10.0 to keep the version numbers together; the `astraeus` peer of every `astraeus-data*` package is now `>=0.10.0 <0.11.0`. `astraeus-data-constellations` finds the figure for a sky point about five times faster by skipping outlines outside a declination band; its answers are unchanged (byte-identical on 38,188 test points).
+
 ## 0.9.5 (2026-11-21)
 
 No changes to the pictures, data or this package's code. Released with `astraeus` 0.9.5 to keep the version numbers together; the `astraeus` peer stays `>=0.9.0 <0.10.0`.

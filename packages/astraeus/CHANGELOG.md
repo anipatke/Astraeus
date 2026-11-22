@@ -2,9 +2,11 @@
 
 Versions follow [semantic versioning](https://semver.org). While the version starts with `0.`, the public API (the names exported from `astraeus`) may still change between minor versions; each change is listed here.
 
-## 0.10.0 (proposed)
+## 0.10.0 (2026-11-22)
 
 Engineering health repairs (G-024). Behaviour may change where it was wrong (owner decision 2026-11-21: 0.10.0, breaking allowed).
+
+First download of the packed example (`npm run measure:example`): 1,827,404 bytes raw, 523,694 bytes gzip (code and styles loaded on first open), against 1,828,138 raw and 522,471 gzip at 0.9.5 (−734 raw, +1,223 gzip).
 
 - Changed: the `three` peer range is now `>=0.169.0 <0.188.0` (was `>=0.169.0 <1`): it names what is proved. The engine typechecks, lints and passes its tests on its own against three 0.169, 0.181, 0.186 and 0.187 (the newest), with the matching `@types/three`; the texture loader takes its signature from `TextureLoader.load`, so the generic texture three 0.181 introduced no longer breaks a host's typecheck (I-195).
 - Fixed: every CPU Kepler solve in the engine goes through one solver that always converges, so a body from orbit elements, a group member or a long orbit path is placed correctly for every eccentricity from 0 up to (not including) 1; near-parabolic orbits (e ≈ 0.999) could land far off or on the wrong side of the orbit before. Eccentricity outside 0 ≤ e < 1 is refused with a named error instead of giving a wrong position.
