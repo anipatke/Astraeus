@@ -9,7 +9,7 @@ check_waiver: {task: T-435, reason: 'Owner said "work through this list of objec
 planned_by: {role: planner, session: orchestrate-g024-20261122}
 lane: docs
 planned_reads: [docs/README.md, docs/BROWSER_CHECKS.md, docs/agents/browser-policy.md, docs/agents/verification.md, docs/agents/build.md, README.md, packages/astraeus-site/tests/gateLimits.test.ts, packages/astraeus-site/tools/validate/run-browser.mjs]
-planned_writes: [docs/BROWSER_CHECKS.md, docs/agents/browser-policy.md, docs/agents/verification.md, docs/agents/build.md, README.md, packages/astraeus-site/tests/gateLimits.test.ts, docs/README.md]
+planned_writes: [docs/BROWSER_CHECKS.md, docs/agents/browser-policy.md, docs/agents/verification.md, docs/agents/build.md, README.md, packages/astraeus-site/tests/gateLimits.test.ts, docs/README.md, packages/astraeus-site/tools/validate/run-browser.mjs]
 ---
 
 # One place for how to run the checks
@@ -55,7 +55,7 @@ PROV-01, PROV-02 (provenance labels kept); TEST-01..04; ARCH-06 (mechanise a tra
 
 ## Boundaries
 
-No change to runner behaviour, tiers, limits or browser steps. Evidence folders untouched. AGENTS.md and CLAUDE.md untouched.
+Coordinator widening (T-434 C12d): correct the stale first-line comment in `run-browser.mjs` (comment only, no behaviour change). No change to runner behaviour, tiers, limits or browser steps. Evidence folders untouched. AGENTS.md and CLAUDE.md untouched.
 
 ## Technical Verification
 

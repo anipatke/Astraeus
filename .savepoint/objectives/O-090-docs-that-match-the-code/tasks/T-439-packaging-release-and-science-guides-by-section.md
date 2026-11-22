@@ -9,7 +9,7 @@ check_waiver: {task: T-439, reason: 'Owner said "work through this list of objec
 planned_by: {role: planner, session: orchestrate-g024-20261122}
 lane: docs
 planned_reads: [docs/README.md, docs/NPM_PACKAGING.md, docs/RELEASING.md, docs/ASTRONOMY_VALIDATION.md, docs/MOON_ORBITS.md, tools/publish-packages.mjs, tools/build-packages.mjs]
-planned_writes: [docs/NPM_PACKAGING.md, docs/RELEASING.md, docs/ASTRONOMY_VALIDATION.md, docs/MOON_ORBITS.md, docs/README.md]
+planned_writes: [docs/NPM_PACKAGING.md, docs/RELEASING.md, docs/ASTRONOMY_VALIDATION.md, docs/MOON_ORBITS.md, docs/README.md, tools/check-packs.mjs]
 ---
 
 # Packaging, release and science guides by section
@@ -53,7 +53,7 @@ PROV-01, PROV-02 (provenance labels kept); TEST-01..04; ARCH-06 (mechanise a tra
 
 ## Boundaries
 
-Never run the publish tool without --dry-run (AGENTS.md). Release notes, archive, spike reports and evidence untouched.
+Coordinator widening (T-434 C21/M13): the `check-packs.mjs:3` comment must say the code owns the pack limits (comment only); the doc links to the code. Never run the publish tool without --dry-run (AGENTS.md). Release notes, archive, spike reports and evidence untouched.
 
 ## Technical Verification
 

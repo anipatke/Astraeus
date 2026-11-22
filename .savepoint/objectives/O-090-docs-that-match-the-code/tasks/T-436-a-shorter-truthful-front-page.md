@@ -9,7 +9,7 @@ check_waiver: {task: T-436, reason: 'Owner said "work through this list of objec
 planned_by: {role: planner, session: orchestrate-g024-20261122}
 lane: docs
 planned_reads: [docs/README.md, README.md, package.json, docs/DONOR_PROVENANCE.md, docs/ASTRONOMY_VALIDATION.md]
-planned_writes: [README.md]
+planned_writes: [README.md, packages/astraeus-site/assets.html, packages/astraeus-site/index.html]
 ---
 
 # A shorter, truthful front page
@@ -53,7 +53,7 @@ PROV-01, PROV-02 (provenance labels kept); TEST-01..04; ARCH-06 (mechanise a tra
 
 ## Boundaries
 
-README.md only. Credits and licence acknowledgements are kept (shortened, not removed). No new demos or claims.
+Coordinator widening (T-434 C6c): correct the VSOP87 provider claims in the site copy of `assets.html` (lines ~267, ~278) and `index.html` (~253) to the Horizons fits; text only, no layout change. README.md only. Credits and licence acknowledgements are kept (shortened, not removed). No new demos or claims.
 
 ## Technical Verification
 
