@@ -8,6 +8,7 @@ import {
   type Camera,
   type WebGLProgramParametersWithUniforms,
 } from "three";
+import { disposeOwned } from "./disposeOwned";
 import { dotMaterial } from "./dotMaterial";
 import type { ScalePolicy } from "../presentation/scalePolicy";
 import type { GroupLayer } from "./experienceDefinition";
@@ -204,6 +205,11 @@ export class PointsView {
     const elements = count > SLICE_CHUNK_MEMBERS ? layer.group.keplerElements?.() : undefined;
     this.#kepler = elements === undefined ? null : new KeplerPoints(elements, this.#look.color, this.#look.dotSizePx);
     if (this.#kepler !== null) this.group.add(this.#kepler.points);
+  }
+
+  /** Frees the GPU copies of the dots and the shader-placed child; the arrays stay, so drawing again uploads afresh. */
+  dispose(): void {
+    disposeOwned(this.group);
   }
 
   /** The dot colour and size in force: the layer's own until `setLook` changes them. */

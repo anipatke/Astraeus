@@ -10,6 +10,7 @@ import { BodyMesh } from "./BodyMesh";
 import { useFrame } from "@react-three/fiber";
 import { ringBandsWithLook, type RingLook } from "../assets/rings";
 import { RingView } from "./RingView";
+import { disposeOwned } from "./disposeOwned";
 import {
   applyGlowLook,
   createGlow,
@@ -81,6 +82,24 @@ export function BodyView({
   const glow = useMemo(
     () => (asset.visual.glow === undefined ? null : createGlow(asset.visual.material.color, layer)),
     [asset, layer],
+  );
+  useEffect(
+    () => () => {
+      if (marker !== null) disposeOwned(marker);
+    },
+    [marker],
+  );
+  useEffect(
+    () => () => {
+      if (standIn !== null) disposeOwned(standIn);
+    },
+    [standIn],
+  );
+  useEffect(
+    () => () => {
+      if (glow !== null) disposeOwned(glow);
+    },
+    [glow],
   );
   useFrame(({ camera, size }) => {
     if (glow === null) return;

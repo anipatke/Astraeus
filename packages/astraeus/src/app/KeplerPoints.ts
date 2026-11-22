@@ -8,6 +8,7 @@ import {
   Vector3,
   type WebGLProgramParametersWithUniforms,
 } from "three";
+import { disposeOwned } from "./disposeOwned";
 import { dotMaterial } from "./dotMaterial";
 import type { KeplerElements } from "../core/keplerElements";
 import {
@@ -78,6 +79,11 @@ export class KeplerPoints {
     this.#uniforms.uDt.value = (timeUtcMs - this.#epochMs) / 1000;
     this.#uniforms.uUnitsPerKm.value = unitsPerKm;
     this.#uniforms.uOffset.value.set(offset[0], offset[1], offset[2]);
+  }
+
+  /** Frees the GPU copies; the arrays stay, so drawing again uploads afresh. */
+  dispose(): void {
+    disposeOwned(this.points);
   }
 
   /** Member `index`'s position from the floating origin as the shader computes it for the last `update`. */

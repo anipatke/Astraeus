@@ -11,6 +11,7 @@ import {
   type Camera,
   type PerspectiveCamera,
 } from "three";
+import { disposeOwned } from "./disposeOwned";
 import type { CenterId } from "../core/body";
 import type { ScalePolicy } from "../presentation/scalePolicy";
 import {
@@ -236,6 +237,11 @@ export class PathView {
     this.group.add(line);
     this.#line = line;
     if (style.orbitLook !== undefined && rolling) this.#addLookLayers(geometry, line, style.orbitLook);
+  }
+
+  /** Frees the GPU copies of the line and, with the orbit look, the arc; the arrays stay, so drawing again uploads afresh. */
+  dispose(): void {
+    disposeOwned(this.group);
   }
 
   /** The ring is the line already built (vertex colours carry the end fade); the arc is its own short line from the recent samples to the body's live position. */

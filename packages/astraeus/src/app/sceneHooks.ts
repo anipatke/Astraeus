@@ -72,6 +72,30 @@ export function useSceneViews(runtime: SceneRuntime, gl: WebGLRenderer) {
       (runtime.composition?.paths ?? []).map((path) => compositionPathView(path, runtime.resolver, runtime.catalogue)),
     [runtime.composition, runtime.resolver, runtime.catalogue],
   );
+  useEffect(
+    () => () => {
+      for (const view of trackedViews) view.dispose();
+    },
+    [trackedViews],
+  );
+  useEffect(
+    () => () => {
+      for (const view of groupViews) view.dispose();
+    },
+    [groupViews],
+  );
+  useEffect(
+    () => () => {
+      for (const view of sunCentredViews) view.dispose();
+    },
+    [sunCentredViews],
+  );
+  useEffect(
+    () => () => {
+      for (const view of compositionPaths) view.dispose();
+    },
+    [compositionPaths],
+  );
   const skyView = useMemo(
     () =>
       runtime.sky !== undefined && (runtime.sky.visible || runtime.sky.live === true)

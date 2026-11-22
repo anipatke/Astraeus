@@ -13,6 +13,7 @@ import {
   Vector3,
   type Camera,
 } from "three";
+import { disposeOwned } from "./disposeOwned";
 import { dotMaterial } from "./dotMaterial";
 import type { ScalePolicy } from "../presentation/scalePolicy";
 import type { FloatingOrigin } from "./floatingOrigin";
@@ -127,6 +128,11 @@ export class TrackedBodyView {
       (object) => object.material as { depthTest: boolean },
     );
     this.group.add(this.#travelled, this.#future, this.#anchors, this.#marker);
+  }
+
+  /** Frees the GPU copies of the lines, marker and anchors; the arrays stay, so drawing again uploads afresh. */
+  dispose(): void {
+    disposeOwned(this.group);
   }
 
   /** Scaled absolute target for the camera; holds the nearest bound outside the trajectory. */

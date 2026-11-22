@@ -2,7 +2,7 @@
 id: T-429
 title: Views free what they own when a viewer goes
 objective: O-092
-status: planned
+status: done
 depends_on: [{task: T-428, requires: clear}]
 owner_validation: {required: false}
 check_waiver: {task: T-429, reason: 'Owner said "work through this list of objectives one by one. Orchestrate each objective to completion" (G-024 decision 7) and "Carry on" (2026-11-22): standing orchestration rules waive the optional step checks; the mandatory Full Objective Check covers the whole diff.', actor: {role: owner, session: orchestrate-g024-20261122}, recorded_at: '2026-11-22T04:52:00Z'}
@@ -79,8 +79,31 @@ Focused: `npx vitest run packages/astraeus/tests/viewDisposal.test.ts packages/a
 
 ## Technical Evidence
 
-Pending execution.
+Extra reads: none beyond Context Files (also `OrbitSetView`/`SkyView`/`SkyFiguresView`/`RingView` `dispose` bodies, and test fixtures in `bodySet.test.ts`, `orbitSetSync.test.ts`, `skyFigures.test.ts`, `publicApiLineStretches.test.ts`, `pathViewSync.test.ts`, `skyPicture.test.ts`, `overlayLayers.test.ts` to copy made-up data).
+
+| Done When | Evidence |
+|---|---|
+| `disposeOwned.ts` walks an Object3D: geometry, material(s), `map` only | `src/app/disposeOwned.ts`; exercised by every row of `viewDisposal.test.ts` |
+| `dispose()` on `PathView`, `PointsView`, `KeplerPoints`, `TrackedBodyView` | those four rows (PathView bare and with orbit look; PointsView small and large; KeplerPoints direct) in `viewDisposal.test.ts` |
+| dispose clears nothing | table case compares every attribute's array length and count before and after `dispose()` |
+| `useSceneViews` disposes tracked, group, sun-centred and composition views | four effects in `sceneHooks.ts`; `sceneViewsDisposalDom.test.ts` (unmount frees every owned object, all views incl. sky via `useSkyStars`, which already frees the sky view) |
+| `BodyView` disposes marker, stand-in and glow | three effects in `BodyView.tsx`; `bodyViewDisposalDom.test.ts` (marker, sphere, halo bodies) |
+| One table over every view class | `viewDisposal.test.ts` (11 rows: Path x2, Points x2, Kepler, Tracked, BodySet, OrbitSet, Sky, SkyFigures, Ring); all existing-view rows passed without change, so no existing `dispose` was edited |
+| Two-view row (API-03) | second `it.each` in `viewDisposal.test.ts`; also two probes in `sceneViewsDisposalDom.test.ts` and two BodyViews in `bodyViewDisposalDom.test.ts` |
+| Scan case | last `describe` of `viewDisposal.test.ts`: every exported class in `src/app` that constructs geometry/material/texture/`dotMaterial(` needs `dispose(` and a table row |
+| Two DOM tests | `sceneViewsDisposalDom.test.ts`, `bodyViewDisposalDom.test.ts` |
+| Size | `npm run measure:example`: first-open total 1,827,398 B raw (C-211: 1,826,428; includes T-428/T-431/T-432 and in-flight T-430); cap 1,838,000. No separate before-figure for this Task alone (no stash allowed). |
+
+Commands (in the gate lock): `npm run typecheck` clean; eslint on changed files clean; `prettier --check` clean; `npx vitest run` on `viewDisposal`, `sceneViewsDisposalDom`, `bodyViewDisposalDom`, `sceneHooksDom`, `bodyViewDom`, `patchedShaders`, `pathViewSync`, `publicApiLineStretches`, `overlayLayers`: 9 files, 87 tests pass.
+
+Files changed: `disposeOwned.ts` (new), `PathView.ts`, `PointsView.ts`, `KeplerPoints.ts`, `TrackedBodyView.ts`, `BodyView.tsx`, `sceneHooks.ts`; tests `viewDisposal.test.ts`, `sceneViewsDisposalDom.test.ts`, `bodyViewDisposalDom.test.ts`, plus `tests/disposalFixtures.ts` (new shared made-up fixtures and the dispose listener; not in planned_writes, test support only).
+
+Limitations: `SkyView` is freed by `useSkyStars`, not `useSceneViews`, as before. No browser run; counting is by `dispose` events. `BodyView` does not dispose the r3f-declared meshes (as planned).
 
 ## Drift Notes
 
 Design `Good guest` gains: every view that makes GPU objects has `dispose`, held by `tests/viewDisposal.test.ts` (reconciled by draft 07).
+
+## Coordinator (gates)
+
+Combined wave-2 gate with T-429 and T-430: typecheck clean; `npm run lint` clean; `npm test` 336 files, 5478 passed, 1 failed (twoViewers shelf-panel case, a 1 s waitFor flake under load -> I-204, repaired), then a full rerun 336 files, 5479 passed, 2 skipped. Engine first open 1,827,398 B raw after both (cap 1,838,000): T-429 + T-430 together add 1,004 B against their combined planned allowance of 650 B; the Objective total (+970 B since C-211) stays far under the cap, so the planner allowance is recorded as exceeded, not a cap red. Set done by the orchestrating session (owner: "I mark them as they pass", O-038; G-024 decision 7; owner 2026-11-22 "Carry on").
