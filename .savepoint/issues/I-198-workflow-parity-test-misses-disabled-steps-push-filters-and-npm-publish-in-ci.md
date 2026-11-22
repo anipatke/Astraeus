@@ -2,16 +2,22 @@
 id: I-198
 title: The workflow parity test passes when a gate step is switched off, a push filter is added, or ci.yml runs npm publish
 type: defect
-status: open
+status: resolved
 source:
   kind: check
   check: C-208
   actor: {role: checker, session: check-o091-20261122}
   at: '2026-11-22T02:37:39Z'
 tasks: [T-416]
-checks: [C-208]
+checks: [C-208, C-209]
 guardrail_ids: [TEST-01]
 severity: low
+resolution:
+  disposition: verified
+  check: C-209
+  actor: {role: checker, session: recheck-o091-20261122}
+  at: '2026-11-22T02:42:59Z'
+  reason: 'Proof Needed met: 12 new in-file plants each named; real files clean; existing plants pass; checker plants Q1-Q12 on copies of the real workflows all fail the test.'
 history:
   - at: '2026-11-22T02:37:39Z'
     actor: {role: checker, session: check-o091-20261122}
@@ -22,6 +28,11 @@ history:
     actor: {role: executor, session: repair-o091-c208-20261122}
     kind: repair_attempted
     note: 'Added rules "no step or job is skippable" and "ci never publishes", widened "ci triggers" to the ignore and tags filters, and 12 plants (11 to 23); focused gates pass. Awaiting a fresh Full Objective re-check.'
+  - at: '2026-11-22T02:42:59Z'
+    actor: {role: checker, session: recheck-o091-20261122}
+    kind: rechecked
+    note: 'C-209 CLEAR. In a scratch mirror of the real files, every C-208 gap (if/continue-on-error on ci lint/test steps, publish browser step, ci gates job; push paths-ignore/branches-ignore; npm publish in a second ci job) and adjacent plants (job-level continue-on-error in publish, expression if/continue-on-error, if always(), tags filter) now fail, naming the problem. test:full 5346 passed on ccfae6a6.'
+    check: C-209
 ---
 
 # The workflow parity test passes when a gate step is switched off, a push filter is added, or ci.yml runs npm publish
