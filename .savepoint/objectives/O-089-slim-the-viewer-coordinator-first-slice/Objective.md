@@ -1,7 +1,7 @@
 ---
 id: O-089
 title: Slim the viewer coordinator, first slice
-status: planned
+status: done
 depends_on: [O-087]
 release: G-024
 priority: medium
@@ -45,3 +45,5 @@ API-02 handle parity; public API unchanged.
 - Engine size: raw cap 1,838,000 B; last measured 1,836,426 B (C-208). T-418 must lower the first-open raw total; T-420 may add at most 500 B over T-418's figure (O-092 still needs ~900 B). Over budget: park with measured options.
 - The `selectedObjectId` getter on `SceneControls` must be an own enumerable property (O-087's `controlsChanged` walks controls with `for…in`), pinned by a T-420 test row.
 - Waves: T-418 and T-419 side by side; then T-420; then T-421 and T-422.
+- Owner look 2026-11-22 on localhost:5490 (T-422): all steps pass ("check steps look good otherwise"); "focus on saturn after overview does nothing" reproduced on main before O-089 -> I-200 (backlog, owner "Log it for later"). Two loading hangs were the preview server, not the code -> I-201, repaired on this branch (`npm run preview:owner`), verified by C-210.
+- O-089 set done by the orchestrating session after Full Check C-210 CLEAR (I-201 verified) (G-024 decision 7, "Orchestrate each objective to completion"; "CLEAR: fast-forward merge to main and push"). Owner 2026-11-22, after "i seem to be spending 90% of my time waiting for tests": the I-199 measure-and-prune work goes next, before O-092 and O-090 ("Do it next").

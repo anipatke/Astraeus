@@ -2,10 +2,9 @@
 id: T-422
 title: Owner look at selection and the drawer
 objective: O-089
-status: in_progress
-stage: audit
+status: done
 depends_on: [{task: T-418, requires: clear}, {task: T-420, requires: clear}]
-owner_validation: {required: true}
+owner_validation: {required: true, accepted_check: C-210, accepted_by: {role: owner, session: orchestrate-g024-20261122}}
 planned_by: {role: planner, session: orchestrate-g024-20261121}
 lane: owner-look
 planned_reads: []
