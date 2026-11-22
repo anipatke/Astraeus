@@ -19,7 +19,7 @@ import { createProvenance } from "astraeus/core/provenance";
 import { memberState, type PointGroup } from "astraeus/core/pointGroup";
 import { composeCenteredPositions, sunPositionFromEarthAt } from "astraeus/core/referenceCenters";
 import { readableScale, trueScale } from "astraeus";
-import { AstraeusShell } from "astraeus/shell/AstraeusShell";
+import { AstraeusShell, createSelection } from "astraeus/shell/AstraeusShell";
 import { findCameraPreset } from "astraeus/shell/objectModel";
 import { apollo11Definition } from "./apollo11Definition";
 import { syntheticDefinition } from "astraeus/tests/synthetic/syntheticDefinition";
@@ -120,7 +120,7 @@ function shellMarkup(definition: ExperienceDefinition): string {
       onRateChange: noop,
       onSeek: noop,
       onCameraRequest: noop,
-      onSelectionChange: noop,
+      selection: createSelection(""),
       scaleId: "true-scale",
       onScaleChange: noop,
       children: null,

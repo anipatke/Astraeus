@@ -7,7 +7,8 @@ import { SimulationClock, type ClockSnapshot } from "../src/core/clock";
 import { createOrbAstronomyAdapter } from "../src/core/astronomyAdapter";
 import { catalogue } from "../src/assets/catalogue";
 import { createSceneResolver } from "../src/app/sceneLayout";
-import { AstraeusShell } from "../src/shell/AstraeusShell";
+import { AstraeusShell, initialObjectId } from "../src/shell/AstraeusShell";
+import { createSelection, type Selection } from "../src/shell/selection/selection";
 import type { ExperienceCameraPreset, ExperienceConfig } from "../src/shell/experience";
 import { syntheticDefinition } from "./synthetic/syntheticDefinition";
 import type { PhoneLayoutSettings } from "../src/shell/phoneLayout";
@@ -65,6 +66,8 @@ export interface MountOptions {
   readonly shelfRuntime?: ShelfRuntime;
   /** A select request as `App` makes it (`quiet`: a story panel's select), applied once at the start. */
   readonly selectRequest?: { readonly id: string; readonly serial: number; readonly quiet?: boolean };
+  /** The viewer's selection store, when a test drives it from outside React; else one opening on the experience's opening object is made. */
+  readonly selection?: Selection;
 }
 
 /** Tells the page whether it is a phone, framed or asked for reduced motion: the three things the shell reads from its window. */
@@ -136,7 +139,7 @@ export function $(container: ParentNode, selector: string): HTMLElement {
 interface Probe {
   shelfChanges: (string | null)[];
   showParts: (parts: readonly ShelfPart[]) => void;
-  selected: string;
+  selection: Selection;
   holds: number;
   scale: string;
   refresh: () => void;
@@ -157,7 +160,17 @@ function Host({
   const [snapshot, setSnapshot] = useState<ClockSnapshot>(() => clock.snapshot());
   const [developer, setDeveloper] = useState(false);
   const [scaleId, setScaleId] = useState(options.scaleChoices?.[0]?.id ?? "true-scale");
-  const selected = useRef("");
+  const selection = useRef<Selection | null>(null);
+  if (selection.current === null) {
+    selection.current =
+      options.selection ??
+      createSelection(
+        initialObjectId(options.experience ?? syntheticDefinition.experience, clock.snapshot().timeUtcMs),
+      );
+    if (options.selectRequest !== undefined)
+      selection.current.ask(options.selectRequest.id, options.selectRequest.quiet === true);
+  }
+  probe.selection = selection.current;
   const refresh = () => setSnapshot(clock.snapshot());
   probe.refresh = refresh;
   probe.requestPanel = (id, host) =>
@@ -201,17 +214,13 @@ function Host({
     onCameraHold: () => {
       probe.holds += 1;
     },
-    onSelectionChange: (id: string) => {
-      selected.current = id;
-      probe.selected = id;
-    },
+    selection: selection.current,
     onSetPlaying: (playing: boolean) => {
       if (playing) clock.play();
       else clock.pause();
       refresh();
     },
     panelRequest,
-    selectRequest: options.selectRequest,
     onOpenPanelChange: (id: string | null, cause: string) => {
       if (probe.panelChanges.at(-1)?.id !== id) probe.panelChanges.push({ id, cause });
     },
@@ -256,7 +265,7 @@ export function mountShell(options: MountOptions = {}): Mounted {
     container,
     cameraRequests: probe,
     clock,
-    selected: () => probe.selected,
+    selected: () => probe.selection.id(),
     holds: () => probe.holds,
     advance: (ms) => {
       monotonicMs += ms;

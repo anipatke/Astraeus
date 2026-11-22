@@ -2,7 +2,7 @@
 id: T-420
 title: Shell and viewer share one selection
 objective: O-089
-status: planned
+status: done
 depends_on: [{task: T-418, requires: clear}, {task: T-419, requires: clear}]
 owner_validation: {required: false}
 check_waiver: {task: T-420, reason: 'Owner said "work through this list of objectives one by one. Orchestrate each objective to completion" (G-024 decision 7) and "carry on orchestrating G-024" (2026-11-22): standing orchestration rules waive the optional step checks; the mandatory Full Objective Check covers the whole diff.', actor: {role: owner, session: orchestrate-g024-20261122}, recorded_at: '2026-11-22T03:09:26Z'}
@@ -91,7 +91,38 @@ Focused: `npx vitest run packages/astraeus/tests/selectionOwner.test.ts packages
 
 ## Technical Evidence
 
-Pending execution.
+Context: no extra reads beyond Context Files and planned_reads (`domSetup.ts` mount code read for the wiring; `tests/synthetic` not read).
+
+Done When -> evidence:
+
+| Done When | Proof |
+|---|---|
+| One store per viewer and scene, opening on `initialObjectId(shellExperience, clock time)`, not module-level | `App.tsx` `useMemo(createSelection(initialObjectId(...)), [runtime])`; `appScreenDom`, `publicApiOpeningSelection` green |
+| `SceneControls.selectedObjectId` a `readonly` read-through getter; no copy written; readers unchanged | typecheck clean (no writer left); `appScreenDom`, `viewCameraDom`, `sceneFrame` green |
+| Getter is an own enumerable property; paused scene sees a selection change | `selectionOwner.test.ts` "the scene's read of the selection" (both paths): `Object.keys` and `for...in` include `selectedObjectId`, value follows host `setSelected` while paused (object-literal `get` in `initialSceneControls`) |
+| `App`: `hostSetSelected` and a story panel's select call `selection.ask`; `stateNow` reads `selection.id()`; one `onMove` listener publishes only while attached; old request machinery removed | `setSelected`, `hostCallOrder`, `lifecycle`, `twoViewers`, `domStorySteps` green unchanged; `selectRequest`, `hostSelect`, `selectWith`, `hostSelectApplied`, `updateSelectedObject` gone (grep) |
+| `AstraeusShell`: `selection` prop, three props removed (46 -> 44), `useSyncExternalStore`, `choose` replaces every pair, report effect and `hostCleared` ref gone, ask folded into the view-switch effect (card rule in named `applyAskedCard`), header line updated, `SelectionOrigin` re-exported | typecheck; ESLint clean (complexity limit not raised); `selectionCauseDom`, `skyFigureSelect`, `domPhone`, `domShell` green |
+| Test wiring only in the five shell-mounting files | diffs below |
+| New `selectionOwner.test.ts`, both paths, table of 14 paths, written first and green on the base | 14 rows x 2 paths + getter row x 2 + external-store case = 31 tests; the 28 table tests were run green on the base (before any source edit) and unchanged since |
+| External-store path | `selectionOwner.test.ts` "the shell reads the store, not a prop" |
+| Existing tests green unchanged | focused list: 20 files, 511 passed, 1 skipped (pre-existing skip); plus all 49 files that import `domSetup`: 944 passed |
+| Engine size | `npm run measure:example`: first-open total 1,826,428 B raw (523,393 gzip); T-418 base 1,826,703 B, so -275 B; limit 1,838,000 |
+
+Test wiring diff lines (added `+` / removed `-`), no assertion, fixture, experience, clock or option change:
+- `tests/domSetup.ts`: `-` import AstraeusShell; `+` import AstraeusShell, initialObjectId; `+` import createSelection, Selection; `+` MountOptions `selection?` (doc + field, new optional option to let one test drive the store; `selectRequest` keeps its shape); `-` Probe `selected: string`, `+` Probe `selection: Selection`; `-` `const selected = useRef("")`; `+` 10-line store creation in Host (opening id, `selectRequest` applied as `ask` before first render); `-` `onSelectionChange` (4 lines), `+` `selection: selection.current`; `-` `selectRequest: options.selectRequest`; `-` `selected: () => probe.selected`, `+` `selected: () => probe.selection.id()`.
+- `tests/experiencePlugInContract.test.ts`, `tests/listedOrbitGroup.test.ts`, `tests/syntheticRing.test.ts`, `astraeus-demo-apollo11/tests/pointsLayer.test.ts`: each `+` one import of `createSelection`, `-` `onSelectionChange: noop,`, `+` `selection: createSelection(""),`.
+
+Commands:
+- `npm run typecheck`: clean.
+- ESLint (use-typescript6) and `prettier --check` on the nine changed files: clean.
+- `npx vitest run` the 20-file focused list from Technical Verification: pass (511, 1 skipped). Plus all test files importing `domSetup` (49 files): 944 passed.
+- `npm run measure:example`: 1,826,428 B raw.
+
+Behaviour notes: a story panel's select reports nothing to `onSelect` (pinned in the table, same as the base: the ask is not a move). `useSyncExternalStore` is given the snapshot as server snapshot too, because the static-markup tests render the shell on the server. The shell's effect now also depends on the ask object so a host ask for the id already selected is still taken.
+
+Files changed: `packages/astraeus/src/app/App.tsx` (1,188 -> 1,174 lines), `src/app/AstraeusScene.tsx` (readonly), `src/shell/AstraeusShell.tsx`, the five test-wiring files, new `tests/selectionOwner.test.ts`.
+
+Limitations: no browser run (policy). `initialObjectIdOf` in `experienceDefinition.ts` is now unused by `App` (still covered by `experiencesContract.test.ts`); left in place. If `runtime` changes, the store restarts but the controls object (built once, as before) still reads the first store; `runtime` never changes within a mounted App today.
 
 ## Drift Notes
 
@@ -100,3 +131,11 @@ Expected:
 - Design `Viewer interface` and note section 9 say selection lives in the shell.
 
 Reconciled in draft 04.
+
+Found while building: `initialObjectIdOf` (`experienceDefinition.ts`) has no caller in `src` now; non-architectural, candidate for removal in draft 04's reconciliation. `domSetup.ts` `MountOptions.selection` is new test wiring.
+
+## Coordinator (gates)
+
+Combined gate on T-418..T-420: typecheck clean; `npm run lint` clean; `npm test` 328 files, 5423 passed, 2 skipped, 1 failed: `packageBoundaries.test.ts` ARCH-03 deep-import count, astraeus-demo-apollo11 126 up from 125 (the builder's new `astraeus/shell/selection/selection` import in `pointsLayer.test.ts`). Coordinator repair (the count may only go down, so the fix is not a raise): `AstraeusShell.tsx` re-exports `createSelection` beside the existing `SelectionOrigin` type re-export (whoever renders the shell needs its store), and `pointsLayer.test.ts` imports it from the `astraeus/shell/AstraeusShell` line it already used (count back to 125). Rerun: typecheck clean; ESLint + Prettier clean on both files; vitest `packageBoundaries`, `pointsLayer`, `selectionOwner`, `interfaceHeaders` 4 files, 101 passed. First-open engine 1,826,428 B raw / 523,393 B gzip (builder's measure; the re-export adds no code already in the bundle).
+
+Set done by the orchestrating session after these gates (owner: "I mark them as they pass", O-038; G-024 decision 7; owner 2026-11-22 "carry on orchestrating G-024").

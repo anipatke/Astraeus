@@ -7,6 +7,7 @@ import { catalogue } from "../src/assets/catalogue";
 import { createSceneResolver } from "../src/app/sceneLayout";
 import { trackedBodiesOf, type ExperienceDefinition } from "../src/app/experienceDefinition";
 import { AstraeusShell } from "../src/shell/AstraeusShell";
+import { createSelection } from "../src/shell/selection/selection";
 import { syntheticDefinition } from "./synthetic/syntheticDefinition";
 import { provenanceAt, rateAt } from "../src/core/timeWindow";
 import { infoView } from "../src/shell/infoModel";
@@ -38,7 +39,7 @@ function shellMarkup(definition: ExperienceDefinition): string {
       onRateChange: noop,
       onSeek: noop,
       onCameraRequest: noop,
-      onSelectionChange: noop,
+      selection: createSelection(""),
       scaleId: "true-scale",
       onScaleChange: noop,
       children: null,

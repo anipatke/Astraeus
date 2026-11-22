@@ -9,6 +9,7 @@ import { SimulationClock } from "../src/core/clock";
 import { createOrbAstronomyAdapter } from "../src/core/astronomyAdapter";
 import { trueScale } from "../src/presentation/scalePolicy";
 import { AstraeusShell } from "../src/shell/AstraeusShell";
+import { createSelection } from "../src/shell/selection/selection";
 import { findCameraPreset } from "../src/shell/objectModel";
 import {
   LISTED_LOOK,
@@ -496,7 +497,7 @@ describe("the made-up listed experience (T-052 Done When 5)", () => {
         onRateChange: noop,
         onSeek: noop,
         onCameraRequest: noop,
-        onSelectionChange: noop,
+        selection: createSelection(""),
         scaleId: "true-scale",
         onScaleChange: noop,
         children: null,

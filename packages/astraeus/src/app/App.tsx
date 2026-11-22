@@ -29,7 +29,6 @@ import {
   compositionOf,
   experienceWithGroups,
   groupsOf,
-  initialObjectIdOf,
   mountedBodiesOf,
   pageTitleOf,
   scaleChoiceIdsOf,
@@ -39,7 +38,8 @@ import {
   visualOverridesOf,
   type ExperienceDefinition,
 } from "./experienceDefinition";
-import { AstraeusShell, type SelectionOrigin } from "../shell/AstraeusShell";
+import { AstraeusShell, initialObjectId } from "../shell/AstraeusShell";
+import { createSelection, type Selection } from "../shell/selection/selection";
 import type { ViewChoice } from "../shell/DisplaySwitches";
 import type { PanelCause } from "../shell/useStoryPanels";
 import type { ExperienceCameraRequest, ExperienceConfig } from "../shell/experience";
@@ -283,6 +283,7 @@ function initialSceneControls(
   storyMarkers: readonly StoryMarkerSpec[],
   suppliedPolicies: readonly ScalePolicy[],
   search: string,
+  selection: Selection,
 ): SceneControls {
   // A look-out toward an id is aimed as a `setCamera` one is: a sky figure becomes its label point here, an object is turned toward on the first frame.
   const opening = definition.startView;
@@ -330,7 +331,9 @@ function initialSceneControls(
     storyMarkers,
     featureMarkers: featureMarkerSpecs(definition.experience.bodyFeatures),
     featureMinBodyPx: featureMinBodyPxOf(runtime.look),
-    selectedObjectId: initialObjectIdOf(definition),
+    get selectedObjectId() {
+      return selection.id(); // read through: the viewer's one selection, never a copy (an own enumerable property, which the draw rule's `for...in` finds)
+    },
     frameStats: null,
     groupFills: [],
     ...(startView === undefined ? {} : { startView }),
@@ -446,6 +449,12 @@ export function App({
       ),
     [storySet],
   );
+  // The viewer's one selected object: the shell reads and sets it, the scene reads it every frame and the host link reads it through `read()`. It opens on the object the shell opens on.
+  const selection = useMemo(
+    () => createSelection(initialObjectId(shellExperience, runtime.clock.snapshot().timeUtcMs)),
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- the opening id is read once per scene: a later experience change must not restart the selection
+    [runtime],
+  );
   const controls = useRef<SceneControls>(
     initialSceneControls(
       definition,
@@ -456,6 +465,7 @@ export function App({
       storyMarkerSpecs,
       suppliedPolicies,
       search,
+      selection,
     ),
   );
   const readout = useRef<DebugReadout | null>(null);
@@ -646,36 +656,15 @@ export function App({
             zones: activeEventZones(runtime.eventZones, shownEventsOf(definition, viewRef.current), snapshot.timeUtcMs),
           }),
       ...(definition.views === undefined ? {} : { view: viewRef.current }),
-      ...(controls.current.selectedObjectId === "" ? {} : { selected: controls.current.selectedObjectId }),
+      ...(selection.id() === "" ? {} : { selected: selection.id() }),
       ...(controls.current.openStoryPanelId == null ? {} : { panel: controls.current.openStoryPanelId }),
     };
-  }, [runtime, definition]);
+  }, [runtime, definition, selection]);
   // A selection that changes is told to the host at once (the shell calls this for a menu choice, a pick and a view switch that drops the object); the opening selection and any before the host is attached wait for the attach reading.
   const hostAttached = useRef(false);
   // The presentation (scale, looks, switches) last told to the host, to find what a visitor changed.
   const shownKey = useRef<string | null>(null);
-  // `origin` "move": time or the view moved and the selection followed (a drop or a view rule's framing target); the link names whatever last moved them (a host call, the visitor or playback).
-  // The host's `setSelected` not yet applied by the shell (id "" clears); the shell applies it after its own view-switch choices, so the host call is the last word.
-  const hostSelect = useRef<string | null>(null);
-  const [selectRequest, setSelectRequest] = useState<{
-    readonly id: string;
-    readonly serial: number;
-    readonly quiet?: boolean;
-  } | null>(null);
-  /** `quiet`: a story panel's select, which follows the visitor-tap rule for the card (the shell decides: wide screens open it, phones do not); a host call opens it always. */
-  const selectWith = useCallback((id: string | undefined, quiet: boolean) => {
-    hostSelect.current = id ?? "";
-    controls.current.selectedObjectId = id ?? ""; // `read()` shows it at once
-    setSelectRequest((previous) => ({
-      id: id ?? "",
-      serial: (previous?.serial ?? 0) + 1,
-      ...(quiet ? { quiet } : {}),
-    }));
-  }, []);
-  const hostSetSelected = useCallback((id: string | undefined) => selectWith(id, false), [selectWith]);
-  const hostSelectApplied = useCallback(() => {
-    hostSelect.current = null;
-  }, []);
+  const hostSetSelected = useCallback((id: string | undefined) => selection.ask(id ?? "", false), [selection]);
   const hostSetPanel = useCallback((id: string | undefined) => {
     controls.current.openStoryPanelId = id ?? null; // `read()` shows it at once
     setPanelRequest((previous) => ({ id: id ?? "", serial: (previous?.serial ?? 0) + 1, host: true }));
@@ -687,14 +676,13 @@ export function App({
       .map(({ id }) => id)
       .filter((id) => hidden === undefined || !hidden.has(id));
   }, [definition]);
-  const updateSelectedObject = useCallback(
-    (objectId: string, origin: SelectionOrigin) => {
-      if (hostSelect.current !== null) return; // a host `setSelected` is waiting for the shell: the shell's older choice must not undo it (the host-call order rule)
-      const changed = controls.current.selectedObjectId !== objectId;
-      controls.current.selectedObjectId = objectId;
-      if (changed && hostAttached.current) host?.publishSelection(stateNow(), origin === "move");
-    },
-    [host, stateNow],
+  // `origin` "move": time or the view moved and the selection followed (a drop or a view rule's framing target); the link names whatever last moved them (a host call, the visitor or playback).
+  useEffect(
+    () =>
+      selection.onMove((_id, origin) => {
+        if (hostAttached.current) host?.publishSelection(stateNow(), origin === "move");
+      }),
+    [selection, host, stateNow],
   );
   useEffect(() => {
     const id = window.setInterval(() => {
@@ -837,13 +825,13 @@ export function App({
       // The panel's actions go through the host calls, in this order: camera, select, trace.
       if (panel.camera !== undefined && shownAtClock(panel.camera as CameraRequest))
         setCamera(panel.camera as CameraRequest);
-      if (panel.select === true && panel.objectId !== undefined) selectWith(panel.objectId, true);
+      if (panel.select === true && panel.objectId !== undefined) selection.ask(panel.objectId, true);
       if (panel.trace !== undefined && panel.objectId !== undefined) {
         hostTraceSkyFigure(panel.objectId, panel.trace.seconds, panel.trace.after);
         panelTrace.current = panel.objectId;
       }
     },
-    [host, stateNow, definition, setCamera, shownAtClock, selectWith, hostTraceSkyFigure, hostClearSkyTrace],
+    [host, stateNow, definition, setCamera, shownAtClock, selection, hostTraceSkyFigure, hostClearSkyTrace],
   );
   useEffect(() => {
     if (host === undefined) return undefined;
@@ -1141,7 +1129,7 @@ export function App({
       onTimeShown={holdCameraOffShown}
       hostCameraSet={hostCameraSet}
       storySeekNote={storySeekNote}
-      onSelectionChange={updateSelectedObject}
+      selection={selection}
       scaleId={scale}
       onScaleChange={updateScale}
       scaleChoices={scaleChoices}
@@ -1170,8 +1158,6 @@ export function App({
       onOpenPanelChange={markOpenPanel}
       featureRequest={featureRequest}
       pickRequest={pickRequest}
-      selectRequest={selectRequest}
-      onSelectRequestApplied={hostSelectApplied}
       onOpenFeatureChange={markOpenFeature}
     >
       <div className="canvas-host">

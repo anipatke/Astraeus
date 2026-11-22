@@ -11,6 +11,7 @@ import { SimulationClock } from "../src/core/clock";
 import { composeCenteredPositions, sunPositionFromEarthAt } from "../src/core/referenceCenters";
 import { readableScale, trueScale } from "../src/presentation/scalePolicy";
 import { AstraeusShell } from "../src/shell/AstraeusShell";
+import { createSelection } from "../src/shell/selection/selection";
 import { findCameraPreset } from "../src/shell/objectModel";
 import {
   BELT_MEMBER_COUNT,
@@ -37,7 +38,7 @@ function shellMarkup(definition: ExperienceDefinition): string {
       onRateChange: noop,
       onSeek: noop,
       onCameraRequest: noop,
-      onSelectionChange: noop,
+      selection: createSelection(""),
       scaleId: "true-scale",
       onScaleChange: noop,
       children: null,

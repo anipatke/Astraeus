@@ -181,7 +181,7 @@ export interface SceneControls {
   openFeatureKey?: string | null;
   /** Presentation only: a body narrower than this many screen pixels shows no feature markers. Absent: `DEFAULT_FEATURE_MIN_BODY_PX`. */
   featureMinBodyPx?: number;
-  selectedObjectId: string;
+  readonly selectedObjectId: string;
   /** Frame timing, set only while Developer mode is on; null means nothing is measured. */
   frameStats: FrameStats | null;
   /** Each group's refill count, written by the scene while `frameStats` is set; read by the Developer tools poll. */

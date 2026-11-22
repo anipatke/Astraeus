@@ -1,9 +1,20 @@
-// Composition: turns the scene's state into the areas, the bar and the panels, and holds the selection and camera-preset logic still kept here.
+// Composition: turns the scene's state into the areas, the bar and the panels, and holds the camera-preset logic still kept here (the selected object is the viewer's own store, handed in).
 // Must not: hold a raw colour or size, or decide a place or what closes what itself (the areas, fitBar and panelRule decide; this file wires them).
-import { lazy, Suspense, useEffect, useId, useRef, useState, type ComponentProps, type ReactNode } from "react";
+import {
+  lazy,
+  Suspense,
+  useEffect,
+  useId,
+  useRef,
+  useState,
+  useSyncExternalStore,
+  type ComponentProps,
+  type ReactNode,
+} from "react";
 import type { ClockSnapshot } from "../core/clock";
 import type { TimelineEvent } from "../core/events";
 import type { TimelineWindow } from "../core/timeWindow";
+import type { Selection, SelectionAsk } from "./selection/selection";
 import { StoryPanelView, type StepNav } from "./StoryPanelView";
 import { useMirroredPanels, usePanels } from "./panels/usePanels";
 import { PopupPlaceContext } from "./panels/PopupContext";
@@ -207,8 +218,7 @@ function MoonsSheet({
   );
 }
 
-/** Who moved the selection: the visitor, or a move of time or the view (named by whatever last moved them). */
-export type SelectionOrigin = "visitor" | "move";
+export { createSelection, type SelectionOrigin } from "./selection/selection";
 
 interface Props {
   readonly experience: ExperienceConfig;
@@ -231,8 +241,8 @@ interface Props {
   readonly hostCameraSet?: () => boolean;
   /** Filled with the shell's story seek note, so a host's time jump re-bases the panel crossing check exactly as a visitor's seek does. */
   readonly storySeekNote?: { current: ((timeUtcMs: number) => void) | null };
-  /** `origin` is required so a new selection path must say who chose: "visitor" (a menu choice, pick, preset or marker) or "move" (time or the view moved and the selection followed). */
-  readonly onSelectionChange: (objectId: string, origin: SelectionOrigin) => void;
+  /** The viewer's one selected object. A new selection path calls `choose` and must say who chose: "visitor" (a menu choice, pick, preset or marker) or "move" (time or the view moved and the selection followed). */
+  readonly selection: Selection;
   /** The shelf parts (`Scene.addParts`) the showing view shows, in the scene's order: each panel is a story button in the bar and a panel in the left place, drawn by the part's own view. */
   readonly shelfParts?: readonly ShelfPart[] | undefined;
   /** What the parts' views are handed (the elements made for custom blocks). */
@@ -288,9 +298,6 @@ interface Props {
   /** Called with the key of the place whose information is open, or null, so the app can mark its scene marker. */
   readonly onOpenFeatureChange?: (key: string | null) => void;
   /** Asks the shell to fly to an object a tap or click picked in the scene (focus only, no information); a new `serial` asks again. */
-  /** A host `setSelected` (id "" clears the selection), applied after the shell's own view-switch choices so the host's call is the last word; `onSelectRequestApplied` tells the app it has been. */
-  readonly selectRequest?: { readonly id: string; readonly serial: number; readonly quiet?: boolean } | null;
-  readonly onSelectRequestApplied?: () => void;
   readonly pickRequest?: { readonly id: string; readonly serial: number; readonly keepSky?: boolean } | null;
   readonly children: ReactNode;
 }
@@ -424,7 +431,7 @@ export function AstraeusShell({
   onTimeShown,
   hostCameraSet,
   storySeekNote,
-  onSelectionChange,
+  selection,
   scaleId,
   onScaleChange,
   scaleChoices,
@@ -453,8 +460,6 @@ export function AstraeusShell({
   featureRequest,
   onOpenFeatureChange,
   pickRequest,
-  selectRequest,
-  onSelectRequestApplied,
   children,
 }: Props) {
   const infoPanelId = `${useId()}-info-panel`;
@@ -462,7 +467,11 @@ export function AstraeusShell({
   const moonsSheetId = `${useId()}-moons-panel`;
   const developerDrawerId = `${useId()}-developer-tools`;
   const controlsDrawerId = `${useId()}-controls-drawer`;
-  const [selectedObjectId, setSelectedObjectId] = useState(() => initialObjectId(experience, snapshot.timeUtcMs));
+  const { id: selectedObjectId, ask: selectionAsk } = useSyncExternalStore(
+    selection.subscribe,
+    selection.snapshot,
+    selection.snapshot,
+  );
   const root = useRef<HTMLElement | null>(null);
   /** The viewer's own screen (areas/screen.ts): its layout follows this viewer's size, not the window's. */
   const screen = useScreen(root);
@@ -535,29 +544,28 @@ export function AstraeusShell({
     story.open(panel.id);
   };
 
-  useEffect(() => {
-    onSelectionChange(selectedObjectId, "visitor");
-  }, [onSelectionChange, selectedObjectId]);
-
-  /** The host cleared the selection: the fallback that picks the first available object stays off until something is selected again. */
-  const hostCleared = useRef(false);
+  /** A host `setSelected` or a story panel's select, taken from the store: the card follows as for a visitor's menu choice (it opens, the camera is left alone); a clear closes it. A quiet ask (a story panel's) follows the visitor-tap rule: on a phone it selects without opening the card, which would cover the panel's Back and Next. */
+  const applyAskedCard = (asked: SelectionAsk | undefined, id: string) => {
+    if (asked === undefined) return;
+    if (id === "") {
+      if (shownInfo?.kind === "object") panels.close("card");
+    } else if (!asked.quiet || pickOpensInfo(phone)) showInfo({ kind: "object" });
+  };
   // A view switch is told from other changes of the experience by the view's id changing.
   const { viewId, takeSwitchRule } = useViewSwitch(viewCamera);
   useEffect(() => {
     const switchRule = takeSwitchRule();
-    if (selectedObjectId !== "") hostCleared.current = false;
     const selected = experience.objects.find((object) => object.id === selectedObjectId);
     if (
       selectionLost(
         selected,
         snapshot.timeUtcMs,
-        hostCleared.current && selectedObjectId === "",
+        selection.hostCleared() && selectedObjectId === "",
         skyFigureById(experience, selectedObjectId) !== undefined,
       )
     ) {
       const fallbackId = firstAvailableObject(experience, snapshot.timeUtcMs)?.id ?? "";
-      setSelectedObjectId(fallbackId);
-      onSelectionChange(fallbackId, "move");
+      selection.choose(fallbackId, "move");
       // The card of an object the view took away closes with it.
       if (switchRule !== undefined && selected === undefined) panels.viewSwitch(shownInfo?.kind === "object", false);
     }
@@ -575,25 +583,18 @@ export function AstraeusShell({
         loseCameraTarget(cameraTargetLoss(target, snapshot.timeUtcMs));
       }
     }
+    applyAskedCard(selection.takeAsk(), selectedObjectId); // last, so a host `setSelected` is the last word over the fallback and the view rule above
     // eslint-disable-next-line react-hooks/exhaustive-deps -- re-runs only on these keys; panels and the info panel state are read as they are then, adding them would re-run the selection fallback on every panel change
-  }, [activePresetId, experience, onCameraRequest, onSelectionChange, selectedObjectId, snapshot.timeUtcMs, viewId]);
-
-  // A host `setSelected`: runs after the view-switch effect above in the same commit, so it wins over that effect's fallback or view rule.
-  const requestedSelectSerial = serialOf(selectRequest);
-  useEffect(() => {
-    if (selectRequest === null || selectRequest === undefined) return;
-    hostCleared.current = selectRequest.id === "";
-    setSelectedObjectId(selectRequest.id);
-    // As a visitor's menu choice does: the object's card opens (the camera is left alone); a clear closes it.
-    // A story panel's select (`quiet`) follows the visitor-tap rule: on a phone it selects without opening the card, which would cover the panel's Back and Next.
-    const opens = selectRequest.quiet === true ? pickOpensInfo(phone) : true;
-    if (selectRequest.id === "") {
-      if (shownInfo?.kind === "object") panels.close("card");
-    } else if (opens) showInfo({ kind: "object" });
-    onSelectRequestApplied?.();
-    // Only a new request applies.
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- only a new select request serial applies; the other values are read as they are then
-  }, [requestedSelectSerial]);
+  }, [
+    activePresetId,
+    experience,
+    onCameraRequest,
+    selection,
+    selectedObjectId,
+    selectionAsk,
+    snapshot.timeUtcMs,
+    viewId,
+  ]);
 
   /** The camera's object is gone or not shown: "hold" keeps the pose and stops following (its shown time ended or has not begun, no jump); "overview" frames the overview. */
   const loseCameraTarget = (loss: "hold" | "overview" | undefined) => {
@@ -622,8 +623,7 @@ export function AstraeusShell({
         ? findCameraPreset(experience, "overview")
         : asked;
     if (target !== undefined) {
-      setSelectedObjectId(target.id);
-      onSelectionChange(target.id, "move"); // only the move-driven effect applies a view rule
+      selection.choose(target.id, "move"); // only the move-driven effect applies a view rule
     }
     setActivePresetId(preset?.id ?? null);
     if (hostCameraSet?.() === true) return; // a host camera call made since the switch answers it and wins over the rule
@@ -646,8 +646,7 @@ export function AstraeusShell({
       selectFigure(id, pickOpensInfo(phone));
     } else if (object !== undefined && keepSky) {
       // A tap from a look-out camera: select it and stay in the sky (owner, 2026-11-15); the menu's Focus and Follow still fly there.
-      setSelectedObjectId(object.id);
-      onSelectionChange(object.id, "visitor");
+      selection.choose(object.id, "visitor");
       if (pickOpensInfo(phone)) showInfo({ kind: "object" });
     } else if (object !== undefined) {
       activatePreset(focusPresetFor(experience, object));
@@ -664,8 +663,7 @@ export function AstraeusShell({
 
   /** A sky figure chosen in the object menu or tapped in the scene: it becomes the selection (the one selection path) and its card opens when `open`; the camera is left alone. */
   const selectFigure = (id: string, open: boolean) => {
-    setSelectedObjectId(id);
-    onSelectionChange(id, "visitor");
+    selection.choose(id, "visitor");
     if (open) showInfo({ kind: "object" });
   };
 
@@ -676,8 +674,7 @@ export function AstraeusShell({
     }
     const object = availableObjectById(experience, id, snapshot.timeUtcMs);
     if (object === undefined) return;
-    setSelectedObjectId(id);
-    onSelectionChange(id, "visitor");
+    selection.choose(id, "visitor");
     showInfo({ kind: "object" });
     const active = experience.cameraPresets.find((preset) => preset.id === activePresetId);
     if (active?.request.kind === "focus" || active?.request.kind === "follow") {
@@ -700,8 +697,7 @@ export function AstraeusShell({
     if (objectId !== undefined) {
       const target = availableObjectById(experience, objectId, atUtcMs);
       if (target === undefined) return;
-      setSelectedObjectId(target.id);
-      onSelectionChange(target.id, "visitor");
+      selection.choose(target.id, "visitor");
     }
     setActivePresetId(preset.id);
     onCameraRequest(preset.request);
