@@ -14,7 +14,7 @@ permissions:
 
 jobs:
   publish:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04 # pinned: ubuntu-latest moved to 26.04 on 2026-11-22, where Playwright 1.59 cannot install Chromium (v0.10.0 publish run 44997982002)
     permissions:
       contents: read
       id-token: write # trusted publishing needs the OIDC token; only this job gets it
