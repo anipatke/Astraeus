@@ -10,8 +10,9 @@ One file or generated output owns each fact that tends to drift. Change the fact
 | Ordinary gate commands | `quality_gates` in `.savepoint/config.yml`, scripts in the root `package.json` | [project gates](agents/build.md), root README |
 | Which checks a Task, a Full Check and a release run | [verification policy](agents/verification.md), [browser policy](agents/browser-policy.md) | build.md, [BROWSER_CHECKS](BROWSER_CHECKS.md), Design "Verification in tiers (O-086)" |
 | Browser steps and their tiers | [`browser-steps.mjs`](../packages/astraeus-site/tools/validate/browser-steps.mjs); `npm run check:browser -- --list` prints them | BROWSER_CHECKS, build.md, Design |
-| Time limits | [`tools/gate-limits.json`](../tools/gate-limits.json) | build.md and BROWSER_CHECKS hold copies; `gateLimits.test.ts` keeps them equal |
+| Time limits | [`tools/gate-limits.json`](../tools/gate-limits.json) (the one maintained source) | build.md and BROWSER_CHECKS tables are checked copies: `gateLimits.test.ts` fails when they differ |
 | Measured timings | The dated run that measured them: `docs/evidence/browser-*/summary.txt`, [`test-cost/report.md`](evidence/test-cost/report.md) | Any doc quoting a time names the run and date, and keeps it apart from the limit |
+| Browser commands, run results and finding the latest run | [BROWSER_CHECKS](BROWSER_CHECKS.md) "Running it" and "Where things live" | root README, build.md |
 | Engine size budget | [`engine-budget.mjs`](../packages/astraeus-site/tools/validate/engine-budget.mjs) | Design "Size budgets are split", BROWSER_CHECKS |
 | Page size budgets | [`load-budget.mjs`](../packages/astraeus-site/tools/validate/load-budget.mjs), planet view limits in `packages/astraeus-demo-planets/src/experiences/planets/viewLimits.json` | root README, Design |
 | Package pack limits | `LIMITS` in [`tools/check-packs.mjs`](../tools/check-packs.mjs) | [NPM_PACKAGING](NPM_PACKAGING.md), Design |

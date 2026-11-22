@@ -1,6 +1,6 @@
-// The one quick browser check (O-038 T-145): `npm run check:browser`. Starts its own dev server, runs the steps of the chosen tier (--tier quick|full, default full; --step <name> alone runs only the named steps,
+// The browser check (O-038 T-145; tiers O-086 T-388): `npm run check:browser`. Starts its own dev server, runs the steps of the chosen tier (--tier quick|full, default full; --step <name> alone runs only the named steps,
 // and with --tier adds them to the tier (O-094 T-424); --skip-examples leaves out the packed hello-* steps; --list prints them) one after another (one browser at a time) into
-// docs/evidence/browser-<UTC stamp>/, prints a line per step and a total, and exits non-zero on any failure or console error.
+// docs/evidence/browser-<UTC stamp>/ (browser-quick-… for the quick tier, browser-steps-… for a --step run), prints a line per step and a total, and exits non-zero on any failure or console error.
 import { runSet } from "./runner.mjs";
 import { loadLimits } from "../../../../tools/gate-limits.mjs";
 import { addedStepsLimit, selectSteps } from "./browser-steps.mjs";

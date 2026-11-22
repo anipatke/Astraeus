@@ -1,6 +1,6 @@
 # Browser validation policy
 
-Owner decisions (2026-10-17 to 2026-10-23); read before browser validation or changes to its scripts. The scenario and driver map is [BROWSER_CHECKS.md](../BROWSER_CHECKS.md).
+Owner decisions (2026-10-17 to 2026-10-23); read before browser validation or changes to its scripts. This file decides which browser steps run when; the commands, what each step protects, where results go and how to diagnose a failure are in [BROWSER_CHECKS.md](../BROWSER_CHECKS.md).
 
 - **Browser tiers (owner decision 1 of G-024, O-086; lightened by O-094 T-424, owner ticks P01 and P02, 2026-11-22).**
   - A Full Objective Check runs one browser command once. By default it is `npm run check:browser -- --tier quick --skip-examples`. When the Objective's diff touches any path in the list below it runs the quick tier plus the `look-out` step instead: `npm run check:browser -- --tier quick --step look-out --skip-examples`, adding `--step <name>` for each other full-tier step whose own paths (the second list) the diff touches. A release runs the full tier (`npm run check:browser`, or `-- --tier full`), every step including the four packed examples. When unsure whether a path counts, add its step. The steps are chosen by the checker from the diff; no script picks them.

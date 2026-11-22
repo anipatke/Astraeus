@@ -141,10 +141,11 @@ npm run check:engine-alone     # the engine alone, copied out, then typechecked,
 npm install
 npx playwright-core install chromium   # once
 npm test                               # unit tests
-npm run check:browser                  # the one quick browser check, under a minute
+npm run check:browser -- --tier quick  # every page and view, the phone journey, the packed examples
+npm run check:browser                  # the full tier: the quick steps plus the longer journeys (release run)
 ```
 
-The browser check loads every public page and demo view and runs two short journeys. Each run writes its results to a new folder under `docs/evidence/`. What it asserts, and where every older browser scenario went, is in [`docs/BROWSER_CHECKS.md`](docs/BROWSER_CHECKS.md). Set `PLAYWRIGHT_CORE` only to use another copy of the library.
+Each browser run writes its results to a new folder under `docs/evidence/`. What each step protects, its time limit, a dated measured time, how to find a run's results and how to diagnose a failure are in [`docs/BROWSER_CHECKS.md`](docs/BROWSER_CHECKS.md).
 
 Design notes and validation reports are in [`docs/`](docs/): [Spike 01](docs/ASTRAEUS_SPIKE_01.md), [Spike 02](docs/ASTRAEUS_SPIKE_02.md), [astronomy validation](docs/ASTRONOMY_VALIDATION.md), [Apollo 11 sources](packages/astraeus-demo-apollo11/credits/APOLLO11_SOURCES.md) and [donor provenance](docs/DONOR_PROVENANCE.md).
 

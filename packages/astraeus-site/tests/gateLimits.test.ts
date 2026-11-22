@@ -169,6 +169,22 @@ describe("docs state the same limits as the file", () => {
     expect(quick?.at(-1)).toBe(`${(limits.browser as { quickTotal?: number }).quickTotal} s`);
   });
 
+  // O-090 T-435: limits live in gate-limits.json and tables checked above; a measured time is a dated observation. Copied "about 125 s" claims went stale, so a doc
+  // line outside a table that quotes an elapsed time must carry the date of its measurement.
+  it.each([
+    "README.md",
+    "docs/BROWSER_CHECKS.md",
+    "docs/agents/browser-policy.md",
+    "docs/agents/verification.md",
+    "docs/agents/build.md",
+  ])("%s quotes no undated elapsed time outside its tables", (file) => {
+    const elapsed = /\b(about|under|took|in|around) (a|\d+(\.\d+)?) ?(s|sec|seconds?|min|minutes?)\b/i;
+    const undated = readFileSync(join(root, file), "utf8")
+      .split("\n")
+      .filter((line) => !line.startsWith("|") && elapsed.test(line) && !/\b20\d\d-\d\d-\d\d\b/.test(line));
+    expect(undated).toEqual([]);
+  });
+
   it("docs/BROWSER_CHECKS.md has a row per step ending in its limit", () => {
     const table = rows("docs/BROWSER_CHECKS.md");
     for (const [name, limit] of Object.entries(limits.browser.steps)) {
