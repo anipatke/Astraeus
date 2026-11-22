@@ -146,6 +146,8 @@ export class OrbitSetView {
   #lastTime = Number.NaN;
   #lastPlacement: ScenePlacement | null = null;
   #lastPolicyId = "";
+  /** Whether the last sync's per-frame budget ran out with paths still stale, so an unchanged frame still re-samples. */
+  #backlog = false;
   /** Float spans (start, end) of the path buffers changed since they were last flagged for upload; [Infinity, 0] when none. */
   #dirtyPositions: [number, number] = [Infinity, 0];
   #dirtySizes: [number, number] = [Infinity, 0];
@@ -342,7 +344,7 @@ export class OrbitSetView {
       this.#lastPlacement = null;
       return;
     }
-    if (this.#sameAsLast(timeUtcMs, placement, policy)) return;
+    if (this.#nothingToDo(timeUtcMs, placement, policy)) return;
     const offset = sceneOffsetKm(placement, group.center, timeUtcMs);
     this.#centreKm = [offset?.[0] ?? 0, offset?.[1] ?? 0, offset?.[2] ?? 0];
     this.#centre = eqjToRenderVector(policy.mapPosition(this.#centreKm));
@@ -356,6 +358,7 @@ export class OrbitSetView {
     const whole = policy.id !== this.#policyId;
     this.#policyId = policy.id;
     let budget = ORBITS_PER_FRAME;
+    this.#backlog = false;
     const start = this.#cursor;
     for (let k = 0; k < n; k += 1) {
       const m = (start + k) % n;
@@ -366,6 +369,8 @@ export class OrbitSetView {
         this.#sample(m, timeUtcMs, policy);
         budget -= 1;
         this.#cursor = (m + 1) % n;
+      } else if (moved >= 1) {
+        this.#backlog = true;
       }
     }
     for (let m = 0; m < n; m += 1) {
@@ -375,9 +380,17 @@ export class OrbitSetView {
     }
   }
 
-  /** Whether a sync's inputs equal the last full sync's; when not, records them and marks the heads stale. */
-  #sameAsLast(timeUtcMs: number, placement: ScenePlacement, policy: ScalePolicy): boolean {
-    if (timeUtcMs === this.#lastTime && placement === this.#lastPlacement && policy.id === this.#lastPolicyId)
+  /**
+   * Whether a sync can be skipped: its inputs equal the last full sync's and no path is left stale past the per-frame budget. When not,
+   * records the inputs and marks the heads stale.
+   */
+  #nothingToDo(timeUtcMs: number, placement: ScenePlacement, policy: ScalePolicy): boolean {
+    if (
+      !this.#backlog &&
+      timeUtcMs === this.#lastTime &&
+      placement === this.#lastPlacement &&
+      policy.id === this.#lastPolicyId
+    )
       return true;
     this.#lastTime = timeUtcMs;
     this.#lastPlacement = placement;

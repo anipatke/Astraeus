@@ -18,6 +18,10 @@ history:
     kind: observed
     note: 'C-205: Design.md:122 and packages/astraeus/CHANGELOG.md:28 give data-frames-drawn as the example of the readouts that now need the flag; LayeredRender.tsx:39 writes it every drawn frame, flag or not (planner decision 3 kept it on).'
     check: C-205
+  - at: '2026-11-22T02:10:06Z'
+    actor: {role: executor, session: orchestrate-g024-20261122}
+    kind: repair_attempted
+    note: 'Design.md `A lighter frame loop (O-087)` and CHANGELOG 0.10.0 entry now name only gated readouts (data-paths, data-points, data-body-screen, data-scene) as opt-in and say the cheap state attributes (data-frames-drawn, data-pick-hover, data-sky-lines, data-body-set-hover/-named) stay on.'
 ---
 
 # I-197: Design and the changelog name data-frames-drawn as an opt-in readout

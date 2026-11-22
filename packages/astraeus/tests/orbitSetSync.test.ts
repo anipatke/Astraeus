@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 import type { BufferAttribute, LineSegments } from "three";
 import { DEFAULT_BODY_SET_LOOK, familiesWithPalette, validateBodySet, type BodySetLayer } from "../src/app/bodySet";
 import { FloatingOrigin } from "../src/app/floatingOrigin";
-import { OrbitSetView } from "../src/app/OrbitSetView";
+import { ORBIT_HEAD_SUBSTEPS, ORBITS_PER_FRAME, OrbitSetView } from "../src/app/OrbitSetView";
 import type { ChebyshevEphemeris } from "../src/core/chebyshevEphemeris";
 import { createEphemerisGroup } from "../src/core/ephemerisGroup";
 import { createProvenance } from "../src/core/provenance";
@@ -160,5 +160,100 @@ describe.each([true, false])("orbit-set lines in an unchanged frame (balance poi
     const twin = new OrbitSetView(makeLayer(balance));
     for (let k = 0; k <= 100; k += 1) frame(twin, new FloatingOrigin(), T_START + k * HOUR_MS);
     expect(Array.from(positions.array)).toEqual(Array.from(buffers(twin).positions.array));
+  });
+});
+
+// I-196: a set with more paths than the per-frame budget, a clock step that leaves some stale, then the clock stops. Made-up bodies on
+// circular orbits about the same made-up GM (ARCH-03), radii 50,000 to 195,000 km.
+const MANY = 30;
+const manyIds = Array.from({ length: MANY }, (_, i) => `m${i}`);
+const manyRadiusKm = (id: string) => 50_000 + Number(id.slice(1)) * 5_000;
+const manyCircular = (id: string, timeUtcMs: number) => {
+  const r = manyRadiusKm(id);
+  const angle = Math.sqrt(GM / r ** 3) * ((timeUtcMs - T0) / 1000);
+  const speed = Math.sqrt(GM / r);
+  return {
+    p: [r * Math.cos(angle), r * Math.sin(angle), 0],
+    v: [-speed * Math.sin(angle), speed * Math.cos(angle), 0],
+  };
+};
+const manyFake = {
+  positionsKmInto(timeUtcMs: number, bodies: readonly string[], out: Float64Array) {
+    bodies.forEach((id, i) => out.set(manyCircular(id, timeUtcMs).p, 3 * i));
+  },
+  loadedFromUtcMs: () => T0 - 5 * 86_400_000,
+  stateOf(id: string, timeUtcMs: number) {
+    const { p, v } = manyCircular(id, timeUtcMs);
+    return createState({
+      body: id,
+      center: "jupiter",
+      timeUtcMs,
+      plane: EQJ,
+      positionKm: p,
+      velocityKmS: v,
+      orientation: null,
+    });
+  },
+} as unknown as ChebyshevEphemeris;
+function makeManyLayer(): BodySetLayer {
+  return validateBodySet({
+    id: "made-up-many",
+    group: createEphemerisGroup({
+      id: "made-up-many",
+      center: "jupiter",
+      ephemeris: () => manyFake,
+      members: manyIds,
+      bounds,
+      provenance,
+    }),
+    members: manyIds.map((id) => ({ id, label: id, radiusKm: 1, family: "all" })),
+    families: familiesWithPalette([{ id: "all", label: "All" }]),
+    bodyFamilies: {},
+    centreGmKm3S2: GM,
+  });
+}
+/** Per path: the gap (km) between the head's last fine point and the body, and how far the body moves in one fine step. */
+function headGaps(view: OrbitSetView): { gapKm: number; fineReachKm: number }[] {
+  return manyIds.map((id, m) => {
+    const points = view.headPointsKm(m);
+    const [a, b] = [points[points.length - 2], points[points.length - 1]];
+    const speed = Math.sqrt(GM / manyRadiusKm(id));
+    return {
+      gapKm: Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]),
+      fineReachKm: (speed * view.stepMs(m)) / ORBIT_HEAD_SUBSTEPS / 1000,
+    };
+  });
+}
+
+describe("orbit-set lines with a stale backlog when the clock stops (I-196)", () => {
+  const STEP_MS = 12 * HOUR_MS;
+
+  it("finishes re-sampling the stale paths in repeated syncs at the same time", () => {
+    const view = new OrbitSetView(makeManyLayer());
+    view.sync(T_START, placement, trueScale, true);
+    view.sync(T_START + STEP_MS, placement, trueScale, true);
+    const stale = headGaps(view).filter(({ gapKm, fineReachKm }) => gapKm > fineReachKm).length;
+    expect(MANY).toBeGreaterThan(ORBITS_PER_FRAME);
+    expect(stale, "the step leaves paths stale past the per-frame budget").toBeGreaterThan(0);
+    const afterStep = view.computed;
+    for (let k = 0; k < 10; k += 1) view.sync(T_START + STEP_MS, placement, trueScale, true);
+    expect(view.computed - afterStep).toBeGreaterThanOrEqual(stale);
+    for (const [m, { gapKm, fineReachKm }] of headGaps(view).entries())
+      expect(gapKm, manyIds[m]).toBeLessThanOrEqual(fineReachKm);
+  });
+
+  it("makes no source reads in an unchanged frame once nothing is stale", () => {
+    const view = new OrbitSetView(makeManyLayer());
+    view.sync(T_START, placement, trueScale, true);
+    view.sync(T_START + STEP_MS, placement, trueScale, true);
+    for (let k = 0; k < 10; k += 1) view.sync(T_START + STEP_MS, placement, trueScale, true);
+    const reads = vi.spyOn(manyFake, "positionsKmInto");
+    const states = vi.spyOn(manyFake, "stateOf");
+    const computed = view.computed;
+    view.sync(T_START + STEP_MS, placement, trueScale, true);
+    expect(reads.mock.calls.length + states.mock.calls.length).toBe(0);
+    expect(view.computed).toBe(computed);
+    reads.mockRestore();
+    states.mockRestore();
   });
 });

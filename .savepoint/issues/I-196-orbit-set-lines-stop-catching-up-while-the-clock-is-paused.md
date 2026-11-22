@@ -18,6 +18,10 @@ history:
     kind: observed
     note: 'C-205 probe: 30-path made-up set, sync at T, then T + 12 h (18 paths left stale past the per-frame budget of 12), then 10 more syncs at the same time. main: 18 paths re-sampled during the paused frames, worst head chord 27,872 km -> 1,050 km. O-087: 0 re-sampled, chord stays 27,872 km.'
     check: C-205
+  - at: '2026-11-22T02:14:12Z'
+    actor: {role: executor, session: repair-o087-c205-20261122}
+    kind: repair_attempted
+    note: 'OrbitSetView.sync keeps a #backlog flag (set when the per-frame budget runs out with a path still a step or more behind, cleared on each full sync); the unchanged-input early-out (#nothingToDo, was #sameAsLast) skips only when no path is stale. New orbitSetSync.test.ts cases (30 paths, 12 h step, 10 paused syncs): red on the old code (18 stale, 0 re-sampled), green after (every head gap within one fine step; then 0 source reads in an unchanged frame). Gates green; check:pack 1,836,247 B raw.'
 ---
 
 # I-196: Orbit-set lines stop catching up while the clock is paused

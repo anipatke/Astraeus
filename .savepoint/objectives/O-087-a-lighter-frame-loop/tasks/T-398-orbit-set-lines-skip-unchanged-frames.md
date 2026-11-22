@@ -89,3 +89,25 @@ None.
 ## Coordinator
 
 Set done by the orchestrating session after the combined handoff gates passed with T-395, T-397, T-398, T-399 together (owner: "I mark them as they pass", O-038; G-024 decision 7 "Orchestrate each objective to completion"; "carry on orchestrating G-024", 2026-11-22): lint and Prettier clean, typecheck clean, build ok, `npm test` 321 files, 5147 passed, 3 skipped; `npm run check:pack` engine budget 1,835,598 B raw (limit 1,836,000), 525,328 B gzip (limit 527,000).
+
+## Repair (C-205, I-196)
+
+Repair builder, session repair-o087-c205-20261122, 2026-11-22. Status and stage left as they were (done).
+
+**Cause confirmed.** `sync`'s unchanged-input early-out (`#sameAsLast`) returned before the budgeted stale-path loop, so after a clock step that left more than `ORBITS_PER_FRAME` paths stale, the remainder were never re-sampled while the clock stayed paused. The new test reproduced it on the old code: 18 paths stale after the step, 0 re-sampled over 10 paused syncs (`expected 0 to be greater than or equal to 18`, `orbitSetSync.test.ts`).
+
+**Fix** (`packages/astraeus/src/app/OrbitSetView.ts`). A `#backlog` flag is cleared at the start of each full sync's budget loop and set when a path is a step or more behind but the budget has run out. The early-out helper, renamed `#nothingToDo`, skips only when the inputs are unchanged and `#backlog` is false; otherwise it records the inputs and marks the heads stale as before. The single dirty span, the hidden-set behaviour and the unchanged-frame 0-reads behaviour are unchanged. The check is folded into the helper so `sync` stays within the lint complexity cap of 20.
+
+**Proof Needed -> evidence**
+
+| Proof Needed item | Evidence |
+|---|---|
+| More paths than `ORBITS_PER_FRAME`, a clock step that leaves paths stale, repeated same-time syncs finish re-sampling them, every head within its fine-point reach | New case `orbit-set lines with a stale backlog when the clock stops (I-196) > finishes re-sampling the stale paths in repeated syncs at the same time`: 30 made-up circular orbits, sync at T then T + 12 h, asserts paths are stale and 30 > 12, then 10 syncs at T + 12 h re-sample at least that many and every path's last-fine-point-to-body gap is at most the distance the body moves in one fine step. Red before the fix, green after. |
+| Once nothing is stale, an unchanged frame still makes 0 source reads | New case `... > makes no source reads in an unchanged frame once nothing is stale` (0 `positionsKmInto` + `stateOf` calls, `computed` unchanged). The existing `does not resample when nothing changed` cases pass unchanged. |
+| `orbitSetSync.test.ts`, `plutoOrbitLines.test.ts`, `bodySet.test.ts` pass unchanged; engine size check passes | No existing case or fixture changed (the new cases use their own 30-body fake). The three files pass, 26 tests. `npm run check:pack`: pass, engine 1,836,247 B raw (limit 1,838,000), 525,636 B gzip (limit 527,000). |
+
+**Gates** (run under the gates lock): `npm run lint` clean (Prettier clean), `npm run typecheck` clean, `npm run build` ok, `npm test` 322 files, 5159 passed, 3 skipped, `npm run check:pack` pass (values above). No browser runs.
+
+**Files changed:** `packages/astraeus/src/app/OrbitSetView.ts`, `packages/astraeus/tests/orbitSetSync.test.ts` (two new cases appended, plus the `ORBIT_HEAD_SUBSTEPS`/`ORBITS_PER_FRAME` import).
+
+**Drift notes:** None. The fix brings back the catch-up behaviour main had. Design's `### A lighter frame loop (O-087)` description of the early-out may say "only when nothing is left stale"; the coordinator can decide whether to add that.
