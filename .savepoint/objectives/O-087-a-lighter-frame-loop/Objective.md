@@ -1,7 +1,7 @@
 ---
 id: O-087
 title: A lighter frame loop
-status: planned
+status: done
 depends_on: [O-086]
 release: G-024
 priority: medium
@@ -53,3 +53,4 @@ AH-09 (all three): `sceneFrame.ts` projects paths, samples up to 512 points per 
   8. Engine size: about 1.6 KB headroom; per-Task allowances 02 ≤400 B, 03 ≤600 B, 04 ≤200 B, 05 ≤400 B, 06 ≤300 B. A red size check parks the Objective with measured options for the owner (G-024 decision 7).
 - Waves: T-394 first (its baseline is recorded before any other Task merges), then T-395, T-397, T-398, T-399; T-396 after T-395; then T-400 and T-401.
 - PARKED 2026-11-22 (owner: "I am remote now, add park the check and move on"; G-024 decision 7): branch `o087-lighter-frame-loop` left unmerged. Waiting on T-401 (owner look on localhost:5490) and the Full Objective Check (full browser tier, since labels changed after T-400's run). Owner choices during the run: "Raise cap by 2,000 B" (engine raw 1,838,000) and "Update the test" (skyFigures collision assertion). O-088 is built on top of this branch, so O-087 merges first.
+- Owner 2026-11-22 look: "1. Works fine, but they sit over their object which is OK ? 2. Yes 3.Y 4Y 5Y" (T-401, accepted under C-206). O-087 set done by the orchestrating session after re-check C-206 CLEAR (C-205 NEEDS WORK on I-196, I-197, both verified) (G-024 decision 7, "Orchestrate each objective to completion"; "CLEAR: fast-forward merge to main and push").

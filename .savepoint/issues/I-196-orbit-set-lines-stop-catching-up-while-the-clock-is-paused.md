@@ -2,14 +2,19 @@
 id: I-196
 title: Orbit-set lines stop catching up while the clock is paused, so stale paths keep a straight chord at their head
 type: defect
-status: open
+status: resolved
+resolution:
+  disposition: verified
+  check: C-206
+  actor: {role: checker, session: recheck-o087-20261122}
+  at: '2026-11-22T02:19:15Z'
 source:
   kind: check
   check: C-205
   actor: {role: checker, session: check-o087-orchestrator-20261122}
   at: '2026-11-22T02:03:31Z'
 tasks: [T-398]
-checks: [C-205]
+checks: [C-205, C-206]
 guardrail_ids: [TEST-01]
 severity: low
 history:
@@ -22,6 +27,11 @@ history:
     actor: {role: executor, session: repair-o087-c205-20261122}
     kind: repair_attempted
     note: 'OrbitSetView.sync keeps a #backlog flag (set when the per-frame budget runs out with a path still a step or more behind, cleared on each full sync); the unchanged-input early-out (#nothingToDo, was #sameAsLast) skips only when no path is stale. New orbitSetSync.test.ts cases (30 paths, 12 h step, 10 paused syncs): red on the old code (18 stale, 0 re-sampled), green after (every head gap within one fine step; then 0 source reads in an unchanged frame). Gates green; check:pack 1,836,247 B raw.'
+  - at: '2026-11-22T02:19:15Z'
+    actor: {role: checker, session: recheck-o087-20261122}
+    kind: rechecked
+    note: 'C-206: repair proven. New orbitSetSync.test.ts backlog case fails on 994ce09e OrbitSetView.ts and passes on 89f0deaf; independent probe (3 play steps, hidden 5 frames, shown, paused) reaches 0 source reads within 4 frames with every head within one fine step; unchanged-frame early-out kept; orbitSetSync, plutoOrbitLines, bodySet and check:pack pass.'
+    check: C-206
 ---
 
 # I-196: Orbit-set lines stop catching up while the clock is paused

@@ -2,10 +2,9 @@
 id: T-401
 title: Owner look at the unchanged picture
 objective: O-087
-status: in_progress
-stage: audit
+status: done
 depends_on: [{task: T-395, requires: clear}, {task: T-396, requires: clear}, {task: T-397, requires: clear}, {task: T-398, requires: clear}, {task: T-399, requires: clear}]
-owner_validation: {required: true}
+owner_validation: {required: true, accepted_check: C-206, accepted_by: {role: owner, session: orchestrate-g024-20261122}}
 check_waiver: {task: T-401, reason: 'Owner said "work through this list of objectives one by one. Orchestrate each objective to completion" (G-024 decision 7) and "carry on orchestrating G-024" (2026-11-22): standing orchestration rules waive the optional step checks; the mandatory Full Objective Check covers the whole diff.', actor: {role: owner, session: orchestrate-g024-20261122}, recorded_at: '2026-11-21T22:11:52Z'}
 planned_by: {role: planner, session: orchestrate-g024-20261121}
 lane: owner-look

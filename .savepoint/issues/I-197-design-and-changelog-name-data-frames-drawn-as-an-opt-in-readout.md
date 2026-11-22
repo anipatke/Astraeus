@@ -2,14 +2,19 @@
 id: I-197
 title: Design and the changelog name data-frames-drawn as an opt-in readout, but it is always written
 type: drift
-status: open
+status: resolved
+resolution:
+  disposition: verified
+  check: C-206
+  actor: {role: checker, session: recheck-o087-20261122}
+  at: '2026-11-22T02:19:15Z'
 source:
   kind: check
   check: C-205
   actor: {role: checker, session: check-o087-orchestrator-20261122}
   at: '2026-11-22T02:03:31Z'
 tasks: [T-400]
-checks: [C-205]
+checks: [C-205, C-206]
 guardrail_ids: []
 severity: low
 history:
@@ -22,6 +27,11 @@ history:
     actor: {role: executor, session: orchestrate-g024-20261122}
     kind: repair_attempted
     note: 'Design.md `A lighter frame loop (O-087)` and CHANGELOG 0.10.0 entry now name only gated readouts (data-paths, data-points, data-body-screen, data-scene) as opt-in and say the cheap state attributes (data-frames-drawn, data-pick-hover, data-sky-lines, data-body-set-hover/-named) stay on.'
+  - at: '2026-11-22T02:19:15Z'
+    actor: {role: checker, session: recheck-o087-20261122}
+    kind: rechecked
+    note: 'C-206: Design `A lighter frame loop (O-087)` and CHANGELOG 0.10.0 name gated readouts (data-paths, data-points, data-body-screen) as opt-in and say data-frames-drawn and the other cheap attributes stay on, matching LayeredRender.tsx:39.'
+    check: C-206
 ---
 
 # I-197: Design and the changelog name data-frames-drawn as an opt-in readout

@@ -2,8 +2,7 @@
 id: T-400
 title: Record profiles after and reconcile Design
 objective: O-087
-status: in_progress
-stage: audit
+status: done
 depends_on: [{task: T-394, requires: clear}, {task: T-395, requires: clear}, {task: T-396, requires: clear}, {task: T-397, requires: clear}, {task: T-398, requires: clear}, {task: T-399, requires: clear}]
 owner_validation: {required: false}
 check_waiver: {task: T-400, reason: 'Owner said "work through this list of objectives one by one. Orchestrate each objective to completion" (G-024 decision 7) and "carry on orchestrating G-024" (2026-11-22): standing orchestration rules waive the optional step checks; the mandatory Full Objective Check covers the whole diff.', actor: {role: owner, session: orchestrate-g024-20261122}, recorded_at: '2026-11-21T22:11:52Z'}
