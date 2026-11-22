@@ -374,8 +374,13 @@ handle.part(chips).onSelect(({ values, cause }) => ...);   handle.part(chips).se
 
 ```
 app/style.css          the one stylesheet entry (published as astraeus/style.css): @imports every sheet below, in cascade order
+app/DeveloperDrawer.tsx the Developer drawer (header, eight folds, the readings only it shows): one component, loaded
+                       on demand through app/developerPanels.tsx (O-089)
 shell/
-  AstraeusShell.tsx    composition: state → areas, bar, panels (selection and camera-preset logic still here)
+  AstraeusShell.tsx    composition: state → areas, bar, panels (camera-preset logic still here; the selection is
+                       the viewer's store, handed in as one prop)
+  selection/           selection.ts: one viewer's selected object and who may change it, plain state the shell
+                       reads with useSyncExternalStore (O-089)
   look/                look.css (every raw value), interfaceLook.ts (public settings → CSS vars)
   areas/               screen.ts (layout attributes), areas.css (grid, the only @media), Area.tsx
   bar/                 barItems.ts (plain data), barEntries.tsx (state → items), fitBar.ts (pure),
@@ -391,7 +396,7 @@ shelf/                 part.ts (registry, checks, public descriptor types), useC
                        per part (O-080/81): factory.ts, View.tsx, part.css (when it has rules; loaded by app/style.css)
 ```
 
-As built, the planned `selection/` folder and the one-folder-per-part split of `parts/` (components and sheets) were not done in O-079; the tree above is the code. A later split moves a part's component and rules together.
+As built, the one-folder-per-part split of `parts/` (components and sheets) was not done in O-079 and is still not; the `selection/` folder planned then was built in O-089. The tree above is the code. A later split moves a part's component and rules together.
 
 Each module starts with a header comment saying its one job and what it must not do:
 
@@ -399,7 +404,7 @@ Each module starts with a header comment saying its one job and what it must not
 - `areas`: positions and layers. Knows no part.
 - `fitBar` and `panelRule`: pure. No React, no DOM, no timers.
 - A part draws its content and reports intents (`open`, `close`, `choose`). It never sets `position`, `z-index` or a raw colour or size, and never opens or closes another part.
-- `selection`: never touches placement.
+- `selection`: never touches placement, panels, the camera or React.
 
 **Add a bar item** (checked against the code, I-187):
 
@@ -424,6 +429,22 @@ Each module starts with a header comment saying its one job and what it must not
 - `@media` outside `areas.css`.
 
 It allows `var(--astraeus-*)`, `calc()` and `color-mix(in srgb, var(--astraeus-*) N%, …)` of tokens, `%`, `fr` and unitless numbers. Data-driven colours (group or place colours set at run time) are not literals and pass. There is no allowlist for stylesheets. Since I-186 it also scans the non-test TypeScript under `src/shell`: a typed colour in a string fails outside `shell/look/`, and a default inside it must equal a `look.css` token (its `KNOWN` list names one place-marker fallback left for an owner decision). A header check (`tests/interfaceHeaders.test.ts`) fails on an interface module without its header.
+
+
+### Move one behaviour out of the coordinator (the slice pattern, O-089)
+
+`App` and `AstraeusShell` still coordinate most behaviour between them. O-089 moved one behaviour, the selection, out of both; later Objectives move one slice each the same way. Checked against the code (the I-187 style); read `src/shell/selection/selection.ts`, `tests/selectionStore.test.ts` and `tests/selectionOwner.test.ts` (all under `packages/astraeus/`) as the worked example.
+
+1. **A plain per-viewer module.** Write `src/shell/<behaviour>/<behaviour>.ts` with the two-line header (its one job; what it must not touch) and add the folder to the list in `tests/interfaceHeaders.test.ts`. It exports a factory (`createSelection(start)`) that returns the store: `snapshot()` (a frozen object, the same object until something changes), `subscribe(listener)`, plain reads (`id()`) and the writes each caller is allowed (`choose`, `ask`). No React, no module-level state: everything lives inside the factory, so two viewers on one page never share it.
+2. **`App` creates it per scene** (`useMemo(() => createSelection(...), [runtime])`, its opening value read once) and hands it to the shell as one prop (`selection={selection}`), replacing the value, the change callback and the request props it took before (the shell went from 46 props to 44). If the shell's module re-exports the factory (`AstraeusShell.tsx` re-exports `createSelection`), whoever renders the shell needs no deep import (the ARCH-03 deep-import count in `packages/astraeus-site/tests/packageBoundaries.test.ts` may only go down).
+3. **The shell reads it with `useSyncExternalStore(store.subscribe, store.snapshot, store.snapshot)`.** The third argument, the server snapshot, is needed because tests render the shell with `renderToStaticMarkup`. Each of the shell's own paths (menu choice, pick, preset, marker, view-switch drop) calls the module (`selection.choose(id, "visitor" | "move")`) instead of a local `useState` and a callback pair.
+4. **Host calls write the module at once and leave an ask.** `App.hostSetSelected` calls `selection.ask(id, false)` (a story panel's select calls `ask(id, true)`, quiet): the value changes at once, so the host reads it back in order, and the ask waits. The shell takes the ask after its own rules, in one effect (the view-switch effect ends with `applyAskedCard(selection.takeAsk(), …)`, so the host's call is the last word over the fallback and the view rule), never through a serial prop. While an ask waits, the shell's older `choose` is ignored. `takeAsk` does not notify; the effect lists the ask object so an ask for the id already selected is still taken.
+5. **The scene reads it through a getter on `SceneControls`**, never a written copy: `get selectedObjectId() { return selection.id(); }` in the controls object literal (`initialSceneControls`, `App.tsx`), typed `readonly`. Being written in the literal, it is an own enumerable property, which `controlsChanged`'s `for…in` walk needs; `selectionOwner.test.ts` pins that and that a paused scene sees a change.
+6. **The host publish hangs off the module's move listener**: one `selection.onMove` in `App` publishes to the host only while attached. Asks are not moves, so a story panel's select reports nothing to `onSelect` (as before the move).
+7. **Tests.** A node table for the module alone (`selectionStore.test.ts`: every write, notify against move, snapshot identity, two stores independent). A both-paths table (`mount` and `AstraeusScene`) of every path that changes the behaviour, written first and green on the base before any code moves, then unchanged (`selectionOwner.test.ts`, 14 paths). The existing lifecycle, two-viewer and host-order suites (`lifecycle.test.ts`, `twoViewers.test.ts`, `hostCallOrder.test.ts`) stay unchanged; tests that mount the shell directly change only the props they hand it.
+8. **Engine size.** Measure the first-open total (`npm run measure:example`) before and after, against the limit in `packages/astraeus-site/tools/validate/engine-budget.mjs`. Pay for growth by moving on-demand code out of the first-open chunk where you can: O-089 moved the whole Developer drawer into one on-demand `DeveloperDrawer` chunk (first open 9,723 B raw smaller), and the selection move itself cost nothing (−275 B).
+
+Next candidates, one slice each: story playback; the camera fallback, with the scene-pick serial prop `pickRequest` it still uses; then the settings `App` mirrors into the shell. Also open: `App` and the shell re-render ten times a second while playing (the clock interval in `App`); moving playback is the slice that can end that. Left over from O-089: `initialObjectIdOf` (`app/experienceDefinition.ts`) has no caller in `src` (only tests: `experiencesContract`, `publicApiSunPaths`, `publicApiOpeningSelection`), a removal candidate.
 
 ## 10. Shared look
 

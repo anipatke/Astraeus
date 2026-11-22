@@ -2,7 +2,7 @@
 id: T-421
 title: Slice pattern written down and Design brought up to date
 objective: O-089
-status: planned
+status: done
 depends_on: [{task: T-418, requires: clear}, {task: T-420, requires: clear}]
 owner_validation: {required: false}
 check_waiver: {task: T-421, reason: 'Owner said "work through this list of objectives one by one. Orchestrate each objective to completion" (G-024 decision 7) and "carry on orchestrating G-024" (2026-11-22): standing orchestration rules waive the optional step checks; the mandatory Full Objective Check covers the whole diff.', actor: {role: owner, session: orchestrate-g024-20261122}, recorded_at: '2026-11-22T03:09:26Z'}
@@ -89,8 +89,49 @@ Docs and Design only, plus the one browser run. No code change, no README change
 
 ## Technical Evidence
 
-Pending execution.
+Extra reads (beyond Context Files): `packages/astraeus/src/app/App.tsx` and `src/shell/AstraeusShell.tsx` by grep only (selection wiring, `pickRequest`, the 100 ms interval; both in planned_reads); `.savepoint/Design.md` line 134 and `## Current Technical State` (to see whether size/gate figures it quotes changed); `git ls-files` to confirm two paths the recipe names. Base for figures: `9e31cb2a` (O-089 plan commit, before T-418).
+
+| Done When | Evidence |
+|---|---|
+| §9 tree shows `shell/selection/` and `app/DeveloperDrawer.tsx` (on demand) | `docs/architecture/viewer-interface.md` §9 tree: two new entries |
+| `AstraeusShell.tsx` line no longer says selection kept there; camera-preset still is | same tree line: "camera-preset logic still here; the selection is the viewer's store, handed in as one prop" |
+| "planned `selection/` folder … not done in O-079" corrected | now: per-part split still not done; `selection/` built in O-089. The `selection` header bullet widened to match the module header (placement, panels, camera, React) |
+| New subsection, 8 numbered steps checked against code, next candidates, files to read | `### Move one behaviour out of the coordinator (the slice pattern, O-089)` at the end of §9; each step checked against `selection.ts`, `App.tsx` (useMemo per runtime, `ask`, `onMove`, getter in `initialSceneControls`), `AstraeusShell.tsx` (`useSyncExternalStore` with server snapshot, `choose`, `applyAskedCard(selection.takeAsk(), …)`, `createSelection` re-export); names story playback, camera fallback with `pickRequest`, mirrored settings; reads `selection/selection.ts`, `tests/selectionStore.test.ts`, `tests/selectionOwner.test.ts` |
+| Every path the subsection names exists | `ls` of 17 named paths: all present (first run caught `tests/packageBoundaries.test.ts` and `tools/validate/engine-budget.mjs` living under `packages/astraeus-site/`; the note now names those full paths) |
+| Design `Host calls land in order` | `selectRequest`/`updateSelectedObject` sentence replaced by the selection module's `ask`, taken last in the view-switch effect after the fallback and view rule |
+| Design `Viewer interface` one line | new `**Selection** (O-089)` bullet naming `shell/selection/selection.ts` and pointing to the §9 slice pattern |
+| Design `Good guest` item 3 | names `app/DeveloperDrawer.tsx`, one on-demand component loaded through `app/developerPanels.tsx` |
+| Design `Current Technical State` | unchanged: it quotes no engine-size or test-count figure that changed (line 134 quotes only the limit, unchanged; browser tier times ~320 s still match this run's 310 s) |
+| Figures | below |
+| Browser full tier once | below: exit 0, all 12 steps pass |
+| Gates | `npx prettier --check docs/architecture/viewer-interface.md .savepoint/Design.md`: clean. Full gate is the coordinator's wave-3 run |
+
+Figures (base `9e31cb2a` -> now `4727f062`, src unchanged since):
+- `App.tsx` 1,574 -> 1,174 lines; `App` function span lines 392-1574 (1,183 lines) -> 358-1174 (817 lines).
+- `AstraeusShell.tsx` 924 -> 920 lines.
+- Shell `Props` fields: 46 -> 44 (the Task text expected "46 on the base and now"; T-420 removed three selection props and added `selection`, so 44 is the as-built figure).
+- `useState` calls in `App`: 42 -> 36.
+- `npm run measure:example` first-open total: 1,826,428 B raw / 523,400 B gzip (limit 1,838,000 / 527,000; C-208 base 1,836,426 / 525,714). Headroom 11,572 B raw / 3,600 B gzip, so O-092's ~900 B fits. `DeveloperDrawer` on-demand chunk 24,898 B raw.
+
+Browser: `npm run check:browser -- --tier full`, head `4727f062` (working tree differs only in the two docs and this file), 2026-11-22T03:26:27Z-03:31:37Z, exit 0, total 310 s (limit 450 s). Evidence: `docs/evidence/browser-20261122T032627Z/` (summary.txt + per-step results.json). Steps, all exit 0, error-lines 0: smoke 44 s, synthetic-journey 67 s, smoke-public-showers 5 s, planets-phone 12 s, meteor-shower 16 s, views 21 s, look-out 72 s, catalogue 6 s, hello-scene 12 s, hello-react 3 s, hello-planets 4 s, hello-sky 22 s. If T-422 leads to a code repair after this run, the run no longer matches the head and the Full Objective Check must rerun the tier.
+
+Drift notes from T-418..T-420, accounted for:
+- T-418 drawer as one on-demand component: reflected (Design Good guest item 3; note §9 tree and slice step 8). `docs/evidence/o043-bundle-baseline.md` line 54 is historical, unchanged.
+- T-419 `selection/` not built: reflected (note §9 sentence and tree).
+- T-420 host selection order: reflected (Design Host calls land in order). Selection lives in a module: reflected (Design Viewer interface bullet; note §9).
+- T-420 `initialObjectIdOf` without a src caller: non-architectural (dead helper, no design rule depends on it); recorded as a removal candidate at the end of the slice subsection; no code deleted (still used by `experiencesContract`, `publicApiSunPaths`, `publicApiOpeningSelection` tests).
+- T-420 coordinator `createSelection` re-export from the shell (ARCH-03 count): reflected in slice step 2.
+- T-420 server snapshot for `useSyncExternalStore`: reflected in slice step 3.
+- T-420 story-panel select reports nothing to `onSelect`: reflected in slice step 6 (unchanged from base).
+- T-420 `domSetup.ts` `MountOptions.selection`: test wiring, non-architectural.
+- PLAN question 6, 10 Hz playing re-render: noted in the subsection's next-candidates paragraph as the playback slice's job.
+
+Files changed: `docs/architecture/viewer-interface.md`, `.savepoint/Design.md`, this Task file. No code, README or CHANGELOG change.
 
 ## Drift Notes
 
-None expected; this Task reconciles drafts 01-03.
+None: this Task reconciles drafts 01-03 (see above).
+
+## Coordinator (gates)
+
+Docs-only Task: Prettier clean on both docs; the full browser tier ran green on head 4727f062 (evidence `docs/evidence/browser-20261122T032627Z/`, 12 steps exit 0). Set done by the orchestrating session (owner: "I mark them as they pass", O-038; G-024 decision 7; owner 2026-11-22 "carry on orchestrating G-024"). If the T-422 owner look forces a code repair, the Full Check reruns the tier.
