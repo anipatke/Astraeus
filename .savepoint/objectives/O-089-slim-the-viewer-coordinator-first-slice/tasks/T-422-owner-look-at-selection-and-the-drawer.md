@@ -2,7 +2,8 @@
 id: T-422
 title: Owner look at selection and the drawer
 objective: O-089
-status: planned
+status: in_progress
+stage: audit
 depends_on: [{task: T-418, requires: clear}, {task: T-420, requires: clear}]
 owner_validation: {required: true}
 planned_by: {role: planner, session: orchestrate-g024-20261121}
@@ -63,6 +64,8 @@ TEST-01.
 No code, no screenshots (browser policy). Offline owner: park per G-024 decision 7 ("Park it, move to the next").
 
 ## Technical Verification
+
+Owner answer, 2026-11-22T03:42:37Z (on localhost:5490, dev server from branch o089-slim-viewer-coordinator at f4c43e2f, which contains T-418..T-421): step 1 "focus on saturn after overview does nothing"; after the rest, "check steps look good otherwise". Coordinator: reproduced the Focus/Overview framing headless with the shared driver on the branch and on main before O-089 (fcde39b5) with identical readouts (opening r 57.1 px; after Focus, Overview and Focus again r 7 px, centred), so it predates O-089; owner chose "Log it for later" -> I-200. The two "stuck on loading" reports were the preview server (stale after 19 h, then a checkout switch under it), not the code: a fresh server loads planets and Apollo 11 headless with no errors -> I-201 (preview tooling repair). No repair to T-418 or T-420 needed.
 
 Owner validation only.
 
