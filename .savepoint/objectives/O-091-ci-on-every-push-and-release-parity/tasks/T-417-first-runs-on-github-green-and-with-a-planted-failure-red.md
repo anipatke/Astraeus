@@ -2,7 +2,7 @@
 id: T-417
 title: First runs on GitHub, green and with a planted failure red
 objective: O-091
-status: planned
+status: done
 depends_on: [{task: T-416, requires: clear}]
 owner_validation: {required: false}
 check_waiver: {task: T-417, reason: 'Owner said "work through this list of objectives one by one. Orchestrate each objective to completion" (G-024 decision 7) and "I am remote now, add park the check and move on" (2026-11-22): standing orchestration rules waive the optional step checks; the mandatory Full Objective Check covers the whole diff.', actor: {role: owner, session: orchestrate-g024-20261122}, recorded_at: '2026-11-21T23:30:07Z'}
@@ -58,7 +58,7 @@ No file edits on the O-091 branch (evidence lives in this Task's record). No rel
 
 ## Technical Evidence
 
-Pending execution.
+Post-merge `main` push (cd3aa451, 2026-11-22T02:44:01Z): `ci` run https://github.com/anipatke/Astraeus/actions/runs/44977434703 — conclusion success. `gates (22)` 02:44:04Z–02:47:25Z (3 min 21 s), `gates (24)` 02:44:04Z–02:48:42Z (4 min 38 s); every step green. The GitHub red run and the release dry run were not run, by owner rule (Objective Decisions); the local evidence is T-416's planted copies (now 23, after I-198) and T-414's local release steps.
 
 ## Drift Notes
 
