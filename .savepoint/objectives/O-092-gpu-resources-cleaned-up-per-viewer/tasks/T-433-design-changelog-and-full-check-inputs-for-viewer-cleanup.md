@@ -1,0 +1,71 @@
+---
+id: T-433
+title: Design, changelog and Full Check inputs for viewer cleanup
+objective: O-092
+status: planned
+depends_on: [{task: T-427, requires: clear}, {task: T-428, requires: clear}, {task: T-429, requires: clear}, {task: T-430, requires: clear}, {task: T-431, requires: clear}, {task: T-432, requires: clear}]
+owner_validation: {required: false}
+check_waiver: {task: T-433, reason: 'Owner said "work through this list of objectives one by one. Orchestrate each objective to completion" (G-024 decision 7) and "Carry on" (2026-11-22): standing orchestration rules waive the optional step checks; the mandatory Full Objective Check covers the whole diff.', actor: {role: owner, session: orchestrate-g024-20261122}, recorded_at: '2026-11-22T04:52:00Z'}
+planned_by: {role: planner, session: orchestrate-g024-20261121}
+lane: integration
+planned_reads: [.savepoint/Design.md, packages/astraeus/CHANGELOG.md, packages/astraeus/README.md, docs/agents/browser-policy.md, docs/agents/verification.md, docs/agents/build.md]
+planned_writes: [.savepoint/Design.md, packages/astraeus/CHANGELOG.md]
+---
+
+# Design, changelog and Full Check inputs for viewer cleanup
+
+## Outcome
+
+Design and the changelog describe how viewers now clean up after themselves, every drift note from drafts 02–06 is accounted for, and the Full Check has what it needs: the engine size after all merges, the list of tests that prove each success condition, and the browser command and extra gates the diff calls for under the O-094 rules.
+
+## User Check
+
+None visual. The owner reads the 0.10.0 changelog lines.
+
+## Done When
+
+- `.savepoint/Design.md` under `Good guest` gains one item (7) in the existing style: no GPU picture is shared between viewers (each dot, anchor and halo material makes its own; body pictures are cloned per use from the page cache, and a failed one is retried at the next mount); every view that makes GPU objects has `dispose`, called when its viewer or view set goes, held by `tests/viewDisposal.test.ts` and its scan; picture-load wake-ups are one reference-counted hook on three's default loading manager (`app/loadingWakes.ts`); context loss is handled by three's own renderer (`tests/contextLoss.test.ts`); planet-series and star-file loads are retried after a failure; the two-viewer browser step (`two-viewers`, `journey-two-viewers.mjs`, full tier, added to a Full Check by its browser-policy row). Each of drafts 02–06's drift notes is listed in Technical Evidence as reflected there or as not architectural, with a reason (project rule: deferred Design reconciliation).
+- `packages/astraeus/CHANGELOG.md`: in the `## 0.10.0 (proposed)` section (~5; read only that top section, project rule "read docs by section"), short plain `- Fixed:` lines in the style the section uses, above its `### Breaking changes in 0.10.0` subheading: two viewers on one page no longer affect each other when one is removed; GPU memory is freed when a viewer is removed; a failed planet, star or body-picture load is tried again on the next load or mount. No API change is listed because there is none.
+- `packages/astraeus/README.md` is checked by heading for any statement about shared pictures, unmount or context loss (`rg -n -i 'dispose|unmount|context' packages/astraeus/README.md`); a now-false statement is reported to the coordinator, not edited here (O-090 owns README trims).
+- Technical Evidence holds, for the Full Check:
+  - engine size from `npm run check:pack` on the merged head, against the limit (1,838,000 B raw) and the O-092 start (1,826,428 B at C-211 unless O-092 started later; sum of drafts 02–05 allowances 900 B against about 11.5 KB headroom);
+  - a table from each Objective success condition to its test file and case names, or browser step and assertion;
+  - the Full Check's commands under the O-094 rules (`docs/agents/verification.md`, `docs/agents/browser-policy.md` "Browser tiers", `docs/agents/build.md`): `quality_gates` with `npm test` (not `test:full`); `npm run check:pack` (engine size); `npm run check:three-newest` (this Objective changes three usage: texture clones, sprite geometry clones, disposal, and pins three's renderer source; build.md runs it for such Objectives); one browser command, `npm run check:browser -- --tier quick --step look-out --step two-viewers --skip-examples` (`look-out` because `dotMaterial.ts`, `PointsView.ts` and `KeplerPoints.ts` are Shaders paths, and `assets/sky.ts` star loading plus any `SkyView.ts`/`SkyFiguresView.ts` change are Sky paths; `two-viewers` by draft 01's policy row; no other full-tier step's paths are touched unless the merged diff says otherwise, which this item re-checks with `git diff --stat` against the O-092 base; examples skipped because no packaging, `examples/` or public API file changes, re-checked against `api-surface.lock.json`); `check:engine-alone` not run (no engine import, `package.json` or build config change; re-check the diff).
+- Gates per `docs/agents/verification.md`.
+
+## Context Files
+
+- `.savepoint/Design.md` under `Good guest`
+- `packages/astraeus/CHANGELOG.md` (the newest section only: `grep -n '^## '` first)
+- Drift Notes and Technical Evidence of drafts 01–06
+
+## Design References
+
+`.savepoint/Design.md` under `Good guest`.
+
+## Guardrails
+
+API-07, STYLE-07, TEST-03.
+
+## Implementation Plan
+
+1. Collect drafts 01–06's drift notes and evidence.
+2. Write the Design item and changelog lines.
+3. Measure size on the merged head; write the success-condition table.
+4. Gates.
+
+## Boundaries
+
+Docs only. No README edits (report only). No browser run: the Full Check runs its one browser command (browser policy).
+
+## Technical Verification
+
+`npm run check:pack` once on the merged head. Prettier check on the two changed docs (builder rule 7); no tests change.
+
+## Technical Evidence
+
+Pending execution.
+
+## Drift Notes
+
+None.
