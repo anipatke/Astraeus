@@ -2,6 +2,22 @@
 
 Research performed 2026-10-06 for O-001/T-001. The local values below were reproduced from the pinned npm tarball in `/tmp/astraeus-orb-eval/package`; this records provider research, not yet a claim about the Astraeus implementation.
 
+## Providers in use today
+
+Status 2026-11-22 (O-090 T-439), read from the source; the sections below are dated records of how each provider was chosen and measured, kept with their figures.
+
+| Quantity | Provider | Source file |
+|---|---|---|
+| Moon about Earth | Orb 3.1.1 `Luna`, ecliptic of date turned to EQJ | `packages/astraeus/src/core/astronomyAdapter.ts` |
+| Earth and Sun | Orb 3.1.1 EPV00 (`earthEpv00`, `sunEpv00`) | `astronomyAdapter.ts` |
+| Earth orientation, UTC to TT, frame transforms | Orb 3.1.1 `AstroInstant` and `frames` | `astronomyAdapter.ts` |
+| Mercury, Venus, Mars, Jupiter, Saturn, Uranus, Neptune, Pluto about the Sun | Piecewise Chebyshev fits of JPL Horizons system-barycentre states (DE441 and the satellite ephemerides), 1950 to 2045, within 1 km of Horizons, since O-063 T-290 (2026-11-10); no VSOP87A | `packages/astraeus/src/core/planetModels.ts`, `data/ephemerides/planets/planets.json`, `tools/import/planet-fits.mjs` |
+| Moons about their planet's barycentre | Piecewise Chebyshev fits of JPL Horizons states, one data package per system | `packages/astraeus/src/core/chebyshevEphemeris.ts`, `src/core/bodies/moonSystem.ts`, `packages/astraeus-data-<planet>/` |
+| Comets, asteroids, settings-file bodies | Unperturbed two-body propagation from published elements | `packages/astraeus/src/core/sunCentredSources.ts`, `src/core/elementsBody.ts` |
+| Body rotation | IAU WGCCRE 2015 secular terms | `packages/astraeus/src/core/iauRotation.ts`, `data/orbits/<body>.json` (`rotation`) |
+
+Where a dated section below says "the adapter takes" or "is used", it describes the implementation at its date; the table above and the source files are the present.
+
 ## Provider comparison
 
 | Capability | `@lizard-isana/orb` 3.1.1 | `astronomy-engine` 2.1.19 | Astraeus consequence |
@@ -25,7 +41,7 @@ Primary sources reviewed:
 
 ## Selected provider and conversion boundary
 
-Use only `@lizard-isana/orb@3.1.1` behind `src/core/astronomyAdapter.ts`.
+Use only `@lizard-isana/orb@3.1.1` behind `src/core/astronomyAdapter.ts`. (Decision of 2026-10-06. Orb is still the only astronomy library and is imported only by the adapter, but since O-025 and O-063 the planets and moons come from stored Horizons fits; see "Providers in use today".)
 
 For the Moon, pass the requested UTC instant as a JavaScript `Date` to `Luna().xyz`, read its Earth-centered km vector in ecliptic-of-date, wrap that vector in Orb's structured state at the same instant, and transform it to `equatorial-j2000`. Copy the returned numbers into Astraeus-owned `Float64Array` storage. For the Sun, use `AstroInstant.fromUnixMs(utcMs)` and `sunEpv00` directly; its returned state is Earth-centered, EQJ and km. The Earth heliocentric state is `earthEpv00`; Moon/Sun is formed by vector addition from the two explicit center states.
 
@@ -115,7 +131,7 @@ Measured maxima over the six samples with the earlier VSOP87A series (Orb 3.1.1,
 | Mars 499 | 0.092 arcsec | 3.5 km | 95.8 km | under 120 km, 0.5 arcsec |
 | Jupiter 599 | 0.325 arcsec | 166.9 km | 1269.4 km | under 1500 km, 0.5 arcsec |
 
-**Curve fits (O-025 T-101).** The planet models the adapter reads are now piecewise Chebyshev fits of this same full VSOP87A series (`data/ephemerides/planets/planets.json`, made by `tools/import/planet-fits.mjs`), not the series itself: heliocentric ecliptic-J2000 km in TT, UTC to TT from the table stored beside them (leap seconds from 1972, a drifting piece before). Worst difference from the series at independent dates is 0.80 km (Mars; Mercury 0.71, Venus 0.63, Jupiter 0.57), against the model errors in the table below (30 km to 1,269 km), so the Horizons maxima there are unchanged by that much; `tests/planets.test.ts` runs on the fits and passes, and `tests/planetFits.test.ts` compares the fits with the series. The span is 1969-01-01 to 2045-01-01; a date outside it throws instead of being extrapolated. Before 1972 Orb steps its TT - UTC once a month (about 0.1 s) where the fits follow the table's smooth line; the fits differ from Orb by under 8 km there (Mercury, the fastest). The planetModels chunk of the public build went from 1,391,805 to 214,459 bytes (gzip 560,550 to 148,907).
+**Curve fits (O-025 T-101, 2026-10-19; history, superseded by O-063 as noted above).** The planet models the adapter read from then were piecewise Chebyshev fits of this same full VSOP87A series (`data/ephemerides/planets/planets.json`, made by `tools/import/planet-fits.mjs`), not the series itself: heliocentric ecliptic-J2000 km in TT, UTC to TT from the table stored beside them (leap seconds from 1972, a drifting piece before). Worst difference from the series at independent dates is 0.80 km (Mars; Mercury 0.71, Venus 0.63, Jupiter 0.57), against the model errors in the table below (30 km to 1,269 km), so the Horizons maxima there are unchanged by that much; `tests/planets.test.ts` runs on the fits and passes, and `tests/planetFits.test.ts` compares the fits with the series. The span is 1969-01-01 to 2045-01-01; a date outside it throws instead of being extrapolated. Before 1972 Orb steps its TT - UTC once a month (about 0.1 s) where the fits follow the table's smooth line; the fits differ from Orb by under 8 km there (Mercury, the fastest). The planetModels chunk of the public build went from 1,391,805 to 214,459 bytes (gzip 560,550 to 148,907).
 
 These are sample maxima, not bounds for every date. They are recorded in each definition's `accuracy.position`, with the sampled range (1969-07-21 to 2030-06-01) as `accuracy.validUtc`; outside it the series is extrapolated without a measurement. Geometric positions only (no light time or aberration). No velocity is modelled for planets.
 
@@ -171,7 +187,7 @@ Each frame's lit body is lit along its own Sun direction (one pass per body), or
 
 ## Moons and Pluto against Horizons (O-019 / T-078)
 
-Measured 2026-10-17; full report `docs/MOON_ORBITS.md`, offline test `tests/moonOrbits.test.ts`, data `data/orbits/<body>.json`. Nothing here is drawn yet.
+Measured 2026-10-17; full report `docs/MOON_ORBITS.md`, offline test `tests/moonOrbits.test.ts`, data `data/orbits/<body>.json`. Nothing here was drawn then; moons are drawn from Horizons fits today (see "Providers in use today").
 
 What was measured: 13 moons and Io from the JPL Solar System Dynamics "Planetary Satellite Mean Elements" rows (epoch 2000-01-01.5 TDB, each row's Laplace plane; Charon in Pluto's equatorial plane), and Pluto about the Sun from its JPL Small-Body Database elements, each propagated by unperturbed two-body motion and compared with JPL Horizons vectors over 31 dates (Pluto 66). The class rule is applied by the test: **within one diameter** if the largest error is at most the body's mean diameter, **approximate demonstration** if at most a tenth of the semi-major axis, otherwise **not usable as published**.
 

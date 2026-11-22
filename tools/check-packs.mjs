@@ -1,7 +1,7 @@
 // The pack check (O-036 T-161): `npm run check:pack` builds every publishable package (tools/build-packages.mjs), runs `npm pack --dry-run --json` on each build
 // folder and fails on a file outside the allow-list, a forbidden file, a missing manifest field, an `exports` target that is not packed, or a size or file
-// count above the limit (the engine has no file count: a stray file fails, see strayFiles). Nothing is published. Limits come from docs/NPM_PACKAGING.md ("Size limits for the pack check"); the engine's are re-measured at
-// about 10% above its pack of 2026-10-23 (7.0 MB packed, 8.6 MB unpacked, 405 files) now that the moon and Milky Way pictures live in astraeus-data.
+// count above the limit (the engine has no file count: a stray file fails, see strayFiles). Nothing is published. The limits are owned here (`LIMITS` below); docs/NPM_PACKAGING.md links to them and keeps only the
+// measurements of 2026-10-23 they were first set from. The engine's are re-measured at about 10% above its pack of 2026-10-23 (7.0 MB packed, 8.6 MB unpacked, 405 files) now that the moon and Milky Way pictures live in astraeus-data.
 import { spawnSync } from "node:child_process";
 import { cpSync, existsSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync, mkdirSync } from "node:fs";
 import { tmpdir } from "node:os";

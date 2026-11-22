@@ -2,6 +2,8 @@
 
 Measured 2026-10-17. Data: `data/orbits/<body>.json` (one file per body). Offline test: `tests/moonOrbits.test.ts`. Raw responses: `docs/evidence/o019-t078-*` (listed under Sources). Nothing here is drawn yet.
 
+Status 2026-11-22 (O-090 T-439): the two-body mean elements measured here are not the source of the drawn moon positions. Since O-025 T-096 (Jupiter) and O-033 T-114/T-116 (the other systems) moons are drawn from piecewise Chebyshev fits of JPL Horizons states in the `astraeus-data-<planet>` packages (`packages/astraeus/src/core/bodies/moonSystem.ts`, `chebyshevEphemeris.ts`; format and accuracy in `packages/astraeus/data/ephemerides/README.md`), and Pluto about the Sun from the Horizons planet fits (`planetModels.ts`). The `data/orbits/<body>.json` records remain in use for each moon's IAU rotation and period (`src/core/bodies/jupiterMoons.ts`, `planetMoons.ts`), and `src/core/bodies/io.ts` still builds Io's two-body path from `data/orbits/io.json`. The measurements below are the 2026-10-17 record.
+
 ## The table
 
 Largest distance from Horizons over 31 dates (the six dates 1969-07-21, 1985-06-01, 2000-01-01 12:00 UTC, 2010-07-01, 2024-01-01, 2030-06-01 plus 25 equal samples over one orbit from 2000-01-01 12:00 UT); Pluto over 66 dates (every 1 January 1970 to 2030 plus the other five of the six). Positions are planet-centred (Pluto: Sun-centred), geometric, ICRF treated as EQJ.

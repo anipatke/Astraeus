@@ -2,13 +2,19 @@
 
 Decision note for the owner. Plain words first, technical appendix last. Measured 2026-10-23 on branch `o036-npm`; nothing in `packages/` was changed, the spike lives outside the repository.
 
+**This is a dated decision note (2026-10-23), kept as the record of why the packages are built this way. Sizes and package contents below are as measured then.** What is true today lives in the code:
+
+- The published packages: `PACKAGES` in `tools/build-packages.mjs` (nine since 0.9.0: `astraeus`, `astraeus-data`, six `astraeus-data-<planet>` position packages and `astraeus-data-constellations`).
+- Size and file-count limits: `LIMITS` in `tools/check-packs.mjs`, enforced by `npm run check:pack`. The engine's limit was cut after the owner's decision B moved the Milky Way and the moon pictures to `astraeus-data` (the file's header comment records the re-measure); the engine has no file count, a stray file fails instead (`strayFiles`, O-051 T-218).
+- How to release: [RELEASING.md](RELEASING.md).
+
 ## The short version
 
 1. **Build:** compile the engine with `tsc` (plain JavaScript plus type files), then a small script turns each picture import into a file reference the customer's bundler understands and copies the pictures. Vite's own "library mode" was tried and rejected: it pastes every picture into the code as text and produced a 61 MB JavaScript file.
-2. **Two kinds of package:** `astraeus` (about 10.5 MB to download) holds the code, the planets' positions and the pictures of the Sun, Earth, Moon and the eight planets plus the Milky Way. The pictures and positions for the moons go in `astraeus-data`.
+2. **Two kinds of package:** `astraeus` (about 10.5 MB to download, measured then) holds the code, the planets' positions and the pictures of the Sun, Earth, Moon and the eight planets plus the Milky Way (the Milky Way later moved to `astraeus-data`, owner decision B below). The pictures and positions for the moons go in `astraeus-data`.
 3. **One number in the plan was wrong.** The Objective says the moon positions are "about 38 MB". Measured, they are **120 MB** (9,275 files; Saturn alone is 39 MB), and they do not compress. Together with 35 MB of pictures the data package would be **146 MB** to download. That is allowed by npm but is heavy, and it sits right at the size some mirrors accept. So I recommend splitting the data (decision A below).
 4. **Finding the data:** the customer imports what they want from `astraeus-data` and hands it to the engine. Nothing is searched for behind their back. If it was not handed in, those bodies are simply not offered (never invented).
-5. **Publishing by GitHub:** possible, but npm needs the package to exist first, so the very first publish of each package is done by hand once. After that a GitHub release publishes both, with a provenance badge.
+5. **Publishing by GitHub:** possible, but npm needs the package to exist first, so the very first publish of each package is done by hand once. After that a GitHub release publishes them all (nine packages today), with a provenance badge.
 
 ## Decisions
 
@@ -37,24 +43,24 @@ The recommended option costs six more package names on npm (all published by the
 
 ## Size limits for the pack check (step 3)
 
-Measured with `npm pack` of the spike; limits are about 10% above measured. The check also lists the files and fails on anything unexpected (for example `.test.`, `tools/`, `.horizons-cache`).
+The limits themselves are code: `LIMITS` in `tools/check-packs.mjs` owns them, and `npm run check:pack` lists the files and fails on anything unexpected (for example `.test.`, `tools/`, `.horizons-cache`) or over a limit. The table below keeps the measurements the limits were first set from (about 10% above measured, 2026-10-23 unless a row says otherwise); later changes to a limit are recorded beside it in the code.
 
-| Package | Measured packed / unpacked / files | Limit packed / unpacked / files |
-|---|---|---|
-| `astraeus` | 10.5 MB / 12.0 MB / 387 | 12 MB / 14 MB / 450 |
-| `astraeus-data` (pictures, plus the place lists of 24 bodies since O-059 T-268) | about 35 MB / 35.1 MB / 123 | 39 MB / 39 MB / 130 |
-| `astraeus-data-jupiter` | about 22.9 MB (30.9 MB with the Galilean moons back to 1950, O-047 T-200) | 34 MB, 2,900 files |
-| `astraeus-data-saturn` | about 40.0 MB (53.5 MB with nine moons and Saturn back to 1950, O-047 T-200) | 59 MB, 7,000 files |
-| `astraeus-data-uranus` | about 32.6 MB (40.6 MB with five moons and Uranus back to 1950, O-047 T-200) | 45 MB, 1,050 files |
-| `astraeus-data-neptune` | about 17.8 MB (18.5 MB with Triton, Nereid and Neptune back to 1950, O-047 T-200) | 20.5 MB, 580 files |
-| `astraeus-data-mars` | about 5.5 MB | 6.1 MB, 80 files |
-| `astraeus-data-pluto` | about 1.8 MB | 2 MB, 140 files |
-| `astraeus-data-constellations` (O-067 T-304) | 66.5 kB packed / 202.5 kB unpacked / 10 files | 0.09 MB packed / 0.25 MB unpacked / 20 files (`tools/check-packs.mjs`) |
-| Single `astraeus-data` (if you refuse A) | 146.0 MB / 155.7 MB / 9,297 | 160 MB / 171 MB / 9,400 |
+| Package | Measured packed / unpacked / files |
+|---|---|
+| `astraeus` | 10.5 MB / 12.0 MB / 387 (with the Milky Way and moon pictures, before decision B moved them; first limit 12 MB / 14 MB / 450 files, since cut and the file count dropped) |
+| `astraeus-data` (pictures, plus the place lists of 24 bodies since O-059 T-268) | about 35 MB / 35.1 MB / 123 |
+| `astraeus-data-jupiter` | about 22.9 MB (30.9 MB with the Galilean moons back to 1950, O-047 T-200) |
+| `astraeus-data-saturn` | about 40.0 MB (53.5 MB with nine moons and Saturn back to 1950, O-047 T-200) |
+| `astraeus-data-uranus` | about 32.6 MB (40.6 MB with five moons and Uranus back to 1950, O-047 T-200) |
+| `astraeus-data-neptune` | about 17.8 MB (18.5 MB with Triton, Nereid and Neptune back to 1950, O-047 T-200) |
+| `astraeus-data-mars` | about 5.5 MB |
+| `astraeus-data-pluto` | about 1.8 MB |
+| `astraeus-data-constellations` (O-067 T-304) | 66.5 kB packed / 202.5 kB unpacked / 10 files |
+| Single `astraeus-data` (if you refuse A; not built) | 146.0 MB / 155.7 MB / 9,297 (a limit of 160 MB / 171 MB / 9,400 was proposed) |
 
 (The constellations package holds plain JSON, not position chunks: `isPositionPackage` in `tools/build-packages.mjs` stops the chunk-list step and chunk check applying to it, and its limits are its own.)
 
-(Per-system figures are the committed file sizes plus the generated list; the pack check of step 3 replaces them with real `npm pack` numbers.)
+(Per-system figures are the committed file sizes plus the generated list; the pack check of step 3 replaced them with real `npm pack` numbers.)
 
 ## Publishing from GitHub (owner addition, 2026-10-23: "A GitHub release you create")
 
