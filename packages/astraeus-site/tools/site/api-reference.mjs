@@ -1,6 +1,7 @@
 // The developer API reference (O-040 T-165): read from the engine's public entry (packages/astraeus/src/api/index.ts) with the TypeScript compiler API and
 // its doc comments, then written as one static page served at /api. TypeDoc was not used: it adds a dependency for what the compiler API already gives, and
 // this runs on the same side-by-side TypeScript 6 the lint gate uses (`typescript6`, package.json; the root `typescript` is 7, which has no such API).
+import { readFileSync } from "node:fs";
 import { dirname, relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 import ts from "typescript6";
@@ -8,6 +9,11 @@ import ts from "typescript6";
 const here = dirname(fileURLToPath(import.meta.url));
 /** The public entry of the `.` export of `astraeus`. */
 export const PUBLIC_ENTRY = resolve(here, "..", "..", "..", "astraeus", "src", "api", "index.ts");
+/** The engine's manifest, the one owner of the package version the page names (O-090 T-437: the lead once hard-coded "0.2 preview"). */
+export const ENGINE_MANIFEST = resolve(here, "..", "..", "..", "astraeus", "package.json");
+
+/** The engine version read from its manifest when the page is generated. */
+export const engineVersion = (manifest = ENGINE_MANIFEST) => JSON.parse(readFileSync(manifest, "utf8")).version;
 
 const OPTIONS = {
   target: ts.ScriptTarget.ES2022,
@@ -343,7 +349,7 @@ ${body}
 }
 
 /** The reference page for `items` (from `collectExports`): one built page with the site's look, inline styles, no script. The shelf parts' own exports (`shelfExports`) are listed by name only, each a link to `api/shelf.html` (`renderShelfApiPage`). */
-export function renderApiPage(items) {
+export function renderApiPage(items, version = engineVersion()) {
   const byName = new Map(items.map((item) => [item.name, item]));
   const shelf = new Set(shelfExports(items));
   const bodies = items.filter((item) => item.body);
@@ -378,7 +384,7 @@ export function renderApiPage(items) {
     canonical: "https://astraeus.anipatke.com/api/",
     home: "../",
     heading: "API reference",
-    lead: `Everything the <code>astraeus</code> npm package exports: ${items.length} names, read from its types and doc comments when the site is built. Anything not listed here is internal. The package is a 0.2 preview, so the API may still change between <code>0.x</code> versions; each change is in the <a href="https://github.com/anipatke/Astraeus/blob/main/packages/astraeus/CHANGELOG.md">changelog</a>.`,
+    lead: `Everything the <code>astraeus</code> npm package exports: ${items.length} names, read from its types and doc comments when the site is built. Anything not listed here is internal. This is version ${escape(version)}; before 1.0 the API may still change between <code>0.x</code> versions, and each change is in the <a href="https://github.com/anipatke/Astraeus/blob/main/packages/astraeus/CHANGELOG.md">changelog</a>.`,
     nav: shelf.size === 0 ? nav : `${nav}<a href="#shelf">Shelf parts</a>`,
     body: `${body}\n${shelfList}\n${bodyList}`,
   });

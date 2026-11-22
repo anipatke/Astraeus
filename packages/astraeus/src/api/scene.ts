@@ -112,6 +112,7 @@ export interface AddBodyOptions {
   /**
    * Draws the body's orbit as a line: the Moon's about Earth and Io's about Jupiter, or, in a scene that holds the Sun, one full turn round the Sun of any body that
    * circles it (the planets, Earth's year, a body added with `addBodyFromElements`), from the scene's opening time (an own body from its periapsis). Others throw `no-orbit`.
+   * Round the Sun it is one turn of the body's own positions, or, for Uranus and Neptune (whose turn outlasts the planet series), the ellipse osculating at the opening time, as the card says.
    * An object `{ lapDays, fades? }` draws any moon's line from a lap time you state (`OrbitLapInput`), whether or not its record has a period. Default: no line.
    */
   readonly orbit?: boolean | OrbitLapInput;
@@ -204,6 +205,7 @@ export interface TrajectoryBase {
   /**
    * The frame the positions and velocities are given in, about `center`: "EQJ" (equatorial J2000, the default) or "ecliptic-j2000" (the vectors JPL Horizons
    * publishes by default). Ecliptic input is rotated to EQJ once, as it is read, so drawing, `stateOf` and readouts all see EQJ. Any other value throws `bad-trajectory`.
+   * The rotation uses an obliquity of 84381.406 arcseconds (IAU 2006); Horizons uses 84381.448 (IAU 1976), so its ecliptic data lands about 30 km off at 1 au.
    */
   readonly plane?: "EQJ" | "ecliptic-j2000";
   /** How far from the camera the path's label shows, in the camera's `distance` units (Earth radii, as `camera.setReach`); a positive finite number. When absent the scene's shared rule applies: no limit in a Sun-centred or fitted scene, else the camera reach (at least 500). */
@@ -220,12 +222,17 @@ export interface TrajectoryBase {
   readonly description?: string;
   /** Published limits of the data, shown with the provenance. */
   readonly knownLimitations?: readonly string[];
-  /** Source anchors, drawn as dots on the path and labelled with their ids. */
+  /** Source anchors, drawn as dots on the path and labelled with their ids. The labels show only while the `labels` display switch is on. */
   readonly anchors?: readonly AnchorInput[];
   /** Bars for the info card, in order. */
   readonly readouts?: readonly ReadoutInput[];
 }
-/** A path given as sampled states, or as a provider with `stateAt(time)` and the span it covers. */
+/**
+ * A path given as sampled states (drawn through every sample), or as a provider with `stateAt(time)` and the span it covers. `stateAt` gets whole-millisecond times inside `bounds`,
+ * with or without `center`, and returns the `State` about the path's `center`: `positionKm` a `Float64Array` of three, `plane: "EQJ"`, `orientation: null`, `velocityKmS` optional
+ * (without it the speed readouts show nothing). A provider line is drawn at 128 even moments plus refinements where it bends as seen from `center` (4,096 at most), so a bend seen only
+ * against another body keeps its chords: give such a path that body as `center`.
+ */
 export type TrajectoryInput =
   | (TrajectoryBase & { readonly samples: readonly TrajectorySampleInput[] })
   | (TrajectoryBase & {
@@ -444,7 +451,10 @@ export class Scene {
     return this.#plan.bodies.keys().next().value ?? FALLBACK_SCENE_CENTRE;
   }
 
-  /** Adds a catalogued body: a ready-made one (`earth`, `moon`, ...) or its id. The first body added is the scene's centre. `{ orbit: true }` also draws its orbit line. */
+  /**
+   * Adds a catalogued body: a ready-made one (`earth`, `moon`, ...) or its id. The first body added is the scene's centre. `{ orbit: true }` also draws its orbit line.
+   * Any listed moon is taken by id (`listedMoons(planet?)` names each with its data package) as a grey sphere at its mean radius. The giant planets are drawn with their rings (NSSDC radii).
+   */
   addBody(body: BodyRef | BodyId, options: AddBodyOptions = {}): this {
     this.#editable();
     this.#plan.addBody(body, options);
@@ -465,7 +475,7 @@ export class Scene {
     return this;
   }
 
-  /** Adds a path to follow and draw, from sampled states or a provider with `stateAt(time)`. */
+  /** Adds a path to follow and draw, from sampled states or a provider with `stateAt(time)` (`TrajectoryInput`). A malformed path throws `bad-trajectory`; a repeated id, `duplicate-id`. */
   addTrajectory(input: TrajectoryInput): this {
     this.#editable();
     if (typeof input !== "object" || input === null)
@@ -596,7 +606,7 @@ export class Scene {
   /**
    * Adds the tagged places of one body, drawn as markers on it and opened in the information panel: categories (key, label, colour), places (id, name, kind, category, latitude and longitude in degrees as given,
    * description and optional details) and the provenance shown with each. The body must be in the scene when it is built. A second call for one body throws `duplicate-id`; a malformed list throws `bad-places`.
-   * Read the result from `scene.places`.
+   * Read the result from `scene.places`. Place lists of 24 bodies ship in `astraeus-data` (`astraeus-data/bodies/<body>/`) for an app to convert.
    * @example
    * scene.addPlaces("tarn", { categories: [{ key: "pit", label: "Pits", color: "#9de3a8" }], places: [{ id: "deep", name: "Deep Pit", kind: "Pit", category: "pit", latitudeDeg: 12, longitudeDeg: -40, description: "A made-up pit." }], provenance: { sourceType: "illustrative", sources: ["Made up"], accuracy: "Not real.", notes: "" } });
    */

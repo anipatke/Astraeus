@@ -1,5 +1,5 @@
 // O-040 T-165: the API reference is generated from the engine's public entry, and every export of that entry carries a doc comment.
-import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { gzipSync } from "node:zlib";
@@ -7,6 +7,7 @@ import { beforeAll, describe, expect, it } from "vitest";
 import { PAGES } from "../tools/validate/load-budget.mjs";
 import {
   collectExports,
+  ENGINE_MANIFEST,
   renderApiPage,
   renderShelfApiPage,
   shelfExports,
@@ -96,6 +97,14 @@ describe("API reference", () => {
     expect(page).toContain('href="./"');
     expect(page).toContain('href="../components.html"');
     expect(page).not.toContain("<script");
+  });
+
+  it("names the engine version from its manifest in the lead, with no hard-coded preview label (O-090 T-437)", () => {
+    const { version } = JSON.parse(readFileSync(ENGINE_MANIFEST, "utf8")) as { version: string };
+    const lead = /<p class="lead">([\s\S]*?)<\/p>/.exec(renderApiPage(items))?.[1] ?? "";
+    expect(lead).toContain(`version ${version}`);
+    expect(lead.toLowerCase()).not.toContain("preview");
+    expect(renderApiPage(items, "7.8.9")).toContain("version 7.8.9");
   });
 
   it("lists the chart and the readout tile, with their inputs, controls and the tile's part type, on api/shelf.html (O-081 T-339)", () => {

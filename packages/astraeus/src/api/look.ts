@@ -36,7 +36,10 @@ export interface LabelsLook {
   readonly sizePx?: number;
 }
 
-/** The look of one viewer's own interface (bar, panels, cards, controls). Every field is optional and keeps its default. Colours are CSS colour texts. */
+/**
+ * The look of one viewer's own interface (bar, panels, cards, controls). Every field is optional and keeps its default. Colours are CSS colour texts. A custom block inherits it as
+ * `--astraeus-` custom properties: `panel`, `text`, `muted`, `accent`, `border`, `data`, `font`, `text-size`, `text-s`, `text-l`, `space-1` to `space-6`, `radius`, `radius-pill`, `motion`.
+ */
 export interface InterfaceLook {
   /** Bar and panel background. Default `"rgba(13, 13, 13, .88)"`. */
   readonly panel?: string;

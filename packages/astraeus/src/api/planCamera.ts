@@ -220,7 +220,7 @@ export class SceneCamera {
   /**
    * Sets how far the viewer can zoom out from what they look at, in Earth radii (the scene's scaled unit); a finite number above 0, else `bad-camera`.
    * Also sets the camera's far plane (where drawing stops) to 2.5 times `distance`, so what lies out to the reach is still drawn; `farEarthRadii` (a finite number at least `distance`, in Earth radii) sets the far plane itself instead.
-   * Labels reach as far: a body's label stays shown at any distance the camera can take. Without this call the camera frames the scene as before.
+   * Labels reach as far: a body's label stays shown at any distance the camera can take. Without this call or `fitOrbit` a Sun-centred scene widens its zoom-out to fit a path about the Sun whole.
    * `setReach` and `fitOrbit` set the same limit, so the later call wins and replaces the earlier one.
    */
   setReach(distance: number, options: { readonly farEarthRadii?: number } = {}): this {

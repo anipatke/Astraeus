@@ -1,7 +1,7 @@
 import { SceneError } from "./errors";
 import { isPlainObject } from "./plainObject";
 
-/** The title and About content (`Scene.setAbout`). The engine adds "Built with Astraeus" and its version. */
+/** The title and About content (`Scene.setAbout`): the bar's title opens the panel, which ends with "Built with Astraeus" and the engine's version. Without one a phone's title place shows the selected object. */
 export interface AboutInput {
   /** The bar's title. */
   readonly title: string;

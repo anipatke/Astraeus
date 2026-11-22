@@ -68,6 +68,8 @@ export type TimelineInput =
  * within `withinSeconds` (simulated) of every event of that `type` (see `addEvents`). Outside every piece playback runs at the timeline's `rate`. Between a piece and
  * what surrounds it the speed eases over `rampSeconds` simulated seconds (default: `withinSeconds` for an event rule, a tenth of the span for a span). `rate` here is any positive number;
  * it need not be one of the offered `rates`. Spans may not overlap (touching is fine); where an event rule meets a span or another rule, the slowest speed wins, whichever contains the other and in whatever order they are listed.
+ * Speeds ease in log space and depend only on the time; no frame skips a zone. With views an event rule acts only near the showing view's events. The speed menu gains Auto;
+ * a picked speed holds until Auto or `setRate("auto")`. An event `type` that matches no event throws `bad-timeline`.
  */
 export type PacingInput =
   | { readonly start: TimeInput; readonly end: TimeInput; readonly rate: number; readonly rampSeconds?: number }
@@ -136,7 +138,10 @@ export interface StoryPanelPlaybackInput {
   readonly pauseSeconds?: number;
   /** Whether panels open by themselves as forward playback crosses them (default true). */
   readonly autoOpen?: boolean;
-  /** Simulated seconds after a moment panel's time when forward playback closes it (above 0; absent: panels close only when the visitor closes them). A panel's own `closeAfterSeconds` wins. */
+  /**
+   * Simulated seconds after a moment panel's time when forward playback closes it (above 0; absent: panels close only when the visitor closes them). A panel's own `closeAfterSeconds` wins.
+   * A panel opened before its close moment closes on a later forward tick at or past it (never on the opening tick); one opened past it stays open. A seek, rewind or pause never closes one.
+   */
   readonly closeAfterSeconds?: number;
 }
 
