@@ -2,7 +2,7 @@
 id: T-419
 title: One selection owner per viewer
 objective: O-089
-status: planned
+status: done
 depends_on: []
 owner_validation: {required: false}
 check_waiver: {task: T-419, reason: 'Owner said "work through this list of objectives one by one. Orchestrate each objective to completion" (G-024 decision 7) and "carry on orchestrating G-024" (2026-11-22): standing orchestration rules waive the optional step checks; the mandatory Full Objective Check covers the whole diff.', actor: {role: owner, session: orchestrate-g024-20261122}, recorded_at: '2026-11-22T03:09:26Z'}
@@ -74,8 +74,25 @@ Focused: `npx vitest run packages/astraeus/tests/selectionStore.test.ts packages
 
 ## Technical Evidence
 
-Pending execution.
+Files changed: `packages/astraeus/src/shell/selection/selection.ts` (new), `packages/astraeus/tests/selectionStore.test.ts` (new), `packages/astraeus/tests/interfaceHeaders.test.ts` (added `"selection"` to the folder list). No extra reads.
+
+| Done When | Evidence |
+|---|---|
+| Module with two-line header, `createSelection(start)`, `SelectionOrigin`, no module state, snapshot/subscribe/id/choose/ask/takeAsk/hostCleared/onMove | `selection.ts`; every behaviour exercised by `selectionStore.test.ts` |
+| Table test across choose visitor/move, ask id/""/quiet, takeAsk: notify vs onMove, snapshot identity, order rule, host-cleared flag | 12-row `it.each` table in `selectionStore.test.ts` (passes) |
+| Two stores independent; stopped listener silent; takeAsk once; snapshot identity stable | three separate tests in `selectionStore.test.ts` (pass) |
+| `"selection"` in header test folders, new header passes | `interfaceHeaders.test.ts` passes, incl. `selection/selection.ts` row |
+| Engine size unchanged | nothing imports the module (no wiring); not measured per brief |
+| Focused gates | see below |
+
+Gates: `npm run typecheck` clean; ESLint (TS6 wrapper) clean and `prettier --check` clean on the 3 files; `npx vitest run packages/astraeus/tests/selectionStore.test.ts packages/astraeus/tests/interfaceHeaders.test.ts`: 2 files, 52 tests passed.
+
+Limitations: `takeAsk` clears the ask and replaces the snapshot but does not notify subscribers (the shell calls it inside its own effect; draft 03 should not rely on a re-render from it). `choose` of the current id is a no-op (no notify, no onMove).
 
 ## Drift Notes
 
 Expected: section 9 of the note says the `selection/` folder was not built. Reconciled in draft 04.
+
+## Coordinator (gates)
+
+Set done by the orchestrating session after the combined wave gates passed with T-418 and T-419 together (owner: "I mark them as they pass", O-038; G-024 decision 7 "Orchestrate each objective to completion"; owner 2026-11-22 "carry on orchestrating G-024"): typecheck clean; `npm run lint` (ESLint + Prettier) clean; `npm test` 327 files, 5393 passed, 2 skipped. T-418 measured first-open engine 1,826,703 B raw / 523,401 B gzip (was 1,836,426 / 525,714; cap 1,838,000 raw).

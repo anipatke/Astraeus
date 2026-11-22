@@ -11,7 +11,7 @@ const files = (dir: string, test: (name: string) => boolean) =>
     .map((name) => (dir === "" ? name : `${dir}/${name}`));
 const MODULES = [
   ...files("", (name) => name.endsWith(".tsx")),
-  ...["bar", "panels", "areas", "look"].flatMap((dir) => files(dir, (name) => /\.(ts|tsx)$/.test(name))),
+  ...["bar", "panels", "areas", "look", "selection"].flatMap((dir) => files(dir, (name) => /\.(ts|tsx)$/.test(name))),
 ];
 
 describe("interface module headers (I-187)", () => {
