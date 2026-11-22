@@ -228,6 +228,7 @@ export const SYNTHETIC_KEYS = [
   "synthetic-journey",
   "synthetic-views",
   "synthetic-lookout",
+  "synthetic-two-viewers",
 ];
 
 /**

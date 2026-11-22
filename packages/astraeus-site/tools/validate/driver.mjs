@@ -1743,3 +1743,71 @@ export async function frameMetrics(page, windowMs = 10000) {
     await session.detach();
   }
 }
+
+// O-092 T-427: helpers for the two-viewers step. The page's scene canvases are counted and read by their place in the page (`n`, from 0); the viewers' handles are `window.astraeusHost` (the first) and `window.astraeusSecondHost` (the second).
+/** How many scene canvases the page draws now. */
+export const canvasCount = (page) => page.locator("canvas").count();
+/** The frames drawn by the `n`th canvas (`data-frames-drawn`); 0 before its first. */
+export async function framesDrawnOf(page, n) {
+  return Number((await page.locator("canvas").nth(n).getAttribute("data-frames-drawn")) ?? 0);
+}
+/** Waits until the `n`th canvas has drawn at least `count` more frames than `before`; returns the new count. Throws after `timeout`. */
+export async function waitForMoreFramesOf(page, n, before, count = 3, timeout = 5000) {
+  const now = await waitUntil(
+    page,
+    () => framesDrawnOf(page, n),
+    (frames) => frames >= before + count,
+    {
+      timeout,
+      what: `canvas ${n} drawing ${count} more frames than ${before}`,
+    },
+  );
+  return now;
+}
+/** Starts or pauses the first (`"first"`) or second (`"second"`) viewer through its handle. */
+export const setViewerPlaying = (page, which, playing) =>
+  page.evaluate(
+    ({ which: w, playing: p }) => (w === "first" ? window.astraeusHost : window.astraeusSecondHost).setPlaying(p),
+    { which, playing },
+  );
+/** Takes the first or second viewer down through its handle (`unmount`). */
+export const unmountViewer = (page, which) =>
+  page.evaluate((w) => (w === "first" ? window.astraeusHost : window.astraeusSecondHost).unmount(), which);
+/** Each canvas's box on the page, in order: `{ x, y, width, height }`. */
+export const canvasBoxes = (page) =>
+  page.evaluate(() =>
+    [...document.querySelectorAll("canvas")].map((canvas) => {
+      const { x, y, width, height } = canvas.getBoundingClientRect();
+      return { x, y, width, height };
+    }),
+  );
+/** Loses the `n`th canvas's graphics context, waits for the page to hear it, restores it and waits for `webglcontextrestored`; returns `{ lost, restored }` (what the canvas heard within `timeout` ms each). */
+export const loseAndRestoreContext = (page, n, timeout = 5000) =>
+  page.evaluate(
+    async ({ n: index, timeout: ms }) => {
+      const canvas = document.querySelectorAll("canvas")[index];
+      const gl = canvas.getContext("webgl2") ?? canvas.getContext("webgl");
+      const extension = gl.getExtension("WEBGL_lose_context");
+      const heard = (type) =>
+        new Promise((resolve) => {
+          const timer = setTimeout(() => resolve(false), ms);
+          canvas.addEventListener(
+            type,
+            () => {
+              clearTimeout(timer);
+              resolve(true);
+            },
+            { once: true },
+          );
+        });
+      const lost = heard("webglcontextlost");
+      extension.loseContext();
+      const wasLost = await lost;
+      // The browser allows a restore only once it has finished dispatching the lost event ("context restoration not allowed" otherwise), so wait a moment first.
+      await new Promise((resolve) => setTimeout(resolve, 200));
+      const restored = heard("webglcontextrestored");
+      extension.restoreContext();
+      return { lost: wasLost, restored: await restored };
+    },
+    { n, timeout },
+  );

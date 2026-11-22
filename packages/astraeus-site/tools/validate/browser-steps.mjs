@@ -51,6 +51,13 @@ export const STEPS = [
       "synthetic-lookout (made-up, Sun, Earth and Mars): opens looking out from Earth, the menu offers Look out from Earth and Mars clear of the controls, Focus returns; two made-up sky figures, an outline and four switches, the site trace control (Stay, Fade and Stay-then-Hide, each waiting for the `sky-trace:<id>` line set in `data-sky-lines` to appear and go), labels do not overlap; desktop and phone size",
   },
   {
+    name: "two-viewers",
+    tier: "full",
+    script: "journey-two-viewers.mjs",
+    scene:
+      "synthetic-two-viewers (made-up Sun, Earth, belt and marker, two viewers one above the other) at desktop and phone size: both canvases inside the window and clear of each other and drawing, the first taken down leaves the second drawing without a console error or WebGL warning, the second survives a lost and restored graphics context, the second taken down leaves no canvas",
+  },
+  {
     name: "catalogue",
     tier: "full",
     script: "journey-catalogue.mjs",

@@ -14,7 +14,7 @@ import { showerEntryName, type ShowerEntry } from "./showerSwitch";
 const app = document.querySelector<HTMLElement>("#app");
 if (!app) throw new Error("Astraeus entry element #app is missing");
 const host: HTMLElement = app;
-// The entry chooses the experience: Apollo by default, the planets with ?experience=planets (&planet=<name> picks one; ?experience=jupiter-io still opens Jupiter), the meteor showers with ?experience=showers (&shower=<name> picks one), a made-up one with ?experience=synthetic (synthetic-ring, a made-up debris ring; synthetic-belt, a made-up Sun-centred belt with a declared camera reach; synthetic-listed, made-up orbits listed one by one; synthetic-eccentric, the belt with a made-up 51 AU orbit; synthetic-probe, a made-up probe path fixed to the Sun beside enlarged planets, O-046; synthetic-journey, a made-up 1977-to-170-AU probe journey past Jupiter and Saturn with their moons at their dates, O-047; synthetic-views, two made-up probes with three views, O-051; synthetic-lookout, a made-up scene that opens looking out from Earth, O-064).
+// The entry chooses the experience: Apollo by default, the planets with ?experience=planets (&planet=<name> picks one; ?experience=jupiter-io still opens Jupiter), the meteor showers with ?experience=showers (&shower=<name> picks one), a made-up one with ?experience=synthetic (synthetic-ring, a made-up debris ring; synthetic-belt, a made-up Sun-centred belt with a declared camera reach; synthetic-listed, made-up orbits listed one by one; synthetic-eccentric, the belt with a made-up 51 AU orbit; synthetic-probe, a made-up probe path fixed to the Sun beside enlarged planets, O-046; synthetic-journey, a made-up 1977-to-170-AU probe journey past Jupiter and Saturn with their moons at their dates, O-047; synthetic-views, two made-up probes with three views, O-051; synthetic-lookout, a made-up scene that opens looking out from Earth, O-064; synthetic-two-viewers, the Sun, Earth, a belt and a marker drawn by two viewers one above the other, O-092).
 // Each is its own chunk, fetched only for the experience asked for (I-022), so the others' code and data never download.
 // The made-up (synthetic) ones are test experiences: the dev server mounts them, a public build (ASTRAEUS_PUBLIC_BUILD=1) leaves them out of the bundle, so they fall back to the default experience (T-068).
 // Each is a `Scene` built on the public API; `mount` draws it, with the data it needs.
@@ -54,6 +54,11 @@ const SYNTHETIC: Readonly<Record<string, () => Promise<Built>>> = __PUBLIC_BUILD
         const { buildSyntheticLookOutScene, loadLookOutPlanets } = await import("./synthetic/syntheticLookOutScene");
         await loadLookOutPlanets();
         return { ...own(buildSyntheticLookOutScene()), exposeHost: true, hostControl: addSkyTraceControl };
+      },
+      // Two viewers of one made-up scene on one page (O-092 T-427): the second is mounted through `hostControl`, both handles are exposed (`window.astraeusHost`, `window.astraeusSecondHost`).
+      "synthetic-two-viewers": async () => {
+        const { addSecondViewer, buildSyntheticTwoViewersScene } = await import("./synthetic/syntheticTwoViewers");
+        return { ...own(buildSyntheticTwoViewersScene()), exposeHost: true, hostControl: addSecondViewer };
       },
       "synthetic-probe": async () => own((await import("./synthetic/syntheticProbeScene")).buildSyntheticProbeScene()),
       // The journey reads Earth, Jupiter and Saturn from the planet series (`mount` loads it); its moons come from data sources like the Jupiter and Saturn packages', handed to `mount` as a host hands them.

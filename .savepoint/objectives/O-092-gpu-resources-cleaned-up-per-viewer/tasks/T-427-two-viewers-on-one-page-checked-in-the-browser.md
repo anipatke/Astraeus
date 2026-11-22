@@ -2,7 +2,8 @@
 id: T-427
 title: Two viewers on one page, checked in the browser
 objective: O-092
-status: planned
+status: in_progress
+stage: audit
 depends_on: []
 owner_validation: {required: false}
 check_waiver: {task: T-427, reason: 'Owner said "work through this list of objectives one by one. Orchestrate each objective to completion" (G-024 decision 7) and "Carry on" (2026-11-22): standing orchestration rules waive the optional step checks; the mandatory Full Objective Check covers the whole diff.', actor: {role: owner, session: orchestrate-g024-20261122}, recorded_at: '2026-11-22T04:52:00Z'}
@@ -76,8 +77,36 @@ Focused (builder rule 7): `npm run typecheck`; `node --require ./tools/lint/use-
 
 ## Technical Evidence
 
-Pending execution.
+Extra reads (beyond Context Files): `packages/astraeus/src/app/bodyDraw.ts` ~190-245 and `packages/astraeus/src/app/useBodyTexture.ts` (to know which shared pictures a scene must use); `packages/astraeus/src/api/mount.ts` and `viewerHandle.ts` (handle `setPlaying`, `unmount`); `packages/astraeus-site/src/synthetic/syntheticBeltScene.ts` and `syntheticProbeScene.ts` (scene to reuse). Reason: pick the made-up scene and the handle calls.
+
+Scene: `syntheticTwoViewers.ts` composes `startSunScene(60)` (Sun: halo; Earth: body picture; dust belt: round dots) plus one trajectory with 12 anchors (anchor sprites). All four shared pictures covered. Layout: the first viewer's element is halved (`#app` 50%), the second sits in a sibling below it (stacked at every size). Deviation: also added `"synthetic-two-viewers"` to `SYNTHETIC_KEYS` in `packages/astraeus-site/tools/validate/public-build-assets.mjs` (not in planned_writes; `tests/publicBuild.test.ts` fails without it, it is the public-build "no synthetic entry leaks" list).
+
+### Before-fix run (today's engine code)
+Engine files modified at the first runs (`git status --short packages/astraeus/src`, checked before each of runs 1-5): none (clean). Sibling builders' edits appeared from run 6 on (sky.ts, planetSeries.ts, then AstraeusScene.tsx, BodySetView.ts, TrackedBodyView.ts, bodyDraw.ts, dotMaterial.ts, sceneContentsHooks.ts, useBodyTexture.ts); runs 6-8 are therefore not pure "before".
+Runs of `npm run check:browser -- --step two-viewers` on the clean engine, desktop (1280x720; the step stops at the first failure so phone never ran in the step):
+- Assertion 1 (two canvases, inside the window, not crossing, both drawing): PASS.
+- Assertion 2 (first unmounted: one canvas remains, still drawing, no console error or WebGL warning): PASS (no warnings after the first unmount).
+- Assertion 3 (second: lose then restore context, `webglcontextrestored` fires, frames advance again): PASS once the probe waits 200 ms after the lost event (Chrome refuses an earlier restore: "restoreContext: context restoration not allowed"; a driver issue, fixed in `loseAndRestoreContext`).
+- Assertion 4 (second unmounted, no canvas, no WebGL warning): FAIL today, in two flavours across clean runs: (a) run 4: after the lose/restore and second unmount, 7 console warnings `WebGL: INVALID_OPERATION: delete: object does not belong to this context` / `deleteVertexArray: ...` (the second viewer's pictures and geometry deleted against a restored/other context); (b) run 5: the second's canvas was still on the page right after `unmount()` (polled version, run 6: still 1 canvas after 3 s). Not deterministic (run 4 had 0 canvases). Belongs to the cleanup-on-unmount and context-loss fixes (drafts for T-428 own pictures and T-432 context loss); the 4 warnings only appear after the lose/restore (probe3: without lose/restore, 0 warnings and 0 canvases, run with partial fixes in).
+- Phone size layout (375x667): canvas boxes (scratch probe, run with partial fixes) `{0,0,300,150}` and `{0,333.5,300,150}`: inside, not crossing. The full step has not reached phone because desktop fails first.
+- Wake probe (record-only): not measurable: the made-up scene has no sky and the handle offers no way to start a picture load in a paused viewer.
+Later runs (with sibling fixes in the checkout) still fail at the last WebGL-warning assertion (4 `delete: object does not belong to this context` warnings); the green run is the Full Check's.
+
+### Done When -> evidence
+| Done When | Evidence |
+|---|---|
+| dev-only entry, `hostControl` second viewer, handles, comment | `main.tsx` (`synthetic-two-viewers` in `SYNTHETIC`, header comment); `syntheticTwoViewers.ts`; `window.astraeusHost` / `window.astraeusSecondHost`; `publicBuild.test.ts` passes (entry only under `__PUBLIC_BUILD__` switch) |
+| scene uses halo, dots, anchors, body picture | see Scene above |
+| no overlap at 375x667 and 1280x720 | step scenario 1 (desktop passes in every run); phone probe above |
+| step `two-viewers`, full tier, limit | `browser-steps.mjs`; `tools/gate-limits.json` `two-viewers: 15` (runs took 3-8 s); `gateLimits.test.ts` passes |
+| driver helpers only, guards pass | `driver.mjs` helpers `canvasCount`, `framesDrawnOf`, `waitForMoreFramesOf`, `setViewerPlaying`, `unmountViewer`, `canvasBoxes`, `loseAndRestoreContext`; `browserDriverGuard`, `driverNoIds` pass. `driver.d.mts` not changed (it declares only what unit tests import) |
+| assertions 1-4 | `journey-two-viewers.mjs`, results above |
+| policy row, build.md, BROWSER_CHECKS | `browser-policy.md` second list; `build.md` browser-gate line; `BROWSER_CHECKS.md` intro, "What it runs", time table, step map |
+| run once on today's code; wake probe | above |
+
+Gates (focused, under the flock): `npm run typecheck` clean; eslint (TS6 shim) clean on main.tsx, syntheticTwoViewers.ts, journey-two-viewers.mjs, browser-steps.mjs, driver.mjs, public-build-assets.mjs; prettier --check clean on those plus gate-limits.json and the three docs; `npx vitest run` browserDriverGuard, driverNoIds, gateLimits, demoScenes, entryChoice, workflowParity, publicBuild, demoAbout, loadingCoverChain: 9 files, all passed (publicBuild.test.ts failed first for the missing key, passes after the fix).
+Limitations: the step is red on engine code until the O-092 fixes land; the 4 browser runs beyond "once" were step-development (the Task plans one); phone size not run in a full step yet.
 
 ## Drift Notes
 
-Design `Good guest` names the two-viewer step and its policy trigger (reconciled by draft 07).
+Design `Good guest` names the two-viewer step and its policy trigger (reconciled by draft 07). New: the `two-viewers` step needs a 200 ms wait between a context loss and its restore (Chrome refuses an earlier restore); `public-build-assets.mjs` `SYNTHETIC_KEYS` lists the new entry. Both browser-tooling, not architecture.
