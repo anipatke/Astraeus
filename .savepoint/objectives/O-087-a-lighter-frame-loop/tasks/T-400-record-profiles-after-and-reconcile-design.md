@@ -3,7 +3,7 @@ id: T-400
 title: Record profiles after and reconcile Design
 objective: O-087
 status: in_progress
-stage: build
+stage: audit
 depends_on: [{task: T-394, requires: clear}, {task: T-395, requires: clear}, {task: T-396, requires: clear}, {task: T-397, requires: clear}, {task: T-398, requires: clear}, {task: T-399, requires: clear}]
 owner_validation: {required: false}
 check_waiver: {task: T-400, reason: 'Owner said "work through this list of objectives one by one. Orchestrate each objective to completion" (G-024 decision 7) and "carry on orchestrating G-024" (2026-11-22): standing orchestration rules waive the optional step checks; the mandatory Full Objective Check covers the whole diff.', actor: {role: owner, session: orchestrate-g024-20261122}, recorded_at: '2026-11-21T22:11:52Z'}
@@ -89,3 +89,4 @@ Design reconciliation for T-395..T-399 done in Design.md `A lighter frame loop (
 ## Coordinator
 
 The full run's only red step (look-out, label overlap [kettle, lantern-field]) was repaired in T-396's lane: the size cache now observes the border box (root cause: `contentRect` left out label padding and border). After the repair: `npm test` 5157 passed, 3 skipped; `check:pack` pass, engine 1,836,199 B raw (cap 1,838,000); `check:browser -- --step look-out` pass (docs/evidence/browser-steps-20261121T225420Z). The full tier has not been rerun since the repair; the Full Objective Check runs it (labels changed size everywhere). Left at stage build until that run is green. Parked 2026-11-22: owner "I am remote now, add park the check and move on".
+- Moved to audit by the coordinator for the Full Objective Check: the full tier on the o088 branch (contains all of O-087, docs/evidence/browser-20261121T232215Z) was green bar a network flake rerun green; the Full Check runs the full tier on this branch.

@@ -2,7 +2,8 @@
 id: T-401
 title: Owner look at the unchanged picture
 objective: O-087
-status: planned
+status: in_progress
+stage: audit
 depends_on: [{task: T-395, requires: clear}, {task: T-396, requires: clear}, {task: T-397, requires: clear}, {task: T-398, requires: clear}, {task: T-399, requires: clear}]
 owner_validation: {required: true}
 check_waiver: {task: T-401, reason: 'Owner said "work through this list of objectives one by one. Orchestrate each objective to completion" (G-024 decision 7) and "carry on orchestrating G-024" (2026-11-22): standing orchestration rules waive the optional step checks; the mandatory Full Objective Check covers the whole diff.', actor: {role: owner, session: orchestrate-g024-20261122}, recorded_at: '2026-11-21T22:11:52Z'}
@@ -61,7 +62,7 @@ Owner judgement only.
 
 ## Technical Evidence
 
-Pending execution.
+Owner answer, 2026-11-22T01:58:34Z (on localhost:5490, dev server from the o091 checkout, which contains all of O-087): "1. Works fine, but they sit over their object which is OK ? 2. Yes 3.Y 4Y 5Y" (item 5 was O-088's button look). Coordinator reply: label placement is unchanged by O-087 (same anchor offset and tries; `x = screen.x + dx`, `y = screen.y + dy` before and after T-396), so names sitting over large or close objects is existing behaviour; pushing names clear of large discs would be a separate improvement. Every item passed; no repair needed.
 
 ## Drift Notes
 
