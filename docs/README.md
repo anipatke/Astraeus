@@ -27,4 +27,4 @@ One file or generated output owns each fact that tends to drift. Change the fact
 
 ## Where history lives
 
-Dated material is kept, not rewritten: release notes (`docs/release-notes-*.md`) and each package's CHANGELOG, old briefs in [`archive/`](archive/), earlier reconciliations in [`architecture/reconciliation-history.md`](architecture/reconciliation-history.md), and measured runs in dated `docs/evidence/` folders.
+Dated material is kept, not rewritten: release notes (`docs/release-notes-*.md`) and each package's CHANGELOG, old briefs in [`archive/`](archive/), earlier reconciliations and Design's full per-heading contract text as of 2026-11-22 in [`architecture/reconciliation-history.md`](architecture/reconciliation-history.md), and measured runs in dated `docs/evidence/` folders.
