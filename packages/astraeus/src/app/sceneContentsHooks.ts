@@ -1,7 +1,8 @@
 // Scene contents hooks: the refs, DOM layers, pointer listeners and frame callback `SceneContents` wires together.
 import { useEffect, useMemo, useRef } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
-import { DefaultLoadingManager, type DirectionalLight, type Group, type PerspectiveCamera } from "three";
+import { addLoadingWake } from "./loadingWakes";
+import { type DirectionalLight, type Group, type PerspectiveCamera } from "three";
 import type { BodyId } from "../core/body";
 import { rootBodyId, type BodyAsset, type BodyCatalogue } from "../assets/catalogue";
 import { AnchorLabelLayer } from "./AnchorLabels";
@@ -220,30 +221,10 @@ export function useDrawWakes(canvas: HTMLCanvasElement, state: { current: FrameS
     const wake = () => {
       state.current.wakes += 1;
     };
-    const manager = DefaultLoadingManager;
-    const { onStart, onProgress, onLoad, onError } = manager;
-    manager.onStart = (...args) => {
-      wake();
-      onStart?.(...args);
-    };
-    manager.onProgress = (...args) => {
-      wake();
-      onProgress?.(...args);
-    };
-    manager.onLoad = () => {
-      wake();
-      onLoad?.();
-    };
-    manager.onError = (url) => {
-      wake();
-      onError?.(url);
-    };
+    const removeLoadWake = addLoadingWake(wake);
     canvas.addEventListener("webglcontextrestored", wake);
     return () => {
-      manager.onStart = onStart;
-      manager.onProgress = onProgress;
-      manager.onLoad = onLoad;
-      manager.onError = onError;
+      removeLoadWake();
       canvas.removeEventListener("webglcontextrestored", wake);
     };
   }, [canvas, state]);

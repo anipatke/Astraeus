@@ -2,7 +2,7 @@
 id: T-430
 title: Picture-load wake-ups survive any unmount order
 objective: O-092
-status: planned
+status: done
 depends_on: [{task: T-428, requires: clear}]
 owner_validation: {required: false}
 check_waiver: {task: T-430, reason: 'Owner said "work through this list of objectives one by one. Orchestrate each objective to completion" (G-024 decision 7) and "Carry on" (2026-11-22): standing orchestration rules waive the optional step checks; the mandatory Full Objective Check covers the whole diff.', actor: {role: owner, session: orchestrate-g024-20261122}, recorded_at: '2026-11-22T04:52:00Z'}
@@ -66,8 +66,20 @@ Focused: `npx vitest run packages/astraeus/tests/loadingWakes.test.ts packages/a
 
 ## Technical Evidence
 
-Pending execution.
+Done When -> evidence:
+- loadingWakes.ts (set, add returns remover, wrappers, conditional restore, double remove harmless) -> tests/loadingWakes.test.ts (all four cases; double remove is guarded by `wakes.delete` result).
+- useDrawWakes uses it, own restored listener kept -> `keeps restore wakes per canvas` case; existing glowAndHooksDom case passes unchanged.
+- Two viewers A/B either unmount order, identity restore (toBe) -> `it.each` case; page callback before mount -> `keeps the page's earlier callback`; callback set while mounted -> `does not overwrite`.
+- Red-first: with HEAD's sceneContentsHooks.ts the new test file failed (restored after).
+- Size: `npm run measure:example` first-open total 1826394 -> 1827398 B (+1004, but T-429 builds concurrently so part of the delta is not mine); engine-only figure not separable here.
+Commands: typecheck clean; eslint (use-typescript6) and prettier on the three changed files clean; `npx vitest run` loadingWakes, glowAndHooksDom, sceneHooksDom: 3 files, 32 tests pass.
+Files: src/app/loadingWakes.ts (new), src/app/sceneContentsHooks.ts, tests/loadingWakes.test.ts (new).
+Limitations: no browser run; check:pack not run.
 
 ## Drift Notes
 
 Design `Good guest` gains: picture-load wake-ups are one reference-counted hook on three's default loading manager (reconciled by draft 07).
+
+## Coordinator (gates)
+
+Combined wave-2 gate with T-429 and T-430: typecheck clean; `npm run lint` clean; `npm test` 336 files, 5478 passed, 1 failed (twoViewers shelf-panel case, a 1 s waitFor flake under load -> I-204, repaired), then a full rerun 336 files, 5479 passed, 2 skipped. Engine first open 1,827,398 B raw after both (cap 1,838,000): T-429 + T-430 together add 1,004 B against their combined planned allowance of 650 B; the Objective total (+970 B since C-211) stays far under the cap, so the planner allowance is recorded as exceeded, not a cap red. Set done by the orchestrating session (owner: "I mark them as they pass", O-038; G-024 decision 7; owner 2026-11-22 "Carry on").
