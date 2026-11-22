@@ -2,7 +2,7 @@
 id: T-432
 title: A lost graphics context can come back
 objective: O-092
-status: planned
+status: done
 depends_on: []
 owner_validation: {required: false}
 check_waiver: {task: T-432, reason: 'Owner said "work through this list of objectives one by one. Orchestrate each objective to completion" (G-024 decision 7) and "Carry on" (2026-11-22): standing orchestration rules waive the optional step checks; the mandatory Full Objective Check covers the whole diff.', actor: {role: owner, session: orchestrate-g024-20261122}, recorded_at: '2026-11-22T04:52:00Z'}
@@ -62,8 +62,24 @@ Focused: `npx vitest run packages/astraeus/tests/contextLoss.test.ts packages/as
 
 ## Technical Evidence
 
-Pending execution.
+| Done When | Evidence |
+|---|---|
+| Test reads installed three's WebGLRenderer.js, handler for `webglcontextlost` calls `preventDefault()`, `webglcontextrestored` listener exists, no dependence on 0.169 text | `tests/contextLoss.test.ts` "prevents the default..." (resolves the three package folder from its entry file, finds the handler named in the `addEventListener` call, checks its body). Newest admitted three: three@0.180.0 packed from npm into scratch; it has the same listeners (lines 359-360) and `event.preventDefault()` in `onContextLost` (line 1014). |
+| Red-first: fails without the `preventDefault()` line | Test "fails on a copy of the source without the preventDefault call" strips the call from the source in memory and asserts the same matcher then finds none (the matcher is shown to be able to fail). |
+| `gl` is a plain options object, not a factory | `tests/contextLoss.test.ts` "gives the Canvas an options object..." renders HostScene with Canvas mocked to a recorder; checks typeof object and plain prototype. |
+| Restore-wake evidence | The existing restore-wake case in `glowAndHooksDom.test.ts` (~207-231) (TEST-03), run green. |
+| Draft 01 restore result | Not read (no browser run here); no REPLAN trigger known. |
+
+Commands: `npx prettier --write` on the new file; eslint (use-typescript6) on it: clean; `npm run typecheck`: no errors in contextLoss.test.ts (errors only in another builder's `ownedPictures.test.ts`); `npx vitest run packages/astraeus/tests/contextLoss.test.ts packages/astraeus/tests/glowAndHooksDom.test.ts packages/astraeus/tests/firstDraw.test.ts`: 3 files, 20 tests passed.
+
+Files changed: `packages/astraeus/tests/contextLoss.test.ts` (new). Extra reads: `tests/firstDraw.test.ts` lines 40-100 (Canvas mock render pattern).
+
+Limitations: the real-browser lose-and-restore is draft 01's step; check:three-newest not run (network, Full Check's).
 
 ## Drift Notes
 
 Design `Good guest` gains: context loss is handled by three's own renderer, pinned by `tests/contextLoss.test.ts` (reconciled by draft 07).
+
+## Coordinator (gates)
+
+Combined wave-1 gate with T-427, T-428, T-431, T-432 together: typecheck clean; `npm run lint` (ESLint + Prettier) clean; `npm test` 332 files, 5443 passed, 2 skipped. Engine 1,826,394 B raw (cap 1,838,000). Set done by the orchestrating session (owner: "I mark them as they pass", O-038; G-024 decision 7; owner 2026-11-22 "Carry on").
