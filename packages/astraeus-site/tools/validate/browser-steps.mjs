@@ -94,14 +94,27 @@ export const STEPS = [
 
 export const TIERS = ["quick", "full"];
 
-/** The steps to run, in list order. `step` names (any tier) win over `tier`; an unknown tier or step name throws a RangeError naming it. */
-export function selectSteps({ tier = "full", steps = [], all = STEPS } = {}) {
-  if (steps.length > 0) {
-    const unknown = steps.find((name) => !all.some((s) => s.name === name));
-    if (unknown !== undefined)
-      throw new RangeError(`unknown step "${unknown}" (steps: ${all.map((s) => s.name).join(", ")})`);
-    return all.filter((s) => steps.includes(s.name));
+/**
+ * The steps to run, in list order. `steps` names (any tier) win over `tier`; `add` names (any tier) join the tier's steps instead (O-094 T-424: `--tier quick --step look-out`);
+ * `skipExamples` leaves out the packed `example` steps (hello-*). An unknown tier or step name throws a RangeError naming it.
+ */
+export function selectSteps({ tier = "full", steps = [], add = [], skipExamples = false, all = STEPS } = {}) {
+  const unknown = [...steps, ...add].find((name) => !all.some((s) => s.name === name));
+  if (unknown !== undefined)
+    throw new RangeError(`unknown step "${unknown}" (steps: ${all.map((s) => s.name).join(", ")})`);
+  let chosen;
+  if (steps.length > 0) chosen = all.filter((s) => steps.includes(s.name));
+  else {
+    if (!TIERS.includes(tier)) throw new RangeError(`unknown tier "${tier}" (tiers: ${TIERS.join(", ")})`);
+    chosen = all.filter((s) => tier === "full" || s.tier === tier || add.includes(s.name));
   }
-  if (!TIERS.includes(tier)) throw new RangeError(`unknown tier "${tier}" (tiers: ${TIERS.join(", ")})`);
-  return tier === "full" ? [...all] : all.filter((s) => s.tier === tier);
+  return skipExamples ? chosen.filter((s) => s.example === undefined) : chosen;
+}
+
+/** The total limit of a tier-plus-steps run (`--tier quick --step ...`): `browser.quickLookOutTotal` covers quick + look-out, and each other added step adds its own step limit. */
+export function addedStepsLimit(limits, add) {
+  const extra = add
+    .filter((name) => name !== "look-out")
+    .reduce((sum, name) => sum + (limits.browser.steps[name] ?? 0), 0);
+  return limits.browser.quickLookOutTotal + extra;
 }

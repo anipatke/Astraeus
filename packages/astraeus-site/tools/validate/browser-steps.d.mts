@@ -14,5 +14,11 @@ export const TIERS: readonly ["quick", "full"];
 export function selectSteps(options?: {
   tier?: string;
   steps?: readonly string[];
+  add?: readonly string[];
+  skipExamples?: boolean;
   all?: readonly BrowserStep[];
 }): BrowserStep[];
+export function addedStepsLimit(
+  limits: { browser: { steps: Record<string, number>; quickLookOutTotal?: number } },
+  add: readonly string[],
+): number;

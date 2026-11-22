@@ -1,9 +1,10 @@
 import { readFileSync, rmSync } from "node:fs";
+import { spawnSync } from "node:child_process";
 import { join } from "node:path";
 import { describe, expect, it, vi } from "vitest";
 import { loadLimits, overrun } from "../../../tools/gate-limits.mjs";
 import { timeGates } from "../../../tools/time-gates.mjs";
-import { STEPS, selectSteps } from "../tools/validate/browser-steps.mjs";
+import { STEPS, addedStepsLimit, selectSteps } from "../tools/validate/browser-steps.mjs";
 import { runSet } from "../tools/validate/runner.mjs";
 
 // O-060 T-283: every gate has a stated time limit in tools/gate-limits.json. A run over its limit warns; time alone never changes an exit code.
@@ -57,6 +58,88 @@ describe("the one limits file", () => {
       "smoke",
       "synthetic-journey",
     ]);
+  });
+});
+
+// O-094 T-424 (owner ticks P01, P02): `--tier quick --step look-out [--step <name>]...` adds steps to the tier in one run; `--skip-examples` leaves out the packed hello-* steps.
+describe("tier plus added steps, and the example skip", () => {
+  const names = (steps: readonly { name: string }[]) => steps.map((step) => step.name);
+  const quick = names(selectSteps({ tier: "quick" }));
+  const examples = STEPS.filter((step) => step.example !== undefined).map((step) => step.name);
+  const cli = (args: string[]) => {
+    const run = spawnSync(
+      process.execPath,
+      [join(root, "packages/astraeus-site/tools/validate/run-browser.mjs"), ...args, "--list"],
+      {
+        encoding: "utf8",
+      },
+    );
+    expect(run.status, run.stderr).toBe(0);
+    return run.stdout
+      .trim()
+      .split("\n")
+      .map((line) => line.split(" | ")[0]);
+  };
+  const cases: { name: string; args: string[]; expected: string[] }[] = [
+    { name: "quick only", args: ["--tier", "quick"], expected: quick },
+    {
+      name: "quick + look-out",
+      args: ["--tier", "quick", "--step", "look-out"],
+      expected: names(STEPS.filter((s) => s.tier === "quick" || s.name === "look-out")),
+    },
+    {
+      name: "quick + look-out + views",
+      args: ["--tier", "quick", "--step", "look-out", "--step", "views"],
+      expected: names(STEPS.filter((s) => s.tier === "quick" || s.name === "look-out" || s.name === "views")),
+    },
+    {
+      name: "--step alone unchanged",
+      args: ["--step", "look-out", "--step", "smoke"],
+      expected: ["smoke", "look-out"],
+    },
+    {
+      name: "example skip",
+      args: ["--tier", "quick", "--step", "look-out", "--skip-examples"],
+      expected: names(STEPS.filter((s) => (s.tier === "quick" || s.name === "look-out") && !examples.includes(s.name))),
+    },
+    { name: "full tier unchanged", args: [], expected: names(STEPS) },
+  ];
+
+  it.each(cases)("$name: --list prints the selected steps in list order", ({ args, expected }) => {
+    expect(cli(args)).toEqual(expected);
+  });
+
+  it("the selection itself: added steps join the tier, the skip drops exactly the four hello examples", () => {
+    expect(examples.sort()).toEqual(["hello-planets", "hello-react", "hello-scene", "hello-sky"]);
+    expect(names(selectSteps({ tier: "quick", add: ["look-out"] }))).toEqual(cases[1]?.expected);
+    expect(names(selectSteps({ tier: "full", skipExamples: true }))).toEqual(
+      names(STEPS).filter((n) => !examples.includes(n)),
+    );
+    expect(() => selectSteps({ tier: "quick", add: ["nope"] })).toThrow(/unknown step "nope"/);
+  });
+
+  it("the quick + look-out limit is stated, leaves room over quick + look-out, and each further added step adds its own limit", () => {
+    const browser = limits.browser as unknown as {
+      quickTotal: number;
+      quickLookOutTotal?: number;
+      steps: Record<string, number>;
+    };
+    expect(browser.quickLookOutTotal).toBeGreaterThan(124 + 72);
+    expect(browser.quickLookOutTotal).toBeGreaterThan(browser.quickTotal);
+    expect(browser.quickLookOutTotal).toBeLessThan(limits.browser.total);
+    expect(addedStepsLimit(limits, ["look-out"])).toBe(browser.quickLookOutTotal);
+    expect(addedStepsLimit(limits, ["look-out", "views"])).toBe(
+      (browser.quickLookOutTotal ?? 0) + (browser.steps.views ?? 0),
+    );
+  });
+
+  it("docs/agents/build.md states the quick + look-out limit", () => {
+    const row = readFileSync(join(root, "docs/agents/build.md"), "utf8")
+      .split("\n")
+      .find((line) => line.startsWith("| `check:browser -- --tier quick --step look-out`"));
+    expect(row?.split("|").at(-2)?.trim()).toBe(
+      `${(limits.browser as { quickLookOutTotal?: number }).quickLookOutTotal} s`,
+    );
   });
 });
 
