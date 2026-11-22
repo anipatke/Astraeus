@@ -2,7 +2,7 @@
 id: I-199
 title: Measure which tests earn their run time, then prune
 type: verification
-status: open
+status: resolved
 source:
   kind: report
   actor: {role: owner, session: orchestrate-g024-20261122}
@@ -11,6 +11,12 @@ tasks: []
 checks: []
 guardrail_ids: []
 severity: low
+resolution:
+  disposition: escalated
+  actor: {role: planner, session: orchestrate-g024-20261122}
+  at: '2026-11-22T03:56:59Z'
+  reason: 'Owner chose "Do it next" and confirmed the design ("Go ahead"); promoted into G-024 as Objective O-094.'
+escalated_to: O-094
 history:
   - at: '2026-11-22T03:00:05Z'
     actor: {role: owner, session: orchestrate-g024-20261122}
@@ -20,6 +26,10 @@ history:
     actor: {role: owner, session: orchestrate-g024-20261122}
     kind: owner_decision
     note: 'Owner, 2026-11-22, after "i seem to be spending 90% of my time waiting for tests", chose "Do it next": this work moves into G-024 ahead of O-092 and O-090 (savepoint-design promotes it to an Objective; measure first, prune on the owner''s choice).'
+  - at: '2026-11-22T03:56:59Z'
+    actor: {role: planner, session: orchestrate-g024-20261122}
+    kind: escalated
+    note: 'Promoted into O-094 "Tests that earn their time" (owner design interview: All three, Halve it, Report page I tick cuts; Go ahead).'
 ---
 
 # Measure which tests earn their run time, then prune
