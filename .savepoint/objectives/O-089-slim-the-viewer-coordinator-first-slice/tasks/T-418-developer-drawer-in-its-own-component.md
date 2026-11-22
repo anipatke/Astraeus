@@ -2,7 +2,7 @@
 id: T-418
 title: Developer drawer in its own component
 objective: O-089
-status: planned
+status: done
 depends_on: []
 owner_validation: {required: false}
 check_waiver: {task: T-418, reason: 'Owner said "work through this list of objectives one by one. Orchestrate each objective to completion" (G-024 decision 7) and "carry on orchestrating G-024" (2026-11-22): standing orchestration rules waive the optional step checks; the mandatory Full Objective Check covers the whole diff.', actor: {role: owner, session: orchestrate-g024-20261122}, recorded_at: '2026-11-22T03:09:26Z'}
@@ -73,8 +73,36 @@ Focused: `npx vitest run packages/astraeus/tests/developerDrawerFolds.test.ts pa
 
 ## Technical Evidence
 
-Pending execution.
+Extra reads: none beyond Context Files (also `packages/astraeus/tests/domSetup.ts` helpers and `tests/sceneInputCopies.test.ts` / `hostCameraDom.test.ts` for made-up scene inputs, to build the new test's scenes).
+
+Red-first: `developerDrawerFolds.test.ts` was written and run green (30 cases) against the unmoved `App.tsx` before any code moved; it was then run again after the move with no change to its expectations.
+
+| Done When | Evidence |
+|---|---|
+| New `DeveloperDrawer.tsx` holds header, eight folds, `ViewLinkGroup`, `glowColoursShown`, orbit slider table, `copyViewLink`, `FPS_HISTORY` | `packages/astraeus/src/app/DeveloperDrawer.tsx` (504 lines); `App.tsx` no longer defines any of them; `npm run typecheck` clean |
+| `developerPanels.tsx` exports one lazy `DeveloperDrawer`; `App` renders it in the same `PanelLoadBoundary` and `Suspense` with the same fallback and `drawerWhen` | `developerPanels.tsx` (one `lazy(() => import("./DeveloperDrawer"))`); `developerToolsOption.test.ts` (drawer code fetched only after opening), `appScreenDom.test.ts` "stay unloaded until opened, then show a loading note" pass |
+| Readouts (`hud`, `frames`, `fpsHistory`, `fills`, `viewNow`) and the 250 ms interval moved into a hook in the drawer file; start from live values; restart on `runtime`; state that must outlive a close stays in `App` | `useDrawerReadouts` in `DeveloperDrawer.tsx`; `appScreenDom.test.ts` "collects frame timing while open, polls the scene's readouts, and stops when closed" and the new close/reopen case pass |
+| `App.tsx` shorter by at least the moved lines; no drawer JSX beyond one element and its boundary | `wc -l App.tsx`: 1,574 before, 1,188 after (386 fewer); only `<DeveloperDrawer .../>` in a `PanelLoadBoundary`/`Suspense` remains |
+| New table test written first, green on both paths before the move | `developerDrawerFolds.test.ts`: 7 scene kinds (plain, plain with address, orbit paths, body set, rings, sky figures, story panels) x 2 paths (`mount`, `AstraeusScene`) x 3 cases (fold ids/titles/default-open/test ids/copy button; one control per fold reaches `controls()`; close stops `frameStats`, reopen restarts it): 30 passed on base and after |
+| `firstOpenGraph.test.ts` two expectations only | line 75 lists `app/DeveloperDrawer.tsx` as not reached; line 93 expects `import("./DeveloperDrawer")`; no other line changed; file passes |
+| Existing tests pass unchanged | focused run below: 10 files, 285 tests passed (includes `pausedRenders`, `developerToolsOption`, `developerSettingsDom`, `domMenuAndLink`, `appScreenDom`, `domShell`, `twoViewers`, `lifecycle`) |
+| First-open raw total goes down | `npm run measure:example`: before 1,836,426 B raw / 525,714 B gzip; after 1,826,703 B raw / 523,401 B gzip (-9,723 raw, -2,313 gzip). `DeveloperSettings` chunk replaced by `DeveloperDrawer` on-demand chunk (24,898 B raw) |
+| Handoff gates focused | see below |
+
+Commands run:
+- `npm run typecheck`: clean.
+- `node --require ./tools/lint/use-typescript6.cjs node_modules/eslint/bin/eslint.js` on the five changed source/test files: clean.
+- `npx prettier --check` on the same five files: clean.
+- `npx vitest run` on `developerDrawerFolds`, `firstOpenGraph`, `developerToolsOption`, `developerSettingsDom`, `domMenuAndLink`, `appScreenDom`, `domShell`, `twoViewers`, `lifecycle`, `pausedRenders` (all under `packages/astraeus/tests/`): 10 files, 285 tests passed.
+
+Files changed: `src/app/App.tsx`, `src/app/DeveloperDrawer.tsx` (new), `src/app/developerPanels.tsx`, `tests/firstOpenGraph.test.ts` (two lines), `tests/developerDrawerFolds.test.ts` (new); this Task file.
+
+Limitations: no browser run (Task Boundaries). Behaviour differences by design: a reopened drawer starts from live readings (hud, groups, view) instead of the last polled ones; the frame-stats collector starts when the drawer chunk has loaded and mounted (the first open), not at the moment the switch is pressed. The new test's timeline-glow move reads the drawer's own readout, since the glow reaches the shell, not `controls()`.
 
 ## Drift Notes
 
-Expected: `viewer-interface.md` section 9 and Design `Good guest` item 3 name where the drawer lives. Reconciled in draft 04 ("Slice pattern written down and Design brought up to date").
+Design `Good guest` item 3 and `viewer-interface.md` section 9 should say the drawer is one on-demand `DeveloperDrawer` component (props grouped by fold) rather than six per-panel lazy wrappers; `docs/evidence/o043-bundle-baseline.md` line 54 is historical and stays. Reconciled in draft 04.
+
+## Coordinator (gates)
+
+Set done by the orchestrating session after the combined wave gates passed with T-418 and T-419 together (owner: "I mark them as they pass", O-038; G-024 decision 7 "Orchestrate each objective to completion"; owner 2026-11-22 "carry on orchestrating G-024"): typecheck clean; `npm run lint` (ESLint + Prettier) clean; `npm test` 327 files, 5393 passed, 2 skipped. T-418 measured first-open engine 1,826,703 B raw / 523,401 B gzip (was 1,836,426 / 525,714; cap 1,838,000 raw).

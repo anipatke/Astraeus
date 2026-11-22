@@ -6,7 +6,6 @@ import {
   useRef,
   useState,
   useSyncExternalStore,
-  type ComponentProps,
   type ReactNode,
 } from "react";
 import { createOrbAstronomyAdapter } from "../core/astronomyAdapter";
@@ -55,39 +54,28 @@ import {
 } from "./viewLink";
 import { createOrbitCameraState } from "./CameraController";
 import { START_CAMERA_DISTANCE } from "./sceneFraming";
-import { addressSearch, shareViewLink } from "./address";
-import { Collapsible } from "../shell/Collapsible";
+import { addressSearch } from "./address";
 import { PanelLoadBoundary } from "./PanelLoadBoundary";
-import { BOOT_FADE_LIMITS, bootFadeSeconds, saveBootFadeSeconds } from "../shell/bootLoader";
-import {
-  LabelSettings,
-  UnderTheHoodSettings,
-  ViewLinkReadout,
-  MoonsAndRingsSettings,
-  SkyAndSunSettings,
-  StoryPanelSettings,
-} from "./developerPanels";
+import { bootFadeSeconds } from "../shell/bootLoader";
+import { DeveloperDrawer } from "./developerPanels";
 import { DEFAULT_ILLUMINATE_ALL } from "./lighting";
-import { SettingButtons, SettingColor, SettingGroup, SettingSlider } from "./SettingControls";
 import { DEFAULT_TIMELINE_GLOW, type TimelineGlowLook } from "../shell/timelineGlow";
-import { DEFAULT_PHONE_LAYOUT, PHONE_LAYOUT_LIMITS, type PhoneLayoutSettings } from "../shell/phoneLayout";
+import { DEFAULT_PHONE_LAYOUT, type PhoneLayoutSettings } from "../shell/phoneLayout";
 import type { StoryMarkerSpec } from "./StoryMarkers";
 import { featureMarkerSpecs, featureMinBodyPxOf } from "./FeatureMarkers";
-import type { GroupFill } from "./FrameRateSection";
-import { FrameStats, type FrameSnapshot } from "./frameStats";
 import { AstraeusScene, type SceneControls } from "./AstraeusScene";
 import { HOVER_BRIGHTNESS_DEFAULT } from "./scenePicking";
 import { createSceneResolver } from "./sceneLayout";
 import { loadStarCatalogue } from "../assets/sky";
 import { withSkyObject, type StarStatus } from "./skyModel";
-import { ORBIT_LOOK_LIMITS, resolveOrbitLook, type OrbitLook } from "../assets/orbitLook";
+import { resolveOrbitLook, type OrbitLook } from "../assets/orbitLook";
 import { DEFAULT_BODY_SET_LOOK, type BodySetLook } from "./bodySet";
 import { displaySwitchItems, hostReachable, orbitStart, skyLineStart, type SwitchBindings } from "./displaySwitches";
 import { TRACE_FADE_SECONDS, type SkyTraceAfter } from "../presentation/skyTrace";
 import { aimAtFigure, DEFAULT_SKY_LINES, prefersReducedMotion, skyColoursOf, skyFadeInSecondsOf } from "./skyFigures";
 import { labelStyleOf } from "./labelStyle";
 import { timeLookOf } from "./timeLook";
-import { INTERNAL_LOOK_COLOURS, interfaceLookOf } from "../shell/look/interfaceLook";
+import { interfaceLookOf } from "../shell/look/interfaceLook";
 import { experienceInView, hiddenByView, hiddenWithShownSpans, viewById } from "./viewHiding";
 import { cameraIdsOf } from "../presentation/storyPanels";
 import type { RingLook } from "../assets/rings";
@@ -103,9 +91,6 @@ import {
 } from "./liveLook";
 import type { LookInput } from "../api/look";
 import { DEFAULT_POINT_SIZE_PX, type GroupDotLook } from "./PointsView";
-
-/** Frames-per-second readings kept for the graph: one per 250 ms poll, so about 15 seconds. */
-const FPS_HISTORY = 60;
 
 /** The labels switched off at the start: objects that set `showLabel: false`, then `?labels=<id>:on|off,...` over them. */
 export function hiddenLabelsFrom(
@@ -164,23 +149,6 @@ function startViewId(definition: ExperienceDefinition, search: string): string {
   const asked = showFromSearch(search);
   const known = asked !== undefined && definition.views?.views.some((view) => view.id === asked) === true;
   return known ? asked : (definition.views?.start ?? "");
-}
-
-/** The "Copy view link" button and its readout: offered only when the host turned the address option on (nothing else writes the address). */
-function ViewLinkGroup({
-  offered,
-  onCopy,
-  ...readout
-}: { readonly offered: boolean; readonly onCopy: () => void } & ComponentProps<typeof ViewLinkReadout>) {
-  if (!offered) return null;
-  return (
-    <div className="view-link" role="group" aria-label="Camera view">
-      <SettingButtons label="Camera view">
-        <button onClick={onCopy}>Copy view link</button>
-      </SettingButtons>
-      <ViewLinkReadout {...readout} />
-    </div>
-  );
 }
 
 /** The labels switch's starting state, if the story gave one. */
@@ -378,11 +346,6 @@ function useAbout(definition: ExperienceDefinition, host: ViewerPort | undefined
   return useSyncExternalStore(watch, () => host?.aboutNow()) ?? definition.about;
 }
 
-/** The colours the Developer drawer's glow pickers show: the set colour, else the look token in force (the internal glow colour, the viewer's accent; I-186). */
-function glowColoursShown(glow: TimelineGlowLook, accent: string): { readonly ahead: string; readonly played: string } {
-  return { ahead: glow.color ?? INTERNAL_LOOK_COLOURS.glow, played: glow.playedColor ?? accent };
-}
-
 /**
  * `writeTitle`: whether the page heading is set to the experience's name (default true); `mount` and `AstraeusScene` pass false so a host page keeps its own title.
  * `developerTools`: whether the viewer shows the Developer toggle and drawer (default false; the drawer's code is fetched only when a visitor opens it, so off never fetches it; the demo site passes true).
@@ -575,12 +538,7 @@ export function App({
     readonly keepSky?: boolean;
   } | null>(null);
   const [featureRequest, setFeatureRequest] = useState<{ readonly key: string; readonly serial: number } | null>(null);
-  const [hud, setHud] = useState<DebugReadout | null>(null);
-  const [frames, setFrames] = useState<FrameSnapshot | null>(null);
-  const [fpsHistory, setFpsHistory] = useState<readonly number[]>([]);
-  const [viewNow, setViewNow] = useState<CameraView | null>(null);
   const [viewLink, setViewLink] = useState<{ readonly url: string; readonly copied: boolean } | null>(null);
-  const [fills, setFills] = useState<readonly GroupFill[]>([]);
   /** The ids the camera's last request named (a preset, a host `setCamera`, a story panel's camera): the one rule below holds the camera when one of them stops being shown. */
   const cameraNamed = useRef<readonly string[]>([]);
   const noteCameraIds = (request: CameraRequest) => {
@@ -966,41 +924,6 @@ export function App({
     shelf.control,
   ]);
 
-  useEffect(() => {
-    if (!developerMode) return undefined;
-    const stats = new FrameStats();
-    controls.current.frameStats = stats;
-    const id = window.setInterval(() => {
-      setHud(readout.current);
-      const snapshot = stats.snapshot();
-      setFrames(snapshot);
-      if (snapshot.frames > 0) setFpsHistory((history) => [...history.slice(-(FPS_HISTORY - 1)), snapshot.fps]);
-      setFills(controls.current.groupFills.map((fill) => ({ ...fill })));
-      setViewNow(controls.current.viewReadout === undefined ? null : { ...controls.current.viewReadout });
-    }, 250);
-    return () => {
-      window.clearInterval(id);
-      // eslint-disable-next-line react-hooks/exhaustive-deps -- controls is a stable ref; the cleanup must clear the current stats, not a copy taken at start
-      controls.current.frameStats = null;
-      setFrames(null);
-      setFpsHistory([]);
-    };
-  }, [developerMode, runtime]);
-
-  /** Writes the current view, scale, up direction and time into the address, then copies the full link (or shows it to copy by hand). */
-  const copyViewLink = async () => {
-    const view = controls.current.viewReadout;
-    if (view === undefined) return;
-    setViewLink(
-      await shareViewLink({
-        view,
-        scaleId: scale,
-        up: upChoice,
-        timeUtcMs: runtime.clock.snapshot().timeUtcMs,
-        ...(definition.views === undefined ? {} : { show: viewRef.current }),
-      }),
-    );
-  };
   const viewChoice: ViewChoice | undefined =
     definition.views === undefined
       ? undefined
@@ -1109,364 +1032,6 @@ export function App({
   ]);
   const hasStoryPanels = (storySet?.panels.length ?? 0) > 0;
   const showDisplay = showsDisplayControls(definition, runtime, skyVisible, orbitPaths.length, storyMarkerSpecs.length);
-  // Orbit-line sliders: the first four stay in view, the rest sit in a nested "Fine-tune" fold (T-090).
-  const orbitSliders = {
-    main: [
-      ["baseOpacity", "Ring opacity", "orbit-base-opacity", 0.01],
-      ["endFade", "End fade (of ring)", "orbit-end-fade", 0.01],
-      ["arcFraction", "Arc length (of orbit)", "orbit-arc-fraction", 0.01],
-      ["arcPeak", "Arc opacity", "orbit-arc-peak", 0.01],
-    ],
-    fine: [
-      ["arcExponent", "Fade curve (power)", "orbit-arc-exponent", 0.1],
-      ["arcSegments", "Arc segments", "orbit-arc-segments", 1],
-      ["arcWidth", "Arc width (of orbit)", "orbit-arc-width", 0.0001],
-      ["arcMaxWidthPx", "Arc max width (px)", "orbit-arc-max-width", 0.5],
-      ["zoomBoostBase", "Zoom boost (ring)", "orbit-zoom-boost-base", 0.01],
-      ["zoomBoostArc", "Zoom boost (arc)", "orbit-zoom-boost-arc", 0.01],
-    ],
-  } as const;
-  const orbitSlider = ([key, label, testId, step]: readonly [
-    Exclude<keyof typeof orbitShown, "baseOn" | "endFadeOn" | "arcOn" | "zoomOn">,
-    string,
-    string,
-    number,
-  ]) => (
-    <SettingSlider
-      key={key}
-      label={label}
-      ariaLabel={label}
-      testId={`${testId}-value`}
-      display={orbitShown[key].toFixed(step === 1 ? 0 : step === 0.5 ? 1 : step < 0.01 ? 4 : 2)}
-      min={ORBIT_LOOK_LIMITS[key].min}
-      max={ORBIT_LOOK_LIMITS[key].max}
-      step={step}
-      value={orbitShown[key]}
-      onChange={(value) => setOrbit({ [key]: value })}
-    />
-  );
-  // The panel's folds, in order; the first one present opens by default and the rest start closed (T-090).
-  const groups: ReadonlyArray<{
-    readonly id: string;
-    readonly title: string;
-    readonly className?: string;
-    readonly body: ReactNode;
-  } | null> = [
-    !showDisplay
-      ? null
-      : {
-          id: "camera",
-          title: "Camera and view",
-          body: (
-            <>
-              <SettingButtons label="Up direction">
-                {(
-                  [
-                    ["ecliptic", "Planets' plane (ecliptic)"],
-                    ["equatorial", "Earth's pole (equatorial)"],
-                  ] as const
-                ).map(([choice, text]) => (
-                  <button
-                    key={choice}
-                    aria-pressed={upChoice === choice}
-                    onClick={() => {
-                      controls.current.up = viewUpVector(choice);
-                      setUpChoice(choice);
-                    }}
-                  >
-                    {text}
-                  </button>
-                ))}
-              </SettingButtons>
-              <SettingSlider
-                label="Marker threshold (px)"
-                ariaLabel="Body marker threshold"
-                testId="body-marker-value"
-                display={markerPx.toFixed(1)}
-                min={0}
-                max={20}
-                step={0.5}
-                value={markerPx}
-                onChange={(value) => {
-                  controls.current.bodyMarker = { ...controls.current.bodyMarker, minSpherePx: value };
-                  setMarkerPx(value);
-                }}
-              />
-              <SettingSlider
-                label="Loading fade (s, next load)"
-                ariaLabel="Loading fade"
-                testId="load-fade-value"
-                display={loadFade.toFixed(1)}
-                min={BOOT_FADE_LIMITS.min}
-                max={BOOT_FADE_LIMITS.max}
-                step={0.1}
-                value={loadFade}
-                onChange={(value) => {
-                  saveBootFadeSeconds(value);
-                  controls.current.loadFadeSeconds = value;
-                  setLoadFade(value);
-                }}
-              />
-              <ViewLinkGroup
-                offered={address === true}
-                onCopy={() => void copyViewLink()}
-                viewNow={viewNow}
-                viewLink={viewLink}
-                scale={scale}
-                upChoice={upChoice}
-              />
-              <SettingButtons>
-                <button
-                  aria-pressed={loopOn}
-                  onClick={() => {
-                    controls.current.loop = !loopOn;
-                    setLoopOn(!loopOn);
-                  }}
-                >
-                  Loop playback
-                </button>
-              </SettingButtons>
-            </>
-          ),
-        },
-    !showDisplay
-      ? null
-      : {
-          id: "timeline",
-          title: "Timeline and stories",
-          body: (
-            <>
-              <SettingGroup name="timeline-glow" title="Timeline glow">
-                <SettingColor
-                  label="Glow colour"
-                  ariaLabel="Timeline glow colour"
-                  testId="glow-color-value"
-                  value={glowColoursShown(timelineGlow, interfaceShown.accent).ahead}
-                  onChange={(color) => setTimelineGlow({ ...timelineGlow, color })}
-                />
-                <SettingColor
-                  label="Played colour"
-                  ariaLabel="Timeline played colour"
-                  testId="glow-played-value"
-                  value={glowColoursShown(timelineGlow, interfaceShown.accent).played}
-                  onChange={(playedColor) => setTimelineGlow({ ...timelineGlow, playedColor })}
-                />
-                {(
-                  [
-                    ["minBrightness", "Quiet brightness", "Timeline quiet brightness", "glow-min-value", 0, 1, 0.01],
-                    [
-                      "steadyBrightness",
-                      "Steady brightness (no rate)",
-                      "Timeline steady brightness",
-                      "glow-steady-value",
-                      0,
-                      1,
-                      0.01,
-                    ],
-                    ["curve", "Curve (rate to brightness)", "Timeline glow curve", "glow-curve-value", 0.2, 3, 0.05],
-                    ["playedFloor", "Played brightness floor", "Timeline played floor", "glow-floor-value", 0, 1, 0.01],
-                    ["thicknessPx", "Thickness (px)", "Timeline glow thickness", "glow-thickness-value", 2, 14, 0.5],
-                    ["haloPx", "Halo blur (px)", "Timeline glow halo", "glow-halo-value", 0, 20, 0.5],
-                  ] as const
-                ).map(([key, label, ariaLabel, testId, min, max, step]) => (
-                  <SettingSlider
-                    key={key}
-                    label={label}
-                    ariaLabel={ariaLabel}
-                    testId={testId}
-                    display={timelineGlow[key].toFixed(step < 0.1 ? 2 : step < 1 ? 1 : 0)}
-                    min={min}
-                    max={max}
-                    step={step}
-                    value={timelineGlow[key]}
-                    onChange={(value) => setTimelineGlow({ ...timelineGlow, [key]: value })}
-                  />
-                ))}
-                <SettingButtons>
-                  <button onClick={() => setTimelineGlow(DEFAULT_TIMELINE_GLOW)}>Reset glow</button>
-                </SettingButtons>
-              </SettingGroup>
-              {hasStoryPanels && (
-                <StoryPanelSettings
-                  storyAutoOpen={storyAutoOpen}
-                  setStoryAutoOpen={setStoryAutoOpen}
-                  storyPauseSeconds={storyPauseSeconds}
-                  setStoryPauseSeconds={setStoryPauseSeconds}
-                />
-              )}
-            </>
-          ),
-        },
-    orbitPaths.length === 0
-      ? null
-      : {
-          id: "orbit-lines",
-          title: "Orbit lines",
-          body: (
-            <>
-              <SettingButtons>
-                <button aria-pressed={orbitShown.baseOn} onClick={() => setOrbit({ baseOn: !orbitShown.baseOn })}>
-                  Orbit ring
-                </button>
-                <button
-                  aria-pressed={orbitShown.endFadeOn}
-                  onClick={() => setOrbit({ endFadeOn: !orbitShown.endFadeOn })}
-                >
-                  Fade ring ends
-                </button>
-                <button aria-pressed={orbitShown.arcOn} onClick={() => setOrbit({ arcOn: !orbitShown.arcOn })}>
-                  Trailing arc
-                </button>
-                <button aria-pressed={orbitShown.zoomOn} onClick={() => setOrbit({ zoomOn: !orbitShown.zoomOn })}>
-                  Brighten when zoomed out
-                </button>
-              </SettingButtons>
-              {orbitSliders.main.map(orbitSlider)}
-              <Collapsible fold="orbit-fine-tune" title="Fine-tune" level={4} nested>
-                {orbitSliders.fine.map(orbitSlider)}
-              </Collapsible>
-              <SettingButtons>
-                <button onClick={resetOrbit}>Reset orbit lines</button>
-              </SettingButtons>
-            </>
-          ),
-        },
-    bodySets.length === 0 && ringSystems.length === 0
-      ? null
-      : {
-          id: "moons-rings",
-          title: "Moons and rings",
-          body: (
-            <MoonsAndRingsSettings
-              bodySets={bodySets}
-              ringSystems={ringSystems}
-              setLook={setLook}
-              changeSetLook={changeSetLook}
-              ringLook={ringLook}
-              changeRing={changeRing}
-              controls={controls}
-              setSetLook={setSetLook}
-              setRingLook={setRingLook}
-            />
-          ),
-        },
-    !(skyVisible || glowShown !== null)
-      ? null
-      : {
-          id: "sky-sun",
-          title: "Sky and Sun",
-          body: (
-            <SkyAndSunSettings
-              illuminateAll={illuminateAll}
-              setIlluminateAll={setIlluminateAll}
-              visible={skyVisible}
-              glowShown={glowShown}
-              setGlowShown={setGlowShown}
-              controls={controls}
-              milkyWayOn={milkyWayOn}
-              setMilkyWayOn={setMilkyWayOn}
-              starBrightness={starBrightness}
-              setStarBrightness={setStarBrightness}
-              milkyWayBrightness={milkyWayBrightness}
-              setMilkyWayBrightness={setMilkyWayBrightness}
-            />
-          ),
-        },
-    {
-      id: "labels",
-      title: "Labels",
-      body: (
-        <LabelSettings
-          controls={controls}
-          hoverBrightness={hoverBrightness}
-          setHoverBrightness={setHoverBrightness}
-          labelToggles={labelToggles}
-          trackedCount={runtime.trackedBodies.length}
-          anchorLabels={anchorLabels}
-          setAnchorLabels={setAnchorLabels}
-          hiddenLabels={hiddenLabels}
-          setHiddenLabels={setHiddenLabels}
-          labelStyle={labelStyleShown}
-          setLabelStyle={setLabelStyleShown}
-          skyColours={skyColoursShown}
-          setSkyColours={setSkyColoursShown}
-          hasSky={skyVisible}
-        />
-      ),
-    },
-    !showDisplay
-      ? null
-      : {
-          id: "phone-layout",
-          title: "Phone layout",
-          body: (
-            <>
-              {(
-                [
-                  ["animationMs", "Drawer animation (ms)", "Phone drawer animation", "phone-animation-value"],
-                  [
-                    "controlsDrawerMaxPercent",
-                    "Top drawer height (% of screen)",
-                    "Phone top drawer height",
-                    "phone-controls-height-value",
-                  ],
-                  [
-                    "timelineDrawerMaxPercent",
-                    "Timeline drawer height (% of screen)",
-                    "Phone timeline drawer height",
-                    "phone-timeline-height-value",
-                  ],
-                  ["sheetMaxPercent", "Sheet height (% of screen)", "Phone sheet height", "phone-sheet-height-value"],
-                  ["swipeThresholdPx", "Swipe distance (px)", "Phone swipe distance", "phone-swipe-value"],
-                ] as const
-              ).map(([key, label, ariaLabel, testId]) => (
-                <SettingSlider
-                  key={key}
-                  label={label}
-                  ariaLabel={ariaLabel}
-                  testId={testId}
-                  display={String(phoneLayout[key])}
-                  min={PHONE_LAYOUT_LIMITS[key].min}
-                  max={PHONE_LAYOUT_LIMITS[key].max}
-                  step={PHONE_LAYOUT_LIMITS[key].step}
-                  value={phoneLayout[key]}
-                  onChange={(value) => {
-                    if (key === "sheetMaxPercent") {
-                      controls.current.sheetMaxPercent = value;
-                      setSheetShown(value);
-                    } else if (key === "animationMs") {
-                      controls.current.interfaceLook = { ...controls.current.interfaceLook, motionMs: value };
-                      setInterfaceShown(controls.current.interfaceLook);
-                    } else setPhoneLayout({ ...phoneLayoutOwn, [key]: value });
-                  }}
-                />
-              ))}
-              <SettingButtons>
-                <button
-                  onClick={() => {
-                    setPhoneLayout(DEFAULT_PHONE_LAYOUT);
-                    controls.current.sheetMaxPercent = DEFAULT_PHONE_LAYOUT.sheetMaxPercent;
-                    setSheetShown(DEFAULT_PHONE_LAYOUT.sheetMaxPercent);
-                    controls.current.interfaceLook = {
-                      ...controls.current.interfaceLook,
-                      motionMs: DEFAULT_PHONE_LAYOUT.animationMs,
-                    };
-                    setInterfaceShown(controls.current.interfaceLook);
-                  }}
-                >
-                  Reset phone layout
-                </button>
-              </SettingButtons>
-            </>
-          ),
-        },
-    {
-      id: "under-the-hood",
-      title: "Under the hood",
-      body: <UnderTheHoodSettings hud={hud} frames={frames} fills={fills} fpsHistory={fpsHistory} />,
-    },
-  ];
-  const presentGroups = groups.filter((group) => group !== null);
   const drawer = (
     <PanelLoadBoundary>
       <Suspense
@@ -1476,23 +1041,72 @@ export function App({
           </p>
         }
       >
-        <div className="hud">
-          <header className="developer-heading">
-            <h2>Developer tools</h2>
-            <p>Live readouts, controls and diagnostics for this scene.</p>
-          </header>
-          {presentGroups.map((group, index) => (
-            <Collapsible
-              key={group.id}
-              fold={group.id}
-              title={group.title}
-              defaultOpen={index === 0}
-              className={`dev-group${group.className === undefined ? "" : ` ${group.className}`}`}
-            >
-              {group.body}
-            </Collapsible>
-          ))}
-        </div>
+        <DeveloperDrawer
+          controls={controls}
+          readout={readout}
+          runtime={runtime}
+          showDisplay={showDisplay}
+          camera={{
+            upChoice,
+            setUpChoice,
+            markerPx,
+            setMarkerPx,
+            loadFade,
+            setLoadFade,
+            loopOn,
+            setLoopOn,
+            scale,
+            offered: address === true,
+            viewId: () => (definition.views === undefined ? undefined : viewRef.current),
+            viewLink,
+            setViewLink,
+          }}
+          timeline={{
+            glow: timelineGlow,
+            setGlow: setTimelineGlow,
+            accent: interfaceShown.accent,
+            story: hasStoryPanels
+              ? { storyAutoOpen, setStoryAutoOpen, storyPauseSeconds, setStoryPauseSeconds }
+              : undefined,
+          }}
+          orbit={{ present: orbitPaths.length > 0, shown: orbitShown, set: setOrbit, reset: resetOrbit }}
+          moons={{ bodySets, ringSystems, setLook, changeSetLook, ringLook, changeRing, setSetLook, setRingLook }}
+          sky={{
+            illuminateAll,
+            setIlluminateAll,
+            visible: skyVisible,
+            glowShown,
+            setGlowShown,
+            milkyWayOn,
+            setMilkyWayOn,
+            starBrightness,
+            setStarBrightness,
+            milkyWayBrightness,
+            setMilkyWayBrightness,
+          }}
+          labels={{
+            hoverBrightness,
+            setHoverBrightness,
+            labelToggles,
+            trackedCount: runtime.trackedBodies.length,
+            anchorLabels,
+            setAnchorLabels,
+            hiddenLabels,
+            setHiddenLabels,
+            labelStyle: labelStyleShown,
+            setLabelStyle: setLabelStyleShown,
+            skyColours: skyColoursShown,
+            setSkyColours: setSkyColoursShown,
+            hasSky: skyVisible,
+          }}
+          phone={{
+            layout: phoneLayout,
+            own: phoneLayoutOwn,
+            setOwn: setPhoneLayout,
+            setSheetShown,
+            setInterfaceShown,
+          }}
+        />
       </Suspense>
     </PanelLoadBoundary>
   );

@@ -73,7 +73,12 @@ describe("first-open import graph (T-179)", () => {
   });
 
   it("does not reach the developer panels", () => {
-    for (const panel of ["app/DeveloperSettings.tsx", "app/DebugOverlay.tsx", "app/FrameRateSection.tsx"]) {
+    for (const panel of [
+      "app/DeveloperDrawer.tsx",
+      "app/DeveloperSettings.tsx",
+      "app/DebugOverlay.tsx",
+      "app/FrameRateSection.tsx",
+    ]) {
       expect(graph, panel).not.toContain(panel);
     }
   });
@@ -90,7 +95,7 @@ describe("first-open import graph (T-179)", () => {
 
   it("loads the developer panels through a dynamic import", () => {
     const text = readFileSync(join(SRC, "app/developerPanels.tsx"), "utf8");
-    expect(text).toContain('import("./DeveloperSettings")');
+    expect(text).toContain('import("./DeveloperDrawer")');
     expect(staticImports(join(SRC, "app/developerPanels.tsx"))).toEqual([]);
   });
 });
