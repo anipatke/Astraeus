@@ -1,7 +1,7 @@
 ---
 id: O-094
 title: Tests that earn their time
-status: planned
+status: in_progress
 depends_on: [O-089]
 release: G-024
 priority: high

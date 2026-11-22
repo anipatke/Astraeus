@@ -1,0 +1,299 @@
+[
+  {
+    "id": "P01",
+    "title": "When a change needs the bigger browser check, run the quick browser check plus the look-out step, and add the other extra steps only when their own part of the code changed",
+    "kind": "rule",
+    "targets": [
+      "docs/agents/browser-policy.md (Browser tiers)",
+      "docs/agents/build.md (Browser gate)",
+      "check:browser full-only steps: synthetic-journey (67 s), meteor-shower (16 s), views (21 s), catalogue (6 s)"
+    ],
+    "savedSecondsPerFullCheck": 114,
+    "savedSecondsPerObjective": 148,
+    "caught": [
+      "synthetic-journey: I-185 (G-023)",
+      "catalogue: I-188 (G-023)",
+      "meteor-shower: none recorded",
+      "views: none recorded"
+    ],
+    "risk": "A camera, layout or sky change could break the made-up journey, the views page or the shower story without a browser step noticing, if the change sits outside the paths that switch those steps on. Look-out (the step that caught every G-024 browser defect) always runs. synthetic-journey runs when the phone shell or panels change, catalogue when the catalogue page changes, views when camera or view code changes, meteor-shower when story panels or showers change; a release still runs the full tier. Saving is 47 s instead of 114 s when synthetic-journey is also needed.",
+    "keptBy": "look-out, smoke and planets-phone steps every time; the four other steps when their paths change and at every release",
+    "protected": false,
+    "recommended": true,
+    "basis": "measured: full run 310 s - quick run 124 s - look-out 72 s"
+  },
+  {
+    "id": "P02",
+    "title": "Run the four packed example pages in the browser only when packaging, the examples or the public API change (and always at release)",
+    "kind": "move-tier",
+    "targets": [
+      "check:browser steps hello-scene, hello-react, hello-planets, hello-sky",
+      "docs/agents/browser-policy.md"
+    ],
+    "savedSecondsPerFullCheck": 40,
+    "savedSecondsPerObjective": 52,
+    "caught": [
+      "none recorded"
+    ],
+    "risk": "An engine change that breaks a packed example only in a real browser would be found at the next packaging change or release instead of at the Objective's Check. check:pack, check:node-consumer and the React consumer check still prove the packed engine builds, imports and renders on the server; publish.yml still runs these steps before publishing.",
+    "keptBy": "check:pack, check:node-consumer, check:react-consumer every Check; the release workflow's packed-example steps",
+    "protected": false,
+    "recommended": true,
+    "basis": "measured: quick run 16+2+3+19 s"
+  },
+  {
+    "id": "P03",
+    "title": "Run the engine-on-its-own check at release and when the engine's imports or package files change, not at every Objective check",
+    "kind": "move-tier",
+    "targets": [
+      "npm run check:engine-alone",
+      "docs/agents/build.md (Engine-alone gate)",
+      "agent-skills check list via build.md"
+    ],
+    "savedSecondsPerFullCheck": 32,
+    "savedSecondsPerObjective": 48,
+    "caught": [
+      "none recorded (reds in O-080 T-336 and O-086 were a flake and a sibling builder's in-flight file)"
+    ],
+    "risk": "An engine file that starts importing from the demo or site would be caught at release rather than at the Objective's Check. Root typecheck, lint and tests already cover the same engine code; only the 'reaches outside the package' failure is delayed. A lint rule banning imports that leave packages/astraeus would keep it immediate.",
+    "keptBy": "root typecheck, lint and npm test (same code); check:pack (compiled package); release workflow runs engine-alone",
+    "protected": false,
+    "recommended": true,
+    "basis": "measured: 32.1 s"
+  },
+  {
+    "id": "P04",
+    "title": "Skip the test-coverage measurement at Objective checks; measure coverage at release (or when the owner asks)",
+    "kind": "move-tier",
+    "targets": [
+      "Full Check: npm run test:full -> npm test",
+      "docs/agents/build.md (Full gate)",
+      "docs/agents/verification.md",
+      "Code Health coverage instance"
+    ],
+    "savedSecondsPerFullCheck": 22,
+    "savedSecondsPerObjective": 33,
+    "caught": [
+      "none recorded (coverage is an observation that never blocks a Check)"
+    ],
+    "risk": "The Code Health snapshot's coverage line would be older than the Objective (C-205 and C-210 already report it stale). Every test still runs.",
+    "keptBy": "the same 5,424 tests run in npm test",
+    "protected": false,
+    "recommended": true,
+    "basis": "measured: test:full 55.2 s - test 33.5 s"
+  },
+  {
+    "id": "P05",
+    "title": "Stop rebuilding the Apollo 11 data on every test run when nothing it depends on changed, and build the public API picture once for the three API rule files",
+    "kind": "merge",
+    "targets": [
+      "packages/astraeus-demo-apollo11/tests/apollo11Reconstruction.test.ts beforeAll (41 s)",
+      "packages/astraeus-site/tests/apiRules.test.ts (4 beforeAll), apiSurface.test.ts, apiReference.test.ts (shared surface)"
+    ],
+    "savedSecondsPerFullCheck": 13,
+    "savedSecondsPerObjective": 59,
+    "caught": [
+      "none recorded"
+    ],
+    "risk": "If the hash misses an input, a change to the Apollo tools could pass without the rebuild; the hash must cover tools, raw input and the committed package, and the rebuild still runs whenever any changes (the file already does this for its second rebuild). Sharing the API picture changes no assertion.",
+    "keptBy": "the same 30 Apollo cases read a stored rebuild; the API rule cases are unchanged",
+    "protected": false,
+    "recommended": true,
+    "basis": "estimate: the Apollo file is the 41 s critical path of a 45.5 s run; next longest files 30.2 s (apiRules, which shrinks once shared) and 27.4 s; scaled to the plain run at 0.66, npm test 33.5 s -> about 20 s. Applies to every full-suite run (coordinator waves, Check, recheck)."
+  },
+  {
+    "id": "P06",
+    "title": "Build the public site once per check: the public-build file checks reuse the build the browser run makes",
+    "kind": "run-once",
+    "targets": [
+      "tools/check-public-build.mjs",
+      "packages/astraeus-site/tools/validate/runner.mjs buildPublicSite"
+    ],
+    "savedSecondsPerFullCheck": 7,
+    "savedSecondsPerObjective": 10,
+    "caught": [
+      "I-191 (public-build-assets size budget; still runs, on the shared build)"
+    ],
+    "risk": "Low: the same two file checks run on the same build; when no browser run happens the gate builds as today.",
+    "keptBy": "check:public-build's two file checks, unchanged",
+    "protected": false,
+    "recommended": true,
+    "basis": "estimate: most of the gate's measured 7.8 s is the build"
+  },
+  {
+    "id": "P09",
+    "title": "Before handing over, builders re-read every doc sentence they changed against the code (the commonest reason a check sends work back)",
+    "kind": "rule",
+    "targets": [
+      "builder-rules.md",
+      "savepoint-task evidence (doc-claims line); suggestion Issue for the packaged skill"
+    ],
+    "savedSecondsPerFullCheck": 0,
+    "savedSecondsPerObjective": 83,
+    "caught": [
+      "I-178",
+      "I-180",
+      "I-181",
+      "I-182",
+      "I-187",
+      "I-190",
+      "I-197 (8 of 24 G-020+ findings were doc wording)"
+    ],
+    "risk": "Costs builders a minute or two of reading; removes nothing. Saving assumes it prevents one NEEDS WORK loop in four (each loop ~330 s machine and 4-12 min wall clock).",
+    "keptBy": "nothing removed",
+    "protected": false,
+    "recommended": false,
+    "basis": "estimate from recorded NEEDS WORK loops"
+  },
+  {
+    "id": "P08",
+    "title": "A recheck re-runs only the checks whose inputs the repair changed, plus the item that failed",
+    "kind": "rule",
+    "targets": [
+      "docs/agents/verification.md (reuse rule)",
+      "agent-skills/savepoint-check (suggestion Issue)"
+    ],
+    "savedSecondsPerFullCheck": 0,
+    "savedSecondsPerObjective": 72,
+    "caught": [
+      "none recorded"
+    ],
+    "risk": "A repair could break something a skipped gate covers; the recheck must show (git diff) which gate inputs changed. C-209 already did this under the current wording.",
+    "keptBy": "the gates whose inputs changed always re-run",
+    "protected": false,
+    "recommended": false,
+    "basis": "0.5 rechecks per Objective x 144 s gates"
+  },
+  {
+    "id": "P07",
+    "title": "The coordinator skips its last full gate when the Objective check follows straight after on the same code",
+    "kind": "run-once",
+    "targets": [
+      "coordinator standing rules"
+    ],
+    "savedSecondsPerFullCheck": 0,
+    "savedSecondsPerObjective": 48,
+    "caught": [
+      "none recorded"
+    ],
+    "risk": "A failure would be found by the Check a few minutes later instead of by the coordinator, costing a NEEDS WORK record instead of a quiet fix.",
+    "keptBy": "the Full Check runs the same gate",
+    "protected": false,
+    "recommended": false,
+    "basis": "measured: typecheck 7.1 + lint 7.3 + test 33.5 s"
+  },
+  {
+    "id": "P13",
+    "title": "Check the shower shader against one shipped stream instead of two (the made-up group still covers every eccentricity)",
+    "kind": "delete",
+    "targets": [
+      "packages/astraeus-demo-showers/tests/keplerShader.test.ts 'Perseids shipped set > matches every member across the timeline' (5.3 s) or sample members of 'Geminids shipped set' (11.2 s)"
+    ],
+    "savedSecondsPerFullCheck": 0,
+    "savedSecondsPerObjective": 0,
+    "cpuSecondsPerRun": 14,
+    "caught": [
+      "none recorded"
+    ],
+    "risk": "A shader error that shows only on Perseids-like orbits would be missed; the made-up group (eccentricity up to 0.99) and the 64-bit fill case on both shipped sets remain.",
+    "keptBy": "keplerShader 'shader twin against the group's own positions > matches a made-up group …' and 'the 64-bit fill from the elements …'",
+    "protected": false,
+    "recommended": false,
+    "basis": "measured CPU; not on the critical path, so no wall saving"
+  },
+  {
+    "id": "P14",
+    "title": "Move the demo meteor data's accuracy checks (DW3 iii) out of the everyday tests into a data check that runs when the shower data is rebuilt",
+    "kind": "move-tier",
+    "targets": [
+      "packages/astraeus-demo-showers/tests/showersMeasured.test.ts 'DW3(iii), all orbits' (Geminids 6.0 s, Perseids 2.3 s)"
+    ],
+    "savedSecondsPerFullCheck": 0,
+    "savedSecondsPerObjective": 0,
+    "cpuSecondsPerRun": 8,
+    "caught": [
+      "none recorded"
+    ],
+    "risk": "Demo data fidelity is not an acceptance target by project rule; the data changes only on rebuild, when the moved check runs.",
+    "keptBy": "the moved data check; showersMeasured's other cases stay",
+    "protected": false,
+    "recommended": false,
+    "basis": "measured CPU"
+  },
+  {
+    "id": "P15",
+    "title": "Walk a sample of addBody's option leaves instead of every one (the other 132 rows are untouched)",
+    "kind": "merge",
+    "targets": [
+      "packages/astraeus/tests/sceneInputCopies.test.ts 'addBody (options): each leaf edited alone' (10.1 s)"
+    ],
+    "savedSecondsPerFullCheck": 0,
+    "savedSecondsPerObjective": 0,
+    "cpuSecondsPerRun": 8,
+    "caught": [
+      "none recorded"
+    ],
+    "risk": "A single addBody option that the scene forgets to copy could slip through if it is not in the sample; the coverage row ('the one-leaf walk ran over every row') would need to name the sampled leaves.",
+    "keptBy": "the remaining sampled leaves and every other call's walk",
+    "protected": false,
+    "recommended": false,
+    "basis": "measured CPU"
+  },
+  {
+    "id": "P11",
+    "title": "Two viewers on one page: keep the mixed pairing (one mount and one React viewer) and drop the two same-kind pairings",
+    "kind": "delete",
+    "targets": [
+      "packages/astraeus/tests/twoViewers.test.ts 'two viewers on one page: mount + mount' (33 cases) and 'AstraeusScene + AstraeusScene' (33 cases)"
+    ],
+    "savedSecondsPerFullCheck": 0,
+    "savedSecondsPerObjective": 0,
+    "cpuSecondsPerRun": 7,
+    "caught": [
+      "none recorded"
+    ],
+    "risk": "A leak that appears only between two viewers of the same kind would go unseen; the mixed pairing exercises both kinds and every setter.",
+    "keptBy": "twoViewers 'two viewers on one page: mount + AstraeusScene' (same 33 setters)",
+    "protected": false,
+    "recommended": false,
+    "basis": "measured CPU"
+  },
+  {
+    "id": "P12",
+    "title": "Drop the shower copy of the look-ahead test; the large made-up group already proves the same rule in more situations",
+    "kind": "delete",
+    "targets": [
+      "packages/astraeus-demo-showers/tests/pointsLookAheadShowers.test.ts (4 cases, 7.0 s)"
+    ],
+    "savedSecondsPerFullCheck": 0,
+    "savedSecondsPerObjective": 0,
+    "cpuSecondsPerRun": 7,
+    "caught": [
+      "none recorded"
+    ],
+    "risk": "A look-ahead fault that shows only with real stream sizes would be missed; pointsLookAhead's large group covers forward, backward, turn-round, scale change and seek.",
+    "keptBy": "packages/astraeus/tests/pointsLookAhead.test.ts 'fill look-ahead on a large group' (11 cases)",
+    "protected": false,
+    "recommended": false,
+    "basis": "measured CPU"
+  },
+  {
+    "id": "P10",
+    "title": "Run the check's non-browser gates side by side instead of one after another (same work, less waiting)",
+    "kind": "rule",
+    "targets": [
+      "Full Check procedure",
+      "tools/time-gates.mjs (optional parallel mode)"
+    ],
+    "savedSecondsPerFullCheck": 0,
+    "savedSecondsPerObjective": 0,
+    "caught": [
+      "n/a"
+    ],
+    "risk": "Gates compete for cores and timings get noisier; never alongside the browser run (it is timing-sensitive). Saves wall clock only (roughly 30-40 s, estimate), not machine time.",
+    "keptBy": "nothing removed",
+    "protected": false,
+    "recommended": false,
+    "basis": "estimate"
+  }
+]
