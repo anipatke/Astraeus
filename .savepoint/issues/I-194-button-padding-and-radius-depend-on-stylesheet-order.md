@@ -2,15 +2,21 @@
 id: I-194
 title: Button padding, radius and height depend on stylesheet order (site vs mount)
 type: defect
-status: open
+status: resolved
 source:
   kind: report
   actor: {role: executor, session: orchestrate-g024-20261122}
   at: '2026-11-21T22:59:26Z'
 tasks: [T-410]
-checks: []
+checks: [C-207]
 guardrail_ids: []
 severity: medium
+resolution:
+  disposition: verified
+  check: C-207
+  actor: {role: checker, session: check-o088-20261122}
+  at: '2026-11-22T02:28:16Z'
+  reason: 'C-207 CLEAR: computedLook bundle-order test passes for padding, radius and min-height in all 4 layouts x 2 definitions and fails on the pre-fix style.css; the site-order look is unchanged against the retired baseline; the owner look passed ("5Y", O-088 Decisions, 2026-11-22).'
 history:
   - at: '2026-11-21T22:59:26Z'
     actor: {role: executor, session: orchestrate-g024-20261122}
@@ -20,6 +26,11 @@ history:
     actor: {role: executor, session: build-t410-20261122}
     kind: repair_attempted
     note: 'T-410 (owner: Make both like the site): app/style.css drawer control rule now :where(.hud) button|input|select with :is() on the subject (0,1,2), beating controls.css generic rules in either bundle order; bundle-order test (8 cases) passes, was red on HEAD. Awaiting owner look on localhost:5490 and a Check.'
+  - at: '2026-11-22T02:28:16Z'
+    actor: {role: checker, session: check-o088-20261122}
+    kind: rechecked
+    note: 'C-207: Proof Needed met; closed as verified.'
+    check: C-207
 ---
 
 # Button padding, radius and height depend on stylesheet order

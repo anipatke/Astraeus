@@ -1,7 +1,7 @@
 ---
 id: O-088
 title: Outcome checks replace text pins
-status: planned
+status: done
 depends_on: [O-086]
 release: G-024
 priority: medium
@@ -52,3 +52,4 @@ TEST guardrails; ARCH-06 allowlist rules if any guard is reduced.
 - Drafts were written before O-086 and O-087 landed: builders re-read `harness.mjs` (O-087 T-395 made `openPage`/`openContext` async and sets the diagnostics flag), `run-browser.mjs`/`browser-steps.mjs`/`runner.mjs` (O-086 tiers), and `browserAssertions.test.ts` (O-086 added its `RETIRED` list), and find code by name, not line.
 - PARKED 2026-11-22 after all Tasks done (owner remote: "I am remote now, add park the check and move on"): the Full Objective Check waits for O-087 to close first (this branch sits on it) and for the owner's look at the button fix on localhost:5490 (I-194 Proof Needed; owner chose "Make both like the site"). The full browser tier was run in T-405 (reuse it if code is unchanged). Design reconciled from the drift notes (commit "O-088: reconcile Design").
 - Owner look 2026-11-22 on localhost:5490 (item 5 of the combined list): buttons in the viewer drawer look as on the site — "5Y" (I-194 Proof Needed, owner part). Branch rebased onto main after O-087 merged (5a5d0100).
+- O-088 set done by the orchestrating session after Full Check C-207 CLEAR (I-193, I-194 verified) (G-024 decision 7, "Orchestrate each objective to completion"; "CLEAR: fast-forward merge to main and push"; owner "carry on with O-091 after that").
