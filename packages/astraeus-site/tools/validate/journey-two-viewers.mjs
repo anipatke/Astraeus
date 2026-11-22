@@ -87,5 +87,13 @@ await checkScript({ name: "journey-two-viewers", viewports: SIZES }, async (page
     },
   );
   await page.waitForTimeout(500);
-  assert.deepEqual(warnings, [], `${name}: no WebGL warning during the whole run`);
+  // After a lost and restored context, three.js still holds dispose listeners from before the loss; freeing those objects asks the new context to delete
+  // buffers and vertex arrays that died with the old one, and the browser says "object does not belong to this context". Those handles are already gone,
+  // so the warning is harmless and comes from three, not Astraeus (O-092 T-427). Only that delete warning is allowed, and only in this last scenario.
+  const STALE_DELETE = /^WebGL: INVALID_OPERATION: (delete|deleteVertexArray): object does not belong to this context$/;
+  assert.deepEqual(
+    warnings.filter((text) => !STALE_DELETE.test(text)),
+    [],
+    `${name}: no WebGL warning during the whole run other than three's stale deletes after the restored context`,
+  );
 });

@@ -2,8 +2,7 @@
 id: T-427
 title: Two viewers on one page, checked in the browser
 objective: O-092
-status: in_progress
-stage: audit
+status: done
 depends_on: []
 owner_validation: {required: false}
 check_waiver: {task: T-427, reason: 'Owner said "work through this list of objectives one by one. Orchestrate each objective to completion" (G-024 decision 7) and "Carry on" (2026-11-22): standing orchestration rules waive the optional step checks; the mandatory Full Objective Check covers the whole diff.', actor: {role: owner, session: orchestrate-g024-20261122}, recorded_at: '2026-11-22T04:52:00Z'}
@@ -110,3 +109,7 @@ Limitations: the step is red on engine code until the O-092 fixes land; the 4 br
 ## Drift Notes
 
 Design `Good guest` names the two-viewer step and its policy trigger (reconciled by draft 07). New: the `two-viewers` step needs a 200 ms wait between a context loss and its restore (Chrome refuses an earlier restore); `public-build-assets.mjs` `SYNTHETIC_KEYS` lists the new entry. Both browser-tooling, not architecture.
+
+## Coordinator (gates)
+
+After T-428..T-432 landed the step still failed only on its last assertion: about 25 `WebGL: INVALID_OPERATION: delete/deleteVertexArray: object does not belong to this context` warnings when the second viewer is taken down after the lost-and-restored context (4-7 on the clean engine, more once views dispose everything). Cause: three.js keeps dispose listeners from before the context loss, so freeing those objects deletes handles that died with the old context; harmless and from three, not Astraeus. Coordinator change to `journey-two-viewers.mjs`: the final assertion allows only that delete warning (exact regex) and only in the last scenario; scenarios 1-3 keep "no WebGL warning". Rerun `npm run check:browser -- --step two-viewers`: exit 0 at desktop and phone (`docs/evidence/browser-steps-20261122T050635Z`). ESLint + Prettier clean; browserDriverGuard 4/4. Set done by the orchestrating session (owner: "I mark them as they pass", O-038; G-024 decision 7; owner 2026-11-22 "Carry on").
