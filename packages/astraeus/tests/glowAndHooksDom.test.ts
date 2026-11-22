@@ -16,7 +16,6 @@ import {
   glowLookOf,
   glowSizePx,
   pxToUnits,
-  releaseGlowTexture,
   type GlowLook,
 } from "../src/app/bodyDraw";
 import { createFrameState } from "../src/app/sceneFrame";
@@ -38,7 +37,6 @@ beforeEach(() => {
 });
 afterEach(() => {
   vi.restoreAllMocks();
-  releaseGlowTexture();
 });
 
 const look: GlowLook = { sizePx: 40, brightness: 1, scale: 2 };
@@ -117,15 +115,6 @@ describe("the halo sprite", () => {
     expect(sprite.visible).toBe(false);
     applyGlowLook(sprite, { ...look, sizePx: 0, scale: 0 }, "#808080", view(100));
     expect(sprite.visible).toBe(false);
-  });
-
-  it("shares one soft picture between halos until it is released, then makes a new one", () => {
-    const a = createGlow("#fff", 0);
-    const b = createGlow("#fff", 0);
-    expect(a.material.map).toBe(b.material.map);
-    const first = a.material.map;
-    releaseGlowTexture();
-    expect(createGlow("#fff", 0).material.map).not.toBe(first);
   });
 });
 

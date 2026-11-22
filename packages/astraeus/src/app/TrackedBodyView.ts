@@ -47,7 +47,6 @@ function lineWithCapacity(count: number, color: string, opacity: number): Line {
 }
 
 const ANCHOR_SPRITE_PX = 64;
-let anchorSprite: DataTexture | null = null;
 
 /**
  * Round sprite for source anchors: a crisp ring around a soft centre dot, so a data point reads as a
@@ -55,7 +54,6 @@ let anchorSprite: DataTexture | null = null;
  * also works where there is no DOM.
  */
 export function anchorSpriteTexture(): DataTexture {
-  if (anchorSprite !== null) return anchorSprite;
   const size = ANCHOR_SPRITE_PX;
   const pixels = new Uint8Array(size * size * 4);
   const smooth = (edge0: number, edge1: number, x: number) => {
@@ -71,15 +69,9 @@ export function anchorSpriteTexture(): DataTexture {
       pixels.set([255, 255, 255, Math.round(alpha * 255)], (y * size + x) * 4);
     }
   }
-  anchorSprite = new DataTexture(pixels, size, size, RGBAFormat);
-  anchorSprite.needsUpdate = true;
-  return anchorSprite;
-}
-
-/** Frees the shared anchor picture on every renderer that drew it (an unmounted scene's renderer must not stay reachable through it); the next anchor makes a new one. */
-export function releaseAnchorSprite(): void {
-  anchorSprite?.dispose();
-  anchorSprite = null;
+  const texture = new DataTexture(pixels, size, size, RGBAFormat);
+  texture.needsUpdate = true;
+  return texture;
 }
 
 /**

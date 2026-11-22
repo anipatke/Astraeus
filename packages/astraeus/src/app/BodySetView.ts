@@ -265,6 +265,7 @@ export class BodySetView {
 
   dispose(): void {
     this.#points.geometry.dispose();
+    this.#pointMaterial.map?.dispose();
     this.#pointMaterial.dispose();
     this.#balls.geometry.dispose();
     this.#ballMaterial.dispose();

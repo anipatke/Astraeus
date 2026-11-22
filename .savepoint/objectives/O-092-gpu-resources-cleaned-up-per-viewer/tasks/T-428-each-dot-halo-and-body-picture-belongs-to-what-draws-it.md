@@ -2,7 +2,7 @@
 id: T-428
 title: Each dot, halo and body picture belongs to what draws it
 objective: O-092
-status: planned
+status: done
 depends_on: []
 owner_validation: {required: false}
 check_waiver: {task: T-428, reason: 'Owner said "work through this list of objectives one by one. Orchestrate each objective to completion" (G-024 decision 7) and "Carry on" (2026-11-22): standing orchestration rules waive the optional step checks; the mandatory Full Objective Check covers the whole diff.', actor: {role: owner, session: orchestrate-g024-20261122}, recorded_at: '2026-11-22T04:52:00Z'}
@@ -83,8 +83,25 @@ Focused: `npx vitest run packages/astraeus/tests/ownedPictures.test.ts packages/
 
 ## Technical Evidence
 
-Pending execution.
+| Done When | Evidence |
+|---|---|
+| dotMaterial own disc, none with caller map; module dot texture and release gone | ownedPictures.test.ts case 1 |
+| anchorSpriteTexture new per call; release gone | ownedPictures.test.ts case 1 |
+| createGlow own texture and cloned geometry (attributes/index match three's) | ownedPictures.test.ts case 2 |
+| BodySetView.dispose disposes its map | one line added (`#pointMaterial.map?.dispose()`); no dedicated test (Boundaries forbid view-dispose changes beyond this line) |
+| useBodyTexture per-use clone, needsUpdate, clone-only dispose, failed URL cleared at unmount | bodyTextureOwnedDom.test.ts (2 cases) |
+| Hook, call, import removed | typecheck passes; rg below |
+| Two-viewer disposal (API-03) | ownedPictures.test.ts case 3 |
+| Old tests edited only on named lines | releaseSharedTextures.test.ts deleted (replaced by ownership cases above); glowAndHooksDom import, afterEach call and the shared-picture case removed; bodyViewDom import and call removed |
+| rg release(Glow|Dot)Texture|releaseAnchorSprite|useReleaseSharedTextures | only docs/architecture/demo-contracts.md line 30 (history entry) |
+| Engine size | measure:example first-open total 1,826,428 B before, 1,826,394 B after (-34 B), under the 1,838,000 cap |
+
+Red first: ownedPictures (3/3) and bodyTextureOwnedDom (2/2) failed on the old code. Commands (under the gate lock): npm run typecheck (clean); eslint (TS6 shim) and prettier --check on all changed files (clean); vitest run ownedPictures, bodyTextureOwnedDom, glowAndHooksDom, bodyViewDom, bodyMarkers, patchedShaders: 6 files, 41 tests passed. Limitations: no browser run (Full Check's two-viewers step covers it). Note: dotMaterial now spreads the caller's parameters before `map` so an explicit map wins (and `map: undefined` falls back to a disc).
 
 ## Drift Notes
 
 Design `Good guest` gains a line that no GPU picture is shared between viewers (reconciled by draft 07).
+
+## Coordinator (gates)
+
+Combined wave-1 gate with T-427, T-428, T-431, T-432 together: typecheck clean; `npm run lint` (ESLint + Prettier) clean; `npm test` 332 files, 5443 passed, 2 skipped. Engine 1,826,394 B raw (cap 1,838,000). Set done by the orchestrating session (owner: "I mark them as they pass", O-038; G-024 decision 7; owner 2026-11-22 "Carry on").

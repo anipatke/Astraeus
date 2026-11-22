@@ -4,7 +4,6 @@ import {
   useBodyRefs,
   useDrawWakes,
   useOverlayLayers,
-  useReleaseSharedTextures,
   useSceneDerived,
   useScenePointer,
   useSceneFrame,
@@ -268,7 +267,6 @@ function SceneContents({ runtime, controls, readout, layers, frameState }: Scene
   } = views;
   useSkyStars(gl.domElement, skyView);
   useDrawWakes(gl.domElement, frameState);
-  useReleaseSharedTextures();
   const layerRefs = useOverlayLayers(gl.domElement, controls, trackedViews, bodySetViews, skyFiguresView.labels);
   useScenePointer(gl.domElement, runtime, controls, catalogue, orbit, frameState);
   useSceneFrame(rootRef, {

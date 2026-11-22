@@ -1,14 +1,12 @@
 import { DataTexture, PointsMaterial, RGBAFormat, type PointsMaterialParameters } from "three";
 
 const DOT_TEXTURE_PX = 32;
-let dotTexture: DataTexture | null = null;
 
 /**
  * A white disc with a one-pixel soft edge, built from pixels (no DOM needed). An untextured WebGL point
- * is a square; sampled through `gl_PointCoord` this makes it a circle.
+ * is a square; sampled through `gl_PointCoord` this makes it a circle. Each material makes its own, so one viewer's disposal never reaches another's.
  */
 function roundDotTexture(): DataTexture {
-  if (dotTexture !== null) return dotTexture;
   const size = DOT_TEXTURE_PX;
   const pixels = new Uint8Array(size * size * 4);
   for (let y = 0; y < size; y += 1) {
@@ -18,15 +16,9 @@ function roundDotTexture(): DataTexture {
       pixels.set([255, 255, 255, Math.round(alpha * 255)], (y * size + x) * 4);
     }
   }
-  dotTexture = new DataTexture(pixels, size, size, RGBAFormat);
-  dotTexture.needsUpdate = true;
-  return dotTexture;
-}
-
-/** Frees the shared dot picture (an unmounted scene's renderer must not stay reachable through it); the next dot makes a new one. */
-export function releaseDotTexture(): void {
-  dotTexture?.dispose();
-  dotTexture = null;
+  const texture = new DataTexture(pixels, size, size, RGBAFormat);
+  texture.needsUpdate = true;
+  return texture;
 }
 
 /**
@@ -37,5 +29,5 @@ export function releaseDotTexture(): void {
  * colour as before; only the shape differs. A caller's own `map` (the anchor ring) replaces the disc.
  */
 export function dotMaterial(parameters: PointsMaterialParameters): PointsMaterial {
-  return new PointsMaterial({ map: roundDotTexture(), alphaTest: 0.4, ...parameters });
+  return new PointsMaterial({ alphaTest: 0.4, ...parameters, map: parameters.map ?? roundDotTexture() });
 }

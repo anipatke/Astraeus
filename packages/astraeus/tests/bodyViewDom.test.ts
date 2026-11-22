@@ -34,7 +34,6 @@ vi.mock("../src/app/bodyDraw", async (importOriginal) => {
 
 import { BodyView, type BodyParts } from "../src/app/BodyView";
 import { catalogue } from "../src/assets/catalogue";
-import { releaseGlowTexture } from "../src/app/bodyDraw";
 import { createSolarSystemScale } from "../src/presentation/scalePolicy";
 import type { RingSystem } from "../src/assets/rings";
 
@@ -62,7 +61,6 @@ afterEach(() => {
   act(() => root.unmount());
   container.remove();
   vi.restoreAllMocks();
-  releaseGlowTexture();
 });
 
 const policy = createSolarSystemScale({ exaggeration: {}, defaultExaggeration: 1 });

@@ -193,11 +193,8 @@ export function pxToUnits(px: number, distanceUnits: number, fovDeg: number, vie
   return (px * 2 * distanceUnits * Math.tan((fovDeg * Math.PI) / 360)) / viewportHeightPx;
 }
 
-let glowTexture: CanvasTexture | null = null;
-
-/** A soft round falloff, white at the centre and clear at the edge, made once (no image file). */
+/** A soft round falloff, white at the centre and clear at the edge, made for each halo (no image file). */
 function softGlowTexture(): CanvasTexture {
-  if (glowTexture !== null) return glowTexture;
   const canvas = document.createElement("canvas");
   canvas.width = canvas.height = 128;
   const ctx = canvas.getContext("2d")!;
@@ -208,20 +205,7 @@ function softGlowTexture(): CanvasTexture {
   gradient.addColorStop(1, "rgba(255,255,255,0)");
   ctx.fillStyle = gradient;
   ctx.fillRect(0, 0, 128, 128);
-  glowTexture = new CanvasTexture(canvas);
-  return glowTexture;
-}
-
-/**
- * Frees what every halo shares on every renderer that drew it, so an unmounted scene's renderer is not kept reachable through it:
- * the soft glow picture (the next halo makes a new one) and Three.js's one geometry behind all sprites (it is re-uploaded when next drawn).
- */
-export function releaseGlowTexture(): void {
-  glowTexture?.dispose();
-  glowTexture = null;
-  const probe = new Sprite();
-  probe.geometry.dispose();
-  probe.material.dispose();
+  return new CanvasTexture(canvas);
 }
 
 /**
@@ -239,6 +223,7 @@ export function createGlow(color: string, layer: number): Sprite {
       blending: AdditiveBlending,
     }),
   );
+  sprite.geometry = sprite.geometry.clone(); // three's one geometry behind every sprite is page-wide; each halo owns its own
   sprite.renderOrder = 1000;
   sprite.frustumCulled = false;
   sprite.layers.set(layer);
