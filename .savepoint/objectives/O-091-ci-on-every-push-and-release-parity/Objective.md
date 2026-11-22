@@ -46,3 +46,4 @@ Never `npm publish` or run the publish script without `--dry-run`; GitHub releas
 - Waves: T-413, T-414, T-415 side by side (T-414 is the only browser job); then T-416; T-417 after the merge.
 - T-415: newest three.js (0.187) fails typecheck from 0.181 on; peer narrowed to `>=0.169.0 <0.181.0` under the owner decision "Test newest, narrow if it fails"; the type fix is follow-up Issue I-195 (outside O-091).
 - PARKED 2026-11-22 (owner remote): T-413..T-416 done; Design reconciled. The Full Objective Check waits for O-087 and O-088 to close (stacked). T-417 is the post-merge `main` CI run.
+- Rebased onto main after O-088 merged (276614b3); router to the Full Objective Check (owner 2026-11-22: "carry on with O-091 after that").
