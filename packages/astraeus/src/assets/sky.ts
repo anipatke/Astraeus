@@ -184,8 +184,14 @@ async function fetchStarFile(url: string): Promise<StarCatalogue | null> {
 
 /** The star catalogue: the committed HYG file served with the app (read from disk in Node, by the engine's one bundled-file reader). Absent (null) when it cannot be read or is not a valid star file. */
 export function loadStarCatalogue(): Promise<StarCatalogue | null> {
-  starRequest ??= fetchStarFile(hygStarsUrl);
-  return starRequest;
+  if (starRequest !== undefined) return starRequest;
+  const request = fetchStarFile(hygStarsUrl);
+  starRequest = request;
+  // An unreadable file is forgotten so the next call reads again.
+  void request.then((catalogue) => {
+    if (catalogue === null && starRequest === request) starRequest = undefined;
+  });
+  return request;
 }
 
 /** Temperature in kelvin from B-V (Ballesteros 2012). */

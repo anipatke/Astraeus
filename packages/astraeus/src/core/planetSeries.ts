@@ -57,12 +57,20 @@ let span: TimeBounds | undefined;
  * The fits are a separate chunk fetched only when a mounted composition contains a planet; an experience without one never
  * downloads them (I-022).
  */
-export function loadPlanetSeries(): Promise<void> {
-  loading ??= import("./planetModels").then((module) => {
+export function loadPlanetSeries(
+  importChunk: () => Promise<typeof import("./planetModels")> = () => import("./planetModels"),
+): Promise<void> {
+  if (loading !== undefined) return loading;
+  const request = importChunk().then((module) => {
     models = module.createPlanetModels();
     span = module.planetSeriesSpan();
   });
-  return loading;
+  loading = request;
+  // A failed load is forgotten so the next call asks again; callers already awaiting it still see the rejection.
+  request.catch(() => {
+    if (loading === request) loading = undefined;
+  });
+  return request;
 }
 
 /** Whether the planet series have finished loading. */

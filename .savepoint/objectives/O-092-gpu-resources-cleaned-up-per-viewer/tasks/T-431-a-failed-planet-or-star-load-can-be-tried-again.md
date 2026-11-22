@@ -2,7 +2,7 @@
 id: T-431
 title: A failed planet or star load can be tried again
 objective: O-092
-status: planned
+status: done
 depends_on: []
 owner_validation: {required: false}
 check_waiver: {task: T-431, reason: 'Owner said "work through this list of objectives one by one. Orchestrate each objective to completion" (G-024 decision 7) and "Carry on" (2026-11-22): standing orchestration rules waive the optional step checks; the mandatory Full Objective Check covers the whole diff.', actor: {role: owner, session: orchestrate-g024-20261122}, recorded_at: '2026-11-22T04:52:00Z'}
@@ -64,8 +64,31 @@ Focused: `npx vitest run packages/astraeus/tests/planetSeriesRetry.test.ts packa
 
 ## Technical Evidence
 
-Pending execution.
+Done When -> evidence:
+
+| Done When | Evidence |
+|---|---|
+| Planet series clears on rejection, rejects with the original error, awaiting callers see it, success loads once | `loadPlanetSeries` now keeps `request`, clears `loading` in a `.catch` side branch (only if still the same request); `planetSeriesRetry.test.ts` cases 1 and 3 |
+| Star catalogue clears on `null`, good catalogue read once | `loadStarCatalogue` clears `starRequest` when the result is `null`; `starCatalogueRetry.test.ts` (failed read, invalid file, third call no re-read) |
+| Internal importer argument, chunk split kept | optional default arg `() => import("./planetModels")`, not exported from `src/api/`; `npm run build` still emits `dist/assets/planetModels-6bChcUPK.js` (349.73 kB) |
+| New planetSeriesRetry test | fail, then succeed and span readable; two calls share one pending load; no re-import after success (3 cases) |
+| New starCatalogueRetry test | `core/readBytes` mocked: null, then catalogue, then no re-read; invalid file also retried (2 cases) |
+| Browser note | Clearing the promise is what the engine controls. Per the HTML spec's module map, a failed fetch of a module script is cached as a null entry (whatwg/html#6768 discusses it); Chromium has historically kept a failed dynamic `import()` in the module map for the page's life, so a re-import of the same URL may fail again without a new URL or reload. Not checked in a browser (written from memory of the spec issue, unverified); code left as specified. |
+| Size | check:pack before 1,826,428 B raw / 523,400 gzip; after 1,826,394 B raw / 523,419 gzip (-34 B raw; allowance +100) |
+| Gates | below |
+
+Red first: both new test files failed 5/5 on today's code (before the source edit).
+
+Commands: `npx vitest run` on planetSeriesRetry, starCatalogueRetry, hygStars, firstDraw, sceneHooksDom, cold/sceneLoad plus the 12 files matching `rg -l 'planetSeries|loadPlanetSeries'` (18 files, 368 tests passed); eslint (TS6 wrapper) and prettier --check on the 4 changed files clean; `npm run check:pack` pass; `npm run build` ok. `npm run typecheck`: 5 errors, all in `packages/astraeus/tests/ownedPictures.test.ts` (another builder's file, rerun once, same); none in my files.
+
+Files changed: src/core/planetSeries.ts, src/assets/sky.ts, tests/planetSeriesRetry.test.ts, tests/starCatalogueRetry.test.ts. Extra reads: none.
+
+Limitations: browser re-fetch behaviour not run.
 
 ## Drift Notes
 
-None expected.
+None.
+
+## Coordinator (gates)
+
+Combined wave-1 gate with T-427, T-428, T-431, T-432 together: typecheck clean; `npm run lint` (ESLint + Prettier) clean; `npm test` 332 files, 5443 passed, 2 skipped. Engine 1,826,394 B raw (cap 1,838,000). Set done by the orchestrating session (owner: "I mark them as they pass", O-038; G-024 decision 7; owner 2026-11-22 "Carry on").
