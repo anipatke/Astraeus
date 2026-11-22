@@ -100,3 +100,7 @@ Recorded by builder: Design `Current Technical State` gains the CI sentence; `De
 ## Coordinator (gates)
 
 Set done by the orchestrating session after the gates passed (owner: "I mark them as they pass", O-038; G-024 decision 7): lint, typecheck, build clean; `npm test` 325 files, 5332 passed, 2 skipped. Drift notes reconciled into Design (`CI on every push (O-091)`; three peer range under `Honest versions and docs`).
+
+## Repair (C-208, I-198)
+
+Edited only `packages/astraeus-site/tests/workflowParity.test.ts`. New rules: "no step or job is skippable" (any `if` or `continue-on-error` on a step or job in either workflow; the real files use neither, so none is allowed), "ci never publishes" (`npm publish`, or `publish-packages.mjs` without `--dry-run`, in any ci.yml job). "ci triggers" now also rejects `paths-ignore`, `branches-ignore`, `tags`, `tags-ignore` on push, naming the key. Plants: 11 before, 23 after (push paths-ignore/branches-ignore; if/continue-on-error on a step and job in ci.yml and publish.yml; npm publish and unguarded publish-packages in a ci job). Gates: typecheck, eslint and prettier on the test file clean; vitest workflowParity + gateLimits 39 passed.

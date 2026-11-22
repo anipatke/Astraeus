@@ -8,8 +8,14 @@ import { STEPS } from "../tools/validate/browser-steps.mjs";
 const root = join(import.meta.dirname, "..", "..", "..");
 const read = (path: string) => readFileSync(join(root, path), "utf8");
 
-type Step = { name?: string; run?: string; uses?: string };
-type Job = { permissions?: Record<string, string>; steps: Step[]; strategy?: { matrix?: { node?: number[] } } };
+type Step = { name?: string; run?: string; uses?: string; if?: unknown; "continue-on-error"?: unknown };
+type Job = {
+  if?: unknown;
+  "continue-on-error"?: unknown;
+  permissions?: Record<string, string>;
+  steps: Step[];
+  strategy?: { matrix?: { node?: number[] } };
+};
 type Workflow = {
   on: Record<string, Record<string, unknown> | null>;
   permissions?: Record<string, string>;
@@ -51,8 +57,8 @@ const rules: Record<string, (context: Context) => string[]> = {
     const problems: string[] = [];
     if (!("push" in workflow.on)) problems.push("ci.yml has no push trigger");
     if (!("pull_request" in workflow.on)) problems.push("ci.yml has no pull_request trigger");
-    if (workflow.on.push && ("paths" in workflow.on.push || "branches" in workflow.on.push))
-      problems.push("ci.yml push is filtered");
+    for (const key of ["paths", "paths-ignore", "branches", "branches-ignore", "tags", "tags-ignore"])
+      if (workflow.on.push && key in workflow.on.push) problems.push(`ci.yml push is filtered by ${key}`);
     return problems;
   },
   "ci node versions": ({ ci: workflow, engineNode }) => {
@@ -91,6 +97,30 @@ const rules: Record<string, (context: Context) => string[]> = {
       );
     return problems;
   },
+  // The real workflows use no `if` or `continue-on-error` on any step or job, so none is allowed: either would let a gate be skipped or its failure ignored.
+  "no step or job is skippable": ({ ci: first, publish: second }) => {
+    const problems: string[] = [];
+    for (const [name, workflow] of [
+      ["ci.yml", first],
+      ["publish.yml", second],
+    ] as const)
+      for (const [id, job] of Object.entries(workflow.jobs)) {
+        for (const key of ["if", "continue-on-error"] as const)
+          if (key in job) problems.push(`${name} job ${id} has ${key}`);
+        for (const step of job.steps)
+          for (const key of ["if", "continue-on-error"] as const)
+            if (key in step) problems.push(`${name} job ${id} step ${step.name ?? step.run ?? step.uses} has ${key}`);
+      }
+    return problems;
+  },
+  "ci never publishes": ({ ci: workflow }) =>
+    Object.entries(workflow.jobs).flatMap(([id, job]) =>
+      runs(job)
+        .filter(
+          (run) => run.includes("npm publish") || (run.includes("publish-packages.mjs") && !run.includes("--dry-run")),
+        )
+        .map(() => `ci.yml job ${id} runs npm publish`),
+    ),
   "publish step is guarded": ({ publish: workflow }) => {
     const all = Object.values(workflow.jobs).flatMap(runs);
     const step = all.find((run) => run.includes("tools/publish-packages.mjs"));
@@ -149,7 +179,8 @@ const without = (workflow: Workflow, drop: (step: Step) => boolean, job: string)
   return copy;
 };
 
-const plants: [string, string, (context: Context) => Context, string][] = [
+type Plant = [string, string, (context: Context) => Context, string];
+const plants: Plant[] = [
   ["ci triggers", "drop pull_request", (c) => ({ ...c, ci: { ...c.ci, on: { push: c.ci.on.push } } }), "pull_request"],
   [
     "ci node versions",
@@ -210,6 +241,55 @@ const plants: [string, string, (context: Context) => Context, string][] = [
       return { ...c, publish: copy };
     },
     "--dry-run",
+  ],
+  ...(["paths-ignore", "branches-ignore"] as const).map((key): Plant => [
+    "ci triggers",
+    `push ${key}`,
+    (c) => ({ ...c, ci: { ...c.ci, on: { ...c.ci.on, push: { [key]: ["docs/**"] } } } }),
+    key,
+  ]),
+  ...(["ci", "publish"] as const).flatMap((file) =>
+    (["if", "continue-on-error"] as const).flatMap((key) =>
+      (["step", "job"] as const).map((level): Plant => [
+        "no step or job is skippable",
+        `${file}.yml ${level} ${key}`,
+        (c) => {
+          const copy = structuredClone(c[file]);
+          const job = copy.jobs[file === "ci" ? "gates" : "publish"];
+          const target =
+            level === "job"
+              ? job
+              : (job.steps.find(
+                  (s) =>
+                    s.run === (file === "ci" ? "npm run lint" : "npm run check:browser") ||
+                    s.run?.startsWith("npm run check:browser"),
+                ) ?? job.steps[0]);
+          target[key] = key === "if" ? false : true;
+          return { ...c, [file]: copy };
+        },
+        key,
+      ]),
+    ),
+  ),
+  [
+    "ci never publishes",
+    "npm publish in a ci job",
+    (c) => {
+      const copy = structuredClone(c.ci);
+      copy.jobs.release = { steps: [{ run: "npm publish" }] };
+      return { ...c, ci: copy };
+    },
+    "npm publish",
+  ],
+  [
+    "ci never publishes",
+    "publish-packages without --dry-run in a ci job",
+    (c) => {
+      const copy = structuredClone(c.ci);
+      copy.jobs.gates.steps.push({ run: "node tools/publish-packages.mjs --tag latest" });
+      return { ...c, ci: copy };
+    },
+    "npm publish",
   ],
   [
     "permissions",

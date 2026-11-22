@@ -18,6 +18,10 @@ history:
     kind: observed
     note: 'C-208 planted copies of the real workflows in a scratch mirror and ran workflowParity.test.ts against them. These passed (not caught): `if: false` on the ci.yml lint step; `continue-on-error: true` on the ci.yml test step; `continue-on-error: true` on the publish.yml packed-examples browser step; `if: false` on the ci.yml gates job; `paths-ignore` or `branches-ignore` under ci.yml `on.push`; a second ci.yml job running `npm publish`. These were caught: a changed gate, removed check:three-newest, differing SHA, tag ref, id-token on the ci job, and an extra step in the gates job.'
     check: C-208
+  - at: '2026-11-22T02:40:18Z'
+    actor: {role: executor, session: repair-o091-c208-20261122}
+    kind: repair_attempted
+    note: 'Added rules "no step or job is skippable" and "ci never publishes", widened "ci triggers" to the ignore and tags filters, and 12 plants (11 to 23); focused gates pass. Awaiting a fresh Full Objective re-check.'
 ---
 
 # The workflow parity test passes when a gate step is switched off, a push filter is added, or ci.yml runs npm publish
