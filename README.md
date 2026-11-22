@@ -28,7 +28,7 @@ Astraeus is a TypeScript and Three.js engine for telling stories with real astro
 
 ![The info panel for Apollo 11's lunar landing, marked Observed, with its source, accuracy and notes](packages/astraeus-site/site/apollo-provenance.jpg)
 
-Every number in the info panel carries a label. **Observed** means someone measured it, like the time of the Apollo 11 landing from NASA's report. **Modelled** means it comes from a published method, like the planets from VSOP87. **Illustrative** means it fills a gap: where each meteor sits along its orbit today was never measured, so the dots are spread evenly and say so. The rule behind it: be reliable where the data exists, plausible where it doesn't, and explicit about the difference.
+Every number in the info panel carries a label. **Observed** means someone measured it, like the time of the Apollo 11 landing from NASA's report. **Modelled** means it comes from a published method or a fit to one, like the planet positions fitted to JPL Horizons. **Illustrative** means it fills a gap: where each meteor sits along its orbit today was never measured, so the dots are spread evenly and say so. The rule behind it: be reliable where the data exists, plausible where it doesn't, and explicit about the difference.
 
 ## Story panels
 
@@ -61,22 +61,20 @@ The Geminids are one JSON file, [`packages/astraeus-demo-showers/data/showers/ge
 
 ```mermaid
 flowchart LR
-  A["Sources<br/>ephemerides (orb.js), mission data,<br/>orbit catalogues"] --> B["State<br/>Trajectory.stateAt(time)<br/>Float64, J2000"]
+  A["Sources<br/>orb.js (Earth, Sun, Moon), JPL Horizons fits<br/>(planets, moons), mission data, orbit catalogues"] --> B["State<br/>Trajectory.stateAt(time)<br/>Float64, J2000"]
   B --> C["Presentation<br/>scale policy, floating origin,<br/>paths, sky"]
   C --> D["Story<br/>timeline, events,<br/>info panel"]
 ```
 
-The repository is five npm workspaces under `packages/`:
+The repository is a set of npm workspaces, one per folder under [`packages/`](packages/):
 
-| Package | What it holds |
-|---|---|
-| [`packages/astraeus`](packages/astraeus/) | The engine: scientific core (`src/core/`), body catalogue (`src/assets/`), scene (`src/app/`), shell (`src/shell/`), made-up experiences (`src/synthetic/`), core data and importers. It imports no other package. |
-| `packages/astraeus-demo-apollo11` | The Apollo 11 demo: its definition, data, story panels and reconstruction tool. |
-| `packages/astraeus-demo-showers` | The Perseids and Geminids demo: showers settings, Global Meteor Network data and fetch tool. |
-| `packages/astraeus-demo-planets` | The planets demo (Mercury to Pluto with their mapped moons), including the Jupiter view. |
-| `packages/astraeus-site` | The pages (pitch, app, assets), the demo list, the Vite config, the public build and the browser checks. |
+- **The engine**, [`packages/astraeus`](packages/astraeus/), published to npm as `astraeus`. Its [README](packages/astraeus/README.md) is the guide for building a story on it. It imports no other package.
+- **Its data packages**, `astraeus-data` and the `astraeus-data-*` packages (one per planet system, plus the constellations), published with it.
+- **The demos**, the `astraeus-demo-*` packages (Apollo 11, the meteor showers, the planets), and **the site**, `astraeus-site`: the pages, the Vite config, the public build and the browser checks. These stay private.
 
-A demo imports only the engine, and the site imports only the engine and the demos; `packages/astraeus-site/tests/packageBoundaries.test.ts` fails any other import. Each package keeps its own credits and licences. `npm run check:engine-alone` copies the engine alone into a scratch folder and type-checks, lints and tests it there.
+Small apps in [`examples/`](examples/) use the packed engine the way an outside project would. A demo imports only the engine, and the site imports only the engine and the demos; `packages/astraeus-site/tests/packageBoundaries.test.ts` fails any other import. Each package keeps its own credits and licences.
+
+Planets and their moons are placed by curve fits of JPL Horizons positions; Earth, the Sun and the Moon by orb.js. Design ["Planet positions from Horizons"](.savepoint/Design.md#planet-positions-from-horizons) and [astronomy validation](docs/ASTRONOMY_VALIDATION.md) say how each was made and checked.
 
 ## Run it locally
 
@@ -96,44 +94,21 @@ Open the address Vite prints (usually `http://localhost:5173/`). The pitch page 
 | Apollo 11 (default) | `/app.html` |
 | Meteor showers: the Perseids (default) | `/app.html?experience=showers` |
 | Meteor showers: the Geminids | `/app.html?experience=showers&shower=geminids` |
-| The planets: Jupiter (default), Saturn, Uranus, Neptune, Pluto, Mercury, Venus, Earth, Mars, with a planet switch | `/app.html?experience=planets&planet=jupiter` (`?experience=jupiter-io` still opens Jupiter) |
+| The planets, Jupiter first, with a planet switch | `/app.html?experience=planets&planet=jupiter` |
 
-Data:
-
-- **Real stars:** the sky draws 8,920 naked-eye stars from the committed HYG file, so nothing needs fetching. `node packages/astraeus/tools/data/fetch-hyg-stars.mjs` rebuilds that file.
-- **Perseids and Geminids work out of the box.** They draw the Global Meteor Network orbits (CC BY 4.0), the only orbit source, and compact copies are committed: 25,588 Perseid orbits at `packages/astraeus-demo-showers/data/stories/perseids/gmn-iau-7.json` and 51,115 Geminid orbits (December 2024 and 2025) at `packages/astraeus-demo-showers/data/stories/geminids/gmn-iau-4.json`. Nothing needs fetching; `node packages/astraeus-demo-showers/tools/data/fetch-meteoroid-orbits.mjs <iauCode> --months YYYYMM,YYYYMM [--ship <story>]` rebuilds a file from the monthly summaries.
+The star sky (HYG) and the Perseid and Geminid orbits (Global Meteor Network) are committed, so nothing needs fetching. `node packages/astraeus/tools/data/fetch-hyg-stars.mjs` rebuilds the stars, and `node packages/astraeus-demo-showers/tools/data/fetch-meteoroid-orbits.mjs <iauCode> --months YYYYMM,YYYYMM [--ship <story>]` rebuilds a shower's orbits.
 
 ## Develop
 
 ```bash
-npm test             # unit tests
 npm run typecheck
-npm run build        # production bundle in dist/
+npm run build                  # production bundle in dist/
 npm run apollo11:reconstruct   # re-run the offline Apollo 11 reconstruction
 npm run check:engine-alone     # the engine alone, copied out, then typechecked, linted and tested
+npm run check:public-build     # build the public site and check its files and page sizes
 ```
 
-`ASTRAEUS_PUBLIC_BUILD=1 npm run build` makes the public build: the pictures marked local-only are replaced by a flat-colour placeholder. `node packages/astraeus-site/tools/validate/public-build-assets.mjs dist` then checks that none of them, and nothing from `data/local/` (under any package), is in `dist/`.
-
-**Page size.** The same validator fails the build if a page's first load grows past its limit (`packages/astraeus-site/tools/validate/load-budget.mjs`; `node packages/astraeus-site/tools/validate/load-budget.mjs dist` prints each page against its limit). Measured on the public build of 2026-10-21 (nine planet views added, O-033), summed over the files each page downloads (the site pages count every picture they name, so the figure is an upper bound; fonts from Google Fonts are extra). Planet pictures are kept at their original quality (owner decision, 2026-10-17: "I don't want to compromise on quality"), so Saturn, with seven 4k moon maps, is the heavy view. The app-page and whole-build limits are the measurement plus 5%, rounded up to the next 10 kB; the two site-page limits were set earlier and sit above their measurements. Each outer planet's moon-index and fit-chunk limits are in `packages/astraeus-demo-planets/src/experiences/planets/viewLimits.json`, checked by `packages/astraeus-demo-planets/tests/planetSystems.test.ts` and, for the index, by the validator. A change that makes a page heavier raises its limit on purpose, with the new measurement.
-
-| Page | Measured, raw | Limit, raw | Measured, gzip | Limit, gzip |
-|---|---|---|---|---|
-| `index.html` | 399,236 B | 600,000 B | 352,149 B | 530,000 B |
-| `assets.html` | 629,684 B | 670,000 B | 493,085 B | 520,000 B |
-| `app.html` (Apollo 11) | 4,195,338 B | 4,370,000 B | 2,766,075 B | 2,900,000 B |
-| `app.html?experience=planets&planet=jupiter` | 6,781,196 B | 7,130,000 B | 4,659,946 B | 4,900,000 B |
-| `...&planet=saturn` | 23,317,280 B | 24,490,000 B | 20,240,166 B | 21,260,000 B |
-| `...&planet=uranus` | 4,090,623 B | 4,300,000 B | 2,396,574 B | 2,520,000 B |
-| `...&planet=neptune` | 4,383,685 B | 4,610,000 B | 2,783,384 B | 2,930,000 B |
-| `...&planet=pluto` | 3,822,413 B | 4,020,000 B | 2,289,674 B | 2,410,000 B |
-| `...&planet=mercury` | 2,929,628 B | 3,080,000 B | 1,625,051 B | 1,710,000 B |
-| `...&planet=venus` | 2,944,392 B | 3,100,000 B | 1,638,186 B | 1,730,000 B |
-| `...&planet=earth` | 4,203,236 B | 4,420,000 B | 2,882,001 B | 3,030,000 B |
-| `...&planet=mars` | 2,787,041 B | 2,930,000 B | 1,446,944 B | 1,520,000 B |
-| `app.html?experience=showers` | 9,759,411 B | 10,090,000 B | 6,789,054 B | 7,050,000 B |
-| `app.html?experience=showers&shower=geminids` | 12,243,884 B | 12,700,000 B | 7,595,264 B | 7,900,000 B |
-| whole build | 52,007,323 B | 54,610,000 B | 42,021,287 B | 44,130,000 B |
+`ASTRAEUS_PUBLIC_BUILD=1 npm run build` makes the public build: the pictures marked local-only are replaced by a flat-colour placeholder. `npm run check:public-build` makes that build in a scratch folder and checks that nothing local-only is in it and that no page's first download is over its limit. The page limits are in [`load-budget.mjs`](packages/astraeus-site/tools/validate/load-budget.mjs) (`node packages/astraeus-site/tools/validate/load-budget.mjs dist` prints each page against its limit), and each planet view's moon limits in [`viewLimits.json`](packages/astraeus-demo-planets/src/experiences/planets/viewLimits.json). Planet pictures stay at full quality (owner, 2026-10-17), so Saturn is the heaviest view. A change that makes a page heavier raises its limit on purpose, with the new measurement.
 
 ## Running the checks
 
@@ -147,67 +122,23 @@ npm run check:browser                  # the full tier: the quick steps plus the
 
 Each browser run writes its results to a new folder under `docs/evidence/`. What each step protects, its time limit, a dated measured time, how to find a run's results and how to diagnose a failure are in [`docs/BROWSER_CHECKS.md`](docs/BROWSER_CHECKS.md).
 
-Design notes and validation reports are in [`docs/`](docs/): [Spike 01](docs/ASTRAEUS_SPIKE_01.md), [Spike 02](docs/ASTRAEUS_SPIKE_02.md), [astronomy validation](docs/ASTRONOMY_VALIDATION.md), [Apollo 11 sources](packages/astraeus-demo-apollo11/credits/APOLLO11_SOURCES.md) and [donor provenance](docs/DONOR_PROVENANCE.md).
+Design notes and validation reports are in [`docs/`](docs/); [where each fact lives](docs/README.md) says which file owns what. Start with [astronomy validation](docs/ASTRONOMY_VALIDATION.md), [Apollo 11 sources](packages/astraeus-demo-apollo11/credits/APOLLO11_SOURCES.md) and [donor provenance](docs/DONOR_PROVENANCE.md). Changes are in the [engine changelog](packages/astraeus/CHANGELOG.md).
 
-## Assets, science and credits
+## Credits and licences
 
-Everything the demos draw, with its source, licence and whether it can go public. The same list, with pictures, is on the [assets page](https://astraeus.anipatke.com/assets.html).
+**The MIT licence covers the code only.** Pictures and data keep their own licences (CC BY 4.0, CC BY-SA 4.0, public domain and so on). Every asset with its source, licence and status is on the [assets page](https://astraeus.anipatke.com/assets.html); each package keeps its own `credits/`, `NOTICE` and, for the engine, [third-party library notices](packages/astraeus/licenses/).
 
-**The MIT licence covers the code only.** Pictures and data keep their own licences, as listed below (CC BY 4.0, public domain and so on). The NASA Earth and Moon pictures are public domain and are not covered by MIT.
-
-| Asset | Source | Licence | Status |
-|---|---|---|---|
-| Milky Way picture | Gaia EDR3 render without foreground stars, Kevinmloch (bsrender) on Wikimedia Commons | CC BY-SA 4.0 | Public, with credit |
-| Bright stars (8,920) | HYG database v4.2 (Hipparcos, Yale Bright Star, Gliese), astronexus | CC BY-SA 4.0, this file only | Public, with credit |
-| Sun, Mercury, Mars, Jupiter maps | Solar System Scope, based on NASA imagery | CC BY 4.0 | Public |
-| Venus map | USGS Astrogeology / NASA Magellan C3-MDIR mosaic | Public domain | Public |
-| Io map | USGS Galileo and Voyager mosaic | Public domain | Public |
-| Earth map | NASA Earth Observatory, Blue Marble: Next Generation with topography and bathymetry, July 2004 (Reto Stöckli) | Public domain | Public |
-| Moon map | NASA Scientific Visualization Studio, CGI Moon Kit (SVS 4720), LROC colour map with polar fill | Public domain | Public |
-| Earth, Sun, Moon positions | orb.js (EPV00, lunar series), checked against JPL Horizons | Open-source library | Public |
-| Planet positions | VSOP87A via orb.js, Bretagnon & Francou 1988 | Published theory | Public |
-| Comet 109P/Swift-Tuttle, asteroid 3200 Phaethon | NASA JPL Small-Body Database | Public | Public |
-| Apollo 11 paths and events | NASA Apollo 11 Mission Report, MSC-00171 / SP-238 | Public domain | Public |
-| Perseid orbits (25,588) and Geminid orbits (51,115) | Global Meteor Network trajectory summaries, Vida et al. | CC BY 4.0 | Public, with credit |
-| Shower facts | IAU Meteor Data Center; American Meteor Society calendar | Published reference values | Public |
-
-Credit lines, word for word:
-
-- Milky Way picture, CC BY-SA 4.0: Milky Way render by Kevinmloch (bsrender) from Gaia EDR3, ESA/Gaia/DPAC (commons.wikimedia.org/wiki/File:Milky_Way_360_equirectangular_rendering_with_foreground_stars_removed.png). Changed: resized to 3840x1920 and re-encoded as JPEG; dimmed when drawn.
-- Venus map, public domain: USGS Astrogeology / NASA Magellan C3-MDIR mosaic.
-- Sun, Mercury, Mars, Jupiter maps, CC BY 4.0: Solar System Scope (solarsystemscope.com/textures), based on NASA imagery and elevation data.
-- Io map, public domain: USGS Astrogeology Science Center; NASA/JPL Galileo and Voyager missions.
-- Earth map, public domain: NASA Earth Observatory (Blue Marble: Next Generation, Reto Stöckli). July 2004 with topography and bathymetry, science.nasa.gov/earth/earth-observatory/blue-marble-next-generation. Changed: resampled to 4096x2048.
-- Moon map, public domain: NASA's Scientific Visualization Studio. CGI Moon Kit, svs.gsfc.nasa.gov/4720, LROC WAC colour map with polar fill. Changed: converted to JPEG.
-- Global Meteor Network, CC BY 4.0: Global Meteor Network, globalmeteornetwork.org. Vida et al. 2020, MNRAS 491(2); Vida et al. 2021, MNRAS 506(4).
-- IAU Meteor Data Center: Jenniskens et al. 2020, Planetary and Space Science 182; Jopek & Kanuchova 2017, Planetary and Space Science 143.
-- Bright stars, CC BY-SA 4.0: HYG database v4.2 (Hipparcos, Yale Bright Star and Gliese catalogues), astronexus, astronexus.com/projects/hyg. Changed: stars of magnitude 6.5 or brighter kept, right ascension converted from hours to degrees. The CC BY-SA 4.0 licence covers this star file only; the code stays MIT.
-- Orbits and positions: NASA/JPL Horizons and Small-Body Database. orb.js by lizard-isana. VSOP87, Bretagnon & Francou 1988. IAU WGCCRE 2015 report, Archinal et al. 2018.
+- Milky Way picture, CC BY-SA 4.0: render by Kevinmloch (bsrender) from Gaia EDR3, ESA/Gaia/DPAC, Wikimedia Commons. Resized, re-encoded, dimmed when drawn.
+- Bright stars, CC BY-SA 4.0 (this star file only): HYG database v4.2, astronexus.
+- Sun, Mercury, Mars, Jupiter, Saturn, Uranus and Neptune maps, CC BY 4.0: Solar System Scope, based on NASA imagery.
+- Earth, Moon, Venus and Io maps, public domain: NASA Earth Observatory (Blue Marble: Next Generation, Reto Stöckli), NASA SVS CGI Moon Kit, USGS Astrogeology (Magellan; Galileo and Voyager).
+- Saturn's moon maps (Cassini), Triton (Voyager 2) and Pluto (New Horizons) from NASA/JPL, and Charon from USGS Astrogeology: listed one by one on the assets page.
+- Global Meteor Network, CC BY 4.0: globalmeteornetwork.org; Vida et al. 2020, MNRAS 491(2); Vida et al. 2021, MNRAS 506(4).
+- Shower facts: IAU Meteor Data Center (Jenniskens et al. 2020; Jopek & Kanuchova 2017) and the American Meteor Society calendar.
+- Orbits and positions: NASA/JPL Horizons and Small-Body Database; orb.js by lizard-isana; IAU WGCCRE 2015 report, Archinal et al. 2018.
 - Apollo 11, public domain: NASA Apollo 11 Mission Report, MSC-00171 / SP-238.
-- Shower calendar: American Meteor Society, Meteor Shower Calendar 2026/2027.
-- Planetary Explorer, an earlier project by Ani Patke: some code ideas (camera gestures, atmosphere glow, picture loading, info-panel layout) and the Mercury, Venus, Mars and Io pictures came from planetary-explorer.anipatke.com. The story panel's look and behaviour (side panel, phone bottom sheet, marker dot, badge) follow its panel parts, rewritten for Astraeus.
-
-Third-party library notices are in [`packages/astraeus/licenses/`](packages/astraeus/licenses/).
-
-## Status and roadmap
-
-Astraeus is an experiment, built in spikes. Each spike tests one claim about the engine.
-
-**Done**
-- Earth and Moon on a real ephemeris, checked against JPL Horizons.
-- Apollo 11, rebuilt from NASA's report, with 30 timed events.
-- A reusable shell: timeline, camera modes, scale toggle, info panel.
-- A group of measured orbits drawn as a stream, and showers from a settings file (Perseids and Geminids).
-- The Sun, planets and comets on their orbits, and a real-star sky from the HYG catalogue.
-- Story panels in the Apollo 11 and Perseids demos, and shareable view links.
-
-**Next**
-- Put the demos live at astraeus.anipatke.com.
-
-**Later**
-- Package the engine so others can build a story on it.
-- The view from the ground.
+- Planetary Explorer, an earlier project by Ani Patke: some code ideas (camera gestures, atmosphere glow, picture loading, info-panel layout), the story panel's look and the Mercury, Venus, Mars and Io pictures came from planetary-explorer.anipatke.com.
 
 ## Built with
 
-Built with [Savepoint](https://getsavepoint.dev), by [Ani Patke](https://anipatke.com).
+Built with [Savepoint](https://getsavepoint.dev), by [Ani Patke](https://anipatke.com). Astraeus is an experiment, built in spikes; each tests one claim about the engine.
