@@ -66,7 +66,7 @@ export default defineConfig({
           name: "preloaded",
           include: ["packages/*/tests/**/*.test.ts"],
           exclude: [COLD, ...MOONS, "**/node_modules/**"],
-          setupFiles: ["./packages/astraeus/vitest.setup.ts"],
+          setupFiles: ["./packages/astraeus/vitest.waits.setup.ts", "./packages/astraeus/vitest.setup.ts"],
         },
       },
       {
@@ -75,10 +75,22 @@ export default defineConfig({
           ...common.test,
           name: "moons",
           include: MOONS,
-          setupFiles: ["./packages/astraeus/vitest.setup.ts", "./packages/astraeus/vitest.moons.setup.ts"],
+          setupFiles: [
+            "./packages/astraeus/vitest.waits.setup.ts",
+            "./packages/astraeus/vitest.setup.ts",
+            "./packages/astraeus/vitest.moons.setup.ts",
+          ],
         },
       },
-      { ...common, test: { ...common.test, name: "cold", include: [COLD] } },
+      {
+        ...common,
+        test: {
+          ...common.test,
+          name: "cold",
+          include: [COLD],
+          setupFiles: ["./packages/astraeus/vitest.waits.setup.ts"],
+        },
+      },
     ],
     coverage: {
       provider: "v8",
