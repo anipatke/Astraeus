@@ -21,6 +21,7 @@ import { Scene } from "../src/api/scene";
 import type { MoonFamilyList } from "../src/shell/moonFamilies";
 import { syntheticDefinition } from "./synthetic/syntheticDefinition";
 import { mountShell, pretendScreen } from "./domSetup";
+import { waitForDeveloperDrawer } from "./helpers/developerDrawer";
 
 const REFERENCES = ["aria-controls", "aria-labelledby", "aria-describedby"] as const;
 
@@ -271,7 +272,7 @@ describe("every reference to an element id stays inside its viewer", () => {
       const shell = host.querySelector(".astraeus-shell")!;
       if (context === "phone") shell.querySelector<HTMLButtonElement>(".bar-menu-button")!.click();
       shell.querySelector<HTMLButtonElement>(".developer-mode-toggle")!.click();
-      await vi.waitFor(() => expect(shell.querySelector(".developer-heading")).not.toBeNull());
+      await waitForDeveloperDrawer(shell);
       if (context === "phone") {
         // On a phone the Developer drawer and the object card share the sheet place (owner-approved change 11, O-079): check the
         // Developer pairs while it is open, then open the card and story panel and check the rest (owner: "Check in two steps").

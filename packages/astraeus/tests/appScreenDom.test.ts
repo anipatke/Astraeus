@@ -30,6 +30,7 @@ import { syntheticBareDefinition, syntheticDefinition } from "./synthetic/synthe
 import { viewUpVector } from "../src/app/viewUp";
 import type { ExperienceDefinition } from "../src/app/experienceDefinition";
 import { $, byLabel, change as changeInput, press, pretendScreen } from "./domSetup";
+import { preloadDeveloperDrawer } from "./helpers/developerDrawer";
 
 (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
 
@@ -59,6 +60,7 @@ async function settle(): Promise<void> {
     });
 }
 async function openDeveloper(): Promise<void> {
+  await preloadDeveloperDrawer(); // the chunk is in the module cache before the click (I-203)
   press(byLabel(container, "Developer mode"));
   // The panels are loaded on demand: wait for the chunk, as a visitor waits for the note to go.
   for (let tries = 0; tries < 100 && container.querySelector(".developer-loading") !== null; tries += 1)

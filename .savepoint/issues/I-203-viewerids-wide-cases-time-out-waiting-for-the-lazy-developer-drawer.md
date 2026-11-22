@@ -17,6 +17,10 @@ history:
     actor: {role: checker, session: check-o094-20261122}
     kind: observed
     note: 'Second red npm test today from the same two cases. C-211 Full Check gate run (2026-11-22T04:34:00Z, load average 1.6 at start, about 9 during the run): 328 files, 2 failed, 5431 passed. Both failures are packages/astraeus/tests/viewerIds.test.ts "every reference to an element id stays inside its viewer > mount, wide" (1080 ms) and "AstraeusScene, wide" (1022 ms), AssertionError at line 274. The file alone passed 8/8 straight after, and a full npm test rerun passed 328 files. The O-094 coordinator saw the same file fail (5 cases) earlier today and it passed on rerun. Out of O-094 scope (file untouched by O-094).'
+  - at: '2026-11-22T04:44:56Z'
+    actor: {role: executor, session: orchestrate-g024-20261122}
+    kind: repair_attempted
+    note: 'Direct repair on branch o092-gpu-cleanup: new shared helper packages/astraeus/tests/helpers/developerDrawer.ts (preloadDeveloperDrawer imports the chunk; waitForDeveloperDrawer preloads then waits for the heading with DRAWER_WAIT_MS 10 s, interval 20 ms). viewerIds.test.ts and developerDrawerFolds.test.ts wait through it (was the 1 s default); appScreenDom.test.ts and addressDom.test.ts preload before their click (their 2 s loops kept). No assertion or fixture changed. Proof: the 5 files incl. packageBoundaries 69/69; viewerIds + developerDrawerFolds 5/5 green with 14 busy-loop node processes loading the machine; two consecutive full npm test runs 328 files, 5433 passed, 2 skipped each. Typecheck, ESLint, Prettier clean. Other drawer-opening tests (twoViewers, panelPlacementDom, viewerStyles, barDom, domShell, developerToolsOption) do not wait for the heading and were not changed.'
 ---
 
 # viewerIds wide cases time out waiting for the on-demand Developer drawer

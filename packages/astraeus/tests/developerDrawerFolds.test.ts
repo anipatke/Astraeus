@@ -24,6 +24,7 @@ import { Scene, earth, moon, saturn, type StoryPanelInput } from "astraeus";
 import { mount } from "../src/api/mount";
 import { AstraeusScene as ReactScene } from "../src/api/AstraeusScene";
 import { pretendScreen } from "./domSetup";
+import { waitForDeveloperDrawer } from "./helpers/developerDrawer";
 
 (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = false;
 
@@ -305,7 +306,7 @@ async function open(path: Path, scene: Scene, address: boolean): Promise<void> {
 const pause = () => new Promise((resolve) => setTimeout(resolve, 15));
 async function openDrawer(): Promise<HTMLElement> {
   host.querySelector<HTMLButtonElement>('button[aria-label="Developer mode"]')!.click();
-  await vi.waitFor(() => expect(host.querySelector(".developer-heading h2")?.textContent).toBe("Developer tools"));
+  await waitForDeveloperDrawer(host);
   return host.querySelector<HTMLElement>(".developer-tools")!;
 }
 const foldsOf = (drawer: HTMLElement) =>

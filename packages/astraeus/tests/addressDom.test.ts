@@ -31,6 +31,7 @@ import { AstraeusScene as HostScene } from "../src/api/AstraeusScene";
 import { mount } from "../src/api/mount";
 import { press, pretendScreen, drawn, byLabel } from "./domSetup";
 import { definitionOf } from "../src/api/definitionOf";
+import { preloadDeveloperDrawer } from "./helpers/developerDrawer";
 
 (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
 
@@ -70,6 +71,7 @@ const pressed = () =>
     .filter((b) => b.getAttribute("aria-pressed") === "true")
     .map((b) => b.dataset.viewId);
 const openDeveloper = async () => {
+  await preloadDeveloperDrawer(); // the chunk is in the module cache before the click (I-203)
   press(byLabel(container, "Developer mode"));
   for (
     let tries = 0;
