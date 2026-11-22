@@ -2,15 +2,21 @@
 id: I-195
 title: The engine does not typecheck against three.js 0.181 or later
 type: defect
-status: open
+status: resolved
 source:
   kind: report
   actor: {role: executor, session: orchestrate-g024-20261122}
   at: '2026-11-21T23:48:18Z'
 tasks: [T-415]
-checks: []
+checks: [C-214]
 guardrail_ids: [API-07]
 severity: low
+resolution:
+  disposition: verified
+  check: C-214
+  actor: {role: checker, session: check-i195-20261122}
+  at: '2026-11-22T07:14:00Z'
+  reason: Repair proven by C-214 (CLEAR).
 history:
   - at: '2026-11-21T23:48:18Z'
     actor: {role: executor, session: orchestrate-g024-20261122}
@@ -20,6 +26,11 @@ history:
     actor: {role: executor, session: orchestrate-g024-20261122}
     kind: repair_attempted
     note: 'Direct repair (owner 2026-11-22: "fix I-195 first, then release 0.10.0"). useBodyTexture.ts: SafeTextureLoader.load takes its parameters and return type from TextureLoader["load"] (Parameters/ReturnType), so it matches the generic Texture of @types/three 0.181+ and the plain Texture of 0.169. Two test mocks of HTMLCanvasElement.getContext (glowAndHooksDom.test.ts, ownedPictures.test.ts; the second was added by O-092 after this Issue was observed) cast to `never` instead of CanvasRenderingContext2D: type-only, no setup or behaviour change. Peer range widened to >=0.169.0 <0.188.0 (what is proved); README peer line, CHANGELOG 0.10.0 line and package-lock updated. Proof: `npm run check:three-newest` (three 0.187.0 + @types/three 0.187.0) pass: typecheck, lint, 259 files / 4330 tests, 38.6 s. `node tools/check-engine-alone.mjs --three 0.181.2` pass (failed at typecheck on ownedPictures.test.ts before its cast) and `--three 0.186.1` (the belt app''s three) pass. Root three 0.169: lint, typecheck, build exit 0; npm test 337 files, 5487 passed, 2 skipped; check:pack pass. Unverified: 0.182..0.185 not run individually.'
+  - at: '2026-11-22T07:14:00Z'
+    actor: {role: checker, session: check-i195-20261122}
+    kind: rechecked
+    check: C-214
+    note: 'C-214 CLEAR: check:three-newest (0.187.0) and --three 0.181.2 and 0.183.2 pass; quality gates and check:pack pass on 0.169. Closed verified.'
 ---
 
 # The engine does not typecheck against three.js 0.181 or later
