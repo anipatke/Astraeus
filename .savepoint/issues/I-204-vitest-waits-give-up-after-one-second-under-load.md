@@ -2,15 +2,21 @@
 id: I-204
 title: Vitest waits give up after one second under load
 type: verification
-status: open
+status: resolved
 source:
   kind: report
   actor: {role: executor, session: orchestrate-g024-20261122}
   at: '2026-11-22T05:10:09Z'
 tasks: []
-checks: []
+checks: [C-212]
 guardrail_ids: []
 severity: medium
+resolution:
+  disposition: verified
+  check: C-212
+  actor: {role: checker, session: check-o092-20261122}
+  at: '2026-11-22T05:22:00Z'
+  reason: 'C-212 CLEAR: vitest.waits.setup.ts is the first setup file of the preloaded, moons and cold projects; waitDefaults.test.ts proves an unnamed wait outlasts 1 s and a named 100 ms timeout is kept, and fails (1005 ms) under a scratch config without the setup file; formerly flaky files green under load; two consecutive green full npm test runs.'
 history:
   - at: '2026-11-22T05:10:09Z'
     actor: {role: executor, session: orchestrate-g024-20261122}
@@ -20,6 +26,11 @@ history:
     actor: {role: executor, session: orchestrate-g024-20261122}
     kind: repair_attempted
     note: 'Direct repair on branch o092-gpu-cleanup: packages/astraeus/vitest.waits.setup.ts (first setup file of all three Vitest projects in vitest.config.ts) gives vi.waitFor and vi.waitUntil a 10 s default timeout when a call names none; a named timeout is kept. tests/waitDefaults.test.ts: an unnamed wait outlasts 1 s (fails without the setup file: 1 failed, 1 passed; passes with it), a named 100 ms timeout still rejects. Full npm test 337 files, 5481 passed, 2 skipped. twoViewers + viewerIds + developerDrawerFolds 3/3 green with 14 busy-loop processes loading the machine. Typecheck, ESLint, Prettier clean.'
+  - at: '2026-11-22T05:22:00Z'
+    actor: {role: checker, session: check-o092-20261122}
+    kind: rechecked
+    note: 'C-212: Proof Needed met; closed as verified.'
+    check: C-212
 ---
 
 # Vitest waits give up after one second under load

@@ -1,7 +1,7 @@
 ---
 id: O-092
 title: GPU resources cleaned up per viewer
-status: planned
+status: done
 depends_on: [O-087]
 release: G-024
 priority: medium
@@ -47,3 +47,4 @@ API-03 per-viewer isolation.
 - Engine size: cap 1,838,000 B raw; 1,826,428 B measured (C-211); per-Task caps total about 900 B.
 - Waves: T-427, T-428, T-431, T-432 side by side (T-427 runs its browser step on today's code first, to record the harm); then T-429 and T-430 after T-428; then T-433.
 - I-203 (viewerIds drawer wait) repaired directly on this branch (commit 1b473ba4); this Objective's Full Check verifies it.
+- Full Check C-212 CLEAR (2026-11-22; I-203 and I-204 verified): gates incl. engine-alone (vitest.config.ts changed) and check:three-newest; browser `--tier quick --step look-out --step two-viewers --skip-examples` 142 s green. Checker confirmed three's stale-delete explanation (WebGLGeometries/WebGLTextures dispose listeners survive `initGLContext()`). O-092 set done by the orchestrating session (G-024 decision 7; owner "Carry on").
