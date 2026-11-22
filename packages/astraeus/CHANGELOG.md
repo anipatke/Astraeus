@@ -30,6 +30,7 @@ Engineering health repairs (G-024). Behaviour may change where it was wrong (own
 - Fixed: two viewers on one page no longer affect each other when one is removed; each viewer draws with its own pictures and the other keeps drawing.
 - Fixed: graphics memory is freed when a viewer is removed.
 - Fixed: a failed planet, star or body-picture load is tried again on the next load or mount; it stayed failed for the page's life before.
+- Docs: the package README is about a third of its length and states only what is true of this version: install, a first scene, React, the handle, errors, data packages and links, with each option's detail in the doc comments on the API page, whose lead now takes the version from `package.json` instead of calling the package a 0.2 preview. Planet positions are credited to the JPL Horizons fits (NOTICE no longer names VSOP87A).
 
 ### Breaking changes in 0.10.0
 

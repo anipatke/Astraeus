@@ -1,6 +1,6 @@
 # Astronomy provider evaluation and reference validation
 
-Research performed 2026-10-06 for O-001/T-001. The local values below were reproduced from the pinned npm tarball in `/tmp/astraeus-orb-eval/package`; this records provider research, not yet a claim about the Astraeus implementation.
+The first section is the present; every section after it is a dated record.
 
 ## Providers in use today
 
@@ -11,7 +11,7 @@ Status 2026-11-22 (O-090 T-439), read from the source; the sections below are da
 | Moon about Earth | Orb 3.1.1 `Luna`, ecliptic of date turned to EQJ | `packages/astraeus/src/core/astronomyAdapter.ts` |
 | Earth and Sun | Orb 3.1.1 EPV00 (`earthEpv00`, `sunEpv00`) | `astronomyAdapter.ts` |
 | Earth orientation, UTC to TT, frame transforms | Orb 3.1.1 `AstroInstant` and `frames` | `astronomyAdapter.ts` |
-| Mercury, Venus, Mars, Jupiter, Saturn, Uranus, Neptune, Pluto about the Sun | Piecewise Chebyshev fits of JPL Horizons system-barycentre states (DE441 and the satellite ephemerides), 1950 to 2045, within 1 km of Horizons, since O-063 T-290 (2026-11-10); no VSOP87A | `packages/astraeus/src/core/planetModels.ts`, `data/ephemerides/planets/planets.json`, `tools/import/planet-fits.mjs` |
+| Mercury, Venus, Mars, Jupiter, Saturn, Uranus, Neptune, Pluto about the Sun | Piecewise Chebyshev fits of JPL Horizons system-barycentre states (DE441 and the satellite ephemerides), 1950 to 2045, since O-063 T-290 (2026-11-10); no VSOP87A. Each series is fitted to within 1 km of Horizons' system barycentre (the importer's target; each planet's measured `worstErrorKm` is in `planets.json`). With its moon package loaded the planet sits on its own centre; that end-to-end accuracy, per planet and looser for Pluto, is measured in the engine README's planet accuracy table (under "What `astraeus-data` adds") | `packages/astraeus/src/core/planetModels.ts`, `data/ephemerides/planets/planets.json`, `tools/import/planet-fits.mjs` |
 | Moons about their planet's barycentre | Piecewise Chebyshev fits of JPL Horizons states, one data package per system | `packages/astraeus/src/core/chebyshevEphemeris.ts`, `src/core/bodies/moonSystem.ts`, `packages/astraeus-data-<planet>/` |
 | Comets, asteroids, settings-file bodies | Unperturbed two-body propagation from published elements | `packages/astraeus/src/core/sunCentredSources.ts`, `src/core/elementsBody.ts` |
 | Body rotation | IAU WGCCRE 2015 secular terms | `packages/astraeus/src/core/iauRotation.ts`, `data/orbits/<body>.json` (`rotation`) |
@@ -19,6 +19,8 @@ Status 2026-11-22 (O-090 T-439), read from the source; the sections below are da
 Where a dated section below says "the adapter takes" or "is used", it describes the implementation at its date; the table above and the source files are the present.
 
 ## Provider comparison
+
+Dated record. Research performed 2026-10-06 for O-001/T-001. The local values below were reproduced from the pinned npm tarball in `/tmp/astraeus-orb-eval/package`; this records provider research, not yet a claim about the Astraeus implementation.
 
 | Capability | `@lizard-isana/orb` 3.1.1 | `astronomy-engine` 2.1.19 | Astraeus consequence |
 |---|---|---|---|
@@ -63,7 +65,7 @@ The clock and state timestamp use integer UTC Unix milliseconds, matching JavaSc
 
 ## JPL Horizons fixtures
 
-Raw responses are archived in [`moon-horizons-source.txt`](../tests/fixtures/moon-horizons-source.txt) and [`sun-horizons-source.txt`](../tests/fixtures/sun-horizons-source.txt); normalized offline vectors are in the corresponding `*-horizons.json` fixtures.
+Raw responses are archived in [`moon-horizons-source.txt`](../packages/astraeus/tests/fixtures/moon-horizons-source.txt) and [`sun-horizons-source.txt`](../packages/astraeus/tests/fixtures/sun-horizons-source.txt); normalized offline vectors are in the corresponding `*-horizons.json` fixtures.
 
 Both queries used the JPL Horizons API Vectors endpoint with `COMMAND=301` (Moon) or `COMMAND=10` (Sun), `CENTER=500@399` (Earth center), `EPHEM_TYPE=VECTORS`, `VEC_TABLE=2` position components, `VEC_CORR=NONE` (geometric; no light-time/aberration), `OUT_UNITS=KM-S`, `REF_SYSTEM=ICRF`, and discrete `TLIST` samples. The raw headers report DE441, geometric cartesian output, position-only format, km-s units and UTC labels. Requested samples:
 
@@ -93,7 +95,7 @@ For approximate sidereal recurrence, the Jan 1 position and the Jan 28 07:43:11.
 
 ## Independent phase and Earth orientation checks
 
-[`usno-moon-phases-2024.json`](../tests/fixtures/usno-moon-phases-2024.json) preserves the USNO API v4.0.1 response for 2024. The selected phase events are Jan 4 03:30 UTC (last quarter), Jan 11 11:57 (new), Jan 18 03:52 (first quarter), and Jan 25 17:54 (full). The geometric fraction is
+[`usno-moon-phases-2024.json`](../packages/astraeus/tests/fixtures/usno-moon-phases-2024.json) preserves the USNO API v4.0.1 response for 2024. The selected phase events are Jan 4 03:30 UTC (last quarter), Jan 11 11:57 (new), Jan 18 03:52 (first quarter), and Jan 25 17:54 (full). The geometric fraction is
 
 ```text
 clamp((1 + unit(Moon→Sun) · unit(Moon→Earth)) / 2, 0, 1)
@@ -103,15 +105,15 @@ using same-time, geometric EQJ vectors. The recorded Orb 3.1.1 values are 0.5014
 
 For Earth rotation, Orb's `gmst82` was checked at UT1 JD 2453736.5 against the IAU SOFA validation value `1.754174981860675096` radians; the difference was about `1.29e-12` radians. A separate 24-hour check advances sidereal phase by approximately 360.985647366 degrees. These tests establish convention and rotation behavior; they do not remove the adapter's documented `dut1=0` default or substitute for polar-motion data.
 
-## Planets: Mercury, Venus, Mars and Jupiter (O-014 / T-048)
+## Planets: Mercury, Venus, Mars and Jupiter (O-014 / T-048, 2026-10-12; position superseded by O-063, 2026-11-10)
 
 ### Position
 
-> **Superseded by O-063 (2026-11-10).** The planets are no longer VSOP87A fits: every planet's series is now fitted from JPL Horizons (DE441 and the planets' satellite ephemerides), with measured errors under 1 km from 1972 when a planet's moon package is loaded. See `docs/architecture/planet-accuracy-o063.md` and the README's planet accuracy table. The VSOP87A text below is kept as the record of the earlier method and its figures.
+> **Superseded by O-063 (2026-11-10).** The planets are no longer VSOP87A fits: every planet's series is now fitted from JPL Horizons (DE441 and the planets' satellite ephemerides), with measured errors under 1 km from 1972 for Mercury to Neptune when a planet's moon package is loaded (Pluto within 1.5 km, 2010 to 2029). See `docs/architecture/planet-accuracy-o063.md` and the README's planet accuracy table. The VSOP87A text below is kept as the record of the earlier method and its figures.
 
 `planetPositionFromSunKm(planet, t)` on the adapter takes the pinned Orb 3.1.1 `Mercury`, `Venus`, `Mars` and `Jupiter` VSOP87A series, reads the heliocentric ecliptic-J2000 position in au, and converts it to EQJ km about the Sun through Orb's `ecliptic-j2000` to `equatorial-j2000` transform, checking the library's documented coordinate, unit and centre labels like the other methods. **The full coefficient series is registered** (`@lizard-isana/orb/vsop87a/*`). The compact default table was measured first and is not usable here: against the same six Horizons dates its largest vector error was 18,929 km (Mercury), 2,877 km (Venus), 80,199 km (Mars) and 142,044 km (Jupiter). The full series cost about 780 kB of unminified source across the four planets (see the build size recorded in the Task evidence).
 
-Raw Horizons responses are archived in [`planets-horizons-source.txt`](../tests/fixtures/planets-horizons-source.txt) (four concatenated API responses, each preceded by a `==== QUERY ... ====` line giving the exact parameters; the text of each response is unaltered). Fetched 2026-10-12 with `curl` against `https://ssd.jpl.nasa.gov/api/horizons.api` (`format=text`, `COMMAND` 199, 299, 499, 599, `CENTER='500@10'` the Sun's body centre, `EPHEM_TYPE=VECTORS`, `VEC_TABLE=1` position only, `VEC_CORR=NONE` geometric, `OUT_UNITS=KM-S`, `REF_SYSTEM=ICRF`, `REF_PLANE=FRAME`, `TIME_TYPE=UT`, `TLIST` of JD 2440423.5, 2446217.5, 2451545.0, 2455378.5, 2460310.5, 2462653.5). The normalized vectors are in `planets-horizons.json`. Targets are Mercury, Venus (DE441) and Mars (`mar099` satellite ephemeris on DE441) and Jupiter (`jup365_merged` on DE441) body centres. The 2030 sample is labelled `UT~` by Horizons, because UTC for that date uses a predicted leap-second offset.
+Raw Horizons responses are archived in [`planets-horizons-source.txt`](../packages/astraeus/tests/fixtures/planets-horizons-source.txt) (four concatenated API responses, each preceded by a `==== QUERY ... ====` line giving the exact parameters; the text of each response is unaltered). Fetched 2026-10-12 with `curl` against `https://ssd.jpl.nasa.gov/api/horizons.api` (`format=text`, `COMMAND` 199, 299, 499, 599, `CENTER='500@10'` the Sun's body centre, `EPHEM_TYPE=VECTORS`, `VEC_TABLE=1` position only, `VEC_CORR=NONE` geometric, `OUT_UNITS=KM-S`, `REF_SYSTEM=ICRF`, `REF_PLANE=FRAME`, `TIME_TYPE=UT`, `TLIST` of JD 2440423.5, 2446217.5, 2451545.0, 2455378.5, 2460310.5, 2462653.5). The normalized vectors are in `planets-horizons.json`. Targets are Mercury, Venus (DE441) and Mars (`mar099` satellite ephemeris on DE441) and Jupiter (`jup365_merged` on DE441) body centres. The 2030 sample is labelled `UT~` by Horizons, because UTC for that date uses a predicted leap-second offset.
 
 | UTC sample | Why |
 |---|---|
@@ -137,9 +139,9 @@ These are sample maxima, not bounds for every date. They are recorded in each de
 
 ### Orientation
 
-`src/core/iauRotation.ts` builds the body-to-EQJ rotation from a pole right ascension and declination (linear per Julian century) and a prime meridian W (linear per day), all from J2000 and counted here in TT days from the adapter's `daysSinceJ2000Tt` (TT standing in for TDB, a difference under 2 ms). Body +Z is the pole, +X the prime meridian and +Y completes the basis. The constants come from the IAU Working Group report of 2015 (Archinal et al., Celest. Mech. Dyn. Astron. 130, 22, 2018) as transcribed in NAIF `pck00011.tpc` (fetched 2026-10-12); the exact kernel lines are archived in [`iau-pck-excerpt.txt`](../tests/fixtures/iau-pck-excerpt.txt) and a test asserts the shipped numbers equal them. The report's periodic nutation and libration terms are left out (Mercury's would reach about 0.01 degrees in W; Mars's and Jupiter's pole terms are below 0.001 degrees), and the secular terms only are kept.
+`src/core/iauRotation.ts` builds the body-to-EQJ rotation from a pole right ascension and declination (linear per Julian century) and a prime meridian W (linear per day), all from J2000 and counted here in TT days from the adapter's `daysSinceJ2000Tt` (TT standing in for TDB, a difference under 2 ms). Body +Z is the pole, +X the prime meridian and +Y completes the basis. The constants come from the IAU Working Group report of 2015 (Archinal et al., Celest. Mech. Dyn. Astron. 130, 22, 2018) as transcribed in NAIF `pck00011.tpc` (fetched 2026-10-12); the exact kernel lines are archived in [`iau-pck-excerpt.txt`](../packages/astraeus/tests/fixtures/iau-pck-excerpt.txt) and a test asserts the shipped numbers equal them. The report's periodic nutation and libration terms are left out (Mercury's would reach about 0.01 degrees in W; Mars's and Jupiter's pole terms are below 0.001 degrees), and the secular terms only are kept.
 
-Independent check: Horizons' OBSERVER table for Mars and Jupiter at the same six dates, quantities 14 and 20 ([`planets-rotation-horizons-source.txt`](../tests/fixtures/planets-rotation-horizons-source.txt), fetched 2026-10-12, geocentre, normalized in `planets-rotation-horizons.json`). `ObsSub-LON` is the sub-observer planetographic longitude, west positive. The test makes the same number by taking the planet one light time ago, the Earth now, and the Earth direction in the body frame. Results:
+Independent check: Horizons' OBSERVER table for Mars and Jupiter at the same six dates, quantities 14 and 20 ([`planets-rotation-horizons-source.txt`](../packages/astraeus/tests/fixtures/planets-rotation-horizons-source.txt), fetched 2026-10-12, geocentre, normalized in `planets-rotation-horizons.json`). `ObsSub-LON` is the sub-observer planetographic longitude, west positive. The test makes the same number by taking the planet one light time ago, the Earth now, and the Earth direction in the body frame. Results:
 
 | Case | Max sub-Earth longitude difference | Test tolerance |
 |---|---:|---:|
@@ -175,7 +177,7 @@ Mean orbital elements of Io about Jupiter are the JPL Solar System Dynamics "Pla
 
 ### Horizons comparison
 
-Raw Horizons response archived in [`io-horizons-source.txt`](../tests/fixtures/io-horizons-source.txt) (one API response preceded by a `==== QUERY ... ====` line with the exact parameters; text unaltered). Fetched 2026-10-12 with `curl` against `https://ssd.jpl.nasa.gov/api/horizons.api` (`format=text`, `COMMAND='501'`, `CENTER='500@599'` Jupiter's body centre, `EPHEM_TYPE=VECTORS`, `VEC_TABLE=1`, `VEC_CORR=NONE`, `OUT_UNITS=KM-S`, `REF_SYSTEM=ICRF`, `REF_PLANE=FRAME`, `TIME_TYPE=UT`, `TLIST` the same six Julian dates as the planets: 2440423.5, 2446217.5, 2451545.0, 2455378.5, 2460310.5, 2462653.5). Target Io (501) and centre Jupiter (599) are both `jup365_merged`. Normalized vectors: `io-horizons.json`.
+Raw Horizons response archived in [`io-horizons-source.txt`](../packages/astraeus/tests/fixtures/io-horizons-source.txt) (one API response preceded by a `==== QUERY ... ====` line with the exact parameters; text unaltered). Fetched 2026-10-12 with `curl` against `https://ssd.jpl.nasa.gov/api/horizons.api` (`format=text`, `COMMAND='501'`, `CENTER='500@599'` Jupiter's body centre, `EPHEM_TYPE=VECTORS`, `VEC_TABLE=1`, `VEC_CORR=NONE`, `OUT_UNITS=KM-S`, `REF_SYSTEM=ICRF`, `REF_PLANE=FRAME`, `TIME_TYPE=UT`, `TLIST` the same six Julian dates as the planets: 2440423.5, 2446217.5, 2451545.0, 2455378.5, 2460310.5, 2462653.5). Target Io (501) and centre Jupiter (599) are both `jup365_merged`. Normalized vectors: `io-horizons.json`.
 
 Largest Jupiter-centred position difference: **9,387.5 km (2.58 Io diameters)**, at 2030-06-01; the J2000 sample is 825.5 km. The one-Io-diameter line (3,643 km) is exceeded, so Io's record says "approximate demonstration" and the figure is in its known limitations; the test asserts the recorded figure (9,388 km, rounded up) equals the measured one and that the classification follows from it. The error grows away from the epoch (mean elements fitted for a precessing ellipse, no Europa and Ganymede resonance, fixed rather than precessing periapsis). Orientation is the Moon's approximate tidal lock about Jupiter (near side towards the parent, no libration). On T-078's six dates (O-019, `docs/MOON_ORBITS.md`) the generic mean-element path (`src/core/satelliteMeanElements.ts`, period from the IAU rotation rate) gives **4,196 km** largest error against this shipped definition's **9,388 km**; the two Io paths duplicate each other (ARCH-05), carried to O-033. Since T-098 (2026-10-18) the Jupiter demo places Io from the core JPL Horizons curve fits (T-096), whose figure its information panel states (0.0994 m); this mean-element definition and its figure remain as recorded.
 
@@ -203,7 +205,7 @@ What was measured: 13 moons and Io from the JPL Solar System Dynamics "Planetary
 
 ### Source of the elements
 
-JPL Small-Body Database API (`https://ssd-api.jpl.nasa.gov/sbdb.api?sstr=109P&full-prec=1&phys-par=1`, fetched 2026-10-15T08:39Z), solution SB405-CPV-2 (M.S.W. Keesey, 2001-10-09; 652 observations 1737 to 1995), epoch JD 2450000.5 TDB (1995-10-10), ecliptic J2000: e 0.963225755046038, a 26.0920694978266 AU, i 113.453816997171 deg, node 139.3811920815948 deg, omega 152.9821676305871 deg, M 7.631696167124212 deg, tp JD 2448968.499784556297, period 48681.19346262312 d, aphelion 51.2246 AU. The raw response is archived in [`swift-tuttle-horizons-source.txt`](../tests/fixtures/swift-tuttle-horizons-source.txt) (first of two responses, each preceded by a `==== QUERY ... ====` line); `tests/swiftTuttle.test.ts` asserts every constant equals the archived value. Nucleus diameter 26 km (Lamy, Toth, Fernandez and Weaver 2004, Comets II, pp. 223-264, as SBDB prints it), so radius 13 km, which is also what Horizons prints (`RAD= 13.`). Neither source gives a gravitational parameter for the comet, so none is recorded and it cannot be a centre.
+JPL Small-Body Database API (`https://ssd-api.jpl.nasa.gov/sbdb.api?sstr=109P&full-prec=1&phys-par=1`, fetched 2026-10-15T08:39Z), solution SB405-CPV-2 (M.S.W. Keesey, 2001-10-09; 652 observations 1737 to 1995), epoch JD 2450000.5 TDB (1995-10-10), ecliptic J2000: e 0.963225755046038, a 26.0920694978266 AU, i 113.453816997171 deg, node 139.3811920815948 deg, omega 152.9821676305871 deg, M 7.631696167124212 deg, tp JD 2448968.499784556297, period 48681.19346262312 d, aphelion 51.2246 AU. The raw response is archived in [`swift-tuttle-horizons-source.txt`](../packages/astraeus-demo-showers/tests/fixtures/swift-tuttle-horizons-source.txt) (first of two responses, each preceded by a `==== QUERY ... ====` line); `tests/swiftTuttle.test.ts` asserts every constant equals the archived value. Nucleus diameter 26 km (Lamy, Toth, Fernandez and Weaver 2004, Comets II, pp. 223-264, as SBDB prints it), so radius 13 km, which is also what Horizons prints (`RAD= 13.`). Neither source gives a gravitational parameter for the comet, so none is recorded and it cannot be a centre.
 
 ### How the elements become a position
 
@@ -211,7 +213,7 @@ JPL Small-Body Database API (`https://ssd-api.jpl.nasa.gov/sbdb.api?sstr=109P&fu
 
 ### Horizons comparison
 
-Raw Horizons response archived in the same file, second response, with its query line: fetched 2026-10-15T08:39:41Z against `https://ssd.jpl.nasa.gov/api/horizons.api` (`format=text`, `COMMAND='DES=109P;CAP'` (solution JPL#32, the same fit as SBDB, small perturbers on), `CENTER='500@10'`, `EPHEM_TYPE=VECTORS`, `VEC_TABLE=1`, `VEC_CORR=NONE`, `REF_SYSTEM=ICRF`, `REF_PLANE=FRAME`, `OUT_UNITS=KM-S`, `TIME_TYPE=UT`, eight dates in `TLIST`). Positions parsed into [`swift-tuttle-horizons.json`](../tests/fixtures/swift-tuttle-horizons.json); ICRF is treated as EQJ and UTC as UTC. A date list is not a bound for other dates.
+Raw Horizons response archived in the same file, second response, with its query line: fetched 2026-10-15T08:39:41Z against `https://ssd.jpl.nasa.gov/api/horizons.api` (`format=text`, `COMMAND='DES=109P;CAP'` (solution JPL#32, the same fit as SBDB, small perturbers on), `CENTER='500@10'`, `EPHEM_TYPE=VECTORS`, `VEC_TABLE=1`, `VEC_CORR=NONE`, `REF_SYSTEM=ICRF`, `REF_PLANE=FRAME`, `OUT_UNITS=KM-S`, `TIME_TYPE=UT`, eight dates in `TLIST`). Positions parsed into [`swift-tuttle-horizons.json`](../packages/astraeus-demo-showers/tests/fixtures/swift-tuttle-horizons.json); ICRF is treated as EQJ and UTC as UTC. A date list is not a bound for other dates.
 
 | Date (UTC) | Distance from the Sun | Difference from Horizons | As a fraction of the distance |
 |---|---|---|---|
@@ -305,7 +307,7 @@ The tests allow 1 km/s for the speed, 1 degree for the busiest bin, 2 days for t
 
 ### Source of the elements
 
-JPL Small-Body Database API (`https://ssd-api.jpl.nasa.gov/sbdb.api?sstr=3200&full-prec=1&phys-par=1`, fetched 2026-10-16T03:43:15Z), solution SB441-N16 of 2026-10-15 (8682 observations 1983 to 2026), epoch JD 2461200.5 TDB (2026-06-09), ecliptic J2000: a 1.271464620766258 AU, e 0.8896722843984632, i 22.31052728903618 deg, node 265.0988060336058 deg, omega 322.300168494526 deg, M 301.4858238591272 deg, q 0.1402777870773155 AU, period 523.67 d. Radius 3.125 km (SBDB effective diameter 6.25 km, Taylor et al. 2019; Horizons prints RAD = 3.125). The fit also carries a small transverse non-gravitational term (A2 = -6.2e-15 au/d^2) that the two-body model leaves out. TT minus UTC at the epoch is 69.184 s (32.184 s plus 37 leap seconds). The record is in `data/showers/geminids.json` (`parentElements`); the raw responses are archived in [`phaethon-horizons-source.txt`](../tests/fixtures/phaethon-horizons-source.txt) (first the SBDB response, second the Horizons response, each preceded by a `==== QUERY ... ====` line) and parsed into [`phaethon-horizons.json`](../tests/fixtures/phaethon-horizons.json).
+JPL Small-Body Database API (`https://ssd-api.jpl.nasa.gov/sbdb.api?sstr=3200&full-prec=1&phys-par=1`, fetched 2026-10-16T03:43:15Z), solution SB441-N16 of 2026-10-15 (8682 observations 1983 to 2026), epoch JD 2461200.5 TDB (2026-06-09), ecliptic J2000: a 1.271464620766258 AU, e 0.8896722843984632, i 22.31052728903618 deg, node 265.0988060336058 deg, omega 322.300168494526 deg, M 301.4858238591272 deg, q 0.1402777870773155 AU, period 523.67 d. Radius 3.125 km (SBDB effective diameter 6.25 km, Taylor et al. 2019; Horizons prints RAD = 3.125). The fit also carries a small transverse non-gravitational term (A2 = -6.2e-15 au/d^2) that the two-body model leaves out. TT minus UTC at the epoch is 69.184 s (32.184 s plus 37 leap seconds). The record is in `data/showers/geminids.json` (`parentElements`); the raw responses are archived in [`phaethon-horizons-source.txt`](../packages/astraeus-demo-showers/tests/fixtures/phaethon-horizons-source.txt) (first the SBDB response, second the Horizons response, each preceded by a `==== QUERY ... ====` line) and parsed into [`phaethon-horizons.json`](../packages/astraeus-demo-showers/tests/fixtures/phaethon-horizons.json).
 
 ### Horizons comparison
 
@@ -343,7 +345,7 @@ Measured-orbit facts at the new peaks (`tests/showersMeasured.test.ts`, the same
 
 ### Comet and asteroid against Horizons
 
-Raw responses in [`showers-year-horizons-source.txt`](../tests/fixtures/showers-year-horizons-source.txt) (three responses, each preceded by its `==== QUERY ... ====` line), normalized in `showers-year-horizons.json`, fetched 2026-10-18 from `https://ssd.jpl.nasa.gov/api/horizons.api` with the same vector settings as above (`CENTER='500@10'`, `VEC_TABLE=1`, `VEC_CORR=NONE`, `REF_SYSTEM=ICRF`, `REF_PLANE=FRAME`, `OUT_UNITS=KM-S`, `TIME_TYPE=UT`) at six dates: JD 2458747.5, 2458831.5, 2458909.5, 2459001.5, 2459073.5, 2459112.5. Horizons now serves Phaethon solution JPL#1019 (the shipped elements are SB441-N16, the fit Horizons served as JPL#1017 on 2026-10-16); Swift-Tuttle is still JPL#32. Checked by `tests/showersYearHorizons.test.ts`.
+Raw responses in [`showers-year-horizons-source.txt`](../packages/astraeus-demo-showers/tests/fixtures/showers-year-horizons-source.txt) (three responses, each preceded by its `==== QUERY ... ====` line), normalized in `showers-year-horizons.json`, fetched 2026-10-18 from `https://ssd.jpl.nasa.gov/api/horizons.api` with the same vector settings as above (`CENTER='500@10'`, `VEC_TABLE=1`, `VEC_CORR=NONE`, `REF_SYSTEM=ICRF`, `REF_PLANE=FRAME`, `OUT_UNITS=KM-S`, `TIME_TYPE=UT`) at six dates: JD 2458747.5, 2458831.5, 2458909.5, 2459001.5, 2459073.5, 2459112.5. Horizons now serves Phaethon solution JPL#1019 (the shipped elements are SB441-N16, the fit Horizons served as JPL#1017 on 2026-10-16); Swift-Tuttle is still JPL#32. Checked by `tests/showersYearHorizons.test.ts`.
 
 | Date (UTC) | Phaethon from the Sun | Difference | Fraction | Swift-Tuttle from the Sun | Difference | Fraction |
 |---|---|---|---|---|---|---|

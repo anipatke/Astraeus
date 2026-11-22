@@ -120,7 +120,7 @@ npm run check:browser -- --tier quick  # every page and view, the phone journey,
 npm run check:browser                  # the full tier: the quick steps plus the longer journeys (release run)
 ```
 
-Each browser run writes its results to a new folder under `docs/evidence/`. What each step protects, its time limit, a dated measured time, how to find a run's results and how to diagnose a failure are in [`docs/BROWSER_CHECKS.md`](docs/BROWSER_CHECKS.md).
+A Full Objective Check usually runs `npm run check:browser -- --tier quick --skip-examples`, leaving out the packed examples unless the change touches packaging, `examples/` or the public API; a Task runs no browser check unless it changes a browser script. Which command runs when is decided in the [browser policy](docs/agents/browser-policy.md). Each browser run writes its results to a new folder under `docs/evidence/`. What each step protects, its time limit, a dated measured time, how to find a run's results and how to diagnose a failure are in [`docs/BROWSER_CHECKS.md`](docs/BROWSER_CHECKS.md).
 
 Design notes and validation reports are in [`docs/`](docs/); [where each fact lives](docs/README.md) says which file owns what. Start with [astronomy validation](docs/ASTRONOMY_VALIDATION.md), [Apollo 11 sources](packages/astraeus-demo-apollo11/credits/APOLLO11_SOURCES.md) and [donor provenance](docs/DONOR_PROVENANCE.md). Changes are in the [engine changelog](packages/astraeus/CHANGELOG.md).
 
