@@ -614,6 +614,21 @@ export async function sceneBodies(page) {
 export async function sceneBody(page, id) {
   return (await sceneBodies(page)).find((body) => body.id === id);
 }
+/**
+ * Each Sun-centred orbit line's distance to its own body (`data-orbit-line-gap`, T-446), in pixels: { "earth-orbit": 0.4, ... }, from the body's drawn centre to the nearest drawn segment of the line, null when no segment is in front of the camera.
+ * The scene reports it as a share of the view's height; this multiplies by the canvas height.
+ */
+export async function orbitLineGapsPx(page) {
+  return page
+    .locator("canvas")
+    .first()
+    .evaluate((canvas) => {
+      const shares = JSON.parse(canvas.getAttribute("data-orbit-line-gap") ?? "{}");
+      return Object.fromEntries(
+        Object.entries(shares).map(([id, share]) => [id, share === null ? null : share * canvas.clientHeight]),
+      );
+    });
+}
 /** The sky as the scene reports it: star count, the star and Milky Way brightness in force, and whether the picture is on and shown. Stars is 0 when the scene has no sky. */
 export async function sceneSky(page) {
   const data = await page

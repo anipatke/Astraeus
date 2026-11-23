@@ -878,6 +878,41 @@ export class PathView {
     };
   }
 
+  /**
+   * Diagnostic for the browser checks: the screen distance, as a share of the view's height, from `local` (a point in the floating-origin frame the line
+   * is placed in) to the drawn line's nearest segment, over the segments wholly in front of the camera; null when there is none.
+   */
+  screenGapTo(camera: Camera, local: RenderVector): number | null {
+    camera.updateMatrixWorld();
+    const aspect = (camera as PerspectiveCamera).aspect ?? 1;
+    const toScreen = (x: number, y: number, z: number): [number, number] | null => {
+      const v = new Vector3(x, y, z).applyMatrix4(camera.matrixWorldInverse);
+      if (v.z >= 0) return null;
+      v.applyMatrix4(camera.projectionMatrix);
+      return [(v.x * aspect) / 2, v.y / 2];
+    };
+    const target = toScreen(local[0], local[1], local[2]);
+    if (target === null) return null;
+    const a = this.#positions.array;
+    let best: number | null = null;
+    let from = toScreen(a[0], a[1], a[2]);
+    for (let i = 1; i < this.#count; i += 1) {
+      const to = toScreen(a[3 * i], a[3 * i + 1], a[3 * i + 2]);
+      if (from !== null && to !== null) {
+        const [dx, dy] = [to[0] - from[0], to[1] - from[1]];
+        const length2 = dx * dx + dy * dy;
+        const t =
+          length2 === 0
+            ? 0
+            : Math.max(0, Math.min(1, ((target[0] - from[0]) * dx + (target[1] - from[1]) * dy) / length2));
+        const gap = Math.hypot(target[0] - (from[0] + t * dx), target[1] - (from[1] + t * dy));
+        best = best === null ? gap : Math.min(best, gap);
+      }
+      from = to;
+    }
+    return best;
+  }
+
   /** The centre of the drawn line, so a focused path sits in the middle of the view. */
   absolute(): RenderVector {
     return this.#centre;

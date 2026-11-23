@@ -1,0 +1,4 @@
+tier: steps
+logs: /tmp/astraeus-check-logs-qB1d5i
+smoke | scene=every public page and demo view except the made-up journey, desktop and phone | exit=0 | 08:50:00-08:50:55 | 55s | limit 65s | error-lines=0
+total 56s (servers and public build included) | no limit

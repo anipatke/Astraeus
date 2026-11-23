@@ -2,6 +2,16 @@
 
 Versions follow [semantic versioning](https://semver.org). While the version starts with `0.`, the public API (the names exported from `astraeus`) may still change between minor versions; each change is listed here.
 
+## 0.10.1 (unreleased)
+
+Orbit lines stay on their body. No breaking changes.
+
+- Fixed: a planet's orbit line round the Sun (`addBody(planet, { orbit: true })`, `addBodyFromElements`) now stays on the planet. It used to be drawn once from the scene's opening time, so at close zoom, and in any year other than the opening one, the planet drifted off its line (Earth by about two of its own radii, Mars by about six). The line is now one turn about the display time, redrawn as time moves or jumps, and it ends exactly on the body through a finer stretch near it. A moon's orbit line ends on its moon the same way. A paused scene still draws nothing new.
+
+### Breaking changes in 0.10.1
+
+None: no public name, type or default changed.
+
 ## 0.10.0 (2026-11-22)
 
 Engineering health repairs (G-024). Behaviour may change where it was wrong (owner decision 2026-11-21: 0.10.0, breaking allowed).

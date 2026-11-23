@@ -1,5 +1,5 @@
 // Scene frame: one frame of the scene as named stages over one frame context. The React component keeps refs and effects; the work is here.
-import type { DirectionalLight, PerspectiveCamera } from "three";
+import type { Camera, DirectionalLight, PerspectiveCamera } from "three";
 import type { BodyId } from "../core/body";
 import type { ScalePolicy } from "../presentation/scalePolicy";
 import type { BodyAsset, BodyCatalogue } from "../assets/catalogue";
@@ -319,6 +319,24 @@ export function publishOrbitHeadGap(
   );
 }
 
+/** Diagnostic for the browser checks (`data-orbit-line-gap`, JSON): for each Sun-centred orbit line, the screen distance from its body's drawn centre to the line, as a share of the view's height (T-446). */
+export function publishOrbitLineGaps(
+  canvas: HTMLCanvasElement,
+  views: readonly PathView[],
+  absoluteOf: (id: BodyId) => RenderVector,
+  origin: FloatingOrigin,
+  camera: Camera,
+): void {
+  const [ox, oy, oz] = origin.scaledCameraOrigin;
+  const gaps: Record<string, number | null> = {};
+  for (const view of views) {
+    if (view.layer.kind !== "orbit") continue;
+    const body = absoluteOf(view.layer.source.body as BodyId);
+    gaps[view.id] = view.screenGapTo(camera, [body[0] - ox, body[1] - oy, body[2] - oz]);
+  }
+  canvas.dataset.orbitLineGap = JSON.stringify(gaps);
+}
+
 /** Stage 4: swaps small bodies for markers, publishes the scene's canvas readouts and updates the sky. */
 export function publishCanvasReadouts(ctx: FrameContext): void {
   const { controls, camera, canvas, size, views } = ctx;
@@ -387,6 +405,7 @@ export function placeViews(ctx: FrameContext, t: number, placed: PlacedScene, se
   for (const view of views.sunCentredViews) view.place(origin);
   for (const view of views.compositionPaths) view.place(origin, { fovDeg: camera.fov, viewportHeightPx: size.height });
   if (ctx.state.diagnostics) publishOrbitHeadGap(canvas, views.compositionPaths, placed.absoluteOf, policy);
+  if (ctx.state.diagnostics) publishOrbitLineGaps(canvas, views.sunCentredViews, placed.absoluteOf, origin, camera);
   const trueScale = policy.id === "true-scale";
   for (const view of views.bodySetViews) view.place(origin, camera, size.width, size.height, setLook, trueScale);
   for (const view of views.orbitSetViews) view.place(origin, setLook, trueScale);

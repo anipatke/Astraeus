@@ -43,6 +43,8 @@ function discoverViews() {
   // O-046 T-193: the made-up Sun-centred probe path (dev server only; the public build leaves it out) gets the extra checks in `sunPathChecks`.
   views.push({ id: "synthetic-probe", url: `${appUrl}?experience=synthetic-probe`, scene: true, sunPath: true });
   // O-047 T-203: the made-up 1977-to-170-AU journey (dev server only): moons at their dates, Saturn's orbit line, and the whole path framed at its end (`journeyChecks`).
+  // O-099 T-446: the made-up belt (Earth on its year's line, true scale) gets `closeZoomChecks`: the line stays on Earth at close zoom with time playing.
+  views.push({ id: "synthetic-belt", url: `${appUrl}?experience=synthetic-belt`, scene: true, closeZoom: true });
   views.push({ id: "synthetic-journey", url: `${appUrl}?experience=synthetic-journey`, scene: true, journey: true });
   for (const page of ["index", "assets", "components"])
     views.push({ id: `${page}-page`, url: new URL(`${page}.html`, appUrl).href, scene: false });
@@ -123,6 +125,74 @@ async function sunPathChecks(page) {
       `the probe path line moved between two times (${JSON.stringify(line(first))} then ${JSON.stringify(second && line(second))})`,
     );
   return { first: line(first), second: line(second) };
+}
+
+/** The most the screen distance from Earth's centre to its orbit line may be, in pixels, at any sampled frame (O-099: the line passes through the body; measured worst values are in the T-446 evidence). */
+const LINE_ON_BODY_PX = 2;
+/** The Earth radii on screen (pixels) the close-zoom check stops at, from far to near. */
+const CLOSE_ZOOM_RADII_PX = [12, 60, 240];
+
+/**
+ * O-099 T-446: at true scale, with the camera on Earth and time playing, the screen distance from Earth's centre to its orbit line stays under `LINE_ON_BODY_PX` at every frame sampled, at a few
+ * zoom levels down to Earth drawn large. Reads `data-orbit-line-gap` (the scene's own distance, in the same frame as the body is placed) and `data-body-screen`; no screenshot.
+ */
+async function closeZoomChecks(page) {
+  await ui.assertScaleInUse(page, "true-scale");
+  await ui.ensurePaused(page);
+  await ui.pickBody(page, "earth");
+  if (!(await ui.cameraOffered(page, "focus-earth"))) throw new Error("the scene offers no Focus camera for Earth");
+  if (!(await ui.cameraActive(page, "focus-earth"))) await ui.chooseCamera(page, "focus-earth");
+  await ui.waitUntil(
+    page,
+    () => ui.focusedOn(page, "earth"),
+    (focused) => focused === true,
+    { what: "the camera focusing Earth", timeout: 20000 },
+  );
+  await ui.waitForBodySettled(page, "earth", { timeout: 20000 });
+  await ui.setFastestSpeed(page);
+  await ui.ensurePlaying(page);
+  await ui.waitUntilPlaying(page, 5000);
+  const point = await ui.freeCanvasPoint(page);
+  if (point === null) throw new Error("no free point on the scene to zoom in on Earth");
+  await page.mouse.move(point.x, point.y);
+  const stops = [];
+  let worst = 0;
+  for (const target of CLOSE_ZOOM_RADII_PX) {
+    for (let turn = 0; turn < 200; turn += 1) {
+      const earth = await ui.sceneBody(page, "earth");
+      if (earth !== undefined && earth.radiusPx >= target) break;
+      await page.mouse.wheel(0, -300);
+      await page.waitForTimeout(40);
+    }
+    await ui.waitForBodySettled(page, "earth");
+    const gaps = [];
+    const days = [];
+    const start = await ui.clockMs(page);
+    for (let k = 0; k < 12; k += 1) {
+      const gap = (await ui.orbitLineGapsPx(page))["earth-orbit"];
+      if (gap === null || gap === undefined)
+        throw new Error(`Earth's orbit line has no segment in front of the camera at radius ${target} px (frame ${k})`);
+      gaps.push(Math.round(gap * 1000) / 1000);
+      await page.waitForTimeout(250);
+      days.push(Math.round(((await ui.clockMs(page)) - start) / 360_000) / 10);
+    }
+    const earth = await ui.sceneBody(page, "earth");
+    const stop = {
+      radiusPx: Math.round(earth?.radiusPx ?? 0),
+      worstPx: Math.max(...gaps),
+      simulatedHours: days[days.length - 1],
+      gaps,
+    };
+    stops.push(stop);
+    worst = Math.max(worst, stop.worstPx);
+    if (earth === undefined || earth.as !== "sphere" || !(earth.radiusPx >= target * 0.8))
+      throw new Error(`Earth is not drawn as a sphere of about ${target} px radius (${JSON.stringify(earth)})`);
+  }
+  if (worst >= LINE_ON_BODY_PX)
+    throw new Error(
+      `Earth's orbit line strays ${worst} px from Earth's centre (bound ${LINE_ON_BODY_PX} px): ${JSON.stringify(stops.map((s) => [s.radiusPx, s.worstPx]))}`,
+    );
+  return { boundPx: LINE_ON_BODY_PX, worstPx: worst, stops };
 }
 
 const JOURNEY_MOONS = [
@@ -380,6 +450,7 @@ async function load(browser, view, size) {
       drawn = await drawsSomething(page, view);
       // O-031 T-149: a paused, untouched scene stops drawing (Apollo 11 is the one view checked; the rule is the same for all).
       if (view.journey) drawn = { ...drawn, journey: await journeyChecks(page) };
+      if (view.closeZoom) drawn = { ...drawn, closeZoom: await closeZoomChecks(page) };
       if (view.sunPath) drawn = { ...drawn, sunPath: await sunPathChecks(page) };
       if (view.id === "apollo11") {
         await ui.ensurePaused(page);

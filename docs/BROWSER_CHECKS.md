@@ -53,7 +53,7 @@ Each step runs at desktop (1280x720) and phone (375x667, touch) size unless note
 
 | Step | Tier, script | Protects | Limit |
 |------|------|------|------|
-| `smoke` | quick, `browser-smoke.mjs` | every public page and demo view except the made-up journey (the default shower's named view is left out: `showers` loads the same file), including `components.html` and `?experience=synthetic-probe` (probe path, its label shown, the Sun's line box fixed) | 65 s |
+| `smoke` | quick, `browser-smoke.mjs` | every public page and demo view except the made-up journey (the default shower's named view is left out: `showers` loads the same file), including `components.html` and `?experience=synthetic-probe` (probe path, its label shown, the Sun's line box fixed); and `?experience=synthetic-belt` at true scale with the camera on Earth and time playing, at three zoom levels down to Earth drawn large: the screen distance from Earth's centre to its orbit line stays under 2 px at every sampled frame (O-099 T-446) | 65 s |
 | `synthetic-journey` | full, `browser-smoke.mjs` | the made-up 1977-to-170-AU journey, both sizes side by side: moons in the scene on their dates, Saturn's orbit line, the whole path in view and labelled when zoomed out, the phone near-Saturn sequence (side by side is the owner's choice, O-060, which makes its time depend on the machine) | 115 s |
 | `smoke-public-showers` | quick, `browser-smoke.mjs` | the showers views on the scratch public build, desktop only: each shipped stream file is drawn | 15 s |
 | `planets-phone` | quick, `journey-planets-phone.mjs` | phone with touch: switch Mercury to Jupiter, focus Io from the moons panel, open a place card | 20 s |
@@ -130,4 +130,5 @@ The canvas carries `data-*` readouts the driver reads. Each is computed in the a
 | `scenePoints`, `scenePointGroup(id)`, `sceneDotsInView` | `data-points` | per point group: drawn (inside its time bounds), member count, members in view (an even sample of at most 512 scaled up), the share of the view they span |
 | `sceneBodies`, `sceneBody(id)` | `data-body-screen` | per body: drawn as a sphere, a marker or not at all, its radius in pixels, its centre as shares of the view, in view; for a body with a halo, the halo's width in pixels, its brightness and whether it is drawn over the dots |
 | `sceneSky` | `data-sky-stars`, `-picture`, `-picture-shown`, `-star-brightness`, `-milky-way-brightness` | the star count, whether the Milky Way picture is on and shown, and the two brightness settings in force |
+| `orbitLineGapsPx` | `data-orbit-line-gap` | per Sun-centred orbit line (by path id): the screen distance in pixels from its body's drawn centre to the nearest drawn segment of the line, in the frame the body is placed; null when no segment is in front of the camera |
 | `sceneDrawsSomething` | (the three above) | bodies in view, dots in view and path lines in view: the readout form of "the canvas is not blank" |
