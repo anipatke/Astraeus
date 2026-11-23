@@ -2,8 +2,7 @@
 id: T-446
 title: Close-zoom check, frame time and the note for the belt app
 objective: O-099
-status: in_progress
-stage: audit
+status: done
 depends_on: [{task: T-445, requires: clear}]
 owner_validation: {required: true}
 check_waiver: {task: T-446, reason: 'Owner said "orchestrate O99" (2026-11-23): standing orchestration rules waive the optional step checks; the mandatory Full Objective Check covers the whole diff.', actor: {role: owner, session: orchestrate-o099-20261123}, recorded_at: '2026-11-23T08:18:33Z'}
@@ -112,3 +111,11 @@ Result: not equal within noise. The three lines cost about 0.21 ms more per fram
 
 - New diagnostics-only readout `data-orbit-line-gap` (`PathView.screenGapTo`, `publishOrbitLineGaps`), alongside `data-orbit-head-gap`; non-architectural for Design.md. `docs/BROWSER_CHECKS.md` readout table and smoke row updated.
 - `smoke` gains the `synthetic-belt` view (quick tier): time limit for the smoke step to be reviewed.
+
+## Coordinator Completion
+
+Owner decisions, 2026-11-23 (orchestration session): (1) frame time "Accept it": the measured +0.21 ms per frame for three planet lines (Node benchmark, about 1.3% of a 60 fps frame) is accepted, so the Done When "not worse beyond run-to-run noise" is met by owner acceptance, not by measurement; (2) "Only when orbit lines change": the close-zoom check moved out of the quick `smoke` step into a new full-tier step `orbit-lines` (`browser-steps.mjs`, limit 60 s in `tools/gate-limits.json` from the measured 55 s, its paths listed in `docs/agents/browser-policy.md`, row in `docs/BROWSER_CHECKS.md`); `smoke` skips `synthetic-belt`, keeping its 65 s limit. The step will be run by the Full Objective Check (the diff touches its paths); not rerun here (one browser run per change). Known weakness kept: the three zoom stops landed on one radius (272 px desktop, 255 px phone).
+
+Coordinator fix: the open CHANGELOG section gained `### Breaking changes in 0.10.1` ("None"), which `releaseBreaks.test.ts` requires.
+
+Marked done by the coordinator under the owner's "orchestrate O99" after the wave gate passed on 2026-11-23T08:54Z: `npm run typecheck` ok, `npm run lint` ok, `npm test` 340 files, 5518 passed, 2 skipped. Owner look on localhost:5490 still to come, before the Full Objective Check.

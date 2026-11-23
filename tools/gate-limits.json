@@ -17,6 +17,7 @@
     "steps": {
       "smoke": 65,
       "synthetic-journey": 115,
+      "orbit-lines": 60,
       "smoke-public-showers": 15,
       "planets-phone": 20,
       "meteor-shower": 30,

@@ -5,8 +5,16 @@ export const STEPS = [
     name: "smoke",
     tier: "quick",
     script: "browser-smoke.mjs",
-    env: { ASTRAEUS_SKIP_VIEWS: "synthetic-journey" },
-    scene: "every public page and demo view except the made-up journey, desktop and phone",
+    env: { ASTRAEUS_SKIP_VIEWS: "synthetic-journey,synthetic-belt" },
+    scene: "every public page and demo view except the made-up journey and the made-up belt, desktop and phone",
+  },
+  {
+    name: "orbit-lines",
+    tier: "full",
+    script: "browser-smoke.mjs",
+    env: { ASTRAEUS_VIEWS: "synthetic-belt" },
+    scene:
+      "synthetic-belt (made-up, true scale) with the camera on Earth and time playing, desktop and phone: Earth's centre stays within 2 px of its orbit line at close zoom (O-099)",
   },
   {
     name: "synthetic-journey",
