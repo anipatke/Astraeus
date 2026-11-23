@@ -119,3 +119,7 @@ Owner decisions, 2026-11-23 (orchestration session): (1) frame time "Accept it":
 Coordinator fix: the open CHANGELOG section gained `### Breaking changes in 0.10.1` ("None"), which `releaseBreaks.test.ts` requires.
 
 Marked done by the coordinator under the owner's "orchestrate O99" after the wave gate passed on 2026-11-23T08:54Z: `npm run typecheck` ok, `npm run lint` ok, `npm test` 340 files, 5518 passed, 2 skipped. Owner look on localhost:5490 still to come, before the Full Objective Check.
+
+## Owner Validation
+
+Owner looked on localhost:5490 (`npm run preview:owner`, branch o099-orbit-lines at 2e8de417) on 2026-11-23 — `?experience=synthetic-belt` close zoom on Earth with time playing, zoomed out, and the Apollo page's Moon line — and said "looks good". The acceptance fields are filled in once the Full Objective Check has an id.
