@@ -2,9 +2,11 @@
 
 Versions follow [semantic versioning](https://semver.org). While the version starts with `0.`, the public API (the names exported from `astraeus`) may still change between minor versions; each change is listed here.
 
-## 0.10.1 (unreleased)
+## 0.10.1 (2026-11-23)
 
 Orbit lines stay on their body. No breaking changes.
+
+First download of the packed example (`npm run measure:example`): 1,832,457 bytes raw, 525,504 bytes gzip (code and styles loaded on first open), against 1,827,404 raw and 523,694 gzip at 0.10.0 (+5,053 raw, +1,810 gzip).
 
 - Fixed: a planet's orbit line round the Sun (`addBody(planet, { orbit: true })`, `addBodyFromElements`) now stays on the planet. It used to be drawn once from the scene's opening time, so at close zoom, and in any year other than the opening one, the planet drifted off its line (Earth by about two of its own radii, Mars by about six). The line is now one turn about the display time, redrawn as time moves or jumps, and it ends exactly on the body through a finer stretch near it. A moon's orbit line ends on its moon the same way. A paused scene still draws nothing new. Uranus and Neptune are the exception: their turn outlasts the planet positions the engine ships, so their line is still the fitted ellipse, re-fitted only when the display time moves about a quarter turn on and only while the planet positions (1950 to 2045) cover it, so it can run off the planet in the years between (their card says so).
 

@@ -1,0 +1,14 @@
+{
+  "name": "journey-two-viewers",
+  "at": "2026-11-23T09:19:21.305Z",
+  "ok": true,
+  "results": [
+    {
+      "viewport": "desktop"
+    },
+    {
+      "viewport": "phone"
+    }
+  ],
+  "errors": []
+}
