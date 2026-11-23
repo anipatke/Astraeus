@@ -35,7 +35,7 @@ function trajectoryOf(catalogue: BodyCatalogue, id: BodyId): Trajectory {
   return id === "earth" ? createEarthSunTrajectory(adapter) : catalogue.get(id).source!.create(adapter);
 }
 
-/** One orbit of a body about the Sun, in the form that can be drawn: its own source over one full turn, or the two-body ellipse osculating at the opening time. */
+/** One orbit of a body about the Sun, in the form that can be drawn: its own source over one full turn, or the two-body ellipse osculating at the opening time (re-fitted at the display time as the line is re-sampled). */
 interface DrawnOrbit {
   readonly source: Trajectory;
   readonly span: { readonly startUtcMs: number; readonly endUtcMs: number };
@@ -143,9 +143,11 @@ function drawnOrbit(
 }
 
 /**
- * The orbit line of a body that circles the Sun: one full turn from `startUtcMs`, from the body's own state source. A body given published elements
- * (`sampling`) is drawn from its periapsis for one period with samples spaced by eccentric anomaly, so a sharp orbit is smooth. Returns undefined when
- * the body completes no turn within the search (a comet's century-long orbit given without elements).
+ * The orbit line of a body that circles the Sun, from the body's own state source. The span gives the turn's length (one full turn from `startUtcMs`,
+ * or from periapsis for one period); the view draws one turn of that length about the display time on a fixed grid, re-sampled when the display time
+ * leaves the turn's middle half, with a fine head through the body's live place (`PathView`, `orbitLineRule.ts`). A body given published elements
+ * (`sampling`) is spaced by eccentric anomaly, so a sharp orbit is smooth. Returns undefined when the body completes no turn within the search (a comet's
+ * century-long orbit given without elements).
  */
 export function sunOrbitLayer(
   catalogue: BodyCatalogue,
@@ -160,16 +162,26 @@ export function sunOrbitLayer(
   const { source, span, sampling, osculating } = drawn;
   const provenance = id === "earth" ? EARTH_EPHEMERIS.provenance : definition.accuracy.position;
   const limitation = osculating
-    ? `${definition.label}'s source does not cover a whole turn from the scene's opening time, so this is the two-body ellipse osculating at that time (position and velocity from the source, the Sun's gravity alone): perturbations over a turn are not drawn, and the line leaves the source's own positions as the years pass from the opening time. Samples are spaced by eccentric anomaly and joined by straight segments.`
+    ? `${definition.label}'s source does not cover a whole turn from the scene's opening time, so this is the two-body ellipse osculating at that time (position and velocity from the source, the Sun's gravity alone), re-fitted at the display time whenever the line is re-sampled (once the display time leaves the middle half of the drawn turn) while the source covers it: perturbations over a turn are not drawn, and the line leaves the source's own positions as the display time moves from the last fit. One turn about the display time, spaced by eccentric anomaly and joined by straight segments, with finer points through the body's own place.`
     : sampling === undefined
-      ? "A turn's samples joined by straight segments."
-      : "One full turn of unperturbed two-body motion from periapsis; samples are spaced by eccentric anomaly and joined by straight segments.";
+      ? "One turn about the display time, re-sampled when the display time leaves the turn's middle half; samples joined by straight segments, with finer points through the body's own place."
+      : "One full turn of unperturbed two-body motion about the display time; samples are spaced by eccentric anomaly and joined by straight segments, with finer points through the body's own place.";
+  const ownSource = osculating ? trajectoryOf(catalogue, id) : undefined;
   return {
     kind: "orbit",
     color: color || visual.material.color,
     source,
     span,
     ...(sampling === undefined ? { samples: TURN_SAMPLES } : { sampling }),
+    turn:
+      ownSource === undefined
+        ? {}
+        : {
+            reosculate: (displayUtcMs: number) => {
+              const fit = osculatingOrbit(catalogue, id, ownSource, displayUtcMs);
+              return fit === undefined ? undefined : { source: fit.source, sampling: fit.sampling! };
+            },
+          },
     object: {
       id: sunOrbitIdOf(id),
       partOf: id,
@@ -178,8 +190,8 @@ export function sunOrbitLayer(
       labelPriority: 50,
       showLabel: false,
       description: osculating
-        ? `${definition.label}'s path round the Sun for one turn, drawn as the two-body ellipse osculating at the scene's opening time.`
-        : `${definition.label}'s path round the Sun for one full turn, drawn from the same position source that places ${definition.label}.`,
+        ? `${definition.label}'s path round the Sun for one turn about the display time, drawn as the two-body ellipse osculating at the scene's opening time and re-fitted as time moves on.`
+        : `${definition.label}'s path round the Sun for one full turn about the display time, drawn from the same position source that places ${definition.label}.`,
       provenance,
       knownLimitations: [limitation],
     },

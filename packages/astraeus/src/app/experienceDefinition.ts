@@ -110,7 +110,20 @@ export type PathSpec = PathRule & {
    * not drawn with a few long chords. Fixed spans only. Absent means evenly spaced in time.
    */
   readonly sampling?: EccentricSampling;
+  /**
+   * Internal (Sun-orbit lines, T-445): an orbit drawn as one turn of the span's length about the display time, re-sampled as time moves, with a
+   * fine head through the body's live place. `reosculate` re-fits an osculating-ellipse source at a display time (undefined where it cannot).
+   * Absent, a fixed span is drawn as given.
+   */
+  readonly turn?: TurnAboutDisplay;
 };
+
+/** How an orbit drawn about the display time re-fits its source; see `PathSpec.turn`. */
+export interface TurnAboutDisplay {
+  readonly reosculate?: (
+    displayUtcMs: number,
+  ) => { readonly source: Trajectory; readonly sampling: EccentricSampling } | undefined;
+}
 
 /**
  * A path an experience declares, with its one shell item. Its id is also the camera focus id; it needs provenance. The orbit's

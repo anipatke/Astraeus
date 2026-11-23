@@ -15,10 +15,12 @@ import { disposeOwned } from "./disposeOwned";
 import type { CenterId } from "../core/body";
 import type { ScalePolicy } from "../presentation/scalePolicy";
 import {
+  eccentricAnomalyFromMean,
   eccentricPathTimesUtcMs,
   pathTimesUtcMs,
   samplePositionsKm,
   windowTimesUtcMs,
+  type EccentricSampling,
 } from "../core/sunCentredSources";
 import type { StateResolver } from "../core/stateResolver";
 import type { Trajectory } from "../core/trajectory";
@@ -47,6 +49,18 @@ import {
   type PathRefreshPolicy,
   DEFAULT_PATH_REFRESH,
 } from "./pathRules";
+import {
+  eccentricTurnTimes,
+  fineTimeMs,
+  HEAD_BUDGET,
+  HEAD_REACH,
+  headByNearness,
+  HEAD_SUBSTEPS,
+  headAbout,
+  mergedLineTimes,
+  outsideMiddleHalf,
+  turnGridTimes,
+} from "./orbitLineRule";
 import { eqjToRenderVector, type RenderVector } from "./renderCoordinates";
 import type { ScenePlacement } from "./sceneLayout";
 import { TRACK_LAYER } from "./TrackedBodyView";
@@ -158,6 +172,10 @@ function clippedLineBox(a: ArrayLike<number>, count: number, camera: Camera): [n
 export class PathView {
   readonly group = new Group();
   readonly #capacity: number;
+  /** Whether this line follows the turn rule (`orbitLineRule.ts`): a rolling orbit window, or a fixed-span orbit marked `turn`. */
+  readonly #ruled: boolean;
+  /** Vertices the buffers hold: the far samples plus, for an orbit line, the head and the live point. */
+  readonly #vertexCapacity: number;
   readonly #scaled: Float64Array;
   readonly #positions: BufferAttribute;
   readonly #refresh: PathRefreshPolicy;
@@ -194,6 +212,22 @@ export class PathView {
   /** Set by a full `sync`, cleared by the `place` that uploads it; `#placedAt` is that upload's origin and screen. */
   #fresh = true;
   #placedAt: readonly number[] = [];
+  /** An orbit line's source and sampling now (an osculating fallback's are re-fitted at the display time when the turn is re-sampled). */
+  #turnSource: Trajectory;
+  #turnSampling: EccentricSampling | undefined;
+  /** The turn-grid step a failed re-sample was tried at, so it is not tried again until the display time reaches another step. */
+  #turnHeldAt: number | null = null;
+  /** The head's fine points (km, about the explicit centre) by fine index, for the source they were taken from; null where the source has no position. */
+  #head = new Map<number, Float64Array | null>();
+  #headKey = "";
+  #headSource: Trajectory | null = null;
+  #headAt = Number.NaN;
+  /** The drawn line: times and positions (km) in order, and which of them are far samples (for the centre, extent and end fade). */
+  #drawnTimes: readonly number[] = [];
+  #drawnKm: Float64Array = new Float64Array(0);
+  #drawnFar: readonly number[] = [];
+  /** Vertices drawn now. */
+  #count = 0;
 
   constructor(
     readonly layer: PathLayer,
@@ -211,15 +245,14 @@ export class PathView {
         : layer.sampling === undefined
           ? DEFAULT_PATH_SAMPLE_COUNT
           : DEFAULT_ECCENTRIC_SAMPLE_COUNT);
-    this.#scaled = new Float64Array(this.#capacity * 3);
-    if (!isRollingSpan(layer.span))
-      this.#resample(
-        layer.sampling === undefined
-          ? pathTimesUtcMs(layer.span, this.#capacity)
-          : eccentricPathTimesUtcMs(layer.span, this.#capacity, layer.sampling),
-      );
+    this.#ruled = layer.kind === "orbit" && (rolling || layer.turn !== undefined);
+    this.#vertexCapacity = this.#capacity + (this.#ruled ? 2 * HEAD_REACH + 3 : 0);
+    this.#scaled = new Float64Array(this.#vertexCapacity * 3);
+    this.#turnSource = layer.source;
+    this.#turnSampling = layer.sampling;
+    this.#sampleOpening();
     const geometry = new BufferGeometry();
-    this.#positions = new BufferAttribute(new Float32Array(this.#capacity * 3), 3);
+    this.#positions = new BufferAttribute(new Float32Array(this.#vertexCapacity * 3), 3);
     geometry.setAttribute("position", this.#positions);
     const line = new Line(
       geometry,
@@ -239,6 +272,19 @@ export class PathView {
     if (style.orbitLook !== undefined && rolling) this.#addLookLayers(geometry, line, style.orbitLook);
   }
 
+  /** A fixed span's first samples: the span as given, or for a turn-ruled orbit one turn about the span's start (the opening time) until the first sync. */
+  #sampleOpening(): void {
+    const layer = this.layer;
+    if (isRollingSpan(layer.span)) return;
+    const span = layer.span;
+    const opening = (): number[] =>
+      layer.sampling === undefined
+        ? pathTimesUtcMs(span, this.#capacity)
+        : eccentricPathTimesUtcMs(span, this.#capacity, layer.sampling);
+    // An orbit line is one turn about the display time; until the first sync, about the span's start (the opening time).
+    if (!this.#ruled || !this.#resampleTurn(span.startUtcMs, false)) this.#resample(opening());
+  }
+
   /** Frees the GPU copies of the line and, with the orbit look, the arc; the arrays stay, so drawing again uploads afresh. */
   dispose(): void {
     disposeOwned(this.group);
@@ -246,7 +292,7 @@ export class PathView {
 
   /** The ring is the line already built (vertex colours carry the end fade); the arc is its own short line from the recent samples to the body's live position. */
   #addLookLayers(geometry: BufferGeometry, ring: Line, look: OrbitLook): void {
-    const n = this.#capacity;
+    const n = this.#vertexCapacity;
     this.#ringColours = new BufferAttribute(new Float32Array(n * 4).fill(1), 4);
     const maxSegments = ORBIT_LOOK_LIMITS.arcSegments.max;
     const maxVertices = maxSegments * (ARC_SUBSTEPS + 1) * 2;
@@ -307,14 +353,18 @@ export class PathView {
       this.#frame === undefined
     )
       return;
-    const times = this.#times;
+    const times = this.#drawnTimes;
     const n = times.length;
+    const far = this.#times;
+    const [first, last] = [far[0], far[far.length - 1]];
     const arcMs = look.arcFraction * span.windowMs;
     for (let i = 0; i < n; i += 1) {
       // The ring runs under the arc, as Planetary Explorer's OrbitalTrail does under its OrbitalTrailArc: seen edge-on the flat arc thins
-      // away and the ring's one-pixel line still carries the orbit.
+      // away and the ring's one-pixel line still carries the orbit. A head point between far samples takes the edge fade of its place in time.
+      const place =
+        this.#drawnFar[i] >= 0 ? this.#drawnFar[i] : ((times[i] - first) / (last - first)) * (far.length - 1);
       const alpha = look.endFadeOn
-        ? ringAlpha(timeUtcMs, times[i], span.windowMs, look.endFade) * windowEdgeAlpha(i, n, look.endFade)
+        ? ringAlpha(timeUtcMs, times[i], span.windowMs, look.endFade) * windowEdgeAlpha(place, far.length, look.endFade)
         : 1;
       this.#ringColours.setW(i, alpha);
     }
@@ -516,11 +566,12 @@ export class PathView {
     return this.#frame;
   }
 
-  #resample(times: readonly number[]): void {
-    const first = this.layer.source.stateAt(times[0], this.#explicitCentre);
+  #resample(times: readonly number[], source: Trajectory = this.layer.source): void {
+    const first = source.stateAt(times[0], this.#explicitCentre);
+    const samplesKm = samplePositionsKm(source, times, this.#explicitCentre);
     this.#frame = first.center;
     this.#times = times;
-    this.#samplesKm = samplePositionsKm(this.layer.source, times, this.#explicitCentre);
+    this.#samplesKm = samplesKm;
     let radius = 0;
     for (let i = 0; i < this.#samplesKm.length; i += 3) {
       radius = Math.max(radius, Math.hypot(this.#samplesKm[i], this.#samplesKm[i + 1], this.#samplesKm[i + 2]));
@@ -530,11 +581,110 @@ export class PathView {
     this.#cache = null;
   }
 
+  /** An orbit line's far step: its turn (or window) over the sample count, in ms (a turn by eccentric anomaly by its mean step). */
+  #turnStepMs(): number {
+    const span = this.layer.span;
+    const turnMs = isRollingSpan(span)
+      ? span.windowMs
+      : this.#turnSampling !== undefined
+        ? this.#turnSampling.periodMs
+        : span.endUtcMs - span.startUtcMs;
+    return turnMs / (this.#capacity - 1);
+  }
+
+  /**
+   * Samples one turn on the fixed grid about `displayMs` (an osculating fallback re-fitted there first when `refit`). Returns false, keeping
+   * the line as it was, when the source does not cover that turn.
+   */
+  #resampleTurn(displayMs: number, refit: boolean): boolean {
+    const layer = this.layer;
+    let source = this.#turnSource;
+    let sampling = this.#turnSampling;
+    try {
+      const fit = refit ? layer.turn?.reosculate?.(displayMs) : undefined;
+      if (fit !== undefined) ({ source, sampling } = fit);
+      const span = layer.span;
+      const n = this.#capacity;
+      const times = isRollingSpan(span)
+        ? turnGridTimes(displayMs, span.windowMs, n)
+        : sampling !== undefined
+          ? eccentricTurnTimes(displayMs, sampling, n, eccentricAnomalyFromMean)
+          : turnGridTimes(displayMs, span.endUtcMs - span.startUtcMs, n);
+      // The ends first: a source that does not cover the turn fails at once, not after most of it.
+      source.stateAt(times[0], this.#explicitCentre);
+      source.stateAt(times[n - 1], this.#explicitCentre);
+      this.#resample(times, source);
+    } catch (error) {
+      if (error instanceof RangeError) return false;
+      throw error;
+    }
+    this.#turnSource = source;
+    this.#turnSampling = sampling;
+    return true;
+  }
+
+  /** The line's source position (km, about the explicit centre) at a time, or null where the source has none. */
+  #positionAt(timeUtcMs: number): Float64Array | null {
+    try {
+      return Float64Array.from(this.#turnSource.stateAt(timeUtcMs, this.#explicitCentre).positionKm);
+    } catch (error) {
+      if (error instanceof RangeError) return null;
+      throw error;
+    }
+  }
+
+  /**
+   * An orbit line as drawn: the far turn, the head's fine grid points about the display time (each taken once, nearest the display time first,
+   * at most `HEAD_BUDGET` a frame) and the body's live place, merged in time order. Once the head is filled, one source evaluation per changed
+   * frame: the live place.
+   */
+  #assembleLine(timeUtcMs: number): void {
+    const fineMs = this.#turnStepMs() / HEAD_SUBSTEPS;
+    const key = `${fineMs}`;
+    if (this.#headKey !== key || this.#headSource !== this.#turnSource) {
+      this.#head.clear();
+      this.#headKey = key;
+      this.#headSource = this.#turnSource;
+    }
+    const { from, to } = headAbout(timeUtcMs, fineMs, HEAD_REACH);
+    for (const j of this.#head.keys()) if (j < from || j > to) this.#head.delete(j);
+    // A re-sync at the same display time (a new centre, scale or look) takes no new points, so it draws what a fresh view would.
+    let budget = timeUtcMs === this.#headAt ? 0 : HEAD_BUDGET;
+    this.#headAt = timeUtcMs;
+    for (const j of headByNearness(timeUtcMs, fineMs, from, to)) {
+      if (budget === 0) break;
+      if (this.#head.has(j)) continue;
+      this.#head.set(j, this.#positionAt(fineTimeMs(j, fineMs)));
+      budget -= 1;
+    }
+    const headTimes: number[] = [];
+    const headKm = new Map<number, Float64Array>();
+    for (let j = from; j <= to; j += 1) {
+      const t = fineTimeMs(j, fineMs);
+      const km = this.#head.get(j);
+      if (km === null || km === undefined) continue;
+      headTimes.push(t);
+      headKm.set(t, km);
+    }
+    const live = this.#positionAt(timeUtcMs);
+    if (live !== null) headKm.set(timeUtcMs, live);
+    const { times, farIndex } = mergedLineTimes(this.#times, headTimes, live === null ? null : timeUtcMs);
+    const out = new Float64Array(3 * times.length);
+    times.forEach((t, i) => {
+      const f = farIndex[i];
+      out.set(f >= 0 ? this.#samplesKm.subarray(3 * f, 3 * f + 3) : headKm.get(t)!, 3 * i);
+    });
+    this.#drawnTimes = times;
+    this.#drawnKm = out;
+    this.#drawnFar = farIndex;
+  }
+
   /** The vertices (km, EQJ) from the scene centre for the clock time, by this path's rule. */
   #vertexKm(placement: ScenePlacement, timeUtcMs: number): Float64Array {
     const layer = this.layer;
     const frame = this.#frame!;
-    if (layer.kind === "orbit") return orbitKm(this.#samplesKm, frame, placement, timeUtcMs);
+    if (layer.kind === "orbit")
+      return orbitKm(this.#ruled ? this.#drawnKm : this.#samplesKm, frame, placement, timeUtcMs);
     const samples = { timesUtcMs: this.#times, positionsKm: this.#samplesKm };
     if (layer.frame === "relative") {
       // The relative trail depends on the scene centre only: shifted once per centre, not per frame.
@@ -552,18 +702,34 @@ export class PathView {
     return inertialTrailKm(this.#cache.km, placement, timeUtcMs);
   }
 
-  sync(timeUtcMs: number, placement: ScenePlacement, policy: ScalePolicy, realNowMs: number = performance.now()): void {
+  /** The re-sample stage: a rolling window when it is stale, an orbit's turn when the display time leaves its middle half. */
+  #resampleIfDue(timeUtcMs: number, realNowMs: number): void {
     const span = this.layer.span;
+    const orbit = this.#ruled;
     if (
       isRollingSpan(span) &&
       (this.#ringStale(span.windowMs, timeUtcMs) ||
         pathNeedsRefresh(this.#windowCentre, span.windowMs, timeUtcMs, realNowMs, this.#builtRealMs, this.#refresh))
     ) {
-      this.#resample(windowTimesUtcMs(timeUtcMs, span.windowMs, this.#capacity));
+      // An orbit's window sits on the fixed grid (its points do not move when it is re-sampled); a trail's is centred on the clock.
+      if (!orbit || !this.#resampleTurn(timeUtcMs, false))
+        this.#resample(windowTimesUtcMs(timeUtcMs, span.windowMs, this.#capacity));
       this.#windowCentre = timeUtcMs;
       this.#builtRealMs = realNowMs;
       this.#synced = null;
+    } else if (orbit && !isRollingSpan(span) && outsideMiddleHalf(timeUtcMs, this.#times[0], this.#times.at(-1)!)) {
+      // A whole turn about the display time, re-sampled (an osculating ellipse re-fitted) when the display time leaves its middle half.
+      const at = Math.round(timeUtcMs / this.#turnStepMs());
+      if (this.#turnHeldAt !== at) {
+        this.#turnHeldAt = this.#resampleTurn(timeUtcMs, true) ? null : at;
+        this.#synced = null;
+      }
     }
+  }
+
+  sync(timeUtcMs: number, placement: ScenePlacement, policy: ScalePolicy, realNowMs: number = performance.now()): void {
+    const orbit = this.#ruled;
+    this.#resampleIfDue(timeUtcMs, realNowMs);
     const was = this.#synced;
     if (
       was !== null &&
@@ -575,8 +741,14 @@ export class PathView {
       return;
     this.#synced = { t: timeUtcMs, center: placement.center, resolver: placement.resolver, policy };
     this.#fresh = true;
-    const km = this.#vertexKm(placement, timeUtcMs);
-    this.#scaled.set(eqjMapped(km, policy));
+    if (orbit) this.#assembleLine(timeUtcMs);
+    const drawn = this.#vertexKm(placement, timeUtcMs);
+    this.#count = drawn.length / 3;
+    this.#scaled.set(eqjMapped(drawn, policy));
+    this.#scaled.fill(0, drawn.length);
+    this.#line?.geometry.setDrawRange(0, this.#count);
+    // The centre and extent are the far samples' alone, so the head does not move the framing.
+    const km = orbit ? farOnly(drawn, this.#drawnFar) : drawn;
     let cx = 0;
     let cy = 0;
     let cz = 0;
@@ -638,7 +810,7 @@ export class PathView {
    */
   screenReadout(camera: Camera): PathScreenReadout {
     const line = this.#line;
-    const count = this.#capacity;
+    const count = this.#count;
     const visible = line !== null && line.visible && this.group.visible && (this.#ring === null || this.#ring.visible);
     const a = this.#positions.array;
     camera.updateMatrixWorld();
@@ -731,6 +903,18 @@ export class PathView {
     const a = this.#positions.array;
     return [a[3 * index], a[3 * index + 1], a[3 * index + 2]];
   }
+}
+
+/** The far samples among an orbit line's drawn vertices (`farIndex` -1 marks a head or live point). */
+function farOnly(km: Float64Array, farIndex: readonly number[]): Float64Array {
+  const out = new Float64Array(3 * farIndex.filter((f) => f >= 0).length);
+  let k = 0;
+  farIndex.forEach((f, i) => {
+    if (f < 0) return;
+    out.set(km.subarray(3 * i, 3 * i + 3), 3 * k);
+    k += 1;
+  });
+  return out;
 }
 
 /**

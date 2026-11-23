@@ -8,6 +8,7 @@ import { readableScale } from "../src/presentation/scalePolicy";
 import { FloatingOrigin } from "../src/app/floatingOrigin";
 import { compositionPathView } from "../src/app/PathView";
 import { arcSegmentAlpha, ringAlpha, windowEdgeAlpha } from "../src/app/pathRules";
+import { turnGridTimes } from "../src/app/orbitLineRule";
 import { eqjToRenderVector } from "../src/app/renderCoordinates";
 import { publishOrbitHeadGap } from "../src/app/sceneFrame";
 import { publishPathData } from "../src/app/sceneDebug";
@@ -219,7 +220,8 @@ describe("a composition path's orbit look", () => {
     stale.sync(date, placement, readableScale, 0);
     const later = date + 20 * 60_000;
     stale.sync(later, placement, readableScale, 1);
-    expect(stale.timesUtcMs[90]).toBe(date);
+    // The ring is still the one built at `date`: its middle sample is the turn grid's point nearest `date` (T-445; was `date` itself).
+    expect(stale.timesUtcMs[90]).toBe(turnGridTimes(date, moonPath.spanMs, 181)[90]);
     const fresh = compositionPathView(moonPath, placement.resolver);
     fresh.sync(later, placement, readableScale, 0);
     expect(Array.from(stale.arcTimesUtcMs)).toEqual(Array.from(fresh.arcTimesUtcMs));

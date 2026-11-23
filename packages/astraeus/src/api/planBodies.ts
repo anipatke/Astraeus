@@ -386,7 +386,7 @@ export class BodyPlan {
       });
   }
 
-  /** One Sun-orbit line: one full turn from the opening time (an own body from its periapsis). Reads planet positions, so the planet series must be loaded. */
+  /** One Sun-orbit line: its span is one full turn from the opening time (an own body's from its periapsis), the length of the turn the view draws about the display time. Reads planet positions, so the planet series must be loaded. */
   sunPath(id: BodyId, openUtcMs: number): PathLayer {
     const layer = sunOrbitLayer(this.catalogue, id, openUtcMs, this.looks.get(id)?.color ?? "", this.own.get(id));
     if (layer === undefined)

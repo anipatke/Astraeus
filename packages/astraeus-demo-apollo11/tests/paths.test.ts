@@ -281,23 +281,24 @@ describe("a moving scene centre with an object stationary in the root frame", ()
 });
 
 describe("the Moon's monthly path is the Earth-Moon composition's declared orbit", () => {
-  /** The sampler this Task removed from orbitPath.ts, kept here as the reference the declared path must equal. */
-  function legacySampleOrbitPath(trajectory: Trajectory, centerUtcMs: number, windowMs: number, sampleCount: number) {
-    const half = (sampleCount - 1) / 2;
-    const timesUtcMs: number[] = [];
-    const positionsKm = new Float64Array(sampleCount * 3);
-    for (let index = 0; index < sampleCount; index += 1) {
-      const timeUtcMs =
-        index === half ? centerUtcMs : Math.round(centerUtcMs + ((index - half) / half) * (windowMs / 2));
-      timesUtcMs.push(timeUtcMs);
-      positionsKm.set(trajectory.stateAt(timeUtcMs, "earth").positionKm, index * 3);
-    }
-    return { timesUtcMs, positionsKm };
-  }
   const placement = placementAbout("earth", adapter);
   const declared = earthMoonSystem.paths![0];
   const dates = [Date.UTC(2023, 0, 15, 3), Date.UTC(2024, 6, 1, 12), Date.UTC(2025, 2, 20, 9, 30)];
   const moon: Trajectory = { body: "moon", stateAt: (t, c = "earth") => placement.resolver.stateOf("moon", t, c) };
+  /** The month's sample step: the composition line's samples sit on whole multiples of it (T-445; the rule itself is tested in the engine's orbitLineRule tests). */
+  const step = SIDEREAL_MONTH_MS / (DEFAULT_WINDOW_SAMPLE_COUNT - 1);
+  /** The centre sample of a line built at `t`: the grid point nearest `t`. */
+  const gridCentre = (t: number) => Math.round(Math.round(t / step) * step);
+  const at = (t: number) => Array.from(moon.stateAt(t, "earth").positionKm);
+  /** Whether some drawn vertex is the Moon's place at `date`: the line ends on the body. */
+  const passesThrough = (view: PathView, km: readonly number[], tolerance: number) => {
+    const target = eqjToRenderVector(readableScale.mapPosition(km));
+    for (let k = 0; ; k += 1) {
+      const v = view.vertexAbsolute(k);
+      if (!Number.isFinite(v[0])) return false; // past the last vertex
+      if (Math.hypot(v[0] - target[0], v[1] - target[1], v[2] - target[2]) <= tolerance) return true;
+    }
+  };
 
   it("is declared on the composition as a month-long window", () => {
     expect(declared).toEqual({ body: "moon", spanMs: SIDEREAL_MONTH_MS });
@@ -311,31 +312,36 @@ describe("the Moon's monthly path is the Earth-Moon composition's declared orbit
     (_label, date) => {
       const view = new PathView(compositionPathLayer(declared, placement.resolver), COMPOSITION_PATH_STYLE);
       view.sync(date, placement, readableScale, 0);
-      const reference = legacySampleOrbitPath(moon, date, SIDEREAL_MONTH_MS, DEFAULT_WINDOW_SAMPLE_COUNT);
-      expect(Array.from(view.timesUtcMs)).toEqual(reference.timesUtcMs);
-      expect(Array.from(view.samplesKm)).toEqual(Array.from(reference.positionsKm));
-      // And as drawn: scaled absolute positions are the samples through the policy and render axes (Earth-centred: nothing added).
-      for (const k of [0, 45, 90, 135, 180]) {
-        expect(Array.from(view.vertexAbsolute(k))).toEqual(
-          Array.from(eqjToRenderVector(readableScale.mapPosition(reference.positionsKm.subarray(3 * k, 3 * k + 3)))),
-        );
-      }
+      // T-445: the samples sit on the month's grid around the clock (was the old clock-centred sampler), and the drawn line holds a head ending on the Moon.
+      const times = Array.from(view.timesUtcMs);
+      expect(times).toHaveLength(DEFAULT_WINDOW_SAMPLE_COUNT);
+      expect(times[(times.length - 1) / 2]).toBe(gridCentre(date));
+      times.forEach((t, i) =>
+        expect(t).toBe(Math.round((Math.round(date / step) - (times.length - 1) / 2 + i) * step)),
+      );
+      expect(Array.from(view.samplesKm)).toEqual(times.flatMap(at));
+      // And as drawn: the first vertex is the first sample through the policy and render axes (Earth-centred: nothing added), and the line passes through the Moon now.
+      expect(Array.from(view.vertexAbsolute(0))).toEqual(
+        Array.from(eqjToRenderVector(readableScale.mapPosition(at(times[0])))),
+      );
+      expect(passesThrough(view, at(date), 1e-6)).toBe(true);
     },
   );
 
   it("keeps its refresh policy: a seek rebuilds, a small move or a fast drift does not", () => {
     const view = new PathView(compositionPathLayer(declared, placement.resolver), COMPOSITION_PATH_STYLE);
     const centreTime = () => view.timesUtcMs[(view.timesUtcMs.length - 1) / 2];
+    // T-445: a window is built on the turn grid, so its centre is the grid point nearest the build time (was the build time itself).
     view.sync(dates[0], placement, trueScale, 1000);
-    expect(centreTime()).toBe(dates[0]);
+    expect(centreTime()).toBe(gridCentre(dates[0]));
     view.sync(dates[0] + 60_000, placement, trueScale, 2000);
-    expect(centreTime()).toBe(dates[0]);
+    expect(centreTime()).toBe(gridCentre(dates[0]));
     view.sync(dates[0] + 2 * 3_600_000, placement, trueScale, 1100);
-    expect(centreTime()).toBe(dates[0]);
+    expect(centreTime()).toBe(gridCentre(dates[0]));
     view.sync(dates[0] + 2 * 3_600_000, placement, trueScale, 2000);
-    expect(centreTime()).toBe(dates[0] + 2 * 3_600_000);
+    expect(centreTime()).toBe(gridCentre(dates[0] + 2 * 3_600_000));
     view.sync(dates[0] + 20 * DAY, placement, trueScale, 2001);
-    expect(centreTime()).toBe(dates[0] + 20 * DAY);
+    expect(centreTime()).toBe(gridCentre(dates[0] + 20 * DAY));
     expect(pathNeedsRefresh(dates[0], SIDEREAL_MONTH_MS, dates[0] + 60_000, 1000, 0)).toBe(false);
   });
 
@@ -344,8 +350,10 @@ describe("the Moon's monthly path is the Earth-Moon composition's declared orbit
     const view = new PathView(compositionPathLayer(declared, moonCentred.resolver), COMPOSITION_PATH_STYLE);
     view.sync(dates[1], moonCentred, trueScale, 0);
     const shift = moonCentred.resolver.offsetKm("earth", "moon", dates[1]);
-    const km = [0, 1, 2].map((c) => view.samplesKm[3 * 90 + c] + shift[c]);
-    expectClose(view.vertexAbsolute(90), eqjToRenderVector(trueScale.mapPosition(km)), 1e-9);
+    // T-445: vertex 0 is the first far sample (the head sits mid-line), carried by the resolver's offset.
+    const first = moonCentred.resolver.stateOf("moon", view.timesUtcMs[0], "earth").positionKm;
+    const km = [0, 1, 2].map((c) => first[c] + shift[c]);
+    expectClose(view.vertexAbsolute(0), eqjToRenderVector(trueScale.mapPosition(km)), 1e-9);
   });
 });
 

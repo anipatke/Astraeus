@@ -62,3 +62,101 @@ export function resampleNow(moved: number, spanSteps: number, whole: boolean): b
 export function isStale(moved: number): boolean {
   return moved >= 1;
 }
+
+// One turn about the display time (T-445): an orbit line is a whole turn on a fixed grid around the display time, not a trailing ring; it is
+// re-sampled only when the display time leaves the middle half of the turn, and a head of fine grid points runs through the display time.
+
+/** Fine head points per far step, and how many fine steps the head reaches either side of the display time (one far step). */
+export const HEAD_SUBSTEPS = 16;
+export const HEAD_REACH = HEAD_SUBSTEPS;
+/** At most this many new head points are taken from the source in one frame, nearest the display time first: a fast clock that outruns the head costs no more than this. */
+export const HEAD_BUDGET = 4;
+
+/**
+ * One turn's sample times on a fixed grid, oldest first: `count` whole multiples of `turnMs / (count - 1)` (each rounded to the ms), the
+ * middle one the grid step nearest `displayMs`, so the turn covers the display time with half a turn either side.
+ */
+export function turnGridTimes(displayMs: number, turnMs: number, count: number): number[] {
+  const step = turnMs / (count - 1);
+  const first = Math.round(displayMs / step) - Math.floor((count - 1) / 2);
+  return Array.from({ length: count }, (_, i) => Math.round((first + i) * step));
+}
+
+/**
+ * One turn's sample times spaced evenly in eccentric anomaly on a fixed anomaly grid (whole multiples of `2π / (count - 1)` from periapsis),
+ * oldest first, the middle one the grid anomaly nearest the display time's. `eccentricAnomalyOf` maps a time's mean anomaly to its eccentric one.
+ */
+export function eccentricTurnTimes(
+  displayMs: number,
+  orbit: { readonly eccentricity: number; readonly periodMs: number; readonly periapsisUtcMs: number },
+  count: number,
+  eccentricAnomalyOf: (meanRad: number, eccentricity: number) => number,
+): number[] {
+  const { eccentricity: e, periodMs, periapsisUtcMs } = orbit;
+  const step = (2 * Math.PI) / (count - 1);
+  const now = eccentricAnomalyOf((2 * Math.PI * (displayMs - periapsisUtcMs)) / periodMs, e);
+  const first = Math.round(now / step) - Math.floor((count - 1) / 2);
+  return Array.from({ length: count }, (_, i) => {
+    const anomaly = (first + i) * step;
+    return Math.round(periapsisUtcMs + (periodMs * (anomaly - e * Math.sin(anomaly))) / (2 * Math.PI));
+  });
+}
+
+/** Whether the display time is outside the middle half of a turn sampled from `firstMs` to `lastMs` (or the turn is empty): re-sample it. */
+export function outsideMiddleHalf(displayMs: number, firstMs: number, lastMs: number): boolean {
+  const quarter = (lastMs - firstMs) / 4;
+  return !(displayMs >= firstMs + quarter && displayMs <= lastMs - quarter);
+}
+
+/** The head's fine indices about the display time: `reach` fine steps before the fine step it is in to `reach` after the next. Index `j` is at `fineTimeMs(j, fineMs)`. */
+export function headAbout(displayMs: number, fineMs: number, reach: number): { from: number; to: number } {
+  const j = Math.floor(displayMs / fineMs);
+  return { from: j - reach, to: j + 1 + reach };
+}
+
+/** The time of fine index `j`, in whole ms. */
+export function fineTimeMs(j: number, fineMs: number): number {
+  return Math.round(j * fineMs);
+}
+
+/**
+ * The drawn line's times, in order: the far samples, the head times and the live time merged, each time once. `far[i]` is marked by its
+ * index; a head or live time by -1. Every input list must be in order.
+ */
+export function mergedLineTimes(
+  far: readonly number[],
+  head: readonly number[],
+  liveMs: number | null,
+): { times: number[]; farIndex: number[] } {
+  const extra = liveMs === null ? head : insertSorted(head, liveMs);
+  const times: number[] = [];
+  const farIndex: number[] = [];
+  let [i, k] = [0, 0];
+  while (i < far.length || k < extra.length) {
+    const takeFar = k >= extra.length || (i < far.length && far[i]! <= extra[k]!);
+    const t = takeFar ? far[i]! : extra[k]!;
+    if (times.length === 0 || times[times.length - 1] !== t) {
+      times.push(t);
+      farIndex.push(takeFar ? i : -1);
+    } else if (takeFar) farIndex[farIndex.length - 1] = i;
+    if (takeFar) i += 1;
+    else k += 1;
+  }
+  return { times, farIndex };
+}
+
+function insertSorted(list: readonly number[], value: number): number[] {
+  const out = list.slice();
+  let at = out.findIndex((t) => t >= value);
+  if (at < 0) at = out.length;
+  out.splice(at, 0, value);
+  return out;
+}
+
+/** The head's fine indices from `from` to `to`, nearest the fine step `displayMs` is in first (ties: the later first). */
+export function headByNearness(displayMs: number, fineMs: number, from: number, to: number): number[] {
+  const j = Math.floor(displayMs / fineMs);
+  return Array.from({ length: to - from + 1 }, (_, i) => from + i).sort(
+    (a, b) => Math.abs(a - j - 0.5) - Math.abs(b - j - 0.5) || b - a,
+  );
+}
