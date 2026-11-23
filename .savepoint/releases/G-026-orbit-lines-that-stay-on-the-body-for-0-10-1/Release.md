@@ -1,7 +1,7 @@
 ---
 id: G-026
 title: Orbit lines that stay on the body, for 0.10.1
-status: planned
+status: done
 ---
 
 ## Outcome

@@ -1,9 +1,10 @@
 ---
 id: O-099
 title: Orbit lines follow time and end on the body
-status: planned
+status: done
 depends_on: []
 release: G-026
+last_check: C-216
 priority: high
 rank: 1
 ---
@@ -44,3 +45,7 @@ Owner chose fix B + C on 2026-11-23 after reading the findings page and the plai
 **In scope:** the shared grid-and-head module, `PathView` orbit lines, `OrbitSetView` calling the module, `api/sunOrbit.ts` wording and turn span, tests, CHANGELOG, belt note.
 
 **Out of scope:** trajectory paths' sampling, any public API change, any look change.
+
+## Closure
+
+Full Objective Check C-215 (NEEDS WORK only for a host network drop in `synthetic-journey`) superseded by C-216 CLEAR on 2026-11-23. Marked done by the coordinator on the owner's instruction "looks good, push and publish once check is done" (2026-11-23). C-216's observation on the Uranus/Neptune re-fit wording was applied to the CHANGELOG and the `addBody` `orbit` doc comment before merge.

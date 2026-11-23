@@ -112,7 +112,7 @@ export interface AddBodyOptions {
   /**
    * Draws the body's orbit as a line: the Moon's about Earth and Io's about Jupiter, or, in a scene that holds the Sun, one full turn round the Sun of any body that
    * circles it (the planets, Earth's year, a body added with `addBodyFromElements`), about the display time and following it, so the line runs through the body (except Uranus and Neptune, below). Others throw `no-orbit`.
-   * Round the Sun it is one turn of the body's own positions, or, for Uranus and Neptune (whose turn outlasts the planet series), the ellipse osculating at the opening time and re-fitted only after about half a turn, so the line can run off the planet in the years between, as the card says.
+   * Round the Sun it is one turn of the body's own positions, or, for Uranus and Neptune (whose turn outlasts the planet series), the ellipse osculating at the opening time and re-fitted only when the display time moves about a quarter turn on and only while the planet series (1950 to 2045) covers it, so the line can run off the planet in the years between, as the card says.
    * An object `{ lapDays, fades? }` draws any moon's line from a lap time you state (`OrbitLapInput`), whether or not its record has a period. Default: no line.
    */
   readonly orbit?: boolean | OrbitLapInput;

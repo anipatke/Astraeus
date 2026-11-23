@@ -4,7 +4,7 @@ title: Planet and moon orbit lines stay on their body
 objective: O-099
 status: done
 depends_on: [{task: T-444, requires: clear}]
-owner_validation: {required: true}
+owner_validation: {required: true, accepted_check: C-216, accepted_by: {role: owner, session: orchestrate-o099-20261123}}
 check_waiver: {task: T-445, reason: 'Owner said "orchestrate O99" (2026-11-23): standing orchestration rules waive the optional step checks; the mandatory Full Objective Check covers the whole diff.', actor: {role: owner, session: orchestrate-o099-20261123}, recorded_at: '2026-11-23T08:18:33Z'}
 planned_by: {role: planner, session: plan-g026-20261123}
 planned_reads: [packages/astraeus/src/app/PathView.ts, packages/astraeus/src/app/pathRules.ts, packages/astraeus/src/api/sunOrbit.ts, packages/astraeus/src/core/sunCentredSources.ts, packages/astraeus/tests/pathViewSync.test.ts, packages/astraeus/tests/publicApiSunOrbits.test.ts]
