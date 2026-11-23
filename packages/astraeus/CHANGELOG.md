@@ -6,7 +6,7 @@ Versions follow [semantic versioning](https://semver.org). While the version sta
 
 Orbit lines stay on their body. No breaking changes.
 
-- Fixed: a planet's orbit line round the Sun (`addBody(planet, { orbit: true })`, `addBodyFromElements`) now stays on the planet. It used to be drawn once from the scene's opening time, so at close zoom, and in any year other than the opening one, the planet drifted off its line (Earth by about two of its own radii, Mars by about six). The line is now one turn about the display time, redrawn as time moves or jumps, and it ends exactly on the body through a finer stretch near it. A moon's orbit line ends on its moon the same way. A paused scene still draws nothing new.
+- Fixed: a planet's orbit line round the Sun (`addBody(planet, { orbit: true })`, `addBodyFromElements`) now stays on the planet. It used to be drawn once from the scene's opening time, so at close zoom, and in any year other than the opening one, the planet drifted off its line (Earth by about two of its own radii, Mars by about six). The line is now one turn about the display time, redrawn as time moves or jumps, and it ends exactly on the body through a finer stretch near it. A moon's orbit line ends on its moon the same way. A paused scene still draws nothing new. Uranus and Neptune are the exception: their turn outlasts the planet positions the engine ships, so their line is still the fitted ellipse, re-fitted only after about half a turn, and can run off the planet in the years between (their card says so).
 
 ### Breaking changes in 0.10.1
 

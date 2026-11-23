@@ -1,0 +1,9 @@
+tier: quick
+logs: /tmp/astraeus-check-logs-gtdPeH
+smoke | scene=every public page and demo view except the made-up journey and the made-up belt, desktop and phone | exit=0 | 08:59:13-08:59:58 | 45s | limit 65s | error-lines=0
+orbit-lines | scene=synthetic-belt (made-up, true scale) with the camera on Earth and time playing, desktop and phone: Earth's centre stays within 2 px of its orbit line at close zoom (O-099) | exit=0 | 08:59:58-09:00:54 | 57s | limit 60s | error-lines=0
+synthetic-journey | scene=the made-up 1977-to-170-AU journey, desktop and phone side by side: moons, Saturn's orbit line, the phone near-Saturn sequence | exit=1 | 09:00:54-09:02:02 | 67s | limit 115s | error-lines=2
+smoke-public-showers | scene=showers views on the scratch public build, desktop size: stream dots drawn for each shipped stream file | exit=0 | 09:02:02-09:02:07 | 6s | limit 15s | error-lines=0
+planets-phone | scene=planets on a phone: switch planet, focus Io, open a place card | exit=0 | 09:02:07-09:02:16 | 9s | limit 20s | error-lines=0
+look-out | scene=synthetic-lookout (made-up, Sun, Earth and Mars): opens looking out from Earth, the menu offers Look out from Earth and Mars clear of the controls, Focus returns; two made-up sky figures, an outline and four switches, the site trace control (Stay, Fade and Stay-then-Hide, each waiting for the `sky-trace:<id>` line set in `data-sky-lines` to appear and go), labels do not overlap; desktop and phone size | exit=0 | 09:02:16-09:03:26 | 70s | limit 100s | error-lines=0
+total 257s (servers and public build included) | limit 455s
