@@ -19,6 +19,16 @@ import { balanceShare, meanPeriodS, periodAboutBalanceS } from "../core/orbitPer
 import type { ScalePolicy } from "../presentation/scalePolicy";
 import { familyColorOf, familyGainOf, MAX_BODY_SET_FAMILIES, type BodySetLayer, type BodySetLook } from "./bodySet";
 import type { FloatingOrigin } from "./floatingOrigin";
+import {
+  clampTimeMs,
+  gridTimes,
+  headRange,
+  isStale,
+  keptHeadPoints,
+  resampleNow,
+  stepIndex,
+  stepsMoved,
+} from "./orbitLineRule";
 import { eqjToRenderVector, type RenderVector } from "./renderCoordinates";
 import { sceneOffsetKm, type ScenePlacement } from "./sceneLayout";
 import { TRACK_LAYER } from "./TrackedBodyView";
@@ -35,8 +45,6 @@ export const ORBIT_HEAD_SUBSTEPS = 8;
 const HEAD_FINE_POINTS = 4 * ORBIT_HEAD_SUBSTEPS;
 /** Segments per head: the chords between its fine points, then the last one to the body's live place (unused ones sit on the body). */
 const HEAD_SEGMENTS = HEAD_FINE_POINTS + 1;
-/** A clock jump larger than this share of a path's span (a seek, a load) re-samples that path at once rather than in turn. */
-const JUMP_SHARE = 0.25;
 /** Least re-sampling step and jump (simulation ms), for a path with no history loaded. */
 const MIN_STEP_MS = 60_000;
 
@@ -362,14 +370,14 @@ export class OrbitSetView {
     const start = this.#cursor;
     for (let k = 0; k < n; k += 1) {
       const m = (start + k) % n;
-      const moved = Math.floor(timeUtcMs / this.#stepFor(m, timeUtcMs)) - this.#builtStep[m];
-      if (this.#refreshNeeded(moved, whole)) {
+      const moved = stepsMoved(timeUtcMs, this.#stepFor(m, timeUtcMs), this.#builtStep[m]);
+      if (resampleNow(moved, this.samples - 1, whole)) {
         this.#sample(m, timeUtcMs, policy);
-      } else if (budget > 0 && moved >= 1) {
+      } else if (budget > 0 && isStale(moved)) {
         this.#sample(m, timeUtcMs, policy);
         budget -= 1;
         this.#cursor = (m + 1) % n;
-      } else if (moved >= 1) {
+      } else if (isStale(moved)) {
         this.#backlog = true;
       }
     }
@@ -409,14 +417,9 @@ export class OrbitSetView {
     return this.#stepMs[m];
   }
 
-  /** Whether a path is re-sampled at once, whatever the per-frame budget: the scale changed (`whole`) or the clock jumped (`moved` steps is outside a quarter of its span, or backwards). */
-  #refreshNeeded(moved: number, whole: boolean): boolean {
-    return whole || !(moved >= 0 && moved <= JUMP_SHARE * (this.samples - 1));
-  }
-
   /** A sample time on path `m`'s grid, kept inside the loaded data and not past the clock. */
   #clamped(m: number, timeUtcMs: number, gridMs: number): number {
-    return Math.round(Math.min(timeUtcMs, Math.max(this.#loadedFromMs[m], gridMs)));
+    return clampTimeMs(gridMs, timeUtcMs, this.#loadedFromMs[m]);
   }
 
   /**
@@ -426,17 +429,12 @@ export class OrbitSetView {
   #sample(m: number, timeUtcMs: number, policy: ScalePolicy): void {
     const source = this.#sources[m];
     const step = this.#stepMs[m];
-    const due = Math.floor(timeUtcMs / step);
     this.#loadedFromMs[m] = source.loadedFrom(timeUtcMs) ?? timeUtcMs;
-    const last = (due - 1) * step;
     const s = this.samples;
-    for (let i = 0; i < s; i += 1)
-      source.positionInto(this.#clamped(m, timeUtcMs, last - (s - 1 - i) * step), this.#pathKm, 3 * (m * s + i));
-    this.#builtStep[m] = due;
-    this.#spanMs[m] = Math.max(
-      0,
-      this.#clamped(m, timeUtcMs, last) - this.#clamped(m, timeUtcMs, last - (s - 1) * step),
-    );
+    const times = gridTimes(timeUtcMs, step, s);
+    times.forEach((time, i) => source.positionInto(this.#clamped(m, timeUtcMs, time), this.#pathKm, 3 * (m * s + i)));
+    this.#builtStep[m] = stepIndex(timeUtcMs, step);
+    this.#spanMs[m] = Math.max(0, this.#clamped(m, timeUtcMs, times[s - 1]) - this.#clamped(m, timeUtcMs, times[0]));
     this.computed += 1;
     this.#mapPath(m, policy);
   }
@@ -447,11 +445,15 @@ export class OrbitSetView {
    */
   #syncHead(m: number, timeUtcMs: number): void {
     const fine = this.#stepMs[m] / ORBIT_HEAD_SUBSTEPS;
-    const from = (this.#builtStep[m] - 1) * ORBIT_HEAD_SUBSTEPS;
-    const to = Math.max(from, Math.min(Math.floor(timeUtcMs / fine), from + HEAD_FINE_POINTS));
+    const { from, to } = headRange(
+      this.#builtStep[m],
+      timeUtcMs,
+      this.#stepMs[m],
+      ORBIT_HEAD_SUBSTEPS,
+      HEAD_FINE_POINTS,
+    );
     const have = this.#fineFrom[m];
-    const haveTo = have + this.#fineCount[m] - 1;
-    const keep = have <= from && from <= haveTo && haveTo <= to ? haveTo - from + 1 : 0;
+    const keep = keptHeadPoints(have, this.#fineCount[m], from, to);
     const base = 3 * m * (HEAD_FINE_POINTS + 1);
     if (keep > 0 && have < from)
       this.#fineKm.copyWithin(base, base + 3 * (from - have), base + 3 * (from - have + keep));

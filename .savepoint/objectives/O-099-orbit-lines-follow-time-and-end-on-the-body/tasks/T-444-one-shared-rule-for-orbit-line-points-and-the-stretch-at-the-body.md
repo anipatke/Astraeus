@@ -2,7 +2,7 @@
 id: T-444
 title: One shared rule for orbit-line points and the stretch at the body
 objective: O-099
-status: planned
+status: done
 depends_on: []
 owner_validation: {required: false}
 check_waiver: {task: T-444, reason: 'Owner said "orchestrate O99" (2026-11-23): standing orchestration rules waive the optional step checks; the mandatory Full Objective Check covers the whole diff.', actor: {role: owner, session: orchestrate-o099-20261123}, recorded_at: '2026-11-23T08:18:33Z'}
@@ -58,8 +58,21 @@ Focused tests while iterating; configured build and test gates at handoff. Evalu
 
 ## Technical Evidence
 
-Pending execution.
+| Done When | Evidence |
+|---|---|
+| Pure module exports grid times, fine head range, re-sample decision; no Three.js/State | `src/app/orbitLineRule.ts` (gridTimes, headRange, keptHeadPoints, stepsMoved, resampleNow, isStale, clampTimeMs, stepIndex, JUMP_SHARE); imports nothing |
+| Module tests: grid multiples, re-sample keeps in-span times, head ends at display time, jump re-samples, edges/negatives | `tests/orbitLineRule.test.ts` (7 tests, all pass) |
+| OrbitSetView calls module; orbitSetSync unchanged passes | OrbitSetView `#sample`, `#syncHead`, `sync` use the module; `tests/orbitSetSync.test.ts` unmodified, passes |
+| Gates pass | below |
+
+Commands: `npm run typecheck` (clean); eslint (use-typescript6) on the 3 changed files (clean); prettier --check (clean); `npx vitest run packages/astraeus/tests/{orbitLineRule,orbitSetSync,bodySet,plutoOrbitLines,renderHandedness,viewDisposal}.test.ts`: 6 files, 59 tests passed.
+
+Files changed: src/app/orbitLineRule.ts (new), tests/orbitLineRule.test.ts (new), src/app/OrbitSetView.ts (calls module; JUMP_SHARE, #refreshNeeded moved out). No extra reads beyond Context Files. Limitations: no browser run (not required); red-first not shown since the module is a lift of existing code, with orbitSetSync as the behaviour guard.
 
 ## Drift Notes
 
-Record architecture deltas for reconciliation before the Full Check.
+None (new pure module `orbitLineRule` in src/app; T-445 reuses it for PathView).
+
+## Coordinator Completion
+
+Marked done by the coordinator under the owner's "orchestrate O99" (2026-11-23; standing rule "I mark them as they pass", O-038) after the wave gate passed on 2026-11-23T08:21Z: `npm run typecheck` ok, `npm run lint` ok, `npm test` 338 files, 5494 passed, 2 skipped.
