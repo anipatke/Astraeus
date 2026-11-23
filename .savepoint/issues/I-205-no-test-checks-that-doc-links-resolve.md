@@ -2,7 +2,7 @@
 id: I-205
 title: No test checks that doc links resolve
 type: guardrail
-status: open
+status: resolved
 source:
   kind: report
   actor: {role: executor, session: orchestrate-g024-20261122}
@@ -20,6 +20,25 @@ history:
     actor: {role: executor, session: orchestrate-g024-20261122}
     kind: observed
     note: 'C-213 observation: Design "Host calls land in order" cites an engine README section "Host calls" that does not exist (the rule is the "Order rule" paragraph under "The handle: lifecycle, time and events"); pre-existing on main. The doc-link test could also check quoted section names.'
+  - at: "2026-11-23T09:43:01Z"
+    actor:
+      role: owner
+      session: board-owner
+    kind: owner_decision
+    note: Moved from open to in_progress by the owner from the board.
+  - at: "2026-11-23T09:43:03Z"
+    actor:
+      role: owner
+      session: board-owner
+    kind: owner_decision
+    note: Resolved by the owner from the board.
+resolution:
+  disposition: accepted
+  actor:
+    role: owner
+    session: board-owner
+  at: "2026-11-23T09:43:03Z"
+  reason: Resolved by the owner from the board.
 ---
 
 # No test checks that doc links resolve

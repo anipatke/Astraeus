@@ -1,7 +1,7 @@
 ---
 id: G-024
 title: Engineering health repairs, for 0.10.0
-status: planned
+status: done
 ---
 
 ## Outcome
