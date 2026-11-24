@@ -1,0 +1,170 @@
+{
+  "at": "2026-11-24T08:41:30.099Z",
+  "appUrl": "http://localhost:5479/app.html",
+  "loads": 2,
+  "failed": 0,
+  "results": [
+    {
+      "label": "synthetic-belt",
+      "size": "desktop",
+      "ok": true,
+      "seconds": 27.7,
+      "drawn": {
+        "bodies": 0,
+        "dots": 0,
+        "paths": 2,
+        "stars": 8920,
+        "groupLabel": {
+          "dragMovedCamera": true,
+          "tapSelected": "dust-belt",
+          "cardOpened": true
+        },
+        "closeZoom": {
+          "boundPx": 2,
+          "worstPx": 0,
+          "stops": [
+            {
+              "radiusPx": 272,
+              "worstPx": 0,
+              "simulatedHours": 5.2,
+              "gaps": [
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "radiusPx": 272,
+              "worstPx": 0,
+              "simulatedHours": 5.1,
+              "gaps": [
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "radiusPx": 272,
+              "worstPx": 0,
+              "simulatedHours": 5.1,
+              "gaps": [
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            }
+          ]
+        }
+      },
+      "failures": []
+    },
+    {
+      "label": "synthetic-belt",
+      "size": "phone",
+      "ok": true,
+      "seconds": 26.8,
+      "drawn": {
+        "bodies": 3,
+        "dots": 9374,
+        "paths": 2,
+        "stars": 8920,
+        "groupLabel": {
+          "dragMovedCamera": true,
+          "tapSelected": "dust-belt",
+          "cardOpened": false
+        },
+        "closeZoom": {
+          "boundPx": 2,
+          "worstPx": 0,
+          "stops": [
+            {
+              "radiusPx": 255,
+              "worstPx": 0,
+              "simulatedHours": 4.6,
+              "gaps": [
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "radiusPx": 255,
+              "worstPx": 0,
+              "simulatedHours": 4.5,
+              "gaps": [
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "radiusPx": 255,
+              "worstPx": 0,
+              "simulatedHours": 4.6,
+              "gaps": [
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            }
+          ]
+        }
+      },
+      "failures": []
+    }
+  ]
+}

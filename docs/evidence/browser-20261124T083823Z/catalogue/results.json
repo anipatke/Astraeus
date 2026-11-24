@@ -1,0 +1,30 @@
+{
+  "name": "journey-catalogue",
+  "at": "2026-11-24T08:44:44.232Z",
+  "ok": true,
+  "results": [
+    {
+      "viewport": "desktop",
+      "result": {
+        "parts": 8,
+        "fit": {
+          "sidewaysScrollPx": 0,
+          "overlaps": [],
+          "outside": []
+        }
+      }
+    },
+    {
+      "viewport": "phone",
+      "result": {
+        "parts": 8,
+        "fit": {
+          "sidewaysScrollPx": 0,
+          "overlaps": [],
+          "outside": []
+        }
+      }
+    }
+  ],
+  "errors": []
+}

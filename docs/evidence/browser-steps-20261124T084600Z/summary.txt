@@ -1,0 +1,4 @@
+tier: steps
+logs: /tmp/astraeus-check-logs-RS5tGD
+smoke | scene=every public page and demo view except the made-up journey and the made-up belt, desktop and phone | exit=0 | 08:46:01-08:46:47 | 46s | limit 65s | error-lines=0
+total 47s (servers and public build included) | no limit

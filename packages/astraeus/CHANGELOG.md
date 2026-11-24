@@ -2,7 +2,11 @@
 
 Versions follow [semantic versioning](https://semver.org). While the version starts with `0.`, the public API (the names exported from `astraeus`) may still change between minor versions; each change is listed here.
 
-## 0.11.0 (unreleased)
+## 0.11.0 (2026-11-24)
+
+Fixes from the asteroid-belt app's stress test of 0.10.0: group names tap, the phone sheet gets out of the way, panel buttons switch off and on, a viewer without WebGL says so, shelf input is checked evenly, long text and chart labels never clip or overprint, and screen readers hear what changed. A minor bump because the stricter input checks are breaking (below, each with its migration); the `astraeus-data*` packages' `astraeus` peer moves to `>=0.11.0 <0.12.0`.
+
+First download of the packed example (`npm run measure:example`): 1,833,863 bytes raw, 525,880 bytes gzip (code and styles loaded on first open), against 1,832,457 raw and 525,504 gzip at 0.10.1 (+1,406 raw, +376 gzip).
 
 - Added: `ActionsControl.setEnabled(actionId, enabled)` switches one actions button off and on for a viewer (every button starts on). An off button is greyed and disabled; pressing it neither turns the camera nor reaches `onAction`. An unknown action id or a non-boolean `enabled` throws `SceneError` `bad-part` naming the field.
 - Fixed: on a phone, pressing a panel button that turns the camera (an `actions` button with a `camera`) now closes the open panel sheet first, so the visitor sees the move. A button with no camera leaves the sheet open, and a wide screen is unchanged. Hosts can drop their own sheet-closing timers.
@@ -17,7 +21,7 @@ Versions follow [semantic versioning](https://semver.org). While the version sta
 
 ### Breaking changes in 0.11.0
 
-New code `no-webgl`, and a viewer without WebGL now rejects `ready` (it resolved and drew nothing). A `switch` over `SceneErrorCode` needs the case; catch `ready` or pass `onError`, and drop any watcher for an emptied element.
+- New code `no-webgl`, and a viewer without WebGL now rejects `ready` (it resolved and drew nothing). A `switch` over `SceneErrorCode` needs the case; catch `ready` or pass `onError`, and drop any watcher for an emptied element.
 
 - Blank (spaces-only) shelf text is refused with `bad-part`: labels, titles, paragraphs, notes, ids and values. Pass real text, or leave an optional field out.
 - `chart` and `setBins` refuse bins that overlap or run backwards. Sort bins by `low` and merge overlaps first.
