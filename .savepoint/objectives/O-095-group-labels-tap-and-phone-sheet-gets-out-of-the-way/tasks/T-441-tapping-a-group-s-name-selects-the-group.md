@@ -84,6 +84,8 @@ Commands: `npm run typecheck` clean; eslint (use-typescript6) and prettier clean
 
 Limitations: browser check unproven (above). The label-only rule also makes any other listed non-body object's shown name (spacecraft, comet) a tap target; the shell already accepts those ids.
 
+Coordinator browser proof (2026-11-24, owner chose "Run it now" after the builder's third run was blocked): `npm run check:browser -- --step orbit-lines` exit 0, 56 s (limit 60 s), evidence `docs/evidence/browser-steps-20261124T060019Z/orbit-lines/results.json`: desktop `groupLabel` {dragMovedCamera: true, tapSelected: "dust-belt", cardOpened: true}; phone {dragMovedCamera: true, tapSelected: "dust-belt", cardOpened: false}. The step is now 4 s under its limit.
+
 ## Drift Notes
 
 None. (Design.md `Viewer interface`: a shown label of any listed object, not only bodies, is a tap target; reconcile in the Design pass if that sentence names bodies only.)
