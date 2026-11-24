@@ -92,7 +92,7 @@ One CPU elliptic Kepler solver, `eccentricAnomalyFromMean` (`core/keplerAnomaly.
 
 ### Errors and labels that tell the truth (O-083)
 
-Every throw a host reaches through the public API is a coded `SceneError`; refusals name their cause; moment text has one grammar (`core/timeInput.ts`); the scale is the closed `ScaleId`; cards name the model that places and turns each body. The codes are documented in the engine README "Errors" (generated). [Detail as built, 2026-11-22](../docs/architecture/reconciliation-history.md#errors-and-labels-that-tell-the-truth-o-083).
+Every throw a host reaches through the public API is a coded `SceneError`; refusals name their cause; moment text has one grammar (`core/timeInput.ts`); the scale is the closed `ScaleId`; cards name the model that places and turns each body. The codes are documented in the engine README "Errors" (generated). O-096: with no WebGL 2 the two entry points (`api/mount.ts`, `api/AstraeusScene.tsx`) refuse before the viewer renders, through one probe (`api/webglCheck.ts`): `ready` rejects with `no-webgl`, `onError` hears it, and the element holds a short message; tests answer the probe "yes" in the shared vitest setup. Shelf input is checked evenly in `shelf/part.ts` (blank text) and the chart and colour-key factories (backwards or overlapping bins, marks outside the bins at build, fractional or empty colour-key counts), all `bad-part`; `tests/shelfInputTable.test.ts` runs every shelf factory through every bad-input kind. [Detail as built, 2026-11-22](../docs/architecture/reconciliation-history.md#errors-and-labels-that-tell-the-truth-o-083).
 
 ### Each scene keeps its own moon data (O-084)
 

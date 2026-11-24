@@ -2,8 +2,7 @@
 id: T-447
 title: A viewer with no WebGL says so
 objective: O-096
-status: in_progress
-stage: audit
+status: done
 depends_on: []
 check_waiver: {task: T-447, reason: 'Owner said "orchestrate O-96" (2026-11-24): standing orchestration rules waive the optional step checks; the mandatory Full Objective Check covers the whole diff.', actor: {role: owner, session: orchestrate-o096-20261124}, recorded_at: '2026-11-24T06:57:50Z'}
 owner_validation: {required: true}
@@ -104,3 +103,5 @@ Limitations: the no-WebGL browser pass is a separate page in the same step with 
 ## Drift Notes
 
 None. (`browser-steps.mjs` scene text updated.)
+
+Marked done by the coordinator under the owner's "orchestrate O-96" (2026-11-24) after the wave gate passed (`npm run typecheck`, `npm run lint`, `npm test` 343 files 5601 passed 2 skipped, `npm run build`). Owner looked on localhost:5490 (`npm run preview:owner`, branch o096-failures-said-plainly at 536bbf99, 2026-11-24T07:06Z) in Chrome with WebGL off and said "looks lovely as far as i can tell". The acceptance fields are filled in once the Full Objective Check has an id.
