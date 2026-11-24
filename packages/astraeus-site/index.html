@@ -13,25 +13,31 @@
 <meta name="twitter:card" content="summary_large_image">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,300;1,6..72,300&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@300;400;500&display=swap">
 <style>
 /* Layout (owner's choice of preview A2, 2026-11-24): a plain definition beside a real call and its real answer; the demos; the measured figures as one large
-   Newsreader band over the full comparison table; how Io's positions are stored; the globes with their moon counts over the four layers; getting started;
+   readout band over the full comparison table; how Io's positions are stored; the globes with their moon counts over the four layers; getting started;
    the apps built on the published package. Each section is composed for its content. Every figure on the page is checked by tests/homePage.test.ts or
-   tests/assetsSections.test.ts. One dark world on purpose. */
+   tests/assetsSections.test.ts. One dark world on purpose.
+   Colour and type (owner's choice of colour preview A, 2026-11-24): warm gold and amber against the cold, neutral black of space, and one cool counter-colour
+   with one job. Gold #ffd59a is the logo's Sun, the code's strings and the Io fit curve; amber #e8b06a is the viewer's accent (--astraeus-accent). Every figure
+   that states a difference from JPL Horizons is coloured by one log scale (the scale script at the end), from ice-blue (closest) through a cool grey to amber,
+   lightness falling steadily so it reads in colour-blind vision and in greyscale; its legend sits under the big figures. IBM Plex Sans for text and headings,
+   IBM Plex Mono for every number and label (OFL 1.1). */
 :root {
   --bg: #07070a;
   --raised: #0d0d11;
   --ink: #f5f5f7;
   --body: rgba(245, 245, 247, 0.78);
   --muted: rgba(245, 245, 247, 0.55);
-  --faint: rgba(245, 245, 247, 0.38);
+  --faint: rgba(245, 245, 247, 0.5);
   --rule: rgba(255, 255, 255, 0.08);
   --rule-strong: rgba(255, 255, 255, 0.16);
   --wash: rgba(255, 255, 255, 0.024);
-  --sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  --serif: "Newsreader", "Iowan Old Style", "Palatino Linotype", Georgia, serif;
-  --mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  --gold: #ffd59a;
+  --amber: #e8b06a;
+  --sans: "IBM Plex Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
   --container: 1180px;
   --radius-tile: 18px;
   color-scheme: dark;
@@ -45,7 +51,7 @@ h1, h2, h3, p { margin: 0; }
 h1, h2, h3 { color: var(--ink); text-wrap: balance; font-weight: 600; }
 code { font-family: var(--mono); font-size: 0.86em; color: var(--ink); }
 .wrap { max-width: var(--container); margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
-.eyebrow { font-family: var(--mono); font-size: 0.72rem; font-weight: 500; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); }
+.eyebrow { font-family: var(--mono); font-size: 0.72rem; font-weight: 500; letter-spacing: 0.14em; text-transform: uppercase; color: var(--amber); }
 
 .top .wrap { display: flex; align-items: center; justify-content: space-between; gap: 12px; height: 60px; }
 .brand { display: flex; align-items: center; gap: 10px; color: var(--ink); font-weight: 600; }
@@ -65,29 +71,30 @@ code { font-family: var(--mono); font-size: 0.86em; color: var(--ink); }
 .sky { position: absolute; inset: -60px 0 auto; height: 620px; width: 100%; z-index: -2; pointer-events: none; display: block; }
 .hero-grid { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: clamp(1.5rem, 4vw, 4rem); align-items: start; }
 .hero-grid > * { min-width: 0; }
-.hero h1 { margin-top: 16px; font-size: clamp(2.1rem, 4.6vw, 3.6rem); line-height: 1.06; letter-spacing: -0.04em; max-width: 13ch; }
+.hero h1 { margin-top: 16px; font-size: clamp(2.1rem, 4.6vw, 3.6rem); line-height: 1.06; letter-spacing: -0.03em; max-width: 13ch; }
 .lead { margin-top: 20px; font-size: clamp(1.02rem, 1.35vw, 1.14rem); line-height: 1.6; color: var(--body); max-width: 46ch; }
 .cta { margin-top: 26px; display: flex; flex-wrap: wrap; gap: 10px; }
 .btn { display: inline-flex; align-items: center; height: 42px; padding: 0 18px; border-radius: 999px; font-weight: 500; font-size: 0.93rem; border: 1px solid var(--rule-strong); color: var(--ink); background: var(--wash); }
 .btn:hover { border-color: rgba(255, 255, 255, 0.3); }
-.btn.primary { background: var(--ink); color: #07070a; border-color: var(--ink); }
-.btn.primary:hover { background: #fff; }
+.btn.primary { background: var(--gold); color: #07070a; border-color: var(--gold); }
+.btn.primary:hover { background: #ffe2b8; }
 .ask { border: 1px solid var(--rule-strong); border-radius: var(--radius-tile); background: rgba(13, 13, 17, 0.82); backdrop-filter: blur(6px); overflow: hidden; }
 .ask-bar { display: flex; justify-content: space-between; gap: 10px; padding: 11px 16px; border-bottom: 1px solid var(--rule); font-family: var(--mono); font-size: 0.72rem; color: var(--faint); }
 .ask pre { margin: 0; padding: 16px; font-family: var(--mono); font-size: 0.8rem; line-height: 1.75; color: var(--muted); overflow-x: auto; }
-.ask .k { color: #c9b8ff; } .ask .s { color: #ffd59a; } .ask .n { color: #9fd8ff; } .ask .c { color: var(--faint); } .ask .g { color: #8fe0a8; }
+.ask .k { color: var(--amber); } .ask .s { color: var(--gold); } .ask .n { color: #c6e1ff; } .ask .c { color: var(--faint); } .ask .g { color: var(--ink); }
 .notes { list-style: none; margin: 12px 0 0; padding: 0; display: grid; gap: 4px; font-family: var(--mono); font-size: 0.68rem; line-height: 1.5; color: var(--faint); letter-spacing: 0.02em; }
 .notes li { display: grid; grid-template-columns: 7.5em minmax(0, 1fr); gap: 10px; }
 .notes b { font-weight: 500; color: var(--muted); }
+.notes [data-home-moon-check] { color: var(--scale-c, inherit); }
 
 .band { border-top: 1px solid var(--rule); padding-block: clamp(2.5rem, 6vw, 4rem); }
 .h2-line { font-size: clamp(1.3rem, 2.2vw, 1.6rem); letter-spacing: -0.03em; margin-bottom: 22px; }
 .h2-line span { color: var(--faint); font-weight: 400; }
 .more { margin-top: 18px; font-size: 0.92rem; }
-.more a { color: var(--ink); border-bottom: 1px solid var(--rule-strong); }
-.more a:hover { border-color: var(--ink); }
-.textlink { color: var(--ink); border-bottom: 1px solid var(--rule-strong); }
-.textlink:hover { border-color: var(--ink); }
+.more a { color: var(--ink); border-bottom: 1px solid rgba(232, 176, 106, 0.55); }
+.more a:hover { border-color: var(--gold); color: var(--gold); }
+.textlink { color: var(--ink); border-bottom: 1px solid rgba(232, 176, 106, 0.55); }
+.textlink:hover { border-color: var(--gold); color: var(--gold); }
 
 /* Demos: the pictures carry the section */
 .demos { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
@@ -98,15 +105,29 @@ code { font-family: var(--mono); font-size: 0.86em; color: var(--ink); }
 .demo h3 { font-size: 1.15rem; letter-spacing: -0.02em; }
 .demo p { font-size: 0.88rem; color: var(--muted); }
 
-/* Measured figures: the page's one large typographic move, in the numeral face the site already uses */
+/* Measured figures: the page's one large typographic move, as instrument readouts; each difference in its scale colour, with the scale's legend under them */
 .figures { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); }
-.figures li { padding: 0 22px; border-left: 1px dashed var(--rule-strong); min-width: 0; }
+.figures li { padding: 0 22px; border-left: 1px solid var(--rule-strong); min-width: 0; }
 .figures li:first-child { border-left: 0; padding-left: 0; }
-.figures b { display: block; font-family: var(--serif); font-weight: 300; font-size: clamp(3.2rem, 8.4vw, 7.4rem); line-height: 0.9; letter-spacing: -0.06em; color: var(--ink); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.figures b { display: block; font-family: var(--mono); font-weight: 300; font-size: clamp(3.2rem, 8.4vw, 7.4rem); line-height: 0.9; letter-spacing: -0.07em; color: var(--scale-c, var(--gold)); font-variant-numeric: tabular-nums; white-space: nowrap; }
 .figures b small { font-size: 0.3em; letter-spacing: 0; color: var(--muted); margin-left: 6px; }
 .figures span { display: block; margin-top: 14px; font-size: 0.9rem; color: var(--body); max-width: 24ch; }
 .figures em span { display: inline; margin: 0; font-size: inherit; color: inherit; }
 .figures em { display: block; margin-top: 6px; font-style: normal; font-family: var(--mono); font-size: 0.66rem; color: var(--faint); letter-spacing: 0.03em; }
+.scale { margin: clamp(1.8rem, 4vw, 2.6rem) 0 0; max-width: 760px; }
+.scale-bar { position: relative; height: 10px; border-radius: 2px; margin-top: 58px; }
+.scale-mark { position: absolute; top: 0; height: 10px; }
+.scale-mark i { position: absolute; left: -1px; top: -8px; width: 2px; height: 26px; background: var(--scale-c); }
+.scale-mark b { position: absolute; left: 0; bottom: 22px; transform: translateX(-50%); font: 500 0.66rem/1.2 var(--mono); color: var(--scale-c); white-space: nowrap; }
+.scale-mark:nth-child(even) b { bottom: 40px; }
+.scale-mark:nth-child(even) i { top: -26px; height: 44px; }
+.scale-mark:first-child b { transform: translateX(-12px); }
+.scale-mark:last-child b { transform: translateX(calc(-100% + 12px)); }
+.scale-ticks { position: relative; height: 34px; font: 0.62rem/1 var(--mono); color: var(--faint); }
+.scale-ticks span { position: absolute; top: 22px; transform: translateX(-50%); white-space: nowrap; }
+.scale-ticks span:first-child { transform: none; }
+.scale-ticks span:last-child { transform: translateX(-100%); }
+.scale figcaption { margin-top: 6px; font: 0.7rem/1.5 var(--mono); color: var(--muted); }
 .after-figures { margin-top: clamp(2.5rem, 5vw, 3.5rem); display: grid; grid-template-columns: minmax(0, 220px) minmax(0, 1fr); gap: 24px; }
 .margin { font-family: var(--mono); font-size: 0.7rem; line-height: 1.6; color: var(--faint); letter-spacing: 0.02em; }
 .margin b { display: block; color: var(--muted); font-weight: 500; margin-bottom: 4px; }
@@ -114,7 +135,8 @@ code { font-family: var(--mono); font-size: 0.86em; color: var(--ink); }
 .facts th, .facts td { text-align: left; vertical-align: top; padding: 12px 16px 12px 0; border-top: 1px dashed var(--rule-strong); }
 .facts thead th { border-top: 0; font-family: var(--mono); font-size: 0.68rem; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: var(--faint); padding-top: 0; }
 .facts td:first-child { color: var(--ink); font-weight: 500; }
-.facts td.fig { font-family: var(--mono); color: var(--ink); white-space: nowrap; font-variant-numeric: tabular-nums; }
+.facts td.fig { font-family: var(--mono); color: var(--scale-c, var(--ink)); white-space: nowrap; font-variant-numeric: tabular-nums; }
+.facts td.fig[style]::before { content: ""; display: inline-block; width: 8px; height: 8px; margin-right: 8px; border-radius: 2px; background: var(--scale-c); vertical-align: 0.05em; }
 .facts td.src { font-family: var(--mono); font-size: 0.74rem; color: var(--faint); }
 .facts td.how { color: var(--muted); }
 
@@ -122,7 +144,7 @@ code { font-family: var(--mono); font-size: 0.86em; color: var(--ink); }
 .io-head { font-size: 1.02rem; letter-spacing: 0; margin-bottom: 6px; }
 .io-text { max-width: 64ch; font-size: 1.02rem; color: var(--body); }
 .io-text + .io-text { margin-top: 12px; }
-.io-text strong { font-weight: 500; color: var(--ink); font-variant-numeric: tabular-nums; }
+.io-text strong { font-weight: 500; color: var(--scale-c, var(--ink)); font-variant-numeric: tabular-nums; }
 
 /* The shelf: the Sun and planets with their moon counts, then the four layers */
 .globes { display: grid; grid-template-columns: repeat(10, minmax(0, 1fr)); gap: 18px 14px; }
@@ -139,13 +161,13 @@ code { font-family: var(--mono); font-size: 0.86em; color: var(--ink); }
 .layers { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border-top: 1px dashed var(--rule-strong); }
 .layers li { padding: 20px 20px 0 0; min-width: 0; }
 .layers li + li { border-left: 1px dashed var(--rule-strong); padding-left: 20px; }
-.layers .n { font-family: var(--mono); font-size: 0.7rem; color: var(--faint); letter-spacing: 0.1em; }
+.layers .n { font-family: var(--mono); font-size: 0.7rem; color: var(--amber); letter-spacing: 0.1em; }
 .layers h3 { margin-top: 8px; font-size: 1.15rem; letter-spacing: -0.02em; }
 .layers p { margin-top: 8px; font-size: 0.92rem; color: var(--muted); line-height: 1.55; }
 
 /* Getting started: the install line as the object */
 .install { border: 1px solid var(--rule-strong); border-radius: 14px; background: var(--raised); padding: 18px 20px; font-family: var(--mono); font-size: clamp(0.78rem, 1.4vw, 0.95rem); color: var(--ink); overflow-x: auto; white-space: nowrap; }
-.install span { color: var(--faint); }
+.install span { color: var(--amber); }
 .start-row { margin-top: 18px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; font-size: 0.9rem; color: var(--muted); }
 .start-row b { display: block; color: var(--ink); font-weight: 600; margin-bottom: 4px; }
 
@@ -155,8 +177,8 @@ code { font-family: var(--mono); font-size: 0.86em; color: var(--ink); }
 .apps h3 { font-size: 1.05rem; letter-spacing: -0.02em; }
 .apps p { font-size: 0.88rem; color: var(--muted); }
 .apps .meta { font-family: var(--mono); font-size: 0.68rem; color: var(--faint); letter-spacing: 0.04em; }
-.apps a.visit { align-self: flex-start; font-size: 0.86rem; border-bottom: 1px solid var(--rule-strong); }
-.apps a.visit:hover { border-color: var(--ink); }
+.apps a.visit { align-self: flex-start; font-size: 0.86rem; border-bottom: 1px solid rgba(232, 176, 106, 0.55); }
+.apps a.visit:hover { border-color: var(--gold); color: var(--gold); }
 
 footer { border-top: 1px solid var(--rule); padding-block: 28px 44px; font-size: 0.84rem; color: var(--faint); }
 footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; }
@@ -170,7 +192,7 @@ footer a:hover { color: var(--ink); }
 .fit-panel figcaption { margin-top: 10px; font-size: 0.88rem; line-height: 1.5; color: var(--muted); overflow-wrap: anywhere; }
 .fit-panel figcaption b { display: block; color: var(--ink); font-weight: 600; font-size: 0.98rem; margin-bottom: 2px; }
 .fit-dots { fill: none; stroke: rgba(207, 220, 255, 0.55); stroke-width: 2.2; stroke-linecap: round; }
-.fit-curve { fill: none; stroke: #ffd59a; stroke-width: 1.6; }
+.fit-curve { fill: none; stroke: var(--gold); stroke-width: 1.6; }
 .fit-join { fill: #07070a; stroke: #ffd59a; stroke-width: 1.4; }
 .fit-orbit { fill: none; stroke: var(--rule-strong); stroke-width: 1; stroke-dasharray: 3 4; }
 .fit-planet { fill: #c9a37a; }
@@ -208,6 +230,8 @@ footer a:hover { color: var(--ink); }
   .figures li { padding-inline: 14px 0; }
   .figures b { font-size: clamp(2.6rem, 13vw, 3.4rem); }
   .notes li { grid-template-columns: minmax(0, 1fr); gap: 0; }
+  .scale-mark b { font-size: 0.58rem; }
+  .scale-ticks span:nth-child(even) { display: none; }
   .globes { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px 10px; }
   .layers { grid-template-columns: minmax(0, 1fr); }
   .layers li:nth-child(even) { border-left: 0; padding-left: 0; }
@@ -512,6 +536,59 @@ scene.<span class="g">provenanceOf</span>(<span class="s">"moon"</span>).sources
   set("rows", String(dots.length)); set("step", String(d.tableStepMinutes)); set("pieces", "2"); set("numbers", String(2 * 3 * n));
   set("ratio", Math.round(f.ioTableBytes / f.ioFitBytes) + "\u00d7"); set("ioFit", mb(f.ioFitBytes)); set("ioTable", mb(f.ioTableBytes));
   set("accuracy", Math.round(f.ioWorstM * 100) + " cm");
+})();
+</script>
+<script>
+// The accuracy scale: every figure that states a difference from JPL Horizons takes its colour from its own number, on one log scale from 1 cm to 10 km, and
+// the legend under the big figures is drawn from the comparison table's cells. Ice-blue (closest) through a cool grey to amber: OKLCH lightness falls steadily
+// from 0.90 to 0.75, the hue stays on the blue-yellow axis colour-blind readers keep, and the middle is near-neutral grey (10 m: oklch(0.825 0.016 245)).
+(() => {
+  const LOG_MIN = -2, LOG_MAX = 4; // 1 cm to 10 km
+  const at = (metres) => Math.min(1, Math.max(0, (Math.log10(metres) - LOG_MIN) / (LOG_MAX - LOG_MIN)));
+  const colour = (metres) => {
+    const t = at(metres), lightness = 0.9 - 0.15 * t;
+    const cool = t < 0.55, chroma = cool ? 0.012 + 0.083 * Math.pow(1 - t / 0.55, 1.3) : 0.012 + 0.125 * Math.pow((t - 0.55) / 0.45, 1.2);
+    return "oklch(" + lightness.toFixed(3) + " " + chroma.toFixed(3) + " " + (cool ? 245 : 75) + ")";
+  };
+  const metresIn = (text) => { // "within 6.4 km", "4cm", "1 m"
+    const m = /([\d.,]+)\s*(cm|km|m)\b/.exec(text || "");
+    return m ? Number(m[1].replace(/,/g, "")) * { cm: 0.01, m: 1, km: 1000 }[m[2]] : undefined;
+  };
+  const paint = (el) => { const metres = metresIn(el.textContent); if (metres !== undefined) el.style.setProperty("--scale-c", colour(metres)); return metres; };
+  document.querySelectorAll(".figures b, [data-home-moon-check], [data-fit='accuracy']").forEach(paint);
+  const names = { planetsRow: "Planets", moonRow: "Moon", ioRow: "Io", jupiterRow: "Jupiter's moons", saturnRow: "Saturn's moons", otherRow: "other moons" };
+  const marks = new Map();
+  document.querySelectorAll(".facts td.fig").forEach((cell) => {
+    const metres = paint(cell);
+    if (metres !== undefined) marks.set(metres, (marks.get(metres) || []).concat(names[cell.dataset.home] || ""));
+  });
+  const figures = document.querySelector(".figures");
+  if (!figures || marks.size === 0) return;
+  const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text) e.textContent = text; return e; };
+  const left = (metres) => (at(metres) * 100).toFixed(2) + "%";
+  const scale = el("figure", "scale");
+  scale.setAttribute("aria-label", "Colour scale: largest difference from JPL Horizons, on a log scale");
+  const bar = el("div", "scale-bar");
+  const stops = [];
+  for (let i = 0; i <= 12; i++) stops.push(colour(Math.pow(10, LOG_MIN + (i / 12) * (LOG_MAX - LOG_MIN))) + " " + ((i / 12) * 100).toFixed(1) + "%");
+  bar.style.background = "linear-gradient(90deg, " + stops.join(", ") + ")";
+  [...marks].sort((a, b) => a[0] - b[0]).forEach(([metres, list]) => {
+    const label = list.join(", ");
+    const mark = el("span", "scale-mark");
+    mark.style.left = left(metres);
+    mark.style.setProperty("--scale-c", colour(metres));
+    mark.dataset.metres = String(metres);
+    mark.append(el("i"), el("b", "", label.charAt(0).toUpperCase() + label.slice(1)));
+    bar.append(mark);
+  });
+  const ticks = el("div", "scale-ticks");
+  [[0.01, "1 cm"], [0.1, "10 cm"], [1, "1 m"], [10, "10 m"], [100, "100 m"], [1000, "1 km"], [10000, "10 km"]].forEach(([metres, text]) => {
+    const tick = el("span", "", text);
+    tick.style.left = left(metres);
+    ticks.append(tick);
+  });
+  scale.append(bar, ticks, el("figcaption", "", "Colour = largest difference from JPL Horizons, on a log scale. Brighter and cooler is closer."));
+  figures.after(scale);
 })();
 </script>
 </body>

@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { Window } from "happy-dom";
 import html from "../index.html?raw";
 import { decodeChunk } from "./helpers/decodeChunk";
 import { readBytes, readJson } from "./helpers/testIo.mjs";
@@ -378,5 +379,72 @@ describe("home page figures (owner's choice of preview A2, 2026-11-24): each one
     expect(/data-fit-readout>([^<]*)</.exec(html)![1]).toBe(written.get("readout"));
     expect(written.get("accuracy")).toBe(`${Math.round(data.figures.ioWorstM * 100)} cm`);
     expect(html).not.toContain("over those years");
+  });
+});
+
+describe("home page accuracy scale and type (owner's choice of colour preview A, 2026-11-24)", () => {
+  const body = html.slice(html.indexOf("<body>") + "<body>".length, html.indexOf("<script>"));
+  const script =
+    [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].map((m) => m[1]!).find((text) => text.includes("scale-bar")) ??
+    "";
+  const metresIn = (text: string): number => {
+    const m = /([\d.,]+)\s*(cm|km|m)\b/.exec(text);
+    if (m === null) throw new Error(`no length in ${JSON.stringify(text)}`);
+    return Number(m[1]!.replace(/,/g, "")) * { cm: 0.01, m: 1, km: 1000 }[m[2] as "cm" | "m" | "km"];
+  };
+  const run = () => {
+    const window = new Window();
+    const document = window.document as unknown as Document;
+    document.body.innerHTML = body;
+    new Function("document", script)(document);
+    return document;
+  };
+
+  it("draws the legend's marks from the comparison table, one per distinct difference, at its place on the log scale", () => {
+    const document = run();
+    const table = [...document.querySelectorAll(".facts td.fig")].map((cell) => metresIn(cell.textContent ?? ""));
+    const marks = [...document.querySelectorAll<HTMLElement>(".scale-mark")];
+    expect(marks.map((m) => Number(m.dataset.metres))).toEqual([...new Set(table)].sort((a, b) => a - b));
+    for (const mark of marks) {
+      const metres = Number(mark.dataset.metres);
+      expect(Number.parseFloat(mark.style.left)).toBeCloseTo(((Math.log10(metres) + 2) / 6) * 100, 1);
+    }
+  });
+
+  it("colours each figure by its own number: the same colour as the legend mark at that difference, darker as the difference grows", () => {
+    const document = run();
+    const colourOf = (el: Element) => (el as HTMLElement).style.getPropertyValue("--scale-c");
+    const byMetres = new Map(
+      [...document.querySelectorAll<HTMLElement>(".scale-mark")].map((m) => [Number(m.dataset.metres), colourOf(m)]),
+    );
+    const painted = [
+      ...document.querySelectorAll(".figures b, [data-home-moon-check], [data-fit='accuracy'], .facts td.fig"),
+    ].filter((el) => /\d\s*(cm|km|m)\b/.test(el.textContent ?? ""));
+    expect(painted.length).toBeGreaterThanOrEqual(11);
+    for (const el of painted)
+      expect(colourOf(el), el.textContent ?? "").toBe(byMetres.get(metresIn(el.textContent ?? "")));
+    // The moon count is not a difference, so it keeps the page's gold.
+    expect(colourOf(document.querySelector('[data-home="moonCount"]')!)).toBe("");
+    const lightness = [...byMetres.entries()]
+      .sort((a, b) => a[0] - b[0])
+      .map(([, colour]) => Number(/oklch\(([\d.]+)/.exec(colour)![1]));
+    for (let i = 1; i < lightness.length; i++) expect(lightness[i]).toBeLessThan(lightness[i - 1]!);
+  });
+
+  it("loads only the faces and weights the page uses: IBM Plex Sans and Mono", () => {
+    const link = /<link rel="stylesheet" href="(https:\/\/fonts\.googleapis\.com\/css2\?[^"]+)">/.exec(html)![1]!;
+    const families = [...link.matchAll(/family=([^:&]+):wght@([\d;]+)/g)].map((m) => ({
+      name: m[1]!.replace(/\+/g, " "),
+      weights: m[2]!.split(";").map(Number),
+    }));
+    expect(families.map((f) => f.name)).toEqual(["IBM Plex Sans", "IBM Plex Mono"]);
+    const css = /<style>([\s\S]*?)<\/style>/.exec(html)![1]!;
+    for (const family of families) {
+      expect(css).toContain(`"${family.name}"`);
+      for (const weight of family.weights)
+        if (weight !== 400)
+          expect(new RegExp(`font(-weight)?: ${weight}\\b`).test(css), `${family.name} ${weight}`).toBe(true);
+    }
+    for (const retired of ["Inter", "Newsreader", "JetBrains Mono"]) expect(html).not.toContain(`"${retired}"`);
   });
 });
