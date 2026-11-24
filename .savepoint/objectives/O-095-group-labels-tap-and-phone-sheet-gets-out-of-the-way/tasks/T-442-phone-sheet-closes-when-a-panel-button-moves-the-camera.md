@@ -2,8 +2,7 @@
 id: T-442
 title: Phone sheet closes when a panel button moves the camera
 objective: O-095
-status: in_progress
-stage: audit
+status: done
 depends_on: []
 check_waiver: {task: T-442, reason: 'Owner said "Orchestrate O-95" (2026-11-24): standing orchestration rules waive the optional step checks; the mandatory Full Objective Check covers the whole diff.', actor: {role: owner, session: orchestrate-o095-20261124}, recorded_at: '2026-11-24T05:54:06Z'}
 owner_validation: {required: true}
@@ -82,3 +81,5 @@ Limitations: `browser-phone` is a retired script, so the check lives in the `cat
 ## Drift Notes
 
 Shell now wraps the shelf runtime's moveCamera to tell the panel rule (`cameraTurned`); note in Design viewer-interface section 11 / panel rule. Deferred: none.
+
+Marked done by the coordinator under the owner's "Orchestrate O-95" (2026-11-24) after the wave gate passed (`npm run typecheck`, `npm run lint`, `npm test` 341 files 5524 passed 2 skipped, `npm run build`). Owner looked on localhost:5490 (`npm run preview:owner`, branch o095-group-labels-and-phone-sheet at 59ce7681, 2026-11-24T06:02Z) and said "Both work, carry on". The acceptance fields are filled in once the Full Objective Check has an id.

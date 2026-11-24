@@ -238,6 +238,7 @@ Total = sum of row widths + `g` × (row items − 1).
 | Timeline drawer | menu, pop-ups | — |
 | Any pop-up | the other pop-up | — |
 | Item chosen inside the menu | the menu (today's `data-closes-drawer`, `ControlsDrawer.tsx:43-44`) | — |
+| Shelf camera turn (O-095) | on a phone, the open `left` occupant (shelf panel or tile sheet); on a wide screen nothing. The shell wraps the shelf runtime's `moveCamera` and dispatches `cameraTurned` before the host's move, so no shelf part imports the shell | the story sheet |
 | View switch | a card whose object the view drops (`AstraeusShell.tsx:355`); a story panel the view does not show (cause `move`, `useStoryPanels.ts:96`); a shelf panel not in the view | — |
 | Escape | the topmost only: pop-up > drawer > detail/`left` > story/`right` | — |
 | Outside press | open pop-ups | — |
@@ -315,7 +316,7 @@ handle.part(chips).onSelect(({ values, cause }) => ...);   handle.part(chips).se
   - `PanelControl`: `open`, `setOpen`, `onOpen`.
   - `FilterChipsControl`: `selected`, `setSelected`, `setChoices`, `onSelect`. Chips move themselves on a press and report it.
   - `ExplainerControl`: `setParagraphs`.
-  - `ActionsControl`: `onAction`.
+  - `ActionsControl`: `onAction`, `setEnabled(actionId, enabled)` (O-095; a disabled button carries `disabled`, neither moves the camera nor reports; unknown id or non-boolean throws `bad-part`).
   - `ColourKeyControl`: `setEntries`.
   - `CustomBlockControl`: `element`.
   - `ChartControl`: `setBins`, `setHighlight`.
@@ -464,7 +465,7 @@ Next candidates, one slice each: story playback; the camera fallback, with the s
 |---|---|---|---|---|
 | `panel` | O-080 | `button {label, shortLabel?}`, `title`, `blocks[]` | `onOpen` | bar `story` item; `left` / phone sheet |
 | `explainer` | O-080 | `heading?`, `paragraphs[]`, `notes?` | — | block |
-| `actions` | O-080 | `[{id, label, camera?}]`; `camera` moves it, as story panels do (`api/story.ts:99-100`) | `onAction` | block |
+| `actions` | O-080 | `[{id, label, camera?}]`; `camera` moves it, as story panels do (`api/story.ts:99-100`) | `onAction`; `setEnabled` (O-095) | block |
 | `filterChips` | O-080 | `choices [{value, label, color?}]`, `multiple`, `selected` | `onSelect` | block |
 | `colourKey` | O-080 | `entries [{label, color, count?, note?}]` | — | block |
 | `customBlock` | O-080 | none | `element` | block |
