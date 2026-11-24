@@ -11,9 +11,7 @@ const THREE_ADDRESSES = DEMO_ADDRESSES;
 const pictures = import.meta.glob("/packages/astraeus-site/site/*.jpg", { eager: false });
 
 describe("home page demo cards (O-017 T-074)", () => {
-  const cards = [
-    ...html.matchAll(/<a class="demo" href="([^"]+)">\s*<div class="shot"><img src="([^"]+)" alt="([^"]+)">/g),
-  ];
+  const cards = [...html.matchAll(/<a class="demo" href="([^"]+)">\s*<img src="([^"]+)" alt="([^"]+)">/g)];
 
   it("links all three experience addresses, once each", () => {
     expect(cards.map((card) => card[1])).toEqual(THREE_ADDRESSES);
@@ -218,5 +216,167 @@ describe("home page curve-fit section (O-025 T-101)", () => {
       expect(p[2]).toBeLessThan(445_000);
     }
     expect(readout.textContent).toMatch(/^Hour 54\.0 · Io is [\d,]+ km from Jupiter's centre$/);
+  });
+});
+
+/** The text a page element starts with: the first `attribute="key"` element's text up to its first tag. */
+const shown = (attribute: string, key: string): string => {
+  const found = new RegExp(`${attribute}="${key}"[^>]*>([^<]*)<`).exec(html);
+  if (found === null) throw new Error(`no ${attribute}="${key}" on the home page`);
+  return found[1]!;
+};
+/** Every element with `attribute="key"`, by its text up to its first tag. */
+const allShown = (attribute: string, key: string): string[] =>
+  [...html.matchAll(new RegExp(`${attribute}="${key}"[^>]*>([^<]*)<`, "g"))].map((m) => m[1]!);
+const grouped = (value: number) => value.toLocaleString("en-US");
+
+describe("home page figures (owner's choice of preview A2, 2026-11-24): each one from the engine, the data or the evidence", () => {
+  type MoonIndex = { bodies: { id: string; accuracy: { span: { worstM: number; count: number } } }[] };
+  const moonIndex = (planet: string) =>
+    readJson(
+      new URL(`../../astraeus-data-${planet}/data/${planet}-moons/index.json`, import.meta.url).pathname,
+    ) as MoonIndex;
+  const worstM = (planet: string) => Math.max(...moonIndex(planet).bodies.map((b) => b.accuracy.span.worstM));
+  const moonsOf = (planet: string) => moonIndex(planet).bodies.length - 1; // each index holds the planet too
+  const PACKAGES = ["mars", "jupiter", "saturn", "uranus", "neptune", "pluto"];
+
+  it("shows the hero's call as real public API, with the answer and the sources the engine gives", async () => {
+    const { Scene, earth, moon } = await import("astraeus");
+    const when = "1969-07-20T20:17:40Z";
+    const scene = new Scene().addBody(earth).addBody(moon).setTime(when);
+    await scene.load();
+    const state = scene.stateOf("moon", when);
+    expect(state.center).toBe("earth");
+    expect(state.plane).toBe("EQJ");
+    const code = /<pre data-home-code>([\s\S]*?)<\/pre>/.exec(html)![1]!.replace(/<[^>]+>/g, "");
+    expect(code).toContain(`scene.stateOf("moon", when).positionKm;`);
+    expect(code).toContain(`// → [${[...state.positionKm].map((v) => v.toFixed(1)).join(", ")}]`);
+    expect(code).toContain(`const when = "${when}";`);
+    const provenance = scene.provenanceOf("moon");
+    expect(code).toContain(`scene.provenanceOf("moon").sources;`);
+    const source = provenance.sources[0]!;
+    expect(code.replace(/\s*\n\/\/\s+/g, " ")).toContain(source.slice(0, source.indexOf(",")));
+    // The engine's own accuracy note, as the hero notes and the figures quote it.
+    const accuracy = provenance.accuracy ?? "";
+    const [, count, from, to] =
+      /against (\w+) JPL Horizons \(DE441\) geometric vectors from (\d{4}-\d\d) to (\d{4}-\d\d)/.exec(accuracy)!;
+    const km = /(\d+(?:\.\d+)?) km in distance/.exec(accuracy)![1]!;
+    expect(count).toBe("eight");
+    expect(html).toContain(`against 8 JPL Horizons (DE441) vectors, ${from} to ${to}: at most ${km} km in distance`);
+    expect(shown("data-home", "moonKm")).toBe(km);
+    expect(shown("data-home", "moonRow")).toBe(`within ${km} km`);
+    expect(html).toContain(`8 vectors · ${from!.slice(0, 4)} to ${to!.slice(0, 4)}`);
+    expect(html).not.toContain("stateAt(");
+  });
+
+  it("rounds the planets' recorded differences from Horizons (Mercury to Neptune) up to the 1 km it shows", async () => {
+    const A = await import("astraeus");
+    const planets = ["mercury", "venus", "mars", "jupiter", "saturn", "uranus", "neptune"] as const;
+    let scene = new A.Scene().addBody(A.sun);
+    for (const id of planets) scene = scene.addBody(A[id]);
+    await scene.load();
+    const kms = planets.flatMap((id) => {
+      const text = scene.provenanceOf(id).accuracy ?? "";
+      expect(text, id).toMatch(/2 January of each year 1972/);
+      return [...text.matchAll(/within (\d+(?:\.\d+)?) km/gi)].map((m) => Number(m[1]));
+    });
+    expect(kms.length).toBeGreaterThanOrEqual(planets.length);
+    expect(Math.max(...kms)).toBeLessThanOrEqual(1);
+    expect(Math.max(...kms)).toBeGreaterThan(0.5); // so "1 km" is the honest rounding, not a loose bound
+    expect(shown("data-home", "planetsKm")).toBe("1");
+    expect(shown("data-home", "planetsRow")).toBe("within 1 km");
+  });
+
+  it("takes Io's figures and every moon package's worst difference from the packages' own indexes", () => {
+    const io = moonIndex("jupiter").bodies.find((b) => b.id === "io")!.accuracy.span;
+    expect(shown("data-home", "ioCm")).toBe(String(Math.round(io.worstM * 100)));
+    expect(shown("data-home", "ioRow")).toBe(`within ${Math.round(io.worstM * 100)} cm`);
+    expect(allShown("data-home", "ioCount")).toEqual([grouped(io.count), grouped(io.count)]);
+    expect(worstM("jupiter")).toBeLessThanOrEqual(1);
+    expect(shown("data-home", "jupiterRow")).toBe("within 1 m");
+    expect(allShown("data-home", "jupiterMoons")).toEqual([String(moonsOf("jupiter")), String(moonsOf("jupiter"))]);
+    expect(worstM("saturn")).toBeGreaterThan(1);
+    expect(worstM("saturn")).toBeLessThanOrEqual(20);
+    expect(shown("data-home", "saturnRow")).toBe("within 20 m");
+    expect(shown("data-home", "saturnMoons")).toBe(String(moonsOf("saturn")));
+    for (const planet of ["mars", "uranus", "neptune", "pluto"]) expect(worstM(planet), planet).toBeLessThanOrEqual(1);
+    expect(shown("data-home", "otherRow")).toBe("within 1 m");
+    expect(shown("data-home", "moonCount")).toBe(String(PACKAGES.reduce((sum, p) => sum + moonsOf(p), 0)));
+  });
+
+  it("counts the meteor orbits and the stars from the shipped data", () => {
+    const showers = readJson(
+      new URL("../../astraeus-demo-showers/tests/fixtures/showers-before-rebuild.json", import.meta.url).pathname,
+    ) as Record<"perseids" | "geminids", { group: { count: number } }>;
+    expect(shown("data-home", "perseids")).toBe(grouped(showers.perseids.group.count));
+    expect(shown("data-home", "geminids")).toBe(grouped(showers.geminids.group.count));
+    const stars = readJson(
+      new URL("../../astraeus/src/assets/stars/hyg-v42-naked-eye.json", import.meta.url).pathname,
+    ) as { stars: unknown[] };
+    expect(shown("data-home", "stars")).toBe(grouped(stars.stars.length));
+  });
+
+  it("states the curve-fit table's step, years and window start from the fit data, and its fallback text equals what the script writes", () => {
+    const data = JSON.parse(/<script type="application\/json" id="fit-data">([\s\S]*?)<\/script>/.exec(html)![1]!) as {
+      startTdbS: number;
+      tableStepMinutes: number;
+      figures: { span: [string, string]; ioWorstM: number };
+    };
+    expect(shown("data-home", "step")).toBe(String(data.tableStepMinutes));
+    expect(shown("data-home", "spanFrom")).toBe(data.figures.span[0].slice(0, 4));
+    expect(shown("data-home", "spanTo")).toBe(data.figures.span[1].slice(0, 4));
+    // TDB seconds from J2000 (2000-01-01 12:00 TDB), written as a TDB calendar time.
+    const start = new Date(Date.UTC(2000, 0, 1, 12) + data.startTdbS * 1000);
+    const month = start.toLocaleString("en-GB", { month: "long", timeZone: "UTC" });
+    const hhmm = start.toISOString().slice(11, 16);
+    expect(shown("data-home", "fitStart")).toBe(`${start.getUTCDate()} ${month} ${start.getUTCFullYear()} ${hhmm} TDB`);
+    // Run the page's script with every data-fit element present; each one's text before the script runs must equal what the script writes.
+    const script =
+      [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)]
+        .map((m) => m[1])
+        .find((text) => text?.includes("fit-photos")) ?? "";
+    const written = new Map<string, string>();
+    const node = (key?: string) => ({
+      attrs: {} as Record<string, string>,
+      dataset: {} as Record<string, string>,
+      children: [] as unknown[],
+      value: "0",
+      listeners: {} as Record<string, () => void>,
+      setAttribute() {},
+      appendChild(child: unknown) {
+        this.children.push(child);
+      },
+      addEventListener(type: string, fn: () => void) {
+        this.listeners[type] = fn;
+      },
+      closest: () => node(),
+      set textContent(text: string) {
+        if (key !== undefined) written.set(key, text);
+      },
+    });
+    const readout = node("readout");
+    const document = {
+      getElementById: (id: string) =>
+        id === "fit-data"
+          ? { textContent: /<script type="application\/json" id="fit-data">([\s\S]*?)<\/script>/.exec(html)![1] }
+          : id === "fit-photos" || id === "fit-recipe"
+            ? node()
+            : null,
+      querySelector: (selector: string) =>
+        selector === "[data-fit-slider]" ? node() : selector === "[data-fit-readout]" ? readout : null,
+      querySelectorAll: (selector: string) => [node(/data-fit="([^"]+)"/.exec(selector)![1])],
+      createElementNS: () => node(),
+    };
+    new Function("document", script)(document);
+    const body = html.slice(0, html.indexOf("<script>"));
+    const keys = [...new Set([...body.matchAll(/data-fit="(\w+)"/g)].map((m) => m[1]!))];
+    expect(keys.length).toBeGreaterThan(5);
+    for (const key of keys) {
+      expect(written.has(key), key).toBe(true);
+      for (const text of allShown("data-fit", key)) expect(text, key).toBe(written.get(key));
+    }
+    expect(/data-fit-readout>([^<]*)</.exec(html)![1]).toBe(written.get("readout"));
+    expect(written.get("accuracy")).toBe(`${Math.round(data.figures.ioWorstM * 100)} cm`);
+    expect(html).not.toContain("over those years");
   });
 });

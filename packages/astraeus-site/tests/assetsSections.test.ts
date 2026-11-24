@@ -88,7 +88,8 @@ describe("assets page sections follow the data (T-120)", () => {
 });
 
 describe("home shelf and demo card (T-120)", () => {
-  const shelf = index.slice(index.indexOf('<div class="globes"'), index.indexOf('<div class="shelf2"'));
+  const shelfStart = index.indexOf('<div class="globes"');
+  const shelf = index.slice(shelfStart, index.indexOf('<p class="more">', shelfStart));
   const PLANETS = ["sun", "mercury", "venus", "earth", "mars", "jupiter", "saturn", "uranus", "neptune", "pluto"];
   const globes = [...shelf.matchAll(/<div class="globe">(.*?)<\/div>(?=\s*<div class="globe">|\s*<\/div>)/gs)].map(
     (m) => m[0],
