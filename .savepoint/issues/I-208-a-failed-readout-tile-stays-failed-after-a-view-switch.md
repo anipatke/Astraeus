@@ -2,16 +2,22 @@
 id: I-208
 title: A failed readout tile stays failed after a view switch to another, working tile
 type: defect
-status: open
+status: resolved
 source:
   kind: check
   check: C-222
   actor: {role: checker, session: check-o100-20261124}
   at: '2026-11-24T10:15:31Z'
 tasks: [T-456]
-checks: [C-222]
+checks: [C-222, C-223]
 guardrail_ids: [TEST-01, TEST-02]
 severity: low
+resolution:
+  disposition: verified
+  check: C-223
+  actor: {role: checker, session: recheck-o100-20261124}
+  at: '2026-11-24T10:29:00Z'
+  reason: 'C-223 CLEAR: tests/partBoundaryReset.test.ts meets the Proof Needed (wide card and phone strip reset on a view switch, switching back fails afresh with one further report; panel reopen draws the boundary afresh with a second report), green with partBoundary, readoutTile and readoutTileAnnounce (4 files, 46 passed) and the full npm test (352 files, 5645 passed); independently reproduced through mount + setViews + handle.setView and the phone sheet; red on aec19b97 for the tile cases.'
 history:
   - at: '2026-11-24T10:15:31Z'
     actor: {role: checker, session: check-o100-20261124}
@@ -22,6 +28,11 @@ history:
     actor: {role: executor, session: repair-i208-20261124}
     kind: repair_attempted
     note: 'Strategic fix (one rule for every draw site): `shell/PartBoundary.tsx` takes a required `part` prop (the drawn part id) and resets its failed state in getDerivedStateFromProps when the id changes, so a site cannot omit the reset (typecheck refuses a boundary without `part`). All five sites pass it: `shell/useShelfTile.tsx` card, strip and sheet (`part={tile.id}`), `shell/useShelfPanels.tsx` (`key` kept, `part={current.id}`), `shelf/panel/View.tsx` blocks (`key` kept, `part={block.id}`). New test `tests/partBoundaryReset.test.ts` (existing tests unedited; ReadoutTileView and ReadoutTileStrip made to throw for "broken-tile", ColourKeyView for "broken"): table over wide (section.tile-card) and phone (button.tile-strip-button) through mountShell + showParts: failed tile shows the message with 1 report; showParts([ok]) draws "Fine gap" and "7 units", no message, no .part-failed, still 1 report; showParts([broken]) shows the message again with 2 reports (second is the view/strip error). Panel case: open Notes (1 .part-failed, "Working paragraph." present, 1 report), Close, reopen: message again, 2 reports. Red first: with HEAD''s useShelfTile.tsx copied in, wide and phone fail ("expected ''This part could not be drawn.'' to contain ''Fine gap''"), panel case passes (panels already keyed); restored, 3/3 pass. Focused run from repo root: partBoundaryReset, partBoundary, readoutTile, readoutTileAnnounce, lifecycle, shelfBar, twoViewers, chartAxisLabel: 8 files, 235 passed. typecheck pass; eslint and prettier clean on the 5 changed files; check:shelf-split ok (filterChips only); check:pack pass, engine 1,834,583 B raw / 526,064 B gzip (cap 527,000). Unverified: the public mount + setViews + handle.setView path (the C-222 probe) was not re-run as a test; the sheet boundary has no dedicated reset case (a view switch closes the sheet); full npm test, lint and browser not run (coordinator gate). Executor evidence only; the Issue stays open for a Check.'
+  - at: '2026-11-24T10:29:00Z'
+    actor: {role: checker, session: recheck-o100-20261124}
+    kind: rechecked
+    note: 'C-223: Proof Needed met; closed as verified. Throwaway public-path probe (mount + setViews v1 broken-tile / v2 ok, handle.setView v2 -> v1 -> v2) and phone-sheet probe pass at 7df578f6 and fail at aec19b97 (scratch worktree, removed); all gates pass.'
+    check: C-223
 ---
 
 # I-208: A failed readout tile stays failed after a view switch to another, working tile

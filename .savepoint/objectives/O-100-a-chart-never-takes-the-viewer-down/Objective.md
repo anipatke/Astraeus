@@ -1,9 +1,10 @@
 ---
 id: O-100
 title: A chart never takes the viewer down
-status: planned
+status: done
 depends_on: []
 release: G-027
+last_check: C-223
 priority: critical
 rank: 1
 lanes: [{key: chart, title: Chart view}, {key: boundary, title: Part boundary}]
@@ -43,3 +44,7 @@ On 0.11.0 the belt's Kirkwood chart (marks 3:1, 8:3, 11:4 at 2.50, 2.52, 2.54 an
 ## Design Confirmation
 
 Pending: the owner reviews this plan (planning session plan-g027-20261124). T-457 waits on G-027 Decision 6.
+
+## Closure
+
+Full Objective Check C-222 NEEDS WORK (I-208, a failed tile's boundary not reset on a view switch) superseded by recheck C-223 CLEAR on 2026-11-24 (I-208 verified). Owner looked at T-457 on localhost:5490 ("Looks good"; acceptance recorded against C-223). Marked done and merged by the coordinator under the owner's "orchestrate the rest of the goal" (standing rule: CLEAR → merge and push). Released with O-101 as 0.12.0.

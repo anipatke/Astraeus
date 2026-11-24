@@ -5,7 +5,7 @@ objective: O-100
 status: done
 depends_on: [{task: T-455, requires: clear}]
 check_waiver: {task: T-457, reason: 'Owner chose "Chart first" for G-027 (2026-11-24), to be built while the label questions were answered: standing orchestration rules waive the optional step checks; the mandatory Full Objective Check covers the whole diff.', actor: {role: owner, session: orchestrate-g027-20261124}, recorded_at: '2026-11-24T09:55:03Z'}
-owner_validation: {required: true}
+owner_validation: {required: true, accepted_check: C-223, accepted_by: {role: owner, session: orchestrate-g027-20261124}}
 planned_by: {role: planner, session: plan-g027-20261124}
 lane: chart
 planned_reads: [packages/astraeus/src/shelf/chart/View.tsx, packages/astraeus/src/shelf/chart/part.css, packages/astraeus/tests/chartMarkRows.test.ts, packages/astraeus/tests/chartSummary.test.ts, packages/astraeus-site/tools/validate/driver.mjs, packages/astraeus/CHANGELOG.md, docs/architecture/viewer-interface.md]
