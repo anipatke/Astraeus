@@ -5,7 +5,7 @@ objective: O-097
 status: done
 depends_on: []
 check_waiver: {task: T-450, reason: 'Owner said "orchestrate O-97" (2026-11-24): standing orchestration rules waive the optional step checks; the mandatory Full Objective Check covers the whole diff.', actor: {role: owner, session: orchestrate-o097-20261124}, recorded_at: '2026-11-24T07:29:19Z'}
-owner_validation: {required: true}
+owner_validation: {required: true, accepted_check: C-220, accepted_by: {role: owner, session: orchestrate-o097-20261124}}
 planned_by: {role: planner, session: plan-o097-20261124}
 planned_reads: [packages/astraeus/src/shelf/chart/View.tsx, packages/astraeus/src/shelf/chart/factory.ts, packages/astraeus/src/shelf/chart/part.css, packages/astraeus/tests/lifecycle.test.ts, packages/astraeus/tests/twoViewers.test.ts, packages/astraeus/tests/lookDrift.test.ts, packages/astraeus-site/src/catalogue/examples/chart.ts, packages/astraeus/CHANGELOG.md]
 planned_writes: [packages/astraeus/src/shelf/chart/View.tsx, packages/astraeus/src/shelf/chart/markRows.ts, packages/astraeus/src/shelf/chart/part.css, packages/astraeus/tests/chartMarkRows.test.ts, packages/astraeus-site/src/catalogue/examples/chart.ts, packages/astraeus/CHANGELOG.md]
@@ -89,3 +89,5 @@ Limitations: a dashed line from a higher-row label can cross a lower-row label; 
 None beyond: the viewer-interface `chart` row (T-451) should say mark labels take further rows.
 
 Marked done by the coordinator under the owner's "orchestrate O-97" (2026-11-24) after the wave gate passed (`npm run typecheck`, `npm run lint`, `npm test` 345 files 5610 passed 2 skipped, `npm run build`, `npm run check:pack` engine 525,853 B gzip). Owner looked on localhost:5490 (`npm run preview:owner`, branch o097-panel-text-and-chart-labels at 03c9be33, 2026-11-24T07:35Z, components.html explainer and bar chart at desktop and phone width) and said "both look fine, carry on". The acceptance fields are filled in once the Full Objective Check has an id.
+
+Owner, 2026-11-24, after C-220: the I-207 repair makes a two-row chart about 1.5 px taller than the version looked at; owner chose "Merge now" on the earlier approval.

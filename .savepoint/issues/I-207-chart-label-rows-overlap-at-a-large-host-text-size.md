@@ -2,14 +2,19 @@
 id: I-207
 title: Chart label rows overlap at a large host text size
 type: defect
-status: open
+status: resolved
+resolution:
+  disposition: verified
+  check: C-220
+  actor: {role: checker, session: recheck-o097-20261124}
+  at: '2026-11-24T08:06:00Z'
 source:
   kind: check
   check: C-219
   actor: {role: checker, session: check-o097-20261124}
   at: '2026-11-24T07:51:55Z'
 tasks: [T-450]
-checks: [C-219]
+checks: [C-219, C-220]
 guardrail_ids: [TEST-01]
 severity: low
 history:
@@ -21,6 +26,11 @@ history:
     actor: {role: executor, session: repair-i207-20261124}
     kind: repair_attempted
     note: 'Executor evidence only, not verified. Fix: packages/astraeus/src/shelf/chart/View.tsx measures each mark label''s getBBox().height in the existing layout effect (stored with the widths; the bail-out compares it too) and uses the tallest as the row pitch, falling back to ROW = 12 when nothing is measured; markRows.ts unchanged (pure). Test: packages/astraeus/tests/chartMarkRows.test.ts adds "ChartView row pitch follows the label height (I-207)" (2 cases with their own render helper that stubs getBBox and restores it; existing cases untouched): measured heights 14.1 and 17.6 give a row pitch of that height and viewBox 0 0 320 156+height; height 0 falls back to 12 (viewBox 0 0 320 168). Red-first: with HEAD''s View.tsx copied back the first new case fails (pitch 12), 1 failed / 6 passed; restored, 7 passed. Gates: typecheck pass; eslint (use-typescript6) and prettier --check on both files clean; vitest chartMarkRows.test.ts 7 passed; check:shelf-split ok; check:pack pass, engine 525,853 B gzip of 527,000 (1,833,752 B raw; the chart is not in the first-open bundle). Browser: npm run check:browser -- --step catalogue under flock, exit 0, 9 s of 16 s, error-lines=0, evidence docs/evidence/browser-steps-20261124T075630Z. Throwaway probe (not committed; the real catalogue page on a scratch vite server :5599 in the project harness Chromium, --astraeus-text-size forced by an injected stylesheet before load; "Limit" and "Survey edge" in rows 0 and 1): textSizePx 14 at 1280x720 / 375x667: box overlap 0.00 px (quarter 3.50 / 2.75), glyph gap +1.0 / +1.0 px, viewBox height 169.41 / 168.10; textSizePx 18: label font 14.14 px, box overlap 0.00 px (quarter 4.25 / 3.75), glyph gap +3.0 / +2.0 px, viewBox height 172.29 / 172.50. One-row chart: the unchanged unit case "keeps a one-mark chart at 0 0 320 156" passes. Note: at the default size a two-row chart is now about 1.4 units taller than before (pitch is the measured box, about 13.4, not 12). Unverified: textSizePx 11 to 13 and 15 to 17 were not probed; a runtime textSizePx change with no re-render still leaves the measurement stale until the next render (C-219 observation 2, unchanged).'
+  - at: '2026-11-24T08:06:00Z'
+    actor: {role: checker, session: recheck-o097-20261124}
+    kind: rechecked
+    note: 'C-220 (O-097 Full Objective recheck): Proof Needed met. Independent probe on the real components.html chart (Chromium, 1280x720 and 375x667 touch, --astraeus-text-size 11..18): "Limit" and "Survey edge" in different rows with 0.00 px box overlap at every size (quarter limit 2.40..4.12 px), glyph gap positive everywhere (14: +3.41/+2.10 px; 18: +2.29/+2.50 px), labels inside the viewBox width; row pitch equals the measured box height. One-row case 0 0 320 156 passes (extra = maxRow x row = 0). Mutation const row = ROW fails chartMarkRows.test.ts (1 failed / 6 passed); restored 7 passed. check:browser --tier quick --step catalogue exit 0, catalogue 12 s of 16 s, error-lines=0 (docs/evidence/browser-quick-20261124T080340Z).'
+    check: C-220
 ---
 
 # Chart label rows overlap at a large host text size

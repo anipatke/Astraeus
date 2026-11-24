@@ -1,9 +1,10 @@
 ---
 id: O-097
 title: Panel text and chart labels never clip or overprint
-status: planned
+status: done
 depends_on: [O-096]
 release: G-025
+last_check: C-220
 priority: medium
 rank: 3
 ---
@@ -45,3 +46,7 @@ Owner confirmed this design at Goal level on 2026-11-22 (G-025 Outcome; "correct
 **In scope:** panel block min-width and wrapping in the shared panel CSS, chip-row wrapping, the chart's mark-label layout.
 
 **Out of scope:** chart ticks and highlight colour, any other look change.
+
+## Closure
+
+Full Objective Check C-219 NEEDS WORK (I-207, chart label rows at a large text size; a host network-change line in `catalogue`) superseded by recheck C-220 CLEAR on 2026-11-24 (I-207 verified). Owner looked at T-449 and T-450 on localhost:5490 ("both look fine, carry on") and, after C-220 noted the repair makes a two-row chart about 1.5 px taller, chose "Merge now". Marked done and merged by the coordinator under the owner's "orchestrate O-97" (standing rule: CLEAR → merge and push).

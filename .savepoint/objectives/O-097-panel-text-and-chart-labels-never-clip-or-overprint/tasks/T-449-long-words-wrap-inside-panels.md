@@ -5,7 +5,7 @@ objective: O-097
 status: done
 depends_on: []
 check_waiver: {task: T-449, reason: 'Owner said "orchestrate O-97" (2026-11-24): standing orchestration rules waive the optional step checks; the mandatory Full Objective Check covers the whole diff.', actor: {role: owner, session: orchestrate-o097-20261124}, recorded_at: '2026-11-24T07:29:19Z'}
-owner_validation: {required: true}
+owner_validation: {required: true, accepted_check: C-220, accepted_by: {role: owner, session: orchestrate-o097-20261124}}
 planned_by: {role: planner, session: plan-o097-20261124}
 planned_reads: [packages/astraeus/src/shell/parts/parts.css, packages/astraeus/src/shell/parts/phone.css, packages/astraeus/src/shelf/panel/View.tsx, packages/astraeus/src/shell/useShelfTile.tsx, packages/astraeus/src/shelf/explainer/part.css, packages/astraeus/src/shelf/filterChips/part.css, packages/astraeus/src/shelf/colourKey/part.css, packages/astraeus/src/shelf/actions/part.css, packages/astraeus/src/shelf/readoutTile/part.css, packages/astraeus/src/shelf/chart/part.css, packages/astraeus/tests/lookDrift.test.ts, packages/astraeus/tests/computedLook.test.ts, packages/astraeus/tests/domStorySteps.test.ts, packages/astraeus-site/src/catalogue/examples/explainer.ts, docs/architecture/viewer-interface.md, packages/astraeus/CHANGELOG.md]
 planned_writes: [packages/astraeus/src/shell/parts/parts.css, packages/astraeus/src/shelf/explainer/part.css, packages/astraeus/src/shelf/filterChips/part.css, packages/astraeus/src/shelf/colourKey/part.css, packages/astraeus/src/shelf/actions/part.css, packages/astraeus/tests/panelWrap.test.ts, packages/astraeus-site/src/catalogue/examples/explainer.ts, packages/astraeus/CHANGELOG.md]
