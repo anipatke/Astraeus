@@ -2,6 +2,7 @@
 // (areas/ places it, look.css holds the values), or open or close another part; the close button reports `onClose` and the panel rule decides.
 import { useId, useRef } from "react";
 import type { ShelfPanelViewProps } from "../../app/shelfContract";
+import { PartBoundary } from "../../shell/PartBoundary";
 import { useSwipeToDismiss } from "../../shell/useSwipeToDismiss";
 
 /** The panel: its blocks draw themselves through their own `view`, so this names no part. */
@@ -24,7 +25,9 @@ export function PanelView({ panel, runtime, id, onClose }: ShelfPanelViewProps) 
         </button>
       </header>
       {panel.blocks.map((block) => (
-        <block.view key={block.id} block={block} runtime={runtime} />
+        <PartBoundary key={block.id}>
+          <block.view block={block} runtime={runtime} />
+        </PartBoundary>
       ))}
     </aside>
   );

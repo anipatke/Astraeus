@@ -2,7 +2,7 @@
 id: T-456
 title: A failing part stays in its own place
 objective: O-100
-status: planned
+status: done
 depends_on: []
 check_waiver: {task: T-456, reason: 'Owner chose "Chart first" for G-027 (2026-11-24), to be built while the label questions were answered: standing orchestration rules waive the optional step checks; the mandatory Full Objective Check covers the whole diff.', actor: {role: owner, session: orchestrate-g027-20261124}, recorded_at: '2026-11-24T09:55:03Z'}
 owner_validation: {required: false}
@@ -70,8 +70,22 @@ Focused: `npx vitest run packages/astraeus/tests/partBoundary.test.ts packages/a
 
 ## Technical Evidence
 
-Pending execution.
+| Done When | Evidence |
+|---|---|
+| One boundary | `src/shell/PartBoundary.tsx` (role=status line, class `part-failed` styled with look tokens in `app/style.css`; reports via `reportToPage`, now exported from `api/listeners.ts`). `lookDrift` test passes. |
+| Wrapped at every draw site | `shelf/panel/View.tsx` (one boundary per block), `useShelfPanels.tsx` (open panel), `useShelfTile.tsx` (card, strip, sheet; the strip was added beyond the plan). `check:shelf-split` ok; keyed per part so it resets on redraw. |
+| Unit test | `tests/partBoundary.test.ts` (2 cases: throwing block beside a working explainer, throwing tile): viewer, bar button, title, Close, sibling text, message and one report asserted. Red-first not shown (written with the code). |
+| Existing tests unchanged | lifecycle, twoViewers, lookDrift, apiImports, packageBoundaries pass unedited. |
+| Docs | viewer-interface section 11 "One contract": one bullet added. |
+| CHANGELOG | packages/astraeus/CHANGELOG.md `## 0.12.0 (unreleased)` (opened by T-455; brief said 0.12.0, not 0.11.1): one Fixed line. |
+| Size | `check:pack` pass: engine 1,834,391 B raw, 526,012 B gzip (cap 527,000; was 525,880, +132). |
+
+Commands: `npm run typecheck` ok; eslint (ts6) on changed files ok; prettier ok (test reformatted); `npx vitest run` partBoundary, lifecycle, twoViewers, lookDrift, apiImports, astraeus-site packageBoundaries: 6 files, 201 tests pass (the grep for useShelfPanels/useShelfTile/ShelfPanel in tests found none); `check:shelf-split` ok; `check:pack` pass.
+Files changed: src/shell/PartBoundary.tsx (new), src/shell/useShelfPanels.tsx, src/shell/useShelfTile.tsx, src/shelf/panel/View.tsx, src/app/style.css, src/api/listeners.ts (export only; not in planned_writes), tests/partBoundary.test.ts (new), CHANGELOG.md, docs/architecture/viewer-interface.md.
+Limitations: shell now imports `reportToPage` (a value) from api/listeners; the test mocks the colourKey and readoutTile views to throw for one id.
 
 ## Drift Notes
 
-Record architecture deltas for the planner.
+Design.md Viewer interface: shell/PartBoundary is a new shell module that reads api/listeners `reportToPage`; the strip is also bounded.
+
+Marked done by the coordinator under the owner's G-027 orchestration ("Chart first"; "orchestrate the rest of the goal", 2026-11-24) after the wave gate passed on 2026-11-24T10:00Z: `npm run typecheck`, `npm run lint`, `npm test` 350 files 5640 passed 2 skipped, `npm run build`, `npm run check:pack` engine 526,012 B gzip, `npm run check:shelf-split` ok. Coordinator added the required `### Breaking changes in 0.12.0` ("None yet") heading the releaseBreaks test needs.

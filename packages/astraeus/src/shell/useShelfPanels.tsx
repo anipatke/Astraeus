@@ -2,6 +2,7 @@
 // and the host's open/close calls into those two things. It must not decide a place or what an open closes (the panel rule does) and never imports a shelf module: a part draws itself through `part.view`.
 import { useEffect, useId, useState, type ReactNode } from "react";
 import type { ShelfPanel, ShelfPart, ShelfRuntime } from "../app/shelfContract";
+import { PartBoundary } from "./PartBoundary";
 import type { StoryButtonSpec } from "./StoryButton";
 import type { Occupant } from "./panels/panelRule";
 import type { Panels } from "./panels/usePanels";
@@ -68,13 +69,14 @@ export function useShelfPanels({
   const current = parts.find((part) => part.id === openId);
   const shelfPanel =
     current === undefined ? null : (
-      <current.view
-        key={current.id}
-        panel={current}
-        runtime={runtime}
-        id={domId(current.id)}
-        onClose={() => close(occupantOf(current.id))}
-      />
+      <PartBoundary key={current.id}>
+        <current.view
+          panel={current}
+          runtime={runtime}
+          id={domId(current.id)}
+          onClose={() => close(occupantOf(current.id))}
+        />
+      </PartBoundary>
     );
   return { storyButtons, shelfPanel };
 }

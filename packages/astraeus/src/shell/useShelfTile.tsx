@@ -3,6 +3,7 @@
 import { useEffect, useId, useRef, type ReactNode } from "react";
 import type { ShelfPart, ShelfRuntime, ShelfTile } from "../app/shelfContract";
 import { Area } from "./areas/Area";
+import { PartBoundary } from "./PartBoundary";
 import type { Panels } from "./panels/usePanels";
 import { useSwipeToDismiss } from "./useSwipeToDismiss";
 
@@ -40,7 +41,9 @@ function TileSheet({
           Close
         </button>
       </header>
-      <tile.view block={tile} runtime={runtime} />
+      <PartBoundary>
+        <tile.view block={tile} runtime={runtime} />
+      </PartBoundary>
     </aside>
   );
 }
@@ -77,11 +80,15 @@ export function useShelfTile({ parts = NO_PARTS, runtime = NO_RUNTIME, panels, p
           aria-controls={expanded ? sheetId : undefined}
           onClick={() => panels.toggle("tile")}
         >
-          <tile.strip block={tile} runtime={runtime} />
+          <PartBoundary>
+            <tile.strip block={tile} runtime={runtime} />
+          </PartBoundary>
         </button>
       ) : (
         <section className="info-panel tile-card" aria-label={tile.label}>
-          <tile.view block={tile} runtime={runtime} />
+          <PartBoundary>
+            <tile.view block={tile} runtime={runtime} />
+          </PartBoundary>
         </section>
       )}
       {tile.live === undefined ? null : <tile.live key={tile.id} block={tile} runtime={runtime} />}

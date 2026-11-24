@@ -2,6 +2,15 @@
 
 Versions follow [semantic versioning](https://semver.org). While the version starts with `0.`, the public API (the names exported from `astraeus`) may still change between minor versions; each change is listed here.
 
+## 0.12.0 (unreleased)
+
+- Fixed: a `chart` whose mark labels sit at a row boundary no longer loops and takes the viewer down ("Maximum update depth exceeded"): labels are measured once for their text and font, then placed.
+- Fixed: a shelf part that fails now shows "This part could not be drawn." in its own place and is reported to the page (`reportError`); before, the whole viewer unmounted.
+
+### Breaking changes in 0.12.0
+
+None yet: no public name, type or default has changed so far in this version.
+
 ## 0.11.0 (2026-11-24)
 
 Fixes from the asteroid-belt app's stress test of 0.10.0: group names tap, the phone sheet gets out of the way, panel buttons switch off and on, a viewer without WebGL says so, shelf input is checked evenly, long text and chart labels never clip or overprint, and screen readers hear what changed. A minor bump because the stricter input checks are breaking (below, each with its migration); the `astraeus-data*` packages' `astraeus` peer moves to `>=0.11.0 <0.12.0`.

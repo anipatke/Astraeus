@@ -483,6 +483,7 @@ Next candidates, one slice each: story playback; the camera fallback, with the s
 - is view-scoped through `ViewInput.panels`;
 - is proven on a synthetic scene (ARCH-03);
 - names no app (ARCH-01).
+- fails alone: a part whose view throws shows "This part could not be drawn." in its own place and is reported to the page; it never takes the viewer down (`shell/PartBoundary.tsx`, O-100).
 
 **Pick by import.** Each part lives in its own `src/shelf/<part>/` module tree. The descriptor carries its own view component (an internal field, not in the public type), so the shell renders `descriptor.view` and never imports a shelf module itself. An unused factory is therefore unreachable and dropped by tree shaking. `sideEffects` stays `["**/*.css"]` (`packages/astraeus/package.json:47-49`). A part's CSS is not imported by its view: only the two entry files may import a stylesheet (`tests/interfaceLeftovers.test.ts`, because the Node copy of the entry files cannot load CSS), so each `shelf/<part>/part.css` is one `@import` line in `app/style.css` and ships to every app (about 4.2 KB raw for the four parts that have rules; Vite itself would have dropped unused part CSS).
 

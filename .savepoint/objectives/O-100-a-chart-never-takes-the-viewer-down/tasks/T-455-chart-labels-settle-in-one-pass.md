@@ -2,7 +2,7 @@
 id: T-455
 title: Chart labels settle in one pass
 objective: O-100
-status: planned
+status: done
 depends_on: []
 check_waiver: {task: T-455, reason: 'Owner chose "Chart first" for G-027 (2026-11-24), to be built while the label questions were answered: standing orchestration rules waive the optional step checks; the mandatory Full Objective Check covers the whole diff.', actor: {role: owner, session: orchestrate-g027-20261124}, recorded_at: '2026-11-24T09:55:03Z'}
 owner_validation: {required: false}
@@ -69,8 +69,24 @@ Focused: `npx vitest run packages/astraeus/tests/chartSettles.test.ts packages/a
 
 ## Technical Evidence
 
-Pending execution.
+Mechanism: `View.tsx` keys the measure on the label texts plus the first label's computed font size and family (`getComputedStyle`); a ref holds the key last measured, and the layout effect measures and sets state only when the key differs, so the chart's own rows/height never re-measure (a differing measure for a taken key is never read). Estimate fallback unchanged.
+
+| Done When | Evidence |
+|---|---|
+| Cause / fix: measure once per key | `View.tsx` layout effect with `taken` ref |
+| Belt input settles | `chartSettles.test.ts` "draws the belt's chart..."; on HEAD's View.tsx (copied aside) it throws "Maximum update depth exceeded" (2 of 3 tests red), green after the fix |
+| Fixed widths keep the pure layout | "places the long label in the row the pure layout gives" |
+| Font change re-measures once | "measures again once for a font-size change..." |
+| Existing tests unchanged | chartMarkRows, chartSummary, lifecycle, twoViewers pass unedited |
+| CHANGELOG | `## 0.12.0 (unreleased)` opened (owner's 0.12.0 supersedes the Task's 0.11.1), one Fixed line |
+| Size | `check:shelf-split` ok; `check:pack` pass: engine 526,012 B gzip (cap 527,000), 1,834,391 raw (shared tree, includes T-456's concurrent edits) |
+
+Commands: `npm run typecheck` clean; eslint (TS6 shim) on View.tsx and chartSettles.test.ts clean; prettier --check clean; `npx vitest run` chartSettles, chartMarkRows, chartSummary, lifecycle, twoViewers: 5 files, 189 tests pass. Extra reads: none beyond Context Files.
+
+Limitations: font key reads the first label only; the loop itself needs a real browser (belt checks after release).
 
 ## Drift Notes
 
-Record architecture deltas for the planner.
+None.
+
+Marked done by the coordinator under the owner's G-027 orchestration ("Chart first"; "orchestrate the rest of the goal", 2026-11-24) after the wave gate passed on 2026-11-24T10:00Z: `npm run typecheck`, `npm run lint`, `npm test` 350 files 5640 passed 2 skipped, `npm run build`, `npm run check:pack` engine 526,012 B gzip, `npm run check:shelf-split` ok. Coordinator added the required `### Breaking changes in 0.12.0` ("None yet") heading the releaseBreaks test needs.

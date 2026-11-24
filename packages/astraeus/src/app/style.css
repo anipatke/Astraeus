@@ -167,3 +167,5 @@
 .astraeus-shell .hud .view-link-values { margin: var(--astraeus-space-1) 0 var(--astraeus-space-3); color: var(--astraeus-muted); font-size: var(--astraeus-text-s); font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
 .astraeus-shell .hud .view-link-field { display: flex; flex-direction: column; gap: var(--astraeus-space-2); margin: 0 0 var(--astraeus-space-3); color: var(--astraeus-muted); font-size: var(--astraeus-text-s); }
 .astraeus-shell :where(.hud) .view-link-field input { width: 100%; min-width: 0; box-sizing: border-box; }
+
+.astraeus-shell .part-failed { margin: 0; padding: var(--astraeus-space-4); color: var(--astraeus-muted); font-size: var(--astraeus-text-m); overflow-wrap: anywhere; }

@@ -61,9 +61,16 @@ export function ChartView({ block, runtime }: { readonly block: ShelfBlock; read
     widths: [],
     height: 0,
   });
-  // After every draw on purpose: the host's text size can change a width with no change of props; setMeasured bails out when nothing moved.
+  // The measure key is what can change a label's size: the label texts and the label's computed font. A key is measured once; what the chart's own drawing does afterwards (rows, height, a scrollbar) never feeds back, and a measure that disagrees for a key already taken is ignored.
+  const taken = useRef("");
+  // After every draw on purpose: the host's text size can change with no change of props; the key check makes the pass a no-op unless the text or font changed.
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useLayoutEffect(() => {
+    const first = texts.current[0];
+    const style = first && typeof getComputedStyle === "function" ? getComputedStyle(first) : undefined;
+    const fullKey = `${key}\u0001${style?.fontSize ?? ""}\u0001${style?.fontFamily ?? ""}`;
+    if (taken.current === fullKey) return;
+    taken.current = fullKey;
     const widths = shown.map((_, index) => {
       const text = texts.current[index];
       const width = text && typeof text.getComputedTextLength === "function" ? text.getComputedTextLength() : 0;
@@ -77,9 +84,7 @@ export function ChartView({ block, runtime }: { readonly block: ShelfBlock; read
         return box > 0 ? box : 0;
       }),
     );
-    setMeasured((was) =>
-      was.key === key && was.widths.join() === widths.join() && was.height === height ? was : { key, widths, height },
-    );
+    setMeasured({ key, widths, height });
   });
   const widths = shown.map((mark, index) =>
     measured.key === key && measured.widths[index] > 0 ? measured.widths[index] : mark.label.length * CHAR,

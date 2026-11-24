@@ -1,5 +1,5 @@
 /** Reports a host listener's throw to the page: `reportError` (a window `error` event) when the page has it, else rethrown on a timer so it still surfaces and nothing else is stopped. */
-function reportToPage(error: unknown): void {
+export function reportToPage(error: unknown): void {
   const report = (globalThis as { reportError?: (error: unknown) => void }).reportError;
   if (typeof report === "function") report.call(globalThis, error);
   else
