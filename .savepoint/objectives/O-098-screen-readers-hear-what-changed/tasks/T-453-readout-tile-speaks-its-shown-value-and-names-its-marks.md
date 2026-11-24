@@ -2,8 +2,7 @@
 id: T-453
 title: Readout tile speaks its shown value and names its marks
 objective: O-098
-status: in_progress
-stage: audit
+status: done
 depends_on: []
 check_waiver: {task: T-453, reason: 'Owner said "orchestrate O-98" (2026-11-24): standing orchestration rules waive the optional step checks; the mandatory Full Objective Check covers the whole diff.', actor: {role: owner, session: orchestrate-o098-20261124}, recorded_at: '2026-11-24T08:17:01Z'}
 owner_validation: {required: true}
@@ -101,3 +100,5 @@ Limitations: the new test drives the viewer's cell directly (as the control writ
 ## Drift Notes
 
 None. `ShelfTile.live` is optional (internal), so a tile without it draws no status.
+
+Marked done by the coordinator under the owner's "orchestrate O-98" (2026-11-24) after the wave gate passed (`npm run typecheck`, `npm run lint`, `npm test` 348 files 5634 passed 2 skipped, `npm run build`, `npm run check:pack`, `npm run check:shelf-split`). Owner checked on localhost:5490 (`npm run preview:owner`, branch o098-screen-readers at 0dde837f, 2026-11-24T08:23Z; components.html, DevTools Accessibility pane) and said "looks good". The acceptance fields are filled in once the Full Objective Check has an id.
