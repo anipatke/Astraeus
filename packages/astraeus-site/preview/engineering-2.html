@@ -1,0 +1,270 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Astraeus (preview A2: engineering first, revised)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,300;1,6..72,300&display=swap">
+<link rel="stylesheet" href="./preview.css">
+<style>
+/*
+ * Option A, revised. Same order as A. Distinctiveness comes from the subject: the code is the hero's object with notebook notes beside it,
+ * the measured figures are one very large Newsreader band (the page's one bold type move), the globes carry their real moon counts,
+ * and each section is composed for its content instead of one repeated heading template.
+ */
+.hero .h1 { max-width: 13ch; }
+.hero .lead { max-width: 46ch; }
+.hero-grid { align-items: start; }
+.object .ask pre { font-size: 0.8rem; }
+.notes { list-style: none; margin: 12px 0 0; padding: 0; display: grid; gap: 4px; font-family: var(--mono); font-size: 0.68rem; line-height: 1.5; color: var(--faint); letter-spacing: 0.02em; }
+.notes li { display: grid; grid-template-columns: 7.5em minmax(0, 1fr); gap: 10px; }
+.notes b { font-weight: 500; color: var(--muted); }
+
+/* Demos: one line of heading, no side paragraph; the pictures carry it. */
+.lineup { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+.lineup a { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.lineup img { display: block; width: 100%; aspect-ratio: 16 / 10; object-fit: cover; border: 1px solid var(--rule-strong); border-radius: 14px; background: #050507; }
+.lineup a:hover img { border-color: rgba(255, 255, 255, 0.34); }
+.lineup .when { font-family: var(--mono); font-size: 0.68rem; color: var(--faint); letter-spacing: 0.08em; text-transform: uppercase; }
+.lineup h3 { font-size: 1.15rem; letter-spacing: -0.02em; }
+.lineup p { font-size: 0.88rem; color: var(--muted); }
+.h2-line { font-size: clamp(1.3rem, 2.2vw, 1.6rem); letter-spacing: -0.03em; margin-bottom: 22px; }
+.h2-line span { color: var(--faint); font-weight: 400; }
+
+/* The figures band: the page's one large typographic move, in the numeral face the site already uses. */
+.figures { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.figures li { padding: 0 22px; border-left: 1px dashed var(--rule-strong); min-width: 0; }
+.figures li:first-child { border-left: 0; padding-left: 0; }
+.figures b { display: block; font-family: var(--serif); font-weight: 300; font-size: clamp(3.2rem, 8.4vw, 7.4rem); line-height: 0.9; letter-spacing: -0.06em; color: var(--ink); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.figures b small { font-size: 0.3em; letter-spacing: 0; color: var(--muted); margin-left: 6px; }
+.figures span { display: block; margin-top: 14px; font-size: 0.9rem; color: var(--body); max-width: 24ch; }
+.figures em { display: block; margin-top: 6px; font-style: normal; font-family: var(--mono); font-size: 0.66rem; color: var(--faint); letter-spacing: 0.03em; }
+.after-figures { margin-top: clamp(2.5rem, 5vw, 3.5rem); display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 24px; }
+.margin { font-family: var(--mono); font-size: 0.7rem; line-height: 1.6; color: var(--faint); letter-spacing: 0.02em; }
+.margin b { display: block; color: var(--muted); font-weight: 500; margin-bottom: 4px; }
+
+/* Io: the explanation is prose with its figures inline. */
+.io-text { max-width: 64ch; font-size: 1.02rem; color: var(--body); }
+.io-text + .io-text { margin-top: 12px; }
+.io-text strong { font-weight: 500; color: var(--ink); font-variant-numeric: tabular-nums; }
+.io-text h2 { display: inline; font-size: inherit; font-weight: 600; letter-spacing: 0; }
+
+/* The shelf: globes first, with real moon counts, then the layer grid as their caption. */
+.globes { gap: 18px 14px; }
+.globe .count { font-family: var(--mono); font-size: 0.7rem; color: var(--body); }
+.globe .count.none { color: var(--faint); }
+.covers-title { margin: clamp(2rem, 4vw, 3rem) 0 18px; font-size: clamp(1.3rem, 2.2vw, 1.6rem); letter-spacing: -0.03em; }
+
+/* Getting started: install line as the object, steps as a numbered row under it. */
+.install { border: 1px solid var(--rule-strong); border-radius: 14px; background: var(--raised); padding: 18px 20px; font-family: var(--mono); font-size: clamp(0.78rem, 1.4vw, 0.95rem); color: var(--ink); overflow-x: auto; white-space: nowrap; }
+.install span { color: var(--faint); }
+.start-row { margin-top: 18px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; font-size: 0.9rem; color: var(--muted); }
+.start-row b { display: block; color: var(--ink); font-weight: 600; margin-bottom: 4px; }
+
+@media (max-width: 960px) {
+  .lineup { grid-template-columns: minmax(0, 1fr); }
+  .lineup a { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); gap: 4px 16px; align-items: start; }
+  .lineup img { grid-row: span 3; }
+  .figures { grid-template-columns: repeat(2, minmax(0, 1fr)); row-gap: 2rem; }
+  .figures li:nth-child(3) { border-left: 0; padding-left: 0; }
+  .after-figures { grid-template-columns: minmax(0, 1fr); }
+  .start-row { grid-template-columns: minmax(0, 1fr); gap: 14px; }
+}
+@media (max-width: 520px) {
+  .lineup a { display: flex; }
+  .figures li { padding-inline: 14px 0; }
+  .figures b { font-size: clamp(2.6rem, 13vw, 3.4rem); }
+  .notes li { grid-template-columns: minmax(0, 1fr); gap: 0; }
+}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <span class="brand">
+      <svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><ellipse cx="11" cy="11" rx="10" ry="4.2" fill="none" stroke="rgba(245,245,247,0.45)" stroke-width="1" transform="rotate(-18 11 11)"/><circle cx="11" cy="11" r="3.2" fill="#ffd59a"/><circle cx="19.3" cy="8.2" r="1.4" fill="#9fd8ff"/></svg>
+      Astraeus <span class="preview-flag">Preview A2</span>
+    </span>
+    <span class="navlinks"><a class="pillink hide-phone" href="#start">Get started</a><a class="pillink hide-phone" href="../assets.html">Data</a><a class="pillink" href="../api/">API</a><a class="pillink" href="https://github.com/anipatke/Astraeus">GitHub</a></span>
+  </div>
+</header>
+
+<main>
+  <div class="hero">
+    <canvas class="sky" id="sky" aria-hidden="true"></canvas>
+    <div class="wrap hero-grid">
+      <div>
+        <span class="eyebrow">Open source · MIT · npm install astraeus</span>
+        <h1 class="h1">An astronomy engine for the web</h1>
+        <p class="lead">Astraeus is a TypeScript library for drawing the solar system in a browser, in the right place at the right time. Ask it where the Moon was when Eagle landed and it answers in kilometres, in a named reference frame, with a note of how far that answer has been checked against JPL.</p>
+        <div class="cta">
+          <a class="btn primary" href="https://github.com/anipatke/Astraeus/tree/main/packages/astraeus#readme">Read the guide</a>
+          <a class="btn" href="../api/">API reference</a>
+        </div>
+      </div>
+      <div class="object">
+        <div class="ask" aria-label="A real call to the engine and the answer it returns">
+          <div class="ask-bar"><span>moon-at-landing.js</span><span>astraeus 0.10.1</span></div>
+<pre><span class="k">import</span> { Scene, earth, moon } <span class="k">from</span> <span class="s">"astraeus"</span>;
+
+<span class="k">const</span> when = <span class="s">"1969-07-20T20:17:40Z"</span>;  <span class="c">// Eagle lands</span>
+<span class="k">const</span> scene = <span class="k">new</span> Scene()
+  .<span class="g">addBody</span>(earth).<span class="g">addBody</span>(moon).<span class="g">setTime</span>(when);
+<span class="k">await</span> scene.<span class="g">load</span>();
+
+scene.<span class="g">stateOf</span>(<span class="s">"moon"</span>, when).positionKm;
+<span class="c">// → [</span><span class="n">-385274.5</span><span class="c">, </span><span class="n">-47903.7</span><span class="c">, </span><span class="n">-30878.0</span><span class="c">]</span>
+
+scene.<span class="g">provenanceOf</span>(<span class="s">"moon"</span>).sources;
+<span class="c">// → ["@lizard-isana/orb 3.1.1 Luna: truncated</span>
+<span class="c">//     Meeus-style lunar series, …"]</span></pre>
+        </div>
+        <ul class="notes" aria-label="Notes on the answer">
+          <li><b>frame</b><span>J2000 equatorial (EQJ), centred on Earth</span></li>
+          <li><b>checked</b><span>against 8 JPL Horizons (DE441) vectors, Jun 2022 to Jun 2025: at most 6.4 km in distance</span></li>
+          <li><b>runs in</b><span>Node or a browser; this output is from Node, 24 Nov 2026</span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <section class="band" id="demos">
+    <div class="wrap">
+      <h2 class="h2-line">Three demos, built on the public API <span>· each opens in the full viewer</span></h2>
+      <div class="lineup">
+        <a href="../app.html">
+          <img src="../site/apollo-moon.jpg" alt="Apollo 11's path from Earth to the Moon and back at true scale, with timed event markers, the Moon's orbit and Earth, over the real star sky.">
+          <span class="when">16–24 July 1969</span>
+          <h3>Apollo 11</h3>
+          <p>Rebuilt from NASA's mission report. Thirty events are timed to a tenth of a second.</p>
+        </a>
+        <a href="../app.html?experience=showers">
+          <img src="../site/perseids-gmn.jpg" alt="The Perseid meteor stream seen from above the planets' plane: thousands of measured orbits along comet Swift-Tuttle's path, over the real star sky.">
+          <span class="when">Perseids 2025 · Geminids 2024–25</span>
+          <h3>Meteor showers</h3>
+          <p>Every orbit the Global Meteor Network measured, 25,588 Perseids and 51,115 Geminids, each on its own ellipse.</p>
+        </a>
+        <a href="../app.html?experience=planets">
+          <img src="../site/jupiter-io.jpg" alt="Jupiter's banded clouds half in sunlight, with Io in front on its orbit, over the real star sky.">
+          <span class="when">From 4 November 2016</span>
+          <h3>Jupiter and Io</h3>
+          <p>All 115 known moons of Jupiter where Horizons puts them. Io wears its surface map.</p>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="band" id="accuracy" aria-label="Checked against reference data">
+    <div class="wrap">
+      <ul class="figures">
+        <li><b>1<small>km</small></b><span>The planets, Mercury to Neptune, against JPL Horizons</span><em>DE441 · 1972–2044 · Voyager flybys</em></li>
+        <li><b>4<small>cm</small></b><span>Io, against Horizons, at its worst moment</span><em>39,367 moments compared</em></li>
+        <li><b>1<small>%</small></b><span>Comet Swift–Tuttle's distance from the Sun, out to 51 AU</span><em>JPL SBDB · 8 dates</em></li>
+        <li><b>0.04<small>°</small></b><span>From the Perseid radiant the 25,588 orbits imply to the IAU's</span><em>GMN 2025 · IAU MDC</em></li>
+      </ul>
+      <div class="after-figures">
+        <p class="margin"><b>How to read this</b>Largest difference found in each recorded comparison. Values the engine models or fills in are labelled in the viewer, not listed here.</p>
+        <table class="facts">
+          <thead><tr><th>What</th><th>Largest difference</th><th>Compared over</th><th>Reference</th></tr></thead>
+          <tbody>
+            <tr><td>Planets, Mercury to Neptune</td><td class="fig">within 1 km</td><td class="how">with the planet's moon package, 2 January of each year 1972 to 2044 and the Voyager flybys</td><td class="src">JPL Horizons (DE441)</td></tr>
+            <tr><td>Earth</td><td class="fig">within 7.3 km</td><td class="how">1972 to 2044 (EPV00 model)</td><td class="src">JPL Horizons</td></tr>
+            <tr><td>The Moon</td><td class="fig">within 6.4 km</td><td class="how">distance, at eight dates 2022 to 2025</td><td class="src">JPL Horizons (DE441)</td></tr>
+            <tr><td>Io</td><td class="fig">within 4 cm</td><td class="how">39,367 compared moments</td><td class="src">JPL Horizons</td></tr>
+            <tr><td>All 115 moons of Jupiter</td><td class="fig">within 1 m</td><td class="how">the same comparison, every moon</td><td class="src">JPL Horizons</td></tr>
+            <tr><td>Comet 109P/Swift–Tuttle</td><td class="fig">within 1%</td><td class="how">distance from the Sun at eight dates, out to 51 AU</td><td class="src">JPL Small-Body Database</td></tr>
+            <tr><td>Perseid radiant</td><td class="fig">0.04°</td><td class="how">implied by the 25,588 measured orbits</td><td class="src">IAU Meteor Data Center</td></tr>
+            <tr><td>Drift at 51 AU</td><td class="fig">0.002 px</td><td class="how">floating origin, measured on screen</td><td class="src">—</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="more"><a href="../assets.html">Sources, methods and licences for all of it →</a></p>
+    </div>
+  </section>
+
+  <section class="band" id="curve-fits">
+    <div class="wrap">
+      <h2 id="fit-title" class="io-text" style="font-size:1.02rem;letter-spacing:0;margin-bottom:6px">How positions are stored</h2>
+      <p class="io-text"> A table of Io's position every ten minutes from 2010 to 2030 would take <strong data-fit="ioTable">50.5 MB</strong>. Astraeus keeps short polynomial fits to JPL Horizons instead, <strong data-fit="ioFit">1.1 MB</strong> for the same twenty years, and evaluates them at whatever moment the clock shows.</p>
+      <p class="io-text">That is <strong data-fit="ratio">47×</strong> smaller, and Io never drifts more than <strong data-fit="accuracy">4 cm</strong> from Horizons. Slide through two days of its orbit below; the left panel is the table, the right one the fit.</p>
+      <div class="fit-grid" style="margin-top:26px">
+        <figure class="fit-panel">
+          <svg id="fit-photos" viewBox="0 0 300 300" role="img" aria-label="Io's orbit around Jupiter drawn as separate dots, one every ten minutes."></svg>
+          <figcaption><b><span data-fit="rows">324</span> rows</b>One every 10 minutes. The ring marks the row nearest the slider.</figcaption>
+        </figure>
+        <figure class="fit-panel">
+          <svg id="fit-recipe" viewBox="0 0 300 300" role="img" aria-label="The same orbit drawn as a smooth curve from two fitted pieces, with a marker that follows the slider."></svg>
+          <figcaption><b>2 pieces, <span data-fit="numbers">96</span> numbers</b>A position for any moment, including between rows.</figcaption>
+        </figure>
+      </div>
+      <div class="fit-row">
+        <label for="fit-time">Io, from 4 November 2016 00:00 TDB</label>
+        <input id="fit-time" type="range" min="0" max="3240" step="1" value="0" data-fit-slider>
+        <p class="fit-read" aria-live="off" data-fit-readout>Hour 0.0 · Io is 421,000 km from Jupiter's centre</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="band" id="engine">
+    <div class="wrap">
+      <div class="globes" aria-label="The Sun and the planets, with the number of moons each data package places">
+        <div class="globe"><div class="ball sun" style="background-image:url(../site/t-sun-2k.jpg)"></div><b>Sun</b><span class="count none">—</span></div>
+        <div class="globe"><div class="ball" style="background-image:url(../site/t-mercury-2k.jpg)"></div><b>Mercury</b><span class="count none">0 moons</span></div>
+        <div class="globe"><div class="ball" style="background-image:url(../site/t-venus-2k.jpg)"></div><b>Venus</b><span class="count none">0 moons</span></div>
+        <div class="globe"><div class="ball" style="background-image:url(../site/t-earth-bmng.jpg)"></div><b>Earth</b><span class="count">1 moon</span></div>
+        <div class="globe"><div class="ball" style="background-image:url(../site/t-mars-2k.jpg)"></div><b>Mars</b><span class="count">2 moons</span></div>
+        <div class="globe"><div class="ball" style="background-image:url(../site/t-jupiter-2k.jpg)"></div><b>Jupiter</b><span class="count">115 moons</span></div>
+        <div class="globe"><div class="ball" style="background-image:url(../site/t-saturn-2k.jpg)"></div><b>Saturn</b><span class="count">292 moons</span></div>
+        <div class="globe"><div class="ball" style="background-image:url(../site/t-uranus-2k.jpg)"></div><b>Uranus</b><span class="count">28 moons</span></div>
+        <div class="globe"><div class="ball" style="background-image:url(../site/t-neptune-2k.jpg)"></div><b>Neptune</b><span class="count">16 moons</span></div>
+        <div class="globe"><div class="ball" style="background-image:url(../site/t-pluto-4k.jpg)"></div><b>Pluto</b><span class="count">5 moons</span></div>
+      </div>
+      <p class="more"><a href="../assets.html">Each map's source and licence →</a></p>
+      <h2 class="covers-title">Everything above goes through the same four layers.</h2>
+      <ol class="layers">
+        <li><span class="n">01 · STATE</span><h3>Time and frames</h3><p>Every moment is converted between UTC, TT and TDB once, in one place. Positions are held in J2000 equatorial and converted only for drawing.</p></li>
+        <li><span class="n">02 · SOURCES</span><h3>Data sources</h3><p>Planets and moons come from Horizons fits. Comets, asteroids and meteoroids come from orbital elements, spacecraft from sampled paths. Any one can be swapped.</p></li>
+        <li><span class="n">03 · DRAWING</span><h3>Drawing at any scale</h3><p>The scene re-centres on whatever you look at, so true scale holds out to 51 AU. Behind it sit 8,920 naked-eye stars from HYG.</p></li>
+        <li><span class="n">04 · STORY</span><h3>Timelines and panels</h3><p>Playback has events and story panels that open at their moment. Each body's card says whether a value was observed, modelled or illustrative.</p></li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="band" id="start">
+    <div class="wrap">
+      <h2 class="h2-line">Getting started</h2>
+      <div class="install"><span>$</span> npm install astraeus react react-dom @react-three/fiber three</div>
+      <div class="start-row">
+        <p><b>Peers</b>React, React DOM, react-three-fiber and three are peer dependencies. A plain-JavaScript page still needs them installed.</p>
+        <p><b>Bundlers</b>Built and run with the packed package in Vite 8, webpack 5 and Parcel 2. A bare <code>&lt;script type="module"&gt;</code> will not work.</p>
+        <p><b>Examples</b>Start from <code>hello-scene</code>, <code>hello-react</code>, <code>hello-planets</code> or <code>hello-sky</code> in the repository. There are also <a class="textlink" href="../components.html">ready-made parts</a>.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="band" id="used">
+    <div class="wrap">
+      <h2 class="h2-line">Also built with it <span>· separate sites by the same author, installing the package from npm</span></h2>
+      <ul class="apps">
+        <li><span class="meta">belt.anipatke.com · astraeus 0.10.1</span><h3>The asteroid belt</h3><p>About 110,000 main-belt asteroids and the 16,475 known Jupiter Trojans, placed from NASA/JPL orbital elements.</p><a class="visit" href="https://belt.anipatke.com/">Visit →</a></li>
+        <li><span class="meta">meteorshowers.anipatke.com · astraeus 0.2.0</span><h3>Meteor showers</h3><p>A standalone meteor-shower site, pinned to the 0.2.0 package.</p><a class="visit" href="https://meteorshowers.anipatke.com/">Visit →</a></li>
+        <li><span class="meta">neo.anipatke.com · astraeus 0.9.0</span><h3>Earth's Closest Calls</h3><p>The ten closest asteroid flybys of Earth since 2020, with the clearance of each.</p><a class="visit" href="https://neo.anipatke.com/">Visit →</a></li>
+      </ul>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>Built by Ani Patke, with AI doing a lot of the typing. <a href="https://anipatke.com">anipatke.com</a> · MIT licence</span>
+    <span>Planet and moon positions: JPL Horizons · Meteor orbits: Global Meteor Network, CC BY 4.0 · Stars: HYG, CC BY-SA 4.0 · <a href="../assets.html">Credits →</a></span>
+  </div>
+</footer>
+
+<script src="./preview.js"></script>
+</body>
+</html>
