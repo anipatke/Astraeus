@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Astraeus (preview C: purpose first)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,300;1,6..72,300&display=swap">
+<link rel="stylesheet" href="./preview.css">
+<style>
+/* Option C: purpose first. One reading column with an upright serif headline; the problems the engine deals with, each with its evidence; then what it was used for; the author last. */
+.col { max-width: 760px; }
+.hero .h1 { font-family: var(--serif); font-weight: 300; font-size: clamp(2.3rem, 5vw, 3.9rem); letter-spacing: -0.035em; line-height: 1.06; max-width: 17ch; }
+.hero .lead { max-width: 58ch; }
+.purpose-grid { grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); align-items: end; }
+.why { border-left: 1px dashed var(--rule-strong); padding-left: clamp(1rem, 3vw, 2rem); display: flex; flex-direction: column; gap: 12px; }
+.why .sig { font-family: var(--mono); font-size: 0.72rem; color: var(--faint); }
+@media (max-width: 960px) { .why { border-left: 0; padding-left: 0; border-top: 1px dashed var(--rule-strong); padding-top: 18px; } }
+.figure { margin: clamp(2rem, 4vw, 3rem) 0 0; border: 1px solid var(--rule-strong); border-radius: var(--radius-tile); overflow: hidden; background: var(--raised); display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); }
+.figure img { display: block; width: 100%; height: 100%; object-fit: cover; min-height: 240px; }
+.figure figcaption { padding: 20px; display: flex; flex-direction: column; gap: 8px; font-size: 0.9rem; color: var(--muted); }
+.figure figcaption b { color: var(--ink); font-size: 1.05rem; font-weight: 600; }
+.figure .go { margin-top: auto; }
+.prose h2 { font-family: var(--serif); font-weight: 300; font-size: clamp(1.7rem, 3vw, 2.3rem); letter-spacing: -0.03em; line-height: 1.12; max-width: 26ch; }
+.prose > p { margin-top: 14px; max-width: 62ch; font-size: 1rem; color: var(--body); }
+.problems { list-style: none; margin: 28px 0 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 40px; }
+.problems li { border-top: 1px dashed var(--rule-strong); padding: 18px 0 22px; min-width: 0; }
+.problems h3 { font-size: 1.08rem; letter-spacing: -0.02em; }
+.problems p { margin-top: 8px; font-size: 0.92rem; color: var(--muted); }
+.problems .ev { margin-top: 10px; font-family: var(--mono); font-size: 0.72rem; color: var(--body); letter-spacing: 0.02em; }
+.compare { width: 100%; border-collapse: collapse; margin-top: 24px; font-size: 0.9rem; }
+.compare th, .compare td { text-align: left; vertical-align: top; padding: 12px 18px 12px 0; border-top: 1px dashed var(--rule-strong); }
+.compare thead th { border-top: 0; font-family: var(--mono); font-size: 0.68rem; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: var(--faint); }
+.compare td:first-child { color: var(--ink); font-weight: 500; width: 26%; }
+.compare td:nth-child(2) { color: var(--muted); width: 34%; }
+.compare td:nth-child(3) { color: var(--body); }
+.used { list-style: none; margin: 24px 0 0; padding: 0; }
+.used li { display: grid; grid-template-columns: 180px minmax(0, 1fr) auto; gap: 6px 24px; align-items: baseline; border-top: 1px dashed var(--rule-strong); padding: 14px 0; }
+.used .meta { font-family: var(--mono); font-size: 0.7rem; color: var(--faint); letter-spacing: 0.04em; }
+.used h3 { font-size: 1rem; display: inline; margin-right: 8px; }
+.used p { display: inline; font-size: 0.9rem; color: var(--muted); }
+.used a.visit { font-size: 0.86rem; border-bottom: 1px solid var(--rule-strong); white-space: nowrap; }
+.who { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 20px 40px; align-items: start; }
+.who dl { margin: 0; display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 8px 18px; font-size: 0.9rem; }
+.who dt { font-family: var(--mono); font-size: 0.7rem; color: var(--faint); letter-spacing: 0.08em; text-transform: uppercase; padding-top: 3px; }
+.who dd { margin: 0; color: var(--body); }
+@media (max-width: 960px) { .figure { grid-template-columns: minmax(0, 1fr); } .figure img { aspect-ratio: 16 / 9; min-height: 0; } .who { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 720px) {
+  .problems { grid-template-columns: minmax(0, 1fr); }
+  .used li { grid-template-columns: minmax(0, 1fr); }
+  .compare thead { display: none; }
+  .compare tr { display: block; border-top: 1px dashed var(--rule-strong); padding: 12px 0; }
+  .compare td { display: block; border: 0; padding: 2px 0; width: auto !important; }
+  .compare td:nth-child(2)::before { content: "On your own: "; font-family: var(--mono); font-size: 0.68rem; color: var(--faint); }
+  .compare td:nth-child(3)::before { content: "Astraeus: "; font-family: var(--mono); font-size: 0.68rem; color: var(--faint); }
+}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <span class="brand">
+      <svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><ellipse cx="11" cy="11" rx="10" ry="4.2" fill="none" stroke="rgba(245,245,247,0.45)" stroke-width="1" transform="rotate(-18 11 11)"/><circle cx="11" cy="11" r="3.2" fill="#ffd59a"/><circle cx="19.3" cy="8.2" r="1.4" fill="#9fd8ff"/></svg>
+      Astraeus <span class="preview-flag">Preview C</span>
+    </span>
+    <span class="navlinks"><a class="pillink hide-phone" href="#used">Used for</a><a class="pillink hide-phone" href="../assets.html">Data</a><a class="pillink" href="../api/">API</a><a class="pillink" href="https://github.com/anipatke/Astraeus">GitHub</a></span>
+  </div>
+</header>
+
+<main>
+  <div class="hero">
+    <canvas class="sky" id="sky" aria-hidden="true"></canvas>
+    <div class="wrap">
+      <div class="hero-grid purpose-grid">
+      <div class="col">
+        <span class="eyebrow">Astraeus · open source · MIT</span>
+        <h1 class="h1">A solar-system engine that shows its working</h1>
+        <p class="lead">Astraeus is an open-source TypeScript library for astronomy on the web. It looks after time scales, orbits, reference frames and the distances between a moon and a comet, and it records where every position came from and how closely it has been checked. A page built on it can then tell its reader what is measured and what is filled in.</p>
+        <div class="cta">
+          <a class="btn primary" href="#used">See what it has been used for</a>
+          <a class="btn" href="https://github.com/anipatke/Astraeus">Source on GitHub</a>
+        </div>
+      </div>
+      <aside class="why" aria-label="Why Astraeus exists">
+        <span class="eyebrow">Why it exists</span>
+        <div class="owner-input" role="note"><b>Owner input needed · not for publishing</b>One or two plain sentences, in your own words, on why you started Astraeus: what you were trying to build and what was missing. Nothing here has been written for you.</div>
+        <p class="sig">Ani Patke · independent developer · <a class="textlink" href="https://anipatke.com">anipatke.com</a></p>
+      </aside>
+      </div>
+      <figure class="figure">
+        <img src="../site/apollo-moon.jpg" alt="Apollo 11's path from Earth to the Moon and back at true scale, with timed event markers, the Moon's orbit and Earth, over the real star sky.">
+        <figcaption>
+          <span class="eyebrow">Apollo 11, July 1969</span>
+          <b>The mission path rebuilt from NASA's report, at true scale</b>
+          The path passes through NASA's published anchor points; the coasts between them are integrated with the gravity of Earth, the Moon and the Sun, and labelled modelled. Thirty events are timed to a tenth of a second.
+          <a class="go" href="../app.html">Open it</a>
+        </figcaption>
+      </figure>
+    </div>
+  </div>
+
+  <section class="band" id="problems">
+    <div class="wrap prose">
+      <h2>The problems it deals with</h2>
+      <p>Drawing a planet in a browser is easy. Putting it in the right place on a given date, next to a spacecraft from a different data source, at a scale where both can be seen, takes most of the work. These are the parts Astraeus handles.</p>
+      <ul class="problems">
+        <li><h3>Sources disagree about time</h3><p>Ephemerides use TDB and mission reports use UTC, and today the two differ by 69 seconds. Astraeus converts every moment once, in one place, so the Moon, the planets and a spacecraft agree on the same instant.</p><p class="ev">Apollo 11: 30 events timed to 0.1 s</p></li>
+        <li><h3>Positions arrive in different frames</h3><p>Horizons can give equatorial or ecliptic vectors; orbital elements are ecliptic. The engine holds everything in J2000 equatorial and converts on the way in, so one scene can mix them.</p><p class="ev">plane: "ecliptic-j2000" converts a path once</p></li>
+        <li><h3>The distances do not fit a 3D scene</h3><p>Graphics hardware draws in 32-bit floating point, which runs out of precision long before Neptune at true scale. The scene re-centres on whatever you look at, so a comet 51 AU out stays still on screen.</p><p class="ev">measured drift: 0.002 px at 51 AU</p></li>
+        <li><h3>Some of the data does not exist</h3><p>The Global Meteor Network measures each meteoroid's orbit but not where it is along that orbit today. The engine spreads them evenly and labels that illustrative; a moon without its data package fails with an error rather than being made up.</p><p class="ev">every value: observed, modelled or illustrative</p></li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="band" id="compare">
+    <div class="wrap prose">
+      <h2>What a general 3D library leaves to you</h2>
+      <p>Three.js, which Astraeus draws with, is excellent at drawing. It has no idea where Mars was on a given date. This is what that gap looks like in practice.</p>
+      <table class="compare">
+        <thead><tr><th>Question</th><th>On your own</th><th>With Astraeus</th></tr></thead>
+        <tbody>
+          <tr><td>Where is Mars on this date?</td><td>Find an ephemeris, fit or interpolate it, convert its frame</td><td>Built in from JPL Horizons, 1950 to 2045, within 1 km</td></tr>
+          <tr><td>Where are Saturn's moons?</td><td>Download and store Horizons tables per moon</td><td>292 moons in an optional package, fetched a year at a time</td></tr>
+          <tr><td>What does the sky behind look like?</td><td>Pick a star catalogue and place it in the right frame</td><td>8,920 naked-eye stars from HYG and a Gaia-based Milky Way</td></tr>
+          <tr><td>How do I scrub through time?</td><td>Write a clock, a timeline and playback controls</td><td>A timeline with events, pacing and story panels</td></tr>
+          <tr><td>How sure is this position?</td><td>Usually unrecorded</td><td>Every body carries its source, and its measured accuracy where there is one</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="band" id="used">
+    <div class="wrap prose">
+      <h2>What it has been used for</h2>
+      <p>Three demonstrations on this site, and separate apps that install the published package from npm.</p>
+      <ul class="used">
+        <li><span class="meta">this site</span><div><h3>Apollo 11</h3><p>The eight-day mission, with seven story panels that cite their sources.</p></div><a class="visit" href="../app.html">Open →</a></li>
+        <li><span class="meta">this site</span><div><h3>Meteor showers</h3><p>The Perseids and Geminids from 25,588 and 51,115 measured orbits.</p></div><a class="visit" href="../app.html?experience=showers">Open →</a></li>
+        <li><span class="meta">this site</span><div><h3>Jupiter and Io</h3><p>Every known moon of Jupiter on its orbit; Io with its surface mapped.</p></div><a class="visit" href="../app.html?experience=planets">Open →</a></li>
+        <li><span class="meta">belt.anipatke.com</span><div><h3>The asteroid belt</h3><p>About 110,000 main-belt asteroids and 16,475 Jupiter Trojans from NASA/JPL elements.</p></div><a class="visit" href="https://belt.anipatke.com/">Visit →</a></li>
+        <li><span class="meta">meteorshowers.anipatke.com</span><div><h3>Meteor showers</h3><p>A standalone meteor-shower site on the 0.2.0 package.</p></div><a class="visit" href="https://meteorshowers.anipatke.com/">Visit →</a></li>
+        <li><span class="meta">neo.anipatke.com</span><div><h3>Earth's Closest Calls</h3><p>The ten closest asteroid flybys of Earth since 2020.</p></div><a class="visit" href="https://neo.anipatke.com/">Visit →</a></li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="band" id="curve-fits" aria-labelledby="fit-title">
+    <div class="wrap prose">
+      <h2 id="fit-title">Checking the numbers</h2>
+      <p>Most of the engine's accuracy claims can be checked against JPL Horizons. Io is the clearest example: its position comes from short fits to Horizons rather than a table, and stays within <span data-fit="accuracy">4 cm</span> of it. Move the slider to see the table and the fit side by side.</p>
+      <div class="fit-grid" style="margin-top:24px">
+        <figure class="fit-panel">
+          <svg id="fit-photos" viewBox="0 0 300 300" role="img" aria-label="Io's orbit around Jupiter drawn as separate dots, one every ten minutes."></svg>
+          <figcaption><b>A table: <span data-fit="rows">324</span> rows</b>One position every 10 minutes. The ring marks the row nearest the slider.</figcaption>
+        </figure>
+        <figure class="fit-panel">
+          <svg id="fit-recipe" viewBox="0 0 300 300" role="img" aria-label="The same orbit drawn as a smooth curve from two fitted pieces, with a marker that follows the slider."></svg>
+          <figcaption><b>A fit: 2 pieces, <span data-fit="numbers">96</span> numbers</b>The same path, <span data-fit="ratio">47×</span> smaller over 2010 to 2030.</figcaption>
+        </figure>
+      </div>
+      <div class="fit-row">
+        <label for="fit-time">Two and a quarter days of Io's orbit, from 4 November 2016</label>
+        <input id="fit-time" type="range" min="0" max="3240" step="1" value="0" data-fit-slider>
+        <p class="fit-read" aria-live="off" data-fit-readout>Hour 0.0 · Io is 421,000 km from Jupiter's centre</p>
+      </div>
+      <p class="more"><a href="../assets.html">Every source, how it was checked, and its licence →</a></p>
+    </div>
+  </section>
+
+  <section class="band" id="who">
+    <div class="wrap prose">
+      <h2>Who makes it</h2>
+      <div class="who" style="margin-top:20px">
+        <div>
+          <p style="color:var(--body)">Astraeus is written by Ani Patke, with AI doing a lot of the typing. It is MIT-licensed, the source is on GitHub, and every release is listed in the changelog with what changed and what broke.</p>
+          <div class="owner-input" role="note" style="margin-top:16px"><b>Owner input needed · not for publishing</b>A sentence about you, if you want one here: your background, your interest in astronomy, or where to reach you. Leave the section out if you would rather not.</div>
+        </div>
+        <dl>
+          <dt>Licence</dt><dd>MIT</dd>
+          <dt>Package</dt><dd><code>astraeus</code> on npm, version 0.10.1</dd>
+          <dt>Releases</dt><dd>0.1.0 on 23 October 2026 to 0.10.1 on 23 November 2026</dd>
+          <dt>Docs</dt><dd><a class="textlink" href="https://github.com/anipatke/Astraeus/tree/main/packages/astraeus#readme">Guide</a> · <a class="textlink" href="../api/">API reference</a> · <a class="textlink" href="../components.html">Parts</a></dd>
+        </dl>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>Built by Ani Patke, with AI doing a lot of the typing. <a href="https://anipatke.com">anipatke.com</a> · MIT licence</span>
+    <span>Planet and moon positions: JPL Horizons · Meteor orbits: Global Meteor Network, CC BY 4.0 · Stars: HYG, CC BY-SA 4.0 · <a href="../assets.html">Credits →</a></span>
+  </div>
+</footer>
+
+<script src="./preview.js"></script>
+</body>
+</html>
