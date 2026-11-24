@@ -25,7 +25,7 @@ export function PanelView({ panel, runtime, id, onClose }: ShelfPanelViewProps) 
         </button>
       </header>
       {panel.blocks.map((block) => (
-        <PartBoundary key={block.id}>
+        <PartBoundary key={block.id} part={block.id}>
           <block.view block={block} runtime={runtime} />
         </PartBoundary>
       ))}

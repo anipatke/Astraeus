@@ -41,7 +41,7 @@ function TileSheet({
           Close
         </button>
       </header>
-      <PartBoundary>
+      <PartBoundary part={tile.id}>
         <tile.view block={tile} runtime={runtime} />
       </PartBoundary>
     </aside>
@@ -80,13 +80,13 @@ export function useShelfTile({ parts = NO_PARTS, runtime = NO_RUNTIME, panels, p
           aria-controls={expanded ? sheetId : undefined}
           onClick={() => panels.toggle("tile")}
         >
-          <PartBoundary>
+          <PartBoundary part={tile.id}>
             <tile.strip block={tile} runtime={runtime} />
           </PartBoundary>
         </button>
       ) : (
         <section className="info-panel tile-card" aria-label={tile.label}>
-          <PartBoundary>
+          <PartBoundary part={tile.id}>
             <tile.view block={tile} runtime={runtime} />
           </PartBoundary>
         </section>

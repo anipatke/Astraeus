@@ -3,9 +3,22 @@
 import { Component, type ReactNode } from "react";
 import { reportToPage } from "../api/listeners";
 
-/** Catches a throw in one part's view; the boundary resets when its part is drawn again (give it a `key`, or remount it). */
-export class PartBoundary extends Component<{ children: ReactNode }, { failed: boolean }> {
-  state = { failed: false };
+interface Props {
+  /** The id of the part drawn inside; a different id is a part drawn again, so the boundary resets (a view switch, a reopened panel). Required so no draw site can forget the reset. */
+  readonly part: string;
+  readonly children: ReactNode;
+}
+
+/** Catches a throw in one part's view; the boundary resets when its part is drawn again: when `part` changes, or when it is remounted. */
+export class PartBoundary extends Component<Props, { failed: boolean; part: string }> {
+  state = { failed: false, part: this.props.part };
+
+  static getDerivedStateFromProps(
+    props: Props,
+    state: { failed: boolean; part: string },
+  ): { failed: boolean; part: string } | null {
+    return props.part === state.part ? null : { failed: false, part: props.part };
+  }
 
   static getDerivedStateFromError(): { failed: boolean } {
     return { failed: true };

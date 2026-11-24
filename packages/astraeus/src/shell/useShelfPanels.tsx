@@ -69,7 +69,7 @@ export function useShelfPanels({
   const current = parts.find((part) => part.id === openId);
   const shelfPanel =
     current === undefined ? null : (
-      <PartBoundary key={current.id}>
+      <PartBoundary key={current.id} part={current.id}>
         <current.view
           panel={current}
           runtime={runtime}
