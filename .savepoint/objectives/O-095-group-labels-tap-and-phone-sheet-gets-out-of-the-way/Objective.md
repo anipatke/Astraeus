@@ -1,9 +1,10 @@
 ---
 id: O-095
 title: Group labels tap, and the phone sheet gets out of the way
-status: planned
+status: done
 depends_on: []
 release: G-025
+last_check: C-217
 priority: high
 rank: 1
 ---
@@ -48,3 +49,7 @@ Owner confirmed this design on 2026-11-22 (planning session plan-g025-20261122),
 ## Decisions
 
 - 2026-11-24, owner: "Orchestrate O-95". Standing orchestration rules: own branch, Sonnet builders run in parallel (the three steps share only CHANGELOG/README lines), optional step checks waived, the coordinator marks steps done when gates pass, owner look on localhost:5490 for T-441 and T-442 before one Full Objective Check.
+
+## Closure
+
+Full Objective Check C-217 CLEAR on 2026-11-24 (no Issues). Owner looked on localhost:5490 and said "Both work, carry on" (T-441, T-442; acceptance recorded against C-217). Marked done and merged by the coordinator under the owner's "Orchestrate O-95" (standing rule: CLEAR → merge and push).
