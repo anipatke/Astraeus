@@ -5,7 +5,7 @@ objective: O-096
 status: done
 depends_on: []
 check_waiver: {task: T-447, reason: 'Owner said "orchestrate O-96" (2026-11-24): standing orchestration rules waive the optional step checks; the mandatory Full Objective Check covers the whole diff.', actor: {role: owner, session: orchestrate-o096-20261124}, recorded_at: '2026-11-24T06:57:50Z'}
-owner_validation: {required: true}
+owner_validation: {required: true, accepted_check: C-218, accepted_by: {role: owner, session: orchestrate-o096-20261124}}
 planned_by: {role: planner, session: plan-o096-20261124}
 planned_reads: [packages/astraeus/src/api/mount.ts, packages/astraeus/src/api/AstraeusScene.tsx, packages/astraeus/src/api/errors.ts, packages/astraeus/src/api/viewerLink.ts, packages/astraeus/src/app/AstraeusScene.tsx, packages/astraeus/src/app/style.css, packages/astraeus/tests/publicApi.test.ts, packages/astraeus/tests/firstDraw.test.ts, packages/astraeus/tests/contextLoss.test.ts, vitest.config.ts, packages/astraeus/vitest.setup.ts, packages/astraeus-site/tools/validate/journey-two-viewers.mjs, packages/astraeus-site/tools/validate/driver.mjs, packages/astraeus-site/src/synthetic/syntheticTwoViewers.ts, docs/BROWSER_CHECKS.md, docs/agents/browser-policy.md, tools/api-rules.mjs]
 planned_writes: [packages/astraeus/src/api/webglCheck.ts, packages/astraeus/src/api/mount.ts, packages/astraeus/src/api/AstraeusScene.tsx, packages/astraeus/src/api/errors.ts, packages/astraeus/src/app/style.css, packages/astraeus/vitest.setup.ts, packages/astraeus/tests/noWebgl.test.ts, packages/astraeus-site/tools/validate/journey-two-viewers.mjs, packages/astraeus-site/tools/validate/driver.mjs, docs/BROWSER_CHECKS.md, packages/astraeus/README.md, packages/astraeus/api-surface.lock.json, packages/astraeus/CHANGELOG.md]

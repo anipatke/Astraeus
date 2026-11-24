@@ -1,9 +1,10 @@
 ---
 id: O-096
 title: Failures and bad input said plainly
-status: planned
+status: done
 depends_on: [O-095]
 release: G-025
+last_check: C-218
 priority: high
 rank: 2
 ---
@@ -48,3 +49,7 @@ Owner confirmed this design at Goal level on 2026-11-22 (G-025 decisions 1 and 4
 **In scope:** mount-time WebGL failure, the new error code, the message, the shelf input checks, the shared table test, CHANGELOG breaking entries.
 
 **Out of scope:** WebGL loss after a successful first draw (already handled by context restore); host-supplied message text.
+
+## Closure
+
+Full Objective Check C-218 CLEAR on 2026-11-24 (no Issues). Owner looked at the no-WebGL message on localhost:5490 and said "looks lovely as far as i can tell" (T-447; acceptance recorded against C-218). Marked done and merged by the coordinator under the owner's "orchestrate O-96" (standing rule: CLEAR → merge and push).
