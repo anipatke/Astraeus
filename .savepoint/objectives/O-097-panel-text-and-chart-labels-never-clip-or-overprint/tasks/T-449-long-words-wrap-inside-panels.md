@@ -2,8 +2,7 @@
 id: T-449
 title: Long words wrap inside panels
 objective: O-097
-status: in_progress
-stage: audit
+status: done
 depends_on: []
 check_waiver: {task: T-449, reason: 'Owner said "orchestrate O-97" (2026-11-24): standing orchestration rules waive the optional step checks; the mandatory Full Objective Check covers the whole diff.', actor: {role: owner, session: orchestrate-o097-20261124}, recorded_at: '2026-11-24T07:29:19Z'}
 owner_validation: {required: true}
@@ -92,3 +91,5 @@ Limitations: no live layout probe; owner look pending (owner_validation required
 ## Drift Notes
 
 None; the viewer-interface line is written by T-451.
+
+Marked done by the coordinator under the owner's "orchestrate O-97" (2026-11-24) after the wave gate passed (`npm run typecheck`, `npm run lint`, `npm test` 345 files 5610 passed 2 skipped, `npm run build`, `npm run check:pack` engine 525,853 B gzip). Owner looked on localhost:5490 (`npm run preview:owner`, branch o097-panel-text-and-chart-labels at 03c9be33, 2026-11-24T07:35Z, components.html explainer and bar chart at desktop and phone width) and said "both look fine, carry on". The acceptance fields are filled in once the Full Objective Check has an id.
