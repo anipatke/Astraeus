@@ -1,7 +1,7 @@
 ---
 id: G-025
 title: Fixes from the belt app's stress test, for 0.11.0
-status: planned
+status: done
 ---
 
 ## Outcome
