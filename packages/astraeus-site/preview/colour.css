@@ -1,0 +1,20 @@
+/* Shared by the three previews.
+   1. The base every option keeps (owner, 2026-11-24: "I like the gold amber black colour palette, just missing something"): the page's own gold and amber on its
+      black. Gold #ffd59a is the logo's Sun, the code's strings and the Io fit curve; amber #e8b06a is the viewer's accent (--astraeus-accent, look.css); #ffb347 is
+      the focus ring. The options differ only in what they add to it.
+   2. Preview chrome: the switcher. */
+:root {
+  --gold: #ffd59a;
+  --amber: #e8b06a;
+  --amber-deep: #ffb347;
+}
+.eyebrow { color: var(--amber); }
+.btn.primary { background: var(--gold); border-color: var(--gold); color: #07070a; }
+.btn.primary:hover { background: #ffe2b8; }
+.more a, .textlink, .apps a.visit { border-bottom-color: color-mix(in srgb, var(--amber) 55%, transparent); }
+.more a:hover, .textlink:hover, .apps a.visit:hover { border-bottom-color: var(--gold); color: var(--gold); }
+.install span { color: var(--amber); }
+
+.pv-switch { position: fixed; z-index: 50; left: 50%; bottom: max(12px, env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); display: flex; gap: 2px; padding: 4px; border-radius: 999px; background: rgba(13, 13, 17, 0.92); border: 1px solid rgba(255, 255, 255, 0.16); backdrop-filter: blur(8px); font: 500 12px/1 ui-monospace, Menlo, monospace; white-space: nowrap; }
+.pv-switch a { padding: 8px 10px; border-radius: 999px; color: rgba(245, 245, 247, 0.7); }
+.pv-switch a[aria-current="page"] { background: var(--gold); color: #07070a; }

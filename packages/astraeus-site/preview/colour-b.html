@@ -1,0 +1,523 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Astraeus (colour preview B: Atlas)</title>
+<meta name="robots" content="noindex">
+<link rel="canonical" href="https://astraeus.anipatke.com/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Astraeus">
+<meta property="og:description" content="An open-source astronomy engine for the web, with three demos built on it: Apollo 11, the meteor showers, and the planets with their moons.">
+<meta property="og:url" content="https://astraeus.anipatke.com/">
+<meta property="og:image" content="https://astraeus.anipatke.com/share/apollo-moon.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Newsreader:opsz,wght@6..72,300;6..72,400&display=swap">
+<style>
+/* Layout (owner's choice of preview A2, 2026-11-24): a plain definition beside a real call and its real answer; the demos; the measured figures as one large
+   Newsreader band over the full comparison table; how Io's positions are stored; the globes with their moon counts over the four layers; getting started;
+   the apps built on the published package. Each section is composed for its content. Every figure on the page is checked by tests/homePage.test.ts or
+   tests/assetsSections.test.ts. One dark world on purpose. */
+:root {
+  --bg: #07070a;
+  --raised: #0d0d11;
+  --ink: #f5f5f7;
+  --body: rgba(245, 245, 247, 0.78);
+  --muted: rgba(245, 245, 247, 0.55);
+  --faint: rgba(245, 245, 247, 0.38);
+  --rule: rgba(255, 255, 255, 0.08);
+  --rule-strong: rgba(255, 255, 255, 0.16);
+  --wash: rgba(255, 255, 255, 0.024);
+  --sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --serif: "Newsreader", "Iowan Old Style", "Palatino Linotype", Georgia, serif;
+  --mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  --container: 1180px;
+  --radius-tile: 18px;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html { background: var(--bg); }
+body { margin: 0; background: var(--bg); color: var(--body); font-family: var(--sans); font-size: 1rem; line-height: 1.6; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+a { color: var(--ink); text-decoration: none; }
+a:focus-visible { outline: 2px solid #ffb347; outline-offset: 3px; border-radius: 6px; }
+h1, h2, h3, p { margin: 0; }
+h1, h2, h3 { color: var(--ink); text-wrap: balance; font-weight: 600; }
+code { font-family: var(--mono); font-size: 0.86em; color: var(--ink); }
+.wrap { max-width: var(--container); margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.eyebrow { font-family: var(--mono); font-size: 0.72rem; font-weight: 500; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); }
+
+.top .wrap { display: flex; align-items: center; justify-content: space-between; gap: 12px; height: 60px; }
+.brand { display: flex; align-items: center; gap: 10px; color: var(--ink); font-weight: 600; }
+.brand svg { display: block; }
+.navlinks { display: flex; gap: 10px; align-items: center; }
+.pillink { font-family: var(--mono); font-size: 0.78rem; border: 1px solid var(--rule-strong); border-radius: 999px; padding: 5px 14px; }
+.pillink:hover { border-color: rgba(255, 255, 255, 0.3); }
+
+/* Hero: the definition, and the code as the object with notebook notes under it */
+.hero { position: relative; isolation: isolate; padding-block: clamp(2.5rem, 6vw, 4.5rem) clamp(2.5rem, 5vw, 3.5rem); }
+.hero::before { content: ""; position: absolute; inset: -60px 0 auto; height: 620px; z-index: -1; pointer-events: none;
+  background:
+    linear-gradient(158deg, transparent 30%, rgba(190, 200, 255, 0.045) 44%, rgba(255, 230, 200, 0.06) 50%, rgba(190, 200, 255, 0.04) 56%, transparent 70%),
+    radial-gradient(circle at 84% 18%, rgba(255, 214, 160, 0.10) 0, transparent 22%),
+    radial-gradient(ellipse 70% 60% at 50% 0%, rgba(120, 130, 200, 0.07), transparent 70%); }
+.hero::after { content: ""; position: absolute; inset: -60px 0 auto; height: 620px; z-index: -1; pointer-events: none; background: linear-gradient(to bottom, transparent 55%, var(--bg) 100%); }
+.sky { position: absolute; inset: -60px 0 auto; height: 620px; width: 100%; z-index: -2; pointer-events: none; display: block; }
+.hero-grid { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: clamp(1.5rem, 4vw, 4rem); align-items: start; }
+.hero-grid > * { min-width: 0; }
+.hero h1 { margin-top: 16px; font-size: clamp(2.1rem, 4.6vw, 3.6rem); line-height: 1.06; letter-spacing: -0.04em; max-width: 13ch; }
+.lead { margin-top: 20px; font-size: clamp(1.02rem, 1.35vw, 1.14rem); line-height: 1.6; color: var(--body); max-width: 46ch; }
+.cta { margin-top: 26px; display: flex; flex-wrap: wrap; gap: 10px; }
+.btn { display: inline-flex; align-items: center; height: 42px; padding: 0 18px; border-radius: 999px; font-weight: 500; font-size: 0.93rem; border: 1px solid var(--rule-strong); color: var(--ink); background: var(--wash); }
+.btn:hover { border-color: rgba(255, 255, 255, 0.3); }
+.btn.primary { background: var(--ink); color: #07070a; border-color: var(--ink); }
+.btn.primary:hover { background: #fff; }
+.ask { border: 1px solid var(--rule-strong); border-radius: var(--radius-tile); background: rgba(13, 13, 17, 0.82); backdrop-filter: blur(6px); overflow: hidden; }
+.ask-bar { display: flex; justify-content: space-between; gap: 10px; padding: 11px 16px; border-bottom: 1px solid var(--rule); font-family: var(--mono); font-size: 0.72rem; color: var(--faint); }
+.ask pre { margin: 0; padding: 16px; font-family: var(--mono); font-size: 0.8rem; line-height: 1.75; color: var(--muted); overflow-x: auto; }
+.ask .k { color: #c9b8ff; } .ask .s { color: #ffd59a; } .ask .n { color: #9fd8ff; } .ask .c { color: var(--faint); } .ask .g { color: #8fe0a8; }
+.notes { list-style: none; margin: 12px 0 0; padding: 0; display: grid; gap: 4px; font-family: var(--mono); font-size: 0.68rem; line-height: 1.5; color: var(--faint); letter-spacing: 0.02em; }
+.notes li { display: grid; grid-template-columns: 7.5em minmax(0, 1fr); gap: 10px; }
+.notes b { font-weight: 500; color: var(--muted); }
+
+.band { border-top: 1px solid var(--rule); padding-block: clamp(2.5rem, 6vw, 4rem); }
+.h2-line { font-size: clamp(1.3rem, 2.2vw, 1.6rem); letter-spacing: -0.03em; margin-bottom: 22px; }
+.h2-line span { color: var(--faint); font-weight: 400; }
+.more { margin-top: 18px; font-size: 0.92rem; }
+.more a { color: var(--ink); border-bottom: 1px solid var(--rule-strong); }
+.more a:hover { border-color: var(--ink); }
+.textlink { color: var(--ink); border-bottom: 1px solid var(--rule-strong); }
+.textlink:hover { border-color: var(--ink); }
+
+/* Demos: the pictures carry the section */
+.demos { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+.demo { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.demo img { display: block; width: 100%; aspect-ratio: 16 / 10; object-fit: cover; border: 1px solid var(--rule-strong); border-radius: 14px; background: #050507; }
+.demo:hover img { border-color: rgba(255, 255, 255, 0.34); }
+.demo .when { font-family: var(--mono); font-size: 0.68rem; color: var(--faint); letter-spacing: 0.08em; text-transform: uppercase; }
+.demo h3 { font-size: 1.15rem; letter-spacing: -0.02em; }
+.demo p { font-size: 0.88rem; color: var(--muted); }
+
+/* Measured figures: the page's one large typographic move, in the numeral face the site already uses */
+.figures { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.figures li { padding: 0 22px; border-left: 1px dashed var(--rule-strong); min-width: 0; }
+.figures li:first-child { border-left: 0; padding-left: 0; }
+.figures b { display: block; font-family: var(--serif); font-weight: 300; font-size: clamp(3.2rem, 8.4vw, 7.4rem); line-height: 0.9; letter-spacing: -0.06em; color: var(--ink); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.figures b small { font-size: 0.3em; letter-spacing: 0; color: var(--muted); margin-left: 6px; }
+.figures span { display: block; margin-top: 14px; font-size: 0.9rem; color: var(--body); max-width: 24ch; }
+.figures em span { display: inline; margin: 0; font-size: inherit; color: inherit; }
+.figures em { display: block; margin-top: 6px; font-style: normal; font-family: var(--mono); font-size: 0.66rem; color: var(--faint); letter-spacing: 0.03em; }
+.after-figures { margin-top: clamp(2.5rem, 5vw, 3.5rem); display: grid; grid-template-columns: minmax(0, 220px) minmax(0, 1fr); gap: 24px; }
+.margin { font-family: var(--mono); font-size: 0.7rem; line-height: 1.6; color: var(--faint); letter-spacing: 0.02em; }
+.margin b { display: block; color: var(--muted); font-weight: 500; margin-bottom: 4px; }
+.facts { border-collapse: collapse; font-size: 0.9rem; }
+.facts th, .facts td { text-align: left; vertical-align: top; padding: 12px 16px 12px 0; border-top: 1px dashed var(--rule-strong); }
+.facts thead th { border-top: 0; font-family: var(--mono); font-size: 0.68rem; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: var(--faint); padding-top: 0; }
+.facts td:first-child { color: var(--ink); font-weight: 500; }
+.facts td.fig { font-family: var(--mono); color: var(--ink); white-space: nowrap; font-variant-numeric: tabular-nums; }
+.facts td.src { font-family: var(--mono); font-size: 0.74rem; color: var(--faint); }
+.facts td.how { color: var(--muted); }
+
+/* Io: the explanation is prose with its figures inline */
+.io-head { font-size: 1.02rem; letter-spacing: 0; margin-bottom: 6px; }
+.io-text { max-width: 64ch; font-size: 1.02rem; color: var(--body); }
+.io-text + .io-text { margin-top: 12px; }
+.io-text strong { font-weight: 500; color: var(--ink); font-variant-numeric: tabular-nums; }
+
+/* The shelf: the Sun and planets with their moon counts, then the four layers */
+.globes { display: grid; grid-template-columns: repeat(10, minmax(0, 1fr)); gap: 18px 14px; }
+.globe { display: flex; flex-direction: column; align-items: center; gap: 8px; min-width: 0; text-align: center; }
+.ball { width: 100%; max-width: 104px; aspect-ratio: 1; border-radius: 50%; background-size: 200% 100%; background-position: 30% 50%; position: relative; box-shadow: 0 0 0 1px rgba(255,255,255,0.06); }
+.ball::after { content: ""; position: absolute; inset: 0; border-radius: 50%; background: radial-gradient(circle at 32% 30%, rgba(255,255,255,0.18), transparent 40%), radial-gradient(circle at 70% 70%, rgba(0,0,0,0.55), transparent 62%); }
+.ball.sun { box-shadow: 0 0 40px 6px rgba(255, 170, 80, 0.35); }
+.ball.sun::after { background: radial-gradient(circle at 50% 50%, transparent 55%, rgba(255, 200, 120, 0.25) 100%); }
+.globe b { font-size: 0.88rem; color: var(--ink); font-weight: 500; }
+.globe span { font-family: var(--mono); font-size: 0.6rem; color: var(--faint); letter-spacing: 0.04em; }
+.globe a.moons { font-family: var(--mono); font-size: 0.72rem; color: var(--body); border-bottom: 1px solid var(--rule-strong); padding: 2px 0; }
+.globe a.moons:hover { color: var(--ink); border-color: var(--ink); }
+.covers-title { margin: clamp(2rem, 4vw, 3rem) 0 18px; font-size: clamp(1.3rem, 2.2vw, 1.6rem); letter-spacing: -0.03em; }
+.layers { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border-top: 1px dashed var(--rule-strong); }
+.layers li { padding: 20px 20px 0 0; min-width: 0; }
+.layers li + li { border-left: 1px dashed var(--rule-strong); padding-left: 20px; }
+.layers .n { font-family: var(--mono); font-size: 0.7rem; color: var(--faint); letter-spacing: 0.1em; }
+.layers h3 { margin-top: 8px; font-size: 1.15rem; letter-spacing: -0.02em; }
+.layers p { margin-top: 8px; font-size: 0.92rem; color: var(--muted); line-height: 1.55; }
+
+/* Getting started: the install line as the object */
+.install { border: 1px solid var(--rule-strong); border-radius: 14px; background: var(--raised); padding: 18px 20px; font-family: var(--mono); font-size: clamp(0.78rem, 1.4vw, 0.95rem); color: var(--ink); overflow-x: auto; white-space: nowrap; }
+.install span { color: var(--faint); }
+.start-row { margin-top: 18px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; font-size: 0.9rem; color: var(--muted); }
+.start-row b { display: block; color: var(--ink); font-weight: 600; margin-bottom: 4px; }
+
+/* Apps on the published package */
+.apps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+.apps li { border-top: 1px dashed var(--rule-strong); padding-top: 14px; min-width: 0; display: flex; flex-direction: column; gap: 6px; }
+.apps h3 { font-size: 1.05rem; letter-spacing: -0.02em; }
+.apps p { font-size: 0.88rem; color: var(--muted); }
+.apps .meta { font-family: var(--mono); font-size: 0.68rem; color: var(--faint); letter-spacing: 0.04em; }
+.apps a.visit { align-self: flex-start; font-size: 0.86rem; border-bottom: 1px solid var(--rule-strong); }
+.apps a.visit:hover { border-color: var(--ink); }
+
+footer { border-top: 1px solid var(--rule); padding-block: 28px 44px; font-size: 0.84rem; color: var(--faint); }
+footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; }
+footer a { color: var(--muted); }
+footer a:hover { color: var(--ink); }
+
+/* Curve fits: how positions are stored (O-025 T-101). Phone first: one column, the picture as wide as the screen, a 44px slider; two columns from 760px. */
+.fit-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; }
+.fit-panel { margin: 0; min-width: 0; border: 1px solid var(--rule-strong); border-radius: 14px; background: var(--raised); padding: 14px; overflow: hidden; }
+.fit-panel svg { display: block; width: 100%; height: auto; aspect-ratio: 1; }
+.fit-panel figcaption { margin-top: 10px; font-size: 0.88rem; line-height: 1.5; color: var(--muted); overflow-wrap: anywhere; }
+.fit-panel figcaption b { display: block; color: var(--ink); font-weight: 600; font-size: 0.98rem; margin-bottom: 2px; }
+.fit-dots { fill: none; stroke: rgba(207, 220, 255, 0.55); stroke-width: 2.2; stroke-linecap: round; }
+.fit-curve { fill: none; stroke: #ffd59a; stroke-width: 1.6; }
+.fit-join { fill: #07070a; stroke: #ffd59a; stroke-width: 1.4; }
+.fit-orbit { fill: none; stroke: var(--rule-strong); stroke-width: 1; stroke-dasharray: 3 4; }
+.fit-planet { fill: #c9a37a; }
+.fit-mark { fill: #fff; stroke: #07070a; stroke-width: 1.2; }
+.fit-ring { fill: none; stroke: #fff; stroke-width: 1.6; }
+.fit-row { margin-top: 16px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 6px; }
+.fit-row label { font-family: var(--mono); font-size: 0.78rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.fit-row input[type=range] { width: 100%; min-height: 44px; margin: 0; accent-color: #ffd59a; background: transparent; touch-action: pan-y; }
+.fit-row input[type=range]:focus-visible { outline: 2px solid #ffb347; outline-offset: 3px; border-radius: 6px; }
+.fit-read { font-family: var(--mono); font-size: 0.78rem; line-height: 1.6; color: var(--body); overflow-wrap: anywhere; font-variant-numeric: tabular-nums; }
+@media (min-width: 760px) { .fit-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
+@media (max-width: 960px) {
+  .hero-grid { grid-template-columns: minmax(0, 1fr); }
+  .demos { grid-template-columns: minmax(0, 1fr); }
+  .demo { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); gap: 4px 16px; align-items: start; }
+  .demo img { grid-row: span 3; }
+  .figures { grid-template-columns: repeat(2, minmax(0, 1fr)); row-gap: 2rem; }
+  .figures li:nth-child(3) { border-left: 0; padding-left: 0; }
+  .after-figures { grid-template-columns: minmax(0, 1fr); }
+  .globes { grid-template-columns: repeat(5, minmax(0, 1fr)); row-gap: 22px; }
+  .layers { grid-template-columns: repeat(2, minmax(0, 1fr)); row-gap: 22px; }
+  .layers li + li { border-left: 0; padding-left: 0; }
+  .layers li:nth-child(even) { border-left: 1px dashed var(--rule-strong); padding-left: 20px; }
+  .start-row, .apps { grid-template-columns: minmax(0, 1fr); gap: 14px; }
+}
+@media (max-width: 640px) {
+  .facts thead { display: none; }
+  .facts tr { display: grid; grid-template-columns: minmax(0, 1fr) auto; column-gap: 12px; border-top: 1px dashed var(--rule-strong); padding: 12px 0; }
+  .facts td { border: 0; padding: 0; }
+  .facts td.how, .facts td.src { grid-column: 1 / -1; margin-top: 4px; }
+}
+@media (max-width: 520px) {
+  .demo { display: flex; }
+  .figures li { padding-inline: 14px 0; }
+  .figures b { font-size: clamp(2.6rem, 13vw, 3.4rem); }
+  .notes li { grid-template-columns: minmax(0, 1fr); gap: 0; }
+  .globes { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px 10px; }
+  .layers { grid-template-columns: minmax(0, 1fr); }
+  .layers li:nth-child(even) { border-left: 0; padding-left: 0; }
+  .navlinks .pillink:first-child { display: none; }
+  .navlinks { gap: 6px; }
+  .pillink { padding: 5px 10px; }
+}
+</style>
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}</style>
+<link rel="stylesheet" href="./colour.css">
+<link rel="stylesheet" href="./colour-b.css">
+</head>
+<body data-preview="b">
+
+<header class="top">
+  <div class="wrap">
+    <span class="brand">
+      <svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><ellipse cx="11" cy="11" rx="10" ry="4.2" fill="none" stroke="rgba(245,245,247,0.45)" stroke-width="1" transform="rotate(-18 11 11)"/><circle cx="11" cy="11" r="3.2" fill="#ffd59a"/><circle cx="19.3" cy="8.2" r="1.4" fill="#9fd8ff"/></svg>
+      Astraeus
+    </span>
+    <span class="navlinks"><a class="pillink" href="#start">Get started</a><a class="pillink" href="../assets.html">Data</a><a class="pillink" href="../components.html">Parts</a><a class="pillink" href="../api/">API</a><a class="pillink" href="https://github.com/anipatke/Astraeus">GitHub</a></span>
+  </div>
+</header>
+
+<main>
+  <div class="hero">
+    <canvas class="sky" id="sky" aria-hidden="true"></canvas>
+    <div class="wrap hero-grid">
+      <div>
+        <span class="eyebrow">Open source · MIT · npm install astraeus</span>
+        <h1>An astronomy engine for the web</h1>
+        <p class="lead">Astraeus is a TypeScript library for drawing the solar system in a browser, in the right place at the right time. Ask it where the Moon was when Eagle landed and it answers in kilometres, in a named reference frame, with a note of how far that answer has been checked against JPL.</p>
+        <div class="cta">
+          <a class="btn primary" href="https://github.com/anipatke/Astraeus/tree/main/packages/astraeus#readme">Read the guide</a>
+          <a class="btn" href="../api/">API reference</a>
+        </div>
+      </div>
+      <div>
+        <div class="ask" aria-label="A real call to the engine and the answer it returns">
+          <div class="ask-bar"><span>moon-at-landing.js</span><span>MIT</span></div>
+<pre data-home-code><span class="k">import</span> { Scene, earth, moon } <span class="k">from</span> <span class="s">"astraeus"</span>;
+
+<span class="k">const</span> when = <span class="s">"1969-07-20T20:17:40Z"</span>;  <span class="c">// Eagle lands</span>
+<span class="k">const</span> scene = <span class="k">new</span> Scene()
+  .<span class="g">addBody</span>(earth).<span class="g">addBody</span>(moon).<span class="g">setTime</span>(when);
+<span class="k">await</span> scene.<span class="g">load</span>();
+
+scene.<span class="g">stateOf</span>(<span class="s">"moon"</span>, when).positionKm;
+<span class="c">// → [</span><span class="n">-385274.5</span><span class="c">, </span><span class="n">-47903.7</span><span class="c">, </span><span class="n">-30878.0</span><span class="c">]</span>
+
+scene.<span class="g">provenanceOf</span>(<span class="s">"moon"</span>).sources;
+<span class="c">// → ["@lizard-isana/orb 3.1.1 Luna: truncated</span>
+<span class="c">//     Meeus-style lunar series, …"]</span></pre>
+        </div>
+        <ul class="notes" aria-label="Notes on the answer">
+          <li><b>frame</b><span>J2000 equatorial (EQJ), centred on Earth</span></li>
+          <li><b>checked</b><span data-home-moon-check>against 8 JPL Horizons (DE441) vectors, 2022-06 to 2025-06: at most 6.4 km in distance</span></li>
+          <li><b>runs in</b><span>Node or a browser; the site's tests run this call and compare its answer</span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <section class="band" id="demos">
+    <div class="wrap">
+      <h2 class="h2-line">Three demos, built on the public API <span>· each opens in the full viewer</span></h2>
+      <div class="demos">
+        <a class="demo" href="../app.html">
+          <img src="../site/apollo-moon.jpg" alt="Apollo 11's path from Earth to the Moon and back at true scale: the outbound and return legs with their timed event markers, the Moon's orbit and Earth, over the real star sky.">
+          <span class="when">16–24 July 1969</span>
+          <h3>Apollo 11</h3>
+          <p>Rebuilt from NASA's mission report. Story panels open as the clock reaches each step, and each one lists its sources.</p>
+        </a>
+        <a class="demo" href="../app.html?experience=showers">
+          <img src="../site/perseids-gmn.jpg" alt="The Perseid meteor stream seen obliquely from above the planets' plane: thousands of measured orbits along comet Swift-Tuttle's path, sweeping past the orbits of Mercury, Venus, Earth and Mars, over the real star sky.">
+          <span class="when">Perseids 2025 · Geminids 2024–25</span>
+          <h3>Meteor showers</h3>
+          <p>Every orbit the Global Meteor Network measured, <span data-home="perseids">25,588</span> Perseids and <span data-home="geminids">51,115</span> Geminids, each on its own ellipse.</p>
+        </a>
+        <a class="demo" href="../app.html?experience=planets">
+          <img src="../site/jupiter-io.jpg" alt="Jupiter's banded clouds half in sunlight, with Io in front on its orbit, its volcanic surface mapped, over the real star sky.">
+          <span class="when">November 2016</span>
+          <h3>Jupiter and Io</h3>
+          <p>All <span data-home="jupiterMoons">115</span> known moons of Jupiter where Horizons puts them, with Io, Europa, Ganymede and Callisto as mapped globes.</p>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="band" id="accuracy" aria-label="Checked against reference data">
+    <div class="wrap">
+      <ul class="figures">
+        <li><b data-home="planetsKm">1<small>km</small></b><span>The planets, Mercury to Neptune, against JPL Horizons</span><em>DE441 · 2 January each year from 1972 · Voyager flybys</em></li>
+        <li><b data-home="moonKm">6.4<small>km</small></b><span>The Moon's distance, against Horizons</span><em>8 vectors · 2022 to 2025</em></li>
+        <li><b data-home="ioCm">4<small>cm</small></b><span>Io, against Horizons, at its worst moment</span><em><span data-home="ioCount">39,367</span> moments compared</em></li>
+        <li><b data-home="moonCount">458</b><span>Moons the six optional data packages place</span><em>Mars to Pluto · fetched a year at a time</em></li>
+      </ul>
+      <div class="after-figures">
+        <p class="margin"><b>How to read this</b>Largest difference found in each recorded comparison. Values the engine models or fills in are labelled in the viewer, not listed here.</p>
+        <table class="facts">
+          <thead><tr><th>What</th><th>Largest difference</th><th>Compared over</th><th>Reference</th></tr></thead>
+          <tbody>
+            <tr><td>Planets, Mercury to Neptune</td><td class="fig" data-home="planetsRow">within 1 km</td><td class="how">with each planet's moon package, 2 January of each year from 1972 and at the Voyager flybys</td><td class="src">JPL Horizons (DE441)</td></tr>
+            <tr><td>The Moon</td><td class="fig" data-home="moonRow">within 6.4 km</td><td class="how">distance, at eight dates 2022 to 2025</td><td class="src">JPL Horizons (DE441)</td></tr>
+            <tr><td>Io</td><td class="fig" data-home="ioRow">within 4 cm</td><td class="how"><span data-home="ioCount">39,367</span> compared moments</td><td class="src">JPL Horizons</td></tr>
+            <tr><td>All <span data-home="jupiterMoons">115</span> moons of Jupiter</td><td class="fig" data-home="jupiterRow">within 1 m</td><td class="how">the same comparison, every moon</td><td class="src">JPL Horizons</td></tr>
+            <tr><td><span data-home="saturnMoons">292</span> moons of Saturn</td><td class="fig" data-home="saturnRow">within 20 m</td><td class="how">the same comparison, every moon</td><td class="src">JPL Horizons</td></tr>
+            <tr><td>Moons of Mars, Uranus, Neptune and Pluto</td><td class="fig" data-home="otherRow">within 1 m</td><td class="how">the same comparison, every moon</td><td class="src">JPL Horizons</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="more"><a href="../assets.html">Sources, methods and licences for all of it →</a></p>
+    </div>
+  </section>
+
+  <section class="band" id="curve-fits" aria-labelledby="fit-title">
+    <div class="wrap">
+      <h2 class="io-head" id="fit-title">How positions are stored</h2>
+      <p class="io-text">A table of Io's position every <span data-home="step">10</span> minutes from <span data-home="spanFrom">2010</span> to <span data-home="spanTo">2030</span> would take <strong data-fit="ioTable">50.5 MB</strong>. Astraeus keeps short polynomial fits to JPL Horizons instead, <strong data-fit="ioFit">1.1 MB</strong> for the same years, and evaluates them at whatever moment the clock shows.</p>
+      <p class="io-text">That is <strong data-fit="ratio">47×</strong> smaller, and Io never drifts more than <strong data-fit="accuracy">4 cm</strong> from Horizons. Slide through two days of its orbit below; the left panel is the table, the right one the fit.</p>
+      <div class="fit-grid" style="margin-top:26px">
+        <figure class="fit-panel">
+          <svg id="fit-photos" viewBox="0 0 300 300" role="img" aria-label="Io's orbit around Jupiter drawn as separate dots, one every ten minutes."></svg>
+          <figcaption><b><span data-fit="rows">325</span> rows</b>One every <span data-fit="step">10</span> minutes. The ring marks the row nearest the slider.</figcaption>
+        </figure>
+        <figure class="fit-panel">
+          <svg id="fit-recipe" viewBox="0 0 300 300" role="img" aria-label="The same orbit drawn as a smooth curve from two fitted pieces, with a marker that follows the slider."></svg>
+          <figcaption><b><span data-fit="pieces">2</span> pieces, <span data-fit="numbers">96</span> numbers</b>A position for any moment, including between rows. Data: JPL Horizons, NASA/JPL-Caltech Solar System Dynamics.</figcaption>
+        </figure>
+      </div>
+      <div class="fit-row">
+        <label for="fit-time">Io, from <span data-home="fitStart">3 November 2016 12:00 TDB</span></label>
+        <input id="fit-time" type="range" min="0" max="3240" step="1" value="0" data-fit-slider>
+        <p class="fit-read" aria-live="off" data-fit-readout>Hour 0.0 · Io is 423,087 km from Jupiter's centre</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="band" id="engine">
+    <div class="wrap">
+      <div class="globes" aria-label="The Sun and the nine planets, with the moons the data packages place">
+        <div class="globe"><div class="ball sun" style="background-image:url(../site/t-sun-2k.jpg)"></div><b>Sun</b><span>CC BY 4.0</span></div>
+        <div class="globe"><div class="ball" style="background-image:url(../site/t-mercury-2k.jpg)"></div><b>Mercury</b><span>CC BY 4.0</span></div>
+        <div class="globe"><div class="ball" style="background-image:url(../site/t-venus-2k.jpg)"></div><b>Venus</b><span>Public domain</span></div>
+        <div class="globe"><div class="ball" style="background-image:url(../site/t-earth-bmng.jpg)"></div><b>Earth</b><span>NASA Earth Observatory</span><a class="moons" href="../assets.html#pic-moon">+1 moon</a></div>
+        <div class="globe"><div class="ball" style="background-image:url(../site/t-mars-2k.jpg)"></div><b>Mars</b><span>CC BY 4.0</span><a class="moons" href="../assets.html#moons-mars">+2 moons</a></div>
+        <div class="globe"><div class="ball" style="background-image:url(../site/t-jupiter-2k.jpg)"></div><b>Jupiter</b><span>CC BY 4.0</span><a class="moons" href="../assets.html#moons-jupiter">+115 moons</a></div>
+        <div class="globe"><div class="ball" style="background-image:url(../site/t-saturn-2k.jpg)"></div><b>Saturn</b><span>CC BY 4.0</span><a class="moons" href="../assets.html#moons-saturn">+292 moons</a></div>
+        <div class="globe"><div class="ball" style="background-image:url(../site/t-uranus-2k.jpg)"></div><b>Uranus</b><span>CC BY 4.0</span><a class="moons" href="../assets.html#moons-uranus">+28 moons</a></div>
+        <div class="globe"><div class="ball" style="background-image:url(../site/t-neptune-2k.jpg)"></div><b>Neptune</b><span>CC BY 4.0</span><a class="moons" href="../assets.html#moons-neptune">+16 moons</a></div>
+        <div class="globe"><div class="ball" style="background-image:url(../site/t-pluto-4k.jpg)"></div><b>Pluto</b><span>NASA/JPL</span><a class="moons" href="../assets.html#moons-pluto">+5 moons</a></div>
+      </div>
+      <p class="more"><a href="../assets.html">Every map, star and data set, with its source and licence →</a></p>
+      <h2 class="covers-title">Everything above goes through the same four layers.</h2>
+      <ol class="layers">
+        <li><span class="n">01 · STATE</span><h3>Time and frames</h3><p>Every moment is converted between UTC, TT and TDB once, in one place. Positions are held in J2000 equatorial and converted only for drawing.</p></li>
+        <li><span class="n">02 · SOURCES</span><h3>Data sources</h3><p>Planets and moons come from Horizons fits. Comets, asteroids and meteoroids come from orbital elements, spacecraft from sampled paths. Any one can be swapped.</p></li>
+        <li><span class="n">03 · DRAWING</span><h3>Drawing at any scale</h3><p>The scene re-centres on whatever you look at, so positions stay precise at true scale. Behind it sit <span data-home="stars">8,920</span> naked-eye stars from the HYG catalogue.</p></li>
+        <li><span class="n">04 · STORY</span><h3>Timelines and panels</h3><p>Playback has events and story panels that open at their moment. Each body's card says whether a value was observed, modelled or illustrative.</p></li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="band" id="start">
+    <div class="wrap">
+      <h2 class="h2-line">Getting started</h2>
+      <div class="install"><span>$</span> npm install astraeus react react-dom @react-three/fiber three</div>
+      <div class="start-row">
+        <p><b>Peers</b>React, React DOM, react-three-fiber and three are peer dependencies. A plain-JavaScript page still needs them installed.</p>
+        <p><b>Bundlers</b>Built and run with the packed package in Vite, webpack and Parcel. A bare <code>&lt;script type="module"&gt;</code> will not work.</p>
+        <p><b>Examples</b>Start from <code>hello-scene</code>, <code>hello-react</code>, <code>hello-planets</code> or <code>hello-sky</code> in the repository. There are also <a class="textlink" href="../components.html">ready-made parts</a>.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="band" id="used">
+    <div class="wrap">
+      <h2 class="h2-line">Also built with it <span>· separate sites by the same author, installing the package from npm</span></h2>
+      <ul class="apps">
+        <li><span class="meta">belt.anipatke.com · astraeus 0.10.1</span><h3>The asteroid belt</h3><p>About 110,000 main-belt asteroids and the 16,475 known Jupiter Trojans, placed from NASA/JPL orbital elements.</p><a class="visit" href="https://belt.anipatke.com/">Visit →</a></li>
+        <li><span class="meta">meteorshowers.anipatke.com · astraeus 0.2.0</span><h3>Meteor showers</h3><p>A standalone meteor-shower site, pinned to the 0.2.0 package.</p><a class="visit" href="https://meteorshowers.anipatke.com/">Visit →</a></li>
+        <li><span class="meta">neo.anipatke.com · astraeus 0.9.0</span><h3>Earth's Closest Calls</h3><p>The ten closest asteroid flybys of Earth since 2020, with the clearance of each.</p><a class="visit" href="https://neo.anipatke.com/">Visit →</a></li>
+      </ul>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>Built by Ani Patke, with AI doing a lot of the typing. <a href="https://anipatke.com">anipatke.com</a> · MIT licence</span>
+    <span>Planet and moon positions: JPL Horizons · Meteor orbits: Global Meteor Network, CC BY 4.0 · Stars: HYG database, CC BY-SA 4.0 · <a href="../assets.html">Assets, science and credits →</a></span>
+  </div>
+</footer>
+
+<script>
+(() => {
+  const canvas = document.getElementById("sky");
+  if (!canvas || !canvas.getContext) return;
+  const ctx = canvas.getContext("2d");
+  const still = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  let seed = 19690720;
+  const rand = () => { seed = (seed * 1664525 + 1013904223) >>> 0; return seed / 4294967296; };
+  const tints = window.previewStarTints = ["#cfdcff", "#e6ecff", "#f5f5f7", "#f5f5f7", "#fff4e0", "#ffe2bd"];
+  let stars = [], w = 0, h = 0;
+  function build() {
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    w = canvas.clientWidth; h = canvas.clientHeight;
+    canvas.width = Math.round(w * dpr); canvas.height = Math.round(h * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    seed = 19690720;
+    const count = Math.round((w * h) / 2600);
+    stars = Array.from({ length: count }, () => {
+      const m = Math.pow(rand(), 3.2);
+      let x = rand() * w, y = rand() * h;
+      if (rand() < 0.35) { const t = rand(); x = t * w; y = h * (0.05 + 0.7 * t) + (rand() - 0.5) * h * 0.18; }
+      return { x, y, r: 0.35 + m * 1.5, a: 0.18 + m * 0.75, c: tints[Math.floor(rand() * tints.length)], tw: rand() < 0.08 ? 0.6 + rand() * 1.4 : 0, ph: rand() * 6.28 };
+    });
+  }
+  function draw(t) {
+    ctx.clearRect(0, 0, w, h);
+    for (const s of stars) {
+      const a = s.tw ? s.a * (0.55 + 0.45 * Math.sin(t / 1000 * s.tw + s.ph)) : s.a;
+      ctx.globalAlpha = a; ctx.fillStyle = s.c;
+      ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, 6.2832); ctx.fill();
+      if (s.r > 1.4) { ctx.globalAlpha = a * 0.18; ctx.beginPath(); ctx.arc(s.x, s.y, s.r * 3.2, 0, 6.2832); ctx.fill(); }
+    }
+    ctx.globalAlpha = 1;
+  }
+  let raf = 0;
+  function loop(t) { draw(t); raf = requestAnimationFrame(loop); }
+  function start() { build(); cancelAnimationFrame(raf); if (still) draw(0); else raf = requestAnimationFrame(loop); }
+  start();
+  let rt; window.addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(start, 150); });
+  document.addEventListener("visibilitychange", () => { if (document.hidden) cancelAnimationFrame(raf); else if (!still) raf = requestAnimationFrame(loop); });
+})();
+</script>
+
+<!-- fit-data:start -->
+<script type="application/json" id="fit-data">{"source":"data/ephemerides/jupiter-moons/ (JPL Horizons, fitted in O-025 T-096); NASA/JPL-Caltech SSD","startTdbS":531446400,"pieceSeconds":97200,"jupiterPieceSeconds":194400,"coefficients":16,"io":[29707.8694,-465921.25684,-86245.63712,103446.42311,8646.01994,-5532.79553,-361.35153,125.77598,10.99642,-1.05057,-0.31501,-0.02238,0.00716,0.00117,-0.00008,-0.00003,82078.63728,129517.43636,-256073.59057,-29453.53233,24401.61817,1745.51716,-827.37399,-58.4495,12.42418,1.70331,0.00489,-0.04496,-0.00539,0.00082,0.0002,0,39566.34582,54236.56826,-123339.20332,-12374.02847,11759.98403,742.88472,-399.82982,-25.82699,6.09303,0.79444,-0.0027,-0.02177,-0.00245,0.00041,0.00009,0,52982.87748,411943.91415,-158437.07334,-91128.09042,15393.20979,4791.60923,-568.81412,-100.11851,12.32625,0.30498,-0.2076,0.03855,0.00232,-0.00123,0.00004,0.00002,-73193.56752,231250.17306,227599.66025,-51828.36541,-21522.81704,2889.45563,703.91574,-78.53299,-8.56138,1.47532,-0.10784,-0.02238,0.00691,0.00008,-0.00015,0.00002,-34013.43475,116723.49603,105866.415,-26141.10291,-10004.60833,1452.75838,326.16097,-39.0033,-3.88049,0.70752,-0.05468,-0.01004,0.00333,0.00002,-0.00007,0.00001],"jupiter":[-7.35268,-34.44695,-18.33908,2.3355,10.22354,-0.68941,-1.90125,0.08725,0.17308,-0.00793,-0.01227,0.00078,0.00111,-0.00003,-0.0002,-0.00007,72.87329,21.98756,-4.62645,-13.97335,1.23903,4.49379,-0.22704,-0.55075,0.02283,0.04175,-0.00221,-0.00316,0.00017,0.00034,0.00006,-0.0001,34.22975,10.08543,-2.4197,-6.58717,0.74911,2.12702,-0.13836,-0.26083,0.01363,0.01976,-0.00125,-0.00149,0.0001,0.00016,0.00003,-0.00005],"plane":{"e1":[0.755487,-0.596111,-0.271831],"e2":[0.655005,0.678083,0.333423]},"tableStepMinutes":10,"ioPeriodDays":1.77,"figures":{"ioTableBytes":50492208,"ioFitBytes":1077981,"ioWorstM":0.0403,"setTableBytes":899542176,"setFitBytes":21859447,"bodies":116,"span":["2010-01-01","2030-01-01"],"worstOfAllM":0.9892,"planets":{"beforeBytes":1391805,"afterBytes":214459,"worstFitErrorKm":0.7973,"span":["1969-01-01","2045-01-01"]}}}</script>
+<!-- fit-data:end -->
+<script>
+(() => {
+  const dataNode = document.getElementById("fit-data");
+  const photos = document.getElementById("fit-photos");
+  const recipe = document.getElementById("fit-recipe");
+  const slider = document.querySelector("[data-fit-slider]");
+  const readout = document.querySelector("[data-fit-readout]");
+  if (!dataNode || !photos || !recipe || !slider || !readout) return;
+  const d = JSON.parse(dataNode.textContent);
+  if (!d.io) return;
+  const NS = "http://www.w3.org/2000/svg";
+  const n = d.coefficients;
+  const windowS = d.jupiterPieceSeconds;
+  // Clenshaw sum of c[o + k] * T_k(x), the same sum the engine runs.
+  const cheb = (c, o, x) => { let b1 = 0, b2 = 0; for (let k = n - 1; k >= 1; k--) { const b0 = 2 * x * b1 - b2 + c[o + k]; b2 = b1; b1 = b0; } return x * b1 - b2 + c[o]; };
+  const place = (t) => { // Io about Jupiter in the orbit plane, km, t seconds into the window
+    const piece = Math.min(1, Math.floor(t / d.pieceSeconds));
+    const x = 2 * (t / d.pieceSeconds - piece) - 1;
+    const xj = 2 * (t / windowS) - 1;
+    const rel = [0, 1, 2].map((a) => cheb(d.io, piece * 3 * n + a * n, x) - cheb(d.jupiter, a * n, xj));
+    const dot = (e) => rel[0] * e[0] + rel[1] * e[1] + rel[2] * e[2];
+    return [dot(d.plane.e1), dot(d.plane.e2)];
+  };
+  const R = 421800 * 1.12, C = 150, S = 138 / R;
+  const px = (p) => [C + p[0] * S, C - p[1] * S];
+  const el = (parent, tag, attrs) => { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); parent.appendChild(e); return e; };
+  const stepS = d.tableStepMinutes * 60;
+  const rows = Math.round(windowS / stepS);
+  const dots = []; for (let i = 0; i <= rows; i++) dots.push(px(place(i * stepS)));
+  const curve = []; for (let i = 0; i <= 240; i++) curve.push(px(place((windowS * i) / 240)));
+  const planetR = 71492 * S;
+  for (const svg of [photos, recipe]) {
+    el(svg, "circle", { cx: C, cy: C, r: 421800 * S, class: "fit-orbit" });
+    el(svg, "circle", { cx: C, cy: C, r: planetR, class: "fit-planet" });
+  }
+  el(photos, "path", { class: "fit-dots", d: dots.map((p) => "M" + p[0].toFixed(1) + " " + p[1].toFixed(1) + "h0").join("") });
+  el(recipe, "path", { class: "fit-curve", d: "M" + curve.map((p) => p[0].toFixed(1) + " " + p[1].toFixed(1)).join("L") });
+  for (const t of [0, d.pieceSeconds, windowS]) { const p = px(place(t)); el(recipe, "circle", { cx: p[0].toFixed(1), cy: p[1].toFixed(1), r: 3.2, class: "fit-join" }); }
+  const ring = el(photos, "circle", { r: 5, class: "fit-ring" });
+  const mark = el(recipe, "circle", { r: 4.2, class: "fit-mark" });
+  const root = slider.closest(".fit-row");
+  const fmt = (v) => Math.round(v).toLocaleString("en-US");
+  function show() {
+    const t = Number(slider.value) * 60;
+    const p = place(t), q = px(p);
+    mark.setAttribute("cx", q[0].toFixed(1)); mark.setAttribute("cy", q[1].toFixed(1));
+    const near = dots[Math.min(rows, Math.round(t / stepS))];
+    ring.setAttribute("cx", near[0].toFixed(1)); ring.setAttribute("cy", near[1].toFixed(1));
+    const km = Math.hypot(p[0], p[1]);
+    const hours = t / 3600;
+    readout.textContent = "Hour " + hours.toFixed(1) + " \u00b7 Io is " + fmt(km) + " km from Jupiter's centre";
+    root.dataset.fitHours = hours.toFixed(2);
+    root.dataset.fitKm = String(Math.round(km));
+    root.dataset.fitMarkX = q[0].toFixed(1);
+    root.dataset.fitMarkY = q[1].toFixed(1);
+  }
+  root.dataset.fitDots = String(dots.length);
+  root.dataset.fitPieces = "2";
+  slider.addEventListener("input", show);
+  show();
+  // Figures, from the measured data.
+  const f = d.figures, mb = (b, k) => (b / 1e6).toFixed(k === undefined ? 1 : k) + " MB";
+  const set = (key, text) => document.querySelectorAll('[data-fit="' + key + '"]').forEach((e) => { e.textContent = text; });
+  set("rows", String(dots.length)); set("step", String(d.tableStepMinutes)); set("pieces", "2"); set("numbers", String(2 * 3 * n));
+  set("ratio", Math.round(f.ioTableBytes / f.ioFitBytes) + "\u00d7"); set("ioFit", mb(f.ioFitBytes)); set("ioTable", mb(f.ioTableBytes));
+  set("accuracy", Math.round(f.ioWorstM * 100) + " cm");
+})();
+</script>
+<script type="module" src="./colour-b.js"></script>
+<script type="module" src="./colour.js"></script>
+</body>
+</html>
