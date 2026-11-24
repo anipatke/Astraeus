@@ -2,7 +2,8 @@
 id: T-449
 title: Long words wrap inside panels
 objective: O-097
-status: planned
+status: in_progress
+stage: audit
 depends_on: []
 check_waiver: {task: T-449, reason: 'Owner said "orchestrate O-97" (2026-11-24): standing orchestration rules waive the optional step checks; the mandatory Full Objective Check covers the whole diff.', actor: {role: owner, session: orchestrate-o097-20261124}, recorded_at: '2026-11-24T07:29:19Z'}
 owner_validation: {required: true}
@@ -71,8 +72,23 @@ Focused: `npx vitest run packages/astraeus/tests/panelWrap.test.ts packages/astr
 
 ## Technical Evidence
 
-Pending execution.
+Files changed: packages/astraeus/src/shell/parts/parts.css, packages/astraeus/tests/panelWrap.test.ts (new), packages/astraeus-site/src/catalogue/examples/explainer.ts, packages/astraeus/CHANGELOG.md (0.11.0 Fixed line). No part sheet changed: each part's own sheet already has `overflow-wrap: anywhere` and `min-width: 0` on its blocks, rows and chips.
+
+Cause (by reading the CSS; the live scrollWidth probe was NOT run: the coordinator's no-browser rule and the auto-mode classifier denied starting a dev server and headless browser, so no before/after numbers): the panel is a flex column, so its children stretch to its width, but the header row (`.info-panel-header`, flex) held an `h2` with no `overflow-wrap` and the default `min-width: auto`, so the title's longest word set the header's minimum width and pushed Close and the row out; the explainer heading and the chips label had no `overflow-wrap` either. Those are the elements that widened the panel; the part texts already wrapped. Not measured at 1280x720 / 375x667; T-451's catalogue step is the browser proof.
+
+Done When -> evidence:
+- Cause named: above (read, not measured).
+- One shared rule: parts.css `:is(.info-panel, .story-panel) { overflow-wrap: anywhere }`, `:is(...) > * { min-width: 0 }`, header `h2` and `.story-panel h2` `min-width: 0`; panelWrap.test.ts asserts each.
+- Buttons keep words: `.info-panel-header .info-panel-close { flex: none }` and `.story-panel-close { flex: none }`; panelWrap.test.ts.
+- Ordinary text unchanged: no font/colour/spacing/token change; lookDrift, computedLook, domStorySteps pass unedited.
+- Regression test: tests/panelWrap.test.ts (4 tests).
+- Catalogue example: explainer note now ends with lantern_osculating_elements_epoch_2026_heliocentric_ecliptic_J2000.csv.
+- CHANGELOG: one Fixed line in 0.11.0.
+- Size: `npm run check:pack` pass, engine 525,853 B gzip (cap 527,000; before 525,811: +42 B).
+Gates: npm run typecheck clean (one earlier failure was in T-450's chart View.tsx mid-edit; clean on rerun); eslint on panelWrap.test.ts and explainer.ts clean; prettier --check clean on parts.css, panelWrap.test.ts, explainer.ts; vitest focused: panelWrap, lookDrift, computedLook, domStorySteps (packages/astraeus/tests), shelfCatalogue, catalogueEntries (packages/astraeus-site/tests): 6 files, 110 tests passed.
+Browser scripts: driver.mjs and journey-catalogue.mjs reference only selectors (`.info-panel .info-panel-close`) and page-level scrollWidth/overlap rects; no readout depends on the wrap or flex rules changed, and ordinary text lays out as before.
+Limitations: no live layout probe; owner look pending (owner_validation required).
 
 ## Drift Notes
 
-None expected; the viewer-interface line is written by T-451.
+None; the viewer-interface line is written by T-451.

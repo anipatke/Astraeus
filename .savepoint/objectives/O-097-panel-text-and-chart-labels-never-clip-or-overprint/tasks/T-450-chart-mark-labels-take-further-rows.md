@@ -2,7 +2,8 @@
 id: T-450
 title: Chart mark labels take further rows
 objective: O-097
-status: planned
+status: in_progress
+stage: audit
 depends_on: []
 check_waiver: {task: T-450, reason: 'Owner said "orchestrate O-97" (2026-11-24): standing orchestration rules waive the optional step checks; the mandatory Full Objective Check covers the whole diff.', actor: {role: owner, session: orchestrate-o097-20261124}, recorded_at: '2026-11-24T07:29:19Z'}
 owner_validation: {required: true}
@@ -70,8 +71,20 @@ Focused: `npx vitest run packages/astraeus/tests/chartMarkRows.test.ts packages/
 
 ## Technical Evidence
 
-Pending execution.
+Files changed: packages/astraeus/src/shelf/chart/markRows.ts (new), packages/astraeus/src/shelf/chart/View.tsx, packages/astraeus/tests/chartMarkRows.test.ts (new), packages/astraeus-site/src/catalogue/examples/chart.ts (second mark "Survey edge" at 22), packages/astraeus/CHANGELOG.md (one Fixed line). part.css not needed (no CSS change).
+
+| Done When | Evidence |
+|---|---|
+| Row layout pure function | chartMarkRows.test.ts: Kirkwood no overlap and inside chart, far-apart row 0, single row 0, edge labels moved inside |
+| Widths measured with fallback | View.tsx layout effect uses getComputedTextLength, falls back to 6 units per character; render test mocks 34-unit widths |
+| Geometry | render test: clustered labels differ in y and viewBox taller; one-mark chart viewBox "0 0 320 156", label y 14 |
+| Existing tests unchanged | lifecycle, twoViewers, shelfInputTable, lookDrift pass unedited |
+| Catalogue example | chart.ts marks gain Survey edge at 22; shelfCatalogue, catalogueEntries, apiReference pass |
+| Size | check:shelf-split ok; check:pack pass, engine 525,853 B gzip (cap 527,000; was 525,811) |
+
+Commands: npm run typecheck (clean); eslint + prettier on changed files (clean); vitest run chartMarkRows, lifecycle, twoViewers, shelfInputTable, lookDrift, astraeus-site shelfCatalogue, catalogueEntries, apiReference: 8 files, 343 passed; check:shelf-split ok; check:pack pass.
+Limitations: a dashed line from a higher-row label can cross a lower-row label; a label wider than the chart stays clipped at the left edge. No browser run; driver.mjs line 1726 only queries the .shelf-chart wrapper (not marks, not viewBox); journey-catalogue.mjs has no chart reference.
 
 ## Drift Notes
 
-None expected; the viewer-interface `chart` row is written by T-451.
+None beyond: the viewer-interface `chart` row (T-451) should say mark labels take further rows.

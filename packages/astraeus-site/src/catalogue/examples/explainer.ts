@@ -14,7 +14,7 @@ export function buildScene(): Scene {
           id: "moves-text",
           heading: "A lap in 740 days",
           paragraphs: ["Lantern swings closer to the Sun at one end of its orbit and farther at the other.", "Press play to watch it speed up near the Sun."],
-          notes: ["Invented orbit, not measured."],
+          notes: ["Invented orbit, not measured: lantern_osculating_elements_epoch_2026_heliocentric_ecliptic_J2000.csv"],
         }),
       ],
     }),

@@ -40,7 +40,11 @@
 .astraeus-shell .tile-card { overflow: visible; }
 .astraeus-shell .tile-strip-button { display: block; width: 100%; box-sizing: border-box; min-height: var(--astraeus-hit); padding: var(--astraeus-space-3) var(--astraeus-space-5); border: 1px solid var(--astraeus-border); border-radius: var(--astraeus-radius); background: var(--astraeus-panel); color: inherit; font: inherit; text-align: left; box-shadow: var(--astraeus-shadow-s); backdrop-filter: blur(var(--astraeus-blur)); cursor: pointer; }
 .astraeus-shell .info-panel-header { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--astraeus-space-4); }
-.astraeus-shell .info-panel-header h2 { margin: var(--astraeus-space-3) 0 0; font-size: var(--astraeus-text-l); line-height: 1.3; }
+.astraeus-shell .info-panel-header h2 { min-width: 0; margin: var(--astraeus-space-3) 0 0; font-size: var(--astraeus-text-l); line-height: 1.3; }
+.astraeus-shell .info-panel-header .info-panel-close { flex: none; }
+/* A long word with no break wraps inside the panel (belt #30): the panel text may break anywhere, and its blocks and the header title may shrink below their longest word. */
+.astraeus-shell :is(.info-panel, .story-panel) { overflow-wrap: anywhere; }
+.astraeus-shell :is(.info-panel, .story-panel) > * { min-width: 0; }
 /* Fact cards ported from Planetary Explorer's FeatureDetails (badge, then one small box per detail), in the shell's one UI font (O-039 T-134, I-058). */
 .astraeus-shell .info-panel-subtitle { margin: 0; }
 .astraeus-shell .info-panel-badge { display: inline-block; max-width: 100%; box-sizing: border-box; padding: var(--astraeus-space-2) var(--astraeus-space-5); border: 1px solid color-mix(in srgb, var(--astraeus-data) 45%, transparent); border-radius: var(--astraeus-radius-pill); color: var(--astraeus-data); font-size: var(--astraeus-text-s); line-height: 1.3; text-transform: capitalize; overflow-wrap: anywhere; }
@@ -199,7 +203,7 @@
 }
 .astraeus-shell .sheet-handle { display: none; }
 .astraeus-shell .story-panel-header { display: flex; align-items: center; justify-content: space-between; gap: var(--astraeus-space-4); }
-.astraeus-shell .story-panel h2 { margin: 0; font-size: var(--astraeus-text-l); line-height: 1.3; }
+.astraeus-shell .story-panel h2 { min-width: 0; margin: 0; font-size: var(--astraeus-text-l); line-height: 1.3; }
 .astraeus-shell .story-panel-body p { margin: 0 0 var(--astraeus-space-4); color: var(--astraeus-text); }
 .astraeus-shell .story-panel-body p:last-child { margin-bottom: 0; }
 /* Sources: a collapsible section, closed until tapped, in the information and story panels. */
@@ -212,7 +216,7 @@
 .astraeus-shell .sources-details p { margin: var(--astraeus-space-3) 0; }
 .astraeus-shell .sources-trust { margin-bottom: var(--astraeus-space-4); }
 .astraeus-shell .sources-section li + li { margin-top: var(--astraeus-space-2); }
-.astraeus-shell :where(.story-panel-close) { font-size: var(--astraeus-text-xl); line-height: 1; }
+.astraeus-shell :where(.story-panel-close) { flex: none; font-size: var(--astraeus-text-xl); line-height: 1; }
 .astraeus-shell :where(.story-panel-continue) { align-self: flex-start; }
 /* Touch targets: Close, Back, Next and Continue are at least 44 px each way, at 375x667 and 1280x720 alike. */
 .astraeus-shell :where(.story-panel-close, .story-panel-back, .story-panel-next, .story-panel-continue) { min-width: var(--astraeus-hit); min-height: var(--astraeus-hit); }

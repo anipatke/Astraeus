@@ -9,6 +9,8 @@ Versions follow [semantic versioning](https://semver.org). While the version sta
 - Fixed: a tap or click on a point group's shown name now selects the group, exactly as choosing it from the object list does (on a wide screen its card opens, on a phone it selects as a list choice does). Only the name answers, not the dots; a drag that starts on a name still orbits or pans; body names behave as before.
 - Fixed: a viewer on a browser or device with no WebGL 2 no longer comes up empty and silent. `mount`'s `ready` rejects with the new `SceneError` code `no-webgl`, an `AstraeusScene` host's `onError` (else the console) hears it, and a short message stays in the viewer's place. `unmount` removes it.
 - Fixed: shelf parts refuse blank text, uneven chart bins, marks outside the bins, fractional colour-key counts and an empty key with `bad-part`, in the factories and in `setParagraphs`, `setBins`, `setEntries` and the readout tile's setters alike.
+- Fixed: a long word, title, label or note with no spaces now wraps inside its panel (shelf panels, About, cards, the readout tile and story panels) instead of widening the panel and cutting every line off on the right.
+- Fixed: `chart` mark labels no longer print over each other: a label that would overlap drops to a further row above the bars, and the chart grows a row taller for each; a chart whose labels fit draws as before.
 
 ### Breaking changes in 0.11.0
 
