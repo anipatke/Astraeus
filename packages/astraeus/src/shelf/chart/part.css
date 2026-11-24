@@ -7,4 +7,4 @@
 .astraeus-shell .shelf-chart-mark line { stroke: var(--astraeus-muted); stroke-width: 1; stroke-dasharray: 3 2; }
 .astraeus-shell .shelf-chart-mark text { fill: var(--astraeus-text); font-size: var(--astraeus-text-xs); }
 .astraeus-shell .shelf-chart-tick { fill: var(--astraeus-muted); font-size: var(--astraeus-text-xs); font-variant-numeric: tabular-nums; }
-.astraeus-shell .shelf-chart-label { fill: var(--astraeus-muted); font-size: var(--astraeus-text-xs); }
+.astraeus-shell .shelf-chart-label { color: var(--astraeus-muted); font-size: var(--astraeus-text-xs); text-align: center; overflow-wrap: anywhere; }

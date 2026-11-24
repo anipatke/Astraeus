@@ -1,4 +1,4 @@
-// Part: the chart's view, drawn inside a panel as one SVG: bars on a shared x scale, a y scale from the largest count, labelled mark lines, the axis label and its ends. It must not set a place,
+// Part: the chart's view, drawn inside a panel as one SVG: bars on a shared x scale, a y scale from the largest count, labelled mark lines and its ends, with the axis label as a wrapping caption under it. It must not set a place,
 // layer or raw colour or size (a bin's colour is the story's, passed as a custom property), take a tap, or open another part.
 import { useLayoutEffect, useRef, useState, useSyncExternalStore, type CSSProperties } from "react";
 import type { ShelfBlock, ShelfRuntime } from "../../app/shelfContract";
@@ -8,7 +8,7 @@ import { useCell } from "../useCell";
 import { placeMarkRows } from "./markRows";
 
 const WIDTH = 320,
-  HEIGHT = 156,
+  HEIGHT = 136,
   LEFT = 8,
   RIGHT = 312,
   TOP = 22,
@@ -143,10 +143,10 @@ export function ChartView({ block, runtime }: { readonly block: ShelfBlock; read
             </g>
           );
         })}
-        <text className="shelf-chart-label" x={WIDTH / 2} y={HEIGHT + extra - 6} textAnchor="middle">
-          {axisLabel}
-        </text>
       </svg>
+      <div className="shelf-chart-label" aria-hidden="true">
+        {axisLabel}
+      </div>
     </div>
   );
 }

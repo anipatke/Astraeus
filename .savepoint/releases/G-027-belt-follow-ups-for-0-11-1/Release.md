@@ -38,6 +38,7 @@ Owner answers, 2026-11-24 (each asked separately; planner's options kept below f
 4. "Yes, all groups": every group's own label is placed on its dots by the host-label rule (owner look on localhost:5490).
 5. "Raise by 2,000 B": the engine's first-download gzip cap rises by 2,000 B, with the measured figure recorded as the reason, when O-101 needs it.
 6. "Caption under the chart": option (a); T-457 may change exactly the three constants in `packages/astraeus/tests/chartMarkRows.test.ts` lines 79, 125, 131.
+6b. "Allow the two" (2026-11-24, T-457): also `packages/astraeus/tests/chartMarkRows.test.ts` line 75 (`toBeGreaterThan(156)`) and `packages/astraeus/tests/chartSettles.test.ts` line 75 (`156 + extra`) change 156 to 136; nothing else.
 7. "orchestrate": owner chose "Chart first ... it can be built while you answer" — O-100 runs under the standing orchestration rules (step checks waived, coordinator marks done when gates pass, one Full Objective Check).
 
 Planner's options as presented:

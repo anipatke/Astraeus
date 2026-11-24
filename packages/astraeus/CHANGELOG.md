@@ -6,6 +6,7 @@ Versions follow [semantic versioning](https://semver.org). While the version sta
 
 - Fixed: a `chart` whose mark labels sit at a row boundary no longer loops and takes the viewer down ("Maximum update depth exceeded"): labels are measured once for their text and font, then placed.
 - Fixed: a shelf part that fails now shows "This part could not be drawn." in its own place and is reported to the page (`reportError`); before, the whole viewer unmounted.
+- Fixed: a `chart`'s long `axisLabel` now wraps inside its panel (it was one line, cut off on both sides); the chart is a few units shorter, as the label sits under it.
 
 ### Breaking changes in 0.12.0
 

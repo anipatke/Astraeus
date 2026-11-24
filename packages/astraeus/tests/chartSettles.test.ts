@@ -72,7 +72,7 @@ describe("chart labels settle in one pass (O-100 T-455)", () => {
     const ys = tops(svg);
     const extra = Math.max(...rows) * 14;
     expect(ys).toEqual(rows.map((r) => 22 - 8 + extra - r * 14));
-    expect(svg.getAttribute("viewBox")).toBe(`0 0 320 ${156 + extra}`);
+    expect(svg.getAttribute("viewBox")).toBe(`0 0 320 ${136 + extra}`);
   });
   it("measures again once for a font-size change and not for a repeat render", () => {
     let calls = 0;

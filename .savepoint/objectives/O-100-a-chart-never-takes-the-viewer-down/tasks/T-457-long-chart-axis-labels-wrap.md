@@ -2,7 +2,8 @@
 id: T-457
 title: Long chart axis labels wrap
 objective: O-100
-status: planned
+status: in_progress
+stage: audit
 depends_on: [{task: T-455, requires: clear}]
 check_waiver: {task: T-457, reason: 'Owner chose "Chart first" for G-027 (2026-11-24), to be built while the label questions were answered: standing orchestration rules waive the optional step checks; the mandatory Full Objective Check covers the whole diff.', actor: {role: owner, session: orchestrate-g027-20261124}, recorded_at: '2026-11-24T09:55:03Z'}
 owner_validation: {required: true}
@@ -70,8 +71,16 @@ Focused: `npx vitest run packages/astraeus/tests/chartAxisLabel.test.ts packages
 
 ## Technical Evidence
 
-Pending execution.
+Done When -> evidence:
+- Caption not SVG text / aria: chartAxisLabel.test.ts (div.shelf-chart-label outside svg, aria-hidden=true because the SVG aria-label summary already names the axis; no svg .shelf-chart-label). CSS from tokens, lookDrift passes. No measuring code added.
+- SVG height: HEIGHT 156 -> 136 (ticks baseline 131 plus descent). Owner-approved edits (answers 6 and 6b), constants only: chartMarkRows.test.ts line 79 `"0 0 320 156"`->`"0 0 320 136"`; line 125 `${156 + height}`->`${136 + height}`; line 131 `"0 0 320 168"`->`"0 0 320 148"`; line 75 `toBeGreaterThan(156)`->136; chartSettles.test.ts line 75 `156 + extra`->`136 + extra`.
+- Unit test: new tests/chartAxisLabel.test.ts, 2 pass (viewBox 0 0 320 136).
+- Browser: `npm run check:browser -- --step catalogue` once, exit 0, 12 s, error-lines 0, evidence docs/evidence/browser-steps-20261124T100252Z; its long-word check (catalogueLongWordFit) writes into the caption as HTML panel text (one read, no script change).
+- Docs: viewer-interface section 11 chart row updated. CHANGELOG: Fixed line in 0.12.0 (unreleased).
+- Size: check:pack pass, engine 526014 B gzip (cap 527000); check:shelf-split ok.
+- Gates: typecheck, eslint, prettier clean on changed files; vitest chart tests (chartMarkRows, chartSettles, chartSummary, chartAxisLabel), lifecycle, twoViewers, lookDrift, site shelfCatalogue, apiReference: 9 files, 264 passed.
+Limitations: none.
 
 ## Drift Notes
 
-Record architecture deltas for the planner.
+None.

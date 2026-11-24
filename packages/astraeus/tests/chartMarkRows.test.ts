@@ -72,11 +72,11 @@ describe("ChartView mark rows (O-097 T-450)", () => {
     const ys = [...svg.querySelectorAll(".shelf-chart-mark text")].map((t) => t.getAttribute("y"));
     expect(new Set(ys).size).toBeGreaterThan(1);
     const [, , , height] = svg.getAttribute("viewBox")!.split(" ").map(Number);
-    expect(height).toBeGreaterThan(156);
+    expect(height).toBeGreaterThan(136);
   });
   it("keeps a one-mark chart at 0 0 320 156", () => {
     const svg = render([{ value: 3, label: "Limit" }]);
-    expect(svg.getAttribute("viewBox")).toBe("0 0 320 156");
+    expect(svg.getAttribute("viewBox")).toBe("0 0 320 136");
     expect(svg.querySelector(".shelf-chart-mark text")!.getAttribute("y")).toBe("14");
   });
 });
@@ -122,12 +122,12 @@ describe("ChartView row pitch follows the label height (I-207)", () => {
     for (const height of [14.1, 17.6]) {
       const svg = renderAt(height);
       expect(pitch(svg)).toBeCloseTo(height, 6);
-      expect(svg.getAttribute("viewBox")).toBe(`0 0 320 ${156 + height}`);
+      expect(svg.getAttribute("viewBox")).toBe(`0 0 320 ${136 + height}`);
     }
   });
   it("falls back to 12 units when no height is measured", () => {
     const svg = renderAt(0);
     expect(pitch(svg)).toBe(12);
-    expect(svg.getAttribute("viewBox")).toBe("0 0 320 168");
+    expect(svg.getAttribute("viewBox")).toBe("0 0 320 148");
   });
 });
