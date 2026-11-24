@@ -5,6 +5,7 @@ import {
   Suspense,
   useEffect,
   useId,
+  useMemo,
   useRef,
   useState,
   useSyncExternalStore,
@@ -740,14 +741,29 @@ export function AstraeusShell({
     cardDrawn: view !== null,
     showObjectCard: () => showInfo({ kind: "object" }),
   });
+  // A shelf button that turns the camera tells the panel rule first (a phone's sheet closes so the move is seen); the rule decides, the part only asks.
+  const { cameraTurned } = panels;
+  const panelRuntime = useMemo(
+    () =>
+      shelfRuntime?.moveCamera === undefined
+        ? shelfRuntime
+        : {
+            ...shelfRuntime,
+            moveCamera: (request: Parameters<NonNullable<ShelfRuntime["moveCamera"]>>[0]) => {
+              cameraTurned();
+              shelfRuntime.moveCamera?.(request);
+            },
+          },
+    [shelfRuntime, cameraTurned],
+  );
   const { storyButtons, shelfPanel } = useShelfPanels({
     parts: shelfParts,
-    runtime: shelfRuntime,
+    runtime: panelRuntime,
     panels,
     request: shelfRequest,
     onOpenChange: onOpenShelfChange,
   });
-  const { tileArea, tileSheet } = useShelfTile({ parts: shelfParts, runtime: shelfRuntime, panels, phone });
+  const { tileArea, tileSheet } = useShelfTile({ parts: shelfParts, runtime: panelRuntime, panels, phone });
   const moonsOpen = panels.state.left === "moons";
   const toggleMoons = () => panels.toggle("moons");
 

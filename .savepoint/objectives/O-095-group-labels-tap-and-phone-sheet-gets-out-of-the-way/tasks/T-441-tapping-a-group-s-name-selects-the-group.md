@@ -2,7 +2,8 @@
 id: T-441
 title: Tapping a group's name selects the group
 objective: O-095
-status: planned
+status: in_progress
+stage: audit
 depends_on: []
 check_waiver: {task: T-441, reason: 'Owner said "Orchestrate O-95" (2026-11-24): standing orchestration rules waive the optional step checks; the mandatory Full Objective Check covers the whole diff.', actor: {role: owner, session: orchestrate-o095-20261124}, recorded_at: '2026-11-24T05:54:06Z'}
 owner_validation: {required: true}
@@ -66,8 +67,23 @@ Focused `scenePicking` tests while iterating; the configured build and test gate
 
 ## Technical Evidence
 
-Pending execution.
+Reads beyond Context Files: `packages/astraeus/src/shell/AstraeusShell.tsx` `pickObject` (step 1, confirm the shell takes a group id), `packages/astraeus/src/app/App.tsx` `requestPick`; `packages/astraeus-site/tools/validate/browser-smoke.mjs` and `driver.mjs` (the `browser-tap-focus` scenario's taps are the smoke script, "taps S"; there is no separate script).
+
+Step 1: `requestPick` sets a pick request; the shell's `pickObject` accepts any listed object (`availableObjectById`), the same path as the list. A group is a listed object, so no REPLAN.
+
+| Done When | Evidence |
+|---|---|
+| Non-body listed object with a shown label is a label-only candidate | `pickCandidatesOf` in `scenePicking.ts`: the `body === null` skip is gone, a non-body has no screen so only its label answers. |
+| Id travels the existing path | No new selection code; `onPickObject` -> `requestPick` -> `pickObject` unchanged. |
+| New picking case, existing cases unchanged | `scenePicking.test.ts` "makes the shown name of a listed non-body object (a point group) a label-only target": group id inside the rect, null outside and below. Red before: the group had no candidate (the `probe` object returned null). Existing cases pass unchanged. |
+| Browser check at 1440x900 and 390x844 | Written, NOT proven: `groupLabelChecks` in `browser-smoke.mjs` (new driver helpers `dragFromLabel`, `labelCentre`), run on the made-up belt view ("Dust belt" group, `dust-belt`, label shown at the opening view), i.e. the `orbit-lines` step, since the quick smoke skips the belt. Two runs failed (1: wrong readout, `astraeusHost.camera` absent in this scene; 2: the group's own label sits at the Sun, the turn's pivot, so it never moved). Readout changed to the other shown names; third run not made (time box). |
+| README and CHANGELOG | README line under "Bodies and paths"; `packages/astraeus/CHANGELOG.md` Fixed entry in 0.11.0. |
+| Gates | See below. |
+
+Commands: `npm run typecheck` clean; eslint (use-typescript6) and prettier clean on scenePicking.ts, scenePicking.test.ts, browser-smoke.mjs, driver.mjs; `npx vitest run` scenePicking, skyFigureSelect, apiImports, packageBoundaries, browserDriverGuard: 5 files, 61 tests passed.
+
+Limitations: browser check unproven (above). The label-only rule also makes any other listed non-body object's shown name (spacecraft, comet) a tap target; the shell already accepts those ids.
 
 ## Drift Notes
 
-Record architecture deltas for reconciliation before the Full Check.
+None. (Design.md `Viewer interface`: a shown label of any listed object, not only bodies, is a tap target; reconcile in the Design pass if that sentence names bodies only.)

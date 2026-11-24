@@ -36,6 +36,11 @@ export interface ActionChange {
 export interface ActionsControl {
   /** Calls `listener` when a visitor presses a button, after its camera turns; returns the stop function. */
   onAction(listener: (change: ActionChange) => void): () => void;
+  /**
+   * Switches one button off or on for this viewer (every button starts on): an off button is greyed, and pressing it neither turns the camera nor reaches `onAction`.
+   * An unknown `actionId` or a non-boolean `enabled` is `bad-part` naming the field.
+   */
+  setEnabled(actionId: string, enabled: boolean): void;
 }
 
 /** The part's own data: what the view reads. */
@@ -45,6 +50,11 @@ export interface ActionsData {
     readonly label: string;
     readonly camera: CameraRequest | undefined;
   }[];
+}
+
+/** The buttons one viewer has switched off. */
+export interface ActionsState {
+  readonly disabled: readonly string[];
 }
 
 /**
@@ -73,9 +83,19 @@ export function actions(input: ActionsInput): BlockPart<"actions"> {
     id,
     view: ActionsView,
     data: Object.freeze({ actions: list } satisfies ActionsData),
+    initial: Object.freeze({ disabled: Object.freeze([]) } satisfies ActionsState),
     control: (link) =>
       ({
         onAction: (listener: (change: ActionChange) => void) => link.listen((event) => listener(event as ActionChange)),
+        setEnabled: (actionId: string, enabled: boolean) => {
+          const call = "ActionsControl.setEnabled";
+          if (typeof actionId !== "string" || !seen.has(actionId))
+            throw badPart(call, `actionId ${JSON.stringify(actionId)} is not an action of "${id}"`);
+          if (typeof enabled !== "boolean") throw badPart(call, "enabled must be true or false");
+          const cell = link.cell(call);
+          const off = (cell.get() as ActionsState).disabled.filter((other) => other !== actionId);
+          cell.set({ disabled: Object.freeze(enabled ? off : [...off, actionId]) } satisfies ActionsState);
+        },
       }) satisfies ActionsControl,
   };
   return registered(block) as unknown as BlockPart<"actions">;

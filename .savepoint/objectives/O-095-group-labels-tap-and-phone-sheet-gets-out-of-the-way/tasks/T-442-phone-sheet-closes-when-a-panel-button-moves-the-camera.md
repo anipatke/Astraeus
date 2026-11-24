@@ -2,7 +2,8 @@
 id: T-442
 title: Phone sheet closes when a panel button moves the camera
 objective: O-095
-status: planned
+status: in_progress
+stage: audit
 depends_on: []
 check_waiver: {task: T-442, reason: 'Owner said "Orchestrate O-95" (2026-11-24): standing orchestration rules waive the optional step checks; the mandatory Full Objective Check covers the whole diff.', actor: {role: owner, session: orchestrate-o095-20261124}, recorded_at: '2026-11-24T05:54:06Z'}
 owner_validation: {required: true}
@@ -67,8 +68,17 @@ Focused `panelRule` tests while iterating; configured build and test gates and t
 
 ## Technical Evidence
 
-Pending execution.
+Done When -> evidence:
+| Done When | Evidence |
+|---|---|
+| Rule owns decision; shelf camera path tells it; actions part unchanged | `cameraTurned` action in panelRule.ts (phone closes left place, wide nothing); `usePanels.cameraTurned`; AstraeusShell wraps `shelfRuntime.moveCamera` (dispatches `cameraTurned`, then the host's move) for the shelf panels and tile. View.tsx not touched. |
+| panelRule tests | tests/panelRule.test.ts "a shelf button turns the camera (O-095)": phone closes (shelf, tile; story stays), phone none open, wide stays. Fail before (no `cameraTurned` action; type error / unchanged state). |
+| Browser check phone + desktop | journey-catalogue.mjs (step `catalogue`) actions example: no-camera button keeps panel; camera button closes on phone (375x667), stays on desktop (1280x720). `npm run check:browser -- --step catalogue` exit 0, 8 s, docs/evidence/browser-steps-20261124T055616Z. |
+| CHANGELOG Fixed | packages/astraeus/CHANGELOG.md 0.11.0 Fixed entry. |
+| Gates | prettier + eslint clean on changed files; focused vitest 16 files 273 passed 1 skipped (panelRule, panelPlacementDom, shelfBar, shelfParts, about, apiImports, packageBoundaries, browserDriverGuard etc.). Typecheck: only error was T-443's tests/actionsEnabled.test.ts (not mine). |
+Files changed: packages/astraeus/src/shell/panels/panelRule.ts, usePanels.ts, src/shell/AstraeusShell.tsx, tests/panelRule.test.ts, CHANGELOG.md, packages/astraeus-site/tools/validate/driver.mjs, journey-catalogue.mjs, browser-steps.mjs, docs/BROWSER_CHECKS.md.
+Limitations: `browser-phone` is a retired script, so the check lives in the `catalogue` step at its existing 375x667 phone size, not 390x844. App.tsx not changed (shell wraps the runtime instead). Extra read: tests list via grep, driver.mjs catalogue helpers.
 
 ## Drift Notes
 
-Record architecture deltas for reconciliation before the Full Check.
+Shell now wraps the shelf runtime's moveCamera to tell the panel rule (`cameraTurned`); note in Design viewer-interface section 11 / panel rule. Deferred: none.

@@ -48,6 +48,8 @@ export type PanelAction =
       readonly dropsShelf?: boolean;
       readonly dropsTile?: boolean;
     }
+  /** A shelf panel's button turned the camera: a phone's open detail sheet (the left place) closes so the visitor sees the move; a wide screen keeps its panel. */
+  | { readonly type: "cameraTurned" }
   | { readonly type: "escape" }
   | { readonly type: "outsidePress" };
 
@@ -132,6 +134,8 @@ export function reducePanels(state: PanelState, action: PanelAction, layout: Lay
       return closeOccupant(state, action.drawer);
     case "viewSwitch":
       return viewSwitched(state, action);
+    case "cameraTurned":
+      return layout === "phone" && state.left !== null ? { ...state, left: null } : state;
     case "escape": {
       const top = topmost(state);
       if (top === null) return state;

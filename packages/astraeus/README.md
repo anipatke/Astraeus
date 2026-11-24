@@ -91,6 +91,8 @@ The short form. Each call's options, defaults, ranges and errors are on the [API
 | `scene.addPlaces(body, places)` | Tagged surface places on one body, as markers with cards. | [`PlacesInput`](https://astraeus.anipatke.com/api/#placesinput) |
 | `scene.addGroup(group)` | A list of orbits drawn as one group of dots, placed from catalogue mean anomalies or marked illustrative. | [`GroupInput`](https://astraeus.anipatke.com/api/#groupinput) |
 
+A shown name is a tap target: a tap or click on a body's or a group's name selects it exactly as choosing it from the object list does (a drag that starts on a name still turns or pans the camera). Names stay out of the tab order; the object list is the keyboard path.
+
 ### Time, events and story
 
 | Call | What it does | Reference |

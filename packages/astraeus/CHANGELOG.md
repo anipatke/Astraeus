@@ -2,6 +2,16 @@
 
 Versions follow [semantic versioning](https://semver.org). While the version starts with `0.`, the public API (the names exported from `astraeus`) may still change between minor versions; each change is listed here.
 
+## 0.11.0 (unreleased)
+
+- Added: `ActionsControl.setEnabled(actionId, enabled)` switches one actions button off and on for a viewer (every button starts on). An off button is greyed and disabled; pressing it neither turns the camera nor reaches `onAction`. An unknown action id or a non-boolean `enabled` throws `SceneError` `bad-part` naming the field.
+- Fixed: on a phone, pressing a panel button that turns the camera (an `actions` button with a `camera`) now closes the open panel sheet first, so the visitor sees the move. A button with no camera leaves the sheet open, and a wide screen is unchanged. Hosts can drop their own sheet-closing timers.
+- Fixed: a tap or click on a point group's shown name now selects the group, exactly as choosing it from the object list does (on a wide screen its card opens, on a phone it selects as a list choice does). Only the name answers, not the dots; a drag that starts on a name still orbits or pans; body names behave as before.
+
+### Breaking changes in 0.11.0
+
+None: no public name, type or default changed.
+
 ## 0.10.1 (2026-11-23)
 
 Orbit lines stay on their body. No breaking changes.

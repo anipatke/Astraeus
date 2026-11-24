@@ -148,6 +148,16 @@ describe("pickCandidatesOf", () => {
     expect(pickTarget(named, 625, 288, "touch")).toBe("gamma");
     expect(pickTarget(named, 400, 180, "touch")).toBeNull();
   });
+  it("makes the shown name of a listed non-body object (a point group) a label-only target, and nothing else of it", () => {
+    const withGroup = pickCandidatesOf({
+      ...frame,
+      labelRects: new Map([...frame.labelRects, ["probe", { left: 210, top: 220, right: 270, bottom: 236 }]]),
+    });
+    expect(pickTarget(withGroup, 230, 208, "mouse")).toBe("probe");
+    expect(pickTarget(withGroup, 190, 208, "mouse")).toBeNull();
+    expect(pickTarget(withGroup, 230, 260, "touch")).toBeNull();
+    expect(withGroup.some((c) => c.id === "orbit-line")).toBe(false);
+  });
 });
 
 describe("hover", () => {

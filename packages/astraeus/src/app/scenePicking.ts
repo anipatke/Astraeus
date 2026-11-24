@@ -232,14 +232,14 @@ export interface PickFrame {
   }[];
 }
 
-/** The tap targets of one frame: listed objects that are catalogued bodies on screen (with their shown name) and visible body-set members. */
+/** The tap targets of one frame: listed catalogued bodies on screen (with their shown name), the shown name of any other listed object (label only), and visible body-set members. */
 export function pickCandidatesOf(frame: PickFrame): PickCandidate[] {
   const box = frame.canvas.getBoundingClientRect();
   const out: PickCandidate[] = [];
   for (const object of frame.objects) {
     const body = frame.bodyIdFor(object.id);
-    if (body === null) continue;
-    const screen = frame.bodyScreens.find((candidate) => candidate.id === body);
+    // An object that is no catalogued body (a point group, a spacecraft) has no disc here: only its shown name answers.
+    const screen = body === null ? undefined : frame.bodyScreens.find((candidate) => candidate.id === body);
     const rect = frame.labelRects?.get(object.id);
     const label =
       rect === undefined
@@ -251,7 +251,7 @@ export function pickCandidatesOf(frame: PickFrame): PickCandidate[] {
             bottom: rect.bottom - box.top,
           };
     const drawn = screen !== undefined && screen.inView && screen.as !== "none";
-    // A body not drawn in view can still show its name: the name stays a target.
+    // A body not drawn in view, or an object that is no body, can still show its name: the name stays a target.
     if (!drawn) {
       if (label !== null)
         out.push({

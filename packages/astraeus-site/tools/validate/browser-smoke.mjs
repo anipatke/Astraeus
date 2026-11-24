@@ -44,7 +44,13 @@ function discoverViews() {
   views.push({ id: "synthetic-probe", url: `${appUrl}?experience=synthetic-probe`, scene: true, sunPath: true });
   // O-047 T-203: the made-up 1977-to-170-AU journey (dev server only): moons at their dates, Saturn's orbit line, and the whole path framed at its end (`journeyChecks`).
   // O-099 T-446: the made-up belt (Earth on its year's line, true scale) gets `closeZoomChecks`: the line stays on Earth at close zoom with time playing.
-  views.push({ id: "synthetic-belt", url: `${appUrl}?experience=synthetic-belt`, scene: true, closeZoom: true });
+  views.push({
+    id: "synthetic-belt",
+    url: `${appUrl}?experience=synthetic-belt`,
+    scene: true,
+    closeZoom: true,
+    groupLabel: "dust-belt",
+  });
   views.push({ id: "synthetic-journey", url: `${appUrl}?experience=synthetic-journey`, scene: true, journey: true });
   for (const page of ["index", "assets", "components"])
     views.push({ id: `${page}-page`, url: new URL(`${page}.html`, appUrl).href, scene: false });
@@ -193,6 +199,48 @@ async function closeZoomChecks(page) {
       `Earth's orbit line strays ${worst} px from Earth's centre (bound ${LINE_ON_BODY_PX} px): ${JSON.stringify(stops.map((s) => [s.radiusPx, s.worstPx]))}`,
     );
   return { boundPx: LINE_ON_BODY_PX, worstPx: worst, stops };
+}
+
+/**
+ * O-095 T-441: a point group's shown name is a tap target. A drag that starts on the name turns the camera and selects nothing; a tap selects the group as the object list does:
+ * on the desktop layout its information card opens, on the phone layout it only selects. The made-up belt's "Dust belt" is the group (the opening view shows its name). Readouts only.
+ */
+async function groupLabelChecks(page, id, phone) {
+  await ui.ensurePaused(page);
+  const shown = await ui.shownSceneLabelIds(page);
+  if (!shown.includes(id))
+    throw new Error(`the group's name "${id}" is not shown at the opening view (${JSON.stringify(shown)})`);
+  const selected = await ui.selectedObjectValue(page);
+  // The group's own name can sit at the Sun, the turn's pivot, so the turn is read from the other shown names.
+  const others = shown.filter((other) => other !== id);
+  if (others.length === 0) throw new Error("no other name is shown to read the camera turn from");
+  const before = new Map(await Promise.all(others.map(async (other) => [other, await ui.labelCentre(page, other)])));
+  await ui.dragFromLabel(page, id, 60, 30);
+  await ui.waitUntil(
+    page,
+    async () => {
+      const now = await Promise.all(others.map((other) => ui.labelCentre(page, other)));
+      return now.some((at, n) => {
+        const was = before.get(others[n]);
+        return was !== null && (at === null || Math.hypot(at.x - was.x, at.y - was.y) > 5);
+      });
+    },
+    (moved) => moved === true,
+    { what: "the other names moving with a drag that started on the group's name", timeout: 5000 },
+  );
+  if ((await ui.selectedObjectValue(page)) !== selected)
+    throw new Error("a drag starting on the group's name selected something");
+  if (await ui.infoOpen(page)) throw new Error("a drag starting on the group's name opened a card");
+  await ui.tapLabel(page, id);
+  await ui.waitForPicked(page, id);
+  if (!phone) await ui.waitForInfo(page, { timeout: 5000 });
+  const card = await ui.infoOpen(page);
+  if (card === phone)
+    throw new Error(
+      `a tap on the group's name ${phone ? "opened a card on the phone layout" : "did not open its card on the desktop layout"}`,
+    );
+  if (!phone && (await ui.infoTargetId(page)) !== id) throw new Error(`the card opened is not ${id}'s`);
+  return { dragMovedCamera: true, tapSelected: id, cardOpened: card };
 }
 
 const JOURNEY_MOONS = [
@@ -450,6 +498,7 @@ async function load(browser, view, size) {
       drawn = await drawsSomething(page, view);
       // O-031 T-149: a paused, untouched scene stops drawing (Apollo 11 is the one view checked; the rule is the same for all).
       if (view.journey) drawn = { ...drawn, journey: await journeyChecks(page) };
+      if (view.groupLabel) drawn = { ...drawn, groupLabel: await groupLabelChecks(page, view.groupLabel, size.mobile) };
       if (view.closeZoom) drawn = { ...drawn, closeZoom: await closeZoomChecks(page) };
       if (view.sunPath) drawn = { ...drawn, sunPath: await sunPathChecks(page) };
       if (view.id === "apollo11") {

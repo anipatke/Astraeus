@@ -2,7 +2,7 @@
 id: T-443
 title: Hosts can switch a panel button off and on
 objective: O-095
-status: planned
+status: done
 depends_on: []
 check_waiver: {task: T-443, reason: 'Owner said "Orchestrate O-95" (2026-11-24): standing orchestration rules waive the optional step checks; the mandatory Full Objective Check covers the whole diff.', actor: {role: owner, session: orchestrate-o095-20261124}, recorded_at: '2026-11-24T05:54:06Z'}
 owner_validation: {required: false}
@@ -63,8 +63,24 @@ Focused shelf tests while iterating; configured build and test gates at handoff,
 
 ## Technical Evidence
 
-Pending execution.
+| Done When | Evidence |
+|---|---|
+| setEnabled via a cell the view reads; disabled button carries `disabled`, no camera, no `onAction` | `tests/actionsEnabled.test.ts` case 1 (disable, press ceres: no move/report; plain still reports) |
+| Unknown id / non-boolean enabled throw `bad-part` naming the field | case 2 (`actionId "nope"`, `actionId 7`, `enabled` string and undefined; button unchanged) |
+| Component test fails before the change | run with HEAD's factory.ts and View.tsx: both cases failed (`control.setEnabled is not a function`) |
+| README table, API lock, CHANGELOG | README has no ActionsControl table (`grep ActionsControl packages/astraeus/README.md` is empty), so nothing to add; `npm run api:lock` wrote `setEnabled` into `api-surface.lock.json`; CHANGELOG `## 0.11.0 (unreleased)` opened with the Added entry and a `### Breaking changes in 0.11.0` None section (releaseBreaks test needs it for an open section) |
+| Gates | below |
+
+Extra reads: `tools/api-surface.mjs` head (lock command); `docs/architecture/viewer-interface.md` lines 318/467/494 by grep only (not edited).
+
+Commands (under the gates lock): `npm run typecheck` clean; eslint (typescript6 shim) on factory.ts, View.tsx, actionsEnabled.test.ts clean; prettier check clean on those and CHANGELOG; `npx vitest run` actionsEnabled, shelfParts, lifecycle, twoViewers, astraeus-site apiSurface, apiRules, releaseBreaks: 221 tests, all pass after the CHANGELOG fix (first run: releaseBreaks failed only for the missing Breaking heading, fixed); `node tools/check-shelf-split.mjs` ok.
+
+Files changed: packages/astraeus/src/shelf/actions/factory.ts, packages/astraeus/src/shelf/actions/View.tsx, packages/astraeus/tests/actionsEnabled.test.ts (new, happy-dom), packages/astraeus/api-surface.lock.json, packages/astraeus/CHANGELOG.md, this Task file.
+
+Limitations: the test draws the view with a bare runtime and the descriptor's own control, not a full viewer; no browser run. The new test is a new file rather than shelfParts.test.ts because that file runs in the node environment.
 
 ## Drift Notes
 
-Record architecture deltas for reconciliation before the Full Check.
+`docs/architecture/viewer-interface.md` lists `ActionsControl: onAction` (line 318) and the actions row (467): add `setEnabled` at Design reconciliation (or the integration Task). Not touched here (not in planned writes).
+
+Marked done by the coordinator under the owner's "Orchestrate O-95" (2026-11-24; standing rule "I mark them as they pass", O-038) after the wave gate passed on 2026-11-24T05:59Z: `npm run typecheck` ok, `npm run lint` ok, `npm test` 341 files, 5524 passed, 2 skipped, `npm run build` ok.

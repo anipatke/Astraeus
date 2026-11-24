@@ -70,7 +70,7 @@ export const STEPS = [
     tier: "full",
     script: "journey-catalogue.mjs",
     scene:
-      "components.html (the component catalogue) at desktop and phone size: Run buttons big enough, the page fits its window, one viewer at a time holds the part's words, and each part's live chart and tile readouts",
+      "components.html (the component catalogue) at desktop and phone size: Run buttons big enough, the page fits its window, one viewer at a time holds the part's words, and each part's live chart and tile readouts, and a phone's panel sheet closing when its button turns the camera",
   },
   {
     name: "hello-scene",

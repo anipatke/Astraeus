@@ -996,6 +996,32 @@ export async function tapLabel(page, id) {
   await tapPagePoint(page, point.x, point.y);
   return point;
 }
+/** The page point of a name tag's centre, or null when it is not showing (a turned camera moves or hides it). */
+export const labelCentre = (page, id) =>
+  page.locator(`[data-label-id="${id}"]`).evaluate((element) => {
+    if (element.hidden) return null;
+    const r = element.getBoundingClientRect();
+    return r.width === 0 ? null : { x: (r.left + r.right) / 2, y: (r.top + r.bottom) / 2 };
+  });
+/** Presses on a shown name tag's centre and drags `(dx, dy)` page px from there, with the page's own pointer (touch or mouse). Throws unless the tag is showing. Returns where the press began. */
+export async function dragFromLabel(page, id, dx, dy) {
+  const point = await page.locator(`[data-label-id="${id}"]`).evaluate((element) => {
+    if (element.hidden) return null;
+    const r = element.getBoundingClientRect();
+    return r.width === 0 ? null : { x: (r.left + r.right) / 2, y: (r.top + r.bottom) / 2 };
+  });
+  if (point === null) throw new Error(`driver: ${id}'s name tag is not showing to drag from`);
+  const to = { x: point.x + dx, y: point.y + dy };
+  if ((await scenePointer(page)) === "touch") await touchGesture(page, [{ from: point, to }]);
+  else {
+    await page.mouse.move(point.x, point.y);
+    await page.mouse.down();
+    await page.mouse.move(to.x, to.y, { steps: 8 });
+    await page.mouse.up();
+  }
+  await page.waitForTimeout(150);
+  return point;
+}
 /** Taps a point of the scene in canvas px with the page's own pointer (touch or mouse). */
 export async function tapScenePoint(page, x, y) {
   const box = await sceneBox(page);
@@ -1706,6 +1732,39 @@ export async function catalogueChart(page, part) {
       label: chart.querySelector("svg")?.getAttribute("aria-label") ?? chart.textContent ?? "",
     };
   }, part);
+}
+
+// ---- The actions example on the catalogue page (O-095 T-442): a panel button, and the buttons inside the panel it opens. ----
+/** Presses the bar button that opens the actions example's panel (its label is "Fly to", or "Fly" where the bar is short). */
+export async function pressCataloguePanelButton(page, part) {
+  await page
+    .locator(`[data-part="${part}"] [data-part-stage]`)
+    .getByRole("button", { name: /^Fly( to)?$/ })
+    .first()
+    .click();
+}
+/** Presses one action button (by its id) inside the open panel of an entry's viewer. */
+export async function pressCatalogueAction(page, part, actionId) {
+  await page.locator(`[data-part="${part}"] [data-part-stage] [data-shelf-action="${actionId}"]`).click();
+}
+/** Whether an entry's viewer shows its action buttons now (the panel holding them is open and drawn). */
+export async function catalogueActionsShown(page, part) {
+  return page.evaluate((name) => {
+    const button = document.querySelector(`[data-part="${name}"] [data-part-stage] [data-shelf-action]`);
+    if (button === null) return false;
+    const r = button.getBoundingClientRect();
+    return r.width > 0 && r.height > 0;
+  }, part);
+}
+/** Waits until an entry's action buttons are shown (or not), up to `ms`; the last answer. */
+export async function waitForCatalogueActions(page, part, shown, ms = 5000) {
+  const end = Date.now() + ms;
+  let now = await catalogueActionsShown(page, part);
+  while (now !== shown && Date.now() < end) {
+    await page.waitForTimeout(100);
+    now = await catalogueActionsShown(page, part);
+  }
+  return now;
 }
 
 // ---------------------------------------------------------------------------------------------------------------------------------------------

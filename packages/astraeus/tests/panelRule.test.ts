@@ -199,3 +199,20 @@ describe("the tile expanded (O-081), named close rules", () => {
     ).toBeNull();
   });
 });
+
+// O-095 T-442: a shelf panel button that turns the camera closes a phone's sheet so the move is seen; a wide screen is unchanged.
+describe("a shelf button turns the camera (O-095)", () => {
+  it("phone: the open shelf panel or tile sheet closes; the story sheet stays", () => {
+    expect(apply(state({ left: "shelf:belt", story: true }), { type: "cameraTurned" }, "phone")).toEqual(
+      state({ story: true }),
+    );
+    expect(apply(state({ left: "tile" }), { type: "cameraTurned" }, "phone")).toEqual(NO_PANELS);
+  });
+  it("phone: with no sheet open, nothing changes", () => {
+    expect(apply(NO_PANELS, { type: "cameraTurned" }, "phone")).toEqual(NO_PANELS);
+  });
+  it("wide: the panel stays open", () => {
+    const open = state({ left: "shelf:belt", story: true });
+    expect(apply(open, { type: "cameraTurned" }, "wide")).toEqual(open);
+  });
+});

@@ -19,6 +19,8 @@ export interface Panels {
   readonly closePopup: (id?: string) => void;
   readonly togglePopup: (id: string) => void;
   readonly chooseInDrawer: (drawer: "menu" | "timeline") => void;
+  /** A shelf panel's button turned the camera; the rule decides whether a sheet closes. */
+  readonly cameraTurned: () => void;
   readonly viewSwitch: (dropsCard: boolean, dropsStory: boolean, dropsShelf?: boolean, dropsTile?: boolean) => void;
 }
 
@@ -92,6 +94,7 @@ export function usePanels(
       dispatch({ type: "viewSwitch", dropsCard, dropsStory, dropsShelf, dropsTile }),
     [],
   );
+  const cameraTurned = useCallback(() => dispatch({ type: "cameraTurned" }), []);
   const toggle = useCallback(
     (occupant: Occupant) =>
       dispatch(latestOpen(latest.current.state, occupant) ? { type: "close", occupant } : { type: "open", occupant }),
@@ -106,7 +109,19 @@ export function usePanels(
       dispatch(latest.current.state.popup === id ? { type: "closePopup", id } : { type: "openPopup", id }),
     [],
   );
-  return { state, open, close, toggle, set, openPopup, closePopup, togglePopup, chooseInDrawer, viewSwitch };
+  return {
+    state,
+    open,
+    close,
+    toggle,
+    set,
+    openPopup,
+    closePopup,
+    togglePopup,
+    chooseInDrawer,
+    cameraTurned,
+    viewSwitch,
+  };
 }
 
 function latestOpen(state: PanelState, occupant: Occupant): boolean {

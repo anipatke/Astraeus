@@ -115,5 +115,24 @@ await checkScript({ name: "journey-catalogue", viewports: SIZES }, async (page, 
   await ui.pressCatalogueRun(page, tile);
   await ui.waitForCatalogueState(page, tile, "idle");
   assert.equal(await ui.catalogueViewerCount(page), 0, "stopping the tile example leaves no viewer");
+  // A panel button that turns the camera (O-095 T-442): a phone's sheet closes so the move is seen; a button with no camera, and a wide screen, keep it open.
+  const actions = "actions";
+  await ui.pressCatalogueRun(page, actions);
+  await ui.waitForCatalogueState(page, actions, "running");
+  await ui.pressCataloguePanelButton(page, actions);
+  assert.ok(await ui.waitForCatalogueActions(page, actions, true), `${name}: the actions panel opens`);
+  await ui.pressCatalogueAction(page, actions, "wide");
+  assert.ok(await ui.catalogueActionsShown(page, actions), `${name}: a button with no camera leaves the panel open`);
+  await ui.pressCatalogueAction(page, actions, "lantern");
+  if (name === "phone")
+    assert.equal(
+      await ui.waitForCatalogueActions(page, actions, false),
+      false,
+      "phone: a camera-turning button closes the sheet",
+    );
+  else
+    assert.ok(await ui.catalogueActionsShown(page, actions), "desktop: a camera-turning button leaves the panel open");
+  await ui.pressCatalogueRun(page, actions);
+  await ui.waitForCatalogueState(page, actions, "idle");
   return { parts: PARTS.length, fit };
 });
