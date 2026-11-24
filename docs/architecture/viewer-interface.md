@@ -464,13 +464,13 @@ Next candidates, one slice each: story playback; the camera fallback, with the s
 | Part | Built in | Data | Hears | Placement |
 |---|---|---|---|---|
 | `panel` | O-080 | `button {label, shortLabel?}`, `title`, `blocks[]` | `onOpen` | bar `story` item; `left` / phone sheet |
-| `explainer` | O-080 | `heading?`, `paragraphs[]`, `notes?` | — | block |
+| `explainer` | O-080 | `heading?`, `paragraphs[]`, `notes?` | — | block; paragraphs are a polite live region (heading and notes are not) |
 | `actions` | O-080 | `[{id, label, camera?}]`; `camera` moves it, as story panels do (`api/story.ts:99-100`) | `onAction`; `setEnabled` (O-095) | block |
 | `filterChips` | O-080 | `choices [{value, label, color?}]`, `multiple`, `selected` | `onSelect` | block |
 | `colourKey` | O-080 | `entries [{label, color, count?, note?}]` (at least one; `count` a whole number of 0 or more) | — | block |
 | `customBlock` | O-080 | none | `element` | block |
-| `chart` | O-081 | `bins [{low, high, count, color?}]`, `axisLabel`, `marks? [{value, label}]`, `highlight? {low, high}` (within the bins); bins left to right without overlap; each mark's value within the bins' range; mark labels that would overlap take further rows above the bars, and the chart grows one row taller for each | — | block |
-| `readoutTile` | O-081 | `label`, `value` (text), `scale? {low, high, value, stretch?: "linear" \| "log", marks? [{value, label}]}`, `facts? [{label, value}]` (at most 4) | — | `tile` area (wide top of `left`; phone strip, tap opens the sheet) |
+| `chart` | O-081 | `bins [{low, high, count, color?}]`, `axisLabel`, `marks? [{value, label}]`, `highlight? {low, high}` (within the bins); bins left to right without overlap; each mark's value within the bins' range; mark labels that would overlap take further rows above the bars, and the chart grows one row taller for each; its summary names the drawn marks | — | block |
+| `readoutTile` | O-081 | `label`, `value` (text), `scale? {low, high, value, stretch?: "linear" \| "log", marks? [{value, label}]}`, `facts? [{label, value}]` (at most 4) | — | `tile` area (wide top of `left`; phone strip, tap opens the sheet); the line's text is the label, the shown value, the scale and its marks; value changes are a polite status, throttled to one per 2 s |
 
 **One contract.** Every part:
 

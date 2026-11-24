@@ -2,7 +2,7 @@
 id: T-452
 title: Explainer paragraph changes are announced politely
 objective: O-098
-status: planned
+status: done
 depends_on: []
 check_waiver: {task: T-452, reason: 'Owner said "orchestrate O-98" (2026-11-24): standing orchestration rules waive the optional step checks; the mandatory Full Objective Check covers the whole diff.', actor: {role: owner, session: orchestrate-o098-20261124}, recorded_at: '2026-11-24T08:17:01Z'}
 owner_validation: {required: false}
@@ -68,4 +68,27 @@ Focused: `npx vitest run packages/astraeus/tests/explainerLive.test.ts packages/
 
 ## Technical Evidence
 
-Pending execution.
+Done When -> evidence:
+
+| Done When | Evidence |
+|---|---|
+| Polite region on paragraphs only | `View.tsx` wraps paragraphs in `div.shelf-explainer-paragraphs[aria-live=polite][aria-atomic=true]`, drawn always; `tests/explainerLive.test.ts` case 1 (heading and note outside) and case 2 (empty region drawn). Red first: all 3 cases failed before the change (no region). |
+| Same look | `part.css` one line `.shelf-explainer-paragraphs { display: grid; gap: var(--astraeus-space-4); min-width: 0; }`; `lookDrift.test.ts` passes unedited. |
+| Component test | `tests/explainerLive.test.ts`: same node after `setParagraphs`, empty region filled in place, reopen redraws with current text, two viewers keep own regions (3 passed). |
+| Existing tests unchanged | lifecycle, twoViewers, shelfContentParts, shelfInputTable, lookDrift, apiReference passed unedited. |
+| Doc comment | `ExplainerControl.setParagraphs` and the `explainer` factory comments in `factory.ts`; no signature change. |
+| CHANGELOG | One Fixed line in 0.11.0 section. |
+| Docs | `viewer-interface.md` section 11 explainer row. |
+| Size | `check:shelf-split` ok; `check:pack` pass, engine 525,880 B gzip (cap 527,000; was 525,853, +27 B). |
+
+Commands: `npm run typecheck` ok; eslint (ts6 shim) on View.tsx, factory.ts, explainerLive.test.ts clean; prettier clean (test file reformatted once); `npx vitest run` explainerLive, lifecycle, twoViewers, shelfContentParts, shelfInputTable, lookDrift, astraeus-site apiReference: 7 files, 342 tests passed. No browser run. Extra reads: none beyond Context Files (lifecycle.test.ts lines 1-135, 280-308 for the mock/mount harness).
+
+Files changed: View.tsx, factory.ts, part.css (explainer), tests/explainerLive.test.ts (new), packages/astraeus/CHANGELOG.md, docs/architecture/viewer-interface.md.
+
+Limitations: happy-dom shows attributes and node identity only; no screen reader was run.
+
+## Drift Notes
+
+None.
+
+Marked done by the coordinator under the owner's "orchestrate O-98" (2026-11-24; standing rule "I mark them as they pass", O-038) after the wave gate passed on 2026-11-24T08:22Z: `npm run typecheck`, `npm run lint`, `npm test` 348 files 5634 passed 2 skipped, `npm run build`, `npm run check:pack` engine 525,880 B gzip, `npm run check:shelf-split` ok.

@@ -1065,7 +1065,7 @@ describe.each([mountDriver, reactDriver(false)])("lifecycle: $name", (driver) =>
     expect(dimmed()).toEqual([false, false, false]);
     expect(root().querySelector("svg")!.getAttribute("role")).toBe("img");
     expect(root().querySelector("svg")!.getAttribute("aria-label")).toBe(
-      "Bar chart of Diameter (km): 3 bars from 0 to 30; the largest, 10 to 20, holds 9.",
+      "Bar chart of Diameter (km): 3 bars from 0 to 30; the largest, 10 to 20, holds 9; marks: Limit at 10.",
     );
     expect([...root().querySelectorAll("[data-shelf-mark] text")].map((t) => t.textContent)).toEqual(["Limit"]);
     expect(root().textContent).toContain("Diameter (km)");
@@ -1139,7 +1139,7 @@ describe.each([mountDriver, reactDriver(false)])("lifecycle: $name", (driver) =>
     expect(tile().querySelector("[data-shelf-tile-value]")!.textContent).toBe("4 units");
     expect(dot().getAttribute("style")).toContain("--shelf-tile-at: 50");
     expect(tile().querySelector('[role="img"]')!.getAttribute("aria-label")).toBe(
-      "Gap on a log scale from 1 to 100: 10",
+      "Gap: 4 units, on a log scale from 1 to 100",
     );
     heard.length = 0;
     flushSync(() => handle.part(first).setValue("5 units", 100));

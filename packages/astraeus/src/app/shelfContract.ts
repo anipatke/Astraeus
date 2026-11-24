@@ -92,6 +92,8 @@ export interface ShelfTile extends ShelfBlock {
   /** The tile's label, which names the phone sheet and the strip's button. */
   readonly label: string;
   readonly strip: ComponentType<{ readonly block: ShelfBlock; readonly runtime: ShelfRuntime }>;
+  /** The tile's polite status for a screen reader, drawn once in the tile area beside the card or the strip (never in the button or the sheet); empty when drawn. */
+  readonly live?: ComponentType<{ readonly block: ShelfBlock; readonly runtime: ShelfRuntime }>;
 }
 
 /** A part a scene adds with `addParts`: a panel (a button and a panel in the left place) or a tile (its own place). */

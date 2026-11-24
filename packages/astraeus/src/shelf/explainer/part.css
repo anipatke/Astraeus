@@ -1,5 +1,6 @@
 /* The explainer part's look: the shared tokens only (look.css); loaded by app/style.css with the other sheets, since the Node copy of the entry files cannot import a stylesheet from a view. */
 .astraeus-shell .shelf-explainer { display: grid; gap: var(--astraeus-space-4); min-width: 0; }
+.astraeus-shell .shelf-explainer-paragraphs { display: grid; gap: var(--astraeus-space-4); min-width: 0; }
 .astraeus-shell .shelf-explainer-heading { margin: 0; font-size: var(--astraeus-text-m); color: var(--astraeus-accent); }
 .astraeus-shell .shelf-explainer-text { margin: 0; color: var(--astraeus-text); font-size: var(--astraeus-text-m); line-height: 1.5; overflow-wrap: anywhere; }
 .astraeus-shell .shelf-explainer-note { margin: 0; color: var(--astraeus-muted); font-size: var(--astraeus-text-s); line-height: 1.5; overflow-wrap: anywhere; }

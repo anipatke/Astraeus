@@ -11,6 +11,9 @@ Versions follow [semantic versioning](https://semver.org). While the version sta
 - Fixed: shelf parts refuse blank text, uneven chart bins, marks outside the bins, fractional colour-key counts and an empty key with `bad-part`, in the factories and in `setParagraphs`, `setBins`, `setEntries` and the readout tile's setters alike.
 - Fixed: a long word, title, label or note with no spaces now wraps inside its panel (shelf panels, About, cards, the readout tile and story panels) instead of widening the panel and cutting every line off on the right.
 - Fixed: `chart` mark labels no longer print over each other: a label that would overlap drops to a further row above the bars, and the chart grows a row taller for each; a chart whose labels fit draws as before.
+- Fixed: an `explainer`'s paragraphs are a polite live region: a screen reader hears what `setParagraphs` changes while the explainer is shown; its first draw stays quiet.
+- Fixed: a `chart`'s screen-reader summary names the marks it draws ("marks: 5:2 at 2.82, …").
+- Fixed: the `readoutTile`'s screen-reader text reads the value as shown and names the line's marks, and a screen reader hears value changes politely, at most once every 2 seconds.
 
 ### Breaking changes in 0.11.0
 

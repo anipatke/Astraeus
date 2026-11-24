@@ -1,9 +1,10 @@
 // Part: the readout tile's views, drawn by the shell in the tile area (the full tile, also the phone sheet's content) and as the phone's one-line strip. Each draws the label, the live value, the line with a dot at the value and its
 // marks, and the facts. They must not set a place, layer or raw colour or size, take a tap (the strip's tap is the shell's) or open another part.
-import { useSyncExternalStore, type CSSProperties } from "react";
+import { useEffect, useRef, useSyncExternalStore, type CSSProperties } from "react";
 import type { ShelfBlock, ShelfRuntime } from "../../app/shelfContract";
 import { scaleFraction, type ReadoutTileData, type ReadoutTileState } from "./factory";
 import { useCell } from "../useCell";
+import { ANNOUNCE_MS, announceAfter, announcedText } from "./announce";
 
 const number = (value: number): string => value.toLocaleString("en-US", { maximumFractionDigits: 3 });
 const percent = (fraction: number): CSSProperties =>
@@ -12,9 +13,10 @@ const percent = (fraction: number): CSSProperties =>
 const edge = (fraction: number): "start" | "end" | "middle" =>
   fraction < 0.12 ? "start" : fraction > 0.88 ? "end" : "middle";
 
-/** The short text a screen reader gets for the line. */
-export function lineSummary(label: string, data: NonNullable<ReadoutTileData["scale"]>, at: number): string {
-  return `${label} on a ${data.stretch === "log" ? "log " : ""}scale from ${number(data.low)} to ${number(data.high)}: ${number(at)}`;
+/** The short text a screen reader gets for the line: the label, the value as the app words it, the scale and its marks. */
+export function lineSummary(label: string, data: NonNullable<ReadoutTileData["scale"]>, valueText: string): string {
+  const marks = data.marks.map((mark) => `${mark.label} at ${number(mark.value)}`).join(", ");
+  return `${label}: ${valueText}, on a ${data.stretch === "log" ? "log " : ""}scale from ${number(data.low)} to ${number(data.high)}${marks === "" ? "" : `; marks: ${marks}`}`;
 }
 
 /** The full tile, read live from this viewer's cell. */
@@ -32,7 +34,7 @@ export function ReadoutTileView({ block, runtime }: { readonly block: ShelfBlock
         <div
           className="shelf-tile-line"
           role="img"
-          aria-label={lineSummary(label, scale, state.scaleValue)}
+          aria-label={lineSummary(label, scale, state.value)}
           data-shelf-tile-line=""
         >
           <span className="shelf-tile-track" />
@@ -80,4 +82,24 @@ export function ReadoutTileStrip({ block, runtime }: { readonly block: ShelfBloc
       <span className="shelf-tile-strip-value">{state.value}</span>
     </span>
   );
+}
+
+/** The tile's one polite status, drawn once by the shell beside the card or the strip: empty when drawn, then the label and value at most once every 2 s, ending on the latest. */
+export function ReadoutTileLive({ block, runtime }: { readonly block: ShelfBlock; readonly runtime: ShelfRuntime }) {
+  const cell = useCell(runtime, block);
+  const region = useRef<HTMLDivElement | null>(null);
+  const { label } = block.data as ReadoutTileData;
+  useEffect(() => {
+    const read = () => announcedText(label, (cell.get() as ReadoutTileState).value);
+    if (region.current) region.current.textContent = "";
+    const announcer = announceAfter(ANNOUNCE_MS, read(), (text) => {
+      if (region.current) region.current.textContent = text;
+    });
+    const stop = cell.subscribe(() => announcer.push(read()));
+    return () => {
+      stop();
+      announcer.cancel();
+    };
+  }, [cell, label]);
+  return <div className="visually-hidden" role="status" ref={region} data-shelf-tile-live={block.id} />;
 }

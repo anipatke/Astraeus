@@ -2,7 +2,8 @@
 id: T-454
 title: Chart summary names its marks
 objective: O-098
-status: planned
+status: in_progress
+stage: audit
 depends_on: []
 check_waiver: {task: T-454, reason: 'Owner said "orchestrate O-98" (2026-11-24): standing orchestration rules waive the optional step checks; the mandatory Full Objective Check covers the whole diff.', actor: {role: owner, session: orchestrate-o098-20261124}, recorded_at: '2026-11-24T08:17:01Z'}
 owner_validation: {required: true}
@@ -65,4 +66,20 @@ Focused: `npx vitest run packages/astraeus/tests/chartSummary.test.ts packages/a
 
 ## Technical Evidence
 
-Pending execution.
+Files changed: packages/astraeus/src/shelf/chart/View.tsx (new `drawnMarks`, shared by drawing and summary; `chartSummary(axisLabel, state, marks)` with the marks clause), packages/astraeus/tests/chartSummary.test.ts (new), packages/astraeus/tests/lifecycle.test.ts (one expected string, lines 1067-1069, per Owner answer 1), packages/astraeus/CHANGELOG.md (one 0.11.0 line), docs/architecture/viewer-interface.md (chart row).
+
+| Done When | Evidence |
+|---|---|
+| Summary text | chartSummary tests: Kirkwood order, no marks, outside bins, before highlight |
+| Component test | tests/chartSummary.test.ts (pure cases + happy-dom render, cell.set standing in for setBins drops the 2:1 mark) |
+| Existing tests | chartMarkRows, twoViewers, shelfInputTable pass unedited; lifecycle passes with the one approved string |
+| CHANGELOG | one Fixed line in 0.11.0 |
+| Docs | viewer-interface section 11 chart row |
+| Size | check:shelf-split ok; check:pack pass, engine 525,880 B gzip (cap 527,000) |
+| Gates | typecheck ok; eslint + prettier on changed files ok; vitest chartSummary, chartMarkRows, lifecycle, twoViewers, shelfInputTable: 5 files, 259 tests pass (before the final prettier reformat of the new test file, rerun green) |
+
+Red-first not separately shown (summary had no marks clause, so the new cases cannot pass on the old code: signature differed). Limitations: none.
+
+## Drift Notes
+
+None.

@@ -18,7 +18,7 @@ export interface ExplainerInput {
 
 /** What `handle.part(explainer)` gives for one viewer. */
 export interface ExplainerControl {
-  /** Replaces the paragraphs, open or shut, silently. A blank paragraph is `bad-part`. */
+  /** Replaces the paragraphs, open or shut, silently (the host hears no event; a screen reader hears the new paragraphs politely while the explainer is shown). A blank paragraph is `bad-part`. */
   setParagraphs(paragraphs: readonly string[]): void;
 }
 
@@ -33,7 +33,7 @@ export interface ExplainerState {
 }
 
 /**
- * Text for a panel: a heading, paragraphs and notes in the story's own words; `handle.part(block).setParagraphs` changes the paragraphs.
+ * Text for a panel: a heading, paragraphs and notes in the story's own words; `handle.part(block).setParagraphs` changes the paragraphs, which a screen reader hears politely while shown.
  * @shelf
  * @example
  * explainer({ id: "lit", heading: "Why?", paragraphs: ["A body in the gap meets Jupiter every third lap."] })

@@ -2,7 +2,8 @@
 id: T-453
 title: Readout tile speaks its shown value and names its marks
 objective: O-098
-status: planned
+status: in_progress
+stage: audit
 depends_on: []
 check_waiver: {task: T-453, reason: 'Owner said "orchestrate O-98" (2026-11-24): standing orchestration rules waive the optional step checks; the mandatory Full Objective Check covers the whole diff.', actor: {role: owner, session: orchestrate-o098-20261124}, recorded_at: '2026-11-24T08:17:01Z'}
 owner_validation: {required: true}
@@ -77,4 +78,26 @@ Focused: `npx vitest run packages/astraeus/tests/readoutTileAnnounce.test.ts pac
 
 ## Technical Evidence
 
-Pending execution.
+Extra reads: none beyond Context Files (also read `tests/domSetup.ts` mountShell and `src/shelf/useCell.ts`, planned reads).
+
+| Done When | Evidence |
+|---|---|
+| Line text (value, scale, marks; no dot position) | `lineSummary` in View.tsx; `readoutTileAnnounce.test.ts` "the line's aria-label carries the value text and every mark"; lifecycle.test.ts tile line now "Gap: 4 units, on a log scale from 1 to 100" (owner-approved, Objective answer 1) |
+| Announcement text and throttle in `announce.ts` | `announceAfter`, `announcedText`; tests "one change is silent until 2,000 ms", "ten changes ... one update", "the same text, the dot alone and the facts say nothing", "a change that returns ... says nothing" |
+| 2,000 ms trailing throttle | same cases (1,999 ms empty, 2,000 ms said; a further change says 2 s later) |
+| One region per tile, outside button and sheet | `ShelfTile.live` (shelfContract.ts, internal), `ReadoutTileLive`, drawn once in `useShelfTile` tile area; test "phone with the sheet open: one status element ... outside the strip button and the sheet"; "first draw ... empty"; "unmount with a change pending: no update and no timer left" (`getTimerCount()` 0) |
+| Two viewers | test "two viewers: a change in one viewer updates only its status element" |
+| Existing tests unedited | readoutTile.test.ts, twoViewers.test.ts pass; lifecycle.test.ts only the one approved string |
+| Doc comment | `setValue` comment in factory.ts (the "silent" wording kept) |
+| CHANGELOG, docs | one line in 0.11.0 Fixed; readoutTile row in viewer-interface.md section 11 |
+| Size | `check:pack` pass: engine 525,880 B gzip (cap 527,000; includes concurrent builders' work); `check:shelf-split` ok |
+
+Commands: `npm run typecheck` clean; eslint (TS6 shim) and prettier --check on changed files clean; `npx vitest run` on readoutTileAnnounce, readoutTile, lifecycle, twoViewers, shelfInputTable, lookDrift, apiImports, packageBoundaries, apiReference, shelfCatalogue: 10 files, 373 tests passed. `npm run api:lock` rewrote `api-surface.lock.json` with no diff (API lock unchanged). Red-first not run separately (no status element existed before).
+
+Files changed: src/shelf/readoutTile/View.tsx, factory.ts, announce.ts (new), src/app/shelfContract.ts, src/shell/useShelfTile.tsx, tests/readoutTileAnnounce.test.ts (new), tests/lifecycle.test.ts (one string), CHANGELOG.md, docs/architecture/viewer-interface.md.
+
+Limitations: the new test drives the viewer's cell directly (as the control writes it); handle-level `setValue` is covered by the existing lifecycle case. No browser/screen-reader run (owner User Check).
+
+## Drift Notes
+
+None. `ShelfTile.live` is optional (internal), so a tile without it draws no status.

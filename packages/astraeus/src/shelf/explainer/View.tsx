@@ -12,11 +12,13 @@ export function ExplainerView({ block, runtime }: { readonly block: ShelfBlock; 
   return (
     <section className="shelf-explainer" data-shelf-block={block.id}>
       {heading === undefined ? null : <h3 className="shelf-explainer-heading">{heading}</h3>}
-      {paragraphs.map((text, index) => (
-        <p key={index} className="shelf-explainer-text">
-          {text}
-        </p>
-      ))}
+      <div className="shelf-explainer-paragraphs" aria-live="polite" aria-atomic="true">
+        {paragraphs.map((text, index) => (
+          <p key={index} className="shelf-explainer-text">
+            {text}
+          </p>
+        ))}
+      </div>
       {notes.map((text, index) => (
         <p key={`note-${index}`} className="shelf-explainer-note">
           {text}

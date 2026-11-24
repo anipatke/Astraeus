@@ -2,7 +2,7 @@
 // It must not know what the numbers mean (the app's words say that), place itself (the tile area and the panel rule do), fetch data or hear a tap: the tile takes none on a wide viewer, and a phone's strip tap is the shell's.
 import type { ShelfTile } from "../../app/shelfContract";
 import { badPart, checkedId, checkedInput, checkedItems, checkedText, registered, type TilePart } from "../part";
-import { ReadoutTileStrip, ReadoutTileView } from "./View";
+import { ReadoutTileLive, ReadoutTileStrip, ReadoutTileView } from "./View";
 
 /** A labelled tick on the tile's line, at `value` on the line's own axis. */
 export interface ReadoutMark {
@@ -43,7 +43,7 @@ export interface ReadoutTileInput {
 
 /** What `handle.part(tile)` gives for one viewer; every setter is silent and the tile hears nothing. */
 export interface ReadoutTileControl {
-  /** Sets the big value, and the dot's position when `scaleValue` is given (the tile must have a scale; the position must lie from its `low` to its `high`). */
+  /** Sets the big value (a screen reader hears the new value politely, at most once every 2 s), and the dot's position when `scaleValue` is given (the tile must have a scale; the position must lie from its `low` to its `high`). */
   setValue(value: string, scaleValue?: number): void;
   /** Moves the dot (the tile must have a scale; the position must lie from its `low` to its `high`). */
   setScaleValue(value: number): void;
@@ -153,6 +153,7 @@ export function readoutTile(input: ReadoutTileInput): TilePart {
     label,
     view: ReadoutTileView,
     strip: ReadoutTileStrip,
+    live: ReadoutTileLive,
     data: Object.freeze({ label, ...(scale === undefined ? {} : { scale: scale.data }) } satisfies ReadoutTileData),
     initial: Object.freeze({
       value,

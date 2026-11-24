@@ -18,9 +18,16 @@ const ROW = 12,
   CHAR = 6;
 const count = (value: number): string => value.toLocaleString("en-US", { maximumFractionDigits: 2 });
 
-/** The short text a screen reader gets in place of the bars. */
-export function chartSummary(axisLabel: string, state: ChartState): string {
+/** The marks the chart draws: those inside the current bins' extent. One definition for the drawing and the summary. */
+export function drawnMarks(marks: ChartData["marks"], bins: ChartState["bins"]): ChartData["marks"] {
+  const extent = extentOf(bins);
+  return marks.filter((mark) => mark.value >= extent.low && mark.value <= extent.high);
+}
+
+/** The short text a screen reader gets in place of the bars; it names the marks drawn, in order of value. */
+export function chartSummary(axisLabel: string, state: ChartState, marks: ChartData["marks"]): string {
   const extent = extentOf(state.bins);
+  const named = [...drawnMarks(marks, state.bins)].sort((a, b) => a.value - b.value);
   const largest = state.bins.reduce((best, bin) => (bin.count > best.count ? bin : best));
   const lit =
     state.highlight === undefined
@@ -28,6 +35,7 @@ export function chartSummary(axisLabel: string, state: ChartState): string {
       : state.bins.filter((bin) => bin.high > state.highlight!.low && bin.low < state.highlight!.high).length;
   return (
     `Bar chart of ${axisLabel}: ${state.bins.length} bars from ${count(extent.low)} to ${count(extent.high)}; the largest, ${count(largest.low)} to ${count(largest.high)}, holds ${count(largest.count)}` +
+    (named.length === 0 ? "" : `; marks: ${named.map((mark) => `${mark.label} at ${count(mark.value)}`).join(", ")}`) +
     (state.highlight === undefined
       ? "."
       : `; ${count(state.highlight.low)} to ${count(state.highlight.high)} is highlighted (${lit} bars).`)
@@ -45,7 +53,7 @@ export function ChartView({ block, runtime }: { readonly block: ShelfBlock; read
   const height = (value: number): number => (top === 0 ? 0 : (value / top) * (BASE - TOP));
   const dim = (bin: ChartState["bins"][number]): boolean =>
     state.highlight !== undefined && (bin.high <= state.highlight.low || bin.low >= state.highlight.high);
-  const shown = marks.filter((mark) => mark.value >= extent.low && mark.value <= extent.high);
+  const shown = drawnMarks(marks, state.bins);
   const key = shown.map((mark) => mark.label).join("\u0000");
   const texts = useRef<(SVGTextElement | null)[]>([]);
   const [measured, setMeasured] = useState<{ key: string; widths: number[]; height: number }>({
@@ -89,7 +97,7 @@ export function ChartView({ block, runtime }: { readonly block: ShelfBlock; read
         className="shelf-chart-svg"
         viewBox={`0 0 ${WIDTH} ${HEIGHT + extra}`}
         role="img"
-        aria-label={chartSummary(axisLabel, state)}
+        aria-label={chartSummary(axisLabel, state, marks)}
       >
         <g transform={plot}>
           {state.bins.map((bin, index) => (

@@ -84,6 +84,7 @@ export function useShelfTile({ parts = NO_PARTS, runtime = NO_RUNTIME, panels, p
           <tile.view block={tile} runtime={runtime} />
         </section>
       )}
+      {tile.live === undefined ? null : <tile.live key={tile.id} block={tile} runtime={runtime} />}
     </Area>
   );
   const tileSheet =
