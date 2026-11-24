@@ -4,6 +4,7 @@ title: Tapping a group's name selects the group
 objective: O-095
 status: planned
 depends_on: []
+check_waiver: {task: T-441, reason: 'Owner said "Orchestrate O-95" (2026-11-24): standing orchestration rules waive the optional step checks; the mandatory Full Objective Check covers the whole diff.', actor: {role: owner, session: orchestrate-o095-20261124}, recorded_at: '2026-11-24T05:54:06Z'}
 owner_validation: {required: true}
 planned_by: {role: planner, session: plan-g025-20261122}
 planned_reads: [packages/astraeus/src/app/scenePicking.ts, packages/astraeus/src/app/sceneFrame.ts, packages/astraeus/src/app/scenePointer.ts, packages/astraeus/tests/scenePicking.test.ts]

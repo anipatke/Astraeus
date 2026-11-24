@@ -44,3 +44,7 @@ Owner confirmed this design on 2026-11-22 (planning session plan-g025-20261122),
 **In scope:** group-label picking, the phone sheet closing on a camera-turning action, `ActionsControl.setEnabled`, their tests, README, CHANGELOG and API lock.
 
 **Out of scope:** a note under a button; an opt-out for the sheet closing; label keyboard focus; individual dots inside a group; any restyling.
+
+## Decisions
+
+- 2026-11-24, owner: "Orchestrate O-95". Standing orchestration rules: own branch, Sonnet builders run in parallel (the three steps share only CHANGELOG/README lines), optional step checks waived, the coordinator marks steps done when gates pass, owner look on localhost:5490 for T-441 and T-442 before one Full Objective Check.
