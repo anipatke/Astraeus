@@ -2,8 +2,7 @@
 id: T-457
 title: Long chart axis labels wrap
 objective: O-100
-status: in_progress
-stage: audit
+status: done
 depends_on: [{task: T-455, requires: clear}]
 check_waiver: {task: T-457, reason: 'Owner chose "Chart first" for G-027 (2026-11-24), to be built while the label questions were answered: standing orchestration rules waive the optional step checks; the mandatory Full Objective Check covers the whole diff.', actor: {role: owner, session: orchestrate-g027-20261124}, recorded_at: '2026-11-24T09:55:03Z'}
 owner_validation: {required: true}
@@ -84,3 +83,5 @@ Limitations: none.
 ## Drift Notes
 
 None.
+
+Marked done by the coordinator under the owner's G-027 orchestration (2026-11-24) after the wave gate passed (`npm run typecheck`, `npm run lint`, `npm test` 351 files 5642 passed 2 skipped, `npm run build`). Owner looked on localhost:5490 (`npm run preview:owner`, branch g027-belt-follow-ups at 1bb6f809, 2026-11-24T10:08Z, components.html bar chart at desktop and phone width) and said "Looks good". The acceptance fields are filled in once the Full Objective Check has an id.
