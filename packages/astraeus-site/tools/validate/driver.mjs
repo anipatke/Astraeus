@@ -1735,14 +1735,90 @@ export async function catalogueChart(page, part) {
 }
 
 // ---- The actions example on the catalogue page (O-095 T-442): a panel button, and the buttons inside the panel it opens. ----
-/** Presses the bar button that opens the actions example's panel (its label is "Fly to", or "Fly" where the bar is short). */
-export async function pressCataloguePanelButton(page, part) {
+/** Presses the bar button that opens an example's own panel; `names` is the button's full and short label as the bar shows them (the actions example's are "Fly to" and "Fly"). */
+export async function pressCataloguePanelButton(page, part, names = ["Fly to", "Fly"]) {
+  const escaped = names.map((text) => text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
   await page
     .locator(`[data-part="${part}"] [data-part-stage]`)
-    .getByRole("button", { name: /^Fly( to)?$/ })
+    .getByRole("button", { name: new RegExp(`^(${escaped.join("|")})$`) })
     .first()
     .click();
 }
+/**
+ * Puts one 120-character word with no break opportunity at the end of every non-empty text inside an entry's open panel surface (the shelf panel, the tile's card or its sheet), then reads how far the surface spills sideways.
+ * Left alone: the close button's glyph (a fixed symbol, not words), text inside the chart's svg (drawn labels, not wrapping words) and text whose element is `white-space: nowrap` (the tile's one-line strip and scale labels are one line by design).
+ * Returns null when no surface is drawn; else the surface's clientWidth and scrollWidth, and each element whose right edge passes the surface's content box by more than 1 px.
+ */
+export async function catalogueLongWordFit(page, part) {
+  const read = () =>
+    page.evaluate(
+      ({ name, word }) => {
+        const stage = document.querySelector(`[data-part="${name}"] [data-part-stage]`);
+        const surface = [...(stage?.querySelectorAll(".info-panel, .tile-card, .tile-sheet") ?? [])].find(
+          (el) => el.getBoundingClientRect().width > 0,
+        );
+        if (surface === undefined) return null;
+        const walker = document.createTreeWalker(surface, NodeFilter.SHOW_TEXT);
+        const nodes = [];
+        for (let node = walker.nextNode(); node !== null; node = walker.nextNode()) nodes.push(node);
+        for (const node of nodes) {
+          const el = node.parentElement;
+          if (node.data.trim() === "" || el === null || el.closest("svg") !== null) continue;
+          if (el.closest(".info-panel-close") !== null || getComputedStyle(el).whiteSpace === "nowrap") continue;
+          node.data += word;
+        }
+        return new Promise((resolve) =>
+          requestAnimationFrame(() =>
+            requestAnimationFrame(() => {
+              const box = surface.getBoundingClientRect();
+              const style = getComputedStyle(surface);
+              const edge =
+                box.right - (parseFloat(style.borderRightWidth) || 0) - (parseFloat(style.paddingRight) || 0);
+              const past = [...surface.querySelectorAll("*")]
+                .filter((el) => el.closest("svg") === null || el.tagName === "svg")
+                .filter((el) => el.getBoundingClientRect().width > 0 && el.getBoundingClientRect().right > edge + 1)
+                .map(
+                  (el) =>
+                    `${el.tagName.toLowerCase()}.${String(el.className).trim().replace(/\s+/g, ".")} +${Math.round(el.getBoundingClientRect().right - edge)}px`,
+                );
+              resolve({ clientWidth: surface.clientWidth, scrollWidth: surface.scrollWidth, past });
+            }),
+          ),
+        );
+      },
+      { name: part, word: "W".repeat(120) },
+    );
+  await page.waitForFunction(
+    (name) =>
+      [
+        ...document.querySelectorAll(
+          `[data-part="${name}"] [data-part-stage] :is(.info-panel, .tile-card, .tile-sheet)`,
+        ),
+      ].some((el) => el.getBoundingClientRect().width > 0),
+    part,
+    { timeout: 10000 },
+  );
+  return read();
+}
+/** The drawn mark labels of the chart in an entry's viewer (`[data-shelf-mark] text`) as boxes, and the chart svg's box. */
+export async function catalogueChartMarks(page, part) {
+  return page.evaluate((name) => {
+    const chart = document.querySelector(`[data-part="${name}"] [data-part-stage] .shelf-chart`);
+    const svg = chart?.querySelector("svg") ?? null;
+    const box = (el) => {
+      const r = el.getBoundingClientRect();
+      return { left: r.left, right: r.right, top: r.top, bottom: r.bottom };
+    };
+    return {
+      svg: svg === null ? null : box(svg),
+      labels: [...(chart?.querySelectorAll("[data-shelf-mark] text") ?? [])].map((el) => ({
+        text: el.textContent,
+        ...box(el),
+      })),
+    };
+  }, part);
+}
+
 /** Presses one action button (by its id) inside the open panel of an entry's viewer. */
 export async function pressCatalogueAction(page, part, actionId) {
   await page.locator(`[data-part="${part}"] [data-part-stage] [data-shelf-action="${actionId}"]`).click();

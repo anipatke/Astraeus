@@ -25,6 +25,22 @@ const ITS_WORDS = {
   readoutTile: "distance",
 };
 
+/** The bar button that opens each example's own panel, as the bar shows it: full label, then short label (the chart and the tile open themselves). */
+const BAR_BUTTONS = {
+  panel: ["About Lantern", "About"],
+  customBlock: ["Your own panel", "Own"],
+  explainer: ["How it moves", "Moves"],
+  actions: ["Fly to", "Fly"],
+  filterChips: ["Kinds", "Kinds"],
+  colourKey: ["Colour key", "Key"],
+};
+const fitNote = (name, part, fit) =>
+  `${name}: ${part}'s panel holds a long word (scrollWidth ${fit?.scrollWidth} of clientWidth ${fit?.clientWidth}; past the edge: ${fit?.past.join(", ")})`;
+const assertLongWordFits = (name, part, fit) => {
+  assert.ok(fit !== null, `${name}: ${part} draws a panel`);
+  assert.ok(fit.scrollWidth <= fit.clientWidth + 1 && fit.past.length === 0, fitNote(name, part, fit));
+};
+
 await checkScript({ name: "journey-catalogue", viewports: SIZES }, async (page, { name }) => {
   await page.goto(new URL("components.html", appUrl()).href);
   const minButtonPx = name === "phone" ? 44 : 24;
@@ -79,6 +95,11 @@ await checkScript({ name: "journey-catalogue", viewports: SIZES }, async (page, 
       `${part}: the viewer holds the part's own words`,
     );
     assert.equal(await ui.catalogueViewerCount(page), 1, `${part}: one viewer is drawn`);
+    // A long word in every wrapping text of the part's panel spills nothing sideways (O-097).
+    if (BAR_BUTTONS[part] !== undefined) {
+      await ui.pressCataloguePanelButton(page, part, BAR_BUTTONS[part]);
+      assertLongWordFits(name, part, await ui.catalogueLongWordFit(page, part));
+    }
   }
   // The tile and the chart (O-081): each runs with its own live parts.
   const chart = "chart";
@@ -92,6 +113,30 @@ await checkScript({ name: "journey-catalogue", viewports: SIZES }, async (page, 
     `${name}: the chart lights at least one bar (${bars.dimmed} of ${bars.bars} dimmed)`,
   );
   assert.ok(bars.label.toLowerCase().includes("size"), `${name}: the chart's summary names its axis`);
+  // The chart's own panel is open by itself: its mark labels never overprint, and a long word in its panel's text spills nothing (O-097).
+  const marks = await ui.catalogueChartMarks(page, chart);
+  assert.ok(marks.svg !== null && marks.labels.length >= 2, `${name}: the chart draws at least two mark labels`);
+  for (const [i, a] of marks.labels.entries())
+    for (const b of marks.labels.slice(i + 1)) {
+      const across = Math.min(a.right, b.right) - Math.max(a.left, b.left);
+      const down = Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top);
+      // A text box includes the font's line gap, so labels one row apart touch by a pixel or two with the letters well apart: only a vertical overlap of over a quarter of the box counts.
+      const quarter = Math.min(a.bottom - a.top, b.bottom - b.top) / 4;
+      assert.ok(
+        !(across > 0.5 && down > quarter),
+        `${name}: chart mark labels "${a.text}" and "${b.text}" overprint (${across.toFixed(1)} x ${down.toFixed(1)} px)`,
+      );
+    }
+  for (const label of marks.labels)
+    assert.ok(
+      label.left >= marks.svg.left - 0.5 && label.right <= marks.svg.right + 0.5,
+      `${name}: chart mark label "${label.text}" is inside the chart (${label.left.toFixed(1)}..${label.right.toFixed(1)} of ${marks.svg.left.toFixed(1)}..${marks.svg.right.toFixed(1)})`,
+    );
+  assert.ok(
+    new Set(marks.labels.map((label) => Math.round(label.top))).size >= 2,
+    `${name}: the close marks use at least two label rows`,
+  );
+  assertLongWordFits(name, chart, await ui.catalogueLongWordFit(page, chart));
   const tile = "readoutTile";
   await ui.pressCatalogueRun(page, tile);
   await ui.waitForCatalogueState(page, tile, "running");
@@ -112,6 +157,7 @@ await checkScript({ name: "journey-catalogue", viewports: SIZES }, async (page, 
     assert.ok(shown.card && !shown.strip, "desktop: the tile is the full card");
     assert.ok(shown.leftHalf, "desktop: the tile sits at the top left of the viewer");
   }
+  assertLongWordFits(name, tile, await ui.catalogueLongWordFit(page, tile));
   await ui.pressCatalogueRun(page, tile);
   await ui.waitForCatalogueState(page, tile, "idle");
   assert.equal(await ui.catalogueViewerCount(page), 0, "stopping the tile example leaves no viewer");
@@ -119,7 +165,7 @@ await checkScript({ name: "journey-catalogue", viewports: SIZES }, async (page, 
   const actions = "actions";
   await ui.pressCatalogueRun(page, actions);
   await ui.waitForCatalogueState(page, actions, "running");
-  await ui.pressCataloguePanelButton(page, actions);
+  await ui.pressCataloguePanelButton(page, actions, BAR_BUTTONS.actions);
   assert.ok(await ui.waitForCatalogueActions(page, actions, true), `${name}: the actions panel opens`);
   await ui.pressCatalogueAction(page, actions, "wide");
   assert.ok(await ui.catalogueActionsShown(page, actions), `${name}: a button with no camera leaves the panel open`);

@@ -469,12 +469,13 @@ Next candidates, one slice each: story playback; the camera fallback, with the s
 | `filterChips` | O-080 | `choices [{value, label, color?}]`, `multiple`, `selected` | `onSelect` | block |
 | `colourKey` | O-080 | `entries [{label, color, count?, note?}]` (at least one; `count` a whole number of 0 or more) | — | block |
 | `customBlock` | O-080 | none | `element` | block |
-| `chart` | O-081 | `bins [{low, high, count, color?}]`, `axisLabel`, `marks? [{value, label}]`, `highlight? {low, high}` (within the bins); bins left to right without overlap; each mark's value within the bins' range | — | block |
+| `chart` | O-081 | `bins [{low, high, count, color?}]`, `axisLabel`, `marks? [{value, label}]`, `highlight? {low, high}` (within the bins); bins left to right without overlap; each mark's value within the bins' range; mark labels that would overlap take further rows above the bars, and the chart grows one row taller for each | — | block |
 | `readoutTile` | O-081 | `label`, `value` (text), `scale? {low, high, value, stretch?: "linear" \| "log", marks? [{value, label}]}`, `facts? [{label, value}]` (at most 4) | — | `tile` area (wide top of `left`; phone strip, tap opens the sheet) |
 
 **One contract.** Every part:
 
 - is a factory exported from `astraeus`, checked at the call (`bad-part`), returning an immutable descriptor that is shareable between scenes; shelf text (labels, titles, paragraphs, notes, ids, values) must not be blank, and the value is kept as given (O-096);
+- wraps its text inside its panel whatever its words, through the shared panel CSS and not code of its own (the `catalogue` browser step puts a long word in every part's panel);
 - is added with `scene.addParts`;
 - is updated and heard only through `handle.part(descriptor)` (§7);
 - gets its button from the bar rule and its place from the panel rule, with no placement code of its own;

@@ -2,7 +2,7 @@
 id: T-451
 title: Catalogue check for long words and chart labels
 objective: O-097
-status: planned
+status: done
 depends_on: [{task: T-449, requires: clear}, {task: T-450, requires: clear}]
 check_waiver: {task: T-451, reason: 'Owner said "orchestrate O-97" (2026-11-24): standing orchestration rules waive the optional step checks; the mandatory Full Objective Check covers the whole diff.', actor: {role: owner, session: orchestrate-o097-20261124}, recorded_at: '2026-11-24T07:29:19Z'}
 owner_validation: {required: false}
@@ -71,8 +71,22 @@ Focused: `npm run check:browser -- --step catalogue` (three runs, times recorded
 
 ## Technical Evidence
 
-Pending execution.
+Files changed: packages/astraeus-site/tools/validate/driver.mjs (pressCataloguePanelButton takes the button names; new catalogueLongWordFit, catalogueChartMarks), journey-catalogue.mjs (BAR_BUTTONS table, fit assertion in the every-example loop, chart marks + chart panel fit, tile fit before stop), browser-steps.mjs (scene line), docs/BROWSER_CHECKS.md (row, limit 16 s), tools/gate-limits.json (catalogue 10 -> 16), docs/architecture/viewer-interface.md (section 11 contract line, chart row). Extra reads: none beyond planned_reads.
+
+| Done When | Evidence |
+|---|---|
+| Sizes | no size added; both layouts run |
+| Open each part's panel | BAR_BUTTONS table; actions section uses it unchanged; chart opens itself (live()), tile measured as card (wide) / sheet (phone) |
+| No spill | catalogueLongWordFit asserted for 6 shelf panels in the loop, chart panel, tile; skips close-button glyph, svg text, nowrap text (commented). Fails without T-449 (parts.css from 7c471a7e): "desktop: panel's panel holds a long word (scrollWidth 2363 of clientWidth 358; past the edge: h2. +1948px, ...)" |
+| No overprint | catalogueChartMarks asserted at both sizes: >=2 labels, no overlap, inside svg, >=2 rows. Fails without T-450 (View.tsx from 7c471a7e): 'desktop: chart mark labels "Limit" and "Survey edge" overprint (28.9 x 14.0 px)'. With the fix the boxes touch by 1.5 px vertically (SVG text boxes include the line gap), so vertical overlap counts only over a quarter of the box height |
+| Time | green runs 9, 12, 9 s; then 9, 12, 9 s; slowest 12 s > 10 s, limit now 16 s (12 +30% rounded up); gateLimits test passes. One earlier run timed out 60 s waiting for the panel example to start (first section, before new code), not repeated in 8 later runs |
+| Docs | scene line, BROWSER_CHECKS row, viewer-interface section 11 |
+| Existing assertions | none removed or moved; browserDriverGuard passes |
+
+Gates: prettier, eslint on the 3 mjs files clean; npm run typecheck clean; vitest browserDriverGuard, gateLimits, packageBoundaries: 3 files, 40 tests passed. Proof swaps restored (parts.css and View.tsx identical to HEAD).
 
 ## Drift Notes
 
 None expected (viewer-interface section 11 is updated here); Design.md `Viewer interface` is reconciled by the planner before the Full Check.
+
+Marked done by the coordinator under the owner's "orchestrate O-97" (2026-11-24) after the wave gate passed on 2026-11-24T07:44Z: `npm run typecheck`, `npm run lint`, `npm test` 345 files 5610 passed 2 skipped, `npm run build`. Owner kept the `catalogue` limit raise 10 s -> 16 s ("Keep 16 seconds", 2026-11-24; slowest green run 12 s). Builder saw one unexplained 60 s timeout in the first catalogue section (panel example reaching running) in about ten runs; flagged for the Full Check.
