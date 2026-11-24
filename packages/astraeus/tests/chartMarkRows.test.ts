@@ -80,3 +80,54 @@ describe("ChartView mark rows (O-097 T-450)", () => {
     expect(svg.querySelector(".shelf-chart-mark text")!.getAttribute("y")).toBe("14");
   });
 });
+
+describe("ChartView row pitch follows the label height (I-207)", () => {
+  function renderAt(boxHeight: number | undefined): SVGSVGElement {
+    const proto = SVGTextElement.prototype as unknown as {
+      getComputedTextLength: () => number;
+      getBBox?: () => { height: number };
+    };
+    const had = Object.prototype.hasOwnProperty.call(proto, "getBBox");
+    const was = proto.getBBox;
+    proto.getComputedTextLength = () => 34;
+    if (boxHeight !== undefined) proto.getBBox = () => ({ height: boxHeight });
+    try {
+      const host = document.createElement("div");
+      document.body.append(host);
+      const block = chart({
+        id: "r",
+        axisLabel: "Axis",
+        bins: [{ low: 2, high: 3.5, count: 4 }],
+        marks: [
+          { value: 2.5, label: "Limit" },
+          { value: 2.55, label: "Survey edge" },
+        ],
+      });
+      flushSync(() =>
+        createRoot(host).render(
+          createElement(ChartView, { block: blockOf(block), runtime: { element: () => undefined } }),
+        ),
+      );
+      return host.querySelector("svg") as SVGSVGElement;
+    } finally {
+      if (had) proto.getBBox = was;
+      else delete proto.getBBox;
+    }
+  }
+  const pitch = (svg: SVGSVGElement): number => {
+    const ys = [...svg.querySelectorAll(".shelf-chart-mark text")].map((t) => Number(t.getAttribute("y")));
+    return Math.abs(ys[0] - ys[1]);
+  };
+  it("spaces two rows by the measured label box height and grows the viewBox by it", () => {
+    for (const height of [14.1, 17.6]) {
+      const svg = renderAt(height);
+      expect(pitch(svg)).toBeCloseTo(height, 6);
+      expect(svg.getAttribute("viewBox")).toBe(`0 0 320 ${156 + height}`);
+    }
+  });
+  it("falls back to 12 units when no height is measured", () => {
+    const svg = renderAt(0);
+    expect(pitch(svg)).toBe(12);
+    expect(svg.getAttribute("viewBox")).toBe("0 0 320 168");
+  });
+});

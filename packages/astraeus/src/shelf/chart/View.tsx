@@ -13,6 +13,7 @@ const WIDTH = 320,
   RIGHT = 312,
   TOP = 22,
   BASE = 118;
+/** The row pitch when no label height is measured (the default 11-unit label font); measured, the pitch is the tallest label box, so rows follow the host's text size. */
 const ROW = 12,
   CHAR = 6;
 const count = (value: number): string => value.toLocaleString("en-US", { maximumFractionDigits: 2 });
@@ -47,7 +48,11 @@ export function ChartView({ block, runtime }: { readonly block: ShelfBlock; read
   const shown = marks.filter((mark) => mark.value >= extent.low && mark.value <= extent.high);
   const key = shown.map((mark) => mark.label).join("\u0000");
   const texts = useRef<(SVGTextElement | null)[]>([]);
-  const [measured, setMeasured] = useState<{ key: string; widths: number[] }>({ key: "", widths: [] });
+  const [measured, setMeasured] = useState<{ key: string; widths: number[]; height: number }>({
+    key: "",
+    widths: [],
+    height: 0,
+  });
   // After every draw on purpose: the host's text size can change a width with no change of props; setMeasured bails out when nothing moved.
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useLayoutEffect(() => {
@@ -56,7 +61,17 @@ export function ChartView({ block, runtime }: { readonly block: ShelfBlock; read
       const width = text && typeof text.getComputedTextLength === "function" ? text.getComputedTextLength() : 0;
       return width > 0 ? width : 0;
     });
-    setMeasured((was) => (was.key === key && was.widths.join() === widths.join() ? was : { key, widths }));
+    const height = Math.max(
+      0,
+      ...shown.map((_, index) => {
+        const text = texts.current[index];
+        const box = text && typeof text.getBBox === "function" ? text.getBBox().height : 0;
+        return box > 0 ? box : 0;
+      }),
+    );
+    setMeasured((was) =>
+      was.key === key && was.widths.join() === widths.join() && was.height === height ? was : { key, widths, height },
+    );
   });
   const widths = shown.map((mark, index) =>
     measured.key === key && measured.widths[index] > 0 ? measured.widths[index] : mark.label.length * CHAR,
@@ -65,7 +80,8 @@ export function ChartView({ block, runtime }: { readonly block: ShelfBlock; read
     shown.map((mark, index) => ({ x: x(mark.value), width: widths[index] })),
     WIDTH,
   );
-  const extra = Math.max(0, ...placed.map((p) => p.row)) * ROW;
+  const row = measured.key === key && measured.height > 0 ? measured.height : ROW;
+  const extra = Math.max(0, ...placed.map((p) => p.row)) * row;
   const plot = extra > 0 ? `translate(0 ${extra})` : undefined;
   return (
     <div className="shelf-chart" data-shelf-block={block.id}>
@@ -97,7 +113,7 @@ export function ChartView({ block, runtime }: { readonly block: ShelfBlock; read
           </text>
         </g>
         {shown.map((mark, index) => {
-          const labelY = TOP - 8 + extra - placed[index].row * ROW;
+          const labelY = TOP - 8 + extra - placed[index].row * row;
           return (
             <g key={index} className="shelf-chart-mark" data-shelf-mark={index}>
               <line x1={x(mark.value)} x2={x(mark.value)} y1={labelY + 4} y2={BASE + extra} />
