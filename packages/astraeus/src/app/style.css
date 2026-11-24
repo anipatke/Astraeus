@@ -20,6 +20,8 @@
 /* An empty rule on purpose: the test page (happy-dom) drops the first rule after an `@import` when a test injects this text, and it must not drop a real one. A browser and a bundler read it as nothing. */
 .astraeus-shell {}
 
+.astraeus-shell.astraeus-no-webgl { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; box-sizing: border-box; padding: var(--astraeus-space-5); text-align: center; color: var(--astraeus-text); background: var(--astraeus-panel); font-size: var(--astraeus-text-m); }
+
 .astraeus-shell .canvas-host { position: absolute; inset: 0; touch-action: none; }
 
 .astraeus-shell .hud {

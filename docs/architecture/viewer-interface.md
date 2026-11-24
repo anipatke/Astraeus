@@ -467,14 +467,14 @@ Next candidates, one slice each: story playback; the camera fallback, with the s
 | `explainer` | O-080 | `heading?`, `paragraphs[]`, `notes?` | — | block |
 | `actions` | O-080 | `[{id, label, camera?}]`; `camera` moves it, as story panels do (`api/story.ts:99-100`) | `onAction`; `setEnabled` (O-095) | block |
 | `filterChips` | O-080 | `choices [{value, label, color?}]`, `multiple`, `selected` | `onSelect` | block |
-| `colourKey` | O-080 | `entries [{label, color, count?, note?}]` | — | block |
+| `colourKey` | O-080 | `entries [{label, color, count?, note?}]` (at least one; `count` a whole number of 0 or more) | — | block |
 | `customBlock` | O-080 | none | `element` | block |
-| `chart` | O-081 | `bins [{low, high, count, color?}]`, `axisLabel`, `marks? [{value, label}]`, `highlight? {low, high}` (within the bins) | — | block |
+| `chart` | O-081 | `bins [{low, high, count, color?}]`, `axisLabel`, `marks? [{value, label}]`, `highlight? {low, high}` (within the bins); bins left to right without overlap; each mark's value within the bins' range | — | block |
 | `readoutTile` | O-081 | `label`, `value` (text), `scale? {low, high, value, stretch?: "linear" \| "log", marks? [{value, label}]}`, `facts? [{label, value}]` (at most 4) | — | `tile` area (wide top of `left`; phone strip, tap opens the sheet) |
 
 **One contract.** Every part:
 
-- is a factory exported from `astraeus`, checked at the call (`bad-part`), returning an immutable descriptor that is shareable between scenes;
+- is a factory exported from `astraeus`, checked at the call (`bad-part`), returning an immutable descriptor that is shareable between scenes; shelf text (labels, titles, paragraphs, notes, ids, values) must not be blank, and the value is kept as given (O-096);
 - is added with `scene.addParts`;
 - is updated and heard only through `handle.part(descriptor)` (§7);
 - gets its button from the bar rule and its place from the panel rule, with no placement code of its own;

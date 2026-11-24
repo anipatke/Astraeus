@@ -81,7 +81,7 @@ export const badPart = (who: string, message: string): SceneError => new SceneEr
 /** Checks the id every part has: a non-empty string. */
 export function checkedId(input: Record<string, unknown>, who: string): string {
   const id = input.id;
-  if (typeof id !== "string" || id === "") throw badPart(who, "id must be a non-empty string");
+  if (typeof id !== "string" || id.trim() === "") throw badPart(who, "id must be a non-empty string");
   return id;
 }
 
@@ -93,7 +93,7 @@ export function checkedInput(input: unknown, who: string, shape: string): Record
 
 /** A non-empty string field. */
 export function checkedText(value: unknown, who: string, field: string): string {
-  if (typeof value !== "string" || value === "") throw badPart(who, `${field} must be a non-empty string`);
+  if (typeof value !== "string" || value.trim() === "") throw badPart(who, `${field} must be a non-empty string`);
   return value;
 }
 
@@ -101,7 +101,7 @@ export function checkedText(value: unknown, who: string, field: string): string 
 export function checkedStrings(value: unknown, who: string, field: string, allowEmpty = true): readonly string[] {
   if (
     !Array.isArray(value) ||
-    value.some((item) => typeof item !== "string" || item === "") ||
+    value.some((item) => typeof item !== "string" || item.trim() === "") ||
     (!allowEmpty && value.length === 0)
   ) {
     throw badPart(who, `${field} must be a${allowEmpty ? "" : " non-empty"} list of non-empty strings`);

@@ -2,7 +2,7 @@
 id: T-448
 title: Shelf parts refuse uneven input alike
 objective: O-096
-status: planned
+status: done
 depends_on: []
 check_waiver: {task: T-448, reason: 'Owner said "orchestrate O-96" (2026-11-24): standing orchestration rules waive the optional step checks; the mandatory Full Objective Check covers the whole diff.', actor: {role: owner, session: orchestrate-o096-20261124}, recorded_at: '2026-11-24T06:57:50Z'}
 owner_validation: {required: false}
@@ -85,4 +85,32 @@ Focused: `npx vitest run packages/astraeus/tests/shelfInputTable.test.ts package
 
 ## Technical Evidence
 
-Pending execution: named cases, results, reviewed source basis, files read/changed, and limitations, recorded after the work lands.
+Reads beyond Context Files: none (only the sibling factories' inputs, via grep, to write the table rows).
+
+| Done When | Evidence |
+|---|---|
+| Blank text through `checkedId`/`checkedText`/`checkedStrings` (`trim()`, value kept) | `shelfInputTable.test.ts` blank-text rows for panel, customBlock, explainer, actions, filterChips, colourKey, chart, readoutTile; no factory had its own blank check (grep `=== ""` / `trim()` in `src/shelf` found none outside `part.ts`) |
+| Chart bins backwards/overlap, incl. `setBins` | table rows "backwards range"/"overlapping range" for chart, setter rows `ChartControl.setBins backwards/overlapping`; message `bins[1].low must be at or above bins[0].high` |
+| Chart marks within bins; `setBins` does not throw, mark not drawn | row `marks[0].value must lie within the bins' range`; setter test "keeps a mark ... undrawn, without throwing"; `lifecycle.test.ts` new assertion that no mark is drawn after narrowing |
+| Colour key whole count and non-empty | rows fraction/out-of-range/empty list for colourKey; setter rows `setEntries` fraction/empty/blank |
+| Chart counts unchanged | row chart, fraction: "accepted", reason cites the owner decision (colour key only) |
+| One table test, eight factories, six kinds, accepted rows with reasons, setter rows, guard row | new `tests/shelfInputTable.test.ts` (73 rows plus coverage and `@shelf` guard); setters run through the descriptor's `control` with a stub link (a few lines, so setters are included: `setParagraphs`, `setEntries`, `setBins`, `ReadoutTileControl.setValue/setFacts`) |
+| Four pinned lines | `shelfContentParts.test.ts`: empty-key case now expects `bad-part` (title renamed "may not start empty"); `colourKey({ id: "same", entries: [one entry] })`. `lifecycle.test.ts`: `setEntries([one entry])` for not-mounted; the `{ value: 99, label: "Off" }` mark line removed (a mark inside the bins would have changed the initial mark assertion; "Limit" at 10 is the mark the narrowing to 0..5 leaves outside) and ONE new assertion added after that narrowing (zero marks drawn). |
+| viewer-interface section 11 | `chart` and `colourKey` rows and the "One contract" line updated |
+| CHANGELOG | `Fixed` line and five breaking lines appended under 0.11.0 (after T-447's no-webgl line) |
+| API lock / README | I did not run `api:lock` (the lock shows modified in the tree, from T-447 `no-webgl`; `apiReference.test.ts` passes); no README change |
+| Size | `npm run check:pack`: pass; engine 1,833,526 B raw, 525,811 B gzip (limits 1,838,000 / 527,000), measured with T-447's changes in the tree |
+
+Deviation to note: two existing tests pin old messages, so the colourKey checks keep them: a negative or non-finite count still says `must be a number of 0 or more` (`shelfContentParts.test.ts` line 104), a non-list `entries` still says `entries must be a list`; a fractional count says `must be a whole number of 0 or more` and an empty list says `entries must be a non-empty list of ...`.
+
+Commands: `npm run typecheck` pass; eslint (use-typescript6) on the changed source and test files clean; prettier --check on changed files, the doc and CHANGELOG clean; `npx vitest run` tests/shelfInputTable, shelfContentParts, shelfParts, readoutTile, lifecycle, twoViewers and astraeus-site tests releaseBreaks, apiReference, shelfCatalogue: 9 files, 427 passed. Red-first was not shown separately (the table was written alongside the checks).
+
+Files changed: src/shelf/part.ts, src/shelf/chart/factory.ts, src/shelf/colourKey/factory.ts, tests/shelfInputTable.test.ts (new), tests/shelfContentParts.test.ts, tests/lifecycle.test.ts, docs/architecture/viewer-interface.md, packages/astraeus/CHANGELOG.md, this Task file.
+
+Limitations: no browser run (catalogue step is the Full Check's).
+
+## Drift Notes
+
+None (viewer-interface section 11 already updated here).
+
+Marked done by the coordinator under the owner's "orchestrate O-96" (2026-11-24; standing rule "I mark them as they pass", O-038) after the wave gate passed on 2026-11-24T07:04Z: `npm run api:lock`, `npm run typecheck` ok, `npm run lint` ok, `npm test` 343 files, 5601 passed, 2 skipped, `npm run build` ok. Coordinator reviewed the existing-test diff: the four owner-approved lines plus one added assertion in lifecycle.test.ts (a mark the narrowed bins leave out is not drawn); accepted as additive (no setup loosened).

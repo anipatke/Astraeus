@@ -169,7 +169,7 @@ describe("a part's ids are checked with the scene's (duplicate-id), and an actio
       id: "q",
       button: { label: "Q" },
       title: "Q",
-      blocks: [colourKey({ id: "same", entries: [] })],
+      blocks: [colourKey({ id: "same", entries: [{ label: "A", color: "#8fb4ff" }] })],
     });
     expect(codeOf(() => base().addParts([one, two]))).toMatch(/^duplicate-id/);
   });
@@ -191,8 +191,8 @@ describe("a part's ids are checked with the scene's (duplicate-id), and an actio
     ).not.toThrow();
   });
 
-  it("a colour key may start empty and a chip row may start with a value lit", () => {
-    expect(colourKey({ id: "k", entries: [] })).toMatchObject({ kind: "colourKey" });
+  it("a colour key may not start empty and a chip row may start with a value lit", () => {
+    expect(codeOf(() => colourKey({ id: "k", entries: [] }))).toMatch(/^bad-part/);
     const chips = filterChips({
       id: "f",
       choices: [

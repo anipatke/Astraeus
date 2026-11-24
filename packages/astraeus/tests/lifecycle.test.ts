@@ -1032,7 +1032,7 @@ describe.each([mountDriver, reactDriver(false)])("lifecycle: $name", (driver) =>
     expect(codeOf(() => chipControl.setSelected([]))).toBe("not-mounted");
     expect(codeOf(() => chipControl.setChoices([{ value: "x", label: "x" }]))).toBe("not-mounted");
     expect(codeOf(() => handle.part(intro).setParagraphs(["x"]))).toBe("not-mounted");
-    expect(codeOf(() => handle.part(key).setEntries([]))).toBe("not-mounted");
+    expect(codeOf(() => handle.part(key).setEntries([{ label: "A", color: "#8fb4ff" }]))).toBe("not-mounted");
     expect(codeOf(() => handle.part(fly))).toBe("not-mounted");
     expect(chipControl.onSelect(() => undefined)).toBeTypeOf("function");
   });
@@ -1048,10 +1048,7 @@ describe.each([mountDriver, reactDriver(false)])("lifecycle: $name", (driver) =>
         { low: 10, high: 20, count: 9, color: "#8fb4ff" },
         { low: 20, high: 30, count: 1 },
       ],
-      marks: [
-        { value: 10, label: "Limit" },
-        { value: 99, label: "Off" },
-      ],
+      marks: [{ value: 10, label: "Limit" }],
     });
     const hold = panel({ id: "charts", button: { label: "Charts" }, title: "Charts", blocks: [sizes] });
     const opened = await driver.open(new Scene().addBody(earth).addParts([hold]));
@@ -1085,6 +1082,10 @@ describe.each([mountDriver, reactDriver(false)])("lifecycle: $name", (driver) =>
     expect(dimmed()).toEqual([false, true]);
     flushSync(() => handle.part(sizes).setBins([{ low: 0, high: 5, count: 5 }]));
     expect(dimmed()).toEqual([false]);
+    expect(
+      root().querySelectorAll("[data-shelf-mark]"),
+      "a mark the new bins no longer cover is not drawn",
+    ).toHaveLength(0);
     flushSync(() => handle.part(sizes).setHighlight(undefined));
     expect(dimmed()).toEqual([false]);
     expect(codeOf(() => handle.part(sizes).setBins([]))).toBe("bad-part");

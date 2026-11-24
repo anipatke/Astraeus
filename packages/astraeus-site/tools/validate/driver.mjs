@@ -1885,3 +1885,29 @@ export const loseAndRestoreContext = (page, n, timeout = 5000) =>
     },
     { n, timeout },
   );
+
+// O-096 T-447: helpers for the no-WebGL pass of the two-viewers step.
+/** Before the page loads: makes every canvas refuse a WebGL context (`getContext` answers null for `webgl`, `webgl2` and `experimental-webgl`), and records the code of the first unhandled rejection the page raises in `window.astraeusRejected` (and keeps the browser from reporting it as a page error). Call before `page.goto`. */
+export const withoutWebgl = (page) =>
+  page.addInitScript(() => {
+    const original = HTMLCanvasElement.prototype.getContext;
+    HTMLCanvasElement.prototype.getContext = function (kind, ...rest) {
+      return /webgl/i.test(String(kind)) ? null : original.call(this, kind, ...rest);
+    };
+    window.addEventListener("unhandledrejection", (event) => {
+      window.astraeusRejected ??= event.reason?.code ?? String(event.reason);
+      event.preventDefault();
+    });
+  });
+/** What a no-WebGL page shows: the message element's text and box (or null), the number of canvases, and the code `ready` rejected with (undefined until it has). */
+export const noWebglState = (page) =>
+  page.evaluate(() => {
+    const message = document.querySelector("[data-astraeus-no-webgl]");
+    const box = message?.getBoundingClientRect();
+    return {
+      text: message?.textContent ?? null,
+      box: box === undefined ? null : { x: box.x, y: box.y, width: box.width, height: box.height },
+      canvases: document.querySelectorAll("canvas").length,
+      rejected: window.astraeusRejected,
+    };
+  });

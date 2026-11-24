@@ -2,7 +2,8 @@
 id: T-447
 title: A viewer with no WebGL says so
 objective: O-096
-status: planned
+status: in_progress
+stage: audit
 depends_on: []
 check_waiver: {task: T-447, reason: 'Owner said "orchestrate O-96" (2026-11-24): standing orchestration rules waive the optional step checks; the mandatory Full Objective Check covers the whole diff.', actor: {role: owner, session: orchestrate-o096-20261124}, recorded_at: '2026-11-24T06:57:50Z'}
 owner_validation: {required: true}
@@ -78,4 +79,28 @@ Focused: `npx vitest run packages/astraeus/tests/noWebgl.test.ts packages/astrae
 
 ## Technical Evidence
 
-Pending execution: named cases, results, reviewed source basis, files read/changed, and limitations, recorded after the work lands.
+Reads beyond Context Files: `packages/astraeus/src/shell/look/look.css` (head, to pick the look token for the message background), `packages/astraeus-site/src/main.tsx` (the `show`/`ready.catch` seam, to see how the page reports a rejected `ready`), `harness.mjs` (`openPage`, `watchErrors`).
+
+Shared-setup choice (owner: "Shared setup line"): a global `vi.mock("./src/api/webglCheck")` in `packages/astraeus/vitest.setup.ts` keeping the real exports but answering `hasWebgl2: () => true`; `tests/noWebgl.test.ts` undoes it with `vi.unmock`. No existing test file edited.
+
+| Done When | Evidence |
+|---|---|
+| `no-webgl` code, doc comment, README table via `api:errors` | `errors.ts`; `npm run api:errors` wrote the table |
+| One check in `api/webglCheck.ts`, both entry points, loses the probe context, not in `scene.check()` | `hasWebgl2` (fresh canvas, `webgl2`, `WEBGL_lose_context`, null/throw = no); called only in `mount.ts` and `AstraeusScene.tsx`; noWebgl.test.ts |
+| `mount` rejects `ready` (ordinary rejection) and holds message; `AstraeusScene` reports once, no `onReady`/`onFirstDraw` | noWebgl.test.ts: 4 cases (mount null + throwing context incl. unmount restores inline style; AstraeusScene onError once with onReady/onFirstDraw uncalled; console.error once with throwing getContext) |
+| Message element with root class, `data-astraeus-no-webgl`, look tokens, CSS | `noWebglMessage()` in webglCheck.ts; `.astraeus-shell.astraeus-no-webgl` rule in style.css; two-viewers no-WebGL pass (inside window at 1280x720 and 375x667) |
+| Doc comments (`ready`, `onError`), README sentence, API lock | mount.ts / AstraeusScene.tsx comments; README (handle table row, React props paragraph); `npm run api:lock` RUN (coordinator reruns after wave) |
+| Tests fail before the change | new module absent / no check before; the file asserts `no-webgl` which did not exist (not separately run red against a stub) |
+| Pretend page keeps WebGL | vitest.setup.ts mock; publicApi, firstDraw, contextLoss and every file matching `grep -rl "mount\|AstraeusScene" packages/*/tests` still pass |
+| Browser check two-viewers | `npm run check:browser -- --step two-viewers` passed, 10 s of 15 s, error-lines 0, evidence docs/evidence/browser-steps-20261124T070025Z; new driver helpers `withoutWebgl`, `noWebglState` |
+| Size | `check:pack`: engine 1,833,526 B raw (limit 1,838,000), 525,811 B gzip (limit 527,000; +222 B vs 525,589 before; T-448 may add) |
+| CHANGELOG | Fixed entry and Breaking line replaced (the "None" line was still there) |
+| Gates | typecheck clean; eslint clean and prettier clean on changed files; focused vitest 45 files, 746 tests passed (noWebgl, publicApi, firstDraw, contextLoss, apiRules, apiSurface, apiImports, packageBoundaries, releaseBreaks, plus every tests file naming mount/AstraeusScene) |
+
+Files changed: packages/astraeus/src/api/webglCheck.ts (new), src/api/mount.ts, src/api/AstraeusScene.tsx, src/api/errors.ts, src/app/style.css, vitest.setup.ts, tests/noWebgl.test.ts (new), README.md, CHANGELOG.md, api-surface.lock.json; packages/astraeus-site/tools/validate/journey-two-viewers.mjs, driver.mjs, browser-steps.mjs; docs/BROWSER_CHECKS.md.
+
+Limitations: the no-WebGL browser pass is a separate page in the same step with an init script that nulls WebGL `getContext` (software Chromium cannot be started without WebGL here); the rejection is read from an `unhandledrejection` listener on the site's own rethrow in `main.tsx`, no site source changed. No full `npm test`, per the wave rule.
+
+## Drift Notes
+
+None. (`browser-steps.mjs` scene text updated.)

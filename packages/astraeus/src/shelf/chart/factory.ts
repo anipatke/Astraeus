@@ -39,11 +39,11 @@ export interface ChartRange {
 export interface ChartInput {
   /** Unique among part and block ids in the scene. */
   readonly id: string;
-  /** The bars, left to right; at least one. */
+  /** The bars, left to right without overlap (each `low` at or above the previous `high`); at least one. */
   readonly bins: readonly ChartBin[];
   /** What the axis measures, with its unit (for example "Semi-major axis (AU)"). */
   readonly axisLabel: string;
-  /** Labelled lines on the axis; a mark outside the bins' range is not drawn. */
+  /** Labelled lines on the axis; each `value` must lie within the bins' range. After `setBins` a mark outside the new bins is not drawn. */
   readonly marks?: readonly ChartMark[];
   /** Starts with bars outside this range dimmed; it must lie within the bins' range. */
   readonly highlight?: ChartRange;
@@ -85,7 +85,17 @@ const binsOf = (value: unknown, who: string): readonly ChartBin[] =>
     });
   });
 
-const marksOf = (value: unknown, who: string): readonly ChartMark[] =>
+/** Bins left to right: each `low` at or above the previous `high` (touching and gaps are fine). */
+const orderedBins = (value: unknown, who: string): readonly ChartBin[] => {
+  const bins = binsOf(value, who);
+  bins.forEach((bin, index) => {
+    if (index > 0 && bin.low < bins[index - 1].high)
+      throw badPart(who, `bins[${index}].low must be at or above bins[${index - 1}].high`);
+  });
+  return bins;
+};
+
+const marksOf = (value: unknown, who: string, bins: readonly ChartBin[]): readonly ChartMark[] =>
   value === undefined
     ? Object.freeze([])
     : checkedItems(
@@ -95,6 +105,9 @@ const marksOf = (value: unknown, who: string): readonly ChartMark[] =>
         "{ value, label } objects",
         (record, at) => {
           if (!finite(record.value)) throw badPart(who, `${at}.value must be a finite number`);
+          const extent = extentOf(bins);
+          if (record.value < extent.low || record.value > extent.high)
+            throw badPart(who, `${at}.value must lie within the bins' range`);
           return Object.freeze({ value: record.value, label: checkedText(record.label, who, `${at}.label`) });
         },
         true,
@@ -138,7 +151,7 @@ const rangeOf = (value: unknown, who: string, bins: readonly ChartBin[]): ChartR
 export function chart(input: ChartInput): BlockPart<"chart"> {
   const who = "chart";
   const fields = checkedInput(input, who, "an { id, bins, axisLabel } object");
-  const bins = binsOf(fields.bins, who);
+  const bins = orderedBins(fields.bins, who);
   const state: ChartState = Object.freeze({
     bins,
     ...(fields.highlight === undefined ? {} : { highlight: rangeOf(fields.highlight, who, bins) }),
@@ -149,13 +162,13 @@ export function chart(input: ChartInput): BlockPart<"chart"> {
     view: ChartView,
     data: Object.freeze({
       axisLabel: checkedText(fields.axisLabel, who, "axisLabel"),
-      marks: marksOf(fields.marks, who),
+      marks: marksOf(fields.marks, who, bins),
     } satisfies ChartData),
     initial: state,
     control: (link) =>
       ({
         setBins: (next: readonly ChartBin[]) => {
-          const nextBins = binsOf(next, "ChartControl.setBins");
+          const nextBins = orderedBins(next, "ChartControl.setBins");
           const cell = link.cell("ChartControl.setBins");
           const kept = (cell.get() as ChartState).highlight;
           cell.set(

@@ -63,7 +63,7 @@ export const STEPS = [
     tier: "full",
     script: "journey-two-viewers.mjs",
     scene:
-      "synthetic-two-viewers (made-up Sun, Earth, belt and marker, two viewers one above the other) at desktop and phone size: both canvases inside the window and clear of each other and drawing, the first taken down leaves the second drawing without a console error or WebGL warning, the second survives a lost and restored graphics context, the second taken down leaves no canvas",
+      "synthetic-two-viewers (made-up Sun, Earth, belt and marker, two viewers one above the other) at desktop and phone size: both canvases inside the window and clear of each other and drawing, the first taken down leaves the second drawing without a console error or WebGL warning, the second survives a lost and restored graphics context, the second taken down leaves no canvas, and a page whose browser refuses WebGL shows the viewer's short message inside the window, no canvas, and its ready rejected with no-webgl",
   },
   {
     name: "catalogue",

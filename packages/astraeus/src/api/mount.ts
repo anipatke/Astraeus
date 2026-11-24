@@ -5,6 +5,7 @@ import { App } from "../app/App";
 import { makeContainingBlock } from "./containingBlock";
 import { SceneError } from "./errors";
 import { prepareScene } from "./prepared";
+import { hasWebgl2, noWebglError, noWebglMessage } from "./webglCheck";
 import type { DataSource, Scene } from "./scene";
 import { viewerHandleOf, type ViewerHandle } from "./viewerHandle";
 import { ViewerLink, type ViewerChange } from "./viewerLink";
@@ -23,7 +24,7 @@ export interface MountOptions {
 
 /** What `mount` returns: the viewer handle plus `ready` and `unmount`. */
 export interface MountedScene extends ViewerHandle {
-  /** Resolves once the scene's data has loaded, it is drawn and the host link is attached, so `timeUtcMs`, `rate`, `view` and every set call work from then on. Rejects with its own error if loading failed, and with `SceneError` `not-mounted` if `unmount` came first; it never stays pending. */
+  /** Resolves once the scene's data has loaded, it is drawn and the host link is attached, so `timeUtcMs`, `rate`, `view` and every set call work from then on. Rejects with its own error if loading failed, with `SceneError` `no-webgl` if the browser offers no WebGL 2 (the element then holds a short message and nothing is drawn), and with `SceneError` `not-mounted` if `unmount` came first; it never stays pending. */
   readonly ready: Promise<void>;
   /** Removes the scene, its canvas and its listeners from the page. Safe to call twice. */
   unmount(): void;
@@ -56,6 +57,10 @@ export function mount(element: HTMLElement, scene: Scene, options: MountOptions 
   // Resolves once the viewer has attached its clock (its effect runs after the render), so every handle call works straight after `await ready`.
   const attached = loaded.then(() => {
     if (!open) throw new SceneError("not-mounted", "mount: unmounted before the viewer was drawn");
+    if (!hasWebgl2()) {
+      root.render(noWebglMessage());
+      throw noWebglError();
+    }
     root.render(
       createElement(App, {
         definition,

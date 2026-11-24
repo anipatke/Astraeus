@@ -17,7 +17,7 @@ import { ColourKeyView } from "./View";
 export interface ColourKeyEntry {
   readonly label: string;
   readonly color: string;
-  /** How many (0 or more). */
+  /** How many (a whole number of 0 or more). */
   readonly count?: number;
   /** Small text under the label. */
   readonly note?: string;
@@ -27,7 +27,7 @@ export interface ColourKeyEntry {
 export interface ColourKeyInput {
   /** Unique among part and block ids in the scene. */
   readonly id: string;
-  /** The rows, in order; may be empty. */
+  /** The rows, in order; at least one. */
   readonly entries: readonly ColourKeyEntry[];
 }
 
@@ -42,16 +42,26 @@ export interface ColourKeyState {
   readonly entries: readonly ColourKeyEntry[];
 }
 
-const entriesOf = (value: unknown, who: string): readonly ColourKeyEntry[] =>
+const SHAPE = "{ label, color, count?, note? } objects";
+
+const entriesOf = (value: unknown, who: string): readonly ColourKeyEntry[] => {
+  if (Array.isArray(value) && value.length === 0) throw badPart(who, `entries must be a non-empty list of ${SHAPE}`);
+  return listOf(value, who);
+};
+
+// Empty is refused above with its own words; `true` keeps the not-a-list message plain.
+const listOf = (value: unknown, who: string): readonly ColourKeyEntry[] =>
   checkedItems(
     value,
     who,
     "entries",
-    "{ label, color, count?, note? } objects",
+    SHAPE,
     (record, at) => {
       const count = record.count;
       if (count !== undefined && (typeof count !== "number" || !Number.isFinite(count) || count < 0))
         throw badPart(who, `${at}.count must be a number of 0 or more`);
+      if (count !== undefined && !Number.isInteger(count))
+        throw badPart(who, `${at}.count must be a whole number of 0 or more`);
       return Object.freeze({
         label: checkedText(record.label, who, `${at}.label`),
         color: checkedColour(record.color, who, `${at}.color`),

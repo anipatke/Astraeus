@@ -4,7 +4,7 @@
 // Alone: ASTRAEUS_URL=<app.html url> ASTRAEUS_EVIDENCE_DIR=<new dir> node tools/validate/journey-two-viewers.mjs
 import assert from "node:assert/strict";
 import * as ui from "./driver.mjs";
-import { appUrl, checkScript } from "./harness.mjs";
+import { appUrl, checkScript, openPage, watchErrors } from "./harness.mjs";
 
 const SIZES = [
   { name: "desktop", width: 1280, height: 720 },
@@ -12,88 +12,123 @@ const SIZES = [
 ];
 const crosses = (a, b) => a.x < b.x + b.width && b.x < a.x + a.width && a.y < b.y + b.height && b.y < a.y + a.height;
 
-await checkScript({ name: "journey-two-viewers", viewports: SIZES }, async (page, { name, viewport }) => {
-  const warnings = [];
-  page.on("console", (message) => {
-    // The software renderer's own performance notes ("GPU stall due to ReadPixels") are not the page's doing; every other WebGL or context warning counts.
-    if (
-      message.type() === "warning" &&
-      /webgl|context/i.test(message.text()) &&
-      !/Driver Message \(OpenGL, Performance/.test(message.text())
-    )
-      warnings.push(message.text());
-  });
-  await page.goto(appUrl("experience=synthetic-two-viewers"));
-  await page.waitForFunction(
-    () => window.astraeusHost?.playing !== undefined && window.astraeusSecondHost?.playing !== undefined,
-    null,
-    { timeout: 60000 },
-  );
-  await ui.setViewerPlaying(page, "first", true);
-  await ui.setViewerPlaying(page, "second", true);
-
-  // Scenario 1: two canvases, inside the window, not crossing, both drawing.
-  assert.equal(await ui.canvasCount(page), 2, `${name}: two canvases are drawn`);
-  const [one, two] = await ui.canvasBoxes(page);
-  for (const [label, box] of [
-    ["first", one],
-    ["second", two],
-  ]) {
-    assert.ok(
-      box.width > 0 &&
-        box.height > 0 &&
-        box.x >= 0 &&
-        box.y >= 0 &&
-        box.x + box.width <= viewport.width &&
-        box.y + box.height <= viewport.height,
-      `${name}: the ${label} canvas is inside the window (${JSON.stringify(box)})`,
+await checkScript(
+  { name: "journey-two-viewers", viewports: SIZES },
+  async (page, { browser, errors, name, viewport }) => {
+    const warnings = [];
+    page.on("console", (message) => {
+      // The software renderer's own performance notes ("GPU stall due to ReadPixels") are not the page's doing; every other WebGL or context warning counts.
+      if (
+        message.type() === "warning" &&
+        /webgl|context/i.test(message.text()) &&
+        !/Driver Message \(OpenGL, Performance/.test(message.text())
+      )
+        warnings.push(message.text());
+    });
+    await page.goto(appUrl("experience=synthetic-two-viewers"));
+    await page.waitForFunction(
+      () => window.astraeusHost?.playing !== undefined && window.astraeusSecondHost?.playing !== undefined,
+      null,
+      { timeout: 60000 },
     );
-  }
-  assert.ok(!crosses(one, two), `${name}: the two canvases do not cross (${JSON.stringify([one, two])})`);
-  await ui.waitForMoreFramesOf(page, 0, await ui.framesDrawnOf(page, 0));
-  await ui.waitForMoreFramesOf(page, 1, await ui.framesDrawnOf(page, 1));
+    await ui.setViewerPlaying(page, "first", true);
+    await ui.setViewerPlaying(page, "second", true);
 
-  // Scenario 2: the first viewer comes down; the second keeps drawing, quietly.
-  await ui.unmountViewer(page, "first");
-  await ui.waitUntil(
-    page,
-    () => ui.canvasCount(page),
-    (count) => count === 1,
-    {
-      timeout: 3000,
-      what: "the page's canvas count after the first viewer is taken down",
-    },
-  );
-  await ui.waitForMoreFramesOf(page, 0, await ui.framesDrawnOf(page, 0));
-  assert.deepEqual(warnings, [], `${name}: no WebGL warning after the first viewer is taken down`);
+    // Scenario 1: two canvases, inside the window, not crossing, both drawing.
+    assert.equal(await ui.canvasCount(page), 2, `${name}: two canvases are drawn`);
+    const [one, two] = await ui.canvasBoxes(page);
+    for (const [label, box] of [
+      ["first", one],
+      ["second", two],
+    ]) {
+      assert.ok(
+        box.width > 0 &&
+          box.height > 0 &&
+          box.x >= 0 &&
+          box.y >= 0 &&
+          box.x + box.width <= viewport.width &&
+          box.y + box.height <= viewport.height,
+        `${name}: the ${label} canvas is inside the window (${JSON.stringify(box)})`,
+      );
+    }
+    assert.ok(!crosses(one, two), `${name}: the two canvases do not cross (${JSON.stringify([one, two])})`);
+    await ui.waitForMoreFramesOf(page, 0, await ui.framesDrawnOf(page, 0));
+    await ui.waitForMoreFramesOf(page, 1, await ui.framesDrawnOf(page, 1));
 
-  // Scenario 3: the second survives a lost and restored graphics context.
-  const heard = await ui.loseAndRestoreContext(page, 0);
-  assert.deepEqual(heard, { lost: true, restored: true }, `${name}: the canvas heard the context lost and restored`);
-  await ui.waitForMoreFramesOf(page, 0, await ui.framesDrawnOf(page, 0));
+    // Scenario 2: the first viewer comes down; the second keeps drawing, quietly.
+    await ui.unmountViewer(page, "first");
+    await ui.waitUntil(
+      page,
+      () => ui.canvasCount(page),
+      (count) => count === 1,
+      {
+        timeout: 3000,
+        what: "the page's canvas count after the first viewer is taken down",
+      },
+    );
+    await ui.waitForMoreFramesOf(page, 0, await ui.framesDrawnOf(page, 0));
+    assert.deepEqual(warnings, [], `${name}: no WebGL warning after the first viewer is taken down`);
 
-  assert.deepEqual(warnings, [], `${name}: no WebGL warning across the lost and restored context`);
+    // Scenario 3: the second survives a lost and restored graphics context.
+    const heard = await ui.loseAndRestoreContext(page, 0);
+    assert.deepEqual(heard, { lost: true, restored: true }, `${name}: the canvas heard the context lost and restored`);
+    await ui.waitForMoreFramesOf(page, 0, await ui.framesDrawnOf(page, 0));
 
-  // Scenario 4: the second comes down; nothing is left.
-  await ui.unmountViewer(page, "second");
-  // The viewer leaves the page on React's own schedule, so wait for the canvas to go, then a moment for anything its taking-down still reports.
-  await ui.waitUntil(
-    page,
-    () => ui.canvasCount(page),
-    (count) => count === 0,
-    {
-      timeout: 3000,
-      what: "the page's canvas count after the second viewer is taken down",
-    },
-  );
-  await page.waitForTimeout(500);
-  // After a lost and restored context, three.js still holds dispose listeners from before the loss; freeing those objects asks the new context to delete
-  // buffers and vertex arrays that died with the old one, and the browser says "object does not belong to this context". Those handles are already gone,
-  // so the warning is harmless and comes from three, not Astraeus (O-092 T-427). Only that delete warning is allowed, and only in this last scenario.
-  const STALE_DELETE = /^WebGL: INVALID_OPERATION: (delete|deleteVertexArray): object does not belong to this context$/;
-  assert.deepEqual(
-    warnings.filter((text) => !STALE_DELETE.test(text)),
-    [],
-    `${name}: no WebGL warning during the whole run other than three's stale deletes after the restored context`,
-  );
-});
+    assert.deepEqual(warnings, [], `${name}: no WebGL warning across the lost and restored context`);
+
+    // Scenario 4: the second comes down; nothing is left.
+    await ui.unmountViewer(page, "second");
+    // The viewer leaves the page on React's own schedule, so wait for the canvas to go, then a moment for anything its taking-down still reports.
+    await ui.waitUntil(
+      page,
+      () => ui.canvasCount(page),
+      (count) => count === 0,
+      {
+        timeout: 3000,
+        what: "the page's canvas count after the second viewer is taken down",
+      },
+    );
+    await page.waitForTimeout(500);
+    // After a lost and restored context, three.js still holds dispose listeners from before the loss; freeing those objects asks the new context to delete
+    // buffers and vertex arrays that died with the old one, and the browser says "object does not belong to this context". Those handles are already gone,
+    // so the warning is harmless and comes from three, not Astraeus (O-092 T-427). Only that delete warning is allowed, and only in this last scenario.
+    const STALE_DELETE =
+      /^WebGL: INVALID_OPERATION: (delete|deleteVertexArray): object does not belong to this context$/;
+    assert.deepEqual(
+      warnings.filter((text) => !STALE_DELETE.test(text)),
+      [],
+      `${name}: no WebGL warning during the whole run other than three's stale deletes after the restored context`,
+    );
+
+    // Scenario 5 (O-096 T-447): a browser with no WebGL. Its own page, loaded with canvases refusing WebGL: the page's `ready` rejects with `no-webgl`, a short message sits inside the window, and nothing is drawn.
+    const bare = await openPage(browser, {
+      viewport: { width: viewport.width, height: viewport.height },
+      ...(viewport.isMobile ? { isMobile: true, hasTouch: true } : {}),
+    });
+    watchErrors(bare, errors, `${name} no-webgl`);
+    try {
+      await ui.withoutWebgl(bare);
+      await bare.goto(appUrl("experience=synthetic-two-viewers"));
+      const state = await ui.waitUntil(
+        bare,
+        () => ui.noWebglState(bare),
+        (found) => found.text !== null && found.rejected !== undefined,
+        { timeout: 15000, what: "the no-WebGL message and the rejected ready" },
+      );
+      assert.equal(state.rejected, "no-webgl", `${name}: ready rejected with no-webgl`);
+      assert.match(state.text, /WebGL/, `${name}: the message names WebGL`);
+      assert.equal(state.canvases, 0, `${name}: no canvas is drawn without WebGL`);
+      assert.ok(
+        state.box.width > 0 &&
+          state.box.height > 0 &&
+          state.box.x >= 0 &&
+          state.box.y >= 0 &&
+          state.box.x + state.box.width <= viewport.width &&
+          state.box.y + state.box.height <= viewport.height,
+        `${name}: the message is inside the window (${JSON.stringify(state.box)})`,
+      );
+    } finally {
+      await bare.close();
+    }
+  },
+);

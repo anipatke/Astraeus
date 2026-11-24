@@ -12,6 +12,7 @@ import { App } from "../app/App";
 import type { ExperienceDefinition } from "../app/experienceDefinition";
 import { makeContainingBlock } from "./containingBlock";
 import { prepareScene } from "./prepared";
+import { hasWebgl2, noWebglError, noWebglMessage } from "./webglCheck";
 import type { DataSource, Scene } from "./scene";
 import { type TimeInput } from "./time";
 import { viewerHandleOf, type ViewerHandle } from "./viewerHandle";
@@ -28,7 +29,7 @@ export interface AstraeusSceneProps {
   readonly ref?: Ref<ViewerHandle>;
   /** Called with the handle once the scene's data has loaded, it is drawn and the viewer's clock is attached, so a host can read and set from here (again, with the same handle, after each rebuild). */
   readonly onReady?: (handle: ViewerHandle) => void;
-  /** Called when the scene cannot be built (a `SceneError`) or its data fails to load, and with the errors the `time`, `rate`, `view` and `camera` props report. Without it each error goes to `console.error`, so a failure is never silent. */
+  /** Called when the scene cannot be built (a `SceneError`), its data fails to load, or the browser offers no WebGL 2 (`no-webgl`; the wrapper then holds a short message), and with the errors the `time`, `rate`, `view` and `camera` props report. Without it each error goes to `console.error`, so a failure is never silent. */
   readonly onError?: (error: Error) => void;
   /** Moves the viewer to this moment (ISO text, a `Date` or Unix milliseconds) once it is drawn, and again whenever the moment changes. Outside the timeline reports `bad-time` to `onError`. Not a controlled value: the viewer keeps running from there, so the current time arrives through `onChange`. */
   readonly time?: TimeInput;
@@ -105,6 +106,7 @@ export function AstraeusScene({
   style,
 }: AstraeusSceneProps): ReactElement {
   const [definition, setDefinition] = useState<ExperienceDefinition | undefined>();
+  const [noWebgl, setNoWebgl] = useState(false);
   // The latest data and callbacks, read when the scene is built, so a new array or arrow function each render does not rebuild it.
   const latest = useRef({ data, onReady, onError, onChange, onEventZone, onPick, onFirstDraw });
   latest.current = { data, onReady, onError, onChange, onEventZone, onPick, onFirstDraw };
@@ -156,12 +158,18 @@ export function AstraeusScene({
   useEffect(() => {
     let open = true;
     setDefinition(undefined);
+    setNoWebgl(false);
     link.detach(); // a rebuild: the old viewer is going, so `onReady` below waits for the new one's attach
     try {
       const prepared = prepareScene(scene, latest.current.data);
       prepared.ready.then(
         () => {
           if (!open) return;
+          if (!hasWebgl2()) {
+            setNoWebgl(true);
+            report(latest.current.onError, noWebglError());
+            return;
+          }
           setDefinition(prepared.definition);
           // The viewer attaches its clock in an effect after this render; onReady waits for it, so the handle's reads and sets work inside it.
           void link.whenAttached().then(
@@ -198,6 +206,8 @@ export function AstraeusScene({
           developerTools={developerTools === true}
           host={link}
         />
+      ) : noWebgl ? (
+        noWebglMessage()
       ) : null}
     </div>
   );

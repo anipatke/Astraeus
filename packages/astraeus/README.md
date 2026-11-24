@@ -167,7 +167,7 @@ export const App = () => (
 );
 ```
 
-Props: `scene`, `data` (as for `mount`), `ref` (a React 19 ref prop that receives the same handle `mount` returns, minus `ready` and `unmount`: one object for the component's life, reads `undefined` and calls throwing `not-mounted` until drawn and after unmount), `onReady(handle)` (called with that handle once drawn and the viewer's clock is attached, the same moment `mount`'s `ready` resolves, and again after each rebuild; under React StrictMode it still fires once per build), `onError` (a bad scene, a failed data load, or a bad `time`, `rate`, `view` or `camera` prop; without it each error goes to `console.error`, so a failure is never silent), `className` and `style` for the wrapper. `time`, `rate`, `view` and `camera` are applied once drawn and whenever their value changes; they are not controlled values, so read the live state from `onChange`. Build the `Scene` once (outside the component or in `useMemo`): a new `Scene` object rebuilds the viewer. See [`examples/hello-react`](https://github.com/anipatke/Astraeus/tree/main/examples/hello-react) and [`AstraeusSceneProps`](https://astraeus.anipatke.com/api/#astraeussceneprops).
+Props: `scene`, `data` (as for `mount`), `ref` (a React 19 ref prop that receives the same handle `mount` returns, minus `ready` and `unmount`: one object for the component's life, reads `undefined` and calls throwing `not-mounted` until drawn and after unmount), `onReady(handle)` (called with that handle once drawn and the viewer's clock is attached, the same moment `mount`'s `ready` resolves, and again after each rebuild; under React StrictMode it still fires once per build), `onError` (a bad scene, a failed data load, or a bad `time`, `rate`, `view` or `camera` prop; without it each error goes to `console.error`, so a failure is never silent), `className` and `style` for the wrapper. `time`, `rate`, `view` and `camera` are applied once drawn and whenever their value changes; they are not controlled values, so read the live state from `onChange`. Build the `Scene` once (outside the component or in `useMemo`): a new `Scene` object rebuilds the viewer. Without WebGL 2 neither `mount` (its `ready` rejects with `no-webgl`) nor `AstraeusScene` (`onError` hears `no-webgl`) draws anything: a short message stays in the viewer's place. See [`examples/hello-react`](https://github.com/anipatke/Astraeus/tree/main/examples/hello-react) and [`AstraeusSceneProps`](https://astraeus.anipatke.com/api/#astraeussceneprops).
 
 ## The handle: lifecycle, time and events
 
@@ -179,7 +179,7 @@ Before `ready` and after `unmount` every read is `undefined` and every call thro
 
 | Name | What it does |
 |------|--------------|
-| `handle.ready` | Resolves once the scene's data has loaded, it is drawn and the host link is attached, so every read and `set` call works on the line after `await handle.ready`. Rejects if loading failed, and with `not-mounted` if `unmount` came first; it never stays pending. |
+| `handle.ready` | Resolves once the scene's data has loaded, it is drawn and the host link is attached, so every read and `set` call works on the line after `await handle.ready`. Rejects if loading failed, with `no-webgl` if the browser offers no WebGL 2, and with `not-mounted` if `unmount` came first; it never stays pending. |
 | `handle.onFirstDraw(fn)` | `fn()` once the first frame is drawn, for fading your own loading cover. |
 | `handle.timeUtcMs`, `handle.rate`, `handle.playing` | The clock now. |
 | `handle.setTime(time)`, `handle.setRate(rate)`, `handle.setPlaying(playing)` | Move, speed (one of the timeline's `rates`, or `"auto"` with pacing) and play or pause the clock. |
@@ -356,6 +356,7 @@ Every call that refuses its input throws a `SceneError`, a `RangeError` with a s
 | `bad-look` | A look (`setLook`) is unknown or out of its range. |
 | `bad-about` | The About (`setAbout`) is malformed; the message names the field. |
 | `bad-part` | A shelf part is malformed: a shelf factory (`panel`, `customBlock`, `explainer`, `actions`, `filterChips`, `colourKey`, `chart`, `readoutTile`) or a part control's setter given a bad value, `addParts` given a value no factory made, an action's camera naming what the scene lacks (at build), or `handle.part` given a part this viewer's scene does not hold. The message names the field. |
+| `no-webgl` | The browser or device offers no WebGL 2, so the viewer cannot draw; the viewer shows a short message in its place. |
 | `renamed` | An input field was given under a name it no longer has; the message names the old field and its replacement. |
 <!-- error-table:end -->
 
