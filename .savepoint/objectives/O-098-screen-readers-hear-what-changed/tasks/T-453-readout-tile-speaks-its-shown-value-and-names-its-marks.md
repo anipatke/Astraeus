@@ -5,7 +5,7 @@ objective: O-098
 status: done
 depends_on: []
 check_waiver: {task: T-453, reason: 'Owner said "orchestrate O-98" (2026-11-24): standing orchestration rules waive the optional step checks; the mandatory Full Objective Check covers the whole diff.', actor: {role: owner, session: orchestrate-o098-20261124}, recorded_at: '2026-11-24T08:17:01Z'}
-owner_validation: {required: true}
+owner_validation: {required: true, accepted_check: C-221, accepted_by: {role: owner, session: orchestrate-o098-20261124}}
 planned_by: {role: planner, session: plan-o098-20261124}
 planned_reads: [packages/astraeus/src/shelf/readoutTile/View.tsx, packages/astraeus/src/shelf/readoutTile/factory.ts, packages/astraeus/src/shelf/readoutTile/part.css, packages/astraeus/src/app/shelfContract.ts, packages/astraeus/src/shell/useShelfTile.tsx, packages/astraeus/src/shell/parts/parts.css, packages/astraeus/tests/readoutTile.test.ts, packages/astraeus/tests/lifecycle.test.ts, packages/astraeus/tests/twoViewers.test.ts, packages/astraeus/tests/domSetup.ts, packages/astraeus-site/src/catalogue/examples/readoutTile.ts, packages/astraeus/CHANGELOG.md, docs/architecture/viewer-interface.md]
 planned_writes: [packages/astraeus/src/shelf/readoutTile/View.tsx, packages/astraeus/src/shelf/readoutTile/factory.ts, packages/astraeus/src/shelf/readoutTile/announce.ts, packages/astraeus/src/app/shelfContract.ts, packages/astraeus/src/shell/useShelfTile.tsx, packages/astraeus/tests/readoutTileAnnounce.test.ts, packages/astraeus/tests/lifecycle.test.ts, packages/astraeus/CHANGELOG.md, docs/architecture/viewer-interface.md]

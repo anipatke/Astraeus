@@ -1,9 +1,10 @@
 ---
 id: O-098
 title: Screen readers hear what changed
-status: planned
+status: done
 depends_on: [O-097]
 release: G-025
+last_check: C-221
 priority: medium
 rank: 4
 ---
@@ -53,3 +54,7 @@ Owner confirmed this design at Goal level on 2026-11-22 (G-025 Outcome and decis
 **In scope:** live regions and accessible text in the explainer, readout tile and chart parts.
 
 **Out of scope:** announcements for other parts; readout-tile placement.
+
+## Closure
+
+Full Objective Check C-221 CLEAR on 2026-11-24 (no Issues). Owner checked T-453 and T-454 in DevTools' Accessibility pane on localhost:5490 and said "looks good" (acceptance recorded against C-221). Marked done and merged by the coordinator under the owner's "orchestrate O-98" (standing rule: CLEAR → merge and push). Last Objective of G-025.

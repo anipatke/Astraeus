@@ -5,7 +5,7 @@ objective: O-098
 status: done
 depends_on: []
 check_waiver: {task: T-454, reason: 'Owner said "orchestrate O-98" (2026-11-24): standing orchestration rules waive the optional step checks; the mandatory Full Objective Check covers the whole diff.', actor: {role: owner, session: orchestrate-o098-20261124}, recorded_at: '2026-11-24T08:17:01Z'}
-owner_validation: {required: true}
+owner_validation: {required: true, accepted_check: C-221, accepted_by: {role: owner, session: orchestrate-o098-20261124}}
 planned_by: {role: planner, session: plan-o098-20261124}
 planned_reads: [packages/astraeus/src/shelf/chart/View.tsx, packages/astraeus/src/shelf/chart/factory.ts, packages/astraeus/tests/lifecycle.test.ts, packages/astraeus/tests/chartMarkRows.test.ts, packages/astraeus/tests/twoViewers.test.ts, packages/astraeus-site/src/catalogue/examples/chart.ts, packages/astraeus/CHANGELOG.md, docs/architecture/viewer-interface.md]
 planned_writes: [packages/astraeus/src/shelf/chart/View.tsx, packages/astraeus/tests/chartSummary.test.ts, packages/astraeus/tests/lifecycle.test.ts, packages/astraeus/CHANGELOG.md, docs/architecture/viewer-interface.md]
