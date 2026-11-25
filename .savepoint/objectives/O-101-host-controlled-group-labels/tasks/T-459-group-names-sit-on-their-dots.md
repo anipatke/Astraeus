@@ -2,8 +2,7 @@
 id: T-459
 title: Group names sit on their dots
 objective: O-101
-status: in_progress
-stage: audit
+status: done
 depends_on: []
 check_waiver: {task: T-459, reason: 'Owner said "orchestrate the rest of the goal" (G-027, 2026-11-24): standing orchestration rules waive the optional step checks; the mandatory Full Objective Check covers the whole diff.', actor: {role: owner, session: orchestrate-g027-20261124}, recorded_at: '2026-11-24T10:13:49Z'}
 owner_validation: {required: true}
@@ -94,3 +93,5 @@ Owner decisions (2026-11-25, O-101 "Owner answers"): (1) "Fix the check": `group
 ## Drift Notes
 
 Expected for Design.md (Interfaces and Data Flow, point groups): a group's label place is its anchor dot, not its centroid; new module `app/groupLabelPoint.ts`. Reconciled before the Full Objective Check.
+
+Marked done by the coordinator under the owner's "orchestrate O-101" (2026-11-25) after the wave gate (`npm test` 355 files 5700 passed 2 skipped; check:pack over caps pending the approved raise in T-461). Owner looked on localhost:5490 (`npm run preview:owner`, branch o101-group-labels at 236cfa20, 2026-11-25T07:36Z; synthetic-belt, synthetic-ring, synthetic-lookout at desktop and phone width, including the ring spot and a phone turn) and said "looks good". The acceptance fields are filled in once the Full Objective Check has an id.
