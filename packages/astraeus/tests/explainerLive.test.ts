@@ -24,7 +24,10 @@ beforeEach(() => {
   vi.stubGlobal("fetch", () => Promise.reject(new Error("offline")));
   vi.useFakeTimers({ toFake: ["setInterval", "clearInterval", "performance"] });
 });
+// Each viewer is unmounted after its test: a mounted root still has React work queued when the test ends, and once the pretend page is torn down that work throws `window is not defined`.
+const mounted: { unmount(): void }[] = [];
 afterEach(() => {
+  for (const handle of mounted.splice(0)) handle.unmount();
   document.body.innerHTML = "";
   vi.unstubAllGlobals();
   vi.useRealTimers();
@@ -34,6 +37,7 @@ const open = async (root: HTMLElement, text: ReturnType<typeof explainer>) => {
   document.body.append(root);
   const hold = panel({ id: "hold", button: { label: "Text" }, title: "Text", blocks: [text] });
   const handle = mount(root, new Scene().addBody(earth).addParts([hold]));
+  mounted.push(handle);
   await handle.ready;
   return handle;
 };

@@ -2,8 +2,7 @@
 id: T-463
 title: A made-up scene proves group labels in a browser
 objective: O-101
-status: in_progress
-stage: audit
+status: done
 depends_on: [{task: T-458, requires: clear}, {task: T-462, requires: clear}]
 check_waiver: {task: T-463, reason: 'Owner said "orchestrate the rest of the goal" (G-027, 2026-11-24): standing orchestration rules waive the optional step checks; the mandatory Full Objective Check covers the whole diff.', actor: {role: owner, session: orchestrate-g027-20261124}, recorded_at: '2026-11-24T10:13:49Z'}
 owner_validation: {required: true}
@@ -103,3 +102,5 @@ Limitations: opening camera is set with `setStartView` (azimuth 180, top-down, d
 Expected for Design.md (Verification in tiers): the `group-labels` step. Reconciled before the Full Objective Check. Also: the `data-points` readout now carries the dots' screen box (`minX`..`maxY`), added in `sceneDebug.ts` (debug readout only).
 
 Owner looked on localhost:5490 (`npm run preview:owner`, branch o101-group-labels at 0782b706, 2026-11-25T08:14Z; synthetic-group-labels at desktop and 390x844, all five points) and said "looks good". Done is recorded once the full suite exits clean (unhandled-error fix in progress).
+
+Marked done by the coordinator under the owner's "orchestrate O-101" (2026-11-25): full `npm test` exits 0 twice (358 files, 5737 passed, 2 skipped) after the coordinator-approved cleanup fix in tests/explainerLive.test.ts (O-098 file left viewers mounted; afterEach now unmounts them; no input, fixture or assertion changed). `npm run check:pack` 1,845,916 raw / 529,465 gzip within 1,846,000 / 530,000.
