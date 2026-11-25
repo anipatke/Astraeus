@@ -1,7 +1,7 @@
 ---
 id: G-027
 title: Belt follow-ups, for 0.12.0 (planned as 0.11.1)
-status: planned
+status: done
 ---
 
 ## Outcome
