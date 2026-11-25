@@ -7,7 +7,7 @@ import { createComposition } from "../assets/compositions";
 import { mergePictures } from "../assets/pictures";
 import { MAX_LIT_BODIES, litBodiesOf } from "../app/sceneFraming";
 import { bodyMetrics, type BodyMetricKind } from "../app/bodyMetrics";
-import type { ExperienceDefinition, GroupLayer, PathLayer } from "../app/experienceDefinition";
+import type { ExperienceDefinition, ExperienceLabel, GroupLayer, PathLayer } from "../app/experienceDefinition";
 import type { LookInput } from "./look";
 import { needsPlanetSeries } from "../app/planetNeeds";
 import { createReadoutMetrics } from "../app/trackedMetrics";
@@ -228,7 +228,9 @@ export function assembleScene(parts: ScenePlanners, data: readonly DataSource[])
       }),
     ),
     ...bodySets.objects({ ids, catalogue: plan.catalogue }),
+    ...labels.flatMap(severalGroupsObject),
   ];
+  const severalIds = new Set(labels.filter((label) => severalGroupsObject(label).length > 0).map(({ id }) => id));
   const pictures = mergePictures(data.map((source) => source.pictures));
   const members = new Set(bodySets.memberIds());
   const moonFamilies = moonPanel.list(
@@ -298,11 +300,13 @@ export function assembleScene(parts: ScenePlanners, data: readonly DataSource[])
         bodyReadouts,
       );
       return (objectId: string, timeUtcMs: number): readonly Metric[] =>
-        groupPlan.groups.has(objectId)
-          ? groupPlan.metrics(objectId, timeUtcMs)
-          : trackedMap.has(objectId) || plan.readouts.has(objectId)
-            ? readouts(objectId, timeUtcMs)
-            : catalogued(objectId, timeUtcMs);
+        severalIds.has(objectId)
+          ? []
+          : groupPlan.groups.has(objectId)
+            ? groupPlan.metrics(objectId, timeUtcMs)
+            : trackedMap.has(objectId) || plan.readouts.has(objectId)
+              ? readouts(objectId, timeUtcMs)
+              : catalogued(objectId, timeUtcMs);
     },
     prepare: async () => {
       if (fault.error !== undefined) throw fault.error;
@@ -333,6 +337,25 @@ export function assembleScene(parts: ScenePlanners, data: readonly DataSource[])
   };
   checkOpeningLook(camera, definition, groupPlan.groups.keys(), skyFigures.figures.keys());
   return definition;
+}
+
+/** A label that selects two or more groups is an unlisted object of its own: it can be selected, framed and shown on the card with the host's words. */
+function severalGroupsObject(label: ExperienceLabel): readonly ExperienceObject[] {
+  const { selects } = label;
+  if (selects === undefined || !("groups" in selects) || selects.groups.length < 2) return [];
+  return [
+    {
+      id: label.id,
+      label: label.label,
+      ...(label.color === undefined ? {} : { color: label.color }),
+      labelPriority: label.labelPriority,
+      listed: false,
+      partOfAll: selects.groups,
+      ...(label.description === undefined ? {} : { description: label.description }),
+      ...(label.provenance === undefined ? {} : { provenance: label.provenance }),
+      ...(label.knownLimitations === undefined ? {} : { knownLimitations: label.knownLimitations }),
+    },
+  ];
 }
 
 /** The group layers in the order their groups were added, whether each was built early or late in `prepare` (I-193). */

@@ -2,7 +2,7 @@
 id: T-462
 title: Several groups chosen as one
 objective: O-101
-status: planned
+status: done
 depends_on: [{task: T-461, requires: clear}]
 check_waiver: {task: T-462, reason: 'Owner said "orchestrate the rest of the goal" (G-027, 2026-11-24): standing orchestration rules waive the optional step checks; the mandatory Full Objective Check covers the whole diff.', actor: {role: owner, session: orchestrate-g027-20261124}, recorded_at: '2026-11-24T10:13:49Z'}
 owner_validation: {required: false}
@@ -72,8 +72,29 @@ Focused: `npx vitest run packages/astraeus/tests/groupSetSelection.test.ts packa
 
 ## Technical Evidence
 
-Pending execution.
+Done When -> evidence (all in `packages/astraeus/tests/groupSetSelection.test.ts`, 12 cases, both paths via `describe.each([mount, AstraeusScene])` for the first five):
+
+| Done When | Evidence |
+|---|---|
+| One object per such label (unlisted, card fields, no second label) | `assembleScene.ts` `severalGroupsObject`; case "the Object list does not offer it until it is selected" (listed: false; offered once selected); `SceneLabels` drops an object whose id is a host label id (`HostLabelSet.ids`), so one entry per id; metrics for it answer `[]` |
+| Combined focus and framing | `GroupSetTarget.ts`; `hostLabels.groupSetOf`; `sceneTargets.ts` focusAbsoluteOf/framedViewOf; case "focuses the member-weighted mean ... frames every group's dots" (mean 7.5; radius 9.5 holds both groups), "is drawn while any group is, and a single-group label is no set" |
+| Tap | case "a tap on it is a visitor selection and opens the label's own card" (title, description, provenance on the card, cause visitor); case "a drag from the label moves the camera and selects nothing" |
+| Selection API | `viewerSelection.ts` doc comment; case "setSelected(<label id>) selects it and reports one host change"; case "a view hiding all its groups hides it, and selecting it is bad-selection" |
+| Unit test | new file, runs on both paths |
+| README | `## The handle` table row for `handle.selected` / `setSelected` carries the sentence |
+| Size | `npm run check:pack`: 1,845,846 B raw / 529,441 B gzip, over T-461's caps (1,845,000 / 529,000); raised per owner approval (measured, rounded up to next 1,000 B) to 1,846,000 / 530,000 in `engine-budget.mjs` (dated comment) and `publicBuild.test.ts`; check:pack then passes |
+| Gates | see below |
+
+Deviation from plan: a view that hides every group of the label must hide the label, which the plan's files could not do. Added optional `ExperienceObject.partOfAll` (`shell/experience.ts`) and one rule in `hiddenByView` (`app/viewHiding.ts`): an object is hidden when every id in `partOfAll` is hidden. `sceneCamera.ts` unchanged (its `framed` type widens by itself; only `extentUnits` and `instanceof PathView` are used), so no browser steps. The tap needed no change to `scenePicking.ts`: the label's object is in `labelObjects`, so the existing object loop makes its shown name a label-only target with the label's id, and `routeLabelPick` passes an id with no group/panel tap through. `SceneTargets` has no new field: `HostLabelPlacer.groupSetOf(groupViews, id)` answers it (cached per group-view array), so `sceneFrame.ts` is untouched and existing fixtures stand.
+
+Commands run: `npm run typecheck` (clean); eslint (typescript6 shim) on all changed .ts/.mjs files: clean; `npx prettier --check` on changed files plus README and CHANGELOG: clean; `npx vitest run` on groupSetSelection plus the 40 test files that mention viewHiding/hostLabels/sceneTargets/SceneLabels/assembleScene/viewerSelection/partOf (734 passed); `npx vitest run` lifecycle, clickOpensInfo, apiImports, packageBoundaries, sceneInputCopies, publicBuild (255 passed); `npm run check:pack` pass; `npm run api:lock` (lock file unchanged: public surface did not change).
+
+Files changed: packages/astraeus/src/app/GroupSetTarget.ts (new), src/app/hostLabels.ts, src/app/sceneTargets.ts, src/app/SceneLabels.ts, src/app/viewHiding.ts, src/shell/experience.ts, src/api/assembleScene.ts, src/api/viewerSelection.ts, tests/groupSetSelection.test.ts (new), README.md, CHANGELOG.md; packages/astraeus-site/tools/validate/engine-budget.mjs, tests/publicBuild.test.ts.
+
+Limitations: the camera case drives the real focus/framing lookups with made-up point-group views (the 3D scene is a stand-in); no browser run. A label whose groups are all out of their time bounds (not view-hidden) stays selectable.
 
 ## Drift Notes
 
-Expected for Design.md (One handle, one lifecycle; Viewer interface): a several-group label is an unlisted selectable object framed by `GroupSetTarget`. Reconciled before the Full Objective Check.
+Expected for Design.md (One handle, one lifecycle; Viewer interface): a several-group label is an unlisted selectable object framed by `GroupSetTarget`. Reconciled before the Full Objective Check. Also: `ExperienceObject.partOfAll` (hidden with its ids when a view hides all of them), and `HostLabelPlacer.groupSetOf` answering the camera lookups instead of a `SceneTargets` field.
+
+Marked done by the coordinator under the owner's "orchestrate O-101" (2026-11-25) after the wave gate passed on 2026-11-25T07:57Z: `npm run typecheck`, `npm run lint`, `npm test` 358 files 5736 passed 2 skipped, `npm run build`, `npm run check:pack` 1,845,846 raw (limit 1,846,000) / 529,441 gzip (limit 530,000; second owner-approved raise), `npm run check:shelf-split` ok. Two files outside planned_writes (shell/experience.ts `partOfAll`, app/viewHiding.ts) accepted by the coordinator as needed for the view-hiding rule.

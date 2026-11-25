@@ -3,6 +3,7 @@
 import type { ExperienceObject } from "../shell/experience";
 import { createOrbTwoBodyAdapter } from "../core/twoBodyAdapter";
 import type { ExperienceLabel } from "./experienceDefinition";
+import { GroupSetTarget } from "./GroupSetTarget";
 import { labelDirection, poolResultants, type Vec3 } from "./groupLabelPoint";
 import type { PointsView } from "./PointsView";
 import { eqjToRenderVector, type RenderVector } from "./renderCoordinates";
@@ -18,13 +19,15 @@ export interface HostLabelSet {
   readonly objects: readonly ExperienceObject[];
   /** For a label that selects one group: that group's id, so selecting the group lifts the label as selecting the label does. */
   readonly selectedFor: ReadonlyMap<string, string>;
+  /** Every label id: an object that shares one (a label selecting several groups) is that label's entry, not a second. */
+  readonly ids: ReadonlySet<string>;
   /** Every group some label is anchored on: it draws no name of its own. */
   readonly covered: ReadonlySet<string>;
 }
 
-export const NO_HOST_LABELS: HostLabelSet = { objects: [], selectedFor: new Map(), covered: new Set() };
+export const NO_HOST_LABELS: HostLabelSet = { objects: [], selectedFor: new Map(), ids: new Set(), covered: new Set() };
 
-/** What a tap on label `label` does; null when it is text only (no `selects`, or several groups, which is not a tap target). */
+/** What a tap on label `label` does; null when it is text only or selects several groups (that one is an object of its own, picked by its id). */
 export function hostLabelTapOf(label: ExperienceLabel): HostLabelTap | null {
   const { selects } = label;
   if (selects === undefined) return null;
@@ -50,6 +53,7 @@ export function hostLabelSet(labels: readonly ExperienceLabel[] | undefined): Ho
       labelPriority: label.labelPriority,
     })),
     selectedFor,
+    ids: new Set(labels.map(({ id }) => id)),
     covered,
   };
 }
@@ -108,6 +112,8 @@ export class HostLabelPlacer {
   readonly tapTargets: readonly { readonly id: string }[];
   readonly #pooled = new Map<string, PooledState>();
   #hidden: ReadonlySet<string> | undefined;
+  readonly #sets = new Map<string, GroupSetTarget>();
+  #setViews: readonly PointsView[] | undefined;
 
   constructor(readonly labels: readonly ExperienceLabel[]) {
     this.#byId = new Map(labels.map((label) => [label.id, label]));
@@ -121,6 +127,25 @@ export class HostLabelPlacer {
 
   has(id: string): boolean {
     return this.#byId.has(id);
+  }
+
+  /** The groups label `id` selects as one target (it selects two or more), or undefined for any other id; built once per set of group views. */
+  groupSetOf(views: readonly PointsView[], id: string): GroupSetTarget | undefined {
+    if (this.#setViews !== views) {
+      this.#setViews = views;
+      this.#sets.clear();
+    }
+    let set = this.#sets.get(id);
+    if (set === undefined) {
+      const selects = this.#byId.get(id)?.selects;
+      if (selects === undefined || !("groups" in selects) || selects.groups.length < 2) return undefined;
+      set = new GroupSetTarget(
+        id,
+        views.filter((view) => selects.groups.includes(view.id)),
+      );
+      this.#sets.set(id, set);
+    }
+    return set;
   }
 
   /** Where label `id` is, or null when it is not drawn now (its groups are out of their bounds or hidden). */

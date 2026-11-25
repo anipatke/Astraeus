@@ -31,7 +31,11 @@ export function hiddenByView(
   if (settings === undefined || view === undefined) return { objects: new Set(), panels: new Set() };
   const objects = new Set(hiddenIds(settings, view, "objects"));
   for (const object of experience?.objects ?? [])
-    if (object.partOf !== undefined && objects.has(object.partOf)) objects.add(object.id);
+    if (
+      (object.partOf !== undefined && objects.has(object.partOf)) ||
+      (object.partOfAll !== undefined && object.partOfAll.every((id) => objects.has(id)))
+    )
+      objects.add(object.id);
   return { objects, panels: hiddenIds(settings, view, "panels") };
 }
 

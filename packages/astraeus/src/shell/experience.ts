@@ -36,6 +36,8 @@ export interface ExperienceObject {
   readonly listed?: boolean;
   /** The id of the listed object this one belongs to (an orbit line to its body). A path object that names one is left out of the Object list; that object's top bar offers a button for it. */
   readonly partOf?: string;
+  /** The ids this object stands for together (a label that selects several groups): a view that hides every one of them hides it too. */
+  readonly partOfAll?: readonly string[];
   /** One or two plain sentences for the info panel. */
   readonly description?: string;
   /** Where this object's data comes from. Anything reconstructed or illustrative must carry one. */

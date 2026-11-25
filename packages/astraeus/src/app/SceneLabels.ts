@@ -82,7 +82,7 @@ export class SceneLabelLayer {
     // A sky label is an object-like entry (its id, text and colour) with a priority below every object's and a place at infinity; it joins the one layout below, so it collides and keeps its place by the same rule.
     // A host label is the same kind of entry (its id, text, colour and priority) with its place from the host; a group one covers draws no name of its own.
     const asObjects: readonly ExperienceObject[] = [
-      ...objects.filter((object) => !hostLabels.covered.has(object.id)),
+      ...objects.filter((object) => !hostLabels.covered.has(object.id) && !hostLabels.ids.has(object.id)),
       ...hostLabels.objects,
       ...skyLabels.map((spec): ExperienceObject => ({
         id: spec.id,

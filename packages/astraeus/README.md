@@ -186,7 +186,7 @@ Before `ready` and after `unmount` every read is `undefined` and every call thro
 | `handle.setTime(time)`, `handle.setRate(rate)`, `handle.setPlaying(playing)` | Move, speed (one of the timeline's `rates`, or `"auto"` with pacing) and play or pause the clock. |
 | `handle.onChange(fn)` | Hears every change of time, speed, play state, view, scale, look or switches, with its `cause`: `playback`, `visitor` or `host`. |
 | `handle.camera`, `handle.setCamera(target)`, `handle.onCameraChange(fn)` | The camera as a plain pose you can store and hand back; follow, focus or look out from an object. Check `"lookOut" in pose` before reading `distance`. |
-| `handle.selected`, `handle.setSelected(id)`, `handle.onSelect(fn)` | The object whose card is open. |
+| `handle.selected`, `handle.setSelected(id)`, `handle.onSelect(fn)` | The object whose card is open. `setSelected` also takes the id of a label that selects several groups (`addLabels`): the camera frames their dots together and the card is the label's. |
 | `handle.panel`, `handle.setPanel(id)`, `handle.onPanel(fn)` | The open story panel or step. |
 | `handle.view`, `handle.setView(id)` | The view showing (`setViews`). |
 | `handle.eventZones`, `handle.onEventZone(fn)` | When playback enters or leaves an event's zone. The engine moves nothing in response. |

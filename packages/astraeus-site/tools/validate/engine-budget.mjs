@@ -17,9 +17,10 @@ export const ENGINE_EXAMPLE_DIR = join(root, "examples", "hello-scene", "dist");
  * Raised 2026-11-22 to 1,836,000 B raw (owner decision "size option a": a small raise of 3,000 B, I-191, after O-084 gave each scene its own moon data, measured 1,833,801 B raw / 524,620 B gzip); gzip unchanged.
  * Raised 2026-11-22 to 1,838,000 B raw (owner decision "Raise cap by 2,000 B", O-087 T-396: the frame-loop work measured 1,836,117 B raw / 525,563 B gzip, and the rest of G-024 plans about 1.4 KB more); gzip unchanged.
  * Raised 2026-11-25 to 1,845,000 B raw / 529,000 B gzip (owner decision "Raise by 2,000 B", G-027 Decision 5, O-101 T-461; the raw raise is the measured overshoot rounded up to the next 1,000 B, as the owner answered): measured 1,844,328 B raw / 528,988 B gzip with the host labels drawn and tappable (1,841,453 B raw / 527,963 B gzip before T-461).
+ * Raised 2026-11-25 to 1,846,000 B raw / 530,000 B gzip (owner-approved: the measured figure rounded up to the next 1,000 B, G-027 Decision 5, O-101 T-462 several-group labels as one selection): measured 1,845,846 B raw / 529,441 B gzip.
  * `npm run check:pack` (tools/check-packs.mjs) builds the example from the dist it just built and holds it to this limit; `npm test` no longer builds it (T-382).
  */
-export const ENGINE_LIMIT = { rawLimit: 1_845_000, gzipLimit: 529_000 };
+export const ENGINE_LIMIT = { rawLimit: 1_846_000, gzipLimit: 530_000 };
 
 /** The plain example's first download against the engine limit. Returns { ok, raw, gzip, rawLimit, gzipLimit, problems }. */
 export function checkEngineBudget({ exampleDir = ENGINE_EXAMPLE_DIR, limit = ENGINE_LIMIT } = {}) {

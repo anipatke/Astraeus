@@ -4,6 +4,7 @@ import type { ScalePolicy } from "../presentation/scalePolicy";
 import type { FocusId } from "./CameraController";
 import { stateIfInBounds } from "./mission";
 import type { BodySetView } from "./BodySetView";
+import type { GroupSetTarget } from "./GroupSetTarget";
 import type { HostLabelPlacer } from "./hostLabels";
 import type { PathView } from "./PathView";
 import type { PointsView } from "./PointsView";
@@ -38,6 +39,8 @@ export function focusAbsoluteOf(targets: SceneTargets, focus: FocusId): RenderVe
   if (group) return group.absolute();
   const sunCentred = targets.sunCentredViews.find((candidate) => candidate.id === focus);
   if (sunCentred) return sunCentred.absolute();
+  const several = targets.hostLabels?.groupSetOf(targets.groupViews, focus);
+  if (several !== undefined) return several.absolute();
   const member = bodySetMemberAbsolute(targets, focus);
   if (member !== null) return member;
   const view = targets.trackedViews.find((candidate) => candidate.body.id === focus);
@@ -54,11 +57,12 @@ export function canFocus(targets: SceneTargets, focus: FocusId): boolean {
   }
 }
 
-/** The point group or path an id names, which the camera frames by its extent. */
-export function framedViewOf(targets: SceneTargets, id: string): PointsView | PathView | undefined {
+/** The point group, path or label's several groups an id names, which the camera frames by its extent. */
+export function framedViewOf(targets: SceneTargets, id: string): PointsView | PathView | GroupSetTarget | undefined {
   return (
     targets.groupViews.find((candidate) => candidate.id === id) ??
-    targets.sunCentredViews.find((candidate) => candidate.id === id)
+    targets.sunCentredViews.find((candidate) => candidate.id === id) ??
+    targets.hostLabels?.groupSetOf(targets.groupViews, id)
   );
 }
 

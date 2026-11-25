@@ -38,7 +38,7 @@ export class ViewerSelection {
   }
 
   /**
-   * Selects an object the showing view shows, or a sky figure (`handle.skyFigures`), or clears the selection with `undefined`; the caller then publishes it as a host change (`onSelect` with `cause: "host"`; nothing is reported when the selection is already that).
+   * Selects an object the showing view shows, or a label that selects several groups (`addLabels`), or a sky figure (`handle.skyFigures`), or clears the selection with `undefined`; the caller then publishes it as a host change (`onSelect` with `cause: "host"`; nothing is reported when the selection is already that).
    * Any other id (unknown, hidden by the showing view, empty) or a non-string throws `bad-selection`; before the viewer is drawn or after it is gone, `not-mounted`.
    */
   setSelected(id: unknown): void {
