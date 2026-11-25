@@ -101,3 +101,5 @@ Limitations: opening camera is set with `setStartView` (azimuth 180, top-down, d
 ## Drift Notes
 
 Expected for Design.md (Verification in tiers): the `group-labels` step. Reconciled before the Full Objective Check. Also: the `data-points` readout now carries the dots' screen box (`minX`..`maxY`), added in `sceneDebug.ts` (debug readout only).
+
+Owner looked on localhost:5490 (`npm run preview:owner`, branch o101-group-labels at 0782b706, 2026-11-25T08:14Z; synthetic-group-labels at desktop and 390x844, all five points) and said "looks good". Done is recorded once the full suite exits clean (unhandled-error fix in progress).
