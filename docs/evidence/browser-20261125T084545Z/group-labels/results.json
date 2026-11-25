@@ -1,0 +1,55 @@
+{
+  "name": "journey-group-labels",
+  "at": "2026-11-25T08:51:41.018Z",
+  "ok": true,
+  "results": [
+    {
+      "viewport": "desktop",
+      "result": {
+        "shown": [
+          "sun",
+          "made-up-planet",
+          "made-up-ring",
+          "swarm-ahead",
+          "swarm-behind",
+          "fixed-point"
+        ],
+        "phone": false,
+        "offsets": {
+          "swarm-ahead": {
+            "outX": 0,
+            "outY": 0
+          },
+          "swarm-behind": {
+            "outX": 0,
+            "outY": 0
+          }
+        }
+      }
+    },
+    {
+      "viewport": "phone",
+      "result": {
+        "shown": [
+          "sun",
+          "made-up-ring",
+          "swarm-ahead",
+          "swarm-behind",
+          "fixed-point"
+        ],
+        "phone": true,
+        "offsets": {
+          "swarm-ahead": {
+            "outX": 0,
+            "outY": 0
+          },
+          "swarm-behind": {
+            "outX": 0,
+            "outY": 0
+          }
+        }
+      }
+    }
+  ],
+  "errors": []
+}

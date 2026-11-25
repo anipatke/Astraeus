@@ -2,7 +2,11 @@
 
 Versions follow [semantic versioning](https://semver.org). While the version starts with `0.`, the public API (the names exported from `astraeus`) may still change between minor versions; each change is listed here.
 
-## 0.12.0 (unreleased)
+## 0.12.0 (2026-11-25)
+
+Follow-ups from the asteroid-belt app on 0.11.0: a chart can no longer take the viewer down, a long chart axis label wraps, group names sit on their dots, and hosts decide which groups are named and can place their own tappable labels. A minor bump because of the new error code `bad-label` (below, with its migration); the `astraeus-data*` packages' `astraeus` peer moves to `>=0.12.0 <0.13.0`.
+
+First download of the packed example (`npm run measure:example`): 1,845,916 bytes raw, 529,465 bytes gzip (code and styles loaded on first open), against 1,833,863 raw and 525,880 gzip at 0.11.0 (+12,053 raw, +3,585 gzip; the owner raised the engine caps by the measured amounts).
 
 - Fixed: a `chart` whose mark labels sit at a row boundary no longer loops and takes the viewer down ("Maximum update depth exceeded"): labels are measured once for their text and font, then placed.
 - Fixed: a shelf part that fails now shows "This part could not be drawn." in its own place and is reported to the page (`reportError`); before, the whole viewer unmounted.
