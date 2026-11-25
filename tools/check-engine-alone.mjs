@@ -30,6 +30,39 @@ function installedVersion(name) {
   return JSON.parse(readFileSync(join(root, "node_modules", name, "package.json"), "utf8")).version;
 }
 
+/** `{ name: rootVersion }` for each package under `modules` (not in `free`) whose version differs from the root's installed copy, when the
+ * root's version satisfies every dependency or peer range under `modules` that names it. */
+function lockedOverrides(modules, free) {
+  const read = (dir) => {
+    try {
+      return JSON.parse(readFileSync(join(dir, "package.json"), "utf8"));
+    } catch {
+      return null;
+    }
+  };
+  const pkgs = [];
+  for (const entry of readdirSync(modules)) {
+    if (entry.startsWith(".")) continue;
+    const names = entry.startsWith("@") ? readdirSync(join(modules, entry)).map((e) => `${entry}/${e}`) : [entry];
+    for (const name of names) {
+      const pkg = read(join(modules, name));
+      if (pkg) pkgs.push(pkg);
+    }
+  }
+  const ranges = new Map();
+  for (const pkg of pkgs)
+    for (const deps of [pkg.dependencies, pkg.peerDependencies])
+      for (const [name, range] of Object.entries(deps ?? {})) ranges.set(name, [...(ranges.get(name) ?? []), range]);
+  const out = {};
+  for (const { name, version } of pkgs) {
+    if (free.has(name)) continue;
+    const locked = read(join(root, "node_modules", name))?.version;
+    if (!locked || locked === version) continue;
+    if ((ranges.get(name) ?? []).every((r) => !semver.validRange(r) || semver.satisfies(locked, r))) out[name] = locked;
+  }
+  return out;
+}
+
 let pair = null; // { three, types, typesNote, range } when --three is given
 if (threeArg) {
   try {
@@ -124,17 +157,37 @@ if (pair) {
     `react@${installedVersion("react")}`,
     `react-dom@${installedVersion("react-dom")}`,
   ];
-  const r = spawnSync(
-    "npm",
-    ["install", "--no-save", "--ignore-scripts", "--no-audit", "--no-fund", "--prefix", peers, ...specs],
-    {
-      stdio: "inherit",
-    },
-  );
-  if (r.status !== 0) {
+  const install = () =>
+    spawnSync(
+      "npm",
+      ["install", "--no-save", "--ignore-scripts", "--no-audit", "--no-fund", "--prefix", peers, ...specs],
+      {
+        stdio: "inherit",
+      },
+    ).status === 0;
+  if (!install()) {
     rmSync(scratch, { recursive: true, force: true });
     console.error("engine alone: installing the peer set failed");
     process.exit(1);
+  }
+  // Only three and @types/three may move to the registry's newest. Every other package the peer set pulled in fresh (e.g. @types/react
+  // through @types/react-reconciler, zustand through Fiber) is pinned back to the root's locked version when that version meets every range
+  // asking for it: a second, newer copy of a type package splits the types (Fiber's JSX augments its own @types/react, the engine reads
+  // the root's), and the check would fail on registry drift that no lockfile install sees. A root version a range rejects (three's own
+  // deps, such as meshoptimizer for a newer @types/three) stays as npm resolved it.
+  const overrides = lockedOverrides(join(peers, "node_modules"), new Set(["three", "@types/three"]));
+  if (Object.keys(overrides).length) {
+    writeFileSync(join(peers, "package.json"), JSON.stringify({ name: "peers", private: true, overrides }));
+    if (!install()) {
+      rmSync(scratch, { recursive: true, force: true });
+      console.error("engine alone: installing the peer set with the root's locked versions failed");
+      process.exit(1);
+    }
+    console.log(
+      `peer set pinned to the root's versions: ${Object.entries(overrides)
+        .map(([n, v]) => `${n}@${v}`)
+        .join(", ")}`,
+    );
   }
   const ls = spawnSync("npm", ["ls", "three", "--all", "--parseable", "--prefix", peers], { encoding: "utf8" });
   const copies = new Set(ls.stdout.split("\n").filter((l) => /[\\/]node_modules[\\/]three$/.test(l)));
