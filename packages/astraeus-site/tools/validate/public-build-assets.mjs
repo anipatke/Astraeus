@@ -229,6 +229,7 @@ export const SYNTHETIC_KEYS = [
   "synthetic-views",
   "synthetic-lookout",
   "synthetic-two-viewers",
+  "synthetic-group-labels",
 ];
 
 /**

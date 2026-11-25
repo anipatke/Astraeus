@@ -2,7 +2,8 @@
 id: T-463
 title: A made-up scene proves group labels in a browser
 objective: O-101
-status: planned
+status: in_progress
+stage: audit
 depends_on: [{task: T-458, requires: clear}, {task: T-462, requires: clear}]
 check_waiver: {task: T-463, reason: 'Owner said "orchestrate the rest of the goal" (G-027, 2026-11-24): standing orchestration rules waive the optional step checks; the mandatory Full Objective Check covers the whole diff.', actor: {role: owner, session: orchestrate-g027-20261124}, recorded_at: '2026-11-24T10:13:49Z'}
 owner_validation: {required: true}
@@ -82,8 +83,21 @@ No engine change (a fault found here goes back to the Task that owns it, through
 
 ## Technical Evidence
 
-Pending execution.
+**Done When -> evidence**
+
+| Done When | Evidence |
+|---|---|
+| Scene, registered, not in public build, not in smoke | `syntheticGroupLabelsScene.ts` (eight `showLabel:false` groups, ring with its own name, two `addLabels` swarm labels with description and illustrative provenance, one text-only fixed-point label); `main.tsx` `SYNTHETIC` and comment; `SYNTHETIC_KEYS`; `publicBuild.test.ts` passed; `npm run check:public-build` passed |
+| Step `group-labels` | `journey-group-labels.mjs`, driver functions only (no new driver function; `driver.mjs` unchanged); both labels shown and none of the eight group ids shown (both sizes); drag from the behind-swarm label moves another label and leaves selection and card unchanged; tap: `waitForPicked`, card and `infoTargetId` on 1440x900, no card at 390x844. Added `minX`/`minY`/`maxX`/`maxY` to `data-points` (`sceneDebug.ts` `publishPointsData`, coordinator-approved; new case in `frameDiagnostics.test.ts`). The step asserts each swarm label's rectangle (new driver `labelBox`) lies within 24 px of the union box of its four groups' dots: measured offset 0 px on both axes for both labels at both sizes (the name is drawn beside its anchor, so its centre alone sat about 46 px beyond the box on desktop; the rectangle is what stands on the dots). |
+| Wiring and limits | `browser-steps.mjs` (after `two-viewers`), `gate-limits.json` `group-labels: 16`, `BROWSER_CHECKS.md` row, `browser-policy.md` path list; `gateLimits.test.ts` passed |
+| Run it | `npm run check:browser -- --step group-labels`: green runs 7, 7, 12, 7, 8, 8 s (slowest 12 s, limit 16 s); with the box assertion 7 and 8 s; last evidence `docs/evidence/browser-steps-20261125T081016Z/group-labels/results.json`. Fails without the engine line that draws host labels (`SceneLabels.ts` line `...hostLabels.objects` removed, restored from a copy): failed at "both swarm labels shown" (evidence `browser-steps-20261125T080405Z`). Full-tier projection: 430 s + about 12 s = about 442 s against 450 s. |
+| Gates | `check:pack` pass (engine 1,845,916 B raw / 529,465 B gzip, caps 1,846,000 / 530,000); typecheck; eslint and prettier on the changed files; vitest `gateLimits`, `publicBuild`, `browserDriverGuard*`, `packageBoundaries`: 54 + 8 passed; `check:public-build` passed |
+| Owner look | Pending (owner, on `localhost:5490/?experience=synthetic-group-labels`) |
+
+Extra reads: `packages/astraeus/src/api/group.ts` (inclinationDeg >= 0, meanAnomalyDeg), `planCamera.ts` (`setStartView`), `app/sceneDebug.ts` (`data-points` fields), `SceneLabels.ts` lines 78-90 (proof edit).
+
+Limitations: opening camera is set with `setStartView` (azimuth 180, top-down, distance 430,000) so both swarms fit a phone; the ahead swarm's label sits low on the phone near the bottom controls, so the drag and tap use the behind swarm's label. Only one swarm's tap is proved per size (tapping selects and frames it, hiding the other). Flake found and fixed on the way: a phone drag from the ahead label sometimes did not turn the camera.
 
 ## Drift Notes
 
-Expected for Design.md (Verification in tiers): the `group-labels` step. Reconciled before the Full Objective Check.
+Expected for Design.md (Verification in tiers): the `group-labels` step. Reconciled before the Full Objective Check. Also: the `data-points` readout now carries the dots' screen box (`minX`..`maxY`), added in `sceneDebug.ts` (debug readout only).

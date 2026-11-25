@@ -1003,6 +1003,13 @@ export const labelCentre = (page, id) =>
     const r = element.getBoundingClientRect();
     return r.width === 0 ? null : { x: (r.left + r.right) / 2, y: (r.top + r.bottom) / 2 };
   });
+/** The page rectangle of a name tag ({ left, top, right, bottom }), or null when it is not showing. */
+export const labelBox = (page, id) =>
+  page.locator(`[data-label-id="${id}"]`).evaluate((element) => {
+    if (element.hidden) return null;
+    const r = element.getBoundingClientRect();
+    return r.width === 0 ? null : { left: r.left, top: r.top, right: r.right, bottom: r.bottom };
+  });
 /** Presses on a shown name tag's centre and drags `(dx, dy)` page px from there, with the page's own pointer (touch or mouse). Throws unless the tag is showing. Returns where the press began. */
 export async function dragFromLabel(page, id, dx, dy) {
   const point = await page.locator(`[data-label-id="${id}"]`).evaluate((element) => {

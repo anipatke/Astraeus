@@ -146,6 +146,26 @@ describe("the browser-check readouts are opt-in", () => {
     expect(features.update.mock.calls.every((call) => call[7] === true)).toBe(true);
   });
 
+  it("publishes the box the in-view dots cover beside their span, and none when no dot is in view", () => {
+    const canvas = { dataset: {} } as unknown as HTMLCanvasElement;
+    const view = (id: string, inView: number) => ({
+      screenReadout: () => ({
+        ...pointsReadout,
+        sampled: inView,
+        id,
+        inView,
+        minX: 0.25,
+        maxX: 0.5,
+        minY: 0.125,
+        maxY: 0.75,
+      }),
+    });
+    publishPointsData(canvas, [], {} as never, [view("seen", 3), view("unseen", 0)]);
+    const [seen, unseen] = JSON.parse(canvas.dataset.points!) as Record<string, number>[];
+    expect(seen).toMatchObject({ spanX: 0.25, spanY: 0.625, minX: 0.25, minY: 0.125, maxX: 0.5, maxY: 0.75 });
+    expect(unseen).not.toHaveProperty("minX");
+  });
+
   it("reads the flag once, when the frame state is made", () => {
     const { frame } = scene();
     (globalThis as Record<string, unknown>)[FLAG] = true;

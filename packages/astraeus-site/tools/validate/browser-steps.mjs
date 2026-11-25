@@ -66,6 +66,13 @@ export const STEPS = [
       "synthetic-two-viewers (made-up Sun, Earth, belt and marker, two viewers one above the other) at desktop and phone size: both canvases inside the window and clear of each other and drawing, the first taken down leaves the second drawing without a console error or WebGL warning, the second survives a lost and restored graphics context, the second taken down leaves no canvas, and a page whose browser refuses WebGL shows the viewer's short message inside the window, no canvas, and its ready rejected with no-webgl",
   },
   {
+    name: "group-labels",
+    tier: "full",
+    script: "journey-group-labels.mjs",
+    scene:
+      "synthetic-group-labels (made-up Sun, planet, two swarms of four brightness groups each, one ring, host labels) at 1440x900 and 390x844: both swarm labels shown and none of the eight groups' names, each label's rectangle within 24 px of its swarm's dots' box, a drag from a label turns the camera and selects nothing, a tap selects the swarm and opens its card on the wide layout only",
+  },
+  {
     name: "catalogue",
     tier: "full",
     script: "journey-catalogue.mjs",

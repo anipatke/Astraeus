@@ -75,7 +75,7 @@ export function publishPathData(
 
 /**
  * What the browser scripts read back about every point group (`data-points`, JSON): per group its id, whether it is drawn, its member count, how many members
- * are in view (an even sample scaled up) and the share of the view they span. This is the dots themselves, so a check that a stream is drawn never depends on pixels.
+ * are in view (an even sample scaled up) and the share of the view they span and the box they cover (`minX`, `minY`, `maxX`, `maxY`, shares of the view). This is the dots themselves, so a check that a stream is drawn never depends on pixels.
  */
 export function publishPointsData(
   canvas: HTMLElement,
@@ -97,6 +97,8 @@ export function publishPointsData(
       inView: r.inView,
       spanX: none ? 0 : round(r.maxX - r.minX),
       spanY: none ? 0 : round(r.maxY - r.minY),
+      // The box the in-view dots cover, as shares of the view (y down); absent when none is in view.
+      ...(none ? {} : { minX: round(r.minX), minY: round(r.minY), maxX: round(r.maxX), maxY: round(r.maxY) }),
     };
   });
   setDatum(canvas, "points", JSON.stringify(groups));
