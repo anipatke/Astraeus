@@ -5,7 +5,7 @@ objective: O-101
 status: done
 depends_on: []
 check_waiver: {task: T-459, reason: 'Owner said "orchestrate the rest of the goal" (G-027, 2026-11-24): standing orchestration rules waive the optional step checks; the mandatory Full Objective Check covers the whole diff.', actor: {role: owner, session: orchestrate-g027-20261124}, recorded_at: '2026-11-24T10:13:49Z'}
-owner_validation: {required: true}
+owner_validation: {required: true, accepted_check: C-224, accepted_by: {role: owner, session: orchestrate-o101-20261125}}
 planned_by: {role: planner, session: plan-o101-20261124}
 lane: place
 planned_reads: [packages/astraeus/src/app/PointsView.ts, packages/astraeus/src/app/KeplerPoints.ts, packages/astraeus/src/app/sceneTargets.ts, packages/astraeus/src/app/PathView.ts, packages/astraeus/src/app/StoryMarkers.ts, packages/astraeus/tests/sceneTargets.test.ts, packages/astraeus/tests/pointsKepler.test.ts, packages/astraeus/tests/pointsLookAhead.test.ts, packages/astraeus/CHANGELOG.md]

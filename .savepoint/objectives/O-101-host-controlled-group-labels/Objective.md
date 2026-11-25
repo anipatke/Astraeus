@@ -1,9 +1,10 @@
 ---
 id: O-101
 title: Group labels the host controls
-status: planned
+status: done
 depends_on: [O-100]
 release: G-027
+last_check: C-224
 priority: high
 rank: 2
 lanes: [{key: groups, title: Group input}, {key: place, title: Names on dots}, {key: api, title: Label input}, {key: draw, title: Label drawing and selection}, {key: browser, title: Browser step}]
@@ -75,3 +76,7 @@ As asked:
 ## Design Confirmation
 
 The owner answered G-027 Decisions 1 to 5 on 2026-11-24 (Release.md); this plan applies them. Pending: the owner reviews the plan and answers "Open for the owner" 1 and 2 (T-459 stops before its fixture line, T-461/T-462 stop on a raw overrun, until then).
+
+## Closure
+
+Full Objective Check C-224 CLEAR on 2026-11-25 (no Issues). Owner looked at T-459 and T-463 on localhost:5490 ("looks good", acceptance recorded against C-224). Marked done and merged by the coordinator under the owner's "orchestrate O-101" (standing rule: CLEAR → merge and push). Last Objective of G-027; release 0.12.0 awaits the owner.
