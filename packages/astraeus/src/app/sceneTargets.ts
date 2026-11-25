@@ -64,7 +64,7 @@ export function labelPositionOf(targets: SceneTargets, id: string): RenderVector
   const body = targets.bodyIdFor(id);
   if (body !== null) return targets.placed.get(body) ?? null;
   const group = targets.groupViews.find((candidate) => candidate.id === id);
-  if (group !== undefined) return group.drawn ? group.absolute() : null;
+  if (group !== undefined) return group.drawn ? group.labelAnchor() : null;
   const sunCentred = targets.sunCentredViews.find((candidate) => candidate.id === id);
   if (sunCentred !== undefined) return sunCentred.labelAnchor();
   const view = targets.trackedViews.find((candidate) => candidate.body.id === id);

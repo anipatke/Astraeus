@@ -109,6 +109,7 @@ A shown name is a tap target: a tap or click on a body's or a group's name selec
 | Call | What it does | Reference |
 |---|---|---|
 | `scene.addSkyFigures(figures)` | Figures and outlines drawn on the sky, traced with `handle.traceSkyFigure`. | [`SkyFigureInput`](https://astraeus.anipatke.com/api/#skyfigureinput) |
+| `scene.addLabels(labels)` | Labels the host places: on a point, or on the dots of one or more groups, each selecting a group, several groups or a panel when tapped. | [`LabelInput`](https://astraeus.anipatke.com/api/#labelinput) |
 | `scene.camera.follow(id)`, `.focus(id)`, `.lookOut(body)`, `.setStartView(pose)` | The opening camera; the last call wins. | [`SceneCamera`](https://astraeus.anipatke.com/api/#scenecamera) |
 | `scene.camera.setReach(distance)`, `.fitOrbit(body)` | How far the viewer can zoom out. | [`SceneCamera`](https://astraeus.anipatke.com/api/#scenecamera) |
 | `scene.camera.setFollowChoices(ids)`, `.setFocusChoices(ids)`, `.setLookOutChoices(ids)`, `.setOverview(on)` | What the camera menu offers. | [`SceneCamera`](https://astraeus.anipatke.com/api/#scenecamera) |
@@ -356,6 +357,7 @@ Every call that refuses its input throws a `SceneError`, a `RangeError` with a s
 | `bad-look` | A look (`setLook`) is unknown or out of its range. |
 | `bad-about` | The About (`setAbout`) is malformed; the message names the field. |
 | `bad-part` | A shelf part is malformed: a shelf factory (`panel`, `customBlock`, `explainer`, `actions`, `filterChips`, `colourKey`, `chart`, `readoutTile`) or a part control's setter given a bad value, `addParts` given a value no factory made, an action's camera naming what the scene lacks (at build), or `handle.part` given a part this viewer's scene does not hold. The message names the field. |
+| `bad-label` | A label (`addLabels`) is malformed, or names a group, panel or centre the scene does not hold. |
 | `no-webgl` | The browser or device offers no WebGL 2, so the viewer cannot draw; the viewer shows a short message in its place. |
 | `renamed` | An input field was given under a name it no longer has; the message names the old field and its replacement. |
 <!-- error-table:end -->

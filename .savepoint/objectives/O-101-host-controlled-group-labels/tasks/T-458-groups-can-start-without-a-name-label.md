@@ -2,7 +2,7 @@
 id: T-458
 title: Groups can start without a name label
 objective: O-101
-status: planned
+status: done
 depends_on: []
 check_waiver: {task: T-458, reason: 'Owner said "orchestrate the rest of the goal" (G-027, 2026-11-24): standing orchestration rules waive the optional step checks; the mandatory Full Objective Check covers the whole diff.', actor: {role: owner, session: orchestrate-g027-20261124}, recorded_at: '2026-11-24T10:13:49Z'}
 owner_validation: {required: false}
@@ -68,8 +68,20 @@ Focused: `npx vitest run packages/astraeus/tests/groupShowLabel.test.ts packages
 
 ## Technical Evidence
 
-Pending execution.
+| Done When | Evidence |
+|---|---|
+| Input field + doc comment; object carries showLabel only when given | `src/api/group.ts`; groupShowLabel.test.ts (absent -> undefined, true, false) |
+| Check `bad-group` naming showLabel | groupShowLabel.test.ts "yes" case, exact message |
+| Table unit test; false hidden at start, `?labels=ring:on` and Labels switch (`labelsOn`) show it, still listed + `focus-ring` | tests/groupShowLabel.test.ts (4 pass) |
+| Existing tests unchanged | publicApiGroup, displaySwitches pass unedited |
+| API lock | `npm run api:lock` run last; apiSurface/apiRules/releaseBreaks pass |
+| CHANGELOG bullet | packages/astraeus/CHANGELOG.md 0.12.0 |
+| Size | `npm run check:pack` pass: engine 1834735 B raw (limit 1838000), 526089 B gzip (limit 527000) |
+
+Commands: typecheck, eslint + prettier on changed files, focused vitest (groupShowLabel, publicApiGroup, displaySwitches, apiSurface, apiRules, releaseBreaks, apiImports, packageBoundaries): 8 files, 98 tests pass. Extra reads: none. Files: group.ts, groupShowLabel.test.ts, api-surface.lock.json, CHANGELOG.md. Limitation: red-first not shown; the test was written alongside the change.
 
 ## Drift Notes
 
-None yet.
+None.
+
+Marked done by the coordinator under the owner's "orchestrate O-101" (2026-11-25) after the wave gate: `npm run typecheck`, `npm run lint`, `npm test` 355 files 5700 passed 2 skipped, `npm run build` ok. `npm run check:pack` is over the engine caps with the whole wave (1,841,453 raw / 527,963 gzip); the owner approved raising both caps by the measured amount (G-027 answer 5, O-101 item 2), done in T-461 after its own measurement.

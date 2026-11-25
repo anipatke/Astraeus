@@ -32,6 +32,7 @@ import type { MoonPanelPlan } from "./planMoonPanel";
 import type { PickerPlan } from "./planPicker";
 import type { AboutPlan } from "./planAbout";
 import type { PartPlan } from "./planParts";
+import type { LabelPlan } from "./planLabels";
 import type { PlacesPlan } from "./planPlaces";
 import { groupLayersEntry, lateGroups, type GroupPlan } from "./planGroups";
 import { autoPaths, checkNamedReadouts, checkReadouts, pathCover, type Tracked } from "./planPaths";
@@ -57,6 +58,7 @@ export interface ScenePlanners {
   readonly timeline: TimelinePlan;
   readonly viewPlan: ViewPlan;
   readonly skyFigures: SkyFigurePlan;
+  readonly labels: LabelPlan;
   readonly camera: SceneCamera;
   readonly scale: ScalePolicy;
   readonly scaleOnly: boolean;
@@ -133,6 +135,7 @@ export function assembleScene(parts: ScenePlanners, data: readonly DataSource[])
     camera,
     tracked: trackedMap,
     skyFigures,
+    labels: labelPlan,
   } = parts;
   if (plan.bodies.size === 0) throw new SceneError("empty-scene", "the scene has no bodies; call addBody before mount");
   checkDataSources(data);
@@ -201,6 +204,12 @@ export function assembleScene(parts: ScenePlanners, data: readonly DataSource[])
   const catalogue = plan.catalogue;
   checkOpeningChoices(camera);
   story.checkObjects(new Set([...labelled.map(({ id }) => id), ...skyFigures.figures.keys()]));
+  const labels = labelPlan.check({
+    groupIds: new Set(groupPlan.groups.keys()),
+    panelIds: panelIdsOf(storyPanels, parts.parts),
+    bodyIds: ids,
+    otherIds: new Set([...objectIds, ...skyFigures.figures.keys()]),
+  });
   const objects: ExperienceObject[] = [
     ...[...plan.bodies.values()].map((body) => plan.bodyObject(body, ids, sunCentred, camera)),
     ...[...trackedMap.values()].map(
@@ -253,6 +262,7 @@ export function assembleScene(parts: ScenePlanners, data: readonly DataSource[])
     ...(sunOrbitIds.length === 0 ? {} : { paths: sunPaths }),
     ...(setLayers.length === 0 ? {} : { bodySets: setLayers }),
     ...figures.entry,
+    ...(labels.length === 0 ? {} : { labels }),
     catalogue: plan.catalogue,
     ...plan.visualOverrides(),
     // The viewer draws only the pictures of the packages passed to it (T-252); nothing is shared between viewers.
@@ -335,6 +345,14 @@ function inDeclaredOrder(declared: Iterable<string>, built: readonly GroupLayer[
 function picturesEntry(data: readonly DataSource[]): Pick<ExperienceDefinition, "pictures"> {
   const pictures = mergePictures(data.map((source) => source.pictures));
   return Object.keys(pictures).length === 0 ? {} : { pictures };
+}
+
+/** The ids a label may open: story panels and steps, and shelf panels (not tiles). */
+function panelIdsOf(storyPanels: ExperienceDefinition["experience"]["storyPanels"], shelf: PartPlan): Set<string> {
+  return new Set([
+    ...[...(storyPanels?.panels ?? []), ...(storyPanels?.steps ?? [])].map(({ id }) => id),
+    ...shelf.parts.filter(({ kind }) => kind === "panel").map(({ id }) => id),
+  ]);
 }
 
 /** The sky figures' drawable layers: placed now when no end names a star, else by `settle` (in `prepare`), once the star list has loaded (the viewer draws only after `prepare` resolves). */

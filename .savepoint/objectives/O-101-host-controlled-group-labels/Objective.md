@@ -46,6 +46,8 @@ Detailed 2026-11-24 (planning session plan-o101-20261124) from the owner's G-027
 
 Item 1: "Allow the one line". Item 2: "Raise by measured amount". Item 3 follows from Decision 5 and item 2. Owner: "orchestrate the rest of the goal" — standing orchestration rules (step checks waived, coordinator marks done when gates pass, owner looks where a Task requires, one Full Objective Check).
 
+Later (2026-11-25): "Raise to 48,000": the API reference page's gzip limit (`packages/astraeus-site/tools/validate/load-budget.mjs`, `api/index.html`) rises from 46,000 to 48,000 B (measured 46,657 B after T-460). "Fix the check": the O-095 group-label tap check in `packages/astraeus-site/tools/validate/browser-smoke.mjs` (`groupLabelChecks`) is changed to find the name wherever it is after the drag (it assumed the old place at the Sun, the turn's pivot); T-459's placement rule stands; the owner judges the phone behaviour in the look.
+
 As asked:
 
 1. `packages/astraeus/tests/sceneTargets.test.ts` line 19: the made-up group gains `labelAnchor: () => [1, 2, 3]` so `labelPositionOf` can ask a group for its name's place (T-459). No assertion changes.

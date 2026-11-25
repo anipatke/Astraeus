@@ -58,6 +58,11 @@ export interface GroupInput {
   readonly center?: BodyId;
   /** The plane the elements are given in: "ecliptic-j2000" or "EQJ" (the equator of J2000). Required: a group that does not say throws `bad-group`. */
   readonly plane: "ecliptic-j2000" | "EQJ";
+  /**
+   * False starts the group's name off (the group stays in the menu and selectable; the viewer's labels switch can turn it on). Default true.
+   * A group that a host label (`addLabels`) is anchored on draws no name of its own while that label is in the scene.
+   */
+  readonly showLabel?: boolean;
   /** The dots' colour as a CSS hex colour such as "#9de3a8"; default "#9de3a8". */
   readonly color?: string;
   /** Dot size in screen pixels; default 2.5. */
@@ -122,6 +127,8 @@ export function planGroup(input: GroupInput, catalogue: BodyCatalogue = builtInC
       id,
       "clump only shapes illustrative positions; every orbit gives meanAnomalyDeg, so the positions are measured: drop clump",
     );
+  if (input.showLabel !== undefined && typeof input.showLabel !== "boolean")
+    throw bad(id, "showLabel must be true or false");
   checkLook(id, input);
   if (input.clump !== undefined) checkClump(id, input.clump, catalogue);
   checkReadouts(id, input.readouts);
@@ -308,6 +315,7 @@ export function buildGroupLayer(
         label: plan.label,
         color,
         labelPriority: 80,
+        ...(input.showLabel === undefined ? {} : { showLabel: input.showLabel }),
         description: groupDescription(input, group.count),
         knownLimitations: groupLimitations(input, catalogue),
       },

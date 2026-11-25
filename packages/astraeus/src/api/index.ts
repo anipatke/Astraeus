@@ -52,6 +52,7 @@ export type {
   PlaceCategoryInput,
 } from "./moonPanelInput";
 export type { SkyFigureInput, SkyFigureEnd } from "./skyFigureInput";
+export type { LabelInput, LabelAnchorInput, LabelSelectsInput } from "./labelInput";
 export type { SkyClearOptions, SkyTraceOptions } from "./skyTraceInput";
 export type { GroupLookInput, GroupLookRead } from "./groupLookInput";
 export type { AboutInput } from "./aboutInput";

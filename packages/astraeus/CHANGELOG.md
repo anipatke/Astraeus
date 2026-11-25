@@ -7,10 +7,13 @@ Versions follow [semantic versioning](https://semver.org). While the version sta
 - Fixed: a `chart` whose mark labels sit at a row boundary no longer loops and takes the viewer down ("Maximum update depth exceeded"): labels are measured once for their text and font, then placed.
 - Fixed: a shelf part that fails now shows "This part could not be drawn." in its own place and is reported to the page (`reportError`); before, the whole viewer unmounted.
 - Fixed: a `chart`'s long `axisLabel` now wraps inside its panel (it was one line, cut off on both sides); the chart is a few units shorter, as the label sits under it.
+- Added: `addGroup` takes `showLabel`, as `addBody` does: `false` starts the group's name hidden, and the Labels switch can show it.
+- Added: `scene.addLabels` places the host's own labels, on a point or on the dots of one or more groups; a tap selects a group, several groups together (with the host's card) or opens a panel. Labels join the one overlap and priority rule.
+- Fixed: a point group's name now sits on its dots (the dot nearest the dots' mean direction from their centre, or on a ring where it crosses the vernal-equinox direction) and follows them, instead of at their centroid, where a ring round the Sun was named at the Sun. A story marker on a group moves with it. The camera still focuses on the centroid.
 
 ### Breaking changes in 0.12.0
 
-None yet: no public name, type or default has changed so far in this version.
+- `SceneErrorCode` has a new code, `bad-label` (bad input to `addLabels`). Migration: a `switch` over `SceneErrorCode` needs the case; code that does not switch on codes needs nothing.
 
 ## 0.11.0 (2026-11-24)
 

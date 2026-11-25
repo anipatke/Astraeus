@@ -16,7 +16,12 @@ import {
 import type { RenderVector } from "../src/app/renderCoordinates";
 
 // Made-up views: the module only asks them where they are (ARCH-01).
-const group = { id: "group", drawn: true, absolute: () => [1, 2, 3] } as unknown as PointsView;
+const group = {
+  id: "group",
+  drawn: true,
+  absolute: () => [1, 2, 3],
+  labelAnchor: () => [1, 2, 3],
+} as unknown as PointsView;
 const hiddenGroup = { id: "hidden", drawn: false, absolute: () => [9, 9, 9] } as unknown as PointsView;
 const path = { id: "path", absolute: () => [4, 5, 6], labelAnchor: () => [7, 8, 9] } as unknown as PathView;
 const tracked = {

@@ -2,7 +2,8 @@
 id: T-459
 title: Group names sit on their dots
 objective: O-101
-status: planned
+status: in_progress
+stage: audit
 depends_on: []
 check_waiver: {task: T-459, reason: 'Owner said "orchestrate the rest of the goal" (G-027, 2026-11-24): standing orchestration rules waive the optional step checks; the mandatory Full Objective Check covers the whole diff.', actor: {role: owner, session: orchestrate-g027-20261124}, recorded_at: '2026-11-24T10:13:49Z'}
 owner_validation: {required: true}
@@ -75,7 +76,20 @@ Focused: `npx vitest run packages/astraeus/tests/groupLabelPoint.test.ts package
 
 ## Technical Evidence
 
-Pending execution.
+Built: `app/groupLabelPoint.ts` (sums, direction with hold rule, best member, pooling), `PointsView` (per-fill resultant, label member, `labelAnchor()`, `labelResultant`, `labelStamp`, `labelCandidate`, `labelPlaceOf`), `labelPositionOf` -> `labelAnchor()`. Owner-approved fixture line added at `sceneTargets.test.ts` line 19 (`labelAnchor: () => [1, 2, 3]`; prettier wrapped it over lines; no assertion change). Extra reads: none beyond Context Files.
+
+| Done When | Evidence |
+|---|---|
+| One rule, one module | `groupLabelPoint.ts`; table-test hold/best-member case |
+| Fill cadence | `PointsView` computes in `#fill` and pending `#step`; `labelAnchor()` blends per frame (2 mapPosition calls) |
+| Wired once | `sceneTargets.ts` `labelPositionOf`; focus/frame untouched; sceneTargets.test passes |
+| Unit test | `groupLabelPoint.test.ts`: 9 tests (ring, swarm now and half period later, pooled, one member; both paths) pass |
+| Fixture line | done, tests pass |
+| CHANGELOG | line added above Breaking changes |
+| Size | `check:pack` FAILS the shared engine budget: 1,841,453 B raw (limit 1,838,000), 527,963 B gzip (limit 527,000); includes concurrent builders' changes, T-459's share not isolated |
+| Gates / browser | typecheck, eslint, prettier clean; focused vitest 26 files, 335 passed 1 skipped (earlier). Browser `orbit-lines` first FAILED (phone, dust-belt name off screen after the drag); owner decisions 2026-11-25 applied below, then rerun (docs/evidence/browser-steps-20261125T072921Z): `orbit-lines` ok 61s (limit 60s, slow-growth warning only), `look-out` ok 70s, `two-viewers` FAILED 19s with only `net::ERR_NETWORK_CHANGED` console errors (desktop no-webgl step; environmental, not rerun per brief). |
+
+Owner decisions (2026-11-25, O-101 "Owner answers"): (1) "Fix the check": `groupLabelChecks` in `packages/astraeus-site/tools/validate/browser-smoke.mjs` no longer assumes the name stays put through a turn; after the drag-moves-camera and nothing-selected assertions it drags back by the opposite offset (-60,-30) from a still-visible other name, waits for the group's name to be on screen again, then taps; stale "can sit at the Sun" comment replaced; all existing assertions kept. (2) "Raise to 48,000": `api/index.html` gzip limit 46,000 -> 48,000 B in `packages/astraeus-site/tools/validate/load-budget.mjs` with comment citing 46,657 B measured after T-460; no doc table lists the limit (grep found none). Engine size caps untouched (a later Task). Final focused vitest after the edits: apiReference, browserDriverGuard*, packageBoundaries, groupLabelPoint, sceneTargets: 5 files, 35 tests pass. eslint and prettier clean on both script files.
 
 ## Drift Notes
 

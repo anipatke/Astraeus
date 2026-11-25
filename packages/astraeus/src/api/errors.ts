@@ -76,6 +76,8 @@ export type SceneErrorCode =
   | "bad-about"
   /** A shelf part is malformed: a shelf factory (`panel`, `customBlock`, `explainer`, `actions`, `filterChips`, `colourKey`, `chart`, `readoutTile`) or a part control's setter given a bad value, `addParts` given a value no factory made, an action's camera naming what the scene lacks (at build), or `handle.part` given a part this viewer's scene does not hold. The message names the field. */
   | "bad-part"
+  /** A label (`addLabels`) is malformed, or names a group, panel or centre the scene does not hold. */
+  | "bad-label"
   /** The browser or device offers no WebGL 2, so the viewer cannot draw; the viewer shows a short message in its place. */
   | "no-webgl"
   /** An input field was given under a name it no longer has; the message names the old field and its replacement. */

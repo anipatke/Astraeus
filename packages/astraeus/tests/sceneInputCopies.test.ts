@@ -225,6 +225,30 @@ const ROWS: readonly Row[] = [
     apply: (s, i) => s.addSkyFigures(i as never),
   },
   {
+    name: "addLabels",
+    scene: () =>
+      base()
+        .addGroup({ id: "ga", plane: "ecliptic-j2000", orbits: [0, 1, 2].map(orbit) })
+        .addGroup({
+          id: "gb",
+          plane: "ecliptic-j2000",
+          orbits: [3, 4, 5].map(orbit),
+        }),
+    input: () => [
+      {
+        id: "belt",
+        label: "The Belt",
+        anchor: { groups: ["ga", "gb"] },
+        selects: { groups: ["ga", "gb"] },
+        description: "Two made-up rings.",
+        provenance: prov(),
+        knownLimitations: ["Invented."],
+      },
+      { id: "mark", label: "Mark", anchor: { positionKm: [1e8, 0, 0], plane: "EQJ" as const } },
+    ],
+    apply: (s, i) => s.addLabels(i as never),
+  },
+  {
     name: "addPlaces",
     scene: () => base(),
     input: () => ({

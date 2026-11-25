@@ -14,6 +14,14 @@ import type { ScalePolicy } from "../presentation/scalePolicy";
 import type { GroupLayer } from "./experienceDefinition";
 import type { FloatingOrigin } from "./floatingOrigin";
 import { fillKeplerRangeKm } from "../core/keplerElements";
+import {
+  addDirections,
+  bestMember,
+  emptyResultant,
+  labelDirection,
+  type Resultant,
+  type Vec3,
+} from "./groupLabelPoint";
 import { KeplerPoints } from "./KeplerPoints";
 import { eqjToRenderVector, type RenderVector } from "./renderCoordinates";
 import { sceneOffsetKm, type ScenePlacement } from "./sceneLayout";
@@ -77,6 +85,13 @@ interface Fill {
   extentKm: number;
   centroid: RenderVector;
   mappedFor: string;
+  /** The group centre's place added to `km` (so member directions from the centre are `km` minus it). */
+  offsetKm: [number, number, number];
+  /** The members' unit directions from the centre, summed. */
+  resultant: Resultant;
+  /** The direction the name is placed toward, and the member nearest it (-1 when no member has a direction). */
+  labelDir: Vec3 | null;
+  labelMember: number;
   /** Changes whenever the fill's drawn content changes, so the GPU copy knows when to be rewritten. */
   version: number;
 }
@@ -105,6 +120,8 @@ interface PendingFill {
   cursor: number;
   sum: [number, number, number];
   widest: number;
+  resultant: Resultant;
+  best: { index: number; cosine: number };
 }
 
 /**
@@ -159,6 +176,13 @@ export class PointsView {
   #filled = false;
   #blend = 0;
   #centroid: RenderVector = [0, 0, 0];
+  #label: RenderVector | null = null;
+  #heldDirection: Vec3 | null = null;
+  #pairStamp = 0;
+  #stampedBefore: Fill | null = null;
+  #stampedAfter: Fill | null = null;
+  #stampedBeforeVersion = -1;
+  #stampedAfterVersion = -1;
   #extentKm = 0;
   #holdKm: [number, number, number] | null = null;
   #mappedFor = "";
@@ -264,6 +288,42 @@ export class PointsView {
     return this.#centroid;
   }
 
+  /**
+   * Where the group's name sits: its dot nearest the dots' mean direction from the group's centre (a ring: where it crosses the vernal
+   * equinox direction), blended between the two fills like the dots. Before any fill and outside the bounds it is `absolute()`.
+   */
+  labelAnchor(): RenderVector {
+    return this.#label ?? this.#centroid;
+  }
+
+  /** The current pair's resultant of member directions and member count, for a label that pools several groups. */
+  get labelResultant(): Resultant {
+    return this.#before.resultant;
+  }
+
+  /** Changes whenever the pair (so the resultant and the members' places) changes. */
+  get labelStamp(): number {
+    return this.#pairStamp;
+  }
+
+  /** The member nearest `direction` among the current pair's earlier fill, with its cosine; a pooled label compares these across groups. */
+  labelCandidate(direction: Vec3): { index: number; cosine: number } {
+    const fill = this.#before;
+    return bestMember(fill.km, fill.offsetKm, 0, this.layer.group.count, direction);
+  }
+
+  /** Member `index`'s place blended between the two fills and mapped through `policy`, as the label places it. */
+  labelPlaceOf(index: number, policy: ScalePolicy): RenderVector {
+    const a = this.#before;
+    const b = this.#after;
+    const at = (fill: Fill): RenderVector =>
+      eqjToRenderVector(policy.mapPosition([fill.km[3 * index], fill.km[3 * index + 1], fill.km[3 * index + 2]]));
+    const from = at(a);
+    const to = at(b);
+    const f = this.#blend;
+    return [0, 1, 2].map((k) => from[k] + f * (to[k] - from[k])) as RenderVector;
+  }
+
   /** Scaled distance from the centroid to the farthest member at the last sync; 0 before any fill. */
   extentUnits(policy: ScalePolicy): number {
     const mapped = policy.mapPosition([this.#extentKm, 0, 0]);
@@ -321,8 +381,28 @@ export class PointsView {
     const f = this.#blend;
     this.#centroid = [0, 1, 2].map((k) => a.centroid[k] + f * (b.centroid[k] - a.centroid[k])) as RenderVector;
     this.#extentKm = a.extentKm + f * (b.extentKm - a.extentKm);
+    this.#stampPair();
+    this.#label = a.labelMember < 0 ? null : this.labelPlaceOf(a.labelMember, policy);
     // A frame that already paid for a whole fill does no look-ahead; the next one starts it.
     if (!wholeFill) this.#lookAhead(placement, policy);
+  }
+
+  /** Moves the pair stamp on whenever either fill, or its version, is not the one last stamped. */
+  #stampPair(): void {
+    const a = this.#before;
+    const b = this.#after;
+    if (
+      a === this.#stampedBefore &&
+      b === this.#stampedAfter &&
+      a.version === this.#stampedBeforeVersion &&
+      b.version === this.#stampedAfterVersion
+    )
+      return;
+    this.#stampedBefore = a;
+    this.#stampedAfter = b;
+    this.#stampedBeforeVersion = a.version;
+    this.#stampedAfterVersion = b.version;
+    this.#pairStamp += 1;
   }
 
   /**
@@ -494,6 +574,10 @@ export class PointsView {
       b.centroidKm = a.centroidKm;
       b.extentKm = a.extentKm;
       b.centroid = a.centroid;
+      b.offsetKm = a.offsetKm;
+      b.resultant = a.resultant;
+      b.labelDir = a.labelDir;
+      b.labelMember = a.labelMember;
       b.mappedFor = a.mappedFor;
       b.version = ++this.#versions;
       this.#filled = true;
@@ -507,6 +591,7 @@ export class PointsView {
     if (pending === null || pending.phase !== 2 || pending.direction !== direction) return null;
     if (pending.timeUtcMs !== timeUtcMs || pending.policyId !== this.#mapKey(policy)) return null;
     this.fillCount += 1;
+    this.#heldDirection = pending.target.labelDir;
     pending.target.version = ++this.#versions;
     return pending.target;
   }
@@ -550,6 +635,8 @@ export class PointsView {
         cursor: 0,
         sum: [0, 0, 0],
         widest: 0,
+        resultant: emptyResultant(),
+        best: { index: -1, cosine: -Infinity },
       };
     }
     const pending: PendingFill = this.#pending;
@@ -580,11 +667,15 @@ export class PointsView {
         cz += km[i + 2];
       }
       pending.sum = [cx, cy, cz];
+      addDirections(km, pending.offset, from, to, pending.resultant);
       pending.cursor = to;
       if (to === group.count) {
         const n = group.count;
         target.centroidKm = [pending.sum[0] / n, pending.sum[1] / n, pending.sum[2] / n];
         target.timeUtcMs = pending.timeUtcMs;
+        target.offsetKm = pending.offset;
+        target.resultant = pending.resultant;
+        target.labelDir = labelDirection(pending.resultant, this.#heldDirection);
         pending.phase = 1;
         pending.cursor = 0;
       }
@@ -594,10 +685,12 @@ export class PointsView {
     for (let i = 3 * from; i < 3 * to; i += 3) {
       pending.widest = Math.max(pending.widest, Math.hypot(km[i] - c[0], km[i + 1] - c[1], km[i + 2] - c[2]));
     }
+    bestMember(km, pending.offset, from, to, target.labelDir!, pending.best);
     this.#mapRange(target, policy, from, to);
     pending.cursor = to;
     if (to === group.count) {
       target.extentKm = pending.widest;
+      target.labelMember = pending.best.index;
       target.centroid = eqjToRenderVector(policy.mapPosition(target.centroidKm));
       target.mappedFor = this.#mapKey(policy);
       pending.phase = 2;
@@ -614,6 +707,10 @@ export class PointsView {
       extentKm: 0,
       centroid: [0, 0, 0],
       mappedFor: "",
+      offsetKm: [0, 0, 0],
+      resultant: emptyResultant(),
+      labelDir: null,
+      labelMember: -1,
       version: 0,
     };
   }
@@ -644,6 +741,13 @@ export class PointsView {
     }
     target.centroidKm = centroid;
     target.extentKm = widest;
+    const resultant = emptyResultant();
+    addDirections(km, offset, 0, n, resultant);
+    target.offsetKm = [offset[0], offset[1], offset[2]];
+    target.resultant = resultant;
+    target.labelDir = labelDirection(resultant, this.#heldDirection);
+    target.labelMember = bestMember(km, offset, 0, n, target.labelDir).index;
+    this.#heldDirection = target.labelDir;
     target.mappedFor = "";
     this.#remap(target, policy);
   }

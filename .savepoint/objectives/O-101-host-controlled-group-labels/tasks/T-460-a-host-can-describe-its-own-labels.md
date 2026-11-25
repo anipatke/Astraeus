@@ -2,7 +2,7 @@
 id: T-460
 title: A host can describe its own labels
 objective: O-101
-status: planned
+status: done
 depends_on: []
 check_waiver: {task: T-460, reason: 'Owner said "orchestrate the rest of the goal" (G-027, 2026-11-24): standing orchestration rules waive the optional step checks; the mandatory Full Objective Check covers the whole diff.', actor: {role: owner, session: orchestrate-g027-20261124}, recorded_at: '2026-11-24T10:13:49Z'}
 owner_validation: {required: false}
@@ -92,8 +92,32 @@ Focused: `npx vitest run packages/astraeus/tests/labelInput.test.ts packages/ast
 
 ## Technical Evidence
 
-Pending execution.
+Done When -> evidence:
+
+| Done When | Evidence |
+|---|---|
+| Public shape (`labelInput.ts`, exported) | `LabelInput`, `LabelAnchorInput`, `LabelSelectsInput` in `src/api/labelInput.ts`, exported from `src/api/index.ts`; `npm run typecheck` clean; apiSurface test passes |
+| `Scene.addLabels` | `scene.ts` (doc comment and `@example`); labelInput.test.ts "repeated id" case (duplicate-id, adds none, bad-label atomic) |
+| `bad-label` code and README table | `errors.ts`; `npm run api:errors` wrote the README table; apiRules test passes |
+| Checks at the call | labelInput.test.ts, 20 fault rows (code `bad-label` and field named) |
+| Checks at build | labelInput.test.ts, 6 rows (unknown group, body as group, unknown panel, centre not in scene, id of a panel or group) |
+| To the definition | `ExperienceDefinition.labels` (`ExperienceLabel`); good-form rows (point with and without centre, one group, several with card, story panel, shelf panel, text only) and the "absent when none" row |
+| Unit test | `packages/astraeus/tests/labelInput.test.ts`, 35 tests pass |
+| API lock and docs | `npm run api:lock` run last; apiSurface, apiRules, releaseBreaks pass; README row added |
+| CHANGELOG | Added line and `bad-label` breaking entry in 0.12.0; releaseBreaks passes |
+| Size | `npm run check:pack` FAILS with all O-101 builders' work in the tree: engine 1,841,453 B raw (limit 1,838,000), 527,963 B gzip (limit 527,000). Not changed here. |
+| Gates | typecheck clean; eslint + prettier clean on changed files; `npx vitest run` labelInput, publicApiGroup, skyFigures, apiSurface, apiRules, releaseBreaks, apiReference, apiImports, packageBoundaries: all pass except apiReference page-size test (below) |
+
+Commands: focused vitest files above; `npm run typecheck`; eslint and prettier on changed files; `npm run api:errors`; `npm run api:lock`; `npm run check:pack`.
+
+Files changed: src/api/labelInput.ts (new), src/api/planLabels.ts (new), src/api/scene.ts, src/api/assembleScene.ts, src/api/errors.ts, src/api/index.ts, src/app/experienceDefinition.ts, tests/labelInput.test.ts (new), api-surface.lock.json, README.md, CHANGELOG.md (all under packages/astraeus).
+
+Coordinator follow-up: `addLabels` already copied its input (`frozenCopy` in `LabelPlan.add`); added an `addLabels` row to the walk table in `tests/sceneInputCopies.test.ts` (new row only). Focused: sceneInputCopies + labelInput 181 passed; full `npm test` 355 files, 5700 passed, 2 skipped; typecheck and eslint clean; lock unchanged. (Earlier apiReference failure did not recur in the full run.)
+
+Limitations: `tests/apiReference.test.ts` "api/index.html" gzip limit (46,000 B, owner-set in `load-budget.mjs`) fails at 46,657 B with the new documented types; limit not changed (owner decision). Pack check over cap: see table. Labels draw nothing yet. Panel ids for `selects.panel` are story panels, steps and shelf parts of kind `panel`; a fixed point's omitted centre resolves to the scene's first body.
 
 ## Drift Notes
 
 Expected for Design.md (Interfaces and Data Flow): `addLabels` and `bad-label`. Reconciled before the Full Objective Check.
+
+Marked done by the coordinator under the owner's "orchestrate O-101" (2026-11-25) after the wave gate: `npm run typecheck`, `npm run lint`, `npm test` 355 files 5700 passed 2 skipped, `npm run build` ok. `npm run check:pack` is over the engine caps with the whole wave (1,841,453 raw / 527,963 gzip); the owner approved raising both caps by the measured amount (G-027 answer 5, O-101 item 2), done in T-461 after its own measurement.

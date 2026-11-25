@@ -42,6 +42,8 @@ import type { PanelPart, TilePart } from "../shelf/part";
 import type { AboutInput } from "./aboutInput";
 import { PlacesPlan } from "./planPlaces";
 import { SkyFigurePlan } from "./planSkyFigures";
+import { LabelPlan } from "./planLabels";
+import type { LabelInput } from "./labelInput";
 import type { SkyFigureInput } from "./skyFigureInput";
 import type { MoonPanelInput, PlacesInput } from "./moonPanelInput";
 import type { BodySetInput } from "./bodySetInput";
@@ -292,6 +294,7 @@ export class Scene {
   readonly #moonPanel = new MoonPanelPlan();
   readonly #places = new PlacesPlan();
   readonly #skyFigures = new SkyFigurePlan((id) => this.#taken(id));
+  readonly #labels = new LabelPlan((id) => this.#taken(id));
   readonly #picker = new PickerPlan();
   readonly #about = new AboutPlan();
   readonly #parts = new PartPlan();
@@ -512,7 +515,8 @@ export class Scene {
       this.#tracked.has(id) ||
       this.#groupPlan.groups.has(id) ||
       this.#bodySets.has(id) ||
-      this.#skyFigures.has(id)
+      this.#skyFigures.has(id) ||
+      this.#labels.has(id)
     );
   }
 
@@ -600,6 +604,21 @@ export class Scene {
   addSkyFigures(figures: readonly SkyFigureInput[]): this {
     this.#editable();
     this.#skyFigures.add(figures);
+    return this;
+  }
+
+  /**
+   * Adds labels of the host's own, each drawn under the one overlap and priority rule: `{ id, label, anchor }` with an optional `color`, `labelPriority` (default 80) and `selects`.
+   * `anchor` is a fixed point (`{ positionKm, plane, center? }`, the scene's centre when `center` is absent) or the dots of one or more groups (`{ groups }`). A group named in any label's `anchor.groups` draws no name of its own
+   * while that label is in the scene; the Labels switch shows and hides the label instead. `selects` is `{ groups }` or `{ panel }`: one group id selects that group exactly as the Object list does, several select them together
+   * under the label's id with the card given on the label (`description`, `provenance`, `knownLimitations`, only then), and a panel id opens that story or shelf panel. Without `selects` a tap passes through to the scene.
+   * A malformed label throws `bad-label` naming the field and adds none of the call; a repeated id (in the call, or in the scene) throws `duplicate-id`. A group, panel or centre the scene does not hold throws `bad-label` when the scene is built.
+   * @example
+   * scene.addLabels([{ id: "belt-name", label: "The Belt", anchor: { groups: ["belt-a", "belt-b"] }, selects: { groups: ["belt-a", "belt-b"] }, description: "Two made-up rings." }, { id: "mark", label: "Mark", anchor: { positionKm: [1e8, 0, 0], plane: "ecliptic-j2000" } }]);
+   */
+  addLabels(labels: readonly LabelInput[]): this {
+    this.#editable();
+    this.#labels.add(labels);
     return this;
   }
 
@@ -896,6 +915,7 @@ export class Scene {
         timeline: this.#timeline,
         viewPlan: this.#viewPlan,
         skyFigures: this.#skyFigures,
+        labels: this.#labels,
         camera: this.camera,
         scale: this.#scale,
         scaleOnly: this.#scaleOnly,

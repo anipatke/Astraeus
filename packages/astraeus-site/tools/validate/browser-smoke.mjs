@@ -211,7 +211,7 @@ async function groupLabelChecks(page, id, phone) {
   if (!shown.includes(id))
     throw new Error(`the group's name "${id}" is not shown at the opening view (${JSON.stringify(shown)})`);
   const selected = await ui.selectedObjectValue(page);
-  // The group's own name can sit at the Sun, the turn's pivot, so the turn is read from the other shown names.
+  // Where the group's name sits depends on the view (on a ring dot near an edge, a turn can carry it off screen), so the turn is read from the other shown names, then undone by the opposite drag before the tap.
   const others = shown.filter((other) => other !== id);
   if (others.length === 0) throw new Error("no other name is shown to read the camera turn from");
   const before = new Map(await Promise.all(others.map(async (other) => [other, await ui.labelCentre(page, other)])));
@@ -231,6 +231,17 @@ async function groupLabelChecks(page, id, phone) {
   if ((await ui.selectedObjectValue(page)) !== selected)
     throw new Error("a drag starting on the group's name selected something");
   if (await ui.infoOpen(page)) throw new Error("a drag starting on the group's name opened a card");
+  const grip = (await Promise.all(others.map(async (other) => [other, await ui.labelCentre(page, other)]))).find(
+    ([, at]) => at !== null,
+  );
+  if (!grip) throw new Error("no other name is left on screen to drag the camera back");
+  await ui.dragFromLabel(page, grip[0], -60, -30);
+  await ui.waitUntil(
+    page,
+    () => ui.labelCentre(page, id),
+    (at) => at !== null,
+    { what: "the group's name back on screen after the view is restored", timeout: 5000 },
+  );
   await ui.tapLabel(page, id);
   await ui.waitForPicked(page, id);
   if (!phone) await ui.waitForInfo(page, { timeout: 5000 });

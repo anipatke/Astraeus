@@ -160,6 +160,25 @@ export interface CameraReach {
 /** The scene's far plane when an experience declares none. */
 export const DEFAULT_CAMERA_FAR = 5_000;
 
+/** A label the host placed (`Scene.addLabels`), checked, with its centre resolved. Nothing reads it yet. */
+export interface ExperienceLabel {
+  readonly id: string;
+  readonly label: string;
+  readonly color?: string;
+  readonly labelPriority: number;
+  readonly anchor:
+    | {
+        readonly positionKm: readonly [number, number, number];
+        readonly plane: "ecliptic-j2000" | "EQJ";
+        readonly center: BodyId;
+      }
+    | { readonly groups: readonly string[] };
+  readonly selects?: { readonly groups: readonly string[] } | { readonly panel: string };
+  readonly description?: string;
+  readonly provenance?: import("../core/provenance").Provenance;
+  readonly knownLimitations?: readonly string[];
+}
+
 /**
  * The plug-in contract: everything the generic app needs to mount one experience.
  * It grows from ExperienceConfig and TrackedBody; it never makes a body mandatory.
@@ -237,6 +256,8 @@ export interface ExperienceDefinition {
   readonly bodySets?: readonly BodySetLayer[];
   /** Figures and outlines drawn on the sky at infinity (EQJ unit directions). Filled by `prepare` when a star list is needed to place them; the viewer draws after it resolves. Absent: none. */
   readonly skyFigures?: readonly SkyFigureLayer[];
+  /** The labels the host placed (`Scene.addLabels`). Absent: none. */
+  readonly labels?: readonly ExperienceLabel[];
   /** Data to load before the scene mounts (for example the curve-fit chunks of the window). The entry awaits it once. */
   readonly prepare?: () => Promise<void>;
 }
