@@ -10,6 +10,7 @@ Versions follow [semantic versioning](https://semver.org). While the version sta
 - Added: `addGroup` takes `showLabel`, as `addBody` does: `false` starts the group's name hidden, and the Labels switch can show it.
 - Added: `scene.addLabels` places the host's own labels, on a point or on the dots of one or more groups; a tap selects a group, several groups together (with the host's card) or opens a panel. Labels join the one overlap and priority rule.
 - Fixed: a point group's name now sits on its dots (the dot nearest the dots' mean direction from their centre, or on a ring where it crosses the vernal-equinox direction) and follows them, instead of at their centroid, where a ring round the Sun was named at the Sun. A story marker on a group moves with it. The camera still focuses on the centroid.
+- Added: the labels `addLabels` places are drawn in the viewer: on their point or on their groups' dots, following them as time moves; a group a label is anchored on draws no name of its own (it stays listed and selectable); the Labels switch and `?labels=<labelId>:off` turn a label off and on.
 
 ### Breaking changes in 0.12.0
 

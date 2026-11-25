@@ -3,6 +3,7 @@ import type { ExperienceObject } from "../shell/experience";
 import { createLabelElement } from "../shell/Label";
 import { projectToScreen } from "./AnchorLabels";
 import type { FloatingOrigin } from "./floatingOrigin";
+import { NO_HOST_LABELS, type HostLabelSet } from "./hostLabels";
 import type { RenderVector } from "./renderCoordinates";
 import type { SkyLabelSpec } from "./SkyFiguresView";
 import type { SkyLineSwitches } from "./skyFigures";
@@ -62,17 +63,27 @@ export class SceneLabelLayer {
   /** Per object id, whether the latest layout showed it; absent when it was not a candidate (unplaced, out of reach or switched off). */
   readonly #lastShown = new Map<string, boolean>();
   readonly #sky: ReadonlyMap<string, SkyLabelSpec>;
+  /** For a host label that selects one group: that group's id, whose selection lifts the label as its own does. */
+  readonly #selectedFor: ReadonlyMap<string, string>;
   /** The colour last set on each sky label (by id), so a change of look or selection repaints only what changed. */
   readonly #skyColours = new Map<string, string>();
   /** Each label's border-box size (padding and border in, as laid out), from a ResizeObserver or one measure; a size change re-measures only that label. */
   readonly #sizes = new Map<HTMLElement, { readonly width: number; readonly height: number }>();
   readonly #observer: ResizeObserver | undefined;
 
-  constructor(host: HTMLElement, objects: readonly ExperienceObject[], skyLabels: readonly SkyLabelSpec[] = []) {
+  constructor(
+    host: HTMLElement,
+    objects: readonly ExperienceObject[],
+    skyLabels: readonly SkyLabelSpec[] = [],
+    hostLabels: HostLabelSet = NO_HOST_LABELS,
+  ) {
     this.#root.className = "scene-labels";
+    this.#selectedFor = hostLabels.selectedFor;
     // A sky label is an object-like entry (its id, text and colour) with a priority below every object's and a place at infinity; it joins the one layout below, so it collides and keeps its place by the same rule.
+    // A host label is the same kind of entry (its id, text, colour and priority) with its place from the host; a group one covers draws no name of its own.
     const asObjects: readonly ExperienceObject[] = [
-      ...objects,
+      ...objects.filter((object) => !hostLabels.covered.has(object.id)),
+      ...hostLabels.objects,
       ...skyLabels.map((spec): ExperienceObject => ({
         id: spec.id,
         label: spec.label,
@@ -187,7 +198,9 @@ export class SceneLabelLayer {
           return [];
         }
         // The selected (and so followed) object's label wins every collision: the bonus outranks any labelPriority (I-108).
-        const selectedPriority = entry.object.id === selectedObjectId ? SELECTED_PRIORITY : 0;
+        const selected =
+          entry.object.id === selectedObjectId || this.#selectedFor.get(entry.object.id) === selectedObjectId;
+        const selectedPriority = selected ? SELECTED_PRIORITY : 0;
         return [{ ...entry, screen, priority: (entry.object.labelPriority ?? 0) + selectedPriority }];
       })
       .sort((a, b) => b.priority - a.priority || a.object.id.localeCompare(b.object.id));

@@ -151,6 +151,14 @@ function startViewId(definition: ExperienceDefinition, search: string): string {
   return known ? asked : (definition.views?.start ?? "");
 }
 
+/** The ids the Labels switch turns off and on: every object's name and every host label (`Scene.addLabels`). */
+export function labelIdsOf(
+  experience: Pick<ExperienceConfig, "objects">,
+  definition: Pick<ExperienceDefinition, "labels">,
+): string[] {
+  return [...experience.objects.map(({ id }) => id), ...(definition.labels ?? []).map(({ id }) => id)];
+}
+
 /** The labels switch's starting state, if the story gave one. */
 function labelStart(definition: ExperienceDefinition): boolean | undefined {
   return definition.displaySwitches?.labels?.on;
@@ -321,10 +329,11 @@ function initialSceneControls(
       search,
       labelStart(definition) === undefined
         ? experience.objects
-        : experience.objects.map(({ id }) => ({ id, showLabel: labelStart(definition) })),
+        : labelIdsOf(experience, definition).map((id) => ({ id, showLabel: labelStart(definition) })),
     ),
     ...startOrbitControls(definition),
     labelObjects: experience.objects,
+    ...(definition.labels === undefined ? {} : { hostLabels: definition.labels }),
     viewHidden: hiddenByView(definition.views, viewById(definition.views, startViewId(definition, search)), experience),
     loadFadeSeconds: bootFadeSeconds(runtime.look),
     desktopPictures: runtime.desktopTextures,
@@ -614,6 +623,11 @@ export function App({
   controls.current.onStoryMarker = requestPanel;
   controls.current.onFeatureMarker = requestFeature;
   controls.current.onPickObject = requestPick;
+  // A tap on a host label that selects a panel: a shelf part opens as the host's `setOpen` does, any other id is a story panel (as a story marker's press).
+  controls.current.onLabelPanel = (id) => {
+    if (definition.parts?.some((part) => part.id === id) === true) shelf.control?.setOpen(id, true);
+    else requestPanel(id);
+  };
   const updateScale = useCallback(
     (id: ScaleId) => {
       controls.current.policy = scalePolicyFor(id, suppliedPolicies);
@@ -954,7 +968,7 @@ export function App({
       },
     },
     labels: {
-      objectIds: experience.objects.map((object) => object.id),
+      objectIds: labelIdsOf(experience, definition),
       hidden: controls.current.hiddenLabels ?? hiddenLabels,
       setHidden: (hidden) => {
         controls.current.hiddenLabels = new Set(hidden);

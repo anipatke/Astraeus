@@ -28,6 +28,7 @@ import { FloatingOrigin } from "./floatingOrigin";
 import {
   DEFAULT_CAMERA_FAR,
   type CameraReach,
+  type ExperienceLabel,
   type GroupLayer,
   type PathLayer,
   type SunBody,
@@ -164,6 +165,10 @@ export interface SceneControls {
   /** Presentation only (views): the ids the current view hides, read by the frame stages (groups, labels, picking, story markers). Absent or empty: everything shows. Replaced, never edited, on a switch. */
   viewHidden?: ViewHidden;
   readonly labelObjects: readonly ExperienceObject[];
+  /** The labels the host placed (`Scene.addLabels`); they join the one label layer. Absent: none. */
+  readonly hostLabels?: readonly ExperienceLabel[];
+  /** Called with a panel id when a tap lands on a host label that selects a panel (a story panel or a shelf panel). */
+  onLabelPanel?: (panelId: string) => void;
   /** Objects that story panels name; each gets a marker that reopens its panel. */
   readonly storyMarkers?: readonly StoryMarkerSpec[];
   /** Called with the panel id when a story marker is pressed. */

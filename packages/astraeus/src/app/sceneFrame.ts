@@ -43,6 +43,7 @@ import {
 } from "./scenePicking";
 import type { SceneLabelLayer } from "./SceneLabels";
 import { updateSky } from "./sceneSky";
+import { HostLabelPlacer } from "./hostLabels";
 import { labelPositionOf, type SceneTargets } from "./sceneTargets";
 import type { StoryMarkerLayer } from "./StoryMarkers";
 import { skyViewOf } from "./lookOut";
@@ -81,6 +82,8 @@ export interface FrameState {
   readonly diagnostics: boolean;
   /** The canvas's page top left, read once at the start of each frame (before any DOM write) for the names and the pick targets. */
   canvasBox: { readonly left: number; readonly top: number };
+  /** Where the host's labels stand, made on the first frame that has labels and kept (it remembers the member each group label sits on). */
+  hostPlacer?: HostLabelPlacer;
 }
 
 /** What `decideDraw` remembers from frame to frame. */
@@ -247,7 +250,9 @@ export function stepAndPoseCamera(ctx: FrameContext, t: number, placed: PlacedSc
     return null;
   };
   const frame: SceneFrame = { centre: runtime.sceneCenter, span: placed.span, bodies: catalogue, memberRadius };
+  const hostLabels = hostPlacerOf(state, controls.hostLabels);
   const targets: SceneTargets = {
+    ...(hostLabels === undefined ? {} : { hostLabels }),
     bodyIdFor: ctx.bodyIdFor,
     placed: placed.composed.absolutes,
     absoluteOf: placed.absoluteOf,
@@ -474,6 +479,13 @@ export function shownUnderView(ctx: FrameContext, t?: number) {
   };
 }
 
+/** The placer of the host's labels (kept on the frame state while the labels are the same ones); undefined when the scene has none. */
+function hostPlacerOf(state: FrameState, labels: SceneControls["hostLabels"]): HostLabelPlacer | undefined {
+  if (labels === undefined || labels.length === 0) return undefined;
+  if (state.hostPlacer?.labels !== labels) state.hostPlacer = new HostLabelPlacer(labels);
+  return state.hostPlacer;
+}
+
 /** Stage 6: updates the overlay layers (names, story and feature markers) and rebuilds what a tap or hover can pick. */
 export function updateOverlays(ctx: FrameContext, t: number, step: CameraStep, hoverGain: number): void {
   const { controls, camera, canvas, size, origin, state, layers, views } = ctx;
@@ -490,6 +502,7 @@ export function updateOverlays(ctx: FrameContext, t: number, step: CameraStep, h
   layers.anchorLabels.current?.update(controls.showAnchorLabels, camera, size.width, size.height);
   const positionFor = (id: string): RenderVector | null => labelPositionOf(step.targets, id);
   const shown = shownUnderView(ctx, t);
+  step.targets.hostLabels?.hide(hiddenOf(ctx, t)?.objects);
   layers.sceneLabels.current?.update(
     positionFor,
     camera,
@@ -514,6 +527,7 @@ export function updateOverlays(ctx: FrameContext, t: number, step: CameraStep, h
     widthPx: size.width,
     heightPx: size.height,
     labelRects: layers.sceneLabels.current?.shownRects,
+    labelTargets: step.targets.hostLabels?.tapTargets,
     canvas: { getBoundingClientRect: () => state.canvasBox },
     bodySetViews: shown.bodySetViews,
   });

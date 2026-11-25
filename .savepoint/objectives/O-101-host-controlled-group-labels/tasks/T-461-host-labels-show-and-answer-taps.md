@@ -2,7 +2,7 @@
 id: T-461
 title: Host labels show and answer taps
 objective: O-101
-status: planned
+status: done
 depends_on: [{task: T-459, requires: clear}, {task: T-460, requires: clear}]
 check_waiver: {task: T-461, reason: 'Owner said "orchestrate the rest of the goal" (G-027, 2026-11-24): standing orchestration rules waive the optional step checks; the mandatory Full Objective Check covers the whole diff.', actor: {role: owner, session: orchestrate-g027-20261124}, recorded_at: '2026-11-24T10:13:49Z'}
 owner_validation: {required: false}
@@ -80,8 +80,29 @@ Focused: `npx vitest run packages/astraeus/tests/hostLabels.test.ts packages/ast
 
 ## Technical Evidence
 
-Pending execution.
+Extra reads (beyond Context Files): `packages/astraeus/src/app/experienceDefinition.ts` (`ExperienceLabel`, definition `labels`), `packages/astraeus/src/api/planLabels.ts` and `labelInput.ts` (what `selects`/`anchor` hold), `packages/astraeus/src/app/useShelf.ts` (`control.setOpen`, the host request path), `packages/astraeus/src/shell/AstraeusShell.tsx` (`applyPanelRequest`, story panel request), `packages/astraeus/tests/groupLabelPoint.test.ts`, `appScreenDom.test.ts`, `viewsDom.test.ts` (setup only, as models); reason: to place the code and model the new tests.
+
+Design as built: `app/hostLabels.ts` (new) holds `HostLabelPlacer` (fixed point and pooled-groups place; per label it keeps the held direction and the member chosen, chosen again only when a drawn view's `labelStamp` changes), `hostLabelSet` (layer entries, cover set, group-selected map), `hostLabelTapOf`, and `routeLabelPick` (the one place a tap's id becomes a group pick, a panel request or the old pick). `SceneTargets.hostLabels` (optional) answers `labelPositionOf`; `SceneLabelLayer` takes the host label set as a fourth constructor argument (entries beside objects and sky labels; covered groups left out; the selected group lifts its label); `pickCandidatesOf` takes `labelTargets` (label-only candidates, only for labels that select one group or a panel); `useScenePointer` routes through `routeLabelPick`; `App` adds host label ids to the Labels switch ids (`labelIdsOf`) and `onLabelPanel` (a shelf part opens through `shelf.control.setOpen`, any other id through the story panel request).
+
+| Done When | Evidence |
+|---|---|
+| Placed by one rule (fixed point each plane, with/without centre; groups pooled, held member, null when not drawn) | `tests/hostLabels.test.ts`: "a fixed point is placed as a group's member is" (4 cases: EQJ and ecliptic, about the scene centre and about Earth, against the hand-turned vector plus the resolver's offset); "a label on groups" on both draw paths (one group, a ring about the centre, four groups; each after the clock moves, on a dot within 2,000 km and within the ring's width of the orbit); "not drawn when out of bounds or hidden by a view; one group left keeps it" |
+| One layout (priority, selected bonus, colour, data-label-id, hover) | `hostLabels.test.ts` "the one label layer": priority above/below a body's wins/loses an overlap; id and own colour; selected group or label lifts it. Hover uses the same id as the pick candidate (label-only candidates in `scenePicking.ts`), covered by `hostLabelsTap.test.ts` candidates |
+| Cover rule and switch/address ids | `hostLabels.test.ts`: covered groups have no label entry (bare layer still has them); the group stays an object (listed, selectable, `groupShowLabel.test.ts` still green); `labelIdsOf` lists host ids; `?labels=mark:off/on` and Labels switch off/on hide/show the label |
+| Taps (one group, panels, none, drag) | `tests/hostLabelsTap.test.ts` on a mounted App (stand-in scene) with the real pointer listeners and pick rule: one group selected and card open on desktop, selected with no card on phone; story panel opens; shelf panel opens; no `selects` selects nothing and opens nothing; a drag started on each of the four labels moves the camera and selects nothing |
+| Existing tests unchanged | related existing files run (below) all pass; no existing test setup edited. The owner-approved pinned cap value in `packages/astraeus-site/tests/publicBuild.test.ts` line 168 was changed to the new limits |
+| Size and cap change | `npm run check:pack`: 1,844,328 B raw / 528,988 B gzip (before T-461: 1,841,453 / 527,963). Limits raised in `engine-budget.mjs` to 1,845,000 raw / 529,000 gzip (raw: measured rounded up to the next 1,000 B; gzip: +2,000 B), comment line dated 2026-11-25 with figures; pinned value updated; `check:pack` then passes. Gzip margin is only 12 B: trimmed the first build (529,046) with a string stamp, a shared name-rect helper in `pickCandidatesOf`, a shorter fixed-point turn and route |
+| No CHANGELOG line / README | the coordinator asked for one 0.12.0 line (added above `### Breaking changes in 0.12.0`) in place of the Task's "no line"; no README change |
+| Gates and browser | below |
+
+Commands run: `npm run typecheck` clean; eslint (TypeScript 6 wrapper) clean and `prettier --check` clean on the ten changed source/test files, `engine-budget.mjs` and `publicBuild.test.ts`; `npx vitest run` on `hostLabels.test.ts`, `hostLabelsTap.test.ts`, `sceneLabelsLayout`, `sceneLabelsHysteresis`, `scenePicking`, `sceneFrame`, `clickOpensInfo`, `displaySwitches`, `publicBuild` (astraeus-site), `sceneTargets`, `overlayLayers`, `sceneHooksDom`, `appScreenDom`, `groupShowLabel`, `apiImports`, `packageBoundaries`, `viewsDom`, `experienceDefinitionContract`, `skyFigureSelect`, `shownDuring`, `pointerAndFeatureLayerDom`, `labelInput`, `groupLabelPoint` (23 files, 354 tests passed); plus the 88 test files in packages/*/tests that name any module I changed (87 passed; `twoViewers.test.ts` failed once under the parallel load and passed alone, 101 tests, so a timing flake, not this change). Browser: `npm run check:browser -- --step look-out --step two-viewers --step orbit-lines` under the browser lock: all three steps exit 0, no error lines, no label assertion failure (evidence `docs/evidence/browser-steps-20261125T074600Z`).
+
+Files changed: new `packages/astraeus/src/app/hostLabels.ts`, `packages/astraeus/tests/hostLabels.test.ts`, `packages/astraeus/tests/hostLabelsTap.test.ts`; edited `packages/astraeus/src/app/SceneLabels.ts`, `sceneFrame.ts`, `sceneContentsHooks.ts`, `sceneTargets.ts`, `scenePicking.ts`, `App.tsx`, `AstraeusScene.tsx` (all under `src/app/`), `packages/astraeus/CHANGELOG.md`, `packages/astraeus-site/tools/validate/engine-budget.mjs`, `packages/astraeus-site/tests/publicBuild.test.ts`. No demo test changed; no deep imports added.
+
+Limitations: a label with several `selects.groups` is not a tap target here (T-462). A host label has no `shownDuring`; it hides only through its groups. The gzip margin under the new cap is 12 B, so T-462 will need to raise the cap again or trim.
 
 ## Drift Notes
 
 Expected for Design.md (Viewer interface, labels): host labels are entries of the one label layer, placed by `app/hostLabels.ts`; the cover rule. Reconciled before the Full Objective Check.
+
+Marked done by the coordinator under the owner's "orchestrate O-101" (2026-11-25) after the wave gate passed on 2026-11-25T07:51Z: `npm run typecheck`, `npm run lint`, `npm test` 357 files 5724 passed 2 skipped, `npm run build`, `npm run check:pack` 1,844,328 raw (limit 1,845,000) / 528,988 gzip (limit 529,000).

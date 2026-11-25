@@ -4,6 +4,7 @@ import type { ScalePolicy } from "../presentation/scalePolicy";
 import type { FocusId } from "./CameraController";
 import { stateIfInBounds } from "./mission";
 import type { BodySetView } from "./BodySetView";
+import type { HostLabelPlacer } from "./hostLabels";
 import type { PathView } from "./PathView";
 import type { PointsView } from "./PointsView";
 import type { RenderVector } from "./renderCoordinates";
@@ -22,6 +23,8 @@ export interface SceneTargets {
   readonly trackedViews: readonly TrackedBodyView[];
   /** Body sets: each member id is a focus target. Absent: none. */
   readonly bodySetViews?: readonly BodySetView[];
+  /** The labels a host placed (`Scene.addLabels`): where each stands. Absent: none. */
+  readonly hostLabels?: HostLabelPlacer;
   readonly timeUtcMs: number;
   readonly policy: ScalePolicy;
   readonly placement: ScenePlacement;
@@ -63,6 +66,7 @@ export function framedViewOf(targets: SceneTargets, id: string): PointsView | Pa
 export function labelPositionOf(targets: SceneTargets, id: string): RenderVector | null {
   const body = targets.bodyIdFor(id);
   if (body !== null) return targets.placed.get(body) ?? null;
+  if (targets.hostLabels?.has(id) === true) return targets.hostLabels.positionOf(targets, id);
   const group = targets.groupViews.find((candidate) => candidate.id === id);
   if (group !== undefined) return group.drawn ? group.labelAnchor() : null;
   const sunCentred = targets.sunCentredViews.find((candidate) => candidate.id === id);

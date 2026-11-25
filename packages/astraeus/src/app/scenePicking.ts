@@ -218,6 +218,8 @@ export interface PickFrame {
   readonly heightPx: number;
   /** The page rectangles of the shown names, by object id. */
   readonly labelRects?: ReadonlyMap<string, PickRect>;
+  /** Labels with no object behind them (the host's) that a tap can land on: each shown one answers by its name only. Absent: none. */
+  readonly labelTargets?: readonly { readonly id: string }[];
   /** The canvas whose top left the candidates are measured from. */
   readonly canvas: { getBoundingClientRect(): { readonly left: number; readonly top: number } };
   /** Body sets: each member that is on screen is a candidate. */
@@ -232,36 +234,42 @@ export interface PickFrame {
   }[];
 }
 
-/** The tap targets of one frame: listed catalogued bodies on screen (with their shown name), the shown name of any other listed object (label only), and visible body-set members. */
+/** The tap targets of one frame: listed catalogued bodies on screen (with their shown name), the shown name of any other listed object (label only), the shown names of the host's labels that select something, and visible body-set members. */
 export function pickCandidatesOf(frame: PickFrame): PickCandidate[] {
   const box = frame.canvas.getBoundingClientRect();
   const out: PickCandidate[] = [];
+  /** The shown name of `id` as a rectangle from the canvas's top left, or null when it is not shown. */
+  const shownName = (id: string): PickRect | null => {
+    const rect = frame.labelRects?.get(id);
+    return rect === undefined
+      ? null
+      : {
+          left: rect.left - box.left,
+          top: rect.top - box.top,
+          right: rect.right - box.left,
+          bottom: rect.bottom - box.top,
+        };
+  };
+  /** A name that answers by itself: no disc behind it. */
+  const nameOnly = (id: string, label: PickRect): void => {
+    out.push({
+      id,
+      x: (label.left + label.right) / 2,
+      y: (label.top + label.bottom) / 2,
+      radiusPx: 0,
+      label,
+      labelOnly: true,
+    });
+  };
   for (const object of frame.objects) {
     const body = frame.bodyIdFor(object.id);
     // An object that is no catalogued body (a point group, a spacecraft) has no disc here: only its shown name answers.
     const screen = body === null ? undefined : frame.bodyScreens.find((candidate) => candidate.id === body);
-    const rect = frame.labelRects?.get(object.id);
-    const label =
-      rect === undefined
-        ? null
-        : {
-            left: rect.left - box.left,
-            top: rect.top - box.top,
-            right: rect.right - box.left,
-            bottom: rect.bottom - box.top,
-          };
+    const label = shownName(object.id);
     const drawn = screen !== undefined && screen.inView && screen.as !== "none";
     // A body not drawn in view, or an object that is no body, can still show its name: the name stays a target.
     if (!drawn) {
-      if (label !== null)
-        out.push({
-          id: object.id,
-          x: (label.left + label.right) / 2,
-          y: (label.top + label.bottom) / 2,
-          radiusPx: 0,
-          label,
-          labelOnly: true,
-        });
+      if (label !== null) nameOnly(object.id, label);
       continue;
     }
     out.push({
@@ -271,6 +279,10 @@ export function pickCandidatesOf(frame: PickFrame): PickCandidate[] {
       radiusPx: screen.radiusPx,
       label,
     });
+  }
+  for (const target of frame.labelTargets ?? []) {
+    const label = shownName(target.id);
+    if (label !== null) nameOnly(target.id, label);
   }
   for (const view of frame.bodySetViews) {
     view.layer.members.forEach((member, index) => {
