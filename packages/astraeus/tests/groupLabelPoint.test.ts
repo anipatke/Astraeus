@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { GroupLayer } from "../src/app/experienceDefinition";
 import { FloatingOrigin } from "../src/app/floatingOrigin";
-import { bestMember, labelDirection, poolResultants, VERNAL_EQUINOX, type Resultant } from "../src/app/groupLabelPoint";
+import { bestMember, labelDirection, VERNAL_EQUINOX, type Resultant } from "../src/app/groupLabelPoint";
 import { PointsView } from "../src/app/PointsView";
 import { eqjToRenderVector, type RenderVector } from "../src/app/renderCoordinates";
 import { createOrbAstronomyAdapter } from "../src/core/astronomyAdapter";
@@ -11,7 +11,7 @@ import { createOrbTwoBodyAdapter } from "../src/core/twoBodyAdapter";
 import { trueScale, type ScalePolicy } from "../src/presentation/scalePolicy";
 import { placementAbout } from "./scenePlacement";
 
-// T-459: a group's name sits on one of its dots. Made-up orbits about the Sun only (ARCH-03); each case runs through a real PointsView
+// T-459: a group's name sits among its dots; I-209: at their mean direction and distance, not on one dot, so it glides as they move. Made-up orbits about the Sun only (ARCH-03); each case runs through a real PointsView
 // on the graphics-chip policy and on a policy that scales exactly but does not say so (the two ways the view fills).
 
 const DAY = 86_400_000;
@@ -99,7 +99,7 @@ function spreadDeg(points: readonly RenderVector[]): number {
 }
 const perKm = trueScale.mapPosition([1, 0, 0])[0];
 
-describe("a group's name sits on its dots", () => {
+describe("a group's name sits among its dots", () => {
   describe.each(POLICIES)("on the %s path", (_name, policy) => {
     it("a ring is named on the ring, where it crosses the vernal equinox direction, and stays put between fills", () => {
       const layer = layerOf("ring", 2500, 180, 180);
@@ -132,17 +132,37 @@ describe("a group's name sits on its dots", () => {
       }
     });
 
+    it.each([
+      ["a day a frame (a whole fill each frame)", DAY, 300],
+      ["a minute a frame (blended between fills, read ahead)", 60_000, 120],
+    ])("a moving swarm's name glides with it, %s (I-209)", (_rate, step, frames) => {
+      const layer = layerOf("swarm", 2500, 100, 15);
+      const view = new PointsView(layer);
+      let t = START + 30 * DAY;
+      show(view, t, policy);
+      let place = view.labelAnchor().slice();
+      let centre = view.absolute().slice();
+      for (let k = 0; k < frames; k += 1) {
+        t += step;
+        show(view, t, policy);
+        const nextPlace = view.labelAnchor().slice();
+        const nextCentre = view.absolute().slice();
+        // The swarm's own motion this frame bounds the name's: a hop to another dot crosses the swarm's width, far more than one frame.
+        const swarmStep = Math.hypot(...[0, 1, 2].map((i) => nextCentre[i] - centre[i]));
+        const nameStep = Math.hypot(...[0, 1, 2].map((i) => nextPlace[i] - place[i]));
+        expect(nameStep).toBeLessThanOrEqual(1.5 * swarmStep + 10 * perKm);
+        place = nextPlace;
+        centre = nextCentre;
+      }
+    });
+
     it("several groups pooled are named inside their union", () => {
       const layers = [layerOf("a", 2500, 100, 10), layerOf("b", 2500, 135, 10)];
       const views = layers.map((layer) => new PointsView(layer));
       const t = START + 50 * DAY;
       for (const view of views) show(view, t, policy);
-      const pooled = poolResultants(views.map((view) => view.labelResultant));
-      expect(pooled.count).toBe(5000);
-      const direction = labelDirection(pooled, null);
-      const candidates = views.map((view) => view.labelCandidate(direction));
-      const winner = candidates[0].cosine >= candidates[1].cosine ? 0 : 1;
-      const place = views[winner].labelPlaceOf(candidates[winner].index, policy);
+      const place = PointsView.placeLabel(views, { direction: null }, policy)!;
+      expect(Math.abs(norm(place) / perKm - RING_KM)).toBeLessThanOrEqual(RING_SPREAD_KM * 1.5);
       const all = layers.flatMap((layer) => membersAt(layer, t));
       expect(angleDeg(place, meanDirection(all))).toBeLessThanOrEqual(spreadDeg(all) + 0.5);
     });
@@ -159,10 +179,10 @@ describe("a group's name sits on its dots", () => {
   });
 
   it("holds the earlier direction when the members have no clear mean, and picks the nearest member", () => {
-    const ring: Resultant = { x: 0.01, y: 0, z: 0, count: 100 };
+    const ring: Resultant = { x: 0.01, y: 0, z: 0, distanceKm: 0, count: 100 };
     expect(labelDirection(ring, null)).toEqual(VERNAL_EQUINOX);
     expect(labelDirection(ring, [0, 1, 0])).toEqual([0, 1, 0]);
-    expect(labelDirection({ x: 0, y: 80, z: 0, count: 100 }, [1, 0, 0])).toEqual([0, 1, 0]);
+    expect(labelDirection({ x: 0, y: 80, z: 0, distanceKm: 0, count: 100 }, [1, 0, 0])).toEqual([0, 1, 0]);
     const km = [1, 0, 0, 0, 5, 0, 0, 0, -2];
     expect(bestMember(km, [0, 0, 0], 0, 3, [0, 1, 0]).index).toBe(1);
   });

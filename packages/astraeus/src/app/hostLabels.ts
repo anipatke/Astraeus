@@ -4,8 +4,8 @@ import type { ExperienceObject } from "../shell/experience";
 import { createOrbTwoBodyAdapter } from "../core/twoBodyAdapter";
 import type { ExperienceLabel } from "./experienceDefinition";
 import { GroupSetTarget } from "./GroupSetTarget";
-import { labelDirection, poolResultants, type Vec3 } from "./groupLabelPoint";
-import type { PointsView } from "./PointsView";
+import type { Vec3 } from "./groupLabelPoint";
+import { PointsView } from "./PointsView";
 import { eqjToRenderVector, type RenderVector } from "./renderCoordinates";
 import { sceneOffsetKm } from "./sceneLayout";
 import type { SceneTargets } from "./sceneTargets";
@@ -96,16 +96,13 @@ function eclipticMatrix(): Float64Array {
   return (eclipticToEqj ??= createOrbTwoBodyAdapter().eclipticJ2000ToEqjMatrix());
 }
 
-/** The state of one label placed on groups: the direction held between fills, and the member chosen at the last pair of fills. */
+/** The state of one label placed on groups: the direction held for when its members have no clear mean. */
 interface PooledState {
-  held: Vec3 | null;
-  stamp: string;
-  /** The group view and member the name sits on. */
-  view: PointsView | null;
-  member: number;
+  /** The direction the name was last placed toward, kept for when the pooled members have no clear mean direction (a ring). */
+  direction: Vec3 | null;
 }
 
-/** Where each host label stands this frame. One per mounted scene: it remembers the member each group label sits on. */
+/** Where each host label stands this frame. One per mounted scene: it remembers the direction each group label was placed toward. */
 export class HostLabelPlacer {
   readonly #byId: ReadonlyMap<string, ExperienceLabel>;
   /** The labels a tap can land on (they select one group or a panel), fixed for the labels. */
@@ -170,25 +167,8 @@ export class HostLabelPlacer {
       (view) => groups.includes(view.id) && view.drawn && this.#hidden?.has(view.id) !== true,
     );
     if (views.length === 0) return null;
-    let state = this.#pooled.get(id);
-    if (state === undefined) this.#pooled.set(id, (state = { held: null, stamp: "", view: null, member: -1 }));
-    const stamp = views.map((view) => `${view.id}:${view.labelStamp}`).join();
-    if (state.view === null || stamp !== state.stamp) {
-      // The pair of fills changed (or the groups drawn did): choose the member again, by the pooled mean direction.
-      const direction = labelDirection(poolResultants(views.map((view) => view.labelResultant)), state.held);
-      state.held = direction;
-      state.stamp = stamp;
-      state.view = null;
-      let best = -Infinity;
-      for (const view of views) {
-        const candidate = view.labelCandidate(direction);
-        if (candidate.index >= 0 && candidate.cosine > best) {
-          best = candidate.cosine;
-          state.view = view;
-          state.member = candidate.index;
-        }
-      }
-    }
-    return state.view === null ? null : state.view.labelPlaceOf(state.member, targets.policy);
+    let held = this.#pooled.get(id);
+    if (held === undefined) this.#pooled.set(id, (held = { direction: null }));
+    return PointsView.placeLabel(views, held, targets.policy);
   }
 }

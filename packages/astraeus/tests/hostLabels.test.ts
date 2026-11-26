@@ -114,15 +114,23 @@ function stand(layers: readonly GroupLayer[], labels: readonly ExperienceLabel[]
 }
 
 const norm = (v: ArrayLike<number>): number => Math.hypot(v[0], v[1], v[2]);
-/** The distance, in km, from `place` to the nearest of the groups' members at `t`. */
-function nearestMemberKm(place: RenderVector, layers: readonly GroupLayer[], t: number): number {
-  let best = Infinity;
-  for (const layer of layers)
-    for (let i = 0; i < layer.group.count; i += 1) {
-      const m = eqjToRenderVector(trueScale.mapPosition(layer.group.stateAt(i, t).positionKm));
-      best = Math.min(best, Math.hypot(m[0] - place[0], m[1] - place[1], m[2] - place[2]) / perKm);
-    }
-  return best;
+const angleDeg = (a: ArrayLike<number>, b: ArrayLike<number>): number =>
+  (Math.acos(Math.max(-1, Math.min(1, (a[0] * b[0] + a[1] * b[1] + a[2] * b[2]) / (norm(a) * norm(b))))) * 180) /
+  Math.PI;
+/**
+ * I-209: whether `place` lies inside the groups' members as they stand at `t`: within their widest angle of their mean direction from the
+ * Sun when that direction is clear (a swarm). A ring has no mean direction, so only its distance (checked by the caller) applies.
+ */
+function insideMembers(place: RenderVector, layers: readonly GroupLayer[], t: number): boolean {
+  const members = layers.flatMap((layer) =>
+    Array.from({ length: layer.group.count }, (_, i) =>
+      eqjToRenderVector(trueScale.mapPosition(layer.group.stateAt(i, t).positionKm)),
+    ),
+  );
+  const mean = [0, 0, 0];
+  for (const m of members) for (let k = 0; k < 3; k += 1) mean[k] += m[k]! / norm(m);
+  if (norm(mean) < 0.25 * members.length) return true;
+  return angleDeg(place, mean) <= Math.max(...members.map((m) => angleDeg(m, mean))) + 0.5;
 }
 
 describe("a fixed point is placed as a group's member is", () => {
@@ -182,7 +190,7 @@ describe.each([
       [layerOf("a", 400, 40, 10), layerOf("b", 400, 130, 10), layerOf("c", 400, 220, 10), layerOf("d", 400, 310, 10)],
     ],
   ];
-  it.each(cases)("%s: on a dot, and on a dot again after the clock moves", (_name, layers) => {
+  it.each(cases)("%s: among the dots, and among them again after the clock moves", (_name, layers) => {
     const label = onGroups(
       "name",
       layers.map((layer) => layer.object.id),
@@ -191,9 +199,40 @@ describe.each([
     for (const t of [START + 10 * DAY, START + 20 * DAY, START + 320 * DAY]) {
       const place = labelPositionOf(s.targetsAt(t), "name")!;
       expect(place).not.toBeNull();
-      // Within the ring's own width of the orbit, not at its centre, and on one of the dots as they stand at that time.
+      // Within the ring's own width of the orbit, not at its centre, and inside the dots as they stand at that time (I-209: not on one dot).
       expect(Math.abs(norm(place) / perKm - RING_KM)).toBeLessThanOrEqual(SPREAD_KM * 1.5);
-      expect(nearestMemberKm(place, layers, t)).toBeLessThan(2_000);
+      expect(insideMembers(place, layers, t)).toBe(true);
+    }
+  });
+
+  it.each([
+    ["one swarm", [layerOf("one", 2500, 100, 15)]],
+    ["two swarms side by side", [layerOf("a", 1500, 90, 8), layerOf("b", 1500, 110, 8)]],
+  ] as const)("%s: the name glides with the swarm at a day a frame (I-209)", (_name, layers) => {
+    const s = stand(
+      layers,
+      [
+        onGroups(
+          "name",
+          layers.map((layer) => layer.object.id),
+        ),
+      ],
+      policy,
+    );
+    let t = START + 30 * DAY;
+    let place = labelPositionOf(s.targetsAt(t), "name")!.slice();
+    let centre = s.views[0]!.absolute().slice();
+    for (let k = 0; k < 300; k += 1) {
+      t += DAY;
+      const nextPlace = labelPositionOf(s.targetsAt(t), "name")!.slice();
+      const nextCentre = s.views[0]!.absolute().slice();
+      // The swarm's own motion this frame bounds the name's: a hop to another dot crosses the swarm's width, far more than one frame.
+      const swarmStep = Math.hypot(...[0, 1, 2].map((i) => nextCentre[i]! - centre[i]!));
+      const nameStep = Math.hypot(...[0, 1, 2].map((i) => nextPlace[i]! - place[i]!));
+      expect(nameStep).toBeLessThanOrEqual(1.5 * swarmStep + 10 * perKm);
+      expect(insideMembers(nextPlace as unknown as RenderVector, layers, t)).toBe(true);
+      place = nextPlace;
+      centre = nextCentre;
     }
   });
 
@@ -204,7 +243,7 @@ describe.each([
     expect(labelPositionOf(s.targetsAt(t), "name")).not.toBeNull();
     s.placer.hide(new Set(["a"]));
     const lone = labelPositionOf(s.targetsAt(t), "name")!;
-    expect(nearestMemberKm(lone, [layers[1]!], t)).toBeLessThan(2_000);
+    expect(insideMembers(lone, [layers[1]!], t)).toBe(true);
     s.placer.hide(new Set(["a", "b"]));
     expect(labelPositionOf(s.targetsAt(t), "name")).toBeNull();
     s.placer.hide(undefined);

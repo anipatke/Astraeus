@@ -5,6 +5,8 @@ import type { Provenance } from "../core/provenance";
  * Where a host's label stands, as `Scene.addLabels` takes it: exactly one form.
  * A fixed point (`positionKm` in `plane`, about `center`, the scene's centre when absent), or the dots of one or more groups (`groups`, ids of `addGroup`).
  * A group named in any label's `anchor.groups` draws no name of its own while that label is in the scene; the Labels switch shows and hides the label instead.
+ * A label on groups stands among their dots, toward the dots' mean direction from their centre at their mean distance (a ring, with no clear
+ * mean direction: where it crosses the vernal-equinox direction), and glides with them as time moves; it is not on any one dot.
  */
 export type LabelAnchorInput =
   | {
