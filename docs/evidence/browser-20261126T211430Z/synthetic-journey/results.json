@@ -1,0 +1,183 @@
+{
+  "at": "2026-11-26T21:17:37.480Z",
+  "appUrl": "http://localhost:5479/app.html",
+  "loads": 2,
+  "failed": 0,
+  "results": [
+    {
+      "label": "synthetic-journey",
+      "size": "desktop",
+      "ok": true,
+      "seconds": 65.8,
+      "drawn": {
+        "bodies": 1,
+        "dots": 0,
+        "paths": 2,
+        "stars": 8920,
+        "journey": {
+          "followed": {
+            "seen": {
+              "19": 247,
+              "30": 247,
+              "-30": 247,
+              "-19": 247
+            },
+            "path": {
+              "vertices": 247,
+              "inView": 247
+            }
+          },
+          "closeMarkers": {
+            "size": "1280x720",
+            "groupCount": 5,
+            "members": [
+              "Made-up pass of Io",
+              "Made-up pass of Jupiter",
+              "Made-up pass of Europa",
+              "Made-up pass of Ganymede"
+            ]
+          },
+          "nearSaturn": {
+            "depthMode": "logarithmic",
+            "rings": 15,
+            "saturn": {
+              "as": "sphere",
+              "radiusPx": 702.738
+            },
+            "framesPerSecond": 26
+          },
+          "nearUranus": {
+            "spheres": {
+              "miranda": 679,
+              "ariel": 679,
+              "umbriel": 679,
+              "titania": 679,
+              "oberon": 679
+            },
+            "labels": [
+              "oberon"
+            ]
+          },
+          "moons": {
+            "1979-03-05T12:00:00Z": [
+              "io",
+              "europa",
+              "ganymede",
+              "callisto"
+            ],
+            "1980-11-12T12:00:00Z": [
+              "titan",
+              "rhea",
+              "dione",
+              "tethys",
+              "enceladus",
+              "mimas",
+              "iapetus"
+            ]
+          },
+          "saturnOrbit": "saturn-orbit",
+          "path": {
+            "vertices": 246,
+            "inView": 246,
+            "spanX": 0.029,
+            "spanY": 0.189
+          },
+          "labels": [
+            "sun",
+            "earth",
+            "uranus",
+            "traveller"
+          ]
+        }
+      },
+      "failures": []
+    },
+    {
+      "label": "synthetic-journey",
+      "size": "phone",
+      "ok": true,
+      "seconds": 66.3,
+      "drawn": {
+        "bodies": 0,
+        "dots": 0,
+        "paths": 2,
+        "stars": 8920,
+        "journey": {
+          "followed": {
+            "seen": {
+              "19": 247,
+              "30": 247,
+              "-30": 247,
+              "-19": 247
+            },
+            "path": {
+              "vertices": 247,
+              "inView": 247
+            }
+          },
+          "closeMarkers": {
+            "size": "375x667",
+            "groupCount": 5,
+            "members": [
+              "Made-up pass of Io",
+              "Made-up pass of Jupiter",
+              "Made-up pass of Europa",
+              "Made-up pass of Ganymede"
+            ]
+          },
+          "nearSaturn": {
+            "depthMode": "logarithmic",
+            "rings": 15,
+            "saturn": {
+              "as": "sphere",
+              "radiusPx": 659.012
+            },
+            "framesPerSecond": 27
+          },
+          "nearUranus": {
+            "spheres": {
+              "miranda": 637,
+              "ariel": 637,
+              "umbriel": 637,
+              "titania": 637,
+              "oberon": 637
+            },
+            "labels": [
+              "oberon"
+            ]
+          },
+          "moons": {
+            "1979-03-05T12:00:00Z": [
+              "io",
+              "europa",
+              "ganymede",
+              "callisto"
+            ],
+            "1980-11-12T12:00:00Z": [
+              "titan",
+              "rhea",
+              "dione",
+              "tethys",
+              "enceladus",
+              "mimas",
+              "iapetus"
+            ]
+          },
+          "saturnOrbit": "saturn-orbit",
+          "path": {
+            "vertices": 246,
+            "inView": 246,
+            "spanX": 0.046,
+            "spanY": 0.088
+          },
+          "labels": [
+            "sun",
+            "earth",
+            "traveller"
+          ]
+        }
+      },
+      "failures": []
+    }
+  ]
+}

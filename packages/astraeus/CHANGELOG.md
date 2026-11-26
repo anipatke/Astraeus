@@ -2,6 +2,18 @@
 
 Versions follow [semantic versioning](https://semver.org). While the version starts with `0.`, the public API (the names exported from `astraeus`) may still change between minor versions; each change is listed here.
 
+## 0.12.1 (2026-11-27)
+
+A fix from the asteroid-belt app on 0.12.0: labels on moving point groups glide with their dots. A patch: no public name, type or default changed; the `astraeus-data*` packages' `astraeus` peer stays `>=0.12.0 <0.13.0`.
+
+First download of the packed example (`npm run measure:example`): 1,845,723 bytes raw, 529,235 bytes gzip (code and styles loaded on first open), against 1,845,916 raw and 529,465 gzip at 0.12.0 (-193 raw, -230 gzip).
+
+- Fixed: a label on point groups (a group's own name, or `scene.addLabels` with `anchor: { groups }`) glides with its dots instead of hopping between them. It used to sit on the single dot nearest the dots' mean direction, chosen again as they moved, so a moving swarm handed it from dot to dot several times a second. It now stands at the dots' mean direction from their centre, at their mean distance, blended between fills as the dots are; a ring keeps its held direction and is named on the ring. No extra per-dot work per frame. Behaviour change: the label is no longer on a real member; no API change, nothing to migrate.
+
+### Breaking changes in 0.12.1
+
+None: no public name, type or default changed.
+
 ## 0.12.0 (2026-11-25)
 
 Follow-ups from the asteroid-belt app on 0.11.0: a chart can no longer take the viewer down, a long chart axis label wraps, group names sit on their dots, and hosts decide which groups are named and can place their own tappable labels. A minor bump because of the new error code `bad-label` (below, with its migration); the `astraeus-data*` packages' `astraeus` peer moves to `>=0.12.0 <0.13.0`.
