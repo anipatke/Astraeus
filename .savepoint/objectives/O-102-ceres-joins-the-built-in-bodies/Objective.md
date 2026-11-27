@@ -24,7 +24,7 @@ G-028 (owner, 2026-11-27). The belt app wants a fly-in to a mapped Ceres; Ceres'
 1. A scene with `addBody(ceres)` and `astraeus-data` in `data` draws Ceres as a textured sphere at true radius; without the package `mount` throws `missing-data` naming `astraeus-data` (as Charon does without `astraeus-data-pluto`).
 2. Ceres's position matches Horizons (body `1;`, Sun-centred, ecliptic J2000 as the planet fits) within 1 km at independent dates 1950 to 2045, by the planet-fit tool's own check.
 3. Ceres's orientation follows pck00011 (pole RA 291.418, Dec 66.764, W 170.650 + 952.1532 deg/day); the places from `astraeus-data/data/bodies/ceres/` land on Occator, Ahuna Mons and the six craters on the new picture (owner look on localhost:5490 against Planetary Explorer, the donor's coordinates unchanged bit for bit).
-4. `npm run measure:example` first download is unchanged by this Objective (Ceres's series is a separate file; no engine cap raise).
+4. `npm run measure:example`: Ceres's series is a separate file, not in the first download; the check/install code and Ceres's definition fit the engine cap as the owner raised it twice on 2026-11-27 ("Raise by 1,500 bytes", T-465; "Raise by 2,500 raw, 500 compressed", T-467) to 1,850,000 raw / 530,500 gzip.
 5. Provenance: positions, radius, GM, rotation and picture each carry source and licence (PROV-02); `docs/DONOR_PROVENANCE.md`, `docs/DONOR_TEXTURE_INVENTORY.md` and the assets page say Ceres is in the app with the USGS map, not the donor file.
 6. `orbit: true` draws Ceres's line round the Sun; Ceres is in the public body list and the catalogue.
 
