@@ -165,7 +165,7 @@ describe("first-load size budget (T-070)", () => {
       /raw is over the limit of 4000 \(own share: \d+ B in all less 3000 B engine\)/,
     );
     expect(proof.demoGrown.engine.ok).toBe(true);
-    expect(ENGINE_LIMIT).toEqual({ rawLimit: 1_850_000, gzipLimit: 530_500 });
+    expect(ENGINE_LIMIT).toEqual({ rawLimit: 1_850_000, gzipLimit: 531_000 });
   });
 
   it("lists only the same-named chunks a page's scripts import when the bundler splits one stem into several (T-089: one panels chunk per story)", () => {
