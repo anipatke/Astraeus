@@ -64,7 +64,7 @@ Everything drawn over the canvas rests on four shared rules, areas, look, bar an
 
 ### Planet positions from Horizons
 
-Every planet's series is a piecewise Chebyshev fit of its JPL Horizons system barycentre (`tools/import/planet-fits.mjs`, `data/ephemerides/planets/planets.json`), no longer VSOP87A; one binding rule adds the planet's offset from its barycentre when its moon package is loaded, so without the package the planet sits at its barycentre. Earth keeps EPV00. The measured figures are in the [planet accuracy note](../docs/architecture/planet-accuracy-o063.md) and the shared `planetEphemeris` provenance; `tests/planetAccuracyFlybys.test.ts` pins them. [Detail as built, 2026-11-22](../docs/architecture/reconciliation-history.md#planet-positions-from-horizons).
+Every planet's series is a piecewise Chebyshev fit of its JPL Horizons system barycentre (`tools/import/planet-fits.mjs`, `data/ephemerides/planets/planets.json`), no longer VSOP87A; one binding rule adds the planet's offset from its barycentre when its moon package is loaded, so without the package the planet sits at its barycentre. Earth keeps EPV00. The measured figures are in the [planet accuracy note](../docs/architecture/planet-accuracy-o063.md) and the shared `planetEphemeris` provenance; `tests/planetAccuracyFlybys.test.ts` pins them. Bodies beyond the built-in eight (Ceres is the first, O-102) arrive as planet-fit files through `DataSource.bodyPositions`, a per-id map of loaders read lazily, once per scene, only when the scene holds the body; the engine checks the file's format and fit (`bad-data`), places the body Sun-centred from the scene's own series store (`missing-data` naming the package until loaded) and reports its own years in `out-of-span`. `processMoonData`'s process-wide store is only the fallback for use without a scene. [Detail as built, 2026-11-22](../docs/architecture/reconciliation-history.md#planet-positions-from-horizons).
 
 ### Journeys across years
 
@@ -148,7 +148,7 @@ The 88 IAU constellations are data in the optional `astraeus-data-constellations
 
 ### Core layers and demos
 
-Bodies reference catalogue definitions and state-source bindings; `StateResolver` composes their positions through the parent chain. Physical state remains independent of camera, selection, scale and rendering. Composed resolver states currently carry position only; velocity composition is a standing limitation. The Moon uses IAU rotation with libration (I-091); tidal locking remains available for other moons. Chebyshev providers load windowed planet and moon fits; validity and sampled accuracy ranges are distinct and must be checked for the chosen dataset.
+Bodies reference catalogue definitions and state-source bindings; `StateResolver` composes their positions through the parent chain. Physical state remains independent of camera, selection, scale and rendering. Composed resolver states currently carry position only; velocity composition is a standing limitation. The Moon uses IAU rotation with libration (I-091); tidal locking remains available for other moons. Chebyshev providers load windowed planet and moon fits; validity and sampled accuracy ranges are distinct and must be checked for the chosen dataset. A catalogue body may take its positions from a data package (Ceres: `import { ceres } from "astraeus"` needs `astraeus-data`'s `dataSource`; with it a package body can have an orbit line); `addBodyFromElements("ceres")` is a duplicate id. The local planets picker lists Ceres as a system with no moons, places read from its body package; the public build still offers Jupiter alone.
 
 Scenes expose bodies, bounded trajectories, listed-orbit groups, orbit lines, activity windows, events, story panels, timeline settings, display switches and camera choices. Scene-owned element bodies extend a per-scene catalogue. Groups share the body/path id namespace and use the existing points layer; made-up spreads and moon groups remain internal. See the relevant public-API amendments in reconciliation history for exact options and restrictions.
 
@@ -170,7 +170,7 @@ For the internal `ExperienceDefinition` contract read [state and assets](../docs
 
 ### Asset architecture (O-014)
 
-[State and assets](../docs/architecture/state-and-assets.md#asset-architecture-o-014) preserves catalogue, resolver, composition, paths, scale, lighting, texture, naming and accuracy details. Consult the later O-033/O-039 and I-091 amendments for changed moon and map behavior.
+[State and assets](../docs/architecture/state-and-assets.md#asset-architecture-o-014) preserves catalogue, resolver, composition, paths, scale, lighting, texture, naming and accuracy details. Consult the later O-033/O-039 and I-091 amendments for changed moon and map behavior. Ceres's map is the USGS Dawn mosaic at 2048x1024 (`PICTURES.ceres`), rolled 180 degrees to the donor frame; its `map.json` remains the importer's donor record, and the donor colour file is not shipped.
 
 #### Groups and the `points` layer (O-009)
 

@@ -61,7 +61,18 @@ describe("assets page sections follow the data (T-120)", () => {
 
   it("marks a body shown only when some planet's settings list it, with the count the app draws (I-049)", () => {
     const listed = new Map<string, number>();
-    for (const file of ["mercury", "venus", "earth", "mars", "jupiter", "saturn", "uranus", "neptune", "pluto"]) {
+    for (const file of [
+      "mercury",
+      "venus",
+      "earth",
+      "mars",
+      "jupiter",
+      "saturn",
+      "uranus",
+      "neptune",
+      "pluto",
+      "ceres",
+    ]) {
       for (const body of (readJson(`${PLANETS}data/planets/${file}.json`) as { bodyFeatures: string[] }).bodyFeatures) {
         const list = (
           readJson(`${DATA_PKG}data/bodies/${body}/features.json`) as {

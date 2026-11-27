@@ -24,6 +24,7 @@ type View = (typeof views)[number];
 describe("the nine planets are built as their settings say (public reads only)", () => {
   it("covers all nine planets", () => {
     expect(views.map((view) => view.settings.id).sort()).toEqual([
+      "ceres",
       "earth",
       "jupiter",
       "mars",

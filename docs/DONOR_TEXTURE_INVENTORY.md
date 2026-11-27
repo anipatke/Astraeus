@@ -6,7 +6,7 @@ Method: pixel size and file weight measured from each JPEG header; source and li
 
 Astraeus ships today (all sourced, see `assets.html` and `docs/DONOR_PROVENANCE.md`): Sun, Mercury, Venus, Earth (NASA BMNG), Moon (NASA SVS LROC), Mars, Jupiter, Io, Milky Way. Budget reference: the donor's own policy is 2k ≤ 1.5 MB soft / 3 MB hard, 4k ≤ 5 MB soft / 10 MB hard.
 
-**Pictures are not enough on their own.** Astraeus has no position source for Saturn, Uranus, Neptune, Pluto, Ceres or any moon other than the Moon and Io. Each body added needs an ephemeris provider first (engine work); the picture is the easy part.
+**Pictures are not enough on their own.** Astraeus has no position source for Saturn, Uranus, Neptune, Pluto or any moon other than the Moon and Io (Ceres has its own Horizons fit since O-102). Each body added needs an ephemeris provider first (engine work); the picture is the easy part.
 
 ## A. Ready: source and licence recorded, correct 2:1 shape
 
@@ -43,7 +43,7 @@ Method: candidate originals downloaded to a scratch directory (not committed) an
 | Pluto | pluto-4k.jpg | 5926×2963 | 3.97 MB | NASA Photojournal PIA11707, New Horizons global colour map (assets.science.nasa.gov copy) | Same pixel size; colour RMSE 0.25% (recompressed) | NASA/JHUAPL/SwRI; JPL policy, credit required | Ready. Southern third black (unlit at flyby). |
 | Charon | charon-2k.jpg | 1024×512 | 0.07 MB | USGS Astrogeology, Charon New Horizons LORRI MVIC Global Mosaic 300 m (Jul 2017), the 1024 px preview JPG | Byte-identical | Use constraint "Please cite authors": New Horizons team; NASA, JHUAPL, SwRI, LPI; USGS Astrogeology 2017 | Re-derive from the 77 MB GeoTIFF for a true 2k. |
 | Ganymede | ganymede-2k.jpg / -4k.jpg | 2048×1024 / 4096×2048 | 0.42 / 1.60 MB | USGS Astrogeology, Ganymede Voyager–Galileo SSI Global Mosaic 1 km | NCC 0.72 after a 180° longitude shift (0.05 unshifted); contrast differs | Public domain; use constraints "None" | Ready; record the 180° re-centring as a change. |
-| Ceres | ceres-2k.jpg | 4000×2000 | 2.45 MB | Surface geometry: USGS/DLR Ceres Dawn FC Global Mosaic 140 m (Feb 2016) | NCC 0.96 after a 180° shift. **Not** Solar System Scope's fictional Ceres (RMSE 28%) | Colour and the yellow-green polar fill come from an unknown source | Do not ship this file. Use the traced USGS/DLR mosaic ("Please cite authors"), greyscale or tinted by us and labelled as tinted. |
+| Ceres | ceres-2k.jpg | 4000×2000 | 2.45 MB | Surface geometry: USGS/DLR Ceres Dawn FC Global Mosaic 140 m (Feb 2016) | NCC 0.96 after a 180° shift. **Not** Solar System Scope's fictional Ceres (RMSE 28%) | Colour and the yellow-green polar fill come from an unknown source | Do not ship this file. **Done (O-102 T-466):** the traced USGS/DLR mosaic ("Please cite authors", USGS/DLR Dawn FC team) ships as `ceres-2k.jpg` at 2048×1024, rolled 180° to the donor frame (NCC 0.982) and shown in the local planets picker; the donor file is still not shipped. |
 
 ## D. Rings (drawn in code, not pictures)
 
