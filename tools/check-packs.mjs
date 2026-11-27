@@ -41,6 +41,7 @@ const ALLOWED = {
     "src/textures/[^/]+\\.jpg",
     "data/bodies/[^/]+\\.(?:json|md)",
     "data/bodies/[a-z]+/[a-z]+\\.json",
+    "data/positions/[a-z]+\\.json",
   ],
   "astraeus-data-constellations": [...COMMON, CODE, "data/(?:figures|boundaries|names|provenance)\\.json"],
   position: [

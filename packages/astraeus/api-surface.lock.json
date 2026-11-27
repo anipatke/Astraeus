@@ -504,6 +504,11 @@
           "signature": "MoonPositions | undefined"
         },
         {
+          "name": "bodyPositions",
+          "optional": true,
+          "signature": "Readonly<Record<string, () => Promise<object>>> | undefined"
+        },
+        {
           "name": "prepare",
           "optional": true,
           "signature": "(() => Promise<void>) | undefined"

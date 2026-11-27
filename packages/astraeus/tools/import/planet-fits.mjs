@@ -23,7 +23,7 @@ import { fileURLToPath } from "node:url";
 import { gzipSync } from "node:zlib";
 import { makeState, transform } from "@lizard-isana/orb/frames";
 import { AstroInstant } from "@lizard-isana/orb/time";
-import { gridSamples, horizonsText, labelOfSeconds, MAX_ROWS, vectorParams } from "./horizons-client.mjs";
+import { gridSamples, headerOf, horizonsText, labelOfSeconds, MAX_ROWS, vectorParams } from "./horizons-client.mjs";
 import { Time } from "@lizard-isana/orb/src/orb-time.js";
 
 register("./ts-resolve-hook.mjs", import.meta.url);
@@ -56,6 +56,18 @@ const SOURCES = {
   uranus: { body: "799", system: "7" },
   neptune: { body: "899", system: "8" },
   pluto: { body: "999", system: "9" },
+};
+/**
+ * Sun-circling small bodies (O-102 T-464), fitted the same way but about the Sun directly (centre 500@10; a small body has no barycentre to
+ * subtract) and written to their own file, never into planets.json. `command` is the Horizons COMMAND and `name` the target name the reply must
+ * carry (checked before fitting, so a wrong designation cannot be fitted silently). Run with `--small ceres --write`.
+ */
+const SMALL_BODIES = {
+  ceres: {
+    command: "1;",
+    name: "1 Ceres (A801 AA)",
+    file: join("..", "astraeus-data", "data", "positions", "ceres.json"),
+  },
 };
 
 // Time. Orb turns the UTC date it is given into TT by adding leap seconds (a step at each one) and, before 1972, a polynomial; a fit of that
@@ -275,8 +287,37 @@ const out = {
 let totalBytes = 0;
 let totalGzip = 0;
 const onlyIds = process.argv.includes("--only") ? process.argv[process.argv.indexOf("--only") + 1].split(",") : null;
-for (const [id, source] of Object.entries(SOURCES)) {
+const smallId = process.argv.includes("--small") ? process.argv[process.argv.indexOf("--small") + 1] : null;
+if (smallId !== null && SMALL_BODIES[smallId] === undefined)
+  throw new Error(`--small ${smallId}: not one of ${Object.keys(SMALL_BODIES).join(", ")}`);
+let provenance;
+const jobs = smallId === null ? Object.entries(SOURCES) : [[smallId, { system: SMALL_BODIES[smallId].command }]];
+for (const [id, source] of jobs) {
   if (onlyIds !== null && !onlyIds.includes(id)) continue;
+  if (smallId !== null) {
+    const small = SMALL_BODIES[smallId];
+    const text = await horizonsText(
+      vectorParams({
+        command: small.command,
+        center: "500@10",
+        start: labelOfSeconds(START_S),
+        stop: labelOfSeconds(START_S + 21_600),
+        step: "360m",
+      }),
+      { cacheDir },
+    );
+    const head = headerOf(text);
+    if (head.target !== small.name)
+      throw new Error(`COMMAND '${small.command}' returned ${head.target}, expected ${small.name}`);
+    provenance = {
+      source: "JPL Horizons API, small-body ephemeris, VECTORS, centre 500@10, ICRF turned to ecliptic J2000",
+      command: small.command,
+      target: head.target,
+      solution: text.match(/soln ref\.=\s*(\S+?),/)?.[1] ?? head.targetSource,
+      apiVersion: head.apiVersion,
+      accessed: new Date().toISOString().slice(0, 10),
+    };
+  }
   const model = await barycentreFromHorizons(source);
   const pick = choose(model);
   let attempt = pick;
@@ -333,9 +374,15 @@ report.totalGzipBytes = totalGzip;
 console.log(`total raw ${totalBytes} bytes, gzip ${totalGzip}, as base64 ${Math.ceil(totalBytes / 3) * 4}`);
 
 const args = process.argv.slice(2);
-if (args.includes("--write") && onlyIds !== null)
+if (args.includes("--write") && smallId !== null) {
+  const small = SMALL_BODIES[smallId];
+  const target = resolve(REPO, small.file);
+  mkdirSync(dirname(target), { recursive: true });
+  writeFileSync(target, `${JSON.stringify({ ...out, provenance, planets: out.planets })}\n`);
+  console.log("wrote", target);
+} else if (args.includes("--write") && onlyIds !== null)
   throw new Error("--only is for trials; it cannot be combined with --write (planets.json holds all eight)");
-if (args.includes("--write")) {
+else if (args.includes("--write")) {
   const dir = join(REPO, "data", "ephemerides", "planets");
   mkdirSync(dir, { recursive: true });
   writeFileSync(join(dir, "planets.json"), `${JSON.stringify(out)}\n`);

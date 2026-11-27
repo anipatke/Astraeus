@@ -5,7 +5,7 @@ import { PICTURES } from "astraeus-data";
 
 // O-050 T-215 (I-127): both READMEs name the moons the picture pack has pictures for, and say the other listed moons (Uranus's five named among
 // them) draw flat-coloured. The list is read from the pack's registered names, so a new picture fails here until the READMEs say so.
-const NOT_MOONS = new Set(["milky-way", "venus-8k", "pluto"]); // the sky, Venus's wide-screen file and a planet
+const NOT_MOONS = new Set(["milky-way", "venus-8k", "pluto", "ceres"]); // the sky, Venus's wide-screen file, a planet and a dwarf planet
 const READMES = ["packages/astraeus-data/README.md", "packages/astraeus/README.md"];
 const name = (id: string): string => id[0].toUpperCase() + id.slice(1);
 const joined = (names: readonly string[]): string => `${names.slice(0, -1).join(", ")} and ${names[names.length - 1]}`;

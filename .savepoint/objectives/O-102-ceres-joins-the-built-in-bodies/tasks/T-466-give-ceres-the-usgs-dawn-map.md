@@ -2,7 +2,7 @@
 id: T-466
 title: Give Ceres the USGS Dawn map
 objective: O-102
-status: planned
+status: done
 check_waiver: {task: T-466, reason: 'Owner said "orchestrate O-102" (G-028, 2026-11-27): standing orchestration rules waive the optional step checks; the mandatory Full Objective Check covers the whole diff.', actor: {role: owner, session: orchestrate-o102-20261127}, recorded_at: '2026-11-27T00:00:58Z'}
 depends_on: []
 owner_validation: {required: false}
@@ -58,8 +58,27 @@ Focused picture tests and `npm run check:pack` for `astraeus-data`; handoff gate
 
 ## Technical Evidence
 
-Pending execution.
+Product: USGS Astropedia "Ceres Dawn FC Global Mosaic 140m" (DLR, Feb 2016), page https://astrogeology.usgs.gov/search/map/ceres_dawn_fc_global_mosaic_140m. The page's Download link is a file-less path; the file is `Ceres_Dawn_FC_DLR_global_59ppd_Feb2016.cub` (ISIS tiled cube, 224,158,431 B, 21,093x10,546 8-bit, simple cylindrical, centre longitude 0, -180 at the left) from https://asc-pds-services.s3.us-west-2.amazonaws.com/mosaic/Ceres_Dawn_FC_DLR_global_59ppd_Feb2016.cub (the host planetarymaps.usgs.gov/mosaic/ redirects there). Downloaded to a scratchpad folder outside the repo; ImageMagick cannot read cubes, so a throwaway node script de-tiled it (267x128 tiles) and box-averaged it (scripts and download stay in scratch).
+
+| Done When | Evidence |
+|---|---|
+| Mosaic downloaded, converted, size/budget recorded, command recorded | Box average to 2048x1024, `convert -roll +1024+0 -colorspace Gray -quality 90 -strip`; shipped `packages/astraeus-data/src/textures/ceres-2k.jpg`, 944,660 B, 2048x1024, true grey. 4096x2048 was built first (3,588,748 B) and `npm run check:pack` failed `astraeus-data` at packed 39.17 MB and unpacked 39.81 MB against 39.0 MB limits, so the Task's 2048x1024 fallback was taken: packed 36.53 MB, unpacked 37.17 MB. The recorded command is in the `PICTURES.ceres` source text. |
+| Registration, NCC >= 0.9 | Unrolled mosaic vs donor ceres-2k.jpg (grey, both at 1000x500): shift 0 NCC 0.2007, 250 px 0.184, 500 px (180 deg) 0.9928, 750 px 0.183. Shipped JPEG vs donor: NCC 0.9821. Shift applied: roll 180 degrees (half the width), the existing `textureRecentringDeg: 180` is unchanged; Occator is the bright spot at about 66 percent of the width in the preview. `features.json` untouched. |
+| map.json and sources entry updated | `packages/astraeus-data/data/bodies/ceres/map.json` (src, size, bytes, sha256, source, sourcePage, registration; donorFileShippable still false) and `packages/astraeus/tools/import/planetary-explorer-map-sources.json` ceres entry. |
+| ownedPictures/desktopPictures and pack check | `npx vitest run` of ownedPictures, desktopPictures, viewerPictures: pass (18 of 20 tests pass in the four files run); `npm run check:pack`: only astraeus-data FAIL left is `unexpected file data/positions/ceres.json`, which is T-464's file (allow-list), sizes pass. |
+
+Also: `PICTURED_BODIES` gained `"ceres"`; `PICTURES.ceres` carries an `AssetLicence` (USGS use constraint: please cite authors, credit NASA/JPL-Caltech/UCLA/MPS/DLR/IDA, Roatsch et al. 2016).
+
+Gates: `npm run typecheck` clean; eslint on pictures.ts clean; prettier on the three edited files clean. Focused vitest: ownedPictures, desktopPictures, viewerPictures, pictureList.
+
+Limitation / REPLAN-adjacent: `packages/astraeus/tests/pictureList.test.ts` fails 2 tests (README lists) because `PICTURES.ceres` is not a moon: its `NOT_MOONS` set (line 9) needs `"ceres"`. That is a setup change to an existing test, outside planned_writes, so not made. Reads beyond plan: none beyond `docs/DONOR_TEXTURE_INVENTORY.md` not re-read (figures taken from the Task and map.json).
 
 ## Drift Notes
 
-Record the shipped resolution and size for T-468's docs.
+Shipped Ceres picture: 2048x1024, 944,660 B (4096x2048 refused by the astraeus-data 39 MB pack limit). Raising that limit would allow 4k (3.59 MB). `pictureList.test.ts` `NOT_MOONS` needs "ceres" (the READMEs list moons only). Design reconciliation: none beyond the resolution.
+
+Coordinator addition (orchestrate-o102-20261127, 2026-11-27): `packages/astraeus/tests/pictureList.test.ts` `NOT_MOONS` gained `"ceres"` beside `"pluto"` (its documented extension point: Ceres is not a moon, so the READMEs' "Moons with pictures" line must not list it). Classification list only; no test input or tolerance changed.
+
+Coordinator repair at the wave gate (orchestrate-o102-20261127, 2026-11-27): (1) `packages/astraeus-data/data/bodies/ceres/map.json` restored to the importer's output (`tests/bodyPackages.test.ts` "running the importer again ... writes identical files"): `map.json.textures` is the donor-import record (the donor file, `donorFileShippable: false`), as Earth and Moon keep theirs while shipping other maps; the shipped USGS file is recorded in `pictures.ts` and its source text flows from `planetary-explorer-map-sources.json`. Registration is unchanged: the shipped file is rolled to the donor frame, so the existing `textureRecentringDeg: 180` holds. (2) `packages/astraeus-site/tests/packagePacks.test.ts` picture count 16 -> 17 (the pinned count of shipped pictures; one picture added, assertion count only).
+
+Marked done by the coordinator under the owner's "orchestrate O-102" (2026-11-27) after the wave gate passed at 2026-11-27T00:18Z: `npm run typecheck`, `npm run lint`, `npm test` 360 files 5754 passed 2 skipped, `npm run build`, `npm run check:pack` (engine 1,846,414 raw / 529,484 gzip within 1,847,500 / 530,000).

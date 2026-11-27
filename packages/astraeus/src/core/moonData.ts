@@ -6,16 +6,23 @@
 import { MOON_SYSTEMS } from "./bodies/listedMoonBodies";
 import { createMoonSystem, type MoonSystem } from "./bodies/moonSystem";
 import type { BodyId } from "./body";
+import type { PlanetModel } from "./planetSeries";
 
-/** What a binding reads moon data through: the scene's system for a centre (undefined for a centre with no moon system), and a count that changes when one installs or loads. */
+/**
+ * What a binding reads a scene's data through: the scene's moon system for a centre (undefined for a centre with no moon system), the series of a
+ * Sun-circling body a data package handed in (`DataSource.bodyPositions`; undefined until `installData` read it), and a count that changes when either installs or loads.
+ */
 export interface MoonDataSelection {
   system(centre: BodyId): MoonSystem | undefined;
+  series(body: BodyId): PlanetModel | undefined;
+  provideSeries(body: BodyId, model: PlanetModel): void;
   revision(): number;
 }
 
-/** A scene's own moon data: empty until a system is loaded; each centre's system is made fresh, from the same configuration as the process-wide one. */
+/** A scene's own moon data and package series: empty until a system is loaded or a series handed in; each centre's system is made fresh, from the same configuration as the process-wide one. */
 export function createSceneMoonData(): MoonDataSelection {
   const systems = new Map<BodyId, MoonSystem>();
+  const series = new Map<BodyId, PlanetModel>();
   let revision = 0;
   return Object.freeze({
     system(centre: BodyId): MoonSystem | undefined {
@@ -28,6 +35,11 @@ export function createSceneMoonData(): MoonDataSelection {
       });
       systems.set(centre, made);
       return made;
+    },
+    series: (body: BodyId): PlanetModel | undefined => series.get(body),
+    provideSeries(body: BodyId, model: PlanetModel): void {
+      series.set(body, model);
+      revision += 1;
     },
     revision: (): number => revision,
   });

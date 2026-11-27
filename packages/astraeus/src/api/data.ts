@@ -30,12 +30,18 @@ export interface DataSource {
   readonly provides: readonly BodyId[];
   readonly pictures?: Pictures;
   readonly moonPositions?: MoonPositions;
+  /**
+   * Positions of Sun-circling bodies by body id, each read (once per scene) only when the scene holds that body. A loader resolves to the JSON file
+   * in the planet-fit format of the engine's own planets: `format`, `timeScale` and the body's fit under `planets.<id>`; the engine checks all of it
+   * (`bad-data` if it does not fit).
+   */
+  readonly bodyPositions?: Readonly<Record<BodyId, () => Promise<object>>>;
   readonly prepare?: () => Promise<void>;
 }
 
 /**
  * The faults of a data source that need no loading, thrown by `check`, `load` and `mount` alike (one function, so the three cannot differ): a picture that fails the rights rule or carries an old
- * name (`bad-data`, `renamed`), moon positions carrying an old name or naming a planet with no moon system. Nothing is read or loaded here; a scene with no data passes.
+ * name (`bad-data`, `renamed`), a body-positions entry that is not a loader, moon positions carrying an old name or naming a planet with no moon system. Nothing is read or loaded here; a scene with no data passes.
  */
 export function checkDataSources(data: readonly DataSource[]): void {
   for (const source of data) {
@@ -47,6 +53,9 @@ export function checkDataSources(data: readonly DataSource[]): void {
         (texture as { desktop?: unknown }).desktop,
         `${source.name}: pictures.${name}.desktop`,
       );
+    for (const [id, load] of Object.entries(source.bodyPositions ?? {}))
+      if (typeof load !== "function")
+        throw new SceneError("bad-data", `${source.name}: bodyPositions.${id} is not a function`);
     const positions = source.moonPositions;
     if (positions === undefined) continue;
     rejectRenamed("MoonPositions", positions, `${source.name}: moonPositions`);
@@ -56,7 +65,8 @@ export function checkDataSources(data: readonly DataSource[]): void {
 }
 
 /**
- * Checks the rights of the packages' pictures (the viewer draws them from its definition, `assembleScene` carries them there), hands the moon positions to the engine and loads the chunks the scene's window needs for the moons it holds.
+ * Checks the rights of the packages' pictures (the viewer draws them from its definition, `assembleScene` carries them there), reads the series of each package body the scene holds into the scene's selection,
+ * hands the moon positions to the engine and loads the chunks the scene's window needs for the moons it holds.
  * Nothing is looked up behind the caller's back: a package that was not passed in contributes nothing.
  */
 export async function installData(
@@ -67,6 +77,18 @@ export async function installData(
   sets?: BodySetLoad,
 ): Promise<void> {
   checkDataSources(data);
+  const store = catalogue.moonData;
+  for (const source of data)
+    for (const [id, load] of Object.entries(source.bodyPositions ?? {}))
+      if (store !== undefined && sceneBodies.includes(id) && store.series(id) === undefined)
+        store.provideSeries(
+          id,
+          await Promise.all([load(), import("../core/planetModels")])
+            .then(([series, models]) => models.createSeriesModel(series, id))
+            .catch((error: unknown) => {
+              throw new SceneError("bad-data", `${source.name}: bodyPositions.${id}: ${String(error)}`);
+            }),
+        );
   for (const source of data) {
     const positions = source.moonPositions;
     if (positions === undefined) continue;

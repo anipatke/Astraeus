@@ -2,7 +2,7 @@
 id: T-464
 title: Fit Ceres's positions from Horizons
 objective: O-102
-status: planned
+status: done
 check_waiver: {task: T-464, reason: 'Owner said "orchestrate O-102" (G-028, 2026-11-27): standing orchestration rules waive the optional step checks; the mandatory Full Objective Check covers the whole diff.', actor: {role: owner, session: orchestrate-o102-20261127}, recorded_at: '2026-11-27T00:00:58Z'}
 depends_on: []
 owner_validation: {required: false}
@@ -59,8 +59,24 @@ Focused: the new test and `planetFits`/`planetFitErrors`. Handoff gates per `doc
 
 ## Technical Evidence
 
-Pending execution.
+| Done When | Evidence |
+|---|---|
+| `planet-fits.mjs` fits a small body, own output file, planets unchanged | `--small ceres --write` (SMALL_BODIES, COMMAND `1;`, centre 500@10, target name asserted "1 Ceres (A801 AA)") wrote `packages/astraeus-data/data/positions/ceres.json`; `git status packages/astraeus/data` clean, planets.json byte-identical (sha256 unchanged) |
+| Fit within 1 km at independent dates | tool's check: worstErrorKm 0.7742 (stored in `planets.ceres.worstErrorKm`); 256-day segments, 21 coefficients/axis, 137 segments |
+| Size recorded | 45,465 B raw file (16,742 B coefficient bytes, 22,324 B base64), 20,350 B gzip; under 60 KB |
+| New `ceresFit.test.ts` | 3 tests: format/provenance/worst error, coverage 1950-01-01..2045-01-01, three archived Horizons ICRF positions (1955, 1987, 2038) within 1 km via Orb's frame transform |
+| Existing tests unchanged and passing | `planetFits`, `planetFitErrors` pass unchanged |
+
+Commands: `node tools/import/planet-fits.mjs --small ceres --write`; typecheck clean; eslint and prettier --check on `packages/astraeus/tests/ceresFit.test.ts` and `packages/astraeus/tools/import/planet-fits.mjs` clean; `npx vitest run packages/astraeus/tests/ceresFit.test.ts packages/astraeus/tests/planetFits.test.ts packages/astraeus/tests/planetFitErrors.test.ts`: 3 files, 12 tests passed.
+
+Horizons: COMMAND `1;` and `Ceres;` both return "1 Ceres (A801 AA)" {source: JPL#48}; `DES=1;` returned no match. Extra reads: none beyond Context Files (horizons-client.mjs headerOf used as is).
+
+Limitations: ceres.json has extra top-level `provenance` (source, command, target, solution, apiVersion, accessed) beyond the planets format; the existing reader ignores unknown keys. Fixture is inlined in the test (the fixture file was outside planned_writes). Test must use Orb's transform: a plain obliquity rotation differs by ~80 km (frame bias).
 
 ## Drift Notes
 
-Record the Horizons command used and the solution name (e.g. JPL#) for T-467's provenance text.
+Horizons COMMAND `1;` (target "1 Ceres (A801 AA)"), solution JPL#48 (soln date 2021-Apr-13, 1075 obs 1995-2021), accessed 2026-11-27; stored in ceres.json `provenance`. Design reconciliation: none needed beyond T-467 provenance text.
+
+Coordinator addition (orchestrate-o102-20261127, 2026-11-27): `tools/check-packs.mjs` astraeus-data allow-list gained `data/positions/[a-z]+\.json` so the new file packs (found by T-466's `check:pack` run).
+
+Marked done by the coordinator under the owner's "orchestrate O-102" (2026-11-27) after the wave gate passed at 2026-11-27T00:18Z: `npm run typecheck`, `npm run lint`, `npm test` 360 files 5754 passed 2 skipped, `npm run build`, `npm run check:pack` (engine 1,846,414 raw / 529,484 gzip within 1,847,500 / 530,000).

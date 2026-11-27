@@ -4,6 +4,7 @@
 import type { AssetLicence, TextureRef } from "astraeus";
 import { MILKY_WAY_PICTURE } from "./milkyWay.js";
 import callistoUrl from "./textures/callisto-2k.jpg";
+import ceresUrl from "./textures/ceres-2k.jpg";
 import charonUrl from "./textures/charon-2k.jpg";
 import dioneUrl from "./textures/dione-4k.jpg";
 import enceladusUrl from "./textures/enceladus-4k.jpg";
@@ -110,6 +111,15 @@ export const PICTURES: Readonly<Record<string, TextureRef>> = Object.freeze({
       "NASA/JHUAPL/SwRI",
     ),
   ),
+  ceres: picture(ceresUrl, 2048, 1024, {
+    source:
+      "USGS Astrogeology, Ceres Dawn FC Global Mosaic 140m (DLR controlled mosaic of Dawn Framing Camera HAMO clear-filter images, Feb 2016; file Ceres_Dawn_FC_DLR_global_59ppd_Feb2016, 21,093x10,546, true grey, untinted), box-averaged to 2048x1024 (the 4096x2048 version made astraeus-data 39.8 MB unpacked, over its 39 MB limit) and rolled 180 degrees so longitude 0 is the left edge (the donor map's frame; NCC 0.982 against the donor's ceres-2k.jpg), JPEG quality 90, ImageMagick 6.9.12 on 2026-11-27",
+    url: "https://astrogeology.usgs.gov/search/map/ceres_dawn_fc_global_mosaic_140m",
+    licence: "USGS use constraint: please cite authors",
+    attribution:
+      "Ceres texture: NASA/JPL-Caltech/UCLA/MPS/DLR/IDA; Roatsch et al. 2016, Planetary and Space Science 125, 103-107; USGS Astrogeology",
+    accessed: "2026-11-27",
+  }),
   mimas: picture(
     mimasUrl,
     5760,
@@ -229,5 +239,6 @@ export const PICTURED_BODIES: readonly string[] = Object.freeze([
   "iapetus",
   "triton",
   "pluto",
+  "ceres",
   "charon",
 ]);

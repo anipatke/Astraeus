@@ -2,6 +2,14 @@
 
 Versions follow [semantic versioning](https://semver.org). While the version starts with `0.`, the public API (the names exported from `astraeus`) may still change between minor versions; each change is listed here.
 
+## 0.13.0 (unreleased)
+
+- Added: `DataSource.bodyPositions`, an optional map from body id to a loader of that Sun-circling body's positions in the engine's planet-fit format (the JSON file with `format`, `timeScale` and the fit under `planets.<id>`). `mount` and `scene.load` read a body's series only when the scene holds that body, once per scene; an entry that is not a function, or a series that does not fit, is `bad-data` naming `bodyPositions.<id>`. Additive: existing data packages are unchanged. First download +691 B raw, +249 B gzip (owner raised the engine raw cap by 1,500 B).
+
+### Breaking changes in 0.13.0
+
+None: one optional member added; no public name, type or default removed or changed.
+
 ## 0.12.1 (2026-11-27)
 
 A fix from the asteroid-belt app on 0.12.0: labels on moving point groups glide with their dots. A patch: no public name, type or default changed; the `astraeus-data*` packages' `astraeus` peer stays `>=0.12.0 <0.13.0`.

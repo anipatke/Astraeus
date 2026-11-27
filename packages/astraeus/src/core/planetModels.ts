@@ -1,13 +1,7 @@
 import { AU_KM } from "./constants";
 import fits from "../../data/ephemerides/planets/planets.json" with { type: "json" };
 import { chunkCovers, chunkPositionInto, decodeChunk, type SeriesChunk } from "./chebyshevSeries";
-import {
-  PLANET_IDS,
-  PlanetFitsUncoveredError,
-  type PlanetId,
-  type PlanetModel,
-  type PlanetModels,
-} from "./planetSeries";
+import { PLANET_IDS, PlanetFitsUncoveredError, type PlanetModel, type PlanetModels } from "./planetSeries";
 import type { TimeBounds } from "./trajectory";
 import { assertTimeScaleTable, utcMsToTtSeconds, type TimeScaleTable } from "./timeScale";
 
@@ -53,25 +47,39 @@ export function planetSeriesSpan(): TimeBounds {
   return Object.freeze({ startUtcMs: table.pieces[0].fromUtcMs, endUtcMs: table.validToUtcMs });
 }
 
+/** A file in the planet-fit format (`planets.json`, or one a data package ships): its time-scale table and stored fits by body id. */
+export interface PlanetFits {
+  readonly format?: unknown;
+  readonly timeScale?: unknown;
+  readonly planets?: Readonly<Record<string, object>>;
+}
+
+/**
+ * One body's model from a file in the planet-fit format: the one decode the built-in planets and the Sun-circling bodies a data package hands in
+ * (`DataSource.bodyPositions`, imported lazily by `installData`) share. Throws on a file that does not fit.
+ */
+export function createSeriesModel(file: PlanetFits, id: string): PlanetModel {
+  if (file.format !== fits.format) throw new TypeError(`format must be "${fits.format}"`);
+  const table = file.timeScale as TimeScaleTable;
+  assertTimeScaleTable(table);
+  const p = file.planets?.[id] as StoredPlanet | undefined;
+  if (typeof p?.data !== "string" || !(p.segmentSeconds > 0 && p.quantumKm > 0))
+    throw new TypeError(`planets.${id} holds no fit with a positive segment length and quantum`);
+  const chunk = decodeChunk<"tt">(decodeBase64(p.data), {
+    startTdbS: p.startS,
+    segmentSeconds: p.segmentSeconds,
+    segmentCount: p.segmentCount,
+    coefficientCount: p.coefficientCount,
+    quantumKm: p.quantumKm,
+  });
+  return planetModel(chunk, table);
+}
+
 /**
  * The planet models from the stored curve fits (`data/ephemerides/planets/`, O-025 T-101): heliocentric ecliptic-J2000 positions as piecewise
  * Chebyshev series in TT of each planet's system barycentre as JPL Horizons reports the planet, within 1 km (O-063 T-290; tools/import/planet-fits.mjs). UTC to TT uses the table stored
  * beside them. Dates outside the fitted span (1950 to 2045) throw rather than extrapolate. Only planetSeries.ts imports this, lazily.
  */
 export function createPlanetModels(): PlanetModels {
-  const table = fits.timeScale as TimeScaleTable;
-  assertTimeScaleTable(table);
-  const planets = fits.planets as Record<PlanetId, StoredPlanet>;
-  const model = (id: PlanetId): PlanetModel => {
-    const p = planets[id];
-    const chunk = decodeChunk<"tt">(decodeBase64(p.data), {
-      startTdbS: p.startS,
-      segmentSeconds: p.segmentSeconds,
-      segmentCount: p.segmentCount,
-      coefficientCount: p.coefficientCount,
-      quantumKm: p.quantumKm,
-    });
-    return planetModel(chunk, table);
-  };
-  return Object.fromEntries(PLANET_IDS.map((id) => [id, model(id)])) as PlanetModels;
+  return Object.fromEntries(PLANET_IDS.map((id) => [id, createSeriesModel(fits, id)])) as PlanetModels;
 }

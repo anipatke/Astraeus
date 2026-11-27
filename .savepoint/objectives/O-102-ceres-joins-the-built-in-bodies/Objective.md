@@ -1,7 +1,7 @@
 ---
 id: O-102
 title: Ceres joins the built-in bodies
-status: planned
+status: in_progress
 depends_on: []
 release: G-028
 priority: high
