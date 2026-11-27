@@ -1,7 +1,7 @@
 ---
 id: G-028
 title: Ceres as a mapped globe
-status: planned
+status: done
 ---
 
 ## Outcome

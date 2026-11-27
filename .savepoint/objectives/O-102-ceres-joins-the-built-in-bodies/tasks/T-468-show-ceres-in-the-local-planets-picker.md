@@ -2,11 +2,10 @@
 id: T-468
 title: Show Ceres in the local planets picker
 objective: O-102
-status: in_progress
-stage: audit
+status: done
 check_waiver: {task: T-468, reason: 'Owner said "orchestrate O-102" (G-028, 2026-11-27): standing orchestration rules waive the optional step checks; the mandatory Full Objective Check covers the whole diff.', actor: {role: owner, session: orchestrate-o102-20261127}, recorded_at: '2026-11-27T00:00:58Z'}
 depends_on: [{task: T-467, requires: clear}, {task: T-466, requires: clear}]
-owner_validation: {required: true}
+owner_validation: {required: true, accepted_check: C-227, accepted_by: {role: owner, session: orchestrate-o102-20261127}}
 planned_by: {role: planner, session: plan-g028-20261127}
 lane: show
 ---
@@ -81,3 +80,5 @@ Limitations: look (framing distance 2, label reach 300, camera far 5000) untuned
 Design.md reconciled here (Planet positions, Core layers and demos, Asset architecture). The planets demo cannot hand `astraeus-data` to the mount (ARCH-03); the site's `own()` does, so a new body in that package needs no system-level data.
 
 Owner look (orchestrate-o102-20261127, 2026-11-27T00:40Z): owner viewed Ceres on localhost:5490 (`npm run preview:owner`, app.html?experience=planets&planet=ceres) and said "fine, list it as breaking" — the look passes with the starting camera values as built, and the `addBodyFromElements("ceres")` duplicate-id change stays listed under CHANGELOG 0.13.0 "Breaking changes". Coordinator rulings: the two pinned planet-id lists (`packages/astraeus-demo-planets/tests/planetViews.test.ts`, `packages/astraeus-site/tests/assetsSections.test.ts`) gained "ceres" only, as earlier rulings. Owner validation to be recorded against the Full Objective Check once it exists.
+
+Marked done by the coordinator on the owner's "mark done release and publish" (2026-11-27) after C-227 CLEAR (supersedes C-226; I-210, I-211 verified). Owner validation: the look passed ("fine, list it as breaking"); the repair changed nothing visual (C-227).

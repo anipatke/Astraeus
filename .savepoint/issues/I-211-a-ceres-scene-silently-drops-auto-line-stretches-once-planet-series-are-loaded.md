@@ -2,16 +2,22 @@
 id: I-211
 title: A scene holding Ceres silently drops its auto line stretches once the planet series are loaded
 type: defect
-status: open
+status: resolved
 source:
   kind: check
   check: C-226
   actor: {role: checker, session: check-o102-20261127}
   at: '2026-11-27T00:50:00Z'
 tasks: [T-467]
-checks: [C-226]
+checks: [C-226, C-227]
 guardrail_ids: [TEST-01, API-03]
 severity: medium
+resolution:
+  disposition: verified
+  check: C-227
+  actor: {role: checker, session: recheck-o102-20261127}
+  at: '2026-11-27T01:14:00Z'
+  reason: 'C-227 CLEAR: Proof Needed met independently. Own throwaway probe (cold and preloaded projects, deleted after): Ceres scene with an auto path near Ceres (days 20-29) and Earth (days 40-49), orbit lines, a clump group and fitOrbit(ceres), built twice plus interleaved builds: stretches sun/ceres/sun/earth/sun on every build, equal to each other; no-Ceres reference sun/earth/sun; farthestKm 446,702,085 km vs independent sampled max 446,702,109 km; paths ceres/earth/jupiter-orbit with no duplicates. The same probe fails on edd5411e (preloaded build 1, cold build 2). planPaths.ts/planCamera.ts changes judged in scope (the two reads the Issue names).'
 history:
   - at: '2026-11-27T00:50:00Z'
     actor: {role: checker, session: check-o102-20261127}
@@ -22,6 +28,11 @@ history:
     actor: {role: executor, session: repair-o102-c226-20261127}
     kind: repair_attempted
     note: 'Root cause repaired (T-467 scope, evidence in T-467 "Repair after C-226"): setup reads decided "read now" by the process-wide `planetSeriesLoaded()`, but a package body''s series is per scene and arrives in `prepare`''s `installData`. `assembleScene` now computes one `statesIn = planetSeriesLoaded() && !awaitsBodyPositions(data, ids, catalogue)` and hands it to `autoPaths`, `fitFarthestKm`, `earlySunPaths` and `lateGroups`; when false every such read is made in `prepare` after `installData`. The `NotLoadedError` swallow in `deferredRead` is removed (a not-loaded error at build time is a real fault again, which also settles C-226''s moon-fit note) and its comment corrected. Proof: `tests/ceresDeferredReads.test.ts` (preloaded) and `tests/cold/ceresDeferredReads.test.ts` (cold, fresh graph per row), one shared table, each row built twice in one process via `definitionOf` + `prepare`: Ceres holding no sample gives `[{sun, whole span}]`, equal to the same scene without Ceres; samples 20,000 km from Ceres on days 20-29 give `[sun, ceres, sun]` with the Ceres stretch opening at day 20; `camera.fitOrbit(ceres)` gives `farthestKm` between 2.5 and 3.1 au. 8 passed; at HEAD''s engine the 6 Ceres rows fail (preloaded on build 1, cold on build 2). Neighbours re-run: publicApiAutoStretches, publicApiSunPaths, publicApiLineStretches, sceneLoadOrder, sceneFaultOrder, lifecycle, ceresBody, tests/cold: pass. Gates: `npm test` 363 files 5787 passed 2 skipped, build, `check:pack`, `check:node-consumer` pass. Not run: a mounted viewer for the fit (no browser runs).'
+  - at: '2026-11-27T01:14:00Z'
+    actor: {role: checker, session: recheck-o102-20261127}
+    kind: rechecked
+    note: 'C-227: Proof Needed met independently. Own throwaway probe (cold and preloaded projects, deleted after): Ceres scene with an auto path near Ceres (days 20-29) and Earth (days 40-49), orbit lines, a clump group and fitOrbit(ceres), built twice plus interleaved builds: stretches sun/ceres/sun/earth/sun on every build, equal to each other; no-Ceres reference sun/earth/sun; farthestKm 446,702,085 km vs independent sampled max 446,702,109 km; paths ceres/earth/jupiter-orbit with no duplicates. The same probe fails on edd5411e (preloaded build 1, cold build 2). planPaths.ts/planCamera.ts changes judged in scope (the two reads the Issue names). Closed as verified.'
+    check: C-227
 ---
 
 # I-211: A scene holding Ceres silently drops its auto line stretches once the planet series are loaded

@@ -2,16 +2,22 @@
 id: I-210
 title: Ceres's positions fail to load in plain Node from the packed astraeus-data
 type: defect
-status: open
+status: resolved
 source:
   kind: check
   check: C-226
   actor: {role: checker, session: check-o102-20261127}
   at: '2026-11-27T00:50:00Z'
 tasks: [T-467]
-checks: [C-226]
+checks: [C-226, C-227]
 guardrail_ids: [TEST-01, API-07]
 severity: medium
+resolution:
+  disposition: verified
+  check: C-227
+  actor: {role: checker, session: recheck-o102-20261127}
+  at: '2026-11-27T01:14:00Z'
+  reason: 'C-227 CLEAR: Proof Needed met independently. Packed tarballs (npm pack of packages/astraeus/dist and packages/astraeus-data/dist) in a scratch consumer, Node 24.16.0: scene.load({ data: [dataSource] }) with Ceres resolves; stateOf("ceres") vs archived Horizons 0.162 km (1987-03-17) and 0.061 km (2038-11-02). Loader shapes through a custom DataSource: file, Node default-only namespace, Vite default+named all accepted; {default: null}, {default: "x"}, {} give bad-data. bodyPositionsData 9 rows and check:node-consumer 13 passed; npm test 5787 passed 2 skipped; check:pack pass.'
 history:
   - at: '2026-11-27T00:50:00Z'
     actor: {role: checker, session: check-o102-20261127}
@@ -22,6 +28,11 @@ history:
     actor: {role: executor, session: repair-o102-c226-20261127}
     kind: repair_attempted
     note: 'Repaired on both sides (T-467 scope, evidence in T-467 "Repair after C-226"). astraeus-data: the Ceres loader imports the JSON with `{ with: { type: "json" } }` and returns `loaded.default ?? loaded`, as the other data packages. Engine: `installData` unwraps a JSON module''s object `default` (`jsonOf` in api/data.ts), so the file itself, a default-only module (plain Node) and a default-plus-named module (Vite) all work. Proof: new `check:node-consumer` case loads Ceres from the packed astraeus-data in plain Node through `scene.load({ data: [dataSource] })` and matches the archived Horizons state (TDB 2038-11-02T20:00:13, JPL#48) within 1 km: 13 passed; with HEAD''s two files it FAILED (red first). `bodyPositionsData.test.ts` gains rows for the file itself (existing "valid"), a default-only module, a default-plus-named module and a malformed series inside default, beside the existing malformed rows: 9 passed; the default-only row fails at HEAD. Gates: typecheck, eslint and prettier on changed files, `npm test` 363 files 5787 passed 2 skipped, build, `check:pack` pass (engine 1,849,338 / 530,471 within 1,850,000 / 530,500). Not run: browser checks; non-Vite bundlers other than plain Node (covered by the unwrap rule, not separately probed).'
+  - at: '2026-11-27T01:14:00Z'
+    actor: {role: checker, session: recheck-o102-20261127}
+    kind: rechecked
+    note: 'C-227: Proof Needed met independently. Packed tarballs (npm pack of packages/astraeus/dist and packages/astraeus-data/dist) in a scratch consumer, Node 24.16.0: scene.load({ data: [dataSource] }) with Ceres resolves; stateOf("ceres") vs archived Horizons 0.162 km (1987-03-17) and 0.061 km (2038-11-02). Loader shapes through a custom DataSource: file, Node default-only namespace, Vite default+named all accepted; {default: null}, {default: "x"}, {} give bad-data. bodyPositionsData 9 rows and check:node-consumer 13 passed; npm test 5787 passed 2 skipped; check:pack pass. Closed as verified.'
+    check: C-227
 ---
 
 # I-210: Ceres's positions fail to load in plain Node from the packed astraeus-data

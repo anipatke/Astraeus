@@ -1,10 +1,11 @@
 ---
 id: O-102
 title: Ceres joins the built-in bodies
-status: in_progress
+status: done
 depends_on: []
 release: G-028
 priority: high
+last_check: C-227
 rank: 1
 lanes: [{key: fit, title: Ceres positions}, {key: engine, title: Engine body positions and Ceres}, {key: picture, title: Ceres picture}, {key: show, title: Showing Ceres}]
 ---
