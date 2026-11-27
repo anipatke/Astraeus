@@ -12,7 +12,6 @@ import type { LookOutRequest } from "../app/CameraController";
 import { hiddenByView, viewById } from "../app/viewHiding";
 import { cameraRequestOf, checkToward } from "./cameraRequest";
 import { farthestSunDistanceKm } from "./sunOrbit";
-import { planetSeriesLoaded } from "../core/planetSeries";
 import type { TimelineSetting } from "./story";
 
 /** Each camera's opening look-out toward an id, kept out of the public class: the request the viewer runs on its first frame, as it runs a `setCamera` one. */
@@ -338,18 +337,19 @@ export function checkOpeningLook(
     checkToward(toward.direction, "camera.lookOut", shown, [...figureIds], "the opening view");
 }
 
-/** The fitted body's farthest Sun distance, read once when the viewer first needs it (a planet's reads the planet series, loaded by then); undefined when no orbit is fitted. */
+/** The fitted body's farthest Sun distance: read now when its states are in hand (`statesIn`), else by `settle` in `prepare` once they are; undefined when no orbit is fitted. */
 export function fitFarthestKm(
   camera: SceneCamera,
   catalogue: BodyCatalogue,
   own: ReadonlyMap<BodyId, EccentricSampling>,
   openUtcMs: number,
+  statesIn: boolean,
 ): { readonly read: () => number; readonly settle: () => void } | undefined {
   const id = camera.fitted;
   if (id === undefined) return undefined;
   let km: number | undefined;
   const read = (): number => (km ??= farthestSunDistanceKm(catalogue, id, openUtcMs, own.get(id)));
-  if (planetSeriesLoaded()) read();
+  if (statesIn) read();
   return { read, settle: () => void read() };
 }
 

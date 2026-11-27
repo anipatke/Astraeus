@@ -66,6 +66,29 @@ const rows: readonly Row[] = [
     loads: 1,
     expected: { xKm: [AU_KM, 2 * AU_KM] },
   },
+  // I-210: plain Node hands back a JSON module whose only key is `default`; Vite and webpack add the named keys beside it.
+  {
+    name: "valid, a module whose only key is default (plain Node)",
+    source: (load) => pkg({ bodyPositions: { tarn: () => load().then((file) => ({ default: file })) } }),
+    sceneBodies: ["sun", "tarn"],
+    loads: 1,
+    expected: { xKm: [AU_KM, 2 * AU_KM] },
+  },
+  {
+    name: "valid, a module with default and named keys (Vite)",
+    source: (load) => pkg({ bodyPositions: { tarn: () => load().then((file) => ({ ...file, default: file })) } }),
+    sceneBodies: ["sun", "tarn"],
+    loads: 1,
+    expected: { xKm: [AU_KM, 2 * AU_KM] },
+  },
+  {
+    name: "malformed series inside default",
+    source: () =>
+      pkg({ bodyPositions: { tarn: () => Promise.resolve({ default: { ...tarnSeries(), format: "other/1" } }) } }),
+    sceneBodies: ["tarn"],
+    loads: 0,
+    expected: { code: "bad-data" },
+  },
   {
     name: "malformed member",
     source: () => pkg({ bodyPositions: { tarn: "tarn.json" as never } }),

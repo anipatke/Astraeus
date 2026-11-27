@@ -33,7 +33,7 @@ export interface DataSource {
   /**
    * Positions of Sun-circling bodies by body id, each read (once per scene) only when the scene holds that body. A loader resolves to the JSON file
    * in the planet-fit format of the engine's own planets: `format`, `timeScale` and the body's fit under `planets.<id>`; the engine checks all of it
-   * (`bad-data` if it does not fit).
+   * (`bad-data` if it does not fit). The file itself or a JSON module holding it as `default` (plain Node, Vite, webpack) are both accepted.
    */
   readonly bodyPositions?: Readonly<Record<BodyId, () => Promise<object>>>;
   readonly prepare?: () => Promise<void>;
@@ -64,6 +64,26 @@ export function checkDataSources(data: readonly DataSource[]): void {
   }
 }
 
+/** Whether a body the scene holds still waits for the series a data package hands in (`bodyPositions`): `installData` reads it in `prepare`, so nothing reads that body's states before. */
+export function awaitsBodyPositions(
+  data: readonly DataSource[],
+  sceneBodies: readonly BodyId[],
+  catalogue: BodyCatalogue = builtInCatalogue,
+): boolean {
+  const store = catalogue.moonData;
+  return data.some((source) =>
+    Object.keys(source.bodyPositions ?? {}).some(
+      (id) => store !== undefined && sceneBodies.includes(id) && store.series(id) === undefined,
+    ),
+  );
+}
+
+/** A loader's result: the JSON file itself (Parcel), or a JSON module holding it as `default` (plain Node gives only that key; Vite and webpack add named keys). */
+function jsonOf(loaded: object): object {
+  const file = (loaded as { readonly default?: unknown }).default;
+  return typeof file === "object" && file !== null ? file : loaded;
+}
+
 /**
  * Checks the rights of the packages' pictures (the viewer draws them from its definition, `assembleScene` carries them there), reads the series of each package body the scene holds into the scene's selection,
  * hands the moon positions to the engine and loads the chunks the scene's window needs for the moons it holds.
@@ -84,7 +104,7 @@ export async function installData(
         store.provideSeries(
           id,
           await Promise.all([load(), import("../core/planetModels")])
-            .then(([series, models]) => models.createSeriesModel(series, id))
+            .then(([loaded, models]) => models.createSeriesModel(jsonOf(loaded), id))
             .catch((error: unknown) => {
               throw new SceneError("bad-data", `${source.name}: bodyPositions.${id}: ${String(error)}`);
             }),

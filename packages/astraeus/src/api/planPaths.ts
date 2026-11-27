@@ -7,7 +7,6 @@ import { createOrbTwoBodyAdapter } from "../core/twoBodyAdapter";
 import { createStateResolver } from "../core/stateResolver";
 import { createOrbAstronomyAdapter } from "../core/astronomyAdapter";
 import type { TimeBounds, Trajectory } from "../core/trajectory";
-import { planetSeriesLoaded } from "../core/planetSeries";
 import { catalogue as builtInCatalogue, type BodyCatalogue } from "../assets/catalogue";
 import { lineBodies, type LineStretch, type TrackedBody } from "../app/mission";
 import { providerPathTimes } from "./providerPathTimes";
@@ -355,19 +354,23 @@ function autoStretches(catalogue: BodyCatalogue, entry: Tracked, ids: readonly B
   return influenceStretches(entry.body.pathTimesUtcMs, candidates);
 }
 
-/** The `"auto"` paths' one resolution into `tracked`: `now` runs it (through the caller's guarded read) when the planet series are in; else `later` is true and `settle` runs it in `prepare`. */
+/**
+ * The `"auto"` paths' one resolution into `tracked`: `now` runs it (through the caller's guarded read) when every body state it reads is in hand
+ * (`statesIn`: the planet series and any package body's series); else `later` is true and `settle` runs it in `prepare`.
+ */
 export function autoPaths(
   catalogue: BodyCatalogue,
   entries: readonly Tracked[],
   tracked: TrackedBody[],
   ids: readonly BodyId[],
+  statesIn: boolean,
 ): {
   readonly later: boolean;
   readonly now: (guard: (read: () => void) => void) => void;
   readonly settle: (guard: (read: () => void) => void) => void;
 } {
   const pending = entries.some((entry) => entry.auto === true);
-  const later = pending && !planetSeriesLoaded();
+  const later = pending && !statesIn;
   const resolve = (): void =>
     entries.forEach((entry, index) => {
       if (entry.auto === true) tracked[index] = { ...entry.body, lineFixedTo: autoStretches(catalogue, entry, ids) };

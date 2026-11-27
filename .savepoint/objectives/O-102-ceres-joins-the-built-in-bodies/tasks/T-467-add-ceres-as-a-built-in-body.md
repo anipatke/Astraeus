@@ -104,3 +104,47 @@ Record any change to how catalogue bodies take package positions for T-468's Des
 T-467: `prepare` now calls `installData` before the orbit/group/fit setup reads, and `deferredRead` treats `NotLoadedError` as read-later, so a package body can have an orbit line. `PlanetModel.span` and `PlanetFitsUncoveredError.span` carry a package body's own years into the out-of-span message. Design.md: under "Planet positions from Horizons" Ceres is the first `bodyPositions` body, a built-in catalogue body whose data comes only with astraeus-data.
 
 Marked done by the coordinator under the owner's "orchestrate O-102" (2026-11-27) after the gate passed at 2026-11-27T00:33Z: typecheck, lint, `npm test` 361 files 5766 passed 2 skipped, build, check:pack (engine 1,849,129 raw / 530,427 gzip within the owner-raised 1,850,000 / 530,500). Breaking change recorded in CHANGELOG 0.13.0: addBodyFromElements("ceres") now throws duplicate-id.
+
+## Repair after C-226
+
+Repair builder, session repair-o102-c226-20261127, under T-467's scope (no new Task). Targets: I-210 and I-211 Proof Needed, verbatim. Status left as recorded; Issues left `open` for a re-check.
+
+Extra reads (beyond T-467's Context Files): C-226 and I-210/I-211 in full (the targets); `agent-skills/references/issue-capture.md` (history entry shape); `packages/astraeus/src/api/planPaths.ts` `autoPaths` and `planCamera.ts` `fitFarthestKm` (the two deferred reads I-211 names); `planBodies.ts` `earlySunPaths`, `planGroups.ts` `lateGroups` (the other setup reads sharing the readiness rule); `tools/check-node-consumer.mjs` (the mechanised guard); `vitest.config.ts` (project split preloaded / cold); `packages/astraeus-data/README.md` intro and CHANGELOG top section (C-226 Observation 3).
+
+### What changed
+
+- **I-210, both sides.** `packages/astraeus-data/src/index.ts`: the Ceres loader is now `loadCeres`, `await import("../data/positions/ceres.json", { with: { type: "json" } })` then `loaded.default ?? loaded`, as every other data package. `packages/astraeus/src/api/data.ts`: `installData` passes the loader's result through `jsonOf` (a JSON module's `default` when it is an object, else the result itself), so any host loader shape works (Parcel's file, Node's default-only module, Vite/webpack's default plus named keys); `DataSource.bodyPositions` doc says so.
+- **I-211, root cause.** The setup reads in `assembleScene` decided "read now" by `planetSeriesLoaded()` alone, which is process-wide, while a package body's series is per scene and arrives only in `prepare`'s `installData`; the T-467 `NotLoadedError` swallow then hid the gap for auto paths and the fit. Now one flag, `statesIn = planetSeriesLoaded() && !awaitsBodyPositions(data, ids, catalogue)`, decides every setup read: `autoPaths(..., statesIn)` (`later` = pending && !statesIn), `fitFarthestKm(..., statesIn)`, `earlySunPaths(..., statesIn)`, `lateGroups(statesIn)`. When false, each read is made in `prepare` after `installData`, by the existing settle paths. `awaitsBodyPositions` (new, `data.ts`) mirrors `installData`'s own test (a scene body in some `bodyPositions` whose series is not in the scene's store). The `NotLoadedError` swallow in `deferredRead` is removed (a not-loaded error at build time is again a real fault, as before O-102; this also settles C-226's adversarial note on the moon-fit error) and the comments are corrected (STYLE-08 note). `planPaths.ts` and `planCamera.ts` lose their `planetSeriesLoaded` import; they are outside T-467's planned_writes but are the two reads the Issue names (parameter added, no behaviour change when no package body is pending).
+- **Mechanised guard.** `tools/check-node-consumer.mjs`: new case "Ceres's positions load in plain Node from the packed astraeus-data and match Horizons within 1 km (I-210)".
+- **Docs.** `packages/astraeus-data/CHANGELOG.md` new `## 0.13.0 (unreleased)` (provides Ceres; map and positions; plain-Node loading). `packages/astraeus-data/README.md` intro list gains Ceres's map and positions.
+
+Files changed: packages/astraeus-data/src/index.ts, packages/astraeus/src/api/data.ts, packages/astraeus/src/api/assembleScene.ts, packages/astraeus/src/api/planPaths.ts, packages/astraeus/src/api/planCamera.ts, packages/astraeus/tests/bodyPositionsData.test.ts (three new rows only; existing rows and setup untouched), packages/astraeus/tests/ceresDeferredReads.cases.ts (new), packages/astraeus/tests/ceresDeferredReads.test.ts (new, preloaded project), packages/astraeus/tests/cold/ceresDeferredReads.test.ts (new, cold project), tools/check-node-consumer.mjs, packages/astraeus-data/CHANGELOG.md, packages/astraeus-data/README.md.
+
+### Proof Needed -> evidence
+
+| Proof Needed item | Evidence |
+|---|---|
+| I-210: packed packages in plain Node, `scene.load({ data: [dataSource] })` with Ceres resolves, `stateOf("ceres")` within 1 km of archived Horizons | `npm run check:node-consumer`: 13 passed (new case: TDB 2038-11-02T20:00:13 JPL#48 ICRF state, at UTC 19:59:03.816Z, TT-UTC 69.184 s by the engine's table, distance < 1 km). Red first: with HEAD's `astraeus-data/src/index.ts` and `api/data.ts` the run FAILED; rerun with the fix: pass. Packed `dist/src/index.js` carries `{ with: { type: "json" } }`. |
+| I-210: table test of `bodyPositions`: file itself, module with only `default`, plus malformed rows | `tests/bodyPositionsData.test.ts` 9 rows: "valid" (file itself), new "valid, a module whose only key is default (plain Node)", new "valid, a module with default and named keys (Vite)", new "malformed series inside default" (bad-data), existing absent / malformed member / malformed series / not in scene / missing package. Red first: the default-only row fails at HEAD. |
+| I-211: table, preloaded and cold, built twice in one process via `definitionOf` + `prepare`: Ceres holds no sample -> same stretches as without Ceres; sample inside Ceres's sphere -> stretch fixed to Ceres; camera fitted to Ceres gets its distance | `tests/ceresDeferredReads.test.ts` (preloaded, 4 rows) and `tests/cold/ceresDeferredReads.test.ts` (cold, fresh module graph per row: build 1 cold, build 2 planet series loaded), shared `ceresDeferredReads.cases.ts`; each row checks both builds: no-sample -> `[{sun, whole span}]` equal to the no-Ceres reference row; near (days 20-29 at Ceres + 20,000 km) -> bodies `[sun, ceres, sun]`, Ceres stretch opens at day 20; `fitOrbit(ceres)` -> `camera.fitOrbit.farthestKm()` between 2.5 and 3.1 au. Red first at HEAD engine: 6 of 6 Ceres rows fail (preloaded on build 1, cold on build 2: `lineFixedTo` undefined, fit absent). |
+| Configured gates and `check:pack` pass | below |
+
+### Gates (2026-11-27, UTC 00:54-00:58)
+
+- `npm run typecheck`: pass.
+- eslint (`tools/lint/use-typescript6.cjs`) and `prettier --check` on every changed file: pass.
+- Focused vitest: ceresDeferredReads (both), tests/cold, bodyPositionsData, ceresBody, ceresFit, publicApiAutoStretches, publicApiSunPaths, publicApiLineStretches, sceneLoadOrder, sceneFaultOrder, lifecycle: 13 files, 407 passed.
+- `npm test` (under `flock /tmp/claude-1000/astraeus-gates.lock`): 363 files, 5787 passed, 2 skipped.
+- `npm run build`: exit 0.
+- `npm run check:pack`: pass; engine 1,849,338 B raw / 530,471 B gzip (limits 1,850,000 / 530,500; +209 / +44 over C-226's figure).
+- `npm run check:node-consumer`: 13 passed.
+- No browser runs.
+
+### Drift notes (for Design reconciliation)
+
+- The setup-read rule changed: "read now" means every state the read needs is in hand (planet series loaded and no scene body awaiting `bodyPositions`), else the read is made in `prepare` after `installData`; there is no not-loaded swallow. Design.md has no text on `deferredRead` or the swallow (grep), so nothing there contradicts it; T-467's earlier drift note ("`deferredRead` treats `NotLoadedError` as read-later") is superseded by this one.
+
+### Limitations
+
+- Camera fit: proven through `definitionOf` + `prepare` (`camera.fitOrbit.farthestKm`), not through a mounted viewer (no browser runs).
+- Engine headroom is now 662 B raw / 29 B gzip under the owner-raised cap.

@@ -1,6 +1,6 @@
 // Proves a developer's Node test can import the packed engine (O-044 T-182): `npm run check:node-consumer` builds `astraeus`, packs it, unpacks the tarball into a scratch
 // consumer next to links to the installed peers and Vitest, and runs one Vitest test in the Node environment (no `test.server.deps.inline`) that builds
-// `new Scene().addBody(sun).addBody(earth).check()`. Before the JSON import attributes it failed with ERR_IMPORT_ATTRIBUTE_MISSING (showers finding E9).
+// `new Scene().addBody(sun).addBody(earth).check()`, and data packages' JSON (moons, star list, Ceres's positions) read through the packed loaders. Before the JSON import attributes it failed with ERR_IMPORT_ATTRIBUTE_MISSING (showers finding E9).
 import { spawnSync } from "node:child_process";
 import { mkdirSync, mkdtempSync, readdirSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -212,6 +212,16 @@ try {
       "  expect(alone.milkyWaySource).toMatchObject({ name: 'astraeus-data/milky-way', provides: [] });",
       "  expect(Object.keys(alone.milkyWaySource.pictures)).toEqual(['milky-way']);",
       "  expect(alone.milkyWaySource.pictures['milky-way']).toBe(whole.PICTURES['milky-way']); // the same record, with its licence",
+      "});",
+      'test("Ceres\'s positions load in plain Node from the packed astraeus-data and match Horizons within 1 km (I-210)", async () => {',
+      "  const { dataSource } = await import('astraeus-data');",
+      "  const { ceres } = await import('astraeus');",
+      "  const scene = new Scene().addBody(sun).addBody(ceres).setTimeline({ start: '2038-01-01T00:00:00Z', end: '2039-01-01T00:00:00Z' });",
+      "  await scene.load({ data: [dataSource] }); // was bad-data: ERR_IMPORT_ATTRIBUTE_MISSING, then a module holding the file only as default",
+      "  // archived Horizons state of 1 Ceres (JPL#48, geometric ICRF km about the Sun) at TDB 2038-11-02T20:00:13, which is UTC 19:59:03.816 (TT - UTC 69.184 s)",
+      "  const horizonsKm = [333597927.9624379, -233077552.9986892, -178148334.5918728];",
+      "  const at = scene.stateOf('ceres', '2038-11-02T19:59:03.816Z').positionKm;",
+      "  expect(Math.hypot(...at.map((v, i) => v - horizonsKm[i]))).toBeLessThan(1);",
       "});",
       "",
     ].join("\n"),

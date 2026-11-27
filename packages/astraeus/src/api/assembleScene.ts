@@ -2,7 +2,6 @@ import type { BodyId } from "../core/body";
 import type { ScalePolicy } from "../presentation/scalePolicy";
 import type { TimeBounds } from "../core/trajectory";
 import {
-  NotLoadedError,
   PlanetFitsUncoveredError,
   isPlanetId,
   loadPlanetSeries,
@@ -20,7 +19,7 @@ import { needsPlanetSeries } from "../app/planetNeeds";
 import { createReadoutMetrics } from "../app/trackedMetrics";
 import type { Metric } from "../shell/metrics";
 import type { ExperienceObject } from "../shell/experience";
-import { checkDataSources, installData, type DataSource } from "./data";
+import { awaitsBodyPositions, checkDataSources, installData, type DataSource } from "./data";
 import { SceneError } from "./errors";
 import {
   cameraChoicesOf,
@@ -116,7 +115,8 @@ function planetRead<T>(ids: readonly BodyId[], window: TimeBounds, read: () => T
 
 /**
  * A setup read in `toDefinition`: an `out-of-span` failure is recorded in `fault` and the read gives `fallback`, so `toDefinition` (and so `mount`) never throws it;
- * `prepare` rejects with the recorded error, which is how it always arrives (once, as `ready` rejecting). A body's positions not loaded yet also give `fallback`, read again in `prepare`.
+ * `prepare` rejects with the recorded error, which is how it always arrives (once, as `ready` rejecting). Reads that need states not in hand yet are not made here at all
+ * (`statesIn` in `assembleScene`), so a not-loaded error is a real fault and is thrown.
  */
 function deferredRead<T>(
   ids: readonly BodyId[],
@@ -132,8 +132,6 @@ function deferredRead<T>(
       fault.error ??= error;
       return fallback;
     }
-    // A body whose positions a data package hands in (`DataSource.bodyPositions`) is read in `prepare`, once `installData` has loaded them.
-    if (error instanceof NotLoadedError) return fallback;
     throw error;
   }
 }
@@ -181,15 +179,17 @@ export function assembleScene(parts: ScenePlanners, data: readonly DataSource[])
   const sunOrbitIds = plan.sunOrbitIds(ids);
   // The farthest distance is worked out in setup, once: now when the planet series are in, else in `prepare` once they are; never in the frame loop.
   const fault: { error?: SceneError } = {};
-  // `lineFixedTo: "auto"` paths read body states: now when the planet series are in, else in `prepare` once they are (the viewer draws only after it resolves); never per frame.
-  const auto = autoPaths(plan.catalogue, entries, tracked, ids);
+  // Every setup read of body states below is made now only when all of them are in hand: the planet series (process-wide) and the series of each body
+  // a data package hands in (`DataSource.bodyPositions`, per scene, read by `installData` in `prepare`). Otherwise they are all made in `prepare`, after
+  // `installData`, whatever loaded before this scene (I-211). The viewer draws only after `prepare` resolves; nothing is read per frame.
+  const statesIn = planetSeriesLoaded() && !awaitsBodyPositions(data, ids, plan.catalogue);
+  const auto = autoPaths(plan.catalogue, entries, tracked, ids, statesIn);
   auto.now((read) => deferredRead(ids, window, fault, undefined, read));
   const fit = deferredRead(ids, window, fault, undefined, () =>
-    fitFarthestKm(camera, plan.catalogue, plan.own, startUtcMs),
+    fitFarthestKm(camera, plan.catalogue, plan.own, startUtcMs, statesIn),
   );
-  // The lines read planet positions; when the planet series are not loaded yet (a consumer's mount), they are drawn in `prepare`, once the series are in. The viewer draws only after `prepare` resolves.
   const sunPaths: PathLayer[] = deferredRead<PathLayer[]>(ids, window, fault, [], () =>
-    plan.earlySunPaths(sunOrbitIds, startUtcMs, planetSeriesLoaded()),
+    plan.earlySunPaths(sunOrbitIds, startUtcMs, statesIn),
   );
   const objectIds = [...plan.bodies.keys(), ...trackedMap.keys(), ...groupPlan.groups.keys(), ...bodySets.memberIds()];
   const storyPanels = story.panels(window, trackedMap.values(), objectIds, [...skyFigures.figures.keys()]);
@@ -207,9 +207,8 @@ export function assembleScene(parts: ScenePlanners, data: readonly DataSource[])
   };
   groupPlan.check(ids);
   bodySets.check({ ids, catalogue: plan.catalogue, orbits: plan.orbits });
-  // A clump near a body reads its position; with the planet series not loaded yet, those groups are built in `prepare` (the viewer draws only after it resolves).
-  const seriesIn = planetSeriesLoaded();
-  const late = lateGroups(seriesIn);
+  // A clump near a body reads its position; with the states not in hand yet, those groups are built in `prepare`.
+  const late = lateGroups(statesIn);
   const layers: GroupLayer[] = deferredRead<GroupLayer[]>(ids, window, fault, [], () => [
     ...groupPlan.layers(ids, window, startUtcMs, (plan) => !late(plan)),
   ]);
@@ -335,7 +334,7 @@ export function assembleScene(parts: ScenePlanners, data: readonly DataSource[])
       )
         await loadPlanetSeries();
       checkPlanetSpan(ids, window);
-      // Before the reads below, so a body whose positions a data package hands in can be read by them.
+      // Before the reads below (each made here exactly when it was not made in setup), so a body whose positions a data package hands in can be read by them.
       await installData(data, ids, window, catalogue, bodySets.load());
       auto.settle((read) => planetRead(ids, window, read));
       if (groupPlan.groups.size > layers.length)
