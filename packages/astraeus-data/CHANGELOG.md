@@ -2,7 +2,9 @@
 
 Versions follow [semantic versioning](https://semver.org). It is released together with `astraeus`, with the same version number.
 
-## 0.13.0 (unreleased)
+## 0.13.0 (2026-11-27)
+
+Released with `astraeus` 0.13.0; every `astraeus-data*` package's `astraeus` peer moves to `>=0.13.0 <0.14.0`.
 
 - `dataSource` now provides a body: Ceres (`provides: ["ceres"]`). It carries Ceres's map (USGS, from NASA Dawn, 2048x1024, with its licence in `PICTURES`) and Ceres's positions (`data/positions/ceres.json`, a fit to JPL Horizons from 1950 to 2045, read through `bodyPositions` only when the scene holds Ceres). `addBody(ceres)` needs this package in `data`.
 - The positions load in plain Node as well as in bundlers: the loader imports the JSON with `{ with: { type: "json" } }` and hands the engine the file itself (I-210).

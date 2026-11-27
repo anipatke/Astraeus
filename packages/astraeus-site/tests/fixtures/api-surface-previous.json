@@ -1,5 +1,5 @@
 {
-  "version": "0.12.1",
+  "version": "0.13.0",
   "root": {
     "Scene": {
       "kind": "class",
@@ -503,6 +503,11 @@
           "name": "moonPositions",
           "optional": true,
           "signature": "MoonPositions | undefined"
+        },
+        {
+          "name": "bodyPositions",
+          "optional": true,
+          "signature": "Readonly<Record<string, () => Promise<object>>> | undefined"
         },
         {
           "name": "prepare",
@@ -4425,6 +4430,12 @@
       "members": []
     },
     "pluto": {
+      "kind": "const",
+      "signature": "BodyRef",
+      "constructors": [],
+      "members": []
+    },
+    "ceres": {
       "kind": "const",
       "signature": "BodyRef",
       "constructors": [],
