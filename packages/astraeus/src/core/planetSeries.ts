@@ -10,9 +10,15 @@ export class NotLoadedError extends Error {
 
 /** A planet curve fit was asked for a moment its stored years do not cover; a `RangeError` so existing range handlers still see it. */
 export class PlanetFitsUncoveredError extends RangeError {
-  constructor(date: Date) {
+  /** The years the series asked covers, when it is a Sun-circling body a data package handed in (`packageSeriesBinding`); absent for the built-in planets, whose span is `planetSeriesSpan()`. */
+  readonly span?: TimeBounds;
+  /** The body whose package series was asked, with `span`. */
+  readonly body?: string;
+  constructor(date: Date, span?: TimeBounds, body?: string) {
     super(`the planet curve fits do not cover ${date.toISOString()}`);
     this.name = "PlanetFitsUncoveredError";
+    if (span !== undefined) this.span = span;
+    if (body !== undefined) this.body = body;
   }
 }
 
@@ -36,6 +42,8 @@ export function isPlanetId(id: string): id is PlanetId {
 
 /** One planet's heliocentric ecliptic-J2000 model (curve fits of its system barycentre from JPL Horizons), as the astronomy adapter reads it. */
 export interface PlanetModel {
+  /** The years the series covers (UTC), when it is a package body's: what an out-of-span message names. */
+  readonly span?: TimeBounds;
   xyz(date: Date): {
     readonly x: number;
     readonly y: number;

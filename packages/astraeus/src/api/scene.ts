@@ -822,7 +822,10 @@ export class Scene {
       error instanceof TimeScaleOutOfRangeError ||
       error instanceof PlanetFitsUncoveredError
     ) {
-      const bounds = this.#catalogueSource(id)?.bounds ?? planetSeriesSpan();
+      const bounds =
+        (error instanceof PlanetFitsUncoveredError ? error.span : undefined) ??
+        this.#catalogueSource(id)?.bounds ??
+        planetSeriesSpan();
       return new SceneError(
         "out-of-span",
         `stateOf("${id}"): ${iso(timeUtcMs)} is outside the years the body's data covers (${years(bounds)})`,

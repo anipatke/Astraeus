@@ -35,6 +35,8 @@ export const uranus = ref("uranus", "Uranus");
 export const neptune = ref("neptune", "Neptune");
 /** Pluto. */
 export const pluto = ref("pluto", "Pluto");
+/** Ceres (needs `astraeus-data`, which carries its positions for 1950 to 2045). */
+export const ceres = ref("ceres", "Ceres", "astraeus-data");
 
 /**
  * Moons need their planet's positions package (`astraeus-data-<planet>`, 120 MB of fits in all, split per planet) passed to `mount`; their maps come from
@@ -82,6 +84,7 @@ const READY_MADE: readonly BodyRef[] = [
   uranus,
   neptune,
   pluto,
+  ceres,
   io,
   europa,
   ganymede,

@@ -52,6 +52,7 @@ describe("texture rights (PROV-02)", () => {
       "uranus",
       "neptune",
       "pluto",
+      "ceres",
       "mimas",
       "enceladus",
       "tethys",

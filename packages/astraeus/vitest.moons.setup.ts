@@ -10,6 +10,8 @@ import {
   PLUTO_MOON_SYSTEM,
   SATURN_MOON_SYSTEM,
 } from "./src/core/bodies/planetMoons";
+import { processMoonData } from "./src/core/moonData";
+import { createSeriesModel, type PlanetFits } from "./src/core/planetModels";
 import { readBytes } from "./tools/import/test-io.mjs";
 
 // Folders are resolved with node:path, not `new URL(..., import.meta.url)`: under the pretend page (happy-dom) Vite rewrites that form into a web asset address.
@@ -68,3 +70,14 @@ for (const [system, planet] of [
     fetchBytes: async (path) => readBytes(path),
   });
 }
+
+// Ceres's positions (astraeus-data, T-467): a core caller with no scene reads the process-wide series, so any test can resolve Ceres in the fitted years.
+processMoonData.provideSeries(
+  "ceres",
+  createSeriesModel(
+    JSON.parse(
+      await readFile(`${dirname(require.resolve("astraeus-data/package.json"))}/data/positions/ceres.json`, "utf8"),
+    ) as PlanetFits,
+    "ceres",
+  ),
+);

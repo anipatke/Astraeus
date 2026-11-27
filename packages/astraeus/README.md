@@ -84,7 +84,7 @@ The short form. Each call's options, defaults, ranges and errors are on the [API
 | Call | What it does | Reference |
 |---|---|---|
 | `new Scene()` | An empty scene. | [`Scene`](https://astraeus.anipatke.com/api/#scene) |
-| `scene.addBody(body, options?)` | Adds a ready-made body (`sun`, the planets, `moon` and the main moons) or a listed moon by id. Moons with pictures: Io, Europa, Ganymede, Callisto, Mimas, Enceladus, Tethys, Dione, Rhea, Titan, Iapetus, Triton and Charon. Every other listed moon, among them Uranus's Miranda, Ariel, Umbriel, Titania and Oberon, draws flat-coloured with this package loaded. The first body added is the scene's centre. | [`AddBodyOptions`](https://astraeus.anipatke.com/api/#addbodyoptions) |
+| `scene.addBody(body, options?)` | Adds a ready-made body (`sun`, the planets, `ceres` with `astraeus-data`, `moon` and the main moons) or a listed moon by id. Moons with pictures: Io, Europa, Ganymede, Callisto, Mimas, Enceladus, Tethys, Dione, Rhea, Titan, Iapetus, Triton and Charon. Every other listed moon, among them Uranus's Miranda, Ariel, Umbriel, Titania and Oberon, draws flat-coloured with this package loaded. The first body added is the scene's centre. | [`AddBodyOptions`](https://astraeus.anipatke.com/api/#addbodyoptions) |
 | `scene.addTrajectory(path)` | A recorded path, from samples or from a provider with `stateAt(time)`. | [`TrajectoryInput`](https://astraeus.anipatke.com/api/#trajectoryinput) |
 | `scene.addBodyFromElements(record, options?)` | Your own body circling the Sun, from published orbit elements, on two-body motion. | [`ElementsBodyRecord`](https://astraeus.anipatke.com/api/#elementsbodyrecord) |
 | `scene.addBodySet(set)` | Many small bodies about one centre as one batch of selectable dots, with orbit lines by family. | [`BodySetInput`](https://astraeus.anipatke.com/api/#bodysetinput) |
@@ -380,7 +380,7 @@ The engine alone draws the Sun, Earth, Moon and the eight planets with their pic
 
 | Package | Adds | Download |
 |---|---|---|
-| `astraeus-data` | Moon pictures (Io to Charon), the 8k Venus map, the Milky Way | about 35.5 MB |
+| `astraeus-data` | Moon pictures (Io to Charon), the 8k Venus map, the Milky Way, Ceres (positions 1950 to 2045, within 0.8 km of Horizons, and a Dawn map) | about 35.5 MB |
 | `astraeus-data-jupiter`, `-saturn`, `-uranus`, `-neptune`, `-mars`, `-pluto` | Moon positions for that planet's system | 1.5 to 53 MB each (Saturn 53, Uranus 41, Jupiter 31, Neptune 19, Mars 5, Pluto 1.5) |
 | `astraeus-data-constellations` | The 88 IAU constellations as sky figures and boundary outlines, ready for `scene.addSkyFigures(await constellations("all"))` | under 0.1 MB |
 

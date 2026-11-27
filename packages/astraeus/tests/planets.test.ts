@@ -98,6 +98,7 @@ describe("planets in the catalogue", () => {
       "uranus",
       "neptune",
       "pluto",
+      "ceres",
       "phobos",
       "deimos",
       "mimas",

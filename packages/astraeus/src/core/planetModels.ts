@@ -26,6 +26,7 @@ function decodeBase64(text: string): Uint8Array {
 function planetModel(chunk: SeriesChunk<"tt">, table: TimeScaleTable): PlanetModel {
   const km = new Float64Array(3);
   return {
+    span: Object.freeze({ startUtcMs: table.pieces[0].fromUtcMs, endUtcMs: table.validToUtcMs }),
     xyz(date: Date) {
       const tt = utcMsToTtSeconds(table, date.getTime());
       if (!chunkCovers(chunk, tt)) throw new PlanetFitsUncoveredError(date);

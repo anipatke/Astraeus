@@ -19,6 +19,9 @@ export interface MoonDataSelection {
   revision(): number;
 }
 
+/** The package series of bodies read with no scene (core callers and the test setup); a scene always reads its own. */
+export const processMoonData: MoonDataSelection = createSceneMoonData();
+
 /** A scene's own moon data and package series: empty until a system is loaded or a series handed in; each centre's system is made fresh, from the same configuration as the process-wide one. */
 export function createSceneMoonData(): MoonDataSelection {
   const systems = new Map<BodyId, MoonSystem>();

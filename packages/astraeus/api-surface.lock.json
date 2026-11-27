@@ -4434,6 +4434,12 @@
       "constructors": [],
       "members": []
     },
+    "ceres": {
+      "kind": "const",
+      "signature": "BodyRef",
+      "constructors": [],
+      "members": []
+    },
     "io": {
       "kind": "const",
       "signature": "BodyRef",

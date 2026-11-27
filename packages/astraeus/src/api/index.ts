@@ -148,6 +148,7 @@ export {
   uranus,
   neptune,
   pluto,
+  ceres,
   io,
   europa,
   ganymede,

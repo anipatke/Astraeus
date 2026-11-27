@@ -1,7 +1,21 @@
 // O-083 T-350 (AH-05 part 2; Gemini SCI-02; PROV-01): a body's known position limits (its ephemeris record's sentences) reach its card and `scene.bodies[].knownLimitations`,
 // beside its orientation limits. The records are the one source: each sentence is read from them, never restated here.
 import { describe, expect, it } from "vitest";
-import { Scene, sun, mercury, venus, earth, moon, mars, jupiter, saturn, uranus, neptune, pluto } from "astraeus";
+import {
+  Scene,
+  sun,
+  mercury,
+  venus,
+  earth,
+  moon,
+  mars,
+  jupiter,
+  saturn,
+  uranus,
+  neptune,
+  pluto,
+  ceres,
+} from "astraeus";
 import { catalogueItem } from "../src/app/catalogueItem";
 import { BUILT_IN_BODIES } from "../src/core/bodies";
 import { EARTH_EPHEMERIS } from "../src/core/bodies/earth";
@@ -16,6 +30,7 @@ import {
   SATURN_EPHEMERIS,
   URANUS_EPHEMERIS,
 } from "../src/core/bodies/outerPlanets";
+import { CERES_EPHEMERIS } from "../src/core/bodies/ceres";
 import { IAU_REPORT, ROTATION_LIMITATION } from "../src/core/bodies/planetRecords";
 
 const RECORDS = {
@@ -29,8 +44,9 @@ const RECORDS = {
   uranus: URANUS_EPHEMERIS,
   neptune: NEPTUNE_EPHEMERIS,
   pluto: PLUTO_EPHEMERIS,
+  ceres: CERES_EPHEMERIS,
 } as const;
-const REFS = { earth, moon, mercury, venus, mars, jupiter, saturn, uranus, neptune, pluto } as const;
+const REFS = { earth, moon, mercury, venus, mars, jupiter, saturn, uranus, neptune, pluto, ceres } as const;
 // The Sun and the planets' moons have no EphemerisRecord (the Sun is the root; a moon's position comes from its fitted package and says so in its provenance).
 const WITHOUT_RECORD = (id: string) =>
   id === "sun" || (BUILT_IN_BODIES.find((body) => body.id === id)?.parentId !== "sun" && id !== "moon");

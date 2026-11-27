@@ -2,6 +2,7 @@ import type { CelestialBodyDefinition, StateSourceBinding } from "../body";
 import { MoonTrajectory } from "../moonTrajectory";
 import { planetBinding } from "./planetTrajectory";
 import { createEarthSunTrajectory } from "../sunCentredSources";
+import { CERES, CERES_BINDING } from "./ceres";
 import { EARTH } from "./earth";
 import { MOON } from "./moon";
 import { IO, IO_BINDING } from "./io";
@@ -31,6 +32,7 @@ import {
 import { SUN } from "./sun";
 import { VENUS, VENUS_ROTATION } from "./venus";
 
+export { CERES, CERES_ROTATION } from "./ceres";
 export { EARTH, EARTH_EPHEMERIS } from "./earth";
 export { MOON, MOON_EPHEMERIS } from "./moon";
 export { SUN } from "./sun";
@@ -59,6 +61,7 @@ export const BUILT_IN_BODIES: readonly CelestialBodyDefinition[] = Object.freeze
   URANUS,
   NEPTUNE,
   PLUTO,
+  CERES,
   ...PLANET_MOON_DEFINITIONS,
 ]);
 
@@ -75,6 +78,7 @@ export const BUILT_IN_BINDINGS: readonly StateSourceBinding[] = Object.freeze([
   planetBinding("uranus", URANUS_ROTATION, URANUS_MOON_SYSTEM),
   planetBinding("neptune", NEPTUNE_ROTATION, NEPTUNE_MOON_SYSTEM),
   planetBinding("pluto", PLUTO_ROTATION, PLUTO_MOON_SYSTEM),
+  CERES_BINDING,
   IO_BINDING,
   ...MAPPED_MOON_BINDINGS,
   ...PLANET_MOON_BINDINGS,

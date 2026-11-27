@@ -53,6 +53,7 @@ describe("body catalogue", () => {
       "uranus",
       "neptune",
       "pluto",
+      "ceres",
       "phobos",
       "deimos",
       "mimas",
@@ -69,8 +70,8 @@ describe("body catalogue", () => {
     expect(catalogue.sources()).toEqual(BUILT_IN_BINDINGS);
     expect(catalogue.get("sun").source).toBeUndefined();
     expect(catalogue.get("moon").source?.body).toBe("moon");
-    expect(catalogue.has("ceres")).toBe(false);
-    expect(() => catalogue.get("ceres")).toThrow(/unknown body/);
+    expect(catalogue.has("tarn")).toBe(false);
+    expect(() => catalogue.get("tarn")).toThrow(/unknown body/);
     const resolver = createStateResolver(catalogue.definitions(), catalogue.sources(), createOrbAstronomyAdapter());
     expect(resolver.stateOf("moon", Date.UTC(2026, 3, 1), "earth").positionKm.length).toBe(3);
   });
@@ -184,7 +185,18 @@ describe("BodyView plan", () => {
 });
 
 describe("the catalogue holds only the Sun, planets, dwarf planets and moons (O-057 T-279)", () => {
-  const PLANETS_AND_DWARFS = ["earth", "mercury", "venus", "mars", "jupiter", "saturn", "uranus", "neptune", "pluto"];
+  const PLANETS_AND_DWARFS = [
+    "earth",
+    "mercury",
+    "venus",
+    "mars",
+    "jupiter",
+    "saturn",
+    "uranus",
+    "neptune",
+    "pluto",
+    "ceres",
+  ];
   type Kind = "sun" | "planet" | "dwarf-planet" | "moon";
   /** The kind of a catalogue body, or null when it is not one the catalogue may hold: a comet, a probe or a story body is added to a scene, never built in. */
   function kindOf(definition: CelestialBodyDefinition): Kind | null {
@@ -193,7 +205,7 @@ describe("the catalogue holds only the Sun, planets, dwarf planets and moons (O-
     if (!hasGravity) return null;
     if (definition.parentId === "sun") {
       if (!PLANETS_AND_DWARFS.includes(definition.id)) return null;
-      return definition.id === "pluto" ? "dwarf-planet" : "planet";
+      return definition.id === "pluto" || definition.id === "ceres" ? "dwarf-planet" : "planet";
     }
     return PLANETS_AND_DWARFS.includes(definition.parentId) && definition.orientation !== "none" ? "moon" : null;
   }

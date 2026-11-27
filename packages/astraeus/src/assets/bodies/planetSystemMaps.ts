@@ -1,3 +1,4 @@
+import { CERES } from "../../core/bodies/ceres";
 import { NEPTUNE, PLUTO, SATURN, URANUS } from "../../core/bodies/outerPlanets";
 import {
   CHARON,
@@ -117,6 +118,7 @@ export const NEPTUNE_VISUAL = ringed(
   ),
   NEPTUNE_RINGS,
 );
+export const CERES_VISUAL = pictured("ceres", "#8a8884", 0.95);
 export const PLUTO_VISUAL = pictured("pluto", "#c4a58a", 0.95, Math.PI);
 
 export const MIMAS_VISUAL = pictured("mimas", "#a8a8a8", 0.95);
@@ -135,6 +137,7 @@ export const PLANET_SYSTEM_ENTRIES = Object.freeze(
     { body: URANUS.id, visual: URANUS_VISUAL },
     { body: NEPTUNE.id, visual: NEPTUNE_VISUAL },
     { body: PLUTO.id, visual: PLUTO_VISUAL },
+    { body: CERES.id, visual: CERES_VISUAL },
     { body: PHOBOS.id, visual: greyBall("#8a8580") },
     { body: DEIMOS.id, visual: greyBall("#9a948c") },
     { body: MIMAS.id, visual: MIMAS_VISUAL },

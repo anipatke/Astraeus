@@ -1,7 +1,14 @@
 import type { BodyId } from "../core/body";
 import type { ScalePolicy } from "../presentation/scalePolicy";
 import type { TimeBounds } from "../core/trajectory";
-import { isPlanetId, loadPlanetSeries, planetSeriesLoaded, planetSeriesSpan } from "../core/planetSeries";
+import {
+  NotLoadedError,
+  PlanetFitsUncoveredError,
+  isPlanetId,
+  loadPlanetSeries,
+  planetSeriesLoaded,
+  planetSeriesSpan,
+} from "../core/planetSeries";
 import { TimeScaleOutOfRangeError } from "../core/timeScale";
 import { createComposition } from "../assets/compositions";
 import { mergePictures } from "../assets/pictures";
@@ -95,13 +102,21 @@ function planetRead<T>(ids: readonly BodyId[], window: TimeBounds, read: () => T
     return read();
   } catch (error) {
     if (error instanceof TimeScaleOutOfRangeError) throw planetSpanError(ids, window) ?? error;
+    // A package body (`DataSource.bodyPositions`) outside its own years: named with them, not the planets'.
+    if (error instanceof PlanetFitsUncoveredError && error.span !== undefined && error.body !== undefined) {
+      const iso = (ms: number): string => new Date(ms).toISOString().slice(0, 10);
+      throw new SceneError(
+        "out-of-span",
+        `${error.body} is outside the years its data covers: it covers ${iso(error.span.startUtcMs)} to ${iso(error.span.endUtcMs)}, but the scene runs ${iso(window.startUtcMs)} to ${iso(window.endUtcMs)}; set the timeline inside that span`,
+      );
+    }
     throw error;
   }
 }
 
 /**
  * A setup read in `toDefinition`: an `out-of-span` failure is recorded in `fault` and the read gives `fallback`, so `toDefinition` (and so `mount`) never throws it;
- * `prepare` rejects with the recorded error, which is how it always arrives (once, as `ready` rejecting).
+ * `prepare` rejects with the recorded error, which is how it always arrives (once, as `ready` rejecting). A body's positions not loaded yet also give `fallback`, read again in `prepare`.
  */
 function deferredRead<T>(
   ids: readonly BodyId[],
@@ -117,6 +132,8 @@ function deferredRead<T>(
       fault.error ??= error;
       return fallback;
     }
+    // A body whose positions a data package hands in (`DataSource.bodyPositions`) is read in `prepare`, once `installData` has loaded them.
+    if (error instanceof NotLoadedError) return fallback;
     throw error;
   }
 }
@@ -318,6 +335,8 @@ export function assembleScene(parts: ScenePlanners, data: readonly DataSource[])
       )
         await loadPlanetSeries();
       checkPlanetSpan(ids, window);
+      // Before the reads below, so a body whose positions a data package hands in can be read by them.
+      await installData(data, ids, window, catalogue, bodySets.load());
       auto.settle((read) => planetRead(ids, window, read));
       if (groupPlan.groups.size > layers.length)
         layers.splice(
@@ -331,7 +350,6 @@ export function assembleScene(parts: ScenePlanners, data: readonly DataSource[])
       if (sunPaths.length < sunOrbitIds.length)
         sunPaths.push(...planetRead(ids, window, () => sunOrbitIds.map((id) => plan.sunPath(id, startUtcMs))));
       if (fit !== undefined) planetRead(ids, window, () => fit.settle());
-      await installData(data, ids, window, catalogue, bodySets.load());
       await figures.settle();
     },
   };

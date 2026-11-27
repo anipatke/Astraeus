@@ -5,8 +5,10 @@ import type { BodyId, CenterId, StateSourceBinding } from "../body";
 import { AU_KM } from "../constants";
 import type { ChebyshevEphemeris } from "../chebyshevEphemeris";
 import { type IauRotationElements, iauOrientation } from "../iauRotation";
-import { NotLoadedError } from "../planetSeries";
+import { NotLoadedError, PlanetFitsUncoveredError, type PlanetModel } from "../planetSeries";
+import { TimeScaleOutOfRangeError } from "../timeScale";
 import { assertUtcUnixMs, createState, EQJ, type State } from "../state";
+import { processMoonData } from "../moonData";
 import type { Trajectory } from "../trajectory";
 
 /**
@@ -116,12 +118,12 @@ export function packageSeriesBinding(body: BodyId, rotation: IauRotationElements
     body,
     create: (adapter, moonData) =>
       sunTrajectory(body, rotation, adapter, (timeUtcMs) => {
-        const model = moonData?.series(body);
+        const model = (moonData ?? processMoonData).series(body);
         if (model === undefined)
           throw new NotLoadedError(
             `the positions of ${body} are not loaded: pass its data package to mount or scene.load`,
           );
-        const { x, y, z } = model.xyz(new Date(timeUtcMs));
+        const { x, y, z } = xyzOrSpanError(body, model, timeUtcMs);
         // The same ecliptic-J2000 to EQJ turn the astronomy adapter gives the planet series.
         const state = makeState({
           t: AstroInstant.fromUnixMs(timeUtcMs),
@@ -132,4 +134,19 @@ export function packageSeriesBinding(body: BodyId, rotation: IauRotationElements
         return Float64Array.from(transform(state, { frame: "equatorial-j2000" }).r);
       }),
   });
+}
+
+/** The model's position, or, outside its years, the error carrying the body's own span, so the message names its years and not the built-in planets'. */
+function xyzOrSpanError(body: BodyId, model: PlanetModel, timeUtcMs: number): ReturnType<PlanetModel["xyz"]> {
+  const date = new Date(timeUtcMs);
+  try {
+    return model.xyz(date);
+  } catch (error) {
+    if (
+      model.span !== undefined &&
+      (error instanceof TimeScaleOutOfRangeError || error instanceof PlanetFitsUncoveredError)
+    )
+      throw new PlanetFitsUncoveredError(date, model.span, body);
+    throw error;
+  }
 }

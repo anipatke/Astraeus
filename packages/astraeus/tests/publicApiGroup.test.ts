@@ -308,7 +308,7 @@ describe("measured positions with meanAnomalyDeg (O-077 T-323)", () => {
     const scene = new Scene()
       .addBody(sun)
       .addBodyFromElements({
-        id: "ceres",
+        id: "ceres-elements",
         label: "Ceres",
         elements: CERES,
         epoch: { jd: 2461200.5, timeScale: "TDB", ttMinusUtcSeconds: 69.184 },
@@ -333,7 +333,7 @@ describe("measured positions with meanAnomalyDeg (O-077 T-323)", () => {
     for (const t of [EPOCH_UTC_MS, EPOCH_UTC_MS + YEAR_MS]) {
       const dot = new Float64Array(3);
       group.fillPositionsKm(t, dot);
-      const body = scene.stateOf("ceres", t).positionKm;
+      const body = scene.stateOf("ceres-elements", t).positionKm;
       // Both paths use the Sun's GM 132712440018 km³/s² and the same epoch, so they differ only by rounding (well under a metre); 1e-3 km leaves room for it.
       expect(Math.hypot(dot[0]! - body[0]!, dot[1]! - body[1]!, dot[2]! - body[2]!)).toBeLessThan(1e-3);
     }
